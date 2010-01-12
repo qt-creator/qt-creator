@@ -35,11 +35,11 @@
 
 using namespace ProjectExplorer;
 
-IBuildStepFactory *findFactory(const QString &name)
+IBuildStepFactory *findFactory(const QString &id)
 {
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
     foreach(IBuildStepFactory *factory, factories)
-        if (factory->canCreate(name))
+        if (factory->canCreate(id))
             return factory;
     return 0;
 }
@@ -50,7 +50,7 @@ BuildConfiguration::BuildConfiguration(Project *pro)
 
 }
 
-BuildConfiguration::BuildConfiguration(Project *pro, const QMap<QString, QVariant> &map)
+BuildConfiguration::BuildConfiguration(Project *pro, const QVariantMap &map)
     : m_project(pro)
 {
     m_displayName = map.value("ProjectExplorer.BuildConfiguration.DisplayName").toString();
@@ -61,12 +61,12 @@ BuildConfiguration::BuildConfiguration(BuildConfiguration *source)
     m_project(source->m_project)
 {
     foreach(BuildStep *originalbs, source->buildSteps()) {
-        IBuildStepFactory *factory = findFactory(originalbs->name());
+        IBuildStepFactory *factory = findFactory(originalbs->id());
         BuildStep *clonebs = factory->clone(originalbs, this);
         m_buildSteps.append(clonebs);
     }
     foreach(BuildStep *originalcs, source->cleanSteps()) {
-        IBuildStepFactory *factory = findFactory(originalcs->name());
+        IBuildStepFactory *factory = findFactory(originalcs->id());
         BuildStep *clonecs = factory->clone(originalcs, this);
         m_cleanSteps.append(clonecs);
     }
@@ -91,7 +91,7 @@ void BuildConfiguration::setDisplayName(const QString &name)
     emit displayNameChanged();
 }
 
-void BuildConfiguration::toMap(QMap<QString, QVariant> &map) const
+void BuildConfiguration::toMap(QVariantMap &map) const
 {
     map.insert("ProjectExplorer.BuildConfiguration.DisplayName", m_displayName);
 }

@@ -234,5 +234,21 @@ StateList parseStatusOutput(const QString &directory, const QString &output)
     return changeSet;
 }
 
+// Decrement version number "1.2" -> "1.1"
+QString previousRevision(const QString &rev)
+{
+    const int dotPos = rev.lastIndexOf(QLatin1Char('.'));
+    if (dotPos == -1)
+        return rev;
+    const int minor = rev.mid(dotPos + 1).toInt();
+    return rev.left(dotPos + 1) + QString::number(minor - 1);
+}
+
+// Is "[1.2...].1"?
+bool isFirstRevision(const QString &r)
+{
+    return r.endsWith(QLatin1String(".1"));
+}
+
 } // namespace Internal
 } // namespace CVS

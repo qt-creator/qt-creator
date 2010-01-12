@@ -41,12 +41,14 @@ namespace Core {
 QString OpenEditorsModel::Entry::fileName() const {
     return editor ? editor->file()->fileName() : m_fileName;
 }
+
 QString OpenEditorsModel::Entry::displayName() const {
     return editor ? editor->displayName() : m_displayName;
 }
-QByteArray OpenEditorsModel::Entry::kind() const
+
+QString OpenEditorsModel::Entry::id() const
 {
-    return editor ? QByteArray(editor->kind()) : m_kind;
+    return editor ? editor->id() : m_id;
 }
 
 int OpenEditorsModel::columnCount(const QModelIndex &parent) const
@@ -86,12 +88,12 @@ void OpenEditorsModel::addEditor(IEditor *editor, bool isDuplicate)
     addEntry(entry);
 }
 
-void OpenEditorsModel::addRestoredEditor(const QString &fileName, const QString &displayName, const QByteArray &kind)
+void OpenEditorsModel::addRestoredEditor(const QString &fileName, const QString &displayName, const QString &id)
 {
     Entry entry;
     entry.m_fileName = fileName;
     entry.m_displayName = displayName;
-    entry.m_kind = kind;
+    entry.m_id = id;
     addEntry(entry);
 }
 
@@ -259,7 +261,7 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         return (e.editor && e.editor->file()->isModified())
-                ? e.displayName() + QLatin1String("*")
+                ? e.displayName() + QLatin1Char('*')
                 : e.displayName();
     case Qt::DecorationRole:
         return (e.editor && e.editor->file()->isReadOnly())
@@ -274,7 +276,7 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
     case Qt::UserRole + 1:
         return e.fileName();
     case Qt::UserRole + 2:
-        return e.editor ? QByteArray(e.editor->kind()) : e.kind();
+        return e.editor ? e.editor->id() : e.id();
     default:
         return QVariant();
     }

@@ -1,0 +1,15 @@
+realname "Randpool RNG"
+
+define RANDPOOL
+
+load_on auto
+
+<add>
+randpool.cpp
+randpool.h
+</add>
+
+<requires>
+block
+mac
+</requires>

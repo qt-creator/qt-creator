@@ -238,18 +238,18 @@ QString SettingsDatabase::group() const
 
 QStringList SettingsDatabase::childKeys() const
 {
-    QStringList childs;
+    QStringList children;
 
     const QString g = group();
     QMapIterator<QString, QVariant> i(d->m_settings);
     while (i.hasNext()) {
         const QString &key = i.next().key();
         if (key.startsWith(g) && key.indexOf(QLatin1Char('/'), g.length() + 1) == -1) {
-            childs.append(key.mid(g.length() + 1));
+            children.append(key.mid(g.length() + 1));
         }
     }
 
-    return childs;
+    return children;
 }
 
 void SettingsDatabase::sync()

@@ -76,7 +76,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
 
     QString baseDir = p.path;
     baseDir += slash;
-    baseDir += p.name;
+    baseDir += p.fileName;
     const QString slashLessBaseDir = baseDir;
     baseDir += slash;
 
@@ -280,7 +280,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
     const QString proFileContents = processTemplate(p.templatePath + QLatin1String("/tpl_plugin.pro"), sm, errorMessage);
     if (proFileContents.isEmpty())
         return QList<Core::GeneratedFile>();
-    Core::GeneratedFile proFile(baseDir + p.name + QLatin1String(".pro"));
+    Core::GeneratedFile proFile(baseDir + p.fileName + QLatin1String(".pro"));
     proFile.setContents(proFileContents);
     rc.push_back(proFile);
     return rc;

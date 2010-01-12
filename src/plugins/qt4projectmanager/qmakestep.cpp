@@ -161,7 +161,7 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
     AbstractProcessStep::run(fi);
 }
 
-QString QMakeStep::name()
+QString QMakeStep::id()
 {
     return QLatin1String(Constants::QMAKESTEP);
 }
@@ -374,14 +374,14 @@ QMakeStepFactory::~QMakeStepFactory()
 {
 }
 
-bool QMakeStepFactory::canCreate(const QString & name) const
+bool QMakeStepFactory::canCreate(const QString &id) const
 {
-    return (name == Constants::QMAKESTEP);
+    return (id == Constants::QMAKESTEP);
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildConfiguration *bc, const QString & name) const
+ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildConfiguration *bc, const QString &id) const
 {
-    Q_UNUSED(name)
+    Q_UNUSED(id);
     return new QMakeStep(bc);
 }
 
@@ -398,9 +398,9 @@ QStringList QMakeStepFactory::canCreateForBuildConfiguration(ProjectExplorer::Bu
     return QStringList();
 }
 
-QString QMakeStepFactory::displayNameForName(const QString &name) const
+QString QMakeStepFactory::displayNameForId(const QString &id) const
 {
-    Q_UNUSED(name);
+    Q_UNUSED(id);
     return tr("QMake");
 }
 

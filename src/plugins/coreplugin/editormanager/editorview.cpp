@@ -224,12 +224,12 @@ EditorView::~EditorView()
 {
 }
 
-void EditorView::showEditorInfoBar(const QString &kind,
-                                           const QString &infoText,
-                                           const QString &buttonText,
-                                           QObject *object, const char *member)
+void EditorView::showEditorInfoBar(const QString &id,
+                                   const QString &infoText,
+                                   const QString &buttonText,
+                                   QObject *object, const char *member)
 {
-    m_infoWidgetKind = kind;
+    m_infoWidgetId = id;
     m_infoWidgetLabel->setText(infoText);
     m_infoWidgetButton->setText(buttonText);
     m_infoWidgetButton->disconnect();
@@ -239,18 +239,18 @@ void EditorView::showEditorInfoBar(const QString &kind,
     m_editorForInfoWidget = currentEditor();
 }
 
-void EditorView::hideEditorInfoBar(const QString &kind)
+void EditorView::hideEditorInfoBar(const QString &id)
 {
-    if (kind == m_infoWidgetKind)
+    if (id == m_infoWidgetId)
         m_infoWidget->setVisible(false);
 }
 
-void EditorView::showEditorStatusBar(const QString &kind,
+void EditorView::showEditorStatusBar(const QString &id,
                                      const QString &infoText,
                                      const QString &buttonText,
                                      QObject *object, const char *member)
 {
-    m_statusWidgetKind = kind;
+    m_statusWidgetId = id;
     m_statusWidgetLabel->setText(infoText);
     m_statusWidgetButton->setText(buttonText);
     m_statusWidgetButton->disconnect();
@@ -261,9 +261,9 @@ void EditorView::showEditorStatusBar(const QString &kind,
     //m_editorForInfoWidget = currentEditor();
 }
 
-void EditorView::hideEditorStatusBar(const QString &kind)
+void EditorView::hideEditorStatusBar(const QString &id)
 {
-    if (kind == m_statusWidgetKind) {
+    if (id == m_statusWidgetId) {
         m_statusWidget->setVisible(false);
         m_statusHLine->setVisible(false);
     }
@@ -470,7 +470,7 @@ void EditorView::updateEditorHistory(IEditor *editor)
     EditLocation location;
     location.file = file;
     location.fileName = file->fileName();
-    location.kind = editor->kind();
+    location.id = editor->id();
     location.state = QVariant(state);
 
     for(int i = 0; i < m_editorHistory.size(); ++i) {
@@ -510,7 +510,7 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
     EditLocation location;
     location.file = file;
     location.fileName = file->fileName();
-    location.kind = editor->kind();
+    location.id = editor->id();
     location.state = QVariant(state);
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
     m_navigationHistory.insert(m_currentNavigationHistoryPosition, location);
@@ -567,7 +567,7 @@ void EditorView::updateCurrentPositionInNavigationHistory()
     }
     location->file = file;
     location->fileName = file->fileName();
-    location->kind = editor->kind();
+    location->id = editor->id();
     location->state = QVariant(editor->saveState());
 }
 
@@ -582,7 +582,7 @@ void EditorView::goBackInNavigationHistory()
         if (location.file) {
             editor = em->activateEditor(this, location.file, EditorManager::IgnoreNavigationHistory);
         } else {
-            editor = em->openEditor(this, location.fileName, location.kind, EditorManager::IgnoreNavigationHistory);
+            editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
             if (!editor) {
                 m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
                 continue;
@@ -606,7 +606,7 @@ void EditorView::goForwardInNavigationHistory()
     if (location.file) {
         editor = em->activateEditor(this, location.file, EditorManager::IgnoreNavigationHistory);
     } else {
-        editor = em->openEditor(this, location.fileName, location.kind, EditorManager::IgnoreNavigationHistory);
+        editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
         if (!editor) {
             //TODO
             qDebug() << Q_FUNC_INFO << "can't open file" << location.fileName;
@@ -963,10 +963,10 @@ QByteArray SplitterOrView::saveState() const
 
         if (e && e == em->currentEditor()) {
             stream << QByteArray("currenteditor")
-                    << e->file()->fileName() << e->kind() << e->saveState();
+                    << e->file()->fileName() << e->id() << e->saveState();
         } else if (e) {
             stream << QByteArray("editor")
-                    << e->file()->fileName() << e->kind() << e->saveState();
+                    << e->file()->fileName() << e->id() << e->saveState();
         } else {
             stream << QByteArray("empty");
         }
@@ -990,10 +990,10 @@ void SplitterOrView::restoreState(const QByteArray &state)
     } else if (mode == "editor" || mode == "currenteditor") {
         EditorManager *em = CoreImpl::instance()->editorManager();
         QString fileName;
-        QByteArray kind;
+        QByteArray id;
         QByteArray editorState;
-        stream >> fileName >> kind >> editorState;
-        IEditor *e = em->openEditor(view(), fileName, kind, Core::EditorManager::IgnoreNavigationHistory
+        stream >> fileName >> id >> editorState;
+        IEditor *e = em->openEditor(view(), fileName, id, Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::NoActivate);
 
         if (!e) {

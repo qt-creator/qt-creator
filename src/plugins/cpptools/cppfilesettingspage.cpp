@@ -268,7 +268,7 @@ void CppFileSettingsWidget::slotEdit()
     QString path = licenseTemplatePath();
     // Edit existing file with C++
     if (!path.isEmpty()) {
-        Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_KIND));
+        Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_ID));
         return;
     }
     // Pick a file name and write new template, edit with C++
@@ -284,7 +284,7 @@ void CppFileSettingsWidget::slotEdit()
     file.write(tr(licenseTemplateTemplate).toUtf8());
     file.close();
     setLicenseTemplatePath(path);
-    Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_KIND));
+    Core::EditorManager::instance()->openEditor(path, QLatin1String(CppEditor::Constants::CPPEDITOR_ID));
 }
 
 // --------------- CppFileSettingsPage
@@ -304,7 +304,7 @@ QString CppFileSettingsPage::id() const
     return QLatin1String(Constants::CPP_SETTINGS_ID);
 }
 
-QString CppFileSettingsPage::trName() const
+QString CppFileSettingsPage::displayName() const
 {
     return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_NAME);
 }
@@ -314,7 +314,7 @@ QString CppFileSettingsPage::category() const
     return QLatin1String(Constants::CPP_SETTINGS_CATEGORY);
 }
 
-QString CppFileSettingsPage::trCategory() const
+QString CppFileSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY);
 }

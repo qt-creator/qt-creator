@@ -361,8 +361,10 @@ QList<Scope *> LookupContext::visibleScopes(const LookupItem &result) const
 QList<Scope *> LookupContext::visibleScopes(Symbol *symbol) const
 {
     QList<Scope *> scopes;
-    for (Scope *scope = symbol->scope(); scope; scope = scope->enclosingScope())
-        scopes.append(scope);
+    if (symbol) {
+        for (Scope *scope = symbol->scope(); scope; scope = scope->enclosingScope())
+            scopes.append(scope);
+    }
     scopes += visibleScopes();
     scopes = expand(scopes);
     return scopes;
@@ -715,7 +717,7 @@ Symbol *LookupContext::canonicalSymbol(const QList<LookupItem> &results,
     QList<Symbol *> candidates;
 
     foreach (const LookupItem &result, results)
-        candidates.append(result.lastVisibleSymbol()); // ### not exacly.
+        candidates.append(result.lastVisibleSymbol()); // ### not exactly.
 
     return canonicalSymbol(candidates, globalNamespaceBinding);
 }
@@ -725,6 +727,8 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 {
     Symbol *canonical = symbol;
     Class *canonicalClass = 0;
+    ObjCClass *canonicalObjCClass = 0;
+    ObjCProtocol *canonicalObjCProto = 0;
 
     for (; symbol; symbol = symbol->next()) {
         if (symbol->identifier() == canonical->identifier()) {
@@ -732,6 +736,10 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 
             if (Class *klass = symbol->asClass())
                 canonicalClass = klass;
+            else if (ObjCClass *clazz = symbol->asObjCClass())
+                canonicalObjCClass = clazz;
+            else if (ObjCProtocol *proto = symbol->asObjCProtocol())
+                canonicalObjCProto = proto;
         }
     }
 
@@ -740,6 +748,16 @@ Symbol *LookupContext::canonicalSymbol(Symbol *symbol)
 
         if (canonical->isForwardClassDeclaration())
             return canonicalClass; // prefer class declarations when available.
+    } else if (canonicalObjCClass) {
+        Q_ASSERT(canonical != 0);
+
+        if (canonical->isObjCForwardClassDeclaration())
+            return canonicalObjCClass;
+    } else if (canonicalObjCProto) {
+        Q_ASSERT(canonical != 0);
+
+        if (canonical->isObjCForwardProtocolDeclaration())
+            return canonicalObjCProto;
     }
 
     if (canonical && canonical->scope()->isClassScope()) {

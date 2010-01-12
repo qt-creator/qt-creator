@@ -94,7 +94,7 @@ void MemoryViewAgent::init(quint64 addr)
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     QString titlePattern = tr("Memory $");
     m_editor = editorManager->openEditorWithContents(
-        Core::Constants::K_DEFAULT_BINARY_EDITOR,
+        Core::Constants::K_DEFAULT_BINARY_EDITOR_ID,
         &titlePattern);
     if (m_editor) {
         connect(m_editor->widget(), SIGNAL(lazyDataRequested(quint64,bool)),
@@ -236,7 +236,7 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame)
     if (!frame.function.isEmpty() && frame.function != _("??")) {
         QHash<QString, QString>::ConstIterator it = d->cache.find(frameKey(frame));
         if (it != d->cache.end()) {
-            QString msg = _("Use cache dissassembler for '%1' in '%2'")
+            QString msg = _("Use cache disassembler for '%1' in '%2'")
                 .arg(frame.function).arg(frame.file);
             d->manager->showDebuggerOutput(msg);
             setContents(*it);
@@ -261,7 +261,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
         QString titlePattern = "Disassembler";
         d->editor = qobject_cast<ITextEditor *>(
             editorManager->openEditorWithContents(
-                Core::Constants::K_DEFAULT_TEXT_EDITOR,
+                Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern));
         QTC_ASSERT(d->editor, return);
         if ((plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget())))

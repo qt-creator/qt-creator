@@ -86,7 +86,7 @@ static const char *dumperPrefixC  = "dumper:";
  * that complex functions only work from 'well-defined'  breakpoints
  * (such as main()) and otherwise cause access violation exceptions
  * (for example LoadLibrary).
- * Exceptions occuring in the functions to be called must be handled
+ * Exceptions occurring in the functions to be called must be handled
  * by __try/__except (they show up in the debugger and must acknowledged
  * by gN (go not handled).  */
 
@@ -669,7 +669,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
         return DumpNotHandled;
     }
     if (wd.addr.isEmpty()) {
-        *errorMessage = QString::fromLatin1("Adress is missing for '%1' (%2).").arg(wd.exp, wd.type);
+        *errorMessage = QString::fromLatin1("Address is missing for '%1' (%2).").arg(wd.exp, wd.type);
         return DumpNotHandled;
     }
 

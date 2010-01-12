@@ -166,7 +166,7 @@ public:
 
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
-    const char *kind() const;
+    QString id() const;
 
     bool isTemporary() const { return false; }
     virtual bool open(const QString & fileName);
@@ -227,6 +227,8 @@ protected:
     CPlusPlus::Symbol *findCanonicalSymbol(const QTextCursor &cursor,
                                            CPlusPlus::Document::Ptr doc,
                                            const CPlusPlus::Snapshot &snapshot) const;
+    const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
+                                               CPlusPlus::Document::Ptr doc) const;
 
 private Q_SLOTS:
     void updateFileName();

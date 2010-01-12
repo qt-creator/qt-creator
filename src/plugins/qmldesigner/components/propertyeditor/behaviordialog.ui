@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BehaviorDialog</class>
+ <widget class="QDialog" name="BehaviorDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>247</width>
+    <height>311</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QDialog {
+qlineargradient(spread:pad, x1:0.585, y1:0.0284091, x2:0.517, y2:1, stop:0 rgba(85, 85, 85, 255), stop:1 rgba(173, 173, 173, 255))
+}
+
+</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Type:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="type">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Id:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="id">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Property Name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="propertyName">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QComboBox" name="comboBox">
+     <item>
+      <property name="text">
+       <string>Animation</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>SpringFollow</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>120</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>Settings</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QStackedWidget" name="stackedWidget">
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <widget class="QWidget" name="page">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Duration:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="duration">
+            <property name="maximum">
+             <number>10000</number>
+            </property>
+            <property name="singleStep">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Curve:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="curve">
+            <item>
+             <property name="text">
+              <string>easeNone</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInQuad</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutQuad</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInOutQuad</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutInQuad</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInCubic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutCubic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInOutCubic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutInCubic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutInBounce</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInOutBounce</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutBounce</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInBounce</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutInBack</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInOutBack</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutBack</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInBack</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutInElastic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInOutElastic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutElastic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInElastic</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutInCirc</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInOutCirc</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutCirc</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInCirc</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutInExpo</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInOutExpo</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutExpo</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInExpo</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutInSine</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInOutSine</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeOutSine</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>easeInSine</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_2">
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Source:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="source"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Velocity:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="velocity"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Spring:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="spring"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Damping:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QDoubleSpinBox" name="damping"/>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="ButtonGroup">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>ButtonGroup</sender>
+   <signal>accepted()</signal>
+   <receiver>BehaviorDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonGroup</sender>
+   <signal>rejected()</signal>
+   <receiver>BehaviorDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>stackedWidget</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>52</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

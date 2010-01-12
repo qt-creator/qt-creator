@@ -66,7 +66,7 @@ public:
                                       QWidget *parent = 0);
 
 private slots:
-    void nameEdited(const QString &text);
+    void displayNameEdited(const QString &text);
     void updateTargetInformation();
     void updateSerialDevices();
     void setSerialPort(int index);

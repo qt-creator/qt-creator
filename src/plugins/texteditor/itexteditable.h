@@ -42,7 +42,7 @@ public:
     ITextEditable() {}
     virtual ~ITextEditable() {}
 
-    /* Removes 'length' characteres to the right of the cursor. */
+    /* Removes 'length' characters to the right of the cursor. */
     virtual void remove(int length) = 0;
 
     /* Inserts the given string to the right of the cursor. */

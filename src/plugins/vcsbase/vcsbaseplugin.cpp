@@ -46,6 +46,7 @@
 #include <QtCore/QSharedData>
 
 #include <QtGui/QAction>
+#include <QtGui/QMessageBox>
 
 enum { debug = 0 };
 
@@ -194,7 +195,7 @@ void StateListener::slotStateChanged()
     Core::IVersionControl *projectControl = 0;
     if (const ProjectExplorer::Project *currentProject = pe->currentProject()) {
         state.currentProjectPath = QFileInfo(currentProject->file()->fileName()).absolutePath();
-        state.currentProjectName = currentProject->name();
+        state.currentProjectName = currentProject->displayName();
         projectControl = vcsManager->findVersionControlForDirectory(state.currentProjectPath,
                                                                     &state.currentProjectTopLevel);
         if (projectControl) {
@@ -209,7 +210,7 @@ void StateListener::slotStateChanged()
     // Assemble state and emit signal.
     Core::IVersionControl *vc = state.currentFile.isEmpty() ? projectControl : fileControl;
     if (debug)
-        qDebug() << state << (vc ? vc->name() : QString(QLatin1String("No version control")));
+        qDebug() << state << (vc ? vc->displayName() : QString(QLatin1String("No version control")));
     emit stateChanged(state, vc);
 }
 
@@ -342,9 +343,9 @@ VCSBASE_EXPORT QDebug operator<<(QDebug in, const VCSBasePluginState &state)
 
 //  VCSBasePlugin
 struct VCSBasePluginPrivate {
-    explicit VCSBasePluginPrivate(const QString &submitEditorKind);
+    explicit VCSBasePluginPrivate(const QString &submitEditorId);
 
-    const QString m_submitEditorKind;
+    const QString m_submitEditorId;
     Core::IVersionControl *m_versionControl;
     VCSBasePluginState m_state;
     int m_actionState;
@@ -352,8 +353,8 @@ struct VCSBasePluginPrivate {
     static Internal::StateListener *m_listener;
 };
 
-VCSBasePluginPrivate::VCSBasePluginPrivate(const QString &submitEditorKind) :
-    m_submitEditorKind(submitEditorKind),
+VCSBasePluginPrivate::VCSBasePluginPrivate(const QString &submitEditorId) :
+    m_submitEditorId(submitEditorId),
     m_versionControl(0),
     m_actionState(-1)
 {
@@ -361,8 +362,8 @@ VCSBasePluginPrivate::VCSBasePluginPrivate(const QString &submitEditorKind) :
 
 Internal::StateListener *VCSBasePluginPrivate::m_listener = 0;
 
-VCSBasePlugin::VCSBasePlugin(const QString &submitEditorKind) :
-    d(new VCSBasePluginPrivate(submitEditorKind))
+VCSBasePlugin::VCSBasePlugin(const QString &submitEditorId) :
+    d(new VCSBasePluginPrivate(submitEditorId))
 {
 }
 
@@ -391,8 +392,8 @@ void VCSBasePlugin::initialize(Core::IVersionControl *vc)
 void VCSBasePlugin::slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor, bool *result)
 {
     if (debug)
-        qDebug() << this << d->m_submitEditorKind << "Closing submit editor" << submitEditor << submitEditor->kind();
-    if (submitEditor->kind() == d->m_submitEditorKind)
+        qDebug() << this << d->m_submitEditorId << "Closing submit editor" << submitEditor << submitEditor->id();
+    if (submitEditor->id() == d->m_submitEditorId)
         *result = submitEditorAboutToClose(submitEditor);
 }
 
@@ -444,6 +445,15 @@ bool VCSBasePlugin::enableMenuAction(ActionState as, QAction *menuAction)
         break;
     }
     return true;
+}
+
+void VCSBasePlugin::promptToDeleteCurrentFile()
+{
+    const VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    const bool rc = Core::ICore::instance()->vcsManager()->promptToDelete(versionControl(), state.currentFile());
+    if (!rc)
+        QMessageBox::warning(0, tr("Version Control"), tr("The file '%1' could not be deleted.").arg(state.currentFile()), QMessageBox::Ok);
 }
 
 } // namespace VCSBase

@@ -74,9 +74,9 @@ QString DisplaySettingsPage::id() const
     return m_d->m_parameters.id;
 }
 
-QString DisplaySettingsPage::trName() const
+QString DisplaySettingsPage::displayName() const
 {
-    return m_d->m_parameters.name;
+    return m_d->m_parameters.displayName;
 }
 
 QString DisplaySettingsPage::category() const
@@ -84,9 +84,9 @@ QString DisplaySettingsPage::category() const
     return m_d->m_parameters.category;
 }
 
-QString DisplaySettingsPage::trCategory() const
+QString DisplaySettingsPage::displayCategory() const
 {
-    return m_d->m_parameters.trCategory;
+    return m_d->m_parameters.displayCategory;
 }
 
 QWidget *DisplaySettingsPage::createPage(QWidget *parent)

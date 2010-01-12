@@ -56,7 +56,7 @@ QString CheckoutWizard::description() const
     return tr("Checks out a project from a CVS repository.");
 }
 
-QString CheckoutWizard::name() const
+QString CheckoutWizard::displayName() const
 {
     return tr("CVS Checkout");
 }

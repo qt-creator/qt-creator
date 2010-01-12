@@ -68,13 +68,7 @@ ToolChain::ToolChainType MaemoToolChain::type() const
 
 QList<HeaderPath> MaemoToolChain::systemHeaderPaths()
 {
-    if (m_systemHeaderPaths.isEmpty()) {
-        GccToolChain::systemHeaderPaths();
-        m_systemHeaderPaths
-            .append(HeaderPath(QString("%1/usr/include").arg(sysrootRoot()),
-                HeaderPath::GlobalHeaderPath));
-    }
-    return m_systemHeaderPaths;
+    return GccToolChain::systemHeaderPaths();
 }
 
 void MaemoToolChain::addToEnvironment(ProjectExplorer::Environment &env)

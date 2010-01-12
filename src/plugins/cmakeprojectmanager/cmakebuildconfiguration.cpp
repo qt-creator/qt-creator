@@ -28,8 +28,14 @@
 **************************************************************************/
 
 #include "cmakebuildconfiguration.h"
+
+#include "cmakeopenprojectwizard.h"
 #include "cmakeproject.h"
+
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/qtcassert.h>
+
+#include <QtGui/QInputDialog>
 
 using namespace CMakeProjectManager;
 using namespace Internal;
@@ -202,3 +208,85 @@ void CMakeBuildConfiguration::setMsvcVersion(const QString &msvcVersion)
     emit msvcVersionChanged();
 }
 
+/*!
+  \class CMakeBuildConfigurationFactory
+*/
+
+CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory(CMakeProject *project)
+    : IBuildConfigurationFactory(project),
+    m_project(project)
+{
+}
+
+CMakeBuildConfigurationFactory::~CMakeBuildConfigurationFactory()
+{
+}
+
+QStringList CMakeBuildConfigurationFactory::availableCreationIds() const
+{
+    return QStringList() << "Create";
+}
+
+QString CMakeBuildConfigurationFactory::displayNameForId(const QString &id) const
+{
+    QTC_ASSERT(id == "Create", return QString());
+    return tr("Create");
+}
+
+ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &id) const
+{
+    QTC_ASSERT(id == "Create", return 0);
+
+    //TODO configuration name should be part of the cmakeopenprojectwizard
+    bool ok;
+    QString buildConfigurationName = QInputDialog::getText(0,
+                          tr("New configuration"),
+                          tr("New Configuration Name:"),
+                          QLineEdit::Normal,
+                          QString(),
+                          &ok);
+    if (!ok || buildConfigurationName.isEmpty())
+        return false;
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project);
+    bc->setDisplayName(buildConfigurationName);
+
+    MakeStep *makeStep = new MakeStep(bc);
+    bc->insertBuildStep(0, makeStep);
+
+    MakeStep *cleanMakeStep = new MakeStep(bc);
+    bc->insertCleanStep(0, cleanMakeStep);
+    cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
+    cleanMakeStep->setClean(true);
+
+    CMakeOpenProjectWizard copw(m_project->projectManager(),
+                                m_project->sourceDirectory(),
+                                bc->buildDirectory(),
+                                bc->environment());
+    if (copw.exec() != QDialog::Accepted) {
+        delete bc;
+        return false;
+    }
+    m_project->addBuildConfiguration(bc); // this also makes the name unique
+
+    bc->setBuildDirectory(copw.buildDirectory());
+    bc->setMsvcVersion(copw.msvcVersion());
+    m_project->parseCMakeLists();
+
+    // Default to all
+    if (m_project->targets().contains("all"))
+        makeStep->setBuildTarget("all", true);
+    return bc;
+}
+
+ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::BuildConfiguration *source) const
+{
+    CMakeBuildConfiguration *old = static_cast<CMakeBuildConfiguration *>(source);
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(old);
+    return bc;
+}
+
+ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::restore(const QVariantMap &map) const
+{
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project, map);
+    return bc;
+}

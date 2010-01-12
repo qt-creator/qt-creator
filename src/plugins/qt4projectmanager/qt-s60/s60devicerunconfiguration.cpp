@@ -48,7 +48,6 @@
 #include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/persistentsettings.h>
 
 #include <debugger/debuggermanager.h>
 
@@ -93,9 +92,9 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     m_signingMode(SignSelf)
 {
     if (!m_proFilePath.isEmpty())
-        setName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+        setDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
-        setName(tr("QtS60DeviceRunConfiguration"));
+        setDisplayName(tr("QtS60DeviceRunConfiguration"));
 
     connect(project, SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
@@ -120,7 +119,7 @@ Qt4Project *S60DeviceRunConfiguration::qt4Project() const
     return static_cast<Qt4Project *>(project());
 }
 
-QString S60DeviceRunConfiguration::type() const
+QString S60DeviceRunConfiguration::id() const
 {
     return QLatin1String("Qt4ProjectManager.DeviceRunConfiguration");
 }
@@ -280,54 +279,29 @@ void S60DeviceRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
-    Qt4ProFileNode *proFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
-    if (!proFileNode) {
+    Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
+                                                                m_proFilePath);
+    if (info.error != Qt4TargetInformation::NoError) {
+        if (info.error == Qt4TargetInformation::ProParserError) {
+            Core::ICore::instance()->messageManager()->printToOutputPane(
+                    tr("Could not parse %1. The QtS60 Device run configuration %2 can not be started.")
+                    .arg(m_proFilePath).arg(displayName()));
+        }
+        m_targetName = QString::null;
         m_baseFileName = QString::null;
+        m_packageTemplateFileName = QString::null;
+        m_platform = QString::null;
         m_cachedTargetInformationValid = true;
         emit targetInformationChanged();
         return;
     }
-    ProFileReader *reader = qt4Project()->createProFileReader(proFileNode);
-    reader->setCumulative(false);
 
-    // Find out what flags we pass on to qmake
-    QStringList addedUserConfigArguments;
-    QStringList removedUserConfigArguments;
-    qt4bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-    reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
+    m_targetName = info.target;
 
-    if (!reader->readProFile(m_proFilePath)) {
-        qt4Project()->destroyProFileReader(reader);
-        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The QtS60 Device run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
-        return;
-    }
+    m_baseFileName = info.workingDir + QLatin1Char('/') + m_targetName;
+    m_packageTemplateFileName = m_baseFileName + QLatin1String("_template.pkg");
 
-    // Extract data
-    const QDir baseProjectDirectory = QFileInfo(project()->file()->fileName()).absoluteDir();
-    const QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
-    const QDir baseBuildDirectory = qt4bc->buildDirectory();
-    const QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
-
-    // Directory
-    QString m_workingDir;
-    if (reader->contains("DESTDIR")) {
-        m_workingDir = reader->value("DESTDIR");
-        if (QDir::isRelativePath(m_workingDir)) {
-            m_workingDir = baseDir + QLatin1Char('/') + m_workingDir;
-        }
-    } else {
-        m_workingDir = baseDir;
-    }
-
-    m_targetName = reader->value("TARGET");
-    if (m_targetName.isEmpty())
-        m_targetName = QFileInfo(m_proFilePath).baseName();
-
-    m_baseFileName = QDir::cleanPath(m_workingDir + QLatin1Char('/') + m_targetName);
-    m_packageTemplateFileName = QDir::cleanPath(
-            m_workingDir + QLatin1Char('/') + m_targetName + QLatin1String("_template.pkg"));
-
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
     switch (qt4bc->toolChainType()) {
     case ToolChain::GCCE:
     case ToolChain::GCCE_GNUPOC:
@@ -345,7 +319,7 @@ void S60DeviceRunConfiguration::updateTarget()
     else
         m_target = QLatin1String("urel");
     m_baseFileName += QLatin1Char('_') + m_platform + QLatin1Char('_') + m_target;
-    qt4Project()->destroyProFileReader(reader);
+
     m_cachedTargetInformationValid = true;
     emit targetInformationChanged();
 }
@@ -368,12 +342,12 @@ S60DeviceRunConfigurationFactory::~S60DeviceRunConfigurationFactory()
 {
 }
 
-bool S60DeviceRunConfigurationFactory::canRestore(const QString &type) const
+bool S60DeviceRunConfigurationFactory::canRestore(const QString &id) const
 {
-    return type == "Qt4ProjectManager.DeviceRunConfiguration";
+    return id == "Qt4ProjectManager.DeviceRunConfiguration";
 }
 
-QStringList S60DeviceRunConfigurationFactory::availableCreationTypes(Project *pro) const
+QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Project *pro) const
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
     if (qt4project) {
@@ -388,21 +362,21 @@ QStringList S60DeviceRunConfigurationFactory::availableCreationTypes(Project *pr
     }
 }
 
-QString S60DeviceRunConfigurationFactory::displayNameForType(const QString &type) const
+QString S60DeviceRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QString fileName = type.mid(QString("QtSymbianDeviceRunConfiguration.").size());
+    QString fileName = id.mid(QString("QtSymbianDeviceRunConfiguration.").size());
     return tr("%1 on Symbian Device").arg(QFileInfo(fileName).completeBaseName());
 }
 
-RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *project, const QString &type)
+RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *project, const QString &id)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
-    if (type.startsWith("QtSymbianDeviceRunConfiguration.")) {
-        QString fileName = type.mid(QString("QtSymbianDeviceRunConfiguration.").size());
+    if (id.startsWith("QtSymbianDeviceRunConfiguration.")) {
+        QString fileName = id.mid(QString("QtSymbianDeviceRunConfiguration.").size());
         return new S60DeviceRunConfiguration(p, fileName);
     }
-    Q_ASSERT(type == "Qt4ProjectManager.DeviceRunConfiguration");
+    Q_ASSERT(id == "Qt4ProjectManager.DeviceRunConfiguration");
     // The right path is set in restoreSettings
     RunConfiguration *rc = new S60DeviceRunConfiguration(p, QString::null);
     return rc;

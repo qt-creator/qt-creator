@@ -59,7 +59,7 @@ public:
 
     virtual void run(QFutureInterface<bool> &fi);
 
-    virtual QString name();
+    virtual QString id();
     virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
@@ -108,11 +108,11 @@ private:
 
 class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
-    virtual bool canCreate(const QString &name) const;
-    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString &name) const;
+    virtual bool canCreate(const QString &id) const;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString &id) const;
     virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
     virtual QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
-    virtual QString displayNameForName(const QString &name) const;
+    virtual QString displayNameForId(const QString &id) const;
 };
 
 } // namespace Internal

@@ -53,7 +53,7 @@ QString FindInFiles::id() const
 
 QString FindInFiles::name() const
 {
-    return tr("Files on Disk");
+    return tr("Files on File System");
 }
 
 QKeySequence FindInFiles::defaultShortcut() const

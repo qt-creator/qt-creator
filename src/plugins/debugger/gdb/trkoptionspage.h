@@ -53,9 +53,9 @@ public:
     virtual ~TrkOptionsPage();
 
     virtual QString id() const { return settingsId(); }
-    virtual QString trName() const;
+    virtual QString displayName() const;
     virtual QString category() const;
-    virtual QString trCategory() const;
+    virtual QString displayCategory() const;
 
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();

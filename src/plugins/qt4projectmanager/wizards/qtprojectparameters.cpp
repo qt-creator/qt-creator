@@ -50,7 +50,7 @@ QString QtProjectParameters::projectPath() const
     QString rc = path;
     if (!rc.isEmpty())
         rc += QDir::separator();
-    rc += name;
+    rc += fileName;
     return rc;
 }
 
@@ -60,7 +60,7 @@ void QtProjectParameters::writeProFile(QTextStream &str) const
         str << "QT       += " << selectedModules << "\n\n";
     if (!deselectedModules.isEmpty())
         str << "QT       -= " << deselectedModules << "\n\n";
-    const QString &effectiveTarget = target.isEmpty() ? name : target;
+    const QString &effectiveTarget = target.isEmpty() ? fileName : target;
     if (!effectiveTarget.isEmpty())
         str << "TARGET = " <<  effectiveTarget << '\n';
     switch (type) {
@@ -74,7 +74,7 @@ void QtProjectParameters::writeProFile(QTextStream &str) const
         str << "TEMPLATE = lib\nCONFIG += staticlib\n";
         break;
     case SharedLibrary:
-        str << "TEMPLATE = lib\n\nDEFINES += " << libraryMacro(name) << '\n';
+        str << "TEMPLATE = lib\n\nDEFINES += " << libraryMacro(fileName) << '\n';
         break;
     case Qt4Plugin:
         str << "TEMPLATE = lib\nCONFIG += plugin\n";

@@ -112,7 +112,7 @@ QString VCSBaseSettingsPage::id() const
     return QLatin1String(Constants::VCS_COMMON_SETTINGS_ID);
 }
 
-QString VCSBaseSettingsPage::trName() const
+QString VCSBaseSettingsPage::displayName() const
 {
     return QCoreApplication::translate("VCSBase", Constants::VCS_COMMON_SETTINGS_NAME);
 }
@@ -122,7 +122,7 @@ QString VCSBaseSettingsPage::category() const
     return QLatin1String(Constants::VCS_SETTINGS_CATEGORY);
 }
 
-QString VCSBaseSettingsPage::trCategory() const
+QString VCSBaseSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("VCSBase", Constants::VCS_SETTINGS_TR_CATEGORY);
 }

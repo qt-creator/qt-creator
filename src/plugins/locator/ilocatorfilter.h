@@ -84,10 +84,10 @@ public:
     virtual ~ILocatorFilter() {}
 
     /* Visible name. */
-    virtual QString trName() const = 0;
+    virtual QString displayName() const = 0;
 
     /* Internal name. */
-    virtual QString name() const = 0;
+    virtual QString id() const = 0;
 
     /* Selection list order in case of multiple active filters (high goes on top). */
     virtual Priority priority() const = 0;

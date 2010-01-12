@@ -53,7 +53,7 @@ LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 {
 }
 
-QString LocalApplicationRunConfiguration::type() const
+QString LocalApplicationRunConfiguration::id() const
 {
     return "ProjectExplorer.LocalApplicationRunConfiguration";
 }

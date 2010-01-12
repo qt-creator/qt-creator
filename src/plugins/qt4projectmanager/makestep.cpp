@@ -124,7 +124,7 @@ bool MakeStep::init()
 
     // If we are cleaning, then make can fail with a error code, but that doesn't mean
     // we should stop the clean queue
-    // That is mostly so that rebuild works on a alrady clean project
+    // That is mostly so that rebuild works on a already clean project
     setIgnoreReturnValue(m_clean);
     QStringList args = m_userArgs;
     if (!m_clean) {
@@ -166,7 +166,7 @@ void MakeStep::run(QFutureInterface<bool> & fi)
     AbstractProcessStep::run(fi);
 }
 
-QString MakeStep::name()
+QString MakeStep::id()
 {
     return Constants::MAKESTEP;
 }
@@ -317,14 +317,14 @@ MakeStepFactory::~MakeStepFactory()
 {
 }
 
-bool MakeStepFactory::canCreate(const QString & name) const
+bool MakeStepFactory::canCreate(const QString &id) const
 {
-    return (name == Constants::MAKESTEP);
+    return (id == Constants::MAKESTEP);
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildConfiguration *bc, const QString & name) const
+ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildConfiguration *bc, const QString &id) const
 {
-    Q_UNUSED(name)
+    Q_UNUSED(id);
     return new MakeStep(bc);
 }
 
@@ -341,8 +341,8 @@ QStringList MakeStepFactory::canCreateForBuildConfiguration(ProjectExplorer::Bui
         return QStringList();
 }
 
-QString MakeStepFactory::displayNameForName(const QString &name) const
+QString MakeStepFactory::displayNameForId(const QString &id) const
 {
-    Q_UNUSED(name)
+    Q_UNUSED(id);
     return tr("Make");
 }

@@ -77,7 +77,7 @@ public:
                                   QWidget *parent = 0);
 
     QString path() const;
-    QString name() const;
+    QString fileName() const;
 
 public slots:
     void setPath(const QString &path);

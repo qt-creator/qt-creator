@@ -1,0 +1,8 @@
+QLineEdit {
+     color: lightGray;
+     border: 2px solid #0F0F0F;
+     border-radius: 6px;
+     border-width: 2;
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #2c2c2c, stop: 1 #333333);
+}

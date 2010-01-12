@@ -62,6 +62,8 @@ SubversionSettings SettingsPageWidget::settings() const
     if (rc.user.isEmpty())
         rc.useAuthentication = false;
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
+    rc.spaceIgnorantAnnotation = m_ui.spaceIgnorantAnnotationCheckBox->isChecked();
+    rc.logCount = m_ui.logCountSpinBox->value();
     return rc;
 }
 
@@ -73,6 +75,8 @@ void SettingsPageWidget::setSettings(const SubversionSettings &s)
     m_ui.userGroupBox->setChecked(s.useAuthentication);
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
+    m_ui.spaceIgnorantAnnotationCheckBox->setChecked(s.spaceIgnorantAnnotation);
+    m_ui.logCountSpinBox->setValue(s.logCount);
 }
 
 QString SettingsPageWidget::searchKeywords() const
@@ -81,7 +85,8 @@ QString SettingsPageWidget::searchKeywords() const
     QTextStream(&rc) << m_ui.commandLabel->text()
             << ' ' << m_ui.usernameLabel->text()
             << ' ' << m_ui.passwordLabel->text()
-            << ' ' << m_ui.userGroupBox->title();
+            << ' ' << m_ui.userGroupBox->title()
+            << ' ' << m_ui.spaceIgnorantAnnotationCheckBox->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }
@@ -96,7 +101,7 @@ QString SettingsPage::id() const
     return QLatin1String(VCSBase::Constants::VCS_ID_SUBVERSION);
 }
 
-QString SettingsPage::trName() const
+QString SettingsPage::displayName() const
 {
     return tr("Subversion");
 }
@@ -106,7 +111,7 @@ QString SettingsPage::category() const
     return QLatin1String(VCSBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
-QString SettingsPage::trCategory() const
+QString SettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
 }

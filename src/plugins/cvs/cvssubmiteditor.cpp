@@ -42,7 +42,6 @@ CVSSubmitEditor::CVSSubmitEditor(const VCSBase::VCSBaseSubmitEditorParameters *p
     m_msgRemoved(tr("Removed")),
     m_msgModified(tr("Modified"))
 {
-    setDisplayName(tr("CVS Submit"));
 }
 
 QString CVSSubmitEditor::stateName(State st) const

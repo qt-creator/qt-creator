@@ -39,6 +39,41 @@
 
 using namespace Core;
 
+/*!
+    \mainclass
+    \class Core::FutureProgress
+    \brief The FutureProgress class is used to adapt the appearance of
+    progress indicators that were created through the ProgressManager class.
+
+    Use the instance of this class that was returned by
+    ProgressManager::addTask() to define a widget that
+    should be shown below the progress bar, or to change the
+    progress title.
+    Also use it to react on the event that the user clicks on
+    the progress indicator (which can be used to e.g. open a more detailed
+    view, or the results of the task).
+*/
+
+/*!
+    \fn void FutureProgress::clicked()
+    Connect to this signal to get informed when the user clicks on the
+    progress indicator.
+*/
+
+/*!
+    \fn void FutureProgress::finished()
+    Another way to get informed when the task has finished.
+*/
+
+/*!
+    \fn QWidget FutureProgress::widget() const
+    Returns the custom widget that is shown below the progress indicator.
+*/
+
+/*!
+    \fn FutureProgress::FutureProgress(QWidget *parent)
+    \internal
+*/
 FutureProgress::FutureProgress(QWidget *parent)
         : QWidget(parent),
         m_progress(new ProgressBar),
@@ -63,12 +98,22 @@ FutureProgress::FutureProgress(QWidget *parent)
     connect(m_progress, SIGNAL(clicked()), this, SLOT(cancel()));
 }
 
+/*!
+    \fn FutureProgress::~FutureProgress()
+    \internal
+*/
 FutureProgress::~FutureProgress()
 {
     if (m_widget)
         delete m_widget;
 }
 
+/*!
+    \fn void FutureProgress::setWidget(QWidget *widget)
+    Sets the \a widget to show below the progress bar.
+    This will be destroyed when the progress indicator is destroyed.
+    Default is to show no widget below the progress indicator.
+*/
 void FutureProgress::setWidget(QWidget *widget)
 {
     if (m_widget)
@@ -81,11 +126,19 @@ void FutureProgress::setWidget(QWidget *widget)
         m_widgetLayout->addWidget(m_widget);
 }
 
+/*!
+    \fn void FutureProgress::setTitle(const QString &title)
+    Changes the \a title of the progress indicator.
+*/
 void FutureProgress::setTitle(const QString &title)
 {
     m_progress->setTitle(title);
 }
 
+/*!
+    \fn QString FutureProgress::title() const
+    Returns the title of the progress indicator.
+*/
 QString FutureProgress::title() const
 {
     return m_progress->title();
@@ -144,16 +197,28 @@ void FutureProgress::setProgressText(const QString &text)
     setToolTip(text);
 }
 
+/*!
+    \fn void FutureProgress::setFuture(const QFuture<void> &future)
+    \internal
+*/
 void FutureProgress::setFuture(const QFuture<void> &future)
 {
     m_watcher.setFuture(future);
 }
 
+/*!
+    \fn QFuture<void> FutureProgress::future() const
+    Returns a QFuture object that represents this running task.
+*/
 QFuture<void> FutureProgress::future() const
 {
     return m_watcher.future();
 }
 
+/*!
+    \fn void FutureProgress::mousePressEvent(QMouseEvent *event)
+    \internal
+*/
 void FutureProgress::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
@@ -161,6 +226,10 @@ void FutureProgress::mousePressEvent(QMouseEvent *event)
     QWidget::mousePressEvent(event);
 }
 
+/*!
+    \fn bool FutureProgress::hasError() const
+    Returns the error state of this progress indicator.
+*/
 bool FutureProgress::hasError() const
 {
     return m_progress->hasError();

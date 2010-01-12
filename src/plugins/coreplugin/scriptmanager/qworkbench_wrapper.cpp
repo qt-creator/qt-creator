@@ -266,14 +266,14 @@ bool EditorManagerPrototype::closeEditors(const QList<Core::IEditor*> editorsToC
     return  callee()->closeEditors(editorsToClose, askAboutModifiedEditors);
 }
 
-Core::IEditor *EditorManagerPrototype::openEditor(const QString &fileName, const QString &editorKind)
+Core::IEditor *EditorManagerPrototype::openEditor(const QString &fileName, const QString &editorId)
 {
-    return callee()->openEditor(fileName, editorKind);
+    return callee()->openEditor(fileName, editorId);
 }
 
-Core::IEditor *EditorManagerPrototype::newFile(const QString &editorKind, QString titlePattern, const QString &contents)
+Core::IEditor *EditorManagerPrototype::newFile(const QString &editorId, QString titlePattern, const QString &contents)
 {
-    return callee()->openEditorWithContents(editorKind, &titlePattern, contents);
+    return callee()->openEditorWithContents(editorId, &titlePattern, contents);
 }
 
 int EditorManagerPrototype::makeEditorWritable(Core::IEditor *editor)
@@ -310,9 +310,9 @@ void EditorPrototype::setDisplayName(const QString &title)
     callee()->setDisplayName(title);
 }
 
-QString EditorPrototype::kind() const
+QString EditorPrototype::id() const
 {
-    return  QLatin1String(callee()->kind());
+    return  callee()->id();
 }
 
 bool EditorPrototype::duplicateSupported() const

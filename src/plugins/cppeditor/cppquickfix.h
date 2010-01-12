@@ -33,6 +33,7 @@
 #include <texteditor/icompletioncollector.h>
 
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/LookupContext.h>
 #include <ASTfwd.h>
 
 #include <utils/changeset.h>
@@ -114,7 +115,8 @@ protected:
     void copy(const CPlusPlus::AST *ast, int to);
 
     QString textOf(int firstOffset, int lastOffset) const;
-    QString textOf(CPlusPlus::AST *ast) const;
+    QString textOf(const CPlusPlus::AST *ast) const;
+    QChar charAt(int offset) const;
 
     struct Range {
         Range() {}
@@ -127,6 +129,8 @@ protected:
     Range createRange(CPlusPlus::AST *ast) const; // ### rename me
     void reindent(const Range &range);
 
+    const QList<CPlusPlus::LookupItem> typeOf(CPlusPlus::ExpressionAST *ast);
+
 private:
     CPlusPlus::Document::Ptr _document;
     CPlusPlus::Snapshot _snapshot;
@@ -134,6 +138,7 @@ private:
     Utils::ChangeSet _changeSet;
     CPPEditor *_editor;
     CPlusPlus::AST *_topLevelNode;
+    CPlusPlus::LookupContext _lookupContext;
 };
 
 class CPPQuickFixCollector: public TextEditor::IQuickFixCollector

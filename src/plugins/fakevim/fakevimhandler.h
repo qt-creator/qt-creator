@@ -77,6 +77,7 @@ signals:
         const QString &fileName, const QString &contents);
     void writeAllRequested(QString *error);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
+    void checkForElectricCharacter(bool *result, QChar c);
     void indentRegion(int *amount, int beginLine, int endLine, QChar typedChar);
     void completionRequested();
     void windowCommandRequested(int key);

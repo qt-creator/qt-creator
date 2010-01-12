@@ -46,7 +46,7 @@ public:
     // IWizard
     virtual QIcon icon() const;
     virtual QString description() const;
-    virtual QString name() const;
+    virtual QString displayName() const;
 
 protected:
     // BaseCheckoutWizard

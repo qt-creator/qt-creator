@@ -46,7 +46,6 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::TextEditorActionHandler *handler) :
-    m_kind(QLatin1String(Qt4ProjectManager::Constants::PROFILE_EDITOR)),
     m_mimeTypes(QStringList() << QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)
                 << QLatin1String(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE)),
     m_manager(manager),
@@ -63,14 +62,19 @@ ProFileEditorFactory::~ProFileEditorFactory()
 {
 }
 
-QString ProFileEditorFactory::kind() const
+QString ProFileEditorFactory::id() const
 {
-    return m_kind;
+    return QLatin1String(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
+}
+
+QString ProFileEditorFactory::displayName() const
+{
+    return tr(Qt4ProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME);
 }
 
 Core::IFile *ProFileEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 

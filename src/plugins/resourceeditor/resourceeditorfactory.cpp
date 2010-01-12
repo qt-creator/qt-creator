@@ -45,7 +45,6 @@ using namespace ResourceEditor::Constants;
 ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
     Core::IEditorFactory(plugin),
     m_mimeTypes(QStringList(QLatin1String("application/vnd.nokia.xml.qt.resource"))),
-    m_kind(QLatin1String(C_RESOURCEEDITOR)),
     m_plugin(plugin)
 {
     m_context += Core::UniqueIDManager::instance()
@@ -55,14 +54,19 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin) :
                                                QLatin1String("qrc"));
 }
 
-QString ResourceEditorFactory::kind() const
+QString ResourceEditorFactory::id() const
 {
-    return m_kind;
+    return QLatin1String(RESOURCEEDITOR_ID);
+}
+
+QString ResourceEditorFactory::displayName() const
+{
+    return tr(C_RESOURCEEDITOR_DISPLAY_NAME);
 }
 
 Core::IFile *ResourceEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     if (!iface) {
         qWarning() << "ResourceEditorFactory::open: openEditor failed for " << fileName;
         return 0;

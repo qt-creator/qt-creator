@@ -41,6 +41,8 @@ class Command;
 
 class ActionContainer : public QObject
 {
+    Q_OBJECT
+
 public:
     enum EmptyAction {
         EA_Mask             = 0xFF00,

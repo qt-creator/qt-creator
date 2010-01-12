@@ -30,7 +30,6 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
-#include "cmakeprojectconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -69,7 +68,7 @@ int CMakeManager::projectLanguage() const
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName)
 {
-    // TODO check wheter this project is already opened
+    // TODO check whether this project is already opened
     return new CMakeProject(this, fileName);
 }
 
@@ -244,7 +243,7 @@ QString CMakeSettingsPage::id() const
     return QLatin1String("CMake");
 }
 
-QString CMakeSettingsPage::trName() const
+QString CMakeSettingsPage::displayName() const
 {
     return tr("CMake");
 }
@@ -254,7 +253,7 @@ QString CMakeSettingsPage::category() const
     return QLatin1String("M.CMake");
 }
 
-QString CMakeSettingsPage::trCategory() const
+QString CMakeSettingsPage::displayCategory() const
 {
     return tr("CMake");
 }

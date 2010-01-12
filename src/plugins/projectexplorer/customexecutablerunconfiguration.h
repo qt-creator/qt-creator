@@ -61,7 +61,7 @@ class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public LocalAppl
 public:
     CustomExecutableRunConfiguration(Project *pro);
     ~CustomExecutableRunConfiguration();
-    virtual QString type() const;
+    virtual QString id() const;
 
     /**
      * Returns the executable, looks in the environment for it and might even
@@ -140,10 +140,10 @@ public:
     CustomExecutableRunConfigurationFactory();
     virtual ~CustomExecutableRunConfigurationFactory();
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(const QString &type) const;
-    virtual RunConfiguration* create(Project *project, const QString &type);
-    QStringList availableCreationTypes(Project *pro) const;
-    QString displayNameForType(const QString &type) const;
+    virtual bool canRestore(const QString &id) const;
+    virtual RunConfiguration* create(Project *project, const QString &id);
+    QStringList availableCreationIds(Project *pro) const;
+    QString displayNameForId(const QString &id) const;
 };
 
 namespace Internal {

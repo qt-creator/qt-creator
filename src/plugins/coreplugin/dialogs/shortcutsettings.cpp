@@ -69,7 +69,7 @@ QString ShortcutSettings::id() const
     return QLatin1String("D.Keyboard");
 }
 
-QString ShortcutSettings::trName() const
+QString ShortcutSettings::displayName() const
 {
     return tr("Keyboard");
 }
@@ -79,7 +79,7 @@ QString ShortcutSettings::category() const
     return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
 }
 
-QString ShortcutSettings::trCategory() const
+QString ShortcutSettings::displayCategory() const
 {
     return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
 }

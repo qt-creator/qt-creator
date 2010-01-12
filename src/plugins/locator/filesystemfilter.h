@@ -51,8 +51,8 @@ class FileSystemFilter : public Locator::ILocatorFilter
 
 public:
     FileSystemFilter(Core::EditorManager *editorManager, LocatorWidget *locatorWidget);
-    QString trName() const { return tr("Files in file system"); }
-    QString name() const { return "Files in file system"; }
+    QString displayName() const { return tr("Files in file system"); }
+    QString id() const { return "Files in file system"; }
     Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Medium; }
     QList<Locator::FilterEntry> matchesFor(const QString &entry);
     void accept(Locator::FilterEntry selection) const;

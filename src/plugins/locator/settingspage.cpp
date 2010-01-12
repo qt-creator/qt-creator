@@ -54,7 +54,7 @@ QString SettingsPage::id() const
     return QLatin1String(Constants::FILTER_OPTIONS_PAGE);
 }
 
-QString SettingsPage::trName() const
+QString SettingsPage::displayName() const
 {
     return QCoreApplication::translate("Locator", Locator::Constants::FILTER_OPTIONS_PAGE);
 }
@@ -64,7 +64,7 @@ QString SettingsPage::category() const
     return QLatin1String(Constants::LOCATOR_CATEGORY);
 }
 
-QString SettingsPage::trCategory() const
+QString SettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("Locator", Locator::Constants::LOCATOR_TR_CATEGORY);
 }
@@ -158,9 +158,9 @@ void SettingsPage::updateFilterList()
 
         QString title;
         if (filter->isIncludedByDefault())
-            title = filter->trName();
+            title = filter->displayName();
         else
-            title = tr("%1 (Prefix: %2)").arg(filter->trName()).arg(filter->shortcutString());
+            title = tr("%1 (Prefix: %2)").arg(filter->displayName()).arg(filter->shortcutString());
         QListWidgetItem *item = new QListWidgetItem(title);
         item->setData(Qt::UserRole, qVariantFromValue(filter));
         m_ui.filterList->addItem(item);

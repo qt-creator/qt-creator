@@ -1,0 +1,32 @@
+realname "Montgomery Reduction (x86-64)"
+
+mp_bits 64
+
+load_on never
+
+<add>
+mp_monty.S
+</add>
+
+<arch>
+amd64
+</arch>
+
+<cc>
+gcc
+icc
+</cc>
+
+# ELF systems
+<os>
+linux
+freebsd
+dragonfly
+netbsd
+openbsd
+solaris
+</os>
+
+<requires>
+asm_amd64
+</requires>

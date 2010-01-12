@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "cvseditor.h"
+#include "cvsutils.h"
 
 #include "annotationhighlighter.h"
 #include "cvsconstants.h"
@@ -53,6 +54,7 @@ CVSEditor::CVSEditor(const VCSBase::VCSBaseEditorParameters *type,
 {
     QTC_ASSERT(m_revisionAnnotationPattern.isValid(), return);
     QTC_ASSERT(m_revisionLogPattern.isValid(), return);
+    setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
 }
 
 QSet<QString> CVSEditor::annotationChanges() const
@@ -146,6 +148,13 @@ QString CVSEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock) cons
         }
     }
     return QString();
+}
+
+QStringList CVSEditor::annotationPreviousVersions(const QString &revision) const
+{
+    if (isFirstRevision(revision))
+        return QStringList();
+    return QStringList(previousRevision(revision));
 }
 
 }

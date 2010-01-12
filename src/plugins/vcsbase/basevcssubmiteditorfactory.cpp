@@ -39,13 +39,15 @@ struct BaseVCSSubmitEditorFactoryPrivate
     BaseVCSSubmitEditorFactoryPrivate(const VCSBaseSubmitEditorParameters *parameters);
 
     const VCSBaseSubmitEditorParameters *m_parameters;
-    const QString m_kind;
+    const QString m_id;
+    const QString m_displayName;
     const QStringList m_mimeTypes;
 };
 
 BaseVCSSubmitEditorFactoryPrivate::BaseVCSSubmitEditorFactoryPrivate(const VCSBaseSubmitEditorParameters *parameters) :
     m_parameters(parameters),
-    m_kind(QLatin1String(parameters->kind)),
+    m_id(parameters->id),
+    m_displayName(parameters->displayName),
     m_mimeTypes(QLatin1String(parameters->mimeType))
 {
 }
@@ -65,10 +67,16 @@ Core::IEditor *BaseVCSSubmitEditorFactory::createEditor(QWidget *parent)
     return createBaseSubmitEditor(m_d->m_parameters, parent);
 }
 
-QString BaseVCSSubmitEditorFactory::kind() const
+QString BaseVCSSubmitEditorFactory::id() const
 {
-    return m_d->m_kind;
+    return m_d->m_id;
 }
+
+QString BaseVCSSubmitEditorFactory::displayName() const
+{
+    return m_d->m_displayName;
+}
+
 
 QStringList BaseVCSSubmitEditorFactory::mimeTypes() const
 {
@@ -77,7 +85,7 @@ QStringList BaseVCSSubmitEditorFactory::mimeTypes() const
 
 Core::IFile *BaseVCSSubmitEditorFactory::open(const QString &fileName)
 {
-    if (Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind()))
+    if (Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id()))
         return iface->file();
     return 0;
 }

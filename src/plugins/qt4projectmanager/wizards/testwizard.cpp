@@ -53,9 +53,9 @@ QWizard *TestWizard::createWizardDialog(QWidget *parent,
                                         const QString &defaultPath,
                                         const WizardPageList &extensionPages) const
 {
-    TestWizardDialog *dialog = new TestWizardDialog(name(), icon(), extensionPages, parent);
+    TestWizardDialog *dialog = new TestWizardDialog(displayName(), icon(), extensionPages, parent);
     dialog->setPath(defaultPath);
-    dialog->setName(TestWizardDialog::projectName(defaultPath));
+    dialog->setProjectName(TestWizardDialog::uniqueProjectName(defaultPath));
     return dialog;
 }
 
@@ -160,7 +160,7 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
     source.setContents(generateTestCode(testParams, sourceFileInfo.baseName()));
 
     // Create profile with define for base dir to find test data
-    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, projectParams.name, profileSuffix());
+    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, projectParams.fileName, profileSuffix());
     Core::GeneratedFile profile(profileName);
     QString contents;
     {

@@ -1,0 +1,15 @@
+realname "IA-64"
+
+# This is safe: only affects tuning, not ISA
+default_submodel itanium2
+
+<aliases>
+merced
+itanium
+</aliases>
+
+<submodels>
+itanium1
+itanium2
+mckinley
+</submodels>

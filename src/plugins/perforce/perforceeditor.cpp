@@ -62,8 +62,9 @@ PerforceEditor::PerforceEditor(const VCSBase::VCSBaseEditorParameters *type,
     m_plugin(PerforcePlugin::perforcePluginInstance())
 {
     QTC_ASSERT(m_changeNumberPattern.isValid(), /**/);
+    setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
     if (Perforce::Constants::debug)
-        qDebug() << "PerforceEditor::PerforceEditor" << type->type << type->kind;
+        qDebug() << "PerforceEditor::PerforceEditor" << type->type << type->id;
 }
 
 QSet<QString> PerforceEditor::annotationChanges() const
@@ -152,6 +153,15 @@ QString PerforceEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock)
         }
     }
     return QString();
+}
+
+QStringList PerforceEditor::annotationPreviousVersions(const QString &v) const
+{
+    bool ok;
+    const int changeList = v.toInt(&ok);
+    if (!ok || changeList < 2)
+        return QStringList();
+    return QStringList(QString::number(changeList - 1));
 }
 
 } // namespace Internal

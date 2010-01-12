@@ -6,4 +6,5 @@ SUBDIRS += \
     fakevim \
 #    profilereader \
     aggregation \
-    changeset
+    changeset \
+    qml

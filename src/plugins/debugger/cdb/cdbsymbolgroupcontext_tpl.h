@@ -137,7 +137,7 @@ bool insertSymbolRecursion(WatchData wd,
                 return false;
         }  else {
             const QString msg = QString::fromLatin1("WARNING: Skipping invalid child symbol #%2 (type %3) of '%4'.").
-                                arg(QLatin1String(Q_FUNC_INFO)).arg(c).arg(cwd.type, wd.iname);
+                                arg(QLatin1String(Q_FUNC_INFO)).arg(c).arg(cwd.type, QString::fromLatin1(wd.iname));
             qWarning("%s\n", qPrintable(msg));
         }
     }

@@ -49,12 +49,12 @@ class QTCREATOR_UTILS_EXPORT FileWizardDialog : public QWizard {
 public:
     explicit FileWizardDialog(QWidget *parent = 0);
 
-    QString name() const;
+    QString fileName() const;
     QString path() const;
 
 public slots:
     void setPath(const QString &path);
-    void setName(const QString &name);
+    void setFileName(const QString &name);
 
 private:
     FileWizardPage *m_filePage;

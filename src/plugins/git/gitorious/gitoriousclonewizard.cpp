@@ -83,7 +83,7 @@ QString GitoriousCloneWizard::description() const
     return tr("Clones a project from a Gitorious repository.");
 }
 
-QString GitoriousCloneWizard::name() const
+QString GitoriousCloneWizard::displayName() const
 {
     return tr("Gitorious Repository Clone");
 }

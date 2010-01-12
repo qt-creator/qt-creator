@@ -150,7 +150,7 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->drawText(6, 2 + opt.rect.top() + fm.ascent(), topLeft);
 
     QString topRight = index.data(BookmarkManager::LineNumber).toString();
-    // Check wheter we need to be fancy and paint some background
+    // Check whether we need to be fancy and paint some background
     int fwidth = fm.width(topLeft);
     if (fwidth + lwidth > opt.rect.width()) {
         int left = opt.rect.right() - lwidth;

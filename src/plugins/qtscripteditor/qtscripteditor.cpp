@@ -32,6 +32,8 @@
 #include "qtscripthighlighter.h"
 #include "qtscripteditorplugin.h"
 
+#include <qscripthighlighter/qscriptindenter.h>
+
 #include "parser/javascriptengine_p.h"
 #include "parser/javascriptparser_p.h"
 #include "parser/javascriptlexer_p.h"
@@ -39,7 +41,6 @@
 #include "parser/javascriptastvisitor_p.h"
 #include "parser/javascriptast_p.h"
 
-#include <indenter.h>
 #include <utils/uncommentselection.h>
 
 #include <coreplugin/icore.h>
@@ -180,9 +181,9 @@ Core::IEditor *ScriptEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *ScriptEditorEditable::kind() const
+QString ScriptEditorEditable::id() const
 {
-    return QtScriptEditor::Constants::C_QTSCRIPTEDITOR;
+    return QtScriptEditor::Constants::C_QTSCRIPTEDITOR_ID;
 }
 
 ScriptEditor::Context ScriptEditorEditable::context() const
@@ -338,29 +339,15 @@ bool ScriptEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-    // Indent a code line based on previous
-template <class Iterator>
-static void indentScriptBlock(const TextEditor::TabSettings &ts,
-                              const QTextBlock &block,
-                              const Iterator &programBegin,
-                              const Iterator &programEnd,
-                              QChar typedChar)
-{
-    typedef typename SharedTools::Indenter<Iterator> Indenter ;
-    Indenter &indenter = Indenter::instance();
-    indenter.setTabSize(ts.m_tabSize);
-    indenter.setIndentSize(ts.m_indentSize);
-    const TextEditor::TextBlockIterator current(block);
-    const int indent = indenter.indentForBottomLine(current, programBegin,
-                                                    programEnd, typedChar);
-    ts.indentLine(block, indent);
-}
-
 void ScriptEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
-    const TextEditor::TextBlockIterator begin(doc->begin());
-    const TextEditor::TextBlockIterator end(block.next());
-    indentScriptBlock(tabSettings(), block, begin, end, typedChar);
+    TextEditor::TabSettings ts = tabSettings();
+    SharedTools::QScriptIndenter indenter;
+    indenter.setTabSize(ts.m_tabSize);
+    indenter.setIndentSize(ts.m_indentSize);
+
+    const int indent = indenter.indentForBottomLine(doc->begin(), block.next(), typedChar);
+    ts.indentLine(block, indent);
 }
 
 TextEditor::BaseTextEditorEditable *ScriptEditor::createEditableInterface()

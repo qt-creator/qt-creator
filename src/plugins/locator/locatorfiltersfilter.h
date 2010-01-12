@@ -53,8 +53,8 @@ public:
                            LocatorWidget *locatorWidget);
 
     // ILocatorFilter
-    QString trName() const;
-    QString name() const;
+    QString displayName() const;
+    QString id() const;
     Priority priority() const;
     QList<FilterEntry> matchesFor(const QString &entry);
     void accept(FilterEntry selection) const;

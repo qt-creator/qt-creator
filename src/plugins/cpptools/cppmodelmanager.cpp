@@ -455,7 +455,7 @@ void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, const Macro &m
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(macro, offset, macro.name().length(),
+    m_currentDoc->addMacroUse(macro, offset, macro.name().length(), env.currentLine,
                               QVector<MacroArgumentReference>(), true);
 }
 
@@ -477,7 +477,8 @@ void CppPreprocessor::startExpandingMacro(unsigned offset,
         return;
 
     //qDebug() << "start expanding:" << macro.name() << "text:" << originalText;
-    m_currentDoc->addMacroUse(macro, offset, originalText.length(), actuals, inCondition);
+    m_currentDoc->addMacroUse(macro, offset, originalText.length(), env.currentLine,
+                              actuals, inCondition);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
@@ -789,6 +790,11 @@ void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol)
 {
     if (symbol->identifier())
         m_findReferences->renameUsages(symbol);
+}
+
+void CppModelManager::findMacroUsages(const CPlusPlus::Macro &macro)
+{
+    m_findReferences->findMacroUses(macro);
 }
 
 CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()

@@ -46,7 +46,7 @@ public:
     IVersionControl(QObject *parent = 0) : QObject(parent) {}
     virtual ~IVersionControl() {}
 
-    virtual QString name() const = 0;
+    virtual QString displayName() const = 0;
 
     /*!
      * Returns whether files in this directory should be managed with this

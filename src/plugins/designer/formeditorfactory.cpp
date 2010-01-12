@@ -44,7 +44,6 @@ using namespace Designer::Constants;
 
 FormEditorFactory::FormEditorFactory()
   : Core::IEditorFactory(Core::ICore::instance()),
-    m_kind(QLatin1String(C_FORMEDITOR)),
     m_mimeTypes(QLatin1String(FORM_MIMETYPE))
 {
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
@@ -52,14 +51,19 @@ FormEditorFactory::FormEditorFactory()
                                         QLatin1String("ui"));
 }
 
-QString FormEditorFactory::kind() const
+QString FormEditorFactory::id() const
 {
-    return C_FORMEDITOR;
+    return QLatin1String(FORMEDITOR_ID);
+}
+
+QString FormEditorFactory::displayName() const
+{
+    return tr(C_FORMEDITOR_DISPLAY_NAME);
 }
 
 Core::IFile *FormEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 

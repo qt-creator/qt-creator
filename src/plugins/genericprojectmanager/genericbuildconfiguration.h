@@ -43,7 +43,7 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     Q_OBJECT
 public:
     GenericBuildConfiguration(GenericProject *pro);
-    GenericBuildConfiguration(GenericProject *pro, const QMap<QString, QVariant> &map);
+    GenericBuildConfiguration(GenericProject *pro, const QVariantMap &map);
     GenericBuildConfiguration(GenericBuildConfiguration *source);
 
     GenericProject *genericProject() const;
@@ -51,9 +51,28 @@ public:
     virtual ProjectExplorer::Environment environment() const;
     virtual QString buildDirectory() const;
     void setBuildDirectory(const QString &buildDirectory);
-    void toMap(QMap<QString, QVariant> &map) const;
+    void toMap(QVariantMap &map) const;
 private:
     QString m_buildDirectory;
+};
+
+class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    GenericBuildConfigurationFactory(GenericProject *project);
+    ~GenericBuildConfigurationFactory();
+
+    QStringList availableCreationIds() const;
+    QString displayNameForId(const QString &id) const;
+
+    ProjectExplorer::BuildConfiguration *create(const QString &id) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore(const QVariantMap &map) const;
+
+private:
+    GenericProject *m_project;
 };
 
 } // namespace GenericProjectManager

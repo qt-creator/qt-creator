@@ -49,9 +49,9 @@ public:
     GeneralSettings();
 
     QString id() const;
-    QString trName() const;
+    QString displayName() const;
     QString category() const;
-    QString trCategory() const;
+    QString displayCategory() const;
     QWidget* createPage(QWidget *parent);
     void apply();
     void finish();
@@ -60,12 +60,21 @@ public:
 private slots:
     void resetInterfaceColor();
     void resetExternalEditor();
+    void resetLanguage();
     void showHelpForExternalEditor();
 #ifdef Q_OS_UNIX
+#  ifndef Q_OS_MAC
+    void showHelpForFileBrowser();
+    void resetFileBrowser();
+#  endif
     void resetTerminal();
 #endif
 
 private:
+    void variableHelpDialogCreator(const QString& helpText);
+    void fillLanguageBox() const;
+    QString language() const;
+    void setLanguage(const QString&);
     Ui::GeneralSettings *m_page;
     QString m_searchKeywords;
     QPointer<QWidget> m_dialog;

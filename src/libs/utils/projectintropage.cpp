@@ -80,7 +80,7 @@ ProjectIntroPage::~ProjectIntroPage()
     delete m_d;
 }
 
-QString ProjectIntroPage::name() const
+QString ProjectIntroPage::projectName() const
 {
     return m_d->m_ui.nameLineEdit->text();
 }
@@ -95,7 +95,7 @@ void ProjectIntroPage::setPath(const QString &path)
     m_d->m_ui.pathChooser->setPath(path);
 }
 
-void ProjectIntroPage::setName(const QString &name)
+void ProjectIntroPage::setProjectName(const QString &name)
 {
     m_d->m_ui.nameLineEdit->setText(name);
     m_d->m_ui.nameLineEdit->selectAll();

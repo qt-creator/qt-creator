@@ -69,10 +69,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QPrinter>
 #include <QtGui/QPrintDialog>
-#include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 #include <QtGui/QShortcut>
-#include <QtGui/QScrollBar>
 #include <QtGui/QStyle>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextCursor>
@@ -82,7 +80,6 @@
 #include <QtGui/QToolTip>
 #include <QtGui/QInputDialog>
 #include <QtGui/QMenu>
-#include <QtGui/QKeyEvent>
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
@@ -1176,7 +1173,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
 
     if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
         QPlainTextEdit::keyPressEvent(e);
-    } else if ((e->modifiers() & Qt::ControlModifier) != Qt::ControlModifier){
+    } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
         QTextCursor cursor = textCursor();
         QString text = e->text();
         QString autoText = autoComplete(cursor, text);

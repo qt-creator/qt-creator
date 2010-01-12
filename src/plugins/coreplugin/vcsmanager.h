@@ -72,13 +72,13 @@ public:
     // Shows a confirmation dialog, whether the file should also be deleted
     // from revision control Calls sccDelete on the file. Returns false
     // if a failure occurs
-    bool showDeleteDialog(const QString &fileName);
+    bool promptToDelete(const QString &fileName);
+    bool promptToDelete(IVersionControl *versionControl, const QString &fileName);
 
     friend CORE_EXPORT QDebug operator<<(QDebug in, const VCSManager &);
 
 signals:
     void repositoryChanged(const QString &repository);
-    void filesChanged(const QStringList &files);
 
 private:
     VCSManagerPrivate *m_d;

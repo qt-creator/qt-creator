@@ -79,7 +79,7 @@ BuildSettingsPanel::~BuildSettingsPanel()
     delete m_widget;
 }
 
-QString BuildSettingsPanel::name() const
+QString BuildSettingsPanel::displayName() const
 {
     return QApplication::tr("Build Settings");
 }
@@ -168,11 +168,43 @@ void BuildSettingsWidget::setupUi()
     connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(checkMakeActiveLabel()));
 
+    connect(m_project, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+
+    connect(m_project, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+
+    foreach (BuildConfiguration *bc, m_project->buildConfigurations()) {
+        connect(bc, SIGNAL(displayNameChanged()),
+                this, SLOT(buildConfigurationDisplayNameChanged()));
+    }
+
     if (m_project->buildConfigurationFactory())
-        connect(m_project->buildConfigurationFactory(), SIGNAL(availableCreationTypesChanged()), SLOT(updateAddButtonMenu()));
+        connect(m_project->buildConfigurationFactory(), SIGNAL(availableCreationIdsChanged()), SLOT(updateAddButtonMenu()));
 
     updateAddButtonMenu();
     updateBuildSettings();
+}
+
+void BuildSettingsWidget::addedBuildConfiguration(BuildConfiguration *bc)
+{
+    connect(bc, SIGNAL(displayNameChanged()),
+            this, SLOT(buildConfigurationDisplayNameChanged()));
+}
+
+void BuildSettingsWidget::removedBuildConfiguration(BuildConfiguration *bc)
+{
+    disconnect(bc, SIGNAL(displayNameChanged()),
+               this, SLOT(buildConfigurationDisplayNameChanged()));
+}
+
+void BuildSettingsWidget::buildConfigurationDisplayNameChanged()
+{
+    for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
+        BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>();
+        m_buildConfigurationComboBox->setItemText(i, bc->displayName());
+    }
+    checkMakeActiveLabel();
 }
 
 void BuildSettingsWidget::addSubWidget(const QString &name, QWidget *widget)
@@ -221,9 +253,9 @@ void BuildSettingsWidget::updateAddButtonMenu()
                                this, SLOT(cloneConfiguration()));
     IBuildConfigurationFactory *factory = m_project->buildConfigurationFactory();
     if (factory) {
-        foreach (const QString &type, factory->availableCreationTypes()) {
-            QAction *action = m_addButtonMenu->addAction(factory->displayNameForType(type), this, SLOT(createConfiguration()));
-            action->setData(type);
+        foreach (const QString &id, factory->availableCreationIds()) {
+            QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
+            action->setData(id);
         }
     }
 }
@@ -259,9 +291,6 @@ void BuildSettingsWidget::updateBuildSettings()
     }
 
     m_buildConfigurationComboBox->blockSignals(blocked);
-
-    // TODO Restore position, entry from combbox
-    // TODO? select entry from combobox ?
 
     activeBuildConfigurationChanged();
 }

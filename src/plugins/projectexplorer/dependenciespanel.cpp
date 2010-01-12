@@ -84,7 +84,7 @@ void DependenciesModel::resetModel()
 
 int DependenciesModel::rowCount(const QModelIndex &index) const
 {
-    return index.isValid() ? 0 : m_projects.size();
+    return index.isValid() ? 0 : m_projects.isEmpty() ? 1 : m_projects.size();
 }
 
 int DependenciesModel::columnCount(const QModelIndex &index) const
@@ -94,11 +94,16 @@ int DependenciesModel::columnCount(const QModelIndex &index) const
 
 QVariant DependenciesModel::data(const QModelIndex &index, int role) const
 {
+    if (m_projects.isEmpty())
+        return role == Qt::DisplayRole
+            ? tr("<No other projects in this session>")
+            : QVariant();
+
     const Project *p = m_projects.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
-        return p->name();
+        return p->displayName();
     case Qt::CheckStateRole:
         return m_session->hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
@@ -135,6 +140,9 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
 
 Qt::ItemFlags DependenciesModel::flags(const QModelIndex &index) const
 {
+    if (m_projects.isEmpty())
+        return Qt::NoItemFlags;
+
     Qt::ItemFlags rc = QAbstractListModel::flags(index);
     if (index.column() == 0)
         rc |= Qt::ItemIsUserCheckable | Qt::ItemIsEditable;
@@ -258,16 +266,16 @@ void DependenciesWidget::updateDetails()
 
     foreach(Project *other, m_session->projects()) {
         if (m_session->hasDependency(m_project, other)) {
-            dependsOn.append(other->name());
+            dependsOn.append(other->displayName());
         }
     }
     QString text;
     if (dependsOn.isEmpty()) {
-        text = tr("%1 has no dependencies.").arg(m_project->name());
+        text = tr("%1 has no dependencies.").arg(m_project->displayName());
     } else if (dependsOn.count() == 1) {
-        text =tr("%1 depends on %2.").arg(m_project->name(), dependsOn.first());
+        text =tr("%1 depends on %2.").arg(m_project->displayName(), dependsOn.first());
     } else {
-        text = tr("%1 depends on: %2.").arg(m_project->name(), dependsOn.join(QLatin1String(", ")));
+        text = tr("%1 depends on: %2.").arg(m_project->displayName(), dependsOn.join(QLatin1String(", ")));
     }
     m_detailsContainer->setSummaryText(text);
 }
@@ -287,7 +295,7 @@ DependenciesPanel::~DependenciesPanel()
     delete m_widget;
 }
 
-QString DependenciesPanel::name() const
+QString DependenciesPanel::displayName() const
 {
     return QApplication::tr("Dependencies");
 }

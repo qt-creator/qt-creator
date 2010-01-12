@@ -9,7 +9,7 @@ import gdb
 import base64
 import curses.ascii
 
-# only needed for gdb 7.0
+# only needed for gdb 7.0/7.0.1 that do not implement parse_and_eval
 import os
 import tempfile
 
@@ -26,13 +26,27 @@ def qmin(n, m):
         return n
     return m
 
+def isGoodGdb():
+    #return gdb.VERSION.startswith("6.8.50.2009") \
+    #   and gdb.VERSION != "6.8.50.20090630-cvs"
+    return 'parse_and_eval' in dir(gdb)
+
+def cleanAddress(addr):
+    # we cannot use str(addr) as it yields rubbish for char pointers
+    # that might trigger Unicode encoding errors
+    return addr.cast(gdb.lookup_type("void").pointer())
+
 def parseAndEvaluate(exp):
-    if gdb.VERSION.startswith("6.8.50.2009"):
+    if isGoodGdb():
         return gdb.parse_and_eval(exp)
     # Work around non-existing gdb.parse_and_eval as in released 7.0
     gdb.execute("set logging redirect on")
     gdb.execute("set logging on")
-    gdb.execute("print %s" % exp)
+    try:
+        gdb.execute("print %s" % exp)
+    except:
+        gdb.execute("set logging off")
+        return None
     gdb.execute("set logging off")
     return gdb.history(0)
 
@@ -41,10 +55,10 @@ def listOfLocals():
         frame = gdb.selected_frame()
         #warn("FRAME %s: " % frame)
     except RuntimeError:
-        return ""
+        return []
 
     items = []
-    if gdb.VERSION.startswith("6.8.50.2009"):
+    if isGoodGdb():
         # archer-tromey-python
         block = frame.block()
         while True:
@@ -53,7 +67,7 @@ def listOfLocals():
                 break
             for symbol in block:
                 name = symbol.print_name
-                
+
                 if name == "__in_chrg":
                     continue
 
@@ -77,9 +91,11 @@ def listOfLocals():
 
             block = block.superblock
     else:
-        # Assuming gdb 7.0 release.
+        # Assuming gdb 7.0 release or 6.8-symbianelf.
         file = tempfile.mkstemp(prefix="gdbpy_")
         filename = file[1]
+        gdb.execute("set logging off")
+        gdb.execute("set logging redirect off")
         gdb.execute("set logging file %s" % filename)
         gdb.execute("set logging redirect on")
         gdb.execute("set logging on")
@@ -116,6 +132,8 @@ def value(expr):
 
 
 def isSimpleType(typeobj):
+    if typeobj.code == gdb.TYPE_CODE_PTR:
+        return False
     type = str(typeobj)
     return type == "bool" \
         or type == "char" \
@@ -124,7 +142,7 @@ def isSimpleType(typeobj):
         or type == "int" \
         or type == "long" or type.startswith("long ") \
         or type == "short" or type.startswith("short ") \
-        or type == "signed" or  type.startswith("signed ") \
+        or type == "signed" or type.startswith("signed ") \
         or type == "unsigned" or type.startswith("unsigned ")
 
 
@@ -144,6 +162,11 @@ def warn(message):
 def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
+
+def checkRef(ref):
+    count = ref["_q_value"]
+    check(count > 0)
+    check(count < 1000000) # assume there aren't a million references to any object
 
 #def couldBePointer(p, align):
 #    type = gdb.lookup_type("unsigned int")
@@ -166,8 +189,11 @@ def checkPointer(p, align = 1):
 
 
 def isNull(p):
-    s = str(p)
-    return s == "0x0" or s.startswith("0x0 ")
+    # The following can cause evaluation to abort with "UnicodeEncodeError"
+    # for invalid char *, as their "contents" is being examined
+    #s = str(p)
+    #return s == "0x0" or s.startswith("0x0 ")
+    return p.cast(gdb.lookup_type("void").pointer()) == 0
 
 movableTypes = set([
     "QBrush", "QBitArray", "QByteArray",
@@ -218,6 +244,7 @@ def qtNamespace():
 
 def encodeCharArray(p, size):
     s = ""
+    p = p.cast(gdb.lookup_type("unsigned char").pointer())
     for i in xrange(size):
         s += "%02x" % int(p.dereference())
         p += 1
@@ -229,7 +256,7 @@ def encodeByteArray(value):
     size = d_ptr['size']
     alloc = d_ptr['alloc']
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
@@ -247,7 +274,7 @@ def encodeString(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size * 2) == 0
-    check(d_ptr["ref"]["_q_value"] > 0)
+    checkRef(d_ptr["ref"])
     p = gdb.Value(d_ptr["data"])
     s = ""
     for i in xrange(size):
@@ -289,11 +316,11 @@ class FrameCommand(gdb.Command):
         args = arg.split(' ')
         #warn("ARG: %s" % arg)
         #warn("ARGS: %s" % args)
-        useFancy = int(args[0])
-        passExceptions = int(args[1])
+        options = args[0].split(",")
+        useFancy = "fancy" in options
         expandedINames = set()
-        if len(args) > 2:
-            expandedINames = set(args[2].split(","))
+        if len(args) > 1:
+            expandedINames = set(args[1].split(","))
         #warn("EXPANDED INAMES: %s" % expandedINames)
         module = sys.modules[__name__]
         self.dumpers = {}
@@ -315,7 +342,7 @@ class FrameCommand(gdb.Command):
             output += "]"
             print output
             return
-  
+
 
         if useFancy:
             for key, value in module.__dict__.items():
@@ -325,17 +352,19 @@ class FrameCommand(gdb.Command):
 
         d = Dumper()
         d.dumpers = self.dumpers
-        d.passExceptions = passExceptions
+        d.useFancy = useFancy
+        d.passExceptions = "passexceptions" in options
+        d.autoDerefPointers = "autoderef" in options
         d.ns = qtNamespace()
         d.expandedINames = expandedINames
-        d.useFancy = useFancy
         #warn(" NAMESPACE IS: '%s'" % d.ns)
 
         #
         # Locals
         #
         for item in listOfLocals():
-            #warn("ITEM %s: " % item.value)
+            #warn("ITEM NAME %s: " % item.name)
+            #warn("ITEM VALUE %s: " % item.value)
 
             type = item.value.type
             if type.code == gdb.TYPE_CODE_PTR \
@@ -367,11 +396,24 @@ class FrameCommand(gdb.Command):
 
             else:
                 # A "normal" local variable or parameter
-                d.beginHash()
-                d.put('iname="%s",' % item.iname)
-                d.put('addr="%s",' % item.value.address)
-                d.safePutItemHelper(item)
-                d.endHash()
+                try:
+                    addr = cleanAddress(item.value.address)
+                    d.beginHash()
+                    d.put('iname="%s",' % item.iname)
+                    d.put('addr="%s",' % addr)
+                    d.safePutItemHelper(item)
+                    d.endHash()
+                except AttributeError:
+                    # thrown by cleanAddreas with message
+                    # "'NoneType' object has no attribute 'cast'"
+                    # for optimized-out values
+                    d.beginHash()
+                    d.put('iname="%s",' % item.iname)
+                    d.put('name="%s",' % item.name)
+                    d.put('addr="<optimized out>",')
+                    d.put('value="<optimized out>",')
+                    d.put('type="%s"' % item.value.type)
+                    d.endHash()
 
         d.pushOutput()
         locals = d.safeoutput
@@ -382,29 +424,26 @@ class FrameCommand(gdb.Command):
         #
         d.safeoutput = ""
         watchers = ""
-        if len(args) > 3:
-            watchers = base64.b16decode(args[3], True)
+        if len(args) > 2:
+            watchers = base64.b16decode(args[2], True)
         if len(watchers) > 0:
-            for watcher in watchers.split("$$"):
-                (exp, name) = watcher.split("$")
-                self.handleWatch(d, exp, name)
+            for watcher in watchers.split("##"):
+                (exp, iname) = watcher.split("#")
+                self.handleWatch(d, exp, iname)
         d.pushOutput()
         watchers = d.safeoutput
 
-        print('locals={iname="local",name="Locals",value=" ",type=" ",'
-            + 'children=[' + locals + ']},'
-            + 'watchers={iname="watch",name="Watchers",value=" ",type=" ",'
-            + 'children=[' + watchers + ']}')
+        print('data=[' + locals + ',' + watchers + ']\n')
 
 
-    def handleWatch(self, d, exp, name):
-        #warn("HANDLING WATCH %s, NAME: %s" % (exp, name))
+    def handleWatch(self, d, exp, iname):
+        #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("["):
-            #warn("EVAL: EXP: %s" % exp)
+            warn("EVAL: EXP: %s" % exp)
             d.beginHash()
-            d.put('iname="watch.%s",' % name)
+            d.put('iname="%s",' % iname)
             d.put('name="%s",' % exp)
-            d.put('exp="%s"' % exp)
+            d.put('exp="%s",' % exp)
             try:
                 list = eval(exp)
                 #warn("EVAL: LIST: %s" % list)
@@ -415,7 +454,7 @@ class FrameCommand(gdb.Command):
                 d.beginChildren(len(list))
                 itemNumber = 0
                 for item in list:
-                    self.handleWatch(d, item, "%s.%d" % (name, itemNumber))
+                    self.handleWatch(d, item, "%s.%d" % (iname, itemNumber))
                     itemNumber += 1
                 d.endChildren()
             except:
@@ -429,9 +468,9 @@ class FrameCommand(gdb.Command):
             return
 
         d.beginHash()
-        d.put('iname="watch.%s",' % name)
+        d.put('iname="%s",' % iname)
         d.put('name="%s",' % exp)
-        d.put('exp="%s"' % exp)
+        d.put('exp="%s",' % exp)
         handled = False
         if exp == "<Edit>":
             d.put(',value=" ",')
@@ -439,8 +478,8 @@ class FrameCommand(gdb.Command):
         else:
             try:
                 value = parseAndEvaluate(exp)
-                item = Item(value, "watch", name, name)
-                d.safePutItemHelper(item)
+                item = Item(value, iname, None, None)
+                d.putItemHelper(item)
             except RuntimeError:
                 d.put(',value="<invalid>",')
                 d.put('type="<unknown>",numchild="0"')
@@ -575,7 +614,7 @@ class Dumper:
         str = encodeByteArray(value)
         self.putCommaIfNeeded()
         self.put('valueencoded="%d",value="%s"' % (6, str))
-    
+
     def putName(self, name):
         self.putCommaIfNeeded()
         self.put('name="%s"' % name)
@@ -695,10 +734,24 @@ class Dumper:
         if not name is None:
             self.putName(name)
 
+        if item.value is None:
+            # Happens for non-available watchers in gdb versions that
+            # need to use gdb.execute instead of gdb.parse_and_eval
+            self.putValue("<not available>")
+            self.putType("<unknown>")
+            self.putNumChild(0)
+            return
+
         # FIXME: Gui shows references stripped?
+        #warn(" ");
         #warn("REAL INAME: %s " % item.iname)
+        #warn("REAL NAME: %s " % name)
         #warn("REAL TYPE: %s " % item.value.type)
         #warn("REAL VALUE: %s " % item.value)
+        #try:
+        #    warn("REAL VALUE: %s " % item.value)
+        #except UnicodeEncodeError:
+        #    warn("REAL VALUE: <unprintable>")
 
         value = item.value
         type = value.type
@@ -712,12 +765,12 @@ class Dumper:
 
         strippedType = self.stripNamespaceFromType(
             type.strip_typedefs().unqualified()).replace("::", "__")
-        
+
         #warn(" STRIPPED: %s" % strippedType)
         #warn(" DUMPERS: %s" % self.dumpers)
         #warn(" DUMPERS: %s" % (strippedType in self.dumpers))
 
-        if isSimpleType(type):
+        if isSimpleType(type.unqualified()):
             #warn("IS SIMPLE: %s " % type)
             self.putType(item.value.type)
             self.putValue(value)
@@ -727,56 +780,73 @@ class Dumper:
             #warn("IS DUMPABLE: %s " % type)
             self.putType(item.value.type)
             self.dumpers[strippedType](self, item)
+            #warn(" RESULT: %s " % self.output)
 
         elif type.code == gdb.TYPE_CODE_ENUM:
             #warn("GENERIC ENUM: %s" % value)
             self.putType(item.value.type)
             self.putValue(value)
             self.putNumChild(0)
-            
+
 
         elif type.code == gdb.TYPE_CODE_PTR:
+            isHandled = False
+            #warn("A POINTER: %s" % value.type)
             if self.useFancy:
-                #warn("A POINTER: %s" % value.type)
-                isHandled = False
                 if isNull(value):
                     self.putValue("0x0")
                     self.putType(item.value.type)
                     self.putNumChild(0)
                     isHandled = True
 
-                target = str(type.target().unqualified())
-                if target == "void" and not isHandled:
+                target = str(type.target().strip_typedefs().unqualified())
+                if (not isHandled) and target == "void":
                     self.putType(item.value.type)
                     self.putValue(str(value))
                     self.putNumChild(0)
                     isHandled = True
 
-                if target == "char" and not isHandled:
+                #warn("TARGET: %s " % target) 
+                if (not isHandled) and (target == "char"
+                        or target == "signed char" or target == "unsigned char"):
                     # Display values up to given length directly
+                    #warn("CHAR AUTODEREF: %s" % value.address)
                     self.putType(item.value.type)
                     firstNul = -1
                     p = value
+                    found = False
                     for i in xrange(100):
                         if p.dereference() == 0:
                             # Found terminating NUL
-                            self.putValue(encodeCharArray(value, i), "6")
-                            self.putNumChild(0)
-                            isHandled = True
+                            found = True
                             break
                         p += 1
+                    if found:
+                        self.putValue(encodeCharArray(value, i), "6")
+                        self.putNumChild(0)
+                    else:
+                        self.putValue(encodeCharArray(value, 100) + "2e2e2e", "6")
+                        self.putNumChild(0)
+                    isHandled = True
 
-                if not isHandled:
-                    ## Generic pointer type.
-                    #warn("GENERIC POINTER: %s" % value)
-                    innerType = item.value.type.target()
-                    self.putType(innerType)
-                    self.childTypes.append(
-                        stripClassTag(str(innerType)))
-                    self.putItemHelper(
-                        Item(item.value.dereference(), item.iname, None, None))
-                    self.childTypes.pop()
-            else:
+            #warn("AUTODEREF: %s" % self.autoDerefPointers)
+            #warn("IS HANDLED: %s" % isHandled)
+            #warn("RES: %s" % (self.autoDerefPointers and not isHandled))
+            if self.autoDerefPointers and not isHandled:
+                ## Generic pointer type.
+                #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
+                innerType = item.value.type.target()
+                self.putType(innerType)
+                self.childTypes.append(
+                    stripClassTag(str(innerType)))
+                self.putItemHelper(
+                    Item(item.value.dereference(), item.iname, None, None))
+                self.childTypes.pop()
+                isHandled = True
+
+            # Fall back to plain pointer printing
+            if not isHandled:
+                #warn("GENERIC PLAIN POINTER: %s" % value.type)
                 self.putType(item.value.type)
                 self.putValue(str(value.address))
                 self.putNumChild(1)
@@ -787,6 +857,7 @@ class Dumper:
                     self.endChildren()
 
         else:
+            #warn("GENERIC STRUCT: %s" % value.type)
             #warn("INAME: %s " % item.iname)
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
@@ -815,6 +886,7 @@ class Dumper:
                 self.beginChildren(1, innerType)
 
                 baseNumber = 0
+                anonNumber = 0
                 for field in fields:
                     #warn("FIELD: %s" % field)
                     #warn("  BITSIZE: %s" % field.bitsize)
@@ -848,13 +920,30 @@ class Dumper:
                         self.putField("iname", child.iname)
                         self.safePutItemHelper(child)
                         self.endHash()
+                    elif field.name == "":
+                        # Anonymous union. We need a dummy name to distinguish
+                        # multiple anonymous unions in the struct.
+                        iname = "%s.#%d" % (item.iname, anonNumber)
+                        anonNumber += 1
+                        self.beginHash()
+                        self.putField("iname", iname)
+                        self.putField("name", "<n/a>")
+                        self.putField("value", " ")
+                        self.putField("type", "<anonymous union>")
+                        if self.isExpandedIName(iname):
+                            self.beginChildren()
+                            for f in field.type.fields():
+                                child = Item(item.value[f.name],
+                                    item.iname, f.name, f.name)
+                                self.safePutItem(child)
+                            self.endChildren()
+                        self.endHash()
                     else:
-                        # Data member.
+                        # Named field.
+                        self.beginHash()
                         child = Item(value[field.name],
                             item.iname, field.name, field.name)
-                        if not child.name:
-                            child.name = "<anon>"
-                        self.beginHash()
                         self.safePutItemHelper(child)
                         self.endHash()
+
                 self.endChildren()

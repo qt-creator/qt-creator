@@ -1,0 +1,126 @@
+1.3.2
+Random Number Generator is now thread safe. Thanks to Jack Llloyd of Radnombit.
+Timeouts in waitFor() and sendCmd() now work as they are supposed to.
+Fixed include issues.
+Fixed handling of NULL packet.
+
+
+1.3.1
+Channel ID managment rewriten and ID clashes that caused multiple issues are now fixed.
+Fixed cleanup procedures after timed out login.
+Fixed cleanup procedures after remote end goes away.
+Fixed variable types for MSVS compatbility.
+Fixed thred sleep issues under Windows.
+Fixed couple of small memory leaks.
+
+
+﻿1.3.0
+Changes made to support new stable Botan 1.8.x crypto library.
+Added macros for backward compatibility with Botan 1.6.x.
+All strings returned by read() method are now NULL terminated.
+All error message strings are now NULL terminated.
+Fixed multiple race conditions related to late mutex locking.
+Fixed multiple race conditions related to premature mutex unlocking.
+Fixed segfault when using cryptographic algorithms with block size > 64bit.
+Added aes192-cbc algorithm support.
+Fixed cleanup of connections after authentication failure.
+Fixed SFTP crash after changing to non existent remote directory.
+Updated examples.
+Updated api docs.
+
+
+1.2.7
+Converted to cmake from auto* tools.
+Moved thread functions into macros to avoid conflicts when linking to POSIX libraries in Windows.
+Fixed a race condition in ne7ssh.cpp.
+Fixed multiple memory leaks.
+
+
+1.2.6
+Fixed includes to compile with GCC 4.3.0.
+Fixed the cleanup of timed out connections.
+Fixed a race condition within ne7ssh.cpp.
+Fixes for mingw32 compiler.
+
+
+1.2.5
+Fixed a typo preventing use of 3des-cbc (thanks to Henry Fann for the patch).
+Fixed includes preventing compile in older versions of Linux.
+Fixed memory relocation issue in ne7ssh destructor.
+
+
+1.2.4
+Added support for SSH2_MSG_USERAUTH_BANNER.
+Fixed infinate loop in select_thread().
+Other bug fixes.
+
+
+1.2.3
+Fixed error logging issue seen during authentication.
+Added more detailed authentication error messages.
+Adjusted the error reporting interface for easier porting.
+Addressed debugging issues in the Windows port.
+Included new code examples reflecting the changes to the error reporting interface.
+
+
+1.2.2
+Fixed premature communication thread termination.
+Adjustments for MINGW compiler.
+Other bugfixes.
+
+
+1.2.1
+Fixed buffer overflow in SFTP put() and get().
+Mutex put in it's own class.
+Code formatting fixed.
+Other bugfixes.
+
+
+1.2.0
+Implemented Secure FTP client functionality.
+Fixed mutex locking issues.
+Fixed race conditions when running with multiple threads.
+Added support for RSA host keys.
+Added diffie-hellman-group14-sha1 key exchange algorithm support.
+Added timeout variable to connect methods.
+Other bugfixes.
+
+
+1.1.6
+Added support for Botan 1.5. Thanks to Jack Lloyd for the patch.
+WIN32 related bugfixes.
+Improved PEM file checking.
+Other minor bugfixes.
+
+
+1.1.5
+
+Fixed DSA key generation.
+Implemented single command execution.
+Added Support for reading binary data.
+Fixed getReceivedSize() method.
+Error handling rewritten.
+Fixed a few memory leaks.
+Other bugfixes.
+
+
+1.1
+
+RSA and DSA public key authentication support added.
+RSA and DSA key generation methods added.
+All errors are handled through throwError() function.
+Syslog functions removed.
+Implemented getReceivedSize() method to support reading past /0 character in received stream.
+Botan types changed to full types to avoid compatibility issues with WIN32.
+WIN32 specific thread functions added.
+Premature mutex unlocking in connection routines fixed.
+Fixed prevLen variable initialization in waitFor method.
+In Net7Sock class write() method, write() replaced with send().
+In Net7Sock class read() method, read() replaced with recv().
+Type definitions adjusted for WIN32 compatibility.
+WIN32 socket functions implemented.
+
+
+1.03
+
+Initial stand alone release.

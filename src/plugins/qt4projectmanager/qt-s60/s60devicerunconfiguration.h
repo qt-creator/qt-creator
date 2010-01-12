@@ -67,7 +67,7 @@ public:
 
     Qt4Project *qt4Project() const;
 
-    QString type() const;
+    QString id() const;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *configurationWidget();
     void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
@@ -127,11 +127,11 @@ class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurati
 public:
     explicit S60DeviceRunConfigurationFactory(QObject *parent);
     ~S60DeviceRunConfigurationFactory();
-    bool canRestore(const QString &type) const;
-    QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
-    // used to translate the types to names to display to the user
-    QString displayNameForType(const QString &type) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &type);
+    bool canRestore(const QString &id) const;
+    QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
+    // used to translate the ids to names to display to the user
+    QString displayNameForId(const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
 };
 
 /* S60DeviceRunControlBase: Builds the package and starts launcher

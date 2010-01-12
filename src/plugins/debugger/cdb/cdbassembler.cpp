@@ -84,7 +84,7 @@ bool getRegisters(CIDebugControl *ctl,
             return false;
         }
         Register reg;
-        reg.name = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
+        reg.name = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)).toLatin1();
         registers->push_back(reg);
     }
     // get values
@@ -236,7 +236,7 @@ bool dissassemble(CIDebugClient *client,
                                                     beforeLines, beforeLines + afterLines,
                                                     offset, flags, 0, 0, 0, 0);
     if (FAILED(hr)) {
-        *errorMessage= QString::fromLatin1("Unable to dissamble at 0x%1: %2").
+        *errorMessage= QString::fromLatin1("Unable to disassamble at 0x%1: %2").
                        arg(offset, 0, 16).arg(msgComFailed("OutputDisassemblyLines", hr));
         return false;
     }

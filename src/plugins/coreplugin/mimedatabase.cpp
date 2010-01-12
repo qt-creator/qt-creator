@@ -807,7 +807,7 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
  * - Multiple inheritance (several subClassesOf) can occur
  * - Provide quick lookup by name
  * - Provide quick lookup by file type.
- * This basically rules out some pointer-based tree, so the structure choosen
+ * This basically rules out some pointer-based tree, so the structure chosen
  * is:
  * - An alias map <QString->QString> for mapping aliases to types
  * - A Map <QString-MimeMapEntry> for the types (MimeMapEntry being a pair of

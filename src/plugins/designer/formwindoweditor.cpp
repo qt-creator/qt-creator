@@ -263,9 +263,9 @@ Core::IFile *FormWindowEditor::file()
     return m_file;
 }
 
-const char *FormWindowEditor::kind() const
+QString FormWindowEditor::id() const
 {
-    return C_FORMEDITOR;
+    return QLatin1String(FORMEDITOR_ID);
 }
 
 QString FormWindowEditor::displayName() const

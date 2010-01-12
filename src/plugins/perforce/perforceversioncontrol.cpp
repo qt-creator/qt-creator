@@ -43,7 +43,7 @@ PerforceVersionControl::PerforceVersionControl(PerforcePlugin *plugin) :
 {
 }
 
-QString PerforceVersionControl::name() const
+QString PerforceVersionControl::displayName() const
 {
     return QLatin1String("perforce");
 }

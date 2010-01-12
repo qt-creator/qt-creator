@@ -83,11 +83,11 @@ QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
                                           const QString &defaultPath,
                                           const WizardPageList &extensionPages) const
 {
-    GuiAppWizardDialog *dialog = new GuiAppWizardDialog(name(), icon(), extensionPages,
+    GuiAppWizardDialog *dialog = new GuiAppWizardDialog(displayName(), icon(), extensionPages,
                                                         showModulesPageForApplications(),
                                                         parent);
     dialog->setPath(defaultPath);
-    dialog->setName(GuiAppWizardDialog::projectName(defaultPath));
+    dialog->setProjectName(GuiAppWizardDialog::uniqueProjectName(defaultPath));
     // Order! suffixes first to generate files correctly
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
@@ -169,7 +169,7 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
         formHeader.setContents(license + contents);
     }
     // Create files: profile
-    const QString profileName = buildFileName(projectPath, projectParams.name, profileSuffix());
+    const QString profileName = buildFileName(projectPath, projectParams.fileName, profileSuffix());
     Core::GeneratedFile profile(profileName);
     contents.clear();
     {

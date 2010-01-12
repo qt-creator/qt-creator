@@ -303,7 +303,7 @@ public:
         Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
         m_editor = parent;
         m_file = new BinEditorFile(parent);
-        m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR);
+        m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
         m_cursorPositionLabel = new Utils::LineColumnLabel;
 
@@ -336,7 +336,7 @@ public:
         return m_file->open(fileName);
     }
     Core::IFile *file() { return m_file; }
-    const char *kind() const { return Core::Constants::K_DEFAULT_BINARY_EDITOR; }
+    QString id() const { return QLatin1String(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID); }
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
 
@@ -371,21 +371,25 @@ private:
 ///////////////////////////////// BinEditorFactory //////////////////////////////////
 
 BinEditorFactory::BinEditorFactory(BinEditorPlugin *owner) :
-    m_kind(QLatin1String(Core::Constants::K_DEFAULT_BINARY_EDITOR)),
     m_mimeTypes(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE)),
     m_owner(owner)
 {
 }
 
-QString BinEditorFactory::kind() const
+QString BinEditorFactory::id() const
 {
-    return m_kind;
+    return QLatin1String(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
+}
+
+QString BinEditorFactory::displayName() const
+{
+    return tr(Constants::C_BINEDITOR_DISPLAY_NAME);
 }
 
 Core::IFile *BinEditorFactory::open(const QString &fileName)
 {
     Core::EditorManager *em = Core::EditorManager::instance();
-    Core::IEditor *iface = em->openEditor(fileName, kind());
+    Core::IEditor *iface = em->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 

@@ -1,6 +1,6 @@
 include(parser/parser.pri)
 
-DEPENDPATH += $$PWD
+DEPENDPATH += $$PWD $$PWD/metatype
 INCLUDEPATH *= $$PWD/..
 
 HEADERS += \

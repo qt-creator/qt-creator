@@ -118,7 +118,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(const QList<Core::Gener
 
     const bool canAddToVCS = m_context->versionControl && m_context->versionControl->supportsOperation(Core::IVersionControl::AddOperation);
     if (m_context->versionControl)
-         m_context->page->setVCSDisplay(m_context->versionControl->name());
+         m_context->page->setVCSDisplay(m_context->versionControl->displayName());
     m_context->page->setAddToVersionControlEnabled(canAddToVCS);
 }
 

@@ -37,12 +37,25 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QSettings>
+#include <QtCore/QStringBuilder>
 #include <QtGui/QDesktopServices>
 
 #include <algorithm>
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+QString homeDirOnDevice(const QString &uname)
+{
+    const QString &dir = uname == QLatin1String("root")
+        ? QLatin1String("/root")
+            : uname == QLatin1String("developer")
+            ? QLatin1String("/var/local/mad-developer-home")
+                : QLatin1String("/home/") + uname;
+    qDebug("%s: user name %s is mapped to home dir %s",
+           Q_FUNC_INFO, qPrintable(uname), qPrintable(dir));
+    return dir;
+}
 
 namespace {
     const QLatin1String SettingsGroup("MaemoDeviceConfigs");
@@ -51,7 +64,8 @@ namespace {
     const QLatin1String NameKey("Name");
     const QLatin1String TypeKey("Type");
     const QLatin1String HostKey("Host");
-    const QLatin1String PortKey("Port");
+    const QLatin1String SshPortKey("SshPort");
+    const QLatin1String GdbServerPortKey("GdbServerPort");
     const QLatin1String UserNameKey("Uname");
     const QLatin1String AuthKey("Authentication");
     const QLatin1String KeyFileKey("KeyFile");
@@ -68,7 +82,7 @@ class DevConfIdMatcher
 {
 public:
     DevConfIdMatcher(quint64 id) : m_id(id) {}
-    bool operator()(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
+    bool operator()(const MaemoDeviceConfig &devConfig)
     {
         return devConfig.internalId == m_id;
     }
@@ -76,10 +90,11 @@ private:
     const quint64 m_id;
 };
 
-MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QString &name)
+MaemoDeviceConfig::MaemoDeviceConfig(const QString &name)
     : name(name),
       type(Physical),
-      port(22),
+      sshPort(22),
+      gdbServerPort(10000),
       authentication(Key),
       keyFile(DefaultKeyFile),
       timeout(30),
@@ -87,12 +102,13 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QString &name)
 {
 }
 
-MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings,
-                                                      quint64 &nextId)
+MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
+                                     quint64 &nextId)
     : name(settings.value(NameKey).toString()),
       type(static_cast<DeviceType>(settings.value(TypeKey, Physical).toInt())),
       host(settings.value(HostKey).toString()),
-      port(settings.value(PortKey, 22).toInt()),
+      sshPort(settings.value(SshPortKey, 22).toInt()),
+      gdbServerPort(settings.value(GdbServerPortKey, 10000).toInt()),
       uname(settings.value(UserNameKey).toString()),
       authentication(static_cast<AuthType>(settings.value(AuthKey).toInt())),
       pwd(settings.value(PasswordKey).toString()),
@@ -104,22 +120,23 @@ MaemoDeviceConfigurations::DeviceConfig::DeviceConfig(const QSettings &settings,
         ++nextId;
 }
 
-MaemoDeviceConfigurations::DeviceConfig::DeviceConfig()
+MaemoDeviceConfig::MaemoDeviceConfig()
     : internalId(InvalidId)
 {
 }
 
-bool MaemoDeviceConfigurations::DeviceConfig::isValid() const
+bool MaemoDeviceConfig::isValid() const
 {
     return internalId != InvalidId;
 }
 
-void MaemoDeviceConfigurations::DeviceConfig::save(QSettings &settings) const
+void MaemoDeviceConfig::save(QSettings &settings) const
 {
     settings.setValue(NameKey, name);
     settings.setValue(TypeKey, type);
     settings.setValue(HostKey, host);
-    settings.setValue(PortKey, port);
+    settings.setValue(SshPortKey, sshPort);
+    settings.setValue(GdbServerPortKey, gdbServerPort);
     settings.setValue(UserNameKey, uname);
     settings.setValue(AuthKey, authentication);
     settings.setValue(PasswordKey, pwd);
@@ -128,7 +145,7 @@ void MaemoDeviceConfigurations::DeviceConfig::save(QSettings &settings) const
     settings.setValue(InternalIdKey, internalId);
 }
 
-void MaemoDeviceConfigurations::setDevConfigs(const QList<DeviceConfig> &devConfigs)
+void MaemoDeviceConfigurations::setDevConfigs(const QList<MaemoDeviceConfig> &devConfigs)
 {
     m_devConfigs = devConfigs;
     save();
@@ -162,7 +179,6 @@ MaemoDeviceConfigurations::MaemoDeviceConfigurations(QObject *parent)
     load();
 }
 
-
 void MaemoDeviceConfigurations::load()
 {
     QSettings *settings = Core::ICore::instance()->settings();
@@ -171,26 +187,26 @@ void MaemoDeviceConfigurations::load()
     int count = settings->beginReadArray(ConfigListKey);
     for (int i = 0; i < count; ++i) {
         settings->setArrayIndex(i);
-        m_devConfigs.append(DeviceConfig(*settings, m_nextId));
+        m_devConfigs.append(MaemoDeviceConfig(*settings, m_nextId));
     }
     settings->endArray();
     settings->endGroup();
 }
 
-MaemoDeviceConfigurations::DeviceConfig MaemoDeviceConfigurations::find(const QString &name) const
+MaemoDeviceConfig MaemoDeviceConfigurations::find(const QString &name) const
 {
-    QList<DeviceConfig>::ConstIterator resultIt =
+    QList<MaemoDeviceConfig>::ConstIterator resultIt =
         std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),
                      DevConfNameMatcher(name));
-    return resultIt == m_devConfigs.constEnd() ? DeviceConfig() : *resultIt;
+    return resultIt == m_devConfigs.constEnd() ? MaemoDeviceConfig() : *resultIt;
 }
 
-MaemoDeviceConfigurations::DeviceConfig MaemoDeviceConfigurations::find(int id) const
+MaemoDeviceConfig MaemoDeviceConfigurations::find(int id) const
 {
-    QList<DeviceConfig>::ConstIterator resultIt =
+    QList<MaemoDeviceConfig>::ConstIterator resultIt =
         std::find_if(m_devConfigs.constBegin(), m_devConfigs.constEnd(),
                      DevConfIdMatcher(id));
-    return resultIt == m_devConfigs.constEnd() ? DeviceConfig() : *resultIt;
+    return resultIt == m_devConfigs.constEnd() ? MaemoDeviceConfig() : *resultIt;
 }
 
 MaemoDeviceConfigurations *MaemoDeviceConfigurations::m_instance = 0;

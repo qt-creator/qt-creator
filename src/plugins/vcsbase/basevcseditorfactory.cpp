@@ -35,6 +35,8 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <QtCore/QCoreApplication>
+
 namespace VCSBase {
 
 struct BaseVCSEditorFactoryPrivate
@@ -42,14 +44,15 @@ struct BaseVCSEditorFactoryPrivate
     BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t);
 
     const VCSBaseEditorParameters *m_type;
-    const QString m_kind;
+    const QString m_id;
+    QString m_displayName;
     const QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_editorHandler;
 };
 
 BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorParameters *t) :
     m_type(t),
-    m_kind(QLatin1String(t->kind)),
+    m_id(t->id),
     m_mimeTypes(QStringList(QLatin1String(t->mimeType))),
     m_editorHandler(new TextEditor::TextEditorActionHandler(t->context))
 {
@@ -58,6 +61,7 @@ BaseVCSEditorFactoryPrivate::BaseVCSEditorFactoryPrivate(const VCSBaseEditorPara
 BaseVCSEditorFactory::BaseVCSEditorFactory(const VCSBaseEditorParameters *t)
   : m_d(new BaseVCSEditorFactoryPrivate(t))
 {
+    m_d->m_displayName = QCoreApplication::translate("VCS", t->displayName);
 }
 
 BaseVCSEditorFactory::~BaseVCSEditorFactory()
@@ -70,14 +74,19 @@ QStringList BaseVCSEditorFactory::mimeTypes() const
     return m_d->m_mimeTypes;
 }
 
-QString BaseVCSEditorFactory::kind() const
+QString BaseVCSEditorFactory::id() const
 {
-    return m_d->m_kind;
+    return m_d->m_id;
+}
+
+QString BaseVCSEditorFactory::displayName() const
+{
+    return m_d->m_displayName;
 }
 
 Core::IFile *BaseVCSEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 

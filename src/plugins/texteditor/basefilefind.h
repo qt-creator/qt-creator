@@ -62,8 +62,13 @@ public:
     explicit BaseFileFind(Find::SearchResultWindow *resultWindow);
 
     bool isEnabled() const;
+    bool isReplaceSupported() const { return true; }
     void findAll(const QString &txt, QTextDocument::FindFlags findFlags);
+    void replaceAll(const QString &txt, QTextDocument::FindFlags findFlags);
 
+    /* returns the list of unique files that were passed in items */
+    static QStringList replaceAll(const QString &txt,
+                                  const QList<Find::SearchResultItem> &items);
 protected:
     virtual QStringList files() = 0;
     void writeCommonSettings(QSettings *settings);
@@ -79,6 +84,8 @@ private slots:
     void searchFinished();
     void openEditor(const Find::SearchResultItem &item);
     void syncRegExpSetting(bool useRegExp);
+    void doReplace(const QString &txt,
+                    const QList<Find::SearchResultItem> &items);
 
 private:
     QWidget *createProgressWidget();

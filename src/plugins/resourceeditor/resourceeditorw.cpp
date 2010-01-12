@@ -157,8 +157,8 @@ bool ResourceEditorFile::save(const QString &name /*= QString()*/)
     return true;
 }
 
-const char *ResourceEditorW::kind() const {
-    return ResourceEditor::Constants::C_RESOURCEEDITOR;
+QString ResourceEditorW::id() const {
+    return QLatin1String(ResourceEditor::Constants::RESOURCEEDITOR_ID);
 }
 
 QString ResourceEditorFile::fileName() const

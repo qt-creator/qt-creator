@@ -46,10 +46,10 @@ class Register
 {
 public:
     Register() : changed(true) {}
-    Register(QString const &name_) : name(name_), changed(true) {}
+    Register(QByteArray const &name_) : name(name_), changed(true) {}
 
 public:
-    QString name;
+    QByteArray name;
     QString value;
     bool changed;
 };

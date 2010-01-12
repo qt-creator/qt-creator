@@ -40,6 +40,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
+#include <QtCore/QSettings>
 #include <QtCore/QVariant>
 
 #include <QtGui/QMessageBox>
@@ -179,6 +180,12 @@ int main(int argc, char **argv)
     QTranslator translator;
     QTranslator qtTranslator;
     QString locale = QLocale::system().name();
+    // keep this in sync with the MainWindow ctor in coreplugin/mainwindow.cpp
+    const QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+                                 QLatin1String("Nokia"), QLatin1String("QtCreator"));
+    locale = settings.value("General/OverrideLanguage", locale).toString();
+
+
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
                         + QLatin1String(SHARE_PATH "/translations");
     if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {

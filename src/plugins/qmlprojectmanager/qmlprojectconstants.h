@@ -46,7 +46,8 @@ const char *const C_FILESEDITOR      = ".files Editor";
 // kinds
 const char *const PROJECT_KIND       = "QML";
 
-const char *const FILES_EDITOR       = ".qmlproject Editor";
+const char *const FILES_EDITOR_ID    = "Qt4.QmlProjectEditor";
+const char *const FILES_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", ".qmlproject Editor");
 const char *const FILES_MIMETYPE     = QMLMIMETYPE;
 
 const char *const TASK_CATEGORY_QML = "Task.Category.Qml";

@@ -2690,7 +2690,7 @@ public:
     unsigned in_token;
     ExpressionAST *fast_enumeratable_expression;
     unsigned rparen_token;
-    StatementAST *body_statement;
+    StatementAST *statement;
 
 public: // annotations
     Block *symbol;

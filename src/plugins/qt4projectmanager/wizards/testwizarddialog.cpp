@@ -69,7 +69,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
 void TestWizardDialog::slotCurrentIdChanged(int id)
 {
     if (id == TestPageId)
-        m_testPage->setProjectName(name());
+        m_testPage->setProjectName(projectName());
 }
 
 TestWizardParameters TestWizardDialog::testParameters() const
@@ -81,7 +81,7 @@ QtProjectParameters TestWizardDialog::projectParameters() const
 {
     QtProjectParameters rc;
     rc.type = QtProjectParameters::ConsoleApp;
-    rc.name = name();
+    rc.fileName = projectName();
     rc.path = path();
     // Name binary "tst_xx" after the main source
     rc.target = QFileInfo(m_testPage->sourcefileName()).baseName();

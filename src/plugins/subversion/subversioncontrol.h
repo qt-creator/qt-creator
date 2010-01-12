@@ -43,7 +43,7 @@ class SubversionControl : public Core::IVersionControl
     Q_OBJECT
 public:
     explicit SubversionControl(SubversionPlugin *plugin);
-    virtual QString name() const;
+    virtual QString displayName() const;
 
     virtual bool managesDirectory(const QString &directory) const;
     virtual QString findTopLevelForDirectory(const QString &directory) const;

@@ -168,6 +168,14 @@ FakeVimSettings *theFakeVimSettings()
     instance->insertItem(ConfigAutoIndent, item, QLatin1String("autoindent"), QLatin1String("ai"));
 
     item = new SavedAction(instance);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    item->setSettingsKey(group, QLatin1String("SmartIndent"));
+    item->setValue(false);
+    item->setCheckable(true);
+    instance->insertItem(ConfigSmartIndent, item, QLatin1String("smartindent"), QLatin1String("si"));
+
+    item = new SavedAction(instance);
     item->setDefaultValue(true);
     item->setValue(true);
     item->setSettingsKey(group, QLatin1String("IncSearch"));

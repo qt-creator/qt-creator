@@ -68,9 +68,9 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFile
       m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase)
 {
     if (!m_proFilePath.isEmpty())
-        setName(QFileInfo(m_proFilePath).completeBaseName());
+        setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
     else
-        setName(tr("Qt4RunConfiguration"));
+        setDisplayName(tr("Qt4RunConfiguration"));
 
     connect(pro, SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
@@ -91,7 +91,7 @@ Qt4Project *Qt4RunConfiguration::qt4Project() const
     return static_cast<Qt4Project *>(project());
 }
 
-QString Qt4RunConfiguration::type() const
+QString Qt4RunConfiguration::id() const
 {
     return "Qt4ProjectManager.Qt4RunConfiguration";
 }
@@ -142,7 +142,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->setMargin(0);
 
     QLabel *nameLabel = new QLabel(tr("Name:"));
-    m_nameLineEdit = new QLineEdit(m_qt4RunConfiguration->name());
+    m_nameLineEdit = new QLineEdit(m_qt4RunConfiguration->displayName());
     nameLabel->setBuddy(m_nameLineEdit);
     toplayout->addRow(nameLabel, m_nameLineEdit);
 
@@ -221,7 +221,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(argumentsEdited(QString)));
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(nameEdited(QString)));
+            this, SLOT(displayNameEdited(QString)));
     connect(m_useTerminalCheck, SIGNAL(toggled(bool)),
             this, SLOT(termToggled(bool)));
 
@@ -233,8 +233,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
-    connect(qt4RunConfiguration, SIGNAL(nameChanged(QString)),
-            this, SLOT(nameChanged(QString)));
+    connect(qt4RunConfiguration, SIGNAL(displayNameChanged(QString)),
+            this, SLOT(displayNameChanged(QString)));
     connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)),
             this, SLOT(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)));
     connect(qt4RunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
@@ -317,7 +317,7 @@ void Qt4RunConfigurationWidget::argumentsEdited(const QString &args)
     m_ignoreChange = false;
 }
 
-void Qt4RunConfigurationWidget::nameEdited(const QString &name)
+void Qt4RunConfigurationWidget::displayNameEdited(const QString &name)
 {
     m_ignoreChange = true;
     m_qt4RunConfiguration->setUserName(name);
@@ -353,7 +353,7 @@ void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
     m_argumentsLineEdit->setText(args);
 }
 
-void Qt4RunConfigurationWidget::nameChanged(const QString &name)
+void Qt4RunConfigurationWidget::displayNameChanged(const QString &name)
 {
     if (!m_ignoreChange)
         m_nameLineEdit->setText(name);
@@ -432,7 +432,7 @@ void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
     if (!m_proFilePath.isEmpty()) {
         m_cachedTargetInformationValid = false;
         if (!m_userSetName)
-            setName(QFileInfo(m_proFilePath).completeBaseName());
+            setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
     }
     m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("UserEnvironmentChanges").toStringList());
     QVariant tmp = reader.restoreValue("BaseEnvironmentBase");
@@ -551,14 +551,14 @@ void Qt4RunConfiguration::setRunMode(RunMode runMode)
 
 void Qt4RunConfiguration::setUserName(const QString &name)
 {
-    if (name == "") {
+    if (name.isEmpty()) {
         m_userSetName = false;
-        setName(tr("Qt4RunConfiguration"));
+        setDisplayName(tr("Qt4RunConfiguration"));
     } else {
         m_userSetName = true;
-        setName(name);
+        setDisplayName(name);
     }
-    emit nameChanged(name);
+    emit displayNameChanged(name);
 }
 
 QString Qt4RunConfiguration::proFilePath() const
@@ -570,81 +570,22 @@ void Qt4RunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    //qDebug()<<"updateTarget";
-    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
-    Qt4ProFileNode *proFileNode = qt4Project()->rootProjectNode()->findProFileFor(m_proFilePath);
-    if (!proFileNode) {
+    Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
+                                                                m_proFilePath);
+    if (info.error != Qt4TargetInformation::NoError) {
+        if (info.error == Qt4TargetInformation::ProParserError) {
+            Core::ICore::instance()->messageManager()->printToOutputPane(
+                    tr("Could not parse %1. The Qt4 run configuration %2 can not be started.")
+                    .arg(m_proFilePath).arg(displayName()));
+        }
         m_workingDir = QString::null;
         m_executable = QString::null;
         m_cachedTargetInformationValid = true;
         emit effectiveTargetInformationChanged();
         return;
     }
-    ProFileReader *reader = qt4Project()->createProFileReader(proFileNode);
-    reader->setCumulative(false);
-
-    // Find out what flags we pass on to qmake
-    QStringList addedUserConfigArguments;
-    QStringList removedUserConfigArguments;
-    qt4bc->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-    reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
-
-    if (!reader->readProFile(m_proFilePath)) {
-        qt4Project()->destroyProFileReader(reader);
-        Core::ICore::instance()->messageManager()->printToOutputPane(tr("Could not parse %1. The Qt4 run configuration %2 can not be started.").arg(m_proFilePath).arg(name()));
-        return;
-    }
-
-    // Extract data
-    QDir baseProjectDirectory = QFileInfo(project()->file()->fileName()).absoluteDir();
-    QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(m_proFilePath).path());
-    QDir baseBuildDirectory = project()->activeBuildConfiguration()->buildDirectory();
-    QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
-
-    //qDebug()<<relSubDir<<baseDir;
-
-    // Working Directory
-    if (reader->contains("DESTDIR")) {
-        //qDebug()<<"reader contains destdir:"<<reader->value("DESTDIR");
-        m_workingDir = reader->value("DESTDIR");
-        if (QDir::isRelativePath(m_workingDir)) {
-            m_workingDir = baseDir + QLatin1Char('/') + m_workingDir;
-            //qDebug()<<"was relative and expanded to"<<m_workingDir;
-        }
-    } else {
-        //qDebug()<<"reader didn't contain DESTDIR, setting to "<<baseDir;
-        m_workingDir = baseDir;
-        if (reader->values("CONFIG").contains("debug_and_release_target")) {
-            //qDebug()<<"reader has debug_and_release_target";
-            QString qmakeBuildConfig = "release";
-            if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
-                qmakeBuildConfig = "debug";
-            if (!reader->contains("DESTDIR"))
-                m_workingDir += QLatin1Char('/') + qmakeBuildConfig;
-        }
-    }
-
-    QString target = reader->value("TARGET");
-    if (target.isEmpty())
-        target = QFileInfo(m_proFilePath).baseName();
-
-#if defined (Q_OS_MAC)
-    if (reader->values("CONFIG").contains("app_bundle")) {
-        m_workingDir += QLatin1Char('/')
-                   + target
-                   + QLatin1String(".app/Contents/MacOS");
-    }
-#endif
-
-    m_workingDir = QDir::cleanPath(m_workingDir);
-    m_executable = QDir::cleanPath(m_workingDir + QLatin1Char('/') + target);
-    //qDebug()<<"##### updateTarget sets:"<<m_workingDir<<m_executable;
-
-#if defined (Q_OS_WIN)
-    m_executable += QLatin1String(".exe");
-#endif
-
-    qt4Project()->destroyProFileReader(reader);
+    m_workingDir = info.workingDir;
+    m_executable = info.executable;
 
     m_cachedTargetInformationValid = true;
 
@@ -707,25 +648,25 @@ Qt4RunConfigurationFactory::~Qt4RunConfigurationFactory()
 }
 
 // used to recreate the runConfigurations when restoring settings
-bool Qt4RunConfigurationFactory::canRestore(const QString &type) const
+bool Qt4RunConfigurationFactory::canRestore(const QString &id) const
 {
-    return type == "Qt4ProjectManager.Qt4RunConfiguration";
+    return id == "Qt4ProjectManager.Qt4RunConfiguration";
 }
 
-ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &type)
+ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &id)
 {
     Qt4Project *p = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(p);
-    if (type.startsWith("Qt4RunConfiguration.")) {
-        QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
+    if (id.startsWith("Qt4RunConfiguration.")) {
+        QString fileName = id.mid(QString("Qt4RunConfiguration.").size());
         return new Qt4RunConfiguration(p, fileName);
     }
-    Q_ASSERT(type == "Qt4ProjectManager.Qt4RunConfiguration");
+    Q_ASSERT(id == "Qt4ProjectManager.Qt4RunConfiguration");
     // The right path is set in restoreSettings
     return new Qt4RunConfiguration(p, QString::null);
 }
 
-QStringList Qt4RunConfigurationFactory::availableCreationTypes(ProjectExplorer::Project *pro) const
+QStringList Qt4RunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *pro) const
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
     if (qt4project) {
@@ -740,8 +681,8 @@ QStringList Qt4RunConfigurationFactory::availableCreationTypes(ProjectExplorer::
     }
 }
 
-QString Qt4RunConfigurationFactory::displayNameForType(const QString &type) const
+QString Qt4RunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QString fileName = type.mid(QString("Qt4RunConfiguration.").size());
+    QString fileName = id.mid(QString("Qt4RunConfiguration.").size());
     return QFileInfo(fileName).completeBaseName();
 }

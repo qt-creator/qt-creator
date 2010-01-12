@@ -172,11 +172,26 @@ bool Scope::isPrototypeScope() const
     return false;
 }
 
+bool Scope::isObjCClassScope() const
+{
+    if (_owner)
+        return _owner->isObjCClass();
+    return false;
+}
+
 bool Scope::isFunctionScope() const
 {
     Function *f = 0;
     if (_owner && 0 != (f = _owner->asFunction()))
         return f->arguments() != this;
+    return false;
+}
+
+bool Scope::isObjCMethodScope() const
+{
+    ObjCMethod *m = 0;
+    if (_owner && 0 != (m = _owner->asObjCMethod()))
+        return m->arguments() != this;
     return false;
 }
 

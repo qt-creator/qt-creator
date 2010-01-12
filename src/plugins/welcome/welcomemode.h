@@ -53,11 +53,11 @@ public:
     ~WelcomeMode();
 
     // IMode
-    QString name() const;
+    QString displayName() const;
     QIcon icon() const;
     int priority() const;
     QWidget *widget();
-    const char *uniqueModeName() const;
+    QString id() const;
     QList<int> context() const;
     void activated();
     QString contextHelpId() const { return QLatin1String("Qt Creator"); }

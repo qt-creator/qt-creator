@@ -46,11 +46,11 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin)
 {
     m_ui.setupUi(this);
     connect(m_ui.closeButton, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(m_ui.searchButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(m_ui.searchButton, SIGNAL(clicked()), this, SLOT(search()));
+    connect(m_ui.replaceButton, SIGNAL(clicked()), this, SLOT(replace()));
     connect(m_ui.matchCase, SIGNAL(toggled(bool)), m_plugin, SLOT(setCaseSensitive(bool)));
     connect(m_ui.wholeWords, SIGNAL(toggled(bool)), m_plugin, SLOT(setWholeWord(bool)));
     connect(m_ui.filterList, SIGNAL(activated(int)), this, SLOT(setCurrentFilter(int)));
-    connect(this, SIGNAL(accepted()), this, SLOT(search()));
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_ui.searchTerm->setCompleter(m_findCompleter);
     QVBoxLayout *layout = new QVBoxLayout;
@@ -108,12 +108,14 @@ void FindToolWindow::setCurrentFilter(int index)
         if (!configWidget)
             continue;
         if (i == index) {
+            IFindFilter *filter = m_filters.at(i);
             m_ui.configWidget->layout()->addWidget(configWidget);
-            bool enabled = m_filters.at(i)->isEnabled();
+            bool enabled = filter->isEnabled();
             m_ui.matchCase->setEnabled(enabled);
             m_ui.wholeWords->setEnabled(enabled);
             m_ui.searchTerm->setEnabled(enabled);
             m_ui.searchButton->setEnabled(enabled);
+            m_ui.replaceButton->setEnabled(filter->isReplaceSupported() && enabled);
             configWidget->setEnabled(enabled);
         } else {
             configWidget->setParent(0);
@@ -122,15 +124,36 @@ void FindToolWindow::setCurrentFilter(int index)
     m_currentFilter = m_filters.at(index);
 }
 
-void FindToolWindow::search()
+void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
 {
+    if (filter)
+        *filter = 0;
+    accept();
     m_plugin->updateFindCompletion(m_ui.searchTerm->text());
     int index = m_ui.filterList->currentIndex();
-    QString term = m_ui.searchTerm->text();
-    if (term.isEmpty() || index < 0)
+    QString searchTerm = m_ui.searchTerm->text();
+    if (term)
+        *term = searchTerm;
+    if (searchTerm.isEmpty() || index < 0)
         return;
-    IFindFilter *filter = m_filters.at(index);
+    if (filter)
+        *filter = m_filters.at(index);
+}
+
+void FindToolWindow::search()
+{
+    QString term;
+    IFindFilter *filter;
+    acceptAndGetParameters(&term, &filter);
     filter->findAll(term, m_plugin->findFlags());
+}
+
+void FindToolWindow::replace()
+{
+    QString term;
+    IFindFilter *filter;
+    acceptAndGetParameters(&term, &filter);
+    filter->replaceAll(term, m_plugin->findFlags());
 }
 
 void FindToolWindow::writeSettings()

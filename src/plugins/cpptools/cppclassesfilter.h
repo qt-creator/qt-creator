@@ -43,8 +43,8 @@ public:
     CppClassesFilter(CppModelManager *manager, Core::EditorManager *editorManager);
     ~CppClassesFilter();
 
-    QString trName() const { return tr("Classes"); }
-    QString name() const { return QLatin1String("Classes"); }
+    QString displayName() const { return tr("Classes"); }
+    QString id() const { return QLatin1String("Classes"); }
     Priority priority() const { return Medium; }
 };
 

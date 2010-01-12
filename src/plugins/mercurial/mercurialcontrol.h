@@ -49,7 +49,7 @@ class MercurialControl: public Core::IVersionControl
 public:
     explicit MercurialControl(MercurialClient *mercurialClient);
 
-    QString name() const;
+    QString displayName() const;
     bool managesDirectory(const QString &filename) const;
     QString findTopLevelForDirectory(const QString &directory) const;
     bool supportsOperation(Operation operation) const;
@@ -66,7 +66,6 @@ public slots:
 
 private:
     MercurialClient *mercurialClient;
-    bool mercurialEnabled;
 };
 
 } //namespace Internal

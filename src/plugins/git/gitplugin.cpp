@@ -71,22 +71,26 @@
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput,
-    Git::Constants::GIT_COMMAND_LOG_EDITOR_KIND,
+    Git::Constants::GIT_COMMAND_LOG_EDITOR_ID,
+    Git::Constants::GIT_COMMAND_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_COMMAND_LOG_EDITOR,
     "application/vnd.nokia.text.scs_git_commandlog",
     "gitlog"},
 {   VCSBase::LogOutput,
-    Git::Constants::GIT_LOG_EDITOR_KIND,
+    Git::Constants::GIT_LOG_EDITOR_ID,
+    Git::Constants::GIT_LOG_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_LOG_EDITOR,
     "application/vnd.nokia.text.scs_git_filelog",
     "gitfilelog"},
 {   VCSBase::AnnotateOutput,
-    Git::Constants::GIT_BLAME_EDITOR_KIND,
+    Git::Constants::GIT_BLAME_EDITOR_ID,
+    Git::Constants::GIT_BLAME_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_BLAME_EDITOR,
     "application/vnd.nokia.text.scs_git_annotation",
     "gitsannotate"},
 {   VCSBase::DiffOutput,
-    Git::Constants::GIT_DIFF_EDITOR_KIND,
+    Git::Constants::GIT_DIFF_EDITOR_ID,
+    Git::Constants::GIT_DIFF_EDITOR_DISPLAY_NAME,
     Git::Constants::C_GIT_DIFF_EDITOR,
     "text/x-patch","diff"}
 };
@@ -106,15 +110,17 @@ using namespace Git::Internal;
 GitPlugin *GitPlugin::m_instance = 0;
 
 GitPlugin::GitPlugin() :
-    VCSBase::VCSBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_KIND)),
+    VCSBase::VCSBasePlugin(QLatin1String(Git::Constants::GITSUBMITEDITOR_ID)),
     m_core(0),
     m_diffAction(0),
     m_diffProjectAction(0),
+    m_diffRepositoryAction(0),
     m_statusRepositoryAction(0),
     m_logAction(0),
     m_blameAction(0),
     m_logProjectAction(0),
     m_undoFileAction(0),
+    m_logRepositoryAction(0),
     m_undoRepositoryAction(0),
     m_showAction(0),
     m_stageAction(0),
@@ -165,7 +171,8 @@ GitPlugin *GitPlugin::instance()
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitParameters = {
     Git::Constants::SUBMIT_MIMETYPE,
-    Git::Constants::GITSUBMITEDITOR_KIND,
+    Git::Constants::GITSUBMITEDITOR_ID,
+    Git::Constants::GITSUBMITEDITOR_DISPLAY_NAME,
     Git::Constants::C_GITSUBMITEDITOR
 };
 
@@ -270,11 +277,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
     gitContainer->addAction(command);
 
-    m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
-    command = actionManager->registerAction(m_statusRepositoryAction, "Git.StatusRepository", globalcontext);
-    connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
-    gitContainer->addAction(command);
-
     m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = actionManager->registerAction(m_logProjectAction, "Git.LogProject", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+K")));
@@ -282,9 +284,25 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
     gitContainer->addAction(command);
 
+    gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Repository"), this));
+
+    m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
+    command = actionManager->registerAction(m_diffRepositoryAction, "Git.DiffRepository", globalcontext);
+    connect(m_diffRepositoryAction, SIGNAL(triggered()), this, SLOT(diffRepository()));
+    gitContainer->addAction(command);
+
+    m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
+    command = actionManager->registerAction(m_statusRepositoryAction, "Git.StatusRepository", globalcontext);
+    connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
+    gitContainer->addAction(command);
+
+    m_logRepositoryAction = new QAction(tr("Log Repository"), this);
+    command = actionManager->registerAction(m_logRepositoryAction, "Git.LogRepository", globalcontext);
+    connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
+    gitContainer->addAction(command);
+
     m_undoRepositoryAction = new QAction(tr("Undo Repository Changes"), this);
     command = actionManager->registerAction(m_undoRepositoryAction, "Git.UndoRepository", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_undoRepositoryAction, SIGNAL(triggered()), this, SLOT(undoRepositoryChanges()));
     gitContainer->addAction(command);
 
@@ -390,6 +408,13 @@ void GitPlugin::diffCurrentProject()
     m_gitClient->diff(state.currentProjectTopLevel(), QStringList(), state.relativeCurrentProject());
 }
 
+void GitPlugin::diffRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->diff(state.topLevel(), QStringList(), QStringList());
+}
+
 void GitPlugin::statusRepository()
 {
     const VCSBase::VCSBasePluginState state = currentState();
@@ -401,7 +426,7 @@ void GitPlugin::logFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    m_gitClient->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    m_gitClient->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void GitPlugin::blameFile()
@@ -409,7 +434,7 @@ void GitPlugin::blameFile()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     const int lineNumber = VCSBase::VCSBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
-    m_gitClient->blame(state.currentFileTopLevel(), state.relativeCurrentFile(), lineNumber);
+    m_gitClient->blame(state.currentFileTopLevel(), state.relativeCurrentFile(), QString(), lineNumber);
 }
 
 void GitPlugin::logProject()
@@ -426,6 +451,13 @@ void GitPlugin::undoFileChanges()
     Core::FileChangeBlocker fcb(state.currentFile());
     fcb.setModifiedReload(true);
     m_gitClient->revert(QStringList(state.currentFile()));
+}
+
+void GitPlugin::logRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    m_gitClient->graphLog(state.topLevel());
 }
 
 void GitPlugin::undoRepositoryChanges()
@@ -503,7 +535,7 @@ void GitPlugin::startCommit()
 
 Core::IEditor *GitPlugin::openSubmitEditor(const QString &fileName, const CommitData &cd)
 {
-    Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_KIND));
+    Core::IEditor *editor = m_core->editorManager()->openEditor(fileName, QLatin1String(Constants::GITSUBMITEDITOR_ID));
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << fileName << editor;
     m_core->editorManager()->ensureEditorManagerVisible();
@@ -551,7 +583,7 @@ bool GitPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *submitEdi
                                  tr("Do you want to commit the change?"),
                                  tr("The commit message check failed. Do you want to commit the change?"),
                                  &settings.promptToSubmit, !m_submitActionTriggered);
-    m_submitActionTriggered = false;    
+    m_submitActionTriggered = false;
     switch (answer) {
     case VCSBase::VCSBaseSubmitEditor::SubmitCanceled:
         return false; // Keep editing and change file
@@ -670,13 +702,15 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_diffProjectAction->setParameter(projectName);
     m_logProjectAction->setEnabled(projectEnabled);
     m_logProjectAction->setParameter(projectName);
-    m_undoRepositoryAction->setEnabled(projectEnabled);
 
     const bool repositoryEnabled = currentState().hasTopLevel();
+    m_diffRepositoryAction->setEnabled(repositoryEnabled);
     m_statusRepositoryAction->setEnabled(repositoryEnabled);
     m_branchListAction->setEnabled(repositoryEnabled);
     m_stashListAction->setEnabled(repositoryEnabled);
     m_stashPopAction->setEnabled(repositoryEnabled);
+    m_logRepositoryAction->setEnabled(repositoryEnabled);
+    m_undoRepositoryAction->setEnabled(repositoryEnabled);
 
     // Prompts for repo.
     m_showAction->setEnabled(true);

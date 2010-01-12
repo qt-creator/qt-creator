@@ -85,7 +85,6 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QStatusBar>
 #include <QtGui/QWizard>
-#include <QtGui/QPrinter>
 #include <QtGui/QToolButton>
 #include <QtGui/QMessageBox>
 
@@ -114,6 +113,7 @@ MainWindow::MainWindow() :
     m_uniqueIDManager(new UniqueIDManager()),
     m_globalContext(QList<int>() << Constants::C_GLOBAL_ID),
     m_additionalContexts(m_globalContext),
+    // keep this in sync with main() in app/main.cpp
     m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope,
                              QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
@@ -298,7 +298,7 @@ bool MainWindow::init(QString *errorMessage)
     pm->addObject(m_shortcutSettings);
 
     // Add widget to the bottom, we create the view here instead of inside the
-    // OutputPaneManager, since the StatusBarManager needs to be initilized before
+    // OutputPaneManager, since the StatusBarManager needs to be initialized before
     m_outputView = new Core::StatusBarWidget;
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setPosition(Core::StatusBarWidget::Second);
@@ -909,13 +909,13 @@ void MainWindow::openFileWith()
     QStringList fileNames = editorManager()->getOpenFileNames();
     foreach (const QString &fileName, fileNames) {
         bool isExternal;
-        const QString editorKind = editorManager()->getOpenWithEditorKind(fileName, &isExternal);
-        if (editorKind.isEmpty())
+        const QString editorId = editorManager()->getOpenWithEditorId(fileName, &isExternal);
+        if (editorId.isEmpty())
             continue;
         if (isExternal) {
-            editorManager()->openExternalEditor(fileName, editorKind);
+            editorManager()->openExternalEditor(fileName, editorId);
         } else {
-            editorManager()->openEditor(fileName, editorKind);
+            editorManager()->openEditor(fileName, editorId);
         }
     }
 }

@@ -38,7 +38,8 @@ SUBDIRS   = plugin_coreplugin \
             debugger/dumper.pro
 
 contains(QT_CONFIG, declarative) {
-    SUBDIRS += plugin_qmlinspector
+    SUBDIRS += plugin_qmlinspector \
+               plugin_qmldesigner
 }
 
 plugin_coreplugin.subdir = coreplugin
@@ -183,6 +184,10 @@ plugin_qmlprojectmanager.depends = plugin_texteditor
 plugin_qmlprojectmanager.depends += plugin_projectexplorer
 plugin_qmlprojectmanager.depends += plugin_help
 plugin_qmlprojectmanager.depends += plugin_qmleditor
+
+plugin_qmldesigner.subdir = qmldesigner
+plugin_qmldesigner.depends = plugin_coreplugin
+plugin_qmldesigner.depends += plugin_texteditor
 
 plugin_qmlinspector.subdir = qmlinspector
 plugin_qmlinspector.depends += plugin_projectexplorer

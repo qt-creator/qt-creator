@@ -22,7 +22,7 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QFormLayout" name="formLayout">
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QLabel" name="labelAutoIndent">
           <property name="toolTip">
            <string>VIM's &quot;autoindent&quot; option</string>
@@ -32,14 +32,14 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
+        <item row="1" column="1">
          <widget class="QCheckBox" name="checkBoxAutoIndent">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="labelExpandTab">
           <property name="toolTip">
            <string>vim's &quot;expandtab&quot; option</string>
@@ -49,80 +49,80 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="QCheckBox" name="checkBoxExpandTab">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="labelHlSearch">
           <property name="text">
            <string>Highlight search results:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="QCheckBox" name="checkBoxHlSearch">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="labelIncSearch">
           <property name="text">
            <string>Incremental search:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="QCheckBox" name="checkBoxIncSearch">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="labelShiftWidth">
           <property name="text">
            <string>Shift width:</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <widget class="QLineEdit" name="lineEditShiftWidth"/>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="labelSmartTab">
           <property name="text">
            <string>Smart tabulators:</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="QCheckBox" name="checkBoxSmartTab">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="labelStartOfLine">
           <property name="text">
            <string>Start of line:</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="7" column="1">
          <widget class="QCheckBox" name="checkBoxStartOfLine">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="tabulatorLabel">
           <property name="toolTip">
            <string>vim's &quot;tabstop&quot; option</string>
@@ -132,18 +132,28 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <widget class="QLineEdit" name="lineEditTabStop"/>
         </item>
-        <item row="8" column="0">
+        <item row="9" column="0">
          <widget class="QLabel" name="labelBackspace">
           <property name="text">
            <string>Backspace:</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="9" column="1">
          <widget class="QLineEdit" name="lineEditBackspace"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelSmartIndent">
+          <property name="text">
+           <string>Smart indentation:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="checkBoxSmartIndent"/>
         </item>
        </layout>
       </item>

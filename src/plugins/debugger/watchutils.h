@@ -55,7 +55,7 @@ namespace Internal {
 class WatchData;
 class GdbMi;
 
-QString dotEscape(QString str);
+QByteArray dotEscape(QByteArray str);
 QString currentTime();
 bool isSkippableFunction(const QString &funcName, const QString &fileName);
 bool isLeavableFunction(const QString &funcName, const QString &fileName);
@@ -71,7 +71,6 @@ bool hasSideEffects(const QString &exp);
 bool isKeyWord(const QString &exp);
 bool isPointerType(const QString &type);
 bool isCharPointerType(const QString &type);
-bool isAccessSpecifier(const QString &str);
 bool startsWithDigit(const QString &str);
 QString stripPointerType(QString type);
 QString gdbQuoteTypes(const QString &type);

@@ -71,7 +71,7 @@ void FindUsages::operator()(Symbol *symbol)
     _declSymbol = symbol;
 
     _id = 0;
-    if (_declSymbol && 0 != & (_id = _declSymbol->identifier()))
+    if (_declSymbol && 0 != (_id = _declSymbol->identifier()))
         _id = _doc->control()->findOrInsertIdentifier(_id->chars(), _id->size());
 
     if (_id) {

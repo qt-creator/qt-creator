@@ -1,0 +1,30 @@
+realname "Pthread Mutex"
+
+define MUTEX_PTHREAD
+
+load_on auto
+
+<add>
+mux_pthr.cpp
+mux_pthr.h
+</add>
+
+<libs>
+all!qnx,freebsd,dragonfly,openbsd,netbsd -> pthread
+</libs>
+
+<os>
+aix
+cygwin
+darwin
+freebsd
+dragonfly
+hpux
+irix
+linux
+netbsd
+openbsd
+qnx
+solaris
+tru64
+</os>

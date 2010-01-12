@@ -59,9 +59,12 @@ public:
 
 private slots:
     void search();
+    void replace();
     void setCurrentFilter(int index);
 
 private:
+    void acceptAndGetParameters(QString *term, IFindFilter **filter);
+
     Ui::FindDialog m_ui;
     FindPlugin *m_plugin;
     QList<IFindFilter *> m_filters;

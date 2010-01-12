@@ -45,7 +45,7 @@ public:
 
     QIcon icon() const;
     QString description() const;
-    QString name() const;
+    QString displayName() const;
 
 protected:
     QList<QWizardPage *> createParameterPages(const QString &path);

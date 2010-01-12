@@ -88,6 +88,8 @@ public:
 
     // IVersionControl
     bool vcsAdd(const QString &workingDir, const QString &fileName);
+    bool vcsAdd14(const QString &workingDir, const QString &fileName);
+    bool vcsAdd15(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool managesDirectory(const QString &directory) const;
     QString findTopLevelForDirectory(const QString &directory) const;
@@ -96,20 +98,23 @@ public:
 
 private slots:
     void addCurrentFile();
-    void deleteCurrentFile();
     void revertCurrentFile();
     void diffProject();
     void diffCurrentFile();
     void startCommitAll();
     void startCommitCurrentFile();
+    void revertAll();
     void filelogCurrentFile();
     void annotateCurrentFile();
+    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
     void projectStatus();
     void describe(const QString &source, const QString &changeNr);
     void slotDescribe();
     void updateProject();
     void submitCurrentLog();
     void diffCommitFiles(const QStringList &);
+    void logProject();
+    void logRepository();
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
@@ -123,8 +128,11 @@ private:
     SubversionResponse runSvn(const QString &workingDir,
                               const QStringList &arguments, int timeOut,
                               bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0);
-    void annotate(const QString &workingDir, const QString &file);
-    void filelog(const QString &workingDir, const QStringList &file = QStringList());
+    void annotate(const QString &workingDir, const QString &file,
+                  const QString &revision = QString(), int lineNumber = -1);
+    void filelog(const QString &workingDir,
+                 const QStringList &file = QStringList(),
+                 bool enableAnnotationContextMenu = false);
     bool managesDirectory(const QDir &directory) const;
     QString findTopLevelForDirectoryI(const QString &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
@@ -143,7 +151,10 @@ private:
     Utils::ParameterAction *m_revertAction;
     Utils::ParameterAction *m_diffProjectAction;
     Utils::ParameterAction *m_diffCurrentAction;
+    Utils::ParameterAction *m_logProjectAction;
+    QAction *m_logRepositoryAction;
     QAction *m_commitAllAction;
+    QAction *m_revertRepositoryAction;
     Utils::ParameterAction *m_commitCurrentAction;
     Utils::ParameterAction *m_filelogCurrentAction;
     Utils::ParameterAction *m_annotateCurrentAction;

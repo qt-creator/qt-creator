@@ -38,12 +38,11 @@
 using namespace Mercurial::Internal;
 
 MercurialControl::MercurialControl(MercurialClient *client)
-        :   mercurialClient(client),
-            mercurialEnabled(true)
+        :   mercurialClient(client)
 {
 }
 
-QString MercurialControl::name() const
+QString MercurialControl::displayName() const
 {
     return tr("Mercurial");
 }

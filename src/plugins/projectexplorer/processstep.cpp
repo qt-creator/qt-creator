@@ -83,12 +83,12 @@ void ProcessStep::run(QFutureInterface<bool> & fi)
     return AbstractProcessStep::run(fi);
 }
 
-QString ProcessStep::name()
+QString ProcessStep::id()
 {
     return "projectexplorer.processstep";
 }
 
-void ProcessStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
+void ProcessStep::restoreFromGlobalMap(const QVariantMap &map)
 {
     QMap<QString, QVariant>::const_iterator it = map.constFind("ProjectExplorer.ProcessStep.DisplayName");
     if (it != map.constEnd())
@@ -96,7 +96,7 @@ void ProcessStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
     ProjectExplorer::AbstractProcessStep::restoreFromGlobalMap(map);
 }
 
-void ProcessStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
+void ProcessStep::restoreFromLocalMap(const QVariantMap &map)
 {
     // TODO checking for PROCESS_*
     setCommand(map.value(PROCESS_COMMAND).toString());
@@ -111,7 +111,7 @@ void ProcessStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
     ProjectExplorer::AbstractProcessStep::restoreFromLocalMap(map);
 }
 
-void ProcessStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
+void ProcessStep::storeIntoLocalMap(QVariantMap &map)
 {
     map[PROCESS_COMMAND] = command();
     map[PROCESS_WORKINGDIRECTORY] = workingDirectory();
@@ -197,14 +197,14 @@ ProcessStepFactory::ProcessStepFactory()
 
 }
 
-bool ProcessStepFactory::canCreate(const QString &name) const
+bool ProcessStepFactory::canCreate(const QString &id) const
 {
-    return name == "projectexplorer.processstep";
+    return id == "projectexplorer.processstep";
 }
 
-BuildStep *ProcessStepFactory::create(BuildConfiguration *bc, const QString &name) const
+BuildStep *ProcessStepFactory::create(BuildConfiguration *bc, const QString &id) const
 {
-    Q_UNUSED(name)
+    Q_UNUSED(id)
     return new ProcessStep(bc);
 }
 
@@ -218,9 +218,9 @@ QStringList ProcessStepFactory::canCreateForBuildConfiguration(BuildConfiguratio
     Q_UNUSED(bc)
     return QStringList()<<"projectexplorer.processstep";
 }
-QString ProcessStepFactory::displayNameForName(const QString &name) const
+QString ProcessStepFactory::displayNameForId(const QString &id) const
 {
-    Q_UNUSED(name)
+    Q_UNUSED(id)
     return ProcessStep::tr("Custom Process Step", "item in combobox");
 }
 
@@ -261,7 +261,7 @@ void ProcessStepConfigWidget::updateDetails()
 
 QString ProcessStepConfigWidget::displayName() const
 {
-    return m_step->name();
+    return m_step->displayName();
 }
 
 void ProcessStepConfigWidget::init()

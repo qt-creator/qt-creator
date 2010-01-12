@@ -55,7 +55,7 @@ public:
     virtual ~CMakeRunConfiguration();
     CMakeProject *cmakeProject() const;
 
-    virtual QString type() const;
+    virtual QString id() const;
     virtual QString executable() const;
     virtual RunMode runMode() const;
     virtual QString workingDirectory() const;
@@ -137,12 +137,12 @@ public:
     CMakeRunConfigurationFactory();
     virtual ~CMakeRunConfigurationFactory();
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(const QString &type) const;
+    virtual bool canRestore(const QString &id) const;
     // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
+    virtual QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
     // used to translate the types to names to display to the user
-    virtual QString displayNameForType(const QString &type) const;
-    virtual ProjectExplorer::RunConfiguration* create(ProjectExplorer::Project *project, const QString &type);
+    virtual QString displayNameForId(const QString &id) const;
+    virtual ProjectExplorer::RunConfiguration* create(ProjectExplorer::Project *project, const QString &id);
 };
 
 

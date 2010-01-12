@@ -59,7 +59,7 @@ protected:
     \class ModelIndexViewCommand
 
     Provides a mean to store/restore a \l QModelIndex as it cannot
-    be stored savely in most cases. This is an abstract class.
+    be stored safely in most cases. This is an abstract class.
 */
 class ModelIndexViewCommand : public ViewCommand
 {

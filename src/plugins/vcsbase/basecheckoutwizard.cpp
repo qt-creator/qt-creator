@@ -80,7 +80,7 @@ QString BaseCheckoutWizard::category() const
     return QLatin1String(VCSBase::Constants::VCS_WIZARD_CATEGORY);
 }
 
-QString BaseCheckoutWizard::trCategory() const
+QString BaseCheckoutWizard::displayCategory() const
 {
     return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_WIZARD_TR_CATEGORY);
 }
@@ -102,7 +102,7 @@ QStringList BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent)
     Internal::CheckoutWizardDialog dialog(d->parameterPages, parent);
     d->dialog = &dialog;
     connect(&dialog, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
-    dialog.setWindowTitle(name());
+    dialog.setWindowTitle(displayName());
     if (dialog.exec() != QDialog::Accepted)
         return QStringList();
     // Now try to find the project file and open

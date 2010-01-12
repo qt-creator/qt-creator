@@ -108,6 +108,8 @@ public:
     virtual void findUsages(CPlusPlus::Symbol *symbol);
     virtual void renameUsages(CPlusPlus::Symbol *symbol);
 
+    virtual void findMacroUsages(const CPlusPlus::Macro &macro);
+
     void setHeaderSuffixes(const QStringList &suffixes)
     { m_headerSuffixes = suffixes; }
 

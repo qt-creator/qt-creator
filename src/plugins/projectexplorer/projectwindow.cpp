@@ -252,7 +252,7 @@ ActiveConfigurationWidget::ActiveConfigurationWidget(QWidget *parent)
     foreach(Project *p, session->projects()) {
         ++i;
         BuildConfigurationComboBox *buildConfigurationComboBox = new BuildConfigurationComboBox(p, this);
-        QLabel *label = new QLabel("Build configuration for <b>" + p->name() + "</b>", this);
+        QLabel *label = new QLabel("Build configuration for <b>" + p->displayName() + "</b>", this);
         grid->addWidget(label, i, 0);
         grid->addWidget(buildConfigurationComboBox, i, 1);
         m_buildComboBoxMap.insert(p, qMakePair(buildConfigurationComboBox, label));
@@ -270,7 +270,7 @@ void ActiveConfigurationWidget::projectAdded(Project *p)
 {
     QGridLayout *grid = static_cast<QGridLayout *>(layout());
     BuildConfigurationComboBox *buildConfigurationComboBox = new BuildConfigurationComboBox(p, this);
-    QLabel *label = new QLabel("Build configuration for <b>" + p->name() + "</b>");
+    QLabel *label = new QLabel("Build configuration for <b>" + p->displayName() + "</b>");
     grid->addWidget(label);
     grid->addWidget(buildConfigurationComboBox);
     m_buildComboBoxMap.insert(p, qMakePair(buildConfigurationComboBox, label));
@@ -310,7 +310,7 @@ RunConfigurationComboBox::RunConfigurationComboBox(QWidget *parent)
     // Connect
     foreach(Project *p, session->projects()) {
         foreach(RunConfiguration *rc, p->runConfigurations()) {
-            connect(rc, SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
+            connect(rc, SIGNAL(displayNameChanged()), this, SLOT(rebuildTree()));
         }
         connectToProject(p);
     }
@@ -411,13 +411,13 @@ void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p
 {
     RunConfiguration *runConfiguration = 0;
     foreach(RunConfiguration *rc, p->runConfigurations()) {
-        if (rc->name() == name) {
+        if (rc->displayName() == name) {
             runConfiguration = rc;
             break;
         }
     }
     if (runConfiguration) {
-        connect(runConfiguration, SIGNAL(nameChanged()),
+        connect(runConfiguration, SIGNAL(displayNameChanged()),
                 this, SLOT(rebuildTree()));
     }
     rebuildTree();
@@ -434,7 +434,7 @@ void RunConfigurationComboBox::projectAdded(ProjectExplorer::Project *p)
 {
     rebuildTree();
     foreach(RunConfiguration *rc, p->runConfigurations())
-        connect(rc, SIGNAL(nameChanged()), this, SLOT(rebuildTree()));
+        connect(rc, SIGNAL(displayNameChanged()), this, SLOT(rebuildTree()));
     connectToProject(p);
 }
 
@@ -472,9 +472,9 @@ void RunConfigurationComboBox::rebuildTree()
     SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     Project *startupProject = session->startupProject();
     foreach(Project *p, session->projects()) {
-        addItem(p->name(), QVariant(0));
+        addItem(p->displayName(), QVariant(0));
         foreach(RunConfiguration *rc, p->runConfigurations()) {
-            addItem("  " + rc->name(), QVariant(1));
+            addItem("  " + rc->displayName(), QVariant(1));
             if ((startupProject == p) && (p->activeRunConfiguration() == rc)){
                 setCurrentIndex(count() - 1);
             }
@@ -502,8 +502,11 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     addWidget(m_label);
 
     //m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    foreach(BuildConfiguration *buildConfiguration, p->buildConfigurations())
+    foreach(BuildConfiguration *buildConfiguration, p->buildConfigurations()) {
         m_comboBox->addItem(buildConfiguration->displayName(), QVariant::fromValue(buildConfiguration));
+        connect(buildConfiguration, SIGNAL(displayNameChanged()),
+                this, SLOT(displayNameChanged()));
+    }
     if (p->buildConfigurations().count() == 1) {
         m_label->setText(m_comboBox->itemText(0));
         setCurrentWidget(m_label);
@@ -518,10 +521,10 @@ BuildConfigurationComboBox::BuildConfigurationComboBox(Project *p, QWidget *pare
     //            this, SLOT(nameChanged(ProjectExplorer::BuildConfiguration *)));
     connect(p, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(activeConfigurationChanged()));
-    connect(p, SIGNAL(addedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(addedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)));
-    connect(p, SIGNAL(removedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(removedBuildConfiguration(ProjectExplorer::Project*,ProjectExplorer::BuildConfiguration*)));
+    connect(p, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    connect(p, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
     connect(m_comboBox, SIGNAL(activated(int)),
             this, SLOT(changedIndex(int)));
 }
@@ -531,15 +534,16 @@ BuildConfigurationComboBox::~BuildConfigurationComboBox()
 
 }
 
-void BuildConfigurationComboBox::nameChanged(BuildConfiguration *bc)
+void BuildConfigurationComboBox::displayNameChanged()
 {
-    const int index(buildConfigurationToIndex(bc));
-    if (index == -1)
-        return;
-    const QString &displayName = bc->displayName();
-    m_comboBox->setItemText(index, displayName);
+    for (int i=0; i < m_comboBox->count(); ++i) {
+        BuildConfiguration *bc = m_comboBox->itemData(i).value<BuildConfiguration *>();
+        const QString &displayName = bc->displayName();
+        m_comboBox->setItemText(i, displayName);
+    }
+
     if (m_comboBox->count() == 1)
-        m_label->setText(displayName);
+        m_label->setText(m_comboBox->itemText(0));
 }
 
 int BuildConfigurationComboBox::buildConfigurationToIndex(BuildConfiguration *bc)
@@ -560,22 +564,20 @@ void BuildConfigurationComboBox::activeConfigurationChanged()
     ignoreIndexChange = false;
 }
 
-void BuildConfigurationComboBox::addedBuildConfiguration(ProjectExplorer::Project *project,
-                                                         ProjectExplorer::BuildConfiguration *bc)
+void BuildConfigurationComboBox::addedBuildConfiguration(BuildConfiguration *bc)
 {
-    Q_UNUSED(project);
     ignoreIndexChange = true;
     m_comboBox->addItem(bc->displayName(), QVariant::fromValue(bc));
 
     if (m_comboBox->count() == 2)
         setCurrentWidget(m_comboBox);
     ignoreIndexChange = false;
+    connect(bc, SIGNAL(displayNameChanged()),
+            this, SLOT(displayNameChanged()));
 }
 
-void BuildConfigurationComboBox::removedBuildConfiguration(ProjectExplorer::Project *project,
-                                                           BuildConfiguration * bc)
+void BuildConfigurationComboBox::removedBuildConfiguration(BuildConfiguration * bc)
 {
-    Q_UNUSED(project);
     ignoreIndexChange = true;
     const int index(buildConfigurationToIndex(bc));
     if (index == -1)
@@ -586,6 +588,8 @@ void BuildConfigurationComboBox::removedBuildConfiguration(ProjectExplorer::Proj
         setCurrentWidget(m_label);
     }
     ignoreIndexChange = false;
+    connect(bc, SIGNAL(displayNameChanged()),
+            this, SLOT(displayNameChanged()));
 }
 
 void BuildConfigurationComboBox::changedIndex(int newIndex)
@@ -613,7 +617,7 @@ ProjectLabel::~ProjectLabel()
 void ProjectLabel::setProject(ProjectExplorer::Project *p)
 {
     if (p)
-        setText(tr("Edit Project Settings for Project <b>%1</b>").arg(p->name()));
+        setText(tr("Edit Project Settings for Project <b>%1</b>").arg(p->displayName()));
     else
         setText(tr("No Project loaded"));
 }
@@ -634,7 +638,7 @@ ProjectPushButton::ProjectPushButton(QWidget *parent)
     SessionManager *session = ProjectExplorerPlugin::instance()->session();
 
     foreach(Project *p, session->projects()) {
-        QAction *act = m_menu->addAction(p->name());
+        QAction *act = m_menu->addAction(p->displayName());
         act->setData(QVariant::fromValue((void *) p));
         connect(act, SIGNAL(triggered()),
                 this, SLOT(actionTriggered()));
@@ -655,7 +659,7 @@ ProjectPushButton::~ProjectPushButton()
 
 void ProjectPushButton::projectAdded(ProjectExplorer::Project *p)
 {
-    QAction *act = m_menu->addAction(p->name());
+    QAction *act = m_menu->addAction(p->displayName());
     act->setData(QVariant::fromValue((void *) p));
     connect(act, SIGNAL(triggered()),
                 this, SLOT(actionTriggered()));
@@ -824,7 +828,7 @@ void ProjectWindow::showProperties(Project *project)
         foreach (IPanelFactory *panelFactory, pages) {
             if (panelFactory->supports(project)) {
                 IPropertiesPanel *panel = panelFactory->createPanel(project);
-                m_panelsWidget->addWidget(panel->name(), panel->widget(), panel->icon());
+                m_panelsWidget->addWidget(panel->displayName(), panel->widget(), panel->icon());
                 m_panels.push_back(panel);
             }
         }

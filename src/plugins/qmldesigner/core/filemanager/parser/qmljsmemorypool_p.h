@@ -1,0 +1,120 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+#ifndef QMLJSMEMORYPOOL_P_H
+#define QMLJSMEMORYPOOL_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
+#include <QtCore/qglobal.h>
+#include <QtCore/qshareddata.h>
+#include <string.h>
+
+#include "qmljsglobal_p.h"
+
+QT_QML_BEGIN_NAMESPACE
+
+namespace QmlJS {
+
+class MemoryPool : public QSharedData
+{
+public:
+    enum { maxBlockCount = -1 };
+    enum { defaultBlockSize = 1 << 12 };
+
+    MemoryPool() {
+        m_blockIndex = maxBlockCount;
+        m_currentIndex = 0;
+        m_storage = 0;
+        m_currentBlock = 0;
+        m_currentBlockSize = 0;
+    }
+
+    virtual ~MemoryPool() {
+        for (int index = 0; index < m_blockIndex + 1; ++index)
+            qFree(m_storage[index]);
+
+        qFree(m_storage);
+    }
+
+    char *allocate(int bytes) {
+        bytes += (8 - bytes) & 7; // ensure multiple of 8 bytes (maintain alignment)
+        if (m_currentBlock == 0 || m_currentBlockSize < m_currentIndex + bytes) {
+            ++m_blockIndex;
+            m_currentBlockSize = defaultBlockSize << m_blockIndex;
+
+            m_storage = reinterpret_cast<char**>(qRealloc(m_storage, sizeof(char*) * (1 + m_blockIndex)));
+            m_currentBlock = m_storage[m_blockIndex] = reinterpret_cast<char*>(qMalloc(m_currentBlockSize));
+            ::memset(m_currentBlock, 0, m_currentBlockSize);
+
+            m_currentIndex = (8 - quintptr(m_currentBlock)) & 7; // ensure first chunk is 64-bit aligned
+            Q_ASSERT(m_currentIndex + bytes <= m_currentBlockSize);
+        }
+
+        char *p = reinterpret_cast<char *>
+            (m_currentBlock + m_currentIndex);
+
+        m_currentIndex += bytes;
+
+        return p;
+    }
+
+    int bytesAllocated() const {
+        int bytes = 0;
+        for (int index = 0; index < m_blockIndex; ++index)
+            bytes += (defaultBlockSize << index);
+        bytes += m_currentIndex;
+        return bytes;
+    }
+
+private:
+    int m_blockIndex;
+    int m_currentIndex;
+    char *m_currentBlock;
+    int m_currentBlockSize;
+    char **m_storage;
+
+private:
+    Q_DISABLE_COPY(MemoryPool)
+};
+
+} // namespace QmlJS
+
+QT_QML_END_NAMESPACE
+
+#endif

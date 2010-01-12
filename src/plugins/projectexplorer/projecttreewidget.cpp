@@ -120,7 +120,8 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
           m_view(0),
           m_model(0),
           m_filterProjectsAction(0),
-          m_autoSync(false)
+          m_autoSync(false),
+          m_currentItemLocked(false)
 {
     m_model = new FlatModel(m_explorer->session()->sessionNode(), this);
     NodesWatcher *watcher = new NodesWatcher(this);
@@ -247,8 +248,12 @@ void ProjectTreeWidget::editCurrentItem()
 void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
 {
     if (debug)
-        qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->name() : "0")
+        qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : "0")
                  << ", " <<  (node ? node->path() : "0") << ")";
+    if (m_currentItemLocked) {
+        m_currentItemLocked = false;
+        return;
+    }
     if (!project) {
         return;
     }
@@ -288,6 +293,8 @@ void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)
     Node *node = project->rootProjectNode();
     QModelIndex idx = m_model->indexForNode(node);
     m_view->setExpanded(idx, true);
+    m_view->setCurrentIndex(idx);
+    m_currentItemLocked = true;
 }
 
 void ProjectTreeWidget::startupProjectChanged(ProjectExplorer::Project *project)

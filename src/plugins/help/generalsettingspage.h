@@ -56,9 +56,9 @@ public:
         BookmarkManager *bookmarkManager);
 
     QString id() const;
-    virtual QString trName() const;
+    virtual QString displayName() const;
     QString category() const;
-    QString trCategory() const;
+    QString displayCategory() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

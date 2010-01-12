@@ -246,8 +246,7 @@ void AbstractProcessStep::stdError(const QString &line)
 {
     if (m_outputParserChain)
         m_outputParserChain->stdError(line);
-    else
-        emit addOutput(QLatin1String("<font color=\"#ff0000\">") + Qt::escape(line) + QLatin1String("</font>"));
+    emit addOutput(QLatin1String("<font color=\"#ff0000\">") + Qt::escape(line) + QLatin1String("</font>"));
 }
 
 void AbstractProcessStep::checkForCancel()

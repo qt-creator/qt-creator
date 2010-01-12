@@ -41,7 +41,7 @@ CVSControl::CVSControl(CVSPlugin *plugin) :
 {
 }
 
-QString CVSControl::name() const
+QString CVSControl::displayName() const
 {
     return QLatin1String("cvs");
 }

@@ -111,7 +111,7 @@ WelcomeMode::~WelcomeMode()
     delete m_d;
 }
 
-QString WelcomeMode::name() const
+QString WelcomeMode::displayName() const
 {
     return tr("Welcome");
 }
@@ -131,9 +131,9 @@ QWidget* WelcomeMode::widget()
     return m_d->m_scrollArea;
 }
 
-const char* WelcomeMode::uniqueModeName() const
+QString WelcomeMode::id() const
 {
-    return Core::Constants::MODE_WELCOME;
+    return QLatin1String(Core::Constants::MODE_WELCOME);
 }
 
 QList<int> WelcomeMode::context() const

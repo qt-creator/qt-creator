@@ -100,7 +100,7 @@ bool WelcomePlugin::initialize(const QStringList &arguments, QString *error_mess
 void WelcomePlugin::extensionsInitialized()
 {
     m_welcomeMode->initPlugins();
-    Core::ModeManager::instance()->activateMode(m_welcomeMode->uniqueModeName());
+    Core::ModeManager::instance()->activateMode(m_welcomeMode->id());
 }
 
 Q_EXPORT_PLUGIN(WelcomePlugin)

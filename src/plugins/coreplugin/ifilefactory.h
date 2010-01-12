@@ -51,7 +51,9 @@ public:
 
     virtual QStringList mimeTypes() const = 0;
 
-    virtual QString kind() const = 0;
+    virtual QString id() const = 0;
+    virtual QString displayName() const = 0;
+
     virtual Core::IFile *open(const QString &fileName) = 0;
 };
 

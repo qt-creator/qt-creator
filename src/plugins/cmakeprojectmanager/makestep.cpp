@@ -132,7 +132,7 @@ void MakeStep::run(QFutureInterface<bool> &fi)
     m_futureInterface = 0;
 }
 
-QString MakeStep::name()
+QString MakeStep::id()
 {
     return Constants::MAKESTEP;
 }
@@ -298,14 +298,14 @@ QString MakeStepConfigWidget::summaryText() const
 // MakeStepFactory
 //
 
-bool MakeStepFactory::canCreate(const QString &name) const
+bool MakeStepFactory::canCreate(const QString &id) const
 {
-    return (Constants::MAKESTEP == name);
+    return (Constants::MAKESTEP == id);
 }
 
-BuildStep *MakeStepFactory::create(BuildConfiguration *bc, const QString &name) const
+BuildStep *MakeStepFactory::create(BuildConfiguration *bc, const QString &id) const
 {
-    Q_ASSERT(name == Constants::MAKESTEP);
+    Q_ASSERT(id == Constants::MAKESTEP);
     return new MakeStep(bc);
 }
 
@@ -314,13 +314,15 @@ BuildStep *MakeStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const
     return new MakeStep(static_cast<MakeStep *>(bs), bc);
 }
 
-QStringList MakeStepFactory::canCreateForBuildConfiguration(BuildConfiguration * /* pro */) const
+QStringList MakeStepFactory::canCreateForBuildConfiguration(BuildConfiguration *bc) const
 {
+    Q_UNUSED(bc);
     return QStringList();
 }
 
-QString MakeStepFactory::displayNameForName(const QString & /* name */) const
+QString MakeStepFactory::displayNameForId(const QString &id) const
 {
+    Q_UNUSED(id);
     return "Make";
 }
 

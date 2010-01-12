@@ -341,6 +341,10 @@ void DebuggerOutputWindow::showOutput(int channel, const QString &output)
 {
     if (output.isEmpty())
         return;
+    QTextCursor oldCursor = m_combinedText->textCursor();
+    QTextCursor cursor = oldCursor;
+    cursor.movePosition(QTextCursor::End);
+    bool atEnd = oldCursor.position() == cursor.position();
     foreach (QString line, output.split('\n')) {
         // FIXME: QTextEdit asserts on really long lines...
         const int n = 30000;
@@ -349,10 +353,11 @@ void DebuggerOutputWindow::showOutput(int channel, const QString &output)
         if (line != QLatin1String("(gdb) "))
             m_combinedText->appendPlainText(charForChannel(channel) + line);
     }
-    QTextCursor cursor = m_combinedText->textCursor();
     cursor.movePosition(QTextCursor::End);
-    m_combinedText->setTextCursor(cursor);
-    m_combinedText->ensureCursorVisible();
+    if (atEnd) {
+        m_combinedText->setTextCursor(cursor);
+        m_combinedText->ensureCursorVisible();
+    }
 }
 
 void DebuggerOutputWindow::showInput(int channel, const QString &input)

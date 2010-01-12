@@ -85,7 +85,7 @@ void Project::addBuildConfiguration(BuildConfiguration *configuration)
     // add it
     m_buildConfigurationValues.push_back(configuration);
 
-    emit addedBuildConfiguration(this, configuration);
+    emit addedBuildConfiguration(configuration);
 }
 
 void Project::removeBuildConfiguration(BuildConfiguration *configuration)
@@ -96,7 +96,7 @@ void Project::removeBuildConfiguration(BuildConfiguration *configuration)
 
     m_buildConfigurationValues.removeOne(configuration);
 
-    emit removedBuildConfiguration(this, configuration);
+    emit removedBuildConfiguration(configuration);
     delete configuration;
 }
 
@@ -124,7 +124,7 @@ bool Project::restoreSettings()
     if (!restoreSettingsImpl(reader))
         return false;
 
-    if (m_activeBuildConfiguration && !m_buildConfigurationValues.isEmpty())
+    if (!m_activeBuildConfiguration && !m_buildConfigurationValues.isEmpty())
         setActiveBuildConfiguration(m_buildConfigurationValues.at(0));
 
     if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
@@ -141,7 +141,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
 {
     const QList<BuildConfiguration *> bcs = buildConfigurations();
 
-    // For compability with older versions the "name" is saved as a string instead of a number
+    // For compatibility with older versions the "name" is saved as a string instead of a number
     writer.saveValue("activebuildconfiguration", QString::number(bcs.indexOf(m_activeBuildConfiguration)));
 
     //save buildsettings
@@ -158,7 +158,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     for(int i=0; i < bcs.size(); ++i) {
         QStringList buildStepNames;
         foreach (BuildStep *buildStep, bcs.at(i)->buildSteps())
-            buildStepNames << buildStep->name();
+            buildStepNames << buildStep->id();
         writer.saveValue("buildconfiguration-" + QString::number(i) + "-buildsteps", buildStepNames);
 
         int buildstepnr = 0;
@@ -174,7 +174,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     for(int i=0; i < bcs.size(); ++i) {
         QStringList cleanStepNames;
         foreach (BuildStep *cleanStep, bcs.at(i)->cleanSteps())
-            cleanStepNames << cleanStep->name();
+            cleanStepNames << cleanStep->id();
         writer.saveValue("buildconfiguration-" + QString::number(i) + "-cleansteps", cleanStepNames);
 
         int cleanstepnr = 0;
@@ -191,7 +191,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     int activeId = 0;
     foreach (RunConfiguration* rc, m_runConfigurations) {
         writer.setPrefix("RunConfiguration" + QString().setNum(i) + "-");
-        writer.saveValue("type", rc->type());
+        writer.saveValue("Id", rc->id());
         rc->save(writer);
         if (rc == m_activeRunConfiguration)
             activeId = i;
@@ -288,7 +288,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     //Build Settings
     QVariant buildStepsVariant = reader.restoreValue("buildsteps");
     if (buildStepsVariant.isValid()) {
-        // Old code path for 1.3 compability
+        // Old code path for 1.3 compatibility
         // restoring BuildSteps from settings
         int pos = 0;
         QStringList buildStepNames = buildStepsVariant.toStringList();
@@ -320,7 +320,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 
     QVariant cleanStepsVariant = reader.restoreValue("cleansteps");
     if (cleanStepsVariant.isValid()) {
-        // Old code path for 1.3 compability
+        // Old code path for 1.3 compatibility
         QStringList cleanStepNames = cleanStepsVariant.toStringList();
         // restoring BuildSteps from settings
         int pos = 0;
@@ -358,13 +358,13 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
         ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
     forever {
         reader.setPrefix("RunConfiguration" + QString().setNum(i) + "-");
-        const QVariant &typeVariant = reader.restoreValue("type");
-        if (!typeVariant.isValid())
+        const QVariant &idVariant = reader.restoreValue("Id");
+        if (!idVariant.isValid())
             break;
-        const QString &type = typeVariant.toString();
+        const QString &id = idVariant.toString();
         foreach (IRunConfigurationFactory *factory, factories) {
-            if (factory->canRestore(type)) {
-                RunConfiguration* rc = factory->create(this, type);
+            if (factory->canRestore(id)) {
+                RunConfiguration* rc = factory->create(this, id);
                 rc->restore(reader);
                 addRunConfiguration(rc);
                 if (i == activeId)
@@ -405,17 +405,17 @@ QList<RunConfiguration *> Project::runConfigurations() const
 void Project::addRunConfiguration(RunConfiguration* runConfiguration)
 {
     if (m_runConfigurations.contains(runConfiguration)) {
-        qWarning()<<"Not adding already existing runConfiguration"<<runConfiguration->name();
+        qWarning()<<"Not adding already existing runConfiguration"<<runConfiguration->displayName();
         return;
     }
     m_runConfigurations.push_back(runConfiguration);
-    emit addedRunConfiguration(this, runConfiguration->name());
+    emit addedRunConfiguration(this, runConfiguration->displayName());
 }
 
 void Project::removeRunConfiguration(RunConfiguration* runConfiguration)
 {
     if(!m_runConfigurations.contains(runConfiguration)) {
-        qWarning()<<"Not removing runConfiguration"<<runConfiguration->name()<<"becasue it doesn't exist";
+        qWarning()<<"Not removing runConfiguration"<<runConfiguration->displayName()<<"becasue it doesn't exist";
         return;
     }
 
@@ -429,7 +429,7 @@ void Project::removeRunConfiguration(RunConfiguration* runConfiguration)
     }
 
     m_runConfigurations.removeOne(runConfiguration);
-    emit removedRunConfiguration(this, runConfiguration->name());
+    emit removedRunConfiguration(this, runConfiguration->displayName());
     delete runConfiguration;
 }
 

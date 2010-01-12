@@ -83,9 +83,9 @@ QString BehaviorSettingsPage::id() const
     return m_d->m_parameters.id;
 }
 
-QString BehaviorSettingsPage::trName() const
+QString BehaviorSettingsPage::displayName() const
 {
-    return m_d->m_parameters.name;
+    return m_d->m_parameters.displayName;
 }
 
 QString BehaviorSettingsPage::category() const
@@ -93,9 +93,9 @@ QString BehaviorSettingsPage::category() const
     return m_d->m_parameters.category;
 }
 
-QString BehaviorSettingsPage::trCategory() const
+QString BehaviorSettingsPage::displayCategory() const
 {
-    return m_d->m_parameters.trCategory;
+    return m_d->m_parameters.displayCategory;
 }
 
 QWidget *BehaviorSettingsPage::createPage(QWidget *parent)

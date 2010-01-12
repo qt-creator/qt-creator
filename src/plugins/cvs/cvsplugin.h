@@ -99,19 +99,22 @@ public:
 
 private slots:
     void addCurrentFile();
-    void deleteCurrentFile();
     void revertCurrentFile();
     void diffProject();
     void diffCurrentFile();
+    void revertAll();
     void startCommitAll();
     void startCommitCurrentFile();
     void filelogCurrentFile();
     void annotateCurrentFile();
+    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
     void projectStatus();
     void slotDescribe(const QString &source, const QString &changeNr);
     void updateProject();
     void submitCurrentLog();
     void diffCommitFiles(const QStringList &);
+    void logProject();
+    void logRepository();
 
 protected:
     virtual void updateActions(VCSBase::VCSBasePlugin::ActionState);
@@ -129,11 +132,14 @@ private:
                        bool showStdOutInOutputWindow, QTextCodec *outputCodec = 0,
                        bool mergeStderr = false);
 
-    void annotate(const QString &workingDir, const QString &file);
+    void annotate(const QString &workingDir, const QString &file,
+                  const QString &revision = QString(), int lineNumber= -1);
     bool describe(const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &toplevel, const QString &source, const QString &changeNr, QString *errorMessage);
     bool describe(const QString &repository, QList<CVS_LogEntry> entries, QString *errorMessage);
-    void filelog(const QString &workingDir, const QStringList &files = QStringList());
+    void filelog(const QString &workingDir,
+                 const QStringList &files = QStringList(),
+                 bool enableAnnotationContextMenu = false);
     bool managesDirectory(const QDir &directory) const;
     QString findTopLevelForDirectoryI(const QString &directory) const;
     void startCommit(const QString &workingDir, const QStringList &files = QStringList());
@@ -150,7 +156,10 @@ private:
     Utils::ParameterAction *m_revertAction;
     Utils::ParameterAction *m_diffProjectAction;
     Utils::ParameterAction *m_diffCurrentAction;
+    Utils::ParameterAction *m_logProjectAction;
+    QAction *m_logRepositoryAction;
     QAction *m_commitAllAction;
+    QAction *m_revertRepositoryAction;
     Utils::ParameterAction *m_commitCurrentAction;
     Utils::ParameterAction *m_filelogCurrentAction;
     Utils::ParameterAction *m_annotateCurrentAction;

@@ -54,65 +54,74 @@ void VariableManager::insert(const QString &variable, const QString &value)
 void VariableManager::insertFileInfo(const QString &tag, const QFileInfo &file)
 {
     insert(tag, file.filePath());
-    insert(tag+":absoluteFilePath", file.absoluteFilePath());
-    insert(tag+":absolutePath", file.absolutePath());
-    insert(tag+":baseName", file.baseName());
-    insert(tag+":canonicalPath", file.canonicalPath());
-    insert(tag+":canonicalFilePath", file.canonicalFilePath());
-    insert(tag+":completeBaseName", file.completeBaseName());
-    insert(tag+":completeSuffix", file.completeSuffix());
-    insert(tag+":fileName", file.fileName());
-    insert(tag+":filePath", file.filePath());
-    insert(tag+":path", file.path());
-    insert(tag+":suffix", file.suffix());
+    insert(tag  + QLatin1String(":absoluteFilePath"), file.absoluteFilePath());
+    insert(tag + QLatin1String(":absolutePath"), file.absolutePath());
+    insert(tag + QLatin1String(":baseName"), file.baseName());
+    insert(tag + QLatin1String(":canonicalPath"), file.canonicalPath());
+    insert(tag + QLatin1String(":canonicalFilePath"), file.canonicalFilePath());
+    insert(tag + QLatin1String(":completeBaseName"), file.completeBaseName());
+    insert(tag + QLatin1String(":completeSuffix"), file.completeSuffix());
+    insert(tag + QLatin1String(":fileName"), file.fileName());
+    insert(tag + QLatin1String(":filePath"), file.filePath());
+    insert(tag + QLatin1String(":path"), file.path());
+    insert(tag + QLatin1String(":suffix"), file.suffix());
 }
 
 void VariableManager::removeFileInfo(const QString &tag)
 {
-    remove(tag);
-    remove(tag+":absoluteFilePath");
-    remove(tag+":absolutePath");
-    remove(tag+":baseName");
-    remove(tag+":canonicalPath");
-    remove(tag+":canonicalFilePath");
-    remove(tag+":completeBaseName");
-    remove(tag+":completeSuffix");
-    remove(tag+":fileName");
-    remove(tag+":filePath");
-    remove(tag+":path");
-    remove(tag+":suffix");
+    if (remove(tag)) {
+        remove(tag + QLatin1String(":absoluteFilePath"));
+        remove(tag + QLatin1String(":absolutePath"));
+        remove(tag + QLatin1String(":baseName"));
+        remove(tag + QLatin1String(":canonicalPath"));
+        remove(tag + QLatin1String(":canonicalFilePath"));
+        remove(tag + QLatin1String(":completeBaseName"));
+        remove(tag + QLatin1String(":completeSuffix"));
+        remove(tag + QLatin1String(":fileName"));
+        remove(tag + QLatin1String(":filePath"));
+        remove(tag + QLatin1String(":path"));
+        remove(tag + QLatin1String(":suffix"));
+    }
 }
 
 void VariableManager::updateCurrentDocument(Core::IEditor *editor)
 {
-    removeFileInfo("CURRENT_DOCUMENT");
-    if (editor==NULL || editor->file()==NULL)
-        return;
-    insertFileInfo("CURRENT_DOCUMENT", editor->file()->fileName());
+    const QString currentDocumentTag = QLatin1String("CURRENT_DOCUMENT");
+    removeFileInfo(currentDocumentTag);
+    if (editor) {
+        if (const Core::IFile *file = editor->file()) {
+            const QString fileName = file->fileName();
+            if (!fileName.isEmpty())
+                insertFileInfo(currentDocumentTag, fileName);
+        }
+    }
 }
 
-QString VariableManager::value(const QString &variable)
+QString VariableManager::value(const QString &variable) const
 {
     return m_map.value(variable);
 }
 
-QString VariableManager::value(const QString &variable, const QString &defaultValue)
+QString VariableManager::value(const QString &variable, const QString &defaultValue) const
 {
     return m_map.value(variable, defaultValue);
 }
 
-void VariableManager::remove(const QString &variable)
+bool VariableManager::remove(const QString &variable)
 {
-    m_map.remove(variable);
+    return m_map.remove(variable) > 0;
 }
 
-QString VariableManager::resolve(const QString &stringWithVariables)
+QString VariableManager::resolve(const QString &stringWithVariables) const
 {
     QString result = stringWithVariables;
     QMapIterator<QString, QString> i(m_map);
     while (i.hasNext()) {
         i.next();
-        result.replace(QString("${%1}").arg(i.key()), i.value());
+        QString key = QLatin1String("${");
+        key += i.key();
+        key += QLatin1Char('}');
+        result.replace(key, i.value());
     }
     return result;
 }

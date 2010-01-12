@@ -52,12 +52,12 @@ public:
     virtual QStringList mimeTypes() const;
 
     // IEditorFactory
-    virtual QString kind() const;
+    virtual QString id() const;
+    virtual QString displayName() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
 private:
-    const QString m_kind;
     const QStringList m_mimeTypes;
 };
 

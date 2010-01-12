@@ -880,13 +880,13 @@ public:
         return __ast;
     }
 
-    ObjCFastEnumerationAST *ObjCFastEnumeration(DeclaratorAST *declarator = 0, ExpressionAST *initializer = 0, ExpressionAST *fast_enumeratable_expression = 0, StatementAST *body_statement = 0)
+    ObjCFastEnumerationAST *ObjCFastEnumeration(DeclaratorAST *declarator = 0, ExpressionAST *initializer = 0, ExpressionAST *fast_enumeratable_expression = 0, StatementAST *statement = 0)
     {
         ObjCFastEnumerationAST *__ast = new (&pool) ObjCFastEnumerationAST;
         __ast->declarator = declarator;
         __ast->initializer = initializer;
         __ast->fast_enumeratable_expression = fast_enumeratable_expression;
-        __ast->body_statement = body_statement;
+        __ast->statement = statement;
         return __ast;
     }
 

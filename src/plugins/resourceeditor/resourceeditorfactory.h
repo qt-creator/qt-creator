@@ -51,13 +51,13 @@ public:
     virtual QStringList mimeTypes() const;
 
     // IEditorFactory
-    QString kind() const;
+    QString id() const;
+    QString displayName() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
 private:
     const QStringList m_mimeTypes;
-    const QString m_kind;
     Context m_context;
 
     ResourceEditorPlugin *m_plugin;

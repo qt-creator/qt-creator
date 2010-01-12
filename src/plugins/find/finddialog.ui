@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>426</width>
+    <width>454</width>
     <height>168</height>
    </rect>
   </property>
@@ -117,6 +117,13 @@
        </property>
       </widget>
      </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="replaceButton">
+       <property name="text">
+        <string>Search &amp;&amp; Replace</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -139,6 +146,7 @@
   <tabstop>searchTerm</tabstop>
   <tabstop>searchButton</tabstop>
   <tabstop>closeButton</tabstop>
+  <tabstop>replaceButton</tabstop>
   <tabstop>matchCase</tabstop>
   <tabstop>wholeWords</tabstop>
  </tabstops>

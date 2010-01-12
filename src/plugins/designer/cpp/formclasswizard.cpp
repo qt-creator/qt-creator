@@ -87,16 +87,16 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     const QString sourceFileName = buildFileName(params.path(), params.sourceFile(), sourceSuffix());
 
     Core::GeneratedFile headerFile(headerFileName);
-    headerFile.setEditorKind(QLatin1String(CppEditor::Constants::CPPEDITOR_KIND));
+    headerFile.setEditorId(QLatin1String(CppEditor::Constants::CPPEDITOR_ID));
 
     // Source
     Core::GeneratedFile sourceFile(sourceFileName);
-    sourceFile.setEditorKind(QLatin1String(CppEditor::Constants::CPPEDITOR_KIND));
+    sourceFile.setEditorId(QLatin1String(CppEditor::Constants::CPPEDITOR_ID));
 
     // UI
     Core::GeneratedFile uiFile(formFileName);
     uiFile.setContents(params.uiTemplate());
-    uiFile.setEditorKind(QLatin1String(Constants::C_FORMEDITOR));
+    uiFile.setEditorId(QLatin1String(Constants::FORMEDITOR_ID));
 
     QString source, header;
     Designer::FormClassWizardGenerationParameters generationParameters;

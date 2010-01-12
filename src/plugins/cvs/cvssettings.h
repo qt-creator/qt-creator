@@ -46,8 +46,8 @@ struct CVSSettings
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
 
-    inline int timeOutMS() const     { return timeOutS * 10000;  }
-    inline int longTimeOutMS() const { return timeOutS * 100000; }
+    inline int timeOutMS() const     { return timeOutS * 1000;  }
+    inline int longTimeOutMS() const { return timeOutS * 10000; }
 
     // Add common options to the command line
     QStringList addOptions(const QStringList &args) const;

@@ -98,9 +98,9 @@ void FormFileWizardDialog::setPath(const QString &path)
     m_filePage->setPath(path);
 }
 
-QString FormFileWizardDialog::name() const
+QString FormFileWizardDialog::fileName() const
 {
-    return m_filePage->name();
+    return m_filePage->fileName();
 }
 
 void FormFileWizardDialog::slotCurrentIdChanged(int id)
@@ -113,7 +113,7 @@ void FormFileWizardDialog::slotCurrentIdChanged(int id)
         if (FormTemplateWizardPage::getUIXmlData(templateContents(), &formBaseClass, &uiClassName)) {
             QString fileName = FormTemplateWizardPage::stripNamespaces(uiClassName).toLower();
             fileName += QLatin1String(".ui");
-            m_filePage->setName(fileName);
+            m_filePage->setFileName(fileName);
         }
     }
 }

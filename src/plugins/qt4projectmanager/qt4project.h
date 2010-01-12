@@ -74,6 +74,7 @@ namespace Internal {
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
     class Qt4BuildConfiguration;
+    class Qt4BuildConfigurationFactory;
 
     class CodeModelInfo
     {
@@ -117,35 +118,18 @@ private:
     QString m_filePath;
 };
 
-class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+struct Qt4TargetInformation
 {
-    Q_OBJECT
-
-public:
-    Qt4BuildConfigurationFactory(Qt4Project *project);
-    ~Qt4BuildConfigurationFactory();
-
-    QStringList availableCreationTypes() const;
-    QString displayNameForType(const QString &type) const;
-
-    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore(const QMap<QString, QVariant> &values) const;
-
-private slots:
-    void update();
-
-private:
-    struct VersionInfo {
-        VersionInfo() {}
-        VersionInfo(const QString &d, int v)
-            : displayName(d), versionId(v) { }
-        QString displayName;
-        int versionId;
+    enum ErrorCode {
+        NoError,
+        InvalidProjectError,
+        ProParserError
     };
 
-    Qt4Project *m_project;
-    QMap<QString, VersionInfo> m_versions;
+    ErrorCode error;
+    QString workingDir;
+    QString target;
+    QString executable;
 };
 
 class Qt4Project : public ProjectExplorer::Project
@@ -158,7 +142,7 @@ public:
 
     Internal::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
-    QString name() const;
+    QString displayName() const;
     Core::IFile *file() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
@@ -195,6 +179,9 @@ public:
 
     Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode);
     void destroyProFileReader(Internal::ProFileReader *reader);
+
+    Qt4TargetInformation targetInformation(Internal::Qt4BuildConfiguration *buildConfiguration,
+                                           const QString &proFilePath);
 
 signals:
     /// convenience signal, emitted if either the active buildconfiguration emits
@@ -242,7 +229,7 @@ private:
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;
     Internal::Qt4NodesWatcher *m_nodesWatcher;
-    Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
 
     Qt4ProjectFile *m_fileInfo;
     bool m_isApplication;

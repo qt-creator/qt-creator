@@ -79,6 +79,7 @@ public:
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
     static MercurialPlugin *instance() { return m_instance; }
+    MercurialClient *client() const { return m_client; }
 
     QStringList standardArguments() const;
 
@@ -87,6 +88,7 @@ public:
 
 private slots:
     // File menu action Slots
+    void addCurrentFile();
     void annotateCurrentFile();
     void diffCurrentFile();
     void logCurrentFile();
@@ -145,7 +147,7 @@ private:
     static MercurialPlugin *m_instance;
     MercurialSettings mercurialSettings;
     OptionsPage *optionsPage;
-    MercurialClient *client;
+    MercurialClient *m_client;
 
     Core::ICore *core;
     Core::ActionManager *actionManager;
@@ -155,6 +157,8 @@ private:
     QTemporaryFile *changeLog;
 
     //Menu Items (file actions)
+    Utils::ParameterAction *m_addAction;
+    Utils::ParameterAction *m_deleteAction;
     Utils::ParameterAction *annotateFile;
     Utils::ParameterAction *diffFile;
     Utils::ParameterAction *logFile;

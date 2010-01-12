@@ -34,7 +34,8 @@ namespace QtScriptEditor {
 namespace Constants {
 
 const char * const M_CONTEXT = "Qt Script Editor.ContextMenu";
-const char * const C_QTSCRIPTEDITOR = "Qt Script Editor";
+const char * const C_QTSCRIPTEDITOR_ID = "Qt4.ScriptEditor";
+const char * const C_QTSCRIPTEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Script Editor");
 
 const char * const C_QTSCRIPTEDITOR_MIMETYPE = "application/javascript";
 

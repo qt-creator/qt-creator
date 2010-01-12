@@ -79,7 +79,7 @@ bool panelWidget(const QWidget *widget)
     if (!widget)
         return false;
 
-    // Dont style dialogs or explicitly ignored widgets
+    // Do not style dialogs or explicitly ignored widgets
     if (qobject_cast<const QDialog *>(widget->window()))
         return false;
 

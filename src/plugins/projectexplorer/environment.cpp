@@ -288,12 +288,12 @@ void Environment::modify(const QList<EnvironmentItem> & list)
     *this = resultEnvironment;
 }
 
-bool Environment::operator!=(const Environment &other)
+bool Environment::operator!=(const Environment &other) const
 {
     return !(*this == other);
 }
 
-bool Environment::operator==(const Environment &other)
+bool Environment::operator==(const Environment &other) const
 {
     return m_values == other.m_values;
 }

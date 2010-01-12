@@ -82,6 +82,7 @@ Settings SettingsPageWidget::settings() const
     settings.p4User = m_ui.userLineEdit->text();
     settings.p4Client=  m_ui.clientLineEdit->text();
     settings.timeOutS = m_ui.timeOutSpinBox->value();
+    settings.logCount = m_ui.logCountSpinBox->value();
     settings.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     return settings;
 }
@@ -93,6 +94,7 @@ void SettingsPageWidget::setSettings(const PerforceSettings &s)
     m_ui.portLineEdit->setText(s.p4Port());
     m_ui.clientLineEdit->setText(s.p4Client());
     m_ui.userLineEdit->setText(s.p4User());
+    m_ui.logCountSpinBox->setValue(s.logCount());
     m_ui.timeOutSpinBox->setValue(s.timeOutS());
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit());
 }
@@ -129,7 +131,7 @@ QString SettingsPage::id() const
     return QLatin1String(VCSBase::Constants::VCS_ID_PERFORCE);
 }
 
-QString SettingsPage::trName() const
+QString SettingsPage::displayName() const
 {
     return tr("Perforce");
 }
@@ -139,7 +141,7 @@ QString SettingsPage::category() const
     return QLatin1String(VCSBase::Constants::VCS_SETTINGS_CATEGORY);
 }
 
-QString SettingsPage::trCategory() const
+QString SettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("VCSBase", VCSBase::Constants::VCS_SETTINGS_TR_CATEGORY);
 }

@@ -56,7 +56,7 @@ void WinscwParser::stdOutput(const QString &line)
                               m_compilerProblem.cap(1) /* filename */,
                               m_compilerProblem.cap(2).toInt() /* linenumber */,
                               TASK_CATEGORY_COMPILE);
-        if (task.description.startsWith("warning: ")) {
+        if (task.description.startsWith(QLatin1String("warning: "))) {
             task.type = TaskWindow::Warning;
             task.description = task.description.mid(9);
         }

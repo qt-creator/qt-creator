@@ -42,7 +42,7 @@ struct BaseProjectWizardDialogPrivate {
     explicit BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id = -1);
 
     const int introId;
-    Utils::ProjectIntroPage *introPage;    
+    Utils::ProjectIntroPage *introPage;
 };
 
 BaseProjectWizardDialogPrivate::BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id) :
@@ -79,9 +79,9 @@ BaseProjectWizardDialog::~BaseProjectWizardDialog()
     delete d;
 }
 
-QString BaseProjectWizardDialog::name() const
+QString BaseProjectWizardDialog::projectName() const
 {
-    return d->introPage->name();
+    return d->introPage->projectName();
 }
 
 QString BaseProjectWizardDialog::path() const
@@ -99,9 +99,9 @@ void BaseProjectWizardDialog::setPath(const QString &path)
     d->introPage->setPath(path);
 }
 
-void BaseProjectWizardDialog::setName(const QString &name)
+void BaseProjectWizardDialog::setProjectName(const QString &name)
 {
-    d->introPage->setName(name);
+    d->introPage->setProjectName(name);
 }
 
 void BaseProjectWizardDialog::slotAccepted()
@@ -118,7 +118,7 @@ Utils::ProjectIntroPage *BaseProjectWizardDialog::introPage() const
     return d->introPage;
 }
 
-QString BaseProjectWizardDialog::projectName(const QString &path)
+QString BaseProjectWizardDialog::uniqueProjectName(const QString &path)
 {
     const QDir pathDir(path);
     const QString prefix = tr("untitled");

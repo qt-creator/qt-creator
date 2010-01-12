@@ -45,7 +45,7 @@ public:
     virtual ~IPropertiesPanel()
     { }
 
-    virtual QString name() const = 0;
+    virtual QString displayName() const = 0;
     virtual QIcon icon() const = 0;
     virtual QWidget *widget() const = 0;
 };

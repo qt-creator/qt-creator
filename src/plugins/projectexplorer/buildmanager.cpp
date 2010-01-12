@@ -280,7 +280,7 @@ void BuildManager::nextBuildQueue()
     bool result = m_watcher.result();
     if (!result) {
         // Build Failure
-        const QString projectName = m_currentBuildStep->buildConfiguration()->project()->name();
+        const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
         addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(projectName));
         addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
         // NBS TODO fix in qtconcurrent
@@ -318,7 +318,7 @@ void BuildManager::nextStep()
 
         bool init = m_currentBuildStep->init();
         if (!init) {
-            const QString projectName = m_currentBuildStep->buildConfiguration()->project()->name();
+            const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
             addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(projectName));
             addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
             cancel();
@@ -326,7 +326,7 @@ void BuildManager::nextStep()
         }
 
         if (m_currentBuildStep->buildConfiguration()->project() != m_previousBuildStepProject) {
-            const QString projectName = m_currentBuildStep->buildConfiguration()->project()->name();
+            const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
             addToOutputWindow(tr("<b>Running build steps for project %2...</b>")
                               .arg(projectName));
             m_previousBuildStepProject = m_currentBuildStep->buildConfiguration()->project();

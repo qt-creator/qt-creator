@@ -27,8 +27,9 @@
 **
 **************************************************************************/
 
-#include "Overview.h"
 #include "TypePrettyPrinter.h"
+
+#include "Overview.h"
 #include <FullySpecifiedType.h>
 #include <Literals.h>
 #include <CoreTypes.h>
@@ -141,11 +142,11 @@ QList<FullySpecifiedType> TypePrettyPrinter::switchPtrOperators(const QList<Full
 
 void TypePrettyPrinter::applyPtrOperators(bool wantSpace)
 {
+    if (wantSpace && !_ptrOperators.isEmpty())
+        space();
+
     for (int i = _ptrOperators.size() - 1; i != -1; --i) {
         const FullySpecifiedType op = _ptrOperators.at(i);
-
-        if (i == 0 && wantSpace)
-            space();
 
         if (op->isPointerType()) {
             _text += QLatin1Char('*');
@@ -159,6 +160,11 @@ void TypePrettyPrinter::applyPtrOperators(bool wantSpace)
             outCV(op);
         }
     }
+}
+
+void TypePrettyPrinter::visit(UndefinedType *)
+{
+    applyPtrOperators();
 }
 
 void TypePrettyPrinter::visit(VoidType *)

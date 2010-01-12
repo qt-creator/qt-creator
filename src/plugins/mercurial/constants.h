@@ -54,28 +54,39 @@ const char * const CHANGEIDEXACT40 = "[a-f0-9]{40,40}";
 const char * const DIFFIDENTIFIER = "^[-+]{3,3} [ab]{1,1}.*"; // match e.g. +++ b/filename
 
 //BaseEditorParameters
+const char * const COMMANDLOG_ID = "Mercurial Command Log Editor";
+const char * const COMMANDLOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial Command Log Editor");
 const char * const COMMANDLOG = "Mercurial Command Log Editor";
 const char * const COMMANDAPP = "application/vnd.nokia.text.scs_mercurial_commandlog";
 const char * const COMMANDEXT = "vcsMercurialCommand";
 
+const char * const FILELOG_ID = "Mercurial File Log Editor";
+const char * const FILELOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial File Log Editor");
 const char * const FILELOG = "Mercurial File Log Editor";
 const char * const LOGAPP = "application/vnd.nokia.text.scs_mercurial_log";
 const char * const LOGEXT = "vcsMercurialLog";
 
+const char * const ANNOTATELOG_ID = "Mercurial Annotation Editor";
+const char * const ANNOTATELOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial Annotation Editor");
 const char * const ANNOTATELOG = "Mercurial Annotation Editor";
 const char * const ANNOTATEAPP = "application/vnd.nokia.text.scs_mercurial_annotatelog";
 const char * const ANNOTATEEXT = "vcsMercurialAnnotate";
 
+const char * const DIFFLOG_ID = "Mercurial Diff Editor";
+const char * const DIFFLOG_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial Diff Editor");
 const char * const DIFFLOG = "Mercurial Diff Editor";
 const char * const DIFFAPP = "text/x-patch";
 const char * const DIFFEXT = "diff";
 
 //SubmitEditorParameters
-const char * const COMMITKIND = "Mercurial Commit Log Editor";
+const char * const COMMIT_ID = "Mercurial Commit Log Editor";
+const char * const COMMIT_DISPLAY_NAME = QT_TRANSLATE_NOOP("VCS", "Mercurial Commit Log Editor");
 const char * const COMMITMIMETYPE = "application/vnd.nokia.text.scs_mercurial_commitlog";
 
 //menu items
 //File menu actions
+const char * const ADD = "Mercurial.AddSingleFile";
+const char * const DELETE = "Mercurial.DeleteSingleFile";
 const char * const ANNOTATE = "Mercurial.Annotate";
 const char * const DIFF = "Mercurial.DiffSingleFile";
 const char * const LOG = "Mercurial.LogSingleFile";

@@ -155,61 +155,64 @@ bool CheckStatement::visit(ExpressionStatementAST *ast)
     return false;
 }
 
-bool CheckStatement::visit(ForeachStatementAST *ast)
+bool CheckStatement::forEachFastEnum(unsigned firstToken,
+                                     unsigned lastToken,
+                                     SpecifierListAST *type_specifier_list,
+                                     DeclaratorAST *declarator,
+                                     ExpressionAST *initializer,
+                                     ExpressionAST *expression,
+                                     StatementAST *statement,
+                                     Block *&symbol)
 {
-    Block *block = control()->newBlock(ast->foreach_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).offset);
-    block->setEndOffset(tokenAt(ast->lastToken()).offset);
-    ast->symbol = block;
+    Block *block = control()->newBlock(firstToken);
+    block->setStartOffset(tokenAt(firstToken).offset);
+    block->setEndOffset(tokenAt(lastToken).offset);
+    symbol = block;
     _scope->enterSymbol(block);
     Scope *previousScope = switchScope(block->members());
-    if (ast->type_specifier_list && ast->declarator) {
-        FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
+    if (type_specifier_list && declarator) {
+        FullySpecifiedType ty = semantic()->check(type_specifier_list, _scope);
         const Name *name = 0;
-        ty = semantic()->check(ast->declarator, ty, _scope, &name);
-        unsigned location = ast->declarator->firstToken();
-        if (CoreDeclaratorAST *core_declarator = ast->declarator->core_declarator)
+        ty = semantic()->check(declarator, ty, _scope, &name);
+        unsigned location = declarator->firstToken();
+        if (CoreDeclaratorAST *core_declarator = declarator->core_declarator)
             location = core_declarator->firstToken();
         Declaration *decl = control()->newDeclaration(location, name);
         decl->setType(ty);
         _scope->enterSymbol(decl);
     } else {
-        FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
+        FullySpecifiedType exprTy = semantic()->check(initializer, _scope);
         (void) exprTy;
     }
 
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    semantic()->check(ast->statement, _scope);
+    FullySpecifiedType exprTy = semantic()->check(expression, _scope);
+    semantic()->check(statement, _scope);
     (void) switchScope(previousScope);
     return false;
 }
 
+bool CheckStatement::visit(ForeachStatementAST *ast)
+{
+    return forEachFastEnum(ast->firstToken(),
+                           ast->lastToken(),
+                           ast->type_specifier_list,
+                           ast->declarator,
+                           ast->initializer,
+                           ast->expression,
+                           ast->statement,
+                           ast->symbol);
+}
+
 bool CheckStatement::visit(ObjCFastEnumerationAST *ast)
 {
-    Block *block = control()->newBlock(ast->for_token);
-    block->setStartOffset(tokenAt(ast->firstToken()).offset);
-    block->setEndOffset(tokenAt(ast->lastToken()).offset);
-    ast->symbol = block;
-    _scope->enterSymbol(block);
-    Scope *previousScope = switchScope(block->members());
-    if (ast->type_specifier_list && ast->declarator) {
-        FullySpecifiedType ty = semantic()->check(ast->type_specifier_list, _scope);
-        const Name *name = 0;
-        ty = semantic()->check(ast->declarator, ty, _scope, &name);
-        unsigned location = ast->declarator->firstToken();
-        if (CoreDeclaratorAST *core_declarator = ast->declarator->core_declarator)
-            location = core_declarator->firstToken();
-        Declaration *decl = control()->newDeclaration(location, name);
-        decl->setType(ty);
-        _scope->enterSymbol(decl);
-    } else {
-        FullySpecifiedType exprTy = semantic()->check(ast->initializer, _scope);
-        (void) exprTy;
-    }
-
-    semantic()->check(ast->body_statement, _scope);
-    (void) switchScope(previousScope);
-    return false;
+    return forEachFastEnum(ast->firstToken(),
+                           ast->lastToken(),
+                           ast->type_specifier_list,
+                           ast->declarator,
+                           ast->initializer,
+                           ast->fast_enumeratable_expression,
+                           ast->statement,
+                           ast->symbol);
 }
 
 bool CheckStatement::visit(ForStatementAST *ast)

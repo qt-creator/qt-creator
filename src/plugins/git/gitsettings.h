@@ -57,6 +57,7 @@ struct GitSettings
     int timeout;
     bool promptToSubmit;
     bool omitAnnotationDate;
+    bool spaceIgnorantBlame;
 };
 
 inline bool operator==(const GitSettings &p1, const GitSettings &p2)

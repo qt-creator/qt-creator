@@ -195,8 +195,8 @@ public:
 DebugMode::DebugMode(QObject *parent)
   : BaseMode(parent)
 {
-    setName(tr("Debug"));
-    setUniqueModeName(Constants::MODE_DEBUG);
+    setDisplayName(tr("Debug"));
+    setId(Constants::MODE_DEBUG);
     setIcon(QIcon(":/fancyactionbar/images/mode_Debug.png"));
     setPriority(Constants::P_MODE_DEBUG);
 }
@@ -320,11 +320,11 @@ public:
     // IOptionsPage
     QString id() const
         { return QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_ID); }
-    QString trName() const
+    QString displayName() const
         { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_COMMON_SETTINGS_NAME); }
     QString category() const
         { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);  }
-    QString trCategory() const
+    QString displayCategory() const
         { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
@@ -421,9 +421,9 @@ public:
 
     // IOptionsPage
     QString id() const { return QLatin1String("B.DebuggingHelper"); }
-    QString trName() const { return tr("Debugging Helper"); }
+    QString displayName() const { return tr("Debugging Helper"); }
     QString category() const { return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY); }
-    QString trCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY); }
+    QString displayCategory() const { return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(settings()); }
@@ -1057,7 +1057,7 @@ void DebuggerPlugin::activatePreviousMode()
 void DebuggerPlugin::activateDebugMode()
 {
     ModeManager *modeManager = ModeManager::instance();
-    m_previousMode = QLatin1String(modeManager->currentMode()->uniqueModeName());
+    m_previousMode = modeManager->currentMode()->id();
     modeManager->activateMode(QLatin1String(MODE_DEBUG));
 }
 

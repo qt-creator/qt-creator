@@ -291,7 +291,7 @@ public:
     ~BaseTextEditor();
 
     static ITextEditor *openEditorAt(const QString &fileName, int line, int column = 0,
-                                     const QString &editorKind = QString());
+                                     const QString &editorId = QString());
 
     const Utils::ChangeSet &changeSet() const;
     void setChangeSet(const Utils::ChangeSet &changeSet);
@@ -525,8 +525,10 @@ protected:
     void leaveEvent(QEvent *);
     void keyReleaseEvent(QKeyEvent *);
 
+public:
     // Returns true if key triggers an indent.
     virtual bool isElectricCharacter(const QChar &ch) const;
+protected:
     // Returns the text to complete at the cursor position, or an empty string
     virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
     // Handles backspace. When returning true, backspace processing is stopped
@@ -576,7 +578,7 @@ protected:
 
     /*!
        Reimplement this function if you want to customize the way a link is
-       opened. Returns whether the link was opened succesfully.
+       opened. Returns whether the link was opened successfully.
      */
     virtual bool openLink(const Link &link);
 

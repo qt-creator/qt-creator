@@ -1,0 +1,18 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/trolltech/qtgradienteditor">
+        <file>images/edit.png</file>
+        <file>images/zoomin.png</file>
+        <file>images/zoomout.png</file>
+        <file>images/up.png</file>
+        <file>images/down.png</file>
+        <file>images/plus.png</file>
+        <file>images/minus.png</file>
+        <file>images/editdelete.png</file>
+        <file>images/spreadpad.png</file>
+        <file>images/spreadrepeat.png</file>
+        <file>images/spreadreflect.png</file>
+        <file>images/typelinear.png</file>
+        <file>images/typeradial.png</file>
+        <file>images/typeconical.png</file>
+    </qresource>
+</RCC>

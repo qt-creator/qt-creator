@@ -48,8 +48,8 @@ class AllProjectsFilter : public Locator::BaseFileFilter
 
 public:
     explicit AllProjectsFilter(ProjectExplorerPlugin *pe);
-    QString trName() const { return tr("Files in any project"); }
-    QString name() const { return "Files in any project"; }
+    QString displayName() const { return tr("Files in any project"); }
+    QString id() const { return "Files in any project"; }
     Locator::ILocatorFilter::Priority priority() const { return Locator::ILocatorFilter::Low; }
     void refresh(QFutureInterface<void> &future);
 

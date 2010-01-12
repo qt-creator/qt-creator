@@ -1,0 +1,28 @@
+QTreeView#widgetTreeView {
+    background: #bababa;
+    border: 0px;
+	font-size: 11px;
+    selection-color: #fff;
+	selection-background-color: #3875d7;
+	font-variant: normal;
+}
+
+//QTreeView::item {
+//    padding: 3px;
+//}
+//
+//QTreeView::item:selected {
+//    border: 3px solid #ff0000;
+//    padding: 3px;
+//    background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #3c77ad, stop: 1 #003882);
+//}
+
+//QTreeView#widgetTreeView::item {
+// inactive, in favour of the 2 items above (for testing, as the QTreeView seems to contain a bug which prevents border/padding to work correctly
+//    border: 1px solid #ff0000;
+//}
+
+QStackedWidget#widgetTreeStack {
+    background: #bababa;
+    border: 0px;
+}

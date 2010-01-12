@@ -52,14 +52,15 @@ public:
 
     virtual QStringList mimeTypes() const;
     //Core::IEditorFactory
-    QString kind() const;
+    QString id() const;
+    QString displayName() const;
+
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
     TextEditor::TextEditorActionHandler *actionHandler() const { return m_actionHandler; }
 
 private:
-    const QString m_kind;
     QStringList m_mimeTypes;
     TextEditor::TextEditorActionHandler *m_actionHandler;
 };

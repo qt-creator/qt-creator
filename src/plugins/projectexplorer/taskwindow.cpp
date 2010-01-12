@@ -34,6 +34,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/itexteditor.h>
 
@@ -456,9 +457,9 @@ TaskWindow::TaskWindow()
     core->addContextObject(m_taskWindowContext);
 
     m_copyAction = new QAction(QIcon(Core::Constants::ICON_COPY), tr("&Copy"), this);
-    core->actionManager()->
+    Core::Command *command = core->actionManager()->
             registerAction(m_copyAction, Core::Constants::COPY, m_taskWindowContext->context());
-    m_listview->addAction(m_copyAction);
+    m_listview->addAction(command->action());
 
     connect(m_listview->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
             tld, SLOT(currentChanged(const QModelIndex &, const QModelIndex &)));

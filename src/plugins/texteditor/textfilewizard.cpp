@@ -35,13 +35,13 @@
 using namespace TextEditor;
 
 TextFileWizard::TextFileWizard(const QString &mimeType,
-                               const QString &editorKind,
+                               const QString &editorId,
                                const QString &suggestedFileName,
                                const BaseFileWizardParameters &parameters,
                                QObject *parent) :
     Core::StandardFileWizard(parameters, parent),
     m_mimeType(mimeType),
-    m_editorKind(editorKind),
+    m_editorId(editorId),
     m_suggestedFileName(suggestedFileName)
 {
 }
@@ -53,6 +53,6 @@ Core::GeneratedFiles
     const QString suffix = preferredSuffix(m_mimeType);
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, suffix);
     Core::GeneratedFile file(fileName);
-    file.setEditorKind(m_editorKind);
+    file.setEditorId(m_editorId);
     return Core::GeneratedFiles() << file;
 }

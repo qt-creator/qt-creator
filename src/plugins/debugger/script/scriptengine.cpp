@@ -38,7 +38,6 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
-#include "moduleshandler.h"
 
 #include <utils/qtcassert.h>
 
@@ -390,7 +389,7 @@ void ScriptEngine::attemptBreakpointSynchronization()
             updateNeeded = true;
         }
         if (data->bpNumber.isEmpty()) {
-            data->bpNumber = QString::number(index + 1);
+            data->bpNumber = QByteArray::number(index + 1);
             updateNeeded = true;
         }
         if (!data->fileName.isEmpty() && data->markerFileName.isEmpty()) {
@@ -560,7 +559,7 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
         // we just run into a breakpoint
         //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
         BreakpointData *data = handler->at(index);
-        data->bpLineNumber = QString::number(lineNumber);
+        data->bpLineNumber = QByteArray::number(lineNumber);
         data->bpFileName = fileName;
         data->bpFuncName = functionName;
         data->markerLineNumber = lineNumber;
@@ -703,8 +702,8 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
         while (it.hasNext()) {
             it.next();
             WatchData data1;
-            data1.iname = data.iname + "." + it.name();
-            data1.exp = it.name();
+            data1.iname = data.iname + "." + it.name().toLatin1();
+            data1.exp = it.name().toLatin1();
             data1.name = it.name();
             data1.scriptValue = it.value();
             if (manager()->watchHandler()->isExpandedIName(data1.iname))

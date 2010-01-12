@@ -1,0 +1,27 @@
+realname "Visual C++"
+
+binary_name "cl.exe"
+
+compile_option "/nologo /c "
+output_to_option "/Fo"
+add_include_dir_option "/I"
+add_lib_dir_option "-L"
+add_lib_option ""
+
+lib_opt_flags "/O2"
+check_opt_flags "/O2"
+debug_flags "/Zi"
+no_debug_flags ""
+lang_flags "/EHsc /GR /D_CONSOLE"
+warning_flags ""
+
+dll_import_flags "__declspec(dllimport)"
+dll_export_flags "__declspec(dllexport)"
+
+ar_command "lib"
+
+makefile_style nmake
+
+<so_link_flags>
+default -> "link /DLL"
+</so_link_flags>

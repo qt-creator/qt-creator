@@ -57,7 +57,8 @@ public:
     virtual Core::IEditor *createEditor(QWidget *parent);
 
     virtual QStringList mimeTypes() const;
-    virtual QString kind() const;
+    virtual QString id() const;
+    virtual QString displayName() const;
     virtual Core::IFile *open(const QString &fileName);
 
 private:
@@ -75,7 +76,7 @@ public:
     virtual ~ProjectFilesEditable();
 
     virtual QList<int> context() const;
-    virtual const char *kind() const;
+    virtual QString id() const;
 
     virtual bool duplicateSupported() const;
     virtual Core::IEditor *duplicate(QWidget *parent);

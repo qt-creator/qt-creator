@@ -31,6 +31,7 @@
 #include "cppeditor.h"
 
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/ResolveExpression.h>
 
 #include <TranslationUnit.h>
 #include <ASTVisitor.h>
@@ -38,6 +39,12 @@
 #include <ASTPatternBuilder.h>
 #include <ASTMatcher.h>
 #include <Token.h>
+#include <Type.h>
+#include <CoreTypes.h>
+#include <Symbol.h>
+#include <Symbols.h>
+#include <Name.h>
+#include <Literals.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <QtDebug>
@@ -69,6 +76,16 @@ public:
         return _nodes;
     }
 
+#if 0
+    // Useful for debugging:
+    static void dump(const QList<AST *> nodes)
+    {
+        qDebug() << "ASTPath dump," << nodes.size() << "nodes:";
+        for (int i = 0; i < nodes.size(); ++i)
+            qDebug() << qPrintable(QString(i + 1, QLatin1Char('-'))) << typeid(*nodes.at(i)).name();
+    }
+#endif
+
 protected:
     virtual bool preVisit(AST *ast)
     {
@@ -84,7 +101,7 @@ protected:
                 unsigned endLine, endColumn;
                 getTokenEndPosition(lastToken - 1, &endLine, &endColumn);
 
-                if (_line < endLine || (_line == endLine && _column < endColumn)) {
+                if (_line < endLine || (_line == endLine && _column <= endColumn)) {
                     _nodes.append(ast);
                     return true;
                 }
@@ -748,6 +765,305 @@ private:
     IfStatementAST *pattern;
 };
 
+/*
+  Replace
+    "abcd"
+  With
+    QLatin1String("abcd")
+*/
+class WrapStringLiteral: public QuickFixOperation
+{
+public:
+    WrapStringLiteral()
+        : stringLiteral(0), isObjCStringLiteral(false)
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Enclose in QLatin1String(...)"); // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        if (path.isEmpty())
+            return -1;
+
+        int index = path.size() - 1;
+        stringLiteral = path[index]->asStringLiteral();
+
+        if (!stringLiteral)
+            return -1;
+
+        isObjCStringLiteral = charAt(startOf(stringLiteral)) == QLatin1Char('@');
+
+        // check if it is already wrapped in QLatin1String or -Literal
+        if (index-2 < 0)
+            return index;
+
+        CallAST *call = path[index-1]->asCall();
+        PostfixExpressionAST *postfixExp = path[index-2]->asPostfixExpression();
+        if (call && postfixExp
+            && postfixExp->base_expression
+            && postfixExp->postfix_expression_list
+            && postfixExp->postfix_expression_list->value == call)
+        {
+            NameAST *callName = postfixExp->base_expression->asName();
+            if (!callName)
+                return index;
+
+            QByteArray callNameString(tokenAt(callName->firstToken()).spell());
+            if (callNameString == "QLatin1String"
+                || callNameString == "QLatin1Literal"
+                )
+                return -1;
+        }
+
+        return index;
+    }
+
+    virtual void createChangeSet()
+    {
+        const int startPos = startOf(stringLiteral);
+        const QLatin1String replacement("QLatin1String(");
+
+        if (isObjCStringLiteral)
+            replace(startPos, startPos + 1, replacement);
+        else
+            insert(startPos, replacement);
+
+        insert(endOf(stringLiteral), ")");
+    }
+
+private:
+    StringLiteralAST *stringLiteral;
+    bool isObjCStringLiteral;
+};
+
+class CStringToNSString: public QuickFixOperation
+{
+public:
+    CStringToNSString()
+        : stringLiteral(0), qlatin1Call(0)
+    {}
+
+    virtual QString description() const
+    { return QLatin1String("Convert to Objective-C string literal"); }// ### tr?
+
+    virtual int match(const QList<AST *> &path)
+    {
+        if (path.isEmpty())
+            return -1;
+
+        int index = path.size() - 1;
+        stringLiteral = path[index]->asStringLiteral();
+
+        if (!stringLiteral)
+            return -1;
+
+        if (charAt(startOf(stringLiteral)) == QLatin1Char('@'))
+            return -1;
+
+        // check if it is already wrapped in QLatin1String or -Literal
+        if (index-2 < 0)
+            return index;
+
+        CallAST *call = path[index-1]->asCall();
+        PostfixExpressionAST *postfixExp = path[index-2]->asPostfixExpression();
+        if (call && postfixExp
+            && postfixExp->base_expression
+            && postfixExp->postfix_expression_list
+            && postfixExp->postfix_expression_list->value == call)
+        {
+            NameAST *callName = postfixExp->base_expression->asName();
+            if (!callName)
+                return index;
+
+            if (!(postfixExp->postfix_expression_list->next)) {
+                QByteArray callNameString(tokenAt(callName->firstToken()).spell());
+                if (callNameString == "QLatin1String"
+                    || callNameString == "QLatin1Literal"
+                    )
+                    qlatin1Call = postfixExp;
+            }
+        }
+
+        return index;
+    }
+
+    virtual void createChangeSet()
+    {
+        if (qlatin1Call) {
+            replace(startOf(qlatin1Call), startOf(stringLiteral), QLatin1String("@"));
+            remove(endOf(stringLiteral), endOf(qlatin1Call));
+        } else {
+            insert(startOf(stringLiteral), "@");
+        }
+    }
+
+private:
+    StringLiteralAST *stringLiteral;
+    PostfixExpressionAST *qlatin1Call;
+};
+
+/*
+  Replace
+    a + b
+  With
+    a % b
+  If a and b are of string type.
+*/
+class UseFastStringConcatenation: public QuickFixOperation
+{
+public:
+    UseFastStringConcatenation()
+    {}
+
+    virtual QString description() const
+    {
+        return QLatin1String("Use fast string concatenation with %"); // ### tr?
+    }
+
+    virtual int match(const QList<AST *> &path)
+    {
+        if (path.isEmpty())
+            return -1;
+
+        // need to search 'up' too
+        int index = path.size() - 1;
+        if (BinaryExpressionAST *binary = asPlusNode(path[index])) {
+            while (0 != (binary = asPlusNode(binary->left_expression)))
+                _binaryExpressions.prepend(binary);
+        }
+
+        // search 'down'
+        for (index = path.size() - 1; index != -1; --index) {
+            AST *node = path.at(index);
+            if (BinaryExpressionAST *binary = asPlusNode(node)) {
+                _binaryExpressions.append(binary);
+            } else if (! _binaryExpressions.isEmpty()) {
+                break;
+            }
+        }
+
+        if (_binaryExpressions.isEmpty())
+            return -1;
+
+        // verify types of arguments
+        BinaryExpressionAST *prevBinary = 0;
+        foreach (BinaryExpressionAST *binary, _binaryExpressions) {
+            if (binary->left_expression != prevBinary) {
+                if (!hasCorrectType(binary->left_expression))
+                    return -1;
+            }
+            if (binary->right_expression != prevBinary) {
+                if (!hasCorrectType(binary->right_expression))
+                    return -1;
+            }
+            prevBinary = binary;
+        }
+
+        return index + _binaryExpressions.size();
+    }
+
+    virtual void createChangeSet()
+    {
+        // replace + -> %
+        foreach (BinaryExpressionAST *binary, _binaryExpressions)
+            replace(binary->binary_op_token, "%");
+
+        // wrap literals in QLatin1Literal
+        foreach (StringLiteralAST *literal, _stringLiterals) {
+            insert(startOf(literal), "QLatin1Literal(");
+            insert(endOf(literal), ")");
+        }
+
+        // replace QLatin1String/QString/QByteArray(literal) -> QLatin1Literal(literal)
+        foreach (PostfixExpressionAST *postfix, _incorrectlyWrappedLiterals) {
+            replace(postfix->base_expression, "QLatin1Literal");
+        }
+    }
+
+    BinaryExpressionAST *asPlusNode(AST *ast)
+    {
+        BinaryExpressionAST *binary = ast->asBinaryExpression();
+        if (binary && tokenAt(binary->binary_op_token).kind() == T_PLUS)
+            return binary;
+        return 0;
+    }
+
+    bool hasCorrectType(ExpressionAST *ast)
+    {
+        if (StringLiteralAST *literal = ast->asStringLiteral()) {
+            _stringLiterals += literal;
+            return true;
+        }
+
+        if (PostfixExpressionAST *postfix = ast->asPostfixExpression()) {
+            if (postfix->base_expression && postfix->postfix_expression_list
+                && postfix->postfix_expression_list->value
+                && !postfix->postfix_expression_list->next)
+            {
+                NameAST *name = postfix->base_expression->asName();
+                CallAST *call = postfix->postfix_expression_list->value->asCall();
+                if (name && call) {
+                    QByteArray nameStr(name->name->identifier()->chars());
+                    if ((nameStr == "QLatin1String"
+                         || nameStr == "QString"
+                         || nameStr == "QByteArray")
+                        && call->expression_list
+                        && call->expression_list->value
+                        && call->expression_list->value->asStringLiteral()
+                        && !call->expression_list->next)
+                    {
+                        _incorrectlyWrappedLiterals += postfix;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        const QList<LookupItem> &lookup = typeOf(ast);
+        if (lookup.isEmpty())
+            return false;
+        return isQtStringType(lookup[0].type());
+    }
+
+    bool isBuiltinStringType(FullySpecifiedType type)
+    {
+        // char*
+        if (PointerType *ptrTy = type->asPointerType())
+            if (IntegerType *intTy = ptrTy->elementType()->asIntegerType())
+                if (intTy->kind() == IntegerType::Char)
+                    return true;
+        return false;
+    }
+
+    bool isQtStringType(FullySpecifiedType type)
+    {
+        if (NamedType *nameTy = type->asNamedType()) {
+            if (!nameTy->name() || !nameTy->name()->identifier())
+                return false;
+
+            QByteArray name(nameTy->name()->identifier()->chars());
+            if (name == "QString"
+                || name == "QByteArray"
+                || name == "QLatin1String"
+                || name == "QLatin1Literal"
+                || name == "QStringRef"
+                || name == "QChar"
+                )
+                return true;
+        }
+
+        return false;
+    }
+
+private:
+    QList<BinaryExpressionAST *> _binaryExpressions;
+    QList<StringLiteralAST *> _stringLiterals;
+    QList<PostfixExpressionAST *> _incorrectlyWrappedLiterals;
+};
+
 } // end of anonymous namespace
 
 
@@ -777,7 +1093,9 @@ Snapshot QuickFixOperation::snapshot() const
 { return _snapshot; }
 
 void QuickFixOperation::setSnapshot(const CPlusPlus::Snapshot &snapshot)
-{ _snapshot = snapshot; }
+{
+    _snapshot = snapshot;
+}
 
 CPPEditor *QuickFixOperation::editor() const
 { return _editor; }
@@ -968,9 +1286,14 @@ QString QuickFixOperation::textOf(int firstOffset, int lastOffset) const
     return tc.selectedText();
 }
 
-QString QuickFixOperation::textOf(AST *ast) const
+QString QuickFixOperation::textOf(const AST *ast) const
 {
     return textOf(startOf(ast), endOf(ast));
+}
+
+QChar QuickFixOperation::charAt(int offset) const
+{
+    return textOf(offset, offset + 1).at(0);
 }
 
 void QuickFixOperation::apply()
@@ -988,6 +1311,24 @@ void QuickFixOperation::apply()
         reindent(range);
 
     _textCursor.endEditBlock();
+}
+
+/**
+ * Returns a list of possible fully specified types associated with the
+ * given expression.
+ *
+ * NOTE: The fully specified types only stay valid until the next call to typeOf.
+ */
+const QList<LookupItem> QuickFixOperation::typeOf(CPlusPlus::ExpressionAST *ast)
+{
+    unsigned line, column;
+    document()->translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
+    Symbol *lastVisibleSymbol = document()->findSymbolAt(line, column);
+
+    _lookupContext = LookupContext(lastVisibleSymbol, document(), document(), snapshot());
+
+    ResolveExpression resolveExpression(_lookupContext);
+    return resolveExpression(ast);
 }
 
 CPPQuickFixCollector::CPPQuickFixCollector()
@@ -1033,6 +1374,9 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         QSharedPointer<AddBracesToIfOp> addBracesToIfOp(new AddBracesToIfOp());
         QSharedPointer<UseInverseOp> useInverseOp(new UseInverseOp());
         QSharedPointer<FlipBinaryOp> flipBinaryOp(new FlipBinaryOp());
+        QSharedPointer<WrapStringLiteral> wrapStringLiteral(new WrapStringLiteral());
+        QSharedPointer<CStringToNSString> wrapCString(new CStringToNSString());
+        QSharedPointer<UseFastStringConcatenation> useFastStringConcat(new UseFastStringConcatenation());
 
         QList<QuickFixOperationPtr> candidates;
         candidates.append(rewriteLogicalAndOp);
@@ -1043,6 +1387,9 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
         candidates.append(addBracesToIfOp);
         candidates.append(useInverseOp);
         candidates.append(flipBinaryOp);
+        candidates.append(wrapStringLiteral);
+        candidates.append(wrapCString);
+        candidates.append(useFastStringConcat);
 
         QMap<int, QList<QuickFixOperationPtr> > matchedOps;
 

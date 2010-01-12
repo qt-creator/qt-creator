@@ -92,11 +92,11 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setDescription(tr("Creates a text file (.txt)."));
-    wizardParameters.setName(tr("Text File"));
+    wizardParameters.setDisplayName(tr("Text File"));
     wizardParameters.setCategory(QLatin1String("O.General"));
-    wizardParameters.setTrCategory(tr("General"));
+    wizardParameters.setDisplayCategory(tr("General"));
     m_wizard = new TextFileWizard(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
-                                  QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR),
+                                  QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID),
                                   QLatin1String("text$"),
                                   wizardParameters);
     // Add text file wizard

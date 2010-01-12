@@ -54,7 +54,6 @@
 
 #include <QtDesigner/QDesignerWidgetBoxInterface>
 #include <QtDesigner/abstractobjectinspector.h>
-#include <QtDesigner/QDesignerComponents>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
 #include <QtDesigner/QDesignerActionEditorInterface>
 
@@ -91,7 +90,7 @@ static const char *settingsGroup = "Designer";
 
 /* Actions of the designer plugin:
  * Designer provides a toolbar which is subject to a context change (to
- * "edit mode" context) when it is focussed.
+ * "edit mode" context) when it is focused.
  * In order to prevent its actions from being disabled/hidden by that context
  * change, the actions are registered on the global context. In currentEditorChanged(),
  * the ones that are present in the global edit menu are set visible/invisible manually.
@@ -105,33 +104,8 @@ static inline QIcon designerIcon(const QString &iconName)
     return icon;
 }
 
-// Create an action to activate a designer tool
-static inline QAction *createEditModeAction(QActionGroup *ag,
-                                     const QList<int> &context,
-                                     Core::ActionManager *am,
-                                     Core::ActionContainer *medit,
-                                     const QString &actionName,
-                                     const QString &name,
-                                     int toolNumber,
-                                     const QString &iconName =  QString(),
-                                     const QString &keySequence = QString())
-{
-    QAction *rc = new QAction(actionName, ag);
-    rc->setCheckable(true);
-    if (!iconName.isEmpty())
-         rc->setIcon(designerIcon(iconName));
-    Core::Command *command = am->registerAction(rc, name, context);
-    if (!keySequence.isEmpty())
-        command->setDefaultKeySequence(QKeySequence(keySequence));
-    medit->addAction(command, Core::Constants::G_EDIT_OTHER);
-    rc->setData(toolNumber);
-    ag->addAction(rc);
-    return rc;
-}
-
-
-// Create a menu separato
-static inline QAction * createSeparator(QObject *parent,
+// Create a menu separator
+static inline QAction *createSeparator(QObject *parent,
                                  Core::ActionManager *am,
                                  const QList<int> &context,
                                  Core::ActionContainer *container,
@@ -143,20 +117,6 @@ static inline QAction * createSeparator(QObject *parent,
     Core::Command *command = am->registerAction(actSeparator, name, context);
     container->addAction(command, group);
     return actSeparator;
-}
-
-// Create a tool action
-static inline void addToolAction(QAction *a,
-                   Core::ActionManager *am,
-                   const QList<int> &context,
-                   const QString &name,
-                   Core::ActionContainer *c1,
-                   const QString &keySequence = QString())
-{
-    Core::Command *command = am->registerAction(a, name, context);
-    if (!keySequence.isEmpty())
-        command->setDefaultKeySequence(QKeySequence(keySequence));
-    c1->addAction(command);
 }
 
 using namespace Designer;
@@ -237,7 +197,8 @@ FormEditorW::FormEditorW() :
     m_actionPrint(0),
     m_actionPreview(0),
     m_actionGroupPreviewInStyle(0),
-    m_actionAboutPlugins(0)
+    m_actionAboutPlugins(0),
+    m_shortcutMapper(new QSignalMapper(this))
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
@@ -270,6 +231,8 @@ FormEditorW::FormEditorW() :
 
     connect(m_core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor *)),
             this, SLOT(currentEditorChanged(Core::IEditor *)));
+    connect(m_shortcutMapper, SIGNAL(mapped(QObject *)),
+            this, SLOT(updateShortcut(QObject *)));
 }
 
 FormEditorW::~FormEditorW()
@@ -397,20 +360,21 @@ void FormEditorW::setupActions()
     mtools->addMenu(mformtools);
 
     //overridden actions
-    am->registerAction(m_fwm->actionUndo(), Core::Constants::UNDO, m_context);
-    am->registerAction(m_fwm->actionRedo(), Core::Constants::REDO, m_context);
-    am->registerAction(m_fwm->actionCut(), Core::Constants::CUT, m_context);
-    am->registerAction(m_fwm->actionCopy(), Core::Constants::COPY, m_context);
-    am->registerAction(m_fwm->actionPaste(), Core::Constants::PASTE, m_context);
-    am->registerAction(m_fwm->actionSelectAll(), Core::Constants::SELECTALL, m_context);
+    bindShortcut(am->registerAction(m_fwm->actionUndo(), Core::Constants::UNDO, m_context), m_fwm->actionUndo());
+    bindShortcut(am->registerAction(m_fwm->actionRedo(), Core::Constants::REDO, m_context), m_fwm->actionRedo());
+    bindShortcut(am->registerAction(m_fwm->actionCut(), Core::Constants::CUT, m_context), m_fwm->actionCut());
+    bindShortcut(am->registerAction(m_fwm->actionCopy(), Core::Constants::COPY, m_context), m_fwm->actionCopy());
+    bindShortcut(am->registerAction(m_fwm->actionPaste(), Core::Constants::PASTE, m_context), m_fwm->actionPaste());
+    bindShortcut(am->registerAction(m_fwm->actionSelectAll(), Core::Constants::SELECTALL, m_context), m_fwm->actionSelectAll());
 
     m_actionPrint = new QAction(this);
-    am->registerAction(m_actionPrint, Core::Constants::PRINT, m_context);
+    bindShortcut(am->registerAction(m_actionPrint, Core::Constants::PRINT, m_context), m_actionPrint);
     connect(m_actionPrint, SIGNAL(triggered()), this, SLOT(print()));
 
     //'delete' action
     command = am->registerAction(m_fwm->actionDelete(), QLatin1String("FormEditor.Edit.Delete"), m_context);
     command->setDefaultKeySequence(QKeySequence::Delete);
+    bindShortcut(command, m_fwm->actionDelete());
     command->setAttribute(Core::Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
@@ -613,6 +577,7 @@ Core::ActionContainer *FormEditorW::createPreviewStyleMenu(Core::ActionManager *
         }
         name += data.toString();
         Core::Command *command = am->registerAction(a, name, m_context);
+        bindShortcut(command, a);
         if (isDeviceProfile) {
             command->setAttribute(Core::Command::CA_UpdateText);
             command->setAttribute(Core::Command::CA_NonConfigureable);
@@ -640,6 +605,56 @@ void FormEditorW::restoreSettings(QSettings *s)
 void FormEditorW::critical(const QString &errorMessage)
 {
     QMessageBox::critical(m_core->mainWindow(), tr("Designer"),  errorMessage);
+}
+
+// Apply the command shortcut to the action and connects to the command's keySequenceChanged signal
+void FormEditorW::bindShortcut(Core::Command *command, QAction *action)
+{
+    m_commandToDesignerAction.insert(command, action);
+    connect(command, SIGNAL(keySequenceChanged()),
+            m_shortcutMapper, SLOT(map()));
+    m_shortcutMapper->setMapping(command, command);
+    updateShortcut(command);
+}
+
+// Create an action to activate a designer tool
+QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
+                                     const QList<int> &context,
+                                     Core::ActionManager *am,
+                                     Core::ActionContainer *medit,
+                                     const QString &actionName,
+                                     const QString &name,
+                                     int toolNumber,
+                                     const QString &iconName,
+                                     const QString &keySequence)
+{
+    QAction *rc = new QAction(actionName, ag);
+    rc->setCheckable(true);
+    if (!iconName.isEmpty())
+         rc->setIcon(designerIcon(iconName));
+    Core::Command *command = am->registerAction(rc, name, context);
+    if (!keySequence.isEmpty())
+        command->setDefaultKeySequence(QKeySequence(keySequence));
+    bindShortcut(command, rc);
+    medit->addAction(command, Core::Constants::G_EDIT_OTHER);
+    rc->setData(toolNumber);
+    ag->addAction(rc);
+    return rc;
+}
+
+// Create a tool action
+void FormEditorW::addToolAction(QAction *a,
+                   Core::ActionManager *am,
+                   const QList<int> &context,
+                   const QString &name,
+                   Core::ActionContainer *c1,
+                   const QString &keySequence)
+{
+    Core::Command *command = am->registerAction(a, name, context);
+    if (!keySequence.isEmpty())
+        command->setDefaultKeySequence(QKeySequence(keySequence));
+    bindShortcut(command, a);
+    c1->addAction(command);
 }
 
 FormWindowEditor *FormEditorW::createFormWindowEditor(QWidget* parentWidget)
@@ -673,13 +688,24 @@ void FormEditorW::editorDestroyed()
     }
 }
 
+void FormEditorW::updateShortcut(QObject *command)
+{
+    Core::Command *c = qobject_cast<Core::Command *>(command);
+    if (!c)
+        return;
+    QAction *a = m_commandToDesignerAction.value(c);
+    if (!a)
+        return;
+    a->setShortcut(c->action()->shortcut());
+}
+
 void FormEditorW::currentEditorChanged(Core::IEditor *editor)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
 
     // Deactivate Designer if a non-form is being edited
-    if (editor && !qstrcmp(editor->kind(), Constants::C_FORMEDITOR)) {
+    if (editor && editor->id() == QLatin1String(Constants::FORMEDITOR_ID)) {
         FormWindowEditor *fw = qobject_cast<FormWindowEditor *>(editor);
         QTC_ASSERT(fw, return);
         fw->activate();

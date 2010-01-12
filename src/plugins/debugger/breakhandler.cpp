@@ -139,7 +139,7 @@ public:
                 }
             }
         }
-        m_data->lineNumber = QString::number(lineNumber);
+        m_data->lineNumber = QByteArray::number(lineNumber);
         m_data->handler()->updateMarkers();
     }
 
@@ -386,13 +386,13 @@ void BreakHandler::loadBreakpoints()
             data->fileName = v.toString();
         v = map.value(QLatin1String("linenumber"));
         if (v.isValid())
-            data->lineNumber = v.toString();
+            data->lineNumber = v.toString().toLatin1();
         v = map.value(QLatin1String("condition"));
         if (v.isValid())
-            data->condition = v.toString();
+            data->condition = v.toString().toLatin1();
         v = map.value(QLatin1String("ignorecount"));
         if (v.isValid())
-            data->ignoreCount = v.toInt();
+            data->ignoreCount = v.toString().toLatin1();
         v = map.value(QLatin1String("funcname"));
         if (v.isValid())
             data->funcName = v.toString();
@@ -561,7 +561,7 @@ bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int rol
         case 4: {
             QString val = value.toString();
             if (val != data->condition) {
-                data->condition = val;
+                data->condition = val.toLatin1();
                 dataChanged(mi, mi);
             }
             return true;
@@ -569,7 +569,7 @@ bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int rol
         case 5: {
             QString val = value.toString();
             if (val != data->ignoreCount) {
-                data->ignoreCount = val;
+                data->ignoreCount = val.toLatin1();
                 dataChanged(mi, mi);
             }
             return true;
@@ -660,7 +660,7 @@ void BreakHandler::setBreakpoint(const QString &fileName, int lineNumber)
 
     BreakpointData *data = new BreakpointData(this);
     data->fileName = fileName;
-    data->lineNumber = QString::number(lineNumber);
+    data->lineNumber = QByteArray::number(lineNumber);
     data->pending = true;
     data->markerFileName = fileName;
     data->markerLineNumber = lineNumber;

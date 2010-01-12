@@ -68,7 +68,7 @@ public:
     bool isAutodetected() const { return m_isAutodetected; }
     QString autodetectionSource() const { return m_autodetectionSource; }
 
-    QString name() const;
+    QString displayName() const;
     QString sourcePath() const;
     QString qmakeCommand() const;
     QString uicCommand() const;
@@ -86,7 +86,7 @@ public:
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
     QString mkspecPath() const;
 
-    void setName(const QString &name);
+    void setDisplayName(const QString &name);
     void setQMakeCommand(const QString &path);
 
     QString qtVersionString() const;
@@ -145,7 +145,7 @@ private:
     void updateVersionInfo() const;
     QString findQtBinary(const QStringList &possibleName) const;
     void updateToolChainAndMkspec() const;
-    QString m_name;
+    QString m_displayName;
     QString m_sourcePath;
     QString m_mingwDirectory;
     QString m_msvcVersion;
@@ -178,8 +178,6 @@ private:
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(QtVersion::QmakeBuildConfigs)
 
 struct QMakeAssignment
 {
@@ -254,5 +252,7 @@ private:
 };
 
 } // namespace Qt4ProjectManager
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt4ProjectManager::QtVersion::QmakeBuildConfigs)
 
 #endif // QTVERSIONMANAGER_H

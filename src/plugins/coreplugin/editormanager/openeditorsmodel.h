@@ -51,7 +51,7 @@ public:
     QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
 
     void addEditor(IEditor *editor, bool isDuplicate = false);
-    void addRestoredEditor(const QString &fileName, const QString &displayName, const QByteArray &kind);
+    void addRestoredEditor(const QString &fileName, const QString &displayName, const QString &id);
     QModelIndex firstRestoredEditor() const;
 
     struct Entry {
@@ -59,10 +59,10 @@ public:
         IEditor *editor;
         QString fileName() const;
         QString displayName() const;
-        QByteArray kind() const;
+        QString id() const;
         QString m_fileName;
         QString m_displayName;
-        QByteArray m_kind;
+        QString m_id;
     };
     QList<Entry> entries() const { return m_editors; }
 

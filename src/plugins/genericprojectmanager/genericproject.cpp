@@ -108,66 +108,6 @@ public:
 
 } // end of anonymous namespace
 
-/*!
-  \class GenericBuildConfigurationFactory
-*/
-
-GenericBuildConfigurationFactory::GenericBuildConfigurationFactory(GenericProject *project)
-    : IBuildConfigurationFactory(project),
-    m_project(project)
-{
-}
-
-GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory()
-{
-}
-
-QStringList GenericBuildConfigurationFactory::availableCreationTypes() const
-{
-    return QStringList() << "Create";
-}
-
-QString GenericBuildConfigurationFactory::displayNameForType(const QString & /* type */) const
-{
-    return tr("Create");
-}
-
-BuildConfiguration *GenericBuildConfigurationFactory::create(const QString &type) const
-{
-    QTC_ASSERT(type == "Create", return false);
-    //TODO asking for name is duplicated everywhere, but maybe more
-    // wizards will show up, that incorporate choosing the name
-    bool ok;
-    QString buildConfigurationName = QInputDialog::getText(0,
-                          tr("New configuration"),
-                          tr("New Configuration Name:"),
-                          QLineEdit::Normal,
-                          QString(),
-                          &ok);
-    if (!ok || buildConfigurationName.isEmpty())
-        return false;
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project);
-    bc->setDisplayName(buildConfigurationName);
-    m_project->addBuildConfiguration(bc); // also makes the name unique...
-
-    GenericMakeStep *makeStep = new GenericMakeStep(bc);
-    bc->insertBuildStep(0, makeStep);
-    makeStep->setBuildTarget("all", /* on = */ true);
-    return bc;
-}
-
-BuildConfiguration *GenericBuildConfigurationFactory::clone(BuildConfiguration *source) const
-{
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(static_cast<GenericBuildConfiguration *>(source));
-    return bc;
-}
-
-BuildConfiguration *GenericBuildConfigurationFactory::restore(const QMap<QString, QVariant> &map) const
-{
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project, map);
-    return bc;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////
 // GenericProject
 ////////////////////////////////////////////////////////////////////////////////////
@@ -432,7 +372,7 @@ ProjectExplorer::ToolChain *GenericProject::toolChain() const
 ProjectExplorer::ToolChain::ToolChainType GenericProject::toolChainType() const
 { return m_toolChainType; }
 
-QString GenericProject::name() const
+QString GenericProject::displayName() const
 {
     return m_projectName;
 }

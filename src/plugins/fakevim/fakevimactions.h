@@ -49,6 +49,7 @@ enum FakeVimSettingsCode
     ConfigShiftWidth,
     ConfigExpandTab,
     ConfigAutoIndent,
+    ConfigSmartIndent,
     ConfigIncSearch,
 
     // indent  allow backspacing over autoindent
@@ -63,6 +64,8 @@ enum FakeVimSettingsCode
 
 class FakeVimSettings : public QObject
 {
+    Q_OBJECT
+
 public:
     FakeVimSettings();
     ~FakeVimSettings();

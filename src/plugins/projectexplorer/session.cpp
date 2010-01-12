@@ -335,7 +335,7 @@ QString SessionFile::defaultPath() const
 QString SessionFile::suggestedFileName() const
 {
     if (m_startupProject)
-        return m_startupProject->name();
+        return m_startupProject->displayName();
 
     return tr("Untitled", "default file name to display");
 }
@@ -419,7 +419,7 @@ bool SessionManager::isDefaultSession(const QString &session) const
 
 void SessionManager::saveActiveMode(Core::IMode *mode)
 {
-    setValue(QLatin1String("ActiveMode"), mode->uniqueModeName());
+    setValue(QLatin1String("ActiveMode"), mode->id());
 }
 
 void SessionManager::clearProjectFileCache()
@@ -521,7 +521,7 @@ void SessionManager::removeDependency(Project *project, Project *depProject)
 void SessionManager::setStartupProject(Project *startupProject)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << (startupProject ? startupProject->name() : "0");
+        qDebug() << Q_FUNC_INFO << (startupProject ? startupProject->displayName() : "0");
 
     if (startupProject) {
         Q_ASSERT(m_file->m_projects.contains(startupProject));
@@ -557,7 +557,7 @@ void SessionManager::addProjects(const QList<Project*> &projects)
                     this, SLOT(clearProjectFileCache()));
 
             if (debug)
-                qDebug() << "SessionManager - adding project " << pro->name();
+                qDebug() << "SessionManager - adding project " << pro->displayName();
         }
     }
 
@@ -886,7 +886,7 @@ void SessionManager::updateWindowTitle()
         windowTitle.prepend(sessionName + " - ");
     } else {
         if (Project *currentProject = ProjectExplorerPlugin::instance()->currentProject())
-            windowTitle.prepend(currentProject->name() + " - ");
+            windowTitle.prepend(currentProject->displayName() + " - ");
     }
     if (m_core->editorManager()->currentEditor()) {
         QFileInfo fi(m_core->editorManager()->currentEditor()->file()->fileName());
@@ -919,7 +919,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
 
     foreach (Project *pro, remove) {
         if (debug)
-            qDebug() << "SessionManager - emitting aboutToRemoveProject(" << pro->name() << ")";
+            qDebug() << "SessionManager - emitting aboutToRemoveProject(" << pro->displayName() << ")";
         emit aboutToRemoveProject(pro);
     }
 
@@ -938,7 +938,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
         m_projectFileCache.remove(pro);
 
         if (debug)
-            qDebug() << "SessionManager - emitting projectRemoved(" << pro->name() << ")";
+            qDebug() << "SessionManager - emitting projectRemoved(" << pro->displayName() << ")";
         m_sessionNode->removeProjectNode(pro->rootProjectNode());
         emit projectRemoved(pro);
         delete pro;
@@ -997,7 +997,7 @@ static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 QStringList SessionManager::sessions() const
 {
     if (m_sessions.isEmpty()) {
-        // We aren't yet initalized, so do that now
+        // We are not initialized yet, so do that now
         QDirIterator dirIter(QFileInfo(m_core->settings()->fileName()).path() + "/qtcreator/");
         while (dirIter.hasNext()) {
             dirIter.next();

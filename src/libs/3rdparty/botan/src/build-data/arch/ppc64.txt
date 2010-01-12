@@ -1,0 +1,26 @@
+realname "PowerPC 64"
+
+endian big
+
+default_submodel power4
+
+<aliases>
+powerpc64
+</aliases>
+
+<submodel_aliases>
+g5 -> ppc970
+</submodel_aliases>
+
+<submodels>
+rs64a
+ppc970
+power3
+power4
+power5
+cellppu
+</submodels>
+
+<submodel_aliases>
+cellbroadbandengine -> cellppu
+</submodel_aliases>

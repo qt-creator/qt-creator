@@ -37,8 +37,6 @@
 
 namespace Core {
 
-class IMode;
-
 class CORE_EXPORT FindToolBarPlaceHolder : public QWidget
 {
     Q_OBJECT

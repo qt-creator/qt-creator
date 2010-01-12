@@ -160,9 +160,9 @@ QmlInspectorMode::QmlInspectorMode(QObject *parent)
 
     setWidget(createModeWindow());
 
-    setName(tr("QML Inspect"));
+    setDisplayName(tr("QML Inspect"));
     setIcon(QIcon(":/qmlinspector/images/logo.png"));
-    setUniqueModeName("QML_INSPECT_MODE");
+    setId(QLatin1String("QML_INSPECT_MODE"));
 }
 
 void QmlInspectorMode::connectToViewer()

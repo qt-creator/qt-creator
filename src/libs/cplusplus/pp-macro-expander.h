@@ -49,6 +49,7 @@
 #ifndef PP_MACRO_EXPANDER_H
 #define PP_MACRO_EXPANDER_H
 
+#include "Macro.h"
 #include "pp-scanner.h"
 #include <QVector>
 #include <QByteArray>

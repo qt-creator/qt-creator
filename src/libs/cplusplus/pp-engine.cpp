@@ -56,7 +56,6 @@
 
 #include <QtDebug>
 #include <algorithm>
-#include <cctype>
 
 namespace CPlusPlus {
 
@@ -1205,6 +1204,8 @@ void Preprocessor::processDefine(TokenIterator firstToken, TokenIterator lastTok
     macro.setFileName(env->currentFile);
     macro.setLine(env->currentLine);
     macro.setName(tokenText(*tk));
+    macro.setOffset(firstToken->offset);
+    macro.setLength(endOfToken(lastToken[- 1]) - startOfToken(*firstToken));
     ++tk; // skip T_IDENTIFIER
 
     if (tk->is(T_LPAREN) && ! tk->f.whitespace) {

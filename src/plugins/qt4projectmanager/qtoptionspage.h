@@ -134,9 +134,9 @@ class QtOptionsPage : public Core::IOptionsPage
 public:
     QtOptionsPage();
     QString id() const;
-    QString trName() const;
+    QString displayName() const;
     QString category() const;
-    QString trCategory() const;
+    QString displayCategory() const;
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }

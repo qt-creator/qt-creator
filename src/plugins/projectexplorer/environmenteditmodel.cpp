@@ -113,7 +113,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
         }
     }
     if (role == Qt::FontRole) {
-        // check wheter this environment variable exists in m_items
+        // check whether this environment variable exists in m_items
         if (changes(m_resultEnvironment.key(m_resultEnvironment.constBegin() + index.row()))) {
             QFont f;
             f.setBold(true);

@@ -207,7 +207,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     bool hover = (tabIndex == m_hoverIndex);
 
 #ifdef Q_WS_MAC
-    hover = false; // Dont hover on Mac
+    hover = false; // Do not hover on Mac
 #endif
 
     QColor background = QColor(0, 0, 0, 10);

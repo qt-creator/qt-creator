@@ -99,11 +99,13 @@ void PlainGdbAdapter::startAdapter()
 void PlainGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-    if (!startParameters().processArgs.isEmpty())
-        m_engine->postCommand(_("-exec-arguments ")
-            + startParameters().processArgs.join(_(" ")));
+    if (!startParameters().processArgs.isEmpty()) {
+        QString args = startParameters().processArgs.join(_(" "));
+        m_engine->postCommand("-exec-arguments " + args.toLocal8Bit());
+    }
     QFileInfo fi(startParameters().executable);
-    m_engine->postCommand(_("-file-exec-and-symbols \"%1\"").arg(fi.absoluteFilePath()),
+    QByteArray path = fi.absoluteFilePath().toLocal8Bit();
+    m_engine->postCommand("-file-exec-and-symbols \"" + path + '"',
         CB(handleFileExecAndSymbols));
 }
 
@@ -116,12 +118,12 @@ void PlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
         // Note that successfully preloading the debugging helpers will
         // automatically load pthreads, so this will be unnecessary.
         if (m_engine->m_gdbVersion < 70000)
-            m_engine->postCommand(_("info target"), CB(handleInfoTarget));
+            m_engine->postCommand("info target", CB(handleInfoTarget));
 #endif
         emit inferiorPrepared();
     } else {
         QString msg = tr("Starting executable failed:\n") +
-            __(response.data.findChild("msg").data());
+            QString::fromLocal8Bit(response.data.findChild("msg").data());
         emit inferiorStartFailed(msg);
     }
 }
@@ -138,7 +140,7 @@ void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
         if (needle.indexIn(msg) != -1) {
             m_engine->m_entryPoint =
                     "0x" + needle.cap(1).toLatin1().rightJustified(sizeof(void *) * 2, '0');
-            m_engine->postCommand(_("tbreak *0x") + needle.cap(1));
+            m_engine->postCommand("tbreak *0x" + needle.cap(1).toAscii());
             // Do nothing here - inferiorPrepared handles the sequencing.
         } else {
             emit inferiorStartFailed(_("Parsing start address failed"));
@@ -152,7 +154,7 @@ void PlainGdbAdapter::handleInfoTarget(const GdbResponse &response)
 void PlainGdbAdapter::startInferiorPhase2()
 {
     setState(InferiorRunningRequested);
-    m_engine->postCommand(_("-exec-run"), GdbEngine::RunRequest, CB(handleExecRun));
+    m_engine->postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
 }
 
 void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
@@ -163,7 +165,7 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
         showStatusMessage(msgInferiorStarted());
     } else {
         QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
-        const QByteArray &msg = response.data.findChild("msg").data();
+        const QString &msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         //QTC_ASSERT(status() == InferiorRunning, /**/);
         //interruptInferior();
         emit inferiorStartFailed(msg);

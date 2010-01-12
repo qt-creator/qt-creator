@@ -63,7 +63,6 @@ class SettingsDatabase;
 class UniqueIDManager;
 class VariableManager;
 class VCSManager;
-class IMode;
 
 namespace Internal {
 

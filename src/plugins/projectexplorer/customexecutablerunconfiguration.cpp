@@ -252,7 +252,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
       m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
 {
     m_workingDirectory = "$BUILDDIR";
-    setName(tr("Custom Executable"));
+    setDisplayName(tr("Custom Executable"));
 
     connect(pro, SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(activeBuildConfigurationChanged()));
@@ -282,7 +282,7 @@ void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
     }
 }
 
-QString CustomExecutableRunConfiguration::type() const
+QString CustomExecutableRunConfiguration::id() const
 {
     return "ProjectExplorer.CustomExecutableRunConfiguration";
 }
@@ -450,7 +450,7 @@ void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
 {
     m_executable = executable;
     if (!m_userSetName)
-        setName(tr("Run %1").arg(m_executable));
+        setDisplayName(tr("Run %1").arg(m_executable));
     emit changed();
 }
 
@@ -482,11 +482,11 @@ void CustomExecutableRunConfiguration::setUserName(const QString &name)
     if (name.isEmpty()) {
         m_userName = name;
         m_userSetName = false;
-        setName(tr("Run %1").arg(m_executable));
+        setDisplayName(tr("Run %1").arg(m_executable));
     } else {
         m_userName = name;
         m_userSetName = true;
-        setName(name);
+        setDisplayName(name);
     }
     emit changed();
 }
@@ -522,31 +522,31 @@ CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactor
 }
 
 // used to recreate the runConfigurations when restoring settings
-bool CustomExecutableRunConfigurationFactory::canRestore(const QString &type) const
+bool CustomExecutableRunConfigurationFactory::canRestore(const QString &id) const
 {
-    return type == "ProjectExplorer.CustomExecutableRunConfiguration";
+    return id == "ProjectExplorer.CustomExecutableRunConfiguration";
 }
 
-RunConfiguration* CustomExecutableRunConfigurationFactory::create(Project *project, const QString &type)
+RunConfiguration* CustomExecutableRunConfigurationFactory::create(Project *project, const QString &id)
 {
-    if (type == "ProjectExplorer.CustomExecutableRunConfiguration") {
+    if (id == "ProjectExplorer.CustomExecutableRunConfiguration") {
         RunConfiguration* rc = new CustomExecutableRunConfiguration(project);
-        rc->setName(tr("Custom Executable"));
+        rc->setDisplayName(tr("Custom Executable"));
         return rc;
     } else {
         return 0;
     }
 }
 
-QStringList CustomExecutableRunConfigurationFactory::availableCreationTypes(Project *pro) const
+QStringList CustomExecutableRunConfigurationFactory::availableCreationIds(Project *pro) const
 {
     Q_UNUSED(pro)
     return QStringList()<< "ProjectExplorer.CustomExecutableRunConfiguration";
 }
 
-QString CustomExecutableRunConfigurationFactory::displayNameForType(const QString &type) const
+QString CustomExecutableRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    if (type == "ProjectExplorer.CustomExecutableRunConfiguration")
+    if (id == "ProjectExplorer.CustomExecutableRunConfiguration")
         return tr("Custom Executable");
     else
         return QString();

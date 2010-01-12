@@ -29,8 +29,11 @@
 
 #include "vcsmanager.h"
 #include "iversioncontrol.h"
+#include "icore.h"
+#include "filemanager.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QString>
 #include <QtCore/QList>
@@ -74,9 +77,10 @@ VCSManager::~VCSManager()
 void VCSManager::extensionsInitialized()
 {
     // Change signal connections
+    FileManager *fileManager = ICore::instance()->fileManager();
     foreach (IVersionControl *versionControl, allVersionControls()) {
         connect(versionControl, SIGNAL(filesChanged(QStringList)),
-                this, SIGNAL(filesChanged(QStringList)));
+                fileManager, SIGNAL(filesChangedInternally(QStringList)));
         connect(versionControl, SIGNAL(repositoryChanged(QString)),
                 this, SIGNAL(repositoryChanged(QString)));
     }
@@ -130,15 +134,22 @@ IVersionControl* VCSManager::findVersionControlForDirectory(const QString &direc
     return 0;
 }
 
-bool VCSManager::showDeleteDialog(const QString &fileName)
+bool VCSManager::promptToDelete(const QString &fileName)
 {
-    IVersionControl *vc = findVersionControlForDirectory(QFileInfo(fileName).absolutePath());
-    if (!vc || !vc->supportsOperation(IVersionControl::DeleteOperation))
+    if (IVersionControl *vc = findVersionControlForDirectory(QFileInfo(fileName).absolutePath()))
+        return promptToDelete(vc, fileName);
+    return true;
+}
+
+bool VCSManager::promptToDelete(IVersionControl *vc, const QString &fileName)
+{
+    QTC_ASSERT(vc, return true)
+    if (!vc->supportsOperation(IVersionControl::DeleteOperation))
         return true;
     const QString title = QCoreApplication::translate("VCSManager", "Version Control");
     const QString msg = QCoreApplication::translate("VCSManager",
                                                     "Would you like to remove this file from the version control system (%1)?\n"
-                                                    "Note: This might remove the local file.").arg(vc->name());
+                                                    "Note: This might remove the local file.").arg(vc->displayName());
     const QMessageBox::StandardButton button =
         QMessageBox::question(0, title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
     if (button != QMessageBox::Yes)
@@ -151,7 +162,7 @@ CORE_EXPORT QDebug operator<<(QDebug in, const VCSManager &v)
     QDebug nospace = in.nospace();
     const VersionControlCache::const_iterator cend = v.m_d->m_cachedMatches.constEnd();
     for (VersionControlCache::const_iterator it = v.m_d->m_cachedMatches.constBegin(); it != cend; ++it)
-        nospace << "Directory: " << it.key() << ' ' << it.value()->name() << '\n';
+        nospace << "Directory: " << it.key() << ' ' << it.value()->displayName() << '\n';
     nospace << '\n';
     return in;
 }

@@ -505,6 +505,7 @@ void TranslationUnit::resetAST()
 {
     delete _pool;
     _pool = 0;
+    _ast = 0;
 }
 
 void TranslationUnit::release()

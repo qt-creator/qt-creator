@@ -55,25 +55,7 @@ class GenericProject;
 class GenericMakeStep;
 class GenericProjectFile;
 class GenericBuildConfiguration;
-
-class GenericBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
-{
-    Q_OBJECT
-
-public:
-    GenericBuildConfigurationFactory(GenericProject *project);
-    ~GenericBuildConfigurationFactory();
-
-    QStringList availableCreationTypes() const;
-    QString displayNameForType(const QString &type) const;
-
-    ProjectExplorer::BuildConfiguration *create(const QString &type) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore(const QMap<QString, QVariant> &map) const;
-
-private:
-    GenericProject *m_project;
-};
+class GenericBuildConfigurationFactory;
 
 class GenericProject : public ProjectExplorer::Project
 {
@@ -87,7 +69,7 @@ public:
     QString includesFileName() const;
     QString configFileName() const;
 
-    virtual QString name() const;
+    virtual QString displayName() const;
     virtual Core::IFile *file() const;
     virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
     virtual ProjectExplorer::IProjectManager *projectManager() const;

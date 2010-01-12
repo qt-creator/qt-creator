@@ -59,7 +59,7 @@ class Qt4ProFileNode;
 class Qt4RunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
-    // to change the name and arguments and set the userenvironmentchanges
+    // to change the display name and arguments and set the userenvironmentchanges
     friend class Qt4RunConfigurationWidget;
 public:
     Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath);
@@ -67,7 +67,7 @@ public:
 
     Qt4Project *qt4Project() const;
 
-    virtual QString type() const;
+    virtual QString id() const;
     virtual bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     virtual QWidget *configurationWidget();
     virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
@@ -97,7 +97,7 @@ public slots:
     void invalidateCachedTargetInformation();
 
 signals:
-    void nameChanged(const QString&);
+    void displayNameChanged(const QString&);
     void commandLineArgumentsChanged(const QString&);
     void workingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
@@ -105,7 +105,7 @@ signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &diff);
 
-    // note those signals might not emited for every change
+    // Note: These signals might not get emitted for every change!
     void effectiveTargetInformationChanged();
 
 private slots:
@@ -157,12 +157,12 @@ private slots:
     void workDirectoryEdited();
     void workingDirectoryReseted();
     void argumentsEdited(const QString &arguments);
-    void nameEdited(const QString &name);
+    void displayNameEdited(const QString &name);
     void userChangesEdited();
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
-    void nameChanged(const QString &name);
+    void displayNameChanged(const QString &name);
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
     void baseEnvironmentChanged();
@@ -197,10 +197,10 @@ class Qt4RunConfigurationFactory : public ProjectExplorer::IRunConfigurationFact
 public:
     Qt4RunConfigurationFactory();
     virtual ~Qt4RunConfigurationFactory();
-    virtual bool canRestore(const QString &type) const;
-    virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &type);
-    QStringList availableCreationTypes(ProjectExplorer::Project *pro) const;
-    QString displayNameForType(const QString &type) const;
+    virtual bool canRestore(const QString &id) const;
+    virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
+    QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
+    QString displayNameForId(const QString &id) const;
 };
 
 } // namespace Internal

@@ -1,0 +1,16 @@
+realname "BeOS"
+
+os_type beos
+
+install_root /boot/beos
+header_dir ../develop/headers
+lib_dir system/lib
+doc_dir documentation
+
+<supports_shared>
+all
+</supports_shared>
+
+<aliases>
+haiku
+</aliases>

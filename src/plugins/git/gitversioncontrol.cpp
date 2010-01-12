@@ -39,7 +39,7 @@ GitVersionControl::GitVersionControl(GitClient *client) :
 {
 }
 
-QString GitVersionControl::name() const
+QString GitVersionControl::displayName() const
 {
     return QLatin1String("git");
 }

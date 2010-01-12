@@ -49,6 +49,6 @@ ResourceWizard::generateFilesFromPath(const QString &path,
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, suffix);
     Core::GeneratedFile file(fileName);
     file.setContents(QLatin1String("<RCC/>"));
-    file.setEditorKind(QLatin1String(Constants::C_RESOURCEEDITOR));
+    file.setEditorId(QLatin1String(Constants::RESOURCEEDITOR_ID));
     return Core::GeneratedFiles() << file;
 }

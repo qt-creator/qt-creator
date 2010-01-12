@@ -34,7 +34,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/toolchain.h>
-#include "qtversionmanager.h"
 
 namespace Qt4ProjectManager {
 
@@ -73,7 +72,7 @@ public:
 
     //returns the qtVersion, if the project is set to use the default qt version, then
     // that is returned
-    // to check wheter the project uses the default qt version use qtVersionId
+    // to check whether the project uses the default qt version use qtVersionId
     QtVersion *qtVersion() const;
 
     // returns the id of the qt version, if the project is using the default qt version
@@ -94,8 +93,8 @@ public:
     void getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const;
 
     // Those functions are used in a few places.
-    // The drawback is that we shouldn't actually depend on them beeing always there
-    // That is generally the stuff that is asked should normally be transfered to
+    // The drawback is that we shouldn't actually depend on them being always there
+    // That is generally the stuff that is asked should normally be transferred to
     // Qt4Project *
     // So that we can later enable people to build qt4projects the way they would like
     QMakeStep *qmakeStep() const;
@@ -114,7 +113,7 @@ signals:
     /// emitted if the qt version changes (either directly, or because the default qt version changed
     /// or because the user changed the settings for the qt version
     void qtVersionChanged();
-    /// emitted iff the setToolChainType() funciton is called, not emitted for qtversion changes
+    /// emitted iff the setToolChainType() function is called, not emitted for qtversion changes
     /// even if those result in a toolchain change
     void toolChainTypeChanged();
     /// emitted for setQMakeBuildConfig, not emitted for qt version changes, even
@@ -136,6 +135,37 @@ private:
     mutable int m_qtVersion; // Changed if the qtversion is invalid
     int m_toolChainType;
     QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
+};
+
+class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+{
+    Q_OBJECT
+
+public:
+    Qt4BuildConfigurationFactory(Qt4Project *project);
+    ~Qt4BuildConfigurationFactory();
+
+    QStringList availableCreationIds() const;
+    QString displayNameForId(const QString &id) const;
+
+    ProjectExplorer::BuildConfiguration *create(const QString &id) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *restore(const QVariantMap &values) const;
+
+private slots:
+    void update();
+
+private:
+    struct VersionInfo {
+        VersionInfo() {}
+        VersionInfo(const QString &d, int v)
+            : displayName(d), versionId(v) { }
+        QString displayName;
+        int versionId;
+    };
+
+    Qt4Project *m_project;
+    QMap<QString, VersionInfo> m_versions;
 };
 
 } // namespace Qt4ProjectManager

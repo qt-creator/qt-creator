@@ -128,7 +128,7 @@ public:
     explicit FolderNode(const QString &folderPath);
     virtual ~FolderNode();
 
-    QString name() const;
+    QString displayName() const;
     QIcon icon() const;
 
     QList<FileNode*> fileNodes() const;

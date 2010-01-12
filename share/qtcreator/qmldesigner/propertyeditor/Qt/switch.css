@@ -1,0 +1,32 @@
+QPushButton {
+     border: 0px solid #6f6f61;
+     border-image: url(:/images/button2_normal.png) 2 2 2 2;
+     border-radius: 1px;
+     min-width: 20px;
+     min-height: 20px;
+     margin: 0px 0 2px 0;
+ }
+
+ QPushButton::checked 
+ {
+     border-image: url(:/images/button2_pressed.png) 2 2 2 2;
+     border: 1px solid #4f4f41;
+ } 
+
+ QPushButton:pressed {
+     border-image: url(:/images/button2_pressed.png) 2 2 2 2;
+
+ }
+
+ QPushButton:flat {
+     border: none; /* no border for a flat push button */
+ }
+
+ QPushButton:default {
+     border-image: url(:/images/button2_normal.png) 2 2 2 2;
+ }
+ 
+ QPushButton:hover {
+     border-image: url(:/images/button2_hovered.png) 2 2 2 2;
+ }
+ 

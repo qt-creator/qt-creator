@@ -41,6 +41,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/basemode.h>
+#include <coreplugin/vcsmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
@@ -74,25 +75,29 @@ using namespace Mercurial;
 static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 {
     VCSBase::RegularCommandOutput, //type
-    Constants::COMMANDLOG, // kind
+    Constants::COMMANDLOG_ID, // id
+    Constants::COMMANDLOG_DISPLAY_NAME, // display name
     Constants::COMMANDLOG, // context
     Constants::COMMANDAPP, // mime type
     Constants::COMMANDEXT}, //extension
 
 {   VCSBase::LogOutput,
-    Constants::FILELOG,
+    Constants::FILELOG_ID,
+    Constants::FILELOG_DISPLAY_NAME,
     Constants::FILELOG,
     Constants::LOGAPP,
     Constants::LOGEXT},
 
 {    VCSBase::AnnotateOutput,
-     Constants::ANNOTATELOG,
+     Constants::ANNOTATELOG_ID,
+     Constants::ANNOTATELOG_DISPLAY_NAME,
      Constants::ANNOTATELOG,
      Constants::ANNOTATEAPP,
      Constants::ANNOTATEEXT},
 
 {   VCSBase::DiffOutput,
-    Constants::DIFFLOG,
+    Constants::DIFFLOG_ID,
+    Constants::DIFFLOG_DISPLAY_NAME,
     Constants::DIFFLOG,
     Constants::DIFFAPP,
     Constants::DIFFEXT}
@@ -100,8 +105,9 @@ static const VCSBase::VCSBaseEditorParameters editorParameters[] = {
 
 static const VCSBase::VCSBaseSubmitEditorParameters submitEditorParameters = {
     Constants::COMMITMIMETYPE,
-    Constants::COMMITKIND,
-    Constants::COMMITKIND
+    Constants::COMMIT_ID,
+    Constants::COMMIT_DISPLAY_NAME,
+    Constants::COMMIT_ID
 };
 
 // Utility to find a parameter set by type
@@ -115,10 +121,12 @@ static inline const VCSBase::VCSBaseEditorParameters *findType(int ie)
 MercurialPlugin *MercurialPlugin::m_instance = 0;
 
 MercurialPlugin::MercurialPlugin() :
-        VCSBase::VCSBasePlugin(QLatin1String(Constants::COMMITKIND)),
+        VCSBase::VCSBasePlugin(QLatin1String(Constants::COMMIT_ID)),
         optionsPage(0),
-        client(0),
+        m_client(0),
         changeLog(0),
+        m_addAction(0),
+        m_deleteAction(0),
         m_menuAction(0)
 {
     m_instance = this;
@@ -126,9 +134,9 @@ MercurialPlugin::MercurialPlugin() :
 
 MercurialPlugin::~MercurialPlugin()
 {
-    if (client) {
-        delete client;
-        client = 0;
+    if (m_client) {
+        delete m_client;
+        m_client = 0;
     }
 
     deleteCommitLog();
@@ -140,7 +148,7 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
 {
     typedef VCSBase::VCSEditorFactory<MercurialEditor> MercurialEditorFactory;
 
-    VCSBase::VCSBasePlugin::initialize(new MercurialControl(client));
+    VCSBase::VCSBasePlugin::initialize(new MercurialControl(m_client));
 
     core = Core::ICore::instance();
     actionManager = core->actionManager();
@@ -149,15 +157,15 @@ bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * 
     addAutoReleasedObject(optionsPage);
     mercurialSettings.readSettings(core->settings());
 
-    client = new MercurialClient();
-    connect(optionsPage, SIGNAL(settingsChanged()), client, SLOT(settingsChanged()));
+    m_client = new MercurialClient();
+    connect(optionsPage, SIGNAL(settingsChanged()), m_client, SLOT(settingsChanged()));
 
-    connect(client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
+    connect(m_client, SIGNAL(changed(QVariant)), versionControl(), SLOT(changed(QVariant)));
 
     static const char *describeSlot = SLOT(view(QString,QString));
     const int editorCount = sizeof(editorParameters)/sizeof(VCSBase::VCSBaseEditorParameters);
     for (int i = 0; i < editorCount; i++)
-        addAutoReleasedObject(new MercurialEditorFactory(editorParameters + i, client, describeSlot));
+        addAutoReleasedObject(new MercurialEditorFactory(editorParameters + i, m_client, describeSlot));
 
     addAutoReleasedObject(new VCSBase::VCSSubmitEditorFactory<CommitEditor>(&submitEditorParameters));
 
@@ -220,59 +228,80 @@ void MercurialPlugin::createFileActions(const QList<int> &context)
 {
     Core::Command *command;
 
-    annotateFile = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    annotateFile = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(annotateFile, QLatin1String(Constants::ANNOTATE), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(annotateFile, SIGNAL(triggered()), this, SLOT(annotateCurrentFile()));
     mercurialContainer->addAction(command);
 
-    diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(diffFile, QLatin1String(Constants::DIFF), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+D")));
     connect(diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     mercurialContainer->addAction(command);
 
-    logFile = new Utils::ParameterAction(tr("Log Current File"), tr("Log \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    logFile = new Utils::ParameterAction(tr("Log Current File"), tr("Log \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(logFile, QLatin1String(Constants::LOG), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+L")));
     connect(logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
     mercurialContainer->addAction(command);
 
-    revertFile = new Utils::ParameterAction(tr("Revert Current File"), tr("Revert \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = actionManager->registerAction(revertFile, QLatin1String(Constants::REVERT), context);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    connect(revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
-    mercurialContainer->addAction(command);
-
-    statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
+    statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(statusFile, QLatin1String(Constants::STATUS), context);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+S")));
     connect(statusFile, SIGNAL(triggered()), this, SLOT(statusCurrentFile()));
     mercurialContainer->addAction(command);
+
+    createSeparator(context, QLatin1String("FileDirSeperator1"));
+
+    m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    command = actionManager->registerAction(m_addAction, QLatin1String(Constants::ADD), context);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
+    mercurialContainer->addAction(command);
+
+    m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
+    command = actionManager->registerAction(m_deleteAction, QLatin1String(Constants::DELETE), context);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
+    mercurialContainer->addAction(command);
+
+    revertFile = new Utils::ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
+    command = actionManager->registerAction(revertFile, QLatin1String(Constants::REVERT), context);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(revertFile, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
+    mercurialContainer->addAction(command);
+}
+
+void MercurialPlugin::addCurrentFile()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return)
+    m_client->add(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPlugin::annotateCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
+    m_client->annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPlugin::diffCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void MercurialPlugin::logCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    m_client->log(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()), true);
 }
 
 void MercurialPlugin::revertCurrentFile()
@@ -283,14 +312,14 @@ void MercurialPlugin::revertCurrentFile()
     RevertDialog reverter;
     if (reverter.exec() != QDialog::Accepted)
         return;
-    client->revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(), reverter.revision());
+    m_client->revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(), reverter.revision());
 }
 
 void MercurialPlugin::statusCurrentFile()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
-    client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
+    m_client->status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void MercurialPlugin::createDirectoryActions(const QList<int> &context)
@@ -327,14 +356,14 @@ void MercurialPlugin::diffRepository()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
-    client->diff(state.topLevel());
+    m_client->diff(state.topLevel());
 }
 
 void MercurialPlugin::logRepository()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
-    client->log(state.topLevel());
+    m_client->log(state.topLevel());
 }
 
 void MercurialPlugin::revertMulti()
@@ -345,7 +374,7 @@ void MercurialPlugin::revertMulti()
     RevertDialog reverter;
     if (reverter.exec() != QDialog::Accepted)
         return;
-    client->revertRepository(state.topLevel(), reverter.revision());
+    m_client->revertRepository(state.topLevel(), reverter.revision());
 }
 
 void MercurialPlugin::statusMulti()
@@ -353,7 +382,7 @@ void MercurialPlugin::statusMulti()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
 
-    client->status(state.topLevel());
+    m_client->status(state.topLevel());
 }
 
 void MercurialPlugin::createRepositoryActions(const QList<int> &context)
@@ -411,7 +440,7 @@ void MercurialPlugin::pull()
     dialog.setWindowTitle(tr("Pull Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    client->pull(state.topLevel(), dialog.getRepositoryString());
+    m_client->pull(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::push()
@@ -423,7 +452,7 @@ void MercurialPlugin::push()
     dialog.setWindowTitle(tr("Push Destination"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    client->push(state.topLevel(), dialog.getRepositoryString());
+    m_client->push(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::update()
@@ -435,7 +464,7 @@ void MercurialPlugin::update()
     updateDialog.setWindowTitle(tr("Update"));
     if (updateDialog.exec() != QDialog::Accepted)
         return;
-    client->update(state.topLevel(), updateDialog.revision());
+    m_client->update(state.topLevel(), updateDialog.revision());
 }
 
 void MercurialPlugin::import()
@@ -451,7 +480,7 @@ void MercurialPlugin::import()
         return;
 
     const QStringList fileNames = importDialog.selectedFiles();
-    client->import(state.topLevel(), fileNames);
+    m_client->import(state.topLevel(), fileNames);
 }
 
 void MercurialPlugin::incoming()
@@ -463,19 +492,19 @@ void MercurialPlugin::incoming()
     dialog.setWindowTitle(tr("Incoming Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    client->incoming(state.topLevel(), dialog.getRepositoryString());
+    m_client->incoming(state.topLevel(), dialog.getRepositoryString());
 }
 
 void MercurialPlugin::outgoing()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
-    client->outgoing(state.topLevel());
+    m_client->outgoing(state.topLevel());
 }
 
 void MercurialPlugin::createSubmitEditorActions()
 {
-    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::COMMITKIND));
+    QList<int> context = QList<int>()<< core->uniqueIDManager()->uniqueIdentifier(QLatin1String(Constants::COMMIT_ID));
     Core::Command *command;
 
     editorCommit = new QAction(VCSBase::VCSBaseSubmitEditor::submitIcon(), tr("Commit"), this);
@@ -502,9 +531,9 @@ void MercurialPlugin::commit()
 
     m_submitRepository = state.topLevel();
 
-    connect(client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
+    connect(m_client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
             this, SLOT(showCommitWidget(QList<QPair<QString,QString> >)));
-    client->statusWithSignal(m_submitRepository);
+    m_client->statusWithSignal(m_submitRepository);
 }
 
 void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &status)
@@ -512,7 +541,7 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
 
     VCSBase::VCSBaseOutputWindow *outputWindow = VCSBase::VCSBaseOutputWindow::instance();
     //Once we receive our data release the connection so it can be reused elsewhere
-    disconnect(client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
+    disconnect(m_client, SIGNAL(parsedStatus(QList<QPair<QString,QString> >)),
                this, SLOT(showCommitWidget(QList<QPair<QString,QString> >)));
 
     if (status.isEmpty()) {
@@ -529,7 +558,7 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
     }
 
     Core::IEditor *editor = core->editorManager()->openEditor(changeLog->fileName(),
-                                                              QLatin1String(Constants::COMMITKIND));
+                                                              QLatin1String(Constants::COMMIT_ID));
     if (!editor) {
         outputWindow->appendError(tr("Unable to create an editor for the commit."));
         return;
@@ -547,7 +576,7 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
     const QString msg = tr("Commit changes for \"%1\".").arg(m_submitRepository);
     commitEditor->setDisplayName(msg);
 
-    QString branch = client->branchQuerySync(m_submitRepository);
+    QString branch = m_client->branchQuerySync(m_submitRepository);
 
     commitEditor->setFields(m_submitRepository, branch, mercurialSettings.userName(),
                             mercurialSettings.email(), status);
@@ -560,7 +589,7 @@ void MercurialPlugin::showCommitWidget(const QList<QPair<QString, QString> > &st
 
 void MercurialPlugin::diffFromEditorSelected(const QStringList &files)
 {
-    client->diff(m_submitRepository, files);
+    m_client->diff(m_submitRepository, files);
 }
 
 void MercurialPlugin::commitFromEditor()
@@ -604,8 +633,8 @@ bool MercurialPlugin::submitEditorAboutToClose(VCSBase::VCSBaseSubmitEditor *sub
         editorFile->save();
         core->fileManager()->unblockFileChange(editorFile);
 
-        client->commit(commitEditor->repoRoot(), files, commitEditor->committerInfo(),
-                       editorFile->fileName());
+        m_client->commit(commitEditor->repoRoot(), files, commitEditor->committerInfo(),
+                       editorFile->fileName(), true);
     }
     return true;
 }
@@ -650,19 +679,15 @@ void MercurialPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
         return;
 
     const QString filename = currentState().currentFileName();
-    const bool fileEnabled = !filename.isEmpty();
     const bool repoEnabled = currentState().hasTopLevel();
 
     annotateFile->setParameter(filename);
-    annotateFile->setEnabled(fileEnabled);
     diffFile->setParameter(filename);
-    diffFile->setEnabled(fileEnabled);
     logFile->setParameter(filename);
-    logFile->setEnabled(fileEnabled);
+    m_addAction->setParameter(filename);
+    m_deleteAction->setParameter(filename);
     revertFile->setParameter(filename);
-    revertFile->setEnabled(fileEnabled);
     statusFile->setParameter(filename);
-    statusFile->setEnabled(fileEnabled);
 
     foreach (QAction *repoAction, m_repositoryActionList)
         repoAction->setEnabled(repoEnabled);

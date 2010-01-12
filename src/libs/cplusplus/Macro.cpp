@@ -54,6 +54,8 @@ Macro::Macro()
     : _next(0),
       _hashcode(0),
       _line(0),
+      _offset(0),
+      _length(0),
       _state(0)
 { }
 

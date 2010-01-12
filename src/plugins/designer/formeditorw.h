@@ -36,6 +36,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
+#include <QtCore/QSignalMapper>
 #include <QtGui/QAction>
 
 #include "designerconstants.h"
@@ -65,6 +66,7 @@ class ActionManager;
 class ActionContainer;
 class ICore;
 class IEditor;
+class Command;
 }
 
 namespace Designer {
@@ -141,6 +143,7 @@ private slots:
     void resetToDefaultLayout();
 
     void editorDestroyed();
+    void updateShortcut(QObject *command);
 
 private:
     FormEditorW();
@@ -158,6 +161,23 @@ private:
                                                    QActionGroup *actionGroup);
 
     void critical(const QString &errorMessage);
+    void bindShortcut(Core::Command *command, QAction *action);
+    QAction *createEditModeAction(QActionGroup *ag,
+                                         const QList<int> &context,
+                                         Core::ActionManager *am,
+                                         Core::ActionContainer *medit,
+                                         const QString &actionName,
+                                         const QString &name,
+                                         int toolNumber,
+                                         const QString &iconName = QString(),
+                                         const QString &keySequence = QString());
+    void addToolAction(QAction *a,
+                       Core::ActionManager *am,
+                       const QList<int> &context,
+                       const QString &name,
+                       Core::ActionContainer *c1,
+                       const QString &keySequence = QString());
+
 
     static FormEditorW *m_self;
 
@@ -184,6 +204,8 @@ private:
 
     EditorList m_formWindows;
     QStringList m_toolActionIds;
+    QSignalMapper *m_shortcutMapper;
+    QMap<Core::Command *, QAction *> m_commandToDesignerAction;
 };
 
 } // namespace Internal

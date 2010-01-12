@@ -566,7 +566,7 @@ void HelpPlugin::slotHideRightPane()
 
 void HelpPlugin::extensionsInitialized()
 {
-    m_sideBar->readSettings(m_core->settings());
+    m_sideBar->readSettings(m_core->settings(), QLatin1String("HelpSideBar"));
     if (!m_helpEngine->setupData()) {
         qWarning() << "Could not initialize help engine: " << m_helpEngine->error();
         return;
@@ -683,7 +683,7 @@ void HelpPlugin::extensionsInitialized()
 
 void HelpPlugin::shutdown()
 {
-    m_sideBar->saveSettings(m_core->settings());
+    m_sideBar->saveSettings(m_core->settings(), QLatin1String("HelpSideBar"));
     m_bookmarkManager->saveBookmarks();
     delete m_bookmarkManager;
 }
@@ -746,13 +746,15 @@ HelpViewer* HelpPlugin::viewerForContextMode()
 {
     HelpViewer *viewer = 0;
     bool showSideBySide = false;
+    Core::RightPanePlaceHolder* placeHolder = Core::RightPanePlaceHolder::current();
+    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
 
     switch (m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt())
     {
     case 0: // side by side if possible
         {
-            if (Core::IEditor *editor = Core::EditorManager::instance()->currentEditor()) {
-                if (editor->widget() && editor->widget()->isVisible() && editor->widget()->width() < 800 )
+            if ((!placeHolder || !placeHolder->isVisible()) && editor) {
+                if (!editor->widget() && editor->widget()->isVisible() && editor->widget()->width() < 800 )
                     break;
             }
         }
@@ -764,7 +766,6 @@ HelpViewer* HelpPlugin::viewerForContextMode()
         break;
     }
 
-    Core::RightPanePlaceHolder* placeHolder = Core::RightPanePlaceHolder::current();
     if (placeHolder && showSideBySide) {
         Core::RightPaneWidget::instance()->setShown(true);
         viewer = m_helpViewerForSideBar;

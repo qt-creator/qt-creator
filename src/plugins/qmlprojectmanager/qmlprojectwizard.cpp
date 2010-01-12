@@ -56,7 +56,7 @@ QmlProjectWizardDialog::QmlProjectWizardDialog(QWidget *parent)
     // first page
     m_firstPage = new FileWizardPage;
     m_firstPage->setTitle(tr("QML Project"));
-    m_firstPage->setNameLabel(tr("Project name:"));
+    m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
     addPage(m_firstPage);
@@ -77,7 +77,7 @@ void QmlProjectWizardDialog::setPath(const QString &path)
 
 QString QmlProjectWizardDialog::projectName() const
 {
-    return m_firstPage->name();
+    return m_firstPage->fileName();
 }
 
 QmlProjectWizard::QmlProjectWizard()
@@ -91,11 +91,11 @@ Core::BaseFileWizardParameters QmlProjectWizard::parameters()
 {
     static Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
-    parameters.setName(tr("Import of existing QML directory"));
+    parameters.setDisplayName(tr("Import of existing QML directory"));
     parameters.setId(QLatin1String("QI.QML Import"));
     parameters.setDescription(tr("Creates a QML project from an existing directory of QML files."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
-    parameters.setTrCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
     return parameters;
 }
 

@@ -49,9 +49,9 @@ public:
     DocSettingsPage(QHelpEngine *helpEngine);
 
     QString id() const;
-    QString trName() const;
+    QString displayName() const;
     QString category() const;
-    QString trCategory() const;
+    QString displayCategory() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

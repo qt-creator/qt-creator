@@ -176,7 +176,7 @@ void LocatorPlugin::saveSettings()
         s->setValue("RefreshInterval", refreshInterval());
         foreach (ILocatorFilter *filter, m_filters) {
             if (!m_customFilters.contains(filter))
-                s->setValue(filter->name(), filter->saveState());
+                s->setValue(filter->id(), filter->saveState());
         }
         s->beginGroup("CustomFilters");
         int i = 0;

@@ -59,16 +59,16 @@ protected:
 public:
     virtual ~BaseProjectWizardDialog();
 
-    QString name() const;
+    QString projectName() const;
     QString path() const;
 
     // Generate a new project name (untitled<n>) in path.
-    static QString projectName(const QString &path);
+    static QString uniqueProjectName(const QString &path);
 
 public slots:
     void setIntroDescription(const QString &d);
     void setPath(const QString &path);
-    void setName(const QString &name);
+    void setProjectName(const QString &name);
 
 protected:
     Utils::ProjectIntroPage *introPage() const;

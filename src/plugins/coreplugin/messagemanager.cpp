@@ -70,7 +70,7 @@ void MessageManager::showOutputPane()
 
 void MessageManager::displayStatusBarMessage(const QString & /*text*/, int /*ms*/)
 {
-    // TODO: Currently broken, but noone really notices, so...
+    // TODO: Currently broken, but no one really notices, so...
     //m_mainWindow->statusBar()->showMessage(text, ms);
 }
 

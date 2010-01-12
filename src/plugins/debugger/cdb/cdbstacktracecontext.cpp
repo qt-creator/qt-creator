@@ -168,7 +168,7 @@ CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *e
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;
     }
-    // Exclude unitialized variables if desired    
+    // Exclude uninitialized variables if desired
     QStringList uninitializedVariables;
     if (theDebuggerAction(UseCodeModel)->isChecked()) {        
         const StackFrame &frame = m_frames.at(index);

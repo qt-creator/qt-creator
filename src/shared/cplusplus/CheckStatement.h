@@ -90,6 +90,14 @@ protected:
     virtual bool visit(WhileStatementAST *ast);
     virtual bool visit(QtMemberDeclarationAST *ast);
 
+    bool forEachFastEnum(unsigned firstToken,
+                         unsigned lastToken,
+                         SpecifierListAST *type_specifier_list,
+                         DeclaratorAST *declarator,
+                         ExpressionAST *initializer,
+                         ExpressionAST *expression,
+                         StatementAST *statement,
+                         Block *&symbol);
 private:
     StatementAST *_statement;
     Scope *_scope;

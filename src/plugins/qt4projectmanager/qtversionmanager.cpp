@@ -256,7 +256,7 @@ void QtVersionManager::writeVersionsIntoSettings()
     for (int i = 0; i < m_versions.size(); ++i) {
         const QtVersion *version = m_versions.at(i);
         s->setArrayIndex(i);
-        s->setValue("Name", version->name());
+        s->setValue("Name", version->displayName());
         // for downwards compat
         s->setValue("Path", version->versionInfo().value("QT_INSTALL_DATA"));
         s->setValue("QMakePath", version->qmakeCommand());
@@ -363,7 +363,7 @@ void QtVersionManager::updateSystemVersion()
         if (version->isAutodetected()
             && version->autodetectionSource() == PATH_AUTODETECTION_SOURCE) {
             version->setQMakeCommand(systemQMakePath);
-            version->setName(tr("Qt in PATH"));
+            version->setDisplayName(tr("Qt in PATH"));
             haveSystemVersion = true;
         }
     }
@@ -486,7 +486,7 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
 
 QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
                      bool isAutodetected, const QString &autodetectionSource)
-    : m_name(name),
+    : m_displayName(name),
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
@@ -508,7 +508,7 @@ QtVersion::QtVersion(const QString &name, const QString &qmakeCommand, int id,
 
 QtVersion::QtVersion(const QString &name, const QString &qmakeCommand,
                      bool isAutodetected, const QString &autodetectionSource)
-    : m_name(name),
+    : m_displayName(name),
     m_isAutodetected(isAutodetected),
     m_autodetectionSource(autodetectionSource),
     m_hasDebuggingHelper(false),
@@ -541,11 +541,11 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
 {
     m_id = getUniqueId();
     setQMakeCommand(qmakeCommand);
-    m_name = qtVersionString();
+    m_displayName = qtVersionString();
 }
 
 QtVersion::QtVersion()
-    : m_name(QString::null),
+    : m_displayName(QString::null),
     m_id(-1),
     m_isAutodetected(false),
     m_hasDebuggingHelper(false),
@@ -573,7 +573,7 @@ QString QtVersion::toHtml() const
     QTextStream str(&rc);
     str << "<html></head><body><table>";
     str << "<tr><td><b>" << QtVersionManager::tr("Name:")
-        << "</b></td><td>" << name() << "</td></tr>";
+        << "</b></td><td>" << displayName() << "</td></tr>";
     str << "<tr><td><b>" << QtVersionManager::tr("Source:")
         << "</b></td><td>" << sourcePath() << "</td></tr>";
     str << "<tr><td><b>" << QtVersionManager::tr("mkspec:")
@@ -603,9 +603,9 @@ QString QtVersion::toHtml() const
     return rc;
 }
 
-QString QtVersion::name() const
+QString QtVersion::displayName() const
 {
-    return m_name;
+    return m_displayName;
 }
 
 QString QtVersion::qmakeCommand() const
@@ -641,9 +641,9 @@ QHash<QString,QString> QtVersion::versionInfo() const
     return m_versionInfo;
 }
 
-void QtVersion::setName(const QString &name)
+void QtVersion::setDisplayName(const QString &name)
 {
-    m_name = name;
+    m_displayName = name;
 }
 
 void QtVersion::setQMakeCommand(const QString& qmakeCommand)
@@ -696,7 +696,7 @@ void QtVersion::updateSourcePath()
 
 // Returns the version that was used to build the project in that directory
 // That is returns the directory
-// To find out wheter we already have a qtversion for that directory call
+// To find out whether we already have a qtversion for that directory call
 // QtVersion *QtVersionManager::qtVersionForDirectory(const QString directory);
 QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
 {
@@ -755,7 +755,7 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
         line = trimLine(line);
         QStringList parts = splitLine(line);
         if (debug)
-            qDebug()<<"Splitted into"<<parts;
+            qDebug()<<"Split into"<<parts;
         QList<QMakeAssignment> assignments;
         QList<QMakeAssignment> afterAssignments;
         QStringList additionalArguments;
@@ -1360,7 +1360,7 @@ bool QtVersion::isValid() const
 {
     updateVersionInfo();
     return (!(m_id == -1 || qmakeCommand() == QString::null
-        || name() == QString::null) && !m_notInstalled);
+        || displayName() == QString::null) && !m_notInstalled);
 }
 
 QtVersion::QmakeBuildConfigs QtVersion::defaultBuildConfig() const

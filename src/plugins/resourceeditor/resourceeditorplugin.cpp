@@ -76,10 +76,10 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
     wizardParameters.setDescription(tr("Creates a Qt Resource file (.qrc)."));
-    wizardParameters.setName(tr("Qt Resource file"));
+    wizardParameters.setDisplayName(tr("Qt Resource file"));
     wizardParameters.setId(QLatin1String("F.Resource"));
     wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizardParameters.setTrCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    wizardParameters.setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
 
     m_wizard = new ResourceWizard(wizardParameters, this);
     addObject(m_wizard);
@@ -88,13 +88,13 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
 
     // Register undo and redo
     Core::ActionManager * const actionManager = core->actionManager();
-    int const pluginId = core->uniqueIDManager()->uniqueIdentifier(
+    int const contextId = core->uniqueIDManager()->uniqueIdentifier(
             Constants::C_RESOURCEEDITOR);
-    const QList<int> idList = QList<int>() << pluginId;
+    const QList<int> context = QList<int>() << contextId;
     m_undoAction = new QAction(tr("&Undo"), this);
     m_redoAction = new QAction(tr("&Redo"), this);
-    actionManager->registerAction(m_undoAction, Core::Constants::UNDO, idList);
-    actionManager->registerAction(m_redoAction, Core::Constants::REDO, idList);
+    actionManager->registerAction(m_undoAction, Core::Constants::UNDO, context);
+    actionManager->registerAction(m_redoAction, Core::Constants::REDO, context);
     connect(m_undoAction, SIGNAL(triggered()), this, SLOT(onUndo()));
     connect(m_redoAction, SIGNAL(triggered()), this, SLOT(onRedo()));
 

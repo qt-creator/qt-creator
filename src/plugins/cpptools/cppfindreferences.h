@@ -67,6 +67,8 @@ public:
     void findUsages(CPlusPlus::Symbol *symbol);
     void renameUsages(CPlusPlus::Symbol *symbol);
 
+    void findMacroUses(const CPlusPlus::Macro &macro);
+
 private Q_SLOTS:
     void displayResults(int first, int last);
     void searchFinished();

@@ -39,6 +39,7 @@ namespace Internal {
 
 class MercurialEditor : public VCSBase::VCSBaseEditor
 {
+    Q_OBJECT
 public:
     explicit MercurialEditor(const VCSBase::VCSBaseEditorParameters *type, QWidget *parent);
 
@@ -48,6 +49,7 @@ private:
     virtual VCSBase::DiffHighlighter *createDiffHighlighter() const;
     virtual VCSBase::BaseAnnotationHighlighter *createAnnotationHighlighter(const QSet<QString> &changes) const;
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const;
+    virtual QStringList annotationPreviousVersions(const QString &revision) const;
 
     const QRegExp exactIdentifier12;
     const QRegExp exactIdentifier40;

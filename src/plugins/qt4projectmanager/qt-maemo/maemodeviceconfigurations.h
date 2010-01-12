@@ -47,53 +47,58 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
+QString homeDirOnDevice(const QString &uname);
+
+class MaemoDeviceConfig
+{
+public:
+    enum DeviceType { Physical, Simulator };
+    enum AuthType { Password, Key };
+    MaemoDeviceConfig();
+    MaemoDeviceConfig(const QString &name);
+    MaemoDeviceConfig(const QSettings &settings, quint64 &nextId);
+    void save(QSettings &settings) const;
+    bool isValid() const;
+    QString name;
+    DeviceType type;
+    QString host;
+    int sshPort;
+    int gdbServerPort;
+    QString uname;
+    AuthType authentication;
+    QString pwd;
+    QString keyFile;
+    int timeout;
+    quint64 internalId;
+
+private:
+    static const quint64 InvalidId = 0;
+};
+
+class DevConfNameMatcher
+{
+public:
+    DevConfNameMatcher(const QString &name) : m_name(name) {}
+    bool operator()(const MaemoDeviceConfig &devConfig)
+    {
+        return devConfig.name == m_name;
+    }
+private:
+    const QString m_name;
+};
+
+
 class MaemoDeviceConfigurations : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(MaemoDeviceConfigurations)
 public:
-    class DeviceConfig
-    {
-    public:
-        enum DeviceType { Physical, Simulator };
-        enum AuthType { Password, Key };
-        DeviceConfig();
-        DeviceConfig(const QString &name);
-        DeviceConfig(const QSettings &settings, quint64 &nextId);
-        void save(QSettings &settings) const;
-        bool isValid() const;
-        QString name;
-        DeviceType type;
-        QString host;
-        int port;
-        QString uname;
-        AuthType authentication;
-        QString pwd;
-        QString keyFile;
-        int timeout;
-        quint64 internalId;
-
-    private:
-        static const quint64 InvalidId = 0;
-    };
-
-    class DevConfNameMatcher
-    {
-    public:
-        DevConfNameMatcher(const QString &name) : m_name(name) {}
-        bool operator()(const MaemoDeviceConfigurations::DeviceConfig &devConfig)
-        {
-            return devConfig.name == m_name;
-        }
-    private:
-        const QString m_name;
-    };
 
     static MaemoDeviceConfigurations &instance(QObject *parent = 0);
-    QList<DeviceConfig> devConfigs() const { return m_devConfigs; }
-    void setDevConfigs(const QList<DeviceConfig> &devConfigs);
-    DeviceConfig find(const QString &name) const;
-    DeviceConfig find(int id) const;
+    QList<MaemoDeviceConfig> devConfigs() const { return m_devConfigs; }
+    void setDevConfigs(const QList<MaemoDeviceConfig> &devConfigs);
+    MaemoDeviceConfig find(const QString &name) const;
+    MaemoDeviceConfig find(int id) const;
 
 signals:
     void updated();
@@ -104,9 +109,9 @@ private:
     void save();
 
     static MaemoDeviceConfigurations *m_instance;
-    QList<DeviceConfig> m_devConfigs;
+    QList<MaemoDeviceConfig> m_devConfigs;
     quint64 m_nextId;
-    friend class MaemoDeviceConfigurations::DeviceConfig;
+    friend class MaemoDeviceConfig;
 };
 
 } // namespace Internal

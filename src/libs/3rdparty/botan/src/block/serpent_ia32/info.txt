@@ -1,0 +1,35 @@
+realname "Serpent (IA-32)"
+
+define SERPENT_IA32
+
+load_on asm_ok
+
+<add>
+serp_ia32_imp.S
+serp_ia32.cpp
+serp_ia32.h
+</add>
+
+<arch>
+ia32
+</arch>
+
+<cc>
+gcc
+icc
+</cc>
+
+# ELF systems
+<os>
+linux
+freebsd
+dragonfly
+netbsd
+openbsd
+solaris
+</os>
+
+<requires>
+asm_ia32
+serpent
+</requires>

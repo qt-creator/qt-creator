@@ -33,7 +33,8 @@
 namespace BINEditor {
 namespace Constants {
 
-const char * const C_BINEDITOR          = "Binary Editor";
+const char * const C_BINEDITOR       = "BinEditor.BinaryEditor";
+const char * const C_BINEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "Binary Editor");
 const char * const C_BINEDITOR_MIMETYPE = "application/octet-stream";
 
 } // namespace Constants

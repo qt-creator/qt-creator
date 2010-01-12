@@ -142,8 +142,8 @@ bool ColorScheme::save(const QString &fileName) const
     w.writeStartDocument();
     w.writeStartElement(QLatin1String("style-scheme"));
     w.writeAttribute(QLatin1String("version"), QLatin1String("1.0"));
-    if (!m_name.isEmpty())
-        w.writeAttribute(QLatin1String("name"), m_name);
+    if (!m_displayName.isEmpty())
+        w.writeAttribute(QLatin1String("name"), m_displayName);
 
     Format textFormat = formatFor(QLatin1String(Constants::C_TEXT));
 
@@ -245,7 +245,7 @@ void ColorSchemeReader::readStyleScheme()
         // We're done
         raiseError(QLatin1String("name loaded"));
     else
-        m_scheme->setName(m_name);
+        m_scheme->setDisplayName(m_name);
 
     while (readNextStartElement()) {
         if (name() == QLatin1String("style"))

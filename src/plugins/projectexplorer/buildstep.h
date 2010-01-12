@@ -88,12 +88,12 @@ public:
     virtual void run(QFutureInterface<bool> &fi) = 0;
 
     // The internal name
-    virtual QString name() = 0;
+    virtual QString id() = 0;
     // The name shown to the user
     virtual QString displayName() = 0;
 
     // the Widget shown in the project settings dialog for this buildStep
-    // ownership is transfered to the caller
+    // ownership is transferred to the caller
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
 
     // if this function returns true, the user can't delete this BuildStep for this project
@@ -129,10 +129,10 @@ class PROJECTEXPLORER_EXPORT IBuildStepFactory
 public:
     IBuildStepFactory();
     virtual ~IBuildStepFactory();
-    /// Called to check wheter this factory can restore the named BuildStep
-    virtual bool canCreate(const QString &name) const = 0;
+    /// Called to check whether this factory can restore the named BuildStep
+    virtual bool canCreate(const QString &id) const = 0;
     /// Called to restore a buildstep
-    virtual BuildStep *create(BuildConfiguration *bc, const QString &name) const = 0;
+    virtual BuildStep *create(BuildConfiguration *bc, const QString &id) const = 0;
     /// Called by the add BuildStep action to check which BuildSteps could be added
     /// to the project by this factory, should return a list of names
     virtual QStringList canCreateForBuildConfiguration(BuildConfiguration *bc) const = 0;
@@ -140,7 +140,7 @@ public:
 
     /// Called to clone a BuildStep
     virtual BuildStep *clone(BuildStep *bs, BuildConfiguration *bc) const = 0;
-    virtual QString displayNameForName(const QString &name) const = 0;
+    virtual QString displayNameForId(const QString &id) const = 0;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigWidget

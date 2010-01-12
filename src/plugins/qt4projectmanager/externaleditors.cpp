@@ -1,3 +1,32 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
 #include "externaleditors.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
@@ -39,15 +68,15 @@ static inline QString msgStartFailed(const QString &binary, QStringList argument
     return ExternalQtEditor::tr("Unable to start \"%1\"").arg(arguments.join(QString(QLatin1Char(' '))));
 }
 
-static inline QString msgAppNotFound(const QString &kind)
+static inline QString msgAppNotFound(const QString &id)
 {
-    return ExternalQtEditor::tr("The application \"%1\" could not be found.").arg(kind);
+    return ExternalQtEditor::tr("The application \"%1\" could not be found.").arg(id);
 }
 
 // -- Commands and helpers
 #ifdef Q_OS_MAC
-static const char *linguistBinaryC = "Linguist";
-static const char *designerBinaryC = "Designer";
+static const char * const linguistBinaryC = "Linguist";
+static const char * const designerBinaryC = "Designer";
 
 // Mac: Change the call 'Foo.app/Contents/MacOS/Foo <file>' to
 // 'open Foo.app <file>'. Do this ONLY if you do not want to have
@@ -61,21 +90,26 @@ static void createMacOpenCommand(QString *binary, QStringList *arguments)
         *binary = QLatin1String("open");
     }
 }
-
 #else
-static const char *linguistBinaryC = "linguist";
-static const char *designerBinaryC = "designer";
+static const char * const linguistBinaryC = "linguist";
+static const char * const designerBinaryC = "designer";
 #endif
 
-static const char *designerKindC = "Qt Designer";
+static const char * const designerIdC = "Qt.Designer";
+static const char * const linguistIdC = "Qt.Linguisr";
+
+static const char * const designerDisplayName = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Designer");
+static const char * const linguistDisplayName = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist");
 
 // -------------- ExternalQtEditor
-ExternalQtEditor::ExternalQtEditor(const QString &kind,
-                              const QString &mimetype,
-                              QObject *parent) :
+ExternalQtEditor::ExternalQtEditor(const QString &id,
+                                   const QString &displayName,
+                                   const QString &mimetype,
+                                   QObject *parent) :
     Core::IExternalEditor(parent),
     m_mimeTypes(mimetype),
-    m_kind(kind)
+    m_id(id),
+    m_displayName(displayName)
 {
 }
 
@@ -84,9 +118,14 @@ QStringList ExternalQtEditor::mimeTypes() const
     return m_mimeTypes;
 }
 
-QString ExternalQtEditor::kind() const
+QString ExternalQtEditor::id() const
 {
-    return m_kind;
+    return m_id;
+}
+
+QString ExternalQtEditor::displayName() const
+{
+    return m_displayName;
 }
 
 bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
@@ -109,7 +148,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
         data->binary = Utils::SynchronousProcess::locateBinary(fallbackBinary);
     }
     if (data->binary.isEmpty()) {
-        *errorMessage = msgAppNotFound(kind());
+        *errorMessage = msgAppNotFound(id());
         return false;
     }
     // Setup binary + arguments, use Mac Open if appropriate
@@ -140,7 +179,8 @@ bool ExternalQtEditor::startEditorProcess(const EditorLaunchData &data, QString 
 
 // --------------- LinguistExternalEditor
 LinguistExternalEditor::LinguistExternalEditor(QObject *parent) :
-       ExternalQtEditor(QLatin1String("Qt Linguist"),
+       ExternalQtEditor(QLatin1String(linguistIdC),
+                        QLatin1String(linguistDisplayName),
                         QLatin1String(Qt4ProjectManager::Constants::LINGUIST_MIMETYPE),
                         parent)
 {
@@ -157,7 +197,8 @@ bool LinguistExternalEditor::startEditor(const QString &fileName, QString *error
 
 // --------------- MacDesignerExternalEditor, using Mac 'open'
 MacDesignerExternalEditor::MacDesignerExternalEditor(QObject *parent) :
-       ExternalQtEditor(QLatin1String(designerKindC),
+       ExternalQtEditor(QLatin1String(designerIdC),
+                        QLatin1String(designerDisplayName),
                         QLatin1String(Qt4ProjectManager::Constants::FORM_MIMETYPE),
                         parent)
 {
@@ -175,7 +216,8 @@ bool MacDesignerExternalEditor::startEditor(const QString &fileName, QString *er
 
 // --------------- DesignerExternalEditor with Designer Tcp remote control.
 DesignerExternalEditor::DesignerExternalEditor(QObject *parent) :
-    ExternalQtEditor(QLatin1String(designerKindC),
+    ExternalQtEditor(QLatin1String(designerIdC),
+                     QLatin1String(designerDisplayName),
                      QLatin1String(Designer::Constants::FORM_MIMETYPE),
                      parent),
     m_terminationMapper(0)

@@ -666,22 +666,22 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
         return false;
 
     FullySpecifiedType ty = semantic()->check(ast->method_prototype, _scope);
-    ObjCMethod *methodType = ty.type()->asObjCMethodType();
-    if (!methodType)
+    ObjCMethod *methodTy = ty.type()->asObjCMethodType();
+    if (!methodTy)
         return false;
 
     Symbol *symbol;
     if (ast->function_body) {
         if (!semantic()->skipFunctionBodies()) {
-            semantic()->check(ast->function_body, methodType->members());
+            semantic()->check(ast->function_body, methodTy->members());
         }
 
-        symbol = methodType;
+        symbol = methodTy;
     } else {
-        Declaration *decl = control()->newDeclaration(ast->firstToken(), methodType->name());
-        decl->setType(methodType);
+        Declaration *decl = control()->newDeclaration(ast->firstToken(), methodTy->name());
+        decl->setType(methodTy);
         symbol = decl;
-        symbol->setStorage(methodType->storage());
+        symbol->setStorage(methodTy->storage());
     }
 
     symbol->setStartOffset(tokenAt(ast->firstToken()).offset);

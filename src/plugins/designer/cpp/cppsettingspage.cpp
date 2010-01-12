@@ -108,7 +108,7 @@ QString CppSettingsPage::id() const
     return QLatin1String(Designer::Constants::SETTINGS_CPP_SETTINGS_ID);
 }
 
-QString CppSettingsPage::trName() const
+QString CppSettingsPage::displayName() const
 {
     return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CPP_SETTINGS_NAME);
 }
@@ -118,7 +118,7 @@ QString CppSettingsPage::category() const
     return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
 }
 
-QString CppSettingsPage::trCategory() const
+QString CppSettingsPage::displayCategory() const
 {
     return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
 }

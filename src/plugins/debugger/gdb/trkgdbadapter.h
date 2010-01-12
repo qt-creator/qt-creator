@@ -43,7 +43,6 @@
 #include <QtCore/QQueue>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QSharedPointer>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
@@ -92,6 +91,7 @@ struct Snapshot
     void insertMemory(const MemoryRange &range, const QByteArray &ba);
 
     uint registers[RegisterCount];
+    bool registerValid;
     typedef QMap<MemoryRange, QByteArray> Memory;
     Memory memory;
 
@@ -204,6 +204,8 @@ private:
     void handleDeleteProcess(const TrkResult &result);
     void handleDeleteProcess2(const TrkResult &result);
     void handleAndReportCreateProcess(const TrkResult &result);
+    void handleAndReportReadRegisters(const TrkResult &result);
+    void handleAndReportReadRegister(const TrkResult &result);
     void handleAndReportReadRegistersAfterStop(const TrkResult &result);
     void reportRegisters();
     QByteArray memoryReadLogMessage(uint addr, const QByteArray &ba) const;

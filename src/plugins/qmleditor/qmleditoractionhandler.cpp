@@ -43,7 +43,7 @@ namespace QmlEditor {
 namespace Internal {
 
 QmlEditorActionHandler::QmlEditorActionHandler()
-  : TextEditor::TextEditorActionHandler(QLatin1String(QmlEditor::Constants::C_QMLEDITOR),
+  : TextEditor::TextEditorActionHandler(QLatin1String(QmlEditor::Constants::C_QMLEDITOR_ID),
                                         Format)
 {
 }

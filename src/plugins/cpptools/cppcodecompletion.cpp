@@ -693,9 +693,9 @@ bool CppCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     const int pos = editor->position();
-    if (startOfOperator(editor, pos, /*token =*/ 0,
-                        /*want function call=*/ true) != pos)
+    if (startOfOperator(editor, pos, /*token =*/ 0, /*want function call=*/ true) != pos) {
         return true;
+    }
 
     return false;
 }
@@ -707,6 +707,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
 
     m_editor = editor;
+
     const int startOfName = findStartOfName();
     m_startPosition = startOfName;
     m_completionOperator = T_EOF_SYMBOL;
@@ -790,64 +791,52 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     }
 
     //qDebug() << "***** expression:" << expression;
+    return startCompletionInternal(edit, fileName, line, column, expression, endOfExpression);
+}
 
+int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
+                                               const QString fileName,
+                                               unsigned line, unsigned column,
+                                               const QString &expr,
+                                               int endOfExpression)
+{
+    QString expression = expr.trimmed();
     const Snapshot snapshot = m_manager->snapshot();
 
-    if (Document::Ptr thisDocument = snapshot.document(fileName)) {
-        Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
-        typeOfExpression.setSnapshot(m_manager->snapshot());
+    Document::Ptr thisDocument = snapshot.document(fileName);
+    if (! thisDocument)
+        return -1;
 
-        QList<LookupItem> resolvedTypes = typeOfExpression(expression, thisDocument, lastVisibleSymbol,
-                                                       TypeOfExpression::Preprocess);
-        LookupContext context = typeOfExpression.lookupContext();
+    Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
 
-        if (!typeOfExpression.expressionAST() && (! m_completionOperator ||
-                                                    m_completionOperator == T_COLON_COLON)) {
-            if (!m_completionOperator) {
-                addKeywords();
-                addMacros(context);
-            }
+    if (expression.isEmpty()) {
+        if (m_completionOperator == T_EOF_SYMBOL || m_completionOperator == T_COLON_COLON)
+            return globalCompletion(lastVisibleSymbol, thisDocument, snapshot);
 
-            const QList<Scope *> scopes = context.expand(context.visibleScopes());
-            foreach (Scope *scope, scopes) {
-                for (unsigned i = 0; i < scope->symbolCount(); ++i) {
-                    addCompletionItem(scope->symbolAt(i));
-                }
-            }
-            return m_startPosition;
-        }
-
-        // qDebug() << "found" << resolvedTypes.count() << "symbols for expression:" << expression;
-
-        if (resolvedTypes.isEmpty() && (m_completionOperator == T_SIGNAL ||
-                                        m_completionOperator == T_SLOT)) {
+        else if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
             // Apply signal/slot completion on 'this'
             expression = QLatin1String("this");
-            resolvedTypes = typeOfExpression(expression, thisDocument, lastVisibleSymbol);
-            context = typeOfExpression.lookupContext();
         }
+    }
 
-        if (! resolvedTypes.isEmpty()) {
-            if (m_completionOperator == T_LPAREN &&
-                completeConstructorOrFunction(resolvedTypes, context, endOfExpression, false)) {
-                return m_startPosition;
 
-            } else if ((m_completionOperator == T_DOT || m_completionOperator == T_ARROW) &&
-                      completeMember(resolvedTypes, context)) {
-                return m_startPosition;
+    typeOfExpression.setSnapshot(m_manager->snapshot());
+    QList<LookupItem> results = typeOfExpression(expression, thisDocument, lastVisibleSymbol);
+    LookupContext context = typeOfExpression.lookupContext();
 
-            } else if (m_completionOperator == T_COLON_COLON && completeScope(resolvedTypes, context)) {
-                return m_startPosition;
-
-            } else if (m_completionOperator == T_SIGNAL      && completeSignal(resolvedTypes, context)) {
-                return m_startPosition;
-
-            } else if (m_completionOperator == T_SLOT        && completeSlot(resolvedTypes, context)) {
-                return m_startPosition;
+    if (results.isEmpty()) {
+        if (m_completionOperator == T_SIGNAL || m_completionOperator == T_SLOT) {
+            if (! (expression.isEmpty() || expression == QLatin1String("this"))) {
+                expression = QLatin1String("this");
+                results = typeOfExpression(expression, thisDocument, lastVisibleSymbol);
             }
-        }
 
-        if (m_completionOperator == T_LPAREN) {
+            if (results.isEmpty())
+                return -1;
+
+            context = typeOfExpression.lookupContext();
+
+        } else if (m_completionOperator == T_LPAREN) {
             // Find the expression that precedes the current name
             int index = endOfExpression;
             while (m_editor->characterAt(index - 1).isSpace())
@@ -857,6 +846,7 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             QTextCursor tc(edit->document());
             tc.setPosition(index);
 
+            ExpressionUnderCursor expressionUnderCursor;
             const QString baseExpression = expressionUnderCursor(tc);
 
             // Resolve the type of this expression
@@ -870,14 +860,74 @@ int CppCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 if (result.type()->isClassType()) {
                     if (completeConstructorOrFunction(results, context, endOfExpression, true))
                         return m_startPosition;
+
                     break;
                 }
             }
+            return -1;
+
+        } else {
+            // nothing to do.
+            return -1;
+
         }
     }
 
+    switch (m_completionOperator) {
+    case T_LPAREN:
+        if (completeConstructorOrFunction(results, context, endOfExpression, false))
+            return m_startPosition;
+        break;
+
+    case T_DOT:
+    case T_ARROW:
+        if (completeMember(results, context))
+            return m_startPosition;
+        break;
+
+    case T_COLON_COLON:
+        if (completeScope(results, context))
+            return m_startPosition;
+        break;
+
+    case T_SIGNAL:
+        if (completeSignal(results, context))
+            return m_startPosition;
+        break;
+
+    case T_SLOT:
+        if (completeSlot(results, context))
+            return m_startPosition;
+        break;
+
+    default:
+        break;
+    } // end of switch
+
     // nothing to do.
     return -1;
+}
+
+int CppCodeCompletion::globalCompletion(Symbol *lastVisibleSymbol,
+                                        Document::Ptr thisDocument,
+                                        const Snapshot &snapshot)
+{
+    if (m_completionOperator == T_EOF_SYMBOL) {
+        addKeywords();
+        addMacros(thisDocument->fileName(), snapshot);
+    }
+
+    Document::Ptr exprDoc = Document::create(QLatin1String("<expression>"));
+    const LookupContext context(lastVisibleSymbol, exprDoc, thisDocument, snapshot);
+    const QList<Scope *> scopes = context.expand(context.visibleScopes());
+
+    foreach (Scope *scope, scopes) {
+        for (unsigned i = 0; i < scope->symbolCount(); ++i) {
+            addCompletionItem(scope->symbolAt(i));
+        }
+    }
+
+    return m_startPosition;
 }
 
 bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &results,
@@ -1156,13 +1206,12 @@ void CppCodeCompletion::addKeywords()
     }
 }
 
-void CppCodeCompletion::addMacros(const LookupContext &context)
+void CppCodeCompletion::addMacros(const QString &fileName, const Snapshot &snapshot)
 {
     QSet<QString> processed;
     QSet<QString> definedMacros;
 
-    addMacros_helper(context, context.thisDocument()->fileName(),
-                     &processed, &definedMacros);
+    addMacros_helper(snapshot, fileName, &processed, &definedMacros);
 
     foreach (const QString &macroName, definedMacros) {
         TextEditor::CompletionItem item(this);
@@ -1172,12 +1221,12 @@ void CppCodeCompletion::addMacros(const LookupContext &context)
     }
 }
 
-void CppCodeCompletion::addMacros_helper(const LookupContext &context,
+void CppCodeCompletion::addMacros_helper(const Snapshot &snapshot,
                                          const QString &fileName,
                                          QSet<QString> *processed,
                                          QSet<QString> *definedMacros)
 {
-    Document::Ptr doc = context.document(fileName);
+    Document::Ptr doc = snapshot.document(fileName);
 
     if (! doc || processed->contains(doc->fileName()))
         return;
@@ -1185,7 +1234,7 @@ void CppCodeCompletion::addMacros_helper(const LookupContext &context,
     processed->insert(doc->fileName());
 
     foreach (const Document::Include &i, doc->includes()) {
-        addMacros_helper(context, i.fileName(), processed, definedMacros);
+        addMacros_helper(snapshot, i.fileName(), processed, definedMacros);
     }
 
     foreach (const Macro &macro, doc->definedMacros()) {

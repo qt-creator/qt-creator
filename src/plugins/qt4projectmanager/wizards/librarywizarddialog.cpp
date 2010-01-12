@@ -192,7 +192,7 @@ QtProjectParameters LibraryWizardDialog::parameters() const
 {
     QtProjectParameters rc;
     rc.type = type();
-    rc.name = name();
+    rc.fileName = projectName();
     rc.path = path();
     if (rc.type == QtProjectParameters::Qt4Plugin) {
         // Plugin: Dependencies & Target directory
@@ -236,7 +236,7 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
         break;
     default: {
         // Urrm, figure out a good class name. Use project name this time
-        QString className = name();
+        QString className = projectName();
         if (!className.isEmpty())
             className[0] = className.at(0).toUpper();
         m_filesPage->setClassName(className);

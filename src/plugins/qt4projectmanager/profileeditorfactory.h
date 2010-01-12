@@ -57,14 +57,14 @@ public:
     ~ProFileEditorFactory();
 
     virtual QStringList mimeTypes() const;
-    virtual QString kind() const;
+    virtual QString id() const;
+    virtual QString displayName() const;
     Core::IFile *open(const QString &fileName);
     Core::IEditor *createEditor(QWidget *parent);
 
     inline Qt4Manager *qt4ProjectManager() const { return m_manager; }
 
 private:
-    const QString m_kind;
     const QStringList m_mimeTypes;
     Qt4Manager *m_manager;
     TextEditor::TextEditorActionHandler *m_actionHandler;

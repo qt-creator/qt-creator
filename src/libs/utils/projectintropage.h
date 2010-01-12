@@ -57,13 +57,13 @@ class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public QWizardPage
     Q_DISABLE_COPY(ProjectIntroPage)
     Q_PROPERTY(QString description READ description WRITE setPath DESIGNABLE true)
     Q_PROPERTY(QString path READ path WRITE setPath DESIGNABLE true)
-    Q_PROPERTY(QString name READ  name WRITE setName DESIGNABLE true)
+    Q_PROPERTY(QString projectName READ projectName WRITE setProjectName DESIGNABLE true)
     Q_PROPERTY(bool useAsDefaultPath READ useAsDefaultPath WRITE setUseAsDefaultPath DESIGNABLE true)
 public:
     explicit ProjectIntroPage(QWidget *parent = 0);
     virtual ~ProjectIntroPage();
 
-    QString name() const;
+    QString projectName() const;
     QString path() const;
     QString description() const;
     bool useAsDefaultPath() const;
@@ -81,7 +81,7 @@ signals:
 
 public slots:
     void setPath(const QString &path);
-    void setName(const QString &name);
+    void setProjectName(const QString &name);
     void setDescription(const QString &description);
     void setUseAsDefaultPath(bool u);
 

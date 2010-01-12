@@ -114,9 +114,9 @@ public:
 
     // IOptionsPage
     QString id() const { return QLatin1String(Constants::SETTINGS_ID); }
-    QString trName() const { return tr("General"); }
+    QString displayName() const { return tr("General"); }
     QString category() const { return QLatin1String(Constants::SETTINGS_CATEGORY); }
-    QString trCategory() const { return tr("FakeVim"); }
+    QString displayCategory() const { return tr("FakeVim"); }
 
     QWidget *createPage(QWidget *parent);
     void apply() { m_group.apply(ICore::instance()->settings()); }
@@ -162,6 +162,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
     m_group.insert(theFakeVimSetting(ConfigAutoIndent), 
         m_ui.checkBoxAutoIndent);
+    m_group.insert(theFakeVimSetting(ConfigSmartIndent), 
+        m_ui.checkBoxSmartIndent);
     m_group.insert(theFakeVimSetting(ConfigIncSearch), 
         m_ui.checkBoxIncSearch);
 
@@ -173,11 +175,17 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         this, SLOT(setPlainStyle()));
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords)
-           << ' ' << m_ui.labelAutoIndent->text()  << ' ' << m_ui.labelExpandTab->text()
-           << ' ' << m_ui.labelHlSearch->text()    << ' ' << m_ui.labelIncSearch->text()
-           << ' ' << m_ui.labelShiftWidth->text()  << ' ' << m_ui.labelSmartTab->text()
-           << ' ' << m_ui.labelStartOfLine->text() << ' ' << m_ui.tabulatorLabel->text()
-           << ' ' << m_ui.labelBackspace->text();
+            << ' ' << m_ui.labelAutoIndent->text()
+            << ' ' << m_ui.labelExpandTab->text()
+            << ' ' << m_ui.labelSmartIndent->text()
+            << ' ' << m_ui.labelExpandTab->text()
+            << ' ' << m_ui.labelHlSearch->text()
+            << ' ' << m_ui.labelIncSearch->text()
+            << ' ' << m_ui.labelShiftWidth->text()
+            << ' ' << m_ui.labelSmartTab->text()
+            << ' ' << m_ui.labelStartOfLine->text()
+            << ' ' << m_ui.tabulatorLabel->text()
+            << ' ' << m_ui.labelBackspace->text();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
@@ -192,7 +200,8 @@ void FakeVimOptionPage::copyTextEditorSettings()
     m_ui.lineEditTabStop->setText(QString::number(ts.m_tabSize));
     m_ui.lineEditShiftWidth->setText(QString::number(ts.m_indentSize));
     m_ui.checkBoxSmartTab->setChecked(ts.m_smartBackspace);
-    m_ui.checkBoxAutoIndent->setChecked(ts.m_autoIndent);
+    m_ui.checkBoxAutoIndent->setChecked(true);
+    m_ui.checkBoxSmartIndent->setChecked(ts.m_autoIndent);
     // FIXME: Not present in core
     //m_ui.checkBoxIncSearch->setChecked(ts.m_incSearch);
 }
@@ -205,6 +214,7 @@ void FakeVimOptionPage::setQtStyle()
     m_ui.lineEditShiftWidth->setText(four);
     m_ui.checkBoxSmartTab->setChecked(true);
     m_ui.checkBoxAutoIndent->setChecked(true);
+    m_ui.checkBoxSmartIndent->setChecked(true);
     m_ui.checkBoxIncSearch->setChecked(true);
     m_ui.lineEditBackspace->setText(QLatin1String("indent,eol,start"));
 }
@@ -217,6 +227,7 @@ void FakeVimOptionPage::setPlainStyle()
     m_ui.lineEditShiftWidth->setText(eight);
     m_ui.checkBoxSmartTab->setChecked(false);
     m_ui.checkBoxAutoIndent->setChecked(false);
+    m_ui.checkBoxSmartIndent->setChecked(false);
     m_ui.checkBoxIncSearch->setChecked(false);
     m_ui.lineEditBackspace->setText(QString());
 }
@@ -268,6 +279,7 @@ private slots:
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void writeFile(bool *handled, const QString &fileName, const QString &contents);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
+    void checkForElectricCharacter(bool *result, QChar c);
     void indentRegion(int *amount, int beginLine, int endLine,  QChar typedChar);
     void handleExCommand(const QString &cmd);
 
@@ -446,6 +458,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
         this, SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
     connect(handler, SIGNAL(indentRegion(int*,int,int,QChar)),
         this, SLOT(indentRegion(int*,int,int,QChar)));
+    connect(handler, SIGNAL(checkForElectricCharacter(bool*,QChar)),
+        this, SLOT(checkForElectricCharacter(bool*,QChar)));
     connect(handler, SIGNAL(completionRequested()),
         this, SLOT(triggerCompletions()));
     connect(handler, SIGNAL(windowCommandRequested(int)),
@@ -500,6 +514,15 @@ void FakeVimPluginPrivate::triggerCompletions()
         TextEditor::Internal::CompletionSupport::instance()->
             autoComplete(bt->editableInterface(), false);
    //     bt->triggerCompletions();
+}
+
+void FakeVimPluginPrivate::checkForElectricCharacter(bool *result, QChar c)
+{
+    FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
+    if (!handler)
+        return;
+    if (BaseTextEditor *bt = qobject_cast<BaseTextEditor *>(handler->widget()))
+        *result = bt->isElectricCharacter(c);
 }
 
 void FakeVimPluginPrivate::writeFile(bool *handled,
@@ -634,28 +657,24 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     indenter.setTabSize(tabSettings.m_tabSize);
 
     const QTextDocument *doc = bt->document();
-    QTextBlock begin = doc->findBlockByNumber(beginLine);
-    QTextBlock end = doc->findBlockByNumber(endLine);
     const TextEditor::TextBlockIterator docStart(doc->begin());
-    QTextBlock cur = begin;
-    do {
+    QTextBlock cur = doc->findBlockByNumber(beginLine);
+    for(int i = beginLine; i<= endLine; ++i)
+    {
         if (typedChar == 0 && cur.text().simplified().isEmpty()) {
+            // clear empty lines
             *amount = 0;
-            if (cur != end) {
-                QTextCursor cursor(cur);
-                while (!cursor.atBlockEnd())
-                    cursor.deleteChar();
-            }
+            QTextCursor cursor(cur);
+            while (!cursor.atBlockEnd())
+                cursor.deleteChar();
         } else {
             const TextEditor::TextBlockIterator current(cur);
             const TextEditor::TextBlockIterator next(cur.next());
             *amount = indenter.indentForBottomLine(current, docStart, next, typedChar);
-            if (cur != end)
-                tabSettings.indentLine(cur, *amount);
+            tabSettings.indentLine(cur, *amount);
         }
-        if (cur != end)
-           cur = cur.next();
-    } while (cur != end);
+        cur = cur.next();
+    }
 }
 
 void FakeVimPluginPrivate::quitFakeVim()

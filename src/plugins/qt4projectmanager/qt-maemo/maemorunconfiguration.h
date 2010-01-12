@@ -47,7 +47,6 @@ namespace Internal {
 class MaemoManager;
 class MaemoToolChain;
 class Qt4ProFileNode;
-using namespace ProjectExplorer;
 
 #define USE_SSL_PASSWORD 0
 
@@ -63,14 +62,15 @@ public slots:
 };
 
 
-class MaemoRunConfiguration : public RunConfiguration
+class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
-    MaemoRunConfiguration(Project *project, const QString &proFilePath);
+    MaemoRunConfiguration(ProjectExplorer::Project *project,
+                          const QString &proFilePath);
     ~MaemoRunConfiguration();
 
-    QString type() const;
+    QString id() const;
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     using RunConfiguration::isEnabled;
     QWidget *configurationWidget();
@@ -91,8 +91,8 @@ public:
     const QString sysRoot() const;
     const QStringList arguments() const;
     void setArguments(const QStringList &args);
-    void setDeviceConfig(const MaemoDeviceConfigurations::DeviceConfig &deviceConfig);
-    MaemoDeviceConfigurations::DeviceConfig deviceConfig() const;
+    void setDeviceConfig(const MaemoDeviceConfig &deviceConfig);
+    MaemoDeviceConfig deviceConfig() const;
 
     QString simulator() const;
     QString simulatorArgs() const;
@@ -111,7 +111,7 @@ public:
     void setRemotePassword(const QString &password);
     const QString remoteUserPassword() const { return m_remoteUserPassword; }
 
-        void setRemoteHostRequiresPassword(bool requiresPassword);
+    void setRemoteHostRequiresPassword(bool requiresPassword);
     bool remoteHostRequiresPassword() const { return m_remoteHostRequiresPassword; }
 #endif
 
@@ -158,7 +158,7 @@ private:
 
     QString m_gdbPath;
 
-    MaemoDeviceConfigurations::DeviceConfig m_devConfig;
+    MaemoDeviceConfig m_devConfig;
     QStringList m_arguments;
 
     QDateTime m_lastDeployed;
@@ -173,39 +173,39 @@ private:
 #endif
 };
 
-
-class MaemoRunConfigurationFactory : public IRunConfigurationFactory
+class MaemoRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
 public:
     MaemoRunConfigurationFactory(QObject *parent);
     ~MaemoRunConfigurationFactory();
 
-    bool canRestore(const QString &type) const;
-    QStringList availableCreationTypes(Project *project) const;
-    QString displayNameForType(const QString &type) const;
-    RunConfiguration *create(Project *project, const QString &type);
-
+    bool canRestore(const QString &id) const;
+    QStringList availableCreationIds(ProjectExplorer::Project *project) const;
+    QString displayNameForId(const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
 
 private slots:
-    void addedRunConfiguration(ProjectExplorer::Project* project);
-    void removedRunConfiguration(ProjectExplorer::Project* project);
+    void addedRunConfiguration(ProjectExplorer::Project *project);
+    void removedRunConfiguration(ProjectExplorer::Project *project);
 
-    void projectAdded(ProjectExplorer::Project* project);
-    void projectRemoved(ProjectExplorer::Project* project);
-    void currentProjectChanged(ProjectExplorer::Project* project);
+    void projectAdded(ProjectExplorer::Project *project);
+    void projectRemoved(ProjectExplorer::Project *project);
+    void currentProjectChanged(ProjectExplorer::Project *project);
 };
 
 
-class MaemoRunControlFactory : public IRunControlFactory
+class MaemoRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
 public:
     MaemoRunControlFactory(QObject *parent = 0);
-    bool canRun(RunConfiguration *runConfiguration, const QString &mode) const;
-    RunControl* create(RunConfiguration *runConfiguration, const QString &mode);
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+                const QString &mode) const;
+    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration,
+                                        const QString &mode);
     QString displayName() const;
-    QWidget *configurationWidget(RunConfiguration *runConfiguration);
+    QWidget *configurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 };
 
 } // namespace Internal

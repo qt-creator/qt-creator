@@ -40,8 +40,7 @@ using namespace TextEditor;
 using namespace TextEditor::Internal;
 
 PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
-  : Core::IEditorFactory(parent),
-    m_kind(Core::Constants::K_DEFAULT_TEXT_EDITOR)
+  : Core::IEditorFactory(parent)
 {
     m_actionHandler = new TextEditorActionHandler(
         QLatin1String(TextEditor::Constants::C_TEXTEDITOR),
@@ -55,14 +54,19 @@ PlainTextEditorFactory::~PlainTextEditorFactory()
     delete m_actionHandler;
 }
 
-QString PlainTextEditorFactory::kind() const
+QString PlainTextEditorFactory::id() const
 {
-    return m_kind;
+    return QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
+}
+
+QString PlainTextEditorFactory::displayName() const
+{
+    return tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME);
 }
 
 Core::IFile *PlainTextEditorFactory::open(const QString &fileName)
 {
-    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, kind());
+    Core::IEditor *iface = Core::EditorManager::instance()->openEditor(fileName, id());
     return iface ? iface->file() : 0;
 }
 

@@ -224,7 +224,7 @@ void WatchData::setType(const QString &str, bool guessChildrenFromType)
 
 void WatchData::setAddress(const QString &str)
 {
-    addr = str;
+    addr = str.toLatin1();
 }
 
 QString WatchData::toString() const
@@ -300,6 +300,7 @@ QString WatchData::toToolTip() const
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>";
+    formatToolTipRow(str, WatchHandler::tr("Name"), name);
     formatToolTipRow(str, WatchHandler::tr("Expression"), exp);
     formatToolTipRow(str, WatchHandler::tr("Type"), typeToolTip(*this));
     QString val = value;
@@ -349,15 +350,15 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
 
     switch (m_type) {
         case LocalsWatch:
-            m_root->iname = QLatin1String("local");
+            m_root->iname = "local";
             m_root->name = WatchHandler::tr("Locals");
             break;
         case WatchersWatch:
-            m_root->iname = QLatin1String("watch");
+            m_root->iname = "watch";
             m_root->name = WatchHandler::tr("Watchers");
             break;
         case TooltipsWatch:
-            m_root->iname = QLatin1String("tooltip");
+            m_root->iname = "tooltip";
             m_root->name = WatchHandler::tr("Tooltip");
             break;
     }
@@ -461,11 +462,11 @@ void WatchModel::destroyItem(WatchItem *item)
     delete item;
 }
 
-static QString parentName(const QString &iname)
+static QByteArray parentName(const QByteArray &iname)
 {
-    int pos = iname.lastIndexOf(QLatin1Char('.'));
+    int pos = iname.lastIndexOf('.');
     if (pos == -1)
-        return QString();
+        return QByteArray();
     return iname.left(pos);
 }
 
@@ -645,7 +646,7 @@ static QString formattedValue(const WatchData &data, int format)
             reinterpret_cast<void *>(data.value.toULongLong(&ok, 0));
         if (!ok || !addr)
             return data.value;
-        // FIXME: add a round trip throught the debugger to prevent crashs?
+        // FIXME: add a round trip through the debugger to prevent crashs?
         if (format == Latin1StringFormat)
             return QString::fromLatin1(static_cast<const char *>(addr));
         if (format == Local8BitStringFormat)
@@ -775,12 +776,15 @@ void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
 
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
-    const WatchItem &data = *watchItem(idx);
+    const WatchItem *item = watchItem(idx);
+    const WatchItem &data = *item;
 
     switch (role) {
         case Qt::DisplayRole: {
             switch (idx.column()) {
                 case 0:
+                    if (data.name == QLatin1String("*") && item->parent)
+                        return QLatin1String("*") + item->parent->name;
                     return data.name;
                 case 1: {
                     int format = m_handler->m_individualFormats.value(data.iname, -1);
@@ -931,9 +935,9 @@ QVariant WatchModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant(); 
 }
 
-struct IName : public QString
+struct IName : public QByteArray
 {
-    IName(const QString &iname) : QString(iname) {}
+    IName(const QByteArray &iname) : QByteArray(iname) {}
 };
 
 bool iNameLess(const QString &iname1, const QString &iname2)
@@ -1028,7 +1032,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     //foreach (const WatchItem &data, list)
     //    qDebug() << "BULK: " << ++bulk << data.toString();
     QTC_ASSERT(!list.isEmpty(), return);
-    QString parentIName = parentName(list.at(0).iname);
+    QByteArray parentIName = parentName(list.at(0).iname);
     WatchItem *parent = findItem(parentIName, m_root);
     if (!parent) {
         WatchData parent;
@@ -1117,7 +1121,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
     dump();
 }
 
-WatchItem *WatchModel::findItem(const QString &iname, WatchItem *root) const
+WatchItem *WatchModel::findItem(const QByteArray &iname, WatchItem *root) const
 {
     if (root->iname == iname)
         return root;
@@ -1248,7 +1252,7 @@ void WatchHandler::insertBulkData(const QList<WatchData> &list)
 
     if (list.isEmpty())
         return;
-    QMap<QString, QList<WatchData> > hash;
+    QMap<QByteArray, QList<WatchData> > hash;
 
     foreach (const WatchData &data, list) {
         // we insert everything, including incomplete stuff
@@ -1259,7 +1263,7 @@ void WatchHandler::insertBulkData(const QList<WatchData> &list)
             qWarning("%s:%d: Attempt to bulk-insert invalid watch item: %s", __FILE__, __LINE__, qPrintable(data.toString()));
         }
     }
-    foreach (const QString &parentIName, hash.keys()) {
+    foreach (const QByteArray &parentIName, hash.keys()) {
         WatchModel *model = modelForIName(parentIName);
         QTC_ASSERT(model, return);
         model->insertBulkData(hash[parentIName]);
@@ -1271,7 +1275,7 @@ void WatchHandler::insertBulkData(const QList<WatchData> &list)
     }
 }
 
-void WatchHandler::removeData(const QString &iname)
+void WatchHandler::removeData(const QByteArray &iname)
 {
     WatchModel *model = modelForIName(iname);
     if (!model)
@@ -1287,21 +1291,21 @@ void WatchHandler::watchExpression()
         watchExpression(action->data().toString());
 }
 
-QString WatchHandler::watcherName(const QString &exp)
+QByteArray WatchHandler::watcherName(const QByteArray &exp)
 {
-    return QLatin1String("watch.") + QString::number(m_watcherNames[exp]);
+    return "watch." + QByteArray::number(m_watcherNames[exp]);
 }
 
 void WatchHandler::watchExpression(const QString &exp)
 {
     // FIXME: 'exp' can contain illegal characters
-    m_watcherNames[exp] = watcherCounter++;
     WatchData data;
-    data.exp = exp;
+    data.exp = exp.toLatin1();
     data.name = exp;
+    m_watcherNames[data.exp] = watcherCounter++;
     if (exp.isEmpty() || exp == watcherEditPlaceHolder())
         data.setAllUnneeded();
-    data.iname = watcherName(exp);
+    data.iname = watcherName(data.exp);
     IDebuggerEngine *engine = m_manager->currentEngine();
     if (engine && engine->isSynchroneous())
         m_manager->updateWatchData(data);
@@ -1392,8 +1396,9 @@ void WatchHandler::removeWatchExpression()
         removeWatchExpression(action->data().toString());
 }
 
-void WatchHandler::removeWatchExpression(const QString &exp)
+void WatchHandler::removeWatchExpression(const QString &exp0)
 {
+    QByteArray exp = exp0.toLatin1();
     MODEL_DEBUG("REMOVE WATCH: " << exp);
     m_watcherNames.remove(exp);
     foreach (WatchItem *item, m_watchers->rootItem()->children) {
@@ -1409,7 +1414,7 @@ void WatchHandler::updateWatchers()
 {
     //qDebug() << "UPDATE WATCHERS";
     // copy over all watchers and mark all watchers as incomplete
-    foreach (const QString &exp, m_watcherNames.keys()) {
+    foreach (const QByteArray &exp, m_watcherNames.keys()) {
         WatchData data;
         data.iname = watcherName(exp);
         data.setAllNeeded();
@@ -1423,7 +1428,7 @@ void WatchHandler::loadWatchers()
 {
     QVariant value = m_manager->sessionValue("Watchers");
     foreach (const QString &exp, value.toStringList())
-        m_watcherNames[exp] = watcherCounter++;
+        m_watcherNames[exp.toLatin1()] = watcherCounter++;
 
     //qDebug() << "LOAD WATCHERS: " << m_watchers;
     //reinitializeWatchersHelper();
@@ -1433,7 +1438,7 @@ QStringList WatchHandler::watchedExpressions() const
 {
     // Filter out invalid watchers.
     QStringList watcherNames;
-    QHashIterator<QString, int> it(m_watcherNames);
+    QHashIterator<QByteArray, int> it(m_watcherNames);
     while (it.hasNext()) {
         it.next();
         const QString &watcherName = it.key();
@@ -1487,7 +1492,7 @@ void WatchHandler::loadSessionData()
 {
     loadWatchers();
     loadTypeFormats();
-    foreach (const QString &exp, m_watcherNames.keys()) {
+    foreach (const QByteArray &exp, m_watcherNames.keys()) {
         WatchData data;
         data.iname = watcherName(exp);
         data.setAllUnneeded();
@@ -1508,19 +1513,19 @@ WatchModel *WatchHandler::model(WatchType type) const
     return 0;
 }
     
-WatchModel *WatchHandler::modelForIName(const QString &iname) const
+WatchModel *WatchHandler::modelForIName(const QByteArray &iname) const
 {
-    if (iname.startsWith(QLatin1String("local")))
+    if (iname.startsWith("local"))
         return m_locals;
-    if (iname.startsWith(QLatin1String("watch")))
-        return m_watchers;
-    if (iname.startsWith(QLatin1String("tooltip")))
+    if (iname.startsWith("tooltip"))
         return m_tooltips;
+    if (iname.startsWith("watch"))
+        return m_watchers;
     QTC_ASSERT(false, qDebug() << "INAME: " << iname);
     return 0;
 }
 
-WatchData *WatchHandler::findItem(const QString &iname) const
+WatchData *WatchHandler::findItem(const QByteArray &iname) const
 {
     const WatchModel *model = modelForIName(iname);
     QTC_ASSERT(model, return 0);

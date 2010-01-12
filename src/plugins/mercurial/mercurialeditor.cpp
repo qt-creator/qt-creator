@@ -31,6 +31,7 @@
 #include "annotationhighlighter.h"
 #include "constants.h"
 #include "mercurialplugin.h"
+#include "mercurialclient.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <vcsbase/diffhighlighter.h>
@@ -53,6 +54,7 @@ MercurialEditor::MercurialEditor(const VCSBase::VCSBaseEditorParameters *type, Q
         changesetIdentifier40(QLatin1String(Constants::CHANGESETID40)),
         diffIdentifier(QLatin1String(Constants::DIFFIDENTIFIER))
 {
+    setAnnotateRevisionTextFormat(tr("Annotate %1"));
 }
 
 QSet<QString> MercurialEditor::annotationChanges() const
@@ -110,3 +112,21 @@ QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &diffFil
     }
     return QString();
 }
+
+QStringList MercurialEditor::annotationPreviousVersions(const QString &revision) const
+{
+    MercurialClient *client = MercurialPlugin::instance()->client();
+    QStringList parents;
+    const QFileInfo fi(source());
+    const QString workingDirectory = fi.absolutePath();
+    // Retrieve parent revisions
+    QStringList revisions;
+    if (!client->parentRevisionsSync(workingDirectory, fi.fileName(), revision, &revisions))
+        return QStringList();
+    // Format with short summary
+    QStringList descriptions;
+    if (!client->shortDescriptionsSync(workingDirectory, revisions, &descriptions))
+        return QStringList();
+    return descriptions;
+}
+

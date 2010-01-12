@@ -64,9 +64,9 @@ public:
     explicit CppSettingsPage(QObject *parent = 0);
 
     virtual QString id() const;
-    virtual QString trName() const;
+    virtual QString displayName() const;
     virtual QString category() const;
-    virtual QString trCategory() const;
+    virtual QString displayCategory() const;
 
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();

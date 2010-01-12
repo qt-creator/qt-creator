@@ -70,7 +70,7 @@ public:
     virtual Kind kind() const;
 
     virtual QString category() const;
-    virtual QString trCategory() const;
+    virtual QString displayCategory() const;
     virtual QString id() const;
 
     virtual QStringList runWizard(const QString &path, QWidget *parent);

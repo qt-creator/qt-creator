@@ -113,16 +113,16 @@ public:
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
     IEditor *openEditor(const QString &fileName,
-                        const QString &editorKind = QString(),
+                        const QString &editorId = QString(),
                         OpenEditorFlags flags = 0);
-    IEditor *openEditorWithContents(const QString &editorKind,
+    IEditor *openEditorWithContents(const QString &editorId,
                      QString *titlePattern = 0,
                      const QString &contents = QString());
 
-    bool openExternalEditor(const QString &fileName, const QString &editorKind);
+    bool openExternalEditor(const QString &fileName, const QString &editorId);
     
     QStringList getOpenFileNames() const;
-    QString getOpenWithEditorKind(const QString &fileName, bool *isExternalEditor = 0) const;
+    QString getOpenWithEditorId(const QString &fileName, bool *isExternalEditor = 0) const;
 
     void ensureEditorManagerVisible();
     bool hasEditor(const QString &fileName) const;
@@ -153,7 +153,7 @@ public:
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
 
-    IEditor *restoreEditor(QString fileName, QString editorKind, EditorGroup *group);
+    IEditor *restoreEditor(QString fileName, QString editorId, EditorGroup *group);
 
     void saveSettings();
     void readSettings();
@@ -161,19 +161,19 @@ public:
     Internal::OpenEditorsWindow *windowPopup() const;
     void showPopupOrSelectDocument() const;
 
-    void showEditorInfoBar(const QString &kind,
+    void showEditorInfoBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText = QString(),
                            QObject *object = 0, const char *member = 0);
 
-    void hideEditorInfoBar(const QString &kind);
+    void hideEditorInfoBar(const QString &id);
 
-    void showEditorStatusBar(const QString &kind,
+    void showEditorStatusBar(const QString &id,
                            const QString &infoText,
                            const QString &buttonText = QString(),
                            QObject *object = 0, const char *member = 0);
 
-    void hideEditorStatusBar(const QString &kind);
+    void hideEditorStatusBar(const QString &id);
 
     EditorFactoryList editorFactories(const MimeType &mimeType, bool bestMatchOnly = true) const;
     ExternalEditorList externalEditors(const MimeType &mimeType, bool bestMatchOnly = true) const;
@@ -244,7 +244,7 @@ private:
     void setCurrentView(Core::Internal::SplitterOrView *view);
     IEditor *activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
     IEditor *openEditor(Core::Internal::EditorView *view, const QString &fileName,
-                        const QString &editorKind = QString(),
+                        const QString &editorId = QString(),
                         OpenEditorFlags flags = 0);
     Core::Internal::SplitterOrView *currentSplitterOrView() const;
 

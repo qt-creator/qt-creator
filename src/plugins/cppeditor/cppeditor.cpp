@@ -40,7 +40,6 @@
 #include <Scope.h>
 #include <Symbols.h>
 #include <Names.h>
-#include <Control.h>
 #include <CoreTypes.h>
 #include <Literals.h>
 #include <Semantic.h>
@@ -54,7 +53,6 @@
 #include <cplusplus/OverviewModel.h>
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/TokenUnderCursor.h>
-#include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/MatchingText.h>
 #include <cplusplus/BackwardsScanner.h>
 #include <cplusplus/FastPreprocessor.h>
@@ -155,6 +153,9 @@ private:
     virtual bool visit(Function *function)
     { return processScope(function->members()); }
 
+    virtual bool visit(ObjCMethod *method)
+    { return processScope(method->members()); }
+
     bool processScope(Scope *scope)
     {
         if (_scope || ! scope)
@@ -201,13 +202,23 @@ public:
     bool hasD;
     bool hasQ;
 
-    void operator()(FunctionDefinitionAST *ast)
+    void operator()(DeclarationAST *ast)
     {
         localUses.clear();
 
-        if (ast && ast->symbol) {
-            _functionScope = ast->symbol->members();
-            accept(ast);
+        if (!ast)
+            return;
+
+        if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
+            if (def->symbol) {
+                _functionScope = def->symbol->members();
+                accept(ast);
+            }
+        } else if (ObjCMethodDeclarationAST *decl = ast->asObjCMethodDeclaration()) {
+            if (decl->method_prototype->symbol) {
+                _functionScope = decl->method_prototype->symbol->members();
+                accept(ast);
+            }
         }
     }
 
@@ -248,9 +259,15 @@ protected:
     }
 
     virtual bool visit(SimpleNameAST *ast)
+    { return findMemberForToken(ast->firstToken(), ast); }
+
+    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast)
+    { return findMemberForToken(ast->param_name_token, ast); }
+
+    bool findMemberForToken(unsigned tokenIdx, NameAST *ast)
     {
         unsigned line, column;
-        getTokenStartPosition(ast->firstToken(), &line, &column);
+        getTokenStartPosition(tokenIdx, &line, &column);
 
         Scope *scope = findScope(line, column,
                                  _functionScope->owner(),
@@ -262,6 +279,12 @@ protected:
                 if (findMember(fun->members(), ast, line, column))
                     return false;
                 else if (findMember(fun->arguments(), ast, line, column))
+                    return false;
+            } else if (scope->isObjCMethodScope()) {
+                ObjCMethod *method = scope->owner()->asObjCMethod();
+                if (findMember(method->members(), ast, line, column))
+                    return false;
+                else if (findMember(method->arguments(), ast, line, column))
                     return false;
             } else if (scope->isBlockScope()) {
                 if (findMember(scope, ast, line, column))
@@ -385,6 +408,12 @@ protected:
 
         return false;
     }
+
+    virtual bool visit(ObjCMethodPrototypeAST *ast)
+    {
+        accept(ast->argument_list);
+        return false;
+    }
 };
 
 
@@ -392,7 +421,7 @@ class FunctionDefinitionUnderCursor: protected ASTVisitor
 {
     unsigned _line;
     unsigned _column;
-    FunctionDefinitionAST *_functionDefinition;
+    DeclarationAST *_functionDefinition;
 
 public:
     FunctionDefinitionUnderCursor(TranslationUnit *translationUnit)
@@ -400,7 +429,7 @@ public:
           _line(0), _column(0)
     { }
 
-    FunctionDefinitionAST *operator()(AST *ast, unsigned line, unsigned column)
+    DeclarationAST *operator()(AST *ast, unsigned line, unsigned column)
     {
         _functionDefinition = 0;
         _line = line;
@@ -416,22 +445,34 @@ protected:
             return false;
 
         else if (FunctionDefinitionAST *def = ast->asFunctionDefinition()) {
-            unsigned startLine, startColumn;
-            unsigned endLine, endColumn;
-            getTokenStartPosition(def->firstToken(), &startLine, &startColumn);
-            getTokenEndPosition(def->lastToken() - 1, &endLine, &endColumn);
+            return checkDeclaration(def);
+        }
 
-            if (_line > startLine || (_line == startLine && _column >= startColumn)) {
-                if (_line < endLine || (_line == endLine && _column < endColumn)) {
-                    _functionDefinition = def;
-                    return false;
-                }
-            }
+        else if (ObjCMethodDeclarationAST *method = ast->asObjCMethodDeclaration()) {
+            if (method->function_body)
+                return checkDeclaration(method);
         }
 
         return true;
     }
 
+private:
+    bool checkDeclaration(DeclarationAST *ast)
+    {
+        unsigned startLine, startColumn;
+        unsigned endLine, endColumn;
+        getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
+        getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
+
+        if (_line > startLine || (_line == startLine && _column >= startColumn)) {
+            if (_line < endLine || (_line == endLine && _column < endColumn)) {
+                _functionDefinition = ast;
+                return false;
+            }
+        }
+
+        return true;
+    }
 };
 
 class ProcessDeclarators: protected ASTVisitor
@@ -839,11 +880,30 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
     return canonicalSymbol;
 }
 
+const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor,
+                                                  Document::Ptr doc) const
+{
+    if (! doc)
+        return 0;
+
+    int line, col;
+    convertPosition(cursor.position(), &line, &col);
+
+    if (const Macro *macro = doc->findMacroDefinitionAt(line))
+        return macro;
+
+    if (const Document::MacroUse *use = doc->findMacroUseAt(cursor.position()))
+        return &use->macro();
+
+    return 0;
+}
 
 void CPPEditor::findUsages()
 {    
     if (Symbol *canonicalSymbol = markSymbols()) {
         m_modelManager->findUsages(canonicalSymbol);
+    } else if (const Macro *macro = findCanonicalMacro(textCursor(), m_lastSemanticInfo.doc)) {
+        m_modelManager->findMacroUsages(*macro);
     }
 }
 
@@ -1341,15 +1401,14 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         }
     } else {
         // Handle macro uses
-        foreach (const Document::MacroUse use, doc->macroUses()) {
-            if (use.contains(endOfName - 1)) {
-                const Macro &macro = use.macro();
-                link.fileName = macro.fileName();
-                link.line = macro.line();
-                link.pos = use.begin();
-                link.length = use.end() - use.begin();
-                return link;
-            }
+        const Document::MacroUse *use = doc->findMacroUseAt(endOfName - 1);
+        if (use) {
+            const Macro &macro = use->macro();
+            link.fileName = macro.fileName();
+            link.line = macro.line();
+            link.pos = use->begin();
+            link.length = use->end() - use->begin();
+            return link;
         }
     }
 
@@ -1929,7 +1988,7 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
     }
     TextEditor::BaseTextEditor::keyPressEvent(e);
     if (wantEditBlock)
-    cursor.endEditBlock();
+        cursor.endEditBlock();
     finishRename();
 }
 
@@ -1946,9 +2005,9 @@ Core::IEditor *CPPEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *CPPEditorEditable::kind() const
+QString CPPEditorEditable::id() const
 {
-    return CppEditor::Constants::CPPEDITOR_KIND;
+    return QLatin1String(CppEditor::Constants::CPPEDITOR_ID);
 }
 
 bool CPPEditorEditable::open(const QString & fileName)
@@ -2034,7 +2093,7 @@ bool CPPEditor::openCppEditorAt(const Link &link)
     return TextEditor::BaseTextEditor::openEditorAt(link.fileName,
                                                     link.line,
                                                     link.column,
-                                                    Constants::C_CPPEDITOR);
+                                                    Constants::CPPEDITOR_ID);
 }
 
 void CPPEditor::semanticRehighlight()
@@ -2195,7 +2254,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     AST *ast = translationUnit->ast();
 
     FunctionDefinitionUnderCursor functionDefinitionUnderCursor(translationUnit);
-    FunctionDefinitionAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
+    DeclarationAST *currentFunctionDefinition = functionDefinitionUnderCursor(ast, source.line, source.column);
 
     FindLocalUses useTable(translationUnit);
     useTable(currentFunctionDefinition);

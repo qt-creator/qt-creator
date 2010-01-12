@@ -86,8 +86,8 @@ bool sortNodes(Node *n1, Node *n2)
             ProjectNode *project1 = static_cast<ProjectNode*>(n1);
             ProjectNode *project2 = static_cast<ProjectNode*>(n2);
 
-            if (project1->name() != project2->name())
-                return project1->name() < project2->name(); // sort by name
+            if (project1->displayName() != project2->displayName())
+                return project1->displayName() < project2->displayName(); // sort by name
             else
                 return project1 < project2; // sort by pointer value
         } else {
@@ -102,8 +102,8 @@ bool sortNodes(Node *n1, Node *n2)
             FolderNode *folder1 = static_cast<FolderNode*>(n1);
             FolderNode *folder2 = static_cast<FolderNode*>(n2);
 
-            if (folder1->name() != folder2->name())
-                return folder1->name() < folder2->name();
+            if (folder1->displayName() != folder2->displayName())
+                return folder1->displayName() < folder2->displayName();
             else
                 return folder1 < folder2;
         } else {
@@ -228,7 +228,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
         case Qt::EditRole: {
             if (folderNode)
-                result = folderNode->name();
+                result = folderNode->displayName();
             else
                 result = QFileInfo(node->path()).fileName(); //TODO cache that?
             break;

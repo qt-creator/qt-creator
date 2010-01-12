@@ -1939,7 +1939,11 @@ unsigned ObjCMessageExpressionAST::lastToken() const
 
 unsigned ObjCMessageArgumentAST::firstToken() const
 {
-    return parameter_value_expression->firstToken();
+    if (parameter_value_expression)
+        return parameter_value_expression->firstToken();
+
+    // ### assert?
+    return 0;
 }
 
 unsigned ObjCMessageArgumentAST::lastToken() const
@@ -2222,8 +2226,8 @@ unsigned ObjCFastEnumerationAST::firstToken() const
 
 unsigned ObjCFastEnumerationAST::lastToken() const
 {
-    if (body_statement)
-        return body_statement->lastToken();
+    if (statement)
+        return statement->lastToken();
     else if (rparen_token)
         return rparen_token + 1;
     else if (fast_enumeratable_expression)

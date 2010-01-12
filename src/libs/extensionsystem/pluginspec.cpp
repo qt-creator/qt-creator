@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "pluginspec.h"
-#include "pluginspec.h"
+
 #include "pluginspec_p.h"
 #include "iplugin.h"
 #include "iplugin_p.h"

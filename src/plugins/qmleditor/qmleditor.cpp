@@ -278,7 +278,7 @@ QmlEditorEditable::QmlEditorEditable(QmlTextEditor *editor)
 {
 
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(QmlEditor::Constants::C_QMLEDITOR);
+    m_context << uidm->uniqueIdentifier(QmlEditor::Constants::C_QMLEDITOR_ID);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
@@ -328,9 +328,9 @@ Core::IEditor *QmlEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *QmlEditorEditable::kind() const
+QString QmlEditorEditable::id() const
 {
-    return QmlEditor::Constants::C_QMLEDITOR;
+    return QLatin1String(QmlEditor::Constants::C_QMLEDITOR_ID);
 }
 
 QmlTextEditor::Context QmlEditorEditable::context() const
@@ -655,7 +655,6 @@ TextEditor::BaseTextEditor::Link QmlTextEditor::findLinkAt(const QTextCursor &cu
     QTextCursor expressionCursor(cursor);
     {
         // correct the position by moving to the end of an identifier (if we're hovering over one):
-        const QString txt = cursor.block().text();
         int pos = cursor.position();
         forever {
             const QChar ch = characterAt(pos);

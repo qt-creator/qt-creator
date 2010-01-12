@@ -308,6 +308,8 @@ Core::IFile *VCSBaseSubmitEditor::file()
 
 QString VCSBaseSubmitEditor::displayName() const
 {
+    if (m_d->m_displayName.isEmpty())
+        m_d->m_displayName = QCoreApplication::translate("VCS", m_d->m_parameters->displayName);
     return m_d->m_displayName;
 }
 
@@ -336,9 +338,9 @@ Core::IEditor *VCSBaseSubmitEditor::duplicate(QWidget * /*parent*/)
     return 0;
 }
 
-const char *VCSBaseSubmitEditor::kind() const
+QString VCSBaseSubmitEditor::id() const
 {
-    return m_d->m_parameters->kind;
+    return m_d->m_parameters->id;
 }
 
 static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction, QAction *diffAction)
@@ -624,7 +626,7 @@ QStringList VCSBaseSubmitEditor::currentProjectFiles(bool nativeSeparators, QStr
         if (const ProjectExplorer::Project *currentProject = pe->currentProject()) {
             QStringList files = currentProject->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
             if (name)
-                *name = currentProject->name();
+                *name = currentProject->displayName();
             if (nativeSeparators && !files.empty()) {
                 const QStringList::iterator end = files.end();
                 for (QStringList::iterator it = files.begin(); it != end; ++it)

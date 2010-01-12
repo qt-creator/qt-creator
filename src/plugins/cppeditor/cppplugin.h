@@ -115,11 +115,11 @@ public:
 
     Core::IEditor *createEditor(QWidget *parent);
 
-    virtual QString kind() const;
+    virtual QString id() const;
+    virtual QString displayName() const;
     Core::IFile *open(const QString &fileName);
 
 private:
-    const QString m_kind;
     CppPlugin *m_owner;
     QStringList m_mimeTypes;
 };

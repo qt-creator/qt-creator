@@ -28,7 +28,13 @@
 **************************************************************************/
 
 #include "genericbuildconfiguration.h"
+
+#include "genericmakestep.h"
 #include "genericproject.h"
+
+#include <utils/qtcassert.h>
+
+#include <QtGui/QInputDialog>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -40,7 +46,7 @@ GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro)
 
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro, const QMap<QString, QVariant> &map)
+GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro, const QVariantMap &map)
     : BuildConfiguration(pro, map)
 {
     m_buildDirectory = map.value("buildDirectory").toString();
@@ -53,7 +59,7 @@ GenericBuildConfiguration::GenericBuildConfiguration(GenericBuildConfiguration *
 
 }
 
-void GenericBuildConfiguration::toMap(QMap<QString, QVariant> &map) const
+void GenericBuildConfiguration::toMap(QVariantMap &map) const
 {
     map.insert("buildDirectory", m_buildDirectory);
 }
@@ -87,3 +93,64 @@ GenericProject *GenericBuildConfiguration::genericProject() const
     return static_cast<GenericProject *>(project());
 }
 
+
+/*!
+  \class GenericBuildConfigurationFactory
+*/
+
+GenericBuildConfigurationFactory::GenericBuildConfigurationFactory(GenericProject *project)
+    : IBuildConfigurationFactory(project),
+    m_project(project)
+{
+}
+
+GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory()
+{
+}
+
+QStringList GenericBuildConfigurationFactory::availableCreationIds() const
+{
+    return QStringList() << "Create";
+}
+
+QString GenericBuildConfigurationFactory::displayNameForId(const QString &id) const
+{
+    QTC_ASSERT(id == "Create", return QString());
+    return tr("Create");
+}
+
+BuildConfiguration *GenericBuildConfigurationFactory::create(const QString &id) const
+{
+    QTC_ASSERT(id == "Create", return false);
+    //TODO asking for name is duplicated everywhere, but maybe more
+    // wizards will show up, that incorporate choosing the name
+    bool ok;
+    QString buildConfigurationName = QInputDialog::getText(0,
+                          tr("New configuration"),
+                          tr("New Configuration Name:"),
+                          QLineEdit::Normal,
+                          QString(),
+                          &ok);
+    if (!ok || buildConfigurationName.isEmpty())
+        return false;
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project);
+    bc->setDisplayName(buildConfigurationName);
+    m_project->addBuildConfiguration(bc); // also makes the name unique...
+
+    GenericMakeStep *makeStep = new GenericMakeStep(bc);
+    bc->insertBuildStep(0, makeStep);
+    makeStep->setBuildTarget("all", /* on = */ true);
+    return bc;
+}
+
+BuildConfiguration *GenericBuildConfigurationFactory::clone(BuildConfiguration *source) const
+{
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(static_cast<GenericBuildConfiguration *>(source));
+    return bc;
+}
+
+BuildConfiguration *GenericBuildConfigurationFactory::restore(const QVariantMap &map) const
+{
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(m_project, map);
+    return bc;
+}

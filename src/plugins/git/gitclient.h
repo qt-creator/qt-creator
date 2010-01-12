@@ -79,8 +79,11 @@ public:
               const QStringList &unstagedFileNames, const QStringList &stagedFileNames= QStringList());
 
     void status(const QString &workingDirectory);
-    void log(const QString &workingDirectory, const QStringList &fileNames);
-    void blame(const QString &workingDirectory, const QString &fileName, int lineNumber = -1);
+    void graphLog(const QString &workingDirectory);
+    void log(const QString &workingDirectory, const QStringList &fileNames,
+             bool enableAnnotationContextMenu = false);
+    void blame(const QString &workingDirectory, const QString &fileName,
+               const QString &revision = QString(), int lineNumber = -1);
     void showCommit(const QString &workingDirectory, const QString &commit);
     void checkout(const QString &workingDirectory, const QString &file);
     void checkoutBranch(const QString &workingDirectory, const QString &branch);
@@ -95,6 +98,17 @@ public:
                               QString *output, QString *errorMessage);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
                               QString *output, QString *errorMessage);
+    bool synchronousParentRevisions(const QString &workingDirectory,
+                                    const QStringList &files /* = QStringList() */,
+                                    const QString &revision,
+                                    QStringList *parents,
+                                    QString *errorMessage);
+    bool synchronousShortDescription(const QString &workingDirectory, const QString &revision,
+                                     QString *description, QString *errorMessage);
+    bool synchronousShortDescription(const QString &workingDirectory, const QString &revision,
+                                     const QString &format, QString *description, QString *errorMessage);
+    bool synchronousShortDescriptions(const QString &workingDirectory, const QStringList &revisions,
+                                      QStringList *descriptions, QString *errorMessage);
 
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
@@ -144,6 +158,9 @@ public:
 
 public slots:
     void show(const QString &source, const QString &id);
+
+private slots:
+    void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
 
 private:
     VCSBase::VCSBaseEditor *createVCSEditor(const QString &kind,

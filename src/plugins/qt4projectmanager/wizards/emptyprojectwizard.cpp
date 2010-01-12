@@ -46,9 +46,9 @@ QWizard *EmptyProjectWizard::createWizardDialog(QWidget *parent,
                                               const QString &defaultPath,
                                               const WizardPageList &extensionPages) const
 {
-    EmptyProjectWizardDialog *dialog = new EmptyProjectWizardDialog(name(), icon(), extensionPages, parent);
+    EmptyProjectWizardDialog *dialog = new EmptyProjectWizardDialog(displayName(), icon(), extensionPages, parent);
     dialog->setPath(defaultPath);
-    dialog->setName(EmptyProjectWizardDialog::projectName(defaultPath));
+    dialog->setProjectName(EmptyProjectWizardDialog::uniqueProjectName(defaultPath));
     return dialog;
 }
 
@@ -59,7 +59,7 @@ Core::GeneratedFiles
     const EmptyProjectWizardDialog *wizard = qobject_cast< const EmptyProjectWizardDialog *>(w);
     const QtProjectParameters params = wizard->parameters();
     const QString projectPath = params.projectPath();
-    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.name, profileSuffix());
+    const QString profileName = Core::BaseFileWizard::buildFileName(projectPath, params.fileName, profileSuffix());
 
     Core::GeneratedFile profile(profileName);
     return Core::GeneratedFiles() << profile;

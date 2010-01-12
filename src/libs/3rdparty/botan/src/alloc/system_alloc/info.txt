@@ -1,0 +1,13 @@
+realname "Default (Malloc) Allocators"
+
+load_on auto
+
+<add>
+defalloc.cpp
+defalloc.h
+</add>
+
+<requires>
+libstate
+mem_pool
+</requires>

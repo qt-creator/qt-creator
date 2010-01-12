@@ -90,7 +90,7 @@ EditMode::~EditMode()
     delete m_splitter;
 }
 
-QString EditMode::name() const
+QString EditMode::displayName() const
 {
     return tr("Edit");
 }
@@ -110,9 +110,9 @@ QWidget* EditMode::widget()
     return m_splitter;
 }
 
-const char* EditMode::uniqueModeName() const
+QString EditMode::id() const
 {
-    return Constants::MODE_EDIT;
+    return QLatin1String(Constants::MODE_EDIT);
 }
 
 QList<int> EditMode::context() const

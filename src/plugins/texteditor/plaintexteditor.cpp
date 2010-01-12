@@ -42,7 +42,7 @@ PlainTextEditorEditable::PlainTextEditorEditable(PlainTextEditor *editor)
   : BaseTextEditorEditable(editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR);
+    m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
 }
 
@@ -55,6 +55,7 @@ PlainTextEditor::PlainTextEditor(QWidget *parent)
     setLineSeparatorsAllowed(true);
 
     setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+    setDisplayName(tr(Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
 }
 
 QList<int> PlainTextEditorEditable::context() const
@@ -70,9 +71,9 @@ Core::IEditor *PlainTextEditorEditable::duplicate(QWidget *parent)
     return newEditor->editableInterface();
 }
 
-const char *PlainTextEditorEditable::kind() const
+QString PlainTextEditorEditable::id() const
 {
-    return Core::Constants::K_DEFAULT_TEXT_EDITOR;
+    return QLatin1String(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
 }
 
 // Indent a text block based on previous line.
@@ -110,11 +111,10 @@ void PlainTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar ty
         return;
 
     // Just use previous line.
-    // Skip non-alphanumerical characters when determining the indentation
-    // to enable writing bulleted lists whose items span several lines.
+    // Skip blank characters when determining the indentation
     int i = 0;
     while (i < previousText.size()) {
-        if (previousText.at(i).isLetterOrNumber()) {
+        if (!previousText.at(i).isSpace()) {
             const TextEditor::TabSettings &ts = tabSettings();
             ts.indentLine(block, ts.columnAt(previousText, i));
             break;

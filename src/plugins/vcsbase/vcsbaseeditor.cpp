@@ -35,7 +35,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/iversioncontrol.h>
 #include <extensionsystem/pluginmanager.h>
@@ -62,13 +61,18 @@
 #include <QtGui/QTextEdit>
 #include <QtGui/QComboBox>
 #include <QtGui/QToolBar>
+#include <QtGui/QClipboard>
+#include <QtGui/QApplication>
 
 namespace VCSBase {
 
 // VCSBaseEditorEditable: An editable with no support for duplicates
 // Creates a browse combo in the toolbar for diff output.
+// It also mirrors the signals of the VCSBaseEditor since the editor
+// manager passes the Editable around.
 class VCSBaseEditorEditable : public TextEditor::BaseTextEditorEditable
 {
+    Q_OBJECT
 public:
     VCSBaseEditorEditable(VCSBaseEditor *,
                           const VCSBaseEditorParameters *type);
@@ -76,19 +80,23 @@ public:
 
     bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget * /*parent*/) { return 0; }
-    const char *kind() const { return m_kind; }
+    QString id() const { return m_id; }
 
     bool isTemporary() const { return true; }
 
+signals:
+    void describeRequested(const QString &source, const QString &change);
+    void annotateRevisionRequested(const QString &source, const QString &change, int line);
+
 private:
-    const char *m_kind;
+    QString m_id;
     QList<int> m_context;
 };
 
 VCSBaseEditorEditable::VCSBaseEditorEditable(VCSBaseEditor *editor,
                                              const VCSBaseEditorParameters *type)  :
     BaseTextEditorEditable(editor),
-    m_kind(type->kind)
+    m_id(type->id)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(QLatin1String(type->context))
@@ -140,11 +148,10 @@ VCSBaseDiffEditorEditable::~VCSBaseDiffEditorEditable()
 
 struct VCSBaseEditorPrivate
 {
-    VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent);
+    VCSBaseEditorPrivate(const VCSBaseEditorParameters *type);
 
     const VCSBaseEditorParameters *m_parameters;
 
-    QAction *m_describeAction;
     QString m_currentChange;
     QString m_source;
     QString m_diffBaseDirectory;
@@ -152,25 +159,29 @@ struct VCSBaseEditorPrivate
     QRegExp m_diffFilePattern;
     QList<int> m_diffSections; // line number where this section starts
     int m_cursorLine;
+    QString m_annotateRevisionTextFormat;
+    QString m_copyRevisionTextFormat;
+    bool m_fileLogAnnotateEnabled;
 };
 
-VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type, QObject *parent)  :
-        m_parameters(type),
-        m_describeAction(new QAction(parent)),
-        m_cursorLine(-1)
+VCSBaseEditorPrivate::VCSBaseEditorPrivate(const VCSBaseEditorParameters *type)  :
+    m_parameters(type),
+    m_cursorLine(-1),
+    m_annotateRevisionTextFormat(VCSBaseEditor::tr("Annotate \"%1\"")),
+    m_copyRevisionTextFormat(VCSBaseEditor::tr("Copy \"%1\"")),
+    m_fileLogAnnotateEnabled(false)
 {
 }
 
 // ------------ VCSBaseEditor
 VCSBaseEditor::VCSBaseEditor(const VCSBaseEditorParameters *type, QWidget *parent)
   : BaseTextEditor(parent),
-    d(new VCSBaseEditorPrivate(type, this))
+    d(new VCSBaseEditorPrivate(type))
 {
     if (VCSBase::Constants::Internal::debug)
-        qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->kind;
+        qDebug() << "VCSBaseEditor::VCSBaseEditor" << type->type << type->id;
 
     setReadOnly(true);
-    connect(d->m_describeAction, SIGNAL(triggered()), this, SLOT(describe()));
     viewport()->setMouseTracking(true);
     setBaseTextDocument(new Internal::VCSBaseTextDocument);
     setMimeType(QLatin1String(d->m_parameters->mimeType));
@@ -211,6 +222,36 @@ void VCSBaseEditor::setSource(const  QString &source)
     d->m_source = source;
 }
 
+QString VCSBaseEditor::annotateRevisionTextFormat() const
+{
+    return d->m_annotateRevisionTextFormat;
+}
+
+void VCSBaseEditor::setAnnotateRevisionTextFormat(const QString &f)
+{
+    d->m_annotateRevisionTextFormat = f;
+}
+
+QString VCSBaseEditor::copyRevisionTextFormat() const
+{
+    return d->m_copyRevisionTextFormat;
+}
+
+void VCSBaseEditor::setCopyRevisionTextFormat(const QString &f)
+{
+    d->m_copyRevisionTextFormat = f;
+}
+
+bool VCSBaseEditor::isFileLogAnnotateEnabled() const
+{
+    return d->m_fileLogAnnotateEnabled;
+}
+
+void VCSBaseEditor::setFileLogAnnotateEnabled(bool e)
+{
+    d->m_fileLogAnnotateEnabled = e;
+}
+
 QString VCSBaseEditor::diffBaseDirectory() const
 {
     return d->m_diffBaseDirectory;
@@ -247,13 +288,22 @@ bool VCSBaseEditor::isModified() const
 
 TextEditor::BaseTextEditorEditable *VCSBaseEditor::createEditableInterface()
 {
-    if (d->m_parameters->type != DiffOutput)
-        return new VCSBaseEditorEditable(this, d->m_parameters);
-    // Diff: set up diff file browsing
-    VCSBaseDiffEditorEditable *de = new VCSBaseDiffEditorEditable(this, d->m_parameters);
-    QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
-    connect(diffBrowseComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotDiffBrowse(int)));
-    return de;
+    TextEditor::BaseTextEditorEditable *editable = 0;
+    if (d->m_parameters->type == DiffOutput) {
+        // Diff: set up diff file browsing
+        VCSBaseDiffEditorEditable *de = new VCSBaseDiffEditorEditable(this, d->m_parameters);
+        QComboBox *diffBrowseComboBox = de->diffFileBrowseComboBox();
+        connect(diffBrowseComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(slotDiffBrowse(int)));
+        editable = de;
+    } else {
+        editable = new VCSBaseEditorEditable(this, d->m_parameters);
+    }
+    // Pass on signals.
+    connect(this, SIGNAL(describeRequested(QString,QString)),
+            editable, SIGNAL(describeRequested(QString,QString)));
+    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,int)),
+            editable, SIGNAL(annotateRevisionRequested(QString,QString,int)));
+    return editable;
 }
 
 void VCSBaseEditor::slotPopulateDiffBrowser()
@@ -329,6 +379,29 @@ void VCSBaseEditor::slotDiffCursorPositionChanged()
     }
 }
 
+QAction *VCSBaseEditor::createDescribeAction(const QString &change)
+{
+    QAction *a = new QAction(tr("Describe change %1").arg(change), 0);
+    connect(a, SIGNAL(triggered()), this, SLOT(describe()));
+    return a;
+}
+
+QAction *VCSBaseEditor::createAnnotateAction(const QString &change)
+{
+    QAction *a = new QAction(d->m_annotateRevisionTextFormat.arg(change), 0);
+    a->setData(change);
+    connect(a, SIGNAL(triggered()), this, SLOT(slotAnnotateRevision()));
+    return a;
+}
+
+QAction *VCSBaseEditor::createCopyRevisionAction(const QString &change)
+{
+    QAction *a = new QAction(d->m_copyRevisionTextFormat.arg(change), 0);
+    a->setData(change);
+    connect(a, SIGNAL(triggered()), this, SLOT(slotCopyRevision()));
+    return a;
+}
+
 void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
 {
     QMenu *menu = createStandardContextMenu();
@@ -336,10 +409,30 @@ void VCSBaseEditor::contextMenuEvent(QContextMenuEvent *e)
     if (d->m_parameters->type == LogOutput || d->m_parameters->type == AnnotateOutput) {
         d->m_currentChange = changeUnderCursor(cursorForPosition(e->pos()));
         if (!d->m_currentChange.isEmpty()) {
-            d->m_describeAction->setText(tr("Describe change %1").arg(d->m_currentChange));
-            menu->addSeparator();
-            menu->addAction(d->m_describeAction);
-        }
+            switch (d->m_parameters->type) {
+            case LogOutput: // Describe current / Annotate file of current
+                menu->addSeparator();
+                menu->addAction(createCopyRevisionAction(d->m_currentChange));
+                menu->addAction(createDescribeAction(d->m_currentChange));
+                if (d->m_fileLogAnnotateEnabled)
+                    menu->addAction(createAnnotateAction(d->m_currentChange));
+                break;
+            case AnnotateOutput: { // Describe current / annotate previous
+                    menu->addSeparator();
+                    menu->addAction(createCopyRevisionAction(d->m_currentChange));
+                    menu->addAction(createDescribeAction(d->m_currentChange));
+                    const QStringList previousVersions = annotationPreviousVersions(d->m_currentChange);
+                    if (!previousVersions.isEmpty()) {
+                        menu->addSeparator();
+                        foreach(const QString &pv, previousVersions)
+                            menu->addAction(createAnnotateAction(pv));
+                    } // has previous versions
+                }
+                break;
+            default:
+                break;
+            }         // switch type
+        }             // has current change
     }
     menu->exec(e->globalPos());
     delete menu;
@@ -580,7 +673,7 @@ static QTextCodec *findProjectCodec(const QString &dir)
                 if (file->fileName().startsWith(dir)) {
                     QTextCodec *codec = (*it)->editorConfiguration()->defaultTextCodec();
                     if (VCSBase::Constants::Internal::debug)
-                        qDebug() << Q_FUNC_INFO << dir << (*it)->name() << codec->name();
+                        qDebug() << Q_FUNC_INFO << dir << (*it)->displayName() << codec->name();
                     return codec;
                 }
     }
@@ -673,17 +766,27 @@ QString VCSBaseEditor::getSource(const QString &workingDirectory,
             workingDirectory;
 }
 
-QString VCSBaseEditor::getTitleId(const QString &workingDirectory, const QStringList &fileNames)
+QString VCSBaseEditor::getTitleId(const QString &workingDirectory,
+                                  const QStringList &fileNames,
+                                  const QString &revision)
 {
+    QString rc;
     switch (fileNames.size()) {
     case 0:
-        return workingDirectory;
+        rc = workingDirectory;
+        break;
     case 1:
-        return fileNames.front();
+        rc = fileNames.front();
+        break;
     default:
+        rc = fileNames.join(QLatin1String(", "));
         break;
     }
-    return fileNames.join(QLatin1String(", "));
+    if (!revision.isEmpty()) {
+        rc += QLatin1Char(':');
+        rc += revision;
+    }
+    return rc;
 }
 
 // Find the complete file from a diff relative specification.
@@ -722,4 +825,23 @@ QString VCSBaseEditor::findDiffFile(const QString &f, Core::IVersionControl *con
     return QString();
 }
 
+void VCSBaseEditor::slotAnnotateRevision()
+{
+    if (const QAction *a = qobject_cast<const QAction *>(sender()))
+        emit annotateRevisionRequested(source(), a->data().toString(),
+                                       editableInterface()->currentLine());
+}
+
+void VCSBaseEditor::slotCopyRevision()
+{
+    QApplication::clipboard()->setText(d->m_currentChange);
+}
+
+QStringList VCSBaseEditor::annotationPreviousVersions(const QString &) const
+{
+    return QStringList();
+}
+
 } // namespace VCSBase
+
+#include "vcsbaseeditor.moc"

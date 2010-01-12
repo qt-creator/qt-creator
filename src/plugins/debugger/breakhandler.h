@@ -69,30 +69,30 @@ private:
     BreakpointData(const BreakpointData &);
 
     // Our owner
-    BreakHandler *m_handler;  // not owned.
+    BreakHandler *m_handler; // not owned.
 
 public:
-    bool enabled;           // should we talk to the debugger engine?
-    bool pending;           // does the debugger engine know about us already?
+    bool enabled;            // should we talk to the debugger engine?
+    bool pending;            // does the debugger engine know about us already?
 
     // this "user requested information". will get stored in the session
-    QString fileName;       // short name of source file
-    QString condition;      // condition associated with breakpoint
-    QString ignoreCount;    // ignore count associated with breakpoint
-    QString lineNumber;     // line in source file
-    QString funcName;       // name of containing function
-    bool useFullPath;       // should we use the full path when setting the bp?
+    QString fileName;        // short name of source file
+    QByteArray condition;    // condition associated with breakpoint
+    QByteArray ignoreCount;  // ignore count associated with breakpoint
+    QByteArray lineNumber;   // line in source file
+    QString funcName;        // name of containing function
+    bool useFullPath;        // should we use the full path when setting the bp?
 
     // this is what gdb produced in response
-    QString bpNumber;       // breakpoint number assigned by the debugger engine
-    QString bpCondition;    // condition acknowledged by the debugger engine
-    QString bpIgnoreCount;  // ignore count acknowledged by the debugger engine
-    QString bpFileName;     // file name acknowledged by the debugger engine
-    QString bpLineNumber;   // line number acknowledged by the debugger engine
-    QString bpFuncName;     // function name acknowledged by the debugger engine
-    QString bpAddress;      // address acknowledged by the debugger engine
-    bool    bpMultiple;     // happens in constructors/gdb
-    bool    bpEnabled;      // enable/disable command sent
+    QByteArray bpNumber;     // breakpoint number assigned by the debugger engine
+    QByteArray bpCondition;  // condition acknowledged by the debugger engine
+    QByteArray bpIgnoreCount;// ignore count acknowledged by the debugger engine
+    QString bpFileName;      // file name acknowledged by the debugger engine
+    QByteArray bpLineNumber; // line number acknowledged by the debugger engine
+    QString bpFuncName;      // function name acknowledged by the debugger engine
+    QString bpAddress;       // address acknowledged by the debugger engine
+    bool    bpMultiple;      // happens in constructors/gdb
+    bool    bpEnabled;       // enable/disable command sent
 
     // taken from either user input or gdb responses
     QString markerFileName; // used to locate the marker

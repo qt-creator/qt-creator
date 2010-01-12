@@ -41,7 +41,7 @@ const char *const JavaScriptGrammar::spell [] = {
   "try", "typeof", "var", "void", "while", "with", "^", "^=", "null", "true", 
   "false", "const", "debugger", "reserved word"};
 
-const int JavaScriptGrammar::lhs [] = {
+const short JavaScriptGrammar::lhs [] = {
   85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 
   85, 85, 85, 85, 85, 87, 87, 92, 92, 86, 
   86, 89, 89, 93, 93, 93, 93, 94, 94, 94, 
@@ -70,7 +70,7 @@ const int JavaScriptGrammar::lhs [] = {
   163, 97, 167, 167, 164, 164, 165, 165, 168, 84, 
   169, 169, 170, 170, 166, 166, 88, 88, 171};
 
-const int JavaScriptGrammar:: rhs[] = {
+const short JavaScriptGrammar::rhs [] = {
   1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 
   3, 5, 3, 4, 3, 2, 4, 1, 2, 0, 
   1, 3, 5, 1, 1, 1, 1, 1, 1, 1, 
@@ -99,7 +99,7 @@ const int JavaScriptGrammar:: rhs[] = {
   8, 8, 1, 3, 0, 1, 0, 1, 1, 1, 
   1, 2, 1, 1, 0, 1, 0, 1, 2};
 
-const int JavaScriptGrammar::action_default [] = {
+const short JavaScriptGrammar::action_default [] = {
   0, 98, 165, 129, 137, 133, 173, 180, 77, 149, 
   179, 187, 175, 125, 0, 176, 264, 62, 177, 178, 
   183, 78, 141, 145, 66, 95, 76, 81, 61, 0, 
@@ -148,7 +148,7 @@ const int JavaScriptGrammar::action_default [] = {
   15, 88, 86, 90, 87, 85, 89, 204, 197, 0, 
   205, 201, 0, 203, 193, 0, 194, 198};
 
-const int JavaScriptGrammar::goto_default [] = {
+const short JavaScriptGrammar::goto_default [] = {
   29, 28, 439, 437, 113, 112, 14, 2, 438, 111, 
   114, 194, 24, 17, 190, 26, 8, 201, 21, 27, 
   77, 25, 1, 32, 30, 270, 13, 264, 3, 260, 
@@ -159,7 +159,7 @@ const int JavaScriptGrammar::goto_default [] = {
   460, 324, 395, 399, 402, 398, 397, 417, 418, 16, 
   100, 107, 96, 99, 106, 108, 33, 0};
 
-const int JavaScriptGrammar::action_index [] = {
+const short JavaScriptGrammar::action_index [] = {
   1318, 79, -84, 56, 39, -17, -84, -84, 169, -84, 
   -84, -84, -84, 216, 149, -84, -84, -84, -84, -84, 
   -84, 475, 68, 100, 180, 184, -84, -84, -84, 99, 
@@ -256,7 +256,7 @@ const int JavaScriptGrammar::action_index [] = {
   -88, -88, -88, -88, -88, -88, -88, -88, -88, -88, 
   -88, -88, 5, -88, -88, -56, -88, -88};
 
-const int JavaScriptGrammar::action_info [] = {
+const short JavaScriptGrammar::action_info [] = {
   305, 307, 109, 400, 400, 400, 273, 105, 416, 302, 
   297, 295, 293, 423, 273, 151, 313, 321, 406, 407, 
   424, 295, 422, 198, 420, 149, 313, 353, -47, 396, 
@@ -447,7 +447,7 @@ const int JavaScriptGrammar::action_info [] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   0, 0, 0, 0, 0, 0, 0, 0};
 
-const int JavaScriptGrammar::action_check [] = {
+const short JavaScriptGrammar::action_check [] = {
   61, 60, 55, 5, 5, 5, 1, 33, 33, 61, 
   8, 76, 48, 29, 1, 8, 2, 29, 55, 7, 
   60, 76, 36, 8, 20, 7, 2, 16, 7, 33, 

@@ -1,0 +1,35 @@
+realname "Intel C++"
+
+binary_name "icpc"
+
+compiler_has_tr1 yes
+
+compile_option "-c "
+output_to_option "-o "
+add_include_dir_option "-I"
+add_lib_dir_option "-L"
+add_lib_option "-l"
+
+lib_opt_flags "-O2 -ip -unroll"
+check_opt_flags "-O2"
+debug_flags "-g"
+no_debug_flags "-fomit-frame-pointer"
+lang_flags ""
+warning_flags "-w1"
+shared_flags "-fPIC"
+
+dll_import_flags ""
+dll_export_flags ""
+
+makefile_style unix
+
+<mach_opt>
+pentium3 -> "-march=pentium3"
+pentium4 -> "-march=pentium4"
+pentium-m -> "-march=pentium3"
+core2    -> "-march=core2"
+</mach_opt>
+
+<so_link_flags>
+default -> "$(CXX) -fPIC -shared"
+</so_link_flags>

@@ -56,7 +56,7 @@ QString CloneWizard::description() const
     return tr("Clone a Mercurial repository");
 }
 
-QString CloneWizard::name() const
+QString CloneWizard::displayName() const
 {
     return tr("Mercurial Clone");
 }

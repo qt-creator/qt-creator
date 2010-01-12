@@ -65,7 +65,7 @@ public:
                    const QString &initialPage = QString());
     ~SettingsDialog();
 
-    // Run the dialog and return true if 'Ok' was choosen or 'Apply' was invoked
+    // Run the dialog and return true if 'Ok' was chosen or 'Apply' was invoked
     // at least once
     bool execDialog();
 

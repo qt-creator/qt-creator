@@ -62,7 +62,7 @@ class BuildSettingsPanel : public IPropertiesPanel
 public:
     BuildSettingsPanel(Project *project);
     ~BuildSettingsPanel();
-    QString name() const;
+    QString displayName() const;
     QWidget *widget() const;
     QIcon icon() const;
 
@@ -98,6 +98,9 @@ private slots:
 
     void setupUi();
 
+    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void buildConfigurationDisplayNameChanged();
 private:
     void cloneConfiguration(BuildConfiguration *toClone);
     void deleteConfiguration(BuildConfiguration *toDelete);

@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "runconfiguration.h"
+
 #include "project.h"
 #include "persistentsettings.h"
 #include "buildconfiguration.h"
@@ -37,8 +38,6 @@
 #ifdef Q_OS_MAC
 #include <Carbon/Carbon.h>
 #endif
-
-#include <QtDebug>
 
 using namespace ProjectExplorer;
 
@@ -67,27 +66,27 @@ bool RunConfiguration::isEnabled() const
     return isEnabled(m_project->activeBuildConfiguration());
 }
 
-QString RunConfiguration::name() const
+QString RunConfiguration::displayName() const
 {
-    return m_name;
+    return m_displayName;
 }
 
-void RunConfiguration::setName(const QString &name)
+void RunConfiguration::setDisplayName(const QString &name)
 {
-    m_name = name;
-    emit nameChanged();
+    m_displayName = name;
+    emit displayNameChanged();
 }
 
 void RunConfiguration::save(PersistentSettingsWriter &writer) const
 {
-    writer.saveValue("RunConfiguration.name", m_name);
+    writer.saveValue("RunConfiguration.name", m_displayName);
 }
 
 void RunConfiguration::restore(const PersistentSettingsReader &reader)
 {
     QVariant var = reader.restoreValue("RunConfiguration.name");
     if (var.isValid() && !var.toString().isEmpty())
-        m_name = var.toString();
+        m_displayName = var.toString();
 }
 
 
@@ -113,7 +112,7 @@ RunControl::RunControl(RunConfiguration *runConfiguration)
     : m_runConfiguration(runConfiguration)
 {
     if (runConfiguration)
-        m_displayName  = runConfiguration->name();
+        m_displayName  = runConfiguration->displayName();
 }
 
 RunControl::~RunControl()

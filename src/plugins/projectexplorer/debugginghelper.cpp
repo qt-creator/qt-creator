@@ -259,7 +259,7 @@ QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
 
 QStringList DebuggingHelperLibrary::possibleQMakeCommands()
 {
-    // On windows noone has renamed qmake, right?
+    // On windows no one has renamed qmake, right?
 #ifdef Q_OS_WIN
     return QStringList(QLatin1String("qmake.exe"));
 #else

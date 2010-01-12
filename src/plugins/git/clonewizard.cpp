@@ -55,7 +55,7 @@ QString CloneWizard::description() const
     return tr("Clones a project from a git repository.");
 }
 
-QString CloneWizard::name() const
+QString CloneWizard::displayName() const
 {
     return tr("Git Repository Clone");
 }

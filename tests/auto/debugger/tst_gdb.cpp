@@ -564,7 +564,11 @@ void tst_Gdb::check(const QByteArray &label, const QByteArray &expected0,
 {
     //qDebug() << "\nABOUT TO RUN TEST: " << expanded;
     qWarning() << label << "...";
-    writeToGdb("bb " + N(int(fancy)) + " 1 " + expanded);
+    QByteArray options = "passexceptions";
+    options += "autoderef,";
+    if (fancy)
+        options += ",fancy";
+    writeToGdb("bb " + options + " " + expanded);
 
     //qDebug() << "\n1 ABOUT TO AQUIRE USED ";
     usedBytes.acquire();
