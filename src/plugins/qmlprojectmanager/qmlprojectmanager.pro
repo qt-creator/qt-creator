@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET = QmlProjectManager
 include(../../qtcreatorplugin.pri)
 include(qmlprojectmanager_dependencies.pri)
+DEFINES += QMLPROJECTMANAGER_LIBRARY
 HEADERS = qmlproject.h \
     qmlprojectplugin.h \
     qmlprojectmanager.h \
@@ -10,7 +11,8 @@ HEADERS = qmlproject.h \
     qmlprojectwizard.h \
     qmlnewprojectwizard.h \
     qmltaskmanager.h \
-    qmlprojectfileseditor.h
+    qmlprojectfileseditor.h \
+    qmlprojectmanager_global.h
 SOURCES = qmlproject.cpp \
     qmlprojectplugin.cpp \
     qmlprojectmanager.cpp \

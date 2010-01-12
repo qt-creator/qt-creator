@@ -27,43 +27,15 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROJECTMANAGER_H
-#define QMLPROJECTMANAGER_H
+#ifndef QMLPROJECTMANAGER_GLOBAL_H
+#define QMLPROJECTMANAGER_GLOBAL_H
 
-#include <projectexplorer/iprojectmanager.h>
+#include <QtCore/qglobal.h>
 
-namespace QmlProjectManager {
+#if defined(QMLPROJECTMANAGER_LIBRARY)
+#  define QMLPROJECTMANAGER_EXPORT Q_DECL_EXPORT
+#else
+#  define QMLPROJECTMANAGER_EXPORT Q_DECL_IMPORT
+#endif
 
-class QmlProject;
-
-namespace Internal {
-
-class Manager: public ProjectExplorer::IProjectManager
-{
-    Q_OBJECT
-
-public:
-    Manager();
-    virtual ~Manager();
-
-    virtual int projectContext() const;
-    virtual int projectLanguage() const;
-
-    virtual QString mimeType() const;
-    virtual ProjectExplorer::Project *openProject(const QString &fileName);
-
-    void notifyChanged(const QString &fileName);
-
-    void registerProject(QmlProject *project);
-    void unregisterProject(QmlProject *project);
-
-private:
-    int m_projectContext;
-    int m_projectLanguage;
-    QList<QmlProject *> m_projects;
-};
-
-} // namespace Internal
-} // namespace QmlProjectManager
-
-#endif // QMLPROJECTMANAGER_H
+#endif // QMLPROJECTMANAGER_GLOBAL_H

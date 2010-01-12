@@ -32,6 +32,7 @@
 
 #include "qmlprojectmanager.h"
 #include "qmlprojectnodes.h"
+#include "qmlprojectmanager_global.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -46,69 +47,13 @@ class QmlModelManagerInterface;
 }
 
 namespace QmlProjectManager {
+
+class QmlProject;
+class QmlRunConfiguration;
+
 namespace Internal {
 
 class QmlMakeStep;
-class QmlProjectFile;
-
-class QmlProject : public ProjectExplorer::Project
-{
-    Q_OBJECT
-
-public:
-    QmlProject(Manager *manager, const QString &filename);
-    virtual ~QmlProject();
-
-    QString filesFileName() const;
-
-    virtual QString displayName() const;
-    virtual Core::IFile *file() const;
-    virtual Manager *projectManager() const;
-    virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
-
-    virtual QList<ProjectExplorer::Project *> dependsOn();
-
-    virtual bool isApplication() const;
-    virtual bool hasBuildSettings() const;
-
-    virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
-    virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
-
-    virtual QmlProjectNode *rootProjectNode() const;
-    virtual QStringList files(FilesMode fileMode) const;
-
-    QStringList targets() const;
-
-    enum RefreshOptions {
-        Files         = 0x01,
-        Configuration = 0x02,
-        Everything    = Files | Configuration
-    };
-
-    void refresh(RefreshOptions options);
-
-    QDir projectDir() const;
-    QStringList files() const;
-
-protected:
-    virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
-    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
-
-private:
-    void parseProject(RefreshOptions options);
-    QStringList convertToAbsoluteFiles(const QStringList &paths) const;
-
-    Manager *m_manager;
-    QString m_fileName;
-    QString m_filesFileName;
-    QmlProjectFile *m_file;
-    QString m_projectName;
-    QmlEditor::QmlModelManagerInterface *m_modelManager;
-
-    QStringList m_files;
-
-    QmlProjectNode *m_rootNode;
-};
 
 class QmlProjectFile : public Core::IFile
 {
@@ -134,41 +79,6 @@ public:
 private:
     QmlProject *m_project;
     QString m_fileName;
-};
-
-class QmlRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-public:
-    QmlRunConfiguration(QmlProject *pro);
-    virtual ~QmlRunConfiguration();
-
-    QString viewerPath() const;
-    QStringList viewerArguments() const;
-    QString workingDirectory() const;
-    uint debugServerPort() const;
-
-    // RunConfiguration
-    virtual QString id() const;
-    virtual QWidget *configurationWidget();
-
-    virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
-    virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
-
-private Q_SLOTS:
-    QString mainScript() const;
-    void setMainScript(const QString &scriptFile);
-    void onQmlViewerChanged();
-    void onQmlViewerArgsChanged();
-    void onDebugServerPortChanged();
-
-private:
-    QmlProject *m_project;
-    QString m_scriptFile;
-    QString m_qmlViewerCustomPath;
-    QString m_qmlViewerDefaultPath;
-    QString m_qmlViewerArgs;
-    uint m_debugServerPort;
 };
 
 class QmlRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
@@ -231,6 +141,101 @@ public:
 };
 
 } // namespace Internal
+
+class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
+{
+    Q_OBJECT
+
+public:
+    QmlProject(Internal::Manager *manager, const QString &filename);
+    virtual ~QmlProject();
+
+    QString filesFileName() const;
+
+    virtual QString displayName() const;
+    virtual Core::IFile *file() const;
+    virtual Internal::Manager *projectManager() const;
+    virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
+
+    virtual QList<ProjectExplorer::Project *> dependsOn();
+
+    virtual bool isApplication() const;
+    virtual bool hasBuildSettings() const;
+
+    virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
+
+    virtual Internal::QmlProjectNode *rootProjectNode() const;
+    virtual QStringList files(FilesMode fileMode) const;
+
+    QStringList targets() const;
+
+    enum RefreshOptions {
+        Files         = 0x01,
+        Configuration = 0x02,
+        Everything    = Files | Configuration
+    };
+
+    void refresh(RefreshOptions options);
+
+    QDir projectDir() const;
+    QStringList files() const;
+
+protected:
+    virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
+    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
+
+private:
+    void parseProject(RefreshOptions options);
+    QStringList convertToAbsoluteFiles(const QStringList &paths) const;
+
+    Internal::Manager *m_manager;
+    QString m_fileName;
+    QString m_filesFileName;
+    Internal::QmlProjectFile *m_file;
+    QString m_projectName;
+    QmlEditor::QmlModelManagerInterface *m_modelManager;
+
+    QStringList m_files;
+
+    Internal::QmlProjectNode *m_rootNode;
+};
+
+class QMLPROJECTMANAGER_EXPORT QmlRunConfiguration : public ProjectExplorer::RunConfiguration
+{
+    Q_OBJECT
+public:
+    QmlRunConfiguration(QmlProject *pro);
+    virtual ~QmlRunConfiguration();
+
+    QString viewerPath() const;
+    QStringList viewerArguments() const;
+    QString workingDirectory() const;
+    uint debugServerPort() const;
+
+    // RunConfiguration
+    virtual QString id() const;
+    virtual QWidget *configurationWidget();
+
+    virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
+    virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
+
+private Q_SLOTS:
+    QString mainScript() const;
+    void setMainScript(const QString &scriptFile);
+    void onQmlViewerChanged();
+    void onQmlViewerArgsChanged();
+    void onDebugServerPortChanged();
+
+private:
+    QmlProject *m_project;
+    QString m_scriptFile;
+    QString m_qmlViewerCustomPath;
+    QString m_qmlViewerDefaultPath;
+    QString m_qmlViewerArgs;
+    uint m_debugServerPort;
+};
+
 } // namespace QmlProjectManager
 
 #endif // QMLPROJECT_H
