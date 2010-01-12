@@ -303,6 +303,26 @@ void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const
         m_editorModel->emitChangedToState(m_modelStates.indexOf(newQmlModelState));
 }
 
+void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode)
+{
+    QmlModelView::transformChanged(qmlObjectNode);
+}
+
+void StatesEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
+{
+    QmlModelView::parentChanged(qmlObjectNode);
+}
+
+void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode)
+{
+    QmlModelView::otherPropertyChanged(qmlObjectNode);
+}
+
+void StatesEditorView::updateItem(const QmlObjectNode &qmlObjectNode)
+{
+    QmlModelView::updateItem(qmlObjectNode);
+}
+
 void StatesEditorView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     QmlModelView::customNotification(view, identifier, nodeList, data);

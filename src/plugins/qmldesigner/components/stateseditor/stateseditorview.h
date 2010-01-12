@@ -68,6 +68,10 @@ public:
 
     // QmlModelView
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
+    void transformChanged(const QmlObjectNode &qmlObjectNode) ;
+    void parentChanged(const QmlObjectNode &qmlObjectNode);
+    void otherPropertyChanged(const QmlObjectNode &qmlObjectNode);
+    void updateItem(const QmlObjectNode &qmlObjectNode);
 
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
