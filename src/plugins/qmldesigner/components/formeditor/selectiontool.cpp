@@ -274,7 +274,7 @@ void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
     else if (event->modifiers().testFlag(Qt::ShiftModifier))
         m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
     else
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::ReplaceSelection);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
 
     m_singleSelectionManipulator.end(event->scenePos());
 }
