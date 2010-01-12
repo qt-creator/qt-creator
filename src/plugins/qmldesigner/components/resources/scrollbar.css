@@ -6,10 +6,9 @@
   }
 
   QScrollBar::handle:vertical {
-      background: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0, x3: 0.8, y3: 0,
+      background: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0
                                        stop: 0 #cEcEcE,
-                                       stop: 1 #8E8E8E,
-                                       stop: 2 #101010);
+                                       stop: 1 #8E8E8E);
       min-height: 20px;
       border-radius: 10px;	  
   }
