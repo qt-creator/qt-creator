@@ -152,10 +152,12 @@ void ObjectNodeInstance::setNodeInstance(NodeInstanceView *view)
 
 void ObjectNodeInstance::setId(const QString &id)
 {
+    if (!object()->objectName().isEmpty()) {
+            context()->engine()->rootContext()->setContextProperty(object()->objectName(), 0);
+    }
+
     if (!id.isEmpty()) {
         context()->engine()->rootContext()->setContextProperty(id, object()); // will also force refresh of all bindings
-    } else if (!object()->objectName().isEmpty()) {
-        context()->engine()->rootContext()->setContextProperty(object()->objectName(), 0);
     }
 
     object()->setObjectName(id);
