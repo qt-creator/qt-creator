@@ -12,3 +12,4 @@ SOURCES += tst_lookup.cpp \
     $$EDITOR_DIR/qmllookupcontext.cpp
 
 HEADERS += $$EDITOR_DIR/qmllookupcontext.h
+RESOURCES += testfiles.qrc

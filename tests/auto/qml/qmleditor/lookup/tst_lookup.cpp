@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QtTest>
 #include <QObject>
+#include <QFile>
 
 #include <qml/qmldocument.h>
 #include <qml/parser/qmljsast_p.h>
@@ -26,6 +27,10 @@ public:
 private Q_SLOTS:
     void basicSymbolTest();
     void basicLookupTest();
+    void localIdLookup();
+    void localScriptMethodLookup();
+    void localScopeLookup();
+    void localRootLookup();
 
 protected:
     QmlDocument::Ptr basicSymbolTest(const QString &input) const
@@ -162,6 +167,135 @@ void tst_Lookup::basicLookupTest()
             fontPropFound = true;
     }
     QVERIFY(fontPropFound);
+}
+
+void tst_Lookup::localIdLookup()
+{
+    QFile input(":/data/localIdLookup.qml");
+    QVERIFY(input.open(QIODevice::ReadOnly));
+
+    QmlDocument::Ptr doc = basicSymbolTest(input.readAll());
+    QVERIFY(doc->isParsedCorrectly());
+
+    QStringList symbolNames;
+    symbolNames.append("root");
+    symbolNames.append("parentItem");
+    symbolNames.append("foo");
+    symbolNames.append("child");
+    symbolNames.append("childChild");
+
+    // check symbol existence
+    foreach (const QString &symbolName, symbolNames) {
+        QVERIFY(doc->ids()[symbolName]);
+    }
+
+    // try lookup
+    QStack<QmlSymbol *> scopes;
+    foreach (const QString &contextSymbolName, symbolNames) {
+        scopes.push_back(doc->ids()[contextSymbolName]);
+        QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
+
+        foreach (const QString &lookupSymbolName, symbolNames) {
+            QCOMPARE(context.resolve(lookupSymbolName), doc->ids()[lookupSymbolName]);
+        }
+    }
+}
+
+void tst_Lookup::localScriptMethodLookup()
+{
+    QFile input(":/data/localScriptMethodLookup.qml");
+    QVERIFY(input.open(QIODevice::ReadOnly));
+
+    QmlDocument::Ptr doc = basicSymbolTest(input.readAll());
+    QVERIFY(doc->isParsedCorrectly());
+
+    QStringList symbolNames;
+    symbolNames.append("theRoot");
+    symbolNames.append("theParent");
+    symbolNames.append("theChild");
+
+    QStringList functionNames;
+    functionNames.append("rootFunc");
+    functionNames.append("parentFunc");
+    functionNames.append("childFunc");
+
+    // check symbol existence
+    foreach (const QString &symbolName, symbolNames) {
+        QVERIFY(doc->ids()[symbolName]);
+    }
+
+    // try lookup
+    QStack<QmlSymbol *> scopes;
+    foreach (const QString &contextSymbolName, symbolNames) {
+        scopes.push_back(doc->ids()[contextSymbolName]);
+        QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
+
+        foreach (const QString &functionName, functionNames) {
+            QmlSymbol *symbol = context.resolve(functionName);
+            QVERIFY(symbol && !symbol->isProperty());
+            // verify that it's a function
+        }
+    }
+}
+
+void tst_Lookup::localScopeLookup()
+{
+    QFile input(":/data/localScopeLookup.qml");
+    QVERIFY(input.open(QIODevice::ReadOnly));
+
+    QmlDocument::Ptr doc = basicSymbolTest(input.readAll());
+    QVERIFY(doc->isParsedCorrectly());
+
+    QStringList symbolNames;
+    symbolNames.append("theRoot");
+    symbolNames.append("theParent");
+    symbolNames.append("theChild");
+
+    // check symbol existence
+    foreach (const QString &symbolName, symbolNames) {
+        QVERIFY(doc->ids()[symbolName]);
+    }
+
+    // try lookup
+    QStack<QmlSymbol *> scopes;
+    foreach (const QString &contextSymbolName, symbolNames) {
+        scopes.push_back(doc->ids()[contextSymbolName]);
+        QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
+
+        QmlSymbol *symbol = context.resolve("prop");
+        QVERIFY(symbol);
+        QVERIFY(symbol->isPropertyDefinitionSymbol());
+        QVERIFY(doc->ids()[contextSymbolName]->members().contains(symbol));
+    }
+}
+
+void tst_Lookup::localRootLookup()
+{
+    QFile input(":/data/localRootLookup.qml");
+    QVERIFY(input.open(QIODevice::ReadOnly));
+
+    QmlDocument::Ptr doc = basicSymbolTest(input.readAll());
+    QVERIFY(doc->isParsedCorrectly());
+
+    QStringList symbolNames;
+    symbolNames.append("theRoot");
+    symbolNames.append("theParent");
+    symbolNames.append("theChild");
+
+    // check symbol existence and build scopes
+    QStack<QmlSymbol *> scopes;
+    foreach (const QString &symbolName, symbolNames) {
+        QmlSymbol *symbol = doc->ids()[symbolName];
+        QVERIFY(symbol);
+        scopes.push_back(symbol);
+    }
+
+    // try lookup
+    QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
+    QmlSymbol *symbol = context.resolve("prop");
+    QVERIFY(symbol);
+    QVERIFY(symbol->isPropertyDefinitionSymbol());
+    QVERIFY(doc->ids()[symbolNames[0]]->members().contains(symbol));
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)

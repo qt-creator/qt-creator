@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>data/localIdLookup.qml</file>
+        <file>data/localScriptMethodLookup.qml</file>
+        <file>data/localScopeLookup.qml</file>
+        <file>data/localRootLookup.qml</file>
+    </qresource>
+</RCC>
