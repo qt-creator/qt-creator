@@ -807,7 +807,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
     if (! thisDocument)
         return -1;
 
-    typeOfExpression.setSnapshot(m_manager->snapshot());
+    typeOfExpression.setSnapshot(snapshot);
     Symbol *lastVisibleSymbol = thisDocument->findSymbolAt(line, column);
 
     if (expression.isEmpty()) {
