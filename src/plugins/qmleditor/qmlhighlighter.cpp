@@ -43,6 +43,7 @@ QmlHighlighter::QmlHighlighter(QTextDocument *parent) :
     QSet<QString> qmlKeywords(keywords());
     qmlKeywords << QLatin1String("property");
     qmlKeywords << QLatin1String("signal");
+    qmlKeywords << QLatin1String("readonly");
     m_scanner.setKeywords(qmlKeywords);
 }
 
