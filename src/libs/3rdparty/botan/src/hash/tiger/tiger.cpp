@@ -118,12 +118,12 @@ void Tiger::pass(u64bit& A, u64bit& B, u64bit& C, u64bit X[8], byte mul)
 */
 void Tiger::mix(u64bit X[8])
    {
-   X[0] -= X[7] ^ 0xA5A5A5A5A5A5A5A5; X[1] ^= X[0];
+   X[0] -= X[7] ^ (u64bit) 0xA5A5A5A5A5A5A5A5ULL; X[1] ^= X[0];
    X[2] += X[1]; X[3] -= X[2] ^ ((~X[1]) << 19); X[4] ^= X[3];
    X[5] += X[4]; X[6] -= X[5] ^ ((~X[4]) >> 23); X[7] ^= X[6];
    X[0] += X[7]; X[1] -= X[0] ^ ((~X[7]) << 19); X[2] ^= X[1];
    X[3] += X[2]; X[4] -= X[3] ^ ((~X[2]) >> 23); X[5] ^= X[4];
-   X[6] += X[5]; X[7] -= X[6] ^ 0x0123456789ABCDEF;
+   X[6] += X[5]; X[7] -= X[6] ^ (u64bit) 0x0123456789ABCDEFULL;
    }
 
 /*
@@ -133,9 +133,9 @@ void Tiger::clear() throw()
    {
    MDx_HashFunction::clear();
    X.clear();
-   digest[0] = 0x0123456789ABCDEF;
-   digest[1] = 0xFEDCBA9876543210;
-   digest[2] = 0xF096A5B4C3B2E187;
+   digest[0] = (u64bit) 0x0123456789ABCDEFULL;
+   digest[1] = (u64bit) 0xFEDCBA9876543210ULL;
+   digest[2] = (u64bit) 0xF096A5B4C3B2E187ULL;
    }
 
 /*

@@ -44,7 +44,7 @@ void ubi_512(u64bit H[9], u64bit T[], const byte msg[], u64bit msg_len)
          }
 
       H[8] = H[0] ^ H[1] ^ H[2] ^ H[3] ^
-             H[4] ^ H[5] ^ H[6] ^ H[7] ^ 0x5555555555555555;
+             H[4] ^ H[5] ^ H[6] ^ H[7] ^ (u64bit) 0x5555555555555555ULL;
 
       T[2] = T[0] ^ T[1];
 

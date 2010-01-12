@@ -108,10 +108,10 @@ void GOST_34_11::compress_n(const byte input[], u32bit blocks)
 
          if(j == 1) // C_3
             {
-            U[0] ^= 0x00FF00FF00FF00FF;
-            U[1] ^= 0xFF00FF00FF00FF00;
-            U[2] ^= 0x00FFFF00FF0000FF;
-            U[3] ^= 0xFF000000FFFF00FF;
+            U[0] ^= (u64bit) 0x00FF00FF00FF00FFULL;
+            U[1] ^= (u64bit) 0xFF00FF00FF00FF00ULL;
+            U[2] ^= (u64bit) 0x00FFFF00FF0000FFULL;
+            U[3] ^= (u64bit) 0xFF000000FFFF00FFULL;
             }
 
          // A(A(x))
