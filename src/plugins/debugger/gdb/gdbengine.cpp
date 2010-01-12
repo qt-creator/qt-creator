@@ -3418,8 +3418,12 @@ void GdbEngine::handleDebuggingHelperValue2(const GdbResponse &response)
     // The real dumper might have aborted without giving any answers.
     // Remove traces of the question, too.
     if (m_cookieForToken.contains(response.token - 1)) {
+        m_cookieForToken.remove(response.token - 1);
         debugMessage(_("DETECTING LOST COMMAND %1").arg(response.token - 1));
         --m_pendingRequests;
+        data.setError(WatchData::msgNotInScope());
+        insertData(data);
+        return;
     }
 
     //qDebug() << "CUSTOM VALUE RESULT:" << response.toString();
