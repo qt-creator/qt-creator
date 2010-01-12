@@ -11,8 +11,8 @@ layout: QVBoxLayout {
     leftMargin: 10;
     rightMargin: 10;
 
-    property var effect: backendValues == null || backendValues.effect === undefined ? null : backendValues.effect
-    property var complexNode : effect === null ? null : effect.complexNode
+    property var effect: backendValues.effect
+    property var complexNode: effect.complexNode
 
     QWidget  {
         maximumHeight: 40;
@@ -23,7 +23,7 @@ layout: QVBoxLayout {
              }
              QComboBox {
                  enabled: isBaseState;
-                 property var type: complexNode == null ? null : complexNode.type
+                 property var type: backendValues.effect.complexNode.type
                  property var dirty;
                  id: effectComboBox;
                  items : { [
@@ -35,21 +35,29 @@ layout: QVBoxLayout {
                  ] }
 
                  onCurrentTextChanged: {
+				      
+					  print("currentTextChanged before dirty");
+					  
                       if (dirty) //avoid recursion;
                          return;
-                      if (complexNode != null && complexNode.exists)
-                             complexNode.remove();
+						 
+						 print("currentTextChanged");
+						 
+                      if (backendValues.effect.complexNode.exists)
+                             backendValues.effect.complexNode.remove();
                      if (currentText == "None") {
+					     print("none");
                          ;
-                     } else if (complexNode != null) {
-                         complexNode.add("Qt/" + currentText);
+                     } else if (backendValues.effect.complexNode != null) {
+					     print("add");
+                         backendValues.effect.complexNode.add("Qt/" + currentText);
                      }
                  }
 
                  onTypeChanged: {
                      dirty = true;
-                     if (complexNode != null && complexNode.type != "")
-                         currentText = complexNode.type;
+                     if (backendValues.effect.complexNode.exists)
+                         currentText = backendValues.effect.complexNode.type;
                      else
                          currentText = "None";
                      dirty = false;
@@ -70,7 +78,7 @@ layout: QVBoxLayout {
               topMargin: 12;
               IntEditor {
                 id: blurRadius;
-                backendValue: properties == null ? null : properties.blurRadius;
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : 0;
                 caption: "Blur Radius:"
                 baseStateFlag: isBaseState;
 
@@ -87,7 +95,7 @@ layout: QVBoxLayout {
                 DoubleSpinBox {
                                   id: OpcacityEffectSpinBox;
                                   objectName: "OpcacityEffectSpinBox";
-                                  backendValue: properties == null ? null : properties.opacity;
+                                  backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.opacity : 0;
                                   minimum: 0;
                                   maximum: 1;
 								  singleStep: 0.1;
@@ -122,7 +130,7 @@ layout: QVBoxLayout {
               topMargin: 12;
               IntEditor {
                 id: pixelSize;
-                backendValue: properties == null ? null : properties.pixelSize;
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.pixelSize : 0;
                 caption: "Pixel Size:"
                 baseStateFlag: isBaseState;
 
@@ -140,7 +148,7 @@ layout: QVBoxLayout {
            topMargin: 12;
               IntEditor {
                 id: blurRadiusShadow;
-                backendValue: properties == null ? null : properties.blurRadius;
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : 0
                 caption: "Blur Radius:"
                 baseStateFlag: isBaseState;
 
@@ -164,7 +172,7 @@ layout: QVBoxLayout {
 
               IntEditor {
                 id: xOffset;
-                backendValue: properties == null ? 0 : properties.xOffset;
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.xOffset : 0
                 caption: "x Offset:     "
                 baseStateFlag: isBaseState;
 
@@ -175,7 +183,7 @@ layout: QVBoxLayout {
 
             IntEditor {
                 id: yOffset;
-                backendValue: properties == null ? 0 : properties.yOffset;
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.yOffset : 0
                 caption: "y Offset:     "
                 baseStateFlag: isBaseState;
 

@@ -87,7 +87,7 @@ QScriptIndenter::QScriptIndenter()
       inlineCComment(QRegExp(QLatin1String("/\\*.*\\*/"))),
       braceX(QRegExp(QLatin1String("^\\s*\\}\\s*(?:else|catch)\\b"))),
       iflikeKeyword(QRegExp(QLatin1String("\\b(?:catch|do|for|if|while|with)\\b"))),
-      propertylikeKeyword(QRegExp(QLatin1String("^\\s*\\b(?:property|signal|import)\\b")))
+      propertylikeKeyword(QRegExp(QLatin1String("^\\s*\\b(?:property|signal|import|readonly|return)\\b")))
 {
 
     /*
@@ -278,13 +278,14 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t) const
 
     const QString e = trimmed.trimmed();
 
-    if (insertSemicolon
-        || e.endsWith(QLatin1Char(','))
-        || e.endsWith(QLatin1Char(']'))
-        || trimmed.indexOf(propertylikeKeyword) != -1)
+    if (insertSemicolon || e.endsWith(QLatin1Char(',')) || e.endsWith(QLatin1Char(']')))
         trimmed.append(QLatin1Char(';'));
-
-    //qDebug() << trimmed;
+    else if (trimmed.indexOf(propertylikeKeyword) != -1) {
+        const QChar ch = trimmed.at(trimmed.length() - 1);
+        if (ch.isLetterOrNumber() || ch == QLatin1Char(')') || ch == QLatin1Char(']')
+            || ch == QLatin1Char('"') || ch == QLatin1Char('\''))
+        trimmed.append(QLatin1Char(';'));
+    }
 
     return trimmed;
 }

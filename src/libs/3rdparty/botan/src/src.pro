@@ -242,42 +242,44 @@ win32 {
 }
 
 unix {
-    HEADERS += botan/curve_gfp.h \
-        build.kh/botan/cvc_ado.h \
-        build.kh/botan/cvc_ca.h \
-        build.kh/botan/cvc_cert.h \
-        build.kh/botan/cvc_gen_cert.h \
-        build.kh/botan/cvc_key.h \
-        build.kh/botan/cvc_req.h \
-        build.kh/botan/cvc_self.h \
-        build.kh/botan/eac_asn_obj.h \
-        build.kh/botan/eac_obj.h \
-        build.kh/botan/ecc_key.h \
-        build.kh/botan/ec_dompar.h \
-        build.kh/botan/ecdsa_core.h \
-        build.kh/botan/ecdsa.h \
-        build.kh/botan/ecdsa_op.h \
-        build.kh/botan/ecdsa_sig.h \
-        build.kh/botan/eckaeg_core.h \
-        build.kh/botan/eckaeg.h \
-        build.kh/botan/eckaeg_op.h \
-        build.kh/botan/es_dev.h \
-        build.kh/botan/es_egd.h \
-        build.kh/botan/es_ftw.h \
-        build.kh/botan/es_unix.h \
-        build.kh/botan/fd_unix.h \
-        build.kh/botan/freestore.h \
-        build.kh/botan/gfp_element.h \
-        build.kh/botan/gfp_modulus.h \
-        build.kh/botan/mmap_mem.h \
-        build.kh/botan/mux_pthr.h \
-        build.kh/botan/point_gfp.h \
-        build.kh/botan/signed_obj.h \
-        build.kh/botan/tm_posix.h \
-        build.kh/botan/tm_unix.h \
-        build.kh/botan/unix_cmd.h
+    HEADERS += alloc/alloc_mmap/mmap_mem.h \
+           cert/cvc/cvc_ado.h \
+           cert/cvc/cvc_ca.h \
+           cert/cvc/cvc_cert.h \
+           cert/cvc/cvc_gen_cert.h \
+           cert/cvc/cvc_key.h \
+           cert/cvc/cvc_req.h \
+           cert/cvc/cvc_self.h \
+           cert/cvc/eac_asn_obj.h \
+           cert/cvc/eac_obj.h \
+           cert/cvc/ecdsa_sig.h \
+           cert/cvc/freestore.h \
+           cert/cvc/signed_obj.h \
+           entropy/dev_random/es_dev.h \
+           entropy/egd/es_egd.h \
+           entropy/proc_walk/es_ftw.h \
+           entropy/unix_procs/es_unix.h \
+           entropy/unix_procs/unix_cmd.h \
+           filters/fd_unix/fd_unix.h \
+           math/gfpmath/curve_gfp.h \
+           math/gfpmath/gfp_element.h \
+           math/gfpmath/gfp_modulus.h \
+           math/gfpmath/point_gfp.h \
+           mutex/pthreads/mux_pthr.h \
+           pubkey/ec_dompar/ec_dompar.h \
+           pubkey/ecc_key/ecc_key.h \
+           pubkey/ecdsa/ecdsa.h \
+           pubkey/ecdsa/ecdsa_core.h \
+           pubkey/ecdsa/ecdsa_op.h \
+           pubkey/eckaeg/eckaeg.h \
+           pubkey/eckaeg/eckaeg_core.h \
+           pubkey/eckaeg/eckaeg_op.h \
+           timer/gettimeofday/tm_unix.h
 }
 
+linux*-g++* {
+    HEADERS += timer/posix_rt/tm_posix.h
+}
 
 SOURCES += algo_factory/algo_factory.cpp \
         algo_factory/prov_weight.cpp \
@@ -527,7 +529,7 @@ SOURCES += entropy/cryptoapi_rng/es_capi.cpp \
 }
 
 unix {
-SOURCES += alloc/alloc_mmap/mmap_mem.cpp \
+    SOURCES += alloc/alloc_mmap/mmap_mem.cpp \
            cert/cvc/asn1_eac_str.cpp \
            cert/cvc/asn1_eac_tm.cpp \
            cert/cvc/cvc_ado.cpp \
@@ -560,15 +562,5 @@ SOURCES += alloc/alloc_mmap/mmap_mem.cpp \
 }
 
 linux*-g++* {
-SOURCES += \
-# block/serpent_ia32/serp_ia32.cpp \
-#           block/serpent_ia32/serp_ia32_imp.S \
-#           engine/ia32_eng/eng_ia32.cpp \
-#           hash/md4_ia32/md4_ia32.cpp \
-#           hash/md4_ia32/md4_ia32_imp.S \
-#           hash/md5_ia32/md5_ia32.cpp \
-#           hash/md5_ia32/md5_ia32_imp.S \
-#           hash/sha1_ia32/sha1_ia32.cpp \
-#           hash/sha1_ia32/sha1_ia32_imp.S \
-           timer/posix_rt/tm_posix.cpp
+    SOURCES += timer/posix_rt/tm_posix.cpp
 }

@@ -210,8 +210,13 @@ bool QMakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
 
 void QMakeStep::setUserArguments(const QStringList &arguments)
 {
+    if (m_userArgs == arguments)
+        return;
     m_userArgs = arguments;
+
     emit userArgumentsChanged();
+
+    qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
 }
 
 QStringList QMakeStep::userArguments()

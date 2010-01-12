@@ -37,6 +37,8 @@
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
 
+#include <qscripthighlighter/qscriptindenter.h>
+
 #include <qml/metatype/qmltypesystem.h>
 #include <qml/parser/qmljsastvisitor_p.h>
 #include <qml/parser/qmljsast_p.h>
@@ -73,6 +75,27 @@ using namespace Qml;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace SharedTools;
+
+namespace {
+int blockBraceDepth(const QTextBlock &block)
+{
+    int state = block.userState();
+    if (state == -1)
+        return 0;
+
+    return (state >> 8) & 0xFF;
+}
+
+int blockStartState(const QTextBlock &block)
+{
+    int state = block.userState();
+
+    if (state == -1)
+        return 0;
+    else
+        return state & 0xff;
+}
+} // end of anonymous namespace
 
 namespace QmlEditor {
 namespace Internal {
@@ -548,65 +571,14 @@ bool QmlTextEditor::isClosingBrace(const QList<QScriptIncrementalScanner::Token>
     return false;
 }
 
-static int blockBraceDepth(const QTextBlock &block)
-{
-    int state = block.userState();
-    if (state == -1)
-        return 0;
-
-    return (state >> 8) & 0xFF;
-}
-
-static int blockStartState(const QTextBlock &block)
-{
-    int state = block.userState();
-
-    if (state == -1)
-        return 0;
-    else
-        return state & 0xff;
-}
-
-void QmlTextEditor::indentBlock(QTextDocument *, QTextBlock block, QChar /*typedChar*/)
+void QmlTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
     TextEditor::TabSettings ts = tabSettings();
+    SharedTools::QScriptIndenter indenter;
+    indenter.setTabSize(ts.m_tabSize);
+    indenter.setIndentSize(ts.m_indentSize);
 
-    QTextCursor tc(block);
-
-    const QString blockText = block.text();
-    int startState = blockStartState(block.previous());
-
-    QScriptIncrementalScanner scanner;
-    const QList<QScriptIncrementalScanner::Token> tokens = scanner(blockText, startState);
-
-    if (! tokens.isEmpty()) {
-        const QScriptIncrementalScanner::Token tk = tokens.first();
-
-        if (tk.is(QScriptIncrementalScanner::Token::RightBrace)
-                || tk.is(QScriptIncrementalScanner::Token::RightBracket)) {
-            if (TextEditor::TextBlockUserData::findPreviousBlockOpenParenthesis(&tc)) {
-                const QString text = tc.block().text();
-                int indent = ts.columnAt(text, ts.firstNonSpace(text));
-                ts.indentLine(block, indent);
-                return;
-            }
-        }
-    }
-
-    int initialIndent = 0;
-    for (QTextBlock it = block.previous(); it.isValid(); it = it.previous()) {
-        const QString text = it.text();
-
-        if (! text.isEmpty()) {
-            initialIndent = ts.columnAt(text, ts.firstNonSpace(text));
-            break;
-        }
-    }
-
-    const int braceDepth = blockBraceDepth(block.previous());
-    const int previousBraceDepth = blockBraceDepth(block.previous().previous());
-    const int delta = qMax(0, braceDepth - previousBraceDepth);
-    int indent = initialIndent + (delta * ts.m_indentSize);
+    const int indent = indenter.indentForBottomLine(doc->begin(), block.next(), typedChar);
     ts.indentLine(block, indent);
 }
 
