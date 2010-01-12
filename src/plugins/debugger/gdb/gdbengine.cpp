@@ -822,7 +822,6 @@ int GdbEngine::commandTimeoutTime() const
 
 void GdbEngine::commandTimeout()
 {
-    qDebug("TIMEOUT");
     QList<int> keys = m_cookieForToken.keys();
     qSort(keys);
     bool killIt = false;
