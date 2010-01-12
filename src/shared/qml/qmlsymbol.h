@@ -69,6 +69,7 @@ public:
     virtual QmlBuildInSymbol *asBuildInSymbol();
 
     virtual QmlBuildInSymbol *type() const = 0;
+    using QmlSymbol::members;
     virtual List members(bool includeBaseClassMembers) = 0;
 };
 
