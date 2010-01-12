@@ -837,10 +837,10 @@ void GdbEngine::commandTimeout()
         int timeOut = m_commandTimer->interval();
         //m_commandTimer->stop();
         const QString msg = tr("The gdb process has not responded "
-            "to a command within %n seconds. This could mean it is stuck "
+            "to a command within %1 seconds. This could mean it is stuck "
             "in an endless loop or taking longer than expected to perform "
             "the operation.\nYou can choose between waiting "
-            "longer or abort debugging.", 0, timeOut);
+            "longer or abort debugging.").arg(timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
             tr("Gdb not responding"), msg, 
             QMessageBox::Ok | QMessageBox::Cancel);
