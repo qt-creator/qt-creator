@@ -855,7 +855,7 @@ void GdbEngine::commandTimeout()
             "to a command within %1 seconds. This may been it is stuck "
             "in an endless loop or taking longer than expected to perform "
             "the operation it was reqested.\nYou have a choice of waiting "
-            "longer or abort debugging.").arg(timeOut);
+            "longer or abort debugging.").arg(timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
             tr("Gdb not responding"), msg, 
             QMessageBox::Ok | QMessageBox::Cancel);
