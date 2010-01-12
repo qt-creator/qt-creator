@@ -10,13 +10,11 @@ HEADERS += \
         profileevaluator.h \
         proitems.h \
         prowriter.h \
-        proxml.h \
         $$PWD/../namespace_global.h
 
 SOURCES += \
         profileevaluator.cpp \
         proitems.cpp \
-        prowriter.cpp \
-        proxml.cpp
+        prowriter.cpp
 
 RESOURCES += proparser.qrc
