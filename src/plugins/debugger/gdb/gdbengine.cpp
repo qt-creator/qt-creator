@@ -4123,7 +4123,7 @@ void GdbEngine::tryLoadDebuggingHelpers()
     if (startParameters().startMode == StartRemote)
         dlopenLib = startParameters().remoteDumperLib.toLocal8Bit();
     else
-        manager()->qtDumperLibraryName().toLocal8Bit();
+        dlopenLib = manager()->qtDumperLibraryName().toLocal8Bit();
 #if defined(Q_OS_WIN)
     if (m_dumperInjectionLoad) {
         /// Launch asynchronous remote thread to load.
