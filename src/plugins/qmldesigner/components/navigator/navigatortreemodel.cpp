@@ -138,8 +138,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
     QByteArray encodedData = data->data("application/vnd.modelnode.list");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
 
-    uint nodeHash = parentIdIndex.data(Qt::UserRole).toUInt();
-    QmlItemNode parentItemNode(nodeForHash(nodeHash));
+    QmlItemNode parentItemNode(nodeForIndex(parentIdIndex));
 
     QList<ModelNode> nodeList;
 
@@ -147,8 +146,8 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         uint nodeHash;
         stream >> nodeHash;
         ModelNode node(nodeForHash(nodeHash));
-        if (!node.isValid() || node.isAncestorOf(parentItemNode))
-            return false;
+        if (!node.isValid() || (parentItemNode == node) || node.isAncestorOf(parentItemNode))
+            continue;
         nodeList.append(node);
     }
 
