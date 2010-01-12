@@ -66,6 +66,7 @@ private slots:
     void testModelNodeListProperty();
     void testModelPropertyValueTypes();
     void testModelNodeInHierarchy();
+    void testModelNodeIsAncestorOf();
 
     //
     // unit tests MetaInfo, NodeMetaInfo, PropertyMetaInfo
