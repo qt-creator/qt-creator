@@ -178,11 +178,11 @@ void tst_Lookup::localIdLookup()
     QVERIFY(doc->isParsedCorrectly());
 
     QStringList symbolNames;
-    symbolNames.append("root");
-    symbolNames.append("parentItem");
-    symbolNames.append("foo");
-    symbolNames.append("child");
-    symbolNames.append("childChild");
+    symbolNames.append("x");
+    symbolNames.append("y");
+    symbolNames.append("z");
+    symbolNames.append("opacity");
+    symbolNames.append("visible");
 
     // check symbol existence
     foreach (const QString &symbolName, symbolNames) {
@@ -215,9 +215,9 @@ void tst_Lookup::localScriptMethodLookup()
     symbolNames.append("theChild");
 
     QStringList functionNames;
-    functionNames.append("rootFunc");
-    functionNames.append("parentFunc");
-    functionNames.append("childFunc");
+    functionNames.append("x");
+    functionNames.append("y");
+    functionNames.append("z");
 
     // check symbol existence
     foreach (const QString &symbolName, symbolNames) {
@@ -232,7 +232,8 @@ void tst_Lookup::localScriptMethodLookup()
 
         foreach (const QString &functionName, functionNames) {
             QmlSymbol *symbol = context.resolve(functionName);
-            QVERIFY(symbol && !symbol->isProperty());
+            QVERIFY(symbol);
+            QVERIFY(!symbol->isProperty());
             // verify that it's a function
         }
     }
@@ -262,9 +263,15 @@ void tst_Lookup::localScopeLookup()
         scopes.push_back(doc->ids()[contextSymbolName]);
         QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
 
-        QmlSymbol *symbol = context.resolve("prop");
+        QmlSymbol *symbol;
+        symbol = context.resolve("prop");
         QVERIFY(symbol);
         QVERIFY(symbol->isPropertyDefinitionSymbol());
+        QVERIFY(doc->ids()[contextSymbolName]->members().contains(symbol));
+
+        symbol = context.resolve("x");
+        QVERIFY(symbol);
+        QVERIFY(symbol->isProperty());
         QVERIFY(doc->ids()[contextSymbolName]->members().contains(symbol));
     }
 }
@@ -292,9 +299,16 @@ void tst_Lookup::localRootLookup()
 
     // try lookup
     QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
-    QmlSymbol *symbol = context.resolve("prop");
+    
+    QmlSymbol *symbol;
+    symbol = context.resolve("prop");
     QVERIFY(symbol);
     QVERIFY(symbol->isPropertyDefinitionSymbol());
+    QVERIFY(doc->ids()[symbolNames[0]]->members().contains(symbol));
+
+    symbol = context.resolve("color");
+    QVERIFY(symbol);
+    QVERIFY(symbol->isProperty());
     QVERIFY(doc->ids()[symbolNames[0]]->members().contains(symbol));
 }
 

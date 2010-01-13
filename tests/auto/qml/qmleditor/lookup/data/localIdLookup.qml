@@ -1,45 +1,45 @@
 import Qt 4.6
 
-// Try to look up root, parentItem, foo, child and childChild
+// Try to look up x, y, z, opacity and visible
 // in all symbol contexts. It should always get the right item.
 
 Item {
-    id: root
+    id: x
     Script { 
-      function root() {}
-      function parentItem() {}
-      function foo() {}
-      function child() {}
-      function childChild() {}
+      function x() {}
+      function y() {}
+      function z() {}
+      function opacity() {}
+      function visible() {}
     }
-    property var root: "wrong";
-    property var parentItem: "wrong";
-    property var foo: "wrong";
-    property var child: "wrong";
-    property var childChild: "wrong";
+    property var x: "wrong";
+    property var y: "wrong";
+    property var z: "wrong";
+    property var opacity: "wrong";
+    property var visible: "wrong";
     Item {
-        id: parentItem
-        property var root: "wrong";
-        property var parentItem: "wrong";
-        property var foo: "wrong";
-        property var child: "wrong";
-        property var childChild: "wrong";
+        id: y
+        property var x: "wrong";
+        property var y: "wrong";
+        property var z: "wrong";
+        property var opacity: "wrong";
+        property var visible: "wrong";
         Item {
-            id: foo
-            property var root: "wrong";
-            property var parentItem: "wrong";
-            property var foo: "wrong";
-            property var child: "wrong";
-            property var childChild: "wrong";
+            id: z
+            property var x: "wrong";
+            property var y: "wrong";
+            property var z: "wrong";
+            property var opacity: "wrong";
+            property var visible: "wrong";
             Item {
-                id: child
-                property var root: "wrong";
-                property var parentItem: "wrong";
-                property var foo: "wrong";
-                property var child: "wrong";
-                property var childChild: "wrong";
+                id: opacity
+                property var x: "wrong";
+                property var y: "wrong";
+                property var z: "wrong";
+                property var opacity: "wrong";
+                property var visible: "wrong";
                 Item {
-                    id: childChild
+                    id: visible
                 }
             }
         }
