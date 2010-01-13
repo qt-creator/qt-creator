@@ -385,7 +385,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+I")));
     advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
     connect(m_d->m_openInExternalEditorAction, SIGNAL(triggered()), this, SLOT(openInExternalEditor()));
-    
+
     // Connect to VariableManager for CURRENT_DOCUMENT variable setting
     VariableManager *vm = VariableManager::instance();
     connect(this, SIGNAL(currentEditorChanged(Core::IEditor *)),
@@ -1079,48 +1079,40 @@ QString EditorManager::getOpenWithEditorKind(const QString &fileName,
 static QString formatFileFilters(const Core::ICore *core, QString *selectedFilter)
 {
     QString rc;
-    // Compile list of filter strings. If we find a glob  matching all files,
-    // put it last and set it as default selectedFilter.
+
+    // Compile list of filter strings
     QStringList filters = core->mimeDatabase()->filterStrings();
     filters.sort();
     selectedFilter->clear();
     if (filters.empty())
         return rc;
+
     const QString filterSeparator = QLatin1String(";;");
-    bool hasAllFilter = false;
-    const int size = filters.size();
-    for (int i = 0; i < size; i++) {
-        const QString &filterString = filters.at(i);
-        if (filterString.isEmpty()) { // binary editor
-            hasAllFilter = true;
-        } else {
-            if (!rc.isEmpty())
-                rc += filterSeparator;
-            rc += filterString;
-        }
-    }
-    if (hasAllFilter) {
-        // prepend all files filter
-        // prepending instead of appending to work around a but in Qt/Mac
-        QString allFilesFilter = EditorManager::tr("All Files (*)");
+    foreach (const QString &filterString, filters) {
         if (!rc.isEmpty())
-            allFilesFilter += filterSeparator;
-        rc.prepend(allFilesFilter);
-        *selectedFilter = allFilesFilter;
-    } else {
-        *selectedFilter = filters.front();
+            rc += filterSeparator;
+        rc += filterString;
     }
+
+    // prepend all files filter
+    // prepending instead of appending to work around a bug in Qt/Mac
+    QString allFilesFilter = EditorManager::tr("All Files (*)");
+    if (!rc.isEmpty())
+        allFilesFilter += filterSeparator;
+    rc.prepend(allFilesFilter);
+    *selectedFilter = allFilesFilter;
+
     return rc;
 }
 
 IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorKind,
-                                   EditorManager::OpenEditorFlags flags)
+                                   OpenEditorFlags flags)
 {
     return openEditor(0, fileName, editorKind, flags);
 }
 
 IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
-                        const QString &editorKind, EditorManager::OpenEditorFlags flags)
+                        const QString &editorKind, OpenEditorFlags flags)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << fileName << editorKind;
