@@ -24,7 +24,7 @@ Ne7ssh_Mutex::Ne7ssh_Mutex()
     pthread_mutexattr_t mattr;
 
     pthread_mutexattr_init (&mattr);
-    pthread_mutexattr_settype (&mattr, PTHREAD_MUTEX_ERRORCHECK_NP);
+    pthread_mutexattr_settype (&mattr, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init (&mutint, &mattr);
     pthread_mutexattr_destroy (&mattr);
 #endif

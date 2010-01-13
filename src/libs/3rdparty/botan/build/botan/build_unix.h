@@ -172,7 +172,9 @@
 #define BOTAN_HAS_TEA
 #define BOTAN_HAS_TIGER
 #define BOTAN_HAS_TIMER
+#ifndef Q_OS_MAC
 #define BOTAN_HAS_TIMER_POSIX
+#endif
 #define BOTAN_HAS_TIMER_UNIX
 #define BOTAN_HAS_TLS_V10_PRF
 #define BOTAN_HAS_TURING
