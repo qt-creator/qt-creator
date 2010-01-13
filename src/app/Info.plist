@@ -32,7 +32,35 @@
 			<key>LSHandlerRank</key>
 			<string>Default</string>
 		</dict>
-		<dict>
+                <dict>
+                        <key>CFBundleTypeRole</key>
+                        <string>Editor</string>
+                        <key>CFBundleTypeIconFile</key>
+                        <string>profile.icns</string>
+                        <key>CFBundleTypeExtensions</key>
+                        <array>
+                                <string>creator</string>
+                        </array>
+                        <key>CFBundleTypeName</key>
+                        <string>Qt Creator Makefile Based Project File</string>
+                        <key>LSHandlerRank</key>
+                        <string>Default</string>
+                </dict>
+                <dict>
+                        <key>CFBundleTypeRole</key>
+                        <string>Editor</string>
+                        <key>CFBundleTypeIconFile</key>
+                        <string>profile.icns</string>
+                        <key>CFBundleTypeExtensions</key>
+                        <array>
+                                <string>qmlproject</string>
+                        </array>
+                        <key>CFBundleTypeName</key>
+                        <string>QML Project File</string>
+                        <key>LSHandlerRank</key>
+                        <string>Default</string>
+                </dict>
+                <dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleTypeExtensions</key>

@@ -32,4 +32,4 @@ win32 {
     INSTALLS    += target
 }
 
-OTHER_FILES += qtcreator.rc
+OTHER_FILES += qtcreator.rc Info.plist
