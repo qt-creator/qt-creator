@@ -87,6 +87,8 @@ QString winErrorMessage(unsigned long error)
 
 #endif
 
+enum { verboseTrk = 0 };
+
 namespace trk {
 
 ///////////////////////////////////////////////////////////////////////
@@ -114,6 +116,12 @@ TrkMessage::TrkMessage(byte c, byte t, TrkCallback cb) :
     token(t),
     callback(cb)
 {
+}
+
+QDebug operator<<(QDebug d, const TrkMessage &msg)
+{
+    return d << "Message: Code: " << msg.code
+        << " Token: " << msg.token << " " << msg.data.toHex();
 }
 
 } // namespace trk
@@ -192,6 +200,8 @@ byte TrkWriteQueue::nextTrkWriteToken()
     ++m_trkWriteToken;
     if (m_trkWriteToken == 0)
         ++m_trkWriteToken;
+    if (verboseTrk)
+        qDebug() << "Write token: " << m_trkWriteToken;
     return m_trkWriteToken;
 }
 
@@ -393,10 +403,13 @@ int WriterThread::writePendingMessage()
     TrkMessage message;
     const TrkWriteQueue::PendingMessageResult pr = m_queue.pendingMessage(&message);
     m_dataMutex.unlock();
+
+
     switch (pr) {
     case TrkWriteQueue::NoMessage:
         break;
     case TrkWriteQueue::PendingMessage: {
+            //qDebug() << "Write pending message " << message;
             // Untested: try to re-send a few times
             bool success = false;
             for (int r = 0; !success && (r < MaxAttempts); r++) {
@@ -416,6 +429,8 @@ int WriterThread::writePendingMessage()
         break;
     case TrkWriteQueue::NoopMessageDequeued:
         // Sync with thread that owns us via a blocking signal
+        if (verboseTrk)
+            qDebug() << "Noop message dequeued" << message;
         emit internalNoopMessageDequeued(message);
         break;
     } // switch
@@ -487,6 +502,8 @@ static inline bool overlappedSyncWrite(HANDLE file,
 
 bool WriterThread::write(const QByteArray &data, QString *errorMessage)
 {
+    if (verboseTrk)
+        qDebug() << "Write raw data: " << data.toHex();
     QMutexLocker locker(&m_context->mutex);
 #ifdef Q_OS_WIN
     DWORD charsWritten;
@@ -823,7 +840,8 @@ void UnixReaderThread::terminate()
 {
     // Trigger select() by writing to the pipe
     char c = 0;
-    write(m_terminatePipeFileDescriptors[1], &c, 1);
+    int written = write(m_terminatePipeFileDescriptors[1], &c, 1);
+    // FIXME: Use result.
     wait();
 }
 
@@ -1009,6 +1027,8 @@ void TrkDevice::setVerbose(int b)
 void TrkDevice::slotMessageReceived(const trk::TrkResult &result, const QByteArray &rawData)
 {
     d->writerThread->slotHandleResult(result);
+    if (d->verbose)
+        qDebug() << "Received: " << result.toString();
     emit messageReceived(result);    
     if (!rawData.isEmpty())
         emit rawDataReceived(rawData);
@@ -1045,6 +1065,8 @@ bool TrkDevice::sendTrkAck(byte token)
     TrkMessage msg(0x80, token);
     msg.token = token;
     msg.data.append('\0');
+    if (verboseTrk)
+        qDebug() << "Write synchroneous message: " << msg;
     return d->writerThread->trkWriteRawMessage(msg);
     // 01 90 00 07 7e 80 01 00 7d 5e 7e
 }
