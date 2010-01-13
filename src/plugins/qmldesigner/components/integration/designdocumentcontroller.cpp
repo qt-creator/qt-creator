@@ -332,10 +332,10 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 
     //m_d->masterModel = Model::create(m_d->textModifier, m_d->searchPath, errors);
 
-    m_d->masterModel = Model::create("Item", 4, 6);
+    m_d->masterModel = Model::create("Qt/Rectangle", 4, 6);
     m_d->masterModel->setFileUrl(m_d->searchPath);
 
-    m_d->subComponentModel = Model::create("Item", 4, 6);
+    m_d->subComponentModel = Model::create("Qt/Rectangle", 4, 6);
     m_d->subComponentModel->setFileUrl(m_d->searchPath);
 
     m_d->subComponentManager = new SubComponentManager(m_d->masterModel->metaInfo(), this);
@@ -354,13 +354,9 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     m_d->masterModel->attachView(m_d->viewLogger.data());
 #endif
 
-    // m_d->masterModel->detachView(m_d->rewriterView.data());
+    loadCurrentModel();
 
-    QList<RewriterView::Error> errors = m_d->rewriterView->errors();
-    if (errors.isEmpty())
-        loadCurrentModel();
-
-    return errors;
+    return m_d->rewriterView->errors();
 }
 
 void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNode)

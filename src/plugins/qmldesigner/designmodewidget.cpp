@@ -356,6 +356,9 @@ void DocumentWidget::disable(const QList<RewriterView::Error> &errors)
 
 void DocumentWidget::updateErrorStatus(const QList<RewriterView::Error> &errors)
 {
+    if (debug)
+        qDebug() << Q_FUNC_INFO << errors.count();
+
     if (m_isDisabled && errors.isEmpty()) {
         enable();
     } else if (!errors.isEmpty()) {
@@ -526,7 +529,6 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
     if (textEdit && textEditor && fileName.endsWith(".qml")) {
         if (m_documentHash.contains(textEdit)) {
             documentWidget = m_documentHash.value(textEdit);
-            documentWidget->setAutoSynchronization(true);
         } else {
             DesignDocumentController *newDocument = new DesignDocumentController(0);
             newDocument->setFileName(fileName);
@@ -659,6 +661,10 @@ void DesignModeWidget::setCurrentDocumentWidget(DocumentWidget *newDocumentWidge
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << newDocumentWidget;
+
+    if (m_currentDocumentWidget == newDocumentWidget)
+        return;
+
     if (m_currentDocumentWidget) {
         m_currentDocumentWidget->setAutoSynchronization(false);
         m_currentDocumentWidget->saveSettings();
