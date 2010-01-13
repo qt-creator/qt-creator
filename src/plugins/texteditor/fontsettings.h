@@ -100,7 +100,7 @@ public:
     static int defaultFontSize();
 
 private:
-    static QString defaultSchemeFileName();
+    static QString defaultSchemeFileName(const QString &fileName = QString());
 
     QString m_family;
     QString m_schemeFileName;
