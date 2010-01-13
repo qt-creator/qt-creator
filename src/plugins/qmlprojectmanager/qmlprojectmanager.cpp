@@ -40,6 +40,7 @@
 
 #include <QtDebug>
 
+using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
 
 Manager::Manager()
