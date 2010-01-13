@@ -1052,6 +1052,8 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         }
         case 0x90: { // Notified Stopped
             // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
+            debugMessage(_("RESET SNAPSHOT (NOTIFY STOPPED)"));
+            m_snapshot.reset();
             const char *data = result.data.data();
             const uint addr = extractInt(data);
             const uint pid = extractInt(data + 4);
@@ -1077,11 +1079,15 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             break;
         }
         case 0x91: { // Notify Exception (obsolete)
+            debugMessage(_("RESET SNAPSHOT (NOTIFY EXCEPTION)"));
+            m_snapshot.reset();
             logMessage(prefix + "NOTE: EXCEPTION  " + str);
             sendTrkAck(result.token);
             break;
         }
         case 0x92: { //
+            debugMessage(_("RESET SNAPSHOT (NOTIFY INTERNAL ERROR)"));
+            m_snapshot.reset();
             logMessage(prefix + "NOTE: INTERNAL ERROR: " + str);
             sendTrkAck(result.token);
             break;
@@ -1089,6 +1095,8 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 
         // target->host OS notification
         case 0xa0: { // Notify Created
+            debugMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
+            m_snapshot.reset();
             const char *data = result.data.data();
             const byte error = result.data.at(0);
             // type: 1 byte; for dll item, this value is 2.
@@ -1465,6 +1473,7 @@ void TrkGdbAdapter::reportReadMemoryBuffered(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 {
+    debugMessage(_("RESET SNAPSHOT"));
     m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto");
@@ -1505,6 +1514,7 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepOver(const TrkResult &result)
 {
+    debugMessage(_("RESET SNAPSHOT"));
     m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + "in handleStepOver");
@@ -1724,9 +1734,11 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     m_session.tid = extractInt(data + 5);
     m_session.codeseg = extractInt(data + 9);
     m_session.dataseg = extractInt(data + 13);
-    const QString startMsg = tr("Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.")
-                             .arg(m_session.pid, 0, 16).arg(m_session.tid, 0, 16)
-                             .arg(m_session.codeseg, 0, 16).arg(m_session.dataseg, 0, 16);
+    const QString startMsg =
+        tr("Process started, PID: 0x%1, thread id: 0x%2, "
+           "code segment: 0x%3, data segment: 0x%4.")
+             .arg(m_session.pid, 0, 16).arg(m_session.tid, 0, 16)
+             .arg(m_session.codeseg, 0, 16).arg(m_session.dataseg, 0, 16);
 
     logMessage(startMsg);
 
