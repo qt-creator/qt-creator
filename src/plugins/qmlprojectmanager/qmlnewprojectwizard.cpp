@@ -29,6 +29,8 @@
 
 #include "qmlnewprojectwizard.h"
 
+#include "qmlprojectconstants.h"
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -62,8 +64,9 @@ Core::BaseFileWizardParameters QmlNewProjectWizard::parameters()
     parameters.setDisplayName(tr("QML Application"));
     parameters.setId(QLatin1String("QA.QML Application"));
     parameters.setDescription(tr("Creates a QML application."));
-    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
+                                                              Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;
 }
 

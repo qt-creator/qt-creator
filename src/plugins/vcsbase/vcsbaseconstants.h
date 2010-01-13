@@ -41,7 +41,7 @@ const char * const VCS_COMMON_SETTINGS_ID = "A.Common";
 const char * const VCS_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("VCSBase", "Common");
 
 const char * const VCS_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("VCSBase", "Version Control");
-const char * const VCS_WIZARD_CATEGORY = "Z.Version Control";
+const char * const VCS_WIZARD_CATEGORY = "L.Version Control";
 
 // Ids for sort order (wizards and preferences)
 const char * const VCS_ID_GIT = "G.Git";

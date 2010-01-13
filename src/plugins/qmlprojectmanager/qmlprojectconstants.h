@@ -52,6 +52,11 @@ const char *const FILES_MIMETYPE     = QMLMIMETYPE;
 
 const char *const TASK_CATEGORY_QML = "Task.Category.Qml";
 
+// Wizard category
+const char * const QML_WIZARD_CATEGORY = "F.Projects"; // (after Qt)
+const char * const QML_WIZARD_TR_SCOPE = "QmlProjectManager";
+const char * const QML_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("QmlProjectManager", "QML Project");
+
 } // namespace Constants
 } // namespace QmlProjectManager
 

@@ -56,6 +56,9 @@ class QtWizard : public Core::BaseFileWizard
 
 protected:
     QtWizard(const QString &id,
+             const QString &category,
+             const QString &categoryTranslationScope,
+             const QString &displayCategory,
              const QString &name,
              const QString &description,
              const QIcon &icon);

@@ -29,7 +29,9 @@
 
 #include "testwizard.h"
 #include "testwizarddialog.h"
+
 #include <cpptools/cppmodelmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -42,9 +44,12 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 TestWizard::TestWizard() :
-    QtWizard(QLatin1String("E.Qt4Test"),
-             tr("Qt4 Unit Test"),
-             tr("Creates a Qt4 Unit Test."),
+    QtWizard(QLatin1String("L.Qt4Test"),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
+             tr("Qt Unit Test"),
+             tr("Creates a Qt Unit Test."),
              QIcon(QLatin1String(":/wizards/images/console.png")))
 {
 }

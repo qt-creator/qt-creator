@@ -72,10 +72,13 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 GuiAppWizard::GuiAppWizard()
-  : QtWizard(QLatin1String("C.Qt4Gui"),
-             tr("Qt4 Gui Application"),
-             tr("Creates a Qt4 Gui Application with one form."),
-             QIcon(QLatin1String(":/wizards/images/gui.png")))
+    : QtWizard(QLatin1String("C.Qt4Gui"),
+               QLatin1String(Constants::QT_APP_WIZARD_CATEGORY),
+               QLatin1String(Constants::QT_APP_WIZARD_TR_SCOPE),
+               QLatin1String(Constants::QT_APP_WIZARD_TR_CATEGORY),
+               tr("Qt Gui Application"),
+               tr("Creates a Qt Gui Application with one form."),
+               QIcon(QLatin1String(":/wizards/images/gui.png")))
 {
 }
 

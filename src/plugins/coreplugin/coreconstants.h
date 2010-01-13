@@ -220,7 +220,7 @@ const char * const ICON_RESET            = ":/core/images/reset.png";
 const char * const ICON_MAGNIFIER        = ":/core/images/magnifier.png";
 const char * const ICON_TOGGLE_SIDEBAR   = ":/core/images/sidebaricon.png";
 
-const char * const WIZARD_CATEGORY_QT = "M.Qt";
+const char * const WIZARD_CATEGORY_QT = "R.Qt";
 const char * const WIZARD_TR_CATEGORY_QT = QT_TRANSLATE_NOOP("Core", "Qt");
 
 const char * const SETTINGS_CATEGORY_CORE = "A.Core";

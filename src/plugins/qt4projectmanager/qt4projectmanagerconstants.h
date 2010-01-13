@@ -80,6 +80,11 @@ const char * const QT_SETTINGS_TR_CATEGORY    = QT_TRANSLATE_NOOP("Qt4ProjectMan
 const char * const QTVERSION_SETTINGS_PAGE_ID = "Qt Versions";
 const char * const QTVERSION_SETTINGS_PAGE_NAME = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
 
+// Wizard categories
+const char * const QT_APP_WIZARD_CATEGORY = "C.QtApplicationProjects";
+const char * const QT_APP_WIZARD_TR_SCOPE = "Qt4ProjectManager";
+const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Application Project");
+
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

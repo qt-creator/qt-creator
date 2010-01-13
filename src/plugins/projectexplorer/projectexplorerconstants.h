@@ -188,8 +188,9 @@ const char * const TASK_CATEGORY_COMPILE = "Task.Category.Compile";
 const char * const TASK_CATEGORY_BUILDSYSTEM = "Task.Category.Buildsystem";
 
 // Wizard category
-const char * const PROJECT_WIZARD_CATEGORY = "R.Projects"; // (after Qt)
-const char * const PROJECT_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("ProjectExplorer", "Projects");
+const char * const PROJECT_WIZARD_CATEGORY = "I.Projects"; // (after Qt)
+const char * const PROJECT_WIZARD_TR_SCOPE = "ProjectExplorer";
+const char * const PROJECT_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
 
 } // namespace Constants
 } // namespace ProjectExplorer

@@ -50,13 +50,17 @@ using namespace Qt4ProjectManager::Internal;
 
 static inline Core::BaseFileWizardParameters
     wizardParameters(const QString &id,
+                     const QString &category,
+                     const QString &categoryTranslationScope,
+                     const QString &displayCategory,
                      const QString &name,
                      const QString &description,
                      const QIcon &icon)
 {
     Core::BaseFileWizardParameters rc(Core::IWizard::ProjectWizard);
-    rc.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
-    rc.setDisplayCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
+    rc.setCategory(category);
+    rc.setDisplayCategory(QCoreApplication::translate(categoryTranslationScope.toLatin1(),
+                                                      displayCategory.toLatin1()));
     rc.setIcon(icon);
     rc.setDisplayName(name);
     rc.setId(id);
@@ -65,9 +69,19 @@ static inline Core::BaseFileWizardParameters
 }
 
 // -------------------- QtWizard
-QtWizard::QtWizard(const QString &id, const QString &name,
+QtWizard::QtWizard(const QString &id,
+                   const QString &category,
+                   const QString &categoryTranslationScope,
+                   const QString &displayCategory,
+                   const QString &name,
                    const QString &description, const QIcon &icon) :
-    Core::BaseFileWizard(wizardParameters(id, name, description, icon))
+    Core::BaseFileWizard(wizardParameters(id,
+                                          category,
+                                          categoryTranslationScope,
+                                          displayCategory,
+                                          name,
+                                          description,
+                                          icon))
 {
 }
 

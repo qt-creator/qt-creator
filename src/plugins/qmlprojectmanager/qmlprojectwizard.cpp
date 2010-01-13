@@ -29,6 +29,8 @@
 
 #include "qmlprojectwizard.h"
 
+#include "qmlprojectconstants.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <projectexplorer/projectexplorer.h>
@@ -94,8 +96,9 @@ Core::BaseFileWizardParameters QmlProjectWizard::parameters()
     parameters.setDisplayName(tr("Import of existing QML directory"));
     parameters.setId(QLatin1String("QI.QML Import"));
     parameters.setDescription(tr("Creates a QML project from an existing directory of QML files."));
-    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY));
+    parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
+    parameters.setDisplayCategory(QCoreApplication::translate(Constants::QML_WIZARD_TR_SCOPE,
+                                                              Constants::QML_WIZARD_TR_CATEGORY));
     return parameters;
 }
 

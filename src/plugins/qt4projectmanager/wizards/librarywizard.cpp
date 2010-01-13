@@ -34,6 +34,7 @@
 
 #include <utils/codegeneration.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -47,9 +48,12 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 LibraryWizard::LibraryWizard()
-  : QtWizard(QLatin1String("Q.Qt4Library"),
+  : QtWizard(QLatin1String("H.Qt4Library"),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
              tr("C++ Library"),
-             tr("Creates a C++ Library."),
+             tr("Creates a Qt based C++ Library."),
              QIcon(QLatin1String(":/wizards/images/lib.png")))
 {
 }

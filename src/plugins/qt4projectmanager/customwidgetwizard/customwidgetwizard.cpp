@@ -34,14 +34,18 @@
 #include "filenamingparameters.h"
 
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 CustomWidgetWizard::CustomWidgetWizard() :
     QtWizard(QLatin1String("P.Qt4CustomWidget"),
-             tr("Qt4 Designer Custom Widget"),
-             tr("Creates a Qt4 Designer Custom Widget or a Custom Widget Collection."),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
+             tr("Qt Custom Designer Widget"),
+             tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."),
              QIcon(QLatin1String(":/wizards/images/gui.png")))
 {
 }

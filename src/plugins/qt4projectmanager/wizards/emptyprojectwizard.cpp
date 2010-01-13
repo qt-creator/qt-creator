@@ -31,12 +31,17 @@
 
 #include "emptyprojectwizarddialog.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
 EmptyProjectWizard::EmptyProjectWizard()
-  : QtWizard(QLatin1String("E.Qt4Empty"),
-             tr("Empty Qt4 Project"),
+  : QtWizard(QLatin1String("U.Qt4Empty"),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_SCOPE),
+             QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_TR_CATEGORY),
+             tr("Empty Qt Project"),
              tr("Creates an empty Qt project."),
              QIcon(QLatin1String(":/wizards/images/gui.png")))
 {

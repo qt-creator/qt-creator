@@ -207,7 +207,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     CppFileWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
 
-    wizardParameters.setCategory(QLatin1String("C.C++"));
+    wizardParameters.setCategory(QLatin1String("O.C++"));
     wizardParameters.setDisplayCategory(tr("C++"));
     wizardParameters.setDisplayName(tr("C++ Class"));
     wizardParameters.setId(QLatin1String("A.Class"));
