@@ -3748,7 +3748,7 @@ void GdbEngine::handleStackFrame(const GdbResponse &response)
             rebuildModel();
         }
     } else {
-        QTC_ASSERT(false, /**/);
+        debugMessage(_("DUMPER FAILED: " + response.toString()));
     }
 }
 
