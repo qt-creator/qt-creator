@@ -1338,7 +1338,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
 {
     QByteArray reason = data.findChild("reason").data();
 
-    if (m_gdbAdapter->isTrkAdapter()
+    if (0 && m_gdbAdapter->isTrkAdapter()
             && reason == "signal-received"
             && data.findChild("signal-name").data() == "SIGTRAP") {
         // Caused by "library load" message.

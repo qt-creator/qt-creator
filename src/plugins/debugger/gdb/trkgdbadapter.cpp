@@ -451,7 +451,8 @@ void TrkGdbAdapter::readGdbServerCommand()
 
         if (code == '-') {
             logMessage("NAK: Retransmission requested");
-            emit adapterCrashed("Communication problem encountered.");
+            // This seems too harsh.
+            //emit adapterCrashed("Communication problem encountered.");
             continue;
         }
 
@@ -629,7 +630,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //Reply: See section D.3 Stop Reply Packets, for the reply specifications.
         sendGdbServerAck();
         bool ok = false;
-        uint signalNumber = cmd.mid(1).toInt(&ok, 16);
+        uint signalNumber = cmd.mid(1).toUInt(&ok, 16);
         QByteArray ba;
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
@@ -669,7 +670,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // for 'other operations.  0 - any thread
         //$Hg0#df
         sendGdbServerAck();
-        m_session.currentThread = cmd.mid(2).toInt(0, 16);
+        m_session.currentThread = cmd.mid(2).toUInt(0, 16);
         sendGdbServerMessage("OK", "Set current thread "
             + QByteArray::number(m_session.currentThread));
     }
@@ -711,7 +712,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //sendGdbServerMessage("0000", "current IP");
         sendGdbServerAck();
         bool ok = false;
-        const uint registerNumber = cmd.mid(1).toInt(&ok, 16);
+        const uint registerNumber = cmd.mid(1).toUInt(&ok, 16);
         if (m_snapshot.registerValid) {
             QByteArray logMsg = "Read Register";
             if (registerNumber == RegisterPSGdb) {
@@ -744,8 +745,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         QByteArray regName = cmd.mid(1, pos - 1);
         QByteArray valueName = cmd.mid(pos + 1);
         bool ok = false;
-        const uint registerNumber = regName.toInt(&ok, 16);
-        const uint value = swapEndian(valueName.toInt(&ok, 16));
+        const uint registerNumber = regName.toUInt(&ok, 16);
+        const uint value = swapEndian(valueName.toUInt(&ok, 16));
         // FIXME: Assume all goes well.
         m_snapshot.registers[registerNumber] = value;
         QByteArray ba = trkWriteRegisterMessage(registerNumber, value);
@@ -867,7 +868,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd.startsWith("qXfer:libraries:read")) {
-        qDebug() << "COMMAND: " << cmd;
+        //qDebug() << "COMMAND: " << cmd;
         sendGdbServerAck();
         QByteArray response = "l<library-list>";
         for (int i = 0; i != m_session.libraries.size(); ++i) {
@@ -1031,7 +1032,9 @@ void TrkGdbAdapter::handleTrkError(const QString &msg)
 void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 {
     if (result.isDebugOutput) {
-        sendTrkAck(result.token);
+        // It looks like those messages _must not_ be acknowledged.
+        // If we do so, TRK will complain about wrong sequencing.
+        //sendTrkAck(result.token);
         logMessage(QLatin1String("APPLICATION OUTPUT: ") +
             QString::fromAscii(result.data));
         sendGdbServerMessage("O" + result.data.toHex());
@@ -1096,6 +1099,8 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         // target->host OS notification
         case 0xa0: { // Notify Created
             debugMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
+            // Sending this ACK does not seem to make a difference. Why?
+            //sendTrkAck(result.token);
             m_snapshot.reset();
             const char *data = result.data.data();
             const byte error = result.data.at(0);
@@ -1127,10 +1132,16 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             // With CS gdb 6.4 we get a non-standard $qfDllInfo#7f+ request
             // afterwards, so don't use it for now.
             //sendGdbServerMessage("T05library:;");
+/*
+            // Causes too much "stopped" (by SIGTRAP) messages that need
+            // to be answered by "continue". Auto-continuing each SIGTRAP
+            // is not possible as this is also the real message for a user
+            // initiated interrupt.
             sendGdbServerMessage("T05load:Name=" + lib.name.toHex()
                 + ",TextSeg=" + hexNumber(lib.codeseg)
                 + ",DataSeg=" + hexNumber(lib.dataseg) + ';');
-            //sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+*/
+            sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
             break;
         }
         case 0xa1: { // NotifyDeleted
@@ -1570,7 +1581,7 @@ void TrkGdbAdapter::handleClearBreakpoint(const TrkResult &result)
 
 void TrkGdbAdapter::handleSignalContinue(const TrkResult &result)
 {
-    int signalNumber = result.cookie.toInt();
+    uint signalNumber = result.cookie.toUInt();
     logMessage("   HANDLE SIGNAL CONTINUE: " + stringFromArray(result.data));
     logMessage("NUMBER" + QString::number(signalNumber));
     sendGdbServerMessage("O" + QByteArray("Console output").toHex());
@@ -1788,7 +1799,7 @@ void TrkGdbAdapter::write(const QByteArray &data)
         if (data1.endsWith(' '))
             data1.chop(1);
         bool ok;
-        uint addr = data1.toInt(&ok, 0);
+        uint addr = data1.toUInt(&ok, 0);
         qDebug() << "Writing: " << quoteUnprintableLatin1(data1) << addr;
         directStep(addr);
         return;
