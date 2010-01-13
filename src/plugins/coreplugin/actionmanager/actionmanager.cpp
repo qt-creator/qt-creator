@@ -34,6 +34,7 @@
 #include "uniqueidmanager.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
@@ -463,7 +464,7 @@ static const char *sequenceKey = "Keysequence";
 
 void ActionManagerPrivate::initialize()
 {
-    QSettings *settings = m_mainWnd->settings();
+    QSettings *settings = Core::ICore::instance()->settings();
     const int shortcuts = settings->beginReadArray(QLatin1String(settingsGroup));
     for (int i=0; i<shortcuts; ++i) {
         settings->setArrayIndex(i);
