@@ -272,20 +272,35 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t) const
     /*
         Remove C++-style comments.
     */
-    k = trimmed.indexOf(QLatin1String("//"));
+    k = trimmed.indexOf(QRegExp(QLatin1String("\\s*//")));
     if (k != -1)
         trimmed.truncate(k);
 
-    const QString e = trimmed.trimmed();
-
-    if (insertSemicolon || e.endsWith(QLatin1Char(',')) || e.endsWith(QLatin1Char(']')))
-        trimmed.append(QLatin1Char(';'));
-    else if (trimmed.indexOf(propertylikeKeyword) != -1) {
+    if (! insertSemicolon && ! trimmed.isEmpty()) {
         const QChar ch = trimmed.at(trimmed.length() - 1);
-        if (ch.isLetterOrNumber() || ch == QLatin1Char(')') || ch == QLatin1Char(']')
-            || ch == QLatin1Char('"') || ch == QLatin1Char('\''))
-        trimmed.append(QLatin1Char(';'));
+
+        switch (ch.unicode()) {
+        case ',':
+        case ']':
+        case '"':
+        case '\'':
+        case '_':
+            insertSemicolon = true;
+            break;
+
+        default:
+            if (ch.isLetterOrNumber()) {
+                if (! trimmed.endsWith(QLatin1String("else")))
+                    insertSemicolon = true;
+            } else if (trimmed.indexOf(propertylikeKeyword) != -1)
+                insertSemicolon = true;
+
+            break;
+        }
     }
+
+    if (insertSemicolon)
+        trimmed.append(QLatin1Char(';'));
 
     return trimmed;
 }
