@@ -82,7 +82,7 @@ static const char *registerNames[KnownRegisters] =
     0, "PSGdb"
 };
 
-static QByteArray dumpRegister(int n, uint value)
+static QByteArray dumpRegister(uint n, uint value)
 {
     QByteArray ba;
     ba += ' ';
@@ -356,7 +356,7 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
     QByteArray ba;
     ba.reserve(17);
     appendByte(&ba, option);
-    qDebug() << "STEP ON " << hexxNumber(m_snapshot.registers[RegisterPC]);
+    //qDebug() << "STEP ON " << hexxNumber(m_snapshot.registers[RegisterPC]);
     appendInt(&ba, m_snapshot.registers[RegisterPC]); // Start address
     appendInt(&ba, m_snapshot.registers[RegisterPC]); // End address
     appendInt(&ba, m_session.pid);
@@ -936,14 +936,22 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage(msgGdbPacket(QLatin1String("Insert breakpoint")));
         // $Z0,786a4ccc,4#99
         const int pos = cmd.lastIndexOf(',');
-        bool ok = false;
-        const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
-        const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
-        //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
-        logMessage(_("Inserting breakpoint at 0x%1, %2")
-            .arg(addr, 0, 16).arg(len));
-        const QByteArray ba = trkBreakpointMessage(addr, len, len == 4);
-        sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
+        bool ok1 = false;
+        bool ok2 = false;
+        const uint addr = cmd.mid(3, pos - 3).toUInt(&ok1, 16);
+        const uint len = cmd.mid(pos + 1).toUInt(&ok2, 16);
+        if (!ok1) {
+            logMessage("MISPARSED ADDRESS FROM " + cmd +
+                " (" + cmd.mid(3, pos - 3) + ")");
+        } else if (!ok2) {
+            logMessage("MISPARSED BREAKPOINT SIZE FROM " + cmd);
+        } else {
+            //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
+            logMessage(_("Inserting breakpoint at 0x%1, %2")
+                .arg(addr, 0, 16).arg(len));
+            const QByteArray ba = trkBreakpointMessage(addr, len, len == 4);
+            sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
+        }
     }
 
     else if (cmd.startsWith("z0,") || cmd.startsWith("z1,")) {
@@ -953,8 +961,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // $z0,786a4ccc,4#99
         const int pos = cmd.lastIndexOf(',');
         bool ok = false;
-        const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
-        const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
+        const uint addr = cmd.mid(3, pos - 3).toUInt(&ok, 16);
+        const uint len = cmd.mid(pos + 1).toUInt(&ok, 16);
         const uint bp = m_session.addressToBP[addr];
         if (bp == 0) {
             logMessage(_("NO RECORDED BP AT 0x%1, %2")
@@ -978,8 +986,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             if (commaPos != -1) {                
                 bool ok1 = false, ok2 = false;
                 const int offset = data.mid(offsetPos,  commaPos - offsetPos)
-                    .toInt(&ok1, 16);
-                const int length = data.mid(commaPos + 1).toInt(&ok2, 16);
+                    .toUInt(&ok1, 16);
+                const int length = data.mid(commaPos + 1).toUInt(&ok2, 16);
                 if (ok1 && ok2) {
                     const QString msg = _("Read of OS auxiliary "
                         "vector (%1, %2) not implemented.").arg(offset).arg(length);
@@ -1248,7 +1256,7 @@ void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
 void TrkGdbAdapter::handleAndReportReadRegister(const TrkResult &result)
 {
     handleReadRegisters(result);
-    int registerNumber = result.cookie.toInt();
+    uint registerNumber = result.cookie.toUInt();
     QByteArray logMsg = "Read Register";
     if (registerNumber == RegisterPSGdb) {
         QByteArray ba;
@@ -1460,8 +1468,9 @@ void TrkGdbAdapter::handleStepInto(const TrkResult &result)
     m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto");
-#if 0
+#if 1
         // Try fallback with Step Over
+        logMessage("FALLBACK TO 'STEP OVER'");
         QByteArray ba = trkStepRangeMessage(0x11);  // options "step over"
         sendTrkMessage(0x19, TrkCB(handleStepInto2), ba, "Step range");
 #else
@@ -1480,6 +1489,7 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto2");
 #if 0
+        logMessage("FALLBACK TO 'CONTINUE'");
         // Try fallback with Continue
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
         //sendGdbServerMessage("S05", "Stepping finished");
@@ -1525,7 +1535,8 @@ void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString());
+        logMessage("ERROR WHEN SETTING BREAKPOINT: " + result.errorString());
+        sendGdbServerMessage("E21");
         return;
     }
     uint bpnr = extractInt(result.data.data() + 1);
