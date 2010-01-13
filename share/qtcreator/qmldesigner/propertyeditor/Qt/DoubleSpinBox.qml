@@ -26,15 +26,15 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
         function evaluate() {
             if (baseStateFlag) {
                 if (backendValue != null && backendValue.isInModel)
-                DoubleSpinBox.setStyleSheet("color: white;");
+                    DoubleSpinBox.setStyleSheet("color: white;");
                 else
-                DoubleSpinBox.setStyleSheet("color: gray;");
-                } else {
-                if (backendValue != null && backendValue.isInSubState)
+                    DoubleSpinBox.setStyleSheet("color: gray;");
+            } else {
+            if (backendValue != null && backendValue.isInSubState)
                 DoubleSpinBox.setStyleSheet("color: #7799FF;");
-                else
+            else
                 DoubleSpinBox.setStyleSheet("color: gray;");
-                }
+            }
         }
     }
 
@@ -50,19 +50,26 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
             decimals: 2;
             keyboardTracking: false;
             enabled: (backendValue == null || backendValue.complexNode == null) ? false : !backendValue.isBound && !backendValue.complexNode.exists
-            value: DoubleSpinBox.backendValue == null ? .0 : DoubleSpinBox.backendValue.value;
-            onValueChanged: {
-                if (DoubleSpinBox.backendValue != null)
-                    DoubleSpinBox.backendValue.value = value;
-            }
-            onFocusChanged: {
-                //extendedSwitches.active = focus;
-                //extendedSwitches.backendValue = backendValue;
-            }
+            property bool readingFromBackend: false;
+            property real valueFromBackend: DoubleSpinBox.backendValue == null ? .0 : DoubleSpinBox.backendValue.value;
+            onValueFromBackendChanged: {
+                readingFromBackend = true;
+                value = valueFromBackend
+                readingFromBackend = false;
+             }
 
-            onMouseOverChanged: {
-                    //extendedButton.active = mouseOver;
-            }
+             onValueChanged: {
+                 if (DoubleSpinBox.backendValue != null && readingFromBackend == false)
+                    DoubleSpinBox.backendValue.value = value;
+             }
+             onFocusChanged: {
+                 //extendedSwitches.active = focus;
+                 //extendedSwitches.backendValue = backendValue;
+                 }
+
+                 onMouseOverChanged: {
+                     //extendedButton.active = mouseOver;
+                 }
         }
     }
 
@@ -80,10 +87,10 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
 
         opacity: Behavior {
             NumberAnimation {
-                    easing: "easeInSine"
-                    duration: 200
-                }
+                easing: "easeInSine"
+                duration: 200
             }
+        }
 
         onPressed: {
 
@@ -103,7 +110,7 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
                     }
                 }
             }
-    }
+        }
 
         onMouseOverChanged: {
             if (mouseOver) {

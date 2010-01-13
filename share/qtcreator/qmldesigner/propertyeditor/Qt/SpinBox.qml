@@ -28,10 +28,10 @@ QWidget { //This is a special SpinBox that does color coding for states
                 else
                     SpinBox.setStyleSheet("color: gray;");
             } else {
-                if (backendValue != null && backendValue.isInSubState)
-                    SpinBox.setStyleSheet("color: #7799FF;");
-                else
-                    SpinBox.setStyleSheet("color: gray;");
+            if (backendValue != null && backendValue.isInSubState)
+                SpinBox.setStyleSheet("color: #7799FF;");
+            else
+                SpinBox.setStyleSheet("color: gray;");
             }
         }
     }
@@ -49,9 +49,17 @@ QWidget { //This is a special SpinBox that does color coding for states
             keyboardTracking: false;
             id: box;
             enabled: backendValue === undefined || backendValue.isBound === undefined || backendValue.isBound === null ? false : !backendValue.isBound
-            value: backendValue == undefined || backendValue.value == undefined || backendValue.value === null ? 0 : backendValue.value;
+            property bool readingFromBackend: false;
+            property int valueFromBackend: SpinBox.backendValue == null ? .0 : SpinBox.backendValue.value;
+
+            onValueFromBackendChanged: {
+                readingFromBackend = true;
+                value = valueFromBackend
+                readingFromBackend = false;
+             }
+
             onValueChanged: {
-                if (backendValue != undefined && backendValue != null)
+                if (SpinBox.backendValue != null && readingFromBackend == false)
                     backendValue.value = value;
             }
             onFocusChanged: {
@@ -61,7 +69,7 @@ QWidget { //This is a special SpinBox that does color coding for states
         }
     }
 
-     QToolButton {
+    QToolButton {
         visible: false;
         width: 10;
         height: 10;
