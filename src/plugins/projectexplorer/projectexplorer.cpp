@@ -374,6 +374,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mproject->appendGroup(Constants::G_PROJECT_CONFIG);
 
     msubProject->appendGroup(Constants::G_PROJECT_OPEN);
+    msubProject->appendGroup(Constants::G_PROJECT_BUILD);
     msubProject->appendGroup(Constants::G_PROJECT_FILES);
     msubProject->appendGroup(Constants::G_PROJECT_OTHER);
     msubProject->appendGroup(Constants::G_PROJECT_CONFIG);

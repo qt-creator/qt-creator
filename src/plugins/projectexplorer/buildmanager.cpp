@@ -168,8 +168,13 @@ void BuildManager::emitCancelMessage()
 
 void BuildManager::clearBuildQueue()
 {
-    foreach (BuildStep * bs, m_buildQueue)
+    foreach (BuildStep *bs, m_buildQueue) {
         decrementActiveBuildSteps(bs->buildConfiguration()->project());
+        disconnect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
+                   this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+        disconnect(bs, SIGNAL(addOutput(QString)),
+                   this, SLOT(addToOutputWindow(QString)));
+    }
 
     m_buildQueue.clear();
     m_running = false;
@@ -276,6 +281,7 @@ void BuildManager::nextBuildQueue()
 
     ++m_progress;
     m_progressFutureInterface->setProgressValueAndText(m_progress*100, msgProgress(m_progress, m_maxProgress));
+    decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->project());
 
     bool result = m_watcher.result();
     if (!result) {
@@ -287,7 +293,6 @@ void BuildManager::nextBuildQueue()
         m_progressFutureInterface->setProgressValueAndText(m_progress*100, tr("Error while building project %1").arg(projectName));
     }
 
-    decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->project());
     if (result)
         nextStep();
     else
@@ -311,20 +316,6 @@ void BuildManager::nextStep()
         m_currentBuildStep = m_buildQueue.front();
         m_buildQueue.pop_front();
 
-        connect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-                this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
-        connect(m_currentBuildStep, SIGNAL(addOutput(QString)),
-                this, SLOT(addToOutputWindow(QString)));
-
-        bool init = m_currentBuildStep->init();
-        if (!init) {
-            const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
-            addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(projectName));
-            addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
-            cancel();
-            return;
-        }
-
         if (m_currentBuildStep->buildConfiguration()->project() != m_previousBuildStepProject) {
             const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
             addToOutputWindow(tr("<b>Running build steps for project %2...</b>")
@@ -344,11 +335,27 @@ void BuildManager::nextStep()
     }
 }
 
-void BuildManager::buildQueueAppend(BuildStep * bs)
+bool BuildManager::buildQueueAppend(BuildStep *bs)
 {
     m_buildQueue.append(bs);
     ++m_maxProgress;
     incrementActiveBuildSteps(bs->buildConfiguration()->project());
+
+    connect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
+            this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+    connect(bs, SIGNAL(addOutput(QString)),
+            this, SLOT(addToOutputWindow(QString)));
+
+    bool init = bs->init();
+    if (!init) {
+        const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
+        addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(projectName));
+        addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
+        cancel();
+        return false;
+    }
+
+    return true;
 }
 
 void BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
