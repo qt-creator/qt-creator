@@ -2407,6 +2407,77 @@
     \o  \bold{Open Source front-end for C++ (license MIT)}, enhanced for use in
         Qt Creator.\br
         Roberto Raggi <roberto.raggi@gmail.com>\br
-        QtCreator/src/shared/cplusplus
-    \endlist
+        QtCreator/src/shared/cplusplus\br\br
+
+    \o  \bold{Botan, a C++ crypto library. Version 1.8.8}\br
+        \list
+        \o  Copyright (C) 1999-2004 The Botan Project. All rights reserved.
+        \o  Copyright (C) 1999-2009 Jack Lloyd
+        \o  2001 Peter J Jones
+        \o  2004-2007 Justin Karneges
+        \o  2005 Matthew Gregan
+        \o  2005-2006 Matt Johnston
+        \o  2006 Luca Piccarreta
+        \o  2007 Yves Jerschow
+        \o  2007-2008 FlexSecure GmbH
+        \o  2007-2008 Technische Universitat Darmstadt
+        \o  2007-2008 Falko Strenzke
+        \o  2007-2008 Martin Doering
+        \o  2007 Manuel Hartl
+        \o  2007 Christoph Ludwig
+        \o  2007 Patrick Sona
+        \endlist
+        All rights reserved.\br\br
+
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are
+        met:\br\br
+
+        1. Redistributions of source code must retain the above copyright
+        notice, this list of conditions, and the following disclaimer.\br\br
+
+        2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions, and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.\br
+        \br
+
+        THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) "AS IS" AND ANY EXPRESS OR
+        IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
+        ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR(S) OR CONTRIBUTOR(S) BE
+        LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+        CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+        SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+        BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+        WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+        OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+        IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\br\br
+
+    \o  \bold{NetSieben SSH Library is a Secure Shell client library for C++.
+         Version 1.3.2}\br
+        \list
+        \o \bold{Commercial License:} For organizations who do not want to
+            release the source code for their applications as open source/
+            free software; in other words they do not want to comply with the
+            GNU General Public License (GPL) or Q Public License.
+        \o \bold{Non Commercial / Open Source License:} NetSieben believes in
+            contributing back to the open source community, thus it has released
+            the SSH Library under Q Public License as it is defined by Trolltech
+            AS of Norway. The Open Source License allows the user to use software
+            under an open source / free software license, and distribute it
+            freely. The software can be used at no charge with the condition
+            that if the user uses the SSH Library in an application they wish to
+            redistribute, then the complete source code for your application must
+            be available and freely redistributable under reasonable conditions.
+            For more information on the used QPL License see: 
+            QtCreator/src/libs/3rdparty/net7ssh/LICENSE.QPL
+            \br\br
+            The source code of NetSieben Secure Shell C++ Library can be found
+            here:
+            \list
+            \o QtCreator/src/libs/3rdparty
+            \o \l{http://qt.gitorious.org/qt-creator/qt-creator/trees/master/src/libs/3rdparty}
+            \endlist
+        \endlist
+     \endlist
 */
