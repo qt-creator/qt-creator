@@ -28,10 +28,10 @@ QWidget { //This is a special SpinBox that does color coding for states
                 else
                     SpinBox.setStyleSheet("color: gray;");
             } else {
-            if (backendValue != null && backendValue.isInSubState)
-                SpinBox.setStyleSheet("color: #7799FF;");
-            else
-                SpinBox.setStyleSheet("color: gray;");
+                if (backendValue != null && backendValue.isInSubState)
+                    SpinBox.setStyleSheet("color: #7799FF;");
+                else
+                    SpinBox.setStyleSheet("color: gray;");
             }
         }
     }
@@ -55,8 +55,8 @@ QWidget { //This is a special SpinBox that does color coding for states
             onValueFromBackendChanged: {
                 readingFromBackend = true;
                 value = valueFromBackend
-                readingFromBackend = false;
-             }
+                        readingFromBackend = false;
+            }
 
             onValueChanged: {
                 if (SpinBox.backendValue != null && readingFromBackend == false)

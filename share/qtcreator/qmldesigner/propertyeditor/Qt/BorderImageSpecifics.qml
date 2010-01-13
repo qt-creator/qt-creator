@@ -44,26 +44,26 @@ GroupBox {
             step: 1;
             minimumValue: 0;
             maximumValue: 2000;
-            }
+        }
 
-            IntEditor {
-                backendValue: backendValues.border_top;
-                caption: "Border Top:       "
-                baseStateFlag: isBaseState;
+        IntEditor {
+            backendValue: backendValues.border_top;
+            caption: "Border Top:       "
+            baseStateFlag: isBaseState;
 
-                step: 1;
-                minimumValue: 0;
-                maximumValue: 2000;
-            }
+            step: 1;
+            minimumValue: 0;
+            maximumValue: 2000;
+        }
 
-            IntEditor {
-                backendValue: backendValues.border_bottom;
-                caption: "Border Bottom:"
-                baseStateFlag: isBaseState;
+        IntEditor {
+            backendValue: backendValues.border_bottom;
+            caption: "Border Bottom:"
+            baseStateFlag: isBaseState;
 
-                step: 1;
-                minimumValue: 0;
-                maximumValue: 2000;
-            }
+            step: 1;
+            minimumValue: 0;
+            maximumValue: 2000;
+        }
     }
 }

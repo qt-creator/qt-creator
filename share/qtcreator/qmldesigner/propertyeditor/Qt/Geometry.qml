@@ -14,7 +14,6 @@ GroupBox {
         rightMargin: 4;
 
         QWidget {
-
             layout: QVBoxLayout {
                 topMargin: 0;
                 bottomMargin: 60;
@@ -27,20 +26,20 @@ GroupBox {
                     font.bold: true;
                 }
                 QLabel {
-                  text: "Size:"
-                  font.bold: true
+                    text: "Size:"
+                    font.bold: true
                 }
             }
         }
 
-       QWidget {
-           layout: QVBoxLayout {
-               topMargin: 0;
-               bottomMargin: 0;
-               QWidget {
-                   layout: QHBoxLayout {
-                       topMargin: 0;
-                       bottomMargin: 0;
+        QWidget {
+            layout: QVBoxLayout {
+                topMargin: 0;
+                bottomMargin: 0;
+                QWidget {
+                    layout: QHBoxLayout {
+                        topMargin: 0;
+                        bottomMargin: 0;
 
                         //---
 
@@ -54,7 +53,7 @@ GroupBox {
                                         bottomMargin: 0;
                                         DoubleSpinBox {
                                             id: XSpinBox;
-											singleStep: 1;
+                                            singleStep: 1;
                                             objectName: "XSpinBox";
                                             enabled: anchorBackend.hasParent;
                                             backendValue: backendValues.x == undefined ? 0 : backendValues.x
@@ -76,7 +75,7 @@ GroupBox {
 
                                         DoubleSpinBox {
                                             id: YSpinBox;
-											singleStep: 1;
+                                            singleStep: 1;
                                             objectName: "YSpinBox";
                                             backendValue: backendValues.y == undefined ? 0 : backendValues.y
                                             enabled: anchorBackend.hasParent;
@@ -94,7 +93,7 @@ GroupBox {
 
                             } //QHBoxLayout //7
                         } //QWidget  //1
-                    //---
+                        //---
                     } //QHBoxLayout
                 } //GroupBox
                 QWidget {
@@ -112,7 +111,7 @@ GroupBox {
                                         bottomMargin: 0;
                                         DoubleSpinBox {
                                             id: WidthSpinBox;
-											singleStep: 1;
+                                            singleStep: 1;
                                             objectName: "WidthSpinBox";
                                             backendValue: backendValues.width == undefined ? 0 : backendValues.width
                                             minimum: -2000;
@@ -132,7 +131,7 @@ GroupBox {
                                         bottomMargin: 0;
                                         DoubleSpinBox {
                                             id: HeightSpinBox;
-											singleStep: 1;
+                                            singleStep: 1;
                                             objectName: "HeightSpinBox";
                                             backendValue: backendValues.height == undefined ? 0 : backendValues.height
                                             minimum: -2000;
@@ -149,8 +148,6 @@ GroupBox {
                                 } //QWidget
                             } //QHBoxLayout
                         } //QWidget
-                    //---
-
                     } // QHBoxLayout
                 } //Widget
 
@@ -164,10 +161,6 @@ GroupBox {
                     maximumValue: 100;
                 }
             } //QVBoxLayout
-
         } //QWidget
-
-
     } //QHBoxLayout
-
 } //QGroupBox

@@ -38,14 +38,14 @@ GroupBox {
                             font.bold: true;
                         }
 
-                         QLabel {
-							text: "Scale:"
+                        QLabel {
+                            text: "Scale:"
                             font.bold: true;
                         }
 
                         QLabel {
                             text: "Scale:"
-							text: ""
+                            text: ""
                             font.bold: true;
                         }
 
@@ -62,10 +62,10 @@ GroupBox {
                 QWidget {
                     layout: QVBoxLayout {
 
-                    topMargin: 02;
-                    bottomMargin: 2;
-                    leftMargin: 5;
-                    rightMargin: 0;
+                        topMargin: 02;
+                        bottomMargin: 2;
+                        leftMargin: 5;
+                        rightMargin: 0;
 
                         QWidget {
                             layout: QHBoxLayout {
@@ -103,10 +103,7 @@ GroupBox {
                                     }
                                 }
                             }
-                        }
-
-
-
+                        }                                                                        
                         QWidget {
                             layout: QHBoxLayout {
                                 topMargin: 10;
@@ -123,7 +120,7 @@ GroupBox {
                                     singleStep: 0.1
                                     baseStateFlag: isBaseState;
                                     onBackendValueChanged: {
-                                       ScaleSlider.value = backendValue.value * 10;
+                                        ScaleSlider.value = backendValue.value * 10;
                                     }
                                 }
                                 QSlider {
@@ -139,33 +136,33 @@ GroupBox {
                             }
                         }
 
-						QWidget {
-                        layout: QHBoxLayout {
+                        QWidget {
+                            layout: QHBoxLayout {
                                 topMargin: 5;
                                 bottomMargin: 5;
                                 leftMargin: 10;
                                 rightMargin: 0;
 
                                 QLabel {
-                                   text: "Origin: ";
+                                    text: "Origin: ";
                                 }
-                       QComboBox {
-                           items : { [
-                            "TopLeft", "Top", "TopRight", "Left", "Center", "Right", "BottomLeft", "Bottom",
-                            "BottomRight"
-                            ] }
+                                QComboBox {
+                                    items : { [
+                                        "TopLeft", "Top", "TopRight", "Left", "Center", "Right", "BottomLeft", "Bottom",
+                                        "BottomRight"
+                                     ] }
 
-                           currentText: backendValues.transformOrigin.value;
-                           onItemsChanged: {
-                               currentText =  backendValues.transformOrigin.value;
-                           }
-                           onCurrentTextChanged: {
-                             backendValues.transformOrigin.value = currentText;
-                           }
-                         }
+                                    currentText: backendValues.transformOrigin.value;
+                                    onItemsChanged: {
+                                        currentText =  backendValues.transformOrigin.value;
+                                    }
+                                    onCurrentTextChanged: {
+                                        backendValues.transformOrigin.value = currentText;
+                                    }
+                                }
 
-                         }
-                         }
+                            }
+                        }
 
                         QWidget {
                             layout: QHBoxLayout {

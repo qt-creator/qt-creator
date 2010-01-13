@@ -34,7 +34,7 @@ GroupBox {
             }
         }
 
-      FontWidget {
+        FontWidget {
             text: "Font:";
 
             bold: backendValues.font_bold.value;
@@ -83,7 +83,7 @@ GroupBox {
 
                     onCurrentTextChanged: {
                         if (count == 3)
-                        backendValues.horizontalAlignment.value = currentText;
+                            backendValues.horizontalAlignment.value = currentText;
                     }
 
                 }
@@ -137,7 +137,7 @@ GroupBox {
                 CheckBox {
 
                     text: "Read Only";
-					baseStateFlag: isBaseState;
+                    baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue: backendValues.readOnly;
                 }
@@ -145,7 +145,7 @@ GroupBox {
                 CheckBox {
 
                     text: "Cursor Visible";
-					baseStateFlag: isBaseState;
+                    baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue: backendValues.cursorVisible;
 
@@ -165,7 +165,7 @@ GroupBox {
 
                 CheckBox {
                     text: "Focus On Press";
-					baseStateFlag: isBaseState;
+                    baseStateFlag: isBaseState;
                     checkable: true;
                     backendValue:  backendValues. focusOnPress;
                 }

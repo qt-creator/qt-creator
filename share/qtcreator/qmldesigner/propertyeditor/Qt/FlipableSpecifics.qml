@@ -96,7 +96,7 @@ GroupBox {
 
                     onCurrentTextChanged: {
                         if (count == 3)
-                        print("set");
+                            print("set");
                         print(currentText);
                         backendValues.horizontalAlignment.value = currentText;
                         print(currentText);
