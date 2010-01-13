@@ -1336,6 +1336,17 @@ void GdbEngine::handleStop1(const GdbResponse &response)
 
 void GdbEngine::handleStop1(const GdbMi &data)
 {
+    QByteArray reason = data.findChild("reason").data();
+
+    if (m_gdbAdapter->isTrkAdapter()
+            && reason == "signal-received"
+            && data.findChild("signal-name").data() == "SIGTRAP") {
+        // Caused by "library load" message.
+        debugMessage(_("INTERNAL CONTINUE"));
+        continueInferiorInternal();
+        return;
+    }
+
     if (m_modulesListOutdated)
         reloadModulesInternal(); // This is for display only
     if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints))
@@ -1350,7 +1361,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
             && manager()->breakHandler()->size() > 0)
             reloadBreakListInternal();
 
-    QByteArray reason = data.findChild("reason").data();
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
     } else {
