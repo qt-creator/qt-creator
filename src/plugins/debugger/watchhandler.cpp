@@ -727,6 +727,18 @@ void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
         emitDataChanged(column, index(i, 0, parentIndex));
 }
 
+// Truncate value for item view, maintaining quotes
+static inline QString truncateValue(QString v)
+{
+    enum { maxLength = 512 };
+    if (v.size() < maxLength)
+        return v;
+    const bool isQuoted = v.endsWith(QLatin1Char('"')); // check for 'char* "Hallo"'
+    v.truncate(maxLength);
+    v += isQuoted ? QLatin1String("...\"") : QLatin1String("...");
+    return v;
+}
+
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
     const WatchItem &data = *watchItem(idx);
@@ -735,9 +747,9 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case Qt::DisplayRole: {
             switch (idx.column()) {
                 case 0: return data.name;
-                case 1: return formattedValue(data,
+                case 1: return truncateValue(formattedValue(data,
                     m_handler->m_individualFormats.value(data.iname, -1),
-                    m_handler->m_typeFormats.value(data.type, -1));
+                    m_handler->m_typeFormats.value(data.type, -1)));
                 case 2:
                     if (!data.displayedType.isEmpty())
                         return data.displayedType;
