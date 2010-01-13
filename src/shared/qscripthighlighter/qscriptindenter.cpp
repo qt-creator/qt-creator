@@ -653,8 +653,10 @@ bool QScriptIndenter::isUnfinishedLine()
           It doesn't end with ';' or similar. If it's neither
           "Q_OBJECT" nor "if (x)", it must be an unfinished line.
         */
-        unf = (yyLine->indexOf(QLatin1String("Q_OBJECT")) == -1 &&
-                !matchBracelessControlStatement());
+        unf = ! matchBracelessControlStatement();
+        if (unf && lastCh == QLatin1Char(')'))
+            unf = false;
+
     } else if (lastCh == QLatin1Char(';')) {
         if (lastParen(*yyLine) == QLatin1Char('(')) {
             /*
