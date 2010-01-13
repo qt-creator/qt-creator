@@ -750,9 +750,10 @@ static inline bool getUnsignedHexValue(CIDebugSymbolGroup *sg, int index, quint6
     return getUnsignedHexValue(stringValue, value);
 }
 
+enum { maxStringLength = 4096 };
+
 int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
 {
-    const int maxLength = 40;
     QString errorMessage;
     unsigned long stringIndex;
     if (!lookupPrefix(wd->iname, &stringIndex))
@@ -774,9 +775,9 @@ int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
     if (!getUnsignedHexValue(m_symbolGroup, arrayIndex, &array))
         return 5;
     // Fetch
-    const bool truncated = size > maxLength;
+    const bool truncated = size > maxStringLength;
     if (truncated)
-        size = maxLength;
+        size = maxStringLength;
     const QChar doubleQuote = QLatin1Char('"');
     QString value;
     if (size > 0) {
@@ -808,7 +809,6 @@ int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
 
 int CdbSymbolGroupContext::dumpStdString(WatchData *wd)
 {
-    const int maxLength = 40;
     QString errorMessage;
     unsigned long stringIndex;
     if (!lookupPrefix(wd->iname, &stringIndex))
@@ -835,8 +835,8 @@ int CdbSymbolGroupContext::dumpStdString(WatchData *wd)
     if (quotePos == -1)
         return 1;
     bufValue.remove(0, quotePos);
-    if (bufValue.size() > maxLength) {
-        bufValue.truncate(maxLength);
+    if (bufValue.size() > maxStringLength) {
+        bufValue.truncate(maxStringLength);
         bufValue += QLatin1String("...\"");
     }
     wd->setValue(bufValue);
