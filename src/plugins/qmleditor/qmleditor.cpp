@@ -691,6 +691,19 @@ void QmlTextEditor::unCommentSelection()
     Utils::unCommentSelection(this);
 }
 
+static bool isCompleteStringLiteral(const QStringRef &text)
+{
+    if (text.length() < 2)
+        return false;
+
+    const QChar quote = text.at(0);
+
+    if (text.at(text.length() - 1) == quote)
+        return text.at(text.length() - 2) != QLatin1Char('\\'); // ### not exactly.
+
+    return false;
+}
+
 bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, const QString &textToInsert) const
 {
     QChar ch;
@@ -727,18 +740,21 @@ bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, cons
     const QList<QScriptIncrementalScanner::Token> tokens = tokenize(blockText, blockState);
     const int pos = cursor.columnNumber();
 
-    int tokenIndex = tokens.size() - 1;
-    for (; tokenIndex != -1; --tokenIndex) {
+    int tokenIndex = 0;
+    for (; tokenIndex < tokens.size(); ++tokenIndex) {
         const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
+
         if (pos >= token.begin()) {
             if (pos < token.end())
                 break;
-            else if (pos == token.end() && token.is(QScriptIncrementalScanner::Token::Comment))
+
+            else if (pos == token.end() && (token.is(QScriptIncrementalScanner::Token::Comment) ||
+                                            token.is(QScriptIncrementalScanner::Token::String)))
                 break;
         }
     }
 
-    if (tokenIndex != -1) {
+    if (tokenIndex != tokens.size()) {
         const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
 
         switch (token.kind) {
@@ -746,10 +762,12 @@ bool QmlTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, cons
             return false;
 
         case QScriptIncrementalScanner::Token::String: {
-            if (ch == blockText.at(token.begin())) {
-                if (token.end() - 1 == pos && blockText.at(token.end() - 2) != QLatin1Char('\\'))
-                    break;
-            }
+            const QStringRef tokenText = blockText.midRef(token.offset, token.length);
+            const QChar quote = tokenText.at(0);
+
+            if (ch == quote && isCompleteStringLiteral(tokenText))
+                break;
+
             return false;
         }
 
