@@ -8,6 +8,8 @@
 
 #include <qmllookupcontext.h>
 
+#include <typeinfo>
+
 using namespace Qml;
 using namespace QmlEditor;
 using namespace QmlEditor::Internal;
@@ -192,11 +194,17 @@ void tst_Lookup::localIdLookup()
     // try lookup
     QStack<QmlSymbol *> scopes;
     foreach (const QString &contextSymbolName, symbolNames) {
-        scopes.push_back(doc->ids()[contextSymbolName]);
+        scopes.push_back(doc->ids()[contextSymbolName]->parentNode());
         QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
 
         foreach (const QString &lookupSymbolName, symbolNames) {
-            QCOMPARE(context.resolve(lookupSymbolName), doc->ids()[lookupSymbolName]);
+            QmlSymbol *resolvedSymbol = context.resolve(lookupSymbolName);
+            QmlIdSymbol *targetSymbol = doc->ids()[lookupSymbolName];
+            QCOMPARE(resolvedSymbol, targetSymbol);
+
+            QmlIdSymbol *resolvedId = resolvedSymbol->asIdSymbol();
+            QVERIFY(resolvedId);
+            QCOMPARE(resolvedId->parentNode(), targetSymbol->parentNode());
         }
     }
 }
@@ -227,7 +235,7 @@ void tst_Lookup::localScriptMethodLookup()
     // try lookup
     QStack<QmlSymbol *> scopes;
     foreach (const QString &contextSymbolName, symbolNames) {
-        scopes.push_back(doc->ids()[contextSymbolName]);
+        scopes.push_back(doc->ids()[contextSymbolName]->parentNode());
         QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
 
         foreach (const QString &functionName, functionNames) {
@@ -260,19 +268,20 @@ void tst_Lookup::localScopeLookup()
     // try lookup
     QStack<QmlSymbol *> scopes;
     foreach (const QString &contextSymbolName, symbolNames) {
-        scopes.push_back(doc->ids()[contextSymbolName]);
+        QmlSymbol *parent = doc->ids()[contextSymbolName]->parentNode();
+        scopes.push_back(parent);
         QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
 
         QmlSymbol *symbol;
         symbol = context.resolve("prop");
         QVERIFY(symbol);
         QVERIFY(symbol->isPropertyDefinitionSymbol());
-        QVERIFY(doc->ids()[contextSymbolName]->members().contains(symbol));
+        QVERIFY(parent->members().contains(symbol));
 
         symbol = context.resolve("x");
         QVERIFY(symbol);
         QVERIFY(symbol->isProperty());
-        QVERIFY(doc->ids()[contextSymbolName]->members().contains(symbol));
+        QVERIFY(parent->members().contains(symbol));
     }
 }
 
@@ -292,24 +301,25 @@ void tst_Lookup::localRootLookup()
     // check symbol existence and build scopes
     QStack<QmlSymbol *> scopes;
     foreach (const QString &symbolName, symbolNames) {
-        QmlSymbol *symbol = doc->ids()[symbolName];
-        QVERIFY(symbol);
-        scopes.push_back(symbol);
+        QmlIdSymbol *id = doc->ids()[symbolName];
+        QVERIFY(id);
+        scopes.push_back(id->parentNode());
     }
 
     // try lookup
+    QmlSymbol *parent = scopes.top();
     QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
     
     QmlSymbol *symbol;
     symbol = context.resolve("prop");
     QVERIFY(symbol);
     QVERIFY(symbol->isPropertyDefinitionSymbol());
-    QVERIFY(doc->ids()[symbolNames[0]]->members().contains(symbol));
+    QVERIFY(parent->members().contains(symbol));
 
     symbol = context.resolve("color");
     QVERIFY(symbol);
     QVERIFY(symbol->isProperty());
-    QVERIFY(doc->ids()[symbolNames[0]]->members().contains(symbol));
+    QVERIFY(parent->members().contains(symbol));
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)
