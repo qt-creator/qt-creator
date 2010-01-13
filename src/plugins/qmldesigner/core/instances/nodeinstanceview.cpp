@@ -597,7 +597,7 @@ QRectF NodeInstanceView::boundingRect() const
 QRectF NodeInstanceView::sceneRect() const
 {
     if (m_graphicsView)
-       return m_graphicsView->sceneRect();
+       return rootNodeInstance().boundingRect();
 
     return QRectF();
 }

@@ -107,6 +107,14 @@ QSizeF QmlGraphicsItemNodeInstance::size() const
 
     }
 
+    if (modelNode().isRootNode()) {
+        if (!m_hasWidth)
+            qmlGraphicsItem()->setWidth(100.);
+
+        if (!m_hasHeight)
+            qmlGraphicsItem()->setHeight(100.);
+    }
+
     return QSizeF(qmlGraphicsItem()->width(), qmlGraphicsItem()->height());
 }
 
@@ -125,6 +133,14 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
             && implicitHeight != qmlGraphicsItem()->height())
             qmlGraphicsItem()->setHeight(implicitHeight);
 
+    }
+
+    if (modelNode().isRootNode()) {
+        if (!m_hasWidth)
+            qmlGraphicsItem()->setWidth(100.);
+
+        if (!m_hasHeight)
+            qmlGraphicsItem()->setHeight(100.);
     }
 
     return qmlGraphicsItem()->boundingRect();
@@ -237,6 +253,13 @@ int QmlGraphicsItemNodeInstance::penWidth() const
 
 void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 {
+    if (name == "height")
+        m_hasHeight = false;
+
+    if (name == "width")
+        m_hasWidth = false;
+
+
     GraphicsObjectNodeInstance::resetProperty(name);
     if (name == "anchors.fill") {
         qmlGraphicsItem()->anchors()->resetFill();
