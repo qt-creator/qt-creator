@@ -409,11 +409,11 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
     loadCurrentModel();
 }
 
- void DesignDocumentController::loadCurrentModel()
- {
-     Q_ASSERT(m_d->masterModel);
-     Q_ASSERT(m_d->model);
-     m_d->model->setMasterModel(m_d->masterModel.data());
+void DesignDocumentController::loadCurrentModel()
+{
+    Q_ASSERT(m_d->masterModel);
+    Q_ASSERT(m_d->model);
+    m_d->model->setMasterModel(m_d->masterModel.data());
 
     m_d->allPropertiesBox->setModel(m_d->model.data());
 
@@ -441,7 +441,7 @@ void DesignDocumentController::changeCurrentModelTo(const ModelNode &componentNo
 
     m_d->documentLoaded = true;
     Q_ASSERT(m_d->masterModel);
- }
+}
 
 QList<RewriterView::Error> DesignDocumentController::loadMaster(const QByteArray &qml)
 {
