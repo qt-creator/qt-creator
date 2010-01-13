@@ -48,6 +48,7 @@
 #include <ne7ssh.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QScopedPointer>
 #include <QtCore/QStringBuilder>
 
 #include <cstdio>
@@ -132,12 +133,12 @@ void MaemoInteractiveSshConnection::runCommand(const QString &command)
         const char * const error = lastError();
         if (error)
             throw MaemoSshException(tr("SSH error: %1").arg(error));
-        const char * const output = ssh.readAndReset(channel(), alloc);
-        if (output) {
-            emit remoteOutput(QString::fromUtf8(output));
+        QScopedPointer<char, QScopedPointerArrayDeleter<char> >
+            output(ssh.readAndReset(channel(), alloc));
+        if (output.data()) {
+            emit remoteOutput(QString::fromUtf8(output.data()));
             if (!done)
-                done = strstr(output, m_prompt) != 0;
-            delete[] output;
+                done = strstr(output.data(), m_prompt) != 0;
         }
     } while (!done && !stopRequested());
 }
