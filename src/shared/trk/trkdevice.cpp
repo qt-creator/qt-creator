@@ -332,7 +332,8 @@ DeviceContext::DeviceContext() :
 
 ///////////////////////////////////////////////////////////////////////
 
-class WriterThread : public QThread {
+class WriterThread : public QThread
+{
     Q_OBJECT
     Q_DISABLE_COPY(WriterThread)
 public:            
@@ -398,12 +399,12 @@ int WriterThread::writePendingMessage()
     m_waitMutex.unlock();
     if (m_terminate)
         return 1;
+
     // Send off message
     m_dataMutex.lock();
     TrkMessage message;
     const TrkWriteQueue::PendingMessageResult pr = m_queue.pendingMessage(&message);
     m_dataMutex.unlock();
-
 
     switch (pr) {
     case TrkWriteQueue::NoMessage:
@@ -562,6 +563,7 @@ void WriterThread::slotHandleResult(const TrkResult &result)
     tryWrite(); // Have messages been enqueued in-between?
 }
 
+
 ///////////////////////////////////////////////////////////////////////
 //
 // ReaderThreadBase: Base class for a thread that reads data from
@@ -571,7 +573,8 @@ void WriterThread::slotHandleResult(const TrkResult &result)
 //
 ///////////////////////////////////////////////////////////////////////
 
-class ReaderThreadBase : public QThread {
+class ReaderThreadBase : public QThread
+{
     Q_OBJECT
     Q_DISABLE_COPY(ReaderThreadBase)
 public:
@@ -630,7 +633,8 @@ void ReaderThreadBase::readMessages()
 //
 ///////////////////////////////////////////////////////////////////////
 
-class WinReaderThread : public ReaderThreadBase {
+class WinReaderThread : public ReaderThreadBase
+{
     Q_OBJECT
     Q_DISABLE_COPY(WinReaderThread)
 public:
