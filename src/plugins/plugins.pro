@@ -193,6 +193,7 @@ plugin_qmlinspector.subdir = qmlinspector
 plugin_qmlinspector.depends += plugin_projectexplorer
 plugin_qmlinspector.depends += plugin_coreplugin
 plugin_qmlinspector.depends += plugin_texteditor
+plugin_qmlinspector.depends += plugin_qmlprojectmanager
 
 plugin_mercurial.subdir = mercurial
 plugin_mercurial.depends = plugin_texteditor
