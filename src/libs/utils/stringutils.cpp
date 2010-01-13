@@ -40,6 +40,10 @@ QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category)
 {
     QString rc(category);
     const QChar underscore = QLatin1Char('_');
+    // Remove the sort category "X.Category" -> "Category"
+    if (rc.size() > 2 && rc.at(0).isLetter() && rc.at(1) == QLatin1Char('.'))
+        rc.remove(0, 2);
+    // Replace special characters
     const int size = rc.size();
     for (int i = 0; i < size; i++) {
         const QChar c = rc.at(i);
