@@ -160,9 +160,11 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     //menus
     Core::ActionContainer *mbuild =
-        am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
+            am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
     Core::ActionContainer *mproject =
-        am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+            am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    Core::ActionContainer *msubproject =
+            am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
     //register actions
     m_projectContext = core->uniqueIDManager()->
@@ -180,8 +182,19 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_runQMakeActionContextMenu = new QAction(qmakeIcon, tr("Run qmake"), this);
     command = am->registerAction(m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, context);
     command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Core::Command::CA_UpdateText);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runQMakeActionContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMakeContextMenu()));
+
+    QIcon buildIcon(ProjectExplorer::Constants::ICON_BUILD);
+    buildIcon.addFile(ProjectExplorer::Constants::ICON_BUILD_SMALL);
+    m_buildSubProjectContextMenu = new QAction(buildIcon, tr("Build"), this);
+    command = am->registerAction(m_buildSubProjectContextMenu, Constants::BUILDSUBDIR, context);
+    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
+    connect(m_buildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildSubDirContextMenu()));
 
     connect(m_projectExplorer,
             SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*, ProjectExplorer::Node*)),
@@ -206,13 +219,23 @@ void Qt4ProjectManagerPlugin::updateContextMenu(Project *project,
     m_qt4ProjectManager->setContextProject(project);
     m_qt4ProjectManager->setContextNode(node);
     m_runQMakeActionContextMenu->setEnabled(false);
+    m_buildSubProjectContextMenu->setEnabled(false);
 
-    if (qobject_cast<Qt4Project *>(project)) {
+    Qt4ProFileNode *proFileNode = qobject_cast<Qt4ProFileNode *>(node);
+    if (qobject_cast<Qt4Project *>(project) && proFileNode) {
         m_runQMakeActionContextMenu->setVisible(true);
-        if (!m_projectExplorer->buildManager()->isBuilding(project))
+        m_buildSubProjectContextMenu->setVisible(true);
+
+        m_runQMakeActionContextMenu->setText(tr("Run qmake in %1").arg(proFileNode->buildDir()));
+        m_buildSubProjectContextMenu->setText(tr("Build in %1").arg(proFileNode->buildDir()));
+
+        if (!m_projectExplorer->buildManager()->isBuilding(project)) {
             m_runQMakeActionContextMenu->setEnabled(true);
+            m_buildSubProjectContextMenu->setEnabled(true);
+        }
     } else {
         m_runQMakeActionContextMenu->setVisible(false);
+        m_buildSubProjectContextMenu->setVisible(false);
     }
 }
 

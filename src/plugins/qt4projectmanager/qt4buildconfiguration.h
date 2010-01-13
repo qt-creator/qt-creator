@@ -34,6 +34,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/toolchain.h>
+#include "qt4nodes.h"
 
 namespace Qt4ProjectManager {
 
@@ -69,6 +70,9 @@ public:
     bool shadowBuild() const;
     QString shadowBuildDirectory() const;
     void setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory);
+
+    void setSubNodeBuild(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
+    Qt4ProjectManager::Internal::Qt4ProFileNode *subNodeBuild() const;
 
     //returns the qtVersion, if the project is set to use the default qt version, then
     // that is returned
@@ -138,6 +142,7 @@ private:
     mutable int m_qtVersion; // Changed if the qtversion is invalid
     int m_toolChainType;
     QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
+    Qt4ProjectManager::Internal::Qt4ProFileNode *m_subNodeBuild;
 };
 
 class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

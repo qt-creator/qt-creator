@@ -93,6 +93,7 @@ public:
 public slots:
     void runQMake();
     void runQMakeContextMenu();
+    void buildSubDirContextMenu();
 
 private slots:
     void editorAboutToClose(Core::IEditor *editor);
@@ -101,7 +102,7 @@ private slots:
 
 private:
     QList<Qt4Project *> m_projects;
-    void runQMake(ProjectExplorer::Project *p);
+    void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
     Internal::Qt4ProjectManagerPlugin *m_plugin;
 

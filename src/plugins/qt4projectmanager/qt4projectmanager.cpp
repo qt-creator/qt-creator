@@ -238,18 +238,19 @@ ProjectExplorer::Project *Qt4Manager::contextProject() const
 
 void Qt4Manager::runQMake()
 {
-    runQMake(projectExplorer()->currentProject());
+    runQMake(projectExplorer()->currentProject(), 0);
 }
 
 void Qt4Manager::runQMakeContextMenu()
 {
-    runQMake(m_contextProject);
+    runQMake(m_contextProject, m_contextNode);
 }
 
-void Qt4Manager::runQMake(ProjectExplorer::Project *p)
+void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
 {
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(p);
     QTC_ASSERT(qt4pro, return);
+
     Qt4BuildConfiguration *bc = qt4pro->activeQt4BuildConfiguration();
     QMakeStep *qs = bc->qmakeStep();
 
@@ -257,7 +258,28 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p)
         return;
     //found qmakeStep, now use it
     qs->setForced(true);
+
+    if (node != 0 && node != qt4pro->rootProjectNode())
+        if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(node))
+            bc->setSubNodeBuild(profile);
+
     projectExplorer()->buildManager()->appendStep(qs);
+    bc->setSubNodeBuild(0);
+}
+
+void Qt4Manager::buildSubDirContextMenu()
+{
+    Qt4Project *qt4pro = qobject_cast<Qt4Project *>(m_contextProject);
+    QTC_ASSERT(qt4pro, return);
+
+    Qt4BuildConfiguration *bc = qt4pro->activeQt4BuildConfiguration();
+    if (m_contextNode != 0 && m_contextNode != qt4pro->rootProjectNode())
+        if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
+            bc->setSubNodeBuild(profile);
+
+    projectExplorer()->buildManager()->buildProject(bc);
+
+    bc->setSubNodeBuild(0);
 }
 
 QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)

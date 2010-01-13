@@ -72,7 +72,10 @@ QStringList QMakeStep::allArguments()
     QStringList additonalArguments = m_userArgs;
     Qt4BuildConfiguration *bc = qt4BuildConfiguration();
     QStringList arguments;
-    arguments << buildConfiguration()->project()->file()->fileName();
+    if (bc->subNodeBuild())
+        arguments << bc->subNodeBuild()->path();
+    else
+        arguments << buildConfiguration()->project()->file()->fileName();
     arguments << "-r";
 
     if (!additonalArguments.contains("-spec"))
@@ -120,8 +123,13 @@ bool QMakeStep::init()
     }
 
     QStringList args = allArguments();
-    QString workingDirectory = qt4bc->buildDirectory();
+    QString workingDirectory;
+    if (qt4bc->subNodeBuild())
+        workingDirectory = qt4bc->subNodeBuild()->buildDir();
+    else
+        workingDirectory = qt4bc->buildDirectory();
 
+    qDebug()<<"using working directory"<<workingDirectory<<"and args"<<args;
     QString program = qtVersion->qmakeCommand();
 
     // Check whether we need to run qmake

@@ -57,6 +57,7 @@ const char * const SUBPROJECT_NEWMENU_SEPARATOR   = "Qt4.SubProjectNewMenuSepara
 const char * const ADDTOPROJECT        = "Qt4.AddToProject";
 const char * const RUNQMAKE            = "Qt4Builder.RunQMake";
 const char * const RUNQMAKECONTEXTMENU = "Qt4Builder.RunQMakeContextMenu";
+const char * const BUILDSUBDIR         = "Qt4Builder.BuildSubDir";
 
 //configurations
 const char * const CONFIG_DEBUG     = "debug";
