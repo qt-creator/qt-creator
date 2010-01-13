@@ -564,3 +564,7 @@ unix {
 linux*-g++* {
     SOURCES += timer/posix_rt/tm_posix.cpp
 }
+
+linux*-g++* {
+    LIBS += -lrt
+}
