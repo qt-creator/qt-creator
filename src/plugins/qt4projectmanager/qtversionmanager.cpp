@@ -305,12 +305,20 @@ void QtVersionManager::addNewVersionsFromInstaller()
     // NewQtVersions="versionname=pathtoversion=mingw=s60sdk=gcce=carbide;"
     // Duplicate entries are not added, the first new version is set as default.
     QSettings *settings = Core::ICore::instance()->settings();
+    QSettings *globalSettings = Core::ICore::instance()->settings(QSettings::SystemScope);
 
-    if (!settings->contains(newQtVersionsKey) &&
-        !settings->contains(QLatin1String("Installer/")+newQtVersionsKey))
+    QDateTime lastUpdateFromGlobalSettings = globalSettings->value(
+            QLatin1String("General/LastQtVersionUpdate")).toDateTime();
+
+    const QFileInfo gsFi(globalSettings->fileName());
+    if (!gsFi.exists() || (gsFi.lastModified() > lastUpdateFromGlobalSettings))
         return;
 
-//    qDebug()<<"QtVersionManager::addNewVersionsFromInstaller()";
+    if (!globalSettings->contains(newQtVersionsKey) &&
+        !globalSettings->contains(QLatin1String("Installer/")+newQtVersionsKey))
+    {
+        return;
+    }
 
     QString newVersionsValue = settings->value(newQtVersionsKey).toString();
     if (newVersionsValue.isEmpty())
@@ -353,9 +361,8 @@ void QtVersionManager::addNewVersionsFromInstaller()
             }
         }
     }
-    settings->remove(newQtVersionsKey);
-    settings->remove(QLatin1String("Installer/")+newQtVersionsKey);
     updateUniqueIdToIndexMap();
+    settings->setValue(QLatin1String("General/LastQtVersionUpdate"), QDateTime::currentDateTime());
 }
 
 void QtVersionManager::updateSystemVersion()
