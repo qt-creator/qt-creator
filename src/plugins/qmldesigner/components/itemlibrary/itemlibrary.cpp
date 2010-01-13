@@ -266,6 +266,7 @@ void ItemLibrary::setMetaInfo(const MetaInfo &metaInfo)
         if (!itemLibraryRepresentationList.isEmpty() && metaInfo.hasNodeMetaInfo(type)) {
             foreach (ItemLibraryInfo itemLibraryRepresentation, itemLibraryRepresentationList) {
                 QImage image(64, 64, QImage::Format_RGB32); // = m_d->m_queryView->paintObject(nodeInfo, itemLibraryRepresentation.properties()); TODO
+                image.fill(0xffffffff);
                 if (!image.isNull()) {
                     QPainter p(&image);
                     QPen pen(Qt::gray);
