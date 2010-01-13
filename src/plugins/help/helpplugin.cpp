@@ -109,7 +109,7 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
                 if (hc.registeredDocumentations().contains(nameSpace)) {
                     if (!QFileInfo(hc.documentationFileName(nameSpace)).exists()) {
                         // remove stale documentation path first
-                        if (!hc.unregisterDocumentation(fileName)) {
+                        if (!hc.unregisterDocumentation(nameSpace)) {
                             qWarning() << "error unregistering " << fileName << hc.error();
                             continue;
                         }
