@@ -36,6 +36,7 @@
 
 #include <QtCore/QMap>
 #include <QtGui/QColor>
+#include <QtCore/QSettings>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -107,7 +108,7 @@ public:
     Core::MimeDatabase *mimeDatabase() const;
 
     VCSManager *vcsManager() const;
-    inline QSettings *settings() const { return m_settings; }
+    QSettings *settings(QSettings::Scope scope) const;
     inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;
     IContext * currentContextObject() const;
@@ -176,6 +177,7 @@ private:
     QList<int> m_globalContext;
     QList<int> m_additionalContexts;
     QSettings *m_settings;
+    QSettings *m_globalSettings;
     SettingsDatabase *m_settingsDatabase;
     mutable QPrinter *m_printer;
     ActionManagerPrivate *m_actionManager;

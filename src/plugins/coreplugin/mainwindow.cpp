@@ -945,6 +945,14 @@ VCSManager *MainWindow::vcsManager() const
     return m_vcsManager;
 }
 
+QSettings *MainWindow::settings(QSettings::Scope scope) const
+{
+    if (scope == QSettings::UserScope)
+        return m_settings;
+    else
+        return m_globalSettings;
+}
+
 EditorManager *MainWindow::editorManager() const
 {
     return m_editorManager;

@@ -188,11 +188,19 @@
 */
 
 /*!
-    \fn QSettings *ICore::settings() const
+    \fn QSettings *ICore::settings(QSettings::UserScope scope) const
     \brief Returns the application's main settings object.
 
     You can use it to retrieve or set application wide settings
     (in contrast to session or project specific settings).
+
+    If \a scope is QSettings::UserScope (the default), the
+    users settings will be read from the users settings, with
+    a fallback to global settings provided with Qt Creator.
+
+    If \a scope is QSettings::SystemScope, only the system settings
+    shipped with the current version of Qt Creator will be read. This
+    functionality exists for internal purposes only.
 
     \see settingsDatabase()
 */

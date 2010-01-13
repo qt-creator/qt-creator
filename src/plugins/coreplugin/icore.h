@@ -32,6 +32,7 @@
 
 #include "core_global.h"
 #include <QtCore/QObject>
+#include <QtCore/QSettings>
 
 QT_BEGIN_NAMESPACE
 class QMainWindow;
@@ -39,6 +40,7 @@ class QPrinter;
 class QSettings;
 template <class T> class QList;
 QT_END_NAMESPACE
+
 
 namespace Core {
 
@@ -93,7 +95,7 @@ public:
     virtual ModeManager *modeManager() const = 0;
     virtual MimeDatabase *mimeDatabase() const = 0;
 
-    virtual QSettings *settings() const = 0;
+    virtual QSettings *settings(QSettings::Scope scope = QSettings::UserScope) const = 0;
     virtual SettingsDatabase *settingsDatabase() const = 0;
     virtual QPrinter *printer() const = 0;
 
