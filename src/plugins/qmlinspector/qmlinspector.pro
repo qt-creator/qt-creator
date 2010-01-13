@@ -20,6 +20,7 @@ RESOURCES += qmlinspector.qrc
 
 include(../../qtcreatorplugin.pri)
 include(../../plugins/projectexplorer/projectexplorer.pri)
+include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
 

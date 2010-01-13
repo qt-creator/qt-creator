@@ -61,6 +61,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 
+#include <qmlprojectmanager/qmlproject.h>
+
 #include <QtCore/QStringList>
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
@@ -183,15 +185,15 @@ void QmlInspectorMode::connectToViewer()
         return;
     }
 
-    ProjectExplorer::RunConfiguration* config = project->activeRunConfiguration();
+    QmlProjectManager::QmlRunConfiguration* config =
+            qobject_cast<QmlProjectManager::QmlRunConfiguration*>(project->activeRunConfiguration());
     if (!config) {
         emit statusMessage(tr("Cannot find project run configuration, debugging canceled."));
         return;
     }
 
-    // TODO load from QmlProject settings!!
     QHostAddress host = QHostAddress::LocalHost;
-    quint16 port = 3768;
+    quint16 port = quint16(config->debugServerPort());
 
     m_conn = new QmlDebugConnection(this);
     connect(m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
