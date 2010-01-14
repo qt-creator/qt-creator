@@ -202,9 +202,10 @@ template <> struct Compare<SelectorNameId>
 template <typename _Tp>
 class Table: public std::set<_Tp, Compare<_Tp> >
 {
+    typedef std::set<_Tp, Compare<_Tp> > _Base;
 public:
     _Tp *intern(const _Tp &element)
-    { return const_cast<_Tp *>(&*insert(element).first); }
+    { return const_cast<_Tp *>(&*_Base::insert(element).first); }
 };
 
 } // end of anonymous namespace
