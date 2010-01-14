@@ -35,14 +35,16 @@
 
 using namespace ProjectExplorer;
 
-IBuildStepFactory *findFactory(const QString &id)
+namespace {
+IBuildStepFactory *findCloneFactory(BuildConfiguration *parent, BuildStep *source)
 {
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
     foreach(IBuildStepFactory *factory, factories)
-        if (factory->canCreate(id))
+        if (factory->canClone(parent, source))
             return factory;
     return 0;
 }
+} // namespace
 
 BuildConfiguration::BuildConfiguration(Project *pro)
     : m_project(pro)
@@ -61,14 +63,16 @@ BuildConfiguration::BuildConfiguration(BuildConfiguration *source)
     m_project(source->m_project)
 {
     foreach(BuildStep *originalbs, source->buildSteps()) {
-        IBuildStepFactory *factory = findFactory(originalbs->id());
-        BuildStep *clonebs = factory->clone(originalbs, this);
-        m_buildSteps.append(clonebs);
+        IBuildStepFactory *factory = findCloneFactory(this, originalbs);
+        BuildStep *clonebs = factory->clone(this, originalbs);
+        if (clonebs)
+            m_buildSteps.append(clonebs);
     }
     foreach(BuildStep *originalcs, source->cleanSteps()) {
-        IBuildStepFactory *factory = findFactory(originalcs->id());
-        BuildStep *clonecs = factory->clone(originalcs, this);
-        m_cleanSteps.append(clonecs);
+        IBuildStepFactory *factory = findCloneFactory(this, originalcs);
+        BuildStep *clonecs = factory->clone(this, originalcs);
+        if (clonecs)
+            m_cleanSteps.append(clonecs);
     }
 }
 

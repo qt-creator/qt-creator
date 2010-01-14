@@ -119,7 +119,7 @@ void BuildStepsPage::updateAddBuildStepMenu()
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
     foreach (IBuildStepFactory *factory, factories) {
-        QStringList ids = factory->canCreateForBuildConfiguration(m_configuration);
+        QStringList ids = factory->availableCreationIds(m_configuration);
         foreach (const QString &id, ids) {
             map.insert(factory->displayNameForId(id), QPair<QString, IBuildStepFactory *>(id, factory));
         }
@@ -147,6 +147,9 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     // create everything
     BuildStepsWidgetStruct s;
     s.widget = step->createConfigWidget();
+    Q_ASSERT(s.widget);
+    s.widget->init();
+
     s.detailsWidget = new Utils::DetailsWidget(this);
     s.detailsWidget->setSummaryText(s.widget->summaryText());
     s.detailsWidget->setWidget(s.widget);
@@ -155,6 +158,7 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     s.upButton->setArrowType(Qt::UpArrow);
     s.upButton->setMaximumHeight(22);
     s.upButton->setMaximumWidth(22);
+
     s.downButton = new QToolButton(this);
     s.downButton->setArrowType(Qt::DownArrow);
     s.downButton->setMaximumHeight(22);
@@ -209,8 +213,6 @@ void BuildStepsPage::addBuildStep()
 
         addBuildStepWidget(pos, newStep);
         const BuildStepsWidgetStruct s = m_buildSteps.at(pos);
-        s.widget->init();
-        s.detailsWidget->setSummaryText(s.widget->summaryText());
         s.detailsWidget->setExpanded(true);
     }
 

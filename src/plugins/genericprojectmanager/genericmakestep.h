@@ -45,28 +45,24 @@ namespace Internal {
 
 class GenericBuildConfiguration;
 class GenericMakeStepConfigWidget;
-
-struct GenericMakeStepSettings
-{
-
-};
+class GenericMakeStepFactory;
 
 class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class GenericMakeStepConfigWidget; // TODO remove again?
+    friend class GenericMakeStepFactory;
+
 public:
     GenericMakeStep(ProjectExplorer::BuildConfiguration *bc);
-    GenericMakeStep(GenericMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
-    ~GenericMakeStep();
+    virtual ~GenericMakeStep();
+
     GenericBuildConfiguration *genericBuildConfiguration() const;
 
     virtual bool init();
 
     virtual void run(QFutureInterface<bool> &fi);
 
-    virtual QString id();
-    virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
     bool buildsTarget(const QString &target) const;
@@ -74,9 +70,16 @@ public:
     QStringList replacedArguments() const;
     QString makeCommand() const;
 
-    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
-    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
+    QVariantMap toMap() const;
+
+protected:
+    GenericMakeStep(ProjectExplorer::BuildConfiguration *bc, GenericMakeStep *bs);
+    GenericMakeStep(ProjectExplorer::BuildConfiguration *bc, const QString &id);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
+    void ctor();
+
     QStringList m_buildTargets;
     QStringList m_makeArguments;
     QString m_makeCommand;
@@ -104,12 +107,25 @@ private:
 
 class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
-    virtual bool canCreate(const QString &id) const;
-    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc,
-                                               const QString &id) const;
-    virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs,
-                                              ProjectExplorer::BuildConfiguration *bc) const;
-    virtual QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
+    Q_OBJECT
+
+public:
+    explicit GenericMakeStepFactory(QObject *parent = 0);
+    virtual ~GenericMakeStepFactory();
+
+    virtual bool canCreate(ProjectExplorer::BuildConfiguration *parent, const QString &id) const;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent,
+                                               const QString &id);
+    virtual bool canClone(ProjectExplorer::BuildConfiguration *parent,
+                          ProjectExplorer::BuildStep *source) const;
+    virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent,
+                                              ProjectExplorer::BuildStep *source);
+    virtual bool canRestore(ProjectExplorer::BuildConfiguration *parent,
+                            const QVariantMap &map) const;
+    virtual ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent,
+                                                const QVariantMap &map);
+
+    virtual QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc) const;
     virtual QString displayNameForId(const QString &id) const;
 };
 

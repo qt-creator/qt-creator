@@ -49,13 +49,19 @@ class Qt4BuildConfiguration;
 class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
+
 public:
-    MakeStepFactory();
+    explicit MakeStepFactory(QObject *parent = 0);
     virtual ~MakeStepFactory();
-    bool canCreate(const QString &id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString &id) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
-    QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
+
+    bool canCreate(ProjectExplorer::BuildConfiguration *parent, const QString &id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, const QString &id);
+    bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *source) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *source);
+    bool canRestore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map);
+
+    QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *parent) const;
     QString displayNameForId(const QString &id) const;
 };
 } //namespace Internal
@@ -65,33 +71,36 @@ class Qt4Project;
 class MakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
+    friend class Internal::MakeStepFactory;
     friend class MakeStepConfigWidget; // TODO remove this
     // used to access internal stuff
+
 public:
-    MakeStep(ProjectExplorer::BuildConfiguration *bc);
-    MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
-    ~MakeStep();
+    explicit MakeStep(ProjectExplorer::BuildConfiguration *bc);
+    virtual ~MakeStep();
 
     Internal::Qt4BuildConfiguration *qt4BuildConfiguration() const;
 
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
-    virtual QString id();
-    virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
     QStringList userArguments();
     void setUserArguments(const QStringList &arguments);
     void setClean(bool clean);
 
-    virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
-
-    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
-    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
+    QVariantMap toMap() const;
 
 signals:
     void userArgumentsChanged();
+
+protected:
+    MakeStep(ProjectExplorer::BuildConfiguration *bc, MakeStep *bs);
+    MakeStep(ProjectExplorer::BuildConfiguration *bc, const QString &id);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
+    void ctor();
     bool m_clean;
     QStringList m_userArgs;
     QString m_makeCmd;

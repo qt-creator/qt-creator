@@ -43,24 +43,44 @@ using ExtensionSystem::PluginManager;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc) :
-    AbstractProcessStep(bc), m_clean(false)
-{
+namespace {
+const char * const MAKESTEP_BS_ID("Qt4ProjectManager.MakeStep");
 
+const char * const MAKE_ARGUMENTS_KEY("Qt4ProjectManager.MakeStep.MakeArguments");
+const char * const MAKE_COMMAND_KEY("Qt4ProjectManager.MakeStep.MakeCommand");
+const char * const CLEAN_KEY("Qt4ProjectManager.MakeStep.Clean");
 }
 
-MakeStep::MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc) :
-    AbstractProcessStep(bs, bc),
+MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc) :
+    AbstractProcessStep(bc, QLatin1String(MAKESTEP_BS_ID)),
+    m_clean(false)
+{
+    ctor();
+}
+
+MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc, MakeStep *bs) :
+    AbstractProcessStep(bc, bs),
     m_clean(bs->m_clean),
     m_userArgs(bs->m_userArgs),
     m_makeCmd(bs->m_makeCmd)
 {
+    ctor();
+}
 
+MakeStep::MakeStep(ProjectExplorer::BuildConfiguration *bc, const QString &id) :
+    AbstractProcessStep(bc, id),
+    m_clean(false)
+{
+    ctor();
+}
+
+void MakeStep::ctor()
+{
+    setDisplayName(tr("Make", "Qt4 MakeStep display name."));
 }
 
 MakeStep::~MakeStep()
 {
-
 }
 
 Qt4BuildConfiguration *MakeStep::qt4BuildConfiguration() const
@@ -73,29 +93,22 @@ void MakeStep::setClean(bool clean)
     m_clean = clean;
 }
 
-void MakeStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
+QVariantMap MakeStep::toMap() const
 {
-    if (map.value("clean").isValid() && map.value("clean").toBool())
-        m_clean = true;
-    ProjectExplorer::AbstractProcessStep::restoreFromGlobalMap(map);
+    QVariantMap map(ProjectExplorer::AbstractProcessStep::toMap());
+    map.insert(QLatin1String(MAKE_ARGUMENTS_KEY), m_userArgs);
+    map.insert(QLatin1String(MAKE_COMMAND_KEY), m_makeCmd);
+    map.insert(QLatin1String(CLEAN_KEY), m_clean);
+    return map;
 }
 
-void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
+bool MakeStep::fromMap(const QVariantMap &map)
 {
-    m_userArgs = map.value("makeargs").toStringList();
-    m_makeCmd = map.value("makeCmd").toString();
-    if (map.value("clean").isValid() && map.value("clean").toBool())
-        m_clean = true;
-    ProjectExplorer::AbstractProcessStep::restoreFromLocalMap(map);
-}
+    m_makeCmd = map.value(QLatin1String(MAKE_COMMAND_KEY)).toString();
+    m_userArgs = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toStringList();
+    m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
 
-void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
-{
-    map["makeargs"] = m_userArgs;
-    map["makeCmd"] = m_makeCmd;
-    if (m_clean)
-        map["clean"] = true;
-    ProjectExplorer::AbstractProcessStep::storeIntoLocalMap(map);
+    return BuildStep::fromMap(map);
 }
 
 bool MakeStep::init()
@@ -168,16 +181,6 @@ void MakeStep::run(QFutureInterface<bool> & fi)
     }
 
     AbstractProcessStep::run(fi);
-}
-
-QString MakeStep::id()
-{
-    return Constants::MAKESTEP;
-}
-
-QString MakeStep::displayName()
-{
-    return QLatin1String("Make");
 }
 
 bool MakeStep::immutable() const
@@ -310,10 +313,11 @@ void MakeStepConfigWidget::makeArgumentsLineEdited()
 }
 
 ///
-// MakeStep
+// MakeStepFactory
 ///
 
-MakeStepFactory::MakeStepFactory()
+MakeStepFactory::MakeStepFactory(QObject *parent) :
+    ProjectExplorer::IBuildStepFactory(parent)
 {
 }
 
@@ -321,32 +325,59 @@ MakeStepFactory::~MakeStepFactory()
 {
 }
 
-bool MakeStepFactory::canCreate(const QString &id) const
+bool MakeStepFactory::canCreate(ProjectExplorer::BuildConfiguration *parent, const QString &id) const
 {
-    return (id == Constants::MAKESTEP);
+    if (!qobject_cast<Qt4BuildConfiguration *>(parent))
+        return false;
+    return (id == QLatin1String(MAKESTEP_BS_ID));
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildConfiguration *bc, const QString &id) const
+ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildConfiguration *parent, const QString &id)
 {
-    Q_UNUSED(id);
-    return new MakeStep(bc);
+    if (!canCreate(parent, id))
+        return 0;
+    return new MakeStep(parent);
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const
+bool MakeStepFactory::canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *source) const
 {
-    return new MakeStep(static_cast<MakeStep *>(bs), bc);
+    return canCreate(parent, source->id());
 }
 
-QStringList MakeStepFactory::canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *pro) const
+ProjectExplorer::BuildStep *MakeStepFactory::clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *source)
 {
-    if (qobject_cast<Qt4BuildConfiguration *>(pro))
-        return QStringList() << Constants::MAKESTEP;
-    else
-        return QStringList();
+    if (!canClone(parent, source))
+        return 0;
+    return new MakeStep(parent, static_cast<MakeStep *>(source));
+}
+
+bool MakeStepFactory::canRestore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map) const
+{
+    QString id(ProjectExplorer::idFromMap(map));
+    return canCreate(parent, id);
+}
+
+ProjectExplorer::BuildStep *MakeStepFactory::restore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    MakeStep *bs(new MakeStep(parent));
+    if (bs->fromMap(map))
+        return bs;
+    delete bs;
+    return 0;
+}
+
+QStringList MakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent) const
+{
+    if (qobject_cast<Qt4BuildConfiguration *>(parent))
+        return QStringList() << QLatin1String(MAKESTEP_BS_ID);
+    return QStringList();
 }
 
 QString MakeStepFactory::displayNameForId(const QString &id) const
 {
-    Q_UNUSED(id);
-    return tr("Make");
+    if (id == QLatin1String(MAKESTEP_BS_ID))
+        return tr("Make");
+    return QString();
 }

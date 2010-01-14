@@ -51,13 +51,17 @@ class Qt4BuildConfiguration;
 class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
+
 public:
-    QMakeStepFactory();
+    explicit QMakeStepFactory(QObject *parent = 0);
     virtual ~QMakeStepFactory();
-    bool canCreate(const QString & id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString &id) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
-    QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
+    bool canCreate(ProjectExplorer::BuildConfiguration *parent, const QString & id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, const QString &id);
+    bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *bs) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *bs);
+    bool canRestore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map);
+    QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc) const;
     QString displayNameForId(const QString &id) const;
 };
 
@@ -67,15 +71,15 @@ public:
 class QMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
+    friend class Internal::QMakeStepFactory;
+
 public:
-    QMakeStep(ProjectExplorer::BuildConfiguration *bc);
-    QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
-    ~QMakeStep();
+    explicit QMakeStep(Internal::Qt4BuildConfiguration *parent);
+    virtual ~QMakeStep();
+
     Internal::Qt4BuildConfiguration *qt4BuildConfiguration() const;
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
-    virtual QString id();
-    virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
     void setForced(bool b);
@@ -85,17 +89,22 @@ public:
     QStringList userArguments();
     void setUserArguments(const QStringList &arguments);
 
-    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
-    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
+    QVariantMap toMap() const;
 
 signals:
     void userArgumentsChanged();
 
 protected:
+    QMakeStep(Internal::Qt4BuildConfiguration *parent, QMakeStep *source);
+    QMakeStep(Internal::Qt4BuildConfiguration *parent, const QString &id);
+    virtual bool fromMap(const QVariantMap &map);
+
     virtual void processStartupFailed();
     virtual bool processFinished(int exitCode, QProcess::ExitStatus status);
 
 private:
+    void ctor();
+
     // last values
     QStringList m_lastEnv;
     bool m_forced;

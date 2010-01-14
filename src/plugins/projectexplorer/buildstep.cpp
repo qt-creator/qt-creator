@@ -28,44 +28,25 @@
 **************************************************************************/
 
 #include "buildstep.h"
-#include "buildconfiguration.h"
-#include "project.h"
-
-#include <utils/qtcassert.h>
-#include <QtGui/QLayout>
 
 using namespace ProjectExplorer;
 
-BuildStep::BuildStep(BuildConfiguration *bc)
-    : m_buildConfiguration(bc)
+BuildStep::BuildStep(BuildConfiguration *bc, const QString &id) :
+    ProjectConfiguration(id),
+    m_buildConfiguration(bc)
 {
+    Q_ASSERT(bc);
 }
 
-BuildStep::BuildStep(BuildStep *bs, BuildConfiguration *bc)
-    : m_buildConfiguration(bc)
+BuildStep::BuildStep(BuildConfiguration *bc, BuildStep *bs) :
+    ProjectConfiguration(bs),
+    m_buildConfiguration(bc)
 {
-    Q_UNUSED(bs);
+    Q_ASSERT(bc);
 }
 
 BuildStep::~BuildStep()
 {
-
-}
-
-
-void BuildStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
-{
-    Q_UNUSED(map)
-}
-
-void BuildStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
-{
-    Q_UNUSED(map)
-}
-
-void BuildStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
-{
-    Q_UNUSED(map)
 }
 
 BuildConfiguration *BuildStep::buildConfiguration() const
@@ -78,12 +59,11 @@ bool BuildStep::immutable() const
     return false;
 }
 
-IBuildStepFactory::IBuildStepFactory()
+IBuildStepFactory::IBuildStepFactory(QObject *parent) :
+    QObject(parent)
 {
-
 }
 
 IBuildStepFactory::~IBuildStepFactory()
 {
-
 }

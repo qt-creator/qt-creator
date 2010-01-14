@@ -46,16 +46,37 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
 
-QMakeStep::QMakeStep(ProjectExplorer::BuildConfiguration *bc) :
-    AbstractProcessStep(bc), m_forced(false)
-{
+namespace {
+const char * const QMAKE_BS_ID("QtProjectManager.QMakeBuildStep");
+
+const char * const QMAKE_ARGUMENTS_KEY("QtProjectManager.QMakeBuildStep.QMakeArguments");
 }
 
-QMakeStep::QMakeStep(QMakeStep *bs, ProjectExplorer::BuildConfiguration *bc) :
-    AbstractProcessStep(bs, bc),
+QMakeStep::QMakeStep(Qt4BuildConfiguration *bc) :
+    AbstractProcessStep(bc, QLatin1String(QMAKE_BS_ID)),
+    m_forced(false)
+{
+    ctor();
+}
+
+QMakeStep::QMakeStep(Qt4BuildConfiguration *bc, const QString &id) :
+    AbstractProcessStep(bc, id),
+    m_forced(false)
+{
+    ctor();
+}
+
+QMakeStep::QMakeStep(Qt4BuildConfiguration *bc, QMakeStep *bs) :
+    AbstractProcessStep(bc, bs),
     m_forced(false),
     m_userArgs(bs->m_userArgs)
 {
+    ctor();
+}
+
+void QMakeStep::ctor()
+{
+    setDisplayName(tr("QMake", "QMakeStep display name."));
 }
 
 QMakeStep::~QMakeStep()
@@ -172,16 +193,6 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
     AbstractProcessStep::run(fi);
 }
 
-QString QMakeStep::id()
-{
-    return QLatin1String(Constants::QMAKESTEP);
-}
-
-QString QMakeStep::displayName()
-{
-    return QLatin1String("QMake");
-}
-
 void QMakeStep::setForced(bool b)
 {
     m_forced = b;
@@ -232,16 +243,18 @@ QStringList QMakeStep::userArguments()
     return m_userArgs;
 }
 
-void QMakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
+QVariantMap QMakeStep::toMap() const
 {
-    m_userArgs = map.value("qmakeArgs").toStringList();
-    AbstractProcessStep::restoreFromLocalMap(map);
+    QVariantMap map(AbstractProcessStep::toMap());
+    map.insert(QLatin1String(QMAKE_ARGUMENTS_KEY), m_userArgs);
+    return map;
 }
 
-void QMakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
+bool QMakeStep::fromMap(const QVariantMap &map)
 {
-    map["qmakeArgs"] = m_userArgs;
-    AbstractProcessStep::storeIntoLocalMap(map);
+    m_userArgs = map.value(QLatin1String(QMAKE_ARGUMENTS_KEY)).toStringList();
+
+    return BuildStep::fromMap(map);
 }
 
 ////
@@ -382,7 +395,8 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 // QMakeStepFactory
 ////
 
-QMakeStepFactory::QMakeStepFactory()
+QMakeStepFactory::QMakeStepFactory(QObject *parent) :
+    ProjectExplorer::IBuildStepFactory(parent)
 {
 }
 
@@ -390,34 +404,66 @@ QMakeStepFactory::~QMakeStepFactory()
 {
 }
 
-bool QMakeStepFactory::canCreate(const QString &id) const
+bool QMakeStepFactory::canCreate(BuildConfiguration *parent, const QString &id) const
 {
-    return (id == Constants::QMAKESTEP);
+    if (!qobject_cast<Qt4BuildConfiguration *>(parent))
+        return false;
+    return (id == QLatin1String(QMAKE_BS_ID));
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildConfiguration *bc, const QString &id) const
+ProjectExplorer::BuildStep *QMakeStepFactory::create(BuildConfiguration *parent, const QString &id)
 {
-    Q_UNUSED(id);
+    if (!canCreate(parent, id))
+        return 0;
+    Qt4BuildConfiguration *bc(qobject_cast<Qt4BuildConfiguration *>(parent));
+    Q_ASSERT(bc);
     return new QMakeStep(bc);
 }
 
-ProjectExplorer::BuildStep *QMakeStepFactory::clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const
+bool QMakeStepFactory::canClone(BuildConfiguration *parent, BuildStep *source) const
 {
-    return new QMakeStep(static_cast<QMakeStep *>(bs), bc);
+    return canCreate(parent, source->id());
 }
 
-QStringList QMakeStepFactory::canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const
+ProjectExplorer::BuildStep *QMakeStepFactory::clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *source)
 {
-    if (Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc))
-        if (!qt4bc->qmakeStep())
-            return QStringList() << Constants::QMAKESTEP;
+    if (!canClone(parent, source))
+        return 0;
+    Qt4BuildConfiguration *bc(qobject_cast<Qt4BuildConfiguration *>(parent));
+    Q_ASSERT(bc);
+    return new QMakeStep(bc, qobject_cast<QMakeStep *>(source));
+}
+
+bool QMakeStepFactory::canRestore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map) const
+{
+    QString id(ProjectExplorer::idFromMap(map));
+    return canCreate(parent, id);
+}
+
+ProjectExplorer::BuildStep *QMakeStepFactory::restore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    Qt4BuildConfiguration *bc(qobject_cast<Qt4BuildConfiguration *>(parent));
+    Q_ASSERT(bc);
+    QMakeStep *bs(new QMakeStep(bc));
+    if (bs->fromMap(map))
+        return bs;
+    delete bs;
+    return 0;
+}
+
+QStringList QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent) const
+{
+    if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(parent))
+        if (!bc->qmakeStep())
+            return QStringList() << QLatin1String(QMAKE_BS_ID);
     return QStringList();
 }
 
 QString QMakeStepFactory::displayNameForId(const QString &id) const
 {
-    Q_UNUSED(id);
-    return tr("QMake");
+    if (id == QLatin1String(QMAKE_BS_ID))
+        return tr("QMake");
+    return QString();
 }
-
-

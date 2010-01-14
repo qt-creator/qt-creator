@@ -42,21 +42,19 @@
 
 using namespace ProjectExplorer;
 
-AbstractProcessStep::AbstractProcessStep(BuildConfiguration *bc) :
-    BuildStep(bc), m_timer(0), m_futureInterface(0),
+AbstractProcessStep::AbstractProcessStep(BuildConfiguration *bc, const QString &id) :
+    BuildStep(bc, id), m_timer(0), m_futureInterface(0),
     m_enabled(true), m_ignoreReturnValue(false),
     m_process(0), m_eventLoop(0), m_outputParserChain(0)
 {
-
 }
 
-AbstractProcessStep::AbstractProcessStep(AbstractProcessStep *bs,
-                                         BuildConfiguration *bc) :
-    BuildStep(bs, bc), m_timer(0), m_futureInterface(0),
+AbstractProcessStep::AbstractProcessStep(BuildConfiguration *bc,
+                                         AbstractProcessStep *bs) :
+    BuildStep(bc, bs), m_timer(0), m_futureInterface(0),
     m_enabled(bs->m_enabled), m_ignoreReturnValue(bs->m_ignoreReturnValue),
     m_process(0), m_eventLoop(0), m_outputParserChain(0)
 {
-
 }
 
 AbstractProcessStep::~AbstractProcessStep()

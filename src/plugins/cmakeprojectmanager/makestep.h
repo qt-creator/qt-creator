@@ -42,16 +42,18 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeBuildConfiguration;
+class MakeStepFactory;
 
 class MakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
+    friend class MakeStepFactory;
     friend class MakeStepConfigWidget; // TODO remove
     // This is for modifying internal data
+
 public:
     MakeStep(ProjectExplorer::BuildConfiguration *bc);
-    MakeStep(MakeStep *bs, ProjectExplorer::BuildConfiguration *bc);
-    ~MakeStep();
+    virtual ~MakeStep();
 
     CMakeBuildConfiguration *cmakeBuildConfiguration() const;
 
@@ -59,8 +61,6 @@ public:
 
     virtual void run(QFutureInterface<bool> &fi);
 
-    virtual QString id();
-    virtual QString displayName();
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
     bool buildsTarget(const QString &target) const;
@@ -68,17 +68,22 @@ public:
     QStringList additionalArguments() const;
     void setAdditionalArguments(const QStringList &list);
 
-    virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
-
-    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
-    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
-
     void setClean(bool clean);
 
+    QVariantMap toMap() const;
+
 protected:
+    MakeStep(ProjectExplorer::BuildConfiguration *bc, MakeStep *bs);
+    MakeStep(ProjectExplorer::BuildConfiguration *bc, const QString &id);
+
+    bool fromMap(const QVariantMap &map);
+
     // For parsing [ 76%]
     virtual void stdOut(const QString &line);
+
 private:
+    void ctor();
+
     bool m_clean;
     QRegExp m_percentProgress;
     QFutureInterface<bool> *m_futureInterface;
@@ -108,10 +113,20 @@ private:
 
 class MakeStepFactory : public ProjectExplorer::IBuildStepFactory
 {
-    virtual bool canCreate(const QString &id) const;
-    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *bc, const QString &id) const;
-    virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStep *bs, ProjectExplorer::BuildConfiguration *bc) const;
-    virtual QStringList canCreateForBuildConfiguration(ProjectExplorer::BuildConfiguration *bc) const;
+    Q_OBJECT
+
+public:
+    explicit MakeStepFactory(QObject *parent = 0);
+    virtual ~MakeStepFactory();
+
+    virtual bool canCreate(ProjectExplorer::BuildConfiguration *parent, const QString &id) const;
+    virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, const QString &id);
+    virtual bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *source) const;
+    virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *source);
+    virtual bool canRestore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map) const;
+    virtual ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map);
+
+    virtual QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc) const;
     virtual QString displayNameForId(const QString &id) const;
 };
 

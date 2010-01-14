@@ -36,40 +36,41 @@
 
 namespace ProjectExplorer {
 
-class Project;
-
 namespace Internal {
 
 class ProcessStepFactory : public IBuildStepFactory
 {
+    Q_OBJECT
+
 public:
     ProcessStepFactory();
-    virtual bool canCreate(const QString &id) const;
-    virtual BuildStep *create(BuildConfiguration *bc, const QString &id) const;
-    virtual BuildStep *clone(BuildStep *bs, BuildConfiguration *bc) const;
-    virtual QStringList canCreateForBuildConfiguration(BuildConfiguration *pro) const;
+    ~ProcessStepFactory();
+
+    virtual QStringList availableCreationIds(BuildConfiguration *parent) const;
     virtual QString displayNameForId(const QString &id) const;
+
+    virtual bool canCreate(BuildConfiguration *parent, const QString &id) const;
+    virtual BuildStep *create(BuildConfiguration *parent, const QString &id);
+    virtual bool canRestore(BuildConfiguration *parent, const QVariantMap &map) const;
+    virtual BuildStep *restore(BuildConfiguration *parent, const QVariantMap &map);
+    virtual bool canClone(BuildConfiguration *parent, BuildStep *product) const;
+    virtual BuildStep *clone(BuildConfiguration *parent, BuildStep *product);
 };
 
 class ProcessStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
+    friend class ProcessStepFactory;
+
 public:
-    ProcessStep(BuildConfiguration *bc);
-    ProcessStep(ProcessStep *bs, BuildConfiguration *bc);
+    explicit ProcessStep(BuildConfiguration *bc);
+    virtual ~ProcessStep();
+
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
 
-    virtual QString id();
-    void setDisplayName(const QString &name);
-    virtual QString displayName();
     virtual BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-
-    virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
-
-    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
-    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
     QString command() const;
     QStringList arguments() const;
@@ -81,7 +82,17 @@ public:
     void setEnabled(bool enabled);
     void setWorkingDirectory(const QString &workingDirectory);
 
+    QVariantMap toMap() const;
+
+protected:
+    ProcessStep(BuildConfiguration *bc, ProcessStep *bs);
+    ProcessStep(BuildConfiguration *bc, const QString &id);
+
+    bool fromMap(const QVariantMap &map);
+
 private:
+    void ctor();
+
     QString m_name;
     QString m_command;
     QStringList m_arguments;

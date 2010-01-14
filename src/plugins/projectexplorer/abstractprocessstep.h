@@ -67,9 +67,8 @@ class IOutputParser;
 class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 {
     Q_OBJECT
+
 public:
-    AbstractProcessStep(BuildConfiguration *bc);
-    AbstractProcessStep(AbstractProcessStep *bs, BuildConfiguration *bc);
     virtual ~AbstractProcessStep();
 
     /// reimplemented from BuildStep::init()
@@ -79,9 +78,6 @@ public:
     /// You need to call this from YourBuildStep::run()
     virtual void run(QFutureInterface<bool> &);
 
-    // pure virtual functions inheritated from BuildStep
-    virtual QString id() = 0;
-    virtual QString displayName() = 0;
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
     virtual bool immutable() const = 0;
 
@@ -121,6 +117,9 @@ public:
     ProjectExplorer::IOutputParser *outputParser() const;
 
 protected:
+    AbstractProcessStep(BuildConfiguration *bc, const QString &id);
+    AbstractProcessStep(BuildConfiguration *bc, AbstractProcessStep *bs);
+
     /// Called after the process is started
     /// the default implementation adds a process started message to the output message
     virtual void processStarted();

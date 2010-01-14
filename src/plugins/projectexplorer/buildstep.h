@@ -30,6 +30,7 @@
 #ifndef BUILDSTEP_H
 #define BUILDSTEP_H
 
+#include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 #include "taskwindow.h"
 
@@ -66,12 +67,13 @@ class BuildConfiguration;
 
 class BuildStepConfigWidget;
 
-class PROJECTEXPLORER_EXPORT BuildStep : public QObject
+class PROJECTEXPLORER_EXPORT BuildStep : public ProjectConfiguration
 {
     Q_OBJECT
+
 protected:
-    BuildStep(BuildConfiguration *bc);
-    BuildStep(BuildStep *bs, BuildConfiguration *bc);
+    BuildStep(BuildConfiguration *bc, const QString &id);
+    BuildStep(BuildConfiguration *bc, BuildStep *bs);
 
 public:
     virtual ~BuildStep();
@@ -87,11 +89,6 @@ public:
     // fi.reportResult(true);
     virtual void run(QFutureInterface<bool> &fi) = 0;
 
-    // The internal name
-    virtual QString id() = 0;
-    // The name shown to the user
-    virtual QString displayName() = 0;
-
     // the Widget shown in the project settings dialog for this buildStep
     // ownership is transferred to the caller
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
@@ -100,12 +97,6 @@ public:
     // and the user is prevented from changing the order immutable steps are run
     // the default implementation returns false
     virtual bool immutable() const;
-
-    // TODO remove after 2.0
-    virtual void restoreFromGlobalMap(const QMap<QString, QVariant> &map);
-
-    virtual void restoreFromLocalMap(const QMap<QString, QVariant> &map);
-    virtual void storeIntoLocalMap(QMap<QString, QVariant> &map);
 
     BuildConfiguration *buildConfiguration() const;
 
@@ -121,26 +112,27 @@ private:
     BuildConfiguration *m_buildConfiguration;
 };
 
-class PROJECTEXPLORER_EXPORT IBuildStepFactory
-    : public QObject
+class PROJECTEXPLORER_EXPORT IBuildStepFactory :
+    public QObject
 {
     Q_OBJECT
 
 public:
-    IBuildStepFactory();
+    explicit IBuildStepFactory(QObject *parent = 0);
     virtual ~IBuildStepFactory();
-    /// Called to check whether this factory can restore the named BuildStep
-    virtual bool canCreate(const QString &id) const = 0;
-    /// Called to restore a buildstep
-    virtual BuildStep *create(BuildConfiguration *bc, const QString &id) const = 0;
-    /// Called by the add BuildStep action to check which BuildSteps could be added
-    /// to the project by this factory, should return a list of names
-    virtual QStringList canCreateForBuildConfiguration(BuildConfiguration *bc) const = 0;
-    /// Called to convert an internal name to a displayName
 
-    /// Called to clone a BuildStep
-    virtual BuildStep *clone(BuildStep *bs, BuildConfiguration *bc) const = 0;
+    // used to show the list of possible additons to a project, returns a list of types
+    virtual QStringList availableCreationIds(BuildConfiguration *parent) const = 0;
+    // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
+
+    virtual bool canCreate(BuildConfiguration *parent, const QString &id) const = 0;
+    virtual BuildStep *create(BuildConfiguration *parent, const QString &id) = 0;
+    // used to recreate the runConfigurations when restoring settings
+    virtual bool canRestore(BuildConfiguration *parent, const QVariantMap &map) const = 0;
+    virtual BuildStep *restore(BuildConfiguration *parent, const QVariantMap &map) = 0;
+    virtual bool canClone(BuildConfiguration *parent, BuildStep *product) const = 0;
+    virtual BuildStep *clone(BuildConfiguration *parent, BuildStep *product) = 0;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigWidget

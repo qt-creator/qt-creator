@@ -26,7 +26,9 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #include "makestep.h"
+
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
 #include "cmakebuildconfiguration.h"
@@ -44,25 +46,48 @@ using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-MakeStep::MakeStep(BuildConfiguration *bc) :
-    AbstractProcessStep(bc), m_clean(false), m_futureInterface(0)
-{
-    m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
+namespace {
+const char * const MS_ID("CMakeProjectManager.MakeStep");
+
+const char * const CLEAN_KEY("CMakeProjectManager.MakeStep.Clean");
+const char * const BUILD_TARGETS_KEY("CMakeProjectManager.MakeStep.BuildTargets");
+const char * const ADDITIONAL_ARGUMENTS_KEY("CMakeProjectManager.MakeStep.AdditionalArguments");
 }
 
-MakeStep::MakeStep(MakeStep *bs, BuildConfiguration *bc) :
-    AbstractProcessStep(bs, bc),
+// TODO: Move progress information into an IOutputParser!
+
+MakeStep::MakeStep(BuildConfiguration *bc) :
+    AbstractProcessStep(bc, QLatin1String(MS_ID)), m_clean(false),
+    m_futureInterface(0)
+{
+    ctor();
+}
+
+MakeStep::MakeStep(BuildConfiguration *bc, const QString &id) :
+    AbstractProcessStep(bc, id), m_clean(false),
+    m_futureInterface(0)
+{
+    ctor();
+}
+
+MakeStep::MakeStep(BuildConfiguration *bc, MakeStep *bs) :
+    AbstractProcessStep(bc, bs),
     m_clean(bs->m_clean),
     m_futureInterface(0),
     m_buildTargets(bs->m_buildTargets),
     m_additionalArguments(bs->m_buildTargets)
 {
+    ctor();
+}
 
+void MakeStep::ctor()
+{
+    m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
+    setDisplayName(tr("Make", "CMakeProjectManager::MakeStep display name."));
 }
 
 MakeStep::~MakeStep()
 {
-
 }
 
 CMakeBuildConfiguration *MakeStep::cmakeBuildConfiguration() const
@@ -75,30 +100,24 @@ void MakeStep::setClean(bool clean)
     m_clean = clean;
 }
 
-void MakeStep::restoreFromGlobalMap(const QMap<QString, QVariant> &map)
+QVariantMap MakeStep::toMap() const
 {
-    if (map.value("clean").isValid() && map.value("clean").toBool())
-        m_clean = true;
-    AbstractProcessStep::restoreFromGlobalMap(map);
+    QVariantMap map(AbstractProcessStep::toMap());
+    map.insert(QLatin1String(CLEAN_KEY), m_clean);
+    map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
+    map.insert(QLatin1String(ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
+    return map;
 }
 
-void MakeStep::restoreFromLocalMap(const QMap<QString, QVariant> &map)
+bool MakeStep::fromMap(const QVariantMap &map)
 {
-    m_buildTargets = map["buildTargets"].toStringList();
-    m_additionalArguments = map["additionalArguments"].toStringList();
-    if (map.value("clean").isValid() && map.value("clean").toBool())
-        m_clean = true;
-    AbstractProcessStep::restoreFromLocalMap(map);
+    m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
+    m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
+    m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toStringList();
+
+    return BuildStep::fromMap(map);
 }
 
-void MakeStep::storeIntoLocalMap(QMap<QString, QVariant> &map)
-{
-    map["buildTargets"] = m_buildTargets;
-    map["additionalArguments"] = m_additionalArguments;
-    if (m_clean)
-        map["clean"] = true;
-    AbstractProcessStep::storeIntoLocalMap(map);
-}
 
 bool MakeStep::init()
 {
@@ -130,16 +149,6 @@ void MakeStep::run(QFutureInterface<bool> &fi)
     m_futureInterface->setProgressValue(100);
     m_futureInterface->reportFinished();
     m_futureInterface = 0;
-}
-
-QString MakeStep::id()
-{
-    return Constants::MAKESTEP;
-}
-
-QString MakeStep::displayName()
-{
-    return QLatin1String("Make");
 }
 
 BuildStepConfigWidget *MakeStep::createConfigWidget()
@@ -238,7 +247,7 @@ void MakeStepConfigWidget::itemChanged(QListWidgetItem *item)
 
 QString MakeStepConfigWidget::displayName() const
 {
-    return "Make";
+    return tr("Make", "CMakeProjectManager::MakeStepConfigWidget display name.");
 }
 
 void MakeStepConfigWidget::init()
@@ -298,31 +307,68 @@ QString MakeStepConfigWidget::summaryText() const
 // MakeStepFactory
 //
 
-bool MakeStepFactory::canCreate(const QString &id) const
+MakeStepFactory::MakeStepFactory(QObject *parent) :
+    ProjectExplorer::IBuildStepFactory(parent)
 {
-    return (Constants::MAKESTEP == id);
 }
 
-BuildStep *MakeStepFactory::create(BuildConfiguration *bc, const QString &id) const
+MakeStepFactory::~MakeStepFactory()
 {
-    Q_ASSERT(id == Constants::MAKESTEP);
-    return new MakeStep(bc);
 }
 
-BuildStep *MakeStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const
+bool MakeStepFactory::canCreate(BuildConfiguration *parent, const QString &id) const
 {
-    return new MakeStep(static_cast<MakeStep *>(bs), bc);
+    if (!qobject_cast<CMakeBuildConfiguration *>(parent))
+        return false;
+    return QLatin1String(MS_ID) == id;
 }
 
-QStringList MakeStepFactory::canCreateForBuildConfiguration(BuildConfiguration *bc) const
+BuildStep *MakeStepFactory::create(BuildConfiguration *parent, const QString &id)
 {
-    Q_UNUSED(bc);
-    return QStringList();
+    if (!canCreate(parent, id))
+        return 0;
+    return new MakeStep(parent);
+}
+
+bool MakeStepFactory::canClone(BuildConfiguration *parent, BuildStep *source) const
+{
+    return canCreate(parent, source->id());
+}
+
+BuildStep *MakeStepFactory::clone(BuildConfiguration *parent, BuildStep *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    return new MakeStep(parent, static_cast<MakeStep *>(source));
+}
+
+bool MakeStepFactory::canRestore(BuildConfiguration *parent, const QVariantMap &map) const
+{
+    QString id(ProjectExplorer::idFromMap(map));
+    return canCreate(parent, id);
+}
+
+BuildStep *MakeStepFactory::restore(BuildConfiguration *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    MakeStep *bs(new MakeStep(parent));
+    if (bs->fromMap(map))
+        return bs;
+    delete bs;
+    return 0;
+}
+
+QStringList MakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent) const
+{
+    if (!qobject_cast<CMakeBuildConfiguration *>(parent))
+        return QStringList();
+    return QStringList() << QLatin1String(MS_ID);
 }
 
 QString MakeStepFactory::displayNameForId(const QString &id) const
 {
-    Q_UNUSED(id);
-    return "Make";
+    if (id == QLatin1String(MS_ID))
+        return tr("Make", "Display name for CMakeProjectManager::MakeStep id.");
+    return QString();
 }
-

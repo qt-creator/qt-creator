@@ -41,26 +41,46 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-static const char * const PROCESS_COMMAND          = "abstractProcess.command";
-static const char * const PROCESS_WORKINGDIRECTORY = "abstractProcess.workingDirectory";
-static const char * const PROCESS_ARGUMENTS        = "abstractProcess.arguments";
-static const char * const PROCESS_ENABLED          = "abstractProcess.enabled";
+namespace {
+const char * const PROCESS_STEP_ID("ProjectExplorer.ProcessStep");
 
-ProcessStep::ProcessStep(BuildConfiguration *bc)
-    : AbstractProcessStep(bc)
-{
-
+const char * const PROCESS_COMMAND_KEY("ProjectExplorer.ProcessStep.Command");
+const char * const PROCESS_WORKINGDIRECTORY_KEY("ProjectExplorer.ProcessStep.WorkingDirectory");
+const char * const PROCESS_ARGUMENTS_KEY("ProjectExplorer.ProcessStep.Arguments");
+const char * const PROCESS_ENABLED_KEY("ProjectExplorer.ProcessStep.Enabled");
 }
 
-ProcessStep::ProcessStep(ProcessStep *bs, BuildConfiguration *bc)
-    : AbstractProcessStep(bs, bc)
+ProcessStep::ProcessStep(BuildConfiguration *bc) :
+    AbstractProcessStep(bc, QLatin1String(PROCESS_STEP_ID))
 {
-    m_name = bs->m_name;
-    m_command = bs->m_command;
-    m_arguments = bs->m_arguments;
-    m_workingDirectory = bs->m_workingDirectory;
-    m_env = bs->m_env;
-    m_enabled = bs->m_enabled;
+    ctor();
+}
+
+ProcessStep::ProcessStep(BuildConfiguration *bc, const QString &id) :
+    AbstractProcessStep(bc, id)
+{
+    ctor();
+}
+
+ProcessStep::ProcessStep(BuildConfiguration *bc, ProcessStep *bs) :
+    AbstractProcessStep(bc, bs),
+    m_name(bs->m_name),
+    m_command(bs->m_command),
+    m_arguments(bs->m_arguments),
+    m_workingDirectory(bs->m_workingDirectory),
+    m_env(bs->m_env),
+    m_enabled(bs->m_enabled)
+{
+    ctor();
+}
+
+void ProcessStep::ctor()
+{
+    setDisplayName(tr("Custom Process Step", "item in combobox"));
+}
+
+ProcessStep::~ProcessStep()
+{
 }
 
 bool ProcessStep::init()
@@ -81,61 +101,6 @@ bool ProcessStep::init()
 void ProcessStep::run(QFutureInterface<bool> & fi)
 {
     return AbstractProcessStep::run(fi);
-}
-
-QString ProcessStep::id()
-{
-    return "projectexplorer.processstep";
-}
-
-void ProcessStep::restoreFromGlobalMap(const QVariantMap &map)
-{
-    QMap<QString, QVariant>::const_iterator it = map.constFind("ProjectExplorer.ProcessStep.DisplayName");
-    if (it != map.constEnd())
-        m_name = (*it).toString();
-    ProjectExplorer::AbstractProcessStep::restoreFromGlobalMap(map);
-}
-
-void ProcessStep::restoreFromLocalMap(const QVariantMap &map)
-{
-    // TODO checking for PROCESS_*
-    setCommand(map.value(PROCESS_COMMAND).toString());
-    setWorkingDirectory(map.value(PROCESS_WORKINGDIRECTORY).toString());
-    setArguments(map.value(PROCESS_ARGUMENTS).toStringList());
-    setEnabled(map.value(PROCESS_ENABLED).toBool());
-
-    QMap<QString, QVariant>::const_iterator it = map.constFind("ProjectExplorer.ProcessStep.DisplayName");
-    if (it != map.constEnd())
-        m_name = (*it).toString();
-
-    ProjectExplorer::AbstractProcessStep::restoreFromLocalMap(map);
-}
-
-void ProcessStep::storeIntoLocalMap(QVariantMap &map)
-{
-    map[PROCESS_COMMAND] = command();
-    map[PROCESS_WORKINGDIRECTORY] = workingDirectory();
-    map[PROCESS_ARGUMENTS] = arguments();
-    map[PROCESS_ENABLED] = enabled();
-    map["ProjectExplorer.ProcessStep.DisplayName"] = m_name;
-    ProjectExplorer::AbstractProcessStep::storeIntoLocalMap(map);
-}
-
-
-void ProcessStep::setDisplayName(const QString &name)
-{
-    if (name.isEmpty())
-        m_name = QString::null;
-    else
-        m_name = name;
-}
-
-QString ProcessStep::displayName()
-{
-    if (!m_name.isEmpty())
-        return m_name;
-    else
-        return tr("Custom Process Step");
 }
 
 BuildStepConfigWidget *ProcessStep::createConfigWidget()
@@ -188,40 +153,91 @@ void ProcessStep::setWorkingDirectory(const QString &workingDirectory)
     m_workingDirectory = workingDirectory;
 }
 
+QVariantMap ProcessStep::toMap() const
+{
+    QVariantMap map(AbstractProcessStep::toMap());
+    map.insert(QLatin1String(PROCESS_COMMAND_KEY), command());
+    map.insert(QLatin1String(PROCESS_ARGUMENTS_KEY), arguments());
+    map.insert(QLatin1String(PROCESS_WORKINGDIRECTORY_KEY), workingDirectory());
+    map.insert(QLatin1String(PROCESS_ENABLED_KEY), enabled());
+
+    return map;
+}
+
+bool ProcessStep::fromMap(const QVariantMap &map)
+{
+    setCommand(map.value(QLatin1String(PROCESS_COMMAND_KEY)).toString());
+    setArguments(map.value(QLatin1String(PROCESS_ARGUMENTS_KEY)).toStringList());
+    setWorkingDirectory(map.value(QLatin1String(PROCESS_WORKINGDIRECTORY_KEY)).toString());
+    setEnabled(map.value(QLatin1String(PROCESS_ENABLED_KEY), false).toBool());
+    return AbstractProcessStep::fromMap(map);
+}
+
 //*******
 // ProcessStepFactory
 //*******
 
 ProcessStepFactory::ProcessStepFactory()
 {
-
 }
 
-bool ProcessStepFactory::canCreate(const QString &id) const
+ProcessStepFactory::~ProcessStepFactory()
 {
-    return id == "projectexplorer.processstep";
 }
 
-BuildStep *ProcessStepFactory::create(BuildConfiguration *bc, const QString &id) const
+bool ProcessStepFactory::canCreate(BuildConfiguration *parent, const QString &id) const
 {
-    Q_UNUSED(id)
-    return new ProcessStep(bc);
+    Q_UNUSED(parent);
+    return id == QLatin1String(PROCESS_STEP_ID);
 }
 
-BuildStep *ProcessStepFactory::clone(BuildStep *bs, BuildConfiguration *bc) const
+BuildStep *ProcessStepFactory::create(BuildConfiguration *parent, const QString &id)
 {
-    return new ProcessStep(static_cast<ProcessStep *>(bs), bc);
+    if (!canCreate(parent, id))
+        return 0;
+    return new ProcessStep(parent);
 }
 
-QStringList ProcessStepFactory::canCreateForBuildConfiguration(BuildConfiguration *bc) const
+bool ProcessStepFactory::canClone(BuildConfiguration *parent, BuildStep *bs) const
 {
-    Q_UNUSED(bc)
-    return QStringList()<<"projectexplorer.processstep";
+    return canCreate(parent, bs->id());
+}
+
+BuildStep *ProcessStepFactory::clone(BuildConfiguration *parent, BuildStep *bs)
+{
+    if (!canClone(parent, bs))
+        return 0;
+    return new ProcessStep(parent, static_cast<ProcessStep *>(bs));
+}
+
+bool ProcessStepFactory::canRestore(BuildConfiguration *parent, const QVariantMap &map) const
+{
+    QString id(ProjectExplorer::idFromMap(map));
+    return canCreate(parent, id);
+}
+
+BuildStep *ProcessStepFactory::restore(BuildConfiguration *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+
+    ProcessStep *bs(new ProcessStep(parent));
+    if (bs->fromMap(map))
+        return bs;
+    delete bs;
+    return 0;
+}
+
+QStringList ProcessStepFactory::availableCreationIds(BuildConfiguration *parent) const
+{
+    Q_UNUSED(parent)
+    return QStringList() << QLatin1String(PROCESS_STEP_ID);
 }
 QString ProcessStepFactory::displayNameForId(const QString &id) const
 {
-    Q_UNUSED(id)
-    return ProcessStep::tr("Custom Process Step", "item in combobox");
+    if (id == QLatin1String(PROCESS_STEP_ID))
+        return ProcessStep::tr("Custom Process Step", "item in combobox");
+    return QString();
 }
 
 //*******
