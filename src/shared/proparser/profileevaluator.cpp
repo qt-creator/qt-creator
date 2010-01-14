@@ -229,10 +229,10 @@ public:
                        const ProFile *pro) const;
     QString propertyValue(const QString &val, bool complain = true) const;
 
-    static QStringList split_value_list(const QString &vals, bool do_semicolon = false);
+    static QStringList split_value_list(const QString &vals);
     static QStringList split_arg_list(const QString &params);
     bool isActiveConfig(const QString &config, bool regex = false);
-    QStringList expandVariableReferences(const QString &value);
+    QStringList expandVariableReferences(const QString &value, bool do_semicolon = false);
     void doVariableReplace(QString *str);
     QStringList evaluateExpandFunction(const QString &function, const QString &arguments);
     QString format(const char *format) const;
@@ -745,7 +745,7 @@ QStringList ProFileEvaluator::Private::split_arg_list(const QString &params)
     return args;
 }
 
-QStringList ProFileEvaluator::Private::split_value_list(const QString &vals, bool do_semicolon)
+QStringList ProFileEvaluator::Private::split_value_list(const QString &vals)
 {
     QString build;
     QStringList ret;
@@ -757,7 +757,6 @@ QStringList ProFileEvaluator::Private::split_value_list(const QString &vals, boo
     const ushort SINGLEQUOTE = '\'';
     const ushort DOUBLEQUOTE = '"';
     const ushort BACKSLASH = '\\';
-    const ushort SEMICOLON = ';';
 
     ushort unicode;
     const QChar *vals_data = vals.data();
@@ -777,8 +776,7 @@ QStringList ProFileEvaluator::Private::split_value_list(const QString &vals, boo
             ++parens;
         }
 
-        if (!parens && quote.isEmpty() && ((do_semicolon && unicode == SEMICOLON) ||
-                                           vals_data[x] == SPACE)) {
+        if (!parens && quote.isEmpty() && vals_data[x] == SPACE) {
             ret << build;
             build.clear();
         } else {
@@ -990,9 +988,7 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
         static const QString deppath(QLatin1String("DEPENDPATH"));
         static const QString incpath(QLatin1String("INCLUDEPATH"));
         bool doSemicolon = (varName == deppath || varName == incpath);
-        QStringList varVal;
-        foreach (const QString &arg, split_value_list(var->value(), doSemicolon))
-            varVal += expandVariableReferences(arg);
+        QStringList varVal = expandVariableReferences(var->value(), doSemicolon);
 
         switch (var->variableOperator()) {
         default: // ReplaceOperator - cannot happen
@@ -1380,7 +1376,8 @@ void ProFileEvaluator::Private::doVariableReplace(QString *str)
     *str = expandVariableReferences(*str).join(ProFileOption::field_sep);
 }
 
-QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &str)
+QStringList ProFileEvaluator::Private::expandVariableReferences(
+        const QString &str, bool do_semicolon)
 {
     QStringList ret;
 //    if (ok)
@@ -1400,6 +1397,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
     const ushort DOT = '.';
     const ushort SPACE = ' ';
     const ushort TAB = '\t';
+    const ushort SEMICOLON = ';';
     const ushort SINGLEQUOTE = '\'';
     const ushort DOUBLEQUOTE = '"';
 
@@ -1542,8 +1540,11 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
             unicode = 0;
             if (!(replaced++) && i)
                 current = str.left(i);
-        } else if (!quote && (unicode == SPACE || unicode == TAB)) {
+        } else if (!quote && ((do_semicolon && unicode == SEMICOLON) ||
+                              unicode == SPACE || unicode == TAB)) {
             unicode = 0;
+            if (!(replaced++) && i)
+                current = str.left(i);
             if (!current.isEmpty()) {
                 ret.append(current);
                 current.clear();
@@ -1552,10 +1553,12 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(const QString &s
         if (replaced && unicode)
             current.append(QChar(unicode));
     }
-    if (!replaced)
-        ret = QStringList(str);
-    else if (!current.isEmpty())
+    if (!replaced) {
+        if (!str.isEmpty())
+            ret.append(str);
+    } else if (!current.isEmpty()) {
         ret.append(current);
+    }
     return ret;
 }
 
@@ -1615,12 +1618,8 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
 QList<QStringList> ProFileEvaluator::Private::prepareFunctionArgs(const QString &arguments)
 {
     QList<QStringList> args_list;
-    foreach (const QString &urArg, split_arg_list(arguments)) {
-        QStringList tmp;
-        foreach (const QString &arg, split_value_list(urArg))
-            tmp += expandVariableReferences(arg);
-        args_list << tmp;
-    }
+    foreach (const QString &urArg, split_arg_list(arguments))
+        args_list << expandVariableReferences(urArg);
     return args_list;
 }
 
