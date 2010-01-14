@@ -182,7 +182,8 @@ int main(int argc, char **argv)
     QString locale = QLocale::system().name();
 
     // Must be done before any QSettings class is created
-    QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, QLatin1String(SHARE_PATH));
+    QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
+            QCoreApplication::applicationDirPath()+QLatin1String(SHARE_PATH));
     // keep this in sync with the MainWindow ctor in coreplugin/mainwindow.cpp
     const QSettings settings(QSettings::IniFormat, QSettings::UserScope,
                                  QLatin1String("Nokia"), QLatin1String("QtCreator"));
