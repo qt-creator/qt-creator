@@ -31,6 +31,7 @@
 #define MAINWINDOW_H
 
 #include "core_global.h"
+#include "dialogs/iwizard.h"
 
 #include "eventfilteringmainwindow.h"
 
@@ -134,7 +135,8 @@ public slots:
 
     QStringList showNewItemDialog(const QString &title,
                                   const QList<IWizard *> &wizards,
-                                  const QString &defaultLocation = QString());
+                                  const QString &defaultLocation = QString(),
+                                  IWizard::WizardKinds preferredWizardKinds = 0);
 
     bool showOptionsDialog(const QString &category = QString(),
                            const QString &page = QString(),

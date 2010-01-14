@@ -67,7 +67,7 @@ public:
     explicit BaseCheckoutWizard(QObject *parent = 0);
     virtual ~BaseCheckoutWizard();
 
-    virtual Kind kind() const;
+    virtual WizardKind kind() const;
 
     virtual QString category() const;
     virtual QString displayCategory() const;

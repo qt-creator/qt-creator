@@ -100,13 +100,13 @@ typedef QList<GeneratedFile> GeneratedFiles;
 class CORE_EXPORT BaseFileWizardParameters
 {
 public:
-    explicit BaseFileWizardParameters(IWizard::Kind kind = IWizard::FileWizard);
+    explicit BaseFileWizardParameters(IWizard::WizardKind kind = IWizard::FileWizard);
     BaseFileWizardParameters(const BaseFileWizardParameters &);
     BaseFileWizardParameters &operator=(const BaseFileWizardParameters&);
    ~BaseFileWizardParameters();
 
-    IWizard::Kind kind() const;
-    void setKind(IWizard::Kind k);
+    IWizard::WizardKind kind() const;
+    void setKind(IWizard::WizardKind k);
 
     QIcon icon() const;
     void setIcon(const QIcon &icon);
@@ -151,7 +151,7 @@ public:
     virtual ~BaseFileWizard();
 
     // IWizard
-    virtual Kind kind() const;
+    virtual WizardKind kind() const;
     virtual QIcon icon() const;
     virtual QString description() const;
     virtual QString displayName() const;

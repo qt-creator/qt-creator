@@ -68,6 +68,17 @@
 */
 
 /*!
+    \fn void setNewItemDialogPreferredWizardKinds(IWizard::WizardKinds kinds)
+    \internal
+
+    When set to true, the general "New File or Project" dialog will
+    collapse the project categories.
+    This is set by the project explorer: When projects are open, the preferred
+    thing is to create files/classes, if no projects are open, the preferred thing
+    to create are projects.
+*/
+
+/*!
     \fn bool ICore::showOptionsDialog(const QString &group = QString(),
                                const QString &page = QString())
     \brief Opens the application options/preferences dialog with preselected

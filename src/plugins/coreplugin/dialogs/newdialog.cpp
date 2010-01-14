@@ -53,7 +53,8 @@ using namespace Core::Internal;
 NewDialog::NewDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Core::Internal::Ui::NewDialog),
-    m_okButton(0)
+    m_okButton(0),
+    m_preferredWizardKinds(0)
 {
     typedef QMap<QString, QTreeWidgetItem *> CategoryItemMap;
     m_ui->setupUi(this);
@@ -77,6 +78,11 @@ bool wizardLessThan(const IWizard *w1, const IWizard *w2)
     if (const int cc = w1->category().compare(w2->category()))
         return cc < 0;
     return w1->id().compare(w2->id()) < 0;
+}
+
+void NewDialog::setPreferredWizardKinds(IWizard::WizardKinds kinds)
+{
+    m_preferredWizardKinds = kinds;
 }
 
 void NewDialog::setWizards(QList<IWizard*> wizards)
@@ -112,11 +118,34 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
 
 Core::IWizard *NewDialog::showDialog()
 {
-    m_ui->templatesTree->expandAll();
-    if (QTreeWidgetItem *rootItem = m_ui->templatesTree->topLevelItem(0)) {
-        m_ui->templatesTree->scrollToItem(rootItem);
-        if (rootItem->childCount())
-            m_ui->templatesTree->setCurrentItem(rootItem->child(0));
+    QTreeWidgetItem *itemToSelect = 0;
+    if (m_preferredWizardKinds == 0) {
+        m_ui->templatesTree->expandAll();
+        if (QTreeWidgetItem *rootItem = m_ui->templatesTree->topLevelItem(0)) {
+            if (rootItem->childCount())
+                itemToSelect = rootItem->child(0);
+        }
+    } else {
+        for (int i = 0; i < m_ui->templatesTree->topLevelItemCount(); ++i) {
+            QTreeWidgetItem *category = m_ui->templatesTree->topLevelItem(i);
+            bool hasOnlyPreferred = true;
+            for (int j = 0; j < category->childCount(); ++j) {
+                QTreeWidgetItem *item = category->child(j);
+                if (!(item->data(0, Qt::UserRole).value<IWizard*>()
+                        ->kind() & m_preferredWizardKinds)) {
+                    hasOnlyPreferred = false;
+                    break;
+                }
+            }
+            category->setExpanded(hasOnlyPreferred);
+            if (hasOnlyPreferred && itemToSelect == 0 && category->childCount() > 0) {
+                itemToSelect = category->child(0);
+            }
+        }
+    }
+    if (itemToSelect) {
+        m_ui->templatesTree->scrollToItem(itemToSelect);
+        m_ui->templatesTree->setCurrentItem(itemToSelect);
     }
     updateOkButton();
     if (exec() != Accepted)

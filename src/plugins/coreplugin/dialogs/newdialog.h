@@ -30,6 +30,8 @@
 #ifndef NEWDIALOG_H
 #define NEWDIALOG_H
 
+#include "iwizard.h"
+
 #include <QtGui/QDialog>
 #include <QtCore/QList>
 
@@ -40,8 +42,6 @@ class QStringList;
 QT_END_NAMESPACE
 
 namespace Core {
-
-class IWizard;
 
 namespace Internal {
 
@@ -58,6 +58,7 @@ public:
     virtual ~NewDialog();
 
     void setWizards(QList<IWizard*> wizards);
+    void setPreferredWizardKinds(IWizard::WizardKinds kinds);
 
     Core::IWizard *showDialog();
 
@@ -71,6 +72,7 @@ private:
 
     Ui::NewDialog *m_ui;
     QPushButton *m_okButton;
+    IWizard::WizardKinds m_preferredWizardKinds;
 };
 
 } // namespace Internal

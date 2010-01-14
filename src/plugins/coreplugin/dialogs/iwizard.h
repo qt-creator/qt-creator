@@ -44,16 +44,17 @@ class CORE_EXPORT IWizard
 {
     Q_OBJECT
 public:
-    enum Kind {
-        FileWizard,
-        ClassWizard,
-        ProjectWizard
+    enum WizardKind {
+        FileWizard = 0x01,
+        ClassWizard = 0x02,
+        ProjectWizard = 0x04
     };
+    Q_DECLARE_FLAGS(WizardKinds, WizardKind)
 
     IWizard(QObject *parent = 0) : QObject(parent) {}
     virtual ~IWizard() {}
 
-    virtual Kind kind() const = 0;
+    virtual WizardKind kind() const = 0;
     virtual QIcon icon() const = 0;
     virtual QString description() const = 0;
     virtual QString displayName() const = 0;
@@ -67,9 +68,11 @@ public:
     // Utility to find all registered wizards
     static QList<IWizard*> allWizards();
     // Utility to find all registered wizards of a certain kind
-    static QList<IWizard*> wizardsOfKind(Kind kind);
+    static QList<IWizard*> wizardsOfKind(WizardKind kind);
 };
 
 } // namespace Core
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IWizard::WizardKinds)
 
 #endif // IWIZARD_H

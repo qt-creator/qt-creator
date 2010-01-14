@@ -31,6 +31,8 @@
 #define ICORE_H
 
 #include "core_global.h"
+#include "dialogs/iwizard.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QSettings>
 
@@ -48,7 +50,6 @@ class ActionManager;
 class EditorManager;
 class FileManager;
 class IContext;
-class IWizard;
 class MessageManager;
 class MimeDatabase;
 class ModeManager;
@@ -72,6 +73,7 @@ public:
     virtual QStringList showNewItemDialog(const QString &title,
                                           const QList<IWizard *> &wizards,
                                           const QString &defaultLocation = QString()) = 0;
+    virtual void setNewItemDialogPreferredWizardKinds(IWizard::WizardKinds kinds) = 0;
 
     virtual bool showOptionsDialog(const QString &group = QString(),
                                    const QString &page = QString(),

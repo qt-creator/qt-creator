@@ -61,7 +61,7 @@
 */
 
 /*!
-    \enum Core::IWizard::Kind
+    \enum Core::IWizard::WizardKind
     Used to specify what kind of objects the wizard creates. This information is used
     to show e.g. only wizards that create projects when selecting a \gui{New Project}
     menu item.
@@ -158,13 +158,13 @@ QList<IWizard*> IWizard::allWizards()
 
 class WizardKindPredicate {
 public:
-    WizardKindPredicate(IWizard::Kind kind) : m_kind(kind) {}
+    WizardKindPredicate(IWizard::WizardKind kind) : m_kind(kind) {}
     bool operator()(const IWizard &w) const { return w.kind() == m_kind; }
 private:
-    const IWizard::Kind m_kind;
+    const IWizard::WizardKind m_kind;
 };
 
-QList<IWizard*> IWizard::wizardsOfKind(Kind kind)
+QList<IWizard*> IWizard::wizardsOfKind(WizardKind kind)
 {
     return findWizards(WizardKindPredicate(kind));
 }

@@ -47,6 +47,8 @@ public:
     QStringList showNewItemDialog(const QString &title,
                                   const QList<IWizard *> &wizards,
                                   const QString &defaultLocation = QString());
+    void setNewItemDialogPreferredWizardKinds(IWizard::WizardKinds kinds);
+    IWizard::WizardKinds newItemDialogPreferredWizardKinds() { return m_preferredWizardKinds; }
     bool showOptionsDialog(const QString &group = QString(),
                            const QString &page = QString(),
                            QWidget *parent = 0);
@@ -93,6 +95,8 @@ public:
 private:
     MainWindow *m_mainwindow;
     friend class MainWindow;
+
+    IWizard::WizardKinds m_preferredWizardKinds;
 };
 
 } // namespace Internal

@@ -184,9 +184,9 @@ bool GeneratedFile::write(QString *errorMessage) const
 class BaseFileWizardParameterData : public QSharedData
 {
 public:
-    explicit BaseFileWizardParameterData(IWizard::Kind kind = IWizard::FileWizard);
+    explicit BaseFileWizardParameterData(IWizard::WizardKind kind = IWizard::FileWizard);
 
-    IWizard::Kind kind;
+    IWizard::WizardKind kind;
     QIcon icon;
     QString description;
     QString displayName;
@@ -195,12 +195,12 @@ public:
     QString displayCategory;
 };
 
-BaseFileWizardParameterData::BaseFileWizardParameterData(IWizard::Kind k) :
+BaseFileWizardParameterData::BaseFileWizardParameterData(IWizard::WizardKind k) :
     kind(k)
 {
 }
 
-BaseFileWizardParameters::BaseFileWizardParameters(IWizard::Kind kind) :
+BaseFileWizardParameters::BaseFileWizardParameters(IWizard::WizardKind kind) :
    m_d(new BaseFileWizardParameterData(kind))
 {
 }
@@ -221,12 +221,12 @@ BaseFileWizardParameters::~BaseFileWizardParameters()
 {
 }
 
-IWizard::Kind BaseFileWizardParameters::kind() const
+IWizard::WizardKind BaseFileWizardParameters::kind() const
 {
     return m_d->kind;
 }
 
-void BaseFileWizardParameters::setKind(IWizard::Kind k)
+void BaseFileWizardParameters::setKind(IWizard::WizardKind k)
 {
     m_d->kind = k;
 }
@@ -401,7 +401,7 @@ BaseFileWizard::~BaseFileWizard()
     delete m_d;
 }
 
-IWizard::Kind  BaseFileWizard::kind() const
+IWizard::WizardKind  BaseFileWizard::kind() const
 {
     return m_d->m_parameters.kind();
 }

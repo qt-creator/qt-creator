@@ -53,6 +53,7 @@ ICore* ICore::instance()
 }
 
 CoreImpl::CoreImpl(MainWindow *mainwindow)
+    : m_preferredWizardKinds(IWizard::ProjectWizard)
 {
     m_instance = this;
     m_mainwindow = mainwindow;
@@ -63,6 +64,11 @@ QStringList CoreImpl::showNewItemDialog(const QString &title,
                                         const QString &defaultLocation)
 {
     return m_mainwindow->showNewItemDialog(title, wizards, defaultLocation);
+}
+
+void CoreImpl::setNewItemDialogPreferredWizardKinds(IWizard::WizardKinds kinds)
+{
+    m_preferredWizardKinds = kinds;
 }
 
 bool CoreImpl::showOptionsDialog(const QString &group, const QString &page, QWidget *parent)

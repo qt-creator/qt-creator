@@ -70,7 +70,7 @@ BaseCheckoutWizard::~BaseCheckoutWizard()
     delete d;
 }
 
-Core::IWizard::Kind BaseCheckoutWizard::kind() const
+Core::IWizard::WizardKind BaseCheckoutWizard::kind() const
 {
     return Core::IWizard::ProjectWizard;
 }
