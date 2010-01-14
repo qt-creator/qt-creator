@@ -68,7 +68,8 @@
 #include <QtGui/QToolBar>
 
 enum {
-    UPDATE_DOCUMENT_DEFAULT_INTERVAL = 250
+    UPDATE_DOCUMENT_DEFAULT_INTERVAL = 250,
+    UPDATE_USES_DEFAULT_INTERVAL = 150
 };
 
 using namespace Qml;
@@ -311,6 +312,7 @@ QmlTextEditor::QmlTextEditor(QWidget *parent) :
     m_modelManager(0),
     m_typeSystem(0)
 {
+    m_idsRevision = -1;
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
@@ -320,10 +322,15 @@ QmlTextEditor::QmlTextEditor(QWidget *parent) :
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
     m_updateDocumentTimer->setSingleShot(true);
-
     connect(m_updateDocumentTimer, SIGNAL(timeout()), this, SLOT(updateDocumentNow()));
 
+    m_updateUsesTimer = new QTimer(this);
+    m_updateUsesTimer->setInterval(UPDATE_USES_DEFAULT_INTERVAL);
+    m_updateUsesTimer->setSingleShot(true);
+    connect(m_updateUsesTimer, SIGNAL(timeout()), this, SLOT(updateUsesNow()));
+
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
+    connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
     baseTextDocument()->setSyntaxHighlighter(new QmlHighlighter);
 
@@ -385,6 +392,7 @@ void QmlTextEditor::onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc)
     m_document = doc;
 
     FindIdDeclarations updateIds;
+    m_idsRevision = document()->revision();
     m_ids = updateIds(doc->program());
 
     if (doc->isParsedCorrectly()) {
@@ -463,6 +471,22 @@ void QmlTextEditor::updateMethodBoxIndex()
     }
 
     m_methodCombo->setCurrentIndex(currentSymbolIndex);
+    updateUses();
+}
+
+void QmlTextEditor::updateUses()
+{
+    m_updateUsesTimer->start();
+}
+
+void QmlTextEditor::updateUsesNow()
+{
+    if (document()->revision() != m_idsRevision) {
+        updateUses();
+        return;
+    }
+
+    m_updateUsesTimer->stop();
 
     QList<QTextEdit::ExtraSelection> selections;
     foreach (const AST::SourceLocation &loc, m_ids.value(wordUnderCursor())) {
@@ -470,7 +494,7 @@ void QmlTextEditor::updateMethodBoxIndex()
             continue;
 
         QTextEdit::ExtraSelection sel;
-        sel.format.setBackground(Qt::yellow);
+        sel.format = m_occurrencesFormat;
         sel.cursor = textCursor();
         sel.cursor.setPosition(loc.begin());
         sel.cursor.setPosition(loc.end(), QTextCursor::KeepAnchor);
@@ -537,6 +561,9 @@ void QmlTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
                 << QLatin1String(TextEditor::Constants::C_COMMENT)
                 << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
+
+    m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
+    m_occurrencesFormat.clearForeground();
 
     highlighter->setFormats(fs.toTextCharFormats(categories));
     highlighter->rehighlight();

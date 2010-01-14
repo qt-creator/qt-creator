@@ -123,6 +123,9 @@ private slots:
     void updateMethodBoxToolTip();
     void updateFileName();
 
+    void updateUses();
+    void updateUsesNow();
+
     // refactoring ops
     void renameIdUnderCursor();
 
@@ -148,13 +151,16 @@ private:
     const Context m_context;
 
     QTimer *m_updateDocumentTimer;
+    QTimer *m_updateUsesTimer;
     QComboBox *m_methodCombo;
     QList<Declaration> m_declarations;
     QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### use QMultiMap
+    int m_idsRevision;
     QList<QmlJS::DiagnosticMessage> m_diagnosticMessages;
     QmlDocument::Ptr m_document;
     QmlModelManagerInterface *m_modelManager;
     Qml::QmlTypeSystem *m_typeSystem;
+    QTextCharFormat m_occurrencesFormat;
 };
 
 } // namespace Internal
