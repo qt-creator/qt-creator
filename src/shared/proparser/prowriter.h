@@ -32,13 +32,11 @@
 
 #include "namespace_global.h"
 
-#include <QtCore/QTextStream>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
+class QDir;
 class ProFile;
-class ProValue;
-class ProItem;
-class ProBlock;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
@@ -47,26 +45,12 @@ namespace Internal {
 class ProWriter
 {
 public:
-    bool write(ProFile *profile, const QString &fileName);
-    QString contents(ProFile *profile);
-
-protected:
-    QString fixComment(const QString &comment, const QString &indent) const;
-    void writeValue(ProValue *value, const QString &indent);
-    void writeOther(ProItem *item, const QString &indent);
-    void writeBlock(ProBlock *block, const QString &indent);
-    void writeItem(ProItem *item, const QString &indent);
-
-private:
-    enum ProWriteState {
-        NewLine     = 0x01,
-        FirstItem   = 0x02,
-        LastItem    = 0x04
-    };
-
-    QTextStream m_out;
-    int m_writeState;
-    QString m_comment;
+    static void addFiles(ProFile *profile, QStringList *lines,
+                         const QDir &proFileDir, const QStringList &filePaths,
+                         const QStringList &vars);
+    static QStringList removeFiles(ProFile *profile, QStringList *lines,
+                                   const QDir &proFileDir, const QStringList &filePaths,
+                                   const QStringList &vars);
 };
 
 } // namespace Internal

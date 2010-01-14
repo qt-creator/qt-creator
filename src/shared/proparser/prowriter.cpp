@@ -30,175 +30,200 @@
 #include "proitems.h"
 #include "prowriter.h"
 
-#include <QtCore/QFile>
+#include <QtCore/QDir>
+#include <QtCore/QPair>
 
 using namespace Qt4ProjectManager::Internal;
 
-bool ProWriter::write(ProFile *profile, const QString &fileName)
+void ProWriter::addFiles(ProFile *profile, QStringList *lines,
+                         const QDir &proFileDir, const QStringList &filePaths,
+                         const QStringList &vars)
 {
-    QFile data(fileName);
-    if (!data.open(QFile::WriteOnly|QFile::Text))
-         return false;
+    // Check if variable item exists as child of root item
+    foreach (ProItem *item, profile->items()) {
+        if (item->kind() == ProItem::BlockKind) {
+            ProBlock *block = static_cast<ProBlock *>(item);
+            if (block->blockKind() == ProBlock::VariableKind) {
+                ProVariable *proVar = static_cast<ProVariable*>(block);
+                if (vars.contains(proVar->variable())
+                    && proVar->variableOperator() != ProVariable::RemoveOperator
+                    && proVar->variableOperator() != ProVariable::ReplaceOperator) {
 
-    m_writeState = 0;
-    m_comment.clear();
-    m_out.setDevice(&data);
-    writeItem(profile, QString());
-    data.close();
-    
-    return true;
-}
-
-QString ProWriter::contents(ProFile *profile)
-{
-    QString result;
-
-    m_writeState = 0;
-    m_comment.clear();
-    m_out.setString(&result, QIODevice::WriteOnly);
-    writeItem(profile, QString());
-
-    return result;
-}
-
-QString ProWriter::fixComment(const QString &comment, const QString &indent) const
-{
-    QString result = comment;
-    result = result.replace(QLatin1Char('\n'), 
-        QLatin1Char('\n') + indent + QLatin1String("# "));
-    return QLatin1String("# ") + result;
-}
-
-void ProWriter::writeValue(ProValue *value, const QString &indent)
-{
-    if (m_writeState & NewLine) {
-        m_out << indent << QLatin1String("    ");
-        m_writeState &= ~NewLine;
-    }
-    
-    m_out << value->value();
-
-    if (!(m_writeState & LastItem))
-        m_out << QLatin1String(" \\");
-
-    if (!value->comment().isEmpty())
-        m_out << QLatin1Char(' ') << fixComment(value->comment(), indent);
-
-    m_out << endl;
-    m_writeState |= NewLine;
-}
-
-void ProWriter::writeOther(ProItem *item, const QString &indent)
-{
-    if (m_writeState & NewLine) {
-        m_out << indent;
-        m_writeState &= ~NewLine;
-    }
-
-    if (item->kind() == ProItem::FunctionKind) {
-        ProFunction *v = static_cast<ProFunction*>(item);
-        m_out << v->text();
-    } else  if (item->kind() == ProItem::ConditionKind) {
-        ProCondition *v = static_cast<ProCondition*>(item);
-        m_out << v->text();
-    } else if (item->kind() == ProItem::OperatorKind) {
-        ProOperator *v = static_cast<ProOperator*>(item);
-        if (v->operatorKind() == ProOperator::OrOperator)
-            m_out << QLatin1Char('|');
-        else
-            m_out << QLatin1Char('!');
-    }
-
-    if (!item->comment().isEmpty()) {
-        if (!m_comment.isEmpty())
-            m_comment += QLatin1Char('\n');
-        m_comment += item->comment();
-    }
-}
-
-void ProWriter::writeBlock(ProBlock *block, const QString &indent)
-{
-    if (m_writeState & NewLine) {
-        m_out << indent;
-        m_writeState &= ~NewLine;
-    }
-
-    if (!block->comment().isEmpty()) {
-        if (!(m_writeState & FirstItem))
-            m_out << endl << indent;
-        m_out << fixComment(block->comment(), indent) << endl << indent;
-    }
-
-    QString newindent = indent;
-    if (block->blockKind() & ProBlock::VariableKind) {
-        ProVariable *v = static_cast<ProVariable*>(block);
-        m_out << v->variable();
-        switch (v->variableOperator()) {
-            case ProVariable::AddOperator:
-                m_out << QLatin1String(" += "); break;
-            case ProVariable::RemoveOperator:
-                m_out << QLatin1String(" -= "); break;
-            case ProVariable::ReplaceOperator:
-                m_out << QLatin1String(" ~= "); break;
-            case ProVariable::SetOperator:
-                m_out << QLatin1String(" = "); break;
-            case ProVariable::UniqueAddOperator:
-                m_out << QLatin1String(" *= "); break;
-        }
-    } else if (block->blockKind() & ProBlock::ScopeContentsKind) {
-        if (block->items().count() > 1) {
-            newindent = indent + QLatin1String("    ");
-            m_out << QLatin1String(" { ");
-            if (!m_comment.isEmpty()) {
-                m_out << fixComment(m_comment, indent);
-                m_comment.clear();
+                    int lineNo = proVar->lineNumber() - 1;
+                    for (; lineNo < lines->count(); lineNo++) {
+                        QString line = lines->at(lineNo);
+                        int idx = line.indexOf(QLatin1Char('#'));
+                        if (idx >= 0)
+                            line.truncate(idx);
+                        while (line.endsWith(QLatin1Char(' ')) || line.endsWith(QLatin1Char('\t')))
+                            line.chop(1);
+                        if (line.isEmpty()) {
+                            if (idx >= 0)
+                                continue;
+                            break;
+                        }
+                        if (!line.endsWith(QLatin1Char('\\'))) {
+                            (*lines)[lineNo].insert(line.length(), QLatin1String(" \\"));
+                            lineNo++;
+                            break;
+                        }
+                    }
+                    QString added;
+                    foreach (const QString &filePath, filePaths)
+                        added += QLatin1String("    ") + proFileDir.relativeFilePath(filePath)
+                                 + QLatin1String(" \\\n");
+                    added.chop(3);
+                    lines->insert(lineNo, added);
+                    return;
+                }
             }
-            m_out << endl;
-            m_writeState |= NewLine;
-        } else {
-            m_out << QLatin1Char(':');
         }
     }
 
-    QList<ProItem*> items = block->items();
-    for (int i = 0; i < items.count(); ++i) {
-        m_writeState &= ~LastItem;
-        m_writeState &= ~FirstItem;
-        if (i == 0)
-            m_writeState |= FirstItem;
-        if (i == items.count() - 1)
-            m_writeState |= LastItem;
-        writeItem(items.at(i), newindent);
-    }
+    // Create & append new variable item
+    QString added = QLatin1Char('\n') + vars.first() + QLatin1String(" +=");
+    foreach (const QString &filePath, filePaths)
+        added += QLatin1String(" \\\n    ") + proFileDir.relativeFilePath(filePath);
+    *lines << added;
+}
 
-    if ((block->blockKind() & ProBlock::ScopeContentsKind) && (block->items().count() > 1)) {
-        if (m_writeState & NewLine) {
-            m_out << indent;
-            m_writeState &= ~NewLine;
+static void findProVariables(ProBlock *block, const QStringList &vars,
+                             QList<ProVariable *> *proVars)
+{
+    foreach (ProItem *item, block->items()) {
+        if (item->kind() == ProItem::BlockKind) {
+            ProBlock *subBlock = static_cast<ProBlock *>(item);
+            if (subBlock->blockKind() == ProBlock::VariableKind) {
+                ProVariable *proVar = static_cast<ProVariable*>(subBlock);
+                if (vars.contains(proVar->variable()))
+                    *proVars << proVar;
+            } else {
+                findProVariables(subBlock, vars, proVars);
+            }
         }
-        m_out << QLatin1Char('}');
-    }
-
-    if (!m_comment.isEmpty()) {
-        m_out << fixComment(m_comment, indent);
-        m_out << endl;
-        m_writeState |= NewLine;
-        m_comment.clear();
-    }
-
-    if (!(m_writeState & NewLine)) {
-        m_out << endl;
-        m_writeState |= NewLine;
     }
 }
 
-void ProWriter::writeItem(ProItem *item, const QString &indent)
+QStringList ProWriter::removeFiles(ProFile *profile, QStringList *lines,
+                                   const QDir &proFileDir, const QStringList &filePaths,
+                                   const QStringList &vars)
 {
-    if (item->kind() == ProItem::ValueKind) {
-        writeValue(static_cast<ProValue*>(item), indent);
-    } else if (item->kind() == ProItem::BlockKind) {
-        writeBlock(static_cast<ProBlock*>(item), indent);
-    } else {
-        writeOther(item, indent);
+    QStringList notChanged = filePaths;
+
+    QList<ProVariable *> proVars;
+    findProVariables(profile, vars, &proVars);
+
+    // This is a tad stupid - basically, it can remove only entries which
+    // the above code added.
+    QStringList relativeFilePaths;
+    foreach (const QString &absoluteFilePath, filePaths)
+        relativeFilePaths << proFileDir.relativeFilePath(absoluteFilePath);
+
+    // This code expects proVars to be sorted by the variables' appearance in the file.
+    int delta = 1;
+    foreach (ProVariable *proVar, proVars) {
+        if (proVar->variableOperator() != ProVariable::RemoveOperator
+            && proVar->variableOperator() != ProVariable::ReplaceOperator) {
+
+            bool first = true;
+            int lineNo = proVar->lineNumber() - delta;
+            typedef QPair<int, int> ContPos;
+            QList<ContPos> contPos;
+            while (lineNo < lines->count()) {
+                QString &line = (*lines)[lineNo];
+                int lineLen = line.length();
+                bool killed = false;
+                bool saved = false;
+                int idx = line.indexOf(QLatin1Char('#'));
+                if (idx >= 0)
+                    lineLen = idx;
+                QChar *chars = line.data();
+                forever {
+                    if (!lineLen) {
+                        if (idx >= 0)
+                            goto nextLine;
+                        goto nextVar;
+                    }
+                    QChar c = chars[lineLen - 1];
+                    if (c != QLatin1Char(' ') && c != QLatin1Char('\t'))
+                        break;
+                    lineLen--;
+                }
+                {
+                    int contCol = -1;
+                    if (chars[lineLen - 1] == QLatin1Char('\\'))
+                        contCol = --lineLen;
+                    int colNo = 0;
+                    if (first) {
+                        colNo = line.indexOf(QLatin1Char('=')) + 1;
+                        first = false;
+                        saved = true;
+                    }
+                    while (colNo < lineLen) {
+                        QChar c = chars[colNo];
+                        if (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
+                            colNo++;
+                            continue;
+                        }
+                        int varCol = colNo;
+                        while (colNo < lineLen) {
+                            QChar c = chars[colNo];
+                            if (c == QLatin1Char(' ') || c == QLatin1Char('\t'))
+                                break;
+                            colNo++;
+                        }
+                        QString fn = line.mid(varCol, colNo - varCol);
+                        if (relativeFilePaths.contains(fn)) {
+                            notChanged.removeOne(QDir::cleanPath(proFileDir.absoluteFilePath(fn)));
+                            if (colNo < lineLen)
+                                colNo++;
+                            else if (varCol)
+                                varCol--;
+                            int len = colNo - varCol;
+                            colNo = varCol;
+                            line.remove(varCol, len);
+                            lineLen -= len;
+                            contCol -= len;
+                            idx -= len;
+                            if (idx >= 0)
+                                line.insert(idx, QLatin1String("# ") + fn + QLatin1Char(' '));
+                            killed = true;
+                        } else {
+                            saved = true;
+                        }
+                    }
+                    if (saved) {
+                        // Entries remained
+                        contPos.clear();
+                    } else if (killed) {
+                        // Entries existed, but were all removed
+                        if (contCol < 0) {
+                            // This is the last line, so clear continuations leading to it
+                            foreach (const ContPos &pos, contPos) {
+                                QString &bline = (*lines)[pos.first];
+                                bline.remove(pos.second, 1);
+                                if (pos.second == bline.length())
+                                    while (bline.endsWith(QLatin1Char(' '))
+                                           || bline.endsWith(QLatin1Char('\t')))
+                                        bline.chop(1);
+                            }
+                            contPos.clear();
+                        }
+                        if (idx < 0) {
+                            // Not even a comment stayed behind, so zap the line
+                            lines->removeAt(lineNo);
+                            delta++;
+                            continue;
+                        }
+                    }
+                    if (contCol >= 0)
+                        contPos.append(qMakePair(lineNo, contCol));
+                }
+              nextLine:
+                lineNo++;
+            }
+          nextVar: ;
+        }
     }
+    return notChanged;
 }

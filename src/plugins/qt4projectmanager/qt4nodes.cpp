@@ -606,23 +606,6 @@ bool Qt4PriFileNode::saveModifiedEditors(const QString &path)
     return true;
 }
 
-static void findProVariables(ProBlock *block, const QStringList &vars,
-                             QList<ProVariable *> *proVars)
-{
-    foreach (ProItem *item, block->items()) {
-        if (item->kind() == ProItem::BlockKind) {
-            ProBlock *subBlock = static_cast<ProBlock *>(item);
-            if (subBlock->blockKind() == ProBlock::VariableKind) {
-                ProVariable *proVar = static_cast<ProVariable*>(subBlock);
-                if (vars.contains(proVar->variable()))
-                    *proVars << proVar;
-            } else {
-                findProVariables(subBlock, vars, proVars);
-            }
-        }
-    }
-}
-
 void Qt4PriFileNode::changeFiles(const FileType fileType,
                                  const QStringList &filePaths,
                                  QStringList *notChanged,
@@ -637,101 +620,67 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     if (!saveModifiedEditors(m_projectFilePath))
         return;
 
-    ProFileReader *reader = m_project->createProFileReader(m_qt4ProFileNode);
-    ProFile *includeFile = reader->parsedProFile(m_projectFilePath);
-    m_project->destroyProFileReader(reader);
-    if (!includeFile) {
-        m_project->proFileParseError(tr("Error while changing pro file %1.").arg(m_projectFilePath));
-        return;
+    QStringList lines;
+    ProFile *includeFile;
+    {
+        QString contents;
+        {
+            QFile qfile(m_projectFilePath);
+            if (qfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                contents = QString::fromLatin1(qfile.readAll()); // yes, really latin1
+                qfile.close();
+                lines = contents.split(QLatin1Char('\n'));
+                while (lines.last().isEmpty())
+                    lines.removeLast();
+            } else {
+                m_project->proFileParseError(tr("Error while reading PRO file %1: %2")
+                                             .arg(m_projectFilePath, qfile.errorString()));
+                return;
+            }
+        }
+
+        ProFileReader *reader = m_project->createProFileReader(m_qt4ProFileNode);
+        includeFile = reader->parsedProFile(m_projectFilePath, contents);
+        m_project->destroyProFileReader(reader);
     }
 
     const QStringList vars = varNames(fileType);
     QDir priFileDir = QDir(m_qt4ProFileNode->m_projectDir);
 
     if (change == AddToProFile) {
-        ProVariable *proVar = 0;
-
-        // Check if variable item exists as child of root item
-        foreach (ProItem *item, includeFile->items()) {
-            if (item->kind() == ProItem::BlockKind) {
-                ProBlock *block = static_cast<ProBlock *>(item);
-                if (block->blockKind() == ProBlock::VariableKind) {
-                    proVar = static_cast<ProVariable*>(block);
-                    if (vars.contains(proVar->variable())
-                        && proVar->variableOperator() != ProVariable::RemoveOperator
-                        && proVar->variableOperator() != ProVariable::ReplaceOperator)
-                        break;
-                    proVar = 0;
-                }
-            }
-        }
-
-        if (!proVar) {
-            // Create & append new variable item
-
-            // TODO: This will always store e.g. a source file in SOURCES and not OBJECTIVE_SOURCES
-            proVar = new ProVariable(vars.first(), includeFile);
-            proVar->setVariableOperator(ProVariable::AddOperator);
-            includeFile->appendItem(proVar);
-        }
-
-        const QString &proFilePath = includeFile->fileName();
-        foreach (const QString &filePath, filePaths) {
-            if (filePath == proFilePath)
-                continue;
-            const QString &relativeFilePath = priFileDir.relativeFilePath(filePath);
-            proVar->appendItem(new ProValue(relativeFilePath, proVar));
-            notChanged->removeOne(filePath);
-        }
+        ProWriter::addFiles(includeFile, &lines, priFileDir, filePaths, vars);
+        notChanged->clear();
     } else { // RemoveFromProFile
-        QList<ProVariable *> proVars;
-        findProVariables(includeFile, vars, &proVars);
-
-        QStringList relativeFilePaths;
-        foreach (const QString &absoluteFilePath, filePaths)
-            relativeFilePaths << priFileDir.relativeFilePath(absoluteFilePath);
-
-        foreach (ProVariable *proVar, proVars) {
-            if (proVar->variableOperator() != ProVariable::RemoveOperator
-                && proVar->variableOperator() != ProVariable::ReplaceOperator) {
-                QList<ProItem *> values = proVar->items();
-                for (int i = values.count(); --i >= 0; ) {
-                    ProItem *item = values.at(i);
-                    if (item->kind() == ProItem::ValueKind) {
-                        ProValue *val = static_cast<ProValue *>(item);
-                        if (relativeFilePaths.contains(val->value())) {
-                            notChanged->removeOne(priFileDir.absoluteFilePath(val->value()));
-                            delete values.takeAt(i);
-                        }
-                    }
-                }
-                proVar->setItems(values);
-            }
-        }
+        *notChanged = ProWriter::removeFiles(includeFile, &lines, priFileDir, filePaths, vars);
     }
 
     // save file
-    save(includeFile);
+    save(lines);
 
     includeFile->deref();
 }
 
-void Qt4PriFileNode::save(ProFile *includeFile)
+void Qt4PriFileNode::save(const QStringList &lines)
 {
     Core::ICore *core = Core::ICore::instance();
     Core::FileManager *fileManager = core->fileManager();
-    QList<Core::IFile *> allFileHandles = fileManager->managedFiles(includeFile->fileName());
+    QList<Core::IFile *> allFileHandles = fileManager->managedFiles(m_projectFilePath);
     Core::IFile *modifiedFileHandle = 0;
     foreach (Core::IFile *file, allFileHandles)
-        if (file->fileName() == includeFile->fileName())
+        if (file->fileName() == m_projectFilePath)
             modifiedFileHandle = file;
 
     if (modifiedFileHandle)
         fileManager->blockFileChange(modifiedFileHandle);
-    ProWriter pw;
-    const bool ok = pw.write(includeFile, includeFile->fileName());
-    Q_UNUSED(ok)
-    m_project->qt4ProjectManager()->notifyChanged(includeFile->fileName());
+    QFile qfile(m_projectFilePath);
+    if (qfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        foreach (const QString &str, lines) {
+            qfile.write(str.toLatin1()); // yes, really latin1
+            qfile.write("\n");
+        }
+        qfile.close();
+    }
+    m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
     if (modifiedFileHandle)
         fileManager->unblockFileChange(modifiedFileHandle);
 

@@ -174,7 +174,7 @@ private slots:
     void scheduleUpdate();
 
 private:
-    void save(ProFile *includeFile);
+    void save(const QStringList &lines);
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors(const QString &path);
 
