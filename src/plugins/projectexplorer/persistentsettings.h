@@ -46,6 +46,7 @@ class PROJECTEXPLORER_EXPORT PersistentSettingsReader
 public:
     PersistentSettingsReader();
     QVariant restoreValue(const QString & variable) const;
+    QVariantMap restoreValues() const;
     bool load(const QString & fileName);
     void setPrefix(const QString &prefix);
     QString prefix() const;

@@ -52,6 +52,11 @@ QVariant PersistentSettingsReader::restoreValue(const QString & variable) const
     return QVariant();
 }
 
+QVariantMap PersistentSettingsReader::restoreValues() const
+{
+    return m_valueMap;
+}
+
 bool PersistentSettingsReader::load(const QString & fileName)
 {
     m_valueMap.clear();
