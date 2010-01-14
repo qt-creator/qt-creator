@@ -20,6 +20,7 @@ HEADERS += projectexplorer.h \
     dependenciespanel.h \
     allprojectsfilter.h \
     ioutputparser.h \
+    projectconfiguration.h \
     gnumakeparser.h \
     projectexplorerconstants.h \
     projectexplorersettings.h \
@@ -71,6 +72,7 @@ SOURCES += projectexplorer.cpp \
     buildmanager.cpp \
     compileoutputwindow.cpp \
     ioutputparser.cpp \
+    projectconfiguration.cpp \
     gnumakeparser.cpp \
     taskwindow.cpp \
     outputwindow.cpp \
