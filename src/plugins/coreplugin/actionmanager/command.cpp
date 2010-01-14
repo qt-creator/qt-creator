@@ -352,7 +352,11 @@ bool Shortcut::isActive() const
   \internal
 */
 Action::Action(int id)
-    : CommandPrivate(id), m_action(0)
+    : CommandPrivate(id),
+    m_action(0),
+    m_currentAction(0),
+    m_active(false),
+    m_contextInitialized(false)
 {
 
 }
@@ -416,25 +420,7 @@ QKeySequence Action::keySequence() const
     return m_action->shortcut();
 }
 
-// ---------- OverrideableAction ------------
-
-/*!
-    \class OverrideableAction
-    \internal
-*/
-
-OverrideableAction::OverrideableAction(int id)
-    : Action(id), m_currentAction(0), m_active(false),
-    m_contextInitialized(false)
-{
-}
-
-void OverrideableAction::setAction(QAction *action)
-{
-    Action::setAction(action);
-}
-
-bool OverrideableAction::setCurrentContext(const QList<int> &context)
+bool Action::setCurrentContext(const QList<int> &context)
 {
     m_context = context;
 
@@ -488,7 +474,7 @@ static inline QString msgActionWarning(QAction *newAction, int k, QAction *oldAc
     return msg;
 }
 
-void OverrideableAction::addOverrideAction(QAction *action, const QList<int> &context)
+void Action::addOverrideAction(QAction *action, const QList<int> &context)
 {
     if (context.isEmpty()) {
         m_contextActionMap.insert(0, action);
@@ -502,7 +488,7 @@ void OverrideableAction::addOverrideAction(QAction *action, const QList<int> &co
     }
 }
 
-void OverrideableAction::actionChanged()
+void Action::actionChanged()
 {
     if (hasAttribute(CA_UpdateIcon)) {
         m_action->setIcon(m_currentAction->icon());
@@ -525,7 +511,7 @@ void OverrideableAction::actionChanged()
     m_action->setVisible(m_currentAction->isVisible());
 }
 
-bool OverrideableAction::isActive() const
+bool Action::isActive() const
 {
     return m_active;
 }

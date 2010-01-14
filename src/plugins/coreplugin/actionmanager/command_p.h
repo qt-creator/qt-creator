@@ -124,30 +124,21 @@ public:
     void setLocations(const QList<CommandLocation> &locations);
     QList<CommandLocation> locations() const;
 
+    bool setCurrentContext(const QList<int> &context);
+    bool isActive() const;
+    void addOverrideAction(QAction *action, const QList<int> &context);
+
 protected:
     void updateToolTipWithKeySequence();
-    
-    QAction *m_action;
-    QList<CommandLocation> m_locations;
-    QString m_toolTip;
-};
-
-class OverrideableAction : public Action
-{
-    Q_OBJECT
-
-public:
-    OverrideableAction(int id);
-
-    void setAction(QAction *action);
-    bool setCurrentContext(const QList<int> &context);
-    void addOverrideAction(QAction *action, const QList<int> &context);
-    bool isActive() const;
 
 private slots:
     void actionChanged();
 
 private:
+    QAction *m_action;
+    QList<CommandLocation> m_locations;
+    QString m_toolTip;
+
     QPointer<QAction> m_currentAction;
     QList<int> m_context;
     QMap<int, QPointer<QAction> > m_contextActionMap;

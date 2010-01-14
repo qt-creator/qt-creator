@@ -323,9 +323,9 @@ ActionContainer *ActionManagerPrivate::createMenuBar(const QString &id)
 
 Command *ActionManagerPrivate::registerAction(QAction *action, const QString &id, const QList<int> &context)
 {
-    OverrideableAction *a = 0;
+    Action *a = 0;
     Command *c = registerOverridableAction(action, id, false);
-    a = static_cast<OverrideableAction *>(c);
+    a = static_cast<Action *>(c);
     if (a)
         a->addOverrideAction(action, context);
     return a;
@@ -333,16 +333,16 @@ Command *ActionManagerPrivate::registerAction(QAction *action, const QString &id
 
 Command *ActionManagerPrivate::registerOverridableAction(QAction *action, const QString &id, bool checkUnique)
 {
-    OverrideableAction *a = 0;
+    Action *a = 0;
     const int uid = UniqueIDManager::instance()->uniqueIdentifier(id);
     if (CommandPrivate *c = m_idCmdMap.value(uid, 0)) {
-        a = qobject_cast<OverrideableAction *>(c);
+        a = qobject_cast<Action *>(c);
         if (!a) {
             qWarning() << "registerAction: id" << id << "is registered with a different command type.";
             return c;
         }
     } else {
-        a = new OverrideableAction(uid);
+        a = new Action(uid);
         m_idCmdMap.insert(uid, a);
     }
 
