@@ -126,10 +126,8 @@ ProItem::ProItemReturn ProBlock::Accept(AbstractProItemVisitor *visitor)
 }
 
 // --------------- ProVariable ----------------
-ProVariable::ProVariable(const QString &name, ProBlock *parent)
-    : ProBlock(parent)
+ProVariable::ProVariable(const QString &name)
 {
-    setBlockKind(ProBlock::VariableKind);
     m_variable = name;
     m_variableKind = SetOperator;
 }
@@ -154,50 +152,24 @@ QString ProVariable::variable() const
     return m_variable;
 }
 
-ProItem::ProItemReturn ProVariable::Accept(AbstractProItemVisitor *visitor)
+void ProVariable::setValue(const QString &val)
 {
-    visitor->visitBeginProVariable(this);
-    foreach (ProItem *item, m_proitems)
-        item->Accept(visitor); // cannot fail
-    visitor->visitEndProVariable(this);
-    return ReturnTrue;
+    m_value = val;
 }
 
-// --------------- ProValue ----------------
-ProValue::ProValue(const QString &value, ProVariable *variable)
-{
-    m_variable = variable;
-    m_value = value;
-}
-
-void ProValue::setValue(const QString &value)
-{
-    m_value = value;
-}
-
-QString ProValue::value() const
+QString ProVariable::value() const
 {
     return m_value;
 }
 
-void ProValue::setVariable(ProVariable *variable)
+ProItem::ProItemKind ProVariable::kind() const
 {
-    m_variable = variable;
+    return ProItem::VariableKind;
 }
 
-ProVariable *ProValue::variable() const
+ProItem::ProItemReturn ProVariable::Accept(AbstractProItemVisitor *visitor)
 {
-    return m_variable;
-}
-
-ProItem::ProItemKind ProValue::kind() const
-{
-    return ProItem::ValueKind;
-}
-
-ProItem::ProItemReturn ProValue::Accept(AbstractProItemVisitor *visitor)
-{
-    visitor->visitProValue(this);
+    visitor->visitProVariable(this);
     return ReturnTrue;
 }
 

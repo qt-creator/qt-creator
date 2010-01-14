@@ -41,41 +41,38 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
 {
     // Check if variable item exists as child of root item
     foreach (ProItem *item, profile->items()) {
-        if (item->kind() == ProItem::BlockKind) {
-            ProBlock *block = static_cast<ProBlock *>(item);
-            if (block->blockKind() == ProBlock::VariableKind) {
-                ProVariable *proVar = static_cast<ProVariable*>(block);
-                if (vars.contains(proVar->variable())
-                    && proVar->variableOperator() != ProVariable::RemoveOperator
-                    && proVar->variableOperator() != ProVariable::ReplaceOperator) {
+        if (item->kind() == ProItem::VariableKind) {
+            ProVariable *proVar = static_cast<ProVariable*>(item);
+            if (vars.contains(proVar->variable())
+                && proVar->variableOperator() != ProVariable::RemoveOperator
+                && proVar->variableOperator() != ProVariable::ReplaceOperator) {
 
-                    int lineNo = proVar->lineNumber() - 1;
-                    for (; lineNo < lines->count(); lineNo++) {
-                        QString line = lines->at(lineNo);
-                        int idx = line.indexOf(QLatin1Char('#'));
+                int lineNo = proVar->lineNumber() - 1;
+                for (; lineNo < lines->count(); lineNo++) {
+                    QString line = lines->at(lineNo);
+                    int idx = line.indexOf(QLatin1Char('#'));
+                    if (idx >= 0)
+                        line.truncate(idx);
+                    while (line.endsWith(QLatin1Char(' ')) || line.endsWith(QLatin1Char('\t')))
+                        line.chop(1);
+                    if (line.isEmpty()) {
                         if (idx >= 0)
-                            line.truncate(idx);
-                        while (line.endsWith(QLatin1Char(' ')) || line.endsWith(QLatin1Char('\t')))
-                            line.chop(1);
-                        if (line.isEmpty()) {
-                            if (idx >= 0)
-                                continue;
-                            break;
-                        }
-                        if (!line.endsWith(QLatin1Char('\\'))) {
-                            (*lines)[lineNo].insert(line.length(), QLatin1String(" \\"));
-                            lineNo++;
-                            break;
-                        }
+                            continue;
+                        break;
                     }
-                    QString added;
-                    foreach (const QString &filePath, filePaths)
-                        added += QLatin1String("    ") + proFileDir.relativeFilePath(filePath)
-                                 + QLatin1String(" \\\n");
-                    added.chop(3);
-                    lines->insert(lineNo, added);
-                    return;
+                    if (!line.endsWith(QLatin1Char('\\'))) {
+                        (*lines)[lineNo].insert(line.length(), QLatin1String(" \\"));
+                        lineNo++;
+                        break;
+                    }
                 }
+                QString added;
+                foreach (const QString &filePath, filePaths)
+                    added += QLatin1String("    ") + proFileDir.relativeFilePath(filePath)
+                             + QLatin1String(" \\\n");
+                added.chop(3);
+                lines->insert(lineNo, added);
+                return;
             }
         }
     }
@@ -92,14 +89,11 @@ static void findProVariables(ProBlock *block, const QStringList &vars,
 {
     foreach (ProItem *item, block->items()) {
         if (item->kind() == ProItem::BlockKind) {
-            ProBlock *subBlock = static_cast<ProBlock *>(item);
-            if (subBlock->blockKind() == ProBlock::VariableKind) {
-                ProVariable *proVar = static_cast<ProVariable*>(subBlock);
-                if (vars.contains(proVar->variable()))
-                    *proVars << proVar;
-            } else {
-                findProVariables(subBlock, vars, proVars);
-            }
+            findProVariables(static_cast<ProBlock*>(item), vars, proVars);
+        } else if (item->kind() == ProItem::VariableKind) {
+            ProVariable *proVar = static_cast<ProVariable*>(item);
+            if (vars.contains(proVar->variable()))
+                *proVars << proVar;
         }
     }
 }

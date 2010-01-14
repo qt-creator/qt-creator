@@ -196,7 +196,8 @@ public:
     ProBlock *currentBlock();
     void updateItem(ushort *ptr);
     void updateItem2();
-    bool insertVariable(ushort *ptr, bool *doSplit, bool *doSemicolon);
+    ProVariable *startVariable(ushort *ptr);
+    void finalizeVariable(ProVariable *var);
     void insertOperator(const char op);
     void enterScope(bool multiLine);
     void leaveScope();
@@ -214,11 +215,9 @@ public:
     void visitEndProBlock(ProBlock *block);
     ProItem::ProItemReturn visitProLoopIteration();
     void visitProLoopCleanup();
-    void visitBeginProVariable(ProVariable *variable);
-    void visitEndProVariable(ProVariable *variable);
     ProItem::ProItemReturn visitBeginProFile(ProFile *value);
     ProItem::ProItemReturn visitEndProFile(ProFile *value);
-    void visitProValue(ProValue *value);
+    void visitProVariable(ProVariable *variable);
     ProItem::ProItemReturn visitProFunction(ProFunction *function);
     void visitProOperator(ProOperator *oper);
     void visitProCondition(ProCondition *condition);
@@ -230,8 +229,8 @@ public:
                        const ProFile *pro) const;
     QString propertyValue(const QString &val, bool complain = true) const;
 
-    QStringList split_value_list(const QString &vals, bool do_semicolon = false);
-    QStringList split_arg_list(const QString &params);
+    static QStringList split_value_list(const QString &vals, bool do_semicolon = false);
+    static QStringList split_arg_list(const QString &params);
     bool isActiveConfig(const QString &config, bool regex = false);
     QStringList expandVariableReferences(const QString &value);
     void doVariableReplace(QString *str);
@@ -266,7 +265,6 @@ public:
     struct State {
         bool condition;
         bool prevCondition;
-        QStringList varVal;
     } m_sts;
     bool m_invertNext; // Short-lived, so not in State
     bool m_hadCondition; // Nested calls set it on return, so no need for it to be in State
@@ -358,11 +356,9 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
     m_blockstack.push(pro);
 
   freshLine:
+    ProVariable *currAssignment = 0;
     int parens = 0;
     bool inError = false;
-    bool inAssignment = false;
-    bool doSplit = false;
-    bool doSemicolon = false;
     bool putSpace = false;
     ushort quote = 0;
     while (!ts->atEnd()) {
@@ -374,7 +370,12 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
         // First, skip leading whitespace
         forever {
             if (cur == end) { // Entirely empty line (sans whitespace)
-                updateItem2();
+                if (currAssignment) {
+                    finalizeVariable(currAssignment);
+                    currAssignment = 0;
+                } else {
+                    updateItem2();
+                }
                 finalizeBlock();
                 ++m_lineNo;
                 goto freshLine;
@@ -419,7 +420,7 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
             m_proitem.reserve(m_proitem.length() + (end - cur));
 
             // Finally, do the tokenization
-            if (!inAssignment) {
+            if (!currAssignment) {
               newItem:
                 ptr = (ushort *)m_proitem.unicode() + m_proitem.length();
                 do {
@@ -454,8 +455,7 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
                                 goto nextItem;
                             }
                             if (c == '=') {
-                                if (insertVariable(ptr, &doSplit, &doSemicolon)) {
-                                    inAssignment = true;
+                                if ((currAssignment = startVariable(ptr))) {
                                     putSpace = false;
                                     break;
                                 }
@@ -485,97 +485,41 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
                         putSpace = true;
                     }
                 }
-            } // !inAssignment
+            } // !currAssignment
 
-          nextVal:
             ptr = (ushort *)m_proitem.unicode() + m_proitem.length();
             do {
                 if (cur == end)
                     goto lineEnd;
                 c = *cur++;
             } while (c == ' ' || c == '\t');
-            if (doSplit) {
-                // Qmake's parser supports truly bizarre quote nesting here, but later
-                // stages (in qmake) don't grok it anyway. So make it simple instead.
-                forever {
-                    if (c == '\\') {
-                        ushort ec;
-                        if (cur != end && ((ec = *cur) == '"' || ec == '\'')) {
-                            ++cur;
-                            if (putSpace) {
-                                putSpace = false;
-                                *ptr++ = ' ';
-                            }
-                            *ptr++ = '\\';
-                            *ptr++ = ec;
-                            goto getNext;
-                        }
-                    } else {
-                        if (quote) {
-                            if (c == quote) {
-                                quote = 0;
-                            } else if (c == ' ' || c == '\t') {
-                                putSpace = true;
-                                goto getNext;
-                            }
-                        } else {
-                            if (c == '"' || c == '\'') {
-                                quote = c;
-                            } else if (c == ')') {
-                                --parens;
-                            } else if (c == '(') {
-                                ++parens;
-                            } else if (c == ' ' || c == '\t') {
-                                if (parens) {
-                                    putSpace = true;
-                                    goto getNext;
-                                }
-                                updateItem(ptr);
-                                // assert(!putSpace);
-                                goto nextVal;
-                            }
-                        }
-                    }
-
-                    if (putSpace) {
-                        putSpace = false;
-                        *ptr++ = ' ';
-                    }
-                    *ptr++ = c;
-
-                  getNext:
-                    if (cur == end) {
-                        if (!quote && !parens)
-                            goto flushItem;
-                        break;
-                    }
-                    c = *cur++;
+            forever {
+                if (putSpace) {
+                    putSpace = false;
+                    *ptr++ = ' ';
                 }
-            } else { // doSplit
-                forever {
-                    if (putSpace) {
-                        putSpace = false;
-                        *ptr++ = ' ';
-                    }
-                    *ptr++ = c;
+                *ptr++ = c;
 
-                    forever {
-                        if (cur == end)
-                            goto lineEnd;
-                        c = *cur++;
-                        if (c != ' ' && c != '\t')
-                            break;
-                        putSpace = true;
-                    }
+                forever {
+                    if (cur == end)
+                        goto lineEnd;
+                    c = *cur++;
+                    if (c != ' ' && c != '\t')
+                        break;
+                    putSpace = true;
                 }
             }
           lineEnd:
+            m_proitem.resize(ptr - (ushort *)m_proitem.unicode());
             if (lineCont) {
-                m_proitem.resize(ptr - (ushort *)m_proitem.unicode());
                 putSpace = !m_proitem.isEmpty();
             } else {
-              flushItem:
-                updateItem(ptr);
+                if (currAssignment) {
+                    finalizeVariable(currAssignment);
+                    currAssignment = 0;
+                } else {
+                    updateItem2();
+                }
                 putSpace = false;
             }
         } // !inError
@@ -599,13 +543,13 @@ void ProFileEvaluator::Private::finalizeBlock()
     m_block = 0;
 }
 
-bool ProFileEvaluator::Private::insertVariable(ushort *ptr, bool *doSplit, bool *doSemicolon)
+ProVariable *ProFileEvaluator::Private::startVariable(ushort *ptr)
 {
     ProVariable::VariableOperator opkind;
     ushort *uc = (ushort *)m_proitem.unicode();
 
     if (ptr == uc) // Line starting with '=', like a conflict marker
-        return false;
+        return 0;
 
     switch (*(ptr - 1)) {
         case '+':
@@ -630,7 +574,7 @@ bool ProFileEvaluator::Private::insertVariable(ushort *ptr, bool *doSplit, bool 
     }
 
     if (ptr == uc) // Line starting with manipulation operator
-        return false;
+        return 0;
     if (*(ptr - 1) == ' ')
         --ptr;
 
@@ -638,20 +582,23 @@ bool ProFileEvaluator::Private::insertVariable(ushort *ptr, bool *doSplit, bool 
     m_proitem.resize(ptr - uc);
     QString proVar = m_proitem;
     proVar.detach();
-
-    ProBlock *block = m_blockstack.top();
-    ProVariable *variable = new ProVariable(proVar, block);
-    variable->setLineNumber(m_lineNo);
-    variable->setVariableOperator(opkind);
-    block->appendItem(variable);
-    m_block = variable;
-
     m_proitem.resize(0);
 
-    *doSplit = (opkind != ProVariable::ReplaceOperator);
-    *doSemicolon = (proVar == QLatin1String("DEPENDPATH")
-                    || proVar == QLatin1String("INCLUDEPATH"));
-    return true;
+    ProVariable *variable = new ProVariable(proVar);
+    variable->setLineNumber(m_lineNo);
+    variable->setVariableOperator(opkind);
+    return variable;
+}
+
+void ProFileEvaluator::Private::finalizeVariable(ProVariable *variable)
+{
+    QString proItem = m_proitem;
+    proItem.detach();
+    m_proitem.resize(0);
+    variable->setValue(proItem);
+
+    ProBlock *block = m_blockstack.top();
+    block->appendItem(variable);
 }
 
 void ProFileEvaluator::Private::insertOperator(const char op)
@@ -730,9 +677,7 @@ void ProFileEvaluator::Private::updateItem2()
 
     ProBlock *block = currentBlock();
     ProItem *item;
-    if (block->blockKind() & ProBlock::VariableKind) {
-        item = new ProValue(proItem, static_cast<ProVariable*>(block));
-    } else if (proItem.endsWith(QLatin1Char(')'))) {
+    if (proItem.endsWith(QLatin1Char(')'))) {
         item = new ProFunction(proItem);
     } else {
         item = new ProCondition(proItem);
@@ -1001,89 +946,91 @@ void ProFileEvaluator::Private::visitProLoopCleanup()
     m_loopStack.pop_back();
 }
 
-void ProFileEvaluator::Private::visitBeginProVariable(ProVariable *)
+void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
 {
-    m_sts.varVal.clear();
-}
+    m_lineNo = var->lineNumber();
+    const QString &varName = var->variable();
 
-void ProFileEvaluator::Private::visitEndProVariable(ProVariable *variable)
-{
-    QString varName = variable->variable();
+    if (var->variableOperator() == ProVariable::ReplaceOperator) {      // ~=
+        // DEFINES ~= s/a/b/?[gqi]
 
-    switch (variable->variableOperator()) {
+        QString val = var->value();
+        doVariableReplace(&val);
+        if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
+            logMessage(format("the ~= operator can handle only the s/// function."));
+            return;
+        }
+        QChar sep = val.at(1);
+        QStringList func = val.split(sep);
+        if (func.count() < 3 || func.count() > 4) {
+            logMessage(format("the s/// function expects 3 or 4 arguments."));
+            return;
+        }
+
+        bool global = false, quote = false, case_sense = false;
+        if (func.count() == 4) {
+            global = func[3].indexOf(QLatin1Char('g')) != -1;
+            case_sense = func[3].indexOf(QLatin1Char('i')) == -1;
+            quote = func[3].indexOf(QLatin1Char('q')) != -1;
+        }
+        QString pattern = func[1];
+        QString replace = func[2];
+        if (quote)
+            pattern = QRegExp::escape(pattern);
+
+        QRegExp regexp(pattern, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
+
+        if (!m_skipLevel || m_cumulative) {
+            // We could make a union of modified and unmodified values,
+            // but this will break just as much as it fixes, so leave it as is.
+            replaceInList(&m_valuemap[varName], regexp, replace, global);
+            replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
+        }
+    } else {
+        static const QString deppath(QLatin1String("DEPENDPATH"));
+        static const QString incpath(QLatin1String("INCLUDEPATH"));
+        bool doSemicolon = (varName == deppath || varName == incpath);
+        QStringList varVal;
+        foreach (const QString &arg, split_value_list(var->value(), doSemicolon))
+            varVal += expandVariableReferences(arg);
+
+        switch (var->variableOperator()) {
+        default: // ReplaceOperator - cannot happen
         case ProVariable::SetOperator:          // =
             if (!m_cumulative) {
                 if (!m_skipLevel) {
-                    m_valuemap[varName] = m_sts.varVal;
-                    m_filevaluemap[currentProFile()][varName] = m_sts.varVal;
+                    m_valuemap[varName] = varVal;
+                    m_filevaluemap[currentProFile()][varName] = varVal;
                 }
             } else {
                 // We are greedy for values.
-                m_valuemap[varName] += m_sts.varVal;
-                m_filevaluemap[currentProFile()][varName] += m_sts.varVal;
+                m_valuemap[varName] += varVal;
+                m_filevaluemap[currentProFile()][varName] += varVal;
             }
             break;
         case ProVariable::UniqueAddOperator:    // *=
             if (!m_skipLevel || m_cumulative) {
-                insertUnique(&m_valuemap, varName, m_sts.varVal);
-                insertUnique(&m_filevaluemap[currentProFile()], varName, m_sts.varVal);
+                insertUnique(&m_valuemap, varName, varVal);
+                insertUnique(&m_filevaluemap[currentProFile()], varName, varVal);
             }
             break;
         case ProVariable::AddOperator:          // +=
             if (!m_skipLevel || m_cumulative) {
-                m_valuemap[varName] += m_sts.varVal;
-                m_filevaluemap[currentProFile()][varName] += m_sts.varVal;
+                m_valuemap[varName] += varVal;
+                m_filevaluemap[currentProFile()][varName] += varVal;
             }
             break;
         case ProVariable::RemoveOperator:       // -=
             if (!m_cumulative) {
                 if (!m_skipLevel) {
-                    removeEach(&m_valuemap, varName, m_sts.varVal);
-                    removeEach(&m_filevaluemap[currentProFile()], varName, m_sts.varVal);
+                    removeEach(&m_valuemap, varName, varVal);
+                    removeEach(&m_filevaluemap[currentProFile()], varName, varVal);
                 }
             } else {
                 // We are stingy with our values, too.
             }
             break;
-        case ProVariable::ReplaceOperator:      // ~=
-            {
-                // DEFINES ~= s/a/b/?[gqi]
-
-                QString val = m_sts.varVal.first();
-                doVariableReplace(&val);
-                if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
-                    logMessage(format("the ~= operator can handle only the s/// function."));
-                    break;
-                }
-                QChar sep = val.at(1);
-                QStringList func = val.split(sep);
-                if (func.count() < 3 || func.count() > 4) {
-                    logMessage(format("the s/// function expects 3 or 4 arguments."));
-                    break;
-                }
-
-                bool global = false, quote = false, case_sense = false;
-                if (func.count() == 4) {
-                    global = func[3].indexOf(QLatin1Char('g')) != -1;
-                    case_sense = func[3].indexOf(QLatin1Char('i')) == -1;
-                    quote = func[3].indexOf(QLatin1Char('q')) != -1;
-                }
-                QString pattern = func[1];
-                QString replace = func[2];
-                if (quote)
-                    pattern = QRegExp::escape(pattern);
-
-                QRegExp regexp(pattern, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
-
-                if (!m_skipLevel || m_cumulative) {
-                    // We could make a union of modified and unmodified values,
-                    // but this will break just as much as it fixes, so leave it as is.
-                    replaceInList(&m_valuemap[varName], regexp, replace, global);
-                    replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
-
-                }
-            }
-            break;
+        }
     }
 }
 
@@ -1264,12 +1211,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
     m_profileStack.pop();
 
     return returnBool(QDir::setCurrent(m_oldPathStack.pop()));
-}
-
-void ProFileEvaluator::Private::visitProValue(ProValue *value)
-{
-    m_lineNo = value->lineNumber();
-    m_sts.varVal += expandVariableReferences(value->value());
 }
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitProFunction(ProFunction *func)

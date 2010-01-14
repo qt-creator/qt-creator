@@ -44,13 +44,10 @@ struct AbstractProItemVisitor
     virtual ProItem::ProItemReturn visitProLoopIteration() = 0;
     virtual void visitProLoopCleanup() = 0;
 
-    virtual void visitBeginProVariable(ProVariable *variable) = 0;
-    virtual void visitEndProVariable(ProVariable *variable) = 0;
-
     virtual ProItem::ProItemReturn visitBeginProFile(ProFile *value) = 0;
     virtual ProItem::ProItemReturn visitEndProFile(ProFile *value) = 0;
 
-    virtual void visitProValue(ProValue *value) = 0;
+    virtual void visitProVariable(ProVariable *variable) = 0;
     virtual ProItem::ProItemReturn visitProFunction(ProFunction *function) = 0;
     virtual void visitProOperator(ProOperator *function) = 0;
     virtual void visitProCondition(ProCondition *function) = 0;

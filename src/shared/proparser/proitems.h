@@ -45,6 +45,7 @@ public:
         FunctionKind,
         ConditionKind,
         OperatorKind,
+        VariableKind,
         BlockKind
     };
 
@@ -78,7 +79,6 @@ public:
         NormalKind          = 0x00,
         ScopeKind           = 0x01,
         ScopeContentsKind   = 0x02,
-        VariableKind        = 0x04,
         ProFileKind         = 0x08,
         FunctionBodyKind    = 0x10,
         SingleLine          = 0x80
@@ -111,7 +111,7 @@ private:
     int m_refCount;
 };
 
-class ProVariable : public ProBlock
+class ProVariable : public ProItem
 {
 public:
     enum VariableOperator {
@@ -122,7 +122,7 @@ public:
         UniqueAddOperator   = 4
     };
 
-    ProVariable(const QString &name, ProBlock *parent);
+    ProVariable(const QString &name);
 
     void setVariableOperator(VariableOperator variableKind);
     VariableOperator variableOperator() const;
@@ -130,29 +130,16 @@ public:
     void setVariable(const QString &name);
     QString variable() const;
 
-    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
-private:
-    VariableOperator m_variableKind;
-    QString m_variable;
-};
-
-class ProValue : public ProItem
-{
-public:
-    ProValue(const QString &value, ProVariable *variable);
-
     void setValue(const QString &value);
     QString value() const;
-
-    void setVariable(ProVariable *variable);
-    ProVariable *variable() const;
 
     ProItem::ProItemKind kind() const;
 
     virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
+    VariableOperator m_variableKind;
+    QString m_variable;
     QString m_value;
-    ProVariable *m_variable;
 };
 
 class ProFunction : public ProItem
