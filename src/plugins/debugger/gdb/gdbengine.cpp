@@ -4664,7 +4664,7 @@ void GdbEngine::handleInferiorPrepared()
         qtBuildPath = "C:/iwmake/build_mingw_opensource";
         postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
 #elif defined(Q_OS_UNIX) && !defined (Q_OS_MAC)
-        qtBuildPath = "/var/tmp/qt-x11-src-4.6.0";
+        qtBuildPath = "/var/tmp/qt-x11-src-4.6.1";
         postCommand("set substitute-path " + qtBuildPath + ' ' + qtInstallPath);
 #endif
     }

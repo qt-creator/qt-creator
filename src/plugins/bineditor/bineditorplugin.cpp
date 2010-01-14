@@ -297,12 +297,11 @@ class BinEditorInterface : public Core::IEditor
 {
     Q_OBJECT
 public:
-    BinEditorInterface(BinEditor *parent)
-        : Core::IEditor(parent)
+    BinEditorInterface(BinEditor *editor)
     {
         Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-        m_editor = parent;
-        m_file = new BinEditorFile(parent);
+        m_editor = editor;
+        m_file = new BinEditorFile(m_editor);
         m_context << uidm->uniqueIdentifier(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
         m_context << uidm->uniqueIdentifier(Constants::C_BINEDITOR);
         m_cursorPositionLabel = new Utils::LineColumnLabel;
@@ -321,7 +320,9 @@ public:
 
         connect(m_editor, SIGNAL(cursorPositionChanged(int)), this, SLOT(updateCursorPosition(int)));
     }
-    ~BinEditorInterface() {}
+    ~BinEditorInterface() {
+        delete m_editor;
+    }
 
     QWidget *widget() { return m_editor; }
 

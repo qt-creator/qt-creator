@@ -33,6 +33,8 @@
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
 #include <QtCore/QCoreApplication>
 #include <QtGui/QTextCharFormat>
@@ -121,8 +123,10 @@ bool FontSettings::fromSettings(const QString &category,
 
     if (s->contains(group + QLatin1String(schemeFileNameKey))) {
         // Load the selected color scheme
-        loadColorScheme(s->value(group + QLatin1String(schemeFileNameKey), defaultSchemeFileName()).toString(),
-                        descriptions);
+        QString scheme = s->value(group + QLatin1String(schemeFileNameKey)).toString();
+        if (scheme.isEmpty() || !QFile::exists(scheme))
+            scheme = defaultSchemeFileName(QFileInfo(scheme).fileName());
+        loadColorScheme(scheme, descriptions);
     } else {
         // Load color scheme from ini file
         foreach (const FormatDescription &desc, descriptions) {
@@ -337,11 +341,21 @@ int FontSettings::defaultFontSize()
     return DEFAULT_FONT_SIZE;
 }
 
-QString FontSettings::defaultSchemeFileName()
+/**
+ * Returns the default scheme file name, or the path to a shipped scheme when
+ * one exists with the given \a fileName.
+ */
+QString FontSettings::defaultSchemeFileName(const QString &fileName)
 {
-    QString fileName = Core::ICore::instance()->resourcePath();
-    fileName += QLatin1String("/styles/default.xml");
-    return fileName;
+    QString defaultScheme = Core::ICore::instance()->resourcePath();
+    defaultScheme += QLatin1String("/styles/");
+
+    if (!fileName.isEmpty() && QFile::exists(defaultScheme + fileName))
+        defaultScheme += fileName;
+    else
+        defaultScheme += QLatin1String("default.xml");
+
+    return defaultScheme;
 }
 
 } // namespace TextEditor

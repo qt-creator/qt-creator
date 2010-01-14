@@ -32,6 +32,8 @@
 #include "editormanager.h"
 #include "editorview.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtGui/QHeaderView>
 
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
@@ -192,11 +194,10 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
     foreach (const EditLocation &hi, view->editorHistory()) {
         if (hi.file.isNull() || filesDone.contains(hi.file))
             continue;
-        filesDone.insert(hi.file.data());
-
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-
         QString title = model->displayNameForFile(hi.file);
+        QTC_ASSERT(!title.isEmpty(), continue;)
+        filesDone.insert(hi.file.data());
+        QTreeWidgetItem *item = new QTreeWidgetItem();
         if (hi.file->isModified())
             title += tr("*");
         item->setIcon(0, hi.file->isReadOnly() ? lockedIcon : emptyIcon);

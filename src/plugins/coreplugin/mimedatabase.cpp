@@ -1086,8 +1086,11 @@ QStringList MimeDatabasePrivate::filterStrings() const
 {
     QStringList rc;
     const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
-    for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
-        rc += it.value().type.filterString();
+    for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it) {
+        const QString filterString = it.value().type.filterString();
+        if (!filterString.isEmpty())
+            rc += filterString;
+    }
     return rc;
 }
 

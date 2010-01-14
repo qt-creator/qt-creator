@@ -145,8 +145,6 @@ bool ColorScheme::save(const QString &fileName) const
     if (!m_displayName.isEmpty())
         w.writeAttribute(QLatin1String("name"), m_displayName);
 
-    Format textFormat = formatFor(QLatin1String(Constants::C_TEXT));
-
     QMapIterator<QString, Format> i(m_formats);
     while (i.hasNext()) {
         const Format &format = i.next().value();
