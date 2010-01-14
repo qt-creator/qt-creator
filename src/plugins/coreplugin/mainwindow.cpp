@@ -116,6 +116,8 @@ MainWindow::MainWindow() :
     // keep this in sync with main() in app/main.cpp
     m_settings(new QSettings(QSettings::IniFormat, QSettings::UserScope,
                              QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
+    m_globalSettings(new QSettings(QSettings::IniFormat, QSettings::SystemScope,
+                             QLatin1String("Nokia"), QLatin1String("QtCreator"), this)),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
                                             QLatin1String("QtCreator"),
                                             this)),
