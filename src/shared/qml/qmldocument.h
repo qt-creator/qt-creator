@@ -39,7 +39,7 @@
 #include "qml_global.h"
 #include "qmlsymbol.h"
 
-namespace QmlEditor {
+namespace Qml {
 
 class QML_EXPORT QmlDocument
 {
@@ -106,6 +106,6 @@ public:
     QMap<QString, QmlDocument::Ptr> componentsDefinedByImportedDocuments(const QmlDocument::Ptr &doc, const QString &importPath) const;
 };
 
-} // emd of namespace QmlEditor
+} // end of namespace Qml
 
 #endif // QMLDOCUMENT_H

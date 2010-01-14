@@ -33,8 +33,8 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlEditor;
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner;
+using namespace QmlDesigner::Internal;
 
 QMap<QString, QmlIdSymbol*> IdCollector::operator()(const QString &fileName, QmlJS::AST::UiProgram *ast)
 {

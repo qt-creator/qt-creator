@@ -36,7 +36,7 @@
 #include <QSet>
 #include <QString>
 
-namespace QmlEditor {
+namespace QmlDesigner {
 
 class QmlRefactoring
 {
@@ -75,6 +75,6 @@ private:
     QStringList m_propertyOrder;
 };
 
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // QMLREFACTORING_H

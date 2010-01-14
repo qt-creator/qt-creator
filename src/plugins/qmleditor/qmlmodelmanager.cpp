@@ -52,13 +52,13 @@ QmlModelManager::QmlModelManager(QObject *parent):
 {
     m_synchronizer.setCancelOnWait(true);
 
-    qRegisterMetaType<QmlEditor::QmlDocument::Ptr>("QmlEditor::QmlDocument::Ptr");
+    qRegisterMetaType<Qml::QmlDocument::Ptr>("Qml::QmlDocument::Ptr");
 
-    connect(this, SIGNAL(documentUpdated(QmlEditor::QmlDocument::Ptr)),
-            this, SLOT(onDocumentUpdated(QmlEditor::QmlDocument::Ptr)));
+    connect(this, SIGNAL(documentUpdated(Qml::QmlDocument::Ptr)),
+            this, SLOT(onDocumentUpdated(Qml::QmlDocument::Ptr)));
 }
 
-Snapshot QmlModelManager::snapshot() const
+Qml::Snapshot QmlModelManager::snapshot() const
 {
     QMutexLocker locker(&m_mutex);
 
@@ -119,10 +119,10 @@ QMap<QString, QString> QmlModelManager::buildWorkingCopyList()
     return workingCopy;
 }
 
-void QmlModelManager::emitDocumentUpdated(QmlDocument::Ptr doc)
+void QmlModelManager::emitDocumentUpdated(Qml::QmlDocument::Ptr doc)
 { emit documentUpdated(doc); }
 
-void QmlModelManager::onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc)
+void QmlModelManager::onDocumentUpdated(Qml::QmlDocument::Ptr doc)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -154,7 +154,7 @@ void QmlModelManager::parse(QFutureInterface<void> &future,
             }
         }
 
-        QmlDocument::Ptr doc = QmlDocument::create(fileName);
+        Qml::QmlDocument::Ptr doc = Qml::QmlDocument::create(fileName);
         doc->setSource(contents);
         doc->parse();
 

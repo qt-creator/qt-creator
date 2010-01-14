@@ -32,7 +32,7 @@
 
 #include "removepropertyvisitor.h"
 
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 

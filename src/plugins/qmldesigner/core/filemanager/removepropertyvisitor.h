@@ -34,7 +34,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class RemovePropertyVisitor: public QMLRewriter
@@ -58,6 +58,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // REMOVEPROPERTYVISITOR_H

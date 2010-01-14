@@ -72,7 +72,7 @@ public:
 } // namespace Internal
 
 /*!
-\class QmlDesigner::PropertyMetaInfo
+\class Qml::PropertyMetaInfo
 \ingroup CoreModel
 \brief The PropertyMetaInfo class provides meta information about a qml type property.
 
@@ -86,7 +86,7 @@ a sub component qml file is deleted). Trying to call any accessor methods on an 
 PropertyMetaInfo object will result in an InvalidMetaInfoException being thrown.
 
 
-\see QmlDesigner::MetaInfo, QmlDesigner::NodeMetaInfo, QmlDesigner::EnumeratorMetaInfo
+\see Qml::MetaInfo, Qml::NodeMetaInfo, Qml::EnumeratorMetaInfo
 */
 
 PropertyMetaInfo::PropertyMetaInfo()

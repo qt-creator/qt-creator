@@ -39,7 +39,7 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner::Internal;
 
 QMLRewriter::QMLRewriter(QmlDesigner::TextModifier &textModifier):
         m_textModifier(&textModifier),

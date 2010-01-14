@@ -30,7 +30,7 @@
 #include "qmljsast_p.h"
 #include "qmlsymbol.h"
 
-using namespace QmlEditor;
+using namespace QmlDesigner;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 

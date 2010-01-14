@@ -40,8 +40,8 @@
 #include "removepropertyvisitor.h"
 #include "removeuiobjectmembervisitor.h"
 
-using namespace QmlEditor;
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner;
+using namespace QmlDesigner::Internal;
 
 QmlRefactoring::QmlRefactoring(const QmlDocument::Ptr &doc, QmlDesigner::TextModifier &modifier, const QStringList &propertyOrder):
         qmlDocument(doc),
@@ -56,7 +56,7 @@ bool QmlRefactoring::reparseDocument()
 
 //    qDebug() << "QmlRefactoring::reparseDocument() new QML source:" << newSource;
 
-    QmlEditor::QmlDocument::Ptr tmpDocument(QmlEditor::QmlDocument::create("<ModelToTextMerger>"));
+    QmlDesigner::QmlDocument::Ptr tmpDocument(QmlDesigner::QmlDocument::create("<ModelToTextMerger>"));
     tmpDocument->setSource(newSource);
 
     if (tmpDocument->parse()) {

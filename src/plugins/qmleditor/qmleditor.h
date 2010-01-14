@@ -108,13 +108,13 @@ public:
 
     virtual void unCommentSelection();
 
-    QmlDocument::Ptr qmlDocument() const { return m_document; }
+    Qml::QmlDocument::Ptr qmlDocument() const { return m_document; }
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
 private slots:
-    void onDocumentUpdated(QmlEditor::QmlDocument::Ptr doc);
+    void onDocumentUpdated(Qml::QmlDocument::Ptr doc);
 
     void updateDocument();
     void updateDocumentNow();
@@ -157,7 +157,7 @@ private:
     QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### use QMultiMap
     int m_idsRevision;
     QList<QmlJS::DiagnosticMessage> m_diagnosticMessages;
-    QmlDocument::Ptr m_document;
+    Qml::QmlDocument::Ptr m_document;
     QmlModelManagerInterface *m_modelManager;
     Qml::QmlTypeSystem *m_typeSystem;
     QTextCharFormat m_occurrencesFormat;

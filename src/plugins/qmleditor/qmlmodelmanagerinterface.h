@@ -39,9 +39,13 @@
 #include <qml/qmldocument.h>
 #include <qml/metatype/qmltypesystem.h>
 
-namespace QmlEditor {
 
+namespace Qml {
 class Snapshot;
+}
+
+
+namespace QmlEditor {
 
 class QMLEDITOR_EXPORT QmlModelManagerInterface: public QObject
 {
@@ -51,11 +55,11 @@ public:
     QmlModelManagerInterface(QObject *parent = 0);
     virtual ~QmlModelManagerInterface();
 
-    virtual Snapshot snapshot() const = 0;
+    virtual Qml::Snapshot snapshot() const = 0;
     virtual void updateSourceFiles(const QStringList &files) = 0;
 
 signals:
-    void documentUpdated(QmlEditor::QmlDocument::Ptr doc);
+    void documentUpdated(Qml::QmlDocument::Ptr doc);
 };
 
 }

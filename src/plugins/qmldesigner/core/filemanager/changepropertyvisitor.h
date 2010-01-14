@@ -33,7 +33,7 @@
 #include "qmlrefactoring.h"
 #include "qmlrewriter.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class ChangePropertyVisitor: public QMLRewriter
@@ -65,6 +65,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // CHANGEPROPERTYVISITOR_H

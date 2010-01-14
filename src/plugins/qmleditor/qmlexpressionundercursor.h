@@ -53,7 +53,7 @@ public:
     QmlExpressionUnderCursor();
     virtual ~QmlExpressionUnderCursor();
 
-    void operator()(const QTextCursor &cursor, const QmlDocument::Ptr &doc);
+    void operator()(const QTextCursor &cursor, const Qml::QmlDocument::Ptr &doc);
 
     QStack<Qml::QmlSymbol *> expressionScopes() const
     { return _expressionScopes; }

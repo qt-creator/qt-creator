@@ -37,7 +37,7 @@
 
 #include "textmodifier.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class QMLRewriter: protected QmlJS::AST::Visitor
@@ -92,6 +92,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // QMLREWRITER_H

@@ -37,7 +37,7 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner::Internal;
 using namespace QmlDesigner;
 
 class Inserter: public QMLRewriter

@@ -44,8 +44,8 @@ class QmlLookupContext
 {
 public:
     QmlLookupContext(const QStack<Qml::QmlSymbol *> &scopes,
-                     const QmlDocument::Ptr &doc,
-                     const Snapshot &snapshot,
+                     const Qml::QmlDocument::Ptr &doc,
+                     const Qml::Snapshot &snapshot,
                      Qml::QmlTypeSystem *typeSystem);
 
     Qml::QmlSymbol *resolve(const QString &name);
@@ -54,7 +54,7 @@ public:
     Qml::QmlSymbol *resolveType(QmlJS::AST::UiQualifiedId *name)
     { return resolveType(toString(name), _doc->fileName()); }
 
-    QmlDocument::Ptr document() const
+    Qml::QmlDocument::Ptr document() const
     { return _doc; }
 
     QList<Qml::QmlSymbol*> visibleSymbolsInScope();
@@ -71,8 +71,8 @@ private:
 
 private:
     QStack<Qml::QmlSymbol *> _scopes;
-    QmlDocument::Ptr _doc;
-    Snapshot _snapshot;
+    Qml::QmlDocument::Ptr _doc;
+    Qml::Snapshot _snapshot;
     Qml::QmlTypeSystem *m_typeSystem;
 };
 

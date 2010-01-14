@@ -34,7 +34,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class RemoveUIObjectMemberVisitor: public QMLRewriter
@@ -70,6 +70,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // REMOVEUIOBJECTMEMBERVISITOR_H

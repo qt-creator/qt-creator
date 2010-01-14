@@ -48,7 +48,7 @@ void QmlTaskManager::setTaskWindow(ProjectExplorer::TaskWindow *taskWindow)
     m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, "Qml");
 }
 
-void QmlTaskManager::documentUpdated(QmlEditor::QmlDocument::Ptr doc)
+void QmlTaskManager::documentUpdated(Qml::QmlDocument::Ptr doc)
 {
 #if 0 // This will give way too many flickering errors in the build-results pane *when you're typing*
     m_taskWindow->clearTasks(Constants::TASK_CATEGORY_QML);

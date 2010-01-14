@@ -38,7 +38,7 @@
 #include "qmljsastvisitor_p.h"
 #include "qmlsymbol.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class IdCollector: protected QmlJS::AST::Visitor
@@ -64,6 +64,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // IDCOLLECTOR_H

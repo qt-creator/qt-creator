@@ -100,8 +100,8 @@ void QmlProjectPlugin::extensionsInitialized()
 
     QmlEditor::QmlModelManagerInterface *modelManager = pluginManager->getObject<QmlEditor::QmlModelManagerInterface>();
     Q_ASSERT(modelManager);
-    connect(modelManager, SIGNAL(documentUpdated(QmlEditor::QmlDocument::Ptr)),
-            m_qmlTaskManager, SLOT(documentUpdated(QmlEditor::QmlDocument::Ptr)));
+    connect(modelManager, SIGNAL(documentUpdated(Qml::QmlDocument::Ptr)),
+            m_qmlTaskManager, SLOT(documentUpdated(Qml::QmlDocument::Ptr)));
 }
 
 Q_EXPORT_PLUGIN(QmlProjectPlugin)

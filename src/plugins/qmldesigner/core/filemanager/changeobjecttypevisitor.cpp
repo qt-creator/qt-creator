@@ -33,7 +33,7 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner::Internal;
 
 ChangeObjectTypeVisitor::ChangeObjectTypeVisitor(QmlDesigner::TextModifier &modifier,
                                                  quint32 nodeLocation,

@@ -30,7 +30,7 @@
 #include "astobjecttextextractor.h"
 #include "qmljsast_p.h"
 
-using namespace QmlEditor;
+using namespace QmlDesigner;
 using namespace QmlJS::AST;
 
 ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text):

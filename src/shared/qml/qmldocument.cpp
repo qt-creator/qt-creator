@@ -36,7 +36,6 @@
 #include "qmljsastfwd_p.h"
 
 using namespace Qml;
-using namespace QmlEditor;
 using namespace QmlJS;
 
 QmlDocument::QmlDocument(const QString &fileName)

@@ -34,7 +34,7 @@
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
-using namespace QmlEditor;
+using namespace QmlDesigner;
 
 static inline QString toString(QmlRefactoring::PropertyType type)
 {
@@ -69,7 +69,7 @@ void AddPropertyRewriteAction::dump(const QString &prefix) const
              ;
 }
 
-bool ChangeIdRewriteAction::execute(QmlEditor::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool ChangeIdRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
     static const QLatin1String idPropertyName("id");
@@ -93,7 +93,7 @@ void ChangeIdRewriteAction::dump(const QString &prefix) const
              ;
 }
 
-bool ChangePropertyRewriteAction::execute(QmlEditor::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool ChangePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
     bool result = false;
@@ -124,7 +124,7 @@ void ChangePropertyRewriteAction::dump(const QString &prefix) const
              ;
 }
 
-bool ChangeTypeRewriteAction::execute(QmlEditor::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool ChangeTypeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
     bool result = false;
@@ -147,7 +147,7 @@ void ChangeTypeRewriteAction::dump(const QString &prefix) const
              ;
 }
 
-bool RemoveNodeRewriteAction::execute(QmlEditor::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool RemoveNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
     bool result = false;
@@ -165,7 +165,7 @@ void RemoveNodeRewriteAction::dump(const QString &prefix) const
              ;
 }
 
-bool RemovePropertyRewriteAction::execute(QmlEditor::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool RemovePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
     bool result = false;
@@ -184,7 +184,7 @@ void RemovePropertyRewriteAction::dump(const QString &prefix) const
              ;
 }
 
-bool ReparentNodeRewriteAction::execute(QmlEditor::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
+bool ReparentNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
     const int targetParentObjectLocation = positionStore.nodeOffset(m_targetProperty.parentModelNode());

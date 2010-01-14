@@ -36,7 +36,7 @@
 #include "import.h"
 #include "qmlrewriter.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class ChangeImportsVisitor: public QMLRewriter, protected QmlDesigner::Internal::CopyPasteUtil
@@ -56,6 +56,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // CHANGEIMPORTSVISITOR_H

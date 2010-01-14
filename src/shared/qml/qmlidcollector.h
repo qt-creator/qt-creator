@@ -46,7 +46,7 @@ namespace Internal {
 class QML_EXPORT QmlIdCollector: protected QmlJS::AST::Visitor
 {
 public:
-    QMap<QString, Qml::QmlIdSymbol*> operator()(QmlEditor::QmlDocument &doc);
+    QMap<QString, Qml::QmlIdSymbol*> operator()(Qml::QmlDocument &doc);
 
     QList<QmlJS::DiagnosticMessage> diagnosticMessages()
     { return _diagnosticMessages; }
@@ -62,7 +62,7 @@ private:
     void addId(const QString &id, QmlJS::AST::UiScriptBinding *ast);
 
 private:
-    QmlEditor::QmlDocument *_doc;
+    Qml::QmlDocument *_doc;
     QMap<QString, Qml::QmlIdSymbol*> _ids;
     Qml::QmlSymbolFromFile *_currentSymbol;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;

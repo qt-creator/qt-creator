@@ -37,7 +37,7 @@ using namespace QmlJS::AST;
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner::Internal;
 
 ChangeImportsVisitor::ChangeImportsVisitor(TextModifier &textModifier, const QSet<Import> &addedImports, const QSet<Import> &removedImports, const QString &source):
         QMLRewriter(textModifier),

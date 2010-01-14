@@ -32,7 +32,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class MoveObjectVisitor: public QMLRewriter
@@ -67,6 +67,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // MOVEOBJECTVISITOR_H

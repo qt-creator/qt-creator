@@ -35,7 +35,7 @@
 #include "qmljsengine_p.h"
 #include "qmljsnodepool_p.h"
 
-using namespace QmlEditor;
+using namespace QmlDesigner;
 using namespace QmlJS;
 
 QmlDocument::QmlDocument(const QString &fileName)

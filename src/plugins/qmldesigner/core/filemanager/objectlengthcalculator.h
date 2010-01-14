@@ -50,7 +50,7 @@ protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
 
 private:
-    QmlEditor::QmlDocument::Ptr m_doc;
+    QmlDocument::Ptr m_doc;
     quint32 m_offset;
     quint32 m_length;
 };

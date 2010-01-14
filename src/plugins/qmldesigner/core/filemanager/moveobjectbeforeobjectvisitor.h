@@ -34,7 +34,7 @@
 
 #include <QtCore/QStack>
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class MoveObjectBeforeObjectVisitor: public QMLRewriter
@@ -74,6 +74,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // MOVEOBJECTBEFOREOBJECTVISITOR_H

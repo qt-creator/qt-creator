@@ -30,7 +30,7 @@
 #ifndef INDENTER_H
 #define INDENTER_H
 
-namespace QmlEditor {
+namespace QmlDesigner {
 
 class Indenter
 {
@@ -38,6 +38,6 @@ public:
     Indenter();
 };
 
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // INDENTER_H

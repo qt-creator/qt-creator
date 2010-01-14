@@ -37,7 +37,7 @@ using namespace QmlJS::AST;
 using namespace Qml;
 using namespace Qml::Internal;
 
-QMap<QString, QmlIdSymbol*> QmlIdCollector::operator()(QmlEditor::QmlDocument &doc)
+QMap<QString, QmlIdSymbol*> QmlIdCollector::operator()(Qml::QmlDocument &doc)
 {
     _doc = &doc;
     _ids.clear();

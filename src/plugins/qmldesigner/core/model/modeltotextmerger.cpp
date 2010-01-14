@@ -193,7 +193,7 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
-    QmlEditor::QmlDocument::Ptr tmpDocument(QmlEditor::QmlDocument::create(QLatin1String("<ModelToTextMerger>")));
+    QmlDocument::Ptr tmpDocument(QmlDocument::create(QLatin1String("<ModelToTextMerger>")));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parse()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";
@@ -207,7 +207,7 @@ void ModelToTextMerger::applyChanges()
         ModelNodePositionRecalculator positionRecalculator(m_rewriterView->positionStorage(), m_rewriterView->positionStorage()->modelNodes());
         positionRecalculator.connectTo(textModifier);
 
-        QmlEditor::QmlRefactoring refactoring(tmpDocument, *textModifier, getPropertyOrder());
+        QmlDesigner::QmlRefactoring refactoring(tmpDocument, *textModifier, getPropertyOrder());
 
         textModifier->deactivateChangeSignals();
         textModifier->startGroup();
@@ -259,19 +259,19 @@ void ModelToTextMerger::schedule(RewriteAction *action)
     m_rewriteActions.append(action);
 }
 
-QmlEditor::QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property)
+QmlDesigner::QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractProperty &property)
 {
     if (property.isBindingProperty())
-        return QmlEditor::QmlRefactoring::ObjectBinding;
+        return QmlDesigner::QmlRefactoring::ObjectBinding;
     else if (property.isNodeListProperty())
-        return QmlEditor::QmlRefactoring::ArrayBinding;
+        return QmlDesigner::QmlRefactoring::ArrayBinding;
     else if (property.isNodeProperty())
-        return QmlEditor::QmlRefactoring::ObjectBinding;
+        return QmlDesigner::QmlRefactoring::ObjectBinding;
     else if (property.isVariantProperty())
-        return QmlEditor::QmlRefactoring::ScriptBinding;
+        return QmlDesigner::QmlRefactoring::ScriptBinding;
 
     Q_ASSERT(!"cannot convert property type");
-    return (QmlEditor::QmlRefactoring::PropertyType) -1;
+    return (QmlDesigner::QmlRefactoring::PropertyType) -1;
 }
 
 QStringList ModelToTextMerger::m_propertyOrder;

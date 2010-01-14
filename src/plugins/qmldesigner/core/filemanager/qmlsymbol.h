@@ -34,7 +34,7 @@
 
 #include "qmljsastfwd_p.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 
 class QmlSymbol
 {
@@ -116,6 +116,6 @@ private:
     QmlJS::AST::UiPublicMember *propertyNode() const;
 };
 
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // QMLSYMBOL_H

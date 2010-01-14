@@ -35,7 +35,7 @@
 #include "qmldocument.h"
 #include "qmljsastvisitor_p.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 
 class ASTObjectTextExtractor: public QmlJS::AST::Visitor
 {
@@ -54,6 +54,6 @@ private:
     QString m_text;
 };
 
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // ASTOBJECTTEXTEXTRACTOR_H

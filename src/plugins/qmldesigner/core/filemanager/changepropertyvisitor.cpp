@@ -34,8 +34,8 @@
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace QmlEditor;
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner;
+using namespace QmlDesigner::Internal;
 
 ChangePropertyVisitor::ChangePropertyVisitor(QmlDesigner::TextModifier &modifier,
                                              quint32 parentLocation,

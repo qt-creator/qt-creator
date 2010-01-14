@@ -391,7 +391,7 @@ void RewriterView::addError(const RewriterView::Error &error)
 
 QMap<ModelNode, QString> RewriterView::extractText(const QList<ModelNode> &nodes) const
 {
-    QmlEditor::ASTObjectTextExtractor extract(m_textModifier->text());
+    QmlDesigner::ASTObjectTextExtractor extract(m_textModifier->text());
     QMap<ModelNode, QString> result;
 
     foreach (const ModelNode &node, nodes) {

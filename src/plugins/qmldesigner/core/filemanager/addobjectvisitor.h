@@ -32,7 +32,7 @@
 
 #include "qmlrewriter.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class AddObjectVisitor: public QMLRewriter
@@ -57,6 +57,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // ADDOBJECTVISITOR_H

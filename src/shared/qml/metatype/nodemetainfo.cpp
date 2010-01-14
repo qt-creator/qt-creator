@@ -80,7 +80,7 @@ public:
 } // namespace Internal
 
 /*!
-\class QmlDesigner::NodeMetaInfo
+\class Qml::NodeMetaInfo
 \ingroup CoreModel
 \brief The NodeMetaInfo class provides meta information about a qml type.
 
@@ -93,7 +93,7 @@ if the enclosing type is deregistered from the meta type system (e.g.
 a sub component qml file is deleted). Trying to call any accessor methods on an invalid
 NodeMetaInfo object will result in an InvalidMetaInfoException being thrown.
 
-\see QmlDesigner::MetaInfo, QmlDesigner::PropertyMetaInfo, QmlDesigner::EnumeratorMetaInfo
+\see Qml::MetaInfo, Qml::PropertyMetaInfo, Qml::EnumeratorMetaInfo
 */
 
 NodeMetaInfo::NodeMetaInfo()

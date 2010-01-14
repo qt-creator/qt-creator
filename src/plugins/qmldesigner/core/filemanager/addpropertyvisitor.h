@@ -33,7 +33,7 @@
 #include "qmlrefactoring.h"
 #include "qmlrewriter.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 namespace Internal {
 
 class AddPropertyVisitor: public QMLRewriter
@@ -44,7 +44,7 @@ public:
                        quint32 parentLocation,
                        const QString &name,
                        const QString &value,
-                       QmlEditor::QmlRefactoring::PropertyType propertyType,
+                       QmlDesigner::QmlRefactoring::PropertyType propertyType,
                        const QStringList &propertyOrder);
 
 protected:
@@ -58,11 +58,11 @@ private:
     quint32 m_parentLocation;
     QString m_name;
     QString m_value;
-    QmlEditor::QmlRefactoring::PropertyType m_propertyType;
+    QmlDesigner::QmlRefactoring::PropertyType m_propertyType;
     QStringList m_propertyOrder;
 };
 
 } // namespace Internal
-} // namespace QmlEditor
+} // namespace QmlDesigner
 
 #endif // ADDPROPERTYVISITOR_H

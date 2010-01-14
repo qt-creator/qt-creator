@@ -46,7 +46,7 @@ public:
     void setTaskWindow(ProjectExplorer::TaskWindow *taskWindow);
 
 public slots:
-    void documentUpdated(QmlEditor::QmlDocument::Ptr doc);
+    void documentUpdated(Qml::QmlDocument::Ptr doc);
 
 private:
     ProjectExplorer::TaskWindow *m_taskWindow;

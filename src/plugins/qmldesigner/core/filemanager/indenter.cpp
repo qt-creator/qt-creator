@@ -29,7 +29,7 @@
 
 #include "indenter.h"
 
-using namespace QmlEditor;
+using namespace QmlDesigner;
 
 Indenter::Indenter()
 {

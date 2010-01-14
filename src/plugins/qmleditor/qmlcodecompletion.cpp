@@ -90,7 +90,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_startPosition = pos;
     m_completions.clear();
 
-    QmlDocument::Ptr qmlDocument = edit->qmlDocument();
+    Qml::QmlDocument::Ptr qmlDocument = edit->qmlDocument();
 //    qDebug() << "*** document:" << qmlDocument;
     if (qmlDocument.isNull())
         return pos;

@@ -32,7 +32,7 @@
 #include <qmljsast_p.h>
 
 using namespace QmlDesigner;
-using namespace QmlEditor;
+using namespace QmlDesigner;
 using namespace QmlJS::AST;
 
 ObjectLengthCalculator::ObjectLengthCalculator(const QString &text):

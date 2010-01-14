@@ -33,8 +33,8 @@
 
 #include "removeuiobjectmembervisitor.h"
 
-using namespace QmlEditor;
-using namespace QmlEditor::Internal;
+using namespace QmlDesigner;
+using namespace QmlDesigner::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 

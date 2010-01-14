@@ -42,7 +42,7 @@
 #include "qmljsastfwd_p.h"
 #include "qmlsymbol.h"
 
-namespace QmlEditor {
+namespace QmlDesigner {
 
 class CORESHARED_EXPORT QmlDocument
 {
@@ -104,6 +104,6 @@ public:
     QMap<QString, QmlDocument::Ptr> componentsDefinedByImportedDocuments(const QmlDocument::Ptr &doc, const QString &importPath) const;
 };
 
-} // emd of namespace QmlEditor
+} // emd of namespace QmlDesigner
 
 #endif // QMLDOCUMENT_H
