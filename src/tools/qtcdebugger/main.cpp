@@ -456,11 +456,12 @@ static bool registerDebuggerKey(const WCHAR *key,
         // Save old key, which might be missing
         QString oldDebugger;
         registryReadStringKey(handle, debuggerRegistryValueNameC, &oldDebugger, errorMessage);
-        if (oldDebugger.contains(QLatin1String(applicationFileC), Qt::CaseInsensitive)) {
+        if (!oldDebugger.compare(call, Qt::CaseInsensitive)) {
             *errorMessage = QLatin1String("The program is already registered as post mortem debugger.");
             break;
         }
-        if (!registryWriteStringKey(handle, debuggerRegistryDefaultValueNameC, oldDebugger, errorMessage))
+        if (!(oldDebugger.contains(QLatin1String(applicationFileC), Qt::CaseInsensitive)
+              || registryWriteStringKey(handle, debuggerRegistryDefaultValueNameC, oldDebugger, errorMessage)))
             break;
         if (debug)
             qDebug() << "registering self as " << call;
@@ -485,7 +486,9 @@ bool install(QString *errorMessage)
 }
 
 // Unregister helper: Restore the original debugger key
-static bool unregisterDebuggerKey(const WCHAR *key, QString *errorMessage)
+static bool unregisterDebuggerKey(const WCHAR *key,
+                                  const QString &call,
+                                  QString *errorMessage)
 {
     HKEY handle = 0;
     bool success = false;
@@ -494,8 +497,7 @@ static bool unregisterDebuggerKey(const WCHAR *key, QString *errorMessage)
             break;
         QString debugger;
         registryReadStringKey(handle, debuggerRegistryValueNameC, &debugger, errorMessage);
-        if (!(debugger.isEmpty()
-              || debugger.contains(QLatin1String(applicationFileC), Qt::CaseInsensitive))) {
+        if (!debugger.isEmpty() && debugger.compare(call, Qt::CaseInsensitive)) {
             *errorMessage = QLatin1String("The program is not registered as post mortem debugger.");
             break;
         }
@@ -522,10 +524,10 @@ static bool unregisterDebuggerKey(const WCHAR *key, QString *errorMessage)
 
 bool uninstall(QString *errorMessage)
 {
-    if (!unregisterDebuggerKey(debuggerRegistryKeyC, errorMessage))
+    if (!unregisterDebuggerKey(debuggerRegistryKeyC, debuggerCall(), errorMessage))
         return false;
 #ifdef Q_OS_WIN64
-    if (!unregisterDebuggerKey(debuggerWow32RegistryKeyC, errorMessage))
+    if (!unregisterDebuggerKey(debuggerWow32RegistryKeyC, debuggerCall(QLatin1String("-wow")), errorMessage))
         return false;
 #endif
     return true;
