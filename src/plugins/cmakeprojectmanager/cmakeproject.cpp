@@ -319,6 +319,19 @@ QStringList CMakeProject::targets() const
     return results;
 }
 
+bool CMakeProject::hasTarget(const QString &title) const
+{
+    foreach (const CMakeTarget &ct, m_targets) {
+        if (ct.executable.isEmpty())
+            continue;
+        if (ct.title.endsWith("/fast"))
+            continue;
+        if (ct.title == title)
+            return true;
+    }
+    return false;
+}
+
 void CMakeProject::gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list)
 {
     foreach(ProjectExplorer::FolderNode *folder, parent->subFolderNodes())
@@ -540,7 +553,7 @@ bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader
     if (!result)
         return false;
 
-    if (!hasUserFile && targets().contains("all"))
+    if (!hasUserFile && hasTarget("all"))
         makeStep->setBuildTarget("all", true);
 
     m_lastActiveBuildConfiguration = activeCMakeBuildConfiguration();

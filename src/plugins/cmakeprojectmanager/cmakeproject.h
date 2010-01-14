@@ -90,6 +90,7 @@ public:
 
     virtual QStringList files(FilesMode fileMode) const;
     QStringList targets() const;
+    bool hasTarget(const QString &title) const;
 
     CMakeTarget targetForTitle(const QString &title);
 
