@@ -219,16 +219,12 @@ public:
     QString fileName() const;
     QString directoryName() const;
 
-    void setModified(bool modified);
-    bool isModified() const;
-
     virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 
 private:
     QString m_fileName;
     QString m_displayFileName;
     QString m_directoryName;
-    bool m_modified;
 };
 
 QT_END_NAMESPACE

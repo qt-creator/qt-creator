@@ -296,7 +296,6 @@ ProItem::ProItemReturn ProOperator::Accept(AbstractProItemVisitor *visitor)
 ProFile::ProFile(const QString &fileName)
     : ProBlock(0)
 {
-    m_modified = false;
     setBlockKind(ProBlock::ProFileKind);
     m_fileName = fileName;
 
@@ -322,16 +321,6 @@ QString ProFile::fileName() const
 QString ProFile::directoryName() const
 {
     return m_directoryName;
-}
-
-void ProFile::setModified(bool modified)
-{
-    m_modified = modified;
-}
-
-bool ProFile::isModified() const
-{
-    return m_modified;
 }
 
 ProItem::ProItemReturn ProFile::Accept(AbstractProItemVisitor *visitor)

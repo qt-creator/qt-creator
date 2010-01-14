@@ -737,7 +737,6 @@ void Qt4PriFileNode::save(ProFile *includeFile)
     ProWriter pw;
     const bool ok = pw.write(includeFile, includeFile->fileName());
     Q_UNUSED(ok)
-    includeFile->setModified(false);
     m_project->qt4ProjectManager()->notifyChanged(includeFile->fileName());
     if (modifiedFileHandle)
         fileManager->unblockFileChange(modifiedFileHandle);
