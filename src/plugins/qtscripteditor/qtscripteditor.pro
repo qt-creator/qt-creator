@@ -5,9 +5,9 @@ QT += script
 include(../../qtcreatorplugin.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
-include(../../shared/qscripthighlighter/qscripthighlighter.pri)
 include(parser/parser.pri)
 
+include(../../shared/qscripthighlighter/qscripthighlighter.pri)
 DEPENDPATH += ../../shared/qscripthighlighter
 
 HEADERS += qtscripteditor.h \

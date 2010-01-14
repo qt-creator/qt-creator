@@ -369,7 +369,7 @@ bool QScriptIndenter::readLine()
             the first if. The order of the if's is also important.
         */
 
-        if (yyLinizerState.inCComment) {
+        if (yyLinizerState.inComment) {
             const QLatin1String slashAster("/*");
 
             k = yyLinizerState.line.indexOf(slashAster);
@@ -377,18 +377,18 @@ bool QScriptIndenter::readLine()
                 yyLinizerState.line.clear();
             } else {
                 yyLinizerState.line.truncate(k);
-                yyLinizerState.inCComment = false;
+                yyLinizerState.inComment = false;
             }
         }
 
-        if (!yyLinizerState.inCComment) {
+        if (!yyLinizerState.inComment) {
             const QLatin1String asterSlash("*/");
 
             k = yyLinizerState.line.indexOf(asterSlash);
             if (k != -1) {
                 for (int i = 0; i < k + 2; i++)
                     eraseChar(yyLinizerState.line, i, QLatin1Char(' '));
-                yyLinizerState.inCComment = true;
+                yyLinizerState.inComment = true;
             }
         }
 
@@ -451,7 +451,7 @@ bool QScriptIndenter::readLine()
 void QScriptIndenter::startLinizer()
 {
     yyLinizerState.braceDepth = 0;
-    yyLinizerState.inCComment = false;
+    yyLinizerState.inComment = false;
     yyLinizerState.pendingRightBrace = false;
 
     yyLine = &yyLinizerState.line;

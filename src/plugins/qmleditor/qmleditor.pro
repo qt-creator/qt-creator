@@ -3,6 +3,10 @@ TARGET = QmlEditor
 include(../../qtcreatorplugin.pri)
 include(qmleditor_dependencies.pri)
 
+include(../../shared/qscripthighlighter/qscripthighlighter.pri)
+DEPENDPATH += ../../shared/qscripthighlighter
+
+
 CONFIG += help
 DEFINES += \
     QMLEDITOR_LIBRARY \

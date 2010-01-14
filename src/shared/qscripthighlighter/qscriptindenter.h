@@ -30,15 +30,13 @@
 #ifndef QTSCRIPTINDENTER_H
 #define QTSCRIPTINDENTER_H
 
-#include <qscripthighlighter/qscripthighlighter_global.h>
-
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 #include <QtGui/QTextBlock>
 
 namespace SharedTools {
 
-class QSCRIPTHIGHLIGHTER_EXPORT QScriptIndenter
+class QScriptIndenter
 {
     Q_DISABLE_COPY(QScriptIndenter)
 
@@ -95,13 +93,13 @@ private:
         LinizerState()
             : braceDepth(0),
               leftBraceFollows(false),
-              inCComment(false),
+              inComment(false),
               pendingRightBrace(false)
         { }
 
         int braceDepth;
         bool leftBraceFollows;
-        bool inCComment;
+        bool inComment;
         bool pendingRightBrace;
         QString line;
         QTextBlock iter;
