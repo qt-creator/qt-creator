@@ -208,12 +208,10 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t)
 {
     QScriptIncrementalScanner scanner;
 
-    int state = yyLinizerState.iter.userState();
-    if (state == -1)
-        state = 0;
-    state = state & 0xff;
+    QTextBlock currentLine = yyLinizerState.iter;
+    int startState = qMax(0, currentLine.previous().userState()) & 0xff;
 
-    yyLinizerState.tokens = scanner(t, state);
+    yyLinizerState.tokens = scanner(t, startState);
     QString trimmed;
     int previousTokenEnd = 0;
     foreach (const QScriptIncrementalScanner::Token &token, yyLinizerState.tokens) {
@@ -224,8 +222,25 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t)
                 trimmed.append(QLatin1Char('X'));
 
         } else if (token.is(QScriptIncrementalScanner::Token::Comment)) {
-                for (int i = 0; i < token.length; ++i)
-                    trimmed.append(QLatin1Char(' '));
+            int i = 0;
+            int e = token.length;
+
+            if (token.offset > 0 || startState == 0) {
+                trimmed.append(QLatin1String("/*"));
+                i += 2;
+            }
+
+            bool needEndOfComment = false;
+            if (e > 2 && token.end() == t.length() && scanner.endState() != 0) {
+                needEndOfComment = true;
+                e -= 2;
+            }
+
+            for (; i < e; ++i)
+                trimmed.append(QLatin1Char(' '));
+
+            if (needEndOfComment)
+                trimmed.append(QLatin1String("*/"));
 
         } else {
             trimmed.append(t.midRef(token.offset, token.length));
@@ -450,35 +465,15 @@ void QScriptIndenter::startLinizer()
     potentially the whole line) is part of a C-style comment;
     otherwise returns false.
 */
-bool QScriptIndenter::bottomLineStartsInCComment()
+bool QScriptIndenter::bottomLineStartsInMultilineComment()
 {
-    const QLatin1String slashAster("/*");
-    const QLatin1String asterSlash("*/");
+    QTextBlock currentLine = yyProgram.lastBlock().previous();
+    QTextBlock previousLine = currentLine.previous();
 
-    /*
-        We could use the linizer here, but that would slow us down
-        terribly. We are better to trim only the code lines we need.
-    */
-    QTextBlock p = yyProgram.lastBlock();
-    p = p.previous(); // skip bottom line
+    int startState = qMax(0, previousLine.userState()) & 0xff;
+    if (startState > 0)
+        return true;
 
-    for (int i = 0; i < BigRoof; i++) {
-        if (p == yyProgram.firstBlock())
-            return false;
-        p = p.previous();
-
-        const QString blockText = p.text();
-
-        if (blockText.indexOf(slashAster) != -1 || blockText.indexOf(asterSlash) != -1) {
-            const QString trimmed = trimmedCodeLine(blockText);
-
-            if (trimmed.indexOf(slashAster) != -1) {
-                return true;
-            } else if (trimmed.indexOf(asterSlash) != -1) {
-                return false;
-            }
-        }
-    }
     return false;
 }
 
@@ -490,7 +485,7 @@ bool QScriptIndenter::bottomLineStartsInCComment()
     Essentially, we're trying to align against some text on the
     previous line.
 */
-int QScriptIndenter::indentWhenBottomLineStartsInCComment()
+int QScriptIndenter::indentWhenBottomLineStartsInMultiLineComment()
 {
     int k = yyLine->lastIndexOf(QLatin1String("/*"));
     if (k == -1) {
@@ -1028,14 +1023,14 @@ int QScriptIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar
     QChar firstCh = firstNonWhiteSpace(bottomLine);
     int indent = 0;
 
-    if (bottomLineStartsInCComment()) {
+    if (bottomLineStartsInMultilineComment()) {
         /*
             The bottom line starts in a C-style comment. Indent it
             smartly, unless the user has already played around with it,
             in which case it's better to leave her stuff alone.
         */
         if (isOnlyWhiteSpace(bottomLine)) {
-            indent = indentWhenBottomLineStartsInCComment();
+            indent = indentWhenBottomLineStartsInMultiLineComment();
         } else {
             indent = indentOfLine(bottomLine);
         }

@@ -74,8 +74,8 @@ private:
 
     bool readLine();
     void startLinizer();
-    bool bottomLineStartsInCComment();
-    int indentWhenBottomLineStartsInCComment();
+    bool bottomLineStartsInMultilineComment();
+    int indentWhenBottomLineStartsInMultiLineComment();
     bool matchBracelessControlStatement();
     bool isUnfinishedLine();
     bool isContinuationLine();
