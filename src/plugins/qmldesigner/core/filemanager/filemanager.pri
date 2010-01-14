@@ -1,4 +1,3 @@
-include($$PWD/parser/parser.pri)
 SOURCES += $$PWD/qmldocument.cpp \
     $$PWD/idcollector.cpp \
     $$PWD/qmlsymbol.cpp \
