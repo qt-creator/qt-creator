@@ -191,7 +191,7 @@ public:
 
     bool read(ProFile *pro);
     bool read(ProBlock *pro, const QString &content);
-    bool read(ProBlock *pro, QTextStream *ts);
+    bool readInternal(ProBlock *pro, const QString &content);
 
     ProBlock *currentBlock();
     void updateItem(ushort *ptr);
@@ -330,46 +330,45 @@ ProFileEvaluator::Private::~Private()
 bool ProFileEvaluator::Private::read(ProFile *pro)
 {
     QFile file(pro->fileName());
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         errorMessage(format("%1 not readable.").arg(pro->fileName()));
         return false;
     }
 
-    QTextStream ts(&file);
+    QString content(QString::fromLatin1(file.readAll())); // yes, really latin1
+    file.close();
     m_lineNo = 1;
-    return read(pro, &ts);
+    return readInternal(pro, content);
 }
 
 bool ProFileEvaluator::Private::read(ProBlock *pro, const QString &content)
 {
-    QString str(content);
-    QTextStream ts(&str, QIODevice::ReadOnly | QIODevice::Text);
     m_lineNo = 1;
-    return read(pro, &ts);
+    return readInternal(pro, content);
 }
 
-bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
+bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in)
 {
     // Parser state
     m_block = 0;
     m_blockstack.clear();
     m_blockstack.push(pro);
 
+    // We rely on QStrings being null-terminated, so don't maintain a global end pointer.
+    const ushort *cur = (const ushort *)in.unicode();
   freshLine:
     ProVariable *currAssignment = 0;
     int parens = 0;
     bool inError = false;
     bool putSpace = false;
     ushort quote = 0;
-    while (!ts->atEnd()) {
-        QString line = ts->readLine();
-        const ushort *cur = (const ushort *)line.unicode(),
-                     *end = cur + line.length();
+    forever {
         ushort c, *ptr;
 
         // First, skip leading whitespace
-        forever {
-            if (cur == end) { // Entirely empty line (sans whitespace)
+        for (;; ++cur) {
+            c = *cur;
+            if (c == '\n' || !c) { // Entirely empty line (sans whitespace)
                 if (currAssignment) {
                     finalizeVariable(currAssignment);
                     currAssignment = 0;
@@ -377,27 +376,47 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
                     updateItem2();
                 }
                 finalizeBlock();
-                ++m_lineNo;
-                goto freshLine;
+                if (c) {
+                    ++cur;
+                    ++m_lineNo;
+                    goto freshLine;
+                }
+                m_proitem.clear(); // Throw away pre-allocation
+                return true;
             }
-            c = *cur;
-            if (c != ' ' && c != '\t')
+            if (c != ' ' && c != '\t' && c != '\r')
                 break;
-            cur++;
         }
 
         // Then strip comments. Yep - no escaping is possible.
-        for (const ushort *cptr = cur; cptr != end; ++cptr)
-            if (*cptr == '#') {
-                if (cptr == cur) { // Line with only a comment (sans whitespace)
+        const ushort *end; // End of this line
+        const ushort *cptr; // Start of next line
+        for (cptr = cur;; ++cptr) {
+            c = *cptr;
+            if (c == '#') {
+                for (end = cptr; (c = *++cptr);) {
+                    if (c == '\n') {
+                        ++cptr;
+                        break;
+                    }
+                }
+                if (end == cur) { // Line with only a comment (sans whitespace)
                     // Qmake bizarreness: such lines do not affect line continuations
                     goto ignore;
                 }
+                break;
+            }
+            if (!c) {
                 end = cptr;
                 break;
             }
+            if (c == '\n') {
+                end = cptr++;
+                break;
+            }
+        }
 
-        // Then look for line continuations
+        // Then look for line continuations. Yep - no escaping here as well.
         bool lineCont;
         forever {
             // We don't have to check for underrun here, as we already determined
@@ -408,7 +427,7 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
                 lineCont = true;
                 break;
             }
-            if (ec != ' ' && ec != '\t') {
+            if (ec != ' ' && ec != '\t' && ec != '\r') {
                 lineCont = false;
                 break;
             }
@@ -526,14 +545,14 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
       skip:
         if (!lineCont) {
             finalizeBlock();
+            cur = cptr;
             ++m_lineNo;
             goto freshLine;
         }
       ignore:
+        cur = cptr;
         ++m_lineNo;
     }
-    m_proitem.clear(); // Throw away pre-allocation
-    return true;
 }
 
 void ProFileEvaluator::Private::finalizeBlock()
@@ -2258,7 +2277,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
 #endif
         case T_EVAL: {
                 ProBlock *pro = new ProBlock(0);
-                if (!read(pro, args.join(QLatin1String(" ")))) {
+                if (!readInternal(pro, args.join(QLatin1String(" ")))) {
                     delete pro;
                     return ProItem::ReturnFalse;
                 }
