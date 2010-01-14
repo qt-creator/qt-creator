@@ -4554,7 +4554,7 @@ void GdbEngine::handleInferiorPrepared()
         postCommand(_("set substitute-path %1 %2")
                     .arg(qtBuildPath).arg(qtInstallPath));
 #elif defined(Q_OS_UNIX) && !defined (Q_OS_MAC)
-        qtBuildPath = _("/var/tmp/qt-x11-src-4.6.0");
+        qtBuildPath = _("/var/tmp/qt-x11-src-4.6.1");
         postCommand(_("set substitute-path %1 %2")
                     .arg(qtBuildPath).arg(qtInstallPath));
 #endif
