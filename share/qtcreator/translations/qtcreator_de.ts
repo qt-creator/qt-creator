@@ -2961,7 +2961,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+0"/>
         <source>Line</source>
-        <translation>Datei</translation>
+        <translation>Zeile</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4637,7 +4637,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+1"/>
         <source>Line</source>
-        <translation>Datei</translation>
+        <translation>Zeile</translation>
     </message>
     <message>
         <location line="+1"/>
