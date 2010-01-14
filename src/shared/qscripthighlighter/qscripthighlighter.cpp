@@ -112,7 +112,15 @@ void QScriptHighlighter::highlightBlock(const QString &text)
 
             case QScriptIncrementalScanner::Token::Identifier:
                 if (m_duiEnabled && (i + 1 != tokens.size()) && tokens.at(i + 1).kind == QScriptIncrementalScanner::Token::Colon) {
-                    setFormat(token.offset, token.length, m_formats[LabelFormat]);
+                    int j = i;
+                    for (; j != -1; --j) {
+                        const QScriptIncrementalScanner::Token &tok = tokens.at(j);
+                        if (tok.is(QScriptIncrementalScanner::Token::Dot) || tok.is(QScriptIncrementalScanner::Token::Identifier)) {
+                            setFormat(tok.offset, tok.length, m_formats[LabelFormat]);
+                        } else {
+                            break;
+                        }
+                    }
                 } else {
                     const QChar c = text.at(token.offset);
 
