@@ -7,7 +7,6 @@ contains(CONFIG, dll) {
 INCLUDEPATH += $$PWD
 
 include($$PWD/../../shared/qml/qml.pri)
-include($$PWD/../../shared/qscripthighlighter/qscripthighlighter.pri)
 
 ##contains(QT, gui) {
 ##HEADERS += \
