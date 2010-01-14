@@ -450,6 +450,7 @@ private: ////////// View & Data Stuff //////////
 
     void updateLocals(const QVariant &cookie = QVariant());
     void handleStackListLocals(const GdbResponse &response);
+    void handleStackListLocals0(const GdbResponse &response);
     WatchData localVariable(const GdbMi &item,
                             const QStringList &uninitializedVariables,
                             QMap<QByteArray, int> *seen);
@@ -484,6 +485,8 @@ private: ////////// Convenience Functions //////////
         int buttons = 0);
     void debugMessage(const QString &msg);
     QMainWindow *mainWindow() const;
+
+    void updateLocalsSync(const QByteArray &varList);
 };
 
 } // namespace Internal

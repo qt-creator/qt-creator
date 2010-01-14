@@ -32,8 +32,8 @@ def isGoodGdb():
     return 'parse_and_eval' in dir(gdb)
 
 def cleanAddress(addr):
-    # we cannot use str(addr) as it yields rubbish for char pointers
-    # that might trigger Unicode encoding errors
+    # We cannot use str(addr) as it yields rubbish for char pointers
+    # that might trigger Unicode encoding errors.
     return addr.cast(gdb.lookup_type("void").pointer())
 
 def parseAndEvaluate(exp):
@@ -50,17 +50,27 @@ def parseAndEvaluate(exp):
     gdb.execute("set logging off")
     return gdb.history(0)
 
-def listOfLocals():
+def listOfLocals(varList):
     try:
         frame = gdb.selected_frame()
         #warn("FRAME %s: " % frame)
     except RuntimeError:
+        warn("FRAME NOT ACCESSIBLE")
         return []
 
+    # gdb-6.8-symbianelf fails here
+    hasBlock = 'block' in dir(frame)
+
     items = []
-    if isGoodGdb():
-        # archer-tromey-python
-        block = frame.block()
+    if hasBlock and isGoodGdb():
+        warn("IS GOOD: %s " % varList)
+        try:
+            block = frame.block()
+            #warn("BLOCK: %s " % block)
+        except:
+            warn("BLOCK NOT ACCESSIBLE")
+            return items
+
         while True:
             if block is None:
                 warn("UNEXPECTED 'None' BLOCK")
@@ -94,31 +104,55 @@ def listOfLocals():
         # Assuming gdb 7.0 release or 6.8-symbianelf.
         file = tempfile.mkstemp(prefix="gdbpy_")
         filename = file[1]
+        #warn("VARLIST: %s " % varList)
+        #warn("VARLIST: %s " % len(varList))
         gdb.execute("set logging off")
         gdb.execute("set logging redirect off")
         gdb.execute("set logging file %s" % filename)
         gdb.execute("set logging redirect on")
         gdb.execute("set logging on")
-        gdb.execute("info locals")
-        gdb.execute("info args")
+        try:
+            gdb.execute("info args")
+            # We cannot use "info locals" as at least 6.8-symbianelf
+            # aborts as soon as we hit unreadable memory.
+            # gdb.execute("interpreter mi '-stack-list-locals 0'")
+            # results in &"Recursive internal problem.\n", so we have
+            # the frontend pass us the list of locals.
+
+            # There are two cases, either varList is empty, so we have
+            # to fetch the list here, or it is not empty with the
+            # first entry being a dummy.
+            if len(varList) == 0:
+                gdb.execute("info locals")
+            else:
+                varList = varList[1:]
+        except:
+            pass
         gdb.execute("set logging off")
         gdb.execute("set logging redirect off")
+
         file = open(filename, "r")
         for line in file:
             if len(line) == 0 or line.startswith(" "):
                 continue
+            # The function parameters
             pos = line.find(" = ")
             if pos < 0:
                 continue
-            name = line[0:pos]
+            varList.append(line[0:pos])
+        file.close()
+        os.remove(filename)
+
+        #warn("VARLIST: %s " % varList)
+        for name in varList:
+            #warn("NAME %s " % name)
             item = Item(0, "local", name, name)
             try:
                 item.value = frame.read_var(name)  # this is a gdb value
             except RuntimeError:
-                continue
+                pass
+                #continue
             items.append(item)
-        file.close()
-        os.remove(filename)
 
     return items
 
@@ -155,8 +189,8 @@ def isStringType(d, typeobj):
         or type == "wstring"
 
 def warn(message):
-    if verbosity > 0:
-        print "XXX: %s " % message.encode("latin1")
+    if True or verbosity > 0:
+        print "XXX: %s\n" % message.encode("latin1")
     pass
 
 def check(exp):
@@ -317,13 +351,24 @@ class FrameCommand(gdb.Command):
 
     def invoke(self, arg, from_tty):
         args = arg.split(' ')
+
         #warn("ARG: %s" % arg)
         #warn("ARGS: %s" % args)
         options = args[0].split(",")
+        varList = args[1][1:]
+        if len(varList) == 0:
+            varList = []
+        else:
+            varList = varList.split(",")
+        expandedINames = set(args[2].split(","))
+        watchers = ""
+        if len(args) > 3:
+            watchers = base64.b16decode(args[3], True)
+        #warn("WATCHERS: %s" % watchers)
+
         useFancy = "fancy" in options
-        expandedINames = set()
-        if len(args) > 1:
-            expandedINames = set(args[1].split(","))
+
+        #warn("VARIABLES: %s" % varList)
         #warn("EXPANDED INAMES: %s" % expandedINames)
         module = sys.modules[__name__]
         self.dumpers = {}
@@ -337,7 +382,7 @@ class FrameCommand(gdb.Command):
                     output += '"' + key[7:] + '"'
             output += "],"
             #output += "qtversion=[%d,%d,%d]"
-            output += "qtversion=[4,6,0],"
+            #output += "qtversion=[4,6,0],"
             output += "namespace=\"%s\"," % qtNamespace()
             output += "dumperversion=\"2.0\","
             output += "sizes=[],"
@@ -349,7 +394,6 @@ class FrameCommand(gdb.Command):
 
         if useFancy:
             for key, value in module.__dict__.items():
-                #if callable(value):
                 if key.startswith("qdump__"):
                     self.dumpers[key[7:]] = value
 
@@ -365,14 +409,28 @@ class FrameCommand(gdb.Command):
         #
         # Locals
         #
-        for item in listOfLocals():
+        for item in listOfLocals(varList):
             #warn("ITEM NAME %s: " % item.name)
-            #warn("ITEM VALUE %s: " % item.value)
+            try:
+                #warn("ITEM VALUE %s: " % item.value)
+                # Throw on funny stuff, catch below.
+                dummy = str(item.value)
+            except:
+                # Locals with failing memory access.
+                d.beginHash()
+                d.put('iname="%s",' % item.iname)
+                d.put('name="%s",' % item.name)
+                d.put('addr="<not accessible>",')
+                d.put('value="<not accessible>",')
+                d.put('type="%s",' % item.value.type)
+                d.put('numchild="0"');
+                d.endHash()
+                continue
 
             type = item.value.type
             if type.code == gdb.TYPE_CODE_PTR \
                     and item.name == "argv" and str(type) == "char **":
-                # Special handling for char** argv:
+                # Special handling for char** argv.
                 n = 0
                 p = item.value
                 while not isNull(p.dereference()) and n <= 100:
@@ -398,7 +456,7 @@ class FrameCommand(gdb.Command):
                 d.endHash()
 
             else:
-                # A "normal" local variable or parameter
+                # A "normal" local variable or parameter.
                 try:
                     addr = cleanAddress(item.value.address)
                     d.beginHash()
@@ -407,9 +465,8 @@ class FrameCommand(gdb.Command):
                     d.safePutItemHelper(item)
                     d.endHash()
                 except AttributeError:
-                    # thrown by cleanAddreas with message
-                    # "'NoneType' object has no attribute 'cast'"
-                    # for optimized-out values
+                    # Thrown by cleanAddress with message "'NoneType' object
+                    # has no attribute 'cast'" for optimized-out values.
                     d.beginHash()
                     d.put('iname="%s",' % item.iname)
                     d.put('name="%s",' % item.name)
@@ -426,9 +483,6 @@ class FrameCommand(gdb.Command):
         # Watchers
         #
         d.safeoutput = ""
-        watchers = ""
-        if len(args) > 2:
-            watchers = base64.b16decode(args[2], True)
         if len(watchers) > 0:
             for watcher in watchers.split("##"):
                 (exp, iname) = watcher.split("#")
@@ -764,7 +818,8 @@ class Dumper:
         #warn("REAL VALUE: %s " % item.value)
         #try:
         #    warn("REAL VALUE: %s " % item.value)
-        #except UnicodeEncodeError:
+        #except:
+        #    #UnicodeEncodeError:
         #    warn("REAL VALUE: <unprintable>")
 
         value = item.value

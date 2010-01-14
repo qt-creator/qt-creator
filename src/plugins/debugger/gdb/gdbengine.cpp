@@ -743,7 +743,7 @@ void GdbEngine::postCommand(const QByteArray &command, GdbCommandFlags flags,
 void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 {
     if (!stateAcceptsGdbCommands(state())) {
-        PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: ") + cmd.command);
+        PENDING_DEBUG(_("NO GDB PROCESS RUNNING, CMD IGNORED: " + cmd.command));
         debugMessage(_("NO GDB PROCESS RUNNING, CMD IGNORED: %1 %2")
             .arg(_(cmd.command)).arg(state()));
         return;
@@ -1019,6 +1019,7 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
 // Called from CoreAdapter and AttachAdapter
 void GdbEngine::updateAll()
 {
+    PENDING_DEBUG("UPDATING ALL\n");
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
     tryLoadDebuggingHelpers();
     reloadModulesInternal();
@@ -2469,12 +2470,14 @@ void GdbEngine::handleStackSelectThread(const GdbResponse &)
 
 void GdbEngine::reloadFullStack()
 {
+    PENDING_DEBUG("RELOAD FULL STACK");
     postCommand("-stack-list-frames", WatchUpdate, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(true, true)));
 }
 
 void GdbEngine::reloadStack(bool forceGotoLocation)
 {
+    PENDING_DEBUG("RELOAD STACK");
     QByteArray cmd = "-stack-list-frames";
     int stackDepth = theDebuggerAction(MaximalStackDepth)->value().toInt();
     if (stackDepth && !m_gdbAdapter->isTrkAdapter())
@@ -2485,6 +2488,7 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     // access the memory belonging to the lower frames. But as we know
     // this sometimes happens, ask the second time immediately instead
     // of waiting for the first request to fail.
+    // FIXME: Seems to work with 6.8.
     if (m_gdbAdapter->isTrkAdapter())
         postCommand(cmd, WatchUpdate);
     postCommand(cmd, WatchUpdate, CB(handleStackListFrames),
@@ -3640,52 +3644,12 @@ void GdbEngine::updateLocals(const QVariant &cookie)
 {
     m_pendingRequests = 0;
     if (isSynchroneous()) {
-        m_processedNames.clear();
-        manager()->watchHandler()->beginCycle();
-        //m_toolTipExpression.clear();
-        WatchHandler *handler = m_manager->watchHandler();
-
-        QByteArray expanded;
-        QSet<QByteArray> expandedINames = handler->expandedINames();
-        QSetIterator<QByteArray> jt(expandedINames);
-        while (jt.hasNext()) {
-            expanded.append(jt.next());
-            expanded.append(',');
+        if (m_gdbAdapter->isTrkAdapter()) {
+            postCommand("-stack-list-locals 0",
+                WatchUpdate, CB(handleStackListLocals0));
+        } else {
+            updateLocalsSync(QByteArray());
         }
-        if (expanded.isEmpty())
-            expanded.append("defaults,");
-        expanded.chop(1);
-
-        QByteArray watchers;
-        if (!m_toolTipExpression.isEmpty())
-            watchers += m_toolTipExpression.toLatin1()
-                + "#" + tooltipINameForExpression(m_toolTipExpression.toLatin1());
-
-        QHash<QByteArray, int> watcherNames = handler->watcherNames();
-        QHashIterator<QByteArray, int> it(watcherNames);
-        while (it.hasNext()) {
-            it.next();
-            if (!watchers.isEmpty())
-                watchers += "##";
-            if (it.key() == WatchHandler::watcherEditPlaceHolder().toLatin1())
-                watchers += "<Edit>#watch." + QByteArray::number(it.value());
-            else
-                watchers += it.key() + "#watch." + QByteArray::number(it.value());
-        }
-
-        QByteArray options;
-        if (theDebuggerBoolSetting(UseDebuggingHelpers))
-            options += "fancy,";
-        if (theDebuggerBoolSetting(AutoDerefPointers))
-            options += "autoderef,";
-        if (options.isEmpty())
-            options += "defaults,";
-        options.chop(1);
-
-        postCommand("-interpreter-exec console \"bb "
-            + options + ' ' + expanded + ' ' + watchers.toHex() + '"',
-            Discardable,
-            CB(handleStackFrame));
     } else {
         m_processedNames.clear();
 
@@ -3709,6 +3673,69 @@ void GdbEngine::updateLocals(const QVariant &cookie)
             CB(handleStackListLocals), cookie); // stage 2/2
     }
 }
+
+void GdbEngine::handleStackListLocals0(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        // 44^done,data={locals=[name="model",name="backString",...]}
+        QByteArray varList = "vars"; // Dummy entry, will be stripped by dumper.
+        foreach (const GdbMi &child, response.data.findChild("locals").children()) {
+            varList.append(',');
+            varList.append(child.data());
+        }
+        updateLocalsSync(varList);
+    }
+}
+
+void GdbEngine::updateLocalsSync(const QByteArray &varList)
+{
+    m_processedNames.clear();
+    manager()->watchHandler()->beginCycle();
+    //m_toolTipExpression.clear();
+    WatchHandler *handler = m_manager->watchHandler();
+
+    QByteArray expanded;
+    QSet<QByteArray> expandedINames = handler->expandedINames();
+    QSetIterator<QByteArray> jt(expandedINames);
+    while (jt.hasNext()) {
+        expanded.append(jt.next());
+        expanded.append(',');
+    }
+    if (expanded.isEmpty())
+        expanded.append("defaults,");
+    expanded.chop(1);
+
+    QByteArray watchers;
+    if (!m_toolTipExpression.isEmpty())
+        watchers += m_toolTipExpression.toLatin1()
+            + "#" + tooltipINameForExpression(m_toolTipExpression.toLatin1());
+
+    QHash<QByteArray, int> watcherNames = handler->watcherNames();
+    QHashIterator<QByteArray, int> it(watcherNames);
+    while (it.hasNext()) {
+        it.next();
+        if (!watchers.isEmpty())
+            watchers += "##";
+        if (it.key() == WatchHandler::watcherEditPlaceHolder().toLatin1())
+            watchers += "<Edit>#watch." + QByteArray::number(it.value());
+        else
+            watchers += it.key() + "#watch." + QByteArray::number(it.value());
+    }
+
+    QByteArray options;
+    if (theDebuggerBoolSetting(UseDebuggingHelpers))
+        options += "fancy,";
+    if (theDebuggerBoolSetting(AutoDerefPointers))
+        options += "autoderef,";
+    if (options.isEmpty())
+        options += "defaults,";
+    options.chop(1);
+
+    postCommand("bb " + options + " @" + varList + ' '
+            + expanded + ' ' + watchers.toHex(),
+        WatchUpdate, CB(handleStackFrame));
+}
+
 
 void GdbEngine::handleStackFrame(const GdbResponse &response)
 {
