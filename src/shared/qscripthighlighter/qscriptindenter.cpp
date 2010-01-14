@@ -648,12 +648,12 @@ bool QScriptIndenter::isUnfinishedLine()
         return false;
 
     QChar lastCh = yyLine->at(yyLine->length() - 1);
-    if (QString::fromLatin1("{};").indexOf(lastCh) == -1 && !yyLine->endsWith("...")) {
+    if (QString::fromLatin1("{};").indexOf(lastCh) == -1) {
         /*
-          It doesn't end with ';' or similar. If it's neither
-          "Q_OBJECT" nor "if (x)", it must be an unfinished line.
+          It doesn't end with ';' or similar. If it's not an "if (x)", it must be an unfinished line.
         */
         unf = ! matchBracelessControlStatement();
+
         if (unf && lastCh == QLatin1Char(')'))
             unf = false;
 
