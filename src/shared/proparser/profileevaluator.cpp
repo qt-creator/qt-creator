@@ -1376,6 +1376,80 @@ void ProFileEvaluator::Private::doVariableReplace(QString *str)
     *str = expandVariableReferences(*str).join(ProFileOption::field_sep);
 }
 
+// Be fast even for debug builds
+#ifdef __GNUC__
+# define ALWAYS_INLINE __attribute__((always_inline))
+#else
+# define ALWAYS_INLINE
+#endif
+
+// The (QChar*)current->constData() constructs below avoid pointless detach() calls
+static inline void ALWAYS_INLINE appendChar(ushort unicode,
+    QString *current, QChar **ptr, QString *pending)
+{
+    if (!pending->isEmpty()) {
+        int len = pending->size();
+        current->resize(current->size() + len);
+        ::memcpy((QChar*)current->constData(), pending->constData(), len * 2);
+        pending->clear();
+        *ptr = (QChar*)current->constData() + len;
+    }
+    *(*ptr)++ = QChar(unicode);
+}
+
+static void appendString(const QString &string,
+    QString *current, QChar **ptr, QString *pending)
+{
+    if (string.isEmpty())
+        return;
+    QChar *uc = (QChar*)current->constData();
+    int len;
+    if (*ptr != uc) {
+        len = *ptr - uc;
+        current->resize(current->size() + string.size());
+    } else if (!pending->isEmpty()) {
+        len = pending->size();
+        current->resize(current->size() + len + string.size());
+        ::memcpy((QChar*)current->constData(), pending->constData(), len * 2);
+        pending->clear();
+    } else {
+        *pending = string;
+        return;
+    }
+    *ptr = (QChar*)current->constData() + len;
+    ::memcpy(*ptr, string.data(), string.size() * 2);
+    *ptr += string.size();
+}
+
+static void flushCurrent(QStringList *ret,
+    QString *current, QChar **ptr, QString *pending)
+{
+    QChar *uc = (QChar*)current->constData();
+    int len = *ptr - uc;
+    if (len) {
+        ret->append(QString(uc, len));
+        *ptr = uc;
+    } else if (!pending->isEmpty()) {
+        ret->append(*pending);
+        pending->clear();
+    }
+}
+
+static inline void flushFinal(QStringList *ret,
+    const QString &current, const QChar *ptr, const QString &pending,
+    const QString &str, bool replaced)
+{
+    int len = ptr - current.data();
+    if (len) {
+        if (!replaced && len == str.size())
+            ret->append(str);
+        else
+            ret->append(QString(current.data(), len));
+    } else if (!pending.isEmpty()) {
+        ret->append(pending);
+    }
+}
+
 QStringList ProFileEvaluator::Private::expandVariableReferences(
         const QString &str, bool do_semicolon)
 {
@@ -1405,20 +1479,20 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
     const QChar *str_data = str.data();
     const int str_len = str.length();
 
-    ushort term;
     QString var, args;
 
-    int replaced = 0;
-    QString current;
+    bool replaced = false;
+    QString current; // Buffer for successively assembled string segments
+    current.resize(str.size());
+    QChar *ptr = current.data();
+    QString pending; // Buffer for string segments from variables
+    // Only one of the above buffers can be filled at a given time.
     for (int i = 0; i < str_len; ++i) {
         unicode = str_data[i].unicode();
-        const int start_var = i;
-        if (unicode == DOLLAR && str_len > i+2) {
-            unicode = str_data[++i].unicode();
-            if (unicode == DOLLAR) {
-                term = 0;
-                var.clear();
-                args.clear();
+        if (unicode == DOLLAR) {
+            if (str_len > i+2 && str_data[i+1].unicode() == DOLLAR) {
+                ++i;
+                ushort term = 0;
                 enum { VAR, ENVIRON, FUNCTION, PROPERTY } var_type = VAR;
                 unicode = str_data[++i].unicode();
                 if (unicode == LSQUARE) {
@@ -1434,6 +1508,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                     var_type = ENVIRON;
                     term = RPAREN;
                 }
+                int name_start = i;
                 forever {
                     if (!(unicode & (0xFF<<8)) &&
                        unicode != DOT && unicode != UNDERSCORE &&
@@ -1441,14 +1516,15 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                        (unicode < 'a' || unicode > 'z') && (unicode < 'A' || unicode > 'Z') &&
                        (unicode < '0' || unicode > '9'))
                         break;
-                    var.append(QChar(unicode));
                     if (++i == str_len)
                         break;
                     unicode = str_data[i].unicode();
                     // at this point, i points to either the 'term' or 'next' character (which is in unicode)
                 }
+                var = QString::fromRawData(str_data + name_start, i - name_start);
                 if (var_type == VAR && unicode == LPAREN) {
                     var_type = FUNCTION;
+                    name_start = i + 1;
                     int depth = 0;
                     forever {
                         if (++i == str_len)
@@ -1461,8 +1537,8 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                                 break;
                             --depth;
                         }
-                        args.append(QChar(unicode));
                     }
+                    args = QString(str_data + name_start, i - name_start);
                     if (++i < str_len)
                         unicode = str_data[i].unicode();
                     else
@@ -1483,8 +1559,6 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                     // move the 'cursor' back to the last char of the thing we were looking at
                     --i;
                 }
-                // since i never points to the 'next' character, there is no reason for this to be set
-                unicode = 0;
 
                 QStringList replacement;
                 if (var_type == ENVIRON) {
@@ -1496,69 +1570,51 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                 } else if (var_type == VAR) {
                     replacement = values(var);
                 }
-                if (!(replaced++) && start_var)
-                    current = str.left(start_var);
                 if (!replacement.isEmpty()) {
                     if (quote) {
-                        current += replacement.join(ProFileOption::field_sep);
+                        appendString(replacement.join(ProFileOption::field_sep),
+                                     &current, &ptr, &pending);
                     } else {
-                        current += replacement.takeFirst();
-                        if (!replacement.isEmpty()) {
-                            if (!current.isEmpty())
-                                ret.append(current);
-                            current = replacement.takeLast();
-                            if (!replacement.isEmpty())
-                                ret += replacement;
+                        appendString(replacement.first(), &current, &ptr, &pending);
+                        if (replacement.size() > 1) {
+                            flushCurrent(&ret, &current, &ptr, &pending);
+                            pending = replacement.last();
+                            if (replacement.size() > 2) {
+                                // FIXME: ret.reserve(ret.size() + replacement.size() - 2);
+                                for (int i = 1; i < replacement.size() - 1; ++i)
+                                    ret << replacement.at(i);
+                            }
                         }
                     }
+                    replaced = true;
                 }
-            } else {
-                if (replaced)
-                    current.append(QLatin1Char('$'));
+                continue;
             }
-        }
-        if (quote && unicode == quote) {
-            unicode = 0;
-            quote = 0;
         } else if (unicode == BACKSLASH) {
-            bool escape = false;
-            const char *symbols = "[]{}()$\\'\"";
-            for (const char *s = symbols; *s; ++s) {
-                if (str_data[i+1].unicode() == (ushort)*s) {
-                    i++;
-                    escape = true;
-                    if (!(replaced++))
-                        current = str.left(start_var);
-                    current.append(str.at(i));
-                    break;
-                }
+            static const char symbols[] = "[]{}()$\\'\"";
+            ushort unicode2 = str_data[i+1].unicode();
+            if (!(unicode2 & 0xff00) && strchr(symbols, unicode2)) {
+                unicode = unicode2;
+                ++i;
             }
-            if (escape || !replaced)
-                unicode =0;
-        } else if (!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
-            quote = unicode;
-            unicode = 0;
-            if (!(replaced++) && i)
-                current = str.left(i);
-        } else if (!quote && ((do_semicolon && unicode == SEMICOLON) ||
-                              unicode == SPACE || unicode == TAB)) {
-            unicode = 0;
-            if (!(replaced++) && i)
-                current = str.left(i);
-            if (!current.isEmpty()) {
-                ret.append(current);
-                current.clear();
+        } else if (quote) {
+            if (unicode == quote) {
+                quote = 0;
+                continue;
+            }
+        } else {
+            if (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE) {
+                quote = unicode;
+                continue;
+            } else if ((do_semicolon && unicode == SEMICOLON) ||
+                       unicode == SPACE || unicode == TAB) {
+                flushCurrent(&ret, &current, &ptr, &pending);
+                continue;
             }
         }
-        if (replaced && unicode)
-            current.append(QChar(unicode));
+        appendChar(unicode, &current, &ptr, &pending);
     }
-    if (!replaced) {
-        if (!str.isEmpty())
-            ret.append(str);
-    } else if (!current.isEmpty()) {
-        ret.append(current);
-    }
+    flushFinal(&ret, current, ptr, pending, str, replaced);
     return ret;
 }
 
