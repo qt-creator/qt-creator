@@ -631,6 +631,12 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     if (filePaths.isEmpty())
         return;
 
+    *notChanged = filePaths;
+
+    // Check for modified editors
+    if (!saveModifiedEditors(m_projectFilePath))
+        return;
+
     ProFileReader *reader = m_project->createProFileReader(m_qt4ProFileNode);
     if (!reader->readProFile(m_qt4ProFileNode->path())) {
         m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
@@ -641,14 +647,6 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     ProFile *includeFile = reader->proFileFor(m_projectFilePath);
     if (!includeFile) {
         m_project->proFileParseError(tr("Error while changing pro file %1.").arg(m_projectFilePath));
-    }
-
-    *notChanged = filePaths;
-
-    // Check for modified editors
-    if (!saveModifiedEditors(m_projectFilePath)) {
-        m_project->destroyProFileReader(reader);
-        return;
     }
 
     const QStringList vars = varNames(fileType);
