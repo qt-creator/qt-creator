@@ -159,7 +159,7 @@ protected:
     virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
 
 private:
-    QList<BuildConfiguration *> m_buildConfigurationValues;
+    QList<BuildConfiguration *> m_buildConfigurations;
     BuildConfiguration *m_activeBuildConfiguration;
     QList<RunConfiguration *> m_runConfigurations;
     RunConfiguration* m_activeRunConfiguration;

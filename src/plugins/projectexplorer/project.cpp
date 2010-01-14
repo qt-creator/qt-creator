@@ -48,27 +48,36 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-Project::Project()
-    : m_activeRunConfiguration(0),
-      m_editorConfiguration(new EditorConfiguration())
+namespace {
+const char * const PROJECT_FILE_POSTFIX(".user");
+} // namespace
+
+// -------------------------------------------------------------------------
+// Project
+// -------------------------------------------------------------------------
+
+Project::Project() :
+    m_activeBuildConfiguration(0),
+    m_activeRunConfiguration(0),
+    m_editorConfiguration(new EditorConfiguration())
 {
 }
 
 Project::~Project()
 {
-    qDeleteAll(m_buildConfigurationValues);
+    qDeleteAll(m_buildConfigurations);
     qDeleteAll(m_runConfigurations);
     delete m_editorConfiguration;
 }
 
-QString Project::makeUnique(const QString &preferedName, const QStringList &usedNames)
+QString Project::makeUnique(const QString &preferredName, const QStringList &usedNames)
 {
-    if (!usedNames.contains(preferedName))
-        return preferedName;
+    if (!usedNames.contains(preferredName))
+        return preferredName;
     int i = 2;
-    QString tryName = preferedName + QString::number(i);
+    QString tryName = preferredName + QString::number(i);
     while (usedNames.contains(tryName))
-        tryName = preferedName + QString::number(++i);
+        tryName = preferredName + QString::number(++i);
     return tryName;
 }
 
@@ -77,13 +86,13 @@ void Project::addBuildConfiguration(BuildConfiguration *configuration)
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = configuration->displayName();
     QStringList displayNames;
-    foreach (const BuildConfiguration *bc, m_buildConfigurationValues)
+    foreach (const BuildConfiguration *bc, m_buildConfigurations)
         displayNames << bc->displayName();
     configurationDisplayName = makeUnique(configurationDisplayName, displayNames);
     configuration->setDisplayName(configurationDisplayName);
 
     // add it
-    m_buildConfigurationValues.push_back(configuration);
+    m_buildConfigurations.push_back(configuration);
 
     emit addedBuildConfiguration(configuration);
 }
@@ -91,10 +100,10 @@ void Project::addBuildConfiguration(BuildConfiguration *configuration)
 void Project::removeBuildConfiguration(BuildConfiguration *configuration)
 {
     //todo: this might be error prone
-    if (!m_buildConfigurationValues.contains(configuration))
+    if (!m_buildConfigurations.contains(configuration))
         return;
 
-    m_buildConfigurationValues.removeOne(configuration);
+    m_buildConfigurations.removeOne(configuration);
 
     emit removedBuildConfiguration(configuration);
     delete configuration;
@@ -102,7 +111,7 @@ void Project::removeBuildConfiguration(BuildConfiguration *configuration)
 
 QList<BuildConfiguration *> Project::buildConfigurations() const
 {
-    return m_buildConfigurationValues;
+    return m_buildConfigurations;
 }
 
 bool Project::hasBuildSettings() const
@@ -114,18 +123,18 @@ void Project::saveSettings()
 {
     PersistentSettingsWriter writer;
     saveSettingsImpl(writer);
-    writer.save(file()->fileName() + QLatin1String(".user"), "QtCreatorProject");
+    writer.save(file()->fileName() + QLatin1String(PROJECT_FILE_POSTFIX), "QtCreatorProject");
 }
 
 bool Project::restoreSettings()
 {
     PersistentSettingsReader reader;
-    reader.load(file()->fileName() + QLatin1String(".user"));
+    reader.load(file()->fileName() + QLatin1String(PROJECT_FILE_POSTFIX));
     if (!restoreSettingsImpl(reader))
         return false;
 
-    if (!m_activeBuildConfiguration && !m_buildConfigurationValues.isEmpty())
-        setActiveBuildConfiguration(m_buildConfigurationValues.at(0));
+    if (!m_activeBuildConfiguration && !m_buildConfigurations.isEmpty())
+        setActiveBuildConfiguration(m_buildConfigurations.at(0));
 
     if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
         setActiveRunConfiguration(m_runConfigurations.at(0));
@@ -391,7 +400,7 @@ BuildConfiguration *Project::activeBuildConfiguration() const
 
 void Project::setActiveBuildConfiguration(BuildConfiguration *configuration)
 {
-    if (m_activeBuildConfiguration != configuration && m_buildConfigurationValues.contains(configuration)) {
+    if (m_activeBuildConfiguration != configuration && m_buildConfigurations.contains(configuration)) {
         m_activeBuildConfiguration = configuration;
         emit activeBuildConfigurationChanged();
     }
