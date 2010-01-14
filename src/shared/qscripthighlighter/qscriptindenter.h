@@ -30,6 +30,7 @@
 #ifndef QTSCRIPTINDENTER_H
 #define QTSCRIPTINDENTER_H
 
+#include <qscripthighlighter/qscriptincrementalscanner.h>
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 #include <QtGui/QTextBlock>
@@ -57,7 +58,7 @@ private:
     bool isOnlyWhiteSpace(const QString &t) const;
     int columnForIndex(const QString &t, int index) const;
     int indentOfLine(const QString &t) const;
-    QString trimmedCodeLine(const QString &t) const;
+    QString trimmedCodeLine(const QString &t);
 
     void eraseChar(QString &t, int k, QChar ch) const;
     QChar lastParen(const QString &t) const;
@@ -102,6 +103,7 @@ private:
         bool inComment;
         bool pendingRightBrace;
         QString line;
+        QList<QScriptIncrementalScanner::Token> tokens;
         QTextBlock iter;
     };
 
@@ -127,12 +129,9 @@ private:
     const int *yyBraceDepth;
     const bool *yyLeftBraceFollows;
 
-    QRegExp literal;
     QRegExp label;
-    QRegExp inlineCComment;
     QRegExp braceX;
     QRegExp iflikeKeyword;
-    QRegExp propertylikeKeyword;
 };
 
 } // namespace SharedTools
