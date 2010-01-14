@@ -33,6 +33,10 @@
 
 using namespace ProjectExplorer;
 
+namespace {
+const char * const CODEC("EditorConfiguration.Codec");
+}
+
 EditorConfiguration::EditorConfiguration()
     : m_defaultTextCodec(QTextCodec::codecForLocale())
 {
@@ -45,6 +49,23 @@ QTextCodec *EditorConfiguration::defaultTextCodec() const
 
 void EditorConfiguration::setDefaultTextCodec(QTextCodec *codec)
 {
+    if (!codec)
+        return;
     m_defaultTextCodec = codec;
 }
 
+QVariantMap EditorConfiguration::toMap() const
+{
+    QVariantMap map;
+    map.insert(QLatin1String(CODEC), m_defaultTextCodec->name());
+    return map;
+}
+
+bool EditorConfiguration::fromMap(const QVariantMap &map)
+{
+    QTextCodec *codec = QTextCodec::codecForName(map.value(QLatin1String(CODEC)).toString().toLocal8Bit());
+    if (!codec)
+        return false;
+    m_defaultTextCodec = codec;
+    return true;
+}

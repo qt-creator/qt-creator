@@ -32,7 +32,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <QtCore/qglobal.h>
+#include <QtCore/QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;
@@ -44,8 +44,12 @@ class PROJECTEXPLORER_EXPORT EditorConfiguration
 {
 public:
     EditorConfiguration();
+
     QTextCodec *defaultTextCodec() const;
     void setDefaultTextCodec(QTextCodec *codec);
+
+    QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map);
 
 private:
     QTextCodec *m_defaultTextCodec;

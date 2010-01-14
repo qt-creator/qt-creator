@@ -50,6 +50,7 @@ using namespace ProjectExplorer::Internal;
 
 namespace {
 const char * const PROJECT_FILE_POSTFIX(".user");
+const char * const EDITOR_SETTINGS_KEY("ProjectExplorer.Project.EditorSettings");
 } // namespace
 
 // -------------------------------------------------------------------------
@@ -211,7 +212,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     writer.setPrefix(QString::null);
     writer.saveValue("activeRunConfiguration", activeId);
 
-    writer.saveValue("defaultFileEncoding", m_editorConfiguration->defaultTextCodec()->name());
+    writer.saveValue(QLatin1String(EDITOR_SETTINGS_KEY), m_editorConfiguration->toMap());
 }
 
 bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
@@ -386,13 +387,11 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     }
     reader.setPrefix(QString::null);
 
-    QTextCodec *codec = QTextCodec::codecForName(reader.restoreValue("defaultFileEncoding").toByteArray());
-    if (codec)
-        m_editorConfiguration->setDefaultTextCodec(codec);
-
     if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
         setActiveRunConfiguration(m_runConfigurations.at(0));
-    return true;
+
+    QVariantMap tmp = reader.restoreValue(QLatin1String(EDITOR_SETTINGS_KEY)).toMap();
+    return m_editorConfiguration->fromMap(tmp);
 }
 
 BuildConfiguration *Project::activeBuildConfiguration() const
