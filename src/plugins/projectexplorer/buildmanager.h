@@ -107,7 +107,7 @@ private:
     void startBuildQueue();
     void nextStep();
     void clearBuildQueue();
-    void buildQueueAppend(BuildStep * bs);
+    bool buildQueueAppend(BuildStep * bs);
     void incrementActiveBuildSteps(Project *pro);
     void decrementActiveBuildSteps(Project *pro);
 

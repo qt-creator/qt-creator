@@ -82,7 +82,7 @@ static const char *registerNames[KnownRegisters] =
     0, "PSGdb"
 };
 
-static QByteArray dumpRegister(int n, uint value)
+static QByteArray dumpRegister(uint n, uint value)
 {
     QByteArray ba;
     ba += ' ';
@@ -356,7 +356,7 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
     QByteArray ba;
     ba.reserve(17);
     appendByte(&ba, option);
-    qDebug() << "STEP ON " << hexxNumber(m_snapshot.registers[RegisterPC]);
+    //qDebug() << "STEP ON " << hexxNumber(m_snapshot.registers[RegisterPC]);
     appendInt(&ba, m_snapshot.registers[RegisterPC]); // Start address
     appendInt(&ba, m_snapshot.registers[RegisterPC]); // End address
     appendInt(&ba, m_session.pid);
@@ -451,7 +451,8 @@ void TrkGdbAdapter::readGdbServerCommand()
 
         if (code == '-') {
             logMessage("NAK: Retransmission requested");
-            emit adapterCrashed("Communication problem encountered.");
+            // This seems too harsh.
+            //emit adapterCrashed("Communication problem encountered.");
             continue;
         }
 
@@ -629,7 +630,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //Reply: See section D.3 Stop Reply Packets, for the reply specifications.
         sendGdbServerAck();
         bool ok = false;
-        uint signalNumber = cmd.mid(1).toInt(&ok, 16);
+        uint signalNumber = cmd.mid(1).toUInt(&ok, 16);
         QByteArray ba;
         appendInt(&ba, m_session.pid);
         appendInt(&ba, m_session.tid);
@@ -669,7 +670,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // for 'other operations.  0 - any thread
         //$Hg0#df
         sendGdbServerAck();
-        m_session.currentThread = cmd.mid(2).toInt(0, 16);
+        m_session.currentThread = cmd.mid(2).toUInt(0, 16);
         sendGdbServerMessage("OK", "Set current thread "
             + QByteArray::number(m_session.currentThread));
     }
@@ -711,7 +712,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         //sendGdbServerMessage("0000", "current IP");
         sendGdbServerAck();
         bool ok = false;
-        const uint registerNumber = cmd.mid(1).toInt(&ok, 16);
+        const uint registerNumber = cmd.mid(1).toUInt(&ok, 16);
         if (m_snapshot.registerValid) {
             QByteArray logMsg = "Read Register";
             if (registerNumber == RegisterPSGdb) {
@@ -744,8 +745,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         QByteArray regName = cmd.mid(1, pos - 1);
         QByteArray valueName = cmd.mid(pos + 1);
         bool ok = false;
-        const uint registerNumber = regName.toInt(&ok, 16);
-        const uint value = swapEndian(valueName.toInt(&ok, 16));
+        const uint registerNumber = regName.toUInt(&ok, 16);
+        const uint value = swapEndian(valueName.toUInt(&ok, 16));
         // FIXME: Assume all goes well.
         m_snapshot.registers[registerNumber] = value;
         QByteArray ba = trkWriteRegisterMessage(registerNumber, value);
@@ -867,7 +868,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 
     else if (cmd.startsWith("qXfer:libraries:read")) {
-        qDebug() << "COMMAND: " << cmd;
+        //qDebug() << "COMMAND: " << cmd;
         sendGdbServerAck();
         QByteArray response = "l<library-list>";
         for (int i = 0; i != m_session.libraries.size(); ++i) {
@@ -936,14 +937,22 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage(msgGdbPacket(QLatin1String("Insert breakpoint")));
         // $Z0,786a4ccc,4#99
         const int pos = cmd.lastIndexOf(',');
-        bool ok = false;
-        const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
-        const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
-        //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
-        logMessage(_("Inserting breakpoint at 0x%1, %2")
-            .arg(addr, 0, 16).arg(len));
-        const QByteArray ba = trkBreakpointMessage(addr, len, len == 4);
-        sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
+        bool ok1 = false;
+        bool ok2 = false;
+        const uint addr = cmd.mid(3, pos - 3).toUInt(&ok1, 16);
+        const uint len = cmd.mid(pos + 1).toUInt(&ok2, 16);
+        if (!ok1) {
+            logMessage("MISPARSED ADDRESS FROM " + cmd +
+                " (" + cmd.mid(3, pos - 3) + ")");
+        } else if (!ok2) {
+            logMessage("MISPARSED BREAKPOINT SIZE FROM " + cmd);
+        } else {
+            //qDebug() << "ADDR: " << hexNumber(addr) << " LEN: " << len;
+            logMessage(_("Inserting breakpoint at 0x%1, %2")
+                .arg(addr, 0, 16).arg(len));
+            const QByteArray ba = trkBreakpointMessage(addr, len, len == 4);
+            sendTrkMessage(0x1B, TrkCB(handleAndReportSetBreakpoint), ba, addr);
+        }
     }
 
     else if (cmd.startsWith("z0,") || cmd.startsWith("z1,")) {
@@ -953,8 +962,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // $z0,786a4ccc,4#99
         const int pos = cmd.lastIndexOf(',');
         bool ok = false;
-        const uint addr = cmd.mid(3, pos - 3).toInt(&ok, 16);
-        const uint len = cmd.mid(pos + 1).toInt(&ok, 16);
+        const uint addr = cmd.mid(3, pos - 3).toUInt(&ok, 16);
+        const uint len = cmd.mid(pos + 1).toUInt(&ok, 16);
         const uint bp = m_session.addressToBP[addr];
         if (bp == 0) {
             logMessage(_("NO RECORDED BP AT 0x%1, %2")
@@ -978,8 +987,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             if (commaPos != -1) {                
                 bool ok1 = false, ok2 = false;
                 const int offset = data.mid(offsetPos,  commaPos - offsetPos)
-                    .toInt(&ok1, 16);
-                const int length = data.mid(commaPos + 1).toInt(&ok2, 16);
+                    .toUInt(&ok1, 16);
+                const int length = data.mid(commaPos + 1).toUInt(&ok2, 16);
                 if (ok1 && ok2) {
                     const QString msg = _("Read of OS auxiliary "
                         "vector (%1, %2) not implemented.").arg(offset).arg(length);
@@ -1023,7 +1032,9 @@ void TrkGdbAdapter::handleTrkError(const QString &msg)
 void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 {
     if (result.isDebugOutput) {
-        sendTrkAck(result.token);
+        // It looks like those messages _must not_ be acknowledged.
+        // If we do so, TRK will complain about wrong sequencing.
+        //sendTrkAck(result.token);
         logMessage(QLatin1String("APPLICATION OUTPUT: ") +
             QString::fromAscii(result.data));
         sendGdbServerMessage("O" + result.data.toHex());
@@ -1044,6 +1055,8 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
         }
         case 0x90: { // Notified Stopped
             // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
+            debugMessage(_("RESET SNAPSHOT (NOTIFY STOPPED)"));
+            m_snapshot.reset();
             const char *data = result.data.data();
             const uint addr = extractInt(data);
             const uint pid = extractInt(data + 4);
@@ -1069,11 +1082,15 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             break;
         }
         case 0x91: { // Notify Exception (obsolete)
+            debugMessage(_("RESET SNAPSHOT (NOTIFY EXCEPTION)"));
+            m_snapshot.reset();
             logMessage(prefix + "NOTE: EXCEPTION  " + str);
             sendTrkAck(result.token);
             break;
         }
         case 0x92: { //
+            debugMessage(_("RESET SNAPSHOT (NOTIFY INTERNAL ERROR)"));
+            m_snapshot.reset();
             logMessage(prefix + "NOTE: INTERNAL ERROR: " + str);
             sendTrkAck(result.token);
             break;
@@ -1081,6 +1098,10 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 
         // target->host OS notification
         case 0xa0: { // Notify Created
+            debugMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
+            // Sending this ACK does not seem to make a difference. Why?
+            //sendTrkAck(result.token);
+            m_snapshot.reset();
             const char *data = result.data.data();
             const byte error = result.data.at(0);
             // type: 1 byte; for dll item, this value is 2.
@@ -1111,10 +1132,16 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             // With CS gdb 6.4 we get a non-standard $qfDllInfo#7f+ request
             // afterwards, so don't use it for now.
             //sendGdbServerMessage("T05library:;");
+/*
+            // Causes too much "stopped" (by SIGTRAP) messages that need
+            // to be answered by "continue". Auto-continuing each SIGTRAP
+            // is not possible as this is also the real message for a user
+            // initiated interrupt.
             sendGdbServerMessage("T05load:Name=" + lib.name.toHex()
                 + ",TextSeg=" + hexNumber(lib.codeseg)
                 + ",DataSeg=" + hexNumber(lib.dataseg) + ';');
-            //sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+*/
+            sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
             break;
         }
         case 0xa1: { // NotifyDeleted
@@ -1248,7 +1275,7 @@ void TrkGdbAdapter::handleAndReportReadRegisters(const TrkResult &result)
 void TrkGdbAdapter::handleAndReportReadRegister(const TrkResult &result)
 {
     handleReadRegisters(result);
-    int registerNumber = result.cookie.toInt();
+    uint registerNumber = result.cookie.toUInt();
     QByteArray logMsg = "Read Register";
     if (registerNumber == RegisterPSGdb) {
         QByteArray ba;
@@ -1457,11 +1484,13 @@ void TrkGdbAdapter::reportReadMemoryBuffered(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 {
+    debugMessage(_("RESET SNAPSHOT"));
     m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto");
-#if 0
+#if 1
         // Try fallback with Step Over
+        logMessage("FALLBACK TO 'STEP OVER'");
         QByteArray ba = trkStepRangeMessage(0x11);  // options "step over"
         sendTrkMessage(0x19, TrkCB(handleStepInto2), ba, "Step range");
 #else
@@ -1480,6 +1509,7 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto2");
 #if 0
+        logMessage("FALLBACK TO 'CONTINUE'");
         // Try fallback with Continue
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
         //sendGdbServerMessage("S05", "Stepping finished");
@@ -1495,6 +1525,7 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepOver(const TrkResult &result)
 {
+    debugMessage(_("RESET SNAPSHOT"));
     m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + "in handleStepOver");
@@ -1525,7 +1556,8 @@ void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
     //    Error: 0x00
     // [80 09 00 00 00 00 0A]
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString());
+        logMessage("ERROR WHEN SETTING BREAKPOINT: " + result.errorString());
+        sendGdbServerMessage("E21");
         return;
     }
     uint bpnr = extractInt(result.data.data() + 1);
@@ -1549,7 +1581,7 @@ void TrkGdbAdapter::handleClearBreakpoint(const TrkResult &result)
 
 void TrkGdbAdapter::handleSignalContinue(const TrkResult &result)
 {
-    int signalNumber = result.cookie.toInt();
+    uint signalNumber = result.cookie.toUInt();
     logMessage("   HANDLE SIGNAL CONTINUE: " + stringFromArray(result.data));
     logMessage("NUMBER" + QString::number(signalNumber));
     sendGdbServerMessage("O" + QByteArray("Console output").toHex());
@@ -1713,9 +1745,11 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     m_session.tid = extractInt(data + 5);
     m_session.codeseg = extractInt(data + 9);
     m_session.dataseg = extractInt(data + 13);
-    const QString startMsg = tr("Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.")
-                             .arg(m_session.pid, 0, 16).arg(m_session.tid, 0, 16)
-                             .arg(m_session.codeseg, 0, 16).arg(m_session.dataseg, 0, 16);
+    const QString startMsg =
+        tr("Process started, PID: 0x%1, thread id: 0x%2, "
+           "code segment: 0x%3, data segment: 0x%4.")
+             .arg(m_session.pid, 0, 16).arg(m_session.tid, 0, 16)
+             .arg(m_session.codeseg, 0, 16).arg(m_session.dataseg, 0, 16);
 
     logMessage(startMsg);
 
@@ -1765,7 +1799,7 @@ void TrkGdbAdapter::write(const QByteArray &data)
         if (data1.endsWith(' '))
             data1.chop(1);
         bool ok;
-        uint addr = data1.toInt(&ok, 0);
+        uint addr = data1.toUInt(&ok, 0);
         qDebug() << "Writing: " << quoteUnprintableLatin1(data1) << addr;
         directStep(addr);
         return;

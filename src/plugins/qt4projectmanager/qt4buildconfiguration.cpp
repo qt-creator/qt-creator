@@ -53,13 +53,14 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro)
     m_shadowBuild(false),
     m_qtVersion(0),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
-    m_qmakeBuildConfiguration(0)
+    m_qmakeBuildConfiguration(0),
+    m_subNodeBuild(0)
 {
     init();
 }
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro, const QMap<QString, QVariant> &map)
-    : BuildConfiguration(pro, map)
+    : BuildConfiguration(pro, map), m_subNodeBuild(0)
 {
     init();
     QMap<QString, QVariant>::const_iterator it;
@@ -86,7 +87,8 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4BuildConfiguration *source)
     m_buildDirectory(source->m_buildDirectory),
     m_qtVersion(source->m_qtVersion),
     m_toolChainType(source->m_toolChainType),
-    m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration)
+    m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration),
+    m_subNodeBuild(0) // temporary value, so not copied
 {
     init();
 }
@@ -183,6 +185,25 @@ QString Qt4BuildConfiguration::buildDirectory() const
     if (workingDirectory.isEmpty())
         workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
     return workingDirectory;
+}
+
+/// If only a sub tree should be build this function returns which sub node
+/// should be build
+/// \see Qt4BuildConfiguration::setSubNodeBuild
+Qt4ProjectManager::Internal::Qt4ProFileNode *Qt4BuildConfiguration::subNodeBuild() const
+{
+    return m_subNodeBuild;
+}
+
+/// A sub node build on builds a sub node of the project
+/// That is triggered by a right click in the project explorer tree
+/// The sub node to be build is set via this function immediately before
+/// calling BuildManager::buildProject( BuildConfiguration * )
+/// and reset immediately afterwards
+/// That is m_subNodesBuild is set only temporarly
+void Qt4BuildConfiguration::setSubNodeBuild(Qt4ProjectManager::Internal::Qt4ProFileNode *node)
+{
+    m_subNodeBuild = node;
 }
 
 /// returns whether this is a shadow build configuration or not

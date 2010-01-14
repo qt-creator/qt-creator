@@ -30,15 +30,14 @@
 #ifndef QTSCRIPTINDENTER_H
 #define QTSCRIPTINDENTER_H
 
-#include <qscripthighlighter/qscripthighlighter_global.h>
-
+#include <qscripthighlighter/qscriptincrementalscanner.h>
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 #include <QtGui/QTextBlock>
 
 namespace SharedTools {
 
-class QSCRIPTHIGHLIGHTER_EXPORT QScriptIndenter
+class QScriptIndenter
 {
     Q_DISABLE_COPY(QScriptIndenter)
 
@@ -59,7 +58,7 @@ private:
     bool isOnlyWhiteSpace(const QString &t) const;
     int columnForIndex(const QString &t, int index) const;
     int indentOfLine(const QString &t) const;
-    QString trimmedCodeLine(const QString &t) const;
+    QString trimmedCodeLine(const QString &t);
 
     void eraseChar(QString &t, int k, QChar ch) const;
     QChar lastParen(const QString &t) const;
@@ -95,15 +94,16 @@ private:
         LinizerState()
             : braceDepth(0),
               leftBraceFollows(false),
-              inCComment(false),
+              inComment(false),
               pendingRightBrace(false)
         { }
 
         int braceDepth;
         bool leftBraceFollows;
-        bool inCComment;
+        bool inComment;
         bool pendingRightBrace;
         QString line;
+        QList<QScriptIncrementalScanner::Token> tokens;
         QTextBlock iter;
     };
 
@@ -129,12 +129,9 @@ private:
     const int *yyBraceDepth;
     const bool *yyLeftBraceFollows;
 
-    QRegExp literal;
     QRegExp label;
-    QRegExp inlineCComment;
     QRegExp braceX;
     QRegExp iflikeKeyword;
-    QRegExp propertylikeKeyword;
 };
 
 } // namespace SharedTools

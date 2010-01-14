@@ -104,7 +104,11 @@ bool MakeStep::init()
     Environment environment = bc->environment();
     setEnvironment(environment);
 
-    QString workingDirectory = bc->buildDirectory();
+    QString workingDirectory;
+    if (bc->subNodeBuild())
+        workingDirectory = bc->subNodeBuild()->buildDir();
+    else
+        workingDirectory = bc->buildDirectory();
     setWorkingDirectory(workingDirectory);
 
     QString makeCmd = bc->makeCommand();

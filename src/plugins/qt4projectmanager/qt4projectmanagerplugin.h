@@ -80,6 +80,7 @@ private:
 
     QAction *m_runQMakeAction;
     QAction *m_runQMakeActionContextMenu;
+    QAction *m_buildSubProjectContextMenu;
     GettingStartedWelcomePage *m_welcomePage;
 };
 

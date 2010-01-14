@@ -99,29 +99,32 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
     bool needsSetup = false;
     {
         QHelpEngineCore hc(m_plugin->helpEngine()->collectionFile());
-        if (!hc.setupData())
+        if (!hc.setupData()) {
             qWarning() << "Could not initialize help engine:" << hc.error();
+            return;
+        }
         foreach (const QString &fileName, fileNames) {
             if (!QFileInfo(fileName).exists())
                 continue;
             const QString &nameSpace = QHelpEngineCore::namespaceName(fileName);
-            if (!nameSpace.isEmpty()) {
-                if (hc.registeredDocumentations().contains(nameSpace)) {
-                    if (!QFileInfo(hc.documentationFileName(nameSpace)).exists()) {
-                        // remove stale documentation path first
-                        if (!hc.unregisterDocumentation(nameSpace)) {
-                            qWarning() << "error unregistering " << fileName << hc.error();
-                            continue;
-                        }
-                    } else {
-                        continue;
-                    }
+            if (nameSpace.isEmpty())
+                continue;
+            if (hc.registeredDocumentations().contains(nameSpace)) {
+                if (QFileInfo(hc.documentationFileName(nameSpace)).exists())
+                    continue;
+
+                // remove stale documentation first
+                if (!hc.unregisterDocumentation(nameSpace)) {
+                    qWarning() << "error unregistering namespace '"
+                        << nameSpace << "' from file '" << fileName << "': "
+                        << hc.error();
+                    continue;
                 }
-                if (hc.registerDocumentation(fileName)) {
-                    needsSetup = true;
-                } else {
-                    qWarning() << "error registering" << fileName << hc.error();
-                }
+            }
+            if (hc.registerDocumentation(fileName)) {
+                needsSetup = true;
+            } else {
+                qWarning() << "error registering" << fileName << hc.error();
             }
         }
     }

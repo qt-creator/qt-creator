@@ -1,32 +1,32 @@
 import Qt 4.6
 
-// Try to look up rootFunc, parentFunc, childFunc
+// Try to look up x, y, z
 // in all symbol contexts. It should always get the function.
 
 Item {
     id: theRoot
     Script { 
-        function rootFunc() {}
+        function x() {}
     }
-    property var rootFunc: "wrong";
-    property var parentFunc: "wrong";
-    property var childFunc: "wrong";
+    property var x: "wrong";
+    property var y: "wrong";
+    property var z: "wrong";
     Item {
         id: theParent
         Script { 
-            function parentFunc() {}
+            function y() {}
         }
-        property var rootFunc: "wrong";
-        property var parentFunc: "wrong";
-        property var childFunc: "wrong";
+        property var x: "wrong";
+        property var y: "wrong";
+        property var z: "wrong";
         Item {
             id: theChild
             Script { 
-                function childFunc() {}
+                function z() {}
             }
-            property var rootFunc: "wrong";
-            property var parentFunc: "wrong";
-            property var childFunc: "wrong";
+            property var x: "wrong";
+            property var y: "wrong";
+            property var z: "wrong";
         }
     }
 }

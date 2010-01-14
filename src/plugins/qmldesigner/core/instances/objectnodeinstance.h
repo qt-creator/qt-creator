@@ -174,6 +174,7 @@ private:
     QHash<QString, QVariant> m_resetValueHash;
     QHash<QString, NodeInstance> m_modelAbstractPropertyHash;
     ModelNode m_modelNode;
+    QString m_id;
 
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
     bool m_deleteHeldInstance;

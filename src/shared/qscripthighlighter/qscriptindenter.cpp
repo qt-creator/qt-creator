@@ -66,6 +66,7 @@
 */
 
 #include "qscriptindenter.h"
+#include "qscriptincrementalscanner.h"
 #include <QtDebug>
 
 using namespace SharedTools;
@@ -82,12 +83,9 @@ const int QScriptIndenter::SmallRoof = 40;
 const int QScriptIndenter::BigRoof = 400;
 
 QScriptIndenter::QScriptIndenter()
-    : literal(QRegExp(QLatin1String("([\"'])(?:\\\\.|[^\\\\])*\\1"))),
-      label(QRegExp(QLatin1String("^\\s*((?:case\\b([^:])+|[a-zA-Z_0-9.]+)(?:\\s+)?:)(?!:)"))),
-      inlineCComment(QRegExp(QLatin1String("/\\*.*\\*/"))),
+    : label(QRegExp(QLatin1String("^\\s*((?:case\\b([^:])+|[a-zA-Z_0-9.]+)(?:\\s+)?:)(?!:)"))),
       braceX(QRegExp(QLatin1String("^\\s*\\}\\s*(?:else|catch)\\b"))),
-      iflikeKeyword(QRegExp(QLatin1String("\\b(?:catch|do|for|if|while|with)\\b"))),
-      propertylikeKeyword(QRegExp(QLatin1String("^\\s*\\b(?:property|signal|import|readonly|return)\\b")))
+      iflikeKeyword(QRegExp(QLatin1String("\\b(?:catch|do|for|if|while|with)\\b")))
 {
 
     /*
@@ -120,9 +118,6 @@ QScriptIndenter::QScriptIndenter()
     yyLine = 0;
     yyBraceDepth = 0;
     yyLeftBraceFollows = 0;
-
-    literal.setMinimal(true);
-    inlineCComment.setMinimal(true);
 }
 
 QScriptIndenter::~QScriptIndenter()
@@ -209,98 +204,84 @@ void QScriptIndenter::eraseChar(QString &t, int k, QChar ch) const
    Removes some nefast constructs from a code line and returns the
    resulting line.
 */
-QString QScriptIndenter::trimmedCodeLine(const QString &t) const
+QString QScriptIndenter::trimmedCodeLine(const QString &t)
 {
-    QString trimmed = t;
-    int k;
+    QScriptIncrementalScanner scanner;
 
-    /*
-        Replace character and string literals by X's, since they may
-        contain confusing characters (such as '{' and ';'). "Hello!" is
-        replaced by XXXXXXXX. The literals are rigourously of the same
-        length before and after; otherwise, we would break alignment of
-        continuation lines.
-    */
-    k = 0;
-    while ((k = literal.indexIn(trimmed, k)) != -1) {
-        for (int i = 0; i < literal.matchedLength(); i++)
-            eraseChar(trimmed, k + i, QLatin1Char('X'));
-        k += literal.matchedLength();
-    }
+    int state = yyLinizerState.iter.userState();
+    if (state == -1)
+        state = 0;
+    state = state & 0xff;
 
-    /*
-        Replace inline C-style comments by spaces. Other comments are
-        handled elsewhere.
-    */
-    k = 0;
-    while ((k = inlineCComment.indexIn(trimmed, k)) != -1) {
-        for (int i = 0; i < inlineCComment.matchedLength(); i++)
-            eraseChar(trimmed, k + i, QLatin1Char(' '));
-        k += inlineCComment.matchedLength();
-    }
+    yyLinizerState.tokens = scanner(t, state);
+    QString trimmed;
+    int previousTokenEnd = 0;
+    foreach (const QScriptIncrementalScanner::Token &token, yyLinizerState.tokens) {
+        trimmed.append(t.midRef(previousTokenEnd, token.begin() - previousTokenEnd));
 
-    /*
-        Replace goto and switch labels by whitespace, but be careful
-        with this case:
+        if (token.is(QScriptIncrementalScanner::Token::String)) {
+            for (int i = 0; i < token.length; ++i)
+                trimmed.append(QLatin1Char('X'));
 
-        foo1: bar1;
-        bar2;
-    */
+        } else if (token.is(QScriptIncrementalScanner::Token::Comment)) {
+                for (int i = 0; i < token.length; ++i)
+                    trimmed.append(QLatin1Char(' '));
 
-    bool insertSemicolon = false;
-    while (trimmed.lastIndexOf(QLatin1Char(':')) != -1 && label.indexIn(trimmed) != -1) {
-        insertSemicolon = true;
-
-        const QString cap1 = label.cap(1);
-        int pos1 = label.pos(1);
-        int stop = cap1.length();
-
-        if (pos1 + stop < trimmed.length() && ppIndentSize < stop)
-            stop = ppIndentSize;
-
-        int i = 0;
-        while (i < stop) {
-            eraseChar(trimmed, pos1 + i, QLatin1Char(';'));
-            i++;
+        } else {
+            trimmed.append(t.midRef(token.offset, token.length));
         }
-        while (i < cap1.length()) {
-            eraseChar(trimmed, pos1 + i, QLatin1Char(';'));
-            i++;
+
+        previousTokenEnd = token.end();
+    }
+
+    int index = yyLinizerState.tokens.size() - 1;
+    for (; index != -1; --index) {
+        const QScriptIncrementalScanner::Token &token = yyLinizerState.tokens.at(index);
+        if (token.isNot(QScriptIncrementalScanner::Token::Comment))
+            break;
+    }
+
+    bool isBinding = false;
+    foreach (const QScriptIncrementalScanner::Token &token, yyLinizerState.tokens) {
+        if (token.is(QScriptIncrementalScanner::Token::Colon)) {
+            isBinding = true;
+            break;
         }
     }
 
-    /*
-        Remove C++-style comments.
-    */
-    k = trimmed.indexOf(QRegExp(QLatin1String("\\s*//")));
-    if (k != -1)
-        trimmed.truncate(k);
+    if (index != -1) {
+        const QScriptIncrementalScanner::Token &last = yyLinizerState.tokens.at(index);
 
-    if (! insertSemicolon && ! trimmed.isEmpty()) {
-        const QChar ch = trimmed.at(trimmed.length() - 1);
+        switch (last.kind) {
+        case QScriptIncrementalScanner::Token::LeftParenthesis:
+        case QScriptIncrementalScanner::Token::LeftBrace:
+        case QScriptIncrementalScanner::Token::Semicolon:
+        case QScriptIncrementalScanner::Token::Operator:
+            break;
 
-        switch (ch.unicode()) {
-        case ',':
-        case ']':
-        case '"':
-        case '\'':
-        case '_':
-            insertSemicolon = true;
+        case QScriptIncrementalScanner::Token::RightParenthesis:
+        case QScriptIncrementalScanner::Token::RightBrace:
+            if (isBinding)
+                trimmed.append(QLatin1Char(';'));
+            break;
+
+        case QScriptIncrementalScanner::Token::Colon:
+        case QScriptIncrementalScanner::Token::LeftBracket:
+        case QScriptIncrementalScanner::Token::RightBracket:
+            trimmed.append(QLatin1Char(';'));
+            break;
+
+        case QScriptIncrementalScanner::Token::Identifier:
+        case QScriptIncrementalScanner::Token::Keyword:
+            if (t.midRef(last.offset, last.length) != QLatin1String("else"))
+                trimmed.append(QLatin1Char(';'));
             break;
 
         default:
-            if (ch.isLetterOrNumber()) {
-                if (! trimmed.endsWith(QLatin1String("else")))
-                    insertSemicolon = true;
-            } else if (trimmed.indexOf(propertylikeKeyword) != -1)
-                insertSemicolon = true;
-
+            trimmed.append(QLatin1Char(';'));
             break;
-        }
+        } // end of switch
     }
-
-    if (insertSemicolon)
-        trimmed.append(QLatin1Char(';'));
 
     return trimmed;
 }
@@ -369,7 +350,7 @@ bool QScriptIndenter::readLine()
             the first if. The order of the if's is also important.
         */
 
-        if (yyLinizerState.inCComment) {
+        if (yyLinizerState.inComment) {
             const QLatin1String slashAster("/*");
 
             k = yyLinizerState.line.indexOf(slashAster);
@@ -377,18 +358,18 @@ bool QScriptIndenter::readLine()
                 yyLinizerState.line.clear();
             } else {
                 yyLinizerState.line.truncate(k);
-                yyLinizerState.inCComment = false;
+                yyLinizerState.inComment = false;
             }
         }
 
-        if (!yyLinizerState.inCComment) {
+        if (!yyLinizerState.inComment) {
             const QLatin1String asterSlash("*/");
 
             k = yyLinizerState.line.indexOf(asterSlash);
             if (k != -1) {
                 for (int i = 0; i < k + 2; i++)
                     eraseChar(yyLinizerState.line, i, QLatin1Char(' '));
-                yyLinizerState.inCComment = true;
+                yyLinizerState.inComment = true;
             }
         }
 
@@ -451,7 +432,7 @@ bool QScriptIndenter::readLine()
 void QScriptIndenter::startLinizer()
 {
     yyLinizerState.braceDepth = 0;
-    yyLinizerState.inCComment = false;
+    yyLinizerState.inComment = false;
     yyLinizerState.pendingRightBrace = false;
 
     yyLine = &yyLinizerState.line;
@@ -648,12 +629,12 @@ bool QScriptIndenter::isUnfinishedLine()
         return false;
 
     QChar lastCh = yyLine->at(yyLine->length() - 1);
-    if (QString::fromLatin1("{};").indexOf(lastCh) == -1 && !yyLine->endsWith("...")) {
+    if (QString::fromLatin1("{};").indexOf(lastCh) == -1) {
         /*
-          It doesn't end with ';' or similar. If it's neither
-          "Q_OBJECT" nor "if (x)", it must be an unfinished line.
+          It doesn't end with ';' or similar. If it's not an "if (x)", it must be an unfinished line.
         */
         unf = ! matchBracelessControlStatement();
+
         if (unf && lastCh == QLatin1Char(')'))
             unf = false;
 
