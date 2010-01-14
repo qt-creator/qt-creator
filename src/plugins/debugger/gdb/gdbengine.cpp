@@ -771,8 +771,12 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
                 if (cmd.flags & LosesChild)
                     setState(InferiorStopping_Kill);
                 debugMessage(_("CHILD ALREADY BEING INTERRUPTED"));
+                // FIXME
+                shutdown();
             } else if (state() == InferiorStopping_Kill) {
                 debugMessage(_("CHILD ALREADY BEING INTERRUPTED (KILL PENDING)"));
+                // FIXME
+                shutdown();
             } else if (state() == InferiorRunningRequested) {
                 if (cmd.flags & LosesChild)
                     setState(InferiorRunningRequested_Kill);
