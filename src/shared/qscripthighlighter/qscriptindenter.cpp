@@ -226,8 +226,10 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t)
             int e = token.length;
 
             if (token.offset > 0 || startState == 0) {
-                trimmed.append(QLatin1String("/*"));
-                i += 2;
+                if (token.length >= 2 && t.midRef(token.offset, 2) == QLatin1String("/*")) {
+                    trimmed.append(QLatin1String("/*"));
+                    i += 2;
+                }
             }
 
             bool needEndOfComment = false;
