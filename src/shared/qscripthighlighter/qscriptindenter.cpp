@@ -487,24 +487,36 @@ bool QScriptIndenter::bottomLineStartsInMultilineComment()
 */
 int QScriptIndenter::indentWhenBottomLineStartsInMultiLineComment()
 {
-    int k = yyLine->lastIndexOf(QLatin1String("/*"));
+    QTextBlock block = yyProgram.lastBlock().previous();
+    QString blockText;
+
+    for (; block.isValid(); block = block.previous()) {
+        blockText = block.text();
+
+        if (! isOnlyWhiteSpace(blockText))
+            break;
+    }
+
+    const QString codeLine = trimmedCodeLine(blockText);
+
+    int k = codeLine.lastIndexOf(QLatin1String("/*"));
     if (k == -1) {
         /*
           We found a normal text line in a comment. Align the
           bottom line with the text on this line.
         */
-        return indentOfLine(*yyLine);
+        return indentOfLine(codeLine);
     } else {
         /*
           The C-style comment starts on this line. If there is
           text on the same line, align with it. Otherwise, align
           with the slash-aster plus a given offset.
         */
-        int indent = columnForIndex(*yyLine, k);
+        int indent = columnForIndex(codeLine, k);
         k += 2;
         while (k < yyLine->length()) {
-            if (!yyLine->at(k).isSpace())
-                return columnForIndex(*yyLine, k);
+            if (!codeLine.at(k).isSpace())
+                return columnForIndex(codeLine, k);
             k++;
         }
         return indent + ppCommentOffset;
