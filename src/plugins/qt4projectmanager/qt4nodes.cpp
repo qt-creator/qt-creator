@@ -699,10 +699,9 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
                     ProItem *item = values.at(i);
                     if (item->kind() == ProItem::ValueKind) {
                         ProValue *val = static_cast<ProValue *>(item);
-                        int index = relativeFilePaths.indexOf(val->value());
-                        if (index != -1) {
+                        if (relativeFilePaths.contains(val->value())) {
+                            notChanged->removeOne(priFileDir.absoluteFilePath(val->value()));
                             delete values.takeAt(i);
-                            notChanged->removeAt(index);
                         }
                     }
                 }
