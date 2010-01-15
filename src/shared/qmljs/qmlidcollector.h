@@ -27,44 +27,48 @@
 **
 **************************************************************************/
 
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef QMLIDCOLLECTOR_H
+#define QMLIDCOLLECTOR_H
 
-#include <qml/qml_global.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/qmldocument.h>
+#include <qmljs/qmlsymbol.h>
 
+#include <QMap>
+#include <QPair>
+#include <QStack>
 #include <QString>
 
 namespace Qml {
+namespace Internal {
 
-class QML_EXPORT Exception
+class QML_EXPORT QmlIdCollector: protected QmlJS::AST::Visitor
 {
 public:
-    Exception(int line,
-              const QString &function,
-              const QString &file);
-    virtual ~Exception();
+    QMap<QString, Qml::QmlIdSymbol*> operator()(Qml::QmlDocument &doc);
 
-    virtual QString type() const=0;
-    virtual QString description() const;
+    QList<QmlJS::DiagnosticMessage> diagnosticMessages()
+    { return _diagnosticMessages; }
 
-    int line() const;
-    QString function() const;
-    QString file() const;
-    QString backTrace() const;
-
-    static void setShouldAssert(bool assert);
-    static bool shouldAssert();
+protected:
+    virtual bool visit(QmlJS::AST::UiArrayBinding *ast);
+    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
+    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
+    virtual bool visit(QmlJS::AST::UiScriptBinding *ast);
 
 private:
-    int m_line;
-    QString m_function;
-    QString m_file;
-    QString m_backTrace;
-    static bool s_shouldAssert;
+    Qml::QmlSymbolFromFile *switchSymbol(QmlJS::AST::UiObjectMember *node);
+    void addId(const QString &id, QmlJS::AST::UiScriptBinding *ast);
+
+private:
+    Qml::QmlDocument *_doc;
+    QMap<QString, Qml::QmlIdSymbol*> _ids;
+    Qml::QmlSymbolFromFile *_currentSymbol;
+    QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
 };
 
-QML_EXPORT QDebug operator<<(QDebug debug, const Exception &exception);
-
+} // namespace Internal
 } // namespace Qml
 
-#endif // EXCEPTION_H
+#endif // QMLIDCOLLECTOR_H

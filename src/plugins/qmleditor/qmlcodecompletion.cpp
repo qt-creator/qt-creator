@@ -34,7 +34,7 @@
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
 
-#include <qml/qmlsymbol.h>
+#include <qmljs/qmlsymbol.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QtDebug>

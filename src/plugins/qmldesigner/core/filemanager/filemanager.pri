@@ -1,6 +1,4 @@
-SOURCES += $$PWD/qmldocument.cpp \
-    $$PWD/idcollector.cpp \
-    $$PWD/qmlsymbol.cpp \
+SOURCES += \
     $$PWD/qmlrewriter.cpp \
     $$PWD/qmlrefactoring.cpp \
     $$PWD/changeobjecttypevisitor.cpp  \
@@ -12,15 +10,11 @@ SOURCES += $$PWD/qmldocument.cpp \
     $$PWD/addobjectvisitor.cpp \
     $$PWD/addarraymembervisitor.cpp \
     $$PWD/astobjecttextextractor.cpp \
-    $$PWD/indenter.cpp \
-    $$PWD/changeset.cpp \
     $$PWD/objectlengthcalculator.cpp \
     $$PWD/firstdefinitionfinder.cpp \
     $$PWD/moveobjectbeforeobjectvisitor.cpp
-HEADERS += $$PWD/qmldocument.h \
-    $$PWD/idcollector.h \
+HEADERS += \
     $$PWD/qmleditor_global.h \
-    $$PWD/qmlsymbol.h \
     $$PWD/qmlrewriter.h \
     $$PWD/qmlrefactoring.h \
     $$PWD/changeobjecttypevisitor.h  \
@@ -32,9 +26,6 @@ HEADERS += $$PWD/qmldocument.h \
     $$PWD/addobjectvisitor.h \
     $$PWD/addarraymembervisitor.h \
     $$PWD/astobjecttextextractor.h \
-    $$PWD/indenter.h \
-    $$PWD/changeset.h \
-    $$PWD/utils_global.h \
     $$PWD/objectlengthcalculator.h \
     $$PWD/firstdefinitionfinder.h \
     $$PWD/moveobjectbeforeobjectvisitor.h

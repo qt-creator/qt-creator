@@ -23,6 +23,12 @@ SOURCES += \
     application.cpp \
     welcomescreen.cpp
 
+include(../../../shared/qmljs/qmljs.pri)
+HEADERS+=../../../libs/utils/changeset.h
+SOURCES+=../../../libs/utils/changeset.cpp
+INCLUDEPATH+=../../../libs
+DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
+
 include(../../../plugins/qmldesigner/config.pri)
 include(../../../plugins/qmldesigner/components/integration/integration.pri)
 include(../../../plugins/qmldesigner/components/propertyeditor/propertyeditor.pri)

@@ -27,9 +27,10 @@
 **
 **************************************************************************/
 
-#include "qmljsast_p.h"
-#include "qmljsengine_p.h"
 #include "qmlsymbol.h"
+
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
 
 using namespace Qml;
 using namespace QmlJS;

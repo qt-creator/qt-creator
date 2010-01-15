@@ -30,10 +30,10 @@
 #ifndef ASTOBJECTTEXTEXTRACTOR_H
 #define ASTOBJECTTEXTEXTRACTOR_H
 
-#include <QtCore/QString>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmldocument.h>
 
-#include "qmldocument.h"
-#include "qmljsastvisitor_p.h"
+#include <QtCore/QString>
 
 namespace QmlDesigner {
 
@@ -49,7 +49,7 @@ protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
 
 private:
-    QmlDocument::Ptr m_document;
+    Qml::QmlDocument::Ptr m_document;
     quint32 m_location;
     QString m_text;
 };

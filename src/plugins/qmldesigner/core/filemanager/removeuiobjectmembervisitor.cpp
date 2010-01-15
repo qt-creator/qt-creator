@@ -27,11 +27,12 @@
 **
 **************************************************************************/
 
-#include <QDebug>
-#include <qmljsast_p.h>
-#include <qmljsengine_p.h>
-
 #include "removeuiobjectmembervisitor.h"
+
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
+
+#include <QDebug>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

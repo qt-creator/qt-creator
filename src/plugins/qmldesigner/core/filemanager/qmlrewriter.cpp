@@ -27,13 +27,13 @@
 **
 **************************************************************************/
 
+#include "qmlrewriter.h"
+
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
+
 #include <QDebug>
 #include <QTextBlock>
-
-#include <qmljsast_p.h>
-#include <qmljsengine_p.h>
-
-#include "qmlrewriter.h"
 
 #include <typeinfo>
 

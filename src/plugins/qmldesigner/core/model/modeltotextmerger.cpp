@@ -32,16 +32,19 @@
 #include "qmltextgenerator.h"
 #include "rewriteactioncompressor.h"
 #include "rewriterview.h"
-#include <filemanager/qmldocument.h>
-#include <QDebug>
+
+#include <qmljs/qmldocument.h>
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
 #include <textmodifier.h>
 
+#include <QDebug>
+
 #define INDENT_DEPTH 4
 #undef DUMP_REWRITE_ACTIONS
 
+using namespace Qml;
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 

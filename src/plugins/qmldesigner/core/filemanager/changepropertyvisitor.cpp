@@ -27,10 +27,10 @@
 **
 **************************************************************************/
 
-#include <qmljsast_p.h>
-#include <qmljsengine_p.h>
-
 #include "changepropertyvisitor.h"
+
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

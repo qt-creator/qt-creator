@@ -30,7 +30,7 @@
 #ifndef QMLEDITORW_H
 #define QMLEDITORW_H
 
-#include <qml/qmldocument.h>
+#include <qmljs/qmldocument.h>
 #include <qscripthighlighter/qscriptincrementalscanner.h>
 #include <texteditor/basetexteditor.h>
 

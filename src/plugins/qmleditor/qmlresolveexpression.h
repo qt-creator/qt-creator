@@ -32,8 +32,8 @@
 
 #include "qmllookupcontext.h"
 
-#include <qml/parser/qmljsastvisitor_p.h>
-#include <qml/qmlsymbol.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmlsymbol.h>
 
 namespace QmlEditor {
 namespace Internal {

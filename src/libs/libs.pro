@@ -8,7 +8,7 @@ SUBDIRS   = \
     utils \
     utils/process_stub.pro \
     cplusplus \
-    qml
+    qmljs
     
 SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
 !isEmpty(SUPPORT_QT_MAEMO) {

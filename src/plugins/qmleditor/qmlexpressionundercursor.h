@@ -31,9 +31,9 @@
 #define QMLEXPRESSIONUNDERCURSOR_H
 
 
-#include <qml/parser/qmljsastfwd_p.h>
-#include <qml/qmldocument.h>
-#include <qml/qmlsymbol.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
+#include <qmljs/qmldocument.h>
+#include <qmljs/qmlsymbol.h>
 
 #include <QStack>
 #include <QTextBlock>

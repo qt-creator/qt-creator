@@ -32,7 +32,7 @@
 
 #include "qmlmodelmanagerinterface.h"
 
-#include <qml/qmldocument.h>
+#include <qmljs/qmldocument.h>
 
 #include <QFuture>
 #include <QFutureSynchronizer>

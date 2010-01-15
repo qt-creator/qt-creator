@@ -27,48 +27,35 @@
 **
 **************************************************************************/
 
-#ifndef QTDECLARATIVEMETATYPEBACKEND_H
-#define QTDECLARATIVEMETATYPEBACKEND_H
+#ifndef QMLTYPESYSTEM_H
+#define QMLTYPESYSTEM_H
 
-#include <qml/metatype/QmlMetaTypeBackend.h>
-#include <qml/metatype/nodemetainfo.h>
-#include <qml/metatype/propertymetainfo.h>
+#include <qmljs/qml_global.h>
+#include <qmljs/qmlpackageinfo.h>
+#include <qmljs/qmlsymbol.h>
 
 #include <QtCore/QList>
+#include <QtCore/QObject>
 
 namespace Qml {
-namespace Internal {
 
-class QmlDeclarativeSymbol;
-class QmlDeclarativeObjectSymbol;
-class QmlDeclarativePropertySymbol;
+class QmlMetaTypeBackend;
 
-class QtDeclarativeMetaTypeBackend: public QmlMetaTypeBackend
+class QML_EXPORT QmlTypeSystem: public QObject
 {
-    friend class QmlDeclarativeSymbol;
-    friend class QmlDeclarativeObjectSymbol;
-    friend class QmlDeclarativePropertySymbol;
+    Q_OBJECT
 
 public:
-    QtDeclarativeMetaTypeBackend(QmlTypeSystem *typeSystem);
-    ~QtDeclarativeMetaTypeBackend();
+    QmlTypeSystem();
+    virtual ~QmlTypeSystem();
 
-    virtual QList<QmlSymbol *> availableTypes(const QString &package, int majorVersion, int minorVersion);
-    virtual QmlSymbol *resolve(const QString &typeName, const QList<PackageInfo> &packages);
-
-protected:
-    QList<QmlSymbol *> members(const Qml::NodeMetaInfo &metaInfo);
-    QList<QmlSymbol *> inheritedMembers(const Qml::NodeMetaInfo &metaInfo);
-    QmlDeclarativeSymbol *typeOf(const Qml::PropertyMetaInfo &metaInfo);
+    QList<QmlSymbol *> availableTypes(const QString &package, int majorVersion, int minorVersion);
+    QmlSymbol *resolve(const QString &typeName, const QList<PackageInfo> &packages);
 
 private:
-    QmlDeclarativeSymbol *getSymbol(const Qml::NodeMetaInfo &metaInfo);
-
-private:
-    QMap<QString, QmlDeclarativeSymbol*> m_symbols;
+    QList<QmlMetaTypeBackend *> backends;
 };
 
-} // namespace Internal
 } // namespace Qml
 
-#endif // QTDECLARATIVEMETATYPEBACKEND_H
+#endif // QMLTYPESYSTEM_H

@@ -31,7 +31,7 @@
 #define QMLTASKMANAGER_H
 
 #include <projectexplorer/taskwindow.h>
-#include <qml/qmldocument.h>
+#include <qmljs/qmldocument.h>
 
 #include <QtCore/QObject>
 

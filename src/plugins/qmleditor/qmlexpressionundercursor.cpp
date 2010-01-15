@@ -29,12 +29,12 @@
 
 #include "qmlexpressionundercursor.h"
 
-#include <qml/parser/qmljsast_p.h>
-#include <qml/parser/qmljsastvisitor_p.h>
-#include <qml/parser/qmljsengine_p.h>
-#include <qml/parser/qmljslexer_p.h>
-#include <qml/parser/qmljsnodepool_p.h>
-#include <qml/parser/qmljsparser_p.h>
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/parser/qmljslexer_p.h>
+#include <qmljs/parser/qmljsnodepool_p.h>
+#include <qmljs/parser/qmljsparser_p.h>
 
 #include <QDebug>
 

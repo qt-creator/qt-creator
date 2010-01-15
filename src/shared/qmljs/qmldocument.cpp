@@ -29,11 +29,11 @@
 
 #include "qmlidcollector.h"
 #include "qmldocument.h"
-#include "qmljsast_p.h"
-#include "qmljslexer_p.h"
-#include "qmljsparser_p.h"
-#include "qmljsnodepool_p.h"
-#include "qmljsastfwd_p.h"
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljslexer_p.h>
+#include <qmljs/parser/qmljsparser_p.h>
+#include <qmljs/parser/qmljsnodepool_p.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
 
 using namespace Qml;
 using namespace QmlJS;

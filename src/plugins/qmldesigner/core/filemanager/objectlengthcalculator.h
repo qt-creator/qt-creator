@@ -30,9 +30,8 @@
 #ifndef OBJECTLENGTHCALCULATOR_H
 #define OBJECTLENGTHCALCULATOR_H
 
-#include "qmldocument.h"
-
-#include <qmljsastvisitor_p.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmldocument.h>
 
 namespace QmlDesigner {
 
@@ -50,7 +49,7 @@ protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
 
 private:
-    QmlDocument::Ptr m_doc;
+    Qml::QmlDocument::Ptr m_doc;
     quint32 m_offset;
     quint32 m_length;
 };

@@ -27,24 +27,34 @@
 **
 **************************************************************************/
 
-#ifndef INVALIDMETAINFOEXCEPTION_H
-#define INVALIDMETAINFOEXCEPTION_H
+#ifndef QMLMETATYPEBACKEND_H
+#define QMLMETATYPEBACKEND_H
 
-#include "exception.h"
+#include <qmljs/qml_global.h>
+#include <qmljs/qmlpackageinfo.h>
+#include <qmljs/qmlsymbol.h>
 
 namespace Qml {
 
-class QML_EXPORT InvalidMetaInfoException : public Exception
+class QmlTypeSystem;
+
+class QML_EXPORT QmlMetaTypeBackend
 {
 public:
-    InvalidMetaInfoException(int line,
-                             const QString &function,
-                             const QString &file);
+    QmlMetaTypeBackend(QmlTypeSystem *typeSystem);
+    virtual ~QmlMetaTypeBackend() = 0;
 
-    QString type() const;
+    virtual QList<QmlSymbol *> availableTypes(const QString &package, int majorVersion, int minorVersion) = 0;
+    virtual QmlSymbol *resolve(const QString &typeName, const QList<PackageInfo> &packages) = 0;
 
+protected:
+    QmlTypeSystem *typeSystem() const
+    { return m_typeSystem; }
+
+private:
+    QmlTypeSystem *m_typeSystem;
 };
 
-}
+} // namespace Qml
 
-#endif // INVALIDMETAINFOEXCEPTION_H
+#endif // QMLMETATYPEBACKEND_H

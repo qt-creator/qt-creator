@@ -30,12 +30,12 @@
 #ifndef QMLREWRITER_H
 #define QMLREWRITER_H
 
+#include "textmodifier.h"
+
+#include <qmljs/parser/qmljsastvisitor_p.h>
+
 #include <QtCore/QStack>
 #include <QtCore/QString>
-
-#include <qmljsastvisitor_p.h>
-
-#include "textmodifier.h"
 
 namespace QmlDesigner {
 namespace Internal {

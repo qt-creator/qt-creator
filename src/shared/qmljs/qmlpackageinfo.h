@@ -30,7 +30,7 @@
 #ifndef PACKAGEINFO_H
 #define PACKAGEINFO_H
 
-#include <qml/qml_global.h>
+#include <qmljs/qml_global.h>
 
 #include <QtCore/QString>
 

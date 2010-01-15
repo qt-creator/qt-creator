@@ -36,8 +36,8 @@
 #include <QStringList>
 #include <QSharedPointer>
 
-#include <qml/qmldocument.h>
-#include <qml/metatype/qmltypesystem.h>
+#include <qmljs/qmldocument.h>
+#include <qmljs/qmltypesystem.h>
 
 
 namespace Qml {

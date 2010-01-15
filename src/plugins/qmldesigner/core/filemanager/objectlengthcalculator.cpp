@@ -29,9 +29,9 @@
 
 #include "objectlengthcalculator.h"
 
-#include <qmljsast_p.h>
+#include <qmljs/parser/qmljsast_p.h>
 
-using namespace QmlDesigner;
+using namespace Qml;
 using namespace QmlDesigner;
 using namespace QmlJS::AST;
 

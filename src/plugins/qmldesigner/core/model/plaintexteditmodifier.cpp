@@ -32,7 +32,7 @@
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QUndoStack>
 
-#include <filemanager/changeset.h>
+#include <utils/changeset.h>
 
 #include "plaintexteditmodifier.h"
 

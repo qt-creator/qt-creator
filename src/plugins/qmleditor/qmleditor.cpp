@@ -39,12 +39,12 @@
 
 #include <qscripthighlighter/qscriptindenter.h>
 
-#include <qml/metatype/qmltypesystem.h>
-#include <qml/parser/qmljsastvisitor_p.h>
-#include <qml/parser/qmljsast_p.h>
-#include <qml/parser/qmljsengine_p.h>
-#include <qml/qmldocument.h>
-#include <qml/qmlidcollector.h>
+#include <qmljs/qmltypesystem.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/qmldocument.h>
+#include <qmljs/qmlidcollector.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>

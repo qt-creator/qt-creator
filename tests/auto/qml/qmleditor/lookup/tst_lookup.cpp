@@ -3,8 +3,8 @@
 #include <QObject>
 #include <QFile>
 
-#include <qml/qmldocument.h>
-#include <qml/parser/qmljsast_p.h>
+#include <qmljs/qmldocument.h>
+#include <qmljs/parser/qmljsast_p.h>
 
 #include <qmllookupcontext.h>
 

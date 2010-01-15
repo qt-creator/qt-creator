@@ -30,7 +30,7 @@
 #ifndef QMLCODECOMPLETION_H
 #define QMLCODECOMPLETION_H
 
-#include <qml/metatype/qmltypesystem.h>
+#include <qmljs/qmltypesystem.h>
 #include <texteditor/icompletioncollector.h>
 
 namespace TextEditor {

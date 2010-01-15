@@ -30,43 +30,67 @@
 #ifndef QMLSYMBOL_H
 #define QMLSYMBOL_H
 
+#include <qmljs/parser/qmljsastfwd_p.h>
+#include <qmljs/qml_global.h>
+
+#include <QList>
 #include <QString>
 
-#include "qmljsastfwd_p.h"
+namespace Qml {
 
-namespace QmlDesigner {
-
-class QmlSymbol
+class QML_EXPORT QmlSymbol
 {
+public:
+    typedef QList<QmlSymbol *> List;
+
 public:
     virtual ~QmlSymbol() = 0;
 
-    bool isBuildInSymbol() const;
-    bool isSymbolFromFile() const;
-    bool isIdSymbol() const;
+    virtual const QString name() const = 0;
+    virtual const List members() = 0;
+    virtual bool isProperty() const = 0;
 
-    virtual class QmlBuildInSymbol const *asBuildInSymbol() const;
-    virtual class QmlSymbolFromFile const *asSymbolFromFile() const;
-    virtual class QmlIdSymbol const *asIdSymbol() const;
+    bool isBuildInSymbol();
+    bool isSymbolFromFile();
+    bool isIdSymbol();
+    bool isPropertyDefinitionSymbol();
+
+    virtual class QmlBuildInSymbol *asBuildInSymbol();
+    virtual class QmlSymbolFromFile *asSymbolFromFile();
+    virtual class QmlIdSymbol *asIdSymbol();
+    virtual class QmlPropertyDefinitionSymbol *asPropertyDefinitionSymbol();
 };
 
-class QmlBuildInSymbol: public QmlSymbol
+class QML_EXPORT QmlBuildInSymbol: public QmlSymbol
 {
 public:
-    virtual ~QmlBuildInSymbol();
+    virtual ~QmlBuildInSymbol() = 0;
 
-    virtual QmlBuildInSymbol const *asBuildInSymbol() const;
+    virtual QmlBuildInSymbol *asBuildInSymbol();
 
-private:
+    virtual QmlBuildInSymbol *type() const = 0;
+    using QmlSymbol::members;
+    virtual List members(bool includeBaseClassMembers) = 0;
 };
 
-class QmlSymbolFromFile: public QmlSymbol
+class QML_EXPORT QmlSymbolWithMembers: public QmlSymbol
+{
+public:
+    virtual ~QmlSymbolWithMembers() = 0;
+
+    virtual const List members();
+
+protected:
+    List _members;
+};
+
+class QML_EXPORT QmlSymbolFromFile: public QmlSymbolWithMembers
 {
 public:
     QmlSymbolFromFile(const QString &fileName, QmlJS::AST::UiObjectMember *node);
     virtual ~QmlSymbolFromFile();
 
-    virtual QmlSymbolFromFile const *asSymbolFromFile() const;
+    virtual QmlSymbolFromFile *asSymbolFromFile();
 
     QString fileName() const
     { return _fileName; }
@@ -77,45 +101,63 @@ public:
     QmlJS::AST::UiObjectMember *node() const
     { return _node; }
 
+    virtual const QString name() const;
+    virtual const List members();
+    virtual bool isProperty() const;
+    virtual QmlSymbolFromFile *findMember(QmlJS::AST::Node *memberNode);
+
+private:
+    void fillTodo(QmlJS::AST::UiObjectMemberList *members);
+
 private:
     QString _fileName;
     QmlJS::AST::UiObjectMember *_node;
+    QList<QmlJS::AST::Node*> todo;
 };
 
-class QmlIdSymbol: public QmlSymbolFromFile
+class QML_EXPORT QmlIdSymbol: public QmlSymbolFromFile
 {
 public:
-    QmlIdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *idNode, const QmlSymbolFromFile &parentNode);
+    QmlIdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *idNode, QmlSymbolFromFile *parentNode);
     virtual ~QmlIdSymbol();
 
-    QmlIdSymbol const *asIdSymbol() const;
+    QmlIdSymbol *asIdSymbol();
 
     virtual int line() const;
     virtual int column() const;
 
-    QmlSymbolFromFile const *parentNode() const
-    { return &_parentNode; }
+    QmlSymbolFromFile *parentNode() const
+    { return _parentNode; }
+
+    virtual const QString name() const
+    { return "id"; }
+
+    virtual const QString id() const;
 
 private:
     QmlJS::AST::UiScriptBinding *idNode() const;
 
 private:
-    QmlSymbolFromFile _parentNode;
+    QmlSymbolFromFile *_parentNode;
 };
 
-class QmlPropertyDefinitionSymbol: public QmlSymbolFromFile
+class QML_EXPORT QmlPropertyDefinitionSymbol: public QmlSymbolFromFile
 {
 public:
     QmlPropertyDefinitionSymbol(const QString &fileName, QmlJS::AST::UiPublicMember *propertyNode);
     virtual ~QmlPropertyDefinitionSymbol();
 
+    QmlPropertyDefinitionSymbol *asPropertyDefinitionSymbol();
+
     virtual int line() const;
     virtual int column() const;
+
+    virtual const QString name() const;
 
 private:
     QmlJS::AST::UiPublicMember *propertyNode() const;
 };
 
-} // namespace QmlDesigner
+} // namespace Qml
 
 #endif // QMLSYMBOL_H

@@ -27,13 +27,13 @@
 **
 **************************************************************************/
 
-#include <QtCore/QDebug>
-
-#include <qmljsast_p.h>
-#include <qmljsengine_p.h>
-
 #include "moveobjectvisitor.h"
 #include "textmodifier.h"
+
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
+
+#include <QtCore/QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

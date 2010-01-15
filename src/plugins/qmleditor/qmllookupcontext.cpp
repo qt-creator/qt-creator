@@ -31,9 +31,9 @@
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
 
-#include <qml/metatype/qmltypesystem.h>
-#include <qml/parser/qmljsast_p.h>
-#include <qml/parser/qmljsengine_p.h>
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/qmltypesystem.h>
 
 #include <QDebug>
 

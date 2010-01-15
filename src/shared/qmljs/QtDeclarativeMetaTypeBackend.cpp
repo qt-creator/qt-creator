@@ -27,7 +27,6 @@
 **
 **************************************************************************/
 
-#include "metainfo.h"
 #include "QtDeclarativeMetaTypeBackend.h"
 
 #include <QDebug>
@@ -59,17 +58,9 @@ class QmlDeclarativeObjectSymbol: public QmlDeclarativeSymbol
     QmlDeclarativeObjectSymbol &operator=(const QmlDeclarativeObjectSymbol &);
 
 public:
-    QmlDeclarativeObjectSymbol(const NodeMetaInfo &metaInfo, QtDeclarativeMetaTypeBackend* backend):
-            QmlDeclarativeSymbol(backend),
-            m_metaInfo(metaInfo),
-            m_membersToBeDone(true)
+    QmlDeclarativeObjectSymbol(QtDeclarativeMetaTypeBackend* backend):
+            QmlDeclarativeSymbol(backend)
     {
-        Q_ASSERT(metaInfo.isValid());
-
-        m_name = m_metaInfo.typeName();
-        const int slashIdx = m_name.indexOf('/');
-        if (slashIdx != -1)
-            m_name = m_name.mid(slashIdx + 1);
     }
 
     virtual ~QmlDeclarativeObjectSymbol()
@@ -83,19 +74,12 @@ public:
 
     virtual const List members()
     {
-        if (m_membersToBeDone)
-            initMembers();
-
         return m_members;
     }
 
     virtual List members(bool includeBaseClassMembers)
     {
         List result = members();
-
-        if (includeBaseClassMembers)
-            result.append(backend()->inheritedMembers(m_metaInfo));
-
         return result;
     }
 
@@ -103,11 +87,6 @@ public:
     { return false; }
 
 public:
-    static QString key(const NodeMetaInfo &metaInfo)
-    {
-        return key(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
-    }
-
     static QString key(const QString &typeNameWithPackage, int majorVersion, int minorVersion)
     {
         return QString(typeNameWithPackage)
@@ -129,17 +108,6 @@ public:
     }
 
 private:
-    void initMembers()
-    {
-        if (!m_membersToBeDone)
-            return;
-        m_membersToBeDone = false;
-
-        m_members = backend()->members(m_metaInfo);
-    }
-
-private:
-    NodeMetaInfo m_metaInfo;
     QString m_name;
 
     bool m_membersToBeDone;
@@ -152,9 +120,8 @@ class QmlDeclarativePropertySymbol: public QmlDeclarativeSymbol
     QmlDeclarativePropertySymbol &operator=(const QmlDeclarativePropertySymbol &);
 
 public:
-    QmlDeclarativePropertySymbol(const PropertyMetaInfo &metaInfo, QtDeclarativeMetaTypeBackend* backend):
-            QmlDeclarativeSymbol(backend),
-            m_metaInfo(metaInfo)
+    QmlDeclarativePropertySymbol(QtDeclarativeMetaTypeBackend* backend):
+            QmlDeclarativeSymbol(backend)
     {
     }
 
@@ -162,10 +129,10 @@ public:
     {}
 
     virtual const QString name() const
-    { return m_metaInfo.name(); }
+    { return QString(); }
 
     virtual QmlBuildInSymbol *type() const
-    { return backend()->typeOf(m_metaInfo); }
+    { return 0; }
 
     virtual const List members()
     {
@@ -181,7 +148,6 @@ public:
     { return true; }
 
 private:
-    PropertyMetaInfo m_metaInfo;
 };
     
 } // namespace Internal
@@ -193,25 +159,15 @@ using namespace Qml::Internal;
 QtDeclarativeMetaTypeBackend::QtDeclarativeMetaTypeBackend(QmlTypeSystem *typeSystem):
         QmlMetaTypeBackend(typeSystem)
 {
-    foreach (const NodeMetaInfo &metaInfo, MetaInfo::global().allTypes()) {
-        m_symbols.insert(QmlDeclarativeObjectSymbol::key(metaInfo), new QmlDeclarativeObjectSymbol(metaInfo, this));
-    }
 }
 
 QtDeclarativeMetaTypeBackend::~QtDeclarativeMetaTypeBackend()
 {
-    qDeleteAll(m_symbols.values());
 }
 
 QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::availableTypes(const QString &package, int majorVersion, int minorVersion)
 {
     QList<QmlSymbol *> result;
-    const QString prefix = package + QLatin1Char('/');
-
-    foreach (const NodeMetaInfo &metaInfo, MetaInfo::global().allTypes()) {
-        if (metaInfo.typeName().startsWith(prefix) && metaInfo.majorVersion() == majorVersion && metaInfo.minorVersion() == minorVersion)
-            result.append(getSymbol(metaInfo));
-    }
 
     return result;
 }
@@ -220,46 +176,6 @@ QmlSymbol *QtDeclarativeMetaTypeBackend::resolve(const QString &typeName, const 
 {
     QList<QmlSymbol *> result;
 
-    foreach (const PackageInfo &package, packages) {
-        if (QmlSymbol *symbol = m_symbols.value(QmlDeclarativeObjectSymbol::key(package.name(), typeName, package.majorVersion(), package.minorVersion()), 0))
-            return symbol;
-    }
 
     return 0;
-}
-
-QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::members(const NodeMetaInfo &metaInfo)
-{
-    QList<QmlSymbol *> result;
-
-    foreach (const PropertyMetaInfo &propertyInfo, metaInfo.properties(false).values()) {
-        result.append(new QmlDeclarativePropertySymbol(propertyInfo, this));
-    }
-
-    return result;
-}
-
-QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::inheritedMembers(const NodeMetaInfo &metaInfo)
-{
-    QList<QmlSymbol *> result;
-
-    foreach (const NodeMetaInfo &superNode, metaInfo.directSuperClasses()) {
-        result.append(getSymbol(superNode)->members(true));
-    }
-
-    return result;
-}
-
-QmlDeclarativeSymbol *QtDeclarativeMetaTypeBackend::typeOf(const PropertyMetaInfo &metaInfo)
-{
-    const QString key = QmlDeclarativeObjectSymbol::key(metaInfo.type(), metaInfo.typeMajorVersion(), metaInfo.typeMinorVersion());
-
-    return m_symbols.value(key, 0);
-}
-
-QmlDeclarativeSymbol *QtDeclarativeMetaTypeBackend::getSymbol(const NodeMetaInfo &metaInfo)
-{
-    const QString key = QmlDeclarativeObjectSymbol::key(metaInfo);
-
-    return m_symbols.value(key, 0);
 }

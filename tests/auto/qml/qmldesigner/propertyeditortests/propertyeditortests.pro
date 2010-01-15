@@ -6,6 +6,11 @@ QT += testlib \
     declarative
 DESTDIR = $$DESIGNER_BINARY_DIRECTORY
 include(../../../../../src/plugins/qmldesigner/core/core.pri)
+include(../../../../../src/shared/qmljs/qmljs.pri)
+HEADERS+=../../../../../src/libs/utils/changeset.h
+SOURCES+=../../../../../src/libs/utils/changeset.cpp
+INCLUDEPATH+=../../../../../src/libs
+DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB
 
 DEPENDPATH += ../../../../../src/plugins/qmldesigner/core/include
 DEPENDPATH += ..

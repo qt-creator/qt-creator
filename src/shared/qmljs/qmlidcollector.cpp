@@ -29,8 +29,9 @@
 
 #include <QDebug>
 
+#include <qmljs/parser/qmljsast_p.h>
+
 #include "qmlidcollector.h"
-#include "qmljsast_p.h"
 
 using namespace QmlJS;
 using namespace QmlJS::AST;

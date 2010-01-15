@@ -38,7 +38,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qml/qmlsymbol.h>
+#include <qmljs/qmlsymbol.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 

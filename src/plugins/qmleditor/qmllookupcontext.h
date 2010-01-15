@@ -30,10 +30,10 @@
 #ifndef QMLLOOKUPCONTEXT_H
 #define QMLLOOKUPCONTEXT_H
 
-#include <qml/metatype/qmltypesystem.h>
-#include <qml/parser/qmljsastvisitor_p.h>
-#include <qml/qmldocument.h>
-#include <qml/qmlsymbol.h>
+#include <qmljs/qmltypesystem.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmldocument.h>
+#include <qmljs/qmlsymbol.h>
 
 #include <QStack>
 
