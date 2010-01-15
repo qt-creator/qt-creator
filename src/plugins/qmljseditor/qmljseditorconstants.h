@@ -41,7 +41,8 @@ const char * const C_QMLJSEDITOR_ID = "QMLProjectManager.QMLJSEditor";
 const char * const C_QMLJSEDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", "QMLJS Editor");
 const char * const TASK_INDEX = "QmlJSEditor.TaskIndex";
 
-const char * const QMLJSEDITOR_MIMETYPE = "application/x-qml";
+const char * const QML_MIMETYPE = "application/x-qml";
+const char * const JS_MIMETYPE = "application/javascript";
 
 } // namespace Constants
 } // namespace QmlJSEditor

@@ -42,9 +42,12 @@ using namespace QmlJSEditor::Internal;
 using namespace QmlJSEditor::Constants;
 
 QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
-  : Core::IEditorFactory(parent),
-    m_mimeTypes(QLatin1String(QmlJSEditor::Constants::QMLJSEDITOR_MIMETYPE))
+  : Core::IEditorFactory(parent)
 {
+    m_mimeTypes
+            << QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
+            << QLatin1String(QmlJSEditor::Constants::JS_MIMETYPE)
+            ;
 }
 
 QmlJSEditorFactory::~QmlJSEditorFactory()

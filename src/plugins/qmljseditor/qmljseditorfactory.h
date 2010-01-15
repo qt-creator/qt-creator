@@ -59,7 +59,7 @@ public:
     Core::IEditor *createEditor(QWidget *parent);
 
 private:
-    const QStringList m_mimeTypes;
+    QStringList m_mimeTypes;
 };
 
 } // namespace Internal

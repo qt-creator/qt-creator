@@ -46,8 +46,9 @@
 #include <qmljs/qmldocument.h>
 #include <qmljs/qmlidcollector.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/basetextdocument.h>
@@ -59,6 +60,7 @@
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
 
+#include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
 
 #include <QtGui/QMenu>
@@ -317,7 +319,6 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     setMarksVisible(true);
     setCodeFoldingSupported(true);
     setCodeFoldingVisible(true);
-    setMimeType(QmlJSEditor::Constants::QMLJSEDITOR_MIMETYPE);
 
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
@@ -361,6 +362,13 @@ Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
 QString QmlJSEditorEditable::id() const
 {
     return QLatin1String(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+}
+
+bool QmlJSEditorEditable::open(const QString &fileName)
+{
+    bool b = TextEditor::BaseTextEditorEditable::open(fileName);
+    editor()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    return b;
 }
 
 QmlJSTextEditor::Context QmlJSEditorEditable::context() const

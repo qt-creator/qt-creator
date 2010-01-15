@@ -68,6 +68,7 @@ public:
     Core::IEditor *duplicate(QWidget *parent);
     QString id() const;
     bool isTemporary() const { return false; }
+    virtual bool open(const QString & fileName);
 
 private:
     QList<int> m_context;

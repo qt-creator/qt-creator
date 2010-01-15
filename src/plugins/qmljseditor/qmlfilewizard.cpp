@@ -46,7 +46,7 @@ Core::GeneratedFiles QmlFileWizard::generateFilesFromPath(const QString &path,
                                                           QString * /*errorMessage*/) const
 
 {
-    const QString mimeType = QLatin1String(Constants::QMLJSEDITOR_MIMETYPE);
+    const QString mimeType = QLatin1String(Constants::QML_MIMETYPE);
     const QString fileName = Core::BaseFileWizard::buildFileName(path, name, preferredSuffix(mimeType));
 
     Core::GeneratedFile file(fileName);
