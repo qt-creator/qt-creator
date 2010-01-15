@@ -3,7 +3,7 @@ CONFIG += qt warn_on console depend_includepath
 QT += testlib
 include(../../../../../src/shared/qmljs/qmljs.pri)
 DEFINES += QML_BUILD_STATIC_LIB
-EDITOR_DIR=../../../../../src/plugins/qmleditor
+EDITOR_DIR=../../../../../src/plugins/qmljseditor
 
 INCLUDEPATH += $$EDITOR_DIR
 

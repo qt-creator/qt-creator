@@ -41,7 +41,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/modemanager.h>
 
-#include <qmleditor/qmlmodelmanagerinterface.h>
+#include <qmljseditor/qmlmodelmanagerinterface.h>
 
 #include <utils/synchronousprocess.h>
 
@@ -71,7 +71,7 @@ using namespace ProjectExplorer;
 QmlProject::QmlProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlEditor::QmlModelManagerInterface>())
+      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJSEditor::QmlModelManagerInterface>())
 {
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();

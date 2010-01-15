@@ -1,4 +1,4 @@
-<plugin name="QmlProjectManager" version="1.3.80" compatVersion="1.3.80">
+<plugin name="QmlJSEditor" version="1.3.80" compatVersion="1.3.80">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -10,12 +10,11 @@ GNU Lesser General Public License Usage
 
 Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation.  Please review the following information to ensure the GNU Lesser General Public License version 2.1 requirements will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
     </license>
-    <description>Qml support</description>
+    <description>Editor for QML and JavaScript.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="ProjectExplorer" version="1.3.80"/>
+        <dependency name="Core" version="1.3.80"/>
         <dependency name="TextEditor" version="1.3.80"/>
-        <dependency name="QmlJSEditor" version="1.3.80"/>
         <dependency name="Help" version="1.3.80"/>
     </dependencyList>
 </plugin>

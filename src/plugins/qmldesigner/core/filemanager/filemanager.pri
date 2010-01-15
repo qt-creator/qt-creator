@@ -14,7 +14,6 @@ SOURCES += \
     $$PWD/firstdefinitionfinder.cpp \
     $$PWD/moveobjectbeforeobjectvisitor.cpp
 HEADERS += \
-    $$PWD/qmleditor_global.h \
     $$PWD/qmlrewriter.h \
     $$PWD/qmlrefactoring.h \
     $$PWD/changeobjecttypevisitor.h  \

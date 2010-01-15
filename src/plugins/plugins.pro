@@ -25,14 +25,13 @@ SUBDIRS   = plugin_coreplugin \
 #            plugin_helloworld \ # sample plugin
             plugin_help \
 #            plugin_regexp \ # don't know what to do with this
-            plugin_qtscripteditor \
             plugin_cpaster \
             plugin_cmakeprojectmanager \
             plugin_fakevim \
             plugin_designer \
             plugin_resourceeditor \
             plugin_genericprojectmanager \
-            plugin_qmleditor \
+            plugin_qmljseditor \
             plugin_qmlprojectmanager \
             plugin_mercurial \
             debugger/dumper.pro
@@ -154,10 +153,6 @@ plugin_resourceeditor.depends = plugin_coreplugin
 plugin_regexp.subdir = regexp
 plugin_regexp.depends = plugin_coreplugin
 
-plugin_qtscripteditor.subdir = qtscripteditor
-plugin_qtscripteditor.depends = plugin_texteditor
-plugin_qtscripteditor.depends += plugin_coreplugin
-
 plugin_cpaster.subdir = cpaster
 plugin_cpaster.depends = plugin_texteditor
 plugin_cpaster.depends += plugin_coreplugin
@@ -175,15 +170,15 @@ plugin_genericprojectmanager.depends += plugin_projectexplorer
 plugin_genericprojectmanager.depends += plugin_cpptools
 plugin_genericprojectmanager.depends += plugin_cppeditor
 
-plugin_qmleditor.subdir = qmleditor
-plugin_qmleditor.depends = plugin_texteditor
-plugin_qmleditor.depends += plugin_coreplugin
+plugin_qmljseditor.subdir = qmljseditor
+plugin_qmljseditor.depends = plugin_texteditor
+plugin_qmljseditor.depends += plugin_coreplugin
 
 plugin_qmlprojectmanager.subdir = qmlprojectmanager
 plugin_qmlprojectmanager.depends = plugin_texteditor
 plugin_qmlprojectmanager.depends += plugin_projectexplorer
 plugin_qmlprojectmanager.depends += plugin_help
-plugin_qmlprojectmanager.depends += plugin_qmleditor
+plugin_qmlprojectmanager.depends += plugin_qmljseditor
 
 plugin_qmldesigner.subdir = qmldesigner
 plugin_qmldesigner.depends = plugin_coreplugin

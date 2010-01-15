@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="application/x-qml">
-        <sub-class-of type="text/plain"/>
-        <comment>QML file</comment>
-        <glob pattern="*.qml"/>
-    </mime-type>
-</mime-info>

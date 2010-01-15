@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qmljseditor" >
+        <file>QmlJSEditor.mimetypes.xml</file>
+    </qresource>
+</RCC>

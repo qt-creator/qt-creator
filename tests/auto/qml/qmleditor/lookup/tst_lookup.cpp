@@ -11,8 +11,8 @@
 #include <typeinfo>
 
 using namespace Qml;
-using namespace QmlEditor;
-using namespace QmlEditor::Internal;
+using namespace QmlJSEditor;
+using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 

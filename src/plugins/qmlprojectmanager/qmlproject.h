@@ -42,7 +42,7 @@
 
 #include <QtCore/QDir>
 
-namespace QmlEditor {
+namespace QmlJSEditor {
 class QmlModelManagerInterface;
 }
 
@@ -194,7 +194,7 @@ private:
     QString m_filesFileName;
     Internal::QmlProjectFile *m_file;
     QString m_projectName;
-    QmlEditor::QmlModelManagerInterface *m_modelManager;
+    QmlJSEditor::QmlModelManagerInterface *m_modelManager;
 
     QStringList m_files;
 
