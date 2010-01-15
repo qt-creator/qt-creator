@@ -231,15 +231,15 @@ bool ScriptManagerPrivate::runScript(const QString &script, QString *errorMessag
     return !failed;
 }
 
-void ScriptManagerPrivate::ensureEngineInitialized()
+ScriptManager::QScriptEnginePtr ScriptManagerPrivate::ensureEngineInitialized()
 {
-    if (m_engine)
-        return;
-    m_engine = new QScriptEngine(this);
+    if (!m_engine.isNull())
+        return m_engine;
+    m_engine = QScriptEnginePtr(new QScriptEngine(this));
     // register QObjects that occur as properties
-    SharedTools::registerQObject<QMainWindow>(m_engine);
-    SharedTools::registerQObject<QStatusBar>(m_engine);
-    SharedTools::registerQObject<QSettings>(m_engine);
+    SharedTools::registerQObject<QMainWindow>(m_engine.data());
+    SharedTools::registerQObject<QStatusBar>(m_engine.data());
+    SharedTools::registerQObject<QSettings>(m_engine.data());
     // WB interfaces
 //    SharedTools::registerQObjectInterface<Core::MessageManager, MessageManagerPrototype>(m_engine);
 
@@ -248,17 +248,17 @@ void ScriptManagerPrivate::ensureEngineInitialized()
 //    SharedTools::registerQObjectInterface<Core::FileManager, FileManagerPrototype>(m_engine);
 
 //    SharedTools::registerQObjectInterface<Core::IEditor, EditorPrototype>(m_engine);
-    qScriptRegisterSequenceMetaType<QList<Core::IEditor *> >(m_engine);
+    qScriptRegisterSequenceMetaType<QList<Core::IEditor *> >(m_engine.data());
 
 //    SharedTools::registerQObjectInterface<Core::EditorGroup, EditorGroupPrototype>(m_engine);
-    qScriptRegisterSequenceMetaType<QList<Core::EditorGroup *> >(m_engine);
+    qScriptRegisterSequenceMetaType<QList<Core::EditorGroup *> >(m_engine.data());
 
-    SharedTools::registerQObjectInterface<Core::EditorManager, EditorManagerPrototype>(m_engine);
+    SharedTools::registerQObjectInterface<Core::EditorManager, EditorManagerPrototype>(m_engine.data());
 
 //    SharedTools::registerQObjectInterface<Core::ICore, CorePrototype>(m_engine);
 
     // Make "core" available
-    m_engine->globalObject().setProperty(QLatin1String("core"), qScriptValueFromValue(m_engine, Core::ICore::instance()));
+    m_engine->globalObject().setProperty(QLatin1String("core"), qScriptValueFromValue(m_engine.data(), Core::ICore::instance()));
 
     // CLASSIC:  registerInterfaceWithDefaultPrototype<Core::MessageManager, MessageManagerPrototype>(m_engine);
 
@@ -284,9 +284,10 @@ void ScriptManagerPrivate::ensureEngineInitialized()
     m_engine->globalObject().setProperty(QLatin1String("getOpenFileName"), m_engine->newFunction(fileBox<QFileDialog::AcceptOpen, QFileDialog::ExistingFile> , 2));
     m_engine->globalObject().setProperty(QLatin1String("getSaveFileName"), m_engine->newFunction(fileBox<QFileDialog::AcceptSave, QFileDialog::AnyFile> , 2));
     m_engine->globalObject().setProperty(QLatin1String("getExistingDirectory"), m_engine->newFunction(fileBox<QFileDialog::AcceptSave, QFileDialog::DirectoryOnly> , 2));
+    return m_engine;
 }
 
-QString ScriptManagerPrivate::engineError(QScriptEngine *scriptEngine)
+QString ScriptManagerPrivate::engineError(const QScriptEnginePtr &scriptEngine)
 {
     QScriptValue error = scriptEngine->evaluate(QLatin1String("Error"));
     if (error.isValid())

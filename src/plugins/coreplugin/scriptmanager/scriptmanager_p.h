@@ -47,13 +47,14 @@ public:
 
     bool runScript(const QString &script, QString *errorMessage, Stack *stack);
     bool runScript(const QString &script, QString *errorMessage);
+    virtual QScriptEnginePtr scriptEngine() { return ensureEngineInitialized(); }
 
-    static QString engineError(QScriptEngine *scriptEngine);
+    static QString engineError(const QScriptEnginePtr &scriptEngine);
 
 private:
-    void ensureEngineInitialized();
+    QScriptEnginePtr ensureEngineInitialized();
 
-    QScriptEngine *m_engine;
+    QScriptEnginePtr m_engine;
 };
 
 } // namespace Internal

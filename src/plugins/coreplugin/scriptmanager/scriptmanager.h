@@ -34,7 +34,11 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtScript/QScriptEngine>
+#include <QtCore/QSharedPointer>
+
+QT_BEGIN_NAMESPACE
+class QScriptEngine;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -47,6 +51,8 @@ class CORE_EXPORT ScriptManager : public QObject
 {
     Q_OBJECT
 public:
+    typedef QSharedPointer<QScriptEngine> QScriptEnginePtr;
+
     // A stack frame as returned by a failed invocation (exception)
     // fileName may be empty. lineNumber can be 0 for the top frame (goof-up?).
     struct StackFrame {
@@ -62,6 +68,8 @@ public:
     // Run a script
     virtual bool runScript(const QString &script, QString *errorMessage, Stack *errorStack) = 0;
     virtual bool runScript(const QString &script, QString *errorMessage) = 0;
+
+    virtual QScriptEnginePtr scriptEngine() = 0;
 };
 
 } // namespace Core

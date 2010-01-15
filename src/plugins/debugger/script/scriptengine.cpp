@@ -45,6 +45,8 @@
 
 #include <texteditor/itexteditor.h>
 #include <coreplugin/ifile.h>
+#include <coreplugin/scriptmanager/scriptmanager.h>
+#include <coreplugin/icore.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDebug>
@@ -64,7 +66,7 @@
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptValueIterator>
 
-//#define DEBUG_SCRIPT 1
+// #define DEBUG_SCRIPT 1
 #if DEBUG_SCRIPT
 #   define SDEBUG(s) qDebug() << s
 #else
@@ -124,7 +126,10 @@ void ScriptAgent::exceptionCatch(qint64 scriptId, const QScriptValue & exception
 {
     Q_UNUSED(scriptId)
     Q_UNUSED(exception)
-    SDEBUG("ScriptAgent::exceptionCatch: " << scriptId << &exception);
+    const QString msg = QString::fromLatin1("An exception was caught on %1: '%2'").
+                        arg(scriptId).arg(exception.toString());
+    SDEBUG(msg);
+    q->showDebuggerOutput(LogMisc, msg);
 }
 
 void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
@@ -133,21 +138,26 @@ void ScriptAgent::exceptionThrow(qint64 scriptId, const QScriptValue &exception,
     Q_UNUSED(scriptId)
     Q_UNUSED(exception)
     Q_UNUSED(hasHandler)
-    SDEBUG("ScriptAgent::exceptionThrow: " << scriptId << &exception
-        << hasHandler);
+    const QString msg = QString::fromLatin1("An exception occurred on %1: '%2'").
+                        arg(scriptId).arg(exception.toString());
+    SDEBUG(msg);
+    q->showDebuggerOutput(LogMisc, msg);
 }
 
 void ScriptAgent::functionEntry(qint64 scriptId)
 {
     Q_UNUSED(scriptId)
-    q->maybeBreakNow(true);
+    q->showDebuggerOutput(LogMisc, QString::fromLatin1("Function entry occurred on %1").arg(scriptId));
+    q->checkForBreakCondition(true);
 }
 
 void ScriptAgent::functionExit(qint64 scriptId, const QScriptValue &returnValue)
 {
     Q_UNUSED(scriptId)
     Q_UNUSED(returnValue)
-    SDEBUG("ScriptAgent::functionExit: " << scriptId << &returnValue);
+    const QString msg = QString::fromLatin1("Function exit occurred on %1: '%2'").arg(scriptId).arg(returnValue.toString());
+    SDEBUG(msg);
+    q->showDebuggerOutput(LogMisc, msg);
 }
 
 void ScriptAgent::positionChange(qint64 scriptId, int lineNumber, int columnNumber)
@@ -156,7 +166,7 @@ void ScriptAgent::positionChange(qint64 scriptId, int lineNumber, int columnNumb
     Q_UNUSED(scriptId)
     Q_UNUSED(lineNumber)
     Q_UNUSED(columnNumber)
-    q->maybeBreakNow(false);
+    q->checkForBreakCondition(false);
 }
 
 void ScriptAgent::scriptLoad(qint64 scriptId, const QString &program,
@@ -166,8 +176,7 @@ void ScriptAgent::scriptLoad(qint64 scriptId, const QString &program,
     Q_UNUSED(program)
     Q_UNUSED(fileName)
     Q_UNUSED(baseLineNumber)
-    SDEBUG("ScriptAgent::scriptLoad: " << program << fileName
-      << baseLineNumber);
+    q->showDebuggerOutput(LogMisc, QString::fromLatin1("Loaded: %1 id: %2").arg(fileName).arg(scriptId));
 }
 
 void ScriptAgent::scriptUnload(qint64 scriptId)
@@ -186,9 +195,6 @@ void ScriptAgent::scriptUnload(qint64 scriptId)
 ScriptEngine::ScriptEngine(DebuggerManager *manager)
     : IDebuggerEngine(manager)
 {
-    // created in startDebugger()
-    m_scriptEngine = 0;
-    m_scriptAgent = 0;
 }
 
 ScriptEngine::~ScriptEngine()
@@ -208,30 +214,45 @@ void ScriptEngine::shutdown()
 
 void ScriptEngine::exitDebugger()
 {
+    if (state() == DebuggerNotReady)
+        return;
     SDEBUG("ScriptEngine::exitDebugger()");
     m_stopped = false;
     m_stopOnNextLine = false;
-    m_scriptEngine->abortEvaluation();
-    manager()->notifyInferiorExited();
+    if (m_scriptEngine->isEvaluating())
+        m_scriptEngine->abortEvaluation();
+    setState(InferiorShuttingDown);
+    setState(InferiorShutDown);
+
+    setState(EngineShuttingDown);
+    m_scriptEngine->setAgent(0);
+    setState(DebuggerNotReady);
 }
 
 void ScriptEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 {
-    if (!m_scriptEngine)
-        m_scriptEngine = new QScriptEngine(this);
+    setState(AdapterStarting);
+    if (m_scriptEngine.isNull())
+        m_scriptEngine = Core::ICore::instance()->scriptManager()->scriptEngine();
     if (!m_scriptAgent)
-        m_scriptAgent = new ScriptAgent(this, m_scriptEngine);
-    m_scriptEngine->setAgent(m_scriptAgent);
+        m_scriptAgent.reset(new ScriptAgent(this, m_scriptEngine.data()));
+    m_scriptEngine->setAgent(m_scriptAgent.data());
+    /* Keep the gui alive (have the engine call processEvents() while the script
+     * is run in the foreground). */
     m_scriptEngine->setProcessEventsInterval(1 /*ms*/);
 
     m_stopped = false;
     m_stopOnNextLine = false;
     m_scriptEngine->abortEvaluation();
 
-    QFileInfo fi(sp->executable);
-    m_scriptFileName = fi.absoluteFilePath();
+    setState(AdapterStarted);
+    setState(InferiorStarting);
+
+    m_scriptFileName = QFileInfo (sp->executable).absoluteFilePath();
     QFile scriptFile(m_scriptFileName);
-    if (!scriptFile.open(QIODevice::ReadOnly)) {
+    if (!scriptFile.open(QIODevice::ReadOnly|QIODevice::Text)) {
+        manager()->showDebuggerOutput(LogError, QString::fromLatin1("Cannot open %1: %2").
+                                      arg(m_scriptFileName, scriptFile.errorString()));
         emit startFailed();
         return;
     }
@@ -241,6 +262,7 @@ void ScriptEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     attemptBreakpointSynchronization();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Running requested..."), 5000);
+    manager()->showDebuggerOutput(LogMisc, QLatin1String("Running: ") + m_scriptFileName);
     QTimer::singleShot(0, this, SLOT(runInferior()));
     emit startSuccessful();
 }
@@ -252,34 +274,28 @@ void ScriptEngine::continueInferior()
     m_stopOnNextLine = false;
 }
 
-void ScriptEngine::runInferior()
+static const char *qtExtensionsC[] = {
+    "qt.core", "qt.gui", "qt.xml", "qt.svg", "qt.network",
+    "qt.sql", "qt.opengl", "qt.webkit", "qt.xmlpatterns", "qt.uitools"
+};
+
+bool ScriptEngine::importExtensions()
 {
-    //QDir dir(QApplication::applicationDirPath());
-    //if (dir.dirName() == QLatin1String("debug") || dir.dirName() == QLatin1String("release"))
-    //    dir.cdUp();
-    //dir.cdUp();
-    //dir.cdUp();
+    SDEBUG("ScriptEngine::importExtensions()");
+    QStringList extensions;
+    const int extCount = sizeof(qtExtensionsC)/sizeof(const char *);
+    for (int  e = 0; e < extCount; e++)
+        extensions.append(QLatin1String(qtExtensionsC[e]));
+    if (m_scriptEngine->importedExtensions().contains(extensions.front()))
+        return true;
     QDir dir("/home/apoenitz/dev/qtscriptgenerator");
     if (!dir.cd("plugins")) {
         fprintf(stderr, "plugins folder does not exist -- did you build the bindings?\n");
-        return;
+        return false;
     }
     QStringList paths = qApp->libraryPaths();
     paths <<  dir.absolutePath();
     qApp->setLibraryPaths(paths);
-
-    SDEBUG("ScriptEngine::runInferior()");
-    QStringList extensions;
-    extensions << "qt.core"
-               << "qt.gui"
-               << "qt.xml"
-               << "qt.svg"
-               << "qt.network"
-               << "qt.sql"
-               << "qt.opengl"
-               << "qt.webkit"
-               << "qt.xmlpatterns"
-               << "qt.uitools";
     QStringList failExtensions;
     foreach (const QString &ext, extensions) {
         QScriptValue ret = m_scriptEngine->importExtension(ext);
@@ -302,8 +318,26 @@ void ScriptEngine::runInferior()
                      qPrintable(failExtensions.join(", ")), qPrintable(dir.absolutePath()));
         }
     }
+    return failExtensions.isEmpty();
+}
 
-    QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
+void ScriptEngine::runInferior()
+{
+    SDEBUG("ScriptEngine::runInferior()");
+    importExtensions();
+    setState(InferiorRunning);
+    const QScriptValue result = m_scriptEngine->evaluate(m_scriptContents, m_scriptFileName);
+    setState(InferiorStopping);
+    setState(InferiorStopped);
+    if (m_scriptEngine->hasUncaughtException()) {
+        QString msg = QString::fromLatin1("An exception occurred during execution at line: %1\n%2\n").
+                      arg(m_scriptEngine->uncaughtExceptionLineNumber()).arg(m_scriptEngine->uncaughtException().toString());
+        msg += m_scriptEngine->uncaughtExceptionBacktrace().join(QString(QLatin1Char('\n')));
+        showDebuggerOutput(LogMisc, msg);
+    } else {
+        showDebuggerOutput(LogMisc, QString::fromLatin1("Evaluation returns '%1'").arg(result.toString()));
+    }
+    exitDebugger();
 }
 
 void ScriptEngine::interruptInferior()
@@ -427,6 +461,7 @@ QList<Symbol> ScriptEngine::moduleSymbols(const QString & /*moduleName*/)
 //
 //////////////////////////////////////////////////////////////////////
 
+
 static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
@@ -521,44 +556,55 @@ void ScriptEngine::assignValueInDebugger(const QString &expression,
     updateLocals();
 }
 
-void ScriptEngine::maybeBreakNow(bool byFunction)
+static BreakpointData *findBreakPointByFunction(BreakHandler *handler,
+                                                const QString &functionName)
 {
-    QScriptContext *context = m_scriptEngine->currentContext();
-    QScriptContextInfo info(context);
+    const int count = handler->size();
+    for (int b = 0; b < count; b++) {
+        BreakpointData *data = handler->at(b);
+        if (data->funcName == functionName)
+            return data;
+    }
+    return 0;
+}
 
-    //
+static BreakpointData *findBreakPointByFileName(BreakHandler *handler,
+                                              int lineNumber,
+                                              const QString &fileName)
+{
+    const int count = handler->size();
+    for (int b = 0; b < count; b++) {
+        BreakpointData *data = handler->at(b);
+        if (lineNumber == data->lineNumber.toInt() && fileName == data->fileName)
+            return data;
+    }
+    return 0;
+}
+
+bool ScriptEngine::checkForBreakCondition(bool byFunction)
+{
+    const QScriptContext *context = m_scriptEngine->currentContext();
+    const QScriptContextInfo info(context);
+
     // Update breakpoints
-    //
-    QString functionName = info.functionName();
-    QString fileName = info.fileName();
-    int lineNumber = info.lineNumber();
-    if (byFunction)
-        lineNumber = info.functionStartLineNumber();
-
-    BreakHandler *handler = manager()->breakHandler();
-
+    const QString functionName = info.functionName();
+    const QString fileName = info.fileName();
+    const int lineNumber = byFunction? info.functionStartLineNumber() : info.lineNumber();
+    SDEBUG("checkForBreakCondition" << byFunction << functionName << lineNumber << fileName);
     if (m_stopOnNextLine) {
+        // Interrupt inferior
         m_stopOnNextLine = false;
     } else {
-        int index = 0;
-        for (; index != handler->size(); ++index) {
-            BreakpointData *data = handler->at(index);
-            if (byFunction) {
-                if (!functionName.isEmpty() && data->funcName == functionName)
-                    break;
-            } else {
-                if (info.lineNumber() == data->lineNumber.toInt()
-                        && fileName == data->fileName)
-                    break;
-            }
-        }
-
-        if (index == handler->size())
-            return;
+        if (byFunction && functionName.isEmpty())
+            return false;
+        BreakpointData *data = byFunction ?
+                               findBreakPointByFunction(manager()->breakHandler(), functionName) :
+                               findBreakPointByFileName(manager()->breakHandler(), lineNumber, fileName);
+        if (!data)
+            return false;
 
         // we just run into a breakpoint
         //SDEBUG("RESOLVING BREAKPOINT AT " << fileName << lineNumber);
-        BreakpointData *data = handler->at(index);
         data->bpLineNumber = QByteArray::number(lineNumber);
         data->bpFileName = fileName;
         data->bpFuncName = functionName;
@@ -567,15 +613,17 @@ void ScriptEngine::maybeBreakNow(bool byFunction)
         data->pending = false;
         data->updateMarker();
     }
-
+    setState(InferiorStopping);
     setState(InferiorStopped);
-    showStatusMessage(tr("Stopped."), 5000);
+    SDEBUG("Stopped at " << lineNumber << fileName);
+    showStatusMessage(tr("Stopped at %1:%2.").arg(fileName).arg(lineNumber), 5000);
 
     StackFrame frame;
     frame.file = fileName;      
     frame.line = lineNumber;
     manager()->gotoLocation(frame, true);
     updateLocals();
+    return true;
 }
 
 void ScriptEngine::updateLocals()
@@ -590,7 +638,7 @@ void ScriptEngine::updateLocals()
     QList<StackFrame> stackFrames;
     int i = 0;
     for (QScriptContext *c = context; c; c = c->parentContext(), ++i) {
-        QScriptContextInfo info(c);
+        const QScriptContextInfo info(c);
         StackFrame frame;
         frame.level = i;
         frame.file = info.fileName();
@@ -598,9 +646,8 @@ void ScriptEngine::updateLocals()
         frame.from = QString::number(info.functionStartLineNumber());
         frame.to = QString::number(info.functionEndLineNumber());
         frame.line = info.lineNumber();
-    
         if (frame.function.isEmpty())
-            frame.function = "<global scope>";
+            frame.function = QLatin1String("<global scope>");
         //frame.address = ...;
         stackFrames.append(frame);
     }
@@ -734,6 +781,11 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     }
 
     QTC_ASSERT(false, return);
+}
+
+void ScriptEngine::showDebuggerOutput(int channel, const QString &m)
+{
+    manager()->showDebuggerOutput(channel, m);
 }
 
 IDebuggerEngine *createScriptEngine(DebuggerManager *manager)

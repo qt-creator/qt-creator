@@ -38,6 +38,8 @@
 #include <QtCore/QPoint>
 #include <QtCore/QSet>
 #include <QtCore/QVariant>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -103,18 +105,22 @@ private:
     void reloadFullStack() {}
 
     bool supportsThreads() const { return true; }
-    void maybeBreakNow(bool byFunction);
+    bool checkForBreakCondition(bool byFunction);
     void updateWatchData(const WatchData &data);
     void updateLocals();
     void updateSubItem(const WatchData &data);
 
+    Q_SLOT void showDebuggerOutput(int channel, const QString &m);
+
 private:
     friend class ScriptAgent;
 
-    QScriptEngine *m_scriptEngine;
+    bool importExtensions();
+
+    QSharedPointer<QScriptEngine> m_scriptEngine;
     QString m_scriptContents;
     QString m_scriptFileName;
-    ScriptAgent *m_scriptAgent;
+    QScopedPointer<ScriptAgent> m_scriptAgent;
 
     bool m_stopped;
     bool m_stopOnNextLine;
