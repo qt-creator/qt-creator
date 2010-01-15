@@ -91,22 +91,43 @@ static inline QmlSymbol *resolveParent(const QStack<QmlSymbol*> &scopes)
 
 QmlSymbol *QmlLookupContext::resolve(const QString &name)
 {
-    // look at property definitions
-    if (!_scopes.isEmpty())
-        if (QmlSymbol *propertySymbol = resolveProperty(name, _scopes.top(), _doc->fileName()))
-            return propertySymbol;
+    // find element type names
+    if (QmlSymbol *type = resolveType(name))
+        return type;
+
+    // find ids
+    const QmlDocument::IdTable ids = _doc->ids();
+    if (ids.contains(name))
+        return ids[name];
 
     if (name == "parent") {
         return resolveParent(_scopes);
     }
 
-    // look at the ids.
-    const QmlDocument::IdTable ids = _doc->ids();
+    // find script methods
+    // ### TODO
 
-    if (ids.contains(name))
-        return ids[name];
-    else
-        return resolveType(name);
+    // find properties of the scope object
+    int scopeObjectIndex = findFirstQmlObjectScope(_scopes, _scopes.size() - 1);
+    if (scopeObjectIndex != -1)
+        if (QmlSymbol *propertySymbol = resolveProperty(name, _scopes.at(scopeObjectIndex), _doc->fileName()))
+            return propertySymbol;
+
+    // find properties of the component's root object
+    if (!_doc->symbols().isEmpty())
+        if (QmlSymbol *propertySymbol = resolveProperty(name, _doc->symbols()[0], _doc->fileName()))
+            return propertySymbol;
+
+    // component chain
+    // ### TODO: Might lead to ambiguity.
+
+    // context chain
+    // ### TODO: ?
+
+    // global object
+    // ### TODO
+
+    return 0;
 }
 
 QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fileName)
