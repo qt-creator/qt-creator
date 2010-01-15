@@ -41,8 +41,11 @@ class CORE_EXPORT IVersionControl : public QObject
 {
     Q_OBJECT
 public:
-    enum Operation { AddOperation, DeleteOperation, OpenOperation,
-                     CreateRepositoryOperation };
+    enum Operation {
+        AddOperation, DeleteOperation, OpenOperation,
+        CreateRepositoryOperation,
+        SnapshotOperations
+        };
 
     explicit IVersionControl(QObject *parent = 0) : QObject(parent) {}
     virtual ~IVersionControl() {}
@@ -98,9 +101,30 @@ public:
     virtual bool vcsDelete(const QString &filename) = 0;
 
     /*!
-     * Called to initialize the version control systemin a directory.
+     * Called to initialize the version control system in a directory.
      */
     virtual bool vcsCreateRepository(const QString &directory) = 0;
+
+    /*!
+     * Create a snapshot of the current state and return an identifier or
+     * an empty string in case of failure.
+     */
+    virtual QString vcsCreateSnapshot(const QString &topLevel) = 0;
+
+    /*!
+     * List snapshots.
+     */
+    virtual QStringList vcsSnapshots(const QString &topLevel) = 0;
+
+    /*!
+     * Restore a snapshot.
+     */
+    virtual bool vcsRestoreSnapshot(const QString &topLevel, const QString &name) = 0;
+
+    /*!
+     * Remove a snapshot.
+     */
+    virtual bool vcsRemoveSnapshot(const QString &topLevel, const QString &name) = 0;
 
 signals:
     void repositoryChanged(const QString &repository);

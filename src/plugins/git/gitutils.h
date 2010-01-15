@@ -27,46 +27,34 @@
 **
 **************************************************************************/
 
-#ifndef CVSCONTROL_H
-#define CVSCONTROL_H
+#ifndef GITUTILS_H
+#define GITUTILS_H
 
-#include <coreplugin/iversioncontrol.h>
+#include <QtCore/QString>
 
-namespace CVS {
+QT_BEGIN_NAMESPACE
+class QDebug;
+class QWidget;
+QT_END_NAMESPACE
+
+namespace Git {
 namespace Internal {
 
-class CVSPlugin;
+struct Stash {
+    void clear();
+    bool parseStashLine(const QString &l);
 
-// Just a proxy for CVSPlugin
-class CVSControl : public Core::IVersionControl
-{
-    Q_OBJECT
-public:
-    explicit CVSControl(CVSPlugin *plugin);
-    virtual QString displayName() const;
-
-    virtual bool managesDirectory(const QString &directory) const;
-    virtual QString findTopLevelForDirectory(const QString &directory) const;
-
-    virtual bool supportsOperation(Operation operation) const;
-    virtual bool vcsOpen(const QString &fileName);
-    virtual bool vcsAdd(const QString &fileName);
-    virtual bool vcsDelete(const QString &filename);
-    virtual bool vcsCreateRepository(const QString &directory);
-    virtual QString vcsCreateSnapshot(const QString &topLevel);
-    virtual QStringList vcsSnapshots(const QString &topLevel);
-    virtual bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
-    virtual bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
-
-    void emitRepositoryChanged(const QString &s);
-    void emitFilesChanged(const QStringList &l);
-
-private:
-    bool m_enabled;
-    CVSPlugin *m_plugin;
+    QString name;
+    QString branch;
+    QString message;
 };
 
-} // namespace Internal
-} // namespace CVS
+QDebug operator<<(QDebug d, const Stash &);
 
-#endif // CVSCONTROL_H
+// Make QInputDialog  play nicely
+bool inputText(QWidget *parent, const QString &title, const QString &prompt, QString *s);
+
+} // namespace Internal
+} // namespace Git
+
+#endif // GITUTILS_H

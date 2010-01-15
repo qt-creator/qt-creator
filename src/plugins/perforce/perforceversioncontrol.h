@@ -53,6 +53,10 @@ public:
     virtual bool vcsAdd(const QString &fileName);
     virtual bool vcsDelete(const QString &filename);
     virtual bool vcsCreateRepository(const QString &directory);
+    virtual QString vcsCreateSnapshot(const QString &topLevel);
+    virtual QStringList vcsSnapshots(const QString &topLevel);
+    virtual bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
+    virtual bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
 
     void emitRepositoryChanged(const QString &s);
     void emitFilesChanged(const QStringList &l);

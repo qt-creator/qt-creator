@@ -57,6 +57,10 @@ public:
     bool vcsAdd(const QString &filename);
     bool vcsDelete(const QString &filename);
     bool vcsCreateRepository(const QString &directory);
+    QString vcsCreateSnapshot(const QString &topLevel);
+    QStringList vcsSnapshots(const QString &topLevel);
+    bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
+    bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
     bool sccManaged(const QString &filename);
 
 public slots:

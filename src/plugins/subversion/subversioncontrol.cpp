@@ -55,6 +55,7 @@ bool SubversionControl::supportsOperation(Operation operation) const
         break;
     case OpenOperation:
     case CreateRepositoryOperation:
+    case SnapshotOperations:
         rc = false;
         break;
     }
@@ -80,6 +81,26 @@ bool SubversionControl::vcsDelete(const QString &fileName)
 }
 
 bool SubversionControl::vcsCreateRepository(const QString &)
+{
+    return false;
+}
+
+QString SubversionControl::vcsCreateSnapshot(const QString &)
+{
+    return QString();
+}
+
+QStringList SubversionControl::vcsSnapshots(const QString &)
+{
+    return QStringList();
+}
+
+bool SubversionControl::vcsRestoreSnapshot(const QString &, const QString &)
+{
+    return false;
+}
+
+bool SubversionControl::vcsRemoveSnapshot(const QString &, const QString &)
 {
     return false;
 }

@@ -68,6 +68,7 @@ bool MercurialControl::supportsOperation(Operation operation) const
     case Core::IVersionControl::CreateRepositoryOperation:
         break;
     case Core::IVersionControl::OpenOperation:
+    case Core::IVersionControl::SnapshotOperations:
         supported = false;
         break;
     }
@@ -95,6 +96,26 @@ bool MercurialControl::vcsDelete(const QString &filename)
 bool MercurialControl::vcsCreateRepository(const QString &directory)
 {
     return mercurialClient->createRepositorySync(directory);
+}
+
+QString MercurialControl::vcsCreateSnapshot(const QString &)
+{
+    return QString();
+}
+
+QStringList MercurialControl::vcsSnapshots(const QString &)
+{
+    return QStringList();
+}
+
+bool MercurialControl::vcsRestoreSnapshot(const QString &, const QString &)
+{
+    return false;
+}
+
+bool MercurialControl::vcsRemoveSnapshot(const QString &, const QString &)
+{
+    return false;
 }
 
 bool MercurialControl::sccManaged(const QString &filename)

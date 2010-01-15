@@ -34,7 +34,8 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QSharedDataPointer>
+#include <QtCore/QSharedDataPointer>
+#include <QtCore/QList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -149,6 +150,9 @@ public:
     const VCSBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
 
+    // For internal tests: Create actions driving IVersionControl's snapshot interface.
+    QList<QAction*> createSnapShotTestActions();
+
 public slots:
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VCSManager.
@@ -175,6 +179,10 @@ protected:
 private slots:
     void slotSubmitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const VCSBase::Internal::State &s, Core::IVersionControl *vc);
+    void slotTestSnapshot();
+    void slotTestListSnapshots();
+    void slotTestRestoreSnapshot();
+    void slotTestRemoveSnapshot();
 
 private:
     VCSBasePluginPrivate *d;

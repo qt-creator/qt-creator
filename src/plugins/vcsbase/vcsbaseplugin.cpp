@@ -30,6 +30,7 @@
 #include "vcsbaseplugin.h"
 #include "vcsbasesubmiteditor.h"
 #include "vcsplugin.h"
+#include "vcsbaseoutputwindow.h"
 #include "corelistener.h"
 
 #include <coreplugin/icore.h>
@@ -353,6 +354,11 @@ struct VCSBasePluginPrivate {
     Core::IVersionControl *m_versionControl;
     VCSBasePluginState m_state;
     int m_actionState;
+    QAction *m_testSnapshotAction;
+    QAction *m_testListSnapshotsAction;
+    QAction *m_testRestoreSnapshotAction;
+    QAction *m_testRemoveSnapshotAction;
+    QString m_testLastSnapshot;
 
     static Internal::StateListener *m_listener;
 };
@@ -360,7 +366,11 @@ struct VCSBasePluginPrivate {
 VCSBasePluginPrivate::VCSBasePluginPrivate(const QString &submitEditorId) :
     m_submitEditorId(submitEditorId),
     m_versionControl(0),
-    m_actionState(-1)
+    m_actionState(-1),
+    m_testSnapshotAction(0),
+    m_testListSnapshotsAction(0),
+    m_testRestoreSnapshotAction(0),
+    m_testRemoveSnapshotAction(0)
 {
 }
 
@@ -505,6 +515,62 @@ void VCSBasePlugin::createRepository()
         QMessageBox::warning(mw, tr("Repository creation failed"),
                                  tr("A version control repository could not be created in %1.").arg(directory));
     }
+}
+
+// For internal tests: Create actions driving IVersionControl's snapshot interface.
+QList<QAction*> VCSBasePlugin::createSnapShotTestActions()
+{
+    if (!d->m_testSnapshotAction) {
+        d->m_testSnapshotAction = new QAction(QLatin1String("Take snapshot"), this);
+        connect(d->m_testSnapshotAction, SIGNAL(triggered()), this, SLOT(slotTestSnapshot()));
+        d->m_testListSnapshotsAction = new QAction(QLatin1String("List snapshots"), this);
+        connect(d->m_testListSnapshotsAction, SIGNAL(triggered()), this, SLOT(slotTestListSnapshots()));
+        d->m_testRestoreSnapshotAction = new QAction(QLatin1String("Restore snapshot"), this);
+        connect(d->m_testRestoreSnapshotAction, SIGNAL(triggered()), this, SLOT(slotTestRestoreSnapshot()));
+        d->m_testRemoveSnapshotAction = new QAction(QLatin1String("Remove snapshot"), this);
+        connect(d->m_testRemoveSnapshotAction, SIGNAL(triggered()), this, SLOT(slotTestRemoveSnapshot()));
+    }
+    QList<QAction*> rc;
+    rc << d->m_testSnapshotAction << d->m_testListSnapshotsAction << d->m_testRestoreSnapshotAction
+       << d->m_testRemoveSnapshotAction;
+    return rc;
+}
+
+void VCSBasePlugin::slotTestSnapshot()
+{
+    QTC_ASSERT(currentState().hasTopLevel(), return)
+    d->m_testLastSnapshot = versionControl()->vcsCreateSnapshot(currentState().topLevel());
+    qDebug() << "Snapshot " << d->m_testLastSnapshot;
+    VCSBaseOutputWindow::instance()->append(QLatin1String("Snapshot: ") + d->m_testLastSnapshot);
+    if (!d->m_testLastSnapshot.isEmpty())
+        d->m_testRestoreSnapshotAction->setText(QLatin1String("Restore snapshot ") + d->m_testLastSnapshot);
+}
+
+void VCSBasePlugin::slotTestListSnapshots()
+{
+    QTC_ASSERT(currentState().hasTopLevel(), return)
+    const QStringList snapshots = versionControl()->vcsSnapshots(currentState().topLevel());
+    qDebug() << "Snapshots " << snapshots;
+    VCSBaseOutputWindow::instance()->append(QLatin1String("Snapshots: ") + snapshots.join(QLatin1String(", ")));
+}
+
+void VCSBasePlugin::slotTestRestoreSnapshot()
+{
+    QTC_ASSERT(currentState().hasTopLevel() && !d->m_testLastSnapshot.isEmpty(), return)
+    const bool ok = versionControl()->vcsRestoreSnapshot(currentState().topLevel(), d->m_testLastSnapshot);
+    const QString msg = d->m_testLastSnapshot+ (ok ? QLatin1String(" restored") : QLatin1String(" failed"));
+    qDebug() << msg;
+    VCSBaseOutputWindow::instance()->append(msg);
+}
+
+void VCSBasePlugin::slotTestRemoveSnapshot()
+{
+    QTC_ASSERT(currentState().hasTopLevel() && !d->m_testLastSnapshot.isEmpty(), return)
+    const bool ok = versionControl()->vcsRemoveSnapshot(currentState().topLevel(), d->m_testLastSnapshot);
+    const QString msg = d->m_testLastSnapshot+ (ok ? QLatin1String(" removed") : QLatin1String(" failed"));
+    qDebug() << msg;
+    VCSBaseOutputWindow::instance()->append(msg);
+    d->m_testLastSnapshot.clear();
 }
 
 } // namespace VCSBase
