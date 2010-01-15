@@ -222,27 +222,8 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t)
                 trimmed.append(QLatin1Char('X'));
 
         } else if (token.is(QScriptIncrementalScanner::Token::Comment)) {
-            int i = 0;
-            int e = token.length;
-
-            if (token.offset > 0 || startState == 0) {
-                if (token.length >= 2 && t.midRef(token.offset, 2) == QLatin1String("/*")) {
-                    trimmed.append(QLatin1String("/*"));
-                    i += 2;
-                }
-            }
-
-            bool needEndOfComment = false;
-            if (e > 2 && token.end() == t.length() && scanner.endState() != 0) {
-                needEndOfComment = true;
-                e -= 2;
-            }
-
-            for (; i < e; ++i)
+            for (int i = 0; i < token.length; ++i)
                 trimmed.append(QLatin1Char(' '));
-
-            if (needEndOfComment)
-                trimmed.append(QLatin1String("*/"));
 
         } else {
             trimmed.append(t.midRef(token.offset, token.length));
@@ -358,39 +339,6 @@ bool QScriptIndenter::readLine()
         yyLinizerState.line = trimmedCodeLine(yyLinizerState.line);
 
         /*
-            Remove C-style comments that span multiple lines. If the
-            bottom line starts in a C-style comment, we are not aware
-            of that and eventually yyLine will contain a slash-aster.
-
-            Notice that both if's can be executed, since
-            yyLinizerState.inCComment is potentially set to false in
-            the first if. The order of the if's is also important.
-        */
-
-        if (yyLinizerState.inComment) {
-            const QLatin1String slashAster("/*");
-
-            k = yyLinizerState.line.indexOf(slashAster);
-            if (k == -1) {
-                yyLinizerState.line.clear();
-            } else {
-                yyLinizerState.line.truncate(k);
-                yyLinizerState.inComment = false;
-            }
-        }
-
-        if (!yyLinizerState.inComment) {
-            const QLatin1String asterSlash("*/");
-
-            k = yyLinizerState.line.indexOf(asterSlash);
-            if (k != -1) {
-                for (int i = 0; i < k + 2; i++)
-                    eraseChar(yyLinizerState.line, i, QLatin1Char(' '));
-                yyLinizerState.inComment = true;
-            }
-        }
-
-        /*
             Remove preprocessor directives.
         */
         k = 0;
@@ -449,7 +397,6 @@ bool QScriptIndenter::readLine()
 void QScriptIndenter::startLinizer()
 {
     yyLinizerState.braceDepth = 0;
-    yyLinizerState.inComment = false;
     yyLinizerState.pendingRightBrace = false;
 
     yyLine = &yyLinizerState.line;
@@ -499,30 +446,7 @@ int QScriptIndenter::indentWhenBottomLineStartsInMultiLineComment()
             break;
     }
 
-    const QString codeLine = trimmedCodeLine(blockText);
-
-    int k = codeLine.lastIndexOf(QLatin1String("/*"));
-    if (k == -1) {
-        /*
-          We found a normal text line in a comment. Align the
-          bottom line with the text on this line.
-        */
-        return indentOfLine(codeLine);
-    } else {
-        /*
-          The C-style comment starts on this line. If there is
-          text on the same line, align with it. Otherwise, align
-          with the slash-aster plus a given offset.
-        */
-        int indent = columnForIndex(codeLine, k);
-        k += 2;
-        while (k < yyLine->length()) {
-            if (!codeLine.at(k).isSpace())
-                return columnForIndex(codeLine, k);
-            k++;
-        }
-        return indent + ppCommentOffset;
-    }
+    return indentOfLine(blockText);
 }
 
 /*

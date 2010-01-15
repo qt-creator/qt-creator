@@ -94,13 +94,11 @@ private:
         LinizerState()
             : braceDepth(0),
               leftBraceFollows(false),
-              inComment(false),
               pendingRightBrace(false)
         { }
 
         int braceDepth;
         bool leftBraceFollows;
-        bool inComment;
         bool pendingRightBrace;
         QString line;
         QList<QScriptIncrementalScanner::Token> tokens;
