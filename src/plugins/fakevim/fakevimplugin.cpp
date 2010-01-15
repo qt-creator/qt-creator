@@ -649,8 +649,10 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     if (!bt)
         return;
 
-    TextEditor::TabSettings tabSettings = 
-        TextEditor::TextEditorSettings::instance()->tabSettings();
+    TextEditor::TabSettings tabSettings;
+    tabSettings.m_indentSize = theFakeVimSetting(ConfigShiftWidth)->value().toInt();
+    tabSettings.m_tabSize = theFakeVimSetting(ConfigTabStop)->value().toInt();
+    tabSettings.m_spacesForTabs = theFakeVimSetting(ConfigExpandTab)->value().toBool();
     typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
     Indenter &indenter = Indenter::instance();
     indenter.setIndentSize(tabSettings.m_indentSize);
