@@ -2166,7 +2166,7 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     QSharedPointer<RunConfiguration> activeRun = m_project->activeRunConfiguration();
     foreach (BuildConfiguration *config, m_project->buildConfigurations()) {
         if (activeRun->isEnabled(config)) {
-            m_configCombo->addItem(config->name(), qVariantFromValue(config));
+            m_configCombo->addItem(config->displayName(), qVariantFromValue(config));
         }
     }
     if (m_configCombo->count() == 0) {
