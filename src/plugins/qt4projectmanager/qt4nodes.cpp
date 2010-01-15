@@ -646,7 +646,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     }
 
     const QStringList vars = varNames(fileType);
-    QDir priFileDir = QDir(m_projectDir);
+    QDir priFileDir = QDir(m_qt4ProFileNode->m_projectDir);
 
     if (change == AddToProFile) {
         ProVariable *proVar = 0;
