@@ -1659,7 +1659,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         // have to wait for the TRK startup to learn the load address.
         //m_engine->postCommand("add-symbol-file \"" + symbolFile + "\" "
         //    + QByteArray::number(m_session.codeseg));
-        m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
+        m_engine->postCommand("symbol-file \"" + m_symbolFile + "\"");
     }
     m_engine->postCommand(_("target remote ") + gdbServerName(),
         CB(handleTargetRemote));
