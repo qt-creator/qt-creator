@@ -1886,16 +1886,29 @@ def qdump__wstring(d, item):
 #
 #######################################################################
 
-def qdump__TBuf(d, item):
-    size = item.value["iLength"] & 0xffff
-    max = numericTemplateArgument(item.value.type, 0)
-    check(0 <= size and size <= max)
-    base = item.value["iBuf"]
+def encodeSymbianString(base, size):
     s = ""
     for i in xrange(size):
         val = int(base[i])
-        s += "%02x" % (val % 256)
-        s += "%02x" % (val / 256)
+        if val == 9:
+            s += "5c007400" # \t
+        else:
+            s += "%02x%02x" % (val % 256, val / 256)
+    return s
+
+def qdump__TBuf(d, item):
+    size = item.value["iLength"] & 0xffff
+    base = item.value["iBuf"]
+    max = numericTemplateArgument(item.value.type, 0)
+    check(0 <= size and size <= max)
     d.putNumChild(0)
-    d.putValue(s, "6")
+    d.putValue(encodeSymbianString(base, size), "7")
+
+def qdump__TLitC(d, item):
+    size = item.value["iTypeLength"] & 0xffff
+    base = item.value["iBuf"]
+    max = numericTemplateArgument(item.value.type, 0)
+    check(0 <= size and size <= max)
+    d.putNumChild(0)
+    d.putValue(encodeSymbianString(base, size), "7")
 
