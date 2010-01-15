@@ -282,7 +282,7 @@ void BreakWindow::deleteBreakpoints(QList<int> list)
     for (int i = list.size(); --i >= 0; )
         emit breakpointDeleted(list.at(i));
 
-    const int row = qMax(firstRow, model()->rowCount() - list.size() - 1);
+    const int row = qMin(firstRow, model()->rowCount() - 1);
     if (row >= 0)
         setCurrentIndex(model()->index(row, 0));
 }
