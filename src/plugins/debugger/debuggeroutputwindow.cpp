@@ -172,6 +172,7 @@ public:
         theDebuggerAction(ExecuteCommand)->setData(textCursor().block().text());
         menu->addAction(theDebuggerAction(ExecuteCommand));
         menu->addAction(theDebuggerAction(LogTimeStamps));
+        menu->addAction(theDebuggerAction(VerboseLog));
         menu->addSeparator();
         menu->addAction(theDebuggerAction(SettingsDialog));
         menu->exec(ev->globalPos());

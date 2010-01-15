@@ -77,6 +77,7 @@ enum DebuggerActionCode
     AutoQuit,
     LockView,
     LogTimeStamps,
+    VerboseLog,
     OperateByInstruction,
     AutoDerefPointers,
 

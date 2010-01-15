@@ -140,7 +140,8 @@ public:
     QString gdbServerName() const { return m_gdbServerName; }
     QString gdbServerIP() const;
     uint gdbServerPort() const;
-    void setVerbose(int verbose) { m_verbose = verbose; }
+    Q_SLOT void setVerbose(const QVariant &value);
+    void setVerbose(int verbose);
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
     trk::Session &session() { return m_session; }
 

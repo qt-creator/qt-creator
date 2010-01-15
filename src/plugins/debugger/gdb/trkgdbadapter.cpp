@@ -33,6 +33,7 @@
 #include "s60debuggerbluetoothstarter.h"
 #include "bluetoothlistener_gui.h"
 
+#include "debuggeractions.h"
 #include "debuggerstringutils.h"
 #ifndef STANDALONE_RUNNER
 #include "gdbengine.h"
@@ -212,14 +213,6 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_bufferedMemoryRead = false;
     m_bufferedMemoryRead = true;
 
-    const QByteArray trkVerbose = qgetenv("QTC_TRK_VERBOSE");
-    if (!trkVerbose.isEmpty()) {
-        bool ok;
-        m_verbose = trkVerbose.toInt(&ok);
-        if (!ok)
-            m_verbose = 1;
-    }
-
     m_gdbServer = 0;
     m_gdbConnection = 0;
     m_snapshot.reset();
@@ -235,17 +228,30 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     connect(m_trkDevice.data(), SIGNAL(error(QString)),
         this, SLOT(handleTrkError(QString)));
 
-    m_trkDevice->setVerbose(m_verbose);
+    setVerbose(theDebuggerBoolSetting(VerboseLog));
     m_trkDevice->setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
 
     connect(m_trkDevice.data(), SIGNAL(logMessage(QString)),
         this, SLOT(trkLogMessage(QString)));
+    connect(theDebuggerAction(VerboseLog), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(setVerbose(QVariant)));
 }
 
 TrkGdbAdapter::~TrkGdbAdapter()
 {
     cleanup();
     logMessage("Shutting down.\n");
+}
+
+void TrkGdbAdapter::setVerbose(const QVariant &value)
+{
+    setVerbose(value.toInt());
+}
+
+void TrkGdbAdapter::setVerbose(int verbose)
+{
+    m_verbose = verbose;
+    m_trkDevice->setVerbose(m_verbose);
 }
 
 QString TrkGdbAdapter::effectiveTrkDevice() const

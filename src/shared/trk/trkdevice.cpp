@@ -1031,7 +1031,7 @@ void TrkDevice::setVerbose(int b)
 void TrkDevice::slotMessageReceived(const trk::TrkResult &result, const QByteArray &rawData)
 {
     d->writerThread->slotHandleResult(result);
-    if (d->verbose)
+    if (d->verbose > 1)
         qDebug() << "Received: " << result.toString();
     emit messageReceived(result);    
     if (!rawData.isEmpty())

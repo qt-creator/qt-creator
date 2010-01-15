@@ -367,6 +367,7 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(ShowStdNamespace), 0);
     m_group.insert(theDebuggerAction(ShowQtNamespace), 0);
     m_group.insert(theDebuggerAction(LogTimeStamps), 0);
+    m_group.insert(theDebuggerAction(VerboseLog), 0);
     m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 0);
 
 #ifdef USE_REVERSE_DEBUGGING
