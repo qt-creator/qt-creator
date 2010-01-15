@@ -41,8 +41,6 @@
 
 #include <utils/qtcassert.h>
 
-#include <qtscripteditor/qtscripteditorconstants.h>
-
 #include <texteditor/itexteditor.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/scriptmanager/scriptmanager.h>
@@ -479,7 +477,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
     }
     // Check mime type and get expression (borrowing some C++ - functions)
     const QString javaScriptMimeType =
-        QLatin1String(QtScriptEditor::Constants::C_QTSCRIPTEDITOR_MIMETYPE);
+        QLatin1String("application/javascript");
     if (!editor->file() || editor->file()->mimeType() != javaScriptMimeType)
         return;
 
