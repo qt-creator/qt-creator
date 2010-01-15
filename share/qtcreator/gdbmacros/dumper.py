@@ -36,6 +36,15 @@ def cleanAddress(addr):
     # that might trigger Unicode encoding errors.
     return addr.cast(gdb.lookup_type("void").pointer())
 
+# Workaround for gdb < 7.1
+def numericTemplateArgument(type, position):
+    try:
+        return int(type.template_argument(position))
+    except RuntimeError as error:
+        # ": No type named 30."
+        msg = str(error)
+        return int(msg[14:-1])
+
 def parseAndEvaluate(exp):
     if isGoodGdb():
         return gdb.parse_and_eval(exp)

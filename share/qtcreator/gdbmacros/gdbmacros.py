@@ -1878,3 +1878,24 @@ def qdump__std__basic_string(d, item):
 
 def qdump__wstring(d, item):
     qdump__std__string(d, item)
+
+
+#######################################################################
+#
+# Symbian
+#
+#######################################################################
+
+def qdump__TBuf(d, item):
+    size = item.value["iLength"] & 0xffff
+    max = numericTemplateArgument(item.value.type, 0)
+    check(0 <= size and size <= max)
+    base = item.value["iBuf"]
+    s = ""
+    for i in xrange(size):
+        val = int(base[i])
+        s += "%02x" % (val % 256)
+        s += "%02x" % (val / 256)
+    d.putNumChild(0)
+    d.putValue(s, "6")
+
