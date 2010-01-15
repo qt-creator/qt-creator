@@ -204,7 +204,12 @@ QmlSymbol *QmlLookupContext::resolveProperty(const QString &name, QmlSymbol *sco
 
     if (typeSymbol->isSymbolFromFile()) {
         return resolveProperty(name, typeSymbol->asSymbolFromFile(), typeSymbol->asSymbolFromFile()->fileName());
-    } // TODO: internal types
+    } else if (QmlBuildInSymbol *builtinSymbol = typeSymbol->asBuildInSymbol()) {
+        foreach (QmlSymbol *member, builtinSymbol->members(true)) {
+            if (member->isProperty() && member->name() == name)
+                return member;
+        }
+    }
 
     return 0;
 }
