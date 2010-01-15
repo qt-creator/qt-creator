@@ -39,6 +39,7 @@
 #include "branchdialog.h"
 #include "clonewizard.h"
 #include "gitoriousclonewizard.h"
+#include "stashdialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -134,6 +135,7 @@ GitPlugin::GitPlugin() :
     m_undoAction(0),
     m_redoAction(0),
     m_stashAction(0),
+    m_stashSnapshotAction(0),
     m_stashPopAction(0),
     m_stashListAction(0),
     m_branchListAction(0),
@@ -314,36 +316,37 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
 
+    m_stashSnapshotAction = new QAction(tr("Stash snapshot..."), this);
+    m_stashSnapshotAction->setToolTip(tr("Saves the current state of your work."));
+    command = actionManager->registerAction(m_stashSnapshotAction, "Git.StashSnapshot", globalcontext);
+    connect(m_stashSnapshotAction, SIGNAL(triggered()), this, SLOT(stashSnapshot()));
+    gitContainer->addAction(command);
+
     m_stashAction = new QAction(tr("Stash"), this);
-    m_stashAction->setToolTip(tr("Saves the current state of your work."));
+    m_stashAction->setToolTip(tr("Saves the current state of your work and resets the repository."));
     command = actionManager->registerAction(m_stashAction, "Git.Stash", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_stashAction, SIGNAL(triggered()), this, SLOT(stash()));
     gitContainer->addAction(command);
 
     m_pullAction = new QAction(tr("Pull"), this);
     command = actionManager->registerAction(m_pullAction, "Git.Pull", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_pullAction, SIGNAL(triggered()), this, SLOT(pull()));
     gitContainer->addAction(command);
 
     m_stashPopAction = new QAction(tr("Stash Pop"), this);
     m_stashAction->setToolTip(tr("Restores changes saved to the stash list using \"Stash\"."));
     command = actionManager->registerAction(m_stashPopAction, "Git.StashPop", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_stashPopAction, SIGNAL(triggered()), this, SLOT(stashPop()));
     gitContainer->addAction(command);
 
     m_commitAction = new QAction(tr("Commit..."), this);
     command = actionManager->registerAction(m_commitAction, "Git.Commit", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+C")));
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_commitAction, SIGNAL(triggered()), this, SLOT(startCommit()));
     gitContainer->addAction(command);
 
     m_pushAction = new QAction(tr("Push"), this);
     command = actionManager->registerAction(m_pushAction, "Git.Push", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_pushAction, SIGNAL(triggered()), this, SLOT(push()));
     gitContainer->addAction(command);
 
@@ -351,21 +354,29 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_branchListAction = new QAction(tr("Branches..."), this);
     command = actionManager->registerAction(m_branchListAction, "Git.BranchList", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_branchListAction, SIGNAL(triggered()), this, SLOT(branchList()));
     gitContainer->addAction(command);
 
-    m_stashListAction = new QAction(tr("List Stashes"), this);
+    m_stashListAction = new QAction(tr("Stashes..."), this);
     command = actionManager->registerAction(m_stashListAction, "Git.StashList", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_stashListAction, SIGNAL(triggered()), this, SLOT(stashList()));
     gitContainer->addAction(command);
 
     m_showAction = new QAction(tr("Show Commit..."), this);
     command = actionManager->registerAction(m_showAction, "Git.ShowCommit", globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_showAction, SIGNAL(triggered()), this, SLOT(showCommit()));
     gitContainer->addAction(command);
+
+    if (0) {
+        const QList<QAction*> snapShotActions = createSnapShotTestActions();
+        const int count = snapShotActions.size();
+        for (int i = 0; i < count; i++) {
+            command = actionManager->registerAction(snapShotActions.at(i),
+                                                    QLatin1String("Git.Snapshot.") + QString::number(i),
+                                                    globalcontext);
+            gitContainer->addAction(command);
+        }
+    }
 
     // Submit editor
     QList<int> submitContext;
@@ -648,9 +659,22 @@ void GitPlugin::push()
 
 void GitPlugin::stash()
 {
+    // Simple stash without prompt, reset repo.
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return)
-    m_gitClient->stash(state.topLevel());
+    const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(), 0);
+    if (!id.isEmpty() && m_stashDialog)
+        m_stashDialog->refresh(state.topLevel(), true);
+}
+
+void GitPlugin::stashSnapshot()
+{
+    // Prompt for description, restore immediately and keep on working.
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return)
+    const QString id = m_gitClient->synchronousStash(state.topLevel(), QString(), GitClient::StashImmediateRestore|GitClient::StashPromptDescription);
+    if (!id.isEmpty() && m_stashDialog)
+        m_stashDialog->refresh(state.topLevel(), true);
 }
 
 void GitPlugin::stashPop()
@@ -676,9 +700,15 @@ void GitPlugin::branchList()
 
 void GitPlugin::stashList()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
-    m_gitClient->stashList(state.topLevel());
+    // Raise non-modal stash dialog.
+    if (m_stashDialog) {
+        m_stashDialog->show();
+        m_stashDialog->raise();
+    } else {
+        m_stashDialog = new StashDialog(Core::ICore::instance()->mainWindow());
+        m_stashDialog->refresh(currentState().topLevel(), true);
+        m_stashDialog->show();
+    }
 }
 
 void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
@@ -716,12 +746,16 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_branchListAction->setEnabled(repositoryEnabled);
     m_stashListAction->setEnabled(repositoryEnabled);
     m_stashAction->setEnabled(repositoryEnabled);
+    m_stashSnapshotAction->setEnabled(repositoryEnabled);
     m_pullAction->setEnabled(repositoryEnabled);
     m_commitAction->setEnabled(repositoryEnabled);
     m_stashPopAction->setEnabled(repositoryEnabled);
     m_logRepositoryAction->setEnabled(repositoryEnabled);
     m_undoRepositoryAction->setEnabled(repositoryEnabled);
     m_pushAction->setEnabled(repositoryEnabled);
+
+    if (m_stashDialog)
+        m_stashDialog->refresh(currentState().topLevel(), false);
 
     // Prompts for repo.
     m_showAction->setEnabled(true);

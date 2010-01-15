@@ -41,6 +41,7 @@
 QT_BEGIN_NAMESPACE
 class QErrorMessage;
 class QSignalMapper;
+class QDebug;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -59,12 +60,15 @@ class GitOutputWindow;
 class GitCommand;
 struct CommitData;
 struct GitSubmitEditorPanelData;
+struct Stash;
 
 class GitClient : public QObject
 {
     Q_OBJECT
 
 public:
+    static const char *stashNamePrefix;
+
     explicit GitClient(GitPlugin *plugin);
     ~GitClient();
 
@@ -84,17 +88,37 @@ public:
              bool enableAnnotationContextMenu = false);
     void blame(const QString &workingDirectory, const QString &fileName,
                const QString &revision = QString(), int lineNumber = -1);
-    void showCommit(const QString &workingDirectory, const QString &commit);
     void checkout(const QString &workingDirectory, const QString &file);
     void checkoutBranch(const QString &workingDirectory, const QString &branch);
-    void hardReset(const QString &workingDirectory, const QString &commit);
+    void hardReset(const QString &workingDirectory, const QString &commit = QString());
     void addFile(const QString &workingDirectory, const QString &fileName);
     bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
-    bool synchronousReset(const QString &workingDirectory, const QStringList &files);
-    bool synchronousReset(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
+    bool synchronousReset(const QString &workingDirectory,
+                          const QStringList &files = QStringList(),
+                          QString *errorMessage = 0);
     bool synchronousInit(const QString &workingDirectory);
-    bool synchronousCheckout(const QString &workingDirectory, const QStringList &files, QString *errorMessage);
-    bool synchronousStash(const QString &workingDirectory, QString *errorMessage);
+    bool synchronousCheckoutFiles(const QString &workingDirectory,
+                                  QStringList files = QStringList(),
+                                  QString revision = QString(), QString *errorMessage = 0);
+    // Checkout branch
+    bool synchronousCheckoutBranch(const QString &workingDirectory, const QString &branch, QString *errorMessage = 0);
+
+    // Do a stash and return identier.
+    enum { StashPromptDescription = 0x1, StashImmediateRestore = 0x2, StashIgnoreUnchanged = 0x4 };
+    QString synchronousStash(const QString &workingDirectory,
+                             const QString &messageKeyword = QString(),
+                             unsigned flags = 0, bool *unchanged = 0);
+
+    bool executeSynchronousStash(const QString &workingDirectory,
+                                 const QString &message = QString(),
+                                 QString *errorMessage = 0);
+    bool synchronousStashRestore(const QString &workingDirectory,
+                                 const QString &stash,
+                                 const QString &branch = QString(),
+                                 QString *errorMessage = 0);
+    bool synchronousStashRemove(const QString &workingDirectory,
+                                const QString &stash = QString(),
+                                QString *errorMessage = 0);
     bool synchronousBranchCmd(const QString &workingDirectory, QStringList branchArgs,
                               QString *output, QString *errorMessage);
     bool synchronousShow(const QString &workingDirectory, const QString &id,
@@ -110,15 +134,23 @@ public:
                                      const QString &format, QString *description, QString *errorMessage);
     bool synchronousShortDescriptions(const QString &workingDirectory, const QStringList &revisions,
                                       QStringList *descriptions, QString *errorMessage);
+    bool synchronousTopRevision(const QString &workingDirectory, QString *revision = 0,
+                                QString *branch = 0, QString *errorMessage = 0);
 
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
 
-    void stash(const QString &workingDirectory);
     void stashPop(const QString &workingDirectory);
     void revert(const QStringList &files);
     void branchList(const QString &workingDirectory);
     void stashList(const QString &workingDirectory);
+    bool synchronousStashList(const QString &workingDirectory,
+                              QList<Stash> *stashes,
+                              QString *errorMessage = 0);
+    // Resolve a stash name from message (for IVersionControl's names).
+    bool stashNameFromMessage(const QString &workingDirectory,
+                              const QString &messge, QString *name,
+                              QString *errorMessage = 0);
 
     QString readConfig(const QString &workingDirectory, const QStringList &configVar);
 

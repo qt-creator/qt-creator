@@ -22,7 +22,9 @@ HEADERS += gitplugin.h \
     branchmodel.h \
     gitcommand.h \
     clonewizard.h \
-    clonewizardpage.h
+    clonewizardpage.h \
+    stashdialog.h \
+    gitutils.h
 SOURCES += gitplugin.cpp \
     gitclient.cpp \
     changeselectiondialog.cpp \
@@ -38,11 +40,13 @@ SOURCES += gitplugin.cpp \
     branchmodel.cpp \
     gitcommand.cpp \
     clonewizard.cpp \
-    clonewizardpage.cpp
+    clonewizardpage.cpp \
+    stashdialog.cpp \
+    gitutils.cpp
 FORMS += changeselectiondialog.ui \
     settingspage.ui \
     gitsubmitpanel.ui \
-    branchdialog.ui
-
+    branchdialog.ui \
+    stashdialog.ui
 OTHER_FILES += ScmGit.pluginspec
 include(gitorious/gitorious.pri)

@@ -55,6 +55,7 @@ bool CVSControl::supportsOperation(Operation operation) const
         break;
     case OpenOperation:
     case CreateRepositoryOperation:
+    case SnapshotOperations:
         rc = false;
         break;
     }
@@ -80,6 +81,26 @@ bool CVSControl::vcsDelete(const QString &fileName)
 }
 
 bool CVSControl::vcsCreateRepository(const QString &)
+{
+    return false;
+}
+
+QString CVSControl::vcsCreateSnapshot(const QString &)
+{
+    return QString();
+}
+
+QStringList CVSControl::vcsSnapshots(const QString &)
+{
+    return QStringList();
+}
+
+bool CVSControl::vcsRestoreSnapshot(const QString &, const QString &)
+{
+    return false;
+}
+
+bool CVSControl::vcsRemoveSnapshot(const QString &, const QString &)
 {
     return false;
 }

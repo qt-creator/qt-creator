@@ -39,6 +39,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
 #include <QtCore/QStringList>
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -64,6 +65,7 @@ class ChangeSelectionDialog;
 class GitSubmitEditor;
 struct CommitData;
 struct GitSettings;
+class StashDialog;
 
 class GitPlugin : public VCSBase::VCSBasePlugin
 {
@@ -104,6 +106,7 @@ private slots:
     void showCommit();
     void startCommit();
     void stash();
+    void stashSnapshot();
     void stashPop();
     void branchList();
     void stashList();
@@ -145,6 +148,7 @@ private:
     QAction *m_undoAction;
     QAction *m_redoAction;
     QAction *m_stashAction;
+    QAction *m_stashSnapshotAction;
     QAction *m_stashPopAction;
     QAction *m_stashListAction;
     QAction *m_branchListAction;
@@ -152,11 +156,13 @@ private:
 
     GitClient                   *m_gitClient;
     ChangeSelectionDialog       *m_changeSelectionDialog;
+    QPointer<StashDialog>       m_stashDialog;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
     QStringList                 m_submitOrigDeleteFiles;
     QString                     m_commitMessageFileName;
     bool                        m_submitActionTriggered;
+
 };
 
 } // namespace Git
