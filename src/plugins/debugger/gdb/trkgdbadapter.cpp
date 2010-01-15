@@ -166,8 +166,8 @@ void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
             data.append(ba);
             const MemoryRange res(it.key().from, range.to);
             memory.remove(it.key());
-            memory.insert(res, data);
             MEMORY_DEBUG(" TO(1)  " << res);
+            insertMemory(res, data);
             return;
         }
         if (it.key().from == range.to) {
@@ -176,8 +176,8 @@ void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
             data.append(*it);
             const MemoryRange res(range.from, it.key().to);
             memory.remove(it.key());
-            memory.insert(res, data);
             MEMORY_DEBUG(" TO(2)  " << res);
+            insertMemory(res, data);
             return;
         }
     }
@@ -1330,6 +1330,16 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         }
         // Happens when chunks are not comnbined
         QTC_ASSERT(false, /**/);
+        debugMessage("CHUNKS NOT COMBINED");
+        #ifdef MEMORY_DEBUG
+        qDebug() << "CHUNKS NOT COMBINED";
+        it = m_snapshot.memory.begin();
+        et = m_snapshot.memory.end();
+        for ( ; it != et; ++it)
+            qDebug() << it.key().from << it.key().to;
+        qDebug() << "WANTED" << wanted.from << wanted.to;
+        #endif
+        sendGdbServerMessage("E22", "");
         return;
     }
 
