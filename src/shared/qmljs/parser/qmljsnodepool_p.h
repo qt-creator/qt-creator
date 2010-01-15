@@ -53,11 +53,11 @@
 // We mean it.
 //
 
-#include <QtCore/QHash>
-#include <QtCore/QString>
-
 #include "qmljsglobal_p.h"
 #include "qmljsmemorypool_p.h"
+
+#include <QtCore/QHash>
+#include <QtCore/QString>
 
 QT_QML_BEGIN_NAMESPACE
 

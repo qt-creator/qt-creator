@@ -53,9 +53,9 @@
 // We mean it.
 //
 
-#include <QtCore/QString>
-
 #include "qmljsglobal_p.h"
+
+#include <QtCore/QString>
 
 QT_QML_BEGIN_NAMESPACE
 

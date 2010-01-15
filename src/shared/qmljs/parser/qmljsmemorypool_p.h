@@ -53,11 +53,12 @@
 // We mean it.
 //
 
+#include "qmljsglobal_p.h"
+
 #include <QtCore/qglobal.h>
 #include <QtCore/qshareddata.h>
-#include <string.h>
 
-#include "qmljsglobal_p.h"
+#include <string.h>
 
 QT_QML_BEGIN_NAMESPACE
 

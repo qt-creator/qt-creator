@@ -42,8 +42,9 @@
 #ifndef QMLJSAST_FWD_P_H
 #define QMLJSAST_FWD_P_H
 
-#include <QtCore/qglobal.h>
 #include "qmljsglobal_p.h"
+
+#include <QtCore/qglobal.h>
 
 //
 //  W A R N I N G

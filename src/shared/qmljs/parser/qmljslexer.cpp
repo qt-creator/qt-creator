@@ -40,15 +40,16 @@
 ****************************************************************************/
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
+
+#include "qmljslexer_p.h"
 
 #include "qmljsglobal_p.h"
 #include "qmljsengine_p.h"
-#include "qmljslexer_p.h"
 #include "qmljsgrammar_p.h"
 
-#include <QtGui/qapplication.h>
+#include <QtCore/qcoreapplication.h>
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -550,7 +551,7 @@ int Lexer::lex()
                 else {
                     setDone(Bad);
                     err = IllegalCharacter;
-                    errmsg = qApp->translate("QmlParser", "Illegal character");
+                    errmsg = QCoreApplication::translate("QmlParser", "Illegal character");
                 }
             }
             break;
@@ -564,7 +565,7 @@ int Lexer::lex()
             } else if (current == 0 || isLineTerminator()) {
                 setDone(Bad);
                 err = UnclosedStringLiteral;
-                errmsg = qApp->translate("QmlParser", "Unclosed string at end of line");
+                errmsg = QCoreApplication::translate("QmlParser", "Unclosed string at end of line");
             } else if (current == '\\') {
                 state = InEscapeSequence;
             } else {
@@ -590,7 +591,7 @@ int Lexer::lex()
                 } else {
                     setDone(Bad);
                     err = IllegalEscapeSequence;
-                    errmsg = qApp->translate("QmlParser", "Illegal escape squence");
+                    errmsg = QCoreApplication::translate("QmlParser", "Illegal escape squence");
                 }
             } else if (current == 'x')
                 state = InHexEscape;
@@ -636,7 +637,7 @@ int Lexer::lex()
             } else {
                 setDone(Bad);
                 err = IllegalUnicodeEscapeSequence;
-                errmsg = qApp->translate("QmlParser", "Illegal unicode escape sequence");
+                errmsg = QCoreApplication::translate("QmlParser", "Illegal unicode escape sequence");
             }
             break;
         case InSingleLineComment:
@@ -662,7 +663,7 @@ int Lexer::lex()
             if (current == 0) {
                 setDone(Bad);
                 err = UnclosedComment;
-                errmsg = qApp->translate("QmlParser", "Unclosed comment at end of file");
+                errmsg = QCoreApplication::translate("QmlParser", "Unclosed comment at end of file");
                 driver->addComment(startpos, tokenLength(), startlineno, startcolumn);
             } else if (isLineTerminator()) {
                 shiftWindowsLineBreak();
@@ -749,7 +750,7 @@ int Lexer::lex()
             } else {
                 setDone(Bad);
                 err = IllegalExponentIndicator;
-                errmsg = qApp->translate("QmlParser", "Illegal syntax for exponential number");
+                errmsg = QCoreApplication::translate("QmlParser", "Illegal syntax for exponential number");
             }
             break;
         case InExponent:
@@ -775,7 +776,7 @@ int Lexer::lex()
          && isIdentLetter(current)) {
         state = Bad;
         err = IllegalIdentifier;
-        errmsg = qApp->translate("QmlParser", "Identifier cannot start with numeric literal");
+        errmsg = QCoreApplication::translate("QmlParser", "Identifier cannot start with numeric literal");
     }
 
     // terminate string
@@ -1106,7 +1107,7 @@ bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
 
     while (1) {
         if (isLineTerminator() || current == 0) {
-            errmsg = qApp->translate("QmlParser", "Unterminated regular expression literal");
+            errmsg = QCoreApplication::translate("QmlParser", "Unterminated regular expression literal");
             return false;
         }
         else if (current != '/' || lastWasEscape == true)
@@ -1130,7 +1131,7 @@ bool Lexer::scanRegExp(RegExpBodyPrefix prefix)
     while (isIdentLetter(current)) {
         int flag = Ecma::RegExp::flagFromChar(current);
         if (flag == 0) {
-            errmsg = qApp->translate("QmlParser", "Invalid regular expression flag '%0'")
+            errmsg = QCoreApplication::translate("QmlParser", "Invalid regular expression flag '%0'")
                      .arg(QChar(current));
             return false;
         }

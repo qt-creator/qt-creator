@@ -53,11 +53,11 @@
 // We mean it.
 //
 
-#include <QString>
-#include <QSet>
-
 #include "qmljsglobal_p.h"
 #include "qmljsastfwd_p.h"
+
+#include <QString>
+#include <QSet>
 
 QT_QML_BEGIN_NAMESPACE
 

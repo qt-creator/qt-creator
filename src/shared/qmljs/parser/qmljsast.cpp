@@ -40,6 +40,7 @@
 ****************************************************************************/
 
 #include "qmljsast_p.h"
+
 #include "qmljsastvisitor_p.h"
 
 QT_QML_BEGIN_NAMESPACE
