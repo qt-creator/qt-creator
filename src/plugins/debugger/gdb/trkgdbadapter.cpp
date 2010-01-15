@@ -400,13 +400,8 @@ void TrkGdbAdapter::slotEmitDelayedInferiorStartFailed()
 
 void TrkGdbAdapter::logMessage(const QString &msg)
 {
-    if (m_verbose) {
-//#ifdef STANDALONE_RUNNER
-//        emit output(msg);
-//#else
-        m_engine->debugMessage("TRK LOG: " + msg);
-//#endif
-    }
+    if (m_verbose)
+        debugMessage("TRK LOG: " + msg);
 }
 
 //
@@ -1488,16 +1483,17 @@ void TrkGdbAdapter::handleStepInto(const TrkResult &result)
     m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto");
-#if 1
-        // Try fallback with Step Over
-        logMessage("FALLBACK TO 'STEP OVER'");
+
+        // Try fallback with Step Over.
+        debugMessage("FALLBACK TO 'STEP OVER'");
         QByteArray ba = trkStepRangeMessage(0x11);  // options "step over"
         sendTrkMessage(0x19, TrkCB(handleStepInto2), ba, "Step range");
-#else
-        sendTrkMessage(0x12,
-            TrkCB(handleAndReportReadRegistersAfterStop),
-            trkReadRegistersMessage());
-#endif
+
+        // Doing nothing as below does not work as gdb seems to insist on
+        // making some progress through a 'step'.
+        //sendTrkMessage(0x12,
+        //    TrkCB(handleAndReportReadRegistersAfterStop),
+        //    trkReadRegistersMessage());
         return;
     }
     // The gdb server response is triggered later by the Stop Reply packet
@@ -1508,16 +1504,17 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 {
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto2");
-#if 0
-        logMessage("FALLBACK TO 'CONTINUE'");
-        // Try fallback with Continue
+
+        // Try fallback with Continue.
+        debugMessage("FALLBACK TO 'CONTINUE'");
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
         //sendGdbServerMessage("S05", "Stepping finished");
-#else
-        sendTrkMessage(0x12,
-            TrkCB(handleAndReportReadRegistersAfterStop),
-            trkReadRegistersMessage());
-#endif
+
+        // Doing nothing as below does not work as gdb seems to insist on
+        // making some progress through a 'next'.
+        // sendTrkMessage(0x12,
+        //     TrkCB(handleAndReportReadRegistersAfterStop),
+        //     trkReadRegistersMessage());
         return;
     }
     logMessage("STEP INTO FINISHED (FALLBACK)");
