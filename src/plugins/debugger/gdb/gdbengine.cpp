@@ -2493,7 +2493,7 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     // this sometimes happens, ask the second time immediately instead
     // of waiting for the first request to fail.
     // FIXME: Seems to work with 6.8.
-    if (m_gdbAdapter->isTrkAdapter())
+    if (m_gdbAdapter->isTrkAdapter() && m_gdbVersion < 6.8)
         postCommand(cmd, WatchUpdate);
     postCommand(cmd, WatchUpdate, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
