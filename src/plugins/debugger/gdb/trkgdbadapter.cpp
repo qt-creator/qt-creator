@@ -1770,8 +1770,11 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     if (symbolFile.isEmpty()) {
         logMessage(_("WARNING: No symbol file available."));
     } else {
-        m_engine->postCommand("add-symbol-file \"" + symbolFile + "\" "
-            + QByteArray::number(m_session.codeseg));
+        // Does not seem to be necessary anymore.
+        // FIXME: Startup sequence can be streamlined now as we do not
+        // have to wait for the TRK startup to learn the load address.
+        //m_engine->postCommand("add-symbol-file \"" + symbolFile + "\" "
+        //    + QByteArray::number(m_session.codeseg));
         m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
     }
     m_engine->postCommand("target remote " + gdbServerName().toLatin1(),
