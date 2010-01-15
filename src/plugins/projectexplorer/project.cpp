@@ -83,6 +83,8 @@ QString Project::makeUnique(const QString &preferredName, const QStringList &use
 
 void Project::addBuildConfiguration(BuildConfiguration *configuration)
 {
+    QTC_ASSERT(!configuration || m_buildConfigurations.contains(configuration), return);
+
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = configuration->displayName();
     QStringList displayNames;
@@ -413,10 +415,8 @@ QList<RunConfiguration *> Project::runConfigurations() const
 
 void Project::addRunConfiguration(RunConfiguration* runConfiguration)
 {
-    if (m_runConfigurations.contains(runConfiguration)) {
-        qWarning()<<"Not adding already existing runConfiguration"<<runConfiguration->displayName();
-        return;
-    }
+    QTC_ASSERT(!runConfiguration || m_runConfigurations.contains(runConfiguration), return);
+
     m_runConfigurations.push_back(runConfiguration);
     emit addedRunConfiguration(this, runConfiguration->displayName());
 }
