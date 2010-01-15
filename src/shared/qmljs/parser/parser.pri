@@ -1,4 +1,4 @@
-
+OTHER_FILES += $$PWD/qmljs.g
 ##INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
