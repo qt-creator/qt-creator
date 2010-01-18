@@ -81,11 +81,6 @@ UiObjectMember *Node::uiObjectMemberCast()
     return 0;
 }
 
-SourceElement *Node::sourceElementCast()
-{
-    return 0;
-}
-
 ExpressionNode *ExpressionNode::expressionCast()
 {
     return this;
@@ -777,11 +772,6 @@ void SourceElements::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-SourceElement *SourceElement::sourceElementCast()
-{
-    return this;
-}
-
 void FunctionSourceElement::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -807,7 +797,6 @@ void DebuggerStatement::accept0(Visitor *visitor)
 
     visitor->endVisit(this);
 }
-
 
 void UiProgram::accept0(Visitor *visitor)
 {

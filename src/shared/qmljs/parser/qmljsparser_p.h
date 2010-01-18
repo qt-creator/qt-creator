@@ -134,6 +134,7 @@ public:
     bool parseExpression() { return parse(T_FEED_JS_EXPRESSION); }
     bool parseSourceElement() { return parse(T_FEED_JS_SOURCE_ELEMENT); }
     bool parseUiObjectMember() { return parse(T_FEED_UI_OBJECT_MEMBER); }
+    bool parseProgram() { return parse(T_FEED_JS_PROGRAM); }
 
     AST::UiProgram *ast() const
     { return AST::cast<AST::UiProgram *>(program); }
@@ -162,13 +163,8 @@ public:
         return program->uiObjectMemberCast();
     }
 
-    AST::SourceElement *sourceElement() const
-    {
-        if (! program)
-            return 0;
-
-        return program->sourceElementCast();
-    }
+    AST::Node *rootNode() const
+    { return program; }
 
     QList<DiagnosticMessage> diagnosticMessages() const
     { return diagnostic_messages; }
@@ -239,9 +235,9 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 73
+#define J_SCRIPT_REGEXPLITERAL_RULE1 74
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 74
+#define J_SCRIPT_REGEXPLITERAL_RULE2 75
 
 QT_QML_END_NAMESPACE
 
