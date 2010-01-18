@@ -123,6 +123,20 @@ void MessageManagerPrototype::printToOutputPane(const QString &text, bool bringT
     mm->printToOutputPane(text, bringToForeground);
 }
 
+void MessageManagerPrototype::printToOutputPanePopup(const QString &text)
+{
+    MessageManager *mm = qscriptvalue_cast<MessageManager *>(thisObject());
+    QTC_ASSERT(mm, return);
+    mm->printToOutputPanePopup(text);
+}
+
+void MessageManagerPrototype::printToOutputPane(const QString &text)
+{
+    MessageManager *mm = qscriptvalue_cast<MessageManager *>(thisObject());
+    QTC_ASSERT(mm, return);
+    mm->printToOutputPane(text);
+}
+
 QString MessageManagerPrototype::toString() const
 {
     return QLatin1String("MessageManager");

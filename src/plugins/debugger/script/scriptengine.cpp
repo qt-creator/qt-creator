@@ -27,6 +27,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "scriptengine.h"
 
 #include "debuggerdialogs.h"
@@ -52,7 +54,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
 
-#include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QToolTip>
 
@@ -286,8 +287,8 @@ bool ScriptEngine::importExtensions()
         extensions.append(QLatin1String(qtExtensionsC[e]));
     if (m_scriptEngine->importedExtensions().contains(extensions.front()))
         return true;
-    QDir dir("/home/apoenitz/dev/qtscriptgenerator");
-    if (!dir.cd("plugins")) {
+    QDir dir(QLatin1String("/home/apoenitz/dev/qtscriptgenerator"));
+    if (!dir.cd(QLatin1String("plugins"))) {
         fprintf(stderr, "plugins folder does not exist -- did you build the bindings?\n");
         return false;
     }
@@ -313,7 +314,7 @@ bool ScriptEngine::importExtensions()
                      "Make sure that the bindings have been built, "
                      "and that this executable and the plugins are "
                      "using compatible Qt libraries.",
-                     qPrintable(failExtensions.join(", ")), qPrintable(dir.absolutePath()));
+                     qPrintable(failExtensions.join(QLatin1String(", "))), qPrintable(dir.absolutePath()));
         }
     }
     return failExtensions.isEmpty();
@@ -495,7 +496,7 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
 */
 
     QToolTip::hideText();
-    if (exp.isEmpty() || exp.startsWith("#"))  {
+    if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')))  {
         QToolTip::hideText();
         return;
     }
@@ -505,18 +506,18 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
         return;
     }
 
-    if (exp.startsWith('"') && exp.endsWith('"'))  {
+    if (exp.startsWith(QLatin1Char('"')) && exp.endsWith(QLatin1Char('"'))) {
         QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
         return;
     }
 
-    if (exp.startsWith("++") || exp.startsWith("--"))
-        exp = exp.mid(2);
+    if (exp.startsWith(QLatin1String("++")) || exp.startsWith(QLatin1String("--")))
+        exp.remove(0, 2);
 
-    if (exp.endsWith("++") || exp.endsWith("--"))
-        exp = exp.mid(2);
+    if (exp.endsWith(QLatin1String("++")) || exp.endsWith(QLatin1String("--")))
+        exp.remove(0, 2);
 
-    if (exp.startsWith("<") || exp.startsWith("["))
+    if (exp.startsWith(QLatin1Char('<')) || exp.startsWith(QLatin1Char('[')))
         return;
 
     if (hasSideEffects(exp)) {
@@ -549,8 +550,8 @@ void ScriptEngine::setToolTipExpression(const QPoint &mousePos,
 void ScriptEngine::assignValueInDebugger(const QString &expression,
     const QString &value)
 {
-    XSDEBUG("ASSIGNING: " << expression + '=' + value);
-    m_scriptEngine->evaluate(expression + '=' + value);
+    XSDEBUG("ASSIGNING: " << (expression + QLatin1Char('=') + value));
+    m_scriptEngine->evaluate(expression + QLatin1Char('=') + value);
     updateLocals();
 }
 
@@ -652,16 +653,17 @@ void ScriptEngine::updateLocals()
     manager()->stackHandler()->setFrames(stackFrames);
 
     //
-    // Build locals
+    // Build locals, deactivate agent meanwhile.
     //
+    m_scriptEngine->setAgent(0);
+
     WatchData data;
     data.iname = "local";
-    data.name = "local";
+    data.name = QString::fromLatin1(data.iname);
     data.scriptValue = context->activationObject();
     manager()->watchHandler()->beginCycle();
     updateSubItem(data);
     manager()->watchHandler()->endCycle();
-
     // FIXME: Use an extra thread. This here is evil
     m_stopped = true;
     showStatusMessage(tr("Stopped."), 5000);
@@ -669,116 +671,122 @@ void ScriptEngine::updateLocals()
         //SDEBUG("LOOPING");
         QApplication::processEvents();
     }
-    //SDEBUG("RUNNING AGAIN");
+    setState(InferiorRunningRequested);
+    setState(InferiorRunning);
+    // Clear any exceptions occurred during locals evaluation.
+    m_scriptEngine->clearExceptions();
+    m_scriptEngine->setAgent(m_scriptAgent.data());
+    SDEBUG("Continuing");
 }
 
 void ScriptEngine::updateWatchData(const WatchData &data)
 {
     updateSubItem(data);
-    //manager()->watchHandler()->rebuildModel();
+}
+
+static inline QString msgDebugInsert(const WatchData &d0, const QList<WatchData>& children)
+{
+    QString rc;
+    QTextStream str(&rc);
+    str << "INSERTING " << d0.toString() << '\n';
+    foreach(const WatchData &c, children)
+        str << "          " << c.toString() << '\n';
+    return rc;
 }
 
 void ScriptEngine::updateSubItem(const WatchData &data0)
 {
     WatchData data = data0;
-    //SDEBUG("\nUPDATE SUBITEM: " << data.toString());
+    QList<WatchData> children;
+    SDEBUG("\nUPDATE SUBITEM: " << data.toString() << data.scriptValue.toString());
     QTC_ASSERT(data.isValid(), return);
 
     if (data.isTypeNeeded() || data.isValueNeeded()) {
-        QScriptValue ob = data.scriptValue;
+        const QScriptValue &ob = data.scriptValue;
         if (ob.isArray()) {
-            data.setType("Array");
-            data.setValue(" ");
+            data.setType(QLatin1String("Array"), false);
+            data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isBool()) {
-            data.setType("Bool");
-            data.setValue(ob.toBool() ? "true" : "false");
+            data.setType(QLatin1String("Bool"), false);
+            data.setValue(ob.toBool() ? QLatin1String("true") : QLatin1String("false"));
             data.setHasChildren(false);
         } else if (ob.isDate()) {
-            data.setType("Date");
-            data.setValue(ob.toDateTime().toString().toUtf8());
+            data.setType(QLatin1String("Date"), false);
+            data.setValue(ob.toDateTime().toString());
             data.setHasChildren(false);
         } else if (ob.isError()) {
-            data.setType("Error");
-            data.setValue(" ");
+            data.setType(QLatin1String("Error"), false);
+            data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isFunction()) {
-            data.setType("Function");
-            data.setValue(" ");
+            data.setType(QLatin1String("Function"), false);
+            data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isNull()) {
-            data.setType("<null>");
-            data.setValue("<null>");
+            const QString nullValue = QLatin1String("<null>");
+            data.setType(nullValue, false);
+            data.setValue(nullValue);
         } else if (ob.isNumber()) {
-            data.setType("Number");
-            data.setValue(QString::number(ob.toNumber()).toUtf8());
+            data.setType(QLatin1String("Number"), false);
+            data.setValue(QString::number(ob.toNumber()));
             data.setHasChildren(false);
         } else if (ob.isObject()) {
-            data.setType("Object");
-            data.setValue(" ");
+            data.setType(QLatin1String("Object"), false);
+            data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isQMetaObject()) {
-            data.setType("QMetaObject");
-            data.setValue(" ");
+            data.setType(QLatin1String("QMetaObject"), false);
+            data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isQObject()) {
-            data.setType("QObject");
-            data.setValue(" ");
+            data.setType(QLatin1String("QObject"), false);
+            data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isRegExp()) {
-            data.setType("RegExp");
-            data.setValue(ob.toRegExp().pattern().toUtf8());
+            data.setType(QLatin1String("RegExp"), false);
+            data.setValue(ob.toRegExp().pattern());
         } else if (ob.isString()) {
-            data.setType("String");
-            data.setValue(ob.toString().toUtf8());
+            data.setType(QLatin1String("String"), false);
+            data.setValue(ob.toString());
         } else if (ob.isVariant()) {
-            data.setType("Variant");
-            data.setValue(" ");
+            data.setType(QLatin1String("Variant"), false);
+            data.setValue(QString(QLatin1Char(' ')));
         } else if (ob.isUndefined()) {
-            data.setType("<undefined>");
-            data.setValue("<unknown>");
+            data.setType(QLatin1String("<undefined>"), false);
+            data.setValue(QLatin1String("<unknown>"));
             data.setHasChildren(false);
         } else {
-            data.setType("<unknown>");
-            data.setValue("<unknown>");
+            const QString unknown = QLatin1String("<unknown>");
+            data.setType(unknown, false);
+            data.setValue(unknown);
             data.setHasChildren(false);
         }
-        manager()->watchHandler()->insertData(data);
-        return;
     }
 
     if (data.isChildrenNeeded()) {
-        int numChild = 0;
         QScriptValueIterator it(data.scriptValue);
         while (it.hasNext()) {
             it.next();
             WatchData data1;
-            data1.iname = data.iname + "." + it.name().toLatin1();
+            data1.iname = data.iname + '.' + it.name().toLatin1();
             data1.exp = it.name().toLatin1();
             data1.name = it.name();
             data1.scriptValue = it.value();
-            if (manager()->watchHandler()->isExpandedIName(data1.iname))
+            if (manager()->watchHandler()->isExpandedIName(data1.iname)) {
                 data1.setChildrenNeeded();
-            else
+            } else {
                 data1.setChildrenUnneeded();
-            manager()->watchHandler()->insertData(data1);
-            ++numChild;
+            }
+            children.push_back(data1);
         }
-        //SDEBUG("  ... CHILDREN: " << numChild);
-        data.setHasChildren(numChild > 0);
+        data.setHasChildren(!children.isEmpty());
         data.setChildrenUnneeded();
-        manager()->watchHandler()->insertData(data);
-        return;
     }
 
     if (data.isHasChildrenNeeded()) {
-        int numChild = 0;
         QScriptValueIterator it(data.scriptValue);
-        while (it.hasNext()) {
-            it.next();
-            ++numChild;
-        }
-        data.setHasChildren(numChild > 0);
-        //SDEBUG("  ... CHILDCOUNT: " << numChild);
-        manager()->watchHandler()->insertData(data);
-        return;
+        data.setHasChildren(it.hasNext());
     }
 
-    QTC_ASSERT(false, return);
+    SDEBUG(msgDebugInsert(data, children));
+    manager()->watchHandler()->insertData(data);
+    if (!children.isEmpty())
+        manager()->watchHandler()->insertBulkData(children);
 }
 
 void ScriptEngine::showDebuggerOutput(int channel, const QString &m)

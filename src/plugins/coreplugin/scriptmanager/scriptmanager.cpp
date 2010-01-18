@@ -235,13 +235,13 @@ ScriptManager::QScriptEnginePtr ScriptManagerPrivate::ensureEngineInitialized()
 {
     if (!m_engine.isNull())
         return m_engine;
-    m_engine = QScriptEnginePtr(new QScriptEngine(this));
+    m_engine = QScriptEnginePtr(new QScriptEngine);
     // register QObjects that occur as properties
     SharedTools::registerQObject<QMainWindow>(m_engine.data());
     SharedTools::registerQObject<QStatusBar>(m_engine.data());
     SharedTools::registerQObject<QSettings>(m_engine.data());
     // WB interfaces
-//    SharedTools::registerQObjectInterface<Core::MessageManager, MessageManagerPrototype>(m_engine);
+    SharedTools::registerQObjectInterface<Core::MessageManager, MessageManagerPrototype>(m_engine.data());
 
 //    SharedTools::registerQObjectInterface<Core::IFile, FilePrototype>(m_engine);
 //    qScriptRegisterSequenceMetaType<QList<Core::IFile *> >(m_engine);

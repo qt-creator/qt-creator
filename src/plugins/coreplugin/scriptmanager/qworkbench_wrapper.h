@@ -87,7 +87,10 @@ public:
 
 public slots:
     void displayStatusBarMessage(const QString &text, int ms = 0);
-    void printToOutputPane(const QString &text, bool bringToForeground = true);
+    void printToOutputPane(const QString &text, bool bringToForeground);
+    void printToOutputPanePopup(const QString &text); // pops up
+    void printToOutputPane(const QString &text);
+
     QString toString() const;
 };
 

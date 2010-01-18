@@ -30,32 +30,27 @@
 #ifndef DEBUGGER_SCRIPTENGINE_H
 #define DEBUGGER_SCRIPTENGINE_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QHash>
-#include <QtCore/QMap>
-#include <QtCore/QObject>
-#include <QtCore/QProcess>
-#include <QtCore/QPoint>
-#include <QtCore/QSet>
-#include <QtCore/QVariant>
+#include "idebuggerengine.h"
+
 #include <QtCore/QSharedPointer>
 #include <QtCore/QScopedPointer>
 
 QT_BEGIN_NAMESPACE
-class QAction;
-class QAbstractItemModel;
-class QSplitter;
 class QScriptEngine;
 class QScriptValue;
 QT_END_NAMESPACE
-
-#include "idebuggerengine.h"
 
 namespace Debugger {
 namespace Internal {
 
 class ScriptAgent;
 class WatchData;
+
+/* A debugger engine for a QScriptEngine implemented using a QScriptEngineAgent.
+ * listening on script events. The engine has a special execution model:
+ * The script is executed in the foreground, while the debugger runs in
+ * processEvents() triggered by QScriptEngine::setProcessEventsInterval().
+ * Stopping is emulated by manually calling processEvents() from the debugger engine. */
 
 class ScriptEngine : public IDebuggerEngine
 {
