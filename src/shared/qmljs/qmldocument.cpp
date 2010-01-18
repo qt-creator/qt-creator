@@ -35,8 +35,6 @@
 #include <qmljs/parser/qmljsnodepool_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
-#include <QDebug>
-
 using namespace Qml;
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -105,8 +103,6 @@ bool QmlDocument::parseQml()
     Q_ASSERT(! _pool);
     Q_ASSERT(! _uiProgram);
     Q_ASSERT(! _jsProgram);
-
-    qDebug() << "QmlDocument::parseQml() for file" << _fileName;
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
