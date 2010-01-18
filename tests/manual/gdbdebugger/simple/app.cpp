@@ -86,6 +86,18 @@ private:
 };
 
 
+namespace nsX {
+namespace nsY {
+int z;
+}
+}
+
+namespace nsXY = nsX::nsY;
+
+int qwert()
+{
+    return nsXY::z;
+}
 
 uint qHash(const QMap<int, int> &)
 {
