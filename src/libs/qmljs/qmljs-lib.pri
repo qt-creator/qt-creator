@@ -5,6 +5,7 @@ contains(CONFIG, dll) {
 }
 
 include(parser/parser.pri)
+include($$PWD/qscripthighlighter.pri)
 
 DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD/..
