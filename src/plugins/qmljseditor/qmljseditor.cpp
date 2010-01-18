@@ -98,6 +98,30 @@ int blockStartState(const QTextBlock &block)
     else
         return state & 0xff;
 }
+
+bool shouldInsertMatchingText(const QChar &lookAhead)
+{
+    switch (lookAhead.unicode()) {
+    case '{': case '}':
+    case ']': case ')':
+    case ';': case ',':
+    case '"': case '\'':
+        return true;
+
+    default:
+        if (lookAhead.isSpace())
+            return true;
+
+        return false;
+    } // switch
+}
+
+bool shouldInsertMatchingText(const QTextCursor &tc)
+{
+    QTextDocument *doc = tc.document();
+    return shouldInsertMatchingText(doc->characterAt(tc.selectionEnd()));
+}
+
 } // end of anonymous namespace
 
 namespace QmlJSEditor {
@@ -823,6 +847,9 @@ bool QmlJSTextEditor::isInComment(const QTextCursor &) const
 QString QmlJSTextEditor::insertMatchingBrace(const QTextCursor &tc, const QString &text, const QChar &, int *skippedChars) const
 {
     if (text.length() != 1)
+        return QString();
+
+    if (! shouldInsertMatchingText(tc))
         return QString();
 
     const QChar la = characterAt(tc.position());
