@@ -20,6 +20,7 @@ win32 {
 unix {
     QMAKE_CFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
     QMAKE_CXXFLAGS += -fPIC -ansi -fpermissive -finline-functions -Wno-long-long
+    QMAKE_CXXFLAGS_HIDESYMS -= -fvisibility-inlines-hidden # for ubuntu 7.04
 }
 
 # Input
