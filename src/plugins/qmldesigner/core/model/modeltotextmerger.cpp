@@ -42,7 +42,7 @@
 #include <QDebug>
 
 #define INDENT_DEPTH 4
-#define DUMP_REWRITE_ACTIONS
+#undef DUMP_REWRITE_ACTIONS
 
 using namespace Qml;
 using namespace QmlDesigner;

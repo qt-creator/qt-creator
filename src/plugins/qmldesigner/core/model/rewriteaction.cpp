@@ -53,8 +53,17 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
 
     if (m_property.isDefaultProperty())
         result = refactoring.addToObjectMemberList(nodeLocation, m_valueText);
-    else
+    else {
         result = refactoring.addProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType);
+
+        if (!result) {
+            qDebug() << "*** AddPropertyRewriteAction::execute failed in addProperty("
+                    << nodeLocation << ","
+                    << m_property.name() << ","
+                    << m_valueText << ", ScriptBinding)"
+                    << info();
+        }
+    }
 
     Q_ASSERT(result);
     return result;
@@ -71,9 +80,17 @@ bool ChangeIdRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, Mo
     static const QLatin1String idPropertyName("id");
     bool result = false;
 
-    if (m_oldId.isEmpty())
+    if (m_oldId.isEmpty()) {
         result = refactoring.addProperty(nodeLocation, idPropertyName, m_newId, QmlRefactoring::ScriptBinding);
-    else if (m_newId.isEmpty())
+
+        if (!result) {
+            qDebug() << "*** ChangeIdRewriteAction::execute failed in addProperty("
+                    << nodeLocation << ","
+                    << idPropertyName << ","
+                    << m_newId << ", ScriptBinding)"
+                    << info();
+        }
+    } else if (m_newId.isEmpty())
         result = refactoring.removeProperty(nodeLocation, idPropertyName);
     else
         result = refactoring.changeProperty(nodeLocation, idPropertyName, m_newId, QmlRefactoring::ScriptBinding);
