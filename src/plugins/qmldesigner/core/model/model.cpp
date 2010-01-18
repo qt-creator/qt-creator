@@ -251,6 +251,11 @@ MetaInfo ModelPrivate::metaInfo() const
     return m_metaInfo;
 }
 
+void ModelPrivate::setMetaInfo(const MetaInfo &metaInfo)
+{
+    m_metaInfo = metaInfo;
+}
+
 void ModelPrivate::changeNodeId(const InternalNode::Pointer& internalNodePointer, const QString &id)
 {
     const QString oldId = internalNodePointer->id();
@@ -870,6 +875,14 @@ void Model::setFileUrl(const QUrl &url)
 const MetaInfo Model::metaInfo() const
 {
     return m_d->metaInfo();
+}
+
+/*!
+  \brief Sets a specific Metainfo on this Model
+  */
+void Model::setMetaInfo(const MetaInfo &metaInfo)
+{
+    m_d->setMetaInfo(metaInfo);
 }
 
 /*!
