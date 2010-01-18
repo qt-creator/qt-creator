@@ -38,7 +38,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qmljs/qmlsymbol.h>
+#include <qmljs/qmljssymbol.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
@@ -52,7 +52,7 @@
 #include <QtHelp/QHelpEngineCore>
 
 using namespace Core;
-using namespace Qml;
+using namespace QmlJS;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
@@ -128,7 +128,7 @@ void QmlHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int p
     updateHelpIdAndTooltip(editor, pos);
 }
 
-static QString buildHelpId(QmlSymbol *symbol)
+static QString buildHelpId(Symbol *symbol)
 {
     if (!symbol)
         return QString();
@@ -152,7 +152,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
     const Snapshot documents = m_modelManager->snapshot();
     const QString fileName = editor->file()->fileName();
-    QmlDocument::Ptr doc = documents.value(fileName);
+    Document::Ptr doc = documents.value(fileName);
     if (!doc)
         return; // nothing to do
 
@@ -188,18 +188,18 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         QmlExpressionUnderCursor expressionUnderCursor;
         expressionUnderCursor(tc, doc);
 
-        Qml::QmlTypeSystem *typeSystem = ExtensionSystem::PluginManager::instance()->getObject<Qml::QmlTypeSystem>();
+        QmlJS::TypeSystem *typeSystem = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::TypeSystem>();
 
         QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, m_modelManager->snapshot(), typeSystem);
         QmlResolveExpression resolver(context);
-        QmlSymbol *resolvedSymbol = resolver.typeOf(expressionUnderCursor.expressionNode());
+        Symbol *resolvedSymbol = resolver.typeOf(expressionUnderCursor.expressionNode());
 
         if (resolvedSymbol) {
             symbolName = resolvedSymbol->name();
 
             if (resolvedSymbol->isBuildInSymbol())
                 m_helpId = buildHelpId(resolvedSymbol);
-            else if (QmlSymbolFromFile *symbolFromFile = resolvedSymbol->asSymbolFromFile())
+            else if (SymbolFromFile *symbolFromFile = resolvedSymbol->asSymbolFromFile())
                 m_toolTip = symbolFromFile->fileName();
         }
     }

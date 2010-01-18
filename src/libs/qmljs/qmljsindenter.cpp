@@ -65,8 +65,8 @@
     as comments and string literals are removed beforehand.
 */
 
-#include <qmljs/qscriptindenter.h>
-#include <qmljs/qscriptincrementalscanner.h>
+#include <qmljs/qmljsindenter.h>
+#include <qmljs/qmljsscanner.h>
 
 #include <QtDebug>
 
@@ -80,10 +80,10 @@ using namespace QmlJS;
     For example, the indenter never considers more than BigRoof lines
     backwards when looking for the start of a C-style comment.
 */
-const int QScriptIndenter::SmallRoof = 40;
-const int QScriptIndenter::BigRoof = 400;
+const int QmlJSIndenter::SmallRoof = 40;
+const int QmlJSIndenter::BigRoof = 400;
 
-QScriptIndenter::QScriptIndenter()
+QmlJSIndenter::QmlJSIndenter()
     : label(QRegExp(QLatin1String("^\\s*((?:case\\b([^:])+|[a-zA-Z_0-9.]+)(?:\\s+)?:)(?!:)"))),
       braceX(QRegExp(QLatin1String("^\\s*\\}\\s*(?:else|catch)\\b"))),
       iflikeKeyword(QRegExp(QLatin1String("\\b(?:catch|do|for|if|while|with)\\b")))
@@ -121,16 +121,16 @@ QScriptIndenter::QScriptIndenter()
     yyLeftBraceFollows = 0;
 }
 
-QScriptIndenter::~QScriptIndenter()
+QmlJSIndenter::~QmlJSIndenter()
 {
 }
 
-void QScriptIndenter::setTabSize(int size)
+void QmlJSIndenter::setTabSize(int size)
 {
     ppHardwareTabSize = size;
 }
 
-void QScriptIndenter::setIndentSize(int size)
+void QmlJSIndenter::setIndentSize(int size)
 {
     ppIndentSize = size;
     ppContinuationIndentSize = 2 * size;
@@ -140,7 +140,7 @@ void QScriptIndenter::setIndentSize(int size)
     Returns the first non-space character in the string t, or
     QChar() if the string is made only of white space.
 */
-QChar QScriptIndenter::firstNonWhiteSpace(const QString &t) const
+QChar QmlJSIndenter::firstNonWhiteSpace(const QString &t) const
 {
     int i = 0;
     while (i < t.length()) {
@@ -155,7 +155,7 @@ QChar QScriptIndenter::firstNonWhiteSpace(const QString &t) const
     Returns true if string t is made only of white space; otherwise
     returns false.
 */
-bool QScriptIndenter::isOnlyWhiteSpace(const QString &t) const
+bool QmlJSIndenter::isOnlyWhiteSpace(const QString &t) const
 {
     return firstNonWhiteSpace(t).isNull();
 }
@@ -165,7 +165,7 @@ bool QScriptIndenter::isOnlyWhiteSpace(const QString &t) const
     index. Column numbers and index are identical for strings that don't
     contain '\t's.
 */
-int QScriptIndenter::columnForIndex(const QString &t, int index) const
+int QmlJSIndenter::columnForIndex(const QString &t, int index) const
 {
     int col = 0;
     if (index > t.length())
@@ -184,7 +184,7 @@ int QScriptIndenter::columnForIndex(const QString &t, int index) const
 /*
     Returns the indentation size of string t.
 */
-int QScriptIndenter::indentOfLine(const QString &t) const
+int QmlJSIndenter::indentOfLine(const QString &t) const
 {
     return columnForIndex(t, t.indexOf(firstNonWhiteSpace(t)));
 }
@@ -195,7 +195,7 @@ int QScriptIndenter::indentOfLine(const QString &t) const
     provisions are taken against '\n' or '\r', which shouldn't occur in
     t anyway.
 */
-void QScriptIndenter::eraseChar(QString &t, int k, QChar ch) const
+void QmlJSIndenter::eraseChar(QString &t, int k, QChar ch) const
 {
     if (t.at(k) != QLatin1Char('\t'))
         t[k] = ch;
@@ -205,9 +205,9 @@ void QScriptIndenter::eraseChar(QString &t, int k, QChar ch) const
    Removes some nefast constructs from a code line and returns the
    resulting line.
 */
-QString QScriptIndenter::trimmedCodeLine(const QString &t)
+QString QmlJSIndenter::trimmedCodeLine(const QString &t)
 {
-    QScriptIncrementalScanner scanner;
+    QmlJSScanner scanner;
 
     QTextBlock currentLine = yyLinizerState.iter;
     int startState = qMax(0, currentLine.previous().userState()) & 0xff;
@@ -215,14 +215,14 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t)
     yyLinizerState.tokens = scanner(t, startState);
     QString trimmed;
     int previousTokenEnd = 0;
-    foreach (const QScriptIncrementalScanner::Token &token, yyLinizerState.tokens) {
+    foreach (const QmlJSScanner::Token &token, yyLinizerState.tokens) {
         trimmed.append(t.midRef(previousTokenEnd, token.begin() - previousTokenEnd));
 
-        if (token.is(QScriptIncrementalScanner::Token::String)) {
+        if (token.is(QmlJSScanner::Token::String)) {
             for (int i = 0; i < token.length; ++i)
                 trimmed.append(QLatin1Char('X'));
 
-        } else if (token.is(QScriptIncrementalScanner::Token::Comment)) {
+        } else if (token.is(QmlJSScanner::Token::Comment)) {
             for (int i = 0; i < token.length; ++i)
                 trimmed.append(QLatin1Char(' '));
 
@@ -235,43 +235,43 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t)
 
     int index = yyLinizerState.tokens.size() - 1;
     for (; index != -1; --index) {
-        const QScriptIncrementalScanner::Token &token = yyLinizerState.tokens.at(index);
-        if (token.isNot(QScriptIncrementalScanner::Token::Comment))
+        const QmlJSScanner::Token &token = yyLinizerState.tokens.at(index);
+        if (token.isNot(QmlJSScanner::Token::Comment))
             break;
     }
 
     bool isBinding = false;
-    foreach (const QScriptIncrementalScanner::Token &token, yyLinizerState.tokens) {
-        if (token.is(QScriptIncrementalScanner::Token::Colon)) {
+    foreach (const QmlJSScanner::Token &token, yyLinizerState.tokens) {
+        if (token.is(QmlJSScanner::Token::Colon)) {
             isBinding = true;
             break;
         }
     }
 
     if (index != -1) {
-        const QScriptIncrementalScanner::Token &last = yyLinizerState.tokens.at(index);
+        const QmlJSScanner::Token &last = yyLinizerState.tokens.at(index);
 
         switch (last.kind) {
-        case QScriptIncrementalScanner::Token::LeftParenthesis:
-        case QScriptIncrementalScanner::Token::LeftBrace:
-        case QScriptIncrementalScanner::Token::Semicolon:
-        case QScriptIncrementalScanner::Token::Operator:
+        case QmlJSScanner::Token::LeftParenthesis:
+        case QmlJSScanner::Token::LeftBrace:
+        case QmlJSScanner::Token::Semicolon:
+        case QmlJSScanner::Token::Operator:
             break;
 
-        case QScriptIncrementalScanner::Token::RightParenthesis:
-        case QScriptIncrementalScanner::Token::RightBrace:
+        case QmlJSScanner::Token::RightParenthesis:
+        case QmlJSScanner::Token::RightBrace:
             if (isBinding)
                 trimmed.append(QLatin1Char(';'));
             break;
 
-        case QScriptIncrementalScanner::Token::Colon:
-        case QScriptIncrementalScanner::Token::LeftBracket:
-        case QScriptIncrementalScanner::Token::RightBracket:
+        case QmlJSScanner::Token::Colon:
+        case QmlJSScanner::Token::LeftBracket:
+        case QmlJSScanner::Token::RightBracket:
             trimmed.append(QLatin1Char(';'));
             break;
 
-        case QScriptIncrementalScanner::Token::Identifier:
-        case QScriptIncrementalScanner::Token::Keyword:
+        case QmlJSScanner::Token::Identifier:
+        case QmlJSScanner::Token::Keyword:
             if (t.midRef(last.offset, last.length) != QLatin1String("else"))
                 trimmed.append(QLatin1Char(';'));
             break;
@@ -289,7 +289,7 @@ QString QScriptIndenter::trimmedCodeLine(const QString &t)
     Returns '(' if the last parenthesis is opening, ')' if it is
     closing, and QChar() if there are no parentheses in t.
 */
-QChar QScriptIndenter::lastParen(const QString &t) const
+QChar QmlJSIndenter::lastParen(const QString &t) const
 {
     int i = t.length();
     while (i > 0) {
@@ -304,7 +304,7 @@ QChar QScriptIndenter::lastParen(const QString &t) const
     Returns true if typedIn the same as okayCh or is null; otherwise
     returns false.
 */
-bool QScriptIndenter::okay(QChar typedIn, QChar okayCh) const
+bool QmlJSIndenter::okay(QChar typedIn, QChar okayCh) const
 {
     return typedIn == QChar() || typedIn == okayCh;
 }
@@ -321,7 +321,7 @@ bool QScriptIndenter::okay(QChar typedIn, QChar okayCh) const
     accordingly. yyLine is cleaned from comments and other damageable
     constructs. Empty lines are skipped.
 */
-bool QScriptIndenter::readLine()
+bool QmlJSIndenter::readLine()
 {
     int k;
 
@@ -395,7 +395,7 @@ bool QScriptIndenter::readLine()
     Resets the linizer to its initial state, with yyLine containing the
     line above the bottom line of the program.
 */
-void QScriptIndenter::startLinizer()
+void QmlJSIndenter::startLinizer()
 {
     yyLinizerState.braceDepth = 0;
     yyLinizerState.pendingRightBrace = false;
@@ -415,7 +415,7 @@ void QScriptIndenter::startLinizer()
     potentially the whole line) is part of a C-style comment;
     otherwise returns false.
 */
-bool QScriptIndenter::bottomLineStartsInMultilineComment()
+bool QmlJSIndenter::bottomLineStartsInMultilineComment()
 {
     QTextBlock currentLine = yyProgram.lastBlock().previous();
     QTextBlock previousLine = currentLine.previous();
@@ -435,7 +435,7 @@ bool QScriptIndenter::bottomLineStartsInMultilineComment()
     Essentially, we're trying to align against some text on the
     previous line.
 */
-int QScriptIndenter::indentWhenBottomLineStartsInMultiLineComment()
+int QmlJSIndenter::indentWhenBottomLineStartsInMultiLineComment()
 {
     QTextBlock block = yyProgram.lastBlock().previous();
     QString blockText;
@@ -468,7 +468,7 @@ int QScriptIndenter::indentWhenBottomLineStartsInMultiLineComment()
         if (x)
             y;
 */
-bool QScriptIndenter::matchBracelessControlStatement()
+bool QmlJSIndenter::matchBracelessControlStatement()
 {
     int delimDepth = 0;
 
@@ -553,7 +553,7 @@ bool QScriptIndenter::matchBracelessControlStatement()
             f +   // unfinished continuation line
             g;    // continuation line
 */
-bool QScriptIndenter::isUnfinishedLine()
+bool QmlJSIndenter::isUnfinishedLine()
 {
     bool unf = false;
 
@@ -600,7 +600,7 @@ bool QScriptIndenter::isUnfinishedLine()
     Returns true if yyLine is a continuation line; otherwise returns
     false.
 */
-bool QScriptIndenter::isContinuationLine()
+bool QmlJSIndenter::isContinuationLine()
 {
     bool cont = false;
 
@@ -619,7 +619,7 @@ bool QScriptIndenter::isContinuationLine()
     or other bracked left opened on a previous line, or some interesting
     operator such as '='.
 */
-int QScriptIndenter::indentForContinuationLine()
+int QmlJSIndenter::indentForContinuationLine()
 {
     int braceDepth = 0;
     int delimDepth = 0;
@@ -863,7 +863,7 @@ int QScriptIndenter::indentForContinuationLine()
     accommodate people with irregular indentation schemes. A hook line
     near at hand is much more reliable than a remote one.
 */
-int QScriptIndenter::indentForStandaloneLine()
+int QmlJSIndenter::indentForStandaloneLine()
 {
     for (int i = 0; i < SmallRoof; i++) {
         if (!*yyLeftBraceFollows) {
@@ -948,7 +948,7 @@ int QScriptIndenter::indentForStandaloneLine()
     slighly more liberal if typedIn is always null. The user might be
     annoyed by the liberal behavior.
 */
-int QScriptIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar typedIn)
+int QmlJSIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar typedIn)
 {
     if (begin == end)
         return 0;

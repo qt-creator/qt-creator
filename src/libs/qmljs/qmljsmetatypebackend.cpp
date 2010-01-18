@@ -27,48 +27,17 @@
 **
 **************************************************************************/
 
-#ifndef QMLIDCOLLECTOR_H
-#define QMLIDCOLLECTOR_H
+#include "qmljsmetatypebackend.h"
+#include "qmljstypesystem.h"
 
-#include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/parser/qmljsengine_p.h>
-#include <qmljs/qmldocument.h>
-#include <qmljs/qmlsymbol.h>
+using namespace QmlJS;
 
-#include <QMap>
-#include <QPair>
-#include <QStack>
-#include <QString>
-
-namespace Qml {
-namespace Internal {
-
-class QML_EXPORT QmlIdCollector: protected QmlJS::AST::Visitor
+MetaTypeBackend::MetaTypeBackend(TypeSystem *typeSystem):
+        m_typeSystem(typeSystem)
 {
-public:
-    QMap<QString, Qml::QmlIdSymbol*> operator()(Qml::QmlDocument &doc);
+    Q_ASSERT(typeSystem);
+}
 
-    QList<QmlJS::DiagnosticMessage> diagnosticMessages()
-    { return _diagnosticMessages; }
-
-protected:
-    virtual bool visit(QmlJS::AST::UiArrayBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectBinding *ast);
-    virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
-    virtual bool visit(QmlJS::AST::UiScriptBinding *ast);
-
-private:
-    Qml::QmlSymbolFromFile *switchSymbol(QmlJS::AST::UiObjectMember *node);
-    void addId(const QString &id, QmlJS::AST::UiScriptBinding *ast);
-
-private:
-    Qml::QmlDocument *_doc;
-    QMap<QString, Qml::QmlIdSymbol*> _ids;
-    Qml::QmlSymbolFromFile *_currentSymbol;
-    QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
-};
-
-} // namespace Internal
-} // namespace Qml
-
-#endif // QMLIDCOLLECTOR_H
+MetaTypeBackend::~MetaTypeBackend()
+{
+}

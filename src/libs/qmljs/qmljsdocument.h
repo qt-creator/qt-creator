@@ -36,25 +36,25 @@
 #include <QtCore/QString>
 
 #include "parser/qmljsengine_p.h"
-#include "qml_global.h"
-#include "qmlsymbol.h"
+#include "qmljs_global.h"
+#include "qmljssymbol.h"
 
-namespace Qml {
+namespace QmlJS {
 
-class QML_EXPORT QmlDocument
+class QMLJS_EXPORT Document
 {
 public:
-    typedef QSharedPointer<QmlDocument> Ptr;
-    typedef QList<QmlDocument::Ptr> PtrList;
-    typedef QMap<QString, Qml::QmlIdSymbol*> IdTable;
+    typedef QSharedPointer<Document> Ptr;
+    typedef QList<Document::Ptr> PtrList;
+    typedef QMap<QString, IdSymbol*> IdTable;
 
 protected:
-    QmlDocument(const QString &fileName);
+    Document(const QString &fileName);
 
 public:
-    ~QmlDocument();
+    ~Document();
 
-    static QmlDocument::Ptr create(const QString &fileName);
+    static Document::Ptr create(const QString &fileName);
 
     QmlJS::AST::UiProgram *qmlProgram() const;
     QmlJS::AST::Program *jsProgram() const;
@@ -75,8 +75,8 @@ public:
     QString path() const { return _path; }
     QString componentName() const { return _componentName; }
 
-    Qml::QmlSymbolFromFile *findSymbol(QmlJS::AST::Node *node) const;
-    Qml::QmlSymbol::List symbols() const
+    QmlJS::SymbolFromFile *findSymbol(QmlJS::AST::Node *node) const;
+    QmlJS::Symbol::List symbols() const
     { return _symbols; }
 
 private:
@@ -91,22 +91,22 @@ private:
     QString _source;
     bool _parsedCorrectly;
     IdTable _ids;
-    Qml::QmlSymbol::List _symbols;
+    QmlJS::Symbol::List _symbols;
 };
 
-class QML_EXPORT Snapshot: public QMap<QString, QmlDocument::Ptr>
+class QMLJS_EXPORT Snapshot: public QMap<QString, Document::Ptr>
 {
 public:
     Snapshot();
     ~Snapshot();
 
-    void insert(const QmlDocument::Ptr &document);
+    void insert(const Document::Ptr &document);
 
-    QmlDocument::Ptr document(const QString &fileName) const
+    Document::Ptr document(const QString &fileName) const
     { return value(fileName); }
 
-    QmlDocument::PtrList importedDocuments(const QmlDocument::Ptr &doc, const QString &importPath) const;
-    QMap<QString, QmlDocument::Ptr> componentsDefinedByImportedDocuments(const QmlDocument::Ptr &doc, const QString &importPath) const;
+    Document::PtrList importedDocuments(const Document::Ptr &doc, const QString &importPath) const;
+    QMap<QString, Document::Ptr> componentsDefinedByImportedDocuments(const Document::Ptr &doc, const QString &importPath) const;
 };
 
 } // end of namespace Qml

@@ -30,7 +30,7 @@
 #ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
 #define QSCRIPTSYNTAXHIGHLIGHTER_H
 
-#include <qmljs/qscriptincrementalscanner.h>
+#include <qmljs/qmljsscanner.h>
 
 #include <QtCore/QVector>
 #include <QtCore/QSet>
@@ -38,7 +38,7 @@
 
 namespace QmlJS {
 
-class QML_EXPORT QScriptHighlighter : public QSyntaxHighlighter
+class QMLJS_EXPORT QScriptHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
@@ -69,10 +69,10 @@ protected:
     // sets the enriched user state, or simply calls setCurrentBlockState(state);
     virtual void onBlockEnd(int state, int firstNonSpace);
 
-    virtual void highlightWhitespace(const QScriptIncrementalScanner::Token &token, const QString &text, int nonWhitespaceFormat);
+    virtual void highlightWhitespace(const QmlJSScanner::Token &token, const QString &text, int nonWhitespaceFormat);
 
 protected:
-    QScriptIncrementalScanner m_scanner;
+    QmlJSScanner m_scanner;
 
 private:
     bool m_duiEnabled;

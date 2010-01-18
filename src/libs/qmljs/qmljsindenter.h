@@ -27,11 +27,11 @@
 **
 **************************************************************************/
 
-#ifndef QTSCRIPTINDENTER_H
-#define QTSCRIPTINDENTER_H
+#ifndef QMLJSINDENTER_H
+#define QMLJSINDENTER_H
 
-#include <qmljs/qml_global.h>
-#include <qmljs/qscriptincrementalscanner.h>
+#include <qmljs/qmljs_global.h>
+#include <qmljs/qmljsscanner.h>
 
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
@@ -39,13 +39,13 @@
 
 namespace QmlJS {
 
-class QML_EXPORT QScriptIndenter
+class QMLJS_EXPORT QmlJSIndenter
 {
-    Q_DISABLE_COPY(QScriptIndenter)
+    Q_DISABLE_COPY(QmlJSIndenter)
 
 public:
-    QScriptIndenter();
-    ~QScriptIndenter();
+    QmlJSIndenter();
+    ~QmlJSIndenter();
 
     void setTabSize(int size);
     void setIndentSize(int size);
@@ -103,7 +103,7 @@ private:
         bool leftBraceFollows;
         bool pendingRightBrace;
         QString line;
-        QList<QScriptIncrementalScanner::Token> tokens;
+        QList<QmlJSScanner::Token> tokens;
         QTextBlock iter;
     };
 
@@ -136,5 +136,5 @@ private:
 
 } // namespace QmlJS
 
-#endif // QTSCRIPTINDENTER_H
+#endif // QMLJSINDENTER_H
 

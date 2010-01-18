@@ -92,7 +92,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     m_modelManager = new QmlModelManager(this);
     addAutoReleasedObject(m_modelManager);
-    Qml::QmlTypeSystem *typeSystem = new Qml::QmlTypeSystem;
+    QmlJS::TypeSystem *typeSystem = new QmlJS::TypeSystem;
     addAutoReleasedObject(typeSystem);
 
     QList<int> context;

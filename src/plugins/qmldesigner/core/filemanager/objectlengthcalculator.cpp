@@ -31,12 +31,12 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace Qml;
+using namespace QmlJS;
 using namespace QmlDesigner;
 using namespace QmlJS::AST;
 
 ObjectLengthCalculator::ObjectLengthCalculator(const QString &text):
-        m_doc(QmlDocument::create("<internal>"))
+        m_doc(Document::create("<internal>"))
 {
     m_doc->setSource(text);
     bool ok = m_doc->parseQml();

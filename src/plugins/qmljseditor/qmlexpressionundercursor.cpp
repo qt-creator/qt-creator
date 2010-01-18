@@ -38,7 +38,6 @@
 
 #include <QDebug>
 
-using namespace Qml;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
@@ -124,7 +123,7 @@ namespace QmlJSEditor {
         class ScopeCalculator: protected Visitor
         {
         public:
-            QStack<QmlSymbol*> operator()(const QmlDocument::Ptr &doc, int pos)
+            QStack<Symbol*> operator()(const Document::Ptr &doc, int pos)
             {
                 _doc = doc;
                 _pos = pos;
@@ -179,7 +178,7 @@ namespace QmlJSEditor {
         private:
             void push(Node *node)
             {
-                QmlSymbolFromFile* symbol;
+                SymbolFromFile* symbol;
 
                 if (_currentSymbol) {
                     symbol = _currentSymbol->findMember(node);
@@ -196,10 +195,10 @@ namespace QmlJSEditor {
             }
 
         private:
-            QmlDocument::Ptr _doc;
+            Document::Ptr _doc;
             quint32 _pos;
-            QStack<QmlSymbol*> _scopes;
-            QmlSymbolFromFile* _currentSymbol;
+            QStack<Symbol*> _scopes;
+            SymbolFromFile* _currentSymbol;
         };
     }
 }
@@ -220,7 +219,7 @@ QmlExpressionUnderCursor::~QmlExpressionUnderCursor()
 }
 
 void QmlExpressionUnderCursor::operator()(const QTextCursor &cursor,
-                                          const QmlDocument::Ptr &doc)
+                                          const Document::Ptr &doc)
 {
     if (_engine) { delete _engine; _engine = 0; }
     if (_nodePool) { delete _nodePool; _nodePool = 0; }

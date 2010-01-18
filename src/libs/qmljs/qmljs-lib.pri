@@ -1,5 +1,5 @@
 contains(CONFIG, dll) {
-    DEFINES += QML_BUILD_LIB
+    DEFINES += QMLJS_BUILD_DIR
 } else {
     DEFINES += QML_BUILD_STATIC_LIB
 }
@@ -12,23 +12,27 @@ DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD/..
 
 HEADERS += \
-    $$PWD/qml_global.h \
-    $$PWD/qmlidcollector.h \
-    $$PWD/qmldocument.h \
-    $$PWD/qmlpackageinfo.h \
-    $$PWD/qmlsymbol.h \
-    $$PWD/qmlmetatypebackend.h \
-    $$PWD/qmltypesystem.h \
-    $$PWD/qscriptincrementalscanner.h
+    $$PWD/qmljs_global.h \
+    $$PWD/qmljsbind.h \
+    $$PWD/qmljscheck.h \
+    $$PWD/qmljsdocument.h \
+    $$PWD/qmljsidcollector.h \
+    $$PWD/qmljsmetatypebackend.h \
+    $$PWD/qmljspackageinfo.h \
+    $$PWD/qmljsscanner.h \
+    $$PWD/qmljssymbol.h \
+    $$PWD/qmljstypesystem.h
 
 SOURCES += \
-    $$PWD/qmlidcollector.cpp \
-    $$PWD/qmldocument.cpp \
-    $$PWD/qmlsymbol.cpp \
-    $$PWD/qmlpackageinfo.cpp \
-    $$PWD/qmlmetatypebackend.cpp \
-    $$PWD/qmltypesystem.cpp \
-    $$PWD/qscriptincrementalscanner.cpp
+    $$PWD/qmljsbind.cpp \
+    $$PWD/qmljscheck.cpp \
+    $$PWD/qmljsdocument.cpp \
+    $$PWD/qmljsidcollector.cpp \
+    $$PWD/qmljsmetatypebackend.cpp \
+    $$PWD/qmljspackageinfo.cpp \
+    $$PWD/qmljsscanner.cpp \
+    $$PWD/qmljssymbol.cpp \
+    $$PWD/qmljstypesystem.cpp
 
 contains(QT_CONFIG, declarative) {
     QT += declarative
@@ -43,6 +47,6 @@ contains(QT_CONFIG, declarative) {
 }
 
 contains(QT, gui) {
-    SOURCES += $$PWD/qscripthighlighter.cpp $$PWD/qscriptindenter.cpp
-    HEADERS += $$PWD/qscripthighlighter.h $$PWD/qscriptindenter.h
+    SOURCES += $$PWD/qmljshighlighter.cpp $$PWD/qmljsindenter.cpp
+    HEADERS += $$PWD/qmljshighlighter.h $$PWD/qmljsindenter.h
 }

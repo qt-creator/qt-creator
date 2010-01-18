@@ -33,7 +33,7 @@
 #include "rewriteactioncompressor.h"
 #include "rewriterview.h"
 
-#include <qmljs/qmldocument.h>
+#include <qmljs/qmljsdocument.h>
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
@@ -44,7 +44,7 @@
 #define INDENT_DEPTH 4
 #undef DUMP_REWRITE_ACTIONS
 
-using namespace Qml;
+using namespace QmlJS;
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
@@ -199,7 +199,7 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
-    QmlDocument::Ptr tmpDocument(QmlDocument::create(QLatin1String("<ModelToTextMerger>")));
+    Document::Ptr tmpDocument(Document::create(QLatin1String("<ModelToTextMerger>")));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";

@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include <qmljs/qscripthighlighter.h>
+#include <qmljs/qmljshighlighter.h>
 
 #include <QtCore/QSet>
 #include <QtCore/QtAlgorithms>
@@ -62,60 +62,60 @@ void QScriptHighlighter::highlightBlock(const QString &text)
 
     QTextCharFormat emptyFormat;
     int lastEnd = 0;
-    const QList<QScriptIncrementalScanner::Token> tokens = m_scanner.tokens();
+    const QList<QmlJSScanner::Token> tokens = m_scanner.tokens();
     for (int i = 0; i < tokens.size(); ++i) {
-        const QScriptIncrementalScanner::Token token = tokens.at(i);
+        const QmlJSScanner::Token token = tokens.at(i);
 
         if (token.offset != lastEnd)
             setFormat(lastEnd, token.offset - lastEnd, m_formats[VisualWhitespace]);
 
         switch (token.kind) {
-            case QScriptIncrementalScanner::Token::Keyword:
+            case QmlJSScanner::Token::Keyword:
                 setFormat(token.offset, token.length, m_formats[KeywordFormat]);
                 break;
 
-            case QScriptIncrementalScanner::Token::String:
+            case QmlJSScanner::Token::String:
                 highlightWhitespace(token, text, StringFormat);
                 break;
 
-            case QScriptIncrementalScanner::Token::Comment:
+            case QmlJSScanner::Token::Comment:
                 highlightWhitespace(token, text, CommentFormat);
                 break;
 
-            case QScriptIncrementalScanner::Token::Number:
+            case QmlJSScanner::Token::Number:
                 highlightWhitespace(token, text, NumberFormat);
                 break;
 
-            case QScriptIncrementalScanner::Token::LeftParenthesis:
+            case QmlJSScanner::Token::LeftParenthesis:
                 onOpeningParenthesis('(', token.offset);
                 break;
 
-            case QScriptIncrementalScanner::Token::RightParenthesis:
+            case QmlJSScanner::Token::RightParenthesis:
                 onClosingParenthesis(')', token.offset);
                 break;
 
-            case QScriptIncrementalScanner::Token::LeftBrace:
+            case QmlJSScanner::Token::LeftBrace:
                 onOpeningParenthesis('{', token.offset);
                 break;
 
-            case QScriptIncrementalScanner::Token::RightBrace:
+            case QmlJSScanner::Token::RightBrace:
                 onClosingParenthesis('}', token.offset);
                 break;
 
-            case QScriptIncrementalScanner::Token::LeftBracket:
+            case QmlJSScanner::Token::LeftBracket:
                 onOpeningParenthesis('[', token.offset);
                 break;
 
-            case QScriptIncrementalScanner::Token::RightBracket:
+            case QmlJSScanner::Token::RightBracket:
                 onClosingParenthesis(']', token.offset);
                 break;
 
-            case QScriptIncrementalScanner::Token::Identifier:
-                if (m_duiEnabled && (i + 1 != tokens.size()) && tokens.at(i + 1).kind == QScriptIncrementalScanner::Token::Colon) {
+            case QmlJSScanner::Token::Identifier:
+                if (m_duiEnabled && (i + 1 != tokens.size()) && tokens.at(i + 1).kind == QmlJSScanner::Token::Colon) {
                     int j = i;
                     for (; j != -1; --j) {
-                        const QScriptIncrementalScanner::Token &tok = tokens.at(j);
-                        if (tok.is(QScriptIncrementalScanner::Token::Dot) || tok.is(QScriptIncrementalScanner::Token::Identifier)) {
+                        const QmlJSScanner::Token &tok = tokens.at(j);
+                        if (tok.is(QmlJSScanner::Token::Dot) || tok.is(QmlJSScanner::Token::Identifier)) {
                             setFormat(tok.offset, tok.length, m_formats[LabelFormat]);
                         } else {
                             break;
@@ -131,15 +131,15 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 }
                 break;
 
-            case QScriptIncrementalScanner::Token::Colon:
-                if (m_duiEnabled && i > 0 && tokens.at(i - 1).kind == QScriptIncrementalScanner::Token::Identifier)
+            case QmlJSScanner::Token::Colon:
+                if (m_duiEnabled && i > 0 && tokens.at(i - 1).kind == QmlJSScanner::Token::Identifier)
                     setFormat(token.offset, token.length, m_formats[LabelFormat]);
                 else
                     setFormat(token.offset, token.length, emptyFormat);
                 break;
 
-            case QScriptIncrementalScanner::Token::Operator:
-            case QScriptIncrementalScanner::Token::Dot:
+            case QmlJSScanner::Token::Operator:
+            case QmlJSScanner::Token::Dot:
                 setFormat(token.offset, token.length, emptyFormat);
                 break;
 
@@ -247,7 +247,7 @@ void QScriptHighlighter::onOpeningParenthesis(QChar, int) {}
 void QScriptHighlighter::onClosingParenthesis(QChar, int) {}
 void QScriptHighlighter::onBlockEnd(int state, int) { return setCurrentBlockState(state); }
 
-void QScriptHighlighter::highlightWhitespace(const QScriptIncrementalScanner::Token &token, const QString &text, int nonWhitespaceFormat)
+void QScriptHighlighter::highlightWhitespace(const QmlJSScanner::Token &token, const QString &text, int nonWhitespaceFormat)
 {
     const QTextCharFormat normalFormat = m_formats[nonWhitespaceFormat];
     const QTextCharFormat visualSpaceFormat = m_formats[VisualWhitespace];

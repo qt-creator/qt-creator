@@ -27,17 +27,17 @@
 **
 **************************************************************************/
 
-#include "qmlmetatypebackend.h"
-#include "qmltypesystem.h"
+#ifndef QMLJS_GLOBAL_H
+#define QMLJS_GLOBAL_H
 
-using namespace Qml;
+#include <QtCore/qglobal.h>
 
-QmlMetaTypeBackend::QmlMetaTypeBackend(QmlTypeSystem *typeSystem):
-        m_typeSystem(typeSystem)
-{
-    Q_ASSERT(typeSystem);
-}
+#if defined(QMLJS_BUILD_DIR)
+#  define QMLJS_EXPORT Q_DECL_EXPORT
+#elif defined(QML_BUILD_STATIC_LIB)
+#  define QMLJS_EXPORT
+#else
+#  define QMLJS_EXPORT Q_DECL_IMPORT
+#endif
 
-QmlMetaTypeBackend::~QmlMetaTypeBackend()
-{
-}
+#endif // QMLJS_GLOBAL_H

@@ -27,19 +27,19 @@
 **
 **************************************************************************/
 
-#include "qmlidcollector.h"
-#include "qmldocument.h"
+#include "qmljsidcollector.h"
+#include "qmljsdocument.h"
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsparser_p.h>
 #include <qmljs/parser/qmljsnodepool_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
-using namespace Qml;
+using namespace QmlJS;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-QmlDocument::QmlDocument(const QString &fileName)
+Document::Document(const QString &fileName)
     : _engine(0)
     , _pool(0)
     , _uiProgram(0)
@@ -55,7 +55,7 @@ QmlDocument::QmlDocument(const QString &fileName)
         _componentName = fileName.mid(slashIdx + 1, fileName.size() - (slashIdx + 1) - 4);
 }
 
-QmlDocument::~QmlDocument()
+Document::~Document()
 {
     if (_engine)
         delete _engine;
@@ -66,38 +66,38 @@ QmlDocument::~QmlDocument()
     qDeleteAll(_symbols);
 }
 
-QmlDocument::Ptr QmlDocument::create(const QString &fileName)
+Document::Ptr Document::create(const QString &fileName)
 {
-    QmlDocument::Ptr doc(new QmlDocument(fileName));
+    Document::Ptr doc(new Document(fileName));
     return doc;
 }
 
-AST::UiProgram *QmlDocument::qmlProgram() const
+AST::UiProgram *Document::qmlProgram() const
 {
     return _uiProgram;
 }
 
-AST::Program *QmlDocument::jsProgram() const
+AST::Program *Document::jsProgram() const
 {
     return _jsProgram;
 }
 
-QList<DiagnosticMessage> QmlDocument::diagnosticMessages() const
+QList<DiagnosticMessage> Document::diagnosticMessages() const
 {
     return _diagnosticMessages;
 }
 
-QString QmlDocument::source() const
+QString Document::source() const
 {
     return _source;
 }
 
-void QmlDocument::setSource(const QString &source)
+void Document::setSource(const QString &source)
 {
     _source = source;
 }
 
-bool QmlDocument::parseQml()
+bool Document::parseQml()
 {
     Q_ASSERT(! _engine);
     Q_ASSERT(! _pool);
@@ -120,9 +120,9 @@ bool QmlDocument::parseQml()
     if (_uiProgram) {
         for (QmlJS::AST::UiObjectMemberList *iter = _uiProgram->members; iter; iter = iter->next)
             if (iter->member)
-                _symbols.append(new QmlSymbolFromFile(_fileName, iter->member));
+                _symbols.append(new SymbolFromFile(_fileName, iter->member));
 
-         Internal::QmlIdCollector collect;
+         Internal::IdCollector collect;
         _ids = collect(*this);
         if (_diagnosticMessages.isEmpty())
             _diagnosticMessages = collect.diagnosticMessages();
@@ -131,7 +131,7 @@ bool QmlDocument::parseQml()
     return _parsedCorrectly;
 }
 
-bool QmlDocument::parseJavaScript()
+bool Document::parseJavaScript()
 {
     Q_ASSERT(! _engine);
     Q_ASSERT(! _pool);
@@ -154,9 +154,9 @@ bool QmlDocument::parseJavaScript()
     return _parsedCorrectly;
 }
 
-QmlSymbolFromFile *QmlDocument::findSymbol(QmlJS::AST::Node *node) const
+SymbolFromFile *Document::findSymbol(QmlJS::AST::Node *node) const
 {
-    foreach (QmlSymbol *symbol, _symbols)
+    foreach (Symbol *symbol, _symbols)
         if (symbol->isSymbolFromFile())
             if (symbol->asSymbolFromFile()->node() == node)
                 return symbol->asSymbolFromFile();
@@ -172,19 +172,19 @@ Snapshot::~Snapshot()
 {
 }
 
-void Snapshot::insert(const QmlDocument::Ptr &document)
+void Snapshot::insert(const Document::Ptr &document)
 {
     if (document && (document->qmlProgram() || document->jsProgram()))
-        QMap<QString, QmlDocument::Ptr>::insert(document->fileName(), document);
+        QMap<QString, Document::Ptr>::insert(document->fileName(), document);
 }
 
-QmlDocument::PtrList Snapshot::importedDocuments(const QmlDocument::Ptr &doc, const QString &importPath) const
+Document::PtrList Snapshot::importedDocuments(const Document::Ptr &doc, const QString &importPath) const
 {
-    QmlDocument::PtrList result;
+    Document::PtrList result;
 
     const QString docPath = doc->path() + '/' + importPath;
 
-    foreach (QmlDocument::Ptr candidate, *this) {
+    foreach (Document::Ptr candidate, *this) {
         if (candidate == doc)
             continue;
 
@@ -195,13 +195,13 @@ QmlDocument::PtrList Snapshot::importedDocuments(const QmlDocument::Ptr &doc, co
     return result;
 }
 
-QMap<QString, QmlDocument::Ptr> Snapshot::componentsDefinedByImportedDocuments(const QmlDocument::Ptr &doc, const QString &importPath) const
+QMap<QString, Document::Ptr> Snapshot::componentsDefinedByImportedDocuments(const Document::Ptr &doc, const QString &importPath) const
 {
-    QMap<QString, QmlDocument::Ptr> result;
+    QMap<QString, Document::Ptr> result;
 
     const QString docPath = doc->path() + '/' + importPath;
 
-    foreach (QmlDocument::Ptr candidate, *this) {
+    foreach (Document::Ptr candidate, *this) {
         if (candidate == doc)
             continue;
 

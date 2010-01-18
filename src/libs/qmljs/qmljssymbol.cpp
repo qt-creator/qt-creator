@@ -27,56 +27,56 @@
 **
 **************************************************************************/
 
-#include "qmlsymbol.h"
+#include "qmljssymbol.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
 
-using namespace Qml;
+using namespace QmlJS;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-QmlSymbol::~QmlSymbol()
+Symbol::~Symbol()
 {
 }
 
-bool QmlSymbol::isBuildInSymbol()
-{ return asBuildInSymbol() != 0; }
+bool Symbol::isBuildInSymbol()
+{ return asPrimitiveSymbol() != 0; }
 
-bool QmlSymbol::isSymbolFromFile()
+bool Symbol::isSymbolFromFile()
 { return asSymbolFromFile() != 0; }
 
-bool QmlSymbol::isIdSymbol()
+bool Symbol::isIdSymbol()
 { return asIdSymbol() != 0; }
 
-bool QmlSymbol::isPropertyDefinitionSymbol()
+bool Symbol::isPropertyDefinitionSymbol()
 { return asPropertyDefinitionSymbol() != 0; }
 
-QmlBuildInSymbol *QmlSymbol::asBuildInSymbol()
+PrimitiveSymbol *Symbol::asPrimitiveSymbol()
 { return 0; }
 
-QmlSymbolFromFile *QmlSymbol::asSymbolFromFile()
+SymbolFromFile *Symbol::asSymbolFromFile()
 { return 0; }
 
-QmlIdSymbol *QmlSymbol::asIdSymbol()
+IdSymbol *Symbol::asIdSymbol()
 { return 0; }
 
-QmlPropertyDefinitionSymbol *QmlSymbol::asPropertyDefinitionSymbol()
+PropertyDefinitionSymbol *Symbol::asPropertyDefinitionSymbol()
 { return 0; }
 
-QmlBuildInSymbol::~QmlBuildInSymbol()
+PrimitiveSymbol::~PrimitiveSymbol()
 {}
 
-QmlBuildInSymbol *QmlBuildInSymbol::asBuildInSymbol()
+PrimitiveSymbol *PrimitiveSymbol::asPrimitiveSymbol()
 { return this; }
 
-QmlSymbolWithMembers::~QmlSymbolWithMembers()
+SymbolWithMembers::~SymbolWithMembers()
 { qDeleteAll(_members); }
 
-const QmlSymbol::List QmlSymbolWithMembers::members()
+const Symbol::List SymbolWithMembers::members()
 { return _members; }
 
-QmlSymbolFromFile::QmlSymbolFromFile(const QString &fileName, QmlJS::AST::UiObjectMember *node):
+SymbolFromFile::SymbolFromFile(const QString &fileName, QmlJS::AST::UiObjectMember *node):
         _fileName(fileName),
         _node(node)
 {
@@ -97,16 +97,16 @@ QmlSymbolFromFile::QmlSymbolFromFile(const QString &fileName, QmlJS::AST::UiObje
     }
 }
 
-QmlSymbolFromFile::~QmlSymbolFromFile()
+SymbolFromFile::~SymbolFromFile()
 {}
 
-QmlSymbolFromFile *QmlSymbolFromFile::asSymbolFromFile()
+SymbolFromFile *SymbolFromFile::asSymbolFromFile()
 { return this; }
 
-int QmlSymbolFromFile::line() const
+int SymbolFromFile::line() const
 { return _node->firstSourceLocation().startLine; }
 
-int QmlSymbolFromFile::column() const
+int SymbolFromFile::column() const
 { return _node->firstSourceLocation().startColumn; }
 
 static inline QString toString(UiQualifiedId *qId)
@@ -126,7 +126,7 @@ static inline QString toString(UiQualifiedId *qId)
     return result;
 }
 
-const QString QmlSymbolFromFile::name() const
+const QString SymbolFromFile::name() const
 {
     if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(_node))
         return toString(objectBinding->qualifiedId);
@@ -140,23 +140,23 @@ const QString QmlSymbolFromFile::name() const
         return QString::null;
 }
 
-const QmlSymbol::List QmlSymbolFromFile::members()
+const Symbol::List SymbolFromFile::members()
 {
     if (!todo.isEmpty()) {
         foreach (Node *todoNode, todo) {
             if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(todoNode))
-                _members.append(new QmlSymbolFromFile(fileName(), objectBinding));
+                _members.append(new SymbolFromFile(fileName(), objectBinding));
             else if (UiObjectDefinition *objectDefinition = cast<UiObjectDefinition*>(todoNode))
-                _members.append(new QmlSymbolFromFile(fileName(), objectDefinition));
+                _members.append(new SymbolFromFile(fileName(), objectDefinition));
             else if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(todoNode))
-                _members.append(new QmlSymbolFromFile(fileName(), arrayBinding));
+                _members.append(new SymbolFromFile(fileName(), arrayBinding));
             else if (UiPublicMember *publicMember = cast<UiPublicMember*>(todoNode))
-                _members.append(new QmlPropertyDefinitionSymbol(fileName(), publicMember));
+                _members.append(new PropertyDefinitionSymbol(fileName(), publicMember));
             else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(todoNode)) {
                 if (scriptBinding->qualifiedId && scriptBinding->qualifiedId->name && scriptBinding->qualifiedId->name->asString() == QLatin1String("id") && !scriptBinding->qualifiedId->next)
-                    _members.append(new QmlIdSymbol(fileName(), scriptBinding, this));
+                    _members.append(new IdSymbol(fileName(), scriptBinding, this));
                 else
-                    _members.append(new QmlSymbolFromFile(fileName(), scriptBinding));
+                    _members.append(new SymbolFromFile(fileName(), scriptBinding));
             }
         }
 
@@ -166,14 +166,14 @@ const QmlSymbol::List QmlSymbolFromFile::members()
     return _members;
 }
 
-bool QmlSymbolFromFile::isProperty() const
+bool SymbolFromFile::isProperty() const
 { return cast<UiObjectDefinition*>(_node) == 0; }
 
-QmlSymbolFromFile *QmlSymbolFromFile::findMember(QmlJS::AST::Node *memberNode)
+SymbolFromFile *SymbolFromFile::findMember(QmlJS::AST::Node *memberNode)
 {
     List symbols = members();
 
-    foreach (QmlSymbol *symbol, symbols)
+    foreach (Symbol *symbol, symbols)
         if (symbol->isSymbolFromFile())
             if (memberNode == symbol->asSymbolFromFile()->node())
                 return symbol->asSymbolFromFile();
@@ -181,24 +181,24 @@ QmlSymbolFromFile *QmlSymbolFromFile::findMember(QmlJS::AST::Node *memberNode)
     return 0;
 }
 
-QmlIdSymbol::QmlIdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *idNode, QmlSymbolFromFile *parentNode):
-        QmlSymbolFromFile(fileName, idNode),
+IdSymbol::IdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *idNode, SymbolFromFile *parentNode):
+        SymbolFromFile(fileName, idNode),
         _parentNode(parentNode)
 {}
 
-QmlIdSymbol::~QmlIdSymbol()
+IdSymbol::~IdSymbol()
 {}
 
-QmlIdSymbol *QmlIdSymbol::asIdSymbol()
+IdSymbol *IdSymbol::asIdSymbol()
 { return this; }
 
-int QmlIdSymbol::line() const
+int IdSymbol::line() const
 { return idNode()->statement->firstSourceLocation().startLine; }
 
-int QmlIdSymbol::column() const
+int IdSymbol::column() const
 { return idNode()->statement->firstSourceLocation().startColumn; }
 
-const QString QmlIdSymbol::id() const
+const QString IdSymbol::id() const
 {
     if (ExpressionStatement *e = cast<ExpressionStatement*>(idNode()->statement))
         if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
@@ -208,27 +208,27 @@ const QString QmlIdSymbol::id() const
     return QString();
 }
 
-QmlJS::AST::UiScriptBinding *QmlIdSymbol::idNode() const
+QmlJS::AST::UiScriptBinding *IdSymbol::idNode() const
 { return cast<UiScriptBinding*>(node()); }
 
-QmlPropertyDefinitionSymbol::QmlPropertyDefinitionSymbol(const QString &fileName, QmlJS::AST::UiPublicMember *propertyNode):
-        QmlSymbolFromFile(fileName, propertyNode)
+PropertyDefinitionSymbol::PropertyDefinitionSymbol(const QString &fileName, QmlJS::AST::UiPublicMember *propertyNode):
+        SymbolFromFile(fileName, propertyNode)
 {}
 
-QmlPropertyDefinitionSymbol::~QmlPropertyDefinitionSymbol()
+PropertyDefinitionSymbol::~PropertyDefinitionSymbol()
 {}
 
-QmlPropertyDefinitionSymbol *QmlPropertyDefinitionSymbol::asPropertyDefinitionSymbol()
+PropertyDefinitionSymbol *PropertyDefinitionSymbol::asPropertyDefinitionSymbol()
 { return this; }
 
-int QmlPropertyDefinitionSymbol::line() const
+int PropertyDefinitionSymbol::line() const
 { return propertyNode()->identifierToken.startLine; }
 
-int QmlPropertyDefinitionSymbol::column() const
+int PropertyDefinitionSymbol::column() const
 { return propertyNode()->identifierToken.startColumn; }
 
-QmlJS::AST::UiPublicMember *QmlPropertyDefinitionSymbol::propertyNode() const
+QmlJS::AST::UiPublicMember *PropertyDefinitionSymbol::propertyNode() const
 { return cast<UiPublicMember*>(node()); }
 
-const QString QmlPropertyDefinitionSymbol::name() const
+const QString PropertyDefinitionSymbol::name() const
 { return propertyNode()->name->asString(); }

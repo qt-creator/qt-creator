@@ -27,28 +27,28 @@
 **
 **************************************************************************/
 
-#include <qmljs/qscriptincrementalscanner.h>
+#include <qmljs/qmljsscanner.h>
 
 #include <QTextCharFormat>
 
 using namespace QmlJS;
 
-QScriptIncrementalScanner::QScriptIncrementalScanner()
+QmlJSScanner::QmlJSScanner()
 {
     reset();
 }
 
-QScriptIncrementalScanner::~QScriptIncrementalScanner()
+QmlJSScanner::~QmlJSScanner()
 {}
 
-void QScriptIncrementalScanner::reset()
+void QmlJSScanner::reset()
 {
     m_endState = -1;
     m_firstNonSpace = -1;
     m_tokens.clear();
 }
 
-QList<QScriptIncrementalScanner::Token> QScriptIncrementalScanner::operator()(const QString &text, int startState)
+QList<QmlJSScanner::Token> QmlJSScanner::operator()(const QString &text, int startState)
 {
     reset();
 
@@ -301,7 +301,7 @@ QList<QScriptIncrementalScanner::Token> QScriptIncrementalScanner::operator()(co
     return m_tokens;
 }
 
-void QScriptIncrementalScanner::insertToken(int start, int length, Token::Kind kind, bool forceNewToken)
+void QmlJSScanner::insertToken(int start, int length, Token::Kind kind, bool forceNewToken)
 {
     if (m_tokens.isEmpty() || forceNewToken) {
         m_tokens.append(Token(start, length, kind));
@@ -316,7 +316,7 @@ void QScriptIncrementalScanner::insertToken(int start, int length, Token::Kind k
     }
 }
 
-void QScriptIncrementalScanner::insertCharToken(int start, const char c)
+void QmlJSScanner::insertCharToken(int start, const char c)
 {
     Token::Kind kind;
 
@@ -348,7 +348,7 @@ void QScriptIncrementalScanner::insertCharToken(int start, const char c)
     insertToken(start, 1, kind, true);
 }
 
-void QScriptIncrementalScanner::scanForKeywords(const QString &text)
+void QmlJSScanner::scanForKeywords(const QString &text)
 {
     for (int i = 0; i < m_tokens.length(); ++i) {
         Token &t(m_tokens[i]);

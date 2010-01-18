@@ -31,20 +31,20 @@
 #define QMLSYMBOL_H
 
 #include <qmljs/parser/qmljsastfwd_p.h>
-#include <qmljs/qml_global.h>
+#include <qmljs/qmljs_global.h>
 
 #include <QList>
 #include <QString>
 
-namespace Qml {
+namespace QmlJS {
 
-class QML_EXPORT QmlSymbol
+class QMLJS_EXPORT Symbol
 {
 public:
-    typedef QList<QmlSymbol *> List;
+    typedef QList<Symbol *> List;
 
 public:
-    virtual ~QmlSymbol() = 0;
+    virtual ~Symbol() = 0;
 
     virtual const QString name() const = 0;
     virtual const List members() = 0;
@@ -55,28 +55,28 @@ public:
     bool isIdSymbol();
     bool isPropertyDefinitionSymbol();
 
-    virtual class QmlBuildInSymbol *asBuildInSymbol();
-    virtual class QmlSymbolFromFile *asSymbolFromFile();
-    virtual class QmlIdSymbol *asIdSymbol();
-    virtual class QmlPropertyDefinitionSymbol *asPropertyDefinitionSymbol();
+    virtual class PrimitiveSymbol *asPrimitiveSymbol();
+    virtual class SymbolFromFile *asSymbolFromFile();
+    virtual class IdSymbol *asIdSymbol();
+    virtual class PropertyDefinitionSymbol *asPropertyDefinitionSymbol();
 };
 
-class QML_EXPORT QmlBuildInSymbol: public QmlSymbol
+class QMLJS_EXPORT PrimitiveSymbol: public Symbol
 {
 public:
-    virtual ~QmlBuildInSymbol() = 0;
+    virtual ~PrimitiveSymbol() = 0;
 
-    virtual QmlBuildInSymbol *asBuildInSymbol();
+    virtual PrimitiveSymbol *asPrimitiveSymbol();
 
-    virtual QmlBuildInSymbol *type() const = 0;
-    using QmlSymbol::members;
+    virtual PrimitiveSymbol *type() const = 0;
+    using Symbol::members;
     virtual List members(bool includeBaseClassMembers) = 0;
 };
 
-class QML_EXPORT QmlSymbolWithMembers: public QmlSymbol
+class QMLJS_EXPORT SymbolWithMembers: public Symbol
 {
 public:
-    virtual ~QmlSymbolWithMembers() = 0;
+    virtual ~SymbolWithMembers() = 0;
 
     virtual const List members();
 
@@ -84,13 +84,13 @@ protected:
     List _members;
 };
 
-class QML_EXPORT QmlSymbolFromFile: public QmlSymbolWithMembers
+class QMLJS_EXPORT SymbolFromFile: public SymbolWithMembers
 {
 public:
-    QmlSymbolFromFile(const QString &fileName, QmlJS::AST::UiObjectMember *node);
-    virtual ~QmlSymbolFromFile();
+    SymbolFromFile(const QString &fileName, QmlJS::AST::UiObjectMember *node);
+    virtual ~SymbolFromFile();
 
-    virtual QmlSymbolFromFile *asSymbolFromFile();
+    virtual SymbolFromFile *asSymbolFromFile();
 
     QString fileName() const
     { return _fileName; }
@@ -104,7 +104,7 @@ public:
     virtual const QString name() const;
     virtual const List members();
     virtual bool isProperty() const;
-    virtual QmlSymbolFromFile *findMember(QmlJS::AST::Node *memberNode);
+    virtual SymbolFromFile *findMember(QmlJS::AST::Node *memberNode);
 
 private:
     void fillTodo(QmlJS::AST::UiObjectMemberList *members);
@@ -115,18 +115,18 @@ private:
     QList<QmlJS::AST::Node*> todo;
 };
 
-class QML_EXPORT QmlIdSymbol: public QmlSymbolFromFile
+class QMLJS_EXPORT IdSymbol: public SymbolFromFile
 {
 public:
-    QmlIdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *idNode, QmlSymbolFromFile *parentNode);
-    virtual ~QmlIdSymbol();
+    IdSymbol(const QString &fileName, QmlJS::AST::UiScriptBinding *idNode, SymbolFromFile *parentNode);
+    virtual ~IdSymbol();
 
-    QmlIdSymbol *asIdSymbol();
+    IdSymbol *asIdSymbol();
 
     virtual int line() const;
     virtual int column() const;
 
-    QmlSymbolFromFile *parentNode() const
+    SymbolFromFile *parentNode() const
     { return _parentNode; }
 
     virtual const QString name() const
@@ -138,16 +138,16 @@ private:
     QmlJS::AST::UiScriptBinding *idNode() const;
 
 private:
-    QmlSymbolFromFile *_parentNode;
+    SymbolFromFile *_parentNode;
 };
 
-class QML_EXPORT QmlPropertyDefinitionSymbol: public QmlSymbolFromFile
+class QMLJS_EXPORT PropertyDefinitionSymbol: public SymbolFromFile
 {
 public:
-    QmlPropertyDefinitionSymbol(const QString &fileName, QmlJS::AST::UiPublicMember *propertyNode);
-    virtual ~QmlPropertyDefinitionSymbol();
+    PropertyDefinitionSymbol(const QString &fileName, QmlJS::AST::UiPublicMember *propertyNode);
+    virtual ~PropertyDefinitionSymbol();
 
-    QmlPropertyDefinitionSymbol *asPropertyDefinitionSymbol();
+    PropertyDefinitionSymbol *asPropertyDefinitionSymbol();
 
     virtual int line() const;
     virtual int column() const;

@@ -32,14 +32,14 @@
 
 #include "qmljseditor_global.h"
 
-#include <qmljs/qmldocument.h>
-#include <qmljs/qmltypesystem.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljstypesystem.h>
 
 #include <QObject>
 #include <QStringList>
 #include <QSharedPointer>
 
-namespace Qml {
+namespace QmlJS {
 class Snapshot;
 }
 
@@ -53,11 +53,11 @@ public:
     QmlModelManagerInterface(QObject *parent = 0);
     virtual ~QmlModelManagerInterface();
 
-    virtual Qml::Snapshot snapshot() const = 0;
+    virtual QmlJS::Snapshot snapshot() const = 0;
     virtual void updateSourceFiles(const QStringList &files) = 0;
 
 signals:
-    void documentUpdated(Qml::QmlDocument::Ptr doc);
+    void documentUpdated(QmlJS::Document::Ptr doc);
 };
 
 } // namespace QmlJSEditor

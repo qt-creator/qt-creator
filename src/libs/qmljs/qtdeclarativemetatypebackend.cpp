@@ -31,17 +31,17 @@
 
 #include <QDebug>
 
-namespace Qml {
+namespace QmlJS {
 namespace Internal {
 
-class QmlDeclarativeSymbol: public QmlBuildInSymbol
+class DeclarativeSymbol: public PrimitiveSymbol
 {
 public:
-    virtual ~QmlDeclarativeSymbol()
+    virtual ~DeclarativeSymbol()
     {}
 
 protected:
-    QmlDeclarativeSymbol(QtDeclarativeMetaTypeBackend* backend):
+    DeclarativeSymbol(QtDeclarativeMetaTypeBackend* backend):
             m_backend(backend)
     { Q_ASSERT(backend); }
     
@@ -52,24 +52,24 @@ private:
     QtDeclarativeMetaTypeBackend* m_backend;
 };
 
-class QmlDeclarativeObjectSymbol: public QmlDeclarativeSymbol
+class DeclarativeObjectSymbol: public DeclarativeSymbol
 {
-    QmlDeclarativeObjectSymbol(const QmlDeclarativeObjectSymbol &);
-    QmlDeclarativeObjectSymbol &operator=(const QmlDeclarativeObjectSymbol &);
+    DeclarativeObjectSymbol(const DeclarativeObjectSymbol &);
+    DeclarativeObjectSymbol &operator=(const DeclarativeObjectSymbol &);
 
 public:
-    QmlDeclarativeObjectSymbol(QtDeclarativeMetaTypeBackend* backend):
-            QmlDeclarativeSymbol(backend)
+    DeclarativeObjectSymbol(QtDeclarativeMetaTypeBackend* backend):
+            DeclarativeSymbol(backend)
     {
     }
 
-    virtual ~QmlDeclarativeObjectSymbol()
+    virtual ~DeclarativeObjectSymbol()
     { qDeleteAll(m_members); }
 
     virtual const QString name() const
     { return m_name; }
 
-    virtual QmlBuildInSymbol *type() const
+    virtual PrimitiveSymbol *type() const
     { return 0; }
 
     virtual const List members()
@@ -114,24 +114,24 @@ private:
     List m_members;
 };
 
-class QmlDeclarativePropertySymbol: public QmlDeclarativeSymbol
+class DeclarativePropertySymbol: public DeclarativeSymbol
 {
-    QmlDeclarativePropertySymbol(const QmlDeclarativePropertySymbol &);
-    QmlDeclarativePropertySymbol &operator=(const QmlDeclarativePropertySymbol &);
+    DeclarativePropertySymbol(const DeclarativePropertySymbol &);
+    DeclarativePropertySymbol &operator=(const DeclarativePropertySymbol &);
 
 public:
-    QmlDeclarativePropertySymbol(QtDeclarativeMetaTypeBackend* backend):
-            QmlDeclarativeSymbol(backend)
+    DeclarativePropertySymbol(QtDeclarativeMetaTypeBackend* backend):
+            DeclarativeSymbol(backend)
     {
     }
 
-    virtual ~QmlDeclarativePropertySymbol()
+    virtual ~DeclarativePropertySymbol()
     {}
 
     virtual const QString name() const
     { return QString(); }
 
-    virtual QmlBuildInSymbol *type() const
+    virtual PrimitiveSymbol *type() const
     { return 0; }
 
     virtual const List members()
@@ -153,11 +153,11 @@ private:
 } // namespace Internal
 } // namespace Qml
 
-using namespace Qml;
-using namespace Qml::Internal;
+using namespace QmlJS;
+using namespace QmlJS::Internal;
 
-QtDeclarativeMetaTypeBackend::QtDeclarativeMetaTypeBackend(QmlTypeSystem *typeSystem):
-        QmlMetaTypeBackend(typeSystem)
+QtDeclarativeMetaTypeBackend::QtDeclarativeMetaTypeBackend(TypeSystem *typeSystem):
+        MetaTypeBackend(typeSystem)
 {
 }
 
@@ -165,16 +165,16 @@ QtDeclarativeMetaTypeBackend::~QtDeclarativeMetaTypeBackend()
 {
 }
 
-QList<QmlSymbol *> QtDeclarativeMetaTypeBackend::availableTypes(const QString &package, int majorVersion, int minorVersion)
+QList<Symbol *> QtDeclarativeMetaTypeBackend::availableTypes(const QString &package, int majorVersion, int minorVersion)
 {
-    QList<QmlSymbol *> result;
+    QList<Symbol *> result;
 
     return result;
 }
 
-QmlSymbol *QtDeclarativeMetaTypeBackend::resolve(const QString &typeName, const QList<PackageInfo> &packages)
+Symbol *QtDeclarativeMetaTypeBackend::resolve(const QString &typeName, const QList<PackageInfo> &packages)
 {
-    QList<QmlSymbol *> result;
+    QList<Symbol *> result;
 
 
     return 0;

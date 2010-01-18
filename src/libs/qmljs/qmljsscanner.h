@@ -27,10 +27,10 @@
 **
 **************************************************************************/
 
-#ifndef QSCRIPTINCREMENTALSCANNER_H
-#define QSCRIPTINCREMENTALSCANNER_H
+#ifndef QMLJSSCANNER_H
+#define QMLJSSCANNER_H
 
-#include <qmljs/qml_global.h>
+#include <qmljs/qmljs_global.h>
 
 #include <QtCore/QList>
 #include <QtCore/QSet>
@@ -38,7 +38,7 @@
 
 namespace QmlJS {
 
-class QML_EXPORT QScriptIncrementalScanner
+class QMLJS_EXPORT QmlJSScanner
 {
 public:
 
@@ -72,15 +72,15 @@ public:
     };
 
 public:
-    QScriptIncrementalScanner();
-    virtual ~QScriptIncrementalScanner();
+    QmlJSScanner();
+    virtual ~QmlJSScanner();
 
     void setKeywords(const QSet<QString> keywords)
     { m_keywords = keywords;; }
 
     void reset();
 
-    QList<QScriptIncrementalScanner::Token> operator()(const QString &text, int startState = 0);
+    QList<QmlJSScanner::Token> operator()(const QString &text, int startState = 0);
 
     int endState() const
     { return m_endState; }
@@ -88,7 +88,7 @@ public:
     int firstNonSpace() const
     { return m_firstNonSpace; }
 
-    QList<QScriptIncrementalScanner::Token> tokens() const
+    QList<QmlJSScanner::Token> tokens() const
     { return m_tokens; }
 
 private:
@@ -110,9 +110,9 @@ private:
     QSet<QString> m_keywords;
     int m_endState;
     int m_firstNonSpace;
-    QList<QScriptIncrementalScanner::Token> m_tokens;
+    QList<QmlJSScanner::Token> m_tokens;
 };
 
 } // namespace QmlJS
 
-#endif // QSCRIPTINCREMENTALSCANNER_H
+#endif // QMLJSSCANNER_H

@@ -27,17 +27,13 @@
 **
 **************************************************************************/
 
-#ifndef QML_GLOBAL_H
-#define QML_GLOBAL_H
+#include "qmljspackageinfo.h"
 
-#include <QtCore/qglobal.h>
+using namespace QmlJS;
 
-#if defined(QML_BUILD_LIB)
-#  define QML_EXPORT Q_DECL_EXPORT
-#elif defined(QML_BUILD_STATIC_LIB)
-#  define QML_EXPORT
-#else
-#  define QML_EXPORT Q_DECL_IMPORT
-#endif
-
-#endif // QML_GLOBAL_H
+PackageInfo::PackageInfo(const QString &name, int majorVersion, int minorVersion):
+        m_name(name),
+        m_majorVersion(majorVersion),
+        m_minorVersion(minorVersion)
+{
+}

@@ -27,35 +27,48 @@
 **
 **************************************************************************/
 
-#ifndef PACKAGEINFO_H
-#define PACKAGEINFO_H
+#ifndef QMLIDCOLLECTOR_H
+#define QMLIDCOLLECTOR_H
 
-#include <qmljs/qml_global.h>
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljssymbol.h>
 
-#include <QtCore/QString>
+#include <QMap>
+#include <QPair>
+#include <QStack>
+#include <QString>
 
-namespace Qml {
+namespace QmlJS {
+namespace Internal {
 
-class QML_EXPORT PackageInfo
+class QMLJS_EXPORT IdCollector: protected AST::Visitor
 {
 public:
-    PackageInfo(const QString &name, int majorVersion, int minorVersion);
+    QMap<QString, IdSymbol*> operator()(Document &doc);
 
-    QString name() const
-    { return m_name; }
+    QList<DiagnosticMessage> diagnosticMessages()
+    { return _diagnosticMessages; }
 
-    int majorVersion() const
-    { return m_majorVersion; }
-
-    int minorVersion() const
-    { return m_minorVersion; }
+protected:
+    virtual bool visit(AST::UiArrayBinding *ast);
+    virtual bool visit(AST::UiObjectBinding *ast);
+    virtual bool visit(AST::UiObjectDefinition *ast);
+    virtual bool visit(AST::UiScriptBinding *ast);
 
 private:
-    QString m_name;
-    int m_majorVersion;
-    int m_minorVersion;
+    SymbolFromFile *switchSymbol(AST::UiObjectMember *node);
+    void addId(const QString &id, AST::UiScriptBinding *ast);
+
+private:
+    Document *_doc;
+    QMap<QString, IdSymbol*> _ids;
+    SymbolFromFile *_currentSymbol;
+    QList<DiagnosticMessage> _diagnosticMessages;
 };
 
+} // namespace Internal
 } // namespace Qml
 
-#endif // PACKAGEINFO_H
+#endif // QMLIDCOLLECTOR_H

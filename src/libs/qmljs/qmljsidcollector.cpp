@@ -31,14 +31,14 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-#include "qmlidcollector.h"
+#include "qmljsidcollector.h"
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace Qml;
-using namespace Qml::Internal;
+using namespace QmlJS;
+using namespace QmlJS::Internal;
 
-QMap<QString, QmlIdSymbol*> QmlIdCollector::operator()(Qml::QmlDocument &doc)
+QMap<QString, IdSymbol*> IdCollector::operator()(QmlJS::Document &doc)
 {
     _doc = &doc;
     _ids.clear();
@@ -49,31 +49,31 @@ QMap<QString, QmlIdSymbol*> QmlIdCollector::operator()(Qml::QmlDocument &doc)
     return _ids;
 }
 
-bool QmlIdCollector::visit(UiArrayBinding *ast)
+bool IdCollector::visit(UiArrayBinding *ast)
 {
-    QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
+    SymbolFromFile *oldSymbol = switchSymbol(ast);
     Node::accept(ast->members, this);
     _currentSymbol = oldSymbol;
     return false;
 }
 
-bool QmlIdCollector::visit(QmlJS::AST::UiObjectBinding *ast)
+bool IdCollector::visit(QmlJS::AST::UiObjectBinding *ast)
 {
-    QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
+    SymbolFromFile *oldSymbol = switchSymbol(ast);
     Node::accept(ast->initializer, this);
     _currentSymbol = oldSymbol;
     return false;
 }
 
-bool QmlIdCollector::visit(QmlJS::AST::UiObjectDefinition *ast)
+bool IdCollector::visit(QmlJS::AST::UiObjectDefinition *ast)
 {
-    QmlSymbolFromFile *oldSymbol = switchSymbol(ast);
+    SymbolFromFile *oldSymbol = switchSymbol(ast);
     Node::accept(ast->initializer, this);
     _currentSymbol = oldSymbol;
     return false;
 }
 
-bool QmlIdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
+bool IdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
 {
     if (!(ast->qualifiedId->next) && ast->qualifiedId->name->asString() == "id")
         if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
@@ -84,9 +84,9 @@ bool QmlIdCollector::visit(QmlJS::AST::UiScriptBinding *ast)
     return false;
 }
 
-QmlSymbolFromFile *QmlIdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node)
+SymbolFromFile *IdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node)
 {
-    QmlSymbolFromFile *newSymbol = 0;
+    SymbolFromFile *newSymbol = 0;
 
     if (_currentSymbol == 0) {
         newSymbol = _doc->findSymbol(node);
@@ -94,7 +94,7 @@ QmlSymbolFromFile *QmlIdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node
         newSymbol = _currentSymbol->findMember(node);
     }
 
-    QmlSymbolFromFile *oldSymbol = _currentSymbol;
+    SymbolFromFile *oldSymbol = _currentSymbol;
 
     if (newSymbol) {
         _currentSymbol = newSymbol;
@@ -106,7 +106,7 @@ QmlSymbolFromFile *QmlIdCollector::switchSymbol(QmlJS::AST::UiObjectMember *node
     return oldSymbol;
 }
 
-void QmlIdCollector::addId(const QString &id, QmlJS::AST::UiScriptBinding *ast)
+void IdCollector::addId(const QString &id, QmlJS::AST::UiScriptBinding *ast)
 {
     if (!_currentSymbol)
         return;
@@ -114,8 +114,8 @@ void QmlIdCollector::addId(const QString &id, QmlJS::AST::UiScriptBinding *ast)
     if (_ids.contains(id)) {
         _diagnosticMessages.append(DiagnosticMessage(DiagnosticMessage::Warning, ast->statement->firstSourceLocation(), "Duplicate ID"));
     } else {
-        if (QmlSymbolFromFile *symbol = _currentSymbol->findMember(ast))
-            if (QmlIdSymbol *idSymbol = symbol->asIdSymbol())
+        if (SymbolFromFile *symbol = _currentSymbol->findMember(ast))
+            if (IdSymbol *idSymbol = symbol->asIdSymbol())
                 _ids[id] = idSymbol;
     }
 }

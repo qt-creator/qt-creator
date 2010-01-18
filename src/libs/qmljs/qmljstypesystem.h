@@ -27,44 +27,35 @@
 **
 **************************************************************************/
 
-#include "qmlmetatypebackend.h"
-#include "qmltypesystem.h"
+#ifndef QMLTYPESYSTEM_H
+#define QMLTYPESYSTEM_H
 
-#ifdef BUILD_DECLARATIVE_BACKEND
-#  include "qtdeclarativemetatypebackend.h"
-#endif // BUILD_DECLARATIVE_BACKEND
+#include <qmljs/qmljs_global.h>
+#include <qmljs/qmljspackageinfo.h>
+#include <qmljs/qmljssymbol.h>
 
-#include <QDebug>
+#include <QtCore/QList>
+#include <QtCore/QObject>
 
-using namespace Qml;
+namespace QmlJS {
 
-QmlTypeSystem::QmlTypeSystem()
+class MetaTypeBackend;
+
+class QMLJS_EXPORT TypeSystem: public QObject
 {
-#ifdef BUILD_DECLARATIVE_BACKEND
-    backends.append(new Internal::QtDeclarativeMetaTypeBackend(this));
-#endif // BUILD_DECLARATIVE_BACKEND
-}
+    Q_OBJECT
 
-QmlTypeSystem::~QmlTypeSystem()
-{
-    qDeleteAll(backends);
-}
+public:
+    TypeSystem();
+    virtual ~TypeSystem();
 
-QList<QmlSymbol *> QmlTypeSystem::availableTypes(const QString &package, int majorVersion, int minorVersion)
-{
-    QList<QmlSymbol *> results;
+    QList<Symbol *> availableTypes(const QString &package, int majorVersion, int minorVersion);
+    Symbol *resolve(const QString &typeName, const QList<PackageInfo> &packages);
 
-    foreach (QmlMetaTypeBackend *backend, backends)
-        results.append(backend->availableTypes(package, majorVersion, minorVersion));
+private:
+    QList<MetaTypeBackend *> backends;
+};
 
-    return results;
-}
+} // namespace Qml
 
-QmlSymbol *QmlTypeSystem::resolve(const QString &typeName, const QList<PackageInfo> &packages)
-{
-    foreach (QmlMetaTypeBackend *backend, backends)
-        if (QmlSymbol *symbol = backend->resolve(typeName, packages))
-            return symbol;
-
-    return 0;
-}
+#endif // QMLTYPESYSTEM_H

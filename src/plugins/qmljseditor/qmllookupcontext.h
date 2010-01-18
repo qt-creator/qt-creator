@@ -30,10 +30,10 @@
 #ifndef QMLLOOKUPCONTEXT_H
 #define QMLLOOKUPCONTEXT_H
 
-#include <qmljs/qmltypesystem.h>
+#include <qmljs/qmljstypesystem.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmldocument.h>
-#include <qmljs/qmlsymbol.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljssymbol.h>
 
 #include <QStack>
 
@@ -43,37 +43,37 @@ namespace Internal {
 class QmlLookupContext
 {
 public:
-    QmlLookupContext(const QStack<Qml::QmlSymbol *> &scopes,
-                     const Qml::QmlDocument::Ptr &doc,
-                     const Qml::Snapshot &snapshot,
-                     Qml::QmlTypeSystem *typeSystem);
+    QmlLookupContext(const QStack<QmlJS::Symbol *> &scopes,
+                     const QmlJS::Document::Ptr &doc,
+                     const QmlJS::Snapshot &snapshot,
+                     QmlJS::TypeSystem *typeSystem);
 
-    Qml::QmlSymbol *resolve(const QString &name);
-    Qml::QmlSymbol *resolveType(const QString &name)
+    QmlJS::Symbol *resolve(const QString &name);
+    QmlJS::Symbol *resolveType(const QString &name)
     { return resolveType(name, _doc->fileName()); }
-    Qml::QmlSymbol *resolveType(QmlJS::AST::UiQualifiedId *name)
+    QmlJS::Symbol *resolveType(QmlJS::AST::UiQualifiedId *name)
     { return resolveType(toString(name), _doc->fileName()); }
 
-    Qml::QmlDocument::Ptr document() const
+    QmlJS::Document::Ptr document() const
     { return _doc; }
 
-    QList<Qml::QmlSymbol*> visibleSymbolsInScope();
-    QList<Qml::QmlSymbol*> visibleTypes();
+    QList<QmlJS::Symbol*> visibleSymbolsInScope();
+    QList<QmlJS::Symbol*> visibleTypes();
 
-    QList<Qml::QmlSymbol*> expandType(Qml::QmlSymbol *symbol);
+    QList<QmlJS::Symbol*> expandType(QmlJS::Symbol *symbol);
 
 private:
-    Qml::QmlSymbol *resolveType(const QString &name, const QString &fileName);
-    Qml::QmlSymbol *resolveProperty(const QString &name, Qml::QmlSymbol *scope, const QString &fileName);
-    Qml::QmlSymbol *resolveBuildinType(const QString &name);
+    QmlJS::Symbol *resolveType(const QString &name, const QString &fileName);
+    QmlJS::Symbol *resolveProperty(const QString &name, QmlJS::Symbol *scope, const QString &fileName);
+    QmlJS::Symbol *resolveBuildinType(const QString &name);
 
     static QString toString(QmlJS::AST::UiQualifiedId *id);
 
 private:
-    QStack<Qml::QmlSymbol *> _scopes;
-    Qml::QmlDocument::Ptr _doc;
-    Qml::Snapshot _snapshot;
-    Qml::QmlTypeSystem *m_typeSystem;
+    QStack<QmlJS::Symbol *> _scopes;
+    QmlJS::Document::Ptr _doc;
+    QmlJS::Snapshot _snapshot;
+    QmlJS::TypeSystem *m_typeSystem;
 };
 
 } // namespace Internal

@@ -32,7 +32,6 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
 
-using namespace Qml;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
@@ -43,18 +42,18 @@ QmlResolveExpression::QmlResolveExpression(const QmlLookupContext &context)
 {
 }
 
-QmlSymbol *QmlResolveExpression::typeOf(Node *node)
+Symbol *QmlResolveExpression::typeOf(Node *node)
 {
-    QmlSymbol *previousValue = switchValue(0);
+    Symbol *previousValue = switchValue(0);
     Node::accept(node, this);
     return switchValue(previousValue);
 }
 
-QList<QmlSymbol*> QmlResolveExpression::visibleSymbols(Node *node)
+QList<Symbol*> QmlResolveExpression::visibleSymbols(Node *node)
 {
-    QList<QmlSymbol*> result;
+    QList<Symbol*> result;
 
-    QmlSymbol *symbol = typeOf(node);
+    Symbol *symbol = typeOf(node);
     if (symbol) {
         if (symbol->isIdSymbol())
             symbol = symbol->asIdSymbol()->parentNode();
@@ -66,7 +65,7 @@ QList<QmlSymbol*> QmlResolveExpression::visibleSymbols(Node *node)
     }
 
     if (node) {
-        foreach (QmlIdSymbol *idSymbol, _context.document()->ids().values())
+        foreach (IdSymbol *idSymbol, _context.document()->ids().values())
             result.append(idSymbol);
     }
 
@@ -75,9 +74,9 @@ QList<QmlSymbol*> QmlResolveExpression::visibleSymbols(Node *node)
     return result;
 }
 
-QmlSymbol *QmlResolveExpression::switchValue(QmlSymbol *value)
+Symbol *QmlResolveExpression::switchValue(Symbol *value)
 {
-    QmlSymbol *previousValue = _value;
+    Symbol *previousValue = _value;
     _value = value;
     return previousValue;
 }
@@ -107,7 +106,7 @@ bool QmlResolveExpression::visit(FieldMemberExpression *ast)
 {
     const QString memberName = ast->name->asString();
 
-    QmlSymbol *base = typeOf(ast->base);
+    Symbol *base = typeOf(ast->base);
     if (!base)
         return false;
 
@@ -117,7 +116,7 @@ bool QmlResolveExpression::visit(FieldMemberExpression *ast)
     if (!base)
         return false;
 
-    foreach (QmlSymbol *memberSymbol, base->members())
+    foreach (Symbol *memberSymbol, base->members())
         if (memberSymbol->name() == memberName)
             _value = memberSymbol;
 

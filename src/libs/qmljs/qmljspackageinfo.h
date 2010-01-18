@@ -27,35 +27,35 @@
 **
 **************************************************************************/
 
-#ifndef QMLTYPESYSTEM_H
-#define QMLTYPESYSTEM_H
+#ifndef PACKAGEINFO_H
+#define PACKAGEINFO_H
 
-#include <qmljs/qml_global.h>
-#include <qmljs/qmlpackageinfo.h>
-#include <qmljs/qmlsymbol.h>
+#include <qmljs/qmljs_global.h>
 
-#include <QtCore/QList>
-#include <QtCore/QObject>
+#include <QtCore/QString>
 
-namespace Qml {
+namespace QmlJS {
 
-class QmlMetaTypeBackend;
-
-class QML_EXPORT QmlTypeSystem: public QObject
+class QMLJS_EXPORT PackageInfo
 {
-    Q_OBJECT
-
 public:
-    QmlTypeSystem();
-    virtual ~QmlTypeSystem();
+    PackageInfo(const QString &name, int majorVersion, int minorVersion);
 
-    QList<QmlSymbol *> availableTypes(const QString &package, int majorVersion, int minorVersion);
-    QmlSymbol *resolve(const QString &typeName, const QList<PackageInfo> &packages);
+    QString name() const
+    { return m_name; }
+
+    int majorVersion() const
+    { return m_majorVersion; }
+
+    int minorVersion() const
+    { return m_minorVersion; }
 
 private:
-    QList<QmlMetaTypeBackend *> backends;
+    QString m_name;
+    int m_majorVersion;
+    int m_minorVersion;
 };
 
 } // namespace Qml
 
-#endif // QMLTYPESYSTEM_H
+#endif // PACKAGEINFO_H

@@ -27,13 +27,34 @@
 **
 **************************************************************************/
 
-#include "qmlpackageinfo.h"
+#ifndef QMLMETATYPEBACKEND_H
+#define QMLMETATYPEBACKEND_H
 
-using namespace Qml;
+#include <qmljs/qmljs_global.h>
+#include <qmljs/qmljspackageinfo.h>
+#include <qmljs/qmljssymbol.h>
 
-PackageInfo::PackageInfo(const QString &name, int majorVersion, int minorVersion):
-        m_name(name),
-        m_majorVersion(majorVersion),
-        m_minorVersion(minorVersion)
+namespace QmlJS {
+
+class TypeSystem;
+
+class QMLJS_EXPORT MetaTypeBackend
 {
-}
+public:
+    MetaTypeBackend(TypeSystem *typeSystem);
+    virtual ~MetaTypeBackend() = 0;
+
+    virtual QList<Symbol *> availableTypes(const QString &package, int majorVersion, int minorVersion) = 0;
+    virtual Symbol *resolve(const QString &typeName, const QList<PackageInfo> &packages) = 0;
+
+protected:
+    TypeSystem *typeSystem() const
+    { return m_typeSystem; }
+
+private:
+    TypeSystem *m_typeSystem;
+};
+
+} // namespace Qml
+
+#endif // QMLMETATYPEBACKEND_H

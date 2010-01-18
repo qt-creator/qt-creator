@@ -30,37 +30,37 @@
 #ifndef QTDECLARATIVEMETATYPEBACKEND_H
 #define QTDECLARATIVEMETATYPEBACKEND_H
 
-#include <qmljs/qmlmetatypebackend.h>
+#include <qmljs/qmljsmetatypebackend.h>
 
 #include <QtCore/QList>
 
-namespace Qml {
+namespace QmlJS {
 namespace Internal {
 
-class QmlDeclarativeSymbol;
-class QmlDeclarativeObjectSymbol;
-class QmlDeclarativePropertySymbol;
+class DeclarativeSymbol;
+class DeclarativeObjectSymbol;
+class DeclarativePropertySymbol;
 
-class QtDeclarativeMetaTypeBackend: public QmlMetaTypeBackend
+class QtDeclarativeMetaTypeBackend: public MetaTypeBackend
 {
-    friend class QmlDeclarativeSymbol;
-    friend class QmlDeclarativeObjectSymbol;
-    friend class QmlDeclarativePropertySymbol;
+    friend class DeclarativeSymbol;
+    friend class DeclarativeObjectSymbol;
+    friend class DeclarativePropertySymbol;
 
 public:
-    QtDeclarativeMetaTypeBackend(QmlTypeSystem *typeSystem);
+    QtDeclarativeMetaTypeBackend(TypeSystem *typeSystem);
     ~QtDeclarativeMetaTypeBackend();
 
-    virtual QList<QmlSymbol *> availableTypes(const QString &package, int majorVersion, int minorVersion);
-    virtual QmlSymbol *resolve(const QString &typeName, const QList<PackageInfo> &packages);
+    virtual QList<Symbol *> availableTypes(const QString &package, int majorVersion, int minorVersion);
+    virtual Symbol *resolve(const QString &typeName, const QList<PackageInfo> &packages);
 
 protected:
-//    QList<QmlSymbol *> members(const Qml::NodeMetaInfo &metaInfo);
-//    QList<QmlSymbol *> inheritedMembers(const Qml::NodeMetaInfo &metaInfo);
-//    QmlDeclarativeSymbol *typeOf(const Qml::PropertyMetaInfo &metaInfo);
+//    QList<QmlSymbol *> members(const QmlJS::NodeMetaInfo &metaInfo);
+//    QList<QmlSymbol *> inheritedMembers(const QmlJS::NodeMetaInfo &metaInfo);
+//    QmlDeclarativeSymbol *typeOf(const QmlJS::PropertyMetaInfo &metaInfo);
 
 private:
-//    QmlDeclarativeSymbol *getSymbol(const Qml::NodeMetaInfo &metaInfo);
+//    QmlDeclarativeSymbol *getSymbol(const QmlJS::NodeMetaInfo &metaInfo);
 
 private:
 //    QMap<QString, QmlDeclarativeSymbol*> m_symbols;

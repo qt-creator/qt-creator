@@ -31,7 +31,7 @@
 #define QMLTASKMANAGER_H
 
 #include <projectexplorer/taskwindow.h>
-#include <qmljs/qmldocument.h>
+#include <qmljs/qmljsdocument.h>
 
 #include <QtCore/QObject>
 
@@ -46,7 +46,7 @@ public:
     void setTaskWindow(ProjectExplorer::TaskWindow *taskWindow);
 
 public slots:
-    void documentUpdated(Qml::QmlDocument::Ptr doc);
+    void documentUpdated(QmlJS::Document::Ptr doc);
 
 private:
     ProjectExplorer::TaskWindow *m_taskWindow;

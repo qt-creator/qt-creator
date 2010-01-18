@@ -31,8 +31,8 @@
 #define QMLEXPRESSIONUNDERCURSOR_H
 
 #include <qmljs/parser/qmljsastfwd_p.h>
-#include <qmljs/qmldocument.h>
-#include <qmljs/qmlsymbol.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljssymbol.h>
 
 #include <QStack>
 #include <QTextBlock>
@@ -52,9 +52,9 @@ public:
     QmlExpressionUnderCursor();
     virtual ~QmlExpressionUnderCursor();
 
-    void operator()(const QTextCursor &cursor, const Qml::QmlDocument::Ptr &doc);
+    void operator()(const QTextCursor &cursor, const QmlJS::Document::Ptr &doc);
 
-    QStack<Qml::QmlSymbol *> expressionScopes() const
+    QStack<QmlJS::Symbol *> expressionScopes() const
     { return _expressionScopes; }
 
     QmlJS::AST::Node *expressionNode() const
@@ -73,7 +73,7 @@ private:
     QmlJS::AST::UiObjectMember *tryBinding(const QString &text);
 
 private:
-    QStack<Qml::QmlSymbol *> _expressionScopes;
+    QStack<QmlJS::Symbol *> _expressionScopes;
     QmlJS::AST::Node *_expressionNode;
     int _expressionOffset;
     int _expressionLength;

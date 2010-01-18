@@ -31,12 +31,12 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 
-using namespace Qml;
+using namespace QmlJS;
 using namespace QmlDesigner;
 using namespace QmlJS::AST;
 
 ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text):
-        m_document(QmlDocument::create("<ASTObjectTextExtractor>"))
+        m_document(Document::create("<ASTObjectTextExtractor>"))
 {
     m_document->setSource(text);
     m_document->parseQml();

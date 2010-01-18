@@ -31,7 +31,7 @@
 #define ASTOBJECTTEXTEXTRACTOR_H
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmldocument.h>
+#include <qmljs/qmljsdocument.h>
 
 #include <QtCore/QString>
 
@@ -49,7 +49,7 @@ protected:
     virtual bool visit(QmlJS::AST::UiObjectDefinition *ast);
 
 private:
-    Qml::QmlDocument::Ptr m_document;
+    QmlJS::Document::Ptr m_document;
     quint32 m_location;
     QString m_text;
 };
