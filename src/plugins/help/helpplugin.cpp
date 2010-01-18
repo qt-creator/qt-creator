@@ -522,7 +522,7 @@ void HelpPlugin::createRightPaneSideBar()
         this));
     connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
         SLOT(updateSideBarSource(QUrl)));
-    connect(m_centralWidget, SIGNAL(currentViewerChanged()), this,
+    connect(m_centralWidget, SIGNAL(currentViewerChanged(int)), this,
         SLOT(updateSideBarSource()));
 
     QAction *copyActionSideBar = new QAction(this);
@@ -693,6 +693,13 @@ void HelpPlugin::extensionsInitialized()
             "index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
     }
     m_helpEngine->setCustomValue(QLatin1String("DefaultHomePage"), url.toString());
+
+    connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
+        SLOT(rebuildViewerComboBox()));
+    connect(m_centralWidget, SIGNAL(currentViewerChanged(int)), this,
+        SLOT(updateViewerComboBoxIndex(int)));
+    connect(m_centralWidget, SIGNAL(viewerAboutToBeRemoved(int)), this,
+        SLOT(removeViewerFromComboBox(int)));
 }
 
 void HelpPlugin::shutdown()
@@ -754,6 +761,31 @@ void HelpPlugin::fontChanged()
         }
     }
 #endif
+}
+
+void HelpPlugin::rebuildViewerComboBox()
+{
+    m_documentsCombo->clear();
+
+    int i = 0;
+    while (HelpViewer *viewer = m_centralWidget->helpViewerAtIndex(i++))
+        m_documentsCombo->addItem(viewer->documentTitle());
+
+    int index = m_centralWidget->indexOf(m_centralWidget->currentHelpViewer());
+    if (index >= 0)
+        m_documentsCombo->setCurrentIndex(index);
+}
+
+void HelpPlugin::removeViewerFromComboBox(int index)
+{
+    if (index >= 0)
+        m_documentsCombo->removeItem(index);
+}
+
+void HelpPlugin::updateViewerComboBoxIndex(int index)
+{
+    if (index >= 0)
+        m_documentsCombo->setCurrentIndex(index);
 }
 
 HelpViewer* HelpPlugin::viewerForContextMode()
@@ -873,16 +905,25 @@ QToolBar *HelpPlugin::createToolBar()
     toolWidget->addSeparator();
 
     QWidget *w = new QWidget;
+    toolWidget->addWidget(w);
+
     QHBoxLayout *layout = new QHBoxLayout(w);
     layout->setMargin(0);
     layout->addSpacing(10);
+    m_documentsCombo = new QComboBox;
+    m_documentsCombo->setMinimumContentsLength(40);
+    layout->addWidget(m_documentsCombo);
+
+    connect(m_documentsCombo, SIGNAL(activated(int)), m_centralWidget,
+        SLOT(activateTab(int)));
+
     layout->addWidget(new QLabel(tr("Filtered by:")));
     m_filterComboBox = new QComboBox;
     m_filterComboBox->setMinimumContentsLength(20);
+    layout->addWidget(m_filterComboBox);
+
     connect(m_filterComboBox, SIGNAL(activated(QString)), this,
         SLOT(filterDocumentation(QString)));
-    layout->addWidget(m_filterComboBox);
-    toolWidget->addWidget(w);
 
     return toolWidget;
 }

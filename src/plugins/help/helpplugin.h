@@ -143,6 +143,10 @@ private slots:
 
     void fontChanged();
 
+    void rebuildViewerComboBox();
+    void removeViewerFromComboBox(int index);
+    void updateViewerComboBoxIndex(int index);
+
 private:
     QToolBar *createToolBar();
     void createRightPaneSideBar();
@@ -170,6 +174,7 @@ private:
     DocSettingsPage *m_docSettingsPage;
     FilterSettingsPage *m_filterSettingsPage;
 
+    QComboBox *m_documentsCombo;
     QComboBox *m_filterComboBox;
     Core::SideBar *m_sideBar;
     QWidget *m_rightPaneSideBar;

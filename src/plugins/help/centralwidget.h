@@ -77,6 +77,7 @@ public:
     bool find(const QString &txt, QTextDocument::FindFlags findFlags, bool incremental);
     void setLastShownPages();
     HelpViewer *helpViewerAtIndex(int index) const;
+    int indexOf(HelpViewer *viewer) const;
 
     static CentralWidget *instance();
 
@@ -99,18 +100,22 @@ public slots:
     void showTopicChooser(const QMap<QString, QUrl> &links,
         const QString &keyword);
     void copy();
+    void activateTab(int index);
 
 protected:
     void focusInEvent(QFocusEvent *event);
 
 signals:
-    void currentViewerChanged();
+    void currentViewerChanged(int index);
     void copyAvailable(bool yes);
     void sourceChanged(const QUrl &url);
     void highlighted(const QString &link);
     void forwardAvailable(bool available);
     void backwardAvailable(bool available);
     void addNewBookmark(const QString &title, const QString &url);
+
+    void viewerAboutToBeRemoved(int index);
+    void viewerRemoved(int index);
 
 private slots:
     void newTab();
