@@ -37,6 +37,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsObject>
+#include <private/qmlengine_p.h>
 
 #include <model.h>
 #include <modelnode.h>
@@ -94,6 +95,12 @@ NodeInstanceView::NodeInstanceView(QObject *parent)
     m_graphicsView->setAttribute(Qt::WA_DontShowOnScreen, true);
     m_graphicsView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
     m_graphicsView->setScene(new QGraphicsScene(m_graphicsView.data()));
+
+    Q_ASSERT(!m_engine.isNull());
+
+    QmlEnginePrivate *privateQmlEngine = QmlEnginePrivate::get(m_engine.data());
+    Q_ASSERT(privateQmlEngine);
+    privateQmlEngine->scriptEngine.setProcessEventsInterval(100);
 }
 
 
