@@ -211,8 +211,9 @@ TrkGdbAdapter::TrkGdbAdapter(GdbEngine *engine, const TrkOptionsPtr &options) :
     m_gdbAckMode(true),
     m_verbose(0)
 {
-    m_bufferedMemoryRead = false;
     m_bufferedMemoryRead = true;
+    // Disable buffering if gdb's dcache is used.
+    m_bufferedMemoryRead = false;
 
     m_gdbServer = 0;
     m_gdbConnection = 0;
@@ -1498,8 +1499,6 @@ void TrkGdbAdapter::reportReadMemoryBuffered(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepInto(const TrkResult &result)
 {
-    debugMessage(_("RESET SNAPSHOT"));
-    m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + " in handleStepInto");
 
@@ -1541,8 +1540,6 @@ void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
 
 void TrkGdbAdapter::handleStepOver(const TrkResult &result)
 {
-    debugMessage(_("RESET SNAPSHOT"));
-    m_snapshot.reset();
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + "in handleStepOver");
         // Try fallback with Step Into
@@ -1775,6 +1772,12 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         //    + QByteArray::number(m_session.codeseg));
         m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
     }
+    m_engine->postCommand("set trust-readonly-sections"); // No difference?
+    m_engine->postCommand("set displaced-stepping on"); // No difference?
+    m_engine->postCommand("mem 0x00400000 0x00800000 cache"); 
+    m_engine->postCommand("mem 0x78000000 0x88000000 cache ro"); 
+    // FIXME: replace with  stack-cache for newer gdb?
+    m_engine->postCommand("set remotecache on");  // "info dcache" to check
     m_engine->postCommand("target remote " + gdbServerName().toLatin1(),
         CB(handleTargetRemote));
 }
