@@ -1103,9 +1103,9 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 
         // target->host OS notification
         case 0xa0: { // Notify Created
-            debugMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
             // Sending this ACK does not seem to make a difference. Why?
             //sendTrkAck(result.token);
+            debugMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
             m_snapshot.reset();
             const char *data = result.data.data();
             const byte error = result.data.at(0);
@@ -1772,6 +1772,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         //    + QByteArray::number(m_session.codeseg));
         m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
     }
+    m_engine->postCommand("set breakpoint always-inserted on");
     m_engine->postCommand("set trust-readonly-sections"); // No difference?
     m_engine->postCommand("set displaced-stepping on"); // No difference?
     m_engine->postCommand("mem 0x00400000 0x00800000 cache"); 
