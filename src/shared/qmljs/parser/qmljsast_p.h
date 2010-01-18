@@ -230,6 +230,7 @@ public:
     virtual BinaryExpression *binaryExpressionCast();
     virtual Statement *statementCast();
     virtual UiObjectMember *uiObjectMemberCast();
+    virtual SourceElement *sourceElementCast();
 
     void accept(Visitor *visitor);
     static void accept(Node *node, Visitor *visitor);
@@ -2164,6 +2165,8 @@ public:
         { kind = K; }
 
     virtual ~SourceElement() {}
+
+    virtual SourceElement *sourceElementCast();
 };
 
 class QML_PARSER_EXPORT FunctionSourceElement: public SourceElement

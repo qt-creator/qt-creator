@@ -162,6 +162,14 @@ public:
         return program->uiObjectMemberCast();
     }
 
+    AST::SourceElement *sourceElement() const
+    {
+        if (! program)
+            return 0;
+
+        return program->sourceElementCast();
+    }
+
     QList<DiagnosticMessage> diagnosticMessages() const
     { return diagnostic_messages; }
 
