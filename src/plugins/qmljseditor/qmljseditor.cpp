@@ -425,11 +425,11 @@ void QmlJSTextEditor::onDocumentUpdated(Qml::QmlDocument::Ptr doc)
 
     FindIdDeclarations updateIds;
     m_idsRevision = document()->revision();
-    m_ids = updateIds(doc->program());
+    m_ids = updateIds(doc->qmlProgram());
 
     if (doc->isParsedCorrectly()) {
         FindDeclarations findDeclarations;
-        m_declarations = findDeclarations(doc->program());
+        m_declarations = findDeclarations(doc->qmlProgram());
 
         QStringList items;
         items.append(tr("<Select Symbol>"));

@@ -137,7 +137,7 @@ QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fil
     if (document.isNull())
         return 0;
 
-    UiProgram *prog = document->program();
+    UiProgram *prog = document->qmlProgram();
     if (!prog)
         return 0;
 
@@ -252,7 +252,7 @@ QList<QmlSymbol*> QmlLookupContext::visibleTypes()
 {
     QList<QmlSymbol*> result;
 
-    UiProgram *program = _doc->program();
+    UiProgram *program = _doc->qmlProgram();
     if (!program)
         return result;
 

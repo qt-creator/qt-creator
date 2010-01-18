@@ -27,21 +27,20 @@
 **
 **************************************************************************/
 
-#include <QFile>
-#include <QtConcurrentRun>
-#include <qtconcurrent/runextensions.h>
-#include <QTextStream>
+#include "qmljseditorconstants.h"
+#include "qmlmodelmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-
+#include <coreplugin/mimedatabase.h>
 #include <texteditor/itexteditor.h>
 
-#include "qmljseditorconstants.h"
-#include "qmlmodelmanager.h"
-
-#include <QtCore/QMetaType>
+#include <QFile>
+#include <QFileInfo>
+#include <QtConcurrentRun>
+#include <qtconcurrent/runextensions.h>
+#include <QTextStream>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
@@ -156,7 +155,21 @@ void QmlModelManager::parse(QFutureInterface<void> &future,
 
         Qml::QmlDocument::Ptr doc = Qml::QmlDocument::create(fileName);
         doc->setSource(contents);
-        doc->parse();
+
+        {
+            Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+            Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
+            Core::MimeType qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
+
+            const QFileInfo fileInfo(fileName);
+
+            if (jsSourceTy.matchesFile(fileInfo))
+                doc->parseJavaScript();
+            else if (qmlSourceTy.matchesFile(fileInfo))
+                doc->parseQml();
+            else
+                qWarning() << "Don't know how to treat" << fileName;
+        }
 
         modelManager->emitDocumentUpdated(doc);
     }

@@ -56,13 +56,15 @@ public:
 
     static QmlDocument::Ptr create(const QString &fileName);
 
-    QmlJS::AST::UiProgram *program() const;
+    QmlJS::AST::UiProgram *qmlProgram() const;
+    QmlJS::AST::Program *jsProgram() const;
     QList<QmlJS::DiagnosticMessage> diagnosticMessages() const;
 
     QString source() const;
     void setSource(const QString &source);
 
-    bool parse();
+    bool parseQml();
+    bool parseJavaScript();
 
     bool isParsedCorrectly() const
     { return _parsedCorrectly; }
@@ -80,7 +82,8 @@ public:
 private:
     QmlJS::Engine *_engine;
     QmlJS::NodePool *_pool;
-    QmlJS::AST::UiProgram *_program;
+    QmlJS::AST::UiProgram *_uiProgram;
+    QmlJS::AST::Program *_jsProgram;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
     QString _fileName;
     QString _path;

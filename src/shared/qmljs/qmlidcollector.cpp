@@ -44,7 +44,7 @@ QMap<QString, QmlIdSymbol*> QmlIdCollector::operator()(Qml::QmlDocument &doc)
     _ids.clear();
     _currentSymbol = 0;
 
-    Node::accept(doc.program(), this);
+    Node::accept(doc.qmlProgram(), this);
 
     return _ids;
 }

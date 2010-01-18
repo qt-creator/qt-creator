@@ -130,7 +130,7 @@ namespace QmlJSEditor {
                 _pos = pos;
                 _scopes.clear();
                 _currentSymbol = 0;
-                Node::accept(doc->program(), this);
+                Node::accept(doc->qmlProgram(), this);
                 return _scopes;
             }
 

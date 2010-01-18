@@ -35,13 +35,17 @@
 #include <qmljs/parser/qmljsnodepool_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
+#include <QDebug>
+
 using namespace Qml;
 using namespace QmlJS;
+using namespace QmlJS::AST;
 
 QmlDocument::QmlDocument(const QString &fileName)
     : _engine(0)
     , _pool(0)
-    , _program(0)
+    , _uiProgram(0)
+    , _jsProgram(0)
     , _fileName(fileName)
     , _parsedCorrectly(false)
 {
@@ -70,9 +74,14 @@ QmlDocument::Ptr QmlDocument::create(const QString &fileName)
     return doc;
 }
 
-AST::UiProgram *QmlDocument::program() const
+AST::UiProgram *QmlDocument::qmlProgram() const
 {
-    return _program;
+    return _uiProgram;
+}
+
+AST::Program *QmlDocument::jsProgram() const
+{
+    return _jsProgram;
 }
 
 QList<DiagnosticMessage> QmlDocument::diagnosticMessages() const
@@ -90,11 +99,14 @@ void QmlDocument::setSource(const QString &source)
     _source = source;
 }
 
-bool QmlDocument::parse()
+bool QmlDocument::parseQml()
 {
     Q_ASSERT(! _engine);
     Q_ASSERT(! _pool);
-    Q_ASSERT(! _program);
+    Q_ASSERT(! _uiProgram);
+    Q_ASSERT(! _jsProgram);
+
+    qDebug() << "QmlDocument::parseQml() for file" << _fileName;
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
@@ -106,11 +118,11 @@ bool QmlDocument::parse()
     lexer.setCode(_source, /*line = */ 1);
 
     _parsedCorrectly = parser.parse();
-    _program = parser.ast();
+    _uiProgram = parser.ast();
     _diagnosticMessages = parser.diagnosticMessages();
 
-    if (_program) {
-        for (QmlJS::AST::UiObjectMemberList *iter = _program->members; iter; iter = iter->next)
+    if (_uiProgram) {
+        for (QmlJS::AST::UiObjectMemberList *iter = _uiProgram->members; iter; iter = iter->next)
             if (iter->member)
                 _symbols.append(new QmlSymbolFromFile(_fileName, iter->member));
 
@@ -119,6 +131,29 @@ bool QmlDocument::parse()
         if (_diagnosticMessages.isEmpty())
             _diagnosticMessages = collect.diagnosticMessages();
     }
+
+    return _parsedCorrectly;
+}
+
+bool QmlDocument::parseJavaScript()
+{
+    Q_ASSERT(! _engine);
+    Q_ASSERT(! _pool);
+    Q_ASSERT(! _uiProgram);
+    Q_ASSERT(! _jsProgram);
+
+    _engine = new Engine();
+    _pool = new NodePool(_fileName, _engine);
+    _ids.clear();
+
+    Lexer lexer(_engine);
+    Parser parser(_engine);
+
+    lexer.setCode(_source, /*line = */ 1);
+
+    _parsedCorrectly = parser.parseProgram();
+    _jsProgram = cast<Program*>(parser.rootNode());
+    _diagnosticMessages = parser.diagnosticMessages();
 
     return _parsedCorrectly;
 }
@@ -143,10 +178,8 @@ Snapshot::~Snapshot()
 
 void Snapshot::insert(const QmlDocument::Ptr &document)
 {
-    if (!document || !document->program())
-        return;
-
-    QMap<QString, QmlDocument::Ptr>::insert(document->fileName(), document);
+    if (document && (document->qmlProgram() || document->jsProgram()))
+        QMap<QString, QmlDocument::Ptr>::insert(document->fileName(), document);
 }
 
 QmlDocument::PtrList Snapshot::importedDocuments(const QmlDocument::Ptr &doc, const QString &importPath) const

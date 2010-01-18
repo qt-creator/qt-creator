@@ -95,12 +95,12 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (qmlDocument.isNull())
         return pos;
 
-    if (!qmlDocument->program())
+    if (!qmlDocument->qmlProgram())
         qmlDocument = m_modelManager->snapshot().value(qmlDocument->fileName());
 
     // FIXME: this completion strategy is not going to work when the document was never parsed correctly.
-    if (qmlDocument && qmlDocument->program()) {
-         QmlJS::AST::UiProgram *program = qmlDocument->program();
+    if (qmlDocument && qmlDocument->qmlProgram()) {
+         QmlJS::AST::UiProgram *program = qmlDocument->qmlProgram();
 //         qDebug() << "*** program:" << program;
  
          if (program) {
