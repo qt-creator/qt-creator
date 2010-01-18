@@ -472,38 +472,82 @@ bool QmlJSIndenter::matchBracelessControlStatement()
 {
     int delimDepth = 0;
 
-    if (yyLine->endsWith(QLatin1String("else")))
-        return true;
+    if (! yyLinizerState.tokens.isEmpty()) {
+        const QmlJSScanner::Token &tk = yyLinizerState.tokens.last();
 
-    if (!yyLine->endsWith(QLatin1String(")")))
-        return false;
+        if (tk.is(QmlJSScanner::Token::Identifier) &&
+            yyLinizerState.line.midRef(tk.offset, tk.length) == QLatin1String("else"))
+            return true;
+
+        else if (tk.isNot(QmlJSScanner::Token::RightParenthesis))
+            return false;
+    }
 
     for (int i = 0; i < SmallRoof; i++) {
-        int j = yyLine->length();
-        while (j > 0) {
-            j--;
-            QChar ch = yyLine->at(j);
+        for (int tokenIndex = yyLinizerState.tokens.size() - 1; tokenIndex != -1; --tokenIndex) {
+            const QmlJSScanner::Token &token = yyLinizerState.tokens.at(tokenIndex);
 
-            switch (ch.unicode()) {
-            case ')':
-                delimDepth++;
+            switch (token.kind) {
+            default:
                 break;
-            case '(':
-                delimDepth--;
-                if (delimDepth == 0) {
-                    if (yyLine->indexOf(iflikeKeyword) != -1) {
+
+            case QmlJSScanner::Token::RightParenthesis:
+                ++delimDepth;
+                break;
+
+            case QmlJSScanner::Token::LeftBrace:
+            case QmlJSScanner::Token::RightBrace:
+            case QmlJSScanner::Token::Semicolon:
+                /*
+                    We met a statement separator, but not where we
+                    expected it. What follows is probably a weird
+                    continuation line. Be careful with ';' in for,
+                    though.
+                */
+                if (token.kind != QmlJSScanner::Token::Semicolon || delimDepth == 0)
+                    return false;
+
+
+            case QmlJSScanner::Token::LeftParenthesis:
+                --delimDepth;
+
+                if (delimDepth == 0 && tokenIndex > 0) {
+                    const QmlJSScanner::Token &tk = yyLinizerState.tokens.at(tokenIndex - 1);
+
+                    if (tk.is(QmlJSScanner::Token::Identifier)) {
+                        const QStringRef tokenText = yyLinizerState.line.midRef(tk.offset, tk.length);
+
                         /*
                             We have
 
-                                if (x)
+                                if-like (x)
                                     y
 
                             "if (x)" is not part of the statement
                             "y".
                         */
-                        return true;
+
+
+                        if      (tk.length == 5 && tokenText == QLatin1String("catch"))
+                            return true;
+
+                        else if (tk.length == 2 && tokenText == QLatin1String("do"))
+                            return true;
+
+                        else if (tk.length == 3 && tokenText == QLatin1String("for"))
+                            return true;
+
+                        else if (tk.length == 2 && tokenText == QLatin1String("if"))
+                            return true;
+
+                        else if (tk.length == 5 && tokenText == QLatin1String("while"))
+                            return true;
+
+                        else if (tk.length == 4 && tokenText == QLatin1String("with"))
+                            return true;
                     }
                 }
+
                 if (delimDepth == -1) {
                     /*
                       We have
@@ -519,23 +563,14 @@ bool QmlJSIndenter::matchBracelessControlStatement()
                     return false;
                 }
                 break;
-            case '{':
-            case '}':
-            case ';':
-                /*
-                    We met a statement separator, but not where we
-                    expected it. What follows is probably a weird
-                    continuation line. Be careful with ';' in for,
-                    though.
-                */
-                if (ch != QLatin1Char(';') || delimDepth == 0)
-                    return false;
-            }
+
+            } // end of switch
         }
 
-        if (!readLine())
+        if (! readLine())
             break;
     }
+
     return false;
 }
 
