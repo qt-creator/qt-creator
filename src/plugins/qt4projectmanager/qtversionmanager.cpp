@@ -311,7 +311,8 @@ void QtVersionManager::addNewVersionsFromInstaller()
             QLatin1String("General/LastQtVersionUpdate")).toDateTime();
 
     const QFileInfo gsFi(globalSettings->fileName());
-    if (!gsFi.exists() || (gsFi.lastModified() > lastUpdateFromGlobalSettings))
+    if ( !lastUpdateFromGlobalSettings.isNull() &&
+         (!gsFi.exists() || (gsFi.lastModified() > lastUpdateFromGlobalSettings)) )
         return;
 
     if (!globalSettings->contains(newQtVersionsKey) &&
