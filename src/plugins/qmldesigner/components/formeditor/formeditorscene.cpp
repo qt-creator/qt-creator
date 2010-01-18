@@ -58,8 +58,8 @@ FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorV
         m_editorView(editorView),
         m_formLayerItem(new LayerItem(this)),
         m_manipulatorLayerItem(new LayerItem(this)),
-        m_paintMode(NormalMode)
-
+        m_paintMode(NormalMode),
+        m_showBoundingRects(true)
 {
     setSceneRect(0, 0, 1, 1); // prevent automatic calculation (causing a recursion), right size will be set later
 
@@ -358,6 +358,17 @@ void FormEditorScene::clearFormEditorItems()
         if (qgraphicsitem_cast<FormEditorItem* >(item))
             delete item;
     }
+}
+
+void FormEditorScene::setShowBoundingRects(bool show)
+{
+    m_showBoundingRects = show;
+    updateAllFormEditorItems();
+}
+
+bool FormEditorScene::showBoundingRects() const
+{
+    return m_showBoundingRects;
 }
 
 }

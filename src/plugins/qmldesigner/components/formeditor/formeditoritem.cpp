@@ -231,7 +231,9 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
     qmlItemNode().paintInstance(painter);
 
     painter->setRenderHint(QPainter::Antialiasing, false);
-    paintBoundingRect(painter);
+
+    if (scene()->showBoundingRects())
+        paintBoundingRect(painter);
 
     painter->restore();
 }

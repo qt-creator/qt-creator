@@ -93,6 +93,10 @@ public:
 
     void clearFormEditorItems();
 
+public slots:
+    void setShowBoundingRects(bool show);
+    bool showBoundingRects() const;
+
 protected:
     void dropEvent(QGraphicsSceneDragDropEvent * event);
     void dragEnterEvent(QGraphicsSceneDragDropEvent * event);
@@ -123,6 +127,7 @@ private:
     QWeakPointer<LayerItem> m_manipulatorLayerItem;
     ModelNode m_dragNode;
     PaintMode m_paintMode;
+    bool m_showBoundingRects;
 };
 
 
