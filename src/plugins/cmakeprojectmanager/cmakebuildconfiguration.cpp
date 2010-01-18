@@ -40,47 +40,56 @@
 using namespace CMakeProjectManager;
 using namespace Internal;
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *pro)
-    : BuildConfiguration(pro),
+namespace {
+const char * const CMAKE_BC_ID("CMakeProjectManager.CMakeBuildConfiguration");
+
+const char * const USER_ENVIRONMENT_CHANGES_KEY("CMakeProjectManager.CMakeBuildConfiguration.UserEnvironmentChanges");
+const char * const MSVC_VERSION_KEY("CMakeProjectManager.CMakeBuildConfiguration.MsvcVersion");
+const char * const BUILD_DIRECTORY_KEY("CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory");
+
+}
+
+CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *project) :
+    BuildConfiguration(project, QLatin1String(CMAKE_BC_ID)),
     m_toolChain(0),
     m_clearSystemEnvironment(false)
 {
-
 }
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *pro, const QMap<QString, QVariant> &map)
-    : BuildConfiguration(pro, map),
-    m_toolChain(0)
+CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *project, const QString &id) :
+    BuildConfiguration(project, id),
+    m_toolChain(0),
+    m_clearSystemEnvironment(false)
 {
-
-    QMap<QString, QVariant>::const_iterator it = map.constFind("clearSystemEnvironment");
-    m_clearSystemEnvironment = (it != map.constEnd() && it.value().toBool());
-    m_userEnvironmentChanges =
-            ProjectExplorer::EnvironmentItem::fromStringList(
-                    map.value("userEnvironmentChanges").toStringList());
-    m_msvcVersion = map.value("msvcVersion").toString();
-    m_buildDirectory = map.value("buildDirectory").toString();
-
 }
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeBuildConfiguration *source)
-    : BuildConfiguration(source),
+CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *pro, CMakeBuildConfiguration *source) :
+    BuildConfiguration(pro, source),
     m_toolChain(0),
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_buildDirectory(source->m_buildDirectory),
     m_msvcVersion(source->m_msvcVersion)
 {
-
 }
 
-void CMakeBuildConfiguration::toMap(QMap<QString, QVariant> &map) const
+QVariantMap CMakeBuildConfiguration::toMap() const
 {
-    map.insert("userEnvironmentChanges",
+    QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY),
                ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    map.insert("msvcVersion", m_msvcVersion);
-    map.insert("buildDirectory", m_buildDirectory);
-    BuildConfiguration::toMap(map);
+    map.insert(QLatin1String(MSVC_VERSION_KEY), m_msvcVersion);
+    map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
+    return map;
+}
+
+bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
+{
+    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_msvcVersion = map.value(QLatin1String(MSVC_VERSION_KEY)).toString();
+    m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
+
+    return BuildConfiguration::fromMap(map);
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -212,9 +221,8 @@ void CMakeBuildConfiguration::setMsvcVersion(const QString &msvcVersion)
   \class CMakeBuildConfigurationFactory
 */
 
-CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory(CMakeProject *project)
-    : IBuildConfigurationFactory(project),
-    m_project(project)
+CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory(QObject *parent) :
+    ProjectExplorer::IBuildConfigurationFactory(parent)
 {
 }
 
@@ -222,20 +230,36 @@ CMakeBuildConfigurationFactory::~CMakeBuildConfigurationFactory()
 {
 }
 
-QStringList CMakeBuildConfigurationFactory::availableCreationIds() const
+QStringList CMakeBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Project *parent) const
 {
-    return QStringList() << "Create";
+    if (!qobject_cast<CMakeProject *>(parent))
+        return QStringList();
+    return QStringList() << QLatin1String(CMAKE_BC_ID);
 }
 
 QString CMakeBuildConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QTC_ASSERT(id == "Create", return QString());
-    return tr("Create");
+    if (id == QLatin1String(CMAKE_BC_ID))
+        return tr("Build");
+    return QString();
 }
 
-ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(const QString &id) const
+bool CMakeBuildConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
-    QTC_ASSERT(id == "Create", return 0);
+    if (!qobject_cast<CMakeProject *>(parent))
+        return false;
+    if (id == QLatin1String(CMAKE_BC_ID))
+        return true;
+    return false;
+}
+
+ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
+{
+    if (!canCreate(parent, id))
+        return 0;
+
+    CMakeProject *cmProject = static_cast<CMakeProject *>(parent);
+    Q_ASSERT(cmProject);
 
     //TODO configuration name should be part of the cmakeopenprojectwizard
     bool ok;
@@ -247,7 +271,7 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(cons
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project);
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(cmProject);
     bc->setDisplayName(buildConfigurationName);
 
     MakeStep *makeStep = new MakeStep(bc);
@@ -258,35 +282,55 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(cons
     cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
     cleanMakeStep->setClean(true);
 
-    CMakeOpenProjectWizard copw(m_project->projectManager(),
-                                m_project->sourceDirectory(),
+    CMakeOpenProjectWizard copw(cmProject->projectManager(),
+                                cmProject->sourceDirectory(),
                                 bc->buildDirectory(),
                                 bc->environment());
     if (copw.exec() != QDialog::Accepted) {
         delete bc;
         return false;
     }
-    m_project->addBuildConfiguration(bc); // this also makes the name unique
+    cmProject->addBuildConfiguration(bc); // this also makes the name unique
 
     bc->setBuildDirectory(copw.buildDirectory());
     bc->setMsvcVersion(copw.msvcVersion());
-    m_project->parseCMakeLists();
+    cmProject->parseCMakeLists();
 
     // Default to all
-    if (m_project->hasTarget("all"))
+    if (cmProject->hasTarget("all"))
         makeStep->setBuildTarget("all", true);
+
     return bc;
 }
 
-ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::BuildConfiguration *source) const
+bool CMakeBuildConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source) const
 {
+    return canCreate(parent, source->id());
+}
+
+ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::clone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
     CMakeBuildConfiguration *old = static_cast<CMakeBuildConfiguration *>(source);
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(old);
-    return bc;
+    CMakeProject *cmProject(static_cast<CMakeProject *>(parent));
+    return new CMakeBuildConfiguration(cmProject, old);
 }
 
-ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::restore(const QVariantMap &map) const
+bool CMakeBuildConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(m_project, map);
-    return bc;
+    QString id(ProjectExplorer::idFromMap(map));
+    return canCreate(parent, id);
+}
+
+ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    CMakeProject *cmProject(static_cast<CMakeProject *>(parent));
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(cmProject);
+    if (bc->fromMap(map))
+        return bc;
+    delete bc;
+    return 0;
 }

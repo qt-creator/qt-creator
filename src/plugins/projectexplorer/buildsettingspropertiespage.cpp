@@ -265,7 +265,7 @@ void BuildSettingsWidget::updateAddButtonMenu()
                                this, SLOT(cloneConfiguration()));
     IBuildConfigurationFactory *factory = m_project->buildConfigurationFactory();
     if (factory) {
-        foreach (const QString &id, factory->availableCreationIds()) {
+        foreach (const QString &id, factory->availableCreationIds(m_project)) {
             QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
             action->setData(id);
         }
@@ -342,7 +342,7 @@ void BuildSettingsWidget::createConfiguration()
 {
     QAction *action = qobject_cast<QAction *>(sender());
     const QString &type = action->data().toString();
-    BuildConfiguration *bc = m_project->buildConfigurationFactory()->create(type);
+    BuildConfiguration *bc = m_project->buildConfigurationFactory()->create(m_project, type);
     if (bc) {
         m_buildConfiguration = bc;
         updateBuildSettings();
@@ -377,7 +377,9 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
         buildConfigurationDisplayNames << bc->displayName();
     newDisplayName = Project::makeUnique(newDisplayName, buildConfigurationDisplayNames);
 
-    m_buildConfiguration = m_project->buildConfigurationFactory()->clone(sourceConfiguration);
+    m_buildConfiguration = m_project->buildConfigurationFactory()->clone(m_project, sourceConfiguration);
+    if (!m_buildConfiguration)
+        return;
     m_buildConfiguration->setDisplayName(newDisplayName);
     m_project->addBuildConfiguration(m_buildConfiguration);
 

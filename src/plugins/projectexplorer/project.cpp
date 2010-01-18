@@ -159,42 +159,10 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     //save buildsettings
     QStringList buildConfigurationNames;
     for(int i=0; i < bcs.size(); ++i) {
-        QMap<QString, QVariant> temp;
-        bcs.at(i)->toMap(temp);
-        writer.saveValue("buildConfiguration-" + QString::number(i), temp);
+        writer.saveValue("buildConfiguration-" + QString::number(i), bcs.at(i)->toMap());
         buildConfigurationNames << QString::number(i);
     }
     writer.saveValue("buildconfigurations", buildConfigurationNames);
-
-    // save each buildstep/buildConfiguration combination
-    for(int i=0; i < bcs.size(); ++i) {
-        QStringList buildStepNames;
-        foreach (BuildStep *buildStep, bcs.at(i)->buildSteps())
-            buildStepNames << buildStep->id();
-        writer.saveValue("buildconfiguration-" + QString::number(i) + "-buildsteps", buildStepNames);
-
-        int buildstepnr = 0;
-        foreach (BuildStep *buildStep, bcs.at(i)->buildSteps()) {
-            QVariantMap temp(buildStep->toMap());
-            writer.saveValue("buildconfiguration-" + QString::number(i) + "-buildstep" + QString().setNum(buildstepnr), temp);
-            ++buildstepnr;
-        }
-    }
-
-    // save each cleanstep/buildConfiguration combination
-    for(int i=0; i < bcs.size(); ++i) {
-        QStringList cleanStepNames;
-        foreach (BuildStep *cleanStep, bcs.at(i)->cleanSteps())
-            cleanStepNames << cleanStep->id();
-        writer.saveValue("buildconfiguration-" + QString::number(i) + "-cleansteps", cleanStepNames);
-
-        int cleanstepnr = 0;
-        foreach (BuildStep *cleanStep, bcs.at(i)->cleanSteps()) {
-            QVariantMap temp(cleanStep->toMap());
-            writer.saveValue("buildconfiguration-" + QString::number(i) + "-cleanstep" + QString().setNum(cleanstepnr), temp);
-            ++cleanstepnr;
-        }
-    }
 
     // Running
     int i = 0;
@@ -215,83 +183,15 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
 
 bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
 {
-    const QList<IBuildStepFactory *> buildStepFactories =
-          ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
-
     // restoring BuldConfigurations from settings
     const QStringList buildConfigurationNames = reader.restoreValue("buildconfigurations").toStringList();
 
     foreach (const QString &buildConfigurationName, buildConfigurationNames) {
-        QMap<QString, QVariant> temp =
-            reader.restoreValue("buildConfiguration-" + buildConfigurationName).toMap();
-
-        BuildConfiguration *bc = buildConfigurationFactory()->restore(temp);
-        // Restore build steps
-        QVariant buildStepsValueVariant = reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-buildsteps");
-        if(buildStepsValueVariant.isValid()) {
-            int pos = 0;
-            QStringList buildStepNames = buildStepsValueVariant.toStringList();
-            for (int buildstepnr = 0; buildstepnr < buildStepNames.size(); ++buildstepnr) {
-                // TODO remove restoreFromGlobalMap after 2.0
-                QVariantMap values(reader.restoreValue("buildstep" + QString().setNum(buildstepnr)).toMap());
-                QVariantMap localValues(reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-buildstep" + QString().setNum(buildstepnr)).toMap());
-
-                // override (global)values with what is found in localValues:
-                for (QVariantMap::const_iterator i = localValues.constBegin();
-                     i != localValues.constEnd(); ++i)
-                    values.insert(i.key(), i.value());
-
-                values.insert("ProjectExplorer.ProjectConfiguration.Id",
-                              buildStepNames.at(buildstepnr));
-                BuildStep *buildStep  = 0;
-                foreach (IBuildStepFactory *factory, buildStepFactories) {
-                    if (factory->canRestore(bc, values)) {
-                        buildStep = factory->restore(bc, values);
-                        break;
-                    }
-                }
-                if (buildStep) {
-                    bc->insertBuildStep(pos, buildStep);
-                    ++pos;
-                }
-            }
-        }
-        // Restore clean steps
-        QVariant cleanStepsValueVariant = reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-cleansteps");
-        if(cleanStepsValueVariant.isValid()) {
-            int pos = 0;
-            QStringList cleanStepNames = cleanStepsValueVariant.toStringList();
-            for (int cleanstepnr = 0; cleanstepnr < cleanStepNames.size(); ++cleanstepnr) {
-                // TODO remove restoreFromGlobalMap after 2.0
-                QVariantMap values(reader.restoreValue("cleanstep" + QString().setNum(cleanstepnr)).toMap());
-                QVariantMap localValues(reader.restoreValue("buildconfiguration-" + buildConfigurationName + "-cleanstep" + QString().setNum(cleanstepnr)).toMap());
-
-                // override (global)values with what is found in localValues:
-                for (QVariantMap::const_iterator i = localValues.constBegin();
-                     i != localValues.constEnd(); ++i)
-                    values.insert(i.key(), i.value());
-
-                values.insert("ProjectExplorer.ProjectConfiguration.Id",
-                              cleanStepNames.at(cleanstepnr));
-
-                BuildStep *cleanStep = 0;
-                foreach (IBuildStepFactory *factory, buildStepFactories) {
-                    if (factory->canRestore(bc, values)) {
-                        cleanStep = factory->restore(bc, values);
-                        break;
-                    }
-                }
-                if (cleanStep) {
-                    // TODO remove restoreFromGlobalMap after 2.0
-                    bc->insertCleanStep(pos, cleanStep);
-                    ++pos;
-                }
-            }
-        }
+        QVariantMap temp(reader.restoreValue("buildConfiguration-" + buildConfigurationName).toMap());
+        BuildConfiguration *bc = buildConfigurationFactory()->restore(this, temp);
         addBuildConfiguration(bc);
     }
 
-    // Set Active Configuration
     { // Try restoring the active configuration
         QString activeConfigurationName = reader.restoreValue("activebuildconfiguration").toString();
         int index = buildConfigurationNames.indexOf(activeConfigurationName);
@@ -301,81 +201,6 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
             m_activeBuildConfiguration = buildConfigurations().at(0);
         else
             m_activeBuildConfiguration = 0;
-    }
-
-    //Build Settings
-    QList<BuildConfiguration *> bcs(buildConfigurations());
-
-    QVariant buildStepsVariant = reader.restoreValue("buildsteps");
-    if (buildStepsVariant.isValid()) {
-        // Old code path for 1.3 compatibility
-        // restoring BuildSteps from settings
-        int pos = 0;
-        QStringList buildStepNames = buildStepsVariant.toStringList();
-        for (int buildstepnr = 0; buildstepnr < buildStepNames.size(); ++buildstepnr) {
-            QVariantMap values(reader.restoreValue("cleanstep" + QString().setNum(buildstepnr)).toMap());
-            for (int i = 0; i < bcs.size(); ++i) {
-                BuildConfiguration *bc = bcs.at(i);
-                BuildStep *buildStep = 0;
-
-                QVariantMap localValues(reader.restoreValue("buildconfiguration-" + QString::number(pos) + "-cleanstep" + QString().setNum(buildstepnr)).toMap());
-
-                // override (global)values with what is found in localValues:
-                for (QVariantMap::const_iterator i = localValues.constBegin();
-                     i != localValues.constEnd(); ++i)
-                    values.insert(i.key(), i.value());
-
-                values.insert("ProjectExplorer.ProjectConfiguration.Id",
-                              buildStepNames.at(buildstepnr));
-
-                foreach (IBuildStepFactory *factory, buildStepFactories) {
-                    if (factory->canRestore(bc, values)) {
-                        buildStep = factory->restore(bc, values);
-                        break;
-                    }
-                }
-                if (buildStep) {
-                    bc->insertBuildStep(pos, buildStep);
-                    ++pos;
-                }
-            }
-        }
-    }
-
-    QVariant cleanStepsVariant = reader.restoreValue("cleansteps");
-    if (cleanStepsVariant.isValid()) {
-        // Old code path for 1.3 compatibility
-        QStringList cleanStepNames = cleanStepsVariant.toStringList();
-        // restoring BuildSteps from settings
-        int pos = 0;
-        for (int cleanstepnr = 0; cleanstepnr < cleanStepNames.size(); ++cleanstepnr) {
-            QVariantMap values(reader.restoreValue("cleanstep" + QString().setNum(cleanstepnr)).toMap());
-            QVariantMap localValues(reader.restoreValue("buildconfiguration-" + QString::number(pos) + "-cleanstep" + QString().setNum(cleanstepnr)).toMap());
-
-            // override (global)values with what is found in localValues:
-            for (QVariantMap::const_iterator i = localValues.constBegin();
-                 i != localValues.constEnd(); ++i)
-                values.insert(i.key(), i.value());
-
-            values.insert("ProjectExplorer.ProjectConfiguration.Id",
-                          cleanStepNames.at(cleanstepnr));
-
-            for (int i = 0; i < bcs.size(); ++i) {
-                BuildConfiguration *bc = bcs.at(i);
-                BuildStep *cleanStep = 0;
-
-                foreach (IBuildStepFactory *factory, buildStepFactories) {
-                    if (factory->canRestore(bc, values)) {
-                        cleanStep = factory->restore(bc, values);
-                        break;
-                    }
-                }
-                if (cleanStep) {
-                    bc->insertCleanStep(pos, cleanStep);
-                    ++pos;
-                }
-            }
-        }
     }
 
     // Running

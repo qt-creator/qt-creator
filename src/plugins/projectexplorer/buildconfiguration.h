@@ -33,31 +33,25 @@
 #include "projectexplorer_export.h"
 #include "environment.h"
 
-#include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QList>
 #include <QtCore/QObject>
-#include <QtCore/QVariant>
 
 #include "buildstep.h"
+#include "projectconfiguration.h"
 
 namespace ProjectExplorer {
 
 class Project;
 
-class PROJECTEXPLORER_EXPORT BuildConfiguration : public QObject
+class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
     Q_OBJECT
 
 public:
     // ctors are protected
     virtual ~BuildConfiguration();
-
-    QString displayName() const;
-    void setDisplayName(const QString &name);
-
-    virtual void toMap(QMap<QString, QVariant> &map) const;
 
     QList<BuildStep *> buildSteps() const;
     void insertBuildStep(int position, BuildStep *step);
@@ -69,53 +63,50 @@ public:
     void removeCleanStep(int position);
     void moveCleanStepUp(int position);
 
-    Project *project() const;
-
     virtual Environment environment() const = 0;
     virtual QString buildDirectory() const = 0;
+
+    Project *project() const;
+
+    virtual QVariantMap toMap() const;
 
 signals:
     void environmentChanged();
     void buildDirectoryChanged();
-    void displayNameChanged();
 
 protected:
-    BuildConfiguration(Project *project);
-    BuildConfiguration(Project *project, const QMap<QString, QVariant> &map);
-    BuildConfiguration(BuildConfiguration *source);
+    BuildConfiguration(Project *project, const QString &id);
+    BuildConfiguration(Project *project, BuildConfiguration *source);
+
+    virtual bool fromMap(const QVariantMap &map);
 
 private:
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
-    QString m_displayName;
     Project *m_project;
 };
 
-class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory : public QObject
+class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :
+    public QObject
 {
     Q_OBJECT
 
 public:
-    IBuildConfigurationFactory(QObject *parent = 0);
+    explicit IBuildConfigurationFactory(QObject *parent = 0);
     virtual ~IBuildConfigurationFactory();
 
-    // Used to show the list of possible additons to a project.
-    // Returns a list of ids.
-    virtual QStringList availableCreationIds() const = 0;
+    // used to show the list of possible additons to a project, returns a list of types
+    virtual QStringList availableCreationIds(Project *parent) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
-    // Creates build configuration(s) for the given id and adds them to
-    // the project.
-    // If successful it returns the BuildConfiguration that should be shown in
-    // project mode.
-    virtual BuildConfiguration *create(const QString &id) const = 0;
-
-    // Clones a given BuildConfiguration, should not add it to the project
-    virtual BuildConfiguration *clone(BuildConfiguration *source) const = 0;
-
-    // Restores a BuildConfiguration with the data given and adds it to the project.
-    virtual BuildConfiguration *restore(const QVariantMap &values) const = 0;
+    virtual bool canCreate(Project *parent, const QString &id) const = 0;
+    virtual BuildConfiguration *create(Project *parent, const QString &id) = 0;
+    // used to recreate the runConfigurations when restoring settings
+    virtual bool canRestore(Project *parent, const QVariantMap &map) const = 0;
+    virtual BuildConfiguration *restore(Project *parent, const QVariantMap &map) = 0;
+    virtual bool canClone(Project *parent, BuildConfiguration *product) const = 0;
+    virtual BuildConfiguration *clone(Project *parent, BuildConfiguration *product) = 0;
 
 signals:
     void availableCreationIdsChanged();

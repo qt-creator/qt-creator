@@ -44,17 +44,16 @@ class MakeStep;
 
 namespace Internal {
 
+class Qt4BuildConfigurationFactory;
+
 class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
+    friend class Qt4BuildConfigurationFactory;
+
 public:
-    // new buildconfiguration
-    Qt4BuildConfiguration(Qt4Project *pro);
-    // restore ctor
-    Qt4BuildConfiguration(Qt4Project *pro, const QMap<QString, QVariant> &values);
-    // copy ctor
-    Qt4BuildConfiguration(Qt4BuildConfiguration *source);
-    ~Qt4BuildConfiguration();
+    explicit Qt4BuildConfiguration(Qt4Project *pro);
+    virtual ~Qt4BuildConfiguration();
 
     Qt4Project *qt4Project() const;
 
@@ -114,7 +113,7 @@ public:
     static QStringList removeSpecFromArgumentList(const QStringList &old);
     static QString extractSpecFromArgumentList(const QStringList &list, QString directory, QtVersion *version);
 
-    void toMap(QMap<QString, QVariant> &map) const;
+    QVariantMap toMap() const;
 
 signals:
     /// emitted if the qt version changes (either directly, or because the default qt version changed
@@ -130,11 +129,18 @@ signals:
     /// a covenience signal, emitted if either the qtversion, the toolchainType or the qmake build
     /// configuration changed
     void targetInformationChanged();
+
 private slots:
     void defaultQtVersionChanged();
     void qtVersionsChanged(const QList<int> &changedVersions);
+
+protected:
+    Qt4BuildConfiguration(Qt4Project *pro, Qt4BuildConfiguration *source);
+    Qt4BuildConfiguration(Qt4Project *pro, const QString &id);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
-    void init();
+    void ctor();
     bool m_clearSystemEnvironment;
     QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
     bool m_shadowBuild;
@@ -150,15 +156,18 @@ class Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfiguration
     Q_OBJECT
 
 public:
-    Qt4BuildConfigurationFactory(Qt4Project *project);
+    explicit Qt4BuildConfigurationFactory(QObject *parent = 0);
     ~Qt4BuildConfigurationFactory();
 
-    QStringList availableCreationIds() const;
+    QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
     QString displayNameForId(const QString &id) const;
 
-    ProjectExplorer::BuildConfiguration *create(const QString &id) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore(const QVariantMap &values) const;
+    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Project *parent, const QString &id);
+    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source);
+    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 
 private slots:
     void update();
@@ -172,7 +181,6 @@ private:
         int versionId;
     };
 
-    Qt4Project *m_project;
     QMap<QString, VersionInfo> m_versions;
 };
 

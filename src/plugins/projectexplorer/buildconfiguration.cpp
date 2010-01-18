@@ -36,6 +36,7 @@
 using namespace ProjectExplorer;
 
 namespace {
+
 IBuildStepFactory *findCloneFactory(BuildConfiguration *parent, BuildStep *source)
 {
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
@@ -44,24 +45,35 @@ IBuildStepFactory *findCloneFactory(BuildConfiguration *parent, BuildStep *sourc
             return factory;
     return 0;
 }
+
+IBuildStepFactory *findRestoreFactory(BuildConfiguration *parent, const QVariantMap &map)
+{
+    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
+    foreach(IBuildStepFactory *factory, factories)
+        if (factory->canRestore(parent, map))
+            return factory;
+    return 0;
+}
+
+const char * const BUILD_STEPS_COUNT_KEY("ProjectExplorer.BuildConfiguration.BuildStepsCount");
+const char * const BUILD_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.BuildSteps.");
+const char * const CLEAN_STEPS_COUNT_KEY("ProjectExplorer.BuildConfiguration.CleanStepsCount");
+const char * const CLEAN_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.CleanSteps.");
+
 } // namespace
 
-BuildConfiguration::BuildConfiguration(Project *pro)
-    : m_project(pro)
+BuildConfiguration::BuildConfiguration(Project *project, const QString &id) :
+    ProjectConfiguration(id),
+    m_project(project)
 {
-
+    Q_ASSERT(m_project);
 }
 
-BuildConfiguration::BuildConfiguration(Project *pro, const QVariantMap &map)
-    : m_project(pro)
+BuildConfiguration::BuildConfiguration(Project *project, BuildConfiguration *source) :
+    ProjectConfiguration(source),
+    m_project(project)
 {
-    m_displayName = map.value("ProjectExplorer.BuildConfiguration.DisplayName").toString();
-}
-
-BuildConfiguration::BuildConfiguration(BuildConfiguration *source)
-    : m_displayName(source->m_displayName),
-    m_project(source->m_project)
-{
+    Q_ASSERT(m_project);
     foreach(BuildStep *originalbs, source->buildSteps()) {
         IBuildStepFactory *factory = findCloneFactory(this, originalbs);
         BuildStep *clonebs = factory->clone(this, originalbs);
@@ -82,22 +94,55 @@ BuildConfiguration::~BuildConfiguration()
     qDeleteAll(m_cleanSteps);
 }
 
-QString BuildConfiguration::displayName() const
+QVariantMap BuildConfiguration::toMap() const
 {
-    return m_displayName;
+    QVariantMap map(ProjectConfiguration::toMap());
+    map.insert(QLatin1String(BUILD_STEPS_COUNT_KEY), m_buildSteps.count());
+    for (int i = 0; i < m_buildSteps.count(); ++i)
+        map.insert(QString::fromLatin1(BUILD_STEPS_PREFIX) + QString::number(i), m_buildSteps.at(i)->toMap());
+    map.insert(QLatin1String(CLEAN_STEPS_COUNT_KEY), m_cleanSteps.count());
+    for (int i = 0; i < m_cleanSteps.count(); ++i)
+        map.insert(QString::fromLatin1(CLEAN_STEPS_PREFIX) + QString::number(i), m_cleanSteps.at(i)->toMap());
+
+    return map;
 }
 
-void BuildConfiguration::setDisplayName(const QString &name)
-{
-    if (m_displayName == name)
-        return;
-    m_displayName = name;
-    emit displayNameChanged();
-}
 
-void BuildConfiguration::toMap(QVariantMap &map) const
+bool BuildConfiguration::fromMap(const QVariantMap &map)
 {
-    map.insert("ProjectExplorer.BuildConfiguration.DisplayName", m_displayName);
+    int maxI(map.value(QLatin1String(BUILD_STEPS_COUNT_KEY), 0).toInt());
+    if (maxI < 0)
+        maxI = 0;
+    for (int i = 0; i < maxI; ++i) {
+        QVariantMap bsData(map.value(QString::fromLatin1(BUILD_STEPS_PREFIX) + QString::number(i)).toMap());
+        if (bsData.isEmpty())
+            continue;
+        IBuildStepFactory *factory(findRestoreFactory(this, bsData));
+        if (!factory)
+            continue;
+        BuildStep *bs(factory->restore(this, bsData));
+        if (!bs)
+            continue;
+        insertBuildStep(m_buildSteps.count(), bs);
+    }
+
+    maxI = map.value(QLatin1String(CLEAN_STEPS_COUNT_KEY), 0).toInt();
+    if (maxI < 0)
+        maxI = 0;
+    for (int i = 0; i < maxI; ++i) {
+        QVariantMap bsData(map.value(QString::fromLatin1(CLEAN_STEPS_PREFIX) + QString::number(i)).toMap());
+        if (bsData.isEmpty())
+            continue;
+        IBuildStepFactory *factory(findRestoreFactory(this, bsData));
+        if (!factory)
+            continue;
+        BuildStep *bs(factory->restore(this, bsData));
+        if (!bs)
+            continue;
+        insertCleanStep(m_cleanSteps.count(), bs);
+    }
+
+    return ProjectConfiguration::fromMap(map);
 }
 
 QList<BuildStep *> BuildConfiguration::buildSteps() const
@@ -152,17 +197,15 @@ Project *BuildConfiguration::project() const
     return m_project;
 }
 
-
 ///
 // IBuildConfigurationFactory
 ///
 
-IBuildConfigurationFactory::IBuildConfigurationFactory(QObject *parent)
-    : QObject(parent)
+IBuildConfigurationFactory::IBuildConfigurationFactory(QObject *parent) :
+    QObject(parent)
 {
 }
 
 IBuildConfigurationFactory::~IBuildConfigurationFactory()
 {
-
 }

@@ -37,14 +37,15 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeProject;
+class CMakeBuildConfigurationFactory;
 
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
+    friend class CMakeBuildConfigurationFactory;
+
 public:
     CMakeBuildConfiguration(CMakeProject *pro);
-    CMakeBuildConfiguration(CMakeProject *pro, const QMap<QString, QVariant> &map);
-    CMakeBuildConfiguration(CMakeBuildConfiguration *source);
     ~CMakeBuildConfiguration();
 
     CMakeProject *cmakeProject() const;
@@ -62,16 +63,20 @@ public:
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
     ProjectExplorer::ToolChain *toolChain() const;
 
-
     void setBuildDirectory(const QString &buildDirectory);
 
     QString msvcVersion() const;
     void setMsvcVersion(const QString &msvcVersion);
 
-    void toMap(QMap<QString, QVariant> &map) const;
+    QVariantMap toMap() const;
 
 signals:
     void msvcVersionChanged();
+
+protected:
+    CMakeBuildConfiguration(CMakeProject *pro, const QString &id);
+    CMakeBuildConfiguration(CMakeProject *pro, CMakeBuildConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map);
 
 private:
     void updateToolChain() const;
@@ -87,18 +92,18 @@ class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurati
     Q_OBJECT
 
 public:
-    CMakeBuildConfigurationFactory(CMakeProject *project);
+    CMakeBuildConfigurationFactory(QObject *parent = 0);
     ~CMakeBuildConfigurationFactory();
 
-    QStringList availableCreationIds() const;
+    QStringList availableCreationIds(ProjectExplorer::Project *project) const;
     QString displayNameForId(const QString &id) const;
 
-    ProjectExplorer::BuildConfiguration *create(const QString &id) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *restore(const QVariantMap &map) const;
-
-private:
-    CMakeProject *m_project;
+    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Project *parent, const QString &id);
+    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source);
+    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 };
 
 } // namespace Internal
