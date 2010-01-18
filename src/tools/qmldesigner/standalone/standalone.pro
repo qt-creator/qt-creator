@@ -23,7 +23,7 @@ SOURCES += \
     application.cpp \
     welcomescreen.cpp
 
-include(../../../shared/qmljs/qmljs.pri)
+include(../../../libs/qmljs/qmljs-lib.pri)
 HEADERS+=../../../libs/utils/changeset.h
 SOURCES+=../../../libs/utils/changeset.cpp
 INCLUDEPATH+=../../../libs

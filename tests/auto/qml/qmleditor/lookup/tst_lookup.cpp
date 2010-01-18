@@ -40,7 +40,7 @@ protected:
         const QLatin1String filename("<lookup test>");
         QmlDocument::Ptr doc = QmlDocument::create(filename);
         doc->setSource(input);
-        doc->parse();
+        doc->parseQml();
 
         QList<DiagnosticMessage> msgs = doc->diagnosticMessages();
         foreach (const DiagnosticMessage &msg, msgs) {
@@ -89,7 +89,7 @@ void tst_Lookup::basicSymbolTest()
     QmlDocument::Ptr doc = basicSymbolTest(input);
     QVERIFY(doc->isParsedCorrectly());
 
-    UiProgram *program = doc->program();
+    UiProgram *program = doc->qmlProgram();
     QVERIFY(program);
     QVERIFY(program->members);
     QVERIFY(program->members->member);
@@ -132,7 +132,7 @@ void tst_Lookup::basicLookupTest()
     QmlDocument::Ptr doc = basicSymbolTest(input);
     QVERIFY(doc->isParsedCorrectly());
 
-    UiProgram *program = doc->program();
+    UiProgram *program = doc->qmlProgram();
     QVERIFY(program);
 
     QStack<QmlSymbol *> emptyScope;
