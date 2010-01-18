@@ -4,21 +4,37 @@ contains(CONFIG, dll) {
     DEFINES += QML_BUILD_STATIC_LIB
 }
 
-INCLUDEPATH += $$PWD
+include(parser/parser.pri)
 
-include($$PWD/../../shared/qmljs/qmljs.pri)
+DEPENDPATH += $$PWD
+INCLUDEPATH += $$PWD/..
 
-##contains(QT, gui) {
-##HEADERS += \
-##    $$PWD/Nothing.h
-##
-##SOURCES += \
-##    $$PWD/Nothing.cpp
-##}
+HEADERS += \
+    $$PWD/qml_global.h \
+    $$PWD/qmlidcollector.h \
+    $$PWD/qmldocument.h \
+    $$PWD/qmlpackageinfo.h \
+    $$PWD/qmlsymbol.h \
+    $$PWD/qmlmetatypebackend.h \
+    $$PWD/qmltypesystem.h
 
-#HEADERS += \
-#    $$PWD/qmlsymbol.h
+SOURCES += \
+    $$PWD/qmlidcollector.cpp \
+    $$PWD/qmldocument.cpp \
+    $$PWD/qmlsymbol.cpp \
+    $$PWD/qmlpackageinfo.cpp \
+    $$PWD/qmlmetatypebackend.cpp \
+    $$PWD/qmltypesystem.cpp
 
-#SOURCES += \
-#    $$PWD/qmlsymbol.cpp
+contains(QT_CONFIG, declarative) {
+    QT += declarative
+
+    DEFINES += BUILD_DECLARATIVE_BACKEND
+
+    HEADERS += \
+        $$PWD/qtdeclarativemetatypebackend.h
+
+    SOURCES += \
+        $$PWD/qtdeclarativemetatypebackend.cpp
+}
 
