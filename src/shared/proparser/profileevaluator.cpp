@@ -191,13 +191,12 @@ public:
 
     bool read(ProFile *pro);
     bool read(ProBlock *pro, const QString &content);
-    bool readInternal(ProBlock *pro, const QString &content);
+    bool readInternal(ProBlock *pro, const QString &content, ushort *buf);
 
     ProBlock *currentBlock();
-    void updateItem(ushort *ptr);
-    void updateItem2();
-    ProVariable *startVariable(ushort *ptr);
-    void finalizeVariable(ProVariable *var);
+    void updateItem(ushort *uc, ushort *ptr);
+    ProVariable *startVariable(ushort *uc, ushort *ptr);
+    void finalizeVariable(ProVariable *var, ushort *uc, ushort *ptr);
     void insertOperator(const char op);
     void enterScope(bool multiLine);
     void leaveScope();
@@ -205,8 +204,6 @@ public:
 
     QStack<ProBlock *> m_blockstack;
     ProBlock *m_block;
-
-    QString m_proitem;
 
     /////////////// Evaluating pro file contents
 
@@ -338,16 +335,20 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
     QString content(QString::fromLatin1(file.readAll())); // yes, really latin1
     file.close();
     m_lineNo = 1;
-    return readInternal(pro, content);
+    return readInternal(pro, content, (ushort*)content.data());
 }
 
 bool ProFileEvaluator::Private::read(ProBlock *pro, const QString &content)
 {
+    QString buf;
+    buf.reserve(content.size());
     m_lineNo = 1;
-    return readInternal(pro, content);
+    return readInternal(pro, content, (ushort*)buf.data());
 }
 
-bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in)
+// We know that the buffer cannot grow larger than the input string,
+// and the read() functions rely on it.
+bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, ushort *buf)
 {
     // Parser state
     m_block = 0;
@@ -358,22 +359,23 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in)
     const ushort *cur = (const ushort *)in.unicode();
   freshLine:
     ProVariable *currAssignment = 0;
+    ushort *ptr = buf;
     int parens = 0;
     bool inError = false;
     bool putSpace = false;
     ushort quote = 0;
     forever {
-        ushort c, *ptr;
+        ushort c;
 
         // First, skip leading whitespace
         for (;; ++cur) {
             c = *cur;
             if (c == '\n' || !c) { // Entirely empty line (sans whitespace)
                 if (currAssignment) {
-                    finalizeVariable(currAssignment);
+                    finalizeVariable(currAssignment, buf, ptr);
                     currAssignment = 0;
                 } else {
-                    updateItem2();
+                    updateItem(buf, ptr);
                 }
                 finalizeBlock();
                 if (c) {
@@ -381,7 +383,6 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in)
                     ++m_lineNo;
                     goto freshLine;
                 }
-                m_proitem.clear(); // Throw away pre-allocation
                 return true;
             }
             if (c != ' ' && c != '\t' && c != '\r')
@@ -435,13 +436,9 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in)
         }
 
         if (!inError) {
-            // May need enough space for this line and anything accumulated so far
-            m_proitem.reserve(m_proitem.length() + (end - cur));
-
             // Finally, do the tokenization
             if (!currAssignment) {
               newItem:
-                ptr = (ushort *)m_proitem.unicode() + m_proitem.length();
                 do {
                     if (cur == end)
                         goto lineEnd;
@@ -457,32 +454,35 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in)
                             --parens;
                         } else if (!parens) {
                             if (c == ':') {
-                                updateItem(ptr);
+                                updateItem(buf, ptr);
                                 enterScope(false);
                               nextItem:
+                                ptr = buf;
                                 putSpace = false;
                                 goto newItem;
                             }
                             if (c == '{') {
-                                updateItem(ptr);
+                                updateItem(buf, ptr);
                                 enterScope(true);
                                 goto nextItem;
                             }
                             if (c == '}') {
-                                updateItem(ptr);
+                                updateItem(buf, ptr);
                                 leaveScope();
                                 goto nextItem;
                             }
                             if (c == '=') {
-                                if ((currAssignment = startVariable(ptr))) {
+                                if ((currAssignment = startVariable(buf, ptr))) {
+                                    ptr = buf;
                                     putSpace = false;
                                     break;
                                 }
+                                ptr = buf;
                                 inError = true;
                                 goto skip;
                             }
                             if (c == '|' || c == '!') {
-                                updateItem(ptr);
+                                updateItem(buf, ptr);
                                 insertOperator(c);
                                 goto nextItem;
                             }
@@ -506,7 +506,6 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in)
                 }
             } // !currAssignment
 
-            ptr = (ushort *)m_proitem.unicode() + m_proitem.length();
             do {
                 if (cur == end)
                     goto lineEnd;
@@ -529,16 +528,16 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in)
                 }
             }
           lineEnd:
-            m_proitem.resize(ptr - (ushort *)m_proitem.unicode());
             if (lineCont) {
-                putSpace = !m_proitem.isEmpty();
+                putSpace = (ptr != buf);
             } else {
                 if (currAssignment) {
-                    finalizeVariable(currAssignment);
+                    finalizeVariable(currAssignment, buf, ptr);
                     currAssignment = 0;
                 } else {
-                    updateItem2();
+                    updateItem(buf, ptr);
                 }
+                ptr = buf;
                 putSpace = false;
             }
         } // !inError
@@ -562,10 +561,9 @@ void ProFileEvaluator::Private::finalizeBlock()
     m_block = 0;
 }
 
-ProVariable *ProFileEvaluator::Private::startVariable(ushort *ptr)
+ProVariable *ProFileEvaluator::Private::startVariable(ushort *uc, ushort *ptr)
 {
     ProVariable::VariableOperator opkind;
-    ushort *uc = (ushort *)m_proitem.unicode();
 
     if (ptr == uc) // Line starting with '=', like a conflict marker
         return 0;
@@ -598,23 +596,15 @@ ProVariable *ProFileEvaluator::Private::startVariable(ushort *ptr)
         --ptr;
 
   skipTrunc:
-    m_proitem.resize(ptr - uc);
-    QString proVar = m_proitem;
-    proVar.detach();
-    m_proitem.resize(0);
-
-    ProVariable *variable = new ProVariable(proVar);
+    ProVariable *variable = new ProVariable(QString((QChar*)uc, ptr - uc));
     variable->setLineNumber(m_lineNo);
     variable->setVariableOperator(opkind);
     return variable;
 }
 
-void ProFileEvaluator::Private::finalizeVariable(ProVariable *variable)
+void ProFileEvaluator::Private::finalizeVariable(ProVariable *variable, ushort *uc, ushort *ptr)
 {
-    QString proItem = m_proitem;
-    proItem.detach();
-    m_proitem.resize(0);
-    variable->setValue(proItem);
+    variable->setValue(QString((QChar*)uc, ptr - uc));
 
     ProBlock *block = m_blockstack.top();
     block->appendItem(variable);
@@ -680,19 +670,12 @@ ProBlock *ProFileEvaluator::Private::currentBlock()
     return m_block;
 }
 
-void ProFileEvaluator::Private::updateItem(ushort *ptr)
+void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
 {
-    m_proitem.resize(ptr - (ushort *)m_proitem.unicode());
-    updateItem2();
-}
-
-void ProFileEvaluator::Private::updateItem2()
-{
-    if (m_proitem.isEmpty())
+    if (ptr == uc)
         return;
 
-    QString proItem = m_proitem;
-    proItem.detach();
+    QString proItem = QString((QChar*)uc, ptr - uc);
 
     ProBlock *block = currentBlock();
     ProItem *item;
@@ -703,8 +686,6 @@ void ProFileEvaluator::Private::updateItem2()
     }
     item->setLineNumber(m_lineNo);
     block->appendItem(item);
-
-    m_proitem.resize(0);
 }
 
 //////// Evaluator tools /////////
@@ -2277,7 +2258,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
 #endif
         case T_EVAL: {
                 ProBlock *pro = new ProBlock(0);
-                if (!readInternal(pro, args.join(QLatin1String(" ")))) {
+                QString buf = args.join(QLatin1String(" "));
+                if (!readInternal(pro, buf, (ushort*)buf.data())) {
                     delete pro;
                     return ProItem::ReturnFalse;
                 }
