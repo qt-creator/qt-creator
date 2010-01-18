@@ -541,7 +541,7 @@ case $rule_number: {
 } break;
 ./
 
-TopLevel: T_FEED_JS_SOURCE_ELEMENT Expression ;
+TopLevel: T_FEED_JS_SOURCE_ELEMENT SourceElement ;
 /.
 case $rule_number: {
   sym(1).Node = sym(2).Node;
