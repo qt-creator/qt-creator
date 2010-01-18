@@ -33,6 +33,7 @@
 #include "qmlprojectmanager.h"
 #include "qmlprojectnodes.h"
 #include "qmlprojectmanager_global.h"
+#include "fileformat/qmlprojectitem.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -41,6 +42,7 @@
 #include <coreplugin/ifile.h>
 
 #include <QtCore/QDir>
+#include <QtDeclarative/QmlEngine>
 
 namespace QmlJSEditor {
 class QmlModelManagerInterface;
@@ -184,17 +186,22 @@ protected:
     virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
 
 private:
+    // plain format
     void parseProject(RefreshOptions options);
     QStringList convertToAbsoluteFiles(const QStringList &paths) const;
 
     Internal::Manager *m_manager;
     QString m_fileName;
-    QString m_filesFileName;
     Internal::QmlProjectFile *m_file;
     QString m_projectName;
     QmlJSEditor::QmlModelManagerInterface *m_modelManager;
 
+    // plain format
     QStringList m_files;
+
+    // qml based, new format
+    QmlEngine m_engine;
+    QWeakPointer<QmlProjectItem> m_projectItem;
 
     Internal::QmlProjectNode *m_rootNode;
 };

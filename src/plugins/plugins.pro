@@ -32,12 +32,12 @@ SUBDIRS   = plugin_coreplugin \
             plugin_resourceeditor \
             plugin_genericprojectmanager \
             plugin_qmljseditor \
-            plugin_qmlprojectmanager \
             plugin_mercurial \
             debugger/dumper.pro
 
 contains(QT_CONFIG, declarative) {
-    SUBDIRS += plugin_qmlinspector \
+    SUBDIRS += plugin_qmlprojectmanager \
+               plugin_qmlinspector \
                plugin_qmldesigner
 }
 

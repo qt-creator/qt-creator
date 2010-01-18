@@ -59,10 +59,15 @@
 #include <QtGui/QLabel>
 #include <QtGui/QSpinBox>
 
+#include <QtDeclarative/QmlComponent>
 
 using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
 using namespace ProjectExplorer;
+
+enum {
+    debug = false
+};
 
 ////////////////////////////////////////////////////////////////////////////////////
 // QmlProject
@@ -121,13 +126,26 @@ static QStringList readLines(const QString &absoluteFileName)
     return lines;
 }
 
-
 void QmlProject::parseProject(RefreshOptions options)
 {
     if (options & Files) {
-        m_files = convertToAbsoluteFiles(readLines(filesFileName()));
-        m_files.removeDuplicates();
-        m_modelManager->updateSourceFiles(m_files);
+        if (!m_projectItem) {
+            QmlComponent *component = new QmlComponent(&m_engine, m_fileName, this);
+            if (component->isReady()
+                && qobject_cast<QmlProjectItem*>(component->create())) {
+                m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
+            } else {
+                qWarning() << m_fileName << "is not valid qml file, falling back to old format ...";
+                m_files = convertToAbsoluteFiles(readLines(filesFileName()));
+                m_files.removeDuplicates();
+                m_modelManager->updateSourceFiles(m_files);
+            }
+        }
+        if (m_projectItem) {
+            m_projectItem.data()->setSourceDirectory(projectDir().path());
+            m_modelManager->updateSourceFiles(m_projectItem.data()->qmlFiles());
+        }
+        m_rootNode->refresh();
     }
 
     if (options & Configuration) {
@@ -163,7 +181,15 @@ QStringList QmlProject::convertToAbsoluteFiles(const QStringList &paths) const
 }
 
 QStringList QmlProject::files() const
-{ return m_files; }
+{
+    QStringList files;
+    if (m_projectItem) {
+        files = m_projectItem.data()->qmlFiles();
+    } else {
+        files = m_files;
+    }
+    return files;
+}
 
 QString QmlProject::displayName() const
 {
@@ -217,7 +243,7 @@ QmlProjectNode *QmlProject::rootProjectNode() const
 
 QStringList QmlProject::files(FilesMode) const
 {
-    return m_files;
+    return files();
 }
 
 bool QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)

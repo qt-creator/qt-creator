@@ -78,29 +78,33 @@ void QmlProjectNode::refresh()
                  << projectFilesNode,
                  this);
 
-    QStringList filePaths;
-    QHash<QString, QStringList> filesInPath;
+    QHash<QString, QStringList> filesInDirectory;
 
-    foreach (const QString &absoluteFileName, files) {
-        QFileInfo fileInfo(absoluteFileName);
-        const QString absoluteFilePath = fileInfo.path();
+    foreach (const QString &fileName, files) {
+        QFileInfo fileInfo(fileName);
 
-        if (! absoluteFilePath.startsWith(path()))
-            continue; // `file' is not part of the project.
+        QString absoluteFilePath;
+        QString relativeDirectory;
 
-        const QString relativeFilePath = absoluteFilePath.mid(path().length() + 1);
+        if (fileInfo.isAbsolute()) {
+            // plain old file format
+            absoluteFilePath = fileInfo.filePath();
+            relativeDirectory = m_project->projectDir().relativeFilePath(fileInfo.path());
+        } else {
+            absoluteFilePath = m_project->projectDir().absoluteFilePath(fileInfo.filePath());
+            relativeDirectory = fileInfo.path();
+            if (relativeDirectory == ".")
+                relativeDirectory.clear();
+        }
 
-        if (! filePaths.contains(relativeFilePath))
-            filePaths.append(relativeFilePath);
-
-        filesInPath[relativeFilePath].append(absoluteFileName);
+        filesInDirectory[relativeDirectory].append(absoluteFilePath);
     }
 
-    foreach (const QString &filePath, filePaths) {
-        FolderNode *folder = findOrCreateFolderByName(filePath);
+    foreach (const QString &directory, filesInDirectory.keys()) {
+        FolderNode *folder = findOrCreateFolderByName(directory);
 
         QList<FileNode *> fileNodes;
-        foreach (const QString &file, filesInPath.value(filePath)) {
+        foreach (const QString &file, filesInDirectory.value(directory)) {
             FileType fileType = SourceType; // ### FIXME
             FileNode *fileNode = new FileNode(file, fileType, /*generated = */ false);
             fileNodes.append(fileNode);
