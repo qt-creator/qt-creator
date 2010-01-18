@@ -528,9 +528,8 @@ void TrkGdbAdapter::sendGdbServerAck()
 {
     if (!m_gdbAckMode)
         return;
-    QByteArray packet = "+";
-    logMessage("gdb: <- " + packet);
-    sendGdbServerPacket(packet, false);
+    logMessage("gdb: <- +");
+    sendGdbServerPacket("+", false);
 }
 
 void TrkGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray &logNote)
@@ -783,6 +782,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerMessage(
             "PacketSize=7cf;"
             "QPassSignals+;"
+            "QStartNoAckMode+;"
             "qXfer:libraries:read+;"
             //"qXfer:auxv:read+;"
             "qXfer:features:read+");
@@ -889,7 +889,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 
     else if (cmd == "QStartNoAckMode") {
         //$qSupported#37
-        //logMessage("Handling 'QStartNoAckMode'");
+        logMessage("Handling 'QStartNoAckMode'");
         sendGdbServerAck();
         sendGdbServerMessage("OK", "ack no-ack mode");
         m_gdbAckMode = false;
