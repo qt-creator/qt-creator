@@ -27,11 +27,11 @@
 **
 **************************************************************************/
 
-#include "QmlMetaTypeBackend.h"
+#include "qmlmetatypebackend.h"
 #include "qmltypesystem.h"
 
 #ifdef BUILD_DECLARATIVE_BACKEND
-#  include "QtDeclarativeMetaTypeBackend.h"
+#  include "qtdeclarativemetatypebackend.h"
 #endif // BUILD_DECLARATIVE_BACKEND
 
 #include <QDebug>

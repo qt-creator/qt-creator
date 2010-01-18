@@ -30,7 +30,7 @@
 #ifndef QTDECLARATIVEMETATYPEBACKEND_H
 #define QTDECLARATIVEMETATYPEBACKEND_H
 
-#include <qmljs/QmlMetaTypeBackend.h>
+#include <qmljs/qmlmetatypebackend.h>
 
 #include <QtCore/QList>
 

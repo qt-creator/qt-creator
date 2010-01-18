@@ -9,7 +9,7 @@ HEADERS += \
     $$PWD/qmldocument.h \
     $$PWD/qmlpackageinfo.h \
     $$PWD/qmlsymbol.h \
-    $$PWD/QmlMetaTypeBackend.h \
+    $$PWD/qmlmetatypebackend.h \
     $$PWD/qmltypesystem.h
 
 SOURCES += \
@@ -17,7 +17,7 @@ SOURCES += \
     $$PWD/qmldocument.cpp \
     $$PWD/qmlsymbol.cpp \
     $$PWD/qmlpackageinfo.cpp \
-    $$PWD/QmlMetaTypeBackend.cpp \
+    $$PWD/qmlmetatypebackend.cpp \
     $$PWD/qmltypesystem.cpp
 
 contains(QT_CONFIG, declarative) {
@@ -26,8 +26,8 @@ contains(QT_CONFIG, declarative) {
     DEFINES += BUILD_DECLARATIVE_BACKEND
 
     HEADERS += \
-        $$PWD/QtDeclarativeMetaTypeBackend.h
+        $$PWD/qtdeclarativemetatypebackend.h
 
     SOURCES += \
-        $$PWD/QtDeclarativeMetaTypeBackend.cpp
+        $$PWD/qtdeclarativemetatypebackend.cpp
 }

@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "QmlMetaTypeBackend.h"
+#include "qmlmetatypebackend.h"
 #include "qmltypesystem.h"
 
 using namespace Qml;

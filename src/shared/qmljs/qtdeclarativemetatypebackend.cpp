@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "QtDeclarativeMetaTypeBackend.h"
+#include "qtdeclarativemetatypebackend.h"
 
 #include <QDebug>
 
