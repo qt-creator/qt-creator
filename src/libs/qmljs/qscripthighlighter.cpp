@@ -27,12 +27,12 @@
 **
 **************************************************************************/
 
-#include "qscripthighlighter.h"
+#include <qmljs/qscripthighlighter.h>
 
 #include <QtCore/QSet>
 #include <QtCore/QtAlgorithms>
 
-using namespace SharedTools;
+using namespace QmlJS;
 
 QScriptHighlighter::QScriptHighlighter(bool duiEnabled, QTextDocument *parent):
         QSyntaxHighlighter(parent),

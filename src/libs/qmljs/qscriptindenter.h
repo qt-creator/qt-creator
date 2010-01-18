@@ -30,14 +30,16 @@
 #ifndef QTSCRIPTINDENTER_H
 #define QTSCRIPTINDENTER_H
 
-#include <qscripthighlighter/qscriptincrementalscanner.h>
+#include <qmljs/qml_global.h>
+#include <qmljs/qscriptincrementalscanner.h>
+
 #include <QtCore/QRegExp>
 #include <QtCore/QStringList>
 #include <QtGui/QTextBlock>
 
-namespace SharedTools {
+namespace QmlJS {
 
-class QScriptIndenter
+class QML_EXPORT QScriptIndenter
 {
     Q_DISABLE_COPY(QScriptIndenter)
 
@@ -132,7 +134,7 @@ private:
     QRegExp iflikeKeyword;
 };
 
-} // namespace SharedTools
+} // namespace QmlJS
 
 #endif // QTSCRIPTINDENTER_H
 

@@ -31,7 +31,7 @@
 #define QMLJSEDITOR_H
 
 #include <qmljs/qmldocument.h>
-#include <qscripthighlighter/qscriptincrementalscanner.h>
+#include <qmljs/qscriptincrementalscanner.h>
 #include <texteditor/basetexteditor.h>
 
 QT_BEGIN_NAMESPACE
@@ -145,7 +145,7 @@ protected:
 private:
     virtual bool isElectricCharacter(const QChar &ch) const;
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-    bool isClosingBrace(const QList<SharedTools::QScriptIncrementalScanner::Token> &tokens) const;
+    bool isClosingBrace(const QList<QmlJS::QScriptIncrementalScanner::Token> &tokens) const;
 
     QString wordUnderCursor() const;
 

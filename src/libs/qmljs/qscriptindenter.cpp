@@ -65,11 +65,12 @@
     as comments and string literals are removed beforehand.
 */
 
-#include "qscriptindenter.h"
-#include "qscriptincrementalscanner.h"
+#include <qmljs/qscriptindenter.h>
+#include <qmljs/qscriptincrementalscanner.h>
+
 #include <QtDebug>
 
-using namespace SharedTools;
+using namespace QmlJS;
 
 /*
     The indenter avoids getting stuck in almost infinite loops by

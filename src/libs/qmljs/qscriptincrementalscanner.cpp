@@ -27,11 +27,11 @@
 **
 **************************************************************************/
 
-#include "qscriptincrementalscanner.h"
+#include <qmljs/qscriptincrementalscanner.h>
 
 #include <QTextCharFormat>
 
-using namespace SharedTools;
+using namespace QmlJS;
 
 QScriptIncrementalScanner::QScriptIncrementalScanner()
 {

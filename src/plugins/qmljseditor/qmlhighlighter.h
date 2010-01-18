@@ -30,7 +30,7 @@
 #ifndef QMLSYNTAXHIGHLIGHTER_H
 #define QMLSYNTAXHIGHLIGHTER_H
 
-#include <qscripthighlighter/qscripthighlighter.h>
+#include <qmljs/qscripthighlighter.h>
 #include <texteditor/basetexteditor.h>
 
 namespace QmlJSEditor {
@@ -40,7 +40,7 @@ namespace Internal {
 // the parentheses encountered in the block data
 // for parentheses matching to work.
 
-class QmlHighlighter : public SharedTools::QScriptHighlighter
+class QmlHighlighter : public QmlJS::QScriptHighlighter
 {
     Q_OBJECT
 public:

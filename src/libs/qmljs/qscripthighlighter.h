@@ -30,15 +30,15 @@
 #ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
 #define QSCRIPTSYNTAXHIGHLIGHTER_H
 
-#include <qscripthighlighter/qscriptincrementalscanner.h>
+#include <qmljs/qscriptincrementalscanner.h>
 
 #include <QtCore/QVector>
 #include <QtCore/QSet>
 #include <QtGui/QSyntaxHighlighter>
 
-namespace SharedTools {
+namespace QmlJS {
 
-class QScriptHighlighter : public QSyntaxHighlighter
+class QML_EXPORT QScriptHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
@@ -79,6 +79,6 @@ private:
     QTextCharFormat m_formats[NumFormats];
 };
 
-} // namespace SharedTools
+} // namespace QmlJS
 
 #endif // QSCRIPTSYNTAXHIGHLIGHTER_H

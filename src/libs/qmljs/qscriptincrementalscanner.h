@@ -30,13 +30,15 @@
 #ifndef QSCRIPTINCREMENTALSCANNER_H
 #define QSCRIPTINCREMENTALSCANNER_H
 
+#include <qmljs/qml_global.h>
+
 #include <QtCore/QList>
 #include <QtCore/QSet>
 #include <QtCore/QString>
 
-namespace SharedTools {
+namespace QmlJS {
 
-class QScriptIncrementalScanner
+class QML_EXPORT QScriptIncrementalScanner
 {
 public:
 
@@ -111,6 +113,6 @@ private:
     QList<QScriptIncrementalScanner::Token> m_tokens;
 };
 
-} // namespace SharedTools
+} // namespace QmlJS
 
 #endif // QSCRIPTINCREMENTALSCANNER_H

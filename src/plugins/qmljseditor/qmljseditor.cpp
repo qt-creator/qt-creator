@@ -37,7 +37,7 @@
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
 
-#include <qscripthighlighter/qscriptindenter.h>
+#include <qmljs/qscriptindenter.h>
 
 #include <qmljs/qmltypesystem.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
@@ -77,7 +77,6 @@ enum {
 using namespace Qml;
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace SharedTools;
 
 namespace {
 int blockBraceDepth(const QTextBlock &block)
@@ -633,7 +632,7 @@ bool QmlJSTextEditor::isClosingBrace(const QList<QScriptIncrementalScanner::Toke
 void QmlJSTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
     TextEditor::TabSettings ts = tabSettings();
-    SharedTools::QScriptIndenter indenter;
+    QScriptIndenter indenter;
     indenter.setTabSize(ts.m_tabSize);
     indenter.setIndentSize(ts.m_indentSize);
 

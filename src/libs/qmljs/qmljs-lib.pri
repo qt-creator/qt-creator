@@ -5,7 +5,8 @@ contains(CONFIG, dll) {
 }
 
 include(parser/parser.pri)
-include($$PWD/qscripthighlighter.pri)
+
+DEFINES += QSCRIPTHIGHLIGHTER_BUILD_LIB
 
 DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD/..
@@ -17,7 +18,8 @@ HEADERS += \
     $$PWD/qmlpackageinfo.h \
     $$PWD/qmlsymbol.h \
     $$PWD/qmlmetatypebackend.h \
-    $$PWD/qmltypesystem.h
+    $$PWD/qmltypesystem.h \
+    $$PWD/qscriptincrementalscanner.h
 
 SOURCES += \
     $$PWD/qmlidcollector.cpp \
@@ -25,7 +27,8 @@ SOURCES += \
     $$PWD/qmlsymbol.cpp \
     $$PWD/qmlpackageinfo.cpp \
     $$PWD/qmlmetatypebackend.cpp \
-    $$PWD/qmltypesystem.cpp
+    $$PWD/qmltypesystem.cpp \
+    $$PWD/qscriptincrementalscanner.cpp
 
 contains(QT_CONFIG, declarative) {
     QT += declarative
@@ -39,3 +42,7 @@ contains(QT_CONFIG, declarative) {
         $$PWD/qtdeclarativemetatypebackend.cpp
 }
 
+contains(QT, gui) {
+    SOURCES += $$PWD/qscripthighlighter.cpp $$PWD/qscriptindenter.cpp
+    HEADERS += $$PWD/qscripthighlighter.h $$PWD/qscriptindenter.h
+}
