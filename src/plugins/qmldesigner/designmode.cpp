@@ -212,7 +212,7 @@ void DesignMode::modeChanged(Core::IMode *mode)
     } else {
         if (m_isActive) {
             m_isActive = false;
-//            m_mainWidget->showEditor(0);
+            m_mainWidget->showEditor(0);
         }
     }
 }
