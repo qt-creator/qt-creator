@@ -34,17 +34,6 @@
 
 QT_BEGIN_NAMESPACE
 
-// --------------- ProItem ------------
-void ProItem::setComment(const QString &comment)
-{
-    m_comment = comment;
-}
-
-QString ProItem::comment() const
-{
-    return m_comment;
-}
-
 // --------------- ProBlock ----------------
 
 ProBlock::ProBlock(ProBlock *parent)

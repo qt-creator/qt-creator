@@ -63,15 +63,11 @@ public:
 
     virtual ProItemKind kind() const = 0;
 
-    void setComment(const QString &comment);
-    QString comment() const;
-
     virtual ProItemReturn Accept(AbstractProItemVisitor *visitor) = 0;
     int lineNumber() const { return m_lineNumber; }
     void setLineNumber(int lineNumber) { m_lineNumber = lineNumber; }
 
 private:
-    QString m_comment;
     int m_lineNumber;
 };
 

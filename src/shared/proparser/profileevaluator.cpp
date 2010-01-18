@@ -198,7 +198,6 @@ public:
     void updateItem2();
     bool insertVariable(ushort *ptr, bool *doSplit, bool *doSemicolon);
     void insertOperator(const char op);
-    void insertComment(const QString &comment);
     void enterScope(bool multiLine);
     void leaveScope();
     void finalizeBlock();
@@ -206,9 +205,7 @@ public:
     QStack<ProBlock *> m_blockstack;
     ProBlock *m_block;
 
-    ProItem *m_commentItem;
     QString m_proitem;
-    QString m_pendingComment;
 
     /////////////// Evaluating pro file contents
 
@@ -357,7 +354,6 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
 {
     // Parser state
     m_block = 0;
-    m_commentItem = 0;
     m_blockstack.clear();
     m_blockstack.push(pro);
 
@@ -372,9 +368,7 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
     while (!ts->atEnd()) {
         QString line = ts->readLine();
         const ushort *cur = (const ushort *)line.unicode(),
-                     *end = cur + line.length(),
-                     *orgend = end,
-                     *cmtptr = 0;
+                     *end = cur + line.length();
         ushort c, *ptr;
 
         // First, skip leading whitespace
@@ -395,13 +389,10 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
         for (const ushort *cptr = cur; cptr != end; ++cptr)
             if (*cptr == '#') {
                 if (cptr == cur) { // Line with only a comment (sans whitespace)
-                    if (!inError)
-                        insertComment(line.right(end - (cptr + 1)));
                     // Qmake bizarreness: such lines do not affect line continuations
                     goto ignore;
                 }
                 end = cptr;
-                cmtptr = cptr + 1;
                 break;
             }
 
@@ -587,8 +578,6 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, QTextStream *ts)
                 updateItem(ptr);
                 putSpace = false;
             }
-            if (cmtptr)
-                insertComment(line.right(orgend - cmtptr));
         } // !inError
       skip:
         if (!lineCont) {
@@ -608,7 +597,6 @@ void ProFileEvaluator::Private::finalizeBlock()
     if (m_blockstack.top()->blockKind() & ProBlock::SingleLine)
         leaveScope();
     m_block = 0;
-    m_commentItem = 0;
 }
 
 bool ProFileEvaluator::Private::insertVariable(ushort *ptr, bool *doSplit, bool *doSemicolon)
@@ -658,12 +646,6 @@ bool ProFileEvaluator::Private::insertVariable(ushort *ptr, bool *doSplit, bool 
     block->appendItem(variable);
     m_block = variable;
 
-    if (!m_pendingComment.isEmpty()) {
-        m_block->setComment(m_pendingComment);
-        m_pendingComment.clear();
-    }
-    m_commentItem = variable;
-
     m_proitem.resize(0);
 
     *doSplit = (opkind != ProVariable::ReplaceOperator);
@@ -690,30 +672,6 @@ void ProFileEvaluator::Private::insertOperator(const char op)
     ProOperator * const proOp = new ProOperator(opkind);
     proOp->setLineNumber(m_lineNo);
     block->appendItem(proOp);
-    m_commentItem = proOp;
-}
-
-void ProFileEvaluator::Private::insertComment(const QString &comment)
-{
-    QString strComment;
-    if (!m_commentItem)
-        strComment = m_pendingComment;
-    else
-        strComment = m_commentItem->comment();
-
-    if (strComment.isEmpty())
-        strComment = comment;
-    else {
-        strComment += QLatin1Char('\n');
-        strComment += comment.trimmed();
-    }
-
-    strComment = strComment.trimmed();
-
-    if (!m_commentItem)
-        m_pendingComment = strComment;
-    else
-        m_commentItem->setComment(strComment);
 }
 
 void ProFileEvaluator::Private::enterScope(bool multiLine)
@@ -753,13 +711,6 @@ ProBlock *ProFileEvaluator::Private::currentBlock()
     m_block->setLineNumber(m_lineNo);
     parent->appendItem(m_block);
 
-    if (!m_pendingComment.isEmpty()) {
-        m_block->setComment(m_pendingComment);
-        m_pendingComment.clear();
-    }
-
-    m_commentItem = m_block;
-
     return m_block;
 }
 
@@ -778,15 +729,16 @@ void ProFileEvaluator::Private::updateItem2()
     proItem.detach();
 
     ProBlock *block = currentBlock();
+    ProItem *item;
     if (block->blockKind() & ProBlock::VariableKind) {
-        m_commentItem = new ProValue(proItem, static_cast<ProVariable*>(block));
+        item = new ProValue(proItem, static_cast<ProVariable*>(block));
     } else if (proItem.endsWith(QLatin1Char(')'))) {
-        m_commentItem = new ProFunction(proItem);
+        item = new ProFunction(proItem);
     } else {
-        m_commentItem = new ProCondition(proItem);
+        item = new ProCondition(proItem);
     }
-    m_commentItem->setLineNumber(m_lineNo);
-    block->appendItem(m_commentItem);
+    item->setLineNumber(m_lineNo);
+    block->appendItem(item);
 
     m_proitem.resize(0);
 }
