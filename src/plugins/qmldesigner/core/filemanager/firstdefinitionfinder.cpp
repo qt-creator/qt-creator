@@ -39,7 +39,7 @@ FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
         m_doc(QmlDocument::create("<internal>"))
 {
     m_doc->setSource(text);
-    bool ok = m_doc->parse();
+    bool ok = m_doc->parseQml();
 
     Q_ASSERT(ok);
 }
@@ -56,7 +56,7 @@ quint32 FirstDefinitionFinder::operator()(quint32 offset)
     m_offset = offset;
     m_firstObjectDefinition = 0;
 
-    Node::accept(m_doc->program(), this);
+    Node::accept(m_doc->qmlProgram(), this);
 
     return m_firstObjectDefinition->firstSourceLocation().offset;
 }

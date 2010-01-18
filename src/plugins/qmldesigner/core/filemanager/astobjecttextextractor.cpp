@@ -39,7 +39,7 @@ ASTObjectTextExtractor::ASTObjectTextExtractor(const QString &text):
         m_document(QmlDocument::create("<ASTObjectTextExtractor>"))
 {
     m_document->setSource(text);
-    m_document->parse();
+    m_document->parseQml();
 }
 
 QString ASTObjectTextExtractor::operator ()(int location)
@@ -49,7 +49,7 @@ QString ASTObjectTextExtractor::operator ()(int location)
     m_location = location;
     m_text.clear();
 
-    Node::accept(m_document->program(), this);
+    Node::accept(m_document->qmlProgram(), this);
 
     return m_text;
 }
