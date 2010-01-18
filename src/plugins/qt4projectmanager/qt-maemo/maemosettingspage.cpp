@@ -258,6 +258,8 @@ void MaemoSettingsWidget::initGui()
     m_ui->passwordLabel->hide();
     m_ui->pwdLineEdit->hide();
 #endif
+    if (m_devConfs.count() == 1)
+        m_ui->configListWidget->setCurrentRow(0, QItemSelectionModel::Select);
 }
 
 void MaemoSettingsWidget::addConfig()
