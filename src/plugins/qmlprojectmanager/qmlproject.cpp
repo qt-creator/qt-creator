@@ -65,9 +65,17 @@ using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
 using namespace ProjectExplorer;
 
-enum {
-    debug = false
-};
+namespace {
+const char * const QML_RC_ID("QmlProjectManager.QmlRunConfiguration");
+const char * const QML_RC_DISPLAY_NAME(QT_TRANSLATE_NOOP("QmlProjectManager::Internal::QmlRunConfiguration", "QML Viewer"));
+
+const char * const QML_VIEWER_KEY("QmlProjectManager.QmlRunConfiguration.QmlViewer");
+const char * const QML_VIEWER_ARGUMENTS_KEY("QmlProjectManager.QmlRunConfiguration.QmlViewerArguments");
+const char * const QML_MAINSCRIPT_KEY("QmlProjectManager.QmlRunConfiguration.MainScript");
+const char * const QML_DEBUG_SERVER_PORT_KEY("QmlProjectManager.QmlRunConfiguration.DebugServerPort");
+
+const int DEFAULT_DEBUG_SERVER_PORT(3768);
+} // namespace
 
 ////////////////////////////////////////////////////////////////////////////////////
 // QmlProject
@@ -343,18 +351,35 @@ void QmlProjectFile::modified(ReloadBehavior *)
 {
 }
 
-QmlRunConfiguration::QmlRunConfiguration(QmlProject *pro)
-    : ProjectExplorer::RunConfiguration(pro),
-      m_project(pro),
-      m_debugServerPort(3768)
+////////////////////////////////////////////////////////////////////////////////////
+// QmlRunConfiguration
+////////////////////////////////////////////////////////////////////////////////////
+
+QmlRunConfiguration::QmlRunConfiguration(QmlProject *parent) :
+    ProjectExplorer::RunConfiguration(parent, QLatin1String(QML_RC_ID)),
+    m_debugServerPort(DEFAULT_DEBUG_SERVER_PORT)
 {
-    setDisplayName(tr("QML Viewer"));
+    ctor();
+}
+
+QmlRunConfiguration::QmlRunConfiguration(QmlProject *parent, QmlRunConfiguration *source) :
+    ProjectExplorer::RunConfiguration(parent, source),
+    m_scriptFile(source->m_scriptFile),
+    m_qmlViewerCustomPath(source->m_qmlViewerCustomPath),
+    m_qmlViewerArgs(source->m_qmlViewerArgs),
+    m_debugServerPort(source->m_debugServerPort)
+{
+    ctor();
+}
+
+void QmlRunConfiguration::ctor()
+{
+    setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 
     // prepend creator/bin dir to search path (only useful for special creator-qml package)
     const QString searchPath = QCoreApplication::applicationDirPath()
                                + Utils::SynchronousProcess::pathSeparator()
                                + QString(qgetenv("PATH"));
-
     m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qmlviewer"));
 }
 
@@ -362,9 +387,9 @@ QmlRunConfiguration::~QmlRunConfiguration()
 {
 }
 
-QString QmlRunConfiguration::id() const
+QmlProject *QmlRunConfiguration::qmlProject() const
 {
-    return QLatin1String(Constants::QMLRUNCONFIGURATION);
+    return static_cast<QmlProject *>(project());
 }
 
 QString QmlRunConfiguration::viewerPath() const
@@ -389,7 +414,7 @@ QStringList QmlRunConfiguration::viewerArguments() const
 
 QString QmlRunConfiguration::workingDirectory() const
 {
-    QFileInfo projectFile(m_project->file()->fileName());
+    QFileInfo projectFile(qmlProject()->file()->fileName());
     return projectFile.absolutePath();
 }
 
@@ -405,14 +430,14 @@ QWidget *QmlRunConfiguration::configurationWidget()
 
     QComboBox *combo = new QComboBox;
 
-    QDir projectDir = m_project->projectDir();
+    QDir projectDir = qmlProject()->projectDir();
     QStringList files;
 
     files.append(tr("<Current File>"));
 
     int currentIndex = -1;
 
-    foreach (const QString &fn, m_project->files()) {
+    foreach (const QString &fn, qmlProject()->files()) {
         QFileInfo fileInfo(fn);
         if (fileInfo.suffix() != QLatin1String("qml"))
             continue;
@@ -462,7 +487,7 @@ QString QmlRunConfiguration::mainScript() const
         }
     }
 
-    return m_project->projectDir().absoluteFilePath(m_scriptFile);
+    return qmlProject()->projectDir().absoluteFilePath(m_scriptFile);
 }
 
 void QmlRunConfiguration::setMainScript(const QString &scriptFile)
@@ -490,32 +515,33 @@ void QmlRunConfiguration::onDebugServerPortChanged()
     }
 }
 
-void QmlRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
+QVariantMap QmlRunConfiguration::toMap() const
 {
-    ProjectExplorer::RunConfiguration::save(writer);
+    QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
 
-    writer.saveValue(QLatin1String("qmlviewer"), m_qmlViewerCustomPath);
-    writer.saveValue(QLatin1String("qmlviewerargs"), m_qmlViewerArgs);
-    writer.saveValue(QLatin1String("mainscript"), m_scriptFile);
-    writer.saveValue(QLatin1String("debugserverport"), m_debugServerPort);
+    map.insert(QLatin1String(QML_VIEWER_KEY), m_qmlViewerCustomPath);
+    map.insert(QLatin1String(QML_VIEWER_ARGUMENTS_KEY), m_qmlViewerArgs);
+    map.insert(QLatin1String(QML_MAINSCRIPT_KEY),  m_scriptFile);
+    map.insert(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), m_debugServerPort);
+    return map;
 }
 
-void QmlRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
+bool QmlRunConfiguration::fromMap(const QVariantMap &map)
 {
-    ProjectExplorer::RunConfiguration::restore(reader);
+    m_qmlViewerCustomPath = map.value(QLatin1String(QML_VIEWER_KEY)).toString();
+    m_qmlViewerArgs = map.value(QLatin1String(QML_VIEWER_ARGUMENTS_KEY)).toString();
+    m_scriptFile = map.value(QLatin1String(QML_MAINSCRIPT_KEY), tr("<Current File>")).toString();
+    m_debugServerPort = map.value(QLatin1String(QML_DEBUG_SERVER_PORT_KEY), DEFAULT_DEBUG_SERVER_PORT).toUInt();
 
-    m_qmlViewerCustomPath = reader.restoreValue(QLatin1String("qmlviewer")).toString();
-    m_qmlViewerArgs = reader.restoreValue(QLatin1String("qmlviewerargs")).toString();
-    m_scriptFile = reader.restoreValue(QLatin1String("mainscript")).toString();
-    m_debugServerPort = reader.restoreValue(QLatin1String("debugserverport")).toUInt();
-
-    if (m_scriptFile.isEmpty())
-        m_scriptFile = tr("<Current File>");
-    if (m_debugServerPort == 0)
-        m_debugServerPort = 3768;
+    return RunConfiguration::fromMap(map);
 }
 
-QmlRunConfigurationFactory::QmlRunConfigurationFactory()
+////////////////////////////////////////////////////////////////////////////////////
+// QmlRunConfigurationFactory
+////////////////////////////////////////////////////////////////////////////////////
+
+QmlRunConfigurationFactory::QmlRunConfigurationFactory(QObject *parent) :
+    ProjectExplorer::IRunConfigurationFactory(parent)
 {
 }
 
@@ -523,30 +549,67 @@ QmlRunConfigurationFactory::~QmlRunConfigurationFactory()
 {
 }
 
-bool QmlRunConfigurationFactory::canRestore(const QString &id) const
-{
-    if (id.startsWith(QLatin1String(Constants::QMLRUNCONFIGURATION)))
-        return true;
-
-    return false;
-}
-
 QStringList QmlRunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *) const
 {
-    return QStringList();
+    return QStringList() << QLatin1String(QML_RC_ID);
 }
 
 QString QmlRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    return id;
+    if (id == QLatin1String(QML_RC_ID))
+        return tr("Run QML Script");
+    return QString();
 }
 
-ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExplorer::Project *project,
-                                                                                     const QString &)
+bool QmlRunConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
-    QmlProject *pro = qobject_cast<QmlProject *>(project);
-    return new QmlRunConfiguration(pro);
+    if (!qobject_cast<QmlProject *>(parent))
+        return false;
+    return id == QLatin1String(QML_RC_ID);
 }
+
+ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
+{
+    if (!canCreate(parent, id))
+        return 0;
+    QmlProject *project(static_cast<QmlProject *>(parent));
+    return new QmlRunConfiguration(project);
+}
+
+bool QmlRunConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+{
+    QString id(idFromMap(map));
+    return canCreate(parent, id);
+}
+
+ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    QmlProject *project(static_cast<QmlProject *>(parent));
+    QmlRunConfiguration *rc(new QmlRunConfiguration(project));
+    if (rc->fromMap(map))
+        return rc;
+    delete rc;
+    return 0;
+}
+
+bool QmlRunConfigurationFactory::canClone(ProjectExplorer::Project *parent, RunConfiguration *source) const
+{
+    return canCreate(parent, source->id());
+}
+
+ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::clone(ProjectExplorer::Project *parent, RunConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    QmlProject *project(static_cast<QmlProject *>(parent));
+    return new QmlRunConfiguration(project, qobject_cast<QmlRunConfiguration *>(source));
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+// QmlRunControl
+////////////////////////////////////////////////////////////////////////////////////
 
 QmlRunControl::QmlRunControl(QmlRunConfiguration *runConfiguration, bool debugMode)
     : RunControl(runConfiguration), m_debugMode(debugMode)

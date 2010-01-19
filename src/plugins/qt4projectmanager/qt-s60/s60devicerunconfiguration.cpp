@@ -58,17 +58,31 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
-enum { debug = 0 };
+namespace {
+const char * const S60_DEVICE_RC_ID("Qt4ProjectManager.S60DeviceRunConfiguration");
+const char * const S60_DEVICE_RC_PREFIX("Qt4ProjectManager.S60DeviceRunConfiguration.");
 
-static const int    PROGRESS_PACKAGECREATED = 100;
-static const int    PROGRESS_PACKAGESIGNED = 200;
-static const int    PROGRESS_DEPLOYBASE = 200;
-static const int    PROGRESS_PACKAGEDEPLOYED = 300;
-static const int    PROGRESS_PACKAGEINSTALLED = 400;
-static const int    PROGRESS_MAX = 400;
+const char * const PRO_FILE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.ProFile");
+const char * const SIGNING_MODE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode");
+const char * const CUSTOM_SIGNATURE_PATH_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CustomSignaturePath");
+const char * const CUSTOM_KEY_PATH_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CustomKeyPath");
+const char * const SERIAL_PORT_NAME_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.SerialPortName");
+const char * const COMMUNICATION_TYPE_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommunicationType");
+const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.S60DeviceRunConfiguration.CommandLineArguments");
+
+const int    PROGRESS_PACKAGECREATED = 100;
+const int    PROGRESS_PACKAGESIGNED = 200;
+const int    PROGRESS_DEPLOYBASE = 200;
+const int    PROGRESS_PACKAGEDEPLOYED = 300;
+const int    PROGRESS_PACKAGEINSTALLED = 400;
+const int    PROGRESS_MAX = 400;
+
+enum {
+    debug = false
+};
 
 // Format information about a file
-static QString lsFile(const QString &f)
+QString lsFile(const QString &f)
 {
     QString rc;
     const QFileInfo fi(f);
@@ -77,9 +91,25 @@ static QString lsFile(const QString &f)
     return rc;
 }
 
+
+QString pathFromId(const QString &id)
+{
+    if (!id.startsWith(QLatin1String(S60_DEVICE_RC_PREFIX)))
+        return QString();
+    return id.mid(QString::fromLatin1(S60_DEVICE_RC_PREFIX).size());
+}
+
+QString pathToId(const QString &path)
+{
+    return QString::fromLatin1(S60_DEVICE_RC_PREFIX) + path;
+}
+
+}
+
 // ======== S60DeviceRunConfiguration
-S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QString &proFilePath)
-    : RunConfiguration(project),
+
+S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QString &proFilePath) :
+    RunConfiguration(project, pathToId(proFilePath)),
     m_proFilePath(proFilePath),
     m_cachedTargetInformationValid(false),
 #ifdef Q_OS_WIN
@@ -91,22 +121,40 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
 #endif
     m_signingMode(SignSelf)
 {
-    if (!m_proFilePath.isEmpty())
-        setDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
-    else
-        setDisplayName(tr("QtS60DeviceRunConfiguration"));
+    ctor();
+}
 
-    connect(project, SIGNAL(targetInformationChanged()),
-            this, SLOT(invalidateCachedTargetInformation()));
-
-    connect(project, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, S60DeviceRunConfiguration *source) :
+    RunConfiguration(project, source),
+    m_proFilePath(source->m_proFilePath),
+    m_cachedTargetInformationValid(false),
+    m_serialPortName(source->m_serialPortName),
+    m_communicationType(source->m_communicationType),
+    m_signingMode(source->m_signingMode),
+    m_customSignaturePath(source->m_customSignaturePath),
+    m_customKeyPath(source->m_customKeyPath)
+{
+    ctor();
 }
 
 void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
     if (m_proFilePath == pro->path())
         invalidateCachedTargetInformation();
+}
+
+void S60DeviceRunConfiguration::ctor()
+{
+    if (!m_proFilePath.isEmpty())
+        setDisplayName(tr("%1 on Symbian Device").arg(QFileInfo(m_proFilePath).completeBaseName()));
+    else
+        setDisplayName(tr("QtS60DeviceRunConfiguration"));
+
+    connect(qt4Project(), SIGNAL(targetInformationChanged()),
+            this, SLOT(invalidateCachedTargetInformation()));
+
+    connect(qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
 
@@ -117,11 +165,6 @@ S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
 Qt4Project *S60DeviceRunConfiguration::qt4Project() const
 {
     return static_cast<Qt4Project *>(project());
-}
-
-QString S60DeviceRunConfiguration::id() const
-{
-    return QLatin1String("Qt4ProjectManager.DeviceRunConfiguration");
 }
 
 ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType(
@@ -151,30 +194,35 @@ QWidget *S60DeviceRunConfiguration::configurationWidget()
     return new S60DeviceRunConfigurationWidget(this);
 }
 
-void S60DeviceRunConfiguration::save(PersistentSettingsWriter &writer) const
+QVariantMap S60DeviceRunConfiguration::toMap() const
 {
+    QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
     const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
-    writer.saveValue("ProFile", projectDir.relativeFilePath(m_proFilePath));
-    writer.saveValue("SigningMode", (int)m_signingMode);
-    writer.saveValue("CustomSignaturePath", m_customSignaturePath);
-    writer.saveValue("CustomKeyPath", m_customKeyPath);
-    writer.saveValue("SerialPortName", m_serialPortName);
-    writer.saveValue("CommunicationType", m_communicationType);
-    writer.saveValue("CommandLineArguments", m_commandLineArguments);
-    RunConfiguration::save(writer);
+
+    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
+    map.insert(QLatin1String(SIGNING_MODE_KEY), (int)m_signingMode);
+    map.insert(QLatin1String(CUSTOM_SIGNATURE_PATH_KEY), m_customSignaturePath);
+    map.insert(QLatin1String(CUSTOM_KEY_PATH_KEY), m_customKeyPath);
+    map.insert(QLatin1String(SERIAL_PORT_NAME_KEY), m_serialPortName);
+    map.insert(QLatin1String(COMMUNICATION_TYPE_KEY), m_communicationType);
+    map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
+
+    return map;
 }
 
-void S60DeviceRunConfiguration::restore(const PersistentSettingsReader &reader)
+bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
 {
-    RunConfiguration::restore(reader);
-    const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
-    m_proFilePath = projectDir.filePath(reader.restoreValue("ProFile").toString());
-    m_signingMode = (SigningMode)reader.restoreValue("SigningMode").toInt();
-    m_customSignaturePath = reader.restoreValue("CustomSignaturePath").toString();
-    m_customKeyPath = reader.restoreValue("CustomKeyPath").toString();
-    m_serialPortName = reader.restoreValue("SerialPortName").toString().trimmed();
-    m_communicationType = reader.restoreValue("CommunicationType").toInt();
-    m_commandLineArguments = reader.restoreValue("CommandLineArguments").toStringList();
+    const QDir projectDir = QFileInfo(qt4Project()->file()->fileName()).absoluteDir();
+
+    m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
+    m_signingMode = static_cast<SigningMode>(map.value(QLatin1String(SIGNING_MODE_KEY)).toInt());
+    m_customSignaturePath = map.value(QLatin1String(CUSTOM_SIGNATURE_PATH_KEY)).toString();
+    m_customKeyPath = map.value(QLatin1String(CUSTOM_KEY_PATH_KEY)).toString();
+    m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
+    m_communicationType = map.value(QLatin1String(COMMUNICATION_TYPE_KEY)).toInt();
+    m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
+
+    return RunConfiguration::fromMap(map);
 }
 
 QString S60DeviceRunConfiguration::serialPortName() const
@@ -345,8 +393,8 @@ void S60DeviceRunConfiguration::invalidateCachedTargetInformation()
 
 // ======== S60DeviceRunConfigurationFactory
 
-S60DeviceRunConfigurationFactory::S60DeviceRunConfigurationFactory(QObject *parent)
-    : IRunConfigurationFactory(parent)
+S60DeviceRunConfigurationFactory::S60DeviceRunConfigurationFactory(QObject *parent) :
+    IRunConfigurationFactory(parent)
 {
 }
 
@@ -354,44 +402,74 @@ S60DeviceRunConfigurationFactory::~S60DeviceRunConfigurationFactory()
 {
 }
 
-bool S60DeviceRunConfigurationFactory::canRestore(const QString &id) const
+QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Project *parent) const
 {
-    return id == "Qt4ProjectManager.DeviceRunConfiguration";
-}
-
-QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Project *pro) const
-{
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
-    if (qt4project) {
-        QStringList applicationProFiles;
-        QList<Qt4ProFileNode *> list = qt4project->applicationProFiles();
-        foreach (Qt4ProFileNode * node, list) {
-            applicationProFiles.append("QtSymbianDeviceRunConfiguration." + node->path());
-        }
-        return applicationProFiles;
-    } else {
+    Qt4Project *qt4project = qobject_cast<Qt4Project *>(parent);
+    if (!qt4project)
         return QStringList();
-    }
+
+    return qt4project->applicationProFilePathes(QLatin1String(S60_DEVICE_RC_PREFIX));
 }
 
 QString S60DeviceRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QString fileName = id.mid(QString("QtSymbianDeviceRunConfiguration.").size());
-    return tr("%1 on Symbian Device").arg(QFileInfo(fileName).completeBaseName());
+    if (!pathFromId(id).isEmpty())
+        return tr("%1 on Symbian Device").arg(QFileInfo(pathFromId(id)).completeBaseName());
+    return QString();
 }
 
-RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *project, const QString &id)
+bool S60DeviceRunConfigurationFactory::canCreate(Project *parent, const QString &id) const
 {
-    Qt4Project *p = qobject_cast<Qt4Project *>(project);
-    Q_ASSERT(p);
-    if (id.startsWith("QtSymbianDeviceRunConfiguration.")) {
-        QString fileName = id.mid(QString("QtSymbianDeviceRunConfiguration.").size());
-        return new S60DeviceRunConfiguration(p, fileName);
-    }
-    Q_ASSERT(id == "Qt4ProjectManager.DeviceRunConfiguration");
-    // The right path is set in restoreSettings
-    RunConfiguration *rc = new S60DeviceRunConfiguration(p, QString::null);
-    return rc;
+    Qt4Project * project(qobject_cast<Qt4Project *>(parent));
+    if (!project)
+        return false;
+    return project->hasApplicationProFile(pathFromId(id));
+}
+
+RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *parent, const QString &id)
+{
+    if (!canCreate(parent, id))
+        return 0;
+
+    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    return new S60DeviceRunConfiguration(project, pathFromId(id));
+}
+
+bool S60DeviceRunConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+{
+    if (!qobject_cast<Qt4Project *>(parent))
+        return false;
+    QString id(ProjectExplorer::idFromMap(map));
+    return id == QLatin1String(S60_DEVICE_RC_ID);
+}
+
+RunConfiguration *S60DeviceRunConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    S60DeviceRunConfiguration *rc(new S60DeviceRunConfiguration(project, QString()));
+    if (rc->fromMap(map))
+        return rc;
+
+    delete rc;
+    return 0;
+}
+
+bool S60DeviceRunConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const
+{
+    if (!qobject_cast<Qt4Project *>(parent))
+        return false;
+    return source->id() == QLatin1String(S60_DEVICE_RC_ID);
+}
+
+RunConfiguration *S60DeviceRunConfigurationFactory::clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    Qt4Project *project = static_cast<Qt4Project *>(parent);
+    S60DeviceRunConfiguration * old(static_cast<S60DeviceRunConfiguration *>(source));
+    return new S60DeviceRunConfiguration(project, old);
 }
 
 // ======== S60DeviceRunControlBase
@@ -845,6 +923,7 @@ bool S60DeviceRunControlBase::checkConfiguration(QString * /* errorMessage */,
 }
 
 // =============== S60DeviceRunControl
+
 S60DeviceRunControl::S60DeviceRunControl(ProjectExplorer::RunConfiguration *runConfiguration) :
     S60DeviceRunControlBase(runConfiguration)
 {

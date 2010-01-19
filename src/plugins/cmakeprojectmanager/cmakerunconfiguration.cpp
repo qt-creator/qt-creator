@@ -46,33 +46,73 @@
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
 
-CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title)
-    : ProjectExplorer::LocalApplicationRunConfiguration(pro)
-    , m_runMode(Gui)
-    , m_target(target)
-    , m_workingDirectory(workingDirectory)
-    , m_title(title)
-    , m_baseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase)
-{
-    setDisplayName(title);
+namespace {
+const char * const CMAKE_RC_ID("CMakeProjectManager.CMakeRunConfiguration");
+const char * const CMAKE_RC_PREFIX("CMakeProjectManager.CMakeRunConfiguration.");
 
-    connect(pro, SIGNAL(environmentChanged()),
-            this, SIGNAL(baseEnvironmentChanged()));
+const char * const TARGET_KEY("CMakeProjectManager.CMakeRunConfiguration.Target");
+const char * const WORKING_DIRECTORY_KEY("CMakeProjectManager.CMakeRunConfiguration.WorkingDirectory");
+const char * const USER_WORKING_DIRECTORY_KEY("CMakeProjectManager.CMakeRunConfiguration.UserWorkingDirectory");
+const char * const USE_TERMINAL_KEY("CMakeProjectManager.CMakeRunConfiguration.UseTerminal");
+const char * const TITLE_KEY("CMakeProjectManager.CMakeRunConfiguation.Title");
+const char * const ARGUMENTS_KEY("CMakeProjectManager.CMakeRunConfiguration.Arguments");
+const char * const USER_ENVIRONMENT_CHANGES_KEY("CMakeProjectManager.CMakeRunConfiguration.UserEnvironmentChanges");
+const char * const BASE_ENVIRONMENT_BASE_KEY("CMakeProjectManager.BaseEnvironmentBase");
+
+QString targetFromId(const QString &id)
+{
+    if (!id.startsWith(QLatin1String(CMAKE_RC_PREFIX)))
+        return QString();
+    return id.mid(QString::fromLatin1(CMAKE_RC_PREFIX).length());
+}
+
+QString idFromTarget(const QString &target)
+{
+    return QString::fromLatin1(CMAKE_RC_PREFIX) + target;
+}
+
+} // namespace
+
+CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title) :
+    ProjectExplorer::LocalApplicationRunConfiguration(pro, QString::fromLatin1(CMAKE_RC_PREFIX)),
+    m_runMode(Gui),
+    m_target(target),
+    m_workingDirectory(workingDirectory),
+    m_title(title),
+    m_baseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase)
+{
+    ctor();
+}
+
+CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, CMakeRunConfiguration *source) :
+    ProjectExplorer::LocalApplicationRunConfiguration(pro, source),
+    m_runMode(source->m_runMode),
+    m_target(source->m_target),
+    m_workingDirectory(source->m_workingDirectory),
+    m_userWorkingDirectory(source->m_userWorkingDirectory),
+    m_title(source->m_title),
+    m_arguments(source->m_arguments),
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
+    m_baseEnvironmentBase(source->m_baseEnvironmentBase)
+{
+    ctor();
 }
 
 CMakeRunConfiguration::~CMakeRunConfiguration()
 {
+}
 
+void CMakeRunConfiguration::ctor()
+{
+    setDisplayName(m_title);
+
+    connect(project(), SIGNAL(environmentChanged()),
+            this, SIGNAL(baseEnvironmentChanged()));
 }
 
 CMakeProject *CMakeRunConfiguration::cmakeProject() const
 {
     return static_cast<CMakeProject *>(project());
-}
-
-QString CMakeRunConfiguration::id() const
-{
-    return Constants::CMAKERUNCONFIGURATION;
 }
 
 QString CMakeRunConfiguration::executable() const
@@ -129,32 +169,34 @@ void CMakeRunConfiguration::setUserWorkingDirectory(const QString &wd)
         emit workingDirectoryChanged(newWorkingDirectory);
 }
 
-void CMakeRunConfiguration::save(ProjectExplorer::PersistentSettingsWriter &writer) const
+QVariantMap CMakeRunConfiguration::toMap() const
 {
-    ProjectExplorer::LocalApplicationRunConfiguration::save(writer);
-    writer.saveValue("CMakeRunConfiguration.Target", m_target);
-    writer.saveValue("CMakeRunConfiguration.WorkingDirectory", m_workingDirectory);
-    writer.saveValue("CMakeRunConfiguration.UserWorkingDirectory", m_userWorkingDirectory);
-    writer.saveValue("CMakeRunConfiguration.UseTerminal", m_runMode == Console);
-    writer.saveValue("CMakeRunConfiguation.Title", m_title);
-    writer.saveValue("CMakeRunConfiguration.Arguments", m_arguments);
-    writer.saveValue("CMakeRunConfiguration.UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
+    QVariantMap map(ProjectExplorer::LocalApplicationRunConfiguration::toMap());
 
+    map.insert(QLatin1String(TARGET_KEY), m_target);
+    map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
+    map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
+    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
+    map.insert(QLatin1String(TITLE_KEY), m_title);
+    map.insert(QLatin1String(ARGUMENTS_KEY), m_arguments);
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), m_baseEnvironmentBase);
+
+    return map;
 }
 
-void CMakeRunConfiguration::restore(const ProjectExplorer::PersistentSettingsReader &reader)
+bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
-    ProjectExplorer::LocalApplicationRunConfiguration::restore(reader);
-    m_target = reader.restoreValue("CMakeRunConfiguration.Target").toString();
-    m_workingDirectory = reader.restoreValue("CMakeRunConfiguration.WorkingDirectory").toString();
-    m_userWorkingDirectory = reader.restoreValue("CMakeRunConfiguration.UserWorkingDirectory").toString();
-    m_runMode = reader.restoreValue("CMakeRunConfiguration.UseTerminal").toBool() ? Console : Gui;
-    m_title = reader.restoreValue("CMakeRunConfiguation.Title").toString();
-    m_arguments = reader.restoreValue("CMakeRunConfiguration.Arguments").toString();
-    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("CMakeRunConfiguration.UserEnvironmentChanges").toStringList());
-    QVariant tmp = reader.restoreValue("BaseEnvironmentBase");
-    m_baseEnvironmentBase = tmp.isValid() ? BaseEnvironmentBase(tmp.toInt()) : CMakeRunConfiguration::BuildEnvironmentBase;
+    m_target = map.value(QLatin1String(TARGET_KEY)).toString();
+    m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
+    m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
+    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
+    m_title = map.value(QLatin1String(TITLE_KEY)).toString();
+    m_arguments = map.value(QLatin1String(ARGUMENTS_KEY)).toString();
+    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CMakeRunConfiguration::BuildEnvironmentBase)).toInt());
+
+    return RunConfiguration::fromMap(map);
 }
 
 QWidget *CMakeRunConfiguration::configurationWidget()
@@ -406,61 +448,84 @@ void CMakeRunConfigurationWidget::updateSummary()
 
 
 // Factory
-CMakeRunConfigurationFactory::CMakeRunConfigurationFactory()
+CMakeRunConfigurationFactory::CMakeRunConfigurationFactory(QObject *parent) :
+    ProjectExplorer::IRunConfigurationFactory(parent)
 {
-
 }
 
 CMakeRunConfigurationFactory::~CMakeRunConfigurationFactory()
 {
-
-}
-
-// used to recreate the runConfigurations when restoring settings
-bool CMakeRunConfigurationFactory::canRestore(const QString &id) const
-{
-    if (id.startsWith(Constants::CMAKERUNCONFIGURATION))
-        return true;
-    return false;
 }
 
 // used to show the list of possible additons to a project, returns a list of ids
-QStringList CMakeRunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *project) const
+QStringList CMakeRunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *parent) const
 {
-    CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    if (!pro)
+    CMakeProject *project(qobject_cast<CMakeProject *>(parent));
+    if (!project)
         return QStringList();
-    QStringList allTargets = pro->targets();
-    for (int i=0; i<allTargets.size(); ++i) {
-        allTargets[i] = Constants::CMAKERUNCONFIGURATION + allTargets[i];
-    }
-    return allTargets;
+    QStringList allIds;
+    foreach (const QString &target, project->targets())
+        allIds << idFromTarget(target);
+    return allIds;
 }
 
 // used to translate the ids to names to display to the user
 QString CMakeRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    Q_ASSERT(id.startsWith(Constants::CMAKERUNCONFIGURATION));
-
-    if (id == Constants::CMAKERUNCONFIGURATION)
-        return "CMake"; // Doesn't happen
-    else
-        return id.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
+    return targetFromId(id);
 }
 
-ProjectExplorer::RunConfiguration* CMakeRunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &id)
+bool CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
-    CMakeProject *pro = qobject_cast<CMakeProject *>(project);
-    Q_ASSERT(pro);
-    if (id == Constants::CMAKERUNCONFIGURATION) {
-        // Restoring, filename will be added by restoreSettings
-        ProjectExplorer::RunConfiguration* rc = new CMakeRunConfiguration(pro, QString::null, QString::null, QString::null);
+    CMakeProject *project(qobject_cast<CMakeProject *>(parent));
+    if (!project)
+        return false;
+    return project->hasTarget(targetFromId(id));
+}
+
+ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
+{
+    if (!canCreate(parent, id))
+        return 0;
+    CMakeProject *project(static_cast<CMakeProject *>(parent));
+
+    const QString title(targetFromId(id));
+    const CMakeTarget &ct = project->targetForTitle(title);
+    return new CMakeRunConfiguration(project, ct.executable, ct.workingDirectory, ct.title);
+}
+
+bool CMakeRunConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const
+{
+    if (!qobject_cast<CMakeProject *>(parent))
+        return false;
+    return source->id() == QLatin1String(CMAKE_RC_ID);
+}
+
+ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration * source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    CMakeProject *project(static_cast<CMakeProject *>(parent));
+    CMakeRunConfiguration *crc(static_cast<CMakeRunConfiguration *>(source));
+    return new CMakeRunConfiguration(project, crc);
+}
+
+bool CMakeRunConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+{
+    if (!qobject_cast<CMakeProject *>(parent))
+        return false;
+    QString id(ProjectExplorer::idFromMap(map));
+    return id.startsWith(QLatin1String(CMAKE_RC_ID));
+}
+
+ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    CMakeProject *project(static_cast<CMakeProject *>(parent));
+    CMakeRunConfiguration *rc(new CMakeRunConfiguration(project, QString(), QString(), QString()));
+    if (rc->fromMap(map))
         return rc;
-    } else {
-        // Adding new
-        const QString title = id.mid(QString(Constants::CMAKERUNCONFIGURATION).length());
-        const CMakeTarget &ct = pro->targetForTitle(title);
-        ProjectExplorer::RunConfiguration * rc = new CMakeRunConfiguration(pro, ct.executable, ct.workingDirectory, ct.title);
-        return rc;
-    }
+    delete rc;
+    return 0;
 }

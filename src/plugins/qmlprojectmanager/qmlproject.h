@@ -89,20 +89,23 @@ class QmlRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFact
     Q_OBJECT
 
 public:
-    QmlRunConfigurationFactory();
+    explicit QmlRunConfigurationFactory(QObject *parent = 0);
     virtual ~QmlRunConfigurationFactory();
-
-    // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(const QString &id) const;
 
     // used to show the list of possible additons to a project, returns a list of types
     virtual QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
-
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const;
 
-    virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project,
-                                                      const QString &id);
+    virtual bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
+    virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
+
+    // used to recreate the runConfigurations when restoring settings
+    virtual bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
+    virtual ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+
+    virtual bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const;
+    virtual ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source);
 };
 
 class QmlRunControl : public ProjectExplorer::RunControl {
@@ -217,9 +220,13 @@ private:
 class QMLPROJECTMANAGER_EXPORT QmlRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
+    friend class Internal::QmlRunConfigurationFactory;
+
 public:
-    QmlRunConfiguration(QmlProject *pro);
+    QmlRunConfiguration(QmlProject *parent);
     virtual ~QmlRunConfiguration();
+
+    QmlProject *qmlProject() const;
 
     QString viewerPath() const;
     QStringList viewerArguments() const;
@@ -227,21 +234,24 @@ public:
     uint debugServerPort() const;
 
     // RunConfiguration
-    virtual QString id() const;
     virtual QWidget *configurationWidget();
 
-    virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
-    virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
+    QVariantMap toMap() const;
 
-private Q_SLOTS:
+private slots:
     QString mainScript() const;
     void setMainScript(const QString &scriptFile);
     void onQmlViewerChanged();
     void onQmlViewerArgsChanged();
     void onDebugServerPortChanged();
 
+protected:
+    QmlRunConfiguration(QmlProject *parent, QmlRunConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
-    QmlProject *m_project;
+    void ctor();
+
     QString m_scriptFile;
     QString m_qmlViewerCustomPath;
     QString m_qmlViewerDefaultPath;

@@ -61,23 +61,22 @@ public slots:
     void printToStream(QProcess::ProcessError error);
 };
 
+class MaemoRunConfigurationFactory;
 
 class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
-public:
-    MaemoRunConfiguration(ProjectExplorer::Project *project,
-                          const QString &proFilePath);
-    ~MaemoRunConfiguration();
+    friend class MaemoRunConfigurationFactory;
 
-    QString id() const;
+public:
+    MaemoRunConfiguration(Qt4Project *project,
+                          const QString &proFilePath);
+    virtual ~MaemoRunConfiguration();
+
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     using RunConfiguration::isEnabled;
     QWidget *configurationWidget();
-    Qt4Project *project() const;
-
-    void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
-    void restore(const ProjectExplorer::PersistentSettingsReader &reader);
+    Qt4Project *qt4Project() const;
 
     bool currentlyNeedsDeployment() const;
     void wasDeployed();
@@ -115,11 +114,18 @@ public:
     bool remoteHostRequiresPassword() const { return m_remoteHostRequiresPassword; }
 #endif
 
+    virtual QVariantMap toMap() const;
+
 signals:
     void deviceConfigurationsUpdated();
     void targetInformationChanged();
     void cachedSimulatorInformationChanged();
     void qemuProcessStatus(bool running);
+
+protected:
+    MaemoRunConfiguration(Qt4Project *project,
+                          MaemoRunConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map);
 
 private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
@@ -136,13 +142,13 @@ private slots:
     void enabledStateChanged();
 
 private:
+    void ctor();
     void updateTarget();
     void updateSimulatorInformation();
     const QString cmd(const QString &cmdName) const;
     const MaemoToolChain *toolchain() const;
     bool fileNeedsDeployment(const QString &path, const QDateTime &lastDeployed) const;
 
-private:
     QString m_executable;
     QString m_proFilePath;
     bool m_cachedTargetInformationValid;
@@ -176,13 +182,19 @@ private:
 class MaemoRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
+
 public:
-    MaemoRunConfigurationFactory(QObject *parent);
+    explicit MaemoRunConfigurationFactory(QObject *parent = 0);
     ~MaemoRunConfigurationFactory();
 
-    bool canRestore(const QString &id) const;
     QStringList availableCreationIds(ProjectExplorer::Project *project) const;
     QString displayNameForId(const QString &id) const;
+
+    bool canRestore(ProjectExplorer::Project *project, const QVariantMap &map) const;
+    bool canClone(ProjectExplorer::Project *project, ProjectExplorer::RunConfiguration *source) const;
+    bool canCreate(ProjectExplorer::Project *project, const QString &id) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *project, const QVariantMap &map);
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *project, ProjectExplorer::RunConfiguration *source);
     ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
 
 private slots:
@@ -192,6 +204,9 @@ private slots:
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
     void currentProjectChanged(ProjectExplorer::Project *project);
+
+private:
+    void setupRunConfiguration(MaemoRunConfiguration *rc);
 };
 
 

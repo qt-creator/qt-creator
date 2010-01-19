@@ -171,6 +171,8 @@ public:
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
     QList<Internal::Qt4ProFileNode *> applicationProFiles() const;
+    bool hasApplicationProFile(const QString &path) const;
+    QStringList applicationProFilePathes(const QString &prepend = QString()) const;
 
     void notifyChanged(const QString &name);
 

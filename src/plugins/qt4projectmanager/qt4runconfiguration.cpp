@@ -57,29 +57,65 @@ using ProjectExplorer::LocalApplicationRunConfiguration;
 using ProjectExplorer::PersistentSettingsReader;
 using ProjectExplorer::PersistentSettingsWriter;
 
-Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath)
-    : LocalApplicationRunConfiguration(pro),
-      m_proFilePath(proFilePath),
-      m_runMode(Gui),
-      m_userSetName(false),
-      m_cachedTargetInformationValid(false),
-      m_isUsingDyldImageSuffix(false),
-      m_userSetWokingDirectory(false),
-      m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase)
+namespace {
+const char * const QT4_RC_ID("Qt4ProjectManager.Qt4RunConfiguration");
+const char * const QT4_RC_PREFIX("Qt4ProjectManager.Qt4RunConfiguration.");
+
+const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments");
+const char * const PRO_FILE_KEY("Qt4ProjectManager.Qt4RunConfiguration.ProFile");
+const char * const USER_SET_NAME_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserSetName");
+const char * const USE_TERMINAL_KEY("Qt4ProjectManager.Qt4RunConfiguration.UseTerminal");
+const char * const USE_DYLD_IMAGE_SUFFIX_KEY("Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix");
+const char * const USER_ENVIRONMENT_CHANGES_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserEnvironmentChanges");
+const char * const BASE_ENVIRONMENT_BASE_KEY("Qt4ProjectManager.Qt4RunConfiguration.BaseEnvironmentBase");
+const char * const USER_SET_WORKING_DIRECTORY_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserSetWorkingDirectory");
+const char * const USER_WORKING_DIRECTORY_KEY("Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory");
+
+QString pathFromId(const QString &id)
 {
-    if (!m_proFilePath.isEmpty())
-        setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
-    else
-        setDisplayName(tr("Qt4RunConfiguration"));
+    if (!id.startsWith(QLatin1String(QT4_RC_PREFIX)))
+        return QString();
+    return id.mid(QString::fromLatin1(QT4_RC_PREFIX).size());
+}
 
-    connect(pro, SIGNAL(targetInformationChanged()),
-            this, SLOT(invalidateCachedTargetInformation()));
+QString pathToId(const QString &path)
+{
+    return QString::fromLatin1(QT4_RC_PREFIX) + path;
+}
 
-    connect(pro, SIGNAL(environmentChanged()),
-            this, SIGNAL(baseEnvironmentChanged()));
+} // namespace
 
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+//
+// Qt4RunConfiguration
+//
+
+Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *parent, const QString &proFilePath) :
+    LocalApplicationRunConfiguration(parent, QLatin1String(QT4_RC_ID)),
+    m_proFilePath(proFilePath),
+    m_runMode(Gui),
+    m_userSetName(false),
+    m_cachedTargetInformationValid(false),
+    m_isUsingDyldImageSuffix(false),
+    m_userSetWokingDirectory(false),
+    m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase)
+{
+    ctor();
+}
+
+Qt4RunConfiguration::Qt4RunConfiguration(Qt4Project *parent, Qt4RunConfiguration *source) :
+    LocalApplicationRunConfiguration(parent, source),
+    m_commandLineArguments(source->m_commandLineArguments),
+    m_proFilePath(source->m_proFilePath),
+    m_runMode(source->m_runMode),
+    m_userSetName(source->m_userSetName),
+    m_cachedTargetInformationValid(false),
+    m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
+    m_userSetWokingDirectory(source->m_userSetWokingDirectory),
+    m_userWorkingDirectory(source->m_userWorkingDirectory),
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
+    m_baseEnvironmentBase(source->m_baseEnvironmentBase)
+{
+    ctor();
 }
 
 Qt4RunConfiguration::~Qt4RunConfiguration()
@@ -89,11 +125,6 @@ Qt4RunConfiguration::~Qt4RunConfiguration()
 Qt4Project *Qt4RunConfiguration::qt4Project() const
 {
     return static_cast<Qt4Project *>(project());
-}
-
-QString Qt4RunConfiguration::id() const
-{
-    return "Qt4ProjectManager.Qt4RunConfiguration";
 }
 
 bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
@@ -117,6 +148,19 @@ void Qt4RunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileN
 {
     if  (m_proFilePath == pro->path())
         invalidateCachedTargetInformation();
+}
+
+void Qt4RunConfiguration::ctor()
+{
+    setDefaultDisplayName();
+    connect(qt4Project(), SIGNAL(targetInformationChanged()),
+            this, SLOT(invalidateCachedTargetInformation()));
+
+    connect(qt4Project(), SIGNAL(environmentChanged()),
+            this, SIGNAL(baseEnvironmentChanged()));
+
+    connect(qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
 //////
@@ -402,41 +446,43 @@ QWidget *Qt4RunConfiguration::configurationWidget()
     return new Qt4RunConfigurationWidget(this, 0);
 }
 
-void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
+QVariantMap Qt4RunConfiguration::toMap() const
 {
     const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
-    writer.saveValue("CommandLineArguments", m_commandLineArguments);
-    writer.saveValue("ProFile", projectDir.relativeFilePath(m_proFilePath));
-    writer.saveValue("UserSetName", m_userSetName);
-    writer.saveValue("UseTerminal", m_runMode == Console);
-    writer.saveValue("UseDyldImageSuffix", m_isUsingDyldImageSuffix);
-    writer.saveValue("UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
-    writer.saveValue("UserSetWorkingDirectory", m_userSetWokingDirectory);
-    writer.saveValue("UserWorkingDirectory", m_userWorkingDirectory);
-    LocalApplicationRunConfiguration::save(writer);
+    QVariantMap map(LocalApplicationRunConfiguration::toMap());
+    map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
+    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
+    map.insert(QLatin1String(USER_SET_NAME_KEY), m_userSetName);
+    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
+    map.insert(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), m_isUsingDyldImageSuffix);
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), m_baseEnvironmentBase);
+    map.insert(QLatin1String(USER_SET_WORKING_DIRECTORY_KEY), m_userSetWokingDirectory);
+    map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
+    return map;
 }
 
-void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
+bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
 {
-    LocalApplicationRunConfiguration::restore(reader);
     const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
-    m_commandLineArguments = reader.restoreValue("CommandLineArguments").toStringList();
-    m_proFilePath = projectDir.filePath(reader.restoreValue("ProFile").toString());
-    m_userSetName = reader.restoreValue("UserSetName").toBool();
-    m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
-    m_isUsingDyldImageSuffix = reader.restoreValue("UseDyldImageSuffix").toBool();
-    QVariant v = reader.restoreValue("UserSetWorkingDirectory");
-    m_userSetWokingDirectory = v.isValid() ? v.toBool() : false;
-    m_userWorkingDirectory = reader.restoreValue("UserWorkingDirectory").toString();
+    m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
+    m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
+    m_userSetName = map.value(QLatin1String(USER_SET_NAME_KEY), false).toBool();
+    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY), false).toBool() ? Console : Gui;
+    m_isUsingDyldImageSuffix = map.value(QLatin1String(USE_DYLD_IMAGE_SUFFIX_KEY), false).toBool();
+
+    m_userSetWokingDirectory = map.value(QLatin1String(USER_SET_WORKING_DIRECTORY_KEY), false).toBool();
+    m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
+
     if (!m_proFilePath.isEmpty()) {
         m_cachedTargetInformationValid = false;
         if (!m_userSetName)
-            setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
+            setDefaultDisplayName();
     }
-    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("UserEnvironmentChanges").toStringList());
-    QVariant tmp = reader.restoreValue("BaseEnvironmentBase");
-    m_baseEnvironmentBase = tmp.isValid() ? BaseEnvironmentBase(tmp.toInt()) : Qt4RunConfiguration::BuildEnvironmentBase;
+    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(Qt4RunConfiguration::BuildEnvironmentBase)).toInt());
+
+    return RunConfiguration::fromMap(map);
 }
 
 QString Qt4RunConfiguration::executable() const
@@ -526,7 +572,7 @@ void Qt4RunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer:
 
 void Qt4RunConfiguration::setWorkingDirectory(const QString &wd)
 {
-    if (wd== "") {
+    if (wd.isEmpty()) {
         m_userSetWokingDirectory = false;
         m_userWorkingDirectory = QString::null;
         emit workingDirectoryChanged(workingDirectory());
@@ -553,12 +599,11 @@ void Qt4RunConfiguration::setUserName(const QString &name)
 {
     if (name.isEmpty()) {
         m_userSetName = false;
-        setDisplayName(tr("Qt4RunConfiguration"));
+        setDefaultDisplayName();
     } else {
         m_userSetName = true;
         setDisplayName(name);
     }
-    emit displayNameChanged(name);
 }
 
 QString Qt4RunConfiguration::proFilePath() const
@@ -616,6 +661,16 @@ QStringList Qt4RunConfiguration::dumperLibraryLocations() const
         return QStringList();
 }
 
+void Qt4RunConfiguration::setDefaultDisplayName()
+{
+    if (m_userSetName)
+	    return;
+    if (!m_proFilePath.isEmpty())
+        setDisplayName(QFileInfo(m_proFilePath).completeBaseName());
+    else
+        setDisplayName(tr("Qt4 RunConfiguration"));
+}
+
 void Qt4RunConfiguration::setBaseEnvironmentBase(BaseEnvironmentBase env)
 {
     if (m_baseEnvironmentBase == env)
@@ -639,7 +694,8 @@ ProjectExplorer::ToolChain::ToolChainType Qt4RunConfiguration::toolChainType() c
 /// This class is used to restore run settings (saved in .user files)
 ///
 
-Qt4RunConfigurationFactory::Qt4RunConfigurationFactory()
+Qt4RunConfigurationFactory::Qt4RunConfigurationFactory(QObject *parent) :
+    ProjectExplorer::IRunConfigurationFactory(parent)
 {
 }
 
@@ -647,42 +703,68 @@ Qt4RunConfigurationFactory::~Qt4RunConfigurationFactory()
 {
 }
 
-// used to recreate the runConfigurations when restoring settings
-bool Qt4RunConfigurationFactory::canRestore(const QString &id) const
+bool Qt4RunConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
-    return id == "Qt4ProjectManager.Qt4RunConfiguration";
+    Qt4Project *qt4project = qobject_cast<Qt4Project *>(parent);
+    if (!qt4project)
+        return false;
+    return qt4project->hasApplicationProFile(pathFromId(id));
 }
 
-ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::create(ProjectExplorer::Project *project, const QString &id)
+ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
-    Qt4Project *p = qobject_cast<Qt4Project *>(project);
-    Q_ASSERT(p);
-    if (id.startsWith("Qt4RunConfiguration.")) {
-        QString fileName = id.mid(QString("Qt4RunConfiguration.").size());
-        return new Qt4RunConfiguration(p, fileName);
-    }
-    Q_ASSERT(id == "Qt4ProjectManager.Qt4RunConfiguration");
-    // The right path is set in restoreSettings
-    return new Qt4RunConfiguration(p, QString::null);
+    if (!canCreate(parent, id))
+        return 0;
+    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    return new Qt4RunConfiguration(project, pathFromId(id));
+}
+
+bool Qt4RunConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+{
+    if (!qobject_cast<Qt4Project *>(parent))
+        return false;
+    QString id(ProjectExplorer::idFromMap(map));
+    return id.startsWith(QLatin1String(QT4_RC_ID));
+}
+
+ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    Qt4RunConfiguration *rc(new Qt4RunConfiguration(project, QString()));
+    if (rc->fromMap(map))
+        return rc;
+
+    delete rc;
+    return 0;
+}
+
+bool Qt4RunConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const
+{
+    if (!qobject_cast<Qt4Project *>(parent))
+        return false;
+    return source->id().startsWith(QLatin1String(QT4_RC_ID));
+}
+
+ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    Qt4RunConfiguration *old(static_cast<Qt4RunConfiguration *>(source));
+    return new Qt4RunConfiguration(project, old);
 }
 
 QStringList Qt4RunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *pro) const
 {
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
-    if (qt4project) {
-        QStringList applicationProFiles;
-        QList<Qt4ProFileNode *> list = qt4project->applicationProFiles();
-        foreach (Qt4ProFileNode * node, list) {
-            applicationProFiles.append("Qt4RunConfiguration." + node->path());
-        }
-        return applicationProFiles;
-    } else {
+    if (!qt4project)
         return QStringList();
-    }
+    return qt4project->applicationProFilePathes(QLatin1String(QT4_RC_PREFIX));
 }
 
 QString Qt4RunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QString fileName = id.mid(QString("Qt4RunConfiguration.").size());
-    return QFileInfo(fileName).completeBaseName();
+    return QFileInfo(pathFromId(id)).completeBaseName();
 }

@@ -44,7 +44,7 @@ class QWidget;
 QT_END_NAMESPACE
 
 namespace Debugger {
-    class DebuggerStartParameters;
+class DebuggerStartParameters;
 }
 
 namespace Qt4ProjectManager {
@@ -52,26 +52,26 @@ class Qt4Project;
 
 namespace Internal {
 class Qt4ProFileNode;
+class S60DeviceRunConfigurationFactory;
 
 class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
+    friend class S60DeviceRunConfigurationFactory;
+
 public:
     enum SigningMode {
         SignSelf,
         SignCustom
     };
 
-    explicit S60DeviceRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
-    ~S60DeviceRunConfiguration();
+    S60DeviceRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
+    virtual ~S60DeviceRunConfiguration();
 
     Qt4Project *qt4Project() const;
 
-    QString id() const;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *configurationWidget();
-    void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
-    void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
     QString serialPortName() const;
     void setSerialPortName(const QString &name);
@@ -99,6 +99,8 @@ public:
 
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
+    QVariantMap toMap() const;
+
 signals:
     void targetInformationChanged();
 
@@ -106,9 +108,14 @@ private slots:
     void invalidateCachedTargetInformation();
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
+protected:
+    S60DeviceRunConfiguration(ProjectExplorer::Project *project, S60DeviceRunConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
     ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
     void updateTarget();
+    void ctor();
 
     QString m_proFilePath;
     QString m_targetName;
@@ -128,14 +135,21 @@ private:
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
+
 public:
-    explicit S60DeviceRunConfigurationFactory(QObject *parent);
+    explicit S60DeviceRunConfigurationFactory(QObject *parent = 0);
     ~S60DeviceRunConfigurationFactory();
-    bool canRestore(const QString &id) const;
-    QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
+
+    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *parent, const QString &id);
+    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source);
+
+    QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
     // used to translate the ids to names to display to the user
     QString displayNameForId(const QString &id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
 };
 
 /* S60DeviceRunControlBase: Builds the package and starts launcher

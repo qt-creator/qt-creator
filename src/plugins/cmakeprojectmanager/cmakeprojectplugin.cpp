@@ -57,8 +57,8 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
     CMakeSettingsPage *cmp = new CMakeSettingsPage();
     addAutoReleasedObject(cmp);
     addAutoReleasedObject(new CMakeManager(cmp));
-    addAutoReleasedObject(new MakeStepFactory());
-    addAutoReleasedObject(new CMakeRunConfigurationFactory());
+    addAutoReleasedObject(new MakeStepFactory);
+    addAutoReleasedObject(new CMakeRunConfigurationFactory);
     return true;
 }
 

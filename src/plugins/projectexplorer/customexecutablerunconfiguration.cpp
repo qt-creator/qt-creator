@@ -30,29 +30,41 @@
 #include "customexecutablerunconfiguration.h"
 #include "environment.h"
 #include "project.h"
-#include "persistentsettings.h"
-#include "environmenteditmodel.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/environmenteditmodel.h>
+#include <projectexplorer/debugginghelper.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
 #include <QtGui/QCheckBox>
-#include <QtGui/QFormLayout>
-#include <QtGui/QLineEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QMainWindow>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
-#include <QtGui/QFileDialog>
-#include <QtGui/QGroupBox>
 #include <QtGui/QComboBox>
-#include <QDialogButtonBox>
+#include <QtGui/QDialog>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QFormLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
+#include <QtGui/QMainWindow>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+
+namespace {
+const char * const CUSTOM_EXECUTABLE_ID("ProjectExplorer.CustomExecutableRunConfiguration");
+
+const char * const EXECUTABLE_KEY("ProjectExplorer.CustomExecutableRunConfiguration.Executable");
+const char * const ARGUMENTS_KEY("ProjectExplorer.CustomExecutableRunConfiguration.Arguments");
+const char * const WORKING_DIRECTORY_KEY("ProjectExplorer.CustomExecutableRunConfiguration.WorkingDirectory");
+const char * const USE_TERMINAL_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UseTerminal");
+const char * const USER_SET_NAME_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserSetName");
+const char * const USER_NAME_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserName");
+const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.CustomExecutableRunConfiguration.UserEnvironmentChanges");
+const char * const BASE_ENVIRONMENT_BASE_KEY("ProjectExplorer.CustomExecutableRunConfiguration.BaseEnvironmentBase");
+
+const char * const DEFAULT_WORKING_DIR("$BUILDDIR");
+}
 
 class CustomDirectoryPathChooser : public Utils::PathChooser
 {
@@ -245,24 +257,45 @@ void CustomExecutableConfigurationWidget::changed()
     m_userName->setText(m_runConfiguration->userName());
 }
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *pro)
-    : LocalApplicationRunConfiguration(pro),
-      m_runMode(Gui),
-      m_userSetName(false),
-      m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
+void CustomExecutableRunConfiguration::ctor()
 {
-    m_workingDirectory = "$BUILDDIR";
-    setDisplayName(tr("Custom Executable"));
-
-    connect(pro, SIGNAL(activeBuildConfigurationChanged()),
+    if (m_userSetName)
+        setDisplayName(m_userName);
+    else
+        setDisplayName(tr("Custom Executable"));
+    connect(project(), SIGNAL(activeBuildConfigurationChanged()),
             this, SLOT(activeBuildConfigurationChanged()));
 
-    m_lastActiveBuildConfiguration = pro->activeBuildConfiguration();
+    m_lastActiveBuildConfiguration = activeBuildConfiguration();
 
     if (m_lastActiveBuildConfiguration) {
         connect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
                 this, SIGNAL(baseEnvironmentChanged()));
     }
+}
+
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *project) :
+    LocalApplicationRunConfiguration(project, QLatin1String(CUSTOM_EXECUTABLE_ID)),
+    m_runMode(Gui),
+    m_userSetName(false),
+    m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
+{
+    m_workingDirectory = QLatin1String(DEFAULT_WORKING_DIR);
+    ctor();
+}
+
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *project, CustomExecutableRunConfiguration *source) :
+    LocalApplicationRunConfiguration(project, source),
+    m_executable(source->m_executable),
+    m_workingDirectory(source->m_workingDirectory),
+    m_cmdArguments(source->m_cmdArguments),
+    m_runMode(source->m_runMode),
+    m_userSetName(source->m_userSetName),
+    m_userName(source->m_userName),
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
+    m_baseEnvironmentBase(source->m_baseEnvironmentBase)
+{
+    ctor();
 }
 
 CustomExecutableRunConfiguration::~CustomExecutableRunConfiguration()
@@ -275,16 +308,11 @@ void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
         disconnect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
                    this, SIGNAL(baseEnvironmentChanged()));
     }
-    m_lastActiveBuildConfiguration = project()->activeBuildConfiguration();
+    m_lastActiveBuildConfiguration = activeBuildConfiguration();
     if (m_lastActiveBuildConfiguration) {
         connect(m_lastActiveBuildConfiguration, SIGNAL(environmentChanged()),
                 this, SIGNAL(baseEnvironmentChanged()));
     }
-}
-
-QString CustomExecutableRunConfiguration::id() const
-{
-    return "ProjectExplorer.CustomExecutableRunConfiguration";
 }
 
 QString CustomExecutableRunConfiguration::baseExecutable() const
@@ -301,7 +329,7 @@ QString CustomExecutableRunConfiguration::executable() const
 {
     QString exec;
     if (QDir::isRelativePath(m_executable)) {
-        Environment env = project()->activeBuildConfiguration()->environment();
+        Environment env = activeBuildConfiguration()->environment();
         exec = env.searchInPath(m_executable);
         if (exec.isEmpty())
             exec = QDir::cleanPath(workingDirectory() + "/" + m_executable);
@@ -333,7 +361,7 @@ QString CustomExecutableRunConfiguration::executable() const
             that->m_workingDirectory = oldWorkingDirectory;
             that->m_cmdArguments = oldCmdArguments;
             emit that->changed();
-            return QString::null;
+            return QString();
         }
     }
     return exec;
@@ -352,7 +380,7 @@ QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
 QString CustomExecutableRunConfiguration::workingDirectory() const
 {
     QString wd = m_workingDirectory;
-    QString bd = project()->activeBuildConfiguration()->buildDirectory();
+    QString bd = activeBuildConfiguration()->buildDirectory();
     return wd.replace("$BUILDDIR", QDir::cleanPath(bd));
 }
 
@@ -381,7 +409,7 @@ ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment()
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
         env = ProjectExplorer::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
-        env = project()->activeBuildConfiguration()->environment();
+        env = activeBuildConfiguration()->environment();
     }
     return env;
 }
@@ -419,31 +447,32 @@ void CustomExecutableRunConfiguration::setUserEnvironmentChanges(const QList<Pro
     }
 }
 
-void CustomExecutableRunConfiguration::save(PersistentSettingsWriter &writer) const
+QVariantMap CustomExecutableRunConfiguration::toMap() const
 {
-    writer.saveValue("Executable", m_executable);
-    writer.saveValue("Arguments", m_cmdArguments);
-    writer.saveValue("WorkingDirectory", m_workingDirectory);
-    writer.saveValue("UseTerminal", m_runMode == Console);
-    writer.saveValue("UserSetName", m_userSetName);
-    writer.saveValue("UserName", m_userName);
-    writer.saveValue("UserEnvironmentChanges", ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
-    writer.saveValue("BaseEnvironmentBase", m_baseEnvironmentBase);
-    LocalApplicationRunConfiguration::save(writer);
+    QVariantMap map(LocalApplicationRunConfiguration::toMap());
+    map.insert(QLatin1String(EXECUTABLE_KEY), m_executable);
+    map.insert(QLatin1String(ARGUMENTS_KEY), m_cmdArguments);
+    map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
+    map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
+    map.insert(QLatin1String(USER_SET_NAME_KEY), m_userSetName);
+    map.insert(QLatin1String(USER_NAME_KEY), m_userName);
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
+    map.insert(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(m_baseEnvironmentBase));
+    return map;
 }
 
-void CustomExecutableRunConfiguration::restore(const PersistentSettingsReader &reader)
+bool CustomExecutableRunConfiguration::fromMap(const QVariantMap &map)
 {
-    m_executable = reader.restoreValue("Executable").toString();
-    m_cmdArguments = reader.restoreValue("Arguments").toStringList();
-    m_workingDirectory = reader.restoreValue("WorkingDirectory").toString();
-    m_runMode = reader.restoreValue("UseTerminal").toBool() ? Console : Gui;
-    m_userSetName = reader.restoreValue("UserSetName").toBool();
-    m_userName = reader.restoreValue("UserName").toString();
-    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(reader.restoreValue("UserEnvironmentChanges").toStringList());
-    LocalApplicationRunConfiguration::restore(reader);
-    QVariant tmp = reader.restoreValue("BaseEnvironmentBase");
-    m_baseEnvironmentBase = tmp.isValid() ? BaseEnvironmentBase(tmp.toInt()) : CustomExecutableRunConfiguration::BuildEnvironmentBase;
+    m_executable = map.value(QLatin1String(EXECUTABLE_KEY)).toString();
+    m_cmdArguments = map.value(QLatin1String(ARGUMENTS_KEY)).toStringList();
+    m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
+    m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
+    m_userSetName = map.value(QLatin1String(USER_SET_NAME_KEY)).toBool();
+    m_userName = map.value(QLatin1String(USER_NAME_KEY)).toString();
+    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+    m_baseEnvironmentBase = static_cast<BaseEnvironmentBase>(map.value(QLatin1String(BASE_ENVIRONMENT_BASE_KEY), static_cast<int>(CustomExecutableRunConfiguration::BuildEnvironmentBase)).toInt());
+
+    return RunConfiguration::fromMap(map);
 }
 
 void CustomExecutableRunConfiguration::setExecutable(const QString &executable)
@@ -512,7 +541,8 @@ ProjectExplorer::ToolChain::ToolChainType CustomExecutableRunConfiguration::tool
 
 // Factory
 
-CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory()
+CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory(QObject *parent) :
+    ProjectExplorer::IRunConfigurationFactory(parent)
 {
 }
 
@@ -521,33 +551,60 @@ CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactor
 
 }
 
-// used to recreate the runConfigurations when restoring settings
-bool CustomExecutableRunConfigurationFactory::canRestore(const QString &id) const
+bool CustomExecutableRunConfigurationFactory::canCreate(Project *project, const QString &id) const
 {
-    return id == "ProjectExplorer.CustomExecutableRunConfiguration";
+    Q_UNUSED(project);
+    return id == QLatin1String(CUSTOM_EXECUTABLE_ID);
 }
 
-RunConfiguration* CustomExecutableRunConfigurationFactory::create(Project *project, const QString &id)
+RunConfiguration *CustomExecutableRunConfigurationFactory::create(Project *project, const QString &id)
 {
-    if (id == "ProjectExplorer.CustomExecutableRunConfiguration") {
-        RunConfiguration* rc = new CustomExecutableRunConfiguration(project);
-        rc->setDisplayName(tr("Custom Executable"));
-        return rc;
-    } else {
+    if (!canCreate(project, id))
         return 0;
-    }
+
+    RunConfiguration *rc(new CustomExecutableRunConfiguration(project));
+    rc->setDisplayName(tr("Custom Executable"));
+    return rc;
 }
 
-QStringList CustomExecutableRunConfigurationFactory::availableCreationIds(Project *pro) const
+bool CustomExecutableRunConfigurationFactory::canRestore(Project *project, const QVariantMap &map) const
 {
-    Q_UNUSED(pro)
-    return QStringList()<< "ProjectExplorer.CustomExecutableRunConfiguration";
+    QString id(idFromMap(map));
+    return canCreate(project, id);
+}
+
+RunConfiguration *CustomExecutableRunConfigurationFactory::restore(Project *project, const QVariantMap &map)
+{
+    if (!canRestore(project, map))
+        return 0;
+    CustomExecutableRunConfiguration *rc(new CustomExecutableRunConfiguration(project));
+    if (rc->fromMap(map))
+        return rc;
+    delete rc;
+    return 0;
+}
+
+bool CustomExecutableRunConfigurationFactory::canClone(Project *parent, RunConfiguration *source) const
+{
+    return canCreate(parent, source->id());
+}
+
+RunConfiguration *CustomExecutableRunConfigurationFactory::clone(Project *parent, RunConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    return new CustomExecutableRunConfiguration(parent, static_cast<CustomExecutableRunConfiguration*>(source));
+}
+
+QStringList CustomExecutableRunConfigurationFactory::availableCreationIds(Project *project) const
+{
+    Q_UNUSED(project)
+    return QStringList() << QLatin1String(CUSTOM_EXECUTABLE_ID);
 }
 
 QString CustomExecutableRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    if (id == "ProjectExplorer.CustomExecutableRunConfiguration")
+    if (id == QLatin1String(CUSTOM_EXECUTABLE_ID))
         return tr("Custom Executable");
-    else
-        return QString();
+    return QString();
 }

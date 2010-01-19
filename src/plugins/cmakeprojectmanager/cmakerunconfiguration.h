@@ -48,20 +48,23 @@ class CMakeProject;
 
 class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
-    friend class CMakeRunConfigurationWidget;
     Q_OBJECT
+    friend class CMakeRunConfigurationWidget;
+    friend class CMakeRunConfigurationFactory;
+
 public:
-    CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title);
-    virtual ~CMakeRunConfiguration();
+    CMakeRunConfiguration(CMakeProject *project, const QString &target,
+                          const QString &workingDirectory, const QString &title);
+    ~CMakeRunConfiguration();
+
     CMakeProject *cmakeProject() const;
 
-    virtual QString id() const;
-    virtual QString executable() const;
-    virtual RunMode runMode() const;
-    virtual QString workingDirectory() const;
-    virtual QStringList commandLineArguments() const;
-    virtual ProjectExplorer::Environment environment() const;
-    virtual QWidget *configurationWidget();
+    QString executable() const;
+    RunMode runMode() const;
+    QString workingDirectory() const;
+    QStringList commandLineArguments() const;
+    ProjectExplorer::Environment environment() const;
+    QWidget *configurationWidget();
 
     void setExecutable(const QString &executable);
     void setWorkingDirectory(const QString &workingDirectory);
@@ -70,11 +73,11 @@ public:
 
     QString title() const;
 
-    virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
-    virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
-    virtual QString dumperLibrary() const;
-    virtual QStringList dumperLibraryLocations() const;
-    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    QString dumperLibrary() const;
+    QStringList dumperLibraryLocations() const;
+    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+
+    QVariantMap toMap() const;
 
 signals:
     void baseEnvironmentChanged();
@@ -83,7 +86,14 @@ signals:
 
 private slots:
     void setArguments(const QString &newText);
+
+protected:
+    CMakeRunConfiguration(CMakeProject *project, CMakeRunConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
+    void ctor();
+
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
                                BuildEnvironmentBase = 2};
@@ -110,6 +120,7 @@ class CMakeRunConfigurationWidget : public QWidget
     Q_OBJECT
 public:
     CMakeRunConfigurationWidget(CMakeRunConfiguration *cmakeRunConfiguration, QWidget *parent = 0);
+
 private slots:
     void setArguments(const QString &args);
     void baseEnvironmentChanged();
@@ -117,10 +128,13 @@ private slots:
     void userChangesChanged();
     void setWorkingDirectory();
     void resetWorkingDirectory();
+
 private slots:
     void baseEnvironmentComboBoxChanged(int index);
     void workingDirectoryChanged(const QString &workingDirectory);
+
 private:
+    void ctor();
     void updateSummary();
     bool m_ignoreChange;
     CMakeRunConfiguration *m_cmakeRunConfiguration;
@@ -133,18 +147,23 @@ private:
 class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
-public:
-    CMakeRunConfigurationFactory();
-    virtual ~CMakeRunConfigurationFactory();
-    // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(const QString &id) const;
-    // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
-    // used to translate the types to names to display to the user
-    virtual QString displayNameForId(const QString &id) const;
-    virtual ProjectExplorer::RunConfiguration* create(ProjectExplorer::Project *project, const QString &id);
-};
 
+public:
+    explicit CMakeRunConfigurationFactory(QObject *parent = 0);
+    ~CMakeRunConfigurationFactory();
+    // used to recreate the runConfigurations when restoring settings
+    bool canCreate(ProjectExplorer::Project *project, const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
+    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *product) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *product);
+
+    // used to show the list of possible additons to a project, returns a list of types
+    QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
+    // used to translate the types to names to display to the user
+    QString displayNameForId(const QString &id) const;
+};
 
 }
 }

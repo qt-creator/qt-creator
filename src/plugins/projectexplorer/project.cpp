@@ -168,9 +168,7 @@ void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
     int i = 0;
     int activeId = 0;
     foreach (RunConfiguration* rc, m_runConfigurations) {
-        writer.setPrefix("RunConfiguration" + QString().setNum(i) + "-");
-        writer.saveValue("Id", rc->id());
-        rc->save(writer);
+        writer.saveValue("RunConfiguration" + QString().setNum(i), rc->toMap());
         if (rc == m_activeRunConfiguration)
             activeId = i;
         ++i;
@@ -209,15 +207,14 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
     const QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
     forever {
-        reader.setPrefix("RunConfiguration" + QString().setNum(i) + "-");
-        const QVariant &idVariant = reader.restoreValue("Id");
-        if (!idVariant.isValid())
+        QVariantMap values(reader.restoreValue("RunConfiguration" + QString().setNum(i)).toMap());
+        if (values.isEmpty())
             break;
-        const QString &id = idVariant.toString();
         foreach (IRunConfigurationFactory *factory, factories) {
-            if (factory->canRestore(id)) {
-                RunConfiguration* rc = factory->create(this, id);
-                rc->restore(reader);
+            if (factory->canRestore(this, values)) {
+                RunConfiguration* rc = factory->restore(this, values);
+                if (!rc)
+                    continue;
                 addRunConfiguration(rc);
                 if (i == activeId)
                     setActiveRunConfiguration(rc);
@@ -225,9 +222,7 @@ bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
         }
         ++i;
     }
-    reader.setPrefix(QString::null);
-
-    if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
+    if (!activeRunConfiguration() && !m_runConfigurations.isEmpty())
         setActiveRunConfiguration(m_runConfigurations.at(0));
 
     QVariantMap tmp = reader.restoreValue(QLatin1String(EDITOR_SETTINGS_KEY)).toMap();

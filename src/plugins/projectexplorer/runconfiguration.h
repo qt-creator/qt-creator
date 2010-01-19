@@ -30,11 +30,10 @@
 #ifndef RUNCONFIGURATION_H
 #define RUNCONFIGURATION_H
 
+#include "projectconfiguration.h"
 #include "projectexplorer_export.h"
 
-#include <QtCore/QObject>
 #include <QtCore/QMetaType>
-#include <QtCore/QPointer>
 #include <QtCore/QWeakPointer>
 
 QT_BEGIN_NAMESPACE
@@ -45,8 +44,6 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class Project;
-class PersistentSettingsReader;
-class PersistentSettingsWriter;
 
 class RunControl;
 class BuildConfiguration;
@@ -62,34 +59,36 @@ class BuildConfiguration;
  * for a project, but stil be runnable via the output tab.
 
 */
-class PROJECTEXPLORER_EXPORT RunConfiguration : public QObject
+class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {
     Q_OBJECT
+
 public:
-    explicit RunConfiguration(Project *project);
     virtual ~RunConfiguration();
-    Project *project() const;
 
-    // The type of this RunConfiguration, e.g. "ProjectExplorer.LocalApplicationRunConfiguration"
-    virtual QString id() const = 0;
-    // Name shown to the user
-    QString displayName() const;
-    void setDisplayName(const QString &name);
-
-    virtual bool isEnabled(BuildConfiguration *) const { return true; }
+    // Used to find out whether a runconfiguration works with the given
+    // buildconfiguration.
+    // Note: bc may be 0!
+    virtual bool isEnabled(BuildConfiguration *bc) const;
+    // Used to find out whether a runconfiguration works with the active
+    // buildconfiguration.
     bool isEnabled() const;
 
     // Returns the widget used to configure this run configuration. Ownership is transferred to the caller
     // rename to createConfigurationWidget
     virtual QWidget *configurationWidget() = 0;
 
-    virtual void save(PersistentSettingsWriter &writer) const;
-    virtual void restore(const PersistentSettingsReader &reader);
-signals:
-    void displayNameChanged();
+    Project *project() const;
+
+protected:
+    RunConfiguration(Project *project, const QString &id);
+    RunConfiguration(Project *project, RunConfiguration *source);
+
+    // convenience method to get current build configuration.
+    BuildConfiguration *activeBuildConfiguration() const;
+
 private:
-    QPointer<Project> m_project;
-    QString m_displayName;
+    Project *m_project;
 };
 
 /* The run configuration factory is used for restoring run configurations from
@@ -100,20 +99,29 @@ private:
  * QString displayNameForType(const QString&) are used to generate a list of creatable
  * RunConfigurations, and create(..) is used to create it.
  */
-class PROJECTEXPLORER_EXPORT IRunConfigurationFactory : public QObject
+class PROJECTEXPLORER_EXPORT IRunConfigurationFactory :
+    public QObject
 {
     Q_OBJECT
+
 public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
-    // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(const QString &id) const = 0;
+
     // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList availableCreationIds(Project *pro) const = 0;
+    virtual QStringList availableCreationIds(Project *parent) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
-    // used to create a run configuration from scratch
-    virtual RunConfiguration* create(Project *project, const QString &id) = 0;
+
+    virtual bool canCreate(Project *parent, const QString &id) const = 0;
+    virtual RunConfiguration *create(Project *parent, const QString &id) = 0;
+    virtual bool canRestore(Project *parent, const QVariantMap &map) const = 0;
+    virtual RunConfiguration *restore(Project *parent, const QVariantMap &map) = 0;
+    virtual bool canClone(Project *parent, RunConfiguration *product) const = 0;
+    virtual RunConfiguration *clone(Project *parent, RunConfiguration *product) = 0;
+
+signals:
+    void availableCreationIdsChanged();
 };
 
 class PROJECTEXPLORER_EXPORT IRunControlFactory : public QObject

@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "applicationrunconfiguration.h"
-#include "persistentsettings.h"
+
 #include "environment.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -36,36 +36,24 @@
 
 #include <QtCore/QDir>
 #include <QtGui/QLabel>
-#include <QtGui/QTextDocument>
-#include <QDebug>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 /// LocalApplicationRunConfiguration
 
-LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Project *pro)
-    : RunConfiguration(pro)
+LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Project *project, const QString &id) :
+    RunConfiguration(project, id)
+{
+}
+
+LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Project *project, LocalApplicationRunConfiguration *rc) :
+    RunConfiguration(project, rc)
 {
 }
 
 LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 {
-}
-
-QString LocalApplicationRunConfiguration::id() const
-{
-    return "ProjectExplorer.LocalApplicationRunConfiguration";
-}
-
-void LocalApplicationRunConfiguration::save(PersistentSettingsWriter &writer) const
-{
-    RunConfiguration::save(writer);
-}
-
-void LocalApplicationRunConfiguration::restore(const PersistentSettingsReader &reader)
-{
-    RunConfiguration::restore(reader);
 }
 
 /// LocalApplicationRunControlFactory

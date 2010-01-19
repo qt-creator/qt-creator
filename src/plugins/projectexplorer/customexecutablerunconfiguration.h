@@ -31,6 +31,8 @@
 #define CUSTOMEXECUTABLERUNCONFIGURATION_H
 
 #include "applicationrunconfiguration.h"
+
+#include <QtCore/QVariantMap>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -49,25 +51,27 @@ class PathChooser;
 namespace ProjectExplorer {
 class EnvironmentWidget;
 namespace Internal {
-    class CustomExecutableConfigurationWidget;
+class CustomExecutableConfigurationWidget;
 }
+
+class CustomExecutableRunConfigurationFactory;
 
 class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public LocalApplicationRunConfiguration
 {
+    Q_OBJECT
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
     friend class Internal::CustomExecutableConfigurationWidget;
-    Q_OBJECT
+    friend class CustomExecutableRunConfigurationFactory;
 
 public:
-    CustomExecutableRunConfiguration(Project *pro);
+    explicit CustomExecutableRunConfiguration(Project *project);
     ~CustomExecutableRunConfiguration();
-    virtual QString id() const;
 
     /**
      * Returns the executable, looks in the environment for it and might even
      * ask the user if none is specified
      */
-    virtual QString executable() const;
+    QString executable() const;
 
     /**
      * Returns only what is stored in the internal variable, not what we might
@@ -81,20 +85,19 @@ public:
      */
     QString userName() const;
 
-    virtual LocalApplicationRunConfiguration::RunMode runMode() const;
-    virtual QString workingDirectory() const;
+    LocalApplicationRunConfiguration::RunMode runMode() const;
+    QString workingDirectory() const;
     QString baseWorkingDirectory() const;
-    virtual QStringList commandLineArguments() const;
-    virtual Environment environment() const;
+    QStringList commandLineArguments() const;
+    Environment environment() const;
 
-    virtual void save(PersistentSettingsWriter &writer) const;
-    virtual void restore(const PersistentSettingsReader &reader);
+    QWidget *configurationWidget();
+    QString dumperLibrary() const;
+    QStringList dumperLibraryLocations() const;
 
-    virtual QWidget *configurationWidget();
-    virtual QString dumperLibrary() const;
-    virtual QStringList dumperLibraryLocations() const;
+    ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
-    virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
+    QVariantMap toMap() const;
 
 signals:
     void changed();
@@ -105,7 +108,13 @@ signals:
 private slots:
     void activeBuildConfigurationChanged();
 
+protected:
+    CustomExecutableRunConfiguration(Project *project, CustomExecutableRunConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
+    void ctor();
+
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
                                BuildEnvironmentBase = 2};
@@ -137,13 +146,18 @@ class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
     Q_OBJECT
 
 public:
-    CustomExecutableRunConfigurationFactory();
-    virtual ~CustomExecutableRunConfigurationFactory();
-    // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(const QString &id) const;
-    virtual RunConfiguration* create(Project *project, const QString &id);
-    QStringList availableCreationIds(Project *pro) const;
+    explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
+    ~CustomExecutableRunConfigurationFactory();
+
+    QStringList availableCreationIds(Project *project) const;
     QString displayNameForId(const QString &id) const;
+
+    bool canCreate(Project *project, const QString &id) const;
+    RunConfiguration *create(Project *project, const QString &id);
+    bool canRestore(Project *project, const QVariantMap &map) const;
+    RunConfiguration *restore(Project *project, const QVariantMap &map);
+    bool canClone(Project *parent, RunConfiguration *product) const;
+    RunConfiguration *clone(Project *parent, RunConfiguration *source);
 };
 
 namespace Internal {

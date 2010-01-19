@@ -50,6 +50,48 @@
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
 
+namespace {
+const char * const MAEMO_RC_ID("Qt4ProjectManager.MaemoRunConfiguration");
+const char * const MAEMO_RC_ID_PREFIX("Qt4ProjectManager.MaemoRunConfiguration.");
+
+bool hasMaemoRunConfig(ProjectExplorer::Project* project)
+{
+    Qt4ProjectManager::Qt4Project *qt4Project(
+        qobject_cast<Qt4ProjectManager::Qt4Project *>(project));
+    if (qt4Project) {
+        QList<ProjectExplorer::RunConfiguration *> list =
+                qt4Project->runConfigurations();
+        foreach (ProjectExplorer::RunConfiguration *rc, list) {
+            if (qobject_cast<Qt4ProjectManager::Internal::MaemoRunConfiguration *>(rc))
+                return true;
+        }
+    }
+    return false;
+}
+
+QString targetFromId(const QString &id)
+{
+    QString prefix(MAEMO_RC_ID_PREFIX);
+    if (!id.startsWith(prefix))
+        return QString();
+    return id.mid(prefix.size());
+}
+
+QString targetToId(const QString &target)
+{
+    return QString::fromLatin1(MAEMO_RC_ID_PREFIX) + target;
+}
+
+} // namespace
+
+static const QLatin1String ArgumentsKey("Arguments");
+static const QLatin1String SimulatorPathKey("Simulator");
+static const QLatin1String DeviceIdKey("DeviceId");
+static const QLatin1String LastDeployedKey("LastDeployed");
+static const QLatin1String DebuggingHelpersLastDeployedKey(
+    "DebuggingHelpersLastDeployed");
+static const QLatin1String ProFileKey("ProFile");
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -96,21 +138,45 @@ void ErrorDumper::printToStream(QProcess::ProcessError error)
 
 // #pragma mark -- MaemoRunConfiguration
 
-
-static const QLatin1String ArgumentsKey("Arguments");
-static const QLatin1String SimulatorPathKey("Simulator");
-static const QLatin1String DeviceIdKey("DeviceId");
-static const QLatin1String LastDeployedKey("LastDeployed");
-static const QLatin1String DebuggingHelpersLastDeployedKey(
-    "DebuggingHelpersLastDeployed");
-
-MaemoRunConfiguration::MaemoRunConfiguration(Project *project,
+MaemoRunConfiguration::MaemoRunConfiguration(Qt4Project *project,
         const QString &proFilePath)
-    : RunConfiguration(project)
+    : RunConfiguration(project, QLatin1String(MAEMO_RC_ID))
     , m_proFilePath(proFilePath)
     , m_cachedTargetInformationValid(false)
     , m_cachedSimulatorInformationValid(false)
     , qemu(0)
+{
+    ctor();
+}
+
+MaemoRunConfiguration::MaemoRunConfiguration(Qt4Project *project,
+                                             MaemoRunConfiguration *source)
+    : RunConfiguration(project, source)
+    , m_executable(source->m_executable)
+    , m_proFilePath(source->m_proFilePath)
+    , m_cachedTargetInformationValid(false)
+    , m_simulator(source->m_simulator)
+    , m_simulatorArgs(source->m_simulatorArgs)
+    , m_simulatorPath(source->m_simulatorPath)
+    , m_visibleSimulatorParameter(source->m_visibleSimulatorParameter)
+    , m_cachedSimulatorInformationValid(false)
+    , m_isUserSetSimulator(source->m_isUserSetSimulator)
+    , m_userSimulatorPath(source->m_userSimulatorPath)
+    , m_gdbPath(source->m_gdbPath)
+    , m_devConfig(source->m_devConfig)
+    , m_arguments(source->m_arguments)
+    , m_lastDeployed(source->m_lastDeployed)
+    , m_debuggingHelpersLastDeployed(source->m_debuggingHelpersLastDeployed)
+    , qemu(0)
+#if USE_SSL_PASSWORD
+    , m_remoteUserPassword(source->m_remoteUserPassword)
+    , m_remoteHostRequiresPassword(source->m_remoteHostRequiresPassword)
+#endif
+{
+    ctor();
+}
+
+void MaemoRunConfiguration::ctor()
 {
     if (!m_proFilePath.isEmpty()) {
         setDisplayName(tr("%1 on Maemo device").arg(QFileInfo(m_proFilePath)
@@ -122,13 +188,13 @@ MaemoRunConfiguration::MaemoRunConfiguration(Project *project,
     connect(&MaemoDeviceConfigurations::instance(), SIGNAL(updated()),
             this, SLOT(updateDeviceConfigurations()));
 
-    connect(project, SIGNAL(targetInformationChanged()),
+    connect(qt4Project(), SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
 
-    connect(project, SIGNAL(targetInformationChanged()),
+    connect(qt4Project(), SIGNAL(targetInformationChanged()),
             this, SLOT(enabledStateChanged()));
 
-    connect(project, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+    connect(qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 
     qemu = new QProcess(this);
@@ -148,16 +214,9 @@ MaemoRunConfiguration::~MaemoRunConfiguration()
     qemu = NULL;
 }
 
-QString MaemoRunConfiguration::id() const
+Qt4Project *MaemoRunConfiguration::qt4Project() const
 {
-    return QLatin1String("Qt4ProjectManager.MaemoRunConfiguration");
-}
-
-Qt4Project *MaemoRunConfiguration::project() const
-{
-    Qt4Project *pro = qobject_cast<Qt4Project *>(RunConfiguration::project());
-    Q_ASSERT(pro != 0);
-    return pro;
+    return static_cast<Qt4Project *>(project());
 }
 
 bool MaemoRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *config) const
@@ -179,40 +238,40 @@ void MaemoRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFil
         invalidateCachedTargetInformation();
 }
 
-
-void MaemoRunConfiguration::save(PersistentSettingsWriter &writer) const
+QVariantMap MaemoRunConfiguration::toMap() const
 {
-    writer.saveValue(DeviceIdKey, m_devConfig.internalId);
-    writer.saveValue(ArgumentsKey, m_arguments);
+    QVariantMap map(RunConfiguration::toMap());
+    map.insert(DeviceIdKey, m_devConfig.internalId);
+    map.insert(ArgumentsKey, m_arguments);
 
-    writer.saveValue(LastDeployedKey, m_lastDeployed);
-    writer.saveValue(DebuggingHelpersLastDeployedKey,
+    map.insert(LastDeployedKey, m_lastDeployed);
+    map.insert(DebuggingHelpersLastDeployedKey,
         m_debuggingHelpersLastDeployed);
 
-    writer.saveValue(SimulatorPathKey, m_simulatorPath);
+    map.insert(SimulatorPathKey, m_simulatorPath);
 
-    const QDir &dir = QFileInfo(project()->file()->fileName()).absoluteDir();
-    writer.saveValue("ProFile", dir.relativeFilePath(m_proFilePath));
+    const QDir &dir = QFileInfo(qt4Project()->file()->fileName()).absoluteDir();
+    map.insert(ProFileKey, dir.relativeFilePath(m_proFilePath));
 
-    RunConfiguration::save(writer);
+    return map;
 }
 
-void MaemoRunConfiguration::restore(const PersistentSettingsReader &reader)
+bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
 {
-    RunConfiguration::restore(reader);
-
     setDeviceConfig(MaemoDeviceConfigurations::instance().
-        find(reader.restoreValue(DeviceIdKey).toInt()));
-    m_arguments = reader.restoreValue(ArgumentsKey).toStringList();
+        find(map.value(DeviceIdKey, 0).toInt()));
+    m_arguments = map.value(ArgumentsKey).toStringList();
 
-    m_lastDeployed = reader.restoreValue(LastDeployedKey).toDateTime();
+    m_lastDeployed = map.value(LastDeployedKey).toDateTime();
     m_debuggingHelpersLastDeployed =
-        reader.restoreValue(DebuggingHelpersLastDeployedKey).toDateTime();
+        map.value(DebuggingHelpersLastDeployedKey).toDateTime();
 
-    m_simulatorPath = reader.restoreValue(SimulatorPathKey).toString();
+    m_simulatorPath = map.value(SimulatorPathKey).toString();
 
-    const QDir &dir = QFileInfo(project()->file()->fileName()).absoluteDir();
-    m_proFilePath = dir.filePath(reader.restoreValue("ProFile").toString());
+    const QDir &dir = QFileInfo(qt4Project()->file()->fileName()).absoluteDir();
+    m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
+
+    return RunConfiguration::fromMap(map);
 }
 
 bool MaemoRunConfiguration::currentlyNeedsDeployment() const
@@ -227,7 +286,7 @@ void MaemoRunConfiguration::wasDeployed()
 
 bool MaemoRunConfiguration::hasDebuggingHelpers() const
 {
-    Qt4BuildConfiguration *qt4bc = project()->activeQt4BuildConfiguration();
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
     return qt4bc->qtVersion()->hasDebuggingHelper();
 }
 
@@ -283,7 +342,7 @@ const QString MaemoRunConfiguration::cmd(const QString &cmdName) const
 const MaemoToolChain *MaemoRunConfiguration::toolchain() const
 {
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>
-        (project()->activeBuildConfiguration());
+        (qt4Project()->activeBuildConfiguration());
     QTC_ASSERT(qt4bc, return 0);
     MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(
         qt4bc->toolChain() );
@@ -319,7 +378,7 @@ const QStringList MaemoRunConfiguration::arguments() const
 
 const QString MaemoRunConfiguration::dumperLib() const
 {
-    Qt4BuildConfiguration *qt4bc = project()->activeQt4BuildConfiguration();
+    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
     return qt4bc->qtVersion()->debuggingHelperLibrary();
 }
 
@@ -415,7 +474,7 @@ void MaemoRunConfiguration::updateTarget()
     m_executable = QString::null;
     m_cachedTargetInformationValid = true;
 
-    Qt4TargetInformation info = project()->targetInformation(project()->activeQt4BuildConfiguration(),
+    Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
                                                              m_proFilePath);
     if (info.error != Qt4TargetInformation::NoError) {
         if (info.error == Qt4TargetInformation::ProParserError) {
@@ -547,92 +606,116 @@ void MaemoRunConfiguration::updateDeviceConfigurations()
 
 // #pragma mark -- MaemoRunConfigurationFactory
 
-MaemoRunConfigurationFactory::MaemoRunConfigurationFactory(QObject* parent)
-    : IRunConfigurationFactory(parent)
+MaemoRunConfigurationFactory::MaemoRunConfigurationFactory(QObject *parent) :
+    IRunConfigurationFactory(parent)
 {
+    ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance();
+    connect(explorer->session(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            this, SLOT(projectAdded(ProjectExplorer::Project*)));
+    connect(explorer->session(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(projectRemoved(ProjectExplorer::Project*)));
+    connect(explorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(currentProjectChanged(ProjectExplorer::Project*)));
 }
 
 MaemoRunConfigurationFactory::~MaemoRunConfigurationFactory()
 {
 }
 
-bool MaemoRunConfigurationFactory::canRestore(const QString &id) const
+bool MaemoRunConfigurationFactory::canCreate(Project *parent,
+                                             const QString &id) const
 {
-    return id == "Qt4ProjectManager.MaemoRunConfiguration";
+    if (!qobject_cast<Qt4Project *>(parent))
+        return false;
+    return id.startsWith(QLatin1String(MAEMO_RC_ID));
 }
 
-QStringList MaemoRunConfigurationFactory::availableCreationIds(
-    Project *pro) const
+bool MaemoRunConfigurationFactory::canRestore(Project *parent,
+                                              const QVariantMap &map) const
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
-    if (qt4project) {
-        QStringList applicationProFiles;
-        QList<Qt4ProFileNode *> list = qt4project->applicationProFiles();
-        foreach (Qt4ProFileNode * node, list) {
-            applicationProFiles.append("MaemoRunConfiguration." + node->path());
-        }
-        return applicationProFiles;
-    }
-    return QStringList();
+    QString id(ProjectExplorer::idFromMap(map));
+    return canCreate(parent, id);
+}
+
+bool MaemoRunConfigurationFactory::canClone(Project *parent,
+                                            RunConfiguration *source) const
+{
+    QString id(source->id());
+    return canCreate(parent, id);
+}
+
+QStringList MaemoRunConfigurationFactory::availableCreationIds(Project *pro) const
+{
+    Qt4Project *qt4Project(qobject_cast<Qt4Project *>(pro));
+    if (!qt4Project)
+        return QStringList();
+
+    return qt4Project->applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
 }
 
 QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    const int size = QString::fromLocal8Bit("MaemoRunConfiguration.").size();
-    return tr("%1 on Maemo Device").arg(QFileInfo(id.mid(size))
-        .completeBaseName());
+    QString target(targetFromId(id));
+    if (target.isEmpty())
+        return QString();
+    return tr("%1 on Maemo Device").arg(QFileInfo(target).completeBaseName());
 }
 
-RunConfiguration *MaemoRunConfigurationFactory::create(Project *project,
-    const QString &id)
+RunConfiguration *MaemoRunConfigurationFactory::create(Project *parent,
+                                                       const QString &id)
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(project);
-    Q_ASSERT(qt4project);
+    if (!canCreate(parent, id))
+        return 0;
+    Qt4Project *pqt4parent(static_cast<Qt4Project *>(parent));
+    MaemoRunConfiguration *rc(new MaemoRunConfiguration(pqt4parent, targetFromId(id)));
+    setupRunConfiguration(rc);
+    return rc;
 
-    connect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration *)),
-            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration *)));
-    connect(project, SIGNAL(removedRunConfiguration(RunConfiguration *)),
-            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration *)));
+}
 
-    RunConfiguration *rc = 0;
-    const QLatin1String prefix("MaemoRunConfiguration.");
-    if (id.startsWith(prefix)) {
-        rc = new MaemoRunConfiguration(qt4project, id.mid(QString(prefix).size()));
-    } else {
-        Q_ASSERT(id == "Qt4ProjectManager.MaemoRunConfiguration");
-        rc = new MaemoRunConfiguration(qt4project, QString::null);
+RunConfiguration *MaemoRunConfigurationFactory::restore(Project *parent,
+                                                        const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    Qt4Project *qt4Project(qobject_cast<Qt4Project *>(parent));
+    Q_ASSERT(qt4Project);
+
+    MaemoRunConfiguration *rc(new MaemoRunConfiguration(qt4Project, QString()));
+    if (!rc->fromMap(map)) {
+        delete rc;
+        return 0;
     }
 
-    if (rc) {
-        connect(project, SIGNAL(runConfigurationsEnabledStateChanged()),
-            rc, SLOT(enabledStateChanged()));
-        connect(MaemoManager::instance(), SIGNAL(startStopQemu()), rc,
-            SLOT(startStopQemu()));
-        connect(rc, SIGNAL(qemuProcessStatus(bool)),
-            MaemoManager::instance(), SLOT(updateQemuSimulatorStarter(bool)));
-    }
+    setupRunConfiguration(rc);
+    return rc;
+}
 
-    ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance();
-    connect(explorer->session(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
-        this, SLOT(projectAdded(ProjectExplorer::Project*)));
-    connect(explorer->session(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-        this, SLOT(projectRemoved(ProjectExplorer::Project*)));
-    connect(explorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
-        this, SLOT(currentProjectChanged(ProjectExplorer::Project*)));
+RunConfiguration *MaemoRunConfigurationFactory::clone(Project *parent,
+                                                      RunConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    Qt4Project *qt4Project(static_cast<Qt4Project *>(parent));
+    MaemoRunConfiguration *old(static_cast<MaemoRunConfiguration *>(source));
+    MaemoRunConfiguration *rc(new MaemoRunConfiguration(qt4Project, old));
+
+    setupRunConfiguration(rc);
 
     return rc;
 }
 
-bool hasMaemoRunConfig(ProjectExplorer::Project* project)
+void MaemoRunConfigurationFactory::setupRunConfiguration(MaemoRunConfiguration *rc)
 {
-    if (Qt4Project *qt4Project = qobject_cast<Qt4Project *>(project)) {
-        QList<RunConfiguration *> list = qt4Project->runConfigurations();
-        foreach (RunConfiguration *rc, list) {
-            if (qobject_cast<MaemoRunConfiguration *>(rc))
-                return true;
-        }
-    }
-    return false;
+    if (!rc)
+        return;
+
+    connect(rc->project(), SIGNAL(runConfigurationsEnabledStateChanged()),
+            rc, SLOT(enabledStateChanged()));
+    connect(MaemoManager::instance(), SIGNAL(startStopQemu()),
+            rc, SLOT(startStopQemu()));
+    connect(rc, SIGNAL(qemuProcessStatus(bool)),
+            MaemoManager::instance(), SLOT(updateQemuSimulatorStarter(bool)));
 }
 
 void MaemoRunConfigurationFactory::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
@@ -650,6 +733,13 @@ void MaemoRunConfigurationFactory::removedRunConfiguration(ProjectExplorer::RunC
 void MaemoRunConfigurationFactory::projectAdded(
     ProjectExplorer::Project *project)
 {
+    connect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::Project*,
+                                                  QString)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::Project*)));
+    connect(project, SIGNAL(removedRunConfiguration(ProjectExplorer::Project*,
+                                                    QString)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::Project*)));
+
     if (hasMaemoRunConfig(project))
         MaemoManager::instance()->addQemuSimulatorStarter(project);
 }
@@ -657,6 +747,13 @@ void MaemoRunConfigurationFactory::projectAdded(
 void MaemoRunConfigurationFactory::projectRemoved(
     ProjectExplorer::Project *project)
 {
+    disconnect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::Project*,
+                                                  QString)),
+               this, SLOT(addedRunConfiguration(ProjectExplorer::Project*)));
+    disconnect(project, SIGNAL(removedRunConfiguration(ProjectExplorer::Project*,
+                                                    QString)),
+               this, SLOT(removedRunConfiguration(ProjectExplorer::Project*)));
+
     if (hasMaemoRunConfig(project))
         MaemoManager::instance()->removeQemuSimulatorStarter(project);
 }

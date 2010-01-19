@@ -1023,6 +1023,26 @@ QList<Qt4ProFileNode *> Qt4Project::applicationProFiles() const
     return list;
 }
 
+bool Qt4Project::hasApplicationProFile(const QString &path) const
+{
+    if (path.isEmpty())
+        return false;
+
+    QList<Qt4ProFileNode *> list = applicationProFiles();
+    foreach (Qt4ProFileNode * node, list)
+        if (node->path() == path)
+            return true;
+    return false;
+}
+
+QStringList Qt4Project::applicationProFilePathes(const QString &prepend) const
+{
+    QStringList proFiles;
+    foreach (Qt4ProFileNode *node, applicationProFiles())
+        proFiles.append(prepend + node->path());
+    return proFiles;
+}
+
 void Qt4Project::projectTypeChanged(Qt4ProFileNode *node, const Qt4ProjectType oldType, const Qt4ProjectType newType)
 {
     if (oldType == Internal::ApplicationTemplate

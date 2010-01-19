@@ -48,9 +48,7 @@ public:
         Gui
     };
 
-    LocalApplicationRunConfiguration(Project *pro);
     virtual ~LocalApplicationRunConfiguration();
-    virtual QString id() const;
     virtual QString executable() const = 0;
     virtual RunMode runMode() const = 0;
     virtual QString workingDirectory() const = 0;
@@ -60,8 +58,9 @@ public:
     virtual QStringList dumperLibraryLocations() const = 0;
     virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const = 0;
 
-    virtual void save(PersistentSettingsWriter &writer) const;
-    virtual void restore(const PersistentSettingsReader &reader);
+protected:
+    LocalApplicationRunConfiguration(Project *project, const QString &id);
+    LocalApplicationRunConfiguration(Project *project, LocalApplicationRunConfiguration *rc);
 };
 
 namespace Internal {

@@ -50,6 +50,11 @@ const char * const BUILD_DIRECTORY_KEY("Qt4ProjectManager.Qt4BuildConfiguration.
 const char * const TOOLCHAIN_KEY("Qt4ProjectManager.Qt4BuildConfiguration.ToolChain");
 const char * const BUILD_CONFIGURATION_KEY("Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration");
 const char * const QT_VERSION_ID_KEY("Qt4ProjectManager.Qt4BuildConfiguration.QtVersionId");
+
+enum {
+    debug = false
+};
+
 }
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro) :

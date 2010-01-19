@@ -42,18 +42,28 @@
 using namespace ProjectExplorer;
 
 // RunConfiguration
-RunConfiguration::RunConfiguration(Project *project)
-    : m_project(project)
+RunConfiguration::RunConfiguration(Project *project, const QString &id) :
+    ProjectConfiguration(id),
+    m_project(project)
 {
+    Q_ASSERT(m_project);
+}
+
+RunConfiguration::RunConfiguration(Project *project, RunConfiguration *source) :
+    ProjectConfiguration(source),
+    m_project(project)
+{
+    Q_ASSERT(m_project);
 }
 
 RunConfiguration::~RunConfiguration()
 {
 }
 
-Project *RunConfiguration::project() const
+bool RunConfiguration::isEnabled(BuildConfiguration *bc) const
 {
-    return m_project.data();
+    Q_UNUSED(bc);
+    return true;
 }
 
 bool RunConfiguration::isEnabled() const
@@ -66,32 +76,20 @@ bool RunConfiguration::isEnabled() const
     return isEnabled(m_project->activeBuildConfiguration());
 }
 
-QString RunConfiguration::displayName() const
+BuildConfiguration *RunConfiguration::activeBuildConfiguration() const
 {
-    return m_displayName;
+    if (!project())
+        return 0;
+    return project()->activeBuildConfiguration();
 }
 
-void RunConfiguration::setDisplayName(const QString &name)
+Project *RunConfiguration::project() const
 {
-    m_displayName = name;
-    emit displayNameChanged();
+    return m_project;
 }
 
-void RunConfiguration::save(PersistentSettingsWriter &writer) const
-{
-    writer.saveValue("RunConfiguration.name", m_displayName);
-}
-
-void RunConfiguration::restore(const PersistentSettingsReader &reader)
-{
-    QVariant var = reader.restoreValue("RunConfiguration.name");
-    if (var.isValid() && !var.toString().isEmpty())
-        m_displayName = var.toString();
-}
-
-
-IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent)
-    : QObject(parent)
+IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
+    QObject(parent)
 {
 }
 

@@ -51,23 +51,58 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
+namespace {
+const char * const S60_EMULATOR_RC_ID("Qt4ProjectManager.S60EmulatorRunConfiguration");
+const char * const S60_EMULATOR_RC_PREFIX("Qt4ProjectManager.S60EmulatorRunConfiguration.");
+
+const char * const PRO_FILE_KEY("Qt4ProjectManager.S60EmulatorRunConfiguration.ProFile");
+
+QString pathFromId(const QString &id)
+{
+    if (!id.startsWith(QLatin1String(S60_EMULATOR_RC_PREFIX)))
+        return QString();
+    return id.mid(QString::fromLatin1(S60_EMULATOR_RC_PREFIX).size());
+}
+
+QString pathToId(const QString &path)
+{
+    return QString::fromLatin1(S60_EMULATOR_RC_PREFIX) + path;
+}
+
+}
+
 // ======== S60EmulatorRunConfiguration
-S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, const QString &proFilePath)
-    : RunConfiguration(project),
+
+S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, const QString &proFilePath) :
+    RunConfiguration(project, QLatin1String(S60_EMULATOR_RC_ID)),
     m_proFilePath(proFilePath),
     m_cachedTargetInformationValid(false)
+{
+    ctor();
+}
+
+S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, S60EmulatorRunConfiguration *source) :
+    RunConfiguration(project, source),
+    m_proFilePath(source->m_proFilePath),
+    m_cachedTargetInformationValid(false)
+{
+    ctor();
+}
+
+void S60EmulatorRunConfiguration::ctor()
 {
     if (!m_proFilePath.isEmpty())
         setDisplayName(tr("%1 in Symbian Emulator").arg(QFileInfo(m_proFilePath).completeBaseName()));
     else
-        setDisplayName(tr("QtSymbianEmulatorRunConfiguration"));
+        setDisplayName(tr("Qt Symbian Emulator RunConfiguration"));
 
-    connect(project, SIGNAL(targetInformationChanged()),
+    connect(qt4Project(), SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
 
-    connect(project, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+    connect(qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
+
 
 S60EmulatorRunConfiguration::~S60EmulatorRunConfiguration()
 {
@@ -85,11 +120,6 @@ Qt4Project *S60EmulatorRunConfiguration::qt4Project() const
     return static_cast<Qt4Project *>(project());
 }
 
-QString S60EmulatorRunConfiguration::id() const
-{
-    return "Qt4ProjectManager.EmulatorRunConfiguration";
-}
-
 bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
 {
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
@@ -103,18 +133,20 @@ QWidget *S60EmulatorRunConfiguration::configurationWidget()
     return new S60EmulatorRunConfigurationWidget(this);
 }
 
-void S60EmulatorRunConfiguration::save(PersistentSettingsWriter &writer) const
+QVariantMap S60EmulatorRunConfiguration::toMap() const
 {
+    QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
     const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
-    writer.saveValue("ProFile", projectDir.relativeFilePath(m_proFilePath));
-    RunConfiguration::save(writer);
+    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
+    return map;
 }
 
-void S60EmulatorRunConfiguration::restore(const PersistentSettingsReader &reader)
+bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 {
-    RunConfiguration::restore(reader);
-    const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
-    m_proFilePath = projectDir.filePath(reader.restoreValue("ProFile").toString());
+    const QDir projectDir = QFileInfo(qt4Project()->file()->fileName()).absoluteDir();
+    m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
+
+    return RunConfiguration::fromMap(map);
 }
 
 QString S60EmulatorRunConfiguration::executable() const
@@ -224,44 +256,71 @@ S60EmulatorRunConfigurationFactory::~S60EmulatorRunConfigurationFactory()
 {
 }
 
-bool S60EmulatorRunConfigurationFactory::canRestore(const QString &id) const
+bool S60EmulatorRunConfigurationFactory::canCreate(Project *parent, const QString &id) const
 {
-    return id == "Qt4ProjectManager.EmulatorRunConfiguration";
+    Qt4Project *project(qobject_cast<Qt4Project *>(parent));
+    if (!project)
+        return false;
+    return project->hasApplicationProFile(pathFromId(id));
+}
+
+RunConfiguration *S60EmulatorRunConfigurationFactory::create(Project *parent, const QString &id)
+{
+    if (!canCreate(parent, id))
+        return 0;
+    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    return new S60EmulatorRunConfiguration(project, pathFromId(id));
+}
+
+bool S60EmulatorRunConfigurationFactory::canRestore(Project *parent, const QVariantMap &map) const
+{
+    if (!qobject_cast<Qt4Project *>(parent))
+        return false;
+    QString id(ProjectExplorer::idFromMap(map));
+    return id.startsWith(QLatin1String(S60_EMULATOR_RC_ID));
+}
+
+RunConfiguration *S60EmulatorRunConfigurationFactory::restore(Project *parent, const QVariantMap &map)
+{
+    if (!canRestore(parent, map))
+        return 0;
+    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    S60EmulatorRunConfiguration *rc(new S60EmulatorRunConfiguration(project, QString()));
+    if (rc->fromMap(map))
+        return rc;
+    delete rc;
+    return 0;
+}
+
+bool S60EmulatorRunConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const
+{
+    if (!qobject_cast<Qt4Project *>(parent))
+        return false;
+    return source->id() == QLatin1String(S60_EMULATOR_RC_ID);
+}
+
+RunConfiguration *S60EmulatorRunConfigurationFactory::clone(Project *parent, RunConfiguration *source)
+{
+    if (!canClone(parent, source))
+        return 0;
+    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    return new S60EmulatorRunConfiguration(project, QString());
 }
 
 QStringList S60EmulatorRunConfigurationFactory::availableCreationIds(Project *pro) const
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(pro);
-    if (qt4project) {
-        QStringList applicationProFiles;
-        QList<Qt4ProFileNode *> list = qt4project->applicationProFiles();
-        foreach (Qt4ProFileNode * node, list) {
-            applicationProFiles.append("QtSymbianEmulatorRunConfiguration." + node->path());
-        }
-        return applicationProFiles;
-    } else {
+    Qt4Project *qt4project(qobject_cast<Qt4Project *>(pro));
+    if (!qt4project)
         return QStringList();
-    }
+
+    return qt4project->applicationProFilePathes(QLatin1String(S60_EMULATOR_RC_PREFIX));
 }
 
 QString S60EmulatorRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QString fileName = id.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
-    return tr("%1 in Symbian Emulator").arg(QFileInfo(fileName).completeBaseName());
-}
-
-RunConfiguration *S60EmulatorRunConfigurationFactory::create(Project *project, const QString &id)
-{
-    Qt4Project *p = qobject_cast<Qt4Project *>(project);
-    Q_ASSERT(p);
-    if (id.startsWith("QtSymbianEmulatorRunConfiguration.")) {
-        QString fileName = id.mid(QString("QtSymbianEmulatorRunConfiguration.").size());
-        return new S60EmulatorRunConfiguration(p, fileName);
-    }
-    Q_ASSERT(id == "Qt4ProjectManager.EmulatorRunConfiguration");
-    // The right path is set in restoreSettings
-    RunConfiguration *rc = new S60EmulatorRunConfiguration(p, QString::null);
-    return rc;
+	if (!pathFromId(id).isEmpty())
+        return tr("%1 in Symbian Emulator").arg(QFileInfo(pathFromId(id)).completeBaseName());
+	return QString();
 }
 
 // ======== S60EmulatorRunControl

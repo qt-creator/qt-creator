@@ -33,6 +33,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
 
+#include <QtCore/QVariantMap>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -41,7 +42,7 @@ class QLineEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
-    class DetailsWidget;
+class DetailsWidget;
 }
 
 namespace Qt4ProjectManager {
@@ -49,23 +50,25 @@ class Qt4Project;
 
 namespace Internal {
 class Qt4ProFileNode;
+class S60EmulatorRunConfigurationFactory;
 
 class S60EmulatorRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
+    friend class S60EmulatorRunConfigurationFactory;
+
 public:
-    S60EmulatorRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
-    ~S60EmulatorRunConfiguration();
+    S60EmulatorRunConfiguration(ProjectExplorer::Project *parent, const QString &proFilePath);
+    virtual ~S60EmulatorRunConfiguration();
 
     Qt4Project *qt4Project() const;
 
-    QString id() const;
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *configurationWidget();
-    void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
-    void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
     QString executable() const;
+
+    QVariantMap toMap() const;
 
 signals:
     void targetInformationChanged();
@@ -74,7 +77,12 @@ private slots:
     void invalidateCachedTargetInformation();
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
+protected:
+    S60EmulatorRunConfiguration(ProjectExplorer::Project *parent, S60EmulatorRunConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
+    void ctor();
     void updateTarget();
 
     QString m_proFilePath;
@@ -105,13 +113,19 @@ class S60EmulatorRunConfigurationFactory : public ProjectExplorer::IRunConfigura
 {
     Q_OBJECT
 public:
-    explicit S60EmulatorRunConfigurationFactory(QObject *parent);
+    explicit S60EmulatorRunConfigurationFactory(QObject *parent = 0);
     ~S60EmulatorRunConfigurationFactory();
-    bool canRestore(const QString &id) const;
+
+    bool canCreate(ProjectExplorer::Project *project, const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
+    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source);
+
     QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
     // used to translate the ids to names to display to the user
     QString displayNameForId(const QString &id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
 };
 
 class S60EmulatorRunControl : public ProjectExplorer::RunControl

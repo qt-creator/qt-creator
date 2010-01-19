@@ -107,12 +107,12 @@ S60Manager::S60Manager(QObject *parent)
 #endif
     m_devices->detectQtForDevices(); // Order!
 
-    addAutoReleasedObject(new S60EmulatorRunConfigurationFactory(this));
+    addAutoReleasedObject(new S60EmulatorRunConfigurationFactory);
     addAutoReleasedObject(new RunControlFactory<S60EmulatorRunControl,
                                                 S60EmulatorRunConfiguration>
                                                 (QLatin1String(ProjectExplorer::Constants::RUNMODE),
                                                  tr("Run in Emulator"), parent));
-    addAutoReleasedObject(new S60DeviceRunConfigurationFactory(this));
+    addAutoReleasedObject(new S60DeviceRunConfigurationFactory);
     addAutoReleasedObject(new RunControlFactory<S60DeviceRunControl,
                                                 S60DeviceRunConfiguration>
                                                 (QLatin1String(ProjectExplorer::Constants::RUNMODE),

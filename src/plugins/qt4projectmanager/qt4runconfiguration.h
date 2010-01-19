@@ -55,23 +55,23 @@ class Qt4Project;
 namespace Internal {
 class Qt4PriFileNode;
 class Qt4ProFileNode;
+class Qt4RunConfigurationFactory;
 
 class Qt4RunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
     // to change the display name and arguments and set the userenvironmentchanges
     friend class Qt4RunConfigurationWidget;
+    friend class Qt4RunConfigurationFactory;
+
 public:
-    Qt4RunConfiguration(Qt4Project *pro, const QString &proFilePath);
+    Qt4RunConfiguration(Qt4Project *parent, const QString &proFilePath);
     virtual ~Qt4RunConfiguration();
 
     Qt4Project *qt4Project() const;
 
-    virtual QString id() const;
     virtual bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     virtual QWidget *configurationWidget();
-    virtual void save(ProjectExplorer::PersistentSettingsWriter &writer) const;
-    virtual void restore(const ProjectExplorer::PersistentSettingsReader &reader);
 
     virtual QString executable() const;
     virtual RunMode runMode() const;
@@ -87,6 +87,7 @@ public:
     QString proFilePath() const;
 
     // TODO detectQtShadowBuild() ? how did this work ?
+    QVariantMap toMap() const;
 
 public slots:
     // This function is called if:
@@ -115,12 +116,19 @@ private slots:
     void setUserName(const QString&);
     void setRunMode(RunMode runMode);
 
+protected:
+    Qt4RunConfiguration(Qt4Project *parent, Qt4RunConfiguration *source);
+    virtual bool fromMap(const QVariantMap &map);
+
 private:
     enum BaseEnvironmentBase { CleanEnvironmentBase = 0,
                                SystemEnvironmentBase = 1,
                                BuildEnvironmentBase  = 2 };
+    void setDefaultDisplayName();
     void setBaseEnvironmentBase(BaseEnvironmentBase env);
     BaseEnvironmentBase baseEnvironmentBase() const;
+
+    void ctor();
 
     ProjectExplorer::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
@@ -132,7 +140,6 @@ private:
     QString m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information
-    QStringList m_targets;
     QString m_executable;
     QString m_workingDir;
     ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
@@ -148,6 +155,7 @@ private:
 class Qt4RunConfigurationWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4runconfigration, QWidget *parent);
 protected:
@@ -194,12 +202,19 @@ private:
 class Qt4RunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
+
 public:
-    Qt4RunConfigurationFactory();
+    explicit Qt4RunConfigurationFactory(QObject *parent = 0);
     virtual ~Qt4RunConfigurationFactory();
-    virtual bool canRestore(const QString &id) const;
+
+    virtual bool canCreate(ProjectExplorer::Project *project, const QString &id) const;
     virtual ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
-    QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
+    virtual bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
+    virtual ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+    virtual bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const;
+    virtual ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source);
+
+    QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
     QString displayNameForId(const QString &id) const;
 };
 
