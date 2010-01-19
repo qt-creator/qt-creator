@@ -109,6 +109,7 @@ void FileFilterBaseItem::updateFileList()
     const QSet<QString> watchedDirectories = m_fsWatcher.directories().toSet();
     const QSet<QString> unwatchDirs = watchedDirectories - dirsToBeWatched;
     const QSet<QString> watchDirs = dirsToBeWatched - watchedDirectories;
+
     if (!unwatchDirs.isEmpty())
         m_fsWatcher.removePaths(unwatchDirs.toList());
     if (!watchDirs.isEmpty())
@@ -130,7 +131,7 @@ QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir
 
     if (m_recursive) {
         foreach (const QFileInfo &subDir, dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-            fileSet += filesInSubTree(rootDir, QDir(subDir.absoluteFilePath()));
+            fileSet += filesInSubTree(rootDir, QDir(subDir.absoluteFilePath()), parsedDirs);
         }
     }
     return fileSet;
