@@ -39,10 +39,10 @@ using namespace QmlDesigner;
 static inline QString toString(QmlRefactoring::PropertyType type)
 {
     switch (type) {
-    case QmlRefactoring::ArrayBinding: return QLatin1String("array binding");
-    case QmlRefactoring::ObjectBinding: return QLatin1String("object binding");
-    case QmlRefactoring::ScriptBinding: return QLatin1String("script binding");
-    default: return QLatin1String("UNKNOWN");
+        case QmlRefactoring::ArrayBinding:  return QLatin1String("array binding");
+        case QmlRefactoring::ObjectBinding: return QLatin1String("object binding");
+        case QmlRefactoring::ScriptBinding: return QLatin1String("script binding");
+        default:                            return QLatin1String("UNKNOWN");
     }
 }
 
@@ -51,21 +51,27 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
     const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
     bool result = false;
 
-    if (m_property.isDefaultProperty())
+    if (m_property.isDefaultProperty()) {
         result = refactoring.addToObjectMemberList(nodeLocation, m_valueText);
-    else {
+
+        if (!result) {
+            qDebug() << "*** AddPropertyRewriteAction::execute failed in addToObjectMemberList("
+                    << nodeLocation << ","
+                    << m_valueText << ") **"
+                    << info();
+        }
+    } else {
         result = refactoring.addProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType);
 
         if (!result) {
             qDebug() << "*** AddPropertyRewriteAction::execute failed in addProperty("
                     << nodeLocation << ","
                     << m_property.name() << ","
-                    << m_valueText << ", ScriptBinding)"
+                    << m_valueText << ", ScriptBinding) **"
                     << info();
         }
     }
 
-    Q_ASSERT(result);
     return result;
 }
 
@@ -87,15 +93,30 @@ bool ChangeIdRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, Mo
             qDebug() << "*** ChangeIdRewriteAction::execute failed in addProperty("
                     << nodeLocation << ","
                     << idPropertyName << ","
-                    << m_newId << ", ScriptBinding)"
+                    << m_newId << ", ScriptBinding) **"
                     << info();
         }
-    } else if (m_newId.isEmpty())
+    } else if (m_newId.isEmpty()) {
         result = refactoring.removeProperty(nodeLocation, idPropertyName);
-    else
+
+        if (!result) {
+            qDebug() << "*** ChangeIdRewriteAction::execute failed in removeProperty("
+                    << nodeLocation << ","
+                    << idPropertyName << ") **"
+                    << info();
+        }
+    } else {
         result = refactoring.changeProperty(nodeLocation, idPropertyName, m_newId, QmlRefactoring::ScriptBinding);
 
-    Q_ASSERT(result);
+        if (!result) {
+            qDebug() << "*** ChangeIdRewriteAction::execute failed in changeProperty("
+                    << nodeLocation << ","
+                    << idPropertyName << ","
+                    << m_newId << ", ScriptBinding) **"
+                    << info();
+        }
+    }
+
     return result;
 }
 
@@ -109,14 +130,38 @@ bool ChangePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactori
     const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
     bool result = false;
 
-    if (m_property.isDefaultProperty())
+    if (m_property.isDefaultProperty()) {
         result = refactoring.addToObjectMemberList(nodeLocation, m_valueText);
-    else if (m_propertyType == QmlRefactoring::ArrayBinding)
+
+        if (!result) {
+            qDebug() << "*** ChangePropertyRewriteAction::execute failed in addToObjectMemberList("
+                    << nodeLocation << ","
+                    << m_valueText << ") **"
+                    << info();
+        }
+    } else if (m_propertyType == QmlRefactoring::ArrayBinding) {
         result = refactoring.addToArrayMemberList(nodeLocation, m_property.name(), m_valueText);
-    else
+
+        if (!result) {
+            qDebug() << "*** ChangePropertyRewriteAction::execute failed in addToArrayMemberList("
+                    << nodeLocation << ","
+                    << m_property.name() << ","
+                    << m_valueText << ") **"
+                    << info();
+        }
+    } else {
         result = refactoring.changeProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType);
 
-    Q_ASSERT(result);
+        if (!result) {
+            qDebug() << "*** ChangePropertyRewriteAction::execute failed in changeProperty("
+                    << nodeLocation << ","
+                    << m_property.name() << ","
+                    << m_valueText << ","
+                    << qPrintable(toString(m_propertyType)) << ") **"
+                    << info();
+        }
+    }
+
     return result;
 }
 
@@ -141,8 +186,13 @@ bool ChangeTypeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, 
         newNodeType = newNodeType.mid(slashIdx + 1);
 
     result = refactoring.changeObjectType(nodeLocation, newNodeType);
+    if (!result) {
+        qDebug() << "*** ChangeTypeRewriteAction::execute failed in changeObjectType("
+                << nodeLocation << ","
+                << newNodeType << ") **"
+                << info();
+    }
 
-    Q_ASSERT(result);
     return result;
 }
 
@@ -154,11 +204,13 @@ QString ChangeTypeRewriteAction::info() const
 bool RemoveNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_node);
-    bool result = false;
+    bool result = refactoring.removeObject(nodeLocation);
+    if (!result) {
+        qDebug() << "*** RemoveNodeRewriteAction::execute failed in removeObject("
+                << nodeLocation << ") **"
+                << info();
+    }
 
-    result = refactoring.removeObject(nodeLocation);
-
-    Q_ASSERT(result);
     return result;
 }
 
@@ -170,11 +222,14 @@ QString RemoveNodeRewriteAction::info() const
 bool RemovePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
-    bool result = false;
+    bool result = refactoring.removeProperty(nodeLocation, m_property.name());
+    if (!result) {
+        qDebug() << "*** RemovePropertyRewriteAction::execute failed in removeProperty("
+                << nodeLocation << ","
+                << m_property.name() << ") **"
+                << info();
+    }
 
-    result = refactoring.removeProperty(nodeLocation, m_property.name());
-
-    Q_ASSERT(result);
     return result;
 }
 
@@ -195,8 +250,15 @@ bool ReparentNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring
         targetPropertyName = m_targetProperty.name();
 
     result = refactoring.moveObject(nodeLocation, targetPropertyName, isArrayBinding, targetParentObjectLocation);
+    if (!result) {
+        qDebug() << "*** ReparentNodeRewriteAction::execute failed in moveObject("
+                << nodeLocation << ","
+                << targetPropertyName << ","
+                << isArrayBinding << ","
+                << targetParentObjectLocation << ") **"
+                << info();
+    }
 
-    Q_ASSERT(result);
     return result;
 }
 
@@ -219,8 +281,13 @@ bool MoveNodeRewriteAction::execute(QmlRefactoring &refactoring,
     bool result = false;
 
     result = refactoring.moveObjectBeforeObject(movingNodeLocation, newTrailingNodeLocation);
+    if (!result) {
+        qDebug() << "*** MoveNodeRewriteAction::execute failed in moveObjectBeforeObject("
+                << movingNodeLocation << ","
+                << newTrailingNodeLocation << ") **"
+                << info();
+    }
 
-    Q_ASSERT(result);
     return result;
 }
 

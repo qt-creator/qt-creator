@@ -78,7 +78,7 @@ public:
     public:
         Error();
         Error(const QmlError &qmlError);
-        Error(const Exception &exception);
+        Error(Exception *exception);
 
         Type type() const
         { return m_type; }

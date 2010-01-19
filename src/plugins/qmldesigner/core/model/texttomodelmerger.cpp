@@ -110,7 +110,7 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
         setActive(false);
         return success;
     } catch (Exception &e) {
-        m_rewriterView->addError(RewriterView::Error(e));
+        m_rewriterView->addError(RewriterView::Error(&e));
 
         setActive(false);
 

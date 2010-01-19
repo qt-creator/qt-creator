@@ -52,12 +52,12 @@ RewriterView::Error::Error():
 {
 }
 
-RewriterView::Error::Error(const Exception &exception):
+RewriterView::Error::Error(Exception *exception):
         m_type(InternalError),
-        m_line(exception.line()),
+        m_line(exception->line()),
         m_column(-1),
-        m_description(exception.description()),
-        m_url(exception.file())
+        m_description(exception->description()),
+        m_url(exception->file())
 {
 }
 
@@ -74,13 +74,33 @@ QString RewriterView::Error::toString() const
 {
     QString str;
 
-    if (url().isValid())
-        str = url().toString() + QLatin1Char(':');
-    if (line() != -1)
-        str += QString::number(line()) + QLatin1Char(':');
-    if(column() != -1)
-        str += QString::number(column()) + QLatin1Char(':');
+    if (m_type == ParseError)
+        str += tr("Error parsing");
+    else if (m_type == InternalError)
+        str += tr("Internal error while parsing");
 
+    if (url().isValid()) {
+        if (!str.isEmpty())
+            str += QLatin1Char(' ');
+
+        str += tr("\"%1\"").arg(url().toString());
+    }
+
+    if (line() != -1) {
+        if (!str.isEmpty())
+            str += QLatin1Char(' ');
+        str += tr("line %1").arg(line());
+    }
+
+    if(column() != -1) {
+        if (!str.isEmpty())
+            str += QLatin1Char(' ');
+
+        str += tr("column %1").arg(column());
+    }
+
+    if (!str.isEmpty())
+        QLatin1String(": ");
     str += description();
 
     return str;

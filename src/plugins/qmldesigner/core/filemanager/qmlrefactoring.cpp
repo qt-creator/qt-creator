@@ -79,7 +79,8 @@ bool QmlRefactoring::changeImports(const QSet<QmlDesigner::Import> &/*addedImpor
 
 bool QmlRefactoring::addToArrayMemberList(int parentLocation, const QString &propertyName, const QString &content)
 {
-    Q_ASSERT(parentLocation >= 0);
+    if (parentLocation < 0)
+        return false;
 
     AddArrayMemberVisitor visit(*textModifier, (quint32) parentLocation, propertyName, content);
     visit.setConvertObjectBindingIntoArrayBinding(true);
@@ -88,7 +89,8 @@ bool QmlRefactoring::addToArrayMemberList(int parentLocation, const QString &pro
 
 bool QmlRefactoring::addToObjectMemberList(int parentLocation, const QString &content)
 {
-    Q_ASSERT(parentLocation >= 0);
+    if (parentLocation < 0)
+        return false;
 
     AddObjectVisitor visit(*textModifier, (quint32) parentLocation, content, m_propertyOrder);
     return visit(qmlDocument->qmlProgram());
@@ -96,7 +98,8 @@ bool QmlRefactoring::addToObjectMemberList(int parentLocation, const QString &co
 
 bool QmlRefactoring::addProperty(int parentLocation, const QString &name, const QString &value, PropertyType propertyType)
 {
-    Q_ASSERT(parentLocation >= 0);
+    if(parentLocation < 0)
+        return false;
 
     AddPropertyVisitor visit(*textModifier, (quint32) parentLocation, name, value, propertyType, m_propertyOrder);
     return visit(qmlDocument->qmlProgram());
@@ -104,7 +107,8 @@ bool QmlRefactoring::addProperty(int parentLocation, const QString &name, const 
 
 bool QmlRefactoring::changeProperty(int parentLocation, const QString &name, const QString &value, PropertyType propertyType)
 {
-    Q_ASSERT(parentLocation >= 0);
+    if (parentLocation < 0)
+        return false;
 
     ChangePropertyVisitor visit(*textModifier, (quint32) parentLocation, name, value, propertyType);
     return visit(qmlDocument->qmlProgram());
@@ -112,8 +116,8 @@ bool QmlRefactoring::changeProperty(int parentLocation, const QString &name, con
 
 bool QmlRefactoring::changeObjectType(int nodeLocation, const QString &newType)
 {
-    Q_ASSERT(nodeLocation >= 0);
-    Q_ASSERT(!newType.isEmpty());
+    if (nodeLocation < 0 || newType.isEmpty())
+        return false;
 
     ChangeObjectTypeVisitor visit(*textModifier, (quint32) nodeLocation, newType);
     return visit(qmlDocument->qmlProgram());
@@ -121,8 +125,8 @@ bool QmlRefactoring::changeObjectType(int nodeLocation, const QString &newType)
 
 bool QmlRefactoring::moveObject(int objectLocation, const QString &targetPropertyName, bool targetIsArrayBinding, int targetParentObjectLocation)
 {
-    Q_ASSERT(objectLocation >= 0);
-    Q_ASSERT(targetParentObjectLocation >= 0);
+    if (objectLocation < 0 || targetParentObjectLocation < 0)
+        return false;
 
     MoveObjectVisitor visit(*textModifier, (quint32) objectLocation, targetPropertyName, targetIsArrayBinding, (quint32) targetParentObjectLocation, m_propertyOrder);
     return visit(qmlDocument->qmlProgram());
@@ -130,8 +134,8 @@ bool QmlRefactoring::moveObject(int objectLocation, const QString &targetPropert
 
 bool QmlRefactoring::moveObjectBeforeObject(int movingObjectLocation, int beforeObjectLocation)
 {
-    Q_ASSERT(movingObjectLocation >= 0);
-    Q_ASSERT(beforeObjectLocation >= -1);
+    if (movingObjectLocation < 0 || beforeObjectLocation < -1)
+        return false;
 
     if (beforeObjectLocation == -1) {
         MoveObjectBeforeObjectVisitor visit(*textModifier, movingObjectLocation);
@@ -145,7 +149,8 @@ bool QmlRefactoring::moveObjectBeforeObject(int movingObjectLocation, int before
 
 bool QmlRefactoring::removeObject(int nodeLocation)
 {
-    Q_ASSERT(nodeLocation >= 0);
+    if (nodeLocation < 0)
+        return false;
 
     RemoveUIObjectMemberVisitor visit(*textModifier, (quint32) nodeLocation);
     return visit(qmlDocument->qmlProgram());
@@ -153,8 +158,8 @@ bool QmlRefactoring::removeObject(int nodeLocation)
 
 bool QmlRefactoring::removeProperty(int parentLocation, const QString &name)
 {
-    Q_ASSERT(parentLocation >= 0);
-    Q_ASSERT(!name.isEmpty());
+    if (parentLocation < 0 || name.isEmpty())
+        return false;
 
     RemovePropertyVisitor visit(*textModifier, (quint32) parentLocation, name);
     return visit(qmlDocument->qmlProgram());

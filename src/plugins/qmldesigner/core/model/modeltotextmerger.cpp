@@ -230,6 +230,13 @@ void ModelToTextMerger::applyChanges()
 #endif // DUMP_REWRITE_ACTIONS
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
             const bool success = action->execute(refactoring, *positionStore);
+
+            if (!success) {
+                qDebug() << "*** QML source code: ***";
+                qDebug() << qPrintable(textModifier->text());
+                qDebug() << "*** End of QML source code. ***";
+            }
+
             Q_ASSERT(success);
         }
         qDeleteAll(m_rewriteActions);
