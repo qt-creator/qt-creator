@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <snippets>
-<snippet>property <tab>name</tab> <tab>name</tab> : <tab>name</tab>
+<snippet>property <tab>type</tab> <tab>name</tab> : <tab>name</tab>
 </snippet>
 <snippet>Item {
 	id: <tab>name</tab>
@@ -9,22 +9,22 @@
 </snippet>
 <snippet>BorderImage {
     id: <tab>name</tab>
-    width: <tab>name</tab>; height: <tab>name</tab>
-    border.left: <tab>name</tab>; border.top: <tab>name</tab>
-    border.right: <tab>name</tab>; border.bottom: <tab>name</tab>
-    source: "<tab>name</tab>"
+    source: "<tab>file</tab>"
+    width: <tab>int</tab>; height: <tab>int</tab>
+    border.left: <tab>int</tab>; border.top: <tab>int</tab>
+    border.right: <tab>int</tab>; border.bottom: <tab>int</tab>
 }
 </snippet>
 
 <snippet>Image {
     id: <tab>name</tab>
-    source: "<tab>name</tab>"
+    source: "<tab>file</tab>"
 }
 </snippet>
 
 <snippet>Text {
     id: <tab>name</tab>
-    text: "<tab>name</tab>"
+    text: "<tab>text</tab>"
 }
 </snippet>
 
@@ -80,16 +80,16 @@
 </snippet>
 <snippet>PauseAnimation { duration: <tab>name</tab>}
 </snippet>
-<snippet>ColorAnimation { from: <tab>name</tab>; to: <tab>name</tab>; duration: <tab>200</tab> }
+<snippet>ColorAnimation { from: <tab>name</tab>; to: <tab>color</tab>; duration: <tab>200</tab> }
 </snippet>
-<snippet>effect: Colorize { color: "<tab>name</tab>" }
+<snippet>effect: Colorize { color: "<tab>color</tab>" }
 </snippet>
 <snippet>effect: Blur { blurRadius: "<tab>200</tab>" }
 </snippet>
 <snippet>effect: DropShadow {
-            blurRadius: <tab>200</tab>
-            offset.x: <tab>200</tab>
-            offset.y: <tab>200</tab>
+            blurRadius: <tab>3</tab>
+            offset.x: <tab>2</tab>
+            offset.y: <tab>2</tab>
         }
 </snippet>
 
