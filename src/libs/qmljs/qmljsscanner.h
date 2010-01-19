@@ -38,52 +38,54 @@
 
 namespace QmlJS {
 
-class QMLJS_EXPORT QmlJSScanner
+class QMLJS_EXPORT Token
 {
 public:
-    struct Token {
-        enum Kind {
-            EndOfFile,
-            Keyword,
-            Identifier,
-            String,
-            Comment,
-            Number,
-            LeftParenthesis,
-            RightParenthesis,
-            LeftBrace,
-            RightBrace,
-            LeftBracket,
-            RightBracket,
-            Operator,
-            Semicolon,
-            Colon,
-            Comma,
-            Dot
-        };
-
-        int offset;
-        int length;
-        Kind kind;
-
-        inline Token(): offset(0), length(0), kind(EndOfFile) {}
-        inline Token(int o, int l, Kind k): offset(o), length(l), kind(k) {}
-        inline int begin() const { return offset; }
-        inline int end() const { return offset + length; }
-        inline bool is(int k) const { return k == kind; }
-        inline bool isNot(int k) const { return k != kind; }
+    enum Kind {
+        EndOfFile,
+        Keyword,
+        Identifier,
+        String,
+        Comment,
+        Number,
+        LeftParenthesis,
+        RightParenthesis,
+        LeftBrace,
+        RightBrace,
+        LeftBracket,
+        RightBracket,
+        Operator,
+        Semicolon,
+        Colon,
+        Comma,
+        Dot
     };
 
+    inline Token(): offset(0), length(0), kind(EndOfFile) {}
+    inline Token(int o, int l, Kind k): offset(o), length(l), kind(k) {}
+    inline int begin() const { return offset; }
+    inline int end() const { return offset + length; }
+    inline bool is(int k) const { return k == kind; }
+    inline bool isNot(int k) const { return k != kind; }
+
+public:
+    int offset;
+    int length;
+    Kind kind;
+};
+
+class QMLJS_EXPORT QmlJSScanner
+{
 public:
     QmlJSScanner();
     virtual ~QmlJSScanner();
 
     void setKeywords(const QSet<QString> keywords)
-    { m_keywords = keywords;; }
+    { m_keywords = keywords; }
 
     void reset();
 
-    QList<QmlJSScanner::Token> operator()(const QString &text, int startState = 0);
+    QList<Token> operator()(const QString &text, int startState = 0);
 
     int endState() const
     { return m_endState; }
@@ -91,7 +93,7 @@ public:
     int firstNonSpace() const
     { return m_firstNonSpace; }
 
-    QList<QmlJSScanner::Token> tokens() const
+    QList<Token> tokens() const
     { return m_tokens; }
 
 private:
@@ -113,7 +115,7 @@ private:
     QSet<QString> m_keywords;
     int m_endState;
     int m_firstNonSpace;
-    QList<QmlJSScanner::Token> m_tokens;
+    QList<Token> m_tokens;
 };
 
 } // namespace QmlJS

@@ -215,14 +215,14 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
     yyLinizerState.tokens = scanner(t, startState);
     QString trimmed;
     int previousTokenEnd = 0;
-    foreach (const QmlJSScanner::Token &token, yyLinizerState.tokens) {
+    foreach (const Token &token, yyLinizerState.tokens) {
         trimmed.append(t.midRef(previousTokenEnd, token.begin() - previousTokenEnd));
 
-        if (token.is(QmlJSScanner::Token::String)) {
+        if (token.is(Token::String)) {
             for (int i = 0; i < token.length; ++i)
                 trimmed.append(QLatin1Char('X'));
 
-        } else if (token.is(QmlJSScanner::Token::Comment)) {
+        } else if (token.is(Token::Comment)) {
             for (int i = 0; i < token.length; ++i)
                 trimmed.append(QLatin1Char(' '));
 
@@ -235,43 +235,43 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
 
     int index = yyLinizerState.tokens.size() - 1;
     for (; index != -1; --index) {
-        const QmlJSScanner::Token &token = yyLinizerState.tokens.at(index);
-        if (token.isNot(QmlJSScanner::Token::Comment))
+        const Token &token = yyLinizerState.tokens.at(index);
+        if (token.isNot(Token::Comment))
             break;
     }
 
     bool isBinding = false;
-    foreach (const QmlJSScanner::Token &token, yyLinizerState.tokens) {
-        if (token.is(QmlJSScanner::Token::Colon)) {
+    foreach (const Token &token, yyLinizerState.tokens) {
+        if (token.is(Token::Colon)) {
             isBinding = true;
             break;
         }
     }
 
     if (index != -1) {
-        const QmlJSScanner::Token &last = yyLinizerState.tokens.at(index);
+        const Token &last = yyLinizerState.tokens.at(index);
 
         switch (last.kind) {
-        case QmlJSScanner::Token::LeftParenthesis:
-        case QmlJSScanner::Token::LeftBrace:
-        case QmlJSScanner::Token::Semicolon:
-        case QmlJSScanner::Token::Operator:
+        case Token::LeftParenthesis:
+        case Token::LeftBrace:
+        case Token::Semicolon:
+        case Token::Operator:
             break;
 
-        case QmlJSScanner::Token::RightParenthesis:
-        case QmlJSScanner::Token::RightBrace:
+        case Token::RightParenthesis:
+        case Token::RightBrace:
             if (isBinding)
                 trimmed.append(QLatin1Char(';'));
             break;
 
-        case QmlJSScanner::Token::Colon:
-        case QmlJSScanner::Token::LeftBracket:
-        case QmlJSScanner::Token::RightBracket:
+        case Token::Colon:
+        case Token::LeftBracket:
+        case Token::RightBracket:
             trimmed.append(QLatin1Char(';'));
             break;
 
-        case QmlJSScanner::Token::Identifier:
-        case QmlJSScanner::Token::Keyword:
+        case Token::Identifier:
+        case Token::Keyword:
             if (t.midRef(last.offset, last.length) != QLatin1String("else"))
                 trimmed.append(QLatin1Char(';'));
             break;
@@ -309,16 +309,16 @@ bool QmlJSIndenter::okay(QChar typedIn, QChar okayCh) const
     return typedIn == QChar() || typedIn == okayCh;
 }
 
-QmlJSScanner::Token QmlJSIndenter::lastToken() const
+Token QmlJSIndenter::lastToken() const
 {
     for (int index = yyLinizerState.tokens.size() - 1; index != -1; --index) {
-        const QmlJSScanner::Token &token = yyLinizerState.tokens.at(index);
+        const Token &token = yyLinizerState.tokens.at(index);
 
-        if (token.isNot(QmlJSScanner::Token::Comment))
+        if (token.isNot(Token::Comment))
             return token;
     }
 
-    return QmlJSScanner::Token();
+    return Token();
 }
 
 /*
@@ -485,52 +485,52 @@ bool QmlJSIndenter::matchBracelessControlStatement()
     int delimDepth = 0;
 
     if (! yyLinizerState.tokens.isEmpty()) {
-        QmlJSScanner::Token tk = lastToken();
+        Token tk = lastToken();
 
-        if (tk.is(QmlJSScanner::Token::Identifier) &&
+        if (tk.is(Token::Identifier) &&
             yyLinizerState.line.midRef(tk.offset, tk.length) == QLatin1String("else"))
             return true;
 
-        else if (tk.isNot(QmlJSScanner::Token::RightParenthesis))
+        else if (tk.isNot(Token::RightParenthesis))
             return false;
     }
 
     for (int i = 0; i < SmallRoof; i++) {
         for (int tokenIndex = yyLinizerState.tokens.size() - 1; tokenIndex != -1; --tokenIndex) {
-            const QmlJSScanner::Token &token = yyLinizerState.tokens.at(tokenIndex);
+            const Token &token = yyLinizerState.tokens.at(tokenIndex);
 
             switch (token.kind) {
             default:
                 break;
 
-            case QmlJSScanner::Token::Comment:
+            case Token::Comment:
                 // skip comments
                 break;
 
-            case QmlJSScanner::Token::RightParenthesis:
+            case Token::RightParenthesis:
                 ++delimDepth;
                 break;
 
-            case QmlJSScanner::Token::LeftBrace:
-            case QmlJSScanner::Token::RightBrace:
-            case QmlJSScanner::Token::Semicolon:
+            case Token::LeftBrace:
+            case Token::RightBrace:
+            case Token::Semicolon:
                 /*
                     We met a statement separator, but not where we
                     expected it. What follows is probably a weird
                     continuation line. Be careful with ';' in for,
                     though.
                 */
-                if (token.kind != QmlJSScanner::Token::Semicolon || delimDepth == 0)
+                if (token.kind != Token::Semicolon || delimDepth == 0)
                     return false;
 
 
-            case QmlJSScanner::Token::LeftParenthesis:
+            case Token::LeftParenthesis:
                 --delimDepth;
 
                 if (delimDepth == 0 && tokenIndex > 0) {
-                    const QmlJSScanner::Token &tk = yyLinizerState.tokens.at(tokenIndex - 1);
+                    const Token &tk = yyLinizerState.tokens.at(tokenIndex - 1);
 
-                    if (tk.is(QmlJSScanner::Token::Identifier)) {
+                    if (tk.is(Token::Identifier)) {
                         const QStringRef tokenText = yyLinizerState.line.midRef(tk.offset, tk.length);
 
                         /*

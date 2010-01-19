@@ -678,13 +678,13 @@ bool QmlJSTextEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-bool QmlJSTextEditor::isClosingBrace(const QList<QmlJSScanner::Token> &tokens) const
+bool QmlJSTextEditor::isClosingBrace(const QList<Token> &tokens) const
 {
 
     if (tokens.size() == 1) {
-        const QmlJSScanner::Token firstToken = tokens.first();
+        const Token firstToken = tokens.first();
 
-        return firstToken.is(QmlJSScanner::Token::RightBrace) || firstToken.is(QmlJSScanner::Token::RightBracket);
+        return firstToken.is(Token::RightBrace) || firstToken.is(Token::RightBracket);
     }
 
     return false;
@@ -856,31 +856,31 @@ bool QmlJSTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, co
     const int blockState = blockStartState(cursor.block());
 
     QmlJSScanner tokenize;
-    const QList<QmlJSScanner::Token> tokens = tokenize(blockText, blockState);
+    const QList<Token> tokens = tokenize(blockText, blockState);
     const int pos = cursor.columnNumber();
 
     int tokenIndex = 0;
     for (; tokenIndex < tokens.size(); ++tokenIndex) {
-        const QmlJSScanner::Token &token = tokens.at(tokenIndex);
+        const Token &token = tokens.at(tokenIndex);
 
         if (pos >= token.begin()) {
             if (pos < token.end())
                 break;
 
-            else if (pos == token.end() && (token.is(QmlJSScanner::Token::Comment) ||
-                                            token.is(QmlJSScanner::Token::String)))
+            else if (pos == token.end() && (token.is(Token::Comment) ||
+                                            token.is(Token::String)))
                 break;
         }
     }
 
     if (tokenIndex != tokens.size()) {
-        const QmlJSScanner::Token &token = tokens.at(tokenIndex);
+        const Token &token = tokens.at(tokenIndex);
 
         switch (token.kind) {
-        case QmlJSScanner::Token::Comment:
+        case Token::Comment:
             return false;
 
-        case QmlJSScanner::Token::String: {
+        case Token::String: {
             const QStringRef tokenText = blockText.midRef(token.offset, token.length);
             const QChar quote = tokenText.at(0);
 

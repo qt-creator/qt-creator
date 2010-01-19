@@ -84,7 +84,7 @@ private:
     int indentForContinuationLine();
     int indentForStandaloneLine();
 
-    QmlJSScanner::Token lastToken() const;
+    Token lastToken() const;
 
 private:
     int ppHardwareTabSize;
@@ -105,7 +105,7 @@ private:
         bool leftBraceFollows;
         bool pendingRightBrace;
         QString line;
-        QList<QmlJSScanner::Token> tokens;
+        QList<Token> tokens;
         QTextBlock iter;
     };
 

@@ -145,7 +145,7 @@ protected:
 private:
     virtual bool isElectricCharacter(const QChar &ch) const;
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-    bool isClosingBrace(const QList<QmlJS::QmlJSScanner::Token> &tokens) const;
+    bool isClosingBrace(const QList<QmlJS::Token> &tokens) const;
 
     QString wordUnderCursor() const;
 

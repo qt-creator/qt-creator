@@ -62,60 +62,60 @@ void QScriptHighlighter::highlightBlock(const QString &text)
 
     QTextCharFormat emptyFormat;
     int lastEnd = 0;
-    const QList<QmlJSScanner::Token> tokens = m_scanner.tokens();
+    const QList<Token> tokens = m_scanner.tokens();
     for (int i = 0; i < tokens.size(); ++i) {
-        const QmlJSScanner::Token token = tokens.at(i);
+        const Token token = tokens.at(i);
 
         if (token.offset != lastEnd)
             setFormat(lastEnd, token.offset - lastEnd, m_formats[VisualWhitespace]);
 
         switch (token.kind) {
-            case QmlJSScanner::Token::Keyword:
+            case Token::Keyword:
                 setFormat(token.offset, token.length, m_formats[KeywordFormat]);
                 break;
 
-            case QmlJSScanner::Token::String:
+            case Token::String:
                 highlightWhitespace(token, text, StringFormat);
                 break;
 
-            case QmlJSScanner::Token::Comment:
+            case Token::Comment:
                 highlightWhitespace(token, text, CommentFormat);
                 break;
 
-            case QmlJSScanner::Token::Number:
+            case Token::Number:
                 highlightWhitespace(token, text, NumberFormat);
                 break;
 
-            case QmlJSScanner::Token::LeftParenthesis:
+            case Token::LeftParenthesis:
                 onOpeningParenthesis('(', token.offset);
                 break;
 
-            case QmlJSScanner::Token::RightParenthesis:
+            case Token::RightParenthesis:
                 onClosingParenthesis(')', token.offset);
                 break;
 
-            case QmlJSScanner::Token::LeftBrace:
+            case Token::LeftBrace:
                 onOpeningParenthesis('{', token.offset);
                 break;
 
-            case QmlJSScanner::Token::RightBrace:
+            case Token::RightBrace:
                 onClosingParenthesis('}', token.offset);
                 break;
 
-            case QmlJSScanner::Token::LeftBracket:
+            case Token::LeftBracket:
                 onOpeningParenthesis('[', token.offset);
                 break;
 
-            case QmlJSScanner::Token::RightBracket:
+            case Token::RightBracket:
                 onClosingParenthesis(']', token.offset);
                 break;
 
-            case QmlJSScanner::Token::Identifier:
-                if (m_duiEnabled && (i + 1 != tokens.size()) && tokens.at(i + 1).kind == QmlJSScanner::Token::Colon) {
+            case Token::Identifier:
+                if (m_duiEnabled && (i + 1 != tokens.size()) && tokens.at(i + 1).kind == Token::Colon) {
                     int j = i;
                     for (; j != -1; --j) {
-                        const QmlJSScanner::Token &tok = tokens.at(j);
-                        if (tok.is(QmlJSScanner::Token::Dot) || tok.is(QmlJSScanner::Token::Identifier)) {
+                        const Token &tok = tokens.at(j);
+                        if (tok.is(Token::Dot) || tok.is(Token::Identifier)) {
                             setFormat(tok.offset, tok.length, m_formats[LabelFormat]);
                         } else {
                             break;
@@ -131,15 +131,15 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 }
                 break;
 
-            case QmlJSScanner::Token::Colon:
-                if (m_duiEnabled && i > 0 && tokens.at(i - 1).kind == QmlJSScanner::Token::Identifier)
+            case Token::Colon:
+                if (m_duiEnabled && i > 0 && tokens.at(i - 1).kind == Token::Identifier)
                     setFormat(token.offset, token.length, m_formats[LabelFormat]);
                 else
                     setFormat(token.offset, token.length, emptyFormat);
                 break;
 
-            case QmlJSScanner::Token::Operator:
-            case QmlJSScanner::Token::Dot:
+            case Token::Operator:
+            case Token::Dot:
                 setFormat(token.offset, token.length, emptyFormat);
                 break;
 
@@ -247,7 +247,7 @@ void QScriptHighlighter::onOpeningParenthesis(QChar, int) {}
 void QScriptHighlighter::onClosingParenthesis(QChar, int) {}
 void QScriptHighlighter::onBlockEnd(int state, int) { return setCurrentBlockState(state); }
 
-void QScriptHighlighter::highlightWhitespace(const QmlJSScanner::Token &token, const QString &text, int nonWhitespaceFormat)
+void QScriptHighlighter::highlightWhitespace(const Token &token, const QString &text, int nonWhitespaceFormat)
 {
     const QTextCharFormat normalFormat = m_formats[nonWhitespaceFormat];
     const QTextCharFormat visualSpaceFormat = m_formats[VisualWhitespace];

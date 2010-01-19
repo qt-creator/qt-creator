@@ -48,7 +48,7 @@ void QmlJSScanner::reset()
     m_tokens.clear();
 }
 
-QList<QmlJSScanner::Token> QmlJSScanner::operator()(const QString &text, int startState)
+QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
 {
     reset();
 
