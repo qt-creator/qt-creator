@@ -79,54 +79,82 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     addActions(m_toolActionGroup->actions());
 
+    QAction *separatorAction = new QAction(this);
+    separatorAction->setSeparator(true);
+    addAction(separatorAction);
+
     QActionGroup *layoutActionGroup = new QActionGroup(this);
-    layoutActionGroup->setExclusive(false);
+    layoutActionGroup->setExclusive(true);
 
-    m_snappingToolAction = layoutActionGroup->addAction("Toogle Snapping (Press Key E)");
-    m_snappingToolAction->setShortcut(Qt::Key_E);
-    m_snappingToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_snappingToolAction->setCheckable(true);
-    m_snappingToolAction->setChecked(true);
-    m_snappingToolAction->setIcon(QPixmap(":/icon/layout/snapping.png"));
-    connect(m_snappingToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeSnappingTool(bool)));
+    m_snappingAction = layoutActionGroup->addAction("Toogle Snapping (Press Key E)");
+    m_snappingAction->setShortcut(Qt::Key_E);
+    m_snappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_snappingAction->setCheckable(true);
+    m_snappingAction->setChecked(true);
+    m_snappingAction->setIcon(QPixmap(":/icon/layout/snapping.png"));
 
-    m_showBoundingRectAction = layoutActionGroup->addAction("Toogle Bounding Rectangles (Press Key R)");
-    m_showBoundingRectAction->setShortcut(Qt::Key_R);
-    m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_showBoundingRectAction->setCheckable(true);
-    m_showBoundingRectAction->setChecked(true);
-    m_showBoundingRectAction->setIcon(QPixmap(":/icon/layout/boundingrect.png"));
+    m_snappingAndAnchoringAction = layoutActionGroup->addAction("Toogle Snapping And Anchoring (Press Key R)");
+    m_snappingAndAnchoringAction->setShortcut(Qt::Key_R);
+    m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_snappingAndAnchoringAction->setCheckable(true);
+    m_snappingAndAnchoringAction->setChecked(false);
+    m_snappingAndAnchoringAction->setIcon(QPixmap(":/icon/layout/snapping_and_anchoring.png"));
 
+    m_noSnappingAction = layoutActionGroup->addAction("Toogle Snapping And Anchoring (Press Key T)");
+    m_noSnappingAction->setShortcut(Qt::Key_T);
+    m_noSnappingAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_noSnappingAction->setCheckable(true);
+    m_noSnappingAction->setChecked(false);
+    m_noSnappingAction->setIcon(QPixmap(":/icon/layout/no_snapping.png"));
 
-    m_snappingMarginAction = new NumberSeriesAction(layoutActionGroup);
+    addActions(layoutActionGroup->actions());
+
+    separatorAction = new QAction(this);
+    separatorAction->setSeparator(true);
+    addAction(separatorAction);
+
+    QActionGroup *layoutMarginActionGroup = new QActionGroup(this);
+
+    m_snappingMarginAction = new NumberSeriesAction(layoutMarginActionGroup);
     m_snappingMarginAction->addEntry("no margins (0)", 0);
     m_snappingMarginAction->addEntry("small margin (2)", 2);
     m_snappingMarginAction->addEntry("medium margin (6)", 6);
     m_snappingMarginAction->addEntry("all in margin (10)", 10);
     m_snappingMarginAction->setCurrentEntryIndex(3);
-    layoutActionGroup->addAction(m_snappingMarginAction.data());
-    addActions(layoutActionGroup->actions());
+    layoutMarginActionGroup->addAction(m_snappingMarginAction.data());
 
-    m_snappingSpacingAction = new NumberSeriesAction(layoutActionGroup);
+
+    m_snappingSpacingAction = new NumberSeriesAction(layoutMarginActionGroup);
     m_snappingSpacingAction->addEntry("no spacing (0)", 0);
     m_snappingSpacingAction->addEntry("small spacing (2)", 2);
     m_snappingSpacingAction->addEntry("medium spacing (4)", 4);
     m_snappingSpacingAction->addEntry("all in spacing (6)", 6);
     m_snappingSpacingAction->setCurrentEntryIndex(1);
-    layoutActionGroup->addAction(m_snappingSpacingAction.data());
+    layoutMarginActionGroup->addAction(m_snappingSpacingAction.data());
 
-    addActions(layoutActionGroup->actions());
+    addActions(layoutMarginActionGroup->actions());
+
 
     m_zoomAction = new ZoomAction(toolActionGroup());
     connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
     addAction(m_zoomAction.data());
 
-    QAction *separatorAction = new QAction(this);
+    separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     addAction(separatorAction);
 
-    m_selectOnlyContentItemsAction = layoutActionGroup->addAction("Select Only Items with Content (Press Key T)");
-    m_selectOnlyContentItemsAction->setShortcut(Qt::Key_T);
+
+    m_showBoundingRectAction = new QAction("Toogle Bounding Rectangles (Press Key A)", this);
+    m_showBoundingRectAction->setShortcut(Qt::Key_A);
+    m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_showBoundingRectAction->setCheckable(true);
+    m_showBoundingRectAction->setChecked(true);
+    m_showBoundingRectAction->setIcon(QPixmap(":/icon/layout/boundingrect.png"));
+
+    addAction(m_showBoundingRectAction.data());
+
+    m_selectOnlyContentItemsAction = new QAction("Select Only Items with Content (Press Key S)", this);
+    m_selectOnlyContentItemsAction->setShortcut(Qt::Key_S);
     m_selectOnlyContentItemsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     m_selectOnlyContentItemsAction->setCheckable(true);
     m_selectOnlyContentItemsAction->setChecked(true);
@@ -134,7 +162,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     addAction(m_selectOnlyContentItemsAction.data());
 
-    separatorAction = new QAction(toolActionGroup());
+    separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     addAction(separatorAction);
 
@@ -162,11 +190,6 @@ void FormEditorWidget::changeAnchorTool(bool checked)
 {
     if (checked && m_formEditorView->currentState().isBaseState())
         m_formEditorView->changeToAnchorTool();
-}
-
-void FormEditorWidget::changeSnappingTool(bool /*checked*/)
-{
-    // TODO
 }
 
 void FormEditorWidget::wheelEvent(QWheelEvent *event)
@@ -234,7 +257,7 @@ ToolBox *FormEditorWidget::toolBox() const
 
 bool FormEditorWidget::isSnapButtonChecked() const
 {
-    return m_snappingToolAction->isChecked();
+    return m_snappingAction->isChecked();
 }
 
 double FormEditorWidget::spacing() const

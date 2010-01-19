@@ -73,7 +73,6 @@ private slots:
     void changeTransformTool(bool checked);
     void changeAnchorTool(bool checked);
     void setZoomLevel(double zoomLevel);
-    void changeSnappingTool(bool checked);
 
 private:
     QWeakPointer<FormEditorView> m_formEditorView;
@@ -83,7 +82,9 @@ private:
     QWeakPointer<QAction> m_transformToolAction;
     QWeakPointer<QActionGroup> m_toolActionGroup;
     QWeakPointer<ToolBox> m_toolBox;
-    QWeakPointer<QAction> m_snappingToolAction;
+    QWeakPointer<QAction> m_snappingAction;
+    QWeakPointer<QAction> m_snappingAndAnchoringAction;
+    QWeakPointer<QAction> m_noSnappingAction;
     QWeakPointer<NumberSeriesAction> m_snappingMarginAction;
     QWeakPointer<NumberSeriesAction> m_snappingSpacingAction;
     QWeakPointer<QAction> m_showBoundingRectAction;
