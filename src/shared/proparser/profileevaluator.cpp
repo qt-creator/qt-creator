@@ -227,9 +227,9 @@ public:
     QString propertyValue(const QString &val, bool complain = true) const;
 
     static QStringList split_value_list(const QString &vals);
-    static QStringList split_arg_list(const QString &params);
     bool isActiveConfig(const QString &config, bool regex = false);
-    QStringList expandVariableReferences(const QString &value, bool do_semicolon = false);
+    QStringList expandVariableReferences(const QString &value, bool do_semicolon = false,
+                                         int *pos = 0);
     void doVariableReplace(QString *str);
     QStringList evaluateExpandFunction(const QString &function, const QString &arguments);
     QString format(const char *format) const;
@@ -689,61 +689,6 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
 }
 
 //////// Evaluator tools /////////
-
-QStringList ProFileEvaluator::Private::split_arg_list(const QString &params)
-{
-    int quote = 0;
-    QStringList args;
-
-    const ushort LPAREN = '(';
-    const ushort RPAREN = ')';
-    const ushort SINGLEQUOTE = '\'';
-    const ushort DOUBLEQUOTE = '"';
-    const ushort COMMA = ',';
-    const ushort SPACE = ' ';
-    //const ushort TAB = '\t';
-
-    ushort unicode;
-    const QChar *params_data = params.data();
-    const int params_len = params.length();
-    int last = 0;
-    while (last < params_len && ((params_data+last)->unicode() == SPACE
-                                /*|| (params_data+last)->unicode() == TAB*/))
-        ++last;
-    for (int x = last, parens = 0; x <= params_len; x++) {
-        unicode = (params_data+x)->unicode();
-        if (x == params_len) {
-            while (x && (params_data+(x-1))->unicode() == SPACE)
-                --x;
-            QString mid(params_data+last, x-last);
-            if (quote) {
-                if (mid[0] == quote && mid[(int)mid.length()-1] == quote)
-                    mid = mid.mid(1, mid.length()-2);
-                quote = 0;
-            }
-            args << mid;
-            break;
-        }
-        if (unicode == LPAREN) {
-            --parens;
-        } else if (unicode == RPAREN) {
-            ++parens;
-        } else if (quote && unicode == quote) {
-            quote = 0;
-        } else if (!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
-            quote = unicode;
-        }
-        if (!parens && !quote && unicode == COMMA) {
-            QString mid = params.mid(last, x - last).trimmed();
-            args << mid;
-            last = x+1;
-            while (last < params_len && ((params_data+last)->unicode() == SPACE
-                                        /*|| (params_data+last)->unicode() == TAB*/))
-                ++last;
-        }
-    }
-    return args;
-}
 
 QStringList ProFileEvaluator::Private::split_value_list(const QString &vals)
 {
@@ -1451,7 +1396,7 @@ static inline void flushFinal(QStringList *ret,
 }
 
 QStringList ProFileEvaluator::Private::expandVariableReferences(
-        const QString &str, bool do_semicolon)
+        const QString &str, bool do_semicolon, int *pos)
 {
     QStringList ret;
 //    if (ok)
@@ -1472,10 +1417,11 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
     const ushort SPACE = ' ';
     const ushort TAB = '\t';
     const ushort SEMICOLON = ';';
+    const ushort COMMA = ',';
     const ushort SINGLEQUOTE = '\'';
     const ushort DOUBLEQUOTE = '"';
 
-    ushort unicode, quote = 0;
+    ushort unicode, quote = 0, parens = 0;
     const ushort *str_data = (const ushort *)str.data();
     const int str_len = str.length();
 
@@ -1487,7 +1433,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
     QChar *ptr = current.data();
     QString pending; // Buffer for string segments from variables
     // Only one of the above buffers can be filled at a given time.
-    for (int i = 0; i < str_len; ++i) {
+    for (int i = pos ? *pos : 0; i < str_len; ++i) {
         unicode = str_data[i];
         if (unicode == DOLLAR) {
             if (str_len > i+2 && str_data[i+1] == DOLLAR) {
@@ -1553,6 +1499,8 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                             .arg(unicode ? QString(unicode) : QString::fromLatin1(("end-of-line"))));
 //                        if (ok)
 //                            *ok = false;
+                        if (pos)
+                            *pos = str_len;
                         return QStringList();
                     }
                 } else {
@@ -1610,10 +1558,22 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                        unicode == SPACE || unicode == TAB) {
                 flushCurrent(&ret, &current, &ptr, &pending);
                 continue;
+            } else if (pos) {
+                if (unicode == LPAREN) {
+                    ++parens;
+                } else if (unicode == RPAREN) {
+                    --parens;
+                } else if (!parens && unicode == COMMA) {
+                    *pos = i + 1;
+                    flushFinal(&ret, current, ptr, pending, str, replaced);
+                    return ret;
+                }
             }
         }
         appendChar(unicode, &current, &ptr, &pending);
     }
+    if (pos)
+        *pos = str_len;
     flushFinal(&ret, current, ptr, pending, str, replaced);
     return ret;
 }
@@ -1674,8 +1634,8 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
 QList<QStringList> ProFileEvaluator::Private::prepareFunctionArgs(const QString &arguments)
 {
     QList<QStringList> args_list;
-    foreach (const QString &urArg, split_arg_list(arguments))
-        args_list << expandVariableReferences(urArg);
+    for (int pos = 0; pos < arguments.length(); )
+        args_list << expandVariableReferences(arguments, false, &pos);
     return args_list;
 }
 
