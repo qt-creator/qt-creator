@@ -76,13 +76,18 @@ enum {
 QmlProject::QmlProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJSEditor::QmlModelManagerInterface>())
+      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJSEditor::QmlModelManagerInterface>()),
+      m_fileWatcher(new ProjectExplorer::FileWatcher(this))
 {
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();
 
     m_file = new QmlProjectFile(this, fileName);
     m_rootNode = new QmlProjectNode(this, m_file);
+
+    m_fileWatcher->addFile(fileName),
+    connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
+            this, SLOT(refreshProjectFile()));
 
     m_manager->registerProject(this);
 }
@@ -129,16 +134,23 @@ static QStringList readLines(const QString &absoluteFileName)
 void QmlProject::parseProject(RefreshOptions options)
 {
     if (options & Files) {
+        if (options & ProjectFile)
+            delete m_projectItem.data();
         if (!m_projectItem) {
-            QmlComponent *component = new QmlComponent(&m_engine, m_fileName, this);
-            if (component->isReady()
-                && qobject_cast<QmlProjectItem*>(component->create())) {
-                m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
-            } else {
-                qWarning() << m_fileName << "is not valid qml file, falling back to old format ...";
-                m_files = convertToAbsoluteFiles(readLines(filesFileName()));
-                m_files.removeDuplicates();
-                m_modelManager->updateSourceFiles(m_files);
+            QFile file(m_fileName);
+            if (file.open(QFile::ReadOnly)) {
+                QmlComponent *component = new QmlComponent(&m_engine, this);
+                component->setData(file.readAll(), QUrl::fromLocalFile(m_fileName));
+                if (component->isReady()
+                    && qobject_cast<QmlProjectItem*>(component->create())) {
+                    m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
+                    connect(m_projectItem.data(), SIGNAL(qmlFilesChanged()), this, SLOT(refreshFiles()));
+                } else {
+                    qWarning() << m_fileName << "is not valid qml file, falling back to old format ...";
+                    m_files = convertToAbsoluteFiles(readLines(filesFileName()));
+                    m_files.removeDuplicates();
+                    m_modelManager->updateSourceFiles(m_files);
+                }
             }
         }
         if (m_projectItem) {
@@ -189,6 +201,16 @@ QStringList QmlProject::files() const
         files = m_files;
     }
     return files;
+}
+
+void QmlProject::refreshProjectFile()
+{
+    refresh(QmlProject::ProjectFile | Files);
+}
+
+void QmlProject::refreshFiles()
+{
+    refresh(Files);
 }
 
 QString QmlProject::displayName() const

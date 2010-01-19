@@ -56,6 +56,7 @@ QString QmlProjectItem::sourceDirectory() const
     return d->sourceDirectory;
 }
 
+// kind of initialization
 void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
 {
     Q_D(QmlProjectItem);
@@ -68,8 +69,10 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
     for (int i = 0; i < d->content.size(); ++i) {
         QmlProjectContentItem *contentElement = d->content.at(i);
         FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
-        if (fileFilter)
+        if (fileFilter) {
             fileFilter->setDefaultDirectory(directoryPath);
+            connect(fileFilter, SIGNAL(filesChanged()), this, SIGNAL(qmlFilesChanged()));
+        }
     }
 
     emit sourceDirectoryChanged();

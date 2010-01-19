@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QSet>
 #include <qml.h>
+#include <QFileSystemWatcher>
 
 #include "qmlprojectitem.h"
 
@@ -40,11 +41,13 @@ signals:
     void filterChanged();
     void filesChanged();
 
+private slots:
+    void updateFileList();
+
 private:
     QString absoluteDir() const;
 
-    void updateFileList();
-    QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir);
+    QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = 0);
 
     QString m_rootDir;
     QString m_defaultDir;
@@ -52,6 +55,8 @@ private:
     QString m_filter;
     QRegExp m_regex;
     bool m_recursive;
+
+    QFileSystemWatcher m_fsWatcher;
 
     QSet<QString> m_files;
 

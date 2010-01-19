@@ -1,7 +1,7 @@
 #ifndef PROJECTITEM_H
 #define PROJECTITEM_H
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <qml.h>
 
 namespace QmlProjectManager {
@@ -38,11 +38,11 @@ public:
     QStringList qmlFiles() const;
 
 signals:
+    void qmlFilesChanged();
     void sourceDirectoryChanged();
 
 protected:
     QmlProjectItemPrivate *d_ptr;
-
 };
 
 } // namespace QmlProjectManager

@@ -7,6 +7,8 @@ FileFilterBaseItem::FileFilterBaseItem(QObject *parent) :
         QmlProjectContentItem(parent),
         m_recursive(false)
 {
+    connect(&m_fsWatcher, SIGNAL(directoryChanged(QString)), this, SLOT(updateFileList()));
+    connect(&m_fsWatcher, SIGNAL(fileChanged(QString)), this, SLOT(updateFileList()));
 }
 
 QString FileFilterBaseItem::directory() const
@@ -82,24 +84,48 @@ QString FileFilterBaseItem::absoluteDir() const
 
 void FileFilterBaseItem::updateFileList()
 {
-    const QString dir = absoluteDir();
-    if (dir.isEmpty())
+    const QString projectDir = absoluteDir();
+    if (projectDir.isEmpty())
         return;
 
-    const QSet<QString> newFiles = filesInSubTree(QDir(m_defaultDir), QDir(dir));
+    QSet<QString> dirsToBeWatched;
+    const QSet<QString> newFiles = filesInSubTree(QDir(m_defaultDir), QDir(projectDir), &dirsToBeWatched);
+
     if (newFiles != m_files) {
+        // update watched files
+        foreach (const QString &file, m_files - newFiles) {
+            m_fsWatcher.removePath(QDir(projectDir).absoluteFilePath(file));
+        }
+        foreach (const QString &file, newFiles - m_files) {
+            m_fsWatcher.addPath(QDir(projectDir).absoluteFilePath(file));
+        }
+
         m_files = newFiles;
+
         emit filesChanged();
+    }
+
+    // update watched directories
+    QSet<QString> watchedDirectories = m_fsWatcher.directories().toSet();
+    foreach (const QString &dir, watchedDirectories - dirsToBeWatched) {
+        m_fsWatcher.removePath(QDir(projectDir).absoluteFilePath(dir));
+    }
+    foreach (const QString &dir, dirsToBeWatched - watchedDirectories) {
+        m_fsWatcher.addPath(QDir(projectDir).absoluteFilePath(dir));
     }
 }
 
-QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir &dir)
+QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs)
 {
     QSet<QString> fileSet;
 
+    if (parsedDirs)
+        parsedDirs->insert(dir.absolutePath());
+
     foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files)) {
-        if (m_regex.exactMatch(file.fileName()))
+        if (m_regex.exactMatch(file.fileName())) {
             fileSet.insert(rootDir.relativeFilePath(file.absoluteFilePath()));
+        }
     }
 
     if (m_recursive) {

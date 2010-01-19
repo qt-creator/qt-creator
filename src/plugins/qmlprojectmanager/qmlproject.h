@@ -39,6 +39,7 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/filewatcher.h>
 #include <coreplugin/ifile.h>
 
 #include <QtCore/QDir>
@@ -170,16 +171,22 @@ public:
     virtual Internal::QmlProjectNode *rootProjectNode() const;
     virtual QStringList files(FilesMode fileMode) const;
 
-    enum RefreshOptions {
-        Files         = 0x01,
-        Configuration = 0x02,
-        Everything    = Files | Configuration
+    enum RefreshOption {
+        ProjectFile   = 0x01,
+        Files         = 0x02,
+        Configuration = 0x04,
+        Everything    = ProjectFile | Files | Configuration
     };
+    Q_DECLARE_FLAGS(RefreshOptions,RefreshOption)
 
     void refresh(RefreshOptions options);
 
     QDir projectDir() const;
     QStringList files() const;
+
+private slots:
+    void refreshProjectFile();
+    void refreshFiles();
 
 protected:
     virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
@@ -202,6 +209,7 @@ private:
     // qml based, new format
     QmlEngine m_engine;
     QWeakPointer<QmlProjectItem> m_projectItem;
+    ProjectExplorer::FileWatcher *m_fileWatcher;
 
     Internal::QmlProjectNode *m_rootNode;
 };
@@ -242,5 +250,7 @@ private:
 };
 
 } // namespace QmlProjectManager
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QmlProjectManager::QmlProject::RefreshOptions)
 
 #endif // QMLPROJECT_H
