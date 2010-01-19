@@ -82,6 +82,14 @@ AST::Program *Document::jsProgram() const
     return _jsProgram;
 }
 
+AST::Node *Document::ast() const
+{
+    Q_ASSERT(!_uiProgram || !_jsProgram);
+    if (_uiProgram)
+        return _uiProgram;
+    return _jsProgram;
+}
+
 QList<DiagnosticMessage> Document::diagnosticMessages() const
 {
     return _diagnosticMessages;
