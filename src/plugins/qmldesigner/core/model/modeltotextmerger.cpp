@@ -42,7 +42,12 @@
 #include <QDebug>
 
 #define INDENT_DEPTH 4
-#undef DUMP_REWRITE_ACTIONS
+
+namespace {
+    enum {
+        DebugRewriteActions = 0
+    };
+}
 
 using namespace QmlJS;
 using namespace QmlDesigner;
@@ -225,13 +230,14 @@ void ModelToTextMerger::applyChanges()
             }
 
             RewriteAction* action = m_rewriteActions.at(i);
-#ifdef DUMP_REWRITE_ACTIONS
-            qDebug() << "Next rewrite action:" << qPrintable(action->info());
-#endif // DUMP_REWRITE_ACTIONS
+            if (DebugRewriteActions) {
+                qDebug() << "Next rewrite action:" << qPrintable(action->info());
+            }
+
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
             const bool success = action->execute(refactoring, *positionStore);
 
-            if (!success) {
+            if (!success /*&& DebugRewriteActions*/) {
                 qDebug() << "*** QML source code: ***";
                 qDebug() << qPrintable(textModifier->text());
                 qDebug() << "*** End of QML source code. ***";
@@ -318,15 +324,13 @@ bool ModelToTextMerger::isInHierarchy(const AbstractProperty &property) {
 
 void ModelToTextMerger::dumpRewriteActions(const QString &msg)
 {
-#ifdef DUMP_REWRITE_ACTIONS
-    qDebug() << "---->" << qPrintable(msg);
+    if (DebugRewriteActions) {
+        qDebug() << "---->" << qPrintable(msg);
 
-    foreach (RewriteAction *action, m_rewriteActions) {
-        qDebug() << "-----" << qPrintable(action->info());
+        foreach (RewriteAction *action, m_rewriteActions) {
+            qDebug() << "-----" << qPrintable(action->info());
+        }
+
+        qDebug() << "<----" << qPrintable(msg);
     }
-
-    qDebug() << "<----" << qPrintable(msg);
-#else // DUMP_REWRITE_ACTIONS
-    Q_UNUSED(msg);
-#endif // DUMP_REWRITE_ACTIONS
 }
