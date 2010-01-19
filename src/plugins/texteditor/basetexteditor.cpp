@@ -1178,7 +1178,13 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    if (e->key() == Qt::Key_H && e->modifiers() == Qt::MetaModifier) {
+    if (e->key() == Qt::Key_H && e->modifiers() ==
+#ifdef Q_OS_DARWIN
+        Qt::MetaModifier
+#else
+        Qt::ControlModifier
+#endif
+        ) {
         universalHelper();
         e->accept();
         return;
@@ -1256,6 +1262,8 @@ void BaseTextEditor::universalHelper()
     }
 
     int pos = 0;
+    QMap<int, int> positions;
+
     while (pos < snippet.size()) {
         if (snippet.at(pos) != QLatin1Char('$')) {
             const int start = pos;
@@ -1278,22 +1286,34 @@ void BaseTextEditor::universalHelper()
             int cursorPosition = cursor.position();
             cursor.insertText(textToInsert);
 
-            QTextCursor tc(document());
-            tc.setPosition(cursorPosition - 1);
-            tc.setPosition(cursorPosition + textToInsert.length(), QTextCursor::KeepAnchor);
+            if (textToInsert.isEmpty()) {
+                positions.insert(cursorPosition, 0);
+            } else {
+                positions.insert(cursorPosition-1, textToInsert.length()+1);
+            }
 
-            QTextEdit::ExtraSelection selection;
-            selection.cursor = tc;
-            selection.format.setBackground(Qt::darkCyan);
-
-            selections.append(selection);
             ++pos;
         }
     }
 
-    cursor.endEditBlock();
+    QMapIterator<int,int> it(positions);
+    while (it.hasNext()) {
+        it.next();
+        int length = it.value();
+        int position = it.key();
+
+        QTextCursor tc(document());
+        tc.setPosition(position);
+        tc.setPosition(position + length, QTextCursor::KeepAnchor);
+        QTextEdit::ExtraSelection selection;
+        selection.cursor = tc;
+        selection.format.setBackground(length ? Qt::darkCyan : Qt::darkMagenta);
+        selections.append(selection);
+    }
+
     cursor.setPosition(startCursorPosition, QTextCursor::KeepAnchor);
     indent(cursor.document(), cursor, QChar());
+    cursor.endEditBlock();
 
     setExtraSelections(BaseTextEditor::SnippetPlaceholderSelection, selections);
 
