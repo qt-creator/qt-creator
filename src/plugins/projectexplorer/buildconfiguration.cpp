@@ -56,9 +56,9 @@ IBuildStepFactory *findRestoreFactory(BuildConfiguration *parent, const QVariant
 }
 
 const char * const BUILD_STEPS_COUNT_KEY("ProjectExplorer.BuildConfiguration.BuildStepsCount");
-const char * const BUILD_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.BuildSteps.");
+const char * const BUILD_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.BuildStep.");
 const char * const CLEAN_STEPS_COUNT_KEY("ProjectExplorer.BuildConfiguration.CleanStepsCount");
-const char * const CLEAN_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.CleanSteps.");
+const char * const CLEAN_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.CleanStep.");
 
 } // namespace
 

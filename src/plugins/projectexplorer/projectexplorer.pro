@@ -58,6 +58,7 @@ HEADERS += projectexplorer.h \
     projectmodels.h \
     currentprojectfind.h \
     toolchain.h \
+    userfileaccessor.h \
     cesdkhandler.h \
     gccparser.h \
     msvcparser.h \
@@ -116,6 +117,7 @@ SOURCES += projectexplorer.cpp \
     currentprojectfind.cpp \
     toolchain.cpp \
     cesdkhandler.cpp \
+    userfileaccessor.cpp \
     gccparser.cpp \
     msvcparser.cpp \
     filewatcher.cpp \

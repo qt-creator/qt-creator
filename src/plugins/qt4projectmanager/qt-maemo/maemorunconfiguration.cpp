@@ -733,12 +733,10 @@ void MaemoRunConfigurationFactory::removedRunConfiguration(ProjectExplorer::RunC
 void MaemoRunConfigurationFactory::projectAdded(
     ProjectExplorer::Project *project)
 {
-    connect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::Project*,
-                                                  QString)),
-            this, SLOT(addedRunConfiguration(ProjectExplorer::Project*)));
-    connect(project, SIGNAL(removedRunConfiguration(ProjectExplorer::Project*,
-                                                    QString)),
-            this, SLOT(removedRunConfiguration(ProjectExplorer::Project*)));
+    connect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(project, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
 
     if (hasMaemoRunConfig(project))
         MaemoManager::instance()->addQemuSimulatorStarter(project);
@@ -747,12 +745,10 @@ void MaemoRunConfigurationFactory::projectAdded(
 void MaemoRunConfigurationFactory::projectRemoved(
     ProjectExplorer::Project *project)
 {
-    disconnect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::Project*,
-                                                  QString)),
-               this, SLOT(addedRunConfiguration(ProjectExplorer::Project*)));
-    disconnect(project, SIGNAL(removedRunConfiguration(ProjectExplorer::Project*,
-                                                    QString)),
-               this, SLOT(removedRunConfiguration(ProjectExplorer::Project*)));
+    disconnect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+               this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    disconnect(project, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+               this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
 
     if (hasMaemoRunConfig(project))
         MaemoManager::instance()->removeQemuSimulatorStarter(project);

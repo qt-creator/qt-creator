@@ -29,13 +29,13 @@
 
 #include "project.h"
 
-#include "persistentsettings.h"
 #include "buildconfiguration.h"
 #include "environment.h"
 #include "projectnodes.h"
 #include "buildstep.h"
 #include "projectexplorer.h"
 #include "runconfiguration.h"
+#include "userfileaccessor.h"
 #include "editorconfiguration.h"
 
 #include <coreplugin/ifile.h>
@@ -49,8 +49,6 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 namespace {
-const char * const PROJECT_FILE_POSTFIX(".user");
-
 const char * const ACTIVE_BC_KEY("ProjectExplorer.Project.ActiveBuildConfiguration");
 const char * const BC_KEY_PREFIX("ProjectExplorer.Project.BuildConfiguration.");
 const char * const BC_COUNT_KEY("ProjectExplorer.Project.BuildConfigurationCount");
@@ -148,21 +146,14 @@ bool Project::hasBuildSettings() const
 
 void Project::saveSettings()
 {
-    PersistentSettingsWriter writer;
-    QVariantMap map(toMap());
-    for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i)
-        writer.saveValue(i.key(), i.value());
-
-    writer.save(file()->fileName() + QLatin1String(PROJECT_FILE_POSTFIX), "QtCreatorProject");
+    UserFileAccessor accessor;
+    accessor.saveSettings(this, toMap());
 }
 
 bool Project::restoreSettings()
 {
-    PersistentSettingsReader reader;
-    reader.load(file()->fileName() + QLatin1String(PROJECT_FILE_POSTFIX));
-
-    QVariantMap map(reader.restoreValues());
-
+    UserFileAccessor accessor;
+    QVariantMap map(accessor.restoreSettings(this));
     return fromMap(map);
 }
 
