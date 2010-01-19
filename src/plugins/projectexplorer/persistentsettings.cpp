@@ -46,9 +46,8 @@ PersistentSettingsReader::PersistentSettingsReader()
 
 QVariant PersistentSettingsReader::restoreValue(const QString & variable) const
 {
-    const QString &name = m_prefix + variable;
-    if (m_valueMap.contains(name))
-        return m_valueMap.value(name);
+    if (m_valueMap.contains(variable))
+        return m_valueMap.value(variable);
     return QVariant();
 }
 
@@ -81,16 +80,6 @@ bool PersistentSettingsReader::load(const QString & fileName)
 
     file.close();
     return true;
-}
-
-void PersistentSettingsReader::setPrefix(const QString &prefix)
-{
-    m_prefix = prefix;
-}
-
-QString PersistentSettingsReader::prefix() const
-{
-    return m_prefix;
 }
 
 QVariant PersistentSettingsReader::readValue(const QDomElement &valElement) const
@@ -184,7 +173,7 @@ void PersistentSettingsWriter::writeValue(QDomElement &ps, const QVariant &varia
 
 void PersistentSettingsWriter::saveValue(const QString & variable, const QVariant &value)
 {
-    m_valueMap[m_prefix + variable] = value;
+    m_valueMap[variable] = value;
 }
 
 bool PersistentSettingsWriter::save(const QString & fileName, const QString & docType)
@@ -215,14 +204,4 @@ bool PersistentSettingsWriter::save(const QString & fileName, const QString & do
     file.write(doc.toByteArray());
     file.close();
     return true;
-}
-
-void PersistentSettingsWriter::setPrefix(const QString &prefix)
-{
-    m_prefix = prefix;
-}
-
-QString PersistentSettingsWriter::prefix() const
-{
-    return m_prefix;
 }

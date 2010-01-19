@@ -48,10 +48,8 @@ public:
     QVariant restoreValue(const QString & variable) const;
     QVariantMap restoreValues() const;
     bool load(const QString & fileName);
-    void setPrefix(const QString &prefix);
-    QString prefix() const;
+
 private:
-    QString m_prefix;
     QVariant readValue(const QDomElement &valElement) const;
     void readValues(const QDomElement &data);
     QMap<QString, QVariant> m_valueMap;
@@ -63,10 +61,8 @@ public:
     PersistentSettingsWriter();
     void saveValue(const QString & variable, const QVariant &value);
     bool save(const QString & fileName, const QString & docType);
-    void setPrefix(const QString &prefix);
-    QString prefix() const;
+
 private:
-    QString m_prefix;
     void writeValue(QDomElement &ps, const QVariant &value);
     QMap<QString, QVariant> m_valueMap;
 };
