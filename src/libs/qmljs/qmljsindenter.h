@@ -63,7 +63,7 @@ private:
     QString trimmedCodeLine(const QString &t);
 
     void eraseChar(QString &t, int k, QChar ch) const;
-    QChar lastParen(const QString &t) const;
+    QChar lastParen() const;
     bool okay(QChar typedIn, QChar okayCh) const;
 
     /*

@@ -227,7 +227,7 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
                 trimmed.append(QLatin1Char(' '));
 
         } else {
-            trimmed.append(t.midRef(token.offset, token.length));
+            trimmed.append(tokenText(token));
         }
 
         previousTokenEnd = token.end();
@@ -272,7 +272,7 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
 
         case Token::Identifier:
         case Token::Keyword:
-            if (t.midRef(last.offset, last.length) != QLatin1String("else"))
+            if (tokenText(last) != QLatin1String("else"))
                 trimmed.append(QLatin1Char(';'));
             break;
 
@@ -289,14 +289,18 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
     Returns '(' if the last parenthesis is opening, ')' if it is
     closing, and QChar() if there are no parentheses in t.
 */
-QChar QmlJSIndenter::lastParen(const QString &t) const
+QChar QmlJSIndenter::lastParen() const
 {
-    int i = t.length();
-    while (i > 0) {
-        i--;
-        if (t.at(i) == QLatin1Char('(') || t.at(i) == QLatin1Char(')'))
-            return t.at(i);
+    for (int index = yyLinizerState.tokens.size() - 1; index != -1; --index) {
+        const Token &token = yyLinizerState.tokens.at(index);
+
+        if (token.is(Token::LeftParenthesis))
+            return QChar('(');
+
+        else if (token.is(Token::RightParenthesis))
+            return QChar(')');
     }
+
     return QChar();
 }
 
@@ -492,8 +496,7 @@ bool QmlJSIndenter::matchBracelessControlStatement()
     if (! yyLinizerState.tokens.isEmpty()) {
         Token tk = lastToken();
 
-        if (tk.is(Token::Identifier) &&
-            yyLinizerState.line.midRef(tk.offset, tk.length) == QLatin1String("else"))
+        if (tk.is(Token::Identifier) && tokenText(tk) == QLatin1String("else"))
             return true;
 
         else if (tk.isNot(Token::RightParenthesis))
@@ -527,6 +530,7 @@ bool QmlJSIndenter::matchBracelessControlStatement()
                 */
                 if (token.kind != Token::Semicolon || delimDepth == 0)
                     return false;
+                break;
 
 
             case Token::LeftParenthesis:
@@ -536,7 +540,7 @@ bool QmlJSIndenter::matchBracelessControlStatement()
                     const Token &tk = yyLinizerState.tokens.at(tokenIndex - 1);
 
                     if (tk.is(Token::Identifier)) {
-                        const QStringRef tokenText = yyLinizerState.line.midRef(tk.offset, tk.length);
+                        const QStringRef text = tokenText(tk);
 
                         /*
                             We have
@@ -549,22 +553,22 @@ bool QmlJSIndenter::matchBracelessControlStatement()
                         */
 
 
-                        if      (tk.length == 5 && tokenText == QLatin1String("catch"))
+                        if      (tk.length == 5 && text == QLatin1String("catch"))
                             return true;
 
-                        else if (tk.length == 2 && tokenText == QLatin1String("do"))
+                        else if (tk.length == 2 && text == QLatin1String("do"))
                             return true;
 
-                        else if (tk.length == 3 && tokenText == QLatin1String("for"))
+                        else if (tk.length == 3 && text == QLatin1String("for"))
                             return true;
 
-                        else if (tk.length == 2 && tokenText == QLatin1String("if"))
+                        else if (tk.length == 2 && text == QLatin1String("if"))
                             return true;
 
-                        else if (tk.length == 5 && tokenText == QLatin1String("while"))
+                        else if (tk.length == 5 && text == QLatin1String("while"))
                             return true;
 
-                        else if (tk.length == 4 && tokenText == QLatin1String("with"))
+                        else if (tk.length == 4 && text == QLatin1String("with"))
                             return true;
                     }
                 }
@@ -618,7 +622,8 @@ bool QmlJSIndenter::isUnfinishedLine()
     if (yyLine->isEmpty())
         return false;
 
-    QChar lastCh = yyLine->at(yyLine->length() - 1);
+    const QChar lastCh = yyLine->at(yyLine->length() - 1);
+
     if (QString::fromLatin1("{};").indexOf(lastCh) == -1) {
         /*
           It doesn't end with ';' or similar. If it's not an "if (x)", it must be an unfinished line.
@@ -629,7 +634,7 @@ bool QmlJSIndenter::isUnfinishedLine()
             unf = false;
 
     } else if (lastCh == QLatin1Char(';')) {
-        if (lastParen(*yyLine) == QLatin1Char('(')) {
+        if (lastParen() == QLatin1Char('(')) {
             /*
               Exception:
 
@@ -637,7 +642,7 @@ bool QmlJSIndenter::isUnfinishedLine()
             */
             unf = true;
         } else if (readLine() && yyLine->endsWith(QLatin1String(";")) &&
-                    lastParen(*yyLine) == QLatin1Char('(')) {
+                    lastParen() == QLatin1Char('(')) {
             /*
               Exception:
 
