@@ -61,7 +61,8 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_snappingLineCreator(this),
     m_qmlItemNode(qmlItemNode),
     m_borderWidth(1.0),
-    m_opacity(0.6)
+    m_opacity(0.6),
+    m_highlightBoundingRect(false)
 {
     setCacheMode(QGraphicsItem::DeviceCoordinateCache);
     setup();
@@ -210,10 +211,17 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
             }
             break;
         case FormEditorScene::NormalMode: {
-                if (m_highlightBoundingRect)
-                    pen.setColor("#AAAAAA");
-                else
-                    pen.setColor("#888888");
+                if (scene()->showBoundingRects()) {
+                    if (m_highlightBoundingRect)
+                        pen.setColor("#AAAAAA");
+                    else
+                        pen.setColor("#888888");
+                } else {
+                    if (m_highlightBoundingRect)
+                        pen.setColor("#AAAAAA");
+                    else
+                        pen.setColor(Qt::transparent);
+                }
             }
             break;
     }
@@ -243,8 +251,7 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->setRenderHint(QPainter::Antialiasing, false);
 
-    if (scene()->showBoundingRects() || m_highlightBoundingRect)
-        paintBoundingRect(painter);
+    paintBoundingRect(painter);
 
     painter->restore();
 }
