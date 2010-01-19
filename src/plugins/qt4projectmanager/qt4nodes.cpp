@@ -1154,24 +1154,17 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
         QString realFile;
         if (info.isDir()) {
             realFile = QString("%1/%2.pro").arg(realDir, info.fileName());
-            if (!QFile::exists(realFile)) {
-                // parse directory for pro files - if there is only one, use that
-                QDir dir(realDir);
-                QStringList files = dir.entryList(QStringList() << "*.pro", QDir::Files);
-                if (files.size() == 1) {
-                    realFile = QString("%1/%2").arg(realDir, files.first());
-                } else {
-                    m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
-                            .arg(subDirVar).arg(realDir));
-                    realFile = QString::null;
-                }
-            }
         } else {
             realFile = realDir;
         }
 
-        if (!realFile.isEmpty() && !subProjectPaths.contains(realFile))
-            subProjectPaths << realFile;
+        if (QFile::exists(realFile)) {
+            if (!subProjectPaths.contains(realFile))
+                subProjectPaths << realFile;
+        } else {
+            m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
+                                         .arg(subDirVar).arg(realDir));
+        }
     }
 
     return subProjectPaths;
