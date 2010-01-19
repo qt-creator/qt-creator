@@ -57,6 +57,7 @@ public:
     void removeMarker();
     void updateMarker();
     QString toToolTip() const;
+    QString toString() const;
     BreakHandler *handler() { return m_handler; }
 
     bool isLocatedAt(const QString &fileName, int lineNumber) const;

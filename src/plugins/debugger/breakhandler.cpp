@@ -237,6 +237,27 @@ QString BreakpointData::toToolTip() const
     return rc;
 }
 
+QString BreakpointData::toString() const
+{
+    QString rc;
+    QTextStream str(&rc);
+    str << BreakHandler::tr("Marker File:") << markerFileName << ' ';
+    str << BreakHandler::tr("Marker Line:") << markerLineNumber << ' ';
+    str << BreakHandler::tr("Breakpoint Number:") << bpNumber << ' ';
+    str << BreakHandler::tr("Breakpoint Address:") << bpAddress << '\n';
+    str << BreakHandler::tr("File Name:")
+        << fileName << " -- " << bpFileName << '\n';
+    str << BreakHandler::tr("Function Name:")
+        << funcName << " -- " << bpFuncName << '\n';
+    str << BreakHandler::tr("Line Number:")
+        << lineNumber << " -- " << bpLineNumber << '\n';
+    str << BreakHandler::tr("Condition:")
+        << condition << " -- " << bpCondition << '\n';
+    str << BreakHandler::tr("Ignore Count:")
+        << ignoreCount << " -- " << bpIgnoreCount << '\n';
+    return rc;
+}
+
 bool BreakpointData::isLocatedAt(const QString &fileName_, int lineNumber_) const
 {
     /*
