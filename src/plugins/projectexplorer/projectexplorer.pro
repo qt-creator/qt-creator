@@ -68,7 +68,8 @@ HEADERS += projectexplorer.h \
     projectwelcomepagewidget.h \
     baseprojectwizarddialog.h \
     targetselector.h \
-    targetsettingswidget.h
+    targetsettingswidget.h \
+    doubletabwidget.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -124,7 +125,8 @@ SOURCES += projectexplorer.cpp \
     corelistenercheckingforrunningbuild.cpp \
     baseprojectwizarddialog.cpp \
     targetselector.cpp \
-    targetsettingswidget.cpp
+    targetsettingswidget.cpp \
+    doubletabwidget.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \
@@ -133,7 +135,8 @@ FORMS += processstep.ui \
     removefiledialog.ui \
     projectexplorersettingspage.ui \
     projectwelcomepagewidget.ui \
-    targetsettingswidget.ui
+    targetsettingswidget.ui \
+    doubletabwidget.ui
 
 win32 { 
     SOURCES += applicationlauncher_win.cpp \

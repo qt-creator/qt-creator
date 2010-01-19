@@ -23,5 +23,8 @@
         <file>images/targetrunselected.png</file>
         <file>images/targetseparatorbackground.png</file>
         <file>images/targetunselected.png</file>
+        <file>images/leftselection.png</file>
+        <file>images/rightselection.png</file>
+        <file>images/midselection.png</file>
     </qresource>
 </RCC>
