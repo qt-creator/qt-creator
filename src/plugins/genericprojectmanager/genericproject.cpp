@@ -60,6 +60,7 @@ using namespace GenericProjectManager::Internal;
 using namespace ProjectExplorer;
 
 namespace {
+const char * const TOOLCHAIN_KEY("GenericProjectManager.GenericProject.Toolchain");
 
 /**
  * An editable string list model. New strings can be added by editing the entry
@@ -431,10 +432,19 @@ QStringList GenericProject::targets() const
     return targets;
 }
 
-bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
+QVariantMap GenericProject::toMap() const
 {
-    Project::restoreSettingsImpl(reader);
+    QVariantMap map(Project::toMap());
+    map.insert(QLatin1String(TOOLCHAIN_KEY), static_cast<int>(m_toolChainType));
+    return map;
+}
 
+bool GenericProject::fromMap(const QVariantMap &map)
+{
+    if (!Project::fromMap(map))
+        return false;
+
+    // Add default BC:
     if (buildConfigurations().isEmpty()) {
         GenericBuildConfiguration *bc = new GenericBuildConfiguration(this);
         bc->setDisplayName("all");
@@ -445,47 +455,22 @@ bool GenericProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsRead
 
         makeStep->setBuildTarget("all", /* on = */ true);
 
-        const QLatin1String buildDirectory("buildDirectory");
-
         const QFileInfo fileInfo(file()->fileName());
         bc->setBuildDirectory(fileInfo.absolutePath());
 
         setActiveBuildConfiguration(bc);
     }
 
-    using namespace ProjectExplorer;
-    QString toolChainName = reader.restoreValue(QLatin1String("toolChain")).toString();
-    bool convertible = false;
-    ToolChain::ToolChainType type = ToolChain::ToolChainType(toolChainName.toInt(&convertible));
-    if (!convertible) {
-        // legacy string values
-        if (toolChainName == QLatin1String("gcc"))
-            type = ToolChain::GCC;
-        else if (toolChainName == QLatin1String("mingw"))
-            type = ToolChain::MinGW;
-        else if (toolChainName == QLatin1String("msvc"))
-            type = ToolChain::MSVC;
-        else if (toolChainName == QLatin1String("wince"))
-            type = ToolChain::WINCE;
-    }
+    ToolChain::ToolChainType type =
+            static_cast<ProjectExplorer::ToolChain::ToolChainType>
+            (map.value(QLatin1String(TOOLCHAIN_KEY), 0).toInt());
 
-    setToolChainType(type); // ### move
-
-    const QStringList userIncludePaths =
-            reader.restoreValue(QLatin1String("includePaths")).toStringList();
+    setToolChainType(type);
 
     setIncludePaths(allIncludePaths());
 
     refresh(Everything);
     return true;
-}
-
-void GenericProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
-{
-    Project::saveSettingsImpl(writer);
-
-    writer.saveValue(QLatin1String("toolChain"), m_toolChainType);
-    writer.saveValue(QLatin1String("includePaths"), m_includePaths);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

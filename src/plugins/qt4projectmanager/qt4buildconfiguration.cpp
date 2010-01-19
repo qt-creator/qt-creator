@@ -51,10 +51,7 @@ const char * const TOOLCHAIN_KEY("Qt4ProjectManager.Qt4BuildConfiguration.ToolCh
 const char * const BUILD_CONFIGURATION_KEY("Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration");
 const char * const QT_VERSION_ID_KEY("Qt4ProjectManager.Qt4BuildConfiguration.QtVersionId");
 
-enum {
-    debug = false
-};
-
+enum { debug = 0 };
 }
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro) :

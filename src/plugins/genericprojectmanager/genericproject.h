@@ -111,9 +111,10 @@ public:
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
     void setToolChainType(ProjectExplorer::ToolChain::ToolChainType type);
 
+    QVariantMap toMap() const;
+
 protected:
-    virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
-    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
+    virtual bool fromMap(const QVariantMap &map);
 
 private:
     void parseProject(RefreshOptions options);

@@ -490,14 +490,11 @@ QStringList CMakeProject::files(FilesMode fileMode) const
     return m_files;
 }
 
-void CMakeProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
+bool CMakeProject::fromMap(const QVariantMap &map)
 {
-    Project::saveSettingsImpl(writer);
-}
+    if (!Project::fromMap(map))
+        return false;
 
-bool CMakeProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
-{
-    Project::restoreSettingsImpl(reader);
     bool hasUserFile = !buildConfigurations().isEmpty();
     MakeStep *makeStep = 0;
     if (!hasUserFile) {

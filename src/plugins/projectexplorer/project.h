@@ -124,12 +124,22 @@ public:
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
     static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
+
+    // Serialize all data into a QVariantMap. This map is then saved
+    // in the .user file of the project.
+    //
+    // Just put all your data into the map.
+    //
+    // Note: Do not forget to call your base class' toMap method.
+    // Note: Do not forget to call setActiveBuildConfiguration when
+    //       creating new BuilConfigurations.
+    virtual QVariantMap toMap() const;
+
 signals:
     void fileListChanged();
 
 // TODO clean up signal names
 // might be better to also have aboutToRemove signals
-// a runconfiguration display name changed is missing
     void activeBuildConfigurationChanged();
     void activeRunConfigurationChanged();
     void runConfigurationsEnabledStateChanged();
@@ -141,23 +151,10 @@ signals:
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
 
 protected:
-    /* This method is called when the project .user file is saved. Simply call
-     * writer.saveValue() for each value you want to save. Make sure to always
-     * call your base class implementation.
-     *
-     * Note: All the values from the project/buildsteps and buildconfigurations
-     * are automatically stored.
-     */
-    virtual void saveSettingsImpl(PersistentSettingsWriter &writer);
-
-    /* This method is called when the project is opened. You can retrieve all
-     * the values you saved in saveSettingsImpl() in this method.
-     *
-     * Note: This function is also called if there is no .user file. You should
-     * probably add some default build and run settings to the project so that
-     * it can be build and run.
-     */
-    virtual bool restoreSettingsImpl(PersistentSettingsReader &reader);
+    // restore all data from the map.
+    //
+    // Note: Do not forget to call your base class' fromMap method!
+    virtual bool fromMap(const QVariantMap &map);
 
 private:
     QList<BuildConfiguration *> m_buildConfigurations;

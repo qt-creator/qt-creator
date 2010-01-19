@@ -50,7 +50,6 @@ class QmlModelManagerInterface;
 }
 
 namespace QmlProjectManager {
-
 class QmlProject;
 class QmlRunConfiguration;
 
@@ -193,8 +192,7 @@ private slots:
     void refreshFiles();
 
 protected:
-    virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
-    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
+    bool fromMap(const QVariantMap &map);
 
 private:
     // plain format

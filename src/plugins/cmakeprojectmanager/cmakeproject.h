@@ -105,8 +105,7 @@ signals:
     void targetsChanged();
 
 protected:
-    virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
-    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader);
+    virtual bool fromMap(const QVariantMap &map);
 
     // called by CMakeBuildSettingsWidget
     void changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory);

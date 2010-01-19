@@ -50,6 +50,15 @@ using namespace ProjectExplorer::Internal;
 
 namespace {
 const char * const PROJECT_FILE_POSTFIX(".user");
+
+const char * const ACTIVE_BC_KEY("ProjectExplorer.Project.ActiveBuildConfiguration");
+const char * const BC_KEY_PREFIX("ProjectExplorer.Project.BuildConfiguration.");
+const char * const BC_COUNT_KEY("ProjectExplorer.Project.BuildConfigurationCount");
+
+const char * const ACTIVE_RC_KEY("ProjectExplorer.Project.ActiveRunConfiguration");
+const char * const RC_KEY_PREFIX("ProjectExplorer.Project.RunConfiguration.");
+const char * const RC_COUNT_KEY("ProjectExplorer.Project.RunConfigurationCount");
+
 const char * const EDITOR_SETTINGS_KEY("ProjectExplorer.Project.EditorSettings");
 } // namespace
 
@@ -117,6 +126,21 @@ QList<BuildConfiguration *> Project::buildConfigurations() const
     return m_buildConfigurations;
 }
 
+BuildConfiguration *Project::activeBuildConfiguration() const
+{
+    return m_activeBuildConfiguration;
+}
+
+void Project::setActiveBuildConfiguration(BuildConfiguration *configuration)
+{
+    if (!configuration ||
+        m_activeBuildConfiguration == configuration ||
+        !m_buildConfigurations.contains(configuration))
+        return;
+    m_activeBuildConfiguration = configuration;
+    emit activeBuildConfigurationChanged();
+}
+
 bool Project::hasBuildSettings() const
 {
     return true;
@@ -125,7 +149,10 @@ bool Project::hasBuildSettings() const
 void Project::saveSettings()
 {
     PersistentSettingsWriter writer;
-    saveSettingsImpl(writer);
+    QVariantMap map(toMap());
+    for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i)
+        writer.saveValue(i.key(), i.value());
+
     writer.save(file()->fileName() + QLatin1String(PROJECT_FILE_POSTFIX), "QtCreatorProject");
 }
 
@@ -133,15 +160,10 @@ bool Project::restoreSettings()
 {
     PersistentSettingsReader reader;
     reader.load(file()->fileName() + QLatin1String(PROJECT_FILE_POSTFIX));
-    if (!restoreSettingsImpl(reader))
-        return false;
 
-    if (!m_activeBuildConfiguration && !m_buildConfigurations.isEmpty())
-        setActiveBuildConfiguration(m_buildConfigurations.at(0));
+    QVariantMap map(reader.restoreValues());
 
-    if (!m_activeRunConfiguration && !m_runConfigurations.isEmpty())
-        setActiveRunConfiguration(m_runConfigurations.at(0));
-    return true;
+    return fromMap(map);
 }
 
 QList<BuildConfigWidget*> Project::subConfigWidgets()
@@ -149,97 +171,102 @@ QList<BuildConfigWidget*> Project::subConfigWidgets()
     return QList<BuildConfigWidget*>();
 }
 
-void Project::saveSettingsImpl(PersistentSettingsWriter &writer)
+QVariantMap Project::toMap() const
 {
     const QList<BuildConfiguration *> bcs = buildConfigurations();
 
-    // For compatibility with older versions the "name" is saved as a string instead of a number
-    writer.saveValue("activebuildconfiguration", QString::number(bcs.indexOf(m_activeBuildConfiguration)));
+    QVariantMap map;
+    map.insert(QLatin1String(ACTIVE_BC_KEY), bcs.indexOf(m_activeBuildConfiguration));
+    map.insert(QLatin1String(BC_COUNT_KEY), bcs.size());
+    for (int i = 0; i < bcs.size(); ++i)
+        map.insert(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i), bcs.at(i)->toMap());
 
-    //save buildsettings
-    QStringList buildConfigurationNames;
-    for(int i=0; i < bcs.size(); ++i) {
-        writer.saveValue("buildConfiguration-" + QString::number(i), bcs.at(i)->toMap());
-        buildConfigurationNames << QString::number(i);
-    }
-    writer.saveValue("buildconfigurations", buildConfigurationNames);
+    const QList<RunConfiguration *> rcs = runConfigurations();
+    map.insert(QLatin1String(ACTIVE_RC_KEY), rcs.indexOf(m_activeRunConfiguration));
+    map.insert(QLatin1String(RC_COUNT_KEY), rcs.size());
+    for (int i = 0; i < rcs.size(); ++i)
+        map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), rcs.at(i)->toMap());
 
-    // Running
-    int i = 0;
-    int activeId = 0;
-    foreach (RunConfiguration* rc, m_runConfigurations) {
-        writer.saveValue("RunConfiguration" + QString().setNum(i), rc->toMap());
-        if (rc == m_activeRunConfiguration)
-            activeId = i;
-        ++i;
-    }
-    writer.setPrefix(QString::null);
-    writer.saveValue("activeRunConfiguration", activeId);
+    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), m_editorConfiguration->toMap());
 
-    writer.saveValue(QLatin1String(EDITOR_SETTINGS_KEY), m_editorConfiguration->toMap());
+    return map;
 }
 
-bool Project::restoreSettingsImpl(PersistentSettingsReader &reader)
+bool Project::fromMap(const QVariantMap &map)
 {
-    // restoring BuldConfigurations from settings
-    const QStringList buildConfigurationNames = reader.restoreValue("buildconfigurations").toStringList();
+    if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
+        QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
+        if (!m_editorConfiguration->fromMap(values))
+            return false;
+    }
 
-    foreach (const QString &buildConfigurationName, buildConfigurationNames) {
-        QVariantMap temp(reader.restoreValue("buildConfiguration-" + buildConfigurationName).toMap());
-        BuildConfiguration *bc = buildConfigurationFactory()->restore(this, temp);
+    bool ok;
+    int maxI(map.value(QLatin1String(BC_COUNT_KEY), 0).toInt(&ok));
+    if (!ok || maxI < 0)
+        maxI = 0;
+    int activeConfiguration(map.value(QLatin1String(ACTIVE_BC_KEY), 0).toInt(&ok));
+    if (!ok || activeConfiguration < 0)
+        activeConfiguration = 0;
+    if (0 > activeConfiguration || maxI < activeConfiguration)
+        activeConfiguration = 0;
+
+    for (int i = 0; i < maxI; ++i) {
+        const QString key(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i));
+        if (!map.contains(key))
+            return false;
+        if (!buildConfigurationFactory()->canRestore(this, map.value(key).toMap()))
+            return false;
+        BuildConfiguration *bc(buildConfigurationFactory()->restore(this, map.value(key).toMap()));
+        if (!bc)
+            continue;
         addBuildConfiguration(bc);
+        if (i == activeConfiguration)
+            setActiveBuildConfiguration(bc);
     }
+    if (!activeBuildConfiguration() && !m_buildConfigurations.isEmpty())
+        setActiveBuildConfiguration(m_buildConfigurations.at(0));
 
-    { // Try restoring the active configuration
-        QString activeConfigurationName = reader.restoreValue("activebuildconfiguration").toString();
-        int index = buildConfigurationNames.indexOf(activeConfigurationName);
-        if (index != -1)
-            m_activeBuildConfiguration = buildConfigurations().at(index);
-        else if (!buildConfigurations().isEmpty())
-            m_activeBuildConfiguration = buildConfigurations().at(0);
-        else
-            m_activeBuildConfiguration = 0;
-    }
+    maxI = map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok);
+    if (!ok || maxI < 0)
+        maxI = 0;
+    activeConfiguration = map.value(QLatin1String(ACTIVE_RC_KEY), 0).toInt(&ok);
+    if (!ok || activeConfiguration < 0)
+        activeConfiguration = 0;
+    if (0 > activeConfiguration || maxI < activeConfiguration)
+        activeConfiguration = 0;
 
-    // Running
-    const int activeId = reader.restoreValue("activeRunConfiguration").toInt();
-    int i = 0;
-    const QList<IRunConfigurationFactory *> factories =
-        ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
-    forever {
-        QVariantMap values(reader.restoreValue("RunConfiguration" + QString().setNum(i)).toMap());
-        if (values.isEmpty())
+    QList<IRunConfigurationFactory *>
+        factories(ExtensionSystem::PluginManager::instance()->
+            getObjects<IRunConfigurationFactory>());
+
+    for (int i = 0; i < maxI; ++i) {
+        const QString key(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i));
+        if (!map.contains(key))
+            return false;
+
+        QVariantMap valueMap(map.value(key).toMap());
+        IRunConfigurationFactory *factory(0);
+        foreach (IRunConfigurationFactory *f, factories) {
+            if (!f->canRestore(this, valueMap))
+                continue;
+            factory = f;
             break;
-        foreach (IRunConfigurationFactory *factory, factories) {
-            if (factory->canRestore(this, values)) {
-                RunConfiguration* rc = factory->restore(this, values);
-                if (!rc)
-                    continue;
-                addRunConfiguration(rc);
-                if (i == activeId)
-                    setActiveRunConfiguration(rc);
-            }
         }
-        ++i;
+        if (!factory)
+            return false;
+
+        RunConfiguration *rc(factory->restore(this, valueMap));
+        if (!rc)
+            return false;
+        addRunConfiguration(rc);
+        if (i == activeConfiguration)
+            setActiveRunConfiguration(rc);
     }
+
     if (!activeRunConfiguration() && !m_runConfigurations.isEmpty())
         setActiveRunConfiguration(m_runConfigurations.at(0));
 
-    QVariantMap tmp = reader.restoreValue(QLatin1String(EDITOR_SETTINGS_KEY)).toMap();
-    return m_editorConfiguration->fromMap(tmp);
-}
-
-BuildConfiguration *Project::activeBuildConfiguration() const
-{
-    return m_activeBuildConfiguration;
-}
-
-void Project::setActiveBuildConfiguration(BuildConfiguration *configuration)
-{
-    if (m_activeBuildConfiguration != configuration && m_buildConfigurations.contains(configuration)) {
-        m_activeBuildConfiguration = configuration;
-        emit activeBuildConfigurationChanged();
-    }
+    return true;
 }
 
 QList<RunConfiguration *> Project::runConfigurations() const

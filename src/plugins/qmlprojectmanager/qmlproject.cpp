@@ -281,9 +281,9 @@ QStringList QmlProject::files(FilesMode) const
     return files();
 }
 
-bool QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
+bool QmlProject::fromMap(const QVariantMap &map)
 {
-    Project::restoreSettingsImpl(reader);
+    Project::fromMap(map);
 
     if (runConfigurations().isEmpty()) {
         QmlRunConfiguration *runConf = new QmlRunConfiguration(this);
@@ -292,11 +292,6 @@ bool QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &
 
     refresh(Everything);
     return true;
-}
-
-void QmlProject::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
-{
-    Project::saveSettingsImpl(writer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -77,9 +77,7 @@ const int    PROGRESS_PACKAGEDEPLOYED = 300;
 const int    PROGRESS_PACKAGEINSTALLED = 400;
 const int    PROGRESS_MAX = 400;
 
-enum {
-    debug = false
-};
+enum { debug = 0 };
 
 // Format information about a file
 QString lsFile(const QString &f)

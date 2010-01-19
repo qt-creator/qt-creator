@@ -215,8 +215,7 @@ private slots:
                             const Qt4ProjectManager::Internal::Qt4ProjectType newType);
 
 protected:
-    virtual bool restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &settingsReader);
-    virtual void saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer);
+    virtual bool fromMap(const QVariantMap &map);
 
 private:
     static void collectApplicationProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);

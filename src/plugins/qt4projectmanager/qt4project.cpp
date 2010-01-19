@@ -271,9 +271,10 @@ void Qt4Project::updateFileList()
     }
 }
 
-bool Qt4Project::restoreSettingsImpl(PersistentSettingsReader &settingsReader)
+bool Qt4Project::fromMap(const QVariantMap &map)
 {
-    Project::restoreSettingsImpl(settingsReader);
+    if (!Project::fromMap(map))
+        return false;
 
     if (buildConfigurations().isEmpty())
         addDefaultBuild();
@@ -372,11 +373,6 @@ void Qt4Project::slotActiveBuildConfigurationChanged()
     }
     emit environmentChanged();
     emit targetInformationChanged();
-}
-
-void Qt4Project::saveSettingsImpl(ProjectExplorer::PersistentSettingsWriter &writer)
-{
-    Project::saveSettingsImpl(writer);
 }
 
 ProjectExplorer::IBuildConfigurationFactory *Qt4Project::buildConfigurationFactory() const
