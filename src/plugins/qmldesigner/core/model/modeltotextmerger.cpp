@@ -194,7 +194,7 @@ RewriterView *ModelToTextMerger::view()
 bool ModelToTextMerger::applyChanges()
 {
     if (m_rewriteActions.isEmpty())
-        return;
+        return true;
 
     dumpRewriteActions(QLatin1String("Before compression"));
     RewriteActionCompressor compress(getPropertyOrder());
@@ -202,17 +202,19 @@ bool ModelToTextMerger::applyChanges()
     dumpRewriteActions(QLatin1String("After compression"));
 
     if (m_rewriteActions.isEmpty())
-        return;
+        return true;
 
     Document::Ptr tmpDocument(Document::create(QLatin1String("<ModelToTextMerger>")));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";
         qDebug() << "*** QML text:" << m_rewriterView->textModifier()->text();
-        return;
+        return false;
     }
 
     TextModifier *textModifier = m_rewriterView->textModifier();
+
+    bool success = true;
 
     try {
         ModelNodePositionRecalculator positionRecalculator(m_rewriterView->positionStorage(), m_rewriterView->positionStorage()->modelNodes());
@@ -222,8 +224,6 @@ bool ModelToTextMerger::applyChanges()
 
         textModifier->deactivateChangeSignals();
         textModifier->startGroup();
-
-        bool success = true;
 
         for (int i = 0; i < m_rewriteActions.size(); ++i) {
             if (i != 0) {
