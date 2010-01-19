@@ -93,12 +93,12 @@ void FileFilterBaseItem::updateFileList()
 
     if (newFiles != m_files) {
         // update watched files
-        foreach (const QString &file, m_files - newFiles) {
-            m_fsWatcher.removePath(QDir(projectDir).absoluteFilePath(file));
-        }
-        foreach (const QString &file, newFiles - m_files) {
-            m_fsWatcher.addPath(QDir(projectDir).absoluteFilePath(file));
-        }
+        const QSet<QString> unwatchFiles = QSet<QString>(m_files - newFiles);
+        const QSet<QString> watchFiles = QSet<QString>(newFiles - m_files);
+        if (!unwatchFiles.isEmpty())
+            m_fsWatcher.removePaths(unwatchFiles.toList());
+        if (!watchFiles.isEmpty())
+            m_fsWatcher.addPaths(QSet<QString>(newFiles - m_files).toList());
 
         m_files = newFiles;
 
@@ -106,13 +106,13 @@ void FileFilterBaseItem::updateFileList()
     }
 
     // update watched directories
-    QSet<QString> watchedDirectories = m_fsWatcher.directories().toSet();
-    foreach (const QString &dir, watchedDirectories - dirsToBeWatched) {
-        m_fsWatcher.removePath(QDir(projectDir).absoluteFilePath(dir));
-    }
-    foreach (const QString &dir, dirsToBeWatched - watchedDirectories) {
-        m_fsWatcher.addPath(QDir(projectDir).absoluteFilePath(dir));
-    }
+    const QSet<QString> watchedDirectories = m_fsWatcher.directories().toSet();
+    const QSet<QString> unwatchDirs = watchedDirectories - dirsToBeWatched;
+    const QSet<QString> watchDirs = dirsToBeWatched - watchedDirectories;
+    if (!unwatchDirs.isEmpty())
+        m_fsWatcher.removePaths(unwatchDirs.toList());
+    if (!watchDirs.isEmpty())
+        m_fsWatcher.addPaths(watchDirs.toList());
 }
 
 QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs)
@@ -124,7 +124,7 @@ QSet<QString> FileFilterBaseItem::filesInSubTree(const QDir &rootDir, const QDir
 
     foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files)) {
         if (m_regex.exactMatch(file.fileName())) {
-            fileSet.insert(rootDir.relativeFilePath(file.absoluteFilePath()));
+            fileSet.insert(file.absoluteFilePath());
         }
     }
 

@@ -78,6 +78,7 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
     emit sourceDirectoryChanged();
 }
 
+/* Returns list of absolute paths */
 QStringList QmlProjectItem::qmlFiles() const
 {
     const Q_D(QmlProjectItem);

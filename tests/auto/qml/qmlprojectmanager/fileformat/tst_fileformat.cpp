@@ -49,7 +49,8 @@ void TestProject::testQmlFileFilter()
 
         project->setSourceDirectory(testDataDir);
 
-        QStringList expectedFiles(QStringList() << "file1.qml" << "file2.qml");
+        QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
+                                                << testDataDir + "/file2.qml");
         QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
     }
 
@@ -75,7 +76,9 @@ void TestProject::testQmlFileFilter()
 
         project->setSourceDirectory(testDataDir);
 
-        QStringList expectedFiles(QStringList() << "file1.qml" << "file2.qml" << "subdir/file3.qml");
+        QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
+                                                << testDataDir + "/file2.qml"
+                                                << testDataDir + "/subdir/file3.qml");
         QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
     }
 
@@ -101,7 +104,7 @@ void TestProject::testQmlFileFilter()
 
         project->setSourceDirectory(testDataDir);
 
-        QStringList expectedFiles(QStringList() << "subdir/file3.qml");
+        QStringList expectedFiles(QStringList() <<  testDataDir + "/subdir/file3.qml");
         QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
     }
 
@@ -130,7 +133,9 @@ void TestProject::testQmlFileFilter()
 
         project->setSourceDirectory(testDataDir);
 
-        QStringList expectedFiles(QStringList() << "file1.qml" << "file2.qml" << "subdir/file3.qml");
+        QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
+                                                << testDataDir + "/file2.qml"
+                                                << testDataDir + "/subdir/file3.qml");
         QCOMPARE(project->qmlFiles().size(), 3);
         QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
     }
