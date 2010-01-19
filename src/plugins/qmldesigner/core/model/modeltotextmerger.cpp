@@ -191,7 +191,7 @@ RewriterView *ModelToTextMerger::view()
     return m_rewriterView;
 }
 
-void ModelToTextMerger::applyChanges()
+bool ModelToTextMerger::applyChanges()
 {
     if (m_rewriteActions.isEmpty())
         return;
@@ -223,6 +223,8 @@ void ModelToTextMerger::applyChanges()
         textModifier->deactivateChangeSignals();
         textModifier->startGroup();
 
+        bool success = true;
+
         for (int i = 0; i < m_rewriteActions.size(); ++i) {
             if (i != 0) {
                 textModifier->flushGroup();
@@ -235,15 +237,15 @@ void ModelToTextMerger::applyChanges()
             }
 
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
-            const bool success = action->execute(refactoring, *positionStore);
+            success = action->execute(refactoring, *positionStore);
 
             if (!success /*&& DebugRewriteActions*/) {
                 qDebug() << "*** QML source code: ***";
                 qDebug() << qPrintable(textModifier->text());
                 qDebug() << "*** End of QML source code. ***";
-            }
 
-            Q_ASSERT(success);
+                break;
+            }
         }
         qDeleteAll(m_rewriteActions);
         m_rewriteActions.clear();
@@ -254,10 +256,15 @@ void ModelToTextMerger::applyChanges()
 
         textModifier->reactivateChangeSignals();
     } catch (...) {
+        qDeleteAll(m_rewriteActions);
+        m_rewriteActions.clear();
+        textModifier->commitGroup();
         textModifier->reactivateChangeSignals();
 
         throw;
     }
+
+    return success;
 }
 
 void ModelToTextMerger::reindent(const QMap<int, int> &/*dirtyAreas*/) const
