@@ -8,5 +8,6 @@
     </qresource>
     <qresource prefix="/icon/layout">
         <file>snapping.png</file>
+	<file>boundingrect.png</file>
     </qresource>
 </RCC>

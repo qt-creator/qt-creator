@@ -33,20 +33,19 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
-#include <qmljs/qmltypesystem.h>
+#include <qmljs/qmljstypesystem.h>
 
 #include <QDebug>
 
-using namespace Qml;
+using namespace QmlJS;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
-using namespace QmlJS;
 using namespace QmlJS::AST;
 
-QmlLookupContext::QmlLookupContext(const QStack<QmlSymbol *> &scopes,
-                                   const QmlDocument::Ptr &doc,
+QmlLookupContext::QmlLookupContext(const QStack<Symbol *> &scopes,
+                                   const Document::Ptr &doc,
                                    const Snapshot &snapshot,
-                                   QmlTypeSystem *typeSystem):
+                                   TypeSystem *typeSystem):
         _scopes(scopes),
         _doc(doc),
         _snapshot(snapshot),
@@ -55,13 +54,13 @@ QmlLookupContext::QmlLookupContext(const QStack<QmlSymbol *> &scopes,
     Q_ASSERT(typeSystem != 0);
 }
 
-static inline int findFirstQmlObjectScope(const QStack<QmlSymbol*> &scopes, int startIdx)
+static inline int findFirstQmlObjectScope(const QStack<Symbol*> &scopes, int startIdx)
 {
     if (startIdx < 0 || startIdx >= scopes.size())
         return -1;
 
     for (int i = startIdx; i >= 0; --i) {
-        QmlSymbol *current = scopes.at(i);
+        Symbol *current = scopes.at(i);
 
         if (current->isSymbolFromFile()) {
             Node *node = current->asSymbolFromFile()->node();
@@ -75,7 +74,7 @@ static inline int findFirstQmlObjectScope(const QStack<QmlSymbol*> &scopes, int 
     return -1;
 }
 
-static inline QmlSymbol *resolveParent(const QStack<QmlSymbol*> &scopes)
+static inline Symbol *resolveParent(const QStack<Symbol*> &scopes)
 {
     int idx = findFirstQmlObjectScope(scopes, scopes.size() - 1);
     if (idx < 1)
@@ -89,14 +88,14 @@ static inline QmlSymbol *resolveParent(const QStack<QmlSymbol*> &scopes)
         return scopes.at(idx);
 }
 
-QmlSymbol *QmlLookupContext::resolve(const QString &name)
+Symbol *QmlLookupContext::resolve(const QString &name)
 {
     // find element type names
-    if (QmlSymbol *type = resolveType(name))
+    if (Symbol *type = resolveType(name))
         return type;
 
     // find ids
-    const QmlDocument::IdTable ids = _doc->ids();
+    const Document::IdTable ids = _doc->ids();
     if (ids.contains(name))
         return ids[name];
 
@@ -110,12 +109,12 @@ QmlSymbol *QmlLookupContext::resolve(const QString &name)
     // find properties of the scope object
     int scopeObjectIndex = findFirstQmlObjectScope(_scopes, _scopes.size() - 1);
     if (scopeObjectIndex != -1)
-        if (QmlSymbol *propertySymbol = resolveProperty(name, _scopes.at(scopeObjectIndex), _doc->fileName()))
+        if (Symbol *propertySymbol = resolveProperty(name, _scopes.at(scopeObjectIndex), _doc->fileName()))
             return propertySymbol;
 
     // find properties of the component's root object
     if (!_doc->symbols().isEmpty())
-        if (QmlSymbol *propertySymbol = resolveProperty(name, _doc->symbols()[0], _doc->fileName()))
+        if (Symbol *propertySymbol = resolveProperty(name, _doc->symbols()[0], _doc->fileName()))
             return propertySymbol;
 
     // component chain
@@ -130,14 +129,14 @@ QmlSymbol *QmlLookupContext::resolve(const QString &name)
     return 0;
 }
 
-QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fileName)
+Symbol *QmlLookupContext::resolveType(const QString &name, const QString &fileName)
 {
     // TODO: handle import-as.
-    QmlDocument::Ptr document = _snapshot[fileName];
+    Document::Ptr document = _snapshot[fileName];
     if (document.isNull())
         return 0;
 
-    UiProgram *prog = document->program();
+    UiProgram *prog = document->qmlProgram();
     if (!prog)
         return 0;
 
@@ -157,9 +156,9 @@ QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fil
 
         const QString path = import->fileName->asString();
 
-        const QMap<QString, QmlDocument::Ptr> importedTypes = _snapshot.componentsDefinedByImportedDocuments(document, path);
+        const QMap<QString, Document::Ptr> importedTypes = _snapshot.componentsDefinedByImportedDocuments(document, path);
         if (importedTypes.contains(name)) {
-            QmlDocument::Ptr importedDoc = importedTypes.value(name);
+            Document::Ptr importedDoc = importedTypes.value(name);
 
             return importedDoc->symbols().at(0);
         }
@@ -169,17 +168,17 @@ QmlSymbol *QmlLookupContext::resolveType(const QString &name, const QString &fil
     return resolveBuildinType(name);
 }
 
-QmlSymbol *QmlLookupContext::resolveBuildinType(const QString &name)
+Symbol *QmlLookupContext::resolveBuildinType(const QString &name)
 {
-    QList<Qml::PackageInfo> packages;
+    QList<QmlJS::PackageInfo> packages;
     // FIXME:
     packages.append(PackageInfo("Qt", 4, 6));
     return m_typeSystem->resolve(name, packages);
 }
 
-QmlSymbol *QmlLookupContext::resolveProperty(const QString &name, QmlSymbol *scope, const QString &fileName)
+Symbol *QmlLookupContext::resolveProperty(const QString &name, Symbol *scope, const QString &fileName)
 {
-    foreach (QmlSymbol *symbol, scope->members())
+    foreach (Symbol *symbol, scope->members())
         if (symbol->isProperty() && symbol->name() == name)
             return symbol;
 
@@ -198,14 +197,14 @@ QmlSymbol *QmlLookupContext::resolveProperty(const QString &name, QmlSymbol *sco
     if (typeName == 0)
         return 0;
 
-    QmlSymbol *typeSymbol = resolveType(toString(typeName), fileName);
+    Symbol *typeSymbol = resolveType(toString(typeName), fileName);
     if (!typeSymbol)
         return 0;
 
     if (typeSymbol->isSymbolFromFile()) {
         return resolveProperty(name, typeSymbol->asSymbolFromFile(), typeSymbol->asSymbolFromFile()->fileName());
-    } else if (QmlBuildInSymbol *builtinSymbol = typeSymbol->asBuildInSymbol()) {
-        foreach (QmlSymbol *member, builtinSymbol->members(true)) {
+    } else if (PrimitiveSymbol *builtinSymbol = typeSymbol->asPrimitiveSymbol()) {
+        foreach (Symbol *member, builtinSymbol->members(true)) {
             if (member->isProperty() && member->name() == name)
                 return member;
         }
@@ -231,12 +230,12 @@ QString QmlLookupContext::toString(UiQualifiedId *id)
     return str;
 }
 
-QList<QmlSymbol*> QmlLookupContext::visibleSymbolsInScope()
+QList<Symbol*> QmlLookupContext::visibleSymbolsInScope()
 {
-    QList<QmlSymbol*> result;
+    QList<Symbol*> result;
 
     if (!_scopes.isEmpty()) {
-        QmlSymbol *scope = _scopes.top();
+        Symbol *scope = _scopes.top();
 
         // add members defined in this symbol:
         result.append(scope->members());
@@ -248,11 +247,11 @@ QList<QmlSymbol*> QmlLookupContext::visibleSymbolsInScope()
     return result;
 }
 
-QList<QmlSymbol*> QmlLookupContext::visibleTypes()
+QList<Symbol*> QmlLookupContext::visibleTypes()
 {
-    QList<QmlSymbol*> result;
+    QList<Symbol*> result;
 
-    UiProgram *program = _doc->program();
+    UiProgram *program = _doc->qmlProgram();
     if (!program)
         return result;
 
@@ -267,8 +266,8 @@ QList<QmlSymbol*> QmlLookupContext::visibleTypes()
 
         // TODO: handle "import as".
 
-        const QMap<QString, QmlDocument::Ptr> types = _snapshot.componentsDefinedByImportedDocuments(_doc, path);
-        foreach (const QmlDocument::Ptr typeDoc, types) {
+        const QMap<QString, Document::Ptr> types = _snapshot.componentsDefinedByImportedDocuments(_doc, path);
+        foreach (const Document::Ptr typeDoc, types) {
             result.append(typeDoc->symbols().at(0));
         }
     }
@@ -278,22 +277,22 @@ QList<QmlSymbol*> QmlLookupContext::visibleTypes()
     return result;
 }
 
-QList<QmlSymbol*> QmlLookupContext::expandType(Qml::QmlSymbol *symbol)
+QList<Symbol*> QmlLookupContext::expandType(QmlJS::Symbol *symbol)
 {
     if (symbol == 0) {
-        return QList<QmlSymbol*>();
-    } else if (QmlBuildInSymbol *buildInSymbol = symbol->asBuildInSymbol()) {
+        return QList<Symbol*>();
+    } else if (PrimitiveSymbol *buildInSymbol = symbol->asPrimitiveSymbol()) {
         return buildInSymbol->members(true);
-    } else if (QmlSymbolFromFile *symbolFromFile = symbol->asSymbolFromFile()){
-        QList<QmlSymbol*> result;
+    } else if (SymbolFromFile *symbolFromFile = symbol->asSymbolFromFile()){
+        QList<Symbol*> result;
 
-        if (QmlSymbol *superTypeSymbol = resolveType(symbolFromFile->name(), symbolFromFile->fileName())) {
+        if (Symbol *superTypeSymbol = resolveType(symbolFromFile->name(), symbolFromFile->fileName())) {
             result.append(superTypeSymbol->members());
             result.append(expandType(superTypeSymbol));
         }
 
         return result;
     } else {
-        return QList<QmlSymbol*>();
+        return QList<Symbol*>();
     }
 }

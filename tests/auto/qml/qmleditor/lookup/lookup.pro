@@ -1,7 +1,7 @@
 TEMPLATE = app
 CONFIG += qt warn_on console depend_includepath
 QT += testlib
-include(../../../../../src/shared/qmljs/qmljs.pri)
+include(../../../../../src/libs/qmljs/qmljs-lib.pri)
 DEFINES += QML_BUILD_STATIC_LIB
 EDITOR_DIR=../../../../../src/plugins/qmljseditor
 

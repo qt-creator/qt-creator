@@ -67,6 +67,7 @@ FormEditorView::FormEditorView(QObject *parent)
       m_currentTool(m_selectionTool)
 {
     connect(widget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
+    connect(widget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
 }
 
 FormEditorScene* FormEditorView::scene() const

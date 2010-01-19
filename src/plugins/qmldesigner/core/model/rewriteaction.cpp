@@ -53,20 +53,25 @@ bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePos
 
     if (m_property.isDefaultProperty())
         result = refactoring.addToObjectMemberList(nodeLocation, m_valueText);
-    else
+    else {
         result = refactoring.addProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType);
+
+        if (!result) {
+            qDebug() << "*** AddPropertyRewriteAction::execute failed in addProperty("
+                    << nodeLocation << ","
+                    << m_property.name() << ","
+                    << m_valueText << ", ScriptBinding)"
+                    << info();
+        }
+    }
 
     Q_ASSERT(result);
     return result;
 }
 
-void AddPropertyRewriteAction::dump(const QString &prefix) const
+QString AddPropertyRewriteAction::info() const
 {
-    qDebug() << qPrintable(prefix)
-             << "AddPropertyRewriteAction for property"
-             << m_property.name()
-             << "(" << qPrintable(toString(m_propertyType)) << ")"
-             ;
+    return QString("AddPropertyRewriteAction for property \"%1\" (type: %2)").arg(m_property.name(), toString(m_propertyType));
 }
 
 bool ChangeIdRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -75,9 +80,17 @@ bool ChangeIdRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, Mo
     static const QLatin1String idPropertyName("id");
     bool result = false;
 
-    if (m_oldId.isEmpty())
+    if (m_oldId.isEmpty()) {
         result = refactoring.addProperty(nodeLocation, idPropertyName, m_newId, QmlRefactoring::ScriptBinding);
-    else if (m_newId.isEmpty())
+
+        if (!result) {
+            qDebug() << "*** ChangeIdRewriteAction::execute failed in addProperty("
+                    << nodeLocation << ","
+                    << idPropertyName << ","
+                    << m_newId << ", ScriptBinding)"
+                    << info();
+        }
+    } else if (m_newId.isEmpty())
         result = refactoring.removeProperty(nodeLocation, idPropertyName);
     else
         result = refactoring.changeProperty(nodeLocation, idPropertyName, m_newId, QmlRefactoring::ScriptBinding);
@@ -86,11 +99,9 @@ bool ChangeIdRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, Mo
     return result;
 }
 
-void ChangeIdRewriteAction::dump(const QString &prefix) const
+QString ChangeIdRewriteAction::info() const
 {
-    qDebug() << qPrintable(prefix)
-             << "ChangeIdRewriteAction"
-             ;
+    return QString("ChangeIdRewriteAction from \"%1\" to \"%2\"").arg(m_oldId, m_newId);
 }
 
 bool ChangePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -109,19 +120,14 @@ bool ChangePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactori
     return result;
 }
 
-void ChangePropertyRewriteAction::dump(const QString &prefix) const
+QString ChangePropertyRewriteAction::info() const
 {
-    qDebug() << qPrintable(prefix)
-             << "ChangePropertyRewriteAction for property"
-             << m_property.name()
-             << "(" << qPrintable(toString(m_propertyType)) << ")"
-             << "of node"
-             << (m_property.parentModelNode().isValid() ? m_property.parentModelNode().id() : "(invalid)")
-             << "with new value"
-             << QString(m_valueText).replace('\n', "\\n")
-             << "and contained object"
-             << (m_containedModelNode.isValid() ? m_containedModelNode.id() : "(none)")
-             ;
+    return QString("ChangePropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" with value >>%4<< and contained object \"%5\"")
+             .arg(m_property.name(),
+                  toString(m_propertyType),
+                  (m_property.parentModelNode().isValid() ? m_property.parentModelNode().id() : "(invalid)"),
+                  QString(m_valueText).replace('\n', "\\n"),
+                  (m_containedModelNode.isValid() ? m_containedModelNode.id() : "(none)"));
 }
 
 bool ChangeTypeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -140,11 +146,9 @@ bool ChangeTypeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, 
     return result;
 }
 
-void ChangeTypeRewriteAction::dump(const QString &prefix) const
+QString ChangeTypeRewriteAction::info() const
 {
-    qDebug() << qPrintable(prefix)
-             << "ChangeTypeRewriteAction"
-             ;
+    return QString("ChangeTypeRewriteAction");
 }
 
 bool RemoveNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -158,11 +162,9 @@ bool RemoveNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, 
     return result;
 }
 
-void RemoveNodeRewriteAction::dump(const QString &prefix) const
+QString RemoveNodeRewriteAction::info() const
 {
-    qDebug() << qPrintable(prefix)
-             << "RemoveNodeRewriteAction"
-             ;
+    return QString("RemoveNodeRewriteAction");
 }
 
 bool RemovePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -176,12 +178,9 @@ bool RemovePropertyRewriteAction::execute(QmlDesigner::QmlRefactoring &refactori
     return result;
 }
 
-void RemovePropertyRewriteAction::dump(const QString &prefix) const
+QString RemovePropertyRewriteAction::info() const
 {
-    qDebug() << qPrintable(prefix)
-             << "RemovePropertyRewriteAction for property"
-             << m_property.name()
-             ;
+    return QString("RemovePropertyRewriteAction for property \"%1\"").arg(m_property.name());
 }
 
 bool ReparentNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
@@ -201,22 +200,15 @@ bool ReparentNodeRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring
     return result;
 }
 
-void ReparentNodeRewriteAction::dump(const QString &prefix) const
+QString ReparentNodeRewriteAction::info() const
 {
-    if (m_node.isValid()) {
-        qDebug() << qPrintable(prefix)
-                 << "ReparentNodeRewriteAction for node"
-                 << m_node.id()
-                 << "into property"
-                 << m_targetProperty.name()
-                 << "of node"
-                 << m_targetProperty.parentModelNode().id()
-                 ;
-    } else {
-        qDebug() << qPrintable(prefix)
-                 << "reparentNodeRewriteAction for an invalid node"
-                 ;
-    }
+    if (m_node.isValid())
+        return QString("ReparentNodeRewriteAction for node \"%1\" into property \"%2\" of node \"%3\"")
+                .arg(m_node.id(),
+                     m_targetProperty.name(),
+                     m_targetProperty.parentModelNode().id());
+    else
+        return QString("ReparentNodeRewriteAction for an invalid node");
 }
 
 bool MoveNodeRewriteAction::execute(QmlRefactoring &refactoring,
@@ -232,25 +224,14 @@ bool MoveNodeRewriteAction::execute(QmlRefactoring &refactoring,
     return result;
 }
 
-void MoveNodeRewriteAction::dump(const QString &prefix) const
+QString MoveNodeRewriteAction::info() const
 {
     if (m_movingNode.isValid()) {
         if (m_newTrailingNode.isValid())
-            qDebug() << qPrintable(prefix)
-                     << "MoveNodeRewriteAction for node"
-                     << m_movingNode.id()
-                     << "before node"
-                     << m_newTrailingNode.id()
-                     ;
+            return QString("MoveNodeRewriteAction for node \"%1\" before node \"%2\"").arg(m_movingNode.id(), m_newTrailingNode.id());
         else
-            qDebug() << qPrintable(prefix)
-                     << "MoveNodeRewriteAction for node"
-                     << m_movingNode.id()
-                     << "to the end of its containing property"
-                     ;
+            return QString("MoveNodeRewriteAction for node \"%1\" to the end of its containing property").arg(m_movingNode.id());
     } else {
-        qDebug() << qPrintable(prefix)
-                 << "MoveNodeRewriteAction for an invalid node"
-                 ;
+        return QString("MoveNodeRewriteAction for an invalid node");
     }
 }

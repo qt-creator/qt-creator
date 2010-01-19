@@ -209,7 +209,9 @@ void CentralWidget::closeTab(int index)
     if (!viewer || tabWidget->count() == 1)
         return;
 
+    emit viewerAboutToBeRemoved(index);
     tabWidget->removeTab(index);
+    emit viewerRemoved(index);
     QTimer::singleShot(0, viewer, SLOT(deleteLater()));
 }
 
@@ -484,6 +486,13 @@ HelpViewer *CentralWidget::helpViewerAtIndex(int index) const
     return qobject_cast<HelpViewer*>(tabWidget->widget(index));
 }
 
+int CentralWidget::indexOf(HelpViewer *viewer) const
+{
+    if (!viewer)
+        return -1;
+    return tabWidget->indexOf(viewer);
+}
+
 HelpViewer *CentralWidget::currentHelpViewer() const
 {
     return qobject_cast<HelpViewer*>(tabWidget->currentWidget());
@@ -529,7 +538,7 @@ void CentralWidget::currentPageChanged(int index)
     tabWidget->setTabsClosable(tabWidget->count() > 1);
     tabWidget->cornerWidget(Qt::TopLeftCorner)->setEnabled(true);
 
-     emit currentViewerChanged();
+     emit currentViewerChanged(index);
 }
 
 void CentralWidget::showTabBarContextMenu(const QPoint &point)
@@ -709,6 +718,11 @@ void CentralWidget::copy()
     HelpViewer* viewer = currentHelpViewer();
     if (viewer)
         viewer->copy();
+}
+
+void CentralWidget::activateTab(int index)
+{
+    tabWidget->setCurrentIndex(index);
 }
 
 QString CentralWidget::quoteTabTitle(const QString &title) const

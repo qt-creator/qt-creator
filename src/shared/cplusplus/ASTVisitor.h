@@ -103,6 +103,12 @@ public:
     virtual void postVisit(AST *) {}
 
     virtual bool visit(AccessDeclarationAST *) { return true; }
+#ifdef ICHECK_BUILD
+    virtual bool visit(QPropertyDeclarationAST *) { return true; }
+    virtual bool visit(QEnumDeclarationAST *) { return true; }
+    virtual bool visit(QFlagsDeclarationAST *) { return true; }
+    virtual bool visit(QDeclareFlagsDeclarationAST *) { return true; }
+#endif
     virtual bool visit(ArrayAccessAST *) { return true; }
     virtual bool visit(ArrayDeclaratorAST *) { return true; }
     virtual bool visit(ArrayInitializerAST *) { return true; }
@@ -229,6 +235,12 @@ public:
     virtual bool visit(ObjCSynchronizedStatementAST *) { return true; }
 
     virtual void endVisit(AccessDeclarationAST *) { }
+#ifdef ICHECK_BUILD
+    virtual void endVisit(QPropertyDeclarationAST *) { }
+    virtual void endVisit(QEnumDeclarationAST *) { }
+    virtual void endVisit(QFlagsDeclarationAST *) { }
+    virtual void endVisit(QDeclareFlagsDeclarationAST *) { }
+#endif
     virtual void endVisit(ArrayAccessAST *) { }
     virtual void endVisit(ArrayDeclaratorAST *) { }
     virtual void endVisit(ArrayInitializerAST *) { }

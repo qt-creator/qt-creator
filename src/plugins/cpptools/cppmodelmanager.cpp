@@ -161,79 +161,22 @@ static const char pp_configuration[] =
     "#define __declspec(a)\n"
     "#define STDMETHOD(method) virtual HRESULT STDMETHODCALLTYPE method\n";
 
-namespace CppTools {
-namespace Internal {
-
-class CppPreprocessor: public CPlusPlus::Client
-{
-public:
-    CppPreprocessor(QPointer<CppModelManager> modelManager);
-    virtual ~CppPreprocessor();
-
-    void setRevision(unsigned revision);
-    void setWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy);
-    void setIncludePaths(const QStringList &includePaths);
-    void setFrameworkPaths(const QStringList &frameworkPaths);
-    void setProjectFiles(const QStringList &files);
-    void setTodo(const QStringList &files);
-
-    void run(const QString &fileName);
-
-    void resetEnvironment();
-
-    const QSet<QString> &todo() const
-    { return m_todo; }
-
-public: // attributes
-    Snapshot snapshot;
-
-protected:
-    CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
-
-    bool includeFile(const QString &absoluteFilePath, QString *result, unsigned *revision);
-    QString tryIncludeFile(QString &fileName, IncludeType type, unsigned *revision);
-
-    void mergeEnvironment(CPlusPlus::Document::Ptr doc);
-
-    virtual void macroAdded(const Macro &macro);
-    virtual void passedMacroDefinitionCheck(unsigned offset, const Macro &macro);
-    virtual void failedMacroDefinitionCheck(unsigned offset, const QByteArray &name);
-    virtual void startExpandingMacro(unsigned offset,
-                                     const Macro &macro,
-                                     const QByteArray &originalText,
-                                     bool inCondition,
-                                     const QVector<MacroArgumentReference> &actuals);
-    virtual void stopExpandingMacro(unsigned offset, const Macro &macro);
-    virtual void startSkippingBlocks(unsigned offset);
-    virtual void stopSkippingBlocks(unsigned offset);
-    virtual void sourceNeeded(QString &fileName, IncludeType type,
-                              unsigned line);
-
-private:
-    QPointer<CppModelManager> m_modelManager;
-    Environment env;
-    Preprocessor preprocess;
-    QStringList m_includePaths;
-    QStringList m_systemIncludePaths;
-    CppModelManagerInterface::WorkingCopy m_workingCopy;
-    QStringList m_projectFiles;
-    QStringList m_frameworkPaths;
-    QSet<QString> m_included;
-    Document::Ptr m_currentDoc;
-    QSet<QString> m_todo;
-    QSet<QString> m_processed;
-    unsigned m_revision;
-};
-
-} // namespace Internal
-} // namespace CppTools
-
+#ifndef ICHECK_BUILD
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
       preprocess(this, &env),
       m_revision(0)
 { }
+
+#else
+
+CppPreprocessor::CppPreprocessor(QPointer<CPlusPlus::ParseManager> modelManager)
+    : preprocess(this, &env),
+      m_revision(0)
+{
+}
+#endif
 
 CppPreprocessor::~CppPreprocessor()
 { }
@@ -258,7 +201,7 @@ void CppPreprocessor::setTodo(const QStringList &files)
 
 
 namespace {
-
+#ifndef ICHECK_BUILD
 class Process: public std::unary_function<Document::Ptr, void>
 {
     QPointer<CppModelManager> _modelManager;
@@ -313,7 +256,7 @@ public:
             _modelManager->emitDocumentUpdated(doc); // ### TODO: compress
     }
 };
-
+#endif
 } // end of anonymous namespace
 
 void CppPreprocessor::run(const QString &fileName)
@@ -580,11 +523,19 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
     snapshot.insert(doc);
     m_todo.remove(fileName);
 
+#ifndef ICHECK_BUILD
     Process process(m_modelManager, snapshot, m_workingCopy);
 
     process(doc);
 
     (void) switchDocument(previousDoc);
+#else
+    (void) switchDocument(previousDoc);
+    Document::CheckMode mode = Document::FastCheck;
+    mode = Document::FullCheck;
+    doc->parse();
+    doc->check(mode);
+#endif
 }
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
@@ -594,6 +545,7 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
     return previousDoc;
 }
 
+#ifndef ICHECK_BUILD
 void CppTools::CppModelManagerInterface::updateModifiedSourceFiles()
 {
     const Snapshot snapshot = this->snapshot();
@@ -1397,5 +1349,5 @@ void CppModelManager::GC()
     m_snapshot = newSnapshot;
     protectSnapshot.unlock();
 }
-
+#endif
 

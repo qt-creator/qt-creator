@@ -40,6 +40,12 @@ public:
     virtual ~ASTMatcher();
 
     virtual bool match(AccessDeclarationAST *node, AccessDeclarationAST *pattern);
+#ifdef ICHECK_BUILD
+    virtual bool match(QPropertyDeclarationAST *node, QPropertyDeclarationAST *pattern);
+    virtual bool match(QEnumDeclarationAST *node, QEnumDeclarationAST *pattern);
+    virtual bool match(QFlagsDeclarationAST *node, QFlagsDeclarationAST *pattern);
+    virtual bool match(QDeclareFlagsDeclarationAST *node, QDeclareFlagsDeclarationAST *pattern);
+#endif
     virtual bool match(ArrayAccessAST *node, ArrayAccessAST *pattern);
     virtual bool match(ArrayDeclaratorAST *node, ArrayDeclaratorAST *pattern);
     virtual bool match(ArrayInitializerAST *node, ArrayInitializerAST *pattern);

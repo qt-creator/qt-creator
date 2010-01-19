@@ -146,6 +146,12 @@ public:
     virtual AccessDeclarationAST *asAccessDeclaration() { return 0; }
     virtual ArrayAccessAST *asArrayAccess() { return 0; }
     virtual ArrayDeclaratorAST *asArrayDeclarator() { return 0; }
+#ifdef ICHECK_BUILD
+    virtual QPropertyDeclarationAST *asQPropertyDeclarationAST() { return 0; }
+    virtual QEnumDeclarationAST *asQEnumDeclarationAST() { return 0; }
+    virtual QFlagsDeclarationAST *asQFlagsDeclarationAST() { return 0; }
+    virtual QDeclareFlagsDeclarationAST *asQDeclareFlagsDeclarationAST() { return 0; }
+#endif
     virtual ArrayInitializerAST *asArrayInitializer() { return 0; }
     virtual AsmDefinitionAST *asAsmDefinition() { return 0; }
     virtual AttributeAST *asAttribute() { return 0; }
@@ -298,6 +304,9 @@ class CPLUSPLUS_EXPORT DeclarationAST: public AST
 {
 public:
     virtual DeclarationAST *asDeclaration() { return this; }
+#ifdef ICHECK_BUILD
+    unsigned invoke_token;
+#endif
 };
 
 class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
@@ -501,6 +510,109 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
 };
+
+#ifdef ICHECK_BUILD
+class CPLUSPLUS_EXPORT QPropertyDeclarationAST: public DeclarationAST
+{
+    /*
+    Q_PROPERTY(type name
+            READ getFunction
+            [WRITE setFunction]
+            [RESET resetFunction]
+            [NOTIFY notifySignal]
+            [DESIGNABLE bool]
+            [SCRIPTABLE bool]
+            [STORED bool]
+            [USER bool]
+            [CONSTANT]
+            [FINAL])*/
+public:
+    unsigned property_specifier_token;
+    unsigned lparen_token;
+    unsigned type_token;
+    unsigned type_name_token;
+    unsigned read_token;
+    unsigned read_function_token;
+    unsigned write_token;
+    unsigned write_function_token;
+    unsigned reset_token;
+    unsigned reset_function_token;
+    unsigned notify_token;
+    unsigned notify_function_token;
+    unsigned rparen_token;
+
+public:
+    virtual QPropertyDeclarationAST *asQPropertyDeclarationAST() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT QEnumDeclarationAST: public DeclarationAST
+{
+    /*Q_ENUMS(enum1, enum2)*/
+public:
+    unsigned enum_specifier_token;
+    unsigned lparen_token;
+    unsigned rparen_token;
+    EnumeratorListAST *enumerator_list;
+
+public:
+    virtual QEnumDeclarationAST *asQEnumDeclarationAST() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT QFlagsDeclarationAST: public DeclarationAST
+{
+    /*Q_FLAGS(enum1 enum2 flags1 ...)*/
+public:
+    unsigned flags_specifier_token;
+    unsigned lparen_token;
+    unsigned rparen_token;
+    EnumeratorListAST *enumerator_list;
+
+public:
+    virtual QFlagsDeclarationAST *asQFlagsDeclarationAST() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT QDeclareFlagsDeclarationAST: public DeclarationAST
+{
+    /*Q_DECLARE_FLAGS(flag enum)*/
+public:
+    unsigned declareflags_specifier_token;
+    unsigned lparen_token;
+    unsigned flag_token;
+    unsigned enum_token;
+    unsigned rparen_token;
+
+public:
+    virtual QDeclareFlagsDeclarationAST *asQDeclareFlagsDeclarationAST() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+#endif
 
 class CPLUSPLUS_EXPORT AsmDefinitionAST: public DeclarationAST
 {

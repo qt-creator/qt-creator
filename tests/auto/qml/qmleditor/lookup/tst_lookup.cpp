@@ -3,14 +3,13 @@
 #include <QObject>
 #include <QFile>
 
-#include <qmljs/qmldocument.h>
+#include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsast_p.h>
 
 #include <qmllookupcontext.h>
 
 #include <typeinfo>
 
-using namespace Qml;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
@@ -35,12 +34,12 @@ private Q_SLOTS:
     void localRootLookup();
 
 protected:
-    QmlDocument::Ptr basicSymbolTest(const QString &input) const
+    Document::Ptr basicSymbolTest(const QString &input) const
     {
         const QLatin1String filename("<lookup test>");
-        QmlDocument::Ptr doc = QmlDocument::create(filename);
+        Document::Ptr doc = Document::create(filename);
         doc->setSource(input);
-        doc->parse();
+        doc->parseQml();
 
         QList<DiagnosticMessage> msgs = doc->diagnosticMessages();
         foreach (const DiagnosticMessage &msg, msgs) {
@@ -56,21 +55,21 @@ protected:
         return doc;
     }
 
-    Snapshot snapshot(const QmlDocument::Ptr &doc) const
+    Snapshot snapshot(const Document::Ptr &doc) const
     {
         Snapshot snapshot;
         snapshot.insert(doc);
         return snapshot;
     }
 
-    QmlTypeSystem *typeSystem() {
+    TypeSystem *typeSystem() {
         if (!_typeSystem)
-            _typeSystem = new QmlTypeSystem;
+            _typeSystem = new TypeSystem;
         return _typeSystem;
     }
 
 private:
-    QmlTypeSystem *_typeSystem;
+    TypeSystem *_typeSystem;
 };
 
 void tst_Lookup::basicSymbolTest()
@@ -86,10 +85,10 @@ void tst_Lookup::basicSymbolTest()
             "}\n"
             );
 
-    QmlDocument::Ptr doc = basicSymbolTest(input);
+    Document::Ptr doc = basicSymbolTest(input);
     QVERIFY(doc->isParsedCorrectly());
 
-    UiProgram *program = doc->program();
+    UiProgram *program = doc->qmlProgram();
     QVERIFY(program);
     QVERIFY(program->members);
     QVERIFY(program->members->member);
@@ -108,16 +107,16 @@ void tst_Lookup::basicSymbolTest()
     QVERIFY(xBinding->qualifiedId->name);
     QCOMPARE(xBinding->qualifiedId->name->asString(), QLatin1String("x"));
 
-    QmlSymbol::List docSymbols = doc->symbols();
+    Symbol::List docSymbols = doc->symbols();
     QCOMPARE(docSymbols.size(), 1);
 
-    QmlSymbol *rectSymbol = docSymbols.at(0);
+    Symbol *rectSymbol = docSymbols.at(0);
     QCOMPARE(rectSymbol->name(), QLatin1String("Rectangle"));
     QCOMPARE(rectSymbol->members().size(), 4);
 
-    QmlSymbolFromFile *rectFromFile = rectSymbol->asSymbolFromFile();
+    SymbolFromFile *rectFromFile = rectSymbol->asSymbolFromFile();
     QVERIFY(rectFromFile);
-    QmlSymbolFromFile *xSymbol = rectFromFile->findMember(xBinding);
+    SymbolFromFile *xSymbol = rectFromFile->findMember(xBinding);
     QVERIFY(xSymbol);
     QCOMPARE(xSymbol->name(), QLatin1String("x"));
 }
@@ -129,26 +128,26 @@ void tst_Lookup::basicLookupTest()
             "Item{}\n"
             );
 
-    QmlDocument::Ptr doc = basicSymbolTest(input);
+    Document::Ptr doc = basicSymbolTest(input);
     QVERIFY(doc->isParsedCorrectly());
 
-    UiProgram *program = doc->program();
+    UiProgram *program = doc->qmlProgram();
     QVERIFY(program);
 
-    QStack<QmlSymbol *> emptyScope;
+    QStack<Symbol *> emptyScope;
     QmlLookupContext context(emptyScope, doc, snapshot(doc), typeSystem());
-    QmlSymbol *rectSymbol = context.resolveType(QLatin1String("Text"));
+    Symbol *rectSymbol = context.resolveType(QLatin1String("Text"));
     QVERIFY(rectSymbol);
 
-    QmlBuildInSymbol *buildInRect = rectSymbol->asBuildInSymbol();
+    PrimitiveSymbol *buildInRect = rectSymbol->asPrimitiveSymbol();
     QVERIFY(buildInRect);
     QCOMPARE(buildInRect->name(), QLatin1String("Text"));
 
-    QmlSymbol::List allBuildInRectMembers = buildInRect->members(true);
+    Symbol::List allBuildInRectMembers = buildInRect->members(true);
     QVERIFY(!allBuildInRectMembers.isEmpty());
     bool xPropFound = false;
     bool fontPropFound = false;
-    foreach (QmlSymbol *symbol, allBuildInRectMembers) {
+    foreach (Symbol *symbol, allBuildInRectMembers) {
         if (symbol->name() == QLatin1String("x"))
             xPropFound = true;
         else if (symbol->name() == QLatin1String("font"))
@@ -157,12 +156,12 @@ void tst_Lookup::basicLookupTest()
     QVERIFY(xPropFound);
     QVERIFY(fontPropFound);
 
-    QmlSymbol::List buildInRectMembers = buildInRect->members(false);
+    Symbol::List buildInRectMembers = buildInRect->members(false);
     QVERIFY(!buildInRectMembers.isEmpty());
 
     QSKIP("Getting properties _without_ the inerited properties doesn't work.", SkipSingle);
     fontPropFound = false;
-    foreach (QmlSymbol *symbol, buildInRectMembers) {
+    foreach (Symbol *symbol, buildInRectMembers) {
         if (symbol->name() == QLatin1String("x"))
             QFAIL("Text has x property");
         else if (symbol->name() == QLatin1String("font"))
@@ -176,7 +175,7 @@ void tst_Lookup::localIdLookup()
     QFile input(":/data/localIdLookup.qml");
     QVERIFY(input.open(QIODevice::ReadOnly));
 
-    QmlDocument::Ptr doc = basicSymbolTest(input.readAll());
+    Document::Ptr doc = basicSymbolTest(input.readAll());
     QVERIFY(doc->isParsedCorrectly());
 
     QStringList symbolNames;
@@ -192,17 +191,17 @@ void tst_Lookup::localIdLookup()
     }
 
     // try lookup
-    QStack<QmlSymbol *> scopes;
+    QStack<Symbol *> scopes;
     foreach (const QString &contextSymbolName, symbolNames) {
         scopes.push_back(doc->ids()[contextSymbolName]->parentNode());
         QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
 
         foreach (const QString &lookupSymbolName, symbolNames) {
-            QmlSymbol *resolvedSymbol = context.resolve(lookupSymbolName);
-            QmlIdSymbol *targetSymbol = doc->ids()[lookupSymbolName];
+            Symbol *resolvedSymbol = context.resolve(lookupSymbolName);
+            IdSymbol *targetSymbol = doc->ids()[lookupSymbolName];
             QCOMPARE(resolvedSymbol, targetSymbol);
 
-            QmlIdSymbol *resolvedId = resolvedSymbol->asIdSymbol();
+            IdSymbol *resolvedId = resolvedSymbol->asIdSymbol();
             QVERIFY(resolvedId);
             QCOMPARE(resolvedId->parentNode(), targetSymbol->parentNode());
         }
@@ -214,7 +213,7 @@ void tst_Lookup::localScriptMethodLookup()
     QFile input(":/data/localScriptMethodLookup.qml");
     QVERIFY(input.open(QIODevice::ReadOnly));
 
-    QmlDocument::Ptr doc = basicSymbolTest(input.readAll());
+    Document::Ptr doc = basicSymbolTest(input.readAll());
     QVERIFY(doc->isParsedCorrectly());
 
     QStringList symbolNames;
@@ -233,13 +232,13 @@ void tst_Lookup::localScriptMethodLookup()
     }
 
     // try lookup
-    QStack<QmlSymbol *> scopes;
+    QStack<Symbol *> scopes;
     foreach (const QString &contextSymbolName, symbolNames) {
         scopes.push_back(doc->ids()[contextSymbolName]->parentNode());
         QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
 
         foreach (const QString &functionName, functionNames) {
-            QmlSymbol *symbol = context.resolve(functionName);
+            Symbol *symbol = context.resolve(functionName);
             QVERIFY(symbol);
             QVERIFY(!symbol->isProperty());
             // verify that it's a function
@@ -252,7 +251,7 @@ void tst_Lookup::localScopeLookup()
     QFile input(":/data/localScopeLookup.qml");
     QVERIFY(input.open(QIODevice::ReadOnly));
 
-    QmlDocument::Ptr doc = basicSymbolTest(input.readAll());
+    Document::Ptr doc = basicSymbolTest(input.readAll());
     QVERIFY(doc->isParsedCorrectly());
 
     QStringList symbolNames;
@@ -266,13 +265,13 @@ void tst_Lookup::localScopeLookup()
     }
 
     // try lookup
-    QStack<QmlSymbol *> scopes;
+    QStack<Symbol *> scopes;
     foreach (const QString &contextSymbolName, symbolNames) {
-        QmlSymbol *parent = doc->ids()[contextSymbolName]->parentNode();
+        Symbol *parent = doc->ids()[contextSymbolName]->parentNode();
         scopes.push_back(parent);
         QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
 
-        QmlSymbol *symbol;
+        Symbol *symbol;
         symbol = context.resolve("prop");
         QVERIFY(symbol);
         QVERIFY(symbol->isPropertyDefinitionSymbol());
@@ -290,7 +289,7 @@ void tst_Lookup::localRootLookup()
     QFile input(":/data/localRootLookup.qml");
     QVERIFY(input.open(QIODevice::ReadOnly));
 
-    QmlDocument::Ptr doc = basicSymbolTest(input.readAll());
+    Document::Ptr doc = basicSymbolTest(input.readAll());
     QVERIFY(doc->isParsedCorrectly());
 
     QStringList symbolNames;
@@ -299,18 +298,18 @@ void tst_Lookup::localRootLookup()
     symbolNames.append("theChild");
 
     // check symbol existence and build scopes
-    QStack<QmlSymbol *> scopes;
+    QStack<Symbol *> scopes;
     foreach (const QString &symbolName, symbolNames) {
-        QmlIdSymbol *id = doc->ids()[symbolName];
+        IdSymbol *id = doc->ids()[symbolName];
         QVERIFY(id);
         scopes.push_back(id->parentNode());
     }
 
     // try lookup
-    QmlSymbol *parent = scopes.front();
+    Symbol *parent = scopes.front();
     QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
     
-    QmlSymbol *symbol;
+    Symbol *symbol;
     symbol = context.resolve("prop");
     QVERIFY(symbol);
     QVERIFY(symbol->isPropertyDefinitionSymbol());

@@ -238,9 +238,16 @@ enum Kind {
     T_Q_FOREACH,
     T_Q_D,
     T_Q_Q,
-
+#ifndef ICHECK_BUILD
     T_LAST_KEYWORD = T_Q_Q,
-
+#else
+    T_Q_INVOKABLE,
+    T_Q_PROPERTY,
+    T_Q_ENUMS,
+    T_Q_FLAGS,
+    T_Q_DECLARE_FLAGS,
+    T_LAST_KEYWORD = T_Q_DECLARE_FLAGS,
+#endif
     // aliases
     T_OR = T_PIPE_PIPE,
     T_AND = T_AMPER_AMPER,

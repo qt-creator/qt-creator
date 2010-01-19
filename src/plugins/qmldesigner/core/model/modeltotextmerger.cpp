@@ -33,7 +33,7 @@
 #include "rewriteactioncompressor.h"
 #include "rewriterview.h"
 
-#include <qmljs/qmldocument.h>
+#include <qmljs/qmljsdocument.h>
 #include <variantproperty.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
@@ -44,7 +44,7 @@
 #define INDENT_DEPTH 4
 #undef DUMP_REWRITE_ACTIONS
 
-using namespace Qml;
+using namespace QmlJS;
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
@@ -188,6 +188,9 @@ RewriterView *ModelToTextMerger::view()
 
 void ModelToTextMerger::applyChanges()
 {
+    if (m_rewriteActions.isEmpty())
+        return;
+
     dumpRewriteActions(QLatin1String("Before compression"));
     RewriteActionCompressor compress(getPropertyOrder());
     compress(m_rewriteActions);
@@ -196,9 +199,9 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
-    QmlDocument::Ptr tmpDocument(QmlDocument::create(QLatin1String("<ModelToTextMerger>")));
+    Document::Ptr tmpDocument(Document::create(QLatin1String("<ModelToTextMerger>")));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
-    if (!tmpDocument->parse()) {
+    if (!tmpDocument->parseQml()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";
         qDebug() << "*** QML text:" << m_rewriterView->textModifier()->text();
         return;
@@ -223,7 +226,7 @@ void ModelToTextMerger::applyChanges()
 
             RewriteAction* action = m_rewriteActions.at(i);
 #ifdef DUMP_REWRITE_ACTIONS
-            action->dump("Next rewrite action:");
+            qDebug() << "Next rewrite action:" << qPrintable(action->info());
 #endif // DUMP_REWRITE_ACTIONS
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
             const bool success = action->execute(refactoring, *positionStore);
@@ -312,7 +315,7 @@ void ModelToTextMerger::dumpRewriteActions(const QString &msg)
     qDebug() << "---->" << qPrintable(msg);
 
     foreach (RewriteAction *action, m_rewriteActions) {
-        action->dump("-----");
+        qDebug() << "-----" << qPrintable(action->info());
     }
 
     qDebug() << "<----" << qPrintable(msg);

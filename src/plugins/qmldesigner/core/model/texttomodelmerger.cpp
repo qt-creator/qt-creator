@@ -129,11 +129,19 @@ void TextToModelMerger::syncNode(ModelNode &modelNode, const QmlDomObject &domOb
             domObjectId = domIdProperty.value().toLiteral().literal();
 
         if (domObjectId.isEmpty()) {
-            if (!modelNode.id().isEmpty())
+            if (!modelNode.id().isEmpty()) {
+                ModelNode existingNodeWithId = m_rewriterView->modelNodeForId(domObjectId);
+                if (existingNodeWithId.isValid())
+                    existingNodeWithId.setId(QString());
                 differenceHandler.idsDiffer(modelNode, domObjectId);
+            }
         } else {
-            if (modelNode.id() != domObjectId)
+            if (modelNode.id() != domObjectId) {
+                ModelNode existingNodeWithId = m_rewriterView->modelNodeForId(domObjectId);
+                if (existingNodeWithId.isValid())
+                    existingNodeWithId.setId(QString());
                 differenceHandler.idsDiffer(modelNode, domObjectId);
+            }
         }
     }
 

@@ -54,6 +54,9 @@
 #include "Literals.h"
 #include "ObjectiveCTypeQualifiers.h"
 #include <cstdio> // for putchar
+#ifdef ICHECK_BUILD
+#  include <QString>
+#endif
 
 #define CPLUSPLUS_NO_DEBUG_RULE
 
@@ -1651,6 +1654,158 @@ bool Parser::parseAccessDeclaration(DeclarationAST *&node)
     return false;
 }
 
+#ifdef ICHECK_BUILD
+bool Parser::parseQPropertyDeclaration(DeclarationAST *&node)
+{
+    /*
+     Q_PROPERTY(type name
+            READ getFunction
+            [WRITE setFunction]
+            [RESET resetFunction]
+            [NOTIFY notifySignal]
+            [DESIGNABLE bool]
+            [SCRIPTABLE bool]
+            [STORED bool]
+            [USER bool]
+            [CONSTANT]
+            [FINAL])*/
+    DEBUG_THIS_RULE();
+    if (LA() == T_Q_PROPERTY) {
+        QPropertyDeclarationAST *ast = new (_pool)QPropertyDeclarationAST;
+        ast->property_specifier_token = consumeToken();
+        if(LA() == T_LPAREN){
+            ast->lparen_token = consumeToken();
+            QString tokenstr;
+            tokenstr = tok().spell();
+            //read the type and the name of the type
+            if(tokenstr !=  "READ" ){
+                ast->type_token = consumeToken();
+                tokenstr = tok().spell();
+            }
+            if(tokenstr !=  "READ" ){
+                ast->type_name_token = consumeToken();
+                tokenstr = tok().spell();
+            }
+            unsigned fctdefinition = 0;
+            unsigned fctname = 0;
+            for(int i = 0; i < 18; i++){
+                if(cursor() < _translationUnit->tokenCount() - 1){
+                    if(LA() == T_RPAREN){
+                        ast->rparen_token = consumeToken();
+                        break;
+                    }
+                    tokenstr = tok().spell();
+                    fctdefinition = consumeToken();
+                    fctname = consumeToken();
+                    if(tokenstr == "READ"){
+                        ast->read_token = fctdefinition;
+                        ast->read_function_token = fctname;
+                    }
+                    else if(tokenstr == "WRITE"){
+                        ast->write_token = fctdefinition;
+                        ast->write_function_token = fctname;
+                    }
+                    else if(tokenstr == "RESET"){
+                        ast->reset_token = fctdefinition;
+                        ast->reset_function_token = fctname;
+                    }
+                    else if(tokenstr == "NOTIFY"){
+                        ast->notify_token = fctdefinition;
+                        ast->notify_function_token = fctname;
+                    }
+                }
+            }
+        }
+        node = ast;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::parseQEnumDeclaration(DeclarationAST *&node)
+{
+     /*Q_ENUMS(ConnectionState)*/
+    DEBUG_THIS_RULE();
+    if (LA() == T_Q_ENUMS) {
+        QEnumDeclarationAST *ast = new (_pool)QEnumDeclarationAST;
+        ast->enum_specifier_token = consumeToken();
+        EnumeratorListAST** enumerator_list_ptr;
+        enumerator_list_ptr = &ast->enumerator_list;
+
+        if(LA() == T_LPAREN){
+            ast->lparen_token = consumeToken();
+            while(LA() != T_EOF_SYMBOL && LA() != T_RPAREN){
+                *enumerator_list_ptr = new (_pool) EnumeratorListAST;
+                EnumeratorAST *pdecl = new (_pool) EnumeratorAST;
+                pdecl->identifier_token = consumeToken();
+                (*enumerator_list_ptr)->value = pdecl;
+                enumerator_list_ptr = &(*enumerator_list_ptr)->next;
+                if (LA() == T_COMMA)
+                    consumeToken();
+            }
+            if(LA() == T_RPAREN)
+                ast->rparen_token = consumeToken();
+        }
+        node = ast;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::parseQFlags(DeclarationAST *&node)
+{
+     /*Q_FLAGS(enum1 enum2 flags1)*/
+    DEBUG_THIS_RULE();
+    if (LA() == T_Q_FLAGS) {
+        QFlagsDeclarationAST *ast = new (_pool)QFlagsDeclarationAST;
+        ast->flags_specifier_token = consumeToken();
+        EnumeratorListAST** enumerator_list_ptr;
+        enumerator_list_ptr = &ast->enumerator_list;
+        if(LA() == T_LPAREN){
+            ast->lparen_token = consumeToken();
+            while(LA() != T_EOF_SYMBOL && LA() != T_RPAREN){
+                *enumerator_list_ptr = new (_pool) EnumeratorListAST;
+                EnumeratorAST *pdecl = new (_pool) EnumeratorAST;
+                pdecl->identifier_token = consumeToken();
+                (*enumerator_list_ptr)->value = pdecl;
+                enumerator_list_ptr = &(*enumerator_list_ptr)->next;
+                if (LA() == T_COMMA)
+                    consumeToken();
+            }
+            if(LA() == T_RPAREN)
+                ast->rparen_token = consumeToken();
+        }
+        node = ast;
+        return true;
+    }
+    return false;
+}
+
+bool Parser::parseQDeclareFlags(DeclarationAST *&node)
+{
+     /*Q_DECLARE_FLAGS(flag enum)*/
+    DEBUG_THIS_RULE();
+    if (LA() == T_Q_DECLARE_FLAGS) {
+        QDeclareFlagsDeclarationAST *ast = new (_pool)QDeclareFlagsDeclarationAST;
+        ast->declareflags_specifier_token = consumeToken();
+        if(LA() == T_LPAREN){
+            ast->lparen_token = consumeToken();
+            if(LA() != T_EOF_SYMBOL)
+                ast->flag_token = consumeToken();
+            if(LA() == T_COMMA && LA() != T_EOF_SYMBOL)
+                consumeToken();
+            if(LA() != T_EOF_SYMBOL)
+                ast->enum_token = consumeToken();
+            if(LA() != T_EOF_SYMBOL && LA() == T_RPAREN)
+                ast->rparen_token = consumeToken();
+        }
+        node = ast;
+        return true;
+    }
+    return false;
+}
+#endif
+
 bool Parser::parseMemberSpecification(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
@@ -1669,6 +1824,20 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
     case T_PROTECTED:
     case T_PRIVATE:
         return parseAccessDeclaration(node);
+
+#ifdef ICHECK_BUILD
+    case T_Q_PROPERTY:
+        return parseQPropertyDeclaration(node);
+
+    case T_Q_ENUMS:
+        return parseQEnumDeclaration(node);
+
+    case T_Q_FLAGS:
+        return parseQFlags(node);
+
+    case T_Q_DECLARE_FLAGS:
+        return parseQDeclareFlags(node);
+#endif
 
     default:
         return parseSimpleDeclaration(node, /*acceptStructDeclarator=*/true);
@@ -2780,6 +2949,11 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
     unsigned qt_invokable_token = 0;
     if (acceptStructDeclarator && (LA() == T_Q_SIGNAL || LA() == T_Q_SLOT))
         qt_invokable_token = consumeToken();
+#ifdef ICHECK_BUILD
+    unsigned invoke_token = 0;
+    if (LA() == T_Q_INVOKABLE)
+        invoke_token = consumeToken();
+#endif
 
     // parse a simple declaration, a function definition,
     // or a contructor declaration.
@@ -2907,6 +3081,9 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         }
         SimpleDeclarationAST *ast = new (_pool) SimpleDeclarationAST;
         ast->qt_invokable_token = qt_invokable_token;
+#ifdef ICHECK_BUILD
+        ast->invoke_token = invoke_token;
+#endif
         ast->decl_specifier_list = decl_specifier_seq;
         ast->declarator_list = declarator_list;
         match(T_SEMICOLON, &ast->semicolon_token);
@@ -2936,6 +3113,9 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         if (LA() == T_LBRACE || hasCtorInitializer) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
             ast->qt_invokable_token = qt_invokable_token;
+#ifdef ICHECK_BUILD
+            ast->invoke_token = invoke_token;
+#endif
             ast->decl_specifier_list = decl_specifier_seq;
             ast->declarator = firstDeclarator;
             ast->ctor_initializer = ctor_initializer;
@@ -2945,6 +3125,9 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
         } else if (LA() == T_TRY) {
             FunctionDefinitionAST *ast = new (_pool) FunctionDefinitionAST;
             ast->qt_invokable_token = qt_invokable_token;
+#ifdef ICHECK_BUILD
+            ast->invoke_token = invoke_token;
+#endif
             ast->decl_specifier_list = decl_specifier_seq;
             ast->declarator = firstDeclarator;
             ast->ctor_initializer = ctor_initializer;

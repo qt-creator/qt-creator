@@ -33,7 +33,7 @@
 #include "qmllookupcontext.h"
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmlsymbol.h>
+#include <qmljs/qmljssymbol.h>
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -43,13 +43,13 @@ class QmlResolveExpression: protected QmlJS::AST::Visitor
 public:
     QmlResolveExpression(const QmlLookupContext &context);
 
-    Qml::QmlSymbol *typeOf(QmlJS::AST::Node *node);
-    QList<Qml::QmlSymbol*> visibleSymbols(QmlJS::AST::Node *node);
+    QmlJS::Symbol *typeOf(QmlJS::AST::Node *node);
+    QList<QmlJS::Symbol*> visibleSymbols(QmlJS::AST::Node *node);
 
 protected:
     using QmlJS::AST::Visitor::visit;
 
-    Qml::QmlSymbol *switchValue(Qml::QmlSymbol *symbol);
+    QmlJS::Symbol *switchValue(QmlJS::Symbol *symbol);
 
     virtual bool visit(QmlJS::AST::FieldMemberExpression *ast);
     virtual bool visit(QmlJS::AST::IdentifierExpression *ast);
@@ -57,7 +57,7 @@ protected:
 
 private:
     QmlLookupContext _context;
-    Qml::QmlSymbol *_value;
+    QmlJS::Symbol *_value;
 };
 
 } // namespace Internal

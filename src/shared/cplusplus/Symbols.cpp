@@ -221,6 +221,10 @@ bool Function::isEqualTo(const Type *other) const
         return false;
     else if (isVolatile() != o->isVolatile())
         return false;
+#ifdef ICHECK_BUILD
+     else if (isInvokable() != o->isInvokable())
+        return false;
+#endif
 
     const Name *l = identity();
     const Name *r = o->identity();
@@ -239,6 +243,35 @@ bool Function::isEqualTo(const Type *other) const
     }
     return false;
 }
+
+#ifdef ICHECK_BUILD
+bool Function::isEqualTo(const Function* fct, bool ignoreName/* = false*/) const
+{
+    if(!ignoreName)
+        return isEqualTo((Type*)fct);
+
+    if (! fct)
+        return false;
+    else if (isConst() != fct->isConst())
+        return false;
+    else if (isVolatile() != fct->isVolatile())
+        return false;
+    else if (isInvokable() != fct->isInvokable())
+        return false;
+
+    if (_arguments->symbolCount() != fct->_arguments->symbolCount())
+        return false;
+    else if (! _returnType.isEqualTo(fct->_returnType))
+        return false;
+    for (unsigned i = 0; i < _arguments->symbolCount(); ++i) {
+        Symbol *l = _arguments->symbolAt(i);
+        Symbol *r = fct->_arguments->symbolAt(i);
+        if (! l->type().isEqualTo(r->type()))
+            return false;
+    }
+    return true;
+}
+#endif
 
 void Function::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
@@ -315,6 +348,16 @@ bool Function::isPureVirtual() const
 
 void Function::setPureVirtual(bool isPureVirtual)
 { f._isPureVirtual = isPureVirtual; }
+
+#ifdef ICHECK_BUILD
+
+bool Function::isInvokable() const
+{ return f._isInvokable == 1; }
+
+void Function::setInvokable(bool isInvokable)
+{ f._isInvokable = isInvokable; }
+
+#endif
 
 bool Function::isAmbiguous() const
 { return f._isAmbiguous; }

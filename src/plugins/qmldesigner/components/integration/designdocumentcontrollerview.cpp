@@ -30,6 +30,7 @@
 #include "designdocumentcontrollerview.h"
 #include <rewriterview.h>
 #include <plaintexteditmodifier.h>
+#include <metainfo.h>
 
 #include <QApplication>
 #include <QPlainTextEdit>
@@ -97,14 +98,15 @@ void DesignDocumentControllerView::fromClipboard()
 
 QString DesignDocumentControllerView::toText() const
 {
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
+    QScopedPointer<Model> outputModel(Model::create("Qt/Rectangle"));
+    outputModel->setMetaInfo(model()->metaInfo());
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.6; Item {}");
     PlainTextEditModifier modifier(&textEdit);
 
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
     rewriterView->setTextModifier(&modifier);
-    model->attachView(rewriterView.data());
+    outputModel->attachView(rewriterView.data());
 
     ModelMerger merger(rewriterView.data());
 
@@ -118,7 +120,9 @@ QString DesignDocumentControllerView::toText() const
 
 void DesignDocumentControllerView::fromText(QString text)
 {
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
+    QScopedPointer<Model> inputModel(Model::create("Qt/Rectangle"));
+    inputModel->setMetaInfo(model()->metaInfo());
+    inputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
     QString imports("import Qt 4.6;\n");
     textEdit.setPlainText(imports + text);
@@ -126,7 +130,7 @@ void DesignDocumentControllerView::fromText(QString text)
 
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
     rewriterView->setTextModifier(&modifier);
-    model->attachView(rewriterView.data());
+    inputModel->attachView(rewriterView.data());
 
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
         ModelMerger merger(this);

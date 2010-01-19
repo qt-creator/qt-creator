@@ -37,14 +37,14 @@
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
 
-#include <qscripthighlighter/qscriptindenter.h>
+#include <qmljs/qmljsindenter.h>
 
-#include <qmljs/qmltypesystem.h>
+#include <qmljs/qmljstypesystem.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
-#include <qmljs/qmldocument.h>
-#include <qmljs/qmlidcollector.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsidcollector.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
@@ -74,10 +74,8 @@ enum {
     UPDATE_USES_DEFAULT_INTERVAL = 150
 };
 
-using namespace Qml;
 using namespace QmlJS;
 using namespace QmlJS::AST;
-using namespace SharedTools;
 
 namespace {
 int blockBraceDepth(const QTextBlock &block)
@@ -360,11 +358,11 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     baseTextDocument()->setSyntaxHighlighter(new QmlHighlighter);
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
-    m_typeSystem = ExtensionSystem::PluginManager::instance()->getObject<Qml::QmlTypeSystem>();
+    m_typeSystem = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::TypeSystem>();
 
     if (m_modelManager) {
-        connect(m_modelManager, SIGNAL(documentUpdated(Qml::QmlDocument::Ptr)),
-                this, SLOT(onDocumentUpdated(Qml::QmlDocument::Ptr)));
+        connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
+                this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
     }
 }
 
@@ -416,7 +414,7 @@ void QmlJSTextEditor::updateDocumentNow()
     m_modelManager->updateSourceFiles(QStringList() << fileName);
 }
 
-void QmlJSTextEditor::onDocumentUpdated(Qml::QmlDocument::Ptr doc)
+void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     if (file()->fileName() != doc->fileName())
         return;
@@ -425,11 +423,11 @@ void QmlJSTextEditor::onDocumentUpdated(Qml::QmlDocument::Ptr doc)
 
     FindIdDeclarations updateIds;
     m_idsRevision = document()->revision();
-    m_ids = updateIds(doc->program());
+    m_ids = updateIds(doc->qmlProgram());
 
     if (doc->isParsedCorrectly()) {
         FindDeclarations findDeclarations;
-        m_declarations = findDeclarations(doc->program());
+        m_declarations = findDeclarations(doc->qmlProgram());
 
         QStringList items;
         items.append(tr("<Select Symbol>"));
@@ -618,13 +616,13 @@ bool QmlJSTextEditor::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-bool QmlJSTextEditor::isClosingBrace(const QList<QScriptIncrementalScanner::Token> &tokens) const
+bool QmlJSTextEditor::isClosingBrace(const QList<QmlJSScanner::Token> &tokens) const
 {
 
     if (tokens.size() == 1) {
-        const QScriptIncrementalScanner::Token firstToken = tokens.first();
+        const QmlJSScanner::Token firstToken = tokens.first();
 
-        return firstToken.is(QScriptIncrementalScanner::Token::RightBrace) || firstToken.is(QScriptIncrementalScanner::Token::RightBracket);
+        return firstToken.is(QmlJSScanner::Token::RightBrace) || firstToken.is(QmlJSScanner::Token::RightBracket);
     }
 
     return false;
@@ -633,7 +631,7 @@ bool QmlJSTextEditor::isClosingBrace(const QList<QScriptIncrementalScanner::Toke
 void QmlJSTextEditor::indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar)
 {
     TextEditor::TabSettings ts = tabSettings();
-    SharedTools::QScriptIndenter indenter;
+    QmlJSIndenter indenter;
     indenter.setTabSize(ts.m_tabSize);
     indenter.setIndentSize(ts.m_indentSize);
 
@@ -679,7 +677,7 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
         return link;
 
     const Snapshot snapshot = m_modelManager->snapshot();
-    QmlDocument::Ptr doc = snapshot.document(file()->fileName());
+    Document::Ptr doc = snapshot.document(file()->fileName());
     if (!doc)
         return link;
 
@@ -703,12 +701,12 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
 
     QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, snapshot, m_typeSystem);
     QmlResolveExpression resolver(context);
-    QmlSymbol *symbol = resolver.typeOf(expressionUnderCursor.expressionNode());
+    Symbol *symbol = resolver.typeOf(expressionUnderCursor.expressionNode());
 
     if (!symbol)
         return link;
 
-    if (const QmlSymbolFromFile *target = symbol->asSymbolFromFile()) {
+    if (const SymbolFromFile *target = symbol->asSymbolFromFile()) {
         link.pos = expressionUnderCursor.expressionOffset();
         link.length = expressionUnderCursor.expressionLength();
         link.fileName = target->fileName();
@@ -795,32 +793,32 @@ bool QmlJSTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, co
     const QString blockText = cursor.block().text();
     const int blockState = blockStartState(cursor.block());
 
-    QScriptIncrementalScanner tokenize;
-    const QList<QScriptIncrementalScanner::Token> tokens = tokenize(blockText, blockState);
+    QmlJSScanner tokenize;
+    const QList<QmlJSScanner::Token> tokens = tokenize(blockText, blockState);
     const int pos = cursor.columnNumber();
 
     int tokenIndex = 0;
     for (; tokenIndex < tokens.size(); ++tokenIndex) {
-        const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
+        const QmlJSScanner::Token &token = tokens.at(tokenIndex);
 
         if (pos >= token.begin()) {
             if (pos < token.end())
                 break;
 
-            else if (pos == token.end() && (token.is(QScriptIncrementalScanner::Token::Comment) ||
-                                            token.is(QScriptIncrementalScanner::Token::String)))
+            else if (pos == token.end() && (token.is(QmlJSScanner::Token::Comment) ||
+                                            token.is(QmlJSScanner::Token::String)))
                 break;
         }
     }
 
     if (tokenIndex != tokens.size()) {
-        const QScriptIncrementalScanner::Token &token = tokens.at(tokenIndex);
+        const QmlJSScanner::Token &token = tokens.at(tokenIndex);
 
         switch (token.kind) {
-        case QScriptIncrementalScanner::Token::Comment:
+        case QmlJSScanner::Token::Comment:
             return false;
 
-        case QScriptIncrementalScanner::Token::String: {
+        case QmlJSScanner::Token::String: {
             const QStringRef tokenText = blockText.midRef(token.offset, token.length);
             const QChar quote = tokenText.at(0);
 

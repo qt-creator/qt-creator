@@ -542,6 +542,8 @@ void DesignDocumentController::deleteSelected()
 void DesignDocumentController::copySelected()
 {
     QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
+    model->setMetaInfo(m_d->model->metaInfo());
+
     Q_ASSERT(model);
 
     DesignDocumentControllerView view;
@@ -603,6 +605,8 @@ void DesignDocumentController::cutSelected()
 void DesignDocumentController::paste()
 {
     QScopedPointer<Model> model(Model::create("empty"));
+    model->setMetaInfo(m_d->model->metaInfo());
+    model->setFileUrl(m_d->model->fileUrl());
     Q_ASSERT(model);
 
     if (!m_d->model)

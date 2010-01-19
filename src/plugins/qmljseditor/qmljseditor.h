@@ -30,8 +30,8 @@
 #ifndef QMLJSEDITOR_H
 #define QMLJSEDITOR_H
 
-#include <qmljs/qmldocument.h>
-#include <qscripthighlighter/qscriptincrementalscanner.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsscanner.h>
 #include <texteditor/basetexteditor.h>
 
 QT_BEGIN_NAMESPACE
@@ -43,8 +43,8 @@ namespace Core {
 class ICore;
 }
 
-namespace Qml {
-    class QmlTypeSystem;
+namespace QmlJS {
+    class TypeSystem;
 }
 
 namespace QmlJSEditor {
@@ -109,13 +109,13 @@ public:
 
     virtual void unCommentSelection();
 
-    Qml::QmlDocument::Ptr qmlDocument() const { return m_document; }
+    QmlJS::Document::Ptr qmlDocument() const { return m_document; }
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
 private slots:
-    void onDocumentUpdated(Qml::QmlDocument::Ptr doc);
+    void onDocumentUpdated(QmlJS::Document::Ptr doc);
 
     void updateDocument();
     void updateDocumentNow();
@@ -145,7 +145,7 @@ protected:
 private:
     virtual bool isElectricCharacter(const QChar &ch) const;
     virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
-    bool isClosingBrace(const QList<SharedTools::QScriptIncrementalScanner::Token> &tokens) const;
+    bool isClosingBrace(const QList<QmlJS::QmlJSScanner::Token> &tokens) const;
 
     QString wordUnderCursor() const;
 
@@ -158,9 +158,9 @@ private:
     QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### use QMultiMap
     int m_idsRevision;
     QList<QmlJS::DiagnosticMessage> m_diagnosticMessages;
-    Qml::QmlDocument::Ptr m_document;
+    QmlJS::Document::Ptr m_document;
     QmlModelManagerInterface *m_modelManager;
-    Qml::QmlTypeSystem *m_typeSystem;
+    QmlJS::TypeSystem *m_typeSystem;
     QTextCharFormat m_occurrencesFormat;
 };
 

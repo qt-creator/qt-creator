@@ -147,6 +147,7 @@ void ModelMerger::replaceModel(const ModelNode &modelNode)
 
     foreach (const Import &import, modelNode.model()->imports())
         view()->model()->addImport(import);
+    view()->model()->setFileUrl(modelNode.model()->fileUrl());
 
     ModelNode rootNode(view()->rootModelNode());
 

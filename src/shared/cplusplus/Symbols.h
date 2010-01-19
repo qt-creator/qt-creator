@@ -350,6 +350,14 @@ public:
     bool isPureVirtual() const;
     void setPureVirtual(bool isPureVirtual);
 
+#ifdef ICHECK_BUILD
+
+    bool isInvokable() const;
+    void setInvokable(bool isInvokable);
+    bool isEqualTo(const Function* fct, bool ignoreName = false) const;
+
+#endif
+
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
@@ -387,6 +395,9 @@ private:
         unsigned _isVolatile: 1;
         unsigned _isAmbiguous: 1;
         unsigned _methodKey: 3;
+#ifdef ICHECK_BUILD
+        unsigned _isInvokable: 1;
+#endif
     };
     union {
         unsigned _flags;

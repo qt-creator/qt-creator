@@ -144,6 +144,47 @@ unsigned AccessDeclarationAST::lastToken() const
     return access_specifier_token + 1;
 }
 
+#ifdef ICHECK_BUILD
+unsigned QPropertyDeclarationAST::firstToken() const
+{
+    return property_specifier_token;
+}
+
+unsigned QPropertyDeclarationAST::lastToken() const
+{
+    return rparen_token;
+}
+
+unsigned QEnumDeclarationAST::firstToken() const
+{
+    return enum_specifier_token;
+}
+
+unsigned QEnumDeclarationAST::lastToken() const
+{
+    return rparen_token;
+}
+
+unsigned QFlagsDeclarationAST::firstToken() const
+{
+    return this->flags_specifier_token;
+}
+
+unsigned QFlagsDeclarationAST::lastToken() const
+{
+    return rparen_token;
+}
+
+unsigned QDeclareFlagsDeclarationAST::firstToken() const
+{
+    return declareflags_specifier_token;
+}
+
+unsigned QDeclareFlagsDeclarationAST::lastToken() const
+{
+    return rparen_token;
+}
+#endif
 
 unsigned ArrayAccessAST::firstToken() const
 {
@@ -1600,7 +1641,9 @@ unsigned ThrowExpressionAST::lastToken() const
 
 unsigned TranslationUnitAST::firstToken() const
 {
-    return declaration_list->firstToken();
+    if(declaration_list)
+        return declaration_list->firstToken();
+    return 0;
 }
 
 unsigned TranslationUnitAST::lastToken() const

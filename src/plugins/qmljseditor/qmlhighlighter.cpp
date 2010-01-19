@@ -35,7 +35,7 @@ using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
 QmlHighlighter::QmlHighlighter(QTextDocument *parent) :
-     SharedTools::QScriptHighlighter(true, parent)
+     QmlJS::QScriptHighlighter(true, parent)
 {
     m_currentBlockParentheses.reserve(20);
     m_braceDepth = 0;

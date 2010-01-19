@@ -96,6 +96,40 @@ bool AccessDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+#ifdef ICHECK_BUILD
+bool QPropertyDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QPropertyDeclarationAST *_other = pattern->asQPropertyDeclarationAST())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool QEnumDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QEnumDeclarationAST *_other = pattern->asQEnumDeclarationAST())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool QFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QFlagsDeclarationAST *_other = pattern->asQFlagsDeclarationAST())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool QDeclareFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QDeclareFlagsDeclarationAST *_other = pattern->asQDeclareFlagsDeclarationAST())
+        return matcher->match(this, _other);
+
+    return false;
+}
+#endif
+
 bool AsmDefinitionAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (AsmDefinitionAST *_other = pattern->asAsmDefinition())

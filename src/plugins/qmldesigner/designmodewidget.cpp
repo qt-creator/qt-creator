@@ -282,13 +282,11 @@ void DocumentWidget::setAutoSynchronization(bool sync)
     if (sync) {
         // text editor -> visual editor
         if (!document()->model()) {
-            // first initialization
-            QList<RewriterView::Error> errors = document()->loadMaster(m_textBuffer.data());
-            if (!errors.isEmpty()) {
-                disable(errors);
-            }
+            document()->loadMaster(m_textBuffer.data());
         }
-        if (document()->model() && document()->qmlErrors().isEmpty()) {
+
+        QList<RewriterView::Error> errors = document()->qmlErrors();
+        if (errors.isEmpty()) {
             // set selection to text cursor
             RewriterView *rewriter = document()->rewriterView();
             const int cursorPos = m_textBuffer->textCursor().position();
@@ -297,6 +295,8 @@ void DocumentWidget::setAutoSynchronization(bool sync)
                 rewriter->setSelectedModelNodes(QList<ModelNode>() << node);
             }
             enable();
+        } else {
+            disable(errors);
         }
 
         connect(document(), SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)),

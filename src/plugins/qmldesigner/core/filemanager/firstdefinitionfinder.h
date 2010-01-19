@@ -31,7 +31,7 @@
 #define FIRSTDEFINITIONFINDER_H
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmldocument.h>
+#include <qmljs/qmljsdocument.h>
 
 namespace QmlDesigner {
 
@@ -51,7 +51,7 @@ protected:
     void extractFirstObjectDefinition(QmlJS::AST::UiObjectInitializer* ast);
 
 private:
-    Qml::QmlDocument::Ptr m_doc;
+    QmlJS::Document::Ptr m_doc;
     quint32 m_offset;
     QmlJS::AST::UiObjectDefinition *m_firstObjectDefinition;
 

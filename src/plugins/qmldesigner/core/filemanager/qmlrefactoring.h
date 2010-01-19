@@ -32,7 +32,7 @@
 
 #include <import.h>
 #include <textmodifier.h>
-#include <qmljs/qmldocument.h>
+#include <qmljs/qmljsdocument.h>
 #include <QSet>
 #include <QString>
 
@@ -51,7 +51,7 @@ public:
     };
 
 public:
-    QmlRefactoring(const Qml::QmlDocument::Ptr &doc, QmlDesigner::TextModifier &modifier, const QStringList &propertyOrder);
+    QmlRefactoring(const QmlJS::Document::Ptr &doc, QmlDesigner::TextModifier &modifier, const QStringList &propertyOrder);
 
     bool reparseDocument();
 
@@ -70,7 +70,7 @@ public:
     bool removeProperty(int parentLocation, const QString &name);
 
 private:
-    Qml::QmlDocument::Ptr qmlDocument;
+    QmlJS::Document::Ptr qmlDocument;
     TextModifier *textModifier;
     QStringList m_propertyOrder;
 };

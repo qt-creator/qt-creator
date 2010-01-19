@@ -86,6 +86,7 @@ public:
 
     const MetaInfo metaInfo() const;
     MetaInfo metaInfo();
+    void setMetaInfo(const MetaInfo &metaInfo);
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);

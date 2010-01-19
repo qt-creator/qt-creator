@@ -170,6 +170,9 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
     const bool isQ_SLOT   = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SLOT;
     const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
+#ifdef ICHECK_BUILD
+    const bool isQ_INVOKABLE = (ast->invoke_token > 0);
+#endif
 
     List<Declaration *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
@@ -196,6 +199,10 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
                 fun->setMethodKey(Function::SignalMethod);
             else if (isQ_SLOT)
                 fun->setMethodKey(Function::SlotMethod);
+#ifdef ICHECK_BUILD
+            else if (isQ_INVOKABLE)
+                fun->setInvokable(true);
+#endif
             fun->setVisibility(semantic()->currentVisibility());
         } else if (semantic()->currentMethodKey() != Function::NormalMethod) {
             translationUnit()->warning(ast->firstToken(),
@@ -259,6 +266,28 @@ bool CheckDeclaration::visit(AccessDeclarationAST *ast)
     return false;
 }
 
+#ifdef ICHECK_BUILD
+bool CheckDeclaration::visit(QPropertyDeclarationAST *)
+{
+    return false;
+}
+
+bool CheckDeclaration::visit(QEnumDeclarationAST *)
+{
+    return false;
+}
+
+bool CheckDeclaration::visit(QFlagsDeclarationAST *)
+{
+    return false;
+}
+
+bool CheckDeclaration::visit(QDeclareFlagsDeclarationAST *)
+{
+    return false;
+}
+#endif
+
 bool CheckDeclaration::visit(AsmDefinitionAST *)
 {
     return false;
@@ -316,11 +345,18 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 
     const bool isQ_SLOT   = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SLOT;
     const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
+#ifdef ICHECK_BUILD
+    const bool isQ_INVOKABLE = (ast->invoke_token > 0);
+#endif
 
     if (isQ_SIGNAL)
         fun->setMethodKey(Function::SignalMethod);
     else if (isQ_SLOT)
         fun->setMethodKey(Function::SlotMethod);
+#ifdef ICHECK_BUILD
+    else if (isQ_INVOKABLE)
+        fun->setInvokable(true);
+#endif
 
     checkFunctionArguments(fun);
 

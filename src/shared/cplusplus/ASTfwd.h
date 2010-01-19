@@ -60,6 +60,12 @@ class ASTVisitor;
 class ASTMatcher;
 
 class AccessDeclarationAST;
+#ifdef ICHECK_BUILD
+  class QPropertyDeclarationAST;
+  class QEnumDeclarationAST;
+  class QFlagsDeclarationAST;
+  class QDeclareFlagsDeclarationAST;
+#endif
 class ArrayAccessAST;
 class ArrayDeclaratorAST;
 class ArrayInitializerAST;

@@ -27,21 +27,20 @@
 **
 **************************************************************************/
 
-#include <QFile>
-#include <QtConcurrentRun>
-#include <qtconcurrent/runextensions.h>
-#include <QTextStream>
+#include "qmljseditorconstants.h"
+#include "qmlmodelmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-
+#include <coreplugin/mimedatabase.h>
 #include <texteditor/itexteditor.h>
 
-#include "qmljseditorconstants.h"
-#include "qmlmodelmanager.h"
-
-#include <QtCore/QMetaType>
+#include <QFile>
+#include <QFileInfo>
+#include <QtConcurrentRun>
+#include <qtconcurrent/runextensions.h>
+#include <QTextStream>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
@@ -52,13 +51,13 @@ QmlModelManager::QmlModelManager(QObject *parent):
 {
     m_synchronizer.setCancelOnWait(true);
 
-    qRegisterMetaType<Qml::QmlDocument::Ptr>("Qml::QmlDocument::Ptr");
+    qRegisterMetaType<QmlJS::Document::Ptr>("QmlJS::Document::Ptr");
 
-    connect(this, SIGNAL(documentUpdated(Qml::QmlDocument::Ptr)),
-            this, SLOT(onDocumentUpdated(Qml::QmlDocument::Ptr)));
+    connect(this, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
+            this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
 }
 
-Qml::Snapshot QmlModelManager::snapshot() const
+QmlJS::Snapshot QmlModelManager::snapshot() const
 {
     QMutexLocker locker(&m_mutex);
 
@@ -119,10 +118,10 @@ QMap<QString, QString> QmlModelManager::buildWorkingCopyList()
     return workingCopy;
 }
 
-void QmlModelManager::emitDocumentUpdated(Qml::QmlDocument::Ptr doc)
+void QmlModelManager::emitDocumentUpdated(QmlJS::Document::Ptr doc)
 { emit documentUpdated(doc); }
 
-void QmlModelManager::onDocumentUpdated(Qml::QmlDocument::Ptr doc)
+void QmlModelManager::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -154,9 +153,23 @@ void QmlModelManager::parse(QFutureInterface<void> &future,
             }
         }
 
-        Qml::QmlDocument::Ptr doc = Qml::QmlDocument::create(fileName);
+        QmlJS::Document::Ptr doc = QmlJS::Document::create(fileName);
         doc->setSource(contents);
-        doc->parse();
+
+        {
+            Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+            Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
+            Core::MimeType qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
+
+            const QFileInfo fileInfo(fileName);
+
+            if (jsSourceTy.matchesFile(fileInfo))
+                doc->parseJavaScript();
+            else if (qmlSourceTy.matchesFile(fileInfo))
+                doc->parseQml();
+            else
+                qWarning() << "Don't know how to treat" << fileName;
+        }
 
         modelManager->emitDocumentUpdated(doc);
     }

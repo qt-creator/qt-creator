@@ -871,27 +871,33 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                     expandBuiltinMacro(identifierToken, spell);
 
                 else {
-                    if (Macro *m = env->resolve(spell)) {
-                        if (! m->isFunctionLike()) {
-                            if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
-                                continue;
+#ifdef ICHECK_BUILD
+                    if(spell != "Q_PROPERTY" && spell != "Q_INVOKABLE" && spell != "Q_ENUMS"
+                        && spell != "Q_FLAGS" && spell != "Q_DECLARE_FLAGS"){
+#endif
+                        if (Macro *m = env->resolve(spell)) {
+                            if (! m->isFunctionLike()) {
+                                if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
+                                    continue;
 
-                            // the macro expansion generated something that looks like
-                            // a function-like macro.
-                        }
+                                // the macro expansion generated something that looks like
+                                // a function-like macro.
+                            }
 
-                        // `m' is function-like macro.
-                        if (_dot->is(T_LPAREN)) {
-                            QVector<MacroArgumentReference> actuals;
-                            collectActualArguments(&actuals);
+                            // `m' is function-like macro.
+                            if (_dot->is(T_LPAREN)) {
+                                QVector<MacroArgumentReference> actuals;
+                                collectActualArguments(&actuals);
 
-                            if (_dot->is(T_RPAREN)) {
-                                expandFunctionLikeMacro(identifierToken, m, actuals);
-                                continue;
+                                if (_dot->is(T_RPAREN)) {
+                                    expandFunctionLikeMacro(identifierToken, m, actuals);
+                                    continue;
+                                }
                             }
                         }
+#ifdef ICHECK_BUILD
                     }
-
+#endif
                     // it's not a function or object-like macro.
                     out(spell);
                 }

@@ -98,6 +98,7 @@ public:
     InternalNodePointer findNode(const QString &id) const;
 
     MetaInfo metaInfo() const;
+    void setMetaInfo(const MetaInfo &metaInfo);
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, bool notifyView);

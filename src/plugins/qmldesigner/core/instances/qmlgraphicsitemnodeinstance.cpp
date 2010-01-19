@@ -96,23 +96,35 @@ QSizeF QmlGraphicsItemNodeInstance::size() const
         double implicitWidth = qmlGraphicsItem()->implicitWidth();
         if (!m_hasWidth
             && implicitWidth // WORKAROUND
-            && implicitWidth != qmlGraphicsItem()->width())
+            && implicitWidth != qmlGraphicsItem()->width()) {
+            qmlGraphicsItem()->blockSignals(true);
             qmlGraphicsItem()->setWidth(implicitWidth);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
         double implicitHeight = qmlGraphicsItem()->implicitHeight();
         if (!m_hasHeight
             && implicitWidth // WORKAROUND
-            && implicitHeight != qmlGraphicsItem()->height())
+            && implicitHeight != qmlGraphicsItem()->height()) {
+            qmlGraphicsItem()->blockSignals(true);
             qmlGraphicsItem()->setHeight(implicitHeight);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
     }
 
     if (modelNode().isRootNode()) {
-        if (!m_hasWidth)
+        if (!m_hasWidth) {
+            qmlGraphicsItem()->blockSignals(true);
             qmlGraphicsItem()->setWidth(100.);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
-        if (!m_hasHeight)
+        if (!m_hasHeight) {
+            qmlGraphicsItem()->blockSignals(true);
             qmlGraphicsItem()->setHeight(100.);
+            qmlGraphicsItem()->blockSignals(false);
+        }
     }
 
     return QSizeF(qmlGraphicsItem()->width(), qmlGraphicsItem()->height());
@@ -124,23 +136,35 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
         double implicitWidth = qmlGraphicsItem()->implicitWidth();
         if (!m_hasWidth
             && implicitWidth // WORKAROUND
-            && implicitWidth != qmlGraphicsItem()->width())
+            && implicitWidth != qmlGraphicsItem()->width()) {
+            qmlGraphicsItem()->blockSignals(true);
             qmlGraphicsItem()->setWidth(implicitWidth);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
         double implicitHeight = qmlGraphicsItem()->implicitHeight();
         if (!m_hasHeight
             && implicitWidth // WORKAROUND
-            && implicitHeight != qmlGraphicsItem()->height())
+            && implicitHeight != qmlGraphicsItem()->height()) {
+            qmlGraphicsItem()->blockSignals(true);
             qmlGraphicsItem()->setHeight(implicitHeight);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
     }
 
     if (modelNode().isRootNode()) {
-        if (!m_hasWidth)
+        if (!m_hasWidth) {
+            qmlGraphicsItem()->blockSignals(true);
             qmlGraphicsItem()->setWidth(100.);
+            qmlGraphicsItem()->blockSignals(false);
+        }
 
-        if (!m_hasHeight)
+        if (!m_hasHeight) {
+            qmlGraphicsItem()->blockSignals(true);
             qmlGraphicsItem()->setHeight(100.);
+            qmlGraphicsItem()->blockSignals(false);
+        }
     }
 
     return qmlGraphicsItem()->boundingRect();

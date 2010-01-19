@@ -90,6 +90,14 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingToolAction->setIcon(QPixmap(":/icon/layout/snapping.png"));
     connect(m_snappingToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeSnappingTool(bool)));
 
+    m_showBoundingRectAction = layoutActionGroup->addAction("Toogle Bounding Rectangles (Press Key R)");
+    m_showBoundingRectAction->setShortcut(Qt::Key_R);
+    m_showBoundingRectAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_showBoundingRectAction->setCheckable(true);
+    m_showBoundingRectAction->setChecked(true);
+    m_showBoundingRectAction->setIcon(QPixmap(":/icon/layout/boundingrect.png"));
+
+
     m_snappingMarginAction = new NumberSeriesAction(layoutActionGroup);
     m_snappingMarginAction->addEntry("no margins (0)", 0);
     m_snappingMarginAction->addEntry("small margin (2)", 2);
@@ -177,6 +185,11 @@ QAction *FormEditorWidget::anchorToolAction() const
 QAction *FormEditorWidget::transformToolAction() const
 {
     return m_transformToolAction.data();
+}
+
+QAction *FormEditorWidget::showBoundingRectAction() const
+{
+    return m_showBoundingRectAction.data();
 }
 
 void FormEditorWidget::setZoomLevel(double zoomLevel)

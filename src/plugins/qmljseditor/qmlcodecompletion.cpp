@@ -34,7 +34,7 @@
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
 
-#include <qmljs/qmlsymbol.h>
+#include <qmljs/qmljssymbol.h>
 #include <texteditor/basetexteditor.h>
 
 #include <QtDebug>
@@ -42,7 +42,7 @@
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
-QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, Qml::QmlTypeSystem *typeSystem, QObject *parent)
+QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QmlJS::TypeSystem *typeSystem, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
       m_editor(0),
@@ -90,17 +90,17 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_startPosition = pos;
     m_completions.clear();
 
-    Qml::QmlDocument::Ptr qmlDocument = edit->qmlDocument();
+    QmlJS::Document::Ptr qmlDocument = edit->qmlDocument();
 //    qDebug() << "*** document:" << qmlDocument;
     if (qmlDocument.isNull())
         return pos;
 
-    if (!qmlDocument->program())
+    if (!qmlDocument->qmlProgram())
         qmlDocument = m_modelManager->snapshot().value(qmlDocument->fileName());
 
     // FIXME: this completion strategy is not going to work when the document was never parsed correctly.
-    if (qmlDocument && qmlDocument->program()) {
-         QmlJS::AST::UiProgram *program = qmlDocument->program();
+    if (qmlDocument && qmlDocument->qmlProgram()) {
+         QmlJS::AST::UiProgram *program = qmlDocument->qmlProgram();
 //         qDebug() << "*** program:" << program;
  
          if (program) {
@@ -112,10 +112,10 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot(), m_typeSystem);
             QmlResolveExpression resolver(context);
 //            qDebug()<<"*** expression under cursor:"<<expressionUnderCursor.expressionNode();
-            QList<Qml::QmlSymbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
+            QList<QmlJS::Symbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
 //            qDebug()<<"***"<<symbols.size()<<"visible symbols";
 
-            foreach (Qml::QmlSymbol *symbol, symbols) {
+            foreach (QmlJS::Symbol *symbol, symbols) {
                 QString word;
 
                 if (symbol->isIdSymbol()) {

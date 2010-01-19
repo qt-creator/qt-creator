@@ -32,7 +32,7 @@
 
 #include "qmlmodelmanagerinterface.h"
 
-#include <qmljs/qmldocument.h>
+#include <qmljs/qmljsdocument.h>
 
 #include <QFuture>
 #include <QFutureSynchronizer>
@@ -52,10 +52,10 @@ class QmlModelManager: public QmlModelManagerInterface
 public:
     QmlModelManager(QObject *parent = 0);
 
-    virtual Qml::Snapshot snapshot() const;
+    virtual QmlJS::Snapshot snapshot() const;
     virtual void updateSourceFiles(const QStringList &files);
 
-    void emitDocumentUpdated(Qml::QmlDocument::Ptr doc);
+    void emitDocumentUpdated(QmlJS::Document::Ptr doc);
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
@@ -63,7 +63,7 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     // this should be executed in the GUI thread.
-    void onDocumentUpdated(Qml::QmlDocument::Ptr doc);
+    void onDocumentUpdated(QmlJS::Document::Ptr doc);
 
 protected:
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
@@ -77,7 +77,7 @@ protected:
 private:
     mutable QMutex m_mutex;
     Core::ICore *m_core;
-    Qml::Snapshot _snapshot;
+    QmlJS::Snapshot _snapshot;
 
     QFutureSynchronizer<void> m_synchronizer;
 };
