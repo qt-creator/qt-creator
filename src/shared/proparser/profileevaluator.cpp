@@ -1605,7 +1605,7 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
     if (m_option->target_mode == m_option->TARG_WIN_MODE && config == QLatin1String("win32"))
         return true;
 
-    if (regex) {
+    if (regex && (config.contains(QLatin1Char('*')) || config.contains(QLatin1Char('?')))) {
         QRegExp re(config, Qt::CaseSensitive, QRegExp::Wildcard);
 
         if (re.exactMatch(m_option->qmakespec))
@@ -1755,10 +1755,12 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 }
             }
             if (!var.isNull()) {
-                foreach (const QString str, values(var)) {
-                    if (regexp)
-                        ret += str.section(QRegExp(sep), beg, end);
-                    else
+                if (regexp) {
+                    QRegExp sepRx(sep);
+                    foreach (const QString &str, values(var))
+                        ret += str.section(sepRx, beg, end);
+                } else {
+                    foreach (const QString &str, values(var))
                         ret += str.section(sep, beg, end);
                 }
             }
@@ -2207,9 +2209,12 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     return ProItem::ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
-                QRegExp regx(args.at(2));
+                QRegExp regx;
+                const QString &qry = args.at(2);
+                if (qry != QRegExp::escape(qry))
+                    regx.setPattern(qry);
                 foreach (const QString &s, vars.value(args.at(1)))
-                    if (s == regx.pattern() || regx.exactMatch(s))
+                    if ((!regx.isEmpty() && regx.exactMatch(s)) || s == qry)
                         return ProItem::ReturnTrue;
             }
             return ProItem::ReturnFalse;
@@ -2407,14 +2412,16 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
 
-            QRegExp regx(args[1]);
+            const QString &qry = args.at(1);
+            QRegExp regx;
+            if (qry != QRegExp::escape(qry))
+                regx.setPattern(qry);
             const QStringList &l = values(args.first());
             if (args.count() == 2) {
                 for (int i = 0; i < l.size(); ++i) {
                     const QString val = l[i];
-                    if (regx.exactMatch(val) || val == args[1]) {
+                    if ((!regx.isEmpty() && regx.exactMatch(val)) || val == qry)
                         return ProItem::ReturnTrue;
-                    }
                 }
             } else {
                 const QStringList mutuals = args[2].split(QLatin1Char('|'));
@@ -2422,7 +2429,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     const QString val = l[i];
                     for (int mut = 0; mut < mutuals.count(); mut++) {
                         if (val == mutuals[mut].trimmed()) {
-                            return returnBool(regx.exactMatch(val) || val == args[1]);
+                            return returnBool((!regx.isEmpty() && regx.exactMatch(val))
+                                              || val == qry);
                         }
                     }
                 }
