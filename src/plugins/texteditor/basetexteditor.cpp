@@ -1246,15 +1246,13 @@ skip_event:
         delete e;
 }
 
-void BaseTextEditor::universalHelper()
+void BaseTextEditor::insertCodeSnippet(const QString &snippet)
 {
     QList<QTextEdit::ExtraSelection> selections;
 
     QTextCursor cursor = textCursor();
     const int startCursorPosition = cursor.position();
     cursor.beginEditBlock();
-
-    const QString snippet = QLatin1String("for ($initializer$; $condition$; $expresssion$) {\n$$\n}\n");
 
     if ((snippet.count('$') % 2) != 0) {
         qWarning() << "invalid snippet";
@@ -1324,6 +1322,12 @@ void BaseTextEditor::universalHelper()
         cursor.setPosition(selection.cursor.anchor() + 1);
         setTextCursor(cursor);
     }
+}
+
+void BaseTextEditor::universalHelper()
+{
+    const QString snippet = QLatin1String("for ($initializer$; $condition$; $expresssion$) {\n$$\n}\n");
+    insertCodeSnippet(snippet);
 }
 
 void BaseTextEditor::setTextCursor(const QTextCursor &cursor)

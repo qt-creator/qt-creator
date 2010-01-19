@@ -134,6 +134,17 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
+
+    // snippets completion
+    TextEditor::CompletionItem item(this);
+    item.text = QLatin1String("Rectangle - declaration");
+    item.data = QVariant::fromValue(QString("Rectangle {\nwidth: $100$;\nheight: 100;\n$$\n}"));
+    m_completions.append(item);
+
+    item.text = QLatin1String("Item - declaration");
+    item.data = QVariant::fromValue(QString("Item {\nwidth: $100$;\nheight: 100;\n$$\n}"));
+    m_completions.append(item);
+
     return pos;
 }
 
@@ -188,7 +199,23 @@ void QmlCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
 
 void QmlCodeCompletion::complete(const TextEditor::CompletionItem &item)
 {
-    const QString toInsert = item.text;
+    QString toInsert = item.text;
+
+    if (QmlJSTextEditor *edit = qobject_cast<QmlJSTextEditor *>(m_editor->widget())) {
+        if (item.data.isValid()) {
+            QTextCursor tc = edit->textCursor();
+            tc.beginEditBlock();
+            tc.setPosition(m_startPosition);
+            tc.setPosition(m_editor->position(), QTextCursor::KeepAnchor);
+            tc.removeSelectedText();
+
+            toInsert = item.data.toString();
+            edit->insertCodeSnippet(toInsert);
+            tc.endEditBlock();
+            return;
+        }
+    }
+
     const int length = m_editor->position() - m_startPosition;
     m_editor->setCurPos(m_startPosition);
     m_editor->replace(length, toInsert);

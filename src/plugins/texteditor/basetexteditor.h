@@ -379,6 +379,8 @@ public:
 
     void setTextCursor(const QTextCursor &cursor);
 
+    void insertCodeSnippet(const QString &snippet);
+
 public slots:
     void setDisplayName(const QString &title);
 
