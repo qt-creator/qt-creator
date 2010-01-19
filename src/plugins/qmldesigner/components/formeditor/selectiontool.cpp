@@ -188,42 +188,12 @@ void SelectionTool::keyPressEvent(QKeyEvent *event)
             view()->changeToMoveTool();
             view()->currentTool()->keyPressEvent(event);
             break;
-        case Qt::Key_C:
-            if (event->modifiers().testFlag(Qt::ControlModifier)) {
-                copySelectedNodeToClipBoard();
-                break;
-            }
-        case Qt::Key_V:
-            if (event->modifiers().testFlag(Qt::ControlModifier)) {
-                pasteClipBoard();
-                break;
-            }
-        case Qt::Key_X:
-            if (event->modifiers().testFlag(Qt::ControlModifier)) {
-                cutSelectedNodeToClipBoard();
-                break;
-            }
     }
 }
 
 void SelectionTool::keyReleaseEvent(QKeyEvent * /*keyEvent*/)
 {
 
-}
-
-void SelectionTool::copySelectedNodeToClipBoard()
-{
-    // QClipboard *clipboard = QApplication::clipboard();
-}
-
-void SelectionTool::cutSelectedNodeToClipBoard()
-{
-    // QClipboard *clipboard = QApplication::clipboard();
-}
-
-void SelectionTool::pasteClipBoard()
-{
-    // QClipboard *clipboard = QApplication::clipboard();
 }
 
 void SelectionTool::setSelectOnlyContentItems(bool selectOnlyContentItems)

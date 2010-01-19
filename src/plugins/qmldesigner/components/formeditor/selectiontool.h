@@ -78,10 +78,6 @@ public:
 
     void selectUnderPoint(QGraphicsSceneMouseEvent *event);
 
-    void copySelectedNodeToClipBoard();
-    void cutSelectedNodeToClipBoard();
-    void pasteClipBoard();
-
     void setSelectOnlyContentItems(bool selectOnlyContentItems);
 
 private:
