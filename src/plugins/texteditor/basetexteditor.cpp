@@ -960,11 +960,15 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     d->m_lastEventWasBlockSelectionEvent = false;
 
     if (e->key() == Qt::Key_Escape) {
-        e->accept();
-        QTextCursor cursor = textCursor();
-        cursor.clearSelection();
-        setTextCursor(cursor);
-        return;
+        if (d->m_snippetOverlay->isVisible()) {
+            e->accept();
+            d->m_snippetOverlay->hide();
+            d->m_snippetOverlay->clear();
+            QTextCursor cursor = textCursor();
+            cursor.clearSelection();
+            setTextCursor(cursor);
+            return;
+        }
     }
 
     bool ro = isReadOnly();
@@ -995,6 +999,17 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         && (e == QKeySequence::InsertParagraphSeparator
             || (!d->m_lineSeparatorsAllowed && e == QKeySequence::InsertLineSeparator))
         ) {
+
+        if (d->m_snippetOverlay->isVisible()) {
+            e->accept();
+            d->m_snippetOverlay->hide();
+            d->m_snippetOverlay->clear();
+            QTextCursor cursor = textCursor();
+            cursor.movePosition(QTextCursor::EndOfBlock);
+            setTextCursor(cursor);
+            return;
+        }
+
 
         QTextCursor cursor = textCursor();
         if (d->m_inBlockSelectionMode)
@@ -1190,9 +1205,10 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-    if (d->m_snippetOverlay->isVisible() &&
-        (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace))
+    if (d->m_snippetOverlay->isVisible()
+        && (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace)) {
         d->snippetCheckCursor(textCursor());
+    }
 
     if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
         QPlainTextEdit::keyPressEvent(e);
@@ -1263,21 +1279,21 @@ void BaseTextEditor::insertCodeSnippet(const QString &snippet)
     QMap<int, int> positions;
 
     while (pos < snippet.size()) {
-        if (snippet.at(pos) != QLatin1Char('$')) {
+        if (snippet.at(pos) != QChar::ObjectReplacementCharacter) {
             const int start = pos;
             do { ++pos; }
-            while (pos < snippet.size() && snippet.at(pos) != QLatin1Char('$'));
+            while (pos < snippet.size() && snippet.at(pos) != QChar::ObjectReplacementCharacter);
             cursor.insertText(snippet.mid(start, pos - start));
         } else {
             // the start of a place holder.
             const int start = ++pos;
             for (; pos < snippet.size(); ++pos) {
-                if (snippet.at(pos) == QLatin1Char('$'))
+                if (snippet.at(pos) == QChar::ObjectReplacementCharacter)
                     break;
             }
 
             Q_ASSERT(pos < snippet.size());
-            Q_ASSERT(snippet.at(pos) == QLatin1Char('$'));
+            Q_ASSERT(snippet.at(pos) == QChar::ObjectReplacementCharacter);
 
             const QString textToInsert = snippet.mid(start, pos - start);
 
@@ -1319,7 +1335,12 @@ void BaseTextEditor::insertCodeSnippet(const QString &snippet)
         const QTextEdit::ExtraSelection &selection = selections.first();
 
         cursor = textCursor();
-        cursor.setPosition(selection.cursor.anchor() + 1);
+        if (selection.cursor.hasSelection()) {
+            cursor.setPosition(selection.cursor.selectionStart()+1);
+            cursor.setPosition(selection.cursor.selectionEnd(), QTextCursor::KeepAnchor);
+        } else {
+            cursor.setPosition(selection.cursor.position());
+        }
         setTextCursor(cursor);
     }
 }
@@ -1416,8 +1437,13 @@ bool BaseTextEditor::event(QEvent *e)
     d->m_contentsChanged = false;
     switch (e->type()) {
     case QEvent::ShortcutOverride:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_snippetOverlay->isVisible()) {
+            e->accept();
+            return true;
+        }
         e->ignore(); // we are a really nice citizen
         return true;
+        break;
     default:
         break;
     }
@@ -1746,7 +1772,8 @@ void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
     if (forward) {
         for (int i = 0; i < m_snippetOverlay->m_selections.count(); ++i){
             const OverlaySelection &selection = m_snippetOverlay->m_selections.at(i);
-            if (selection.m_cursor_begin.position() > cursor.position()) {
+            if (selection.m_cursor_begin.position() >= cursor.position()
+                && selection.m_cursor_end.position() > cursor.position()) {
                 final = selection;
                 break;
             }

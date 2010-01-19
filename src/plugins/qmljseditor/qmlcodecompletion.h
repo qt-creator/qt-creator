@@ -32,6 +32,7 @@
 
 #include <qmljs/qmljstypesystem.h>
 #include <texteditor/icompletioncollector.h>
+#include <QtCore/QDateTime>
 
 namespace TextEditor {
 class ITextEditable;
@@ -69,6 +70,10 @@ private:
     QList<TextEditor::CompletionItem> m_completions;
     Qt::CaseSensitivity m_caseSensitivity;
     QmlJS::TypeSystem *m_typeSystem;
+
+    QList<TextEditor::CompletionItem> m_snippets;
+    QDateTime m_snippetFileLastModified;
+    void updateSnippets();
 };
 
 

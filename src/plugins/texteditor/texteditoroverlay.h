@@ -72,6 +72,9 @@ public:
     bool isVisible() const { return m_visible; }
     void setVisible(bool b);
 
+    inline void hide() { setVisible(false); }
+    inline void show() { setVisible(true); }
+
     void setBorderWidth(int bw) {m_borderWidth = bw; }
 
     void update();

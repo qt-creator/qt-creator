@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<snippets>
+<snippet>property <tab>name</tab> <tab>name</tab> : <tab>name</tab>
+</snippet>
+<snippet>Item {
+	id: <tab>name</tab>
+	
+	}
+</snippet>
+<snippet>BorderImage {
+    id: <tab>name</tab>
+    width: <tab>name</tab>; height: <tab>name</tab>
+    border.left: <tab>name</tab>; border.top: <tab>name</tab>
+    border.right: <tab>name</tab>; border.bottom: <tab>name</tab>
+    source: "<tab>name</tab>"
+}
+</snippet>
+
+<snippet>Image {
+    id: <tab>name</tab>
+    source: "<tab>name</tab>"
+}
+</snippet>
+
+<snippet>Text {
+    id: <tab>name</tab>
+    text: "<tab>name</tab>"
+}
+</snippet>
+
+<snippet>states: [
+    State {
+        name: "<tab>name</tab>"
+        PropertyChanges {
+            target: <tab>name</tab>
+            <tab/>
+        }
+    }
+]
+</snippet>
+
+<snippet>State {
+    name: "<tab>name</tab>"
+    PropertyChanges {
+        target: <tab>name</tab>
+        <tab/>
+    }
+}
+</snippet>
+
+<snippet>transitions: [
+    Transition {
+        from: "<tab>name</tab>"
+        to: "<tab>name</tab>"
+        <tab/>
+     }
+]
+</snippet>
+
+<snippet>Transition {
+    from: "<tab>name</tab>"
+    to: "<tab>name</tab>"
+    <tab/>
+}
+</snippet>
+
+<snippet>PropertyChanges {
+        target: <tab>name</tab>
+        <tab/>
+    }
+</snippet>
+
+<snippet description="matchTargets">NumberAnimation { matchTargets: "<tab>name</tab>"; matchProperties: "<tab>name</tab>"; duration: <tab>200</tab> }
+</snippet>
+<snippet description="target">NumberAnimation { target: "<tab>name</tab>"; property: "<tab>name</tab>"; value: <tab>name</tab>; duration: <tab>200</tab> }
+</snippet>
+<snippet>PropertyAction {  matchTargets: "<tab>name</tab>"; matchProperties: "<tab>name</tab>"; duration: <tab>200</tab> }
+</snippet>
+<snippet>PropertyAction { target: "<tab>name</tab>"; property: "<tab>name</tab>"; value: <tab>name</tab>; duration: <tab>200</tab> }
+</snippet>
+<snippet>PauseAnimation { duration: <tab>name</tab>}
+</snippet>
+<snippet>ColorAnimation { from: <tab>name</tab>; to: <tab>name</tab>; duration: <tab>200</tab> }
+</snippet>
+<snippet>effect: Colorize { color: "<tab>name</tab>" }
+</snippet>
+<snippet>effect: Blur { blurRadius: "<tab>200</tab>" }
+</snippet>
+<snippet>effect: DropShadow {
+            blurRadius: <tab>200</tab>
+            offset.x: <tab>200</tab>
+            offset.y: <tab>200</tab>
+        }
+</snippet>
+
+</snippets>

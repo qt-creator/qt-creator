@@ -37,6 +37,12 @@
 #include <qmljs/qmljssymbol.h>
 #include <texteditor/basetexteditor.h>
 
+#include <coreplugin/icore.h>
+
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QXmlStreamReader>
+
 #include <QtDebug>
 
 using namespace QmlJSEditor;
@@ -134,61 +140,9 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
+    updateSnippets();
 
-    // snippets completion
-    TextEditor::CompletionItem item(this);
-    item.text = QLatin1String("Rectangle - declaration");
-    item.data = QVariant::fromValue(QString("Rectangle {\nwidth: $100$;\nheight: 100;\n$$\n}"));
-    m_completions.append(item);
-
-    item.text = QLatin1String("Item - declaration");
-    item.data = QVariant::fromValue(QString("Item {\nwidth: $100$;\nheight: 100;\n$$\n}"));
-    m_completions.append(item);
-
-    item.text = QLatin1String("BorderImage - declaration");
-    item.data = QLatin1String("BorderImage {\n"
-                              "id: $name$;\n"
-                              "width: $100$; height: $100$;\n"
-                              "border.left: $2$; border.top: $2$;\n"
-                              "border.right: $2$; border.bottom: $2$;\n"
-                              "source: \"$name$\";\n"
-                              "}\n");
-    m_completions.append(item);
-
-    item.text = QLatin1String("State - declaration");
-    item.data = QLatin1String("State {\n"
-                              "name: \"$state$;\"\n"
-                              "PropertyChanges {\n"
-                              "target: $target$;\n"
-                              "$$\n"
-                              "}\n"
-                              "}\n");
-    m_completions.append(item);
-
-    item.text = QLatin1String("states - declaration");
-    item.data = QLatin1String("states: [\n"
-                              "State {\n"
-                              "name: \"$state$\";\n"
-                              "PropertyChanges {\n"
-                              "target: $target$;\n"
-                              "$$\n"
-                              "}\n"
-                              "}\n"
-                              "]\n");
-    m_completions.append(item);
-
-    item.text = QLatin1String("property - declaration");
-    item.data = QLatin1String("property $var$ $name$: $value$;\n");
-    m_completions.append(item);
-
-    item.text = QLatin1String("readonly property - declaration");
-    item.data = QLatin1String("readonly property $var$ $name$: $value$;\n");
-    m_completions.append(item);
-
-    item.text = QLatin1String("NumericAnimation - declaration");
-    item.data = QLatin1String("NumberAnimation { matchTargets: \"$target$\"; matchProperties: \"$properties$\"; duration: $1000$ }\n");
-    m_completions.append(item);
-
+    m_completions.append(m_snippets);
     return pos;
 }
 
@@ -299,3 +253,65 @@ void QmlCodeCompletion::cleanup()
     m_completions.clear();
 }
 
+
+void QmlCodeCompletion::updateSnippets()
+{
+    QString qmlsnippets = Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/qml.xml");
+    if (!QFile::exists(qmlsnippets))
+        return;
+
+    QDateTime lastModified = QFileInfo(qmlsnippets).lastModified();
+    if (!m_snippetFileLastModified.isNull() &&  lastModified == m_snippetFileLastModified)
+        return;
+
+    m_snippetFileLastModified = lastModified;
+    QFile file(qmlsnippets);
+    file.open(QIODevice::ReadOnly);
+    QXmlStreamReader xml(&file);
+    while (!xml.atEnd() && xml.readNextStartElement()) {
+        if (xml.name() == QLatin1String("snippets")) {
+            while (xml.readNextStartElement()) {
+                if (xml.name() == QLatin1String("snippet")) {
+                    TextEditor::CompletionItem item(this);
+                    QString title, data;
+                    QString description = xml.attributes().value("description").toString();
+
+                    while (!xml.atEnd()) {
+                        xml.readNext();
+                        if (xml.isEndElement()) {
+                            int i = 0;
+                            while (i < data.size() && data.at(i).isLetterOrNumber())
+                                ++i;
+                            title = data.left(i);
+                            item.text = title;
+                            if (!description.isEmpty()) {
+                                item.text +=  QLatin1Char(' ');
+                                item.text += description;
+                            }
+                            item.data = QVariant::fromValue(data);
+                            m_snippets.append(item);
+                            break;
+
+                        }
+
+                        if (xml.isCharacters())
+                            data += xml.text();
+                        else if (xml.isStartElement()) {
+                            if (xml.name() != QLatin1String("tab"))
+                                xml.raiseError(QLatin1String("invalid snippets file"));
+                            else {
+                                data += QChar::ObjectReplacementCharacter;
+                                data += xml.readElementText();
+                                data += QChar::ObjectReplacementCharacter;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+    if (xml.hasError())
+        qWarning() << qmlsnippets << xml.errorString();
+    file.close();
+}
