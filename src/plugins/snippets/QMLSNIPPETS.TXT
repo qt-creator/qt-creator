@@ -1,0 +1,96 @@
+property <name> <name> : <name>
+if you delete the last name as you tab through it should also delete the : colon as that is not needed.
+
+----------------
+Item {
+	id: <name>
+	
+	}
+If you delete the name maybe the 'id:' should be deleted as well.
+
+This is fine for most other QML elements such as Rectangle and MouseRegion
+
+----------------
+
+BorderImage {
+    id: <name>
+    width: <name>; height: <name>
+    border.left: <name>; border.top: <name>
+    border.right: <name>; border.bottom: <name>
+    source: "<name>"
+}
+
+-------------------
+
+Image {
+    id: <name>
+    source: "<name>"
+}
+
+----------------
+
+Text {
+    id: <name>
+    text: "<name>"
+}
+
+----------------
+
+states: [
+    State {
+        name: "<name>"
+        PropertyChanges {
+            target: <name>
+            <- cursor should end up here at the end?
+        }
+    }
+]
+
+------------------
+State {
+    name: "<name>"
+    PropertyChanges {
+        target: <name>
+        <- cursor should end up here at the end?
+    }
+}
+
+
+--------------------
+transitions: [
+    Transition {
+        from: "<name>"
+        to: "<name>"
+        <- cursor should end up here at the end?
+     }
+]
+
+-----------------------
+
+Transition {
+    from: "<name>"
+    to: "<name>"
+    <- cursor should end up here at the end?
+}
+
+-----------------------
+
+PropertyChanges {
+        target: <name>
+        <- cursor should end up here at the end?
+    }
+
+NumberAnimation { matchTargets: "<name>"; matchProperties: "<name>"; duration: <int> }
+NumberAnimation { target: "<name>"; property: "<name>"; value: <name>; duration: <int> }
+PropertyAction {  matchTargets: "<name>"; matchProperties: "<name>"; duration: <int> }
+PropertyAction { target: "<name>"; property: "<name>"; value: <name>; duration: <int> }
+PauseAnimation { duration: <name>}
+ColorAnimation { from: <name>; to: <name>; duration: <int> } 
+effect: Colorize { color: "<name>" }
+effect: Blur { blurRadius: "<int>" }
+effect: DropShadow {
+            blurRadius: <int>
+            offset.x: <int>
+            offset.y: <int>
+        }
+
