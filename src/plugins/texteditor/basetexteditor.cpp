@@ -1178,7 +1178,7 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    if (e->key() == Qt::Key_H && e->modifiers() == Qt::ControlModifier) {
+    if (e->key() == Qt::Key_H && e->modifiers() == Qt::MetaModifier) {
         universalHelper();
         e->accept();
         return;
@@ -1243,23 +1243,67 @@ skip_event:
 void BaseTextEditor::universalHelper()
 {
     QList<QTextEdit::ExtraSelection> selections;
+
     QTextCursor cursor = textCursor();
+    const int startCursorPosition = cursor.position();
     cursor.beginEditBlock();
-    int pos = cursor.position();
-    cursor.insertText("if (condition){\n        \n    }\n");
-    QTextCursor c = cursor;
-    c.setPosition(pos + 3); // condition-1;
-    c.setPosition(c.position() + 10, QTextCursor::KeepAnchor);
-    QTextEdit::ExtraSelection selection;
-    selection.cursor = c;
-    selection.format.setBackground(Qt::darkCyan);
-    selections.append(selection);
-    c.setPosition(pos + 24); // contents
-    selection.cursor = c;
-    selection.format.setBackground(Qt::darkMagenta);
-    selections.append(selection);
+
+    const QString snippet = QLatin1String("for ($initializer$; $condition$; $expresssion$) {\n$$\n}\n");
+
+    if ((snippet.count('$') % 2) != 0) {
+        qWarning() << "invalid snippet";
+        return;
+    }
+
+    int pos = 0;
+    while (pos < snippet.size()) {
+        if (snippet.at(pos) != QLatin1Char('$')) {
+            const int start = pos;
+            do { ++pos; }
+            while (pos < snippet.size() && snippet.at(pos) != QLatin1Char('$'));
+            cursor.insertText(snippet.mid(start, pos - start));
+        } else {
+            // the start of a place holder.
+            const int start = ++pos;
+            for (; pos < snippet.size(); ++pos) {
+                if (snippet.at(pos) == QLatin1Char('$'))
+                    break;
+            }
+
+            Q_ASSERT(pos < snippet.size());
+            Q_ASSERT(snippet.at(pos) == QLatin1Char('$'));
+
+            const QString textToInsert = snippet.mid(start, pos - start);
+
+            int cursorPosition = cursor.position();
+            cursor.insertText(textToInsert);
+
+            QTextCursor tc(document());
+            tc.setPosition(cursorPosition - 1);
+            tc.setPosition(cursorPosition + textToInsert.length(), QTextCursor::KeepAnchor);
+
+            QTextEdit::ExtraSelection selection;
+            selection.cursor = tc;
+            selection.format.setBackground(Qt::darkCyan);
+
+            selections.append(selection);
+            ++pos;
+        }
+    }
+
     cursor.endEditBlock();
+    cursor.setPosition(startCursorPosition, QTextCursor::KeepAnchor);
+    indent(cursor.document(), cursor, QChar());
+
     setExtraSelections(BaseTextEditor::SnippetPlaceholderSelection, selections);
+
+    if (! selections.isEmpty()) {
+        const QTextEdit::ExtraSelection &selection = selections.first();
+
+        cursor = textCursor();
+        cursor.setPosition(selection.cursor.anchor() + 1);
+        setTextCursor(cursor);
+    }
 }
 
 void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
