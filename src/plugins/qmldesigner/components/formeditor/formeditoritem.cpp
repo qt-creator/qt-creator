@@ -160,6 +160,14 @@ void FormEditorItem::setAttentionHighlight(double value)
     update();
 }
 
+void FormEditorItem::setHighlightBoundingRect(bool highlight)
+{
+    if (m_highlightBoundingRect != highlight) {
+        m_highlightBoundingRect = highlight;
+        update();
+    }
+}
+
 FormEditorItem::~FormEditorItem()
 {
    scene()->removeItemFromHash(this);
@@ -202,7 +210,10 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
             }
             break;
         case FormEditorScene::NormalMode: {
-                pen.setColor(Qt::gray);
+                if (m_highlightBoundingRect)
+                    pen.setColor("#AAAAAA");
+                else
+                    pen.setColor("#888888");
             }
             break;
     }
@@ -232,7 +243,7 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->setRenderHint(QPainter::Antialiasing, false);
 
-    if (scene()->showBoundingRects())
+    if (scene()->showBoundingRects() || m_highlightBoundingRect)
         paintBoundingRect(painter);
 
     painter->restore();

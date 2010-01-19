@@ -134,6 +134,24 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
 
     if (topSelectedItemIsMovable(itemList))
         view()->changeToMoveTool();
+
+
+    FormEditorItem *topSelectableItem = 0;
+
+    foreach(QGraphicsItem* item, itemList)
+    {
+        FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
+
+        if (formEditorItem
+            && !formEditorItem->qmlItemNode().isRootNode()
+            && (formEditorItem->qmlItemNode().hasShowContent() || !m_selectOnlyContentItems))
+        {
+            topSelectableItem = formEditorItem;
+            break;
+        }
+    }
+
+    scene()->highlightBoundingRect(topSelectableItem);
 }
 
 void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &/*itemList*/,

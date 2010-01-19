@@ -360,6 +360,16 @@ void FormEditorScene::clearFormEditorItems()
     }
 }
 
+void FormEditorScene::highlightBoundingRect(FormEditorItem *highlighItem)
+{
+    foreach(FormEditorItem *item, allFormEditorItems()) {
+        if (item == highlighItem)
+            item->setHighlightBoundingRect(true);
+        else
+            item->setHighlightBoundingRect(false);
+    }
+}
+
 void FormEditorScene::setShowBoundingRects(bool show)
 {
     m_showBoundingRects = show;

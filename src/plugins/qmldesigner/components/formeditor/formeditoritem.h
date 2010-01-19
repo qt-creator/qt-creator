@@ -96,6 +96,8 @@ public:
 
     FormEditorView *formEditorView() const;
 
+    void setHighlightBoundingRect(bool highlight);
+
 protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
@@ -118,6 +120,7 @@ private: // variables
     QRectF m_boundingRect;
     double m_borderWidth;
     double m_opacity;
+    bool m_highlightBoundingRect;
 };
 
 
