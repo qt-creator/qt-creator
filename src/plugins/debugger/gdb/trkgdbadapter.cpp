@@ -98,6 +98,14 @@ static QByteArray dumpRegister(uint n, uint value)
     return ba;
 }
 
+static void appendRegister(QByteArray *ba, uint regno, uint value)
+{
+    ba->append(hexNumber(regno, 2));
+    ba->append(':');
+    ba->append(hexNumber(swapEndian(value), 8));
+    ba->append(';');
+}
+
 QDebug operator<<(QDebug d, MemoryRange range)
 {
     return d << QString("[%1,%2] (size %3) ")
@@ -908,6 +916,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         logMessage(msgGdbPacket(QLatin1String("Step range")));
         logMessage("  from " + hexxNumber(m_snapshot.registers[RegisterPC]));
         sendGdbServerAck();
+        //m_snapshot.reset();
         m_running = true;
         QByteArray ba = trkStepRangeMessage(0x01);  // options "step into"
         sendTrkMessage(0x19, TrkCB(handleStepInto), ba, "Step range");
@@ -930,6 +939,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "vCont;c") {
         // vCont[;action[:thread-id]]...'
         sendGdbServerAck();
+        //m_snapshot.reset();
         m_running = true;
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
     }
@@ -1078,12 +1088,23 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             } else {
                 logMessage(QLatin1String("Ignoring stop at 0"));
             }
+
+            #if 1
             // We almost always need register values, so get them
-            // now before informing gdb about the stop. In theory
-            //sendGdbServerMessage("S05", "Target stopped");
+            // now before informing gdb about the stop.s
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegistersAfterStop),
                 trkReadRegistersMessage());
+            #else
+            // As a source-line step typically consists of
+            // several instruction steps, better avoid the multiple
+            // roundtrips through TRK in favour of an additional
+            // roundtrip through gdb. But gdb will ask for all registers.
+            sendGdbServerMessage("S05", "Target stopped");
+            QByteArray ba = "T05";
+            appendRegister(&ba, RegisterPSGdb, addr);
+            sendGdbServerMessage(ba, "Registers");
+            #endif
             break;
         }
         case TrkNotifyException: { // 0x91 Notify Exception (obsolete)
@@ -1297,14 +1318,6 @@ void TrkGdbAdapter::handleAndReportReadRegister(const TrkResult &result)
             + QByteArray::number(registerNumber));
         //sendGdbServerMessage("E01", "read single unknown register");
     }
-}
-
-static void appendRegister(QByteArray *ba, uint regno, uint value)
-{
-    ba->append(hexNumber(regno, 2));
-    ba->append(':');
-    ba->append(hexNumber(swapEndian(value), 8));
-    ba->append(';');
 }
 
 void TrkGdbAdapter::handleAndReportReadRegistersAfterStop(const TrkResult &result)
