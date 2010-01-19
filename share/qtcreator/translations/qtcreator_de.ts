@@ -1573,7 +1573,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+1117"/>
         <source>Save %1 As...</source>
-        <translation>Speicher &apos;%1&apos; unter...</translation>
+        <translation>Speichere &apos;%1&apos; unter...</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2299,7 +2299,7 @@ Sollen sie überschrieben werden?</translation>
     <message>
         <location line="+3"/>
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
-        <translation>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Basiered auf Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Erstellt am %4 um %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. Alle Rechte vorbehalten.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</translation>
+        <translation>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Basierend auf Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Erstellt am %4 um %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. Alle Rechte vorbehalten.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</translation>
     </message>
 </context>
 <context>
@@ -4243,7 +4243,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+12"/>
         <source>No memory viewer available</source>
-        <translation>Es ist kein Anzeigemodul für Speicher verfügbar</translation>
+        <translation>Es ist kein Speicher-Anzeigemodul verfügbar</translation>
     </message>
     <message>
         <location line="+1"/>
