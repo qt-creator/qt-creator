@@ -145,6 +145,50 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     item.data = QVariant::fromValue(QString("Item {\nwidth: $100$;\nheight: 100;\n$$\n}"));
     m_completions.append(item);
 
+    item.text = QLatin1String("BorderImage - declaration");
+    item.data = QLatin1String("BorderImage {\n"
+                              "id: $name$;\n"
+                              "width: $100$; height: $100$;\n"
+                              "border.left: $2$; border.top: $2$;\n"
+                              "border.right: $2$; border.bottom: $2$;\n"
+                              "source: \"$name$\";\n"
+                              "}\n");
+    m_completions.append(item);
+
+    item.text = QLatin1String("State - declaration");
+    item.data = QLatin1String("State {\n"
+                              "name: \"$state$;\"\n"
+                              "PropertyChanges {\n"
+                              "target: $target$;\n"
+                              "$$\n"
+                              "}\n"
+                              "}\n");
+    m_completions.append(item);
+
+    item.text = QLatin1String("states - declaration");
+    item.data = QLatin1String("states: [\n"
+                              "State {\n"
+                              "name: \"$state$\";\n"
+                              "PropertyChanges {\n"
+                              "target: $target$;\n"
+                              "$$\n"
+                              "}\n"
+                              "}\n"
+                              "]\n");
+    m_completions.append(item);
+
+    item.text = QLatin1String("property - declaration");
+    item.data = QLatin1String("property $var$ $name$: $value$;\n");
+    m_completions.append(item);
+
+    item.text = QLatin1String("readonly property - declaration");
+    item.data = QLatin1String("readonly property $var$ $name$: $value$;\n");
+    m_completions.append(item);
+
+    item.text = QLatin1String("NumericAnimation - declaration");
+    item.data = QLatin1String("NumberAnimation { matchTargets: \"$target$\"; matchProperties: \"$properties$\"; duration: $1000$ }\n");
+    m_completions.append(item);
+
     return pos;
 }
 
