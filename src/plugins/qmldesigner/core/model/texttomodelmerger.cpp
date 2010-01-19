@@ -110,7 +110,10 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
         setActive(false);
         return success;
     } catch (Exception &e) {
-        m_rewriterView->addError(RewriterView::Error(&e));
+        RewriterView::Error error(&e);
+        // Somehow, the error below gets eaten in upper levels, so printing the exception info here for debugging purposes:
+        qDebug() << "*** An exception occurred while reading the QML file:" << error.toString();
+        m_rewriterView->addError(error);
 
         setActive(false);
 

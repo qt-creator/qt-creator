@@ -33,6 +33,7 @@
 #include <customnotifications.h>
 
 #include "rewriterview.h"
+#include "rewritingexception.h"
 #include "textmodifier.h"
 #include "texttomodelmerger.h"
 #include "modelnodepositionstorage.h"
@@ -77,7 +78,7 @@ QString RewriterView::Error::toString() const
     if (m_type == ParseError)
         str += tr("Error parsing");
     else if (m_type == InternalError)
-        str += tr("Internal error while parsing");
+        str += tr("Internal error");
 
     if (url().isValid()) {
         if (!str.isEmpty())
@@ -114,7 +115,8 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
         m_modelToTextMerger(new Internal::ModelToTextMerger(this)),
         m_textToModelMerger(new Internal::TextToModelMerger(this)),
         m_textModifier(0),
-        transactionLevel(0)
+        transactionLevel(0),
+        errorState(false)
 {
 }
 
@@ -138,7 +140,10 @@ void RewriterView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     ModelAmender differenceHandler(m_textToModelMerger.data());
-    m_textToModelMerger->load(m_textModifier->text().toUtf8(), differenceHandler);
+    const QString qmlSource = m_textModifier->text();
+    if (m_textToModelMerger->load(qmlSource.toUtf8(), differenceHandler)) {
+        lastCorrectQmlSource = qmlSource;
+    }
 }
 
 void RewriterView::modelAboutToBeDetached(Model * /*model*/)
@@ -158,7 +163,7 @@ void RewriterView::nodeCreated(const ModelNode &createdNode)
     modelToTextMerger()->nodeCreated(createdNode);
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::nodeAboutToBeRemoved(const ModelNode &/*removedNode*/)
@@ -174,7 +179,7 @@ void RewriterView::nodeRemoved(const ModelNode &removedNode, const NodeAbstractP
     modelToTextMerger()->nodeRemoved(removedNode, parentProperty, propertyChange);
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::propertiesAdded(const ModelNode &/*node*/, const QList<AbstractProperty>& /*propertyList*/)
@@ -212,7 +217,7 @@ void RewriterView::propertiesRemoved(const QList<AbstractProperty>& propertyList
         m_removeDefaultPropertyTransaction.commit();
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange)
@@ -228,7 +233,7 @@ void RewriterView::variantPropertiesChanged(const QList<VariantProperty>& proper
     modelToTextMerger()->propertiesChanged(usefulPropertyList, propertyChange);
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange)
@@ -244,7 +249,7 @@ void RewriterView::bindingPropertiesChanged(const QList<BindingProperty>& proper
     modelToTextMerger()->propertiesChanged(usefulPropertyList, propertyChange);
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
@@ -259,7 +264,7 @@ void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractPrope
     modelToTextMerger()->nodeReparented(node, newPropertyParent, oldPropertyParent, propertyChange);
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/)
@@ -275,7 +280,7 @@ void RewriterView::nodeIdChanged(const ModelNode& node, const QString& newId, co
     modelToTextMerger()->nodeIdChanged(node, newId, oldId);
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int /*oldIndex*/)
@@ -293,7 +298,7 @@ void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty, const 
     modelToTextMerger()->nodeSlidAround(movedNode, trailingNode);
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion)
@@ -305,7 +310,7 @@ void RewriterView::nodeTypeChanged(const ModelNode &node,const QString &type, in
     modelToTextMerger()->nodeTypeChanged(node, type, majorVersion, minorVersion);
 
     if (!isModificationGroupActive())
-        modelToTextMerger()->applyChanges();
+        applyChanges();
 }
 
 void RewriterView::customNotification(const AbstractView * /*view*/, const QString &identifier, const QList<ModelNode> & /* nodeList */, const QList<QVariant> & /*data */)
@@ -359,7 +364,7 @@ void RewriterView::setTextModifier(TextModifier *textModifier)
 void RewriterView::applyModificationGroupChanges()
 {
     Q_ASSERT(transactionLevel == 0);
-    modelToTextMerger()->applyChanges();
+    applyChanges();
 }
 
 void RewriterView::setupComponent(const ModelNode &node)
@@ -386,6 +391,30 @@ void RewriterView::setupComponent(const ModelNode &node)
     node.variantProperty("__component_data") = result;
 }
 
+void RewriterView::applyChanges()
+{
+    if (errorState) {
+        qDebug() << "RewriterView::applyChanges() got called while in error state. Will do a quick-exit now.";
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__);
+    }
+
+    bool success = false;
+    try {
+        success = modelToTextMerger()->applyChanges();
+
+        if (!success) {
+            errorState = true;
+
+            throw RewritingException(__LINE__, __FUNCTION__, __FILE__);
+        }
+    } catch (Exception &e) {
+        Q_UNUSED(e);
+        errorState = true;
+
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__);
+    }
+}
+
 QList<RewriterView::Error> RewriterView::errors() const
 {
     return m_errors;
@@ -407,6 +436,13 @@ void RewriterView::addError(const RewriterView::Error &error)
 {
     m_errors.append(error);
     emit errorsChanged(m_errors);
+}
+
+void RewriterView::resetToLastCorrectQml()
+{
+    ModelAmender differenceHandler(m_textToModelMerger.data());
+    m_textToModelMerger->load(lastCorrectQmlSource.toUtf8(), differenceHandler);
+    errorState = false;
 }
 
 QMap<ModelNode, QString> RewriterView::extractText(const QList<ModelNode> &nodes) const
@@ -461,7 +497,9 @@ void RewriterView::qmlTextChanged()
         switch (m_differenceHandling) {
             case Validate: {
                 ModelValidator differenceHandler(m_textToModelMerger.data());
-                m_textToModelMerger->load(newQmlText.toUtf8(), differenceHandler);
+                if (m_textToModelMerger->load(newQmlText.toUtf8(), differenceHandler)) {
+                    lastCorrectQmlSource = newQmlText;
+                }
                 break;
             }
 
@@ -469,7 +507,9 @@ void RewriterView::qmlTextChanged()
             default: {
                 emitCustomNotification(StartRewriterAmend);
                 ModelAmender differenceHandler(m_textToModelMerger.data());
-                m_textToModelMerger->load(newQmlText.toUtf8(), differenceHandler);
+                if (m_textToModelMerger->load(newQmlText.toUtf8(), differenceHandler)) {
+                    lastCorrectQmlSource = newQmlText;
+                }
                 emitCustomNotification(EndRewriterAmend);
                 break;
             }

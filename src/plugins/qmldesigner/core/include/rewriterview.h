@@ -140,6 +140,8 @@ public:
     void setErrors(const QList<Error> &errors);
     void addError(const Error &error);
 
+    void resetToLastCorrectQml();
+
     QMap<ModelNode, QString> extractText(const QList<ModelNode> &nodes) const;
     int nodeOffset(const ModelNode &node) const;
     int nodeLength(const ModelNode &node) const;
@@ -159,6 +161,7 @@ protected: // functions
     void setModificationGroupActive(bool active);
     void applyModificationGroupChanges();
     void setupComponent(const ModelNode &node);
+    void applyChanges();
 
 private: //variables
     DifferenceHandling m_differenceHandling;
@@ -170,6 +173,8 @@ private: //variables
     QList<Error> m_errors;
     int transactionLevel;
     RewriterTransaction m_removeDefaultPropertyTransaction;
+    bool errorState;
+    QString lastCorrectQmlSource;
 };
 
 } //QmlDesigner
