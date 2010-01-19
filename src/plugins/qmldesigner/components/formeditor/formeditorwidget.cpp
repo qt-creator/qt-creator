@@ -148,7 +148,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
 void FormEditorWidget::enterEvent(QEvent *event)
 {
-    setFocus();
+    m_graphicsView->setFocus();
     QWidget::enterEvent(event);
 }
 
