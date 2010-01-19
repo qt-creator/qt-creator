@@ -248,6 +248,16 @@ protected:
         decl->endColumn = last.startColumn + last.length;
     }
 
+    void init(Declaration *decl, AST::ExpressionNode *expressionNode)
+    {
+        const SourceLocation first = expressionNode->firstSourceLocation();
+        const SourceLocation last = expressionNode->lastSourceLocation();
+        decl->startLine = first.startLine;
+        decl->startColumn = first.startColumn;
+        decl->endLine = last.startLine;
+        decl->endColumn = last.startColumn + last.length;
+    }
+
     virtual bool visit(AST::UiObjectDefinition *node)
     {
         ++_depth;
@@ -298,11 +308,11 @@ protected:
         --_depth;
     }
 
-#if 0 // ### ignore script bindings for now.
-    virtual bool visit(AST::UiScriptBinding *node)
+    virtual bool visit(AST::UiScriptBinding *)
     {
         ++_depth;
 
+#if 0 // ### ignore script bindings for now.
         Declaration decl;
         init(&decl, node);
 
@@ -310,6 +320,7 @@ protected:
         decl.text.append(asString(node->qualifiedId));
 
         _declarations.append(decl);
+#endif
 
         return false; // more more bindings in this subtree.
     }
@@ -318,7 +329,58 @@ protected:
     {
         --_depth;
     }
-#endif
+
+    virtual bool visit(AST::FunctionExpression *)
+    {
+        return false;
+    }
+
+    virtual bool visit(AST::FunctionDeclaration *ast)
+    {
+        if (! ast->name)
+            return false;
+
+        Declaration decl;
+        init(&decl, ast);
+
+        decl.text.fill(QLatin1Char(' '), _depth);
+        decl.text += ast->name->asString();
+
+        decl.text += QLatin1Char('(');
+        for (FormalParameterList *it = ast->formals; it; it = it->next) {
+            if (it->name)
+                decl.text += it->name->asString();
+
+            if (it->next)
+                decl.text += QLatin1String(", ");
+        }
+
+        decl.text += QLatin1Char(')');
+
+        _declarations.append(decl);
+
+        return false;
+    }
+
+    virtual bool visit(AST::VariableDeclaration *ast)
+    {
+        if (! ast->name)
+            return false;
+
+        Declaration decl;
+        decl.text.fill(QLatin1Char(' '), _depth);
+        decl.text += ast->name->asString();
+
+        const SourceLocation first = ast->identifierToken;
+        decl.startLine = first.startLine;
+        decl.startColumn = first.startColumn;
+        decl.endLine = first.startLine;
+        decl.endColumn = first.startColumn + first.length;
+
+        _declarations.append(decl);
+
+        return false;
+    }
 };
 
 QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
@@ -427,7 +489,7 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 
     if (doc->isParsedCorrectly()) {
         FindDeclarations findDeclarations;
-        m_declarations = findDeclarations(doc->qmlProgram());
+        m_declarations = findDeclarations(doc->ast());
 
         QStringList items;
         items.append(tr("<Select Symbol>"));
