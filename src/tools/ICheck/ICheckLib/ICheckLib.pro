@@ -1,7 +1,6 @@
 REL_PATH_TO_SRC = ../../../
 
 TEMPLATE = lib
-CONFIG += debug
 
 CONFIG(debug, debug|release){
     TARGET = ICheckLibd
