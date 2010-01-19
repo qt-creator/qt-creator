@@ -123,18 +123,17 @@ void SelectionTool::mouseMoveEvent(const QList<QGraphicsItem*> &/*itemList*/,
 void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
                         QGraphicsSceneMouseEvent * /*event*/)
 {
-    if (itemList.isEmpty())
-        return;
+    if (!itemList.isEmpty()) {
 
-    ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
-    if (resizeHandle) {
-        view()->changeToResizeTool();
-        return;
+        ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
+        if (resizeHandle) {
+            view()->changeToResizeTool();
+            return;
+        }
+
+        if (topSelectedItemIsMovable(itemList))
+            view()->changeToMoveTool();
     }
-
-    if (topSelectedItemIsMovable(itemList))
-        view()->changeToMoveTool();
-
 
     FormEditorItem *topSelectableItem = 0;
 
