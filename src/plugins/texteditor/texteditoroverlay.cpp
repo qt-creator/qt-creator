@@ -57,8 +57,8 @@ void TextEditorOverlay::setVisible(bool b)
 {
     if (m_visible == b)
         return;
-    update();
     m_visible = b;
+    m_viewport->update();
 }
 
 void TextEditorOverlay::clear()
