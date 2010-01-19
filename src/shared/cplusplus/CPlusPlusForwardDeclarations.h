@@ -60,7 +60,11 @@
 #  elif defined(CPLUSPLUS_BUILD_STATIC_LIB)
 #    define CPLUSPLUS_EXPORT
 #  else
-#    define CPLUSPLUS_EXPORT Q_DECL_IMPORT
+#    ifdef ICHECK_BUILD
+#      define CPLUSPLUS_EXPORT 
+#    else
+#      define CPLUSPLUS_EXPORT Q_DECL_IMPORT
+#    endif
 #  endif
 #else
 #  define CPLUSPLUS_EXPORT

@@ -718,6 +718,30 @@ static inline int classify7(const char *s, bool q) {
           }
         }
       }
+#ifdef ICHECK_BUILD
+      else if (s[2] == 'E') {
+        if (s[3] == 'N') {
+          if (s[4] == 'U') {
+            if (s[5] == 'M') {
+              if (s[6] == 'S') {
+                return T_Q_ENUMS;
+              }
+            }
+          }
+        }
+      }
+      else if (s[2] == 'F') {
+        if (s[3] == 'L') {
+          if (s[4] == 'A') {
+            if (s[5] == 'G') {
+              if (s[6] == 'S') {
+                return T_Q_FLAGS;
+              }
+            }
+          }
+        }
+      }
+#endif
     }
   }
   return T_IDENTIFIER;
@@ -1079,6 +1103,29 @@ static inline int classify10(const char *s, bool) {
       }
     }
   }
+#ifdef ICHECK_BUILD
+  else if (s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'P') {
+        if (s[3] == 'R') {
+          if (s[4] == 'O') {
+            if (s[5] == 'P') {
+              if (s[6] == 'E') {
+                if (s[7] == 'R') {
+                  if (s[8] == 'T') {
+                    if (s[9] == 'Y') {
+                      return T_Q_PROPERTY;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+#endif
   return T_IDENTIFIER;
 }
 
@@ -1129,6 +1176,31 @@ static inline int classify11(const char *s, bool) {
       }
     }
   }
+#ifdef ICHECK_BUILD
+  else if (s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'I') {
+        if (s[3] == 'N') {
+          if (s[4] == 'V') {
+            if (s[5] == 'O') {
+              if (s[6] == 'K') {
+                if (s[7] == 'A') {
+                  if (s[8] == 'B') {
+                    if (s[9] == 'L') {
+                      if (s[10] == 'E') {
+                        return T_Q_INVOKABLE;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+#endif
   return T_IDENTIFIER;
 }
 
@@ -1217,6 +1289,43 @@ static inline int classify13(const char *s, bool) {
   return T_IDENTIFIER;
 }
 
+#ifdef ICHECK_BUILD
+static inline int classify15(const char *s, bool) {
+  if (s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'D') {
+        if (s[3] == 'E') {
+          if (s[4] == 'C') {
+            if (s[5] == 'L') {
+              if (s[6] == 'A') {
+                if (s[7] == 'R') {
+                  if (s[8] == 'E') {
+                    if (s[9] == '_') {
+                      if (s[10] == 'F') {
+                        if (s[11] == 'L') {
+                          if (s[12] == 'A') {
+                            if (s[13] == 'G') {
+                              if (s[14] == 'S') {
+                                return T_Q_DECLARE_FLAGS;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return T_IDENTIFIER;
+}
+#endif
+
 static inline int classify16(const char *s, bool) {
   if (s[0] == 'r') {
     if (s[1] == 'e') {
@@ -1268,6 +1377,9 @@ int Lexer::classify(const char *s, int n, bool q) {
     case 11: return classify11(s, q);
     case 12: return classify12(s, q);
     case 13: return classify13(s, q);
+#ifdef ICHECK_BUILD
+    case 15: return classify15(s, q);
+#endif
     case 16: return classify16(s, q);
     default: return T_IDENTIFIER;
   } // switch

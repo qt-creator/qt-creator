@@ -33,9 +33,13 @@
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <projectexplorer/project.h>
 #include <cplusplus/CppDocument.h>
-
+#include <cplusplus/PreprocessorClient.h>
 #include <texteditor/basetexteditor.h>
-
+#include <cplusplus/PreprocessorEnvironment.h>
+#include <cplusplus/pp-engine.h>
+#ifdef ICHECK_BUILD
+#  include "ParseManager.h"
+#endif
 #include <QtCore/QHash>
 #include <QtCore/QFutureInterface>
 #include <QtCore/QFutureSynchronizer>
@@ -57,13 +61,19 @@ namespace ProjectExplorer {
 class ProjectExplorerPlugin;
 }
 
+namespace CPlusPlus {
+    class ParseManager;
+}
+
 namespace CppTools {
+
 namespace Internal {
 
 class CppEditorSupport;
 class CppPreprocessor;
 class CppFindReferences;
 
+#ifndef ICHECK_BUILD
 class CppModelManager : public CppModelManagerInterface
 {
     Q_OBJECT
@@ -220,6 +230,75 @@ private:
 
     CppFindReferences *m_findReferences;
     bool m_indexerEnabled;
+};
+#endif
+
+using namespace CPlusPlus;
+class CppPreprocessor: public CPlusPlus::Client
+{
+public:
+#ifndef ICHECK_BUILD
+    CppPreprocessor(QPointer<CppModelManager> modelManager);
+#else
+    CppPreprocessor(QPointer<CPlusPlus::ParseManager> modelManager);
+#endif
+    virtual ~CppPreprocessor();
+
+    void setRevision(unsigned revision);
+    void setWorkingCopy(const CppModelManagerInterface::WorkingCopy &workingCopy);
+    void setIncludePaths(const QStringList &includePaths);
+    void setFrameworkPaths(const QStringList &frameworkPaths);
+    void setProjectFiles(const QStringList &files);
+    void setTodo(const QStringList &files);
+
+    void run(const QString &fileName);
+
+    void resetEnvironment();
+
+    const QSet<QString> &todo() const
+    { return m_todo; }
+
+public: // attributes
+    Snapshot snapshot;
+
+protected:
+    CPlusPlus::Document::Ptr switchDocument(CPlusPlus::Document::Ptr doc);
+
+    bool includeFile(const QString &absoluteFilePath, QString *result, unsigned *revision);
+    QString tryIncludeFile(QString &fileName, IncludeType type, unsigned *revision);
+
+    void mergeEnvironment(CPlusPlus::Document::Ptr doc);
+
+    virtual void macroAdded(const Macro &macro);
+    virtual void passedMacroDefinitionCheck(unsigned offset, const Macro &macro);
+    virtual void failedMacroDefinitionCheck(unsigned offset, const QByteArray &name);
+    virtual void startExpandingMacro(unsigned offset,
+                                     const Macro &macro,
+                                     const QByteArray &originalText,
+                                     bool inCondition,
+                                     const QVector<MacroArgumentReference> &actuals);
+    virtual void stopExpandingMacro(unsigned offset, const Macro &macro);
+    virtual void startSkippingBlocks(unsigned offset);
+    virtual void stopSkippingBlocks(unsigned offset);
+    virtual void sourceNeeded(QString &fileName, IncludeType type,
+                              unsigned line);
+
+private:
+#ifndef ICHECK_BUILD
+    QPointer<CppModelManager> m_modelManager;
+#endif
+    Environment env;
+    Preprocessor preprocess;
+    QStringList m_includePaths;
+    QStringList m_systemIncludePaths;
+    CppModelManagerInterface::WorkingCopy m_workingCopy;
+    QStringList m_projectFiles;
+    QStringList m_frameworkPaths;
+    QSet<QString> m_included;
+    Document::Ptr m_currentDoc;
+    QSet<QString> m_todo;
+    QSet<QString> m_processed;
+    unsigned m_revision;
 };
 
 } // namespace Internal

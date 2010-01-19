@@ -195,8 +195,74 @@ bool ASTMatcher::match(AccessDeclarationAST *node, AccessDeclarationAST *pattern
 
     pattern->colon_token = node->colon_token;
 
+#ifdef ICHECK_BUILD
+    pattern->invoke_token = node->invoke_token;
+#endif
+
     return true;
 }
+
+#ifdef ICHECK_BUILD
+bool ASTMatcher::match(QPropertyDeclarationAST *node, QPropertyDeclarationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->property_specifier_token = node->property_specifier_token;
+
+    pattern->type_name_token = node->type_name_token;
+
+    pattern->read_function_token = node->read_function_token;
+
+    pattern->write_function_token = node->write_function_token;
+
+    pattern->notify_function_token = node->notify_function_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(QEnumDeclarationAST *node, QEnumDeclarationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->enum_specifier_token = node->enum_specifier_token;
+
+    if (! pattern->enumerator_list)
+        pattern->enumerator_list = node->enumerator_list;
+    else if (! AST::match(node->enumerator_list, pattern->enumerator_list, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(QFlagsDeclarationAST *node, QFlagsDeclarationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->flags_specifier_token = node->flags_specifier_token;
+
+    if (! pattern->enumerator_list)
+        pattern->enumerator_list = node->enumerator_list;
+    else if (! AST::match(node->enumerator_list, pattern->enumerator_list, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(QDeclareFlagsDeclarationAST *node, QDeclareFlagsDeclarationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->declareflags_specifier_token = node->declareflags_specifier_token;
+    pattern->flag_token = node->flag_token;
+    pattern->enum_token = node->enum_token;
+
+    return true;
+}
+#endif
 
 bool ASTMatcher::match(AsmDefinitionAST *node, AsmDefinitionAST *pattern)
 {

@@ -99,6 +99,36 @@ void AccessDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+#ifdef ICHECK_BUILD
+void QPropertyDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void QEnumDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void QFlagsDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void QDeclareFlagsDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+#endif
+
 void AsmDefinitionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
