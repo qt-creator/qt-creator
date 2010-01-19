@@ -1184,6 +1184,10 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         return;
     }
 
+    if (d->m_snippetOverlay->isVisible() &&
+        (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace))
+        d->snippetCheckCursor(textCursor());
+
     if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
         QPlainTextEdit::keyPressEvent(e);
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
@@ -1651,11 +1655,15 @@ void BaseTextEditorPrivate::setupDocumentSignals(BaseTextDocument *document)
 
 void BaseTextEditorPrivate::snippetCheckCursor(const QTextCursor &cursor)
 {
-    if (cursor.hasSelection())
-        return;
     if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
         return;
-    if (!m_snippetOverlay->hasCursorInSelection(cursor)) {
+
+    QTextCursor start = cursor;
+    start.setPosition(cursor.selectionStart());
+    QTextCursor end = cursor;
+    end.setPosition(cursor.selectionEnd());
+    if (!m_snippetOverlay->hasCursorInSelection(start)
+        || !m_snippetOverlay->hasCursorInSelection(end)) {
         m_snippetOverlay->setVisible(false);
         m_snippetOverlay->clear();
     }
@@ -3571,6 +3579,12 @@ void BaseTextEditor::handleBackspaceKey()
     QTextCursor cursor = textCursor();
     int pos = cursor.position();
     QTC_ASSERT(!cursor.hasSelection(), return);
+
+    if (d->m_snippetOverlay->isVisible()) {
+        QTextCursor snippetCursor = cursor;
+        snippetCursor.movePosition(QTextCursor::Left);
+        d->snippetCheckCursor(snippetCursor);
+    }
 
     const TextEditor::TabSettings &tabSettings = d->m_document->tabSettings();
 
