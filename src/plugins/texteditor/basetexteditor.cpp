@@ -175,6 +175,7 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     d->m_overlay = new TextEditorOverlay(this);
+    d->m_snippetOverlay = new TextEditorOverlay(this);
     d->m_searchResultOverlay = new TextEditorOverlay(this);
 
     d->setupDocumentSignals(d->m_document);
@@ -1080,6 +1081,11 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Tab:
     case Qt::Key_Backtab: {
         if (ro) break;
+        if (d->m_snippetOverlay->isVisible() && !d->m_snippetOverlay->isEmpty()) {
+            d->snippetTabOrBacktab(e->key() == Qt::Key_Tab);
+            e->accept();
+            return;
+        }
         QTextCursor cursor = textCursor();
         int newPosition;
         if (d->m_document->tabSettings().tabShouldIndent(document(), cursor, &newPosition)) {
@@ -1172,6 +1178,12 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
         }
     }
 
+    if (e->key() == Qt::Key_H && e->modifiers() == Qt::ControlModifier) {
+        universalHelper();
+        e->accept();
+        return;
+    }
+
     if (ro || e->text().isEmpty() || !e->text().at(0).isPrint()) {
         QPlainTextEdit::keyPressEvent(e);
     } else if ((e->modifiers() & (Qt::ControlModifier|Qt::AltModifier)) != Qt::ControlModifier){
@@ -1188,6 +1200,9 @@ void BaseTextEditor::keyPressEvent(QKeyEvent *e)
                 }
             }
         }
+
+        if (d->m_snippetOverlay->isVisible())
+            d->snippetCheckCursor(cursor);
 
         bool doEditBlock = !(electricChar.isNull() && autoText.isEmpty());
         if (doEditBlock)
@@ -1219,6 +1234,28 @@ skip_event:
 
     if (e != original_e)
         delete e;
+}
+
+void BaseTextEditor::universalHelper()
+{
+    QList<QTextEdit::ExtraSelection> selections;
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    int pos = cursor.position();
+    cursor.insertText("if (condition){\n        \n    }\n");
+    QTextCursor c = cursor;
+    c.setPosition(pos + 3); // condition-1;
+    c.setPosition(c.position() + 10, QTextCursor::KeepAnchor);
+    QTextEdit::ExtraSelection selection;
+    selection.cursor = c;
+    selection.format.setBackground(Qt::darkCyan);
+    selections.append(selection);
+    c.setPosition(pos + 24); // contents
+    selection.cursor = c;
+    selection.format.setBackground(Qt::darkMagenta);
+    selections.append(selection);
+    cursor.endEditBlock();
+    setExtraSelections(BaseTextEditor::SnippetPlaceholderSelection, selections);
 }
 
 void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
@@ -1611,6 +1648,55 @@ void BaseTextEditorPrivate::setupDocumentSignals(BaseTextDocument *document)
     q->slotUpdateExtraAreaWidth();
 }
 
+
+void BaseTextEditorPrivate::snippetCheckCursor(const QTextCursor &cursor)
+{
+    if (cursor.hasSelection())
+        return;
+    if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
+        return;
+    if (!m_snippetOverlay->hasCursorInSelection(cursor)) {
+        m_snippetOverlay->setVisible(false);
+        m_snippetOverlay->clear();
+    }
+}
+
+void BaseTextEditorPrivate::snippetTabOrBacktab(bool forward)
+{
+    if (!m_snippetOverlay->isVisible() || m_snippetOverlay->isEmpty())
+        return;
+    QTextCursor cursor = q->textCursor();
+    OverlaySelection final;
+    if (forward) {
+        for (int i = 0; i < m_snippetOverlay->m_selections.count(); ++i){
+            const OverlaySelection &selection = m_snippetOverlay->m_selections.at(i);
+            if (selection.m_cursor_begin.position() > cursor.position()) {
+                final = selection;
+                break;
+            }
+        }
+    } else {
+        for (int i = m_snippetOverlay->m_selections.count()-1; i >= 0; --i){
+            const OverlaySelection &selection = m_snippetOverlay->m_selections.at(i);
+            if (selection.m_cursor_end.position() < cursor.position()) {
+                final = selection;
+                break;
+            }
+        }
+
+    }
+    if (final.m_cursor_begin.isNull())
+        final = forward ? m_snippetOverlay->m_selections.first() : m_snippetOverlay->m_selections.last();
+
+    if (final.m_cursor_begin.position() == final.m_cursor_end.position()) { // empty tab stop
+        cursor.setPosition(final.m_cursor_end.position());
+    } else {
+        cursor.setPosition(final.m_cursor_begin.position()+1);
+        cursor.setPosition(final.m_cursor_end.position(), QTextCursor::KeepAnchor);
+    }
+    q->setTextCursor(cursor);
+}
+
 bool Parenthesis::hasClosingCollapse(const Parentheses &parentheses)
 {
     return closeCollapseAtPos(parentheses) >= 0;
@@ -1906,9 +1992,10 @@ void BaseTextEditorPrivate::highlightSearchResults(const QTextBlock &block,
             overlay->addOverlaySelection(blockPosition + idx,
                                          blockPosition + idx + l,
                                          m_searchResultFormat.background().color().darker(120),
-                                         QColor(), false,
+                                         QColor(),
                                          (idx == cursor.selectionStart() - blockPosition
-                                          && idx + l == cursor.selectionEnd() - blockPosition));
+                                          && idx + l == cursor.selectionEnd() - blockPosition)?
+                                         TextEditorOverlay::DropShadow : 0);
 
         }
     }
@@ -2516,6 +2603,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     if (d->m_overlay && d->m_overlay->isVisible())
         d->m_overlay->paint(&painter, e->rect());
+
+    if (d->m_snippetOverlay && d->m_snippetOverlay->isVisible())
+        d->m_snippetOverlay->paint(&painter, e->rect());
     
     if (!d->m_searchResultOverlay->isEmpty()) {
         d->m_searchResultOverlay->paint(&painter, e->rect());
@@ -4578,14 +4668,22 @@ void BaseTextEditor::setExtraSelections(ExtraSelectionKind kind, const QList<QTe
             d->m_overlay->addOverlaySelection(selection.cursor,
                                               selection.format.background().color(),
                                               selection.format.background().color(),
-                                              true);
+                                              TextEditorOverlay::LockSize);
         }
         d->m_overlay->setVisible(!d->m_overlay->isEmpty());
-
+    } else if (kind == SnippetPlaceholderSelection) {
+        d->m_snippetOverlay->clear();
+        foreach (const QTextEdit::ExtraSelection &selection, d->m_extraSelections[kind]) {
+            d->m_snippetOverlay->addOverlaySelection(selection.cursor,
+                                              selection.format.background().color(),
+                                              selection.format.background().color(),
+                                              TextEditorOverlay::ExpandBegin);
+        }
+        d->m_snippetOverlay->setVisible(!d->m_snippetOverlay->isEmpty());
     } else {
         QList<QTextEdit::ExtraSelection> all;
         for (int i = 0; i < NExtraSelectionKinds; ++i) {
-            if (i == CodeSemanticsSelection)
+            if (i == CodeSemanticsSelection || i == SnippetPlaceholderSelection)
                 continue;
             all += d->m_extraSelections[i];
         }

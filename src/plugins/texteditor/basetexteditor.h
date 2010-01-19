@@ -482,6 +482,7 @@ public:
         UnusedSymbolSelection,
         FakeVimSelection,
         OtherSelection,
+        SnippetPlaceholderSelection,
         NExtraSelectionKinds
     };
     void setExtraSelections(ExtraSelectionKind kind, const QList<QTextEdit::ExtraSelection> &selections);
@@ -634,6 +635,8 @@ private:
     void updateLink(QMouseEvent *e);
     void showLink(const Link &);
     void clearLink();
+
+    void universalHelper(); // test function for development
 
     // parentheses matcher
 private slots:

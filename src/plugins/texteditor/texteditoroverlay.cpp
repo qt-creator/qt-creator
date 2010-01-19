@@ -57,8 +57,8 @@ void TextEditorOverlay::setVisible(bool b)
 {
     if (m_visible == b)
         return;
-    m_visible = b;
     update();
+    m_visible = b;
 }
 
 void TextEditorOverlay::clear()
@@ -71,8 +71,7 @@ void TextEditorOverlay::clear()
 
 void TextEditorOverlay::addOverlaySelection(int begin, int end,
                                             const QColor &fg, const QColor &bg,
-                                            bool lockSize,
-                                            bool dropShadow)
+                                            uint overlaySelectionFlags)
 {
     if (end < begin)
         return;
@@ -83,26 +82,31 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
     selection.m_fg = fg;
     selection.m_bg = bg;
 
+    if (overlaySelectionFlags & ExpandBegin) {
+        if (begin > 0 && begin < end) { // not empty
+            selection.m_expandBegin = true;
+        }
+    }
+
     selection.m_cursor_begin = QTextCursor(document->docHandle(), begin);
     selection.m_cursor_end = QTextCursor(document->docHandle(), end);
 
-    if (lockSize)
+    if (overlaySelectionFlags & LockSize)
         selection.m_fixedLength = (end - begin);
 
-    selection.m_dropShadow = dropShadow;
 
-    if (dropShadow)
-        m_selections.append(selection);
-    else
-        m_selections.prepend(selection);
+    selection.m_dropShadow = (overlaySelectionFlags & DropShadow);
+
+    m_selections.append(selection);
     update();
 }
 
 
 void TextEditorOverlay::addOverlaySelection(const QTextCursor &cursor,
-                                            const QColor &fg, const QColor &bg, bool lockSize)
+                                            const QColor &fg, const QColor &bg,
+                                            uint overlaySelectionFlags)
 {
-    addOverlaySelection(cursor.selectionStart(), cursor.selectionEnd(), fg, bg, lockSize);
+    addOverlaySelection(cursor.selectionStart(), cursor.selectionEnd(), fg, bg, overlaySelectionFlags);
 }
 
 QRect TextEditorOverlay::rect() const
@@ -296,13 +300,18 @@ void TextEditorOverlay::paintSelection(QPainter *painter,
                                        const OverlaySelection &selection)
 {
 
-    const QTextCursor &begin = selection.m_cursor_begin;
+    QTextCursor begin = selection.m_cursor_begin;
+    if (selection.m_expandBegin)
+        begin.setPosition(begin.position() + 1);
+
     const QTextCursor &end= selection.m_cursor_end;
     const QColor &fg = selection.m_fg;
     const QColor &bg = selection.m_bg;
 
 
-    if (begin.isNull() || end.isNull() || begin.position() > end.position())
+    if (begin.isNull()
+        || end.isNull()
+        || begin.position() > end.position())
         return;
 
     QPainterPath path = createSelectionPath(begin, end, m_editor->viewport()->rect());
@@ -377,8 +386,21 @@ void TextEditorOverlay::fillSelection(QPainter *painter,
 void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
 {
     Q_UNUSED(clip);
-    for (int i = 0; i < m_selections.size(); ++i) {
+    for (int i = m_selections.size()-1; i >= 0; --i) {
         const OverlaySelection &selection = m_selections.at(i);
+        if (selection.m_dropShadow)
+            continue;
+        if (selection.m_fixedLength >= 0
+            && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
+            != selection.m_fixedLength)
+            continue;
+
+        paintSelection(painter, selection);
+    }
+    for (int i = m_selections.size()-1; i >= 0; --i) {
+        const OverlaySelection &selection = m_selections.at(i);
+        if (!selection.m_dropShadow)
+            continue;
         if (selection.m_fixedLength >= 0
             && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
             != selection.m_fixedLength)
@@ -391,8 +413,21 @@ void TextEditorOverlay::paint(QPainter *painter, const QRect &clip)
 void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect &clip)
 {
     Q_UNUSED(clip);
-    for (int i = 0; i < m_selections.size(); ++i) {
+    for (int i = m_selections.size()-1; i >= 0; --i) {
         const OverlaySelection &selection = m_selections.at(i);
+        if (selection.m_dropShadow)
+            continue;
+        if (selection.m_fixedLength >= 0
+            && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
+            != selection.m_fixedLength)
+            continue;
+
+        fillSelection(painter, selection, color);
+    }
+    for (int i = m_selections.size()-1; i >= 0; --i) {
+        const OverlaySelection &selection = m_selections.at(i);
+        if (!selection.m_dropShadow)
+            continue;
         if (selection.m_fixedLength >= 0
             && selection.m_cursor_end.position() - selection.m_cursor_begin.position()
             != selection.m_fixedLength)
@@ -402,3 +437,13 @@ void TextEditorOverlay::fill(QPainter *painter, const QColor &color, const QRect
     }
 }
 
+bool TextEditorOverlay::hasCursorInSelection(const QTextCursor &cursor) const
+{
+    for (int i = 0; i < m_selections.size(); ++i) {
+        const OverlaySelection &selection = m_selections.at(i);
+        if (cursor.position() > selection.m_cursor_begin.position()
+            && cursor.position() <= selection.m_cursor_end.position())
+            return true;
+    }
+    return false;
+}

@@ -194,7 +194,10 @@ public:
     int extraAreaHighlightCollapseColumn;
 
     TextEditorOverlay *m_overlay;
+    TextEditorOverlay *m_snippetOverlay;
     TextEditorOverlay *m_searchResultOverlay;
+    void snippetCheckCursor(const QTextCursor &cursor);
+    void snippetTabOrBacktab(bool forward);
 
     QBasicTimer collapsedBlockTimer;
     int visibleCollapsedBlockNumber;
