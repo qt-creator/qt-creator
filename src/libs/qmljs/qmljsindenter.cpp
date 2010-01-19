@@ -321,6 +321,11 @@ Token QmlJSIndenter::lastToken() const
     return Token();
 }
 
+QStringRef QmlJSIndenter::tokenText(const Token &token) const
+{
+    return yyLinizerState.line.midRef(token.offset, token.length);
+}
+
 /*
     Saves and restores the state of the global linizer. This enables
     backtracking.

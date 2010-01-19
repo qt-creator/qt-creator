@@ -85,6 +85,7 @@ private:
     int indentForStandaloneLine();
 
     Token lastToken() const;
+    QStringRef tokenText(const Token &token) const;
 
 private:
     int ppHardwareTabSize;
