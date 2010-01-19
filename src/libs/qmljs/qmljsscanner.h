@@ -41,11 +41,9 @@ namespace QmlJS {
 class QMLJS_EXPORT QmlJSScanner
 {
 public:
-
     struct Token {
-        int offset;
-        int length;
         enum Kind {
+            EndOfFile,
             Keyword,
             Identifier,
             String,
@@ -62,8 +60,13 @@ public:
             Colon,
             Comma,
             Dot
-        } kind;
+        };
 
+        int offset;
+        int length;
+        Kind kind;
+
+        inline Token(): offset(0), length(0), kind(EndOfFile) {}
         inline Token(int o, int l, Kind k): offset(o), length(l), kind(k) {}
         inline int begin() const { return offset; }
         inline int end() const { return offset + length; }

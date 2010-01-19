@@ -84,6 +84,8 @@ private:
     int indentForContinuationLine();
     int indentForStandaloneLine();
 
+    QmlJSScanner::Token lastToken() const;
+
 private:
     int ppHardwareTabSize;
     int ppIndentSize;

@@ -309,6 +309,18 @@ bool QmlJSIndenter::okay(QChar typedIn, QChar okayCh) const
     return typedIn == QChar() || typedIn == okayCh;
 }
 
+QmlJSScanner::Token QmlJSIndenter::lastToken() const
+{
+    for (int index = yyLinizerState.tokens.size() - 1; index != -1; --index) {
+        const QmlJSScanner::Token &token = yyLinizerState.tokens.at(index);
+
+        if (token.isNot(QmlJSScanner::Token::Comment))
+            return token;
+    }
+
+    return QmlJSScanner::Token();
+}
+
 /*
     Saves and restores the state of the global linizer. This enables
     backtracking.
@@ -473,7 +485,7 @@ bool QmlJSIndenter::matchBracelessControlStatement()
     int delimDepth = 0;
 
     if (! yyLinizerState.tokens.isEmpty()) {
-        const QmlJSScanner::Token &tk = yyLinizerState.tokens.last();
+        QmlJSScanner::Token tk = lastToken();
 
         if (tk.is(QmlJSScanner::Token::Identifier) &&
             yyLinizerState.line.midRef(tk.offset, tk.length) == QLatin1String("else"))
@@ -489,6 +501,10 @@ bool QmlJSIndenter::matchBracelessControlStatement()
 
             switch (token.kind) {
             default:
+                break;
+
+            case QmlJSScanner::Token::Comment:
+                // skip comments
                 break;
 
             case QmlJSScanner::Token::RightParenthesis:
@@ -1056,3 +1072,4 @@ int QmlJSIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar t
 
     return qMax(0, indent);
 }
+
