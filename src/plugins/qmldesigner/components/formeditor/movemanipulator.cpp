@@ -311,7 +311,7 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
         QmlAnchors anchors(item->qmlItemNode().anchors());
 
         if (anchors.instanceHasAnchor(AnchorLine::Top)) {
-            anchors.setMargin(AnchorLine::Top, anchors.instanceMargin(AnchorLine::Top) - deltaY);
+            anchors.setMargin(AnchorLine::Top, anchors.instanceMargin(AnchorLine::Top) + deltaY);
         }
 
         if (anchors.instanceHasAnchor(AnchorLine::Left)) {
@@ -319,7 +319,7 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
         }
 
         if (anchors.instanceHasAnchor(AnchorLine::Bottom)) {
-            anchors.setMargin(AnchorLine::Bottom, anchors.instanceMargin(AnchorLine::Bottom) + deltaY);
+            anchors.setMargin(AnchorLine::Bottom, anchors.instanceMargin(AnchorLine::Bottom) - deltaY);
         }
 
         if (anchors.instanceHasAnchor(AnchorLine::Right)) {
