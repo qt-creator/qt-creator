@@ -86,10 +86,10 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
 
 void TargetSelector::paintEvent(QPaintEvent *event)
 {
-    static QPixmap unselected(":/projectexplorer/targetunselected.png");
-    static QPixmap runselected(":/projectexplorer/targetrunselected.png");
-    static QPixmap buildselected(":/projectexplorer/targetbuildselected.png");
-    static QPixmap targetaddbutton(":/projectexplorer/targetaddbutton.png");
+    static QPixmap unselected(":/projectexplorer/images/targetunselected.png");
+    static QPixmap runselected(":/projectexplorer/images/targetrunselected.png");
+    static QPixmap buildselected(":/projectexplorer/images/targetbuildselected.png");
+    static QPixmap targetaddbutton(":/projectexplorer/images/targetaddbutton.png");
     Q_UNUSED(event)
 
     QPainter p(this);
