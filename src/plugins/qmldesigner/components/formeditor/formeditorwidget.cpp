@@ -121,7 +121,20 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
     addAction(m_zoomAction.data());
 
-    QAction *separatorAction = new QAction(toolActionGroup());
+    QAction *separatorAction = new QAction(this);
+    separatorAction->setSeparator(true);
+    addAction(separatorAction);
+
+    m_selectOnlyContentItemsAction = layoutActionGroup->addAction("Select Only Items with Content (Press Key T)");
+    m_selectOnlyContentItemsAction->setShortcut(Qt::Key_T);
+    m_selectOnlyContentItemsAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    m_selectOnlyContentItemsAction->setCheckable(true);
+    m_selectOnlyContentItemsAction->setChecked(true);
+    m_selectOnlyContentItemsAction->setIcon(QPixmap(":/icon/selection/selectonlycontentitems.png"));
+
+    addAction(m_selectOnlyContentItemsAction.data());
+
+    separatorAction = new QAction(toolActionGroup());
     separatorAction->setSeparator(true);
     addAction(separatorAction);
 
@@ -190,6 +203,11 @@ QAction *FormEditorWidget::transformToolAction() const
 QAction *FormEditorWidget::showBoundingRectAction() const
 {
     return m_showBoundingRectAction.data();
+}
+
+QAction *FormEditorWidget::selectOnlyContentItemsAction() const
+{
+    return m_selectOnlyContentItemsAction.data();
 }
 
 void FormEditorWidget::setZoomLevel(double zoomLevel)

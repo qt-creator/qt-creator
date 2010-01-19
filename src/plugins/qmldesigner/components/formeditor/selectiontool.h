@@ -81,12 +81,16 @@ public:
     void copySelectedNodeToClipBoard();
     void cutSelectedNodeToClipBoard();
     void pasteClipBoard();
+
+    void setSelectOnlyContentItems(bool selectOnlyContentItems);
+
 private:
     RubberBandSelectionManipulator m_rubberbandSelectionManipulator;
     SingleSelectionManipulator m_singleSelectionManipulator;
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;
     QTime m_mousePressTimer;
+    bool m_selectOnlyContentItems;
 };
 
 }

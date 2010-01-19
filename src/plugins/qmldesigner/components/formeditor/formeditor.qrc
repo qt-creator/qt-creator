@@ -10,4 +10,7 @@
         <file>snapping.png</file>
 	<file>boundingrect.png</file>
     </qresource>
+    <qresource prefix="/icon/selection">
+        <file>selectonlycontentitems.png</file>
+    </qresource>
 </RCC>

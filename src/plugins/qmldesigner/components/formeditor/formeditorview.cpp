@@ -68,6 +68,8 @@ FormEditorView::FormEditorView(QObject *parent)
 {
     connect(widget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
     connect(widget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
+    connect(widget()->selectOnlyContentItemsAction(), SIGNAL(toggled(bool)), this, SLOT(setSelectOnlyContentItemsAction(bool)));
+
 }
 
 FormEditorScene* FormEditorView::scene() const
@@ -517,6 +519,12 @@ void FormEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode)
 void FormEditorView::updateGraphicsIndicators()
 {
     m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
+}
+
+
+void FormEditorView::setSelectOnlyContentItemsAction(bool selectOnlyContentItems)
+{
+    m_selectionTool->setSelectOnlyContentItems(selectOnlyContentItems);
 }
 
 void FormEditorView::updateItem(const QmlObjectNode &qmlObjectNode)

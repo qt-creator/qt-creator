@@ -49,8 +49,8 @@ SelectionTool::SelectionTool(FormEditorView *editorView)
     m_rubberbandSelectionManipulator(editorView->scene()->manipulatorLayerItem(), editorView),
     m_singleSelectionManipulator(editorView),
     m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
-    m_resizeIndicator(editorView->scene()->manipulatorLayerItem())
-
+    m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
+    m_selectOnlyContentItems(true)
 {
 //    view()->setCursor(Qt::CrossCursor);
 }
@@ -69,21 +69,21 @@ void SelectionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
         m_singleSelectionManipulator.begin(event->scenePos());
 
         if (event->modifiers().testFlag(Qt::ControlModifier))
-            m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
+            m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
         else if (event->modifiers().testFlag(Qt::ShiftModifier))
-            m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
+            m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
         else
-            m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
+            m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection, m_selectOnlyContentItems);
     } else {
         if (event->modifiers().testFlag(Qt::AltModifier)) {
             m_singleSelectionManipulator.begin(event->scenePos());
 
             if (event->modifiers().testFlag(Qt::ControlModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
             else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
             else
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection, m_selectOnlyContentItems);
 
             m_singleSelectionManipulator.end(event->scenePos());
             view()->changeToMoveTool(event->scenePos());
@@ -149,11 +149,11 @@ void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &/*itemList*/,
             m_singleSelectionManipulator.begin(event->scenePos());
 
             if (event->modifiers().testFlag(Qt::ControlModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
             else if (event->modifiers().testFlag(Qt::ShiftModifier))
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
             else
-                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
+                m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection, m_selectOnlyContentItems);
 
             m_singleSelectionManipulator.end(event->scenePos());
         } else {
@@ -226,6 +226,11 @@ void SelectionTool::pasteClipBoard()
     // QClipboard *clipboard = QApplication::clipboard();
 }
 
+void SelectionTool::setSelectOnlyContentItems(bool selectOnlyContentItems)
+{
+    m_selectOnlyContentItems = selectOnlyContentItems;
+}
+
 void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &/*itemList*/)
 {
 
@@ -270,11 +275,11 @@ void SelectionTool::selectUnderPoint(QGraphicsSceneMouseEvent *event)
     m_singleSelectionManipulator.begin(event->scenePos());
 
     if (event->modifiers().testFlag(Qt::ControlModifier))
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::RemoveFromSelection, m_selectOnlyContentItems);
     else if (event->modifiers().testFlag(Qt::ShiftModifier))
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::AddToSelection, m_selectOnlyContentItems);
     else
-        m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection);
+        m_singleSelectionManipulator.select(SingleSelectionManipulator::InvertSelection, m_selectOnlyContentItems);
 
     m_singleSelectionManipulator.end(event->scenePos());
 }

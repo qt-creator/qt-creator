@@ -54,6 +54,8 @@ public:
     QAction *anchorToolAction() const;
     QAction *transformToolAction() const;
     QAction *showBoundingRectAction() const;
+    QAction *selectOnlyContentItemsAction() const;
+
 
     void setScene(FormEditorScene *scene);
     ToolBox *toolBox() const;
@@ -85,6 +87,7 @@ private:
     QWeakPointer<NumberSeriesAction> m_snappingMarginAction;
     QWeakPointer<NumberSeriesAction> m_snappingSpacingAction;
     QWeakPointer<QAction> m_showBoundingRectAction;
+    QWeakPointer<QAction> m_selectOnlyContentItemsAction;
 };
 
 

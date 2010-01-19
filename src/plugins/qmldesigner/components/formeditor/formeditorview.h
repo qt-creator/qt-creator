@@ -118,6 +118,7 @@ protected:
 protected slots:
     QList<ModelNode> adjustStatesForModelNodes(const QList<ModelNode> &nodeList) const;
     void updateGraphicsIndicators();
+    void setSelectOnlyContentItemsAction(bool selectOnlyContentItems);
 
 private: //functions
     void setupFormEditorItemTree(const QmlItemNode &qmlItemNode);

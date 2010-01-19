@@ -69,7 +69,7 @@ void SingleSelectionManipulator::end(const QPointF &/*updatePoint*/)
     m_isActive = false;
 }
 
-void SingleSelectionManipulator::select(SelectionType selectionType)
+void SingleSelectionManipulator::select(SelectionType selectionType, bool selectOnlyContentItems)
 {
     QList<QGraphicsItem*> itemList = m_editorView->scene()->items(m_beginPoint);
 
@@ -81,7 +81,7 @@ void SingleSelectionManipulator::select(SelectionType selectionType)
 
         if (formEditorItem
            && !formEditorItem->qmlItemNode().isRootNode()
-           && (formEditorItem->qmlItemNode().hasShowContent()))
+           && (formEditorItem->qmlItemNode().hasShowContent() || !selectOnlyContentItems))
         {
             selectedNode = formEditorItem->qmlItemNode();
             break;
