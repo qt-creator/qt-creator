@@ -208,7 +208,6 @@ void PropertyEditor::changeValue(const QString &name)
 
     PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(name)));
 
-
     if (value ==0) {
         qWarning() << "PropertyEditor:" <<name << " - value is null";
         return;
@@ -217,13 +216,9 @@ void PropertyEditor::changeValue(const QString &name)
     QmlObjectNode fxObjectNode(m_selectedNode);
 
     QVariant castedValue;
-    qreal castedExpressionValue;
-    bool converted = false;
-
 
     if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().property(propertyName, true).isValid()) {
         castedValue = fxObjectNode.modelNode().metaInfo().property(propertyName, true).castedValue(value->value());
-        castedExpressionValue = value->expression().toDouble(&converted);
     } else {
         qWarning() << "PropertyEditor:" <<name << "cannot be casted (metainfo)";
         return ;
@@ -243,24 +238,20 @@ void PropertyEditor::changeValue(const QString &name)
         }
     }
 
-
-    if (value->expression() == value->value().toString() || !value->value().isValid() || converted) {
-        if (converted)
-            castedValue = castedExpressionValue;
-
-        if (!value->value().isValid()) {
-            fxObjectNode.removeVariantProperty(propertyName);
-        } else {
-            if (value->value().canConvert<ModelNode>()) {
-                ; //fxObjectNode.setVariantProperty(propertyName, value->value().value<NodeState>().modelNode().toVariant()); ### hmmm only in basestate blah blah
+        try {
+            if (!value->value().isValid()) {
+                fxObjectNode.removeVariantProperty(propertyName);
             } else {
                 if (castedValue.isValid() && !castedValue.isNull())
                     fxObjectNode.setVariantProperty(propertyName, castedValue);
             }
         }
-    } else { //expression
-        changeExpression(name);
-    }
+
+        catch (Exception &e) {
+            qDebug() << "PropertyEditor::changeValue() " << name;
+            qDebug() << e.description();
+            qDebug() << e;
+        }
 }
 
 void PropertyEditor::changeExpression(const QString &name)
