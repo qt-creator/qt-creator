@@ -115,8 +115,7 @@ RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *paren
         m_modelToTextMerger(new Internal::ModelToTextMerger(this)),
         m_textToModelMerger(new Internal::TextToModelMerger(this)),
         m_textModifier(0),
-        transactionLevel(0),
-        errorState(false)
+        transactionLevel(0)
 {
 }
 
@@ -393,23 +392,19 @@ void RewriterView::setupComponent(const ModelNode &node)
 
 void RewriterView::applyChanges()
 {
-    if (errorState) {
+    if (inErrorState()) {
         qDebug() << "RewriterView::applyChanges() got called while in error state. Will do a quick-exit now.";
         throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "RewriterView::applyChanges() already in error state");
     }
 
-    bool success = false;
     try {
-        success = modelToTextMerger()->applyChanges();
-
-        if (!success) {
-            errorState = true;
-
-            throw RewritingException(__LINE__, __FUNCTION__, __FILE__, errors().first().description());
-        }
+        modelToTextMerger()->applyChanges();
     } catch (Exception &e) {
-        errorState = true;
-        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, e.description());
+        enterErrorState(e.description());
+    }
+
+    if (inErrorState()) {
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, m_rewritingErrorMessage);
     }
 }
 
@@ -436,11 +431,17 @@ void RewriterView::addError(const RewriterView::Error &error)
     emit errorsChanged(m_errors);
 }
 
+void RewriterView::enterErrorState(const QString &errorMessage)
+{
+    m_rewritingErrorMessage = errorMessage;
+}
+
 void RewriterView::resetToLastCorrectQml()
 {
     ModelAmender differenceHandler(m_textToModelMerger.data());
     m_textToModelMerger->load(lastCorrectQmlSource.toUtf8(), differenceHandler);
-    errorState = false;
+
+    leaveErrorState();
 }
 
 QMap<ModelNode, QString> RewriterView::extractText(const QList<ModelNode> &nodes) const
@@ -487,6 +488,9 @@ int RewriterView::firstDefinitionInsideLength(const ModelNode &node) const
 
 void RewriterView::qmlTextChanged()
 {
+    if (inErrorState())
+        return;
+
     if (m_textToModelMerger && m_textModifier) {
         const QString newQmlText = m_textModifier->text();
 

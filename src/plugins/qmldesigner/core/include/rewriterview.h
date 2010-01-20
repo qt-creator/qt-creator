@@ -140,6 +140,9 @@ public:
     void setErrors(const QList<Error> &errors);
     void addError(const Error &error);
 
+    void enterErrorState(const QString &errorMessage);
+    bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
+    void leaveErrorState() { m_rewritingErrorMessage = QString::null; }
     void resetToLastCorrectQml();
 
     QMap<ModelNode, QString> extractText(const QList<ModelNode> &nodes) const;
@@ -173,7 +176,7 @@ private: //variables
     QList<Error> m_errors;
     int transactionLevel;
     RewriterTransaction m_removeDefaultPropertyTransaction;
-    bool errorState;
+    QString m_rewritingErrorMessage;
     QString lastCorrectQmlSource;
 };
 

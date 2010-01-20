@@ -191,10 +191,10 @@ RewriterView *ModelToTextMerger::view()
     return m_rewriterView;
 }
 
-bool ModelToTextMerger::applyChanges()
+void ModelToTextMerger::applyChanges()
 {
     if (m_rewriteActions.isEmpty())
-        return true;
+        return;
 
     dumpRewriteActions(QLatin1String("Before compression"));
     RewriteActionCompressor compress(getPropertyOrder());
@@ -202,19 +202,23 @@ bool ModelToTextMerger::applyChanges()
     dumpRewriteActions(QLatin1String("After compression"));
 
     if (m_rewriteActions.isEmpty())
-        return true;
+        return;
 
     Document::Ptr tmpDocument(Document::create(QLatin1String("<ModelToTextMerger>")));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";
         qDebug() << "*** QML text:" << m_rewriterView->textModifier()->text();
-        return false;
+
+        QString errorMessage = QLatin1String("Error while rewriting");
+        if (!tmpDocument->diagnosticMessages().isEmpty())
+            errorMessage = tmpDocument->diagnosticMessages().first().message;
+
+        m_rewriterView->enterErrorState(errorMessage);
+        return;
     }
 
     TextModifier *textModifier = m_rewriterView->textModifier();
-
-    bool success = true;
 
     try {
         ModelNodePositionRecalculator positionRecalculator(m_rewriterView->positionStorage(), m_rewriterView->positionStorage()->modelNodes());
@@ -226,28 +230,33 @@ bool ModelToTextMerger::applyChanges()
         textModifier->startGroup();
 
         for (int i = 0; i < m_rewriteActions.size(); ++i) {
-            if (i != 0) {
-                textModifier->flushGroup();
-                success = refactoring.reparseDocument();
-            }
-
             RewriteAction* action = m_rewriteActions.at(i);
             if (DebugRewriteActions) {
                 qDebug() << "Next rewrite action:" << qPrintable(action->info());
             }
 
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
-            if (success)
-                success = action->execute(refactoring, *positionStore);
+            bool success = action->execute(refactoring, *positionStore);
 
-            if (!success /*&& DebugRewriteActions*/) {
-                qDebug() << "*** QML source code: ***";
-                qDebug() << qPrintable(textModifier->text());
-                qDebug() << "*** End of QML source code. ***";
+            if (success) {
+                textModifier->flushGroup();
+                success = refactoring.reparseDocument();
+            }
+            // don't merge these two if statements, because the previous then-part changes the value
+            // of "success" !
+            if (!success) {
+                m_rewriterView->enterErrorState(QLatin1String("Error rewriting document"));
+
+                if (true || DebugRewriteActions) {
+                    qDebug() << "*** QML source code: ***";
+                    qDebug() << qPrintable(textModifier->text());
+                    qDebug() << "*** End of QML source code. ***";
+                }
 
                 break;
             }
         }
+
         qDeleteAll(m_rewriteActions);
         m_rewriteActions.clear();
 
@@ -256,16 +265,14 @@ bool ModelToTextMerger::applyChanges()
         reindent(positionRecalculator.dirtyAreas());
 
         textModifier->reactivateChangeSignals();
-    } catch (...) {
+    } catch (Exception &e) {
+        m_rewriterView->enterErrorState(e.description());
+
         qDeleteAll(m_rewriteActions);
         m_rewriteActions.clear();
         textModifier->commitGroup();
         textModifier->reactivateChangeSignals();
-
-        throw;
     }
-
-    return success;
 }
 
 void ModelToTextMerger::reindent(const QMap<int, int> &/*dirtyAreas*/) const
