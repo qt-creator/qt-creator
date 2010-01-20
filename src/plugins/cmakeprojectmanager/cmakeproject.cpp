@@ -138,7 +138,7 @@ void CMakeProject::slotActiveBuildConfiguration()
 void CMakeProject::fileChanged(const QString &fileName)
 {
     Q_UNUSED(fileName)
-    if (m_insideFileChanged== true)
+    if (m_insideFileChanged)
         return;
     m_insideFileChanged = true;
     slotActiveBuildConfiguration();
