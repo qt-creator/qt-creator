@@ -104,12 +104,6 @@ void GdbEngine::updateLocalsClassic(const QVariant &cookie)
     m_toolTipExpression.clear();
     manager()->watchHandler()->beginCycle();
 
-    // Asynchronous load of injected library, initialize in first stop
-    if (m_dumperInjectionLoad && m_debuggingHelperState == DebuggingHelperLoadTried
-            && m_dumperHelper.typeCount() == 0
-            && inferiorPid() > 0)
-        tryQueryDebuggingHelpersClassic();
-
     QByteArray level = QByteArray::number(currentFrame());
     // '2' is 'list with type and value'
     QByteArray cmd = "-stack-list-arguments 2 " + level + ' ' + level;
@@ -492,19 +486,6 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
 void GdbEngine::tryLoadDebuggingHelpersClassic()
 {
     PRECONDITION;
-    if (isSynchroneous())
-        return;
-    switch (m_debuggingHelperState) {
-    case DebuggingHelperUninitialized:
-        break;
-    case DebuggingHelperLoadTried:
-        tryQueryDebuggingHelpersClassic();
-        return;
-    case DebuggingHelperAvailable:
-    case DebuggingHelperUnavailable:
-        return;
-    }
-
     if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
         // Load at least gdb macro based dumpers.
         QFile file(_(":/gdb/gdbmacros.txt"));
@@ -514,8 +495,6 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         postCommand(contents);
         return;
     }
-    if (m_dumperInjectionLoad && inferiorPid() <= 0) // Need PID to inject
-        return;
 
     PENDING_DEBUG("TRY LOAD CUSTOM DUMPERS");
     m_debuggingHelperState = DebuggingHelperUnavailable;
@@ -529,32 +508,8 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
     else
         dlopenLib = manager()->qtDumperLibraryName().toLocal8Bit();
 #if defined(Q_OS_WIN)
-    if (m_dumperInjectionLoad) {
-        /// Launch asynchronous remote thread to load.
-        SharedLibraryInjector injector(inferiorPid());
-        QString errorMessage;
-        const QString dlopenLibString = _(dlopenLib);
-        if (injector.remoteInject(dlopenLibString, false, &errorMessage)) {
-            debugMessage(_("Dumper injection loading triggered (%1)...").
-                         arg(dlopenLibString));
-        } else {
-            debugMessage(_("Dumper loading (%1) failed: %2").
-                         arg(dlopenLibString, errorMessage));
-            debugMessage(errorMessage);
-            manager()->showQtDumperLibraryWarning(errorMessage);
-            m_debuggingHelperState = DebuggingHelperUnavailable;
-            return;
-        }
-    } else {
-        debugMessage(_("Loading dumpers via debugger call (%1)...").
-                     arg(_(dlopenLib)));
-        postCommand("sharedlibrary .*"); // for LoadLibraryA
-        //postCommand("handle SIGSEGV pass stop print");
-        //postCommand("set unwindonsignal off");
-        postCommand("call LoadLibraryA(\"" + GdbMi::escapeCString(dlopenLib) + "\")",
-                    CB(handleDebuggingHelperSetup));
-        postCommand("sharedlibrary " + dotEscape(dlopenLib));
-    }
+    // We are using Python on Windows.
+    QTC_ASSERT(false, /**/);
 #elif defined(Q_OS_MAC)
     //postCommand("sharedlibrary libc"); // for malloc
     //postCommand("sharedlibrary libdl"); // for dlopen
@@ -575,8 +530,7 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         CB(handleDebuggingHelperSetup));
     postCommand("sharedlibrary " + dotEscape(dlopenLib));
 #endif
-    if (!m_dumperInjectionLoad)
-        tryQueryDebuggingHelpersClassic();
+    tryQueryDebuggingHelpersClassic();
 }
 
 void GdbEngine::tryQueryDebuggingHelpersClassic()
@@ -750,12 +704,13 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
             0, m_dumperHelper.typeCount()).arg(dumperVersion);
         showStatusMessage(successMsg);
     } else {
-        if (!m_dumperInjectionLoad) // Retry if thread has not terminated yet.
-            m_debuggingHelperState = DebuggingHelperUnavailable;
+        // Retry if thread has not terminated yet.
+        m_debuggingHelperState = DebuggingHelperUnavailable;
         showStatusMessage(tr("Debugging helpers not found."));
     }
     //qDebug() << m_dumperHelper.toString(true);
     //qDebug() << m_availableSimpleDebuggingHelpers << "DATA DUMPERS AVAILABLE";
 }
+
 } // namespace Internal
 } // namespace Debugger

@@ -80,9 +80,6 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
-#ifdef Q_OS_WIN
-#    include "shared/sharedlibraryinjector.h"
-#endif
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>
@@ -179,13 +176,7 @@ static QByteArray parsePlainConsoleStream(const GdbResponse &response)
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(DebuggerManager *manager) :
-    IDebuggerEngine(manager),
-#ifdef Q_OS_WIN // Do injection loading with MinGW (call loading does not work with 64bit)
-    m_dumperInjectionLoad(true)
-#else
-    m_dumperInjectionLoad(false)
-#endif
+GdbEngine::GdbEngine(DebuggerManager *manager) : IDebuggerEngine(manager)
 {
     m_trkOptions = QSharedPointer<TrkOptions>(new TrkOptions);
     m_trkOptions->fromSettings(Core::ICore::instance()->settings());
@@ -683,8 +674,6 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
     debugMessage(_("FOUND PID %1").arg(pid));    
 
     handleInferiorPidChanged(pid);
-    if (m_dumperInjectionLoad && !hasPython())
-        tryLoadDebuggingHelpersClassic();
 }
 
 void GdbEngine::postCommand(const QByteArray &command, AdapterCallback callback,
@@ -1113,8 +1102,7 @@ void GdbEngine::handleAqcuiredInferior()
           + theDebuggerStringSetting(SelectedPluginBreakpointsPattern));
     } else if (theDebuggerBoolSetting(NoPluginBreakpoints)) {
         // should be like that already
-        if (!m_dumperInjectionLoad)
-            postCommand("set auto-solib-add off");
+        postCommand("set auto-solib-add off");
         postCommand("set stop-on-solib-events 0");
     }
     #endif

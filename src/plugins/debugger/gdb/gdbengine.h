@@ -264,6 +264,7 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     void handleStop1(const GdbMi &data);
     StackFrame parseStackFrame(const GdbMi &mi, int level);
 
+    bool isSynchroneous() const { return hasPython(); }
     virtual bool hasPython() const;
     bool supportsThreads() const;
 
@@ -481,7 +482,6 @@ private: ////////// Dumper Management //////////
     Q_SLOT void setDebugDebuggingHelpersClassic(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 
-    const bool m_dumperInjectionLoad;
     DebuggingHelperState m_debuggingHelperState;
     QtDumperHelper m_dumperHelper;
 
