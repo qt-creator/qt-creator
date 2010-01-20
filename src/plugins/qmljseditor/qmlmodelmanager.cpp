@@ -170,10 +170,11 @@ void QmlModelManager::parse(QFutureInterface<void> &future,
         doc->setSource(contents);
 
         const QFileInfo fileInfo(fileName);
+        Core::MimeType fileMimeTy = db->findByFile(fileInfo);
 
-        if (jsSourceTy.matchesFile(fileInfo))
+        if (matchesMimeType(fileMimeTy, jsSourceTy))
             doc->parseJavaScript();
-        else if (qmlSourceTy.matchesFile(fileInfo))
+        else if (matchesMimeType(fileMimeTy, qmlSourceTy))
             doc->parseQml();
         else
             qWarning() << "Don't know how to treat" << fileName;
@@ -182,4 +183,24 @@ void QmlModelManager::parse(QFutureInterface<void> &future,
     }
 
     future.setProgressValue(files.size());
+}
+
+// Check whether fileMimeType is the same or extends knownMimeType
+bool QmlModelManager::matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType)
+{
+    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+
+    const QStringList knownTypeNames = QStringList(knownMimeType.type()) + knownMimeType.aliases();
+
+    foreach (const QString knownTypeName, knownTypeNames)
+        if (fileMimeType.matchesType(knownTypeName))
+            return true;
+
+    // recursion to parent types of fileMimeType
+    foreach (const QString &parentMimeType, fileMimeType.subClassesOf()) {
+        if (matchesMimeType(db->findByType(parentMimeType), knownMimeType))
+            return true;
+    }
+
+    return false;
 }

@@ -32,7 +32,6 @@
 #include "qmlprojectwizard.h"
 #include "qmlnewprojectwizard.h"
 #include "qmlprojectconstants.h"
-#include "qmlprojectfileseditor.h"
 #include "qmlproject.h"
 #include "qmltaskmanager.h"
 
@@ -52,14 +51,11 @@ using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
 
 QmlProjectPlugin::QmlProjectPlugin() :
-        m_projectFilesEditorFactory(0),
         m_qmlTaskManager(0)
 { }
 
 QmlProjectPlugin::~QmlProjectPlugin()
 {
-    removeObject(m_projectFilesEditorFactory);
-    delete m_projectFilesEditorFactory;
 }
 
 bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
@@ -75,12 +71,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
         return false;
 
     Manager *manager = new Manager;
-
-    TextEditor::TextEditorActionHandler *actionHandler =
-            new TextEditor::TextEditorActionHandler(Constants::C_FILESEDITOR);
-
-    m_projectFilesEditorFactory = new ProjectFilesFactory(manager, actionHandler);
-    addObject(m_projectFilesEditorFactory);
 
     m_qmlTaskManager = new QmlTaskManager(this);
 

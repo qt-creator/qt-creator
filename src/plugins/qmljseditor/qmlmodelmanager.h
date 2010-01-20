@@ -40,6 +40,7 @@
 
 namespace Core {
 class ICore;
+class MimeType;
 }
 
 namespace QmlJSEditor {
@@ -82,6 +83,8 @@ protected:
                       QmlModelManager *modelManager);
 
 private:
+    static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
+
     mutable QMutex m_mutex;
     Core::ICore *m_core;
     QmlJS::Snapshot _snapshot;

@@ -52,7 +52,6 @@ public:
     virtual void extensionsInitialized();
 
 private:
-    ProjectFilesFactory *m_projectFilesEditorFactory;
     QmlTaskManager *m_qmlTaskManager;
 };
 

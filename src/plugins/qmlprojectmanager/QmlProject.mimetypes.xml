@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-  <mime-type type="text/x-qml-project">
-    <sub-class-of type="text/plain"/>
+  <mime-type type="application/x-qmlproject">
+    <sub-class-of type="application/x-qml"/>
     <comment>Qml Project file</comment>
     <glob pattern="*.qmlproject"/>
   </mime-type>
