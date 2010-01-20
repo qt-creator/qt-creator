@@ -286,6 +286,7 @@ void ModelPrivate::checkPropertyName(const QString &propertyName)
 void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &internalNode, const QString &name, const QVariant &data)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
@@ -293,19 +294,20 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &interna
         try {
             view->auxiliaryDataChanged(node, name, data);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
 
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &internalNode, const QString &type, int majorVersion, int minorVersion)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
@@ -313,19 +315,20 @@ void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &internalNode
         try {
             view->nodeTypeChanged(node, type, majorVersion, minorVersion);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
 
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     bool resetModel = false;
+    QString description;
 
     QList<Internal::InternalNode::Pointer> internalList(toInternalNodeList(nodeList));
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
@@ -333,13 +336,13 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, cons
         try {
             view->customNotification(senderView, identifier, toModelNodeList(internalList, view.data()), data);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
 
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
@@ -347,6 +350,7 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView, cons
 void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPairList)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         QList<AbstractProperty> propertyList;
@@ -358,19 +362,20 @@ void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPa
         try {
             view->propertiesRemoved(propertyList);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
 
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty::Pointer> &internalPropertyList)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         QList<AbstractProperty> propertyList;
@@ -382,13 +387,13 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
         try {
             view->propertiesAboutToBeRemoved(propertyList);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
 
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
@@ -398,7 +403,7 @@ void ModelPrivate::setAuxiliaryData(const InternalNode::Pointer& node, const QSt
     notifyAuxiliaryDataChanged(node, name,data);
 }
 
-void ModelPrivate::resetModelByRewriter()
+void ModelPrivate::resetModelByRewriter(const QString &description)
 {
     RewriterView* rewriterView = 0;
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
@@ -407,7 +412,7 @@ void ModelPrivate::resetModelByRewriter()
     }
     Q_ASSERT(rewriterView);
     rewriterView->resetToLastCorrectQml();
-    throw RewritingException(__LINE__, __FUNCTION__, __FILE__);
+    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, description);
 }
 
 
@@ -433,6 +438,7 @@ void ModelPrivate::notifyNodeCreated(const InternalNode::Pointer &newInternalNod
     Q_ASSERT(newInternalNodePointer->isValid());
 
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
@@ -441,18 +447,19 @@ void ModelPrivate::notifyNodeCreated(const InternalNode::Pointer &newInternalNod
         try {
             view->nodeCreated(createdNode);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNode::Pointer &nodePointer)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
@@ -460,18 +467,19 @@ void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNode::Pointer &nodeP
         try {
             view->nodeAboutToBeRemoved(node);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &nodePointer, const InternalNodePointer &parentNodePointer, const QString &parentPropertyName, AbstractView::PropertyChangeFlags propertyChange)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
@@ -480,18 +488,19 @@ void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &nodePointer, con
         try {
             view->nodeRemoved(node, parentProperty, propertyChange);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyNodeIdChanged(const InternalNode::Pointer& nodePointer, const QString& newId, const QString& oldId)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
@@ -499,18 +508,19 @@ void ModelPrivate::notifyNodeIdChanged(const InternalNode::Pointer& nodePointer,
         try {
             view->nodeIdChanged(node, newId, oldId);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingPropertyPointer> &internalBropertyList, AbstractView::PropertyChangeFlags propertyChange)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         QList<BindingProperty> propertyList;
@@ -521,18 +531,19 @@ void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingPro
         try {
             view->bindingPropertiesChanged(propertyList, propertyChange);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &internalNodePointer, const QStringList& propertyNameList, AbstractView::PropertyChangeFlags propertyChange)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         QList<VariantProperty> propertyList;
@@ -547,18 +558,19 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &int
         try {
             view->variantPropertiesChanged(propertyList, propertyChange);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
 void ModelPrivate::notifyNodeReparent(const InternalNode::Pointer &internalNodePointer, const InternalNodeAbstractProperty::Pointer &newPropertyParent, const InternalNodePointer &oldParent, const QString &oldPropertyName, AbstractView::PropertyChangeFlags propertyChange)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         NodeAbstractProperty newProperty;
@@ -574,12 +586,12 @@ void ModelPrivate::notifyNodeReparent(const InternalNode::Pointer &internalNodeP
         try {
             view->nodeReparented(node, newProperty, oldProperty, propertyChange);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 
@@ -588,6 +600,7 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
                                           int oldIndex)
 {
     bool resetModel = false;
+    QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(!view.isNull());
@@ -596,12 +609,12 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
                                    ModelNode(internalNodePointer, model(), view.data()),
                                    oldIndex);
         } catch (RewritingException &e) {
-            Q_UNUSED(e);
+            description = e.description();
             resetModel = true;
         }
     }
     if (resetModel) {
-        resetModelByRewriter();
+        resetModelByRewriter(description);
     }
 }
 

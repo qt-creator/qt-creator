@@ -4,12 +4,17 @@ using namespace QmlDesigner;
 
 RewritingException::RewritingException(int line,
                                        const QString &function,
-                                       const QString &file):
-        Exception(line, function, file)
+                                       const QString &file, const QString &description):
+        Exception(line, function, file), m_description(description)
 {
 }
 
 QString RewritingException::type() const
 {
     return "RewritingException";
+}
+
+QString RewritingException::description() const
+{
+    return QLatin1String("Rewriting: ") + m_description;
 }

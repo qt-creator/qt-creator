@@ -136,7 +136,7 @@ public:
 
     void setRootNode(const InternalNodePointer& newRootNode);
     void setAuxiliaryData(const InternalNodePointer& node, const QString &name, const QVariant &data);
-    void resetModelByRewriter();
+    void resetModelByRewriter(const QString &description);
 
 
     // Imports:

@@ -395,7 +395,7 @@ void RewriterView::applyChanges()
 {
     if (errorState) {
         qDebug() << "RewriterView::applyChanges() got called while in error state. Will do a quick-exit now.";
-        throw RewritingException(__LINE__, __FUNCTION__, __FILE__);
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "RewriterView::applyChanges() already in error state");
     }
 
     bool success = false;
@@ -405,13 +405,11 @@ void RewriterView::applyChanges()
         if (!success) {
             errorState = true;
 
-            throw RewritingException(__LINE__, __FUNCTION__, __FILE__);
+            throw RewritingException(__LINE__, __FUNCTION__, __FILE__, errors().first().description());
         }
     } catch (Exception &e) {
-        Q_UNUSED(e);
         errorState = true;
-
-        throw RewritingException(__LINE__, __FUNCTION__, __FILE__);
+        throw RewritingException(__LINE__, __FUNCTION__, __FILE__, e.description());
     }
 }
 
