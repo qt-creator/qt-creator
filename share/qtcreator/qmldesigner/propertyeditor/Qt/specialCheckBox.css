@@ -2,6 +2,12 @@ QCheckBox {
      spacing: 2px;
      border-width: 2px;
      border-radius: 2px;
+	 color: white;
+ }
+ 
+ QToolButton {
+	color: white;
+	font: bold;
  }
 
  QCheckBox::indicator {
