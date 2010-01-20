@@ -49,9 +49,7 @@ QString homeDirOnDevice(const QString &uname)
 {
     const QString &dir = uname == QLatin1String("root")
         ? QLatin1String("/root")
-            : uname == QLatin1String("developer")
-            ? QLatin1String("/var/local/mad-developer-home")
-                : QLatin1String("/home/") + uname;
+        : QLatin1String("/home/") + uname;
     qDebug("%s: user name %s is mapped to home dir %s",
            Q_FUNC_INFO, qPrintable(uname), qPrintable(dir));
     return dir;
