@@ -406,4 +406,20 @@ QMenu::separator {
 	 selection-background-color: #d2d2d2;
 	 selection-color: #404040;
  }
+ 
+ QSlider::groove:horizontal {
+     height: 8px;
+     border: 2px solid #0F0F0F;
+     border-radius: 6px;
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #2c2c2c, stop: 1 #333333);
+    margin: 5px 0;
+ }
+
+ QSlider::handle:horizontal {
+     border: 2px solid #1B1B1B;
+     border-image: url(:/qmldesigner/images/pushbutton.png) 3;
+     width: 6px;
+     margin: 0px 0;	 
+ }
 
