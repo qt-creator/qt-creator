@@ -31,11 +31,13 @@
 
 #include "formeditorscene.h"
 #include "formeditorview.h"
+#include "formeditorwidget.h"
 
 #include "resizehandleitem.h"
 
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
+#include <QAction>
 #include <QtDebug>
 
 namespace QmlDesigner {
@@ -71,11 +73,16 @@ void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
 void ResizeTool::mouseMoveEvent(const QList<QGraphicsItem*> &,
                                            QGraphicsSceneMouseEvent *event)
 {
-
+    bool shouldSnapping = view()->widget()->snappingAction()->isChecked();
+    bool shouldSnappingAndAnchoring = view()->widget()->snappingAndAnchoringAction()->isChecked();
 
     ResizeManipulator::Snapping useSnapping = ResizeManipulator::NoSnapping;
-    if (event->modifiers().testFlag(Qt::ControlModifier) != view()->isSnapButtonChecked())
-        useSnapping = ResizeManipulator::UseSnapping;
+    if (event->modifiers().testFlag(Qt::ControlModifier) != (shouldSnapping || shouldSnappingAndAnchoring)) {
+        if (shouldSnappingAndAnchoring)
+            useSnapping = ResizeManipulator::UseSnappingAndAnchoring;
+        else
+            useSnapping = ResizeManipulator::UseSnapping;
+    }
 
     m_resizeManipulator.update(event->scenePos(), useSnapping);
 }

@@ -48,14 +48,14 @@ class FormEditorWidget : public QWidget
     Q_OBJECT
 public:
     FormEditorWidget(FormEditorView *view);
-    bool isSnapButtonChecked() const;
 
     ZoomAction *zoomAction() const;
     QAction *anchorToolAction() const;
     QAction *transformToolAction() const;
     QAction *showBoundingRectAction() const;
     QAction *selectOnlyContentItemsAction() const;
-
+    QAction *snappingAction() const;
+    QAction *snappingAndAnchoringAction() const;
 
     void setScene(FormEditorScene *scene);
     ToolBox *toolBox() const;

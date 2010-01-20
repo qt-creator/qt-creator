@@ -105,6 +105,8 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
 
     deleteSnapLines();
 
+    bool snap = useSnapping == UseSnapping || useSnapping == UseSnappingAndAnchoring;
+
     if (m_resizeController.isValid()) {
 
         FormEditorItem *formEditorItem = m_resizeController.formEditorItem();
@@ -120,7 +122,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         if (m_resizeHandle->isBottomRightHandle()) {
             boundingRect.setBottomRight(updatePointInLocalSpace);
 
-            if (useSnapping == UseSnapping) {
+            if (snap) {
                 double rightOffset = m_snapper.snapRightOffset(boundingRect);
                 if (rightOffset < std::numeric_limits<double>::max())
                     updatePointInLocalSpace.rx() -= rightOffset;
@@ -159,7 +161,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         } else if (m_resizeHandle->isTopLeftHandle()) {
             boundingRect.setTopLeft(updatePointInLocalSpace);
 
-            if (useSnapping == UseSnapping) {
+            if (snap) {
                 double leftOffset = m_snapper.snapLeftOffset(boundingRect);
                 if (leftOffset < std::numeric_limits<double>::max())
                     updatePointInLocalSpace.rx() -= leftOffset;
@@ -201,7 +203,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         } else if (m_resizeHandle->isTopRightHandle()) {
             boundingRect.setTopRight(updatePointInLocalSpace);
 
-            if (useSnapping == UseSnapping) {
+            if (snap) {
                 double rightOffset = m_snapper.snapRightOffset(boundingRect);
                 if (rightOffset < std::numeric_limits<double>::max())
                     updatePointInLocalSpace.rx() -= rightOffset;
@@ -240,7 +242,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         } else if (m_resizeHandle->isBottomLeftHandle()) {
             boundingRect.setBottomLeft(updatePointInLocalSpace);
 
-            if (useSnapping == UseSnapping) {
+            if (snap) {
                 double leftOffset = m_snapper.snapLeftOffset(boundingRect);
                 if (leftOffset < std::numeric_limits<double>::max())
                     updatePointInLocalSpace.rx() -= leftOffset;
@@ -280,7 +282,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         } else if (m_resizeHandle->isBottomHandle()) {
             boundingRect.setBottom(updatePointInLocalSpace.y());
 
-            if (useSnapping == UseSnapping) {
+            if (snap) {
                 double bottomOffset = m_snapper.snapBottomOffset(boundingRect);
                 if (bottomOffset < std::numeric_limits<double>::max())
                     updatePointInLocalSpace.ry() -= bottomOffset;
@@ -304,7 +306,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         } else if (m_resizeHandle->isTopHandle()) {
             boundingRect.setTop(updatePointInLocalSpace.y());
 
-            if (useSnapping == UseSnapping) {
+            if (snap) {
                 double topOffset = m_snapper.snapTopOffset(boundingRect);
                 if (topOffset < std::numeric_limits<double>::max())
                     updatePointInLocalSpace.ry() -= topOffset;
@@ -329,7 +331,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         } else if (m_resizeHandle->isRightHandle()) {
             boundingRect.setRight(updatePointInLocalSpace.x());
 
-            if (useSnapping == UseSnapping) {
+            if (snap) {
                 double rightOffset = m_snapper.snapRightOffset(boundingRect);
                 if (rightOffset < std::numeric_limits<double>::max())
                     updatePointInLocalSpace.rx() -= rightOffset;
@@ -354,7 +356,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         } else if (m_resizeHandle->isLeftHandle()) {
             boundingRect.setLeft(updatePointInLocalSpace.x());
 
-            if (useSnapping == UseSnapping) {
+            if (snap) {
                 double leftOffset = m_snapper.snapLeftOffset(boundingRect);
                 if (leftOffset < std::numeric_limits<double>::max())
                     updatePointInLocalSpace.rx() -= leftOffset;
@@ -378,7 +380,7 @@ void ResizeManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
             }
         }
 
-        if (useSnapping == UseSnapping)
+        if (snap)
             m_graphicsLineList = m_snapper.generateSnappingLines(boundingRect,
                                                                  m_layerItem.data(),
                                                                  m_beginToSceneTransform);

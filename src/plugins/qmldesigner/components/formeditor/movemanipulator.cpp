@@ -213,7 +213,13 @@ void MoveManipulator::update(const QPointF& updatePoint, Snapping useSnapping)
         QPointF beginPointInContainerSpace(m_snapper.containerFormEditorItem()->mapFromScene(m_beginPoint));
 
         QPointF offsetVector(updatePointInContainerSpace - beginPointInContainerSpace);
-        if (useSnapping == UseSnapping) {
+
+        if (useSnapping == UseSnappingAndAnchoring)
+        {
+
+        }
+
+        if (useSnapping == UseSnapping || useSnapping == UseSnappingAndAnchoring) {
             offsetVector -= findSnappingOffset(tanslatedBoundingRects(m_beginItemRectHash.values(), offsetVector));
             generateSnappingLines(tanslatedBoundingRects(m_beginItemRectHash.values(), offsetVector));
         }

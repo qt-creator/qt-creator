@@ -393,12 +393,6 @@ void FormEditorView::setCursor(const QCursor &cursor)
     m_formEditorWidget->setCursor(cursor);
 }
 
-bool FormEditorView::isSnapButtonChecked() const
-{
-    return m_formEditorWidget->isSnapButtonChecked();
-}
-
-
 void FormEditorView::nodeSlidedToIndex(const NodeListProperty &listProperty, int /*newIndex*/, int /*oldIndex*/)
 {
     QList<ModelNode> newOrderModelNodeList = listProperty.toModelNodeList();

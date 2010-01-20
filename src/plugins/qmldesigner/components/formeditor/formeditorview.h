@@ -93,8 +93,6 @@ public:
 
     void setCursor(const QCursor &cursor);
 
-    bool isSnapButtonChecked() const;
-
     void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 

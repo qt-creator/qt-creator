@@ -53,6 +53,7 @@ class MoveManipulator
 public:
     enum Snapping {
         UseSnapping,
+        UseSnappingAndAnchoring,
         NoSnapping
     };
 

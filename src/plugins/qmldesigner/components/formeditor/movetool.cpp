@@ -31,6 +31,7 @@
 
 #include "formeditorscene.h"
 #include "formeditorview.h"
+#include "formeditorwidget.h"
 #include "modelutilities.h"
 #include "itemutilfunctions.h"
 
@@ -38,6 +39,7 @@
 
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
+#include <QAction>
 #include <QtDebug>
 
 namespace QmlDesigner {
@@ -96,9 +98,16 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
         m_moveManipulator.reparentTo(containerItem);
     }
 
+    bool shouldSnapping = view()->widget()->snappingAction()->isChecked();
+    bool shouldSnappingAndAnchoring = view()->widget()->snappingAndAnchoringAction()->isChecked();
+
     MoveManipulator::Snapping useSnapping = MoveManipulator::NoSnapping;
-    if (event->modifiers().testFlag(Qt::ControlModifier) != view()->isSnapButtonChecked())
-        useSnapping = MoveManipulator::UseSnapping;
+    if (event->modifiers().testFlag(Qt::ControlModifier) != (shouldSnapping || shouldSnappingAndAnchoring)) {
+        if (shouldSnappingAndAnchoring)
+            useSnapping = MoveManipulator::UseSnappingAndAnchoring;
+        else
+            useSnapping = MoveManipulator::UseSnapping;
+    }
 
     m_moveManipulator.update(event->scenePos(), useSnapping);
 }

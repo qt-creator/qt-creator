@@ -46,6 +46,7 @@ class ResizeManipulator
 public:
     enum Snapping {
         UseSnapping,
+        UseSnappingAndAnchoring,
         NoSnapping
     };
 

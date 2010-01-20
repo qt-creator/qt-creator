@@ -233,6 +233,16 @@ QAction *FormEditorWidget::selectOnlyContentItemsAction() const
     return m_selectOnlyContentItemsAction.data();
 }
 
+QAction *FormEditorWidget::snappingAction() const
+{
+    return m_snappingAction.data();
+}
+
+QAction *FormEditorWidget::snappingAndAnchoringAction() const
+{
+    return m_snappingAndAnchoringAction.data();
+}
+
 void FormEditorWidget::setZoomLevel(double zoomLevel)
 {
     m_graphicsView->resetTransform();
@@ -253,11 +263,6 @@ QActionGroup *FormEditorWidget::toolActionGroup() const
 ToolBox *FormEditorWidget::toolBox() const
 {
      return m_toolBox.data();
-}
-
-bool FormEditorWidget::isSnapButtonChecked() const
-{
-    return m_snappingAction->isChecked();
 }
 
 double FormEditorWidget::spacing() const
