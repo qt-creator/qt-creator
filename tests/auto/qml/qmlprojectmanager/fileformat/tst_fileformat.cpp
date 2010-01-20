@@ -69,6 +69,8 @@ void TestProject::testQmlFileFilter()
         QmlEngine engine;
         QmlComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
+        if (!component.isReady())
+            qDebug() << component.errorsString();
         QVERIFY(component.isReady());
 
         QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
@@ -109,12 +111,13 @@ void TestProject::testQmlFileFilter()
     }
 
     //
-    // combination
+    // multiple entries
     //
     projectFile = QLatin1String(
             "import QmlProject 1.0\n"
             "Project {\n"
             "  QmlFiles {\n"
+            "    directory: \".\"\n"
             "  }"
             "  QmlFiles {\n"
             "    directory: \"subdir\"\n"
@@ -125,7 +128,8 @@ void TestProject::testQmlFileFilter()
         QmlEngine engine;
         QmlComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
-        qDebug() << component.errorsString();
+        if (!component.isReady())
+            qDebug() << component.errorsString();
         QVERIFY(component.isReady());
 
         QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
