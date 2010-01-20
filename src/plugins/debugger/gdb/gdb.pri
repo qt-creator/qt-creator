@@ -19,6 +19,8 @@ HEADERS += \
 SOURCES += \
     $$PWD/gdbmi.cpp \
     $$PWD/gdbengine.cpp \
+    $$PWD/classicgdbengine.cpp \
+    $$PWD/pythongdbengine.cpp \
     $$PWD/gdboptionspage.cpp \
     $$PWD/trkoptions.cpp \
     $$PWD/trkoptionswidget.cpp \

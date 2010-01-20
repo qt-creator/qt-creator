@@ -100,7 +100,7 @@ void TermGdbAdapter::startAdapter()
         var += QLatin1Char('=');
         var += m_engine->qtDumperLibraryName();
         environment.push_back(var);
-        m_engine->setDebuggingHelperState(DebuggingHelperLoadTried);
+        m_engine->setDebuggingHelperStateClassic(DebuggingHelperLoadTried);
     }
     m_stubProc.setEnvironment(environment);
     // FIXME: Starting the stub implies starting the inferior. This is

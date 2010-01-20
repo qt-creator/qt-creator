@@ -264,17 +264,17 @@ private: ////////// Gdb Output, State & Capability Handling //////////
     void handleStop1(const GdbMi &data);
     StackFrame parseStackFrame(const GdbMi &mi, int level);
 
-    virtual bool isSynchroneous() const;
+    virtual bool hasPython() const;
     bool supportsThreads() const;
 
     // Gdb initialization sequence
     void handleShowVersion(const GdbResponse &response);
-    void handleIsSynchroneous(const GdbResponse &response);
+    void handleHasPython(const GdbResponse &response);
 
     int m_gdbVersion; // 6.8.0 is 60800
     int m_gdbBuildVersion; // MAC only?
     bool m_isMacGdb;
-    bool m_isSynchronous; // Can act synchronously?
+    bool m_hasPython;
 
 private: ////////// Inferior Management //////////
 
@@ -393,10 +393,11 @@ private: ////////// View & Data Stuff //////////
     // Stack specific stuff
     //
     void updateAll();
+        void updateAllClassic();
+        void updateAllPython();
     void handleStackListFrames(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
     void handleStackListThreads(const GdbResponse &response);
-    void handleStackFrame(const GdbResponse &response);
     Q_SLOT void reloadStack(bool forceGotoLocation);
     Q_SLOT virtual void reloadFullStack();
     int currentFrame() const;
@@ -418,7 +419,7 @@ private: ////////// View & Data Stuff //////////
     void handleWatchPoint(const GdbResponse &response);
 
     // FIXME: BaseClass. called to improve situation for a watch item
-    void updateSubItem(const WatchData &data);
+    void updateSubItemClassic(const WatchData &data);
     void handleChildren(const WatchData &parent, const GdbMi &child,
         QList<WatchData> *insertions);
 
@@ -429,10 +430,10 @@ private: ////////// View & Data Stuff //////////
 
     void insertData(const WatchData &data);
     void sendWatchParameters(const QByteArray &params0);
-    void createGdbVariable(const WatchData &data);
+    void createGdbVariableClassic(const WatchData &data);
 
-    void runDebuggingHelper(const WatchData &data, bool dumpChildren);
-    void runDirectDebuggingHelper(const WatchData &data, bool dumpChildren);
+    void runDebuggingHelperClassic(const WatchData &data, bool dumpChildren);
+    void runDirectDebuggingHelperClassic(const WatchData &data, bool dumpChildren);
     bool hasDebuggingHelperForType(const QString &type) const;
 
     void handleVarListChildren(const GdbResponse &response);
@@ -442,20 +443,25 @@ private: ////////// View & Data Stuff //////////
     void handleVarAssign(const GdbResponse &response);
     void handleEvaluateExpression(const GdbResponse &response);
     //void handleToolTip(const GdbResponse &response);
-    void handleQueryDebuggingHelper(const GdbResponse &response);
-    void handleDebuggingHelperValue2(const GdbResponse &response);
-    void handleDebuggingHelperValue3(const GdbResponse &response);
+    void handleQueryDebuggingHelperClassic(const GdbResponse &response);
+    void handleDebuggingHelperValue2Classic(const GdbResponse &response);
+    void handleDebuggingHelperValue3Classic(const GdbResponse &response);
     void handleDebuggingHelperEditValue(const GdbResponse &response);
     void handleDebuggingHelperSetup(const GdbResponse &response);
 
     void updateLocals(const QVariant &cookie = QVariant());
-    void handleStackListLocals(const GdbResponse &response);
-    void handleStackListLocals0(const GdbResponse &response);
+        void updateLocalsClassic(const QVariant &cookie);
+        void updateLocalsPython(const QByteArray &varList);
+            void handleStackFramePython(const GdbResponse &response);
+        
+    void handleStackListLocalsClassic(const GdbResponse &response);
+    void handleStackListLocalsPython(const GdbResponse &response);
+
     WatchData localVariable(const GdbMi &item,
                             const QStringList &uninitializedVariables,
                             QMap<QByteArray, int> *seen);
     void setLocals(const QList<GdbMi> &locals);
-    void handleStackListArguments(const GdbResponse &response);
+    void handleStackListArgumentsClassic(const GdbResponse &response);
     void setWatchDataType(WatchData &data, const GdbMi &mi);
     void setWatchDataDisplayedType(WatchData &data, const GdbMi &mi);
 
@@ -465,13 +471,14 @@ private: ////////// View & Data Stuff //////////
 private: ////////// Dumper Management //////////
     QString qtDumperLibraryName() const;
     bool checkDebuggingHelpers();
-    void setDebuggingHelperState(DebuggingHelperState);
-    void tryLoadDebuggingHelpers();
-    void tryQueryDebuggingHelpers();
-    Q_SLOT void recheckDebuggingHelperAvailability();
+        bool checkDebuggingHelpersClassic();
+    void setDebuggingHelperStateClassic(DebuggingHelperState);
+    void tryLoadDebuggingHelpersClassic();
+    void tryQueryDebuggingHelpersClassic();
+    Q_SLOT void recheckDebuggingHelperAvailabilityClassic();
     void connectDebuggingHelperActions();
     void disconnectDebuggingHelperActions();
-    Q_SLOT void setDebugDebuggingHelpers(const QVariant &on);
+    Q_SLOT void setDebugDebuggingHelpersClassic(const QVariant &on);
     Q_SLOT void setUseDebuggingHelpers(const QVariant &on);
 
     const bool m_dumperInjectionLoad;
@@ -486,7 +493,9 @@ private: ////////// Convenience Functions //////////
     void debugMessage(const QString &msg);
     QMainWindow *mainWindow() const;
 
-    void updateLocalsSync(const QByteArray &varList);
+    static QString m_toolTipExpression;
+    static QPoint m_toolTipPos;
+    static QByteArray tooltipINameForExpression(const QByteArray &exp);
 };
 
 } // namespace Internal
