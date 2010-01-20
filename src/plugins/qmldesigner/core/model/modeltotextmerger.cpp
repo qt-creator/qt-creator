@@ -228,7 +228,7 @@ bool ModelToTextMerger::applyChanges()
         for (int i = 0; i < m_rewriteActions.size(); ++i) {
             if (i != 0) {
                 textModifier->flushGroup();
-                refactoring.reparseDocument();
+                success = refactoring.reparseDocument();
             }
 
             RewriteAction* action = m_rewriteActions.at(i);
@@ -237,7 +237,8 @@ bool ModelToTextMerger::applyChanges()
             }
 
             ModelNodePositionStorage *positionStore = m_rewriterView->positionStorage();
-            success = action->execute(refactoring, *positionStore);
+            if (success)
+                success = action->execute(refactoring, *positionStore);
 
             if (!success /*&& DebugRewriteActions*/) {
                 qDebug() << "*** QML source code: ***";
