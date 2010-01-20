@@ -306,8 +306,7 @@ QStringList GettingStartedWelcomePageWidget::tipsOfTheDay()
 
 
         tips.append(tr("You can switch between Qt Creator's modes using <tt>Ctrl+number</tt>:<ul>"
-                       "<li>1 - Welcome</li><li>2 - Edit</li><li>3 - Debug</li><li>4 - Projects</li><li>5 - Help</li>"
-                       "<li></li><li>6 - Output</li></ul>"));
+                       "<li>1 - Welcome</li><li>2 - Edit</li><li>3 - Debug</li><li>4 - Projects</li><li>5 - Help</li></ul>"));
         //:%1 gets replaced by Alt (Win/Unix) or Cmd (Mac)
         tips.append(tr("You can show and hide the side bar using <tt>%1+0<tt>.").arg(altShortcut));
         tips.append(tr("You can fine tune the <tt>Find</tt> function by selecting &quot;Whole Words&quot; "
