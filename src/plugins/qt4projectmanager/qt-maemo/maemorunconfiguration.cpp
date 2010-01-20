@@ -589,10 +589,10 @@ RunConfiguration *MaemoRunConfigurationFactory::create(Project *project,
     Qt4Project *qt4project = qobject_cast<Qt4Project *>(project);
     Q_ASSERT(qt4project);
 
-    connect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::Project*,
-        QString)), this, SLOT(addedRunConfiguration(ProjectExplorer::Project*)));
-    connect(project, SIGNAL(removedRunConfiguration(ProjectExplorer::Project*,
-        QString)), this, SLOT(removedRunConfiguration(ProjectExplorer::Project*)));
+    connect(project, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration *)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration *)));
+    connect(project, SIGNAL(removedRunConfiguration(RunConfiguration *)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration *)));
 
     RunConfiguration *rc = 0;
     const QLatin1String prefix("MaemoRunConfiguration.");
@@ -635,17 +635,15 @@ bool hasMaemoRunConfig(ProjectExplorer::Project* project)
     return false;
 }
 
-void MaemoRunConfigurationFactory::addedRunConfiguration(
-    ProjectExplorer::Project *project)
+void MaemoRunConfigurationFactory::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
-    if (hasMaemoRunConfig(project))
+    if (hasMaemoRunConfig(rc->project()))
         MaemoManager::instance()->addQemuSimulatorStarter(project);
 }
 
-void MaemoRunConfigurationFactory::removedRunConfiguration(
-    ProjectExplorer::Project *project)
+void MaemoRunConfigurationFactory::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
-    if (!hasMaemoRunConfig(project))
+    if (!hasMaemoRunConfig(rc->project()))
         MaemoManager::instance()->removeQemuSimulatorStarter(project);
 }
 

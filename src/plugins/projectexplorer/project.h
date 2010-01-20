@@ -133,8 +133,8 @@ signals:
     void activeRunConfigurationChanged();
     void runConfigurationsEnabledStateChanged();
 
-    void removedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
-    void addedRunConfiguration(ProjectExplorer::Project *p, const QString &name);
+    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
 
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);

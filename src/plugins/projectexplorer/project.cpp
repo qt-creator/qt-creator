@@ -418,7 +418,7 @@ void Project::addRunConfiguration(RunConfiguration* runConfiguration)
     QTC_ASSERT(runConfiguration && !m_runConfigurations.contains(runConfiguration), return);
 
     m_runConfigurations.push_back(runConfiguration);
-    emit addedRunConfiguration(this, runConfiguration->displayName());
+    emit addedRunConfiguration(runConfiguration);
 }
 
 void Project::removeRunConfiguration(RunConfiguration* runConfiguration)
@@ -438,7 +438,7 @@ void Project::removeRunConfiguration(RunConfiguration* runConfiguration)
     }
 
     m_runConfigurations.removeOne(runConfiguration);
-    emit removedRunConfiguration(this, runConfiguration->displayName());
+    emit removedRunConfiguration(runConfiguration);
     delete runConfiguration;
 }
 

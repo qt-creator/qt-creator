@@ -407,15 +407,8 @@ void RunConfigurationComboBox::activeRunConfigurationChanged()
     m_ignoreChange = false;
 }
 
-void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p, const QString &name)
+void RunConfigurationComboBox::addedRunConfiguration(RunConfiguration *runConfiguration)
 {
-    RunConfiguration *runConfiguration = 0;
-    foreach(RunConfiguration *rc, p->runConfigurations()) {
-        if (rc->displayName() == name) {
-            runConfiguration = rc;
-            break;
-        }
-    }
     if (runConfiguration) {
         connect(runConfiguration, SIGNAL(displayNameChanged()),
                 this, SLOT(rebuildTree()));
@@ -423,10 +416,9 @@ void RunConfigurationComboBox::addedRunConfiguration(ProjectExplorer::Project *p
     rebuildTree();
 }
 
-void RunConfigurationComboBox::removedRunConfiguration(ProjectExplorer::Project *p, const QString &name)
+void RunConfigurationComboBox::removedRunConfiguration(RunConfiguration *rc)
 {
-    Q_UNUSED(p)
-    Q_UNUSED(name)
+    Q_UNUSED(rc)
     rebuildTree();
 }
 
@@ -448,20 +440,20 @@ void RunConfigurationComboBox::connectToProject(ProjectExplorer::Project *p)
 {
     connect(p, SIGNAL(activeRunConfigurationChanged()),
             this, SLOT(activeRunConfigurationChanged()));
-    connect(p, SIGNAL(addedRunConfiguration(ProjectExplorer::Project *, QString)),
-            this, SLOT(addedRunConfiguration(ProjectExplorer::Project *, QString)));
-    connect(p, SIGNAL(removedRunConfiguration(ProjectExplorer::Project *, QString)),
-            this, SLOT(removedRunConfiguration(ProjectExplorer::Project *, QString)));
+    connect(p, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration *)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration *)));
+    connect(p, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration *)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration *)));
 }
 
 void RunConfigurationComboBox::disconnectFromProject(ProjectExplorer::Project *p)
 {
     disconnect(p, SIGNAL(activeRunConfigurationChanged()),
             this, SLOT(activeRunConfigurationChanged()));
-    disconnect(p, SIGNAL(addedRunConfiguration(ProjectExplorer::Project *, QString)),
-            this, SLOT(addedRunConfiguration(ProjectExplorer::Project *, QString)));
-    disconnect(p, SIGNAL(removedRunConfiguration(ProjectExplorer::Project *, QString)),
-            this, SLOT(removedRunConfiguration(ProjectExplorer::Project *, QString)));
+    disconnect(p, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration *)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration *)));
+    disconnect(p, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration *)),
+            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration *)));
 }
 
 void RunConfigurationComboBox::rebuildTree()

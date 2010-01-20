@@ -50,6 +50,7 @@ namespace ProjectExplorer {
 class IPropertiesPanel;
 class Project;
 class BuildConfiguration;
+class RunConfiguration;
 
 namespace Internal {
 
@@ -130,8 +131,8 @@ public:
 private slots:
     void activeRunConfigurationChanged();
     void activeItemChanged(int);
-    void addedRunConfiguration(ProjectExplorer::Project *p, const QString &);
-    void removedRunConfiguration(ProjectExplorer::Project *p, const QString &);
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
+    void removedRunConfiguration(ProjectExplorer::RunConfiguration *);
     void projectAdded(ProjectExplorer::Project*);
     void projectRemoved(ProjectExplorer::Project*);
     void rebuildTree();

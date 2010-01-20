@@ -200,9 +200,9 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
     connect(m_ui->removeToolButton, SIGNAL(clicked(bool)),
             this, SLOT(removeRunConfiguration()));
 
-    connect(m_project, SIGNAL(removedRunConfiguration(ProjectExplorer::Project *, QString)),
+    connect(m_project, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration *)),
             this, SLOT(initRunConfigurationComboBox()));
-    connect(m_project, SIGNAL(addedRunConfiguration(ProjectExplorer::Project *, QString)),
+    connect(m_project, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration *)),
             this, SLOT(initRunConfigurationComboBox()));
 
     connect(m_project, SIGNAL(activeRunConfigurationChanged()),

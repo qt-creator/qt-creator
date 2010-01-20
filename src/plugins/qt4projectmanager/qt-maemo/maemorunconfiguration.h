@@ -186,8 +186,8 @@ public:
     ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
 
 private slots:
-    void addedRunConfiguration(ProjectExplorer::Project *project);
-    void removedRunConfiguration(ProjectExplorer::Project *project);
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
 
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
