@@ -62,7 +62,7 @@ name &lt;email&gt; alias &lt;email&gt;</string>
          <bool>false</bool>
         </property>
         <property name="suffix">
-         <string>characters</string>
+         <string> characters</string>
         </property>
         <property name="minimum">
          <number>40</number>
@@ -105,5 +105,22 @@ name &lt;email&gt; alias &lt;email&gt;</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>lineWrapCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineWrapSpinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>195</x>
+     <y>46</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>240</x>
+     <y>45</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
