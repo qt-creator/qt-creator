@@ -1521,7 +1521,7 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
                     if (hasKey) {
                         if (item.text.startsWith(key, Qt::CaseSensitive)) {
                             item.relevance = 2;
-                        } else if (m_caseSensitivity == Qt::CaseInsensitive
+                        } else if (m_caseSensitivity != CaseSensitive
                                    && item.text.startsWith(key, Qt::CaseInsensitive)) {
                             item.relevance = 1;
                         }
