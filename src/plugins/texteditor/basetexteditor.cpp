@@ -877,39 +877,24 @@ void BaseTextEditor::copyLineUpDown(bool up)
     setTextCursor(move);
 }
 
-void BaseTextEditor::joinLineUp()
-{
-    joinLineUpDown(true);
-}
-
-void BaseTextEditor::joinLineDown()
-{
-    joinLineUpDown(false);
-}
-
-void BaseTextEditor::joinLineUpDown(bool up)
+void BaseTextEditor::joinLines()
 {
     QTextCursor move = textCursor();
     move.beginEditBlock();
 
-    if(up)
-        move.movePosition(QTextCursor::Up);
-    else
-        move.movePosition(QTextCursor::Down);
-
+    move.movePosition(QTextCursor::Down);
     move.movePosition(QTextCursor::StartOfBlock);
     move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     QString cutLine = move.selectedText();
+
     // collapse trailing whitespaces to one or insert whitespace
     cutLine.replace(QRegExp("^\\s*"), " ");
     move.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
     move.removeSelectedText();
-    move.clearSelection();
 
-    if(!up)
-        move.movePosition(QTextCursor::Up);
-
+    move.movePosition(QTextCursor::Up);
     move.movePosition(QTextCursor::EndOfBlock);
+
     move.insertText(cutLine);
     move.endEditBlock();
     setTextCursor(move);

@@ -115,8 +115,7 @@ private slots:
     void moveLineDown();
     void copyLineUp();
     void copyLineDown();
-    void joinLineUp();
-    void joinLineDown();
+    void joinLines();
     void updateCurrentEditor(Core::IEditor *editor);
 
 private:
@@ -153,8 +152,7 @@ private:
     QAction *m_moveLineDownAction;
     QAction *m_copyLineUpAction;
     QAction *m_copyLineDownAction;
-    QAction *m_joinLineUpAction;
-    QAction *m_joinLineDownAction;
+    QAction *m_joinLinesAction;
 
     uint m_optionalActions;
     QPointer<BaseTextEditor> m_currentEditor;
