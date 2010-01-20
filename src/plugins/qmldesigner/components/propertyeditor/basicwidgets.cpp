@@ -106,6 +106,7 @@ class QWidgetDeclarativeUI : public QObject
     Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
     Q_PROPERTY(QColor windowTextColor READ windowTextColor WRITE setWindowTextColor)
     Q_PROPERTY(QColor buttonTextColor READ buttonTextColor WRITE setButtonTextColor)
+    Q_PROPERTY(QColor buttonColor READ buttonColor WRITE setButtonColor)
 
     Q_PROPERTY(int fixedWidth READ width WRITE setFixedWidth)
     Q_PROPERTY(int fixedHeight READ height WRITE setFixedHeight)
@@ -358,6 +359,17 @@ public:
         pal.setColor(QPalette::ButtonText, color);
         q->setPalette(pal);
     }
+
+    QColor buttonColor() const
+    { return q->palette().color(QPalette::Button); }
+
+    void setButtonColor(const QColor &color)
+    {
+        QPalette pal = q->palette();
+        pal.setColor(QPalette::Button, color);
+        q->setPalette(pal);
+    }
+
 
     void setStyleSheetFile(const QUrl &url) {
         _styleSheetFile = url;
