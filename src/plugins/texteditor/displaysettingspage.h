@@ -68,8 +68,7 @@ public:
     void finish() { }
     virtual bool matches(const QString &s) const;
 
-    DisplaySettings displaySettings() const;
-    void setDisplaySettings(const DisplaySettings &);
+    const DisplaySettings &displaySettings() const;
 
 signals:
     void displaySettingsChanged(const TextEditor::DisplaySettings &);
@@ -77,6 +76,8 @@ signals:
 private:
     void settingsFromUI(DisplaySettings &displaySettings) const;
     void settingsToUI();
+    void setDisplaySettings(const DisplaySettings &);
+
     struct DisplaySettingsPagePrivate;
     DisplaySettingsPagePrivate *m_d;
 };

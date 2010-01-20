@@ -190,39 +190,39 @@ void TextEditorSettings::initializeEditor(BaseTextEditor *editor)
 
 void TextEditorSettings::fontZoomRequested(int zoom)
 {
-    FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
+    FontSettings &fs = const_cast<FontSettings&>(fontSettings());
     fs.setFontZoom(qMax(10, fs.fontZoom() + zoom));
     m_fontSettingsPage->saveSettings();
 }
 
 void TextEditorSettings::zoomResetRequested()
 {
-    FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
+    FontSettings &fs = const_cast<FontSettings&>(fontSettings());
     fs.setFontZoom(100);
     m_fontSettingsPage->saveSettings();
 }
 
-FontSettings TextEditorSettings::fontSettings() const
+const FontSettings &TextEditorSettings::fontSettings() const
 {
     return m_fontSettingsPage->fontSettings();
 }
 
-TabSettings TextEditorSettings::tabSettings() const
+const TabSettings &TextEditorSettings::tabSettings() const
 {
     return m_behaviorSettingsPage->tabSettings();
 }
 
-StorageSettings TextEditorSettings::storageSettings() const
+const StorageSettings &TextEditorSettings::storageSettings() const
 {
     return m_behaviorSettingsPage->storageSettings();
 }
 
-BehaviorSettings TextEditorSettings::behaviorSettings() const
+const BehaviorSettings &TextEditorSettings::behaviorSettings() const
 {
     return m_behaviorSettingsPage->behaviorSettings();
 }
 
-DisplaySettings TextEditorSettings::displaySettings() const
+const DisplaySettings &TextEditorSettings::displaySettings() const
 {
     return m_displaySettingsPage->displaySettings();
 }

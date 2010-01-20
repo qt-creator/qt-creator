@@ -69,9 +69,9 @@ public:
     void apply();
     void finish() { }
 
-    TabSettings tabSettings() const;
-    StorageSettings storageSettings() const;
-    BehaviorSettings behaviorSettings() const;
+    const TabSettings &tabSettings() const;
+    const StorageSettings &storageSettings() const;
+    const BehaviorSettings &behaviorSettings() const;
 
     virtual bool matches(const QString &s) const;
 

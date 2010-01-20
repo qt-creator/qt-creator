@@ -63,11 +63,11 @@ public:
 
     void initializeEditor(BaseTextEditor *editor);
 
-    FontSettings fontSettings() const;
-    TabSettings tabSettings() const;
-    StorageSettings storageSettings() const;
-    BehaviorSettings behaviorSettings() const;
-    DisplaySettings displaySettings() const;
+    const FontSettings &fontSettings() const;
+    const TabSettings &tabSettings() const;
+    const StorageSettings &storageSettings() const;
+    const BehaviorSettings &behaviorSettings() const;
+    const DisplaySettings &displaySettings() const;
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);

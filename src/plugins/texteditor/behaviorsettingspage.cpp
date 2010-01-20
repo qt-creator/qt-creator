@@ -195,17 +195,17 @@ void BehaviorSettingsPage::settingsToUI()
     m_d->m_page.scrollWheelZooming->setChecked(behaviorSettings.m_scrollWheelZooming);
 }
 
-TabSettings BehaviorSettingsPage::tabSettings() const
+const TabSettings &BehaviorSettingsPage::tabSettings() const
 {
     return m_d->m_tabSettings;
 }
 
-StorageSettings BehaviorSettingsPage::storageSettings() const
+const StorageSettings &BehaviorSettingsPage::storageSettings() const
 {
     return m_d->m_storageSettings;
 }
 
-BehaviorSettings BehaviorSettingsPage::behaviorSettings() const
+const BehaviorSettings &BehaviorSettingsPage::behaviorSettings() const
 {
     return m_d->m_behaviorSettings;
 }

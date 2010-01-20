@@ -113,17 +113,7 @@ void DisplaySettingsPage::apply()
     DisplaySettings newDisplaySettings;
 
     settingsFromUI(newDisplaySettings);
-
-    Core::ICore *core = Core::ICore::instance();
-    QSettings *s = core->settings();
-
-    if (newDisplaySettings != m_d->m_displaySettings) {
-        m_d->m_displaySettings = newDisplaySettings;
-        if (s)
-            m_d->m_displaySettings.toSettings(m_d->m_parameters.settingsPrefix, s);
-
-        emit displaySettingsChanged(newDisplaySettings);
-    }
+    setDisplaySettings(newDisplaySettings);
 }
 
 void DisplaySettingsPage::settingsFromUI(DisplaySettings &displaySettings) const
@@ -157,7 +147,7 @@ void DisplaySettingsPage::settingsToUI()
     m_d->m_page.autoFoldFirstComment->setChecked(displaySettings.m_autoFoldFirstComment);
 }
 
-DisplaySettings DisplaySettingsPage::displaySettings() const
+const DisplaySettings &DisplaySettingsPage::displaySettings() const
 {
     return m_d->m_displaySettings;
 }
