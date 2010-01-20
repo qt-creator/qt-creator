@@ -117,6 +117,7 @@ private slots:
     void testRewriterForArrayMagic();
     void testRewriterWithSignals();
     void testRewriterNodeSliding();
+    void testRewriterExecptionHandling();
 
     //
     // unit tests QmlModelNodeFacade/QmlModelState

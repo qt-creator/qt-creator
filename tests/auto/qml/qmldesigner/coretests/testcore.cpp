@@ -39,6 +39,7 @@
 #include <qmlanchors.h>
 #include <invalididexception.h>
 #include <invalidmodelnodeexception.h>
+#include <rewritingexception.h>
 #include <nodeinstanceview.h>
 #include <nodeinstance.h>
 #include <QDebug>
@@ -2538,6 +2539,46 @@ void TestCore::testRewriterNodeSliding()
 
     QCOMPARE(rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(0).id(), QLatin1String("rectangle1"));
     QCOMPARE(rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(1).id(), QLatin1String("rectangle2"));
+}
+
+void TestCore::testRewriterExecptionHandling()
+{
+    const QLatin1String qmlString("import Qt 4.6\n"
+                                  "Text {\n"
+                                  "}");
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    PlainTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView);
+    model->attachView(view.data());
+
+    // read in
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+    ModelNode rootNode = view->rootModelNode();
+    QVERIFY(rootNode.isValid());
+    QCOMPARE(rootNode.type(), QLatin1String("Qt/Text"));
+
+    try 
+    {
+        RewriterTransaction transaction = view->beginRewriterTransaction();
+        rootNode.variantProperty("bla") = QVariant("blah\"");
+        rootNode.variantProperty("text") = QVariant("text");
+        transaction.commit();
+        QFAIL("RewritingExecption should be thrown");
+    } catch (RewritingException &e) {
+        QVERIFY(rootNode.isValid());
+        QCOMPARE(rootNode.type(), QLatin1String("Qt/Text"));
+        QVERIFY(!rootNode.hasProperty("bla"));
+        QVERIFY(!rootNode.hasProperty("text"));
+    }
 }
 
 void TestCore::testRewriterFirstDefinitionInside()
