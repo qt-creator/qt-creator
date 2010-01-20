@@ -32,11 +32,11 @@
 #include "qt4nodes.h"
 #include "qt4project.h"
 #include "qt4projectmanager.h"
+#include "qt4projectmanagerconstants.h"
 #include "qtuicodemodelsupport.h"
 #include "qt4buildconfiguration.h"
 
 #include <projectexplorer/nodesvisitor.h>
-#include <projectexplorer/filewatcher.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -80,6 +80,62 @@ namespace {
     }
 }
 
+
+
+Qt4PriFile::Qt4PriFile(Qt4PriFileNode *qt4PriFile)
+    : IFile(qt4PriFile), m_priFile(qt4PriFile)
+{
+
+}
+
+bool Qt4PriFile::save(const QString &fileName)
+{
+    Q_UNUSED(fileName);
+    return false;
+}
+
+QString Qt4PriFile::fileName() const
+{
+    return m_priFile->path();
+}
+
+QString Qt4PriFile::defaultPath() const
+{
+    return QString::null;
+}
+
+QString Qt4PriFile::suggestedFileName() const
+{
+    return QString::null;
+}
+
+QString Qt4PriFile::mimeType() const
+{
+    return Qt4ProjectManager::Constants::PROFILE_MIMETYPE;
+}
+
+bool Qt4PriFile::isModified() const
+{
+    return false;
+}
+
+bool Qt4PriFile::isReadOnly() const
+{
+    return false;
+}
+
+bool Qt4PriFile::isSaveAsAllowed() const
+{
+    return false;
+}
+
+void Qt4PriFile::modified(Core::IFile::ReloadBehavior *behavior)
+{
+    Q_UNUSED(behavior);
+    m_priFile->scheduleUpdate();
+}
+
+
 /*!
   \class Qt4PriFileNode
   Implements abstract ProjectNode class
@@ -90,10 +146,12 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
           m_project(project),
           m_qt4ProFileNode(qt4ProFileNode),
           m_projectFilePath(QDir::fromNativeSeparators(filePath)),
-          m_projectDir(QFileInfo(filePath).absolutePath()),
-          m_fileWatcher(new ProjectExplorer::FileWatcher(this))
+          m_projectDir(QFileInfo(filePath).absolutePath())
 {
     Q_ASSERT(project);
+    Qt4PriFile *qt4PriFile = new Qt4PriFile(this);
+    Core::ICore::instance()->fileManager()->addFile(qt4PriFile);
+
     setFolderName(QFileInfo(filePath).completeBaseName());
 
     static QIcon dirIcon;
@@ -106,9 +164,6 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
         dirIcon.addPixmap(dirIconPixmap);
     }
     setIcon(dirIcon);
-    m_fileWatcher->addFile(filePath);
-    connect(m_fileWatcher, SIGNAL(fileChanged(QString)),
-            this, SLOT(scheduleUpdate()));
 }
 
 void Qt4PriFileNode::scheduleUpdate()

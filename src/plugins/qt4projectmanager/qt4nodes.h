@@ -30,6 +30,7 @@
 #ifndef QT4NODES_H
 #define QT4NODES_H
 
+#include <coreplugin/ifile.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/project.h>
 
@@ -104,6 +105,28 @@ enum Qt4Variable {
 class Qt4PriFileNode;
 class Qt4ProFileNode;
 
+class Qt4PriFile : public Core::IFile
+{
+    Q_OBJECT
+public:
+    Qt4PriFile(Qt4PriFileNode *qt4PriFile);
+    virtual bool save(const QString &fileName = QString());
+    virtual QString fileName() const;
+
+    virtual QString defaultPath() const;
+    virtual QString suggestedFileName() const;
+    virtual QString mimeType() const;
+
+    virtual bool isModified() const;
+    virtual bool isReadOnly() const;
+    virtual bool isSaveAsAllowed() const;
+
+    virtual void modified(Core::IFile::ReloadBehavior *behavior);
+
+private:
+    Qt4PriFileNode *m_priFile;
+};
+
 // Implements ProjectNode for qt4 pro files
 class Qt4PriFileNode : public ProjectExplorer::ProjectNode
 {
@@ -160,14 +183,11 @@ private:
     QString m_projectFilePath;
     QString m_projectDir;
 
-    // TODO we might be better off using an IFile* and the FileManager for
-    // watching changes to the .pro and .pri files on disk
-    ProjectExplorer::FileWatcher *m_fileWatcher;
-
     QMap<QString, Qt4UiCodeModelSupport *> m_uiCodeModelSupport;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;
+    friend class Qt4PriFile; // for scheduling updates on modified
     // internal temporary subtree representation
     friend struct InternalNode;
 };
