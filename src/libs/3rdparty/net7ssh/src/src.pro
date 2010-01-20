@@ -18,6 +18,10 @@ win32 {
     DEFINES += NE7SSH_EXPORTS=1 _WINDLL _USRDLL _CONSOLE _WINDOWS
 }
 
+unix {
+    QMAKE_CXXFLAGS_HIDESYMS -= -fvisibility-inlines-hidden # for ubuntu 7.04
+}
+
 # Input
 HEADERS += crypt.h \
         ne7ssh.h \
