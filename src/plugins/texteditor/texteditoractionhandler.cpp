@@ -86,6 +86,8 @@ TextEditorActionHandler::TextEditorActionHandler(const QString &context,
     m_moveLineDownAction(0),
     m_copyLineUpAction(0),
     m_copyLineDownAction(0),
+    m_joinLineUpAction(0),
+    m_joinLineDownAction(0),
     m_optionalActions(optionalActions),
     m_currentEditor(0),
     m_initialized(false)
@@ -282,6 +284,16 @@ void TextEditorActionHandler::createActions()
     command = am->registerAction(m_copyLineDownAction, Constants::COPY_LINE_DOWN, m_contextId);
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Down")));
     connect(m_copyLineDownAction, SIGNAL(triggered()), this, SLOT(copyLineDown()));
+
+    m_joinLineUpAction= new QAction(tr("Join Line Up"), this);
+    command = am->registerAction(m_joinLineUpAction, Constants::JOIN_LINE_UP, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+J")));
+    connect(m_joinLineUpAction, SIGNAL(triggered()), this, SLOT(joinLineUp()));
+
+    m_joinLineDownAction= new QAction(tr("Join Line Down"), this);
+    command = am->registerAction(m_joinLineDownAction, Constants::JOIN_LINE_DOWN, m_contextId);
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+J")));
+    connect(m_joinLineDownAction, SIGNAL(triggered()), this, SLOT(joinLineDown()));
 }
 
 bool TextEditorActionHandler::supportsAction(const QString & /*id */) const
@@ -443,6 +455,8 @@ FUNCTION(moveLineUp)
 FUNCTION(moveLineDown)
 FUNCTION(copyLineUp)
 FUNCTION(copyLineDown)
+FUNCTION(joinLineUp)
+FUNCTION(joinLineDown)
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
 {

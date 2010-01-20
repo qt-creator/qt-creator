@@ -412,6 +412,9 @@ public slots:
     void copyLineUp();
     void copyLineDown();
 
+    void joinLineUp();
+    void joinLineDown();
+
     void cleanWhitespace();
 
 signals:
@@ -620,6 +623,7 @@ private:
     void handleBackspaceKey();
     void moveLineUpDown(bool up);
     void copyLineUpDown(bool up);
+    void joinLineUpDown(bool up);
     void saveCurrentCursorPositionForNavigation();
     void updateCurrentLineHighlight();
 
