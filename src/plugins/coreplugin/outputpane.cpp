@@ -219,7 +219,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     connect(m_prevAction, SIGNAL(triggered()), this, SLOT(slotPrev()));
 
     m_minMaxAction = new QAction(this);
-    m_minMaxAction->setText(tr("Minimize/Maximize Output Pane"));
+    m_minMaxAction->setText(tr("Maximize Output Pane"));
     m_minMaxButton->setArrowType(Qt::UpArrow);
 
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
@@ -416,6 +416,8 @@ void OutputPaneManager::slotMinMax()
     bool maximize = m_minMaxButton->arrowType() == Qt::UpArrow;
     OutputPanePlaceHolder::m_current->maximizeOrMinimize(maximize);
     m_minMaxButton->setArrowType(maximize ? Qt::DownArrow : Qt::UpArrow);
+    m_minMaxAction->setToolTip(maximize ? tr("Minimize Output Pane")
+                                        : tr("Maximize Output Pane"));
 }
 
 void OutputPaneManager::buttonTriggered()
