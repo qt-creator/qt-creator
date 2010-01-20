@@ -438,6 +438,7 @@ void RewriterView::enterErrorState(const QString &errorMessage)
 
 void RewriterView::resetToLastCorrectQml()
 {
+    m_textModifier->textDocument()->setPlainText(lastCorrectQmlSource);
     ModelAmender differenceHandler(m_textToModelMerger.data());
     m_textToModelMerger->load(lastCorrectQmlSource.toUtf8(), differenceHandler);
 
