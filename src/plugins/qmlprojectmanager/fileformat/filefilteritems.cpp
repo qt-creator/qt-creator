@@ -65,6 +65,21 @@ void FileFilterBaseItem::setRecursive(bool recursive)
     updateFileList();
 }
 
+QString FileFilterBaseItem::pathsProperty() const
+{
+    return QStringList(m_explicitFiles.toList()).join(",");
+}
+
+void FileFilterBaseItem::setPathsProperty(const QString &path)
+{
+    // we support listening paths both in an array, and in one string
+    m_explicitFiles.clear();
+    foreach (const QString &subpath, path.split(QLatin1Char(','), QString::SkipEmptyParts)) {
+        m_explicitFiles += subpath.trimmed();
+    }
+    updateFileList();
+}
+
 QStringList FileFilterBaseItem::files() const
 {
     return m_files.toList();
@@ -89,7 +104,16 @@ void FileFilterBaseItem::updateFileList()
         return;
 
     QSet<QString> dirsToBeWatched;
-    const QSet<QString> newFiles = filesInSubTree(QDir(m_defaultDir), QDir(projectDir), &dirsToBeWatched);
+    QSet<QString> newFiles;
+    foreach (const QString &explicitPath, m_explicitFiles) {
+        if (QFileInfo(explicitPath).isAbsolute()) {
+            newFiles << explicitPath;
+        } else {
+            newFiles << QDir(projectDir).absoluteFilePath(explicitPath);
+        }
+    }
+    if (m_regex.isValid() && m_explicitFiles.isEmpty())
+        newFiles += filesInSubTree(QDir(m_defaultDir), QDir(projectDir), &dirsToBeWatched);
 
     if (newFiles != m_files) {
         // update watched files
