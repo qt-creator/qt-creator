@@ -163,7 +163,7 @@ void BuildStepsPage::addBuildStepWidget(int pos, BuildStep *step)
     s.upButton->setIconSize(QSize(10, 10));
     s.downButton->setIconSize(QSize(10, 10));
 #endif
-    s.removeButton = new QPushButton(this);
+    s.removeButton = new QToolButton(this);
     s.removeButton->setText(QChar('X'));
     s.removeButton->setMaximumHeight(22);
     s.removeButton->setMaximumWidth(22);

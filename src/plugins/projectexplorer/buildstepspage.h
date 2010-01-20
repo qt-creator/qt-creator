@@ -58,7 +58,7 @@ struct BuildStepsWidgetStruct
     Utils::DetailsWidget *detailsWidget;
     QToolButton *upButton;
     QToolButton *downButton;
-    QPushButton *removeButton;
+    QToolButton *removeButton;
 };
 
 class BuildStepsPage : public BuildConfigWidget
