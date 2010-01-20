@@ -610,6 +610,7 @@ class FrameCommand(gdb.Command):
         #
         # Breakpoints
         #
+        breakpoints = ""
         #d.safeoutput = ""
         #listOfBreakpoints(d)
         #d.pushOutput()
