@@ -192,9 +192,9 @@ void GdbEngine::connectDebuggingHelperActions()
     connect(theDebuggerAction(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
             this, SLOT(setUseDebuggingHelpers(QVariant)));
     connect(theDebuggerAction(DebugDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
-            this, SLOT(setDebugDebuggingHelpers(QVariant)));
+            this, SLOT(setDebugDebuggingHelpersClassic(QVariant)));
     connect(theDebuggerAction(RecheckDebuggingHelpers), SIGNAL(triggered()),
-            this, SLOT(recheckDebuggingHelperAvailability()));
+            this, SLOT(recheckDebuggingHelperAvailabilityClassic()));
 }
    
 void GdbEngine::disconnectDebuggingHelperActions()
@@ -1408,10 +1408,39 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         m_gdbVersion = 100;
         m_gdbBuildVersion = -1;
         m_isMacGdb = false;
-        QString msg = QString::fromLocal8Bit(response.data.findChild("consolestreamoutput").data());
+        GdbMi version = response.data.findChild("consolestreamoutput");
+        QString msg = QString::fromLocal8Bit(version.data());
+
+        bool foundIt = false;
+
         QRegExp supported(_("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?(-(\\d+))?"));
-        if (supported.indexIn(msg) == -1) {
+        if (supported.indexIn(msg) >= 0) {
             debugMessage(_("UNSUPPORTED GDB VERSION ") + msg);
+            m_gdbVersion = 10000 * supported.cap(2).toInt()
+                         +   100 * supported.cap(3).toInt()
+                         +     1 * supported.cap(5).toInt();
+            m_gdbBuildVersion = supported.cap(7).toInt();
+            m_isMacGdb = msg.contains(__("Apple version"));
+            foundIt = true;
+        }
+
+        // OpenSUSE managed to ship "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4).
+        if (!foundIt && msg.startsWith(_("GNU gdb (GDB) SUSE "))) {
+            supported.setPattern(_("[^\\d]*(\\d+).(\\d+).(\\d+).*"));
+            if (supported.indexIn(msg) >= 0) {
+                debugMessage(_("SUSE PATCHED GDB VERSION ") + msg);
+                m_gdbVersion = 10000 * supported.cap(1).toInt()
+                             +   100 * supported.cap(2).toInt()
+                             +     1 * supported.cap(3).toInt();
+                m_gdbBuildVersion = -1;
+                m_isMacGdb = false;
+                foundIt = true;
+            } else {
+                debugMessage(_("UNPARSABLE SUSE PATCHED GDB VERSION ") + msg);
+            }
+        }
+
+        if (!foundIt) {
 #if 0
             QStringList list = msg.split(_c('\n'));
             while (list.size() > 2)
@@ -1420,7 +1449,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
                 + _("<p><p>") + list.join(_("<br>")) + _("<p><p>")
                 + tr("This version is not officially supported by Qt Creator.\n"
                      "Debugging will most likely not work well.\n"
-                     "Using gdb 6.7 or later is strongly recommended.");
+                     "Using gdb 7.1 or later is strongly recommended.");
 #if 0
             // ugly, but 'Show again' check box...
             static QErrorMessage *err = new QErrorMessage(mainWindow());
@@ -1430,15 +1459,10 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
             //showMessageBox(QMessageBox::Information, tr("Warning"), msg);
 #endif
 #endif
-        } else {
-            m_gdbVersion = 10000 * supported.cap(2).toInt()
-                         +   100 * supported.cap(3).toInt()
-                         +     1 * supported.cap(5).toInt();
-            m_gdbBuildVersion = supported.cap(7).toInt();
-            m_isMacGdb = msg.contains(__("Apple version"));
-            debugMessage(_("GDB VERSION: %1, BUILD: %2%3").arg(m_gdbVersion)
-                .arg(m_gdbBuildVersion).arg(_(m_isMacGdb ? " (APPLE)" : "")));
         }
+
+        debugMessage(_("USING GDB VERSION: %1, BUILD: %2%3").arg(m_gdbVersion)
+            .arg(m_gdbBuildVersion).arg(_(m_isMacGdb ? " (APPLE)" : "")));
         //qDebug () << "VERSION 3:" << m_gdbVersion << m_gdbBuildVersion;
     }
 }
@@ -3576,9 +3600,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 
     postCommand("show version", CB(handleShowVersion));
 
-    postCommand("-interpreter-exec console \"python execfile('" + dumperSourcePath + "dumper.py')\"",
+    postCommand("-interpreter-exec console "
+            "\"python execfile('" + dumperSourcePath + "dumper.py')\"",
         NonCriticalResponse);
-    postCommand("-interpreter-exec console \"python execfile('" + dumperSourcePath + "gdbmacros.py')\"",
+    postCommand("-interpreter-exec console "
+            "\"python execfile('" + dumperSourcePath + "gdbmacros.py')\"",
         NonCriticalResponse);
 
     postCommand("-interpreter-exec console \"help bb\"",
