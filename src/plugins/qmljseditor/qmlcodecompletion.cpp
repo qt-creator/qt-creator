@@ -133,45 +133,48 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     QmlJS::Document::Ptr qmlDocument = edit->qmlDocument();
 //    qDebug() << "*** document:" << qmlDocument;
     if (qmlDocument.isNull())
-        return pos;
+        return -1;
 
     if (!qmlDocument->qmlProgram())
         qmlDocument = m_modelManager->snapshot().value(qmlDocument->fileName());
 
-    const QIcon icon = iconForColor(Qt::darkGray);
 
+    const QIcon idIcon = iconForColor(Qt::darkGray);
+    QStringList ids = qmlDocument->ids().keys();
+    foreach (const QString &id, ids) {
+        if (id.isEmpty())
+            continue;
+
+        TextEditor::CompletionItem item(this);
+        item.text = id;
+        item.icon = idIcon;
+        m_completions.append(item);
+    }
+
+    const QIcon otherIcon = iconForColor(Qt::darkCyan);
     // FIXME: this completion strategy is not going to work when the document was never parsed correctly.
-    if (qmlDocument && qmlDocument->qmlProgram()) {
-         QmlJS::AST::UiProgram *program = qmlDocument->qmlProgram();
-//         qDebug() << "*** program:" << program;
- 
-         if (program) {
-            QmlExpressionUnderCursor expressionUnderCursor;
-            QTextCursor cursor(edit->document());
-            cursor.setPosition(pos);
-            expressionUnderCursor(cursor, qmlDocument);
+    if (qmlDocument->qmlProgram() != 0) {
+        // qDebug() << "*** program:" << program;
+        QmlExpressionUnderCursor expressionUnderCursor;
+        QTextCursor cursor(edit->document());
+        cursor.setPosition(pos);
+        expressionUnderCursor(cursor, qmlDocument);
 
-            QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot(), m_typeSystem);
-            QmlResolveExpression resolver(context);
-//            qDebug()<<"*** expression under cursor:"<<expressionUnderCursor.expressionNode();
-            QList<QmlJS::Symbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
-//            qDebug()<<"***"<<symbols.size()<<"visible symbols";
+        QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot(), m_typeSystem);
+        QmlResolveExpression resolver(context);
+        // qDebug()<<"*** expression under cursor:"<<expressionUnderCursor.expressionNode();
+        const QList<QmlJS::Symbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
+        // qDebug()<<"***"<<symbols.size()<<"visible symbols";
 
-            foreach (QmlJS::Symbol *symbol, symbols) {
-                QString word;
+        foreach (QmlJS::Symbol *symbol, symbols) {
+            if (symbol->isIdSymbol())
+                continue; // nothing to do here.
 
-                if (symbol->isIdSymbol()) {
-                    word = symbol->asIdSymbol()->id();
-                } else {
-                    word = symbol->name();
-                }
-
-                if (word.isEmpty())
-                    continue;
- 
+            const QString word = symbol->name();
+            if (! word.isEmpty()) {
                 TextEditor::CompletionItem item(this);
                 item.text = word;
-                item.icon = icon;
+                item.icon = otherIcon;
                 m_completions.append(item);
             }
         }
