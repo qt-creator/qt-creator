@@ -1252,7 +1252,8 @@ void QtVersion::updateToolChainAndMkspec() const
         }
     } else if (qt_arch == "arm") {
 #ifdef QTCREATOR_WITH_MAEMO
-        m_toolChains << ToolChainPtr(MaemoManager::instance()->maemoToolChain(this));
+        if (MaemoManager::instance()->isValidMaemoQtVersion(this))
+            m_toolChains << ToolChainPtr(MaemoManager::instance()->maemoToolChain(this));
 #endif
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl

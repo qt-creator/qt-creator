@@ -36,12 +36,6 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-#ifdef Q_OS_WIN32
-#define EXEC_SUFFIX ".exe"
-#else
-#define EXEC_SUFFIX ""
-#endif
-
 namespace {
     const char *GCC_MAEMO_COMMAND = "arm-none-linux-gnueabi-gcc" EXEC_SUFFIX;
 }

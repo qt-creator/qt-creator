@@ -36,6 +36,12 @@ namespace Qt4ProjectManager {
     class QtVersion;
     namespace Internal {
 
+#ifdef Q_OS_WIN32
+#define EXEC_SUFFIX ".exe"
+#else
+#define EXEC_SUFFIX ""
+#endif
+
 class MaemoToolChain : public ProjectExplorer::GccToolChain
 {
 public:

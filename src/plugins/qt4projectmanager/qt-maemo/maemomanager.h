@@ -66,6 +66,7 @@ class MaemoManager : public QObject
 public:
     static MaemoManager *instance();
 
+    bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     void addVersion(const Qt4ProjectManager::QtVersion *version) { Q_UNUSED(version); }
     ToolChain *maemoToolChain(const Qt4ProjectManager::QtVersion *version) const;
 

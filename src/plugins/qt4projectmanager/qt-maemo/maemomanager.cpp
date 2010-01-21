@@ -40,8 +40,11 @@
 #include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QList>
 #include <QtCore/QMutexLocker>
+#include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
 
@@ -87,6 +90,30 @@ MaemoManager *MaemoManager::instance()
             m_instance = new MaemoManager;
     }
     return m_instance;
+}
+
+bool
+MaemoManager::isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version) const
+{
+    QString path = QDir::cleanPath(version->qmakeCommand());
+    path = path.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
+
+    QDir dir(path);
+    dir.cdUp(); dir.cdUp();
+
+    QFile file(dir.absolutePath() + QLatin1String("/cache/madde.conf"));
+    if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        const QString &target = path.mid(path.lastIndexOf(QLatin1Char('/')) + 1);
+        QTextStream stream(&file);
+        while (!stream.atEnd()) {
+            const QString &line = stream.readLine().trimmed();
+            if (line.startsWith(QLatin1String("target"))
+                && line.endsWith(target)) {
+                    return true;
+            }
+        }
+    }
+    return false;
 }
 
 ProjectExplorer::ToolChain*
