@@ -98,6 +98,12 @@ public:
 
     static QByteArray startProcessMessage(const QString &executable,
                                           const QStringList &arguments);
+    // Parse a TrkNotifyStopped message
+    static bool parseNotifyStopped(const QByteArray &a,
+                                   uint *pid, uint *tid, uint *address,
+                                   QString *why = 0);
+    // Helper message
+    static QString msgStopped(uint pid, uint tid, uint address, const QString &why);
 
 signals:
     void copyingStarted();
@@ -115,9 +121,11 @@ signals:
     void applicationOutputReceived(const QString &output);
     void copyProgress(int percent);
     void stateChanged(int);
+    void processStopped(uint pc, uint pid, uint tid, const QString& reason);
 
 public slots:
     void terminate();
+    void resumeProcess(uint pid, uint tid);
 
 private slots:
     void handleResult(const trk::TrkResult &data);
