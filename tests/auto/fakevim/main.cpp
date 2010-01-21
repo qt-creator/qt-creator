@@ -91,6 +91,7 @@ private slots:
     void command_right();
     void command_up();
     void command_w();
+    void command_x();
     void command_yyp();
     void command_y_dollar();
 
@@ -781,6 +782,15 @@ void tst_FakeVim::command_oO()
     check("G",               "l1\n" "l2\n" + lmid(0)+"\n" + "@l-1");
     check("Ol-2" + escape,   "l1\n" "l2\n" + lmid(0)+"\n" + "l-@2\n" + "l-1");
 }
+
+void tst_FakeVim::command_x()
+{
+    setup();
+    check("x", "@" + lmid(0));
+    move("j$",               l[1] + "@");
+    check("x", lmid(0,1)+"\n" + l[1].left(l[1].length()-1)+"@"+"\n" + lmid(2));
+}
+
 
 /*
 
