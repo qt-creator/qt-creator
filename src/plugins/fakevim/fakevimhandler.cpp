@@ -1551,6 +1551,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToStartOfLine();
         else
             moveToFirstNonBlankOnLine();
+        m_gflag = false;
         m_tc.clearSelection();
     } else if (key == control('i')) {
         if (!m_jumpListRedo.isEmpty()) {
@@ -1822,6 +1823,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if ((m_gflag && key == '~' && !isVisualMode())
         || (m_gflag && key == 'u' && !isVisualMode())
         || (m_gflag && key == 'U' && !isVisualMode())) {
+        m_gflag = false;
         if (atEndOfLine())
             moveLeft();
         setAnchor();
@@ -1835,6 +1837,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if ((key == '~' && isVisualMode())
         || (m_gflag && key == 'u' && isVisualMode())
         || (m_gflag && key == 'U' && isVisualMode())) {
+        m_gflag = false;
         if (isVisualLineMode())
             m_rangemode = RangeLineMode;
         else if (isVisualBlockMode())
