@@ -2058,7 +2058,9 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
         if (!m_commandBuffer.isEmpty()) {
             m_commandHistory.takeLast();
             m_commandHistory.append(m_commandBuffer);
+            EDITOR(setTextCursor(m_tc));
             handleExCommand(m_commandBuffer);
+            m_tc = EDITOR(textCursor());
             leaveVisualMode();
         }
     } else if (unmodified == Key_Return && isSearchMode()) {
