@@ -108,6 +108,7 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
 {
     QTC_ASSERT(m_editorWidget, return);
 
+    setAttribute(Qt::WA_MacShowFocusRect, false);
     setUniformItemSizes(true);
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setSelectionMode(QAbstractItemView::SingleSelection);
