@@ -95,6 +95,9 @@ private slots:
     void command_yyp();
     void command_y_dollar();
 
+    void visual_d();
+    void Visual_d();
+
     // special tests
     void test_i_cw_i();
 
@@ -799,6 +802,48 @@ void tst_FakeVim::command_x()
     check("x", "@" + lmid(0));
     move("j$", cursor(l[1], -1));
     check("x", lmid(0,1)+"\n" + l[1].left(l[1].length()-2)+"@"+l[1].mid(l[1].length()-2,1)+"\n" + lmid(2));
+}
+
+void tst_FakeVim::visual_d()
+{
+    setup();
+    check("vd", "@" + lmid(0));
+    check("vx", "@" + lmid(0));
+    check("vjd", "@" + lmid(1).mid(1));
+    qWarning("FIXME");
+    check("ugg", "@" + lmid(0)); // FIXME: cursor should be at begin of doc w/o gg
+    move("j", "@" + l[1]);
+    check("vd", lmid(0, 1)+"\n" + "@" + lmid(1).mid(1));
+    check("u", lmid(0, 1)+"\n" + "@" + lmid(1));
+    check("vx", lmid(0, 1)+"\n" + "@" + lmid(1).mid(1));
+    check("u", lmid(0, 1)+"\n" + "@" + lmid(1));
+    check("vhx", lmid(0, 1)+"\n" + "@" + lmid(1).mid(1));
+    check("u", lmid(0, 1)+"\n" + "@" + lmid(1));
+    check("vlx", lmid(0, 1)+"\n" + "@" + lmid(1).mid(2));
+    check("P", lmid(0, 1)+"\n" + lmid(1).left(1)+"@"+lmid(1).mid(1));
+    check("vhd", lmid(0, 1)+"\n" + "@" + lmid(1).mid(2));
+    qWarning("FIXME");
+    check("u0", lmid(0, 1)+"\n" + "@" + lmid(1)); // FIXME: cursor should be at begin of line w/o 0
+    check("v$d", lmid(0, 1)+"\n" + "@" + lmid(2));
+    check("v$od", lmid(0, 1)+"\n" + "@" + lmid(3));
+    check("$v$x", lmid(0, 1)+"\n" + lmid(3,1) + "@" + lmid(4));
+    check("0v$d", lmid(0, 1)+"\n" + "@" + lmid(5));
+    check("$v0d", lmid(0, 1)+"\n" + "@\n" + lmid(6));
+    check("v$o0k$d", lmid(0, 1)+"\n" + "@" + lmid(6).mid(1));
+}
+
+void tst_FakeVim::Visual_d()
+{
+    setup();
+    check("Vd", "@" + lmid(1));
+    check("V2kd", "@" + lmid(2));
+    check("u", "@" + lmid(1));
+    check("u", "@" + lmid(0));
+    move("j", "@" + l[1]);
+    check("V$d", lmid(0,1)+"\n" + "@" + lmid(2));
+    check("$V$$d", lmid(0,1)+"\n" + "@" + lmid(3));
+    check("Vkx", "@" + lmid(4));
+    check("P", "@" + lmid(0,1)+"\n" + lmid(3));
 }
 
 
