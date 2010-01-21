@@ -521,6 +521,7 @@ void FakeVimHandler::Private::init()
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
     m_passing = false;
+    m_findPending = false;
     m_fakeEnd = false;
     m_lastSearchForward = true;
     m_register = '"';
