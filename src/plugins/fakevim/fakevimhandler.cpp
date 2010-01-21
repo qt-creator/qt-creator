@@ -1160,7 +1160,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == '/' || key == '?') {
         if (hasConfig(ConfigIncSearch)) {
             // re-use the core dialog.
-            emit q->findRequested(key == '?');
+            m_lastSearchForward = (key == '/');
+            emit q->findRequested(!m_lastSearchForward);
+            m_tc = EDITOR(textCursor());
+            m_tc.setPosition(m_tc.selectionStart());
         } else {
             // FIXME: make core find dialog sufficiently flexible to
             // produce the "default vi" behaviour too. For now, roll our own.
@@ -1509,23 +1512,19 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()) / 2)));
         handleStartOfLine();
         finishMovement();
-    } else if (key == 'n') { // FIXME: see comment for '/'
-        if (hasConfig(ConfigIncSearch))
-        {
-            emit q->findNextRequested(false);
+    } else if (key == 'n' || key == 'N') {
+        bool forward = (key == 'n') ? m_lastSearchForward : !m_lastSearchForward;
+        if (hasConfig(ConfigIncSearch)) {
+            int pos = position();
+            emit q->findNextRequested(!forward);
+            if (forward && pos == EDITOR(textCursor()).selectionStart()) {
+                // if cursor is already positioned at the start of a find result, this is returned
+                emit q->findNextRequested(false);
+            }
             m_tc = EDITOR(textCursor());
-        }
-        else
+            m_tc.setPosition(m_tc.selectionStart());
+        } else
             search(lastSearchString(), m_lastSearchForward);
-        recordJump();
-    } else if (key == 'N') {
-        if (hasConfig(ConfigIncSearch))
-        {
-            emit q->findNextRequested(true);
-            m_tc = EDITOR(textCursor());
-        }
-        else
-            search(lastSearchString(), !m_lastSearchForward);
         recordJump();
     } else if (key == 'o' || key == 'O') {
         beginEditBlock();
