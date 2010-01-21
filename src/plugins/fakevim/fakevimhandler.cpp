@@ -1257,12 +1257,14 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setTargetColumn();
         finishMovement();
     } else if (key == '$' || key == Key_End) {
+        if (count() > 1)
+            moveDown(count() - 1);
         moveToEndOfLine();
         m_movetype = MoveInclusive;
         setTargetColumn();
         if (m_submode == NoSubMode)
             m_targetColumn = -1;
-        finishMovement("$");
+        finishMovement("%1$", count());
     } else if (key == ',') {
         // FIXME: use some other mechanism
         //m_passing = true;
