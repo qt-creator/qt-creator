@@ -287,6 +287,7 @@ public:
     void finishMovement(const QString &text = QString());
     void search(const QString &needle, bool forward);
     void highlightMatches(const QString &needle);
+    void stopIncrementalFind();
 
     int mvCount() const { return m_mvcount.isEmpty() ? 1 : m_mvcount.toInt(); }
     int opCount() const { return m_opcount.isEmpty() ? 1 : m_opcount.toInt(); }
@@ -416,6 +417,7 @@ public:
     QString m_currentMessage;
 
     bool m_lastSearchForward;
+    bool m_findPending;
     QString m_lastInsertion;
 
     int anchor() const { return m_anchor; }
@@ -710,6 +712,16 @@ EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
             || m_mode == SearchBackwardMode)
         return handleMiniBufferModes(key, unmodified, text);
     return EventUnhandled;
+}
+
+void FakeVimHandler::Private::stopIncrementalFind()
+{
+    if (m_findPending) {
+        m_findPending = false;
+        QTextCursor tc = EDITOR(textCursor());
+        tc.setPosition(tc.selectionStart());
+        EDITOR(setTextCursor(tc));
+    }
 }
 
 void FakeVimHandler::Private::setUndoPosition(int pos)
@@ -1160,6 +1172,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == '/' || key == '?') {
         if (hasConfig(ConfigIncSearch)) {
             // re-use the core dialog.
+            m_findPending = true;
             m_lastSearchForward = (key == '/');
             EDITOR(setTextCursor(m_tc));
             emit q->findRequested(!m_lastSearchForward);
@@ -3185,6 +3198,10 @@ bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)
         }
         KEY_DEBUG("NO SHORTCUT OVERRIDE" << kev->key());
         return true;
+    }
+
+    if (active && ev->type() == QEvent::FocusIn && ob == d->editor()) {
+        d->stopIncrementalFind();
     }
 
     return QObject::eventFilter(ob, ev);
