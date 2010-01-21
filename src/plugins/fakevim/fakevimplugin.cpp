@@ -56,6 +56,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textblockiterator.h>
 
+#include <find/findplugin.h>
 #include <find/textfindconstants.h>
 
 #include <utils/qtcassert.h>
@@ -416,6 +417,8 @@ void FakeVimPluginPrivate::windowCommand(int key)
 void FakeVimPluginPrivate::find(bool reverse)
 {
     Q_UNUSED(reverse)  // TODO: Creator needs an action for find in reverse.
+    if (Find::Internal::FindPlugin::instance())
+        Find::Internal::FindPlugin::instance()->setUseFakeVim(true);
     triggerAction(Find::Constants::FIND_IN_DOCUMENT);
 }
 
@@ -490,6 +493,8 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
 {
     //qDebug() << "SET USE FAKEVIM" << value;
     bool on = value.toBool();
+    if (Find::Internal::FindPlugin::instance())
+        Find::Internal::FindPlugin::instance()->setUseFakeVim(on);
     if (on) {
         Core::EditorManager::instance()->showEditorStatusBar( 
             QLatin1String(Constants::MINI_BUFFER), 

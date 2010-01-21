@@ -59,6 +59,8 @@ public:
     void readSettings();
     void writeSettings();
 
+    void setUseFakeVim(bool on);
+
 private slots:
     void invokeFindNext();
     void invokeFindPrevious();
@@ -129,6 +131,7 @@ private:
 
     QTimer m_findIncrementalTimer;
     QTimer m_findStepTimer;
+    bool m_useFakeVim;
 };
 
 } // namespace Internal

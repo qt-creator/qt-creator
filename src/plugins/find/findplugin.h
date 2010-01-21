@@ -31,7 +31,6 @@
 #define FINDPLUGIN_H
 
 #include "ifindfilter.h"
-#include "findtoolbar.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -39,19 +38,23 @@
 #include <QtCore/QStringList>
 #include <QtGui/QAction>
 #include <QtGui/QTextDocument>
+#include <QtGui/QStringListModel>
 
 namespace Find {
 namespace Internal {
 
+class FindToolBar;
 class FindToolWindow;
+class CurrentDocumentFind;
 
-class FindPlugin : public ExtensionSystem::IPlugin
+class FIND_EXPORT FindPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
 public:
     FindPlugin();
     virtual ~FindPlugin();
+    static FindPlugin *instance();
 
     // IPlugin
     bool initialize(const QStringList &arguments, QString *error_message);
@@ -63,6 +66,7 @@ public:
     void updateReplaceCompletion(const QString &text);
     QStringListModel *findCompletionModel() { return m_findCompletionModel; }
     QStringListModel *replaceCompletionModel() { return m_replaceCompletionModel; }
+    void setUseFakeVim(bool on);
 
 public slots:
     void setCaseSensitive(bool sensitive);
@@ -86,6 +90,8 @@ private:
     void readSettings();
 
     //variables
+    static FindPlugin *m_instance;
+
     QHash<IFindFilter *, QAction *> m_filterActions;
 
     CurrentDocumentFind *m_currentDocumentFind;

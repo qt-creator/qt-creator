@@ -31,6 +31,7 @@
 
 #include "textfindconstants.h"
 #include "currentdocumentfind.h"
+#include "findtoolbar.h"
 #include "findtoolwindow.h"
 #include "searchresultwindow.h"
 
@@ -70,6 +71,8 @@ namespace {
 using namespace Find;
 using namespace Find::Internal;
 
+FindPlugin *FindPlugin::m_instance = 0;
+
 FindPlugin::FindPlugin()
   : m_currentDocumentFind(0),
     m_findToolBar(0),
@@ -77,13 +80,21 @@ FindPlugin::FindPlugin()
     m_findCompletionModel(new QStringListModel(this)),
     m_replaceCompletionModel(new QStringListModel(this))
 {
+    QTC_ASSERT(!m_instance, return);
+    m_instance = this;
 }
 
 FindPlugin::~FindPlugin()
 {
+    m_instance = 0;
     delete m_currentDocumentFind;
     delete m_findToolBar;
     delete m_findDialog;
+}
+
+FindPlugin *FindPlugin::instance()
+{
+    return m_instance;
 }
 
 bool FindPlugin::initialize(const QStringList &, QString *)
@@ -295,6 +306,12 @@ void FindPlugin::updateCompletion(const QString &text, QStringList &completions,
     while (completions.size() > MAX_COMPLETIONS)
         completions.removeLast();
     model->setStringList(completions);
+}
+
+void FindPlugin::setUseFakeVim(bool on)
+{
+    if (m_findToolBar)
+        m_findToolBar->setUseFakeVim(on);
 }
 
 Q_EXPORT_PLUGIN(FindPlugin)

@@ -70,7 +70,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
       m_casesensitiveIcon(":/find/images/casesensitively.png"),
       m_regexpIcon(":/find/images/regexp.png"),
       m_wholewordsIcon(":/find/images/wholewords.png"),
-      m_findIncrementalTimer(this), m_findStepTimer(this)
+      m_findIncrementalTimer(this), m_findStepTimer(this),
+      m_useFakeVim(false)
 {
     //setup ui
     m_ui.setupUi(this);
@@ -332,7 +333,10 @@ void FindToolBar::updateToolBar()
 void FindToolBar::invokeFindEnter()
 {
     if (m_currentDocumentFind->isEnabled()) {
-        invokeFindNext();
+        if (m_useFakeVim)
+            setFocusToCurrentFindSupport();
+        else
+            invokeFindNext();
     }
 }
 
@@ -633,6 +637,11 @@ void FindToolBar::readSettings()
     settings->endGroup();
     m_findFlags = flags;
     findFlagsChanged();
+}
+
+void FindToolBar::setUseFakeVim(bool on)
+{
+    m_useFakeVim = on;
 }
 
 void FindToolBar::setFindFlag(IFindSupport::FindFlag flag, bool enabled)
