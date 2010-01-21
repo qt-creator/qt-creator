@@ -506,8 +506,6 @@ public:
     bool hasConfig(int code, const char *value) const // FIXME
         { return config(code).toString().contains(value); }
 
-    // for restoring cursor position
-    int m_savedYankPosition;
     int m_targetColumn; // -1 if past end of line
     int m_visualTargetColumn; // 'l' can move past eol in visual mode only
 
@@ -559,7 +557,6 @@ void FakeVimHandler::Private::init()
     m_visualTargetColumn = 0;
     m_movetype = MoveInclusive;
     m_anchor = 0;
-    m_savedYankPosition = 0;
     m_cursorWidth = EDITOR(cursorWidth());
     m_inReplay = false;
     m_justAutoIndented = 0;
@@ -869,8 +866,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         }
 
         if (m_submode != TransformSubMode) {
-            if (m_submode == YankSubMode)
-                m_savedYankPosition = qMin(anchor(), position());
             yankSelectedText();
             if (m_movetype == MoveLineWise)
                 m_registers[m_register].rangemode = RangeLineMode;
@@ -904,12 +899,17 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         endEditBlock();
     } else if (m_submode == YankSubMode) {
         m_submode = NoSubMode;
+        const int la = lineForPosition(anchor());
+        const int lp = lineForPosition(position());
         if (m_register != '"') {
             setPosition(m_marks[m_register]);
             moveToStartOfLine();
         } else {
-            setPosition(m_savedYankPosition);
+            if (anchor() <= position())
+                setPosition(anchor());
         }
+        if (la != lp)
+            showBlackMessage(QString("%1 lines yanked").arg(qAbs(la - lp) + 1));
     } else if (m_submode == TransformSubMode) {
         if (m_subsubmode == InvertCaseSubSubMode) {
             invertCaseSelectedText();
@@ -1424,10 +1424,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             leaveVisualMode();
     } else if (key == 'd' && isNoVisualMode()) {
         if (m_rangemode == RangeLineMode) {
-            m_savedYankPosition = m_tc.position();
+            int pos = m_tc.position();
             moveToEndOfLine();
             setAnchor();
-            setPosition(m_savedYankPosition);
+            setPosition(pos);
         } else {
             setAnchor();
         }
@@ -1762,18 +1762,14 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if ((m_submode == YankSubMode && key == 'y')
             || (key == 'Y' && isNoVisualMode()))  {
-        const int line = cursorLineInDocument() + 1;
-        m_savedYankPosition = position();
-        setAnchor(firstPositionInLine(line));
-        setPosition(lastPositionInLine(line + count() - 1));
+        setAnchor();
         if (count() > 1)
-            showBlackMessage(QString("%1 lines yanked").arg(count()));
+            moveDown(count()-1);
         m_rangemode = RangeLineMode;
         m_movetype = MoveLineWise;
         m_submode = YankSubMode;
         finishMovement();
     } else if (key == 'y' && isNoVisualMode()) {
-        m_savedYankPosition = position();
         setAnchor();
         m_submode = YankSubMode;
     } else if (key == 'y' && isVisualCharMode()) {
