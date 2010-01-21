@@ -34,6 +34,8 @@
 #include "qmllookupcontext.h"
 #include "qmlresolveexpression.h"
 
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljssymbol.h>
 #include <texteditor/basetexteditor.h>
 
@@ -81,6 +83,103 @@ static QIcon iconForColor(const QColor &color)
     return pix;
 }
 
+
+class Evaluate: public QmlJS::AST::Visitor
+{
+    QmlJS::Interpreter::Engine *_interp;
+    const QmlJS::Interpreter::Value *_value;
+
+public:
+    Evaluate(QmlJS::Interpreter::Engine *interp)
+        : _interp(interp), _value(0)
+    {}
+
+    const QmlJS::Interpreter::Value *operator()(QmlJS::AST::Node *node)
+    { return evaluate(node); }
+
+    const QmlJS::Interpreter::Value *evaluate(QmlJS::AST::Node *node)
+    {
+        const QmlJS::Interpreter::Value *previousValue = switchValue(0);
+
+        if (node)
+            node->accept(this);
+
+        return switchValue(previousValue);
+    }
+
+protected:
+    using QmlJS::AST::Visitor::visit;
+
+    const QmlJS::Interpreter::Value *switchValue(const QmlJS::Interpreter::Value *value)
+    {
+        const QmlJS::Interpreter::Value *previousValue = _value;
+        _value = value;
+        return previousValue;
+    }
+
+    virtual bool preVisit(QmlJS::AST::Node *ast)
+    {
+        using namespace QmlJS::AST;
+
+        if (cast<NumericLiteral *>(ast))
+            return true;
+
+        if (cast<StringLiteral *>(ast))
+            return true;
+
+        if (cast<IdentifierExpression *>(ast))
+            return true;
+
+        else if (cast<FieldMemberExpression *>(ast))
+            return true;
+
+        else if (cast<CallExpression *>(ast))
+            return true;
+
+        return false;
+    }
+
+    virtual bool visit(QmlJS::AST::StringLiteral *)
+    {
+        _value = _interp->convertToObject(_interp->stringValue());
+        return false;
+    }
+
+    virtual bool visit(QmlJS::AST::NumericLiteral *)
+    {
+        _value = _interp->convertToObject(_interp->numberValue());
+        return false;
+    }
+
+    virtual bool visit(QmlJS::AST::IdentifierExpression *ast)
+    {
+        _value = _interp->globalObject()->property(ast->name->asString());
+        return false;
+    }
+
+    virtual bool visit(QmlJS::AST::FieldMemberExpression *ast)
+    {
+        if (const QmlJS::Interpreter::Value *base = evaluate(ast->base)) {
+            if (const QmlJS::Interpreter::ObjectValue *obj = base->asObjectValue()) {
+                _value = obj->property(ast->name->asString());
+            }
+        }
+
+        return false;
+    }
+
+    virtual bool visit(QmlJS::AST::CallExpression *ast)
+    {
+        if (const QmlJS::Interpreter::Value *base = evaluate(ast->base)) {
+            if (const QmlJS::Interpreter::FunctionValue *obj = base->asFunctionValue()) {
+                _value = obj->returnValue();
+            }
+        }
+
+        return false;
+    }
+
+};
 
 QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QmlJS::TypeSystem *typeSystem, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
@@ -163,21 +262,29 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
-    const QIcon idIcon = iconForColor(Qt::darkGray);
-    QStringList ids = qmlDocument->ids().keys();
-    foreach (const QString &id, ids) {
-        if (id.isEmpty())
-            continue;
+    QChar previousChar;
+    if (m_startPosition > 0)
+        previousChar = editor->characterAt(m_startPosition - 1);
 
-        TextEditor::CompletionItem item(this);
-        item.text = id;
-        item.icon = idIcon;
-        m_completions.append(item);
+    if (previousChar.isSpace() || previousChar.isNull()) {
+        // ### FIXME
+        const QIcon idIcon = iconForColor(Qt::darkGray);
+        QStringList ids = qmlDocument->ids().keys();
+        foreach (const QString &id, ids) {
+            if (id.isEmpty())
+                continue;
+
+            TextEditor::CompletionItem item(this);
+            item.text = id;
+            item.icon = idIcon;
+            m_completions.append(item);
+        }
     }
 
-    const QIcon otherIcon = iconForColor(Qt::darkCyan);
     // FIXME: this completion strategy is not going to work when the document was never parsed correctly.
     if (qmlDocument->qmlProgram() != 0) {
+        const QIcon otherIcon = iconForColor(Qt::darkCyan);
+
         // qDebug() << "*** program:" << program;
         QmlExpressionUnderCursor expressionUnderCursor;
         QTextCursor cursor(edit->document());
@@ -186,6 +293,23 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot(), m_typeSystem);
         QmlResolveExpression resolver(context);
+
+        QmlJS::AST::Node *expr = expressionUnderCursor.expressionNode();
+
+        QmlJS::Interpreter::Engine engine;
+        Evaluate evaluate(&engine);
+        if (const QmlJS::Interpreter::Value *value = evaluate(expr)) {
+            if (const QmlJS::Interpreter::ObjectValue *object = value->asObjectValue()) {
+                for (QmlJS::Interpreter::ObjectValue::MemberIterator it = object->firstMember(); it != object->lastMember(); ++it) {
+                    TextEditor::CompletionItem item(this);
+                    item.text = it.key();
+                    item.icon = otherIcon;
+                    m_completions.append(item);
+                }
+                return pos;
+            }
+        }
+
         // qDebug()<<"*** expression under cursor:"<<expressionUnderCursor.expressionNode();
         const QList<QmlJS::Symbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
         // qDebug()<<"***"<<symbols.size()<<"visible symbols";
@@ -203,11 +327,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             }
         }
     }
-
-    QChar previousChar;
-    if (m_startPosition > 0)
-        previousChar = editor->characterAt(m_startPosition - 1);
-
 
     if (previousChar.isNull()
             || previousChar.isSpace()
