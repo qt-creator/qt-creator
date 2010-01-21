@@ -638,13 +638,13 @@ bool hasMaemoRunConfig(ProjectExplorer::Project* project)
 void MaemoRunConfigurationFactory::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
     if (hasMaemoRunConfig(rc->project()))
-        MaemoManager::instance()->addQemuSimulatorStarter(project);
+        MaemoManager::instance()->addQemuSimulatorStarter(rc->project());
 }
 
 void MaemoRunConfigurationFactory::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
     if (!hasMaemoRunConfig(rc->project()))
-        MaemoManager::instance()->removeQemuSimulatorStarter(project);
+        MaemoManager::instance()->removeQemuSimulatorStarter(rc->project());
 }
 
 void MaemoRunConfigurationFactory::projectAdded(
