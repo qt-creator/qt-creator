@@ -753,9 +753,8 @@ void tst_FakeVim::command_J()
     check("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));  
     checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
 
-return; // FIXME: not in sync with Gui behaviour?
-    check("3J", lmid(0, 5) + " " + lmid(5, 1) + "@" + lmid(6).mid(3));
-    check("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));  
+    check("3J", lmid(0, 5) + " " + lmid(5, 1) + " " + lmid(6, 1).mid(4) + "@ " + lmid(7));
+    check("uu", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));  
     checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
 }
 
