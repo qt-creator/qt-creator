@@ -1433,7 +1433,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'g' && !m_gflag) {
         m_gflag = true;
     } else if (key == 'g' || key == 'G') {
-        QString dotCommand = key + m_mvcount;
+        QString dotCommand = QString("%1G").arg(count());
+        if (key == 'G' && m_mvcount.isEmpty())
+            dotCommand = "G";
         if (key == 'g')
             m_gflag = false;
         int n = (key == 'g') ? 1 : linesInDocument();
