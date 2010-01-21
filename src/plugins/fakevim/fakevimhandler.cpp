@@ -1544,16 +1544,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_jumpListRedo.pop_back();
         }
     } else if (key == 'j' || key == Key_Down) {
-        if (m_submode == NoSubMode || m_submode == ZSubMode
-                || m_submode == CapitalZSubMode || m_submode == RegisterSubMode) {
-            moveDown(count());
-        } else {
-            m_movetype = MoveLineWise;
-            moveToStartOfLine();
-            setAnchor();
-            m_targetColumn = 0;
-            moveDown(count() + 1);
-        }
+        m_movetype = MoveLineWise;
+        setAnchor();
+        moveDown(count());
         finishMovement("%1j", count());
     } else if (key == 'J') {
         setDotCommand("%1J", count());
@@ -1579,17 +1572,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         endEditBlock();
         finishMovement();
     } else if (key == 'k' || key == Key_Up) {
-        if (m_submode == NoSubMode || m_submode == ZSubMode
-                || m_submode == CapitalZSubMode || m_submode == RegisterSubMode) {
-            moveUp(count());
-        } else {
-            m_movetype = MoveLineWise;
-            moveToStartOfLine();
-            m_targetColumn = 0;
-            moveDown();
-            setAnchor();
-            moveUp(count() + 1);
-        }
+        m_movetype = MoveLineWise;
+        setAnchor();
+        moveUp(count());
         finishMovement("%1k", count());
     } else if (key == 'l' || key == Key_Right || key == ' ') {
         m_movetype = MoveExclusive;
