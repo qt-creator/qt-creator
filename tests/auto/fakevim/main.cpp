@@ -399,7 +399,6 @@ void tst_FakeVim::command_ck()
     setup();
     move("j$",               l[1] + "@");
     check("ck" + escape,     "@\n" + lmid(2));
-    x
     check("P",               "@" + lmid(0,2)+"\n" + "\n" + lmid(2));
 }
 
