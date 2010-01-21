@@ -142,6 +142,7 @@ enum SubMode
     ReplaceSubMode,    // used for R and r
     ShiftLeftSubMode,  // used for <
     ShiftRightSubMode, // used for >
+    TransformSubMode,  // used for ~/gu/gU
     WindowSubMode,     // used for Ctrl-w
     YankSubMode,       // used for y
     ZSubMode,          // used for z
@@ -157,6 +158,9 @@ enum SubSubMode
     MarkSubSubMode,     // used for m
     BackTickSubSubMode, // used for `
     TickSubSubMode,     // used for '
+    InvertCaseSubSubMode, // used for ~
+    DownCaseSubSubMode, // used for gu
+    UpCaseSubSubMode,   // used for gU
 };
 
 enum VisualMode
@@ -428,8 +432,20 @@ public:
     int anchor() const { return m_anchor; }
     int position() const { return m_tc.position(); }
 
+    void transformText(const Range &range, void (FakeVimHandler::Private::*transformFunc)(int, QTextCursor *));
+
     void removeSelectedText();
     void removeText(const Range &range);
+    void removeTransform(int, QTextCursor *);
+
+    void invertCaseSelectedText();
+    void invertCaseTransform(int, QTextCursor *);
+
+    void upCaseSelectedText();
+    void upCaseTransform(int, QTextCursor *);
+
+    void downCaseSelectedText();
+    void downCaseTransform(int, QTextCursor *);
 
     QString selectedText() const { return text(Range(position(), anchor())); }
     QString text(const Range &range) const;
@@ -858,6 +874,35 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         } else {
             setPosition(m_savedYankPosition);
         }
+    } else if (m_submode == TransformSubMode) {
+        beginEditBlock();
+        if (atEndOfLine())
+            moveLeft();
+        if (m_rangemode == RangeCharMode) {
+            if (m_movetype == MoveInclusive)
+                moveRight(); // correction
+            if (anchor() >= position())
+                m_anchor--;
+        }
+        if (m_subsubmode == InvertCaseSubSubMode) {
+            invertCaseSelectedText();
+            if (!dotCommand.isEmpty())
+                setDotCommand("~" + dotCommand);
+        } else if (m_subsubmode == UpCaseSubSubMode) {
+            upCaseSelectedText();
+            if (!dotCommand.isEmpty())
+                setDotCommand("gU" + dotCommand);
+        } else if (m_subsubmode == DownCaseSubSubMode) {
+            downCaseSelectedText();
+            if (!dotCommand.isEmpty())
+                setDotCommand("gu" + dotCommand);
+        }
+        m_submode = NoSubMode;
+        m_subsubmode = NoSubSubMode;
+        setPosition(qMin(anchor(), position()));
+        if (m_movetype == MoveLineWise)
+            handleStartOfLine();
+        endEditBlock();
     } else if (m_submode == ReplaceSubMode) {
         m_submode = NoSubMode;
     } else if (m_submode == IndentSubMode) {
@@ -1639,7 +1684,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_movetype = MoveExclusive;
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
-    } else if (key == 'u') {
+    } else if (!m_gflag && key == 'u') {
         undo();
     } else if (key == control('u')) {
         int sline = cursorLineOnScreen();
@@ -1743,18 +1788,53 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = ZSubMode;
     } else if (key == 'Z') {
         m_submode = CapitalZSubMode;
-    } else if (key == '~' && !atEndOfLine()) {
-        beginEditBlock();
-        setAnchor();
-        moveRight(qMin(count(), rightDist()));
-        QString str = selectedText();
-        removeSelectedText();
-        for (int i = str.size(); --i >= 0; ) {
-            QChar c = str.at(i);
-            str[i] = c.isUpper() ? c.toLower() : c.toUpper();
+    } else if (!m_gflag && key == '~' && !isVisualMode()) {
+        if (!atEndOfLine()) {
+            beginEditBlock();
+            setAnchor();
+            moveRight(qMin(count(), rightDist()));
+            if (key == '~') {
+                invertCaseSelectedText();
+                setDotCommand("%1~", count());
+            } else if (key == 'u') {
+                downCaseSelectedText();
+                setDotCommand("%1gu", count());
+            } else if (key == 'U') {
+                upCaseSelectedText();
+                setDotCommand("%1gU", count());
+            }
+            endEditBlock();
         }
-        m_tc.insertText(str);
-        endEditBlock();
+        finishMovement();
+    } else if ((m_gflag && key == '~' && !isVisualMode())
+        || (m_gflag && key == 'u' && !isVisualMode())
+        || (m_gflag && key == 'U' && !isVisualMode())) {
+        if (atEndOfLine())
+            moveLeft();
+        setAnchor();
+        m_submode = TransformSubMode;
+        if (key == '~')
+            m_subsubmode = InvertCaseSubSubMode;
+        if (key == 'u')
+            m_subsubmode = DownCaseSubSubMode;
+        else if (key == 'U')
+            m_subsubmode = UpCaseSubSubMode;
+    } else if ((key == '~' && isVisualMode())
+        || (m_gflag && key == 'u' && isVisualMode())
+        || (m_gflag && key == 'U' && isVisualMode())) {
+        if (isVisualLineMode())
+            m_rangemode = RangeLineMode;
+        else if (isVisualBlockMode())
+            m_rangemode = RangeBlockMode;
+        leaveVisualMode();
+        m_submode = TransformSubMode;
+        if (key == '~')
+            m_subsubmode = InvertCaseSubSubMode;
+        else if (key == 'u')
+            m_subsubmode = DownCaseSubSubMode;
+        else if (key == 'U')
+            m_subsubmode = UpCaseSubSubMode;
+        finishMovement();
     } else if (key == Key_PageDown || key == control('f')) {
         moveDown(count() * (linesOnScreen() - 2) - cursorLineOnScreen());
         scrollToLineInDocument(cursorLineInDocument());
@@ -2844,22 +2924,14 @@ void FakeVimHandler::Private::yankText(const Range &range, int toregister)
     //qDebug() << "YANKED: " << reg.contents;
 }
 
-void FakeVimHandler::Private::removeSelectedText()
-{
-    Range range(anchor(), position());
-    range.rangemode = m_rangemode;
-    removeText(range);
-}
-
-void FakeVimHandler::Private::removeText(const Range &range)
+void FakeVimHandler::Private::transformText(const Range &range, void (FakeVimHandler::Private::*transformFunc)(int updateMarksAfter, QTextCursor *tc))
 {
     QTextCursor tc = m_tc;
     switch (range.rangemode) {
         case RangeCharMode: {
             tc.setPosition(range.beginPos, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
-            fixMarks(range.beginPos, tc.selectionStart() - tc.selectionEnd());
-            tc.removeSelectedText();
+            (this->*transformFunc)(range.beginPos, &tc);
             return;
         }
         case RangeLineMode: {
@@ -2882,11 +2954,10 @@ void FakeVimHandler::Private::removeText(const Range &range)
             } else {
                 tc.movePosition(Right, KeepAnchor, 1);
             }
-            fixMarks(range.beginPos, tc.selectionStart() - tc.selectionEnd());
-            tc.removeSelectedText();
+            (this->*transformFunc)(range.beginPos, &tc);
             return;
         }
-        case RangeBlockAndTailMode: 
+        case RangeBlockAndTailMode:
         case RangeBlockMode: {
             int beginLine = lineForPosition(range.beginPos);
             int endLine = lineForPosition(range.endPos);
@@ -2903,14 +2974,87 @@ void FakeVimHandler::Private::removeText(const Range &range)
                 int eCol = qMin(endColumn + 1, block.length() - 1);
                 tc.setPosition(block.position() + bCol, MoveAnchor);
                 tc.setPosition(block.position() + eCol, KeepAnchor);
-                fixMarks(block.position() + bCol,
-                         tc.selectionStart() - tc.selectionEnd());
-                tc.removeSelectedText();
+                (this->*transformFunc)(block.position() + bCol, &tc);
                 block = block.previous();
             }
             endEditBlock();
         }
     }
+}
+
+void FakeVimHandler::Private::removeSelectedText()
+{
+    Range range(anchor(), position());
+    range.rangemode = m_rangemode;
+    removeText(range);
+}
+
+void FakeVimHandler::Private::removeText(const Range &range)
+{
+    transformText(range, &FakeVimHandler::Private::removeTransform);
+}
+
+void FakeVimHandler::Private::removeTransform(int updateMarksAfter, QTextCursor *tc)
+{
+    fixMarks(updateMarksAfter, tc->selectionStart() - tc->selectionEnd());
+    tc->removeSelectedText();
+}
+
+void FakeVimHandler::Private::downCaseSelectedText()
+{
+    Range range(anchor(), position());
+    range.rangemode = m_rangemode;
+    transformText(range, &FakeVimHandler::Private::downCaseTransform);
+}
+
+void FakeVimHandler::Private::downCaseTransform(int updateMarksAfter, QTextCursor *tc)
+{
+    Q_UNUSED(updateMarksAfter);
+    QString str = tc->selectedText();
+    tc->removeSelectedText();
+    for (int i = str.size(); --i >= 0; ) {
+        QChar c = str.at(i);
+        str[i] = c.toLower();
+    }
+    tc->insertText(str);
+}
+
+void FakeVimHandler::Private::upCaseSelectedText()
+{
+    Range range(anchor(), position());
+    range.rangemode = m_rangemode;
+    transformText(range, &FakeVimHandler::Private::upCaseTransform);
+}
+
+void FakeVimHandler::Private::upCaseTransform(int updateMarksAfter, QTextCursor *tc)
+{
+    Q_UNUSED(updateMarksAfter);
+    QString str = tc->selectedText();
+    tc->removeSelectedText();
+    for (int i = str.size(); --i >= 0; ) {
+        QChar c = str.at(i);
+        str[i] = c.toUpper();
+    }
+    tc->insertText(str);
+}
+
+void FakeVimHandler::Private::invertCaseSelectedText()
+{
+    Range range(anchor(), position());
+    range.rangemode = m_rangemode;
+    transformText(range, &FakeVimHandler::Private::invertCaseTransform);
+}
+
+void FakeVimHandler::Private::invertCaseTransform(int updateMarksAfter, QTextCursor *tc)
+{
+    Q_UNUSED(updateMarksAfter);
+    QString str = tc->selectedText();
+    tc->removeSelectedText();
+    for (int i = str.size(); --i >= 0; ) {
+        QChar c = str.at(i);
+        str[i] = c.isUpper() ? c.toLower() : c.toUpper();
+    }
+    tc->insertText(str);
 }
 
 void FakeVimHandler::Private::pasteText(bool afterCursor)
