@@ -286,34 +286,6 @@ void Launcher::handleRemoteProcessKilled(const TrkResult &result)
     disconnectTrk();
 }
 
-QString Launcher::msgStopped(uint pid, uint tid, uint address, const QString &why)
-{
-    return QString::fromLatin1("Process %1, thread %2 stopped at 0x%3: %4").
-            arg(pid).arg(tid).arg(address, 0, 16).
-            arg(why.isEmpty() ? QString::fromLatin1("<Unknown reason>") : why);
-}
-
-bool Launcher::parseNotifyStopped(const QByteArray &dataBA,
-                                  uint *pid, uint *tid, uint *address,
-                                  QString *why /* = 0 */)
-{
-    if (why)
-        why->clear();
-    *address = *pid = *tid = 0;
-    if (dataBA.size() < 12)
-        return false;
-    const char *data = dataBA.data();
-    *address = extractInt(data);
-    *pid = extractInt(data + 4);
-    *tid = extractInt(data + 8);
-    if (why && dataBA.size() >= 14) {
-        const unsigned short len = extractShort(data + 12);
-        if (len > 0)
-            *why = QString::fromLatin1(data + 14, len);
-    }
-    return true;
-}
-
 void Launcher::handleResult(const TrkResult &result)
 {
     QByteArray prefix = "READ BUF:                                       ";
@@ -333,13 +305,13 @@ void Launcher::handleResult(const TrkResult &result)
             break;
         }
         case TrkNotifyStopped: { // Notified Stopped
-            QString reason;
-            uint pc;
-            uint pid;
-            uint tid;
-            parseNotifyStopped(result.data, &pid, &tid, &pc, &reason);
-            logMessage(prefix + msgStopped(pid, tid, pc, reason));
-            emit(processStopped(pc, pid, tid, reason));
+            logMessage(prefix + "NOTE: STOPPED  " + str);
+            // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
+            //const char *data = result.data.data();
+//            uint addr = extractInt(data); //code address: 4 bytes; code base address for the library
+//            uint pid = extractInt(data + 4); // ProcessID: 4 bytes;
+//            uint tid = extractInt(data + 8); // ThreadID: 4 bytes
+            //logMessage(prefix << "      ADDR: " << addr << " PID: " << pid << " TID: " << tid);
             d->m_device->sendTrkAck(result.token);
             break;
         }
@@ -712,13 +684,5 @@ void Launcher::startInferiorIfNeeded()
     }
     d->m_device->sendTrkMessage(TrkCreateItem, TrkCallback(this, &Launcher::handleCreateProcess),
                                 startProcessMessage(d->m_fileName, d->m_commandLineArgs)); // Create Item
-}
-
-void Launcher::resumeProcess(uint pid, uint tid)
-{
-    QByteArray ba;
-    appendInt(&ba, pid, BigEndian);
-    appendInt(&ba, tid, BigEndian);
-    d->m_device->sendTrkMessage(TrkContinue, TrkCallback(), ba, "CONTINUE");
 }
 } // namespace trk
