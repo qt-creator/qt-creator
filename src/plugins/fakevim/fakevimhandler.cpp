@@ -182,6 +182,7 @@ enum RangeMode
 {
     RangeCharMode,  // v
     RangeLineMode,  // V
+    RangeLineModeExclusive, // like above, but keep one newline when deleting
     RangeBlockMode, // Ctrl-v
     RangeBlockAndTailMode, // Ctrl-v for D and X
 };
@@ -434,7 +435,7 @@ public:
 
     void transformText(const Range &range, void (FakeVimHandler::Private::*transformFunc)(int, QTextCursor *));
 
-    void removeSelectedText();
+    void removeSelectedText(bool exclusive = false);
     void removeText(const Range &range);
     void removeTransform(int, QTextCursor *);
 
@@ -822,12 +823,17 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         m_marks['>'] = m_tc.position();
 
     if (m_submode == ChangeSubMode) {
+        beginEditBlock();
+        if (m_movetype == MoveLineWise)
+            m_rangemode = RangeLineModeExclusive;
         if (atEndOfLine())
             moveLeft();
-        if (m_movetype == MoveInclusive)
-            moveRight(); // correction
-        if (anchor() >= position())
-            m_anchor--;
+        if (m_rangemode == RangeCharMode) {
+            if (m_movetype == MoveInclusive)
+                moveRight(); // correction
+            if (anchor() >= position())
+                m_anchor--;
+        }
         if (!dotCommand.isEmpty())
             setDotCommand("c" + dotCommand);
         //QString text = removeSelectedText();
@@ -836,11 +842,14 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         yankSelectedText();
         if (m_movetype == MoveLineWise)
             m_registers[m_register].rangemode = RangeLineMode;
-        removeSelectedText();
+        removeSelectedText(true);
+        endEditBlock();
         enterInsertMode();
         m_beginEditBlock = false;
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
+        if (m_movetype == MoveLineWise)
+            m_rangemode = RangeLineMode;
         if (atEndOfLine())
             moveLeft();
         if (m_rangemode == RangeCharMode) {
@@ -864,6 +873,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         else
             setTargetColumn();
     } else if (m_submode == YankSubMode) {
+        if (m_movetype == MoveLineWise)
+            m_rangemode = RangeLineMode;
         yankSelectedText();
         if (m_movetype == MoveLineWise)
             m_registers[m_register].rangemode = RangeLineMode;
@@ -875,6 +886,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             setPosition(m_savedYankPosition);
         }
     } else if (m_submode == TransformSubMode) {
+        if (m_movetype == MoveLineWise)
+            m_rangemode = RangeLineMode;
         beginEditBlock();
         if (atEndOfLine())
             moveLeft();
@@ -1092,6 +1105,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveDown(count() - 1);
         moveToEndOfLine();
+        m_movetype = MoveLineWise;
         m_lastInsertion.clear();
         setDotCommand("%1cc", count());
         finishMovement();
@@ -2947,25 +2961,28 @@ void FakeVimHandler::Private::transformText(const Range &range, void (FakeVimHan
             (this->*transformFunc)(range.beginPos, &tc);
             return;
         }
-        case RangeLineMode: {
+        case RangeLineMode:
+        case RangeLineModeExclusive: {
             tc.setPosition(range.beginPos, MoveAnchor);
             tc.movePosition(StartOfLine, MoveAnchor);
             tc.setPosition(range.endPos, KeepAnchor);
             tc.movePosition(EndOfLine, KeepAnchor);
-            // make sure that complete lines are removed
-            // - also at the beginning and at the end of the document
-            if (tc.atEnd()) {
-                tc.setPosition(range.beginPos, MoveAnchor);
-                tc.movePosition(StartOfLine, MoveAnchor);
-                if (!tc.atStart()) {
-                    // also remove first line if it is the only one
-                    tc.movePosition(Left, MoveAnchor, 1);
-                    tc.movePosition(EndOfLine, MoveAnchor, 1);
+            if (range.rangemode != RangeLineModeExclusive) {
+                // make sure that complete lines are removed
+                // - also at the beginning and at the end of the document
+                if (tc.atEnd()) {
+                    tc.setPosition(range.beginPos, MoveAnchor);
+                    tc.movePosition(StartOfLine, MoveAnchor);
+                    if (!tc.atStart()) {
+                        // also remove first line if it is the only one
+                        tc.movePosition(Left, MoveAnchor, 1);
+                        tc.movePosition(EndOfLine, MoveAnchor, 1);
+                    }
+                    tc.setPosition(range.endPos, KeepAnchor);
+                    tc.movePosition(EndOfLine, KeepAnchor);
+                } else {
+                    tc.movePosition(Right, KeepAnchor, 1);
                 }
-                tc.setPosition(range.endPos, KeepAnchor);
-                tc.movePosition(EndOfLine, KeepAnchor);
-            } else {
-                tc.movePosition(Right, KeepAnchor, 1);
             }
             (this->*transformFunc)(range.beginPos, &tc);
             return;
@@ -2995,10 +3012,12 @@ void FakeVimHandler::Private::transformText(const Range &range, void (FakeVimHan
     }
 }
 
-void FakeVimHandler::Private::removeSelectedText()
+void FakeVimHandler::Private::removeSelectedText(bool exclusive)
 {
     Range range(anchor(), position());
     range.rangemode = m_rangemode;
+    if (exclusive && m_rangemode == RangeLineMode)
+        range.rangemode = RangeLineModeExclusive;
     removeText(range);
 }
 
@@ -3088,7 +3107,8 @@ void FakeVimHandler::Private::pasteText(bool afterCursor)
             }
             break;
         }
-        case RangeLineMode: {
+        case RangeLineMode:
+        case RangeLineModeExclusive: {
             moveToStartOfLine();
             m_targetColumn = 0;
             for (int i = count(); --i >= 0; ) {
