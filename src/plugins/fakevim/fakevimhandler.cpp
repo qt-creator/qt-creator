@@ -1511,13 +1511,19 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == 'n') { // FIXME: see comment for '/'
         if (hasConfig(ConfigIncSearch))
+        {
             emit q->findNextRequested(false);
+            m_tc = EDITOR(textCursor());
+        }
         else
             search(lastSearchString(), m_lastSearchForward);
         recordJump();
     } else if (key == 'N') {
         if (hasConfig(ConfigIncSearch))
+        {
             emit q->findNextRequested(true);
+            m_tc = EDITOR(textCursor());
+        }
         else
             search(lastSearchString(), !m_lastSearchForward);
         recordJump();
