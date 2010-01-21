@@ -669,6 +669,8 @@ void S60DeviceRunControlBase::startDeployment()
     connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
     connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
     connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+    connect(m_launcher, SIGNAL(processStopped(uint,uint,uint,QString)),
+            this, SLOT(processStopped(uint,uint,uint,QString)));
 
     //TODO sisx destination and file path user definable
     m_launcher->setTrkServerName(m_serialPortName);
@@ -773,6 +775,12 @@ void S60DeviceRunControlBase::reportDeployFinished()
         delete m_deployProgress;
         m_deployProgress = 0;
     }
+}
+
+void S60DeviceRunControlBase::processStopped(uint pc, uint pid, uint tid, const QString& reason)
+{
+    emit addToOutputWindow(this, trk::Launcher::msgStopped(pid, tid, pc, reason));
+    m_launcher->terminate();
 }
 
 QMessageBox *S60DeviceRunControlBase::createTrkWaitingMessageBox(const QString &port, QWidget *parent)

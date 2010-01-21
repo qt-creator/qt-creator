@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "trkgdbadapter.h"
+#include "launcher.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
 #include "s60debuggerbluetoothstarter.h"
@@ -1054,16 +1055,18 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             logMessage(logMsg);
             break;
         }
-        case 0x90: { // Notified Stopped
+        case TrkNotifyStopped: { // Notified Stopped	   
             // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
             debugMessage(_("RESET SNAPSHOT (NOTIFY STOPPED)"));
             m_snapshot.reset();
-            const char *data = result.data.data();
-            const uint addr = extractInt(data);
-            const uint pid = extractInt(data + 4);
-            const uint tid = extractInt(data + 8);
-            logMessage(prefix + _("NOTE: PID %1/TID %2 "
-                "STOPPED at 0x%3").arg(pid).arg(tid).arg(addr, 0, 16));
+            QString reason;
+            uint addr;
+            uint pid;
+            uint tid;
+            trk::Launcher::parseNotifyStopped(result.data, &pid, &tid, &addr, &reason);
+            const QString msg = trk::Launcher::msgStopped(pid, tid, addr, reason);
+            logMessage(prefix + msg);
+            m_engine->manager()->showDebuggerOutput(LogMisc, msg);
             sendTrkAck(result.token);
             if (addr) {
                 // Todo: Do not send off GdbMessages if a synced gdb
@@ -1082,7 +1085,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
                 trkReadRegistersMessage());
             break;
         }
-        case 0x91: { // Notify Exception (obsolete)
+        case TrkNotifyException: { // Notify Exception (obsolete)
             debugMessage(_("RESET SNAPSHOT (NOTIFY EXCEPTION)"));
             m_snapshot.reset();
             logMessage(prefix + "NOTE: EXCEPTION  " + str);

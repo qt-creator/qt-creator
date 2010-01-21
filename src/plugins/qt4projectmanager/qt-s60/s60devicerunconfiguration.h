@@ -169,6 +169,7 @@ protected slots:
     void printApplicationOutput(const QString &output);
 
 private slots:
+    void processStopped(uint pc, uint pid, uint tid, const QString& reason);
     void readStandardError();
     void readStandardOutput();
     void makesisProcessFailed();
