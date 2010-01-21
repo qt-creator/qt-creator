@@ -377,6 +377,9 @@ public:
     // this asks the layer above (e.g. the fake vim plugin or the
     // stand-alone test application to handle the command)
     void passUnknownExCommand(const QString &cmd);
+    // this asks the layer above (e.g. the fake vim plugin or the
+    // stand-alone test application to handle the set command)
+    void passUnknownSetCommand(const QString &cmd);
 
     bool isVisualMode() const { return m_visualMode != NoVisualMode; }
     bool isNoVisualMode() const { return m_visualMode == NoVisualMode; }
@@ -2304,7 +2307,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             if (act)
                 act->setValue(arg.mid(p + 1));
         } else {
-            showRedMessage(FakeVimHandler::tr("E512: Unknown option: ") + arg);
+            passUnknownSetCommand(arg);
         }
         updateMiniBuffer();
     } else if (reHistory.indexIn(cmd) != -1) { // :history
@@ -2330,6 +2333,15 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 void FakeVimHandler::Private::passUnknownExCommand(const QString &cmd)
 {
     emit q->handleExCommandRequested(cmd);
+}
+
+void FakeVimHandler::Private::passUnknownSetCommand(const QString &arg)
+{
+    bool handled = false;
+    emit q->handleSetCommandRequested(&handled, arg);
+    if (!handled) {
+        showRedMessage(FakeVimHandler::tr("E512: Unknown option: ") + arg);
+    }
 }
 
 static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *flags)

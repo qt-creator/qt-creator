@@ -84,6 +84,7 @@ signals:
     void findRequested(bool reverse);
     void findNextRequested(bool reverse);
     void handleExCommandRequested(const QString &cmd);
+    void handleSetCommandRequested(bool *handled, const QString &cmd);
 
 public:
     class Private;

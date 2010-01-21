@@ -283,6 +283,7 @@ private slots:
     void checkForElectricCharacter(bool *result, QChar c);
     void indentRegion(int *amount, int beginLine, int endLine,  QChar typedChar);
     void handleExCommand(const QString &cmd);
+    void handleSetCommand(bool *handled, QString cmd);
 
     void handleDelayedQuitAll(bool forced);
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
@@ -297,6 +298,7 @@ private:
     QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
 
     void triggerAction(const QString& code);
+    void setActionChecked(const QString& code, bool check);
 };
 
 } // namespace Internal
@@ -377,6 +379,19 @@ void FakeVimPluginPrivate::triggerAction(const QString& code)
     QTC_ASSERT(cmd, return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
+    action->trigger();
+}
+
+void FakeVimPluginPrivate::setActionChecked(const QString& code, bool check)
+{
+    Core::ActionManager *am = Core::ICore::instance()->actionManager();
+    QTC_ASSERT(am, return);
+    Core::Command *cmd = am->command(code);
+    QTC_ASSERT(cmd, return);
+    QAction *action = cmd->action();
+    QTC_ASSERT(action, return);
+    QTC_ASSERT(action->isCheckable(), return);
+    action->setChecked(check);
     action->trigger();
 }
 
@@ -476,6 +491,8 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 
     connect(handler, SIGNAL(handleExCommandRequested(QString)),
         this, SLOT(handleExCommand(QString)));
+    connect(handler, SIGNAL(handleSetCommandRequested(bool *,QString)),
+        this, SLOT(handleSetCommand(bool *,QString)));
 
     handler->setCurrentFileName(editor->file()->fileName());
     handler->installEventFilter();
@@ -594,6 +611,21 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
         emit delayedQuitAllRequested(forced);
     } else {
         handler->showRedMessage(tr("Not an editor command: %1").arg(cmd));
+    }
+}
+
+void FakeVimPluginPrivate::handleSetCommand(bool *handled, QString cmd)
+{
+    *handled = false;
+    bool value = true;
+    if (cmd.startsWith("no")) {
+        value = false;
+        cmd = cmd.mid(2);
+    }
+
+    if (cmd == "ic" || cmd == "ignorecase") {
+        setActionChecked(Find::Constants::CASE_SENSITIVE, value);
+        *handled = true;
     }
 }
 
