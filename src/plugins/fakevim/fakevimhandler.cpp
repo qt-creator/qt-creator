@@ -802,7 +802,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         return;
     }
 
-    if (isNoVisualMode())
+    if (isVisualMode())
         m_marks['>'] = m_tc.position();
 
     if (m_submode == ChangeSubMode) {
@@ -1562,6 +1562,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         } else
             search(lastSearchString(), m_lastSearchForward);
         recordJump();
+    } else if (isVisualMode() && (key == 'o' || key == 'O')) {
+        int pos = position();
+        setPosition(anchor());
+        m_anchor = pos;
+        std::swap(m_marks['<'], m_marks['>']);
+        updateSelection();
     } else if (key == 'o' || key == 'O') {
         beginEditBlock();
         setDotCommand("%1o", count());
