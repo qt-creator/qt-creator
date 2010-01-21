@@ -372,8 +372,6 @@ void tst_FakeVim::command_cw()
 {
     setup();
     move("j",                "@" + l[1]);
-    qWarning("FIXME");
-return; // FIXME
     check("cwx" + escape,    l[0] + "\n@xinclude <QtCore>\n" + lmid(2));
 }
 
@@ -737,8 +735,6 @@ void tst_FakeVim::test_i_cw_i()
     setup();
     move("j",                "@" + l[1]);
     check("ixx" + escape,    l[0] + "\nx@x" + lmid(1));
-    qWarning("FIXME");
-return; // FIXME: not in sync with Gui behaviour?
     check("cwyy" + escape,   l[0] + "\nxy@y" + lmid(1));
     check("iaa" + escape,    l[0] + "\nxya@ay" + lmid(1));
 }
