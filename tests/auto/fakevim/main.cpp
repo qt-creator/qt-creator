@@ -676,7 +676,8 @@ void tst_FakeVim::command_w()
     move("w",   "#@include <QtGui");
     move("w",   "#include @<QtGui");
     move("w",   "#include <@QtGui");
-    move("4w",  "int main@(int argc, char *argv[])");
+    move("4w",  "int @main(int argc, char *argv[])");
+    move("w",  "int main@(int argc, char *argv[])");
     move("w",   "int main(@int argc, char *argv[])");
     move("w",   "int main(int @argc, char *argv[])");
     move("w",   "int main(int argc@, char *argv[])");
