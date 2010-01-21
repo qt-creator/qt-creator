@@ -1196,7 +1196,9 @@ QStringList ProFileEvaluator::Private::qmakeMkspecPaths() const
         foreach (const QString &it, QString::fromLocal8Bit(qmakepath).split(m_option->dirlist_sep))
             ret << QDir::cleanPath(it) + concat;
 
-    ret << propertyValue(QLatin1String("QT_INSTALL_DATA")) + concat;
+    QString builtIn = propertyValue(QLatin1String("QT_INSTALL_DATA")) + concat;
+    if (!ret.contains(builtIn))
+        ret << builtIn;
 
     return ret;
 }
@@ -1283,6 +1285,8 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     for (int i = 0; i < feature_roots.count(); ++i)
         if (!feature_roots.at(i).endsWith((ushort)'/'))
             feature_roots[i].append((ushort)'/');
+
+    feature_roots.removeDuplicates();
 
     return feature_roots;
 }
