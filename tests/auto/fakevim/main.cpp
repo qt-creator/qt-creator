@@ -439,8 +439,7 @@ void tst_FakeVim::command_dw()
     check("dw",  "@<QtCore>\n" + lmid(2));
     check("dw",  "@QtCore>\n" + lmid(2));
     check("dw",  "@>\n" + lmid(2));
-    qWarning("FIXME");
-    //check("dw",  "@\n" + lmid(2)); // FIXME: Real vim has this intermediate step
+    check("dw",  "@\n" + lmid(2)); // Real vim has this intermediate step, too
     check("dw",  "@#include <QtGui>\n" + lmid(3));
     check("dw",  "@include <QtGui>\n" + lmid(3));
     check("dw",  "@<QtGui>\n" + lmid(3));

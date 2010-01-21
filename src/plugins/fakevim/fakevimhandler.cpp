@@ -347,7 +347,7 @@ public:
         m_targetColumn = leftDist();
         //qDebug() << "TARGET: " << m_targetColumn;
     }
-    void moveToNextWord(bool simple);
+    void moveToNextWord(bool simple, bool deleteWord = false);
     void moveToMatchingParanthesis();
     void moveToWordBoundary(bool simple, bool forward, bool changeWord = false);
 
@@ -1701,7 +1701,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToWordBoundary(false, true, true);
             m_movetype = MoveInclusive;
         } else {
-            moveToNextWord(false);
+            moveToNextWord(false, m_submode==DeleteSubMode);
             m_movetype = MoveExclusive;
         }
         finishMovement("%1w", count());
@@ -1710,7 +1710,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToWordBoundary(true, true, true);
             m_movetype = MoveInclusive;
         } else {
-            moveToNextWord(true);
+            moveToNextWord(true, m_submode==DeleteSubMode);
             m_movetype = MoveExclusive;
         }
         finishMovement("%1W", count());
@@ -2743,7 +2743,7 @@ void FakeVimHandler::Private::handleFfTt(int key)
     setTargetColumn();
 }
 
-void FakeVimHandler::Private::moveToNextWord(bool simple)
+void FakeVimHandler::Private::moveToNextWord(bool simple, bool deleteWord)
 {
     int repeat = count();
     int n = lastPositionInDocument();
@@ -2757,8 +2757,13 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
             break;
         lastClass = thisClass;
         moveRight();
-        if (m_tc.block().length() == 1) // empty line
-            --repeat;
+        if (deleteWord) {
+            if (m_tc.atBlockEnd())
+                --repeat;
+        } else {
+            if (m_tc.block().length() == 1) // empty line
+                --repeat;
+        }
         if (repeat == 0)
             break;
         if (m_tc.position() == n)
