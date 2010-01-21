@@ -42,11 +42,45 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QXmlStreamReader>
+#include <QtGui/QPainter>
 
 #include <QtDebug>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+
+
+// Temporary workaround until we have proper icons for QML completion items
+static QIcon iconForColor(const QColor &color)
+{
+    QPixmap pix(6, 6);
+
+    int pixSize = 20;
+    QBrush br(color);
+
+    QPixmap pm(2 * pixSize, 2 * pixSize);
+    QPainter pmp(&pm);
+    pmp.fillRect(0, 0, pixSize, pixSize, Qt::lightGray);
+    pmp.fillRect(pixSize, pixSize, pixSize, pixSize, Qt::lightGray);
+    pmp.fillRect(0, pixSize, pixSize, pixSize, Qt::darkGray);
+    pmp.fillRect(pixSize, 0, pixSize, pixSize, Qt::darkGray);
+    pmp.fillRect(0, 0, 2 * pixSize, 2 * pixSize, color);
+    br = QBrush(pm);
+
+    QPainter p(&pix);
+    int corr = 1;
+    QRect r = pix.rect().adjusted(corr, corr, -corr, -corr);
+    p.setBrushOrigin((r.width() % pixSize + pixSize) / 2 + corr, (r.height() % pixSize + pixSize) / 2 + corr);
+    p.fillRect(r, br);
+
+    p.fillRect(r.width() / 4 + corr, r.height() / 4 + corr,
+               r.width() / 2, r.height() / 2,
+               QColor(color.rgb()));
+    p.drawRect(pix.rect().adjusted(0, 0, -1, -1));
+
+    return pix;
+}
+
 
 QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QmlJS::TypeSystem *typeSystem, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
@@ -104,6 +138,8 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (!qmlDocument->qmlProgram())
         qmlDocument = m_modelManager->snapshot().value(qmlDocument->fileName());
 
+    const QIcon icon = iconForColor(Qt::darkGray);
+
     // FIXME: this completion strategy is not going to work when the document was never parsed correctly.
     if (qmlDocument && qmlDocument->qmlProgram()) {
          QmlJS::AST::UiProgram *program = qmlDocument->qmlProgram();
@@ -135,6 +171,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
  
                 TextEditor::CompletionItem item(this);
                 item.text = word;
+                item.icon = icon;
                 m_completions.append(item);
             }
         }
@@ -222,27 +259,32 @@ void QmlCodeCompletion::complete(const TextEditor::CompletionItem &item)
 bool QmlCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
 {
     if (completionItems.count() == 1) {
-        complete(completionItems.first());
-        return true;
-    } else {
-        // Compute common prefix
-        QString firstKey = completionItems.first().text;
-        QString lastKey = completionItems.last().text;
-        const int length = qMin(firstKey.length(), lastKey.length());
-        firstKey.truncate(length);
-        lastKey.truncate(length);
+        const TextEditor::CompletionItem item = completionItems.first();
 
-        while (firstKey != lastKey) {
-            firstKey.chop(1);
-            lastKey.chop(1);
-        }
-
-        int typedLength = m_editor->position() - m_startPosition;
-        if (!firstKey.isEmpty() && firstKey.length() > typedLength) {
-            m_editor->setCurPos(m_startPosition);
-            m_editor->replace(typedLength, firstKey);
+        if (!item.data.canConvert<QString>()) {
+            complete(item);
+            return true;
         }
     }
+
+    // Compute common prefix
+    QString firstKey = completionItems.first().text;
+    QString lastKey = completionItems.last().text;
+    const int length = qMin(firstKey.length(), lastKey.length());
+    firstKey.truncate(length);
+    lastKey.truncate(length);
+
+    while (firstKey != lastKey) {
+        firstKey.chop(1);
+        lastKey.chop(1);
+    }
+
+    int typedLength = m_editor->position() - m_startPosition;
+    if (!firstKey.isEmpty() && firstKey.length() > typedLength) {
+        m_editor->setCurPos(m_startPosition);
+        m_editor->replace(typedLength, firstKey);
+    }
+
     return false;
 }
 
@@ -263,6 +305,8 @@ void QmlCodeCompletion::updateSnippets()
     QDateTime lastModified = QFileInfo(qmlsnippets).lastModified();
     if (!m_snippetFileLastModified.isNull() &&  lastModified == m_snippetFileLastModified)
         return;
+
+    const QIcon icon = iconForColor(Qt::red);
 
     m_snippetFileLastModified = lastModified;
     QFile file(qmlsnippets);
@@ -289,6 +333,7 @@ void QmlCodeCompletion::updateSnippets()
                                 item.text += description;
                             }
                             item.data = QVariant::fromValue(data);
+                            item.icon = icon;
                             m_snippets.append(item);
                             break;
 
