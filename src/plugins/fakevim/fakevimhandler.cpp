@@ -1765,7 +1765,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else {
         //qDebug() << "IGNORED IN COMMAND MODE: " << key << text
         //    << " VISUAL: " << m_visualMode;
-        handled = EventUnhandled;
+
+        // if a key which produces text was pressed, don't mark it as unhandled
+        // - otherwise the text would be inserted while being in command mode
+        if (text.isEmpty()) {
+            handled = EventUnhandled;
+        }
     }
 
     return handled;
