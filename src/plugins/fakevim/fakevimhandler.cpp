@@ -1315,7 +1315,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveLeft();
         setAnchor();
         m_submode = ChangeSubMode;
-    } else if (key == 'c' && isVisualCharMode()) {
+    } else if (key == 'c' && (isVisualCharMode() || isVisualLineMode())) {
+        m_rangemode = isVisualCharMode() ? RangeCharMode : RangeLineMode;
         leaveVisualMode();
         m_submode = ChangeSubMode;
         finishMovement();
