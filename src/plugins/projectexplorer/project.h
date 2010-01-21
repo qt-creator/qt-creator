@@ -168,4 +168,6 @@ private:
 
 } // namespace ProjectExplorer
 
+Q_DECLARE_METATYPE(ProjectExplorer::Project *)
+
 #endif // PROJECT_H

@@ -38,6 +38,7 @@
 #include <coreplugin/core_global.h>
 
 QT_BEGIN_NAMESPACE
+class QAction;
 class QSignalMapper;
 class QMenu;
 QT_END_NAMESPACE
@@ -50,6 +51,7 @@ class IMode;
 namespace Internal {
 class FancyTabWidget;
 class FancyActionBar;
+class FancyConfigButton;
 class MainWindow;
 } // namespace Internal
 
@@ -67,6 +69,7 @@ public:
     IMode* mode(const QString &id) const;
 
     void addAction(Command *command, int priority, QMenu *menu = 0);
+    void addProjectSelector(QAction *action);
     void addWidget(QWidget *widget);
 
 signals:

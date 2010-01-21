@@ -40,6 +40,7 @@ QT_BEGIN_NAMESPACE
 class QMainWindow;
 class QPrinter;
 class QSettings;
+class QStatusBar;
 template <class T> class QList;
 QT_END_NAMESPACE
 
@@ -104,6 +105,7 @@ public:
     virtual QString resourcePath() const = 0;
 
     virtual QMainWindow *mainWindow() const = 0;
+    virtual QStatusBar *statusBar() const = 0;
 
     // adds and removes additional active contexts, this context is appended to the
     // currently active contexts. call updateContext after changing

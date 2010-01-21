@@ -116,7 +116,6 @@ public:
     void setCurrentNode(Node *node);
 
     Project *startupProject() const;
-    void setStartupProject(ProjectExplorer::Project *project = 0);
 
     BuildManager *buildManager() const;
 
@@ -147,6 +146,9 @@ signals:
     void aboutToExecuteProject(ProjectExplorer::Project *project);
 
     void settingsChanged();
+
+public slots:
+    void setStartupProject(ProjectExplorer::Project *project = 0);
 
 private slots:
     void buildStateChanged(ProjectExplorer::Project * pro);
@@ -205,7 +207,7 @@ private slots:
     void runControlFinished();
 
     void startupProjectChanged(); // Calls updateRunAction
-    void updateRunAction();
+    void updateToolBarActions();
 
     void addToApplicationOutputWindow(RunControl *, const QString &line);
     void addToApplicationOutputWindowInline(RunControl *, const QString &line);

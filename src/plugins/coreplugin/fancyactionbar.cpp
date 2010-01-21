@@ -1,4 +1,4 @@
-/**************************************************************************
+/********************Q******************************************************
 **
 ** This file is part of Qt Creator
 **
@@ -29,53 +29,25 @@
 
 #include "fancyactionbar.h"
 
+#include <utils/stylehelper.h>
+
+#include <coreplugin/icore.h>
+#include <coreplugin/mainwindow.h>
+
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPainter>
 #include <QtGui/QPicture>
 #include <QtGui/QVBoxLayout>
-#include <QtSvg/QSvgRenderer>
 #include <QtGui/QAction>
+#include <QtGui/QStatusBar>
+#include <QtGui/QStyle>
+#include <QtGui/QStyleOption>
 
 using namespace Core;
 using namespace Internal;
 
-static const char* const svgIdButtonBase =               "ButtonBase";
-static const char* const svgIdButtonNormalBase =         "ButtonNormalBase";
-static const char* const svgIdButtonNormalOverlay =      "ButtonNormalOverlay";
-static const char* const svgIdButtonPressedBase =        "ButtonPressedBase";
-static const char* const svgIdButtonPressedOverlay =     "ButtonPressedOverlay";
-static const char* const svgIdButtonDisabledOverlay =    "ButtonDisabledOverlay";
-static const char* const svgIdButtonHoverOverlay =       "ButtonHoverOverlay";
-
-static const char* const elementsSvgIds[] = {
-    svgIdButtonBase,
-    svgIdButtonNormalBase,
-    svgIdButtonNormalOverlay,
-    svgIdButtonPressedBase,
-    svgIdButtonPressedOverlay,
-    svgIdButtonDisabledOverlay,
-    svgIdButtonHoverOverlay
-};
-
-const QMap<QString, QPicture> &buttonElementsMap()
-{
-    static QMap<QString, QPicture> result;
-    if (result.isEmpty()) {
-        QSvgRenderer renderer(QLatin1String(":/fancyactionbar/images/fancytoolbutton.svg"));
-        for (size_t i = 0; i < sizeof(elementsSvgIds)/sizeof(elementsSvgIds[0]); i++) {
-            QString elementId(elementsSvgIds[i]);
-            QPicture elementPicture;
-            QPainter elementPainter(&elementPicture);
-            renderer.render(&elementPainter, elementId);
-            result.insert(elementId, elementPicture);
-        }
-    }
-    return result;
-}
-
 FancyToolButton::FancyToolButton(QWidget *parent)
     : QToolButton(parent)
-    , m_buttonElements(buttonElementsMap())
 {
     setAttribute(Qt::WA_Hover, true);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -85,40 +57,99 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
     QPainter p(this);
-    QSize sh(sizeHint());
-    double scale = (double)height() / sh.height();
-    if (scale < 1) {
-        p.save();
-        p.scale(1, scale);
-    }
-    p.drawPicture(0, 0, m_buttonElements.value(svgIdButtonBase));
-    p.drawPicture(0, 0, m_buttonElements.value(isDown() ? svgIdButtonPressedBase : svgIdButtonNormalBase));
+
+    QLayout *parentLayout = qobject_cast<FancyActionBar*>(parentWidget())->actionsLayout();
+    int lineHeight = fontMetrics().height();
+    bool isTitledAction = defaultAction()->property("titledAction").toBool();
+
 #ifndef Q_WS_MAC // Mac UIs usually don't hover
-    if (underMouse() && isEnabled())
-        p.drawPicture(0, 0, m_buttonElements.value(svgIdButtonHoverOverlay));
+    if (underMouse() && isEnabled() && !isDown()) {
+        QColor whiteOverlay(Qt::white);
+        whiteOverlay.setAlpha(20);
+        p.fillRect(rect().adjusted(1,  1, -1, -1), whiteOverlay);
+    }
 #endif
 
-    if (scale < 1)
-        p.restore();
-
-    if (!icon().isNull()) {
-        icon().paint(&p, rect());
-    } else {
-        const int margin = 4;
-        p.drawText(rect().adjusted(margin, margin, -margin, -margin), Qt::AlignCenter | Qt::TextWordWrap, text());
-
+    if (isDown()) {
+        QColor whiteOverlay(Qt::black);
+        whiteOverlay.setAlpha(20);
+        p.fillRect(rect().adjusted(1,  1, -1, -1), whiteOverlay);
     }
 
-    if (scale < 1) {
-        p.scale(1, scale);
+        QPixmap borderPixmap;
+        QMargins margins;
+        if (parentLayout && parentLayout->count() > 0 &&
+            parentLayout->itemAt(parentLayout->count()-1)->widget() == this) {
+            margins = QMargins(3, 3, 2, 0);
+            borderPixmap = QPixmap(
+                    QLatin1String(":/fancyactionbar/images/fancytoolbutton_bottom_outline.png"));
+        } else if (parentLayout && parentLayout->count() > 0 &&
+                   parentLayout->itemAt(0)->widget() == this) {
+            margins = QMargins(3, 3, 2, 3);
+            borderPixmap = QPixmap(
+                    QLatin1String(":/fancyactionbar/images/fancytoolbutton_top_outline.png"));
+        } else {
+            margins = QMargins(3, 3, 2, 0);
+            borderPixmap = QPixmap(
+                    QLatin1String(":/fancyactionbar/images/fancytoolbutton_normal_outline.png"));
+        }
+
+        QRect drawRect = rect();
+        qDrawBorderPixmap(&p, drawRect, margins, borderPixmap);
+
+        QPixmap pix = icon().pixmap(size() - QSize(15, 15), isEnabled() ? QIcon::Normal : QIcon::Disabled);
+        QPoint center = rect().center();
+        QSize halfPixSize = pix.size()/2;
+
+    p.drawPixmap(center-QPoint(halfPixSize.width()-1, halfPixSize.height()-1), pix);
+
+    if (popupMode() == QToolButton::DelayedPopup && !isTitledAction) {
+        QPoint arrowOffset = center + QPoint(pix.rect().width()/2, pix.rect().height()/2);
+        QStyleOption opt;
+        if (isEnabled())
+            opt.state &= QStyle::State_Enabled;
+        else
+            opt.state |= QStyle::State_Enabled;
+        opt.rect = QRect(arrowOffset.x(), arrowOffset.y(), 6, 6);
+        style()->drawPrimitive(QStyle::PE_IndicatorArrowDown,
+                               &opt, &p, this);
     }
 
-    if (isEnabled()) {
-        p.drawPicture(0, 0, m_buttonElements.value(isDown() ?
-                                                   svgIdButtonPressedOverlay : svgIdButtonNormalOverlay));
-    } else {
-        p.drawPicture(0, 0, m_buttonElements.value(svgIdButtonDisabledOverlay));
+    if (isTitledAction) {
+        QRect r(0, lineHeight/2, rect().width(), lineHeight);
+        QColor penColor;
+        if (isEnabled())
+            penColor = Qt::white;
+        else
+            penColor = Qt::gray;
+        p.setPen(penColor);
+        const QString projectName = defaultAction()->property("heading").toString();
+        QFont f = font();
+        f.setPointSize(f.pointSize()-1);
+        p.setFont(f);
+        QFontMetrics fm(f);
+        QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, r.width());
+        if (isEnabled()) {
+            const QRect shadowR = r.translated(0, 1);
+            p.setPen(Qt::black);
+            p.drawText(shadowR, Qt::AlignVCenter|Qt::AlignHCenter, ellidedProjectName);
+            p.setPen(penColor);
+        }
+        p.drawText(r, Qt::AlignVCenter|Qt::AlignHCenter, ellidedProjectName);
+        r = QRect(0, rect().bottom()-lineHeight*1.5, rect().width(), lineHeight);
+        const QString buildConfiguration = defaultAction()->property("subtitle").toString();
+        f.setBold(true);
+        p.setFont(f);
+        QString ellidedBuildConfiguration = fm.elidedText(buildConfiguration, Qt::ElideMiddle, r.width());
+        if (isEnabled()) {
+            const QRect shadowR = r.translated(0, 1);
+            p.setPen(Qt::black);
+            p.drawText(shadowR, Qt::AlignVCenter|Qt::AlignHCenter, ellidedBuildConfiguration);
+            p.setPen(penColor);
+        }
+        p.drawText(r, Qt::AlignVCenter|Qt::AlignHCenter, ellidedBuildConfiguration);
     }
+
 }
 
 void FancyActionBar::paintEvent(QPaintEvent *event)
@@ -128,7 +159,12 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
 
 QSize FancyToolButton::sizeHint() const
 {
-    return m_buttonElements.value(svgIdButtonBase).boundingRect().size();
+    QSize buttonSize = iconSize().expandedTo(QSize(64, 40));
+    if (defaultAction()->property("titledAction").toBool()) {
+        int lineHeight = fontMetrics().height();
+        buttonSize += QSize(0, lineHeight*4);
+    }
+    return buttonSize;
 }
 
 QSize FancyToolButton::minimumSizeHint() const
@@ -149,13 +185,30 @@ FancyActionBar::FancyActionBar(QWidget *parent)
 {
     m_actionsLayout = new QVBoxLayout;
 
-    QHBoxLayout *centeringLayout = new QHBoxLayout;
-    centeringLayout->addStretch();
-    centeringLayout->addLayout(m_actionsLayout);
-    centeringLayout->addStretch();
-    setLayout(centeringLayout);
+    QVBoxLayout *spacerLayout = new QVBoxLayout;
+    spacerLayout->addLayout(m_actionsLayout);
+    int sbh = ICore::instance()->statusBar()->height();
+    spacerLayout->addSpacing(sbh);
+    spacerLayout->setMargin(0);
+    spacerLayout->setSpacing(0);
+
+    QHBoxLayout *orientRightLayout = new QHBoxLayout;
+    orientRightLayout->addStretch();
+    orientRightLayout->setMargin(0);
+    orientRightLayout->setSpacing(0);
+    orientRightLayout->setContentsMargins(0, 0, 1, 0);
+    orientRightLayout->addLayout(spacerLayout);
+    setLayout(orientRightLayout);
 }
 
+void FancyActionBar::addProjectSelector(QAction *action)
+{
+    FancyToolButton* toolButton = new FancyToolButton(this);
+    toolButton->setDefaultAction(action);
+    connect(action, SIGNAL(changed()), toolButton, SLOT(actionChanged()));
+    m_actionsLayout->insertWidget(0, toolButton);
+
+}
 void FancyActionBar::insertAction(int index, QAction *action, QMenu *menu)
 {
     FancyToolButton *toolButton = new FancyToolButton(this);
@@ -186,4 +239,9 @@ void FancyActionBar::toolButtonContextMenuActionTriggered(QAction* action)
         if (action != button->defaultAction())
             button->defaultAction()->trigger();
     }
+}
+
+QLayout *FancyActionBar::actionsLayout() const
+{
+    return m_actionsLayout;
 }

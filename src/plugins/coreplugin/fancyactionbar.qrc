@@ -6,5 +6,8 @@
         <file>images/mode_Output.png</file>
         <file>images/mode_Project.png</file>
         <file>images/mode_Reference.png</file>
+        <file>images/fancytoolbutton_bottom_outline.png</file>
+        <file>images/fancytoolbutton_normal_outline.png</file>
+        <file>images/fancytoolbutton_top_outline.png</file>
     </qresource>
 </RCC>

@@ -46,7 +46,6 @@ class CommandQObject;
 }
 }
 
-Q_DECLARE_METATYPE(ProjectExplorer::Project*)
 Q_DECLARE_METATYPE(QList<ProjectExplorer::Project*>)
 Q_DECLARE_METATYPE(ProjectExplorer::SessionManager*)
 Q_DECLARE_METATYPE(ProjectExplorer::IProjectManager*)

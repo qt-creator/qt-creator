@@ -205,6 +205,11 @@ void ModeManager::addAction(Command *command, int priority, QMenu *menu)
     m_actionBar->insertAction(index, command->action(), menu);
 }
 
+void ModeManager::addProjectSelector(QAction *action)
+{
+    m_actionBar->addProjectSelector(action);
+}
+
 void ModeManager::currentTabAboutToChange(int index)
 {
     if (index >= 0) {

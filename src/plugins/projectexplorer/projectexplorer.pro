@@ -67,6 +67,7 @@ HEADERS += projectexplorer.h \
     projectwelcomepage.h \
     projectwelcomepagewidget.h \
     baseprojectwizarddialog.h \
+    miniprojecttargetselector.h \
     targetselector.h \
     targetsettingswidget.h \
     doubletabwidget.h
@@ -124,6 +125,7 @@ SOURCES += projectexplorer.cpp \
     projectwelcomepagewidget.cpp \
     corelistenercheckingforrunningbuild.cpp \
     baseprojectwizarddialog.cpp \
+    miniprojecttargetselector.cpp \
     targetselector.cpp \
     targetsettingswidget.cpp \
     doubletabwidget.cpp

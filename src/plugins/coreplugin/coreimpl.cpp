@@ -33,6 +33,8 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSettings>
 
+#include <QtGui/QStatusBar>
+
 namespace Core {
 namespace Internal {
 
@@ -177,6 +179,11 @@ IContext *CoreImpl::currentContextObject() const
 QMainWindow *CoreImpl::mainWindow() const
 {
     return m_mainwindow;
+}
+
+QStatusBar *CoreImpl::statusBar() const
+{
+    return m_mainwindow->statusBar();
 }
 
 // adds and removes additional active contexts, this context is appended to the

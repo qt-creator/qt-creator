@@ -62,6 +62,7 @@
 #include "projectwelcomepagewidget.h"
 #include "corelistenercheckingforrunningbuild.h"
 #include "buildconfiguration.h"
+#include "miniprojecttargetselector.h"
 
 #include <coreplugin/basemode.h>
 #include <coreplugin/coreconstants.h>
@@ -147,6 +148,7 @@ struct ProjectExplorerPluginPrivate {
     QAction *m_openTerminalHere;
     QAction *m_removeFileAction;
     QAction *m_renameFileAction;
+    QAction *m_projectSelectorAction;
 
     QMenu *m_buildConfigurationMenu;
     QActionGroup *m_buildConfigurationActionGroup;
@@ -174,6 +176,7 @@ struct ProjectExplorerPluginPrivate {
     RunControl *m_debuggingRunControl;
     QString m_runMode;
     QString m_projectFilterString;
+    Internal::MiniProjectTargetSelector * m_targetSelector;
     Internal::ProjectExplorerSettings m_projectExplorerSettings;
     Internal::ProjectWelcomePage *m_welcomePlugin;
     Internal::ProjectWelcomePageWidget *m_welcomePage;
@@ -696,6 +699,24 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfilec->addAction(cmd, Constants::G_FILE_OTHER);
     d->m_renameFileAction->setEnabled(false);
     d->m_renameFileAction->setVisible(false);
+
+    // target selector
+    d->m_projectSelectorAction = new QAction(this);
+    d->m_projectSelectorAction->setEnabled(false);
+    QWidget *mainWindow = Core::ICore::instance()->mainWindow();
+    d->m_targetSelector = new Internal::MiniProjectTargetSelector(d->m_projectSelectorAction, mainWindow);
+    connect(d->m_projectSelectorAction, SIGNAL(triggered()), d->m_targetSelector, SLOT(show()));
+    modeManager->addProjectSelector(d->m_projectSelectorAction);
+
+
+    connect(d->m_session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+            d->m_targetSelector, SLOT(addProject(ProjectExplorer::Project*)));
+    connect(d->m_session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            d->m_targetSelector, SLOT(removeProject(ProjectExplorer::Project*)));
+    connect(d->m_targetSelector, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            this, SLOT(setStartupProject(ProjectExplorer::Project*)));
+    connect(d->m_session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+            d->m_targetSelector, SLOT(changeStartupProject(ProjectExplorer::Project*)));
 
     connect(core, SIGNAL(saveSettingsRequested()),
         this, SLOT(savePersistentSettings()));
@@ -1268,7 +1289,7 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
         d->m_debuggingRunControl = runControl;
 
     runControl->start();
-    updateRunAction();
+    updateToolBarActions();
 }
 
 void ProjectExplorerPlugin::buildQueueFinished(bool success)
@@ -1373,7 +1394,7 @@ void ProjectExplorerPlugin::updateActions()
     d->m_cleanSessionAction->setEnabled(hasProjects && !building);
     d->m_cancelBuildAction->setEnabled(building);
 
-    updateRunAction();
+    updateToolBarActions();
 }
 
 // NBS TODO check projectOrder()
@@ -1568,7 +1589,7 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
                 configurations << pro->activeBuildConfiguration();
             d->m_buildManager->buildProjects(configurations);
 
-            updateRunAction();
+            updateToolBarActions();
         }
     } else {
         // TODO this ignores RunConfiguration::isEnabled()
@@ -1631,7 +1652,7 @@ void ProjectExplorerPlugin::runControlFinished()
     if (sender() == d->m_debuggingRunControl)
         d->m_debuggingRunControl = 0;
 
-    updateRunAction();
+    updateToolBarActions();
 }
 
 void ProjectExplorerPlugin::startupProjectChanged()
@@ -1643,17 +1664,17 @@ void ProjectExplorerPlugin::startupProjectChanged()
 
     if (previousStartupProject) {
         disconnect(previousStartupProject, SIGNAL(activeRunConfigurationChanged()),
-                   this, SLOT(updateRunAction()));
+                   this, SLOT(updateToolBarActions()));
     }
 
     previousStartupProject = project;
 
     if (project) {
         connect(project, SIGNAL(activeRunConfigurationChanged()),
-                this, SLOT(updateRunAction()));
+                this, SLOT(updateToolBarActions()));
     }
 
-    updateRunAction();
+    updateToolBarActions();
 }
 
 // NBS TODO implement more than one runner
@@ -1667,7 +1688,7 @@ IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguratio
     return 0;
 }
 
-void ProjectExplorerPlugin::updateRunAction()
+void ProjectExplorerPlugin::updateToolBarActions()
 {
     const Project *project = startupProject();
     bool canRun = project && findRunControlFactory(project->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
@@ -1679,6 +1700,9 @@ void ProjectExplorerPlugin::updateRunAction()
     d->m_runActionContextMenu->setEnabled(canRun && !building);
 
     d->m_debugAction->setEnabled(canDebug && !building);
+
+    d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
+
 }
 
 void ProjectExplorerPlugin::cancelBuild()
