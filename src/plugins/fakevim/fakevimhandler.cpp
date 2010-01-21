@@ -343,7 +343,7 @@ public:
     }
     void moveToNextWord(bool simple);
     void moveToMatchingParanthesis();
-    void moveToWordBoundary(bool simple, bool forward);
+    void moveToWordBoundary(bool simple, bool forward, bool changeWord = false);
 
     // to reduce line noise
     void moveToEndOfDocument() { m_tc.movePosition(EndOfDocument, MoveAnchor); }
@@ -1701,9 +1701,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         enterVisualMode(VisualBlockMode);
     } else if (key == 'w') { // tested
         // Special case: "cw" and "cW" work the same as "ce" and "cE" if the
-        // cursor is on a non-blank.
+        // cursor is on a non-blank - except if the cursor is on the last character of a word:
+        // only the current word will be changed
         if (m_submode == ChangeSubMode) {
-            moveToWordBoundary(false, true);
+            moveToWordBoundary(false, true, true);
             m_movetype = MoveInclusive;
         } else {
             moveToNextWord(false);
@@ -1712,7 +1713,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement("%1w", count());
     } else if (key == 'W') {
         if (m_submode == ChangeSubMode) {
-            moveToWordBoundary(true, true);
+            moveToWordBoundary(true, true, true);
             m_movetype = MoveInclusive;
         } else {
             moveToNextWord(true);
@@ -2690,13 +2691,19 @@ static int charClass(QChar c, bool simple)
     return c.isSpace() ? 0 : 1;
 }
 
-void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
+void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward, bool changeWord)
 {
     int repeat = count();
     QTextDocument *doc = m_tc.document();
     int n = forward ? lastPositionInDocument() : 0;
     int lastClass = -1;
-    while (true) {
+    if (changeWord) {
+        lastClass = charClass(characterAtCursor(), simple);
+        --repeat;
+        if (changeWord && m_tc.block().length() == 1) // empty line
+            --repeat;
+    }
+    while (repeat >= 0) {
         QChar c = doc->characterAt(m_tc.position() + (forward ? 1 : -1));
         //qDebug() << "EXAMINING: " << c << " AT " << position();
         int thisClass = charClass(c, simple);
@@ -2708,6 +2715,10 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward)
         if (m_tc.position() == n)
             break;
         forward ? moveRight() : moveLeft();
+        if (changeWord && m_tc.block().length() == 1) // empty line
+            --repeat;
+        if (repeat == -1)
+            break;
     }
     setTargetColumn();
 }
