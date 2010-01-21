@@ -1190,6 +1190,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_tc.insertText(QString(count(), text.at(0)));
             m_movetype = MoveExclusive;
             setDotCommand("%1r" + text, count());
+            moveLeft();
         }
         setTargetColumn();
         m_submode = NoSubMode;
