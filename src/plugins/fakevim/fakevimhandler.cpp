@@ -423,7 +423,8 @@ public:
     RangeMode m_rangemode;
 
     bool m_fakeEnd;
-    bool m_anchorPastEnd, m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
+    bool m_anchorPastEnd;
+    bool m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
 
     bool isSearchMode() const
         { return m_mode == SearchForwardMode || m_mode == SearchBackwardMode; }
@@ -440,7 +441,8 @@ public:
     int anchor() const { return m_anchor; }
     int position() const { return m_tc.position(); }
 
-    void transformText(const Range &range, void (FakeVimHandler::Private::*transformFunc)(int, QTextCursor *));
+    typedef void (FakeVimHandler::Private::*Transformation)(int, QTextCursor *);
+    void transformText(const Range &range, Transformation transformation);
 
     void removeSelectedText(bool exclusive = false);
     void removeText(const Range &range);
@@ -2960,7 +2962,8 @@ void FakeVimHandler::Private::yankText(const Range &range, int toregister)
     //qDebug() << "YANKED: " << reg.contents;
 }
 
-void FakeVimHandler::Private::transformText(const Range &range, void (FakeVimHandler::Private::*transformFunc)(int updateMarksAfter, QTextCursor *tc))
+void FakeVimHandler::Private::transformText(const Range &range,
+    Transformation transformFunc)
 {
     QTextCursor tc = m_tc;
     switch (range.rangemode) {
