@@ -843,6 +843,9 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (m_movetype == MoveLineWise)
             m_registers[m_register].rangemode = RangeLineMode;
         removeSelectedText(true);
+        if (m_movetype == MoveLineWise) {
+            insertAutomaticIndentation(true);
+        }
         endEditBlock();
         enterInsertMode();
         m_beginEditBlock = false;
@@ -1387,6 +1390,9 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = ChangeSubMode;
     } else if (key == 'c' && (isVisualCharMode() || isVisualLineMode())) {
         m_rangemode = isVisualCharMode() ? RangeCharMode : RangeLineMode;
+        if (isVisualLineMode()) {
+            m_movetype =  MoveLineWise;
+        }
         leaveVisualMode();
         m_submode = ChangeSubMode;
         finishMovement();
