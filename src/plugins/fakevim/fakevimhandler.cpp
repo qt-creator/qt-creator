@@ -2472,7 +2472,7 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
     const QTextBlock &block = m_tc.block();
     int firstPos = block.position();
     for (int i = firstPos, n = firstPos + block.length(); i < n; ++i) {
-        if (!doc->characterAt(i).isSpace()) {
+        if (!doc->characterAt(i).isSpace() || i == n - 1) {
             setPosition(i);
             return;
         }
