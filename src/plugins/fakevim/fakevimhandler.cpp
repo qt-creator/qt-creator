@@ -2817,7 +2817,12 @@ int FakeVimHandler::Private::cursorColumnInDocument() const
 
 int FakeVimHandler::Private::linesInDocument() const
 {
-    return m_tc.isNull() ? 0 : m_tc.document()->blockCount();
+    if (m_tc.isNull())
+        return 0;
+    const QTextDocument *doc = m_tc.document();
+    const int count = doc->blockCount();
+    // Qt inserts an empty line if the last character is a '\n', but that's not how vi does it
+    return doc->lastBlock().length()<=1 ? count-1 : count;
 }
 
 void FakeVimHandler::Private::scrollToLineInDocument(int line)
