@@ -184,11 +184,17 @@ int main(int argc, char **argv)
     // Must be done before any QSettings class is created
     QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope,
             QCoreApplication::applicationDirPath()+QLatin1String(SHARE_PATH));
+
+    // Work around bug in QSettings which gets triggered on Windows & Mac only
 #ifdef Q_OS_MAC
-    // Work around bug in QSettings
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope,
             QDir::homePath()+"/.config");
 #endif
+#ifdef Q_OS_WIN
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope,
+            qgetenv("appdata"));
+#endif
+
     // keep this in sync with the MainWindow ctor in coreplugin/mainwindow.cpp
     const QSettings settings(QSettings::IniFormat, QSettings::UserScope,
                                  QLatin1String("Nokia"), QLatin1String("QtCreator"));
