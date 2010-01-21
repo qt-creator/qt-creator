@@ -136,8 +136,6 @@ int main(int argc, char *argv[])
         return 1;
     }
     QObject::connect(launcher.data(), SIGNAL(finished()), &app, SLOT(quit()));
-    QObject::connect(launcher.data(), SIGNAL(processStopped(uint,uint,uint,QString)),
-                     launcher.data(), SLOT(terminate()));
     // BLuetooth: Open with prompt
     QString errorMessage;
     if (bluetooth && !trk::ConsoleBluetoothStarter::startBluetooth(launcher->trkDevice(),
