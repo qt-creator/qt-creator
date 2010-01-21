@@ -2751,7 +2751,7 @@ void FakeVimHandler::Private::handleFfTt(int key)
     if (forward)
         n += block.length();
     int pos = m_tc.position();
-    while (true) {
+    while (pos != n) {
         pos += forward ? 1 : -1;
         if (pos == n)
             break;
