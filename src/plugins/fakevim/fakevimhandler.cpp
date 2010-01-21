@@ -1238,16 +1238,19 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToStartOfLine();
         moveDown();
         moveToFirstNonBlankOnLine();
+        m_movetype = MoveLineWise;
         finishMovement("%1j", count());
     } else if (key == '-') {
         moveToStartOfLine();
         moveUp(count());
         moveToFirstNonBlankOnLine();
+        m_movetype = MoveLineWise;
         finishMovement("%1-", count());
     } else if (key == '+') {
         moveToStartOfLine();
         moveDown(count());
         moveToFirstNonBlankOnLine();
+        m_movetype = MoveLineWise;
         finishMovement("%1+", count());
     } else if (key == Key_Home) {
         moveToStartOfLine();
