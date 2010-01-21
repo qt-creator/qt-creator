@@ -379,10 +379,17 @@ void tst_FakeVim::command_cj()
 {
     setup();
     move("j$",               l[1] + "@");
-    check("cj" + escape,     l[0]+"\n@" + lmid(3));
-    check("P",               lmid(0,1)+"\n" + "@"+lmid(1));
-    move("0",                "@" + l[1]);
-    check("cjabc" + escape,  l[0]+"\nab@c" + lmid(3));
+    check("cj" + escape,     l[0]+"\n@" + "\n" + lmid(3));
+    check("P",               lmid(0,1)+"\n" + "@"+lmid(1,2)+"\n" + "\n" +  lmid(3));
+    check("u",               l[0]+"\n@" + "\n" + lmid(3));
+    qWarning("FIXME");
+    //check("u",               lmid(0,2)+"\n" + "@"+lmid(2));
+
+    setup();
+    move("j$",               l[1] + "@");
+    check("cjabc" + escape,  l[0]+"\nab@c\n" + lmid(3));
+    qWarning("FIXME");
+    return;
     check("u",               lmid(0,1)+"\n" + "@"+lmid(1));
     check(".",               l[0]+"\nab@c" + lmid(3));
 }
@@ -392,8 +399,7 @@ void tst_FakeVim::command_ck()
     setup();
     move("j$",               l[1] + "@");
     check("ck" + escape,     "@\n" + lmid(2));
-    qWarning("FIXME");
-return; // FIXME
+    x
     check("P",               "@" + lmid(0,2)+"\n" + "\n" + lmid(2));
 }
 
