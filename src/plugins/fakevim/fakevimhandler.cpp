@@ -284,7 +284,8 @@ public:
     EventResult handleCommandMode(int key, int unmodified, const QString &text);
     EventResult handleRegisterMode(int key, int unmodified, const QString &text);
     EventResult handleMiniBufferModes(int key, int unmodified, const QString &text);
-    void finishMovement(const QString &text = QString());
+    void finishMovement(const QString &dotCommand = QString());
+    void finishMovement(const QString &dotCommand, int count);
     void resetCommandMode();
     void search(const QString &needle, bool forward);
     void highlightMatches(const QString &needle);
@@ -780,6 +781,11 @@ void FakeVimHandler::Private::moveToStartOfLine()
 #endif
 }
 
+void FakeVimHandler::Private::finishMovement(const QString &dotCommand, int count)
+{
+    finishMovement(dotCommand.arg(count));
+}
+
 void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 {
     //qDebug() << "ANCHOR: " << position() << anchor();
@@ -1149,13 +1155,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (key == '0' && m_mvcount.isEmpty()) {
             moveToStartOfLine();
             setTargetColumn();
-            finishMovement();
+            finishMovement("0");
         } else {
             m_mvcount.append(QChar(key));
         }
     } else if (key == '^') {
         moveToFirstNonBlankOnLine();
-        finishMovement();
+        finishMovement("^");
     } else if (0 && key == ',') {
         // FIXME: fakevim uses ',' by itself, so it is incompatible
         m_subsubmode = FtSubSubMode;
@@ -1232,17 +1238,17 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveToStartOfLine();
         moveDown();
         moveToFirstNonBlankOnLine();
-        finishMovement();
+        finishMovement("%1j", count());
     } else if (key == '-') {
         moveToStartOfLine();
         moveUp(count());
         moveToFirstNonBlankOnLine();
-        finishMovement();
+        finishMovement("%1-", count());
     } else if (key == '+') {
         moveToStartOfLine();
         moveDown(count());
         moveToFirstNonBlankOnLine();
-        finishMovement();
+        finishMovement("%1+", count());
     } else if (key == Key_Home) {
         moveToStartOfLine();
         setTargetColumn();
@@ -1400,11 +1406,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'e') { // tested
         m_movetype = MoveInclusive;
         moveToWordBoundary(false, true);
-        finishMovement("e");
+        finishMovement("%1e", count());
     } else if (key == 'E') {
         m_movetype = MoveInclusive;
         moveToWordBoundary(true, true);
-        finishMovement();
+        finishMovement("%1E", count());
     } else if (key == control('e')) {
         // FIXME: this should use the "scroll" option, and "count"
         if (cursorLineOnScreen() == 0)
@@ -1445,7 +1451,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             ++n;
         moveLeft(n);
         setTargetColumn();
-        finishMovement("h");
+        finishMovement("%1h", count());
     } else if (key == 'H') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, 0)));
         moveDown(qMax(count() - 1, 0));
@@ -1482,7 +1488,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_targetColumn = 0;
             moveDown(count() + 1);
         }
-        finishMovement("j");
+        finishMovement("%1j", count());
     } else if (key == 'J') {
         setDotCommand("%1J", count());
         beginEditBlock();
@@ -1518,12 +1524,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             setAnchor();
             moveUp(count() + 1);
         }
-        finishMovement("k");
+        finishMovement("%1k", count());
     } else if (key == 'l' || key == Key_Right || key == ' ') {
         m_movetype = MoveExclusive;
         moveRight(qMin(count(), rightDist()));
         setTargetColumn();
-        finishMovement("l");
+        finishMovement("%1l", count());
     } else if (key == 'L') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()))));
         moveUp(qMax(count(), 1));
@@ -1645,7 +1651,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToNextWord(false);
             m_movetype = MoveExclusive;
         }
-        finishMovement("w");
+        finishMovement("%1w", count());
     } else if (key == 'W') {
         if (m_submode == ChangeSubMode) {
             moveToWordBoundary(true, true);
@@ -1654,7 +1660,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToNextWord(true);
             m_movetype = MoveExclusive;
         }
-        finishMovement("W");
+        finishMovement("%1W", count());
     } else if (key == control('w')) {
         m_submode = WindowSubMode;
     } else if (key == 'x' && isNoVisualMode()) { // = "dl"
