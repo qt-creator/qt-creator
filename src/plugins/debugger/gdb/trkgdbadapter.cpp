@@ -1055,7 +1055,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             logMessage(logMsg);
             break;
         }
-        case TrkNotifyStopped: { // Notified Stopped	   
+        case TrkNotifyStopped: {  // 0x90 Notified Stopped
             // 90 01   78 6a 40 40   00 00 07 23   00 00 07 24  00 00
             debugMessage(_("RESET SNAPSHOT (NOTIFY STOPPED)"));
             m_snapshot.reset();
@@ -1085,7 +1085,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
                 trkReadRegistersMessage());
             break;
         }
-        case TrkNotifyException: { // Notify Exception (obsolete)
+        case TrkNotifyException: { // 0x91 Notify Exception (obsolete)
             debugMessage(_("RESET SNAPSHOT (NOTIFY EXCEPTION)"));
             m_snapshot.reset();
             logMessage(prefix + "NOTE: EXCEPTION  " + str);
