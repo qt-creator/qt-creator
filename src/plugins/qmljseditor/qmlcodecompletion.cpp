@@ -399,3 +399,28 @@ void QmlCodeCompletion::updateSnippets()
         qWarning() << qmlsnippets << xml.errorString();
     file.close();
 }
+
+QList<TextEditor::CompletionItem> QmlCodeCompletion::getCompletions()
+{
+    QList<TextEditor::CompletionItem> completionItems;
+
+    completions(&completionItems);
+
+    qStableSort(completionItems.begin(), completionItems.end(), completionItemLessThan);
+
+    // Remove duplicates
+    QString lastKey;
+    QList<TextEditor::CompletionItem> uniquelist;
+
+    foreach (const TextEditor::CompletionItem &item, completionItems) {
+        if (item.text != lastKey) {
+            uniquelist.append(item);
+            lastKey = item.text;
+        } else {
+            if (item.data.canConvert<QString>())
+                uniquelist.append(item);
+        }
+    }
+
+    return uniquelist;
+}

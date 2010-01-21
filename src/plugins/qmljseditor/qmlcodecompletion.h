@@ -61,6 +61,8 @@ public:
     virtual void completions(QList<TextEditor::CompletionItem> *completions);
     virtual void complete(const TextEditor::CompletionItem &item);
     virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems);
+    virtual QList<TextEditor::CompletionItem> getCompletions();
+
     virtual void cleanup();
 
 private:
