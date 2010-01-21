@@ -56,6 +56,11 @@ public:
     virtual ~FindPlugin();
     static FindPlugin *instance();
 
+    enum FindDirection {
+        FindForward,
+        FindBackward
+    };
+
     // IPlugin
     bool initialize(const QStringList &arguments, QString *error_message);
     void extensionsInitialized();
@@ -67,6 +72,7 @@ public:
     QStringListModel *findCompletionModel() { return m_findCompletionModel; }
     QStringListModel *replaceCompletionModel() { return m_replaceCompletionModel; }
     void setUseFakeVim(bool on);
+    void openFindToolBar(FindDirection direction);
 
 public slots:
     void setCaseSensitive(bool sensitive);

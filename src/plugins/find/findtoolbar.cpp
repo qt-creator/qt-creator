@@ -572,6 +572,12 @@ Core::FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
 
 void FindToolBar::openFind()
 {
+    setBackward(false);
+    openFindToolBar();
+}
+
+void FindToolBar::openFindToolBar()
+{
     if (!m_currentDocumentFind->candidateIsEnabled())
         return;
     Core::FindToolBarPlaceHolder *holder = findToolBarPlaceHolder();
@@ -675,4 +681,9 @@ void FindToolBar::setWholeWord(bool wholeOnly)
 void FindToolBar::setRegularExpressions(bool regexp)
 {
     setFindFlag(IFindSupport::FindRegularExpression, regexp);
+}
+
+void FindToolBar::setBackward(bool backward)
+{
+    setFindFlag(IFindSupport::FindBackward, backward);
 }

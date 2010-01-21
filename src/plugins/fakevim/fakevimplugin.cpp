@@ -416,10 +416,12 @@ void FakeVimPluginPrivate::windowCommand(int key)
 
 void FakeVimPluginPrivate::find(bool reverse)
 {
-    Q_UNUSED(reverse)  // TODO: Creator needs an action for find in reverse.
-    if (Find::Internal::FindPlugin::instance())
-        Find::Internal::FindPlugin::instance()->setUseFakeVim(true);
-    triggerAction(Find::Constants::FIND_IN_DOCUMENT);
+    if (Find::Internal::FindPlugin *plugin = Find::Internal::FindPlugin::instance()) {
+        plugin->setUseFakeVim(true);
+        plugin->openFindToolBar(reverse
+                ? Find::Internal::FindPlugin::FindBackward
+                : Find::Internal::FindPlugin::FindForward);
+    }
 }
 
 void FakeVimPluginPrivate::findNext(bool reverse)

@@ -132,7 +132,6 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, IFindSupp
     if (m_incrementalStartPos < 0)
         m_incrementalStartPos = cursor.selectionStart();
     cursor.setPosition(m_incrementalStartPos);
-    findFlags &= ~IFindSupport::FindBackward;
     bool found =  find(txt, findFlags, cursor);
     if (found)
         emit highlightAll(txt, findFlags);

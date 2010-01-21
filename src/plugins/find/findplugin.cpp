@@ -314,4 +314,12 @@ void FindPlugin::setUseFakeVim(bool on)
         m_findToolBar->setUseFakeVim(on);
 }
 
+void FindPlugin::openFindToolBar(FindDirection direction)
+{
+    if (m_findToolBar) {
+        m_findToolBar->setBackward(direction == FindBackward);
+        m_findToolBar->openFindToolBar();
+    }
+}
+
 Q_EXPORT_PLUGIN(FindPlugin)

@@ -50,6 +50,7 @@ class FindPlugin;
 
 class FindToolBar : public Utils::StyledBar
 {
+    friend class FindPlugin;
     Q_OBJECT
 
 public:
@@ -86,6 +87,7 @@ private slots:
     void setCaseSensitive(bool sensitive);
     void setWholeWord(bool wholeOnly);
     void setRegularExpressions(bool regexp);
+    void setBackward(bool backward);
 
     void adaptToCandidate();
 
@@ -93,6 +95,7 @@ protected:
     bool focusNextPrevChild(bool next);
 
 private:
+    void openFindToolBar();
     void invokeClearResults();
     bool setFocusToCurrentFindSupport();
     void setFindFlag(IFindSupport::FindFlag flag, bool enabled);

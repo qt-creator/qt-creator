@@ -103,7 +103,6 @@ public:
             m_incrementalStartPos = m_editor->selectionStart();
         if (m_contPos == -1)
             m_contPos = m_incrementalStartPos;
-        findFlags &= ~Find::IFindSupport::FindBackward;
         int found = find(pattern, m_contPos, findFlags);
         Result result;
         if (found >= 0) {
