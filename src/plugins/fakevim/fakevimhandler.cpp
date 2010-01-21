@@ -345,6 +345,7 @@ public:
     void moveToTargetColumn();
     void setTargetColumn() {
         m_targetColumn = leftDist();
+        m_visualTargetColumn = m_targetColumn;
         //qDebug() << "TARGET: " << m_targetColumn;
     }
     void moveToNextWord(bool simple, bool deleteWord = false);
@@ -422,6 +423,7 @@ public:
     RangeMode m_rangemode;
 
     bool m_fakeEnd;
+    bool m_anchorPastEnd, m_positionPastEnd; // '$' & 'l' in visual mode can move past eol
 
     bool isSearchMode() const
         { return m_mode == SearchForwardMode || m_mode == SearchBackwardMode; }
@@ -506,7 +508,8 @@ public:
 
     // for restoring cursor position
     int m_savedYankPosition;
-    int m_targetColumn;
+    int m_targetColumn; // -1 if past end of line
+    int m_visualTargetColumn; // 'l' can move past eol in visual mode only
 
     int m_cursorWidth;
 
@@ -547,11 +550,13 @@ void FakeVimHandler::Private::init()
     m_passing = false;
     m_findPending = false;
     m_fakeEnd = false;
+    m_positionPastEnd = m_anchorPastEnd = false;
     m_lastSearchForward = true;
     m_register = '"';
     m_gflag = false;
     m_visualMode = NoVisualMode;
     m_targetColumn = 0;
+    m_visualTargetColumn = 0;
     m_movetype = MoveInclusive;
     m_anchor = 0;
     m_savedYankPosition = 0;
@@ -854,6 +859,15 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             }
         }
 
+        if (m_positionPastEnd) {
+            moveBehindEndOfLine();
+            moveRight();
+        }
+
+        if (m_anchorPastEnd) {
+            m_anchor++;
+        }
+
         if (m_submode != TransformSubMode) {
             if (m_submode == YankSubMode)
                 m_savedYankPosition = qMin(anchor(), position());
@@ -861,6 +875,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             if (m_movetype == MoveLineWise)
                 m_registers[m_register].rangemode = RangeLineMode;
         }
+
+        m_positionPastEnd = m_anchorPastEnd = false;
     }
 
     if (m_submode == ChangeSubMode) {
@@ -1324,6 +1340,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setTargetColumn();
         if (m_submode == NoSubMode)
             m_targetColumn = -1;
+        if (isVisualMode())
+            m_visualTargetColumn = -1;
         finishMovement("%1$", count());
     } else if (key == ',') {
         // FIXME: use some other mechanism
@@ -1575,8 +1593,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement("%1k", count());
     } else if (key == 'l' || key == Key_Right || key == ' ') {
         m_movetype = MoveExclusive;
+        setAnchor();
+        bool pastEnd = count() >= rightDist() - 1;
         moveRight(qMax(0, qMin(count(), rightDist() - (m_submode==NoSubMode))));
         setTargetColumn();
+        if (pastEnd && isVisualMode()) {
+            m_visualTargetColumn = -1;
+        }
         finishMovement("%1l", count());
     } else if (key == 'L') {
         m_tc = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()))));
@@ -1610,6 +1633,10 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setPosition(anchor());
         m_anchor = pos;
         std::swap(m_marks['<'], m_marks['>']);
+        std::swap(m_positionPastEnd, m_anchorPastEnd);
+        setTargetColumn();
+        if (m_positionPastEnd)
+            m_visualTargetColumn = -1;
         updateSelection();
     } else if (key == 'o' || key == 'O') {
         beginEditBlock();
@@ -1857,6 +1884,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             handled = EventUnhandled;
         }
     }
+
+    m_positionPastEnd = (m_visualTargetColumn == -1) && isVisualMode();
 
     return handled;
 }
@@ -3192,6 +3221,7 @@ int FakeVimHandler::Private::lineForPosition(int pos) const
 void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
 {
     setAnchor();
+    m_positionPastEnd = m_anchorPastEnd = false;
     m_visualMode = visualMode;
     m_marks['<'] = m_tc.position();
     m_marks['>'] = m_tc.position();
