@@ -2750,7 +2750,6 @@ void FakeVimHandler::Private::handleFfTt(int key)
 
 void FakeVimHandler::Private::moveToNextWord(bool simple)
 {
-    // FIXME: 'w' should stop on empty lines, too
     int repeat = count();
     int n = lastPositionInDocument();
     int lastClass = charClass(characterAtCursor(), simple);
@@ -2763,6 +2762,10 @@ void FakeVimHandler::Private::moveToNextWord(bool simple)
             break;
         lastClass = thisClass;
         moveRight();
+        if (m_tc.block().length() == 1) // empty line
+            --repeat;
+        if (repeat == 0)
+            break;
         if (m_tc.position() == n)
             break;
     }
