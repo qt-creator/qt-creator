@@ -1580,6 +1580,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         enterInsertMode();
         m_submode = ReplaceSubMode;
         setDotCommand("R");
+        updateMiniBuffer();
     } else if (key == control('r')) {
         redo();
     } else if (key == 's') {
