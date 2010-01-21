@@ -2985,7 +2985,12 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
         token_buffer[1].loc   = yylloc  = location(lexer);
 
         if (t_action(errorState, yytoken)) {
-            const QString msg = qApp->translate("QmlParser", "Unexpected token `%1'").arg(QLatin1String(spell[token_buffer[0].token]));
+            QString msg;
+            int token = token_buffer[0].token;
+            if (token < 0 || token >= TERMINAL_COUNT)
+                msg = qApp->translate("QmlParser", "Syntax error");
+            else
+                msg = qApp->translate("QmlParser", "Unexpected token `%1'").arg(QLatin1String(spell[token]));
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
             action = errorState;
