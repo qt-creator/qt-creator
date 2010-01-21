@@ -132,7 +132,11 @@ bool HelpViewerFindSupport::find(const QString &txt, Find::IFindSupport::FindFla
     if (findFlags & Find::IFindSupport::FindCaseSensitively)
         options |= QWebPage::FindCaseSensitively;
 
-    return m_viewer->findText(txt, options);
+    bool found = m_viewer->findText(txt, options);
+    options = QWebPage::HighlightAllOccurrences;
+    m_viewer->findText(QLatin1String(""), options); // clear first
+    m_viewer->findText(txt, options); // force highlighting of all other matches
+    return found;
 #else
     QTextCursor cursor = m_viewer->textCursor();
     QTextDocument *doc = m_viewer->document();

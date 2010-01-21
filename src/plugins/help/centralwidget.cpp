@@ -660,7 +660,11 @@ bool CentralWidget::find(const QString &txt, QTextDocument::FindFlags findFlags,
         if (findFlags & QTextDocument::FindCaseSensitively)
             options |= QWebPage::FindCaseSensitively;
 
-        return viewer->findText(txt, options);
+        bool found = viewer->findText(txt, options);
+        options = QWebPage::HighlightAllOccurrences;
+        viewer->findText(QLatin1String(""), options); // clear first
+        viewer->findText(txt, options); // force highlighting of all other matches
+        return found;
     }
     return false;
 #else
