@@ -135,9 +135,33 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (qmlDocument.isNull())
         return -1;
 
-    if (!qmlDocument->qmlProgram())
-        qmlDocument = m_modelManager->snapshot().value(qmlDocument->fileName());
+    const QmlJS::Snapshot &snapshot = m_modelManager->snapshot();
 
+    if (! qmlDocument->qmlProgram()) {
+        qmlDocument = snapshot.value(qmlDocument->fileName());
+
+        if (! qmlDocument)
+            return -1;
+    }
+
+    const QIcon typeIcon = iconForColor(Qt::yellow);
+
+    foreach (QmlJS::Document::Ptr doc, snapshot) {
+        const QFileInfo fileInfo(doc->fileName());
+        if (fileInfo.suffix() != QLatin1String("qml"))
+            continue;
+
+        const QString typeName = fileInfo.baseName();
+        if (typeName.isEmpty())
+            continue;
+
+        if (typeName.at(0).isUpper()) {
+            TextEditor::CompletionItem item(this);
+            item.text = typeName;
+            item.icon = typeIcon;
+            m_completions.append(item);
+        }
+    }
 
     const QIcon idIcon = iconForColor(Qt::darkGray);
     QStringList ids = qmlDocument->ids().keys();
@@ -180,9 +204,21 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
-    updateSnippets();
+    QChar previousChar;
+    if (m_startPosition > 0)
+        previousChar = editor->characterAt(m_startPosition - 1);
 
-    m_completions.append(m_snippets);
+
+    if (previousChar.isNull()
+            || previousChar.isSpace()
+            || previousChar == QLatin1Char('{')
+            || previousChar == QLatin1Char('}')
+            || previousChar == QLatin1Char(':')
+            || previousChar == QLatin1Char(';')) {
+        updateSnippets();
+        m_completions.append(m_snippets);
+    }
+
     return pos;
 }
 
