@@ -285,6 +285,7 @@ public:
     EventResult handleRegisterMode(int key, int unmodified, const QString &text);
     EventResult handleMiniBufferModes(int key, int unmodified, const QString &text);
     void finishMovement(const QString &text = QString());
+    void resetCommandMode();
     void search(const QString &needle, bool forward);
     void highlightMatches(const QString &needle);
     void stopIncrementalFind();
@@ -872,6 +873,11 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         updateMiniBuffer();
     }
 
+    resetCommandMode();
+}
+
+void FakeVimHandler::Private::resetCommandMode()
+{
     m_movetype = MoveInclusive;
     m_mvcount.clear();
     m_opcount.clear();
@@ -1752,6 +1758,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_submode = NoSubMode;
             m_subsubmode = NoSubSubMode;
             finishMovement();
+        } else {
+            resetCommandMode();
         }
     } else {
         //qDebug() << "IGNORED IN COMMAND MODE: " << key << text
