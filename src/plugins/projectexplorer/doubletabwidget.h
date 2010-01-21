@@ -1,6 +1,7 @@
 #ifndef DOUBLETABWIDGET_H
 #define DOUBLETABWIDGET_H
 
+#include <QtCore/QVector>
 #include <QtGui/QWidget>
 
 namespace ProjectExplorer {
@@ -20,6 +21,9 @@ public:
     QString title() const { return m_title; }
 
     void addTab(const QString &name, const QStringList &subTabs);
+    void insertTab(int index, const QString &name, const QStringList &subTabs);
+    void removeTab(int index);
+    int tabCount() const;
 
 signals:
     void currentIndexChanged(int index, int subIndex);
@@ -42,6 +46,8 @@ private:
     QString m_title;
     QList<Tab> m_tabs;
     int m_currentIndex;
+    QVector<int> m_currentTabIndices;
+    int m_lastVisibleIndex;
 };
 
 } // namespace Internal

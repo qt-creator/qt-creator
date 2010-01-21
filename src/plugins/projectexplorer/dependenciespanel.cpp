@@ -319,6 +319,11 @@ DependenciesPanelFactory::DependenciesPanelFactory(SessionManager *session)
 {
 }
 
+QString DependenciesPanelFactory::displayName() const
+{
+    return QApplication::tr("Dependencies");
+}
+
 bool DependenciesPanelFactory::supports(Project * /* project */)
 {
     return true;

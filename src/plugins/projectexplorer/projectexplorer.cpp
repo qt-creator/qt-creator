@@ -903,6 +903,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
 void ProjectExplorerPlugin::shutdown()
 {
+    d->m_proWindow->shutdown(); // disconnect from session
     d->m_session->clear();
 //    d->m_proWindow->saveConfigChanges();
 }
@@ -2240,7 +2241,7 @@ BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
     }
 
     QFormLayout *formlayout = new QFormLayout;
-    formlayout->addRow(ActiveConfigurationWidget::tr("Active run configuration"),
+    formlayout->addRow(tr("Active run configuration"),
                        // ^ avoiding a new translatable string for active run configuration
                        new QLabel(activeRun->displayName()));
     formlayout->addRow(tr("Choose build configuration:"), m_configCombo);

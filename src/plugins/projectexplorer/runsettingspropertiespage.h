@@ -52,7 +52,8 @@ class RunSettingsWidget;
 class RunSettingsPanelFactory : public IPanelFactory
 {
 public:
-    virtual bool supports(Project *project);
+    QString displayName() const;
+    bool supports(Project *project);
     IPropertiesPanel *createPanel(Project *project);
 };
 

@@ -30,8 +30,11 @@
 #ifndef PROJECTWINDOW_H
 #define PROJECTWINDOW_H
 
+#include "iprojectproperties.h"
+
 #include <QtCore/QPair>
 #include <QtCore/QMap>
+#include <QtGui/QApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
@@ -54,6 +57,8 @@ class RunConfiguration;
 
 namespace Internal {
 
+class DoubleTabWidget;
+
 class PanelsWidget : public QScrollArea
 {
     Q_OBJECT
@@ -61,115 +66,14 @@ public:
     PanelsWidget(QWidget *parent);
     ~PanelsWidget();
     // Adds a widget
-    void addWidget(QWidget *widget);
-    void addWidget(const QString &name, QWidget *widget, const QIcon &icon);
-
-    QWidget *rootWidget() const;
-
-    // Removes all widgets and deletes them
-    void clear();
+    void addPropertiesPanel(IPropertiesPanel *panel);
 
 private:
-    struct Panel
-    {
-        // This does not take ownership of widget!
-        explicit Panel(QWidget *widget);
-        ~Panel();
+    void addPanelWidget(IPropertiesPanel *panel, int row);
 
-        QLabel *iconLabel;
-        QWidget *lineWidget;
-        QLabel *nameLabel;
-        QWidget *panelWidget;
-    };
-    QList<Panel *> m_panels;
-
-    void addPanelWidget(Panel *panel, int row);
-
+    QList<IPropertiesPanel *> m_panels;
     QGridLayout *m_layout;
     QWidget *m_root;
-};
-
-class BuildConfigurationComboBox : public QStackedWidget
-{
-    Q_OBJECT
-public:
-    BuildConfigurationComboBox(ProjectExplorer::Project *p, QWidget *parent = 0);
-    ~BuildConfigurationComboBox();
-private slots:
-    void displayNameChanged();
-    void activeConfigurationChanged();
-    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
-    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
-    void changedIndex(int newIndex);
-private:
-    int buildConfigurationToIndex(BuildConfiguration *bc);
-    bool ignoreIndexChange;
-    ProjectExplorer::Project *m_project;
-    QComboBox *m_comboBox;
-    QLabel *m_label;
-};
-
-class ActiveConfigurationWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    ActiveConfigurationWidget(QWidget *parent = 0);
-    ~ActiveConfigurationWidget();
-private slots:
-    void projectAdded(ProjectExplorer::Project*);
-    void projectRemoved(ProjectExplorer::Project*);
-private:
-    QMap<ProjectExplorer::Project *, QPair<BuildConfigurationComboBox *, QLabel *> > m_buildComboBoxMap;
-};
-
-class RunConfigurationComboBox : public QComboBox
-{
-    Q_OBJECT
-public:
-    RunConfigurationComboBox(QWidget *parent = 0);
-    ~RunConfigurationComboBox();
-private slots:
-    void activeRunConfigurationChanged();
-    void activeItemChanged(int);
-    void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
-    void removedRunConfiguration(ProjectExplorer::RunConfiguration *);
-    void projectAdded(ProjectExplorer::Project*);
-    void projectRemoved(ProjectExplorer::Project*);
-    void rebuildTree();
-private:
-    int convertTreeIndexToInt(int project, int runconfigurationIndex);
-    QPair<int, int> convertIntToTreeIndex(int index);
-    void connectToProject(ProjectExplorer::Project *p);
-    void disconnectFromProject(ProjectExplorer::Project *p);
-
-    bool m_ignoreChange;
-};
-
-class ProjectLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    ProjectLabel(QWidget *parent);
-    ~ProjectLabel();
-public slots:
-    void setProject(ProjectExplorer::Project *);
-};
-
-class ProjectPushButton : public QPushButton
-{
-    Q_OBJECT
-public:
-    ProjectPushButton(QWidget *parent);
-    ~ProjectPushButton();
-signals:
-    void projectChanged(ProjectExplorer::Project *);
-
-private slots:
-    void projectAdded(ProjectExplorer::Project*);
-    void projectRemoved(ProjectExplorer::Project*);
-    void actionTriggered();
-private:
-    QMenu *m_menu;
 };
 
 class ProjectWindow : public QWidget
@@ -180,22 +84,20 @@ public:
     explicit ProjectWindow(QWidget *parent = 0);
     ~ProjectWindow();
 
+    void shutdown();
 private slots:
-    void showProperties(ProjectExplorer::Project *project);
+    void showProperties(int index, int subIndex);
     void restoreStatus();
     void saveStatus();
-    void projectAdded();
-    void projectRemoved();
+    void projectAdded(ProjectExplorer::Project*);
+    void aboutToRemoveProject(ProjectExplorer::Project*);
 
 private:
-    void updateRunConfigurationsComboBox();
-
-    ActiveConfigurationWidget *m_activeConfigurationWidget;
-    QWidget *m_spacerBetween;
-    QWidget *m_projectChooser;
-    QLabel *m_noprojectLabel;
+    DoubleTabWidget *m_tabWidget;
+    QWidget *m_noprojectLabel;
+    QStackedWidget *m_centralWidget;
     PanelsWidget *m_panelsWidget;
-    QList<IPropertiesPanel *> m_panels;
+    QList<ProjectExplorer::Project *> m_tabIndexToProject;
 };
 
 

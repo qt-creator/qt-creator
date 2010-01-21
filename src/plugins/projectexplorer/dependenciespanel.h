@@ -52,6 +52,7 @@ class DependenciesPanelFactory : public IPanelFactory
 public:
     DependenciesPanelFactory(SessionManager *session);
 
+    QString displayName() const;
     bool supports(Project *project);
     IPropertiesPanel *createPanel(Project *project);
 

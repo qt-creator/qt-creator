@@ -7,6 +7,9 @@
 #include <QtGui/QPainter>
 #include <QtGui/QFont>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QMenu>
+
+#include <QtDebug>
 
 using namespace ProjectExplorer::Internal;
 
@@ -15,6 +18,7 @@ static const int MARGIN = 12;
 static const int OTHER_HEIGHT = 38;
 static const int SELECTION_IMAGE_WIDTH = 10;
 static const int SELECTION_IMAGE_HEIGHT = 20;
+static const int OVERFLOW_DROPDOWN_WIDTH = Utils::StyleHelper::navigationWidgetHeight();
 
 static void drawFirstLevelSeparator(QPainter *painter, QPoint top, QPoint bottom)
 {
@@ -53,7 +57,8 @@ static void drawSecondLevelSeparator(QPainter *painter, QPoint top, QPoint botto
 DoubleTabWidget::DoubleTabWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DoubleTabWidget),
-    m_currentIndex(-1)
+    m_currentIndex(-1),
+    m_lastVisibleIndex(-1)
 {
     ui->setupUi(this);
 }
@@ -88,6 +93,44 @@ void DoubleTabWidget::addTab(const QString &name, const QStringList &subTabs)
     update();
 }
 
+void DoubleTabWidget::insertTab(int index, const QString &name, const QStringList &subTabs)
+{
+    Tab tab;
+    tab.name = name;
+    tab.subTabs = subTabs;
+    tab.currentSubTab = tab.subTabs.isEmpty() ? -1 : 0;
+    m_tabs.insert(index, tab);
+    if (m_currentIndex == -1) {
+        m_currentIndex = m_tabs.size()-1;
+        emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
+    } else if (m_currentIndex >= index) {
+        ++m_currentIndex;
+        emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
+    }
+    update();
+}
+
+void DoubleTabWidget::removeTab(int index)
+{
+    m_tabs.removeAt(index);
+    if (index <= m_currentIndex) {
+        --m_currentIndex;
+        if (m_currentIndex < 0 && m_tabs.size() > 0)
+            m_currentIndex = 0;
+        if (m_currentIndex < 0) {
+            emit currentIndexChanged(-1, -1);
+        } else {
+            emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
+        }
+    }
+    update();
+}
+
+int DoubleTabWidget::tabCount() const
+{
+    return m_tabs.size();
+}
+
 void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->y() < Utils::StyleHelper::navigationWidgetHeight()) {
@@ -98,21 +141,39 @@ void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
         if (eventX <= x)
             return;
         int i;
-        for (i = 0; i < m_tabs.size(); ++i) {
-            int otherX = x + 2 * MARGIN + fm.width(m_tabs.at(i).name);
+        for (i = 0; i <= m_lastVisibleIndex; ++i) {
+            int otherX = x + 2 * MARGIN + fm.width(m_tabs.at(
+                    m_currentTabIndices.at(i)).name);
             if (eventX > x && eventX < otherX) {
                 break;
             }
             x = otherX;
         }
-        if (i < m_tabs.size()) {
-            if (m_currentIndex != i) {
-                m_currentIndex = i;
+        if (i <= m_lastVisibleIndex) {
+            if (m_currentIndex != m_currentTabIndices.at(i)) {
+                m_currentIndex = m_currentTabIndices.at(i);
                 update();
                 emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
             }
             event->accept();
             return;
+        } else if (m_lastVisibleIndex < m_tabs.size() - 1) {
+            // handle overflow menu
+            if (eventX > x && eventX < x + OVERFLOW_DROPDOWN_WIDTH) {
+                QMenu overflowMenu;
+                QList<QAction *> actions;
+                for (int i = m_lastVisibleIndex + 1; i < m_tabs.size(); ++i) {
+                    actions << overflowMenu.addAction(m_tabs.at(m_currentTabIndices.at(i)).name);
+                }
+                if (QAction *action = overflowMenu.exec(mapToGlobal(QPoint(x+1, 1)))) {
+                    int index = m_currentTabIndices.at(actions.indexOf(action) + m_lastVisibleIndex + 1);
+                    if (m_currentIndex != index) {
+                        m_currentIndex = index;
+                        update();
+                        emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
+                    }
+                }
+            }
         }
     } else if (event->y() < Utils::StyleHelper::navigationWidgetHeight() + OTHER_HEIGHT) {
         int diff = (OTHER_HEIGHT - SELECTION_IMAGE_HEIGHT) / 2;
@@ -146,7 +207,6 @@ void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
             emit currentIndexChanged(m_currentIndex, m_tabs.at(m_currentIndex).currentSubTab);
             return;
         }
-
     }
     event->ignore();
 }
@@ -193,18 +253,85 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
 
     // top level tabs
     int x = 2 * MARGIN + qMax(fm.width(m_title), MIN_LEFT_MARGIN);
+
+    // calculate sizes
+    QList<int> nameWidth;
+    int width = x;
+    int indexSmallerThanOverflow = -1;
+    int indexSmallerThanWidth = -1;
     for (int i = 0; i < m_tabs.size(); ++i) {
-        if (i == m_currentIndex) {
+        const Tab &tab = m_tabs.at(i);
+        int w = fm.width(tab.name);
+        nameWidth << w;
+        width += 2 * MARGIN + w;
+        if (width < r.width())
+            indexSmallerThanWidth = i;
+        if (width < r.width() - OVERFLOW_DROPDOWN_WIDTH)
+            indexSmallerThanOverflow = i;
+    }
+    m_lastVisibleIndex = -1;
+    m_currentTabIndices.resize(m_tabs.size());
+    if (indexSmallerThanWidth == m_tabs.size() - 1) {
+        // => everything fits
+        for (int i = 0; i < m_tabs.size(); ++i)
+            m_currentTabIndices[i] = i;
+        m_lastVisibleIndex = m_tabs.size()-1;
+    } else {
+        // => we need the overflow thingy
+        if (m_currentIndex <= indexSmallerThanOverflow) {
+            // easy going, simply draw everything that fits
+            for (int i = 0; i < m_tabs.size(); ++i)
+                m_currentTabIndices[i] = i;
+            m_lastVisibleIndex = indexSmallerThanOverflow;
+        } else {
+            // now we need to put the current tab into
+            // visible range. for that we need to find the place
+            // to put it, so it fits
+            width = x;
+            int index = 0;
+            bool handledCurrentIndex = false;
+            for (int i = 0; i < m_tabs.size(); ++i) {
+                if (index != m_currentIndex) {
+                    if (!handledCurrentIndex) {
+                        // check if enough room for current tab after this one
+                        if (width + 2 * MARGIN + nameWidth.at(index)
+                                + 2 * MARGIN + nameWidth.at(m_currentIndex)
+                                < r.width() - OVERFLOW_DROPDOWN_WIDTH) {
+                            m_currentTabIndices[i] = index;
+                            ++index;
+                            width += 2 * MARGIN + nameWidth.at(index);
+                        } else {
+                            m_currentTabIndices[i] = m_currentIndex;
+                            handledCurrentIndex = true;
+                            m_lastVisibleIndex = i;
+                        }
+                    } else {
+                        m_currentTabIndices[i] = index;
+                        ++index;
+                    }
+                } else {
+                    ++index;
+                    --i;
+                }
+            }
+        }
+    }
+
+    // actually draw top level tabs
+    for (int i = 0; i <= m_lastVisibleIndex; ++i) {
+        int actualIndex = m_currentTabIndices.at(i);
+        Tab tab = m_tabs.at(actualIndex);
+        if (actualIndex == m_currentIndex) {
             painter.setPen(Utils::StyleHelper::borderColor());
             painter.drawLine(x - 1, 0, x - 1, r.height() - 1);
             painter.fillRect(QRect(x, 0,
-                                   2 * MARGIN + fm.width(m_tabs.at(i).name),
+                                   2 * MARGIN + fm.width(tab.name),
                                    r.height() + 1),
                              grad);
             x += MARGIN;
             painter.setPen(Qt::black);
-            painter.drawText(x, baseline, m_tabs.at(i).name);
-            x += fm.width(m_tabs.at(i).name);
+            painter.drawText(x, baseline, tab.name);
+            x += nameWidth.at(actualIndex);
             x += MARGIN;
             painter.setPen(Utils::StyleHelper::borderColor());
             painter.drawLine(x, 0, x, r.height() - 1);
@@ -213,19 +340,27 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
                 drawFirstLevelSeparator(&painter, QPoint(x, 0), QPoint(x, r.height()-1));
             x += MARGIN;
             painter.setPen(Utils::StyleHelper::panelTextColor());
-            painter.drawText(x + 1, baseline, m_tabs.at(i).name);
-            x += fm.width(m_tabs.at(i).name);
+            painter.drawText(x + 1, baseline, tab.name);
+            x += nameWidth.at(actualIndex);
             x += MARGIN;
             drawFirstLevelSeparator(&painter, QPoint(x, 0), QPoint(x, r.height()-1));
         }
-        if (x >= r.width()) // TODO: do something useful...
-            break;
+    }
+
+    // draw overflow button
+    if (m_lastVisibleIndex < m_tabs.size() - 1) {
+        QStyleOption opt;
+        opt.rect = QRect(x, 0, OVERFLOW_DROPDOWN_WIDTH - 1, r.height() - 1);
+        style()->drawPrimitive(QStyle::PE_IndicatorArrowDown,
+                               &opt, &painter, this);
+        drawFirstLevelSeparator(&painter, QPoint(x + OVERFLOW_DROPDOWN_WIDTH, 0),
+                                QPoint(x + OVERFLOW_DROPDOWN_WIDTH, r.height()-1));
     }
 
     // second level tabs
-    static QPixmap left(":/projectexplorer/leftselection.png");
-    static QPixmap mid(":/projectexplorer/midselection.png");
-    static QPixmap right(":/projectexplorer/rightselection.png");
+    static QPixmap left(":/projectexplorer/images/leftselection.png");
+    static QPixmap mid(":/projectexplorer/images/midselection.png");
+    static QPixmap right(":/projectexplorer/images/rightselection.png");
     if (m_currentIndex != -1) {
         int y = r.height() + (OTHER_HEIGHT - left.height()) / 2.;
         int imageHeight = left.height();

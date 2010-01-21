@@ -89,6 +89,11 @@ using ExtensionSystem::PluginManager;
 /// RunSettingsPanelFactory
 ///
 
+QString RunSettingsPanelFactory::displayName() const
+{
+    return QApplication::tr("Run Settings");
+}
+
 bool RunSettingsPanelFactory::supports(Project * /* project */)
 {
     return true;

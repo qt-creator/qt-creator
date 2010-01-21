@@ -48,12 +48,14 @@ public:
     virtual QString displayName() const = 0;
     virtual QIcon icon() const = 0;
     virtual QWidget *widget() const = 0;
+    virtual void widgetWasAddedToLayout() { }
 };
 
 class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject
 {
     Q_OBJECT
 public:
+    virtual QString displayName() const = 0;
     virtual bool supports(Project *project) = 0;
     virtual IPropertiesPanel *createPanel(Project *project) = 0;
 };

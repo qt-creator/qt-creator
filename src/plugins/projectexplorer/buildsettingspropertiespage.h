@@ -51,6 +51,7 @@ namespace Internal {
 class BuildSettingsPanelFactory : public IPanelFactory
 {
 public:
+    QString displayName() const;
     bool supports(Project *project);
     IPropertiesPanel *createPanel(Project *project);
 };
@@ -65,6 +66,7 @@ public:
     QString displayName() const;
     QWidget *widget() const;
     QIcon icon() const;
+    void widgetWasAddedToLayout();
 
 private:
     BuildSettingsWidget *m_widget;
@@ -84,6 +86,8 @@ public:
     void addSubWidget(const QString &name, QWidget *widget);
     QList<QWidget *> subWidgets() const;
 
+    void setupUi();
+
 private slots:
     void updateBuildSettings();
     void currentIndexChanged(int index);
@@ -95,8 +99,6 @@ private slots:
     void updateAddButtonMenu();
     void checkMakeActiveLabel();
     void makeActive();
-
-    void setupUi();
 
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);

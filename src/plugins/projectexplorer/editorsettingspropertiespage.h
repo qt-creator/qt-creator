@@ -40,6 +40,7 @@ namespace Internal {
 class EditorSettingsPanelFactory : public IPanelFactory
 {
 public:
+    QString displayName() const;
     bool supports(Project *project);
     IPropertiesPanel *createPanel(Project *project);
 };

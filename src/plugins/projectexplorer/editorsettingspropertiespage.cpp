@@ -38,6 +38,11 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+QString EditorSettingsPanelFactory::displayName() const
+{
+    return QApplication::tr("Editor Settings");
+}
+
 bool EditorSettingsPanelFactory::supports(Project * /*project*/)
 {
     return true;

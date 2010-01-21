@@ -54,6 +54,11 @@ using namespace ProjectExplorer::Internal;
 // BuildSettingsPanelFactory
 ///
 
+QString BuildSettingsPanelFactory::displayName() const
+{
+    return QApplication::tr("Build Settings");
+}
+
 bool BuildSettingsPanelFactory::supports(Project *project)
 {
     return project->hasBuildSettings();
@@ -94,6 +99,11 @@ QIcon BuildSettingsPanel::icon() const
     return m_icon;
 }
 
+void BuildSettingsPanel::widgetWasAddedToLayout()
+{
+    m_widget->setupUi();
+}
+
 ///
 // BuildSettingsWidget
 ///
@@ -108,12 +118,14 @@ BuildSettingsWidget::BuildSettingsWidget(Project *project) :
     m_buildConfiguration(0),
     m_leftMargin(0)
 {
-    // Provide some time for our contentsmargins to get updated:
-    QTimer::singleShot(0, this, SLOT(setupUi()));
+    // setup is done after panel has been added to layout.
+    // setupUi will be called by the IPropertiesPanel implementation then.
+    // this is necessary to handle the margin by hand for the up/down/delete hover
 }
 
 void BuildSettingsWidget::setupUi()
 {
+    // called by IPropertiesPanel implementation once the panel has been added
     QMargins margins(contentsMargins());
     m_leftMargin = margins.left();
     margins.setLeft(0);
