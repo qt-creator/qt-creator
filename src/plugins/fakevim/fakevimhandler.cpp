@@ -1674,13 +1674,12 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         const int line = cursorLineInDocument() + 1;
         setAnchor(firstPositionInLine(line));
         setPosition(lastPositionInLine(line + count() - 1));
-        yankSelectedText();
-        removeSelectedText();
         setDotCommand("%1S", count());
-        m_opcount.clear();
-        m_mvcount.clear();
         enterInsertMode();
         m_beginEditBlock = false;
+        m_submode = ChangeSubMode;
+        m_movetype = MoveLineWise;
+        finishMovement();
     } else if (key == 't') {
         m_movetype = MoveInclusive;
         m_subsubmode = FtSubSubMode;
