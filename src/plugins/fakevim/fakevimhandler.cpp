@@ -1161,6 +1161,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         if (hasConfig(ConfigIncSearch)) {
             // re-use the core dialog.
             m_lastSearchForward = (key == '/');
+            EDITOR(setTextCursor(m_tc));
             emit q->findRequested(!m_lastSearchForward);
             m_tc = EDITOR(textCursor());
             m_tc.setPosition(m_tc.selectionStart());
