@@ -882,17 +882,17 @@ void BaseTextEditor::joinLines()
     QTextCursor move = textCursor();
     move.beginEditBlock();
 
-    move.movePosition(QTextCursor::Down);
+    move.movePosition(QTextCursor::NextBlock);
     move.movePosition(QTextCursor::StartOfBlock);
     move.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     QString cutLine = move.selectedText();
 
-    // collapse trailing whitespaces to one or insert whitespace
+    // Collapse leading whitespaces to one or insert whitespace
     cutLine.replace(QRegExp("^\\s*"), " ");
     move.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
     move.removeSelectedText();
 
-    move.movePosition(QTextCursor::Up);
+    move.movePosition(QTextCursor::PreviousBlock);
     move.movePosition(QTextCursor::EndOfBlock);
 
     move.insertText(cutLine);
