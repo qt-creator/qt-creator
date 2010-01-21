@@ -650,14 +650,12 @@ void tst_FakeVim::command_r()
     setup();
     move("4j",   "@int main");
     move("$",    "int main(int argc, char *argv[]@)");
-    check("rx",  lmid(0, 4) + "\nint main(int argc, char *argv[]x@\n" + lmid(5)); 
-    check("2h",  lmid(0, 4) + "\nint main(int argc, char *argv[@]x\n" + lmid(5));
-    check("4ra", lmid(0, 4) + "\nint main(int argc, char *argv[@]x\n" + lmid(5));
-    qWarning("FIXME");
-return; // FIXME
-    check("3rb", lmid(0, 4) + "\nint main(int argc, char *argv[bb@b\n" + lmid(5));
-    check("2rc", lmid(0, 4) + "\nint main(int argc, char *argv[bb@b\n" + lmid(5));
-    check("h2rc",lmid(0, 4) + "\nint main(int argc, char *argv[bc@c\n" + lmid(5));
+    check("rx",  lmid(0, 4) + "\nint main(int argc, char *argv[]@x\n" + lmid(5)); 
+    check("2h",  lmid(0, 4) + "\nint main(int argc, char *argv@[]x\n" + lmid(5));
+    check("4ra", lmid(0, 4) + "\nint main(int argc, char *argv@[]x\n" + lmid(5));
+    check("3rb", lmid(0, 4) + "\nint main(int argc, char *argvbb@b\n" + lmid(5));
+    check("2rc", lmid(0, 4) + "\nint main(int argc, char *argvbb@b\n" + lmid(5));
+    check("h2rc",lmid(0, 4) + "\nint main(int argc, char *argvbc@c\n" + lmid(5));
 }
 
 void tst_FakeVim::command_right()
