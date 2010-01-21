@@ -437,12 +437,12 @@ private: ////////// View & Data Stuff //////////
     void runDirectDebuggingHelperClassic(const WatchData &data, bool dumpChildren);
     bool hasDebuggingHelperForType(const QString &type) const;
 
-    void handleVarListChildren(const GdbResponse &response);
-    void handleVarListChildrenHelper(const GdbMi &child,
+    void handleVarListChildrenClassic(const GdbResponse &response);
+    void handleVarListChildrenHelperClassic(const GdbMi &child,
         const WatchData &parent);
     void handleVarCreate(const GdbResponse &response);
     void handleVarAssign(const GdbResponse &response);
-    void handleEvaluateExpression(const GdbResponse &response);
+    void handleEvaluateExpressionClassic(const GdbResponse &response);
     //void handleToolTip(const GdbResponse &response);
     void handleQueryDebuggingHelperClassic(const GdbResponse &response);
     void handleDebuggingHelperValue2Classic(const GdbResponse &response);
@@ -496,6 +496,18 @@ private: ////////// Convenience Functions //////////
     static QString m_toolTipExpression;
     static QPoint m_toolTipPos;
     static QByteArray tooltipINameForExpression(const QByteArray &exp);
+
+    static void setWatchDataValue(WatchData &data, const GdbMi &mi,
+        int encoding = 0);
+    static void setWatchDataEditValue(WatchData &data, const GdbMi &mi);
+    static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
+            int encoding = 0);
+    static void setWatchDataChildCount(WatchData &data, const GdbMi &mi);
+    static void setWatchDataValueEnabled(WatchData &data, const GdbMi &mi);
+    static void setWatchDataValueEditable(WatchData &data, const GdbMi &mi);
+    static void setWatchDataExpression(WatchData &data, const GdbMi &mi);
+    static void setWatchDataAddress(WatchData &data, const GdbMi &mi);
+    static void setWatchDataSAddress(WatchData &data, const GdbMi &mi);
 };
 
 } // namespace Internal

@@ -59,6 +59,11 @@
 namespace Debugger {
 namespace Internal {
 
+static bool isAccessSpecifier(const QByteArray &ba)
+{
+    return ba == "private" || ba == "protected" || ba == "public";
+}
+
 // reads a MI-encoded item frome the consolestream
 static bool parseConsoleStream(const GdbResponse &response, GdbMi *contents)
 {
@@ -310,8 +315,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         qDebug() << "UPDATE SUBITEM: VALUE";
         #endif
         QByteArray cmd = "-var-evaluate-expression \"" + data.iname + '"';
-        postCommand(cmd, WatchUpdate, CB(handleEvaluateExpression),
-            QVariant::fromValue(data));
+        postCommand(cmd, WatchUpdate,
+            CB(handleEvaluateExpressionClassic), QVariant::fromValue(data));
         return;
     }
 
@@ -336,7 +341,8 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     if (data.isChildrenNeeded()) {
         QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
         QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
-        postCommand(cmd, WatchUpdate, CB(handleVarListChildren), QVariant::fromValue(data));
+        postCommand(cmd, WatchUpdate,
+            CB(handleVarListChildrenClassic), QVariant::fromValue(data));
         return;
     }
 
@@ -365,7 +371,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
         QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
         postCommand(cmd, Discardable,
-            CB(handleVarListChildren), QVariant::fromValue(data));
+            CB(handleVarListChildrenClassic), QVariant::fromValue(data));
         return;
     }
 
@@ -710,6 +716,165 @@ void GdbEngine::handleQueryDebuggingHelperClassic(const GdbResponse &response)
     }
     //qDebug() << m_dumperHelper.toString(true);
     //qDebug() << m_availableSimpleDebuggingHelpers << "DATA DUMPERS AVAILABLE";
+}
+
+void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
+    const WatchData &parent)
+{
+    //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << parent.toString();
+    //qDebug() <<  "VAR_LIST_CHILDREN: ITEM" << item.toString();
+    QByteArray exp = item.findChild("exp").data();
+    QByteArray name = item.findChild("name").data();
+    if (isAccessSpecifier(exp)) {
+        // suppress 'private'/'protected'/'public' level
+        WatchData data;
+        data.variable = name;
+        data.iname = parent.iname;
+        //data.iname = data.variable;
+        data.exp = parent.exp;
+        data.setTypeUnneeded();
+        data.setValueUnneeded();
+        data.setHasChildrenUnneeded();
+        data.setChildrenUnneeded();
+        //qDebug() << "DATA" << data.toString();
+        QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
+        //iname += '.' + exp;
+        postCommand(cmd, WatchUpdate,
+            CB(handleVarListChildrenClassic), QVariant::fromValue(data));
+    } else if (item.findChild("numchild").data() == "0") {
+        // happens for structs without data, e.g. interfaces.
+        WatchData data;
+        data.name = _(exp);
+        data.iname = parent.iname + '.' + data.name.toLatin1();
+        data.variable = name;
+        setWatchDataType(data, item.findChild("type"));
+        setWatchDataValue(data, item.findChild("value"));
+        setWatchDataAddress(data, item.findChild("addr"));
+        setWatchDataSAddress(data, item.findChild("saddr"));
+        data.setHasChildren(false);
+        insertData(data);
+    } else if (parent.iname.endsWith('.')) {
+        // Happens with anonymous unions
+        WatchData data;
+        data.iname = name;
+        QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
+        postCommand(cmd, WatchUpdate,
+            CB(handleVarListChildrenClassic), QVariant::fromValue(data));
+    } else if (exp == "staticMetaObject") {
+        //    && item.findChild("type").data() == "const QMetaObject")
+        // FIXME: Namespaces?
+        // { do nothing }    FIXME: make configurable?
+        // special "clever" hack to avoid clutter in the GUI.
+        // I am not sure this is a good idea...
+    } else {
+        WatchData data;
+        data.iname = parent.iname + '.' + exp;
+        data.variable = name;
+        setWatchDataType(data, item.findChild("type"));
+        setWatchDataValue(data, item.findChild("value"));
+        setWatchDataAddress(data, item.findChild("addr"));
+        setWatchDataSAddress(data, item.findChild("saddr"));
+        setWatchDataChildCount(data, item.findChild("numchild"));
+        if (!manager()->watchHandler()->isExpandedIName(data.iname))
+            data.setChildrenUnneeded();
+
+        data.name = _(exp);
+        if (data.type == data.name) {
+            if (isPointerType(parent.type)) {
+                data.exp = "*(" + parent.exp + ')';
+                data.name = _("*") + parent.name;
+            } else {
+                // A type we derive from? gdb crashes when creating variables here
+                data.exp = parent.exp;
+            }
+        } else if (exp.startsWith("*")) {
+            // A pointer
+            data.exp = "*(" + parent.exp + ')';
+        } else if (startsWithDigit(data.name)) {
+            // An array. No variables needed?
+            data.name = _c('[') + data.name + _c(']');
+            data.exp = parent.exp + '[' + exp + ']';
+        } else if (0 && parent.name.endsWith(_c('.'))) {
+            // Happens with anonymous unions
+            data.exp = parent.exp + data.name.toLatin1();
+            //data.name = "<anonymous union>";
+        } else if (exp.isEmpty()) {
+            // Happens with anonymous unions
+            data.exp = parent.exp;
+            data.name = tr("<n/a>");
+            data.iname = parent.iname + ".@";
+            data.type = tr("<anonymous union>");
+        } else {
+            // A structure. Hope there's nothing else...
+            data.exp = parent.exp + '.' + data.name.toLatin1();
+        }
+
+        if (hasDebuggingHelperForType(data.type)) {
+            // we do not trust gdb if we have a custom dumper
+            data.setValueNeeded();
+            data.setHasChildrenNeeded();
+        }
+
+        //qDebug() <<  "VAR_LIST_CHILDREN: PARENT 3" << parent.toString();
+        //qDebug() <<  "VAR_LIST_CHILDREN: APPENDEE" << data.toString();
+        insertData(data);
+    }
+}
+
+void GdbEngine::handleVarListChildrenClassic(const GdbResponse &response)
+{
+    //WatchResultCounter dummy(this, WatchVarListChildren);
+    WatchData data = response.cookie.value<WatchData>();
+    if (!data.isValid())
+        return;
+    if (response.resultClass == GdbResultDone) {
+        //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << data.toString();
+        GdbMi children = response.data.findChild("children");
+
+        foreach (const GdbMi &child, children.children())
+            handleVarListChildrenHelperClassic(child, data);
+
+        if (children.children().isEmpty()) {
+            // happens e.g. if no debug information is present or
+            // if the class really has no children
+            WatchData data1;
+            data1.iname = data.iname + ".child";
+            //: About variable's value
+            data1.value = tr("<no information>");
+            data1.hasChildren = false;
+            data1.setAllUnneeded();
+            insertData(data1);
+            data.setAllUnneeded();
+            insertData(data);
+        } else if (data.variable.endsWith("private")
+                || data.variable.endsWith("protected")
+                || data.variable.endsWith("public")) {
+            // this skips the spurious "public", "private" etc levels
+            // gdb produces
+        } else {
+            data.setChildrenUnneeded();
+            insertData(data);
+        }
+    } else {
+        data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
+    }
+}
+
+void GdbEngine::handleEvaluateExpressionClassic(const GdbResponse &response)
+{
+    WatchData data = response.cookie.value<WatchData>();
+    QTC_ASSERT(data.isValid(), qDebug() << "HUH?");
+    if (response.resultClass == GdbResultDone) {
+        //if (col == 0)
+        //    data.name = response.data.findChild("value").data();
+        //else
+            setWatchDataValue(data, response.data.findChild("value"));
+    } else {
+        data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));
+    }
+    //qDebug() << "HANDLE EVALUATE EXPRESSION:" << data.toString();
+    insertData(data);
+    //updateWatchModel2();
 }
 
 } // namespace Internal
