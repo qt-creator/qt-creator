@@ -1779,6 +1779,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_dotCommand += QChar(27);
         recordNewUndo();
         enterCommandMode();
+        m_submode = NoSubMode;
     } else if (key == Key_Insert) {
         if (m_submode == ReplaceSubMode) {
             EDITOR(setCursorWidth(m_cursorWidth));
