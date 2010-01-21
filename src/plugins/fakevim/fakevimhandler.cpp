@@ -3210,6 +3210,11 @@ void FakeVimHandler::Private::enterVisualMode(VisualMode visualMode)
 
 void FakeVimHandler::Private::leaveVisualMode()
 {
+    if (isVisualLineMode())
+        m_movetype = MoveLineWise;
+    else if (isVisualCharMode())
+        m_movetype = MoveInclusive;
+
     m_visualMode = NoVisualMode;
     updateMiniBuffer();
     updateSelection();
