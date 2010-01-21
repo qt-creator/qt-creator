@@ -421,7 +421,7 @@ void DesignDocumentController::loadCurrentModel()
         m_d->stackedWidget->addWidget(m_d->formEditorView->widget());
         ComponentAction *componentAction = new ComponentAction(m_d->formEditorView->widget());
         componentAction->setModel(m_d->model.data());
-        m_d->formEditorView->widget()->toolBox()->addAction(componentAction);
+        m_d->formEditorView->widget()->lowerToolBox()->addAction(componentAction);
         connect(componentAction, SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode))); //TODO component action
         connect(m_d->itemLibrary.data(), SIGNAL(itemActivated(const QString&)), m_d->formEditorView.data(), SLOT(activateItemCreator(const QString&)));
     }

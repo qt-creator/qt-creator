@@ -60,6 +60,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
 
+    QList<QAction*> upperActions;
+
     m_toolActionGroup = new QActionGroup(this);
 
     m_transformToolAction = m_toolActionGroup->addAction("Transform Tool (Press Key Q)");
@@ -78,10 +80,12 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_anchorToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeAnchorTool(bool)));
 
     addActions(m_toolActionGroup->actions());
+    upperActions.append(m_toolActionGroup->actions());
 
     QAction *separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     addAction(separatorAction);
+    upperActions.append(separatorAction);
 
     QActionGroup *layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(true);
@@ -108,41 +112,12 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_noSnappingAction->setIcon(QPixmap(":/icon/layout/no_snapping.png"));
 
     addActions(layoutActionGroup->actions());
+    upperActions.append(layoutActionGroup->actions());
 
     separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     addAction(separatorAction);
-
-    QActionGroup *layoutMarginActionGroup = new QActionGroup(this);
-
-    m_snappingMarginAction = new NumberSeriesAction(layoutMarginActionGroup);
-    m_snappingMarginAction->addEntry("no margins (0)", 0);
-    m_snappingMarginAction->addEntry("small margin (2)", 2);
-    m_snappingMarginAction->addEntry("medium margin (6)", 6);
-    m_snappingMarginAction->addEntry("all in margin (10)", 10);
-    m_snappingMarginAction->setCurrentEntryIndex(3);
-    layoutMarginActionGroup->addAction(m_snappingMarginAction.data());
-
-
-    m_snappingSpacingAction = new NumberSeriesAction(layoutMarginActionGroup);
-    m_snappingSpacingAction->addEntry("no spacing (0)", 0);
-    m_snappingSpacingAction->addEntry("small spacing (2)", 2);
-    m_snappingSpacingAction->addEntry("medium spacing (4)", 4);
-    m_snappingSpacingAction->addEntry("all in spacing (6)", 6);
-    m_snappingSpacingAction->setCurrentEntryIndex(1);
-    layoutMarginActionGroup->addAction(m_snappingSpacingAction.data());
-
-    addActions(layoutMarginActionGroup->actions());
-
-
-    m_zoomAction = new ZoomAction(toolActionGroup());
-    connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
-    addAction(m_zoomAction.data());
-
-    separatorAction = new QAction(this);
-    separatorAction->setSeparator(true);
-    addAction(separatorAction);
-
+    upperActions.append(separatorAction);
 
     m_showBoundingRectAction = new QAction("Toogle Bounding Rectangles (Press Key A)", this);
     m_showBoundingRectAction->setShortcut(Qt::Key_A);
@@ -152,6 +127,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setIcon(QPixmap(":/icon/layout/boundingrect.png"));
 
     addAction(m_showBoundingRectAction.data());
+    upperActions.append(m_showBoundingRectAction.data());
 
     m_selectOnlyContentItemsAction = new QAction("Select Only Items with Content (Press Key S)", this);
     m_selectOnlyContentItemsAction->setShortcut(Qt::Key_S);
@@ -161,17 +137,48 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_selectOnlyContentItemsAction->setIcon(QPixmap(":/icon/selection/selectonlycontentitems.png"));
 
     addAction(m_selectOnlyContentItemsAction.data());
+    upperActions.append(m_selectOnlyContentItemsAction.data());
 
-    separatorAction = new QAction(this);
-    separatorAction->setSeparator(true);
-    addAction(separatorAction);
 
-    m_toolBox = new ToolBox(this);
-    toolBox()->setActions(actions());
-    fillLayout->addWidget(toolBox());
+    ToolBox *upperToolBox = new ToolBox(this);
+    upperToolBox->setActions(upperActions);
+    fillLayout->addWidget(upperToolBox);
 
     m_graphicsView = new FormEditorGraphicsView(this);
     fillLayout->addWidget(m_graphicsView.data());
+
+    QList<QAction*> lowerActions;
+
+    m_zoomAction = new ZoomAction(toolActionGroup());
+    connect(m_zoomAction.data(), SIGNAL(zoomLevelChanged(double)), SLOT(setZoomLevel(double)));
+    addAction(m_zoomAction.data());
+    lowerActions.append(m_zoomAction.data());
+
+    QActionGroup *layoutMarginActionGroup = new QActionGroup(this);
+
+    m_snappingMarginAction = new NumberSeriesAction(layoutMarginActionGroup);
+    m_snappingMarginAction->addEntry("no margins (0)", 0);
+    m_snappingMarginAction->addEntry("small margin (2)", 2);
+    m_snappingMarginAction->addEntry("medium margin (6)", 6);
+    m_snappingMarginAction->addEntry("large margin (10)", 10);
+    m_snappingMarginAction->setCurrentEntryIndex(2);
+    layoutMarginActionGroup->addAction(m_snappingMarginAction.data());
+
+
+    m_snappingSpacingAction = new NumberSeriesAction(layoutMarginActionGroup);
+    m_snappingSpacingAction->addEntry("no spacing (0)", 0);
+    m_snappingSpacingAction->addEntry("small spacing (2)", 2);
+    m_snappingSpacingAction->addEntry("medium spacing (4)", 4);
+    m_snappingSpacingAction->addEntry("large spacing (6)", 6);
+    m_snappingSpacingAction->setCurrentEntryIndex(1);
+    layoutMarginActionGroup->addAction(m_snappingSpacingAction.data());
+
+    addActions(layoutMarginActionGroup->actions());
+    lowerActions.append(layoutMarginActionGroup->actions());
+
+    m_lowerToolBox = new ToolBox(this);
+    lowerToolBox()->setActions(lowerActions);
+    fillLayout->addWidget(lowerToolBox());
 }
 
 void FormEditorWidget::enterEvent(QEvent *event)
@@ -260,9 +267,9 @@ QActionGroup *FormEditorWidget::toolActionGroup() const
     return m_toolActionGroup.data();
 }
 
-ToolBox *FormEditorWidget::toolBox() const
+ToolBox *FormEditorWidget::lowerToolBox() const
 {
-     return m_toolBox.data();
+     return m_lowerToolBox.data();
 }
 
 double FormEditorWidget::spacing() const

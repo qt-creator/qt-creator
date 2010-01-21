@@ -58,7 +58,7 @@ public:
     QAction *snappingAndAnchoringAction() const;
 
     void setScene(FormEditorScene *scene);
-    ToolBox *toolBox() const;
+    ToolBox *lowerToolBox() const;
 
     double spacing() const;
     double margins() const;
@@ -81,7 +81,7 @@ private:
     QWeakPointer<QAction> m_anchorToolAction;
     QWeakPointer<QAction> m_transformToolAction;
     QWeakPointer<QActionGroup> m_toolActionGroup;
-    QWeakPointer<ToolBox> m_toolBox;
+    QWeakPointer<ToolBox> m_lowerToolBox;
     QWeakPointer<QAction> m_snappingAction;
     QWeakPointer<QAction> m_snappingAndAnchoringAction;
     QWeakPointer<QAction> m_noSnappingAction;
