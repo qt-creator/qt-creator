@@ -174,6 +174,7 @@ bool ModelNode::isValidId(const QString &id)
 
 void ModelNode::setId(const QString& id)
 {
+    //Internal::WriteLocker locker(m_model.data());
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -207,6 +208,7 @@ QString ModelNode::type() const
 */
 void ModelNode::changeType(const QString &type, int majorVersion, int minorVersion)
 {
+    //Internal::WriteLocker locker(m_model.data());
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -581,6 +583,7 @@ void ModelNode::removeProperty(const QString &name)
 */
 ModelNode ModelNode::addChildNode(const QString &nodeTypeString, int majorVersion, int minorVersion, const QString &propertyName, const PropertyListType &propertyList)
 {
+    Internal::WriteLocker locker(m_model.data());
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -928,6 +931,7 @@ QVariant ModelNode::auxiliaryData(const QString &name) const
 
 void ModelNode::setAuxiliaryData(const QString &name, const QVariant &data)
 {
+    Internal::WriteLocker locker(m_model.data());
     m_model.data()->m_d->setAuxiliaryData(internalNode(), name, data);
 }
 

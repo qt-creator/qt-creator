@@ -67,12 +67,26 @@ typedef QSharedPointer<InternalNodeAbstractProperty> InternalNodeAbstractPropert
 typedef QSharedPointer<InternalNodeListProperty> InternalNodeListPropertyPointer;
 typedef QPair<InternalNodePointer, QString> PropertyPair;
 
-class ModelPrivate : QObject {
+
+class ModelPrivate;
+
+class WriteLocker
+{
+public:
+    ~WriteLocker();
+    WriteLocker(ModelPrivate *model);
+    WriteLocker(Model *model);
+private: // variables
+    QWeakPointer<ModelPrivate> m_model;
+};
+
+class ModelPrivate : public QObject {
     Q_OBJECT
 
     Q_DISABLE_COPY(ModelPrivate)
 
     friend class QmlDesigner::Model;
+    friend class QmlDesigner::Internal::WriteLocker;
 
 public:
      ModelPrivate(Model *model);
@@ -168,6 +182,10 @@ public:
 
     QList<InternalNodePointer> allNodes() const;
 
+    bool isWriteLocked() const;
+
+    WriteLocker createWriteLocker() const;
+
 private: //functions
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -190,6 +208,8 @@ private:
     QUrl m_fileUrl;
 
     QWeakPointer<Model> m_masterModel;
+
+    bool m_writeLock;
 };
 
 }

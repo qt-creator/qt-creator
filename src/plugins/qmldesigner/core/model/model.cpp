@@ -87,7 +87,8 @@ namespace Internal {
 
 ModelPrivate::ModelPrivate(Model *model) :
         m_q(model),
-        m_rootInternalNode(createNode("Qt/Rectangle", 4, 6, PropertyListType()))
+        m_rootInternalNode(createNode("Qt/Rectangle", 4, 6, PropertyListType())),
+        m_writeLock(false)
 {
 }
 
@@ -884,6 +885,34 @@ QList<InternalNodePointer> ModelPrivate::allNodes() const
     return m_nodeSet.toList();
 }
 
+bool ModelPrivate::isWriteLocked() const
+{
+    return m_writeLock;
+}
+
+
+WriteLocker::WriteLocker(ModelPrivate *model)
+    : m_model(model)
+{
+    Q_ASSERT(model);
+    Q_ASSERT(!m_model->m_writeLock);
+    model->m_writeLock = true;
+}
+
+WriteLocker::WriteLocker(Model *model)
+    : m_model(model->m_d)
+{
+    Q_ASSERT(model->m_d);
+    Q_ASSERT(!m_model->m_writeLock);
+    m_model->m_writeLock = true;
+}
+
+WriteLocker::~WriteLocker()
+{
+    Q_ASSERT(m_model->m_writeLock);
+    m_model->m_writeLock = false;
+}
+
 //static QString anchorLinePropertyValue(const InternalNode::Pointer &sourceNode, const InternalNode::Pointer &targetNode, const AnchorLine::Type &targetType)
 //{
 //    if (targetNode.isNull() || !targetNode->isValid())
@@ -1029,6 +1058,7 @@ QUrl Model::fileUrl() const
   */
 void Model::setFileUrl(const QUrl &url)
 {
+    Internal::WriteLocker locker(m_d);
     m_d->setFileUrl(url);
 }
 
@@ -1045,6 +1075,7 @@ const MetaInfo Model::metaInfo() const
   */
 void Model::setMetaInfo(const MetaInfo &metaInfo)
 {
+    Internal::WriteLocker locker(m_d);
     m_d->setMetaInfo(metaInfo);
 }
 
@@ -1077,6 +1108,7 @@ The view is informed that it has been registered within the model by a call to A
 */
 void Model::attachView(AbstractView *view)
 {
+    Internal::WriteLocker locker(m_d);
     m_d->attachView(view);
 }
 
@@ -1090,6 +1122,7 @@ void Model::attachView(AbstractView *view)
 */
 void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
 {
+    Internal::WriteLocker locker(m_d);
     bool emitNotify = (emitDetachNotify == NotifyView);
     m_d->detachView(view, emitNotify);
 }
