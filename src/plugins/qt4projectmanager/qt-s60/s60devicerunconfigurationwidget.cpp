@@ -69,6 +69,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     m_detailsWidget(new Utils::DetailsWidget),
     m_serialPortsCombo(new QComboBox),
     m_nameLineEdit(new QLineEdit(m_runConfiguration->displayName())),
+    m_argumentsLineEdit(new QLineEdit(m_runConfiguration->commandLineArguments().join(QString(QLatin1Char(' '))))),
     m_sisxFileLabel(new QLabel),
     m_deviceInfoButton(new QToolButton),
     m_deviceInfoDescriptionLabel(new QLabel(tr("Device:"))),
@@ -94,6 +95,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     QLabel *nameLabel = new QLabel(tr("Name:"));
     nameLabel->setBuddy(m_nameLineEdit);
     formLayout->addRow(nameLabel, m_nameLineEdit);
+    formLayout->addRow(tr("Arguments:"), m_argumentsLineEdit);
     formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
 
     updateSerialDevices();    
@@ -162,6 +164,8 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
 
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(displayNameEdited(QString)));
+    connect(m_argumentsLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(argumentsEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
     connect(selfSign, SIGNAL(toggled(bool)), this, SLOT(selfSignToggled(bool)));
@@ -218,6 +222,17 @@ CommunicationDevice S60DeviceRunConfigurationWidget::currentDevice() const
 void S60DeviceRunConfigurationWidget::displayNameEdited(const QString &text)
 {
     m_runConfiguration->setDisplayName(text);
+}
+
+void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
+{
+    const QString trimmed = text.trimmed();
+    if (trimmed.isEmpty()) {
+        m_runConfiguration->setCommandLineArguments(QStringList());
+    } else {
+        m_runConfiguration->setCommandLineArguments(trimmed.split(QLatin1Char(' '),
+                                                                  QString::SkipEmptyParts));
+    }
 }
 
 void S60DeviceRunConfigurationWidget::updateTargetInformation()

@@ -1666,11 +1666,13 @@ void TrkGdbAdapter::startAdapter()
     m_overrideTrkDevice = parameters.remoteChannel;
     m_overrideTrkDeviceType = parameters.remoteChannelType;
     m_remoteExecutable = parameters.executable;
+    m_remoteArguments = parameters.processArgs;
     m_symbolFile = parameters.symbolFileName;
     // FIXME: testing hack, remove!
     if (parameters.processArgs.size() == 3 && parameters.processArgs.at(0) == _("@sym@")) {
         m_remoteExecutable = parameters.processArgs.at(1);
         m_symbolFile = parameters.processArgs.at(2);
+        m_remoteArguments.clear();
     }
     // Unixish gdbs accept only forward slashes
     m_symbolFile.replace(QLatin1Char('\\'), QLatin1Char('/'));
@@ -1727,15 +1729,8 @@ void TrkGdbAdapter::startAdapter()
 void TrkGdbAdapter::startInferior()
 {
     QTC_ASSERT(state() == InferiorStarting, qDebug() << state());
-
-    QByteArray ba;
-    appendByte(&ba, 0); // ?
-    appendByte(&ba, 0); // ?
-    appendByte(&ba, 0); // ?
-
-    appendString(&ba, m_remoteExecutable.toLatin1(), TargetByteOrder);
-    sendTrkMessage(0x40, TrkCB(handleCreateProcess), ba); // Create Item
-    //sendTrkMessage(TRK_WRITE_QUEUE_NOOP_CODE, TrkCB(startGdbServer));
+    sendTrkMessage(0x40, TrkCB(handleCreateProcess),
+                   trk::Launcher::startProcessMessage(m_remoteExecutable, m_remoteArguments));
 }
 
 void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)

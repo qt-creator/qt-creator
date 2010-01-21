@@ -9,8 +9,9 @@
 static const char *usageC =
 "\n"
 "Usage: %1 [options] <trk_port_name>\n"
+"       %1 [options] <trk_port_name> <remote_executable_name> [-- args]\n"
 "       %1 [options] -i <trk_port_name> remote_sis_file\n"
-"       %1 [options] -I local_sis_file remote_sis_file] [<remote_executable_name>]\n"
+"       %1 [options] -I local_sis_file remote_sis_file] [<remote_executable_name>] [-- args]\n"
 "\nOptions:\n    -v verbose\n"
             "    -b Prompt for Bluetooth connect (Linux only)\n"
             "    -f turn serial message frame off (Bluetooth)\n"
@@ -58,6 +59,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
     const int argCount = arguments.size();
     int verbosity = 0;
     *bluetooth = false;
+    QStringList remoteArguments;
     trk::Launcher::Actions actions = trk::Launcher::ActionPingOnly;
     int a = 1;
     for ( ; a < argCount; a++) {
@@ -88,8 +90,14 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
             return TrkLauncherPtr();
         }
     }
+    // Parse for '--' delimiter for remote executable argunment
+    int pastArguments = a;
+    for ( ; pastArguments < argCount && arguments.at(pastArguments) != QLatin1String("--"); pastArguments++) ;
+    if (pastArguments != argCount)
+        for (int ra = pastArguments + 1; ra < argCount; ra++)
+            remoteArguments.push_back(arguments.at(ra));
     // Evaluate arguments
-    const int remainingArgsCount = argCount - a;
+    const int remainingArgsCount = pastArguments -a ;
     if (remainingArgsCount == 1 && !install && !customInstall) { // Ping
         return createLauncher(actions, arguments.at(a), serialFrame, verbosity);
     }
@@ -98,6 +106,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
         TrkLauncherPtr launcher = createLauncher(actions, arguments.at(a), serialFrame, verbosity);
         launcher->addStartupActions(trk::Launcher::ActionRun);
         launcher->setFileName(arguments.at(a + 1));
+        launcher->setCommandLineArgs(remoteArguments);
         return launcher;
     }
     if ((remainingArgsCount == 3 || remainingArgsCount == 2) && install && !customInstall) {
@@ -106,6 +115,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
         if (remainingArgsCount == 3) {
             launcher->addStartupActions(trk::Launcher::ActionRun);
             launcher->setFileName(arguments.at(a + 2));
+            launcher->setCommandLineArgs(remoteArguments);
         }
         return launcher;
     }
@@ -117,6 +127,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
         if (remainingArgsCount == 4) {
             launcher->addStartupActions(trk::Launcher::ActionRun);
             launcher->setFileName(arguments.at(a + 3));
+            launcher->setCommandLineArgs(remoteArguments);
         }
         return launcher;
     }

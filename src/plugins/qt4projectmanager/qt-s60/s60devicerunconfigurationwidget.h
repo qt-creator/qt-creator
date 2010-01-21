@@ -67,6 +67,7 @@ public:
 
 private slots:
     void displayNameEdited(const QString &text);
+    void argumentsEdited(const QString &text);
     void updateTargetInformation();
     void updateSerialDevices();
     void setSerialPort(int index);
@@ -90,6 +91,7 @@ private:
     Utils::DetailsWidget *m_detailsWidget;
     QComboBox *m_serialPortsCombo;
     QLineEdit *m_nameLineEdit;
+    QLineEdit *m_argumentsLineEdit;
     QLabel *m_sisxFileLabel;
     QToolButton *m_deviceInfoButton;
     QLabel *m_deviceInfoDescriptionLabel;

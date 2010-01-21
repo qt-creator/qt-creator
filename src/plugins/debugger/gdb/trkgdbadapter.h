@@ -35,6 +35,7 @@
 #include "trkutils.h"
 #include "trkdevice.h"
 #include "trkoptions.h"
+#include "launcher.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
@@ -299,6 +300,7 @@ private:
     trk::Session m_session; // global-ish data (process id, target information)
     Snapshot m_snapshot; // local-ish data (memory and registers)
     QString m_remoteExecutable;
+    QStringList m_remoteArguments;
     QString m_symbolFile;
     int m_verbose;
     bool m_bufferedMemoryRead;

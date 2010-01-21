@@ -94,6 +94,9 @@ public:
     QString packageFileName() const;
     QString localExecutableFileName() const;
 
+    QStringList commandLineArguments() const;
+    void setCommandLineArguments(const QStringList &args);
+
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
 
 signals:
@@ -119,6 +122,7 @@ private:
     SigningMode m_signingMode;    
     QString m_customSignaturePath;
     QString m_customKeyPath;
+    QStringList m_commandLineArguments;
 };
 
 class S60DeviceRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
@@ -196,6 +200,7 @@ private:
     int     m_communicationType;
     QString m_targetName;
     QString m_baseFileName;
+    QStringList m_commandLineArguments;
     QString m_symbianPlatform;
     QString m_symbianTarget;
     QString m_packageTemplateFile;

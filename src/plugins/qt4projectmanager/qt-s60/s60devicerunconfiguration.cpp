@@ -160,6 +160,7 @@ void S60DeviceRunConfiguration::save(PersistentSettingsWriter &writer) const
     writer.saveValue("CustomKeyPath", m_customKeyPath);
     writer.saveValue("SerialPortName", m_serialPortName);
     writer.saveValue("CommunicationType", m_communicationType);
+    writer.saveValue("CommandLineArguments", m_commandLineArguments);
     RunConfiguration::save(writer);
 }
 
@@ -173,6 +174,7 @@ void S60DeviceRunConfiguration::restore(const PersistentSettingsReader &reader)
     m_customKeyPath = reader.restoreValue("CustomKeyPath").toString();
     m_serialPortName = reader.restoreValue("SerialPortName").toString().trimmed();
     m_communicationType = reader.restoreValue("CommunicationType").toInt();
+    m_commandLineArguments = reader.restoreValue("CommandLineArguments").toStringList();
 }
 
 QString S60DeviceRunConfiguration::serialPortName() const
@@ -273,6 +275,16 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
                        .arg(symbianPlatform()).arg(symbianTarget()).arg(targetName());
     qDebug() << localExecutable;
     return QDir::toNativeSeparators(localExecutable);
+}
+
+QStringList S60DeviceRunConfiguration::commandLineArguments() const
+{
+    return m_commandLineArguments;
+}
+
+void S60DeviceRunConfiguration::setCommandLineArguments(const QStringList &args)
+{
+    m_commandLineArguments = args;
 }
 
 void S60DeviceRunConfiguration::updateTarget()
@@ -414,6 +426,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_communicationType = s60runConfig->communicationType();
     m_targetName = s60runConfig->targetName();
     m_baseFileName = s60runConfig->basePackageFilePath();
+    m_commandLineArguments = s60runConfig->commandLineArguments();
     m_symbianPlatform = s60runConfig->symbianPlatform();
     m_symbianTarget = s60runConfig->symbianTarget();
     m_packageTemplateFile = s60runConfig->packageTemplateFileName();
@@ -660,6 +673,8 @@ void S60DeviceRunControlBase::startDeployment()
     //TODO sisx destination and file path user definable
     m_launcher->setTrkServerName(m_serialPortName);
     m_launcher->setSerialFrame(m_communicationType == SerialPortCommunication);
+    if (!m_commandLineArguments.isEmpty())
+        m_launcher->setCommandLineArgs(m_commandLineArguments);
     const QString copySrc(m_baseFileName + ".sisx");
     const QString copyDst = QString("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName());
     const QString runFileName = QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
@@ -874,6 +889,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *ru
             Qt::QueuedConnection);
 
     m_startParams->remoteChannel = rc->serialPortName();
+    m_startParams->processArgs = rc->commandLineArguments();
     m_startParams->remoteChannelType = rc->communicationType();
     m_startParams->startMode = Debugger::StartInternal;
     m_startParams->toolChainType = rc->toolChainType();
