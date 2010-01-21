@@ -743,8 +743,6 @@ void tst_FakeVim::command_ma_yank()
 
 void tst_FakeVim::command_Gyyp()
 {
-    qWarning("FIXME");
-return; // FIXME
     setup();
     check("G",   lmid(0, l.size()-2) + "\n@" + lmid(l.size()-2));
     check("yyp", lmid(0) + "@" + lmid(9, 1)+"\n");
