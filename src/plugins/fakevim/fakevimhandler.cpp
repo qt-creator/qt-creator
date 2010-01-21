@@ -2777,8 +2777,7 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
     emit q->moveToMatchingParenthesis(&moved, &forward, &m_tc);
 
     if (moved && forward) {
-       if (m_submode == NoSubMode || m_submode == ZSubMode || m_submode == CapitalZSubMode || m_submode == RegisterSubMode)
-            m_tc.movePosition(Left, KeepAnchor, 1);
+        m_tc.movePosition(Left, KeepAnchor, 1);
     }
     setTargetColumn();
 }
