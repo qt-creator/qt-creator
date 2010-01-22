@@ -56,7 +56,7 @@ class ActionContainerPrivate;
 class MainWindow;
 class CommandPrivate;
 
-class ActionManagerPrivate : public Core::ActionManager
+class CORE_EXPORT ActionManagerPrivate : public Core::ActionManager
 {
     Q_OBJECT
 
@@ -70,7 +70,7 @@ public:
     void saveSettings(QSettings *settings);
     QList<int> defaultGroups() const;
 
-    QList<CommandPrivate *> commands() const;
+    QList<Command *> commands() const;
     QList<ActionContainerPrivate *> containers() const;
 
     bool hasContext(int context) const;

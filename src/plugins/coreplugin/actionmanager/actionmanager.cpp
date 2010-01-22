@@ -246,9 +246,13 @@ QList<int> ActionManagerPrivate::defaultGroups() const
     return m_defaultGroups;
 }
 
-QList<CommandPrivate *> ActionManagerPrivate::commands() const
+QList<Command *> ActionManagerPrivate::commands() const
 {
-    return m_idCmdMap.values();
+    // transform list of CommandPrivate into list of Command
+    QList<Command *> result;
+    foreach(Command *cmd, m_idCmdMap.values())
+        result << cmd;
+    return result;
 }
 
 QList<ActionContainerPrivate *> ActionManagerPrivate::containers() const

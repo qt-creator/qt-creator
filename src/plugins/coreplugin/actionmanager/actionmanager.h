@@ -61,6 +61,8 @@ public:
 
     virtual Command *command(const QString &id) const = 0;
     virtual ActionContainer *actionContainer(const QString &id) const = 0;
+
+    virtual QList<Command *> commands() const = 0;
 };
 
 } // namespace Core

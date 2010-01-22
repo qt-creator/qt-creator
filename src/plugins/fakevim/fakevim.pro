@@ -13,18 +13,12 @@ include(../../shared/indenter/indenter.pri)
 
 # DEFINES += QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII
 QT += gui
-
-SOURCES += \
-    fakevimactions.cpp \
+SOURCES += fakevimactions.cpp \
     fakevimhandler.cpp \
     fakevimplugin.cpp
-
-HEADERS += \
-    fakevimactions.h \
+HEADERS += fakevimactions.h \
     fakevimhandler.h \
     fakevimplugin.h
-
-FORMS += \
-    fakevimoptions.ui
-
+FORMS += fakevimoptions.ui \
+    fakevimexcommands.ui
 OTHER_FILES += FakeVim.pluginspec
