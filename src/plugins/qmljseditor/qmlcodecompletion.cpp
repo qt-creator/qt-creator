@@ -281,6 +281,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
+#if 0
     // FIXME: this completion strategy is not going to work when the document was never parsed correctly.
     if (qmlDocument->qmlProgram() != 0) {
         const QIcon otherIcon = iconForColor(Qt::darkCyan);
@@ -327,6 +328,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             }
         }
     }
+#endif
 
     if (previousChar.isNull()
             || previousChar.isSpace()
