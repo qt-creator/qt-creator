@@ -176,11 +176,16 @@ QByteArray GccToolChain::predefinedMacros()
         m_predefinedMacros = cpp.readAllStandardOutput();
 
 #ifdef Q_OS_MAC
+        // Turn off flag indicating Apple's blocks support
         int idx = m_predefinedMacros.indexOf("#define __BLOCKS__ 1");
         if (idx != -1) {
             idx = m_predefinedMacros.indexOf("1", idx);
             m_predefinedMacros[idx] = '0';
         }
+
+        // Define __strong and __weak (used for Apple's GC extension of C) to be empty
+        m_predefinedMacros.append("#define __strong");
+        m_predefinedMacros.append("#define __weak");
 #endif // Q_OS_MAC
     }
     return m_predefinedMacros;
