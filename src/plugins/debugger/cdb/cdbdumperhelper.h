@@ -36,11 +36,15 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
+namespace CdbCore {
+    class CoreEngine;
+    struct ComInterfaces;
+}
+
 namespace Debugger {
 class DebuggerManager;
 
 namespace Internal {
-struct CdbComInterfaces;
 class CdbDumperInitThread;
 
 /* For code clarity, all the stuff related to custom dumpers goes here.
@@ -81,8 +85,8 @@ public:
         Initialized, // List of types, etc. retrieved
     };
 
-    explicit CdbDumperHelper(DebuggerManager *manager,
-                             CdbComInterfaces *cif);
+    explicit CdbDumperHelper(DebuggerManager *manager,                             
+                             CdbCore::CoreEngine *coreEngine);
     ~CdbDumperHelper();
 
     State state() const    { return m_state; }
@@ -102,7 +106,7 @@ public:
     DumpResult dumpType(const WatchData &d, bool dumpChildren,
                         QList<WatchData> *result, QString *errorMessage);
 
-    inline CdbComInterfaces *comInterfaces() const { return m_cif; }
+    const CdbCore::ComInterfaces *comInterfaces() const;
 
     enum { InvalidDumperCallThread = 0xFFFFFFFF };
     unsigned long dumperCallThread();
@@ -131,14 +135,12 @@ private:
                                   const QtDumperHelper::TypeData& td, bool dumpChildren,
                                   QList<WatchData> *result, QString *errorMessage);
 
-    static bool writeToDebuggee(CIDebugDataSpaces *ds, const QByteArray &buffer, quint64 address, QString *errorMessage);
-
     const bool m_tryInjectLoad;
     const QString m_msgDisabled;
     const QString m_msgNotInScope;
     State m_state;
     DebuggerManager *m_manager;
-    CdbComInterfaces *m_cif;
+    CdbCore::CoreEngine *m_coreEngine;
 
     QString m_library;
     QString m_dumpObjectSymbol;

@@ -27,46 +27,23 @@
 **
 **************************************************************************/
 
-#ifndef CDBSETTINGS_H
-#define CDBSETTINGS_H
+#include "cdbapplication.h"
+#include <QtCore/QString>
 
-#include <QtCore/QStringList>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace Debugger {
-namespace Internal {
-
-struct CdbOptions
+int main(int argc, char *argv[])
 {
-public:
-    CdbOptions();
-    void clear();
+    CdbApplication app(argc, argv);
+    int rc = 0;
 
-    void fromSettings(const QSettings *s);
-    void toSettings(QSettings *s) const;
-
-    // A set of flags for comparison function.
-    enum ChangeFlags { InitializationOptionsChanged = 0x1,
-                       DebuggerPathsChanged = 0x2,
-                       SymbolOptionsChanged = 0x4 };
-    unsigned compare(const CdbOptions &s) const;
-
-    bool enabled;
-    QString path;
-    QStringList symbolPaths;
-    QStringList sourcePaths;
-    bool verboseSymbolLoading;
-};
-
-inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) == 0u; }
-inline bool operator!=(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) != 0u; }
-
-} // namespace Internal
-} // namespace Debugger
-
-#endif // CDBSETTINGS_H
+    switch (app.init()) {
+    case CdbApplication::InitOk:
+        rc = app.exec();
+        break;
+    case CdbApplication::InitFailed:
+        rc = 1;
+        break;
+    case CdbApplication::InitUsageShown:
+        break;
+    }
+    return rc;
+}

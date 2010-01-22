@@ -30,8 +30,7 @@
 #ifndef DEBUGGER_CDBENGINEPRIVATE_H
 #define DEBUGGER_CDBENGINEPRIVATE_H
 
-#include "cdbdebugeventcallback.h"
-#include "cdbdebugoutput.h"
+#include "coreengine.h"
 #include "cdboptions.h"
 #include "cdbdumperhelper.h"
 #include "stackhandler.h"
@@ -50,52 +49,11 @@ class WatchHandler;
 class CdbStackFrameContext;
 class CdbStackTraceContext;
 
-// Thin wrapper around the 'DBEng' debugger engine shared library
-// which is loaded at runtime.
-
-class DebuggerEngineLibrary
+class CdbDebugEnginePrivate : public CdbCore::CoreEngine
 {
+    Q_OBJECT
 public:
-    DebuggerEngineLibrary();
-    bool init(const QString &path, QString *dbgEngDLL, QString *errorMessage);
 
-    inline HRESULT debugCreate(REFIID interfaceId, PVOID *interfaceHandle) const
-        { return m_debugCreate(interfaceId, interfaceHandle); }
-
-private:
-    // The exported functions of the library
-    typedef HRESULT (STDAPICALLTYPE *DebugCreateFunction)(REFIID, PVOID *);
-
-    DebugCreateFunction m_debugCreate;
-};
-
-// A class that sets an expression syntax on the debug control while in scope.
-// Can be nested as it checks for the old value.
-class SyntaxSetter {
-    Q_DISABLE_COPY(SyntaxSetter)
-public:
-    explicit inline SyntaxSetter(CIDebugControl *ctl, ULONG desiredSyntax);
-    inline  ~SyntaxSetter();
-private:
-    const ULONG m_desiredSyntax;
-    CIDebugControl *m_ctl;
-    ULONG m_oldSyntax;
-};
-
-// helper struct to pass interfaces around
-struct CdbComInterfaces
-{
-    CdbComInterfaces();
-    CIDebugClient*          debugClient;
-    CIDebugControl*         debugControl;
-    CIDebugSystemObjects*   debugSystemObjects;
-    CIDebugSymbols*         debugSymbols;
-    CIDebugRegisters*       debugRegisters;
-    CIDebugDataSpaces*      debugDataSpaces;
-};
-
-struct CdbDebugEnginePrivate
-{
     typedef QMap<QString, QString> EditorToolTipCache;
 
     enum HandleBreakEventMode { // Special modes for break event handler.
@@ -107,15 +65,14 @@ struct CdbDebugEnginePrivate
     explicit CdbDebugEnginePrivate(DebuggerManager *parent,
                                    const QSharedPointer<CdbOptions> &options,
                                    CdbDebugEngine* engine);
+    ~CdbDebugEnginePrivate();
     bool init(QString *errorMessage);
-        ~CdbDebugEnginePrivate();
 
     void checkVersion();
     void processCreatedAttached(ULONG64 processHandle, ULONG64 initialThreadHandle);
     void setDebuggeeHandles(HANDLE hDebuggeeProcess,  HANDLE hDebuggeeThread);
 
-    bool isDebuggeeRunning() const { return m_watchTimer != -1; }
-    void handleDebugEvent();
+    bool isDebuggeeRunning() const { return isWatchTimerRunning(); }
     ULONG updateThreadList();
     bool setCDBThreadId(unsigned long threadId, QString *errorMessage);
     void updateStackTrace();
@@ -143,17 +100,12 @@ struct CdbDebugEnginePrivate
     enum EndDebuggingMode { EndDebuggingDetach, EndDebuggingTerminate, EndDebuggingAuto };
     void endDebugging(EndDebuggingMode em = EndDebuggingAuto);
 
-    static bool executeDebuggerCommand(CIDebugControl *ctrl, const QString &command, QString *errorMessage);
-    static bool evaluateExpression(CIDebugControl *ctrl, const QString &expression, DEBUG_VALUE *v, QString *errorMessage);
+    void updateCodeLevel();
 
-    QStringList sourcePaths() const;
-    bool setSourcePaths(const QStringList &s, QString *errorMessage);
+public slots:
+    void handleDebugEvent();
 
-    QStringList symbolPaths() const;
-    bool setSymbolPaths(const QStringList &s, QString *errorMessage);
-
-    bool setCodeLevel();
-
+public:
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
@@ -164,12 +116,7 @@ struct CdbDebugEnginePrivate
     bool                    m_ignoreInitialBreakPoint;
     HandleBreakEventMode    m_breakEventMode;
 
-    int                     m_watchTimer;
-    CdbComInterfaces        m_cif;
-    CdbDebugEventCallback   m_debugEventCallBack;
-    CdbDebugOutput          m_debugOutputCallBack;    
     QSharedPointer<CdbDumperHelper> m_dumper;
-    QString                 m_baseImagePath;
 
     CdbDebugEngine *m_engine;
     inline DebuggerManager *manager() const;
@@ -181,18 +128,7 @@ struct CdbDebugEnginePrivate
 
     DebuggerStartMode m_mode;
     Utils::ConsoleProcess m_consoleStubProc;
-    QString m_dbengDLL;
 };
-
-// helper functions
-
-bool getExecutionStatus(CIDebugControl *ctl, ULONG *executionStatus, QString *errorMessage = 0);
-const char *executionStatusString(ULONG executionStatus);
-const char *executionStatusString(CIDebugControl *ctl);
-
-// Message
-QString msgDebugEngineComResult(HRESULT hr);
-QString msgComFailed(const char *func, HRESULT hr);
 
 enum { messageTimeOut = 5000 };
 

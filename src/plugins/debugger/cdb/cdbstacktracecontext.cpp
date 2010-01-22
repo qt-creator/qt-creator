@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "cdbstacktracecontext.h"
+#include "coreengine.h"
 #include "cdbstackframecontext.h"
 #include "cdbbreakpoint.h"
 #include "cdbsymbolgroupcontext.h"
@@ -67,7 +68,7 @@ CdbStackTraceContext *CdbStackTraceContext::create(const QSharedPointer<CdbDumpe
     const HRESULT hr = dumper->comInterfaces()->debugControl->GetStackTrace(0, 0, 0, ctx->m_cdbFrames, CdbStackTraceContext::maxFrames, &frameCount);
     if (FAILED(hr)) {
         delete ctx;
-         *errorMessage = msgComFailed("GetStackTrace", hr);
+         *errorMessage = CdbCore::msgComFailed("GetStackTrace", hr);
         return 0;
     }
     if (!ctx->init(frameCount, errorMessage)) {
@@ -189,20 +190,20 @@ CIDebugSymbolGroup *CdbStackTraceContext::createSymbolGroup(int index, QString *
     CIDebugSymbolGroup *sg = 0;
     HRESULT hr = m_cif->debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, NULL, &sg);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetScopeSymbolGroup", hr);
+        *errorMessage = CdbCore::msgComFailed("GetScopeSymbolGroup", hr);
         return 0;
     }
 
     hr = m_cif->debugSymbols->SetScope(0, m_cdbFrames + index, NULL, 0);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("SetScope", hr);
+        *errorMessage = CdbCore::msgComFailed("SetScope", hr);
         sg->Release();
         return 0;
     }
     // refresh with current frame
     hr = m_cif->debugSymbols->GetScopeSymbolGroup2(DEBUG_SCOPE_GROUP_LOCALS, sg, &sg);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetScopeSymbolGroup", hr);
+        *errorMessage = CdbCore::msgComFailed("GetScopeSymbolGroup", hr);
         sg->Release();
         return 0;
     }
@@ -247,7 +248,7 @@ static inline QString msgGetThreadStateFailed(unsigned long threadId, const QStr
 
 // Determine information about thread. This changes the
 // current thread to thread->id.
-static inline bool getStoppedThreadState(const CdbComInterfaces &cif,
+static inline bool getStoppedThreadState(const CdbCore::ComInterfaces &cif,
                                          ThreadData *t,
                                          QString *errorMessage)
 {
@@ -255,13 +256,13 @@ static inline bool getStoppedThreadState(const CdbComInterfaces &cif,
     ULONG currentThread;
     HRESULT hr = cif.debugSystemObjects->GetCurrentThreadId(&currentThread);
     if (FAILED(hr)) {
-        *errorMessage = msgGetThreadStateFailed(t->id, msgComFailed("GetCurrentThreadId", hr));
+        *errorMessage = msgGetThreadStateFailed(t->id, CdbCore::msgComFailed("GetCurrentThreadId", hr));
         return false;
     }
     if (currentThread != t->id) {
         hr = cif.debugSystemObjects->SetCurrentThreadId(t->id);
         if (FAILED(hr)) {
-            *errorMessage = msgGetThreadStateFailed(t->id, msgComFailed("SetCurrentThreadId", hr));
+            *errorMessage = msgGetThreadStateFailed(t->id, CdbCore::msgComFailed("SetCurrentThreadId", hr));
             return false;
         }
     }
@@ -271,7 +272,7 @@ static inline bool getStoppedThreadState(const CdbComInterfaces &cif,
     DEBUG_STACK_FRAME frames[MaxFrames];
     hr = cif.debugControl->GetStackTrace(0, 0, 0, frames, MaxFrames, &frameCount);
     if (FAILED(hr)) {
-        *errorMessage = msgGetThreadStateFailed(t->id, msgComFailed("GetStackTrace", hr));
+        *errorMessage = msgGetThreadStateFailed(t->id, CdbCore::msgComFailed("GetStackTrace", hr));
         return false;
     }
     // Ignore the top frame if it is "ntdll!KiFastSystemCallRet", which is
@@ -307,7 +308,7 @@ static inline QString msgGetThreadsFailed(const QString &why)
     return QString::fromLatin1("Unable to determine the thread information: %1").arg(why);
 }
 
-bool CdbStackTraceContext::getThreads(const CdbComInterfaces &cif,
+bool CdbStackTraceContext::getThreads(const CdbCore::ComInterfaces &cif,
                                       bool isStopped,
                                       QList<ThreadData> *threads,
                                       ULONG *currentThreadId,
@@ -318,7 +319,7 @@ bool CdbStackTraceContext::getThreads(const CdbComInterfaces &cif,
     *currentThreadId = 0;
     HRESULT hr= cif.debugSystemObjects->GetNumberThreads(&threadCount);
     if (FAILED(hr)) {
-        *errorMessage= msgGetThreadsFailed(msgComFailed("GetNumberThreads", hr));
+        *errorMessage= msgGetThreadsFailed(CdbCore::msgComFailed("GetNumberThreads", hr));
         return false;
     }
     // Get ids and index of current
@@ -326,14 +327,14 @@ bool CdbStackTraceContext::getThreads(const CdbComInterfaces &cif,
         return true;
     hr = cif.debugSystemObjects->GetCurrentThreadId(currentThreadId);
     if (FAILED(hr)) {
-        *errorMessage= msgGetThreadsFailed(msgComFailed("GetCurrentThreadId", hr));
+        *errorMessage= msgGetThreadsFailed(CdbCore::msgComFailed("GetCurrentThreadId", hr));
         return false;
     }
 
     QVector<ULONG> threadIds(threadCount);
     hr = cif.debugSystemObjects->GetThreadIdsByIndex(0, threadCount, &(*threadIds.begin()), 0);
     if (FAILED(hr)) {
-        *errorMessage= msgGetThreadsFailed(msgComFailed("GetThreadIdsByIndex", hr));
+        *errorMessage= msgGetThreadsFailed(CdbCore::msgComFailed("GetThreadIdsByIndex", hr));
         return false;
     }
     for (ULONG i = 0; i < threadCount; i++) {
@@ -350,7 +351,7 @@ bool CdbStackTraceContext::getThreads(const CdbComInterfaces &cif,
     if (isStopped && threads->back().id != *currentThreadId) {
         hr = cif.debugSystemObjects->SetCurrentThreadId(*currentThreadId);
         if (FAILED(hr)) {
-            *errorMessage= msgGetThreadsFailed(msgComFailed("SetCurrentThreadId", hr));
+            *errorMessage= msgGetThreadsFailed(CdbCore::msgComFailed("SetCurrentThreadId", hr));
             return false;
         }
     }

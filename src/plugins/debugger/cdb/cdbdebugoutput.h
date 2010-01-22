@@ -30,49 +30,15 @@
 #ifndef DEBUGGER_CDBOUTPUT_H
 #define DEBUGGER_CDBOUTPUT_H
 
-#include "cdbcom.h"
+#include "debugoutputbase.h"
 
 #include <QtCore/QObject>
 
 namespace Debugger {
 namespace Internal {
 
-// CdbDebugOutputBase is a base class for output handlers
-// that takes care of the Active X magic and conversion to QString.
-
-class CdbDebugOutputBase : public IDebugOutputCallbacksWide
-{
-public:
-    // IUnknown.
-    STDMETHOD(QueryInterface)(
-        THIS_
-        IN REFIID InterfaceId,
-        OUT PVOID* Interface
-        );
-    STDMETHOD_(ULONG, AddRef)(
-        THIS
-        );
-    STDMETHOD_(ULONG, Release)(
-        THIS
-        );
-
-    // IDebugOutputCallbacks.
-    STDMETHOD(Output)(
-        THIS_
-        IN ULONG mask,
-        IN PCWSTR text
-        );
-
-    // Helpers to retrieve the output callbacks IF
-    static IDebugOutputCallbacksWide *getOutputCallback(CIDebugClient *client);
-
-protected:
-    CdbDebugOutputBase();
-    virtual void output(ULONG mask, const QString &message) = 0;
-};
-
 // Standard CDB output handler
-class CdbDebugOutput : public QObject, public CdbDebugOutputBase
+class CdbDebugOutput : public QObject, public CdbCore::DebugOutputBase
 {
     Q_OBJECT
 public:
@@ -86,34 +52,6 @@ signals:
     void debuggerInputPrompt(int channel, const QString &message);
     void debuggeeOutput(const QString &message);
     void debuggeeInputPrompt(const QString &message);
-};
-
-// An output handler that adds lines to a string (to be
-// used for cases in which linebreaks occur in-between calls
-// to output).
-class StringOutputHandler : public CdbDebugOutputBase
-{
-public:
-    StringOutputHandler() {}
-    QString result() const { return m_result; }
-
-protected:
-    virtual void output(ULONG, const QString &message) { m_result += message; }
-
-private:
-    QString m_result;
-};
-
-// Utility class to temporarily redirect output to another handler
-// as long as in scope
-class OutputRedirector {
-    Q_DISABLE_COPY(OutputRedirector)
-public:
-    explicit OutputRedirector(CIDebugClient *client, IDebugOutputCallbacksWide *newHandler);
-    ~OutputRedirector();
-private:
-    CIDebugClient *m_client;
-    IDebugOutputCallbacksWide *m_oldHandler;
 };
 
 } // namespace Internal

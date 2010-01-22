@@ -37,62 +37,6 @@
 namespace Debugger {
 namespace Internal {
 
-CdbDebugOutputBase::CdbDebugOutputBase()
-{
-}
-
-STDMETHODIMP CdbDebugOutputBase::QueryInterface(
-    THIS_
-    IN REFIID InterfaceId,
-    OUT PVOID* Interface
-    )
-{
-    *Interface = NULL;
-
-    if (IsEqualIID(InterfaceId, __uuidof(IUnknown)) ||
-        IsEqualIID(InterfaceId, __uuidof(IDebugOutputCallbacksWide)))
-    {
-        *Interface = (IDebugOutputCallbacksWide*)this;
-        AddRef();
-        return S_OK;
-    } else {
-        return E_NOINTERFACE;
-    }
-}
-
-STDMETHODIMP_(ULONG) CdbDebugOutputBase::AddRef(THIS)
-{
-    // This class is designed to be static so
-    // there's no true refcount.
-    return 1;
-}
-
-STDMETHODIMP_(ULONG) CdbDebugOutputBase::Release(THIS)
-{
-    // This class is designed to be static so
-    // there's no true refcount.
-    return 0;
-}
-
-STDMETHODIMP CdbDebugOutputBase::Output(
-    THIS_
-    IN ULONG mask,
-    IN PCWSTR text
-    )
-{
-    const QString msg = QString::fromUtf16(reinterpret_cast<const ushort *>(text));
-    output(mask, msg);
-    return S_OK;
-}
-
-IDebugOutputCallbacksWide *CdbDebugOutputBase::getOutputCallback(CIDebugClient *client)
-{
-    IDebugOutputCallbacksWide *rc;
-     if (FAILED(client->GetOutputCallbacksWide(&rc)))
-         return 0;
-     return rc;
-}
-
 // ------------------------- CdbDebugOutput
 
 // Return a prefix for debugger messages
@@ -143,19 +87,6 @@ void CdbDebugOutput::output(ULONG mask, const QString &msg)
         emit debuggeeInputPrompt(msg);
         break;
     }
-}
-
-// Utility class to temporarily redirect output to another handler
-// as long as in scope
-OutputRedirector::OutputRedirector(CIDebugClient *client, IDebugOutputCallbacksWide *newHandler) :
-        m_client(client),
-        m_oldHandler(CdbDebugOutputBase::getOutputCallback(client))
-{
-    m_client->SetOutputCallbacksWide(newHandler);
-}
-OutputRedirector::~OutputRedirector()
-{
-    m_client->SetOutputCallbacksWide(m_oldHandler);
 }
 
 } // namespace Internal

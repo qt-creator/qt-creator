@@ -122,7 +122,7 @@ bool ExceptionBlocker::getExceptionParameters(CIDebugControl *ctrl, ULONG exCode
 {
     const HRESULT ihr = ctrl->GetExceptionFilterParameters(1, &exCode, 0, result);
     if (FAILED(ihr)) {
-        *errorMessage = msgComFailed("GetExceptionFilterParameters", ihr);
+        *errorMessage = CdbCore::msgComFailed("GetExceptionFilterParameters", ihr);
         return false;
     }
     return true;
@@ -132,7 +132,7 @@ bool ExceptionBlocker::setExceptionParameters(CIDebugControl *ctrl, const DEBUG_
 {
     const HRESULT ihr = ctrl->SetExceptionFilterParameters(1, const_cast<DEBUG_EXCEPTION_FILTER_PARAMETERS*>(&p));
     if (FAILED(ihr)) {
-        *errorMessage = msgComFailed("GetExceptionFilterParameters", ihr);
+        *errorMessage = CdbCore::msgComFailed("GetExceptionFilterParameters", ihr);
         return false;
     }
     return true;

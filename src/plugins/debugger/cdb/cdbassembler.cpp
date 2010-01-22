@@ -70,7 +70,7 @@ bool getRegisters(CIDebugControl *ctl,
     ULONG count;
     HRESULT hr = ireg->GetNumberRegisters(&count);
     if (FAILED(hr)) {
-        *errorMessage= msgComFailed("GetNumberRegisters", hr);
+        *errorMessage= CdbCore::msgComFailed("GetNumberRegisters", hr);
         return false;
     }
     if (!count)
@@ -80,7 +80,7 @@ bool getRegisters(CIDebugControl *ctl,
     for (ULONG r = 0; r < count; r++) {
         hr = ireg->GetDescriptionWide(r, wszBuf, MAX_PATH - 1, 0, 0);
         if (FAILED(hr)) {
-            *errorMessage= msgComFailed("GetDescriptionWide", hr);
+            *errorMessage= CdbCore::msgComFailed("GetDescriptionWide", hr);
             return false;
         }
         Register reg;
@@ -93,13 +93,13 @@ bool getRegisters(CIDebugControl *ctl,
     memset(valuesPtr, 0, count * sizeof(DEBUG_VALUE));
     hr = ireg->GetValues(count, 0, 0, valuesPtr);
     if (FAILED(hr)) {
-        *errorMessage= msgComFailed("GetValues", hr);
+        *errorMessage= CdbCore::msgComFailed("GetValues", hr);
         return false;
     }
     if (base < 2)
         base = 10;
     for (ULONG r = 0; r < count; r++)
-        (*registers)[r].value = CdbSymbolGroupContext::debugValueToString(values.at(r), ctl, 0, base);
+        (*registers)[r].value = CdbCore::debugValueToString(values.at(r), 0, base, ctl);
     return true;
 }
 
@@ -211,8 +211,7 @@ void DisassemblerOutputParser::parse(const QStringList &l)
     }
 }
 
-bool dissassemble(CIDebugClient *client,
-                  CIDebugControl *ctl,
+bool dissassemble(CdbCore::CoreEngine *engine,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,
@@ -222,26 +221,11 @@ bool dissassemble(CIDebugClient *client,
 {
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << offset;
-
-    const ULONG flags = DEBUG_DISASM_MATCHING_SYMBOLS|DEBUG_DISASM_SOURCE_LINE_NUMBER|DEBUG_DISASM_SOURCE_FILE_NAME;
-    // Catch the output by temporarily setting another handler.
-    // We use the method that outputs to the output handler as it
-    // conveniently provides the 'beforeLines' context (stepping back
-    // in assembler code). We build a complete string first as line breaks
-    // may occur in-between messages.
-    StringOutputHandler stringHandler;
-    OutputRedirector redir(client, &stringHandler);
-    // For some reason, we need to output to "all clients"
-    const HRESULT hr =  ctl->OutputDisassemblyLines(DEBUG_OUTCTL_ALL_CLIENTS,
-                                                    beforeLines, beforeLines + afterLines,
-                                                    offset, flags, 0, 0, 0, 0);
-    if (FAILED(hr)) {
-        *errorMessage= QString::fromLatin1("Unable to disassamble at 0x%1: %2").
-                       arg(offset, 0, 16).arg(msgComFailed("OutputDisassemblyLines", hr));
+    QString lines;
+    if (!engine->dissassemble(offset, beforeLines, afterLines, &lines, errorMessage))
         return false;
-    }
     DisassemblerOutputParser parser(str, addressFieldWidth);
-    parser.parse(stringHandler.result().split(QLatin1Char('\n')));
+    parser.parse(lines.split(QLatin1Char('\n')));
     return true;
 }
 

@@ -27,46 +27,45 @@
 **
 **************************************************************************/
 
-#ifndef CDBSETTINGS_H
-#define CDBSETTINGS_H
+#ifndef PROMPTTHREAD_H
+#define PROMPTTHREAD_H
 
-#include <QtCore/QStringList>
+#include <QtCore/QThread>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace Debugger {
-namespace Internal {
-
-struct CdbOptions
-{
-public:
-    CdbOptions();
-    void clear();
-
-    void fromSettings(const QSettings *s);
-    void toSettings(QSettings *s) const;
-
-    // A set of flags for comparison function.
-    enum ChangeFlags { InitializationOptionsChanged = 0x1,
-                       DebuggerPathsChanged = 0x2,
-                       SymbolOptionsChanged = 0x4 };
-    unsigned compare(const CdbOptions &s) const;
-
-    bool enabled;
-    QString path;
-    QStringList symbolPaths;
-    QStringList sourcePaths;
-    bool verboseSymbolLoading;
+enum CommandTypeFlags {
+    // Interrupt or something.
+    AsyncCommand      = 0x0010000,
+    // Synchronous execution before next prompt,
+    // eg eval expression. Connect with blocking slot.
+    SyncCommand       = 0x0020000,
+    // Starts debuggee. Requires starting the debug event
+    // watch timer afterwards.
+    ExecutionCommand  = 0x0040000
 };
 
-inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) == 0u; }
-inline bool operator!=(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) != 0u; }
+enum Command {
+    UnknownCommand        = 0,
+    Async_Interrupt       = AsyncCommand|1,
+    Sync_EvalExpression   = SyncCommand|1,
+    Execution_Go          = ExecutionCommand|1,
+    Execution_StartBinary = ExecutionCommand|2
+};
 
-} // namespace Internal
-} // namespace Debugger
+class CdbPromptThread : public QThread
+{
+    Q_OBJECT
+public:
+    explicit CdbPromptThread(QObject *parent = 0);
 
-#endif // CDBSETTINGS_H
+    virtual void run();
+
+signals:
+    void asyncCommand(int command, const QString &arg);
+    void syncCommand(int command, const QString &arg);
+    void executionCommand(int command, const QString &arg);
+
+private:
+    bool handleCommand(QString);
+};
+
+#endif // PROMPTTHREAD_H

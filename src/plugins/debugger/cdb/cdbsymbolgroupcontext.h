@@ -133,13 +133,6 @@ public:
     inline bool isExpanded(unsigned long index) const   { return symbolState(index) == ExpandedSymbol; }
     inline bool isExpanded(const QString &prefix) const { return symbolState(prefix) == ExpandedSymbol; }
 
-    // Helper to convert a DEBUG_VALUE structure to a string representation
-    static QString debugValueToString(const DEBUG_VALUE &dv, CIDebugControl *ctl, QString *type = 0, int integerBase = 10);
-    static bool debugValueToInteger(const DEBUG_VALUE &dv, qint64 *value);
-
-    // format an array of unsigned longs as "0x323, 0x2322, ..."
-    static QString hexFormatArray(const unsigned short *array, int size);
-
     // Dump
     enum DumperResult { DumperOk, DumperError, DumperNotHandled };
     DumperResult dump(CIDebugDataSpaces *ds, WatchData *wd);

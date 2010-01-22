@@ -43,7 +43,7 @@ static inline bool getModuleCount(CIDebugSymbols *syms, ULONG *count, QString *e
     ULONG loadedCount, unloadedCount;
     const HRESULT hr = syms->GetNumberModules(&loadedCount, &unloadedCount);
     if (FAILED(hr)) {
-        *errorMessage= msgComFailed("GetNumberModules", hr);
+        *errorMessage= CdbCore::msgComFailed("GetNumberModules", hr);
         return false;
     }
     *count = loadedCount + unloadedCount;
@@ -75,7 +75,7 @@ bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorM
     HRESULT hr = syms->GetModuleParameters(count, 0, 0u, parmPtr);
     // E_INVALIDARG indicates 'Partial results' according to docu
     if (FAILED(hr) && hr != E_INVALIDARG) {
-        *errorMessage= msgComFailed("GetModuleParameters", hr);
+        *errorMessage= CdbCore::msgComFailed("GetModuleParameters", hr);
         return false;
     }
     // fill array
@@ -91,7 +91,7 @@ bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorM
             module.endAddress = hexPrefix + QString::number((p.Base + p.Size), 16);
             hr = syms->GetModuleNameStringWide(DEBUG_MODNAME_IMAGE, m, 0, wszBuf, MAX_PATH - 1, 0);
             if (FAILED(hr) && hr != E_INVALIDARG) {
-                *errorMessage= msgComFailed("GetModuleNameStringWide", hr);
+                *errorMessage= CdbCore::msgComFailed("GetModuleNameStringWide", hr);
                 return false;
             }
             module.moduleName = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf));
@@ -116,7 +116,7 @@ bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
         return true;
     }
     if (FAILED(hr)) {
-        *errorMessage= msgComFailed("StartSymbolMatchWide", hr);
+        *errorMessage= CdbCore::msgComFailed("StartSymbolMatchWide", hr);
         return false;
     }
     WCHAR wszBuf[MAX_PATH];

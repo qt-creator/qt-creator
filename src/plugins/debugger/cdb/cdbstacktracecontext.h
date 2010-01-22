@@ -42,10 +42,13 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
+namespace CdbCore {
+    struct ComInterfaces;
+}
+
 namespace Debugger {
 namespace Internal {
 
-struct CdbComInterfaces;
 class CdbSymbolGroupContext;
 class CdbStackFrameContext;
 class CdbDumperHelper;
@@ -93,7 +96,7 @@ public:
 
     // Retrieve information about threads. When stopped, add
     // current stack frame.
-    static bool getThreads(const CdbComInterfaces &cif,
+    static bool getThreads(const CdbCore::ComInterfaces &cif,
                            bool isStopped,
                            QList<ThreadData> *threads,
                            ULONG *currentThreadId,
@@ -104,7 +107,7 @@ private:
     CIDebugSymbolGroup *createSymbolGroup(int index, QString *errorMessage);
 
     const QSharedPointer<CdbDumperHelper> m_dumper;
-    CdbComInterfaces *m_cif;
+    const CdbCore::ComInterfaces *m_cif;
 
     DEBUG_STACK_FRAME m_cdbFrames[maxFrames];
     QVector <CdbStackFrameContext*> m_frameContexts;

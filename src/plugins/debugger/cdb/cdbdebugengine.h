@@ -43,7 +43,7 @@ namespace Internal {
 class DisassemblerViewAgent;
 class CdbDebugEventCallback;
 class CdbDebugOutput;
-struct CdbDebugEnginePrivate;
+class CdbDebugEnginePrivate;
 struct CdbOptions;
 
 class CdbDebugEngine : public IDebuggerEngine
@@ -104,9 +104,6 @@ public:
 public slots:
     void syncDebuggerPaths();
 
-protected:
-    void timerEvent(QTimerEvent*);
-
 private slots:
     void slotConsoleStubStarted();
     void slotConsoleStubError(const QString &msg);
@@ -116,19 +113,16 @@ private slots:
 
 private:
     void setState(DebuggerState state, const char *func, int line);
-    bool startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *errorMessage);
-    bool startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage);
-    void startWatchTimer();
-    void killWatchTimer();
+    inline bool startAttachDebugger(qint64 pid, DebuggerStartMode sm, QString *errorMessage);
+    inline bool startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage);
     void processTerminated(unsigned long exitCode);
-    bool evaluateExpression(const QString &expression, QString *value, QString *type, QString *errorMessage);
     void evaluateWatcher(WatchData *wd);
     QString editorToolTip(const QString &exp, const QString &function);
     bool step(unsigned long executionStatus);
 
     CdbDebugEnginePrivate *m_d;
 
-    friend struct CdbDebugEnginePrivate;
+    friend class CdbDebugEnginePrivate;
     friend class CdbDebugEventCallback;
     friend class CdbDebugOutput;
 };

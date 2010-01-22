@@ -94,59 +94,13 @@ namespace Debugger {
 namespace Internal {
 
 // ------- Call load helpers
-// Alloc memory in debuggee using the ".dvalloc" command as
-// there seems to be no API for it.
-static bool allocDebuggeeMemory(CdbComInterfaces *cif,
-                                int size, ULONG64 *address, QString *errorMessage)
-{
-    *address = 0;
-    const QString allocCmd = QLatin1String(".dvalloc ") + QString::number(size);
-    StringOutputHandler stringHandler;
-    OutputRedirector redir(cif->debugClient, &stringHandler);
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, allocCmd, errorMessage))
-        return false;
-   // "Allocated 1000 bytes starting at 003a0000" .. hopefully never localized
-    bool ok = false;
-    const QString output = stringHandler.result();
-    const int lastBlank = output.lastIndexOf(QLatin1Char(' '));
-    if (lastBlank != -1) {
-        const qint64 addri = output.mid(lastBlank + 1).toLongLong(&ok, 16);
-        if (ok)
-            *address = addri;
-    }
-     if (loadDebug > 1)
-        qDebug() << Q_FUNC_INFO << '\n' << output << *address << ok;
-    if (!ok) {
-        *errorMessage = QString::fromLatin1("Failed to parse output '%1'").arg(output);
-        return false;
-    }
-    return true;
-}
 
-// Alloc an AscII string in debuggee
-static bool createDebuggeeAscIIString(CdbComInterfaces *cif,
-                                      const QString &s,
-                                      ULONG64 *address,
-                                      QString *errorMessage)
-{
-    QByteArray sAsciiData = s.toLocal8Bit();
-    sAsciiData += '\0';
-    if (!allocDebuggeeMemory(cif, sAsciiData.size(), address, errorMessage))
-        return false;
-    const HRESULT hr = cif->debugDataSpaces->WriteVirtual(*address, sAsciiData.data(), sAsciiData.size(), 0);
-    if (FAILED(hr)) {
-        *errorMessage= msgComFailed("WriteVirtual", hr);
-        return false;
-    }
-    return true;
-}
-
-// Load a library into the debuggee. Currently requires
+    // Load a library into the debuggee. Currently requires
 // the QtCored4.pdb file to be present as we need "qstrdup"
 // as dummy symbol. This is ok ATM since dumpers only
 // make sense for Qt apps.
 static bool debuggeeLoadLibrary(DebuggerManager *manager,
-                                CdbComInterfaces *cif,
+                                CdbCore::CoreEngine *engine,
                                 unsigned long threadId,
                                 const QString &moduleName,
                                 QString *errorMessage)
@@ -154,12 +108,13 @@ static bool debuggeeLoadLibrary(DebuggerManager *manager,
     if (loadDebug > 1)
         qDebug() << Q_FUNC_INFO << moduleName;
     // Try to ignore the breakpoints, skip stray startup-complete trap exceptions
-    CdbExceptionLoggerEventCallback exLogger(LogWarning, true, manager);
-    EventCallbackRedirector eventRedir(cif->debugClient, &exLogger);
+    QSharedPointer<CdbExceptionLoggerEventCallback> exLogger(new CdbExceptionLoggerEventCallback(LogWarning, true, manager));
+    CdbCore::EventCallbackRedirector eventRedir(engine, exLogger);
+    Q_UNUSED(eventRedir)
     // Make a call to LoadLibraryA. First, reserve memory in debugger
     // and copy name over.
     ULONG64 nameAddress;
-    if (!createDebuggeeAscIIString(cif, moduleName, &nameAddress, errorMessage))
+    if (!engine->createDebuggeeAscIIString(moduleName, &nameAddress, errorMessage))
         return false;
     // We want to call "HMODULE LoadLibraryA(LPCTSTR lpFileName)"
     // (void* LoadLibraryA(char*)). However, despite providing a symbol
@@ -168,7 +123,7 @@ static bool debuggeeLoadLibrary(DebuggerManager *manager,
     // Prepare call: Locate 'qstrdup' in the (potentially namespaced) corelib. For some
     // reason, the symbol is present in QtGui as well without type information.
     QString dummyFunc = QLatin1String("*qstrdup");
-    if (resolveSymbol(cif->debugSymbols, QLatin1String("QtCore[d]*4!"), &dummyFunc, errorMessage) != ResolveSymbolOk)
+    if (resolveSymbol(engine->interfaces().debugSymbols, QLatin1String("QtCore[d]*4!"), &dummyFunc, errorMessage) != ResolveSymbolOk)
         return false;
 
     QString callCmd; {
@@ -179,16 +134,16 @@ static bool debuggeeLoadLibrary(DebuggerManager *manager,
     if (loadDebug)
         qDebug() << "Calling" << callCmd;
 
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, callCmd, errorMessage))
+    if (!engine->executeDebuggerCommand(callCmd, errorMessage))
         return false;
     // Execute current thread. This will hit a breakpoint.
     QString goCmd;
     QTextStream(&goCmd) << '~' << threadId << " g";
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(cif->debugControl, goCmd, errorMessage))
+    if (!engine->executeDebuggerCommand(goCmd, errorMessage))
         return false;
-    const HRESULT hr = cif->debugControl->WaitForEvent(0, waitTimeOutMS);
+    const HRESULT hr = engine->waitForEvent(waitTimeOutMS);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("WaitForEvent", hr);
+        *errorMessage = CdbCore::msgComFailed("WaitForEvent", hr);
         return false;
     }
     return true;
@@ -339,13 +294,13 @@ void CdbDumperInitThread ::run()
 // ------------------- CdbDumperHelper
 
 CdbDumperHelper::CdbDumperHelper(DebuggerManager *manager,
-                                 CdbComInterfaces *cif) :
+                                 CdbCore::CoreEngine *coreEngine) :
     m_tryInjectLoad(true),
     m_msgDisabled(QLatin1String("Dumpers are disabled")),
     m_msgNotInScope(QLatin1String("Data not in scope")),
     m_state(NotLoaded),
     m_manager(manager),
-    m_cif(cif),
+    m_coreEngine(coreEngine),
     m_inBufferAddress(0),
     m_inBufferSize(0),
     m_outBufferAddress(0),
@@ -433,7 +388,7 @@ CdbDumperHelper::CallLoadResult CdbDumperHelper::initCallLoad(QString *errorMess
         qDebug() << Q_FUNC_INFO;
     // Do we have Qt and are we already loaded by accident?
     QStringList modules;
-    if (!getModuleNameList(m_cif->debugSymbols, &modules, errorMessage))
+    if (!getModuleNameList(m_coreEngine->interfaces().debugSymbols, &modules, errorMessage))
         return CallLoadError;
     // Are we already loaded by some accident?
     if (!modules.filter(QLatin1String(dumperModuleNameC), Qt::CaseInsensitive).isEmpty())
@@ -442,7 +397,7 @@ CdbDumperHelper::CallLoadResult CdbDumperHelper::initCallLoad(QString *errorMess
     if (modules.filter(QLatin1String(qtCoreModuleNameC), Qt::CaseInsensitive).isEmpty())
         return CallLoadNoQtApp;
     // Try to load
-    if (!debuggeeLoadLibrary(m_manager, m_cif, m_dumperCallThread, m_library, errorMessage))
+    if (!debuggeeLoadLibrary(m_manager, m_coreEngine, m_dumperCallThread, m_library, errorMessage))
         return CallLoadError;
     return CallLoadOk;
 }
@@ -457,7 +412,7 @@ static inline bool getSymbolAddress(CIDebugSymbols *sg,
     // Get address
     HRESULT hr = sg->GetOffsetByNameWide(reinterpret_cast<PCWSTR>(name.utf16()), address);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetOffsetByNameWide", hr);
+        *errorMessage = CdbCore::msgComFailed("GetOffsetByNameWide", hr);
         return false;
     }
     // Get size. Even works for arrays
@@ -466,12 +421,12 @@ static inline bool getSymbolAddress(CIDebugSymbols *sg,
         ULONG type;
         hr = sg->GetOffsetTypeId(*address, &type, &moduleAddress);
         if (FAILED(hr)) {
-            *errorMessage = msgComFailed("GetOffsetTypeId", hr);
+            *errorMessage = CdbCore::msgComFailed("GetOffsetTypeId", hr);
             return false;
         }
         hr = sg->GetTypeSize(moduleAddress, type, size);
         if (FAILED(hr)) {
-            *errorMessage = msgComFailed("GetTypeSize", hr);
+            *errorMessage = CdbCore::msgComFailed("GetTypeSize", hr);
             return false;
         }
     } // size desired
@@ -488,14 +443,14 @@ bool CdbDumperHelper::initResolveSymbols(QString *errorMessage)
     QString inBufferSymbol = QLatin1String("*qDumpInBuffer");
     QString outBufferSymbol = QLatin1String("*qDumpOutBuffer");
     const QString dumperModuleName = QLatin1String(dumperModuleNameC);
-    bool rc = resolveSymbol(m_cif->debugSymbols, &m_dumpObjectSymbol, errorMessage) == ResolveSymbolOk
-                    && resolveSymbol(m_cif->debugSymbols, dumperModuleName, &inBufferSymbol, errorMessage) == ResolveSymbolOk
-                    && resolveSymbol(m_cif->debugSymbols, dumperModuleName, &outBufferSymbol, errorMessage) == ResolveSymbolOk;
+    bool rc = resolveSymbol(m_coreEngine->interfaces().debugSymbols, &m_dumpObjectSymbol, errorMessage) == ResolveSymbolOk
+                    && resolveSymbol(m_coreEngine->interfaces().debugSymbols, dumperModuleName, &inBufferSymbol, errorMessage) == ResolveSymbolOk
+                    && resolveSymbol(m_coreEngine->interfaces().debugSymbols, dumperModuleName, &outBufferSymbol, errorMessage) == ResolveSymbolOk;
     if (!rc)
         return false;
     //  Determine buffer addresses, sizes and alloc buffer
-    rc = getSymbolAddress(m_cif->debugSymbols, inBufferSymbol, &m_inBufferAddress, &m_inBufferSize, errorMessage)
-         && getSymbolAddress(m_cif->debugSymbols, outBufferSymbol, &m_outBufferAddress, &m_outBufferSize, errorMessage);
+    rc = getSymbolAddress(m_coreEngine->interfaces().debugSymbols, inBufferSymbol, &m_inBufferAddress, &m_inBufferSize, errorMessage)
+         && getSymbolAddress(m_coreEngine->interfaces().debugSymbols, outBufferSymbol, &m_outBufferAddress, &m_outBufferSize, errorMessage);
     if (!rc)
         return false;
     m_buffer = new char[qMax(m_inBufferSize, m_outBufferSize)];
@@ -532,41 +487,24 @@ bool CdbDumperHelper::initKnownTypes(QString *errorMessage)
     return true;
 }
 
-// Write to debuggee memory in chunks
-bool CdbDumperHelper::writeToDebuggee(CIDebugDataSpaces *ds, const QByteArray &buffer, quint64 address, QString *errorMessage)
-{
-    char *ptr = const_cast<char*>(buffer.data());
-    ULONG bytesToWrite = buffer.size();
-    while (bytesToWrite > 0) {
-        ULONG bytesWritten = 0;
-        const HRESULT hr = ds->WriteVirtual(address, ptr, bytesToWrite, &bytesWritten);
-        if (FAILED(hr)) {
-            *errorMessage = msgComFailed("WriteVirtual", hr);
-            return false;
-        }
-        bytesToWrite -= bytesWritten;
-        ptr += bytesWritten;
-    }
-    return true;
-}
-
 CdbDumperHelper::CallResult
     CdbDumperHelper::callDumper(const QString &callCmd, const QByteArray &inBuffer, const char **outDataPtr,
                                 bool ignoreAccessViolation, QString *errorMessage)
 {
     *outDataPtr = 0;
     // Skip stray startup-complete trap exceptions.
-    CdbExceptionLoggerEventCallback exLogger(LogWarning, true, m_manager);
-    EventCallbackRedirector eventRedir(m_cif->debugClient, &exLogger);
+    QSharedPointer<CdbExceptionLoggerEventCallback> exLogger(new CdbExceptionLoggerEventCallback(LogWarning, true, m_manager));
+    CdbCore::EventCallbackRedirector eventRedir(m_coreEngine, exLogger);
+    Q_UNUSED(eventRedir)
     // write input buffer
     if (!inBuffer.isEmpty()) {
-        if (!writeToDebuggee(m_cif->debugDataSpaces, inBuffer, m_inBufferAddress, errorMessage))
+        if (!m_coreEngine->writeToDebuggee(inBuffer, m_inBufferAddress, errorMessage))
             return CallFailed;
     }
-    if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, callCmd, errorMessage)) {
+    if (!m_coreEngine->executeDebuggerCommand(callCmd, errorMessage)) {
         // Clear the outstanding call in case we triggered a debug library assert with a message box
         QString clearError;
-        if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, QLatin1String(".call /c"), &clearError)) {
+        if (!m_coreEngine->executeDebuggerCommand(QLatin1String(".call /c"), &clearError)) {
             *errorMessage += QString::fromLatin1("/Unable to clear call %1").arg(clearError);
         }
         return CallSyntaxError;
@@ -575,40 +513,40 @@ CdbDumperHelper::CallResult
     // Try to skip debuggee crash exceptions and dumper exceptions
     // by using 'gN' (go not handled -> pass handling to dumper __try/__catch block)
     for (int i = 0; i < 10; i++) {
-        const int oldExceptionCount = exLogger.exceptionCount();
+        const int oldExceptionCount = exLogger->exceptionCount();
         // Go in current thread. If an exception occurs in loop 2,
         // let the dumper handle it.
         QString goCmd = m_goCommand;
         if (i)
             goCmd = QLatin1Char('N');
-        if (!CdbDebugEnginePrivate::executeDebuggerCommand(m_cif->debugControl, goCmd, errorMessage))
+        if (!m_coreEngine->executeDebuggerCommand(goCmd, errorMessage))
             return CallFailed;
-        HRESULT hr = m_cif->debugControl->WaitForEvent(0, waitTimeOutMS);
+        HRESULT hr = m_coreEngine->waitForEvent(waitTimeOutMS);
         if (FAILED(hr)) {
-            *errorMessage = msgComFailed("WaitForEvent", hr);
+            *errorMessage = CdbCore::msgComFailed("WaitForEvent", hr);
             return CallFailed;
         }
-        const int newExceptionCount = exLogger.exceptionCount();
+        const int newExceptionCount = exLogger->exceptionCount();
         // no new exceptions? -> break
         if (oldExceptionCount == newExceptionCount)
             break;
         // If we are to ignore EXCEPTION_ACCESS_VIOLATION, check if anything
         // else occurred.
         if (ignoreAccessViolation) {
-            const QList<ULONG> newExceptionCodes = exLogger.exceptionCodes().mid(oldExceptionCount);
+            const QList<ULONG> newExceptionCodes = exLogger->exceptionCodes().mid(oldExceptionCount);
             if (newExceptionCodes.count(EXCEPTION_ACCESS_VIOLATION) == newExceptionCodes.size())
                 break;
         }
     }
-    if (exLogger.exceptionCount()) {
-        const QString exMsgs = exLogger.exceptionMessages().join(QString(QLatin1Char(',')));
+    if (exLogger->exceptionCount()) {
+        const QString exMsgs = exLogger->exceptionMessages().join(QString(QLatin1Char(',')));
         *errorMessage = QString::fromLatin1("Exceptions occurred during the dumper call: %1").arg(exMsgs);
         return CallFailed;
     }
     // Read output
-    const HRESULT hr = m_cif->debugDataSpaces->ReadVirtual(m_outBufferAddress, m_buffer, m_outBufferSize, 0);
+    const HRESULT hr = m_coreEngine->interfaces().debugDataSpaces->ReadVirtual(m_outBufferAddress, m_buffer, m_outBufferSize, 0);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("ReadVirtual", hr);
+        *errorMessage = CdbCore::msgComFailed("ReadVirtual", hr);
         return CallFailed;
     }
     // see QDumper implementation
@@ -742,7 +680,7 @@ CdbDumperHelper::DumpExecuteResult
         qDebug() << "Query: " << wd.toString() << "\nwith: " << callCmd << '\n';
     const char *outputData;
     // Completely ignore EXCEPTION_ACCESS_VIOLATION crashes in the dumpers.
-    ExceptionBlocker eb(m_cif->debugControl, EXCEPTION_ACCESS_VIOLATION, ExceptionBlocker::IgnoreException);
+    ExceptionBlocker eb(m_coreEngine->interfaces().debugControl, EXCEPTION_ACCESS_VIOLATION, ExceptionBlocker::IgnoreException);
     if (!eb) {
         *errorMessage = eb.errorString();
         return DumpExecuteCallFailed;
@@ -808,11 +746,10 @@ bool CdbDumperHelper::runTypeSizeQuery(const QString &typeName, int *size, QStri
     QString expression = QLatin1String("sizeof(");
     expression += typeName;
     expression += QLatin1Char(')');
-    if (!CdbDebugEnginePrivate::evaluateExpression(m_cif->debugControl,
-                                                  expression, &sizeValue, errorMessage))
+    if (!m_coreEngine->evaluateExpression(expression, &sizeValue, errorMessage))
         return false;
     qint64 size64;
-    if (!CdbSymbolGroupContext::debugValueToInteger(sizeValue, &size64)) {
+    if (!CdbCore::debugValueToInteger(sizeValue, &size64)) {
         *errorMessage = QLatin1String("Expression result is not an integer");
         return false;
     }
@@ -831,6 +768,11 @@ void CdbDumperHelper::setDumperCallThread(unsigned long t)
         m_dumperCallThread = t;
         m_goCommand = goCommand(m_dumperCallThread);
     }
+}
+
+const CdbCore::ComInterfaces *CdbDumperHelper::comInterfaces() const
+{
+    return &m_coreEngine->interfaces();
 }
 
 } // namespace Internal

@@ -27,46 +27,45 @@
 **
 **************************************************************************/
 
-#ifndef CDBSETTINGS_H
-#define CDBSETTINGS_H
+#ifndef CDBAPPLICATION_H
+#define CDBAPPLICATION_H
 
-#include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QSharedPointer>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace CdbCore {
+    class CoreEngine;
+}
 
-namespace Debugger {
-namespace Internal {
+class CdbPromptThread;
 
-struct CdbOptions
+class CdbApplication : public QCoreApplication
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(CdbApplication)
 public:
-    CdbOptions();
-    void clear();
+    enum InitResult { InitFailed, InitUsageShown, InitOk };
 
-    void fromSettings(const QSettings *s);
-    void toSettings(QSettings *s) const;
+    CdbApplication(int argc, char *argv[]);
+    ~CdbApplication();
 
-    // A set of flags for comparison function.
-    enum ChangeFlags { InitializationOptionsChanged = 0x1,
-                       DebuggerPathsChanged = 0x2,
-                       SymbolOptionsChanged = 0x4 };
-    unsigned compare(const CdbOptions &s) const;
+    InitResult init();
 
-    bool enabled;
-    QString path;
-    QStringList symbolPaths;
-    QStringList sourcePaths;
-    bool verboseSymbolLoading;
+private slots:
+    void promptThreadTerminated();
+    void asyncCommand(int command, const QString &arg);
+    void syncCommand(int command, const QString &arg);
+    void executionCommand(int command, const QString &arg);
+    void debugEvent();
+    void processAttached(void *handle);
+
+private:
+    bool parseOptions();
+
+    QString m_engineDll;
+    QSharedPointer<CdbCore::CoreEngine> m_engine;
+    CdbPromptThread *m_promptThread;
+    void *m_processHandle;
 };
 
-inline bool operator==(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) == 0u; }
-inline bool operator!=(const CdbOptions &s1, const CdbOptions &s2)
-{ return s1.compare(s2) != 0u; }
-
-} // namespace Internal
-} // namespace Debugger
-
-#endif // CDBSETTINGS_H
+#endif // CDBAPPLICATION_H

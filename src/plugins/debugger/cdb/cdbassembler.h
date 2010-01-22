@@ -39,6 +39,10 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
+namespace CdbCore {
+    class CoreEngine;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -51,8 +55,7 @@ bool getRegisters(CIDebugControl *ctl,
                   QString *errorMessage,
                   int base = 10 /* 16 for hex, etc */);
 
-bool dissassemble(CIDebugClient *client,
-                  CIDebugControl *ctl,
+bool dissassemble(CdbCore::CoreEngine *engine,
                   ULONG64 offset,
                   unsigned long beforeLines,
                   unsigned long afterLines,

@@ -30,6 +30,7 @@
 #include "cdboptionspage.h"
 #include "cdboptions.h"
 #include "debuggerconstants.h"
+#include "coreengine.h"
 
 #include <coreplugin/icore.h>
 
@@ -102,7 +103,7 @@ void CdbOptionsPageWidget::autoDetect()
 {
     QString path;
     QStringList checkedDirectories;
-    const bool ok = CdbOptions::autoDetectPath(&path, &checkedDirectories);
+    const bool ok = CdbCore::CoreEngine::autoDetectPath(&path, &checkedDirectories);
     m_ui.cdbPathGroupBox->setChecked(ok);
     if (ok) {
         m_ui.pathChooser->setPath(path);

@@ -175,7 +175,7 @@ bool CdbSymbolGroupContext::init(QString *errorMessage)
     ULONG count;
     HRESULT hr = m_symbolGroup->GetNumberSymbols(&count);
     if (FAILED(hr)) {
-        *errorMessage = msgComFailed("GetNumberSymbols", hr);
+        *errorMessage = CdbCore::msgComFailed("GetNumberSymbols", hr);
         return false;
     }
 
@@ -185,7 +185,8 @@ bool CdbSymbolGroupContext::init(QString *errorMessage)
 
         hr = m_symbolGroup->GetSymbolParameters(0, count, symbolParameters());
         if (FAILED(hr)) {
-            *errorMessage = QString::fromLatin1("In %1: %2 (%3 symbols)").arg(QLatin1String(Q_FUNC_INFO), msgComFailed("GetSymbolParameters", hr)).arg(count);
+            *errorMessage = QString::fromLatin1("In %1: %2 (%3 symbols)").arg(QLatin1String(Q_FUNC_INFO),
+                                                                              CdbCore::msgComFailed("GetSymbolParameters", hr)).arg(count);
             return false;
         }
         populateINameIndexMap(m_prefix, DEBUG_ANY_ID, count);
@@ -355,7 +356,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
 
     HRESULT hr = m_symbolGroup->ExpandSymbol(index, TRUE);
     if (FAILED(hr)) {
-        *errorMessage = msgExpandFailed(prefix, index, msgComFailed("ExpandSymbol", hr));
+        *errorMessage = msgExpandFailed(prefix, index, CdbCore::msgComFailed("ExpandSymbol", hr));
         return false;
     }
     // Hopefully, this will never fail, else data structure will be foobar.
@@ -363,7 +364,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
     ULONG newSize;
     hr = m_symbolGroup->GetNumberSymbols(&newSize);
     if (FAILED(hr)) {
-        *errorMessage = msgExpandFailed(prefix, index, msgComFailed("GetNumberSymbols", hr));
+        *errorMessage = msgExpandFailed(prefix, index, CdbCore::msgComFailed("GetNumberSymbols", hr));
         return false;
     }
 
@@ -373,7 +374,7 @@ bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long in
 
     hr = m_symbolGroup->GetSymbolParameters(0, newSize, symbolParameters());
     if (FAILED(hr)) {
-        *errorMessage = msgExpandFailed(prefix, index, msgComFailed("GetSymbolParameters", hr));
+        *errorMessage = msgExpandFailed(prefix, index, CdbCore::msgComFailed("GetSymbolParameters", hr));
         return false;
     }
     // The new symbols are inserted after the parent symbol.
@@ -531,132 +532,12 @@ bool CdbSymbolGroupContext::assignValue(const QString &iname, const QString &val
     const HRESULT hr = m_symbolGroup->WriteSymbolWide(index, reinterpret_cast<PCWSTR>(value.utf16()));
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Unable to assign '%1' to '%2': %3").
-                        arg(value, iname, msgComFailed("WriteSymbolWide", hr));
+                        arg(value, iname, CdbCore::msgComFailed("WriteSymbolWide", hr));
         return false;
     }
     if (newValue)
         *newValue = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
     return true;
-}
-
-// format an array of integers as "0x323, 0x2322, ..."
-template <class Integer>
-static QString formatArrayHelper(const Integer *array, int size, int base = 10)
-{
-    QString rc;
-    const QString hexPrefix = QLatin1String("0x");
-    const QString separator = QLatin1String(", ");
-    const bool hex = base == 16;
-    for (int i = 0; i < size; i++) {
-        if (i)
-            rc += separator;
-        if (hex)
-            rc += hexPrefix;
-        rc += QString::number(array[i], base);
-    }
-    return rc;
-}
-
-QString CdbSymbolGroupContext::hexFormatArray(const unsigned short *array, int size)
-{
-    return formatArrayHelper(array, size, 16);
-}
-
-// Helper to format an integer with
-// a hex prefix in case base = 16
-template <class Integer>
-        inline QString formatInteger(Integer value, int base)
-{
-    QString rc;
-    if (base == 16)
-        rc = QLatin1String("0x");
-    rc += QString::number(value, base);
-    return rc;
-}
-
-QString CdbSymbolGroupContext::debugValueToString(const DEBUG_VALUE &dv, CIDebugControl *ctl,
-                                                  QString *qType,
-                                                  int integerBase)
-{
-    switch (dv.Type) {
-    case DEBUG_VALUE_INT8:
-        if (qType)
-            *qType = QLatin1String("char");
-        return formatInteger(dv.I8, integerBase);
-    case DEBUG_VALUE_INT16:
-        if (qType)
-            *qType = QLatin1String("short");
-        return formatInteger(static_cast<short>(dv.I16), integerBase);
-    case DEBUG_VALUE_INT32:
-        if (qType)
-            *qType = QLatin1String("long");
-        return formatInteger(static_cast<long>(dv.I32), integerBase);
-    case DEBUG_VALUE_INT64:
-        if (qType)
-            *qType = QLatin1String("long long");
-        return formatInteger(static_cast<long long>(dv.I64), integerBase);
-    case DEBUG_VALUE_FLOAT32:
-        if (qType)
-            *qType = QLatin1String("float");
-        return QString::number(dv.F32);
-    case DEBUG_VALUE_FLOAT64:
-        if (qType)
-            *qType = QLatin1String("double");
-        return QString::number(dv.F64);
-    case DEBUG_VALUE_FLOAT80:
-    case DEBUG_VALUE_FLOAT128: { // Convert to double
-            DEBUG_VALUE doubleValue;
-            double d = 0.0;
-            if (SUCCEEDED(ctl->CoerceValue(const_cast<DEBUG_VALUE*>(&dv), DEBUG_VALUE_FLOAT64, &doubleValue)))
-                d = dv.F64;
-            if (qType)
-                *qType = QLatin1String(dv.Type == DEBUG_VALUE_FLOAT80 ? "80bit-float" : "128bit-float");
-            return QString::number(d);
-        }
-    case DEBUG_VALUE_VECTOR64: {
-            if (qType)
-                *qType = QLatin1String("64bit-vector");
-            QString rc = QLatin1String("bytes: ");
-            rc += formatArrayHelper(dv.VI8, 8, integerBase);
-            rc += QLatin1String(" long: ");
-            rc += formatArrayHelper(dv.VI32, 2, integerBase);
-            return rc;
-        }
-    case DEBUG_VALUE_VECTOR128: {
-            if (qType)
-                *qType = QLatin1String("128bit-vector");
-            QString rc = QLatin1String("bytes: ");
-            rc += formatArrayHelper(dv.VI8, 16, integerBase);
-            rc += QLatin1String(" long long: ");
-            rc += formatArrayHelper(dv.VI64, 2, integerBase);
-            return rc;
-        }
-    }
-    if (qType)
-        *qType = QString::fromLatin1("Unknown type #%1:").arg(dv.Type);
-    return formatArrayHelper(dv.RawBytes, 24, integerBase);
-}
-
-bool CdbSymbolGroupContext::debugValueToInteger(const DEBUG_VALUE &dv, qint64 *value)
-{
-    *value = 0;
-    switch (dv.Type) {
-    case DEBUG_VALUE_INT8:
-        *value = dv.I8;
-        return true;
-    case DEBUG_VALUE_INT16:
-        *value = static_cast<short>(dv.I16);
-        return true;
-    case DEBUG_VALUE_INT32:
-        *value = static_cast<long>(dv.I32);
-        return true;
-    case DEBUG_VALUE_INT64:
-        *value = static_cast<long long>(dv.I64);
-        return true;
-    default:
-        break;
-    }
-    return false;
 }
 
 /* The special type dumpers have an integer return code meaning:

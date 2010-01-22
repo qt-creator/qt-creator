@@ -33,6 +33,7 @@
 #include "cdbdumperhelper.h"
 #include "debuggeractions.h"
 #include "watchhandler.h"
+#include "coreengine.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>

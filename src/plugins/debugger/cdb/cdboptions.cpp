@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "cdboptions.h"
+#include "coreengine.h"
 
 #include <QtCore/QSettings>
 #include <QtCore/QDir>
@@ -65,7 +66,7 @@ void CdbOptions::fromSettings(const QSettings *s)
     const QString enabledKey = keyRoot + QLatin1String(enabledKeyC);
     const bool firstTime = !s->contains(enabledKey);
     if (firstTime) {
-        enabled = autoDetectPath(&path);
+        enabled = CdbCore::CoreEngine::autoDetectPath(&path);
         return;
     }
     enabled = s->value(enabledKey, false).toBool();
@@ -84,46 +85,6 @@ void CdbOptions::toSettings(QSettings *s) const
     s->setValue(QLatin1String(sourcePathsKeyC), sourcePaths);
     s->setValue(QLatin1String(verboseSymbolLoadingKeyC), verboseSymbolLoading);
     s->endGroup();
-}
-
-bool CdbOptions::autoDetectPath(QString *outPath, QStringList *checkedDirectories /* = 0 */)
-{
-    // Look for $ProgramFiles/"Debugging Tools For Windows <bit-idy>" and its
-    // " (x86)", " (x64)" variations. Qt Creator needs 64/32 bit depending
-    // on how it was built.
-#ifdef Q_OS_WIN64
-    static const char *postFixes[] = {" (x64)", " 64-bit" };
-#else
-    static const char *postFixes[] = { " (x86)", " (x32)" };
-#endif
-
-    outPath->clear();
-    const QByteArray programDirB = qgetenv("ProgramFiles");
-    if (programDirB.isEmpty())
-        return false;
-
-    const QString programDir = QString::fromLocal8Bit(programDirB) + QDir::separator();
-    const QString installDir = QLatin1String("Debugging Tools For Windows");
-
-    QString path = programDir + installDir;
-    if (checkedDirectories)
-        checkedDirectories->push_back(path);
-    if (QFileInfo(path).isDir()) {
-        *outPath = QDir::toNativeSeparators(path);
-        return true;
-    }
-    const int rootLength = path.size();
-    for (int i = 0; i < sizeof(postFixes)/sizeof(const char*); i++) {
-        path.truncate(rootLength);
-        path += QLatin1String(postFixes[i]);
-        if (checkedDirectories)
-            checkedDirectories->push_back(path);
-        if (QFileInfo(path).isDir()) {
-            *outPath = QDir::toNativeSeparators(path);
-            return true;
-        }
-    }
-    return false;
 }
 
 unsigned CdbOptions::compare(const CdbOptions &rhs) const

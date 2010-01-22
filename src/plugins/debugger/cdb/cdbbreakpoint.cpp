@@ -161,7 +161,7 @@ bool CDBBreakPoint::apply(CIDebugBreakpoint *ibp, QString *errorMessage) const
     const HRESULT hr = ibp->SetOffsetExpressionWide(reinterpret_cast<PCWSTR>(expr.utf16()));
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Unable to set breakpoint '%1' : %2").
-                        arg(expr, msgComFailed("SetOffsetExpressionWide", hr));
+                        arg(expr, CdbCore::msgComFailed("SetOffsetExpressionWide", hr));
         return false;
     }
     // Pass Count is ignoreCount + 1
@@ -192,7 +192,7 @@ bool CDBBreakPoint::add(CIDebugControl* debugControl,
         *id = 0;
     HRESULT hr = debugControl->AddBreakpoint2(DEBUG_BREAKPOINT_CODE, DEBUG_ANY_ID, &ibp);
     if (FAILED(hr)) {
-        *errorMessage = msgCannotAddBreakPoint(msgComFailed("AddBreakpoint2", hr));
+        *errorMessage = msgCannotAddBreakPoint(CdbCore::msgComFailed("AddBreakpoint2", hr));
         return false;
     }
     if (!ibp) {
@@ -210,7 +210,7 @@ bool CDBBreakPoint::add(CIDebugControl* debugControl,
     if (id) {
         hr = ibp->GetId(id);
         if (FAILED(hr)) {
-            *errorMessage = msgCannotAddBreakPoint(msgComFailed("GetId", hr));
+            *errorMessage = msgCannotAddBreakPoint(CdbCore::msgComFailed("GetId", hr));
             return false;
         }
     }
@@ -326,7 +326,7 @@ bool CDBBreakPoint::retrieve(CIDebugBreakpoint *ibp, QString *errorMessage)
     const HRESULT hr =ibp->GetOffsetExpressionWide(wszBuf, MAX_PATH, 0);
     if (FAILED(hr)) {
         *errorMessage = QString::fromLatin1("Cannot retrieve breakpoint: %1").
-                        arg(msgComFailed("GetOffsetExpressionWide", hr));
+                        arg(CdbCore::msgComFailed("GetOffsetExpressionWide", hr));
         return false;
     }
     // Pass Count is ignoreCount + 1
@@ -398,7 +398,7 @@ bool CDBBreakPoint::getBreakPointCount(CIDebugControl* debugControl, ULONG *coun
     if (FAILED(hr)) {
         if (errorMessage)
             *errorMessage = QString::fromLatin1("Cannot determine breakpoint count: %1").
-                            arg(msgComFailed("GetNumberBreakpoints", hr));
+                            arg(CdbCore::msgComFailed("GetNumberBreakpoints", hr));
         return false;
     }
     return true;
@@ -416,7 +416,7 @@ bool CDBBreakPoint::getBreakPoints(CIDebugControl* debugControl, QList<CDBBreakP
         const HRESULT hr = debugControl->GetBreakpointByIndex2(b, &ibp);
         if (FAILED(hr)) {
             *errorMessage = QString::fromLatin1("Cannot retrieve breakpoint %1: %2").
-                            arg(b).arg(msgComFailed("GetBreakpointByIndex2", hr));
+                            arg(b).arg(CdbCore::msgComFailed("GetBreakpointByIndex2", hr));
             return false;
         }
         CDBBreakPoint bp;
@@ -438,7 +438,7 @@ static IDebugBreakpoint2 *breakPointById(CIDebugControl *ctl, unsigned long id, 
     CIDebugBreakpoint *ibp = 0;
     const HRESULT hr = ctl->GetBreakpointById2(id, &ibp);
     if (FAILED(hr)) {
-        *errorMessage = msgNoBreakPointWithId(id, msgComFailed("GetBreakpointById2", hr));
+        *errorMessage = msgNoBreakPointWithId(id, CdbCore::msgComFailed("GetBreakpointById2", hr));
         return 0;
     }
     if (!ibp) {
@@ -458,7 +458,7 @@ static bool removeBreakPointById(CIDebugControl *ctl, unsigned long id, QString 
         return false;
     const HRESULT hr = ctl->RemoveBreakpoint2(ibp);
     if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("Cannot remove breakpoint %1: %2").arg(id).arg(msgComFailed("RemoveBreakpointById2", hr));
+        *errorMessage = QString::fromLatin1("Cannot remove breakpoint %1: %2").arg(id).arg(CdbCore::msgComFailed("RemoveBreakpointById2", hr));
         return false;
     }
     return true;
@@ -486,7 +486,7 @@ static bool setBreakPointEnabledById(CIDebugControl *ctl, unsigned long id, bool
     ULONG flags;
     HRESULT hr = ibp->GetFlags(&flags);
     if (FAILED(hr)) {
-        *errorMessage = msgCannotSetBreakPointEnabled(id, enabled, msgComFailed("GetFlags", hr));
+        *errorMessage = msgCannotSetBreakPointEnabled(id, enabled, CdbCore::msgComFailed("GetFlags", hr));
         return false;
     }
     const bool wasEnabled = (flags & DEBUG_BREAKPOINT_ENABLED);
@@ -500,7 +500,7 @@ static bool setBreakPointEnabledById(CIDebugControl *ctl, unsigned long id, bool
     }
     hr = ibp->SetFlags(flags);
     if (FAILED(hr)) {
-        *errorMessage = msgCannotSetBreakPointEnabled(id, enabled, msgComFailed("SetFlags", hr));
+        *errorMessage = msgCannotSetBreakPointEnabled(id, enabled, CdbCore::msgComFailed("SetFlags", hr));
         return false;
     }
     return true;

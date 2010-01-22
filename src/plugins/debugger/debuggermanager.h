@@ -85,7 +85,7 @@ class IDebuggerEngine;
 class GdbEngine;
 class ScriptEngine;
 class CdbDebugEngine;
-struct CdbDebugEnginePrivate;
+class CdbDebugEnginePrivate;
 struct DebuggerManagerActions;
 class DebuggerPlugin;
 class CdbDebugEventCallback;
@@ -94,7 +94,7 @@ class CdbDumperInitThread;
 class CdbExceptionLoggerEventCallback;
 class GdbEngine;
 class CdbDebugEngine;
-struct CdbDebugEnginePrivate;
+class CdbDebugEnginePrivate;
 } // namespace Internal
 
 class DEBUGGER_EXPORT DebuggerStartParameters
@@ -169,7 +169,7 @@ public:
     friend class Internal::GdbEngine;
     friend class Internal::ScriptEngine;
     friend class Internal::CdbDebugEngine;
-    friend struct Internal::CdbDebugEnginePrivate;
+    friend class Internal::CdbDebugEnginePrivate;
 
     DebuggerState state() const;
     QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);
