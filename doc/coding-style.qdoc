@@ -41,27 +41,7 @@ that you:
 
 \section1 Submitting Code
 
-Send your contributions to qt-creator@trolltech.com
-
-It is implicitly understood that all patches contributed to The Qt Creator
-Project are made under under the Gnu General Public License, version 2 or later
-and currently we require that you sign a copyright assignment form. We are
-working on a better solution.
-
-If you have a problem with that, don't contribute code.
-
-Also please don't just pop up out of the blue with a huge patch (or
-small) that changes something substantial in Qt Creator. Always discuss your
-ideas with the other developers on mailing list first.
-
-When you create the patch, please use git or use "diff -up" since we find
-that a lot easier to read than the other diff formats. Also please do not
-send patches that implement or fixes several different things; several
-patches is a much better option. Or send as your a url to pull from.
-
-We also require you to provide a commit message entry with every patch,
-that describes in detail what the patch is doing.
-
+See http://qt.gitorious.org/qt/pages/QtContributionGuidelines
 
 \section1 Code Constructs
 
