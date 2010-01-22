@@ -199,8 +199,15 @@
 			<string>Editor</string>
 		</dict>
 	</array>
-	<key>CFBundleGetInfoString</key>
-	<string>Qt Creator; Copyright Nokia Corporation</string>
+        <key>NSHumanReadableCopyright</key>
+        <string>(C) 2008-2010 Nokia Corporation
+Commercial Usage
+
+Licensees holding valid Qt Commercial licenses may use this file in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and Nokia.
+
+GNU Lesser General Public License Usage
+
+Alternatively, this plugin may be used under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation and appearing in the file LICENSE.LGPL included in the packaging of this file.  Please review the following information to ensure the GNU Lesser General Public License version 2.1 requirements will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</string>
 	<key>CFBundleIconFile</key>
 	<string>@ICON@</string>
 	<key>CFBundlePackageType</key>
