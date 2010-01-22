@@ -5142,8 +5142,6 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierListAS
                 if (!parseObjCPropertyAttribute(last->value)) {
                     _translationUnit->error(_tokenIndex, "expected token `%s' got `%s'",
                                             Token::name(T_IDENTIFIER), tok().spell());
-                    while (LA() != T_RPAREN)
-                        consumeToken();
                     break;
                 }
             }
@@ -5152,9 +5150,11 @@ bool Parser::parseObjCPropertyDeclaration(DeclarationAST *&node, SpecifierListAS
         match(T_RPAREN, &(ast->rparen_token));
     }
 
-    parseSimpleDeclaration(ast->simple_declaration, /*accept-struct-declarators = */ true);
+    if (parseSimpleDeclaration(ast->simple_declaration, /*accept-struct-declarators = */ true))
+        node = ast;
+    else
+        _translationUnit->error(_tokenIndex, "expected a simple declaration");
 
-    node = ast;
     return true;
 }
 
