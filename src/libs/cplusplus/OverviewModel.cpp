@@ -178,6 +178,8 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
             if (clazz->isCategory())
                 name += QLatin1String(" (") + _overview.prettyName(clazz->categoryName()) + QLatin1Char(')');
         }
+        if (symbol->isObjCPropertyDeclaration())
+            name = QLatin1String("@property ") + name;
         if (symbol->isObjCMethod()) {
             ObjCMethod *method = symbol->asObjCMethod();
             if (method->isStatic())
