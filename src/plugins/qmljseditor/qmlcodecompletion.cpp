@@ -895,7 +895,7 @@ void QmlCodeCompletion::updateSnippets()
     QFile file(qmlsnippets);
     file.open(QIODevice::ReadOnly);
     QXmlStreamReader xml(&file);
-    while (!xml.atEnd() && xml.readNextStartElement()) {
+    if (xml.readNextStartElement()) {
         if (xml.name() == QLatin1String("snippets")) {
             while (xml.readNextStartElement()) {
                 if (xml.name() == QLatin1String("snippet")) {
@@ -919,7 +919,6 @@ void QmlCodeCompletion::updateSnippets()
                             item.icon = icon;
                             m_snippets.append(item);
                             break;
-
                         }
 
                         if (xml.isCharacters())
@@ -933,14 +932,17 @@ void QmlCodeCompletion::updateSnippets()
                                 data += QChar::ObjectReplacementCharacter;
                             }
                         }
-
                     }
+                } else {
+                    xml.skipCurrentElement();
                 }
             }
+        } else {
+            xml.skipCurrentElement();
         }
     }
     if (xml.hasError())
-        qWarning() << qmlsnippets << xml.errorString();
+        qWarning() << qmlsnippets << xml.errorString() << xml.lineNumber() << xml.columnNumber();
     file.close();
 }
 
