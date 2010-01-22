@@ -32,101 +32,31 @@
 using namespace CPlusPlus;
 
 static inline int classify2(const char *s) {
-    if (s[0] == 'N') {
-        if (s[1] == 'O') {
-            return Token_NO;
-        }
+  if (s[0] == 'i') {
+    if (s[1] == 'n') {
+      return Token_in;
     }
-    else if (s[0] == 'i') {
-        if (s[1] == 'd') {
-            return Token_id;
-        }
-        else if (s[1] == 'n') {
-            return Token_in;
-        }
-    }
-    return Token_identifier;
+  }
+  return Token_identifier;
 }
 
 static inline int classify3(const char *s) {
-    if (s[0] == 'I') {
-        if (s[1] == 'M') {
-            if (s[2] == 'P') {
-                return Token_IMP;
-            }
-        }
+  if (s[0] == 'o') {
+    if (s[1] == 'u') {
+      if (s[2] == 't') {
+        return Token_out;
+      }
     }
-    else if (s[0] == 'N') {
-        if (s[1] == 'i') {
-            if (s[2] == 'l') {
-                return Token_Nil;
-            }
-        }
-    }
-    else if (s[0] == 'S') {
-        if (s[1] == 'E') {
-            if (s[2] == 'L') {
-                return Token_SEL;
-            }
-        }
-    }
-    else if (s[0] == 'Y') {
-        if (s[1] == 'E') {
-            if (s[2] == 'S') {
-                return Token_YES;
-            }
-        }
-    }
-    else if (s[0] == 'n') {
-        if (s[1] == 'i') {
-            if (s[2] == 'l') {
-                return Token_nil;
-            }
-        }
-    }
-    else if (s[0] == 'o') {
-        if (s[1] == 'u') {
-            if (s[2] == 't') {
-                return Token_out;
-            }
-        }
-    }
-    return Token_identifier;
+  }
+  return Token_identifier;
 }
 
 static inline int classify4(const char *s) {
-    if (s[0] == '_') {
-        if (s[1] == 'c') {
-            if (s[2] == 'm') {
-                if (s[3] == 'd') {
-                    return Token__cmd;
-                }
-            }
-        }
-    }
-    else if (s[0] == 'B') {
-        if (s[1] == 'O') {
-            if (s[2] == 'O') {
-                if (s[3] == 'L') {
-                    return Token_BOOL;
-                }
-            }
-        }
-    }
-    else if (s[0] == 'c') {
+    if (s[0] == 'c') {
         if (s[1] == 'o') {
             if (s[2] == 'p') {
                 if (s[3] == 'y') {
                     return Token_copy;
-                }
-            }
-        }
-    }
-    else if (s[0] == 's') {
-        if (s[1] == 'e') {
-            if (s[2] == 'l') {
-                if (s[3] == 'f') {
-                    return Token_self;
                 }
             }
         }
@@ -156,17 +86,6 @@ static inline int classify5(const char *s) {
         }
       }
     }
-  }
-  else if (s[0] == 's') {
-      if (s[1] == 'u') {
-          if (s[2] == 'p') {
-              if (s[3] == 'e') {
-                  if (s[4] == 'r') {
-                      return Token_super;
-                  }
-              }
-          }
-      }
   }
   return Token_identifier;
 }
