@@ -832,7 +832,7 @@ public:
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 
-    virtual const ObjCPropertyDeclaration *asOObjCPropertyDeclaration() const
+    virtual const ObjCPropertyDeclaration *asObjCPropertyDeclaration() const
     { return this; }
 
     virtual ObjCPropertyDeclaration *asObjCPropertyDeclaration()
