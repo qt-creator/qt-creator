@@ -3581,20 +3581,6 @@ bool Parser::parseObjCSelectorArg(ObjCSelectorArgumentAST *&selNode, ObjCMessage
     return true;
 }
 
-bool Parser::parseObjCMethodSignature()
-{
-    DEBUG_THIS_RULE();
-    unsigned selector_token = 0;
-    if (parseObjCSelector(selector_token)) {
-        while (LA() == T_COMMA) {
-            consumeToken(); // skip T_COMMA
-            parseObjCSelector(selector_token);
-        }
-        return true;
-    }
-    return false;
-}
-
 bool Parser::parseNameId(NameAST *&name)
 {
     DEBUG_THIS_RULE();

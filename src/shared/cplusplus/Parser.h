@@ -230,7 +230,6 @@ public:
     bool parseObjCProtocolExpression(ExpressionAST *&node);
     bool parseObjCSelectorExpression(ExpressionAST *&node);
     bool parseObjCStringLiteral(ExpressionAST *&node);
-    bool parseObjCMethodSignature();
     bool parseObjCMessageExpression(ExpressionAST *&node);
     bool parseObjCMessageReceiver(ExpressionAST *&node);
     bool parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArgumentListAST *& argNode);
