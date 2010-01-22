@@ -1476,7 +1476,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
     const ushort DOUBLEQUOTE = '"';
 
     ushort unicode, quote = 0;
-    const QChar *str_data = str.data();
+    const ushort *str_data = (const ushort *)str.data();
     const int str_len = str.length();
 
     QString var, args;
@@ -1488,23 +1488,23 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
     QString pending; // Buffer for string segments from variables
     // Only one of the above buffers can be filled at a given time.
     for (int i = 0; i < str_len; ++i) {
-        unicode = str_data[i].unicode();
+        unicode = str_data[i];
         if (unicode == DOLLAR) {
-            if (str_len > i+2 && str_data[i+1].unicode() == DOLLAR) {
+            if (str_len > i+2 && str_data[i+1] == DOLLAR) {
                 ++i;
                 ushort term = 0;
                 enum { VAR, ENVIRON, FUNCTION, PROPERTY } var_type = VAR;
-                unicode = str_data[++i].unicode();
+                unicode = str_data[++i];
                 if (unicode == LSQUARE) {
-                    unicode = str_data[++i].unicode();
+                    unicode = str_data[++i];
                     term = RSQUARE;
                     var_type = PROPERTY;
                 } else if (unicode == LCURLY) {
-                    unicode = str_data[++i].unicode();
+                    unicode = str_data[++i];
                     var_type = VAR;
                     term = RCURLY;
                 } else if (unicode == LPAREN) {
-                    unicode = str_data[++i].unicode();
+                    unicode = str_data[++i];
                     var_type = ENVIRON;
                     term = RPAREN;
                 }
@@ -1518,10 +1518,10 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                         break;
                     if (++i == str_len)
                         break;
-                    unicode = str_data[i].unicode();
+                    unicode = str_data[i];
                     // at this point, i points to either the 'term' or 'next' character (which is in unicode)
                 }
-                var = QString::fromRawData(str_data + name_start, i - name_start);
+                var = QString::fromRawData((QChar*)str_data + name_start, i - name_start);
                 if (var_type == VAR && unicode == LPAREN) {
                     var_type = FUNCTION;
                     name_start = i + 1;
@@ -1529,7 +1529,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                     forever {
                         if (++i == str_len)
                             break;
-                        unicode = str_data[i].unicode();
+                        unicode = str_data[i];
                         if (unicode == LPAREN) {
                             depth++;
                         } else if (unicode == RPAREN) {
@@ -1538,9 +1538,9 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                             --depth;
                         }
                     }
-                    args = QString(str_data + name_start, i - name_start);
+                    args = QString((QChar*)str_data + name_start, i - name_start);
                     if (++i < str_len)
-                        unicode = str_data[i].unicode();
+                        unicode = str_data[i];
                     else
                         unicode = 0;
                     // at this point i is pointing to the 'next' character (which is in unicode)
@@ -1592,7 +1592,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
             }
         } else if (unicode == BACKSLASH) {
             static const char symbols[] = "[]{}()$\\'\"";
-            ushort unicode2 = str_data[i+1].unicode();
+            ushort unicode2 = str_data[i+1];
             if (!(unicode2 & 0xff00) && strchr(symbols, unicode2)) {
                 unicode = unicode2;
                 ++i;
