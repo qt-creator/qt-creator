@@ -727,6 +727,11 @@ QString Qt4Project::displayName() const
     return QFileInfo(file()->fileName()).completeBaseName();
 }
 
+QString Qt4Project::id() const
+{
+    return QLatin1String("Qt4ProjectManager.Qt4Project");
+}
+
 Core::IFile *Qt4Project::file() const
 {
     return m_fileInfo;

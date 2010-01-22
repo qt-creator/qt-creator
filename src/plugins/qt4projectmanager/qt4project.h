@@ -144,6 +144,7 @@ public:
     Internal::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     QString displayName() const;
+    QString id() const;
     Core::IFile *file() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;

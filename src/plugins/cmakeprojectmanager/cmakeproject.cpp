@@ -441,6 +441,11 @@ QString CMakeProject::displayName() const
     return m_projectName;
 }
 
+QString CMakeProject::id() const
+{
+    return QLatin1String("CMakeProjectManager.CMakeProject");
+}
+
 Core::IFile *CMakeProject::file() const
 {
     return m_file;

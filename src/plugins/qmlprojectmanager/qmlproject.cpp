@@ -226,6 +226,11 @@ QString QmlProject::displayName() const
     return m_projectName;
 }
 
+QString QmlProject::id() const
+{
+    return QLatin1String("QmlProjectManager.QmlProject");
+}
+
 Core::IFile *QmlProject::file() const
 {
     return m_file;

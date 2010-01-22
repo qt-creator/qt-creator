@@ -159,6 +159,7 @@ public:
     QString filesFileName() const;
 
     virtual QString displayName() const;
+    virtual QString id() const;
     virtual Core::IFile *file() const;
     virtual Internal::Manager *projectManager() const;
     virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;

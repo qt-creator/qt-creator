@@ -75,6 +75,7 @@ public:
     CMakeBuildConfiguration *activeCMakeBuildConfiguration() const;
 
     virtual QString displayName() const;
+    virtual QString id() const;
     virtual Core::IFile *file() const;
     virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
     virtual CMakeManager *projectManager() const;
