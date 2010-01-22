@@ -367,7 +367,7 @@ void FakeVimExCommandsPage::initialize()
         if (s_exCommandMap.contains(name)) {
             ci->m_regex = s_exCommandMap[name].pattern();
         } else {
-            ci->m_regex = "";
+            ci->m_regex.clear();
         }
 
         item->setText(2, ci->m_regex);
@@ -380,7 +380,7 @@ void FakeVimExCommandsPage::initialize()
 void FakeVimExCommandsPage::commandChanged(QTreeWidgetItem *current)
 {
     if (!current || !current->data(0, Qt::UserRole).isValid()) {
-        m_ui.regexEdit->setText("");
+        m_ui.regexEdit->setText(QString());
         m_ui.seqGrp->setEnabled(false);
         return;
     }
@@ -449,7 +449,7 @@ void FakeVimExCommandsPage::resetRegex()
         if (s_defaultExCommandMap.contains(name))
             setRegex(s_defaultExCommandMap[name].pattern());
         else
-            setRegex("");
+            setRegex(QString());
     }
 }
 
@@ -466,7 +466,7 @@ void FakeVimExCommandsPage::defaultAction()
         if (s_defaultExCommandMap.contains(name)) {
             item->m_regex = s_defaultExCommandMap[name].pattern();
         } else {
-            item->m_regex = "";
+            item->m_regex.clear();
         }
         item->m_item->setText(2, item->m_regex);
         if (item->m_item == m_ui.commandList->currentItem())
@@ -842,7 +842,7 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     
     // pop up the bar
     if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool())
-       showCommandBuffer("");
+       showCommandBuffer(QString());
 }
 
 void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)

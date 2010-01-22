@@ -56,7 +56,7 @@ class ActionContainerPrivate;
 class MainWindow;
 class CommandPrivate;
 
-class CORE_EXPORT ActionManagerPrivate : public Core::ActionManager
+class ActionManagerPrivate : public Core::ActionManager
 {
     Q_OBJECT
 
