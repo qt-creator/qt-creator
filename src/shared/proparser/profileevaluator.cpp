@@ -29,6 +29,7 @@
 
 #include "profileevaluator.h"
 #include "proitems.h"
+#include "ioutils.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QDateTime>
@@ -60,6 +61,8 @@
 #define QT_POPEN popen
 #define QT_PCLOSE pclose
 #endif
+
+using namespace ProFileEvaluatorInternal;
 
 QT_BEGIN_NAMESPACE
 
@@ -240,6 +243,8 @@ public:
     QString currentFileName() const;
     QString currentDirectory() const;
     ProFile *currentProFile() const;
+    QString resolvePath(const QString &fileName) const
+        { return IoUtils::resolvePath(currentDirectory(), fileName); }
 
     ProItem::ProItemReturn evaluateConditionalFunction(const QString &function, const QString &arguments);
     ProFile *parsedProFile(const QString &fileName, bool cache,
@@ -328,7 +333,8 @@ bool ProFileEvaluator::Private::read(ProFile *pro)
 {
     QFile file(pro->fileName());
     if (!file.open(QIODevice::ReadOnly)) {
-        errorMessage(format("%1 not readable.").arg(pro->fileName()));
+        if (IoUtils::exists(pro->fileName()))
+            errorMessage(format("%1 not readable.").arg(pro->fileName()));
         return false;
     }
 
@@ -1022,8 +1028,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                 if (qmake_cache.isEmpty() && !m_outputDir.isEmpty())  { //find it as it has not been specified
                     QDir dir(m_outputDir);
                     forever {
-                        qmake_cache = dir.filePath(QLatin1String(".qmake.cache"));
-                        if (QFile::exists(qmake_cache))
+                        qmake_cache = dir.path() + QLatin1String("/.qmake.cache");
+                        if (IoUtils::exists(qmake_cache))
                             break;
                         if (!dir.cdUp() || dir.isRoot()) {
                             qmake_cache.clear();
@@ -1050,8 +1056,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                 if (qmakespec.isEmpty()) {
                     foreach (const QString &root, mkspec_roots) {
                         QString mkspec = root + QLatin1String("/default");
-                        QFileInfo default_info(mkspec);
-                        if (default_info.exists() && default_info.isDir()) {
+                        if (IoUtils::fileType(mkspec) == IoUtils::FileIsDir) {
                             qmakespec = mkspec;
                             break;
                         }
@@ -1062,17 +1067,17 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
                     }
                 }
 
-                if (QDir::isRelativePath(qmakespec)) {
-                    if (QFile::exists(qmakespec + QLatin1String("/qmake.conf"))) {
-                        qmakespec = QFileInfo(qmakespec).absoluteFilePath();
+                if (IoUtils::isRelativePath(qmakespec)) {
+                    if (IoUtils::exists(qmakespec + QLatin1String("/qmake.conf"))) {
+                        qmakespec = currentDirectory() + QLatin1Char('/') + qmakespec;
                     } else if (!m_outputDir.isEmpty()
-                               && QFile::exists(m_outputDir + QLatin1Char('/') + qmakespec
-                                                + QLatin1String("/qmake.conf"))) {
+                               && IoUtils::exists(m_outputDir + QLatin1Char('/') + qmakespec
+                                                  + QLatin1String("/qmake.conf"))) {
                         qmakespec = m_outputDir + QLatin1Char('/') + qmakespec;
                     } else {
                         foreach (const QString &root, mkspec_roots) {
                             QString mkspec = root + QLatin1Char('/') + qmakespec;
-                            if (QFile::exists(mkspec)) {
+                            if (IoUtils::exists(mkspec)) {
                                 qmakespec = mkspec;
                                 goto cool;
                             }
@@ -1260,7 +1265,7 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
         while (!specdir.isRoot()) {
             if (!specdir.cdUp() || specdir.isRoot())
                 break;
-            if (QFile::exists(specdir.path() + features_concat)) {
+            if (IoUtils::exists(specdir.path() + features_concat)) {
                 foreach (const QString &concat_it, concat)
                     feature_roots << (specdir.path() + concat_it);
                 break;
@@ -1892,7 +1897,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 logMessage(format("fromfile(file, variable) requires two arguments."));
             } else {
                 QHash<QString, QStringList> vars;
-                if (evaluateFileInto(args.at(0), &vars, 0))
+                if (evaluateFileInto(resolvePath(args.at(0)), &vars, 0))
                     ret = vars.value(args.at(1));
             }
             break;
@@ -2036,7 +2041,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                         if (qdir[i] == QLatin1String(".") || qdir[i] == QLatin1String(".."))
                             continue;
                         QString fname = dir + qdir[i];
-                        if (QFileInfo(fname).isDir()) {
+                        if (IoUtils::fileType(fname) == IoUtils::FileIsDir) {
                             if (recursive)
                                 dirs.append(fname);
                         }
@@ -2205,7 +2210,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("infile(file, var, [values]) requires two or three arguments."));
             } else {
                 QHash<QString, QStringList> vars;
-                if (!evaluateFileInto(args.at(0), &vars, 0))
+                if (!evaluateFileInto(resolvePath(args.at(0)), &vars, 0))
                     return ProItem::ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
@@ -2526,12 +2531,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("include(file) requires one, two or three arguments."));
                 return ProItem::ReturnFalse;
             }
-            QString fileName = args.first();
-            // ### this breaks if we have include(c:/reallystupid.pri) but IMHO that's really bad style.
-            QDir currentProPath(currentDirectory());
-            fileName = QDir::cleanPath(currentProPath.absoluteFilePath(fileName));
             State sts = m_sts;
-            bool ok = evaluateFile(fileName);
+            bool ok = evaluateFile(resolvePath(args.first()));
             m_sts = sts;
             return returnBool(ok);
         }
@@ -2595,7 +2596,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             QString file = args.first();
             file = fixPathToLocalOS(file);
 
-            if (QFile::exists(file)) {
+            if (IoUtils::exists(file)) {
                 return ProItem::ReturnTrue;
             }
             //regular expression I guess
@@ -2648,7 +2649,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
     if (variableName == QLatin1String("_PRO_FILE_"))
         return QStringList(m_profileStack.first()->fileName());
     if (variableName == QLatin1String("_PRO_FILE_PWD_"))
-        return  QStringList(QFileInfo(m_profileStack.first()->fileName()).absolutePath());
+        return QStringList(m_profileStack.first()->directoryName());
     if (variableName == QLatin1String("_QMAKE_CACHE_"))
         return QStringList(m_option->cachefile);
     if (variableName.startsWith(QLatin1String("QMAKE_HOST."))) {
@@ -2763,16 +2764,14 @@ ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool 
 
 bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
 {
-    QFileInfo fi(fileName);
-    if (!fi.exists())
+    if (fileName.isEmpty())
         return false;
-    QString fn = QDir::cleanPath(fi.absoluteFilePath());
     foreach (const ProFile *pf, m_profileStack)
-        if (pf->fileName() == fn) {
-            errorMessage(format("circular inclusion of %1").arg(fn));
+        if (pf->fileName() == fileName) {
+            errorMessage(format("circular inclusion of %1").arg(fileName));
             return false;
         }
-    if (ProFile *pro = parsedProFile(fn, true)) {
+    if (ProFile *pro = parsedProFile(fileName, true)) {
         q->aboutToEval(pro);
         bool ok = (pro->Accept(this) == ProItem::ReturnTrue);
         pro->deref();
@@ -2789,12 +2788,12 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
     if (!fn.endsWith(QLatin1String(".prf")))
         fn += QLatin1String(".prf");
 
-    if (!fileName.contains((ushort)'/') || !QFile::exists(fn)) {
+    if (!fileName.contains((ushort)'/') || !IoUtils::exists(fn)) {
         if (m_option->feature_roots.isEmpty())
             m_option->feature_roots = qmakeFeaturePaths();
         int start_root = 0;
         QString currFn = currentFileName();
-        if (QFileInfo(currFn).fileName() == QFileInfo(fn).fileName()) {
+        if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {
             for (int root = 0; root < m_option->feature_roots.size(); ++root)
                 if (m_option->feature_roots.at(root) + fn == currFn) {
                     start_root = root + 1;
@@ -2803,7 +2802,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         }
         for (int root = start_root; root < m_option->feature_roots.size(); ++root) {
             QString fname = m_option->feature_roots.at(root) + fn;
-            if (QFileInfo(fname).exists()) {
+            if (IoUtils::exists(fname)) {
                 fn = fname;
                 goto cool;
             }
@@ -2817,7 +2816,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
             return true;
         already.append(fn);
     } else {
-        fn = QDir::cleanPath(fn);
+        fn = resolvePath(fn);
     }
 
     if (values) {
@@ -2924,9 +2923,9 @@ QStringList ProFileEvaluator::absolutePathValues(
 {
     QStringList result;
     foreach (const QString &el, values(variable)) {
-        const QFileInfo info = QFileInfo(baseDirectory, el);
-        if (info.isDir())
-            result << QDir::cleanPath(info.absoluteFilePath());
+        QString absEl = IoUtils::resolvePath(baseDirectory, el);
+        if (IoUtils::fileType(absEl) == IoUtils::FileIsDir)
+            result << QDir::cleanPath(absEl);
     }
     return result;
 }
@@ -2937,33 +2936,37 @@ QStringList ProFileEvaluator::absoluteFileValues(
 {
     QStringList result;
     foreach (const QString &el, pro ? values(variable, pro) : values(variable)) {
-        QFileInfo info(el);
-        if (info.isAbsolute()) {
-            if (info.exists()) {
+        QString absEl;
+        if (IoUtils::isAbsolutePath(el)) {
+            if (IoUtils::exists(el)) {
                 result << QDir::cleanPath(el);
                 goto next;
             }
+            absEl = el;
         } else {
             foreach (const QString &dir, searchDirs) {
-                QFileInfo info(dir, el);
-                if (info.isFile()) {
-                    result << QDir::cleanPath(info.filePath());
+                QString fn = dir + QLatin1Char('/') + el;
+                if (IoUtils::exists(fn)) {
+                    result << QDir::cleanPath(fn);
                     goto next;
                 }
             }
             if (baseDirectory.isEmpty())
                 goto next;
-            info = QFileInfo(baseDirectory, el);
+            absEl = baseDirectory + QLatin1Char('/') + el;
         }
         {
-            QFileInfo baseInfo(info.absolutePath());
-            if (baseInfo.exists()) {
-                QString wildcard = info.fileName();
+            absEl = QDir::cleanPath(absEl);
+            int nameOff = absEl.lastIndexOf(QLatin1Char('/'));
+            QString absDir = QString::fromRawData(absEl.constData(), nameOff);
+            if (IoUtils::exists(absDir)) {
+                QString wildcard = QString::fromRawData(absEl.constData() + nameOff + 1,
+                                                        absEl.length() - nameOff - 1);
                 if (wildcard.contains(QLatin1Char('*')) || wildcard.contains(QLatin1Char('?'))) {
-                    QDir theDir(QDir::cleanPath(baseInfo.filePath()));
+                    QDir theDir(absDir);
                     foreach (const QString &fn, theDir.entryList(QStringList(wildcard)))
                         if (fn != QLatin1String(".") && fn != QLatin1String(".."))
-                            result << theDir.absoluteFilePath(fn);
+                            result << absDir + QLatin1Char('/') + fn;
                 } // else if (acceptMissing)
             }
         }

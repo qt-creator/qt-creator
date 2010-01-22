@@ -90,6 +90,7 @@ public:
     void setConfigCommandLineArguments(const QStringList &addUserConfigCmdArgs, const QStringList &removeUserConfigCmdArgs);
     void setParsePreAndPostFiles(bool on); // Default is true
 
+    // fileName is expected to be absolute and cleanPath()ed.
     // If contents is non-null, it will be used instead of the file's actual content
     ProFile *parsedProFile(const QString &fileName, const QString &contents = QString());
     bool accept(ProFile *pro);

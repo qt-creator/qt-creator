@@ -260,9 +260,11 @@ ProFile::ProFile(const QString &fileName)
     setBlockKind(ProBlock::ProFileKind);
     m_fileName = fileName;
 
-    QFileInfo fi(fileName);
-    m_displayFileName = fi.fileName();
-    m_directoryName = fi.absolutePath();
+    // If the full name does not outlive the parts, things will go boom ...
+    int nameOff = fileName.lastIndexOf(QLatin1Char('/'));
+    m_displayFileName = QString::fromRawData(fileName.constData() + nameOff + 1,
+                                             fileName.length() - nameOff - 1);
+    m_directoryName = QString::fromRawData(fileName.constData(), nameOff);
 }
 
 ProFile::~ProFile()
