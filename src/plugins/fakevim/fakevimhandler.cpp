@@ -1716,10 +1716,16 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = ChangeSubMode;
         m_movetype = MoveLineWise;
         finishMovement();
+    } else if (m_gflag && key == 't') {
+        m_gflag = false;
+        handleCommand("tabnext");
     } else if (key == 't') {
         m_movetype = MoveInclusive;
         m_subsubmode = FtSubSubMode;
         m_subsubdata = key;
+    } else if (m_gflag && key == 'T') {
+        m_gflag = false;
+        handleCommand("tabprev");
     } else if (key == 'T') {
         m_movetype = MoveExclusive;
         m_subsubmode = FtSubSubMode;
