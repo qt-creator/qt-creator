@@ -56,98 +56,98 @@ FancyToolButton::FancyToolButton(QWidget *parent)
 void FancyToolButton::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
-    QPainter p(this);
+    QPainter painter(this);
 
+    // draw borders
     QLayout *parentLayout = qobject_cast<FancyActionBar*>(parentWidget())->actionsLayout();
-    int lineHeight = fontMetrics().height();
     bool isTitledAction = defaultAction()->property("titledAction").toBool();
 
 #ifndef Q_WS_MAC // Mac UIs usually don't hover
     if (underMouse() && isEnabled() && !isDown()) {
         QColor whiteOverlay(Qt::white);
         whiteOverlay.setAlpha(20);
-        p.fillRect(rect().adjusted(1,  1, -1, -1), whiteOverlay);
+        painter.fillRect(rect().adjusted(1,  1, -1, -1), whiteOverlay);
     }
 #endif
 
     if (isDown()) {
         QColor whiteOverlay(Qt::black);
         whiteOverlay.setAlpha(20);
-        p.fillRect(rect().adjusted(1,  1, -1, -1), whiteOverlay);
+        painter.fillRect(rect().adjusted(1,  1, -1, -1), whiteOverlay);
     }
 
-        QPixmap borderPixmap;
-        QMargins margins;
-        if (parentLayout && parentLayout->count() > 0 &&
-            parentLayout->itemAt(parentLayout->count()-1)->widget() == this) {
-            margins = QMargins(3, 3, 2, 0);
-            borderPixmap = QPixmap(
-                    QLatin1String(":/fancyactionbar/images/fancytoolbutton_bottom_outline.png"));
-        } else if (parentLayout && parentLayout->count() > 0 &&
-                   parentLayout->itemAt(0)->widget() == this) {
-            margins = QMargins(3, 3, 2, 3);
-            borderPixmap = QPixmap(
-                    QLatin1String(":/fancyactionbar/images/fancytoolbutton_top_outline.png"));
-        } else {
-            margins = QMargins(3, 3, 2, 0);
-            borderPixmap = QPixmap(
-                    QLatin1String(":/fancyactionbar/images/fancytoolbutton_normal_outline.png"));
-        }
-
-        QRect drawRect = rect();
-        qDrawBorderPixmap(&p, drawRect, margins, borderPixmap);
-
-        QPixmap pix = icon().pixmap(size() - QSize(15, 15), isEnabled() ? QIcon::Normal : QIcon::Disabled);
-        QPoint center = rect().center();
-        QSize halfPixSize = pix.size()/2;
-
-    p.drawPixmap(center-QPoint(halfPixSize.width()-1, halfPixSize.height()-1), pix);
-
-    if (popupMode() == QToolButton::DelayedPopup && !isTitledAction) {
-        QPoint arrowOffset = center + QPoint(pix.rect().width()/2, pix.rect().height()/2);
-        QStyleOption opt;
-        if (isEnabled())
-            opt.state &= QStyle::State_Enabled;
-        else
-            opt.state |= QStyle::State_Enabled;
-        opt.rect = QRect(arrowOffset.x(), arrowOffset.y(), 6, 6);
-        style()->drawPrimitive(QStyle::PE_IndicatorArrowDown,
-                               &opt, &p, this);
+    QPixmap borderPixmap;
+    QMargins margins;
+    if (parentLayout && parentLayout->count() > 0 &&
+        parentLayout->itemAt(parentLayout->count()-1)->widget() == this) {
+        margins = QMargins(3, 3, 2, 0);
+        borderPixmap = QPixmap(
+                QLatin1String(":/fancyactionbar/images/fancytoolbutton_bottom_outline.png"));
+    } else if (parentLayout && parentLayout->count() > 0 &&
+               parentLayout->itemAt(0)->widget() == this) {
+        margins = QMargins(3, 3, 2, 3);
+        borderPixmap = QPixmap(
+                QLatin1String(":/fancyactionbar/images/fancytoolbutton_top_outline.png"));
+    } else {
+        margins = QMargins(3, 3, 2, 0);
+        borderPixmap = QPixmap(
+                QLatin1String(":/fancyactionbar/images/fancytoolbutton_normal_outline.png"));
     }
 
+    // draw pixmap
+    QRect drawRect = rect();
+    qDrawBorderPixmap(&painter, drawRect, margins, borderPixmap);
+
+    QPixmap pix = icon().pixmap(32, 32, isEnabled() ? QIcon::Normal : QIcon::Disabled);
+    QPoint center = rect().center();
+    QSizeF halfPixSize = pix.size()/2.0;
+
+    painter.drawPixmap(center-QPointF(halfPixSize.width()-1, halfPixSize.height()-1), pix);
+
+    // draw popup texts
     if (isTitledAction) {
-        QRect r(0, lineHeight/2, rect().width(), lineHeight);
+        QFont normalFont(painter.font());
+        normalFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
+        QFont boldFont(normalFont);
+        boldFont.setBold(true);
+        QFontMetrics fm(normalFont);
+        QFontMetrics boldFm(boldFont);
+        int lineHeight = boldFm.height();
+
+        int textFlags = Qt::AlignVCenter|Qt::AlignHCenter;
+
+        painter.setFont(normalFont);
+
+        QPoint textOffset = center - QPoint(pix.rect().width()/2, pix.rect().height()/2);
+        textOffset = textOffset - QPoint(0, lineHeight+5);
+        QRectF r(0, textOffset.y(), rect().width(), lineHeight);
         QColor penColor;
         if (isEnabled())
             penColor = Qt::white;
         else
             penColor = Qt::gray;
-        p.setPen(penColor);
+        painter.setPen(penColor);
         const QString projectName = defaultAction()->property("heading").toString();
-        QFont f = font();
-        f.setPointSize(f.pointSize()-1);
-        p.setFont(f);
-        QFontMetrics fm(f);
         QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, r.width());
         if (isEnabled()) {
-            const QRect shadowR = r.translated(0, 1);
-            p.setPen(Qt::black);
-            p.drawText(shadowR, Qt::AlignVCenter|Qt::AlignHCenter, ellidedProjectName);
-            p.setPen(penColor);
+            const QRectF shadowR = r.translated(0, 1);
+            painter.setPen(QColor(30, 30, 30, 80));
+            painter.drawText(shadowR, textFlags, ellidedProjectName);
+            painter.setPen(penColor);
         }
-        p.drawText(r, Qt::AlignVCenter|Qt::AlignHCenter, ellidedProjectName);
-        r = QRect(0, rect().bottom()-lineHeight*1.5, rect().width(), lineHeight);
+        painter.drawText(r, textFlags, ellidedProjectName);
+        textOffset = center + QPoint(pix.rect().width()/2, pix.rect().height()/2);
+        r = QRectF(0, textOffset.y()+5, rect().width(), lineHeight);
         const QString buildConfiguration = defaultAction()->property("subtitle").toString();
-        f.setBold(true);
-        p.setFont(f);
-        QString ellidedBuildConfiguration = fm.elidedText(buildConfiguration, Qt::ElideMiddle, r.width());
+        painter.setFont(boldFont);
+        QString ellidedBuildConfiguration = boldFm.elidedText(buildConfiguration, Qt::ElideMiddle, r.width());
         if (isEnabled()) {
-            const QRect shadowR = r.translated(0, 1);
-            p.setPen(Qt::black);
-            p.drawText(shadowR, Qt::AlignVCenter|Qt::AlignHCenter, ellidedBuildConfiguration);
-            p.setPen(penColor);
+            const QRectF shadowR = r.translated(0, 1);
+            painter.setPen(QColor(30, 30, 30, 80));
+            painter.drawText(shadowR, textFlags, ellidedBuildConfiguration);
+            painter.setPen(penColor);
         }
-        p.drawText(r, Qt::AlignVCenter|Qt::AlignHCenter, ellidedBuildConfiguration);
+        painter.drawText(r, textFlags, ellidedBuildConfiguration);
     }
 
 }
@@ -156,15 +156,19 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 }
-
 QSize FancyToolButton::sizeHint() const
 {
-    QSize buttonSize = iconSize().expandedTo(QSize(64, 40));
+    QSizeF buttonSize = iconSize().expandedTo(QSize(64, 40));
     if (defaultAction()->property("titledAction").toBool()) {
-        int lineHeight = fontMetrics().height();
-        buttonSize += QSize(0, lineHeight*4);
+        QFont boldFont(font());
+        boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
+        boldFont.setBold(true);
+        QFontMetrics fm(boldFont);
+        qreal lineHeight = fm.height();
+        buttonSize += QSizeF(0, (lineHeight*3.5));
+
     }
-    return buttonSize;
+    return buttonSize.toSize();
 }
 
 QSize FancyToolButton::minimumSizeHint() const
@@ -209,36 +213,12 @@ void FancyActionBar::addProjectSelector(QAction *action)
     m_actionsLayout->insertWidget(0, toolButton);
 
 }
-void FancyActionBar::insertAction(int index, QAction *action, QMenu *menu)
+void FancyActionBar::insertAction(int index, QAction *action)
 {
     FancyToolButton *toolButton = new FancyToolButton(this);
     toolButton->setDefaultAction(action);
     connect(action, SIGNAL(changed()), toolButton, SLOT(actionChanged()));
-
-    if (menu) {
-        toolButton->setMenu(menu);
-        toolButton->setPopupMode(QToolButton::DelayedPopup);
-
-        // execute action also if a context menu item is select
-        connect(toolButton, SIGNAL(triggered(QAction*)),
-                this, SLOT(toolButtonContextMenuActionTriggered(QAction*)),
-                Qt::QueuedConnection);
-    }
     m_actionsLayout->insertWidget(index, toolButton);
-}
-
-/*
-  This slot is invoked when a context menu action of a tool button is triggered.
-  In this case we also want to trigger the default action of the button.
-
-  This allows the user e.g. to select and run a specific run configuration with one click.
-  */
-void FancyActionBar::toolButtonContextMenuActionTriggered(QAction* action)
-{
-    if (QToolButton *button = qobject_cast<QToolButton*>(sender())) {
-        if (action != button->defaultAction())
-            button->defaultAction()->trigger();
-    }
 }
 
 QLayout *FancyActionBar::actionsLayout() const

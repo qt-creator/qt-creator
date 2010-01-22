@@ -191,7 +191,7 @@ void ModeManager::aboutToRemoveObject(QObject *obj)
     m_mainWindow->removeContextObject(mode);
 }
 
-void ModeManager::addAction(Command *command, int priority, QMenu *menu)
+void ModeManager::addAction(Command *command, int priority)
 {
     m_actions.insert(command, priority);
 
@@ -202,7 +202,7 @@ void ModeManager::addAction(Command *command, int priority, QMenu *menu)
             ++index;
     }
 
-    m_actionBar->insertAction(index, command->action(), menu);
+    m_actionBar->insertAction(index, command->action());
 }
 
 void ModeManager::addProjectSelector(QAction *action)

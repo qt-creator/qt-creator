@@ -68,7 +68,7 @@ public:
     IMode* currentMode() const;
     IMode* mode(const QString &id) const;
 
-    void addAction(Command *command, int priority, QMenu *menu = 0);
+    void addAction(Command *command, int priority);
     void addProjectSelector(QAction *action);
     void addWidget(QWidget *widget);
 

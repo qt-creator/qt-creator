@@ -35,13 +35,13 @@ MiniTargetWidget::MiniTargetWidget(Project *project, QWidget *parent) :
     m_runComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
     int fontSize = font().pointSize();
-    setStyleSheet(QString("QWidget { font-size: %1pt; color: white; } "
-                          "QLabel#targetName {  font-size: %2pt; font-weight: bold; } "
-                          "QComboBox { background-color: transparent; margin: 0; border: none; } "
-                          "QComboBox QWidget { background-color: %3 } "
-                          "QComboBox::drop-down { border: none; }"
-                          "QComboBox::down-arrow { image: url(:/welcome/images/combobox_arrow.png); } "
-                          ).arg(fontSize-1).arg(fontSize).arg(Utils::StyleHelper::baseColor().name()));
+    setStyleSheet(QString::fromLatin1("QWidget { font-size: %1pt; color: white; } "
+                                      "QLabel#targetName {  font-size: %2pt; font-weight: bold; } "
+                                      "QComboBox { background-color: transparent; margin: 0; border: none; } "
+                                      "QComboBox QWidget { background-color: %3;  border: 1px solid lightgrey; } "
+                                      "QComboBox::drop-down { border: none; }"
+                                      "QComboBox::down-arrow { image: url(:/welcome/images/combobox_arrow.png); } "
+                                      ).arg(fontSize-1).arg(fontSize).arg(Utils::StyleHelper::baseColor().name()));
 
     QGridLayout *gridLayout = new QGridLayout(this);
 
@@ -217,8 +217,8 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
 {
     QTC_ASSERT(project, return);
     ProjectListWidget *targetList = new ProjectListWidget(project);
-    targetList->setStyleSheet(QString("QListWidget { background: %1; border: none; }")
-                        .arg(Utils::StyleHelper::baseColor().name()));
+    targetList->setStyleSheet(QString::fromLatin1("QListWidget { background: %1; border: none; }")
+                              .arg(Utils::StyleHelper::baseColor().name()));
     int pos = m_widgetStack->addWidget(targetList);
 
     m_projectsBox->addItem(project->displayName(), QVariant::fromValue(project));

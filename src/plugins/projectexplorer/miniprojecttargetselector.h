@@ -31,6 +31,7 @@ public:
     {
         setFocusPolicy(Qt::NoFocus);
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setAlternatingRowColors(false);
     }
 
     ProjectExplorer::Project *project() const

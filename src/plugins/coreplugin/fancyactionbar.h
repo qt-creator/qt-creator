@@ -64,12 +64,10 @@ public:
     FancyActionBar(QWidget *parent = 0);
 
     void paintEvent(QPaintEvent *event);
-    void insertAction(int index, QAction *action, QMenu *menu = 0);
+    void insertAction(int index, QAction *action);
     void addProjectSelector(QAction *action);
     QLayout *actionsLayout() const;
 
-private slots:
-    void toolButtonContextMenuActionTriggered(QAction*);
 private:
     QVBoxLayout *m_actionsLayout;
 };

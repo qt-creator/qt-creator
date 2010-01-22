@@ -566,7 +566,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mbuild->addAction(cmd, Constants::G_BUILD_SESSION);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
     // Add to mode bar
-    modeManager->addAction(cmd, Constants::P_ACTION_BUILDSESSION, d->m_buildConfigurationMenu);
+    modeManager->addAction(cmd, Constants::P_ACTION_BUILDSESSION);
 
     // rebuild session action
     QIcon rebuildIcon(Constants::ICON_REBUILD);
@@ -647,7 +647,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(mbuild->menu(), SIGNAL(aboutToShow()), this, SLOT(populateRunConfigurationMenu()));
     connect(d->m_runConfigurationMenu, SIGNAL(triggered(QAction *)), this, SLOT(runConfigurationMenuTriggered(QAction *)));
 
-    modeManager->addAction(cmd, Constants::P_ACTION_RUN, d->m_runConfigurationMenu);
+    modeManager->addAction(cmd, Constants::P_ACTION_RUN);
 
     d->m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
     cmd = am->registerAction(d->m_runActionContextMenu, Constants::RUNCONTEXTMENU, globalcontext);
@@ -668,7 +668,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd->setDefaultText(tr("Start Debugging"));
     cmd->setDefaultKeySequence(QKeySequence(tr("F5")));
     mstartdebugging->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
-    modeManager->addAction(cmd, Constants::P_ACTION_DEBUG, d->m_runConfigurationMenu);
+    modeManager->addAction(cmd, Constants::P_ACTION_DEBUG);
 
     // add new file action
     d->m_addNewFileAction = new QAction(tr("Add New..."), this);
