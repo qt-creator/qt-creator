@@ -243,11 +243,17 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             return -1;
     }
 
+    const QFileInfo currentFileInfo(qmlDocument->fileName());
+    const QString currentFilePath = currentFileInfo.absolutePath();
+
     const QIcon typeIcon = iconForColor(Qt::yellow);
 
     foreach (QmlJS::Document::Ptr doc, snapshot) {
         const QFileInfo fileInfo(doc->fileName());
+
         if (fileInfo.suffix() != QLatin1String("qml"))
+            continue;
+        else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME includ `imported' components
             continue;
 
         const QString typeName = fileInfo.baseName();
