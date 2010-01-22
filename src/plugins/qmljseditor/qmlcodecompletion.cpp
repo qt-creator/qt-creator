@@ -40,13 +40,21 @@
 #include <texteditor/basetexteditor.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QXmlStreamReader>
-#include <QtGui/QPainter>
+#include <QtCore/QDebug>
 
-#include <QtDebug>
+#include <QtGui/QPainter>
+#include <QtGui/QLabel>
+#include <QtGui/QStylePainter>
+#include <QtGui/QStyleOption>
+#include <QtGui/QToolButton>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
@@ -223,6 +231,239 @@ private:
 
 } // end of anonymous namespace
 
+namespace QmlJSEditor {
+namespace Internal {
+
+class FakeToolTipFrame : public QWidget
+{
+public:
+    FakeToolTipFrame(QWidget *parent = 0) :
+        QWidget(parent, Qt::ToolTip | Qt::WindowStaysOnTopHint)
+    {
+        setFocusPolicy(Qt::NoFocus);
+        setAttribute(Qt::WA_DeleteOnClose);
+
+        // Set the window and button text to the tooltip text color, since this
+        // widget draws the background as a tooltip.
+        QPalette p = palette();
+        const QColor toolTipTextColor = p.color(QPalette::Inactive, QPalette::ToolTipText);
+        p.setColor(QPalette::Inactive, QPalette::WindowText, toolTipTextColor);
+        p.setColor(QPalette::Inactive, QPalette::ButtonText, toolTipTextColor);
+        setPalette(p);
+    }
+
+protected:
+    void paintEvent(QPaintEvent *e);
+    void resizeEvent(QResizeEvent *e);
+};
+
+class FunctionArgumentWidget : public QLabel
+{
+public:
+    FunctionArgumentWidget();
+    void showFunctionHint(const QString &functionName, int minimumArgumentCount, int startPosition);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *e);
+
+private:
+    void updateArgumentHighlight();
+    void updateHintText();
+
+    QString m_functionName;
+    int m_minimumArgumentCount;
+    int m_startpos;
+    int m_currentarg;
+    int m_current;
+    bool m_escapePressed;
+
+    TextEditor::ITextEditor *m_editor;
+
+    QWidget *m_pager;
+    QLabel *m_numberLabel;
+    FakeToolTipFrame *m_popupFrame;
+};
+
+void FakeToolTipFrame::paintEvent(QPaintEvent *)
+{
+    QStylePainter p(this);
+    QStyleOptionFrame opt;
+    opt.init(this);
+    p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
+    p.end();
+}
+
+void FakeToolTipFrame::resizeEvent(QResizeEvent *)
+{
+    QStyleHintReturnMask frameMask;
+    QStyleOption option;
+    option.init(this);
+    if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
+        setMask(frameMask.region);
+}
+
+
+FunctionArgumentWidget::FunctionArgumentWidget():
+    m_minimumArgumentCount(0),
+    m_startpos(-1),
+    m_current(0),
+    m_escapePressed(false)
+{
+    QObject *editorObject = Core::EditorManager::instance()->currentEditor();
+    m_editor = qobject_cast<TextEditor::ITextEditor *>(editorObject);
+
+    m_popupFrame = new FakeToolTipFrame(m_editor->widget());
+
+    setParent(m_popupFrame);
+    setFocusPolicy(Qt::NoFocus);
+
+    m_pager = new QWidget;
+    QHBoxLayout *hbox = new QHBoxLayout(m_pager);
+    hbox->setMargin(0);
+    hbox->setSpacing(0);
+    m_numberLabel = new QLabel;
+    hbox->addWidget(m_numberLabel);
+
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(m_pager);
+    layout->addWidget(this);
+    m_popupFrame->setLayout(layout);
+
+    setTextFormat(Qt::RichText);
+    setMargin(1);
+
+    qApp->installEventFilter(this);
+}
+
+void FunctionArgumentWidget::showFunctionHint(const QString &functionName, int mininumArgumentCount, int startPosition)
+{
+    if (m_startpos == startPosition)
+        return;
+
+    m_functionName = functionName;
+    m_minimumArgumentCount = mininumArgumentCount;
+    m_startpos = startPosition;
+    m_current = 0;
+    m_escapePressed = false;
+
+    // update the text
+    m_currentarg = -1;
+    updateArgumentHighlight();
+
+    m_popupFrame->show();
+}
+
+void FunctionArgumentWidget::updateArgumentHighlight()
+{
+    int curpos = m_editor->position();
+    if (curpos < m_startpos) {
+        m_popupFrame->close();
+        return;
+    }
+
+    updateHintText();
+
+
+#if 0
+    QString str = m_editor->textAt(m_startpos, curpos - m_startpos);
+    int argnr = 0;
+    int parcount = 0;
+    SimpleLexer tokenize;
+    QList<SimpleToken> tokens = tokenize(str);
+    for (int i = 0; i < tokens.count(); ++i) {
+        const SimpleToken &tk = tokens.at(i);
+        if (tk.is(T_LPAREN))
+            ++parcount;
+        else if (tk.is(T_RPAREN))
+            --parcount;
+        else if (! parcount && tk.is(T_COMMA))
+            ++argnr;
+    }
+
+    if (m_currentarg != argnr) {
+        m_currentarg = argnr;
+        updateHintText();
+    }
+
+    if (parcount < 0)
+        m_popupFrame->close();
+#endif
+}
+
+bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
+{
+    switch (e->type()) {
+    case QEvent::ShortcutOverride:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+            m_escapePressed = true;
+        }
+        break;
+    case QEvent::KeyPress:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape) {
+            m_escapePressed = true;
+        }
+        break;
+    case QEvent::KeyRelease:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && m_escapePressed) {
+            m_popupFrame->close();
+            return false;
+        }
+        updateArgumentHighlight();
+        break;
+    case QEvent::WindowDeactivate:
+    case QEvent::FocusOut:
+        if (obj != m_editor->widget())
+            break;
+        m_popupFrame->close();
+        break;
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::Wheel: {
+            QWidget *widget = qobject_cast<QWidget *>(obj);
+            if (! (widget == this || m_popupFrame->isAncestorOf(widget))) {
+                m_popupFrame->close();
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    return false;
+}
+
+void FunctionArgumentWidget::updateHintText()
+{
+    QString prettyMethod;
+    prettyMethod += QString::fromLatin1("function ");
+    prettyMethod += m_functionName;
+    prettyMethod += QLatin1String("(arguments...)");
+
+    m_numberLabel->setText(prettyMethod);
+
+    m_popupFrame->setFixedWidth(m_popupFrame->minimumSizeHint().width());
+
+    const QDesktopWidget *desktop = QApplication::desktop();
+#ifdef Q_WS_MAC
+    const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_editor->widget()));
+#else
+    const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_editor->widget()));
+#endif
+
+    const QSize sz = m_popupFrame->sizeHint();
+    QPoint pos = m_editor->cursorRect(m_startpos).topLeft();
+    pos.setY(pos.y() - sz.height() - 1);
+
+    if (pos.x() + sz.width() > screen.right())
+        pos.setX(screen.right() - sz.width());
+
+    m_popupFrame->move(pos);
+}
+
+} } // end of namespace QmlJSEditor::Internal
+
 QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QmlJS::TypeSystem *typeSystem, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
@@ -252,8 +493,15 @@ bool QmlCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
     return false;
 }
 
-bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *)
-{ return false; }
+bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
+{
+    const QChar ch = editor->characterAt(editor->position() - 1);
+
+    if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
+        return true;
+
+    return false;
+}
 
 int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
@@ -290,11 +538,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     const QIcon typeIcon = iconForColor(Qt::yellow);
 
-    QChar previousChar;
+    QChar completionOperator;
     if (m_startPosition > 0)
-        previousChar = editor->characterAt(m_startPosition - 1);
+        completionOperator = editor->characterAt(m_startPosition - 1);
 
-    if (previousChar.isSpace() || previousChar.isNull()) {
+    if (completionOperator.isSpace() || completionOperator.isNull()) {
         // Add the visible components to the completion box.
         foreach (QmlJS::Document::Ptr doc, snapshot) {
             const QFileInfo fileInfo(doc->fileName());
@@ -330,7 +578,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
-    if (previousChar == QLatin1Char('.')) {
+    if (completionOperator == QLatin1Char('.') || completionOperator == QLatin1Char('(')) {
         const int endOfExpression = m_startPosition - 1;
         int startOfExpression = endOfExpression - 2;
 
@@ -360,15 +608,34 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             const QIcon symbolIcon = iconForColor(Qt::darkCyan);
 
-            EnumerateProperties enumerateProperties;
-            QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(value));
-            while (it.hasNext()) {
-                it.next();
+            if (value && completionOperator == QLatin1Char('.')) { // member completion
+                EnumerateProperties enumerateProperties;
+                QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(value));
+                while (it.hasNext()) {
+                    it.next();
 
-                TextEditor::CompletionItem item(this);
-                item.text = it.key();
-                item.icon = symbolIcon;
-                m_completions.append(item);
+                    TextEditor::CompletionItem item(this);
+                    item.text = it.key();
+                    item.icon = symbolIcon;
+                    m_completions.append(item);
+                }
+
+            } else if (value && completionOperator == QLatin1Char('(')) {
+                if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {
+                    QString functionName = expression;
+                    int indexOfDot = expression.lastIndexOf(QLatin1Char('.'));
+                    if (indexOfDot != -1)
+                        functionName = expression.mid(indexOfDot + 1);
+                    // Recreate if necessary
+                    if (!m_functionArgumentWidget)
+                        m_functionArgumentWidget = new QmlJSEditor::Internal::FunctionArgumentWidget;
+
+                    m_functionArgumentWidget->showFunctionHint(functionName,
+                                                               f->argumentCount(),
+                                                               m_startPosition);
+                }
+
+                return -1;
             }
         }
 
@@ -378,12 +645,12 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
     }
 
-    if (previousChar.isNull()
-            || previousChar.isSpace()
-            || previousChar == QLatin1Char('{')
-            || previousChar == QLatin1Char('}')
-            || previousChar == QLatin1Char(':')
-            || previousChar == QLatin1Char(';')) {
+    if (completionOperator.isNull()
+            || completionOperator.isSpace()
+            || completionOperator == QLatin1Char('{')
+            || completionOperator == QLatin1Char('}')
+            || completionOperator == QLatin1Char(':')
+            || completionOperator == QLatin1Char(';')) {
         updateSnippets();
         m_completions.append(m_snippets);
     }

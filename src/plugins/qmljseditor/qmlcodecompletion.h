@@ -33,6 +33,7 @@
 #include <qmljs/qmljstypesystem.h>
 #include <texteditor/icompletioncollector.h>
 #include <QtCore/QDateTime>
+#include <QtCore/QPointer>
 
 namespace TextEditor {
 class ITextEditable;
@@ -43,6 +44,8 @@ namespace QmlJSEditor {
 class QmlModelManagerInterface;
 
 namespace Internal {
+
+class FunctionArgumentWidget;
 
 class QmlCodeCompletion: public TextEditor::ICompletionCollector
 {
@@ -66,6 +69,8 @@ public:
     virtual void cleanup();
 
 private:
+    void updateSnippets();
+
     QmlModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
@@ -75,7 +80,7 @@ private:
 
     QList<TextEditor::CompletionItem> m_snippets;
     QDateTime m_snippetFileLastModified;
-    void updateSnippets();
+    QPointer<FunctionArgumentWidget> m_functionArgumentWidget;
 };
 
 
