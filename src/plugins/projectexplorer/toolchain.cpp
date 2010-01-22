@@ -184,8 +184,8 @@ QByteArray GccToolChain::predefinedMacros()
         }
 
         // Define __strong and __weak (used for Apple's GC extension of C) to be empty
-        m_predefinedMacros.append("#define __strong");
-        m_predefinedMacros.append("#define __weak");
+        m_predefinedMacros.append("#define __strong\n");
+        m_predefinedMacros.append("#define __weak\n");
 #endif // Q_OS_MAC
     }
     return m_predefinedMacros;
