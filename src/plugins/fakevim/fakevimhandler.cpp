@@ -662,17 +662,20 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
     EventResult result = handleKey(key, um, ev->text());
     //endEditBlock();
 
-    // We fake vi-style end-of-line behaviour
-    m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode();
+    // the command might have destroyed the editor
+    if (m_textedit || m_plaintextedit) {
+        // We fake vi-style end-of-line behaviour
+        m_fakeEnd = atEndOfLine() && m_mode == CommandMode && !isVisualBlockMode();
 
-    QTC_ASSERT(!(m_mode != InsertMode && m_tc.atBlockEnd() && m_tc.block().length() > 1),
-               qDebug() << "Cursor at EOL after key handler");
+        QTC_ASSERT(!(m_mode != InsertMode && m_tc.atBlockEnd() && m_tc.block().length() > 1),
+                   qDebug() << "Cursor at EOL after key handler");
 
-    if (m_fakeEnd)
-        moveLeft();
+        if (m_fakeEnd)
+            moveLeft();
 
-    EDITOR(setTextCursor(m_tc));
-    m_oldPosition = m_tc.position();
+        EDITOR(setTextCursor(m_tc));
+        m_oldPosition = m_tc.position();
+    }
     return result;
 }
 
@@ -1033,6 +1036,9 @@ void FakeVimHandler::Private::updateSelection()
 
 void FakeVimHandler::Private::updateMiniBuffer()
 {
+    if (!m_textedit && !m_plaintextedit)
+        return;
+
     QString msg;
     if (m_passing) {
         msg = "-- PASSING --  ";
@@ -2060,8 +2066,10 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
             m_commandHistory.append(m_commandBuffer);
             EDITOR(setTextCursor(m_tc));
             handleExCommand(m_commandBuffer);
-            m_tc = EDITOR(textCursor());
-            leaveVisualMode();
+            if (m_textedit || m_plaintextedit) {
+                m_tc = EDITOR(textCursor());
+                leaveVisualMode();
+            }
         }
     } else if (unmodified == Key_Return && isSearchMode()) {
         if (!m_commandBuffer.isEmpty()) {
@@ -3426,6 +3434,13 @@ FakeVimHandler::FakeVimHandler(QWidget *widget, QObject *parent)
 FakeVimHandler::~FakeVimHandler()
 {
     delete d;
+}
+
+// gracefully handle that the parent editor is deleted
+void FakeVimHandler::disconnectFromEditor()
+{
+    d->m_textedit = 0;
+    d->m_plaintextedit = 0;
 }
 
 bool FakeVimHandler::eventFilter(QObject *ob, QEvent *ev)

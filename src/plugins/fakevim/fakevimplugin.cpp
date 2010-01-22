@@ -744,6 +744,30 @@ void FakeVimPluginPrivate::findNext(bool reverse)
         triggerAction(Find::Constants::FIND_NEXT);
 }
 
+// this class defers deletion of a child FakeVimHandler using 'deleteLater'
+// - direct children QObject's would be 'delete'ed immediately before their parents
+class DeferredDeleter : public QObject
+{
+    Q_OBJECT
+
+    FakeVimHandler *m_handler;
+
+public:
+    DeferredDeleter(QObject *parent, FakeVimHandler *handler)
+        : QObject(parent)
+          , m_handler(handler)
+    {}
+
+    virtual ~DeferredDeleter()
+    {
+        if (m_handler) {
+            m_handler->disconnectFromEditor();
+            m_handler->deleteLater();
+            m_handler = 0;
+        }
+    }
+};
+
 void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 {
     if (!editor)
@@ -760,7 +784,10 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     //qDebug() << "OPENING: " << editor << editor->widget()
     //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();
 
-    FakeVimHandler *handler = new FakeVimHandler(widget, widget);
+    FakeVimHandler *handler = new FakeVimHandler(widget, 0);
+    // the handler might have triggered the deletion of the editor:
+    // make sure that it can return before being deleted itself
+    new DeferredDeleter(widget, handler);
     m_editorToHandler[editor] = handler;
 
     connect(handler, SIGNAL(extraInformationChanged(QString)),

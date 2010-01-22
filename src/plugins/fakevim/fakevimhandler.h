@@ -48,6 +48,9 @@ public:
 
     QWidget *widget();
 
+    // call before widget is deleted
+    void disconnectFromEditor();
+
 public slots:
     void setCurrentFileName(const QString &fileName);
     void showBlackMessage(const QString &msg);
