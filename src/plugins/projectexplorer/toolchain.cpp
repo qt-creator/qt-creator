@@ -174,6 +174,14 @@ QByteArray GccToolChain::predefinedMacros()
         cpp.closeWriteChannel();
         cpp.waitForFinished();
         m_predefinedMacros = cpp.readAllStandardOutput();
+
+#ifdef Q_OS_MAC
+        int idx = m_predefinedMacros.indexOf("#define __BLOCKS__ 1");
+        if (idx != -1) {
+            idx = m_predefinedMacros.indexOf("1", idx);
+            m_predefinedMacros[idx] = '0';
+        }
+#endif // Q_OS_MAC
     }
     return m_predefinedMacros;
 }
