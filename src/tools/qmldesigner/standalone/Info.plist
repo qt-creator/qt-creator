@@ -170,7 +170,7 @@
 		</dict>
 	</array>
 	<key>CFBundleGetInfoString</key>
-	<string>Bauhaus; Copyright Nokia Corporation</string>
+	<string>Standalone QmlDesigner demo; Copyright Nokia Corporation</string>
 	<key>CFBundleIconFile</key>
 	<string>@ICON@</string>
 	<key>CFBundlePackageType</key>
