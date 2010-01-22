@@ -37,6 +37,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
@@ -97,6 +98,8 @@ const char * const INSTALL_KEY            = "Alt+V,Alt+V";
 const char * const SETTINGS_CATEGORY      = "D.FakeVim";
 const char * const SETTINGS_ID            = "General";
 const char * const SETTINGS_EX_CMDS_ID    = "ExCommands";
+const char * const CMD_FILE_NEXT          = "FakeVim.SwitchFileNext";
+const char * const CMD_FILE_PREV          = "FakeVim.SwitchFilePrev";
 
 } // namespace Constants
 } // namespace FakeVim
@@ -526,6 +529,10 @@ private slots:
     void handleDelayedQuitAll(bool forced);
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
 
+    void switchFile(bool previous);
+    void switchFileNext();
+    void switchFilePrev();
+
 signals:
     void delayedQuitRequested(bool forced, Core::IEditor *editor);
     void delayedQuitAllRequested(bool forced);
@@ -552,6 +559,8 @@ FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
     m_fakeVimOptionsPage = 0;
     m_fakeVimExCommandsPage = 0;
 
+    s_defaultExCommandMap[Constants::CMD_FILE_NEXT] = QRegExp("^n(ext)?!?( (.*))?$");
+    s_defaultExCommandMap[Constants::CMD_FILE_PREV] = QRegExp("^(N(ext)?|prev(ious)?)!?( (.*))?$");
     s_defaultExCommandMap[CppTools::Constants::SWITCH_HEADER_SOURCE] = QRegExp("^A$");
     s_defaultExCommandMap[ProjectExplorer::Constants::BUILD] = QRegExp("^make$");
     s_defaultExCommandMap["Coreplugin.OutputPane.previtem"] = QRegExp("^(cN(ext)?|cp(revious)?)!?( (.*))?$");
@@ -612,6 +621,16 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(showSettingsDialog()));
     connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
         this, SLOT(setUseFakeVim(QVariant)));
+
+    QAction *switchFileNextAction = new QAction(tr("Switch to next file"), this);
+    cmd = actionManager->registerAction(switchFileNextAction, Constants::CMD_FILE_NEXT, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    connect(switchFileNextAction, SIGNAL(triggered()), this, SLOT(switchFileNext()));
+
+    QAction *switchFilePrevAction = new QAction(tr("Switch to previous file"), this);
+    cmd = actionManager->registerAction(switchFilePrevAction, Constants::CMD_FILE_PREV, globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    connect(switchFilePrevAction, SIGNAL(triggered()), this, SLOT(switchFilePrev()));
 
     // Delayed operatiosn
     connect(this, SIGNAL(delayedQuitRequested(bool,Core::IEditor*)),
@@ -895,8 +914,6 @@ void FakeVimPluginPrivate::writeFile(bool *handled,
 
 void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
 {
-    static QRegExp reNextFile("^n(ext)?!?( (.*))?$");
-    static QRegExp rePreviousFile("^(N(ext)?|prev(ious)?)!?( (.*))?$");
     static QRegExp reWriteAll("^wa(ll)?!?$");
     static QRegExp reQuit("^q!?$");
     static QRegExp reQuitAll("^qa!?$");
@@ -910,13 +927,7 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
     EditorManager *editorManager = EditorManager::instance();
     QTC_ASSERT(editorManager, return);
 
-    if (reNextFile.indexIn(cmd) != -1) {
-        // :n
-        editorManager->goForwardInNavigationHistory();
-    } else if (rePreviousFile.indexIn(cmd) != -1) {
-        // :N, :prev
-        editorManager->goBackInNavigationHistory();
-    } else if (reWriteAll.indexIn(cmd) != -1) {
+    if (reWriteAll.indexIn(cmd) != -1) {
         // :wa
         FileManager *fm = ICore::instance()->fileManager();
         QList<IFile *> toSave = fm->modifiedFiles();
@@ -1081,6 +1092,25 @@ void FakeVimPluginPrivate::changeSelection
             bt->setExtraSelections(BaseTextEditor::FakeVimSelection, selection);
 }
 
+void FakeVimPluginPrivate::switchFile(bool previous)
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+    Core::OpenEditorsModel *model = em->openedEditorsModel();
+    IEditor *cur = Core::EditorManager::instance()->currentEditor();
+    int curIdx = model->indexOf(cur).row();
+    int nIdx = (curIdx + model->rowCount() + (previous ? -1 : 1)) % model->rowCount();
+    em->activateEditor(model->index(nIdx, 0), 0);
+}
+
+void FakeVimPluginPrivate::switchFileNext()
+{
+    switchFile(false);
+}
+
+void FakeVimPluginPrivate::switchFilePrev()
+{
+    switchFile(true);
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
