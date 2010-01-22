@@ -42,8 +42,7 @@ using namespace QmlJS::AST;
 Document::Document(const QString &fileName)
     : _engine(0)
     , _pool(0)
-    , _uiProgram(0)
-    , _jsProgram(0)
+    , _ast(0)
     , _fileName(fileName)
     , _parsedCorrectly(false)
 {
@@ -74,20 +73,17 @@ Document::Ptr Document::create(const QString &fileName)
 
 AST::UiProgram *Document::qmlProgram() const
 {
-    return _uiProgram;
+    return cast<UiProgram *>(_ast);
 }
 
 AST::Program *Document::jsProgram() const
 {
-    return _jsProgram;
+    return cast<Program *>(_ast);
 }
 
 AST::Node *Document::ast() const
 {
-    Q_ASSERT(!_uiProgram || !_jsProgram);
-    if (_uiProgram)
-        return _uiProgram;
-    return _jsProgram;
+    return _ast;
 }
 
 QList<DiagnosticMessage> Document::diagnosticMessages() const
@@ -109,8 +105,7 @@ bool Document::parseQml()
 {
     Q_ASSERT(! _engine);
     Q_ASSERT(! _pool);
-    Q_ASSERT(! _uiProgram);
-    Q_ASSERT(! _jsProgram);
+    Q_ASSERT(! _ast);
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
@@ -122,11 +117,11 @@ bool Document::parseQml()
     lexer.setCode(_source, /*line = */ 1);
 
     _parsedCorrectly = parser.parse();
-    _uiProgram = parser.ast();
+    _ast = parser.ast();
     _diagnosticMessages = parser.diagnosticMessages();
 
-    if (_uiProgram) {
-        for (QmlJS::AST::UiObjectMemberList *iter = _uiProgram->members; iter; iter = iter->next)
+    if (qmlProgram()) {
+        for (QmlJS::AST::UiObjectMemberList *iter = qmlProgram()->members; iter; iter = iter->next)
             if (iter->member)
                 _symbols.append(new SymbolFromFile(_fileName, iter->member));
 
@@ -143,8 +138,7 @@ bool Document::parseJavaScript()
 {
     Q_ASSERT(! _engine);
     Q_ASSERT(! _pool);
-    Q_ASSERT(! _uiProgram);
-    Q_ASSERT(! _jsProgram);
+    Q_ASSERT(! _ast);
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
@@ -156,7 +150,31 @@ bool Document::parseJavaScript()
     lexer.setCode(_source, /*line = */ 1);
 
     _parsedCorrectly = parser.parseProgram();
-    _jsProgram = cast<Program*>(parser.rootNode());
+    _ast = cast<Program*>(parser.rootNode());
+    _diagnosticMessages = parser.diagnosticMessages();
+
+    return _parsedCorrectly;
+}
+
+bool Document::parseExpression()
+{
+    Q_ASSERT(! _engine);
+    Q_ASSERT(! _pool);
+    Q_ASSERT(! _ast);
+
+    _engine = new Engine();
+    _pool = new NodePool(_fileName, _engine);
+    _ids.clear();
+
+    Lexer lexer(_engine);
+    Parser parser(_engine);
+
+    lexer.setCode(_source, /*line = */ 1);
+
+    _parsedCorrectly = parser.parseExpression();
+    _ast = parser.rootNode();
+    if (_ast)
+        _ast = _ast->expressionCast();
     _diagnosticMessages = parser.diagnosticMessages();
 
     return _parsedCorrectly;

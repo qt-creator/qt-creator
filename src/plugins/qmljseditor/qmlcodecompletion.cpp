@@ -50,6 +50,7 @@
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+using namespace QmlJS;
 
 
 // Temporary workaround until we have proper icons for QML completion items
@@ -83,6 +84,7 @@ static QIcon iconForColor(const QColor &color)
     return pix;
 }
 
+namespace {
 
 class Evaluate: public QmlJS::AST::Visitor
 {
@@ -181,6 +183,46 @@ protected:
 
 };
 
+class EnumerateProperties
+{
+    QSet<const Interpreter::ObjectValue *> _processed;
+    QHash<QString, const Interpreter::Value *> _properties;
+
+public:
+    QHash<QString, const Interpreter::Value *> operator()(const Interpreter::Value *value)
+    {
+        _processed.clear();
+        _properties.clear();
+        enumerateProperties(value);
+        return _properties;
+    }
+
+private:
+    void enumerateProperties(const Interpreter::Value *value)
+    {
+        if (! value)
+            return;
+        else if (const Interpreter::ObjectValue *object = value->asObjectValue()) {
+            enumerateProperties(object);
+        }
+    }
+
+    void enumerateProperties(const Interpreter::ObjectValue *object)
+    {
+        if (! object || _processed.contains(object))
+            return;
+
+        _processed.insert(object);
+        enumerateProperties(object->prototype());
+
+        for (Interpreter::ObjectValue::MemberIterator it = object->firstMember(); it != object->lastMember(); ++it) {
+            _properties.insert(it.key(), it.value());
+        }
+    }
+};
+
+} // end of anonymous namespace
+
 QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QmlJS::TypeSystem *typeSystem, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
@@ -248,32 +290,33 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     const QIcon typeIcon = iconForColor(Qt::yellow);
 
-    foreach (QmlJS::Document::Ptr doc, snapshot) {
-        const QFileInfo fileInfo(doc->fileName());
-
-        if (fileInfo.suffix() != QLatin1String("qml"))
-            continue;
-        else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME includ `imported' components
-            continue;
-
-        const QString typeName = fileInfo.baseName();
-        if (typeName.isEmpty())
-            continue;
-
-        if (typeName.at(0).isUpper()) {
-            TextEditor::CompletionItem item(this);
-            item.text = typeName;
-            item.icon = typeIcon;
-            m_completions.append(item);
-        }
-    }
-
     QChar previousChar;
     if (m_startPosition > 0)
         previousChar = editor->characterAt(m_startPosition - 1);
 
     if (previousChar.isSpace() || previousChar.isNull()) {
-        // ### FIXME
+        // Add the visible components to the completion box.
+        foreach (QmlJS::Document::Ptr doc, snapshot) {
+            const QFileInfo fileInfo(doc->fileName());
+
+            if (fileInfo.suffix() != QLatin1String("qml"))
+                continue;
+            else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME includ `imported' components
+                continue;
+
+            const QString typeName = fileInfo.baseName();
+            if (typeName.isEmpty())
+                continue;
+
+            if (typeName.at(0).isUpper()) {
+                TextEditor::CompletionItem item(this);
+                item.text = typeName;
+                item.icon = typeIcon;
+                m_completions.append(item);
+            }
+        }
+
+        // Add the visible IDs to the completion box
         const QIcon idIcon = iconForColor(Qt::darkGray);
         QStringList ids = qmlDocument->ids().keys();
         foreach (const QString &id, ids) {
@@ -287,54 +330,53 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
-#if 0
-    // FIXME: this completion strategy is not going to work when the document was never parsed correctly.
-    if (qmlDocument->qmlProgram() != 0) {
-        const QIcon otherIcon = iconForColor(Qt::darkCyan);
+    if (previousChar == QLatin1Char('.')) {
+        const int endOfExpression = m_startPosition - 1;
+        int startOfExpression = endOfExpression - 2;
 
-        // qDebug() << "*** program:" << program;
-        QmlExpressionUnderCursor expressionUnderCursor;
-        QTextCursor cursor(edit->document());
-        cursor.setPosition(pos);
-        expressionUnderCursor(cursor, qmlDocument);
+        while (startOfExpression >= 0) {
+            const QChar ch = editor->characterAt(startOfExpression);
 
-        QmlLookupContext context(expressionUnderCursor.expressionScopes(), qmlDocument, m_modelManager->snapshot(), m_typeSystem);
-        QmlResolveExpression resolver(context);
-
-        QmlJS::AST::Node *expr = expressionUnderCursor.expressionNode();
-
-        QmlJS::Interpreter::Engine engine;
-        Evaluate evaluate(&engine);
-        if (const QmlJS::Interpreter::Value *value = evaluate(expr)) {
-            if (const QmlJS::Interpreter::ObjectValue *object = value->asObjectValue()) {
-                for (QmlJS::Interpreter::ObjectValue::MemberIterator it = object->firstMember(); it != object->lastMember(); ++it) {
-                    TextEditor::CompletionItem item(this);
-                    item.text = it.key();
-                    item.icon = otherIcon;
-                    m_completions.append(item);
-                }
-                return pos;
-            }
+            if (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char('.'))
+                --startOfExpression;
+            else
+                break;
         }
+        ++startOfExpression;
 
-        // qDebug()<<"*** expression under cursor:"<<expressionUnderCursor.expressionNode();
-        const QList<QmlJS::Symbol*> symbols = resolver.visibleSymbols(expressionUnderCursor.expressionNode());
-        // qDebug()<<"***"<<symbols.size()<<"visible symbols";
+        const QString expression = m_editor->textAt(startOfExpression, endOfExpression - startOfExpression);
+        //qDebug() << "expression:" << expression;
 
-        foreach (QmlJS::Symbol *symbol, symbols) {
-            if (symbol->isIdSymbol())
-                continue; // nothing to do here.
+        QmlJS::Document::Ptr exprDoc = QmlJS::Document::create(QLatin1String("<expression>"));
+        exprDoc->setSource(expression);
+        exprDoc->parseExpression();
 
-            const QString word = symbol->name();
-            if (! word.isEmpty()) {
+        if (exprDoc->ast()) {
+            Interpreter::Engine interp;
+            Evaluate evaluate(&interp);
+
+            const Interpreter::Value *value = interp.convertToObject(evaluate(exprDoc->ast()));
+            //qDebug() << "type:" << interp.typeId(value);
+
+            const QIcon symbolIcon = iconForColor(Qt::darkCyan);
+
+            EnumerateProperties enumerateProperties;
+            QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(value));
+            while (it.hasNext()) {
+                it.next();
+
                 TextEditor::CompletionItem item(this);
-                item.text = word;
-                item.icon = otherIcon;
+                item.text = it.key();
+                item.icon = symbolIcon;
                 m_completions.append(item);
             }
         }
+
+        if (! m_completions.isEmpty())
+            return m_startPosition;
+
+        return -1;
     }
-#endif
 
     if (previousChar.isNull()
             || previousChar.isSpace()

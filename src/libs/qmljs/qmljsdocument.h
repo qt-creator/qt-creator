@@ -67,6 +67,7 @@ public:
 
     bool parseQml();
     bool parseJavaScript();
+    bool parseExpression();
 
     bool isParsedCorrectly() const
     { return _parsedCorrectly; }
@@ -84,8 +85,7 @@ public:
 private:
     QmlJS::Engine *_engine;
     QmlJS::NodePool *_pool;
-    QmlJS::AST::UiProgram *_uiProgram;
-    QmlJS::AST::Program *_jsProgram;
+    QmlJS::AST::Node *_ast;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
     QString _fileName;
     QString _path;
