@@ -634,7 +634,6 @@ void SubversionPlugin::revertCurrentFile()
 
     const SubversionResponse revertResponse = runSvn(state.currentFileTopLevel(), args, m_settings.timeOutMS(), true);
     if (!revertResponse.error) {
-        fcb.setModifiedReload(true);
         subVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
     }
 }

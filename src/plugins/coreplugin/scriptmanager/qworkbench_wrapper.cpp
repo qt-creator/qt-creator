@@ -187,12 +187,6 @@ bool FileManagerPrototype::isFileManaged(const QString &fileName) const
     return callee()->isFileManaged(fileName);
 }
 
-QList<Core::IFile *>
-FileManagerPrototype::managedFiles(const QString &fileName) const
-{
-    return callee()->managedFiles(fileName);
-}
-
 void FileManagerPrototype::blockFileChange(Core::IFile *file)
 {
     callee()->blockFileChange(file);

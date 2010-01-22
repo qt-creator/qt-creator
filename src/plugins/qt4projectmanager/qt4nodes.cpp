@@ -226,8 +226,8 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
           m_projectDir(QFileInfo(filePath).absolutePath())
 {
     Q_ASSERT(project);
-    Qt4PriFile *qt4PriFile = new Qt4PriFile(this);
-    Core::ICore::instance()->fileManager()->addFile(qt4PriFile);
+    m_qt4PriFile = new Qt4PriFile(this);
+    Core::ICore::instance()->fileManager()->addFile(m_qt4PriFile);
 
     setFolderName(QFileInfo(filePath).completeBaseName());
 
@@ -608,18 +608,13 @@ bool Qt4PriFileNode::priFileWritable(const QString &path)
     return true;
 }
 
-bool Qt4PriFileNode::saveModifiedEditors(const QString &path)
+bool Qt4PriFileNode::saveModifiedEditors()
 {
-    QList<Core::IFile*> allFileHandles;
     QList<Core::IFile*> modifiedFileHandles;
 
     Core::ICore *core = Core::ICore::instance();
 
-    foreach (Core::IFile *file, core->fileManager()->managedFiles(path)) {
-        allFileHandles << file;
-    }
-
-    foreach (Core::IEditor *editor, core->editorManager()->editorsForFileName(path)) {
+    foreach (Core::IEditor *editor, core->editorManager()->editorsForFileName(m_projectFilePath)) {
         if (Core::IFile *editorFile = editor->file()) {
             if (editorFile->isModified())
                 modifiedFileHandles << editorFile;
@@ -629,14 +624,12 @@ bool Qt4PriFileNode::saveModifiedEditors(const QString &path)
     if (!modifiedFileHandles.isEmpty()) {
         bool cancelled;
         core->fileManager()->saveModifiedFiles(modifiedFileHandles, &cancelled,
-                                         tr("There are unsaved changes for project file %1.").arg(path));
+                                         tr("There are unsaved changes for project file %1.").arg(m_projectFilePath));
         if (cancelled)
             return false;
-        // force instant reload
-        foreach (Core::IFile *fileHandle, allFileHandles) {
-            Core::IFile::ReloadBehavior reload = Core::IFile::ReloadAll;
-            fileHandle->modified(&reload);
-        }
+        // force instant reload of ourselves
+        ProFileCacheManager::instance()->discardFile(m_projectFilePath);
+        m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
     }
     return true;
 }
@@ -652,7 +645,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     *notChanged = filePaths;
 
     // Check for modified editors
-    if (!saveModifiedEditors(m_projectFilePath))
+    if (!saveModifiedEditors())
         return;
 
     QStringList lines;
@@ -692,21 +685,23 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
     // save file
     save(lines);
 
+    // This is a hack
+    // We are savign twice in a very short timeframe, once the editor and once the ProFile
+    // So the modification time might not change between those two saves
+    // We manually tell each editor to reload it's file
+    // (The .pro files are notified by the file system watcher)
+    foreach (Core::IEditor *editor, Core::ICore::instance()->editorManager()->editorsForFileName(m_projectFilePath)) {
+        if (Core::IFile *editorFile = editor->file()) {
+            Core::IFile::ReloadBehavior b = Core::IFile::ReloadUnmodified;
+            editorFile->modified(&b);
+        }
+    }
+
     includeFile->deref();
 }
 
 void Qt4PriFileNode::save(const QStringList &lines)
 {
-    Core::ICore *core = Core::ICore::instance();
-    Core::FileManager *fileManager = core->fileManager();
-    QList<Core::IFile *> allFileHandles = fileManager->managedFiles(m_projectFilePath);
-    Core::IFile *modifiedFileHandle = 0;
-    foreach (Core::IFile *file, allFileHandles)
-        if (file->fileName() == m_projectFilePath)
-            modifiedFileHandle = file;
-
-    if (modifiedFileHandle)
-        fileManager->blockFileChange(modifiedFileHandle);
     QFile qfile(m_projectFilePath);
     if (qfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         foreach (const QString &str, lines) {
@@ -715,14 +710,8 @@ void Qt4PriFileNode::save(const QStringList &lines)
         }
         qfile.close();
     }
-    m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
-    if (modifiedFileHandle)
-        fileManager->unblockFileChange(modifiedFileHandle);
 
-    Core::IFile::ReloadBehavior tempBehavior =
-            Core::IFile::ReloadAll;
-    foreach (Core::IFile *file, allFileHandles)
-        file->modified(&tempBehavior);
+    m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
 }
 
 /*

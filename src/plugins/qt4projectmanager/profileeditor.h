@@ -93,13 +93,9 @@ class ProFileDocument : public TextEditor::BaseTextDocument
     Q_OBJECT
 
 public:
-    ProFileDocument(Qt4Manager *manager);
-    bool save(const QString &name);
+    ProFileDocument();
     QString defaultPath() const;
     QString suggestedFileName() const;
-
-private:
-    Qt4Manager *m_manager;
 };
 
 } // namespace Internal

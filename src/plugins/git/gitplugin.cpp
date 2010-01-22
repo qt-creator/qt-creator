@@ -490,7 +490,6 @@ void GitPlugin::undoFileChanges()
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return)
     Core::FileChangeBlocker fcb(state.currentFile());
-    fcb.setModifiedReload(true);
     m_gitClient->revert(QStringList(state.currentFile()));
 }
 

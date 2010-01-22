@@ -495,7 +495,6 @@ void PerforcePlugin::revertCurrentFile()
         return;
 
     Core::FileChangeBlocker fcb(state.currentFile());
-    fcb.setModifiedReload(true);
     args.clear();
     args << QLatin1String("revert") << state.relativeCurrentFile();
     PerforceResponse result2 = runP4Cmd(state.currentFileTopLevel(), args,

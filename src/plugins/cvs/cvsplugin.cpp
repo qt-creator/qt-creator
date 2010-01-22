@@ -599,7 +599,6 @@ void CVSPlugin::revertCurrentFile()
     args << QLatin1String("update") << QLatin1String("-C") << state.relativeCurrentFile();
     const CVSResponse revertResponse = runCVS(state.currentFileTopLevel(), args, m_settings.timeOutMS(), true);
     if (revertResponse.result == CVSResponse::Ok) {
-        fcb.setModifiedReload(true);
         cvsVersionControl()->emitFilesChanged(QStringList(state.currentFile()));
     }
 }

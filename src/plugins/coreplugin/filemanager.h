@@ -61,11 +61,13 @@ public:
     bool addFile(IFile *file);
     bool removeFile(IFile *file);
     bool isFileManaged(const QString &fileName) const;
-    QList<IFile *> managedFiles(const QString &fileName) const;
     QList<IFile *> modifiedFiles() const;
 
     void blockFileChange(IFile *file);
     void unblockFileChange(IFile *file);
+
+    void expectFileChange(const QString &fileName);
+    void unexpectFileChange(const QString &fileName);
 
     // recent files
     void addToRecentFiles(const QString &fileName);
@@ -126,9 +128,14 @@ private slots:
     void syncWithEditor(Core::IContext *context);
 
 private:
+    void addFileInfo(IFile *file);
+    void removeFileInfo(IFile *file);
+    void removeFileInfo(const QString &fileName, IFile *file);
+
     void addWatch(const QString &filename);
     void removeWatch(const QString &filename);
     void updateFileInfo(IFile *file);
+    void updateExpectedState(const QString &fileName);
 
     QList<IFile *> saveModifiedFiles(const QList<IFile *> &files,
                                bool *cancelled, bool silently,
@@ -150,11 +157,8 @@ class CORE_EXPORT FileChangeBlocker
 public:
     FileChangeBlocker(const QString &fileName);
     ~FileChangeBlocker();
-    void setModifiedReload(bool reload);
-    bool modifiedReload() const;
 private:
-    QList<IFile *> m_files;
-    bool m_reload;
+    QString m_fileName;
     Q_DISABLE_COPY(FileChangeBlocker)
 };
 

@@ -49,10 +49,6 @@ namespace Core {
 class ICore;
 }
 
-namespace ProjectExplorer {
-class FileWatcher;
-}
-
 namespace Designer {
 class FormWindowEditor;
 }
@@ -176,7 +172,7 @@ private slots:
 private:
     void save(const QStringList &lines);
     bool priFileWritable(const QString &path);
-    bool saveModifiedEditors(const QString &path);
+    bool saveModifiedEditors();
 
     Qt4Project *m_project;
     Qt4ProFileNode *m_qt4ProFileNode;
@@ -184,6 +180,7 @@ private:
     QString m_projectDir;
 
     QMap<QString, Qt4UiCodeModelSupport *> m_uiCodeModelSupport;
+    Qt4PriFile *m_qt4PriFile;
 
     // managed by Qt4ProFileNode
     friend class Qt4ProFileNode;

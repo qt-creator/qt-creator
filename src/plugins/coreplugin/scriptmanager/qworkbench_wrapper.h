@@ -117,7 +117,6 @@ public slots:
     QString getSaveAsFileName(Core::IFile *file);
 
     bool isFileManaged(const QString &fileName) const;
-    QList<Core::IFile *> managedFiles(const QString &fileName) const;
 
     void blockFileChange(Core::IFile *file);
     void unblockFileChange(Core::IFile *file);

@@ -84,8 +84,7 @@ QString ProFileEditorEditable::id() const
 ProFileEditor::ProFileEditor(QWidget *parent, ProFileEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
     : BaseTextEditor(parent), m_factory(factory), m_ah(ah)
 {
-    Qt4Manager *manager = factory->qt4ProjectManager();
-    ProFileDocument *doc = new ProFileDocument(manager);
+    ProFileDocument *doc = new ProFileDocument();
     doc->setMimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE));
     setBaseTextDocument(doc);
 
@@ -126,18 +125,9 @@ void ProFileEditor::setFontSettings(const TextEditor::FontSettings &fs)
 // ProFileDocument
 //
 
-ProFileDocument::ProFileDocument(Qt4Manager *manager)
-        : TextEditor::BaseTextDocument(), m_manager(manager)
+ProFileDocument::ProFileDocument()
+        : TextEditor::BaseTextDocument()
 {
-}
-
-bool ProFileDocument::save(const QString &name)
-{
-    if (BaseTextDocument::save(name)) {
-        m_manager->notifyChanged(name);
-        return true;
-    }
-    return false;
 }
 
 QString ProFileDocument::defaultPath() const
