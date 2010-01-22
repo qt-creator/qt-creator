@@ -243,7 +243,10 @@ const Value *ConvertToString::switchResult(const Value *value) {
     return previousResult;
 }
 
-ConvertToObject::ConvertToObject(Engine *engine): _engine(engine), _result(0) {}
+ConvertToObject::ConvertToObject(Engine *engine)
+    : _engine(engine), _result(0)
+{
+}
 
 const Value *ConvertToObject::operator()(const Value *value) {
     const Value *previousValue = switchResult(0);
@@ -260,6 +263,40 @@ const Value *ConvertToObject::switchResult(const Value *value) {
     return previousResult;
 }
 
+void ConvertToObject::visit(const NullValue *value)
+{
+    _result = value;
+}
+
+void ConvertToObject::visit(const UndefinedValue *)
+{
+    _result = _engine->nullValue();
+}
+
+void ConvertToObject::visit(const NumberValue *)
+{
+    _result = _engine->call(_engine->numberCtor());
+}
+
+void ConvertToObject::visit(const BooleanValue *)
+{
+    _result = _engine->call(_engine->booleanCtor());
+}
+
+void ConvertToObject::visit(const StringValue *)
+{
+    _result = _engine->call(_engine->stringCtor());
+}
+
+void ConvertToObject::visit(const ObjectValue *object)
+{
+    _result = object;
+}
+
+void ConvertToObject::visit(const FunctionValue *object)
+{
+    _result = object;
+}
 
 QString TypeId::operator()(const Value *value)
 {
@@ -913,42 +950,3 @@ void ConvertToString::visit(const FunctionValue *object)
         _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// convert to object
-////////////////////////////////////////////////////////////////////////////////
-void ConvertToObject::visit(const NullValue *value)
-{
-    _result = value;
-}
-
-void ConvertToObject::visit(const UndefinedValue *)
-{
-    _result = _engine->nullValue();
-}
-
-void ConvertToObject::visit(const NumberValue *)
-{
-    _result = _engine->call(_engine->numberCtor());
-}
-
-void ConvertToObject::visit(const BooleanValue *)
-{
-    _result = _engine->call(_engine->booleanCtor());
-}
-
-void ConvertToObject::visit(const StringValue *)
-{
-    _result = _engine->call(_engine->stringCtor());
-}
-
-void ConvertToObject::visit(const ObjectValue *object)
-{
-    _result = object;
-}
-
-void ConvertToObject::visit(const FunctionValue *object)
-{
-    _result = object;
-}
-

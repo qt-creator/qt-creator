@@ -30,13 +30,13 @@
 #include "qmlcodecompletion.h"
 #include "qmljseditor.h"
 #include "qmlmodelmanagerinterface.h"
-#include "qmlexpressionundercursor.h"
 #include "qmllookupcontext.h"
-#include "qmlresolveexpression.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljssymbol.h>
+#include <qmljs/qmljsscanner.h>
+
 #include <texteditor/basetexteditor.h>
 
 #include <coreplugin/icore.h>
@@ -94,7 +94,102 @@ static QIcon iconForColor(const QColor &color)
 
 namespace {
 
-class Evaluate: public QmlJS::AST::Visitor
+class ExpressionUnderCursor
+{
+    QTextCursor _cursor;
+    QmlJSScanner scanner;
+
+public:
+    QString operator()(const QTextCursor &cursor)
+    {
+        _cursor = cursor;
+
+        QTextBlock block = _cursor.block();
+        const QString blockText = block.text().left(cursor.columnNumber());
+        //qDebug() << "block text:" << blockText;
+
+        int startState = block.previous().userState();
+        if (startState == -1)
+            startState = 0;
+        else
+            startState = startState & 0xff;
+
+        const QList<Token> originalTokens = scanner(blockText, startState);
+        QList<Token> tokens;
+        int skipping = 0;
+        for (int index = originalTokens.size() - 1; index != -1; --index) {
+            const Token &tk = originalTokens.at(index);
+
+            if (tk.is(Token::Comment) || tk.is(Token::String) || tk.is(Token::Number))
+                continue;
+
+            if (! skipping) {
+                tokens.append(tk);
+
+                if (tk.is(Token::Identifier)) {
+                    if (index > 0 && originalTokens.at(index - 1).isNot(Token::Dot))
+                        break;
+                }
+            } else {
+                //qDebug() << "skip:" << blockText.mid(tk.offset, tk.length);
+            }
+
+            if (tk.is(Token::RightParenthesis))
+                ++skipping;
+
+            else if (tk.is(Token::LeftParenthesis)) {
+                --skipping;
+
+                if (! skipping)
+                    tokens.append(tk);
+            }
+        }
+
+        if (! tokens.isEmpty()) {
+            QString expr;
+            for (int index = tokens.size() - 1; index >= 0; --index) {
+                Token tk = tokens.at(index);
+                expr.append(QLatin1Char(' '));
+                expr.append(blockText.midRef(tk.offset, tk.length));
+            }
+
+            //qDebug() << "expression under cursor:" << expr;
+            return expr;
+        }
+
+        //qDebug() << "no expression";
+        return QString();
+    }
+};
+
+class SearchPropertyDefinitions: protected AST::Visitor
+{
+    QList<AST::UiPublicMember *> _properties;
+
+public:
+    QList<AST::UiPublicMember *> operator()(AST::Node *node)
+    {
+        _properties.clear();
+        if (node)
+            node->accept(this);
+        return _properties;
+    }
+
+
+protected:
+    using AST::Visitor::visit;
+
+    virtual bool visit(AST::UiPublicMember *member)
+    {
+        if (member->propertyToken.isValid()) {
+            _properties.append(member);
+        }
+
+        return true;
+    }
+};
+
+class Evaluate: protected QmlJS::AST::Visitor
 {
     QmlJS::Interpreter::Engine *_interp;
     const QmlJS::Interpreter::Value *_value;
@@ -127,17 +222,20 @@ protected:
         return previousValue;
     }
 
-    virtual bool preVisit(QmlJS::AST::Node *ast)
+    virtual bool preVisit(QmlJS::AST::Node *ast) // ### remove me
     {
         using namespace QmlJS::AST;
 
         if (cast<NumericLiteral *>(ast))
             return true;
 
-        if (cast<StringLiteral *>(ast))
+        else if (cast<StringLiteral *>(ast))
             return true;
 
-        if (cast<IdentifierExpression *>(ast))
+        else if (cast<IdentifierExpression *>(ast))
+            return true;
+
+        else if (cast<NestedExpression *>(ast))
             return true;
 
         else if (cast<FieldMemberExpression *>(ast))
@@ -147,6 +245,11 @@ protected:
             return true;
 
         return false;
+    }
+
+    virtual bool visit(QmlJS::AST::NestedExpression *)
+    {
+        return true;
     }
 
     virtual bool visit(QmlJS::AST::StringLiteral *)
@@ -163,13 +266,19 @@ protected:
 
     virtual bool visit(QmlJS::AST::IdentifierExpression *ast)
     {
+        if (! ast->name)
+            return false;
+
         _value = _interp->globalObject()->property(ast->name->asString());
         return false;
     }
 
     virtual bool visit(QmlJS::AST::FieldMemberExpression *ast)
     {
-        if (const QmlJS::Interpreter::Value *base = evaluate(ast->base)) {
+        if (! ast->name)
+            return false;
+
+        if (const QmlJS::Interpreter::Value *base = _interp->convertToObject(evaluate(ast->base))) {
             if (const QmlJS::Interpreter::ObjectValue *obj = base->asObjectValue()) {
                 _value = obj->property(ast->name->asString());
             }
@@ -366,30 +475,28 @@ void FunctionArgumentWidget::updateArgumentHighlight()
     updateHintText();
 
 
-#if 0
     QString str = m_editor->textAt(m_startpos, curpos - m_startpos);
     int argnr = 0;
     int parcount = 0;
-    SimpleLexer tokenize;
-    QList<SimpleToken> tokens = tokenize(str);
+    QmlJSScanner tokenize;
+    const QList<Token> tokens = tokenize(str);
     for (int i = 0; i < tokens.count(); ++i) {
-        const SimpleToken &tk = tokens.at(i);
-        if (tk.is(T_LPAREN))
+        const Token &tk = tokens.at(i);
+        if (tk.is(Token::LeftParenthesis))
             ++parcount;
-        else if (tk.is(T_RPAREN))
+        else if (tk.is(Token::RightParenthesis))
             --parcount;
-        else if (! parcount && tk.is(T_COMMA))
+        else if (! parcount && tk.is(Token::Colon))
             ++argnr;
     }
 
     if (m_currentarg != argnr) {
-        m_currentarg = argnr;
+        // m_currentarg = argnr;
         updateHintText();
     }
 
     if (parcount < 0)
         m_popupFrame->close();
-#endif
 }
 
 bool FunctionArgumentWidget::eventFilter(QObject *obj, QEvent *e)
@@ -511,12 +618,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (! edit)
         return -1;
 
-    int pos = editor->position();
+    m_startPosition = editor->position();
 
-    while (editor->characterAt(pos - 1).isLetterOrNumber() || editor->characterAt(pos - 1) == QLatin1Char('_'))
-        --pos;
+    while (editor->characterAt(m_startPosition - 1).isLetterOrNumber() || editor->characterAt(m_startPosition - 1) == QLatin1Char('_'))
+        --m_startPosition;
 
-    m_startPosition = pos;
     m_completions.clear();
 
     QmlJS::Document::Ptr qmlDocument = edit->qmlDocument();
@@ -579,20 +685,12 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     }
 
     if (completionOperator == QLatin1Char('.') || completionOperator == QLatin1Char('(')) {
-        const int endOfExpression = m_startPosition - 1;
-        int startOfExpression = endOfExpression - 2;
+        ExpressionUnderCursor expressionUnderCursor;
 
-        while (startOfExpression >= 0) {
-            const QChar ch = editor->characterAt(startOfExpression);
+        QTextCursor tc = edit->textCursor();
+        tc.setPosition(m_startPosition - 1);
 
-            if (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char('.'))
-                --startOfExpression;
-            else
-                break;
-        }
-        ++startOfExpression;
-
-        const QString expression = m_editor->textAt(startOfExpression, endOfExpression - startOfExpression);
+        const QString expression = expressionUnderCursor(tc);
         //qDebug() << "expression:" << expression;
 
         QmlJS::Document::Ptr exprDoc = QmlJS::Document::create(QLatin1String("<expression>"));
@@ -602,6 +700,15 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         if (exprDoc->ast()) {
             Interpreter::Engine interp;
             Evaluate evaluate(&interp);
+
+            SearchPropertyDefinitions searchPropertyDefinitions;
+
+            const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument->ast());
+            foreach (AST::UiPublicMember *prop, properties) {
+                if (prop->name && prop->memberType && prop->memberType->asString() == QLatin1String("string")) {
+                    interp.globalObject()->setProperty(prop->name->asString(), interp.stringValue());
+                }
+            }
 
             const Interpreter::Value *value = interp.convertToObject(evaluate(exprDoc->ast()));
             //qDebug() << "type:" << interp.typeId(value);
@@ -619,20 +726,18 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                     item.icon = symbolIcon;
                     m_completions.append(item);
                 }
-
             } else if (value && completionOperator == QLatin1Char('(')) {
                 if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {
                     QString functionName = expression;
                     int indexOfDot = expression.lastIndexOf(QLatin1Char('.'));
                     if (indexOfDot != -1)
                         functionName = expression.mid(indexOfDot + 1);
+
                     // Recreate if necessary
                     if (!m_functionArgumentWidget)
                         m_functionArgumentWidget = new QmlJSEditor::Internal::FunctionArgumentWidget;
 
-                    m_functionArgumentWidget->showFunctionHint(functionName,
-                                                               f->argumentCount(),
-                                                               m_startPosition);
+                    m_functionArgumentWidget->showFunctionHint(functionName.trimmed(), f->argumentCount(), m_startPosition);
                 }
 
                 return -1;
@@ -655,7 +760,10 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         m_completions.append(m_snippets);
     }
 
-    return pos;
+    if (! m_completions.isEmpty())
+        return m_startPosition;
+
+    return -1;
 }
 
 void QmlCodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
