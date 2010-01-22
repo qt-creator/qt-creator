@@ -275,7 +275,7 @@ public:
     virtual const Value *returnValue() const;
     virtual int argumentCount() const;
     virtual const Value *argument(int index) const;
-    virtual const Value *call(const Value */*thisValue*/, const QList<const Value *> & /*actuals*/) const;
+    virtual const Value *call(const Value * /*thisValue*/, const QList<const Value *> & /*actuals*/) const;
 
 private:
     QList<const Value *> _arguments;
