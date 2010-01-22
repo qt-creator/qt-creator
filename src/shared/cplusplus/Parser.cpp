@@ -4507,7 +4507,13 @@ bool Parser::parseConstantExpression(ExpressionAST *&node)
 bool Parser::parseExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
-    return parseCommaExpression(node);
+    if (depth > 100)
+        return false;
+
+    ++depth;
+    bool result = parseCommaExpression(node);
+    --depth;
+    return result;
 }
 
 bool Parser::parseCommaExpression(ExpressionAST *&node)

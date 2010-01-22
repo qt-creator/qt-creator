@@ -314,6 +314,8 @@ private:
     bool _inFunctionBody: 1;
     bool _inObjCImplementationContext: 1;
 
+    int depth;
+
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 
     class Rewind;
