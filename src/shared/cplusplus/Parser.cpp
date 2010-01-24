@@ -126,7 +126,8 @@ Parser::Parser(TranslationUnit *unit)
       _qtMocRunEnabled(false),
       _objCEnabled(false),
       _inFunctionBody(false),
-      _inObjCImplementationContext(false)
+      _inObjCImplementationContext(false),
+      depth(0)
 { }
 
 Parser::~Parser()
