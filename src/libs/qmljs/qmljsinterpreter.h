@@ -53,6 +53,8 @@ class StringValue;
 class ObjectValue;
 class FunctionValue;
 
+typedef QList<const Value *> ValueList;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Value visitor
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +154,6 @@ public:
     virtual const Value *lookupMember(const QString &name) const;
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Value nodes
 ////////////////////////////////////////////////////////////////////////////////
@@ -191,10 +192,24 @@ public:
     virtual void accept(ValueVisitor *visitor) const;
 };
 
+class QMLJS_EXPORT MemberProcessor
+{
+    MemberProcessor(const MemberProcessor &other);
+    void operator = (const MemberProcessor &other);
+
+public:
+    MemberProcessor() {}
+    virtual ~MemberProcessor() {}
+
+    // Returns false to stop the processor.
+    virtual bool processMember(const QString &name, const Value *value) = 0;
+};
+
 class QMLJS_EXPORT ObjectValue: public Value, public Environment
 {
 public:
     ObjectValue(Engine *engine);
+    virtual ~ObjectValue();
 
     Engine *engine() const;
 
@@ -207,15 +222,12 @@ public:
     const ObjectValue *scope() const;
     void setScope(const ObjectValue *scope);
 
-    typedef QHash<QString, const Value *>::const_iterator MemberIterator;
+    virtual void processMembers(MemberProcessor *processor) const;
 
-    MemberIterator firstMember() const;
-    MemberIterator lastMember() const;
-
+    virtual const Value *member(const QString &name) const;
     virtual const Value *property(const QString &name) const;
     virtual void setProperty(const QString &name, const Value *value);
     virtual void removeProperty(const QString &name);
-    virtual const Value *member(const QString &name) const;
 
     // Environment interface
     virtual const Environment *parent() const;
@@ -226,7 +238,7 @@ public:
     virtual void accept(ValueVisitor *visitor) const;
 
 private:
-    bool isValidPrototype(const ObjectValue *prototype, QSet<const ObjectValue *> *processed) const;
+    bool checkPrototype(const ObjectValue *prototype, QSet<const ObjectValue *> *processed) const;
 
 private:
     Engine *_engine;
@@ -240,14 +252,25 @@ class QMLJS_EXPORT FunctionValue: public ObjectValue
 {
 public:
     FunctionValue(Engine *engine);
+    virtual ~FunctionValue();
+
+    // [[construct]]
+    const Value *construct(const ValueList &actuals = ValueList()) const;
+
+    // [[call]]
+    const Value *call(const ValueList &actuals = ValueList()) const;
+
+    const Value *call(const ObjectValue *thisObject,
+                      const ValueList &actuals = ValueList()) const;
+
 
     virtual const Value *returnValue() const;
 
     virtual int argumentCount() const;
-    virtual const Value *argument(int /*index*/) const;
+    virtual const Value *argument(int index) const;
 
-    virtual const Value *call(const Value *thisValue,
-                              const QList<const Value *> & /*actuals*/ = QList<const Value *>()) const;
+    virtual const Value *invoke(const Value *thisObject,
+                                const ValueList &actuals = ValueList()) const;
 
     // Value interface
     virtual const FunctionValue *asFunctionValue() const;
@@ -259,13 +282,7 @@ class QMLJS_EXPORT Function: public FunctionValue
 public:
     Function(Engine *engine);
 
-    void addArgument(const Value *argument);
-
-    typedef QList<const Value *>::const_iterator ArgumentIterator;
-
-    ArgumentIterator firstArgument() const;
-    ArgumentIterator lastArgument() const;
-
+    void addArgument(const Value *argument);    
     void setReturnValue(const Value *returnValue);
 
     // ObjectValue interface
@@ -275,10 +292,10 @@ public:
     virtual const Value *returnValue() const;
     virtual int argumentCount() const;
     virtual const Value *argument(int index) const;
-    virtual const Value *call(const Value * /*thisValue*/, const QList<const Value *> & /*actuals*/) const;
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
 
 private:
-    QList<const Value *> _arguments;
+    ValueList _arguments;
     const Value *_returnValue;
 };
 
@@ -388,7 +405,7 @@ public:
     const BooleanValue *booleanValue() const;
     const StringValue *stringValue() const;
 
-    const Value *newArrayValue(); // ### remove me
+    const Value *newArray(); // ### remove me
 
     ObjectValue *newObject();
     Function *newFunction();
@@ -423,10 +440,6 @@ public:
     const Value *convertToString(const Value *value);
     const Value *convertToObject(const Value *value);
     QString typeId(const Value *value);
-
-    const Value *call(const FunctionValue *function, const QList<const Value *> &actuals = QList<const Value *>());
-    const Value *call(const FunctionValue *function, const ObjectValue *thisValue,
-                      const QList<const Value *> &actuals = QList<const Value *>());
 
 private:
     void initializePrototypes();

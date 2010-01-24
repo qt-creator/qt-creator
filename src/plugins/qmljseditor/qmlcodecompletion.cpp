@@ -300,7 +300,7 @@ protected:
 
 };
 
-class EnumerateProperties
+class EnumerateProperties: private Interpreter::MemberProcessor
 {
     QSet<const Interpreter::ObjectValue *> _processed;
     QHash<QString, const Interpreter::Value *> _properties;
@@ -315,6 +315,12 @@ public:
     }
 
 private:
+    virtual bool processMember(const QString &name, const Interpreter::Value *value)
+    {
+        _properties.insert(name, value);
+        return true;
+    }
+
     void enumerateProperties(const Interpreter::Value *value)
     {
         if (! value)
@@ -332,9 +338,7 @@ private:
         _processed.insert(object);
         enumerateProperties(object->prototype());
 
-        for (Interpreter::ObjectValue::MemberIterator it = object->firstMember(); it != object->lastMember(); ++it) {
-            _properties.insert(it.key(), it.value());
-        }
+        object->processMembers(this);
     }
 };
 

@@ -32,39 +32,297 @@
 
 using namespace QmlJS::Interpreter;
 
+namespace {
+
+////////////////////////////////////////////////////////////////////////////////
+// constructors
+////////////////////////////////////////////////////////////////////////////////
+class ObjectCtor: public Function
+{
+public:
+    ObjectCtor(Engine *engine);
+
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+};
+
+class FunctionCtor: public Function
+{
+public:
+    FunctionCtor(Engine *engine);
+
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+};
+
+class ArrayCtor: public Function
+{
+public:
+    ArrayCtor(Engine *engine);
+
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+};
+
+class StringCtor: public Function
+{
+public:
+    StringCtor(Engine *engine);
+
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+};
+
+class BooleanCtor: public Function
+{
+public:
+    BooleanCtor(Engine *engine);
+
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+};
+
+class NumberCtor: public Function
+{
+public:
+    NumberCtor(Engine *engine);
+
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+};
+
+class DateCtor: public Function
+{
+public:
+    DateCtor(Engine *engine);
+
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+};
+
+class RegExpCtor: public Function
+{
+public:
+    RegExpCtor(Engine *engine);
+
+    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+};
+
+ObjectCtor::ObjectCtor(Engine *engine)
+    : Function(engine)
+{
+}
+
+FunctionCtor::FunctionCtor(Engine *engine)
+    : Function(engine)
+{
+}
+
+ArrayCtor::ArrayCtor(Engine *engine)
+    : Function(engine)
+{
+}
+
+StringCtor::StringCtor(Engine *engine)
+    : Function(engine)
+{
+}
+
+BooleanCtor::BooleanCtor(Engine *engine)
+    : Function(engine)
+{
+}
+
+NumberCtor::NumberCtor(Engine *engine)
+    : Function(engine)
+{
+}
+
+DateCtor::DateCtor(Engine *engine)
+    : Function(engine)
+{
+}
+
+RegExpCtor::RegExpCtor(Engine *engine)
+    : Function(engine)
+{
+}
+
+const Value *ObjectCtor::invoke(const Value *, const ValueList &) const
+{
+    ObjectValue *object = engine()->newObject();
+    object->setClassName("Object");
+    object->setPrototype(engine()->objectPrototype());
+    object->setProperty("length", engine()->numberValue());
+    return object;
+}
+
+const Value *FunctionCtor::invoke(const Value *, const ValueList &) const
+{
+    ObjectValue *object = engine()->newObject();
+    object->setClassName("Function");
+    object->setPrototype(engine()->functionPrototype());
+    object->setProperty("length", engine()->numberValue());
+    return object;
+}
+
+const Value *ArrayCtor::invoke(const Value *thisObject, const ValueList &) const
+{
+    ObjectValue *object = const_cast<ObjectValue *>(value_cast<const ObjectValue *>(thisObject));
+    if (! object || object == engine()->globalObject())
+        object = engine()->newObject();
+
+    object->setClassName("Array");
+    object->setPrototype(engine()->arrayPrototype());
+    object->setProperty("length", engine()->numberValue());
+    return object;
+}
+
+const Value *StringCtor::invoke(const Value *thisObject, const ValueList &) const
+{
+    ObjectValue *object = const_cast<ObjectValue *>(value_cast<const ObjectValue *>(thisObject));
+    if (! object || object == engine()->globalObject())
+        object = engine()->newObject();
+
+    object->setClassName("String");
+    object->setPrototype(engine()->stringPrototype());
+    object->setProperty("length", engine()->numberValue());
+    return object;
+}
+
+const Value *BooleanCtor::invoke(const Value *, const ValueList &) const
+{
+    ObjectValue *object = engine()->newObject();
+    object->setClassName("Boolean");
+    object->setPrototype(engine()->booleanPrototype());
+    return object;
+}
+
+const Value *NumberCtor::invoke(const Value *, const ValueList &) const
+{
+    ObjectValue *object = engine()->newObject();
+    object->setClassName("Number");
+    object->setPrototype(engine()->numberPrototype());
+    return object;
+}
+
+const Value *DateCtor::invoke(const Value *, const ValueList &) const
+{
+    ObjectValue *object = engine()->newObject();
+    object->setClassName("Date");
+    object->setPrototype(engine()->datePrototype());
+    return object;
+}
+
+const Value *RegExpCtor::invoke(const Value *, const ValueList &) const
+{
+    ObjectValue *object = engine()->newObject();
+    object->setClassName("RegExp");
+    object->setPrototype(engine()->regexpPrototype());
+    object->setProperty("source", engine()->stringValue());
+    object->setProperty("global", engine()->booleanValue());
+    object->setProperty("ignoreCase", engine()->booleanValue());
+    object->setProperty("multiline", engine()->booleanValue());
+    object->setProperty("lastIndex", engine()->numberValue());
+    return object;
+}
+
+} // end of anonymous namespace
+
 ////////////////////////////////////////////////////////////////////////////////
 // ValueVisitor
 ////////////////////////////////////////////////////////////////////////////////
-ValueVisitor::ValueVisitor() {}
-ValueVisitor::~ValueVisitor() {}
-void ValueVisitor::visit(const NullValue *) {}
-void ValueVisitor::visit(const UndefinedValue *) {}
-void ValueVisitor::visit(const NumberValue *) {}
-void ValueVisitor::visit(const BooleanValue *) {}
-void ValueVisitor::visit(const StringValue *) {}
-void ValueVisitor::visit(const ObjectValue *) {}
-void ValueVisitor::visit(const FunctionValue *) {}
+ValueVisitor::ValueVisitor()
+{
+}
+
+ValueVisitor::~ValueVisitor()
+{
+}
+
+void ValueVisitor::visit(const NullValue *)
+{
+}
+
+void ValueVisitor::visit(const UndefinedValue *)
+{
+}
+
+void ValueVisitor::visit(const NumberValue *)
+{
+}
+
+void ValueVisitor::visit(const BooleanValue *)
+{
+}
+
+void ValueVisitor::visit(const StringValue *)
+{
+}
+
+void ValueVisitor::visit(const ObjectValue *)
+{
+}
+
+void ValueVisitor::visit(const FunctionValue *)
+{
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Value
 ////////////////////////////////////////////////////////////////////////////////
-Value::Value() {}
-Value::~Value() {}
-const NullValue *Value::asNullValue() const { return 0; }
-const UndefinedValue *Value::asUndefinedValue() const { return 0; }
-const NumberValue *Value::asNumberValue() const { return 0; }
-const BooleanValue *Value::asBooleanValue() const { return 0; }
-const StringValue *Value::asStringValue() const { return 0; }
-const ObjectValue *Value::asObjectValue() const { return 0; }
-const FunctionValue *Value::asFunctionValue() const { return 0; }
+Value::Value()
+{
+}
+
+Value::~Value()
+{
+}
+
+const NullValue *Value::asNullValue() const
+{
+    return 0;
+}
+
+const UndefinedValue *Value::asUndefinedValue() const
+{
+    return 0;
+}
+
+const NumberValue *Value::asNumberValue() const
+{
+    return 0;
+}
+
+const BooleanValue *Value::asBooleanValue() const
+{
+    return 0;
+}
+
+const StringValue *Value::asStringValue() const
+{
+    return 0;
+}
+
+const ObjectValue *Value::asObjectValue() const
+{
+    return 0;
+}
+
+const FunctionValue *Value::asFunctionValue() const
+{
+    return 0;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Environment
 ////////////////////////////////////////////////////////////////////////////////
-Environment::Environment() {}
-Environment::~Environment() {}
-const Environment *Environment::parent() const { return 0; }
+Environment::Environment()
+{
+}
+
+Environment::~Environment()
+{
+}
+
+const Environment *Environment::parent() const
+{
+    return 0;
+}
 
 const Value *Environment::lookup(const QString &name) const
 {
@@ -86,39 +344,117 @@ const Value *Environment::lookupMember(const QString &name) const {
 ////////////////////////////////////////////////////////////////////////////////
 // Values
 ////////////////////////////////////////////////////////////////////////////////
-const NullValue *NullValue::asNullValue() const { return this; }
-void NullValue::accept(ValueVisitor *visitor) const { visitor->visit(this); }
+const NullValue *NullValue::asNullValue() const
+{
+    return this;
+}
 
-const UndefinedValue *UndefinedValue::asUndefinedValue() const { return this; }
-void UndefinedValue::accept(ValueVisitor *visitor) const { visitor->visit(this); }
+void NullValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
 
-const NumberValue *NumberValue::asNumberValue() const { return this; }
-void NumberValue::accept(ValueVisitor *visitor) const { visitor->visit(this); }
+const UndefinedValue *UndefinedValue::asUndefinedValue() const
+{
+    return this;
+}
 
-const BooleanValue *BooleanValue::asBooleanValue() const { return this; }
-void BooleanValue::accept(ValueVisitor *visitor) const { visitor->visit(this); }
+void UndefinedValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
 
-const StringValue *StringValue::asStringValue() const { return this; }
-void StringValue::accept(ValueVisitor *visitor) const { visitor->visit(this); }
+const NumberValue *NumberValue::asNumberValue() const
+{
+    return this;
+}
 
-ObjectValue::ObjectValue(Engine *engine): _engine(engine), _prototype(0), _scope(0) {}
-Engine *ObjectValue::engine() const { return _engine; }
-QString ObjectValue::className() const { return _className; }
-void ObjectValue::setClassName(const QString &className) { _className = className; }
-const ObjectValue *ObjectValue::prototype() const { return _prototype; }
-const ObjectValue *ObjectValue::scope() const { return _scope; }
-void ObjectValue::setScope(const ObjectValue *scope) { _scope = scope; }
-ObjectValue::MemberIterator ObjectValue::firstMember() const { return _members.begin(); }
-ObjectValue::MemberIterator ObjectValue::lastMember() const { return _members.end(); }
-void ObjectValue::setProperty(const QString &name, const Value *value) { _members[name] = value; }
-void ObjectValue::removeProperty(const QString &name) { _members.remove(name); }
-const ObjectValue *ObjectValue::asObjectValue() const { return this; }
-void ObjectValue::accept(ValueVisitor *visitor) const { visitor->visit(this); }
+void NumberValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
 
-const Value *ObjectValue::property(const QString &name) const {
-    if (name == QLatin1String("__proto__"))
-        return _prototype;
+const BooleanValue *BooleanValue::asBooleanValue() const
+{
+    return this;
+}
 
+void BooleanValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
+
+const StringValue *StringValue::asStringValue() const
+{
+    return this;
+}
+
+void StringValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
+
+ObjectValue::ObjectValue(Engine *engine)
+    : _engine(engine), _prototype(0), _scope(0)
+{
+}
+
+ObjectValue::~ObjectValue()
+{
+}
+
+Engine *ObjectValue::engine() const
+{
+    return _engine;
+}
+
+QString ObjectValue::className() const
+{
+    return _className;
+}
+
+void ObjectValue::setClassName(const QString &className)
+{
+    _className = className;
+}
+
+const ObjectValue *ObjectValue::prototype() const
+{
+    return _prototype;
+}
+
+const ObjectValue *ObjectValue::scope() const
+{
+    return _scope;
+}
+
+void ObjectValue::setScope(const ObjectValue *scope)
+{
+    _scope = scope;
+}
+
+void ObjectValue::setProperty(const QString &name, const Value *value)
+{
+    _members[name] = value;
+}
+
+void ObjectValue::removeProperty(const QString &name)
+{
+    _members.remove(name);
+}
+
+const ObjectValue *ObjectValue::asObjectValue() const
+{
+    return this;
+}
+
+void ObjectValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
+
+const Value *ObjectValue::property(const QString &name) const
+{
     return lookupMember(name);
 }
 
@@ -126,13 +462,13 @@ void ObjectValue::setPrototype(const ObjectValue *prototype)
 {
     QSet<const ObjectValue *> processed;
 
-    if (! prototype || isValidPrototype(prototype, &processed))
+    if (! prototype || checkPrototype(prototype, &processed))
         _prototype = prototype;
     else
         qWarning() << "**** invalid prototype:";
 }
 
-bool ObjectValue::isValidPrototype(const ObjectValue *proto, QSet<const ObjectValue *> *processed) const
+bool ObjectValue::checkPrototype(const ObjectValue *proto, QSet<const ObjectValue *> *processed) const
 {
     const int previousSize = processed->size();
     processed->insert(this);
@@ -141,7 +477,7 @@ bool ObjectValue::isValidPrototype(const ObjectValue *proto, QSet<const ObjectVa
         if (this == proto)
             return false;
 
-        if (prototype() && ! prototype()->isValidPrototype(proto, processed))
+        if (prototype() && ! prototype()->checkPrototype(proto, processed))
             return false;
 
         return true;
@@ -150,9 +486,21 @@ bool ObjectValue::isValidPrototype(const ObjectValue *proto, QSet<const ObjectVa
     return false;
 }
 
+void ObjectValue::processMembers(MemberProcessor *processor) const
+{
+    QHashIterator<QString, const Value *> it(_members);
+
+    while (it.hasNext()) {
+        it.next();
+
+        if (! processor->processMember(it.key(), it.value()))
+            break;
+    }
+}
+
 const Value *ObjectValue::member(const QString &name) const
 {
-    MemberIterator it = _members.find(name);
+    QHash<QString, const Value *>::const_iterator it = _members.find(name);
 
     if (it != _members.end())
         return it.value();
@@ -178,20 +526,76 @@ const Value *ObjectValue::lookupMember(const QString &name) const
     return 0;
 }
 
-FunctionValue::FunctionValue(Engine *engine): ObjectValue(engine) {}
-int FunctionValue::argumentCount() const { return 0; }
-const FunctionValue *FunctionValue::asFunctionValue() const { return this; }
-void FunctionValue::accept(ValueVisitor *visitor) const { visitor->visit(this); }
+FunctionValue::FunctionValue(Engine *engine)
+    : ObjectValue(engine)
+{
+}
 
+FunctionValue::~FunctionValue()
+{
+}
 
-Function::Function(Engine *engine): FunctionValue(engine), _returnValue(0) { setClassName("Function"); }
-void Function::addArgument(const Value *argument) { _arguments.push_back(argument); }
-Function::ArgumentIterator Function::firstArgument() const { return _arguments.begin(); }
-Function::ArgumentIterator Function::lastArgument() const { return _arguments.end(); }
-const Value *Function::returnValue() const { return _returnValue; }
-void Function::setReturnValue(const Value *returnValue) { _returnValue = returnValue; }
-int Function::argumentCount() const { return _arguments.size(); }
-const Value *Function::argument(int index) const { return _arguments.at(index); }
+const Value *FunctionValue::construct(const ValueList &actuals) const
+{
+    ObjectValue *thisObject = engine()->newObject();
+    return invoke(thisObject, actuals);
+}
+
+const Value *FunctionValue::call(const ValueList &actuals) const
+{
+    return invoke(engine()->nullValue(), actuals);
+}
+
+const Value *FunctionValue::call(const ObjectValue *thisObject, const ValueList &actuals) const
+{
+    return invoke(thisObject, actuals);
+}
+
+int FunctionValue::argumentCount() const
+{
+    return 0;
+}
+
+const FunctionValue *FunctionValue::asFunctionValue() const
+{
+    return this;
+}
+
+void FunctionValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
+
+Function::Function(Engine *engine)
+    : FunctionValue(engine), _returnValue(0)
+{
+    setClassName("Function");
+}
+
+void Function::addArgument(const Value *argument)
+{
+    _arguments.push_back(argument);
+}
+
+const Value *Function::returnValue() const
+{
+    return _returnValue;
+}
+
+void Function::setReturnValue(const Value *returnValue)
+{
+    _returnValue = returnValue;
+}
+
+int Function::argumentCount() const
+{
+    return _arguments.size();
+}
+
+const Value *Function::argument(int index) const
+{
+    return _arguments.at(index);
+}
 
 const Value *Function::property(const QString &name) const
 {
@@ -201,17 +605,21 @@ const Value *Function::property(const QString &name) const
     return FunctionValue::property(name);
 }
 
-const Value *Function::call(const Value *thisValue, const QList<const Value *> &) const
+const Value *Function::invoke(const Value *thisObject, const ValueList &) const
 {
-    return thisValue; // ### FIXME it should return undefined
+    return thisObject; // ### FIXME it should return undefined
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
-ConvertToNumber::ConvertToNumber(Engine *engine): _engine(engine), _result(0) {}
+ConvertToNumber::ConvertToNumber(Engine *engine)
+    : _engine(engine), _result(0)
+{
+}
 
-const Value *ConvertToNumber::operator()(const Value *value) {
+const Value *ConvertToNumber::operator()(const Value *value)
+{
     const Value *previousValue = switchResult(0);
 
     if (value)
@@ -220,15 +628,20 @@ const Value *ConvertToNumber::operator()(const Value *value) {
     return switchResult(previousValue);
 }
 
-const Value *ConvertToNumber::switchResult(const Value *value) {
+const Value *ConvertToNumber::switchResult(const Value *value)
+{
     const Value *previousResult = _result;
     _result = value;
     return previousResult;
 }
 
-ConvertToString::ConvertToString(Engine *engine): _engine(engine), _result(0) {}
+ConvertToString::ConvertToString(Engine *engine)
+    : _engine(engine), _result(0)
+{
+}
 
-const Value *ConvertToString::operator()(const Value *value) {
+const Value *ConvertToString::operator()(const Value *value)
+{
     const Value *previousValue = switchResult(0);
 
     if (value)
@@ -237,7 +650,8 @@ const Value *ConvertToString::operator()(const Value *value) {
     return switchResult(previousValue);
 }
 
-const Value *ConvertToString::switchResult(const Value *value) {
+const Value *ConvertToString::switchResult(const Value *value)
+{
     const Value *previousResult = _result;
     _result = value;
     return previousResult;
@@ -248,7 +662,8 @@ ConvertToObject::ConvertToObject(Engine *engine)
 {
 }
 
-const Value *ConvertToObject::operator()(const Value *value) {
+const Value *ConvertToObject::operator()(const Value *value)
+{
     const Value *previousValue = switchResult(0);
 
     if (value)
@@ -257,7 +672,8 @@ const Value *ConvertToObject::operator()(const Value *value) {
     return switchResult(previousValue);
 }
 
-const Value *ConvertToObject::switchResult(const Value *value) {
+const Value *ConvertToObject::switchResult(const Value *value)
+{
     const Value *previousResult = _result;
     _result = value;
     return previousResult;
@@ -273,19 +689,25 @@ void ConvertToObject::visit(const UndefinedValue *)
     _result = _engine->nullValue();
 }
 
-void ConvertToObject::visit(const NumberValue *)
+void ConvertToObject::visit(const NumberValue *value)
 {
-    _result = _engine->call(_engine->numberCtor());
+    ValueList actuals;
+    actuals.append(value);
+    _result = _engine->numberCtor()->construct(actuals);
 }
 
-void ConvertToObject::visit(const BooleanValue *)
+void ConvertToObject::visit(const BooleanValue *value)
 {
-    _result = _engine->call(_engine->booleanCtor());
+    ValueList actuals;
+    actuals.append(value);
+    _result = _engine->booleanCtor()->construct(actuals);
 }
 
-void ConvertToObject::visit(const StringValue *)
+void ConvertToObject::visit(const StringValue *value)
 {
-    _result = _engine->call(_engine->stringCtor());
+    ValueList actuals;
+    actuals.append(value);
+    _result = _engine->stringCtor()->construct(actuals);
 }
 
 void ConvertToObject::visit(const ObjectValue *object)
@@ -308,104 +730,46 @@ QString TypeId::operator()(const Value *value)
     return _result;
 }
 
-void TypeId::visit(const NullValue *) { _result = QLatin1String("null"); }
-void TypeId::visit(const UndefinedValue *) { _result = QLatin1String("undefined"); }
-void TypeId::visit(const NumberValue *) { _result = QLatin1String("number"); }
-void TypeId::visit(const BooleanValue *) { _result = QLatin1String("boolean"); }
-void TypeId::visit(const StringValue *) { _result = QLatin1String("string"); }
+void TypeId::visit(const NullValue *)
+{
+    _result = QLatin1String("null");
+}
 
-void TypeId::visit(const ObjectValue *object) {
+void TypeId::visit(const UndefinedValue *)
+{
+    _result = QLatin1String("undefined");
+}
+
+void TypeId::visit(const NumberValue *)
+{
+    _result = QLatin1String("number");
+}
+
+void TypeId::visit(const BooleanValue *)
+{
+    _result = QLatin1String("boolean");
+}
+
+void TypeId::visit(const StringValue *)
+{
+    _result = QLatin1String("string");
+}
+
+void TypeId::visit(const ObjectValue *object)
+{
     _result = object->className();
 
     if (_result.isEmpty())
         _result = QLatin1String("object");
 }
 
-void TypeId::visit(const FunctionValue *object) {
+void TypeId::visit(const FunctionValue *object)
+{
     _result = object->className();
 
     if (_result.isEmpty())
         _result = QLatin1String("Function");
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// constructors
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-// constructors
-////////////////////////////////////////////////////////////////////////////////
-class ObjectCtor: public Function
-{
-public:
-    ObjectCtor(Engine *engine);
-
-    virtual const Value *call(const Value *thisValue, const QList<const Value *> &actuals) const;
-};
-
-class FunctionCtor: public Function
-{
-public:
-    FunctionCtor(Engine *engine);
-
-    virtual const Value *call(const Value *thisValue, const QList<const Value *> &actuals) const;
-};
-
-class ArrayCtor: public Function
-{
-public:
-    ArrayCtor(Engine *engine);
-
-    virtual const Value *call(const Value *thisValue, const QList<const Value *> &actuals) const;
-};
-
-class StringCtor: public Function
-{
-public:
-    StringCtor(Engine *engine);
-
-    virtual const Value *call(const Value *thisValue, const QList<const Value *> &actuals) const;
-};
-
-class BooleanCtor: public Function
-{
-public:
-    BooleanCtor(Engine *engine);
-
-    virtual const Value *call(const Value *thisValue, const QList<const Value *> &actuals) const;
-};
-
-class NumberCtor: public Function
-{
-public:
-    NumberCtor(Engine *engine);
-
-    virtual const Value *call(const Value *thisValue, const QList<const Value *> &actuals) const;
-};
-
-class DateCtor: public Function
-{
-public:
-    DateCtor(Engine *engine);
-
-    virtual const Value *call(const Value *thisValue, const QList<const Value *> &actuals) const;
-};
-
-class RegExpCtor: public Function
-{
-public:
-    RegExpCtor(Engine *engine);
-
-    virtual const Value *call(const Value *thisValue, const QList<const Value *> &actuals) const;
-};
-
-ObjectCtor::ObjectCtor(Engine *engine): Function(engine) {}
-FunctionCtor::FunctionCtor(Engine *engine): Function(engine) {}
-ArrayCtor::ArrayCtor(Engine *engine): Function(engine) {}
-StringCtor::StringCtor(Engine *engine): Function(engine) {}
-BooleanCtor::BooleanCtor(Engine *engine): Function(engine) {}
-NumberCtor::NumberCtor(Engine *engine): Function(engine) {}
-DateCtor::DateCtor(Engine *engine): Function(engine) {}
-RegExpCtor::RegExpCtor(Engine *engine): Function(engine) {}
 
 Engine::Engine()
     : _objectPrototype(0),
@@ -434,20 +798,43 @@ Engine::Engine()
     initializePrototypes();
 }
 
-Engine::~Engine() {
+Engine::~Engine()
+{
     QList<ObjectValue *>::iterator it = _objects.begin();
 
     for (; it != _objects.end(); ++it)
         delete *it;
 }
 
-const NullValue *Engine::nullValue() const { return &_nullValue; }
-const UndefinedValue *Engine::undefinedValue() const { return &_undefinedValue; }
-const NumberValue *Engine::numberValue() const { return &_numberValue; }
-const BooleanValue *Engine::booleanValue() const { return &_booleanValue; }
-const StringValue *Engine::stringValue() const { return &_stringValue; }
+const NullValue *Engine::nullValue() const
+{
+    return &_nullValue;
+}
 
-const Value *Engine::newArrayValue() { return call(arrayCtor()); }
+const UndefinedValue *Engine::undefinedValue() const
+{
+    return &_undefinedValue;
+}
+
+const NumberValue *Engine::numberValue() const
+{
+    return &_numberValue;
+}
+
+const BooleanValue *Engine::booleanValue() const
+{
+    return &_booleanValue;
+}
+
+const StringValue *Engine::stringValue() const
+{
+    return &_stringValue;
+}
+
+const Value *Engine::newArray()
+{
+    return arrayCtor()->construct();
+}
 
 ObjectValue *Engine::newObject()
 {
@@ -469,38 +856,119 @@ Function *Engine::newFunction() {
     return function;
 }
 
-ObjectValue *Engine::globalObject() const { return _globalObject; }
-ObjectValue *Engine::objectPrototype() const { return _objectPrototype; }
-ObjectValue *Engine::functionPrototype() const { return _functionPrototype; }
-ObjectValue *Engine::numberPrototype() const { return _numberPrototype; }
-ObjectValue *Engine::booleanPrototype() const { return _booleanPrototype; }
-ObjectValue *Engine::stringPrototype() const { return _stringPrototype; }
-ObjectValue *Engine::arrayPrototype() const { return _arrayPrototype; }
-ObjectValue *Engine::datePrototype() const { return _datePrototype; }
-ObjectValue *Engine::regexpPrototype() const { return _regexpPrototype; }
-const FunctionValue *Engine::objectCtor() const { return _objectCtor; }
-const FunctionValue *Engine::functionCtor() const { return _functionCtor; }
-const FunctionValue *Engine::arrayCtor() const { return _arrayCtor; }
-const FunctionValue *Engine::stringCtor() const { return _stringCtor; }
-const FunctionValue *Engine::booleanCtor() const { return _booleanCtor; }
-const FunctionValue *Engine::numberCtor() const { return _numberCtor; }
-const FunctionValue *Engine::dateCtor() const { return _dateCtor; }
-const FunctionValue *Engine::regexpCtor() const { return _regexpCtor; }
-const ObjectValue *Engine::mathObject() const { return _mathObject; }
-const Value *Engine::convertToBool(const Value *value) { return _convertToNumber(value); } // ### implement convert to bool
-const Value *Engine::convertToNumber(const Value *value) { return _convertToNumber(value); }
-const Value *Engine::convertToString(const Value *value) { return _convertToString(value); }
-const Value *Engine::convertToObject(const Value *value) { return _convertToObject(value); }
-QString Engine::typeId(const Value *value) { return _typeId(value); }
-
-const Value *Engine::call(const FunctionValue *function, const QList<const Value *> &actuals)
+ObjectValue *Engine::globalObject() const
 {
-    return call(function, globalObject(), actuals);
+    return _globalObject;
 }
 
-const Value *Engine::call(const FunctionValue *function, const ObjectValue *thisValue, const QList<const Value *> &actuals)
+ObjectValue *Engine::objectPrototype() const
 {
-    return function->call(thisValue, actuals);
+    return _objectPrototype;
+}
+
+ObjectValue *Engine::functionPrototype() const
+{
+    return _functionPrototype;
+}
+
+ObjectValue *Engine::numberPrototype() const
+{
+    return _numberPrototype;
+}
+
+ObjectValue *Engine::booleanPrototype() const
+{
+    return _booleanPrototype;
+}
+
+ObjectValue *Engine::stringPrototype() const
+{
+    return _stringPrototype;
+}
+
+ObjectValue *Engine::arrayPrototype() const
+{
+    return _arrayPrototype;
+}
+
+ObjectValue *Engine::datePrototype() const
+{
+    return _datePrototype;
+}
+
+ObjectValue *Engine::regexpPrototype() const
+{
+    return _regexpPrototype;
+}
+
+const FunctionValue *Engine::objectCtor() const
+{
+    return _objectCtor;
+}
+
+const FunctionValue *Engine::functionCtor() const
+{
+    return _functionCtor;
+}
+
+const FunctionValue *Engine::arrayCtor() const
+{
+    return _arrayCtor;
+}
+
+const FunctionValue *Engine::stringCtor() const
+{
+    return _stringCtor;
+}
+
+const FunctionValue *Engine::booleanCtor() const
+{
+    return _booleanCtor;
+}
+
+const FunctionValue *Engine::numberCtor() const
+{
+    return _numberCtor;
+}
+
+const FunctionValue *Engine::dateCtor() const
+{
+    return _dateCtor;
+}
+
+const FunctionValue *Engine::regexpCtor() const
+{
+    return _regexpCtor;
+}
+
+const ObjectValue *Engine::mathObject() const
+{
+    return _mathObject;
+}
+
+const Value *Engine::convertToBool(const Value *value)
+{
+    return _convertToNumber(value);  // ### implement convert to bool
+}
+
+const Value *Engine::convertToNumber(const Value *value)
+{
+    return _convertToNumber(value);
+}
+
+const Value *Engine::convertToString(const Value *value)
+{
+    return _convertToString(value);
+}
+
+const Value *Engine::convertToObject(const Value *value)
+{
+    return _convertToObject(value);
+}
+
+QString Engine::typeId(const Value *value)
+{
+    return _typeId(value);
 }
 
 void Engine::addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount)
@@ -578,7 +1046,7 @@ void Engine::initializePrototypes()
 
     addFunction(_objectCtor, "getPrototypeOf", 1);
     addFunction(_objectCtor, "getOwnPropertyDescriptor", 2);
-    addFunction(_objectCtor, "getOwnPropertyNames", newArrayValue(), 1);
+    addFunction(_objectCtor, "getOwnPropertyNames", newArray(), 1);
     addFunction(_objectCtor, "create", 1);
     addFunction(_objectCtor, "defineProperty", 3);
     addFunction(_objectCtor, "defineProperties", 2);
@@ -588,11 +1056,11 @@ void Engine::initializePrototypes()
     addFunction(_objectCtor, "isSealed", booleanValue(), 1);
     addFunction(_objectCtor, "isFrozen", booleanValue(), 1);
     addFunction(_objectCtor, "isExtensible", booleanValue(), 1);
-    addFunction(_objectCtor, "keys", newArrayValue(), 1);
+    addFunction(_objectCtor, "keys", newArray(), 1);
 
     addFunction(_objectPrototype, "toString", stringValue(), 0);
     addFunction(_objectPrototype, "toLocaleString", stringValue(), 0);
-    addFunction(_objectPrototype, "valueOf", 0); // ### FIXME it should return thisValue
+    addFunction(_objectPrototype, "valueOf", 0); // ### FIXME it should return thisObject
     addFunction(_objectPrototype, "hasOwnProperty", booleanValue(), 1);
     addFunction(_objectPrototype, "isPrototypeOf", booleanValue(), 1);
     addFunction(_objectPrototype, "propertyIsEnumerable", booleanValue(), 1);
@@ -642,11 +1110,11 @@ void Engine::initializePrototypes()
     addFunction(_stringPrototype, "indexOf", numberValue(), 2);
     addFunction(_stringPrototype, "lastIndexOf", numberValue(), 2);
     addFunction(_stringPrototype, "localeCompare", booleanValue(), 1);
-    addFunction(_stringPrototype, "match", newArrayValue(), 1);
+    addFunction(_stringPrototype, "match", newArray(), 1);
     addFunction(_stringPrototype, "replace", stringValue(), 2);
     addFunction(_stringPrototype, "search", numberValue(), 1);
     addFunction(_stringPrototype, "slice", stringValue(), 2);
-    addFunction(_stringPrototype, "split", newArrayValue(), 2);
+    addFunction(_stringPrototype, "split", newArray(), 2);
     addFunction(_stringPrototype, "substring", stringValue(), 2);
     addFunction(_stringPrototype, "toLowerCase", stringValue(), 0);
     addFunction(_stringPrototype, "toLocaleLowerCase", stringValue(), 0);
@@ -757,7 +1225,7 @@ void Engine::initializePrototypes()
 
     // set up the default Boolean prototype
     _regexpPrototype->setProperty("constructor", _regexpCtor);
-    addFunction(_regexpPrototype, "exec", newArrayValue(), 1);
+    addFunction(_regexpPrototype, "exec", newArray(), 1);
     addFunction(_regexpPrototype, "test", booleanValue(), 1);
     addFunction(_regexpPrototype, "toString", stringValue(), 0);
 
@@ -773,9 +1241,9 @@ void Engine::initializePrototypes()
     _globalObject->setProperty("RegExp", regexpCtor());
 }
 
-const Value *FunctionValue::call(const Value *thisValue, const QList<const Value *> & /*actuals*/) const
+const Value *FunctionValue::invoke(const Value *thisObject, const ValueList & /*actuals*/) const
 {
-    return thisValue; // ### FIXME: it should return undefined
+    return thisObject; // ### FIXME: it should return undefined
 }
 
 const Value *FunctionValue::argument(int /*index*/) const
@@ -788,84 +1256,6 @@ const Value *FunctionValue::returnValue() const
     return engine()->undefinedValue();
 }
 
-const Value *ObjectCtor::call(const Value *, const QList<const Value *> &) const
-{
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Object");
-    object->setPrototype(engine()->objectPrototype());
-    object->setProperty("length", engine()->numberValue());
-    return object;
-}
-
-const Value *FunctionCtor::call(const Value *, const QList<const Value *> &) const
-{
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Function");
-    object->setPrototype(engine()->functionPrototype());
-    object->setProperty("length", engine()->numberValue());
-    return object;
-}
-
-const Value *ArrayCtor::call(const Value *thisValue, const QList<const Value *> &) const
-{
-    ObjectValue *object = const_cast<ObjectValue *>(value_cast<const ObjectValue *>(thisValue));
-    if (! object || object == engine()->globalObject())
-        object = engine()->newObject();
-
-    object->setClassName("Array");
-    object->setPrototype(engine()->arrayPrototype());
-    object->setProperty("length", engine()->numberValue());
-    return object;
-}
-
-const Value *StringCtor::call(const Value *thisValue, const QList<const Value *> &) const
-{
-    ObjectValue *object = const_cast<ObjectValue *>(value_cast<const ObjectValue *>(thisValue));
-    if (! object || object == engine()->globalObject())
-        object = engine()->newObject();
-
-    object->setClassName("String");
-    object->setPrototype(engine()->stringPrototype());
-    object->setProperty("length", engine()->numberValue());
-    return object;
-}
-
-const Value *BooleanCtor::call(const Value *, const QList<const Value *> &) const
-{
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Boolean");
-    object->setPrototype(engine()->booleanPrototype());
-    return object;
-}
-
-const Value *NumberCtor::call(const Value *, const QList<const Value *> &) const
-{
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Number");
-    object->setPrototype(engine()->numberPrototype());
-    return object;
-}
-
-const Value *DateCtor::call(const Value *, const QList<const Value *> &) const
-{
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Date");
-    object->setPrototype(engine()->datePrototype());
-    return object;
-}
-
-const Value *RegExpCtor::call(const Value *, const QList<const Value *> &) const
-{
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("RegExp");
-    object->setPrototype(engine()->regexpPrototype());
-    object->setProperty("source", engine()->stringValue());
-    object->setProperty("global", engine()->booleanValue());
-    object->setProperty("ignoreCase", engine()->booleanValue());
-    object->setProperty("multiline", engine()->booleanValue());
-    object->setProperty("lastIndex", engine()->numberValue());
-    return object;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // convert to number
@@ -898,14 +1288,14 @@ void ConvertToNumber::visit(const StringValue *)
 void ConvertToNumber::visit(const ObjectValue *object)
 {
     if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
-        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
+        _result = value_cast<const NumberValue *>(valueOfMember->invoke(object)); // ### invoke convert-to-number?
     }
 }
 
 void ConvertToNumber::visit(const FunctionValue *object)
 {
     if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
-        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
+        _result = value_cast<const NumberValue *>(valueOfMember->invoke(object)); // ### invoke convert-to-number?
     }
 }
 
@@ -940,13 +1330,13 @@ void ConvertToString::visit(const StringValue *value)
 void ConvertToString::visit(const ObjectValue *object)
 {
     if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
-        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
+        _result = value_cast<const StringValue *>(toStringMember->invoke(object)); // ### invoke convert-to-string?
     }
 }
 
 void ConvertToString::visit(const FunctionValue *object)
 {
     if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
-        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
+        _result = value_cast<const StringValue *>(toStringMember->invoke(object)); // ### invoke convert-to-string?
     }
 }
