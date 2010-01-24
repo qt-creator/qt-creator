@@ -248,6 +248,31 @@ private:
     QString _className;
 };
 
+class QMLJS_EXPORT Activation: public ObjectValue
+{
+public:
+    Activation(Engine *engine);
+    virtual ~Activation();
+
+    bool calledAsConstructor() const;
+    void setCalledAsConstructor(bool calledAsConstructor);
+
+    bool calledAsFunction() const;
+    void setCalledAsFunction(bool calledAsFunction);
+
+    ObjectValue *thisObject() const;
+    void setThisObject(ObjectValue *thisObject);
+
+    ValueList arguments() const;
+    void setArguments(const ValueList &arguments);
+
+private:
+    ObjectValue *_thisObject;
+    ValueList _arguments;
+    bool _calledAsFunction;
+};
+
+
 class QMLJS_EXPORT FunctionValue: public ObjectValue
 {
 public:
@@ -269,8 +294,7 @@ public:
     virtual int argumentCount() const;
     virtual const Value *argument(int index) const;
 
-    virtual const Value *invoke(const Value *thisObject,
-                                const ValueList &actuals = ValueList()) const;
+    virtual const Value *invoke(const Activation *activation) const;
 
     // Value interface
     virtual const FunctionValue *asFunctionValue() const;
@@ -281,6 +305,7 @@ class QMLJS_EXPORT Function: public FunctionValue
 {
 public:
     Function(Engine *engine);
+    virtual ~Function();
 
     void addArgument(const Value *argument);    
     void setReturnValue(const Value *returnValue);
@@ -292,7 +317,7 @@ public:
     virtual const Value *returnValue() const;
     virtual int argumentCount() const;
     virtual const Value *argument(int index) const;
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 
 private:
     ValueList _arguments;
@@ -405,10 +430,10 @@ public:
     const BooleanValue *booleanValue() const;
     const StringValue *stringValue() const;
 
-    const Value *newArray(); // ### remove me
-
+    ObjectValue *newObject(const ObjectValue *prototype);
     ObjectValue *newObject();
     Function *newFunction();
+    const Value *newArray(); // ### remove me
 
     // global object
     ObjectValue *globalObject() const;
@@ -435,7 +460,7 @@ public:
     const FunctionValue *regexpCtor() const;
 
     // operators
-    const Value *convertToBool(const Value *value);
+    const Value *convertToBoolean(const Value *value);
     const Value *convertToNumber(const Value *value);
     const Value *convertToString(const Value *value);
     const Value *convertToObject(const Value *value);
@@ -443,8 +468,6 @@ public:
 
 private:
     void initializePrototypes();
-
-    ObjectValue *newObject(const ObjectValue *prototype);
 
     void addFunction(ObjectValue *object, const QString &name, const Value *result, int argumentCount);
     void addFunction(ObjectValue *object, const QString &name, int argumentCount);

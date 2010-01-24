@@ -42,7 +42,7 @@ class ObjectCtor: public Function
 public:
     ObjectCtor(Engine *engine);
 
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 };
 
 class FunctionCtor: public Function
@@ -50,7 +50,7 @@ class FunctionCtor: public Function
 public:
     FunctionCtor(Engine *engine);
 
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 };
 
 class ArrayCtor: public Function
@@ -58,7 +58,7 @@ class ArrayCtor: public Function
 public:
     ArrayCtor(Engine *engine);
 
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 };
 
 class StringCtor: public Function
@@ -66,7 +66,7 @@ class StringCtor: public Function
 public:
     StringCtor(Engine *engine);
 
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 };
 
 class BooleanCtor: public Function
@@ -74,7 +74,7 @@ class BooleanCtor: public Function
 public:
     BooleanCtor(Engine *engine);
 
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 };
 
 class NumberCtor: public Function
@@ -82,7 +82,7 @@ class NumberCtor: public Function
 public:
     NumberCtor(Engine *engine);
 
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 };
 
 class DateCtor: public Function
@@ -90,7 +90,7 @@ class DateCtor: public Function
 public:
     DateCtor(Engine *engine);
 
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 };
 
 class RegExpCtor: public Function
@@ -98,7 +98,7 @@ class RegExpCtor: public Function
 public:
     RegExpCtor(Engine *engine);
 
-    virtual const Value *invoke(const Value *thisObject, const ValueList &actuals) const;
+    virtual const Value *invoke(const Activation *activation) const;
 };
 
 ObjectCtor::ObjectCtor(Engine *engine)
@@ -141,83 +141,101 @@ RegExpCtor::RegExpCtor(Engine *engine)
 {
 }
 
-const Value *ObjectCtor::invoke(const Value *, const ValueList &) const
+const Value *ObjectCtor::invoke(const Activation *activation) const
 {
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Object");
-    object->setPrototype(engine()->objectPrototype());
-    object->setProperty("length", engine()->numberValue());
-    return object;
+    ObjectValue *thisObject = activation->thisObject();
+    if (activation->calledAsFunction())
+        thisObject = engine()->newObject();
+
+    thisObject->setClassName("Object");
+    thisObject->setPrototype(engine()->objectPrototype());
+    thisObject->setProperty("length", engine()->numberValue());
+    return thisObject;
 }
 
-const Value *FunctionCtor::invoke(const Value *, const ValueList &) const
+const Value *FunctionCtor::invoke(const Activation *activation) const
 {
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Function");
-    object->setPrototype(engine()->functionPrototype());
-    object->setProperty("length", engine()->numberValue());
-    return object;
+    ObjectValue *thisObject = activation->thisObject();
+    if (activation->calledAsFunction())
+        thisObject = engine()->newObject();
+
+    thisObject->setClassName("Function");
+    thisObject->setPrototype(engine()->functionPrototype());
+    thisObject->setProperty("length", engine()->numberValue());
+    return thisObject;
 }
 
-const Value *ArrayCtor::invoke(const Value *thisObject, const ValueList &) const
+const Value *ArrayCtor::invoke(const Activation *activation) const
 {
-    ObjectValue *object = const_cast<ObjectValue *>(value_cast<const ObjectValue *>(thisObject));
-    if (! object || object == engine()->globalObject())
-        object = engine()->newObject();
+    ObjectValue *thisObject = activation->thisObject();
+    if (activation->calledAsFunction())
+        thisObject = engine()->newObject();
 
-    object->setClassName("Array");
-    object->setPrototype(engine()->arrayPrototype());
-    object->setProperty("length", engine()->numberValue());
-    return object;
+    thisObject->setClassName("Array");
+    thisObject->setPrototype(engine()->arrayPrototype());
+    thisObject->setProperty("length", engine()->numberValue());
+    return thisObject;
 }
 
-const Value *StringCtor::invoke(const Value *thisObject, const ValueList &) const
+const Value *StringCtor::invoke(const Activation *activation) const
 {
-    ObjectValue *object = const_cast<ObjectValue *>(value_cast<const ObjectValue *>(thisObject));
-    if (! object || object == engine()->globalObject())
-        object = engine()->newObject();
+    if (activation->calledAsFunction())
+        return engine()->convertToString(activation->thisObject());
 
-    object->setClassName("String");
-    object->setPrototype(engine()->stringPrototype());
-    object->setProperty("length", engine()->numberValue());
-    return object;
+    ObjectValue *thisObject = activation->thisObject();
+    thisObject->setClassName("String");
+    thisObject->setPrototype(engine()->stringPrototype());
+    thisObject->setProperty("length", engine()->numberValue());
+    return thisObject;
 }
 
-const Value *BooleanCtor::invoke(const Value *, const ValueList &) const
+const Value *BooleanCtor::invoke(const Activation *activation) const
 {
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Boolean");
-    object->setPrototype(engine()->booleanPrototype());
-    return object;
+    if (activation->calledAsFunction())
+        return engine()->convertToBoolean(activation->thisObject());
+
+    ObjectValue *thisObject = activation->thisObject();
+    thisObject->setClassName("Boolean");
+    thisObject->setPrototype(engine()->booleanPrototype());
+    return thisObject;
 }
 
-const Value *NumberCtor::invoke(const Value *, const ValueList &) const
+const Value *NumberCtor::invoke(const Activation *activation) const
 {
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Number");
-    object->setPrototype(engine()->numberPrototype());
-    return object;
+    if (activation->calledAsFunction())
+        return engine()->convertToNumber(activation->thisObject());
+
+    ObjectValue *thisObject = activation->thisObject();
+    thisObject->setClassName("Number");
+    thisObject->setPrototype(engine()->numberPrototype());
+    return thisObject;
 }
 
-const Value *DateCtor::invoke(const Value *, const ValueList &) const
+const Value *DateCtor::invoke(const Activation *activation) const
 {
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("Date");
-    object->setPrototype(engine()->datePrototype());
-    return object;
+    if (activation->calledAsFunction())
+        return engine()->stringValue();
+
+    ObjectValue *thisObject = activation->thisObject();
+    thisObject->setClassName("Date");
+    thisObject->setPrototype(engine()->datePrototype());
+    return thisObject;
 }
 
-const Value *RegExpCtor::invoke(const Value *, const ValueList &) const
+const Value *RegExpCtor::invoke(const Activation *activation) const
 {
-    ObjectValue *object = engine()->newObject();
-    object->setClassName("RegExp");
-    object->setPrototype(engine()->regexpPrototype());
-    object->setProperty("source", engine()->stringValue());
-    object->setProperty("global", engine()->booleanValue());
-    object->setProperty("ignoreCase", engine()->booleanValue());
-    object->setProperty("multiline", engine()->booleanValue());
-    object->setProperty("lastIndex", engine()->numberValue());
-    return object;
+    ObjectValue *thisObject = activation->thisObject();
+    if (activation->calledAsFunction())
+        thisObject = engine()->newObject();
+
+    thisObject->setClassName("RegExp");
+    thisObject->setPrototype(engine()->regexpPrototype());
+    thisObject->setProperty("source", engine()->stringValue());
+    thisObject->setProperty("global", engine()->booleanValue());
+    thisObject->setProperty("ignoreCase", engine()->booleanValue());
+    thisObject->setProperty("multiline", engine()->booleanValue());
+    thisObject->setProperty("lastIndex", engine()->numberValue());
+    return thisObject;
 }
 
 } // end of anonymous namespace
@@ -526,6 +544,57 @@ const Value *ObjectValue::lookupMember(const QString &name) const
     return 0;
 }
 
+Activation::Activation(Engine *engine)
+    : ObjectValue(engine),
+      _thisObject(0),
+      _calledAsFunction(true)
+{
+}
+
+Activation::~Activation()
+{
+}
+
+bool Activation::calledAsConstructor() const
+{
+    return ! _calledAsFunction;
+}
+
+void Activation::setCalledAsConstructor(bool calledAsConstructor)
+{
+    _calledAsFunction = ! calledAsConstructor;
+}
+
+bool Activation::calledAsFunction() const
+{
+    return _calledAsFunction;
+}
+
+void Activation::setCalledAsFunction(bool calledAsFunction)
+{
+    _calledAsFunction = calledAsFunction;
+}
+
+ObjectValue *Activation::thisObject() const
+{
+    return _thisObject;
+}
+
+void Activation::setThisObject(ObjectValue *thisObject)
+{
+    _thisObject = thisObject;
+}
+
+ValueList Activation::arguments() const
+{
+    return _arguments;
+}
+
+void Activation::setArguments(const ValueList &arguments)
+{
+    _arguments = arguments;
+}
+
 FunctionValue::FunctionValue(Engine *engine)
     : ObjectValue(engine)
 {
@@ -537,18 +606,29 @@ FunctionValue::~FunctionValue()
 
 const Value *FunctionValue::construct(const ValueList &actuals) const
 {
-    ObjectValue *thisObject = engine()->newObject();
-    return invoke(thisObject, actuals);
+    Activation activation(engine()); // ### FIXME: create on the heap
+    activation.setCalledAsConstructor(true);
+    activation.setThisObject(engine()->newObject());
+    activation.setArguments(actuals);
+    return invoke(&activation);
 }
 
 const Value *FunctionValue::call(const ValueList &actuals) const
 {
-    return invoke(engine()->nullValue(), actuals);
+    Activation activation(engine()); // ### FIXME: create on the heap
+    activation.setCalledAsFunction(true);
+    activation.setThisObject(engine()->globalObject()); // ### FIXME: it should be `null'
+    activation.setArguments(actuals);
+    return invoke(&activation);
 }
 
 const Value *FunctionValue::call(const ObjectValue *thisObject, const ValueList &actuals) const
 {
-    return invoke(thisObject, actuals);
+    Activation activation(engine()); // ### FIXME: create on the heap
+    activation.setCalledAsFunction(true);
+    activation.setThisObject(const_cast<ObjectValue *>(thisObject)); // ### FIXME: remove the const_cast
+    activation.setArguments(actuals);
+    return invoke(&activation);
 }
 
 int FunctionValue::argumentCount() const
@@ -570,6 +650,10 @@ Function::Function(Engine *engine)
     : FunctionValue(engine), _returnValue(0)
 {
     setClassName("Function");
+}
+
+Function::~Function()
+{
 }
 
 void Function::addArgument(const Value *argument)
@@ -605,9 +689,9 @@ const Value *Function::property(const QString &name) const
     return FunctionValue::property(name);
 }
 
-const Value *Function::invoke(const Value *thisObject, const ValueList &) const
+const Value *Function::invoke(const Activation *activation) const
 {
-    return thisObject; // ### FIXME it should return undefined
+    return activation->thisObject(); // ### FIXME it should return undefined
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -946,7 +1030,7 @@ const ObjectValue *Engine::mathObject() const
     return _mathObject;
 }
 
-const Value *Engine::convertToBool(const Value *value)
+const Value *Engine::convertToBoolean(const Value *value)
 {
     return _convertToNumber(value);  // ### implement convert to bool
 }
@@ -1241,9 +1325,9 @@ void Engine::initializePrototypes()
     _globalObject->setProperty("RegExp", regexpCtor());
 }
 
-const Value *FunctionValue::invoke(const Value *thisObject, const ValueList & /*actuals*/) const
+const Value *FunctionValue::invoke(const Activation *activation) const
 {
-    return thisObject; // ### FIXME: it should return undefined
+    return activation->thisObject(); // ### FIXME: it should return undefined
 }
 
 const Value *FunctionValue::argument(int /*index*/) const
@@ -1288,14 +1372,14 @@ void ConvertToNumber::visit(const StringValue *)
 void ConvertToNumber::visit(const ObjectValue *object)
 {
     if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
-        _result = value_cast<const NumberValue *>(valueOfMember->invoke(object)); // ### invoke convert-to-number?
+        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
 
 void ConvertToNumber::visit(const FunctionValue *object)
 {
     if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
-        _result = value_cast<const NumberValue *>(valueOfMember->invoke(object)); // ### invoke convert-to-number?
+        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
 
@@ -1330,13 +1414,13 @@ void ConvertToString::visit(const StringValue *value)
 void ConvertToString::visit(const ObjectValue *object)
 {
     if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
-        _result = value_cast<const StringValue *>(toStringMember->invoke(object)); // ### invoke convert-to-string?
+        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
 
 void ConvertToString::visit(const FunctionValue *object)
 {
     if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
-        _result = value_cast<const StringValue *>(toStringMember->invoke(object)); // ### invoke convert-to-string?
+        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
