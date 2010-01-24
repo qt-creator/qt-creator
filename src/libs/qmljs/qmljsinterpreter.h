@@ -202,7 +202,7 @@ public:
     virtual ~MemberProcessor() {}
 
     // Returns false to stop the processor.
-    virtual bool processMember(const QString &name, const Value *value) = 0;
+    virtual bool process(const QString &name, const Value *value) = 0;
 };
 
 class QMLJS_EXPORT ObjectValue: public Value, public Environment
@@ -224,7 +224,6 @@ public:
 
     virtual void processMembers(MemberProcessor *processor) const;
 
-    virtual const Value *member(const QString &name) const;
     virtual const Value *property(const QString &name) const;
     virtual void setProperty(const QString &name, const Value *value);
     virtual void removeProperty(const QString &name);
@@ -435,6 +434,9 @@ public:
     Function *newFunction();
     const Value *newArray(); // ### remove me
 
+    // QML objects
+    const ObjectValue *newQmlObject(const QString &name);
+
     // global object
     ObjectValue *globalObject() const;
     const ObjectValue *mathObject() const;
@@ -500,6 +502,7 @@ private:
     BooleanValue _booleanValue;
     StringValue _stringValue;
     QList<ObjectValue *> _objects;
+    QHash<QString, const ObjectValue *> _qmlObjects;
 
     ConvertToNumber _convertToNumber;
     ConvertToString _convertToString;

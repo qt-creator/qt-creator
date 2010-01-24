@@ -30,9 +30,9 @@
 #include "qmljsmetatypebackend.h"
 #include "qmljstypesystem.h"
 
-#ifdef BUILD_DECLARATIVE_BACKEND
+#ifndef NO_DECLARATIVE_BACKEND
 #  include "qtdeclarativemetatypebackend.h"
-#endif // BUILD_DECLARATIVE_BACKEND
+#endif // NO_DECLARATIVE_BACKEND
 
 #include <QDebug>
 
@@ -40,9 +40,9 @@ using namespace QmlJS;
 
 TypeSystem::TypeSystem()
 {
-#ifdef BUILD_DECLARATIVE_BACKEND
+#ifndef NO_DECLARATIVE_BACKEND
     backends.append(new Internal::QtDeclarativeMetaTypeBackend(this));
-#endif // BUILD_DECLARATIVE_BACKEND
+#endif // NO_DECLARATIVE_BACKEND
 }
 
 TypeSystem::~TypeSystem()

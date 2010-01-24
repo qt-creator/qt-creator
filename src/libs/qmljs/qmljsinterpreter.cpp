@@ -30,9 +30,92 @@
 #include "qmljsinterpreter.h"
 #include <QtCore/QDebug>
 
+#ifndef NO_DECLARATIVE_BACKEND
+#  include <QtDeclarative/QmlType>
+#  include <QtDeclarative/QmlMetaType>
+#  include <QtDeclarative/private/qmlgraphicsanchors_p.h> // ### remove me
+#  include <QtCore/QMetaObject>
+#  include <QtCore/QMetaProperty>
+#endif
+
 using namespace QmlJS::Interpreter;
 
 namespace {
+
+#ifndef NO_DECLARATIVE_BACKEND
+
+class QmlObjectValue: public ObjectValue
+{
+public:
+    QmlObjectValue(const QMetaObject *metaObject, Engine *engine)
+        : ObjectValue(engine), _metaObject(metaObject) {}
+
+    virtual ~QmlObjectValue() {}
+
+    virtual const Value *lookupMember(const QString &name) const
+    {
+        for (int index = 0; index < _metaObject->propertyCount(); ++index) {
+            QMetaProperty prop = _metaObject->property(index);
+
+            if (name == QString::fromUtf8(prop.name()))
+                return propertyValue(prop);
+        }
+
+        return ObjectValue::lookupMember(name);
+    }
+
+    virtual void processMembers(MemberProcessor *processor) const
+    {
+        for (int index = 0; index < _metaObject->propertyCount(); ++index) {
+            QMetaProperty prop = _metaObject->property(index);
+
+            processor->process(prop.name(), propertyValue(prop));
+        }
+    }
+
+    const Value *propertyValue(const QMetaProperty &prop) const {
+        const Value *value = engine()->undefinedValue();
+
+        if (QmlMetaType::isObject(prop.userType())) {
+            QString typeName = QString::fromUtf8(prop.typeName());
+
+            if (typeName.endsWith(QLatin1Char('*')))
+                typeName.truncate(typeName.length() - 1);
+
+            typeName.replace(QLatin1Char('.'), QLatin1Char('/'));
+
+            if (const ObjectValue *objectValue = engine()->newQmlObject(typeName))
+                return objectValue;
+        }
+
+        switch (prop.type()) {
+        case QMetaType::QByteArray:
+        case QMetaType::QString:
+            value = engine()->stringValue();
+            break;
+
+        case QMetaType::Bool:
+            value = engine()->booleanValue();
+            break;
+
+        case QMetaType::Int:
+        case QMetaType::Float:
+        case QMetaType::Double:
+            value = engine()->numberValue();
+            break;
+
+        default:
+            break;
+        } // end of switch
+
+        return value;
+    }
+
+private:
+    const QMetaObject *_metaObject;
+};
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // constructors
@@ -511,19 +594,9 @@ void ObjectValue::processMembers(MemberProcessor *processor) const
     while (it.hasNext()) {
         it.next();
 
-        if (! processor->processMember(it.key(), it.value()))
+        if (! processor->process(it.key(), it.value()))
             break;
     }
-}
-
-const Value *ObjectValue::member(const QString &name) const
-{
-    QHash<QString, const Value *>::const_iterator it = _members.find(name);
-
-    if (it != _members.end())
-        return it.value();
-    else
-        return 0;
 }
 
 const Environment *ObjectValue::parent() const
@@ -533,7 +606,7 @@ const Environment *ObjectValue::parent() const
 
 const Value *ObjectValue::lookupMember(const QString &name) const
 {
-    if (const Value *m = member(name))
+    if (const Value *m = _members.value(name))
         return m;
 
     if (_prototype) {
@@ -1324,6 +1397,38 @@ void Engine::initializePrototypes()
     _globalObject->setProperty("Date", dateCtor());
     _globalObject->setProperty("RegExp", regexpCtor());
 }
+
+const ObjectValue *Engine::newQmlObject(const QString &name)
+{
+    if (const ObjectValue *object = _qmlObjects.value(name))
+        return object;
+
+#ifndef NO_DECLARATIVE_BACKEND
+    if (name == QLatin1String("QmlGraphicsAnchors")) {
+        QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsAnchors::staticMetaObject, this);
+        _objects.append(object);
+        return object;
+    }
+
+    // ### TODO: add support for QML packages
+    QString componentName;
+    componentName += QLatin1String("Qt/");
+    componentName += name;
+    componentName.replace(QLatin1Char('.'), QLatin1Char('/'));
+
+    if (QmlType *qmlType = QmlMetaType::qmlType(componentName.toUtf8(), 4, 6)) {
+        QmlObjectValue *object = new QmlObjectValue(qmlType->metaObject(), this);
+        _qmlObjects.insert(name, object);
+        _objects.append(object);
+        return object;
+    }
+#endif
+
+    //qDebug() << name;
+
+    return 0;
+}
+
 
 const Value *FunctionValue::invoke(const Activation *activation) const
 {

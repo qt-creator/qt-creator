@@ -39,13 +39,13 @@ SOURCES += \
 contains(QT_CONFIG, declarative) {
     QT += declarative
 
-    DEFINES += BUILD_DECLARATIVE_BACKEND
-
     HEADERS += \
         $$PWD/qtdeclarativemetatypebackend.h
 
     SOURCES += \
         $$PWD/qtdeclarativemetatypebackend.cpp
+} else {
+    DEFINES += NO_DECLARATIVE_BACKEND
 }
 
 contains(QT, gui) {

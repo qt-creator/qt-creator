@@ -315,7 +315,7 @@ public:
     }
 
 private:
-    virtual bool processMember(const QString &name, const Interpreter::Value *value)
+    virtual bool process(const QString &name, const Interpreter::Value *value)
     {
         _properties.insert(name, value);
         return true;
@@ -703,6 +703,35 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         if (exprDoc->ast()) {
             Interpreter::Engine interp;
+
+            foreach (Document::Ptr doc, snapshot) {
+                const QFileInfo fileInfo(doc->fileName());
+
+                if (fileInfo.suffix() != QLatin1String("qml"))
+                    continue;
+                else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME includ `imported' components
+                    continue;
+
+                const QString typeName = fileInfo.baseName();
+                if (typeName.isEmpty())
+                    continue;
+
+                QMapIterator<QString, IdSymbol *> it(doc->ids());
+                while (it.hasNext()) {
+                    it.next();
+
+                    if (IdSymbol *symbol = it.value()) {
+                        const QString id = it.key();
+
+                        if (symbol->parentNode()) {
+                            const QString component = symbol->parentNode()->name();
+                            if (const Interpreter::ObjectValue *object = interp.newQmlObject(component))
+                                interp.globalObject()->setProperty(id, object);
+                        }
+                    }
+                }
+            }
+
             Evaluate evaluate(&interp);
 
             SearchPropertyDefinitions searchPropertyDefinitions;
