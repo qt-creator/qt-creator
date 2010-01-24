@@ -202,11 +202,11 @@ class SearchPropertyDefinitions: protected AST::Visitor
     QList<AST::UiPublicMember *> _properties;
 
 public:
-    QList<AST::UiPublicMember *> operator()(AST::Node *node)
+    QList<AST::UiPublicMember *> operator()(Document::Ptr doc)
     {
         _properties.clear();
-        if (node)
-            node->accept(this);
+        if (doc && doc->qmlProgram())
+            doc->qmlProgram()->accept(this);
         return _properties;
     }
 
@@ -669,23 +669,53 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_completions.clear();
 
     QmlJS::Document::Ptr qmlDocument = edit->qmlDocument();
-//    qDebug() << "*** document:" << qmlDocument;
-    if (qmlDocument.isNull())
-        return -1;
 
     const QmlJS::Snapshot &snapshot = m_modelManager->snapshot();
 
-    if (! qmlDocument->qmlProgram()) {
+    if (! qmlDocument)
         qmlDocument = snapshot.value(qmlDocument->fileName());
-
-        if (! qmlDocument)
-            return -1;
-    }
 
     const QFileInfo currentFileInfo(qmlDocument->fileName());
     const QString currentFilePath = currentFileInfo.absolutePath();
 
     const QIcon typeIcon = iconForColor(Qt::yellow);
+    const QIcon symbolIcon = iconForColor(Qt::darkCyan);
+
+    Interpreter::Engine interp;
+
+    if (qmlDocument && qmlDocument->qmlProgram()) {
+        const Interpreter::ObjectValue *parentItem = 0;
+        parentItem = interp.newQmlObject(QLatin1String("Item")); // ### TODO: find the parent item.
+        interp.globalObject()->setProperty(QLatin1String("parent"), parentItem);
+    }
+
+    foreach (Document::Ptr doc, snapshot) {
+        const QFileInfo fileInfo(doc->fileName());
+
+        if (fileInfo.suffix() != QLatin1String("qml"))
+            continue;
+        else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME include `imported' components
+            continue;
+
+        const QString typeName = fileInfo.baseName();
+        if (typeName.isEmpty())
+            continue;
+
+        QMapIterator<QString, IdSymbol *> it(doc->ids());
+        while (it.hasNext()) {
+            it.next();
+
+            if (IdSymbol *symbol = it.value()) {
+                const QString id = it.key();
+
+                if (symbol->parentNode()) {
+                    const QString component = symbol->parentNode()->name();
+                    if (const Interpreter::ObjectValue *object = interp.newQmlObject(component))
+                        interp.globalObject()->setProperty(id, object);
+                }
+            }
+        }
+    }
 
     QChar completionOperator;
     if (m_startPosition > 0)
@@ -713,21 +743,22 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             }
         }
 
-        // Add the visible IDs to the completion box
-        const QIcon idIcon = iconForColor(Qt::darkGray);
-        QStringList ids = qmlDocument->ids().keys();
-        foreach (const QString &id, ids) {
-            if (id.isEmpty())
-                continue;
+        // ### set up the current scope chain.
+        const Interpreter::ObjectValue *scope = interp.globalObject();
+
+        EnumerateProperties enumerateProperties;
+        QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(scope));
+        while (it.hasNext()) {
+            it.next();
 
             TextEditor::CompletionItem item(this);
-            item.text = id;
-            item.icon = idIcon;
+            item.text = it.key();
+            item.icon = symbolIcon;
             m_completions.append(item);
         }
     }
 
-    if (completionOperator == QLatin1Char('.') || completionOperator == QLatin1Char('(')) {
+    else if (completionOperator == QLatin1Char('.') || completionOperator == QLatin1Char('(')) {
         ExpressionUnderCursor expressionUnderCursor;
 
         QTextCursor tc = edit->textCursor();
@@ -736,63 +767,34 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         const QString expression = expressionUnderCursor(tc);
         //qDebug() << "expression:" << expression;
 
-        QmlJS::Document::Ptr exprDoc = QmlJS::Document::create(QLatin1String("<expression>"));
+        QmlJS::Document::Ptr exprDoc = Document::create(QLatin1String("<expression>"));
         exprDoc->setSource(expression);
         exprDoc->parseExpression();
 
         if (exprDoc->ast()) {
-            Interpreter::Engine interp;
-
-            if (qmlDocument && qmlDocument->qmlProgram()) {
-                const Interpreter::ObjectValue *parentItem = 0;
-                parentItem = interp.newQmlObject(QLatin1String("Item")); // ### TODO: find the parent item.
-                interp.globalObject()->setProperty(QLatin1String("parent"), parentItem);
-            }
-
-            foreach (Document::Ptr doc, snapshot) {
-                const QFileInfo fileInfo(doc->fileName());
-
-                if (fileInfo.suffix() != QLatin1String("qml"))
-                    continue;
-                else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME include `imported' components
-                    continue;
-
-                const QString typeName = fileInfo.baseName();
-                if (typeName.isEmpty())
-                    continue;
-
-                QMapIterator<QString, IdSymbol *> it(doc->ids());
-                while (it.hasNext()) {
-                    it.next();
-
-                    if (IdSymbol *symbol = it.value()) {
-                        const QString id = it.key();
-
-                        if (symbol->parentNode()) {
-                            const QString component = symbol->parentNode()->name();
-                            if (const Interpreter::ObjectValue *object = interp.newQmlObject(component))
-                                interp.globalObject()->setProperty(id, object);
-                        }
-                    }
-                }
-            }
-
             Evaluate evaluate(&interp);
             // ### set up the scope chain
 
             SearchPropertyDefinitions searchPropertyDefinitions;
 
-            const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument->ast());
+            const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument);
             foreach (AST::UiPublicMember *prop, properties) {
-                if (prop->name && prop->memberType && prop->memberType->asString() == QLatin1String("string")) {
-                    interp.globalObject()->setProperty(prop->name->asString(), interp.stringValue());
-                }
+                if (! (prop->name && prop->memberType))
+                    continue;
+
+                const QString propName = prop->name->asString();
+                const QString propType = prop->memberType->asString();
+
+                if (propType == QLatin1String("string"))
+                    interp.globalObject()->setProperty(propName, interp.stringValue());
+                else if (propType == QLatin1String("bool"))
+                    interp.globalObject()->setProperty(propName, interp.booleanValue());
+                else if (propType == QLatin1String("int") || propType == QLatin1String("real"))
+                    interp.globalObject()->setProperty(propName, interp.numberValue());
             }
 
             const Interpreter::Value *value = interp.convertToObject(evaluate(exprDoc->ast()));
             //qDebug() << "type:" << interp.typeId(value);
-
-            const QIcon symbolIcon = iconForColor(Qt::darkCyan);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties;
@@ -805,7 +807,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                     item.icon = symbolIcon;
                     m_completions.append(item);
                 }
-            } else if (value && completionOperator == QLatin1Char('(')) {
+            } else if (value && completionOperator == QLatin1Char('(')) { // function completion
                 if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {
                     QString functionName = expression;
                     int indexOfDot = expression.lastIndexOf(QLatin1Char('.'));
@@ -816,10 +818,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                     if (!m_functionArgumentWidget)
                         m_functionArgumentWidget = new QmlJSEditor::Internal::FunctionArgumentWidget;
 
-                    m_functionArgumentWidget->showFunctionHint(functionName.trimmed(), f->argumentCount(), m_startPosition);
+                    m_functionArgumentWidget->showFunctionHint(functionName.trimmed(), f->argumentCount(),
+                                                               m_startPosition);
                 }
 
-                return -1;
+                return -1; // We always return -1 when completing function prototypes.
             }
         }
 
