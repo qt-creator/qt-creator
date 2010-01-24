@@ -99,11 +99,11 @@ class FindMembers: protected AST::Visitor
     QList<AST::UiObjectMember *> _members;
 
 public:
-    QList<AST::UiObjectMember *> operator()(AST::Node *node)
+    QList<AST::UiObjectMember *> operator()(Document::Ptr doc)
     {
         _members.clear();
-        if (node)
-            node->accept(this);
+        if (doc && doc->qmlProgram())
+            doc->qmlProgram()->accept(this);
         return _members;
     }
 
@@ -657,6 +657,23 @@ bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
     return false;
 }
 
+static QString qualifiedNameId(AST::UiQualifiedId *it)
+{
+    QString text;
+
+    for (; it; it = it->next) {
+        if (! it->name)
+            continue;
+
+        text += it->name->asString();
+
+        if (it->next)
+            text += QLatin1Char('.');
+    }
+
+    return text;
+}
+
 int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
@@ -717,18 +734,85 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     // Set up the current scope chain.
     Interpreter::ObjectValue *scope = interp.newObject(/* prototype = */ 0);
 
-    // ### FIXME: get the declaring item
-    Interpreter::ObjectValue *declaringItem = interp.newQmlObject(QLatin1String("Item"));
+    AST::UiObjectMember *declaringMember = 0;
+    AST::UiObjectMember *parentMember = 0;
 
-    scope->setScope(declaringItem);
-    declaringItem->setScope(interp.globalObject());
+    const int cursorLine = edit->textCursor().blockNumber() + 1;
+    const int cursorColumn = edit->textCursor().columnNumber() + 1;
 
-    if (qmlDocument && qmlDocument->qmlProgram()) {
-        const Interpreter::ObjectValue *parentItem = 0;
-        const QString declaringItem = QLatin1String("Item"); // ### FIXME: resolve the parent of the declaring item
-        parentItem = interp.newQmlObject(declaringItem);
-        scope->setProperty(QLatin1String("parent"), parentItem);
+    FindMembers findMembers;
+    const QList<AST::UiObjectMember *> members = findMembers(qmlDocument);
+    for (int index = 0; index < members.size(); ++index) {
+        AST::UiObjectMember *member = members.at(index);
+
+        AST::SourceLocation pos = member->firstSourceLocation();
+        const int startLine = pos.startLine;
+        const int startColumn = pos.startColumn;
+
+        if (startLine < cursorLine || (startLine == cursorLine && cursorColumn >= startColumn)) {
+            AST::SourceLocation endPos = member->lastSourceLocation();
+            const int endLine = endPos.startLine;
+            const int endColumn = endPos.startColumn + endPos.length;
+
+            if (cursorLine < endLine || (cursorLine == endLine && cursorColumn <= endColumn)) {
+                parentMember = declaringMember;
+                declaringMember = member;
+            }
+        }
     }
+
+    // ### TODO: remove me. This is just a quick and dirty hack to get some completion
+    // for the property definitions.
+    SearchPropertyDefinitions searchPropertyDefinitions;
+
+    const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument);
+    foreach (AST::UiPublicMember *prop, properties) {
+        if (! (prop->name && prop->memberType))
+            continue;
+
+        const QString propName = prop->name->asString();
+        const QString propType = prop->memberType->asString();
+
+        // ### TODO: generalize
+        if (propType == QLatin1String("string"))
+            interp.globalObject()->setProperty(propName, interp.stringValue());
+        else if (propType == QLatin1String("bool"))
+            interp.globalObject()->setProperty(propName, interp.booleanValue());
+        else if (propType == QLatin1String("int") || propType == QLatin1String("real"))
+            interp.globalObject()->setProperty(propName, interp.numberValue());
+    }
+
+    // Get the name of the declaring item.
+    QString declaringItemName = QLatin1String("Item");
+
+    if (AST::UiObjectDefinition *binding = AST::cast<AST::UiObjectDefinition *>(declaringMember))
+        declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
+    else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(declaringMember))
+        declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
+
+    Interpreter::ObjectValue *declaringItem = interp.newQmlObject(declaringItemName);
+    if (! declaringItem)
+        declaringItem = interp.newQmlObject(QLatin1String("Item"));
+
+    if (declaringItem) {
+        scope->setScope(declaringItem);
+        declaringItem->setScope(interp.globalObject());
+    }
+
+    // Get the name of the parent of the declaring item.
+    QString parentItemName = QLatin1String("Item");
+
+    if (AST::UiObjectDefinition *binding = AST::cast<AST::UiObjectDefinition *>(parentMember))
+        parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
+    else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(parentMember))
+        parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
+
+    Interpreter::ObjectValue *parentItem = interp.newQmlObject(declaringItemName);
+    if (! parentItem)
+        parentItem = interp.newQmlObject(QLatin1String("Item"));
+
+    if (parentItem)
+        scope->setProperty(QLatin1String("parent"), parentItem);
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -783,27 +867,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         if (exprDoc->ast()) {
             Evaluate evaluate(&interp);
             evaluate.setScope(scope);
-
-            // ### TODO: remove me. This is just a quick and dirty hack to get some completion
-            // for the property definitions.
-            SearchPropertyDefinitions searchPropertyDefinitions;
-
-            const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument);
-            foreach (AST::UiPublicMember *prop, properties) {
-                if (! (prop->name && prop->memberType))
-                    continue;
-
-                const QString propName = prop->name->asString();
-                const QString propType = prop->memberType->asString();
-
-                // ### TODO: generalize
-                if (propType == QLatin1String("string"))
-                    interp.globalObject()->setProperty(propName, interp.stringValue());
-                else if (propType == QLatin1String("bool"))
-                    interp.globalObject()->setProperty(propName, interp.booleanValue());
-                else if (propType == QLatin1String("int") || propType == QLatin1String("real"))
-                    interp.globalObject()->setProperty(propName, interp.numberValue());
-            }
 
             // Evaluate the expression under cursor.
             const Interpreter::Value *value = interp.convertToObject(evaluate(exprDoc->ast()));

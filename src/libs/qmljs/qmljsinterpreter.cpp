@@ -28,14 +28,17 @@
 **************************************************************************/
 
 #include "qmljsinterpreter.h"
+
+#include <QtCore/QMetaObject>
+#include <QtCore/QMetaProperty>
 #include <QtCore/QDebug>
 
 #ifndef NO_DECLARATIVE_BACKEND
 #  include <QtDeclarative/QmlType>
 #  include <QtDeclarative/QmlMetaType>
 #  include <QtDeclarative/private/qmlgraphicsanchors_p.h> // ### remove me
-#  include <QtCore/QMetaObject>
-#  include <QtCore/QMetaProperty>
+#  include <QtDeclarative/private/qmlgraphicsrectangle_p.h> // ### remove me
+#  include <QtDeclarative/private/qmlvaluetype_p.h> // ### remove me
 #endif
 
 using namespace QmlJS::Interpreter;
@@ -1403,6 +1406,10 @@ ObjectValue *Engine::newQmlObject(const QString &name)
 #ifndef NO_DECLARATIVE_BACKEND
     if (name == QLatin1String("QmlGraphicsAnchors")) {
         QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsAnchors::staticMetaObject, this);
+        _objects.append(object);
+        return object;
+    } else if (name == QLatin1String("QmlGraphicsPen")) {
+        QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsPen::staticMetaObject, this);
         _objects.append(object);
         return object;
     }
