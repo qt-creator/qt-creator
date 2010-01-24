@@ -1400,9 +1400,6 @@ void Engine::initializePrototypes()
 
 const ObjectValue *Engine::newQmlObject(const QString &name)
 {
-    if (const ObjectValue *object = _qmlObjects.value(name))
-        return object;
-
 #ifndef NO_DECLARATIVE_BACKEND
     if (name == QLatin1String("QmlGraphicsAnchors")) {
         QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsAnchors::staticMetaObject, this);
@@ -1418,7 +1415,6 @@ const ObjectValue *Engine::newQmlObject(const QString &name)
 
     if (QmlType *qmlType = QmlMetaType::qmlType(componentName.toUtf8(), 4, 6)) {
         QmlObjectValue *object = new QmlObjectValue(qmlType->metaObject(), this);
-        _qmlObjects.insert(name, object);
         _objects.append(object);
         return object;
     }

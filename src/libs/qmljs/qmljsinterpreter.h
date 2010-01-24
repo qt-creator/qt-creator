@@ -502,7 +502,6 @@ private:
     BooleanValue _booleanValue;
     StringValue _stringValue;
     QList<ObjectValue *> _objects;
-    QHash<QString, const ObjectValue *> _qmlObjects;
 
     ConvertToNumber _convertToNumber;
     ConvertToString _convertToString;

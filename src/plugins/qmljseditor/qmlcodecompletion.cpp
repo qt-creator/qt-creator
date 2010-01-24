@@ -94,6 +94,41 @@ static QIcon iconForColor(const QColor &color)
 
 namespace {
 
+class FindMembers: protected AST::Visitor
+{
+    QList<AST::UiObjectMember *> _members;
+
+public:
+    QList<AST::UiObjectMember *> operator()(AST::Node *node)
+    {
+        _members.clear();
+        if (node)
+            node->accept(this);
+        return _members;
+    }
+
+protected:
+    using AST::Visitor::visit;
+
+    virtual bool visit(AST::UiArrayBinding *ast)
+    {
+        _members.append(ast);
+        return true;
+    }
+
+    virtual bool visit(AST::UiObjectBinding *ast)
+    {
+        _members.append(ast);
+        return true;
+    }
+
+    virtual bool visit(AST::UiObjectDefinition *ast)
+    {
+        _members.append(ast);
+        return true;
+    }
+};
+
 class ExpressionUnderCursor
 {
     QTextCursor _cursor;
@@ -189,22 +224,26 @@ protected:
     }
 };
 
-class Evaluate: protected QmlJS::AST::Visitor
+class Evaluate: protected AST::Visitor
 {
-    QmlJS::Interpreter::Engine *_interp;
-    const QmlJS::Interpreter::Value *_value;
+    Interpreter::Engine *_interp;
+    const Interpreter::ObjectValue *_scope;
+    const Interpreter::Value *_value;
 
 public:
-    Evaluate(QmlJS::Interpreter::Engine *interp)
-        : _interp(interp), _value(0)
+    Evaluate(Interpreter::Engine *interp)
+        : _interp(interp), _scope(interp->globalObject()), _value(0)
     {}
 
-    const QmlJS::Interpreter::Value *operator()(QmlJS::AST::Node *node)
+    void setScope(const Interpreter::ObjectValue *scope)
+    { _scope = scope; }
+
+    const Interpreter::Value *operator()(AST::Node *node)
     { return evaluate(node); }
 
-    const QmlJS::Interpreter::Value *evaluate(QmlJS::AST::Node *node)
+    const Interpreter::Value *evaluate(AST::Node *node)
     {
-        const QmlJS::Interpreter::Value *previousValue = switchValue(0);
+        const Interpreter::Value *previousValue = switchValue(0);
 
         if (node)
             node->accept(this);
@@ -213,18 +252,18 @@ public:
     }
 
 protected:
-    using QmlJS::AST::Visitor::visit;
+    using AST::Visitor::visit;
 
-    const QmlJS::Interpreter::Value *switchValue(const QmlJS::Interpreter::Value *value)
+    const Interpreter::Value *switchValue(const Interpreter::Value *value)
     {
-        const QmlJS::Interpreter::Value *previousValue = _value;
+        const Interpreter::Value *previousValue = _value;
         _value = value;
         return previousValue;
     }
 
-    virtual bool preVisit(QmlJS::AST::Node *ast) // ### remove me
+    virtual bool preVisit(AST::Node *ast) // ### remove me
     {
-        using namespace QmlJS::AST;
+        using namespace AST;
 
         if (cast<NumericLiteral *>(ast))
             return true;
@@ -247,39 +286,39 @@ protected:
         return false;
     }
 
-    virtual bool visit(QmlJS::AST::NestedExpression *)
+    virtual bool visit(AST::NestedExpression *)
     {
         return true;
     }
 
-    virtual bool visit(QmlJS::AST::StringLiteral *)
+    virtual bool visit(AST::StringLiteral *)
     {
         _value = _interp->convertToObject(_interp->stringValue());
         return false;
     }
 
-    virtual bool visit(QmlJS::AST::NumericLiteral *)
+    virtual bool visit(AST::NumericLiteral *)
     {
         _value = _interp->convertToObject(_interp->numberValue());
         return false;
     }
 
-    virtual bool visit(QmlJS::AST::IdentifierExpression *ast)
+    virtual bool visit(AST::IdentifierExpression *ast)
     {
         if (! ast->name)
             return false;
 
-        _value = _interp->globalObject()->property(ast->name->asString());
+        _value = _scope->property(ast->name->asString());
         return false;
     }
 
-    virtual bool visit(QmlJS::AST::FieldMemberExpression *ast)
+    virtual bool visit(AST::FieldMemberExpression *ast)
     {
         if (! ast->name)
             return false;
 
-        if (const QmlJS::Interpreter::Value *base = _interp->convertToObject(evaluate(ast->base))) {
-            if (const QmlJS::Interpreter::ObjectValue *obj = base->asObjectValue()) {
+        if (const Interpreter::Value *base = _interp->convertToObject(evaluate(ast->base))) {
+            if (const Interpreter::ObjectValue *obj = base->asObjectValue()) {
                 _value = obj->property(ast->name->asString());
             }
         }
@@ -287,10 +326,10 @@ protected:
         return false;
     }
 
-    virtual bool visit(QmlJS::AST::CallExpression *ast)
+    virtual bool visit(AST::CallExpression *ast)
     {
-        if (const QmlJS::Interpreter::Value *base = evaluate(ast->base)) {
-            if (const QmlJS::Interpreter::FunctionValue *obj = base->asFunctionValue()) {
+        if (const Interpreter::Value *base = evaluate(ast->base)) {
+            if (const Interpreter::FunctionValue *obj = base->asFunctionValue()) {
                 _value = obj->returnValue();
             }
         }
@@ -704,12 +743,18 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         if (exprDoc->ast()) {
             Interpreter::Engine interp;
 
+            if (qmlDocument && qmlDocument->qmlProgram()) {
+                const Interpreter::ObjectValue *parentItem = 0;
+                parentItem = interp.newQmlObject(QLatin1String("Item")); // ### TODO: find the parent item.
+                interp.globalObject()->setProperty(QLatin1String("parent"), parentItem);
+            }
+
             foreach (Document::Ptr doc, snapshot) {
                 const QFileInfo fileInfo(doc->fileName());
 
                 if (fileInfo.suffix() != QLatin1String("qml"))
                     continue;
-                else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME includ `imported' components
+                else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME include `imported' components
                     continue;
 
                 const QString typeName = fileInfo.baseName();
@@ -733,6 +778,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             }
 
             Evaluate evaluate(&interp);
+            // ### set up the scope chain
 
             SearchPropertyDefinitions searchPropertyDefinitions;
 
