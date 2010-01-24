@@ -1398,7 +1398,7 @@ void Engine::initializePrototypes()
     _globalObject->setProperty("RegExp", regexpCtor());
 }
 
-const ObjectValue *Engine::newQmlObject(const QString &name)
+ObjectValue *Engine::newQmlObject(const QString &name)
 {
 #ifndef NO_DECLARATIVE_BACKEND
     if (name == QLatin1String("QmlGraphicsAnchors")) {

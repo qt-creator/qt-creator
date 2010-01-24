@@ -308,7 +308,7 @@ protected:
         if (! ast->name)
             return false;
 
-        _value = _scope->property(ast->name->asString());
+        _value = _scope->lookup(ast->name->asString());
         return false;
     }
 
@@ -345,11 +345,12 @@ class EnumerateProperties: private Interpreter::MemberProcessor
     QHash<QString, const Interpreter::Value *> _properties;
 
 public:
-    QHash<QString, const Interpreter::Value *> operator()(const Interpreter::Value *value)
+    QHash<QString, const Interpreter::Value *> operator()(const Interpreter::Value *value,
+                                                          bool lookAtScope = false)
     {
         _processed.clear();
         _properties.clear();
-        enumerateProperties(value);
+        enumerateProperties(value, lookAtScope);
         return _properties;
     }
 
@@ -360,22 +361,25 @@ private:
         return true;
     }
 
-    void enumerateProperties(const Interpreter::Value *value)
+    void enumerateProperties(const Interpreter::Value *value, bool lookAtScope)
     {
         if (! value)
             return;
         else if (const Interpreter::ObjectValue *object = value->asObjectValue()) {
-            enumerateProperties(object);
+            enumerateProperties(object, lookAtScope);
         }
     }
 
-    void enumerateProperties(const Interpreter::ObjectValue *object)
+    void enumerateProperties(const Interpreter::ObjectValue *object, bool lookAtScope)
     {
         if (! object || _processed.contains(object))
             return;
 
         _processed.insert(object);
-        enumerateProperties(object->prototype());
+        enumerateProperties(object->prototype(), /* lookAtScope = */ false);
+
+        if (lookAtScope)
+            enumerateProperties(object->scope(), /* lookAtScope = */ true);
 
         object->processMembers(this);
     }
@@ -662,32 +666,24 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
 
     m_startPosition = editor->position();
+    const QString fileName = editor->file()->fileName();
 
-    while (editor->characterAt(m_startPosition - 1).isLetterOrNumber() || editor->characterAt(m_startPosition - 1) == QLatin1Char('_'))
+    while (editor->characterAt(m_startPosition - 1).isLetterOrNumber() ||
+           editor->characterAt(m_startPosition - 1) == QLatin1Char('_'))
         --m_startPosition;
 
     m_completions.clear();
 
-    QmlJS::Document::Ptr qmlDocument = edit->qmlDocument();
-
-    const QmlJS::Snapshot &snapshot = m_modelManager->snapshot();
-
-    if (! qmlDocument)
-        qmlDocument = snapshot.value(qmlDocument->fileName());
+    QmlJS::Snapshot snapshot = m_modelManager->snapshot();
+    Document::Ptr qmlDocument = snapshot.document(fileName);
 
     const QFileInfo currentFileInfo(qmlDocument->fileName());
     const QString currentFilePath = currentFileInfo.absolutePath();
 
-    const QIcon typeIcon = iconForColor(Qt::yellow);
+    const QIcon componentIcon = iconForColor(Qt::yellow);
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
 
     Interpreter::Engine interp;
-
-    if (qmlDocument && qmlDocument->qmlProgram()) {
-        const Interpreter::ObjectValue *parentItem = 0;
-        parentItem = interp.newQmlObject(QLatin1String("Item")); // ### TODO: find the parent item.
-        interp.globalObject()->setProperty(QLatin1String("parent"), parentItem);
-    }
 
     foreach (Document::Ptr doc, snapshot) {
         const QFileInfo fileInfo(doc->fileName());
@@ -710,6 +706,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
                 if (symbol->parentNode()) {
                     const QString component = symbol->parentNode()->name();
+
                     if (const Interpreter::ObjectValue *object = interp.newQmlObject(component))
                         interp.globalObject()->setProperty(id, object);
                 }
@@ -717,12 +714,29 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
     }
 
+    // Set up the current scope chain.
+    Interpreter::ObjectValue *scope = interp.newObject(/* prototype = */ 0);
+
+    // ### FIXME: get the declaring item
+    Interpreter::ObjectValue *declaringItem = interp.newQmlObject(QLatin1String("Item"));
+
+    scope->setScope(declaringItem);
+    declaringItem->setScope(interp.globalObject());
+
+    if (qmlDocument && qmlDocument->qmlProgram()) {
+        const Interpreter::ObjectValue *parentItem = 0;
+        const QString declaringItem = QLatin1String("Item"); // ### FIXME: resolve the parent of the declaring item
+        parentItem = interp.newQmlObject(declaringItem);
+        scope->setProperty(QLatin1String("parent"), parentItem);
+    }
+
+    // Search for the operator that triggered the completion.
     QChar completionOperator;
     if (m_startPosition > 0)
         completionOperator = editor->characterAt(m_startPosition - 1);
 
-    if (completionOperator.isSpace() || completionOperator.isNull()) {
-        // Add the visible components to the completion box.
+    if (completionOperator.isSpace() || completionOperator.isNull()) { // It's a global completion.
+        // Process the visible user defined components.
         foreach (QmlJS::Document::Ptr doc, snapshot) {
             const QFileInfo fileInfo(doc->fileName());
 
@@ -731,23 +745,17 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME includ `imported' components
                 continue;
 
-            const QString typeName = fileInfo.baseName();
-            if (typeName.isEmpty())
-                continue;
-
-            if (typeName.at(0).isUpper()) {
+            const QString componentName = fileInfo.baseName();
+            if (! componentName.isEmpty() && componentName.at(0).isUpper()) {
                 TextEditor::CompletionItem item(this);
-                item.text = typeName;
-                item.icon = typeIcon;
+                item.text = componentName;
+                item.icon = componentIcon;
                 m_completions.append(item);
             }
         }
 
-        // ### set up the current scope chain.
-        const Interpreter::ObjectValue *scope = interp.globalObject();
-
         EnumerateProperties enumerateProperties;
-        QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(scope));
+        QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(scope, /* lookAtScope = */ true));
         while (it.hasNext()) {
             it.next();
 
@@ -759,22 +767,25 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     }
 
     else if (completionOperator == QLatin1Char('.') || completionOperator == QLatin1Char('(')) {
-        ExpressionUnderCursor expressionUnderCursor;
-
+        // Look at the expression under cursor.
         QTextCursor tc = edit->textCursor();
         tc.setPosition(m_startPosition - 1);
 
+        ExpressionUnderCursor expressionUnderCursor;
         const QString expression = expressionUnderCursor(tc);
         //qDebug() << "expression:" << expression;
 
+        // Wrap the expression in a QML document.
         QmlJS::Document::Ptr exprDoc = Document::create(QLatin1String("<expression>"));
         exprDoc->setSource(expression);
         exprDoc->parseExpression();
 
         if (exprDoc->ast()) {
             Evaluate evaluate(&interp);
-            // ### set up the scope chain
+            evaluate.setScope(scope);
 
+            // ### TODO: remove me. This is just a quick and dirty hack to get some completion
+            // for the property definitions.
             SearchPropertyDefinitions searchPropertyDefinitions;
 
             const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument);
@@ -785,6 +796,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 const QString propName = prop->name->asString();
                 const QString propType = prop->memberType->asString();
 
+                // ### TODO: generalize
                 if (propType == QLatin1String("string"))
                     interp.globalObject()->setProperty(propName, interp.stringValue());
                 else if (propType == QLatin1String("bool"))
@@ -793,6 +805,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                     interp.globalObject()->setProperty(propName, interp.numberValue());
             }
 
+            // Evaluate the expression under cursor.
             const Interpreter::Value *value = interp.convertToObject(evaluate(exprDoc->ast()));
             //qDebug() << "type:" << interp.typeId(value);
 

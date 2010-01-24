@@ -435,7 +435,7 @@ public:
     const Value *newArray(); // ### remove me
 
     // QML objects
-    const ObjectValue *newQmlObject(const QString &name);
+    ObjectValue *newQmlObject(const QString &name);
 
     // global object
     ObjectValue *globalObject() const;
