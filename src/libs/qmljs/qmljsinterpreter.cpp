@@ -111,6 +111,7 @@ public:
         switch (prop.type()) {
         case QMetaType::QByteArray:
         case QMetaType::QString:
+        case QMetaType::QUrl:
             value = engine()->stringValue();
             break;
 
@@ -123,6 +124,26 @@ public:
         case QMetaType::Double:
             value = engine()->numberValue();
             break;
+
+        case QMetaType::QPoint:
+        case QMetaType::QPointF: {
+            // ### cache
+            ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+            object->setProperty("x", engine()->numberValue());
+            object->setProperty("y", engine()->numberValue());
+            value = object;
+        } break;
+
+        case QMetaType::QRect:
+        case QMetaType::QRectF: {
+            // ### cache
+            ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+            object->setProperty("x", engine()->numberValue());
+            object->setProperty("y", engine()->numberValue());
+            object->setProperty("width", engine()->numberValue());
+            object->setProperty("height", engine()->numberValue());
+            value = object;
+        } break;
 
         default:
             break;
@@ -1428,6 +1449,13 @@ ObjectValue *Engine::newQmlObject(const QString &name)
     } else if (name == QLatin1String("QmlGraphicsPen")) {
         QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsPen::staticMetaObject, this);
         _objects.append(object);
+        return object;
+    } else if (name == QLatin1String("QmlGraphicsScaleGrid")) {
+        ObjectValue *object = newObject(/*prototype =*/ 0);
+        object->setProperty("left", numberValue());
+        object->setProperty("top", numberValue());
+        object->setProperty("right", numberValue());
+        object->setProperty("bottom", numberValue());
         return object;
     }
 
