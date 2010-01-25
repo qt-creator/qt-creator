@@ -311,7 +311,7 @@ QString CDBBreakPoint::normalizeFileName(const QString &f)
     if (normalizedName.size() > 2 && normalizedName.at(1) == QLatin1Char(':'))
         normalizedName[0] = normalizedName.at(0).toUpper();
     normalizedFileNameCache()->insert(f, normalizedName);
-    return f;
+    return normalizedName;
 }
 
 void CDBBreakPoint::clearNormalizeFileNameCache()
