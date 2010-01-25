@@ -65,7 +65,6 @@ void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
     if (resizeHandle) {
         m_resizeManipulator.setHandle(resizeHandle);
         m_resizeManipulator.begin(event->scenePos());
-        m_selectionIndicator.hide();
         m_resizeIndicator.hide();
     }
 }
