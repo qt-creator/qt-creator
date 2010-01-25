@@ -35,12 +35,14 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/icontext.h>
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QScrollBar>
 #include <QtGui/QTextLayout>
+#include <QtGui/QTextBlock>
 #include <QtGui/QPainter>
 #include <QtGui/QApplication>
 #include <QtGui/QClipboard>
@@ -48,6 +50,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QTabWidget>
+#include <QtGui/QToolButton>
 
 using namespace ProjectExplorer::Internal;
 using namespace ProjectExplorer;

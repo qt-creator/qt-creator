@@ -37,6 +37,7 @@
 #include <QtGui/QIcon>
 #include <QtGui/QTextEdit>
 #include <QtGui/QScrollBar>
+#include <QtGui/QPlainTextEdit>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

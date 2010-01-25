@@ -31,12 +31,14 @@
 #define DEPENDENCIESDIALOG_H
 
 #include "iprojectproperties.h"
-#include <utils/detailswidget.h>
 
-#include <QtCore/QSize>
-#include <QtGui/QWidget>
-#include <QtGui/QLabel>
+#include <QtCore/QAbstractListModel>
+
 #include <QtGui/QTreeView>
+
+namespace Utils {
+    class DetailsWidget;
+}
 
 namespace ProjectExplorer {
 

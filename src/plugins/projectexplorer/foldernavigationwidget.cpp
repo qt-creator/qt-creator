@@ -38,15 +38,14 @@
 #include <utils/pathchooser.h>
 
 #include <QtCore/QDebug>
+#include <QtGui/QDirModel>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
+#include <QtGui/QLabel>
+#include <QtGui/QListView>
+#include <QtGui/QSortFilterProxyModel>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
-
-namespace {
-bool debug = false;
-}
+enum { debug = 0 };
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -61,9 +60,6 @@ protected:
         return source_row != 0;
     }
 };
-
-} // namespace Internal
-} // namespace ProjectExplorer
 
 /*!
   /class FolderNavigationWidget
@@ -205,7 +201,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     FolderNavigationWidget *ptw = new FolderNavigationWidget;
     n.widget = ptw;
     QToolButton *toggleSync = new QToolButton;
-    toggleSync->setIcon(QIcon(":/core/images/linkicon.png"));
+    toggleSync->setIcon(QIcon(QLatin1String(":/core/images/linkicon.png")));
     toggleSync->setCheckable(true);
     toggleSync->setChecked(ptw->autoSynchronization());
     toggleSync->setToolTip(tr("Synchronize with Editor"));
@@ -213,5 +209,8 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     n.dockToolBarWidgets << toggleSync;
     return n;
 }
+
+} // namespace Internal
+} // namespace ProjectExplorer
 
 #include "foldernavigationwidget.moc"

@@ -31,18 +31,21 @@
 #define OUTPUTWINDOW_H
 
 #include <coreplugin/ioutputpane.h>
-#include <texteditor/plaintexteditor.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QHash>
-#include <QtCore/QBasicTimer>
-#include <QtGui/QAbstractScrollArea>
-#include <QtGui/QToolButton>
+#include <QtGui/QShowEvent>
 #include <QtGui/QPlainTextEdit>
 
 QT_BEGIN_NAMESPACE
 class QTabWidget;
+class QToolButton;
+class QAction;
 QT_END_NAMESPACE
+
+namespace Core {
+    class BaseContext;
+}
 
 namespace ProjectExplorer {
 
@@ -108,7 +111,6 @@ private:
     QTabWidget *m_tabWidget;
     QHash<RunControl *, OutputWindow *> m_outputWindows;
     QAction *m_stopAction;
-//    QToolButton *m_insertLineButton;
     QToolButton *m_reRunButton;
     QToolButton *m_stopButton;
 };

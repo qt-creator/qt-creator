@@ -32,7 +32,9 @@
 
 #include <coreplugin/ioutputpane.h>
 
-#include <QtGui/QPlainTextEdit>
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 

@@ -33,10 +33,13 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/ifile.h>
+#include <utils/detailswidget.h>
 
 #include <QtCore/QVector>
 #include <QtCore/QDebug>
-#include <QtCore/QAbstractListModel>
+#include <QtCore/QSize>
+#include <QtCore/QCoreApplication>
+
 #include <QtGui/QLabel>
 #include <QtGui/QApplication>
 #include <QtGui/QHBoxLayout>
@@ -46,7 +49,8 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QToolButton>
-#include <QtCore/QCoreApplication>
+#include <QtGui/QWidget>
+#include <QtGui/QLabel>
 
 namespace ProjectExplorer {
 namespace Internal {

@@ -35,7 +35,10 @@
 #include <texteditor/basefilefind.h>
 
 #include <QtCore/QPointer>
-#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 

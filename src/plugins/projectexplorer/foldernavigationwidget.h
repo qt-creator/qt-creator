@@ -32,11 +32,16 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
-#include <QtGui/QDirModel>
-#include <QtGui/QLabel>
-#include <QtGui/QListView>
-#include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QListView;
+class QSortFilterProxyModel;
+class QModelIndex;
+class QDirModel;
+class QDir;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 

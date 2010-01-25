@@ -35,8 +35,6 @@
 #include <QtCore/QString>
 #include <QtCore/QByteArray>
 #include <QtCore/QFutureInterface>
-#include <QtCore/QTimer>
-#include <QtGui/QWidget>
 
 namespace ProjectExplorer {
 
