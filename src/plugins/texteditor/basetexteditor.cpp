@@ -1926,6 +1926,13 @@ void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
         q->ensureCursorVisible();
 }
 
+static QColor blendColors(const QColor &a, const QColor &b, int alpha)
+{
+    return QColor((a.red()   * (256 - alpha) + b.red()   * alpha) / 256,
+                  (a.green() * (256 - alpha) + b.green() * alpha) / 256,
+                  (a.blue()  * (256 - alpha) + b.blue()  * alpha) / 256);
+}
+
 static QColor calcBlendColor(const QColor &baseColor, int level, int count)
 {
     QColor color80;
@@ -1960,10 +1967,7 @@ static QColor calcBlendColor(const QColor &baseColor, int level, int count)
 
     const int blendFactor = level * (256 / (count - 2));
 
-    return QColor(
-                (color90.red() * blendFactor + color80.red() * (256 - blendFactor)) / 256,
-                (color90.green() * blendFactor + color80.green() * (256 - blendFactor)) / 256,
-                (color90.blue() * blendFactor + color80.blue() * (256 - blendFactor)) / 256);
+    return blendColors(color80, color90, blendFactor);
 }
 
 void BaseTextEditor::paintEvent(QPaintEvent *e)
@@ -2379,10 +2383,9 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     if (lineX > 0) {
         const QColor bg = palette().base().color();
-        QColor col = (bg.value() > 128) ? Qt::black : Qt::white;
-        col.setAlpha(32);
-        painter.setPen(QPen(col, 0));
-        painter.drawLine(QPointF(lineX, 0), QPointF(lineX, viewport()->height()));
+        const QColor col = (bg.value() > 128) ? Qt::black : Qt::white;
+        painter.setPen(blendColors(d->m_ifdefedOutFormat.background().color(), col, 32));
+        painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
     }
 }
 
