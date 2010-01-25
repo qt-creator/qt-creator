@@ -92,6 +92,68 @@ static QIcon iconForColor(const QColor &color)
     return pix;
 }
 
+
+static QString qualifiedNameId(AST::UiQualifiedId *it)
+{
+    QString text;
+
+    for (; it; it = it->next) {
+        if (! it->name)
+            continue;
+
+        text += it->name->asString();
+
+        if (it->next)
+            text += QLatin1Char('.');
+    }
+
+    return text;
+}
+
+static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine, const QString &name,
+                                              const QHash<QString, Document::Ptr> &userComponents,
+                                              QSet<QString> *processed)
+{
+    if (Interpreter::ObjectValue *object = engine->newQmlObject(name))
+        return object;
+
+    else if (! processed->contains(name)) {
+        processed->insert(name);
+
+        if (Document::Ptr doc = userComponents.value(name)) {
+            if (AST::UiProgram *program = doc->qmlProgram()) {
+                if (program->members) {
+                    if (AST::UiObjectDefinition *def = AST::cast<AST::UiObjectDefinition *>(program->members->member)) {
+                        const QString component = qualifiedNameId(def->qualifiedTypeNameId);
+                        Interpreter::ObjectValue *object = newComponent(engine, component, userComponents, processed);
+                        if (def->initializer) {
+                            for (AST::UiObjectMemberList *it = def->initializer->members; it; it = it->next) {
+                                if (AST::UiPublicMember *prop = AST::cast<AST::UiPublicMember *>(it->member)) {
+                                    if (prop->name && prop->memberType) {
+                                        //qDebug() << "add property:" << prop->name->asString();
+                                        object->setProperty(prop->name->asString(), engine->undefinedValue());
+                                    }
+                                }
+                            }
+                        }
+                        return object;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine,
+                                              const QString &name,
+                                              const QHash<QString, Document::Ptr> &userComponents)
+{
+    QSet<QString> processed;
+    return newComponent(engine, name, userComponents, &processed);
+}
+
 namespace {
 
 class ExpressionUnderCursor
@@ -622,23 +684,6 @@ bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
     return false;
 }
 
-static QString qualifiedNameId(AST::UiQualifiedId *it)
-{
-    QString text;
-
-    for (; it; it = it->next) {
-        if (! it->name)
-            continue;
-
-        text += it->name->asString();
-
-        if (it->next)
-            text += QLatin1Char('.');
-    }
-
-    return text;
-}
-
 int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
@@ -669,6 +714,8 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     Interpreter::Engine interp;
 
+    QHash<QString, Document::Ptr> userComponents;
+
     foreach (Document::Ptr doc, snapshot) {
         const QFileInfo fileInfo(doc->fileName());
 
@@ -681,6 +728,17 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         if (typeName.isEmpty())
             continue;
 
+        userComponents.insert(typeName, doc);
+    }
+
+    foreach (Document::Ptr doc, snapshot) {
+        const QFileInfo fileInfo(doc->fileName());
+
+        if (fileInfo.suffix() != QLatin1String("qml"))
+            continue;
+        else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME include `imported' components
+            continue;
+
         QMapIterator<QString, IdSymbol *> it(doc->ids());
         while (it.hasNext()) {
             it.next();
@@ -691,8 +749,9 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 if (symbol->parentNode()) {
                     const QString component = symbol->parentNode()->name();
 
-                    if (const Interpreter::ObjectValue *object = interp.newQmlObject(component))
+                    if (const Interpreter::ObjectValue *object = newComponent(&interp, component, userComponents)) {
                         interp.globalObject()->setProperty(id, object);
+                    }
                 }
             }
         }
@@ -741,7 +800,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(declaringMember))
         declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
 
-    Interpreter::ObjectValue *declaringItem = interp.newQmlObject(declaringItemName);
+    Interpreter::ObjectValue *declaringItem = newComponent(&interp, declaringItemName, userComponents);
     if (! declaringItem)
         declaringItem = interp.newQmlObject(QLatin1String("Item"));
 
@@ -758,7 +817,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(parentMember))
         parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
 
-    Interpreter::ObjectValue *parentItem = interp.newQmlObject(declaringItemName);
+    Interpreter::ObjectValue *parentItem = newComponent(&interp, declaringItemName, userComponents);
     if (! parentItem)
         parentItem = interp.newQmlObject(QLatin1String("Item"));
 
