@@ -126,6 +126,23 @@ public:
             value = engine()->numberValue();
             break;
 
+        case QMetaType::QFont: {
+            // ### cache
+            ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+            object->setProperty("weight", engine()->undefinedValue()); // ### make me an object
+            object->setProperty("copitalization", engine()->undefinedValue()); // ### make me an object
+            object->setProperty("bold", engine()->booleanValue());
+            object->setProperty("italic", engine()->booleanValue());
+            object->setProperty("underline", engine()->booleanValue());
+            object->setProperty("overline", engine()->booleanValue());
+            object->setProperty("strikeout", engine()->booleanValue());
+            object->setProperty("pointSize", engine()->numberValue());
+            object->setProperty("pixelSize", engine()->numberValue());
+            object->setProperty("letterSpacing", engine()->numberValue());
+            object->setProperty("wordSpacing", engine()->numberValue());
+            value = object;
+        } break;
+
         case QMetaType::QPoint:
         case QMetaType::QPointF: {
             // ### cache
