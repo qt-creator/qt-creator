@@ -30,6 +30,8 @@
 #include "formeditorgraphicsview.h"
 
 #include <QWheelEvent>
+#include <QApplication>
+#include <QtDebug>
 
 namespace QmlDesigner {
 
@@ -71,6 +73,41 @@ void FormEditorGraphicsView::wheelEvent(QWheelEvent *event)
         QGraphicsView::wheelEvent(event);
     }
 
+}
+
+void FormEditorGraphicsView::mouseMoveEvent(QMouseEvent *event)
+{
+    if (rect().contains(event->pos())) {
+        QGraphicsView::mouseMoveEvent(event);
+    } else {
+        QPoint position = event->pos();
+        QPoint topLeft = rect().topLeft();
+        QPoint bottomRight = rect().bottomRight();
+        position.rx() = qMax(topLeft.x(), qMin(position.x(), bottomRight.x()));
+        position.ry() = qMax(topLeft.y(), qMin(position.y(), bottomRight.y()));
+        QMouseEvent *mouseEvent = QMouseEvent::createExtendedMouseEvent(event->type(), position, mapToGlobal(position), event->button(), event->buttons(), event->modifiers());
+
+        QGraphicsView::mouseMoveEvent(mouseEvent);
+        delete mouseEvent;
+    }
+}
+
+
+void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (rect().contains(event->pos())) {
+        QGraphicsView::mouseReleaseEvent(event);
+    } else {
+        QPoint position = event->pos();
+        QPoint topLeft = rect().topLeft();
+        QPoint bottomRight = rect().bottomRight();
+        position.rx() = qMax(topLeft.x(), qMin(position.x(), bottomRight.x()));
+        position.ry() = qMax(topLeft.y(), qMin(position.y(), bottomRight.y()));
+        QMouseEvent *mouseEvent = QMouseEvent::createExtendedMouseEvent(event->type(), position, mapToGlobal(position), event->button(), event->buttons(), event->modifiers());
+
+        QGraphicsView::mouseReleaseEvent(mouseEvent);
+        delete mouseEvent;
+    }
 }
 
 void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
