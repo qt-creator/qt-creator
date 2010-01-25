@@ -1425,11 +1425,11 @@ ObjectValue *Engine::newQmlObject(const QString &name)
         _objects.append(object);
         return object;
     }
-#endif
-
-    //qDebug() << name;
 
     return 0;
+#else
+    return newObject(/*prototype = */ 0);
+#endif
 }
 
 
