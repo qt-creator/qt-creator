@@ -91,6 +91,7 @@ public:
             processor->process(slotName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the property
         }
 
+        ObjectValue::processMembers(processor);
     }
 
     const Value *propertyValue(const QMetaProperty &prop) const {
