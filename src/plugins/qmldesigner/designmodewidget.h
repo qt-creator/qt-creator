@@ -172,6 +172,7 @@ public:
     QAction *cutAction() const;
     QAction *copyAction() const;
     QAction *pasteAction() const;
+    QAction *selectAllAction() const;
 
     DesignMode *designMode() const;
 
@@ -182,6 +183,7 @@ private slots:
     void cutSelected();
     void copySelected();
     void paste();
+    void selectAll();
 
     void undoAvailable(bool isAvailable);
     void redoAvailable(bool isAvailable);
@@ -202,6 +204,7 @@ private:
     QAction *m_cutAction;
     QAction *m_copyAction;
     QAction *m_pasteAction;
+    QAction *m_selectAllAction;
 
     bool m_syncWithTextEdit;
 };

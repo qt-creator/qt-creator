@@ -663,6 +663,20 @@ void DesignDocumentController::paste()
     }
 }
 
+void DesignDocumentController::selectAll()
+{
+    if (!m_d->model)
+        return;
+
+    DesignDocumentControllerView view;
+    m_d->model->attachView(&view);
+
+
+    QList<ModelNode> allNodesExceptRootNode(view.allModelNodes());
+    allNodesExceptRootNode.removeOne(view.rootModelNode());
+    view.setSelectedModelNodes(allNodesExceptRootNode);
+}
+
 void DesignDocumentController::showError(const QString &message, QWidget *parent) const
 {
     if (!parent)

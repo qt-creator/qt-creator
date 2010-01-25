@@ -110,6 +110,7 @@ public slots:
     void copySelected();
     void cutSelected();
     void paste();
+    void selectAll();
 
     void togglePreview(bool visible);
     void toggleWithDebugPreview(bool visible);

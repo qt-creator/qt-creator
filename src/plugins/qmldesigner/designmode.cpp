@@ -147,6 +147,11 @@ DesignMode::DesignMode() :
     command->setDefaultKeySequence(QKeySequence::Paste);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
+    command = actionManager->registerAction(m_mainWidget->selectAllAction(),
+                                            Core::Constants::SELECTALL, context());
+    command->setDefaultKeySequence(QKeySequence::SelectAll);
+    editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
+
     // add second shortcut to trigger delete
     QAction *deleteAction = new QAction(m_mainWidget);
     deleteAction->setShortcut(QKeySequence(QLatin1String("Backspace")));

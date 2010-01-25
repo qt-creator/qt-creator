@@ -497,6 +497,8 @@ DesignModeWidget::DesignModeWidget(DesignMode *designMode, QWidget *parent) :
     connect(m_copyAction, SIGNAL(triggered()), this, SLOT(copySelected()));
     m_pasteAction = new Utils::ParameterAction(tr("&Paste"), tr("Paste \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     connect(m_pasteAction, SIGNAL(triggered()), this, SLOT(paste()));
+    m_selectAllAction = new Utils::ParameterAction(tr("Select &All"), tr("Select All \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    connect(m_selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
 
     QLabel *defaultBackground = new QLabel(tr("Open/Create a qml file first."));
     defaultBackground->setAlignment(Qt::AlignCenter);
@@ -598,6 +600,11 @@ QAction *DesignModeWidget::pasteAction() const
     return m_pasteAction;
 }
 
+QAction *DesignModeWidget::selectAllAction() const
+{
+    return m_selectAllAction;
+}
+
 DesignMode *DesignModeWidget::designMode() const
 {
     return m_designMode;
@@ -637,6 +644,12 @@ void DesignModeWidget::paste()
 {
     if (m_currentDocumentWidget)
         m_currentDocumentWidget->document()->paste();
+}
+
+void DesignModeWidget::selectAll()
+{
+    if (m_currentDocumentWidget)
+        m_currentDocumentWidget->document()->selectAll();
 }
 
 void DesignModeWidget::undoAvailable(bool isAvailable)
