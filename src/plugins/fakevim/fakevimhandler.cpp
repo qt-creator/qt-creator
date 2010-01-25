@@ -81,6 +81,7 @@
 #include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextEdit>
 
+#include <algorithm>
 #include <climits>
 #include <ctype.h>
 
