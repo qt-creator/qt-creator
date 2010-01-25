@@ -93,6 +93,9 @@ enum { BinaryMatchPriority = 1, TextMatchPriority = 2};
 */
 
 namespace Core {
+
+typedef QSharedPointer<MagicRuleMatcher> MagicRuleMatcherPtr;
+
 namespace Internal {
 
 // FileMatchContext: Passed on to the mimetypes from the database
@@ -213,7 +216,10 @@ bool MagicRule::matches(const QByteArray &data) const
         return data.startsWith(m_pattern);
     // Range
     const int index = data.indexOf(m_pattern, m_startPos);
-    return index != -1 && index < m_endPos;
+    const bool rc = index != -1 && index < m_endPos;
+    if (debugMimeDB)
+        qDebug() << "Checking " << m_pattern << m_startPos << m_endPos << " returns " << rc;
+    return rc;
 }
 
 MagicRule *MagicRule::createStringRule(const QString &c, int startPos, int endPos)
@@ -657,7 +663,7 @@ static bool parseNumber(const QString &n, int *target, QString *errorMessage)
 //  <match value="must be converted with BinHex" type="string" offset="11"/>
 //  <match value="0x9501" type="big16" offset="0:64"/>
 static bool addMagicMatchRule(const QXmlStreamAttributes &atts,
-                              MagicRuleMatcher *ruleMatcher,
+                              const MagicRuleMatcherPtr  &ruleMatcher,
                               QString *errorMessage)
 {
     const QString type = atts.value(QLatin1String(matchTypeAttributeC)).toString();
@@ -687,8 +693,7 @@ static bool addMagicMatchRule(const QXmlStreamAttributes &atts,
 bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString *errorMessage)
 {
     MimeTypeData data;
-    MagicRuleMatcher *ruleMatcher = 0;
-
+    MagicRuleMatcherPtr ruleMatcher;
     QXmlStreamReader reader(dev);
     ParseStage ps = ParseBeginning;
     while (!reader.atEnd()) {
@@ -739,11 +744,12 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
                         return false;
 
                 }
-                ruleMatcher = new MagicRuleMatcher;
+                ruleMatcher = MagicRuleMatcherPtr(new MagicRuleMatcher);
                 ruleMatcher->setPriority(priority);
             }
                 break;
             case ParseMagicMatchRule:
+                QTC_ASSERT(!ruleMatcher.isNull(), return false)
                 if (!addMagicMatchRule(reader.attributes(), ruleMatcher, errorMessage))
                     return false;
                 break;
@@ -762,9 +768,10 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
                 data.clear();
             } else {
                 // Finished a match sequence
-                if (reader.name() == QLatin1String(QLatin1String(magicTagC))) {
-                    data.magicMatchers.push_back(QSharedPointer<IMagicMatcher>(ruleMatcher));
-                    ruleMatcher = 0;
+                if (reader.name() == QLatin1String(magicTagC)) {
+                    QTC_ASSERT(!ruleMatcher.isNull(), return false)
+                    data.magicMatchers.push_back(ruleMatcher);
+                    ruleMatcher = MagicRuleMatcherPtr();
                 }
             }
             break;
