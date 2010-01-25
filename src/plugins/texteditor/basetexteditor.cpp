@@ -1997,9 +1997,18 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     if (d->m_visibleWrapColumn > 0) {
         lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
-        if (lineX < viewportRect.width())
-            painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()),
-                             d->m_ifdefedOutFormat.background());
+
+        if (lineX < viewportRect.width()) {
+            const QColor backgroundColor = d->m_ifdefedOutFormat.background().color();
+            painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
+                             backgroundColor);
+
+            const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
+            const QPen pen = painter.pen();
+            painter.setPen(blendColors(backgroundColor, col, 32));
+            painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
+            painter.setPen(pen);
+        }
     }
 
     // Set a brush origin so that the WaveUnderline knows where the wave started
@@ -2378,14 +2387,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         QTextCursor cursor = textCursor();
         cursor.setPosition(d->m_animator->position());
         d->m_animator->draw(&painter, cursorRect(cursor).topLeft());
-    }
-
-
-    if (lineX > 0) {
-        const QColor bg = palette().base().color();
-        const QColor col = (bg.value() > 128) ? Qt::black : Qt::white;
-        painter.setPen(blendColors(d->m_ifdefedOutFormat.background().color(), col, 32));
-        painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
     }
 }
 
