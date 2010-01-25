@@ -74,6 +74,23 @@ public:
 
             processor->process(prop.name(), propertyValue(prop));
         }
+
+        for (int index = 0; index < _metaObject->methodCount(); ++index) {
+            QMetaMethod meth = _metaObject->method(index);
+            const QString signature = QString::fromUtf8(meth.signature());
+
+            int indexOfParen = signature.indexOf(QLatin1Char('('));
+            if (indexOfParen == -1)
+                continue; // skip it, invalid signature.
+
+            const QString signalName = signature.left(indexOfParen);
+            QString slotName;
+            slotName += QLatin1String("on");
+            slotName += signalName.at(0).toUpper();
+            slotName += signalName.midRef(1);
+            processor->process(slotName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the property
+        }
+
     }
 
     const Value *propertyValue(const QMetaProperty &prop) const {
