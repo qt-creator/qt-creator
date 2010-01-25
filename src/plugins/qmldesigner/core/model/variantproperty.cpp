@@ -57,7 +57,7 @@ VariantProperty::VariantProperty(const QString &propertyName, const Internal::In
 
 void VariantProperty::setValue(const QVariant &value)
 {
-    //Internal::WriteLocker locker(model());
+    Internal::WriteLocker locker(model());
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
@@ -97,7 +97,7 @@ VariantProperty& VariantProperty::operator= (const QVariant &value)
 
 void VariantProperty::setDynamicTypeNameAndValue(const QString &type, const QVariant &value)
 {
-    //Internal::WriteLocker locker(model());
+    Internal::WriteLocker locker(model());
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 

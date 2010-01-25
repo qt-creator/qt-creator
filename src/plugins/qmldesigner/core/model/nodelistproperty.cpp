@@ -101,7 +101,7 @@ const QList<QmlObjectNode> NodeListProperty::toQmlObjectNodeList() const
 
 void NodeListProperty::slide(int from, int to) const
 {
-    //Internal::WriteLocker locker(model());
+    Internal::WriteLocker locker(model());
     if (!isValid())
         throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
     if (to > toModelNodeList().count() - 1)

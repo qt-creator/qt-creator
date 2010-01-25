@@ -1108,7 +1108,7 @@ The view is informed that it has been registered within the model by a call to A
 */
 void Model::attachView(AbstractView *view)
 {
-    Internal::WriteLocker locker(m_d);
+//    Internal::WriteLocker locker(m_d);
     m_d->attachView(view);
 }
 
@@ -1122,7 +1122,7 @@ void Model::attachView(AbstractView *view)
 */
 void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
 {
-    Internal::WriteLocker locker(m_d);
+//    Internal::WriteLocker locker(m_d);
     bool emitNotify = (emitDetachNotify == NotifyView);
     m_d->detachView(view, emitNotify);
 }

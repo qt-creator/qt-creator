@@ -58,7 +58,7 @@ BindingProperty::BindingProperty(const QString &propertyName, const Internal::In
 
 void BindingProperty::setExpression(const QString &expression)
 {
-    //Internal::WriteLocker locker(model());
+    Internal::WriteLocker locker(model());
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
@@ -162,7 +162,7 @@ AbstractProperty BindingProperty::resolveToProperty() const
 void BindingProperty::setDynamicTypeNameAndExpression(const QString &typeName, const QString &expression)
 
 {
-    //Internal::WriteLocker locker(model());
+    Internal::WriteLocker locker(model());
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 

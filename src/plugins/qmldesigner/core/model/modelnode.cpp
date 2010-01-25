@@ -174,7 +174,7 @@ bool ModelNode::isValidId(const QString &id)
 
 void ModelNode::setId(const QString& id)
 {
-    //Internal::WriteLocker locker(m_model.data());
+    Internal::WriteLocker locker(m_model.data());
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -208,7 +208,7 @@ QString ModelNode::type() const
 */
 void ModelNode::changeType(const QString &type, int majorVersion, int minorVersion)
 {
-    //Internal::WriteLocker locker(m_model.data());
+    Internal::WriteLocker locker(m_model.data());
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
