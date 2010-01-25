@@ -829,7 +829,9 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (m_startPosition > 0)
         completionOperator = editor->characterAt(m_startPosition - 1);
 
-    if (completionOperator.isSpace() || completionOperator.isNull()) { // It's a global completion.
+    if (completionOperator.isSpace() || completionOperator.isNull() || (completionOperator == QLatin1Char('(') &&
+                                                                        m_startPosition != editor->position())) {
+        // It's a global completion.
         // Process the visible user defined components.
         foreach (QmlJS::Document::Ptr doc, snapshot) {
             const QFileInfo fileInfo(doc->fileName());
@@ -893,7 +895,8 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                     item.icon = symbolIcon;
                     m_completions.append(item);
                 }
-            } else if (value && completionOperator == QLatin1Char('(')) { // function completion
+            } else if (value && completionOperator == QLatin1Char('(') && m_startPosition == editor->position()) {
+                // function completion
                 if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {
                     QString functionName = expression;
                     int indexOfDot = expression.lastIndexOf(QLatin1Char('.'));
