@@ -44,6 +44,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtCore/QXmlStreamReader>
 #include <QtCore/QDebug>
 
@@ -130,8 +131,18 @@ static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine, const
                             for (AST::UiObjectMemberList *it = def->initializer->members; it; it = it->next) {
                                 if (AST::UiPublicMember *prop = AST::cast<AST::UiPublicMember *>(it->member)) {
                                     if (prop->name && prop->memberType) {
-                                        //qDebug() << "add property:" << prop->name->asString();
-                                        object->setProperty(prop->name->asString(), engine->undefinedValue());
+                                        const QString propName = prop->name->asString();
+                                        const QString propType = prop->memberType->asString();
+
+                                        // ### generalize
+                                        if (propType == QLatin1String("string") || propType == QLatin1String("url"))
+                                            object->setProperty(propName, engine->stringValue());
+                                        else if (propType == QLatin1String("bool"))
+                                            object->setProperty(propName, engine->booleanValue());
+                                        else if (propType == QLatin1String("int") || propType == QLatin1String("real"))
+                                            object->setProperty(propName, engine->numberValue());
+                                        else
+                                            object->setProperty(propName, engine->undefinedValue());
                                     }
                                 }
                             }
@@ -684,6 +695,29 @@ bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
     return false;
 }
 
+bool QmlCodeCompletion::isImported(Document::Ptr doc, const QString &currentFilePath) const
+{
+    if (! (doc && doc->qmlProgram()))
+        return false;
+
+    QFileInfo fileInfo(doc->fileName());
+    const QString absolutePath = fileInfo.absolutePath();
+
+    for (AST::UiImportList *it = doc->qmlProgram()->imports; it; it = it->next) {
+        if (! (it->import && it->import->fileName))
+            continue;
+
+        QString path = absolutePath;
+        path += QLatin1Char('/');
+        path += it->import->fileName->asString();
+        path = QDir::cleanPath(path);
+        if (path == currentFilePath)
+            return true;
+    }
+
+    return false;
+}
+
 int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
@@ -718,14 +752,16 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     foreach (Document::Ptr doc, snapshot) {
         const QFileInfo fileInfo(doc->fileName());
+        const QString absolutePath = fileInfo.absolutePath();
 
+        // ### generalize
         if (fileInfo.suffix() != QLatin1String("qml"))
             continue;
-        else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME include `imported' components
+        else if (absolutePath != currentFilePath && ! isImported(qmlDocument, absolutePath))
             continue;
 
         const QString typeName = fileInfo.baseName();
-        if (typeName.isEmpty())
+        if (typeName.isEmpty() || ! typeName.at(0).isUpper())
             continue;
 
         userComponents.insert(typeName, doc);
@@ -733,10 +769,12 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     foreach (Document::Ptr doc, snapshot) {
         const QFileInfo fileInfo(doc->fileName());
+        const QString absolutePath = fileInfo.absolutePath();
 
+         // ### generalize
         if (fileInfo.suffix() != QLatin1String("qml"))
             continue;
-        else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME include `imported' components
+        else if (absolutePath != currentFilePath && ! isImported(qmlDocument, absolutePath))
             continue;
 
         QMapIterator<QString, IdSymbol *> it(doc->ids());
@@ -784,7 +822,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         const QString propType = prop->memberType->asString();
 
         // ### TODO: generalize
-        if (propType == QLatin1String("string"))
+        if (propType == QLatin1String("string") || propType == QLatin1String("url"))
             interp.globalObject()->setProperty(propName, interp.stringValue());
         else if (propType == QLatin1String("bool"))
             interp.globalObject()->setProperty(propName, interp.booleanValue());

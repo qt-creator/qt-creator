@@ -31,6 +31,7 @@
 #define QMLCODECOMPLETION_H
 
 #include <qmljs/qmljstypesystem.h>
+#include <qmljs/qmljsdocument.h>
 #include <texteditor/icompletioncollector.h>
 #include <QtCore/QDateTime>
 #include <QtCore/QPointer>
@@ -70,6 +71,7 @@ public:
 
 private:
     void updateSnippets();
+    bool isImported(QmlJS::Document::Ptr doc, const QString &currentFilePath) const;
 
     QmlModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
