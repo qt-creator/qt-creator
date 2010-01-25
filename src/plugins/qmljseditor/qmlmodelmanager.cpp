@@ -29,6 +29,7 @@
 
 #include "qmljseditorconstants.h"
 #include "qmlmodelmanager.h"
+#include "qmljseditor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -42,6 +43,7 @@
 #include <qtconcurrent/runextensions.h>
 #include <QTextStream>
 
+using namespace QmlJS;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
@@ -57,7 +59,7 @@ QmlModelManager::QmlModelManager(QObject *parent):
             this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
 }
 
-QmlJS::Snapshot QmlModelManager::snapshot() const
+Snapshot QmlModelManager::snapshot() const
 {
     QMutexLocker locker(&m_mutex);
 
@@ -75,7 +77,7 @@ QFuture<void> QmlModelManager::refreshSourceFiles(const QStringList &sourceFiles
         return QFuture<void>();
     }
 
-    const QMap<QString, QString> workingCopy = buildWorkingCopyList();
+    const QMap<QString, WorkingCopy> workingCopy = buildWorkingCopyList();
 
     QFuture<void> result = QtConcurrent::run(&QmlModelManager::parse,
                                               workingCopy, sourceFiles,
@@ -102,26 +104,29 @@ QFuture<void> QmlModelManager::refreshSourceFiles(const QStringList &sourceFiles
     return result;
 }
 
-QMap<QString, QString> QmlModelManager::buildWorkingCopyList()
+QMap<QString, QmlModelManager::WorkingCopy> QmlModelManager::buildWorkingCopyList()
 {
-    QMap<QString, QString> workingCopy;
+    QMap<QString, WorkingCopy> workingCopy;
     Core::EditorManager *editorManager = m_core->editorManager();
 
     foreach (Core::IEditor *editor, editorManager->openedEditors()) {
         const QString key = editor->file()->fileName();
 
         if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
-            workingCopy[key] = textEditor->contents();
+            if (QmlJSTextEditor *ed = qobject_cast<QmlJSTextEditor *>(textEditor->widget())) {
+                workingCopy[key].contents = ed->toPlainText();
+                workingCopy[key].documentRevision = ed->document()->revision();
+            }
         }
     }
 
     return workingCopy;
 }
 
-void QmlModelManager::emitDocumentUpdated(QmlJS::Document::Ptr doc)
+void QmlModelManager::emitDocumentUpdated(Document::Ptr doc)
 { emit documentUpdated(doc); }
 
-void QmlModelManager::onDocumentUpdated(QmlJS::Document::Ptr doc)
+void QmlModelManager::onDocumentUpdated(Document::Ptr doc)
 {
     QMutexLocker locker(&m_mutex);
 
@@ -129,10 +134,14 @@ void QmlModelManager::onDocumentUpdated(QmlJS::Document::Ptr doc)
 }
 
 void QmlModelManager::parse(QFutureInterface<void> &future,
-                            QMap<QString, QString> workingCopy,
+                            QMap<QString, WorkingCopy> workingCopy,
                             QStringList files,
                             QmlModelManager *modelManager)
 {
+    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+    Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
+    Core::MimeType qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
+
     future.setProgressRange(0, files.size());
 
     for (int i = 0; i < files.size(); ++i) {
@@ -140,9 +149,12 @@ void QmlModelManager::parse(QFutureInterface<void> &future,
 
         const QString fileName = files.at(i);
         QString contents;
+        int documentRevision = 0;
 
         if (workingCopy.contains(fileName)) {
-            contents = workingCopy.value(fileName);
+            WorkingCopy wc = workingCopy.value(fileName);
+            contents = wc.contents;
+            documentRevision = wc.documentRevision;
         } else {
             QFile inFile(fileName);
 
@@ -153,23 +165,18 @@ void QmlModelManager::parse(QFutureInterface<void> &future,
             }
         }
 
-        QmlJS::Document::Ptr doc = QmlJS::Document::create(fileName);
+        Document::Ptr doc = Document::create(fileName);
+        doc->setDocumentRevision(documentRevision);
         doc->setSource(contents);
 
-        {
-            Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
-            Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
-            Core::MimeType qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
+        const QFileInfo fileInfo(fileName);
 
-            const QFileInfo fileInfo(fileName);
-
-            if (jsSourceTy.matchesFile(fileInfo))
-                doc->parseJavaScript();
-            else if (qmlSourceTy.matchesFile(fileInfo))
-                doc->parseQml();
-            else
-                qWarning() << "Don't know how to treat" << fileName;
-        }
+        if (jsSourceTy.matchesFile(fileInfo))
+            doc->parseJavaScript();
+        else if (qmlSourceTy.matchesFile(fileInfo))
+            doc->parseQml();
+        else
+            qWarning() << "Don't know how to treat" << fileName;
 
         modelManager->emitDocumentUpdated(doc);
     }

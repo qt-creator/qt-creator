@@ -76,8 +76,10 @@ enum {
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
+using namespace QmlJSEditor::Internal;
 
 namespace {
+
 int blockBraceDepth(const QTextBlock &block)
 {
     int state = block.userState();
@@ -119,11 +121,6 @@ bool shouldInsertMatchingText(const QTextCursor &tc)
     QTextDocument *doc = tc.document();
     return shouldInsertMatchingText(doc->characterAt(tc.selectionEnd()));
 }
-
-} // end of anonymous namespace
-
-namespace QmlJSEditor {
-namespace Internal {
 
 class FindIdDeclarations: protected Visitor
 {
@@ -383,6 +380,54 @@ protected:
     }
 };
 
+class CreateRanges: protected AST::Visitor
+{
+    QTextDocument *_textDocument;
+    QList<Range> _ranges;
+
+public:
+    QList<Range> operator()(QTextDocument *textDocument, Document::Ptr doc)
+    {
+        _textDocument = textDocument;
+        _ranges.clear();
+        if (doc && doc->qmlProgram() != 0)
+            doc->qmlProgram()->accept(this);
+        return _ranges;
+    }
+
+protected:
+    using AST::Visitor::visit;
+
+    virtual bool visit(AST::UiObjectBinding *ast)
+    {
+        _ranges.append(createRange(ast));
+        return true;
+    }
+
+    virtual bool visit(AST::UiObjectDefinition *ast)
+    {
+        _ranges.append(createRange(ast));
+        return true;
+    }
+
+    Range createRange(AST::UiObjectMember *ast)
+    {
+        Range range;
+
+        range.ast = ast;
+
+        range.begin = QTextCursor(_textDocument);
+        range.begin.setPosition(ast->firstSourceLocation().begin());
+
+        range.end = QTextCursor(_textDocument);
+        range.end.setPosition(ast->lastSourceLocation().end());
+        return range;
+    }
+};
+
+} // end of anonymous namespace
+
+
 QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
     : BaseTextEditorEditable(editor)
 {
@@ -481,13 +526,23 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
     if (file()->fileName() != doc->fileName())
         return;
 
-    m_document = doc;
+    if (doc->documentRevision() != document()->revision()) {
+        // got an outdated document.
+        return;
+    }
 
     FindIdDeclarations updateIds;
     m_idsRevision = document()->revision();
     m_ids = updateIds(doc->qmlProgram());
 
     if (doc->isParsedCorrectly()) {
+        // create the ranges
+        CreateRanges createRanges;
+        SemanticInfo sem;
+        sem.document = doc;
+        sem.ranges = createRanges(document(), doc);
+        m_semanticInfo = sem;
+
         FindDeclarations findDeclarations;
         m_declarations = findDeclarations(doc->ast());
 
@@ -956,6 +1011,3 @@ QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &) const
 {
     return QLatin1String("}\n");
 }
-
-} // namespace Internal
-} // namespace QmlJSEditor

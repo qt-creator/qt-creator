@@ -72,6 +72,9 @@ public:
     bool isParsedCorrectly() const
     { return _parsedCorrectly; }
 
+    int documentRevision() const;
+    void setDocumentRevision(int documentRevision);
+
     IdTable ids() const { return _ids; }
 
     QString fileName() const { return _fileName; }
@@ -86,12 +89,13 @@ private:
     QmlJS::Engine *_engine;
     QmlJS::NodePool *_pool;
     QmlJS::AST::Node *_ast;
+    int _documentRevision;
+    bool _parsedCorrectly;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
     QString _fileName;
     QString _path;
     QString _componentName;
     QString _source;
-    bool _parsedCorrectly;
     IdTable _ids;
     QmlJS::Symbol::List _symbols;
 };

@@ -91,6 +91,27 @@ struct Declaration
     { }
 };
 
+class Range
+{
+public:
+    Range(): ast(0) {}
+
+public: // attributes
+    QmlJS::AST::UiObjectMember *ast;
+    QTextCursor begin;
+    QTextCursor end;
+};
+
+class SemanticInfo
+{
+public:
+    SemanticInfo() {}
+
+public: // attributes
+    QmlJS::Document::Ptr document;
+    QList<Range> ranges;
+};
+
 class QmlJSTextEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
@@ -109,7 +130,7 @@ public:
 
     virtual void unCommentSelection();
 
-    QmlJS::Document::Ptr qmlDocument() const { return m_document; }
+    SemanticInfo semanticInfo() const { return m_semanticInfo; }
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);
@@ -154,14 +175,15 @@ private:
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
     QComboBox *m_methodCombo;
-    QList<Declaration> m_declarations;
-    QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### use QMultiMap
-    int m_idsRevision;
-    QList<QmlJS::DiagnosticMessage> m_diagnosticMessages;
-    QmlJS::Document::Ptr m_document;
+    QList<Declaration> m_declarations; // ### remove me
+    QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### remove me
+    int m_idsRevision; // ### remove me
+    QList<QmlJS::DiagnosticMessage> m_diagnosticMessages; // ### remove me
     QmlModelManagerInterface *m_modelManager;
     QmlJS::TypeSystem *m_typeSystem;
     QTextCharFormat m_occurrencesFormat;
+
+    SemanticInfo m_semanticInfo;
 };
 
 } // namespace Internal

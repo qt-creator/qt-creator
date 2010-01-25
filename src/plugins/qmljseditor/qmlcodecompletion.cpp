@@ -94,41 +94,6 @@ static QIcon iconForColor(const QColor &color)
 
 namespace {
 
-class FindMembers: protected AST::Visitor
-{
-    QList<AST::UiObjectMember *> _members;
-
-public:
-    QList<AST::UiObjectMember *> operator()(Document::Ptr doc)
-    {
-        _members.clear();
-        if (doc && doc->qmlProgram())
-            doc->qmlProgram()->accept(this);
-        return _members;
-    }
-
-protected:
-    using AST::Visitor::visit;
-
-    virtual bool visit(AST::UiArrayBinding *ast)
-    {
-        _members.append(ast);
-        return true;
-    }
-
-    virtual bool visit(AST::UiObjectBinding *ast)
-    {
-        _members.append(ast);
-        return true;
-    }
-
-    virtual bool visit(AST::UiObjectDefinition *ast)
-    {
-        _members.append(ast);
-        return true;
-    }
-};
-
 class ExpressionUnderCursor
 {
     QTextCursor _cursor;
@@ -692,9 +657,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     m_completions.clear();
 
     QmlJS::Snapshot snapshot = m_modelManager->snapshot();
-    Document::Ptr qmlDocument = snapshot.document(fileName);
 
-    const QFileInfo currentFileInfo(qmlDocument->fileName());
+    SemanticInfo semanticInfo = edit->semanticInfo();
+    Document::Ptr qmlDocument = semanticInfo.document;
+
+    const QFileInfo currentFileInfo(fileName);
     const QString currentFilePath = currentFileInfo.absolutePath();
 
     const QIcon componentIcon = iconForColor(Qt::yellow);
@@ -737,27 +704,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     AST::UiObjectMember *declaringMember = 0;
     AST::UiObjectMember *parentMember = 0;
 
-    const int cursorLine = edit->textCursor().blockNumber() + 1;
-    const int cursorColumn = edit->textCursor().columnNumber() + 1;
-
-    FindMembers findMembers;
-    const QList<AST::UiObjectMember *> members = findMembers(qmlDocument);
-    for (int index = 0; index < members.size(); ++index) {
-        AST::UiObjectMember *member = members.at(index);
-
-        AST::SourceLocation pos = member->firstSourceLocation();
-        const int startLine = pos.startLine;
-        const int startColumn = pos.startColumn;
-
-        if (startLine < cursorLine || (startLine == cursorLine && cursorColumn >= startColumn)) {
-            AST::SourceLocation endPos = member->lastSourceLocation();
-            const int endLine = endPos.startLine;
-            const int endColumn = endPos.startColumn + endPos.length;
-
-            if (cursorLine < endLine || (cursorLine == endLine && cursorColumn <= endColumn)) {
-                parentMember = declaringMember;
-                declaringMember = member;
-            }
+    const int cursorPosition = editor->position();
+    foreach (const Range &range, semanticInfo.ranges) {
+        if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
+            parentMember = declaringMember;
+            declaringMember = range.ast;
         }
     }
 

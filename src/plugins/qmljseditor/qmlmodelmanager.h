@@ -66,11 +66,18 @@ private Q_SLOTS:
     void onDocumentUpdated(QmlJS::Document::Ptr doc);
 
 protected:
+    struct WorkingCopy
+    {
+        WorkingCopy(int revision = 0): documentRevision(revision) {}
+        int documentRevision;
+        QString contents;
+    };
+
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
-    QMap<QString, QString> buildWorkingCopyList();
+    QMap<QString, WorkingCopy> buildWorkingCopyList();
 
     static void parse(QFutureInterface<void> &future,
-                      QMap<QString, QString> workingCopy,
+                      QMap<QString, WorkingCopy> workingCopy,
                       QStringList files,
                       QmlModelManager *modelManager);
 

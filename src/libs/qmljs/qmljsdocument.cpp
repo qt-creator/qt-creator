@@ -43,8 +43,9 @@ Document::Document(const QString &fileName)
     : _engine(0)
     , _pool(0)
     , _ast(0)
-    , _fileName(fileName)
+    , _documentRevision(0)
     , _parsedCorrectly(false)
+    , _fileName(fileName)
 {
     const int slashIdx = fileName.lastIndexOf('/');
     if (slashIdx != -1)
@@ -99,6 +100,16 @@ QString Document::source() const
 void Document::setSource(const QString &source)
 {
     _source = source;
+}
+
+int Document::documentRevision() const
+{
+    return _documentRevision;
+}
+
+void Document::setDocumentRevision(int revision)
+{
+    _documentRevision = revision;
 }
 
 bool Document::parseQml()
