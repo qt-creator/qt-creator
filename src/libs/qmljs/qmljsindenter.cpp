@@ -265,6 +265,8 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
                 needSemicolon = true;
             break;
 
+        case Token::String:
+        case Token::Number:
         case Token::Colon:
         case Token::LeftBracket:
         case Token::RightBracket:
@@ -278,7 +280,6 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
             break;
 
         default:
-            needSemicolon = true;
             break;
         } // end of switch
 
@@ -779,8 +780,8 @@ int QmlJSIndenter::indentForContinuationLine()
                      j + 1 < yyLine->length() && yyLine->at(j + 1) != '=') {
                     if (braceDepth == 0 && delimDepth == 0 &&
                          j < yyLine->length() - 1 &&
-                         !yyLine->endsWith(QLatin1String(",")) &&
-                         (yyLine->contains('(') == yyLine->contains(')')))
+                         !yyLine->endsWith(QLatin1Char(',')) &&
+                         (yyLine->contains(QLatin1Char('(')) == yyLine->contains(QLatin1Char(')'))))
                         hook = j;
                 }
             }
