@@ -34,6 +34,7 @@
 #include <qmljs/parser/qmljsparser_p.h>
 #include <qmljs/parser/qmljsnodepool_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
+#include <QtCore/QDir>
 
 using namespace QmlJS;
 using namespace QmlJS;
@@ -47,12 +48,14 @@ Document::Document(const QString &fileName)
     , _parsedCorrectly(false)
     , _fileName(fileName)
 {
-    const int slashIdx = fileName.lastIndexOf('/');
-    if (slashIdx != -1)
-        _path = fileName.left(slashIdx);
-
-    if (fileName.toLower().endsWith(".qml"))
-        _componentName = fileName.mid(slashIdx + 1, fileName.size() - (slashIdx + 1) - 4);
+    QFileInfo fileInfo(fileName);
+    _path = fileInfo.absolutePath();
+    _componentName = fileInfo.baseName();
+    if (! _componentName.isEmpty()) {
+        // ### TODO: check the component name.
+        if (! _componentName.at(0).isUpper())
+            _componentName.clear();
+    }
 }
 
 Document::~Document()
@@ -220,7 +223,7 @@ Snapshot::~Snapshot()
 void Snapshot::insert(const Document::Ptr &document)
 {
     if (document && (document->qmlProgram() || document->jsProgram()))
-        QMap<QString, Document::Ptr>::insert(document->fileName(), document);
+        _documents.insert(document->fileName(), document);
 }
 
 Document::PtrList Snapshot::importedDocuments(const Document::Ptr &doc, const QString &importPath) const
@@ -229,11 +232,16 @@ Document::PtrList Snapshot::importedDocuments(const Document::Ptr &doc, const QS
 
     Document::PtrList result;
 
-    const QString docPath = doc->path() + '/' + importPath;
+    QString docPath = doc->path();
+    docPath += QLatin1Char('/');
+    docPath += importPath;
+    docPath = QDir::cleanPath(docPath);
 
-    foreach (Document::Ptr candidate, *this) {
+    foreach (Document::Ptr candidate, _documents) {
         if (candidate == doc)
-            continue;
+            continue; // ignore this document
+        else if (! candidate->qmlProgram())
+            continue; // skip JS documents
 
         if (candidate->path() == doc->path() || candidate->path() == docPath)
             result.append(candidate);

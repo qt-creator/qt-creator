@@ -101,16 +101,25 @@ private:
     QmlJS::Symbol::List _symbols;
 };
 
-class QMLJS_EXPORT Snapshot: public QMap<QString, Document::Ptr>
+class QMLJS_EXPORT Snapshot
 {
+    typedef QMap<QString, Document::Ptr> _Base;
+    QMap<QString, Document::Ptr> _documents;
+
 public:
     Snapshot();
     ~Snapshot();
 
+    typedef _Base::iterator iterator;
+    typedef _Base::const_iterator const_iterator;
+
+    const_iterator begin() const { return _documents.begin(); }
+    const_iterator end() const { return _documents.end(); }
+
     void insert(const Document::Ptr &document);
 
     Document::Ptr document(const QString &fileName) const
-    { return value(fileName); }
+    { return _documents.value(fileName); }
 
     Document::PtrList importedDocuments(const Document::Ptr &doc, const QString &importPath) const;
     QMap<QString, Document::Ptr> componentsDefinedByImportedDocuments(const Document::Ptr &doc, const QString &importPath) const;

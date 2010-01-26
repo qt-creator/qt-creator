@@ -30,6 +30,7 @@
 #include "parser/qmljsast_p.h"
 #include "qmljsbind.h"
 #include "qmljsmetatypesystem.h"
+#include <QtCore/QDebug>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -125,7 +126,10 @@ static QString serialize(UiQualifiedId *qualifiedId, QChar delimiter)
  */
 bool Bind::visit(UiImport *ast)
 {
-    ObjectValue *namespaceObject;
+    if (! (ast->importUri || ast->fileName))
+        return false; // nothing to do.
+
+    ObjectValue *namespaceObject = 0;
 
     if (ast->asToken.isValid()) { // with namespace we insert an object in the type env. to hold the imported types
         if (!ast->importId)
@@ -142,31 +146,56 @@ bool Bind::visit(UiImport *ast)
     // look at files first
 
     // else try the metaobject system
-    if (!ast->importUri)
-        return false;
+    if (ast->importUri) {
+        const QString package = serialize(ast->importUri, '/');
+        int majorVersion = -1; // ### TODO: Check these magic version numbers
+        int minorVersion = -1; // ### TODO: Check these magic version numbers
 
-    const QString package = serialize(ast->importUri, '/');
-    int majorVersion = -1; // ### TODO: Check these magic version numbers
-    int minorVersion = -1; // ### TODO: Check these magic version numbers
+        if (ast->versionToken.isValid()) {
+            const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
+            const int dotIdx = versionString.indexOf(QLatin1Char('.'));
+            if (dotIdx == -1) {
+                // only major (which is probably invalid, but let's handle it anyway)
+                majorVersion = versionString.toInt();
+                minorVersion = 0; // ### TODO: Check with magic version numbers above
+            } else {
+                majorVersion = versionString.left(dotIdx).toInt();
+                minorVersion = versionString.mid(dotIdx + 1).toInt();
+            }
+        }
+#ifndef NO_DECLARATIVE_BACKEND
+        foreach (QmlObjectValue *object, _interp->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
+            namespaceObject->setProperty(object->qmlTypeName(), object);
+        }
+#endif // NO_DECLARATIVE_BACKEND
+    } else if (ast->fileName) {
+        // got an import "contents"
+        const QString relativePath = ast->fileName->asString();
+        const QList<Document::Ptr> userComponents = _snapshot.importedDocuments(_doc, relativePath);
+        foreach (Document::Ptr userComponent, userComponents) {
+            if (UiProgram *program = userComponent->qmlProgram()) {
+                if (UiObjectMemberList *members = program->members) {
+                    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(members->member)) {
+                        const ObjectValue *prototype = lookupType(def->qualifiedTypeNameId);
+                        ObjectValue *objectValue = _interp->newObject(prototype);
+                        if (def->initializer) {
+                            for (AST::UiObjectMemberList *it = def->initializer->members; it; it = it->next) {
+                                if (AST::UiPublicMember *prop = AST::cast<AST::UiPublicMember *>(it->member)) {
+                                    if (prop->name && prop->memberType) {
+                                        const QString propName = prop->name->asString();
+                                        const QString propType = prop->memberType->asString();
+                                        objectValue->setProperty(propName, _interp->defaultValueForBuiltinType(propType));
+                                    }
+                                }
+                            }
+                        }
 
-    if (ast->versionToken.isValid()) {
-        const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
-        const int dotIdx = versionString.indexOf(QLatin1Char('.'));
-        if (dotIdx == -1) {
-            // only major (which is probably invalid, but let's handle it anyway)
-            majorVersion = versionString.toInt();
-            minorVersion = 0; // ### TODO: Check with magic version numbers above
-        } else {
-            majorVersion = versionString.left(dotIdx).toInt();
-            minorVersion = versionString.mid(dotIdx + 1).toInt();
+                        _typeEnvironment->setProperty(userComponent->componentName(), objectValue);
+                    }
+                }
+            }
         }
     }
-
-#ifndef NO_DECLARATIVE_BACKEND
-    foreach (QmlObjectValue *object, _interp->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
-        namespaceObject->setProperty(object->qmlTypeName(), object);
-    }
-#endif // NO_DECLARATIVE_BACKEND
 
     return false;
 }
@@ -199,15 +228,15 @@ const ObjectValue *Bind::lookupType(UiQualifiedId *qualifiedTypeNameId)
 {
     const ObjectValue *objectValue = _typeEnvironment;
 
-    for (UiQualifiedId *iter = qualifiedTypeNameId; iter; iter = iter->next) {
-        if (! (iter->name))
+    for (UiQualifiedId *iter = qualifiedTypeNameId; objectValue && iter; iter = iter->next) {
+        if (! iter->name)
             return 0;
+
         const Value *value = objectValue->property(iter->name->asString());
         if (!value)
             return 0;
+
         objectValue = value->asObjectValue();
-        if (!objectValue)
-            return 0;
     }
 
     return objectValue;

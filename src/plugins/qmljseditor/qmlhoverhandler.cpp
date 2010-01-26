@@ -150,9 +150,9 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!scriptEditor)
         return;
 
-    const Snapshot documents = m_modelManager->snapshot();
+    const Snapshot snapshot = m_modelManager->snapshot();
     const QString fileName = editor->file()->fileName();
-    Document::Ptr doc = documents.value(fileName);
+    Document::Ptr doc = snapshot.document(fileName);
     if (!doc)
         return; // nothing to do
 

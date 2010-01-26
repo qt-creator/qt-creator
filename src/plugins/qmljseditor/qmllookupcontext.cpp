@@ -132,7 +132,7 @@ Symbol *QmlLookupContext::resolve(const QString &name)
 Symbol *QmlLookupContext::resolveType(const QString &name, const QString &fileName)
 {
     // TODO: handle import-as.
-    Document::Ptr document = _snapshot[fileName];
+    Document::Ptr document = _snapshot.document(fileName);
     if (document.isNull())
         return 0;
 

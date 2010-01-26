@@ -95,72 +95,6 @@ static QIcon iconForColor(const QColor &color)
     return pix;
 }
 
-
-#if 0
-static QString qualifiedNameId(AST::UiQualifiedId *it)
-{
-    QString text;
-
-    for (; it; it = it->next) {
-        if (! it->name)
-            continue;
-
-        text += it->name->asString();
-
-        if (it->next)
-            text += QLatin1Char('.');
-    }
-
-    return text;
-}
-
-static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine, const QString &name,
-                                              const QHash<QString, Document::Ptr> &userComponents,
-                                              QSet<QString> *processed)
-{
-    if (Interpreter::ObjectValue *object = engine->newQmlObject(name))
-        return object;
-
-    else if (! processed->contains(name)) {
-        processed->insert(name);
-
-        if (Document::Ptr doc = userComponents.value(name)) {
-            if (AST::UiProgram *program = doc->qmlProgram()) {
-                if (program->members) {
-                    if (AST::UiObjectDefinition *def = AST::cast<AST::UiObjectDefinition *>(program->members->member)) {
-                        const QString component = qualifiedNameId(def->qualifiedTypeNameId);
-                        Interpreter::ObjectValue *object = newComponent(engine, component, userComponents, processed);
-                        if (def->initializer) {
-                            for (AST::UiObjectMemberList *it = def->initializer->members; it; it = it->next) {
-                                if (AST::UiPublicMember *prop = AST::cast<AST::UiPublicMember *>(it->member)) {
-                                    if (prop->name && prop->memberType) {
-                                        const QString propName = prop->name->asString();
-                                        const QString propType = prop->memberType->asString();
-
-                                        object->setProperty(propName, engine->defaultValueForBuiltinType(propType));
-                                    }
-                                }
-                            }
-                        }
-                        return object;
-                    }
-                }
-            }
-        }
-    }
-
-    return 0;
-}
-
-static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine,
-                                              const QString &name,
-                                              const QHash<QString, Document::Ptr> &userComponents)
-{
-    QSet<QString> processed;
-    return newComponent(engine, name, userComponents, &processed);
-}
-#endif
-
 namespace {
 
 class ExpressionUnderCursor
@@ -725,36 +659,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         userComponents.insert(typeName, doc);
     }
 
-    foreach (Document::Ptr doc, snapshot) {
-        const QFileInfo fileInfo(doc->fileName());
-        const QString absolutePath = fileInfo.absolutePath();
-
-         // ### generalize
-        if (fileInfo.suffix() != QLatin1String("qml"))
-            continue;
-        else if (absolutePath != currentFilePath && ! isImported(qmlDocument, absolutePath))
-            continue;
-
-#if 0
-        QMapIterator<QString, IdSymbol *> it(doc->ids());
-        while (it.hasNext()) {
-            it.next();
-
-            if (IdSymbol *symbol = it.value()) {
-                const QString id = it.key();
-
-                if (symbol->parentNode()) {
-                    const QString component = symbol->parentNode()->name();
-
-                    if (const Interpreter::ObjectValue *object = newComponent(&interp, component, userComponents)) {
-                        interp.globalObject()->setProperty(id, object);
-                    }
-                }
-            }
-        }
-#endif
-    }
-
     // Set up the current scope chain.
     Interpreter::ObjectValue *scope = interp.globalObject();
 
@@ -771,55 +675,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 declaringMember = range.ast;
             }
         }
-
-#if 0
-        // ### TODO: remove me. This is just a quick and dirty hack to get some completion
-        // for the property definitions.
-        SearchPropertyDefinitions searchPropertyDefinitions;
-
-        const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument);
-        foreach (AST::UiPublicMember *prop, properties) {
-            if (! (prop->name && prop->memberType))
-                continue;
-
-            const QString propName = prop->name->asString();
-            const QString propType = prop->memberType->asString();
-
-            interp.globalObject()->setProperty(propName, interp.defaultValueForBuiltinType(propType));
-        }
-
-        // Get the name of the declaring item.
-        QString declaringItemName = QLatin1String("Item");
-
-        if (AST::UiObjectDefinition *binding = AST::cast<AST::UiObjectDefinition *>(declaringMember))
-            declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
-        else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(declaringMember))
-            declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
-
-        Interpreter::ObjectValue *declaringItem = newComponent(&interp, declaringItemName, userComponents);
-        if (! declaringItem)
-            declaringItem = interp.newQmlObject(QLatin1String("Item"));
-
-        if (declaringItem) {
-            scope->setScope(declaringItem);
-            declaringItem->setScope(interp.globalObject());
-        }
-
-        // Get the name of the parent of the declaring item.
-        QString parentItemName = QLatin1String("Item");
-
-        if (AST::UiObjectDefinition *binding = AST::cast<AST::UiObjectDefinition *>(parentMember))
-            parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
-        else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(parentMember))
-            parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
-
-        Interpreter::ObjectValue *parentItem = newComponent(&interp, parentItemName, userComponents);
-        if (! parentItem)
-            parentItem = interp.newQmlObject(QLatin1String("Item"));
-
-        if (parentItem)
-            scope->setProperty(QLatin1String("parent"), parentItem);
-#endif
 
         Bind bind(qmlDocument, snapshot, &interp);
         scope = bind(declaringMember);
