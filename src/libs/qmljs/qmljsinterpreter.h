@@ -441,6 +441,7 @@ public:
 
     // QML objects
     ObjectValue *newQmlObject(const QString &name);
+    const ObjectValue *qmlKeysObject();
 
     // global object
     ObjectValue *globalObject() const;
@@ -502,6 +503,7 @@ private:
 
     ObjectValue *_globalObject;
     ObjectValue *_mathObject;
+    ObjectValue *_qmlKeysObject;
 
     NullValue _nullValue;
     UndefinedValue _undefinedValue;
