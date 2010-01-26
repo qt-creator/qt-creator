@@ -1060,6 +1060,45 @@ const Value *ConvertToNumber::switchResult(const Value *value)
     return previousResult;
 }
 
+void ConvertToNumber::visit(const NullValue *)
+{
+    _result = _engine->numberValue();
+}
+
+void ConvertToNumber::visit(const UndefinedValue *)
+{
+    _result = _engine->numberValue();
+}
+
+void ConvertToNumber::visit(const NumberValue *value)
+{
+    _result = value;
+}
+
+void ConvertToNumber::visit(const BooleanValue *)
+{
+    _result = _engine->numberValue();
+}
+
+void ConvertToNumber::visit(const StringValue *)
+{
+    _result = _engine->numberValue();
+}
+
+void ConvertToNumber::visit(const ObjectValue *object)
+{
+    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
+        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
+    }
+}
+
+void ConvertToNumber::visit(const FunctionValue *object)
+{
+    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
+        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
+    }
+}
+
 ConvertToString::ConvertToString(Engine *engine)
     : _engine(engine), _result(0)
 {
@@ -1080,6 +1119,45 @@ const Value *ConvertToString::switchResult(const Value *value)
     const Value *previousResult = _result;
     _result = value;
     return previousResult;
+}
+
+void ConvertToString::visit(const NullValue *)
+{
+    _result = _engine->stringValue();
+}
+
+void ConvertToString::visit(const UndefinedValue *)
+{
+    _result = _engine->stringValue();
+}
+
+void ConvertToString::visit(const NumberValue *)
+{
+    _result = _engine->stringValue();
+}
+
+void ConvertToString::visit(const BooleanValue *)
+{
+    _result = _engine->stringValue();
+}
+
+void ConvertToString::visit(const StringValue *value)
+{
+    _result = value;
+}
+
+void ConvertToString::visit(const ObjectValue *object)
+{
+    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
+        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
+    }
+}
+
+void ConvertToString::visit(const FunctionValue *object)
+{
+    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
+        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
+    }
 }
 
 ConvertToObject::ConvertToObject(Engine *engine)
@@ -1740,86 +1818,3 @@ ObjectValue *Engine::newQmlObject(const QString &name)
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// convert to number
-////////////////////////////////////////////////////////////////////////////////
-void ConvertToNumber::visit(const NullValue *)
-{
-    _result = _engine->numberValue();
-}
-
-void ConvertToNumber::visit(const UndefinedValue *)
-{
-    _result = _engine->numberValue();
-}
-
-void ConvertToNumber::visit(const NumberValue *value)
-{
-    _result = value;
-}
-
-void ConvertToNumber::visit(const BooleanValue *)
-{
-    _result = _engine->numberValue();
-}
-
-void ConvertToNumber::visit(const StringValue *)
-{
-    _result = _engine->numberValue();
-}
-
-void ConvertToNumber::visit(const ObjectValue *object)
-{
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
-        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
-    }
-}
-
-void ConvertToNumber::visit(const FunctionValue *object)
-{
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
-        _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// convert to string
-////////////////////////////////////////////////////////////////////////////////
-void ConvertToString::visit(const NullValue *)
-{
-    _result = _engine->stringValue();
-}
-
-void ConvertToString::visit(const UndefinedValue *)
-{
-    _result = _engine->stringValue();
-}
-
-void ConvertToString::visit(const NumberValue *)
-{
-    _result = _engine->stringValue();
-}
-
-void ConvertToString::visit(const BooleanValue *)
-{
-    _result = _engine->stringValue();
-}
-
-void ConvertToString::visit(const StringValue *value)
-{
-    _result = value;
-}
-
-void ConvertToString::visit(const ObjectValue *object)
-{
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
-        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
-    }
-}
-
-void ConvertToString::visit(const FunctionValue *object)
-{
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
-        _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
-    }
-}
