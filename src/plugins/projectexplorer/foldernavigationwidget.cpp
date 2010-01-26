@@ -30,18 +30,24 @@
 #include "foldernavigationwidget.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "environment.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/filemanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/coreconstants.h>
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/unixutils.h>
+#include <utils/consoleprocess.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QProcess>
 #include <QtGui/QFileSystemModel>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
+#include <QtGui/QPushButton>
 #include <QtGui/QLabel>
 #include <QtGui/QListView>
 #include <QtGui/QSortFilterProxyModel>
@@ -49,6 +55,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QFileDialog>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QMessageBox>
 
 enum { debug = 0 };
 
@@ -263,8 +270,14 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QMenu menu;
     // Open current item
     const QModelIndex current = currentItem();
+    const bool hasCurrentItem = current.isValid();
     QAction *actionOpen = menu.addAction(actionOpenText(m_fileSystemModel, current));
-    actionOpen->setEnabled(current.isValid());
+    actionOpen->setEnabled(hasCurrentItem);
+    // Explorer & teminal
+    QAction *actionExplorer = menu.addAction(msgGraphicalShellAction());
+    actionExplorer->setEnabled(hasCurrentItem);
+    QAction *actionTerminal = menu.addAction(msgTerminalAction());
+    actionTerminal->setEnabled(hasCurrentItem);
     // Open file dialog to choose a path starting from current
     QAction *actionChooseFolder = menu.addAction(tr("Choose folder..."));
 
@@ -281,7 +294,114 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         const QString newPath = QFileDialog::getExistingDirectory(this, tr("Choose folder"), currentDirectory());
         if (!newPath.isEmpty())
             setCurrentDirectory(newPath);
+        return;
     }
+    if (action == actionTerminal) {
+        openTerminal(m_fileSystemModel->filePath(current));
+        return;
+    }
+    if (action == actionExplorer) {
+        showInGraphicalShell(this, m_fileSystemModel->filePath(current));
+        return;
+    }
+}
+
+QString FolderNavigationWidget::msgGraphicalShellAction()
+{
+#if defined(Q_OS_WIN)
+    return tr("Show in Explorer...");
+#elif defined(Q_OS_MAC)
+    return tr("Show in Finder...");
+#else
+    return tr("Show containing folder...");
+#endif
+}
+
+QString FolderNavigationWidget::msgTerminalAction()
+{
+#ifdef Q_OS_WIN
+    return tr("Open Command Prompt here...");
+#else
+    return tr("Open Terminal here...");
+#endif
+}
+
+// Show error with option to open settings.
+static inline void showGraphicalShellError(QWidget *parent,
+                                           const QString &app,
+                                           const QString &error)
+{
+    const QString title = FolderNavigationWidget::tr("Launching a file browser failed");
+    const QString msg = FolderNavigationWidget::tr("Unable to start the file manager:\n\n%1\n\n").arg(app);
+    QMessageBox mbox(QMessageBox::Warning, title, msg, QMessageBox::Close, parent);
+    if (!error.isEmpty())
+        mbox.setDetailedText(FolderNavigationWidget::tr("'%1' returned the following error:\n\n%2").arg(app, error));
+    QAbstractButton *settingsButton = mbox.addButton(FolderNavigationWidget::tr("Settings..."), QMessageBox::ActionRole);
+    mbox.exec();
+    if (mbox.clickedButton() == settingsButton)
+        Core::ICore::instance()->showOptionsDialog(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE),
+                                                   QLatin1String(Core::Constants::SETTINGS_ID_ENVIRONMENT));
+}
+
+void FolderNavigationWidget::showInGraphicalShell(QWidget *parent, const QString &pathIn)
+{
+    Q_UNUSED(parent)
+    // Mac, Windows support folder or file.
+#if defined(Q_OS_WIN)
+    const QString explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
+    if (explorer.isEmpty()) {
+        QMessageBox::warning(parent,
+                             tr("Launching Windows Explorer failed"),
+                             tr("Could not find explorer.exe in path to launch Windows Explorer."));
+        return;
+    }
+    QProcess::startDetached(explorer, QStringList(QLatin1String("/select,") + QDir::toNativeSeparators(pathIn)));
+#elif defined(Q_OS_MAC)
+    QStringList scriptArgs;
+    scriptArgs << QLatin1String("-e")
+               << QString::fromLatin1("tell application \"Finder\" to reveal POSIX file \"%1\"")
+                                     .arg(pathIn);
+    QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
+    scriptArgs.clear();
+    scriptArgs << QLatin1String("-e")
+               << QLatin1String("tell application \"Finder\" to activate");
+    QProcess::execute("/usr/bin/osascript", scriptArgs);
+#else
+    // we cannot select a file here, because no file browser really supports it...
+    const QFileInfo fileInfo(pathIn);
+    const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.absolutePath();
+    const QString app = Utils::UnixUtils::fileBrowser(Core::ICore::instance()->settings());
+    QProcess browserProc;
+    const QString browserArgs = Utils::UnixUtils::substituteFileBrowserParameters(app, folder);
+    if (debug)
+        qDebug() <<  browserArgs;
+    bool success = browserProc.startDetached(browserArgs);
+    const QString error = QString::fromLocal8Bit(browserProc.readAllStandardError());
+    success = success && error.isEmpty();
+    if (!success)
+        showGraphicalShellError(parent, app, error);
+#endif
+}
+
+void FolderNavigationWidget::openTerminal(const QString &path)
+{
+    // Get terminal application
+#ifdef Q_OS_WIN
+    const QString terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    const QStringList args; // none
+#else
+   QStringList args = Utils::ConsoleProcess::terminalEmulator(
+           Core::ICore::instance()->settings()).split(QLatin1Char(' '));
+    const QString terminalEmulator = args.takeFirst();
+    const QString shell = QString::fromLocal8Bit(qgetenv("SHELL"));
+    args.append(shell);
+#endif
+    // Launch terminal with working directory set.
+    const QFileInfo fileInfo(path);
+    const QString pwd = QDir::toNativeSeparators(fileInfo.isDir() ?
+                                                 fileInfo.absoluteFilePath() :
+                                                 fileInfo.absolutePath());
+    QProcess::startDetached(terminalEmulator, args, pwd);
 }
 
 // --------------------FolderNavigationWidgetFactory

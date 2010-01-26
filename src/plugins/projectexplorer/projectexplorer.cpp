@@ -86,7 +86,6 @@
 #include <utils/consoleprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
-#include <utils/unixutils.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDateTime>
@@ -489,24 +488,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OPEN);
 
-#if defined(Q_OS_WIN)
-    d->m_showInGraphicalShell = new QAction(tr("Show in Explorer..."), this);
-#elif defined(Q_OS_MAC)
-    d->m_showInGraphicalShell = new QAction(tr("Show in Finder..."), this);
-#else
-    d->m_showInGraphicalShell = new QAction(tr("Show containing folder..."), this);
-#endif
-
-#ifdef Q_OS_WIN
-    d->m_openTerminalHere = new QAction(tr("Open Command Prompt here..."), this);
-#else
-    d->m_openTerminalHere = new QAction(tr("Open Terminal here..."), this);
-#endif
+    d->m_showInGraphicalShell = new QAction(FolderNavigationWidget::msgGraphicalShellAction(), this);
     cmd = am->registerAction(d->m_showInGraphicalShell, ProjectExplorer::Constants::SHOWINGRAPHICALSHELL,
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OPEN);
     mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
 
+    d->m_openTerminalHere = new QAction(FolderNavigationWidget::msgTerminalAction(), this);
     cmd = am->registerAction(d->m_openTerminalHere, ProjectExplorer::Constants::OPENTERMIANLHERE,
                        globalcontext);
     mfilec->addAction(cmd, Constants::G_FILE_OPEN);
@@ -1895,71 +1883,17 @@ void ProjectExplorerPlugin::openFile()
     em->ensureEditorManagerVisible();
 }
 
-void ProjectExplorerPlugin::graphicalShellHasError(const QString &app, const QString &error)
-{
-    QWidget *w = Core::ICore::instance()->mainWindow();
-    QMessageBox mbox(w);
-    mbox.setIcon(QMessageBox::Warning);
-    mbox.setWindowTitle(tr("Launching a file browser failed"));
-    mbox.setText(tr("Unable to start the file manager:\n\n%1\n\n"
-                             "Do you want to change the current file manager?").arg(app));
-    if (!error.isEmpty()) {
-        mbox.setDetailedText(tr("'%1' returned the following error:\n\n%2").arg(app, error));
-    }
-    if (mbox.exec() == QMessageBox::Accepted)
-        Core::ICore::instance()->showOptionsDialog("environment", QString(), w);
-}
-
 void ProjectExplorerPlugin::showInGraphicalShell()
 {
     QTC_ASSERT(d->m_currentNode, return)
-#if defined(Q_OS_WIN)
-    const QString explorer = Environment::systemEnvironment().searchInPath("explorer.exe");
-    if (explorer.isEmpty()) {
-        QMessageBox::warning(Core::ICore::instance()->mainWindow(),
-                             tr("Launching Windows Explorer failed"),
-                             tr("Could not find explorer.exe in path to launch Windows Explorer."));
-        return;
-    }
-    QProcess::startDetached(explorer, QStringList(QLatin1String("/select,") + QDir::toNativeSeparators(d->m_currentNode->path())));
-#elif defined(Q_OS_MAC)
-    QProcess::execute("/usr/bin/osascript", QStringList()
-                      << "-e"
-                      << QString("tell application \"Finder\" to reveal POSIX file \"%1\"")
-                      .arg(d->m_currentNode->path()));
-    QProcess::execute("/usr/bin/osascript", QStringList()
-                      << "-e"
-                      << "tell application \"Finder\" to activate");
-#else
-    // we cannot select a file here, because no file browser really supports it...
-    const QFileInfo fileInfo(d->m_currentNode->path());
-    QString app = Utils::UnixUtils::fileBrowser(Core::ICore::instance()->settings());
-    QProcess browserProc;
-    bool success = browserProc.startDetached(Utils::UnixUtils::substituteFileBrowserParameters(app, fileInfo.filePath()));
-    QString error = QString::fromLocal8Bit(browserProc.readAllStandardError());
-    success = success && error.isEmpty();
-    if (!success) {
-        graphicalShellHasError(app, error);
-    }
-#endif
+    FolderNavigationWidget::showInGraphicalShell(Core::ICore::instance()->mainWindow(),
+                                                 d->m_currentNode->path());
 }
 
 void ProjectExplorerPlugin::openTerminalHere()
 {
-#ifdef Q_OS_WIN
-    const QString terminalEmulator = QString::fromLocal8Bit(qgetenv("COMSPEC"));
-    const QStringList args; // none
-#else
-   QStringList args = Utils::ConsoleProcess::terminalEmulator(
-           Core::ICore::instance()->settings()).split(QLatin1Char(' '));
-    const QString terminalEmulator = args.takeFirst();
-    const QString shell = QString::fromLocal8Bit(qgetenv("SHELL"));
-    args.append(shell);
-#endif
-    const QFileInfo fileInfo(d->m_currentNode->path());
-    const QString pwd = QDir::toNativeSeparators(fileInfo.path());
-    QProcess::startDetached(terminalEmulator, args, pwd);
-
+    QTC_ASSERT(d->m_currentNode, return)
+    FolderNavigationWidget::openTerminal(d->m_currentNode->path());
 }
 
 void ProjectExplorerPlugin::removeFile()

@@ -59,7 +59,7 @@ GeneralSettings::GeneralSettings():
 
 QString GeneralSettings::id() const
 {
-    return QLatin1String("A.General");
+    return QLatin1String(Core::Constants::SETTINGS_ID_ENVIRONMENT);
 }
 
 QString GeneralSettings::displayName() const
