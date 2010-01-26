@@ -125,9 +125,6 @@ public:
     QList<Declaration> declarations() const;
     QStringList keywords() const;
 
-    QList<QmlJS::DiagnosticMessage> diagnosticMessages() const
-    { return m_diagnosticMessages; }
-
     virtual void unCommentSelection();
 
     SemanticInfo semanticInfo() const { return m_semanticInfo; }
@@ -178,7 +175,6 @@ private:
     QList<Declaration> m_declarations; // ### remove me
     QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### remove me
     int m_idsRevision; // ### remove me
-    QList<QmlJS::DiagnosticMessage> m_diagnosticMessages; // ### remove me
     QmlModelManagerInterface *m_modelManager;
     QmlJS::TypeSystem *m_typeSystem;
     QTextCharFormat m_occurrencesFormat;

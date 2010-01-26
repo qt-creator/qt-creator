@@ -563,20 +563,16 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    QTextCharFormat errorFormat;
-    errorFormat.setUnderlineColor(Qt::red);
-    errorFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-
     QTextEdit::ExtraSelection sel;
 
-    m_diagnosticMessages = doc->diagnosticMessages();
+    const QList<DiagnosticMessage> diagnosticMessages = doc->diagnosticMessages();
 
-    foreach (const DiagnosticMessage &d, m_diagnosticMessages) {
-        int line = d.loc.startLine;
-        int column = d.loc.startColumn;
+    foreach (const DiagnosticMessage &d, diagnosticMessages) {
+        if (d.isWarning())
+            continue;
 
-        if (column == 0)
-            column = 1;
+        const int line = d.loc.startLine;
+        const int column = qMax(1U, d.loc.startColumn);
 
         QTextCursor c(document()->findBlockByNumber(line - 1));
         sel.cursor = c;
@@ -587,7 +583,9 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
         else
             sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
 
-        sel.format = errorFormat;
+        sel.format.setUnderlineColor(Qt::red);
+        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        sel.format.setToolTip(d.message);
 
         selections.append(sel);
     }

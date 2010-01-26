@@ -158,16 +158,14 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
     QTextCursor tc(scriptEditor->document());
     tc.setPosition(pos);
-    const unsigned lineNumber = tc.block().blockNumber() + 1;
 
     // We only want to show F1 if the tooltip matches the help id
     bool showF1 = true;
 
-    foreach (const QmlJS::DiagnosticMessage &m, scriptEditor->diagnosticMessages()) {
-        if (m.loc.startLine == lineNumber) {
-            m_toolTip = m.message;
+    foreach (const QTextEdit::ExtraSelection &sel, scriptEditor->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection)) {
+        if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             showF1 = false;
-            break;
+            m_toolTip = sel.format.toolTip();
         }
     }
 
