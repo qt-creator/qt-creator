@@ -128,10 +128,10 @@ bool Bind::visit(UiImport *ast)
     ObjectValue *namespaceObject;
 
     if (ast->asToken.isValid()) { // with namespace we insert an object in the type env. to hold the imported types
-        namespaceObject = _interp->newObject(/*prototype */ 0);
-
         if (!ast->importId)
             return false; // this should never happen, but better be safe than sorry
+
+        namespaceObject = _interp->newObject(/*prototype */ 0);
 
         _typeEnvironment->setProperty(ast->importId->asString(), namespaceObject);
 
