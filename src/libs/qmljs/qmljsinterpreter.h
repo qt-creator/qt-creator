@@ -198,11 +198,13 @@ class QMLJS_EXPORT MemberProcessor
     void operator = (const MemberProcessor &other);
 
 public:
-    MemberProcessor() {}
-    virtual ~MemberProcessor() {}
+    MemberProcessor();
+    virtual ~MemberProcessor();
 
     // Returns false to stop the processor.
-    virtual bool process(const QString &name, const Value *value) = 0;
+    virtual bool processProperty(const QString &name, const Value *value);
+    virtual bool processSignal(const QString &name, const Value *value);
+    virtual bool processSlot(const QString &name, const Value *value);
 };
 
 class QMLJS_EXPORT ObjectValue: public Value, public Environment

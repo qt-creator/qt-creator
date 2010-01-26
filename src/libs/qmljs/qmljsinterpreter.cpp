@@ -72,11 +72,16 @@ public:
         for (int index = 0; index < _metaObject->propertyCount(); ++index) {
             QMetaProperty prop = _metaObject->property(index);
 
-            processor->process(prop.name(), propertyValue(prop));
+            processor->processProperty(prop.name(), propertyValue(prop));
         }
 
         for (int index = 0; index < _metaObject->methodCount(); ++index) {
             QMetaMethod meth = _metaObject->method(index);
+            if (meth.methodType() != QMetaMethod::Signal)
+                continue;
+            if (meth.access() == QMetaMethod::Private)
+                continue;
+
             const QString signature = QString::fromUtf8(meth.signature());
 
             int indexOfParen = signature.indexOf(QLatin1Char('('));
@@ -88,7 +93,9 @@ public:
             slotName += QLatin1String("on");
             slotName += signalName.at(0).toUpper();
             slotName += signalName.midRef(1);
-            processor->process(slotName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the property
+
+            processor->processSignal(signalName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the signal
+            processor->processSlot(slotName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the slot
         }
 
         ObjectValue::processMembers(processor);
@@ -554,6 +561,29 @@ void StringValue::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
+MemberProcessor::MemberProcessor()
+{
+}
+
+MemberProcessor::~MemberProcessor()
+{
+}
+
+bool MemberProcessor::processProperty(const QString &, const Value *)
+{
+    return true;
+}
+
+bool MemberProcessor::processSignal(const QString &, const Value *)
+{
+    return true;
+}
+
+bool MemberProcessor::processSlot(const QString &, const Value *)
+{
+    return true;
+}
+
 ObjectValue::ObjectValue(Engine *engine)
     : _engine(engine), _prototype(0), _scope(0)
 {
@@ -653,7 +683,7 @@ void ObjectValue::processMembers(MemberProcessor *processor) const
     while (it.hasNext()) {
         it.next();
 
-        if (! processor->process(it.key(), it.value()))
+        if (! processor->processProperty(it.key(), it.value()))
             break;
     }
 }

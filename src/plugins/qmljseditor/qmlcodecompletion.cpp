@@ -381,8 +381,19 @@ class EnumerateProperties: private Interpreter::MemberProcessor
 {
     QSet<const Interpreter::ObjectValue *> _processed;
     QHash<QString, const Interpreter::Value *> _properties;
+    bool _globalCompletion;
 
 public:
+    EnumerateProperties()
+        : _globalCompletion(false)
+    {
+    }
+
+    void setGlobalCompletion(bool globalCompletion)
+    {
+        _globalCompletion = globalCompletion;
+    }
+
     QHash<QString, const Interpreter::Value *> operator()(const Interpreter::Value *value,
                                                           bool lookAtScope = false)
     {
@@ -393,9 +404,16 @@ public:
     }
 
 private:
-    virtual bool process(const QString &name, const Interpreter::Value *value)
+    virtual bool processProperty(const QString &name, const Interpreter::Value *value)
     {
         _properties.insert(name, value);
+        return true;
+    }
+
+    virtual bool processSlot(const QString &name, const Interpreter::Value *value)
+    {
+        if (_globalCompletion)
+            _properties.insert(name, value);
         return true;
     }
 
@@ -881,6 +899,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         }
 
         EnumerateProperties enumerateProperties;
+        enumerateProperties.setGlobalCompletion(true);
         QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(scope, /* lookAtScope = */ true));
         while (it.hasNext()) {
             it.next();
