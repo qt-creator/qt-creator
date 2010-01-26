@@ -535,26 +535,30 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
     m_idsRevision = document()->revision();
     m_ids = updateIds(doc->qmlProgram());
 
-    if (doc->isParsedCorrectly()) {
-        // create the ranges
+    if (doc->ast()) {
+        // got a correctly parsed (or recovered) file.
+
+        // create the ranges and update the semantic info.
         CreateRanges createRanges;
         SemanticInfo sem;
         sem.document = doc;
         sem.ranges = createRanges(document(), doc);
         m_semanticInfo = sem;
 
-        FindDeclarations findDeclarations;
-        m_declarations = findDeclarations(doc->ast());
+        if (doc->isParsedCorrectly()) {
+            FindDeclarations findDeclarations;
+            m_declarations = findDeclarations(doc->ast());
 
-        QStringList items;
-        items.append(tr("<Select Symbol>"));
+            QStringList items;
+            items.append(tr("<Select Symbol>"));
 
-        foreach (Declaration decl, m_declarations)
-            items.append(decl.text);
+            foreach (Declaration decl, m_declarations)
+                items.append(decl.text);
 
-        m_methodCombo->clear();
-        m_methodCombo->addItems(items);
-        updateMethodBoxIndex();
+            m_methodCombo->clear();
+            m_methodCombo->addItems(items);
+            updateMethodBoxIndex();
+        }
     }
 
     QList<QTextEdit::ExtraSelection> selections;
