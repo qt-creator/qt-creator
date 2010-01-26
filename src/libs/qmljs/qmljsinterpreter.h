@@ -30,7 +30,8 @@
 #ifndef QMLJS_INTERPRETER_H
 #define QMLJS_INTERPRETER_H
 
-#include "qmljs_global.h"
+#include <qmljs/qmljs_global.h>
+#include <qmljs/qmljsmetatypesystem.h>
 
 #include <QtCore/QList>
 #include <QtCore/QString>
@@ -250,6 +251,36 @@ private:
     QString _className;
 };
 
+#ifndef NO_DECLARATIVE_BACKEND
+
+class QmlObjectValue: public ObjectValue
+{
+public:
+    QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName, int majorVersion, int minorVersion, Engine *engine);
+    virtual ~QmlObjectValue();
+
+    virtual const Value *lookupMember(const QString &name) const;
+    virtual void processMembers(MemberProcessor *processor) const;
+    const Value *propertyValue(const QMetaProperty &prop) const;
+
+    QString qmlTypeName() const
+    { return _qmlTypeName; }
+
+    int majorVersion() const
+    { return _majorVersion; }
+
+    int minorVersion() const
+    { return _minorVersion; }
+
+private:
+    const QMetaObject *_metaObject;
+    QString _qmlTypeName;
+    int _majorVersion;
+    int _minorVersion;
+};
+
+#endif // !NO_DECLARATIVE_BACKEND
+
 class QMLJS_EXPORT Activation: public ObjectValue
 {
 public:
@@ -440,9 +471,11 @@ public:
     const Value *newArray(); // ### remove me
 
     // QML objects
-    ObjectValue *newQmlObject(const QString &name);
     const ObjectValue *qmlKeysObject();
     const Value *defaultValueForBuiltinType(const QString &typeName) const;
+#ifndef NO_DECLARATIVE_BACKEND
+    QmlObjectValue *newQmlObject(const QString &name, const QString &prefix, int majorVersion, int minorVersion);
+#endif
 
     // global object
     ObjectValue *globalObject() const;
@@ -476,6 +509,11 @@ public:
     const Value *convertToString(const Value *value);
     const Value *convertToObject(const Value *value);
     QString typeId(const Value *value);
+
+    // typing:
+    const MetaTypeSystem &metaTypeSystem() const
+    { return _metaTypeSystem; }
+
 
 private:
     void initializePrototypes();
@@ -519,6 +557,8 @@ private:
     ConvertToString _convertToString;
     ConvertToObject _convertToObject;
     TypeId _typeId;
+
+    MetaTypeSystem _metaTypeSystem;
 };
 
 } } // end of namespace QmlJS::Interpreter

@@ -33,6 +33,7 @@
 #include "qmllookupcontext.h"
 
 #include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljssymbol.h>
 #include <qmljs/qmljsscanner.h>
@@ -112,6 +113,7 @@ static QString qualifiedNameId(AST::UiQualifiedId *it)
     return text;
 }
 
+#if 0
 static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine, const QString &name,
                                               const QHash<QString, Document::Ptr> &userComponents,
                                               QSet<QString> *processed)
@@ -157,6 +159,7 @@ static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine,
     QSet<QString> processed;
     return newComponent(engine, name, userComponents, &processed);
 }
+#endif
 
 namespace {
 
@@ -688,6 +691,8 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     SemanticInfo semanticInfo = edit->semanticInfo();
     Document::Ptr qmlDocument = semanticInfo.document;
+    if (qmlDocument.isNull())
+        return -1;
 
     const QFileInfo currentFileInfo(fileName);
     const QString currentFilePath = currentFileInfo.absolutePath();
@@ -701,7 +706,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     Interpreter::Engine interp;
 
-    QHash<QString, Document::Ptr> userComponents;
+    QHash<QString, Document::Ptr> userComponents; // ####
 
     foreach (Document::Ptr doc, snapshot) {
         const QFileInfo fileInfo(doc->fileName());
@@ -730,6 +735,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         else if (absolutePath != currentFilePath && ! isImported(qmlDocument, absolutePath))
             continue;
 
+#if 0
         QMapIterator<QString, IdSymbol *> it(doc->ids());
         while (it.hasNext()) {
             it.next();
@@ -746,6 +752,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                 }
             }
         }
+#endif
     }
 
     // Set up the current scope chain.
@@ -765,6 +772,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             }
         }
 
+#if 0
         // ### TODO: remove me. This is just a quick and dirty hack to get some completion
         // for the property definitions.
         SearchPropertyDefinitions searchPropertyDefinitions;
@@ -811,6 +819,10 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         if (parentItem)
             scope->setProperty(QLatin1String("parent"), parentItem);
+#endif
+
+        Bind bind;
+        scope = bind(qmlDocument, snapshot, declaringMember, interp);
     }
 
     // Search for the operator that triggered the completion.

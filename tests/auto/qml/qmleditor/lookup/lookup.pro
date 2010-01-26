@@ -14,3 +14,9 @@ SOURCES += tst_lookup.cpp \
 
 HEADERS += $$EDITOR_DIR/qmllookupcontext.h
 RESOURCES += testfiles.qrc
+
+OTHER_FILES += \
+    data/localIdLookup.qml \
+    data/localScriptMethodLookup.qml \
+    data/localScopeLookup.qml \
+    data/localRootLookup.qml

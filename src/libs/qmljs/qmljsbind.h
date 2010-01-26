@@ -30,8 +30,9 @@
 #ifndef QMLBIND_H
 #define QMLBIND_H
 
-#include "parser/qmljsastvisitor_p.h"
-#include "qmljsdocument.h"
+#include <qmljs/parser/qmljsastvisitor_p.h>
+#include <qmljs/qmljsdocument.h>
+#include <qmljs/qmljsinterpreter.h>
 
 namespace QmlJS {
 
@@ -41,7 +42,7 @@ public:
     Bind();
     virtual ~Bind();
 
-    void operator()(QmlJS::Document::Ptr doc);
+    Interpreter::ObjectValue* operator()(Document::Ptr doc, Snapshot &snapshot, AST::UiObjectMember *member, Interpreter::Engine &interp);
 
 protected:
     void accept(AST::Node *node);
@@ -140,8 +141,23 @@ protected:
     virtual bool visit(AST::StatementSourceElement *ast);
     virtual bool visit(AST::DebuggerStatement *ast);
 
+protected:
+    Interpreter::ObjectValue *switchObjectValue(Interpreter::ObjectValue *newObjectValue);
+    const Interpreter::ObjectValue *lookupType(AST::UiQualifiedId *qualifiedTypeNameId);
+    Interpreter::ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);
+
 private:
-    QmlJS::Document::Ptr _doc;
+    Document::Ptr _doc;
+    Snapshot *_snapshot;
+    AST::UiObjectMember *_interestingMember;
+    Interpreter::Engine *_interp;
+
+    Interpreter::ObjectValue *_currentObjectValue;
+
+    Interpreter::ObjectValue *_typeEnvironment;
+    Interpreter::ObjectValue *_idEnvironment;
+    Interpreter::ObjectValue *_interestingObjectValue;
+    Interpreter::ObjectValue *_rootObjectValue;
 };
 
 } // end of namespace Qml

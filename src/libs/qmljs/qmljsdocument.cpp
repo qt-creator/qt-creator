@@ -225,6 +225,8 @@ void Snapshot::insert(const Document::Ptr &document)
 
 Document::PtrList Snapshot::importedDocuments(const Document::Ptr &doc, const QString &importPath) const
 {
+    // ### TODO: maybe we should add all imported documents in the parse Document::parse() method, regardless of whether they're in the path or not.
+
     Document::PtrList result;
 
     const QString docPath = doc->path() + '/' + importPath;

@@ -22,7 +22,8 @@ HEADERS += \
     $$PWD/qmljsscanner.h \
     $$PWD/qmljssymbol.h \
     $$PWD/qmljstypesystem.h \
-    $$PWD/qmljsinterpreter.h
+    $$PWD/qmljsinterpreter.h \
+    $$PWD/qmljsmetatypesystem.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -34,7 +35,8 @@ SOURCES += \
     $$PWD/qmljsscanner.cpp \
     $$PWD/qmljssymbol.cpp \
     $$PWD/qmljstypesystem.cpp \
-    $$PWD/qmljsinterpreter.cpp
+    $$PWD/qmljsinterpreter.cpp \
+    $$PWD/qmljsmetatypesystem.cpp
 
 contains(QT_CONFIG, declarative) {
     QT += declarative

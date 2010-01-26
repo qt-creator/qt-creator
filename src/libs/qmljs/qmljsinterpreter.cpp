@@ -43,8 +43,6 @@
 
 using namespace QmlJS::Interpreter;
 
-namespace {
-
 #ifndef NO_DECLARATIVE_BACKEND
 
 class QmlAttachedKeys: public ObjectValue
@@ -166,93 +164,102 @@ public:
     }
 };
 
-class QmlObjectValue: public ObjectValue
+QmlObjectValue::QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName, int majorVersion, int minorVersion, Engine *engine)
+    : ObjectValue(engine), _metaObject(metaObject), _qmlTypeName(qmlTypeName), _majorVersion(majorVersion), _minorVersion(minorVersion)
+{}
+
+QmlObjectValue::~QmlObjectValue() {}
+
+const Value *QmlObjectValue::lookupMember(const QString &name) const
 {
-public:
-    QmlObjectValue(const QMetaObject *metaObject, Engine *engine)
-        : ObjectValue(engine), _metaObject(metaObject)
-    {
+    for (int index = 0; index < _metaObject->propertyCount(); ++index) {
+        QMetaProperty prop = _metaObject->property(index);
+
+        if (name == QString::fromUtf8(prop.name()))
+            return propertyValue(prop);
     }
 
-    virtual ~QmlObjectValue() {}
+    for (int index = 0; index < _metaObject->methodCount(); ++index) {
+        QMetaMethod method = _metaObject->method(index);
 
-    virtual const Value *lookupMember(const QString &name) const
-    {
-        for (int index = 0; index < _metaObject->propertyCount(); ++index) {
-            QMetaProperty prop = _metaObject->property(index);
+        const QString signature = QString::fromUtf8(method.signature());
 
-            if (name == QString::fromUtf8(prop.name()))
-                return propertyValue(prop);
+        const int indexOfParen = signature.indexOf(QLatin1Char('('));
+        if (indexOfParen == -1)
+            continue; // skip it, invalid signature.
+
+        const QString methodName = signature.left(indexOfParen);
+
+        if (methodName != name) {
+            continue;
+
+        } else if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
+            return new MetaFunction(method, engine());
+
+        } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
+            return new MetaFunction(method, engine());
         }
+    }
 
-        for (int index = 0; index < _metaObject->methodCount(); ++index) {
-            QMetaMethod method = _metaObject->method(index);
+    return ObjectValue::lookupMember(name);
+}
 
-            const QString signature = QString::fromUtf8(method.signature());
+void QmlObjectValue::processMembers(MemberProcessor *processor) const
+{
+    for (int index = 0; index < _metaObject->propertyCount(); ++index) {
+        QMetaProperty prop = _metaObject->property(index);
 
-            const int indexOfParen = signature.indexOf(QLatin1Char('('));
-            if (indexOfParen == -1)
-                continue; // skip it, invalid signature.
+        processor->processProperty(prop.name(), propertyValue(prop));
+    }
 
-            const QString methodName = signature.left(indexOfParen);
+    for (int index = 0; index < _metaObject->methodCount(); ++index) {
+        QMetaMethod method = _metaObject->method(index);
 
-            if (methodName != name) {
-                continue;
+        const QString signature = QString::fromUtf8(method.signature());
 
-            } else if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
-                return new MetaFunction(method, engine());
+        const int indexOfParen = signature.indexOf(QLatin1Char('('));
+        if (indexOfParen == -1)
+            continue; // skip it, invalid signature.
 
-            } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
-                return new MetaFunction(method, engine());
+        const QString methodName = signature.left(indexOfParen);
+
+        if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
+            processor->processSlot(methodName, engine()->undefinedValue());
+
+        } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
+            // process the signal
+            processor->processSignal(methodName, engine()->undefinedValue());
+
+            QString slotName;
+            slotName += QLatin1String("on");
+            slotName += methodName.at(0).toUpper();
+            slotName += methodName.midRef(1);
+
+            // process the generated slot
+            processor->processGeneratedSlot(slotName, engine()->undefinedValue());
+        }
+    }
+
+    ObjectValue::processMembers(processor);
+}
+
+const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
+{
+    if (QmlMetaType::isObject(prop.userType())) {
+        QmlType *qmlPropertyType = QmlMetaType::qmlType(QmlMetaType::metaObjectForType(prop.userType()));
+
+        if (qmlPropertyType && !qmlPropertyType->qmlTypeName().isEmpty()) {
+            QString typeName = qmlPropertyType->qmlTypeName();
+            int slashIdx = typeName.lastIndexOf(QLatin1Char('/'));
+            QString package;
+            if (slashIdx != -1) {
+                package = typeName.left(slashIdx);
+                typeName = typeName.mid(slashIdx + 1);
             }
-        }
 
-        return ObjectValue::lookupMember(name);
-    }
-
-    virtual void processMembers(MemberProcessor *processor) const
-    {
-        for (int index = 0; index < _metaObject->propertyCount(); ++index) {
-            QMetaProperty prop = _metaObject->property(index);
-
-            processor->processProperty(prop.name(), propertyValue(prop));
-        }
-
-        for (int index = 0; index < _metaObject->methodCount(); ++index) {
-            QMetaMethod method = _metaObject->method(index);
-
-            const QString signature = QString::fromUtf8(method.signature());
-
-            const int indexOfParen = signature.indexOf(QLatin1Char('('));
-            if (indexOfParen == -1)
-                continue; // skip it, invalid signature.
-
-            const QString methodName = signature.left(indexOfParen);
-
-            if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
-                processor->processSlot(methodName, engine()->undefinedValue());
-
-            } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
-                // process the signal
-                processor->processSignal(methodName, engine()->undefinedValue());
-
-                QString slotName;
-                slotName += QLatin1String("on");
-                slotName += methodName.at(0).toUpper();
-                slotName += methodName.midRef(1);
-
-                // process the generated slot
-                processor->processGeneratedSlot(slotName, engine()->undefinedValue());
-            }
-        }
-
-        ObjectValue::processMembers(processor);
-    }
-
-    const Value *propertyValue(const QMetaProperty &prop) const {
-        const Value *value = engine()->undefinedValue();
-
-        if (QmlMetaType::isObject(prop.userType())) {
+            if (const ObjectValue *objectValue = engine()->newQmlObject(typeName, package, qmlPropertyType->majorVersion(), qmlPropertyType->minorVersion()))
+                return objectValue;
+        } else {
             QString typeName = QString::fromUtf8(prop.typeName());
 
             if (typeName.endsWith(QLatin1Char('*')))
@@ -260,77 +267,77 @@ public:
 
             typeName.replace(QLatin1Char('.'), QLatin1Char('/'));
 
-            if (const ObjectValue *objectValue = engine()->newQmlObject(typeName))
+            if (const ObjectValue *objectValue = engine()->newQmlObject(typeName, "", -1, -1))  // ### we should extend this to lookup the property types in the QmlType object, instead of the QMetaProperty.
                 return objectValue;
         }
-
-        switch (prop.type()) {
-        case QMetaType::QByteArray:
-        case QMetaType::QString:
-        case QMetaType::QUrl:
-            value = engine()->stringValue();
-            break;
-
-        case QMetaType::Bool:
-            value = engine()->booleanValue();
-            break;
-
-        case QMetaType::Int:
-        case QMetaType::Float:
-        case QMetaType::Double:
-            value = engine()->numberValue();
-            break;
-
-        case QMetaType::QFont: {
-            // ### cache
-            ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-            object->setProperty("family", engine()->stringValue());
-            object->setProperty("weight", engine()->undefinedValue()); // ### make me an object
-            object->setProperty("copitalization", engine()->undefinedValue()); // ### make me an object
-            object->setProperty("bold", engine()->booleanValue());
-            object->setProperty("italic", engine()->booleanValue());
-            object->setProperty("underline", engine()->booleanValue());
-            object->setProperty("overline", engine()->booleanValue());
-            object->setProperty("strikeout", engine()->booleanValue());
-            object->setProperty("pointSize", engine()->numberValue());
-            object->setProperty("pixelSize", engine()->numberValue());
-            object->setProperty("letterSpacing", engine()->numberValue());
-            object->setProperty("wordSpacing", engine()->numberValue());
-            value = object;
-        } break;
-
-        case QMetaType::QPoint:
-        case QMetaType::QPointF: {
-            // ### cache
-            ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-            object->setProperty("x", engine()->numberValue());
-            object->setProperty("y", engine()->numberValue());
-            value = object;
-        } break;
-
-        case QMetaType::QRect:
-        case QMetaType::QRectF: {
-            // ### cache
-            ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-            object->setProperty("x", engine()->numberValue());
-            object->setProperty("y", engine()->numberValue());
-            object->setProperty("width", engine()->numberValue());
-            object->setProperty("height", engine()->numberValue());
-            value = object;
-        } break;
-
-        default:
-            break;
-        } // end of switch
-
-        return value;
     }
 
-private:
-    const QMetaObject *_metaObject;
-};
+    const Value *value = engine()->undefinedValue();
 
+    switch (prop.type()) {
+    case QMetaType::QByteArray:
+    case QMetaType::QString:
+    case QMetaType::QUrl:
+        value = engine()->stringValue();
+        break;
+
+    case QMetaType::Bool:
+        value = engine()->booleanValue();
+        break;
+
+    case QMetaType::Int:
+    case QMetaType::Float:
+    case QMetaType::Double:
+        value = engine()->numberValue();
+        break;
+
+    case QMetaType::QFont: {
+        // ### cache
+        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setProperty("family", engine()->stringValue());
+        object->setProperty("weight", engine()->undefinedValue()); // ### make me an object
+        object->setProperty("copitalization", engine()->undefinedValue()); // ### make me an object
+        object->setProperty("bold", engine()->booleanValue());
+        object->setProperty("italic", engine()->booleanValue());
+        object->setProperty("underline", engine()->booleanValue());
+        object->setProperty("overline", engine()->booleanValue());
+        object->setProperty("strikeout", engine()->booleanValue());
+        object->setProperty("pointSize", engine()->numberValue());
+        object->setProperty("pixelSize", engine()->numberValue());
+        object->setProperty("letterSpacing", engine()->numberValue());
+        object->setProperty("wordSpacing", engine()->numberValue());
+        value = object;
+    } break;
+
+    case QMetaType::QPoint:
+    case QMetaType::QPointF: {
+        // ### cache
+        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setProperty("x", engine()->numberValue());
+        object->setProperty("y", engine()->numberValue());
+        value = object;
+    } break;
+
+    case QMetaType::QRect:
+    case QMetaType::QRectF: {
+        // ### cache
+        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setProperty("x", engine()->numberValue());
+        object->setProperty("y", engine()->numberValue());
+        object->setProperty("width", engine()->numberValue());
+        object->setProperty("height", engine()->numberValue());
+        value = object;
+    } break;
+
+    default:
+        break;
+    } // end of switch
+
+    return value;
+}
 #endif
+
+namespace {
 
 ////////////////////////////////////////////////////////////////////////////////
 // constructors
@@ -1300,8 +1307,9 @@ Engine::Engine()
       _convertToString(this),
       _convertToObject(this)
 {
-
     initializePrototypes();
+
+    _metaTypeSystem.reload(this);
 }
 
 Engine::~Engine()
@@ -1780,19 +1788,19 @@ const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const
     return undefinedValue();
 }
 
-ObjectValue *Engine::newQmlObject(const QString &name)
-{
 #ifndef NO_DECLARATIVE_BACKEND
+QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix, int majorVersion, int minorVersion)
+{
     if (name == QLatin1String("QmlGraphicsAnchors")) {
-        QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsAnchors::staticMetaObject, this);
+        QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsAnchors::staticMetaObject, QLatin1String("Anchors"), -1, -1, this);
         _objects.append(object);
         return object;
     } else if (name == QLatin1String("QmlGraphicsPen")) {
-        QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsPen::staticMetaObject, this);
+        QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsPen::staticMetaObject, QLatin1String("Pen"), -1, -1, this);
         _objects.append(object);
         return object;
     } else if (name == QLatin1String("QmlGraphicsScaleGrid")) {
-        ObjectValue *object = newObject(/*prototype =*/ 0);
+        QmlObjectValue *object = new QmlObjectValue(&QObject::staticMetaObject, QLatin1String("ScaleGrid"), -1, -1, this);
         object->setProperty("left", numberValue());
         object->setProperty("top", numberValue());
         object->setProperty("right", numberValue());
@@ -1801,20 +1809,17 @@ ObjectValue *Engine::newQmlObject(const QString &name)
     }
 
     // ### TODO: add support for QML packages
-    QString componentName;
-    componentName += QLatin1String("Qt/");
-    componentName += name;
-    componentName.replace(QLatin1Char('.'), QLatin1Char('/'));
+    const QString componentName = prefix + QLatin1Char('/') + name;
 
-    if (QmlType *qmlType = QmlMetaType::qmlType(componentName.toUtf8(), 4, 6)) {
-        QmlObjectValue *object = new QmlObjectValue(qmlType->metaObject(), this);
+    if (QmlType *qmlType = QmlMetaType::qmlType(componentName.toUtf8(), majorVersion, minorVersion)) {
+        const QString typeName = qmlType->qmlTypeName();
+        const QString strippedTypeName = typeName.mid(typeName.lastIndexOf('/') + 1);
+        QmlObjectValue *object = new QmlObjectValue(qmlType->metaObject(), strippedTypeName, majorVersion, minorVersion, this);
         _objects.append(object);
         return object;
     }
 
     return 0;
-#else
-    return newObject(/*prototype = */ 0);
-#endif
 }
+#endif
 

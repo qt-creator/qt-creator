@@ -27,10 +27,13 @@
 **
 **************************************************************************/
 
-#include "qmljsbind.h"
 #include "parser/qmljsast_p.h"
+#include "qmljsbind.h"
+#include "qmljsmetatypesystem.h"
 
 using namespace QmlJS;
+using namespace QmlJS::AST;
+using namespace QmlJS::Interpreter;
 
 Bind::Bind()
 {
@@ -40,462 +43,629 @@ Bind::~Bind()
 {
 }
 
-void Bind::operator()(Document::Ptr doc)
+Interpreter::ObjectValue *Bind::operator()(Document::Ptr doc, Snapshot &snapshot, UiObjectMember *member, Interpreter::Engine &interp)
 {
+    UiProgram *program = doc->qmlProgram();
+    if (!program)
+        return 0;
+
     _doc = doc;
+    _snapshot = &snapshot;
+    _interestingMember = member;
+    _interp = &interp;
+
+    _currentObjectValue = 0;
+    _typeEnvironment = _interp->newObject(0);
+    _idEnvironment = _interp->newObject(0);
+    _interestingObjectValue = 0;
+    _rootObjectValue = 0;
+
+    accept(program);
+
+    if (_interestingObjectValue) {
+        _idEnvironment->setScope(_interestingObjectValue);
+
+        if (_interestingObjectValue != _rootObjectValue)
+            _interestingObjectValue->setScope(_rootObjectValue);
+    } else {
+        _idEnvironment->setScope(_rootObjectValue);
+    }
+    _typeEnvironment->setScope(_idEnvironment);
+
+    return _typeEnvironment;
 }
 
-void Bind::accept(AST::Node *node)
+void Bind::accept(Node *node)
 {
-    AST::Node::accept(node, this);
+    Node::accept(node, this);
 }
 
-bool Bind::visit(AST::UiProgram *)
+bool Bind::visit(UiProgram *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UiImportList *)
+bool Bind::visit(UiImportList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UiImport *)
+static QString serialize(UiQualifiedId *qualifiedId, QChar delimiter)
 {
-    return true;
+    QString result;
+
+    for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
+        if (iter != qualifiedId)
+            result += delimiter;
+
+        if (iter->name)
+            result += iter->name->asString();
+    }
+
+    return result;
 }
+
+/*
+  import Qt 4.6
+  import Qt 4.6 as Xxx
+  (import com.nokia.qt is the same as the ones above)
+
+  import "content"
+  import "content" as Xxx
+  import "content" 4.6
+  import "content" 4.6 as Xxx
 
-bool Bind::visit(AST::UiPublicMember *)
+  import "http://www.ovi.com/" as Ovi
+ */
+bool Bind::visit(UiImport *ast)
 {
-    return true;
+    ObjectValue *namespaceObject;
+
+    if (ast->asToken.isValid()) { // with namespace we insert an object in the type env. to hold the imported types
+        namespaceObject = _interp->newObject(0);
+        if (!ast->importId)
+            return false; // this should never happen, but better be safe than sorry
+        _typeEnvironment->setProperty(ast->importId->asString(), namespaceObject);
+    } else { // without namespace we insert all types directly into the type env.
+        namespaceObject = _typeEnvironment;
+    }
+
+    // look at files first
+
+    // else try the metaobject system
+    if (!ast->importUri)
+        return false;
+
+    const QString package = serialize(ast->importUri, '/');
+    int majorVersion = -1; // ### TODO: Check these magic version numbers
+    int minorVersion = -1; // ### TODO: Check these magic version numbers
+
+    if (ast->versionToken.isValid()) {
+        const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
+        int dotIdx = versionString.indexOf('.');
+        if (dotIdx == -1) {
+            // only major (which is probably invalid, but let's handle it anyway)
+            majorVersion = versionString.toInt();
+            minorVersion = 0; // ### TODO: Check with magic version numbers above
+        } else {
+            majorVersion = versionString.left(dotIdx).toInt();
+            minorVersion = versionString.mid(dotIdx + 1).toInt();
+        }
+    }
+
+#ifndef NO_DECLARATIVE_BACKEND
+    foreach (QmlObjectValue *object, _interp->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
+        namespaceObject->setProperty(object->qmlTypeName(), object);
+    }
+#endif // NO_DECLARATIVE_BACKEND
+
+    return false;
 }
 
-bool Bind::visit(AST::UiSourceElement *)
+bool Bind::visit(UiPublicMember *ast)
 {
-    return true;
+    if (! (ast->name && ast->memberType))
+        return false;
+
+    const QString propName = ast->name->asString();
+    const QString propType = ast->memberType->asString();
+
+    // ### TODO: generalize
+    if (propType == QLatin1String("string"))
+        _currentObjectValue->setProperty(propName, _interp->stringValue());
+    else if (propType == QLatin1String("bool"))
+        _currentObjectValue->setProperty(propName, _interp->booleanValue());
+    else if (propType == QLatin1String("int") || propType == QLatin1String("real"))
+        _currentObjectValue->setProperty(propName, _interp->numberValue());
+
+    return false;
 }
 
-bool Bind::visit(AST::UiObjectDefinition *)
+bool Bind::visit(UiSourceElement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UiObjectInitializer *)
+const ObjectValue *Bind::lookupType(UiQualifiedId *qualifiedTypeNameId)
 {
-    return true;
+    const ObjectValue *objectValue = _typeEnvironment;
+
+    for (UiQualifiedId *iter = qualifiedTypeNameId; iter; iter = iter->next) {
+        if (! (iter->name))
+            return 0;
+        const Value *value = objectValue->property(iter->name->asString());
+        if (!value)
+            return 0;
+        objectValue = value->asObjectValue();
+        if (!objectValue)
+            return 0;
+    }
+
+    return objectValue;
 }
 
-bool Bind::visit(AST::UiObjectBinding *)
+ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
 {
-    return true;
+    const ObjectValue *prototype = lookupType(qualifiedTypeNameId);
+    ObjectValue *objectValue = _interp->newObject(prototype);
+    ObjectValue *oldObjectValue = switchObjectValue(objectValue);
+    if (oldObjectValue)
+        objectValue->setProperty("parent", oldObjectValue);
+    else
+        _rootObjectValue = objectValue;
+
+    accept(initializer);
+
+    return switchObjectValue(oldObjectValue);
+}
+
+bool Bind::visit(UiObjectDefinition *ast)
+{
+    ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
+
+    if (_interestingMember == ast)
+        _interestingObjectValue = value;
+    return false;
 }
 
-bool Bind::visit(AST::UiScriptBinding *)
+bool Bind::visit(UiObjectBinding *ast)
 {
+//    const QString name = serialize(ast->qualifiedId);
+    ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
+    // ### FIXME: we don't handle dot-properties correctly (i.e. font.size)
+//    _currentObjectValue->setProperty(name, value);
+
+    if (_interestingMember == ast)
+        _interestingObjectValue = value;
+    return false;
+}
+
+bool Bind::visit(UiObjectInitializer *)
+{
     return true;
+}
+
+bool Bind::visit(UiScriptBinding *ast)
+{
+    if (!(ast->qualifiedId->next) && ast->qualifiedId->name->asString() == "id")
+        if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
+            if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
+                if (i->name)
+                    _idEnvironment->setProperty(i->name->asString(), _currentObjectValue);
+
+    return false;
 }
 
-bool Bind::visit(AST::UiArrayBinding *)
+bool Bind::visit(UiArrayBinding *)
 {
+    // ### FIXME: do we need to store the members into the property? Or, maybe the property type is an JS Array?
+
     return true;
 }
 
-bool Bind::visit(AST::UiObjectMemberList *)
+bool Bind::visit(UiObjectMemberList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UiArrayMemberList *)
+bool Bind::visit(UiArrayMemberList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UiQualifiedId *)
+bool Bind::visit(UiQualifiedId *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UiSignature *)
+bool Bind::visit(UiSignature *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UiFormalList *)
+bool Bind::visit(UiFormalList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UiFormal *)
+bool Bind::visit(UiFormal *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ThisExpression *)
+bool Bind::visit(ThisExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::IdentifierExpression *)
+bool Bind::visit(IdentifierExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::NullExpression *)
+bool Bind::visit(NullExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::TrueLiteral *)
+bool Bind::visit(TrueLiteral *)
 {
     return true;
 }
 
-bool Bind::visit(AST::FalseLiteral *)
+bool Bind::visit(FalseLiteral *)
 {
     return true;
 }
 
-bool Bind::visit(AST::StringLiteral *)
+bool Bind::visit(StringLiteral *)
 {
     return true;
 }
 
-bool Bind::visit(AST::NumericLiteral *)
+bool Bind::visit(NumericLiteral *)
 {
     return true;
 }
 
-bool Bind::visit(AST::RegExpLiteral *)
+bool Bind::visit(RegExpLiteral *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ArrayLiteral *)
+bool Bind::visit(ArrayLiteral *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ObjectLiteral *)
+bool Bind::visit(ObjectLiteral *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ElementList *)
+bool Bind::visit(ElementList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::Elision *)
+bool Bind::visit(Elision *)
 {
     return true;
 }
 
-bool Bind::visit(AST::PropertyNameAndValueList *)
+bool Bind::visit(PropertyNameAndValueList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::NestedExpression *)
+bool Bind::visit(NestedExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::IdentifierPropertyName *)
+bool Bind::visit(IdentifierPropertyName *)
 {
     return true;
 }
 
-bool Bind::visit(AST::StringLiteralPropertyName *)
+bool Bind::visit(StringLiteralPropertyName *)
 {
     return true;
 }
 
-bool Bind::visit(AST::NumericLiteralPropertyName *)
+bool Bind::visit(NumericLiteralPropertyName *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ArrayMemberExpression *)
+bool Bind::visit(ArrayMemberExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::FieldMemberExpression *)
+bool Bind::visit(FieldMemberExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::NewMemberExpression *)
+bool Bind::visit(NewMemberExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::NewExpression *)
+bool Bind::visit(NewExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::CallExpression *)
+bool Bind::visit(CallExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ArgumentList *)
+bool Bind::visit(ArgumentList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::PostIncrementExpression *)
+bool Bind::visit(PostIncrementExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::PostDecrementExpression *)
+bool Bind::visit(PostDecrementExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::DeleteExpression *)
+bool Bind::visit(DeleteExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::VoidExpression *)
+bool Bind::visit(VoidExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::TypeOfExpression *)
+bool Bind::visit(TypeOfExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::PreIncrementExpression *)
+bool Bind::visit(PreIncrementExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::PreDecrementExpression *)
+bool Bind::visit(PreDecrementExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UnaryPlusExpression *)
+bool Bind::visit(UnaryPlusExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::UnaryMinusExpression *)
+bool Bind::visit(UnaryMinusExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::TildeExpression *)
+bool Bind::visit(TildeExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::NotExpression *)
+bool Bind::visit(NotExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::BinaryExpression *)
+bool Bind::visit(BinaryExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ConditionalExpression *)
+bool Bind::visit(ConditionalExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::Expression *)
+bool Bind::visit(Expression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::Block *)
+bool Bind::visit(Block *)
 {
     return true;
 }
 
-bool Bind::visit(AST::StatementList *)
+bool Bind::visit(StatementList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::VariableStatement *)
+bool Bind::visit(VariableStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::VariableDeclarationList *)
+bool Bind::visit(VariableDeclarationList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::VariableDeclaration *)
+bool Bind::visit(VariableDeclaration *)
 {
     return true;
 }
 
-bool Bind::visit(AST::EmptyStatement *)
+bool Bind::visit(EmptyStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ExpressionStatement *)
+bool Bind::visit(ExpressionStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::IfStatement *)
+bool Bind::visit(IfStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::DoWhileStatement *)
+bool Bind::visit(DoWhileStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::WhileStatement *)
+bool Bind::visit(WhileStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ForStatement *)
+bool Bind::visit(ForStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::LocalForStatement *)
+bool Bind::visit(LocalForStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ForEachStatement *)
+bool Bind::visit(ForEachStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::LocalForEachStatement *)
+bool Bind::visit(LocalForEachStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ContinueStatement *)
+bool Bind::visit(ContinueStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::BreakStatement *)
+bool Bind::visit(BreakStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ReturnStatement *)
+bool Bind::visit(ReturnStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::WithStatement *)
+bool Bind::visit(WithStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::SwitchStatement *)
+bool Bind::visit(SwitchStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::CaseBlock *)
+bool Bind::visit(CaseBlock *)
 {
     return true;
 }
 
-bool Bind::visit(AST::CaseClauses *)
+bool Bind::visit(CaseClauses *)
 {
     return true;
 }
 
-bool Bind::visit(AST::CaseClause *)
+bool Bind::visit(CaseClause *)
 {
     return true;
 }
 
-bool Bind::visit(AST::DefaultClause *)
+bool Bind::visit(DefaultClause *)
 {
     return true;
 }
 
-bool Bind::visit(AST::LabelledStatement *)
+bool Bind::visit(LabelledStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::ThrowStatement *)
+bool Bind::visit(ThrowStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::TryStatement *)
+bool Bind::visit(TryStatement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::Catch *)
+bool Bind::visit(Catch *)
 {
     return true;
 }
 
-bool Bind::visit(AST::Finally *)
+bool Bind::visit(Finally *)
 {
     return true;
 }
 
-bool Bind::visit(AST::FunctionDeclaration *)
+bool Bind::visit(FunctionDeclaration *)
 {
     return true;
 }
 
-bool Bind::visit(AST::FunctionExpression *)
+bool Bind::visit(FunctionExpression *)
 {
     return true;
 }
 
-bool Bind::visit(AST::FormalParameterList *)
+bool Bind::visit(FormalParameterList *)
 {
     return true;
 }
 
-bool Bind::visit(AST::FunctionBody *)
+bool Bind::visit(FunctionBody *)
 {
     return true;
 }
 
-bool Bind::visit(AST::Program *)
+bool Bind::visit(Program *)
 {
     return true;
 }
 
-bool Bind::visit(AST::SourceElements *)
+bool Bind::visit(SourceElements *)
 {
     return true;
 }
 
-bool Bind::visit(AST::FunctionSourceElement *)
+bool Bind::visit(FunctionSourceElement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::StatementSourceElement *)
+bool Bind::visit(StatementSourceElement *)
 {
     return true;
 }
 
-bool Bind::visit(AST::DebuggerStatement *)
+bool Bind::visit(DebuggerStatement *)
 {
     return true;
+}
+
+ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
+{
+    ObjectValue *oldObjectValue = _currentObjectValue;
+    _currentObjectValue = newObjectValue;
+    return oldObjectValue;
 }
