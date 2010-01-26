@@ -117,48 +117,6 @@ QWizard *QmlProjectWizard::createWizardDialog(QWidget *parent,
     return wizard;
 }
 
-void QmlProjectWizard::getFileList(const QDir &dir, const QString &projectRoot,
-                                       const QStringList &suffixes,
-                                       QStringList *files, QStringList *paths) const
-{
-    const QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files |
-                                                         QDir::Dirs |
-                                                         QDir::NoDotAndDotDot |
-                                                         QDir::NoSymLinks);
-
-    foreach (const QFileInfo &fileInfo, fileInfoList) {
-        QString filePath = fileInfo.absoluteFilePath();
-        filePath = filePath.mid(projectRoot.length() + 1);
-
-        if (fileInfo.isDir() && isValidDir(fileInfo)) {
-            getFileList(QDir(fileInfo.absoluteFilePath()), projectRoot,
-                        suffixes, files, paths);
-
-            if (! paths->contains(filePath))
-                paths->append(filePath);
-        }
-
-        else if (suffixes.contains(fileInfo.suffix()))
-            files->append(filePath);
-    }
-}
-
-bool QmlProjectWizard::isValidDir(const QFileInfo &fileInfo) const
-{
-    const QString fileName = fileInfo.fileName();
-    const QString suffix = fileInfo.suffix();
-
-    if (fileName.startsWith(QLatin1Char('.')))
-        return false;
-
-    else if (fileName == QLatin1String("CVS"))
-        return false;    
-
-    // ### user include/exclude
-
-    return true;
-}
-
 Core::GeneratedFiles QmlProjectWizard::generateFiles(const QWizard *w,
                                                      QString *errorMessage) const
 {
@@ -170,16 +128,21 @@ Core::GeneratedFiles QmlProjectWizard::generateFiles(const QWizard *w,
     const QString projectName = wizard->projectName();
     const QString creatorFileName = QFileInfo(dir, projectName + QLatin1String(".qmlproject")).absoluteFilePath();
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::MimeDatabase *mimeDatabase = core->mimeDatabase();
+    QString projectContents;
+    {
+        QTextStream out(&projectContents);
 
-    const QStringList suffixes = mimeDatabase->suffixes();
-
-    QStringList sources, paths;
-    getFileList(dir, projectPath, suffixes, &sources, &paths);
-
+        out
+            << "import QmlProject 1.0" << endl
+            << "Project {" << endl
+            << "    QmlFiles {" << endl
+            << "        directory: \".\"" << endl
+            << "        recursive: true" << endl
+            << "    }" << endl
+            << "}" << endl;
+    }
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
-    generatedCreatorFile.setContents(sources.join(QLatin1String("\n")));
+    generatedCreatorFile.setContents(projectContents);
 
     Core::GeneratedFiles files;
     files.append(generatedCreatorFile);

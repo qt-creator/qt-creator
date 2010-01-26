@@ -103,26 +103,40 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
                                                                      QLatin1String("qml"));
 
     QString contents;
-    QTextStream out(&contents);
+    {
+        QTextStream out(&contents);
 
-    out
-        << "import Qt 4.6" << endl
-        << endl
-        << "Rectangle {" << endl
-        << "    width: 200" << endl
-        << "    height: 200" << endl
-        << "    Text {" << endl
-        << "        x: 66" << endl
-        << "        y: 93" << endl
-        << "        text: \"Hello World\"" << endl
-        << "    }" << endl
-        << "}" << endl;
-
+        out
+            << "import Qt 4.6" << endl
+            << endl
+            << "Rectangle {" << endl
+            << "    width: 200" << endl
+            << "    height: 200" << endl
+            << "    Text {" << endl
+            << "        x: 66" << endl
+            << "        y: 93" << endl
+            << "        text: \"Hello World\"" << endl
+            << "    }" << endl
+            << "}" << endl;
+    }
     Core::GeneratedFile generatedMainFile(mainFileName);
     generatedMainFile.setContents(contents);
 
+    QString projectContents;
+    {
+        QTextStream out(&projectContents);
+
+        out
+            << "import QmlProject 1.0" << endl
+            << "Project {" << endl
+            << "    QmlFiles {" << endl
+            << "        directory: \".\"" << endl
+            << "    }" << endl
+            << "}" << endl;
+    }
     Core::GeneratedFile generatedCreatorFile(creatorFileName);
-    generatedCreatorFile.setContents(projectName + QLatin1String(".qml\n"));
+
+    generatedCreatorFile.setContents(projectContents);
 
     Core::GeneratedFiles files;
     files.append(generatedMainFile);
