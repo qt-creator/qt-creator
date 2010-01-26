@@ -410,7 +410,21 @@ private:
         return true;
     }
 
+    virtual bool processSignal(const QString &name, const Interpreter::Value *value)
+    {
+        if (! _globalCompletion)
+            _properties.insert(name, value);
+        return true;
+    }
+
     virtual bool processSlot(const QString &name, const Interpreter::Value *value)
+    {
+        if (! _globalCompletion)
+            _properties.insert(name, value);
+        return true;
+    }
+
+    virtual bool processGeneratedSlot(const QString &name, const Interpreter::Value *value)
     {
         if (_globalCompletion)
             _properties.insert(name, value);

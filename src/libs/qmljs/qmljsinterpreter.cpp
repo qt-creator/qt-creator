@@ -77,25 +77,30 @@ public:
 
         for (int index = 0; index < _metaObject->methodCount(); ++index) {
             QMetaMethod meth = _metaObject->method(index);
-            if (meth.methodType() != QMetaMethod::Signal)
-                continue;
-            if (meth.access() == QMetaMethod::Private)
-                continue;
 
             const QString signature = QString::fromUtf8(meth.signature());
 
-            int indexOfParen = signature.indexOf(QLatin1Char('('));
+            const int indexOfParen = signature.indexOf(QLatin1Char('('));
             if (indexOfParen == -1)
                 continue; // skip it, invalid signature.
 
-            const QString signalName = signature.left(indexOfParen);
-            QString slotName;
-            slotName += QLatin1String("on");
-            slotName += signalName.at(0).toUpper();
-            slotName += signalName.midRef(1);
+            const QString methodName = signature.left(indexOfParen);
 
-            processor->processSignal(signalName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the signal
-            processor->processSlot(slotName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the slot
+            if (meth.methodType() == QMetaMethod::Slot && meth.access() == QMetaMethod::Public) {
+                processor->processSlot(methodName, engine()->undefinedValue());
+
+            } else if (meth.methodType() == QMetaMethod::Signal && meth.access() != QMetaMethod::Private) {
+                // process the signal
+                processor->processSignal(methodName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the signal
+
+                QString slotName;
+                slotName += QLatin1String("on");
+                slotName += methodName.at(0).toUpper();
+                slotName += methodName.midRef(1);
+
+                // process the generated slot
+                processor->processGeneratedSlot(slotName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the slot
+            }
         }
 
         ObjectValue::processMembers(processor);
@@ -580,6 +585,11 @@ bool MemberProcessor::processSignal(const QString &, const Value *)
 }
 
 bool MemberProcessor::processSlot(const QString &, const Value *)
+{
+    return true;
+}
+
+bool MemberProcessor::processGeneratedSlot(const QString &, const Value *)
 {
     return true;
 }

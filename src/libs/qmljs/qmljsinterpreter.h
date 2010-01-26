@@ -205,6 +205,7 @@ public:
     virtual bool processProperty(const QString &name, const Value *value);
     virtual bool processSignal(const QString &name, const Value *value);
     virtual bool processSlot(const QString &name, const Value *value);
+    virtual bool processGeneratedSlot(const QString &name, const Value *value);
 };
 
 class QMLJS_EXPORT ObjectValue: public Value, public Environment
