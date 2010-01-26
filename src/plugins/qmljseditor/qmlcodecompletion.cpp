@@ -919,16 +919,9 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
     }
 
-    if (isQmlFile) {
-        if (completionOperator.isNull()
-                || completionOperator.isSpace()
-                || completionOperator == QLatin1Char('{')
-                || completionOperator == QLatin1Char('}')
-                || completionOperator == QLatin1Char(':')
-                || completionOperator == QLatin1Char(';')) {
-            updateSnippets();
-            m_completions.append(m_snippets);
-        }
+    if (isQmlFile && (completionOperator.isNull() || completionOperator.isSpace() || isDelimiter(completionOperator))) {
+        updateSnippets();
+        m_completions.append(m_snippets);
     }
 
     if (! m_completions.isEmpty())
