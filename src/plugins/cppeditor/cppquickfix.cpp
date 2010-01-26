@@ -1332,11 +1332,17 @@ const QList<LookupItem> QuickFixOperation::typeOf(CPlusPlus::ExpressionAST *ast)
 }
 
 CPPQuickFixCollector::CPPQuickFixCollector()
-    : _modelManager(CppTools::CppModelManagerInterface::instance()), _editor(0)
+    : _modelManager(CppTools::CppModelManagerInterface::instance()), _editable(0), _editor(0)
 { }
 
 CPPQuickFixCollector::~CPPQuickFixCollector()
 { }
+
+TextEditor::ITextEditable *CPPQuickFixCollector::editor() const
+{ return _editable; }
+
+int CPPQuickFixCollector::startPosition() const
+{ return _editable->position(); }
 
 bool CPPQuickFixCollector::supportsEditor(TextEditor::ITextEditable *editor)
 { return qobject_cast<CPPEditorEditable *>(editor) != 0; }
@@ -1348,6 +1354,7 @@ int CPPQuickFixCollector::startCompletion(TextEditor::ITextEditable *editable)
 {
     Q_ASSERT(editable != 0);
 
+    _editable = editable;
     _editor = qobject_cast<CPPEditor *>(editable->widget());
     Q_ASSERT(_editor != 0);
 

@@ -78,6 +78,10 @@ public:
 
     virtual QList<CompletionItem> getCompletions();
 
+    /* Returns the current active ITextEditable */
+    virtual ITextEditable *editor() const = 0;
+    virtual int startPosition() const = 0;
+
     /*
      * Returns true if this completion collector can be used with the given editor.
      */
@@ -107,11 +111,24 @@ public:
      *
      * Returns whether the completion popup should be closed.
      */
-    virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems) = 0;
+    virtual bool partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems);
 
     /* Called when it's safe to clean up the completion items.
      */
     virtual void cleanup() = 0;
+
+    // helpers
+
+    enum CaseSensitivity {
+        CaseInsensitive,
+        CaseSensitive,
+        FirstLetterCaseSensitive
+    };
+
+    void filter(const QList<TextEditor::CompletionItem> &items,
+                QList<TextEditor::CompletionItem> *filteredItems,
+                const QString &key,
+                CaseSensitivity caseSensitivity);
 
 protected:
     static bool compareChar(const QChar &item, const QChar &other);

@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "icompletioncollector.h"
+#include "itexteditable.h"
+#include <QtCore/QRegExp>
 #include <algorithm>
 
 using namespace TextEditor;
@@ -84,3 +86,84 @@ QList<CompletionItem> ICompletionCollector::getCompletions()
     return uniquelist;
 }
 
+bool ICompletionCollector::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
+{
+    // Compute common prefix
+    QString firstKey = completionItems.first().text;
+    QString lastKey = completionItems.last().text;
+    const int length = qMin(firstKey.length(), lastKey.length());
+    firstKey.truncate(length);
+    lastKey.truncate(length);
+
+    while (firstKey != lastKey) {
+        firstKey.chop(1);
+        lastKey.chop(1);
+    }
+
+    if (ITextEditable *ed = editor()) {
+        const int typedLength = ed->position() - startPosition();
+        if (!firstKey.isEmpty() && firstKey.length() > typedLength) {
+            ed->setCurPos(startPosition());
+            ed->replace(typedLength, firstKey);
+        }
+    }
+
+    return false;
+}
+
+void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items,
+                                  QList<TextEditor::CompletionItem> *filteredItems,
+                                  const QString &key,
+                                  ICompletionCollector::CaseSensitivity caseSensitivity)
+{
+    /*
+     * This code builds a regular expression in order to more intelligently match
+     * camel-case style. This means upper-case characters will be rewritten as follows:
+     *
+     *   A => [a-z0-9_]*A (for any but the first capital letter)
+     *
+     * Meaning it allows any sequence of lower-case characters to preceed an
+     * upper-case character. So for example gAC matches getActionController.
+     *
+     * It also implements the first-letter-only case sensitivity.
+     */
+    QString keyRegExp;
+    keyRegExp += QLatin1Char('^');
+    bool first = true;
+    const QLatin1String wordContinuation("[a-z0-9_]*");
+    foreach (const QChar &c, key) {
+        if (caseSensitivity == CaseInsensitive ||
+            (caseSensitivity == FirstLetterCaseSensitive && !first)) {
+
+            keyRegExp += QLatin1String("(?:");
+            if (c.isUpper() && !first)
+                keyRegExp += wordContinuation;
+            keyRegExp += QRegExp::escape(c.toUpper());
+            keyRegExp += "|";
+            keyRegExp += QRegExp::escape(c.toLower());
+            keyRegExp += QLatin1Char(')');
+        } else {
+            if (c.isUpper() && !first)
+                keyRegExp += wordContinuation;
+            keyRegExp += QRegExp::escape(c);
+        }
+
+        first = false;
+    }
+    const QRegExp regExp(keyRegExp);
+
+    const bool hasKey = !key.isEmpty();
+    foreach (TextEditor::CompletionItem item, items) {
+        if (regExp.indexIn(item.text) == 0) {
+            if (hasKey) {
+                if (item.text.startsWith(key, Qt::CaseSensitive)) {
+                    item.relevance = 2;
+                } else if (caseSensitivity != CaseSensitive
+                           && item.text.startsWith(key, Qt::CaseInsensitive)) {
+                    item.relevance = 1;
+                }
+            }
+            filteredItems->append(item);
+        }
+    }
+}

@@ -690,6 +690,12 @@ static int startOfOperator(TextEditor::ITextEditable *editor,
 bool CppCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 { return m_manager->isCppEditor(editor); }
 
+TextEditor::ITextEditable *CppCodeCompletion::editor() const
+{ return m_editor; }
+
+int CppCodeCompletion::startPosition() const
+{ return m_startPosition; }
+
 bool CppCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     const int pos = editor->position();
@@ -1466,12 +1472,11 @@ bool CppCodeCompletion::completeQtMethod(const QList<LookupItem> &results,
 void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
 {
     const int length = m_editor->position() - m_startPosition;
+    const QString key = m_editor->textAt(m_startPosition, length);
 
     if (length == 0)
         *completions = m_completions;
     else if (length > 0) {
-        const QString key = m_editor->textAt(m_startPosition, length);
-
         /* Close on the trailing slash for include completion, to enable the slash to
          * trigger a new completion list. */
         if ((m_completionOperator == T_STRING_LITERAL ||
@@ -1479,62 +1484,14 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
             return;
 
         if (m_completionOperator != T_LPAREN) {
-            /*
-             * This code builds a regular expression in order to more intelligently match
-             * camel-case style. This means upper-case characters will be rewritten as follows:
-             *
-             *   A => [a-z0-9_]*A (for any but the first capital letter)
-             *
-             * Meaning it allows any sequence of lower-case characters to preceed an
-             * upper-case character. So for example gAC matches getActionController.
-             *
-             * It also implements the first-letter-only case sensitivity.
-             */
-            QString keyRegExp;
-            keyRegExp += QLatin1Char('^');
-            bool first = true;
-            const QLatin1String wordContinuation("[a-z0-9_]*");
-            foreach (const QChar &c, key) {
-                if (m_caseSensitivity == CaseInsensitive ||
-                    (m_caseSensitivity == FirstLetterCaseSensitive && !first)) {
+            filter(m_completions, completions, key, m_caseSensitivity);
 
-                    keyRegExp += QLatin1String("(?:");
-                    if (c.isUpper() && !first)
-                        keyRegExp += wordContinuation;
-                    keyRegExp += QRegExp::escape(c.toUpper());
-                    keyRegExp += "|";
-                    keyRegExp += QRegExp::escape(c.toLower());
-                    keyRegExp += QLatin1Char(')');
-                } else {
-                    if (c.isUpper() && !first)
-                        keyRegExp += wordContinuation;
-                    keyRegExp += QRegExp::escape(c);
-                }
-
-                first = false;
-            }
-            const QRegExp regExp(keyRegExp);
-
-            const bool hasKey = !key.isEmpty();
-            foreach (TextEditor::CompletionItem item, m_completions) {
-                if (regExp.indexIn(item.text) == 0) {
-                    if (hasKey) {
-                        if (item.text.startsWith(key, Qt::CaseSensitive)) {
-                            item.relevance = 2;
-                        } else if (m_caseSensitivity != CaseSensitive
-                                   && item.text.startsWith(key, Qt::CaseInsensitive)) {
-                            item.relevance = 1;
-                        }
-                    }
-                    (*completions) << item;
-                }
-            }
         } else if (m_completionOperator == T_LPAREN ||
                    m_completionOperator == T_SIGNAL ||
                    m_completionOperator == T_SLOT) {
             foreach (TextEditor::CompletionItem item, m_completions) {
                 if (item.text.startsWith(key, Qt::CaseInsensitive)) {
-                    (*completions) << item;
+                    completions->append(item);
                 }
             }
         }
@@ -1681,23 +1638,7 @@ bool CppCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
         complete(completionItems.first());
         return true;
     } else if (m_partialCompletionEnabled && m_completionOperator != T_LPAREN) {
-        // Compute common prefix
-        QString firstKey = completionItems.first().text;
-        QString lastKey = completionItems.last().text;
-        const int length = qMin(firstKey.length(), lastKey.length());
-        firstKey.truncate(length);
-        lastKey.truncate(length);
-
-        while (firstKey != lastKey) {
-            firstKey.chop(1);
-            lastKey.chop(1);
-        }
-
-        int typedLength = m_editor->position() - m_startPosition;
-        if (!firstKey.isEmpty() && firstKey.length() > typedLength) {
-            m_editor->setCurPos(m_startPosition);
-            m_editor->replace(typedLength, firstKey);
-        }
+        return TextEditor::ICompletionCollector::partiallyComplete(completionItems);
     }
 
     return false;

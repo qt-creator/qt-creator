@@ -715,6 +715,12 @@ Qt::CaseSensitivity QmlCodeCompletion::caseSensitivity() const
 void QmlCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
 { m_caseSensitivity = caseSensitivity; }
 
+TextEditor::ITextEditable *QmlCodeCompletion::editor() const
+{ return m_editor; }
+
+int QmlCodeCompletion::startPosition() const
+{ return m_startPosition; }
+
 bool QmlCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 {
     if (qobject_cast<QmlJSTextEditor *>(editor->widget()))
@@ -1007,8 +1013,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
 void QmlCodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
 {
-    // ### FIXME: this code needs to be generalized.
-
     const int length = m_editor->position() - m_startPosition;
 
     if (length == 0)
@@ -1016,41 +1020,7 @@ void QmlCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
     else if (length > 0) {
         const QString key = m_editor->textAt(m_startPosition, length);
 
-        /*
-         * This code builds a regular expression in order to more intelligently match
-         * camel-case style. This means upper-case characters will be rewritten as follows:
-         *
-         *   A => [a-z0-9_]*A (for any but the first capital letter)
-         *
-         * Meaning it allows any sequence of lower-case characters to preceed an
-         * upper-case character. So for example gAC matches getActionController.
-         */
-        QString keyRegExp;
-        keyRegExp += QLatin1Char('^');
-        bool first = true;
-        foreach (const QChar &c, key) {
-            if (c.isUpper() && !first) {
-                keyRegExp += QLatin1String("[a-z0-9_]*");
-                keyRegExp += c;
-            } else if (m_caseSensitivity == Qt::CaseInsensitive && c.isLower()) {
-                keyRegExp += QLatin1Char('[');
-                keyRegExp += c;
-                keyRegExp += c.toUpper();
-                keyRegExp += QLatin1Char(']');
-            } else {
-                keyRegExp += QRegExp::escape(c);
-            }
-            first = false;
-        }
-        const QRegExp regExp(keyRegExp, Qt::CaseSensitive);
-
-        foreach (TextEditor::CompletionItem item, m_completions) {
-            if (regExp.indexIn(item.text) == 0) {
-                item.relevance = (key.length() > 0 &&
-                                    item.text.startsWith(key, Qt::CaseInsensitive)) ? 1 : 0;
-                (*completions) << item;
-            }
-        }
+        filter(m_completions, completions, key, FirstLetterCaseSensitive);
     }
 }
 
@@ -1089,25 +1059,7 @@ bool QmlCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
         }
     }
 
-    // Compute common prefix
-    QString firstKey = completionItems.first().text;
-    QString lastKey = completionItems.last().text;
-    const int length = qMin(firstKey.length(), lastKey.length());
-    firstKey.truncate(length);
-    lastKey.truncate(length);
-
-    while (firstKey != lastKey) {
-        firstKey.chop(1);
-        lastKey.chop(1);
-    }
-
-    int typedLength = m_editor->position() - m_startPosition;
-    if (!firstKey.isEmpty() && firstKey.length() > typedLength) {
-        m_editor->setCurPos(m_startPosition);
-        m_editor->replace(typedLength, firstKey);
-    }
-
-    return false;
+    return TextEditor::ICompletionCollector::partiallyComplete(completionItems);
 }
 
 void QmlCodeCompletion::cleanup()

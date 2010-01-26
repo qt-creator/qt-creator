@@ -151,6 +151,8 @@ public:
 
     QList<QuickFixOperationPtr> quickFixes() const { return _quickFixes; }
 
+    virtual TextEditor::ITextEditable *editor() const;
+    virtual int startPosition() const;
     virtual bool supportsEditor(TextEditor::ITextEditable *editor);
     virtual bool triggersCompletion(TextEditor::ITextEditable *editor);
     virtual int startCompletion(TextEditor::ITextEditable *editor);
@@ -163,6 +165,7 @@ public Q_SLOTS:
 
 private:
     CppTools::CppModelManagerInterface *_modelManager;
+    TextEditor::ITextEditable *_editable;
     CPPEditor *_editor;
     QList<QuickFixOperationPtr> _quickFixes;
 };

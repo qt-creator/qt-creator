@@ -65,6 +65,8 @@ public:
     void setObjcEnabled(bool objcEnabled)
     { m_objcEnabled = objcEnabled; }
 
+    TextEditor::ITextEditable *editor() const;
+    int startPosition() const;
     QList<TextEditor::CompletionItem> getCompletions();
     bool supportsEditor(TextEditor::ITextEditable *editor);
     bool triggersCompletion(TextEditor::ITextEditable *editor);
@@ -76,12 +78,6 @@ public:
     void cleanup();
 
     QIcon iconForSymbol(CPlusPlus::Symbol *symbol) const;
-
-    enum CaseSensitivity {
-        CaseInsensitive,
-        CaseSensitive,
-        FirstLetterCaseSensitive
-    };
 
     CaseSensitivity caseSensitivity() const;
     void setCaseSensitivity(CaseSensitivity caseSensitivity);
