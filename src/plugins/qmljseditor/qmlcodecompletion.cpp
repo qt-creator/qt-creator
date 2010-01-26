@@ -200,14 +200,17 @@ public:
                 //qDebug() << "skip:" << blockText.mid(tk.offset, tk.length);
             }
 
-            if (tk.is(Token::RightParenthesis))
+            if (tk.is(Token::RightParenthesis) || tk.is(Token::RightBracket))
                 ++skipping;
 
-            else if (tk.is(Token::LeftParenthesis)) {
+            else if (tk.is(Token::LeftParenthesis) || tk.is(Token::LeftBracket)) {
                 --skipping;
 
                 if (! skipping)
                     tokens.append(tk);
+
+                if (index > 0 && originalTokens.at(index - 1).isNot(Token::Identifier))
+                    break;
             }
         }
 
