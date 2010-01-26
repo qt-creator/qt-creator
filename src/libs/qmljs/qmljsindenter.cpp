@@ -250,6 +250,7 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
 
     if (index != -1) {
         const Token &last = yyLinizerState.tokens.at(index);
+        bool needSemicolon = false;
 
         switch (last.kind) {
         case Token::LeftParenthesis:
@@ -261,25 +262,31 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
         case Token::RightParenthesis:
         case Token::RightBrace:
             if (isBinding)
-                trimmed.append(QLatin1Char(';'));
+                needSemicolon = true;
             break;
 
         case Token::Colon:
         case Token::LeftBracket:
         case Token::RightBracket:
-            trimmed.append(QLatin1Char(';'));
+            needSemicolon = true;
             break;
 
         case Token::Identifier:
         case Token::Keyword:
             if (tokenText(last) != QLatin1String("else"))
-                trimmed.append(QLatin1Char(';'));
+                needSemicolon = true;
             break;
 
         default:
-            trimmed.append(QLatin1Char(';'));
+            needSemicolon = true;
             break;
         } // end of switch
+
+        if (needSemicolon) {
+            const Token sc(trimmed.size(), 1, Token::Semicolon);
+            yyLinizerState.tokens.append(sc);
+            trimmed.append(QLatin1Char(';'));
+        }
     }
 
     return trimmed;
