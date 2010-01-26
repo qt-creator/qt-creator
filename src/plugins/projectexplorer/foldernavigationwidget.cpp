@@ -36,30 +36,51 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QDebug>
-#include <QtGui/QDirModel>
+#include <QtGui/QFileSystemModel>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 #include <QtGui/QLabel>
 #include <QtGui/QListView>
 #include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
+#include <QtGui/QFileDialog>
+#include <QtGui/QContextMenuEvent>
 
 enum { debug = 0 };
 
 namespace ProjectExplorer {
 namespace Internal {
 
-class FirstRowFilter : public QSortFilterProxyModel
+// Hide the '.' entry.
+class DotRemovalFilter : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    FirstRowFilter(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
+    explicit DotRemovalFilter(QObject *parent = 0);
 protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex &) const {
-        return source_row != 0;
-    }
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex &parent) const;
+private:
+    const QString m_dot;
 };
+
+DotRemovalFilter::DotRemovalFilter(QObject *parent) :
+    QSortFilterProxyModel(parent),
+    m_dot(QString(QLatin1Char('.')))
+{
+}
+
+bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &parent) const
+{
+    // Check for first entry unless we are at '/'.
+    if (source_row || !parent.isValid())
+        return true;
+    const QString fileName = sourceModel()->data(parent.child(source_row, 0)).toString();
+    return fileName != m_dot;
+}
 
 /*!
   /class FolderNavigationWidget
@@ -68,34 +89,38 @@ protected:
   */
 FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     : QWidget(parent),
-      m_explorer(ProjectExplorerPlugin::instance()),
-      m_view(new QListView(this)),
-      m_dirModel(new QDirModel(this)),
-      m_filter(new FirstRowFilter(this)),
+      m_listView(new QListView(this)),
+      m_fileSystemModel(new QFileSystemModel(this)),
+      m_filterModel(new DotRemovalFilter(this)),
       m_title(new QLabel(this)),
       m_autoSync(false)
 {
-    m_dirModel->setResolveSymlinks(false);
-    m_dirModel->setFilter(QDir::Dirs | QDir::Files | QDir::Drives | QDir::Readable | QDir::Writable
-                          | QDir::Executable | QDir::Hidden);
-    m_dirModel->setSorting(QDir::Name | QDir::DirsFirst);
-    m_filter->setSourceModel(m_dirModel);
-    m_view->setModel(m_filter);
-    m_view->setFrameStyle(QFrame::NoFrame);
-    m_view->setAttribute(Qt::WA_MacShowFocusRect, false);
-    setFocusProxy(m_view);
+    m_fileSystemModel->setResolveSymlinks(false);
+    QDir::Filters filters = QDir::AllDirs | QDir::Files | QDir::Drives
+                            | QDir::Readable| QDir::Writable
+                            | QDir::Executable | QDir::Hidden;
+#ifdef Q_OS_WIN // Symlinked directories can cause file watcher warnings on Win32.
+    filters |= QDir::NoSymLinks;
+#endif
+    m_fileSystemModel->setFilter(filters);
+    m_fileSystemModel->setRootPath(QDir::rootPath());
+    m_filterModel->setSourceModel(m_fileSystemModel);
+    m_listView->setModel(m_filterModel);
+    m_listView->setFrameStyle(QFrame::NoFrame);
+    m_listView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    setFocusProxy(m_listView);
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(m_title);
-    layout->addWidget(m_view);
+    layout->addWidget(m_listView);
     m_title->setMargin(5);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
     // connections
-    connect(m_view, SIGNAL(activated(const QModelIndex&)),
-            this, SLOT(openItem(const QModelIndex&)));
+    connect(m_listView, SIGNAL(activated(const QModelIndex&)),
+            this, SLOT(slotOpenItem(const QModelIndex&)));
 
     setAutoSynchronization(true);
 }
@@ -130,53 +155,136 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
 
 void FolderNavigationWidget::setCurrentFile(const QString &filePath)
 {
-    if (debug)
-        qDebug() << "FolderNavigationWidget::setCurrentFile(" << filePath << ")";
+    // Try to find directory of current file
+    bool pathOpened = false;
+    if (!filePath.isEmpty())  {
+        const QFileInfo fi(filePath);
+        if (fi.exists())
+            pathOpened = setCurrentDirectory(fi.absolutePath());
+    }
+    if (!pathOpened)  // Default to home.
+        setCurrentDirectory(Utils::PathChooser::homePath());
 
-    QString dir = QFileInfo(filePath).path();
-    if (dir.isEmpty())
-        dir = Utils::PathChooser::homePath();
-
-    QModelIndex dirIndex = m_dirModel->index(dir);
-    QModelIndex fileIndex = m_dirModel->index(filePath);
-
-    m_view->setRootIndex(m_filter->mapFromSource(dirIndex));
-    if (dirIndex.isValid()) {
-        setCurrentTitle(QDir(m_dirModel->filePath(dirIndex)));
+    // Select the current file.
+    if (pathOpened) {
+        const QModelIndex fileIndex = m_fileSystemModel->index(filePath);
         if (fileIndex.isValid()) {
-            QItemSelectionModel *selections = m_view->selectionModel();
-            QModelIndex mainIndex = m_filter->mapFromSource(fileIndex);
+            QItemSelectionModel *selections = m_listView->selectionModel();
+            const QModelIndex mainIndex = m_filterModel->mapFromSource(fileIndex);
             selections->setCurrentIndex(mainIndex, QItemSelectionModel::SelectCurrent
                                                  | QItemSelectionModel::Clear);
-            m_view->scrollTo(mainIndex);
+            m_listView->scrollTo(mainIndex);
         }
+    }
+}
+
+bool FolderNavigationWidget::setCurrentDirectory(const QString &directory)
+{
+    return !directory.isEmpty() && setCurrentDirectory(m_fileSystemModel->index(directory));
+}
+
+bool FolderNavigationWidget::setCurrentDirectory(const QModelIndex &dirIndex)
+{
+    const bool valid = dirIndex.isValid();
+    if (valid) {
+        // position view root on directory index.
+        m_listView->setRootIndex(m_filterModel->mapFromSource(dirIndex));
+        const QDir currentDir(m_fileSystemModel->filePath(dirIndex));
+        setCurrentTitle(currentDir.dirName(), currentDir.absolutePath());
     } else {
-        setCurrentTitle(QDir());
+        m_listView->setRootIndex(QModelIndex());
+        setCurrentTitle(QString(), QString());
+    }
+    return valid;
+}
+
+QString FolderNavigationWidget::currentDirectory() const
+{
+    const QModelIndex rootIndex = m_listView->rootIndex();
+    if (rootIndex.isValid())
+        return m_fileSystemModel->filePath(m_filterModel->mapToSource(rootIndex));
+    return QString();
+}
+
+void FolderNavigationWidget::slotOpenItem(const QModelIndex &viewIndex)
+{
+    if (viewIndex.isValid())
+        openItem(m_filterModel->mapToSource(viewIndex));
+}
+
+void FolderNavigationWidget::openItem(const QModelIndex &srcIndex)
+{
+    const QString fileName = m_fileSystemModel->fileName(srcIndex);
+    if (fileName == QLatin1String("."))
+        return;
+    if (fileName == QLatin1String("..")) { // cd up.
+        setCurrentDirectory(srcIndex.parent().parent());
+        return;
+    }
+    if (m_fileSystemModel->isDir(srcIndex)) { // Change to directory
+        setCurrentDirectory(srcIndex);
+        return;
+    }
+    // Open file.
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    editorManager->openEditor(m_fileSystemModel->filePath(srcIndex));
+    editorManager->ensureEditorManagerVisible();
+}
+
+void FolderNavigationWidget::setCurrentTitle(const QString &dirName, const QString &fullPath)
+{
+    m_title->setText(dirName);
+    m_title->setToolTip(fullPath);
+}
+
+QModelIndex FolderNavigationWidget::currentItem() const
+{
+    const QModelIndex current = m_listView->currentIndex();
+    if (current.isValid())
+        return m_filterModel->mapToSource(current);
+    return QModelIndex();
+}
+
+// Format the text for the "open" action of the context menu according
+// to the selectect entry
+static inline QString actionOpenText(const QFileSystemModel *model,
+                                     const QModelIndex &index)
+{
+    if (!index.isValid())
+        return FolderNavigationWidget::tr("Open");
+    const QString fileName = model->fileName(index);
+    if (fileName == QLatin1String(".."))
+        return FolderNavigationWidget::tr("Open parent folder");
+    return FolderNavigationWidget::tr("Open \"%1\"").arg(fileName);
+}
+
+void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
+{
+    QMenu menu;
+    // Open current item
+    const QModelIndex current = currentItem();
+    QAction *actionOpen = menu.addAction(actionOpenText(m_fileSystemModel, current));
+    actionOpen->setEnabled(current.isValid());
+    // Open file dialog to choose a path starting from current
+    QAction *actionChooseFolder = menu.addAction(tr("Choose folder..."));
+
+    QAction *action = menu.exec(ev->globalPos());
+    if (!action)
+        return;
+
+    ev->accept();
+    if (action == actionOpen) { // Handle open file.
+        openItem(current);
+        return;
+    }
+    if (action == actionChooseFolder) { // Open file dialog
+        const QString newPath = QFileDialog::getExistingDirectory(this, tr("Choose folder"), currentDirectory());
+        if (!newPath.isEmpty())
+            setCurrentDirectory(newPath);
     }
 }
 
-void FolderNavigationWidget::openItem(const QModelIndex &index)
-{
-    if (index.isValid()) {
-        const QModelIndex srcIndex = m_filter->mapToSource(index);
-        if (m_dirModel->isDir(srcIndex)) {
-            m_view->setRootIndex(index);
-            setCurrentTitle(QDir(m_dirModel->filePath(srcIndex)));
-        } else {
-            const QString filePath = m_dirModel->filePath(srcIndex);
-            Core::EditorManager *editorManager = Core::EditorManager::instance();
-            editorManager->openEditor(filePath);
-            editorManager->ensureEditorManagerVisible();
-        }
-    }
-}
-
-void FolderNavigationWidget::setCurrentTitle(const QDir &dir)
-{
-    m_title->setText(dir.dirName());
-    m_title->setToolTip(dir.absolutePath());
-}
-
+// --------------------FolderNavigationWidgetFactory
 FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 {
 }

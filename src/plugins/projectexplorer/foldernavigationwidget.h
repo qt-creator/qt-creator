@@ -39,7 +39,7 @@ class QLabel;
 class QListView;
 class QSortFilterProxyModel;
 class QModelIndex;
-class QDirModel;
+class QFileSystemModel;
 class QDir;
 QT_END_NAMESPACE
 
@@ -66,16 +66,23 @@ public slots:
     void toggleAutoSynchronization();
 
 private slots:
-    void openItem(const QModelIndex &mainIndex);
     void setCurrentFile(const QString &filePath);
+    void slotOpenItem(const QModelIndex &viewIndex);
+
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *ev);
 
 private:
-    void setCurrentTitle(const QDir &directory);
+    void setCurrentTitle(const QString &dirName, const QString &fullPath);
+    bool setCurrentDirectory(const QString &directory);
+    bool setCurrentDirectory(const QModelIndex &dirIndex);
+    void openItem(const QModelIndex &srcIndex);
+    QModelIndex currentItem() const;
+    QString currentDirectory() const;
 
-    ProjectExplorerPlugin *m_explorer;
-    QListView *m_view;
-    QDirModel *m_dirModel;
-    QSortFilterProxyModel *m_filter;
+    QListView *m_listView;
+    QFileSystemModel *m_fileSystemModel;
+    QSortFilterProxyModel *m_filterModel;
     QLabel *m_title;
     bool m_autoSync;
 };

@@ -36,12 +36,9 @@
 
 QT_BEGIN_NAMESPACE
 class QDir;
-class QDirModel;
 class QFileInfo;
-class QListView;
 class QModelIndex;
 class QStringList;
-class QTreeView;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -65,15 +62,7 @@ public:
     QString projectName() const;
 
 private:
-    int m_secondPageId;
-
     Utils::FileWizardPage *m_firstPage;
-
-    QTreeView *m_dirView;
-    QDirModel *m_dirModel;
-
-    QListView *m_filesView;
-    QDirModel *m_filesModel;
 };
 
 class QmlProjectWizard : public Core::BaseFileWizard
