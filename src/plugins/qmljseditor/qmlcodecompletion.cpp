@@ -762,6 +762,24 @@ bool QmlCodeCompletion::isImported(Document::Ptr doc, const QString &currentFile
     return false;
 }
 
+bool QmlCodeCompletion::isDelimiter(const QChar &ch) const
+{
+    switch (ch.unicode()) {
+    case '{':
+    case '}':
+    case '[':
+    case ']':
+    case '?':
+    case ':':
+    case ';':
+    case ',':
+        return true;
+
+    default:
+        return false;
+    }
+}
+
 int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
@@ -913,8 +931,8 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (m_startPosition > 0)
         completionOperator = editor->characterAt(m_startPosition - 1);
 
-    if (completionOperator.isSpace() || completionOperator.isNull() || (completionOperator == QLatin1Char('(') &&
-                                                                        m_startPosition != editor->position())) {
+    if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
+            (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
         // It's a global completion.
         // Process the visible user defined components.
         QHashIterator<QString, Document::Ptr> componentIt(userComponents);

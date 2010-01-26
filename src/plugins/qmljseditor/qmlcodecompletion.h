@@ -75,6 +75,8 @@ private:
     void updateSnippets();
     bool isImported(QmlJS::Document::Ptr doc, const QString &currentFilePath) const;
 
+    bool isDelimiter(const QChar &ch) const;
+
     QmlModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
