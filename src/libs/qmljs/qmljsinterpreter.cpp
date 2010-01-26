@@ -1214,7 +1214,9 @@ Engine::Engine()
       _regexpCtor(0),
       _globalObject(0),
       _mathObject(0),
+#ifndef NO_DECLARATIVE_BACKEND
       _qmlKeysObject(0),
+#endif
       _convertToNumber(this),
       _convertToString(this),
       _convertToObject(this)
@@ -1670,14 +1672,20 @@ void Engine::initializePrototypes()
     _globalObject->setProperty("Date", dateCtor());
     _globalObject->setProperty("RegExp", regexpCtor());
 
+#ifndef NO_DECLARATIVE_BACKEND
     _qmlKeysObject = new QmlAttachedKeys(this);
     _globalObject->setProperty("Keys", _qmlKeysObject); // ### attach it to the current scope, and not to the global object
     registerObject(_qmlKeysObject);
+#endif
 }
 
 const ObjectValue *Engine::qmlKeysObject()
 {
+#ifndef NO_DECLARATIVE_BACKEND
     return _qmlKeysObject;
+#else
+    return 0;
+#endif
 }
 
 const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const

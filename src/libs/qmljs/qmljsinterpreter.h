@@ -504,7 +504,9 @@ private:
 
     ObjectValue *_globalObject;
     ObjectValue *_mathObject;
+#ifndef NO_DECLARATIVE_BACKEND
     ObjectValue *_qmlKeysObject;
+#endif
 
     NullValue _nullValue;
     UndefinedValue _undefinedValue;
