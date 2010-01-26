@@ -855,7 +855,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(parentMember))
         parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
 
-    Interpreter::ObjectValue *parentItem = newComponent(&interp, declaringItemName, userComponents);
+    Interpreter::ObjectValue *parentItem = newComponent(&interp, parentItemName, userComponents);
     if (! parentItem)
         parentItem = interp.newQmlObject(QLatin1String("Item"));
 
@@ -871,21 +871,13 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                                                                         m_startPosition != editor->position())) {
         // It's a global completion.
         // Process the visible user defined components.
-        foreach (QmlJS::Document::Ptr doc, snapshot) {
-            const QFileInfo fileInfo(doc->fileName());
-
-            if (fileInfo.suffix() != QLatin1String("qml"))
-                continue;
-            else if (fileInfo.absolutePath() != currentFilePath) // ### FIXME includ `imported' components
-                continue;
-
-            const QString componentName = fileInfo.baseName();
-            if (! componentName.isEmpty() && componentName.at(0).isUpper()) {
-                TextEditor::CompletionItem item(this);
-                item.text = componentName;
-                item.icon = componentIcon;
-                m_completions.append(item);
-            }
+        QHashIterator<QString, Document::Ptr> componentIt(userComponents);
+        while (componentIt.hasNext()) {
+            componentIt.next();
+            TextEditor::CompletionItem item(this);
+            item.text = componentIt.key();
+            item.icon = componentIcon;
+            m_completions.append(item);
         }
 
         EnumerateProperties enumerateProperties;
