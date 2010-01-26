@@ -291,10 +291,8 @@ private:
         return true;
     }
 
-    virtual bool processSignal(const QString &name, const Interpreter::Value *value)
+    virtual bool processSignal(const QString &, const Interpreter::Value *)
     {
-        if (! _globalCompletion)
-            _properties.insert(name, value);
         return true;
     }
 
