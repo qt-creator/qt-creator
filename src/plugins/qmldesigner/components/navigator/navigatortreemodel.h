@@ -103,11 +103,14 @@ private:
 
     QList<ModelNode> modelNodeChildren(const ModelNode &parentNode);
 
-private:
+    bool blockItemChangedSignal(bool block);
 
+private:
     QHash<ModelNode, ItemRow> m_nodeItemHash;
     QHash<uint, ModelNode> m_nodeHash;
     QWeakPointer<AbstractView> m_view;
+
+    bool m_blockItemChangedSignal;
 };
 
 } // namespace QmlDesigner

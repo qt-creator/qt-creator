@@ -40,7 +40,8 @@
 namespace QmlDesigner {
 
 NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
-    : QStandardItemModel(parent)
+    : QStandardItemModel(parent),
+      m_blockItemChangedSignal(false)
 {
     invisibleRootItem()->setFlags(Qt::NoItemFlags);
 
@@ -205,9 +206,13 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
 
 void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
 {
+    bool blockSignal = blockItemChangedSignal(true);
+
     items.idItem->setText(node.id());
     items.typeItem->setText(node.simplifiedTypeName());
     items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
+
+    blockItemChangedSignal(blockSignal);
 }
 
 /**
@@ -217,6 +222,7 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node)
 {
     if (!containsNode(node))
         return;
+
     updateItemRow(node, itemRowForNode(node));
 }
 
@@ -227,6 +233,7 @@ void NavigatorTreeModel::updateItemRowOrder(const ModelNode &node)
 {
     if (!containsNode(node))
         return;
+
     ItemRow itemRow = itemRowForNode(node);
     int currentRow = itemRow.idItem->row();
     int newRow = currentRow;
@@ -243,6 +250,9 @@ void NavigatorTreeModel::updateItemRowOrder(const ModelNode &node)
 
 void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
 {
+    if (m_blockItemChangedSignal)
+        return;
+
     uint nodeHash = item->data(Qt::UserRole).toUInt();
     Q_ASSERT(nodeHash && containsNodeHash(nodeHash));
     ModelNode node = nodeForHash(nodeHash);
@@ -393,6 +403,15 @@ QList<ModelNode> NavigatorTreeModel::modelNodeChildren(const ModelNode &parentNo
             children << childNode.modelNode();
     return children;
 }
+
+// along the lines of QObject::blockSignals
+bool NavigatorTreeModel::blockItemChangedSignal(bool block)
+{
+    bool oldValue = m_blockItemChangedSignal;
+    m_blockItemChangedSignal = block;
+    return oldValue;
+}
+
 
 }
 
