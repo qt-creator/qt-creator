@@ -1603,9 +1603,16 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
             unsigned start_declaration = cursor();
             DeclarationAST *declaration = 0;
             if (parseMemberSpecification(declaration)) {
-                *declaration_ptr = new (_pool) DeclarationListAST;
-                (*declaration_ptr)->value = declaration;
-                declaration_ptr = &(*declaration_ptr)->next;
+                if (declaration) {  // paranoia check
+                    *declaration_ptr = new (_pool) DeclarationListAST;
+                    (*declaration_ptr)->value = declaration;
+                    declaration_ptr = &(*declaration_ptr)->next;
+                }
+
+                if (cursor() == start_declaration) { // more paranoia
+                    rewind(start_declaration + 1);
+                    skipUntilDeclaration();
+                }
             } else {
                 _translationUnit->error(start_declaration, "expected a declaration");
                 rewind(start_declaration + 1);
