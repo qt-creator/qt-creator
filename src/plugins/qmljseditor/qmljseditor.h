@@ -107,9 +107,12 @@ class SemanticInfo
 public:
     SemanticInfo() {}
 
+    int revision() const;
+
 public: // attributes
     QmlJS::Document::Ptr document;
     QList<Range> ranges;
+    QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
 };
 
 class QmlJSTextEditor : public TextEditor::BaseTextEditor
@@ -173,8 +176,6 @@ private:
     QTimer *m_updateUsesTimer;
     QComboBox *m_methodCombo;
     QList<Declaration> m_declarations; // ### remove me
-    QMap<QString, QList<QmlJS::AST::SourceLocation> > m_ids; // ### remove me
-    int m_idsRevision; // ### remove me
     QmlModelManagerInterface *m_modelManager;
     QmlJS::TypeSystem *m_typeSystem;
     QTextCharFormat m_occurrencesFormat;

@@ -125,13 +125,14 @@ bool shouldInsertMatchingText(const QTextCursor &tc)
 class FindIdDeclarations: protected Visitor
 {
 public:
-    typedef QMap<QString, QList<AST::SourceLocation> > Result;
+    typedef QHash<QString, QList<AST::SourceLocation> > Result;
 
-    Result operator()(AST::Node *node)
+    Result operator()(Document::Ptr doc)
     {
         _ids.clear();
         _maybeIds.clear();
-        accept(node);
+        if (doc && doc->qmlProgram())
+            doc->qmlProgram()->accept(this);
         return _ids;
     }
 
@@ -428,6 +429,14 @@ protected:
 } // end of anonymous namespace
 
 
+int SemanticInfo::revision() const
+{
+    if (document)
+        return document->documentRevision();
+
+    return 0;
+}
+
 QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
     : BaseTextEditorEditable(editor)
 {
@@ -443,7 +452,6 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_modelManager(0),
     m_typeSystem(0)
 {
-    m_idsRevision = -1;
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
@@ -531,10 +539,6 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
         return;
     }
 
-    FindIdDeclarations updateIds;
-    m_idsRevision = document()->revision();
-    m_ids = updateIds(doc->qmlProgram());
-
     if (doc->ast()) {
         // got a correctly parsed (or recovered) file.
 
@@ -543,6 +547,11 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
         SemanticInfo sem;
         sem.document = doc;
         sem.ranges = createRanges(document(), doc);
+
+        // Refresh the ids
+        FindIdDeclarations updateIds;
+        sem.idLocations = updateIds(doc);
+
         m_semanticInfo = sem;
 
         if (doc->isParsedCorrectly()) {
@@ -630,7 +639,7 @@ void QmlJSTextEditor::updateUses()
 
 void QmlJSTextEditor::updateUsesNow()
 {
-    if (document()->revision() != m_idsRevision) {
+    if (document()->revision() != m_semanticInfo.revision()) {
         updateUses();
         return;
     }
@@ -638,7 +647,7 @@ void QmlJSTextEditor::updateUsesNow()
     m_updateUsesTimer->stop();
 
     QList<QTextEdit::ExtraSelection> selections;
-    foreach (const AST::SourceLocation &loc, m_ids.value(wordUnderCursor())) {
+    foreach (const AST::SourceLocation &loc, m_semanticInfo.idLocations.value(wordUnderCursor())) {
         if (! loc.isValid())
             continue;
 
@@ -673,7 +682,7 @@ void QmlJSTextEditor::renameIdUnderCursor()
     if (ok) {
         Utils::ChangeSet changeSet;
 
-        foreach (const AST::SourceLocation &loc, m_ids.value(id)) {
+        foreach (const AST::SourceLocation &loc, m_semanticInfo.idLocations.value(id)) {
             changeSet.replace(loc.offset, loc.length, newId);
         }
 
@@ -849,7 +858,7 @@ void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)
     }
 
     const QString id = wordUnderCursor();
-    const QList<AST::SourceLocation> &locations = m_ids.value(id);
+    const QList<AST::SourceLocation> &locations = m_semanticInfo.idLocations.value(id);
     if (! locations.isEmpty()) {
         menu->addSeparator();
         QAction *a = menu->addAction(tr("Rename id '%1'...").arg(id));
@@ -1013,3 +1022,4 @@ QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &) const
 {
     return QLatin1String("}\n");
 }
+
