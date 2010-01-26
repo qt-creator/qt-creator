@@ -39,10 +39,10 @@ namespace QmlJS {
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
 public:
-    Bind();
+    Bind(Interpreter::Engine *interp);
     virtual ~Bind();
 
-    Interpreter::ObjectValue* operator()(Document::Ptr doc, Snapshot &snapshot, AST::UiObjectMember *member, Interpreter::Engine &interp);
+    Interpreter::ObjectValue* operator()(Document::Ptr doc, const Snapshot &snapshot, AST::UiObjectMember *member);
 
 protected:
     void accept(AST::Node *node);
@@ -148,9 +148,9 @@ protected:
 
 private:
     Document::Ptr _doc;
-    Snapshot *_snapshot;
-    AST::UiObjectMember *_interestingMember;
+    Snapshot _snapshot;
     Interpreter::Engine *_interp;
+    AST::UiObjectMember *_interestingMember;
 
     Interpreter::ObjectValue *_currentObjectValue;
 

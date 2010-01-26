@@ -96,6 +96,7 @@ static QIcon iconForColor(const QColor &color)
 }
 
 
+#if 0
 static QString qualifiedNameId(AST::UiQualifiedId *it)
 {
     QString text;
@@ -113,7 +114,6 @@ static QString qualifiedNameId(AST::UiQualifiedId *it)
     return text;
 }
 
-#if 0
 static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine, const QString &name,
                                               const QHash<QString, Document::Ptr> &userComponents,
                                               QSet<QString> *processed)
@@ -821,8 +821,8 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             scope->setProperty(QLatin1String("parent"), parentItem);
 #endif
 
-        Bind bind;
-        scope = bind(qmlDocument, snapshot, declaringMember, interp);
+        Bind bind(&interp);
+        scope = bind(qmlDocument, snapshot, declaringMember);
     }
 
     // Search for the operator that triggered the completion.

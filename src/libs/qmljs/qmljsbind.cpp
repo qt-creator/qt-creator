@@ -35,7 +35,14 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
-Bind::Bind()
+Bind::Bind(Interpreter::Engine *interp)
+    : _interp(interp),
+      _interestingMember(0),
+      _currentObjectValue(0),
+      _typeEnvironment(0),
+      _idEnvironment(0),
+      _interestingObjectValue(0),
+      _rootObjectValue(0)
 {
 }
 
@@ -43,20 +50,19 @@ Bind::~Bind()
 {
 }
 
-Interpreter::ObjectValue *Bind::operator()(Document::Ptr doc, Snapshot &snapshot, UiObjectMember *member, Interpreter::Engine &interp)
+Interpreter::ObjectValue *Bind::operator()(Document::Ptr doc, const Snapshot &snapshot, UiObjectMember *member)
 {
     UiProgram *program = doc->qmlProgram();
     if (!program)
         return 0;
 
     _doc = doc;
-    _snapshot = &snapshot;
+    _snapshot = snapshot;
     _interestingMember = member;
-    _interp = &interp;
 
     _currentObjectValue = 0;
-    _typeEnvironment = _interp->newObject(0);
-    _idEnvironment = _interp->newObject(0);
+    _typeEnvironment = _interp->newObject(/*prototype =*/ 0);
+    _idEnvironment = _interp->newObject(/*prototype =*/ 0);
     _interestingObjectValue = 0;
     _rootObjectValue = 0;
 
