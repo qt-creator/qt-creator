@@ -36,6 +36,7 @@
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljssymbol.h>
 #include <qmljs/qmljsscanner.h>
+#include <qmljs/qmljscheck.h>
 
 #include <texteditor/basetexteditor.h>
 
@@ -252,121 +253,6 @@ protected:
 
         return true;
     }
-};
-
-class Evaluate: protected AST::Visitor
-{
-    Interpreter::Engine *_interp;
-    const Interpreter::ObjectValue *_scope;
-    const Interpreter::Value *_value;
-
-public:
-    Evaluate(Interpreter::Engine *interp)
-        : _interp(interp), _scope(interp->globalObject()), _value(0)
-    {}
-
-    void setScope(const Interpreter::ObjectValue *scope)
-    { _scope = scope; }
-
-    const Interpreter::Value *operator()(AST::Node *node)
-    { return evaluate(node); }
-
-    const Interpreter::Value *evaluate(AST::Node *node)
-    {
-        const Interpreter::Value *previousValue = switchValue(0);
-
-        if (node)
-            node->accept(this);
-
-        return switchValue(previousValue);
-    }
-
-protected:
-    using AST::Visitor::visit;
-
-    const Interpreter::Value *switchValue(const Interpreter::Value *value)
-    {
-        const Interpreter::Value *previousValue = _value;
-        _value = value;
-        return previousValue;
-    }
-
-    virtual bool preVisit(AST::Node *ast) // ### remove me
-    {
-        using namespace AST;
-
-        if (cast<NumericLiteral *>(ast))
-            return true;
-
-        else if (cast<StringLiteral *>(ast))
-            return true;
-
-        else if (cast<IdentifierExpression *>(ast))
-            return true;
-
-        else if (cast<NestedExpression *>(ast))
-            return true;
-
-        else if (cast<FieldMemberExpression *>(ast))
-            return true;
-
-        else if (cast<CallExpression *>(ast))
-            return true;
-
-        return false;
-    }
-
-    virtual bool visit(AST::NestedExpression *)
-    {
-        return true;
-    }
-
-    virtual bool visit(AST::StringLiteral *)
-    {
-        _value = _interp->convertToObject(_interp->stringValue());
-        return false;
-    }
-
-    virtual bool visit(AST::NumericLiteral *)
-    {
-        _value = _interp->convertToObject(_interp->numberValue());
-        return false;
-    }
-
-    virtual bool visit(AST::IdentifierExpression *ast)
-    {
-        if (! ast->name)
-            return false;
-
-        _value = _scope->lookup(ast->name->asString());
-        return false;
-    }
-
-    virtual bool visit(AST::FieldMemberExpression *ast)
-    {
-        if (! ast->name)
-            return false;
-
-        if (const Interpreter::Value *base = _interp->convertToObject(evaluate(ast->base))) {
-            if (const Interpreter::ObjectValue *obj = base->asObjectValue()) {
-                _value = obj->property(ast->name->asString());
-            }
-        }
-
-        return false;
-    }
-
-    virtual bool visit(AST::CallExpression *ast)
-    {
-        if (const Interpreter::Value *base = evaluate(ast->base)) {
-            if (const Interpreter::FunctionValue *obj = base->asFunctionValue()) {
-                _value = obj->returnValue();
-            }
-        }
-
-        return false;
-    }
-
 };
 
 class EnumerateProperties: private Interpreter::MemberProcessor
@@ -971,12 +857,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         exprDoc->setSource(expression);
         exprDoc->parseExpression();
 
-        if (exprDoc->ast()) {
-            Evaluate evaluate(&interp);
-            evaluate.setScope(scope);
+        if (exprDoc->expression() != 0) {
+            Check evaluate(&interp);
 
             // Evaluate the expression under cursor.
-            const Interpreter::Value *value = interp.convertToObject(evaluate(exprDoc->ast()));
+            const Interpreter::Value *value = interp.convertToObject(evaluate(exprDoc->expression(), scope));
             //qDebug() << "type:" << interp.typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion

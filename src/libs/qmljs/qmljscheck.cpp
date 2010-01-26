@@ -28,11 +28,18 @@
 **************************************************************************/
 
 #include "qmljscheck.h"
+#include "qmljsinterpreter.h"
+#include "parser/qmljsparser_p.h"
 #include "parser/qmljsast_p.h"
+#include <QtCore/QDebug>
 
 using namespace QmlJS;
+using namespace QmlJS::Interpreter;
 
-Check::Check()
+Check::Check(Interpreter::Engine *engine)
+    : _engine(engine),
+      _scope(engine->globalObject()),
+      _result(0)
 {
 }
 
@@ -40,9 +47,43 @@ Check::~Check()
 {
 }
 
-void Check::operator()(Document::Ptr doc)
+const Interpreter::Value *Check::operator()(AST::ExpressionNode *ast, const Interpreter::ObjectValue *scope)
 {
-    _doc = doc;
+    const Interpreter::ObjectValue *previousScope = switchScope(scope);
+    const Interpreter::Value *result = check(ast);
+    (void) switchScope(previousScope);
+    return result;
+}
+
+const Interpreter::Value *Check::check(AST::ExpressionNode *ast)
+{
+    const Value *previousResult = switchResult(0);
+    accept(ast);
+    const Value *result = switchResult(previousResult);
+    if (! result)
+        result = _engine->undefinedValue();
+    return result;
+}
+
+Interpreter::Engine *Check::switchEngine(Interpreter::Engine *engine)
+{
+    Interpreter::Engine *previousEngine = _engine;
+    _engine = engine;
+    return previousEngine;
+}
+
+const Interpreter::Value *Check::switchResult(const Interpreter::Value *result)
+{
+    const Interpreter::Value *previousResult = _result;
+    _result = result;
+    return previousResult;
+}
+
+const Interpreter::ObjectValue *Check::switchScope(const Interpreter::ObjectValue *scope)
+{
+    const Interpreter::ObjectValue *previousScope = _scope;
+    _scope = scope;
+    return previousScope;
 }
 
 void Check::accept(AST::Node *node)
@@ -52,450 +93,475 @@ void Check::accept(AST::Node *node)
 
 bool Check::visit(AST::UiProgram *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiImportList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiImport *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiPublicMember *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiSourceElement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiObjectDefinition *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiObjectInitializer *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiObjectBinding *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiScriptBinding *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiArrayBinding *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiObjectMemberList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiArrayMemberList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiQualifiedId *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiSignature *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiFormalList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UiFormal *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ThisExpression *)
 {
-    return true;
+    return false;
 }
 
-bool Check::visit(AST::IdentifierExpression *)
+bool Check::visit(AST::IdentifierExpression *ast)
 {
-    return true;
+    if (! ast->name)
+        return false;
+
+    _result = _scope->lookup(ast->name->asString());
+    return false;
 }
 
 bool Check::visit(AST::NullExpression *)
 {
-    return true;
+    _result = _engine->nullValue();
+    return false;
 }
 
 bool Check::visit(AST::TrueLiteral *)
 {
-    return true;
+    _result = _engine->booleanValue();
+    return false;
 }
 
 bool Check::visit(AST::FalseLiteral *)
 {
-    return true;
+    _result = _engine->booleanValue();
+    return false;
 }
 
 bool Check::visit(AST::StringLiteral *)
 {
-    return true;
+    _result = _engine->stringValue();
+    return false;
 }
 
 bool Check::visit(AST::NumericLiteral *)
 {
-    return true;
+    _result = _engine->numberValue();
+    return false;
 }
 
 bool Check::visit(AST::RegExpLiteral *)
 {
-    return true;
+    _result = _engine->regexpCtor()->construct();
+    return false;
 }
 
 bool Check::visit(AST::ArrayLiteral *)
 {
-    return true;
+    _result = _engine->arrayCtor()->construct();
+    return false;
 }
 
 bool Check::visit(AST::ObjectLiteral *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ElementList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::Elision *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::PropertyNameAndValueList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::NestedExpression *)
 {
-    return true;
+    return true; // visit the child expression
 }
 
 bool Check::visit(AST::IdentifierPropertyName *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::StringLiteralPropertyName *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::NumericLiteralPropertyName *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ArrayMemberExpression *)
 {
-    return true;
+    return false;
 }
 
-bool Check::visit(AST::FieldMemberExpression *)
+bool Check::visit(AST::FieldMemberExpression *ast)
 {
-    return true;
+    if (! ast->name)
+        return false;
+
+    if (const Interpreter::Value *base = _engine->convertToObject(check(ast->base))) {
+        if (const Interpreter::ObjectValue *obj = base->asObjectValue()) {
+            _result = obj->property(ast->name->asString());
+        }
+    }
+
+    return false;
 }
 
 bool Check::visit(AST::NewMemberExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::NewExpression *)
 {
-    return true;
+    return false;
 }
 
-bool Check::visit(AST::CallExpression *)
+bool Check::visit(AST::CallExpression *ast)
 {
-    return true;
+    if (const Interpreter::Value *base = check(ast->base)) {
+        if (const Interpreter::FunctionValue *obj = base->asFunctionValue()) {
+            _result = obj->returnValue();
+        }
+    }
+    return false;
 }
 
 bool Check::visit(AST::ArgumentList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::PostIncrementExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::PostDecrementExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::DeleteExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::VoidExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::TypeOfExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::PreIncrementExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::PreDecrementExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UnaryPlusExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::UnaryMinusExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::TildeExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::NotExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::BinaryExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ConditionalExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::Expression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::Block *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::StatementList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::VariableStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::VariableDeclarationList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::VariableDeclaration *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::EmptyStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ExpressionStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::IfStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::DoWhileStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::WhileStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ForStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::LocalForStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ForEachStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::LocalForEachStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ContinueStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::BreakStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ReturnStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::WithStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::SwitchStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::CaseBlock *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::CaseClauses *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::CaseClause *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::DefaultClause *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::LabelledStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::ThrowStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::TryStatement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::Catch *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::Finally *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::FunctionDeclaration *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::FunctionExpression *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::FormalParameterList *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::FunctionBody *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::Program *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::SourceElements *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::FunctionSourceElement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::StatementSourceElement *)
 {
-    return true;
+    return false;
 }
 
 bool Check::visit(AST::DebuggerStatement *)
 {
-    return true;
+    return false;
 }

@@ -35,16 +35,28 @@
 
 namespace QmlJS {
 
+namespace Interpreter {
+    class Engine;
+    class Value;
+    class ObjectValue;
+    class FunctionValue;
+} // end of namespace Interpreter
+
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
 public:
-    Check();
+    Check(Interpreter::Engine *engine);
     virtual ~Check();
 
-    void operator()(QmlJS::Document::Ptr doc);
+    const Interpreter::Value *operator()(AST::ExpressionNode *ast, const Interpreter::ObjectValue *scope);
+    const Interpreter::Value *check(AST::ExpressionNode *ast);
 
 protected:
     void accept(AST::Node *node);
+
+    Interpreter::Engine *switchEngine(Interpreter::Engine *engine);
+    const Interpreter::Value *switchResult(const Interpreter::Value *result);
+    const Interpreter::ObjectValue *switchScope(const Interpreter::ObjectValue *scope);
 
     // Ui
     virtual bool visit(AST::UiProgram *ast);
@@ -142,6 +154,9 @@ protected:
 
 private:
     QmlJS::Document::Ptr _doc;
+    Interpreter::Engine *_engine;
+    const Interpreter::ObjectValue *_scope;
+    const Interpreter::Value *_result;
 };
 
 } // end of namespace Qml

@@ -58,6 +58,7 @@ public:
 
     QmlJS::AST::UiProgram *qmlProgram() const;
     QmlJS::AST::Program *jsProgram() const;
+    QmlJS::AST::ExpressionNode *expression() const;
     QmlJS::AST::Node *ast() const;
 
     QList<QmlJS::DiagnosticMessage> diagnosticMessages() const;

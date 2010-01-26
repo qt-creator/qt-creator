@@ -82,6 +82,14 @@ AST::Program *Document::jsProgram() const
     return cast<Program *>(_ast);
 }
 
+AST::ExpressionNode *Document::expression() const
+{
+    if (_ast)
+        return _ast->expressionCast();
+
+    return 0;
+}
+
 AST::Node *Document::ast() const
 {
     return _ast;
