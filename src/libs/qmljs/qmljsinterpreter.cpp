@@ -1547,7 +1547,7 @@ void Engine::initializePrototypes()
     addFunction(_stringPrototype, "replace", stringValue(), 2);
     addFunction(_stringPrototype, "search", numberValue(), 1);
     addFunction(_stringPrototype, "slice", stringValue(), 2);
-    addFunction(_stringPrototype, "split", newArray(), 2);
+    addFunction(_stringPrototype, "split", newArray(), 1);
     addFunction(_stringPrototype, "substring", stringValue(), 2);
     addFunction(_stringPrototype, "toLowerCase", stringValue(), 0);
     addFunction(_stringPrototype, "toLocaleLowerCase", stringValue(), 0);
