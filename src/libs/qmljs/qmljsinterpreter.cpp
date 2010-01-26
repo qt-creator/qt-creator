@@ -1680,6 +1680,19 @@ const ObjectValue *Engine::qmlKeysObject()
     return _qmlKeysObject;
 }
 
+const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const
+{
+    if (typeName == QLatin1String("string") || typeName == QLatin1String("url"))
+        return stringValue();
+    else if (typeName == QLatin1String("bool"))
+        return booleanValue();
+    else if (typeName == QLatin1String("int") || typeName == QLatin1String("real"))
+        return numberValue();
+    // ### more types...
+
+    return undefinedValue();
+}
+
 ObjectValue *Engine::newQmlObject(const QString &name)
 {
 #ifndef NO_DECLARATIVE_BACKEND

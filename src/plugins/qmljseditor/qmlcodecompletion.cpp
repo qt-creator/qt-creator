@@ -134,15 +134,7 @@ static Interpreter::ObjectValue *newComponent(Interpreter::Engine *engine, const
                                         const QString propName = prop->name->asString();
                                         const QString propType = prop->memberType->asString();
 
-                                        // ### generalize
-                                        if (propType == QLatin1String("string") || propType == QLatin1String("url"))
-                                            object->setProperty(propName, engine->stringValue());
-                                        else if (propType == QLatin1String("bool"))
-                                            object->setProperty(propName, engine->booleanValue());
-                                        else if (propType == QLatin1String("int") || propType == QLatin1String("real"))
-                                            object->setProperty(propName, engine->numberValue());
-                                        else
-                                            object->setProperty(propName, engine->undefinedValue());
+                                        object->setProperty(propName, engine->defaultValueForBuiltinType(propType));
                                     }
                                 }
                             }
@@ -867,13 +859,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         const QString propName = prop->name->asString();
         const QString propType = prop->memberType->asString();
 
-        // ### TODO: generalize
-        if (propType == QLatin1String("string") || propType == QLatin1String("url"))
-            interp.globalObject()->setProperty(propName, interp.stringValue());
-        else if (propType == QLatin1String("bool"))
-            interp.globalObject()->setProperty(propName, interp.booleanValue());
-        else if (propType == QLatin1String("int") || propType == QLatin1String("real"))
-            interp.globalObject()->setProperty(propName, interp.numberValue());
+        interp.globalObject()->setProperty(propName, interp.defaultValueForBuiltinType(propType));
     }
 
     // Get the name of the declaring item.

@@ -442,6 +442,7 @@ public:
     // QML objects
     ObjectValue *newQmlObject(const QString &name);
     const ObjectValue *qmlKeysObject();
+    const Value *defaultValueForBuiltinType(const QString &typeName) const;
 
     // global object
     ObjectValue *globalObject() const;
