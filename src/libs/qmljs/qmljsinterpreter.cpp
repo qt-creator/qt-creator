@@ -284,6 +284,7 @@ public:
         case QMetaType::QFont: {
             // ### cache
             ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+            object->setProperty("family", engine()->stringValue());
             object->setProperty("weight", engine()->undefinedValue()); // ### make me an object
             object->setProperty("copitalization", engine()->undefinedValue()); // ### make me an object
             object->setProperty("bold", engine()->booleanValue());
