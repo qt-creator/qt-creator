@@ -44,6 +44,7 @@ Bind::Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *int
       _currentObjectValue(0),
       _typeEnvironment(0),
       _idEnvironment(0),
+      _functionEnvironment(0),
       _interestingObjectValue(0),
       _rootObjectValue(0)
 {
@@ -64,19 +65,21 @@ Interpreter::ObjectValue *Bind::operator()(UiObjectMember *member)
     _currentObjectValue = 0;
     _typeEnvironment = _interp->newObject(/*prototype =*/ 0);
     _idEnvironment = _interp->newObject(/*prototype =*/ 0);
+    _functionEnvironment = _interp->newObject(/*prototype =*/ 0);
     _interestingObjectValue = 0;
     _rootObjectValue = 0;
 
     accept(program);
 
     if (_interestingObjectValue) {
-        _idEnvironment->setScope(_interestingObjectValue);
+        _functionEnvironment->setScope(_interestingObjectValue);
 
         if (_interestingObjectValue != _rootObjectValue)
             _interestingObjectValue->setScope(_rootObjectValue);
     } else {
-        _idEnvironment->setScope(_rootObjectValue);
+        _functionEnvironment->setScope(_rootObjectValue);
     }
+    _idEnvironment->setScope(_functionEnvironment);
     _typeEnvironment->setScope(_idEnvironment);
 
     return _typeEnvironment;
@@ -244,17 +247,26 @@ const ObjectValue *Bind::lookupType(UiQualifiedId *qualifiedTypeNameId)
 
 ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
 {
-    const ObjectValue *prototype = lookupType(qualifiedTypeNameId);
-    ObjectValue *objectValue = _interp->newObject(prototype);
-    ObjectValue *oldObjectValue = switchObjectValue(objectValue);
-    if (oldObjectValue)
-        objectValue->setProperty("parent", oldObjectValue);
-    else
-        _rootObjectValue = objectValue;
+    ObjectValue *parentObjectValue;
+
+    if (qualifiedTypeNameId && !qualifiedTypeNameId->next
+        && qualifiedTypeNameId->name->asString() == QLatin1String("Script")
+    ) {
+        // Script blocks all contribute to the same scope
+        parentObjectValue = switchObjectValue(_functionEnvironment);
+    } else { // normal component instance
+        const ObjectValue *prototype = lookupType(qualifiedTypeNameId);
+        ObjectValue *objectValue = _interp->newObject(prototype);
+        parentObjectValue = switchObjectValue(objectValue);
+        if (parentObjectValue)
+            objectValue->setProperty("parent", parentObjectValue);
+        else
+            _rootObjectValue = objectValue;
+    }
 
     accept(initializer);
 
-    return switchObjectValue(oldObjectValue);
+    return switchObjectValue(parentObjectValue);
 }
 
 bool Bind::visit(UiObjectDefinition *ast)
@@ -656,9 +668,21 @@ bool Bind::visit(Finally *)
     return true;
 }
 
-bool Bind::visit(FunctionDeclaration *)
+bool Bind::visit(FunctionDeclaration *ast)
 {
-    return true;
+    if (!ast->name)
+        return false;
+    // the first declaration counts
+    if (_currentObjectValue->property(ast->name->asString()))
+        return false;
+
+    Function *function = _interp->newFunction();
+    for (FormalParameterList *iter = ast->formals; iter; iter = iter->next) {
+        function->addArgument(_interp->undefinedValue()); // ### introduce unknownValue
+        // ### store argument names
+    }
+    _currentObjectValue->setProperty(ast->name->asString(), function);
+    return false; // ### eventually want to visit function bodies
 }
 
 bool Bind::visit(FunctionExpression *)

@@ -156,6 +156,7 @@ private:
 
     Interpreter::ObjectValue *_typeEnvironment;
     Interpreter::ObjectValue *_idEnvironment;
+    Interpreter::ObjectValue *_functionEnvironment;
     Interpreter::ObjectValue *_interestingObjectValue;
     Interpreter::ObjectValue *_rootObjectValue;
 };
