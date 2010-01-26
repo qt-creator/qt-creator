@@ -821,8 +821,8 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             scope->setProperty(QLatin1String("parent"), parentItem);
 #endif
 
-        Bind bind(&interp);
-        scope = bind(qmlDocument, snapshot, declaringMember);
+        Bind bind(qmlDocument, snapshot, &interp);
+        scope = bind(declaringMember);
     }
 
     // Search for the operator that triggered the completion.

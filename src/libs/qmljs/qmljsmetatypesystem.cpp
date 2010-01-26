@@ -63,7 +63,7 @@ QList<QmlObjectValue *> MetaTypeSystem::staticTypesForImport(const QString &pref
 {
     QMap<QString, QmlObjectValue *> objectValuesByName;
 
-    foreach (QmlObjectValue *qmlObjectValue, _importedTypes[prefix]) {
+    foreach (QmlObjectValue *qmlObjectValue, _importedTypes.value(prefix)) {
         if (qmlObjectValue->majorVersion() < majorVersion ||
             (qmlObjectValue->majorVersion() == majorVersion && qmlObjectValue->minorVersion() <= minorVersion)) {
             // we got a candidate.

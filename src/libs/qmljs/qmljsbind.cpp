@@ -35,8 +35,10 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
-Bind::Bind(Interpreter::Engine *interp)
-    : _interp(interp),
+Bind::Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp)
+    : _doc(doc),
+      _snapshot(snapshot),
+      _interp(interp),
       _interestingMember(0),
       _currentObjectValue(0),
       _typeEnvironment(0),
@@ -50,14 +52,12 @@ Bind::~Bind()
 {
 }
 
-Interpreter::ObjectValue *Bind::operator()(Document::Ptr doc, const Snapshot &snapshot, UiObjectMember *member)
+Interpreter::ObjectValue *Bind::operator()(UiObjectMember *member)
 {
-    UiProgram *program = doc->qmlProgram();
+    UiProgram *program = _doc->qmlProgram();
     if (!program)
         return 0;
 
-    _doc = doc;
-    _snapshot = snapshot;
     _interestingMember = member;
 
     _currentObjectValue = 0;
@@ -128,10 +128,13 @@ bool Bind::visit(UiImport *ast)
     ObjectValue *namespaceObject;
 
     if (ast->asToken.isValid()) { // with namespace we insert an object in the type env. to hold the imported types
-        namespaceObject = _interp->newObject(0);
+        namespaceObject = _interp->newObject(/*prototype */ 0);
+
         if (!ast->importId)
             return false; // this should never happen, but better be safe than sorry
+
         _typeEnvironment->setProperty(ast->importId->asString(), namespaceObject);
+
     } else { // without namespace we insert all types directly into the type env.
         namespaceObject = _typeEnvironment;
     }
@@ -148,7 +151,7 @@ bool Bind::visit(UiImport *ast)
 
     if (ast->versionToken.isValid()) {
         const QString versionString = _doc->source().mid(ast->versionToken.offset, ast->versionToken.length);
-        int dotIdx = versionString.indexOf('.');
+        const int dotIdx = versionString.indexOf(QLatin1Char('.'));
         if (dotIdx == -1) {
             // only major (which is probably invalid, but let's handle it anyway)
             majorVersion = versionString.toInt();
