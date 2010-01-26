@@ -113,6 +113,7 @@ public: // attributes
     QmlJS::Document::Ptr document;
     QList<Range> ranges;
     QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
+    QList<Declaration> declarations;
 };
 
 class QmlJSTextEditor : public TextEditor::BaseTextEditor
@@ -124,9 +125,6 @@ public:
 
     QmlJSTextEditor(QWidget *parent = 0);
     ~QmlJSTextEditor();
-
-    QList<Declaration> declarations() const;
-    QStringList keywords() const;
 
     virtual void unCommentSelection();
 
@@ -175,7 +173,6 @@ private:
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
     QComboBox *m_methodCombo;
-    QList<Declaration> m_declarations; // ### remove me
     QmlModelManagerInterface *m_modelManager;
     QmlJS::TypeSystem *m_typeSystem;
     QTextCharFormat m_occurrencesFormat;

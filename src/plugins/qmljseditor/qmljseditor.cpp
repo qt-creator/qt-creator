@@ -485,9 +485,6 @@ QmlJSTextEditor::~QmlJSTextEditor()
 {
 }
 
-QList<Declaration> QmlJSTextEditor::declarations() const
-{ return m_declarations; }
-
 Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
 {
     QmlJSTextEditor *newEditor = new QmlJSTextEditor(parent);
@@ -552,37 +549,34 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
         FindIdDeclarations updateIds;
         sem.idLocations = updateIds(doc);
 
-        m_semanticInfo = sem;
-
         if (doc->isParsedCorrectly()) {
             FindDeclarations findDeclarations;
-            m_declarations = findDeclarations(doc->ast());
+            sem.declarations = findDeclarations(doc->ast());
 
             QStringList items;
             items.append(tr("<Select Symbol>"));
 
-            foreach (Declaration decl, m_declarations)
+            foreach (Declaration decl, sem.declarations)
                 items.append(decl.text);
 
             m_methodCombo->clear();
             m_methodCombo->addItems(items);
             updateMethodBoxIndex();
         }
+
+        m_semanticInfo = sem;
     }
 
     QList<QTextEdit::ExtraSelection> selections;
 
-    QTextEdit::ExtraSelection sel;
-
-    const QList<DiagnosticMessage> diagnosticMessages = doc->diagnosticMessages();
-
-    foreach (const DiagnosticMessage &d, diagnosticMessages) {
+    foreach (const DiagnosticMessage &d, doc->diagnosticMessages()) {
         if (d.isWarning())
             continue;
 
         const int line = d.loc.startLine;
         const int column = qMax(1U, d.loc.startColumn);
 
+        QTextEdit::ExtraSelection sel;
         QTextCursor c(document()->findBlockByNumber(line - 1));
         sel.cursor = c;
 
@@ -604,8 +598,8 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 
 void QmlJSTextEditor::jumpToMethod(int index)
 {
-    if (index) {
-        Declaration d = m_declarations.at(index - 1);
+    if (index > 0 && index <= m_semanticInfo.declarations.size()) { // indexes are 1-based
+        Declaration d = m_semanticInfo.declarations.at(index - 1);
         gotoLine(d.startLine, d.startColumn - 1);
         setFocus();
     }
@@ -619,8 +613,8 @@ void QmlJSTextEditor::updateMethodBoxIndex()
     int currentSymbolIndex = 0;
 
     int index = 0;
-    while (index < m_declarations.size()) {
-        const Declaration &d = m_declarations.at(index++);
+    while (index < m_semanticInfo.declarations.size()) {
+        const Declaration &d = m_semanticInfo.declarations.at(index++);
 
         if (line < d.startLine)
             break;
@@ -689,16 +683,6 @@ void QmlJSTextEditor::renameIdUnderCursor()
         QTextCursor tc = textCursor();
         changeSet.apply(&tc);
     }
-}
-
-QStringList QmlJSTextEditor::keywords() const
-{
-    QStringList words;
-
-    if (QmlHighlighter *highlighter = qobject_cast<QmlHighlighter*>(baseTextDocument()->syntaxHighlighter()))
-        words = highlighter->keywords().toList();
-
-    return words;
 }
 
 void QmlJSTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
