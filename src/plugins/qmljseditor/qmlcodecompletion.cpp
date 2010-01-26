@@ -787,6 +787,10 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     const QFileInfo currentFileInfo(fileName);
     const QString currentFilePath = currentFileInfo.absolutePath();
 
+    bool isQmlFile = false;
+    if (currentFileInfo.suffix() == QLatin1String("qml"))
+        isQmlFile = true;
+
     const QIcon componentIcon = iconForColor(Qt::yellow);
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
 
@@ -840,65 +844,69 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     }
 
     // Set up the current scope chain.
-    Interpreter::ObjectValue *scope = interp.newObject(/* prototype = */ 0);
+    Interpreter::ObjectValue *scope = interp.globalObject();
 
-    AST::UiObjectMember *declaringMember = 0;
-    AST::UiObjectMember *parentMember = 0;
+    if (isQmlFile) {
+        scope = interp.newObject(/* prototype = */ 0);
 
-    const int cursorPosition = editor->position();
-    foreach (const Range &range, semanticInfo.ranges) {
-        if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
-            parentMember = declaringMember;
-            declaringMember = range.ast;
+        AST::UiObjectMember *declaringMember = 0;
+        AST::UiObjectMember *parentMember = 0;
+
+        const int cursorPosition = editor->position();
+        foreach (const Range &range, semanticInfo.ranges) {
+            if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
+                parentMember = declaringMember;
+                declaringMember = range.ast;
+            }
         }
+
+        // ### TODO: remove me. This is just a quick and dirty hack to get some completion
+        // for the property definitions.
+        SearchPropertyDefinitions searchPropertyDefinitions;
+
+        const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument);
+        foreach (AST::UiPublicMember *prop, properties) {
+            if (! (prop->name && prop->memberType))
+                continue;
+
+            const QString propName = prop->name->asString();
+            const QString propType = prop->memberType->asString();
+
+            interp.globalObject()->setProperty(propName, interp.defaultValueForBuiltinType(propType));
+        }
+
+        // Get the name of the declaring item.
+        QString declaringItemName = QLatin1String("Item");
+
+        if (AST::UiObjectDefinition *binding = AST::cast<AST::UiObjectDefinition *>(declaringMember))
+            declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
+        else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(declaringMember))
+            declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
+
+        Interpreter::ObjectValue *declaringItem = newComponent(&interp, declaringItemName, userComponents);
+        if (! declaringItem)
+            declaringItem = interp.newQmlObject(QLatin1String("Item"));
+
+        if (declaringItem) {
+            scope->setScope(declaringItem);
+            declaringItem->setScope(interp.globalObject());
+        }
+
+        // Get the name of the parent of the declaring item.
+        QString parentItemName = QLatin1String("Item");
+
+        if (AST::UiObjectDefinition *binding = AST::cast<AST::UiObjectDefinition *>(parentMember))
+            parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
+        else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(parentMember))
+            parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
+
+        Interpreter::ObjectValue *parentItem = newComponent(&interp, parentItemName, userComponents);
+        if (! parentItem)
+            parentItem = interp.newQmlObject(QLatin1String("Item"));
+
+        if (parentItem)
+            scope->setProperty(QLatin1String("parent"), parentItem);
     }
-
-    // ### TODO: remove me. This is just a quick and dirty hack to get some completion
-    // for the property definitions.
-    SearchPropertyDefinitions searchPropertyDefinitions;
-
-    const QList<AST::UiPublicMember *> properties = searchPropertyDefinitions(qmlDocument);
-    foreach (AST::UiPublicMember *prop, properties) {
-        if (! (prop->name && prop->memberType))
-            continue;
-
-        const QString propName = prop->name->asString();
-        const QString propType = prop->memberType->asString();
-
-        interp.globalObject()->setProperty(propName, interp.defaultValueForBuiltinType(propType));
-    }
-
-    // Get the name of the declaring item.
-    QString declaringItemName = QLatin1String("Item");
-
-    if (AST::UiObjectDefinition *binding = AST::cast<AST::UiObjectDefinition *>(declaringMember))
-        declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
-    else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(declaringMember))
-        declaringItemName = qualifiedNameId(binding->qualifiedTypeNameId);
-
-    Interpreter::ObjectValue *declaringItem = newComponent(&interp, declaringItemName, userComponents);
-    if (! declaringItem)
-        declaringItem = interp.newQmlObject(QLatin1String("Item"));
-
-    if (declaringItem) {
-        scope->setScope(declaringItem);
-        declaringItem->setScope(interp.globalObject());
-    }
-
-    // Get the name of the parent of the declaring item.
-    QString parentItemName = QLatin1String("Item");
-
-    if (AST::UiObjectDefinition *binding = AST::cast<AST::UiObjectDefinition *>(parentMember))
-        parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
-    else if (AST::UiObjectBinding *binding = AST::cast<AST::UiObjectBinding *>(parentMember))
-        parentItemName = qualifiedNameId(binding->qualifiedTypeNameId);
-
-    Interpreter::ObjectValue *parentItem = newComponent(&interp, parentItemName, userComponents);
-    if (! parentItem)
-        parentItem = interp.newQmlObject(QLatin1String("Item"));
-
-    if (parentItem)
-        scope->setProperty(QLatin1String("parent"), parentItem);
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -995,14 +1003,16 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
     }
 
-    if (completionOperator.isNull()
-            || completionOperator.isSpace()
-            || completionOperator == QLatin1Char('{')
-            || completionOperator == QLatin1Char('}')
-            || completionOperator == QLatin1Char(':')
-            || completionOperator == QLatin1Char(';')) {
-        updateSnippets();
-        m_completions.append(m_snippets);
+    if (isQmlFile) {
+        if (completionOperator.isNull()
+                || completionOperator.isSpace()
+                || completionOperator == QLatin1Char('{')
+                || completionOperator == QLatin1Char('}')
+                || completionOperator == QLatin1Char(':')
+                || completionOperator == QLatin1Char(';')) {
+            updateSnippets();
+            m_completions.append(m_snippets);
+        }
     }
 
     if (! m_completions.isEmpty())
