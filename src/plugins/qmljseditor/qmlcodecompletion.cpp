@@ -487,7 +487,9 @@ class FunctionArgumentWidget : public QLabel
 {
 public:
     FunctionArgumentWidget();
-    void showFunctionHint(const QString &functionName, int minimumArgumentCount, int startPosition);
+    void showFunctionHint(const QString &functionName,
+                          const QStringList &signature,
+                          int startPosition);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
@@ -497,6 +499,7 @@ private:
     void updateHintText();
 
     QString m_functionName;
+    QStringList m_signature;
     int m_minimumArgumentCount;
     int m_startpos;
     int m_currentarg;
@@ -563,13 +566,14 @@ FunctionArgumentWidget::FunctionArgumentWidget():
     qApp->installEventFilter(this);
 }
 
-void FunctionArgumentWidget::showFunctionHint(const QString &functionName, int mininumArgumentCount, int startPosition)
+void FunctionArgumentWidget::showFunctionHint(const QString &functionName, const QStringList &signature, int startPosition)
 {
     if (m_startpos == startPosition)
         return;
 
     m_functionName = functionName;
-    m_minimumArgumentCount = mininumArgumentCount;
+    m_signature = signature;
+    m_minimumArgumentCount = signature.size();
     m_startpos = startPosition;
     m_current = 0;
     m_escapePressed = false;
@@ -663,7 +667,17 @@ void FunctionArgumentWidget::updateHintText()
     QString prettyMethod;
     prettyMethod += QString::fromLatin1("function ");
     prettyMethod += m_functionName;
-    prettyMethod += QLatin1String("(arguments...)");
+    prettyMethod += QLatin1Char('(');
+    for (int i = 0; i < m_minimumArgumentCount; ++i) {
+        if (i != 0)
+            prettyMethod += QLatin1String(", ");
+
+        prettyMethod += QLatin1String("arg");
+
+        if (m_minimumArgumentCount != 1)
+            prettyMethod += QString::number(i + 1);
+    }
+    prettyMethod += QLatin1Char(')');
 
     m_numberLabel->setText(prettyMethod);
 
@@ -970,7 +984,12 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
                     if (!m_functionArgumentWidget)
                         m_functionArgumentWidget = new QmlJSEditor::Internal::FunctionArgumentWidget;
 
-                    m_functionArgumentWidget->showFunctionHint(functionName.trimmed(), f->argumentCount(),
+                    QStringList signature;
+                    for (int i = 0; i < f->argumentCount(); ++i)
+                        signature.append(f->argumentName(i));
+
+                    m_functionArgumentWidget->showFunctionHint(functionName.trimmed(),
+                                                               signature,
                                                                m_startPosition);
                 }
 

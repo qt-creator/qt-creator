@@ -47,11 +47,58 @@ namespace {
 
 #ifndef NO_DECLARATIVE_BACKEND
 
+class MetaFunction: public FunctionValue
+{
+    QMetaMethod _method;
+
+public:
+    MetaFunction(const QMetaMethod &method, Engine *engine)
+        : FunctionValue(engine), _method(method)
+    {
+        engine->registerObject(this);
+    }
+
+    virtual const Value *returnValue() const
+    {
+        return engine()->undefinedValue();
+    }
+
+    virtual int argumentCount() const
+    {
+        return _method.parameterNames().size();
+    }
+
+    virtual const Value *argument(int) const
+    {
+        return engine()->undefinedValue();
+    }
+
+    virtual QString argumentName(int index) const
+    {
+        if (index < _method.parameterNames().size())
+            return _method.parameterNames().at(index);
+
+        return FunctionValue::argumentName(index);
+    }
+
+    virtual bool isVariadic() const
+    {
+        return false;
+    }
+
+    virtual const Value *invoke(const Activation *) const
+    {
+        return engine()->undefinedValue();
+    }
+};
+
 class QmlObjectValue: public ObjectValue
 {
 public:
     QmlObjectValue(const QMetaObject *metaObject, Engine *engine)
-        : ObjectValue(engine), _metaObject(metaObject) {}
+        : ObjectValue(engine), _metaObject(metaObject)
+    {
+    }
 
     virtual ~QmlObjectValue() {}
 
@@ -62,6 +109,28 @@ public:
 
             if (name == QString::fromUtf8(prop.name()))
                 return propertyValue(prop);
+        }
+
+        for (int index = 0; index < _metaObject->methodCount(); ++index) {
+            QMetaMethod method = _metaObject->method(index);
+
+            const QString signature = QString::fromUtf8(method.signature());
+
+            const int indexOfParen = signature.indexOf(QLatin1Char('('));
+            if (indexOfParen == -1)
+                continue; // skip it, invalid signature.
+
+            const QString methodName = signature.left(indexOfParen);
+
+            if (methodName != name) {
+                continue;
+
+            } else if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
+                return new MetaFunction(method, engine());
+
+            } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
+                return new MetaFunction(method, engine());
+            }
         }
 
         return ObjectValue::lookupMember(name);
@@ -76,9 +145,9 @@ public:
         }
 
         for (int index = 0; index < _metaObject->methodCount(); ++index) {
-            QMetaMethod meth = _metaObject->method(index);
+            QMetaMethod method = _metaObject->method(index);
 
-            const QString signature = QString::fromUtf8(meth.signature());
+            const QString signature = QString::fromUtf8(method.signature());
 
             const int indexOfParen = signature.indexOf(QLatin1Char('('));
             if (indexOfParen == -1)
@@ -86,12 +155,12 @@ public:
 
             const QString methodName = signature.left(indexOfParen);
 
-            if (meth.methodType() == QMetaMethod::Slot && meth.access() == QMetaMethod::Public) {
+            if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
                 processor->processSlot(methodName, engine()->undefinedValue());
 
-            } else if (meth.methodType() == QMetaMethod::Signal && meth.access() != QMetaMethod::Private) {
+            } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
                 // process the signal
-                processor->processSignal(methodName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the signal
+                processor->processSignal(methodName, engine()->undefinedValue());
 
                 QString slotName;
                 slotName += QLatin1String("on");
@@ -99,7 +168,7 @@ public:
                 slotName += methodName.midRef(1);
 
                 // process the generated slot
-                processor->processGeneratedSlot(slotName, engine()->undefinedValue()); // ### FIXME: assign a decent type to the slot
+                processor->processGeneratedSlot(slotName, engine()->undefinedValue());
             }
         }
 
@@ -803,9 +872,34 @@ const Value *FunctionValue::call(const ObjectValue *thisObject, const ValueList 
     return invoke(&activation);
 }
 
+const Value *FunctionValue::returnValue() const
+{
+    return engine()->undefinedValue();
+}
+
 int FunctionValue::argumentCount() const
 {
     return 0;
+}
+
+const Value *FunctionValue::argument(int) const
+{
+    return engine()->undefinedValue();
+}
+
+QString FunctionValue::argumentName(int index) const
+{
+    return QString::fromLatin1("arg%1").arg(index);
+}
+
+bool FunctionValue::isVariadic() const
+{
+    return true;
+}
+
+const Value *FunctionValue::invoke(const Activation *activation) const
+{
+    return activation->thisObject(); // ### FIXME: it should return undefined
 }
 
 const FunctionValue *FunctionValue::asFunctionValue() const
@@ -1202,6 +1296,11 @@ const ObjectValue *Engine::mathObject() const
     return _mathObject;
 }
 
+void Engine::registerObject(ObjectValue *object)
+{
+    _objects.append(object);
+}
+
 const Value *Engine::convertToBoolean(const Value *value)
 {
     return _convertToNumber(value);  // ### implement convert to bool
@@ -1423,8 +1522,8 @@ void Engine::initializePrototypes()
     addFunction(_mathObject, "exp", numberValue(), 1);
     addFunction(_mathObject, "floor", numberValue(), 1);
     addFunction(_mathObject, "log", numberValue(), 1);
-    addFunction(_mathObject, "max", numberValue(), 1);
-    addFunction(_mathObject, "min", numberValue(), 1);
+    addFunction(_mathObject, "max", numberValue(), 0);
+    addFunction(_mathObject, "min", numberValue(), 0);
     addFunction(_mathObject, "pow", numberValue(), 2);
     addFunction(_mathObject, "random", numberValue(), 1);
     addFunction(_mathObject, "round", numberValue(), 1);
@@ -1534,23 +1633,6 @@ ObjectValue *Engine::newQmlObject(const QString &name)
     return newObject(/*prototype = */ 0);
 #endif
 }
-
-
-const Value *FunctionValue::invoke(const Activation *activation) const
-{
-    return activation->thisObject(); // ### FIXME: it should return undefined
-}
-
-const Value *FunctionValue::argument(int /*index*/) const
-{
-    return engine()->undefinedValue();
-}
-
-const Value *FunctionValue::returnValue() const
-{
-    return engine()->undefinedValue();
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // convert to number

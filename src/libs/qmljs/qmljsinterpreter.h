@@ -295,6 +295,8 @@ public:
 
     virtual int argumentCount() const;
     virtual const Value *argument(int index) const;
+    virtual QString argumentName(int index) const;
+    virtual bool isVariadic() const;
 
     virtual const Value *invoke(const Activation *activation) const;
 
@@ -443,6 +445,8 @@ public:
     // global object
     ObjectValue *globalObject() const;
     const ObjectValue *mathObject() const;
+
+    void registerObject(ObjectValue *object);
 
     // prototypes
     ObjectValue *objectPrototype() const;
