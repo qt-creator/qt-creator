@@ -205,19 +205,12 @@ bool Bind::visit(UiImport *ast)
 
 bool Bind::visit(UiPublicMember *ast)
 {
-    if (! (ast->name && ast->memberType))
-        return false;
+    if (_currentObjectValue && ast->name && ast->memberType) {
+        const QString propName = ast->name->asString();
+        const QString propType = ast->memberType->asString();
 
-    const QString propName = ast->name->asString();
-    const QString propType = ast->memberType->asString();
-
-    // ### TODO: generalize
-    if (propType == QLatin1String("string"))
-        _currentObjectValue->setProperty(propName, _interp->stringValue());
-    else if (propType == QLatin1String("bool"))
-        _currentObjectValue->setProperty(propName, _interp->booleanValue());
-    else if (propType == QLatin1String("int") || propType == QLatin1String("real"))
-        _currentObjectValue->setProperty(propName, _interp->numberValue());
+        _currentObjectValue->setProperty(propName, _interp->defaultValueForBuiltinType(propType));
+    }
 
     return false;
 }
