@@ -146,6 +146,11 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (qmlDocument.isNull())
         return;
 
+    if (m_helpEngineNeedsSetup && m_helpEngine->registeredDocumentations().count() > 0) {
+        m_helpEngine->setupData();
+        m_helpEngineNeedsSetup = false;
+    }
+
     QTextCursor tc(edit->document());
     tc.setPosition(pos);
 
@@ -165,7 +170,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         bool stop = false;
         while (!stop) {
             const QChar ch = editor->characterAt(tc.position());
-            if (ch.isLetterOrNumber() || ch == QLatin1Char('_') || ch == QLatin1Char('.')) {
+            if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
                 tc.setPosition(tc.position() + 1);
             } else {
                 stop = true;
@@ -189,61 +194,60 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         Interpreter::ObjectValue *scope = bind(declaringMember);
         Check check(&interp);
         const Interpreter::Value *value = check(expression, scope);
-        m_toolTip = prettyPrint(value, &interp);
+        QStringList baseClasses;
+        m_toolTip = prettyPrint(value, &interp, &baseClasses);
+        foreach (const QString &baseClass, baseClasses) {
+            QString helpId = QLatin1String("QML.");
+            helpId += baseClass;
 
-#if 0
-        QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, m_modelManager->snapshot(), typeSystem);
-        QmlResolveExpression resolver(context);
-        Symbol *resolvedSymbol = resolver.typeOf(expressionUnderCursor.expressionNode());
-
-        if (resolvedSymbol) {
-            symbolName = resolvedSymbol->name();
-
-            if (resolvedSymbol->isBuildInSymbol())
-                m_helpId = buildHelpId(resolvedSymbol);
-            else if (SymbolFromFile *symbolFromFile = resolvedSymbol->asSymbolFromFile())
-                m_toolTip = symbolFromFile->fileName();
+            if (! m_helpEngine->linksForIdentifier(helpId).isEmpty()) {
+                m_helpId = helpId;
+                break;
+            }
         }
-#endif
-    }
-
-    if (m_helpEngineNeedsSetup && m_helpEngine->registeredDocumentations().count() > 0) {
-        m_helpEngine->setupData();
-        m_helpEngineNeedsSetup = false;
     }
 
     if (!m_toolTip.isEmpty())
         m_toolTip = Qt::escape(m_toolTip);
 
-    if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
+    if (!m_helpId.isEmpty()) {
         if (showF1) {
-            m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
-                                              "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>"))
+            m_toolTip = QString::fromUtf8("<table><tr><td valign=middle><nobr>%1</td>"
+                                            "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>")
                     .arg(m_toolTip);
         }
         editor->setContextHelpId(m_helpId);
     } else if (!m_toolTip.isEmpty()) {
-        m_toolTip = QString(QLatin1String("<nobr>%1")).arg(m_toolTip);
+        m_toolTip = QString::fromUtf8("<nobr>%1").arg(m_toolTip);
     } else if (!m_helpId.isEmpty()) {
-        m_toolTip = QString(QLatin1String("<nobr>No help available for \"%1\"")).arg(symbolName);
+        m_toolTip = QString::fromUtf8("<nobr>No help available for \"%1\"").arg(symbolName);
     }
 }
 
-QString QmlHoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Engine *interp) const
+QString QmlHoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Engine *interp,
+                                     QStringList *baseClasses) const
 {
     if (!value)
         return QString();
 
     if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
-        QString className = objectValue->className();
+        do {
+            const QString className = objectValue->className();
 
-        while (objectValue && objectValue->prototype() && className.isEmpty()) {
+            if (! className.isEmpty())
+                baseClasses->append(className);
+
             objectValue = objectValue->prototype();
-            className = objectValue->className();
-        }
+        } while (objectValue);
 
-        return className;
+        if (! baseClasses->isEmpty())
+            return baseClasses->first();
     }
 
-    return interp->typeId(value);
+    QString typeId = interp->typeId(value);
+
+    if (typeId.isEmpty() || typeId == QLatin1String("undefined"))
+        typeId = QLatin1String("Unknown");
+
+    return typeId;
 }

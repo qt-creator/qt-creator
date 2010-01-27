@@ -37,6 +37,7 @@
 QT_BEGIN_NAMESPACE
 class QHelpEngineCore;
 class QPoint;
+class QStringList;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -73,7 +74,8 @@ private slots:
 
 private:
     void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
-    QString prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Engine *interp) const;
+    QString prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Engine *interp,
+                        QStringList *baseClasses) const;
 
 private:
     QmlModelManagerInterface *m_modelManager;

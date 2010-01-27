@@ -193,7 +193,12 @@ bool Bind::visit(UiImport *ast)
                             }
                         }
 
-                        namespaceObject->setProperty(userComponent->componentName(), objectValue);
+                        const QString componentName = userComponent->componentName();
+
+                        if (! componentName.isEmpty()) {
+                            objectValue->setClassName(componentName);
+                            namespaceObject->setProperty(componentName, objectValue);
+                        }
                     }
                 }
             }
