@@ -97,11 +97,12 @@ class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
     Q_OBJECT
 public:
     FolderNavigationWidgetFactory();
-    virtual ~FolderNavigationWidgetFactory();
+    ~FolderNavigationWidgetFactory();
 
-    virtual QString displayName();
-    virtual QKeySequence activationSequence();
-    virtual Core::NavigationView createWidget();
+    QString displayName() const;
+    QString id() const;
+    QKeySequence activationSequence() const;
+    Core::NavigationView createWidget();
 };
 
 } // namespace Internal

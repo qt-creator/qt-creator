@@ -199,15 +199,15 @@ void NavigationWidget::activateSubWidget()
 {
     setShown(true);
     QShortcut *original = qobject_cast<QShortcut *>(sender());
-    QString title = m_shortcutMap[original];
+    QString id = m_shortcutMap[original];
 
     foreach (NavigationSubWidget *subWidget, m_subWidgets)
-        if (subWidget->factory()->displayName() == title) {
+        if (subWidget->factory()->id() == id) {
             subWidget->setFocusWidget();
             return;
         }
 
-    m_subWidgets.first()->setFactory(title);
+    m_subWidgets.first()->setFactory(id);
     m_subWidgets.first()->setFocusWidget();
 }
 
@@ -237,7 +237,7 @@ void NavigationWidget::saveSettings(QSettings *settings)
 {
     QStringList views;
     for (int i=0; i<m_subWidgets.count(); ++i) {
-        views.append(m_subWidgets.at(i)->factory()->displayName());
+        views.append(m_subWidgets.at(i)->factory()->id());
     }
     settings->setValue("Navigation/Views", views);
     settings->setValue("Navigation/Visible", isShown());
@@ -349,16 +349,16 @@ void NavigationWidget::objectAdded(QObject * obj)
     QList<int> navicontext = QList<int>() << core->uniqueIDManager()->
         uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE);
 
-    QString displayName = factory->displayName();
+    QString id = factory->id();
     QShortcut *shortcut = new QShortcut(this);
-    shortcut->setWhatsThis(tr("Activate %1 Pane").arg(displayName));
+    shortcut->setWhatsThis(tr("Activate %1 Pane").arg(factory->displayName()));
     Core::Command *cmd = am->registerShortcut(shortcut,
-        QLatin1String("QtCreator.Sidebar.") + displayName, navicontext);
+        QLatin1String("QtCreator.Sidebar.") + id, navicontext);
     cmd->setDefaultKeySequence(factory->activationSequence());
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateSubWidget()));
 
-    m_shortcutMap.insert(shortcut, displayName);
-    m_commandMap.insert(displayName, cmd);
+    m_shortcutMap.insert(shortcut, id);
+    m_commandMap.insert(id, cmd);
 }
 
 ////
@@ -486,12 +486,12 @@ void NavigationSubWidget::setFactory(INavigationWidgetFactory *factory)
     m_navigationComboBox->setCurrentIndex(index);
 }
 
-void NavigationSubWidget::setFactory(const QString &name)
+void NavigationSubWidget::setFactory(const QString &id)
 {
     for (int i = 0; i < m_navigationComboBox->count(); ++i) {
         INavigationWidgetFactory *factory =
                 m_navigationComboBox->itemData(i).value<INavigationWidgetFactory *>();
-        if (factory->displayName() == name)
+        if (factory->id() == id)
             m_navigationComboBox->setCurrentIndex(i);
     }
 }

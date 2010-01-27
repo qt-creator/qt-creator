@@ -169,9 +169,10 @@ class BookmarkViewFactory : public Core::INavigationWidgetFactory
 {
 public:
     BookmarkViewFactory(BookmarkManager *bm);
-    virtual QString displayName();
-    virtual QKeySequence activationSequence();
-    virtual Core::NavigationView createWidget();
+    QString displayName() const;
+    QString id() const;
+    QKeySequence activationSequence() const;
+    Core::NavigationView createWidget();
 private:
     BookmarkManager *m_manager;
 };

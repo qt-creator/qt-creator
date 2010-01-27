@@ -309,6 +309,7 @@ void OutputPaneManager::init()
 #else
     cmd->setDefaultKeySequence(QKeySequence("Alt+9"));
 #endif
+    cmd->setAttribute(Command::CA_UpdateText);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
     m_minMaxButton->setDefaultAction(cmd->action());
     connect(m_minMaxAction, SIGNAL(triggered()), this, SLOT(slotMinMax()));

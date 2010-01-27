@@ -365,12 +365,17 @@ ProjectTreeWidgetFactory::~ProjectTreeWidgetFactory()
 {
 }
 
-QString ProjectTreeWidgetFactory::displayName()
+QString ProjectTreeWidgetFactory::displayName() const
 {
     return tr("Projects");
 }
 
-QKeySequence ProjectTreeWidgetFactory::activationSequence()
+QString ProjectTreeWidgetFactory::id() const
+{
+    return QLatin1String("Projects");
+}
+
+QKeySequence ProjectTreeWidgetFactory::activationSequence() const
 {
     return QKeySequence(Qt::ALT + Qt::Key_X);
 }

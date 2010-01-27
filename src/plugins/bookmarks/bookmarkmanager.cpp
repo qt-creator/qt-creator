@@ -774,12 +774,17 @@ BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
 
 }
 
-QString BookmarkViewFactory::displayName()
+QString BookmarkViewFactory::displayName() const
 {
     return BookmarkView::tr("Bookmarks");
 }
 
-QKeySequence BookmarkViewFactory::activationSequence()
+QString BookmarkViewFactory::id() const
+{
+    return QLatin1String("Bookmarks");
+}
+
+QKeySequence BookmarkViewFactory::activationSequence() const
 {
     return QKeySequence(Qt::ALT + Qt::Key_M);
 }

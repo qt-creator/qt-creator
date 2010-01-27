@@ -55,8 +55,9 @@ public:
     INavigationWidgetFactory();
     virtual ~INavigationWidgetFactory();
 
-    virtual QString displayName() = 0;
-    virtual QKeySequence activationSequence();
+    virtual QString displayName() const = 0;
+    virtual QString id() const = 0;
+    virtual QKeySequence activationSequence() const;
     // This design is not optimal, think about it again once we need to extend it
     // It could be implemented as returning an object which has both the widget 
     // and the docktoolbar widgets

@@ -41,7 +41,7 @@ INavigationWidgetFactory::~INavigationWidgetFactory()
 {
 }
 
-QKeySequence INavigationWidgetFactory::activationSequence()
+QKeySequence INavigationWidgetFactory::activationSequence() const
 {
     return QKeySequence();
 }

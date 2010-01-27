@@ -413,12 +413,17 @@ FolderNavigationWidgetFactory::~FolderNavigationWidgetFactory()
 {
 }
 
-QString FolderNavigationWidgetFactory::displayName()
+QString FolderNavigationWidgetFactory::displayName() const
 {
     return tr("File System");
 }
 
-QKeySequence FolderNavigationWidgetFactory::activationSequence()
+QString FolderNavigationWidgetFactory::id() const
+{
+    return QLatin1String("File System");
+}
+
+QKeySequence FolderNavigationWidgetFactory::activationSequence() const
 {
     return QKeySequence(Qt::ALT + Qt::Key_Y);
 }

@@ -128,7 +128,7 @@ public:
 
     INavigationWidgetFactory *factory();
     void setFactory(INavigationWidgetFactory *factory);
-    void setFactory(const QString &name);
+    void setFactory(const QString &id);
     void setFocusWidget();
 
     void saveSettings(int position);

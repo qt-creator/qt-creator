@@ -88,9 +88,10 @@ class OpenEditorsViewFactory : public Core::INavigationWidgetFactory
 {
 public:
     OpenEditorsViewFactory();
-    virtual ~OpenEditorsViewFactory();
-    QString displayName();
-    virtual QKeySequence activationSequence();
+    ~OpenEditorsViewFactory();
+    QString displayName() const;
+    QString id() const;
+    QKeySequence activationSequence() const;
     Core::NavigationView createWidget();
 };
 

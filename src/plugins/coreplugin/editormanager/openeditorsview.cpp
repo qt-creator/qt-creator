@@ -242,12 +242,17 @@ NavigationView OpenEditorsViewFactory::createWidget()
     return n;
 }
 
-QString OpenEditorsViewFactory::displayName()
+QString OpenEditorsViewFactory::displayName() const
 {
     return OpenEditorsWidget::tr("Open Documents");
 }
 
-QKeySequence OpenEditorsViewFactory::activationSequence()
+QString OpenEditorsViewFactory::id() const
+{
+    return QLatin1String("Open Documents");
+}
+
+QKeySequence OpenEditorsViewFactory::activationSequence() const
 {
     return QKeySequence(Qt::ALT + Qt::Key_O);
 }
