@@ -33,5 +33,9 @@
         <file>images/spinup_pressed.png</file>
         <file>images/up_arrow.png</file>
         <file>images/up_arrow_disabled.png</file>
+		<file>images/apply.png</file>
+		<file>images/cancel.png</file>
+		<file>images/applybright.png</file>
+		<file>images/cancelbright.png</file>
     </qresource>
 </RCC>
