@@ -193,7 +193,7 @@ bool Bind::visit(UiImport *ast)
                             }
                         }
 
-                        _typeEnvironment->setProperty(userComponent->componentName(), objectValue);
+                        namespaceObject->setProperty(userComponent->componentName(), objectValue);
                     }
                 }
             }
