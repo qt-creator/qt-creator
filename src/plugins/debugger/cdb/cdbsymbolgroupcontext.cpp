@@ -86,12 +86,13 @@ QTextStream &operator<<(QTextStream &str, const DEBUG_SYMBOL_PARAMETERS &p)
     return str;
 }
 
-static inline QString hexSymbolOffset(CIDebugSymbolGroup *sg, unsigned long index)
+static inline QByteArray hexSymbolOffset(CIDebugSymbolGroup *sg, unsigned long index)
 {
     ULONG64 rc = 0;
     if (FAILED(sg->GetSymbolOffset(index, &rc)))
         rc = 0;
-    return QLatin1String("0x") + QString::number(rc, 16);
+
+    return QByteArray("0x") + QByteArray::number(rc, 16);
 }
 
 // A helper function to extract a string value from a member function of
@@ -487,7 +488,7 @@ WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
     // (std::map extends std::tree<>... Remove them for display only.
     const QString fullShadowedName = WatchData::shadowedName(name, shadowedNumber);
     wd.name = WatchData::shadowedName(removeInnerTemplateType(name), shadowedNumber);
-    wd.addr = hexSymbolOffset(m_symbolGroup, index).toLatin1();
+    wd.addr = hexSymbolOffset(m_symbolGroup, index);
     const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);    
     wd.setType(type);    
     // Check for uninitialized variables at level 0 only.

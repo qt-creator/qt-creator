@@ -76,15 +76,15 @@ bool getRegisters(CIDebugControl *ctl,
     if (!count)
         return true;
     // Retrieve names
-    WCHAR wszBuf[MAX_PATH];
+    char buf[MAX_PATH];
     for (ULONG r = 0; r < count; r++) {
-        hr = ireg->GetDescriptionWide(r, wszBuf, MAX_PATH - 1, 0, 0);
+        hr = ireg->GetDescription(r, buf, MAX_PATH - 1, 0, 0);
         if (FAILED(hr)) {
-            *errorMessage= CdbCore::msgComFailed("GetDescriptionWide", hr);
+            *errorMessage= CdbCore::msgComFailed("GetDescription", hr);
             return false;
         }
         Register reg;
-        reg.name = QString::fromUtf16(reinterpret_cast<const ushort *>(wszBuf)).toLatin1();
+        reg.name = QByteArray(buf);
         registers->push_back(reg);
     }
     // get values
