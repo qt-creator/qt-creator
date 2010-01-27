@@ -48,8 +48,8 @@ QLineEdit
      border: 2px solid #0F0F0F;
      border-radius: 6px;
      border-width: 1;
-     max-height: 16px;
-     min-height: 16px;
+     max-height: 20px;
+     min-height: 20px;
      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                        stop: 0 #2c2c2c, stop: 1 #333333);
 }
@@ -199,19 +199,19 @@ QPushButton {
 }
 
 QPushButton, QComboBox[editable="false"],
-QComboBox[editable="true"]::drop-down {
+QComboBox[editable="true"] {
     border-image: url(:/qmldesigner/images/pushbutton.png) 3;
     border-width: 3;
 }
 
 QPushButton:hover, QComboBox[editable="false"]:hover,
-QComboBox[editable="true"]::drop-down:hover, QMenuBar::item:hover {
+QComboBox[editable="true"]:hover, QMenuBar::item:hover {
     border-image: url(:/qmldesigner/images/pushbutton_hover.png) 3;
     border-width: 3;
 }
 
 QPushButton:pressed, QComboBox[editable="false"]:on,
-QComboBox[editable="true"]::drop-down:on, QMenuBar::item:on {
+QComboBox[editable="true"]:on, QMenuBar::item:on {
     border-image: url(:/qmldesigner/images/pushbutton_pressed.png) 3;
     border-width: 3;
 }
@@ -220,18 +220,19 @@ QComboBox
 {
     font-size: 11px;
     color: white;
-    min-width: 20px;
+    min-width: 60px;
 }
 
 QComboBox[editable="false"] {
-    padding-left: 3px;
-    padding-right: 10px;
+    padding-left: 16px;
+    padding-right: 0px;
+	spacing: 2px;
 }
 
 QComboBox[editable="false"]::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
-    width: 15px;
+    width: 12px;
     border-left-style: solid;
     border-left-color: black;
     border-left-width: 0px;
@@ -241,17 +242,16 @@ QComboBox[editable="false"]::down-arrow {
     subcontrol-origin: content;
     subcontrol-position: center;
     position: relative;
-    left: 1px;
+    right: 3px;
 }
 
 QComboBox[editable="false"]::down-arrow:on {
     position: relative;
-    top: 1px;
-    left: 2px;
+    top: 1px;    
 }
 
 QComboBox[editable="true"] {
-    padding-right: 16px;
+    padding-right: 10px;
 }
 
 QComboBox[editable="true"]::drop-down {
@@ -331,8 +331,9 @@ QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off, QDoubleSpinBox::up-arrow:di
 }
 
 QCheckBox {
-    spacing: 8px;
-    font-size: 11px
+    spacing: 4px;
+	padding-left: 14px;
+    font-size: 11px;
 }
 
 QCheckBox::indicator {
