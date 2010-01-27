@@ -16,5 +16,5 @@ QString RewritingException::type() const
 
 QString RewritingException::description() const
 {
-    return QLatin1String("Rewriting: ") + m_description;
+    return m_description;
 }
