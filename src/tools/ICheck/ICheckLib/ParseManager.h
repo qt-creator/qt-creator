@@ -65,7 +65,7 @@
 #include <QList>
 #include <QFuture>
 #include <QStringList>
-#include "cplusplus\CppDocument.h"
+#include "cplusplus/CppDocument.h"
 
 namespace CppTools{
     namespace Internal{

@@ -28,14 +28,14 @@
 **************************************************************************/
 
 #include "ParseManager.h"
-#include "cplusplus\CppDocument.h"
+#include "cplusplus/CppDocument.h"
 #include "Control.h"
 #include "TranslationUnit.h"
 #include "AST.h"
 #include "Symbols.h"
 #include <QDebug>
 #include "Name.h"
-#include "cpptools\cppmodelmanager.h"
+#include "cpptools/cppmodelmanager.h"
 
 using namespace CppTools;
 using namespace CppTools::Internal;

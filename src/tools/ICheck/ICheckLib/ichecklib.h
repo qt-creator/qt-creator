@@ -2,7 +2,7 @@
 #define ICHECKLIB_H
 
 #include <QStringList>
-#include "ICheckLib_global.h"
+#include "ichecklib_global.h"
 
 namespace CPlusPlus{
     class ParseManager;
