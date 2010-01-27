@@ -55,24 +55,23 @@ ColorWidget::ColorWidget(QWidget *parent) :
 {
     QHBoxLayout *horizonalBoxLayout = new QHBoxLayout(this);
 
-    m_colorButton->setFixedWidth(30);
-    m_colorButton->setFixedHeight(20);
+    m_colorButton->setFixedHeight(32);
     m_colorButton->setStyleSheet("");
 
     m_gradientButton->setIcon(QIcon(":/images/gradient.png"));
-    m_gradientButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    m_gradientButton->setFixedWidth(30);
-    m_gradientButton->setFixedHeight(20);
+    
+    m_gradientButton->setFixedHeight(32);
+    m_gradientButton->setFixedWidth(100);
     m_gradientButton->setStyleSheet("");
 
     QFont f = m_label->font();
     f.setBold(true);
     m_label->setFont(f);
+    m_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     horizonalBoxLayout->addWidget(m_label);
     horizonalBoxLayout->addWidget(m_colorButton);
     horizonalBoxLayout->addWidget(m_gradientButton);
-    horizonalBoxLayout->addStretch();
-    horizonalBoxLayout->setSpacing(0);
+    horizonalBoxLayout->setSpacing(20);
     horizonalBoxLayout->setMargin(0);
     m_gradientButton->setCheckable(true);
     m_gradientButton->setVisible(false);
