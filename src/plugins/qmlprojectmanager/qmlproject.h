@@ -168,8 +168,6 @@ public:
     virtual Internal::QmlProjectNode *rootProjectNode() const;
     virtual QStringList files(FilesMode fileMode) const;
 
-    QStringList targets() const;
-
     enum RefreshOptions {
         Files         = 0x01,
         Configuration = 0x02,

@@ -220,12 +220,6 @@ QStringList QmlProject::files(FilesMode) const
     return m_files;
 }
 
-QStringList QmlProject::targets() const
-{
-    QStringList targets;
-    return targets;
-}
-
 bool QmlProject::restoreSettingsImpl(ProjectExplorer::PersistentSettingsReader &reader)
 {
     Project::restoreSettingsImpl(reader);
