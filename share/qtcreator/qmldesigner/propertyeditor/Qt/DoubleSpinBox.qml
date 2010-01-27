@@ -9,143 +9,86 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
     property alias singleStep: box.singleStep
     property alias minimum: box.minimum
     property alias maximum: box.maximum
+    property alias text: label.text
+    property var enabled
 
     minimumHeight: 22;
 
     onBaseStateFlagChanged: {
         evaluate();
-        setIcon();
     }
 
     onBackendValueChanged: {
         evaluate();
-        setIcon();
     }
 
-    Script {
+    Script {        
         function evaluate() {
             if (baseStateFlag) {
                 if (backendValue != null && backendValue.isInModel)
-                    DoubleSpinBox.setStyleSheet("color: white;");
+                    box.setStyleSheet("color: white;");
                 else
-                    DoubleSpinBox.setStyleSheet("color: gray;");
+                    box.setStyleSheet("color: gray;");
             } else {
-            if (backendValue != null && backendValue.isInSubState)
-                DoubleSpinBox.setStyleSheet("color: #7799FF;");
-            else
-                DoubleSpinBox.setStyleSheet("color: gray;");
+                if (backendValue != null && backendValue.isInSubState)
+                    box.setStyleSheet("color: #7799FF;");
+                else
+                    box.setStyleSheet("color: gray;");
             }
         }
     }
 
-    layout: QHBoxLayout {
-        topMargin: 0;
-        bottomMargin: 0;
-        leftMargin: 0;
-        rightMargin: 2;
-        spacing: 0;
+    property bool isInModel: backendValue.isInModel
+
+    onIsInModelChanged: {
+        evaluate();
+    }
+
+    property bool isInSubState: backendValue.isInSubState
+
+    onIsInSubStateChanged: {
+        evaluate();
+    }
+
+    layout: HorizontalLayout {        
+
+        QLabel {
+            visible: text != ""
+            id: label;
+            alignment: "Qt::AlignRight | Qt::AlignVCenter"
+        }
 
         QDoubleSpinBox {
             id: box;
-            decimals: 2;
+            decimals: 1;
             keyboardTracking: false;
-            enabled: (backendValue == null || backendValue.complexNode == null) ? false : !backendValue.isBound && !backendValue.complexNode.exists
+            enabled: !backendValue.isBound && DoubleSpinBox.enabled;
             property bool readingFromBackend: false;
             property real valueFromBackend: DoubleSpinBox.backendValue == null ? .0 : DoubleSpinBox.backendValue.value;
+            
             onValueFromBackendChanged: {
                 readingFromBackend = true;
                 value = valueFromBackend
                 readingFromBackend = false;
-             }
+            }           
 
-             onValueChanged: {
-                 if (DoubleSpinBox.backendValue != null && readingFromBackend == false)
+            onValueChanged: {
+                if (DoubleSpinBox.backendValue != null && readingFromBackend == false)
                     DoubleSpinBox.backendValue.value = value;
-             }
-             onFocusChanged: {
-                 //extendedSwitches.active = focus;
-                 //extendedSwitches.backendValue = backendValue;
-                 }
+            }
 
-                 onMouseOverChanged: {
-                     //extendedButton.active = mouseOver;
-                 }
+            onMouseOverChanged: {
+
+            }
+
         }
+
     }
 
-    QToolButton {
-        property bool active: false;
-        id: extendedButton;
-        iconFromFile: "images/expression.png";
-        visible: false;
-        width: 14;
-        height: 14;
-        y: box.y + 2;
-        x: box.x + 2;
-        focusPolicy: "Qt::NoFocus";
-        opacity: 0;
-
-        opacity: Behavior {
-            NumberAnimation {
-                easing: "easeInSine"
-                duration: 200
-            }
-        }
-
-        onPressed: {
-
-        }
-
-        Script {
-            function setIcon() {
-                if (backendValue == null)
-                    extendedButton.iconFromFile = "images/placeholder.png"
-                else if (backendValue.isBound) {
-                    extendedButton.iconFromFile = "images/expression.png"
-                } else {
-                    if (backendValue.complexNode != null && backendValue.complexNode.exists) {
-                        extendedButton.iconFromFile = "images/behaivour.png"
-                    } else {
-                        extendedButton.iconFromFile = "images/placeholder.png"
-                    }
-                }
-            }
-        }
-
-        onMouseOverChanged: {
-            if (mouseOver) {
-                iconFromFile = "images/submenu.png";
-                opacity = 1;
-            } else {
-                setIcon();
-                opacity = 0;
-            }
-        }
-
-        onActiveChanged: {
-            if (active) {
-                setIcon();
-                opacity = 1;
-            } else {
-                opacity = 0;
-            }
-        }
-
-        menu: QMenu {
-            actions: [
-                QAction {
-                    text: "Reset";
-                },
-                QAction {
-                    text: "Set Expression";
-                },
-                QAction {
-                    text: "Add Behaivour";
-                }
-            ]
-        }
-        toolButtonStyle: "Qt::ToolButtonIconOnly";
-        popupMode: "QToolButton::InstantPopup";
-        arrowType: "Qt::NoArrow";
+    ExtendedFunctionButton {
+        backendValue: DoubleSpinBox.backendValue
+        y: box.y + 4
+        x: box.x + 2
+        visible: DoubleSpinBox.enabled
     }
 }

@@ -16,19 +16,19 @@ QExtGroupBox {
         oldMaximumHeight = maximumHeight;
         visible = false;
         visible = true;
-        x = 6;
+        //x = 6;
     }
 
     QToolButton {
         //QCheckBox {
         id: CheckBox;
-        text: "";
+        text: GroupBox.caption;
         focusPolicy: "Qt::NoFocus";
         styleSheetFile: "specialCheckBox.css";
-        y: 4;
-        x: 6;
-        height: 12;
-        width: 12;
+        y: 0;		
+        x: 0;
+        fixedHeight: 17
+        fixedWidth: GroupBox.width;
         arrowType: "Qt::DownArrow";
         toolButtonStyle: "Qt::ToolButtonTextBesideIcon";
         checkable: true;
@@ -38,18 +38,18 @@ QExtGroupBox {
             if (checked) {
                 //GroupBox.maximumHeight = oldMaximumHeight;
                 collapsed = false;
-                text = "";
-                width = 12;
-                x = 6;
+                //text = "";
+                //width = 12;
+				//width = 120;
                 arrowType =  "Qt::DownArrow";
+				visible = true;
                 } else {
                 //GroupBox.maximumHeight = 20;
 
                 collapsed = true;
-                text = GroupBox.caption;
+                //text = GroupBox.caption;
                 visible = true;
-                width = 120;
-                x = 2;
+                //width = 120;
                 arrowType =  "Qt::RightArrow";
                 }
         }

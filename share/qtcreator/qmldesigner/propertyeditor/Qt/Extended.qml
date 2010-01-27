@@ -2,24 +2,22 @@ import Qt 4.6
 import Bauhaus 1.0
 
 GroupBox {
-caption: "Effects"
+caption: "Effect"
 id: Extended;
 maximumHeight: 260;
 
-layout: QVBoxLayout {
-    topMargin: 12;
-    leftMargin: 10;
-    rightMargin: 10;
+layout: VerticalLayout{	
 
     property var effect: backendValues.effect
     property var complexNode: effect.complexNode
 
     QWidget  {
         maximumHeight: 40;
-        layout: QHBoxLayout {
+        layout: HorizontalLayout {
             QLabel {
-                text: "Effects: ";
+                text: "Effect ";
                 font.bold: true;
+				alignment: "Qt::AlignRight | Qt::AlignVCenter"
              }
              QComboBox {
                  enabled: isBaseState;
@@ -63,6 +61,10 @@ layout: QVBoxLayout {
                      dirty = false;
                  }
              }
+			 
+			 QWidget {
+                    fixedWidth: 100
+                }
         }
     }// QWidget
 

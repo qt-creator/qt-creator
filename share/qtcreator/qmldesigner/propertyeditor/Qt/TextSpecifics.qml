@@ -9,7 +9,7 @@ GroupBox {
 
     layout: QVBoxLayout {
         id: textSpecifics;
-        topMargin: 12;
+        topMargin: 18;
         bottomMargin: 2;
         leftMargin: 4;
         rightMargin: 4;
@@ -136,7 +136,7 @@ GroupBox {
 
                     onCurrentTextChanged: {
                         if (count == 3)
-                        backendValues.verticalAlignment.value = currentText;
+                            backendValues.verticalAlignment.value = currentText;
                     }
 
                 }

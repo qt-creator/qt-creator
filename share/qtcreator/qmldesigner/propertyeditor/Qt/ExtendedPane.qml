@@ -13,11 +13,12 @@ QScrollArea {
         minimumHeight: 440;
         id: ProperyEditorExtended
         layout: QVBoxLayout {
-            topMargin: 2;
-            bottomMargin: 2;
-            leftMargin: 2;
-            rightMargin: 2;
-            Type {
+            topMargin: 0;
+            bottomMargin: 0;
+            leftMargin: 0;
+            rightMargin: 0;
+			spacing: 0;
+            Modifiers {
             }
             Extended {
                 id: extendedBox;

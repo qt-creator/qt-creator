@@ -2,6 +2,12 @@ import Qt 4.6
 import Bauhaus 1.0
 
 PropertyFrame {
+    id: frame;
+
+    ExpressionEditor {
+        id: expressionEdit
+    }
+
     layout: QVBoxLayout {
         topMargin: 0;
         bottomMargin: 0;
@@ -15,6 +21,10 @@ PropertyFrame {
         ExtendedSwitches {
             id: extendedSwitches;
         }
+        HorizontalWhiteLine {
+        }
+
+
 
         ScrollArea {
             styleSheetFile: ":/qmldesigner/scrollbar.css";
@@ -28,24 +38,26 @@ PropertyFrame {
 
             content: ProperyEditorStandard;
             QFrame {
-                minimumHeight: 1100;
+                //minimumHeight: 1100
                 id: ProperyEditorStandard
                 layout: QVBoxLayout {
-                    topMargin: 2;
-                    bottomMargin: 2;
-                    leftMargin: 2;
-                    rightMargin: 2;
+                    topMargin: 0;
+                    bottomMargin: 0;
+                    leftMargin: 0;
+                    rightMargin: 0;
+                    spacing: 0;
                     Type {
                     }
-                    HorizontalLine {
-                    }
+                    
 
                     Geometry {
                     }
 
-                    Modifiers {
 
-                    }
+                    /*Modifiers {
+
+                    }*/
+
 
                     WidgetLoader {
                         id: specificsOne;
@@ -56,49 +68,44 @@ PropertyFrame {
                     QScrollArea {
                     }
 
-                    } // layout
-                    } //QWidget
-                    } //QScrollArea
+                } // layout
+            } //QWidget
+        } //QScrollArea
 
 
-                    ScrollArea {
-                        widgetResizable: true;
-                        styleSheetFile: ":/qmldesigner/scrollbar.css";
-                        finished: finishedNotify;
-                        horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
-                        id: specialPane;
-                        visible: false;
-                        visible: false;
-                        content: ProperyEditorSpecial;
-                        QFrame {
-                            minimumHeight: 600;
-                            id: ProperyEditorSpecial
-                            layout: QVBoxLayout {
-                                topMargin: 2;
-                                bottomMargin: 2;
-                                leftMargin: 2;
-                                rightMargin: 2;
-                                Type {
-                                }
-
-                                WidgetLoader {
-                                    id: specificsOne2;
-                                    source: specificsUrl;
-                                }
-
-                                QScrollArea {
-                                }
-                            }
-                        }
+        ScrollArea {
+            widgetResizable: true;
+            styleSheetFile: ":/qmldesigner/scrollbar.css";
+            finished: finishedNotify;
+            horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
+            id: specialPane;
+            visible: false;
+            visible: false;
+            content: ProperyEditorSpecial;
+            QFrame {
+                minimumHeight: 600;
+                id: ProperyEditorSpecial
+                layout: QVBoxLayout {
+                    topMargin: 2;
+                    bottomMargin: 2;
+                    leftMargin: 2;
+                    rightMargin: 2;
+                    Type {
                     }
 
-                    ExtendedPane {
-                        id: extendedPane;
+                    QScrollArea {
                     }
+                }
+            }
+        }
 
-                    LayoutPane {
-                        id: layoutPane;
-                    }
+        ExtendedPane {
+            id: extendedPane;
+        }
+
+        LayoutPane {
+            id: layoutPane;
+        }
 
     }
 }

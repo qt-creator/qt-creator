@@ -6,17 +6,17 @@ QWidget {
     styleSheetFile: "anchorbox.css"
 
     Script {
-      function isBorderAnchored() {
-	   return anchorBackend.leftAnchored || anchorBackend.topAnchored || anchorBackend.rightAnchored || anchorBackend.bottomAnchored;
-      }
+        function isBorderAnchored() {
+            return anchorBackend.leftAnchored || anchorBackend.topAnchored || anchorBackend.rightAnchored || anchorBackend.bottomAnchored;
+        }
 
-      function fill() {
+        function fill() {
 	    anchorBackend.fill();
-      }
+        }
 
-    function breakLayout() {
+        function breakLayout() {
 	    anchorBackend.resetLayout()
-      }
+        }
     }
 
     QPushButton {
@@ -30,7 +30,7 @@ QWidget {
     }
 
     QPushButton {
-    text: "break";
+        text: "break";
 	y: 200;
 	height:20;fixedHeight: height;
 	width:200;fixedWidth: width;
@@ -51,12 +51,12 @@ QWidget {
 	checkable: true;
 	checked: anchorBackend.leftAnchored;
 	onReleased: {
-	      if (checked) {
+            if (checked) {
 		anchorBackend.horizontalCentered = false;
 		anchorBackend.leftAnchored = true;
-	      } else {
+            } else {
 		anchorBackend.leftAnchored = false;
-	      }
+            }
 	}
     }
 
@@ -72,12 +72,12 @@ QWidget {
 	checkable: true;
 	checked: anchorBackend.topAnchored;
 	onReleased: {
-	      if (checked) {
+            if (checked) {
 		anchorBackend.verticalCentered = false;
 		anchorBackend.topAnchored = true;
-	      } else {
+            } else {
 		anchorBackend.topAnchored = false;
-	      }
+            }
 	}
     }
 
@@ -93,12 +93,12 @@ QWidget {
 	checkable: true;
 	checked: anchorBackend.rightAnchored;
 	onReleased: {
-	      if (checked) {
+            if (checked) {
 		anchorBackend.horizontalCentered = false;
 		anchorBackend.rightAnchored = true;
-	      } else {
+            } else {
 		anchorBackend.rightAnchored = false;
-	      }
+            }
 	}
     }
 
@@ -114,12 +114,12 @@ QWidget {
 	checkable: true;
 	checked: anchorBackend.bottomAnchored;
 	onReleased: {
-	      if (checked) {
+            if (checked) {
 		anchorBackend.verticalCentered = false;
 		anchorBackend.bottomAnchored = true;
-	      } else {
+            } else {
 		anchorBackend.bottomAnchored = false;
-	      }
+            }
 	}
     }
 
@@ -142,11 +142,11 @@ QWidget {
 	    checked: anchorBackend.horizontalCentered;
 	    onReleased: {
 		if (checked) {
-		  anchorBackend.rightAnchored = false;
-		  anchorBackend.leftAnchored = false;
-		  anchorBackend.horizontalCentered = true;
+                    anchorBackend.rightAnchored = false;
+                    anchorBackend.leftAnchored = false;
+                    anchorBackend.horizontalCentered = true;
 		} else {
-		  anchorBackend.horizontalCentered = false;
+                    anchorBackend.horizontalCentered = false;
 		}
 	    }
 	}
@@ -161,11 +161,11 @@ QWidget {
 	    checked: anchorBackend.verticalCentered;
 	    onReleased: {
 		if (checked) {
-		  anchorBackend.topAnchored = false;
-		  anchorBackend.bottomAnchored = false;
-		  anchorBackend.verticalCentered = true;
+                    anchorBackend.topAnchored = false;
+                    anchorBackend.bottomAnchored = false;
+                    anchorBackend.verticalCentered = true;
 		} else {
-		  anchorBackend.verticalCentered = false;
+                    anchorBackend.verticalCentered = false;
 		}
 	    }
 	}

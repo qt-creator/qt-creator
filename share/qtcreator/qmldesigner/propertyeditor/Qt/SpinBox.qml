@@ -20,29 +20,25 @@ QWidget { //This is a special SpinBox that does color coding for states
         evaluate();
     }
 
+
     Script {
         function evaluate() {
             if (baseStateFlag) {
                 if (backendValue != null && backendValue.isInModel)
-                    SpinBox.setStyleSheet("color: white;");
+                    box.setStyleSheet("color: white;");
                 else
-                    SpinBox.setStyleSheet("color: gray;");
+                    box.setStyleSheet("color: gray;");
             } else {
                 if (backendValue != null && backendValue.isInSubState)
-                    SpinBox.setStyleSheet("color: #7799FF;");
+                    box.setStyleSheet("color: #7799FF;");
                 else
-                    SpinBox.setStyleSheet("color: gray;");
+                    box.setStyleSheet("color: gray;");
             }
         }
     }
 
-    layout: QHBoxLayout {
-        topMargin: 0;
-        bottomMargin: 0;
-        leftMargin: 0;
-        rightMargin: 10;
-        spacing: 0;
-
+    layout: HorizontalLayout {
+        
         QSpinBox {
             property alias backendValue: SpinBox.backendValue
 
@@ -55,7 +51,8 @@ QWidget { //This is a special SpinBox that does color coding for states
             onValueFromBackendChanged: {
                 readingFromBackend = true;
                 value = valueFromBackend
-                        readingFromBackend = false;
+                readingFromBackend = false;
+                evaluate();
             }
 
             onValueChanged: {
@@ -69,12 +66,10 @@ QWidget { //This is a special SpinBox that does color coding for states
         }
     }
 
-    QToolButton {
-        visible: false;
-        width: 10;
-        height: 10;
-        y: box.y + box.height - 11;
-        x: box.width - 1;
-        focusPolicy: "Qt::NoFocus";
+    ExtendedFunctionButton {
+        backendValue: SpinBox.backendValue
+        y: box.y + 4
+        x: box.x + 2
+        visible: SpinBox.enabled
     }
 }

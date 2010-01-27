@@ -4,13 +4,13 @@ QFrame {
     styleSheetFile: "switch.css";
     property var specialModeIcon;
     specialModeIcon: "images/standard.png";
-    maximumWidth: 286;
-    minimumWidth: 286;
+    maximumWidth: 300;
+    minimumWidth: 300;
     layout: QHBoxLayout {
-        topMargin: 4;
+        topMargin: 0;
         bottomMargin: 0;
-        leftMargin: 4;
-        rightMargin: 80;
+        leftMargin: 0;
+        rightMargin: 40;
         spacing: 0;
 
         QPushButton {
@@ -18,7 +18,8 @@ QFrame {
             checked: true;
             id: standardMode;
             toolTip: "general item properties";
-            iconFromFile: "images/rect-icon.png";
+            //iconFromFile: "images/rect-icon.png";
+			text: "Basic"
             onClicked: {
                 extendedMode.checked = false;
                 layoutMode.checked = false;
@@ -35,7 +36,8 @@ QFrame {
             checked: false;
             id: specialMode;
             toolTip: "type specific properties";
-            iconFromFile: specialModeIcon;
+			text: ""
+			visible: false
             onClicked: {
                 extendedMode.checked = false;
                 standardMode.checked = false;
@@ -51,8 +53,8 @@ QFrame {
             id: extendedMode;
             toolTip: "extended properties";
             checkable: true;
-            checked: false;
-            iconFromFile: "images/extended.png";
+            checked: false;            
+			text: "Advanced"
             onClicked: {
                 standardMode.checked = false;
                 layoutMode.checked = false;
@@ -68,8 +70,8 @@ QFrame {
             id: layoutMode;
             checkable: true;
             checked: false;
-            toolTip: "layout properties";
-            iconFromFile: "images/layout.png";
+            toolTip: "layout properties";            
+			text: "Anchor";
             onClicked: {
                 extendedMode.checked = false;
                 standardMode.checked = false;
