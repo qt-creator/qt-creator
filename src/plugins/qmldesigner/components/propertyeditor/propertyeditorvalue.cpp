@@ -68,13 +68,13 @@ QVariant PropertyEditorValue::value() const
 static bool cleverDoubleCompare(QVariant value1, QVariant value2)
 { //we ignore slight changes on doubles
     if ((value1.type() == QVariant::Double) && (value2.type() == QVariant::Double)) {
-            int a = value1.toDouble() * 100;
-            int b = value2.toDouble() * 100;
+        int a = value1.toDouble() * 100;
+        int b = value2.toDouble() * 100;
 
-            if (qFuzzyCompare((qreal(a) / 100), (qreal(b) / 100))) {
-                return true;
-            }
+        if (qFuzzyCompare((qreal(a) / 100), (qreal(b) / 100))) {
+            return true;
         }
+    }
     return false;
 }
 
@@ -90,7 +90,6 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
         if (cleverDoubleCompare(newValue, m_value))
             return;
         setValue(newValue);
-        setExpressionWithEmit(value.toString());
         m_isBound = false;
         emit valueChanged(name());
         emit isBoundChanged();
@@ -101,7 +100,7 @@ void PropertyEditorValue::setValue(const QVariant &value)
 {
     if ( m_value != value) {
         m_value = value;
-        emit valueChanged();
+        emit valueChanged(QString());
     }
     emit isBoundChanged();
 }
@@ -118,7 +117,6 @@ void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
         setExpression(expression);
         m_isBound = true;
         emit expressionChanged(name());
-        emit valueChanged(name());
     }
 }
 
@@ -126,7 +124,7 @@ void PropertyEditorValue::setExpression(const QString &expression)
 {
     if ( m_expression != expression) {
         m_expression = expression;
-        emit expressionChanged();
+        emit expressionChanged(QString());
     }
 }
 
@@ -169,7 +167,7 @@ void PropertyEditorValue::setName(const QString &name)
 
 bool PropertyEditorValue::isValid() const
 {
-     return m_isValid;
+    return m_isValid;
 }
 
 void PropertyEditorValue::setIsValid(bool valid)
@@ -225,10 +223,10 @@ bool PropertyEditorNodeWrapper::exists()
 
 QString PropertyEditorNodeWrapper::type()
 {
-     if (!(m_modelNode.isValid()))
+    if (!(m_modelNode.isValid()))
         return QString("");
 
-     return m_modelNode.simplifiedTypeName();
+    return m_modelNode.simplifiedTypeName();
 
 }
 
@@ -244,7 +242,7 @@ QString PropertyEditorNodeWrapper::propertyName() const
 
 QmlPropertyMap* PropertyEditorNodeWrapper::properties()
 {
-   return &m_valuesPropertyMap;
+    return &m_valuesPropertyMap;
 }
 
 void PropertyEditorNodeWrapper::add(const QString &type)
@@ -289,13 +287,15 @@ void PropertyEditorNodeWrapper::remove()
 
 void PropertyEditorNodeWrapper::changeValue(const QString &name)
 {
+    if (name.isNull())
+        return;
     if (m_modelNode.isValid()) {
         QmlDesigner::QmlObjectNode fxObjectNode(m_modelNode);
 
         PropertyEditorValue *valueObject = qvariant_cast<PropertyEditorValue *>(m_valuesPropertyMap.value(name));
 
         if (valueObject->value().isValid())
-           fxObjectNode.setVariantProperty(name, valueObject->value());
+            fxObjectNode.setVariantProperty(name, valueObject->value());
         else
             fxObjectNode.removeVariantProperty(name);
     }
