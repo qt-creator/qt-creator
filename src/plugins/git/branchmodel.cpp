@@ -134,6 +134,14 @@ bool RemoteBranchModel::runGitBranchCommand(const QString &workingDirectory, con
     return m_client->synchronousBranchCmd(workingDirectory, additionalArgs, output, errorMessage);
 }
 
+void RemoteBranchModel::clear()
+{
+    if (!m_branches.isEmpty()) {
+        m_branches.clear();
+        reset();
+    }
+}
+
 bool RemoteBranchModel::refreshBranches(const QString &workingDirectory, bool remoteBranches,
                                         int *currentBranch, QString *errorMessage)
 {
@@ -225,6 +233,13 @@ QVariant LocalBranchModel::data(const QModelIndex &index, int role) const
     return RemoteBranchModel::data(index, role);
 }
 
+void LocalBranchModel::clear()
+{
+    m_currentBranch = -1;
+    m_newBranch.clear();
+    RemoteBranchModel::clear();
+}
+
 bool LocalBranchModel::refresh(const QString &workingDirectory, QString *errorMessage)
 {
     return refreshBranches(workingDirectory, false, &m_currentBranch, errorMessage);
@@ -248,7 +263,7 @@ bool LocalBranchModel::setData(const QModelIndex &index, const QVariant &value, 
     if (role != Qt::EditRole || index.row() < branchCount())
         return false;
     const QString branchName = value.toString();
-    // Delay the signal as we don't ourselves to be reset while
+    // Delay the signal as we don't want ourselves to be reset while
     // in setData().
     if (checkNewBranchName(branchName)) {
         m_newBranch = branchName;

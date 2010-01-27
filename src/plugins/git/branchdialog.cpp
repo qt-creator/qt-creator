@@ -30,7 +30,11 @@
 #include "branchdialog.h"
 #include "branchmodel.h"
 #include "gitclient.h"
+#include "gitplugin.h"
 #include "ui_branchdialog.h"
+#include "stashdialog.h" // Label helpers
+
+#include <vcsbase/vcsbaseoutputwindow.h>
 
 #include <QtGui/QItemSelectionModel>
 #include <QtGui/QPushButton>
@@ -59,29 +63,56 @@ static inline void selectListRow(QAbstractItemView *iv, int row)
 namespace Git {
     namespace Internal {
 
+static inline GitClient *gitClient()
+{
+    return GitPlugin::instance()->gitClient();
+}
+
 BranchDialog::BranchDialog(QWidget *parent) :
     QDialog(parent),
-    m_client(0),
     m_ui(new Ui::BranchDialog),
     m_checkoutButton(0),
+    m_diffButton(0),
+    m_refreshButton(0),
     m_deleteButton(0),
-    m_localModel(0),
-    m_remoteModel(0)
+    m_localModel(new LocalBranchModel(gitClient(), this)),
+    m_remoteModel(new RemoteBranchModel(gitClient(), this))
 {
-    setModal(true);
+    setModal(false);
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setAttribute(Qt::WA_DeleteOnClose, true); // Do not update unnecessarily
 
     m_ui->setupUi(this);
-    m_checkoutButton = m_ui->buttonBox->addButton(tr("Checkout"), QDialogButtonBox::AcceptRole);
+
+    m_checkoutButton = m_ui->buttonBox->addButton(tr("Checkout"), QDialogButtonBox::ActionRole);
     connect(m_checkoutButton, SIGNAL(clicked()), this, SLOT(slotCheckoutSelectedBranch()));
 
-    m_deleteButton = m_ui->buttonBox->addButton(tr("Delete"), QDialogButtonBox::ActionRole);
+    m_diffButton = m_ui->buttonBox->addButton(tr("Diff"), QDialogButtonBox::ActionRole);
+    connect(m_diffButton, SIGNAL(clicked()), this, SLOT(slotDiffSelected()));
+
+    m_refreshButton = m_ui->buttonBox->addButton(tr("Refresh"), QDialogButtonBox::ActionRole);
+    connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(slotRefresh()));
+
+    m_deleteButton = m_ui->buttonBox->addButton(tr("Delete..."), QDialogButtonBox::ActionRole);
     connect(m_deleteButton, SIGNAL(clicked()), this, SLOT(slotDeleteSelectedBranch()));
 
     connect(m_ui->localBranchListView, SIGNAL(doubleClicked(QModelIndex)), this,
             SLOT(slotLocalBranchActivated()));
     connect(m_ui->remoteBranchListView, SIGNAL(doubleClicked(QModelIndex)), this,
             SLOT(slotRemoteBranchActivated(QModelIndex)));
+
+    connect(m_localModel, SIGNAL(newBranchEntered(QString)), this, SLOT(slotCreateLocalBranch(QString)));
+    m_ui->localBranchListView->setModel(m_localModel);
+    m_ui->remoteBranchListView->setModel(m_remoteModel);
+
+    connect(m_ui->localBranchListView->selectionModel(),
+            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(slotEnableButtons()));
+    connect(m_ui->remoteBranchListView->selectionModel(),
+            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(slotEnableButtons()));
+
+    slotEnableButtons();
 }
 
 BranchDialog::~BranchDialog()
@@ -89,35 +120,24 @@ BranchDialog::~BranchDialog()
     delete m_ui;
 }
 
-bool BranchDialog::init(GitClient *client, const QString &workingDirectory, QString *errorMessage)
+void BranchDialog::refresh(const QString &repository, bool force)
 {
-    // Find repository and populate models.
-    m_client = client;
-    m_repoDirectory = GitClient::findRepositoryForDirectory(workingDirectory);
-    if (m_repoDirectory.isEmpty()) {
-        *errorMessage = tr("Unable to find the repository directory for '%1'.").arg(workingDirectory);
-        return false;
+    if (m_repository == repository && !force)
+            return;
+        // Refresh
+    m_repository = repository;
+    m_ui->repositoryLabel->setText(StashDialog::msgRepositoryLabel(m_repository));
+    if (m_repository.isEmpty()) {
+        m_localModel->clear();
+        m_remoteModel->clear();
+    } else {
+        QString errorMessage;
+        const bool success = m_localModel->refresh(m_repository, &errorMessage)
+                             && m_remoteModel->refresh(m_repository, &errorMessage);
+        if (!success)
+            VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
     }
-    m_ui->repositoryFieldLabel->setText(m_repoDirectory);
-
-    m_localModel = new LocalBranchModel(client, this);
-    connect(m_localModel, SIGNAL(newBranchEntered(QString)), this, SLOT(slotCreateLocalBranch(QString)));
-    m_remoteModel = new RemoteBranchModel(client, this);
-    if (!m_localModel->refresh(workingDirectory, errorMessage)
-        || !m_remoteModel->refresh(workingDirectory, errorMessage))
-        return false;
-
-    m_ui->localBranchListView->setModel(m_localModel);
-    m_ui->remoteBranchListView->setModel(m_remoteModel);
-    // Selection model comes into existence only now
-    connect(m_ui->localBranchListView->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(slotEnableButtons()));
-    connect(m_ui->remoteBranchListView->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(slotEnableButtons()));
     slotEnableButtons();
-    return true;
 }
 
 int BranchDialog::selectedLocalBranchIndex() const
@@ -133,6 +153,7 @@ int BranchDialog::selectedRemoteBranchIndex() const
 void BranchDialog::slotEnableButtons()
 {
     // We can switch to or delete branches that are not current.
+    const bool hasRepository = !m_repository.isEmpty();
     const int selectedLocalRow = selectedLocalBranchIndex();
     const int currentLocalBranch = m_localModel->currentBranch();
 
@@ -140,7 +161,17 @@ void BranchDialog::slotEnableButtons()
     const bool currentIsNotSelected = hasSelection && selectedLocalRow != currentLocalBranch;
 
     m_checkoutButton->setEnabled(currentIsNotSelected);
+    m_diffButton->setEnabled(currentIsNotSelected);
     m_deleteButton->setEnabled(currentIsNotSelected);
+    m_refreshButton->setEnabled(hasRepository);
+    // Also disable <New Branch> entry of list view
+    m_ui->localBranchListView->setEnabled(hasRepository);
+    m_ui->remoteBranchListView->setEnabled(hasRepository);
+}
+
+void BranchDialog::slotRefresh()
+{
+    refresh(m_repository, true);
 }
 
 void BranchDialog::selectLocalBranch(const QString &b)
@@ -172,9 +203,9 @@ void BranchDialog::slotDeleteSelectedBranch()
         QString output;
         QStringList args(QLatin1String("-D"));
         args << name;
-        if (!m_client->synchronousBranchCmd(m_repoDirectory, args, &output, &errorMessage))
+        if (!gitClient()->synchronousBranchCmd(m_repository, args, &output, &errorMessage))
             break;
-        if (!m_localModel->refresh(m_repoDirectory, &errorMessage))
+        if (!m_localModel->refresh(m_repository, &errorMessage))
             break;
         ok = true;
     } while (false);
@@ -190,9 +221,9 @@ void BranchDialog::slotCreateLocalBranch(const QString &branchName)
     QString errorMessage;
     bool ok = false;
     do {
-        if (!m_client->synchronousBranchCmd(m_repoDirectory, QStringList(branchName), &output, &errorMessage))
+        if (!gitClient()->synchronousBranchCmd(m_repository, QStringList(branchName), &output, &errorMessage))
             break;
-        if (!m_localModel->refresh(m_repoDirectory, &errorMessage))
+        if (!m_localModel->refresh(m_repository, &errorMessage))
             break;
         ok = true;
     } while (false);
@@ -209,6 +240,14 @@ void BranchDialog::slotLocalBranchActivated()
         m_checkoutButton->animateClick();
 }
 
+void BranchDialog::slotDiffSelected()
+{
+    const int idx = selectedLocalBranchIndex();
+    if (idx == -1)
+        return;
+    gitClient()->diffBranch(m_repository, QStringList(), m_localModel->branchName(idx));
+}
+
 /* Ask to stash away changes and then close dialog and do an asynchronous
  * checkout. */
 void BranchDialog::slotCheckoutSelectedBranch()
@@ -218,7 +257,7 @@ void BranchDialog::slotCheckoutSelectedBranch()
         return;
     const QString name = m_localModel->branchName(idx);
     QString errorMessage;
-    switch (m_client->ensureStash(m_repoDirectory, &errorMessage)) {
+    switch (gitClient()->ensureStash(m_repository, &errorMessage)) {
         case GitClient::StashUnchanged:
         case GitClient::Stashed:
         case GitClient::NotStashed:
@@ -229,8 +268,11 @@ void BranchDialog::slotCheckoutSelectedBranch()
         QMessageBox::warning(this, tr("Failed to stash"), errorMessage);
         return;
     }
-    accept();
-    m_client->checkoutBranch(m_repoDirectory, name);
+    if (gitClient()->synchronousCheckoutBranch(m_repository, name, &errorMessage)) {
+        refresh(m_repository, true);
+    } else {
+        QMessageBox::warning(this, tr("Checkout failed"), errorMessage);
+    }
 }
 
 void BranchDialog::slotRemoteBranchActivated(const QModelIndex &i)
@@ -271,9 +313,9 @@ void BranchDialog::slotRemoteBranchActivated(const QModelIndex &i)
     bool ok = false;
     do {
         QString output;
-        if (!m_client->synchronousBranchCmd(m_repoDirectory, args, &output, &errorMessage))
+        if (!gitClient()->synchronousBranchCmd(m_repository, args, &output, &errorMessage))
             break;
-        if (!m_localModel->refresh(m_repoDirectory, &errorMessage))
+        if (!m_localModel->refresh(m_repository, &errorMessage))
             break;
         ok = true;
     } while (false);

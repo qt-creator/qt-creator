@@ -81,6 +81,9 @@ public:
     void diff(const QString &workingDirectory, const QStringList &diffArgs, const QString &fileName);
     void diff(const QString &workingDirectory, const QStringList &diffArgs,
               const QStringList &unstagedFileNames, const QStringList &stagedFileNames= QStringList());
+    void diffBranch(const QString &workingDirectory,
+                    const QStringList &diffArgs,
+                    const QString &branchName);
 
     void status(const QString &workingDirectory);
     void graphLog(const QString &workingDirectory);

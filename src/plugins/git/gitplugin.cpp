@@ -684,35 +684,38 @@ void GitPlugin::stashPop()
     m_gitClient->stashPop(state.topLevel());
 }
 
+// Create a non-modal dialog with refresh method or raise if it exists
+template <class NonModalDialog>
+    inline void showNonModalDialog(const QString &topLevel,
+                                   QPointer<NonModalDialog> &dialog)
+{
+    if (dialog) {
+        dialog->show();
+        dialog->raise();
+    } else {
+        dialog = new NonModalDialog(Core::ICore::instance()->mainWindow());
+        dialog->refresh(topLevel, true);
+        dialog->show();
+    }
+}
+
 void GitPlugin::branchList()
 {
-    const VCSBase::VCSBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return)
-    QString errorMessage;
-    BranchDialog dialog(m_core->mainWindow());
-
-    if (!dialog.init(m_gitClient, state.topLevel(), &errorMessage)) {
-        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
-        return;
-    }
-    dialog.exec();
+   showNonModalDialog(currentState().topLevel(), m_branchDialog);
 }
 
 void GitPlugin::stashList()
 {
-    // Raise non-modal stash dialog.
-    if (m_stashDialog) {
-        m_stashDialog->show();
-        m_stashDialog->raise();
-    } else {
-        m_stashDialog = new StashDialog(Core::ICore::instance()->mainWindow());
-        m_stashDialog->refresh(currentState().topLevel(), true);
-        m_stashDialog->show();
-    }
+    showNonModalDialog(currentState().topLevel(), m_stashDialog);
 }
 
 void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
+    if (m_stashDialog)
+        m_stashDialog->refresh(currentState().topLevel(), false);
+    if (m_branchDialog)
+        m_branchDialog->refresh(currentState().topLevel(), false);
+
     if (!enableMenuAction(as, m_menuAction))
         return;
     // Note: This menu is visible if there is no repository. Only
@@ -753,9 +756,6 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_logRepositoryAction->setEnabled(repositoryEnabled);
     m_undoRepositoryAction->setEnabled(repositoryEnabled);
     m_pushAction->setEnabled(repositoryEnabled);
-
-    if (m_stashDialog)
-        m_stashDialog->refresh(currentState().topLevel(), false);
 
     // Prompts for repo.
     m_showAction->setEnabled(true);

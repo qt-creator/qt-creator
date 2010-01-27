@@ -66,6 +66,7 @@ class GitSubmitEditor;
 struct CommitData;
 struct GitSettings;
 class StashDialog;
+class BranchDialog;
 
 class GitPlugin : public VCSBase::VCSBasePlugin
 {
@@ -157,6 +158,7 @@ private:
     GitClient                   *m_gitClient;
     ChangeSelectionDialog       *m_changeSelectionDialog;
     QPointer<StashDialog>       m_stashDialog;
+    QPointer<BranchDialog>      m_branchDialog;
     QString                     m_submitRepository;
     QStringList                 m_submitOrigCommitFiles;
     QStringList                 m_submitOrigDeleteFiles;

@@ -260,14 +260,32 @@ void GitClient::diff(const QString &workingDirectory,
     if (Git::Constants::debug)
         qDebug() << "diff" << workingDirectory << fileName;
     QStringList arguments;
-    arguments << QLatin1String("diff") << QLatin1String(noColorOption);
+    arguments << QLatin1String("diff") << QLatin1String(noColorOption)
+              << diffArgs;
     if (!fileName.isEmpty())
-        arguments << diffArgs  << QLatin1String("--") << fileName;
-
+        arguments << QLatin1String("--") << fileName;
     const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
     const QString title = tr("Git Diff %1").arg(fileName);
     const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, fileName);
     VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, true, "originalFileName", sourceFile);
+    executeGit(workingDirectory, arguments, editor);
+}
+
+void GitClient::diffBranch(const QString &workingDirectory,
+                           const QStringList &diffArgs,
+                           const QString &branchName)
+{
+    if (Git::Constants::debug)
+        qDebug() << "diffBranch" << workingDirectory << branchName;
+    QStringList arguments;
+    arguments << QLatin1String("diff") << QLatin1String(noColorOption)
+              << diffArgs  << branchName;
+
+    const QString editorId = QLatin1String(Git::Constants::GIT_DIFF_EDITOR_ID);
+    const QString title = tr("Git Diff Branch %1").arg(branchName);
+    const QString sourceFile = VCSBase::VCSBaseEditor::getSource(workingDirectory, QStringList());
+    VCSBase::VCSBaseEditor *editor = createVCSEditor(editorId, title, sourceFile, true,
+                                                     "BranchName", branchName);
     executeGit(workingDirectory, arguments, editor);
 }
 

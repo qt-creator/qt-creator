@@ -112,6 +112,8 @@ StashDialog::StashDialog(QWidget *parent) :
     m_refreshButton(new QPushButton(tr("Refresh")))
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setAttribute(Qt::WA_DeleteOnClose, true);  // Do not update unnecessarily
+
     ui->setupUi(this);
     // Buttons
     ui->buttonBox->addButton(m_showCurrentButton, QDialogButtonBox::ActionRole);
@@ -158,17 +160,23 @@ void StashDialog::changeEvent(QEvent *e)
     }
 }
 
+QString StashDialog::msgRepositoryLabel(const QString &repository)
+{
+    return repository.isEmpty() ?
+            tr("<No repository>")  :
+            tr("Repository: %1").arg(repository);
+}
+
 void StashDialog::refresh(const QString &repository, bool force)
 {
     if (m_repository == repository && !force)
         return;
     // Refresh
     m_repository = repository;
+    ui->repositoryLabel->setText(msgRepositoryLabel(repository));
     if (m_repository.isEmpty()) {
-        ui->repositoryLabel->setText(tr("<No repository>"));
         m_model->setStashes(QList<Stash>());
     } else {
-        ui->repositoryLabel->setText(tr("Repository: %1").arg(repository));
         QList<Stash> stashes;
         gitClient()->synchronousStashList(m_repository, &stashes);
         m_model->setStashes(stashes);
@@ -383,14 +391,16 @@ void StashDialog::forceRefresh()
 
 void StashDialog::enableButtons()
 {
-    const bool hasStashes = m_model->rowCount();
-    const bool hasCurrentRow = hasStashes && currentRow() >= 0;
+    const bool hasRepository = !m_repository.isEmpty();
+    const bool hasStashes = hasRepository && m_model->rowCount();
+    const bool hasCurrentRow = hasRepository && hasStashes && currentRow() >= 0;
     m_deleteAllButton->setEnabled(hasStashes);
     m_showCurrentButton->setEnabled(hasCurrentRow);
     m_restoreCurrentButton->setEnabled(hasCurrentRow);
     m_restoreCurrentInBranchButton->setEnabled(hasCurrentRow);
     const bool hasSelection = !ui->stashView->selectionModel()->selectedRows().isEmpty();
     m_deleteSelectionButton->setEnabled(hasSelection);
+    m_refreshButton->setEnabled(hasRepository);
 }
 
 void StashDialog::warning(const QString &title, const QString &what, const QString &details)

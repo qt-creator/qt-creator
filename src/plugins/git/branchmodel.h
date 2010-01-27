@@ -49,6 +49,7 @@ class RemoteBranchModel : public QAbstractListModel {
 public:
     explicit RemoteBranchModel(GitClient *client, QObject *parent = 0);
 
+    virtual void clear();
     virtual bool refresh(const QString &workingDirectory, QString *errorMessage);
 
     QString branchName(int row) const;
@@ -100,6 +101,7 @@ public:
     explicit LocalBranchModel(GitClient *client,
                          QObject *parent = 0);
 
+    virtual void clear();
     virtual bool refresh(const QString &workingDirectory, QString *errorMessage);
 
     // is this the "type here" row?
