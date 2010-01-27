@@ -30,11 +30,9 @@
 #include "qmlexpressionundercursor.h"
 
 #include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/parser/qmljsengine_p.h>
-#include <qmljs/parser/qmljslexer_p.h>
-#include <qmljs/parser/qmljsnodepool_p.h>
-#include <qmljs/parser/qmljsparser_p.h>
+#include <qmljs/qmljsscanner.h>
+
+#include <QtGui/QTextBlock>
 
 #include <QDebug>
 
@@ -43,162 +41,84 @@ using namespace QmlJS::AST;
 
 namespace QmlJSEditor {
     namespace Internal {
-        class PositionCalculator: protected Visitor
+
+        class ExpressionUnderCursor
         {
+            QTextCursor _cursor;
+            QmlJSScanner scanner;
+
         public:
-            Node *operator()(Node *ast, int pos)
+            ExpressionUnderCursor()
+                : start(0), end(0)
+            {}
+
+            int start, end;
+
+            QString operator()(const QTextCursor &cursor)
             {
-                _pos = pos;
-                _expression = 0;
-                _offset = -1;
-                _length = -1;
+                _cursor = cursor;
 
-                Node::accept(ast, this);
+                QTextBlock block = _cursor.block();
+                const QString blockText = block.text().left(cursor.columnNumber());
+                //qDebug() << "block text:" << blockText;
 
-                return _expression;
-            }
+                int startState = block.previous().userState();
+                if (startState == -1)
+                    startState = 0;
+                else
+                    startState = startState & 0xff;
 
-            int offset() const
-            { return _offset; }
+                const QList<Token> originalTokens = scanner(blockText, startState);
+                QList<Token> tokens;
+                int skipping = 0;
+                for (int index = originalTokens.size() - 1; index != -1; --index) {
+                    const Token &tk = originalTokens.at(index);
 
-            int length() const
-            { return _length; }
+                    if (tk.is(Token::Comment) || tk.is(Token::String) || tk.is(Token::Number))
+                        continue;
 
-        protected:
-            bool visit(FieldMemberExpression *ast)
-            {
-                if (ast->identifierToken.offset <= _pos && _pos <= ast->identifierToken.end()) {
-                    _expression = ast;
-                    _offset = ast->identifierToken.offset;
-                    _length = ast->identifierToken.length;
-                }
+                    if (! skipping) {
+                        tokens.append(tk);
 
-                return true;
-            }
-
-            bool visit(IdentifierExpression *ast)
-            {
-                if (ast->firstSourceLocation().offset <= _pos && _pos <= ast->lastSourceLocation().end()) {
-                    _expression = ast;
-                    _offset = ast->firstSourceLocation().offset;
-                    _length = ast->lastSourceLocation().end() - _offset;
-                }
-
-                return false;
-            }
-
-            bool visit(UiImport * /*ast*/)
-            {
-                return false;
-            }
-
-            bool visit(UiQualifiedId *ast)
-            {
-                if (ast->identifierToken.offset <= _pos) {
-                    for (UiQualifiedId *iter = ast; iter; iter = iter->next) {
-                        if (_pos <= iter->identifierToken.end()) {
-                            // found it
-                            _expression = ast;
-                            _offset = ast->identifierToken.offset;
-
-                            for (UiQualifiedId *iter2 = ast; iter2; iter2 = iter2->next) {
-                                _length = iter2->identifierToken.end() - _offset;
-                            }
-
-                            break;
+                        if (tk.is(Token::Identifier)) {
+                            if (index > 0 && originalTokens.at(index - 1).isNot(Token::Dot))
+                                break;
                         }
+                    } else {
+                        //qDebug() << "skip:" << blockText.mid(tk.offset, tk.length);
+                    }
+
+                    if (tk.is(Token::RightParenthesis) || tk.is(Token::RightBracket))
+                        ++skipping;
+
+                    else if (tk.is(Token::LeftParenthesis) || tk.is(Token::LeftBracket)) {
+                        --skipping;
+
+                        if (! skipping)
+                            tokens.append(tk);
+
+                        if (index > 0 && originalTokens.at(index - 1).isNot(Token::Identifier))
+                            break;
                     }
                 }
 
-                return false;
-            }
+                if (! tokens.isEmpty()) {
+                    QString expr;
+                    for (int index = tokens.size() - 1; index >= 0; --index) {
+                        Token tk = tokens.at(index);
+                        expr.append(QLatin1Char(' '));
+                        expr.append(blockText.midRef(tk.offset, tk.length));
 
-        private:
-            quint32 _pos;
-            Node *_expression;
-            int _offset;
-            int _length;
-        };
-
-        class ScopeCalculator: protected Visitor
-        {
-        public:
-            QStack<Symbol*> operator()(const Document::Ptr &doc, int pos)
-            {
-                _doc = doc;
-                _pos = pos;
-                _scopes.clear();
-                _currentSymbol = 0;
-                Node::accept(doc->qmlProgram(), this);
-                return _scopes;
-            }
-
-        protected:
-            virtual bool visit(Block * /*ast*/)
-            {
-                // TODO
-//                if (_pos > ast->lbraceToken.end() && _pos < ast->rbraceToken.offset) {
-//                    push(ast);
-//                    Node::accept(ast->statements, this);
-//                }
-
-                return false;
-            }
-
-            virtual bool visit(UiObjectBinding *ast)
-            {
-                if (ast->initializer && ast->initializer->lbraceToken.offset < _pos && _pos <= ast->initializer->rbraceToken.end()) {
-                    push(ast);
-                    Node::accept(ast->initializer, this);
+                    }
+                    start = tokens.first().begin();
+                    end = tokens.first().end();
+                    //qDebug() << "expression under cursor:" << expr;
+                    return expr;
                 }
 
-                return false;
+                //qDebug() << "no expression";
+                return QString();
             }
-
-            virtual bool visit(UiObjectDefinition *ast)
-            {
-                if (ast->initializer && ast->initializer->lbraceToken.offset < _pos && _pos <= ast->initializer->rbraceToken.end()) {
-                    push(ast);
-                    Node::accept(ast->initializer, this);
-                }
-
-                return false;
-            }
-
-            virtual bool visit(UiArrayBinding *ast)
-            {
-                if (ast->lbracketToken.offset < _pos && _pos <= ast->rbracketToken.end()) {
-                    push(ast);
-                    Node::accept(ast->members, this);
-                }
-
-                return false;
-            }
-
-        private:
-            void push(Node *node)
-            {
-                SymbolFromFile* symbol;
-
-                if (_currentSymbol) {
-                    symbol = _currentSymbol->findMember(node);
-                } else {
-                    symbol = _doc->findSymbol(node);
-                }
-
-                if (symbol) {
-                    _currentSymbol = symbol;
-
-                    if (!cast<UiArrayBinding*>(node))
-                        _scopes.push(symbol);
-                }
-            }
-
-        private:
-            Document::Ptr _doc;
-            quint32 _pos;
-            QStack<Symbol*> _scopes;
-            SymbolFromFile* _currentSymbol;
         };
     }
 }
@@ -207,101 +127,32 @@ using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
 QmlExpressionUnderCursor::QmlExpressionUnderCursor()
-    : _expressionNode(0),
-      _pos(0), _engine(0), _nodePool(0)
-{
-}
+    : _expressionNode(0), _expressionOffset(0), _expressionLength(0)
+{}
 
-QmlExpressionUnderCursor::~QmlExpressionUnderCursor()
+QmlJS::AST::ExpressionNode *QmlExpressionUnderCursor::operator()(const QTextCursor &cursor)
 {
-    if (_engine) { delete _engine; _engine = 0; }
-    if (_nodePool) { delete _nodePool; _nodePool = 0; }
-}
-
-void QmlExpressionUnderCursor::operator()(const QTextCursor &cursor,
-                                          const Document::Ptr &doc)
-{
-    if (_engine) { delete _engine; _engine = 0; }
-    if (_nodePool) { delete _nodePool; _nodePool = 0; }
-
-    _pos = cursor.position();
     _expressionNode = 0;
     _expressionOffset = -1;
     _expressionLength = -1;
-    _expressionScopes.clear();
 
-    const QTextBlock block = cursor.block();
-    parseExpression(block);
+    ExpressionUnderCursor expressionUnderCursor;
+    _text = expressionUnderCursor(cursor);
 
-    if (_expressionOffset != -1) {
-        ScopeCalculator calculator;
-        _expressionScopes = calculator(doc, _expressionOffset);
-    }
+    exprDoc = Document::create(QLatin1String("<expression>"));
+    exprDoc->setSource(_text);
+    exprDoc->parseExpression();
+
+    _expressionNode = exprDoc->expression();
+
+    _expressionOffset = cursor.block().position() + expressionUnderCursor.start;
+    _expressionLength = expressionUnderCursor.end - expressionUnderCursor.start;
+
+    return _expressionNode;
 }
 
-void QmlExpressionUnderCursor::parseExpression(const QTextBlock &block)
+ExpressionNode *QmlExpressionUnderCursor::expressionNode() const
 {
-    int textPosition = _pos - block.position();
-    const QString blockText = block.text();
-    if (textPosition > 0) {
-        if (blockText.at(textPosition - 1) == QLatin1Char('.'))
-            --textPosition;
-    } else {
-        textPosition = 0;
-    }
-
-    const QString text = blockText.left(textPosition);
-
-    Node *node = 0;
-
-    if (UiObjectMember *binding = tryBinding(text)) {
-//        qDebug() << "**** binding";
-        node = binding;
-    } else if (Statement *stmt = tryStatement(text)) {
-//        qDebug() << "**** statement";
-        node = stmt;
-    } else {
-//        qDebug() << "**** none";
-    }
-
-    if (node) {
-        PositionCalculator calculator;
-        _expressionNode = calculator(node, textPosition);
-        _expressionOffset = calculator.offset() + block.position();
-        _expressionLength = calculator.length();
-    }
+    return _expressionNode;
 }
 
-Statement *QmlExpressionUnderCursor::tryStatement(const QString &text)
-{
-    _engine = new Engine();
-    _nodePool = new NodePool("", _engine);
-    Lexer lexer(_engine);
-    Parser parser(_engine);
-    lexer.setCode(text, /*line = */ 1);
-
-    if (parser.parseStatement())
-        return parser.statement();
-    else
-        return 0;
-}
-
-UiObjectMember *QmlExpressionUnderCursor::tryBinding(const QString &text)
-{
-    _engine = new Engine();
-    _nodePool = new NodePool("", _engine);
-    Lexer lexer(_engine);
-    Parser parser(_engine);
-    lexer.setCode(text, /*line = */ 1);
-
-    if (parser.parseUiObjectMember()) {
-        UiObjectMember *member = parser.uiObjectMember();
-
-        if (cast<UiObjectBinding*>(member) || cast<UiArrayBinding*>(member) || cast<UiScriptBinding*>(member))
-            return member;
-        else
-            return 0;
-    } else {
-        return 0;
-    }
-}

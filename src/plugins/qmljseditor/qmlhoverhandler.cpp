@@ -39,6 +39,9 @@
 #include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljssymbol.h>
+#include <qmljs/qmljsbind.h>
+#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsinterpreter.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
@@ -146,23 +149,23 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!m_modelManager)
         return;
 
-    QmlJSTextEditor *scriptEditor = qobject_cast<QmlJSTextEditor *>(editor->widget());
-    if (!scriptEditor)
+    QmlJSTextEditor *edit = qobject_cast<QmlJSTextEditor *>(editor->widget());
+    if (!edit)
         return;
 
     const Snapshot snapshot = m_modelManager->snapshot();
-    const QString fileName = editor->file()->fileName();
-    Document::Ptr doc = snapshot.document(fileName);
-    if (!doc)
-        return; // nothing to do
+    SemanticInfo semanticInfo = edit->semanticInfo();
+    Document::Ptr qmlDocument = semanticInfo.document;
+    if (qmlDocument.isNull())
+        return;
 
-    QTextCursor tc(scriptEditor->document());
+    QTextCursor tc(edit->document());
     tc.setPosition(pos);
 
     // We only want to show F1 if the tooltip matches the help id
     bool showF1 = true;
 
-    foreach (const QTextEdit::ExtraSelection &sel, scriptEditor->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection)) {
+    foreach (const QTextEdit::ExtraSelection &sel, edit->extraSelections(TextEditor::BaseTextEditor::CodeWarningsSelection)) {
         if (pos >= sel.cursor.selectionStart() && pos <= sel.cursor.selectionEnd()) {
             showF1 = false;
             m_toolTip = sel.format.toolTip();
@@ -184,10 +187,24 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
         // Fetch the expression's code
         QmlExpressionUnderCursor expressionUnderCursor;
-        expressionUnderCursor(tc, doc);
+        QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
 
-        QmlJS::TypeSystem *typeSystem = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::TypeSystem>();
+        AST::UiObjectMember *declaringMember = 0;
 
+        foreach (const Range &range, semanticInfo.ranges) {
+            if (pos >= range.begin.position() && pos <= range.end.position()) {
+                declaringMember = range.ast;
+            }
+        }
+
+        Interpreter::Engine interp;
+        Bind bind(qmlDocument, snapshot, &interp);
+        Interpreter::ObjectValue *scope = bind(declaringMember);
+        Check check(&interp);
+        const Interpreter::Value *value = check(expression, scope);
+        m_toolTip = interp.typeId(value);
+
+#if 0
         QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, m_modelManager->snapshot(), typeSystem);
         QmlResolveExpression resolver(context);
         Symbol *resolvedSymbol = resolver.typeOf(expressionUnderCursor.expressionNode());
@@ -200,6 +217,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             else if (SymbolFromFile *symbolFromFile = resolvedSymbol->asSymbolFromFile())
                 m_toolTip = symbolFromFile->fileName();
         }
+#endif
     }
 
     if (m_helpEngineNeedsSetup && m_helpEngine->registeredDocumentations().count() > 0) {

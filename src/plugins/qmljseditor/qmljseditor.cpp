@@ -809,23 +809,14 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
     }
 
     QmlExpressionUnderCursor expressionUnderCursor;
-    expressionUnderCursor(expressionCursor, doc);
-
-    QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, snapshot, m_typeSystem);
-    QmlResolveExpression resolver(context);
-    Symbol *symbol = resolver.typeOf(expressionUnderCursor.expressionNode());
-
-    if (!symbol)
-        return link;
-
-    if (const SymbolFromFile *target = symbol->asSymbolFromFile()) {
+    if (expressionUnderCursor(expressionCursor)) {
         link.pos = expressionUnderCursor.expressionOffset();
         link.length = expressionUnderCursor.expressionLength();
-        link.fileName = target->fileName();
-        link.line = target->line();
-        link.column = target->column();
-        if (link.column > 0)
-            --link.column;
+//        link.fileName = target->fileName();
+//        link.line = target->line();
+//        link.column = target->column();
+//        if (link.column > 0)
+//            --link.column;
     }
 
     return link;

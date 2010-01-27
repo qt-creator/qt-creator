@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmlcodecompletion.h"
+#include "qmlexpressionundercursor.h"
 #include "qmljseditor.h"
 #include "qmlmodelmanagerinterface.h"
 #include "qmllookupcontext.h"
@@ -96,77 +97,6 @@ static QIcon iconForColor(const QColor &color)
 }
 
 namespace {
-
-class ExpressionUnderCursor
-{
-    QTextCursor _cursor;
-    QmlJSScanner scanner;
-
-public:
-    QString operator()(const QTextCursor &cursor)
-    {
-        _cursor = cursor;
-
-        QTextBlock block = _cursor.block();
-        const QString blockText = block.text().left(cursor.columnNumber());
-        //qDebug() << "block text:" << blockText;
-
-        int startState = block.previous().userState();
-        if (startState == -1)
-            startState = 0;
-        else
-            startState = startState & 0xff;
-
-        const QList<Token> originalTokens = scanner(blockText, startState);
-        QList<Token> tokens;
-        int skipping = 0;
-        for (int index = originalTokens.size() - 1; index != -1; --index) {
-            const Token &tk = originalTokens.at(index);
-
-            if (tk.is(Token::Comment) || tk.is(Token::String) || tk.is(Token::Number))
-                continue;
-
-            if (! skipping) {
-                tokens.append(tk);
-
-                if (tk.is(Token::Identifier)) {
-                    if (index > 0 && originalTokens.at(index - 1).isNot(Token::Dot))
-                        break;
-                }
-            } else {
-                //qDebug() << "skip:" << blockText.mid(tk.offset, tk.length);
-            }
-
-            if (tk.is(Token::RightParenthesis) || tk.is(Token::RightBracket))
-                ++skipping;
-
-            else if (tk.is(Token::LeftParenthesis) || tk.is(Token::LeftBracket)) {
-                --skipping;
-
-                if (! skipping)
-                    tokens.append(tk);
-
-                if (index > 0 && originalTokens.at(index - 1).isNot(Token::Identifier))
-                    break;
-            }
-        }
-
-        if (! tokens.isEmpty()) {
-            QString expr;
-            for (int index = tokens.size() - 1; index >= 0; --index) {
-                Token tk = tokens.at(index);
-                expr.append(QLatin1Char(' '));
-                expr.append(blockText.midRef(tk.offset, tk.length));
-            }
-
-            //qDebug() << "expression under cursor:" << expr;
-            return expr;
-        }
-
-        //qDebug() << "no expression";
-        return QString();
-    }
-};
 
 class SearchPropertyDefinitions: protected AST::Visitor
 {
@@ -714,20 +644,15 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         QTextCursor tc = edit->textCursor();
         tc.setPosition(m_startPosition - 1);
 
-        ExpressionUnderCursor expressionUnderCursor;
-        const QString expression = expressionUnderCursor(tc);
+        QmlExpressionUnderCursor expressionUnderCursor;
+        QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
         //qDebug() << "expression:" << expression;
 
-        // Wrap the expression in a QML document.
-        QmlJS::Document::Ptr exprDoc = Document::create(QLatin1String("<expression>"));
-        exprDoc->setSource(expression);
-        exprDoc->parseExpression();
-
-        if (exprDoc->expression() != 0) {
+        if (expression  != 0) {
             Check evaluate(&interp);
 
             // Evaluate the expression under cursor.
-            const Interpreter::Value *value = interp.convertToObject(evaluate(exprDoc->expression(), scope));
+            const Interpreter::Value *value = interp.convertToObject(evaluate(expression , scope));
             //qDebug() << "type:" << interp.typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
@@ -744,10 +669,10 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             } else if (value && completionOperator == QLatin1Char('(') && m_startPosition == editor->position()) {
                 // function completion
                 if (const Interpreter::FunctionValue *f = value->asFunctionValue()) {
-                    QString functionName = expression;
-                    int indexOfDot = expression.lastIndexOf(QLatin1Char('.'));
+                    QString functionName = expressionUnderCursor.text();
+                    int indexOfDot = functionName.lastIndexOf(QLatin1Char('.'));
                     if (indexOfDot != -1)
-                        functionName = expression.mid(indexOfDot + 1);
+                        functionName = functionName.mid(indexOfDot + 1);
 
                     // Recreate if necessary
                     if (!m_functionArgumentWidget)

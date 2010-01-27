@@ -166,7 +166,9 @@ public:
 
 QmlObjectValue::QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName, int majorVersion, int minorVersion, Engine *engine)
     : ObjectValue(engine), _metaObject(metaObject), _qmlTypeName(qmlTypeName), _majorVersion(majorVersion), _minorVersion(minorVersion)
-{}
+{
+    setClassName(qmlTypeName); // ### TODO: we probably need to do more than just this...
+}
 
 QmlObjectValue::~QmlObjectValue() {}
 

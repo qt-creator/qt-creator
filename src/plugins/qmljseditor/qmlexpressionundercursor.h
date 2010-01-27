@@ -32,16 +32,8 @@
 
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljssymbol.h>
 
-#include <QStack>
-#include <QTextBlock>
 #include <QTextCursor>
-
-namespace QmlJS {
-    class Engine;
-    class NodePool;
-}
 
 namespace QmlJSEditor {
 namespace Internal {
@@ -50,15 +42,10 @@ class QmlExpressionUnderCursor
 {
 public:
     QmlExpressionUnderCursor();
-    virtual ~QmlExpressionUnderCursor();
 
-    void operator()(const QTextCursor &cursor, const QmlJS::Document::Ptr &doc);
+    QmlJS::AST::ExpressionNode * operator()(const QTextCursor &cursor);
 
-    QStack<QmlJS::Symbol *> expressionScopes() const
-    { return _expressionScopes; }
-
-    QmlJS::AST::Node *expressionNode() const
-    { return _expressionNode; }
+    QmlJS::AST::ExpressionNode *expressionNode() const;
 
     int expressionOffset() const
     { return _expressionOffset; }
@@ -66,20 +53,20 @@ public:
     int expressionLength() const
     { return _expressionLength; }
 
+    QString text() const
+    { return _text; }
+
 private:
     void parseExpression(const QTextBlock &block);
 
-    QmlJS::AST::Statement *tryStatement(const QString &text);
-    QmlJS::AST::UiObjectMember *tryBinding(const QString &text);
+    void tryExpression(const QString &text);
 
 private:
-    QStack<QmlJS::Symbol *> _expressionScopes;
-    QmlJS::AST::Node *_expressionNode;
+    QmlJS::AST::ExpressionNode *_expressionNode;
     int _expressionOffset;
     int _expressionLength;
-    quint32 _pos;
-    QmlJS::Engine *_engine;
-    QmlJS::NodePool *_nodePool;
+    QmlJS::Document::Ptr exprDoc;
+    QString _text;
 };
 
 } // namespace Internal
