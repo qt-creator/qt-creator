@@ -37,7 +37,6 @@
 
 #include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
-#include "qmljssymbol.h"
 
 namespace QmlJS {
 
@@ -46,7 +45,6 @@ class QMLJS_EXPORT Document
 public:
     typedef QSharedPointer<Document> Ptr;
     typedef QList<Document::Ptr> PtrList;
-    typedef QMap<QString, IdSymbol*> IdTable;
 
 protected:
     Document(const QString &fileName);
@@ -76,15 +74,9 @@ public:
     int documentRevision() const;
     void setDocumentRevision(int documentRevision);
 
-    IdTable ids() const { return _ids; }
-
     QString fileName() const { return _fileName; }
     QString path() const { return _path; }
     QString componentName() const { return _componentName; }
-
-    QmlJS::SymbolFromFile *findSymbol(QmlJS::AST::Node *node) const;
-    QmlJS::Symbol::List symbols() const
-    { return _symbols; }
 
 private:
     QmlJS::Engine *_engine;
@@ -97,8 +89,6 @@ private:
     QString _path;
     QString _componentName;
     QString _source;
-    IdTable _ids;
-    QmlJS::Symbol::List _symbols;
 };
 
 class QMLJS_EXPORT Snapshot

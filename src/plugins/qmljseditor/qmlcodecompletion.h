@@ -30,7 +30,6 @@
 #ifndef QMLCODECOMPLETION_H
 #define QMLCODECOMPLETION_H
 
-#include <qmljs/qmljstypesystem.h>
 #include <qmljs/qmljsdocument.h>
 #include <texteditor/icompletioncollector.h>
 #include <QtCore/QDateTime>
@@ -53,7 +52,7 @@ class QmlCodeCompletion: public TextEditor::ICompletionCollector
     Q_OBJECT
 
 public:
-    QmlCodeCompletion(QmlModelManagerInterface *modelManager, QmlJS::TypeSystem *typeSystem, QObject *parent = 0);
+    QmlCodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent = 0);
     virtual ~QmlCodeCompletion();
 
     Qt::CaseSensitivity caseSensitivity() const;
@@ -82,7 +81,6 @@ private:
     int m_startPosition;
     QList<TextEditor::CompletionItem> m_completions;
     Qt::CaseSensitivity m_caseSensitivity;
-    QmlJS::TypeSystem *m_typeSystem;
 
     QList<TextEditor::CompletionItem> m_snippets;
     QDateTime m_snippetFileLastModified;

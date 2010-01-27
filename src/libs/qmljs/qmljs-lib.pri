@@ -16,36 +16,19 @@ HEADERS += \
     $$PWD/qmljsbind.h \
     $$PWD/qmljscheck.h \
     $$PWD/qmljsdocument.h \
-    $$PWD/qmljsidcollector.h \
-    $$PWD/qmljsmetatypebackend.h \
-    $$PWD/qmljspackageinfo.h \
     $$PWD/qmljsscanner.h \
-    $$PWD/qmljssymbol.h \
-    $$PWD/qmljstypesystem.h \
-    $$PWD/qmljsinterpreter.h \
-    $$PWD/qmljsmetatypesystem.h
+    $$PWD/qmljsinterpreter.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
     $$PWD/qmljscheck.cpp \
     $$PWD/qmljsdocument.cpp \
-    $$PWD/qmljsidcollector.cpp \
-    $$PWD/qmljsmetatypebackend.cpp \
-    $$PWD/qmljspackageinfo.cpp \
     $$PWD/qmljsscanner.cpp \
-    $$PWD/qmljssymbol.cpp \
-    $$PWD/qmljstypesystem.cpp \
     $$PWD/qmljsinterpreter.cpp \
     $$PWD/qmljsmetatypesystem.cpp
 
 contains(QT_CONFIG, declarative) {
     QT += declarative
-
-    HEADERS += \
-        $$PWD/qtdeclarativemetatypebackend.h
-
-    SOURCES += \
-        $$PWD/qtdeclarativemetatypebackend.cpp
 } else {
     DEFINES += NO_DECLARATIVE_BACKEND
 }

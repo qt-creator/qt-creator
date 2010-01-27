@@ -31,12 +31,10 @@
 #include "qmlexpressionundercursor.h"
 #include "qmljseditor.h"
 #include "qmlmodelmanagerinterface.h"
-#include "qmllookupcontext.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljssymbol.h>
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljscheck.h>
 
@@ -448,16 +446,14 @@ void FunctionArgumentWidget::updateHintText()
 
 } } // end of namespace QmlJSEditor::Internal
 
-QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QmlJS::TypeSystem *typeSystem, QObject *parent)
+QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
       m_editor(0),
       m_startPosition(0),
-      m_caseSensitivity(Qt::CaseSensitive),
-      m_typeSystem(typeSystem)
+      m_caseSensitivity(Qt::CaseSensitive)
 {
     Q_ASSERT(modelManager);
-    Q_ASSERT(typeSystem);
 }
 
 QmlCodeCompletion::~QmlCodeCompletion()

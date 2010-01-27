@@ -34,17 +34,13 @@
 #include "qmlmodelmanager.h"
 
 #include "qmlexpressionundercursor.h"
-#include "qmllookupcontext.h"
-#include "qmlresolveexpression.h"
 
 #include <qmljs/qmljsindenter.h>
 
-#include <qmljs/qmljstypesystem.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljsidcollector.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
@@ -449,8 +445,7 @@ QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
 QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     TextEditor::BaseTextEditor(parent),
     m_methodCombo(0),
-    m_modelManager(0),
-    m_typeSystem(0)
+    m_modelManager(0)
 {
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
@@ -473,7 +468,6 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     baseTextDocument()->setSyntaxHighlighter(new QmlHighlighter);
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
-    m_typeSystem = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::TypeSystem>();
 
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),

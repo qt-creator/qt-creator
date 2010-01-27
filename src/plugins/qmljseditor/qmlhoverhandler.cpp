@@ -30,15 +30,12 @@
 #include "qmljseditor.h"
 #include "qmlexpressionundercursor.h"
 #include "qmlhoverhandler.h"
-#include "qmllookupcontext.h"
-#include "qmlresolveexpression.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
-#include <qmljs/qmljssymbol.h>
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsinterpreter.h>
@@ -129,16 +126,6 @@ void QmlHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
 void QmlHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
 {
     updateHelpIdAndTooltip(editor, pos);
-}
-
-static QString buildHelpId(Symbol *symbol)
-{
-    if (!symbol)
-        return QString();
-
-    const QString idTemplate(QLatin1String("QML.%1"));
-
-    return idTemplate.arg(symbol->name());
 }
 
 void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)

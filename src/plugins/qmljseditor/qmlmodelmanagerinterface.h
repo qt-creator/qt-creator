@@ -33,7 +33,6 @@
 #include "qmljseditor_global.h"
 
 #include <qmljs/qmljsdocument.h>
-#include <qmljs/qmljstypesystem.h>
 
 #include <QObject>
 #include <QStringList>

@@ -27,7 +27,6 @@
 **
 **************************************************************************/
 
-#include "qmljsidcollector.h"
 #include "qmljsdocument.h"
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljslexer_p.h>
@@ -70,8 +69,6 @@ Document::~Document()
 
     if (_pool)
         delete _pool;
-
-    qDeleteAll(_symbols);
 }
 
 Document::Ptr Document::create(const QString &fileName)
@@ -136,7 +133,6 @@ bool Document::parseQml()
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
-    _ids.clear();
 
     Lexer lexer(_engine);
     Parser parser(_engine);
@@ -146,17 +142,6 @@ bool Document::parseQml()
     _parsedCorrectly = parser.parse();
     _ast = parser.ast();
     _diagnosticMessages = parser.diagnosticMessages();
-
-    if (qmlProgram()) {
-        for (QmlJS::AST::UiObjectMemberList *iter = qmlProgram()->members; iter; iter = iter->next)
-            if (iter->member)
-                _symbols.append(new SymbolFromFile(_fileName, iter->member));
-
-         Internal::IdCollector collect;
-        _ids = collect(*this);
-        if (_diagnosticMessages.isEmpty())
-            _diagnosticMessages = collect.diagnosticMessages();
-    }
 
     return _parsedCorrectly;
 }
@@ -169,7 +154,6 @@ bool Document::parseJavaScript()
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
-    _ids.clear();
 
     Lexer lexer(_engine);
     Parser parser(_engine);
@@ -191,7 +175,6 @@ bool Document::parseExpression()
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
-    _ids.clear();
 
     Lexer lexer(_engine);
     Parser parser(_engine);
@@ -205,16 +188,6 @@ bool Document::parseExpression()
     _diagnosticMessages = parser.diagnosticMessages();
 
     return _parsedCorrectly;
-}
-
-SymbolFromFile *Document::findSymbol(QmlJS::AST::Node *node) const
-{
-    foreach (Symbol *symbol, _symbols)
-        if (symbol->isSymbolFromFile())
-            if (symbol->asSymbolFromFile()->node() == node)
-                return symbol->asSymbolFromFile();
-
-    return 0;
 }
 
 Snapshot::Snapshot()

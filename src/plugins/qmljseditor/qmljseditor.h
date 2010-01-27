@@ -43,10 +43,6 @@ namespace Core {
 class ICore;
 }
 
-namespace QmlJS {
-    class TypeSystem;
-}
-
 namespace QmlJSEditor {
 
 class QmlModelManagerInterface;
@@ -174,7 +170,6 @@ private:
     QTimer *m_updateUsesTimer;
     QComboBox *m_methodCombo;
     QmlModelManagerInterface *m_modelManager;
-    QmlJS::TypeSystem *m_typeSystem;
     QTextCharFormat m_occurrencesFormat;
 
     SemanticInfo m_semanticInfo;
