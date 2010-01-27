@@ -8,16 +8,25 @@ GroupBox {
 
     maximumHeight: 340;
 
-    layout: QVBoxLayout {
-        topMargin: 20;
-        bottomMargin: 4;
-        leftMargin: 0;
-        rightMargin: 10;
+    layout: VerticalLayout {
 
         IntEditor {
             backendValue: backendValues.radius
             caption: "Radius"
             baseStateFlag: isBaseState;
+            step: 1;
+            minimumValue: 0;
+            maximumValue: 100;
+        }        
+
+
+        IntEditor {
+            id: borderWidth;
+            backendValue: backendValues.border_width === undefined ? 0 : backendValues.border_width
+
+            caption: "Pen Width"
+            baseStateFlag: isBaseState;
+
             step: 1;
             minimumValue: 0;
             maximumValue: 100;
@@ -32,8 +41,9 @@ GroupBox {
             //modelNode: backendValues.color.modelNode;
             complexGradientNode: backendValues.color === undefined ? null : backendValues.color.complexNode
 
-            showGradientButton: true;
+            //showGradientButton: true;
         }
+
         ColorWidget {
             text: "Tint color";
             color: backendValues.tintColor === undefined ? "black" : backendValues.tintColor.value
@@ -42,18 +52,6 @@ GroupBox {
             }
         }
 
-
-        IntEditor {
-            id: borderWidth;
-            backendValue: backendValues.border_width === undefined ? 0 : backendValues.border_width
-
-            caption: "Pen Width"
-            baseStateFlag: isBaseState;
-
-            step: 1;
-            minimumValue: 0;
-            maximumValue: 100;
-        }
         ColorWidget {
             id: PenColor;
             text: "Pen Color";

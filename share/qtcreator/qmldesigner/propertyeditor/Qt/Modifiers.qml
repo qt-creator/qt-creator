@@ -11,9 +11,8 @@ GroupBox {
 
         QWidget {
             layout: HorizontalLayout {
-                QLabel {
+                Label {
                     text: "Visibility"
-                    alignment: "Qt::AlignRight | Qt::AlignVCenter"
                 }
 
                 CheckBox {
@@ -29,16 +28,14 @@ GroupBox {
                     backendValue: backendValues.clip === undefined ? false : backendValues.clip;
                     baseStateFlag: isBaseState;
                     checkable: true;
-                    fixedWidth: 100
                 }
             }
         }
         QWidget {
             layout: HorizontalLayout {
 
-                QLabel {
+                Label {
                     text: "Opacity"
-                    alignment: "Qt::AlignRight | Qt::AlignVCenter"
                 }
 
                 DoubleSpinBox {
@@ -66,12 +63,13 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
 
-                QLabel {
+                Label {
                     text: "Origin";
-                    alignment: "Qt::AlignRight | Qt::AlignVCenter"
                 }
-                QComboBox {
+                ComboBox {
                     minimumWidth: 20
+					
+					backendValue: backendValues.transformOrigin
                     items : { [
                         "TopLeft", "Top", "TopRight", "Left", "Center", "Right", "BottomLeft", "Bottom",
                         "BottomRight"
@@ -85,18 +83,13 @@ GroupBox {
                         backendValues.transformOrigin.value = currentText;
                     }
                 }
-                QWidget {
-                    fixedWidth: 100
-                }
-
             }
         }
         QWidget {
             layout: HorizontalLayout {
 
-                QLabel {
+                Label {
                     text: "Scale"
-                    alignment: "Qt::AlignRight | Qt::AlignVCenter"
                 }
 
                 DoubleSpinBox {

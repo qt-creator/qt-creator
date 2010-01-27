@@ -5,16 +5,13 @@ GroupBox {
     id: Geometry;
     caption: "Geometry";
 
-    maximumHeight: 240;
-
     layout: VerticalLayout {        
 
         QWidget {  // 1
             layout: HorizontalLayout {
 
-                QLabel {
+                Label {
                     text: "Position"
-                    alignment: "Qt::AlignRight | Qt::AlignVCenter"
                 }
 
                 DoubleSpinBox {
@@ -48,9 +45,8 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {				
 
-                QLabel {
+                Label {
                     text: "Size"
-                    alignment: "Qt::AlignRight | Qt::AlignVCenter"
                 }
 
                 DoubleSpinBox {

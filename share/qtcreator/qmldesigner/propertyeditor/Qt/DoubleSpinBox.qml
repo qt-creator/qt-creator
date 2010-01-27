@@ -55,7 +55,9 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
         QLabel {
             visible: text != ""
             id: label;
+            font.bold: true;
             alignment: "Qt::AlignRight | Qt::AlignVCenter"
+            maximumWidth: 80
         }
 
         QDoubleSpinBox {

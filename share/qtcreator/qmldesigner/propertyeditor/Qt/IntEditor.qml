@@ -13,12 +13,12 @@ QWidget {
     property var minimumValue: 0
     property var step: 1
     property bool slider: true
+    property alias alignment: label.alignment
 
     layout: HorizontalLayout {
-        QLabel {
-            text: caption
-            font.bold: true;
-            alignment: "Qt::AlignRight | Qt::AlignVCenter"
+        Label {
+            id: label
+            text: caption        
         }
 
         SpinBox {
@@ -32,7 +32,6 @@ QWidget {
         QWidget {
             visible: IntEditor.slider
             id: sliderWidget
-            fixedWidth: 100
             QSlider {
                 y: sliderWidget.height / 2 - 12
                 width: sliderWidget.width

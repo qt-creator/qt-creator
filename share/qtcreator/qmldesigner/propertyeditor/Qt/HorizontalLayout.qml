@@ -3,7 +3,7 @@ import Bauhaus 1.0
 
 QHBoxLayout { 
     id: HorizontalLayout
-    spacing: 20
+    spacing: 10
     topMargin: 0
     bottomMargin: 0
     leftMargin: 0

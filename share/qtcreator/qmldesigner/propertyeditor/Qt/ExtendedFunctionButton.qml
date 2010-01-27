@@ -74,7 +74,7 @@ QToolButton {
     QAction {
         text: "Set Expression";
         onTriggered: {
-            expressionEdit.globalY = box.globalY;
+            expressionEdit.globalY = ExtendedFunctionButton.globalY;
             expressionEdit.backendValue = ExtendedFunctionButton.backendValue
             expressionEdit.show();
             expressionEdit.raise();

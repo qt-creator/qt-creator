@@ -14,10 +14,8 @@ layout: VerticalLayout{
     QWidget  {
         maximumHeight: 40;
         layout: HorizontalLayout {
-            QLabel {
-                text: "Effect ";
-                font.bold: true;
-				alignment: "Qt::AlignRight | Qt::AlignVCenter"
+            Label {
+                text: "Effect ";             
              }
              QComboBox {
                  enabled: isBaseState;

@@ -4,31 +4,26 @@ import Bauhaus 1.0
 GroupBox {
     maximumHeight: 240;
 
-
     finished: finishedNotify;
     caption: "Image";
 
-    layout: QVBoxLayout {
-        topMargin: 12;
-        bottomMargin: 12;
-        leftMargin: 12;
-        rightMargin: 12;
-
+    layout: VerticalLayout {
+        
         FileWidget {
             enabled: isBaseState || backendValues.id.value != "";
             maximumWidth: 250;
-            text: "Source: ";
+            text: "Source";
             fileName: backendValues.source.value;
             onFileNameChanged: {
                 backendValues.source.value = fileName;
             }
-        }
+        }        
 
 
         IntEditor {
             id: pixelSize;
             backendValue: backendValues.border_left;
-            caption: "Border Left:       "
+            caption: "Left"
             baseStateFlag: isBaseState;
 
             step: 1;
@@ -38,7 +33,7 @@ GroupBox {
 
         IntEditor {
             backendValue: backendValues.border_right;
-            caption: "Border Right:    "
+            caption: "Right"
             baseStateFlag: isBaseState;
 
             step: 1;
@@ -48,7 +43,7 @@ GroupBox {
 
         IntEditor {
             backendValue: backendValues.border_top;
-            caption: "Border Top:       "
+            caption: "Top"
             baseStateFlag: isBaseState;
 
             step: 1;
@@ -58,7 +53,7 @@ GroupBox {
 
         IntEditor {
             backendValue: backendValues.border_bottom;
-            caption: "Border Bottom:"
+            caption: "Bottom"
             baseStateFlag: isBaseState;
 
             step: 1;

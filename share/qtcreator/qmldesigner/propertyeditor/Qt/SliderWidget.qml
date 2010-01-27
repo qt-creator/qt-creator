@@ -4,7 +4,7 @@ import Bauhaus 1.0
 QWidget {
     id: SliderWidget
     visible: IntEditor.slider
-    fixedWidth: 100
+    //fixedWidth: 100
 
     property alias value: slider.value
     property alias singleStep: slider.singleStep

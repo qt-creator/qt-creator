@@ -35,4 +35,11 @@ QCheckBox { //This is a special CheckBox that does color coding for states
             }
 		}
    }
+   
+   ExtendedFunctionButton {
+        backendValue: CheckBox.backendValue
+        y: 2
+        x: 0
+        visible: CheckBox.enabled
+    }
 }
