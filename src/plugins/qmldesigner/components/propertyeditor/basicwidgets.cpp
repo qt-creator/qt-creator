@@ -64,6 +64,39 @@ QT_BEGIN_NAMESPACE
 
 class QWidgetDeclarativeUI;
 
+class Actions : public QmlConcreteList<Action *>
+    {
+    public:
+        Actions(QObject *o) : widget(qobject_cast<QWidget*>(o)) {}
+        virtual void append(Action *o)
+        {
+            QmlConcreteList<Action *>::append(o);
+            o->setParent(widget);
+            widget->addAction(o);
+        }
+        virtual void clear()
+        {
+            QmlConcreteList<Action *>::clear();
+            
+            while (!widget->actions().empty())
+                widget->removeAction(widget->actions().first());
+            //menu->clear();
+        }
+        virtual void removeAt(int i)
+        {
+            QmlConcreteList<Action *>::removeAt(i);
+            widget->removeAction(widget->actions().at(i));
+        }
+        virtual void insert(int i, Action *obj)
+        {
+            QmlConcreteList<Action *>::insert(i, obj);
+            obj->setParent(widget);
+            widget->addAction(obj);
+        }
+    private:
+        QWidget *widget;
+    };
+
 class ResizeEventFilter : public QObject
 {
     Q_OBJECT
@@ -86,6 +119,7 @@ class QWidgetDeclarativeUI : public QObject
 
     Q_PROPERTY(QmlList<QObject *> *children READ children)
     Q_PROPERTY(QLayoutObject *layout READ layout WRITE setLayout)
+    Q_PROPERTY(QmlList<Action *> *actions READ actions)
     Q_PROPERTY(QFont font READ font CONSTANT)
 
     Q_PROPERTY(QPoint pos READ pos)
@@ -93,6 +127,10 @@ class QWidgetDeclarativeUI : public QObject
 
     Q_PROPERTY(int x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(int y READ y WRITE setY NOTIFY yChanged)
+
+    Q_PROPERTY(int globalX READ globalX WRITE setGlobalX)
+    Q_PROPERTY(int globalY READ globalY WRITE setGlobalY)
+
     Q_PROPERTY(bool focus READ hasFocus NOTIFY focusChanged)
     Q_PROPERTY(int width READ width WRITE setWidth NOTIFY widthChanged)
     Q_PROPERTY(int height READ height WRITE setHeight NOTIFY heightChanged)
@@ -125,7 +163,7 @@ signals:
     void opacityChanged();
 
 public:
-    QWidgetDeclarativeUI(QObject *other) : QObject(other), _children(other), _layout(0), _graphicsOpacityEffect(0) {
+    QWidgetDeclarativeUI(QObject *other) : QObject(other), _children(other), _layout(0), _graphicsOpacityEffect(0), _actions(other) {
 
 
         q = qobject_cast<QWidget*>(other);
@@ -226,6 +264,13 @@ public:
         return q->x();
     }
 
+    int globalX() const {
+        if (q->parentWidget())
+            return q->mapToGlobal(QPoint(x(), 0)).x();
+        else
+            return x();
+    }
+
     bool hasFocus() const {
         return q->hasFocus();
     }
@@ -238,8 +283,21 @@ public:
         q->move(x, y());
     }
 
+    void setGlobalX(int newX) {
+        if (q->parentWidget())
+            setX(q->mapFromGlobal(QPoint(newX, 1)).x());
+        else
+            setX(newX);
+    }
+
     int y() const {
         return q->y();
+    }
+
+    int globalY() const {
+        if (q->parentWidget())
+            return q->mapToGlobal(QPoint(1,y())).y();
+        else return y();
     }
 
     qreal opacity() const {
@@ -262,6 +320,13 @@ public:
 
     void setY(int y) {
         q->move(x(), y);
+    }
+
+    void setGlobalY(int newY) {
+        if (q->parentWidget())
+            setY(q->parentWidget()->mapFromGlobal(QPoint(1, newY)).y());
+        else
+            setY(newY);
     }
 
     int width() const {
@@ -390,6 +455,9 @@ public:
 
     }
 
+
+    QmlList<Action *> *actions() { return &_actions; }
+
 private:
     QWidget *q;
     Children _children;
@@ -398,6 +466,7 @@ private:
     QUrl _styleSheetFile;
     QGraphicsOpacityEffect *_graphicsOpacityEffect;
     bool m_mouseOver;
+    Actions _actions;
 };
 
 bool ResizeEventFilter::eventFilter(QObject *obj, QEvent *event)
@@ -518,51 +587,19 @@ class QMenuDeclarativeUI : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QmlList<Action *> *actions READ actions)
     Q_CLASSINFO("DefaultProperty", "actions")
 
 public:
-    QMenuDeclarativeUI(QObject *parent = 0) : QObject(parent), _actions(parent)
+    QMenuDeclarativeUI(QObject *parent = 0) : QObject(parent)
      {
          menu = qobject_cast<QMenu*>(parent);
      }
 
-     QmlList<Action *> *actions() { return &_actions; }
-
 private:
     //if not for the at() function, we could use QmlList instead
-    class Actions : public QmlConcreteList<Action *>
-    {
-    public:
-        Actions(QObject *o) : menu(qobject_cast<QMenu*>(o)) {}
-        virtual void append(Action *o)
-        {
-            QmlConcreteList<Action *>::append(o);
-            o->setParent(menu);
-            menu->addAction(o);
-        }
-        virtual void clear()
-        {
-            QmlConcreteList<Action *>::clear();
-            menu->clear();
-        }
-        virtual void removeAt(int i)
-        {
-            QmlConcreteList<Action *>::removeAt(i);
-            menu->removeAction(menu->actions().at(i));
-        }
-        virtual void insert(int i, Action *obj)
-        {
-            QmlConcreteList<Action *>::insert(i, obj);
-            obj->setParent(menu);
-            menu->addAction(obj);
-        }
-    private:
-        QMenu *menu;
-    };
 
     QMenu *menu;
-    Actions _actions;
+    
 };
 
 class QToolButtonDeclarativeUI : public QObject
@@ -582,7 +619,9 @@ private:
     QMenu *menu() const { return pb->menu(); }
     void setMenu(QMenu *menu)
     {
+        menu->setParent(0);
         pb->setMenu(menu);
+        menu->setParent(QApplication::topLevelWidgets().first());
     }
 
     QUrl iconFromFile() const
