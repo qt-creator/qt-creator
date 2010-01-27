@@ -202,7 +202,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         Interpreter::ObjectValue *scope = bind(declaringMember);
         Check check(&interp);
         const Interpreter::Value *value = check(expression, scope);
-        m_toolTip = interp.typeId(value);
+        m_toolTip = prettyPrint(value, &interp);
 
 #if 0
         QmlLookupContext context(expressionUnderCursor.expressionScopes(), doc, m_modelManager->snapshot(), typeSystem);
@@ -240,4 +240,23 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     } else if (!m_helpId.isEmpty()) {
         m_toolTip = QString(QLatin1String("<nobr>No help available for \"%1\"")).arg(symbolName);
     }
+}
+
+QString QmlHoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Engine *interp) const
+{
+    if (!value)
+        return QString();
+
+    if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
+        QString className = objectValue->className();
+
+        while (objectValue && objectValue->prototype() && className.isEmpty()) {
+            objectValue = objectValue->prototype();
+            className = objectValue->className();
+        }
+
+        return className;
+    }
+
+    return interp->typeId(value);
 }
