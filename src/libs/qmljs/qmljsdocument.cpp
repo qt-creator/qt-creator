@@ -50,11 +50,16 @@ Document::Document(const QString &fileName)
 {
     QFileInfo fileInfo(fileName);
     _path = fileInfo.absolutePath();
-    _componentName = fileInfo.baseName();
-    if (! _componentName.isEmpty()) {
-        // ### TODO: check the component name.
-        if (! _componentName.at(0).isUpper())
-            _componentName.clear();
+
+    if (fileInfo.suffix() == QLatin1String("qml")) {
+        _componentName = fileInfo.baseName();
+
+        if (! _componentName.isEmpty()) {
+            // ### TODO: check the component name.
+
+            if (! _componentName.at(0).isUpper())
+                _componentName.clear();
+        }
     }
 }
 
