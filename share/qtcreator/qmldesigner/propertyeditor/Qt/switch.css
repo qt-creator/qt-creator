@@ -1,21 +1,42 @@
 QPushButton {
-     border: 0px solid #6f6f61;
-     border-image: url(:/images/button2_normal.png) 2 2 2 2;
-     border-radius: 1px;
-     min-width: 20px;
+     border-image: none;
+     min-width: 40px;
      min-height: 20px;
-     margin: 0px 0 2px 0;
+     margin: 0px 0 0px 0;
+	 border: 1px solid #0F0F0F;     
+     background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #3c3c3c, stop: 1 #444444);
+									   
+    color: #EEEEEE;
+	font: bold;
+ }
+ 
+  QPushButton:hover {
+     border: none; /* no border for a flat push button */
+	 
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #3c3c3c, stop: 1 #666666);
  }
 
  QPushButton::checked 
  {
-     border-image: url(:/images/button2_pressed.png) 2 2 2 2;
-     border: 1px solid #4f4f41;
+	 border: none; /* no border for a flat push button */
+	 background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #EFEFEF, stop: 1 #EEEEEE);
+    color: 	#3c3c3c;								   
+ } 
+ 
+ QPushButton::checked :hover
+ {
+	 border: none; /* no border for a flat push button */
+	 background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #FFFFFF, stop: 1 #FEFEFE);
  } 
 
- QPushButton:pressed {
-     border-image: url(:/images/button2_pressed.png) 2 2 2 2;
 
+ QPushButton:pressed {
+	 background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #EFEFEF, stop: 1 #EEEEEE);
  }
 
  QPushButton:flat {
@@ -23,10 +44,10 @@ QPushButton {
  }
 
  QPushButton:default {
-     border-image: url(:/images/button2_normal.png) 2 2 2 2;
+	 
+	 background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                       stop: 0 #2c2c2c, stop: 1 #333333);
  }
  
- QPushButton:hover {
-     border-image: url(:/images/button2_hovered.png) 2 2 2 2;
- }
+
  

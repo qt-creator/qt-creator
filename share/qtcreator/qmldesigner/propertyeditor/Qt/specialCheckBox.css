@@ -8,6 +8,7 @@ QCheckBox {
  QToolButton {
 	color: white;
 	font: bold;
+	background: #5f5f5f;
  }
 
  QCheckBox::indicator {

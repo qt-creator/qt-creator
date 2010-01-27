@@ -1,0 +1,8 @@
+QPushButton {
+     border-image: url(:/qmldesigner/images/cancel.png) 3;
+     border-width: 3;     
+ }
+ 
+  QPushButton:hover {
+    border-image: url(:/qmldesigner/images/cancelbright.png) 3;
+ }

@@ -1,0 +1,8 @@
+QPushButton {
+    border-image: url(:/qmldesigner/images/apply.png) 3;
+    border-width: 3;
+ }
+ 
+  QPushButton:hover {
+    border-image: url(:/qmldesigner/images/applybright.png) 3;
+ }
