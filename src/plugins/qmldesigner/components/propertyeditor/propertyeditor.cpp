@@ -177,7 +177,7 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
     file.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(file.readAll());
     m_stackedWidget->setStyleSheet(styleSheet);
-    m_stackedWidget->setMinimumWidth(320);
+    m_stackedWidget->setMinimumWidth(360);
 }
 
 PropertyEditor::~PropertyEditor()
