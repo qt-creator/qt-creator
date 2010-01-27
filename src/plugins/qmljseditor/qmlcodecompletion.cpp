@@ -666,12 +666,10 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         scope = interp.newObject(/* prototype = */ 0);
 
         AST::UiObjectMember *declaringMember = 0;
-        AST::UiObjectMember *parentMember = 0;
 
         const int cursorPosition = editor->position();
         foreach (const Range &range, semanticInfo.ranges) {
             if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
-                parentMember = declaringMember;
                 declaringMember = range.ast;
             }
         }
