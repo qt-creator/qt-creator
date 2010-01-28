@@ -161,9 +161,8 @@ void QScriptHighlighter::highlightBlock(const QString &text)
     else if (text.length() > lastEnd)
         setFormat(lastEnd, text.length() - lastEnd, m_formats[VisualWhitespace]);
 
-    onBlockEnd(m_scanner.endState(), firstNonSpace);
-
     setCurrentBlockState(m_scanner.endState());
+    onBlockEnd(m_scanner.endState(), firstNonSpace);
 }
 
 void QScriptHighlighter::setFormats(const QVector<QTextCharFormat> &s)
