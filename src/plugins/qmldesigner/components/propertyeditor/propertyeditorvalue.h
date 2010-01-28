@@ -81,8 +81,8 @@ class PropertyEditorValue : public QObject
     Q_OBJECT
     Q_PROPERTY(QVariant value READ value WRITE setValueWithEmit NOTIFY valueChanged)
     Q_PROPERTY(QString expression READ expression WRITE setExpressionWithEmit NOTIFY expressionChanged FINAL)
-    Q_PROPERTY(bool isInModel READ isInModel FINAL)
-    Q_PROPERTY(bool isInSubState READ isInSubState FINAL)
+    Q_PROPERTY(bool isInModel READ isInModel NOTIFY valueChanged FINAL)
+    Q_PROPERTY(bool isInSubState READ isInSubState NOTIFY valueChanged FINAL)
     Q_PROPERTY(bool isBound READ isBound NOTIFY isBoundChanged FINAL)
     Q_PROPERTY(bool isValid READ isValid NOTIFY isValid FINAL)
     Q_PROPERTY(QString name READ name FINAL)
