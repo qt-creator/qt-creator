@@ -31,6 +31,7 @@
 
 #include <QtCore/QSet>
 #include <QtCore/QtAlgorithms>
+#include <QtCore/QDebug>
 
 using namespace QmlJS;
 
@@ -58,11 +59,10 @@ bool QScriptHighlighter::isDuiEnabled() const
 
 void QScriptHighlighter::highlightBlock(const QString &text)
 {
-    m_scanner(text, onBlockStart());
+    const QList<Token> tokens = m_scanner(text, onBlockStart());
 
     QTextCharFormat emptyFormat;
     int lastEnd = 0;
-    const QList<Token> tokens = m_scanner.tokens();
     for (int i = 0; i < tokens.size(); ++i) {
         const Token token = tokens.at(i);
 
@@ -111,7 +111,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::Identifier:
-                if (m_duiEnabled && (i + 1 != tokens.size()) && tokens.at(i + 1).kind == Token::Colon) {
+                if (m_duiEnabled && (i + 1) < tokens.size() && tokens.at(i + 1).is(Token::Colon)) {
                     int j = i;
                     for (; j != -1; --j) {
                         const Token &tok = tokens.at(j);
@@ -138,8 +138,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                     setFormat(token.offset, token.length, emptyFormat);
                 break;
 
-            case Token::Operator:
-            case Token::Dot:
+            case Token::Delimiter:
                 setFormat(token.offset, token.length, emptyFormat);
                 break;
 
@@ -150,13 +149,21 @@ void QScriptHighlighter::highlightBlock(const QString &text)
         lastEnd = token.end();
     }
 
-    const int firstNonSpace = m_scanner.firstNonSpace();
+    int firstNonSpace = 0;
+
+    if (! tokens.isEmpty()) {
+        const Token &tk = tokens.first();
+        firstNonSpace = tk.offset;
+    }
+
     if (firstNonSpace > lastEnd)
         setFormat(lastEnd, firstNonSpace - lastEnd, m_formats[VisualWhitespace]);
     else if (text.length() > lastEnd)
         setFormat(lastEnd, text.length() - lastEnd, m_formats[VisualWhitespace]);
 
     onBlockEnd(m_scanner.endState(), firstNonSpace);
+
+    setCurrentBlockState(m_scanner.endState());
 }
 
 void QScriptHighlighter::setFormats(const QVector<QTextCharFormat> &s)
@@ -237,15 +244,20 @@ QSet<QString> QScriptHighlighter::keywords()
 
 int QScriptHighlighter::onBlockStart()
 {
-    int state = 0;
-    int previousState = previousBlockState();
-    if (previousState != -1)
-        state = previousState;
-    return state;
+    return currentBlockState();
 }
-void QScriptHighlighter::onOpeningParenthesis(QChar, int) {}
-void QScriptHighlighter::onClosingParenthesis(QChar, int) {}
-void QScriptHighlighter::onBlockEnd(int state, int) { return setCurrentBlockState(state); }
+
+void QScriptHighlighter::onBlockEnd(int, int)
+{
+}
+
+void QScriptHighlighter::onOpeningParenthesis(QChar, int)
+{
+}
+
+void QScriptHighlighter::onClosingParenthesis(QChar, int)
+{
+}
 
 void QScriptHighlighter::highlightWhitespace(const Token &token, const QString &text, int nonWhitespaceFormat)
 {

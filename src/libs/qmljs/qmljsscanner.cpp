@@ -34,330 +34,209 @@
 using namespace QmlJS;
 
 QmlJSScanner::QmlJSScanner()
+    : m_state(0)
 {
-    reset();
 }
 
 QmlJSScanner::~QmlJSScanner()
-{}
-
-void QmlJSScanner::reset()
 {
-    m_endState = -1;
-    m_firstNonSpace = -1;
-    m_tokens.clear();
+}
+
+static bool isIdentifierChar(QChar ch)
+{
+    switch (ch.unicode()) {
+    case '$': case '_':
+        return true;
+
+    default:
+        return ch.isLetterOrNumber();
+    }
+}
+
+static bool isNumberChar(QChar ch)
+{
+    switch (ch.unicode()) {
+    case '.':
+    case 'e':
+    case 'E': // ### more...
+        return true;
+
+    default:
+        return ch.isLetterOrNumber();
+    }
 }
 
 QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
 {
-    reset();
-
-    // tokens
-    enum TokenKind {
-        InputAlpha,
-        InputNumber,
-        InputAsterix,
-        InputSlash,
-        InputSpace,
-        InputQuotation,
-        InputApostrophe,
-        InputSep,
-        NumInputs
-    };
-
-    // states
     enum {
-        StateStandard,
-        StateCommentStart1,    // '/'
-        StateCCommentStart2,   // '*' after a '/'
-        StateCppCommentStart2, // '/' after a '/'
-        StateCComment,         // after a "/*"
-        StateCppComment,       // after a "//"
-        StateCCommentEnd1,     // '*' in a CppComment
-        StateCCommentEnd2,     // '/' after a '*' in a CppComment
-        StateStringStart,
-        StateString,
-        StateStringEnd,
-        StateString2Start,
-        StateString2,
-        StateString2End,
-        StateNumber,
-        NumStates
+        Normal = 0,
+        MultiLineComment = 1
     };
 
-    static const uchar table[NumStates][NumInputs] = {
-       // InputAlpha          InputNumber      InputAsterix         InputSlash             InputSpace       InputQuotation    InputApostrophe    InputSep
-        { StateStandard,      StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateStandard
-        { StateStandard,      StateNumber,     StateCCommentStart2, StateCppCommentStart2, StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateCommentStart1
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCComment,         StateCComment,   StateCComment,    StateCComment,     StateCComment   }, // StateCCommentStart2
-        { StateCppComment,    StateCppComment, StateCppComment,     StateCppComment,       StateCppComment, StateCppComment,  StateCppComment,   StateCppComment }, // StateCppCommentStart2
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCComment,         StateCComment,   StateCComment,    StateCComment,     StateCComment   }, // StateCComment
-        { StateCppComment,    StateCppComment, StateCppComment,     StateCppComment,       StateCppComment, StateCppComment,  StateCppComment,   StateCppComment }, // StateCppComment
-        { StateCComment,      StateCComment,   StateCCommentEnd1,   StateCCommentEnd2,     StateCComment,   StateCComment,    StateCComment,     StateCComment   }, // StateCCommentEnd1
-        { StateStandard,      StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateCCommentEnd2
-        { StateString,        StateString,     StateString,         StateString,           StateString,     StateStringEnd,   StateString,       StateString     }, // StateStringStart
-        { StateString,        StateString,     StateString,         StateString,           StateString,     StateStringEnd,   StateString,       StateString     }, // StateString
-        { StateStandard,      StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateStringEnd
-        { StateString2,       StateString2,    StateString2,        StateString2,          StateString2,    StateString2,     StateString2End,   StateString2    }, // StateString2Start
-        { StateString2,       StateString2,    StateString2,        StateString2,          StateString2,    StateString2,     StateString2End,   StateString2    }, // StateString2
-        { StateStandard,      StateStandard,   StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }, // StateString2End
-        { StateNumber,        StateNumber,     StateStandard,       StateCommentStart1,    StateStandard,   StateStringStart, StateString2Start, StateStandard   }  // StateNumber
-    };
+    m_state = startState;
+    QList<Token> tokens;
 
-    int state = startState;
-    if (text.isEmpty()) {
-        blockEnd(state, 0);
-        return m_tokens;
+    // ### handle multi line comment state.
+
+    int index = 0;
+
+    if (m_state == MultiLineComment) {
+        const int start = index;
+        while (index < text.length()) {
+            const QChar ch = text.at(index);
+            QChar la;
+            if (index + 1 < text.length())
+                la = text.at(index + 1);
+
+            if (ch == QLatin1Char('*') && la == QLatin1Char('/')) {
+                m_state = Normal;
+                index += 2;
+                break;
+            } else {
+                ++index;
+            }
+        }
+
+        tokens.append(Token(start, index - start, Token::Comment));
     }
 
-    int input = -1;
-    int i = 0;
-    bool lastWasBackSlash = false;
-    bool makeLastStandard = false;
+    while (index < text.length()) {
+        const QChar ch = text.at(index);
 
-    static const QString alphabeth = QLatin1String("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    static const QString mathChars = QString::fromLatin1("xXeE");
-    static const QString numbers = QString::fromLatin1("0123456789");
-    QChar lastChar;
+        QChar la; // lookahead char
+        if (index + 1 < text.length())
+            la = text.at(index + 1);
 
-    int firstNonSpace = -1;
-    int lastNonSpace = -1;
+        switch (ch.unicode()) {
+        case '/':
+            if (la == QLatin1Char('/')) {
+                tokens.append(Token(index, text.length() - index, Token::Comment));
+                index = text.length();
+            } else if (la == QLatin1Char('*')) {
+                const int start = index;
+                index += 2;
+                m_state = MultiLineComment;
+                while (index < text.length()) {
+                    const QChar ch = text.at(index);
+                    QChar la;
+                    if (index + 1 < text.length())
+                        la = text.at(index + 1);
 
-    forever {
-        const QChar qc = text.at(i);
-        const char c = qc.toLatin1();
-
-        if (lastWasBackSlash) {
-            input = InputSep;
-        } else {
-            switch (c) {
-                case '*':
-                    input = InputAsterix;
-                    break;
-                case '/':
-                    input = InputSlash;
-                    break;
-                case '"':
-                    input = InputQuotation;
-                    break;
-                case '\'':
-                    input = InputApostrophe;
-                    break;
-                case ' ':
-                    input = InputSpace;
-                    break;
-                case '1': case '2': case '3': case '4': case '5':
-                case '6': case '7': case '8': case '9': case '0':
-                    if (alphabeth.contains(lastChar) && (!mathChars.contains(lastChar) || !numbers.contains(text.at(i - 1)))) {
-                        input = InputAlpha;
+                    if (ch == QLatin1Char('*') && la == QLatin1Char('/')) {
+                        m_state = Normal;
+                        index += 2;
+                        break;
                     } else {
-                        if (input == InputAlpha && numbers.contains(lastChar))
-                            input = InputAlpha;
-                        else
-                            input = InputNumber;
+                        ++index;
                     }
-                    break;
-                case '.':
-                    if (state == StateNumber)
-                        input = InputNumber;
-                    else
-                        input = InputSep;
-                    break;
-                default: {
-                    if (qc.isLetter() || c == '_')
-                        input = InputAlpha;
-                    else
-                        input = InputSep;
-                    break;
                 }
+                tokens.append(Token(start, index - start, Token::Comment));
+            } else {
+                tokens.append(Token(index++, 1, Token::Delimiter));
             }
-        }
-
-        if (input != InputSpace) {
-            if (firstNonSpace < 0)
-                firstNonSpace = i;
-            lastNonSpace = i;
-        }
-
-        lastWasBackSlash = !lastWasBackSlash && c == '\\';
-
-        state = table[state][input];
-
-        switch (state) {
-            case StateStandard: {
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-
-                if (input == InputAlpha ) {
-                    insertIdentifier(i);
-                } else if (input == InputSep || input == InputAsterix) {
-                    insertCharToken(i, c);
-                }
-
-                break;
-            }
-
-            case StateCommentStart1:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = true;
-                break;
-            case StateCCommentStart2:
-                makeLastStandard = false;
-                insertComment(i - 1, 2);
-                break;
-            case StateCppCommentStart2:
-                insertComment(i - 1, 2);
-                makeLastStandard = false;
-                break;
-            case StateCComment:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertComment(i, 1);
-                break;
-            case StateCppComment:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertComment(i, 1);
-                break;
-            case StateCCommentEnd1:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertComment(i, 1);
-                break;
-            case StateCCommentEnd2:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertComment(i, 1);
-                break;
-            case StateStringStart:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertString(i);
-                break;
-            case StateString:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertString(i);
-                break;
-            case StateStringEnd:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertString(i);
-                break;
-            case StateString2Start:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertString(i);
-                break;
-            case StateString2:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertString(i);
-                break;
-            case StateString2End:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertString(i);
-                break;
-            case StateNumber:
-                if (makeLastStandard)
-                    insertCharToken(i - 1, text.at(i - 1).toAscii());
-                makeLastStandard = false;
-                insertNumber(i);
-                break;
-        }
-
-        lastChar = qc;
-        i++;
-        if (i >= text.length())
             break;
+
+        case '\'':
+        case '"': {
+            const QChar quote = ch;
+            const int start = index;
+            ++index;
+            while (index < text.length()) {
+                const QChar ch = text.at(index);
+
+                if (ch == quote)
+                    break;
+                else if (index + 1 < text.length() && ch == QLatin1Char('\\'))
+                    index += 2;
+                else
+                    ++index;
+            }
+
+            if (index < text.length()) {
+                ++index;
+                // good one
+            } else {
+                // unfinished
+            }
+
+            tokens.append(Token(start, index - start, Token::String));
+        } break;
+
+        case '.':
+            if (la.isDigit()) {
+                const int start = index;
+                do {
+                    ++index;
+                } while (index < text.length() && isNumberChar(text.at(index)));
+                tokens.append(Token(start, index - start, Token::Number));
+                break;
+            }
+            tokens.append(Token(index++, 1, Token::Dot));
+            break;
+
+         case '(':
+            tokens.append(Token(index++, 1, Token::LeftParenthesis));
+            break;
+
+         case ')':
+            tokens.append(Token(index++, 1, Token::RightParenthesis));
+            break;
+
+         case '[':
+            tokens.append(Token(index++, 1, Token::LeftBracket));
+            break;
+
+         case ']':
+            tokens.append(Token(index++, 1, Token::RightBracket));
+            break;
+
+         case '{':
+            tokens.append(Token(index++, 1, Token::LeftBrace));
+            break;
+
+         case '}':
+            tokens.append(Token(index++, 1, Token::RightBrace));
+            break;
+
+         case ';':
+            tokens.append(Token(index++, 1, Token::Semicolon));
+            break;
+
+         case ':':
+            tokens.append(Token(index++, 1, Token::Colon));
+            break;
+
+         case ',':
+            tokens.append(Token(index++, 1, Token::Comma));
+            break;
+
+        default:
+            if (ch.isNumber()) {
+                const int start = index;
+                do {
+                    ++index;
+                } while (index < text.length() && isNumberChar(text.at(index)));
+                tokens.append(Token(start, index - start, Token::Number));
+            } else if (ch.isLetter() || ch == QLatin1Char('_') || ch == QLatin1Char('$')) {
+                const int start = index;
+                do {
+                    ++index;
+                } while (index < text.length() && isIdentifierChar(text.at(index)));
+
+                if (isKeyword(text.mid(start, index - start)))
+                    tokens.append(Token(start, index - start, Token::Keyword)); // ### fixme
+                else
+                    tokens.append(Token(start, index - start, Token::Identifier));
+            } else {
+                tokens.append(Token(index++, 1, Token::Delimiter));
+            }
+        } // end of switch
     }
 
-    scanForKeywords(text);
-
-    if (state == StateCComment
-        || state == StateCCommentEnd1
-        || state == StateCCommentStart2
-       ) {
-        state = StateCComment;
-    } else {
-        state = StateStandard;
-    }
-
-    blockEnd(state, firstNonSpace);
-
-    return m_tokens;
+    return tokens;
 }
 
-void QmlJSScanner::insertToken(int start, int length, Token::Kind kind, bool forceNewToken)
+bool QmlJSScanner::isKeyword(const QString &text) const
 {
-    if (m_tokens.isEmpty() || forceNewToken) {
-        m_tokens.append(Token(start, length, kind));
-    } else {
-        Token &lastToken(m_tokens.last());
-
-        if (lastToken.kind == kind && lastToken.end() == start) {
-            lastToken.length += 1;
-        } else {
-            m_tokens.append(Token(start, length, kind));
-        }
-    }
-}
-
-void QmlJSScanner::insertCharToken(int start, const char c)
-{
-    Token::Kind kind;
-
-    switch (c) {
-    case '!':
-    case '<':
-    case '>':
-    case '+':
-    case '-':
-    case '*':
-    case '/':
-    case '%': kind = Token::Operator; break;
-
-    case ';': kind = Token::Semicolon; break;
-    case ':': kind = Token::Colon; break;
-    case ',': kind = Token::Comma; break;
-    case '.': kind = Token::Dot; break;
-
-    case '(': kind = Token::LeftParenthesis; break;
-    case ')': kind = Token::RightParenthesis; break;
-    case '{': kind = Token::LeftBrace; break;
-    case '}': kind = Token::RightBrace; break;
-    case '[': kind = Token::LeftBracket; break;
-    case ']': kind = Token::RightBracket; break;
-
-    default: kind = Token::Identifier; break;
-    }
-
-    insertToken(start, 1, kind, true);
-}
-
-void QmlJSScanner::scanForKeywords(const QString &text)
-{
-    for (int i = 0; i < m_tokens.length(); ++i) {
-        Token &t(m_tokens[i]);
-
-        if (t.kind != Token::Identifier)
-            continue;
-
-        const QString id = text.mid(t.offset, t.length);
-        if (m_keywords.contains(id))
-            t.kind = Token::Keyword;
-    }
+    return m_keywords.contains(text);
 }

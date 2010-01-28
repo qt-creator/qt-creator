@@ -61,13 +61,13 @@ public:
     QSet<QString> keywords();
 
 protected:
+    virtual int onBlockStart();
+    virtual void onBlockEnd(int state, int firstNonSpace);
+
     // The functions are notified whenever parentheses are encountered.
     // Custom behaviour can be added, for example storing info for indenting.
-    virtual int onBlockStart(); // returns the blocks initial state
     virtual void onOpeningParenthesis(QChar parenthesis, int pos);
     virtual void onClosingParenthesis(QChar parenthesis, int pos);
-    // sets the enriched user state, or simply calls setCurrentBlockState(state);
-    virtual void onBlockEnd(int state, int firstNonSpace);
 
     virtual void highlightWhitespace(const Token &token, const QString &text, int nonWhitespaceFormat);
 

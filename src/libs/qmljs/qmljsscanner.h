@@ -54,11 +54,11 @@ public:
         RightBrace,
         LeftBracket,
         RightBracket,
-        Operator,
         Semicolon,
         Colon,
         Comma,
-        Dot
+        Dot,
+        Delimiter
     };
 
     inline Token(): offset(0), length(0), kind(EndOfFile) {}
@@ -83,39 +83,17 @@ public:
     void setKeywords(const QSet<QString> keywords)
     { m_keywords = keywords; }
 
-    void reset();
-
     QList<Token> operator()(const QString &text, int startState = 0);
 
     int endState() const
-    { return m_endState; }
-
-    int firstNonSpace() const
-    { return m_firstNonSpace; }
-
-    QList<Token> tokens() const
-    { return m_tokens; }
+    { return m_state; }
 
 private:
-    void blockEnd(int state, int firstNonSpace)
-    { m_endState = state; m_firstNonSpace = firstNonSpace; }
-    void insertString(int start)
-    { insertToken(start, 1, Token::String, false); }
-    void insertComment(int start, int length)
-    { insertToken(start, length, Token::Comment, false); }
-    void insertCharToken(int start, const char c);
-    void insertIdentifier(int start)
-    { insertToken(start, 1, Token::Identifier, false); }
-    void insertNumber(int start)
-    { insertToken(start, 1, Token::Number, false); }
-    void insertToken(int start, int length, Token::Kind kind, bool forceNewToken);
-    void scanForKeywords(const QString &text);
+    bool isKeyword(const QString &text) const;
 
 private:
     QSet<QString> m_keywords;
-    int m_endState;
-    int m_firstNonSpace;
-    QList<Token> m_tokens;
+    int m_state;
 };
 
 } // namespace QmlJS

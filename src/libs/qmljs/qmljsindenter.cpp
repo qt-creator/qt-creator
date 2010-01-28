@@ -256,7 +256,7 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
         case Token::LeftParenthesis:
         case Token::LeftBrace:
         case Token::Semicolon:
-        case Token::Operator:
+        case Token::Delimiter:
             break;
 
         case Token::RightParenthesis:
