@@ -148,11 +148,6 @@ inline bool isBinaryOperator(int tokenKind)
     }
 }
 
-inline bool isRightAssoc(int /*tokenKind*/)
-{
-    return false;
-}
-
 } // end of anonymous namespace
 
 #ifndef CPLUSPLUS_NO_DEBUG_RULE
@@ -4390,8 +4385,7 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
             return;
 
         for (int tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments);
-                precedenceAhead > operPrecedence && isBinaryOperator(tokenKindAhead)
-                    || precedenceAhead == operPrecedence && isRightAssoc(tokenKindAhead);
+                precedenceAhead > operPrecedence && isBinaryOperator(tokenKindAhead);
                 tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments)) {
             parseExpressionWithOperatorPrecedence(rhs, precedenceAhead);
         }

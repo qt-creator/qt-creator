@@ -311,8 +311,7 @@ protected:
             Value rhs = _value;
 
             for (int LA_token_kind = (*_lex)->kind(), LA_precedence = precedence(LA_token_kind);
-                    LA_precedence > operPrecedence && isBinaryOperator(LA_token_kind)
-                        || LA_precedence == operPrecedence && isRightAssoc(LA_token_kind);
+                    LA_precedence > operPrecedence && isBinaryOperator(LA_token_kind);
                     LA_token_kind = (*_lex)->kind(), LA_precedence = precedence(LA_token_kind)) {
                 rhs = process_expression_with_operator_precedence(rhs, LA_precedence);
             }
@@ -424,9 +423,6 @@ private:
             return Value();
         }
     }
-
-    static inline bool isRightAssoc(int /*tokenKind*/)
-    { return false; }
 
 private:
     Client *client;
