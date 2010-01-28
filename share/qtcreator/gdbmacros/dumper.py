@@ -546,9 +546,11 @@ class FrameCommand(gdb.Command):
                 # Special handling for char** argv.
                 n = 0
                 p = item.value
-                while not isNull(p.dereference()) and n <= 100:
-                    p += 1
-                    n += 1
+                # p is 0 for "optimized out" cases.
+                if not isNull(p):
+                    while not isNull(p.dereference()) and n <= 100:
+                        p += 1
+                        n += 1
 
                 d.beginHash()
                 d.put('iname="%s",' % item.iname)
