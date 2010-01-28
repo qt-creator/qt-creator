@@ -19,26 +19,27 @@ GroupBox {
                 LineEdit {
                     backendValue: backendValues.text
                 }
-
+            }
+        }
+        QWidget {
+            layout: HorizontalLayout {
+                Label {
+                    text: ""
+                }
                 CheckBox {
-                    fixedWidth: 70
                     baseStateFlag: isBaseState;
-                    text: "Wraps";
+                    text: "Is Wrapping";
                     checkable: true;
                     backendValue: backendValues.wrap;
                 }
             }
         }
-
-
-
         QWidget {
             layout: HorizontalLayout {
 
                 Label {
                     text: "Alignment"
                 }
-
                 ComboBox {
                     items : { ["AlignLeft", "AlignRight", "AlignHCenter"] }
                     currentText: backendValues.horizontalAlignment.value;
@@ -52,7 +53,6 @@ GroupBox {
                     }
 
                 }
-
                 ComboBox {
                     items : { ["AlignTop", "AlignBottom", "AlignVCenter"] }
                     currentText: backendValues.verticalAlignment.value;
@@ -64,7 +64,6 @@ GroupBox {
                         if (count == 3)
                             backendValues.verticalAlignment.value = currentText;
                     }
-
                 }
             }
         }
