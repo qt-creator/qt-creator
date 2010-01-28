@@ -75,7 +75,7 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
             << QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
             << QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE);
 
-#ifndef Q_WS_MAC
+#if !defined(Q_WS_MAC) && !defined(Q_WS_WIN)
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
     Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
     iconProvider->registerIconOverlayForMimeType(QIcon(":/cppeditor/images/qt_cpp.png"),
@@ -89,7 +89,7 @@ CppEditorFactory::CppEditorFactory(CppPlugin *owner) :
 
 QString CppEditorFactory::id() const
 {
-    return QLatin1String(QLatin1String(CppEditor::Constants::CPPEDITOR_ID));
+    return QLatin1String(CppEditor::Constants::CPPEDITOR_ID);
 }
 
 QString CppEditorFactory::displayName() const

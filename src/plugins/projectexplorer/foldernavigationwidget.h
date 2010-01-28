@@ -41,6 +41,7 @@ class QSortFilterProxyModel;
 class QModelIndex;
 class QFileSystemModel;
 class QDir;
+class QAction;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -54,11 +55,12 @@ namespace Internal {
 class FolderNavigationWidget : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY(bool autoSynchronization READ autoSynchronization WRITE setAutoSynchronization)
 public:
     FolderNavigationWidget(QWidget *parent = 0);
 
     bool autoSynchronization() const;
-    void setAutoSynchronization(bool sync);
+
 
     // Helpers for common directory browser options.
     static void showInGraphicalShell(QWidget *parent, const QString &path);
@@ -68,6 +70,7 @@ public:
     static QString msgTerminalAction();
 
 public slots:
+    void setAutoSynchronization(bool sync);
     void toggleAutoSynchronization();
 
 private slots:
@@ -90,6 +93,7 @@ private:
     QSortFilterProxyModel *m_filterModel;
     QLabel *m_title;
     bool m_autoSync;
+    QAction *m_autoSyncAction;
 };
 
 class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory

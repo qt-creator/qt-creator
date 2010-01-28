@@ -32,22 +32,35 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QtCore/QFileInfo>
-#include <QtCore/QPair>
-#include <QtGui/QFileIconProvider>
-#include <QtGui/QIcon>
 #include <QtGui/QStyle>
+#include <QtGui/QFileIconProvider>
+
+QT_BEGIN_NAMESPACE
+class QFileInfo;
+class QIcon;
+class QPixmap;
+class QString;
+QT_END_NAMESPACE
 
 namespace Core {
 
 class MimeType;
+struct FileIconProviderPrivate;
 
-class CORE_EXPORT FileIconProvider
+class CORE_EXPORT FileIconProvider : public QFileIconProvider
 {
-public:
-    ~FileIconProvider(); // used to clear the cache
-    QIcon icon(const QFileInfo &fileInfo);
+    Q_DISABLE_COPY(FileIconProvider)
+    FileIconProvider();
 
+public:
+    virtual ~FileIconProvider();
+
+    // Implement QFileIconProvider
+    virtual QIcon icon(IconType type) const;
+    virtual QIcon icon(const QFileInfo &info) const;
+    virtual QString type(const QFileInfo &info) const;
+
+    // Register additional overlay icons
     QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size) const;
     void registerIconOverlayForSuffix(const QIcon &icon, const QString &suffix);
     void registerIconOverlayForMimeType(const QIcon &icon, const MimeType &mimeType);
@@ -55,18 +68,7 @@ public:
     static FileIconProvider *instance();
 
 private:
-    QIcon iconForSuffix(const QString &suffix) const;
-
-    // mapping of file ending to icon
-    // TODO: Check if this is really faster than a QHash
-    mutable QList<QPair<QString, QIcon> > m_cache;
-
-    QFileIconProvider m_systemIconProvider;
-    QIcon m_unknownFileIcon;
-
-    // singleton pattern
-    FileIconProvider();
-    static FileIconProvider *m_instance;
+    FileIconProviderPrivate *d;
 };
 
 } // namespace Core
