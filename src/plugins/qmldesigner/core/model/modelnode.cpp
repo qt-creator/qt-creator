@@ -583,7 +583,6 @@ void ModelNode::removeProperty(const QString &name)
 */
 ModelNode ModelNode::addChildNode(const QString &nodeTypeString, int majorVersion, int minorVersion, const QString &propertyName, const PropertyListType &propertyList)
 {
-    Internal::WriteLocker locker(m_model.data());
     if (!isValid()) {
         Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
