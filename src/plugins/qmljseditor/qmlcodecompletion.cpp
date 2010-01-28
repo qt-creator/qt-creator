@@ -157,6 +157,13 @@ private:
         return true;
     }
 
+    virtual bool processEnumerator(const QString &name, const Interpreter::Value *value)
+    {
+        if (! _globalCompletion)
+            _properties.insert(name, value);
+        return true;
+    }
+
     virtual bool processSignal(const QString &, const Interpreter::Value *)
     {
         return true;

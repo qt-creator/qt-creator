@@ -89,8 +89,13 @@ public:
     }
 };
 
-QmlObjectValue::QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName, int majorVersion, int minorVersion, Engine *engine)
-    : ObjectValue(engine), _metaObject(metaObject), _qmlTypeName(qmlTypeName), _majorVersion(majorVersion), _minorVersion(minorVersion)
+QmlObjectValue::QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName,
+                               int majorVersion, int minorVersion, Engine *engine)
+    : ObjectValue(engine),
+      _metaObject(metaObject),
+      _qmlTypeName(qmlTypeName),
+      _majorVersion(majorVersion),
+      _minorVersion(minorVersion)
 {
     setClassName(qmlTypeName); // ### TODO: we probably need to do more than just this...
 }
@@ -137,6 +142,14 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
         QMetaProperty prop = _metaObject->property(index);
 
         processor->processProperty(prop.name(), propertyValue(prop));
+    }
+
+    for (int index = _metaObject->enumeratorOffset(); index < _metaObject->propertyCount(); ++index) {
+        QMetaEnum e = _metaObject->enumerator(index);
+
+        for (int i = 0; i < e.keyCount(); ++i) {
+            processor->processEnumerator(QString::fromUtf8(e.key(i)), engine()->numberValue());
+        }
     }
 
     for (int index = 0; index < _metaObject->methodCount(); ++index) {
@@ -653,6 +666,11 @@ MemberProcessor::~MemberProcessor()
 }
 
 bool MemberProcessor::processProperty(const QString &, const Value *)
+{
+    return true;
+}
+
+bool MemberProcessor::processEnumerator(const QString &, const Value *)
 {
     return true;
 }
