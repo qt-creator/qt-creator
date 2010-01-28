@@ -583,16 +583,18 @@ void Launcher::handleSupportMask(const TrkResult &result)
         return;
     const char *data = result.data.data() + 1;
 
-    QByteArray str;
+    QString str = QLatin1String("SUPPORTED: ");
     for (int i = 0; i < 32; ++i) {
         //str.append("  [" + formatByte(data[i]) + "]: ");
-        for (int j = 0; j < 8; ++j)
-        if (data[i] & (1 << j))
-            str.append(QByteArray::number(i * 8 + j, 16) + " ");
+        for (int j = 0; j < 8; ++j) {
+            if (data[i] & (1 << j)) {
+                str.append(QString::number(i * 8 + j, 16));
+                str.append(QLatin1Char(' '));
+            }
+        }
     }
-    logMessage("SUPPORTED: " + str);
+    logMessage(str);
 }
-
 
 void Launcher::cleanUp()
 {

@@ -133,9 +133,9 @@ QString Session::deviceDescription(unsigned verbose) const
 
 
 // FIXME: Use the QByteArray based version below?
-QString stringFromByte(byte c)
+static inline QString stringFromByte(byte c)
 {
-    return QString("%1 ").arg(c, 2, 16, QChar('0'));
+    return QString::fromLatin1("%1").arg(c, 2, 16, QChar('0'));
 }
 
 QString stringFromArray(const QByteArray &ba, int maxLen)
@@ -188,9 +188,12 @@ void TrkResult::clear()
 
 QString TrkResult::toString() const
 {
-    QString res = stringFromByte(code) + "[" + stringFromByte(token);
-    res.chop(1);
-    return res + "] " + stringFromArray(data);
+    QString res = stringFromByte(code);
+    res += QLatin1String(" [");
+    res += stringFromByte(token);
+    res += QLatin1Char(']');
+    res += stringFromArray(data);
+    return res;
 }
 
 QByteArray frameMessage(byte command, byte token, const QByteArray &data, bool serialFrame)
