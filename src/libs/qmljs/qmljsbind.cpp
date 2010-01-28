@@ -29,6 +29,7 @@
 
 #include "parser/qmljsast_p.h"
 #include "qmljsbind.h"
+#include "qmljslink.h"
 #include "qmljsmetatypesystem.h"
 #include <QtCore/QDebug>
 
@@ -36,53 +37,60 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
-Bind::Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp)
+Bind::Bind(Document::Ptr doc, Interpreter::Engine *interp)
     : _doc(doc),
-      _snapshot(snapshot),
       _interp(interp),
-      _interestingMember(0),
       _currentObjectValue(0),
       _typeEnvironment(0),
       _idEnvironment(0),
       _functionEnvironment(0),
-      _interestingObjectValue(0),
       _rootObjectValue(0)
 {
+    (*this)();
 }
 
 Bind::~Bind()
 {
 }
 
-Interpreter::ObjectValue *Bind::operator()(UiObjectMember *member)
+void Bind::operator()()
 {
     UiProgram *program = _doc->qmlProgram();
     if (!program)
-        return 0;
-
-    _interestingMember = member;
+        return;
 
     _currentObjectValue = 0;
     _typeEnvironment = _interp->newObject(/*prototype =*/ 0);
     _idEnvironment = _interp->newObject(/*prototype =*/ 0);
     _functionEnvironment = _interp->newObject(/*prototype =*/ 0);
-    _interestingObjectValue = 0;
     _rootObjectValue = 0;
 
+    _qmlObjectDefinitions.clear();
+    _qmlObjectBindings.clear();
+
     accept(program);
+}
 
-    if (_interestingObjectValue) {
-        _functionEnvironment->setScope(_interestingObjectValue);
+ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &snapshot,
+                                Interpreter::Engine *interp, AST::UiObjectMember *currentObject)
+{
+    Bind *currentBind = 0;
+    QList<Bind *> binds;
 
-        if (_interestingObjectValue != _rootObjectValue)
-            _interestingObjectValue->setScope(_rootObjectValue);
-    } else {
-        _functionEnvironment->setScope(_rootObjectValue);
+    Snapshot::const_iterator end = snapshot.end();
+    for (Snapshot::const_iterator iter = snapshot.begin(); iter != end; ++iter) {
+        Document::Ptr doc = *iter;
+        Bind *newBind = new Bind(doc, interp);
+        binds += newBind;
+        if (doc == currentDocument)
+            currentBind = newBind;
     }
-    _idEnvironment->setScope(_functionEnvironment);
-    _typeEnvironment->setScope(_idEnvironment);
 
-    return _typeEnvironment;
+    LinkImports()(binds);
+    ObjectValue *scope = Link()(binds, currentBind, currentObject);
+    qDeleteAll(binds);
+
+    return scope;
 }
 
 void Bind::accept(Node *node)
@@ -127,6 +135,7 @@ static QString serialize(UiQualifiedId *qualifiedId, QChar delimiter)
 
   import "http://www.ovi.com/" as Ovi
  */
+// ### TODO: Move to LinkImports
 bool Bind::visit(UiImport *ast)
 {
     if (! (ast->importUri || ast->fileName))
@@ -171,38 +180,6 @@ bool Bind::visit(UiImport *ast)
             namespaceObject->setProperty(object->qmlTypeName(), object);
         }
 #endif // NO_DECLARATIVE_BACKEND
-    } else if (ast->fileName) {
-        // got an import "contents"
-        const QString relativePath = ast->fileName->asString();
-        const QList<Document::Ptr> userComponents = _snapshot.importedDocuments(_doc, relativePath);
-        foreach (Document::Ptr userComponent, userComponents) {
-            if (UiProgram *program = userComponent->qmlProgram()) {
-                if (UiObjectMemberList *members = program->members) {
-                    if (UiObjectDefinition *def = cast<UiObjectDefinition *>(members->member)) {
-                        const ObjectValue *prototype = lookupType(def->qualifiedTypeNameId);
-                        ObjectValue *objectValue = _interp->newObject(prototype);
-                        if (def->initializer) {
-                            for (AST::UiObjectMemberList *it = def->initializer->members; it; it = it->next) {
-                                if (AST::UiPublicMember *prop = AST::cast<AST::UiPublicMember *>(it->member)) {
-                                    if (prop->name && prop->memberType) {
-                                        const QString propName = prop->name->asString();
-                                        const QString propType = prop->memberType->asString();
-                                        objectValue->setProperty(propName, _interp->defaultValueForBuiltinType(propType));
-                                    }
-                                }
-                            }
-                        }
-
-                        const QString componentName = userComponent->componentName();
-
-                        if (! componentName.isEmpty()) {
-                            objectValue->setClassName(componentName);
-                            namespaceObject->setProperty(componentName, objectValue);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     return false;
@@ -225,24 +202,6 @@ bool Bind::visit(UiSourceElement *)
     return true;
 }
 
-const ObjectValue *Bind::lookupType(UiQualifiedId *qualifiedTypeNameId)
-{
-    const ObjectValue *objectValue = _typeEnvironment;
-
-    for (UiQualifiedId *iter = qualifiedTypeNameId; objectValue && iter; iter = iter->next) {
-        if (! iter->name)
-            return 0;
-
-        const Value *value = objectValue->property(iter->name->asString());
-        if (!value)
-            return 0;
-
-        objectValue = value->asObjectValue();
-    }
-
-    return objectValue;
-}
-
 ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
 {
     ObjectValue *parentObjectValue;
@@ -253,8 +212,7 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
         // Script blocks all contribute to the same scope
         parentObjectValue = switchObjectValue(_functionEnvironment);
     } else { // normal component instance
-        const ObjectValue *prototype = lookupType(qualifiedTypeNameId);
-        ObjectValue *objectValue = _interp->newObject(prototype);
+        ObjectValue *objectValue = _interp->newObject(/*prototype =*/0);
         parentObjectValue = switchObjectValue(objectValue);
         if (parentObjectValue)
             objectValue->setProperty("parent", parentObjectValue);
@@ -270,9 +228,8 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
 bool Bind::visit(UiObjectDefinition *ast)
 {
     ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
+    _qmlObjectDefinitions.insert(ast, value);
 
-    if (_interestingMember == ast)
-        _interestingObjectValue = value;
     return false;
 }
 
@@ -280,11 +237,10 @@ bool Bind::visit(UiObjectBinding *ast)
 {
 //    const QString name = serialize(ast->qualifiedId);
     ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
+    _qmlObjectBindings.insert(ast, value);
     // ### FIXME: we don't handle dot-properties correctly (i.e. font.size)
 //    _currentObjectValue->setProperty(name, value);
 
-    if (_interestingMember == ast)
-        _interestingObjectValue = value;
     return false;
 }
 

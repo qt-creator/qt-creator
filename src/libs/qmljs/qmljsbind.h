@@ -34,15 +34,26 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
 
+#include <QtCore/QHash>
+
 namespace QmlJS {
+
+class LinkImports;
+class Link;
 
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
 public:
-    Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp);
+    Bind(Document::Ptr doc, Interpreter::Engine *interp);
     virtual ~Bind();
 
-    Interpreter::ObjectValue* operator()(AST::UiObjectMember *member);
+    void operator()();
+
+    // ### TODO: This methods should go. Bind each document after parsing, link later.
+    static Interpreter::ObjectValue *scopeChainAt(Document::Ptr currentDocument,
+                                                  const Snapshot &snapshot,
+                                                  Interpreter::Engine *interp,
+                                                  AST::UiObjectMember *currentObject);
 
 protected:
     void accept(AST::Node *node);
@@ -148,17 +159,20 @@ protected:
 
 private:
     Document::Ptr _doc;
-    Snapshot _snapshot;
     Interpreter::Engine *_interp;
-    AST::UiObjectMember *_interestingMember;
 
     Interpreter::ObjectValue *_currentObjectValue;
 
     Interpreter::ObjectValue *_typeEnvironment;
     Interpreter::ObjectValue *_idEnvironment;
     Interpreter::ObjectValue *_functionEnvironment;
-    Interpreter::ObjectValue *_interestingObjectValue;
     Interpreter::ObjectValue *_rootObjectValue;
+
+    QHash<AST::UiObjectDefinition *, Interpreter::ObjectValue *> _qmlObjectDefinitions;
+    QHash<AST::UiObjectBinding *, Interpreter::ObjectValue *> _qmlObjectBindings;
+
+    friend class LinkImports;
+    friend class Link;
 };
 
 } // end of namespace Qml

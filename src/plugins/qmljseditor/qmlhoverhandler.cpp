@@ -190,8 +190,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         }
 
         Interpreter::Engine interp;
-        Bind bind(qmlDocument, snapshot, &interp);
-        Interpreter::ObjectValue *scope = bind(declaringMember);
+        Interpreter::ObjectValue *scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
         Check check(&interp);
         const Interpreter::Value *value = check(expression, scope);
         QStringList baseClasses;

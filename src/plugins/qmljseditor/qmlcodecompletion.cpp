@@ -34,6 +34,7 @@
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsbind.h>
+#include <qmljs/qmljslink.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsscanner.h>
 #include <qmljs/qmljscheck.h>
@@ -589,8 +590,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     Interpreter::ObjectValue *scope = interp.globalObject();
 
     if (isQmlFile) {
-        scope = interp.newObject(/* prototype = */ 0);
-
         AST::UiObjectMember *declaringMember = 0;
 
         const int cursorPosition = editor->position();
@@ -600,8 +599,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
             }
         }
 
-        Bind bind(qmlDocument, snapshot, &interp);
-        scope = bind(declaringMember);
+        scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
     }
 
     // Search for the operator that triggered the completion.
@@ -612,16 +610,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
         // It's a global completion.
-        // Process the visible user defined components.
-        QHashIterator<QString, Document::Ptr> componentIt(userComponents);
-        while (componentIt.hasNext()) {
-            componentIt.next();
-            TextEditor::CompletionItem item(this);
-            item.text = componentIt.key();
-            item.icon = componentIcon;
-            m_completions.append(item);
-        }
-
         EnumerateProperties enumerateProperties;
         enumerateProperties.setGlobalCompletion(true);
         QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(scope, /* lookAtScope = */ true));
