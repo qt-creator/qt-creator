@@ -65,6 +65,7 @@ QWidget {
 
     }
     QPushButton {
+        focusPolicy: "Qt::NoFocus";
         y: expressionEdit.height - 22;
         x: expressionEdit.width - 61;
         styleSheetFile: "applybutton.css";
@@ -77,6 +78,7 @@ QWidget {
     }
 
     QPushButton {
+        focusPolicy: "Qt::NoFocus";
         y: expressionEdit.height - 22;
         x: expressionEdit.width - 32;
         styleSheetFile: "cancelbutton.css";
