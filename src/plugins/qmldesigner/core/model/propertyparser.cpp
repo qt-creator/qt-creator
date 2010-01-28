@@ -87,10 +87,7 @@ QVariant read(const QString &typeStr, const QString &str)
         break;
     case QMetaType::QRectF:
         value = QmlStringConverters::rectFFromString(str, &conversionOk);
-        break;
-    case QMetaType::Bool:
-        value = QmlStringConverters::boolFromString(str, &conversionOk);
-        break;
+        break;    
     case QMetaType::QUrl:
         value = QVariant(QUrl(str));
         break;
