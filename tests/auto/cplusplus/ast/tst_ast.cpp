@@ -185,11 +185,56 @@ void tst_AST::new_expression_2()
 void tst_AST::condition_1()
 {
     QSharedPointer<TranslationUnit> unit(parseExpression("\n"
-"(x < 0 && y > (int) a)"
+                                                         "(x < 0 && y > (int) a)"
     ));
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
+    NestedExpressionAST *nestedExpr = ast->asNestedExpression();
+    QVERIFY(nestedExpr);
+    QVERIFY(nestedExpr->expression);
+    BinaryExpressionAST *andExpr = nestedExpr->expression->asBinaryExpression();
+    QVERIFY(andExpr);
+    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), (int) T_AMPER_AMPER);
+    QVERIFY(andExpr->left_expression);
+    QVERIFY(andExpr->right_expression);
+
+    BinaryExpressionAST *ltExpr = andExpr->left_expression->asBinaryExpression();
+    QVERIFY(ltExpr);
+    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), (int) T_LESS);
+    QVERIFY(ltExpr->left_expression);
+    QVERIFY(ltExpr->right_expression);
+
+    SimpleNameAST *x = ltExpr->left_expression->asSimpleName();
+    QVERIFY(x);
+    QCOMPARE(unit->spell(x->identifier_token), "x");
+
+    NumericLiteralAST *zero = ltExpr->right_expression->asNumericLiteral();
+    QVERIFY(zero);
+    QCOMPARE(unit->spell(zero->literal_token), "0");
+
+    BinaryExpressionAST *gtExpr = andExpr->right_expression->asBinaryExpression();
+    QVERIFY(gtExpr);
+    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), (int) T_GREATER);
+    QVERIFY(gtExpr->left_expression);
+    QVERIFY(gtExpr->right_expression);
+
+    SimpleNameAST *y = gtExpr->left_expression->asSimpleName();
+    QVERIFY(y);
+    QCOMPARE(unit->spell(y->identifier_token), "y");
+
+    CastExpressionAST *cast = gtExpr->right_expression->asCastExpression();
+    QVERIFY(cast);
+    QVERIFY(cast->type_id);
+    QVERIFY(cast->expression);
+
+    TypeIdAST *intType = cast->type_id->asTypeId();
+    QVERIFY(intType);
+    // ### here we could check if the type is an actual int
+
+    SimpleNameAST *a = cast->expression->asSimpleName();
+    QVERIFY(a);
+    QCOMPARE(unit->spell(a->identifier_token), "a");
 }
 
 void tst_AST::init_1()

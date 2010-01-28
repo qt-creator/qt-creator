@@ -214,6 +214,8 @@ public:
     bool parseUsingDirective(DeclarationAST *&node);
     bool parseWhileStatement(StatementAST *&node);
 
+    void parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minPrecedence);
+
     // Qt MOC run
     bool parseQtMethod(ExpressionAST *&node);
 
@@ -313,8 +315,7 @@ private:
     bool _objCEnabled: 1;
     bool _inFunctionBody: 1;
     bool _inObjCImplementationContext: 1;
-
-    int depth;
+    int _expressionDepth;
 
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 

@@ -59,6 +59,7 @@
 #endif
 
 #define CPLUSPLUS_NO_DEBUG_RULE
+#define MAX_EXPRESSION_DEPTH 100
 
 using namespace CPlusPlus;
 
@@ -85,6 +86,73 @@ public:
 
 int DebugRule::depth = 0;
 
+inline int precedence(int tokenKind, bool templateArguments)
+{
+    if (templateArguments && tokenKind == T_GREATER)
+        return -1;
+
+    switch (tokenKind) {
+    case T_PIPE_PIPE:       return 0;
+    case T_AMPER_AMPER:     return 1;
+    case T_PIPE:            return 2;
+    case T_CARET:           return 3;
+    case T_AMPER:           return 4;
+    case T_EQUAL_EQUAL:
+    case T_EXCLAIM_EQUAL:   return 5;
+    case T_GREATER:
+    case T_LESS:
+    case T_LESS_EQUAL:
+    case T_GREATER_EQUAL:   return 6;
+    case T_LESS_LESS:
+    case T_GREATER_GREATER: return 7;
+    case T_PLUS:
+    case T_MINUS:           return 8;
+    case T_STAR:
+    case T_SLASH:
+    case T_PERCENT:         return 9;
+    case T_ARROW_STAR:
+    case T_DOT_STAR:        return 10;
+
+    default:
+        return -1;
+    }
+}
+
+inline bool isBinaryOperator(int tokenKind)
+{
+    switch (tokenKind) {
+    case T_PIPE_PIPE:
+    case T_AMPER_AMPER:
+    case T_PIPE:
+    case T_CARET:
+    case T_AMPER:
+    case T_EQUAL_EQUAL:
+    case T_EXCLAIM_EQUAL:
+    case T_GREATER:
+    case T_LESS:
+    case T_LESS_EQUAL:
+    case T_GREATER_EQUAL:
+    case T_LESS_LESS:
+    case T_GREATER_GREATER:
+    case T_PLUS:
+    case T_MINUS:
+    case T_STAR:
+    case T_SLASH:
+    case T_PERCENT:
+    case T_ARROW_STAR:
+    case T_DOT_STAR:
+        return true;
+
+    default:
+        return false;
+    }
+}
+
+inline bool isRightAssoc(int /*tokenKind*/)
+{
+    return false;
+}
+
 } // end of anonymous namespace
 
 #ifndef CPLUSPLUS_NO_DEBUG_RULE
@@ -92,6 +160,14 @@ int DebugRule::depth = 0;
 #else
 #  define DEBUG_THIS_RULE() do {} while (0)
 #endif
+
+#define PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, minPrecedence) { \
+    if (!parseCastExpression(node)) \
+        return false; \
+    \
+    parseExpressionWithOperatorPrecedence(node, minPrecedence); \
+    return true; \
+}
 
 class Parser::Rewind
 {
@@ -127,7 +203,7 @@ Parser::Parser(TranslationUnit *unit)
       _objCEnabled(false),
       _inFunctionBody(false),
       _inObjCImplementationContext(false),
-      depth(0)
+      _expressionDepth(0)
 { }
 
 Parser::~Parser()
@@ -4145,280 +4221,57 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
 
 bool Parser::parsePmExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseCastExpression(node))
-        return false;
-
-    while (LA() == T_ARROW_STAR || LA() == T_DOT_STAR) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseCastExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_ARROW_STAR, _templateArguments))
 }
 
 bool Parser::parseMultiplicativeExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parsePmExpression(node))
-        return false;
-
-    while (LA() == T_STAR || LA() == T_SLASH || LA() == T_PERCENT) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parsePmExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_STAR, _templateArguments))
 }
 
 bool Parser::parseAdditiveExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseMultiplicativeExpression(node))
-        return false;
-
-    while (LA() == T_PLUS || LA() == T_MINUS) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseMultiplicativeExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_PLUS, _templateArguments))
 }
 
 bool Parser::parseShiftExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseAdditiveExpression(node))
-        return false;
-
-    while (LA() == T_LESS_LESS || LA() == T_GREATER_GREATER) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseAdditiveExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_LESS_LESS, _templateArguments))
 }
 
 bool Parser::parseRelationalExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseShiftExpression(node))
-        return false;
-
-    while (LA() == T_LESS || (LA() == T_GREATER && ! _templateArguments) ||
-           LA() == T_LESS_EQUAL || LA() == T_GREATER_EQUAL) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseShiftExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_LESS, _templateArguments))
 }
 
 bool Parser::parseEqualityExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseRelationalExpression(node))
-        return false;
-
-    while (LA() == T_EQUAL_EQUAL || LA() == T_EXCLAIM_EQUAL) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseRelationalExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_EQUAL_EQUAL, _templateArguments))
 }
 
 bool Parser::parseAndExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseEqualityExpression(node))
-        return false;
-
-    while (LA() == T_AMPER) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseEqualityExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_AMPER, _templateArguments))
 }
 
 bool Parser::parseExclusiveOrExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseAndExpression(node))
-        return false;
-
-    while (LA() == T_CARET) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseAndExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_CARET, _templateArguments))
 }
 
 bool Parser::parseInclusiveOrExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseExclusiveOrExpression(node))
-        return false;
-
-    while (LA() == T_PIPE) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseExclusiveOrExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_PIPE, _templateArguments))
 }
 
 bool Parser::parseLogicalAndExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseInclusiveOrExpression(node))
-        return false;
-
-    while (LA() == T_AMPER_AMPER) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseInclusiveOrExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_AMPER_AMPER, _templateArguments))
 }
 
 bool Parser::parseLogicalOrExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseLogicalAndExpression(node))
-        return false;
-
-    while (LA() == T_PIPE_PIPE) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseLogicalAndExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_PIPE_PIPE, _templateArguments))
 }
 
 bool Parser::parseConditionalExpression(ExpressionAST *&node)
@@ -4515,13 +4368,40 @@ bool Parser::parseConstantExpression(ExpressionAST *&node)
 bool Parser::parseExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (depth > 100)
+
+    if (_expressionDepth > MAX_EXPRESSION_DEPTH)
         return false;
 
-    ++depth;
-    bool result = parseCommaExpression(node);
-    --depth;
-    return result;
+    ++_expressionDepth;
+    bool success = parseCommaExpression(node);
+    --_expressionDepth;
+    return success;
+}
+
+void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minPrecedence)
+{
+    DEBUG_THIS_RULE();
+
+    while (precedence(tok().kind(), _templateArguments) >= minPrecedence) {
+        const int operPrecedence = precedence(tok().kind(), _templateArguments);
+        const int oper = consumeToken();
+        ExpressionAST *rhs = 0;
+        if (!parseCastExpression(rhs))
+            return;
+
+        for (int tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments);
+                precedenceAhead > operPrecedence && isBinaryOperator(tokenKindAhead)
+                    || precedenceAhead == operPrecedence && isRightAssoc(tokenKindAhead);
+                tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments)) {
+            parseExpressionWithOperatorPrecedence(rhs, precedenceAhead);
+        }
+
+        BinaryExpressionAST *expr = new (_pool) BinaryExpressionAST;
+        expr->left_expression = lhs;
+        expr->binary_op_token = oper;
+        expr->right_expression = rhs;
+        lhs = expr;
+    }
 }
 
 bool Parser::parseCommaExpression(ExpressionAST *&node)
