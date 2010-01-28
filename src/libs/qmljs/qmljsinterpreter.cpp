@@ -45,80 +45,6 @@ using namespace QmlJS::Interpreter;
 
 #ifndef NO_DECLARATIVE_BACKEND
 
-class QmlAttachedKeys: public ObjectValue
-{
-    static const char **builtinPropertyNames()
-    {
-        static const char *properties[] = {
-            "enabledChanged",
-            "pressed",
-            "released",
-            "digit0Pressed",
-            "digit1Pressed",
-            "digit2Pressed",
-            "digit3Pressed",
-            "digit4Pressed",
-            "digit5Pressed",
-            "digit6Pressed",
-            "digit7Pressed",
-            "digit8Pressed",
-            "digit9Pressed",
-            "leftPressed",
-            "rightPressed",
-            "upPressed",
-            "downPressed",
-            "asteriskPressed",
-            "numberSignPressed",
-            "escapePressed",
-            "returnPressed",
-            "enterPressed",
-            "deletePressed",
-            "spacePressed",
-            "backPressed",
-            "cancelPressed",
-            "selectPressed",
-            "yesPressed",
-            "noPressed",
-            "context1Pressed",
-            "context2Pressed",
-            "context3Pressed",
-            "context4Pressed",
-            "callPressed",
-            "hangupPressed",
-            "flipPressed",
-            "menuPressed",
-            "volumeUpPressed",
-            "volumeDownPressed",
-            0
-        };
-
-        return properties;
-    }
-
-    QSet<QString> _generatedSlots;
-
-public:
-    QmlAttachedKeys(Engine *engine)
-        : ObjectValue(engine)
-    {
-        for (const char **it = builtinPropertyNames(); *it; ++it) {
-            QString signalName = QLatin1String(*it);
-            QString generatedSlot = QLatin1String("on");
-            generatedSlot += signalName.at(0).toUpper();
-            generatedSlot += signalName.midRef(1);
-            _generatedSlots.insert(generatedSlot);
-        }
-    }
-
-    virtual void processMembers(MemberProcessor *processor) const
-    {
-        foreach (const QString &generatedSlot, _generatedSlots)
-            processor->processSlot(generatedSlot, engine()->undefinedValue());
-
-        ObjectValue::processMembers(processor);
-    }
-};
-
 class MetaFunction: public FunctionValue
 {
     QMetaMethod _method;
@@ -1749,11 +1675,6 @@ void Engine::initializePrototypes()
     _globalObject->setProperty("Number", numberCtor());
     _globalObject->setProperty("Date", dateCtor());
     _globalObject->setProperty("RegExp", regexpCtor());
-
-#ifndef NO_DECLARATIVE_BACKEND
-    _qmlKeysObject = new QmlAttachedKeys(this);
-    _globalObject->setProperty("Keys", _qmlKeysObject); // ### attach it to the current scope, and not to the global object
-#endif
 }
 
 const ObjectValue *Engine::qmlKeysObject()
