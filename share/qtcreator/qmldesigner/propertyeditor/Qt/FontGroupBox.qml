@@ -12,17 +12,24 @@ GroupBox {
                 Label {
                     text: "Font"
                 }
-                QFontComboBox {
-                    minimumWidth: 200
+                QWidget {
+                    id: parentWidget
+                    minimumWidth: 180
+                    minimumHeight: 24
+                    QFontComboBox {
+                        width: parentWidget.width
+                        height: parentWidget.height
+                    }
                 }
-                IntEditor {
-                    caption: "Size"
-                    slider: false
-                    backendValue: backendValues.font_pointSize
-                    baseStateFlag: isBaseState;
-                }
-
             }
+        }
+
+        IntEditor {
+            maximumWidth: 200
+            caption: "Size"
+            slider: false
+            backendValue: backendValues.font_pointSize
+            baseStateFlag: isBaseState;
         }
 
         QWidget {
@@ -43,6 +50,7 @@ GroupBox {
                     baseStateFlag: isBaseState;
                     checkable: true;
                 }
+
             }
         }
     }
