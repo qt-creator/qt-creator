@@ -472,6 +472,9 @@ TextEditor::ITextEditable *QmlCodeCompletion::editor() const
 int QmlCodeCompletion::startPosition() const
 { return m_startPosition; }
 
+bool QmlCodeCompletion::shouldRestartCompletion()
+{ return false; }
+
 bool QmlCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 {
     if (qobject_cast<QmlJSTextEditor *>(editor->widget()))
@@ -480,12 +483,53 @@ bool QmlCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
     return false;
 }
 
+static bool checkStartOfIdentifier(const QString &word)
+{
+    if (word.isEmpty())
+        return false;
+
+    const QChar ch = word.at(0);
+
+    switch (ch.unicode()) {
+    case '_': case '$':
+        return true;
+
+    default:
+        return ch.isLetter();
+    }
+}
+
+static bool isIdentifierChar(QChar ch)
+{
+    switch (ch.unicode()) {
+    case '_': case '$':
+        return true;
+
+    default:
+        return ch.isLetterOrNumber();
+    }
+}
+
 bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     const QChar ch = editor->characterAt(editor->position() - 1);
 
     if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
         return true;
+    else if (isIdentifierChar(ch)) {
+        if (QmlJSTextEditor *ed = qobject_cast<QmlJSTextEditor *>(editor->widget())) {
+            QTextCursor tc = ed->textCursor();
+            tc.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+            const QString word = tc.selectedText();
+            if (word.length() > 2 && checkStartOfIdentifier(word)) {
+                for (int i = 0; i < word.length(); ++i) {
+                    if (! isIdentifierChar(word.at(i)))
+                        return false;
+                }
+                return true;
+            }
+        }
+    }
 
     return false;
 }

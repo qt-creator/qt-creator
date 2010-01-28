@@ -77,6 +77,7 @@ public:
     virtual ~ICompletionCollector() {}
 
     virtual QList<CompletionItem> getCompletions();
+    virtual bool shouldRestartCompletion();
 
     /* Returns the current active ITextEditable */
     virtual ITextEditable *editor() const = 0;

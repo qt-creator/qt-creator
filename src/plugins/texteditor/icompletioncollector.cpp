@@ -167,3 +167,8 @@ void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items
         }
     }
 }
+
+bool ICompletionCollector::shouldRestartCompletion()
+{
+    return true;
+}

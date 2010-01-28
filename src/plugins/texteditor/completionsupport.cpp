@@ -77,6 +77,9 @@ void CompletionSupport::cleanupCompletions()
         disconnect(m_completionList, SIGNAL(destroyed(QObject*)),
                    this, SLOT(cleanupCompletions()));
 
+    if (m_checkCompletionTrigger)
+        m_checkCompletionTrigger = m_completionCollector->shouldRestartCompletion();
+
     m_completionList = 0;
     m_completionCollector->cleanup();
 
