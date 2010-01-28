@@ -245,8 +245,8 @@ QString QmlHoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, Qml
 
     QString typeId = interp->typeId(value);
 
-    if (typeId.isEmpty() || typeId == QLatin1String("undefined"))
-        typeId = QLatin1String("Unknown");
+    if (typeId == QLatin1String("undefined"))
+        typeId.clear();
 
     return typeId;
 }
