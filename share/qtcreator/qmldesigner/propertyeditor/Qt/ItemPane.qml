@@ -27,6 +27,7 @@ PropertyFrame {
 
 
         ScrollArea {
+
             styleSheetFile: ":/qmldesigner/scrollbar.css";
             widgetResizable: true;
 
@@ -70,34 +71,7 @@ PropertyFrame {
 
                 } // layout
             } //QWidget
-        } //QScrollArea
-
-
-        ScrollArea {
-            widgetResizable: true;
-            styleSheetFile: ":/qmldesigner/scrollbar.css";
-            finished: finishedNotify;
-            horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
-            id: specialPane;
-            visible: false;
-            visible: false;
-            content: ProperyEditorSpecial;
-            QFrame {
-                minimumHeight: 600;
-                id: ProperyEditorSpecial
-                layout: QVBoxLayout {
-                    topMargin: 2;
-                    bottomMargin: 2;
-                    leftMargin: 2;
-                    rightMargin: 2;
-                    Type {
-                    }
-
-                    QScrollArea {
-                    }
-                }
-            }
-        }
+        } //QScrollArea       
 
         ExtendedPane {
             id: extendedPane;
