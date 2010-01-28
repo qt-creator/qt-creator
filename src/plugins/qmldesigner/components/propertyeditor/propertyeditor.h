@@ -51,7 +51,7 @@ class PropertyEditor: public QmlModelView
         NodeType(const QUrl &qmlFile, PropertyEditor *propertyEditor);
         ~NodeType();
 
-        void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile);
+        void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
         void setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value);
 
         QmlView *m_view;
@@ -82,6 +82,10 @@ public:
     ModelState modelState() const;
 
     void otherPropertyChanged(const QmlObjectNode &);
+    void transformChanged(const QmlObjectNode &qmlObjectNode);
+
+    void anyPropertyChanged(const QmlObjectNode &qmlObjectNode);
+
 
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
@@ -119,6 +123,7 @@ private: //variables
     QString m_qmlDir;
     QHash<QString, NodeType *> m_typeHash;
     NodeType *m_currentType;
+    bool m_locked;
 };
 
 }

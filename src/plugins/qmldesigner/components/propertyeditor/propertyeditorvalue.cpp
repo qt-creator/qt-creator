@@ -82,7 +82,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 {
     if ( m_value != value) {
         QVariant newValue = value;
-        if (modelNode().metaInfo().isValid() && modelNode().metaInfo().property(name()).isValid())
+        if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().property(name()).isValid())
             if (modelNode().metaInfo().property(name()).type() == QLatin1String("QUrl")) {
             newValue = QUrl(newValue.toString());
         }
@@ -115,7 +115,6 @@ void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
 {
     if ( m_expression != expression) {
         setExpression(expression);
-        m_isBound = true;
         emit expressionChanged(name());
     }
 }
@@ -130,7 +129,7 @@ void PropertyEditorValue::setExpression(const QString &expression)
 
 bool PropertyEditorValue::isInSubState() const
 {
-    return m_isInSubState;
+    return modelNode().isValid() && QmlDesigner::QmlObjectNode(modelNode()).propertyAffectedByCurrentState(name());
 }
 
 bool PropertyEditorValue::isBound() const
@@ -138,21 +137,10 @@ bool PropertyEditorValue::isBound() const
     return modelNode().isValid() && modelNode().property(name()).isValid() && modelNode().property(name()).isBindingProperty();
 }
 
-void PropertyEditorValue::setIsInSubState(bool isInSubState)
-{
-    m_isInSubState = isInSubState;
-}
-
 bool PropertyEditorValue::isInModel() const
 {
-    return m_isInModel;
+    return modelNode().isValid() && modelNode().hasProperty(name());
 }
-
-void PropertyEditorValue::setIsInModel(bool isInModel)
-{
-    m_isInModel = isInModel;
-}
-
 
 QString PropertyEditorValue::name() const
 {
@@ -315,9 +303,6 @@ void PropertyEditorNodeWrapper::setup()
         foreach (const QString &propertyName, m_modelNode.metaInfo().properties().keys()) {
             PropertyEditorValue *valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
             valueObject->setName(propertyName);
-            valueObject->setIsInModel(fxObjectNode.hasProperty(propertyName));
-            valueObject->setIsInSubState(fxObjectNode.propertyAffectedByCurrentState(propertyName));
-            valueObject->setModelNode(fxObjectNode.modelNode());
             valueObject->setValue(fxObjectNode.instanceValue(propertyName));
 
             connect(valueObject, SIGNAL(valueChanged(QString)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString)));

@@ -77,7 +77,7 @@ private:
 
 
 class PropertyEditorValue : public QObject
-{
+{ 
     Q_OBJECT
     Q_PROPERTY(QVariant value READ value WRITE setValueWithEmit NOTIFY valueChanged)
     Q_PROPERTY(QString expression READ expression WRITE setExpressionWithEmit NOTIFY expressionChanged FINAL)
@@ -100,7 +100,6 @@ public:
     void setExpression(const QString &expression);
 
     bool isInSubState() const;
-    void setIsInSubState(bool isInSubState);
 
     bool isInModel() const;
 
@@ -108,8 +107,6 @@ public:
     bool isValid() const;
 
     void setIsValid(bool valid);
-
-    void setIsInModel(bool isInModel);
 
     QString name() const;
     void setName(const QString &name);
