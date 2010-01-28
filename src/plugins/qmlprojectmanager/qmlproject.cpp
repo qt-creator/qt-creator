@@ -155,7 +155,7 @@ void QmlProject::parseProject(RefreshOptions options)
         }
         if (m_projectItem) {
             m_projectItem.data()->setSourceDirectory(projectDir().path());
-            m_modelManager->updateSourceFiles(m_projectItem.data()->qmlFiles());
+            m_modelManager->updateSourceFiles(m_projectItem.data()->files());
         }
         m_rootNode->refresh();
     }
@@ -196,7 +196,7 @@ QStringList QmlProject::files() const
 {
     QStringList files;
     if (m_projectItem) {
-        files = m_projectItem.data()->qmlFiles();
+        files = m_projectItem.data()->files();
     } else {
         files = m_files;
     }

@@ -1,5 +1,6 @@
 #include "filefilteritems.h"
 #include <qdebug.h>
+#include <QtGui/QImageReader>
 
 namespace QmlProjectManager {
 
@@ -167,6 +168,27 @@ QmlFileFilterItem::QmlFileFilterItem(QObject *parent)
     setFilter(QLatin1String("*.qml"));
 }
 
+
+JsFileFilterItem::JsFileFilterItem(QObject *parent)
+    : FileFilterBaseItem(parent)
+{
+    setFilter(QLatin1String("*.js"));
+}
+
+ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
+    : FileFilterBaseItem(parent)
+{
+    QString filter;
+    // supported image formats according to
+    QList<QByteArray> extensions = QImageReader::supportedImageFormats();
+    foreach (const QByteArray &extension, extensions) {
+        filter.append(QString("*.%1;").arg(QString::fromAscii(extension)));
+    }
+    setFilter(filter);
+}
+
 } // namespace QmlProjectManager
 
 QML_DEFINE_TYPE(QmlProject,1,0,QmlFiles,QmlProjectManager::QmlFileFilterItem)
+QML_DEFINE_TYPE(QmlProject,1,0,JavaScriptFiles,QmlProjectManager::JsFileFilterItem)
+QML_DEFINE_TYPE(QmlProject,1,0,ImageFiles,QmlProjectManager::ImageFileFilterItem)

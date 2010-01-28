@@ -76,8 +76,26 @@ public:
     QmlFileFilterItem(QObject *parent = 0);
 };
 
+class JsFileFilterItem : public FileFilterBaseItem {
+    Q_OBJECT
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged())
+
+public:
+    JsFileFilterItem(QObject *parent = 0);
+};
+
+class ImageFileFilterItem : public FileFilterBaseItem {
+    Q_OBJECT
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged())
+
+public:
+    ImageFileFilterItem(QObject *parent = 0);
+};
+
 } // namespace QmlProjectManager
 
 QML_DECLARE_TYPE(QmlProjectManager::QmlFileFilterItem)
+QML_DECLARE_TYPE(QmlProjectManager::JsFileFilterItem)
+QML_DECLARE_TYPE(QmlProjectManager::ImageFileFilterItem)
 
 #endif // FILEFILTERITEMS_HPROJECTITEM_H

@@ -51,7 +51,7 @@ void TestProject::testQmlFileFilter()
 
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml");
-        QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
+        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
 
     //
@@ -81,7 +81,7 @@ void TestProject::testQmlFileFilter()
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml"
                                                 << testDataDir + "/subdir/file3.qml");
-        QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
+        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
 
     //
@@ -107,7 +107,7 @@ void TestProject::testQmlFileFilter()
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() <<  testDataDir + "/subdir/file3.qml");
-        QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
+        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
 
     //
@@ -140,8 +140,8 @@ void TestProject::testQmlFileFilter()
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml"
                                                 << testDataDir + "/subdir/file3.qml");
-        QCOMPARE(project->qmlFiles().size(), 3);
-        QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
+        QCOMPARE(project->files().size(), 3);
+        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
 
     //
@@ -171,9 +171,37 @@ void TestProject::testQmlFileFilter()
 
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml");
-        QCOMPARE(project->qmlFiles().toSet(), expectedFiles.toSet());
+        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
 
+    //
+    // include specific list
+    //
+    projectFile = QLatin1String(
+            "import QmlProject 1.0\n"
+            "Project {\n"
+            "  ImageFiles {\n"
+            "    directory: \".\"\n"
+            "  }\n"
+            "}\n");
+
+    {
+        QmlEngine engine;
+        QmlComponent component(&engine);
+        component.setData(projectFile.toUtf8(), QUrl());
+        if (!component.isReady())
+            qDebug() << component.errorsString();
+        QVERIFY(component.isReady());
+
+        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QVERIFY(project);
+
+        project->setSourceDirectory(testDataDir);
+
+        QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
+        qDebug() << project->files().toSet() << expectedFiles.toSet();
+        QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+    }
 }
 
 

@@ -79,22 +79,22 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
 }
 
 /* Returns list of absolute paths */
-QStringList QmlProjectItem::qmlFiles() const
+QStringList QmlProjectItem::files() const
 {
     const Q_D(QmlProjectItem);
-    QStringList qmlFiles;
+    QStringList files;
 
     for (int i = 0; i < d->content.size(); ++i) {
         QmlProjectContentItem *contentElement = d->content.at(i);
-        QmlFileFilterItem *qmlFileFilter = qobject_cast<QmlFileFilterItem*>(contentElement);
-        if (qmlFileFilter) {
-            foreach (const QString &file, qmlFileFilter->files()) {
-                if (!qmlFiles.contains(file))
-                    qmlFiles << file;
+        FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
+        if (fileFilter) {
+            foreach (const QString &file, fileFilter->files()) {
+                if (!files.contains(file))
+                    files << file;
             }
         }
     }
-    return qmlFiles;
+    return files;
 }
 
 } // namespace QmlProjectManager

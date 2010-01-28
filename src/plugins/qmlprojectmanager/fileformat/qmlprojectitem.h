@@ -35,7 +35,7 @@ public:
     QString sourceDirectory() const;
     void setSourceDirectory(const QString &directoryPath);
 
-    QStringList qmlFiles() const;
+    QStringList files() const;
 
 signals:
     void qmlFilesChanged();
