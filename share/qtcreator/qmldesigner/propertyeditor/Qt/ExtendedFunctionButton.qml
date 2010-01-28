@@ -26,8 +26,7 @@ QToolButton {
     onBackendValueChanged: {
         setIcon();
     }
-
-    property bool isBoundBackend: backendValue.isBound;
+    property bool isBoundBackend: backendValue === undefinded ? false : backendValue.isBound;
 
     onIsBoundBackendChanged: {
         setIcon();

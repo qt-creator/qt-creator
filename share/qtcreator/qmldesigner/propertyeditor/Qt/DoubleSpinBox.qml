@@ -10,7 +10,7 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
     property alias minimum: box.minimum
     property alias maximum: box.maximum
     property alias text: label.text
-    property var enabled
+    property bool enabled
 
     minimumHeight: 22;
 
@@ -38,13 +38,13 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
         }
     }
 
-    property bool isInModel: backendValue.isInModel
+    property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
 
     onIsInModelChanged: {
         evaluate();
     }
 
-    property bool isInSubState: backendValue.isInSubState
+    property bool isInSubState: (backendValue === undefined || backendValue === null) ? false: backendValue.isInSubState;
 
     onIsInSubStateChanged: {
         evaluate();
@@ -53,7 +53,6 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
     layout: HorizontalLayout {        
 
         QLabel {
-            visible: text != ""
             id: label;
             font.bold: true;
             alignment: "Qt::AlignRight | Qt::AlignVCenter"
@@ -64,9 +63,14 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
             id: box;
             decimals: 1;
             keyboardTracking: false;
-            enabled: !backendValue.isBound && DoubleSpinBox.enabled;
+            enabled: (DoubleSpinBox.backendValue === undefined ||
+                      DoubleSpinBox.backendValue === null)
+            ? false : !backendValue.isBound && DoubleSpinBox.enabled;
+
             property bool readingFromBackend: false;
-            property real valueFromBackend: DoubleSpinBox.backendValue == null ? .0 : DoubleSpinBox.backendValue.value;
+            property real valueFromBackend: (DoubleSpinBox.backendValue === undefined ||
+                                             DoubleSpinBox.backendValue === null)
+            ? .0 : DoubleSpinBox.backendValue.value;
             
             onValueFromBackendChanged: {
                 readingFromBackend = true;
@@ -88,7 +92,9 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
     }
 
     ExtendedFunctionButton {
-        backendValue: DoubleSpinBox.backendValue
+        backendValue: (DoubleSpinBox.backendValue === undefined ||
+                       DoubleSpinBox.backendValue === null)
+             ? null : DoubleSpinBox.backendValue;
         y: box.y + 4
         x: box.x + 2
         visible: DoubleSpinBox.enabled

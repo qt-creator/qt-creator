@@ -5,6 +5,7 @@ QWidget {
     id: LineEdit
 
     property var backendValue
+    property alias enabled: LineEdit.enabled
 
     minimumHeight: 24;
 

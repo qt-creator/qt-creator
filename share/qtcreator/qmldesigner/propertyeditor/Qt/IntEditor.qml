@@ -22,10 +22,15 @@ QWidget {
         }
 
         SpinBox {
-            backendValue:  IntEditor.backendValue
+            backendValue: (IntEditor.backendValue === undefined ||
+                           IntEditor.backendValue === null)
+            ? null : IntEditor.backendValue;
+
             minimum: minimumValue
             maximum: maximumValue
-            baseStateFlag: IntEditor.baseStateFlag
+            baseStateFlag: (IntEditor.backendValue === undefined ||
+                            IntEditor.backendValue === null)
+            ? null : IntEditor.baseStateFlag;
         }
 
 

@@ -7,7 +7,7 @@ QCheckBox { //This is a special CheckBox that does color coding for states
    property var baseStateFlag;
 
    checkable: true;
-   checked: backendValue.value === undefined ? false : backendValue.value;
+   checked: backendValue === undefined ? false : backendValue.value;
      onToggled: {
          backendValue.value = checked;
      }
@@ -40,6 +40,5 @@ QCheckBox { //This is a special CheckBox that does color coding for states
         backendValue: CheckBox.backendValue
         y: 2
         x: 0
-        visible: CheckBox.enabled
     }
 }

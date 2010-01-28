@@ -6,10 +6,10 @@ QComboBox {
 	
 	property var backendValue
 	
-	ExtendedFunctionButton {
-        backendValue: ComboBox.backendValue
-        y: 3
-        x: 3
-        visible: CheckBox.enabled
-    }
+        ExtendedFunctionButton {
+            backendValue: (ComboBox.backendValue === undefined || ComboBox.backendValue === null)
+            ? null : ComboBox.backendValue;
+            y: 3
+            x: 3
+        }
 }

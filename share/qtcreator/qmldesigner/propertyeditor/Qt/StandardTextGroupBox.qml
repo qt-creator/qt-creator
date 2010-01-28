@@ -78,8 +78,9 @@ GroupBox {
         ColorWidget {
             visible: showStyleColor
             text: "Style color:";
-            color: backendValues.styleColor.value;
-            onColorChanged: {
+            color: (backendValues.styleColor === undefined || backendValues.styleColor === null)
+        ? "#000000" : backendValues.styleColor.value;
+        onColorChanged: {
                 backendValues.styleColor.value = strColor;
             }
         }

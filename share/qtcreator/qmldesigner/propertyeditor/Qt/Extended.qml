@@ -78,7 +78,7 @@ layout: VerticalLayout{
               topMargin: 12;
               IntEditor {
                 id: blurRadius;
-                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : 0;
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : null;
                 caption: "Blur Radius:"
                 baseStateFlag: isBaseState;
 
@@ -95,7 +95,7 @@ layout: VerticalLayout{
                 DoubleSpinBox {
                                   id: OpcacityEffectSpinBox;
                                   objectName: "OpcacityEffectSpinBox";
-                                  backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.opacity : 0;
+                                  backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.opacity : null;
                                   minimum: 0;
                                   maximum: 1;
 								  singleStep: 0.1;
@@ -130,7 +130,7 @@ layout: VerticalLayout{
               topMargin: 12;
               IntEditor {
                 id: pixelSize;
-                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.pixelSize : 0;
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.pixelSize : null;
                 caption: "Pixel Size:"
                 baseStateFlag: isBaseState;
 
@@ -148,7 +148,7 @@ layout: VerticalLayout{
            topMargin: 12;
               IntEditor {
                 id: blurRadiusShadow;
-                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : 0
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : null;
                 caption: "Blur Radius:"
                 baseStateFlag: isBaseState;
 
@@ -172,7 +172,7 @@ layout: VerticalLayout{
 
               IntEditor {
                 id: xOffset;
-                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.xOffset : 0
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.xOffset : null;
                 caption: "x Offset:     "
                 baseStateFlag: isBaseState;
 
@@ -183,7 +183,7 @@ layout: VerticalLayout{
 
             IntEditor {
                 id: yOffset;
-                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.yOffset : 0
+                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.yOffset : null;
                 caption: "y Offset:     "
                 baseStateFlag: isBaseState;
 
