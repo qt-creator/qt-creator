@@ -117,9 +117,11 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
             this, SLOT(completionActivated(const QModelIndex &)));
 
     // We disable the frame on this list view and use a QFrame around it instead.
-    // This fixes the missing frame on Mac and improves the look with QGTKStyle.
+    // This improves the look with QGTKStyle.
     m_popupFrame = new QFrame(0, Qt::Popup);
+#ifndef Q_WS_MAC
     m_popupFrame->setFrameStyle(frameStyle());
+#endif
     setFrameStyle(QFrame::NoFrame);
     setParent(m_popupFrame);
     m_popupFrame->setObjectName("m_popupFrame");
