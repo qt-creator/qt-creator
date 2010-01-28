@@ -3749,9 +3749,10 @@ void BaseTextEditor::handleBackspaceKey()
             cursor.setPosition(currentBlock.position(), QTextCursor::KeepAnchor);
             cursor.insertText(tabSettings.indentationString(previousNonEmptyBlockText));
             cursor.endEditBlock();
-            break;
+            return;
         }
     }
+    cursor.deletePreviousChar();
 }
 
 void BaseTextEditor::wheelEvent(QWheelEvent *e)
@@ -3918,6 +3919,8 @@ bool BaseTextEditor::autoBackspace(QTextCursor &cursor)
     d->m_allowSkippingOfBlockEnd = false;
 
     int pos = cursor.position();
+    if (pos == 0)
+        return false;
     QTextCursor c = cursor;
     c.setPosition(pos - 1);
 
