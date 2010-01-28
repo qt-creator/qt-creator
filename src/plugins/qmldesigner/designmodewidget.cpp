@@ -311,14 +311,15 @@ void DocumentWidget::setAutoSynchronization(bool sync)
                 selectedNode = rewriter->selectedModelNodes().first();
 
             if (selectedNode.isValid()) {
-                int nodeOffset = rewriter->nodeOffset(selectedNode);
-                QTextCursor editTextCursor = m_textBuffer->textCursor();
-                if (nodeOffset > 0
-                    && nodeForPosition(editTextCursor.position()) != selectedNode) {
-                    if (debug)
-                        qDebug() << "Moving text cursor to " << nodeOffset;
-                    editTextCursor.setPosition(nodeOffset);
-                    m_textBuffer->setTextCursor(editTextCursor);
+                const int nodeOffset = rewriter->nodeOffset(selectedNode);
+                if (nodeOffset > 0) {
+                    const ModelNode currentSelectedNode
+                            = nodeForPosition(m_textBuffer->textCursor().position());
+                    if (currentSelectedNode != selectedNode) {
+                        int line, column;
+                        textEditor()->convertPosition(nodeOffset, &line, &column);
+                        textEditor()->gotoLine(line, column);
+                    }
                 }
             }
         }
