@@ -153,10 +153,10 @@ ObjectValue *Link::operator()(const QList<Bind *> &binds, Bind *currentBind, UiO
     else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
         scopeObject = currentBind->_qmlObjectBindings.value(binding);
     else
-        return 0;
+        return currentBind->_interp->globalObject();
 
     if (!scopeObject)
-        return 0;
+        return currentBind->_interp->globalObject();
 
     // Build the scope chain.
     currentBind->_typeEnvironment->setScope(currentBind->_idEnvironment);
