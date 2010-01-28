@@ -5,6 +5,5 @@ QLabel {
 	id: Label
 	font.bold: true;
 	alignment: "Qt::AlignRight | Qt::AlignVCenter"
-        //maximumWidth: 80
-        fixedWidth: 80
+        fixedWidth: 90
 }
