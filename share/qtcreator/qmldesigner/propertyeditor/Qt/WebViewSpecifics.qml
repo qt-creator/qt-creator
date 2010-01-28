@@ -8,20 +8,13 @@ GroupBox {
     caption: "WebView";
     id: webViewSpecifics;
 
-    layout: QVBoxLayout {
-
-        topMargin: 18;
-        bottomMargin: 2;
-        leftMargin: 8;
-        rightMargin: 8;
+    layout: VerticalLayout {
         QWidget {
-            layout: QHBoxLayout {
+            layout: HorizontalLayout {
                 leftMargin: 0;
                 rightMargin: 0;
-                QLabel {
-                    minimumHeight: 20;
-                    text: "Url:"
-                    font.bold: true;
+                Label {
+                    text: "Url"
                 }
                 QLineEdit {
                     text: backendValues.url.value;
@@ -32,12 +25,10 @@ GroupBox {
             }
         }
 
-
-
         IntEditor {
             id: preferredWidth;
             backendValue: backendValues.preferredWidth;
-            caption: "Prefered Width:  "
+            caption: "Prefered Width"
             baseStateFlag: isBaseState;
             step: 1;
             minimumValue: 0;
@@ -47,7 +38,7 @@ GroupBox {
         IntEditor {
             id: webPageWidth;
             backendValue: backendValues.preferredHeight;
-            caption: "Web Page Height:"
+            caption: "Page Height"
             baseStateFlag: isBaseState;
             step: 1;
             minimumValue: 0;
@@ -55,38 +46,32 @@ GroupBox {
         }
 
         QWidget {
-            layout: QHBoxLayout {
-                topMargin: 10;
-                bottomMargin: 0;
-                leftMargin: 0;
-                rightMargin: 0;
-                spacing: 20;
+            layout: HorizontalLayout {
 
-                QLabel {
+                Label {
                     minimumHeight: 20;
-                    text: "ZommFactor:"
-                    font.bold: true;
+                    text: "Zoom Factor"
                 }
                 DoubleSpinBox {
                     id: ZoomSpinBox;
-                    objectName: "ZommSpinBox";
-                    backendValue: backendValues.zoomFactor;
                     minimumWidth: 60;
+                    text: ""
+                    backendValue: backendValues.zoomFactor;
                     minimum: 0.01
                     maximum: 10
                     singleStep: 0.1
                     baseStateFlag: isBaseState;
                     onBackendValueChanged: {
-                        ZoomSlider.value = backendValue.value * 10;
+                        zoomSlider.value = backendValue.value * 10;
                     }
                 }
                 QSlider {
-                    id: ZoomSlider;
+                    id: zoomSlider;
                     orientation: "Qt::Horizontal";
                     minimum: 1;
                     maximum: 100;
                     singleStep: 1;
-                    onValueChanged: {
+                    onValueChanged: {                        
                         backendValues.zoomFactor.value = value / 10;
                     }
                 }
