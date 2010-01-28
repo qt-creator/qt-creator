@@ -127,7 +127,6 @@ public:
     MetaFunction(const QMetaMethod &method, Engine *engine)
         : FunctionValue(engine), _method(method)
     {
-        engine->registerObject(this);
     }
 
     virtual const Value *returnValue() const
@@ -748,8 +747,11 @@ bool MemberProcessor::processGeneratedSlot(const QString &, const Value *)
 }
 
 ObjectValue::ObjectValue(Engine *engine)
-    : _engine(engine), _prototype(0), _scope(0)
+    : _engine(engine),
+      _prototype(0),
+      _scope(0)
 {
+    engine->registerObject(this);
 }
 
 ObjectValue::~ObjectValue()
@@ -869,9 +871,8 @@ const Value *ObjectValue::lookupMember(const QString &name) const
     return 0;
 }
 
-Activation::Activation(Engine *engine)
-    : ObjectValue(engine),
-      _thisObject(0),
+Activation::Activation()
+    : _thisObject(0),
       _calledAsFunction(true)
 {
 }
@@ -931,7 +932,7 @@ FunctionValue::~FunctionValue()
 
 const Value *FunctionValue::construct(const ValueList &actuals) const
 {
-    Activation activation(engine()); // ### FIXME: create on the heap
+    Activation activation;
     activation.setCalledAsConstructor(true);
     activation.setThisObject(engine()->newObject());
     activation.setArguments(actuals);
@@ -940,7 +941,7 @@ const Value *FunctionValue::construct(const ValueList &actuals) const
 
 const Value *FunctionValue::call(const ValueList &actuals) const
 {
-    Activation activation(engine()); // ### FIXME: create on the heap
+    Activation activation;
     activation.setCalledAsFunction(true);
     activation.setThisObject(engine()->globalObject()); // ### FIXME: it should be `null'
     activation.setArguments(actuals);
@@ -949,7 +950,7 @@ const Value *FunctionValue::call(const ValueList &actuals) const
 
 const Value *FunctionValue::call(const ObjectValue *thisObject, const ValueList &actuals) const
 {
-    Activation activation(engine()); // ### FIXME: create on the heap
+    Activation activation;
     activation.setCalledAsFunction(true);
     activation.setThisObject(const_cast<ObjectValue *>(thisObject)); // ### FIXME: remove the const_cast
     activation.setArguments(actuals);
@@ -1316,10 +1317,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-    QList<ObjectValue *>::iterator it = _objects.begin();
-
-    for (; it != _objects.end(); ++it)
-        delete *it;
+    qDeleteAll(_registeredObjects);
 }
 
 const NullValue *Engine::nullValue() const
@@ -1361,14 +1359,13 @@ ObjectValue *Engine::newObject(const ObjectValue *prototype)
 {
     ObjectValue *object = new ObjectValue(this);
     object->setPrototype(prototype);
-    _objects.push_back(object);
     return object;
 }
 
-Function *Engine::newFunction() {
+Function *Engine::newFunction()
+{
     Function *function = new Function(this);
     function->setPrototype(functionPrototype());
-    _objects.push_back(function);
     return function;
 }
 
@@ -1464,7 +1461,7 @@ const ObjectValue *Engine::mathObject() const
 
 void Engine::registerObject(ObjectValue *object)
 {
-    _objects.append(object);
+    _registeredObjects.append(object);
 }
 
 const Value *Engine::convertToBoolean(const Value *value)
@@ -1527,42 +1524,34 @@ void Engine::initializePrototypes()
     // set up the default Object prototype
     _objectCtor = new ObjectCtor(this);
     _objectCtor->setPrototype(_functionPrototype);
-    _objects.push_back(_objectCtor);
     _objectCtor->setProperty("prototype", _objectPrototype);
 
     _functionCtor = new FunctionCtor(this);
     _functionCtor->setPrototype(_functionPrototype);
-    _objects.push_back(_functionCtor);
     _functionCtor->setProperty("prototype", _functionPrototype);
 
     _arrayCtor = new ArrayCtor(this);
     _arrayCtor->setPrototype(_functionPrototype);
-    _objects.push_back(_arrayCtor);
     _arrayCtor->setProperty("prototype", _arrayPrototype);
 
     _stringCtor = new StringCtor(this);
     _stringCtor->setPrototype(_functionPrototype);
-    _objects.push_back(_stringCtor);
     _stringCtor->setProperty("prototype", _stringPrototype);
 
     _booleanCtor = new BooleanCtor(this);
     _booleanCtor->setPrototype(_functionPrototype);
-    _objects.push_back(_booleanCtor);
     _booleanCtor->setProperty("prototype", _booleanPrototype);
 
     _numberCtor = new NumberCtor(this);
     _numberCtor->setPrototype(_functionPrototype);
-    _objects.push_back(_numberCtor);
     _numberCtor->setProperty("prototype", _numberPrototype);
 
     _dateCtor = new DateCtor(this);
     _dateCtor->setPrototype(_functionPrototype);
-    _objects.push_back(_dateCtor);
     _dateCtor->setProperty("prototype", _datePrototype);
 
     _regexpCtor = new RegExpCtor(this);
     _regexpCtor->setPrototype(_functionPrototype);
-    _objects.push_back(_regexpCtor);
     _regexpCtor->setProperty("prototype", _regexpPrototype);
 
     addFunction(_objectCtor, "getPrototypeOf", 1);
@@ -1764,7 +1753,6 @@ void Engine::initializePrototypes()
 #ifndef NO_DECLARATIVE_BACKEND
     _qmlKeysObject = new QmlAttachedKeys(this);
     _globalObject->setProperty("Keys", _qmlKeysObject); // ### attach it to the current scope, and not to the global object
-    registerObject(_qmlKeysObject);
 #endif
 }
 
@@ -1795,11 +1783,9 @@ QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix,
 {
     if (name == QLatin1String("QmlGraphicsAnchors")) {
         QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsAnchors::staticMetaObject, QLatin1String("Anchors"), -1, -1, this);
-        _objects.append(object);
         return object;
     } else if (name == QLatin1String("QmlGraphicsPen")) {
         QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsPen::staticMetaObject, QLatin1String("Pen"), -1, -1, this);
-        _objects.append(object);
         return object;
     } else if (name == QLatin1String("QmlGraphicsScaleGrid")) {
         QmlObjectValue *object = new QmlObjectValue(&QObject::staticMetaObject, QLatin1String("ScaleGrid"), -1, -1, this);
@@ -1817,7 +1803,6 @@ QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix,
         const QString typeName = qmlType->qmlTypeName();
         const QString strippedTypeName = typeName.mid(typeName.lastIndexOf('/') + 1);
         QmlObjectValue *object = new QmlObjectValue(qmlType->metaObject(), strippedTypeName, majorVersion, minorVersion, this);
-        _objects.append(object);
         return object;
     }
 

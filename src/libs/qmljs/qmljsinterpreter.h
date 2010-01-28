@@ -281,10 +281,10 @@ private:
 
 #endif // !NO_DECLARATIVE_BACKEND
 
-class QMLJS_EXPORT Activation: public ObjectValue
+class QMLJS_EXPORT Activation
 {
 public:
-    Activation(Engine *engine);
+    Activation();
     virtual ~Activation();
 
     bool calledAsConstructor() const;
@@ -514,7 +514,6 @@ public:
     const MetaTypeSystem &metaTypeSystem() const
     { return _metaTypeSystem; }
 
-
 private:
     void initializePrototypes();
 
@@ -551,7 +550,7 @@ private:
     NumberValue _numberValue;
     BooleanValue _booleanValue;
     StringValue _stringValue;
-    QList<ObjectValue *> _objects;
+    QList<ObjectValue *> _registeredObjects;
 
     ConvertToNumber _convertToNumber;
     ConvertToString _convertToString;
