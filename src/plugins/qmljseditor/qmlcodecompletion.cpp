@@ -607,35 +607,14 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
 
     const QFileInfo currentFileInfo(fileName);
-    const QString currentFilePath = currentFileInfo.absolutePath();
 
     bool isQmlFile = false;
     if (currentFileInfo.suffix() == QLatin1String("qml"))
         isQmlFile = true;
 
-    const QIcon componentIcon = iconForColor(Qt::yellow);
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
 
     Interpreter::Engine interp;
-
-    QHash<QString, Document::Ptr> userComponents; // ####
-
-    foreach (Document::Ptr doc, snapshot) {
-        const QFileInfo fileInfo(doc->fileName());
-        const QString absolutePath = fileInfo.absolutePath();
-
-        // ### generalize
-        if (fileInfo.suffix() != QLatin1String("qml"))
-            continue;
-        else if (absolutePath != currentFilePath && ! isImported(qmlDocument, absolutePath))
-            continue;
-
-        const QString typeName = fileInfo.baseName();
-        if (typeName.isEmpty() || ! typeName.at(0).isUpper())
-            continue;
-
-        userComponents.insert(typeName, doc);
-    }
 
     // Set up the current scope chain.
     Interpreter::ObjectValue *scope = interp.globalObject();
@@ -644,9 +623,13 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         AST::UiObjectMember *declaringMember = 0;
 
         const int cursorPosition = editor->position();
-        foreach (const Range &range, semanticInfo.ranges) {
-            if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
+        for (int i = semanticInfo.ranges.size() - 1; i != -1; --i) {
+            const Range &range = semanticInfo.ranges.at(i);
+            if (range.begin.isNull() || range.end.isNull()) {
+                continue;
+            } else if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
                 declaringMember = range.ast;
+                break;
             }
         }
 

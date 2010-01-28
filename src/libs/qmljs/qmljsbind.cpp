@@ -87,7 +87,9 @@ ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &s
     }
 
     LinkImports()(binds);
-    ObjectValue *scope = Link()(binds, currentBind, currentObject);
+    ObjectValue *scope = interp->globalObject();
+    if (currentBind)
+        scope = Link()(binds, currentBind, currentObject);
     qDeleteAll(binds);
 
     return scope;

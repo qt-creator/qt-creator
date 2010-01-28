@@ -397,27 +397,29 @@ protected:
 
     virtual bool visit(AST::UiObjectBinding *ast)
     {
-        _ranges.append(createRange(ast));
+        if (ast->initializer)
+            _ranges.append(createRange(ast, ast->initializer));
         return true;
     }
 
     virtual bool visit(AST::UiObjectDefinition *ast)
     {
-        _ranges.append(createRange(ast));
+        if (ast->initializer)
+            _ranges.append(createRange(ast, ast->initializer));
         return true;
     }
 
-    Range createRange(AST::UiObjectMember *ast)
+    Range createRange(AST::UiObjectMember *member, AST::UiObjectInitializer *ast)
     {
         Range range;
 
-        range.ast = ast;
+        range.ast = member;
 
         range.begin = QTextCursor(_textDocument);
-        range.begin.setPosition(ast->firstSourceLocation().begin());
+        range.begin.setPosition(ast->lbraceToken.begin());
 
         range.end = QTextCursor(_textDocument);
-        range.end.setPosition(ast->lastSourceLocation().end());
+        range.end.setPosition(ast->rbraceToken.end());
         return range;
     }
 };
