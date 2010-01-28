@@ -47,7 +47,8 @@ QWidget { //This is a special SpinBox that does color coding for states
             id: box;
             enabled: backendValue === undefined || backendValue.isBound === undefined || backendValue.isBound === null ? false : !backendValue.isBound
             property bool readingFromBackend: false;
-            property int valueFromBackend: SpinBox.backendValue == null ? .0 : SpinBox.backendValue.value;
+            property int valueFromBackend: (SpinBox.backendValue === undefined || SpinBox.backendValue == null)
+            ? .0 : SpinBox.backendValue.value;
 
             onValueFromBackendChanged: {
                 readingFromBackend = true;

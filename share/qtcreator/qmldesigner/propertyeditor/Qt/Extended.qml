@@ -30,22 +30,18 @@ layout: VerticalLayout{
                      "DropShadow"
                  ] }
 
-                 onCurrentTextChanged: {
-				      
-					  print("currentTextChanged before dirty");
+                 onCurrentTextChanged: {				      
 					  
                       if (dirty) //avoid recursion;
                          return;
-						 
-						 print("currentTextChanged");
+
 						 
                       if (backendValues.effect.complexNode.exists)
                              backendValues.effect.complexNode.remove();
                      if (currentText == "None") {
-					     print("none");
                          ;
                      } else if (backendValues.effect.complexNode != null) {
-					     print("add");
+
                          backendValues.effect.complexNode.add("Qt/" + currentText);
                      }
                  }

@@ -10,7 +10,7 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
     property alias minimum: box.minimum
     property alias maximum: box.maximum
     property alias text: label.text
-    property bool enabled
+    property bool enabled: true
 
     minimumHeight: 22;
 
@@ -57,6 +57,7 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
             font.bold: true;
             alignment: "Qt::AlignRight | Qt::AlignVCenter"
             maximumWidth: 80
+            visible: DoubleSpinBox.text != "";
         }
 
         QDoubleSpinBox {
@@ -65,11 +66,11 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
             keyboardTracking: false;
             enabled: (DoubleSpinBox.backendValue === undefined ||
                       DoubleSpinBox.backendValue === null)
-            ? false : !backendValue.isBound && DoubleSpinBox.enabled;
+            ? true : !backendValue.isBound && DoubleSpinBox.enabled;
 
             property bool readingFromBackend: false;
             property real valueFromBackend: (DoubleSpinBox.backendValue === undefined ||
-                                             DoubleSpinBox.backendValue === null)
+                                             DoubleSpinBox.backendValue === null || DoubleSpinBox.backendValue.value === undefined)
             ? .0 : DoubleSpinBox.backendValue.value;
             
             onValueFromBackendChanged: {
@@ -86,9 +87,7 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
             onMouseOverChanged: {
 
             }
-
         }
-
     }
 
     ExtendedFunctionButton {

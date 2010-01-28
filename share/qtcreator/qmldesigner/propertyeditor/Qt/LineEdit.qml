@@ -18,7 +18,6 @@ QWidget {
         text: backendValue.value
 
         onTextEdited: {
-            print("text edited")
             backendValue.value = text
         }
 
