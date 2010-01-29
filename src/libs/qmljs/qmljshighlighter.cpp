@@ -90,6 +90,14 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 setFormat(token.offset, token.length, m_formats[KeywordFormat]);
                 break;
 
+            case Token::String:
+                setFormat(token.offset, token.length, m_formats[StringFormat]);
+                break;
+
+            case Token::Comment:
+                setFormat(token.offset, token.length, m_formats[CommentFormat]);
+                break;
+
             case Token::LeftParenthesis:
                 onOpeningParenthesis('(', token.offset);
                 break;
@@ -115,13 +123,22 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::Identifier: {
-                if (m_duiEnabled && maybeQmlKeyword(text.midRef(token.offset, token.length))) {
+                const QStringRef spell = text.midRef(token.offset, token.length);
+
+                if (m_duiEnabled && maybeQmlKeyword(spell)) {
                     // check the previous token
                     if (index == 0 || tokens.at(index - 1).isNot(Token::Dot)) {
                         if (index + 1 == tokens.size() || tokens.at(index + 1).isNot(Token::Colon)) {
                             setFormat(token.offset, token.length, m_formats[KeywordFormat]);
                             break;
                         }
+                    }
+                } else if (m_duiEnabled && index > 0 && maybeQmlBuiltinType(spell)) {
+                    const Token &previousToken = tokens.at(index - 1);
+                    if (previousToken.is(Token::Identifier) && text.at(previousToken.offset) == QLatin1Char('p')
+                        && text.midRef(previousToken.offset, previousToken.length) == QLatin1String("property")) {
+                        setFormat(token.offset, token.length, m_formats[KeywordFormat]);
+                        break;
                     }
                 }
 
@@ -242,6 +259,38 @@ bool QScriptHighlighter::maybeQmlKeyword(const QStringRef &text) const
     } else if (ch == QLatin1Char('r') && text == QLatin1String("readonly")) {
         return true;
     } else if (ch == QLatin1Char('i') && text == QLatin1String("import")) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool QScriptHighlighter::maybeQmlBuiltinType(const QStringRef &text) const
+{
+    if (text.isEmpty())
+        return false;
+
+    const QChar ch = text.at(0);
+
+    if (ch == QLatin1Char('i') && text == QLatin1String("int")) {
+        return true;
+    } else if (ch == QLatin1Char('b') && text == QLatin1String("bool")) {
+        return true;
+    } else if (ch == QLatin1Char('d') && text == QLatin1String("double")) {
+        return true;
+    } else if (ch == QLatin1Char('r') && text == QLatin1String("real")) {
+        return true;
+    } else if (ch == QLatin1Char('s') && text == QLatin1String("string")) {
+        return true;
+    } else if (ch == QLatin1Char('u') && text == QLatin1String("url")) {
+        return true;
+    } else if (ch == QLatin1Char('c') && text == QLatin1String("color")) {
+        return true;
+    } else if (ch == QLatin1Char('d') && text == QLatin1String("date")) {
+        return true;
+    } else if (ch == QLatin1Char('v') && text == QLatin1String("var")) {
+        return true;
+    } else if (ch == QLatin1Char('v') && text == QLatin1String("variant")) {
         return true;
     } else {
         return false;

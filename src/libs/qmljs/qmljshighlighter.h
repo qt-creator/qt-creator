@@ -67,6 +67,7 @@ protected:
     virtual void onClosingParenthesis(QChar parenthesis, int pos);
 
     bool maybeQmlKeyword(const QStringRef &text) const;
+    bool maybeQmlBuiltinType(const QStringRef &text) const;
 
 protected:
     QmlJSScanner m_scanner;
