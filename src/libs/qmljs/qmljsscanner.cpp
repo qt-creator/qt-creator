@@ -33,6 +33,49 @@
 
 using namespace QmlJS;
 
+namespace {
+QString js_keywords[] = {
+    QLatin1String("break"),
+    QString::fromLatin1("case"),
+    QString::fromLatin1("catch"),
+    QString::fromLatin1("continue"),
+    QString::fromLatin1("debugger"),
+    QString::fromLatin1("default"),
+    QString::fromLatin1("delete"),
+    QString::fromLatin1("do"),
+    QString::fromLatin1("else"),
+    QString::fromLatin1("finally"),
+    QString::fromLatin1("for"),
+    QString::fromLatin1("function"),
+    QString::fromLatin1("if"),
+    QString::fromLatin1("in"),
+    QString::fromLatin1("instanceof"),
+    QString::fromLatin1("new"),
+    QString::fromLatin1("return"),
+    QString::fromLatin1("switch"),
+    QString::fromLatin1("this"),
+    QString::fromLatin1("throw"),
+    QString::fromLatin1("try"),
+    QString::fromLatin1("typeof"),
+    QString::fromLatin1("var"),
+    QString::fromLatin1("void"),
+    QString::fromLatin1("while"),
+    QString::fromLatin1("with")
+};
+} // end of anonymous namespace
+
+template <typename _Tp, int N>
+const _Tp *begin(const _Tp (&a)[N])
+{
+    return a;
+}
+
+template <typename _Tp, int N>
+const _Tp *end(const _Tp (&a)[N])
+{
+    return a + N;
+}
+
 QmlJSScanner::QmlJSScanner()
     : m_state(0)
 {
@@ -240,7 +283,15 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
     return tokens;
 }
 
+int QmlJSScanner::state() const
+{
+    return m_state;
+}
+
 bool QmlJSScanner::isKeyword(const QString &text) const
 {
-    return m_keywords.contains(text);
+    if (qBinaryFind(begin(js_keywords), end(js_keywords), text) != end(js_keywords))
+        return true;
+
+    return false;
 }

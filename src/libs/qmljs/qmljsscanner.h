@@ -80,19 +80,12 @@ public:
     QmlJSScanner();
     virtual ~QmlJSScanner();
 
-    void setKeywords(const QSet<QString> keywords)
-    { m_keywords = keywords; }
-
     QList<Token> operator()(const QString &text, int startState = 0);
+    int state() const;
 
-    int endState() const
-    { return m_state; }
-
-private:
     bool isKeyword(const QString &text) const;
 
 private:
-    QSet<QString> m_keywords;
     int m_state;
 };
 

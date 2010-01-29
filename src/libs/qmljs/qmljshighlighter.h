@@ -55,10 +55,7 @@ public:
     // MS VC 6 compatible, still.
     void setFormats(const QVector<QTextCharFormat> &s);
 
-    QTextCharFormat labelTextCharFormat() const
-    { return m_formats[LabelFormat]; }
-
-    QSet<QString> keywords();
+    QTextCharFormat labelTextCharFormat() const;
 
 protected:
     virtual int onBlockStart();
@@ -69,14 +66,14 @@ protected:
     virtual void onOpeningParenthesis(QChar parenthesis, int pos);
     virtual void onClosingParenthesis(QChar parenthesis, int pos);
 
-    virtual void highlightWhitespace(const Token &token, const QString &text, int nonWhitespaceFormat);
+    bool maybeQmlKeyword(const QStringRef &text) const;
 
 protected:
     QmlJSScanner m_scanner;
 
 private:
-    bool m_duiEnabled;
     QTextCharFormat m_formats[NumFormats];
+    bool m_duiEnabled;
 };
 
 } // namespace QmlJS

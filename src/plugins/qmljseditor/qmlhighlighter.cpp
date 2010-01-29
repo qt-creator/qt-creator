@@ -39,13 +39,6 @@ QmlHighlighter::QmlHighlighter(QTextDocument *parent) :
 {
     m_currentBlockParentheses.reserve(20);
     m_braceDepth = 0;
-
-    QSet<QString> qmlKeywords(keywords());
-    qmlKeywords << QLatin1String("alias");
-    qmlKeywords << QLatin1String("property");
-    qmlKeywords << QLatin1String("signal");
-    qmlKeywords << QLatin1String("readonly");
-    m_scanner.setKeywords(qmlKeywords);
 }
 
 int QmlHighlighter::onBlockStart()

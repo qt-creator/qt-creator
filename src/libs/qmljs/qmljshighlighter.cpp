@@ -50,12 +50,17 @@ QScriptHighlighter::QScriptHighlighter(bool duiEnabled, QTextDocument *parent):
     rc[PreProcessorFormat].setForeground(Qt::darkBlue);
     rc[VisualWhitespace].setForeground(Qt::lightGray); // for debug: rc[VisualWhitespace].setBackground(Qt::red);
     setFormats(rc);
-
-    m_scanner.setKeywords(keywords());
 }
 
 bool QScriptHighlighter::isDuiEnabled() const
-{ return m_duiEnabled; }
+{
+    return m_duiEnabled;
+}
+
+QTextCharFormat QScriptHighlighter::labelTextCharFormat() const
+{
+    return m_formats[LabelFormat];
+}
 
 static bool checkStartOfBinding(const Token &token)
 {
@@ -85,18 +90,6 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 setFormat(token.offset, token.length, m_formats[KeywordFormat]);
                 break;
 
-            case Token::String:
-                highlightWhitespace(token, text, StringFormat);
-                break;
-
-            case Token::Comment:
-                highlightWhitespace(token, text, CommentFormat);
-                break;
-
-            case Token::Number:
-                highlightWhitespace(token, text, NumberFormat);
-                break;
-
             case Token::LeftParenthesis:
                 onOpeningParenthesis('(', token.offset);
                 break;
@@ -122,6 +115,16 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::Identifier: {
+                if (maybeQmlKeyword(text.midRef(token.offset, token.length))) {
+                    // check the previous token
+                    if (index == 0 || tokens.at(index - 1).isNot(Token::Dot)) {
+                        if (index + 1 == tokens.size() || tokens.at(index + 1).isNot(Token::Colon)) {
+                            setFormat(token.offset, token.length, m_formats[KeywordFormat]);
+                            break;
+                        }
+                    }
+                }
+
                 if (index + 1 < tokens.size()) {
                     if (tokens.at(index + 1).is(Token::LeftBrace) && text.at(token.offset).isUpper()) {
                         setFormat(token.offset, token.length, m_formats[TypeFormat]);
@@ -195,84 +198,14 @@ void QScriptHighlighter::highlightBlock(const QString &text)
     if (! tokens.isEmpty())
         firstNonSpace = tokens.first().offset;
 
-    setCurrentBlockState(m_scanner.endState());
-    onBlockEnd(m_scanner.endState(), firstNonSpace);
+    setCurrentBlockState(m_scanner.state());
+    onBlockEnd(m_scanner.state(), firstNonSpace);
 }
 
 void QScriptHighlighter::setFormats(const QVector<QTextCharFormat> &s)
 {
     Q_ASSERT(s.size() == NumFormats);
     qCopy(s.constBegin(), s.constEnd(), m_formats);
-}
-
-QSet<QString> QScriptHighlighter::keywords()
-{
-    QSet<QString> keywords;
-
-    keywords << QLatin1String("Infinity");
-    keywords << QLatin1String("NaN");
-    keywords << QLatin1String("abstract");
-    keywords << QLatin1String("boolean");
-    keywords << QLatin1String("break");
-    keywords << QLatin1String("byte");
-    keywords << QLatin1String("case");
-    keywords << QLatin1String("catch");
-    keywords << QLatin1String("char");
-    keywords << QLatin1String("class");
-    keywords << QLatin1String("const");
-    keywords << QLatin1String("constructor");
-    keywords << QLatin1String("continue");
-    keywords << QLatin1String("debugger");
-    keywords << QLatin1String("default");
-    keywords << QLatin1String("delete");
-    keywords << QLatin1String("do");
-    keywords << QLatin1String("double");
-    keywords << QLatin1String("else");
-    keywords << QLatin1String("enum");
-    keywords << QLatin1String("export");
-    keywords << QLatin1String("extends");
-    keywords << QLatin1String("false");
-    keywords << QLatin1String("final");
-    keywords << QLatin1String("finally");
-    keywords << QLatin1String("float");
-    keywords << QLatin1String("for");
-    keywords << QLatin1String("function");
-    keywords << QLatin1String("goto");
-    keywords << QLatin1String("if");
-    keywords << QLatin1String("implements");
-    keywords << QLatin1String("import");
-    keywords << QLatin1String("in");
-    keywords << QLatin1String("instanceof");
-    keywords << QLatin1String("int");
-    keywords << QLatin1String("interface");
-    keywords << QLatin1String("long");
-    keywords << QLatin1String("native");
-    keywords << QLatin1String("new");
-    keywords << QLatin1String("package");
-    keywords << QLatin1String("private");
-    keywords << QLatin1String("protected");
-    keywords << QLatin1String("public");
-    keywords << QLatin1String("return");
-    keywords << QLatin1String("short");
-    keywords << QLatin1String("static");
-    keywords << QLatin1String("super");
-    keywords << QLatin1String("switch");
-    keywords << QLatin1String("synchronized");
-    keywords << QLatin1String("this");
-    keywords << QLatin1String("throw");
-    keywords << QLatin1String("throws");
-    keywords << QLatin1String("transient");
-    keywords << QLatin1String("true");
-    keywords << QLatin1String("try");
-    keywords << QLatin1String("typeof");
-    keywords << QLatin1String("undefined");
-    keywords << QLatin1String("var");
-    keywords << QLatin1String("void");
-    keywords << QLatin1String("volatile");
-    keywords << QLatin1String("while");
-    keywords << QLatin1String("with");
-
-    return keywords;
 }
 
 int QScriptHighlighter::onBlockStart()
@@ -292,22 +225,23 @@ void QScriptHighlighter::onClosingParenthesis(QChar, int)
 {
 }
 
-void QScriptHighlighter::highlightWhitespace(const Token &token, const QString &text, int nonWhitespaceFormat)
+bool QScriptHighlighter::maybeQmlKeyword(const QStringRef &text) const
 {
-    const QTextCharFormat normalFormat = m_formats[nonWhitespaceFormat];
-    const QTextCharFormat visualSpaceFormat = m_formats[VisualWhitespace];
+    if (text.isEmpty())
+        return false;
 
-    const int end = token.end();
-    int index = token.offset;
-
-    while (index != end) {
-        const bool isSpace = text.at(index).isSpace();
-        const int start = index;
-
-        do { ++index; }
-        while (index != end && text.at(index).isSpace() == isSpace);
-
-        const int tokenLength = index - start;
-        setFormat(start, tokenLength, isSpace ? visualSpaceFormat : normalFormat);
+    const QChar ch = text.at(0);
+    if (ch == QLatin1Char('p') && text == QLatin1String("property")) {
+        return true;
+    } else if (ch == QLatin1Char('a') && text == QLatin1String("alias")) {
+        return true;
+    } else if (ch == QLatin1Char('s') && text == QLatin1String("signal")) {
+        return true;
+    } else if (ch == QLatin1Char('p') && text == QLatin1String("property")) {
+        return true;
+    } else if (ch == QLatin1Char('r') && text == QLatin1String("readonly")) {
+        return true;
+    } else {
+        return false;
     }
 }
