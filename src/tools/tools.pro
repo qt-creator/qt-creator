@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-win32:SUBDIRS = qtcdebugger ICheck
+win32:SUBDIRS = qtcdebugger
