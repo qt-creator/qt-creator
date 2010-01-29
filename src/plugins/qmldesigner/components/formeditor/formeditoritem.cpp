@@ -228,7 +228,10 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
 
     painter->setPen(pen);
 //    int offset =  m_borderWidth / 2;
-    painter->drawRect(boundingRect().adjusted(0., 0., -1., -1.));
+
+    const QRectF br = boundingRect();
+    if (br.isValid())
+        painter->drawRect(br.adjusted(0., 0., -1., -1.));
 }
 
 void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
