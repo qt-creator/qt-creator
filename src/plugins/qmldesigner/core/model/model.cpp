@@ -895,7 +895,10 @@ WriteLocker::WriteLocker(ModelPrivate *model)
     : m_model(model)
 {
     Q_ASSERT(model);
-    Q_ASSERT(!m_model->m_writeLock);
+    if (m_model->m_writeLock)
+        qWarning() << "QmlDesigner: Misbehaving view calls back to model!!!";
+    // FIXME: Enable it again
+    // Q_ASSERT(!m_model->m_writeLock);
     model->m_writeLock = true;
 }
 
@@ -903,13 +906,19 @@ WriteLocker::WriteLocker(Model *model)
     : m_model(model->m_d)
 {
     Q_ASSERT(model->m_d);
-    Q_ASSERT(!m_model->m_writeLock);
+    if (m_model->m_writeLock)
+        qWarning() << "QmlDesigner: Misbehaving view calls back to model!!!";
+    // FIXME: Enable it again
+    // Q_ASSERT(!m_model->m_writeLock);
     m_model->m_writeLock = true;
 }
 
 WriteLocker::~WriteLocker()
 {
-    Q_ASSERT(m_model->m_writeLock);
+    if (!m_model->m_writeLock)
+        qWarning() << "QmlDesigner: Misbehaving view calls back to model!!!";
+    // FIXME: Enable it again
+    // Q_ASSERT(m_model->m_writeLock);
     m_model->m_writeLock = false;
 }
 
