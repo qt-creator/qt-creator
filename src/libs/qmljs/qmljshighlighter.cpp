@@ -189,11 +189,11 @@ void QScriptHighlighter::highlightBlock(const QString &text)
         previousTokenEnd = token.end();
     }
 
+    setFormat(previousTokenEnd, text.length() - previousTokenEnd, m_formats[VisualWhitespace]);
+
     int firstNonSpace = 0;
-    if (! tokens.isEmpty()) {
-        const Token &tk = tokens.first();
-        firstNonSpace = tk.offset;
-    }
+    if (! tokens.isEmpty())
+        firstNonSpace = tokens.first().offset;
 
     setCurrentBlockState(m_scanner.endState());
     onBlockEnd(m_scanner.endState(), firstNonSpace);
