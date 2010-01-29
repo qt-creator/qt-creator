@@ -77,12 +77,23 @@ const _Tp *end(const _Tp (&a)[N])
 }
 
 QmlJSScanner::QmlJSScanner()
-    : m_state(0)
+    : _state(0),
+      _scanComments(true)
 {
 }
 
 QmlJSScanner::~QmlJSScanner()
 {
+}
+
+bool QmlJSScanner::scanComments() const
+{
+    return _scanComments;
+}
+
+void QmlJSScanner::setScanComments(bool scanComments)
+{
+    _scanComments = scanComments;
 }
 
 static bool isIdentifierChar(QChar ch)
@@ -116,14 +127,14 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
         MultiLineComment = 1
     };
 
-    m_state = startState;
+    _state = startState;
     QList<Token> tokens;
 
     // ### handle multi line comment state.
 
     int index = 0;
 
-    if (m_state == MultiLineComment) {
+    if (_state == MultiLineComment) {
         const int start = index;
         while (index < text.length()) {
             const QChar ch = text.at(index);
@@ -132,7 +143,7 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
                 la = text.at(index + 1);
 
             if (ch == QLatin1Char('*') && la == QLatin1Char('/')) {
-                m_state = Normal;
+                _state = Normal;
                 index += 2;
                 break;
             } else {
@@ -140,7 +151,8 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
             }
         }
 
-        tokens.append(Token(start, index - start, Token::Comment));
+        if (_scanComments)
+            tokens.append(Token(start, index - start, Token::Comment));
     }
 
     while (index < text.length()) {
@@ -153,12 +165,13 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
         switch (ch.unicode()) {
         case '/':
             if (la == QLatin1Char('/')) {
-                tokens.append(Token(index, text.length() - index, Token::Comment));
+                if (_scanComments)
+                    tokens.append(Token(index, text.length() - index, Token::Comment));
                 index = text.length();
             } else if (la == QLatin1Char('*')) {
                 const int start = index;
                 index += 2;
-                m_state = MultiLineComment;
+                _state = MultiLineComment;
                 while (index < text.length()) {
                     const QChar ch = text.at(index);
                     QChar la;
@@ -166,14 +179,15 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
                         la = text.at(index + 1);
 
                     if (ch == QLatin1Char('*') && la == QLatin1Char('/')) {
-                        m_state = Normal;
+                        _state = Normal;
                         index += 2;
                         break;
                     } else {
                         ++index;
                     }
                 }
-                tokens.append(Token(start, index - start, Token::Comment));
+                if (_scanComments)
+                    tokens.append(Token(start, index - start, Token::Comment));
             } else {
                 tokens.append(Token(index++, 1, Token::Delimiter));
             }
@@ -285,7 +299,7 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
 
 int QmlJSScanner::state() const
 {
-    return m_state;
+    return _state;
 }
 
 bool QmlJSScanner::isKeyword(const QString &text) const

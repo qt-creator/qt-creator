@@ -80,13 +80,17 @@ public:
     QmlJSScanner();
     virtual ~QmlJSScanner();
 
+    bool scanComments() const;
+    void setScanComments(bool scanComments);
+
     QList<Token> operator()(const QString &text, int startState = 0);
     int state() const;
 
     bool isKeyword(const QString &text) const;
 
 private:
-    int m_state;
+    int _state;
+    bool _scanComments: 1;
 };
 
 } // namespace QmlJS
