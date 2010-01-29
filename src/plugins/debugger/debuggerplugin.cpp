@@ -348,16 +348,16 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
         m_ui.checkBoxUseMessageBoxForSignals);
     m_group.insert(theDebuggerAction(SkipKnownFrames),
         m_ui.checkBoxSkipKnownFrames);
-    m_group.insert(theDebuggerAction(UseToolTipsInMainEditor), 
+    m_group.insert(theDebuggerAction(UseToolTipsInMainEditor),
         m_ui.checkBoxUseToolTipsInMainEditor);
     m_group.insert(theDebuggerAction(AutoDerefPointers), 0);
     m_group.insert(theDebuggerAction(UseToolTipsInLocalsView), 0);
     m_group.insert(theDebuggerAction(UseToolTipsInBreakpointsView), 0);
     m_group.insert(theDebuggerAction(UseAddressInBreakpointsView), 0);
     m_group.insert(theDebuggerAction(UseAddressInStackView), 0);
-    m_group.insert(theDebuggerAction(EnableReverseDebugging), 
+    m_group.insert(theDebuggerAction(EnableReverseDebugging),
         m_ui.checkBoxEnableReverseDebugging);
-    m_group.insert(theDebuggerAction(MaximalStackDepth), 
+    m_group.insert(theDebuggerAction(MaximalStackDepth),
         m_ui.spinBoxMaximalStackDepth);
     m_group.insert(theDebuggerAction(GdbWatchdogTimeout), 0);
     m_group.insert(theDebuggerAction(LogTimeStamps), 0);

@@ -126,7 +126,7 @@ public:
 
 protected:
     void updateToolTipWithKeySequence();
-    
+
     QAction *m_action;
     QList<CommandLocation> m_locations;
     QString m_toolTip;

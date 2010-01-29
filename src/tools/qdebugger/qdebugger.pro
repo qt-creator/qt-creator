@@ -14,7 +14,7 @@ DEFINES += GDBDEBUGGERLEAN
 INCLUDEPATH += $${QTCREATOR}
 INCLUDEPATH += $${QTCREATOR}/gdbdebugger
 
-HEADERS += \ 
+HEADERS += \
     lean.h \
     mainwindow.h \
     $${QTCREATOR}/gdbdebugger/attachexternaldialog.h \
@@ -83,13 +83,13 @@ FORMS += \
 true {
 
 DEFINES += USE_BASETEXTEDITOR
-DEFINES += TEXTEDITOR_STANDALONE 
+DEFINES += TEXTEDITOR_STANDALONE
 
 INCLUDEPATH += $${QTCREATOR}
 INCLUDEPATH += $${QTCREATOR}/texteditor
 INCLUDEPATH += $${QTCREATOR}/../libs
 
-HEADERS += \ 
+HEADERS += \
     $${QTCREATOR}/texteditor/basetextdocument.h \
     $${QTCREATOR}/texteditor/basetexteditor.h \
     $${QTCREATOR}/texteditor/storagesettings.h \

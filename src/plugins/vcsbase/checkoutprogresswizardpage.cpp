@@ -63,7 +63,7 @@ void CheckoutProgressWizardPage::start(const QSharedPointer<AbstractCheckoutJob>
     connect(job.data(), SIGNAL(succeeded()), this, SLOT(slotSucceeded()));
     QApplication::setOverrideCursor(Qt::WaitCursor);
     ui->logPlainTextEdit->clear();
-    setSubTitle(tr("Checkout started..."));    
+    setSubTitle(tr("Checkout started..."));
     m_state = Running;
     // Note: Process jobs can emit failed() right from
     // the start() method on Windows.
@@ -84,7 +84,7 @@ void CheckoutProgressWizardPage::slotFailed(const QString &why)
 void CheckoutProgressWizardPage::slotSucceeded()
 {
     if (m_state == Running) {
-        m_state = Succeeded;        
+        m_state = Succeeded;
         QApplication::restoreOverrideCursor();
         setSubTitle(tr("Succeeded."));
         emit completeChanged();

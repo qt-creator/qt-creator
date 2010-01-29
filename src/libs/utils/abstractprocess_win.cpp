@@ -31,7 +31,7 @@
 
 #include <windows.h>
 
-namespace Utils {  
+namespace Utils {
 
 QStringList AbstractProcess::fixWinEnvironment(const QStringList &env)
 {

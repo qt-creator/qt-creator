@@ -52,7 +52,7 @@ class SizeHandleRect;
  *          |        |
  *          |        |
  *       Handles   QVBoxLayout [margin: SELECTION_MARGIN]
- *                   | 
+ *                   |
  *                 Frame [margin: lineWidth]
  *                   |
  *                 QVBoxLayout

@@ -55,13 +55,13 @@ static QTextCharFormat commentFormat()
 // keywords (words in front of a colon as in 'Task: <bla>').
 
 class GitSubmitHighlighter : QSyntaxHighlighter {
-public:    
+public:
     explicit GitSubmitHighlighter(QTextEdit *parent);
     virtual void highlightBlock(const QString &text);
 
 private:
     enum State { Header, Comment, Other };
-    const QTextCharFormat m_commentFormat;    
+    const QTextCharFormat m_commentFormat;
     const QRegExp m_keywordPattern;
     const QChar m_hashChar;
 };
@@ -87,7 +87,7 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
             state = Comment;
     }
     // Apply format.
-    switch (state) {        
+    switch (state) {
     case Header: {
             QTextCharFormat charFormat = format(0);
             charFormat.setFontWeight(QFont::Bold);

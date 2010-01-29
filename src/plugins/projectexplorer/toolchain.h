@@ -97,7 +97,7 @@ public:
 
     ToolChain();
     virtual ~ToolChain();
-    
+
     static bool equals(ToolChain *, ToolChain *);
     // Factory methods
     static ToolChain *createGccToolChain(const QString &gcc);

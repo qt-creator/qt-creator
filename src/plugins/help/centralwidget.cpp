@@ -433,7 +433,7 @@ void CentralWidget::setSourceInNewTab(const QUrl &url, int zoom)
     viewer->setZoom(zoom);
     viewer->setSource(url);
     viewer->setFocus(Qt::OtherFocusReason);
-    
+
 #if defined(QT_NO_WEBKIT)
     QFont font = viewer->font();
     font.setPointSize(font.pointSize() + int(zoom));
@@ -551,7 +551,7 @@ void CentralWidget::showTabBarContextMenu(const QPoint &point)
     closePages->setEnabled(enableAction);
 
     menu.addSeparator();
-    
+
     QAction *newBookmark = menu.addAction(tr("Add Bookmark for this Page..."));
     const QString &url = viewer->source().toString();
     if (url.isEmpty() || url == QLatin1String("about:blank"))

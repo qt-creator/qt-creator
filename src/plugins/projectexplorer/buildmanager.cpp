@@ -308,7 +308,7 @@ void BuildManager::nextStep()
         m_watcher.setFuture(QtConcurrent::run(&BuildStep::run, m_currentBuildStep));
     } else {
         m_running = false;
-        m_previousBuildStepProject = 0;        
+        m_previousBuildStepProject = 0;
         m_progressFutureInterface->reportFinished();
         m_progressWatcher.setFuture(QFuture<void>());
         delete m_progressFutureInterface;

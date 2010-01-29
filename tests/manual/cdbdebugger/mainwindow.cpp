@@ -9,7 +9,7 @@ MainWindow::MainWindow()
     setupUi(this);
 
     connect(&m_debugger, SIGNAL(debugOutput(const QString&)), SLOT(appendOutput(const QString&)));
-    connect(&m_debugger, SIGNAL(debuggeePaused()), SLOT(onDebuggeePaused()));    
+    connect(&m_debugger, SIGNAL(debuggeePaused()), SLOT(onDebuggeePaused()));
 }
 
 void MainWindow::setDebuggee(const QString& filename)

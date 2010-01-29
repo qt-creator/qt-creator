@@ -37,7 +37,7 @@ SOURCES += reloadpromptutils.cpp \
     fancymainwindow.cpp \
     detailsbutton.cpp \
     detailswidget.cpp
-win32 { 
+win32 {
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
         winutils.cpp

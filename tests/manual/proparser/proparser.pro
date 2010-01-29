@@ -1,11 +1,11 @@
 TEMPLATE = app
-TARGET = 
+TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 CONFIG += console
 QT += xml
 
-PROXMLPATH = ../../../src/plugins/qt4projectmanager/proparser 
+PROXMLPATH = ../../../src/plugins/qt4projectmanager/proparser
 PROPARSERPATH = $$(QTDIR)/tools/linguist/shared
 INCLUDEPATH += $$PROPARSERPATH $$PROXMLPATH
 

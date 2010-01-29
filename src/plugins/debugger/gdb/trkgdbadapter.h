@@ -246,7 +246,7 @@ private:
     QByteArray trkWriteMemoryMessage(uint addr, const QByteArray &date);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
     QByteArray trkStepRangeMessage(byte option);
-    QByteArray trkDeleteProcessMessage();    
+    QByteArray trkDeleteProcessMessage();
     QByteArray trkInterruptMessage();
 
     QSharedPointer<trk::TrkDevice> m_trkDevice;

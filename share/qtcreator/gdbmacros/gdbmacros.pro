@@ -1,15 +1,15 @@
 TEMPLATE = lib
 CONFIG += shared
-linux-* { 
+linux-* {
     CONFIG -= release
     CONFIG += debug
 }
 SOURCES = gdbmacros.cpp
-false { 
+false {
     DEFINES += USE_QT_GUI=0
     QT = core
 }
-else { 
+else {
     DEFINES += USE_QT_GUI=1
     QT = core \
         gui

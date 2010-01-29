@@ -318,7 +318,7 @@ void BreakWindow::resizeColumnsToContents()
 void BreakWindow::setAlwaysResizeColumnsToContents(bool on)
 {
     m_alwaysResizeColumnsToContents = on;
-    QHeaderView::ResizeMode mode = on 
+    QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     for (int i = model()->columnCount(); --i >= 0; )
         header()->setResizeMode(i, mode);

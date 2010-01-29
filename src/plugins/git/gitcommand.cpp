@@ -150,7 +150,7 @@ void GitCommand::run()
         output += process.readAllStandardOutput();
         error += QString::fromLocal8Bit(process.readAllStandardError());
         switch (m_reportTerminationMode) {
-        case NoReport:            
+        case NoReport:
             break;
         case ReportStdout:
             output += msgTermination(process.exitCode(), m_binaryPath, m_jobs.at(j).arguments).toUtf8();

@@ -9,4 +9,4 @@ HEADERS += helloworldplugin.h \
 
 SOURCES += helloworldplugin.cpp \
     helloworldwindow.cpp
-    
+

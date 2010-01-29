@@ -34,7 +34,7 @@
 
 namespace Debugger {
 namespace Internal {
-    
+
 class ThreadsWindow : public QTreeView
 {
     Q_OBJECT

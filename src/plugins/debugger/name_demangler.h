@@ -54,7 +54,7 @@ public:
     bool demangle(const QString &mangledName);
 
     /*
-     * A textual description of the error encountered, if there was one. 
+     * A textual description of the error encountered, if there was one.
      * Only valid if demangle() returned false.
      */
     const QString &errorString() const;

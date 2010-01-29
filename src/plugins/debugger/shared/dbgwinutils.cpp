@@ -37,7 +37,7 @@
 
 namespace Debugger {
 namespace Internal {
-   
+
 #ifdef USE_PSAPI
 static inline QString imageName(DWORD processId)
 {

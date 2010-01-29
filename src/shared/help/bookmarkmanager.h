@@ -64,7 +64,7 @@ class BookmarkDialog : public QDialog
     Q_OBJECT
 
 public:
-    BookmarkDialog(BookmarkManager *manager, const QString &title, 
+    BookmarkDialog(BookmarkManager *manager, const QString &title,
         const QString &url, QWidget *parent = 0);
     ~BookmarkDialog();
 
@@ -77,7 +77,7 @@ private slots:
     void selectBookmarkFolder(const QString &folderName);
     void customContextMenuRequested(const QPoint &point);
     void currentChanged(const QModelIndex& current);
-    
+
 private:
     bool eventFilter(QObject *object, QEvent *e);
 
@@ -175,7 +175,7 @@ public:
 private slots:
     void itemChanged(QStandardItem *item);
 
-private:    
+private:
     QString uniqueFolderName() const;
     void removeBookmarkFolderItems(QStandardItem *item);
     void readBookmarksRecursive(const QStandardItem *item, QDataStream &stream,

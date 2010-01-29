@@ -39,7 +39,7 @@ enum RegisterRole
 {
     RegisterNumberBaseRole = Qt::UserRole, // Currently used number base
     RegisterAddressRole,                   // Start value for opening memory view
-    RegisterChangedRole                    // Used for painting changed values 
+    RegisterChangedRole                    // Used for painting changed values
 };
 
 class Register
@@ -76,7 +76,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &idx) const;
-    
+
     QList<Register> m_registers;
     int m_base;
     int m_strlen; // approximate width of an value in chars

@@ -1,5 +1,5 @@
 # Detect presence of "Debugging Tools For Windows"
-# in case VS compilers are used.      
+# in case VS compilers are used.
 
 win32 {
 contains(QMAKE_CXX, cl) {

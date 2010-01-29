@@ -84,7 +84,7 @@ public:
     void setInstallFileName(const QString &name);
     void setCommandLineArgs(const QStringList &args);
     bool startServer(QString *errorMessage);
-    void setVerbose(int v);    
+    void setVerbose(int v);
     void setSerialFrame(bool b);
     bool serialFrame() const;
     // Close device or leave it open

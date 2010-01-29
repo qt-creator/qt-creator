@@ -2206,7 +2206,7 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
                 if (declarator->postfix_declarators && declarator->postfix_declarators->asFunctionDeclarator()
                                                      && ! declarator->initializer) {
                     return false;
-                }                
+                }
             }
 
             return true;

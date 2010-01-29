@@ -183,7 +183,7 @@ void IndexWindow::open(QHelpIndexWidget* indexWidget, const QModelIndex &index)
         QUrl url;
         if (links.count() > 1) {
             TopicChooser tc(this, keyword, links);
-            if (tc.exec() == QDialog::Accepted) 
+            if (tc.exec() == QDialog::Accepted)
                 url = tc.link();
         } else if (links.count() == 1) {
             url = links.constBegin().value();

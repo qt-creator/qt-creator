@@ -46,7 +46,7 @@ public slots:
     {
         QMessageBox::information(m_widget, "Information", info);
     }
-    
+
     void updateStatusBar()
     {
         int slack = 80 - m_statusMessage.size() - m_statusData.size();
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
     mw.resize(600, 650);
     mw.move(0, 0);
     mw.show();
-    
+
     QFont font = widget->font();
     //: -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-iso8859-1
     //font.setFamily("Misc");

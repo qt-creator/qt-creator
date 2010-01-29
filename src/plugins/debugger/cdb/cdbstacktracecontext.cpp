@@ -58,7 +58,7 @@ CdbStackTraceContext::CdbStackTraceContext(const QSharedPointer<CdbDumperHelper>
 CdbStackTraceContext *CdbStackTraceContext::create(const QSharedPointer<CdbDumperHelper> &dumper,
                                                    unsigned long threadId,
                                                    QString *errorMessage)
-{    
+{
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << threadId;
     // fill the DEBUG_STACK_FRAME array
@@ -124,7 +124,7 @@ bool CdbStackTraceContext::init(unsigned long frameCount, QString * /*errorMessa
 }
 
 int CdbStackTraceContext::indexOf(const QString &function) const
-{    
+{
 
     const QChar exclamationMark = QLatin1Char('!');
     const int count = m_frames.size();
@@ -168,9 +168,9 @@ CdbStackFrameContext *CdbStackTraceContext::frameContextAt(int index, QString *e
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
         return 0;
     }
-    // Exclude unitialized variables if desired    
+    // Exclude unitialized variables if desired
     QStringList uninitializedVariables;
-    if (theDebuggerAction(UseCodeModel)->isChecked()) {        
+    if (theDebuggerAction(UseCodeModel)->isChecked()) {
         const StackFrame &frame = m_frames.at(index);
         getUninitializedVariables(DebuggerManager::instance()->cppCodeModelSnapshot(), frame.function, frame.file, frame.line, &uninitializedVariables);
     }
@@ -267,7 +267,7 @@ static inline bool getStoppedThreadState(const CdbComInterfaces &cif,
     }
     ULONG frameCount;
     // Ignore the top frame if it is "ntdll!KiFastSystemCallRet", which is
-    // not interesting for display.    
+    // not interesting for display.
     DEBUG_STACK_FRAME frames[MaxFrames];
     hr = cif.debugControl->GetStackTrace(0, 0, 0, frames, MaxFrames, &frameCount);
     if (FAILED(hr)) {

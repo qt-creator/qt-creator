@@ -88,7 +88,7 @@ QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
     // Order! suffixes first to generate files correctly
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
     dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
-    dialog->setBaseClasses(baseClasses());    
+    dialog->setBaseClasses(baseClasses());
     return dialog;
 }
 
@@ -151,7 +151,7 @@ Core::GeneratedFiles GuiAppWizard::generateFiles(const QWizard *w,
         form = QSharedPointer<Core::GeneratedFile>(new Core::GeneratedFile(formName));
         if (!parametrizeTemplate(templatePath, QLatin1String("widget.ui"), params, &contents, errorMessage))
             return Core::GeneratedFiles();
-        form->setContents(contents);        
+        form->setContents(contents);
         if (!generateFormClass(params, *form, &formSource, &formHeader, errorMessage))
             return Core::GeneratedFiles();
     } else {

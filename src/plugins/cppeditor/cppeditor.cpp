@@ -759,7 +759,7 @@ CPlusPlus::Symbol *CPPEditor::findCanonicalSymbol(const QTextCursor &cursor,
 
 
 void CPPEditor::findUsages()
-{    
+{
     if (Symbol *canonicalSymbol = markSymbols()) {
         m_modelManager->findUsages(canonicalSymbol);
     }
@@ -1802,7 +1802,7 @@ const char *CPPEditorEditable::kind() const
 
 bool CPPEditorEditable::open(const QString & fileName)
 {
-    bool b = TextEditor::BaseTextEditorEditable::open(fileName);    
+    bool b = TextEditor::BaseTextEditorEditable::open(fileName);
     editor()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     return b;
 }

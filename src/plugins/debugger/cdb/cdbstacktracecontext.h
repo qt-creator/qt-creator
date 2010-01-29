@@ -55,7 +55,7 @@ struct ThreadData;
  * Maintains an on-demand constructed list of CdbStackFrameContext
  * containining the local variables of the stack. */
 
-class CdbStackTraceContext        
+class CdbStackTraceContext
 {
     Q_DISABLE_COPY(CdbStackTraceContext)
 

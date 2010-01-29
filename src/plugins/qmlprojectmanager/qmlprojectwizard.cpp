@@ -244,7 +244,7 @@ bool QmlProjectWizard::isValidDir(const QFileInfo &fileInfo) const
         return false;
 
     else if (fileName == QLatin1String("CVS"))
-        return false;    
+        return false;
 
     // ### user include/exclude
 

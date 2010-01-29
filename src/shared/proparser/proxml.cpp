@@ -48,7 +48,7 @@ QString ProXmlParser::itemToString(ProItem *item)
 
 QDomNode ProXmlParser::createItemNode(QDomDocument doc, ProItem *item) const
 {
-    
+
     QDomElement tag;
     if (item->kind() == ProItem::ValueKind) {
         tag = doc.createElement(QLatin1String("value"));
@@ -106,14 +106,14 @@ QDomNode ProXmlParser::createItemNode(QDomDocument doc, ProItem *item) const
                 tag.appendChild(childNode);
         }
     }
-    
+
     QString comment = item->comment();
     comment = comment.replace('\\', QLatin1String("\\\\"));
     comment = comment.replace('\n', QLatin1String("\\n"));
 
     if (!comment.isEmpty())
         tag.setAttribute(QLatin1String("comment"), comment);
-    
+
     return tag;
 }
 

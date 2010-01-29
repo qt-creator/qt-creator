@@ -137,28 +137,28 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
     m_ui.setupUi(w);
 
     m_group.clear();
-    m_group.insert(theFakeVimSetting(ConfigUseFakeVim), 
+    m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
         m_ui.checkBoxUseFakeVim);
 
-    m_group.insert(theFakeVimSetting(ConfigExpandTab), 
+    m_group.insert(theFakeVimSetting(ConfigExpandTab),
         m_ui.checkBoxExpandTab);
-    m_group.insert(theFakeVimSetting(ConfigHlSearch), 
+    m_group.insert(theFakeVimSetting(ConfigHlSearch),
         m_ui.checkBoxHlSearch);
-    m_group.insert(theFakeVimSetting(ConfigShiftWidth), 
+    m_group.insert(theFakeVimSetting(ConfigShiftWidth),
         m_ui.lineEditShiftWidth);
 
-    m_group.insert(theFakeVimSetting(ConfigSmartTab), 
+    m_group.insert(theFakeVimSetting(ConfigSmartTab),
         m_ui.checkBoxSmartTab);
-    m_group.insert(theFakeVimSetting(ConfigStartOfLine), 
+    m_group.insert(theFakeVimSetting(ConfigStartOfLine),
         m_ui.checkBoxStartOfLine);
-    m_group.insert(theFakeVimSetting(ConfigTabStop), 
+    m_group.insert(theFakeVimSetting(ConfigTabStop),
         m_ui.lineEditTabStop);
-    m_group.insert(theFakeVimSetting(ConfigBackspace), 
+    m_group.insert(theFakeVimSetting(ConfigBackspace),
         m_ui.lineEditBackspace);
 
-    m_group.insert(theFakeVimSetting(ConfigAutoIndent), 
+    m_group.insert(theFakeVimSetting(ConfigAutoIndent),
         m_ui.checkBoxAutoIndent);
-    m_group.insert(theFakeVimSetting(ConfigIncSearch), 
+    m_group.insert(theFakeVimSetting(ConfigIncSearch),
         m_ui.checkBoxIncSearch);
 
     connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
@@ -173,9 +173,9 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
 void FakeVimOptionPage::copyTextEditorSettings()
 {
-    TextEditor::TabSettings ts = 
+    TextEditor::TabSettings ts =
         TextEditor::TextEditorSettings::instance()->tabSettings();
-    
+
     m_ui.checkBoxExpandTab->setChecked(ts.m_spacesForTabs);
     m_ui.lineEditTabStop->setText(QString::number(ts.m_tabSize));
     m_ui.lineEditShiftWidth->setText(QString::number(ts.m_indentSize));
@@ -271,7 +271,7 @@ private:
 } // namespace FakeVim
 
 FakeVimPluginPrivate::FakeVimPluginPrivate(FakeVimPlugin *plugin)
-{       
+{
     q = plugin;
     m_fakeVimOptionsPage = 0;
 }
@@ -300,7 +300,7 @@ bool FakeVimPluginPrivate::initialize()
     m_fakeVimOptionsPage = new FakeVimOptionPage;
     q->addObject(m_fakeVimOptionsPage);
     theFakeVimSettings()->readSettings(Core::ICore::instance()->settings());
-    
+
     Core::Command *cmd = 0;
     cmd = actionManager->registerAction(theFakeVimSetting(ConfigUseFakeVim),
         Constants::INSTALL_HANDLER, globalcontext);
@@ -407,7 +407,7 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     // we can only handle QTextEdit and QPlainTextEdit
     if (!qobject_cast<QTextEdit *>(widget) && !qobject_cast<QPlainTextEdit *>(widget))
         return;
-    
+
     //qDebug() << "OPENING: " << editor << editor->widget()
     //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();
 
@@ -440,7 +440,7 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
 
     handler->setCurrentFileName(editor->file()->fileName());
     handler->installEventFilter();
-    
+
     // pop up the bar
     if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool())
        showCommandBuffer("");
@@ -457,8 +457,8 @@ void FakeVimPluginPrivate::setUseFakeVim(const QVariant &value)
     //qDebug() << "SET USE FAKEVIM" << value;
     bool on = value.toBool();
     if (on) {
-        Core::EditorManager::instance()->showEditorStatusBar( 
-            QLatin1String(Constants::MINI_BUFFER), 
+        Core::EditorManager::instance()->showEditorStatusBar(
+            QLatin1String(Constants::MINI_BUFFER),
             "vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.",
             tr("Quit FakeVim"), this, SLOT(quitFakeVim()));
         foreach (Core::IEditor *editor, m_editorToHandler.keys())
@@ -499,7 +499,7 @@ void FakeVimPluginPrivate::writeFile(bool *handled,
         file->save(fileName);
         Core::ICore::instance()->fileManager()->unblockFileChange(file);
         *handled = true;
-    } 
+    }
 }
 
 void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
@@ -606,7 +606,7 @@ void FakeVimPluginPrivate::indentRegion(int *amount, int beginLine, int endLine,
     if (!bt)
         return;
 
-    TextEditor::TabSettings tabSettings = 
+    TextEditor::TabSettings tabSettings =
         TextEditor::TextEditorSettings::instance()->tabSettings();
     typedef SharedTools::Indenter<TextEditor::TextBlockIterator> Indenter;
     Indenter &indenter = Indenter::instance();
@@ -646,7 +646,7 @@ void FakeVimPluginPrivate::quitFakeVim()
 void FakeVimPluginPrivate::showCommandBuffer(const QString &contents)
 {
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
-    Core::EditorManager::instance()->showEditorStatusBar( 
+    Core::EditorManager::instance()->showEditorStatusBar(
         QLatin1String(Constants::MINI_BUFFER), contents,
         tr("Quit FakeVim"), this, SLOT(quitFakeVim()));
 }

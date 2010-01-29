@@ -37,7 +37,7 @@ namespace Internal {
 
 void dumpBacktrace(int maxdepth = -1);
 
-} // namespace Internal 
+} // namespace Internal
 } // namespace Debugger
 
 #endif // DEBUGGER_BACKTRACE_H

@@ -134,7 +134,7 @@ namespace trk {
 ///////////////////////////////////////////////////////////////////////
 
 class TrkWriteQueue
-{    
+{
     Q_DISABLE_COPY(TrkWriteQueue)
 public:
     explicit TrkWriteQueue();
@@ -325,7 +325,7 @@ DeviceContext::DeviceContext() :
 class WriterThread : public QThread {
     Q_OBJECT
     Q_DISABLE_COPY(WriterThread)
-public:            
+public:
     explicit WriterThread(const QSharedPointer<DeviceContext> &context);
 
     // Enqueue messages.
@@ -350,7 +350,7 @@ public slots:
 private slots:
     void invokeNoopMessage(const trk::TrkMessage &);
 
-private:    
+private:
     bool write(const QByteArray &data, QString *errorMessage);
     inline int writePendingMessage();
 
@@ -658,7 +658,7 @@ int WinReaderThread::tryRead()
     if (!ClearCommError(m_context->device, NULL, &comStat)){
         emit error(QString::fromLatin1("ClearCommError failed: %1").arg(winErrorMessage(GetLastError())));
         return -7;
-    }    
+    }
     const DWORD bytesToRead = qMax(DWORD(1), qMin(comStat.cbInQue, DWORD(BufSize)));
     // Trigger read
     DWORD bytesRead = 0;
@@ -674,7 +674,7 @@ int WinReaderThread::tryRead()
     if (readError != ERROR_IO_PENDING) {
         emit error(QString::fromLatin1("Read error: %1").arg(winErrorMessage(readError)));
         return -1;
-    }    
+    }
     // Wait for either termination or data
     const DWORD wr = WaitForMultipleObjects(HandleCount, m_handles, false, INFINITE);
     if (wr == WAIT_FAILED) {
@@ -749,7 +749,7 @@ private:
     int m_terminatePipeFileDescriptors[2];
 };
 
-UnixReaderThread::UnixReaderThread(const QSharedPointer<DeviceContext> &context) : 
+UnixReaderThread::UnixReaderThread(const QSharedPointer<DeviceContext> &context) :
     ReaderThreadBase(context)
 {
     m_terminatePipeFileDescriptors[0] = m_terminatePipeFileDescriptors[1] = -1;
@@ -943,8 +943,8 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
 
     d->writerThread = QSharedPointer<WriterThread>(new WriterThread(d->deviceContext));
     connect(d->writerThread.data(), SIGNAL(error(QString)), this, SLOT(emitError(QString)),
-            Qt::QueuedConnection);    
-    d->writerThread->start();    
+            Qt::QueuedConnection);
+    d->writerThread->start();
 
     if (d->verbose)
         qDebug() << "Opened" << port;
@@ -1009,7 +1009,7 @@ void TrkDevice::setVerbose(int b)
 void TrkDevice::slotMessageReceived(const trk::TrkResult &result, const QByteArray &rawData)
 {
     d->writerThread->slotHandleResult(result);
-    emit messageReceived(result);    
+    emit messageReceived(result);
     if (!rawData.isEmpty())
         emit rawDataReceived(rawData);
 }

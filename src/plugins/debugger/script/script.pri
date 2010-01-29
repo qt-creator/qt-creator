@@ -4,6 +4,6 @@ HEADERS += \
 SOURCES += \
     $$PWD/scriptengine.cpp \
 
-FORMS += 
+FORMS +=
 
-RESOURCES += 
+RESOURCES +=

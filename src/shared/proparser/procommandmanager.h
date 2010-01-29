@@ -40,7 +40,7 @@ QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
-    
+
 class ProCommand
 {
 public:
@@ -97,7 +97,7 @@ signals:
 private:
     ProCommandGroup *m_group;
     QList<ProCommandGroup *> m_groups;
-    
+
     int m_pos;
     ProCommandGroup *m_savepoint;
 };

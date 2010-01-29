@@ -61,7 +61,7 @@ PromptStartCommunicationResult
     QMessageBox messageBox(QMessageBox::Information, msgBoxTitle, msgBoxText, QMessageBox::Cancel, msgBoxParent);
     QObject::connect(&starter, SIGNAL(connected()), &messageBox, SLOT(close()));
     QObject::connect(&starter, SIGNAL(timeout()), &messageBox, SLOT(close()));
-    messageBox.exec();    
+    messageBox.exec();
     // Only starter.state() is reliable here to obtain the state.
     switch (starter.state()) {
     case AbstractBluetoothStarter::Running:

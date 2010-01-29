@@ -94,7 +94,7 @@ public:
     bool isDirty() const;
     void setDirty(bool dirty);
 
-    void enableContextMenu(bool enable);    
+    void enableContextMenu(bool enable);
 
     void addFiles(QStringList fileList, const QModelIndex &index);
 

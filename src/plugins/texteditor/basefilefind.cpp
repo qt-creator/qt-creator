@@ -98,7 +98,7 @@ void BaseFileFind::findAll(const QString &txt, QTextDocument::FindFlags findFlag
         m_watcher.setFuture(Utils::findInFilesRegExp(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
     else
         m_watcher.setFuture(Utils::findInFiles(txt, files(), findFlags, ITextEditor::openedTextEditorsContents()));
-    Core::FutureProgress *progress = 
+    Core::FutureProgress *progress =
         Core::ICore::instance()->progressManager()->addTask(m_watcher.future(),
                                                                         "Search",
                                                                         Constants::TASK_SEARCH,

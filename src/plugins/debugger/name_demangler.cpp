@@ -51,7 +51,7 @@
 #endif // DO_TRACE
 
 namespace Debugger {
-namespace Internal {    
+namespace Internal {
 
 class NameDemanglerPrivate
 {
@@ -138,7 +138,7 @@ private:
                                             QLatin1String(""))
         {
         }
-        
+
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 2);
@@ -166,7 +166,7 @@ private:
                                                QLatin1String(""))
         {
         }
-        
+
         const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 2);
@@ -182,7 +182,7 @@ private:
                                           QLatin1String(""))
         {
         }
-        
+
         virtual const QString makeExpr(const QStringList &exprs) const
         {
             Q_ASSERT(exprs.size() == 3);

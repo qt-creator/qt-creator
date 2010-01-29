@@ -610,7 +610,7 @@ BookmarkManager::BookmarkManager(QHelpEngineCore* _helpEngine)
 {
     bookmarkIcon = QIcon(QLatin1String(":/help/images/bookmark.png"));
     folderIcon = QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon);
-    
+
     connect(treeModel, SIGNAL(itemChanged(QStandardItem*)), this,
         SLOT(itemChanged(QStandardItem*)));
 }
@@ -719,7 +719,7 @@ void BookmarkManager::addNewBookmark(const QModelIndex& index,
     item->setIcon(bookmarkIcon);
     item->setData(false, Qt::UserRole + 11);
     item->setData(url, Qt::UserRole + 10);
-    
+
     if (index.isValid())
         treeModel->itemFromIndex(index)->appendRow(item);
     else

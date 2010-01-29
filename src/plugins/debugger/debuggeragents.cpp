@@ -76,7 +76,7 @@ MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, quint64 addr)
 }
 
 MemoryViewAgent::MemoryViewAgent(DebuggerManager *manager, const QString &addr)
-    : QObject(manager), m_engine(manager->currentEngine()), m_manager(manager) 
+    : QObject(manager), m_engine(manager->currentEngine()), m_manager(manager)
 {
     bool ok = true;
     init(addr.toULongLong(&ok, 0));
@@ -242,7 +242,7 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame)
             setContents(*it);
             return;
         }
-    } 
+    }
     IDebuggerEngine *engine = d->manager->currentEngine();
     QTC_ASSERT(engine, return);
     engine->fetchDisassembler(this, frame);
@@ -296,7 +296,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
 bool DisassemblerViewAgent::contentsCoversAddress(const QString &contents) const
 {
     QTC_ASSERT(d, return false);
-    for (int pos = 0, line = 0; ; ++line, ++pos) { 
+    for (int pos = 0, line = 0; ; ++line, ++pos) {
         if (contents.midRef(pos, d->frame.address.size()) == d->frame.address)
             return true;
         pos = contents.indexOf('\n', pos + 1);

@@ -157,7 +157,7 @@ struct CdbDebugEnginePrivate
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
-    bool                    m_interrupted;    
+    bool                    m_interrupted;
     int                     m_currentThreadId;
     int                     m_eventThreadId;
     int                     m_interruptArticifialThreadId;
@@ -167,7 +167,7 @@ struct CdbDebugEnginePrivate
     int                     m_watchTimer;
     CdbComInterfaces        m_cif;
     CdbDebugEventCallback   m_debugEventCallBack;
-    CdbDebugOutput          m_debugOutputCallBack;    
+    CdbDebugOutput          m_debugOutputCallBack;
     QSharedPointer<CdbDumperHelper> m_dumper;
     QString                 m_baseImagePath;
 

@@ -58,7 +58,7 @@ public:
     virtual QString displayName() = 0;
     virtual QKeySequence activationSequence();
     // This design is not optimal, think about it again once we need to extend it
-    // It could be implemented as returning an object which has both the widget 
+    // It could be implemented as returning an object which has both the widget
     // and the docktoolbar widgets
     // Similar to how IView
     virtual NavigationView createWidget() = 0;

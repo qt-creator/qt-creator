@@ -55,7 +55,7 @@ struct CppFileSettings {
 
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);
-    bool applySuffixesToMimeDB();  
+    bool applySuffixesToMimeDB();
 
     // Convenience to return a license template completely formatted.
     // Currently made public in
@@ -77,7 +77,7 @@ public:
     CppFileSettings settings() const;
     void setSettings(const CppFileSettings &s);
 
-private slots:    
+private slots:
     void slotEdit();
 
 private:

@@ -85,7 +85,7 @@ ExceptionBlocker::ExceptionBlocker(CIDebugControl *ctrl, ULONG code, Mode m) :
 {
     // Retrieve current state
     memset(&m_oldParameters, 0, sizeof(DEBUG_EXCEPTION_FILTER_PARAMETERS));
-    if (getExceptionParameters(ctrl, code, &m_oldParameters, &m_errorString)) {        
+    if (getExceptionParameters(ctrl, code, &m_oldParameters, &m_errorString)) {
         // Are we in a nested instantiation?
         const ULONG desiredExOption = m == IgnoreException ? DEBUG_FILTER_IGNORE : DEBUG_FILTER_OUTPUT;
         const bool isAlreadyBlocked = m_oldParameters.ExecutionOption == desiredExOption

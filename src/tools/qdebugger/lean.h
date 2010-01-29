@@ -141,7 +141,7 @@ public:
         return result;
     }
 
-public:    
+public:
     QString m_fileName;
 };
 

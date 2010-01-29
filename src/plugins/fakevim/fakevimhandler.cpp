@@ -214,7 +214,7 @@ struct Range
         : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
     {}
 
-    QString toString() const 
+    QString toString() const
     {
         return QString("%1-%2 (mode: %3)").arg(beginPos).arg(endPos)
             .arg(rangemode);

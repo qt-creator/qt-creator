@@ -155,7 +155,7 @@ void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
 {
     QTC_ASSERT(range.size() == uint(ba.size()),
         qDebug() << "RANGE: " << range << " BA SIZE: " << ba.size(); return);
-    
+
     MEMORY_DEBUG("INSERT: " << range);
     // Try to combine with existing chunk.
     Snapshot::Memory::iterator it = memory.begin();
@@ -660,7 +660,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // Kill inferior process
         logMessage(msgGdbPacket(QLatin1String("kill")));
         sendTrkMessage(0x41, TrkCB(handleDeleteProcess),
-            trkDeleteProcessMessage(), "Delete process"); 
+            trkDeleteProcessMessage(), "Delete process");
     }
 
     else if (cmd.startsWith("m")) {
@@ -924,7 +924,7 @@ i        */
         if (data.startsWith("auxv:read::")) {
             const int offsetPos = data.lastIndexOf(':') + 1;
             const int commaPos = data.lastIndexOf(',');
-            if (commaPos != -1) {                
+            if (commaPos != -1) {
                 bool ok1 = false, ok2 = false;
                 const int offset = data.mid(offsetPos,  commaPos - offsetPos)
                     .toUInt(&ok1, 16);
@@ -1176,7 +1176,7 @@ void TrkGdbAdapter::handleReadRegisters(const TrkResult &result)
     const char *data = result.data.data() + 1; // Skip ok byte
     for (int i = 0; i < RegisterCount; ++i)
         m_snapshot.registers[i] = extractInt(data + 4 * i);
-} 
+}
 
 void TrkGdbAdapter::handleWriteRegister(const TrkResult &result)
 {
@@ -1187,7 +1187,7 @@ void TrkGdbAdapter::handleWriteRegister(const TrkResult &result)
         return;
     }
     sendGdbServerMessage("OK");
-} 
+}
 
 void TrkGdbAdapter::reportRegisters()
 {
@@ -1312,7 +1312,7 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
     Snapshot::Memory::const_iterator et = m_snapshot.memory.end();
     for ( ; it != et; ++it) {
         MEMORY_DEBUG("   NEEDED: " << needed);
-        needed -= it.key(); 
+        needed -= it.key();
     }
     MEMORY_DEBUG("NEEDED: " << needed);
 
@@ -1475,7 +1475,7 @@ void TrkGdbAdapter::handleClearBreakpoint(const TrkResult &result)
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString());
         //return;
-    } 
+    }
     sendGdbServerMessage("OK");
 }
 
@@ -1568,7 +1568,7 @@ void TrkGdbAdapter::startAdapter()
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
     m_trkDevice->setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
     // Prompt the user to start communication
-    QString message;        
+    QString message;
     const trk::PromptStartCommunicationResult src =
             S60DebuggerBluetoothStarter::startCommunication(m_trkDevice,
                                                             effectiveTrkDevice(),
@@ -1752,16 +1752,16 @@ void TrkGdbAdapter::handleDirectWrite1(const TrkResult &response)
         appendByte(&ba, 0xe5);
 #else
         // Thumb:
-        // subs  r0, #16  
+        // subs  r0, #16
         appendByte(&ba, 0x08);
         appendByte(&ba, 0x3b);
-        // subs  r0, #16  
+        // subs  r0, #16
         appendByte(&ba, 0x08);
         appendByte(&ba, 0x3b);
         //
         appendByte(&ba, 0x08);
         appendByte(&ba, 0x3b);
-        // subs  r0, #16  
+        // subs  r0, #16
         appendByte(&ba, 0x08);
         appendByte(&ba, 0x3b);
 #endif

@@ -45,7 +45,7 @@ TopicChooser::TopicChooser(QWidget *parent, const QString &keyword,
     QMap<QString, QUrl>::const_iterator it = m_links.constBegin();
     for (; it != m_links.constEnd(); ++it)
         ui.listWidget->addItem(it.key());
-    
+
     if (ui.listWidget->count() != 0)
         ui.listWidget->setCurrentRow(0);
     ui.listWidget->setFocus();

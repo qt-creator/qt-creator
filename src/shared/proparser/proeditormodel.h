@@ -77,7 +77,7 @@ public:
     ProBlock *proBlock(const QModelIndex &index) const;
     ProVariable *proVariable(const QModelIndex &index) const;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const; 
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -118,12 +118,12 @@ class ProScopeFilter : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    enum CheckableType { 
+    enum CheckableType {
         None,
-        Variable, 
+        Variable,
         Blocks
     };
-    
+
     void setVariableFilter(const QStringList &vars);
     void setCheckable( CheckableType ct );
 

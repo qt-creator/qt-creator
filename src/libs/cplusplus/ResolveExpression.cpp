@@ -477,7 +477,7 @@ bool ResolveExpression::visit(CallAST *ast)
                 }
             }
 
-        } else if (Function *funTy = ty->asFunctionType()) {            
+        } else if (Function *funTy = ty->asFunctionType()) {
             if (maybeValidPrototype(funTy, actualArgumentCount))
                 addResult(funTy->returnType().simplified(), lastVisibleSymbol);
 
@@ -601,7 +601,7 @@ ResolveExpression::resolveBaseExpression(const QList<Result> &baseResults, int a
             Name *arrowAccessOp = control()->operatorNameId(OperatorNameId::ArrowOp);
             const QList<Symbol *> candidates = resolveClass(namedTy->name(), result, _context);
 
-            foreach (Symbol *classObject, candidates) {                
+            foreach (Symbol *classObject, candidates) {
                 const QList<Result> overloads = resolveMember(arrowAccessOp, classObject->asClass(),
                                                               namedTy->name());
 
@@ -715,16 +715,16 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
     foreach (Symbol *candidate, candidates) {
         FullySpecifiedType ty = candidate->type();
         Name *unqualifiedNameId = className;
-        
+
         if (QualifiedNameId *q = className->asQualifiedNameId())
             unqualifiedNameId = q->unqualifiedNameId();
-        
+
         if (TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
             GenTemplateInstance::Substitution subst;
-            
+
             for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
                 FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-                
+
                 if (i < klass->templateParameterCount()) {
                     Name *templArgName = klass->templateParameterAt(i)->name();
                     if (templArgName && templArgName->identifier()) {
@@ -733,11 +733,11 @@ ResolveExpression::resolveMember(Name *memberName, Class *klass,
                     }
                 }
             }
-            
+
             GenTemplateInstance inst(_context, subst);
             ty = inst(candidate);
         }
-        
+
         results.append(Result(ty, candidate));
     }
 

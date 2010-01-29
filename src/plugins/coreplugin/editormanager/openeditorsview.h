@@ -26,7 +26,7 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-    
+
 #ifndef OPENEDITORSVIEW_H
 #define OPENEDITORSVIEW_H
 

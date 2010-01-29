@@ -241,7 +241,7 @@ bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
     // Set the items tooltip, which may cause costly initialization
     // of QtVersion and must be up-to-date
     if (o != m_ui->qtdirList || e->type() != QEvent::ToolTip)
-        return false;    
+        return false;
     QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);
     const QPoint treePos = helpEvent->pos() - QPoint(0, m_ui->qtdirList->header()->height());
     QTreeWidgetItem *item = m_ui->qtdirList->itemAt(treePos);

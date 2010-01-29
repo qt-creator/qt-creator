@@ -51,7 +51,7 @@ struct TrkDevicePrivate;
  * Trk communications. Provides synchronous write and asynchronous
  * read operation.
  * The serialFrames property specifies whether packets are encapsulated in
- * "0x90 <length>" frames, which is currently the case for serial ports. 
+ * "0x90 <length>" frames, which is currently the case for serial ports.
  * Contains a write message queue allowing
  * for queueing messages with a notification callback. If the message receives
  * an ACK, the callback is invoked.

@@ -109,7 +109,7 @@ private:
     bool m_cachedTargetInformationValid;
     QString m_serialPortName;
     int m_communicationType;
-    SigningMode m_signingMode;    
+    SigningMode m_signingMode;
     QString m_customSignaturePath;
     QString m_customKeyPath;
 };
@@ -174,7 +174,7 @@ private slots:
     void slotLauncherStateChanged(int);
     void slotWaitingForTrkClosed();
 
-private:        
+private:
     bool createPackageFileFromTemplate(QString *errorMessage);
 
     QString m_serialPortName;
@@ -230,7 +230,7 @@ public:
 
     virtual void stop();
 
-protected:    
+protected:
     virtual void initLauncher(const QString &executable, trk::Launcher *);
     virtual void handleLauncherFinished();
     virtual bool checkConfiguration(QString *errorMessage,

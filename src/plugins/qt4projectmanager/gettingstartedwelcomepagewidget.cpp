@@ -178,7 +178,7 @@ void copyRecursive(const QDir& from, const QDir& to, const QString& dir)
     }
     foreach(const QString& roDir, src.entryList(QDir::NoDotAndDotDot|QDir::Dirs)) {
         copyRecursive(src, dest, QDir(roDir).dirName());
-    }   
+    }
 }
 } // namespace
 

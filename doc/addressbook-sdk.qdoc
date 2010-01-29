@@ -215,8 +215,8 @@
 
     \snippet examples/addressbook-sdk/part1/main.cpp main function
 
-    The code constructs a new \c AddressBook widget on the stack and 
-    invokes its \l{QWidget::}{show()} function to display it. 
+    The code constructs a new \c AddressBook widget on the stack and
+    invokes its \l{QWidget::}{show()} function to display it.
     However, the widget will not be shown until the application's event
     loop is started. This is done by calling the application's
     \l{QApplication::}{exec()} function. Finally, the result returned by

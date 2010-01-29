@@ -78,9 +78,9 @@ public:
     {
         return new MyEditable(this);
     }
-    
+
     void setPlainText(const QString &contents)
-    {   
+    {
         qDebug() << "Setting contents to:\n" << contents;
         QPlainTextEdit::setPlainText(contents);
     }
@@ -188,7 +188,7 @@ void MainWindow::fileOpen()
     settings().setValue("FileOpen/LastDir", QFileInfo(fileName).dir().dirName());
     if (fileName.isEmpty())
         return;
-    loadFile(fileName);   
+    loadFile(fileName);
 }
 
 

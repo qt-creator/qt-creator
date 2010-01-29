@@ -204,7 +204,7 @@ void VCSBaseSubmitEditor::createUserFields(const QString &fieldConfigFile)
 
     Utils::SubmitFieldWidget *fieldWidget = new Utils::SubmitFieldWidget;
     connect(fieldWidget, SIGNAL(browseButtonClicked(int,QString)),
-            this, SLOT(slotSetFieldNickName(int)));    
+            this, SLOT(slotSetFieldNickName(int)));
     fieldWidget->setCompleter(completer);
     fieldWidget->setAllowDuplicateFields(true);
     fieldWidget->setHasBrowseButton(true);
@@ -557,7 +557,7 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     if (!checkProcess.waitForFinished()) {
         *errorMessage = tr("The check script '%1' could not be run: %2").arg(checkScript, checkProcess.errorString());
         return false;
-    }    
+    }
     const int exitCode = checkProcess.exitCode();
     if (exitCode != 0) {
         *errorMessage = QString::fromLocal8Bit(checkProcess.readAllStandardError());

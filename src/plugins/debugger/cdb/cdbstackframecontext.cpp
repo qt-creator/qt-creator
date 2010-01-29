@@ -130,7 +130,7 @@ WatchHandleDumperInserter::WatchHandleDumperInserter(WatchHandler *wh,
 
 // Prevent recursion of the model by setting value and type
 static inline bool fixDumperType(WatchData *wd, const WatchData *source = 0)
-{    
+{
     const bool missing = wd->isTypeNeeded() || wd->type.isEmpty();
     if (missing) {
         static const QString unknownType = QCoreApplication::translate("CdbStackFrameContext", "<Unknown Type>");

@@ -72,7 +72,7 @@ public:
 
     virtual void readSettings(QSettings *settings);
     Q_SLOT virtual void writeSettings(QSettings *settings);
-    
+
     virtual void connectWidget(QWidget *widget, ApplyMode applyMode = DeferedApply);
     virtual void disconnectWidget();
     Q_SLOT virtual void apply(QSettings *settings);

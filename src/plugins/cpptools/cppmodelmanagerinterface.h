@@ -104,7 +104,7 @@ public:
 
 public Q_SLOTS:
     void updateModifiedSourceFiles();
-    virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;    
+    virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;
     virtual void GC() = 0;
 };
 

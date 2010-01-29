@@ -65,7 +65,7 @@ static TrkLauncherPtr parseArguments(const QStringList &arguments, bool *bluetoo
         if (!option.startsWith(QLatin1Char('-')))
             break;
         if (option.size() != 2)
-            return TrkLauncherPtr();        
+            return TrkLauncherPtr();
         switch (option.at(1).toAscii()) {
         case 'v':
             verbosity++;

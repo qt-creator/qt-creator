@@ -45,7 +45,7 @@ bool ProWriter::write(ProFile *profile, const QString &fileName)
     m_out.setDevice(&data);
     writeItem(profile, QString());
     data.close();
-    
+
     return true;
 }
 
@@ -64,7 +64,7 @@ QString ProWriter::contents(ProFile *profile)
 QString ProWriter::fixComment(const QString &comment, const QString &indent) const
 {
     QString result = comment;
-    result = result.replace(QLatin1Char('\n'), 
+    result = result.replace(QLatin1Char('\n'),
         QLatin1Char('\n') + indent + QLatin1String("# "));
     return QLatin1String("# ") + result;
 }
@@ -75,7 +75,7 @@ void ProWriter::writeValue(ProValue *value, const QString &indent)
         m_out << indent << QLatin1String("    ");
         m_writeState &= ~NewLine;
     }
-    
+
     m_out << value->value();
 
     if (!(m_writeState & LastItem))

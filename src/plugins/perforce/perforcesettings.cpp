@@ -213,7 +213,7 @@ void PerforceSettings::toSettings(QSettings *settings) const
 }
 
 void PerforceSettings::setSettings(const Settings &newSettings)
-{    
+{
     if (newSettings != m_settings) {
         // trigger check
         m_settings = newSettings;

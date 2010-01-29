@@ -54,5 +54,5 @@ exit 0
 
 
 ## Properly close subshell
-) 
+)
 exit $?

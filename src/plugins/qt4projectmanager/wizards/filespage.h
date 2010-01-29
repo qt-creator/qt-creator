@@ -66,7 +66,7 @@ public:
     bool formInputCheckable() const;
     bool formInputChecked() const;
     QStringList baseClassChoices() const;
-    bool lowerCaseFiles() const;    
+    bool lowerCaseFiles() const;
     bool isClassTypeComboVisible() const;
 
     void setSuffixes(const QString &header, const QString &source,  const QString &form = QString());

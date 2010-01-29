@@ -236,7 +236,7 @@ static QString wrappedText(const QTextEdit *e)
     const QChar newLine = QLatin1Char('\n');
     QString rc;
     QTextCursor cursor(e->document());
-    cursor.movePosition(QTextCursor::Start);    
+    cursor.movePosition(QTextCursor::Start);
     while (!cursor.atEnd()) {
         cursor.select(QTextCursor::LineUnderCursor);
         rc += cursor.selectedText();
@@ -272,7 +272,7 @@ void SubmitEditorWidget::setLineWrap(bool v)
         qDebug() << Q_FUNC_INFO << v;
     if (v) {
         m_d->m_ui.description->setLineWrapColumnOrWidth(m_d->m_lineWidth);
-        m_d->m_ui.description->setLineWrapMode(QTextEdit::FixedColumnWidth);        
+        m_d->m_ui.description->setLineWrapMode(QTextEdit::FixedColumnWidth);
     } else {
         m_d->m_ui.description->setLineWrapMode(QTextEdit::NoWrap);
     }
@@ -488,7 +488,7 @@ void SubmitEditorWidget::insertDescriptionEditContextMenuAction(int pos, QAction
 
 void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 {
-    QMenu *menu = m_d->m_ui.description->createStandardContextMenu();    
+    QMenu *menu = m_d->m_ui.description->createStandardContextMenu();
     // Extend
     foreach (const SubmitEditorWidgetPrivate::AdditionalContextMenuAction &a, m_d->descriptionEditContextMenuActions) {
         if (a.second) {

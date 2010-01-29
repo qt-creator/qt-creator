@@ -42,7 +42,7 @@ using namespace Qt4ProjectManager::Internal;
 
 namespace Qt4ProjectManager {
 namespace Internal {
-    
+
 class ProAddCommand : public ProCommand
 {
 public:
@@ -707,7 +707,7 @@ bool ProEditorModel::insertModelItem(ProItem *item, int row, const QModelIndex &
     beginInsertRows(parent, row, row);
     block->setItems(proitems);
     endInsertRows();
-    
+
     markProFileModified(parent);
     return true;
 }
@@ -728,7 +728,7 @@ bool ProEditorModel::insertItem(ProItem *item, int row, const QModelIndex &paren
 
 void ProEditorModel::markProFileModified(QModelIndex index)
 {
-    while (index.isValid()) {        
+    while (index.isValid()) {
         if (proItem(index)->kind() == ProItem::BlockKind) {
             ProBlock * block = proBlock(index);
             if (block->blockKind() == ProBlock::ProFileKind) {

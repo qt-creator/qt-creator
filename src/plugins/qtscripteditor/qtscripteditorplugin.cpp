@@ -121,7 +121,7 @@ bool QtScriptEditorPlugin::initialize(const QStringList & /*arguments*/, QString
     m_completion->setCaseSensitivity(caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
     settings->endGroup();
     settings->endGroup();
-    
+
     error_message->clear();
 
     return true;

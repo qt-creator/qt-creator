@@ -55,7 +55,7 @@ namespace Internal {
 class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public LocalApplicationRunConfiguration
 {
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
-    friend class Internal::CustomExecutableConfigurationWidget;    
+    friend class Internal::CustomExecutableConfigurationWidget;
     Q_OBJECT
 
 public:

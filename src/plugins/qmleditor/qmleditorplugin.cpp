@@ -134,7 +134,7 @@ bool QmlEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     m_completion->setCaseSensitivity(caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
     settings->endGroup();
     settings->endGroup();
-    
+
     error_message->clear();
 
     return true;

@@ -88,7 +88,7 @@ Launcher::Launcher(Actions startupActions,
     d(new LauncherPrivate(dev))
 {
     d->m_startupActions = startupActions;
-    connect(d->m_device.data(), SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));    
+    connect(d->m_device.data(), SIGNAL(messageReceived(trk::TrkResult)), this, SLOT(handleResult(trk::TrkResult)));
     connect(this, SIGNAL(finished()), d->m_device.data(), SLOT(close()));
 }
 

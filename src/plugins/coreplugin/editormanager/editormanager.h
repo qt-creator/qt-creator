@@ -120,7 +120,7 @@ public:
                      const QString &contents = QString());
 
     bool openExternalEditor(const QString &fileName, const QString &editorKind);
-    
+
     QStringList getOpenFileNames() const;
     QString getOpenWithEditorKind(const QString &fileName, bool *isExternalEditor = 0) const;
 

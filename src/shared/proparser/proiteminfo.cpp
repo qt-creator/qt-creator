@@ -93,7 +93,7 @@ ProVariableInfo::~ProVariableInfo()
 
 void ProVariableInfo::addValue(ProValueInfo *value)
 {
-    m_values.insert(value->id(), value);    
+    m_values.insert(value->id(), value);
 }
 
 void ProVariableInfo::setMultiple(bool multiple)

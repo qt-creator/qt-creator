@@ -46,7 +46,7 @@ public:
         QMap<QString, QString> *foundAppOptions,
         QString *errorString,
         PluginManagerPrivate *pmPrivate);
-    
+
     bool parse();
 
     static const char *NO_LOAD_OPTION;
@@ -63,13 +63,13 @@ private:
 
     enum TokenType { OptionalToken, RequiredToken };
     bool nextToken(TokenType type = OptionalToken);
-    
+
     const QStringList &m_args;
     const QMap<QString, bool> &m_appOptions;
     QMap<QString, QString> *m_foundAppOptions;
     QString *m_errorString;
     PluginManagerPrivate *m_pmPrivate;
-    
+
     // state
     QString m_currentArg;
     QStringList::const_iterator m_it;

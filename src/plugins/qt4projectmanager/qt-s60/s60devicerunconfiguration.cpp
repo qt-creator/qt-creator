@@ -395,11 +395,11 @@ QSharedPointer<RunConfiguration> S60DeviceRunConfigurationFactory::create(Projec
 // ======== S60DeviceRunControlBase
 
 S60DeviceRunControlBase::S60DeviceRunControlBase(const QSharedPointer<RunConfiguration> &runConfiguration) :
-    RunControl(runConfiguration),    
+    RunControl(runConfiguration),
     m_makesis(new QProcess(this)),
     m_signsis(new QProcess(this)),
     m_launcher(0)
-{    
+{
     connect(m_makesis, SIGNAL(readyReadStandardError()),
             this, SLOT(readStandardError()));
     connect(m_makesis, SIGNAL(readyReadStandardOutput()),
@@ -616,7 +616,7 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     initLauncher(runFileName, m_launcher);
     emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(lsFile(copySrc), m_serialPortFriendlyName));
     QString errorMessage;
-    // Prompt the user to start up the Blue tooth connection    
+    // Prompt the user to start up the Blue tooth connection
     const trk::PromptStartCommunicationResult src =
             S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
                                                              m_serialPortName,
@@ -722,7 +722,7 @@ void S60DeviceRunControlBase::slotWaitingForTrkClosed()
 {
     if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
         stop();
-        error(this, tr("Canceled."));        
+        error(this, tr("Canceled."));
         emit finished();
     }
 }

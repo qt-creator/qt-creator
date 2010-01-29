@@ -219,7 +219,7 @@ QString DetailsWidget_CW::domXml() const
 void DetailsWidget_CW::initialize(QDesignerFormEditorInterface *core)
 {
     const bool firstTime = !initialized();
-    CustomWidget<Utils::DetailsWidget>::initialize(core);    
+    CustomWidget<Utils::DetailsWidget>::initialize(core);
     if (firstTime)
         if (QExtensionManager *manager = core->extensionManager())
             manager->registerExtensions(new DetailsWidgetExtensionFactory(manager), Q_TYPEID(QDesignerContainerExtension));

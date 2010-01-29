@@ -1,7 +1,7 @@
 #comment
 
 TEMPLATE = app
-TARGET = 
+TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 CONFIG += console

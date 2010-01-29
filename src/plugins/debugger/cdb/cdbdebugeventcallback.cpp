@@ -121,7 +121,7 @@ STDMETHODIMP CdbDebugEventCallbackBase::CreateProcess(
     __in ULONG64 /* ThreadDataOffset */,
     __in ULONG64 /* StartOffset */
     )
-{    
+{
     return S_OK;
 }
 
@@ -143,7 +143,7 @@ STDMETHODIMP CdbDebugEventCallbackBase::LoadModule(
     __in ULONG /* CheckSum */,
     __in ULONG /* TimeDateStamp */
     )
-{    
+{
     return S_OK;
 }
 
@@ -196,7 +196,7 @@ STDMETHODIMP CdbDebugEventCallbackBase::ChangeSymbolState(
     __in ULONG /* Flags */,
     __in ULONG64 /* Argument */
     )
-{    
+{
     return S_OK;
 }
 

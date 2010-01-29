@@ -166,7 +166,7 @@ FORMS += dialogs/newdialog.ui \
     generalsettings.ui
 RESOURCES += core.qrc \
     fancyactionbar.qrc
-unix:!macx { 
+unix:!macx {
     images.files = images/qtcreator_logo_*.png
     images.path = /share/pixmaps
     INSTALLS += images

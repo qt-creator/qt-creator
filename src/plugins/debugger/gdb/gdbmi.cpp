@@ -306,7 +306,7 @@ QByteArray GdbMi::toString(bool multiline, int indent) const
             else
                 result += "Invalid";
             break;
-        case Const: 
+        case Const:
             if (!m_name.isEmpty())
                 result += m_name + "=";
             result += "\"" + escapeCString(m_data) + "\"";

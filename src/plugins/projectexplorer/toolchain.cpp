@@ -373,7 +373,7 @@ QByteArray MSVCToolChain::predefinedMacros()
                 }
                 QByteArray newDefine = "#define " + key + " " + value + '\n';
                 m_predefinedMacros.append(newDefine);
-            }            
+            }
         }
         QFile::remove(tmpFilePath);
     }

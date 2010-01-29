@@ -118,7 +118,7 @@ QString NickNameEntry::nickName() const
 
 QList<QStandardItem *> NickNameEntry::toModelRow() const
 {
-    const QVariant nickNameData = nickName();    
+    const QVariant nickNameData = nickName();
     const Qt::ItemFlags flags = Qt::ItemIsSelectable|Qt::ItemIsEnabled;
     QStandardItem *i1 = new QStandardItem(name);
     i1->setFlags(flags);

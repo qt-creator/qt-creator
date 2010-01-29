@@ -98,7 +98,7 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
     if (!(*verQueryValueW)(data, TEXT("\\"), &versionInfo, &len)) {
         *errorMessage = QString::fromLatin1("Unable to determine version string of %1: %2").arg(name, winErrorMessage(GetLastError()));
         return QString();
-    }    
+    }
     QString rc;
     switch (t) {
     case WinDLLFileVersion:

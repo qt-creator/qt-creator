@@ -61,7 +61,7 @@
 #if DEBUG_MODEL
 #   define MODEL_DEBUG(s) qDebug() << s
 #else
-#   define MODEL_DEBUG(s) 
+#   define MODEL_DEBUG(s)
 #endif
 #define MODEL_DEBUGX(s) qDebug() << s
 
@@ -101,7 +101,7 @@ public:
 // WatchData
 //
 ////////////////////////////////////////////////////////////////////
-   
+
 WatchData::WatchData() :
     hasChildren(false),
     generation(-1),
@@ -173,7 +173,7 @@ void WatchData::setValue(const QString &value0)
     // column. No need to duplicate it here.
     if (value.startsWith("(" + type + ") 0x"))
         value = value.section(" ", -1, -1);
-    
+
     setValueUnneeded();
 }
 
@@ -499,7 +499,7 @@ QString niceType(const QString typeIn)
     for (int i = 0; i < 10; ++i) {
         int start = type.indexOf("std::allocator<");
         if (start == -1)
-            break; 
+            break;
         // search for matching '>'
         int pos;
         int level = 0;
@@ -691,7 +691,7 @@ bool WatchModel::hasChildren(const QModelIndex &parent) const
 
 WatchItem *WatchModel::watchItem(const QModelIndex &idx) const
 {
-    return idx.isValid() 
+    return idx.isValid()
         ? static_cast<WatchItem*>(idx.internalPointer()) : m_root;
 }
 
@@ -700,7 +700,7 @@ QModelIndex WatchModel::watchIndex(const WatchItem *item) const
     return watchIndexHelper(item, m_root, QModelIndex());
 }
 
-QModelIndex WatchModel::watchIndexHelper(const WatchItem *needle, 
+QModelIndex WatchModel::watchIndexHelper(const WatchItem *needle,
     const WatchItem *parentItem, const QModelIndex &parentIndex) const
 {
     if (needle == parentItem)
@@ -715,7 +715,7 @@ QModelIndex WatchModel::watchIndexHelper(const WatchItem *needle,
     return QModelIndex();
 }
 
-void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex) 
+void WatchModel::emitDataChanged(int column, const QModelIndex &parentIndex)
 {
     QModelIndex idx1 = index(0, column, parentIndex);
     QModelIndex idx2 = index(rowCount(parentIndex) - 1, column, parentIndex);
@@ -785,7 +785,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case ActiveDataRole:
             qDebug() << "ASK FOR" << data.iname;
             return true;
-   
+
         case TypeFormatListRole:
             if (isIntType(data.type))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
@@ -807,7 +807,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         }
 
         default:
-            break; 
+            break;
     }
     return QVariant();
 }
@@ -825,7 +825,7 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         }
     } else if (role == TypeFormatRole) {
         m_handler->setFormat(data.type, value.toInt());
-    } else if (role == IndividualFormatRole) {        
+    } else if (role == IndividualFormatRole) {
         const int format = value.toInt();
         if (format == -1) {
             m_handler->m_individualFormats.remove(data.iname);
@@ -879,7 +879,7 @@ QVariant WatchModel::headerData(int section, Qt::Orientation orientation, int ro
             case 2: return QString(tr("Type")  + QLatin1String("     "));
         }
     }
-    return QVariant(); 
+    return QVariant();
 }
 
 struct IName : public QString
@@ -899,7 +899,7 @@ bool iNameLess(const QString &iname1, const QString &iname2)
                 return i1 < i2;
         }
     }
-    return name1 < name2; 
+    return name1 < name2;
 }
 
 bool operator<(const IName &iname1, const IName &iname2)
@@ -916,7 +916,7 @@ static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *i
 {
     QList<WatchItem *>::const_iterator it =
         qLowerBound(list.begin(), list.end(), item, iNameSorter);
-    return it - list.begin(); 
+    return it - list.begin();
 }
 
 void WatchModel::insertData(const WatchData &data)
@@ -967,7 +967,7 @@ void WatchModel::insertData(const WatchData &data)
 void WatchModel::insertBulkData(const QList<WatchData> &list)
 {
 #if 0
-    for (int i = 0; i != list.size(); ++i) 
+    for (int i = 0; i != list.size(); ++i)
         insertData(list.at(i));
     return;
 #endif
@@ -1436,7 +1436,7 @@ WatchModel *WatchHandler::model(WatchType type) const
     QTC_ASSERT(false, /**/);
     return 0;
 }
-    
+
 WatchModel *WatchHandler::modelForIName(const QString &iname) const
 {
     if (iname.startsWith(QLatin1String("local")))

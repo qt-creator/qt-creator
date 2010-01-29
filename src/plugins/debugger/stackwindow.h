@@ -43,7 +43,7 @@ class DebuggerManager;
 
 namespace Internal {
 class DisassemblerViewAgent;
-    
+
 class StackWindow : public QTreeView
 {
     Q_OBJECT

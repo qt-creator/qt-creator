@@ -332,7 +332,7 @@ static void blockRecursion(const CPlusPlus::Overview &overview,
                 it = seenHash->insert(name, 0);
             } else {
                 ++(it.value());
-            }            
+            }
             // Is the declaration on or past the current line, that is,
             // the variable not initialized.
             if (symbol->line() >= line)
@@ -1388,7 +1388,7 @@ static void gbdMiToWatchData(const GdbMi &root,
 {
     if (debug > 1)
         qDebug() << Q_FUNC_INFO << '\n' << root.toString(false, 0);
-    WatchData w;    
+    WatchData w;
     QString v;
     // Check for name/iname and use as expression default
     if (ctx.recursionLevel == 0) {
@@ -1427,7 +1427,7 @@ static void gbdMiToWatchData(const GdbMi &root,
         w.exp = v;
     gdbMiGetStringValue(&w.addr, root, "addr");
     gdbMiGetStringValue(&w.saddr, root, "saddr");
-    gdbMiGetBoolValue(&w.valueEnabled, root, "valueenabled");    
+    gdbMiGetBoolValue(&w.valueEnabled, root, "valueenabled");
     gdbMiGetBoolValue(&w.valueEditable, root, "valueeditable");
     if (gdbMiGetStringValue(&v, root, "valuetooltip", "valuetooltipencoded"))
         w.setValue(v);

@@ -189,7 +189,7 @@ MainWindow::MainWindow()
 
     //
     //  Files
-    //   
+    //
     QDockWidget *filesDock = new QDockWidget(this);
     filesDock->setObjectName("FilesDock");
     filesDock->setGeometry(QRect(0, 0, 200, 200));
@@ -235,7 +235,7 @@ MainWindow::MainWindow()
     debugMenu->addAction(m_manager->m_breakAction);
     //debugMenu->addAction(m_startDebuggerAction);
     menuBar()->addMenu(debugMenu);
-    
+
     //
     //  Toolbar
     //
@@ -306,7 +306,7 @@ void MainWindow::loadFiles(const QStringList &fileNames)
         return;
     foreach (const QString &fileName, fileNames)
         loadFile(fileName);
-    startDebuggingRequest(); 
+    startDebuggingRequest();
 }
 
 void MainWindow::startDebuggingRequest()
@@ -434,7 +434,7 @@ void MainWindow::gotoLocation(const QString &fileName, int line, bool setMarker)
     Q_UNUSED(setMarker)
     TextViewer *textViewer = findOrCreateTextViewer(fileName);
     m_textViewers->setCurrentWidget(textViewer);
-    
+
     const int blockNumber = line - 1;
     const QTextBlock &block = textViewer->document()->findBlockByNumber(blockNumber);
     if (block.isValid()) {
@@ -479,7 +479,7 @@ void MainWindow::fileOpen()
     settings().setValue("FileOpen/LastDir", QFileInfo(fileName).dir().dirName());
     if (fileName.isEmpty())
         return;
-    loadFile(fileName);   
+    loadFile(fileName);
 }
 
 void MainWindow::queryCurrentTextEditor(QString *fileName, int *line, QObject **object)
@@ -531,7 +531,7 @@ void MainWindow::handleDataDumpersUnavailable()
 {
     QMessageBox::warning(this, tr("Cannot find special data dumpers"),
          tr("The debugged binary does not contain information needed for "
-                "nice display of Qt data types.\n\n" 
+                "nice display of Qt data types.\n\n"
                 "Make sure you use something like\n\n"
                 "SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp\n\n"
                 "in your .pro file.")

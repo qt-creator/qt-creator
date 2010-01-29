@@ -73,8 +73,8 @@ public:
     virtual void nextExec();
     virtual void stepIExec();
     virtual void nextIExec();
-    
-    virtual void continueInferior();    
+
+    virtual void continueInferior();
     virtual void interruptInferior();
 
     virtual void runToLineExec(const QString &fileName, int lineNumber);
@@ -110,7 +110,7 @@ protected:
 private slots:
     void slotConsoleStubStarted();
     void slotConsoleStubError(const QString &msg);
-    void slotConsoleStubTerminated();    
+    void slotConsoleStubTerminated();
     void warning(const QString &w);
 
 private:

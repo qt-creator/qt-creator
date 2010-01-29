@@ -101,7 +101,7 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
 
     QString homePage = m_helpEngine->customValue(QLatin1String("HomePage"),
         QString()).toString();
-    
+
     if (homePage.isEmpty()) {
         homePage = m_helpEngine->customValue(QLatin1String("DefaultHomePage"),
             QLatin1String("about:blank")).toString();
@@ -114,7 +114,7 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     index = m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt();
     m_ui.contextHelpComboBox->setCurrentIndex(index);
 
-    
+
     connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
     connect(m_ui.blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
     connect(m_ui.defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));

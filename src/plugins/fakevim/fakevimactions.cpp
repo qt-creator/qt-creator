@@ -29,7 +29,7 @@
 
 #include "fakevimactions.h"
 
-// Please do not add any direct dependencies to other Qt Creator code  here. 
+// Please do not add any direct dependencies to other Qt Creator code  here.
 // Instead emit signals and let the FakeVimPlugin channel the information to
 // Qt Creator. The idea is to keep this file here in a "clean" state that
 // allows easy reuse with any QTextEdit or QPlainTextEdit derived class.
@@ -66,7 +66,7 @@ FakeVimSettings::~FakeVimSettings()
 {
     qDeleteAll(m_items);
 }
-    
+
 void FakeVimSettings::insertItem(int code, SavedAction *item,
     const QString &longName, const QString &shortName)
 {
@@ -92,7 +92,7 @@ void FakeVimSettings::writeSettings(QSettings *settings)
     foreach (SavedAction *item, m_items)
         item->writeSettings(settings);
 }
-   
+
 SavedAction *FakeVimSettings::item(int code)
 {
     QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);

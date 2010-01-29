@@ -52,7 +52,7 @@ class EXTENSIONSYSTEM_EXPORT PluginDetailsView : public QWidget
 public:
     PluginDetailsView(QWidget *parent = 0);
     ~PluginDetailsView();
-	
+
     void update(PluginSpec *spec);
 
 private:

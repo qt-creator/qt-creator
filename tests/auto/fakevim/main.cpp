@@ -53,7 +53,7 @@ public slots:
     void changeStatusData(const QString &info) { m_statusData = info; }
     void changeStatusMessage(const QString &info) { m_statusMessage = info; }
     void changeExtraInformation(const QString &info) { m_infoMessage = info; }
-    
+
 private slots:
     // command mode
     void command_Cxx_down_dot();
@@ -82,7 +82,7 @@ private slots:
     void test_i_cw_i();
 
 private:
-    void setup();    
+    void setup();
     void send(const QString &command) { sendEx("normal " + command); }
     void sendEx(const QString &command); // send an ex command
 
@@ -109,7 +109,7 @@ private:
     static const QString escape;
 };
 
-const QString tst_FakeVim::lines = 
+const QString tst_FakeVim::lines =
   /* 0         1         2         3        4 */
   /* 0123456789012345678901234567890123457890 */
     "\n"
@@ -412,7 +412,7 @@ void tst_FakeVim::command_i()
     check("ibx" + escape, "b@xa" + lines);
     check("icyy" + escape, "bcy@yxa" + lines);
     check("u", "b@xa" + lines);
-    check("u", "@a" + lines); 
+    check("u", "@a" + lines);
     checkEx("redo", "b@xa" + lines);
     check("u", "@a" + lines);
 }
@@ -433,7 +433,7 @@ void tst_FakeVim::command_r()
     setup();
     move("4j",   "@int main");
     move("$",    "int main(int argc, char *argv[])@");
-    check("rx",  lmid(0, 4) + "\nint main(int argc, char *argv[]x@\n" + lmid(5)); 
+    check("rx",  lmid(0, 4) + "\nint main(int argc, char *argv[]x@\n" + lmid(5));
     check("2h",  lmid(0, 4) + "\nint main(int argc, char *argv[@]x\n" + lmid(5));
     check("4ra", lmid(0, 4) + "\nint main(int argc, char *argv[@]x\n" + lmid(5));
     qWarning("FIXME");
@@ -530,14 +530,14 @@ void tst_FakeVim::command_J()
 {
     setup();
     move("4j4l",   "int @main");
-    
+
     check("J", lmid(0, 5) + "@ " + lmid(5));
-    check("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));  
+    check("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));
     checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
 
 return; // FIXME: not in sync with Gui behaviour?
     check("3J", lmid(0, 5) + " " + lmid(5, 1) + "@" + lmid(6).mid(3));
-    check("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));  
+    check("u", lmid(0, 4) + "\nint @main(int argc, char *argv[])\n" + lmid(5));
     checkEx("redo", lmid(0, 5) + "@ " + lmid(5));
 }
 

@@ -1,9 +1,9 @@
 TEMPLATE = app
-TARGET = 
+TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-DEFINES += 
+DEFINES +=
 
 LIBS += Dbghelp.lib dbgeng.lib
 

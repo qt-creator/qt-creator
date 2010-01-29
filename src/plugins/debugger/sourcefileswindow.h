@@ -43,7 +43,7 @@ namespace Debugger {
 namespace Internal {
 
 class SourceFilesModel;
-    
+
 class SourceFilesWindow : public QTreeView
 {
     Q_OBJECT

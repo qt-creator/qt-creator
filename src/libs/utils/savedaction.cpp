@@ -55,7 +55,7 @@ using namespace Utils;
 
 /*!
     \class Utils::SavedAction
-    
+
     \brief The SavedAction class is a helper class for actions with persistent
     state.
 
@@ -233,7 +233,7 @@ QAction *SavedAction::updatedAction(const QString &text0)
 }
 
 /*
-    Uses \c settingsGroup() and \c settingsKey() to restore the 
+    Uses \c settingsGroup() and \c settingsKey() to restore the
     item from \a settings,
 
     \sa settingsKey(), settingsGroup(), writeSettings()
@@ -254,7 +254,7 @@ void SavedAction::readSettings(QSettings *settings)
 }
 
 /*
-    Uses \c settingsGroup() and \c settingsKey() to write the 
+    Uses \c settingsGroup() and \c settingsKey() to write the
     item to \a settings,
 
     \sa settingsKey(), settingsGroup(), readSettings()
@@ -268,12 +268,12 @@ void SavedAction::writeSettings(QSettings *settings)
     //qDebug() << "WRITING: " << m_settingsKey << " -> " << toString();
     settings->endGroup();
 }
-   
+
 /*
     A \c SavedAction can be connected to a widget, typically a
     checkbox, radiobutton, or a lineedit in some configuration dialog.
 
-    The widget will retrieve its contents from the SavedAction's 
+    The widget will retrieve its contents from the SavedAction's
     value, and - depending on the \a ApplyMode - either write
     changes back immediately, or when \s SavedAction::apply()
     is called explicitly.
@@ -286,7 +286,7 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
         qDebug() << "ALREADY CONNECTED: " << widget << m_widget << toString(); return);
     m_widget = widget;
     m_applyMode = applyMode;
-    
+
     if (QAbstractButton *button = qobject_cast<QAbstractButton *>(widget)) {
         if (button->isCheckable()) {
             button->setChecked(m_value.toBool());
@@ -298,14 +298,14 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
         }
     } else if (QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget)) {
         spinBox->setValue(m_value.toInt());
-        //qDebug() << "SETTING VALUE" << spinBox->value(); 
+        //qDebug() << "SETTING VALUE" << spinBox->value();
         connect(spinBox, SIGNAL(valueChanged(int)),
             this, SLOT(spinBoxValueChanged(int)));
         connect(spinBox, SIGNAL(valueChanged(QString)),
             this, SLOT(spinBoxValueChanged(QString)));
     } else if (QLineEdit *lineEdit = qobject_cast<QLineEdit *>(widget)) {
         lineEdit->setText(m_value.toString());
-        //qDebug() << "SETTING TEXT" << lineEdit->text(); 
+        //qDebug() << "SETTING TEXT" << lineEdit->text();
         connect(lineEdit, SIGNAL(editingFinished()),
             this, SLOT(lineEditEditingFinished()));
     } else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(widget)) {

@@ -212,8 +212,8 @@ void RunnerGui::started()
     executeCommand("symbol-file filebrowseapp.sym");
 
     //executeCommand("info address CFileBrowseAppUi::HandleCommandL",
-    //    GdbCB(handleInfoMainAddress)); 
-        
+    //    GdbCB(handleInfoMainAddress));
+
     executeCommand("-break-insert filebrowseappui.cpp:39");
     executeCommand("target remote " + m_adapter->gdbServerName());
     executeCommand("-exec-continue");

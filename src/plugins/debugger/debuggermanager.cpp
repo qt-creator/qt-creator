@@ -664,7 +664,7 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     }
 
     foreach (QDockWidget *dockWidget, dockWidgets) {
-        if (dockWidget == d->m_outputDock) 
+        if (dockWidget == d->m_outputDock)
             d->m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
         else
             d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
@@ -990,7 +990,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
             d->m_startParameters->toolChainType, &errorMessage);
         break;
     default:
-        d->m_engine = determineDebuggerEngine(d->m_startParameters->executable, 
+        d->m_engine = determineDebuggerEngine(d->m_startParameters->executable,
             d->m_startParameters->toolChainType, &errorMessage, &settingsIdHint);
         break;
     }
@@ -1427,7 +1427,7 @@ void DebuggerManager::showDebuggerInput(int channel, const QString &msg)
 {
     if (d->m_outputWindow)
         emit emitShowInput(channel, msg);
-    else 
+    else
         qDebug() << "INPUT: " << channel << msg;
 }
 

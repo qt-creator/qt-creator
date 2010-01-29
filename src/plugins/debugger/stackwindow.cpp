@@ -93,7 +93,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
     QModelIndex idx = indexAt(ev->pos());
     StackFrame frame = model()->data(idx, Qt::UserRole).value<StackFrame>();
     QString address = frame.address;
-    
+
     QMenu menu;
 
     menu.addAction(theDebuggerAction(ExpandStack));
@@ -107,7 +107,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowMemory->setEnabled(false);
     } else {
         actShowMemory->setText(tr("Open memory editor at %1").arg(address));
-    }    
+    }
 
     QAction *actShowDisassembler = menu.addAction(QString());
     if (address.isEmpty()) {

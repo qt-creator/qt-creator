@@ -67,7 +67,7 @@ ProCommandManager::ProCommandManager(QObject *parent)
 
 ProCommandManager::~ProCommandManager()
 {
-    qDeleteAll(m_groups);    
+    qDeleteAll(m_groups);
 }
 
 void ProCommandManager::beginGroup(const QString &name)
@@ -80,7 +80,7 @@ void ProCommandManager::beginGroup(const QString &name)
             delete m_groups.takeLast();
         m_pos = m_groups.count();
     }
-    
+
     m_group = new ProCommandGroup(name);
 }
 

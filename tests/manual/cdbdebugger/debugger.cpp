@@ -272,7 +272,7 @@ void Debugger::handleExceptionEvent(DEBUG_EVENT* e)
     //        } else
     //            qDebug() << "SymGetLineFromAddr64 failed w/ error code" << GetLastError();
 
-    //        m_currentStackTrace.append(sf);                
+    //        m_currentStackTrace.append(sf);
     //    }
     //} while (bSuccess);
 

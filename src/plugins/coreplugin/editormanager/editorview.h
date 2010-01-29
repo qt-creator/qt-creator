@@ -170,7 +170,7 @@ public:
 
     inline bool isView() const { return m_view != 0; }
     inline bool isRoot() const { return m_isRoot; }
-    
+
     inline bool isSplitter() const { return m_splitter != 0; }
     inline Core::IEditor *editor() const { return m_view ? m_view->currentEditor() : 0; }
     inline QList<Core::IEditor *> editors() const { return m_view ? m_view->editors() : QList<Core::IEditor*>(); }

@@ -37,7 +37,7 @@
 
 namespace GdbDebugger {
 namespace Internal {
-class DebuggerManager; 
+class DebuggerManager;
 } // namespace Internal
 } // namespace GdbDebugger
 

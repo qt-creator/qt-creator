@@ -783,7 +783,7 @@ void SubversionPlugin::annotate(const QString &file)
     if (Core::IEditor *editor = locateEditor("annotateFileName", file)) {
         editor->createNew(response.stdOut);
         VCSBase::VCSBaseEditor::gotoLineOfEditor(editor, lineNumber);
-        Core::EditorManager::instance()->activateEditor(editor);        
+        Core::EditorManager::instance()->activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(QFileInfo(file).fileName());
         Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VCSBase::AnnotateOutput, file, codec);

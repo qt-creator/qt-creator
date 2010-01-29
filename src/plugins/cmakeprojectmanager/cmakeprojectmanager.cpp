@@ -51,7 +51,7 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_projectContext = uidm->uniqueIdentifier(CMakeProjectManager::Constants::PROJECTCONTEXT);
-    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);    
+    m_projectLanguage = uidm->uniqueIdentifier(ProjectExplorer::Constants::LANG_CXX);
 }
 
 int CMakeManager::projectContext() const
@@ -115,7 +115,7 @@ void CMakeManager::createXmlFile(QProcess *proc, const QStringList &arguments, c
     proc->setProcessChannelMode(QProcess::MergedChannels);
     proc->setEnvironment(env.toStringList());
 
-    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ? QString(QLatin1Char('.')) : sourceDirectory;    
+    const QString srcdir = buildDirectory.exists(QLatin1String("CMakeCache.txt")) ? QString(QLatin1Char('.')) : sourceDirectory;
     proc->start(cmakeExecutable(), QStringList() << srcdir << arguments << generator);
 }
 

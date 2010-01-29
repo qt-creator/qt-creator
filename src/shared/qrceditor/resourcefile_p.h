@@ -145,7 +145,7 @@ public:
 
     void removePrefix(int prefix_idx);
     void removeFile(int prefix_idx, int file_idx);
-    
+
     void replacePrefix(int prefix_idx, const QString &prefix);
     void replaceLang(int prefix_idx, const QString &lang);
     void replaceAlias(int prefix_idx, int file_idx, const QString &alias);

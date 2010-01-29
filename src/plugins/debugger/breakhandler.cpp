@@ -130,7 +130,7 @@ public:
         //    return;
         if (m_data->markerLineNumber != lineNumber) {
             m_data->markerLineNumber = lineNumber;
-            // FIXME: should we tell gdb about the change? 
+            // FIXME: should we tell gdb about the change?
             // Ignore it for now, as we would require re-compilation
             // and debugger re-start anyway.
             if (0 && !m_data->bpLineNumber.isEmpty()) {
@@ -171,10 +171,10 @@ BreakpointData::BreakpointData(BreakHandler *handler)
     bpMultiple = false;
 //#if defined(Q_OS_MAC)
 //    // full names do not work on Mac/MI
-    useFullPath = false; 
+    useFullPath = false;
 //#else
 //    //where = m_manager->shortName(data->fileName);
-//    useFullPath = true; 
+//    useFullPath = true;
 //#endif
 }
 
@@ -491,7 +491,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
                 //    str = data->markerFileName;
                 str = str.isEmpty() ? empty : str;
                 if (data->useFullPath)
-                    str = "/.../" + str; 
+                    str = "/.../" + str;
                 return str;
             }
             if (role == Qt::UserRole)
@@ -574,7 +574,7 @@ bool BreakHandler::setData(const QModelIndex &mi, const QVariant &value, int rol
             }
             return true;
         }
-        default: { 
+        default: {
             return false;
         }
     }

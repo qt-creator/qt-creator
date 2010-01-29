@@ -72,7 +72,7 @@ Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*);
     given plugin \a manager with a given \a parent widget.
 */
 PluginView::PluginView(PluginManager *manager, QWidget *parent)
-    : QWidget(parent), 
+    : QWidget(parent),
       m_ui(new Internal::Ui::PluginView),
       p(new Internal::PluginViewPrivate)
 {
