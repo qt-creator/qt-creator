@@ -85,8 +85,7 @@ const int QmlJSIndenter::BigRoof = 400;
 
 QmlJSIndenter::QmlJSIndenter()
     : label(QRegExp(QLatin1String("^\\s*((?:case\\b([^:])+|[a-zA-Z_0-9.]+)(?:\\s+)?:)(?!:)"))),
-      braceX(QRegExp(QLatin1String("^\\s*\\}\\s*(?:else|catch)\\b"))),
-      iflikeKeyword(QRegExp(QLatin1String("\\b(?:catch|do|for|if|while|with)\\b")))
+      braceX(QRegExp(QLatin1String("^\\s*\\}\\s*(?:else|catch)\\b")))
 {
 
     /*

@@ -134,7 +134,6 @@ private:
 
     QRegExp label;
     QRegExp braceX;
-    QRegExp iflikeKeyword;
 };
 
 } // namespace QmlJS
