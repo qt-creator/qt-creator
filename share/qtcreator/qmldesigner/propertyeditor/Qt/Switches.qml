@@ -19,36 +19,16 @@ QFrame {
             id: standardMode;
             toolTip: "general item properties";
             //iconFromFile: "images/rect-icon.png";
-			text: "Basic"
+                        text: "Common"
             onClicked: {
                 extendedMode.checked = false;
                 layoutMode.checked = false;
-                specialMode.checked = false;
                 checked = true;
                 standardPane.visible = true;
                 extendedPane.visible = false;
                 layoutPane.visible = false;
-                specialPane.visible = false;
             }
-        }
-        QPushButton {
-            checkable: true;
-            checked: false;
-            id: specialMode;
-            toolTip: "type specific properties";
-			text: ""
-			visible: false
-            onClicked: {
-                extendedMode.checked = false;
-                standardMode.checked = false;
-                layoutMode.checked = false;
-                checked = true;
-                specialPane.visible = true;
-                standardPane.visible = false;
-                extendedPane.visible = false;
-                layoutPane.visible = false;
-            }
-        }
+        }        
         QPushButton {
             id: extendedMode;
             toolTip: "extended properties";
@@ -58,12 +38,10 @@ QFrame {
             onClicked: {
                 standardMode.checked = false;
                 layoutMode.checked = false;
-                specialMode.checked = false;
                 checked = true;
                 standardPane.visible = false;
                 extendedPane.visible = true;
                 layoutPane.visible = false;
-                specialPane.visible = false;
             }
         }
         QPushButton {
@@ -75,12 +53,10 @@ QFrame {
             onClicked: {
                 extendedMode.checked = false;
                 standardMode.checked = false;
-                specialMode.checked = false;
                 checked = true;
                 standardPane.visible = false;
                 extendedPane.visible = false;
                 layoutPane.visible = true;
-                specialPane.visible = false;
             }
         }
     }
