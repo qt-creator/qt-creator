@@ -68,7 +68,7 @@
 <context>
     <name>BINEditor::Internal::BinEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+446"/>
+        <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+447"/>
         <source>&amp;Undo</source>
         <translation>От&amp;менить</translation>
     </message>
@@ -201,12 +201,12 @@
     <name>Bookmarks::Internal::BookmarkView</name>
     <message>
         <location filename="../../../src/plugins/bookmarks/bookmarkmanager.cpp" line="+207"/>
-        <location line="+565"/>
+        <location line="+564"/>
         <source>Bookmarks</source>
         <translation>Закладки</translation>
     </message>
     <message>
-        <location line="-542"/>
+        <location line="-541"/>
         <source>&amp;Remove Bookmark</source>
         <translation>&amp;Удалить закладку</translation>
     </message>
@@ -1330,12 +1330,12 @@ Would you like to overwrite them?</source>
     <name>Core::EditorManager</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+187"/>
-        <location line="+1495"/>
+        <location line="+1487"/>
         <source>Revert to Saved</source>
         <translation>Вернуть к сохранённому</translation>
     </message>
     <message>
-        <location line="-1492"/>
+        <location line="-1484"/>
         <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+539"/>
         <source>Close</source>
         <translation>Закрыть</translation>
@@ -1347,12 +1347,12 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+1294"/>
+        <location line="+1286"/>
         <source>Close Others</source>
         <translation>Закрыть другие</translation>
     </message>
     <message>
-        <location line="-1293"/>
+        <location line="-1285"/>
         <source>Next Open Document in History</source>
         <translation>Следующий открытый документ в истории</translation>
     </message>
@@ -1502,12 +1502,12 @@ Would you like to overwrite them?</source>
         <translation>Alt+V,Alt+I</translation>
     </message>
     <message>
-        <location line="+720"/>
+        <location line="+714"/>
         <source>All Files (*)</source>
         <translation>Все Файлы (*)</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+32"/>
         <location line="+24"/>
         <source>Opening File</source>
         <translation>Открытие файла</translation>
@@ -2121,7 +2121,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::OpenEditorsWindow</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorswindow.cpp" line="+210"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorswindow.cpp" line="+211"/>
         <location line="+27"/>
         <source>*</source>
         <translation>*</translation>
@@ -2434,7 +2434,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Utils::DetailsButton</name>
     <message>
-        <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+19"/>
+        <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+48"/>
         <source>Show Details</source>
         <translation>Подробнее</translation>
     </message>
@@ -3097,12 +3097,12 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+3"/>
-        <location line="+1215"/>
+        <location line="+1216"/>
         <source>Interrupt</source>
         <translation>Прервать</translation>
     </message>
     <message>
-        <location line="-1212"/>
+        <location line="-1213"/>
         <source>Reset Debugger</source>
         <translation>Сбросить отладчик</translation>
     </message>
@@ -3213,12 +3213,12 @@ Would you like to overwrite them?</source>
         <translation>Помощник отладчика используется для преобразования значений некоторых типов данных Qt и стандартной библиотеки к наглядному виду. Он должен быть собран отдельно для каждой версии Qt. Это можно сделать в параметрах Qt, выбрав профиль Qt и нажав на &apos;Пересобрать&apos; в строке &apos;Помощник отладчика&apos;.</translation>
     </message>
     <message>
-        <location line="+170"/>
+        <location line="+171"/>
         <source>Stop Debugger</source>
         <translation>Остановить отладчик</translation>
     </message>
     <message>
-        <location line="-188"/>
+        <location line="-189"/>
         <source>%1 (explicitly set in the Debugger Options)</source>
         <translation>%1 (установлено в параметрах отладчика)</translation>
     </message>
@@ -3840,7 +3840,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerPlugin</name>
     <message>
-        <location line="+269"/>
+        <location line="+272"/>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>У настройки &apos;%1&apos; пропущен параметр.</translation>
     </message>
@@ -4069,7 +4069,12 @@ Would you like to overwrite them?</source>
         <translation>Синхронизировать точки останова</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+4"/>
+        <source>Use precise breakpoints</source>
+        <translation>Использовать точные точки останова</translation>
+    </message>
+    <message>
+        <location line="+27"/>
         <source>Automatically quit debugger</source>
         <translation>Автоматически закрывать отладчик</translation>
     </message>
@@ -4242,27 +4247,34 @@ Would you like to overwrite them?</source>
         <translation>Временно остановлено.</translation>
     </message>
     <message>
-        <location line="+88"/>
+        <location line="+68"/>
+        <source>The gdb process has not responded to a command within %1 seconds. This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
+You can choose between waiting longer or abort debugging.</source>
+        <translation>Процесс gdb не отвечает на команду в течение %1 секунд(ы). Это может означать, что он попал в бесконечный цикл, или исполнение операции занимает больше времени, чем предполагается.
+Вы можете продолжить ожидание или прервать отладку.</translation>
+    </message>
+    <message>
+        <location line="+48"/>
         <source>Process failed to start.</source>
         <translation>Не удалось запустить процесс.</translation>
     </message>
     <message>
-        <location line="+165"/>
+        <location line="+167"/>
         <source>Jumped. Stopped.</source>
         <translation>Переход сделан. Остановлено.</translation>
     </message>
     <message>
-        <location line="-240"/>
+        <location line="-270"/>
         <source>Processing queued commands.</source>
         <translation>Обработка очереди команд.</translation>
     </message>
     <message>
-        <location line="+393"/>
+        <location line="+423"/>
         <source>Loading %1...</source>
         <translation>Загружается %1...</translation>
     </message>
     <message>
-        <location line="+111"/>
+        <location line="+114"/>
         <source>Stopped at breakpoint.</source>
         <translation>Остановлено на точке останова.</translation>
     </message>
@@ -4302,22 +4314,22 @@ Using gdb 6.7 or later is strongly recommended.</source>
 Настоятельно рекомендуется использование gdb версии не ниже 6.7.</translation>
     </message>
     <message>
-        <location line="+265"/>
+        <location line="+267"/>
         <source>Continuing after temporary stop...</source>
         <translation>Продолжение после временного останова...</translation>
     </message>
     <message>
-        <location line="+2294"/>
+        <location line="+2325"/>
         <source>The debugging helper library was not found at %1.</source>
         <translation>Библиотека помощника отладчика не обнаружена в %1.</translation>
     </message>
     <message>
-        <location line="+369"/>
+        <location line="+370"/>
         <source>Unable to start gdb &apos;%1&apos;: %2</source>
         <translation>Не удалось запустить gdb &apos;%1&apos;: %2</translation>
     </message>
     <message>
-        <location line="+150"/>
+        <location line="+152"/>
         <source>Adapter start failed</source>
         <translation>Не удалось запустить адаптер</translation>
     </message>
@@ -4327,12 +4339,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Не удалось запустить подчинённого</translation>
     </message>
     <message>
-        <location line="-2995"/>
+        <location line="-3030"/>
         <source>Inferior shutdown failed</source>
         <translation>Не удалось остановить подчинённого</translation>
     </message>
     <message>
-        <location line="+2872"/>
+        <location line="+2907"/>
         <source>Cannot find debugger initialization script</source>
         <translation>Не удалось найти скрипт инициализации отладчика</translation>
     </message>
@@ -4342,12 +4354,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>В настройках указан файл скрипта &apos;%1&apos;, который сейчас недоступен. Если файл скрипта не обязателен, просто очистите поле, чтобы не было этого предупреждения.</translation>
     </message>
     <message>
-        <location line="-2169"/>
+        <location line="-2189"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation>Не удалось запустить &apos;%1&apos;: %2</translation>
     </message>
     <message>
-        <location line="+127"/>
+        <location line="+133"/>
         <location line="+8"/>
         <source>Retrieving data for stack view...</source>
         <translation>Получение данных о стеке...</translation>
@@ -4362,7 +4374,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         </translation>
     </message>
     <message>
-        <location line="-2902"/>
+        <location line="-2957"/>
         <source>An unknown error in the Gdb process occurred. </source>
         <translation>Неизвестная ошибка возникла у процесса Gdb. </translation>
     </message>
@@ -4372,14 +4384,14 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Потребована остановка...</translation>
     </message>
     <message>
-        <location line="+197"/>
+        <location line="+225"/>
         <location line="+29"/>
         <location line="+3"/>
         <source>Executable failed</source>
         <translation>Программа завершилась с ошибкой</translation>
     </message>
     <message>
-        <location line="+229"/>
+        <location line="+231"/>
         <source>Program exited with exit code %1.</source>
         <translation>Программа завершилась с кодом %1.</translation>
     </message>
@@ -4394,18 +4406,33 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Программа нормально завершилась.</translation>
     </message>
     <message>
-        <location line="-561"/>
+        <location line="-591"/>
         <source>Running...</source>
         <translation>Выполнение...</translation>
     </message>
     <message>
-        <location line="+319"/>
+        <location line="+281"/>
+        <source>Gdb not responding</source>
+        <translation>Gdb не отвечает</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Give gdb more time</source>
+        <translation>Дать gdb ещё время</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stop debugging</source>
+        <translation>Прервать отладку</translation>
+    </message>
+    <message>
+        <location line="+63"/>
         <location line="+8"/>
         <source>Executable failed: %1</source>
         <translation>Программа завершилась с ошибкой: %1</translation>
     </message>
     <message>
-        <location line="+410"/>
+        <location line="+415"/>
         <source> &lt;Unknown&gt; </source>
         <comment>name</comment>
         <translation> &lt;Неизвестный&gt;</translation>
@@ -4429,7 +4456,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 </translation>
     </message>
     <message>
-        <location line="+215"/>
+        <location line="+217"/>
         <source>Running requested...</source>
         <translation>Потребован запуск...</translation>
     </message>
@@ -4469,14 +4496,14 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Потребовано выполнение до функции %1...</translation>
     </message>
     <message>
-        <location line="+571"/>
+        <location line="+585"/>
         <source>&lt;unknown&gt;</source>
         <comment>address</comment>
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;неизвестно&gt;</translation>
     </message>
     <message>
-        <location line="+145"/>
+        <location line="+151"/>
         <source>Jumping out of bogus frame...</source>
         <translation>Выход из подложного кадра...</translation>
     </message>
@@ -4505,7 +4532,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Настройка пользовательского дампера: %1</translation>
     </message>
     <message>
-        <location line="+132"/>
+        <location line="+143"/>
         <source>&lt;0 items&gt;</source>
         <translation>&lt;0 элементов&gt;</translation>
     </message>
@@ -4541,14 +4568,14 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>&lt;нет информации&gt;</translation>
     </message>
     <message>
-        <location line="+349"/>
+        <location line="+350"/>
         <location line="+25"/>
         <location line="+14"/>
         <source>Disassembler failed: %1</source>
         <translation>Не удалось дизассемблировать: %1</translation>
     </message>
     <message>
-        <location line="+155"/>
+        <location line="+157"/>
         <source>Gdb I/O Error</source>
         <translation>Ошибка вводы/вывода gdb</translation>
     </message>
@@ -4591,7 +4618,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::GdbOptionsPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdboptionspage.cpp" line="+8"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdboptionspage.cpp" line="+37"/>
         <source>Gdb</source>
         <translation>Gdb</translation>
     </message>
@@ -4620,8 +4647,8 @@ Using gdb 6.7 or later is strongly recommended.</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>The memory contents cannot be shown as no viewer plugin not the BinEditor plugin could be loaded.</source>
-        <translation>Не удаётся отобразить содержимое памяти, так как ни модуль просмотра, ни BinEditor не удалось загрузить.</translation>
+        <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
+        <translation>Не удаётся отобразить содержимое памяти, так как модуль просмотра двоичных данных не загружен.</translation>
     </message>
 </context>
 <context>
@@ -5151,12 +5178,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::TrkGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/trkgdbadapter.cpp" line="+1605"/>
+        <location filename="../../../src/plugins/debugger/gdb/trkgdbadapter.cpp" line="+1646"/>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
         <translation>Процесс запущен, PID: 0x%1, ID потока: 0x%2, сегмент кода: 0x%3, сегмент данных: 0x%4.</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+28"/>
         <source>Connecting to TRK server adapter failed:
 </source>
         <translation>Не удалось подключиться к адаптеру TRK сервера:
@@ -5271,12 +5298,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Поколение</translation>
     </message>
     <message>
-        <location line="+1134"/>
+        <location line="+1147"/>
         <source>&lt;Edit&gt;</source>
         <translation>&lt;Измените&gt;</translation>
     </message>
     <message>
-        <location line="-1103"/>
+        <location line="-1116"/>
         <source>Root</source>
         <translation>Корень</translation>
     </message>
@@ -5299,7 +5326,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::WatchModel</name>
     <message>
-        <location line="+422"/>
+        <location line="+435"/>
         <source>decimal</source>
         <translation>десятичный</translation>
     </message>
@@ -5582,7 +5609,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Designer::Internal::FormEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+137"/>
+        <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+138"/>
         <source>Qt</source>
         <translation>Qt</translation>
     </message>
@@ -6588,7 +6615,7 @@ Reason: %3</source>
     <message>
         <location/>
         <source>Gdb startup script:</source>
-        <translation>Скрипт начальных действий:</translation>
+        <translation>Скрипт настройки gdb:</translation>
     </message>
     <message>
         <location/>
@@ -6619,6 +6646,41 @@ Reason: %3</source>
         <location/>
         <source>Never set breakpoints in plugins automatically</source>
         <translation>Некогда не ставить автоматически</translation>
+    </message>
+    <message>
+        <location/>
+        <source>When this option is checked, the debugger plugin attempts
+to extract full path information for all source files from gdb. This is a
+slow process but enables setting breakpoints in files with the same file
+name in different directories.</source>
+        <translation>Когда эта опция включена, то плагин отладчика будет пытаться
+получать информацию о полных путях для всех исходных файлов
+от gdb. Это замедляет процесс, но позволяет устанавливать точки
+останова в файлах, имена которых дублируются в других каталогах.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use full path information to set breakpoints</source>
+        <translation type="unfinished">Полные пути к файлам для точек останова</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Gdb timeout:</source>
+        <translation>Время ожидания ответа gdb:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This is the number of seconds Qt Creator will wait before
+it terminates non-responsive gdb process. The default value of 20 seconds
+should be sufficient for most applications, but there are situations when
+loading big libraries or listing source files takes much longer than that
+on slow machines. In this case, the value should be increased.</source>
+        <translation>Столько секунд будет ждать Qt Creator перед тем, как завершит
+неотвечающий процесс gdb. 20 секунд, которые установлены по
+умолчанию, должно быть достаточно в большинстве случаев, но
+бывают ситуации, когда загрузка больших библиотек или просмотр
+исходных файлов могут занять гораздо больше времени, особенно на
+медленных машинах. В этом случае это число должно быть увеличено.</translation>
     </message>
 </context>
 <context>
@@ -7369,12 +7431,7 @@ Reason: %3</source>
         <translation>&amp;Вернуть</translation>
     </message>
     <message>
-        <location line="+65"/>
-        <source>Could not find working directory</source>
-        <translation>Не удалось найти рабочий каталог</translation>
-    </message>
-    <message>
-        <location line="+61"/>
+        <location line="+127"/>
         <source>Revert</source>
         <translation>Откатить</translation>
     </message>
@@ -11517,7 +11574,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::DesignerExternalEditor</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="+215"/>
+        <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="+244"/>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer не отвечает (%1).</translation>
     </message>
@@ -11758,13 +11815,13 @@ to version control (%2)?</source>
     </message>
     <message>
         <location line="+2"/>
-        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;build settings&lt;/a&gt;.</source>
-        <translation>Вы можете добавить собственные этапы сборки в &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html&quot;&gt;настройках сборки&lt;/a&gt;.</translation>
+        <source>You can add custom build steps in the &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;build settings&lt;/a&gt;.</source>
+        <translation>Вы можете добавить собственные этапы сборки в &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#build-settings&quot;&gt;настройках сборки&lt;/a&gt;.</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
-        <translation>В пределах одной сессии вы можете добавлять &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-build-settings.html#dependencies&quot;&gt;зависимости&lt;/a&gt; проектов друг от друга.</translation>
+        <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
+        <translation>В пределах одной сессии вы можете добавлять &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;зависимости&lt;/a&gt; проектов друг от друга.</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -12295,7 +12352,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtoptionspage.cpp" line="+111"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtoptionspage.cpp" line="+140"/>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;укажите имя&gt;</translation>
     </message>
@@ -14598,7 +14655,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>TextEditor::Internal::ColorScheme</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/colorscheme.cpp" line="+210"/>
+        <location filename="../../../src/plugins/texteditor/colorscheme.cpp" line="+208"/>
         <source>Not a color scheme file.</source>
         <translation>Это не файл цветовой схемы.</translation>
     </message>
@@ -14675,7 +14732,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>TextEditor::Internal::FontSettings</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/fontsettings.cpp" line="+136"/>
+        <location filename="../../../src/plugins/texteditor/fontsettings.cpp" line="+140"/>
         <source>Customized</source>
         <translation>Настроенная</translation>
     </message>

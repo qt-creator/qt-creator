@@ -203,7 +203,6 @@ void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
     // Not combinable, add chunk.
     memory.insert(range, ba);
 }
-
 ///////////////////////////////////////////////////////////////////////////
 //
 // TrkGdbAdapter
@@ -1795,8 +1794,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 
     logMessage(startMsg);
 
-    const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
-    if (symbolFile.isEmpty()) {
+    if (m_symbolFile.isEmpty()) {
         logMessage(_("WARNING: No symbol file available."));
     } else {
         // Does not seem to be necessary anymore.
@@ -1804,7 +1802,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         // have to wait for the TRK startup to learn the load address.
         //m_engine->postCommand("add-symbol-file \"" + symbolFile + "\" "
         //    + QByteArray::number(m_session.codeseg));
-        m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
+        m_engine->postCommand("symbol-file \"" + m_symbolFile.toLatin1() + "\"");
     }
     m_engine->postCommand("set breakpoint always-inserted on");
     m_engine->postCommand("set trust-readonly-sections"); // No difference?

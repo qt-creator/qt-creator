@@ -2243,6 +2243,13 @@ void BaseTextEditorPrivate::moveCursorVisible(bool ensureVisible)
         q->ensureCursorVisible();
 }
 
+static QColor blendColors(const QColor &a, const QColor &b, int alpha)
+{
+    return QColor((a.red()   * (256 - alpha) + b.red()   * alpha) / 256,
+                  (a.green() * (256 - alpha) + b.green() * alpha) / 256,
+                  (a.blue()  * (256 - alpha) + b.blue()  * alpha) / 256);
+}
+
 static QColor calcBlendColor(const QColor &baseColor, int level, int count)
 {
     QColor color80;
@@ -2277,10 +2284,7 @@ static QColor calcBlendColor(const QColor &baseColor, int level, int count)
 
     const int blendFactor = level * (256 / (count - 2));
 
-    return QColor(
-                (color90.red() * blendFactor + color80.red() * (256 - blendFactor)) / 256,
-                (color90.green() * blendFactor + color80.green() * (256 - blendFactor)) / 256,
-                (color90.blue() * blendFactor + color80.blue() * (256 - blendFactor)) / 256);
+    return blendColors(color80, color90, blendFactor);
 }
 
 void BaseTextEditor::paintEvent(QPaintEvent *e)
@@ -2310,9 +2314,18 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     if (d->m_visibleWrapColumn > 0) {
         lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
-        if (lineX < viewportRect.width())
-            painter.fillRect(QRectF(lineX, 0, viewportRect.width() - lineX, viewportRect.height()),
-                             d->m_ifdefedOutFormat.background());
+
+        if (lineX < viewportRect.width()) {
+            const QColor backgroundColor = d->m_ifdefedOutFormat.background().color();
+            painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
+                             backgroundColor);
+
+            const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
+            const QPen pen = painter.pen();
+            painter.setPen(blendColors(backgroundColor, col, 32));
+            painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
+            painter.setPen(pen);
+        }
     }
 
     // Set a brush origin so that the WaveUnderline knows where the wave started
