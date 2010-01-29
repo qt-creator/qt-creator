@@ -211,7 +211,11 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
             break;
 
         default:
-            if (ch.isNumber()) {
+            if (ch.isSpace()) {
+                do {
+                    ++index;
+                } while (index < text.length() && text.at(index).isSpace());
+            } else if (ch.isNumber()) {
                 const int start = index;
                 do {
                     ++index;
