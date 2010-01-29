@@ -60,6 +60,8 @@ void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
         path += it->import->fileName->asString();
         path = QDir::cleanPath(path);
 
+        ObjectValue *importNamespace = 0;
+
         foreach (Bind *otherBind, binds) {
             Document::Ptr otherDoc = otherBind->_doc;
             QFileInfo otherFileInfo(otherDoc->fileName());
@@ -70,11 +72,9 @@ void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
             if (!directoryImport && !fileImport)
                 continue;
 
-            ObjectValue *importInto = bind->_typeEnvironment;
-            if (directoryImport && it->import->importId) {
-                ObjectValue *namespaceObject = bind->_interp->newObject(/*prototype =*/0);
-                importInto->setProperty(it->import->importId->asString(), namespaceObject);
-                importInto = namespaceObject;
+            if (directoryImport && it->import->importId && !importNamespace) {
+                importNamespace = bind->_interp->newObject(/*prototype =*/0);
+                bind->_typeEnvironment->setProperty(it->import->importId->asString(), importNamespace);
             }
 
             QString targetName;
@@ -83,6 +83,10 @@ void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
             } else {
                 targetName = componentName(otherFileInfo.fileName());
             }
+
+            ObjectValue *importInto = bind->_typeEnvironment;
+            if (importNamespace)
+                importInto = importNamespace;
 
             importInto->setProperty(targetName, otherBind->_rootObjectValue);
         }
