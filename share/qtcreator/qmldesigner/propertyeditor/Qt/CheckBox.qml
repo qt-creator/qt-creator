@@ -1,4 +1,5 @@
 import Qt 4.6
+import Bauhaus 1.0
 
 QCheckBox { //This is a special CheckBox that does color coding for states
    id: CheckBox;

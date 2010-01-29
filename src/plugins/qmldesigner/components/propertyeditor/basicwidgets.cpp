@@ -1119,63 +1119,63 @@ public:
     {}
 };
 
-QML_DEFINE_EXTENDED_TYPE(Qt,4,6,QWidget,QWidget,QWidgetDeclarativeUI);
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QWidget,QWidget,QWidgetDeclarativeUI);
 
 //display
-QML_DEFINE_TYPE(Qt,4,6,QLabel,QLabel);
-QML_DEFINE_TYPE(Qt,4,6,QProgressBar,QProgressBar);
-QML_DEFINE_TYPE(Qt,4,6,QLCDNumber,QLCDNumber);
+QML_DEFINE_TYPE(Bauhaus,1,0,QLabel,QLabel)
+QML_DEFINE_TYPE(Bauhaus,1,0,QProgressBar,QProgressBar)
+QML_DEFINE_TYPE(Bauhaus,1,0,QLCDNumber,QLCDNumber)
 
 //input
-QML_DEFINE_TYPE(Qt,4,6,QLineEdit,QLineEdit);
-QML_DEFINE_TYPE(Qt,4,6,QTextEdit,QTextEdit);
-QML_DEFINE_TYPE(Qt,4,6,QPlainTextEdit,QPlainTextEdit);
-QML_DEFINE_TYPE(Qt,4,6,QSpinBox,QSpinBox);
-QML_DEFINE_TYPE(Qt,4,6,QDoubleSpinBox,QDoubleSpinBox);
-QML_DEFINE_TYPE(Qt,4,6,QSlider,QSlider);
-QML_DEFINE_TYPE(Qt,4,6,QDateTimeEdit,QDateTimeEdit);
-QML_DEFINE_TYPE(Qt,4,6,QDateEdit,QDateEdit);
-QML_DEFINE_TYPE(Qt,4,6,QTimeEdit,QTimeEdit);
-QML_DEFINE_TYPE(Qt,4,6,QFontComboBox,QFontComboBox);
-QML_DEFINE_TYPE(Qt,4,6,QDial,QDial);
-QML_DEFINE_TYPE(Qt,4,6,QScrollBar,QScrollBar);
-QML_DEFINE_TYPE(Qt,4,6,QCalendarWidget, QCalendarWidget);
+QML_DEFINE_TYPE(Bauhaus,1,0,QLineEdit,QLineEdit)
+QML_DEFINE_TYPE(Bauhaus,1,0,QTextEdit,QTextEdit)
+QML_DEFINE_TYPE(Bauhaus,1,0,QPlainTextEdit,QPlainTextEdit)
+QML_DEFINE_TYPE(Bauhaus,1,0,QSpinBox,QSpinBox)
+QML_DEFINE_TYPE(Bauhaus,1,0,QDoubleSpinBox,QDoubleSpinBox)
+QML_DEFINE_TYPE(Bauhaus,1,0,QSlider,QSlider)
+QML_DEFINE_TYPE(Bauhaus,1,0,QDateTimeEdit,QDateTimeEdit)
+QML_DEFINE_TYPE(Bauhaus,1,0,QDateEdit,QDateEdit)
+QML_DEFINE_TYPE(Bauhaus,1,0,QTimeEdit,QTimeEdit)
+QML_DEFINE_TYPE(Bauhaus,1,0,QFontComboBox,QFontComboBox)
+QML_DEFINE_TYPE(Bauhaus,1,0,QDial,QDial)
+QML_DEFINE_TYPE(Bauhaus,1,0,QScrollBar,QScrollBar)
+QML_DEFINE_TYPE(Bauhaus,1,0,QCalendarWidget, QCalendarWidget)
 
 
-QML_DECLARE_TYPE(MyGroupBox);
-QML_DECLARE_TYPE(WidgetLoader);
-QML_DECLARE_TYPE(WidgetFrame);
-//QML_DEFINE_TYPE(Qt,4,6,QComboBox,QComboBox); //need a way to populate
+QML_DECLARE_TYPE(MyGroupBox)
+QML_DECLARE_TYPE(WidgetLoader)
+QML_DECLARE_TYPE(WidgetFrame)
+//QML_DEFINE_TYPE(Bauhaus,1,0,QComboBox,QComboBox); //need a way to populate
 //QML_DEFINE_EXTENDED_TYPE(QComboBox,QComboBox, QComboBox); //need a way to populate
 
 //buttons
-//QML_DEFINE_TYPE(Qt,4,6,QPushButton,QPushButton);
-QML_DEFINE_TYPE(Qt,4,6,QCheckBox,QCheckBox);
-QML_DEFINE_TYPE(Qt,4,6,QAction,Action);
-QML_DEFINE_TYPE(Qt,4,6,QRadioButton,QRadioButton);
-QML_DEFINE_TYPE(Qt,4,6,FileWidget, FileWidget);
-QML_DEFINE_TYPE(Qt,4,6,LayoutWidget, LayoutWidget);
+//QML_DEFINE_TYPE(Bauhaus,1,0,QPushButton,QPushButton);
+QML_DEFINE_TYPE(Bauhaus,1,0,QCheckBox,QCheckBox)
+QML_DEFINE_TYPE(Bauhaus,1,0,QAction,Action)
+QML_DEFINE_TYPE(Bauhaus,1,0,QRadioButton,QRadioButton)
+QML_DEFINE_TYPE(Bauhaus,1,0,FileWidget, FileWidget)
+QML_DEFINE_TYPE(Bauhaus,1,0,LayoutWidget, LayoutWidget)
 
 //containers
-QML_DEFINE_TYPE(Qt,4,6,QFrame,QFrame);
-QML_DEFINE_TYPE(Qt,4,6,WidgetFrame,WidgetFrame);
-QML_DEFINE_TYPE(Qt,4,6,WidgetLoader,WidgetLoader);
-QML_DEFINE_EXTENDED_TYPE(Qt,4,6,QExtGroupBox,MyGroupBox,QGroupBoxDeclarativeUI);
-QML_DEFINE_EXTENDED_TYPE(Qt,4,6,QTabWidget,QTabWidget,QTabWidgetDeclarativeUI);
-QML_DEFINE_EXTENDED_TYPE(Qt,4,6,QScrollArea,QScrollArea,QScrollAreaDeclarativeUI);
-QML_DEFINE_EXTENDED_TYPE(Qt,4,6,QPushButton,QPushButton,QPushButtonDeclarativeUI);
-QML_DEFINE_EXTENDED_TYPE(Qt,4,6,QToolButton,QToolButton, QToolButtonDeclarativeUI);
-QML_DEFINE_EXTENDED_TYPE(Qt,4,6,QComboBox,QComboBox, QComboBoxDeclarativeUI);
-QML_DEFINE_EXTENDED_TYPE(Qt,4,6,QMenu,QMenu, QMenuDeclarativeUI);
-//QML_DEFINE_TYPE(Qt,4,6,QToolBox,QToolBox);
-//QML_DEFINE_TYPE(Qt,4,6,QScrollArea,QScrollArea);
+QML_DEFINE_TYPE(Bauhaus,1,0,QFrame,QFrame)
+QML_DEFINE_TYPE(Bauhaus,1,0,WidgetFrame,WidgetFrame)
+QML_DEFINE_TYPE(Bauhaus,1,0,WidgetLoader,WidgetLoader)
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QExtGroupBox,MyGroupBox,QGroupBoxDeclarativeUI)
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QTabWidget,QTabWidget,QTabWidgetDeclarativeUI)
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea,QScrollAreaDeclarativeUI)
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QPushButton,QPushButton,QPushButtonDeclarativeUI)
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QToolButton,QToolButton, QToolButtonDeclarativeUI)
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QComboBox,QComboBox, QComboBoxDeclarativeUI)
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QMenu,QMenu, QMenuDeclarativeUI)
+//QML_DEFINE_TYPE(Bauhaus,1,0,BauhausoolBox,BauhausoolBox);
+//QML_DEFINE_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea);
 
-//QML_DEFINE_EXTENDED_TYPE(QtColorButton,QtColorButton,QtColorButtonDeclarativeUI);
+//QML_DEFINE_EXTENDED_TYPE(BauhausColorButton,BauhausColorButton,BauhausColorButtonDeclarativeUI);
 
 //itemviews
-//QML_DEFINE_TYPE(Qt,4,6,QListView,QListView);
-//QML_DEFINE_TYPE(Qt,4,6,QTreeView,QTreeView);
-//QML_DEFINE_TYPE(Qt,4,6,QTableView,QTableView);
+//QML_DEFINE_TYPE(Bauhaus,1,0,QListView,QListView);
+//QML_DEFINE_TYPE(Bauhaus,1,0,BauhausreeView,BauhausreeView);
+//QML_DEFINE_TYPE(Bauhaus,1,0,BauhausableView,BauhausableView);
 
 
 #include "basicwidgets.moc"
