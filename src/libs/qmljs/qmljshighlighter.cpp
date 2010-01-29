@@ -160,9 +160,32 @@ void QScriptHighlighter::highlightBlock(const QString &text)
     }
 
     int previousTokenEnd = 0;
-    for (int i = 0; i < tokens.size(); ++i) {
-        const Token &token = tokens.at(i);
+    for (int index = 0; index < tokens.size(); ++index) {
+        const Token &token = tokens.at(index);
         setFormat(previousTokenEnd, token.begin() - previousTokenEnd, m_formats[VisualWhitespace]);
+
+        switch (token.kind) {
+        case Token::Comment:
+        case Token::String: {
+            int i = token.begin(), e = token.end();
+            while (i < e) {
+                const QChar ch = text.at(i);
+                if (ch.isSpace()) {
+                    const int start = i;
+                    do {
+                        ++i;
+                    } while (i < e && text.at(i).isSpace());
+                    setFormat(start, i - start, m_formats[VisualWhitespace]);
+                } else {
+                    ++i;
+                }
+            }
+        } break;
+
+        default:
+            break;
+        } // end of switch
+
         previousTokenEnd = token.end();
     }
 
