@@ -45,9 +45,11 @@ NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
 {
     invisibleRootItem()->setFlags(Qt::NoItemFlags);
 
-    setHorizontalHeaderItem(0,  new QStandardItem(tr("Name")));
-    setHorizontalHeaderItem(1,  new QStandardItem(tr("Type")));
-    setHorizontalHeaderItem(2,  new QStandardItem(tr("Show in Editor")));
+    #ifdef _LOCK_ITEMS_
+    setColumnCount(3);
+    #else
+    setColumnCount(2);
+    #endif
 
     setSupportedDragActions(Qt::LinkAction);
 
@@ -189,11 +191,14 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     idItem->setEditable(true);
     idItem->setData(hash, Qt::UserRole);
 
-    QStandardItem *typeItem = new QStandardItem;
-    typeItem->setDragEnabled(true);
-    idItem->setDropEnabled(node.metaInfo().isContainer());
-    typeItem->setEditable(false);
-    typeItem->setData(hash, Qt::UserRole);
+    #ifdef _LOCK_ITEMS_
+    QStandardItem *lockItem = new QStandardItem;
+    lockItem->setDragEnabled(true);
+    lockItem->setDropEnabled(node.metaInfo().isContainer());
+    lockItem->setEditable(false);
+    lockItem->setCheckable(true);
+    lockItem->setData(hash, Qt::UserRole);
+    #endif
 
     QStandardItem *visibilityItem = new QStandardItem;
     visibilityItem->setDropEnabled(node.metaInfo().isContainer());
@@ -201,7 +206,11 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     visibilityItem->setEditable(false);
     visibilityItem->setData(hash, Qt::UserRole);
 
-    return ItemRow(idItem, typeItem, visibilityItem);
+    #ifdef _LOCK_ITEMS_
+    return ItemRow(idItem, lockItem, visibilityItem);
+    #else
+    return ItemRow(idItem, visibilityItem);
+    #endif
 }
 
 void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
@@ -209,7 +218,7 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
     bool blockSignal = blockItemChangedSignal(true);
 
     items.idItem->setText(node.id());
-    items.typeItem->setText(node.simplifiedTypeName());
+    items.idItem->setToolTip(!node.id().isEmpty()?node.simplifiedTypeName():"");
     items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
 
     blockItemChangedSignal(blockSignal);

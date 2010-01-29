@@ -79,6 +79,11 @@ void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
 {
     m_treeView->setModel(model);
     m_treeView->header()->setResizeMode(0, QHeaderView::Stretch);
+    m_treeView->header()->resizeSection(1,20);
+#ifdef _LOCK_ITEMS_
+    m_treeView->header()->resizeSection(2,20);
+#endif
+    m_treeView->setHeaderHidden(true);
 }
 
 QTreeView *NavigatorWidget::treeView()

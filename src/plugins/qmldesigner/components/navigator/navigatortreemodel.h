@@ -46,20 +46,36 @@ class NavigatorTreeModel : public QStandardItemModel
 {
     Q_OBJECT
 
+#ifdef _LOCK_ITEMS_
     struct ItemRow {
         ItemRow()
-            : idItem(0), typeItem(0), visibilityItem(0) {}
-        ItemRow(QStandardItem *id, QStandardItem *type, QStandardItem *visibility)
-            : idItem(id), typeItem(type), visibilityItem(visibility) {}
+            : idItem(0), lockItem(0), visibilityItem(0) {}
+        ItemRow(QStandardItem *id, QStandardItem *lock, QStandardItem *visibility)
+            : idItem(id), lockItem(lock), visibilityItem(visibility) {}
 
         QList<QStandardItem*> toList() const {
-            return QList<QStandardItem*>() << idItem << typeItem << visibilityItem;
+            return QList<QStandardItem*>() << idItem << lockItem << visibilityItem;
         }
 
         QStandardItem *idItem;
-        QStandardItem *typeItem;
+        QStandardItem *lockItem;
         QStandardItem *visibilityItem;
     };
+#else
+    struct ItemRow {
+        ItemRow()
+            : idItem(0), visibilityItem(0) {}
+        ItemRow(QStandardItem *id, QStandardItem *visibility)
+            : idItem(id), visibilityItem(visibility) {}
+
+        QList<QStandardItem*> toList() const {
+            return QList<QStandardItem*>() << idItem << visibilityItem;
+        }
+
+        QStandardItem *idItem;
+        QStandardItem *visibilityItem;
+    };
+#endif
 
 public:
     NavigatorTreeModel(QObject *parent = 0);
