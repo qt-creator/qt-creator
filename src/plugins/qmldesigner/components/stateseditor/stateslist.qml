@@ -39,19 +39,33 @@ Rectangle {
 
         anchors.bottomMargin: 10;
         anchors.topMargin: 2;
-        anchors.leftMargin: 29;
-        anchors.rightMargin: 40;
+        anchors.leftMargin: 2;
+        anchors.rightMargin: 2;
 
         viewportHeight: height
-        viewportWidth: listViewRow.width
+        viewportWidth: statesRow.width+2
 
         Row {
-            id: listViewRow
-            spacing: 4
-            Repeater {
-                model: statesEditorModel
-                delegate: Delegate
+            id: statesRow
+            spacing:4
+            Row {
+                id: listViewRow
+                spacing: 4
+                Repeater {
+                    model: statesEditorModel
+                    delegate: Delegate
+                }
             }
+            Loader {
+                sourceComponent: newStateBox;
+                // make it square
+                width: height
+                height: listViewRow.height - 21
+                y:18
+                id: newStateBoxLoader;
+            }
+
+
         }
 
         focus: true;
@@ -65,7 +79,7 @@ Rectangle {
         id: Delegate
         Item {
             id: container
-            width: Math.max(img.width, txt.width) + 4
+            width: Math.max(img.width, txt.width+removeState.width+2) + 4
             height: img.height + txt.height + 4
 
             Rectangle {
@@ -87,7 +101,7 @@ Rectangle {
                 id: img
                 pixmap: statePixmap
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
+                anchors.top: textLimits.bottom
                 anchors.topMargin: 2
             }
 
@@ -106,162 +120,195 @@ Rectangle {
                 script: txt.unFocus()
             }
 
-            TextInput {
-                anchors.top: img.bottom
-                anchors.horizontalCenter: img.horizontalCenter
-                id: txt
-                text: stateName
-                color: "#E1E1E1";
-                function unFocus() {
-                    focus=false;
-                    focusStealer.focus=true;
-                    txtRegion.enabled=true;
-                    if (index!=0)
-                        statesEditorModel.renameState(index,text);
+            Item {
+                id: textLimits
+                anchors.top: parent.top
+                anchors.left:parent.left
+                anchors.right:removeState.left
+                height: txt.height
+                clip: true
+
+                TextInput {
+                    anchors.top: parent.top
+                    anchors.topMargin: 2
+                    anchors.horizontalCenter: textLimits.horizontalCenter
+                    id: txt
+                    text: stateName
+                    color: "#E1E1E1";
+                    function unFocus() {
+                        focus=false;
+                        focusStealer.focus=true;
+                        txtRegion.enabled=true;
+                        if (index!=0)
+                            statesEditorModel.renameState(index,text);
+                    }
+                    onAccepted: unFocus();
+                    MouseRegion {
+                        id: txtRegion
+                        anchors.fill:parent
+                        onClicked: {
+                            root.currentStateIndex = index;
+                            root.unFocus();
+                        }
+                        onDoubleClicked: if (index!=0) {
+                            parent.focus=true;
+                            enabled=false;
+                        }
+                    }
                 }
-                onAccepted: unFocus();
+            }
+
+            // The erase button
+            Rectangle {
+                id: removeState
+
+                visible: { index != 0 }
+
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.topMargin: 4;
+                anchors.rightMargin:2;
+
+                width: 12
+                height: width
+
+                color: "#AEAEAE"
+                radius: 6
+
+                // "clicked" overlay
+                Rectangle {
+                    anchors.fill:parent
+                    opacity:parent.state=="Pressed"
+                    color: "#909090"
+                    radius: parent.radius
+                }
+
+                states: State{ name: "Pressed"; }
+
+                // "minus" sign
+                Rectangle {
+                    width: parent.width - 4;
+                    height:2
+                    color:(root.currentStateIndex==index?Highlight.color:root.color);
+                    anchors.centerIn:parent
+                }
+
+
+
                 MouseRegion {
-                    id: txtRegion
                     anchors.fill:parent
                     onClicked: {
+                        var oldindex = root.currentStateIndex;
                         root.currentStateIndex = index;
                         root.unFocus();
+                        root.deleteCurrentState();
+                        root.currentStateIndex = oldindex;
+                        if (root.currentStateIndex >= statesEditorModel.count)
+                            root.currentStateIndex = root.currentStateIndex-1;
+                        horizontalScrollbar.totalLengthDecreased();
                     }
-                    onDoubleClicked: if (index!=0) {
-                        parent.focus=true;
-                        enabled=false;
-                    }
+                    onPressed: {parent.state="Pressed"}
+                    onReleased: {parent.state=""}
+
                 }
             }
         }
     }
 
-    // The add button
-    Rectangle {
-        id: addState
 
-        anchors.left: root.left
-        anchors.top: root.top
-        anchors.topMargin: 4;
-        anchors.leftMargin: 4;
-
-        width: 20
-        height: 50
-
-        // Appearance
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#909090" }
-            GradientStop { position: 1.0; color: "#AEAEAE" }
-        }
-        border.width : 1
-        border.color : "#4F4F4F"
-        radius: 4
-
-        // "clicked" overlay
+    Component {
+        id: newStateBox
         Rectangle {
-            anchors.fill:parent
-            opacity:parent.state=="Pressed"
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#727272" }
-                GradientStop { position: 1.0; color: "#909090" }
+            anchors.fill: parent
+            color: "transparent"
+            border.width: 1
+            border.color: "#4F4F4F"
+
+            Loader {
+                sourceComponent: addState
+                anchors.fill: parent
+
             }
-            border.width : 1
-            border.color : "#4F4F4F"
-            radius: 4
-        }
-
-        states: State{ name: "Pressed"; }
-
-        // "plus" sign
-        Rectangle {
-            width:12
-            height:2
-            color:"black"
-            anchors.centerIn:parent
-        }
-        Rectangle {
-            width:2
-            height:12
-            color:"black"
-            anchors.centerIn:parent
-        }
-
-        MouseRegion {
-            anchors.fill:parent
-            onClicked: {
-                root.unFocus();
-                if (root.currentStateIndex == 0)
-                root.createNewState(); //create new state
-                else
-                root.duplicateCurrentState(); //duplicate current state
-
-                listView.viewportX = horizontalScrollbar.viewPosition;
-                // select the newly created state
-                root.currentStateIndex=statesEditorModel.count - 1;
-            }
-            onPressed: {parent.state="Pressed"}
-            onReleased: {parent.state=""}
         }
     }
 
-    // The erase button
     Rectangle {
-        id: removeState
+        id: floatingNewStateBox
 
-        anchors.left: root.left
-        anchors.top: addState.bottom
-        anchors.topMargin: 4;
-        anchors.leftMargin: 4;
+        color: root.color
+        border.width: 1
+        border.color: "#4F4F4F"
+        width: 40
+        height: 40
+        anchors.bottom:horizontalScrollbar.top
+        anchors.right:root.right
+        anchors.bottomMargin:1
+        anchors.rightMargin:1
 
-        width: 20
-        height: 50
+        visible:(newStateBoxLoader.x+newStateBoxLoader.width/2-11>listView.width+listView.viewportX);
 
-        // Appearance
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#909090" }
-            GradientStop { position: 1.0; color: "#AEAEAE" }
+
+        Loader {
+            sourceComponent: addState
+            anchors.fill: parent
         }
-        border.width : 1
-        border.color : "#4F4F4F"
-        radius: 4
+    }
 
-        // "clicked" overlay
-        Rectangle {
-            anchors.fill:parent
-            opacity:parent.state=="Pressed"
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#727272" }
-                GradientStop { position: 1.0; color: "#909090" }
+
+
+   // The add button
+   Component {
+       id: addState
+       Rectangle {
+
+            anchors.centerIn: parent
+
+            width: 21
+            height: width
+
+            color:"#4F4F4F"
+            radius: width/2
+
+            // "clicked" overlay
+            Rectangle {
+                anchors.fill:parent
+                opacity:parent.state=="Pressed"
+                color : "#282828"
+                radius: parent.radius
             }
-            border.width : 1
-            border.color : "#4F4F4F"
-            radius: 4
-        }
 
-        states: State{ name: "Pressed"; }
+            states: State{ name: "Pressed"; }
 
-        // "minus" sign
-        Rectangle {
-            width:12
-            height:2
-            color:"black"
-            anchors.centerIn:parent
-        }
-
-        visible: { root.currentStateIndex != 0 }
-
-        MouseRegion {
-            anchors.fill:parent
-            onClicked: {
-                root.unFocus();
-                root.deleteCurrentState();
-                if (root.currentStateIndex >= statesEditorModel.count)
-                    root.currentStateIndex = root.currentStateIndex-1;
-                horizontalScrollbar.totalLengthDecreased();
+            // "plus" sign
+            Rectangle {
+                width:parent.width-10
+                height:3
+                color:root.color
+                anchors.centerIn:parent
             }
-            onPressed: {parent.state="Pressed"}
-            onReleased: {parent.state=""}
-            enabled: { root.currentStateIndex != 0 }
+            Rectangle {
+                width:3
+                height:parent.height-10
+                color:root.color
+                anchors.centerIn:parent
+            }
+
+            MouseRegion {
+                anchors.fill:parent
+                onClicked: {
+                    root.unFocus();
+                    if (root.currentStateIndex == 0)
+                    root.createNewState(); //create new state
+                    else
+                    root.duplicateCurrentState(); //duplicate current state
+
+                    listView.viewportX = horizontalScrollbar.viewPosition;
+                    // select the newly created state
+                    root.currentStateIndex=statesEditorModel.count - 1;
+                }
+                onPressed: {parent.state="Pressed"}
+                onReleased: {parent.state=""}
+            }
         }
     }
 
