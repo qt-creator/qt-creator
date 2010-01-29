@@ -1510,7 +1510,7 @@ QString GdbEngine::fullName(const QString &fileName)
 {
     if (fileName.isEmpty())
         return QString();
-    QTC_ASSERT(!m_sourcesListOutdated, /* */)
+    //QTC_ASSERT(!m_sourcesListOutdated, /* */)
     QTC_ASSERT(!m_sourcesListUpdating, /* */)
     return m_shortToFullName.value(fileName, QString());
 }

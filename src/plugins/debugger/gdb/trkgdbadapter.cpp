@@ -655,14 +655,26 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd == "g") {
         // Read general registers.
         if (m_snapshot.registerValid) {
+            //qDebug() << "Using cached register contents";
             logMessage(msgGdbPacket(QLatin1String("Read registers")));
             sendGdbServerAck();
             reportRegisters();
         } else {
+            //qDebug() << "Fetching register contents";
+            sendGdbServerAck();
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegisters),
                 trkReadRegistersMessage());
         }
+    }
+
+    else if (cmd == "gg") {
+        // Force re-reading general registers for debugging purpose.
+        sendGdbServerAck();
+        m_snapshot.registerValid = false;
+        sendTrkMessage(0x12,
+            TrkCB(handleAndReportReadRegisters),
+            trkReadRegistersMessage());
     }
 
     else if (cmd.startsWith("Hc")) {
@@ -741,6 +753,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                 //sendGdbServerMessage("E01", "read single unknown register");
             }
         } else {
+            //qDebug() << "Fetching single register";
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegister),
                 trkReadRegistersMessage(), registerNumber);
@@ -794,6 +807,12 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             "qXfer:libraries:read+;"
             //"qXfer:auxv:read+;"
             "qXfer:features:read+");
+    }
+
+    else if (cmd.startsWith("qThreadExtraInfo")) {
+        // $qThreadExtraInfo,1f9#55
+        sendGdbServerAck();
+        sendGdbServerMessage(QByteArray("Nothing special").toHex());
     }
 
     else if (cmd == "qfDllInfo") {
@@ -1092,6 +1111,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             #if 1
             // We almost always need register values, so get them
             // now before informing gdb about the stop.s
+            //qDebug() << "Auto-fetching registers";
             sendTrkMessage(0x12,
                 TrkCB(handleAndReportReadRegistersAfterStop),
                 trkReadRegistersMessage());
@@ -1100,7 +1120,8 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             // several instruction steps, better avoid the multiple
             // roundtrips through TRK in favour of an additional
             // roundtrip through gdb. But gdb will ask for all registers.
-            sendGdbServerMessage("S05", "Target stopped");
+            //sendGdbServerMessage("S05", "Target stopped");
+            // -- or --
             QByteArray ba = "T05";
             appendRegister(&ba, RegisterPSGdb, addr);
             sendGdbServerMessage(ba, "Registers");
@@ -1453,7 +1474,7 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         it = m_snapshot.memory.begin();
         et = m_snapshot.memory.end();
         for ( ; it != et; ++it)
-            qDebug() << it.key().from << it.key().to;
+            qDebug() << hexNumber(it.key().from) << hexNumber(it.key().to);
         qDebug() << "WANTED" << wanted.from << wanted.to;
         #endif
         sendGdbServerMessage("E22", "");
