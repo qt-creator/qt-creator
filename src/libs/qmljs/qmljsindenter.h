@@ -132,7 +132,6 @@ private:
     const int *yyBraceDepth;
     const bool *yyLeftBraceFollows;
 
-    QRegExp label;
     QRegExp braceX;
 };
 
