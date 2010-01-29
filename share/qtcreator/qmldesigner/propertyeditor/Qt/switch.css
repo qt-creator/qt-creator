@@ -36,7 +36,7 @@ QPushButton {
 
  QPushButton:pressed {
 	 background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                       stop: 0 #EFEFEF, stop: 1 #EEEEEE);
+                                       stop: 0 #3f3f3f, stop: 1 #3f3f3f);
  }
 
  QPushButton:flat {
