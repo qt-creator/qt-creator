@@ -371,20 +371,6 @@ bool QmlJSIndenter::readLine()
         yyLinizerState.line = trimmedCodeLine(yyLinizerState.line);
 
         /*
-            Remove preprocessor directives.
-        */
-        k = 0;
-        while (k < yyLinizerState.line.length()) {
-            const QChar ch = yyLinizerState.line.at(k);
-            if (ch == QLatin1Char('#')) {
-                yyLinizerState.line.clear();
-            } else if (!ch.isSpace()) {
-                break;
-            }
-            k++;
-        }
-
-        /*
             Remove trailing spaces.
         */
         k = yyLinizerState.line.length();
@@ -1044,11 +1030,6 @@ int QmlJSIndenter::indentForBottomLine(QTextBlock begin, QTextBlock end, QChar t
         } else {
             indent = indentOfLine(bottomLine);
         }
-    } else if (okay(typedIn, QLatin1Char('#')) && firstCh == QLatin1Char('#')) {
-        /*
-            Preprocessor directives go flush left.
-        */
-        indent = 0;
     } else {
         if (isUnfinishedLine()) {
             indent = indentForContinuationLine();
