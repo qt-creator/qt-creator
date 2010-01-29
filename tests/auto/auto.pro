@@ -6,7 +6,8 @@ SUBDIRS += \
     fakevim \
 #    profilereader \
     aggregation \
-    changeset
+    changeset \
+	icheckbuild
 
 contains (QT_CONFIG, declarative) {
 SUBDIRS += qml
