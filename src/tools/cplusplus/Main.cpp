@@ -222,7 +222,7 @@ protected:
         if (! name)
             return QByteArray();
 
-        Identifier *id = identifier(name->asSimpleName()->identifier_token);
+        const Identifier *id = identifier(name->asSimpleName()->identifier_token);
 
         return QByteArray::fromRawData(id->chars(), id->size());
     }
@@ -235,7 +235,7 @@ protected:
             if (! member->name())
                 continue;
 
-            Identifier *id = member->name()->identifier();
+            const Identifier *id = member->name()->identifier();
 
             if (! id)
                 continue;
@@ -286,7 +286,7 @@ protected:
         Class *klass = ast->symbol;
         const QByteArray className = id_cast(ast->name);
 
-        Identifier *visit_id = control()->findOrInsertIdentifier("accept0");
+        const Identifier *visit_id = control()->findOrInsertIdentifier("accept0");
         Symbol *accept0Method = klass->members()->lookat(visit_id);
         for (; accept0Method; accept0Method = accept0Method->next()) {
             if (accept0Method->identifier() != visit_id)
@@ -359,7 +359,7 @@ protected:
         if (! name)
             return QByteArray();
 
-        Identifier *id = identifier(name->asSimpleName()->identifier_token);
+        const Identifier *id = identifier(name->asSimpleName()->identifier_token);
 
         return QByteArray::fromRawData(id->chars(), id->size());
     }
@@ -397,7 +397,7 @@ protected:
         Class *klass = ast->symbol;
         const QByteArray className = id_cast(ast->name);
 
-        Identifier *match0_id = control()->findOrInsertIdentifier("match0");
+        const Identifier *match0_id = control()->findOrInsertIdentifier("match0");
         Symbol *accept0Method = klass->members()->lookat(match0_id);
         for (; accept0Method; accept0Method = accept0Method->next()) {
             if (accept0Method->identifier() != match0_id)
@@ -480,7 +480,7 @@ protected:
         if (! name)
             return QByteArray();
 
-        Identifier *id = identifier(name->asSimpleName()->identifier_token);
+        const Identifier *id = identifier(name->asSimpleName()->identifier_token);
 
         return QByteArray::fromRawData(id->chars(), id->size());
     }
@@ -492,7 +492,7 @@ protected:
             if (! member->name())
                 continue;
 
-            Identifier *id = member->name()->identifier();
+            const Identifier *id = member->name()->identifier();
 
             if (! id)
                 continue;
@@ -551,7 +551,7 @@ protected:
         Class *klass = ast->symbol;
         const QByteArray className = id_cast(ast->name);
 
-        Identifier *match0_id = control()->findOrInsertIdentifier("match0");
+        const Identifier *match0_id = control()->findOrInsertIdentifier("match0");
         Symbol *match0Method = klass->members()->lookat(match0_id);
         for (; match0Method; match0Method = match0Method->next()) {
             if (match0Method->identifier() != match0_id)
@@ -823,7 +823,7 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
     foreach (ClassSpecifierAST *classNode, astNodes.deriveds) {
         Class *klass = classNode->symbol;
 
-        Identifier *match0_id = control->findOrInsertIdentifier("match0");
+        const Identifier *match0_id = control->findOrInsertIdentifier("match0");
         Symbol *match0Method = klass->members()->lookat(match0_id);
         for (; match0Method; match0Method = match0Method->next()) {
             if (match0Method->identifier() != match0_id)
