@@ -115,7 +115,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 break;
 
             case Token::Identifier: {
-                if (maybeQmlKeyword(text.midRef(token.offset, token.length))) {
+                if (m_duiEnabled && maybeQmlKeyword(text.midRef(token.offset, token.length))) {
                     // check the previous token
                     if (index == 0 || tokens.at(index - 1).isNot(Token::Dot)) {
                         if (index + 1 == tokens.size() || tokens.at(index + 1).isNot(Token::Colon)) {
@@ -240,6 +240,8 @@ bool QScriptHighlighter::maybeQmlKeyword(const QStringRef &text) const
     } else if (ch == QLatin1Char('p') && text == QLatin1String("property")) {
         return true;
     } else if (ch == QLatin1Char('r') && text == QLatin1String("readonly")) {
+        return true;
+    } else if (ch == QLatin1Char('i') && text == QLatin1String("import")) {
         return true;
     } else {
         return false;
