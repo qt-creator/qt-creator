@@ -95,7 +95,7 @@ QVariant SourceFilesModel::headerData(int section,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
-            tr("Internal name") + "        ", 
+            tr("Internal name") + "        ",
             tr("Full name") + "        ",
         };
         return headers[section];
@@ -178,7 +178,7 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));
     //header()->setDefaultAlignment(Qt::AlignLeft);
-    
+
     connect(this, SIGNAL(activated(QModelIndex)),
         this, SLOT(sourceFileActivated(QModelIndex)));
     connect(act, SIGNAL(toggled(bool)),
@@ -210,7 +210,7 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
         act2 = new QAction(tr("Open file \"%1\"'").arg(name), &menu);
         act2->setEnabled(true);
     }
-    
+
     menu.addAction(act1);
     menu.addAction(act2);
     menu.addSeparator();
@@ -235,5 +235,5 @@ void SourceFilesWindow::removeAll()
     m_model->setSourceFiles(QMap<QString, QString>());
     header()->setResizeMode(0, QHeaderView::ResizeToContents);
 }
-    
+
 #include "sourcefileswindow.moc"

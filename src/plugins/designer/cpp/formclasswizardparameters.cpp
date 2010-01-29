@@ -57,7 +57,7 @@ class FormClassWizardGenerationParametersPrivate : public QSharedData
 {
 public:
     FormClassWizardGenerationParametersPrivate();
-    void fromSettings(const QSettings *);    
+    void fromSettings(const QSettings *);
     void toSettings(QSettings *) const;
     bool equals(const FormClassWizardGenerationParametersPrivate &rhs) const;
 

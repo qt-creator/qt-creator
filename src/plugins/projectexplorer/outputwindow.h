@@ -90,7 +90,7 @@ public:
     void appendOutput(RunControl *rc, const QString &out);
     void appendOutputInline(RunControl *rc, const QString &out);
     void showTabFor(RunControl *rc);
-    
+
 public slots:
     void projectRemoved();
     void coreAboutToClose();

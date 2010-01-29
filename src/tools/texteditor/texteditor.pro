@@ -3,7 +3,7 @@ QTCREATOR = ../../plugins
 
 TARGET = ../../../bin/texteditor
 
-QT += gui 
+QT += gui
 
 CONFIG -= release
 CONFIG += debug
@@ -13,7 +13,7 @@ DEFINES += TEXTEDITOR_STANDALONE
 INCLUDEPATH += $${QTCREATOR}
 INCLUDEPATH += $${QTCREATOR}/texteditor
 
-HEADERS += \ 
+HEADERS += \
     mainwindow.h \
     $${QTCREATOR}/texteditor/basetextdocument.h \
     $${QTCREATOR}/texteditor/basetexteditor.h \

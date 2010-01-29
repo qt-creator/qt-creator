@@ -75,7 +75,7 @@ QString CodePasterSettingsPage::displayCategory() const
 }
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)
-{    
+{
     QGroupBox *groupBox = new QGroupBox();
     QVBoxLayout *groupBoxLayout = new QVBoxLayout(groupBox);
     QFormLayout *formLayout = new QFormLayout;

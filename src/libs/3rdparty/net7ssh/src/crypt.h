@@ -61,11 +61,11 @@ class ne7ssh_crypt
 
     enum macMethods { HMAC_SHA1, HMAC_MD5, HMAC_NONE };
     uint32 c2sMacMethod;
-    uint32 s2cMacMethod; 
+    uint32 s2cMacMethod;
 
     enum cmprsMethods { NONE, ZLIB };
     uint32 c2sCmprsMethod;
-    uint32 s2cCmprsMethod; 
+    uint32 s2cCmprsMethod;
 
     bool inited;
     Botan::SecureVector<Botan::byte> H;
@@ -303,7 +303,7 @@ class ne7ssh_crypt
     bool makeNewKeys ();
 
     /**
-     * Encrypts a packet and generates HMAC, if enabled during negotiation. 
+     * Encrypts a packet and generates HMAC, if enabled during negotiation.
      * <p>The entire packet is encrypted, only HMAC stays in raw format.
      * @param crypted Encrypted packet will be dumped into this var.
      * @param hmac HMAC will be dumped into this var.

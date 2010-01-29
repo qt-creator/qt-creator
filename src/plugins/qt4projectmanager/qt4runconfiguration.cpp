@@ -418,7 +418,7 @@ void Qt4RunConfiguration::save(PersistentSettingsWriter &writer) const
 }
 
 void Qt4RunConfiguration::restore(const PersistentSettingsReader &reader)
-{    
+{
     LocalApplicationRunConfiguration::restore(reader);
     const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
     m_commandLineArguments = reader.restoreValue("CommandLineArguments").toStringList();

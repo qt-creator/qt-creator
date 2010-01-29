@@ -39,7 +39,7 @@ SOURCES += reloadpromptutils.cpp \
     detailswidget.cpp \
     changeset.cpp \
     filterlineedit.cpp
-win32 { 
+win32 {
     SOURCES += abstractprocess_win.cpp \
         consoleprocess_win.cpp \
         winutils.cpp

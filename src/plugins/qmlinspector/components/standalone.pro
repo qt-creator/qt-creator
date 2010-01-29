@@ -8,7 +8,7 @@ HEADERS += $$PWD/qmldebugger.h \
 
 SOURCES += $$PWD/qmldebugger.cpp \
            $$PWD/engine.cpp \
-           $$PWD/main.cpp 
+           $$PWD/main.cpp
 
 RESOURCES += $$PWD/qmldebugger.qrc
 OTHER_FILES += $$PWD/engines.qml

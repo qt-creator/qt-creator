@@ -67,7 +67,7 @@ QWizard *LibraryWizard::createWizardDialog(QWidget *parent,
     dialog->setLowerCaseFiles(QtWizard::lowerCaseFiles());
     dialog->setPath(defaultPath);
     dialog->setProjectName(LibraryWizardDialog::uniqueProjectName(defaultPath));
-    dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());    
+    dialog->setSuffixes(headerSuffix(), sourceSuffix(), formSuffix());
     return dialog;
 }
 

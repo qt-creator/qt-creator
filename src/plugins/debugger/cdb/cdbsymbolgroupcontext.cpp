@@ -413,7 +413,7 @@ static bool inline getUnsignedHexValue(QString stringValue, quint64 *value)
         return false;
     stringValue.remove(0, 2);
     // Remove 64bit separator
-    if (stringValue.size() > 9) {       
+    if (stringValue.size() > 9) {
         const int sepPos = stringValue.size() - 9;
         if (stringValue.at(sepPos) == QLatin1Char('`'))
             stringValue.remove(sepPos, 1);
@@ -489,8 +489,8 @@ WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
     const QString fullShadowedName = WatchData::shadowedName(name, shadowedNumber);
     wd.name = WatchData::shadowedName(removeInnerTemplateType(name), shadowedNumber);
     wd.addr = hexSymbolOffset(m_symbolGroup, index);
-    const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);    
-    wd.setType(type);    
+    const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);
+    wd.setType(type);
     // Check for uninitialized variables at level 0 only.
     const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(index);
     if (p.ParentSymbol == DEBUG_ANY_ID && m_uninitializedVariables.contains(fullShadowedName)) {

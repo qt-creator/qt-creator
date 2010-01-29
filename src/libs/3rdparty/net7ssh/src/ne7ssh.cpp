@@ -69,30 +69,30 @@ class Locking_AutoSeeded_RNG : public Botan::RandomNumberGenerator
   public:
     Locking_AutoSeeded_RNG() { rng = new Botan::AutoSeeded_RNG(); }
     ~Locking_AutoSeeded_RNG() { delete rng; }
-    
+
     void randomize(Botan::byte output[], u32bit length)
     {
       mutex.lock();
       rng->randomize(output, length);
       mutex.unlock();
     }
-    
+
     void clear() throw()
     {
       mutex.lock();
       rng->clear();
       mutex.unlock();
     }
-    
+
     std::string name() const { return rng->name(); }
-    
+
     void reseed(u32bit bits_to_collect)
     {
       mutex.lock();
       rng->reseed(bits_to_collect);
       mutex.unlock();
     }
-    
+
     void add_entropy_source(EntropySource* source)
     {
       mutex.lock();
@@ -106,8 +106,8 @@ class Locking_AutoSeeded_RNG : public Botan::RandomNumberGenerator
       rng->add_entropy(in, length);
       mutex.unlock();
     }
-    
-  private:    
+
+  private:
     Ne7ssh_Mutex mutex;
     Botan::RandomNumberGenerator* rng;
 };
@@ -153,10 +153,10 @@ ne7ssh::~ne7ssh()
 {
   uint32 i;
   long ign;
-  
+
   ne7ssh::running = false;
   lock();
-  for (i = 0; i < conCount; i++) 
+  for (i = 0; i < conCount; i++)
       close(i);
   unlock();
 
@@ -164,7 +164,7 @@ ne7ssh::~ne7ssh()
 
   if (conCount)
   {
-    for (i = 0; i < conCount; i++) 
+    for (i = 0; i < conCount; i++)
       delete connections[i];
     free (connections);
   }
@@ -186,7 +186,7 @@ ne7ssh::~ne7ssh()
     errs = 0;
   }
 #if !BOTAN_PRE_18 && !BOTAN_PRE_15
-  if (ne7ssh::rng) 
+  if (ne7ssh::rng)
   {
     delete (rng);
     rng = 0;
@@ -313,12 +313,12 @@ int ne7ssh::connectWithPassword (const char *host, const int port, const char* u
   if (!unlock()) return -1;
   channel = con->connectWithPassword (channelID, host, port, username, password, shell, timeout);
 
-  if (channel == -1) 
+  if (channel == -1)
   {
     if (!lock()) return -1;
     for (z = 0; z < allConns.count; z++)
     {
-      if (allConns.conns[z] == con) 
+      if (allConns.conns[z] == con)
       {
         currentRecord = z;
         break;
@@ -364,12 +364,12 @@ int ne7ssh::connectWithKey (const char* host, const int port, const char* userna
 
   channel = con->connectWithKey (channelID, host, port, username, privKeyFileName, shell, timeout);
 
-  if (channel == -1) 
+  if (channel == -1)
   {
     if (!lock()) return -1;
     for (z = 0; z < allConns.count; z++)
     {
-      if (allConns.conns[z] == con) 
+      if (allConns.conns[z] == con)
       {
         currentRecord = z;
         break;
@@ -588,7 +588,7 @@ bool ne7ssh::waitFor (int channel, const char* str, uint32 timeSec)
       {
         if ((*carret == one) && (str_len <= carretLen))
         {
-          if (!memcmp (carret, str, str_len)) 
+          if (!memcmp (carret, str, str_len))
           {
             if (!unlock()) return false;
             return true;

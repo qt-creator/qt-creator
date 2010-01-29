@@ -37,13 +37,13 @@
 #include <QtGui/QPainter>
 #include <QtGui/QWidget>
 
-/* 
+/*
  * This is a set of helper classes to allow for widget animations in
  * the style. Its mostly taken from Vista style so it should be fully documented
  * there.
  *
  */
- 
+
 class Animation
 {
 public :
@@ -92,7 +92,7 @@ public:
     void startAnimation(Animation *);
     void stopAnimation(const QWidget *);
     Animation* widgetAnimation(const QWidget *) const;
-    
+
 private:
     QBasicTimer animationTimer;
     QList <Animation*> animations;

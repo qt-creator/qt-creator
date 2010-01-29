@@ -69,7 +69,7 @@ class ne7ssh_keys
 
     /**
      * ne7ssh_keys destructor.
-     * @return 
+     * @return
      */
     ~ne7ssh_keys();
 
@@ -94,7 +94,7 @@ class ne7ssh_keys
     bool generateRSAKeys (const char* fqdn, const char* privKeyFileName, const char* pubKeyFileName, uint16 keySize = 2048);
 
     /**
-     * Extracts key pair from a PEM encoded file. 
+     * Extracts key pair from a PEM encoded file.
      * <p>Reads the file and determines the type of key, then passes processing to either getDsaKeys() or getRSAKeys(*) functions.
      * @param privKeyFileName Full path to PEM encoded file.
      * @return True if key succesfully extracted, otherwise False is returned.

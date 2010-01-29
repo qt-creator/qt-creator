@@ -64,7 +64,7 @@ bool getModuleNameList(CIDebugSymbols *syms, QStringList *modules, QString *erro
 }
 
 bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorMessage)
-{    
+{
     ULONG count;
     modules->clear();
     if (!getModuleCount(syms, &count, errorMessage))
@@ -105,7 +105,7 @@ bool getModuleList(CIDebugSymbols *syms, QList<Module> *modules, QString *errorM
 bool searchSymbols(CIDebugSymbols *syms, const QString &pattern,
                    QStringList *matches, QString *errorMessage)
 {
-    matches->clear();    
+    matches->clear();
     ULONG64 handle = 0;
     // E_NOINTERFACE means "no match". Apparently, it does not always
     // set handle.

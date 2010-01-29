@@ -43,7 +43,7 @@
 **    chIncludepathlist << getQTIncludePath();
 **    chParseManager->setIncludePath(chIncludepathlist);
 **    chParseManager->parse(chFilelist);
-**    
+**
 **    if(!chParseManager->checkAllMetadatas(iParseManager)){
 **        cout << "Folowing interface items are missing:" << endl;
 **        QStringList errorlist = chParseManager->getErrorMsg();

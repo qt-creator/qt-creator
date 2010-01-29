@@ -133,7 +133,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_completion->setCaseSensitivity(caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
     settings->endGroup();
     settings->endGroup();
-    
+
     error_message->clear();
 
     return true;

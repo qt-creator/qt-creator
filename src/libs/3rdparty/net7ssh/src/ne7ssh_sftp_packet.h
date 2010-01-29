@@ -46,7 +46,7 @@ class Ne7sshSftpPacket : public ne7ssh_string
      * @param position Offset.
      */
     Ne7sshSftpPacket(Botan::SecureVector<Botan::byte>& var, uint32 position);
-    
+
     /**
      * Default destructor.
      */

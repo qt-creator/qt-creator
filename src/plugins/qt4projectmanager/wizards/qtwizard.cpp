@@ -182,7 +182,7 @@ QString BaseQt4ProjectWizardDialog::selectedModules() const
 }
 
 void BaseQt4ProjectWizardDialog::setSelectedModules(const QString &modules, bool lock)
-{   
+{
     if (m_modulesPage) {
         foreach(const QString &module, modules.split(QLatin1Char(' '))) {
             m_modulesPage->setModuleSelected(module, true);

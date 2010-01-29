@@ -5,7 +5,7 @@ TEMPLATE    = lib
 HEADERS     = customwidgets.h \
               customwidget.h
 
-SOURCES     = customwidgets.cpp 
+SOURCES     = customwidgets.cpp
 
 # Link against the qtcreator utils lib
 

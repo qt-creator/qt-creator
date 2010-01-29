@@ -80,7 +80,7 @@ GitoriousRepositoryWizardPage::GitoriousRepositoryWizardPage(const GitoriousProj
 {
     QStringList headers;
     headers << tr("Name") << tr("Owner") << tr("Description");
-    m_model->setHorizontalHeaderLabels(headers);    
+    m_model->setHorizontalHeaderLabels(headers);
     // Filter on all columns
     m_filterModel->setSourceModel(m_model);
     m_filterModel->setFilterKeyColumn(-1);

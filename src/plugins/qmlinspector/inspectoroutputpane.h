@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 #ifndef INSPECTOROUTPUTPANE_H
-#define INSPECTOROUTPUTPANE_H 
+#define INSPECTOROUTPUTPANE_H
 
 #include <coreplugin/ioutputpane.h>
 

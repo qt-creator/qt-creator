@@ -51,7 +51,7 @@ public:
 public slots:
     void selectWorkingDirectory();
 
-private:    
+private:
     Ui_ChangeSelectionDialog m_ui;
 };
 

@@ -59,7 +59,7 @@ void ne7ssh_kex::constructLocalKex()
     {
       len = strlen (cipher);
       if (!memcmp (cipher, ne7ssh::PREFERED_CIPHER, len)) Ciphers.append ((Botan::byte*)cipher, (uint32_t) len);
-      else 
+      else
       {
         tmpCiphers.append (',');
         tmpCiphers.append ((Botan::byte*)cipher, (uint32_t) len);
@@ -79,7 +79,7 @@ void ne7ssh_kex::constructLocalKex()
     {
       len = strlen (hmac);
       if (!memcmp (hmac, ne7ssh::PREFERED_MAC, len)) Hmacs.append ((Botan::byte*)hmac, (uint32_t) len);
-      else 
+      else
       {
         tmpMacs.append (',');
         tmpMacs.append ((Botan::byte*)hmac, (uint32_t) len);
@@ -107,7 +107,7 @@ bool ne7ssh_kex::sendInit ()
 {
   ne7ssh_transport *_transport;
 
-  if (!session->transport) 
+  if (!session->transport)
   {
     ne7ssh::errors()->push (session->getSshChannel(), "No transport. Cannot initialize key exchange.");
     return false;
@@ -210,7 +210,7 @@ bool ne7ssh_kex::handleInit ()
   }
   if (!_crypto->negotiatedCmprsS2c (agreed)) return false;
 
-  return true;  
+  return true;
 }
 
 bool ne7ssh_kex::sendKexDHInit ()

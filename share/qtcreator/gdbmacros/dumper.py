@@ -999,7 +999,7 @@ class Dumper:
                     self.putNumChild(0)
                     isHandled = True
 
-                #warn("TARGET: %s " % target) 
+                #warn("TARGET: %s " % target)
                 if (not isHandled) and (target == "char"
                         or target == "signed char" or target == "unsigned char"):
                     # Display values up to given length directly

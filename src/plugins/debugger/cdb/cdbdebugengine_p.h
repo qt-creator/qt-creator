@@ -109,7 +109,7 @@ public:
     const QSharedPointer<CdbOptions>  m_options;
     HANDLE                  m_hDebuggeeProcess;
     HANDLE                  m_hDebuggeeThread;
-    bool                    m_interrupted;    
+    bool                    m_interrupted;
     int                     m_currentThreadId;
     int                     m_eventThreadId;
     int                     m_interruptArticifialThreadId;

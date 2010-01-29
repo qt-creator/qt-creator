@@ -756,7 +756,7 @@ public:
         move(startOf(condition->right_expression), startOf(pattern->rparen_token), insertPos);
         insert(insertPos, QLatin1String(")"));
         copy(endOf(pattern->rparen_token), endOf(pattern->statement), insertPos);
-        
+
         remove(endOf(condition->left_expression), startOf(condition->right_expression));
     }
 
@@ -1180,7 +1180,7 @@ bool QuickFixOperation::isCursorOn(const CPlusPlus::AST *ast) const
 }
 
 QuickFixOperation::Range QuickFixOperation::createRange(AST *ast) const
-{    
+{
     QTextCursor tc = _textCursor;
     Range r(tc);
     r.begin.setPosition(startOf(ast));

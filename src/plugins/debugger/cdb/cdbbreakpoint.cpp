@@ -105,7 +105,7 @@ void CDBBreakPoint::clear()
      ignoreCount = 0;
      oneShot = false;
      enabled = true;
-     clearExpressionData();     
+     clearExpressionData();
 }
 
 void CDBBreakPoint::clearExpressionData()
@@ -516,7 +516,7 @@ bool CDBBreakPoint::synchronizeBreakPoints(CIDebugControl* debugControl,
                                            CIDebugSymbols *syms,
                                            BreakHandler *handler,
                                            QString *errorMessage, QStringList *warnings)
-{    
+{
     errorMessage->clear();
     warnings->clear();
     // Do an initial check whether we are in a state that allows

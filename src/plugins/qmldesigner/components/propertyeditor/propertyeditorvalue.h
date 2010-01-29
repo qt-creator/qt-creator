@@ -77,7 +77,7 @@ private:
 
 
 class PropertyEditorValue : public QObject
-{ 
+{
     Q_OBJECT
     Q_PROPERTY(QVariant value READ value WRITE setValueWithEmit NOTIFY valueChanged)
     Q_PROPERTY(QString expression READ expression WRITE setExpressionWithEmit NOTIFY expressionChanged FINAL)

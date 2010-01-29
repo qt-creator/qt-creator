@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <execinfo.h>
-#endif 
+#endif
 
 namespace Debugger {
 namespace Internal {

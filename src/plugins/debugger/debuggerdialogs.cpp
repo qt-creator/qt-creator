@@ -391,9 +391,9 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     m_ui->serverStartScript->setExpectedKind(Utils::PathChooser::File);
     m_ui->serverStartScript->setPromptDialogTitle(tr("Select Start Script"));
 
-    connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), 
+    connect(m_ui->useServerStartScriptCheckBox, SIGNAL(toggled(bool)),
         this, SLOT(updateState()));
-    
+
     connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 

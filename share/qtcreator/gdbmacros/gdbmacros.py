@@ -225,10 +225,10 @@ def qdump__QFileInfo(d, item):
 
 
 def qdump__QFlags(d, item):
-    #warn("QFLAGS: %s" % item.value) 
+    #warn("QFLAGS: %s" % item.value)
     i = item.value["i"]
     enumType = item.value.type.template_argument(0)
-    #warn("QFLAGS: %s" % item.value["i"].cast(enumType)) 
+    #warn("QFLAGS: %s" % item.value["i"].cast(enumType))
     d.putValue("%s (%s)" % (i.cast(enumType), i))
     d.putNumChild(0)
 

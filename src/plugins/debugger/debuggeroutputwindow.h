@@ -53,7 +53,7 @@ public:
 
     void bringPaneToForeground() { emit showPage(); }
     void setCursor(const QCursor &cursor);
-    
+
     QString combinedContents() const;
     QString inputContents() const;
 

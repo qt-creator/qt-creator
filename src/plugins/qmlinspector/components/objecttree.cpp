@@ -52,7 +52,7 @@ ObjectTree::ObjectTree(QmlEngineDebug *client, QWidget *parent)
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             SLOT(currentItemChanged(QTreeWidgetItem *)));
     connect(this, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
-            SLOT(activated(QTreeWidgetItem *)));            
+            SLOT(activated(QTreeWidgetItem *)));
 }
 
 void ObjectTree::setEngineDebug(QmlEngineDebug *client)
@@ -64,7 +64,7 @@ void ObjectTree::reload(int objectDebugId)
 {
     if (!m_client)
         return;
-        
+
     if (m_query) {
         delete m_query;
         m_query = 0;
@@ -74,7 +74,7 @@ void ObjectTree::reload(int objectDebugId)
     if (!m_query->isWaiting())
         objectFetched();
     else
-        QObject::connect(m_query, SIGNAL(stateChanged(QmlDebugQuery::State)), 
+        QObject::connect(m_query, SIGNAL(stateChanged(QmlDebugQuery::State)),
                          this, SLOT(objectFetched()));
 }
 
@@ -150,7 +150,7 @@ void ObjectTree::buildTree(const QmlDebugObjectReference &obj, QTreeWidgetItem *
 void ObjectTree::dump(const QmlDebugContextReference &ctxt, int ind)
 {
     QByteArray indent(ind * 4, ' ');
-    qWarning().nospace() << indent.constData() << ctxt.debugId() << " " 
+    qWarning().nospace() << indent.constData() << ctxt.debugId() << " "
                          << qPrintable(ctxt.name());
 
     for (int ii = 0; ii < ctxt.contexts().count(); ++ii)
@@ -164,7 +164,7 @@ void ObjectTree::dump(const QmlDebugObjectReference &obj, int ind)
 {
     QByteArray indent(ind * 4, ' ');
     qWarning().nospace() << indent.constData() << qPrintable(obj.className())
-                         << " " << qPrintable(obj.name()) << " " 
+                         << " " << qPrintable(obj.name()) << " "
                          << obj.debugId();
 
     for (int ii = 0; ii < obj.children().count(); ++ii)
@@ -212,8 +212,8 @@ void ObjectTree::mousePressEvent(QMouseEvent *me)
             bool ok = false;
             QString watch = QInputDialog::getText(this, tr("Watch expression"),
                     tr("Expression:"), QLineEdit::Normal, QString(), &ok);
-            if (ok && !watch.isEmpty()) 
+            if (ok && !watch.isEmpty())
                 emit expressionWatchRequested(obj, watch);
         }
-    } 
+    }
 }

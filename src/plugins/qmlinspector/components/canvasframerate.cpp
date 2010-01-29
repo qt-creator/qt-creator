@@ -79,7 +79,7 @@ private:
     void drawSample(QPainter *, int, const QRect &, QList<QRect> *);
     void drawTime(QPainter *, const QRect &);
     QRect findContainingRect(const QList<QRect> &rects, const QPoint &pos) const;
-    struct Sample { 
+    struct Sample {
         int sample[3];
         bool isBreak;
     };
@@ -106,7 +106,7 @@ QLineGraph::QLineGraph(QAbstractSlider *slider, QWidget *parent)
     slider->setMaximum(0);
     slider->setMinimum(0);
     slider->setSingleStep(1);
-    
+
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged(int)));
 }
 
@@ -119,9 +119,9 @@ void QLineGraph::sliderChanged(int v)
         position = -1;
     else
         position = v;
-    
+
     update();
-    
+
     // update highlightedRect
     QPoint pos = mapFromGlobal(QCursor::pos());
     if (geometry().contains(pos)) {
@@ -152,7 +152,7 @@ void QLineGraph::updateSlider()
         slider->setValue(slider->maximum());
     } else {
         slider->setValue(position);
-    }    
+    }
     ignoreScroll = false;
 }
 
@@ -331,7 +331,7 @@ QRect QLineGraph::findContainingRect(const QList<QRect> &rects, const QPoint &po
 {
     for (int i=0; i<rects.count(); ++i) {
         if (rects[i].contains(pos))
-            return rects[i]; 
+            return rects[i];
     }
     return QRect();
 }
@@ -391,7 +391,7 @@ QSize GraphWindow::sizeHint() const
 {
     return QSize(400, 220);
 }
-    
+
 
 class CanvasFrameRatePlugin : public QmlDebugClient
 {
@@ -457,7 +457,7 @@ CanvasFrameRate::CanvasFrameRate(QWidget *parent)
     QPushButton *pb = new QPushButton(tr("New Graph"), this);
     connect(pb, SIGNAL(clicked()), this, SLOT(newTab()));
     bottom->addWidget(pb);
-    
+
     m_group = new QGroupBox(tr("Enabled"));
     m_group->setCheckable(true);
     m_group->setChecked(false);
@@ -468,7 +468,7 @@ CanvasFrameRate::CanvasFrameRate(QWidget *parent)
     groupLayout->setSpacing(2);
     groupLayout->addWidget(m_tabs);
     groupLayout->addLayout(bottom);
-    
+
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setContentsMargins(0, 10, 0, 0);
     layout->setSpacing(0);
@@ -503,7 +503,7 @@ void CanvasFrameRate::connectionStateChanged(QAbstractSocket::SocketState state)
         m_plugin = 0;
     } else if (state == QAbstractSocket::ConnectedState) {
         handleConnected(qobject_cast<QmlDebugConnection*>(sender()));
-    }        
+    }
 }
 
 void CanvasFrameRate::handleConnected(QmlDebugConnection *conn)

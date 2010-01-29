@@ -454,7 +454,7 @@ private: ////////// View & Data Stuff //////////
         void updateLocalsClassic(const QVariant &cookie);
         void updateLocalsPython(const QByteArray &varList);
             void handleStackFramePython(const GdbResponse &response);
-        
+
     void handleStackListLocalsClassic(const GdbResponse &response);
     void handleStackListLocalsPython(const GdbResponse &response);
 

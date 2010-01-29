@@ -196,7 +196,7 @@ christian@christian-linux ran 'configure.py --os=linux --cpu=ia32 --cc=gcc --dis
 
 Target
 -------
-Compiler: g++ -O2 -finline-functions 
+Compiler: g++ -O2 -finline-functions
 Arch: ia32/ia32
 OS: linux
 

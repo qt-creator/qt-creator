@@ -49,7 +49,7 @@ public:
         BindingType,
         OtherType
     };
-    
+
     PropertiesViewItem(QTreeWidget *widget, Type type = OtherType);
     PropertiesViewItem(QTreeWidgetItem *parent, Type type = OtherType);
 
@@ -151,20 +151,20 @@ void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVar
         if (bindingItem && bindingItem->type != PropertiesViewItem::BindingType) {
             delete bindingItem;
             bindingItem = 0;
-        }    
-            
+        }
+
         qDeleteAll(item->takeChildren());
-        
+
         QVariantList variants = value.toList();
         item->setText(1, tr("<%1 items>", "%1 = number of items").arg(variants.count()));
         item->setText(2, QString::fromUtf8(value.typeName()));
-        
+
         PropertiesViewItem *child;
         for (int i=0; i<variants.count(); ++i) {
             child = new PropertiesViewItem(item);
             setPropertyValue(child, variants[i], makeGray);
         }
-        
+
         if (bindingItem)
             item->addChild(bindingItem);
 
@@ -173,11 +173,11 @@ void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVar
         item->setText(1, (value.isNull() ? QLatin1String("<no value>") : value.toString()));
         item->setExpanded(true);
     }
-    
+
     if (makeGray) {
         for (int i=0; i<m_tree->columnCount(); ++i)
             item->setForeground(i, Qt::gray);
-    }    
+    }
 }
 
 void ObjectPropertiesView::setObject(const QmlDebugObjectReference &object)
@@ -194,7 +194,7 @@ void ObjectPropertiesView::setObject(const QmlDebugObjectReference &object)
 
         item->setText(0, p.name());
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        
+
         setPropertyValue(item, p.value(), !p.hasNotifySignal());
         item->setText(2, p.valueTypeName());
 

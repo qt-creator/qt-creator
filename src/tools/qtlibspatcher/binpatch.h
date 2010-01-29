@@ -58,7 +58,7 @@ private:
     long getBufferStringLength(char *data, char *end);
     bool endsWithTokens(const char *data);
 
-    bool patchHelper(char *inbuffer, const char *oldstr, 
+    bool patchHelper(char *inbuffer, const char *oldstr,
         const char *newstr, size_t len, long *rw);
 
     bool useLength;

@@ -53,7 +53,7 @@ public:
 protected:
     virtual bool equals(ToolChain *other) const;
 
-private:    
+private:
     const S60ToolChainMixin m_mixin;
     const ProjectExplorer::ToolChain::ToolChainType m_type;
     const QString m_gcceCommand;

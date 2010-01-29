@@ -591,7 +591,7 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
     const QString stdOut = QString::fromLocal8Bit(checkProcess.readAllStandardOutput());
     if (!stdOut.isEmpty())
         outputWindow->appendSilently(stdOut);
-    const QString stdErr = QString::fromLocal8Bit(checkProcess.readAllStandardError());    
+    const QString stdErr = QString::fromLocal8Bit(checkProcess.readAllStandardError());
     if (!stdErr.isEmpty())
         outputWindow->appendSilently(stdErr);
     const int exitCode = checkProcess.exitCode();

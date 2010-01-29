@@ -286,7 +286,7 @@ void CdbDumperInitThread ::run()
     case CdbDumperHelper::Loaded: // Injection load succeeded, ideally
         break;
     }
-    // Perform remaining initialization    
+    // Perform remaining initialization
     emit statusMessage(QCoreApplication::translate("Debugger::Internal::CdbDumperHelper", "Initializing dumpers..."), 60000);
     m_ok = m_helper.initResolveSymbols(m_errorMessage) && m_helper.initKnownTypes(m_errorMessage);
 }
@@ -594,7 +594,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
 {
     errorMessage->clear();
     // Check failure cache and supported types
-    if (m_state == Disabled) {        
+    if (m_state == Disabled) {
         *errorMessage =m_msgDisabled;
         return DumpNotHandled;
     }

@@ -1,13 +1,13 @@
-/* An example of ne7ssh library usage. Please change the values in connectWitKeys 
+/* An example of ne7ssh library usage. Please change the values in connectWitKeys
    function before compiling.
-   
+
    This will work with openssh server if default shell of authenticating user is bash.
-   When using a different shell or custom prompt replace " $" string in waitFor() 
+   When using a different shell or custom prompt replace " $" string in waitFor()
    method with a string corresponding with your shell prompt.
-   
+
    If you are testing this with later openssh versions, make sure to add this
    option to your server's configuration file to enable password authentication:
-   
+
    PasswordAuthentication yes
 */
 

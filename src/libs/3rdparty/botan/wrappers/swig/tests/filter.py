@@ -15,7 +15,7 @@ class MyFilter(botan.FilterObj):
 
 def main():
     filter = MyFilter()
-    
+
     pipe = botan.Pipe(botan.Filter("Hex_Encoder"), filter,
                       botan.Filter("Hex_Decoder"))
     pipe.start_msg()

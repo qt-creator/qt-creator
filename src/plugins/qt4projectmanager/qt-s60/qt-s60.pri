@@ -1,4 +1,4 @@
-!isEmpty(SUPPORT_QT_S60) { 
+!isEmpty(SUPPORT_QT_S60) {
     message("Adding experimental support for Qt/S60 applications.")
     DEFINES += QTCREATOR_WITH_S60
 }

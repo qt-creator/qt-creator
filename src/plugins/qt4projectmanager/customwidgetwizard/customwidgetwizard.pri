@@ -23,4 +23,4 @@ FORMS += \
  $$PWD/classdefinition.ui \
  $$PWD/customwidgetwidgetswizardpage.ui \
  $$PWD/customwidgetpluginwizardpage.ui
- 
+

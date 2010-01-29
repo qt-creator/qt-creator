@@ -15,7 +15,7 @@ def hash_it(hash, input):
 
     out = pipe.read(0)
 
-    
+
 
 
 def main:

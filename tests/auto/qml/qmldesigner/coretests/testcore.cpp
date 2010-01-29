@@ -364,7 +364,7 @@ void TestCore::testModelCreateRect()
     childNode.variantProperty("y") = 100;
     childNode.variantProperty("width") = 100;
     childNode.variantProperty("height") = 100;
-    
+
     QCOMPARE(childNode.propertyNames().count(), 4);
     QCOMPARE(childNode.variantProperty("scale").value(), QVariant());
 
@@ -516,7 +516,7 @@ void TestCore::testTypicalRewriterOperations()
     QVERIFY(rootModelNode.property("test").isNodeAbstractProperty());
     QVERIFY(rootModelNode.property("test").isNodeListProperty());
     QVERIFY(!rootModelNode.property("test").isBindingProperty());
-    QVERIFY(childNode.parentProperty().isNodeListProperty());    
+    QVERIFY(childNode.parentProperty().isNodeListProperty());
     QCOMPARE(childNode, childNode.parentProperty().toNodeListProperty().toModelNodeList().first());
     QCOMPARE(rootModelNode, childNode.parentProperty().parentModelNode());
     QCOMPARE(childNode.parentProperty().name(), QString("test"));
@@ -1171,7 +1171,7 @@ void TestCore::testModelRemoveNode()
 void TestCore::reparentingNode()
 {
     QScopedPointer<Model> model(Model::create("Qt/Item"));
-    
+
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView);
@@ -2566,7 +2566,7 @@ void TestCore::testRewriterExecptionHandling()
     QVERIFY(rootNode.isValid());
     QCOMPARE(rootNode.type(), QLatin1String("Qt/Text"));
 
-    try 
+    try
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
         rootNode.variantProperty("bla") = QVariant("blah\"");
@@ -2702,7 +2702,7 @@ void TestCore::testCopyModelRewriter1()
     QScopedPointer<TestView> view2(new TestView);
     model2->attachView(view2.data());
 
-    // read in 2 
+    // read in 2
     QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
     testRewriterView2->setTextModifier(&textModifier2);
     model2->attachView(testRewriterView2.data());
@@ -2712,7 +2712,7 @@ void TestCore::testCopyModelRewriter1()
     QCOMPARE(rootNode2.type(), QLatin1String("Qt/Rectangle"));
 
 
-    // 
+    //
 
     ModelNode childNode(rootNode1.allDirectSubModelNodes().first());
     QVERIFY(childNode.isValid());
@@ -2874,7 +2874,7 @@ void TestCore::testCopyModelRewriter2()
     QCOMPARE(rootNode1.type(), QLatin1String("Qt/Rectangle"));
 
 
-        // read in 2 
+        // read in 2
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText(qmlString2);
@@ -3107,9 +3107,9 @@ void TestCore::testMetaInfoDotProperties()
 
     ModelNode rectNode(view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data"));
 
-    
+
     QVERIFY(rectNode.metaInfo().properties(true).keys().contains("pos.x"));
-    QVERIFY(!rectNode.metaInfo().properties().keys().contains("pos.x"));    
+    QVERIFY(!rectNode.metaInfo().properties().keys().contains("pos.x"));
     QVERIFY(rectNode.metaInfo().properties(true).keys().contains("pos.y"));
     QVERIFY(!rectNode.metaInfo().properties().keys().contains("pos.y"));
     QVERIFY(rectNode.metaInfo().properties(true).keys().contains("border.width"));
@@ -3208,7 +3208,7 @@ void TestCore::testStatesRewriter()
     QVERIFY(state1.isValid());
     QVERIFY(!QmlItemNode(rootModelNode).states().allStates().isEmpty());
     QCOMPARE(QmlItemNode(rootModelNode).states().allStates().count(), 1);
-    
+
     QmlModelState state2 = QmlItemNode(rootModelNode).states().addState("state 2");
     QVERIFY(state2.isValid());
 
@@ -4048,7 +4048,7 @@ void TestCore::testQmlModelStateWithName()
 
     QVERIFY(!rootNode.isInBaseState());
     QCOMPARE(rootNode.instanceValue("width").toInt(), 112);
-    
+
     view->setCurrentState(view->baseState());
     QCOMPARE(rootNode.instanceValue("width").toInt(), 100);
 
@@ -4711,7 +4711,7 @@ void TestCore::testDynamicProperties()
     QVERIFY(model.data());
 
     TestView *testView = new TestView(model.data());
-    model->attachView(testView);        
+    model->attachView(testView);
 
     QmlItemNode rootQmlItemNode(testView->rootQmlItemNode());
     ModelNode rootModelNode = rootQmlItemNode.modelNode();
@@ -6005,7 +6005,7 @@ void TestCore::changePropertyBinding()
 
     {
         QVERIFY(firstChild.hasProperty("width"));
-        
+
         BindingProperty widthBinding = firstChild.bindingProperty("width");
         QVERIFY(widthBinding.isValid());
         QCOMPARE(widthBinding.expression(), QString("parent.width"));
@@ -6188,7 +6188,7 @@ void TestCore::changeGradientId()
 
         AbstractProperty gradientProperty = rootModelNode.property("gradient");
         QVERIFY(gradientProperty.isNodeProperty());
-        ModelNode gradientNode = gradientProperty.toNodeProperty().modelNode();        
+        ModelNode gradientNode = gradientProperty.toNodeProperty().modelNode();
         QVERIFY(gradientNode.isValid());
         QCOMPARE(gradientNode.id(), QString("pGradient"));
 
@@ -6496,7 +6496,7 @@ void  TestCore::testAnchorsAndStates()
 
 
 void TestCore::testStatesWithAnonymousTargets()
-{    
+{
     QSKIP("no states anymore", SkipAll);
     //QScopedPointer<Model> model(create("import Qt 4.6; Rectangle { states:[State{name:\"s1\";PropertyChanges{target:;x:20}}]Rectangle{x:10} } "));
 //    ByteArrayModifier* modifier = 0;

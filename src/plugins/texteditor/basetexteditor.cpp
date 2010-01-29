@@ -2756,7 +2756,7 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     if (d->m_snippetOverlay && d->m_snippetOverlay->isVisible())
         d->m_snippetOverlay->paint(&painter, e->rect());
-    
+
     if (!d->m_searchResultOverlay->isEmpty()) {
         d->m_searchResultOverlay->paint(&painter, e->rect());
         d->m_searchResultOverlay->clear();

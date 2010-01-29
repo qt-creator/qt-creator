@@ -46,7 +46,7 @@ WatchTableModel::WatchTableModel(QmlEngineDebug *client, QObject *parent)
 }
 
 WatchTableModel::~WatchTableModel()
-{    
+{
     for (int i=0; i<m_columns.count(); ++i)
         delete m_columns[i].watch;
 }
@@ -263,7 +263,7 @@ void WatchTableModel::expressionWatchRequested(const QmlDebugObjectReference &ob
 {
     if (!m_client)
         return;
-        
+
     QmlDebugWatch *watch = m_client->addWatch(obj, expr, this);
 
     if (watch->state() == QmlDebugWatch::Dead) {
@@ -279,7 +279,7 @@ void WatchTableModel::removeWatchAt(int column)
 {
     if (!m_client)
         return;
-        
+
     QmlDebugWatch *watch = findWatch(column);
     if (watch) {
         m_client->removeWatch(watch);
@@ -293,7 +293,7 @@ void WatchTableModel::removeAllWatches()
     for (int i=0; i<m_columns.count(); ++i) {
         if (m_client)
             m_client->removeWatch(m_columns[i].watch);
-        else    
+        else
             delete m_columns[i].watch;
     }
     m_columns.clear();
@@ -323,7 +323,7 @@ void WatchTableHeaderView::mousePressEvent(QMouseEvent *me)
             if (QMenu::exec(actions, me->globalPos()))
                 m_model->removeWatchAt(col);
         }
-    } 
+    }
 }
 
 

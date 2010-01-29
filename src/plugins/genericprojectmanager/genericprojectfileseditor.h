@@ -51,7 +51,7 @@ class ProjectFilesFactory: public Core::IEditorFactory
 public:
     ProjectFilesFactory(Manager *manager, TextEditor::TextEditorActionHandler *handler);
     virtual ~ProjectFilesFactory();
-    
+
     Manager *manager() const;
 
     virtual Core::IEditor *createEditor(QWidget *parent);

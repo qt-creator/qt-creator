@@ -170,7 +170,7 @@ class ne7ssh_channel
      * Checks if current channel is in an open state.
      * @return True if channel is open, otherwise false is returned.
      */
-    bool isOpen () { return channelOpened; } 
+    bool isOpen () { return channelOpened; }
 
     /**
      * When closing a channel, initiates the closing procedure.

@@ -112,7 +112,7 @@ public:
     bool isLocal() const { return iname.startsWith("local."); }
     bool isWatcher() const { return iname.startsWith("watch."); }
     bool isValid() const { return !iname.isEmpty(); }
-    
+
     bool isEqual(const WatchData &other) const;
 
     static QString msgNotInScope();
@@ -181,7 +181,7 @@ enum PointerFomat
 enum DumpableFormat
 {
     PrettyFormat = 0, // keep that at 0 as default
-    PlainFomat, 
+    PlainFomat,
 };
 
 class WatchModel : public QAbstractItemModel

@@ -32,8 +32,8 @@ that you:
    the case that you have better ideas, discuss them with other developers
    before writing the code.
 \o Take advantage of Qt. Don't re-invent the wheel. Think about what parts
-   of your code are generic enough that they might be incorporated into 
-   Qt proper. 
+   of your code are generic enough that they might be incorporated into
+   Qt proper.
 \o Document interfaces. Right now we use qdoc, but changing to doxygen
    is being considered.
 \endlist
@@ -88,7 +88,7 @@ in C++.
 \endcode
 
 
-\o Using Qt's foreach is ok in non-time critical code when using a QTL 
+\o Using Qt's foreach is ok in non-time critical code when using a QTL
    container. It is a nice way to keep line noise down and to give the
    loop variable a proper name:
 
@@ -102,14 +102,14 @@ in C++.
 	for (Container::iterator it = container.begin(); it != end; ++it)
             doSomething(*it);
 \endcode
-   
-    If the loop variable can be made const, do so. This can prevent 
+
+    If the loop variable can be made const, do so. This can prevent
     unnecessary detaching of shared data in some cases. So:
 
 \code
         foreach (const QString &name, someListOfNames)
             doSomething(name);
-        
+
         - NOT -
 
         foreach (QString name, someListOfNames)
@@ -137,7 +137,7 @@ Only one declaration on each line.
 	-NOT-
 	QString a = "Joe", b = "Foo"; // not used in Qt Creator
 \endcode
-	[Note that 'QString a = "Joe"' is formally calling a copy constructor 
+	[Note that 'QString a = "Joe"' is formally calling a copy constructor
 	on a temporary constructed from a string literal and therefore has the
 	potential of being more expensive then direct construction by
 	'QString a("joe")'. However the compiler is allowed to elide the copy
@@ -146,7 +146,7 @@ Only one declaration on each line.
 	line with the traditional C-style initialization, _and_ cannot be
 	mistaken as function declaration, _and_ reduces the level of nested
 	parantheses in more initializations.]
-	
+
 
 \section2  Pointers and references
 
@@ -419,7 +419,7 @@ Line breaks
 
 \section2 File headers
 
-  If you create a new file, the top of the file should include a 
+  If you create a new file, the top of the file should include a
   header comment equal to the one found in other source files of Qt Creator.
 
 \section2 Include order
@@ -454,7 +454,7 @@ Line breaks
   You document for the other developers, not for yourself.
   In the header you should document interfaces, i.e.  what the function does,
    not the implementation.
-  In the .cpp files you document the implementation if the implementation 
+  In the .cpp files you document the implementation if the implementation
   in non-obvious.
 
 

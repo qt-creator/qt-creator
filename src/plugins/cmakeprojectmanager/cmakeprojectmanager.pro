@@ -22,6 +22,6 @@ SOURCES = cmakeproject.cpp \
     cmakebuildenvironmentwidget.cpp \
     cmakebuildconfiguration.cpp
 RESOURCES += cmakeproject.qrc
-FORMS += 
+FORMS +=
 
 OTHER_FILES += CMakeProjectManager.pluginspec

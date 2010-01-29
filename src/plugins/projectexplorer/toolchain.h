@@ -84,7 +84,7 @@ public:
         GCCE = 6,
         RVCT_ARMV5 = 7,
         RVCT_ARMV6 = 8,
-        GCC_MAEMO = 9,        
+        GCC_MAEMO = 9,
         GCCE_GNUPOC = 10,
         RVCT_ARMV6_GNUPOC = 11,
         LAST_VALID = 11,
@@ -102,7 +102,7 @@ public:
 
     ToolChain();
     virtual ~ToolChain();
-    
+
     static bool equals(ToolChain *, ToolChain *);
     // Factory methods
     static ToolChain *createGccToolChain(const QString &gcc);

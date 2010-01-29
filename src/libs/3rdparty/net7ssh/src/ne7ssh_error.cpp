@@ -36,7 +36,7 @@ Ne7sshError::~Ne7sshError()
     if (ErrorBuffer[i] && ErrorBuffer[i]->errorStr) free (ErrorBuffer[i]->errorStr);
     free (ErrorBuffer[i]);
   }
-  free (ErrorBuffer);	
+  free (ErrorBuffer);
 }
 
 
@@ -138,7 +138,7 @@ bool Ne7sshError::push (int32 channel, const char* format, ...)
   va_end (args);
 
   if (!lock()) return false;
-  if (!memberCount) 
+  if (!memberCount)
   {
     ErrorBuffer = (Error**) malloc (sizeof(Error*));
     ErrorBuffer[0] = (Error*) malloc (sizeof(Error));
@@ -148,7 +148,7 @@ bool Ne7sshError::push (int32 channel, const char* format, ...)
     ErrorBuffer = (Error**) realloc (ErrorBuffer, sizeof(Error*) * (memberCount + 1));
     ErrorBuffer[memberCount] = (Error*) malloc (sizeof(Error));
   }
-		
+
   ErrorBuffer[memberCount]->channel = channel;
   ErrorBuffer[memberCount]->errorStr = errStr;
   memberCount++;
@@ -191,7 +191,7 @@ const char* Ne7sshError::pop (int32 channel)
     memcpy (popedErr, result, len + 1);
     deleteRecord (recID);
   }
-  else 
+  else
   {
     unlock();
     return 0;

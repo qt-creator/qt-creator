@@ -279,7 +279,7 @@ void Parser::skipUntilDeclaration()
                 lookAtFunctionSpecifier() || lookAtStorageClassSpecifier())
                 return;
         } // switch
-    }    
+    }
 }
 
 bool Parser::skipUntilStatement()
@@ -2490,7 +2490,7 @@ bool Parser::maybeAmbiguousStatement(DeclarationStatementAST *ast) const
                 if (declarator->postfix_declarator_list && declarator->postfix_declarator_list->value->asFunctionDeclarator()
                                                      && ! declarator->initializer) {
                     return false;
-                }                
+                }
             }
 
             return true;

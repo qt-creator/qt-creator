@@ -1,7 +1,7 @@
 
 TEMPLATE = app
 MAKEFILE = Makefile.swapendian
-QT = core 
+QT = core
 
 HEADERS += \
 

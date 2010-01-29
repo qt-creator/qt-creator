@@ -2476,7 +2476,7 @@
             that if the user uses the SSH Library in an application they wish to
             redistribute, then the complete source code for your application must
             be available and freely redistributable under reasonable conditions.
-            For more information on the used QPL License see: 
+            For more information on the used QPL License see:
             QtCreator/src/libs/3rdparty/net7ssh/LICENSE.QPL
         \endlist\br\br
         The source code of NetSieben Secure Shell C++ Library can be found

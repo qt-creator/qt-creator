@@ -228,7 +228,7 @@ void GitoriousHostWidget::slotBrowse()
 }
 
 void GitoriousHostWidget::slotDelete()
-{    
+{
     const QModelIndex index = ui->hostView->selectionModel()->currentIndex();
     ui->hostView->selectionModel()->clear();
     if (index.isValid()) {

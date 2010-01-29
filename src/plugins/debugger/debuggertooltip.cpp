@@ -125,7 +125,7 @@ int ToolTipWidget::computeHeight(const QModelIndex &index) const
     return s;
 }
 
-Q_SLOT void ToolTipWidget::computeSize() 
+Q_SLOT void ToolTipWidget::computeSize()
 {
     int columns = 0;
     for (int i = 0; i < 3; ++i) {

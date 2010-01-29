@@ -140,8 +140,8 @@ enum DebuggerEngineTypeFlags
     ScriptEngineType  = 0x02,
     CdbEngineType     = 0x04,
     AllEngineTypes = GdbEngineType
-        | ScriptEngineType 
-        | CdbEngineType 
+        | ScriptEngineType
+        | CdbEngineType
 };
 
 QDebug operator<<(QDebug d, DebuggerState state);
@@ -283,7 +283,7 @@ private:
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
     Internal::SourceFilesWindow *sourceFileWindow() const;
-    QWidget *threadsWindow() const;        
+    QWidget *threadsWindow() const;
 
     Internal::DebuggerManagerActions debuggerManagerActions() const;
 

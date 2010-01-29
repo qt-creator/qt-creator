@@ -38,7 +38,7 @@
 
 namespace ProjectExplorer {
 
-struct BaseProjectWizardDialogPrivate {    
+struct BaseProjectWizardDialogPrivate {
     explicit BaseProjectWizardDialogPrivate(Utils::ProjectIntroPage *page, int id = -1);
 
     const int introId;

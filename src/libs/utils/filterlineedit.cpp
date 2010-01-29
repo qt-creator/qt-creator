@@ -35,7 +35,7 @@ FilterLineEdit::FilterLineEdit(QWidget *parent) :
    FancyLineEdit(parent),
    m_lastFilterText(typedText())
 {
-    setSide(Utils::FancyLineEdit::Right);   
+    setSide(Utils::FancyLineEdit::Right);
     setPixmap(QPixmap(QLatin1String(":/utils/images/reset.png")));
     setHintText(tr("Type to filter"));
 

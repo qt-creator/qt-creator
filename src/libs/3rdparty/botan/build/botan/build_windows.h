@@ -182,7 +182,7 @@ kheimric@deepburner ran 'E:\dev\creator\src\libs\3rdparty\botan\configure.py --c
 
 Target
 -------
-Compiler: cl.exe /O2 
+Compiler: cl.exe /O2
 Arch: ia64/ia64
 OS: windows
 

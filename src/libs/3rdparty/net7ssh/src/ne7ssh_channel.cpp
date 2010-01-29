@@ -64,7 +64,7 @@ bool ne7ssh_channel::handleChannelConfirm ()
 {
   ne7ssh_transport *_transport = session->transport;
   SecureVector<Botan::byte> packet;
-  _transport->getPacket (packet);  
+  _transport->getPacket (packet);
   ne7ssh_string channelConfirm (packet, 1);
   uint32 field;
 
@@ -151,7 +151,7 @@ bool ne7ssh_channel::sendClose ()
   closed = true;
   return true;
 }
-  
+
 bool ne7ssh_channel::sendEof ()
 {
   ne7ssh_transport *_transport = session->transport;
@@ -256,7 +256,7 @@ bool ne7ssh_channel::execCmd (const char* cmd)
     ne7ssh::errors()->push (session->getSshChannel(), "Remote shell is running. This command cannot be executed.");
     return false;
   }
-  
+
   packet.clear();
   packet.addChar (SSH2_MSG_CHANNEL_REQUEST);
   packet.addInt (session->getSendChannel());
@@ -264,11 +264,11 @@ bool ne7ssh_channel::execCmd (const char* cmd)
   packet.addChar (0);
   packet.addString (cmd);
 
-  if (!_transport->sendPacket (packet.value())) 
+  if (!_transport->sendPacket (packet.value()))
     return false;
 
   cmdComplete = false;
-  return true;	
+  return true;
 }
 
 void ne7ssh_channel::getShell ()
@@ -306,7 +306,7 @@ void ne7ssh_channel::receive ()
   bool notFirst = false;
   short status;
 
-  if (eof) 
+  if (eof)
   {
     return;
   }
@@ -378,7 +378,7 @@ void ne7ssh_channel::write (Botan::SecureVector<Botan::byte>& data)
   SecureVector<Botan::byte> dataBuff, outBuff, delayedBuff;
   uint32 len, maxBytes, i, dataStart;
 
-  if (delayedBuffer.length()) 
+  if (delayedBuffer.length())
   {
     dataBuff.set (delayedBuffer.value());
     delayedBuffer.clear();

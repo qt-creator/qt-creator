@@ -110,7 +110,7 @@ struct Library
 struct TrkAppVersion
 {
     TrkAppVersion();
-    void reset();    
+    void reset();
 
     int trkMajor;
     int trkMinor;

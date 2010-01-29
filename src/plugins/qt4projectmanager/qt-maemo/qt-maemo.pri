@@ -1,5 +1,5 @@
 SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
-!isEmpty(SUPPORT_QT_MAEMO) { 
+!isEmpty(SUPPORT_QT_MAEMO) {
     message("Adding experimental support for Qt/Maemo applications.")
     DEFINES += QTCREATOR_WITH_MAEMO
     DEFINES += USE_SSH_LIB

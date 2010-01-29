@@ -85,7 +85,7 @@ public:
         Initialized, // List of types, etc. retrieved
     };
 
-    explicit CdbDumperHelper(DebuggerManager *manager,                             
+    explicit CdbDumperHelper(DebuggerManager *manager,
                              CdbCore::CoreEngine *coreEngine);
     ~CdbDumperHelper();
 

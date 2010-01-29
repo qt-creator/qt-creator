@@ -1078,7 +1078,7 @@ static void qDumpQAbstractItem(QDumper &d)
     {
        ModelIndex *mm = reinterpret_cast<ModelIndex *>(&mi);
        mm->r = mm->c = 0;
-       mm->p = mm->m = 0;       
+       mm->p = mm->m = 0;
        static const char *printFormat = sizeof(void *) == sizeof(long) ?
                                         "%d,%d,0x%lx,0x%lx" : "%d,%d,0x%llx,0x%llx";
        sscanf(d.templateParameters[0], printFormat, &mm->r, &mm->c, &mm->p, &mm->m);
@@ -2150,7 +2150,7 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
     case QVariant::KeySequence:
         #ifndef QT_NO_SHORTCUT
         *value = qvariant_cast<QKeySequence>(*v).toString();
-        #else 
+        #else
         *value = QString::fromLatin1("Disabled by QT_NO_SHORTCUT");
         #endif
         break;
@@ -2803,7 +2803,7 @@ static void qDumpQSharedPointer(QDumper &d)
     const QSharedPointer<int> &ptr =
         *reinterpret_cast<const QSharedPointer<int> *>(d.data);
 
-    if (ptr.isNull()) { 
+    if (ptr.isNull()) {
         d.putItem("value", "<null>");
         d.putItem("valueeditable", "false");
         d.putItem("numchild", 0);
@@ -3746,9 +3746,9 @@ static inline void dumpSizes(QDumper &d)
     const SizeMap::const_iterator  cend = sizeMap.constEnd();
     for (SizeMap::const_iterator it = sizeMap.constBegin(); it != cend; ++it) {
         // new size list
-        if (it.key() != lastSize) {            
+        if (it.key() != lastSize) {
             if (lastSize)
-                d.put("],");            
+                d.put("],");
             d.put("[\"");
             d.put(it.key());
             lastSize = it.key();
@@ -3758,7 +3758,7 @@ static inline void dumpSizes(QDumper &d)
         d.put(it.value());
         d.put('"');
     }
-    d.put("]]");    
+    d.put("]]");
 }
 
 extern "C" Q_DECL_EXPORT

@@ -51,7 +51,7 @@ class CanvasFrameRate : public QWidget
     Q_OBJECT
 public:
     CanvasFrameRate(QWidget *parent = 0);
-    
+
     void reset(QmlDebugConnection *conn);
 
     void setSizeHint(const QSize &);

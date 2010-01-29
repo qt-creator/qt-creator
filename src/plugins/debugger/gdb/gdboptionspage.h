@@ -56,7 +56,7 @@ public:
 
     static QString settingsId();
 
-private:    
+private:
     Ui::GdbOptionsPage m_ui;
     Utils::SavedActionSet m_group;
     QString m_searchKeywords;

@@ -38,13 +38,13 @@ namespace QmlInspector {
 
         const char * const C_INSPECTOR = "QmlInspector";
     };
-    
+
     class StartParameters
     {
     public:
         StartParameters() : port(0) {}
         ~StartParameters() {}
-        
+
         QString address;
         quint16 port;
     };

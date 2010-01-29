@@ -126,7 +126,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
     m_eventThreadId(-1),
     m_interruptArticifialThreadId(-1),
     m_ignoreInitialBreakPoint(false),
-    m_interrupted(false),    
+    m_interrupted(false),
     m_engine(engine),
     m_currentStackTrace(0),
     m_firstActivatedFrame(true),
@@ -454,7 +454,7 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
 }
 
 void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG64 initialThreadHandle)
-{   
+{
     m_engine->setState(InferiorRunningRequested, Q_FUNC_INFO, __LINE__);
     setDebuggeeHandles(reinterpret_cast<HANDLE>(processHandle), reinterpret_cast<HANDLE>(initialThreadHandle));
     ULONG currentThreadId;
@@ -747,7 +747,7 @@ bool CdbDebugEngine::step(unsigned long executionStatus)
             str << 'p';
             break;
         case DEBUG_STATUS_STEP_INTO:
-            str << 't';            
+            str << 't';
             break;
         case CdbExtendedExecutionStatusStepOut:
             str << "gu";
@@ -784,7 +784,7 @@ void CdbDebugEngine::nextExec()
 }
 
 void CdbDebugEngine::stepIExec()
-{      
+{
     stepExec(); // Step into by instruction (figured out by step)
 }
 
@@ -801,7 +801,7 @@ void CdbDebugEngine::stepOutExec()
 
 void CdbDebugEngine::continueInferior()
 {
-    QString errorMessage;    
+    QString errorMessage;
     if  (!m_d->continueInferior(&errorMessage))
         warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
 }
@@ -979,7 +979,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
     QString errorMessage;
     bool success = false;
     StackHandler *stackHandler = manager()->stackHandler();
-    do {        
+    do {
         WatchHandler *watchHandler = manager()->watchHandler();
         const int oldIndex = stackHandler->currentIndex();
         if (frameIndex >= stackHandler->stackSize()) {
@@ -1091,7 +1091,7 @@ void CdbDebugEngine::fetchDisassembler(DisassemblerViewAgent *agent,
     bool ok = false;
     QString errorMessage;
     do {
-        // get address       
+        // get address
         QString address;
         if (!frame.file.isEmpty())
             address = frame.address;
@@ -1348,7 +1348,7 @@ bool CdbDebugEnginePrivate::setCDBThreadId(unsigned long threadId, QString *erro
         return false;
     }
     const QString msg = CdbDebugEngine::tr("Changing threads: %1 -> %2").arg(currentThreadId).arg(threadId);
-    m_engine->showStatusMessage(msg, 500);    
+    m_engine->showStatusMessage(msg, 500);
     return true;
 }
 
@@ -1423,7 +1423,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
             break;
         }
     // Visibly warn the users about missing top frames/all frames, as they otherwise
-    // might think stepping is broken.    
+    // might think stepping is broken.
     if (!stackFrames.at(0).isUsable()) {
         const QString topFunction = count ? stackFrames.at(0).function : QString();
         const QString msg = current >= 0 ?

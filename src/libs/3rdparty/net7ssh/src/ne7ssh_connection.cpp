@@ -139,7 +139,7 @@ bool ne7ssh_connection::authWithPassword (const char* username, const char* pass
 
   if (!transport->sendPacket (packet.value())) return false;
   _cmd = transport->waitForPacket (0);
-  if (_cmd == SSH2_MSG_USERAUTH_SUCCESS) 
+  if (_cmd == SSH2_MSG_USERAUTH_SUCCESS)
   {
     return true;
   }
@@ -262,7 +262,7 @@ bool ne7ssh_connection::checkRemoteVersion ()
     ne7ssh::errors()->push (session->getSshChannel(), "Remote SSH version is not supported. Remote version: %B.", &remoteVer);
     return false;
   }
-  else 
+  else
   {
     _pos = remoteVer.end() - 1;
     while (*_pos == '\r' || *_pos == '\n') _pos--;
@@ -323,7 +323,7 @@ bool ne7ssh_connection::sendClose ()
   bool status;
   if (channel->isOpen() && !isSftpActive()) return (channel->sendClose ());
   else if (getCmdComplete()) cmdClosed=true;
-  if (isSftpActive()) 
+  if (isSftpActive())
   {
     delete sftp;
     sftp = 0;

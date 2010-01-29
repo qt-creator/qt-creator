@@ -104,7 +104,7 @@ public:
 private:
     void maybeBreakNow(bool byFunction);
 
-    ScriptEngine *q; 
+    ScriptEngine *q;
 };
 
 ScriptAgent::ScriptAgent(ScriptEngine *debugger, QScriptEngine *script)
@@ -208,7 +208,7 @@ void ScriptEngine::executeDebuggerCommand(const QString &command)
 
 void ScriptEngine::shutdown()
 {
-    exitDebugger(); 
+    exitDebugger();
 }
 
 void ScriptEngine::exitDebugger()
@@ -618,7 +618,7 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
     showStatusMessage(tr("Stopped at %1:%2.").arg(fileName).arg(lineNumber), 5000);
 
     StackFrame frame;
-    frame.file = fileName;      
+    frame.file = fileName;
     frame.line = lineNumber;
     manager()->gotoLocation(frame, true);
     updateLocals();
@@ -633,7 +633,7 @@ void ScriptEngine::updateLocals()
 
     //
     // Build stack
-    //  
+    //
     QList<StackFrame> stackFrames;
     int i = 0;
     for (QScriptContext *c = context; c; c = c->parentContext(), ++i) {

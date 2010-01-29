@@ -1,7 +1,7 @@
 
 
 SOURCES += $$PWD/backtrace.cpp
-HEADERS += $$PWD/backtrace.h 
+HEADERS += $$PWD/backtrace.h
 
 win32 {
 
@@ -19,6 +19,6 @@ contains(QMAKE_CXX, cl) {
 #   For the Privilege manipulation functions in sharedlibraryinjector.cpp.
 #   Not required for MinGW.
     LIBS += advapi32.lib
-}       
+}
 
 }

@@ -182,7 +182,7 @@ void CdbApplication::executionCommand(int command, const QString &arg)
             } else {
                 std::printf("Starting\n");
                 const QString binary = args.front();
-                args.pop_front();                
+                args.pop_front();
                 ok = m_engine->startDebuggerWithExecutable(QString(), binary, args,
                                                            QStringList(), false,
                                                            &errorMessage);

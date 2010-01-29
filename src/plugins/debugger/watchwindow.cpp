@@ -76,7 +76,7 @@ public:
     {
         QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
         QTC_ASSERT(lineEdit, return);
-        if (index.column() == 1) 
+        if (index.column() == 1)
             lineEdit->setText(index.model()->data(index, Qt::DisplayRole).toString());
         else
             lineEdit->setText(index.model()->data(index, ExpressionRole).toString());
@@ -140,15 +140,15 @@ WatchWindow::WatchWindow(Type type, DebuggerManager *manager, QWidget *parent)
         this, SLOT(expandNode(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)),
         this, SLOT(collapseNode(QModelIndex)));
-} 
- 
-void WatchWindow::expandNode(const QModelIndex &idx) 
-{ 
+}
+
+void WatchWindow::expandNode(const QModelIndex &idx)
+{
     model()->setData(idx, true, ExpandedRole);
-} 
- 
-void WatchWindow::collapseNode(const QModelIndex &idx) 
-{ 
+}
+
+void WatchWindow::collapseNode(const QModelIndex &idx)
+{
     model()->setData(idx, false, ExpandedRole);
 }
 
@@ -208,7 +208,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QString exp = model()->data(mi0, ExpressionRole).toString();
     QString type = model()->data(mi2).toString();
 
-    QStringList alternativeFormats = 
+    QStringList alternativeFormats =
         model()->data(mi0, TypeFormatListRole).toStringList();
     const int typeFormat =
         qMax(int(DecimalFormat), model()->data(mi0, TypeFormatRole).toInt());
@@ -271,7 +271,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
 
     QAction *actWatchOrRemove;
-    if (m_type == LocalsType) { 
+    if (m_type == LocalsType) {
         actWatchOrRemove = theDebuggerAction(WatchExpression)->updatedAction(exp);
     } else {
         actWatchOrRemove = theDebuggerAction(RemoveWatchExpression)->updatedAction(exp);
@@ -296,7 +296,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(actClearCodeModelSnapshot);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));
-    
+
     menu.addAction(theDebuggerAction(AutoDerefPointers));
     menu.addAction(theDebuggerAction(ShowStdNamespace));
     menu.addAction(theDebuggerAction(ShowQtNamespace));
@@ -334,7 +334,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
         m_manager->clearCppCodeModelSnapshot();
     } else if (clearIndividualFormatAction && act == clearIndividualFormatAction) {
         model()->setData(mi1, -1, IndividualFormatRole);
-    } else { 
+    } else {
         for (int i = 0; i != alternativeFormats.size(); ++i) {
             if (act == typeFormatActions.at(i))
                 model()->setData(mi1, i, TypeFormatRole);
@@ -355,7 +355,7 @@ void WatchWindow::setAlwaysResizeColumnsToContents(bool on)
     if (!header())
         return;
     m_alwaysResizeColumnsToContents = on;
-    QHeaderView::ResizeMode mode = on 
+    QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
     header()->setResizeMode(1, mode);

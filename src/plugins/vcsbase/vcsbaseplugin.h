@@ -45,7 +45,7 @@ namespace Core {
     class IVersionControl;
 }
 
-namespace VCSBase {  
+namespace VCSBase {
 namespace Internal {
     struct State;
 }
@@ -144,7 +144,7 @@ protected:
 
     void initialize(Core::IVersionControl *vc);
 
-public:   
+public:
     virtual ~VCSBasePlugin();
 
     const VCSBasePluginState &currentState() const;
@@ -166,7 +166,7 @@ protected:
 
     // Implement to enable the plugin menu actions according to state.
     virtual void updateActions(ActionState as) = 0;
-    // Implement to start the submit process.   
+    // Implement to start the submit process.
     virtual bool submitEditorAboutToClose(VCSBaseSubmitEditor *submitEditor) = 0;
 
     // A helper to enable the VCS menu action according to state:

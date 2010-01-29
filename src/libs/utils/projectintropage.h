@@ -71,7 +71,7 @@ public:
     // Insert an additional control into the form layout for the target.
     void insertControl(int row, QWidget *label, QWidget *control);
 
-    virtual bool isComplete() const;    
+    virtual bool isComplete() const;
 
     // Validate a project directory name entry field
     static bool validateProjectDirectory(const QString &name, QString *errorMessage);

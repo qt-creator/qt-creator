@@ -74,7 +74,7 @@ class CdbSymbolGroupContext
 
 public:
     ~CdbSymbolGroupContext();
-    static CdbSymbolGroupContext *create(const QString &prefix,                                         
+    static CdbSymbolGroupContext *create(const QString &prefix,
                                          CIDebugSymbolGroup *symbolGroup,
                                          const QStringList &uninitializedVariables,
                                          QString *errorMessage);

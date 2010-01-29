@@ -473,7 +473,7 @@ bool ResolveExpression::visit(CallAST *ast)
                 }
             }
 
-        } else if (Function *funTy = ty->asFunctionType()) {            
+        } else if (Function *funTy = ty->asFunctionType()) {
             if (maybeValidPrototype(funTy, actualArgumentCount))
                 addResult(funTy->returnType().simplified(), lastVisibleSymbol);
 
@@ -597,7 +597,7 @@ ResolveExpression::resolveBaseExpression(const QList<LookupItem> &baseResults, i
             const Name *arrowAccessOp = control()->operatorNameId(OperatorNameId::ArrowOp);
             const QList<Symbol *> candidates = resolveClass(namedTy->name(), result, _context);
 
-            foreach (Symbol *classObject, candidates) {                
+            foreach (Symbol *classObject, candidates) {
                 const QList<LookupItem> overloads = resolveMember(arrowAccessOp, classObject->asClass(),
                                                               namedTy->name());
 
@@ -715,16 +715,16 @@ ResolveExpression::resolveMember(const Name *memberName, Class *klass,
     foreach (Symbol *candidate, candidates) {
         FullySpecifiedType ty = candidate->type();
         const Name *unqualifiedNameId = className;
-        
+
         if (const QualifiedNameId *q = className->asQualifiedNameId())
             unqualifiedNameId = q->unqualifiedNameId();
-        
+
         if (const TemplateNameId *templId = unqualifiedNameId->asTemplateNameId()) {
             GenTemplateInstance::Substitution subst;
-            
+
             for (unsigned i = 0; i < templId->templateArgumentCount(); ++i) {
                 FullySpecifiedType templArgTy = templId->templateArgumentAt(i);
-                
+
                 if (i < klass->templateParameterCount()) {
                     const Name *templArgName = klass->templateParameterAt(i)->name();
                     if (templArgName && templArgName->identifier()) {
@@ -733,11 +733,11 @@ ResolveExpression::resolveMember(const Name *memberName, Class *klass,
                     }
                 }
             }
-            
+
             GenTemplateInstance inst(_context, subst);
             ty = inst(candidate);
         }
-        
+
         results.append(LookupItem(ty, candidate));
     }
 

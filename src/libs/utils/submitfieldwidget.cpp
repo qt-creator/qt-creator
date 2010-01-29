@@ -104,7 +104,7 @@ void FieldEntry::deleteGuiLater()
     clearButton->deleteLater();
     browseButton->deleteLater();
     toolBar->deleteLater();
-    lineEdit->deleteLater();    
+    lineEdit->deleteLater();
     combo->deleteLater();
     layout->deleteLater();
 }
@@ -193,7 +193,7 @@ void SubmitFieldWidget::setFields(const QStringList & f)
 {
     // remove old fields
     for (int i = m_d->fieldEntries.size() - 1 ; i >= 0 ; i--)
-        removeField(i);    
+        removeField(i);
 
     m_d->fields = f;
     if (!f.empty())

@@ -60,7 +60,7 @@ public slots:
     void writeSettings(QSettings *settings) const;
 
 private:
-    QHash<int, Utils::SavedAction *> m_items; 
+    QHash<int, Utils::SavedAction *> m_items;
 };
 
 
@@ -88,7 +88,7 @@ enum DebuggerActionCode
     DebugDebuggingHelpers,
 
     UseCodeModel,
-    
+
     UseToolTipsInMainEditor,
     UseToolTipsInLocalsView,
     UseToolTipsInBreakpointsView,

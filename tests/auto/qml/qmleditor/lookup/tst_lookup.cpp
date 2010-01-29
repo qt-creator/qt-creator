@@ -308,7 +308,7 @@ void tst_Lookup::localRootLookup()
     // try lookup
     Symbol *parent = scopes.front();
     QmlLookupContext context(scopes, doc, snapshot(doc), typeSystem());
-    
+
     Symbol *symbol;
     symbol = context.resolve("prop");
     QVERIFY(symbol);

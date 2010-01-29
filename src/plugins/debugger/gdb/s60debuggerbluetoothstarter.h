@@ -43,7 +43,7 @@ namespace Internal {
  * Provides a static convenience to prompt for both connection types.  */
 
 class S60DebuggerBluetoothStarter : public trk::AbstractBluetoothStarter
-{    
+{
 public:
     static trk::PromptStartCommunicationResult
         startCommunication(const TrkDevicePtr &trkDevice,
@@ -52,7 +52,7 @@ public:
                            QWidget *msgBoxParent,
                            QString *errorMessage);
 
-protected:    
+protected:
     virtual trk::BluetoothListener *createListener();
 
 private:

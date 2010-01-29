@@ -127,7 +127,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         GdbMi all;
         all.fromStringMultiple(out);
         //qDebug() << "ALL: " << all.toString();
-        
+
         GdbMi data = all.findChild("data");
         QList<WatchData> list;
         foreach (const GdbMi &child, data.children()) {
@@ -166,7 +166,7 @@ void GdbEngine::updateAllPython()
     if (supportsThreads())
         postCommand("-thread-list-ids", WatchUpdate, CB(handleStackListThreads), 0);
     manager()->reloadRegisters();
-    updateLocals(); 
+    updateLocals();
 }
 
 } // namespace Internal

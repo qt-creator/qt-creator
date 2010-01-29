@@ -60,7 +60,7 @@ DebuggerSettings::~DebuggerSettings()
 {
     qDeleteAll(m_items);
 }
-    
+
 void DebuggerSettings::insertItem(int code, SavedAction *item)
 {
     QTC_ASSERT(!m_items.contains(code),
@@ -81,7 +81,7 @@ void DebuggerSettings::writeSettings(QSettings *settings) const
     foreach (SavedAction *item, m_items)
         item->writeSettings(settings);
 }
-   
+
 SavedAction *DebuggerSettings::item(int code) const
 {
     QTC_ASSERT(m_items.value(code, 0), qDebug() << "CODE: " << code; return 0);

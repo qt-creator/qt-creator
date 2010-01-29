@@ -59,7 +59,7 @@ ColorWidget::ColorWidget(QWidget *parent) :
     m_colorButton->setStyleSheet("");
 
     m_gradientButton->setIcon(QIcon(":/images/gradient.png"));
-    
+
     m_gradientButton->setFixedHeight(32);
     m_gradientButton->setFixedWidth(100);
     m_gradientButton->setStyleSheet("");

@@ -413,12 +413,12 @@ void PluginManager::remoteArguments(const QString &serializedArgument)
     The caller (the application) may register itself for options via the \a appOptions list, containing pairs
     of "option string" and a bool that indicates if the option requires an argument.
     Application options always override any plugin's options.
-    
+
     \a foundAppOptions is set to pairs of ("option string", "argument") for any application options that were found.
     The command line options that were not processed can be retrieved via the arguments() method.
     If an error occurred (like missing argument for an option that requires one), \a errorString contains
     a descriptive message of the error.
-    
+
     Returns if there was an error.
  */
 bool PluginManager::parseOptions(const QStringList &args,

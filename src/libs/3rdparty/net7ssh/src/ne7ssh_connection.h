@@ -162,14 +162,14 @@ class ne7ssh_connection
     void sendData () { channel->sendAll (); }
 
     /**
-    * 
-    * @param cmd 
-    * @return 
+    *
+    * @param cmd
+    * @return
     */
     bool sendCmd (const char* cmd);
 
     /**
-     * This function is used to close the current connection.   
+     * This function is used to close the current connection.
      *<p>First closes the channel, and then the connection itself.
      * @return True, if packet sent successfully, otherwise false is returned.
      */
@@ -192,7 +192,7 @@ class ne7ssh_connection
      * @return A reference to a buffer containing the last received packet.
      */
     Botan::SecureVector<Botan::byte>& getReceived () { return channel->getReceived(); }
-		
+
     /**
     * When executing a single command with ne7ssh::sendCmd this command is used to determine when remote side finishes the xecution.
     * @return True if execution of the command is complete. Otherwise false.

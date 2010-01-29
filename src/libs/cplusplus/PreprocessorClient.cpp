@@ -62,10 +62,10 @@ using namespace CPlusPlus;
 
 /*!
     \fn void Client::startExpandingMacro(unsigned offset, const Macro &macro, const QByteArray &originalText, bool inCondition = false, const QVector<MacroArgumentReference> &actuals = QVector<MacroArgumentReference>())
-    
+
     Called when starting to expand a macro. The parameter \a inCondition indicates whether the
     expansion is happening inside a preprocessor conditional.
-    
+
     \sa stopExpandingMacro()
 */
 

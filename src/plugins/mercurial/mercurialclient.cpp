@@ -355,7 +355,7 @@ void MercurialClient::revert(const QString &workingDir,
                              const QString &revision,
                              const QVariant &cookie)
 {
-    QStringList args(QLatin1String("revert"));    
+    QStringList args(QLatin1String("revert"));
     if (!revision.isEmpty())
         args << QLatin1String("-r") << revision;
     args.append(argument);

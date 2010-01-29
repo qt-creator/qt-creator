@@ -71,7 +71,7 @@ class ne7ssh_session
      * Returns remote SSH version.
      * @return Reference to a vector containing the version string.
      */
-    Botan::SecureVector<Botan::byte> &getRemoteVersion () { return remoteVersion; }    
+    Botan::SecureVector<Botan::byte> &getRemoteVersion () { return remoteVersion; }
 
     /**
      * Sets SSH session ID, a.k.a. H from the first KEX.

@@ -1,5 +1,5 @@
 # Detect presence of "Debugging Tools For Windows"
-# in case VS compilers are used.      
+# in case VS compilers are used.
 
 win32 {
 contains(QMAKE_CXX, cl) {
@@ -27,7 +27,7 @@ HEADERS += \
     $$PWD/coreengine.h \
     $$PWD/debugoutputbase.h \
     $$PWD/debugeventcallbackbase.h
-SOURCES += \    
+SOURCES += \
     $$PWD/coreengine.cpp \
     $$PWD/debugoutputbase.cpp \
     $$PWD/debugeventcallbackbase.cpp

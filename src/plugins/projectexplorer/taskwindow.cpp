@@ -820,7 +820,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     painter->drawPixmap(2, opt.rect.top() + 2, icon.pixmap(16, 16));
 
     int width = opt.rect.width() - model->sizeOfFile() - model->sizeOfLineNumber() - 12 - 22;
-    if (!selected) {        
+    if (!selected) {
         // in small mode we lay out differently
         QString bottom = index.data(TaskModel::Description).toString();
         painter->drawText(22, 2 + opt.rect.top() + fm.ascent(), bottom);

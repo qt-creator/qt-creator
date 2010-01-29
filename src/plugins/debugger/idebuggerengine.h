@@ -83,7 +83,7 @@ public:
     virtual void nextExec() = 0;
     virtual void stepIExec() = 0;
     virtual void nextIExec() = 0;
-    
+
     virtual void continueInferior() = 0;
     virtual void interruptInferior() = 0;
 

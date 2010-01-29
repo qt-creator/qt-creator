@@ -124,7 +124,7 @@ QList<CommunicationDevice> SerialDeviceLister::blueToothDevices() const
     const QString friendlyFormat = QLatin1String("Bluetooth device (%1)");
     for (int d = 0; d < 4; d++) {
         CommunicationDevice device(BlueToothCommunication, prefix + QString::number(d));
-        if (d == 0 || QFileInfo(device.portName).exists()) {            
+        if (d == 0 || QFileInfo(device.portName).exists()) {
             device.friendlyName = friendlyFormat.arg(device.portName);
             rc.push_back(device);
         }

@@ -87,7 +87,7 @@ public:
 
     struct Bar {
         Bar() : ob(0) {}
-        QObject *ob; 
+        QObject *ob;
     };
 
 public:
@@ -133,7 +133,7 @@ void testHash()
     hgg0[11] = 11.0;
     hgg0[22] = 22.0;
 
-    
+
     QHash<QString, float> hgg1;
     hgg1["22.0"] = 22.0;
 
@@ -143,7 +143,7 @@ void testHash()
     QHash<QString, Foo> hgg3;
     hgg3["22.0"] = Foo(22);
     hgg3["33.0"] = Foo(33);
-    
+
     QObject ob;
     QHash<QString, QPointer<QObject> > hash;
     hash.insert("Hallo", QPointer<QObject>(&ob));
@@ -168,7 +168,7 @@ void testIO()
     qDebug() << "qDebug() 1";
     qDebug() << "qDebug() 2";
     qDebug() << "qDebug() 3";
-    
+
     std::cout << "std::cout @@ 1\n";
     std::cout << "std::cout @@ 2\n";
     std::cout << "std::cout @@ 3\n";
@@ -195,7 +195,7 @@ void testMap()
     gg0[11] = 11.0;
     gg0[22] = 22.0;
 
-    
+
     QMap<QString, float> gg1;
     gg1["22.0"] = 22.0;
 

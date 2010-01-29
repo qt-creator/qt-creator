@@ -183,7 +183,7 @@ private slots:
 private:
     void syncGridFeature();
 
-    FormWindowBasePrivate *m_d;    
+    FormWindowBasePrivate *m_d;
 };
 
 }  // namespace qdesigner_internal

@@ -157,7 +157,7 @@ QmlInspectorMode::QmlInspectorMode(QObject *parent)
     m_client(0),
     m_engineQuery(0),
     m_contextQuery(0)
-{    
+{
     m_watchTableModel = new WatchTableModel(0, this);
 
     setWidget(createModeWindow());
@@ -240,7 +240,7 @@ void QmlInspectorMode::connectionStateChanged()
                 m_watchTableModel->setEngineDebug(m_client);
                 m_expressionWidget->setEngineDebug(m_client);
             }
-            
+
             m_objectTreeWidget->clear();
             m_propertiesWidget->clear();
             m_expressionWidget->clear();
@@ -301,7 +301,7 @@ QWidget *QmlInspectorMode::createMainView()
     treeWindowLayout->setMargin(0);
     treeWindowLayout->setSpacing(0);
     treeWindowLayout->addWidget(treeOptionBar);
-    treeWindowLayout->addWidget(m_objectTreeWidget);    
+    treeWindowLayout->addWidget(m_objectTreeWidget);
 
     Core::MiniSplitter *documentAndTree = new Core::MiniSplitter;
     documentAndTree->addWidget(editorAndFindWidget);
@@ -317,26 +317,26 @@ QWidget *QmlInspectorMode::createMainView()
     QHBoxLayout *configBarLayout = new QHBoxLayout(configBar);
     configBarLayout->setMargin(0);
     configBarLayout->setSpacing(5);
-    
+
     Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();    
+    Core::ActionManager *am = core->actionManager();
     configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
     configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
 
     configBarLayout->addStretch();
-       
+
     QWidget *widgetAboveTabs = new QWidget;
     QVBoxLayout *widgetAboveTabsLayout = new QVBoxLayout(widgetAboveTabs);
     widgetAboveTabsLayout->setMargin(0);
-    widgetAboveTabsLayout->setSpacing(0);    
+    widgetAboveTabsLayout->setSpacing(0);
     widgetAboveTabsLayout->addWidget(documentAndTree);
-    widgetAboveTabsLayout->addWidget(configBar); 
-    
-    Core::MiniSplitter *mainSplitter = new Core::MiniSplitter(Qt::Vertical);    
+    widgetAboveTabsLayout->addWidget(configBar);
+
+    Core::MiniSplitter *mainSplitter = new Core::MiniSplitter(Qt::Vertical);
     mainSplitter->addWidget(widgetAboveTabs);
     mainSplitter->addWidget(createBottomWindow());
     mainSplitter->setStretchFactor(0, 3);
-    mainSplitter->setStretchFactor(1, 1);    
+    mainSplitter->setStretchFactor(1, 1);
 
     QWidget *centralWidget = new QWidget;
     QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
@@ -345,7 +345,7 @@ QWidget *QmlInspectorMode::createMainView()
     centralLayout->addWidget(mainSplitter);
 
     mainWindow->setCentralWidget(centralWidget);
-   
+
     return mainWindow;
 }
 
@@ -356,13 +356,13 @@ QWidget *QmlInspectorMode::createBottomWindow()
     win->setDocumentMode(true);
     win->setTrackingEnabled(true);
 
-    Core::MiniSplitter *leftSplitter = new Core::MiniSplitter(Qt::Vertical);    
+    Core::MiniSplitter *leftSplitter = new Core::MiniSplitter(Qt::Vertical);
     leftSplitter->addWidget(m_propertiesWidget);
     leftSplitter->addWidget(m_expressionWidget);
     leftSplitter->setStretchFactor(0, 2);
     leftSplitter->setStretchFactor(1, 1);
 
-    Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Horizontal);    
+    Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Horizontal);
     propSplitter->addWidget(leftSplitter);
     propSplitter->addWidget(m_watchTableView);
     propSplitter->setStretchFactor(0, 2);
@@ -411,7 +411,7 @@ void QmlInspectorMode::initWidgets()
     // FancyMainWindow uses widgets' window titles for tab labels
     m_objectTreeWidget->setWindowTitle(tr("Object Tree"));
     m_frameRateWidget->setWindowTitle(tr("Frame rate"));
-    
+
     m_watchTableView->setModel(m_watchTableModel);
     WatchTableHeaderView *header = new WatchTableHeaderView(m_watchTableModel);
     m_watchTableView->setHorizontalHeader(header);
@@ -435,7 +435,7 @@ void QmlInspectorMode::initWidgets()
             m_watchTableView, SLOT(scrollToBottom()));
 
     connect(m_watchTableView, SIGNAL(objectActivated(int)),
-            m_objectTreeWidget, SLOT(setCurrentObject(int)));    
+            m_objectTreeWidget, SLOT(setCurrentObject(int)));
 
     connect(m_objectTreeWidget, SIGNAL(currentObjectChanged(QmlDebugObjectReference)),
             m_expressionWidget, SLOT(setCurrentObject(QmlDebugObjectReference)));
@@ -443,7 +443,7 @@ void QmlInspectorMode::initWidgets()
     m_engineSpinBox = new EngineSpinBox;
     m_engineSpinBox->setEnabled(false);
     connect(m_engineSpinBox, SIGNAL(valueChanged(int)),
-            SLOT(queryEngineContext(int))); 
+            SLOT(queryEngineContext(int)));
 }
 
 void QmlInspectorMode::reloadEngines()
@@ -459,8 +459,8 @@ void QmlInspectorMode::reloadEngines()
     if (!m_engineQuery->isWaiting())
         enginesChanged();
     else
-        QObject::connect(m_engineQuery, SIGNAL(stateChanged(QmlDebugQuery::State)), 
-                         this, SLOT(enginesChanged()));    
+        QObject::connect(m_engineQuery, SIGNAL(stateChanged(QmlDebugQuery::State)),
+                         this, SLOT(enginesChanged()));
 }
 
 void QmlInspectorMode::enginesChanged()

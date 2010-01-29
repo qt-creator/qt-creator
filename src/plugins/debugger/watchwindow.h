@@ -53,7 +53,7 @@ public:
     WatchWindow(Type type, DebuggerManager *manager, QWidget *parent = 0);
     void setType(Type type) { m_type = type; }
     Type type() const { return m_type; }
-    
+
 public slots:
     void resizeColumnsToContents();
     void setAlwaysResizeColumnsToContents(bool on = true);

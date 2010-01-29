@@ -70,7 +70,7 @@ bool BinPatch::endsWithTokens(const char *data)
 
         while(token != NULL) {
             // check if it ends with the token
-            if ((tlen >= strlen(token)) 
+            if ((tlen >= strlen(token))
                 && (strcasecmp((data+tlen)-strlen(token), token) == 0))
                 return true;
             token = strtok(NULL, ";");

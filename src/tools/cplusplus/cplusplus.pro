@@ -5,7 +5,7 @@
 QT = core gui
 macx:CONFIG -= app_bundle
 TEMPLATE = app
-TARGET = 
+TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 

@@ -77,7 +77,7 @@ FORMS += attachexternaldialog.ui \
     startexternaldialog.ui \
     startremotedialog.ui
 RESOURCES += debugger.qrc
-false { 
+false {
     SOURCES += $$PWD/modeltest.cpp
     HEADERS += $$PWD/modeltest.h
     DEFINES += USE_MODEL_TEST=1

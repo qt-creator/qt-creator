@@ -63,7 +63,7 @@ private:
     QHash<QString, Editor *> m_textViewerFromName;
     Editor *findOrCreateTextViewer(const QString &fileName);
     Editor *currentTextViewer();
-    
+
     QSettings &settings();
     QAction * m_fileOpenAction;
     QAction * m_quitAction;

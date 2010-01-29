@@ -2157,7 +2157,7 @@ unsigned ObjCPropertyDeclarationAST::lastToken() const
         return property_attribute_list->lastToken();
     else if (lparen_token)
         return lparen_token + 1;
-    
+
     return property_token + 1;
 }
 

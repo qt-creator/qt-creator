@@ -78,7 +78,7 @@ ClassNamePage::ClassNamePage(QWidget *parent) :
 
     connect(m_newClassWidget, SIGNAL(validChanged()), this, SLOT(slotValidChanged()));
 
-    QVBoxLayout *pageLayout = new QVBoxLayout(this);   
+    QVBoxLayout *pageLayout = new QVBoxLayout(this);
     pageLayout->addWidget(m_newClassWidget);
     QSpacerItem *vSpacer = new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding);
     pageLayout->addItem(vSpacer);

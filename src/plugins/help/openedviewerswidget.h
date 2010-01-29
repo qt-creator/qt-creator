@@ -40,7 +40,7 @@ namespace Help {
     namespace Internal {
 
 class OpenedViewersDelegate : public QStyledItemDelegate
-{   
+{
     Q_OBJECT
 public:
     OpenedViewersDelegate(QObject *parent = 0);

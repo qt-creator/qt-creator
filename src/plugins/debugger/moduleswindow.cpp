@@ -175,7 +175,7 @@ void ModulesWindow::resizeColumnsToContents()
 void ModulesWindow::setAlwaysResizeColumnsToContents(bool on)
 {
     m_alwaysResizeColumnsToContents = on;
-    QHeaderView::ResizeMode mode = on 
+    QHeaderView::ResizeMode mode = on
         ? QHeaderView::ResizeToContents : QHeaderView::Interactive;
     header()->setResizeMode(0, mode);
     header()->setResizeMode(1, mode);
@@ -189,7 +189,7 @@ void ModulesWindow::setModel(QAbstractItemModel *model)
     QTreeView::setModel(model);
     setAlwaysResizeColumnsToContents(true);
 }
-    
+
 void ModulesWindow::showSymbols(const QString &name)
 {
     if (name.isEmpty())

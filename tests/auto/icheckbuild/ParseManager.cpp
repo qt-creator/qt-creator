@@ -47,7 +47,7 @@ using namespace CPlusPlus;
 /**********************************
 Compares function with function
 with return type, function name
-and their arguments and arguments 
+and their arguments and arguments
 types.
 **********************************/
 bool FUNCTIONITEM::isEqualTo(FUNCTIONITEM *cpfct, bool ignoreName/* = true*/)
@@ -59,8 +59,8 @@ bool FUNCTIONITEM::isEqualTo(FUNCTIONITEM *cpfct, bool ignoreName/* = true*/)
 
 /*****************************************************************
 Compares two property regarding
-of their function definition, 
-type definition, function arguments 
+of their function definition,
+type definition, function arguments
 and function types.
 
 Q_PROPERTY( ConnectionState state READ state NOTIFY stateChanged);
@@ -69,7 +69,7 @@ bool PROPERTYITEM::isEqualTo(PROPERTYITEM *cpppt)
 {
     QString thistype = this->trlUnit->spell(this->ast->type_token);
     QString cppttype = cpppt->trlUnit->spell(cpppt->ast->type_token);
-    
+
     if(thistype != cppttype)
         return false;
 
@@ -134,7 +134,7 @@ bool QENUMITEM::isEqualTo(QENUMITEM *cpenum)
 
 /*****************************************************************
 Compares two flags regarding
-of their enum definitions and their 
+of their enum definitions and their
 values created by the getEnumValueStringList function.
 *****************************************************************/
 bool QFLAGITEM::isEqualTo(QFLAGITEM *cpflag)
@@ -173,7 +173,7 @@ void ParseManager::setIncludePath(const QStringList &includePath)
 
 /**************************************
 public Function that starts the parsing
-all of the files in the sourceFiles 
+all of the files in the sourceFiles
 string list.
 **************************************/
 void ParseManager::parse(const QStringList &sourceFiles)
@@ -183,7 +183,7 @@ void ParseManager::parse(const QStringList &sourceFiles)
         delete pCppPreprocessor;
         pCppPreprocessor = 0;
     }
-        
+
     if (! sourceFiles.isEmpty()) {
         m_strHeaderFile = sourceFiles[0];
         pCppPreprocessor = new CppTools::Internal::CppPreprocessor(QPointer<CPlusPlus::ParseManager>(this));
@@ -225,7 +225,7 @@ void ParseManager::parse(CppTools::Internal::CppPreprocessor *preproc,
     }
 }
 
-//This function creates a class list for each class and its base classes in 
+//This function creates a class list for each class and its base classes in
 //the header file that needs to be checked.
 //e.g.
 //      Cl1          Cl2
@@ -297,7 +297,7 @@ QList<CLASSTREE*> ParseManager::CreateClassLists()
 }
 
 /********************************************
-Gets all the baseclass from a class and 
+Gets all the baseclass from a class and
 add those base classes into the baseclasslist
 ********************************************/
 void ParseManager::getBaseClasses(const CLASSLISTITEM* pclass, QList<CLASSLISTITEM*> &baseclasslist, const QList<CLASSLISTITEM*> &allclasslist)
@@ -326,7 +326,7 @@ void ParseManager::getBaseClasses(const CLASSLISTITEM* pclass, QList<CLASSLISTIT
 /**************************************************
 This function finds and creates all Elements wich
 are significant for MetaDatas.
-Those element will be added in the aparameter 
+Those element will be added in the aparameter
 lists.
 **************************************************/
 void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
@@ -445,7 +445,7 @@ void ParseManager::getElements(QList<FUNCTIONITEM*> &functionlist
 }
 
 /*********************************************
-Function that starts the comare between the 
+Function that starts the comare between the
 parser result and their metadata content.
 *********************************************/
 bool ParseManager::checkAllMetadatas(ParseManager* pInterfaceParserManager)
@@ -661,7 +661,7 @@ QList<FUNCTIONITEM*> ParseManager::checkMetadataFunctions(const QList<QList<FUNC
 }
 
 /*********************************************
-Helper function to check if a function will 
+Helper function to check if a function will
 occure in the MetaData.
 *********************************************/
 bool ParseManager::isMetaObjFunction(FUNCTIONITEM* fct)
@@ -674,7 +674,7 @@ bool ParseManager::isMetaObjFunction(FUNCTIONITEM* fct)
 }
 
 /****************************************************
-Check if all function from iclassfctlist are defined 
+Check if all function from iclassfctlist are defined
 in the classfctlist as well.
 It will return all the function they are missing.
 ****************************************************/
@@ -716,7 +716,7 @@ QList<FUNCTIONITEM*> ParseManager::containsAllMetadataFunction(const QList<FUNCT
 }
 
 /************************************
-Function that gives back an error 
+Function that gives back an error
 string for a MetaData function
 mismatch.
 ************************************/
@@ -950,7 +950,7 @@ QList<PROPERTYITEM*> ParseManager::containsAllPropertyFunction(const QList<PROPE
 }
 
 /************************************
-Function that gives back an error 
+Function that gives back an error
 string for a Q_PROPERTY mismatch.
 ************************************/
 QString ParseManager::getErrorMessage(PROPERTYITEM* ppt)
@@ -1125,7 +1125,7 @@ void ParseManager::assignEnumValues(QENUMITEM* qenum, const QList<QList<ENUMITEM
 }
 
 /***********************************
-Function that checkt if the Q_ENUMS 
+Function that checkt if the Q_ENUMS
 are completed defined and if the
 Enum values are the same.
 ***********************************/
@@ -1161,7 +1161,7 @@ QList<QENUMITEM*> ParseManager::containsAllEnums(const QList<QENUMITEM*> &classq
 }
 
 /************************************
-Function that gives back an error 
+Function that gives back an error
 string for a Q_ENUMS mismatch.
 ************************************/
 QString ParseManager::getErrorMessage(QENUMITEM* qenum)
@@ -1343,7 +1343,7 @@ QList<QFLAGITEM*> ParseManager::containsAllFlags(const QList<QFLAGITEM*> &classq
 }
 
 /************************************
-Function that gives back an error 
+Function that gives back an error
 string for a Q_FLAGS mismatch.
 ************************************/
 QString ParseManager::getErrorMessage(QFLAGITEM* pfg)

@@ -248,7 +248,7 @@ static int dumpQMapQStringString()
         test.insert(QLatin1String("42s"), QLatin1String("fortytwo"));
         test.insert(QLatin1String("423"), QLatin1String("fortytree"));
     }
-    prepareInBuffer("QMap", "local.qmapqstringqstring", "local.qmapqstringqstring", "QString@QString");    
+    prepareInBuffer("QMap", "local.qmapqstringqstring", "local.qmapqstringqstring", "QString@QString");
     qDumpObjectData440(2, 42, testAddress(&test), 1, sizeof(QString), sizeof(QString), sizeof(mapNode), valueOffset);
     fputs(qDumpOutBuffer, stdout);
     fputc('\n', stdout);
@@ -454,7 +454,7 @@ static int dumpStdQStringSet()
 
 static int dumpStdMapIntString()
 {
-    std::map<int,std::string> test;    
+    std::map<int,std::string> test;
     std::map<int,std::string>::value_type entry(42, std::string("fortytwo"));
     if (!optEmptyContainers) {
         test.insert(entry);

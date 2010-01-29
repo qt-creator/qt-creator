@@ -39,7 +39,7 @@ QString CGI::encodeURL(const QString &rawText)
     QByteArray utf = rawText.toUtf8();
     QString enc;
     enc.reserve(utf.length()); // Make sure we at least have space for a normal US-ASCII URL
-    
+
     QByteArray::const_iterator it = utf.constBegin();
     while (it != utf.constEnd()) {
         char ch = *it;

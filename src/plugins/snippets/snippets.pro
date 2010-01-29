@@ -13,12 +13,12 @@ HEADERS += snippetsplugin.h \
            snippetswindow.h \
            snippetspec.h \
            snippetscompletion.h \
-           inputwidget.h 
+           inputwidget.h
 
 SOURCES += snippetsplugin.cpp \
            snippetswindow.cpp \
            snippetspec.cpp \
            snippetscompletion.cpp \
-           inputwidget.cpp 
+           inputwidget.cpp
 
 RESOURCES += snippets.qrc

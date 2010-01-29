@@ -248,7 +248,7 @@ public:
     virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
 
 private:
-    QList<QDesignerCustomWidgetInterface*> m_plugins;    
+    QList<QDesignerCustomWidgetInterface*> m_plugins;
 };
 
 #endif // CUSTOMWIDGETS_H

@@ -39,7 +39,7 @@
 using namespace Debugger;
 using namespace Debugger::Internal;
 
- 
+
 static QByteArray stripped(QByteArray ba)
 {
     for (int i = ba.size(); --i >= 0; ) {

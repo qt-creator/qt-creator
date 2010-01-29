@@ -196,7 +196,7 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
 
     hgProcess.start(binary, args);
 
-    if (!hgProcess.waitForStarted()) {        
+    if (!hgProcess.waitForStarted()) {
         emit error(msgStartFailed(binary, hgProcess.errorString()));
         return;
     }

@@ -49,7 +49,7 @@ public:
     ObjectTree(QmlEngineDebug *client = 0, QWidget *parent = 0);
 
     void setEngineDebug(QmlEngineDebug *client);
-    
+
 signals:
     void currentObjectChanged(const QmlDebugObjectReference &);
     void activated(const QmlDebugObjectReference &);

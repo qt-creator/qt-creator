@@ -86,7 +86,7 @@ public:
     GitSettings settings() const;
     void setSettings(const GitSettings &s);
 
-    GitClient *gitClient() const;  
+    GitClient *gitClient() const;
 
 private slots:
     void diffCurrentFile();

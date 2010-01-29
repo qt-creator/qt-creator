@@ -284,7 +284,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
         | TextEditor::TextEditorActionHandler::UnCollapseAll);
 
     m_actionHandler->initializeActions();
-    
+
     contextMenu->addAction(createSeparator(am, this, context, CppEditor::Constants::SEPARATOR));
 
     cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);

@@ -53,7 +53,7 @@ public:
     ~WatchTableModel();
 
     void setEngineDebug(QmlEngineDebug *client);
-    
+
     QmlDebugWatch *findWatch(int column) const;
     int columnForWatch(QmlDebugWatch *watch) const;
 

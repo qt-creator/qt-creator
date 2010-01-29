@@ -115,17 +115,17 @@ EnginePane::EnginePane(QmlDebugConnection *conn, QWidget *parent)
 
     connect(m_watchTableView, SIGNAL(objectActivated(int)),
             m_objTree, SLOT(setCurrentObject(int)));
-    
+
     m_exprQueryWidget = new ExpressionQueryWidget(ExpressionQueryWidget::SeparateEntryMode, m_client);
     connect(m_objTree, SIGNAL(currentObjectChanged(QmlDebugObjectReference)),
             m_exprQueryWidget, SLOT(setCurrentObject(QmlDebugObjectReference)));
-    
+
     QSplitter *propertiesTab = new QSplitter(Qt::Vertical);
     propertiesTab->addWidget(m_propertiesView);
     propertiesTab->addWidget(m_exprQueryWidget);
     propertiesTab->setStretchFactor(0, 2);
     propertiesTab->setStretchFactor(1, 1);
-    
+
     m_tabs = new QTabWidget(this);
     m_tabs->addTab(propertiesTab, tr("Properties"));
     m_tabs->addTab(m_watchTableView, tr("Watched"));
@@ -176,7 +176,7 @@ void EnginePane::refreshEngines()
     if (!m_engines->isWaiting())
         enginesChanged();
     else
-        QObject::connect(m_engines, SIGNAL(stateChanged(QmlDebugQuery::State)), 
+        QObject::connect(m_engines, SIGNAL(stateChanged(QmlDebugQuery::State)),
                          this, SLOT(enginesChanged()));
 }
 

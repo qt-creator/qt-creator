@@ -42,7 +42,7 @@ static QByteArray &operator<<=(QByteArray &ba, const QByteArray &replacement)
 }
 
 
-template <typename T> 
+template <typename T>
 inline QByteArray N(T t) { return QByteArray::number(t); }
 
 static const char gdbmi1[] =
@@ -411,7 +411,7 @@ static void testDumper(QByteArray expected0, const void *data, QByteArray outert
         for (int i = 0; i < l1.size() && i < l2.size(); ++i) {
             if (l1.at(i) == l2.at(i))
                 qWarning() << "== " << l1.at(i);
-            else 
+            else
                 //qWarning() << "!= " << l1.at(i).right(30) << l2.at(i).right(30);
                 qWarning() << "!= " << l1.at(i) << l2.at(i);
         }
@@ -935,7 +935,7 @@ void tst_Debugger::dumpQDateTimeHelper(const QDateTime &d, bool isNull)
     QByteArray value;
     if (d.isNull())
         value = "value='(null)'";
-    else 
+    else
         value = QByteArray("value='%',valueencoded='2'")
             << utfToBase64(d.toString());
 
@@ -2006,7 +2006,7 @@ void tst_Debugger::dumpQObjectSignalList()
              "numchild='0',addr='$A',type='"NS"QObjectSignal'},"
         "{name='21',value='columnsMoved(QModelIndex,int,int,QModelIndex,int)',"
             "numchild='0',addr='$A',type='"NS"QObjectSignal'}]";
- 
+
 
     testDumper(expected << "0" << "0" << "0" << "0" << "0" << "0",
         &m, NS"QObjectSignalList", true);

@@ -48,7 +48,7 @@ public:
 
     void setEngineDebug(QmlEngineDebug *client);
     void clear();
-    
+
 signals:
     void activated(const QmlDebugObjectReference &, const QmlDebugPropertyReference &);
 

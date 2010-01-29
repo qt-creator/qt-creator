@@ -92,7 +92,7 @@ signals:
 
     // The adapter is still running just fine, but it failed to acquire a debuggee.
     void inferiorStartFailed(const QString &msg);
-    
+
 protected:
     DebuggerState state() const
         { return m_engine->state(); }

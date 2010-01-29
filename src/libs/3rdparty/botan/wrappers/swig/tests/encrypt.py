@@ -9,7 +9,7 @@ def encrypt(input):
     print cipher_key.length
 
     cipher = botan.Filter("ARC4", key = cipher_key)
-    
+
     pipe = botan.Pipe(cipher, botan.Filter("Hex_Encoder"))
 
     pipe.start_msg()

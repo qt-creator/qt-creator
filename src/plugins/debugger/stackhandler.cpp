@@ -139,9 +139,9 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (index.row() == m_stackFrames.size()) {
-        if (role == Qt::DisplayRole && index.column() == 0) 
+        if (role == Qt::DisplayRole && index.column() == 0)
             return tr("...");
-        if (role == Qt::DisplayRole && index.column() == 1) 
+        if (role == Qt::DisplayRole && index.column() == 1)
             return tr("<More>");
         if (role == Qt::DecorationRole && index.column() == 0)
             return m_emptyIcon;
@@ -209,7 +209,7 @@ Qt::ItemFlags StackHandler::flags(const QModelIndex &index) const
 }
 
 StackFrame StackHandler::currentFrame() const
-{       
+{
     QTC_ASSERT(m_currentIndex >= 0, return StackFrame());
     QTC_ASSERT(m_currentIndex < m_stackFrames.size(), return StackFrame());
     return m_stackFrames.at(m_currentIndex);

@@ -109,7 +109,7 @@ void QmlInspectorPlugin::extensionsInitialized()
 
 void QmlInspectorPlugin::currentModeChanged(Core::IMode *mode)
 {
-    if (mode == m_inspectMode) 
+    if (mode == m_inspectMode)
         m_inspectMode->connectToViewer();
 }
 

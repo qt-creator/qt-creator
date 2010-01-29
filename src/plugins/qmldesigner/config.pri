@@ -7,7 +7,7 @@ debug {
   DEFINES += VIEWLOGGER
 }
 
-linux-g++-64 { 
+linux-g++-64 {
     // note that -Werror = return-type \
         is \
         only \

@@ -135,7 +135,7 @@ class Ne7sshSftp : public ne7ssh_channel
     /**
     * Structure used to store open rmote file.
     */
-    typedef struct 
+    typedef struct
     {
       uint32 fileID;
       uint16 handleLen;
@@ -358,7 +358,7 @@ class Ne7sshSftp : public ne7ssh_channel
 
 
     /**
-    * This method is used to retrieve a remote file and dump it into local file. 
+    * This method is used to retrieve a remote file and dump it into local file.
     * @param remoteFile Full or relative path to the file on the remote side.
     * @param localFile Pointer to the FILE structure. If the file being retrieved is binary, use "w+" attributes in fopen function.
     * @return True if getting the file is succeeds. False on any error.

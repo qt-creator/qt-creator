@@ -59,7 +59,7 @@ void CdbPromptThread::run()
             break;
         cmd += QString::fromLatin1(buf);
         if (cmd.endsWith(QLatin1Char('\n'))) {
-            cmd.truncate(cmd.size() - 1);            
+            cmd.truncate(cmd.size() - 1);
             if (!cmd.isEmpty() && !handleCommand(cmd.trimmed()))
                 break;
             cmd.clear();

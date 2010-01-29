@@ -31,7 +31,7 @@ def run_test(files, rootdir, testname, expected):
 
     result = validate(ca_certs, certs, crls, end_entity)
     result = repr(result).replace('botan._botan.verify_result.', '')
-    
+
     if result != expected:
         print "FAILED: got %s, expected %s" % (result, expected)
     else:
@@ -56,6 +56,6 @@ def main():
                 run_test(files, root, thistest, results[thistest])
             else:
                 print "%s... skipping - no expected result set" % thistest
-        
+
 if __name__ == "__main__":
     sys.exit(main())

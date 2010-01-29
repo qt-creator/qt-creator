@@ -19,7 +19,7 @@
 
 #include "ne7ssh_types.h"
 #include <botan/bigint.h>
- 
+
 /**
 @author Andrew Useckas
 */
@@ -66,7 +66,7 @@ public:
     void clear() { buffer.destroy(); }
 
     /**
-     * Adds a string to the buffer. 
+     * Adds a string to the buffer.
      * <p>Adds an integer representing the length of the string, converted to the network format, before the actual string data.
      * Required by SSH protocol specifications.
      * @param str pointer to a string.
@@ -94,7 +94,7 @@ public:
     void addVector (Botan::SecureVector<Botan::byte>& secvec);
 
     /**
-     * Adds a vector to the buffer. 
+     * Adds a vector to the buffer.
      * <p>Adds an integer representing the length of the vector, converted to the network format, before the actual data.
      * Required by SSH protocol specifications.
      * @param vector Reference to a vector.
@@ -108,7 +108,7 @@ public:
     void addChar (const char ch);
 
     /**
-     * Adds a single integer to the buffer. 
+     * Adds a single integer to the buffer.
      *<p>Integer is converted to network format as required by SSH protocol specifications.
      * @param var a single integer.
      */

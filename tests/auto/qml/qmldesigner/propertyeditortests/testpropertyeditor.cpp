@@ -65,7 +65,7 @@ static void inspectPropertyEditor(ModelNode node, QWidget* propWidget)
     QVERIFY(view);
 
     QLineEdit * idLineEdit = view->findChild<QLineEdit* >("IdLineEdit");
-    
+
     if (!idLineEdit)
         return ;
 
@@ -262,7 +262,7 @@ void TestPropertyEditor::createSubNode()
 void TestPropertyEditor::createRect()
 {
     try {
-        
+
         std::auto_ptr<QWidget> widget(new QWidget());
 
         QScopedPointer<Model> model(Model::create("import Qt 4.6\n Item {}"));

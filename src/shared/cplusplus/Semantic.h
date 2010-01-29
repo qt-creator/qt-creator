@@ -64,7 +64,7 @@ public:
     Semantic(TranslationUnit *translationUnit);
     virtual ~Semantic();
 
-    TranslationUnit *translationUnit() const;    
+    TranslationUnit *translationUnit() const;
     Control *control() const;
 
     FullySpecifiedType check(SpecifierListAST *specifier, Scope *scope);

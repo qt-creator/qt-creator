@@ -83,7 +83,7 @@ void CVSSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(commandKeyC), cvsCommand);
     settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->setValue(QLatin1String(rootC), cvsRoot);
-    settings->setValue(QLatin1String(diffOptionsKeyC), cvsDiffOptions);    
+    settings->setValue(QLatin1String(diffOptionsKeyC), cvsDiffOptions);
     settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
     settings->setValue(QLatin1String(describeByCommitIdKeyC), describeByCommitId);
     settings->endGroup();

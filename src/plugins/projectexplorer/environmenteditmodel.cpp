@@ -427,7 +427,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, QWidget *additionalDetails
     vbox2->addLayout(horizontalLayout);
 
     vbox->addWidget(m_detailsContainer);
-    
+
     connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateButtons()));
 

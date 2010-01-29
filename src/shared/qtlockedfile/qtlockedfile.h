@@ -52,18 +52,18 @@ namespace SharedTools {
 
 class QT_QTLOCKEDFILE_EXPORT QtLockedFile : public QFile
 {
-public:    
+public:
     enum LockMode { NoLock = 0, ReadLock, WriteLock };
 
     QtLockedFile();
     QtLockedFile(const QString &name);
     ~QtLockedFile();
-    
+
     bool lock(LockMode mode, bool block = true);
     bool unlock();
     bool isLocked() const;
     LockMode lockMode() const;
-    
+
 private:
 #ifdef Q_OS_WIN
     Qt::HANDLE m_semaphore_hnd;

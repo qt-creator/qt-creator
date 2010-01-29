@@ -48,8 +48,8 @@ public:
     TopicChooser(QWidget *parent, const QString &keyword,
         const QMap<QString, QUrl> &links);
 
-    QUrl link() const;    
-    
+    QUrl link() const;
+
 private:
     Ui::TopicChooser ui;
     QMap<QString, QUrl> m_links;

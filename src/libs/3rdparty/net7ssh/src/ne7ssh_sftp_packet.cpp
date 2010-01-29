@@ -44,12 +44,12 @@ Botan::SecureVector<Botan::byte> &Ne7sshSftpPacket::value ()
     buffer.destroy();
     return buffer;
   }
-    
+
   tmpVar.addChar (SSH2_MSG_CHANNEL_DATA);
   tmpVar.addInt (channel);
   tmpVar.addInt (sizeof(uint32) + buffer.size());
   tmpVar.addVectorField (buffer);
-  
+
   buffer.swap (tmpVar.value());
   return buffer;
 }
@@ -63,7 +63,7 @@ Botan::SecureVector<Botan::byte> Ne7sshSftpPacket::valueFragment (uint32 len)
     buffer.destroy();
     return Botan::SecureVector<Botan::byte>();
   }
-    
+
   tmpVar.addChar (SSH2_MSG_CHANNEL_DATA);
   tmpVar.addInt (channel);
   if (len)
@@ -73,14 +73,14 @@ Botan::SecureVector<Botan::byte> Ne7sshSftpPacket::valueFragment (uint32 len)
     tmpVar.addVector (buffer);
   }
   else tmpVar.addVectorField (buffer);
-  
+
   return Botan::SecureVector<Botan::byte> (tmpVar.value());
 }
 
 void Ne7sshSftpPacket::addInt64 (const uint64 var)
 {
   uint8 converter[8];
-  
+
   converter[0] = (uint8) (var >> 56);
   converter[1] = (uint8) (var >> 48);
   converter[2] = (uint8) (var >> 40);
@@ -115,9 +115,9 @@ uint64 Ne7sshSftpPacket::getInt64 ()
 }
 
 bool Ne7sshSftpPacket::isChannelSet ()
-{ 
+{
   if (this->channel == -1) return false;
-  else return true; 
+  else return true;
 }
 
 

@@ -1,9 +1,9 @@
-/* An example of ne7ssh library usage. Please change the values in connectWithPassword 
+/* An example of ne7ssh library usage. Please change the values in connectWithPassword
    function before compiling.
-   
+
    If you are testing this with later openssh versions, make sure to add this
    option to your server's configuration file to enable password authentication:
-   
+
    PasswordAuthentication yes
 */
 

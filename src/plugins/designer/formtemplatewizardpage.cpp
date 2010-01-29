@@ -327,7 +327,7 @@ QString FormTemplateWizardPage::changeUiClassName(const QString &uiXml, const QS
         qDebug() << '<' << Q_FUNC_INFO << newUiClassName << rc;
     return rc;
 }
-#endif // USE_XSLT 
+#endif // USE_XSLT
 
 } // namespace Internal
 } // namespace Designer

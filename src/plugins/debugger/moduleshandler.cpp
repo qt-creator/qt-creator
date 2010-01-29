@@ -84,7 +84,7 @@ QVariant ModulesModel::headerData(int section,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
-            tr("Module name") + "        ", 
+            tr("Module name") + "        ",
             tr("Symbols read") + "        ",
             tr("Start address") + "        ",
             tr("End address") + "        "
@@ -115,7 +115,7 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
             break;
         case 1:
             if (role == Qt::DisplayRole)
-                return module.symbolsRead ? "yes" : "no"; 
+                return module.symbolsRead ? "yes" : "no";
             break;
         case 2:
             if (role == Qt::DisplayRole)

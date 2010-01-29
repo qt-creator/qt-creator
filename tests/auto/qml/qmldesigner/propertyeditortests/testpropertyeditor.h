@@ -43,7 +43,7 @@ public:
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    
+
     void createCoreModel();
     void loadEmptyCoreModel();
 

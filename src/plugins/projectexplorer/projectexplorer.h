@@ -232,7 +232,7 @@ private:
     Internal::ProjectFileFactory *findProjectFileFactory(const QString &filename) const;
 
     static ProjectExplorerPlugin *m_instance;
-    ProjectExplorerPluginPrivate *d;  
+    ProjectExplorerPluginPrivate *d;
 };
 
 } // namespace ProjectExplorer

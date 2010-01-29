@@ -341,7 +341,7 @@ bool CheckStatement::visit(QtMemberDeclarationAST *ast)
                 std::string privateClass;
                 privateClass += nameId->identifier()->chars();
                 privateClass += "Private";
-                
+
                 const Name *privName = control()->nameId(control()->findOrInsertIdentifier(privateClass.c_str(),
                                                                                            privateClass.size()));
                 declTy.setType(control()->namedType(privName));

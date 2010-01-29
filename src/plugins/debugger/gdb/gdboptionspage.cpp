@@ -78,9 +78,9 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui.scriptFileChooser);
     m_group.insert(theDebuggerAction(GdbEnvironment),
         m_ui.environmentEdit);
-    m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 
+    m_group.insert(theDebuggerAction(UsePreciseBreakpoints),
         m_ui.checkBoxUsePreciseBreakpoints);
-    m_group.insert(theDebuggerAction(GdbWatchdogTimeout), 
+    m_group.insert(theDebuggerAction(GdbWatchdogTimeout),
         m_ui.spinBoxGdbWatchdogTimeout);
 
 

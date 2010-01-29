@@ -343,7 +343,7 @@ public:
     Function(Engine *engine);
     virtual ~Function();
 
-    void addArgument(const Value *argument);    
+    void addArgument(const Value *argument);
     void setReturnValue(const Value *returnValue);
 
     // ObjectValue interface

@@ -126,7 +126,7 @@ void export_x509()
       .value("crl_signing", X509_Store::CRL_SIGNING);
 
       {
-      python::scope in_class = 
+      python::scope in_class =
          python::class_<X509_Store>("X509_Store")
          .def("add_cert", &X509_Store::add_cert, add_cert_ols())
          .def("validate", &X509_Store::validate_cert, validate_cert_ols())

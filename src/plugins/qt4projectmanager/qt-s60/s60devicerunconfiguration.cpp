@@ -397,7 +397,7 @@ RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *project, con
 // ======== S60DeviceRunControlBase
 
 S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfiguration) :
-    RunControl(runConfiguration),    
+    RunControl(runConfiguration),
     m_toolChain(ProjectExplorer::ToolChain::INVALID),
     m_makesis(new QProcess(this)),
     m_signsis(0),
@@ -449,8 +449,8 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
             m_makesis->setEnvironment(env.toStringList());
         }
         break;
-    default:        
-        m_toolsDirectory = device.toolsRoot + QLatin1String("/epoc32/tools");        
+    default:
+        m_toolsDirectory = device.toolsRoot + QLatin1String("/epoc32/tools");
         m_makesisTool = m_toolsDirectory + "/makesis.exe";
         // Set up signing packages
         m_signsis = new QProcess(this);
@@ -528,7 +528,7 @@ void S60DeviceRunControlBase::start()
     }
 
     m_makesis->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(m_makesisTool), m_packageFile));    
+    emit addToOutputWindow(this, tr("%1 %2").arg(QDir::toNativeSeparators(m_makesisTool), m_packageFile));
     if (debug)
         qDebug() << m_makesisTool <<  makeSisArgs << m_workingDirectory;
     m_makesis->start(m_makesisTool, makeSisArgs, QIODevice::ReadOnly);
@@ -685,7 +685,7 @@ void S60DeviceRunControlBase::startDeployment()
     initLauncher(runFileName, m_launcher);
     emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(lsFile(copySrc), m_serialPortFriendlyName));
     QString errorMessage;
-    // Prompt the user to start up the Blue tooth connection    
+    // Prompt the user to start up the Blue tooth connection
     const trk::PromptStartCommunicationResult src =
             S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
                                                              m_serialPortName,
@@ -809,7 +809,7 @@ void S60DeviceRunControlBase::slotWaitingForTrkClosed()
 {
     if (m_launcher && m_launcher->state() == trk::Launcher::WaitingForTrk) {
         stop();
-        error(this, tr("Canceled."));        
+        error(this, tr("Canceled."));
         emit finished();
     }
 }

@@ -1260,7 +1260,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
         const  QString uiDir = uiDirectory();
         foreach (const FileNode *uiFile, uiFiles) {
             const QString uiHeaderFilePath = uiHeaderFile(uiDir, uiFile->path());
-//            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;           
+//            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
             QMap<QString, Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
             if (it != oldCodeModelSupport.end()) {
 //                qDebug()<<"updated old codemodelsupport";

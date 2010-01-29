@@ -172,7 +172,7 @@ bool BluetoothListener::start(const QString &device, QString *errorMessage)
     return true;
 }
 
-void BluetoothListener::slotStdOutput()        
+void BluetoothListener::slotStdOutput()
 {
     emitMessage(QString::fromLocal8Bit(d->process.readAllStandardOutput()));
 }

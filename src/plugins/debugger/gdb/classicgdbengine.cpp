@@ -160,7 +160,7 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
         data.setValue(_("<unavailable>"));
         data.setHasChildren(false);
         insertData(data);
-        return; 
+        return;
     }
     m_processedNames.insert(processedName);
 
@@ -258,7 +258,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         #if DEBUG_SUBITEM
         qDebug() << "IT'S A POINTER";
         #endif
-    
+
         if (theDebuggerBoolSetting(AutoDerefPointers)) {
             // Try automatic dereferentiation
             data.exp = "(*(" + data.exp + "))";
@@ -496,7 +496,7 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         // Load at least gdb macro based dumpers.
         QFile file(_(":/gdb/gdbmacros.txt"));
         file.open(QIODevice::ReadOnly);
-        QByteArray contents = file.readAll(); 
+        QByteArray contents = file.readAll();
         m_debuggingHelperState = DebuggingHelperLoadTried;
         postCommand(contents);
         return;
@@ -574,7 +574,7 @@ void GdbEngine::updateAllClassic()
     if (supportsThreads())
         postCommand("-thread-list-ids", WatchUpdate, CB(handleStackListThreads), 0);
     manager()->reloadRegisters();
-    updateLocals(); 
+    updateLocals();
 }
 
 void GdbEngine::setDebugDebuggingHelpersClassic(const QVariant &on)

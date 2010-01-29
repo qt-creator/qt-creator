@@ -123,7 +123,7 @@ void WinDbgThread::internalStartProcess()
     ZeroMemory(&m_pi, sizeof(m_pi));
 
     DWORD dwCreationFlags = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS;
-    bSuccess = CreateProcess(m_processFileName.utf16(), NULL, NULL, NULL, FALSE, 
+    bSuccess = CreateProcess(m_processFileName.utf16(), NULL, NULL, NULL, FALSE,
                              dwCreationFlags,
                              NULL, NULL, &si, &m_pi
                             );

@@ -40,7 +40,7 @@ namespace Core {
 namespace Internal {
 
 struct ShortcutItem;
-    
+
 class CommandsFile : public QObject
 {
     Q_OBJECT

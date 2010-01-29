@@ -42,7 +42,7 @@ include(../../../plugins/qmldesigner/components/themeloader/qts60stylethemeio.pr
 include (../../../plugins/qmldesigner/core/core.pri)
 RESOURCES += bauhaus.qrc
 win32:RC_FILE = bauhaus.rc
-macx { 
+macx {
     ICON = bauhaus-logo.icns
     QMAKE_INFO_PLIST = Info.plist
 }

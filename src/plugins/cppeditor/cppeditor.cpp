@@ -898,7 +898,7 @@ const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor,
 }
 
 void CPPEditor::findUsages()
-{    
+{
     if (Symbol *canonicalSymbol = markSymbols()) {
         m_modelManager->findUsages(canonicalSymbol);
     } else if (const Macro *macro = findCanonicalMacro(textCursor(), m_lastSemanticInfo.doc)) {
@@ -1766,7 +1766,7 @@ void CPPEditor::keyPressEvent(QKeyEvent *e)
             // Eat backspace at start of name
             e->accept();
             return;
-        } 
+        }
         break;
     }
     case Qt::Key_Delete: {
@@ -1821,7 +1821,7 @@ QString CPPEditorEditable::id() const
 
 bool CPPEditorEditable::open(const QString & fileName)
 {
-    bool b = TextEditor::BaseTextEditorEditable::open(fileName);    
+    bool b = TextEditor::BaseTextEditorEditable::open(fileName);
     editor()->setMimeType(Core::ICore::instance()->mimeDatabase()->findByFile(QFileInfo(fileName)).type());
     return b;
 }

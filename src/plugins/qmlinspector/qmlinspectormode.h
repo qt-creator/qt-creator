@@ -53,7 +53,7 @@ class ObjectPropertiesView;
 class CanvasFrameRate;
 class ExpressionQueryWidget;
 class EngineSpinBox;
-    
+
 
 class QmlInspectorMode : public Core::BaseMode
 {
@@ -61,13 +61,13 @@ class QmlInspectorMode : public Core::BaseMode
 
 public:
     QmlInspectorMode(QObject *parent = 0);
-    
+
 signals:
     void statusMessage(const QString &text);
-    
-public slots: 
+
+public slots:
     void connectToViewer(); // using host, port from widgets
-    void disconnectFromViewer(); 
+    void disconnectFromViewer();
 
 private slots:
     void connectionStateChanged();
@@ -84,13 +84,13 @@ private:
     void initWidgets();
     QWidget *createBottomWindow();
     QToolButton *createToolButton(QAction *action);
-    
+
     QmlDebugConnection *m_conn;
     QmlEngineDebug *m_client;
 
     QmlDebugEnginesQuery *m_engineQuery;
     QmlDebugRootContextQuery *m_contextQuery;
-    
+
     ObjectTree *m_objectTreeWidget;
     ObjectPropertiesView *m_propertiesWidget;
     WatchTableModel *m_watchTableModel;

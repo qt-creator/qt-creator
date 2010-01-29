@@ -100,7 +100,7 @@ QVariant RegisterHandler::data(const QModelIndex &index, int role) const
 
     if (role == RegisterChangedRole)
         return reg.changed;
-    
+
     return QVariant();
 }
 

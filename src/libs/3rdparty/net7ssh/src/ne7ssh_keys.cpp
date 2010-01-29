@@ -366,7 +366,7 @@ bool ne7ssh_keys::getKeyPairFromFile (const char* privKeyFileName)
   buffer = (char*) malloc (privKeyStr.length() + 1);
   memcpy (buffer, (const char*)privKeyStr.value().begin(), privKeyStr.length());
   buffer[privKeyStr.length()] = 0x0;
-    
+
   length = privKeyStr.length();
 
   for (i = pos = 0; i < privKeyStr.length(); i++)
@@ -388,7 +388,7 @@ bool ne7ssh_keys::getKeyPairFromFile (const char* privKeyFileName)
   }
   buffer[pos] = 0x00;
   length = pos;
-        
+
   if ((memcmp (buffer, "-----BEGIN", 10)) ||
      (memcmp (buffer + length - 17, "PRIVATE KEY-----", 16)))
   {
@@ -523,7 +523,7 @@ bool ne7ssh_keys::getRSAKeys (char* buffer, uint32 size)
   BER_Decoder sequence = decoder.start_cons(SEQUENCE);
   sequence.decode (version);
 #endif
-  
+
   if (version)
   {
     ne7ssh::errors()->push (-1, "Encountered unknown RSA key version.");
@@ -543,7 +543,7 @@ bool ne7ssh_keys::getRSAKeys (char* buffer, uint32 size)
   sequence.decode (p);
   sequence.decode (q);
 #endif
-    
+
   sequence.discard_remaining();
   sequence.verify_end();
 

@@ -205,7 +205,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(theDebuggerAction(SettingsDialog));
 
     QAction *act = menu.exec(ev->globalPos());
- 
+
     if (act == actAdjust)
         resizeColumnsToContents();
     else if (act == actAlwaysAdjust)

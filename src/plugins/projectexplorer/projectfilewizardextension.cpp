@@ -110,7 +110,7 @@ ProjectEntry::ProjectEntry(ProjectNode *n) :
     fileName = fi.fileName();
     baseName = fi.baseName();
     if (fi.suffix() != QLatin1String("pro"))
-        type = PriFile;    
+        type = PriFile;
     nativeDirectory = QDir::toNativeSeparators(fi.absolutePath());
 }
 

@@ -40,7 +40,7 @@
 #include "progressmanager_p.h"
 
 // for windows progress bar
-#ifndef __GNUC__ 
+#ifndef __GNUC__
 #    include <shobjidl.h>
 #endif
 

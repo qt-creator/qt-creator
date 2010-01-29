@@ -332,11 +332,11 @@ void VCSBaseEditor::slotPopulateDiffBrowser()
     }
 }
 
-void VCSBaseEditor::slotDiffBrowse(int index)        
+void VCSBaseEditor::slotDiffBrowse(int index)
 {
     // goto diffed file as indicated by index/line number
     if (index < 0 || index >= d->m_diffSections.size())
-        return;    
+        return;
     const int lineNumber = d->m_diffSections.at(index);
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->addCurrentPositionToNavigationHistory();
@@ -362,7 +362,7 @@ void VCSBaseEditor::slotDiffCursorPositionChanged()
     // Adapt diff file browse combo to new position
     // if the cursor goes across a file line.
     QTC_ASSERT(d->m_parameters->type == DiffOutput, return)
-    const int newCursorLine = textCursor().blockNumber();    
+    const int newCursorLine = textCursor().blockNumber();
     if (newCursorLine == d->m_cursorLine)
         return;
     // Which section does it belong to?

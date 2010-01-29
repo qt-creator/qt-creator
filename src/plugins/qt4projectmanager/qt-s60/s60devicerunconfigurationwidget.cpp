@@ -98,7 +98,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     formLayout->addRow(tr("Arguments:"), m_argumentsLineEdit);
     formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
 
-    updateSerialDevices();    
+    updateSerialDevices();
     connect(S60Manager::instance()->serialDeviceLister(), SIGNAL(updated()),
             this, SLOT(updateSerialDevices()));
     // Serial devices control
@@ -285,7 +285,7 @@ void S60DeviceRunConfigurationWidget::updateSummary()
                            tr("<No Device>");
     const QString signature = m_runConfiguration->signingMode() == S60DeviceRunConfiguration::SignCustom ?
                               tr("(custom certificate)") :
-                              tr("(self-signed certificate)");    
+                              tr("(self-signed certificate)");
     m_detailsWidget->setSummaryText(tr("Summary: Run on '%1' %2").arg(device, signature));
 }
 
@@ -365,7 +365,7 @@ void S60DeviceRunConfigurationWidget::updateDeviceInfo()
     };
     if (!m_infoLauncher->startServer(&message)) {
         setDeviceInfoLabel(message, true);
-        m_infoLauncher->deleteLater();        
+        m_infoLauncher->deleteLater();
         return;
     }
     // Wait for either timeout or results

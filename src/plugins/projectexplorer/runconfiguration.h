@@ -57,10 +57,10 @@ class BuildConfiguration;
  * Note that all RunControls and the project hold a shared pointer to the RunConfiguration.
  * That is the lifetime of the RunConfiguration might exceed the life of the project.
  * The user might still have a RunControl running (or output tab of that RunControl open)
- * and yet unloaded the project. 
- * Also a RunConfiguration might be already removed from the list of RunConfigurations 
+ * and yet unloaded the project.
+ * Also a RunConfiguration might be already removed from the list of RunConfigurations
  * for a project, but stil be runnable via the output tab.
- 
+
 */
 class PROJECTEXPLORER_EXPORT RunConfiguration : public QObject
 {

@@ -80,9 +80,9 @@ public:
     void writeSettings(QSettings *settings);
 
 private:
-    QHash<int, Utils::SavedAction *> m_items; 
-    QHash<QString, int> m_nameToCode; 
-    QHash<int, QString> m_codeToName; 
+    QHash<int, Utils::SavedAction *> m_items;
+    QHash<QString, int> m_nameToCode;
+    QHash<int, QString> m_codeToName;
 };
 
 FakeVimSettings *theFakeVimSettings();

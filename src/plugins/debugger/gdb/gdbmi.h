@@ -39,50 +39,50 @@ namespace Internal {
 
 /*
 
-output ==> 
-    ( out-of-band-record )* [ result-record ] "(gdb)" nl 
-result-record ==> 
-     [ token ] "^" result-class ( "," result )* nl 
-out-of-band-record ==> 
-    async-record | stream-record 
-async-record ==> 
-    exec-async-output | status-async-output | notify-async-output 
-exec-async-output ==> 
-    [ token ] "*" async-output 
-status-async-output ==> 
-    [ token ] "+" async-output 
-notify-async-output ==> 
-    [ token ] "=" async-output 
-async-output ==> 
-    async-class ( "," result )* nl 
-result-class ==> 
-    "done" | "running" | "connected" | "error" | "exit" 
-async-class ==> 
-    "stopped" | others (where others will be added depending on the needs--this is still in development). 
-result ==> 
-     variable "=" value 
-variable ==> 
-     string  
-value ==> 
-     const | tuple | list  
-const ==> 
-    c-string 
-tuple ==> 
-     "{}" | "{" result ( "," result )* "}"  
-list ==> 
-     "[]" | "[" value ( "," value )* "]" | "[" result ( "," result )* "]"  
-stream-record ==> 
-    console-stream-output | target-stream-output | log-stream-output 
-console-stream-output ==> 
-    "~" c-string 
-target-stream-output ==> 
-    "@" c-string 
-log-stream-output ==> 
-    "&" c-string 
-nl ==> 
-    CR | CR-LF 
-token ==> 
-    any sequence of digits.  
+output ==>
+    ( out-of-band-record )* [ result-record ] "(gdb)" nl
+result-record ==>
+     [ token ] "^" result-class ( "," result )* nl
+out-of-band-record ==>
+    async-record | stream-record
+async-record ==>
+    exec-async-output | status-async-output | notify-async-output
+exec-async-output ==>
+    [ token ] "*" async-output
+status-async-output ==>
+    [ token ] "+" async-output
+notify-async-output ==>
+    [ token ] "=" async-output
+async-output ==>
+    async-class ( "," result )* nl
+result-class ==>
+    "done" | "running" | "connected" | "error" | "exit"
+async-class ==>
+    "stopped" | others (where others will be added depending on the needs--this is still in development).
+result ==>
+     variable "=" value
+variable ==>
+     string
+value ==>
+     const | tuple | list
+const ==>
+    c-string
+tuple ==>
+     "{}" | "{" result ( "," result )* "}"
+list ==>
+     "[]" | "[" value ( "," value )* "]" | "[" result ( "," result )* "]"
+stream-record ==>
+    console-stream-output | target-stream-output | log-stream-output
+console-stream-output ==>
+    "~" c-string
+target-stream-output ==>
+    "@" c-string
+log-stream-output ==>
+    "&" c-string
+nl ==>
+    CR | CR-LF
+token ==>
+    any sequence of digits.
 
  */
 
@@ -119,7 +119,7 @@ public:
     inline const QList<GdbMi> &children() const { return m_children; }
     inline int childCount() const { return m_children.size(); }
 
-    const GdbMi &childAt(int index) const { return m_children[index]; } 
+    const GdbMi &childAt(int index) const { return m_children[index]; }
     GdbMi &childAt(int index) { return m_children[index]; }
     GdbMi findChild(const char *name) const;
 
@@ -146,7 +146,7 @@ private:
 
 enum GdbResultClass
 {
-    // "done" | "running" | "connected" | "error" | "exit" 
+    // "done" | "running" | "connected" | "error" | "exit"
     GdbResultUnknown,
     GdbResultDone,
     GdbResultRunning,

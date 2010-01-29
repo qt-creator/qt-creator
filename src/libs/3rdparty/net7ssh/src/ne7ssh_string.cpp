@@ -41,7 +41,7 @@ ne7ssh_string::ne7ssh_string(const char* var, uint32 position) : positions(0), p
 
 ne7ssh_string::~ne7ssh_string()
 {
-  if (positions) 
+  if (positions)
       free (positions);
 }
 

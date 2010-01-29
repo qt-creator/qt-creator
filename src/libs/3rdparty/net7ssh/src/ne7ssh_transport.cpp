@@ -91,23 +91,23 @@ SOCKET ne7ssh_transport::establish (const char *host, uint32 port, int timeout)
   }
   else
   {
-    if (!NoBlock (sock, true)) 
+    if (!NoBlock (sock, true))
         return -1;
- 
+
     if (connect (sock, (struct sockaddr*) &remoteAddr, sizeof(remoteAddr)) == -1)
     {
       fd_set rfds;
       struct timeval waitTime;
- 
+
       waitTime.tv_sec = timeout;
       waitTime.tv_usec = 0;
- 
+
       FD_ZERO(&rfds);
       FD_SET(sock, &rfds);
- 
+
       int status;
       status = select(sock+1, &rfds, NULL, NULL, &waitTime);
- 
+
       if ( status == 0 )
       {
           if ( ! FD_ISSET(sock, &rfds) )
@@ -196,7 +196,7 @@ bool ne7ssh_transport::send (Botan::SecureVector<Botan::byte>& buffer)
 {
   size_t byteCount;
   uint32 sent = 0;
-  
+
   if (buffer.size() > MAX_PACKET_LEN)
   {
     ne7ssh::errors()->push (((ne7ssh_session*)session)->getSshChannel(), "Cannot send. Packet too large for the transport layer.");
@@ -221,7 +221,7 @@ bool ne7ssh_transport::receive (Botan::SecureVector<Botan::byte>& buffer, bool a
   Botan::byte in_buffer[MAX_PACKET_LEN];
   int len;
 
-  if (wait(sock, 0)) 
+  if (wait(sock, 0))
     len = ::recv (sock, (char*) in_buffer, MAX_PACKET_LEN, 0);
 
   if (!len)
@@ -313,7 +313,7 @@ short ne7ssh_transport::waitForPacket (Botan::byte cmd, bool bufferOnly)
   }
   else*/
   tmpVar.set (in);
-  
+
   if (!tmpVar.is_empty())
   {
     if (_crypto->isInited())
@@ -336,7 +336,7 @@ short ne7ssh_transport::waitForPacket (Botan::byte cmd, bool bufferOnly)
       if (!in.is_empty()) _crypto->decryptPacket (tmpVar, in, _crypto->getDecryptBlock());
       else tmpVar.destroy();
     }
-    else 
+    else
     {
       while (in.size() < 4)
         if (!receive(in, true)) return -1;
@@ -392,7 +392,7 @@ short ne7ssh_transport::waitForPacket (Botan::byte cmd, bool bufferOnly)
    if (rSeq == MAX_SEQUENCE) seq = 0;
    else rSeq++;
   _cmd = *(decrypted.begin() + 5);
-  
+
   if (cmd == _cmd || !cmd)
   {
     inBuffer.set (decrypted);
@@ -428,7 +428,7 @@ uint32 ne7ssh_transport::getPacket (Botan::SecureVector<Botan::byte> &result)
     if (len > tmpVector.size()) len -= macLen;
   }
 
-  tmpVector.append ((uint8*)"\0", 1); 
+  tmpVector.append ((uint8*)"\0", 1);
   result.set (tmpVector.begin() + 5, len);
   _crypto->decompressData (result);
 

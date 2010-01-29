@@ -37,7 +37,7 @@ int main()
 
       if(p.bits() != bits)
          {
-         std::cout << "Asked for " << bits << " got " << p 
+         std::cout << "Asked for " << bits << " got " << p
                    << " " << p.bits() << " bits\n";
          return 1;
          }

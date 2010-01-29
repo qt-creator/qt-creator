@@ -140,7 +140,7 @@ FORMS += processstep.ui \
     targetsettingswidget.ui \
     doubletabwidget.ui
 
-win32 { 
+win32 {
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp
     HEADERS += winguiprocess.h

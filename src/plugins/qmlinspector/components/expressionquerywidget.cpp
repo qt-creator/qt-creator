@@ -148,7 +148,7 @@ void ExpressionQueryWidget::executeExpression()
 {
     if (!m_client)
         return;
-        
+
     if (m_mode == SeparateEntryMode)
         m_expr = m_lineEdit->text().trimmed();
     else
@@ -176,7 +176,7 @@ void ExpressionQueryWidget::showResult()
         m_textEdit->moveCursor(QTextCursor::End);
         QVariant value = m_query->result();
         QString result;
-        
+
         if (value.type() == QVariant::List || value.type() == QVariant::StringList) {
             result = tr("<%1 items>", "%1 = number of items").arg(value.toList().count());
         } else if (value.isNull()) {

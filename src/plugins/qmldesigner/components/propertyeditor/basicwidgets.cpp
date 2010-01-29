@@ -66,7 +66,7 @@ class Actions : public QmlConcreteList<Action *>
         virtual void clear()
         {
             QmlConcreteList<Action *>::clear();
-            
+
             while (!widget->actions().empty())
                 widget->removeAction(widget->actions().first());
             //menu->clear();
@@ -588,7 +588,7 @@ private:
     //if not for the at() function, we could use QmlList instead
 
     QMenu *menu;
-    
+
 };
 
 class QToolButtonDeclarativeUI : public QObject

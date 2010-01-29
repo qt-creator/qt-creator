@@ -160,7 +160,7 @@ static bool getDebugDirectory(IMAGE_NT_HEADERS *ntHeaders,
 #endif
     // Empty. This is the case for MinGW binaries
     if (debugDirSize == 0)
-        return true;    
+        return true;
     // Look up in  file
     DWORD debugDirOffset;
     if (!getFileOffsetFromRVA(ntHeaders, debugDirRva, &debugDirOffset)) {
@@ -221,7 +221,7 @@ static void collectPDBfiles(void *fileMemory, IMAGE_DEBUG_DIRECTORY *directoryBa
 
 namespace Debugger {
 namespace Internal {
-   
+
 bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage)
 {
     HANDLE hFile = NULL;

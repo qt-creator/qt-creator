@@ -44,7 +44,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Qt4ProjectManager{ 
+namespace Qt4ProjectManager{
 namespace Internal {
 
 class MaemoSettingsWidget;

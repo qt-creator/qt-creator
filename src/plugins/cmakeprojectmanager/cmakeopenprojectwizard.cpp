@@ -369,7 +369,7 @@ void CMakeRunPage::initializePage()
                     }
                 }
             }
-        }        
+        }
         m_generatorComboBox->clear();
         // Find out whether we have multiple msvc versions
         QStringList msvcVersions = ProjectExplorer::ToolChain::availableMSVCVersions();
@@ -419,7 +419,7 @@ void CMakeRunPage::runCMake()
             } else {
                 m_cmakeWizard->setMsvcVersion("");
             }
-        }   
+        }
     }
 #else // Q_OS_WIN
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
