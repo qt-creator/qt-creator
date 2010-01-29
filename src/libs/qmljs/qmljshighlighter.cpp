@@ -57,17 +57,28 @@ QScriptHighlighter::QScriptHighlighter(bool duiEnabled, QTextDocument *parent):
 bool QScriptHighlighter::isDuiEnabled() const
 { return m_duiEnabled; }
 
+static bool checkStartOfBinding(const Token &token)
+{
+    switch (token.kind) {
+    case Token::Semicolon:
+    case Token::LeftBrace:
+    case Token::RightBrace:
+    case Token::LeftBracket:
+    case Token::RightBracket:
+        return true;
+
+    default:
+        return false;
+    } // end of switch
+}
+
 void QScriptHighlighter::highlightBlock(const QString &text)
 {
     const QList<Token> tokens = m_scanner(text, onBlockStart());
 
-    QTextCharFormat emptyFormat;
-    int lastEnd = 0;
-    for (int i = 0; i < tokens.size(); ++i) {
-        const Token token = tokens.at(i);
-
-        if (token.offset != lastEnd)
-            setFormat(lastEnd, token.offset - lastEnd, m_formats[VisualWhitespace]);
+    int index = 0;
+    while (index < tokens.size()) {
+        const Token &token = tokens.at(index);
 
         switch (token.kind) {
             case Token::Keyword:
@@ -110,43 +121,42 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                 onClosingParenthesis(']', token.offset);
                 break;
 
-            case Token::Identifier:
-                if (m_duiEnabled && (i + 1) < tokens.size() && tokens.at(i + 1).is(Token::Colon)) {
-                    int j = i;
-                    for (; j != -1; --j) {
-                        const Token &tok = tokens.at(j);
-                        if (tok.is(Token::Dot) || tok.is(Token::Identifier)) {
-                            setFormat(tok.offset, tok.length, m_formats[LabelFormat]);
-                        } else {
+            case Token::Identifier: {
+                if (index + 1 < tokens.size()) {
+                    if (tokens.at(index + 1).is(Token::LeftBrace) && text.at(token.offset).isUpper()) {
+                        setFormat(token.offset, token.length, m_formats[TypeFormat]);
+                    } else if (index == 0 || checkStartOfBinding(tokens.at(index - 1))) {
+                        const int start = index;
+
+                        ++index; // skip the identifier.
+                        while (index + 1 < tokens.size() &&
+                               tokens.at(index).is(Token::Dot) &&
+                               tokens.at(index + 1).is(Token::Identifier)) {
+                            index += 2;
+                        }
+
+                        if (index < tokens.size() && tokens.at(index).is(Token::Colon)) {
+                            // it's a binding.
+                            for (int i = start; i < index; ++i) {
+                                const Token &tok = tokens.at(i);
+                                setFormat(tok.offset, tok.length, m_formats[LabelFormat]);
+                            }
                             break;
+                        } else {
+                            index = start;
                         }
                     }
-                } else {
-                    const QChar c = text.at(token.offset);
-
-                    if ((m_duiEnabled && c.isUpper()) || (!m_duiEnabled && c == QLatin1Char('Q')))
-                        setFormat(token.offset, token.length, m_formats[TypeFormat]);
-                    else
-                        setFormat(token.offset, token.length, emptyFormat);
                 }
-                break;
-
-            case Token::Colon:
-                if (m_duiEnabled && i > 0 && tokens.at(i - 1).kind == Token::Identifier)
-                    setFormat(token.offset, token.length, m_formats[LabelFormat]);
-                else
-                    setFormat(token.offset, token.length, emptyFormat);
-                break;
+            }   break;
 
             case Token::Delimiter:
-                setFormat(token.offset, token.length, emptyFormat);
                 break;
 
             default:
                 break;
-        }
+        } // end swtich
 
-        lastEnd = token.end();
+        ++index;
     }
 
     int firstNonSpace = 0;
@@ -155,11 +165,6 @@ void QScriptHighlighter::highlightBlock(const QString &text)
         const Token &tk = tokens.first();
         firstNonSpace = tk.offset;
     }
-
-    if (firstNonSpace > lastEnd)
-        setFormat(lastEnd, firstNonSpace - lastEnd, m_formats[VisualWhitespace]);
-    else if (text.length() > lastEnd)
-        setFormat(lastEnd, text.length() - lastEnd, m_formats[VisualWhitespace]);
 
     setCurrentBlockState(m_scanner.endState());
     onBlockEnd(m_scanner.endState(), firstNonSpace);
