@@ -29,25 +29,6 @@
 
 #include "objectnodeinstance.h"
 
-#include <invalidreparentingexception.h>
-#include <invalidnodeinstanceexception.h>
-#include <notimplementedexception.h>
-#include <noanchoringpossibleexception.h>
-
-#include <QmlContext>
-#include <QtDeclarative/private/qmlcontext_p.h>
-#include <QmlList>
-#include <QmlBinding>
-#include <private/qmllistaccessor_p.h>
-
-#include <metainfo.h>
-#include <propertymetainfo.h>
-#include <qmlmetaproperty.h>
-#include <QmlMetaType>
-#include <QmlEngine>
-#include <private/qmlgraphicsanchors_p.h>
-#include <private/qmlgraphicsrectangle_p.h>
-
 #include "qmlgraphicsitemnodeinstance.h"
 #include "graphicsobjectnodeinstance.h"
 #include "graphicsviewnodeinstance.h"
@@ -56,8 +37,34 @@
 #include "qmlviewnodeinstance.h"
 #include "widgetnodeinstance.h"
 #include "proxywidgetnodeinstance.h"
-#include "variantproperty.h"
+
+#include <invalidreparentingexception.h>
+#include <invalidnodeinstanceexception.h>
+#include <notimplementedexception.h>
+#include <noanchoringpossibleexception.h>
+
+#include <variantproperty.h>
 #include <nodelistproperty.h>
+#include <metainfo.h>
+#include <propertymetainfo.h>
+#include <qmlmetaproperty.h>
+
+#include <QEvent>
+#include <QGraphicsScene>
+#include <QmlContext>
+#include <QmlList>
+#include <QmlError>
+#include <QmlBinding>
+#include <QmlMetaType>
+#include <QmlEngine>
+
+#include <private/qmlcontext_p.h>
+#include <private/qmllistaccessor_p.h>
+#include <private/qmlvaluetype_p.h>
+#include <private/qmlgraphicsanchors_p.h>
+#include <private/qmlgraphicsrectangle_p.h> // to get QmlGraphicsPen
+
+
 
 namespace QmlDesigner {
 namespace Internal {
