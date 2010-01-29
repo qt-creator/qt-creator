@@ -268,12 +268,16 @@ QString QmlJSIndenter::trimmedCodeLine(const QString &t)
         case Token::String:
         case Token::Number:
         case Token::Colon:
+        case Token::Comma:
         case Token::LeftBracket:
         case Token::RightBracket:
             needSemicolon = true;
             break;
 
         case Token::Identifier:
+            needSemicolon = true;
+            break;
+
         case Token::Keyword:
             if (tokenText(last) != QLatin1String("else"))
                 needSemicolon = true;
@@ -504,7 +508,7 @@ bool QmlJSIndenter::matchBracelessControlStatement()
     if (! yyLinizerState.tokens.isEmpty()) {
         Token tk = lastToken();
 
-        if (tk.is(Token::Identifier) && tokenText(tk) == QLatin1String("else"))
+        if (tk.is(Token::Keyword) && tokenText(tk) == QLatin1String("else"))
             return true;
 
         else if (tk.isNot(Token::RightParenthesis))
@@ -547,7 +551,7 @@ bool QmlJSIndenter::matchBracelessControlStatement()
                 if (delimDepth == 0 && tokenIndex > 0) {
                     const Token &tk = yyLinizerState.tokens.at(tokenIndex - 1);
 
-                    if (tk.is(Token::Identifier)) {
+                    if (tk.is(Token::Keyword)) {
                         const QStringRef text = tokenText(tk);
 
                         /*
