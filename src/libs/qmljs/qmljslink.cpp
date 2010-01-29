@@ -33,7 +33,8 @@ void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
     QFileInfo fileInfo(doc->fileName());
     const QString absolutePath = fileInfo.absolutePath();
 
-    // implicit imports
+    // implicit imports:
+    // qml files in the same directory are available without explicit imports
     foreach (Bind *otherBind, binds) {
         if (otherBind == bind)
             continue;
@@ -42,15 +43,11 @@ void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
         QFileInfo otherFileInfo(otherDoc->fileName());
         const QString otherAbsolutePath = otherFileInfo.absolutePath();
 
-        if (otherAbsolutePath.size() < absolutePath.size()
-            || otherAbsolutePath.left(absolutePath.size()) != absolutePath)
-            continue;
-
-        // ### TODO: implicit directory access not implemented
         if (otherAbsolutePath != absolutePath)
             continue;
 
-        bind->_typeEnvironment->setProperty(componentName(otherFileInfo.fileName()), otherBind->_rootObjectValue);
+        bind->_typeEnvironment->setProperty(componentName(otherFileInfo.fileName()),
+                                            otherBind->_rootObjectValue);
     }
 
     // explicit imports, whether directories or files
@@ -68,9 +65,6 @@ void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
             QFileInfo otherFileInfo(otherDoc->fileName());
             const QString otherAbsolutePath = otherFileInfo.absolutePath();
 
-            if (path != otherDoc->fileName() && path != otherAbsolutePath)
-                continue;
-
             bool directoryImport = (path == otherAbsolutePath);
             bool fileImport = (path == otherDoc->fileName());
             if (!directoryImport && !fileImport)
@@ -78,7 +72,9 @@ void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
 
             ObjectValue *importInto = bind->_typeEnvironment;
             if (directoryImport && it->import->importId) {
-                // ### TODO: set importInto to a namespace object value
+                ObjectValue *namespaceObject = bind->_interp->newObject(/*prototype =*/0);
+                importInto->setProperty(it->import->importId->asString(), namespaceObject);
+                importInto = namespaceObject;
             }
 
             QString targetName;
