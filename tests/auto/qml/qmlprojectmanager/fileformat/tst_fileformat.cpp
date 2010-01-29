@@ -14,7 +14,7 @@ public:
     TestProject();
 
 private slots:
-    void testQmlFileFilter();
+    void testFileFilter();
 };
 
 TestProject::TestProject()
@@ -24,7 +24,7 @@ TestProject::TestProject()
 
 QString testDataDir = QLatin1String(SRCDIR "/data");
 
-void TestProject::testQmlFileFilter()
+void TestProject::testFileFilter()
 {
     //
     // search for qml files in local directory

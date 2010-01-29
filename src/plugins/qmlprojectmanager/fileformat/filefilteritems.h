@@ -58,7 +58,7 @@ private:
     QString m_defaultDir;
 
     QString m_filter;
-    QRegExp m_regex;
+    QList<QRegExp> m_regExpList;
     bool m_recursive;
     QSet<QString> m_explicitFiles;
 

@@ -41,7 +41,7 @@ using namespace QmlProjectManager;
 using namespace QmlProjectManager::Internal;
 
 QmlProjectNode::QmlProjectNode(QmlProject *project, Core::IFile *projectFile)
-    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absolutePath()),
+    : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absoluteFilePath()),
       m_project(project),
       m_projectFile(projectFile)
 {
@@ -145,6 +145,7 @@ ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QStr
     FolderNode *parent = findOrCreateFolderByName(components, end - 1);
     if (! parent)
         parent = this;
+
     addFolderNodes(QList<FolderNode*>() << folder, parent);
 
     return folder;
