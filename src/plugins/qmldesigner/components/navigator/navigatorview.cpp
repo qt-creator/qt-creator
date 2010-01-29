@@ -85,7 +85,7 @@ namespace QmlDesigner {
 //            QIcon icon=node.metaInfo().icon();
 //            if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
 //            QPixmap pixmap = icon.pixmap(option.rect.width(),option.rect.height());
-//            painter->drawPixmap(option.rect.x(),option.rect.y(),pixmap);
+//            painter->drawPixmap(option.rect.x()+1,option.rect.y(),pixmap);
 
             QString myString = node.id();
             if (myString.isEmpty())
@@ -96,6 +96,7 @@ namespace QmlDesigner {
                 font.setBold(true);
                 painter->setFont(font);
             }
+//            painter->drawText(option.rect.bottomLeft()+QPoint(4+pixmap.width(),-4),myString);
             painter->drawText(option.rect.bottomLeft()+QPoint(4,-4),myString);
 
             painter->restore();
