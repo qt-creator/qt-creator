@@ -1084,9 +1084,9 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
     return ok;
 }
 
-void CdbDebugEngine::fetchDisassembler(DisassemblerViewAgent *agent,
-                                       const StackFrame & frame)
+void CdbDebugEngine::fetchDisassembler(DisassemblerViewAgent *agent)
 {
+    StackFrame frame = agent->frame();
     enum { ContextLines = 40 };
     bool ok = false;
     QString errorMessage;

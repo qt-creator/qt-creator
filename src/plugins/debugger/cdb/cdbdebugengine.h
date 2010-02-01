@@ -88,8 +88,7 @@ public:
 
     virtual void attemptBreakpointSynchronization();
 
-    virtual void fetchDisassembler(DisassemblerViewAgent *agent,
-        const StackFrame &frame);
+    virtual void fetchDisassembler(DisassemblerViewAgent *agent);
     virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length);
 
     virtual void reloadModules();

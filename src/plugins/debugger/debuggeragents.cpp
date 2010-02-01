@@ -153,8 +153,11 @@ public:
 
 struct DisassemblerViewAgentPrivate
 {
+    DisassemblerViewAgentPrivate() { tryMixed = true; }
+
     QPointer<TextEditor::ITextEditor> editor;
     StackFrame frame;
+    bool tryMixed;
     QPointer<DebuggerManager> manager;
     LocationMark2 *locationMark;
     QHash<QString, QString> cache;
@@ -230,10 +233,24 @@ QString frameKey(const StackFrame &frame)
     return _("%1:%2:%3").arg(frame.function).arg(frame.file).arg(frame.from);
 }
 
-void DisassemblerViewAgent::setFrame(const StackFrame &frame)
+const StackFrame &DisassemblerViewAgent::frame() const
+{
+    return d->frame;
+}
+
+bool DisassemblerViewAgent::isMixed() const
+{
+    return d->tryMixed
+        && d->frame.line > 0
+        && !d->frame.function.isEmpty()
+        && d->frame.function != _("??");
+}
+
+void DisassemblerViewAgent::setFrame(const StackFrame &frame, bool tryMixed)
 {
     d->frame = frame;
-    if (!frame.function.isEmpty() && frame.function != _("??")) {
+    d->tryMixed = tryMixed;
+    if (isMixed()) {
         QHash<QString, QString>::ConstIterator it = d->cache.find(frameKey(frame));
         if (it != d->cache.end()) {
             QString msg = _("Use cache disassembler for '%1' in '%2'")
@@ -245,7 +262,7 @@ void DisassemblerViewAgent::setFrame(const StackFrame &frame)
     }
     IDebuggerEngine *engine = d->manager->currentEngine();
     QTC_ASSERT(engine, return);
-    engine->fetchDisassembler(this, frame);
+    engine->fetchDisassembler(this);
 }
 
 void DisassemblerViewAgent::setContents(const QString &contents)

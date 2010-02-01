@@ -83,12 +83,14 @@ public:
     explicit DisassemblerViewAgent(DebuggerManager *manager);
     ~DisassemblerViewAgent();
 
-    void setFrame(const StackFrame &frame);
+    void setFrame(const StackFrame &frame, bool tryMixed = true);
+    const StackFrame &frame() const;
     void resetLocation();
     Q_SLOT void setContents(const QString &contents);
     QString address() const;
     bool contentsCoversAddress(const QString &contents) const;
     void cleanup();
+    bool isMixed() const;
 
 private:
     DisassemblerViewAgentPrivate *d;

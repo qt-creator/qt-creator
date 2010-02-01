@@ -300,6 +300,8 @@ private: ////////// Inferior Management //////////
     virtual void jumpToLineExec(const QString &fileName, int lineNumber);
 
     void handleExecContinue(const GdbResponse &response);
+    void handleExecStep(const GdbResponse &response);
+    void handleExecNext(const GdbResponse &response);
 
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
     void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }
@@ -357,8 +359,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Disassembler specific stuff
     //
-    virtual void fetchDisassembler(DisassemblerViewAgent *agent,
-        const StackFrame &frame);
+    virtual void fetchDisassembler(DisassemblerViewAgent *agent);
     void fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
         bool useMixedMode);
     void handleFetchDisassemblerByLine(const GdbResponse &response);

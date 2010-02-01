@@ -1727,9 +1727,35 @@ void GdbEngine::stepExec()
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-step", RunRequest, CB(handleExecContinue));
+        postCommand("-reverse-step", RunRequest, CB(handleExecStep));
     else
-        postCommand("-exec-step", RunRequest, CB(handleExecContinue));
+        postCommand("-exec-step", RunRequest, CB(handleExecStep));
+}
+
+void GdbEngine::handleExecStep(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultRunning) {
+        // The "running" state is picked up in handleResponse()
+        QTC_ASSERT(state() == InferiorRunning, /**/);
+    } else {
+        if (state() == InferiorRunningRequested_Kill) {
+            setState(InferiorStopped);
+            shutdown();
+            return;
+        }
+        QTC_ASSERT(state() == InferiorRunningRequested, /**/);
+        setState(InferiorStopped);
+        QByteArray msg = response.data.findChild("msg").data();
+        if (msg.startsWith("Cannot find bounds of current function")) {
+            if (!m_commandsToRunOnTemporaryBreak.isEmpty())
+                flushQueuedCommands();
+            stepIExec(); // Fall back to instruction-wise stepping.
+        } else {
+            showMessageBox(QMessageBox::Critical, tr("Execution Error"),
+                tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+            shutdown();
+        }
+    }
 }
 
 void GdbEngine::stepIExec()
@@ -1760,9 +1786,35 @@ void GdbEngine::nextExec()
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step next requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-next", RunRequest, CB(handleExecContinue));
+        postCommand("-reverse-next", RunRequest, CB(handleExecNext));
     else
-        postCommand("-exec-next", RunRequest, CB(handleExecContinue));
+        postCommand("-exec-next", RunRequest, CB(handleExecNext));
+}
+
+void GdbEngine::handleExecNext(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultRunning) {
+        // The "running" state is picked up in handleResponse()
+        QTC_ASSERT(state() == InferiorRunning, /**/);
+    } else {
+        if (state() == InferiorRunningRequested_Kill) {
+            setState(InferiorStopped);
+            shutdown();
+            return;
+        }
+        QTC_ASSERT(state() == InferiorRunningRequested, /**/);
+        setState(InferiorStopped);
+        QByteArray msg = response.data.findChild("msg").data();
+        if (msg.startsWith("Cannot find bounds of current function")) {
+            if (!m_commandsToRunOnTemporaryBreak.isEmpty())
+                flushQueuedCommands();
+            nextIExec(); // Fall back to instruction-wise stepping.
+        } else {
+            showMessageBox(QMessageBox::Critical, tr("Execution Error"),
+                tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+            shutdown();
+        }
+    }
 }
 
 void GdbEngine::nextIExec()
@@ -3405,18 +3457,20 @@ struct DisassemblerAgentCookie
     QPointer<DisassemblerViewAgent> agent;
 };
 
-void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent,
-    const StackFrame &frame)
+
+// FIXME: add agent->frame() accessor and use that
+void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
 {
-    if (frame.file.isEmpty()) {
-        fetchDisassemblerByAddress(agent, true);
-    } else {
+    if (agent->isMixed()) {
         // Disassemble full function:
+        const StackFrame &frame = agent->frame();
         QByteArray cmd = "-data-disassemble"
             " -f " + frame.file.toLocal8Bit() +
             " -l " + QByteArray::number(frame.line) + " -n -1 -- 1";
         postCommand(cmd, Discardable, CB(handleFetchDisassemblerByLine),
             QVariant::fromValue(DisassemblerAgentCookie(agent)));
+    } else {
+        fetchDisassemblerByAddress(agent, true);
     }
 }
 

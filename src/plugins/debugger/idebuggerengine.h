@@ -56,7 +56,6 @@ namespace Internal {
 
 class DisassemblerViewAgent;
 class MemoryViewAgent;
-struct StackFrame;
 class Symbol;
 class WatchData;
 
@@ -111,7 +110,7 @@ public:
     virtual void watchPoint(const QPoint &) {}
     virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length)
         { Q_UNUSED(addr); Q_UNUSED(length); }
-    virtual void fetchDisassembler(DisassemblerViewAgent *, const StackFrame &) {}
+    virtual void fetchDisassembler(DisassemblerViewAgent *) {}
     virtual void setRegisterValue(int regnr, const QString &value)
         { Q_UNUSED(regnr); Q_UNUSED(value); }
 
