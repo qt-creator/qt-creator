@@ -157,15 +157,7 @@ void BuildSettingsWidget::setupUi()
         vbox->addLayout(hbox);
     }
 
-    m_makeActiveLabel = new QLabel(this);
-    m_makeActiveLabel->setContentsMargins(m_leftMargin, 4, 0, 4);
-    m_makeActiveLabel->setVisible(false);
-    vbox->addWidget(m_makeActiveLabel);
-
     m_buildConfiguration = m_project->activeBuildConfiguration();
-
-    connect(m_makeActiveLabel, SIGNAL(linkActivated(QString)),
-            this, SLOT(makeActive()));
 
     connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(currentIndexChanged(int)));
@@ -178,8 +170,7 @@ void BuildSettingsWidget::setupUi()
 //            this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
 
     connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
-            this, SLOT(checkMakeActiveLabel()));
-
+            this, SLOT(updateConfigurationComboBoxLabels()));
     connect(m_project, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
 
@@ -214,9 +205,8 @@ void BuildSettingsWidget::buildConfigurationDisplayNameChanged()
 {
     for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
         BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>();
-        m_buildConfigurationComboBox->setItemText(i, bc->displayName());
+        m_buildConfigurationComboBox->setItemText(i, buildConfigurationItemName(bc));
     }
-    checkMakeActiveLabel();
 }
 
 void BuildSettingsWidget::addSubWidget(const QString &name, QWidget *widget)
@@ -251,11 +241,6 @@ void BuildSettingsWidget::clear()
 QList<QWidget *> BuildSettingsWidget::subWidgets() const
 {
     return m_subWidgets;
-}
-
-void BuildSettingsWidget::makeActive()
-{
-    m_project->setActiveBuildConfiguration(m_buildConfiguration);
 }
 
 void BuildSettingsWidget::updateAddButtonMenu()
@@ -297,23 +282,23 @@ void BuildSettingsWidget::updateBuildSettings()
 
     // Add tree items
     foreach (BuildConfiguration *bc, m_project->buildConfigurations()) {
-        m_buildConfigurationComboBox->addItem(bc->displayName(), QVariant::fromValue<BuildConfiguration *>(bc));
+        m_buildConfigurationComboBox->addItem(buildConfigurationItemName(bc), QVariant::fromValue<BuildConfiguration *>(bc));
         if (bc == m_buildConfiguration)
             m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
     }
 
     m_buildConfigurationComboBox->blockSignals(blocked);
 
-    activeBuildConfigurationChanged();
+    currentBuildConfigurationChanged();
 }
 
 void BuildSettingsWidget::currentIndexChanged(int index)
 {
     m_buildConfiguration = m_buildConfigurationComboBox->itemData(index).value<BuildConfiguration *>();
-    activeBuildConfigurationChanged();
+    currentBuildConfigurationChanged();
 }
 
-void BuildSettingsWidget::activeBuildConfigurationChanged()
+void BuildSettingsWidget::currentBuildConfigurationChanged()
 {
     for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
         if (m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>() == m_buildConfiguration) {
@@ -326,16 +311,21 @@ void BuildSettingsWidget::activeBuildConfigurationChanged()
             buildStepWidget->init(m_buildConfiguration);
         }
     }
-    checkMakeActiveLabel();
 }
 
-void BuildSettingsWidget::checkMakeActiveLabel()
+void BuildSettingsWidget::updateConfigurationComboBoxLabels()
 {
-    m_makeActiveLabel->setVisible(false);
-    if (!m_project->activeBuildConfiguration() || m_project->activeBuildConfiguration() != m_buildConfiguration) {
-        m_makeActiveLabel->setText(tr("<a href=\"#\">Make %1 active.</a>").arg(m_buildConfiguration->displayName()));
-        m_makeActiveLabel->setVisible(true);
+    for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
+        BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>();
+        m_buildConfigurationComboBox->setItemText(i, buildConfigurationItemName(bc));
     }
+}
+
+QString BuildSettingsWidget::buildConfigurationItemName(const BuildConfiguration *bc) const
+{
+    if (bc == m_project->activeBuildConfiguration())
+        return tr("%1 (Active)").arg(bc->displayName());
+    return bc->displayName();
 }
 
 void BuildSettingsWidget::createConfiguration()

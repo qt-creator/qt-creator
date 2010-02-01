@@ -86,13 +86,11 @@ private slots:
     void removeRunConfiguration();
     void displayNameChanged();
     void initRunConfigurationComboBox();
-    void updateMakeActiveLabel();
-    void makeActive();
+    void activeRunConfigurationChanged();
 private:
     Project *m_project;
     RunConfigurationsModel *m_runConfigurationsModel;
     Ui::RunSettingsPropertiesPage *m_ui;
-    QLabel *m_makeActiveLabel;
     QWidget *m_runConfigurationWidget;
     QMenu *m_addMenu;
 };
