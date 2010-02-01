@@ -285,17 +285,9 @@ bool Bind::visit(UiImport *ast)
     return false;
 }
 
-bool Bind::visit(UiPublicMember *ast)
+bool Bind::visit(UiPublicMember *)
 {
-#if 0
-    if (_currentObjectValue && ast->name && ast->memberType) {
-        const QString propName = ast->name->asString();
-        const QString propType = ast->memberType->asString();
-
-        _currentObjectValue->setProperty(propName, _interp->defaultValueForBuiltinType(propType));
-    }
-#endif
-
+    // nothing to do.
     return false;
 }
 
