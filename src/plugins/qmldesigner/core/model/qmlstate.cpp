@@ -174,7 +174,9 @@ void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
         return; //changeSet already there
     }
 
-    ModelNode newChangeSet(modelNode().addChildNode("Qt/PropertyChanges", 4, 6, "changes"));
+    ModelNode newChangeSet = modelNode().view()->createModelNode("Qt/PropertyChanges", 4, 6);
+    modelNode().nodeListProperty("changes").reparentHere(newChangeSet);
+
     QmlPropertyChanges(newChangeSet).setTarget(node);
     Q_ASSERT(QmlPropertyChanges(newChangeSet).isValid());
 }

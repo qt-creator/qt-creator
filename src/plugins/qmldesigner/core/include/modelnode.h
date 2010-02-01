@@ -104,7 +104,6 @@ public:
     void setParentProperty(const ModelNode &newParentNode, const QString &propertyName);
     bool hasParentProperty() const;
 
-    ModelNode addChildNode(const QString &nodeTypeString, int majorVersion, int minorVersion, const QString &propertyName, const PropertyListType &propertyList = PropertyListType());
     const QList<ModelNode> allDirectSubModelNodes() const;
     const QList<ModelNode> allSubModelNodes() const;
     bool hasAnySubModelNodes() const;

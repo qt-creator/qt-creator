@@ -64,7 +64,6 @@ There is always a root model node in every QmlDesigner::Model:
 \code
 QmlDesigner::Model *model = QmlDesigner::Model::create();
 QmlDesigner::ModelNode rootNode = model->rootNode();
-QmlDesigner::ModelNode childNode = rootNode.addChildNode("QLineEdit");
 \endcode
 
 You can add a property to a node:
@@ -321,7 +320,7 @@ ModelNode parentNode4 = node.parentProperty().parentModelNode();
 parentNode4 == parentNode1; -> true
 \endcode
 
-\see parentNode childNodes addChildNode hasChildNodes Model::undo
+\see parentNode childNodes hasChildNodes Model::undo
 
 */
 
@@ -354,7 +353,7 @@ void ModelNode::setParentProperty(const ModelNode &newParentNode, const QString 
 
 /*! \brief test if there is a parent for this node
 \return true is this node has a parent
-\see childNodes parentNode setParentNode addChildNode hasChildNodes Model::undo
+\see childNodes parentNode setParentNode hasChildNodes Model::undo
 */
 bool ModelNode::hasParentProperty() const
 {
@@ -573,27 +572,6 @@ void ModelNode::removeProperty(const QString &name)
         model()->m_d->removeProperty(internalNode()->property(name));
 }
 
-
-
-/*! \brief creates a new node and add it as child to this node
-\param nodeTypeString type name of the child node
-\param propertyList list of properties
-\return the new created model node
-
-*/
-ModelNode ModelNode::addChildNode(const QString &nodeTypeString, int majorVersion, int minorVersion, const QString &propertyName, const PropertyListType &propertyList)
-{
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
-
-    ModelNode newNode(view()->createModelNode(nodeTypeString, majorVersion, minorVersion, propertyList));
-
-    newNode.setParentProperty(nodeListProperty(propertyName));
-
-    return newNode;
-}
 
 /*! \brief removes this node from the node tree
 */

@@ -195,7 +195,8 @@ void ColorWidget::updateGradientNode()
         if (m_modelNode.hasProperty("gradient")) {
             m_modelNode.removeProperty("gradient");
         }
-        gradientNode = m_modelNode.addChildNode("Qt/Gradient", 4, 6, "gradient");
+        gradientNode =  m_modelNode.view()->createModelNode("Qt/Gradient", 4, 6);
+        m_modelNode.nodeProperty("gradient").reparentHere(gradientNode);
         m_gradientNode = gradientNode;
     }
 
