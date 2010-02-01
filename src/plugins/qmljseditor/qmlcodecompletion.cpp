@@ -545,29 +545,6 @@ bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
     return false;
 }
 
-bool QmlCodeCompletion::isImported(Document::Ptr doc, const QString &currentFilePath) const
-{
-    if (! (doc && doc->qmlProgram()))
-        return false;
-
-    QFileInfo fileInfo(doc->fileName());
-    const QString absolutePath = fileInfo.absolutePath();
-
-    for (AST::UiImportList *it = doc->qmlProgram()->imports; it; it = it->next) {
-        if (! (it->import && it->import->fileName))
-            continue;
-
-        QString path = absolutePath;
-        path += QLatin1Char('/');
-        path += it->import->fileName->asString();
-        path = QDir::cleanPath(path);
-        if (path == currentFilePath)
-            return true;
-    }
-
-    return false;
-}
-
 bool QmlCodeCompletion::isDelimiter(const QChar &ch) const
 {
     switch (ch.unicode()) {

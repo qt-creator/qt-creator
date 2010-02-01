@@ -73,7 +73,6 @@ public:
 
 private:
     void updateSnippets();
-    bool isImported(QmlJS::Document::Ptr doc, const QString &currentFilePath) const;
 
     bool isDelimiter(const QChar &ch) const;
 
