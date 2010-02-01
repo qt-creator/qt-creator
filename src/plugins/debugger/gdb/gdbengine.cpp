@@ -3583,7 +3583,8 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
     } else {
         // 536^error,msg="mi_cmd_disassemble: Invalid line number"
         QByteArray msg = response.data.findChild("msg").data();
-        if (msg == "mi_cmd_disassemble: Invalid line number")
+        if (msg == "mi_cmd_disassemble: Invalid line number" 
+                || msg.startsWith("Cannot access memory at address"))
             fetchDisassemblerByAddress(ac.agent, true);
         else
             showStatusMessage(tr("Disassembler failed: %1").arg(QString::fromLocal8Bit(msg)), 5000);
