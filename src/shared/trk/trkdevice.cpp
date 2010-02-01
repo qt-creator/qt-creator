@@ -504,7 +504,7 @@ static inline bool overlappedSyncWrite(HANDLE file,
 bool WriterThread::write(const QByteArray &data, QString *errorMessage)
 {
     if (verboseTrk)
-        qDebug() << "Write raw data: " << data.toHex();
+        qDebug() << "Write raw data: " << stringFromArray(data).toLatin1();
     QMutexLocker locker(&m_context->mutex);
 #ifdef Q_OS_WIN
     DWORD charsWritten;
@@ -1049,8 +1049,13 @@ void TrkDevice::sendTrkMessage(byte code, TrkCallback callback,
      const QByteArray &data, const QVariant &cookie)
 {
     if (!d->writerThread.isNull()) {
-        if (d->verbose > 1)
-            qDebug() << "Sending " << code << data.toHex();
+        if (d->verbose > 1) {
+            QByteArray msg = "Sending:  ";
+            msg += QByteArray::number(code, 16);
+            msg += ": ";
+            msg += stringFromArray(data).toLatin1();
+            qDebug("%s", msg.data());
+        }
         d->writerThread->queueTrkMessage(code, callback, data, cookie);
     }
 }

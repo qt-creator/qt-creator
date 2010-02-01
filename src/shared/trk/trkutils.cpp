@@ -192,6 +192,7 @@ QString TrkResult::toString() const
     res += QLatin1String(" [");
     res += stringFromByte(token);
     res += QLatin1Char(']');
+    res += QLatin1Char(' ');
     res += stringFromArray(data);
     return res;
 }
