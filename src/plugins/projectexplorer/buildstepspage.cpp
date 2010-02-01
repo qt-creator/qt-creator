@@ -213,7 +213,7 @@ void BuildStepsPage::addBuildStep()
 
         addBuildStepWidget(pos, newStep);
         const BuildStepsWidgetStruct s = m_buildSteps.at(pos);
-        s.detailsWidget->setExpanded(true);
+        s.detailsWidget->setState(Utils::DetailsWidget::Expanded);
     }
 
     m_noStepsLabel->setVisible(false);

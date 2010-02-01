@@ -110,6 +110,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     vbox->setMargin(0);
 
     m_detailsContainer = new Utils::DetailsWidget(this);
+    m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
     vbox->addWidget(m_detailsContainer);
 
     QWidget *detailsWidget = new QWidget(m_detailsContainer);
@@ -246,7 +247,6 @@ void CustomExecutableConfigurationWidget::changed()
                arg(executable,
                    ProjectExplorer::Environment::joinArgumentList(m_runConfiguration->commandLineArguments()));
 
-    m_detailsContainer->setSummaryText(text);
     // We triggered the change, don't update us
     if (m_ignoreChange)
         return;

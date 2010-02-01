@@ -123,9 +123,6 @@ class DependenciesWidget : public QWidget
 public:
     DependenciesWidget(SessionManager *session, Project *project,
                        QWidget *parent = 0);
-private slots:
-    void updateDetails();
-
 private:
     SessionManager *m_session;
     Project *m_project;

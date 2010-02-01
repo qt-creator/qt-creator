@@ -76,6 +76,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     m_deviceInfoLabel(new QLabel),
     m_infoTimeOutTimer(0)
 {
+    m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     updateTargetInformation();
     QVBoxLayout *mainBoxLayout = new QVBoxLayout();
     mainBoxLayout->setMargin(0);
@@ -172,7 +173,6 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     connect(customSignature, SIGNAL(toggled(bool)), this, SLOT(customSignatureToggled(bool)));
     connect(signaturePath, SIGNAL(changed(QString)), this, SLOT(signaturePathChanged(QString)));
     connect(keyPath, SIGNAL(changed(QString)), this, SLOT(keyPathChanged(QString)));
-    updateSummary();
 }
 
 void S60DeviceRunConfigurationWidget::updateSerialDevices()
@@ -201,7 +201,6 @@ void S60DeviceRunConfigurationWidget::updateSerialDevices()
         if (newPortName != previousRunConfigurationPortName)
             m_runConfiguration->setSerialPortName(newPortName);
     }
-    updateSummary();
 }
 
 CommunicationDevice S60DeviceRunConfigurationWidget::device(int i) const
@@ -248,45 +247,28 @@ void S60DeviceRunConfigurationWidget::setSerialPort(int index)
     m_runConfiguration->setCommunicationType(d.type);
     m_deviceInfoButton->setEnabled(index >= 0);
     clearDeviceInfo();
-    updateSummary();
 }
 
 void S60DeviceRunConfigurationWidget::selfSignToggled(bool toggle)
 {
     if (toggle)
         m_runConfiguration->setSigningMode(S60DeviceRunConfiguration::SignSelf);
-    updateSummary();
 }
 
 void S60DeviceRunConfigurationWidget::customSignatureToggled(bool toggle)
 {
     if (toggle)
         m_runConfiguration->setSigningMode(S60DeviceRunConfiguration::SignCustom);
-    updateSummary();
 }
 
 void S60DeviceRunConfigurationWidget::signaturePathChanged(const QString &path)
 {
     m_runConfiguration->setCustomSignaturePath(path);
-    updateSummary();
 }
 
 void S60DeviceRunConfigurationWidget::keyPathChanged(const QString &path)
 {
     m_runConfiguration->setCustomKeyPath(path);
-    updateSummary();
-}
-
-void S60DeviceRunConfigurationWidget::updateSummary()
-{
-    //: Summary text of S60 device run configuration
-    const QString device = m_serialPortsCombo->currentIndex() != -1 ?
-                           m_serialPortsCombo->currentText() :
-                           tr("<No Device>");
-    const QString signature = m_runConfiguration->signingMode() == S60DeviceRunConfiguration::SignCustom ?
-                              tr("(custom certificate)") :
-                              tr("(self-signed certificate)");
-    m_detailsWidget->setSummaryText(tr("Summary: Run on '%1' %2").arg(device, signature));
 }
 
 void S60DeviceRunConfigurationWidget::clearDeviceInfo()

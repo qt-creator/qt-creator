@@ -182,7 +182,6 @@ private slots:
     void baseEnvironmentSelected(int index);
 
 private:
-    void updateSummary();
     Qt4RunConfiguration *m_qt4RunConfiguration;
     bool m_ignoreChange;
     QLabel *m_executableLabel;

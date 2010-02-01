@@ -239,6 +239,7 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
     m_detailsContainer = new Utils::DetailsWidget(this);
+    m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
     vbox->addWidget(m_detailsContainer);
 
     QWidget *detailsWidget = new QWidget(m_detailsContainer);
@@ -250,38 +251,6 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
     treeView->setHeaderHidden(true);
     layout->addWidget(treeView);
     layout->addSpacerItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed));
-
-    updateDetails();
-
-    connect(session, SIGNAL(dependencyChanged(ProjectExplorer::Project*,ProjectExplorer::Project*)),
-            this, SLOT(updateDetails()));
-
-    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
-            this, SLOT(updateDetails()));
-    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(updateDetails()));
-    connect(session, SIGNAL(sessionLoaded()),
-            this, SLOT(updateDetails()));
-}
-
-void DependenciesWidget::updateDetails()
-{
-    QStringList dependsOn;
-
-    foreach(Project *other, m_session->projects()) {
-        if (m_session->hasDependency(m_project, other)) {
-            dependsOn.append(other->displayName());
-        }
-    }
-    QString text;
-    if (dependsOn.isEmpty()) {
-        text = tr("%1 has no dependencies.").arg(m_project->displayName());
-    } else if (dependsOn.count() == 1) {
-        text =tr("%1 depends on %2.").arg(m_project->displayName(), dependsOn.first());
-    } else {
-        text = tr("%1 depends on: %2.").arg(m_project->displayName(), dependsOn.join(QLatin1String(", ")));
-    }
-    m_detailsContainer->setSummaryText(text);
 }
 
 //

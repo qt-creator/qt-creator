@@ -62,6 +62,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setMargin(0);
     m_detailsContainer = new Utils::DetailsWidget(this);
+    m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
     vbox->addWidget(m_detailsContainer);
     QWidget *details = new QWidget(m_detailsContainer);
     m_detailsContainer->setWidget(details);
@@ -123,24 +124,6 @@ void Qt4ProjectConfigWidget::updateDetails()
         versionString = version->displayName();
     } else {
         versionString = tr("No Qt Version set");
-    }
-
-    if (!version->isValid()) {
-        // Not a valid qt version
-        m_detailsContainer->setSummaryText(
-                tr("using <font color=\"#ff0000\">invalid</font> Qt Version: <b>%1</b><br>"
-                   "%2")
-                .arg(versionString,
-                     version->invalidReason()));
-    } else {
-        // Qt Version, Build Directory and Toolchain
-        m_detailsContainer->setSummaryText(
-                tr("using Qt version: <b>%1</b><br>"
-                   "with tool chain <b>%2</b><br>"
-                   "building in <b>%3</b>")
-                .arg(versionString,
-                     ProjectExplorer::ToolChain::toolChainName(m_buildConfiguration->toolChainType()),
-                     QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
     }
 }
 

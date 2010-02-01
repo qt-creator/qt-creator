@@ -178,6 +178,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     vboxTopLayout->setMargin(0);
 
     m_detailsContainer = new Utils::DetailsWidget(this);
+    m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
     vboxTopLayout->addWidget(m_detailsContainer);
     QWidget *detailsWidget = new QWidget(m_detailsContainer);
     m_detailsContainer->setWidget(detailsWidget);
@@ -193,6 +194,11 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     m_executableLabel = new QLabel(m_qt4RunConfiguration->executable());
     toplayout->addRow(tr("Executable:"), m_executableLabel);
 
+    QLabel *argumentsLabel = new QLabel(tr("Arguments:"));
+    m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()));
+    argumentsLabel->setBuddy(m_argumentsLineEdit);
+    toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
+
     m_workingDirectoryEdit = new Utils::PathChooser();
     m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->workingDirectory());
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
@@ -207,11 +213,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     boxlayout->addWidget(m_workingDirectoryEdit);
     boxlayout->addWidget(resetButton);
     toplayout->addRow(tr("Working Directory:"), boxlayout);
-
-    QLabel *argumentsLabel = new QLabel(tr("Arguments:"));
-    m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()));
-    argumentsLabel->setBuddy(m_argumentsLineEdit);
-    toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
     m_useTerminalCheck = new QCheckBox(tr("Run in Terminal"));
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
@@ -291,17 +292,6 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
-}
-
-void Qt4RunConfigurationWidget::updateSummary()
-{
-    const QString &filename = QFileInfo(m_qt4RunConfiguration->executable()).fileName();
-    const QString &arguments = ProjectExplorer::Environment::joinArgumentList(m_qt4RunConfiguration->commandLineArguments());
-    const bool terminal = m_qt4RunConfiguration->runMode() == LocalApplicationRunConfiguration::Console;
-    const QString text = terminal ?
-                         tr("Running executable: <b>%1</b> %2 (in terminal)").arg(filename, arguments) :
-                         tr("Running executable: <b>%1</b> %2").arg(filename, arguments);
-    m_detailsContainer->setSummaryText(text);
 }
 
 void Qt4RunConfigurationWidget::baseEnvironmentSelected(int index)
@@ -391,7 +381,6 @@ void Qt4RunConfigurationWidget::workingDirectoryChanged(const QString &workingDi
 
 void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
 {
-    updateSummary();
     if (m_ignoreChange)
         return;
     m_argumentsLineEdit->setText(args);
@@ -405,7 +394,6 @@ void Qt4RunConfigurationWidget::displayNameChanged(const QString &name)
 
 void Qt4RunConfigurationWidget::runModeChanged(LocalApplicationRunConfiguration::RunMode runMode)
 {
-    updateSummary();
     if (!m_ignoreChange)
         m_useTerminalCheck->setChecked(runMode == LocalApplicationRunConfiguration::Console);
 }
@@ -418,7 +406,6 @@ void Qt4RunConfigurationWidget::usingDyldImageSuffixChanged(bool state)
 
 void Qt4RunConfigurationWidget::effectiveTargetInformationChanged()
 {
-    updateSummary();
     if (m_isShown) {
         m_executableLabel->setText(QDir::toNativeSeparators(m_qt4RunConfiguration->executable()));
         m_ignoreChange = true;

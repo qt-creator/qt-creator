@@ -47,16 +47,24 @@ class QTCREATOR_UTILS_EXPORT DetailsWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString summaryText READ summaryText WRITE setSummaryText DESIGNABLE true)
-    Q_PROPERTY(bool expanded READ isExpanded WRITE setExpanded DESIGNABLE true)
+    Q_PROPERTY(State state READ state WRITE setState)
 
 public:
+    enum State {
+        Expanded,
+        Collapsed,
+        NoSummary
+    };
+
+
     DetailsWidget(QWidget *parent = 0);
     ~DetailsWidget();
 
     void setSummaryText(const QString &text);
     QString summaryText() const;
 
-    bool isExpanded() const;
+    void setState(State state);
+    State state() const;
 
     void setWidget(QWidget *widget);
     QWidget *widget() const;
@@ -64,11 +72,8 @@ public:
     void setToolWidget(QWidget *widget);
     QWidget *toolWidget() const;
 
-public slots:
+private slots:
     void setExpanded(bool);
-
-signals:
-    void expanded(bool);
 
 protected:
     void paintEvent(QPaintEvent *paintEvent);
@@ -76,6 +81,7 @@ protected:
     void leaveEvent(QEvent *event);
 
 private:
+    void updateControls();
     QPixmap cacheBackground(const QSize &size, bool expanded);
     void changeHoverState(bool hovered);
 
@@ -88,6 +94,7 @@ private:
     QPixmap m_collapsedPixmap;
     QPixmap m_expandedPixmap;
 
+    State m_state;
     bool m_hovered;
 };
 }

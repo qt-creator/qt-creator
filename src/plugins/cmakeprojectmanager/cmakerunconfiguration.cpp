@@ -320,6 +320,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     fl->addRow(tr("Working Directory:"), boxlayout);
 
     m_detailsContainer = new Utils::DetailsWidget(this);
+    m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
 
     QWidget *m_details = new QWidget(m_detailsContainer);
     m_detailsContainer->setWidget(m_details);
@@ -359,8 +360,6 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     m_environmentWidget->setUserChanges(m_cmakeRunConfiguration->userEnvironmentChanges());
 
     vbx->addWidget(m_environmentWidget);
-
-    updateSummary();
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),
             this, SLOT(setWorkingDirectory()));
@@ -435,17 +434,7 @@ void CMakeRunConfigurationWidget::userEnvironmentChangesChanged()
 void CMakeRunConfigurationWidget::setArguments(const QString &args)
 {
     m_cmakeRunConfiguration->setArguments(args);
-    updateSummary();
 }
-
-void CMakeRunConfigurationWidget::updateSummary()
-{
-    QString text = tr("Running executable: <b>%1</b> %2")
-                   .arg(QFileInfo(m_cmakeRunConfiguration->executable()).fileName(),
-                        ProjectExplorer::Environment::joinArgumentList(m_cmakeRunConfiguration->commandLineArguments()));
-    m_detailsContainer->setSummaryText(text);
-}
-
 
 // Factory
 CMakeRunConfigurationFactory::CMakeRunConfigurationFactory(QObject *parent) :

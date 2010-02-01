@@ -75,7 +75,6 @@ private slots:
     void customSignatureToggled(bool toggle);
     void signaturePathChanged(const QString &path);
     void keyPathChanged(const QString &path);
-    void updateSummary();
     void updateDeviceInfo();
     void clearDeviceInfo();
     void slotLauncherStateChanged(int);

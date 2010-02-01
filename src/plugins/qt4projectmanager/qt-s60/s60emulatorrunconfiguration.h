@@ -100,7 +100,6 @@ public:
 private slots:
     void displayNameEdited(const QString &text);
     void updateTargetInformation();
-    void updateSummary();
 
 private:
     S60EmulatorRunConfiguration *m_runConfiguration;

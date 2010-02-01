@@ -205,6 +205,7 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
     m_nameLineEdit(new QLineEdit(m_runConfiguration->displayName())),
     m_executableLabel(new QLabel(m_runConfiguration->executable()))
 {
+    m_detailsWidget->setState(Utils::DetailsWidget::NoSummary);
     QVBoxLayout *mainBoxLayout = new QVBoxLayout();
     mainBoxLayout->setMargin(0);
     setLayout(mainBoxLayout);
@@ -227,7 +228,6 @@ S60EmulatorRunConfigurationWidget::S60EmulatorRunConfigurationWidget(S60Emulator
         this, SLOT(displayNameEdited(QString)));
     connect(m_runConfiguration, SIGNAL(targetInformationChanged()),
             this, SLOT(updateTargetInformation()));
-    updateSummary();
 }
 
 void S60EmulatorRunConfigurationWidget::displayNameEdited(const QString &text)
@@ -238,11 +238,6 @@ void S60EmulatorRunConfigurationWidget::displayNameEdited(const QString &text)
 void S60EmulatorRunConfigurationWidget::updateTargetInformation()
 {
     m_executableLabel->setText(m_runConfiguration->executable());
-}
-
-void S60EmulatorRunConfigurationWidget::updateSummary()
-{
-    m_detailsWidget->setSummaryText(tr("Summary: Run %1 in emulator").arg(m_runConfiguration->executable()));
 }
 
 // ======== S60EmulatorRunConfigurationFactory

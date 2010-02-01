@@ -135,7 +135,6 @@ private slots:
 
 private:
     void ctor();
-    void updateSummary();
     bool m_ignoreChange;
     CMakeRunConfiguration *m_cmakeRunConfiguration;
     Utils::PathChooser *m_workingDirectoryEdit;

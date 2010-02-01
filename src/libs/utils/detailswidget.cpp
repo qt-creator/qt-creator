@@ -58,6 +58,7 @@ DetailsWidget::DetailsWidget(QWidget *parent) :
     m_summaryLabel(new QLabel(this)),
     m_toolWidget(0),
     m_widget(0),
+    m_state(Collapsed),
     m_hovered(false)
 {
     m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -69,11 +70,9 @@ DetailsWidget::DetailsWidget(QWidget *parent) :
     m_grid->addWidget(m_summaryLabel, 0, 1);
     m_grid->addWidget(m_detailsButton, 0, 2);
 
-    m_detailsButton->setEnabled(false);
-    m_summaryLabel->setEnabled(true);
-
     connect(m_detailsButton, SIGNAL(toggled(bool)),
             this, SLOT(setExpanded(bool)));
+    updateControls();
 }
 
 DetailsWidget::~DetailsWidget()
@@ -90,7 +89,7 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
     QPoint topLeft(m_summaryLabel->geometry().left(), contentsRect().top());
     const QRect paintArea(topLeft, contentsRect().bottomRight());
 
-    if (!isExpanded()) {
+    if (m_state != Expanded) {
         if (m_collapsedPixmap.isNull() ||
             m_collapsedPixmap.size() != size())
             m_collapsedPixmap = cacheBackground(paintArea.size(), false);
@@ -125,23 +124,32 @@ QString DetailsWidget::summaryText() const
     return m_summaryLabel->text();
 }
 
-bool DetailsWidget::isExpanded() const
+DetailsWidget::State DetailsWidget::state() const
 {
-    if (!m_widget)
-        return false;
-    return m_widget->isVisible();
+    return m_state;
 }
 
-void DetailsWidget::setExpanded(bool expand)
+void DetailsWidget::setState(State state)
 {
-    if (!m_widget || isExpanded() == expand)
+    if (state == m_state)
         return;
+    m_state = state;
+    updateControls();
+}
 
-    m_summaryLabel->setEnabled(!expand);
-    m_widget->setVisible(expand);
-    m_detailsButton->setChecked(expand);
+void DetailsWidget::setExpanded(bool expanded)
+{
+    setState(expanded ? Expanded : Collapsed);
+}
 
-    emit expanded(expand);
+void DetailsWidget::updateControls()
+{
+    if (m_widget)
+        m_widget->setVisible(m_state == Expanded || m_state == NoSummary);
+    m_detailsButton->setChecked(m_state == Expanded && m_widget);
+    m_summaryLabel->setEnabled(m_state == Collapsed && m_widget);
+    m_detailsButton->setVisible(m_state != NoSummary);
+    m_summaryLabel->setVisible(m_state != NoSummary);
 }
 
 QWidget *DetailsWidget::widget() const
@@ -154,23 +162,18 @@ void DetailsWidget::setWidget(QWidget *widget)
     if (m_widget == widget)
         return;
 
-    const bool wasExpanded(isExpanded());
-
-    if (m_widget)
+    if (m_widget) {
         m_grid->removeWidget(m_widget);
+        delete m_widget;
+    }
 
     m_widget = widget;
 
     if (m_widget) {
-        m_widget->setVisible(wasExpanded);
         m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
         m_grid->addWidget(m_widget, 1, 1, 1, 2);
-        m_detailsButton->setEnabled(true);
-        m_detailsButton->setChecked(wasExpanded);
-    } else {
-        m_detailsButton->setEnabled(false);
-        m_detailsButton->setChecked(false);
     }
+    updateControls();
 }
 
 void DetailsWidget::setToolWidget(QWidget *widget)
