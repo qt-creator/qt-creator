@@ -1972,10 +1972,11 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             data->markerFileName = name;
     } else {
         name = QFile::decodeName(file);
-        // Use fullName() once we have a mapping which is more complete than gdb's own ...
-        // No point in assigning markerFileName for now.
+        // Use fullName() once we have a mapping which is more complete than
+        // gdb's own. No point in assigning markerFileName for now.
     }
-    data->bpFileName = name;
+    if (!name.isEmpty())
+        data->bpFileName = name;
 }
 
 QString GdbEngine::breakLocation(const QString &file) const
@@ -2204,10 +2205,11 @@ void GdbEngine::handleBreakInfo(const GdbResponse &response)
     BreakHandler *handler = manager()->breakHandler();
     if (response.resultClass == GdbResultDone) {
         // Old-style output for multiple breakpoints, presumably in a
-        // constructor
+        // constructor.
         int found = handler->findBreakpoint(bpNumber);
         if (found != -1) {
-            QString str = QString::fromLocal8Bit(response.data.findChild("consolestreamoutput").data());
+            QString str = QString::fromLocal8Bit(
+                response.data.findChild("consolestreamoutput").data());
             extractDataFromInfoBreak(str, handler->at(found));
             attemptBreakpointSynchronization(); // trigger "ready"
         }
@@ -2308,8 +2310,8 @@ void GdbEngine::attemptBreakpointSynchronization()
 
     for (int index = 0; index != handler->size(); ++index) {
         BreakpointData *data = handler->at(index);
-        if (data->bpNumber.isEmpty()) { // unset breakpoint?
-            data->bpNumber = " "; // Sent, but no feedback yet
+        if (data->bpNumber.isEmpty()) { // Unset breakpoint?
+            data->bpNumber = " "; // Sent, but no feedback yet.
             sendInsertBreakpoint(index);
         } else if (data->bpNumber.toInt()) {
             if (data->bpMultiple && data->bpFileName.isEmpty()) {
