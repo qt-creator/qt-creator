@@ -62,30 +62,30 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     QList<QAction*> upperActions;
 
-    m_toolActionGroup = new QActionGroup(this);
-
-    m_transformToolAction = m_toolActionGroup->addAction("Transform Tool (Press Key Q)");
-    m_transformToolAction->setShortcut(Qt::Key_Q);
-    m_transformToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_transformToolAction->setCheckable(true);
-    m_transformToolAction->setChecked(true);
-    m_transformToolAction->setIcon(QPixmap(":/icon/tool/transform.png"));
-    connect(m_transformToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeTransformTool(bool)));
-
-    m_anchorToolAction = m_toolActionGroup->addAction("Anchor Tool (Press Key W)");
-    m_anchorToolAction->setShortcut(Qt::Key_W);
-    m_anchorToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_anchorToolAction->setCheckable(true);
-    m_anchorToolAction->setIcon(QPixmap(":/icon/tool/anchor.png"));
-    connect(m_anchorToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeAnchorTool(bool)));
-
-    addActions(m_toolActionGroup->actions());
-    upperActions.append(m_toolActionGroup->actions());
-
-    QAction *separatorAction = new QAction(this);
-    separatorAction->setSeparator(true);
-    addAction(separatorAction);
-    upperActions.append(separatorAction);
+//    m_toolActionGroup = new QActionGroup(this);
+//
+//    m_transformToolAction = m_toolActionGroup->addAction("Transform Tool (Press Key Q)");
+//    m_transformToolAction->setShortcut(Qt::Key_Q);
+//    m_transformToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+//    m_transformToolAction->setCheckable(true);
+//    m_transformToolAction->setChecked(true);
+//    m_transformToolAction->setIcon(QPixmap(":/icon/tool/transform.png"));
+//    connect(m_transformToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeTransformTool(bool)));
+//
+//    m_anchorToolAction = m_toolActionGroup->addAction("Anchor Tool (Press Key W)");
+//    m_anchorToolAction->setShortcut(Qt::Key_W);
+//    m_anchorToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+//    m_anchorToolAction->setCheckable(true);
+//    m_anchorToolAction->setIcon(QPixmap(":/icon/tool/anchor.png"));
+//    connect(m_anchorToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeAnchorTool(bool)));
+//
+//    addActions(m_toolActionGroup->actions());
+//    upperActions.append(m_toolActionGroup->actions());
+//
+//    QAction *separatorAction = new QAction(this);
+//    separatorAction->setSeparator(true);
+//    addAction(separatorAction);
+//    upperActions.append(separatorAction);
 
     QActionGroup *layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(true);
@@ -97,12 +97,12 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingAction->setChecked(true);
     m_snappingAction->setIcon(QPixmap(":/icon/layout/snapping.png"));
 
-    m_snappingAndAnchoringAction = layoutActionGroup->addAction("Toogle Snapping And Anchoring (Press Key R)");
-    m_snappingAndAnchoringAction->setShortcut(Qt::Key_R);
-    m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_snappingAndAnchoringAction->setCheckable(true);
-    m_snappingAndAnchoringAction->setChecked(false);
-    m_snappingAndAnchoringAction->setIcon(QPixmap(":/icon/layout/snapping_and_anchoring.png"));
+//    m_snappingAndAnchoringAction = layoutActionGroup->addAction("Toogle Snapping And Anchoring (Press Key R)");
+//    m_snappingAndAnchoringAction->setShortcut(Qt::Key_R);
+//    m_snappingAndAnchoringAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+//    m_snappingAndAnchoringAction->setCheckable(true);
+//    m_snappingAndAnchoringAction->setChecked(false);
+//    m_snappingAndAnchoringAction->setIcon(QPixmap(":/icon/layout/snapping_and_anchoring.png"));
 
     m_noSnappingAction = layoutActionGroup->addAction("Toogle Snapping And Anchoring (Press Key T)");
     m_noSnappingAction->setShortcut(Qt::Key_T);
@@ -114,7 +114,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     addActions(layoutActionGroup->actions());
     upperActions.append(layoutActionGroup->actions());
 
-    separatorAction = new QAction(this);
+    QAction *separatorAction = new QAction(this);
     separatorAction->setSeparator(true);
     addAction(separatorAction);
     upperActions.append(separatorAction);
