@@ -918,7 +918,7 @@ const Value *FunctionValue::argument(int) const
 
 QString FunctionValue::argumentName(int index) const
 {
-    return QString::fromLatin1("arg%1").arg(index);
+    return QString::fromLatin1("arg%1").arg(index + 1);
 }
 
 bool FunctionValue::isVariadic() const

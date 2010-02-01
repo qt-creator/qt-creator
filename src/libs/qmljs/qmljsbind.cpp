@@ -37,6 +37,58 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
+namespace {
+
+class ASTFunctionValue: public FunctionValue
+{
+    FunctionDeclaration *_ast;
+    QList<NameId *> _argumentNames;
+
+public:
+    ASTFunctionValue(FunctionDeclaration *ast, Interpreter::Engine *engine)
+        : FunctionValue(engine), _ast(ast)
+    {
+        setPrototype(engine->functionPrototype());
+
+        for (FormalParameterList *it = ast->formals; it; it = it->next)
+            _argumentNames.append(it->name);
+    }
+
+    FunctionDeclaration *ast() const { return _ast; }
+
+    virtual const Value *returnValue() const
+    {
+        return engine()->undefinedValue();
+    }
+
+    virtual int argumentCount() const
+    {
+        return _argumentNames.size();
+    }
+
+    virtual const Value *argument(int) const
+    {
+        return engine()->undefinedValue();
+    }
+
+    virtual QString argumentName(int index) const
+    {
+        if (index < _argumentNames.size()) {
+            if (NameId *nameId = _argumentNames.at(index))
+                return nameId->asString();
+        }
+
+        return FunctionValue::argumentName(index);
+    }
+
+    virtual bool isVariadic() const
+    {
+        return true;
+    }
+};
+
+} // end of anonymous namespace
+
 Bind::Bind(Document::Ptr doc, Interpreter::Engine *interp)
     : _doc(doc),
       _interp(interp),
@@ -261,11 +313,7 @@ bool Bind::visit(FunctionDeclaration *ast)
     if (_currentObjectValue->property(ast->name->asString()))
         return false;
 
-    Function *function = _interp->newFunction();
-    for (FormalParameterList *iter = ast->formals; iter; iter = iter->next) {
-        function->addArgument(_interp->undefinedValue()); // ### introduce unknownValue
-        // ### store argument names
-    }
+    ASTFunctionValue *function = new ASTFunctionValue(ast, _interp);
     _currentObjectValue->setProperty(ast->name->asString(), function);
     return false; // ### eventually want to visit function bodies
 }

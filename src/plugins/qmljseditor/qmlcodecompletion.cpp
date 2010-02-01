@@ -424,10 +424,13 @@ void FunctionArgumentWidget::updateHintText()
         if (i != 0)
             prettyMethod += QLatin1String(", ");
 
-        prettyMethod += QLatin1String("arg");
+        QString arg = m_signature.at(i);
+        if (arg.isEmpty()) {
+            arg = QLatin1String("arg");
+            arg += QString::number(i + 1);
+        }
 
-        if (m_minimumArgumentCount != 1)
-            prettyMethod += QString::number(i + 1);
+        prettyMethod += arg;
     }
     prettyMethod += QLatin1Char(')');
 
