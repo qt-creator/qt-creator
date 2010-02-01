@@ -67,7 +67,7 @@ int OpenEditorsModel::rowCount(const QModelIndex &parent) const
 QList<IEditor *> OpenEditorsModel::editors() const
 {
     QList<IEditor *> result;
-    foreach (Entry entry, m_editors)
+    foreach (const Entry &entry, m_editors)
         if (entry.editor)
             result += entry.editor;
     return result;
@@ -207,7 +207,7 @@ bool OpenEditorsModel::isDuplicate(IEditor *editor) const
 IEditor *OpenEditorsModel::originalForDuplicate(IEditor *duplicate) const
 {
     IFile *file = duplicate->file();
-    foreach(Entry e, m_editors)
+    foreach(const Entry &e, m_editors)
         if (e.editor && e.editor->file() == file)
             return e.editor;
     return 0;

@@ -496,7 +496,7 @@ unsigned MimeType::matchesFile(const QFileInfo &file) const
 unsigned MimeType::matchesFile(Internal::FileMatchContext &c) const
 {
     // check globs
-    foreach (QRegExp pattern, m_d->globPatterns) {
+    foreach (const QRegExp &pattern, m_d->globPatterns) {
         if (pattern.exactMatch(c.fileName()))
             return GlobMatchPriority;
     }
@@ -507,7 +507,7 @@ unsigned MimeType::matchesFile(Internal::FileMatchContext &c) const
 
     const QByteArray data = c.data();
     if (!data.isEmpty()) {
-        foreach (MimeTypeData::IMagicMatcherSharedPointer matcher, m_d->magicMatchers) {
+        foreach (const MimeTypeData::IMagicMatcherSharedPointer &matcher, m_d->magicMatchers) {
             if (matcher->matches(data))
                 return matcher->priority();
         }

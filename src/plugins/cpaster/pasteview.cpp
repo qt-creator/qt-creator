@@ -160,7 +160,7 @@ int PasteView::show(const QString &user, const QString &description, const QStri
     QByteArray content;
     m_parts = parts;
     m_ui.uiPatchList->clear();
-    foreach (const FileData part, parts) {
+    foreach (const FileData &part, parts) {
         QListWidgetItem *itm = new QListWidgetItem(part.filename, m_ui.uiPatchList);
         itm->setCheckState(Qt::Checked);
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);

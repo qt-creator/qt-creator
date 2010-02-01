@@ -4689,7 +4689,7 @@ void BaseTextEditor::_q_matchParentheses()
 
 
     if (animatePosition >= 0) {
-        foreach (QTextEdit::ExtraSelection sel, BaseTextEditor::extraSelections(ParenthesesMatchingSelection)) {
+        foreach (const QTextEdit::ExtraSelection &sel, BaseTextEditor::extraSelections(ParenthesesMatchingSelection)) {
             if (sel.cursor.selectionStart() == animatePosition
                 || sel.cursor.selectionEnd() - 1 == animatePosition) {
                 animatePosition = -1;

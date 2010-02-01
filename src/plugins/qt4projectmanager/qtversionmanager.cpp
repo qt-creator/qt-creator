@@ -327,7 +327,7 @@ void QtVersionManager::addNewVersionsFromInstaller()
 
     QStringList newVersionsList = newVersionsValue.split(';', QString::SkipEmptyParts);
     bool defaultVersionWasReset = false;
-    foreach (QString newVersion, newVersionsList) {
+    foreach (const QString &newVersion, newVersionsList) {
         QStringList newVersionData = newVersion.split('=');
         if (newVersionData.count() >= 2) {
             if (QFile::exists(newVersionData[1])) {
@@ -750,7 +750,7 @@ QtVersion *QtVersionManager::qtVersionForQMakeBinary(const QString &qmakePath)
 
 void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
 {
-    foreach(QMakeAssignment qa, list) {
+    foreach(const QMakeAssignment &qa, list) {
         qDebug()<<qa.variable<<qa.op<<qa.value;
     }
 }
@@ -789,11 +789,11 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
         dumpQMakeAssignments(assignments);
 
         result2.append(additionalArguments);
-        foreach(QMakeAssignment qa, assignments)
+        foreach(const QMakeAssignment &qa, assignments)
             result2.append(qa.variable + qa.op + qa.value);
         if (!afterAssignments.isEmpty()) {
             result2.append("-after");
-            foreach(QMakeAssignment qa, afterAssignments)
+            foreach(const QMakeAssignment &qa, afterAssignments)
                 result2.append(qa.variable + qa.op + qa.value);
         }
     }
@@ -918,7 +918,7 @@ QtVersion::QmakeBuildConfigs QtVersionManager::qmakeBuildConfigFromCmdArgs(QList
     QtVersion::QmakeBuildConfigs result = defaultBuildConfig;
     QList<QMakeAssignment> oldAssignments = *assignments;
     assignments->clear();
-    foreach(QMakeAssignment qa, oldAssignments) {
+    foreach(const QMakeAssignment &qa, oldAssignments) {
         if (qa.variable == "CONFIG") {
             QStringList values = qa.value.split(' ');
             QStringList newValues;
@@ -1100,7 +1100,7 @@ QList<QSharedPointer<ProjectExplorer::ToolChain> > QtVersion::toolChains() const
 
 ProjectExplorer::ToolChain *QtVersion::toolChain(ProjectExplorer::ToolChain::ToolChainType type) const
 {
-    foreach(QSharedPointer<ProjectExplorer::ToolChain> tcptr, toolChains())
+    foreach(const QSharedPointer<ProjectExplorer::ToolChain> &tcptr, toolChains())
         if (tcptr->type() == type)
             return tcptr.data();
     return 0;
@@ -1109,7 +1109,7 @@ ProjectExplorer::ToolChain *QtVersion::toolChain(ProjectExplorer::ToolChain::Too
 QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTypes() const
 {
     QList<ProjectExplorer::ToolChain::ToolChainType> types;
-    foreach(QSharedPointer<ProjectExplorer::ToolChain> tc, toolChains())
+    foreach(const QSharedPointer<ProjectExplorer::ToolChain> &tc, toolChains())
         types << tc->type();
     return types;
 }

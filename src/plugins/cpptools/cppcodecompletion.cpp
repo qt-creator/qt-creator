@@ -1178,7 +1178,7 @@ bool CppCodeCompletion::completeScope(const QList<LookupItem> &results,
 {
     QList<Symbol *> classes, namespaces;
 
-    foreach (LookupItem result, results) {
+    foreach (const LookupItem &result, results) {
         FullySpecifiedType ty = result.type();
 
         if (Class *classTy = ty->asClassType())
@@ -1489,7 +1489,7 @@ void CppCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
         } else if (m_completionOperator == T_LPAREN ||
                    m_completionOperator == T_SIGNAL ||
                    m_completionOperator == T_SLOT) {
-            foreach (TextEditor::CompletionItem item, m_completions) {
+            foreach (const TextEditor::CompletionItem &item, m_completions) {
                 if (item.text.startsWith(key, Qt::CaseInsensitive)) {
                     completions->append(item);
                 }

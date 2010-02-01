@@ -180,7 +180,7 @@ bool CMakeProject::parseCMakeLists()
         QSet<QString> projectFiles;
         if (cbpparser.hasCMakeFiles()) {
             fileList.append(cbpparser.cmakeFileList());
-            foreach(ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
+            foreach(const ProjectExplorer::FileNode *node, cbpparser.cmakeFileList())
                 projectFiles.insert(node->path());
         } else {
             // Manually add the CMakeLists.txt file
@@ -219,7 +219,7 @@ bool CMakeProject::parseCMakeLists()
         QStringList allIncludePaths;
         QStringList allFrameworkPaths;
         QList<ProjectExplorer::HeaderPath> allHeaderPaths = activeBC->toolChain()->systemHeaderPaths();
-        foreach (ProjectExplorer::HeaderPath headerPath, allHeaderPaths) {
+        foreach (const ProjectExplorer::HeaderPath &headerPath, allHeaderPaths) {
             if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
                 allFrameworkPaths.append(headerPath.path());
             else

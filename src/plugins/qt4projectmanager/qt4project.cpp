@@ -477,7 +477,7 @@ void Qt4Project::updateCodeModel()
         //foreach(const HeaderPath &hp, tc->systemHeaderPaths())
         //    qDebug()<<hp.path();
     }
-    foreach (HeaderPath headerPath, allHeaderPaths) {
+    foreach (const HeaderPath &headerPath, allHeaderPaths) {
         if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
             predefinedFrameworkPaths.append(headerPath.path());
         else
@@ -531,7 +531,7 @@ void Qt4Project::updateCodeModel()
         allPrecompileHeaders.append(info.precompiledHeader);
 
         // Add custom defines
-        foreach (const QString def, pro->variableValue(DefinesVar)) {
+        foreach (const QString &def, pro->variableValue(DefinesVar)) {
             definedMacros += "#define ";
             info.defines += "#define ";
             const int index = def.indexOf(QLatin1Char('='));

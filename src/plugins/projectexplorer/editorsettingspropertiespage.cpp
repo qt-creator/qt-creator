@@ -99,8 +99,10 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project)
         QTextCodec *codec = QTextCodec::codecForMib(mib);
         m_codecs += codec;
         QString name = codec->name();
-        foreach (QByteArray alias, codec->aliases())
-            name += QString(QLatin1String(" / ") + alias);
+        foreach (const QByteArray &alias, codec->aliases()) {
+            name += QLatin1String(" / ");
+            name += QString::fromLatin1(alias);
+        }
         m_ui.encodingComboBox->addItem(name);
         if (defaultTextCodec == codec)
             m_ui.encodingComboBox->setCurrentIndex(i);

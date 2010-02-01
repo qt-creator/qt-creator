@@ -847,7 +847,7 @@ QFuture<void> CppModelManager::refreshSourceFiles(const QStringList &sourceFiles
 
             m_synchronizer.clearFutures();
 
-            foreach (QFuture<void> future, futures) {
+            foreach (const QFuture<void> &future, futures) {
                 if (! (future.isFinished() || future.isCanceled()))
                     m_synchronizer.addFuture(future);
             }

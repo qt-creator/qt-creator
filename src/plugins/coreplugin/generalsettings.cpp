@@ -96,7 +96,7 @@ void GeneralSettings::fillLanguageBox() const
     const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("*.qm")));
     const QString currentLocale = language();
 
-    Q_FOREACH(const QString languageFile, languageFiles)
+    Q_FOREACH(const QString &languageFile, languageFiles)
     {
         int start = languageFile.lastIndexOf(QLatin1Char('_'))+1;
         int end = languageFile.lastIndexOf(QLatin1Char('.'));

@@ -1550,7 +1550,7 @@ QByteArray EditorManager::saveState() const
     QList<OpenEditorsModel::Entry> entries = m_d->m_editorModel->entries();
     stream << entries.count();
 
-    foreach (OpenEditorsModel::Entry entry, entries) {
+    foreach (const OpenEditorsModel::Entry &entry, entries) {
         stream << entry.fileName() << entry.displayName() << entry.id().toUtf8();
     }
 

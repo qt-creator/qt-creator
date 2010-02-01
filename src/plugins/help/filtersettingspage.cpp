@@ -99,8 +99,8 @@ void FilterSettingsPage::updateFilterPage()
     help.setupData();
     m_filterMapBackup.clear();
     const QStringList filters = help.customFilters();
-    foreach (const QString filter, filters) {
-        QStringList atts = help.filterAttributes(filter);
+    foreach (const QString &filter, filters) {
+        const QStringList atts = help.filterAttributes(filter);
         m_filterMapBackup.insert(filter, atts);
         if (!m_filterMap.contains(filter))
             m_filterMap.insert(filter, atts);
@@ -108,8 +108,8 @@ void FilterSettingsPage::updateFilterPage()
 
     m_ui.filterWidget->addItems(m_filterMap.keys());
 
-    foreach (const QString a, help.filterAttributes())
-        new QTreeWidgetItem(m_ui.attributeWidget, QStringList() << a);
+    foreach (const QString &a, help.filterAttributes())
+        new QTreeWidgetItem(m_ui.attributeWidget, QStringList(a));
 
     if (m_filterMap.keys().count())
         m_ui.filterWidget->setCurrentRow(0);
@@ -215,7 +215,7 @@ bool FilterSettingsPage::applyChanges()
         }
     }
     if (changed) {
-        foreach (QString filter, m_removedFilters)
+        foreach (const QString &filter, m_removedFilters)
             m_helpEngine->removeCustomFilter(filter);
         QMapIterator<QString, QStringList> it(m_filterMap);
         while (it.hasNext()) {

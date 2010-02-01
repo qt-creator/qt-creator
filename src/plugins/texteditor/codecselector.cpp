@@ -105,7 +105,7 @@ CodecSelector::CodecSelector(QWidget *parent, BaseTextDocument *doc)
                 continue;
         }
         QString names = QString::fromLatin1(c->name());
-        foreach (QByteArray alias, c->aliases())
+        foreach (const QByteArray &alias, c->aliases())
             names += QLatin1String(" / ") + QString::fromLatin1(alias);
         if (doc->codec() == c)
             currentIndex = encodings.count();

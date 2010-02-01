@@ -57,7 +57,7 @@ BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
 
 BuildStepsPage::~BuildStepsPage()
 {
-    foreach(BuildStepsWidgetStruct s, m_buildSteps) {
+    foreach(const BuildStepsWidgetStruct &s, m_buildSteps) {
         delete s.widget;
         delete s.detailsWidget;
     }

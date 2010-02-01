@@ -143,7 +143,7 @@ void PersistentSettingsWriter::writeValue(QDomElement &ps, const QVariant &varia
         QDomElement values = ps.ownerDocument().createElement("valuelist");
         values.setAttribute("type", QVariant::typeToName(QVariant::List));
         QList<QVariant> varList = variant.toList();
-        foreach (QVariant var, varList) {
+        foreach (const QVariant &var, varList) {
             writeValue(values, var);
         }
         ps.appendChild(values);

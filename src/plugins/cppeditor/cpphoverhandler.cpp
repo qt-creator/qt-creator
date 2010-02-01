@@ -289,7 +289,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     // We only want to show F1 if the tooltip matches the help id
     bool showF1 = true;
 
-    foreach (Document::DiagnosticMessage m, doc->diagnosticMessages()) {
+    foreach (const Document::DiagnosticMessage &m, doc->diagnosticMessages()) {
         if (m.line() == lineNumber) {
             m_toolTip = m.text();
             showF1 = false;

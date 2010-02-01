@@ -83,8 +83,12 @@ void PluginDetailsView::update(PluginSpec *spec)
     m_ui->copyright->setText(spec->copyright());
     m_ui->license->setText(spec->license());
     QStringList depStrings;
-    foreach (PluginDependency dep, spec->dependencies()) {
-        depStrings << QString("%1 (%2)").arg(dep.name).arg(dep.version);
+    foreach (const PluginDependency &dep, spec->dependencies()) {
+        QString depString = dep.name;
+        depString += QLatin1String(" (");
+        depString += dep.version;
+        depString += QLatin1Char(')');
+        depStrings.append(depString);
     }
     m_ui->dependencies->addItems(depStrings);
 }

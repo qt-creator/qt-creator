@@ -95,7 +95,7 @@ void runFileSearch(QFutureInterface<FileSearchResult> &future,
 
     QFile file;
     QBuffer buffer;
-    foreach (QString s, files) {
+    foreach (const QString &s, files) {
         if (future.isPaused())
             future.waitForResume();
         if (future.isCanceled()) {

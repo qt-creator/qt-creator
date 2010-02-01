@@ -349,8 +349,10 @@ void DebuggerOutputWindow::showOutput(int channel, const QString &output)
     foreach (QString line, output.split('\n')) {
         // FIXME: QTextEdit asserts on really long lines...
         const int n = 30000;
-        if (line.size() > n)
-            line = line.left(n) + " [...] <cut off>";
+        if (line.size() > n) {
+            line.truncate(n);
+            line += QLatin1String(" [...] <cut off>");
+        }
         if (line != QLatin1String("(gdb) "))
             m_combinedText->appendPlainText(charForChannel(channel) + line);
     }

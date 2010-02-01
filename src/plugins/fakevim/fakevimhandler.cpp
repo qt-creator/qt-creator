@@ -247,7 +247,7 @@ struct Range
 
 QDebug &operator<<(QDebug &ts, const QList<QTextEdit::ExtraSelection> &sels)
 {
-    foreach (QTextEdit::ExtraSelection sel, sels)
+    foreach (const QTextEdit::ExtraSelection &sel, sels)
         ts << "SEL: " << sel.cursor.anchor() << sel.cursor.position();
     return ts;
 }
