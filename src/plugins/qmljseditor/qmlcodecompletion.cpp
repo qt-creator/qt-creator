@@ -852,13 +852,23 @@ void QmlCodeCompletion::updateSnippets()
     file.close();
 }
 
+static bool qmlCompletionItemLessThan(const TextEditor::CompletionItem &l, const TextEditor::CompletionItem &r)
+{
+    if (l.text.at(0).isUpper() && r.text.at(0).isLower())
+        return false;
+    else if (l.text.at(0).isLower() && r.text.at(0).isUpper())
+        return true;
+
+    return l.text < r.text;
+}
+
 QList<TextEditor::CompletionItem> QmlCodeCompletion::getCompletions()
 {
     QList<TextEditor::CompletionItem> completionItems;
 
     completions(&completionItems);
 
-    qStableSort(completionItems.begin(), completionItems.end(), completionItemLessThan);
+    qStableSort(completionItems.begin(), completionItems.end(), qmlCompletionItemLessThan);
 
     // Remove duplicates
     QString lastKey;
