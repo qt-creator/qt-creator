@@ -56,6 +56,10 @@ public:
                                                   AST::UiObjectMember *currentObject);
 
 protected:
+    using AST::Visitor::visit;
+
+    QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
+
     void accept(AST::Node *node);
 
     // Ui

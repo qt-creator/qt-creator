@@ -95,6 +95,21 @@ ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &s
     return scope;
 }
 
+QString Bind::toString(UiQualifiedId *qualifiedId, QChar delimiter)
+{
+    QString result;
+
+    for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
+        if (iter != qualifiedId)
+            result += delimiter;
+
+        if (iter->name)
+            result += iter->name->asString();
+    }
+
+    return result;
+}
+
 void Bind::accept(Node *node)
 {
     Node::accept(node, this);
@@ -108,21 +123,6 @@ bool Bind::visit(UiProgram *)
 bool Bind::visit(UiImportList *)
 {
     return true;
-}
-
-static QString serialize(UiQualifiedId *qualifiedId, QChar delimiter)
-{
-    QString result;
-
-    for (UiQualifiedId *iter = qualifiedId; iter; iter = iter->next) {
-        if (iter != qualifiedId)
-            result += delimiter;
-
-        if (iter->name)
-            result += iter->name->asString();
-    }
-
-    return result;
 }
 
 /*
@@ -161,7 +161,7 @@ bool Bind::visit(UiImport *ast)
 
     // else try the metaobject system
     if (ast->importUri) {
-        const QString package = serialize(ast->importUri, '/');
+        const QString package = toString(ast->importUri, '/');
         int majorVersion = -1; // ### TODO: Check these magic version numbers
         int minorVersion = -1; // ### TODO: Check these magic version numbers
 
@@ -208,9 +208,7 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
 {
     ObjectValue *parentObjectValue;
 
-    if (qualifiedTypeNameId && !qualifiedTypeNameId->next
-        && qualifiedTypeNameId->name->asString() == QLatin1String("Script")
-    ) {
+    if (toString(qualifiedTypeNameId) == QLatin1String("Script")) {
         // Script blocks all contribute to the same scope
         parentObjectValue = switchObjectValue(_functionEnvironment);
     } else { // normal component instance
@@ -253,11 +251,12 @@ bool Bind::visit(UiObjectInitializer *)
 
 bool Bind::visit(UiScriptBinding *ast)
 {
-    if (!(ast->qualifiedId->next) && ast->qualifiedId->name->asString() == "id")
+    if (toString(ast->qualifiedId) == QLatin1String("id")) {
         if (ExpressionStatement *e = cast<ExpressionStatement*>(ast->statement))
             if (IdentifierExpression *i = cast<IdentifierExpression*>(e->expression))
                 if (i->name)
                     _idEnvironment->setProperty(i->name->asString(), _currentObjectValue);
+    }
 
     return false;
 }
