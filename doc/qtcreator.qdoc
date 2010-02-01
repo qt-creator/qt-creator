@@ -967,7 +967,7 @@
             \o  \image qtcreator-locator-symbols.png
         \row
             \o  Go to a help topic.
-            \o  Ctrl+K, ?, Space, and the topic
+            \o  Ctrl+K, ?, Space, and the topic name
             \o  \image qtcreator-locator-help.png
         \row
             \o  Go to an opened document.
@@ -979,11 +979,11 @@
             \o  \image qtcreator-locator-filesystem.png
         \row
             \o  Go to a file in any project currently loaded.
-            \o  Ctrl+K, a, Space, and the function name
+            \o  Ctrl+K, a, Space, and the file name
             \o  \image qtcreator-locator-files.png
         \row
             \o  Go to a file in the current project.
-            \o  Ctrl+K, p, Space, and the function name
+            \o  Ctrl+K, p, Space, and the file name
             \o  \image qtcreator-locator-current-project.png
         \row
             \o  Go to a class definition.
@@ -991,7 +991,7 @@
             \o  \image qtcreator-locator-classes.png
         \row
             \o  Go to a method definition.
-            \o  Ctrl+K, m, Space, and the class name
+            \o  Ctrl+K, m, Space, and the method name
             \o  \image qtcreator-locator-methods.png
     \endtable
 
