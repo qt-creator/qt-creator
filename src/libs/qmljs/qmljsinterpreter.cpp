@@ -43,7 +43,63 @@
 
 using namespace QmlJS::Interpreter;
 
+namespace {
+
+class LookupMember: public MemberProcessor
+{
+    QString _name;
+    const Value *_value;
+
+    bool process(const QString &name, const Value *value)
+    {
+        if (_value)
+            return false;
+
+        if (name == _name) {
+            _value = value;
+            return false;
+        }
+
+        return true;
+    }
+
+public:
+    LookupMember(const QString &name)
+        : _name(name), _value(0) {}
+
+    const Value *value() const { return _value; }
+
+    virtual bool processProperty(const QString &name, const Value *value)
+    {
+        return process(name, value);
+    }
+
+    virtual bool processEnumerator(const QString &name, const Value *value)
+    {
+        return process(name, value);
+    }
+
+    virtual bool processSignal(const QString &name, const Value *value)
+    {
+        return process(name, value);
+    }
+
+    virtual bool processSlot(const QString &name, const Value *value)
+    {
+        return process(name, value);
+    }
+
+    virtual bool processGeneratedSlot(const QString &name, const Value *value)
+    {
+        return process(name, value);
+    }
+};
+
+} // end of anonymous namespace
+
 #ifndef NO_DECLARATIVE_BACKEND
+
+namespace {
 
 class MetaFunction: public FunctionValue
 {
@@ -89,6 +145,8 @@ public:
     }
 };
 
+} // end of anonymous namespace
+
 QmlObjectValue::QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName,
                                int majorVersion, int minorVersion, Engine *engine)
     : ObjectValue(engine),
@@ -104,46 +162,29 @@ QmlObjectValue::~QmlObjectValue() {}
 
 const Value *QmlObjectValue::lookupMember(const QString &name) const
 {
-    for (int index = 0; index < _metaObject->propertyCount(); ++index) {
-        QMetaProperty prop = _metaObject->property(index);
-
-        if (name == QString::fromUtf8(prop.name()))
-            return propertyValue(prop);
-    }
-
-    for (int index = 0; index < _metaObject->methodCount(); ++index) {
-        QMetaMethod method = _metaObject->method(index);
-
-        const QString signature = QString::fromUtf8(method.signature());
-
-        const int indexOfParen = signature.indexOf(QLatin1Char('('));
-        if (indexOfParen == -1)
-            continue; // skip it, invalid signature.
-
-        const QString methodName = signature.left(indexOfParen);
-
-        if (methodName != name) {
-            continue;
-
-        } else if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
-            return new MetaFunction(method, engine());
-
-        } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
-            return new MetaFunction(method, engine());
-        }
-    }
-
     return ObjectValue::lookupMember(name);
+}
+
+const Value *QmlObjectValue::findOrCreateSignature(int index, const QMetaMethod &method, QString *methodName) const
+{
+    const QString signature = QString::fromUtf8(method.signature());
+
+    const int indexOfParen = signature.indexOf(QLatin1Char('('));
+    if (indexOfParen == -1)
+        return engine()->undefinedValue(); // skip it, invalid signature.
+
+    *methodName = signature.left(indexOfParen);
+    const Value *value = _metaSignature.value(index);
+    if (! value) {
+        value = new MetaFunction(method, engine());
+        _metaSignature.insert(index, value);
+    }
+    return value;
 }
 
 void QmlObjectValue::processMembers(MemberProcessor *processor) const
 {
-    for (int index = 0; index < _metaObject->propertyCount(); ++index) {
-        QMetaProperty prop = _metaObject->property(index);
-
-        processor->processProperty(prop.name(), propertyValue(prop));
-    }
-
+    // process the meta enums
     for (int index = _metaObject->enumeratorOffset(); index < _metaObject->propertyCount(); ++index) {
         QMetaEnum e = _metaObject->enumerator(index);
 
@@ -152,23 +193,25 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
         }
     }
 
+    // process the meta properties
+    for (int index = 0; index < _metaObject->propertyCount(); ++index) {
+        QMetaProperty prop = _metaObject->property(index);
+
+        processor->processProperty(prop.name(), propertyValue(prop));
+    }
+
+    // process the meta methods
     for (int index = 0; index < _metaObject->methodCount(); ++index) {
         QMetaMethod method = _metaObject->method(index);
-
-        const QString signature = QString::fromUtf8(method.signature());
-
-        const int indexOfParen = signature.indexOf(QLatin1Char('('));
-        if (indexOfParen == -1)
-            continue; // skip it, invalid signature.
-
-        const QString methodName = signature.left(indexOfParen);
+        QString methodName;
+        const Value *signature = findOrCreateSignature(index, method, &methodName);
 
         if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
-            processor->processSlot(methodName, engine()->undefinedValue());
+            processor->processSlot(methodName, signature);
 
         } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
             // process the signal
-            processor->processSignal(methodName, engine()->undefinedValue());
+            processor->processSignal(methodName, signature);
 
             QString slotName;
             slotName += QLatin1String("on");
@@ -176,7 +219,7 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
             slotName += methodName.midRef(1);
 
             // process the generated slot
-            processor->processGeneratedSlot(slotName, engine()->undefinedValue());
+            processor->processGeneratedSlot(slotName, signature);
         }
     }
 
@@ -599,8 +642,8 @@ const Value *Environment::lookup(const QString &name) const
         return 0;
 }
 
-const Value *Environment::lookupMember(const QString &name) const {
-    Q_UNUSED(name);
+const Value *Environment::lookupMember(const QString &) const
+{
     return 0;
 }
 
@@ -806,6 +849,12 @@ const Value *ObjectValue::lookupMember(const QString &name) const
 {
     if (const Value *m = _members.value(name))
         return m;
+    else {
+        LookupMember slowLookup(name);
+        processMembers(&slowLookup);
+        if (slowLookup.value())
+            return slowLookup.value();
+    }
 
     if (_prototype) {
         if (const Value *m = _prototype->lookup(name))

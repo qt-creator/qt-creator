@@ -39,6 +39,36 @@ using namespace QmlJS::Interpreter;
 
 namespace {
 
+class ASTObjectValue: public ObjectValue
+{
+    UiQualifiedId *_typeName;
+    UiObjectInitializer *_initializer;
+
+public:
+    ASTObjectValue(UiQualifiedId *typeName, UiObjectInitializer *initializer, Interpreter::Engine *engine)
+        : ObjectValue(engine), _typeName(typeName), _initializer(initializer)
+    {
+    }
+
+    virtual void processMembers(MemberProcessor *processor) const
+    {
+        if (_initializer) {
+            for (UiObjectMemberList *it = _initializer->members; it; it = it->next) {
+                UiObjectMember *member = it->member;
+                if (UiPublicMember *def = cast<UiPublicMember *>(member)) {
+                    if (def->name && def->memberType) {
+                        const QString propName = def->name->asString();
+                        const QString propType = def->memberType->asString();
+
+                        processor->processProperty(propName, engine()->defaultValueForBuiltinType(propType));
+                    }
+                }
+            }
+        }
+        ObjectValue::processMembers(processor);
+    }
+};
+
 class ASTFunctionValue: public FunctionValue
 {
     FunctionDeclaration *_ast;
@@ -175,7 +205,7 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
         // Script blocks all contribute to the same scope
         parentObjectValue = switchObjectValue(_functionEnvironment);
     } else { // normal component instance
-        ObjectValue *objectValue = _interp->newObject(/*prototype =*/0);
+        ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _interp);
         parentObjectValue = switchObjectValue(objectValue);
         if (parentObjectValue)
             objectValue->setProperty("parent", parentObjectValue);
@@ -257,12 +287,14 @@ bool Bind::visit(UiImport *ast)
 
 bool Bind::visit(UiPublicMember *ast)
 {
+#if 0
     if (_currentObjectValue && ast->name && ast->memberType) {
         const QString propName = ast->name->asString();
         const QString propType = ast->memberType->asString();
 
         _currentObjectValue->setProperty(propName, _interp->defaultValueForBuiltinType(propType));
     }
+#endif
 
     return false;
 }

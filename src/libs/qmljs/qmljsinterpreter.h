@@ -273,11 +273,15 @@ public:
     int minorVersion() const
     { return _minorVersion; }
 
+protected:
+    const Value *findOrCreateSignature(int index, const QMetaMethod &method, QString *methodName) const;
+
 private:
     const QMetaObject *_metaObject;
     QString _qmlTypeName;
     int _majorVersion;
     int _minorVersion;
+    mutable QHash<int, const Value *> _metaSignature;
 };
 
 #endif // !NO_DECLARATIVE_BACKEND
