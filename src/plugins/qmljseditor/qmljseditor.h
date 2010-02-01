@@ -105,8 +105,12 @@ public:
 
     int revision() const;
 
+    // Returns the declaring member
+    QmlJS::AST::UiObjectMember *declaringMember(int cursorPosition) const;
+
 public: // attributes
     QmlJS::Document::Ptr document;
+    QmlJS::Snapshot snapshot;
     QList<Range> ranges;
     QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
     QList<Declaration> declarations;

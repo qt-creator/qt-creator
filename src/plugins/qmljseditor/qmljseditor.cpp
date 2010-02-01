@@ -33,14 +33,14 @@
 #include "qmljseditorplugin.h"
 #include "qmlmodelmanager.h"
 
-#include "qmlexpressionundercursor.h"
-
 #include <qmljs/qmljsindenter.h>
-
+#include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsbind.h>
+#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
-#include <qmljs/qmljsdocument.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
@@ -424,8 +424,62 @@ protected:
     }
 };
 
+
+class CollectASTNodes: protected AST::Visitor
+{
+public:
+    QList<AST::UiQualifiedId *> qualifiedIds;
+    QList<AST::IdentifierExpression *> identifiers;
+    QList<AST::FieldMemberExpression *> fieldMembers;
+
+    void accept(AST::Node *node)
+    {
+        if (node)
+            node->accept(this);
+    }
+
+protected:
+    using AST::Visitor::visit;
+
+    virtual bool visit(AST::UiQualifiedId *ast)
+    {
+        qualifiedIds.append(ast);
+        return false;
+    }
+
+    virtual bool visit(AST::IdentifierExpression *ast)
+    {
+        identifiers.append(ast);
+        return false;
+    }
+
+    virtual bool visit(AST::FieldMemberExpression *ast)
+    {
+        fieldMembers.append(ast);
+        return true;
+    }
+};
+
 } // end of anonymous namespace
 
+
+AST::UiObjectMember *SemanticInfo::declaringMember(int cursorPosition) const
+{
+    AST::UiObjectMember *declaringMember = 0;
+
+    for (int i = ranges.size() - 1; i != -1; --i) {
+        const Range &range = ranges.at(i);
+
+        if (range.begin.isNull() || range.end.isNull()) {
+            continue;
+        } else if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
+            declaringMember = range.ast;
+            break;
+        }
+    }
+
+    return declaringMember;
+}
 
 int SemanticInfo::revision() const
 {
@@ -538,6 +592,7 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
         // create the ranges and update the semantic info.
         CreateRanges createRanges;
         SemanticInfo sem;
+        sem.snapshot = m_modelManager->snapshot();
         sem.document = doc;
         sem.ranges = createRanges(document(), doc);
 
@@ -780,41 +835,6 @@ void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
 TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
 {
     Link link;
-
-    if (!m_modelManager)
-        return link;
-
-    const Snapshot snapshot = m_modelManager->snapshot();
-    Document::Ptr doc = snapshot.document(file()->fileName());
-    if (!doc)
-        return link;
-
-    QTextCursor expressionCursor(cursor);
-    {
-        // correct the position by moving to the end of an identifier (if we're hovering over one):
-        int pos = cursor.position();
-        forever {
-            const QChar ch = characterAt(pos);
-
-            if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
-                ++pos;
-            else
-                break;
-        }
-        expressionCursor.setPosition(pos);
-    }
-
-    QmlExpressionUnderCursor expressionUnderCursor;
-    if (expressionUnderCursor(expressionCursor)) {
-        link.pos = expressionUnderCursor.expressionOffset();
-        link.length = expressionUnderCursor.expressionLength();
-//        link.fileName = target->fileName();
-//        link.line = target->line();
-//        link.column = target->column();
-//        if (link.column > 0)
-//            --link.column;
-    }
-
     return link;
 }
 

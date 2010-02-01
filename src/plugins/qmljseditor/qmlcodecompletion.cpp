@@ -637,19 +637,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     Interpreter::ObjectValue *scope = interp.globalObject();
 
     if (isQmlFile) {
-        AST::UiObjectMember *declaringMember = 0;
-
-        const int cursorPosition = editor->position();
-        for (int i = semanticInfo.ranges.size() - 1; i != -1; --i) {
-            const Range &range = semanticInfo.ranges.at(i);
-            if (range.begin.isNull() || range.end.isNull()) {
-                continue;
-            } else if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
-                declaringMember = range.ast;
-                break;
-            }
-        }
-
+        AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(editor->position());
         scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
     }
 
