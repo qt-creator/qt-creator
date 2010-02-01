@@ -567,21 +567,21 @@ protected:
         Link(const QString &fileName = QString(),
              int line = 0,
              int column = 0)
-            : pos(-1)
-            , length(-1)
+            : begin(-1)
+            , end(-1)
             , fileName(fileName)
             , line(line)
             , column(column)
         {}
 
         bool isValid() const
-        { return !(pos == -1 || length == -1); }
+        { return begin != end; }
 
         bool operator==(const Link &other) const
-        { return pos == other.pos && length == other.length; }
+        { return begin == other.begin && end == other.end; }
 
-        int pos;           // Link position
-        int length;        // Link length
+        int begin;           // Link position
+        int end;           // Link end position
 
         QString fileName;  // Target file
         int line;          // Target line

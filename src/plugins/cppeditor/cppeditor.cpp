@@ -1305,14 +1305,17 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     QTextBlock block;
     const SimpleToken tk = tokenUnderCursor(tc, &block);
 
+    const int beginOfToken = block.position() + tk.begin();
+    const int endOfToken = block.position() + tk.end();
+
     // Handle include directives
     if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {
         const unsigned lineno = cursor.blockNumber() + 1;
         foreach (const Document::Include &incl, doc->includes()) {
             if (incl.line() == lineno && incl.resolved()) {
                 link.fileName = incl.fileName();
-                link.pos = cursor.block().position() + tk.position() + 1;
-                link.length = tk.length() - 2;
+                link.begin = beginOfToken + 1;
+                link.end = endOfToken - 1;
                 return link;
             }
         }
@@ -1326,12 +1329,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
     if (!lastSymbol)
         return link;
 
-    const int nameStart = tk.position();
-    const int nameLength = tk.length();
-    const int endOfName = block.position() + nameStart + nameLength;
-
-    const QString name = block.text().mid(nameStart, nameLength);
-    tc.setPosition(endOfName);
+    tc.setPosition(endOfToken);
 
     // Evaluate the type of the expression under the cursor
     ExpressionUnderCursor expressionUnderCursor;
@@ -1384,8 +1382,8 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
                 def = findDefinition(symbol);
 
             link = linkToSymbol(def ? def : symbol);
-            link.pos = block.position() + nameStart;
-            link.length = nameLength;
+            link.begin = beginOfToken;
+            link.end = endOfToken;
             return link;
 
         // This would jump to the type of a name
@@ -1400,13 +1398,13 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
         }
     } else {
         // Handle macro uses
-        const Document::MacroUse *use = doc->findMacroUseAt(endOfName - 1);
+        const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
         if (use) {
             const Macro &macro = use->macro();
             link.fileName = macro.fileName();
             link.line = macro.line();
-            link.pos = use->begin();
-            link.length = use->end() - use->begin();
+            link.begin = use->begin();
+            link.end = use->end();
             return link;
         }
     }

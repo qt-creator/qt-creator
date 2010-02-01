@@ -4144,8 +4144,8 @@ void BaseTextEditor::showLink(const Link &link)
 
     QTextEdit::ExtraSelection sel;
     sel.cursor = textCursor();
-    sel.cursor.setPosition(link.pos);
-    sel.cursor.setPosition(link.pos + link.length, QTextCursor::KeepAnchor);
+    sel.cursor.setPosition(link.begin);
+    sel.cursor.setPosition(link.end, QTextCursor::KeepAnchor);
     sel.format = d->m_linkFormat;
     sel.format.setFontUnderline(true);
     setExtraSelections(OtherSelection, QList<QTextEdit::ExtraSelection>() << sel);
