@@ -98,7 +98,7 @@ namespace {
 */
 
 
-    enum { ppCommentOffset = 2 };
+    enum { ppCommentOffset = 1 };
 }
 
 template <class Iterator>
