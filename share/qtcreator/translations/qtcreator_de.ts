@@ -1164,7 +1164,7 @@
     <message>
         <location/>
         <source>Populate source file view automatically</source>
-        <translation>Quelldatei-Ansicht wird automatisch aktualisieren</translation>
+        <translation>Quelldatei-Ansicht automatisch aktualisieren</translation>
     </message>
     <message>
         <location/>
@@ -5013,7 +5013,7 @@ Es wird empfohlen, gdb 6.7 oder später zu benutzen.</translation>
     <message>
         <location line="+1"/>
         <source>Select widget to watch</source>
-        <translation>Widget zwecks Überwachung ausgewählen</translation>
+        <translation>Widget zur Überwachung auswählen</translation>
     </message>
     <message>
         <location line="+9"/>
