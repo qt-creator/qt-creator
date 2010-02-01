@@ -46,29 +46,31 @@ Bind::Bind(Document::Ptr doc, Interpreter::Engine *interp)
       _functionEnvironment(0),
       _rootObjectValue(0)
 {
-    (*this)();
+    if (_doc && _doc->qmlProgram() != 0) {
+        UiProgram *program = _doc->qmlProgram();
+
+        _currentObjectValue = 0;
+        _typeEnvironment = _interp->newObject(/*prototype =*/ 0);
+        _idEnvironment = _interp->newObject(/*prototype =*/ 0);
+        _functionEnvironment = _interp->newObject(/*prototype =*/ 0);
+        _rootObjectValue = 0;
+
+        _qmlObjectDefinitions.clear();
+        _qmlObjectBindings.clear();
+
+        accept(program);
+    }
 }
 
 Bind::~Bind()
 {
 }
 
-void Bind::operator()()
+ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
 {
-    UiProgram *program = _doc->qmlProgram();
-    if (!program)
-        return;
-
-    _currentObjectValue = 0;
-    _typeEnvironment = _interp->newObject(/*prototype =*/ 0);
-    _idEnvironment = _interp->newObject(/*prototype =*/ 0);
-    _functionEnvironment = _interp->newObject(/*prototype =*/ 0);
-    _rootObjectValue = 0;
-
-    _qmlObjectDefinitions.clear();
-    _qmlObjectBindings.clear();
-
-    accept(program);
+    ObjectValue *oldObjectValue = _currentObjectValue;
+    _currentObjectValue = newObjectValue;
+    return oldObjectValue;
 }
 
 ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &snapshot,
@@ -86,10 +88,13 @@ ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &s
             currentBind = newBind;
     }
 
-    LinkImports()(binds);
+    LinkImports linkImports;
+    Link link;
+
+    linkImports(binds);
     ObjectValue *scope = interp->globalObject();
     if (currentBind)
-        scope = Link()(binds, currentBind, currentObject);
+        scope = link(binds, currentBind, currentObject);
     qDeleteAll(binds);
 
     return scope;
@@ -110,19 +115,30 @@ QString Bind::toString(UiQualifiedId *qualifiedId, QChar delimiter)
     return result;
 }
 
+ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
+{
+    ObjectValue *parentObjectValue;
+
+    if (toString(qualifiedTypeNameId) == QLatin1String("Script")) {
+        // Script blocks all contribute to the same scope
+        parentObjectValue = switchObjectValue(_functionEnvironment);
+    } else { // normal component instance
+        ObjectValue *objectValue = _interp->newObject(/*prototype =*/0);
+        parentObjectValue = switchObjectValue(objectValue);
+        if (parentObjectValue)
+            objectValue->setProperty("parent", parentObjectValue);
+        else
+            _rootObjectValue = objectValue;
+    }
+
+    accept(initializer);
+
+    return switchObjectValue(parentObjectValue);
+}
+
 void Bind::accept(Node *node)
 {
     Node::accept(node, this);
-}
-
-bool Bind::visit(UiProgram *)
-{
-    return true;
-}
-
-bool Bind::visit(UiImportList *)
-{
-    return true;
 }
 
 /*
@@ -199,32 +215,6 @@ bool Bind::visit(UiPublicMember *ast)
     return false;
 }
 
-bool Bind::visit(UiSourceElement *)
-{
-    return true;
-}
-
-ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
-{
-    ObjectValue *parentObjectValue;
-
-    if (toString(qualifiedTypeNameId) == QLatin1String("Script")) {
-        // Script blocks all contribute to the same scope
-        parentObjectValue = switchObjectValue(_functionEnvironment);
-    } else { // normal component instance
-        ObjectValue *objectValue = _interp->newObject(/*prototype =*/0);
-        parentObjectValue = switchObjectValue(objectValue);
-        if (parentObjectValue)
-            objectValue->setProperty("parent", parentObjectValue);
-        else
-            _rootObjectValue = objectValue;
-    }
-
-    accept(initializer);
-
-    return switchObjectValue(parentObjectValue);
-}
-
 bool Bind::visit(UiObjectDefinition *ast)
 {
     ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
@@ -242,11 +232,6 @@ bool Bind::visit(UiObjectBinding *ast)
 //    _currentObjectValue->setProperty(name, value);
 
     return false;
-}
-
-bool Bind::visit(UiObjectInitializer *)
-{
-    return true;
 }
 
 bool Bind::visit(UiScriptBinding *ast)
@@ -268,361 +253,6 @@ bool Bind::visit(UiArrayBinding *)
     return true;
 }
 
-bool Bind::visit(UiObjectMemberList *)
-{
-    return true;
-}
-
-bool Bind::visit(UiArrayMemberList *)
-{
-    return true;
-}
-
-bool Bind::visit(UiQualifiedId *)
-{
-    return true;
-}
-
-bool Bind::visit(UiSignature *)
-{
-    return true;
-}
-
-bool Bind::visit(UiFormalList *)
-{
-    return true;
-}
-
-bool Bind::visit(UiFormal *)
-{
-    return true;
-}
-
-bool Bind::visit(ThisExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(IdentifierExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(NullExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(TrueLiteral *)
-{
-    return true;
-}
-
-bool Bind::visit(FalseLiteral *)
-{
-    return true;
-}
-
-bool Bind::visit(StringLiteral *)
-{
-    return true;
-}
-
-bool Bind::visit(NumericLiteral *)
-{
-    return true;
-}
-
-bool Bind::visit(RegExpLiteral *)
-{
-    return true;
-}
-
-bool Bind::visit(ArrayLiteral *)
-{
-    return true;
-}
-
-bool Bind::visit(ObjectLiteral *)
-{
-    return true;
-}
-
-bool Bind::visit(ElementList *)
-{
-    return true;
-}
-
-bool Bind::visit(Elision *)
-{
-    return true;
-}
-
-bool Bind::visit(PropertyNameAndValueList *)
-{
-    return true;
-}
-
-bool Bind::visit(NestedExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(IdentifierPropertyName *)
-{
-    return true;
-}
-
-bool Bind::visit(StringLiteralPropertyName *)
-{
-    return true;
-}
-
-bool Bind::visit(NumericLiteralPropertyName *)
-{
-    return true;
-}
-
-bool Bind::visit(ArrayMemberExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(FieldMemberExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(NewMemberExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(NewExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(CallExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(ArgumentList *)
-{
-    return true;
-}
-
-bool Bind::visit(PostIncrementExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(PostDecrementExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(DeleteExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(VoidExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(TypeOfExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(PreIncrementExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(PreDecrementExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(UnaryPlusExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(UnaryMinusExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(TildeExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(NotExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(BinaryExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(ConditionalExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(Expression *)
-{
-    return true;
-}
-
-bool Bind::visit(Block *)
-{
-    return true;
-}
-
-bool Bind::visit(StatementList *)
-{
-    return true;
-}
-
-bool Bind::visit(VariableStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(VariableDeclarationList *)
-{
-    return true;
-}
-
-bool Bind::visit(VariableDeclaration *)
-{
-    return true;
-}
-
-bool Bind::visit(EmptyStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(ExpressionStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(IfStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(DoWhileStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(WhileStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(ForStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(LocalForStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(ForEachStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(LocalForEachStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(ContinueStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(BreakStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(ReturnStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(WithStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(SwitchStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(CaseBlock *)
-{
-    return true;
-}
-
-bool Bind::visit(CaseClauses *)
-{
-    return true;
-}
-
-bool Bind::visit(CaseClause *)
-{
-    return true;
-}
-
-bool Bind::visit(DefaultClause *)
-{
-    return true;
-}
-
-bool Bind::visit(LabelledStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(ThrowStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(TryStatement *)
-{
-    return true;
-}
-
-bool Bind::visit(Catch *)
-{
-    return true;
-}
-
-bool Bind::visit(Finally *)
-{
-    return true;
-}
-
 bool Bind::visit(FunctionDeclaration *ast)
 {
     if (!ast->name)
@@ -638,51 +268,4 @@ bool Bind::visit(FunctionDeclaration *ast)
     }
     _currentObjectValue->setProperty(ast->name->asString(), function);
     return false; // ### eventually want to visit function bodies
-}
-
-bool Bind::visit(FunctionExpression *)
-{
-    return true;
-}
-
-bool Bind::visit(FormalParameterList *)
-{
-    return true;
-}
-
-bool Bind::visit(FunctionBody *)
-{
-    return true;
-}
-
-bool Bind::visit(Program *)
-{
-    return true;
-}
-
-bool Bind::visit(SourceElements *)
-{
-    return true;
-}
-
-bool Bind::visit(FunctionSourceElement *)
-{
-    return true;
-}
-
-bool Bind::visit(StatementSourceElement *)
-{
-    return true;
-}
-
-bool Bind::visit(DebuggerStatement *)
-{
-    return true;
-}
-
-ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
-{
-    ObjectValue *oldObjectValue = _currentObjectValue;
-    _currentObjectValue = newObjectValue;
-    return oldObjectValue;
 }
