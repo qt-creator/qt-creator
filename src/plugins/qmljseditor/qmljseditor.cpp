@@ -835,6 +835,44 @@ void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
 TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
 {
     Link link;
+    const SemanticInfo semanticInfo = m_semanticInfo;
+
+    if (semanticInfo.document) {
+        CollectASTNodes nodes;
+        nodes.accept(semanticInfo.document->ast());
+
+        const unsigned cursorPosition = cursor.position();
+
+        foreach (AST::UiQualifiedId *q, nodes.qualifiedIds) {
+            if (cursorPosition >= q->identifierToken.begin()) {
+                for (AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
+                    if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
+                        link.begin = tail->identifierToken.begin();
+                        link.end = tail->identifierToken.end();
+                        return link;
+                    }
+                }
+            }
+        }
+
+        foreach (AST::IdentifierExpression *id, nodes.identifiers) {
+            if (cursorPosition >= id->identifierToken.begin() && cursorPosition <= id->identifierToken.end()) {
+                link.begin = id->firstSourceLocation().begin();
+                link.end = id->lastSourceLocation().end();
+                return link;
+            }
+        }
+
+        foreach (AST::FieldMemberExpression *mem, nodes.fieldMembers) {
+            if (mem->name && cursorPosition >= mem->identifierToken.begin() && cursorPosition <= mem->identifierToken.end()) {
+                link.begin = mem->lastSourceLocation().begin();
+                link.end = mem->lastSourceLocation().end();
+                return link;
+            }
+        }
+
+    }
+
     return link;
 }
 
