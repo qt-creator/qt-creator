@@ -519,22 +519,26 @@ static bool isIdentifierChar(QChar ch)
 
 bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
-    const QChar ch = editor->characterAt(editor->position() - 1);
+    const int cursorPosition = editor->position();
+    const QChar ch = editor->characterAt(cursorPosition - 1);
 
     if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
         return true;
     else if (isIdentifierChar(ch)) {
-        if (QmlJSTextEditor *ed = qobject_cast<QmlJSTextEditor *>(editor->widget())) {
-            QTextCursor tc = ed->textCursor();
-            tc.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
-            const QString word = tc.selectedText();
-            if (word.length() > 2 && checkStartOfIdentifier(word)) {
-                for (int i = 0; i < word.length(); ++i) {
-                    if (! isIdentifierChar(word.at(i)))
-                        return false;
-                }
-                return true;
+        int pos = editor->position() - 1;
+        for (; pos != -1; --pos) {
+            if (! isIdentifierChar(editor->characterAt(pos)))
+                break;
+        }
+        ++pos;
+
+        const QString word = editor->textAt(pos, cursorPosition - pos);
+        if (word.length() > 2 && checkStartOfIdentifier(word)) {
+            for (int i = 0; i < word.length(); ++i) {
+                if (! isIdentifierChar(word.at(i)))
+                    return false;
             }
+            return true;
         }
     }
 
