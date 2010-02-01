@@ -464,7 +464,6 @@ void EditorView::updateEditorHistory(IEditor *editor)
     if (!file)
         return;
 
-    QString fileName = file->fileName();
     QByteArray state = editor->saveState();
 
     EditLocation location;
@@ -499,7 +498,6 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
     if (!file)
         return;
 
-    QString fileName = file->fileName();
     QByteArray state;
     if (saveState.isNull()) {
         state = editor->saveState();
