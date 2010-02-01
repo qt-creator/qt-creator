@@ -68,20 +68,33 @@ bool TextToModelMerger::isActive() const
     return m_isActive;
 }
 
-void TextToModelMerger::setupImports(QmlDomDocument &doc)
+void TextToModelMerger::setupImports(QmlDomDocument &doc,
+                                     DifferenceHandler &differenceHandler)
 {
-    foreach (const Import &import, m_rewriterView->model()->imports())
-        m_rewriterView->model()->removeImport(import);
+    QSet<Import> existingImports = m_rewriterView->model()->imports();
+
     foreach (const QmlDomImport &qmlImport, doc.imports()) {
         if (qmlImport.type() == QmlDomImport::Library) {
-            Import import(Import::createLibraryImport(QUrl(qmlImport.uri()), qmlImport.version(), qmlImport.qualifier()));
-            m_rewriterView->model()->addImport(import);
-        }
-        if (qmlImport.type() == QmlDomImport::File) {
-            Import import(Import:: createFileImport(qmlImport.uri(), qmlImport.version(), qmlImport.qualifier()));
-            m_rewriterView->model()->addImport(import);
+            Import import(Import::createLibraryImport(QUrl(qmlImport.uri()),
+                                                      qmlImport.version(),
+                                                      qmlImport.qualifier()));
+
+            if (!existingImports.remove(import))
+                differenceHandler.modelMissesImport(m_rewriterView->model(),
+                                                    import);
+        } else if (qmlImport.type() == QmlDomImport::File) {
+            Import import(Import:: createFileImport(qmlImport.uri(),
+                                                    qmlImport.version(),
+                                                    qmlImport.qualifier()));
+
+            if (!existingImports.remove(import))
+                differenceHandler.modelMissesImport(m_rewriterView->model(),
+                                                    import);
         }
     }
+
+    foreach (const Import &import, existingImports)
+        differenceHandler.importAbsentInQMl(m_rewriterView->model(), import);
 }
 
 bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differenceHandler)
@@ -95,7 +108,7 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
         const bool success = doc.load(&engine, data, url);
 
         if (success) {
-            setupImports(doc);
+            setupImports(doc, differenceHandler);
 
             const QmlDomObject rootDomObject = doc.rootObject();
             ModelNode modelRootNode = m_rewriterView->rootModelNode();
@@ -370,6 +383,16 @@ QVariant TextToModelMerger::convertToVariant(const ModelNode &node, const QmlDom
     }
 }
 
+void ModelValidator::modelMissesImport(Model *model, const Import &import)
+{
+    Q_ASSERT(model->imports().contains(import));
+}
+
+void ModelValidator::importAbsentInQMl(Model *model, const Import &import)
+{
+    Q_ASSERT(! model->imports().contains(import));
+}
+
 void ModelValidator::bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding)
 {
     Q_ASSERT(modelProperty.expression() == qmlBinding);
@@ -441,6 +464,16 @@ void ModelValidator::idsDiffer(ModelNode &modelNode, const QString &qmlId)
 {
     Q_ASSERT(modelNode.id() == qmlId);
     Q_ASSERT(0);
+}
+
+void ModelAmender::modelMissesImport(Model *model, const Import &import)
+{
+    model->addImport(import);
+}
+
+void ModelAmender::importAbsentInQMl(Model *model, const Import &import)
+{
+    model->removeImport(import);
 }
 
 void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding)

@@ -31,6 +31,7 @@
 #define TEXTTOMODELMERGER_H
 
 #include "corelib_global.h"
+#include "import.h"
 #include "nodelistproperty.h"
 #include "modelnode.h"
 
@@ -53,7 +54,7 @@ public:
     TextToModelMerger(RewriterView *reWriterView);
     bool isActive() const;
 
-    void setupImports(QmlDomDocument &doc);
+    void setupImports(QmlDomDocument &doc, DifferenceHandler &differenceHandler);
     bool load(const QByteArray &data, DifferenceHandler &differenceHandler);
 
 protected:
@@ -95,6 +96,8 @@ public:
     virtual ~DifferenceHandler()
     {}
 
+    virtual void modelMissesImport(Model *model, const Import &import) = 0;
+    virtual void importAbsentInQMl(Model *model, const Import &import) = 0;
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding) = 0;
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding) = 0;
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList) = 0;
@@ -120,6 +123,8 @@ public:
     ~ModelValidator()
     {}
 
+    virtual void modelMissesImport(Model *model, const Import &import);
+    virtual void importAbsentInQMl(Model *model, const Import &import);
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding);
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding);
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList);
@@ -142,6 +147,8 @@ public:
     ~ModelAmender()
     {}
 
+    virtual void modelMissesImport(Model *model, const Import &import);
+    virtual void importAbsentInQMl(Model *model, const Import &import);
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding);
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding);
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList);

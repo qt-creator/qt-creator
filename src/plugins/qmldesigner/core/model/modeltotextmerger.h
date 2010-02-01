@@ -57,7 +57,13 @@ class ModelToTextMerger
 
 public:
     ModelToTextMerger(RewriterView *reWriterView);
-    void applyChanges(); // Note: his method might throw exceptions, as the model works this way. So to handle rewriting failures, you will also need to catch any exception coming out.
+
+    /**
+     *  Note: his method might throw exceptions, as the model works this way. So to
+     *  handle rewriting failures, you will also need to catch any exception coming
+     *  out.
+     */
+    void applyChanges();
 
     void nodeCreated(const ModelNode &createdNode);
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty, PropertyChangeFlags propertyChange);
