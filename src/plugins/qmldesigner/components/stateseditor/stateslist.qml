@@ -30,7 +30,12 @@ Rectangle {
 
     // TextInputs don't loose focus automatically when user clicks away, have to be done explicitly
     signal unFocus
-    Item { id:focusStealer }
+    MouseRegion {
+        anchors.fill:parent
+        hoverEnabled:true
+        onExited: root.unFocus();
+    }
+
 
     Flickable {
         id: listView
@@ -79,7 +84,7 @@ Rectangle {
         id: Delegate
         Item {
             id: container
-            width: Math.max(img.width, txt.width+removeState.width+2) + 4
+            width: Math.max(img.width, txt.width+removeState.width+2,stateNameEditor.width) + 4
             height: img.height + txt.height + 4
 
             Rectangle {
@@ -114,49 +119,7 @@ Rectangle {
                 }
             }
 
-            Connection {
-                sender: root
-                signal: "unFocus()"
-                script: txt.unFocus()
-            }
 
-            Item {
-                id: textLimits
-                anchors.top: parent.top
-                anchors.left:parent.left
-                anchors.right:removeState.left
-                height: txt.height
-                clip: true
-
-                TextInput {
-                    anchors.top: parent.top
-                    anchors.topMargin: 2
-                    anchors.horizontalCenter: textLimits.horizontalCenter
-                    id: txt
-                    text: stateName
-                    color: "#E1E1E1";
-                    function unFocus() {
-                        focus=false;
-                        focusStealer.focus=true;
-                        txtRegion.enabled=true;
-                        if (index!=0)
-                            statesEditorModel.renameState(index,text);
-                    }
-                    onAccepted: unFocus();
-                    MouseRegion {
-                        id: txtRegion
-                        anchors.fill:parent
-                        onClicked: {
-                            root.currentStateIndex = index;
-                            root.unFocus();
-                        }
-                        onDoubleClicked: if (index!=0) {
-                            parent.focus=true;
-                            enabled=false;
-                        }
-                    }
-                }
-            }
 
             // The erase button
             Rectangle {
@@ -212,6 +175,85 @@ Rectangle {
 
                 }
             }
+
+            Connection {
+                sender: root
+                signal: "unFocus()"
+                script: stateNameEditor.unFocus()
+            }
+
+            Item {
+                id: textLimits
+                anchors.top: parent.top
+                anchors.left:parent.left
+                anchors.right:removeState.left
+                height: txt.height
+                clip: false
+
+                Text{
+                    anchors.top: parent.top
+                    anchors.topMargin: 2
+                    anchors.horizontalCenter: textLimits.horizontalCenter
+                    id: txt
+                    text: stateName
+                    color: "#E1E1E1";
+                    MouseRegion {
+                        id: txtRegion
+                        anchors.fill:parent
+                        onClicked: {
+                            if (root.currentStateIndex != index)
+                                root.unFocus();
+                            root.currentStateIndex = index;
+
+                        }
+                        onDoubleClicked: if (index!=0) {
+                            stateNameInput.text=stateName;
+                            stateNameInput.focus=true;
+                            stateNameEditor.visible=true;
+                            stateNameInput.cursorVisible=true;
+                        }
+                    }
+                }
+
+                Rectangle {
+                    id:stateNameEditor
+                    visible:false
+
+                    x:2
+                    y:2
+                    height:parent.height
+                    width:Math.max(img.width,txt.width+removeState.width+2,stateNameInput.width+16)
+                    clip:true
+
+                    color:"white"
+                    border.width:2
+                    border.color:"#8f8f8f"
+                    radius:4
+                    function unFocus() {
+                        if (visible)
+                            statesEditorModel.renameState(index,stateNameInput.text);
+                        visible=false;
+                    }
+
+                    MouseRegion {
+                        id: AbsorbAllClicks
+                        anchors.fill:parent
+                    }
+                    TextInput {
+                        id:stateNameInput
+                        x:10
+                        text:stateName
+                        onAccepted: {
+                            statesEditorModel.renameState(index,text);
+                            parent.visible=false;
+                        }
+
+                    }
+
+                }
+            }
+
+
         }
     }
 
@@ -256,51 +298,53 @@ Rectangle {
 
 
 
-   // The add button
-   Component {
-       id: addState
-       Rectangle {
-
-            anchors.centerIn: parent
-
-            width: 21
-            height: width
-
-            color:"#4F4F4F"
-            radius: width/2
-
-            // "clicked" overlay
+    // The add button
+    Component {
+        id: addState
+        Item {
+            anchors.fill:parent
             Rectangle {
-                anchors.fill:parent
-                opacity:parent.state=="Pressed"
-                color : "#282828"
-                radius: parent.radius
-            }
 
-            states: State{ name: "Pressed"; }
+                anchors.centerIn: parent
 
-            // "plus" sign
-            Rectangle {
-                width:parent.width-10
-                height:3
-                color:root.color
-                anchors.centerIn:parent
-            }
-            Rectangle {
-                width:3
-                height:parent.height-10
-                color:root.color
-                anchors.centerIn:parent
-            }
+                width: 21
+                height: width
 
+                color:"#4F4F4F"
+                radius: width/2
+
+                // "clicked" overlay
+                Rectangle {
+                    anchors.fill:parent
+                    opacity:parent.state=="Pressed"
+                    color : "#282828"
+                    radius: parent.radius
+                }
+
+                states: State{ name: "Pressed"; }
+
+                // "plus" sign
+                Rectangle {
+                    width:parent.width-10
+                    height:3
+                    color:root.color
+                    anchors.centerIn:parent
+                }
+                Rectangle {
+                    width:3
+                    height:parent.height-10
+                    color:root.color
+                    anchors.centerIn:parent
+                }
+            }
             MouseRegion {
                 anchors.fill:parent
                 onClicked: {
                     root.unFocus();
                     if (root.currentStateIndex == 0)
-                    root.createNewState(); //create new state
+                        root.createNewState(); //create new state
                     else
-                    root.duplicateCurrentState(); //duplicate current state
+                        root.duplicateCurrentState(); //duplicate current state
 
                     listView.viewportX = horizontalScrollbar.viewPosition;
                     // select the newly created state
