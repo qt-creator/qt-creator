@@ -509,8 +509,12 @@ QVariantMap Version0Handler::update(Project *project, const QVariantMap &map)
 
         // buildsteps
         QStringList buildSteps(map.value(oldBcKey + QLatin1String("-buildsteps")).toStringList());
+
         if (buildSteps.isEmpty())
-            buildSteps = map.value("buildsteps").toStringList();
+            // try lowercase version, too:-(
+            buildSteps = map.value(QString::fromLatin1("buildconfiguration-") + bc + QLatin1String("-buildsteps")).toStringList();
+        if (buildSteps.isEmpty())
+            buildSteps = map.value(QLatin1String("buildsteps")).toStringList();
 
         int pos(0);
         foreach (const QString &bs, buildSteps) {
@@ -539,7 +543,10 @@ QVariantMap Version0Handler::update(Project *project, const QVariantMap &map)
         // cleansteps
         QStringList cleanSteps(map.value(oldBcKey + QLatin1String("-cleansteps")).toStringList());
         if (cleanSteps.isEmpty())
-            cleanSteps = map.value("cleansteps").toStringList();
+            // try lowercase version, too:-(
+            cleanSteps = map.value(QString::fromLatin1("buildconfiguration-") + bc + QLatin1String("-cleansteps")).toStringList();
+        if (cleanSteps.isEmpty())
+            cleanSteps = map.value(QLatin1String("cleansteps")).toStringList();
 
         pos = 0;
         foreach (const QString &bs, cleanSteps) {
