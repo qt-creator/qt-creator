@@ -30,6 +30,7 @@
 #include "parser/qmljsast_p.h"
 #include "qmljsbind.h"
 #include "qmljslink.h"
+#include "qmljscheck.h"
 #include "qmljsmetatypesystem.h"
 
 #include <QtCore/QDir>
@@ -126,7 +127,8 @@ class ProcessSourceElements: protected AST::Visitor
 
 public:
     ProcessSourceElements(Interpreter::Engine *interp)
-        : _interp(interp)
+        : _interp(interp),
+          typeOfExpression(interp)
     {
     }
 
@@ -149,11 +151,19 @@ protected:
 
     virtual bool visit(VariableDeclaration *ast)
     {
-        if (ast->name)
-            _interp->globalObject()->setProperty(ast->name->asString(), _interp->undefinedValue());
+        if (ast->name) {
+            const Value *value = _interp->undefinedValue();
+
+            if (ast->expression)
+                value = typeOfExpression(ast->expression, _interp->globalObject());
+
+            _interp->globalObject()->setProperty(ast->name->asString(), value);
+        }
 
         return false;
     }
+
+    Check typeOfExpression;
 };
 
 } // end of anonymous namespace

@@ -286,13 +286,19 @@ bool Check::visit(AST::FieldMemberExpression *ast)
     return false;
 }
 
-bool Check::visit(AST::NewMemberExpression *)
+bool Check::visit(AST::NewMemberExpression *ast)
 {
+    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(check(ast->base))) {
+        _result = ctor->construct();
+    }
     return false;
 }
 
-bool Check::visit(AST::NewExpression *)
+bool Check::visit(AST::NewExpression *ast)
 {
+    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(check(ast->expression))) {
+        _result = ctor->construct();
+    }
     return false;
 }
 
