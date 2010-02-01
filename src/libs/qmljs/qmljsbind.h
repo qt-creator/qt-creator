@@ -44,7 +44,7 @@ class Link;
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
 protected:
-    Bind(Document::Ptr doc, Interpreter::Engine *interp);
+    Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp);
 
 public:
     virtual ~Bind();
@@ -58,7 +58,9 @@ public:
 protected:
     using AST::Visitor::visit;
 
-    QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
+    static QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
+    AST::ExpressionNode *expression(AST::UiScriptBinding *ast) const;
+    void processScript(AST::UiQualifiedId *qualifiedId, AST::UiObjectInitializer *initializer);
 
     void accept(AST::Node *node);
 
@@ -78,6 +80,7 @@ protected:
 
 private:
     Document::Ptr _doc;
+    Snapshot _snapshot;
     Interpreter::Engine *_interp;
 
     Interpreter::ObjectValue *_currentObjectValue;

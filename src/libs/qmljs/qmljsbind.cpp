@@ -31,6 +31,9 @@
 #include "qmljsbind.h"
 #include "qmljslink.h"
 #include "qmljsmetatypesystem.h"
+
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
 using namespace QmlJS;
@@ -119,8 +122,9 @@ public:
 
 } // end of anonymous namespace
 
-Bind::Bind(Document::Ptr doc, Interpreter::Engine *interp)
+Bind::Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp)
     : _doc(doc),
+      _snapshot(snapshot),
       _interp(interp),
       _currentObjectValue(0),
       _typeEnvironment(0),
@@ -164,7 +168,7 @@ ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &s
     Snapshot::const_iterator end = snapshot.end();
     for (Snapshot::const_iterator iter = snapshot.begin(); iter != end; ++iter) {
         Document::Ptr doc = *iter;
-        Bind *newBind = new Bind(doc, interp);
+        Bind *newBind = new Bind(doc, snapshot, interp);
         binds += newBind;
         if (doc == currentDocument)
             currentBind = newBind;
@@ -197,21 +201,63 @@ QString Bind::toString(UiQualifiedId *qualifiedId, QChar delimiter)
     return result;
 }
 
+ExpressionNode *Bind::expression(UiScriptBinding *ast) const
+{
+    if (ExpressionStatement *statement = cast<ExpressionStatement *>(ast->statement))
+        return statement->expression;
+
+    return 0;
+}
+
+void Bind::processScript(AST::UiQualifiedId *qualifiedId, AST::UiObjectInitializer *initializer)
+{
+    Q_UNUSED(qualifiedId);
+
+    if (! initializer)
+        return;
+
+    for (UiObjectMemberList *it = initializer->members; it; it = it->next) {
+        if (UiScriptBinding *binding = cast<UiScriptBinding *>(it->member)) {
+            const QString bindingName = toString(binding->qualifiedId);
+            if (bindingName == QLatin1String("source")) {
+                if (StringLiteral *literal = cast<StringLiteral *>(expression(binding))) {
+                    QFileInfo fileInfo(QDir(_doc->path()), literal->value->asString());
+                    Document::Ptr script = _snapshot.document(fileInfo.absoluteFilePath());
+                    // ### process the script
+                }
+            }
+        } else if (UiSourceElement *binding = cast<UiSourceElement *>(it->member)) {
+            if (FunctionDeclaration *decl = cast<FunctionDeclaration *>(binding->sourceElement)) {
+                accept(decl); // process the function declaration
+            } else {
+                // ### unexpected source element
+            }
+        } else {
+            // ### unexpected binding.
+        }
+    }
+}
+
 ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitializer *initializer)
 {
-    ObjectValue *parentObjectValue;
+    ObjectValue *parentObjectValue = 0;
+    const QString typeName = toString(qualifiedTypeNameId);
 
-    if (toString(qualifiedTypeNameId) == QLatin1String("Script")) {
+    if (typeName == QLatin1String("Script")) {
         // Script blocks all contribute to the same scope
         parentObjectValue = switchObjectValue(_functionEnvironment);
-    } else { // normal component instance
-        ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _interp);
-        parentObjectValue = switchObjectValue(objectValue);
-        if (parentObjectValue)
-            objectValue->setProperty("parent", parentObjectValue);
-        else
-            _rootObjectValue = objectValue;
+        processScript(qualifiedTypeNameId, initializer);
+        return switchObjectValue(parentObjectValue);
     }
+
+    // normal component instance
+    ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _interp);
+    parentObjectValue = switchObjectValue(objectValue);
+
+    if (parentObjectValue)
+        objectValue->setProperty(QLatin1String("parent"), parentObjectValue);
+    else
+        _rootObjectValue = objectValue;
 
     accept(initializer);
 
