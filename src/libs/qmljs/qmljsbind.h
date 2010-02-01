@@ -43,8 +43,10 @@ class Link;
 
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
-public:
+protected:
     Bind(Document::Ptr doc, Interpreter::Engine *interp);
+
+public:
     virtual ~Bind();
 
     // ### TODO: This methods should go. Bind each document after parsing, link later.
