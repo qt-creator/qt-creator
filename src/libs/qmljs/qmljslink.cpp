@@ -148,7 +148,6 @@ void LinkImports::operator()(const QList<Bind *> &binds)
 ObjectValue *Link::operator()(const QList<Bind *> &binds, Bind *currentBind, UiObjectMember *currentObject)
 {
     Q_UNUSED(binds);
-
     ObjectValue *scopeObject;
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
         scopeObject = currentBind->_qmlObjectDefinitions.value(definition);

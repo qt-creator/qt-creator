@@ -120,6 +120,42 @@ public:
     }
 };
 
+class ProcessSourceElements: protected AST::Visitor
+{
+    Interpreter::Engine *_interp;
+
+public:
+    ProcessSourceElements(Interpreter::Engine *interp)
+        : _interp(interp)
+    {
+    }
+
+    void operator()(AST::Node *node)
+    {
+        if (node)
+            node->accept(this);
+    }
+
+protected:
+    using AST::Visitor::visit;
+
+    virtual bool visit(FunctionDeclaration *ast)
+    {
+        if (ast->name)
+            _interp->globalObject()->setProperty(ast->name->asString(), new ASTFunctionValue(ast, _interp));
+
+        return false;
+    }
+
+    virtual bool visit(VariableDeclaration *ast)
+    {
+        if (ast->name)
+            _interp->globalObject()->setProperty(ast->name->asString(), _interp->undefinedValue());
+
+        return false;
+    }
+};
+
 } // end of anonymous namespace
 
 Bind::Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp)
@@ -152,6 +188,11 @@ Bind::~Bind()
 {
 }
 
+QStringList Bind::includedScripts() const
+{
+    return _includedScripts;
+}
+
 ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
 {
     ObjectValue *oldObjectValue = _currentObjectValue;
@@ -177,10 +218,30 @@ ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &s
     LinkImports linkImports;
     Link link;
 
+    // link the import directives
     linkImports(binds);
+
+    // link the scripts
+    QStringList includedScriptFiles;
+    foreach (Bind *bind, binds)
+        includedScriptFiles += bind->includedScripts();
+
+    includedScriptFiles.removeDuplicates();
+
+    ProcessSourceElements processSourceElements(interp);
+
+    foreach (const QString &scriptFile, includedScriptFiles) {
+        if (Document::Ptr scriptDoc = snapshot.document(scriptFile)) {
+            if (AST::Program *program = scriptDoc->jsProgram()) {
+                processSourceElements(program);
+            }
+        }
+    }
+
     ObjectValue *scope = interp->globalObject();
     if (currentBind)
         scope = link(binds, currentBind, currentObject);
+
     qDeleteAll(binds);
 
     return scope;
@@ -222,8 +283,8 @@ void Bind::processScript(AST::UiQualifiedId *qualifiedId, AST::UiObjectInitializ
             if (bindingName == QLatin1String("source")) {
                 if (StringLiteral *literal = cast<StringLiteral *>(expression(binding))) {
                     QFileInfo fileInfo(QDir(_doc->path()), literal->value->asString());
-                    Document::Ptr script = _snapshot.document(fileInfo.absoluteFilePath());
-                    // ### process the script
+                    const QString scriptPath = fileInfo.absoluteFilePath();
+                    _includedScripts.append(scriptPath);
                 }
             }
         } else if (UiSourceElement *binding = cast<UiSourceElement *>(it->member)) {

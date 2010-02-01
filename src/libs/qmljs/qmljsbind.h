@@ -35,6 +35,7 @@
 #include <qmljs/qmljsinterpreter.h>
 
 #include <QtCore/QHash>
+#include <QtCore/QStringList>
 
 namespace QmlJS {
 
@@ -48,6 +49,8 @@ protected:
 
 public:
     virtual ~Bind();
+
+    QStringList includedScripts() const;
 
     // ### TODO: This methods should go. Bind each document after parsing, link later.
     static Interpreter::ObjectValue *scopeChainAt(Document::Ptr currentDocument,
@@ -91,6 +94,7 @@ private:
 
     QHash<AST::UiObjectDefinition *, Interpreter::ObjectValue *> _qmlObjectDefinitions;
     QHash<AST::UiObjectBinding *, Interpreter::ObjectValue *> _qmlObjectBindings;
+    QStringList _includedScripts;
 
     friend class LinkImports;
     friend class Link;
