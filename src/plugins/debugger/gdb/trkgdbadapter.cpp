@@ -203,6 +203,7 @@ void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
     // Not combinable, add chunk.
     memory.insert(range, ba);
 }
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // TrkGdbAdapter
@@ -1046,6 +1047,9 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
 void TrkGdbAdapter::sendTrkMessage(byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
+    if (m_verbose >= 2)
+        logMessage("trk: -> " + QByteArray::number(code, 16) + "  "
+            + stringFromArray(data));
     m_trkDevice->sendTrkMessage(code, callback, data, cookie);
 }
 
@@ -1062,6 +1066,8 @@ void TrkGdbAdapter::handleTrkError(const QString &msg)
 
 void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
 {
+    if (m_verbose >= 2)
+        logMessage("trk: <- " + result.toString());
     if (result.isDebugOutput) {
         // It looks like those messages _must not_ be acknowledged.
         // If we do so, TRK will complain about wrong sequencing.
@@ -1119,11 +1125,13 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             // several instruction steps, better avoid the multiple
             // roundtrips through TRK in favour of an additional
             // roundtrip through gdb. But gdb will ask for all registers.
-            //sendGdbServerMessage("S05", "Target stopped");
-            // -- or --
-            QByteArray ba = "T05";
-            appendRegister(&ba, RegisterPSGdb, addr);
-            sendGdbServerMessage(ba, "Registers");
+                #if 1
+                sendGdbServerMessage("S05", "Target stopped");
+                #else
+                QByteArray ba = "T05";
+                appendRegister(&ba, RegisterPSGdb, addr);
+                sendGdbServerMessage(ba, "Registers");
+                #endif
             #endif
             break;
         }
@@ -1187,7 +1195,15 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
                 + ",TextSeg=" + hexNumber(lib.codeseg)
                 + ",DataSeg=" + hexNumber(lib.dataseg) + ';');
 */
-            sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+
+            // After 'continue' the very first time after starting debugging
+            // a process some library load events are generated, these are
+            // actually static dependencies for the process. For these libraries,
+            // the thread id is -1 which means the debugger doesn't have
+            // to continue. The debugger can safely assume that the
+            // thread resumption will be handled by the agent itself.
+            if (tid != unsigned(-1))
+                sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
             break;
         }
         case 0xa1: { // NotifyDeleted
@@ -1465,7 +1481,7 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
                 return;
             }
         }
-        // Happens when chunks are not comnbined
+        // Happens when chunks are not combined
         QTC_ASSERT(false, /**/);
         debugMessage("CHUNKS NOT COMBINED");
         #ifdef MEMORY_DEBUG
@@ -1794,7 +1810,8 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
 
     logMessage(startMsg);
 
-    if (m_symbolFile.isEmpty()) {
+    const QByteArray symbolFile = m_symbolFile.toLocal8Bit();
+    if (symbolFile.isEmpty()) {
         logMessage(_("WARNING: No symbol file available."));
     } else {
         // Does not seem to be necessary anymore.
@@ -1802,7 +1819,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         // have to wait for the TRK startup to learn the load address.
         //m_engine->postCommand("add-symbol-file \"" + symbolFile + "\" "
         //    + QByteArray::number(m_session.codeseg));
-        m_engine->postCommand("symbol-file \"" + m_symbolFile.toLatin1() + "\"");
+        m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
     }
     m_engine->postCommand("set breakpoint always-inserted on");
     m_engine->postCommand("set trust-readonly-sections"); // No difference?
