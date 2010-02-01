@@ -32,6 +32,7 @@
 #include "addarraymembervisitor.h"
 #include "addobjectvisitor.h"
 #include "addpropertyvisitor.h"
+#include "changeimportsvisitor.h"
 #include "changeobjecttypevisitor.h"
 #include "changepropertyvisitor.h"
 #include "moveobjectvisitor.h"
@@ -70,11 +71,16 @@ bool QmlRefactoring::reparseDocument()
     }
 }
 
-bool QmlRefactoring::changeImports(const QSet<QmlDesigner::Import> &/*addedImports*/, const QSet<QmlDesigner::Import> &/*removedImports*/)
+bool QmlRefactoring::addImport(const Import &import)
 {
-//    ChangeImportsVisitor visit(*textModifier, addedImports, removedImports, qmlDocument->source());
-//    visit(qmlDocument->program());
-    return false;
+    ChangeImportsVisitor visitor(*textModifier, qmlDocument->source());
+    return visitor.add(qmlDocument->qmlProgram(), import);
+}
+
+bool QmlRefactoring::removeImport(const Import &import)
+{
+    ChangeImportsVisitor visitor(*textModifier, qmlDocument->source());
+    return visitor.remove(qmlDocument->qmlProgram(), import);
 }
 
 bool QmlRefactoring::addToArrayMemberList(int parentLocation, const QString &propertyName, const QString &content)

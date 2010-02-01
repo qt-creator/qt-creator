@@ -12,7 +12,8 @@ SOURCES += \
     $$PWD/astobjecttextextractor.cpp \
     $$PWD/objectlengthcalculator.cpp \
     $$PWD/firstdefinitionfinder.cpp \
-    $$PWD/moveobjectbeforeobjectvisitor.cpp
+    $$PWD/moveobjectbeforeobjectvisitor.cpp \
+    $$PWD/changeimportsvisitor.cpp
 HEADERS += \
     $$PWD/qmlrewriter.h \
     $$PWD/qmlrefactoring.h \
@@ -27,4 +28,5 @@ HEADERS += \
     $$PWD/astobjecttextextractor.h \
     $$PWD/objectlengthcalculator.h \
     $$PWD/firstdefinitionfinder.h \
-    $$PWD/moveobjectbeforeobjectvisitor.h
+    $$PWD/moveobjectbeforeobjectvisitor.h \
+    $$PWD/changeimportsvisitor.h

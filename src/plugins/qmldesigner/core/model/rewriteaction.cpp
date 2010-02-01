@@ -36,6 +36,37 @@ using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 using namespace QmlDesigner;
 
+namespace { // anonymous
+
+static inline QString toInfo(const Import &import)
+{
+    QString txt;
+
+    if (import.isEmpty()) {
+        return QLatin1String("empty import");
+    } else if (import.isFileImport()) {
+        txt = QLatin1String("import file \"%1\"");
+        txt = txt.arg(import.url());
+    } else if (import.isLibraryImport()) {
+        txt = QLatin1String("import library \"%1\"");
+        txt = txt.arg(import.file());
+    } else {
+        return QLatin1String("unknown type of import");
+    }
+
+    if (import.hasVersion())
+        txt += QString::fromLatin1("with version \"%1\"").arg(import.version());
+    else
+        txt += QLatin1String("without version");
+
+    if (import.hasAlias())
+        txt += QString::fromLatin1("aliassed as \"%1\"").arg(import.alias());
+    else
+        txt += QLatin1String("unaliassed");
+
+    return txt;
+}
+
 static inline QString toString(QmlRefactoring::PropertyType type)
 {
     switch (type) {
@@ -45,6 +76,8 @@ static inline QString toString(QmlRefactoring::PropertyType type)
         default:                            return QLatin1String("UNKNOWN");
     }
 }
+
+} // namespace anonymous
 
 bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
@@ -301,4 +334,40 @@ QString MoveNodeRewriteAction::info() const
     } else {
         return QString("MoveNodeRewriteAction for an invalid node");
     }
+}
+
+bool AddImportRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring,
+                                     ModelNodePositionStorage &/*positionStore*/)
+{
+    const bool result = refactoring.addImport(m_import);
+
+    if (!result)
+        qDebug() << "*** AddImportRewriteAction::execute failed in changeImports ("
+                 << m_import.toString()
+                 << ") **"
+                 << info();
+    return result;
+}
+
+QString AddImportRewriteAction::info() const
+{
+    return toInfo(m_import);
+}
+
+bool RemoveImportRewriteAction::execute(QmlDesigner::QmlRefactoring &refactoring,
+                                        ModelNodePositionStorage &/*positionStore*/)
+{
+    const bool result = refactoring.addImport(m_import);
+
+    if (!result)
+        qDebug() << "*** RemoveImportRewriteAction::execute failed in changeImports ("
+                 << m_import.toString()
+                 << ") **"
+                 << info();
+    return result;
+}
+
+QString RemoveImportRewriteAction::info() const
+{
+    return toInfo(m_import);
 }

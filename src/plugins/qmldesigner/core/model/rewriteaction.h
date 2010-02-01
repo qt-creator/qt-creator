@@ -38,10 +38,12 @@
 namespace QmlDesigner {
 namespace Internal {
 
+class AddImportRewriteAction;
 class AddPropertyRewriteAction;
 class ChangeIdRewriteAction;
 class ChangePropertyRewriteAction;
 class ChangeTypeRewriteAction;
+class RemoveImportRewriteAction;
 class RemoveNodeRewriteAction;
 class RemovePropertyRewriteAction;
 class ReparentNodeRewriteAction;
@@ -53,10 +55,12 @@ public:
     virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore) = 0;
     virtual QString info() const = 0;
 
+    virtual AddImportRewriteAction const *asAddImportRewriteAction() const { return 0; }
     virtual AddPropertyRewriteAction const *asAddPropertyRewriteAction() const { return 0; }
     virtual ChangeIdRewriteAction const *asChangeIdRewriteAction() const { return 0; }
     virtual ChangePropertyRewriteAction const *asChangePropertyRewriteAction() const { return 0; }
     virtual ChangeTypeRewriteAction const *asChangeTypeRewriteAction() const { return 0; }
+    virtual RemoveImportRewriteAction const * asRemoveImportRewriteAction() const { return 0; }
     virtual RemoveNodeRewriteAction const *asRemoveNodeRewriteAction() const { return 0; }
     virtual RemovePropertyRewriteAction const *asRemovePropertyRewriteAction() const { return 0; }
     virtual ReparentNodeRewriteAction const *asReparentNodeRewriteAction() const { return 0; }
@@ -253,6 +257,42 @@ public:
 private:
     ModelNode m_movingNode;
     ModelNode m_newTrailingNode;
+};
+
+class AddImportRewriteAction: public RewriteAction
+{
+public:
+    AddImportRewriteAction(const Import &import):
+            m_import(import)
+    {}
+
+    virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
+    virtual QString info() const;
+
+    virtual AddImportRewriteAction const *asAddImportRewriteAction() const { return this; }
+
+    Import import() const { return m_import; }
+
+private:
+    Import m_import;
+};
+
+class RemoveImportRewriteAction: public RewriteAction
+{
+public:
+    RemoveImportRewriteAction(const Import &import):
+            m_import(import)
+    {}
+
+    virtual bool execute(QmlDesigner::QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore);
+    virtual QString info() const;
+
+    virtual RemoveImportRewriteAction const *asRemoveImportRewriteAction() const { return this; }
+
+    Import import() const { return m_import; }
+
+private:
+    Import m_import;
 };
 
 } // namespace Internal

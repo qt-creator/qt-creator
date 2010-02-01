@@ -55,7 +55,8 @@ public:
 
     bool reparseDocument();
 
-    bool changeImports(const QSet<QmlDesigner::Import> &addedImports, const QSet<QmlDesigner::Import> &removedImports);
+    bool addImport(const Import &import);
+    bool removeImport(const Import &import);
 
     bool addToArrayMemberList(int parentLocation, const QString &propertyName, const QString &content);
     bool addToObjectMemberList(int parentLocation, const QString &content);

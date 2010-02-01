@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#include <qmljsast_p.h>
-#include <qmljsengine_p.h>
+#include <qmljs/parser/qmljsast_p.h>
+#include <qmljs/parser/qmljsengine_p.h>
 
 #include "changeimportsvisitor.h"
 
@@ -37,44 +37,67 @@ using namespace QmlJS::AST;
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
-using namespace QmlDesigner::Internal;
 
-ChangeImportsVisitor::ChangeImportsVisitor(TextModifier &textModifier, const QSet<Import> &addedImports, const QSet<Import> &removedImports, const QString &source):
-        QMLRewriter(textModifier),
-        CopyPasteUtil(source),
-        m_addedImports(addedImports),
-        m_removedImports(removedImports)
+ChangeImportsVisitor::ChangeImportsVisitor(TextModifier &textModifier,
+                                           const QString &source):
+        QMLRewriter(textModifier), m_source(source)
+{}
+
+bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
 {
-}
-
-bool ChangeImportsVisitor::visit(QmlJS::AST::UiProgram *ast)
-{
-    if (ast->imports)
-        accept(ast->imports);
-
-    return false;
-}
-
-bool ChangeImportsVisitor::visit(QmlJS::AST::UiImportList *ast)
-{
+    setDidRewriting(false);
     if (!ast)
         return false;
 
-    quint32 prevEnd = 0;
-    for (UiImportList *it = ast; it; it = it->next) {
-        UiImport *imp = it->import;
-        if (!imp)
-            continue;
-
-        if (m_removedImports.remove(createImport(imp)))
-            replace(prevEnd, imp->lastSourceLocation().end() - prevEnd, "");
-
-        prevEnd = imp->lastSourceLocation().end();
+    if (ast->imports && ast->imports->import) {
+        int insertionPoint = 0;
+        if (ast->members && ast->members->member) {
+            insertionPoint = ast->members->member->firstSourceLocation().begin();
+        } else {
+            insertionPoint = m_source.length();
+        }
+        while (insertionPoint > 0) {
+            --insertionPoint;
+            const QChar c = m_source.at(insertionPoint);
+            if (!c.isSpace() && c != QLatin1Char(';'))
+                break;
+        }
+        replace(insertionPoint, 0, QLatin1String("\n") + import.toString(false));
+    } else {
+        replace(0, 0, import.toString(false) + QLatin1String("\n\n"));
     }
 
-    foreach (const Import &i, m_addedImports) {
-        replace(prevEnd, 0, i.toString(false) + "\n");
+    setDidRewriting(true);
+
+    return true;
+}
+
+bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &import)
+{
+    setDidRewriting(false);
+    if (!ast)
+        return false;
+
+    for (UiImportList *iter = ast->imports; iter; iter = iter->next) {
+        if (equals(iter->import, import)) {
+            int start = iter->firstSourceLocation().begin();
+            int end = iter->lastSourceLocation().end();
+            includeSurroundingWhitespace(start, end);
+            replace(start, end - start, QString());
+            setDidRewriting(true);
+        }
     }
 
-    return false;
+    return didRewriting();
+}
+
+bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &import)
+{
+    if (import.isLibraryImport()) {
+        return flatten(ast->importUri) == import.url();
+    } else if (import.isFileImport()) {
+        return ast->fileName->asString() == import.file();
+    } else {
+        return false;
+    }
 }

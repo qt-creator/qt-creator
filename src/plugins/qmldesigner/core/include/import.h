@@ -31,7 +31,6 @@
 #define IMPORT_H
 
 #include <QtCore/QString>
-#include <QtCore/QUrl>
 
 #include "corelib_global.h"
 
@@ -40,7 +39,7 @@ namespace QmlDesigner {
 class CORESHARED_EXPORT Import
 {
 public:
-    static Import createLibraryImport(const QUrl &url, const QString &version = QString(), const QString &alias = QString());
+    static Import createLibraryImport(const QString &url, const QString &version = QString(), const QString &alias = QString());
     static Import createFileImport(const QString &file, const QString &version = QString(), const QString &alias = QString());
     static Import empty();
 
@@ -50,7 +49,7 @@ public:
     bool hasVersion() const { return !m_version.isEmpty(); }
     bool hasAlias() const { return !m_alias.isEmpty(); }
 
-    QUrl url() const { return m_url; }
+    QString url() const { return m_url; }
     QString file() const { return m_file; }
     QString version() const { return m_version; }
     QString alias() const { return m_alias; }
@@ -60,10 +59,10 @@ public:
     bool operator==(const Import &other) const;
 
 private:
-    Import(const QUrl &url, const QString &file, const QString &version, const QString &alias);
+    Import(const QString &url, const QString &file, const QString &version, const QString &alias);
 
 private:
-    QUrl m_url;
+    QString m_url;
     QString m_file;
     QString m_version;
     QString m_alias;

@@ -75,7 +75,7 @@ void TextToModelMerger::setupImports(QmlDomDocument &doc,
 
     foreach (const QmlDomImport &qmlImport, doc.imports()) {
         if (qmlImport.type() == QmlDomImport::Library) {
-            Import import(Import::createLibraryImport(QUrl(qmlImport.uri()),
+            Import import(Import::createLibraryImport(qmlImport.uri(),
                                                       qmlImport.version(),
                                                       qmlImport.qualifier()));
 

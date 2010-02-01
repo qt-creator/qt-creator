@@ -56,11 +56,53 @@ static bool nodeOrParentInSet(const ModelNode &node, const QSet<ModelNode> &node
 
 void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions) const
 {
+    compressImports(actions);
     compressReparentActions(actions);
     compressPropertyActions(actions);
     compressAddEditRemoveNodeActions(actions);
     compressAddEditActions(actions);
     compressAddReparentActions(actions);
+}
+
+void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) const
+{
+    QHash<Import, RewriteAction *> addedImports;
+    QHash<Import, RewriteAction *> removedImports;
+
+    QMutableListIterator<RewriteAction *> iter(actions);
+    iter.toBack();
+    while (iter.hasPrevious()) {
+        RewriteAction *action = iter.previous();
+
+        if (RemoveImportRewriteAction const *removeImportAction = action->asRemoveImportRewriteAction()) {
+            const Import import = removeImportAction->import();
+            if (removedImports.contains(import)) {
+                remove(iter);
+            } else if (RewriteAction *addImportAction = addedImports.value(import, 0)) {
+                actions.removeOne(addImportAction);
+                addedImports.remove(import);
+                delete addImportAction;
+                remove(iter);
+            } else {
+                removedImports.insert(import, action);
+            }
+        } else if (AddImportRewriteAction const *addImportAction = action->asAddImportRewriteAction()) {
+            const Import import = addImportAction->import();
+            if (RewriteAction *duplicateAction = addedImports.value(import, 0)) {
+                actions.removeOne(duplicateAction);
+                addedImports.remove(import);
+                delete duplicateAction;
+                addedImports.insert(import, action);
+            } else if (RewriteAction *removeAction = removedImports.value(import, 0)) {
+                actions.removeOne(removeAction);
+                removedImports.remove(import);
+                delete removeAction;
+                remove(iter);
+            } else {
+                addedImports.insert(import, action);
+            }
+        }
+    }
 }
 
 void RewriteActionCompressor::compressReparentActions(QList<RewriteAction *> &actions) const

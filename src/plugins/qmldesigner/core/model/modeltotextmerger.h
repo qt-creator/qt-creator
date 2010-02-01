@@ -74,6 +74,9 @@ public:
     void nodeSlidAround(const ModelNode &movingNode, const ModelNode &inFrontOfNode);
     void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
 
+    void addImport(const Import &import);
+    void removeImport(const Import &import);
+
 protected:
     RewriterView *view();
 

@@ -33,22 +33,22 @@
 
 namespace QmlDesigner {
 
-Import Import::createLibraryImport(const QUrl &url, const QString &version, const QString &alias)
+Import Import::createLibraryImport(const QString &url, const QString &version, const QString &alias)
 {
     return Import(url, QString(), version, alias);
 }
 
 Import Import::createFileImport(const QString &file, const QString &version, const QString &alias)
 {
-    return Import(QUrl(), file, version, alias);
+    return Import(QString(), file, version, alias);
 }
 
 Import Import::empty()
 {
-    return Import(QUrl(), QString(), QString(), QString());
+    return Import(QString(), QString(), QString(), QString());
 }
 
-Import::Import(const QUrl &url, const QString &file, const QString &version, const QString &alias):
+Import::Import(const QString &url, const QString &file, const QString &version, const QString &alias):
         m_url(url),
         m_file(file),
         m_version(version),
@@ -63,7 +63,7 @@ QString Import::toString(bool addSemicolon) const
     if (isFileImport())
         result += '"' + file() + '"';
     else if (isLibraryImport())
-        result += url().toString();
+        result += url();
     else
         return QString();
 
@@ -86,7 +86,7 @@ bool Import::operator==(const Import &other) const
 
 uint qHash(const Import &import)
 {
-    return ::qHash(import.url().toString()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());
+    return ::qHash(import.url()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());
 }
 
 } // namespace QmlDesigner

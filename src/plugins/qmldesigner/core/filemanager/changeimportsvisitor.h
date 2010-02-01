@@ -32,27 +32,24 @@
 
 #include <QtCore/QSet>
 
-#include <model/copypasteutil.h>
 #include "import.h"
 #include "qmlrewriter.h"
 
 namespace QmlDesigner {
 namespace Internal {
 
-class ChangeImportsVisitor: public QMLRewriter, protected QmlDesigner::Internal::CopyPasteUtil
+class ChangeImportsVisitor: public QMLRewriter
 {
 public:
-    ChangeImportsVisitor(QmlDesigner::TextModifier &textModifier,
-                         const QSet<QmlDesigner::Import> &addedImports,
-                         const QSet<QmlDesigner::Import> &removedImports, const QString &source);
+    ChangeImportsVisitor(QmlDesigner::TextModifier &textModifier, const QString &source);
 
-protected:
-    virtual bool visit(QmlJS::AST::UiProgram *ast);
-    virtual bool visit(QmlJS::AST::UiImportList *ast);
+    bool add(QmlJS::AST::UiProgram *ast, const Import &import);
+    bool remove(QmlJS::AST::UiProgram *ast, const Import &import);
 
 private:
-    QSet<QmlDesigner::Import> m_addedImports;
-    QSet<QmlDesigner::Import> m_removedImports;
+    static bool equals(QmlJS::AST::UiImport *ast, const Import &import);
+
+    QString m_source;
 };
 
 } // namespace Internal
