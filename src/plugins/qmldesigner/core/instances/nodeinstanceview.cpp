@@ -462,7 +462,14 @@ NodeInstance NodeInstanceView::rootNodeInstance() const
 
 static bool isTransformProperty(const QString &name)
 {
-    static QStringList transformProperties(QStringList() << "xChanged()" << "yChanged()" << "zChanged()" << "rotationChanged()" << "scaleChanged()" << "widthChanged()" << "heightChanged()");
+    static QStringList transformProperties(QStringList() << "xChanged()"
+                                                         << "yChanged()"
+                                                         << "zChanged()"
+                                                         << "rotationChanged()"
+                                                         << "scaleChanged()"
+                                                         << "widthChanged()"
+                                                         << "heightChanged()"
+                                                         << "transformOriginChanged(TransformOrigin)");
 
     return transformProperties.contains(name);
 }
