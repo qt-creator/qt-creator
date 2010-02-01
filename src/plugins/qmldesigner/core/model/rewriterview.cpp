@@ -152,8 +152,6 @@ void RewriterView::modelAboutToBeDetached(Model * /*model*/)
 
 void RewriterView::nodeCreated(const ModelNode &createdNode)
 {
-    if (createdNode.type() == QLatin1String("Qt/Component"))
-        setupComponent(createdNode);
     Q_ASSERT(textModifier());
     m_positionStorage->setNodeOffset(createdNode, ModelNodePositionStorage::INVALID_LOCATION);
     if (textToModelMerger()->isActive())
@@ -253,9 +251,6 @@ void RewriterView::bindingPropertiesChanged(const QList<BindingProperty>& proper
 
 void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
 {
-    if (node.type() == QLatin1String("Qt/Component"))
-        setupComponent(node);
-
     Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
@@ -364,30 +359,6 @@ void RewriterView::applyModificationGroupChanges()
 {
     Q_ASSERT(transactionLevel == 0);
     applyChanges();
-}
-
-void RewriterView::setupComponent(const ModelNode &node)
-{
-    Q_ASSERT(node.type() == QLatin1String("Qt/Component"));
-
-    QString componentText = extractText(QList<ModelNode>() << node).value(node);
-
-    if (componentText.isEmpty())
-        return;
-
-    QString result = "";
-    if (componentText.contains("Component")) { //explicit component
-        FirstDefinitionFinder firstDefinitionFinder(componentText);
-        int offset = firstDefinitionFinder(0);
-        ObjectLengthCalculator objectLengthCalculator(componentText);
-        int length = objectLengthCalculator(offset);
-        for (int i = offset;i<offset + length;i++)
-            result.append(componentText.at(i));
-    } else {
-        result = componentText; //implicit component
-    }
-
-    node.variantProperty("__component_data") = result;
 }
 
 void RewriterView::applyChanges()

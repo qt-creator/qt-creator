@@ -79,7 +79,9 @@ public:
 
 private:
     static bool isSignalPropertyName(const QString &signalName);
+    void setupComponent(const ModelNode &node);
 
+private:
     RewriterView *m_rewriterView;
     bool m_isActive;
 };
@@ -100,7 +102,7 @@ public:
     virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName) = 0;
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject) = 0;
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode) = 0;
-    virtual void listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject) = 0;
+    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject) = 0;
     virtual void typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject) = 0;
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty) = 0;
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId) = 0;
@@ -125,7 +127,7 @@ public:
     virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName);
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject);
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
-    virtual void listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject);
+    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject);
     virtual void typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject);
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
@@ -147,7 +149,7 @@ public:
     virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName);
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject);
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
-    virtual void listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject);
+    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject);
     virtual void typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject);
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);

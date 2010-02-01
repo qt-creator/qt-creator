@@ -29,6 +29,8 @@
 
 #include "abstractproperty.h"
 #include "bindingproperty.h"
+#include "filemanager/firstdefinitionfinder.h"
+#include "filemanager/objectlengthcalculator.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
 #include "propertymetainfo.h"
@@ -311,7 +313,10 @@ void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty
         // more elements in the dom-list, so add them to the model
         QmlDomValue value = domValues.at(j);
         if (value.isObject()) {
-            differenceHandler.listPropertyMissingModelNode(modelListProperty, value.toObject());
+            const QmlDomObject qmlObject = value.toObject();
+            const ModelNode newNode = differenceHandler.listPropertyMissingModelNode(modelListProperty, qmlObject);
+            if (QString::fromUtf8(qmlObject.objectType()) == QLatin1String("Qt/Component"))
+                setupComponent(newNode);
         } else {
             qDebug() << "*** Oops, we got a non-object item in the list!";
         }
@@ -412,9 +417,10 @@ void ModelValidator::modelNodeAbsentFromQml(ModelNode &modelNode)
     Q_ASSERT(0);
 }
 
-void ModelValidator::listPropertyMissingModelNode(NodeListProperty &/*modelProperty*/, const QmlDomObject &/*qmlObject*/)
+ModelNode ModelValidator::listPropertyMissingModelNode(NodeListProperty &/*modelProperty*/, const QmlDomObject &/*qmlObject*/)
 {
     Q_ASSERT(0);
+    return ModelNode();
 }
 
 void ModelValidator::typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject)
@@ -488,9 +494,11 @@ void ModelAmender::modelNodeAbsentFromQml(ModelNode &modelNode)
     modelNode.destroy();
 }
 
-void ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject)
+ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject)
 {
-    modelProperty.reparentHere(m_merger->createModelNode(qmlObject, *this));
+    const ModelNode &newNode = m_merger->createModelNode(qmlObject, *this);
+    modelProperty.reparentHere(newNode);
+    return newNode;
 }
 
 void ModelAmender::typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject)
@@ -516,4 +524,28 @@ bool TextToModelMerger::isSignalPropertyName(const QString &signalName)
     // see QmlCompiler::isSignalPropertyName
     return signalName.length() >= 3 && signalName.startsWith(QLatin1String("on")) &&
            signalName.at(2).isLetter();
+}
+
+void TextToModelMerger::setupComponent(const ModelNode &node)
+{
+    Q_ASSERT(node.type() == QLatin1String("Qt/Component"));
+
+    QString componentText = m_rewriterView->extractText(QList<ModelNode>() << node).value(node);
+
+    if (componentText.isEmpty())
+        return;
+
+    QString result = "";
+    if (componentText.contains("Component")) { //explicit component
+        FirstDefinitionFinder firstDefinitionFinder(componentText);
+        int offset = firstDefinitionFinder(0);
+        ObjectLengthCalculator objectLengthCalculator(componentText);
+        int length = objectLengthCalculator(offset);
+        for (int i = offset;i<offset + length;i++)
+            result.append(componentText.at(i));
+    } else {
+        result = componentText; //implicit component
+    }
+
+    node.variantProperty("__component_data") = result;
 }

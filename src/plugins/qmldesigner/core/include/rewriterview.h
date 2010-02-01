@@ -163,7 +163,6 @@ protected: // functions
     bool isModificationGroupActive() const;
     void setModificationGroupActive(bool active);
     void applyModificationGroupChanges();
-    void setupComponent(const ModelNode &node);
     void applyChanges();
 
 private: //variables
