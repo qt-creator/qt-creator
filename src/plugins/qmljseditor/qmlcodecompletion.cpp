@@ -519,12 +519,45 @@ static bool isIdentifierChar(QChar ch)
 
 bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
+    if (maybeTriggersCompletion(editor)) {
+        // check the token under cursor
+
+        if (QmlJSTextEditor *ed = qobject_cast<QmlJSTextEditor *>(editor->widget())) {
+
+            QTextCursor tc = ed->textCursor();
+            QTextBlock block = tc.block();
+            const int column = tc.columnNumber();
+            const int blockState = qMax(0, block.previous().userState()) & 0xff;
+            const QString blockText = block.text();
+
+            QmlJSScanner scanner;
+            const QList<Token> tokens = scanner(blockText, blockState);
+            foreach (const Token &tk, tokens) {
+                if (column >= tk.begin() && column <= tk.end()) {
+                    if (tk.is(Token::Comment) || tk.is(Token::String))
+                        return false;
+                    else
+                        break;
+                }
+            }
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool QmlCodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *editor)
+{
     const int cursorPosition = editor->position();
+    const QChar characterUnderCursor = editor->characterAt(cursorPosition);
     const QChar ch = editor->characterAt(cursorPosition - 1);
 
     if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
         return true;
-    else if (isIdentifierChar(ch)) {
+    else if (isIdentifierChar(ch) && (characterUnderCursor.isSpace() ||
+                                      characterUnderCursor.isNull() ||
+                                      isDelimiter(characterUnderCursor))) {
         int pos = editor->position() - 1;
         for (; pos != -1; --pos) {
             if (! isIdentifierChar(editor->characterAt(pos)))

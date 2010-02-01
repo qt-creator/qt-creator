@@ -74,6 +74,7 @@ public:
 private:
     void updateSnippets();
 
+    bool maybeTriggersCompletion(TextEditor::ITextEditable *editor);
     bool isDelimiter(const QChar &ch) const;
 
     QmlModelManagerInterface *m_modelManager;
