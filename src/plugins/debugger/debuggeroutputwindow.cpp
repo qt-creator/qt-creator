@@ -268,7 +268,7 @@ public slots:
     void gotoResult(int i)
     {
         QString needle = QString::number(i) + '^';
-        QString needle2 = QLatin1String(">") + needle;
+        QString needle2 = QLatin1Char('>') + needle;
         QTextCursor cursor(document());
         do {
             const QString line = cursor.block().text();

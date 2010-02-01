@@ -590,16 +590,16 @@ void HelpPlugin::extensionsInitialized()
     QStringList documentationToRemove;
     QStringList filtersToRemove;
 
-    const QString &docInternal = QString("com.nokia.qtcreator.%1%2%3")
+    const QString &docInternal = QString::fromLatin1("com.nokia.qtcreator.%1%2%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-    const QString filterInternal = QString("Qt Creator %1.%2.%3")
+    const QString filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
     const QRegExp filterRegExp("Qt Creator \\d*\\.\\d*\\.\\d*");
     const QStringList &docs = m_helpEngine->registeredDocumentations();
     foreach (const QString &ns, docs) {
         if (ns == docInternal) {
             assistantInternalDocRegistered = true;
-        } else if (ns.startsWith("com.nokia.qtcreator.")) {
+        } else if (ns.startsWith(QLatin1String("com.nokia.qtcreator."))) {
             documentationToRemove << ns;
         }
     }
@@ -663,8 +663,8 @@ void HelpPlugin::extensionsInitialized()
 
     QString addedDocs = m_helpEngine->customValue(QLatin1String("AddedDocs")).toString();
     if (!addedDocs.isEmpty()) {
-        QStringList documentationToAdd = addedDocs.split(";");
-        foreach (QString item, documentationToAdd)
+        const QStringList documentationToAdd = addedDocs.split(QLatin1Char(';'));
+        foreach (const QString &item, documentationToAdd)
             m_helpEngine->registerDocumentation(item);
         m_helpEngine->removeCustomValue(QLatin1String("AddedDocs"));
     }
@@ -984,7 +984,7 @@ void HelpPlugin::openHelpPage(const QString& url)
     } else {
         // local help not installed, resort to external web help
         QString urlPrefix;
-        if (url.startsWith("qthelp://com.nokia.qtcreator")) {
+        if (url.startsWith(QLatin1String("qthelp://com.nokia.qtcreator"))) {
             urlPrefix = QString::fromLatin1("http://doc.trolltech.com/qtcreator-%1.%2/")
                         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR);
         } else {

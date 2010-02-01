@@ -1147,13 +1147,13 @@ QStringList Qt4ProFileNode::subDirsPaths(ProFileReader *reader) const
             realDir = subDirVar;
         QFileInfo info(realDir);
         if (!info.isAbsolute()) {
-            info.setFile(m_projectDir + "/" + realDir);
-            realDir = m_projectDir + "/" + realDir;
+            info.setFile(m_projectDir + QLatin1Char('/') + realDir);
+            realDir = m_projectDir + QLatin1Char('/') + realDir;
         }
 
         QString realFile;
         if (info.isDir()) {
-            realFile = QString("%1/%2.pro").arg(realDir, info.fileName());
+            realFile = QString::fromLatin1("%1/%2.pro").arg(realDir, info.fileName());
         } else {
             realFile = realDir;
         }

@@ -3195,7 +3195,7 @@ void BaseTextEditor::slotCursorPositionChanged()
 #if 0
     qDebug() << "block" << textCursor().blockNumber()+1
             << "depth:" << TextEditDocumentLayout::braceDepth(textCursor().block())
-            << "/" << TextEditDocumentLayout::braceDepth(document()->lastBlock());
+            << '/' << TextEditDocumentLayout::braceDepth(document()->lastBlock());
 #endif
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
         Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(editableInterface(), d->m_tempNavigationState);

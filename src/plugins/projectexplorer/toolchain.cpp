@@ -179,9 +179,9 @@ QByteArray GccToolChain::predefinedMacros()
         // Turn off flag indicating Apple's blocks support
         int idx = m_predefinedMacros.indexOf("#define __BLOCKS__ 1");
         if (idx != -1) {
-            idx = m_predefinedMacros.indexOf("1", idx);
+            idx = m_predefinedMacros.indexOf(QLatin1Char('1'), idx);
             m_predefinedMacros[idx] = '0';
-        }
+        }-
 
         // Define __strong and __weak (used for Apple's GC extension of C) to be empty
         m_predefinedMacros.append("#define __strong\n");
@@ -397,7 +397,7 @@ QByteArray MSVCToolChain::predefinedMacros()
                 if (!value.isEmpty()) {
                     value.chop(1); //remove '\n'
                 }
-                QByteArray newDefine = "#define " + key + " " + value + '\n';
+                QByteArray newDefine = "#define " + key + ' ' + value + '\n';
                 m_predefinedMacros.append(newDefine);
             }
         }
@@ -543,7 +543,7 @@ void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 
     // Find MSVC path
 
-    path += "/";
+    path += QLatin1Char('/');
 
     // Find Platform name
     CeSdkHandler cesdkhandler;

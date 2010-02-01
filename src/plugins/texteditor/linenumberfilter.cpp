@@ -42,7 +42,7 @@ using namespace TextEditor::Internal;
 LineNumberFilter::LineNumberFilter(QObject *parent)
   : ILocatorFilter(parent)
 {
-    setShortcutString("l");
+    setShortcutString(QString(QLatin1Char('l')));
     setIncludedByDefault(true);
 }
 

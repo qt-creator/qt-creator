@@ -34,7 +34,7 @@ using namespace CppTools::Internal;
 CppFunctionsFilter::CppFunctionsFilter(CppModelManager *manager, Core::EditorManager *editorManager)
     : CppLocatorFilter(manager, editorManager)
 {
-    setShortcutString("m");
+    setShortcutString(QString(QLatin1Char('m')));
     setIncludedByDefault(false);
 
     search.setSymbolsToSearchFor(SearchSymbols::Functions);

@@ -270,8 +270,8 @@ void ProcessStepConfigWidget::updateDetails()
     m_summaryText = tr("<b>%1</b> %2 %3 %4")
                     .arg(displayName,
                          m_step->command(),
-                         m_step->arguments().join(" "),
-                         m_step->enabled() ? "" : tr("(disabled)"));
+                         m_step->arguments().join(QString(QLatin1Char(' '))),
+                         m_step->enabled() ? QString() : tr("(disabled)"));
     emit updateSummary();
 }
 
@@ -289,7 +289,7 @@ void ProcessStepConfigWidget::init()
         workingDirectory = "$BUILDDIR";
     m_ui.workingDirectory->setPath(workingDirectory);
 
-    m_ui.commandArgumentsLineEdit->setText(m_step->arguments().join(" "));
+    m_ui.commandArgumentsLineEdit->setText(m_step->arguments().join(QString(QLatin1Char(' '))));
     m_ui.enabledCheckBox->setChecked(m_step->enabled());
 
     m_ui.nameLineEdit->setText(m_step->displayName());
@@ -320,7 +320,7 @@ void ProcessStepConfigWidget::workingDirectoryLineEditTextEdited()
 
 void ProcessStepConfigWidget::commandArgumentsLineEditTextEdited()
 {
-    m_step->setArguments(m_ui.commandArgumentsLineEdit->text().split(" ",
+    m_step->setArguments(m_ui.commandArgumentsLineEdit->text().split(QLatin1Char(' '),
           QString::SkipEmptyParts));
     updateDetails();
 }

@@ -56,7 +56,7 @@ CurrentProjectFind::CurrentProjectFind(ProjectExplorerPlugin *plugin, SearchResu
 
 QString CurrentProjectFind::id() const
 {
-    return "Current Project";
+    return QLatin1String("Current Project");
 }
 
 QString CurrentProjectFind::name() const
@@ -123,14 +123,14 @@ QWidget *CurrentProjectFind::createConfigWidget()
 
 void CurrentProjectFind::writeSettings(QSettings *settings)
 {
-    settings->beginGroup("CurrentProjectFind");
+    settings->beginGroup(QLatin1String("CurrentProjectFind"));
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
 void CurrentProjectFind::readSettings(QSettings *settings)
 {
-    settings->beginGroup("CurrentProjectFind");
-    readCommonSettings(settings, "*");
+    settings->beginGroup(QLatin1String("CurrentProjectFind"));
+    readCommonSettings(settings, QString(QLatin1Char('*')));
     settings->endGroup();
 }

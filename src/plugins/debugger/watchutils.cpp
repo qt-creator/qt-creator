@@ -164,11 +164,11 @@ bool isSkippableFunction(const QString &funcName, const QString &fileName)
     if (fileName.endsWith(QLatin1String(".moc")))
         return true;
 
-    if (funcName.endsWith("::qt_metacall"))
+    if (funcName.endsWith(QLatin1String("::qt_metacall")))
         return true;
-    if (funcName.endsWith("::d_func"))
+    if (funcName.endsWith(QLatin1String("::d_func")))
         return true;
-    if (funcName.endsWith("::q_func"))
+    if (funcName.endsWith(QLatin1String("::q_func")))
         return true;
 
     return false;

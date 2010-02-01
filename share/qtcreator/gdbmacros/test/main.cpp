@@ -56,7 +56,7 @@ unsigned optVerbose = 0;
 const char *appPath = 0;
 
 // Provide address of type of be tested.
-// When testing unitialized memory, allocate at random.
+// When testing uninitialized memory, allocate at random.
 template <class T>
         inline T* testAddress(T* in)
 {

@@ -152,7 +152,7 @@ void WatchData::setValue(const QString &value0)
     }
 
     // avoid duplicated information
-    if (value.startsWith("(") && value.contains(") 0x"))
+    if (value.startsWith(QLatin1Char('(')) && value.contains(") 0x"))
         value = value.mid(value.lastIndexOf(") 0x") + 2);
 
     // doubles are sometimes displayed as "@0x6141378: 1.2".
@@ -171,8 +171,8 @@ void WatchData::setValue(const QString &value0)
 
     // pointer type information is available in the 'type'
     // column. No need to duplicate it here.
-    if (value.startsWith("(" + type + ") 0x"))
-        value = value.section(" ", -1, -1);
+    if (value.startsWith(QLatin1Char('(') + type + ") 0x"))
+        value = value.section(QLatin1Char(' '), -1, -1);
 
     setValueUnneeded();
 }
@@ -796,7 +796,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             switch (idx.column()) {
                 case 0:
                     if (data.name == QLatin1String("*") && item->parent)
-                        return QLatin1String("*") + item->parent->name;
+                        return QLatin1Char('*') + item->parent->name;
                     return data.name;
                 case 1: {
                     int format = m_handler->m_individualFormats.value(data.iname, -1);

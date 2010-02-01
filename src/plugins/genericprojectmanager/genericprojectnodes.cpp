@@ -144,7 +144,7 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
     else if (FolderNode *folder = m_folderByName.value(folderName))
         return folder;
 
-    FolderNode *folder = new FolderNode(baseDir + "/" + folderName);
+    FolderNode *folder = new FolderNode(baseDir + QLatin1Char('/') + folderName);
     folder->setFolderName(component);
     m_folderByName.insert(folderName, folder);
 

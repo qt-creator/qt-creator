@@ -227,7 +227,7 @@ static QByteArray stripPointerType(const QByteArray &_type)
 
 // This is used to abort evaluation of custom data dumpers in a "coordinated"
 // way. Abortion will happen at the latest when we try to access a non-initialized
-// non-trivial object, so there is no way to prevent this from occuring at all
+// non-trivial object, so there is no way to prevent this from occurring at all
 // conceptionally.  Ideally, if there is API to check memory access, it should
 // be used to terminate nicely, especially with CDB.
 // 1) Gdb will catch SIGSEGV and return to the calling frame.
@@ -3436,7 +3436,7 @@ static void handleProtocolVersion2and3(QDumper &d)
 #endif
 
     const char *type = stripNamespace(d.outerType);
-    // type[0] is usally 'Q', so don't use it
+    // type[0] is usually 'Q', so don't use it
     switch (type[1]) {
         case 'a':
             if (isEqual(type, "map"))

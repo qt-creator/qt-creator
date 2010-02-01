@@ -281,8 +281,8 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::TaskWindow::Task &tas
         } else {
             // More then one filename, so do a better compare
             // Chop of any "../"
-            while (filePath.startsWith("../"))
-                filePath = filePath.mid(3);
+            while (filePath.startsWith(QLatin1String("../")))
+                filePath.remove(0, 3);
             int count = 0;
             QString possibleFilePath;
             foreach(const QFileInfo &fi, possibleFiles) {

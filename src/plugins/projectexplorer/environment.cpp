@@ -42,7 +42,7 @@ QList<EnvironmentItem> EnvironmentItem::fromStringList(QStringList list)
     foreach (const QString &string, list) {
         int pos = string.indexOf(QLatin1Char('='));
         if (pos == -1) {
-            EnvironmentItem item(string, "");
+            EnvironmentItem item(string, QString());
             item.unset = true;
             result.append(item);
         } else {
@@ -152,21 +152,21 @@ void Environment::prependOrSet(const QString&key, const QString &value, const QS
 void Environment::appendOrSetPath(const QString &value)
 {
 #ifdef Q_OS_WIN
-    QString sep = ";";
+    const QChar sep = QLatin1Char(';');
 #else
-    QString sep = ":";
+    const QChar sep = QLatin1Char(':');
 #endif
-    appendOrSet("PATH", QDir::toNativeSeparators(value), sep);
+    appendOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value), QString(sep));
 }
 
 void Environment::prependOrSetPath(const QString &value)
 {
 #ifdef Q_OS_WIN
-    QString sep = ";";
+    const QChar sep = QLatin1Char(';');
 #else
-    QString sep = ":";
+    const QChar sep = QLatin1Char(':');
 #endif
-    prependOrSet("PATH", QDir::toNativeSeparators(value), sep);
+    prependOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value), QString(sep));
 }
 
 Environment Environment::systemEnvironment()
@@ -209,11 +209,11 @@ QString Environment::searchInPath(QString executable) const
 QStringList Environment::path() const
 {
 #ifdef Q_OS_WIN
-    QString sep = ";";
+    const QChar sep = QLatin1Char(';');
 #else
-    QString sep = ":";
+    const QChar sep = QLatin1Char(':');
 #endif
-    return m_values.value("PATH").split(sep);
+    return m_values.value(QLatin1String("PATH")).split(sep);
 }
 
 QString Environment::value(const QString &key) const
@@ -340,12 +340,15 @@ QStringList Environment::parseCombinedArgString(const QString &program)
 QString Environment::joinArgumentList(const QStringList &arguments)
 {
     QString result;
+    const QChar doubleQuote = QLatin1Char('"');
     foreach (QString arg, arguments) {
         if (!result.isEmpty())
             result += QLatin1Char(' ');
-        arg.replace(QLatin1String("\""), QLatin1String("\"\"\""));
-        if (arg.contains(QLatin1Char(' ')))
-            arg = "\"" + arg + "\"";
+        arg.replace(QString(doubleQuote), QLatin1String("\"\"\""));
+        if (arg.contains(QLatin1Char(' '))) {
+            arg.insert(0, doubleQuote);
+            arg += doubleQuote;
+        }
         result += arg;
     }
     return result;

@@ -2207,7 +2207,7 @@ void FakeVimHandler::Private::handleCommand(const QString &cmd)
 static bool isSubstitution(const QString &cmd0, QStringList *result)
 {
     QString cmd;
-    if (cmd0.startsWith("substitute"))
+    if (cmd0.startsWith(QLatin1String("substitute")))
         cmd = cmd0.mid(10);
     else if (cmd0.startsWith('s') && cmd0.size() > 1
             && !isalpha(cmd0.at(1).unicode()))
@@ -2450,7 +2450,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
         } else if (act) {
             // non-boolean to show
             showBlackMessage(arg + '=' + act->value().toString());
-        } else if (arg.startsWith("no")
+        } else if (arg.startsWith(QLatin1String("no"))
                 && (act = theFakeVimSettings()->item(arg.mid(2)))) {
             // boolean config to be switched off
             bool oldValue = act->value().toBool();
@@ -2505,10 +2505,10 @@ void FakeVimHandler::Private::passUnknownSetCommand(const QString &arg)
 static void vimPatternToQtPattern(QString *needle, QTextDocument::FindFlags *flags)
 {
     // FIXME: Rough mapping of a common case
-    if (needle->startsWith("\\<") && needle->endsWith("\\>"))
+    if (needle->startsWith(QLatin1String("\\<")) && needle->endsWith(QLatin1String("\\>")))
         (*flags) |= QTextDocument::FindWholeWords;
-    needle->replace("\\<", ""); // start of word
-    needle->replace("\\>", ""); // end of word
+    needle->remove(QLatin1String("\\<")); // start of word
+    needle->remove(QLatin1String("\\>")); // end of word
     //qDebug() << "NEEDLE " << needle0 << needle;
 }
 

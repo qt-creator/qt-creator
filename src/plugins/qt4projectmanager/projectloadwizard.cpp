@@ -172,8 +172,10 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     QVBoxLayout *importLayout = new QVBoxLayout(importPage);
     importLabel = new QLabel(importPage);
 
-    QString versionString = version->displayName() + " (" + QDir::toNativeSeparators(version->qmakeCommand()) + ")";
-    QString buildConfigString = (buildConfig & QtVersion::BuildAll) ? QLatin1String("debug_and_release ") : QLatin1String("");
+    QString versionString = version->displayName() + QLatin1String(" (") +
+                            QDir::toNativeSeparators(version->qmakeCommand()) +
+                            QLatin1Char(')');
+    QString buildConfigString = (buildConfig & QtVersion::BuildAll) ? QLatin1String("debug_and_release ") : QString();
     buildConfigString.append((buildConfig & QtVersion::DebugBuild) ? QLatin1String("debug") : QLatin1String("release"));
     importLabel->setTextFormat(Qt::RichText);
     importLabel->setText(tr("Qt Creator has found an already existing build in the source directory.<br><br>"

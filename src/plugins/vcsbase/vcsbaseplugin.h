@@ -157,7 +157,7 @@ public slots:
     // Convenience slot for "Delete current file" action. Prompts to
     // delete the file via VCSManager.
     void promptToDeleteCurrentFile();
-    // Prompt to initalize version control in a directory, initially
+    // Prompt to initialize version control in a directory, initially
     // pointing to the current project.
     void createRepository();
 

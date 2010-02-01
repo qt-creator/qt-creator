@@ -523,13 +523,13 @@ QString Qt4BuildConfiguration::extractSpecFromArgumentList(const QStringList &li
     // if it is the former we need to get the canonical form
     // for the other one we don't need to do anything
     if (QFileInfo(parsedSpec).isRelative()) {
-        if(QFileInfo(directory + "/" + parsedSpec).exists()) {
-            parsedSpec = QDir::cleanPath(directory + "/" + parsedSpec);
+        if(QFileInfo(directory + QLatin1Char('/') + parsedSpec).exists()) {
+            parsedSpec = QDir::cleanPath(directory + QLatin1Char('/') + parsedSpec);
 #ifdef Q_OS_WIN
             parsedSpec = parsedSpec.toLower();
 #endif
         } else {
-            parsedSpec = baseMkspecDir + "/" + parsedSpec;
+            parsedSpec = baseMkspecDir + QLatin1Char('/') + parsedSpec;
         }
     }
 

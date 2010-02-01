@@ -651,9 +651,12 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
                 QRegExp regexp("^(.*)\\((\\d)\\)$");
                 if (regexp.exactMatch(name)) {
                     // Already in Name (#) format
-                    name = regexp.cap(1) + "(" + QString().setNum(regexp.cap(2).toInt() + 1) + ")";
+                    name = regexp.cap(1);
+                    name += QLatin1Char('(');
+                    name += QString::number(regexp.cap(2).toInt() + 1);
+                    name += QLatin1Char(')');
                 } else {
-                    name = name + " (2)";
+                    name +=  QLatin1String(" (2)");
                 }
                 // set new name
                 m_versions[index]->setDisplayName(name);

@@ -255,7 +255,7 @@ QList<StackFrame> StackHandler::frames() const
 bool StackHandler::isDebuggingDebuggingHelpers() const
 {
     for (int i = m_stackFrames.size(); --i >= 0; )
-        if (m_stackFrames.at(i).function.startsWith("qDumpObjectData"))
+        if (m_stackFrames.at(i).function.startsWith(QLatin1String("qDumpObjectData")))
             return true;
     return false;
 }

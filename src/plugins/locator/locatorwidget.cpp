@@ -375,7 +375,7 @@ void LocatorWidget::showPopup()
 QList<ILocatorFilter*> LocatorWidget::filtersFor(const QString &text, QString &searchText)
 {
     QList<ILocatorFilter*> filters = m_locatorPlugin->filters();
-    int whiteSpace = text.indexOf(" ");
+    const int whiteSpace = text.indexOf(QLatin1Char(' '));
     QString prefix;
     if (whiteSpace >= 0)
         prefix = text.left(whiteSpace);
@@ -464,13 +464,13 @@ void LocatorWidget::filterSelected()
     if (!currentText.isEmpty()) {
         searchText = currentText;
         foreach (ILocatorFilter *otherfilter, m_locatorPlugin->filters()) {
-            if (currentText.startsWith(otherfilter->shortcutString() + " ")) {
+            if (currentText.startsWith(otherfilter->shortcutString() + QLatin1Char(' '))) {
                 searchText = currentText.mid(otherfilter->shortcutString().length()+1);
                 break;
             }
         }
     }
-    show(filter->shortcutString() + " " + searchText,
+    show(filter->shortcutString() + QLatin1Char(' ') + searchText,
          filter->shortcutString().length() + 1,
          searchText.length());
     updateCompletionList(m_fileLineEdit->text());

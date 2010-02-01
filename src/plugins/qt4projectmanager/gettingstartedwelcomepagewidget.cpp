@@ -137,15 +137,18 @@ void GettingStartedWelcomePageWidget::updateExamples(const QString& examplePath,
                 inExamples = true;
             }
             if (inExamples && reader.name() == "example") {
-                QString name = reader.attributes().value(QLatin1String("name")).toString();
-                QString fn = reader.attributes().value(QLatin1String("filename")).toString();
-                QString relativeProPath = '/' + dirName + '/' + fn + '/' + fn + ".pro";
+                const QChar slash = QLatin1Char('/');
+                const QString name = reader.attributes().value(QLatin1String("name")).toString();
+                const QString fn = reader.attributes().value(QLatin1String("filename")).toString();
+                const QString relativeProPath = slash + dirName + slash + fn + slash + fn + QLatin1String(".pro");
                 QString fileName = examplePath + relativeProPath;
                 if (!QFile::exists(fileName))
-                    fileName = sourcePath + "/examples" + relativeProPath;
-                QString helpPath = "qthelp://com.trolltech.qt/qdoc/" + dirName.replace("/", "-") + "-" + fn + ".html";
+                    fileName = sourcePath + QLatin1String("/examples") + relativeProPath;
+                QString helpPath = QLatin1String("qthelp://com.trolltech.qt/qdoc/") +
+                                   dirName.replace(slash, QLatin1Char('-')) +
+                                   QLatin1Char('-') + fn + QLatin1String(".html");
 
-                ui->examplesComboBox->addItem("  " + name, fileName);
+                ui->examplesComboBox->addItem(QLatin1String("  ") + name, fileName);
                 ui->examplesComboBox->setItemData(ui->examplesComboBox->count()-1, helpPath, Qt::UserRole+1);
             }
             break;

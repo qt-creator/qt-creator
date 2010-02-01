@@ -40,7 +40,7 @@ using namespace CPlusPlus;
 CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager, Core::EditorManager *editorManager)
     : m_modelManager(manager)
 {
-    setShortcutString(".");
+    setShortcutString(QString(QLatin1Char('.')));
     setIncludedByDefault(false);
 
     search.setSymbolsToSearchFor(SearchSymbols::Declarations |
@@ -64,10 +64,11 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(const QString &
     QList<Locator::FilterEntry> goodEntries;
     QList<Locator::FilterEntry> betterEntries;
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
-    const QRegExp regexp("*"+entry+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
+    const QChar asterisk = QLatin1Char('*');
+    const QRegExp regexp(asterisk + entry + asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = (entry.contains('*') || entry.contains('?'));
+    bool hasWildcard = (entry.contains(asterisk) || entry.contains('?'));
 
     if (m_currentFileName.isEmpty())
         return goodEntries;

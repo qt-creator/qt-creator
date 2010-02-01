@@ -260,7 +260,7 @@ bool CMakeProject::parseCMakeLists()
         foreach(const CMakeTarget &ct, m_targets) {
             if (ct.executable.isEmpty())
                 continue;
-            if (ct.title.endsWith("/fast"))
+            if (ct.title.endsWith(QLatin1String("/fast")))
                 continue;
             QList<CMakeRunConfiguration *> list = existingRunConfigurations.values(ct.title);
             if (!list.isEmpty()) {
@@ -312,7 +312,7 @@ QStringList CMakeProject::targets() const
     foreach (const CMakeTarget &ct, m_targets) {
         if (ct.executable.isEmpty())
             continue;
-        if (ct.title.endsWith("/fast"))
+        if (ct.title.endsWith(QLatin1String("/fast")))
             continue;
         results << ct.title;
     }
@@ -324,7 +324,7 @@ bool CMakeProject::hasTarget(const QString &title) const
     foreach (const CMakeTarget &ct, m_targets) {
         if (ct.executable.isEmpty())
             continue;
-        if (ct.title.endsWith("/fast"))
+        if (ct.title.endsWith(QLatin1String("/fast")))
             continue;
         if (ct.title == title)
             return true;
@@ -410,11 +410,12 @@ void CMakeProject::buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::
 ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *rootNode, QString directory)
 {
     QString relativePath = QDir(QFileInfo(rootNode->path()).path()).relativeFilePath(directory);
-    QStringList parts = relativePath.split("/", QString::SkipEmptyParts);
+    QStringList parts = relativePath.split(QLatin1Char('/'), QString::SkipEmptyParts);
     ProjectExplorer::FolderNode *parent = rootNode;
     QString path = QFileInfo(rootNode->path()).path();
     foreach (const QString &part, parts) {
-        path += "/" + part;
+        path += QLatin1Char('/');
+        path += part;
         // Find folder in subFolders
         bool found = false;
         foreach (ProjectExplorer::FolderNode *folder, parent->subFolderNodes()) {
@@ -899,12 +900,12 @@ void CMakeCbpParser::parseUnit()
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
-            if (!fileName.endsWith(".rule") && !m_processedUnits.contains(fileName)) {
+            if (!fileName.endsWith(QLatin1String(".rule")) && !m_processedUnits.contains(fileName)) {
                 // Now check whether we found a virtual element beneath
                 if (m_parsingCmakeUnit) {
                     m_cmakeFileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ProjectFileType, false));
                 } else {
-                    if (fileName.endsWith(".qrc"))
+                    if (fileName.endsWith(QLatin1String(".qrc")))
                         m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::ResourceType, false));
                     else
                         m_fileList.append( new ProjectExplorer::FileNode(fileName, ProjectExplorer::SourceType, false));

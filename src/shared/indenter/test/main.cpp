@@ -117,7 +117,7 @@ static QStringList parseCommandLine(char **begin, char **end)
 int format(const QString &fileName)
 {
     const QString code = fileContents(fileName);
-    if (code == QString::null)
+    if (code.isEmpty())
         return 1;
 
     QStringList program = code.split(QLatin1Char('\n'), QString::KeepEmptyParts);

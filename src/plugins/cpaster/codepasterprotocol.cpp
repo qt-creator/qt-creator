@@ -129,7 +129,7 @@ void CodePasterProtocol::paste(const QString &text,
     data += CGI::encodeURL(username).toLatin1();
 
     http.setHost(hostName);
-    http.post("/", data);
+    http.post(QString(QLatin1Char('/')), data);
 }
 
 bool CodePasterProtocol::hasSettings() const

@@ -197,7 +197,7 @@ QString SearchSymbols::symbolName(const Symbol *symbol) const
         }
         symbolName = QLatin1String("<anonymous ");
         symbolName += type;
-        symbolName += QLatin1String(">");
+        symbolName += QLatin1Char('>');
     }
     return symbolName;
 }

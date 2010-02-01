@@ -2207,7 +2207,7 @@ void GdbEngine::attemptBreakpointSynchronization()
             // (reloadSourceFiles and reloadBreakList) to be executed
             // within the same stop-executecommand-continue cycle.
             // Just calling reloadSourceFiles and reloadBreakList doesn't work
-            // in this case, because a) stopping the executable is asyncronous,
+            // in this case, because a) stopping the executable is asynchronous,
             // b) we wouldn't want to stop-exec-continue twice
             m_sourcesListUpdating = true;
             GdbCommand cmd;

@@ -332,7 +332,7 @@ QString CustomExecutableRunConfiguration::executable() const
         Environment env = activeBuildConfiguration()->environment();
         exec = env.searchInPath(m_executable);
         if (exec.isEmpty())
-            exec = QDir::cleanPath(workingDirectory() + "/" + m_executable);
+            exec = QDir::cleanPath(workingDirectory() + QLatin1Char('/') + m_executable);
     } else {
         exec = m_executable;
     }

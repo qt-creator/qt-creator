@@ -67,7 +67,7 @@ class SettingsDatabasePrivate
 public:
     QString effectiveGroup() const
     {
-        return m_groups.join(QLatin1String("/"));
+        return m_groups.join(QString(QLatin1Char('/')));
     }
 
     QString effectiveKey(const QString &key) const

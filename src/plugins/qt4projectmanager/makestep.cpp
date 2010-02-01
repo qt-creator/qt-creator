@@ -129,8 +129,8 @@ bool MakeStep::init()
         makeCmd = m_makeCmd;
     if (!QFileInfo(makeCmd).isAbsolute()) {
         // Try to detect command in environment
-        QString tmp = environment.searchInPath(makeCmd);
-        if (tmp == QString::null) {
+        const QString tmp = environment.searchInPath(makeCmd);
+        if (tmp.isEmpty()) {
             emit addOutput(tr("<font color=\"#ff0000\">Could not find make command: %1 "\
                               "in the build environment</font>").arg(makeCmd));
             return false;
@@ -241,8 +241,8 @@ void MakeStepConfigWidget::updateDetails()
     if (!QFileInfo(makeCmd).isAbsolute()) {
         Environment environment = bc->environment();
         // Try to detect command in environment
-        QString tmp = environment.searchInPath(makeCmd);
-        if (tmp == QString::null) {
+        const QString tmp = environment.searchInPath(makeCmd);
+        if (tmp.isEmpty()) {
             m_summaryText = tr("<b>Make Step:</b> %1 not found in the environment.").arg(makeCmd);
             emit updateSummary();
             return;

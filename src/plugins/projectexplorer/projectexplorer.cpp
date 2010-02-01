@@ -1167,7 +1167,7 @@ void ProjectExplorerPlugin::restoreSession()
     arguments.removeOne(d->m_sessionToRestoreAtStartup);
 
     // Restore latest session or what was passed on the command line
-    if (d->m_sessionToRestoreAtStartup == QString::null) {
+    if (d->m_sessionToRestoreAtStartup.isEmpty()) {
         d->m_session->createAndLoadNewDefaultSession();
     } else {
         d->m_session->loadSession(d->m_sessionToRestoreAtStartup);
@@ -1728,6 +1728,7 @@ void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName, const Q
 
 void ProjectExplorerPlugin::updateRecentProjectMenu()
 {
+    typedef QList<QPair<QString, QString> >::const_iterator StringPairListConstIterator;
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateRecentProjectMenu";
 
@@ -1739,12 +1740,10 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
     menu->setEnabled(!d->m_recentProjects.isEmpty());
 
     //projects (ignore sessions, they used to be in this list)
-
-    QList<QPair<QString, QString> >::const_iterator it, end;
-    end = d->m_recentProjects.constEnd();
-    for (it = d->m_recentProjects.constBegin(); it != end; ++it) {
+    const StringPairListConstIterator end = d->m_recentProjects.constEnd();
+    for (StringPairListConstIterator it = d->m_recentProjects.constBegin(); it != end; ++it) {
         const QPair<QString, QString> &s = *it;
-        if (s.first.endsWith(".qws"))
+        if (s.first.endsWith(QLatin1String(".qws")))
             continue;
         QAction *action = menu->addAction(s.first);
         action->setData(s.first);

@@ -225,7 +225,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
                     QDir::Files|QDir::Hidden,
                     QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
                 foreach (const QString &file, fileEntries)
-                    files.append(dir.path()+"/"+file);
+                    files.append(dir.path()+ QLatin1Char('/') +file);
                 progress += dirProgressMax;
             } else {
                 int subProgress = dirProgressMax/(subDirs.size()+1);
@@ -234,7 +234,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
                 progressValues.push(selfProgress);
                 processedValues.push(true);
                 foreach (const QString &directory, subDirs) {
-                    dirs.push(QDir(dir.path()+"/"+directory));
+                    dirs.push(QDir(dir.path()+ QLatin1Char('/') + directory));
                     progressValues.push(subProgress);
                     processedValues.push(false);
                 }

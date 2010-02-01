@@ -231,41 +231,36 @@ QVariant SearchResultTreeModel::data(const SearchResultTextRow *row, int role) c
 
 QVariant SearchResultTreeModel::data(const SearchResultFile *file, int role) const
 {
-    QVariant result;
-
     switch (role)
     {
 #if 0
     case Qt::CheckStateRole:
         if (file->isUserCheckable())
-            result = file->checkState();
-        break;
+            return QVariant(file->checkState());
 #endif
     case Qt::BackgroundRole: {
         const QColor baseColor = QApplication::palette().base().color();
-        result = baseColor.darker(105);
+        return QVariant(baseColor.darker(105));
         break;
     }
-    case Qt::DisplayRole:
-        result = QString(QDir::toNativeSeparators(file->fileName())
-            + " (" + QString::number(file->childrenCount()) + ")");
-        break;
+    case Qt::DisplayRole: {
+        QString result = QDir::toNativeSeparators(file->fileName());
+        result += QLatin1String(" (");
+        result += QString::number(file->childrenCount());
+        result +=  QLatin1Char(')');
+        return QVariant(result);
+    }
     case ItemDataRoles::FileNameRole:
     case Qt::ToolTipRole:
-        result = QDir::toNativeSeparators(file->fileName());
-        break;
+        return QVariant(QDir::toNativeSeparators(file->fileName()));
     case ItemDataRoles::ResultLinesCountRole:
-        result = file->childrenCount();
-        break;
+        return QVariant(file->childrenCount());
     case ItemDataRoles::TypeRole:
-        result = "file";
-        break;
+        return QVariant(QLatin1String("file"));
     default:
-        result = QVariant();
         break;
     }
-
-    return result;
+    return QVariant();
 }
 
 QVariant SearchResultTreeModel::headerData(int section, Qt::Orientation orientation,

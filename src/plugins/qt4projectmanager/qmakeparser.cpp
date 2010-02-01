@@ -45,7 +45,7 @@ QMakeParser::QMakeParser()
 void QMakeParser::stdError(const QString &line)
 {
     QString lne(line.trimmed());
-    if (lne.startsWith("Project ERROR:")) {
+    if (lne.startsWith(QLatin1String("Project ERROR:"))) {
         const QString description = lne.mid(15);
         emit addTask(TaskWindow::Task(TaskWindow::Error,
                                       description,

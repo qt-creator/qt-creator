@@ -240,7 +240,7 @@ void TaskModel::addTask(const TaskWindow::Task &task)
     QFont font;
     QFontMetrics fm(font);
     QString filename = task.file;
-    int pos = filename.lastIndexOf("/");
+    const int pos = filename.lastIndexOf(QLatin1Char('/'));
     if (pos != -1)
         filename = task.file.mid(pos +1);
 
@@ -876,7 +876,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     // Assemble string for the right side
     // just filename + linenumer
     QString file = index.data(TaskModel::File).toString();
-    int pos = file.lastIndexOf("/");
+    const int pos = file.lastIndexOf(QLatin1Char('/'));
     if (pos != -1)
         file = file.mid(pos +1);
     painter->drawText(width + 22 + 4, 2 + opt.rect.top() + fm.ascent(), file);

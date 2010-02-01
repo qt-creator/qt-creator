@@ -40,7 +40,7 @@ using namespace Locator::Internal;
 FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *locatorWidget)
         : m_editorManager(editorManager), m_locatorWidget(locatorWidget), m_includeHidden(true)
 {
-    setShortcutString("f");
+    setShortcutString(QString(QLatin1Char('f')));
     setIncludedByDefault(false);
 }
 
@@ -52,13 +52,13 @@ QList<FilterEntry> FileSystemFilter::matchesFor(const QString &entry)
     QString directory = entryInfo.path();
     QString filePath = entryInfo.filePath();
     if (entryInfo.isRelative()) {
-        if (filePath.startsWith("~/")) {
+        if (filePath.startsWith(QLatin1String("~/"))) {
             directory.replace(0, 1, QDir::homePath());
         } else {
             IEditor *editor = m_editorManager->currentEditor();
             if (editor && !editor->file()->fileName().isEmpty()) {
                 QFileInfo info(editor->file()->fileName());
-                directory.prepend(info.absolutePath()+"/");
+                directory.prepend(info.absolutePath() + QLatin1Char('/'));
             }
         }
     }
@@ -74,7 +74,7 @@ QList<FilterEntry> FileSystemFilter::matchesFor(const QString &entry)
     QStringList files = dirInfo.entryList(fileFilter,
                                       QDir::Name|QDir::IgnoreCase|QDir::LocaleAware);
     foreach (const QString &dir, dirs) {
-        if (dir != "." && (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive))) {
+        if (dir != QLatin1String(".") && (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive))) {
             FilterEntry entry(this, dir, dirInfo.filePath(dir));
             entry.resolveFileIcon = true;
             value.append(entry);
@@ -95,7 +95,9 @@ void FileSystemFilter::accept(FilterEntry selection) const
 {
     QFileInfo info(selection.internalData.toString());
     if (info.isDir()) {
-        QString value = shortcutString() + " " + QDir::toNativeSeparators(info.absoluteFilePath()+"/");
+        QString value = shortcutString();
+        value += QLatin1Char(' ');
+        value += QDir::toNativeSeparators(info.absoluteFilePath() + QLatin1Char('/'));
         m_locatorWidget->show(value, value.length());
         return;
     }

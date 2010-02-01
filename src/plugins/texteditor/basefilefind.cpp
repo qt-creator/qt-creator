@@ -74,9 +74,9 @@ QStringList BaseFileFind::fileNameFilters() const
 {
     QStringList filters;
     if (m_filterCombo && !m_filterCombo->currentText().isEmpty()) {
-        QStringList parts = m_filterCombo->currentText().split(",");
+        const QStringList parts = m_filterCombo->currentText().split(QLatin1Char(','));
         foreach (const QString &part, parts) {
-            QString filter = part.trimmed();
+            const QString filter = part.trimmed();
             if (!filter.isEmpty()) {
                 filters << filter;
             }

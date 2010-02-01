@@ -591,7 +591,7 @@ void Qt4Project::updateCodeModel()
         //support to access this information
 
         // TODO this is wastefull
-        // only save it per .pro file, and on beeing asked
+        // only save it per .pro file, and on being asked
         // search for the .pro file that has that file
         foreach (FileNode *fileNode, pro->fileNodes()) {
             const QString path = fileNode->path();

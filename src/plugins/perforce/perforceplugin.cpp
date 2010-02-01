@@ -636,7 +636,7 @@ void PerforcePlugin::startSubmitProject()
     QStringList fstatLines = fstatResult.stdOut.split(QLatin1Char('\n'));
     QStringList depotFileNames;
     foreach (const QString &line, fstatLines) {
-        if (line.startsWith("... depotFile"))
+        if (line.startsWith(QLatin1String("... depotFile")))
             depotFileNames.append(line.mid(14));
     }
     if (depotFileNames.isEmpty()) {

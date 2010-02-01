@@ -44,7 +44,7 @@ AllProjectsFilter::AllProjectsFilter(ProjectExplorerPlugin *pe)
 {
     connect(m_projectExplorer, SIGNAL(fileListChanged()),
             this, SLOT(markFilesAsOutOfDate()));
-    setShortcutString("a");
+    setShortcutString(QString(QLatin1Char('a')));
     setIncludedByDefault(true);
 }
 

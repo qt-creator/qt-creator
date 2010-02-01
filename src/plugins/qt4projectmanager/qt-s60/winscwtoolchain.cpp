@@ -74,7 +74,7 @@ QStringList WINSCWToolChain::systemIncludes() const
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         QString symIncludesValue = env.value("MWCSYM2INCLUDES");
         if (!symIncludesValue.isEmpty())
-            return symIncludesValue.split(";");
+            return symIncludesValue.split(QLatin1Char(';'));
     } else {
         QStringList symIncludes = QStringList()
             << "\\MSL\\MSL_C\\MSL_Common\\Include"
@@ -94,7 +94,7 @@ QStringList WINSCWToolChain::systemIncludes() const
 void WINSCWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
     if (!m_carbidePath.isEmpty()) {
-        env.set("MWCSYM2INCLUDES", systemIncludes().join(";"));
+        env.set("MWCSYM2INCLUDES", systemIncludes().join(QString(QLatin1Char(';'))));
         QStringList symLibraries = QStringList()
             << "\\Win32-x86 Support\\Libraries\\Win32 SDK"
             << "\\Runtime\\Runtime_x86\\Runtime_Win32\\Libs";

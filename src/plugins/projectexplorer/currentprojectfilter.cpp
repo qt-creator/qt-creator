@@ -49,7 +49,7 @@ CurrentProjectFilter::CurrentProjectFilter(ProjectExplorerPlugin *pe)
 
     connect(m_projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(currentProjectChanged(ProjectExplorer::Project*)));
-    setShortcutString("p");
+    setShortcutString(QString(QLatin1Char('p')));
     setIncludedByDefault(false);
 }
 

@@ -173,7 +173,7 @@ bool SessionFile::load(const QString &fileName)
             // We used to write relative paths into the session file
             // relative to the session files, and those were stored in the
             // config dir
-            it.setValue(configDir + "/" + file);
+            it.setValue(configDir + QLatin1Char('/') + file);
         }
     }
 
@@ -380,9 +380,9 @@ SessionManager::SessionManager(QObject *parent)
 
         // Move sessions to that directory
         foreach (const QString &session, sessions()) {
-            QFile file(configDir + "/" + session + ".qws");
+            QFile file(configDir + QLatin1Char('/') + session + QLatin1String(".qws"));
             if (file.exists())
-                if (file.copy(configDir + "/qtcreator/" + session + ".qws"))
+                if (file.copy(configDir + QLatin1String("/qtcreator/") + session + QLatin1String(".qws")))
                     file.remove();
         }
     }

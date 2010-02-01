@@ -496,8 +496,8 @@ void MaemoRunConfiguration::updateSimulatorInformation()
     if (m_cachedSimulatorInformationValid)
         return;
 
-    m_simulator = QString::null;
-    m_simulatorArgs == QString::null;
+    m_simulator.clear();
+    m_simulatorArgs.clear();
     m_cachedSimulatorInformationValid = true;
     m_simulatorPath = QDir::toNativeSeparators(m_userSimulatorPath);
     m_visibleSimulatorParameter = tr("Could not autodetect target simulator, "

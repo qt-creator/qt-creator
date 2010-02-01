@@ -55,7 +55,7 @@ struct TrkDevicePrivate;
  * Contains a write message queue allowing
  * for queueing messages with a notification callback. If the message receives
  * an ACK, the callback is invoked.
- * The special message TRK_WRITE_QUEUE_NOOP_CODE code can be used for synchronisation.
+ * The special message TRK_WRITE_QUEUE_NOOP_CODE code can be used for synchronization.
  * The respective  message will not be sent, the callback is just invoked. */
 
 enum { TRK_WRITE_QUEUE_NOOP_CODE = 0x7f };

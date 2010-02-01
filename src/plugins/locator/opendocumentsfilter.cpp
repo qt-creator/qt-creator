@@ -42,7 +42,7 @@ OpenDocumentsFilter::OpenDocumentsFilter(EditorManager *editorManager) :
             this, SLOT(refreshInternally()));
     connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(refreshInternally()));
-    setShortcutString("o");
+    setShortcutString(QString(QLatin1Char('o')));
     setIncludedByDefault(true);
 }
 

@@ -814,12 +814,12 @@ QPair<QtVersion::QmakeBuildConfigs, QStringList> QtVersionManager::scanMakeFile(
 
 QString QtVersionManager::findQMakeLine(const QString &directory)
 {
-    QFile makefile(directory + "/Makefile" );
+    QFile makefile(directory + QLatin1String("/Makefile" ));
     if (makefile.exists() && makefile.open(QFile::ReadOnly)) {
         QTextStream ts(&makefile);
         while (!ts.atEnd()) {
-            QString line = ts.readLine();
-            if (line.startsWith("# Command:"))
+            const QString line = ts.readLine();
+            if (line.startsWith(QLatin1String("# Command:")))
                 return line;
         }
     }
@@ -831,7 +831,7 @@ QString QtVersionManager::trimLine(const QString line)
 {
 
     // Actually the first space after #Command: /path/to/qmake
-    int firstSpace = line.indexOf(" ", 11);
+    const int firstSpace = line.indexOf(QLatin1Char(' '), 11);
     return line.mid(firstSpace).trimmed();
 }
 
@@ -989,8 +989,8 @@ void QtVersion::updateVersionInfo() const
             QByteArray output = process.readAllStandardOutput();
             QTextStream stream(&output);
             while (!stream.atEnd()) {
-                QString line = stream.readLine();
-                int index = line.indexOf(":");
+                const QString line = stream.readLine();
+                const int index = line.indexOf(QLatin1Char(':'));
                 if (index != -1)
                     m_versionInfo.insert(line.left(index), QDir::fromNativeSeparators(line.mid(index+1)));
             }
@@ -1379,9 +1379,9 @@ QString QtVersion::invalidReason() const
 {
     if (isValid())
         return QString();
-    if (qmakeCommand() == QString::null)
+    if (qmakeCommand().isEmpty())
         return QApplication::translate("QtVersion", "No QMake path set");
-    if (displayName() == QString::null)
+    if (displayName().isEmpty())
         return QApplication::translate("QtVersion", "Qt Version has no name");
     if (m_notInstalled)
         return QApplication::translate("QtVersion", "Qt Version is not installed, please run make install");

@@ -49,7 +49,7 @@ HelpIndexFilter::HelpIndexFilter(HelpPlugin *plugin, QHelpEngine *helpEngine):
     m_icon(QIcon())  // TODO: Put an icon next to the results
 {
     setIncludedByDefault(false);
-    setShortcutString("?");
+    setShortcutString(QString(QLatin1Char('?')));
 
     connect(m_helpEngine->indexModel(), SIGNAL(indexCreated()),
             this, SLOT(updateIndices()));

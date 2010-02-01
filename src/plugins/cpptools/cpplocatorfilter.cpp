@@ -44,7 +44,7 @@ CppLocatorFilter::CppLocatorFilter(CppModelManager *manager, Core::EditorManager
     m_editorManager(editorManager),
     m_forceNewSearchList(true)
 {
-    setShortcutString(":");
+    setShortcutString(QString(QLatin1Char(':')));
     setIncludedByDefault(false);
 
     connect(manager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
@@ -84,11 +84,12 @@ QList<Locator::FilterEntry> CppLocatorFilter::matchesFor(const QString &origEntr
     QString entry = trimWildcards(origEntry);
     QList<Locator::FilterEntry> goodEntries;
     QList<Locator::FilterEntry> betterEntries;
+    const QChar asterisk = QLatin1Char('*');
     QStringMatcher matcher(entry, Qt::CaseInsensitive);
-    const QRegExp regexp("*"+entry+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
+    const QRegExp regexp(asterisk + entry+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return goodEntries;
-    bool hasWildcard = (entry.contains('*') || entry.contains('?'));
+    bool hasWildcard = (entry.contains(asterisk) || entry.contains('?'));
 
     QMutableMapIterator<QString, Info> it(m_searchList);
     while (it.hasNext()) {

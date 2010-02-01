@@ -56,7 +56,7 @@ AllProjectsFind::AllProjectsFind(ProjectExplorerPlugin *plugin, SearchResultWind
 
 QString AllProjectsFind::id() const
 {
-    return "All Projects";
+    return QLatin1String("All Projects");
 }
 
 QString AllProjectsFind::name() const
@@ -128,14 +128,14 @@ QWidget *AllProjectsFind::createConfigWidget()
 
 void AllProjectsFind::writeSettings(QSettings *settings)
 {
-    settings->beginGroup("AllProjectsFind");
+    settings->beginGroup(QLatin1String("AllProjectsFind"));
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
 void AllProjectsFind::readSettings(QSettings *settings)
 {
-    settings->beginGroup("AllProjectsFind");
-    readCommonSettings(settings, "*");
+    settings->beginGroup(QLatin1String("AllProjectsFind"));
+    readCommonSettings(settings, QString(QLatin1Char('*')));
     settings->endGroup();
 }
