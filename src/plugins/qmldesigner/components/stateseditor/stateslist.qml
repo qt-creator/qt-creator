@@ -197,23 +197,24 @@ Rectangle {
                     id: txt
                     text: stateName
                     color: "#E1E1E1";
-                    MouseRegion {
-                        id: txtRegion
-                        anchors.fill:parent
-                        onClicked: {
-                            if (root.currentStateIndex != index)
-                                root.unFocus();
-                            root.currentStateIndex = index;
+                    }
+                MouseRegion {
+                    id: txtRegion
+                    anchors.fill:parent
+                    onClicked: {
+                        if (root.currentStateIndex != index)
+                            root.unFocus();
+                        root.currentStateIndex = index;
 
-                        }
-                        onDoubleClicked: if (index!=0) {
-                            stateNameInput.text=stateName;
-                            stateNameInput.focus=true;
-                            stateNameEditor.visible=true;
-                            stateNameInput.cursorVisible=true;
-                        }
+                    }
+                    onDoubleClicked: if (index!=0) {
+                        stateNameInput.text=stateName;
+                        stateNameInput.focus=true;
+                        stateNameEditor.visible=true;
+                        stateNameInput.cursorVisible=true;
                     }
                 }
+
 
                 Rectangle {
                     id:stateNameEditor
@@ -222,7 +223,7 @@ Rectangle {
                     x:2
                     y:2
                     height:parent.height
-                    width:Math.max(img.width,txt.width+removeState.width+2,stateNameInput.width+16)
+                    width:Math.max(img.width,txt.width+removeState.width+2,transparentText.width+16)
                     clip:true
 
                     color:"white"
@@ -239,10 +240,16 @@ Rectangle {
                         id: AbsorbAllClicks
                         anchors.fill:parent
                     }
+                    Text {
+                        text:stateNameInput.text
+                        visible:false
+                        id:transparentText
+                    }
                     TextInput {
                         id:stateNameInput
-                        x:10
                         text:stateName
+                        anchors.fill:parent
+                        anchors.leftMargin:8
                         onAccepted: {
                             statesEditorModel.renameState(index,text);
                             parent.visible=false;
