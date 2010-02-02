@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_STACKWINDOW_H
-#define DEBUGGER_STACKWINDOW_H
+#ifndef DEBUGGER_SNAPSHOTWINDOW_H
+#define DEBUGGER_SNAPSHOTWINDOW_H
 
 #include <QtGui/QTreeView>
 #include <QtGui/QWidget>
@@ -44,13 +44,13 @@ class DebuggerManager;
 namespace Internal {
 class DisassemblerViewAgent;
 
-class StackWindow : public QTreeView
+class SnapshotWindow : public QTreeView
 {
     Q_OBJECT
 
 public:
-    StackWindow(DebuggerManager *manager, QWidget *parent = 0);
-    ~StackWindow();
+    SnapshotWindow(DebuggerManager *manager, QWidget *parent = 0);
+    ~SnapshotWindow();
 
 public slots:
     void resizeColumnsToContents();
@@ -59,11 +59,12 @@ public slots:
 private slots:
     void rowActivated(const QModelIndex &index);
     void setAlternatingRowColorsHelper(bool on) { setAlternatingRowColors(on); }
-    void showAddressColumn(bool on);
 
 private:
+    void keyPressEvent(QKeyEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
-    void copyContentsToClipboard();
+    void removeSnapshots(const QModelIndexList &list);
+    void removeSnapshots(QList<int> rows);
 
     DebuggerManager *m_manager;
     DisassemblerViewAgent *m_disassemblerAgent;
@@ -73,5 +74,5 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_STACKWINDOW_H
+#endif // DEBUGGER_SNAPSHOTWINDOW_H
 

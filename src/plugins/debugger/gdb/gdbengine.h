@@ -349,6 +349,15 @@ private: ////////// View & Data Stuff //////////
     bool m_modulesListOutdated;
 
     //
+    // Snapshot specific stuff
+    //
+    virtual void makeSnapshot();
+    void handleMakeSnapshot(const GdbResponse &response);
+    void handleActivateSnapshot(const GdbResponse &response);
+    void activateSnapshot(int index);
+    void activateSnapshot2();
+
+    //
     // Register specific stuff
     //
     Q_SLOT virtual void reloadRegisters();

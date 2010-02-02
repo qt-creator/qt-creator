@@ -38,6 +38,8 @@ HEADERS += breakhandler.h \
     registerwindow.h \
     stackhandler.h \
     stackwindow.h \
+    snapshothandler.h \
+    snapshotwindow.h \
     sourcefileswindow.h \
     threadswindow.h \
     watchhandler.h \
@@ -61,6 +63,8 @@ SOURCES += breakhandler.cpp \
     procinterrupt.cpp \
     registerhandler.cpp \
     registerwindow.cpp \
+    snapshothandler.cpp \
+    snapshotwindow.cpp \
     stackhandler.cpp \
     stackwindow.cpp \
     sourcefileswindow.cpp \

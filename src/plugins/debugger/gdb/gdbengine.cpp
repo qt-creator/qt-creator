@@ -53,8 +53,10 @@
 #include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
+#include "snapshothandler.h"
 #include "stackhandler.h"
 #include "watchhandler.h"
+
 #include "sourcefileswindow.h"
 
 #include "debuggerdialogs.h"
@@ -65,20 +67,21 @@
 #include <projectexplorer/toolchain.h>
 #include <coreplugin/icore.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QMetaObject>
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
+#include <QtCore/QTemporaryFile>
 #include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
-#include <QtCore/QCoreApplication>
+#include <QtGui/QDialogButtonBox>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
-#include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
 
 #ifdef Q_OS_UNIX
@@ -87,13 +90,6 @@
 #endif
 #include <ctype.h>
 
-#define DIVERT(func, pars) \
-    do { \
-        if (hasPython()) \
-            func ## Python(pars); \
-        else \
-            func ## Plain(pars); \
-    } while (0)
 
 namespace Debugger {
 namespace Internal {
@@ -2696,6 +2692,92 @@ void GdbEngine::handleStackListThreads(const GdbResponse &response)
     ThreadsHandler *threadsHandler = manager()->threadsHandler();
     threadsHandler->setThreads(threads);
     threadsHandler->setCurrentThread(currentIndex);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// Snapshot specific stuff
+//
+//////////////////////////////////////////////////////////////////////
+
+void GdbEngine::makeSnapshot()
+{
+    QString fileName;
+    QTemporaryFile tf(QDir::tempPath() + _("/gdbsnapshot"));
+    if (tf.open()) {
+        fileName = tf.fileName();
+        tf.close();
+        postCommand("gcore " + fileName.toLocal8Bit(),
+            NeedsStop, CB(handleMakeSnapshot), fileName);
+    } else {
+        showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
+            tr("Cannot create snapshot file."));
+    }
+}
+
+void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        SnapshotData snapshot;
+        snapshot.setDate(QDateTime::currentDateTime());
+        snapshot.setLocation(response.cookie.toString());
+        snapshot.setFrames(manager()->stackHandler()->frames());
+        manager()->snapshotHandler()->appendSnapshot(snapshot);
+    } else {
+        QByteArray msg = response.data.findChild("msg").data();
+        showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
+            tr("Cannot create snapshot:\n") + QString::fromLocal8Bit(msg));
+    }
+}
+
+void GdbEngine::activateSnapshot(int index)
+{
+    SnapshotData snapshot = m_manager->snapshotHandler()->setCurrentIndex(index);
+    m_startParameters->startMode = AttachCore;
+    m_startParameters->coreFile = snapshot.location();
+
+    if (state() == InferiorUnrunnable) {
+        // All is well. We are looking at another core file.
+        setState(EngineShuttingDown);
+        setState(DebuggerNotReady);
+        activateSnapshot2();
+    } else if (state() != DebuggerNotReady) {
+        QMessageBox *mb = showMessageBox(QMessageBox::Critical,
+            tr("Snapshot Reloading"),
+            tr("In order to load snapshots the debugged process needs "
+             "to be stopped. Continuation will not be possible afterwards.\n"
+             "Do you want to stop the debugged process and load the selected "
+             "snapshot?"), QMessageBox::Ok | QMessageBox::Cancel);
+        if (mb->exec() == QMessageBox::Cancel)
+            return;
+        debugMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
+        delete m_gdbAdapter;
+        m_gdbAdapter = createAdapter(m_startParameters);
+        postCommand("kill", NeedsStop, CB(handleActivateSnapshot));
+    } else {
+        activateSnapshot2();
+    }
+}
+
+void GdbEngine::handleActivateSnapshot(const GdbResponse &response)
+{
+    Q_UNUSED(response);
+    setState(InferiorShuttingDown);
+    setState(InferiorShutDown);
+    setState(EngineShuttingDown);
+    setState(DebuggerNotReady);
+    activateSnapshot2();
+}
+
+void GdbEngine::activateSnapshot2()
+{
+    // Otherwise the stack data might be stale.
+    // See http://sourceware.org/bugzilla/show_bug.cgi?id=1124.
+    setState(EngineStarting);
+    setState(AdapterStarting);
+    postCommand("set stack-cache off");
+    handleAdapterStarted();
 }
 
 

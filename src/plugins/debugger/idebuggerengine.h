@@ -95,6 +95,9 @@ public:
     virtual void activateFrame(int index) = 0;
     virtual void selectThread(int index) = 0;
 
+    virtual void makeSnapshot() {}
+    virtual void activateSnapshot(int index) { Q_UNUSED(index); }
+
     virtual void attemptBreakpointSynchronization() = 0;
 
     virtual void reloadModules() = 0;

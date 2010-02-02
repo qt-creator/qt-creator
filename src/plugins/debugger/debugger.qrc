@@ -6,6 +6,7 @@
         <file>images/debugger_breakpoints.png</file>
         <file>images/debugger_continue_small.png</file>
         <file>images/debugger_interrupt_small.png</file>
+        <file>images/debugger_snapshot_small.png</file>
         <file>images/debugger_start.png</file>
         <file>images/debugger_start_small.png</file>
         <file>images/debugger_stepinto_small.png</file>

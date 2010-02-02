@@ -41,15 +41,16 @@
 #include "debuggeroutputwindow.h"
 #include "moduleswindow.h"
 #include "registerwindow.h"
+#include "snapshotwindow.h"
 #include "stackwindow.h"
 #include "sourcefileswindow.h"
 #include "threadswindow.h"
 #include "watchwindow.h"
 
-
 #include "breakhandler.h"
 #include "moduleshandler.h"
 #include "registerhandler.h"
+#include "snapshothandler.h"
 #include "stackhandler.h"
 #include "stackframe.h"
 #include "watchhandler.h"
@@ -253,25 +254,28 @@ struct DebuggerManagerPrivate
     // FIXME: Remove engine-specific state
     DebuggerStartParametersPtr m_startParameters;
     qint64 m_inferiorPid;
+
     /// Views
     Utils::FancyMainWindow *m_mainWindow;
     QLabel *m_statusLabel;
+
     QDockWidget *m_breakDock;
     QDockWidget *m_modulesDock;
     QDockWidget *m_outputDock;
     QDockWidget *m_registerDock;
-    QDockWidget *m_stackDock;
+    QDockWidget *m_snapshotDock;
     QDockWidget *m_sourceFilesDock;
+    QDockWidget *m_stackDock;
     QDockWidget *m_threadsDock;
     QDockWidget *m_watchDock;
 
     BreakHandler *m_breakHandler;
     ModulesHandler *m_modulesHandler;
     RegisterHandler *m_registerHandler;
+    SnapshotHandler *m_snapshotHandler;
     StackHandler *m_stackHandler;
     ThreadsHandler *m_threadsHandler;
     WatchHandler *m_watchHandler;
-    SourceFilesWindow *m_sourceFilesWindow;
 
     DebuggerManagerActions m_actions;
 
@@ -279,6 +283,8 @@ struct DebuggerManagerPrivate
     QWidget *m_localsWindow;
     QWidget *m_registerWindow;
     QWidget *m_modulesWindow;
+    QWidget *m_snapshotWindow;
+    SourceFilesWindow *m_sourceFilesWindow;
     QWidget *m_stackWindow;
     QWidget *m_threadsWindow;
     QWidget *m_watchersWindow;
@@ -343,6 +349,7 @@ void DebuggerManager::init()
     d->m_modulesWindow = new ModulesWindow(this);
     d->m_outputWindow = new DebuggerOutputWindow;
     d->m_registerWindow = new RegisterWindow(this);
+    d->m_snapshotWindow = new SnapshotWindow(this);
     d->m_stackWindow = new StackWindow(this);
     d->m_sourceFilesWindow = new SourceFilesWindow;
     d->m_threadsWindow = new ThreadsWindow;
@@ -353,6 +360,12 @@ void DebuggerManager::init()
     d->m_mainWindow = new Utils::FancyMainWindow;
     d->m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
     d->m_mainWindow->setDocumentMode(true);
+
+    // Snapshots
+    d->m_snapshotHandler = new SnapshotHandler;
+    QAbstractItemView *snapshotView =
+        qobject_cast<QAbstractItemView *>(d->m_snapshotWindow);
+    snapshotView->setModel(d->m_snapshotHandler);
 
     // Stack
     d->m_stackHandler = new StackHandler;
@@ -471,6 +484,9 @@ void DebuggerManager::init()
     d->m_actions.watchAction1 = new QAction(tr("Add to Watch Window"), this);
     d->m_actions.watchAction2 = new QAction(tr("Add to Watch Window"), this);
 
+    d->m_actions.snapshotAction = new QAction(tr("Snapshot"), this);
+    d->m_actions.snapshotAction->setIcon(QIcon(":/debugger/images/debugger_snapshot_small.png"));
+
     d->m_actions.reverseDirectionAction = new QAction(tr("Reverse Direction"), this);
     d->m_actions.reverseDirectionAction->setCheckable(true);
     d->m_actions.reverseDirectionAction->setChecked(false);
@@ -499,6 +515,8 @@ void DebuggerManager::init()
         this, SLOT(addToWatchWindow()));
     connect(d->m_actions.breakAction, SIGNAL(triggered()),
         this, SLOT(toggleBreakpoint()));
+    connect(d->m_actions.snapshotAction, SIGNAL(triggered()),
+        this, SLOT(makeSnapshot()));
 
     connect(d->m_statusTimer, SIGNAL(timeout()),
         this, SLOT(clearStatusMessage()));
@@ -524,6 +542,8 @@ void DebuggerManager::init()
         this, SLOT(reloadRegisters()), Qt::QueuedConnection);
 
     d->m_outputDock = d->m_mainWindow->addDockForWidget(d->m_outputWindow);
+
+    d->m_snapshotDock = d->m_mainWindow->addDockForWidget(d->m_snapshotWindow);
 
     d->m_stackDock = d->m_mainWindow->addDockForWidget(d->m_stackWindow);
 
@@ -617,6 +637,11 @@ WatchHandler *DebuggerManager::watchHandler() const
     return d->m_watchHandler;
 }
 
+SnapshotHandler *DebuggerManager::snapshotHandler() const
+{
+    return d->m_snapshotHandler;
+}
+
 const CPlusPlus::Snapshot &DebuggerManager::cppCodeModelSnapshot() const
 {
     if (d->m_codeModelSnapshot.isEmpty() && theDebuggerAction(UseCodeModel)->isChecked())
@@ -671,6 +696,7 @@ void DebuggerManager::setSimpleDockWidgetArrangement()
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_registerDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_threadsDock);
     d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_sourceFilesDock);
+    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_snapshotDock);
 
     // They following views are rarely used in ordinary debugging. Hiding them
     // saves cycles since the corresponding information won't be retrieved.
@@ -767,9 +793,28 @@ void DebuggerManager::shutdown()
     doDelete(d->m_threadsHandler);
     doDelete(d->m_modulesHandler);
     doDelete(d->m_registerHandler);
+    doDelete(d->m_snapshotHandler);
     doDelete(d->m_stackHandler);
     doDelete(d->m_watchHandler);
     #undef doDelete
+}
+
+void DebuggerManager::makeSnapshot()
+{
+    QTC_ASSERT(d->m_engine, return);
+    d->m_engine->makeSnapshot();
+}
+
+void DebuggerManager::activateSnapshot(int index)
+{
+    QTC_ASSERT(d->m_engine, return);
+    d->m_engine->activateSnapshot(index);
+}
+
+void DebuggerManager::removeSnapshot(int index)
+{
+    QTC_ASSERT(d->m_engine, return);
+    d->m_snapshotHandler->removeSnapshot(index);
 }
 
 BreakpointData *DebuggerManager::findBreakpoint(const QString &fileName, int lineNumber)
@@ -1675,6 +1720,7 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     d->m_actions.watchAction1->setEnabled(true);
     d->m_actions.watchAction2->setEnabled(true);
     d->m_actions.breakAction->setEnabled(true);
+    d->m_actions.snapshotAction->setEnabled(stopped);
 
     bool interruptIsExit = !running;
     if (interruptIsExit) {

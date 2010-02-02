@@ -116,6 +116,7 @@ const char * const DETACH               = "Debugger.Detach";
 const char * const RUN_TO_LINE          = "Debugger.RunToLine";
 const char * const RUN_TO_FUNCTION      = "Debugger.RunToFunction";
 const char * const JUMP_TO_LINE         = "Debugger.JumpToLine";
+const char * const SNAPSHOT             = "Debugger.Snapshot";
 const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
 const char * const BREAK_AT_MAIN        = "Debugger.BreakAtMain";
@@ -137,6 +138,7 @@ const char * const TOGGLE_BREAK_KEY         = "F8";
 const char * const BREAK_BY_FUNCTION_KEY    = "Alt+D,Alt+F";
 const char * const BREAK_AT_MAIN_KEY        = "Alt+D,Alt+M";
 const char * const ADD_TO_WATCH_KEY         = "Alt+D,Alt+W";
+const char * const SNAPSHOT_KEY             = "Alt+D,Alt+S";
 #else
 const char * const INTERRUPT_KEY            = "Shift+F5";
 const char * const RESET_KEY                = "Ctrl+Shift+F5";
@@ -151,6 +153,7 @@ const char * const TOGGLE_BREAK_KEY         = "F9";
 const char * const BREAK_BY_FUNCTION_KEY    = "";
 const char * const BREAK_AT_MAIN_KEY        = "";
 const char * const ADD_TO_WATCH_KEY         = "Ctrl+Alt+Q";
+const char * const SNAPSHOT_KEY             = "Alt+D,Alt+S";
 #endif
 
 } // namespace Constants
@@ -809,6 +812,11 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Break"), globalcontext);
     mdebug->addAction(cmd);
 
+    cmd = am->registerAction(actions.snapshotAction,
+        Constants::SNAPSHOT, debuggercontext);
+    cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
+    mdebug->addAction(cmd);
+
     cmd = am->registerAction(theDebuggerAction(OperateByInstruction),
         Constants::OPERATE_BY_INSTRUCTION, debuggercontext);
     mdebug->addAction(cmd);
@@ -941,6 +949,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::SNAPSHOT)->action()));
 #ifdef USE_REVERSE_DEBUGGING
     debugToolBarLayout->addWidget(new Utils::StyledSeparator);
     debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));

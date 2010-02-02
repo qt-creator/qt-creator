@@ -78,6 +78,7 @@ class SourceFilesWindow;
 struct StackFrame;
 class StackHandler;
 class Symbol;
+class SnapshotHandler;
 class ThreadsHandler;
 class WatchData;
 class WatchHandler;
@@ -219,12 +220,15 @@ public slots:
     void setBreakpoint(const QString &fileName, int lineNumber);
     void activateFrame(int index);
     void selectThread(int index);
+    void activateSnapshot(int index);
+    void removeSnapshot(int index);
 
     void stepExec();
     void stepOutExec();
     void nextExec();
     void continueExec();
     void detachDebugger();
+    void makeSnapshot();
 
     void addToWatchWindow();
     void updateWatchData(const Debugger::Internal::WatchData &data);
@@ -282,6 +286,7 @@ private:
     Internal::StackHandler *stackHandler() const;
     Internal::ThreadsHandler *threadsHandler() const;
     Internal::WatchHandler *watchHandler() const;
+    Internal::SnapshotHandler *snapshotHandler() const;
     Internal::SourceFilesWindow *sourceFileWindow() const;
     QWidget *threadsWindow() const;
 

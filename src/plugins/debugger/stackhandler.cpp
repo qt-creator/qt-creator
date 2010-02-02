@@ -408,5 +408,6 @@ void ThreadsHandler::notifyRunning()
         it->notifyRunning();
     emit dataChanged(index(0, 1), index(m_threads.size()- 1, ColumnCount - 1));
 }
+
 } // namespace Internal
 } // namespace Debugger
