@@ -39,6 +39,7 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/parser/qmljsast_p.h>
 #include <texteditor/itexteditor.h>
 #include <texteditor/basetexteditor.h>
 
@@ -151,9 +152,6 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         m_helpEngineNeedsSetup = false;
     }
 
-    QTextCursor tc(edit->document());
-    tc.setPosition(pos);
-
     // We only want to show F1 if the tooltip matches the help id
     bool showF1 = true;
 
@@ -166,36 +164,27 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
 
     QString symbolName = QLatin1String("<unknown>");
     if (m_helpId.isEmpty()) {
-        // Move to the end of a qualified name
-        bool stop = false;
-        while (!stop) {
-            const QChar ch = editor->characterAt(tc.position());
-            if (ch.isLetterOrNumber() || ch == QLatin1Char('_')) {
-                tc.setPosition(tc.position() + 1);
-            } else {
-                stop = true;
-            }
-        }
+        AST::Node *node = semanticInfo.nodeUnderCursor(pos);
+        if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 || AST::cast<AST::NumericLiteral *>(node) != 0)) {
+            AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(pos);
 
-        // Fetch the expression's code
-        QmlExpressionUnderCursor expressionUnderCursor;
-        QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
+            Interpreter::Engine interp;
+            Interpreter::ObjectValue *scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
 
-        AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(pos);
+            Check check(&interp);
+            const Interpreter::Value *value = check(node->expressionCast(), scope);
 
-        Interpreter::Engine interp;
-        Interpreter::ObjectValue *scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
-        Check check(&interp);
-        const Interpreter::Value *value = check(expression, scope);
-        QStringList baseClasses;
-        m_toolTip = prettyPrint(value, &interp, &baseClasses);
-        foreach (const QString &baseClass, baseClasses) {
-            QString helpId = QLatin1String("QML.");
-            helpId += baseClass;
+            QStringList baseClasses;
+            m_toolTip = prettyPrint(value, &interp, &baseClasses);
 
-            if (! m_helpEngine->linksForIdentifier(helpId).isEmpty()) {
-                m_helpId = helpId;
-                break;
+            foreach (const QString &baseClass, baseClasses) {
+                QString helpId = QLatin1String("QML.");
+                helpId += baseClass;
+
+                if (! m_helpEngine->linksForIdentifier(helpId).isEmpty()) {
+                    m_helpId = helpId;
+                    break;
+                }
             }
         }
     }

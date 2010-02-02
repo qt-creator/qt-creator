@@ -108,6 +108,9 @@ public:
     // Returns the declaring member
     QmlJS::AST::UiObjectMember *declaringMember(int cursorPosition) const;
 
+    // Returns the AST node under cursor
+    QmlJS::AST::Node *nodeUnderCursor(int cursorPosition) const;
+
 public: // attributes
     QmlJS::Document::Ptr document;
     QmlJS::Snapshot snapshot;

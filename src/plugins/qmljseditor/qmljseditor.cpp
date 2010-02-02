@@ -481,6 +481,38 @@ AST::UiObjectMember *SemanticInfo::declaringMember(int cursorPosition) const
     return declaringMember;
 }
 
+AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
+{
+    if (! document)
+        return 0;
+
+    const unsigned cursorPosition = pos;
+
+    CollectASTNodes nodes;
+    nodes.accept(document->ast());
+
+    foreach (AST::UiQualifiedId *q, nodes.qualifiedIds) {
+        if (cursorPosition >= q->identifierToken.begin()) {
+            for (AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
+                if (! tail->next && cursorPosition <= tail->identifierToken.end())
+                    return q;
+            }
+        }
+    }
+
+    foreach (AST::IdentifierExpression *id, nodes.identifiers) {
+        if (cursorPosition >= id->identifierToken.begin() && cursorPosition <= id->identifierToken.end())
+            return id;
+    }
+
+    foreach (AST::FieldMemberExpression *mem, nodes.fieldMembers) {
+        if (mem->name && cursorPosition >= mem->identifierToken.begin() && cursorPosition <= mem->identifierToken.end())
+            return mem;
+    }
+
+    return 0;
+}
+
 int SemanticInfo::revision() const
 {
     if (document)
@@ -834,46 +866,35 @@ void QmlJSTextEditor::createToolBar(QmlJSEditorEditable *editable)
 
 TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &cursor, bool /*resolveTarget*/)
 {
-    Link link;
     const SemanticInfo semanticInfo = m_semanticInfo;
+    const unsigned cursorPosition = cursor.position();
 
-    if (semanticInfo.document && semanticInfo.revision() == document()->revision()) {
-        CollectASTNodes nodes;
-        nodes.accept(semanticInfo.document->ast());
+    AST::Node *node = semanticInfo.nodeUnderCursor(cursorPosition);
 
-        const unsigned cursorPosition = cursor.position();
-
-        foreach (AST::UiQualifiedId *q, nodes.qualifiedIds) {
-            if (cursorPosition >= q->identifierToken.begin()) {
-                for (AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
-                    if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
-                        link.begin = tail->identifierToken.begin();
-                        link.end = tail->identifierToken.end();
-                        return link;
-                    }
-                }
-            }
-        }
-
-        foreach (AST::IdentifierExpression *id, nodes.identifiers) {
-            if (cursorPosition >= id->identifierToken.begin() && cursorPosition <= id->identifierToken.end()) {
-                link.begin = id->firstSourceLocation().begin();
-                link.end = id->lastSourceLocation().end();
+    if (AST::UiQualifiedId *q = AST::cast<AST::UiQualifiedId *>(node)) {
+        for (AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
+            if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
+                Link link;
+                link.begin = tail->identifierToken.begin();
+                link.end = tail->identifierToken.end();
                 return link;
             }
         }
 
-        foreach (AST::FieldMemberExpression *mem, nodes.fieldMembers) {
-            if (mem->name && cursorPosition >= mem->identifierToken.begin() && cursorPosition <= mem->identifierToken.end()) {
-                link.begin = mem->lastSourceLocation().begin();
-                link.end = mem->lastSourceLocation().end();
-                return link;
-            }
-        }
+    } else if (AST::IdentifierExpression *id = AST::cast<AST::IdentifierExpression *>(node)) {
+        Link link;
+        link.begin = id->firstSourceLocation().begin();
+        link.end = id->lastSourceLocation().end();
+        return link;
 
+    } else if (AST::FieldMemberExpression *mem = AST::cast<AST::FieldMemberExpression *>(node)) {
+        Link link;
+        link.begin = mem->lastSourceLocation().begin();
+        link.end = mem->lastSourceLocation().end();
+        return link;
     }
 
-    return link;
+    return Link();
 }
 
 void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)
