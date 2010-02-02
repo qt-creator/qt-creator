@@ -74,6 +74,7 @@ private slots:
     void objc_attributes_followed_by_at_keyword();
     void objc_protocol_forward_declaration_1();
     void objc_protocol_definition_1();
+    void objc_method_attributes_1();
 
     // expressions with (square) brackets
     void normal_array_access();
@@ -584,18 +585,96 @@ void tst_AST::objc_attributes_followed_by_at_keyword()
 "@end\n"
     ));
     AST *ast = unit->ast();
+    QVERIFY(ast);
 }
 
 void tst_AST::objc_protocol_forward_declaration_1()
 {
     QSharedPointer<TranslationUnit> unit(parseDeclaration("\n@protocol foo;"));
     AST *ast = unit->ast();
+    QVERIFY(ast);
 }
 
 void tst_AST::objc_protocol_definition_1()
 {
     QSharedPointer<TranslationUnit> unit(parseDeclaration("\n@protocol foo <ciao, bar> @end"));
     AST *ast = unit->ast();
+    QVERIFY(ast);
+}
+
+void tst_AST::objc_method_attributes_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "@interface Zoo\n"
+                                                          "- (void) foo __attribute__((deprecated));\n"
+                                                          "+ (void) bar __attribute__((unavailable));\n"
+                                                          "@end\n"
+                                                          ));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    ObjCClassDeclarationAST *zoo = ast->asObjCClassDeclaration();
+    QVERIFY(zoo);
+    QVERIFY(zoo->interface_token); QVERIFY(! (zoo->implementation_token));
+    QVERIFY(zoo->class_name); QVERIFY(zoo->class_name->asSimpleName());
+    QCOMPARE(unit->spell(zoo->class_name->asSimpleName()->identifier_token), "Zoo");
+
+    DeclarationListAST *decls = zoo->member_declaration_list;
+    QVERIFY(decls->value);
+    QVERIFY(decls->next);
+    QVERIFY(decls->next->value);
+    QVERIFY(! (decls->next->next));
+
+    ObjCMethodDeclarationAST *fooDecl = decls->value->asObjCMethodDeclaration();
+    QVERIFY(fooDecl);
+    QVERIFY(! (fooDecl->function_body));
+    QVERIFY(fooDecl->semicolon_token);
+
+    ObjCMethodPrototypeAST *foo = fooDecl->method_prototype;
+    QVERIFY(foo);
+    QCOMPARE(unit->tokenKind(foo->method_type_token), (int) T_MINUS);
+    QVERIFY(foo->type_name);
+    QVERIFY(foo->selector);
+    QVERIFY(foo->selector->asObjCSelectorWithoutArguments());
+    QCOMPARE(unit->spell(foo->selector->asObjCSelectorWithoutArguments()->name_token), "foo");
+    QVERIFY(foo->attribute_list);
+    QVERIFY(foo->attribute_list->value);
+    QVERIFY(! (foo->attribute_list->next));
+    AttributeSpecifierAST *deprecatedSpec = foo->attribute_list->value->asAttributeSpecifier();
+    QVERIFY(deprecatedSpec);
+    QCOMPARE(unit->tokenKind(deprecatedSpec->attribute_token), (int) T___ATTRIBUTE__);
+    QVERIFY(deprecatedSpec->attribute_list);
+    QVERIFY(deprecatedSpec->attribute_list->value);
+    QVERIFY(! (deprecatedSpec->attribute_list->next));
+    AttributeAST *deprecatedAttr = deprecatedSpec->attribute_list->value->asAttribute();
+    QVERIFY(deprecatedAttr);
+    QVERIFY(! deprecatedAttr->expression_list);
+    QCOMPARE(unit->spell(deprecatedAttr->identifier_token), "deprecated");
+
+    ObjCMethodDeclarationAST *barDecl = decls->next->value->asObjCMethodDeclaration();
+    QVERIFY(barDecl);
+    QVERIFY(! (barDecl->function_body));
+    QVERIFY(barDecl->semicolon_token);
+
+    ObjCMethodPrototypeAST *bar = barDecl->method_prototype;
+    QVERIFY(bar);
+    QCOMPARE(unit->tokenKind(bar->method_type_token), (int) T_PLUS);
+    QVERIFY(bar->type_name);
+    QVERIFY(bar->selector);
+    QVERIFY(bar->selector->asObjCSelectorWithoutArguments());
+    QCOMPARE(unit->spell(bar->selector->asObjCSelectorWithoutArguments()->name_token), "bar");
+    QVERIFY(bar->attribute_list);
+    QVERIFY(bar->attribute_list->value);
+    QVERIFY(! (bar->attribute_list->next));
+    AttributeSpecifierAST *unavailableSpec = bar->attribute_list->value->asAttributeSpecifier();
+    QVERIFY(unavailableSpec);
+    QCOMPARE(unit->tokenKind(unavailableSpec->attribute_token), (int) T___ATTRIBUTE__);
+    QVERIFY(unavailableSpec->attribute_list);
+    QVERIFY(unavailableSpec->attribute_list->value);
+    QVERIFY(! (unavailableSpec->attribute_list->next));
+    AttributeAST *unavailableAttr = unavailableSpec->attribute_list->value->asAttribute();
+    QVERIFY(unavailableAttr);
+    QVERIFY(! unavailableAttr->expression_list);
+    QCOMPARE(unit->spell(unavailableAttr->identifier_token), "unavailable");
 }
 
 void tst_AST::normal_array_access()
