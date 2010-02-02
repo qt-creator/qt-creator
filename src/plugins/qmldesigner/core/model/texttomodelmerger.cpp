@@ -56,6 +56,7 @@ TextToModelMerger::TextToModelMerger(RewriterView *reWriterView):
         m_rewriterView(reWriterView),
         m_isActive(false)
 {
+    Q_ASSERT(reWriterView);
 }
 
 void TextToModelMerger::setActive(bool active)
@@ -80,21 +81,19 @@ void TextToModelMerger::setupImports(QmlDomDocument &doc,
                                                       qmlImport.qualifier()));
 
             if (!existingImports.remove(import))
-                differenceHandler.modelMissesImport(m_rewriterView->model(),
-                                                    import);
+                differenceHandler.modelMissesImport(import);
         } else if (qmlImport.type() == QmlDomImport::File) {
             Import import(Import:: createFileImport(qmlImport.uri(),
                                                     qmlImport.version(),
                                                     qmlImport.qualifier()));
 
             if (!existingImports.remove(import))
-                differenceHandler.modelMissesImport(m_rewriterView->model(),
-                                                    import);
+                differenceHandler.modelMissesImport(import);
         }
     }
 
     foreach (const Import &import, existingImports)
-        differenceHandler.importAbsentInQMl(m_rewriterView->model(), import);
+        differenceHandler.importAbsentInQMl(import);
 }
 
 bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differenceHandler)
@@ -126,8 +125,10 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
         return success;
     } catch (Exception &e) {
         RewriterView::Error error(&e);
-        // Somehow, the error below gets eaten in upper levels, so printing the exception info here for debugging purposes:
-        qDebug() << "*** An exception occurred while reading the QML file:" << error.toString();
+        // Somehow, the error below gets eaten in upper levels, so printing the
+        // exception info here for debugging purposes:
+        qDebug() << "*** An exception occurred while reading the QML file:"
+                 << error.toString();
         m_rewriterView->addError(error);
 
         setActive(false);
@@ -136,9 +137,20 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
     }
 }
 
-void TextToModelMerger::syncNode(ModelNode &modelNode, const QmlDomObject &domObject, DifferenceHandler &differenceHandler)
+void TextToModelMerger::syncNode(ModelNode &modelNode,
+                                 const QmlDomObject &domObject,
+                                 DifferenceHandler &differenceHandler)
 {
     m_rewriterView->positionStorage()->setNodeOffset(modelNode, domObject.position());
+
+    if (modelNode.type() != domObject.objectType()
+            || modelNode.majorVersion() != domObject.objectTypeMajorVersion()
+            || modelNode.minorVersion() != domObject.objectTypeMinorVersion()) {
+        const bool isRootNode = m_rewriterView->rootModelNode() == modelNode;
+        differenceHandler.typeDiffers(isRootNode, modelNode, domObject);
+        if (!isRootNode)
+            return; // the difference handler will create a new node, so we're done.
+    }
 
     {
         QString domObjectId = domObject.objectId();
@@ -161,12 +173,6 @@ void TextToModelMerger::syncNode(ModelNode &modelNode, const QmlDomObject &domOb
                 differenceHandler.idsDiffer(modelNode, domObjectId);
             }
         }
-    }
-
-    if (modelNode.type() != domObject.objectType()
-            || modelNode.majorVersion() != domObject.objectTypeMajorVersion()
-            || modelNode.minorVersion() != domObject.objectTypeMinorVersion()) {
-        differenceHandler.typeDiffers(modelNode, domObject);
     }
 
     QSet<QString> modelPropertyNames = QSet<QString>::fromList(modelNode.propertyNames());
@@ -383,14 +389,14 @@ QVariant TextToModelMerger::convertToVariant(const ModelNode &node, const QmlDom
     }
 }
 
-void ModelValidator::modelMissesImport(Model *model, const Import &import)
+void ModelValidator::modelMissesImport(const Import &import)
 {
-    Q_ASSERT(model->imports().contains(import));
+    Q_ASSERT(m_merger->view()->model()->imports().contains(import));
 }
 
-void ModelValidator::importAbsentInQMl(Model *model, const Import &import)
+void ModelValidator::importAbsentInQMl(const Import &import)
 {
-    Q_ASSERT(! model->imports().contains(import));
+    Q_ASSERT(! m_merger->view()->model()->imports().contains(import));
 }
 
 void ModelValidator::bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding)
@@ -446,7 +452,7 @@ ModelNode ModelValidator::listPropertyMissingModelNode(NodeListProperty &/*model
     return ModelNode();
 }
 
-void ModelValidator::typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject)
+void ModelValidator::typeDiffers(bool /*isRootNode*/, ModelNode &modelNode, const QmlDomObject &domObject)
 {
     Q_ASSERT(modelNode.type() == domObject.objectType());
     Q_ASSERT(modelNode.majorVersion() == domObject.objectTypeMajorVersion());
@@ -466,14 +472,14 @@ void ModelValidator::idsDiffer(ModelNode &modelNode, const QString &qmlId)
     Q_ASSERT(0);
 }
 
-void ModelAmender::modelMissesImport(Model *model, const Import &import)
+void ModelAmender::modelMissesImport(const Import &import)
 {
-    model->addImport(import);
+    m_merger->view()->model()->addImport(import);
 }
 
-void ModelAmender::importAbsentInQMl(Model *model, const Import &import)
+void ModelAmender::importAbsentInQMl(const Import &import)
 {
-    model->removeImport(import);
+    m_merger->view()->model()->removeImport(import);
 }
 
 void ModelAmender::bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding)
@@ -534,12 +540,28 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
     return newNode;
 }
 
-void ModelAmender::typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject)
+void ModelAmender::typeDiffers(bool isRootNode, ModelNode &modelNode, const QmlDomObject &domObject)
 {
-    foreach (const QString &propertyName, modelNode.propertyNames())
-        modelNode.removeProperty(propertyName);
+    if (isRootNode) {
+        modelNode.changeType(domObject.objectType(), domObject.objectTypeMajorVersion(), domObject.objectTypeMinorVersion());
+    } else {
+        NodeAbstractProperty parentProperty = modelNode.parentProperty();
+        int nodeIndex = -1;
+        if (parentProperty.isNodeListProperty()) {
+            nodeIndex = parentProperty.toNodeListProperty().toModelNodeList().indexOf(modelNode);
+            Q_ASSERT(nodeIndex >= 0);
+        }
 
-    modelNode.changeType(domObject.objectType(), domObject.objectTypeMajorVersion(), domObject.objectTypeMinorVersion());
+        modelNode.destroy();
+
+        const ModelNode &newNode = m_merger->createModelNode(domObject, *this);
+        parentProperty.reparentHere(newNode);
+        if (nodeIndex >= 0) {
+            int currentIndex = parentProperty.toNodeListProperty().toModelNodeList().indexOf(newNode);
+            if (nodeIndex != currentIndex)
+                parentProperty.toNodeListProperty().slide(currentIndex, nodeIndex);
+        }
+    }
 }
 
 void ModelAmender::propertyAbsentFromQml(AbstractProperty &modelProperty)

@@ -57,8 +57,10 @@ public:
     void setupImports(QmlDomDocument &doc, DifferenceHandler &differenceHandler);
     bool load(const QByteArray &data, DifferenceHandler &differenceHandler);
 
+    RewriterView *view() const
+    { return m_rewriterView; }
+
 protected:
-    RewriterView *view();
     void setActive(bool active);
 
 public:
@@ -96,8 +98,8 @@ public:
     virtual ~DifferenceHandler()
     {}
 
-    virtual void modelMissesImport(Model *model, const Import &import) = 0;
-    virtual void importAbsentInQMl(Model *model, const Import &import) = 0;
+    virtual void modelMissesImport(const Import &import) = 0;
+    virtual void importAbsentInQMl(const Import &import) = 0;
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding) = 0;
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding) = 0;
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList) = 0;
@@ -106,7 +108,7 @@ public:
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject) = 0;
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode) = 0;
     virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject) = 0;
-    virtual void typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject) = 0;
+    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QmlDomObject &domObject) = 0;
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty) = 0;
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId) = 0;
 
@@ -123,8 +125,8 @@ public:
     ~ModelValidator()
     {}
 
-    virtual void modelMissesImport(Model *model, const Import &import);
-    virtual void importAbsentInQMl(Model *model, const Import &import);
+    virtual void modelMissesImport(const Import &import);
+    virtual void importAbsentInQMl(const Import &import);
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding);
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding);
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList);
@@ -133,7 +135,7 @@ public:
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject);
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
     virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject);
-    virtual void typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject);
+    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QmlDomObject &domObject);
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
 };
@@ -147,8 +149,8 @@ public:
     ~ModelAmender()
     {}
 
-    virtual void modelMissesImport(Model *model, const Import &import);
-    virtual void importAbsentInQMl(Model *model, const Import &import);
+    virtual void modelMissesImport(const Import &import);
+    virtual void importAbsentInQMl(const Import &import);
     virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding);
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding);
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList);
@@ -157,7 +159,7 @@ public:
     virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject);
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
     virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject);
-    virtual void typeDiffers(ModelNode &modelNode, const QmlDomObject &domObject);
+    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QmlDomObject &domObject);
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
 };
