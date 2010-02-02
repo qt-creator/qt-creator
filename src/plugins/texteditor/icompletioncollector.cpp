@@ -139,7 +139,7 @@ void ICompletionCollector::filter(const QList<TextEditor::CompletionItem> &items
             if (c.isUpper() && !first)
                 keyRegExp += wordContinuation;
             keyRegExp += QRegExp::escape(c.toUpper());
-            keyRegExp += "|";
+            keyRegExp += QLatin1Char('|');
             keyRegExp += QRegExp::escape(c.toLower());
             keyRegExp += QLatin1Char(')');
         } else {

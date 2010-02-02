@@ -345,10 +345,10 @@ void S60DeviceRunConfiguration::updateTarget()
                     tr("Could not parse %1. The QtS60 Device run configuration %2 can not be started.")
                     .arg(m_proFilePath).arg(displayName()));
         }
-        m_targetName = QString::null;
-        m_baseFileName = QString::null;
-        m_packageTemplateFileName = QString::null;
-        m_platform = QString::null;
+        m_targetName.clear();
+        m_baseFileName.clear();
+        m_packageTemplateFileName.clear();
+        m_platform.clear();
         m_cachedTargetInformationValid = true;
         emit targetInformationChanged();
         return;

@@ -885,7 +885,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     if (m_submode == ChangeSubMode) {
         removeSelectedText(true);
         if (!dotCommand.isEmpty())
-            setDotCommand("c" + dotCommand);
+            setDotCommand(QLatin1Char('c') + dotCommand);
         if (m_movetype == MoveLineWise) {
             insertAutomaticIndentation(true);
         }
@@ -896,7 +896,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
     } else if (m_submode == DeleteSubMode) {
         removeSelectedText();
         if (!dotCommand.isEmpty())
-            setDotCommand("d" + dotCommand);
+            setDotCommand(QLatin1Char('d') + dotCommand);
         if (m_movetype == MoveLineWise)
             handleStartOfLine();
         m_submode = NoSubMode;
@@ -922,7 +922,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (m_subsubmode == InvertCaseSubSubMode) {
             invertCaseSelectedText();
             if (!dotCommand.isEmpty())
-                setDotCommand("~" + dotCommand);
+                setDotCommand(QLatin1Char('~') + dotCommand);
         } else if (m_subsubmode == UpCaseSubSubMode) {
             upCaseSelectedText();
             if (!dotCommand.isEmpty())
@@ -1204,7 +1204,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         // Recognize ZZ and ZQ as aliases for ":x" and ":q!".
         m_submode = NoSubMode;
         if (key == 'Z')
-            handleCommand("x");
+            handleCommand(QString(QLatin1Char('x')));
         else if (key == 'Q')
             handleCommand("q!");
     } else if (m_subsubmode == FtSubSubMode) {
@@ -1251,14 +1251,14 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_movetype = MoveExclusive;
             moveToStartOfLine();
             setTargetColumn();
-            finishMovement("0");
+            finishMovement(QString(QLatin1Char('0')));
         } else {
             m_mvcount.append(QChar(key));
         }
     } else if (key == '^') {
         moveToFirstNonBlankOnLine();
         m_movetype = MoveExclusive;
-        finishMovement("^");
+        finishMovement(QString(QLatin1Char('^')));
     } else if (0 && key == ',') {
         // FIXME: fakevim uses ',' by itself, so it is incompatible
         m_subsubmode = FtSubSubMode;
@@ -1403,7 +1403,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'A') {
         enterInsertMode();
         moveBehindEndOfLine();
-        setDotCommand("A");
+        setDotCommand(QString(QLatin1Char('A')));
         m_lastInsertion.clear();
         updateMiniBuffer();
     } else if (key == control('a')) {
@@ -1433,7 +1433,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveToEndOfLine();
         m_submode = ChangeSubMode;
-        setDotCommand("C");
+        setDotCommand(QString(QLatin1Char('C')));
         finishMovement();
     } else if (key == control('c')) {
         if (isNoVisualMode())
@@ -1476,7 +1476,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveDown(qMax(count() - 1, 0));
         m_movetype = MoveInclusive;
         moveToEndOfLine();
-        setDotCommand("D");
+        setDotCommand(QString(QLatin1Char('D')));
         finishMovement();
     } else if ((key == 'D' || key == 'X') &&
          (isVisualCharMode() || isVisualLineMode())) {
@@ -1526,7 +1526,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'g' || key == 'G') {
         QString dotCommand = QString("%1G").arg(count());
         if (key == 'G' && m_mvcount.isEmpty())
-            dotCommand = "G";
+            dotCommand = QString(QLatin1Char('G'));
         if (key == 'g')
             m_gflag = false;
         int n = (key == 'g') ? 1 : linesInDocument();
@@ -1557,13 +1557,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         handleStartOfLine();
         finishMovement();
     } else if (key == 'i' || key == Key_Insert) {
-        setDotCommand("i"); // setDotCommand("%1i", count());
+        setDotCommand(QString(QLatin1Char('i'))); // setDotCommand("%1i", count());
         enterInsertMode();
         updateMiniBuffer();
         if (atEndOfLine())
             moveLeft();
     } else if (key == 'I') {
-        setDotCommand("I"); // setDotCommand("%1I", count());
+        setDotCommand(QString(QLatin1Char('I'))); // setDotCommand("%1I", count());
         enterInsertMode();
         if (m_gflag)
             moveToStartOfLine();
@@ -1597,7 +1597,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
                         || characterAtCursor() == '\t')
                         moveRight();
                     removeSelectedText();
-                    m_tc.insertText(" ");
+                    m_tc.insertText(QString(QLatin1Char(' ')));
                 }
             }
             if (!m_gflag)
@@ -1685,14 +1685,14 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         finishMovement();
     } else if (key == 'r') {
         m_submode = ReplaceSubMode;
-        setDotCommand("r");
+        setDotCommand(QString(QLatin1Char('r')));
     } else if (key == 'R') {
         // FIXME: right now we repeat the insertion count() times,
         // but not the deletion
         m_lastInsertion.clear();
         enterInsertMode();
         m_submode = ReplaceSubMode;
-        setDotCommand("R");
+        setDotCommand(QString(QLatin1Char('R')));
         updateMiniBuffer();
     } else if (key == control('r')) {
         redo();

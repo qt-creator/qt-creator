@@ -54,7 +54,7 @@ QString DebuggingHelperLibrary::findSystemQt(const Environment &env)
             }
         }
     }
-    return QString::null;
+    return QString();
 }
 
 QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QString &qtInstallData)
@@ -75,7 +75,7 @@ QString DebuggingHelperLibrary::qtInstallDataDir(const QString &qmakePath)
     proc.start(qmakePath, QStringList() << QLatin1String("-query") << QLatin1String("QT_INSTALL_DATA"));
     if (proc.waitForFinished())
         return QString(proc.readAll().trimmed());
-    return QString::null;
+    return QString();
 }
 
 // Debugging Helper Library
@@ -136,7 +136,7 @@ QString DebuggingHelperLibrary::buildDebuggingHelperLibrary(const QString &qmake
     const QString directory = copyDebuggingHelperLibrary(qtInstallDataDir(qmakePath), &errorMessage);
     if (directory.isEmpty())
         return errorMessage;
-    return buildDebuggingHelperLibrary(directory, make, qmakePath, QString::null, env);
+    return buildDebuggingHelperLibrary(directory, make, qmakePath, QString(), env);
 }
 
 // Copy helper source files to a target directory, replacing older files.
@@ -245,7 +245,7 @@ QString DebuggingHelperLibrary::qtVersionForQMake(const QString &qmakePath)
     QProcess qmake;
     qmake.start(qmakePath, QStringList(QLatin1String("--version")));
     if (!qmake.waitForFinished())
-        return QString::null;
+        return QString();
     QString output = qmake.readAllStandardOutput();
     QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"), Qt::CaseInsensitive);
     regexp.indexIn(output);

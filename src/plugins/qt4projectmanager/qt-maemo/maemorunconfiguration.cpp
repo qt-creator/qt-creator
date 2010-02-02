@@ -471,7 +471,7 @@ void MaemoRunConfiguration::updateTarget()
     if (m_cachedTargetInformationValid)
         return;
 
-    m_executable = QString::null;
+    m_executable.clear();
     m_cachedTargetInformationValid = true;
 
     Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),

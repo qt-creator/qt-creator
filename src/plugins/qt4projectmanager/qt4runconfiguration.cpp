@@ -518,7 +518,7 @@ QString Qt4RunConfiguration::baseEnvironmentText() const
         return tr("System Environment");
     else  if (m_baseEnvironmentBase == Qt4RunConfiguration::BuildEnvironmentBase)
         return tr("Build Environment");
-    return QString::null;
+    return QString();
 }
 
 ProjectExplorer::Environment Qt4RunConfiguration::baseEnvironment() const
@@ -561,7 +561,7 @@ void Qt4RunConfiguration::setWorkingDirectory(const QString &wd)
 {
     if (wd.isEmpty()) {
         m_userSetWokingDirectory = false;
-        m_userWorkingDirectory = QString::null;
+        m_userWorkingDirectory.clear();
         emit workingDirectoryChanged(workingDirectory());
     } else {
         m_userSetWokingDirectory = true;
@@ -610,8 +610,8 @@ void Qt4RunConfiguration::updateTarget()
                     tr("Could not parse %1. The Qt4 run configuration %2 can not be started.")
                     .arg(m_proFilePath).arg(displayName()));
         }
-        m_workingDir = QString::null;
-        m_executable = QString::null;
+        m_workingDir.clear();
+        m_executable.clear();
         m_cachedTargetInformationValid = true;
         emit effectiveTargetInformationChanged();
         return;
@@ -632,20 +632,16 @@ void Qt4RunConfiguration::invalidateCachedTargetInformation()
 
 QString Qt4RunConfiguration::dumperLibrary() const
 {
-    QtVersion *version = qt4Project()->activeQt4BuildConfiguration()->qtVersion();
-    if (version)
+    if (const QtVersion *version = qt4Project()->activeQt4BuildConfiguration()->qtVersion())
         return version->debuggingHelperLibrary();
-    else
-        return QString::null;
+    return QString();
 }
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
-    QtVersion *version = qt4Project()->activeQt4BuildConfiguration()->qtVersion();
-    if (version)
+    if (const QtVersion *version = qt4Project()->activeQt4BuildConfiguration()->qtVersion())
         return version->debuggingHelperLibraryLocations();
-    else
-        return QStringList();
+    return QStringList();
 }
 
 void Qt4RunConfiguration::setDefaultDisplayName()

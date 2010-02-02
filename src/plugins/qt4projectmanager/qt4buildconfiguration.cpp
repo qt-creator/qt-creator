@@ -139,11 +139,7 @@ Qt4Project *Qt4BuildConfiguration::qt4Project() const
 
 QString Qt4BuildConfiguration::baseEnvironmentText() const
 {
-    if (useSystemEnvironment())
-        return tr("System Environment");
-    else
-        return tr("Clean Environment");
-    return QString::null;
+    return useSystemEnvironment() ? tr("System Environment") : tr("Clean Environment");
 }
 
 ProjectExplorer::Environment Qt4BuildConfiguration::baseEnvironment() const
@@ -270,7 +266,7 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
 {
     ToolChain *tc = toolChain();
     if (!tc)
-        return QString::null;
+        return QString();
     const QtVersion::QmakeBuildConfigs buildConfig = qmakeBuildConfiguration();
 
     switch (tc->type()) {
@@ -285,7 +281,7 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
     default:
         break;
     }
-    return QString::null;
+    return QString();
 }
 
 QtVersion *Qt4BuildConfiguration::qtVersion() const

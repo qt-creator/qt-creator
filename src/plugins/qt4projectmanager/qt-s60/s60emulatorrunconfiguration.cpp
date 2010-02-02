@@ -167,7 +167,7 @@ void S60EmulatorRunConfiguration::updateTarget()
                     tr("Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.")
                     .arg(m_proFilePath).arg(displayName()));
         }
-        m_executable = QString::null;
+        m_executable.clear();
         m_cachedTargetInformationValid = true;
         emit targetInformationChanged();
         return;

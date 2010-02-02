@@ -85,7 +85,7 @@ void LocatorFiltersFilter::accept(FilterEntry selection) const
 {
     ILocatorFilter *filter = selection.internalData.value<ILocatorFilter*>();
     if (filter)
-        m_locatorWidget->show(filter->shortcutString() + " ",
+        m_locatorWidget->show(filter->shortcutString() + QLatin1Char(' '),
                            filter->shortcutString().length() + 1);
 }
 

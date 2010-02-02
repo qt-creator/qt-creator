@@ -243,7 +243,7 @@ bool S60Devices::detectQtForDevices()
             continue;
         QFile qtDll(QString("%1/epoc32/release/winscw/udeb/QtCore.dll").arg(m_devices.at(i).epocRoot));
         if (!qtDll.exists() || !qtDll.open(QIODevice::ReadOnly)) {
-            m_devices[i].qt = QString();
+            m_devices[i].qt.clear();
             continue;
         }
         QByteArray buffer;

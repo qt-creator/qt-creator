@@ -152,7 +152,8 @@ void AbstractMaemoRunControl::deploy()
 
         QStringList cmdArgs;
         cmdArgs << "-P" << sshPort() << options() << deployable.fileName
-            << (devConfig.uname + "@" + devConfig.host + ":" + remoteDir());
+            << (devConfig.uname + QLatin1Char('@') + devConfig.host +
+                QLatin1Char(':') + remoteDir());
         deployProcess.setWorkingDirectory(deployable.dir);
 
         deployProcess.start(runConfig->scpCmd(), cmdArgs);
@@ -473,7 +474,7 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     startParams->startMode = Debugger::StartRemote;
     startParams->executable = executableOnHost();
     startParams->remoteChannel
-        = devConfig.host + ":" + QString::number(devConfig.gdbServerPort);
+        = devConfig.host + QLatin1Char(':') + QString::number(devConfig.gdbServerPort);
     startParams->remoteArchitecture = "arm";
     startParams->sysRoot = runConfig->sysRoot();
     startParams->toolChainType = ToolChain::GCC_MAEMO;

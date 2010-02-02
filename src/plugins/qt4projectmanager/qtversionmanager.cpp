@@ -559,8 +559,7 @@ QtVersion::QtVersion(const QString &qmakeCommand, bool isAutodetected, const QSt
 }
 
 QtVersion::QtVersion()
-    : m_displayName(QString::null),
-    m_id(-1),
+    :  m_id(-1),
     m_isAutodetected(false),
     m_hasDebuggingHelper(false),
     m_toolChainUpToDate(false),
@@ -572,7 +571,7 @@ QtVersion::QtVersion()
     m_hasDemos(false),
     m_hasDocumentation(false)
 {
-    setQMakeCommand(QString::null);
+    setQMakeCommand(QString());
 }
 
 
@@ -666,7 +665,9 @@ void QtVersion::setQMakeCommand(const QString& qmakeCommand)
 #ifdef Q_OS_WIN
     m_qmakeCommand = m_qmakeCommand.toLower();
 #endif
-    m_designerCommand = m_linguistCommand = m_uicCommand = QString::null;
+    m_designerCommand.clear();
+    m_linguistCommand.clear();
+    m_uicCommand.clear();
     m_toolChainUpToDate = false;
     // TODO do i need to optimize this?
     m_versionInfoUpToDate = false;
@@ -676,7 +677,7 @@ void QtVersion::setQMakeCommand(const QString& qmakeCommand)
     if (qmake.exists() && qmake.isExecutable()) {
         m_qtVersionString = DebuggingHelperLibrary::qtVersionForQMake(qmake.absoluteFilePath());
     } else {
-        m_qtVersionString = QString::null;
+        m_qtVersionString.clear();
     }
     updateSourcePath();
 }
@@ -734,7 +735,7 @@ QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
         }
         makefile.close();
     }
-    return QString::null;
+    return QString();
 }
 
 QtVersion *QtVersionManager::qtVersionForQMakeBinary(const QString &qmakePath)
@@ -1037,13 +1038,13 @@ QString QtVersion::findQtBinary(const QStringList &possibleCommands) const
         if (QFileInfo(fullPath).isFile())
             return QDir::cleanPath(fullPath);
     }
-    return QString::null;
+    return QString();
 }
 
 QString QtVersion::uicCommand() const
 {
     if (!isValid())
-        return QString::null;
+        return QString();
     if (!m_uicCommand.isNull())
         return m_uicCommand;
 #ifdef Q_OS_WIN
@@ -1077,7 +1078,7 @@ static inline QStringList possibleGuiBinaries(const QString &name)
 QString QtVersion::designerCommand() const
 {
     if (!isValid())
-        return QString::null;
+        return QString();
     if (m_designerCommand.isNull())
         m_designerCommand = findQtBinary(possibleGuiBinaries(QLatin1String("designer")));
     return m_designerCommand;
@@ -1086,7 +1087,7 @@ QString QtVersion::designerCommand() const
 QString QtVersion::linguistCommand() const
 {
     if (!isValid())
-        return QString::null;
+        return QString();
     if (m_linguistCommand.isNull())
         m_linguistCommand = findQtBinary(possibleGuiBinaries(QLatin1String("linguist")));
     return m_linguistCommand;
@@ -1369,8 +1370,8 @@ bool QtVersion::isValid() const
 {
     updateVersionInfo();
     return m_id != -1
-            && qmakeCommand() != QString::null
-            && displayName() != QString::null
+            && !qmakeCommand().isEmpty()
+            && !displayName().isEmpty()
             && !m_notInstalled
             && m_versionInfo.contains("QT_INSTALL_BINS");
 }
@@ -1411,7 +1412,7 @@ QString QtVersion::debuggingHelperLibrary() const
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
-        return QString::null;
+        return QString();
     return DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
@@ -1484,7 +1485,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
 {
     QString qtInstallData = versionInfo().value("QT_INSTALL_DATA");
     if (qtInstallData.isEmpty())
-        return QString::null;
+        return QString();
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     addToEnvironment(env);
 

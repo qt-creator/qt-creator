@@ -1137,7 +1137,7 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
     // We have command line arguments, try to find a session in them
     QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
     // Default to no session loading
-    d->m_sessionToRestoreAtStartup = QString::null;
+    d->m_sessionToRestoreAtStartup.clear();
     foreach (const QString &arg, arguments) {
         if (sessions.contains(arg)) {
             // Session argument
@@ -1295,7 +1295,7 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
             d->m_buildManager->showTaskWindow();
     }
     d->m_delayedRunConfiguration = 0;
-    d->m_runMode = QString::null;
+    d->m_runMode.clear();
 }
 
 void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node *node)
@@ -1417,7 +1417,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
             bool alwaysSave = false;
 
             Core::FileManager *fm = Core::ICore::instance()->fileManager();
-            fm->saveModifiedFiles(filesToSave, &cancelled, QString::null,
+            fm->saveModifiedFiles(filesToSave, &cancelled, QString(),
                                   "Always save files before build", &alwaysSave);
 
             if (cancelled)

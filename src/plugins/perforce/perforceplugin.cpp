@@ -1307,7 +1307,7 @@ QString PerforcePlugin::clientFilePath(const QString &serverFilePath)
     const PerforceResponse response = runP4Cmd(m_settings.topLevelSymLinkTarget(), args,
                                                ShowBusyCursor|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (response.error)
-        return QString::null;
+        return QString();
 
     QRegExp r(QLatin1String("\\.\\.\\.\\sclientFile\\s(.+)\n"));
     r.setMinimal(true);
@@ -1325,19 +1325,19 @@ QString PerforcePlugin::pendingChangesData()
     const PerforceResponse userResponse = runP4Cmd(m_settings.topLevelSymLinkTarget(), args,
                                                RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (userResponse.error)
-        return QString::null;
+        return QString();
 
     QRegExp r(QLatin1String("User\\sname:\\s(\\S+)\\s*\n"));
     QTC_ASSERT(r.isValid(), return QString())
     r.setMinimal(true);
-    const QString user = r.indexIn(userResponse.stdOut) != -1 ? r.cap(1).trimmed() : QString::null;
+    const QString user = r.indexIn(userResponse.stdOut) != -1 ? r.cap(1).trimmed() : QString();
     if (user.isEmpty())
-        return QString::null;
+        return QString();
     args.clear();
     args << QLatin1String("changes") << QLatin1String("-s") << QLatin1String("pending") << QLatin1String("-u") << user;
     const PerforceResponse dataResponse = runP4Cmd(m_settings.topLevelSymLinkTarget(), args,
                                                    RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
-    return dataResponse.error ? QString::null : dataResponse.stdOut;
+    return dataResponse.error ? QString() : dataResponse.stdOut;
 }
 
 PerforcePlugin::~PerforcePlugin()

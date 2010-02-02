@@ -49,10 +49,11 @@ QList<FilterEntry> BaseFileFilter::matchesFor(const QString &origEntry)
     QList<FilterEntry> badMatches;
     QString needle = trimWildcards(origEntry);
     QStringMatcher matcher(needle, Qt::CaseInsensitive);
-    const QRegExp regexp("*"+needle+"*", Qt::CaseInsensitive, QRegExp::Wildcard);
+    const QChar asterisk = QLatin1Char('*');
+    const QRegExp regexp(asterisk + needle+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return matches;
-    bool hasWildcard = (needle.contains('*') || needle.contains('?'));
+    bool hasWildcard = (needle.contains(asterisk) || needle.contains('?'));
     QStringList searchListPaths;
     QStringList searchListNames;
     if (!m_previousEntry.isEmpty() && !m_forceNewSearchList && needle.contains(m_previousEntry)) {

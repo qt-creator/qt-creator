@@ -60,7 +60,7 @@ void ChangeSelectionDialog::setRepository(const QString &s)
 
 void ChangeSelectionDialog::selectWorkingDirectory()
 {
-    static QString location = QString();
+    static QString location;
     location = QFileDialog::getExistingDirectory(this,
                                       tr("Select Git repository"),
                                       location);

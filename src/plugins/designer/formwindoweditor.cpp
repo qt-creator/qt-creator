@@ -371,7 +371,7 @@ QString FormWindowEditor::contextHelpId() const
 QString FormWindowEditor::contents() const
 {
     if (!m_formWindow)
-        return QString::null;
+        return QString();
 //  Activate once all Qt branches around have integrated 4.5.2
 //  (Kinetic)
 /*

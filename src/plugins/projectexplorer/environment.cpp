@@ -183,7 +183,7 @@ QString Environment::searchInPath(QString executable) const
 {
 //    qDebug()<<"looking for "<<executable<< "in PATH: "<<m_values.value("PATH");
     if (executable.isEmpty())
-        return QString::null;
+        return QString();
     QFileInfo fi(executable);
     if (fi.isAbsolute() && fi.exists())
         return executable;
@@ -203,7 +203,7 @@ QString Environment::searchInPath(QString executable) const
             return fi.absoluteFilePath();
         }
     }
-    return QString::null;
+    return QString();
 }
 
 QStringList Environment::path() const

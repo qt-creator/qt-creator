@@ -101,12 +101,12 @@ QString Qt4PriFile::fileName() const
 
 QString Qt4PriFile::defaultPath() const
 {
-    return QString::null;
+    return QString();
 }
 
 QString Qt4PriFile::suggestedFileName() const
 {
-    return QString::null;
+    return QString();
 }
 
 QString Qt4PriFile::mimeType() const

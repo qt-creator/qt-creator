@@ -131,7 +131,7 @@ QString CMakeManager::findCbpFile(const QDir &directory)
         if (cbpFile.endsWith(QLatin1String(".cbp")))
             return directory.path() + QLatin1Char('/') + cbpFile;
     }
-    return QString::null;
+    return QString();
 }
 
 // This code is duplicated from qtversionmanager

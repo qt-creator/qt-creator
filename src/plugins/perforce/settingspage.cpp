@@ -101,7 +101,7 @@ void SettingsPageWidget::setSettings(const PerforceSettings &s)
 
 void SettingsPageWidget::setStatusText(const QString &t)
 {
-    m_ui.errorLabel->setStyleSheet(QString::null);
+    m_ui.errorLabel->setStyleSheet(QString());
     m_ui.errorLabel->setText(t);
 }
 

@@ -398,7 +398,7 @@ QString CustomExecutableRunConfiguration::baseEnvironmentText() const
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
         return tr("Build Environment");
     }
-    return QString::null;
+    return QString();
 }
 
 ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment() const

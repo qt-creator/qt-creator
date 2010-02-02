@@ -984,10 +984,10 @@ QString CMakeCbpParser::compilerName() const
 
 void CMakeBuildTarget::clear()
 {
-    executable = QString::null;
-    makeCommand = QString::null;
-    makeCleanCommand = QString::null;
-    workingDirectory = QString::null;
-    title = QString::null;
+    executable.clear();
+    makeCommand.clear();
+    makeCleanCommand.clear();
+    workingDirectory.clear();
+    title.clear();
 }
 
