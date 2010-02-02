@@ -857,7 +857,7 @@ const Value *ObjectValue::lookupMember(const QString &name) const
     }
 
     if (_prototype) {
-        if (const Value *m = _prototype->lookup(name))
+        if (const Value *m = _prototype->lookupMember(name))
             return m;
     }
 
@@ -1090,14 +1090,14 @@ void ConvertToNumber::visit(const StringValue *)
 
 void ConvertToNumber::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
+    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf"))) {
         _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
 
 void ConvertToNumber::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookup("valueOf"))) {
+    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf"))) {
         _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
@@ -1151,14 +1151,14 @@ void ConvertToString::visit(const StringValue *value)
 
 void ConvertToString::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
+    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString"))) {
         _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
 
 void ConvertToString::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookup("toString"))) {
+    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString"))) {
         _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
