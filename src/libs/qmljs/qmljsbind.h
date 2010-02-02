@@ -72,7 +72,6 @@ protected:
 
 protected:
     Interpreter::ObjectValue *switchObjectValue(Interpreter::ObjectValue *newObjectValue);
-    const Interpreter::ObjectValue *lookupType(AST::UiQualifiedId *qualifiedTypeNameId);
     Interpreter::ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);
 
 private:

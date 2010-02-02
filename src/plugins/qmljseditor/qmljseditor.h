@@ -93,7 +93,7 @@ public:
     Range(): ast(0) {}
 
 public: // attributes
-    QmlJS::AST::UiObjectMember *ast;
+    QmlJS::AST::Node *ast;
     QTextCursor begin;
     QTextCursor end;
 };
@@ -106,7 +106,7 @@ public:
     int revision() const;
 
     // Returns the declaring member
-    QmlJS::AST::UiObjectMember *declaringMember(int cursorPosition) const;
+    QmlJS::AST::Node *declaringMember(int cursorPosition) const;
 
     // Returns the AST node under cursor
     QmlJS::AST::Node *nodeUnderCursor(int cursorPosition) const;

@@ -618,7 +618,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     const SemanticInfo semanticInfo = edit->semanticInfo();
     const QmlJS::Snapshot snapshot = semanticInfo.snapshot;
-    const Document::Ptr qmlDocument = semanticInfo.document;
+    const Document::Ptr document = semanticInfo.document;
 
     const QFileInfo currentFileInfo(fileName);
 
@@ -632,11 +632,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     // Set up the current scope chain.
     Interpreter::ObjectValue *scope = interp.globalObject();
-    Link link(qmlDocument, snapshot, &interp);
+    Link link(document, snapshot, &interp);
 
-    if (isQmlFile && qmlDocument) {
-        AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(editor->position());
-        scope = link.scopeChainAt(qmlDocument, declaringMember);
+    if (document) {
+        AST::Node *declaringMember = semanticInfo.declaringMember(editor->position());
+        scope = link.scopeChainAt(document, declaringMember);
     }
 
     // Search for the operator that triggered the completion.

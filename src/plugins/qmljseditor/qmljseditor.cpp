@@ -409,6 +409,20 @@ protected:
         return true;
     }
 
+#if 0 // ### create ranges for function declarations.
+    virtual bool visit(AST::FunctionExpression *ast)
+    {
+        _ranges.append(createRange(ast));
+        return true;
+    }
+
+    virtual bool visit(AST::FunctionDeclaration *ast)
+    {
+        _ranges.append(createRange(ast));
+        return true;
+    }
+#endif
+
     Range createRange(AST::UiObjectMember *member, AST::UiObjectInitializer *ast)
     {
         Range range;
@@ -422,6 +436,21 @@ protected:
         range.end.setPosition(ast->rbraceToken.end());
         return range;
     }
+
+    Range createRange(AST::FunctionExpression *ast)
+    {
+        Range range;
+
+        range.ast = ast;
+
+        range.begin = QTextCursor(_textDocument);
+        range.begin.setPosition(ast->lbraceToken.begin());
+
+        range.end = QTextCursor(_textDocument);
+        range.end.setPosition(ast->rbraceToken.end());
+        return range;
+    }
+
 };
 
 
@@ -463,9 +492,9 @@ protected:
 } // end of anonymous namespace
 
 
-AST::UiObjectMember *SemanticInfo::declaringMember(int cursorPosition) const
+AST::Node *SemanticInfo::declaringMember(int cursorPosition) const
 {
-    AST::UiObjectMember *declaringMember = 0;
+    AST::Node *declaringMember = 0;
 
     for (int i = ranges.size() - 1; i != -1; --i) {
         const Range &range = ranges.at(i);

@@ -24,7 +24,7 @@ public:
     ~Link();
 
     // Get the scope chain for the currentObject inside doc.
-    Interpreter::ObjectValue *scopeChainAt(Document::Ptr doc, AST::UiObjectMember *currentObject);
+    Interpreter::ObjectValue *scopeChainAt(Document::Ptr doc, AST::Node *currentObject);
 
 private:
     static QList<Document::Ptr> reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot);

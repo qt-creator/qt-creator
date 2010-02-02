@@ -314,6 +314,9 @@ bool Bind::visit(FunctionDeclaration *ast)
         return false;
 
     ASTFunctionValue *function = new ASTFunctionValue(ast, &_interp);
+    // ### set the function's scope.
+
     _currentObjectValue->setProperty(ast->name->asString(), function);
+
     return false; // ### eventually want to visit function bodies
 }

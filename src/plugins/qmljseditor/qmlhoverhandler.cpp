@@ -169,7 +169,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (m_helpId.isEmpty()) {
         AST::Node *node = semanticInfo.nodeUnderCursor(pos);
         if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 || AST::cast<AST::NumericLiteral *>(node) != 0)) {
-            AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(pos);
+            AST::Node *declaringMember = semanticInfo.declaringMember(pos);
 
             Interpreter::Engine interp;
             Link link(qmlDocument, snapshot, &interp);

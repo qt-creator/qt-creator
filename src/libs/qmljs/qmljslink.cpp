@@ -51,7 +51,7 @@ static ObjectValue *pushScope(ObjectValue *next, ObjectValue *onto)
     return next;
 }
 
-ObjectValue *Link::scopeChainAt(Document::Ptr doc, UiObjectMember *currentObject)
+ObjectValue *Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 {
     BindPtr bind = doc->bind();
 
@@ -188,6 +188,8 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
 void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
                       AST::UiImport *import, const QString &startPath)
 {
+    Q_UNUSED(doc)
+
     if (!import->fileName)
         return;
 
