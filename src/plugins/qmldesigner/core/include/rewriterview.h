@@ -125,6 +125,9 @@ public:
     void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
+    void importAdded(const Import &import);
+    void importRemoved(const Import &import);
+
     void fileUrlChanged(const QUrl &oldUrl, const QUrl &newUrl);
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList, const QList<ModelNode> &lastSelectedNodeList);

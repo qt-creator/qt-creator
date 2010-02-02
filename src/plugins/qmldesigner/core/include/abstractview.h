@@ -120,7 +120,8 @@ public:
 
     virtual void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex) = 0;
 
-    virtual void importsChanged();
+    virtual void importAdded(const Import &import);
+    virtual void importRemoved(const Import &import);
 
     virtual void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 

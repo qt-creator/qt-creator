@@ -71,7 +71,8 @@ public:
 
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
-    void importsChanged();
+    void importAdded(const Import &import);
+    void importRemoved(const Import &import);
 
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
 
@@ -218,12 +219,21 @@ void ForwardView<ViewType>::nodeOrderChanged(const NodeListProperty &listPropert
 }
 
 template <class ViewType>
-void ForwardView<ViewType>::importsChanged()
+void ForwardView<ViewType>::importAdded(const Import &import)
 {
-    AbstractView::importsChanged();
+    AbstractView::importAdded(import);
 
     foreach (const ViewTypePointer &view, m_targetViewList)
-        view->importsChanged();
+        view->importAdded(import);
+}
+
+template <class ViewType>
+void ForwardView<ViewType>::importRemoved(const Import &import)
+{
+    AbstractView::importRemoved(import);
+
+    foreach (const ViewTypePointer &view, m_targetViewList)
+        view->importRemoved(import);
 }
 
 template <class ViewType>

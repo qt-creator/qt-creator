@@ -117,26 +117,13 @@ Model *ModelPrivate::create(QString type, int major, int minor)
     return model;
 }
 
-void ModelPrivate::setImports(const QSet<Import> &imports)
-{
-    QList<Import> added = QSet<Import>(imports).subtract(m_imports).toList();
-    QList<Import> removed = QSet<Import>(m_imports).subtract(imports).toList();
-
-    if (added.isEmpty() && removed.isEmpty())
-        return;
-
-    m_imports = imports;
-
-    notifyImportsChanged();
-}
-
 void ModelPrivate::addImport(const Import &import)
 {
     if (m_imports.contains(import))
         return;
 
     m_imports.insert(import);
-    notifyImportsChanged();
+    notifyImportAdded(import);
 }
 
 void ModelPrivate::removeImport(const Import &import)
@@ -144,13 +131,19 @@ void ModelPrivate::removeImport(const Import &import)
     if (!m_imports.remove(import))
         return;
 
-    notifyImportsChanged();
+    notifyImportRemoved(import);
 }
 
-void ModelPrivate::notifyImportsChanged() const
+void ModelPrivate::notifyImportAdded(const Import &import) const
 {
     foreach (const QWeakPointer<AbstractView> &view, m_viewList)
-        view->importsChanged();
+        view->importAdded(import);
+}
+
+void ModelPrivate::notifyImportRemoved(const Import &import) const
+{
+    foreach (const QWeakPointer<AbstractView> &view, m_viewList)
+        view->importRemoved(import);
 }
 
 QUrl ModelPrivate::fileUrl() const

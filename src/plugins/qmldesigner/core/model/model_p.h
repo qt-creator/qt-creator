@@ -155,10 +155,10 @@ public:
 
     // Imports:
     QSet<Import> imports() const { return m_imports; }
-    void setImports(const QSet<Import> &imports);
     void addImport(const Import &import);
     void removeImport(const Import &import);
-    void notifyImportsChanged() const;
+    void notifyImportAdded(const Import &import) const;
+    void notifyImportRemoved(const Import &import) const;
 
 
     //node state property manipulation

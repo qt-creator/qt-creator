@@ -261,6 +261,30 @@ void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractPrope
         applyChanges();
 }
 
+void RewriterView::importAdded(const Import &import)
+{
+    Q_ASSERT(textModifier());
+    if (textToModelMerger()->isActive())
+        return;
+
+    modelToTextMerger()->addImport(import);
+
+    if (!isModificationGroupActive())
+        applyChanges();
+}
+
+void RewriterView::importRemoved(const Import &import)
+{
+    Q_ASSERT(textModifier());
+    if (textToModelMerger()->isActive())
+        return;
+
+    modelToTextMerger()->removeImport(import);
+
+    if (!isModificationGroupActive())
+        applyChanges();
+}
+
 void RewriterView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/)
 {
 }

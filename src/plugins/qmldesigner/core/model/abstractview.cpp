@@ -203,10 +203,18 @@ void AbstractView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/
 }
 
 /*!
-\fn AbstractView::importsChanged()
-\brief Called when the imports for the model change.
+\fn AbstractView::importAdded(const Import &import)
+\brief Called when an import has been added to the model
 */
-void AbstractView::importsChanged()
+void AbstractView::importAdded(const Import &/*import*/)
+{
+}
+
+/*!
+\fn AbstractView::importRemoved(const Import &import)
+\brief Called when an import has been removed from the model
+*/
+void AbstractView::importRemoved(const Import &/*import*/)
 {
 }
 
