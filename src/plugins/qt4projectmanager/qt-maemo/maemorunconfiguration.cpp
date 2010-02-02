@@ -84,13 +84,13 @@ QString targetToId(const QString &target)
 
 } // namespace
 
-static const QLatin1String ArgumentsKey("Arguments");
-static const QLatin1String SimulatorPathKey("Simulator");
-static const QLatin1String DeviceIdKey("DeviceId");
-static const QLatin1String LastDeployedKey("LastDeployed");
+static const QLatin1String ArgumentsKey("Qt4ProjectManager.MaemoRunConfiguration.Arguments");
+static const QLatin1String SimulatorPathKey("Qt4ProjectManager.MaemoRunConfiguration.Simulator");
+static const QLatin1String DeviceIdKey("Qt4ProjectManager.MaemoRunConfiguration.DeviceId");
+static const QLatin1String LastDeployedKey("Qt4ProjectManager.MaemoRunConfiguration.LastDeployed");
 static const QLatin1String DebuggingHelpersLastDeployedKey(
-    "DebuggingHelpersLastDeployed");
-static const QLatin1String ProFileKey("ProFile");
+    "Qt4ProjectManager.MaemoRunConfiguration.DebuggingHelpersLastDeployed");
+static const QLatin1String ProFileKey("Qt4ProjectManager.MaemoRunConfiguration.ProFile");
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -258,6 +258,9 @@ QVariantMap MaemoRunConfiguration::toMap() const
 
 bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
 {
+    if (!RunConfiguration::fromMap(map))
+        return false;
+
     setDeviceConfig(MaemoDeviceConfigurations::instance().
         find(map.value(DeviceIdKey, 0).toInt()));
     m_arguments = map.value(ArgumentsKey).toStringList();
@@ -271,7 +274,7 @@ bool MaemoRunConfiguration::fromMap(const QVariantMap &map)
     const QDir &dir = QFileInfo(qt4Project()->file()->fileName()).absoluteDir();
     m_proFilePath = dir.filePath(map.value(ProFileKey).toString());
 
-    return RunConfiguration::fromMap(map);
+    return true;
 }
 
 bool MaemoRunConfiguration::currentlyNeedsDeployment() const
