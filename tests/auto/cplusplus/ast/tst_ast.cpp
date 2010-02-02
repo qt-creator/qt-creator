@@ -50,6 +50,7 @@ private slots:
     void new_expression_2();
     void condition_1();
     void init_1();
+    void conditional_1();
 
     // statements
     void if_statement_1();
@@ -246,6 +247,98 @@ void tst_AST::init_1()
 
     AST *ast = unit->ast();
     QVERIFY(ast != 0);
+}
+
+void tst_AST::conditional_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseExpression("\n"
+                                                         "(x < 0 && y > (int) a) ? x == 1 : y = 1"
+    ));
+
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+
+    ConditionalExpressionAST *conditional = ast->asConditionalExpression();
+    QVERIFY(conditional);
+    QVERIFY(conditional->condition);
+    QVERIFY(conditional->left_expression);
+    QVERIFY(conditional->right_expression);
+
+    NestedExpressionAST *nestedExpr = conditional->condition->asNestedExpression();
+    QVERIFY(nestedExpr);
+    QVERIFY(nestedExpr->expression);
+    BinaryExpressionAST *andExpr = nestedExpr->expression->asBinaryExpression();
+    QVERIFY(andExpr);
+    QCOMPARE(unit->tokenKind(andExpr->binary_op_token), (int) T_AMPER_AMPER);
+    QVERIFY(andExpr->left_expression);
+    QVERIFY(andExpr->right_expression);
+
+    BinaryExpressionAST *ltExpr = andExpr->left_expression->asBinaryExpression();
+    QVERIFY(ltExpr);
+    QCOMPARE(unit->tokenKind(ltExpr->binary_op_token), (int) T_LESS);
+    QVERIFY(ltExpr->left_expression);
+    QVERIFY(ltExpr->right_expression);
+
+    SimpleNameAST *x = ltExpr->left_expression->asSimpleName();
+    QVERIFY(x);
+    QCOMPARE(unit->spell(x->identifier_token), "x");
+
+    NumericLiteralAST *zero = ltExpr->right_expression->asNumericLiteral();
+    QVERIFY(zero);
+    QCOMPARE(unit->spell(zero->literal_token), "0");
+
+    BinaryExpressionAST *gtExpr = andExpr->right_expression->asBinaryExpression();
+    QVERIFY(gtExpr);
+    QCOMPARE(unit->tokenKind(gtExpr->binary_op_token), (int) T_GREATER);
+    QVERIFY(gtExpr->left_expression);
+    QVERIFY(gtExpr->right_expression);
+
+    SimpleNameAST *y = gtExpr->left_expression->asSimpleName();
+    QVERIFY(y);
+    QCOMPARE(unit->spell(y->identifier_token), "y");
+
+    CastExpressionAST *cast = gtExpr->right_expression->asCastExpression();
+    QVERIFY(cast);
+    QVERIFY(cast->type_id);
+    QVERIFY(cast->expression);
+
+    TypeIdAST *intType = cast->type_id->asTypeId();
+    QVERIFY(intType);
+    QVERIFY(! (intType->declarator));
+    QVERIFY(intType->type_specifier_list);
+    QVERIFY(! (intType->type_specifier_list->next));
+    QVERIFY(intType->type_specifier_list->value);
+    SimpleSpecifierAST *intSpec = intType->type_specifier_list->value->asSimpleSpecifier();
+    QVERIFY(intSpec);
+    QCOMPARE(unit->spell(intSpec->specifier_token), "int");
+
+    SimpleNameAST *a = cast->expression->asSimpleName();
+    QVERIFY(a);
+    QCOMPARE(unit->spell(a->identifier_token), "a");
+
+    BinaryExpressionAST *equals = conditional->left_expression->asBinaryExpression();
+    QVERIFY(equals);
+    QCOMPARE(unit->tokenKind(equals->binary_op_token), (int) T_EQUAL_EQUAL);
+
+    x = equals->left_expression->asSimpleName();
+    QVERIFY(x);
+    QCOMPARE(unit->spell(x->identifier_token), "x");
+
+    NumericLiteralAST *one = equals->right_expression->asNumericLiteral();
+    QVERIFY(one);
+    QCOMPARE(unit->spell(one->literal_token), "1");
+
+    BinaryExpressionAST *assignment = conditional->right_expression->asBinaryExpression();
+    QVERIFY(assignment);
+    QCOMPARE(unit->tokenKind(assignment->binary_op_token), (int) T_EQUAL);
+
+    y = assignment->left_expression->asSimpleName();
+    QVERIFY(y);
+    QCOMPARE(unit->spell(y->identifier_token), "y");
+
+    one = assignment->right_expression->asNumericLiteral();
+    QVERIFY(one);
+    QCOMPARE(unit->spell(one->literal_token), "1");
 }
 
 void tst_AST::function_call_1()

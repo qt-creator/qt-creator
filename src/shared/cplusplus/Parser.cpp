@@ -107,8 +107,7 @@ inline bool lookAtAssignmentOperator(int tokenKind)
     } // switch
 }
 
-namespace Prec { // operator-precedence
-
+namespace Prec {
 enum {
     Unknown         = 0,
     Comma           = 1,
@@ -126,46 +125,53 @@ enum {
     Multiplicative  = 13,
     PointerToMember = 14
 };
+} // end of namespace Precedece
 
 inline int precedence(int tokenKind, bool templateArguments)
 {
+    // ### this will/might need some tuning for C++0x
+    // (see: [temp.names]p3)
     if (templateArguments && tokenKind == T_GREATER)
         return -1;
 
     if (lookAtAssignmentOperator(tokenKind))
-        return Assignment;
+        return Prec::Assignment;
 
     switch (tokenKind) {
-    case T_COMMA:           return Comma;
-    case T_QUESTION:        return Conditional;
-    case T_PIPE_PIPE:       return LogicalOr;
-    case T_AMPER_AMPER:     return LogicalAnd;
-    case T_PIPE:            return InclusiveOr;
-    case T_CARET:           return ExclusiveOr;
-    case T_AMPER:           return And;
+    case T_COMMA:           return Prec::Comma;
+    case T_QUESTION:        return Prec::Conditional;
+    case T_PIPE_PIPE:       return Prec::LogicalOr;
+    case T_AMPER_AMPER:     return Prec::LogicalAnd;
+    case T_PIPE:            return Prec::InclusiveOr;
+    case T_CARET:           return Prec::ExclusiveOr;
+    case T_AMPER:           return Prec::And;
     case T_EQUAL_EQUAL:
-    case T_EXCLAIM_EQUAL:   return Equality;
+    case T_EXCLAIM_EQUAL:   return Prec::Equality;
     case T_GREATER:
     case T_LESS:
     case T_LESS_EQUAL:
-    case T_GREATER_EQUAL:   return Relational;
+    case T_GREATER_EQUAL:   return Prec::Relational;
     case T_LESS_LESS:
-    case T_GREATER_GREATER: return ExclusiveOr;
+    case T_GREATER_GREATER: return Prec::ExclusiveOr;
     case T_PLUS:
-    case T_MINUS:           return Additive;
+    case T_MINUS:           return Prec::Additive;
     case T_STAR:
     case T_SLASH:
-    case T_PERCENT:         return Multiplicative;
+    case T_PERCENT:         return Prec::Multiplicative;
     case T_ARROW_STAR:
-    case T_DOT_STAR:        return PointerToMember;
-    default:                return Unknown;
+    case T_DOT_STAR:        return Prec::PointerToMember;
+    default:                return Prec::Unknown;
     }
 }
 
-} // end of namespace Precedece
-
 inline bool isBinaryOperator(int tokenKind)
-{ return Prec::precedence(tokenKind, false) != Prec::Unknown; }
+{ return precedence(tokenKind, false) != Prec::Unknown; }
+
+inline bool isRightAssociative(int tokenKind)
+{
+    const int prec = precedence(tokenKind, false);
+    return prec == Prec::Conditional || prec == Prec::Assignment;
+}
 
 } // end of anonymous namespace
 
@@ -4250,76 +4256,62 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
 
 bool Parser::parsePmExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_ARROW_STAR, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::PointerToMember)
 }
 
 bool Parser::parseMultiplicativeExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_STAR, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Multiplicative)
 }
 
 bool Parser::parseAdditiveExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_PLUS, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Additive)
 }
 
 bool Parser::parseShiftExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_LESS_LESS, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Shift)
 }
 
 bool Parser::parseRelationalExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_LESS, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Relational)
 }
 
 bool Parser::parseEqualityExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_EQUAL_EQUAL, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Equality)
 }
 
 bool Parser::parseAndExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_AMPER, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::And)
 }
 
 bool Parser::parseExclusiveOrExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_CARET, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::ExclusiveOr)
 }
 
 bool Parser::parseInclusiveOrExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_PIPE, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::InclusiveOr)
 }
 
 bool Parser::parseLogicalAndExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_AMPER_AMPER, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::LogicalAnd)
 }
 
 bool Parser::parseLogicalOrExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_PIPE_PIPE, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::LogicalOr)
 }
 
 bool Parser::parseConditionalExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseLogicalOrExpression(node))
-        return false;
-
-    if (LA() != T_QUESTION)
-        return true;
-
-    ConditionalExpressionAST *ast = new (_pool) ConditionalExpressionAST;
-    ast->condition = node;
-    ast->question_token = consumeToken();
-    parseAssignmentExpression(ast->left_expression);
-    match(T_COLON, &ast->colon_token);
-    parseAssignmentExpression(ast->right_expression);
-    node = ast;
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Conditional)
 }
 
 bool Parser::parseAssignmentExpression(ExpressionAST *&node)
@@ -4327,27 +4319,8 @@ bool Parser::parseAssignmentExpression(ExpressionAST *&node)
     DEBUG_THIS_RULE();
     if (LA() == T_THROW)
         return parseThrowExpression(node);
-    else if (! parseConditionalExpression(node))
-        return false;
-
-    if (lookAtAssignmentOperator(LA())) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseAssignmentExpression(rightExpr)) {
-            _translationUnit->error(op, "expected expression after token `%s'",
-                                    _translationUnit->spell(op));
-            return false;
-        }
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-
-    return true;
+    else
+        PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Assignment)
 }
 
 bool Parser::parseQtMethod(ExpressionAST *&node)
@@ -4390,47 +4363,61 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
 {
     DEBUG_THIS_RULE();
 
-    while (Prec::precedence(tok().kind(), _templateArguments) >= minPrecedence) {
-        const int operPrecedence = Prec::precedence(tok().kind(), _templateArguments);
+    while (precedence(tok().kind(), _templateArguments) >= minPrecedence) {
+        const int operPrecedence = precedence(tok().kind(), _templateArguments);
         const int oper = consumeToken();
-        ExpressionAST *rhs = 0;
-        if (!parseCastExpression(rhs))
-            return;
 
-        for (int tokenKindAhead = tok().kind(), precedenceAhead = Prec::precedence(tokenKindAhead, _templateArguments);
-                precedenceAhead > operPrecedence && isBinaryOperator(tokenKindAhead);
-                tokenKindAhead = tok().kind(), precedenceAhead = Prec::precedence(tokenKindAhead, _templateArguments)) {
+        ConditionalExpressionAST *condExpr = 0;
+        if (operPrecedence == Prec::Conditional) {
+            condExpr = new (_pool) ConditionalExpressionAST;
+            condExpr->question_token = oper;
+            if (oper == T_COLON) {
+                // GNU extension:
+                //   logical-or-expression '?' ':' conditional-expression
+                condExpr->left_expression = 0;
+            } else {
+                parseExpression(condExpr->left_expression);
+            }
+            match(T_COLON, &condExpr->colon_token);
+        }
+
+        ExpressionAST *rhs = 0;
+        const bool isCPlusPlus = true;
+        if (operPrecedence <= Prec::Conditional && isCPlusPlus) {
+            // in C++ you can put a throw in the right-most expression of a conditional expression,
+            // or an assignment, so some special handling:
+            if (!parseAssignmentExpression(rhs))
+                return;
+        } else {
+            // for C & all other expressions:
+            if (!parseCastExpression(rhs))
+                return;
+        }
+
+        for (int tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments);
+                precedenceAhead > operPrecedence && isBinaryOperator(tokenKindAhead)
+                        || precedenceAhead == operPrecedence && isRightAssociative(tokenKindAhead);
+                tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments)) {
             parseExpressionWithOperatorPrecedence(rhs, precedenceAhead);
         }
 
-        BinaryExpressionAST *expr = new (_pool) BinaryExpressionAST;
-        expr->left_expression = lhs;
-        expr->binary_op_token = oper;
-        expr->right_expression = rhs;
-        lhs = expr;
+        if (condExpr) { // we were parsing a ternairy conditional expression
+            condExpr->condition = lhs;
+            condExpr->right_expression = rhs;
+            lhs = condExpr;
+        } else {
+            BinaryExpressionAST *expr = new (_pool) BinaryExpressionAST;
+            expr->left_expression = lhs;
+            expr->binary_op_token = oper;
+            expr->right_expression = rhs;
+            lhs = expr;
+        }
     }
 }
 
 bool Parser::parseCommaExpression(ExpressionAST *&node)
 {
-    DEBUG_THIS_RULE();
-    if (! parseAssignmentExpression(node))
-        return false;
-
-    while (LA() == T_COMMA) {
-        unsigned op = consumeToken();
-
-        ExpressionAST *rightExpr = 0;
-        if (! parseAssignmentExpression(rightExpr))
-            return false;
-
-        BinaryExpressionAST *ast = new (_pool) BinaryExpressionAST;
-        ast->binary_op_token = op;
-        ast->left_expression = node;
-        ast->right_expression = rightExpr;
-        node = ast;
-    }
-    return true;
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::Comma)
 }
 
 bool Parser::parseThrowExpression(ExpressionAST *&node)
