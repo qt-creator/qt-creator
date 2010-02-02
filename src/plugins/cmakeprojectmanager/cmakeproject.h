@@ -74,22 +74,22 @@ public:
 
     CMakeBuildConfiguration *activeCMakeBuildConfiguration() const;
 
-    virtual QString displayName() const;
-    virtual QString id() const;
-    virtual Core::IFile *file() const;
-    virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
-    virtual CMakeManager *projectManager() const;
+    QString displayName() const;
+    QString id() const;
+    Core::IFile *file() const;
+    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
+    CMakeManager *projectManager() const;
 
-    virtual QList<ProjectExplorer::Project *> dependsOn(); //NBS TODO implement dependsOn
+    QList<ProjectExplorer::Project *> dependsOn(); //NBS TODO implement dependsOn
 
-    virtual bool isApplication() const;
+    bool isApplication() const;
 
-    virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
-    virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
-    virtual ProjectExplorer::ProjectNode *rootProjectNode() const;
+    ProjectExplorer::ProjectNode *rootProjectNode() const;
 
-    virtual QStringList files(FilesMode fileMode) const;
+    QStringList files(FilesMode fileMode) const;
     QStringList targets() const;
     bool hasTarget(const QString &title) const;
 
@@ -105,7 +105,7 @@ signals:
     void targetsChanged();
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map);
 
     // called by CMakeBuildSettingsWidget
     void changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory);
@@ -206,8 +206,8 @@ class CMakeBuildSettingsWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 public:
-    CMakeBuildSettingsWidget(CMakeProject *project);
-    virtual QString displayName() const;
+    explicit CMakeBuildSettingsWidget(CMakeProject *project);
+    QString displayName() const;
 
     // This is called to set up the config widget before showing it
     // buildConfiguration is QString::null for the non buildConfiguration specific page
