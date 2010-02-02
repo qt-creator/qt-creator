@@ -85,12 +85,6 @@ void IdItemDelegate::paint(QPainter *painter,
     QString myString = node.id();
     if (myString.isEmpty())
         myString = node.simplifiedTypeName();
-    else
-    {
-        QFont font = painter->font();
-        font.setBold(true);
-        painter->setFont(font);
-    }
 
     if (m_TreeModel->isNodeInvisible( index ))
         painter->setOpacity(0.5);
