@@ -84,7 +84,7 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
             if (info.isDir())
                 info.setFile(QString::fromLatin1("%1/%2.pro").arg(info.filePath(), info.fileName()));
             if (!info.exists()) {
-                qDebug() << "Could not find find sub dir" << info.filePath();
+                qDebug() << "Could not find sub dir" << info.filePath();
                 continue;
             }
 
