@@ -62,8 +62,8 @@ class ForEachNode: protected ASTVisitor
 
 public:
     ForEachNode(Document::Ptr doc)
-        : ASTVisitor(doc->control()), doc(doc),
-          matcher(doc->translationUnit()) {}
+        : ASTVisitor(doc->translationUnit()),
+          matcher() {}
 
     void operator()() { accept(doc->translationUnit()->ast()); }
 
