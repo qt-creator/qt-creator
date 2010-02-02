@@ -36,11 +36,9 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
 
-using namespace Utils;
+namespace Utils {
 
-namespace {
-const int MARGIN=8;
-}
+static const int MARGIN=8;
 
 // This widget is using a grid layout and places the items
 // in the following way:
@@ -51,33 +49,55 @@ const int MARGIN=8;
 // |            | widget                                  |
 // +------------+-------------------------+---------------+
 
+struct DetailsWidgetPrivate {
+    DetailsWidgetPrivate();
+
+    DetailsButton *m_detailsButton;
+    QGridLayout *m_grid;
+    QLabel *m_summaryLabel;
+    QWidget *m_toolWidget;
+    QWidget *m_widget;
+
+    QPixmap m_collapsedPixmap;
+    QPixmap m_expandedPixmap;
+
+    DetailsWidget::State m_state;
+    bool m_hovered;
+};
+
+DetailsWidgetPrivate::DetailsWidgetPrivate() :
+        m_detailsButton(new DetailsButton),
+        m_grid(new QGridLayout),
+        m_summaryLabel(new QLabel),
+        m_toolWidget(0),
+        m_widget(0),
+        m_state(DetailsWidget::Collapsed),
+        m_hovered(false)
+{
+}
+
 DetailsWidget::DetailsWidget(QWidget *parent) :
     QWidget(parent),
-    m_detailsButton(new DetailsButton(this)),
-    m_grid(new QGridLayout(this)),
-    m_summaryLabel(new QLabel(this)),
-    m_toolWidget(0),
-    m_widget(0),
-    m_state(Collapsed),
-    m_hovered(false)
+    d(new DetailsWidgetPrivate)
 {
-    m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_summaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+    d->m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    d->m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    d->m_summaryLabel->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
 
-    m_grid->setContentsMargins(0, 0, 0, 0);
-    m_grid->setSpacing(0);
-    m_grid->addWidget(m_summaryLabel, 0, 1);
-    m_grid->addWidget(m_detailsButton, 0, 2);
+    d->m_grid->setContentsMargins(0, 0, 0, 0);
+    d->m_grid->setSpacing(0);
+    d->m_grid->addWidget(d->m_summaryLabel, 0, 1);
+    d->m_grid->addWidget(d->m_detailsButton, 0, 2);
+    setLayout(d->m_grid);
 
-    connect(m_detailsButton, SIGNAL(toggled(bool)),
+    connect(d->m_detailsButton, SIGNAL(toggled(bool)),
             this, SLOT(setExpanded(bool)));
     updateControls();
 }
 
 DetailsWidget::~DetailsWidget()
 {
-
+    delete d;
 }
 
 void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
@@ -86,19 +106,19 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
 
     QPainter p(this);
 
-    QPoint topLeft(m_summaryLabel->geometry().left(), contentsRect().top());
+    QPoint topLeft(d->m_summaryLabel->geometry().left(), contentsRect().top());
     const QRect paintArea(topLeft, contentsRect().bottomRight());
 
-    if (m_state != Expanded) {
-        if (m_collapsedPixmap.isNull() ||
-            m_collapsedPixmap.size() != size())
-            m_collapsedPixmap = cacheBackground(paintArea.size(), false);
-        p.drawPixmap(paintArea, m_collapsedPixmap);
+    if (d->m_state != Expanded) {
+        if (d->m_collapsedPixmap.isNull() ||
+            d->m_collapsedPixmap.size() != size())
+            d->m_collapsedPixmap = cacheBackground(paintArea.size(), false);
+        p.drawPixmap(paintArea, d->m_collapsedPixmap);
     } else {
-        if (m_expandedPixmap.isNull() ||
-            m_expandedPixmap.size() != size())
-            m_expandedPixmap = cacheBackground(paintArea.size(), true);
-        p.drawPixmap(paintArea, m_expandedPixmap);
+        if (d->m_expandedPixmap.isNull() ||
+            d->m_expandedPixmap.size() != size())
+            d->m_expandedPixmap = cacheBackground(paintArea.size(), true);
+        p.drawPixmap(paintArea, d->m_expandedPixmap);
     }
 }
 
@@ -116,24 +136,24 @@ void DetailsWidget::leaveEvent(QEvent * event)
 
 void DetailsWidget::setSummaryText(const QString &text)
 {
-    m_summaryLabel->setText(text);
+    d->m_summaryLabel->setText(text);
 }
 
 QString DetailsWidget::summaryText() const
 {
-    return m_summaryLabel->text();
+    return d->m_summaryLabel->text();
 }
 
 DetailsWidget::State DetailsWidget::state() const
 {
-    return m_state;
+    return d->m_state;
 }
 
 void DetailsWidget::setState(State state)
 {
-    if (state == m_state)
+    if (state == d->m_state)
         return;
-    m_state = state;
+    d->m_state = state;
     updateControls();
 }
 
@@ -144,60 +164,60 @@ void DetailsWidget::setExpanded(bool expanded)
 
 void DetailsWidget::updateControls()
 {
-    if (m_widget)
-        m_widget->setVisible(m_state == Expanded || m_state == NoSummary);
-    m_detailsButton->setChecked(m_state == Expanded && m_widget);
-    m_summaryLabel->setEnabled(m_state == Collapsed && m_widget);
-    m_detailsButton->setVisible(m_state != NoSummary);
-    m_summaryLabel->setVisible(m_state != NoSummary);
+    if (d->m_widget)
+        d->m_widget->setVisible(d->m_state == Expanded || d->m_state == NoSummary);
+    d->m_detailsButton->setChecked(d->m_state == Expanded && d->m_widget);
+    d->m_summaryLabel->setEnabled(d->m_state == Collapsed && d->m_widget);
+    d->m_detailsButton->setVisible(d->m_state != NoSummary);
+    d->m_summaryLabel->setVisible(d->m_state != NoSummary);
 }
 
 QWidget *DetailsWidget::widget() const
 {
-    return m_widget;
+    return d->m_widget;
 }
 
 void DetailsWidget::setWidget(QWidget *widget)
 {
-    if (m_widget == widget)
+    if (d->m_widget == widget)
         return;
 
-    if (m_widget) {
-        m_grid->removeWidget(m_widget);
-        delete m_widget;
+    if (d->m_widget) {
+        d->m_grid->removeWidget(d->m_widget);
+        delete d->m_widget;
     }
 
-    m_widget = widget;
+    d->m_widget = widget;
 
-    if (m_widget) {
-        m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
-        m_grid->addWidget(m_widget, 1, 1, 1, 2);
+    if (d->m_widget) {
+        d->m_widget->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
+        d->m_grid->addWidget(d->m_widget, 1, 1, 1, 2);
     }
     updateControls();
 }
 
 void DetailsWidget::setToolWidget(QWidget *widget)
 {
-    if (m_toolWidget == widget)
+    if (d->m_toolWidget == widget)
         return;
 
-    m_toolWidget = widget;
+    d->m_toolWidget = widget;
 
-    if (!m_toolWidget)
+    if (!d->m_toolWidget)
         return;
 
-    m_toolWidget->adjustSize();
-    m_grid->addWidget(m_toolWidget, 0, 0, 1, 1, Qt::AlignCenter);
+    d->m_toolWidget->adjustSize();
+    d->m_grid->addWidget(d->m_toolWidget, 0, 0, 1, 1, Qt::AlignCenter);
 
-    m_grid->setColumnMinimumWidth(0, m_toolWidget->width());
-    m_grid->setRowMinimumHeight(0, m_toolWidget->height());
+    d->m_grid->setColumnMinimumWidth(0, d->m_toolWidget->width());
+    d->m_grid->setRowMinimumHeight(0, d->m_toolWidget->height());
 
-    changeHoverState(m_hovered);
+    changeHoverState(d->m_hovered);
 }
 
 QWidget *DetailsWidget::toolWidget() const
 {
-    return m_toolWidget;
+    return d->m_toolWidget;
 }
 
 QPixmap DetailsWidget::cacheBackground(const QSize &size, bool expanded)
@@ -217,8 +237,8 @@ QPixmap DetailsWidget::cacheBackground(const QSize &size, bool expanded)
     p.drawRect(0, 0, size.width() - 1, size.height() - 1);
 
     if (expanded) {
-        p.drawLine(0, m_widget->geometry().top() - 1,
-                   m_summaryLabel->width(), m_widget->geometry().top() - 1);
+        p.drawLine(0, d->m_widget->geometry().top() - 1,
+                   d->m_summaryLabel->width(), d->m_widget->geometry().top() - 1);
     }
 
     return pixmap;
@@ -226,10 +246,12 @@ QPixmap DetailsWidget::cacheBackground(const QSize &size, bool expanded)
 
 void DetailsWidget::changeHoverState(bool hovered)
 {
-    if (!m_toolWidget)
+    if (!d->m_toolWidget)
         return;
 
-    m_toolWidget->setVisible(hovered);
+    d->m_toolWidget->setVisible(hovered);
 
-    m_hovered = hovered;
+    d->m_hovered = hovered;
 }
+
+} // namespace Utils

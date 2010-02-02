@@ -32,22 +32,22 @@
 
 #include "utils_global.h"
 
-#include <QtGui/QPixmap>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
-class QLabel;
-class QGridLayout;
+class QPixmap;
 QT_END_NAMESPACE
 
 namespace Utils {
-class DetailsButton;
+
+struct DetailsWidgetPrivate;
 
 class QTCREATOR_UTILS_EXPORT DetailsWidget : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString summaryText READ summaryText WRITE setSummaryText DESIGNABLE true)
     Q_PROPERTY(State state READ state WRITE setState)
+    Q_ENUMS(State)
 
 public:
     enum State {
@@ -56,9 +56,8 @@ public:
         NoSummary
     };
 
-
-    DetailsWidget(QWidget *parent = 0);
-    ~DetailsWidget();
+    explicit DetailsWidget(QWidget *parent = 0);
+    virtual ~DetailsWidget();
 
     void setSummaryText(const QString &text);
     QString summaryText() const;
@@ -76,27 +75,18 @@ private slots:
     void setExpanded(bool);
 
 protected:
-    void paintEvent(QPaintEvent *paintEvent);
-    void enterEvent(QEvent *event);
-    void leaveEvent(QEvent *event);
+    virtual void paintEvent(QPaintEvent *paintEvent);
+    virtual void enterEvent(QEvent *event);
+    virtual void leaveEvent(QEvent *event);
 
 private:
     void updateControls();
     QPixmap cacheBackground(const QSize &size, bool expanded);
     void changeHoverState(bool hovered);
 
-    DetailsButton *m_detailsButton;
-    QGridLayout *m_grid;
-    QLabel *m_summaryLabel;
-    QWidget *m_toolWidget;
-    QWidget *m_widget;
-
-    QPixmap m_collapsedPixmap;
-    QPixmap m_expandedPixmap;
-
-    State m_state;
-    bool m_hovered;
+    DetailsWidgetPrivate *d;
 };
-}
+
+} // namespace Utils
 
 #endif // DETAILSWIDGET_H
