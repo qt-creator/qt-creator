@@ -2629,66 +2629,95 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
                                               const QHash<QString, QStringList> &place,
                                               const ProFile *pro) const
 {
-    if (variableName == QLatin1String("LITERAL_WHITESPACE")) //a real space in a token
-        return QStringList(QLatin1String("\t"));
-    if (variableName == QLatin1String("LITERAL_DOLLAR")) //a real $
-        return QStringList(QLatin1String("$"));
-    if (variableName == QLatin1String("LITERAL_HASH")) //a real #
-        return QStringList(QLatin1String("#"));
-    if (variableName == QLatin1String("OUT_PWD")) //the out going dir
-        return QStringList(m_outputDir);
-    if (variableName == QLatin1String("PWD") ||  //current working dir (of _FILE_)
-        variableName == QLatin1String("IN_PWD"))
-        return QStringList(currentDirectory());
-    if (variableName == QLatin1String("DIR_SEPARATOR"))
-        return QStringList(m_option->dir_sep);
-    if (variableName == QLatin1String("DIRLIST_SEPARATOR"))
-        return QStringList(m_option->dirlist_sep);
-    if (variableName == QLatin1String("_LINE_")) //parser line number
-        return QStringList(QString::number(m_lineNo));
-    if (variableName == QLatin1String("_FILE_")) //parser file; qmake is a bit weird here
-        return QStringList(m_profileStack.size() == 1 ? pro->fileName() : QFileInfo(pro->fileName()).fileName());
-    if (variableName == QLatin1String("_DATE_")) //current date/time
-        return QStringList(QDateTime::currentDateTime().toString());
-    if (variableName == QLatin1String("_PRO_FILE_"))
-        return QStringList(m_profileStack.first()->fileName());
-    if (variableName == QLatin1String("_PRO_FILE_PWD_"))
-        return QStringList(m_profileStack.first()->directoryName());
-    if (variableName == QLatin1String("_QMAKE_CACHE_"))
-        return QStringList(m_option->cachefile);
-    if (variableName.startsWith(QLatin1String("QMAKE_HOST."))) {
-        QString ret, type = variableName.mid(11);
+    enum VarName {
+        V_LITERAL_DOLLAR, V_LITERAL_HASH, V_LITERAL_WHITESPACE,
+        V_DIRLIST_SEPARATOR, V_DIR_SEPARATOR,
+        V_OUT_PWD, V_PWD, V_IN_PWD,
+        V__FILE_, V__LINE_, V__PRO_FILE_, V__PRO_FILE_PWD_,
+        V_QMAKE_HOST_arch, V_QMAKE_HOST_name, V_QMAKE_HOST_os,
+        V_QMAKE_HOST_version, V_QMAKE_HOST_version_string,
+        V__DATE_, V__QMAKE_CACHE_
+    };
+
+    static QHash<QString, int> varList;
+    if (varList.isEmpty()) {
+        static const char * const names[] = {
+            "LITERAL_DOLLAR", "LITERAL_HASH", "LITERAL_WHITESPACE",
+            "DIRLIST_SEPARATOR", "DIR_SEPARATOR",
+            "OUT_PWD", "PWD", "IN_PWD",
+            "_FILE_", "_LINE_", "_PRO_FILE_", "_PRO_FILE_PWD_",
+            "QMAKE_HOST.arch", "QMAKE_HOST.name", "QMAKE_HOST.os",
+            "QMAKE_HOST.version", "QMAKE_HOST.version_string",
+            "_DATE_", "_QMAKE_CACHE_"
+        };
+        for (unsigned i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
+            varList.insert(QLatin1String(names[i]), i);
+    }
+
+    QHash<QString, int>::ConstIterator vli = varList.find(variableName);
+    if (vli != varList.constEnd()) {
+        int vlidx = *vli;
+        QString ret;
+        switch ((VarName)vlidx) {
+        case V_LITERAL_WHITESPACE: ret = QLatin1String("\t"); break;
+        case V_LITERAL_DOLLAR: ret = QLatin1String("$"); break;
+        case V_LITERAL_HASH: ret = QLatin1String("#"); break;
+        case V_OUT_PWD: //the outgoing dir
+            ret = m_outputDir;
+            break;
+        case V_PWD: //current working dir (of _FILE_)
+        case V_IN_PWD:
+            ret = currentDirectory();
+            break;
+        case V_DIR_SEPARATOR:
+            ret = m_option->dir_sep;
+            break;
+        case V_DIRLIST_SEPARATOR:
+            ret = m_option->dirlist_sep;
+            break;
+        case V__LINE_: //parser line number
+            ret = QString::number(m_lineNo);
+            break;
+        case V__FILE_: //parser file; qmake is a bit weird here
+            ret = m_profileStack.size() == 1 ? pro->fileName() : QFileInfo(pro->fileName()).fileName();
+            break;
+        case V__DATE_: //current date/time
+            ret = QDateTime::currentDateTime().toString();
+            break;
+        case V__PRO_FILE_:
+            ret = m_profileStack.first()->fileName();
+            break;
+        case V__PRO_FILE_PWD_:
+            ret = m_profileStack.first()->directoryName();
+            break;
+        case V__QMAKE_CACHE_:
+            ret = m_option->cachefile;
+            break;
 #if defined(Q_OS_WIN32)
-        if (type == QLatin1String("os")) {
-            ret = QLatin1String("Windows");
-        } else if (type == QLatin1String("name")) {
+        case V_QMAKE_HOST_os: ret = QLatin1String("Windows"); break;
+        case V_QMAKE_HOST_name:
             DWORD name_length = 1024;
             TCHAR name[1024];
             if (GetComputerName(name, &name_length))
                 ret = QString::fromUtf16((ushort*)name, name_length);
-        } else if (type == QLatin1String("version") || type == QLatin1String("version_string")) {
-            QSysInfo::WinVersion ver = QSysInfo::WindowsVersion;
-            if (type == QLatin1String("version"))
-                ret = QString::number(ver);
-            else if (ver == QSysInfo::WV_Me)
-                ret = QLatin1String("WinMe");
-            else if (ver == QSysInfo::WV_95)
-                ret = QLatin1String("Win95");
-            else if (ver == QSysInfo::WV_98)
-                ret = QLatin1String("Win98");
-            else if (ver == QSysInfo::WV_NT)
-                ret = QLatin1String("WinNT");
-            else if (ver == QSysInfo::WV_2000)
-                ret = QLatin1String("Win2000");
-            else if (ver == QSysInfo::WV_2000)
-                ret = QLatin1String("Win2003");
-            else if (ver == QSysInfo::WV_XP)
-                ret = QLatin1String("WinXP");
-            else if (ver == QSysInfo::WV_VISTA)
-                ret = QLatin1String("WinVista");
-            else
-                ret = QLatin1String("Unknown");
-        } else if (type == QLatin1String("arch")) {
+            break;
+        case V_QMAKE_HOST_version:
+            ret = QString::number(QSysInfo::WindowsVersion);
+            break;
+        case V_QMAKE_HOST_version_string:
+            switch (QSysInfo::WindowsVersion) {
+            case QSysInfo::WV_Me: ret = QLatin1String("WinMe"); break;
+            case QSysInfo::WV_95: ret = QLatin1String("Win95"); break;
+            case QSysInfo::WV_98: ret = QLatin1String("Win98"); break;
+            case QSysInfo::WV_NT: ret = QLatin1String("WinNT"); break;
+            case QSysInfo::WV_2000: ret = QLatin1String("Win2000"); break;
+            case QSysInfo::WV_2003: ret = QLatin1String("Win2003"); break;
+            case QSysInfo::WV_XP: ret = QLatin1String("WinXP"); break;
+            case QSysInfo::WV_VISTA: ret = QLatin1String("WinVista"); break;
+            default: ret = QLatin1String("Unknown"); break;
+            }
+            break;
+        case V_QMAKE_HOST_arch:
             SYSTEM_INFO info;
             GetSystemInfo(&info);
             switch(info.wProcessorArchitecture) {
@@ -2710,22 +2739,29 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
                 ret = QLatin1String("Unknown");
                 break;
             }
-        }
+            break;
 #elif defined(Q_OS_UNIX)
-        struct utsname name;
-        if (!uname(&name)) {
-            if (type == QLatin1String("os"))
-                ret = QString::fromLatin1(name.sysname);
-            else if (type == QLatin1String("name"))
-                ret = QString::fromLatin1(name.nodename);
-            else if (type == QLatin1String("version"))
-                ret = QString::fromLatin1(name.release);
-            else if (type == QLatin1String("version_string"))
-                ret = QString::fromLatin1(name.version);
-            else if (type == QLatin1String("arch"))
-                ret = QString::fromLatin1(name.machine);
-        }
+        case V_QMAKE_HOST_os:
+        case V_QMAKE_HOST_name:
+        case V_QMAKE_HOST_version:
+        case V_QMAKE_HOST_version_string:
+        case V_QMAKE_HOST_arch:
+            {
+                struct utsname name;
+                const char *what;
+                if (!uname(&name)) {
+                    switch (vlidx) {
+                    case V_QMAKE_HOST_os: what = name.sysname; break;
+                    case V_QMAKE_HOST_name: what = name.nodename; break;
+                    case V_QMAKE_HOST_version: what = name.release; break;
+                    case V_QMAKE_HOST_version_string: what = name.version; break;
+                    case V_QMAKE_HOST_arch: what = name.machine; break;
+                    }
+                    ret = QString::fromLatin1(what);
+                }
+            }
 #endif
+        }
         return QStringList(ret);
     }
 
