@@ -4753,12 +4753,12 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
             ObjCSynthesizedPropertyListAST *last = new (_pool) ObjCSynthesizedPropertyListAST;
             ast->property_identifier_list = last;
             last->value = new (_pool) ObjCSynthesizedPropertyAST;
-            match(T_IDENTIFIER, &(last->value->property_identifier));
+            match(T_IDENTIFIER, &(last->value->property_identifier_token));
 
             if (LA() == T_EQUAL) {
                 last->value->equals_token = consumeToken();
 
-                match(T_IDENTIFIER, &(last->value->property_alias_identifier));
+                match(T_IDENTIFIER, &(last->value->alias_identifier_token));
             }
 
             while (LA() == T_COMMA) {
@@ -4768,12 +4768,12 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
                 last = last->next;
 
                 last->value = new (_pool) ObjCSynthesizedPropertyAST;
-                match(T_IDENTIFIER, &(last->value->property_identifier));
+                match(T_IDENTIFIER, &(last->value->property_identifier_token));
 
                 if (LA() == T_EQUAL) {
                     last->value->equals_token = consumeToken();
 
-                    match(T_IDENTIFIER, &(last->value->property_alias_identifier));
+                    match(T_IDENTIFIER, &(last->value->alias_identifier_token));
                 }
             }
 
@@ -5179,7 +5179,7 @@ bool Parser::parseObjCTypeName(ObjCTypeNameAST *&node)
 
     ObjCTypeNameAST *ast = new (_pool) ObjCTypeNameAST;
     match(T_LPAREN, &(ast->lparen_token));
-    parseObjCTypeQualifiers(ast->type_qualifier);
+    parseObjCTypeQualifiers(ast->type_qualifier_token);
     parseTypeId(ast->type_id);
     match(T_RPAREN, &(ast->rparen_token));
     node = ast;

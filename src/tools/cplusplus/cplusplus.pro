@@ -5,11 +5,11 @@
 QT = core gui
 macx:CONFIG -= app_bundle
 TEMPLATE = app
-TARGET =
+TARGET = generate-ast
 DEPENDPATH += .
 INCLUDEPATH += .
 
 include(../../libs/cplusplus/cplusplus-lib.pri)
 
 # Input
-SOURCES += Main.cpp
+SOURCES += generate-ast.cpp

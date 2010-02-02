@@ -2030,8 +2030,8 @@ unsigned ObjCTypeNameAST::lastToken() const
     if (type_id)
         return type_id->lastToken();
 
-    if (type_qualifier)
-        return type_qualifier + 1;
+    if (type_qualifier_token)
+        return type_qualifier_token + 1;
 
     return lparen_token + 1;
 }
@@ -2214,22 +2214,22 @@ unsigned ObjCMethodDeclarationAST::lastToken() const
 
 unsigned ObjCSynthesizedPropertyAST::firstToken() const
 {
-    if (property_identifier)
-        return property_identifier;
+    if (property_identifier_token)
+        return property_identifier_token;
     else if (equals_token)
         return equals_token;
     else
-        return property_alias_identifier;
+        return alias_identifier_token;
 }
 
 unsigned ObjCSynthesizedPropertyAST::lastToken() const
 {
-    if (property_alias_identifier)
-        return property_alias_identifier + 1;
+    if (alias_identifier_token)
+        return alias_identifier_token + 1;
     else if (equals_token)
         return equals_token + 1;
     else
-        return property_identifier + 1;
+        return property_identifier_token + 1;
 }
 
 unsigned ObjCSynthesizedPropertiesDeclarationAST::firstToken() const
