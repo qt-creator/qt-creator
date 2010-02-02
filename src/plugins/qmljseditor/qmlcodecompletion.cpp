@@ -632,10 +632,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     // Set up the current scope chain.
     Interpreter::ObjectValue *scope = interp.globalObject();
+    Link link(qmlDocument, snapshot, &interp);
 
     if (isQmlFile && qmlDocument) {
         AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(editor->position());
-        scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
+        scope = link.scopeChainAt(qmlDocument, declaringMember);
     }
 
     // Search for the operator that triggered the completion.

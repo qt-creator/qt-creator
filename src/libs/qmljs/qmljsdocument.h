@@ -40,6 +40,9 @@
 
 namespace QmlJS {
 
+class Bind;
+typedef QSharedPointer<Bind> BindPtr;
+
 class QMLJS_EXPORT Document
 {
 public:
@@ -71,6 +74,8 @@ public:
     bool isParsedCorrectly() const
     { return _parsedCorrectly; }
 
+    BindPtr bind() const;
+
     int documentRevision() const;
     void setDocumentRevision(int documentRevision);
 
@@ -89,6 +94,7 @@ private:
     QString _path;
     QString _componentName;
     QString _source;
+    BindPtr _bind;
 };
 
 class QMLJS_EXPORT Snapshot

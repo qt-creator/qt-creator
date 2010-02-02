@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmljsdocument.h"
+#include "qmljsbind.h"
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsparser_p.h>
@@ -143,6 +144,8 @@ bool Document::parseQml()
     _ast = parser.ast();
     _diagnosticMessages = parser.diagnosticMessages();
 
+    _bind = BindPtr(new Bind(this));
+
     return _parsedCorrectly;
 }
 
@@ -163,6 +166,8 @@ bool Document::parseJavaScript()
     _parsedCorrectly = parser.parseProgram();
     _ast = cast<Program*>(parser.rootNode());
     _diagnosticMessages = parser.diagnosticMessages();
+
+    _bind = BindPtr(new Bind(this));
 
     return _parsedCorrectly;
 }
@@ -188,6 +193,11 @@ bool Document::parseExpression()
     _diagnosticMessages = parser.diagnosticMessages();
 
     return _parsedCorrectly;
+}
+
+BindPtr Document::bind() const
+{
+    return _bind;
 }
 
 Snapshot::Snapshot()

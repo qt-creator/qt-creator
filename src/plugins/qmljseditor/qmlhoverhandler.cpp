@@ -37,6 +37,7 @@
 #include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljsbind.h>
+#include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -171,7 +172,8 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(pos);
 
             Interpreter::Engine interp;
-            const Interpreter::ObjectValue *scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
+            Link link(qmlDocument, snapshot, &interp);
+            const Interpreter::ObjectValue *scope = link.scopeChainAt(qmlDocument, declaringMember);
 
             Check check(&interp);
             const Interpreter::Value *value = check(node, scope);

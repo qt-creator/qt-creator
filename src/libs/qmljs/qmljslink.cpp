@@ -12,6 +12,124 @@ using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
+Link::Link(Document::Ptr currentDoc, const Snapshot &snapshot, Interpreter::Engine *interp)
+    : _snapshot(snapshot)
+    , _interp(interp)
+{
+    _docs = reachableDocuments(currentDoc, snapshot);
+
+    linkImports();
+}
+
+Link::~Link()
+{
+    // unset all prototypes and scopes
+    foreach (Document::Ptr doc, _docs) {
+        BindPtr bind = doc->bind();
+
+        if (doc->qmlProgram()) {
+            bind->_idEnvironment->setScope(0);
+            bind->_functionEnvironment->setScope(0);
+
+            foreach (ObjectValue *object, bind->_qmlObjectBindings) {
+                object->setPrototype(0);
+                object->setScope(0);
+            }
+            foreach (ObjectValue *object, bind->_qmlObjectDefinitions) {
+                object->setPrototype(0);
+                object->setScope(0);
+            }
+        } else if (doc->jsProgram()) {
+            bind->_rootObjectValue->setScope(0);
+        }
+    }
+}
+
+static ObjectValue *pushScope(ObjectValue *next, ObjectValue *onto)
+{
+    onto->setScope(next);
+    return next;
+}
+
+ObjectValue *Link::scopeChainAt(Document::Ptr doc, UiObjectMember *currentObject)
+{
+    BindPtr bind = doc->bind();
+
+    ObjectValue *scopeObject;
+    if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
+        scopeObject = bind->_qmlObjectDefinitions.value(definition);
+    else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
+        scopeObject = bind->_qmlObjectBindings.value(binding);
+    else
+        return bind->_interp.globalObject();
+
+    if (!scopeObject)
+        return bind->_interp.globalObject();
+
+    // Build the scope chain.
+    ObjectValue *scopeStart = _typeEnvironments.value(doc.data());
+    ObjectValue *scope = scopeStart;
+    scope = pushScope(bind->_idEnvironment, scope);
+    scope = pushScope(bind->_functionEnvironment, scope);
+
+    foreach (const QString &scriptFile, doc->bind()->includedScripts()) {
+        if (Document::Ptr scriptDoc = _snapshot.document(scriptFile)) {
+            if (scriptDoc->jsProgram()) {
+                scope = pushScope(scriptDoc->bind()->_rootObjectValue, scope);
+            }
+        }
+    }
+
+    scope = pushScope(scopeObject, scope);
+    if (scopeObject != bind->_rootObjectValue)
+        scope = pushScope(bind->_rootObjectValue, scope);
+
+    scope = pushScope(bind->_interp.globalObject(), scope);
+
+    // May want to link to instantiating components from here.
+
+    return scopeStart;
+}
+
+void Link::linkImports()
+{
+    foreach (Document::Ptr doc, _docs) {
+        BindPtr bind = doc->bind();
+
+        ObjectValue *typeEnv = _interp->newObject(/*prototype =*/0);
+        _typeEnvironments.insert(doc.data(), typeEnv);
+
+        // Populate the _typeEnvironment with imports.
+        populateImportedTypes(typeEnv, doc);
+
+        // Set the prototypes.
+        {
+            QHash<UiObjectDefinition *, ObjectValue *>::iterator it = bind->_qmlObjectDefinitions.begin();
+            QHash<UiObjectDefinition *, ObjectValue *>::iterator end = bind->_qmlObjectDefinitions.end();
+            for (; it != end; ++it) {
+                UiObjectDefinition *key = it.key();
+                ObjectValue *value = it.value();
+                if (!key->qualifiedTypeNameId)
+                    continue;
+
+                value->setPrototype(lookupType(typeEnv, key->qualifiedTypeNameId));
+            }
+        }
+        {
+            QHash<UiObjectBinding *, ObjectValue *>::iterator it = bind->_qmlObjectBindings.begin();
+            QHash<UiObjectBinding *, ObjectValue *>::iterator end = bind->_qmlObjectBindings.end();
+            for (; it != end; ++it) {
+                UiObjectBinding *key = it.key();
+                ObjectValue *value = it.value();
+                if (!key->qualifiedTypeNameId)
+                    continue;
+
+                value->setPrototype(lookupType(typeEnv, key->qualifiedTypeNameId));
+            }
+        }
+    }
+}
+
 static QString componentName(const QString &fileName)
 {
     QString componentName = fileName;
@@ -22,11 +140,8 @@ static QString componentName(const QString &fileName)
     return componentName;
 }
 
-void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
+void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Ptr doc)
 {
-    // ### TODO: remove all properties from _typeEnv
-
-    Document::Ptr doc = bind->_doc;
     if (! (doc->qmlProgram() && doc->qmlProgram()->imports))
         return;
 
@@ -35,65 +150,127 @@ void LinkImports::linkImports(Bind *bind, const QList<Bind *> &binds)
 
     // implicit imports:
     // qml files in the same directory are available without explicit imports
-    foreach (Bind *otherBind, binds) {
-        if (otherBind == bind)
+    foreach (Document::Ptr otherDoc, _docs) {
+        if (otherDoc == doc)
             continue;
 
-        Document::Ptr otherDoc = otherBind->_doc;
         QFileInfo otherFileInfo(otherDoc->fileName());
         const QString otherAbsolutePath = otherFileInfo.absolutePath();
 
         if (otherAbsolutePath != absolutePath)
             continue;
 
-        bind->_typeEnvironment->setProperty(componentName(otherFileInfo.fileName()),
-                                            otherBind->_rootObjectValue);
+        typeEnv->setProperty(componentName(otherFileInfo.fileName()),
+                             otherDoc->bind()->_rootObjectValue);
     }
 
     // explicit imports, whether directories or files
     for (UiImportList *it = doc->qmlProgram()->imports; it; it = it->next) {
-        if (! (it->import && it->import->fileName))
+        if (! it->import)
             continue;
 
-        QString path = absolutePath;
-        path += QLatin1Char('/');
-        path += it->import->fileName->asString();
-        path = QDir::cleanPath(path);
-
-        ObjectValue *importNamespace = 0;
-
-        foreach (Bind *otherBind, binds) {
-            Document::Ptr otherDoc = otherBind->_doc;
-            QFileInfo otherFileInfo(otherDoc->fileName());
-            const QString otherAbsolutePath = otherFileInfo.absolutePath();
-
-            bool directoryImport = (path == otherAbsolutePath);
-            bool fileImport = (path == otherDoc->fileName());
-            if (!directoryImport && !fileImport)
-                continue;
-
-            if (directoryImport && it->import->importId && !importNamespace) {
-                importNamespace = bind->_interp->newObject(/*prototype =*/0);
-                bind->_typeEnvironment->setProperty(it->import->importId->asString(), importNamespace);
-            }
-
-            QString targetName;
-            if (fileImport && it->import->importId) {
-                targetName = it->import->importId->asString();
-            } else {
-                targetName = componentName(otherFileInfo.fileName());
-            }
-
-            ObjectValue *importInto = bind->_typeEnvironment;
-            if (importNamespace)
-                importInto = importNamespace;
-
-            importInto->setProperty(targetName, otherBind->_rootObjectValue);
+        if (it->import->fileName) {
+            importFile(typeEnv, doc, it->import, absolutePath);
+        } else if (it->import->importUri) {
+            importNonFile(typeEnv, doc, it->import);
         }
     }
 }
 
-static const ObjectValue *lookupType(ObjectValue *env, UiQualifiedId *id)
+/*
+    import "content"
+    import "content" as Xxx
+    import "content" 4.6
+    import "content" 4.6 as Xxx
+
+    import "http://www.ovi.com/" as Ovi
+*/
+void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
+                      AST::UiImport *import, const QString &startPath)
+{
+    if (!import->fileName)
+        return;
+
+    QString path = startPath;
+    path += QLatin1Char('/');
+    path += import->fileName->asString();
+    path = QDir::cleanPath(path);
+
+    ObjectValue *importNamespace = 0;
+
+    foreach (Document::Ptr otherDoc, _docs) {
+        QFileInfo otherFileInfo(otherDoc->fileName());
+        const QString otherAbsolutePath = otherFileInfo.absolutePath();
+
+        bool directoryImport = (path == otherAbsolutePath);
+        bool fileImport = (path == otherDoc->fileName());
+        if (!directoryImport && !fileImport)
+            continue;
+
+        if (directoryImport && import->importId && !importNamespace) {
+            importNamespace = _interp->newObject(/*prototype =*/0);
+            typeEnv->setProperty(import->importId->asString(), importNamespace);
+        }
+
+        QString targetName;
+        if (fileImport && import->importId) {
+            targetName = import->importId->asString();
+        } else {
+            targetName = componentName(otherFileInfo.fileName());
+        }
+
+        ObjectValue *importInto = typeEnv;
+        if (importNamespace)
+            importInto = importNamespace;
+
+        importInto->setProperty(targetName, otherDoc->bind()->_rootObjectValue);
+    }
+}
+
+/*
+  import Qt 4.6
+  import Qt 4.6 as Xxx
+  (import com.nokia.qt is the same as the ones above)
+*/
+void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, AST::UiImport *import)
+{
+    ObjectValue *namespaceObject = 0;
+
+    if (import->importId) { // with namespace we insert an object in the type env. to hold the imported types
+        namespaceObject = _interp->newObject(/*prototype */ 0);
+        typeEnv->setProperty(import->importId->asString(), namespaceObject);
+
+    } else { // without namespace we insert all types directly into the type env.
+        namespaceObject = typeEnv;
+    }
+
+    // try the metaobject system
+    if (import->importUri) {
+        const QString package = Bind::toString(import->importUri, '/');
+        int majorVersion = -1; // ### TODO: Check these magic version numbers
+        int minorVersion = -1; // ### TODO: Check these magic version numbers
+
+        if (import->versionToken.isValid()) {
+            const QString versionString = doc->source().mid(import->versionToken.offset, import->versionToken.length);
+            const int dotIdx = versionString.indexOf(QLatin1Char('.'));
+            if (dotIdx == -1) {
+                // only major (which is probably invalid, but let's handle it anyway)
+                majorVersion = versionString.toInt();
+                minorVersion = 0; // ### TODO: Check with magic version numbers above
+            } else {
+                majorVersion = versionString.left(dotIdx).toInt();
+                minorVersion = versionString.mid(dotIdx + 1).toInt();
+            }
+        }
+#ifndef NO_DECLARATIVE_BACKEND
+        foreach (QmlObjectValue *object, _interp->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
+            namespaceObject->setProperty(object->qmlTypeName(), object);
+        }
+#endif // NO_DECLARATIVE_BACKEND
+    }
+}
+
+const ObjectValue *Link::lookupType(ObjectValue *env, UiQualifiedId *id)
 {
     const ObjectValue *objectValue = env;
 
@@ -111,65 +288,37 @@ static const ObjectValue *lookupType(ObjectValue *env, UiQualifiedId *id)
     return objectValue;
 }
 
-void LinkImports::operator()(const QList<Bind *> &binds)
+QList<Document::Ptr> Link::reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot)
 {
-    foreach (Bind *bind, binds) {
-        // Populate the _typeEnvironment with imports.
-        linkImports(bind, binds);
+    QList<Document::Ptr> docs;
 
-        // Set the prototypes.
-        {
-            QHash<UiObjectDefinition *, ObjectValue *>::iterator it = bind->_qmlObjectDefinitions.begin();
-            QHash<UiObjectDefinition *, ObjectValue *>::iterator end = bind->_qmlObjectDefinitions.end();
-            for (; it != end; ++it) {
-                UiObjectDefinition *key = it.key();
-                ObjectValue *value = it.value();
-                if (!key->qualifiedTypeNameId)
-                    continue;
+    QSet<QString> processed;
+    QStringList todo;
 
-                value->setPrototype(lookupType(bind->_typeEnvironment, key->qualifiedTypeNameId));
-            }
+    QMultiHash<QString, Document::Ptr> documentByPath;
+    foreach (Document::Ptr doc, snapshot)
+        documentByPath.insert(doc->path(), doc);
+
+    todo.append(startDoc->path());
+
+    // Find the reachable documents.
+    while (! todo.isEmpty()) {
+        const QString path = todo.takeFirst();
+
+        if (processed.contains(path))
+            continue;
+
+        processed.insert(path);
+
+        QStringList localImports;
+        foreach (Document::Ptr doc, documentByPath.values(path)) {
+            docs += doc;
+            localImports += doc->bind()->localImports();
         }
-        {
-            QHash<UiObjectBinding *, ObjectValue *>::iterator it = bind->_qmlObjectBindings.begin();
-            QHash<UiObjectBinding *, ObjectValue *>::iterator end = bind->_qmlObjectBindings.end();
-            for (; it != end; ++it) {
-                UiObjectBinding *key = it.key();
-                ObjectValue *value = it.value();
-                if (!key->qualifiedTypeNameId)
-                    continue;
 
-                value->setPrototype(lookupType(bind->_typeEnvironment, key->qualifiedTypeNameId));
-            }
-        }
+        localImports.removeDuplicates();
+        todo += localImports;
     }
-}
 
-ObjectValue *Link::operator()(const QList<Bind *> &binds, Bind *currentBind, UiObjectMember *currentObject)
-{
-    Q_UNUSED(binds);
-    ObjectValue *scopeObject;
-    if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
-        scopeObject = currentBind->_qmlObjectDefinitions.value(definition);
-    else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
-        scopeObject = currentBind->_qmlObjectBindings.value(binding);
-    else
-        return currentBind->_interp->globalObject();
-
-    if (!scopeObject)
-        return currentBind->_interp->globalObject();
-
-    // Build the scope chain.
-    currentBind->_typeEnvironment->setScope(currentBind->_idEnvironment);
-    currentBind->_idEnvironment->setScope(currentBind->_functionEnvironment);
-    currentBind->_functionEnvironment->setScope(scopeObject);
-    if (scopeObject != currentBind->_rootObjectValue) {
-        scopeObject->setScope(currentBind->_rootObjectValue);
-        currentBind->_rootObjectValue->setScope(currentBind->_interp->globalObject());
-    } else {
-        scopeObject->setScope(currentBind->_interp->globalObject());
-    }
-    // May want to link to instantiating components from here.
-
-    return currentBind->_typeEnvironment;
+    return docs;
 }

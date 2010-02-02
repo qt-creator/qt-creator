@@ -31,11 +31,12 @@
 #define QMLBIND_H
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
+#include <qmljs/qmljsdocument.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
+#include <QtCore/QSharedPointer>
 
 namespace QmlJS {
 
@@ -44,20 +45,12 @@ class Link;
 
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
-protected:
-    Bind(Document::Ptr doc, Interpreter::Engine *interp);
-
 public:
+    Bind(Document *doc);
     virtual ~Bind();
 
     QStringList includedScripts() const;
     QStringList localImports() const;
-
-    // ### TODO: This methods should go. Bind each document after parsing, link later.
-    static Interpreter::ObjectValue *scopeChainAt(Document::Ptr currentDocument,
-                                                  const Snapshot &snapshot,
-                                                  Interpreter::Engine *interp,
-                                                  AST::UiObjectMember *currentObject);
 
 protected:
     using AST::Visitor::visit;
@@ -83,11 +76,10 @@ protected:
     Interpreter::ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);
 
 private:
-    Document::Ptr _doc;
-    Interpreter::Engine *_interp;
+    Document *_doc;
+    Interpreter::Engine _interp;
 
     Interpreter::ObjectValue *_currentObjectValue;
-    Interpreter::ObjectValue *_typeEnvironment;
     Interpreter::ObjectValue *_idEnvironment;
     Interpreter::ObjectValue *_functionEnvironment;
     Interpreter::ObjectValue *_rootObjectValue;
@@ -100,6 +92,7 @@ private:
     friend class LinkImports;
     friend class Link;
 };
+typedef QSharedPointer<Bind> BindPtr;
 
 } // end of namespace Qml
 
