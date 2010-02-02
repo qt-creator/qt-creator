@@ -40,7 +40,7 @@ namespace QmlDesigner {
 
 NavigatorWidget::NavigatorWidget(QWidget* parent) :
         QFrame(parent),
-        m_treeView(new QTreeView)
+        m_treeView(new NavigatorTreeView)
 {
     m_treeView->setDragEnabled(true);
     m_treeView->setAcceptDrops(true);

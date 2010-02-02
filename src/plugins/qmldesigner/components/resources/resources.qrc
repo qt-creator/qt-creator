@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/qmldesigner">
+    <qresource prefix="/qmldesigner" >
         <file>templates/Standard/Form.xml</file>
         <file>stylesheet.css</file>
         <file>toolbutton.css</file>
@@ -10,10 +10,10 @@
         <file>images/checkbox_unchecked.png</file>
         <file>images/checkbox_unchecked_hover.png</file>
         <file>images/checkbox_unchecked_pressed.png</file>
-	<file>images/eye_open.png</file>
-	<file>images/eye_crossed.png</file>
-	<file>images/lock.png</file>
-	<file>images/hole.png</file>
+        <file>images/eye_open.png</file>
+        <file>images/eye_crossed.png</file>
+        <file>images/lock.png</file>
+        <file>images/hole.png</file>
         <file>images/down_arrow.png</file>
         <file>images/down_arrow_disabled.png</file>
         <file>images/frame.png</file>
@@ -37,9 +37,12 @@
         <file>images/spinup_pressed.png</file>
         <file>images/up_arrow.png</file>
         <file>images/up_arrow_disabled.png</file>
-		<file>images/apply.png</file>
-		<file>images/cancel.png</file>
-		<file>images/applybright.png</file>
-		<file>images/cancelbright.png</file>
+        <file>images/apply.png</file>
+        <file>images/cancel.png</file>
+        <file>images/applybright.png</file>
+        <file>images/cancelbright.png</file>
+        <file>images/placeholder.png</file>
+        <file>images/triangle_horz.png</file>
+        <file>images/triangle_vert.png</file>
     </qresource>
 </RCC>

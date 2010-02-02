@@ -43,6 +43,8 @@ namespace QmlDesigner {
 
 class NavigatorWidget;
 class NavigatorTreeModel;
+class IconCheckboxItemDelegate;
+class IdItemDelegate;
 
 class NavigatorView : public QmlModelView
 {

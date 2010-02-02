@@ -280,6 +280,18 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
         bool invisible = (item->checkState() == Qt::Unchecked);
 
         node.setAuxiliaryData("invisible", invisible);
+        propagateInvisible(node,invisible);
+    }
+}
+
+void NavigatorTreeModel::propagateInvisible(const ModelNode &node, const bool &invisible)
+{
+    QList <ModelNode> children = node.allDirectSubModelNodes();
+    foreach (ModelNode child, children) {
+        child.setAuxiliaryData("childOfInvisible",invisible);
+        bool childIsInvisible = child.auxiliaryData("invisible").toBool();
+        if (!child.auxiliaryData("invisible").toBool())
+            propagateInvisible(child,invisible);
     }
 }
 
@@ -341,6 +353,15 @@ ModelNode NavigatorTreeModel::nodeForIndex(const QModelIndex &index) const
 bool NavigatorTreeModel::isInTree(const ModelNode &node) const
 {
     return m_nodeHash.keys().contains(qHash(node));
+}
+
+bool NavigatorTreeModel::isNodeInvisible(const QModelIndex &index) const
+{
+    ModelNode node = nodeForIndex(index);
+    bool nodeInvisible = node.auxiliaryData("invisible").toBool();
+    if (node.hasAuxiliaryData("childOfInvisible"))
+        nodeInvisible = nodeInvisible || node.auxiliaryData("childOfInvisible").toBool();
+    return nodeInvisible;
 }
 
 /**

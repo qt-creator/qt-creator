@@ -32,7 +32,8 @@
 
 #include <QFrame>
 #include <QAbstractItemModel>
-#include <QTreeView>
+
+#include "navigatortreeview.h"
 
 namespace QmlDesigner {
 
@@ -49,7 +50,7 @@ public:
     QTreeView *treeView();
 
 private:
-    QTreeView *m_treeView;
+    NavigatorTreeView *m_treeView;
 };
 
 }

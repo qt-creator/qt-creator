@@ -45,25 +45,52 @@ QLineEdit
      background-color: white;
      selection-background-color: darkgray;
 }
- 
+
  QTreeView {
     color: white;
     selection-color: white
  }
- 
+
  QTreeView::item:selected {
      color: white;
  }
- 
+
+QTreeView::branch:has-siblings:!adjoins-item {
+     border-image: none;
+     image:none;
+ }
+
+ QTreeView::branch:has-siblings:adjoins-item {
+     border-image: none;
+     image:none;
+ }
+
+ QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+     border-image: none;
+     image:none;
+ }
+
+ QTreeView::branch:has-children:!has-siblings:closed,
+ QTreeView::branch:closed:has-children:has-siblings {
+         border-image: none;
+         image: url(:/qmldesigner/images/triangle_horz.png);
+ }
+
+ QTreeView::branch:open:has-children:!has-siblings,
+ QTreeView::branch:open:has-children:has-siblings  {
+         border-image: none;
+         image: url(:/qmldesigner/images/triangle_vert.png);
+ }
+
  QListView {
     color: white;
     selection-color: white
  }
- 
+
  QListView::item:selected {
      color: white;
  }
- 
+
   QComboBox QAbstractItemView {
      show-decoration-selected: 1; /* make the selection span the entire width of the view */
 	 background-color: #494949; /* sets background of the menu */
@@ -74,4 +101,3 @@ QLineEdit
 	 selection-color: #404040;
  }
 
- 

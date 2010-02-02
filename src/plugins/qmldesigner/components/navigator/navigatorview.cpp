@@ -32,80 +32,9 @@
 #include "navigatorwidget.h"
 
 #include <nodeproperty.h>
-#include <QStyledItemDelegate>
 
-#include <QPainter>
 
 namespace QmlDesigner {
-
-    class IconCheckboxItemDelegate : public QStyledItemDelegate
-    {
-        public:
-        IconCheckboxItemDelegate(QObject *parent = 0, QString checkedPixmapURL="", QString uncheckedPixmapURL="", NavigatorTreeModel *treeModel=NULL)
-            : QStyledItemDelegate(parent),offPix(uncheckedPixmapURL),onPix(checkedPixmapURL),m_TreeModel(treeModel)
-        {}
-
-        QSize sizeHint(const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const { return QSize(15,17); }
-
-        void paint(QPainter *painter,
-                   const QStyleOptionViewItem &option, const QModelIndex &index) const
-        {
-            painter->save();
-            if (option.state & QStyle::State_Selected)
-                painter->fillRect(option.rect, option.palette.highlight());
-            bool isChecked= (m_TreeModel->itemFromIndex(index)->checkState() == Qt::Checked);
-            if (isChecked)
-                painter->drawPixmap(option.rect.x()+2,option.rect.y()+1,onPix);
-            else
-                painter->drawPixmap(option.rect.x()+2,option.rect.y()+1,offPix);
-
-            painter->restore();
-        }
-
-        private:
-        NavigatorTreeModel *m_TreeModel;
-        QPixmap offPix;
-        QPixmap onPix;
-    };
-
-    class IdItemDelegate : public QStyledItemDelegate {
-        public:
-        IdItemDelegate(QObject *parent=0, NavigatorTreeModel *treeModel=NULL) : QStyledItemDelegate(parent),m_TreeModel(treeModel) {}
-
-        void paint(QPainter *painter,
-                   const QStyleOptionViewItem &option, const QModelIndex &index) const
-        {
-            painter->save();
-            if (option.state & QStyle::State_Selected)
-                painter->fillRect(option.rect, option.palette.highlight());
-
-            ModelNode node = m_TreeModel->nodeForIndex(index);
-
-//            QIcon icon=node.metaInfo().icon();
-//            if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
-//            QPixmap pixmap = icon.pixmap(option.rect.width(),option.rect.height());
-//            painter->drawPixmap(option.rect.x()+1,option.rect.y(),pixmap);
-
-            QString myString = node.id();
-            if (myString.isEmpty())
-                myString = node.simplifiedTypeName();
-            else
-            {
-                QFont font = painter->font();
-                font.setBold(true);
-                painter->setFont(font);
-            }
-//            painter->drawText(option.rect.bottomLeft()+QPoint(4+pixmap.width(),-4),myString);
-            painter->drawText(option.rect.bottomLeft()+QPoint(4,-4),myString);
-
-            painter->restore();
-        }
-
-        private:
-        NavigatorTreeModel *m_TreeModel;
-    };
-
 
 NavigatorView::NavigatorView(QObject* parent) :
         QmlModelView(parent),
@@ -120,7 +49,7 @@ NavigatorView::NavigatorView(QObject* parent) :
 
     IdItemDelegate *idDelegate = new IdItemDelegate(this,m_treeModel.data());
     IconCheckboxItemDelegate *showDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/eye_open.png",
-                                                          ":/qmldesigner/images/eye_crossed.png",m_treeModel.data());
+                                                          ":/qmldesigner/images/placeholder.png",m_treeModel.data());
 
 #ifdef _LOCK_ITEMS_
     IconCheckboxItemDelegate *lockDelegate = new IconCheckboxItemDelegate(this,":/qmldesigner/images/lock.png",
@@ -220,7 +149,15 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString &n
 {
     QmlModelView::auxiliaryDataChanged(node, name, data);
     if (m_treeModel->isInTree(node))
+    {
+        // update model
         m_treeModel->updateItemRow(node);
+
+        // repaint row (id and icon)
+        QModelIndex index = m_treeModel->indexForNode(node);
+        treeWidget()->update( index );
+        treeWidget()->update( index.sibling(index.row(),index.column()+1) );
+    }
 }
 
 void NavigatorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &node, int oldIndex)
