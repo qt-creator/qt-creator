@@ -45,7 +45,7 @@ class Link;
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
 protected:
-    Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp);
+    Bind(Document::Ptr doc, Interpreter::Engine *interp);
 
 public:
     virtual ~Bind();
@@ -84,7 +84,6 @@ protected:
 
 private:
     Document::Ptr _doc;
-    Snapshot _snapshot;
     Interpreter::Engine *_interp;
 
     Interpreter::ObjectValue *_currentObjectValue;

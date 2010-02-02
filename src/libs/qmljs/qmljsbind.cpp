@@ -168,9 +168,8 @@ protected:
 
 } // end of anonymous namespace
 
-Bind::Bind(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp)
+Bind::Bind(Document::Ptr doc, Interpreter::Engine *interp)
     : _doc(doc),
-      _snapshot(snapshot),
       _interp(interp),
       _currentObjectValue(0),
       _typeEnvironment(0),
@@ -241,7 +240,7 @@ ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &s
 
         QStringList localImports;
         foreach (Document::Ptr doc, documentByPath.values(path)) {
-            Bind *newBind = new Bind(doc, snapshot, interp);
+            Bind *newBind = new Bind(doc, interp);
             binds += newBind;
 
             localImports += newBind->localImports();
