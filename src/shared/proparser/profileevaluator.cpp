@@ -180,7 +180,7 @@ QString ProFileOption::field_sep;
 //
 ///////////////////////////////////////////////////////////////////////
 
-class ProFileEvaluator::Private : public AbstractProItemVisitor
+class ProFileEvaluator::Private
 {
 public:
     Private(ProFileEvaluator *q_, ProFileOption *option);
@@ -210,13 +210,11 @@ public:
 
     /////////////// Evaluating pro file contents
 
-    // implementation of AbstractProItemVisitor
-    ProItem::ProItemReturn visitBeginProBlock(ProBlock *block);
-    void visitEndProBlock(ProBlock *block);
+    ProItem::ProItemReturn visitProFile(ProFile *pro);
+    ProItem::ProItemReturn visitProBlock(ProBlock *block);
+    ProItem::ProItemReturn visitProItem(ProItem *item);
     ProItem::ProItemReturn visitProLoopIteration();
     void visitProLoopCleanup();
-    ProItem::ProItemReturn visitBeginProFile(ProFile *value);
-    ProItem::ProItemReturn visitEndProFile(ProFile *value);
     void visitProVariable(ProVariable *variable);
     ProItem::ProItemReturn visitProFunction(ProFunction *function);
     void visitProOperator(ProOperator *oper);
@@ -812,7 +810,27 @@ static QString fixPathToLocalOS(const QString &str)
 
 //////// Evaluator /////////
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProBlock(ProBlock *block)
+ProItem::ProItemReturn ProFileEvaluator::Private::visitProItem(ProItem *item)
+{
+    switch (item->kind()) {
+    case ProItem::BlockKind: // This is never a ProFile
+        return visitProBlock(static_cast<ProBlock*>(item));
+    case ProItem::VariableKind:
+        visitProVariable(static_cast<ProVariable*>(item));
+        break;
+    case ProItem::ConditionKind:
+        visitProCondition(static_cast<ProCondition*>(item));
+        break;
+    case ProItem::FunctionKind:
+        return visitProFunction(static_cast<ProFunction*>(item));
+    case ProItem::OperatorKind:
+        visitProOperator(static_cast<ProOperator*>(item));
+        break;
+    }
+    return ProItem::ReturnTrue;
+}
+
+ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProBlock *block)
 {
     if (block->blockKind() & ProBlock::ScopeContentsKind) {
         if (!m_definingFunc.isEmpty()) {
@@ -827,7 +845,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProBlock(ProBlock *b
                 block->setBlockKind(block->blockKind() | ProBlock::FunctionBodyKind);
             }
             m_definingFunc.clear();
-            return ProItem::ReturnSkip;
+            return ProItem::ReturnTrue;
         } else if (!(block->blockKind() & ProBlock::FunctionBodyKind)) {
             if (!m_sts.condition) {
                 if (m_skipLevel || m_hadCondition)
@@ -847,11 +865,32 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProBlock(ProBlock *b
             Q_ASSERT(!m_sts.condition);
         }
     }
-    return ProItem::ReturnTrue;
-}
-
-void ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
-{
+    ProItem::ProItemReturn rt = ProItem::ReturnTrue;
+    QList<ProItem *> items = block->items();
+    for (int i = 0; i < items.count(); ++i) {
+        rt = visitProItem(items.at(i));
+        if (rt != ProItem::ReturnTrue && rt != ProItem::ReturnFalse) {
+            if (rt == ProItem::ReturnLoop) {
+                rt = ProItem::ReturnTrue;
+                while (visitProLoopIteration())
+                    for (int j = i; ++j < items.count(); ) {
+                        rt = visitProItem(items.at(j));
+                        if (rt != ProItem::ReturnTrue && rt != ProItem::ReturnFalse) {
+                            if (rt == ProItem::ReturnNext) {
+                                rt = ProItem::ReturnTrue;
+                                break;
+                            }
+                            if (rt == ProItem::ReturnBreak)
+                                rt = ProItem::ReturnTrue;
+                            goto do_break;
+                        }
+                    }
+              do_break:
+                visitProLoopCleanup();
+            }
+            break;
+        }
+    }
     if ((block->blockKind() & ProBlock::ScopeContentsKind)
         && !(block->blockKind() & ProBlock::FunctionBodyKind)) {
         if (m_skipLevel) {
@@ -863,6 +902,7 @@ void ProFileEvaluator::Private::visitEndProBlock(ProBlock *block)
             m_sts.condition = true;
         }
     }
+    return rt;
 }
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoopIteration()
@@ -1001,7 +1041,7 @@ void ProFileEvaluator::Private::visitProCondition(ProCondition *cond)
     m_invertNext = false;
 }
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pro)
+ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
 {
     m_lineNo = pro->lineNumber();
 
@@ -1124,11 +1164,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitBeginProFile(ProFile * pr
         }
     }
 
-    return ProItem::ReturnTrue;
-}
+    visitProBlock(pro);
 
-ProItem::ProItemReturn ProFileEvaluator::Private::visitEndProFile(ProFile * pro)
-{
     m_lineNo = pro->lineNumber();
 
     if (m_profileStack.count() == 1) {
@@ -1668,7 +1705,7 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
             m_valuemap[QString::number(i+1)] = argumentsList[i];
         }
         m_valuemap[QLatin1String("ARGS")] = args;
-        oki = (funcPtr->Accept(this) != ProItem::ReturnFalse); // True || Return
+        oki = (visitProBlock(funcPtr) != ProItem::ReturnFalse); // True || Return
         ret = m_returnValue;
         m_returnValue.clear();
 
@@ -2237,7 +2274,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                     delete pro;
                     return ProItem::ReturnFalse;
                 }
-                bool ret = pro->Accept(this);
+                bool ret = visitProBlock(pro);
                 pro->deref();
                 return returnBool(ret);
             }
@@ -2813,7 +2850,7 @@ bool ProFileEvaluator::Private::evaluateFile(const QString &fileName)
         }
     if (ProFile *pro = parsedProFile(fileName, true)) {
         q->aboutToEval(pro);
-        bool ok = (pro->Accept(this) == ProItem::ReturnTrue);
+        bool ok = (visitProFile(pro) == ProItem::ReturnTrue);
         pro->deref();
         return ok;
     } else {
@@ -2869,7 +2906,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         // The path is fully normalized already.
         bool ok = false;
         if (ProFile *pro = parsedProFile(fn, true)) {
-            ok = (pro->Accept(this) == ProItem::ReturnTrue);
+            ok = (visitProFile(pro) == ProItem::ReturnTrue);
             pro->deref();
         }
 
@@ -3039,7 +3076,7 @@ ProFile *ProFileEvaluator::parsedProFile(const QString &fileName, const QString 
 
 bool ProFileEvaluator::accept(ProFile *pro)
 {
-    return pro->Accept(d);
+    return d->visitProFile(pro);
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const

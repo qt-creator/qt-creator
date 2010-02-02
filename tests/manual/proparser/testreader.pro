@@ -15,6 +15,6 @@ build_all:!build_pass {
 }
 
 SOURCES = main.cpp profileevaluator.cpp proitems.cpp ioutils.cpp
-HEADERS = profileevaluator.h proitems.h abstractproitemvisitor.h ioutils.h
+HEADERS = profileevaluator.h proitems.h ioutils.h
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII

@@ -31,7 +31,6 @@
 #define PROFILEEVALUATOR_H
 
 #include "proitems.h"
-#include "abstractproitemvisitor.h"
 
 #include <QtCore/QIODevice>
 #include <QtCore/QHash>

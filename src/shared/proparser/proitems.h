@@ -35,8 +35,6 @@
 
 QT_BEGIN_NAMESPACE
 
-struct AbstractProItemVisitor;
-
 class ProItem
 {
 public:
@@ -64,7 +62,6 @@ public:
 
     virtual ProItemKind kind() const = 0;
 
-    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor) = 0;
     int lineNumber() const { return m_lineNumber; }
     void setLineNumber(int lineNumber) { m_lineNumber = lineNumber; }
 
@@ -102,11 +99,9 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
-protected:
-    QList<ProItem *> m_proitems;
 private:
     ProBlock *m_parent;
+    QList<ProItem *> m_proitems;
     int m_blockKind;
     int m_refCount;
 };
@@ -135,7 +130,6 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     VariableOperator m_variableKind;
     QString m_variable;
@@ -152,7 +146,6 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     QString m_text;
 };
@@ -167,7 +160,6 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     QString m_text;
 };
@@ -187,7 +179,6 @@ public:
 
     ProItem::ProItemKind kind() const;
 
-    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 private:
     OperatorKind m_operatorKind;
 };
@@ -201,8 +192,6 @@ public:
     QString displayFileName() const;
     QString fileName() const;
     QString directoryName() const;
-
-    virtual ProItemReturn Accept(AbstractProItemVisitor *visitor);
 
 private:
     QString m_fileName;

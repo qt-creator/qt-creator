@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "proitems.h"
-#include "abstractproitemvisitor.h"
 
 #include <QtCore/QFileInfo>
 
@@ -92,39 +91,6 @@ ProItem::ProItemKind ProBlock::kind() const
     return ProItem::BlockKind;
 }
 
-ProItem::ProItemReturn ProBlock::Accept(AbstractProItemVisitor *visitor)
-{
-    if (visitor->visitBeginProBlock(this) == ReturnSkip)
-        return ReturnTrue;
-    ProItemReturn rt = ReturnTrue;
-    for (int i = 0; i < m_proitems.count(); ++i) {
-        rt = m_proitems.at(i)->Accept(visitor);
-        if (rt != ReturnTrue && rt != ReturnFalse) {
-            if (rt == ReturnLoop) {
-                rt = ReturnTrue;
-                while (visitor->visitProLoopIteration())
-                    for (int j = i; ++j < m_proitems.count(); ) {
-                        rt = m_proitems.at(j)->Accept(visitor);
-                        if (rt != ReturnTrue && rt != ReturnFalse) {
-                            if (rt == ReturnNext) {
-                                rt = ReturnTrue;
-                                break;
-                            }
-                            if (rt == ReturnBreak)
-                                rt = ReturnTrue;
-                            goto do_break;
-                        }
-                    }
-              do_break:
-                visitor->visitProLoopCleanup();
-            }
-            break;
-        }
-    }
-    visitor->visitEndProBlock(this);
-    return rt;
-}
-
 // --------------- ProVariable ----------------
 ProVariable::ProVariable(const QString &name)
 {
@@ -167,12 +133,6 @@ ProItem::ProItemKind ProVariable::kind() const
     return ProItem::VariableKind;
 }
 
-ProItem::ProItemReturn ProVariable::Accept(AbstractProItemVisitor *visitor)
-{
-    visitor->visitProVariable(this);
-    return ReturnTrue;
-}
-
 // --------------- ProFunction ----------------
 ProFunction::ProFunction(const QString &text)
 {
@@ -192,11 +152,6 @@ QString ProFunction::text() const
 ProItem::ProItemKind ProFunction::kind() const
 {
     return ProItem::FunctionKind;
-}
-
-ProItem::ProItemReturn ProFunction::Accept(AbstractProItemVisitor *visitor)
-{
-    return visitor->visitProFunction(this);
 }
 
 // --------------- ProCondition ----------------
@@ -220,12 +175,6 @@ ProItem::ProItemKind ProCondition::kind() const
     return ProItem::ConditionKind;
 }
 
-ProItem::ProItemReturn ProCondition::Accept(AbstractProItemVisitor *visitor)
-{
-    visitor->visitProCondition(this);
-    return ReturnTrue;
-}
-
 // --------------- ProOperator ----------------
 ProOperator::ProOperator(OperatorKind operatorKind)
 {
@@ -245,12 +194,6 @@ ProOperator::OperatorKind ProOperator::operatorKind() const
 ProItem::ProItemKind ProOperator::kind() const
 {
     return ProItem::OperatorKind;
-}
-
-ProItem::ProItemReturn ProOperator::Accept(AbstractProItemVisitor *visitor)
-{
-    visitor->visitProOperator(this);
-    return ReturnTrue;
 }
 
 // --------------- ProFile ----------------
@@ -284,15 +227,6 @@ QString ProFile::fileName() const
 QString ProFile::directoryName() const
 {
     return m_directoryName;
-}
-
-ProItem::ProItemReturn ProFile::Accept(AbstractProItemVisitor *visitor)
-{
-    ProItemReturn rt;
-    if ((rt = visitor->visitBeginProFile(this)) != ReturnTrue)
-        return rt;
-    ProBlock::Accept(visitor); // cannot fail
-    return visitor->visitEndProFile(this);
 }
 
 QT_END_NAMESPACE

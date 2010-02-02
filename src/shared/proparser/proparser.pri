@@ -6,7 +6,6 @@ DEPENDPATH *= $$PWD $$PWD/..
 
 # Input
 HEADERS += \
-        abstractproitemvisitor.h \
         profileevaluator.h \
         proitems.h \
         prowriter.h \
