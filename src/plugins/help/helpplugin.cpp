@@ -96,40 +96,10 @@ HelpManager::HelpManager(Internal::HelpPlugin* plugin)
 
 void HelpManager::registerDocumentation(const QStringList &fileNames)
 {
-    bool needsSetup = false;
-    {
-        QHelpEngineCore hc(m_plugin->helpEngine()->collectionFile());
-        if (!hc.setupData()) {
-            qWarning() << "Could not initialize help engine:" << hc.error();
-            return;
-        }
-        foreach (const QString &fileName, fileNames) {
-            if (!QFileInfo(fileName).exists())
-                continue;
-            const QString &nameSpace = QHelpEngineCore::namespaceName(fileName);
-            if (nameSpace.isEmpty())
-                continue;
-            if (hc.registeredDocumentations().contains(nameSpace)) {
-                if (QFileInfo(hc.documentationFileName(nameSpace)).exists())
-                    continue;
-
-                // remove stale documentation first
-                if (!hc.unregisterDocumentation(nameSpace)) {
-                    qWarning() << "error unregistering namespace '"
-                        << nameSpace << "' from file '" << fileName << "': "
-                        << hc.error();
-                    continue;
-                }
-            }
-            if (hc.registerDocumentation(fileName)) {
-                needsSetup = true;
-            } else {
-                qWarning() << "error registering" << fileName << hc.error();
-            }
-        }
+    if (m_plugin) {
+        m_plugin->setFilesToRegister(fileNames);
+        emit helpPluginUpdateDocumentation();
     }
-    if (needsSetup)
-        m_plugin->helpEngine()->setupData();
 }
 
 void HelpManager::openHelpPage(const QString& url)
@@ -203,10 +173,9 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         directory.mkpath(directory.absolutePath());
     m_helpEngine = new QHelpEngine(directory.absolutePath() +
         QLatin1String("/helpcollection.qhc"), this);
-    connect(m_helpEngine, SIGNAL(setupFinished()), this,
-        SLOT(updateFilterComboBox()));
 
-    addAutoReleasedObject(new HelpManager(this));
+    helpManager = new HelpManager(this);
+    addAutoReleasedObject(helpManager);
 
     m_filterSettingsPage = new FilterSettingsPage(m_helpEngine);
     addAutoReleasedObject(m_filterSettingsPage);
@@ -461,6 +430,59 @@ QHelpEngine* HelpPlugin::helpEngine() const
     return m_helpEngine;
 }
 
+void HelpPlugin::setFilesToRegister(const QStringList &files)
+{
+    filesToRegister += files;
+}
+
+void HelpPlugin::pluginUpdateDocumentation()
+{
+    updateDocumentation();
+}
+
+bool HelpPlugin::updateDocumentation()
+{
+    bool needsSetup = false;
+    {
+        QHelpEngineCore hc(m_helpEngine->collectionFile());
+        if (hc.setupData()) {
+            const QStringList &registeredDocs = hc.registeredDocumentations();
+            foreach (const QString &nameSpace, registeredDocs) {
+                const QString &file = hc.documentationFileName(nameSpace);
+                if (QFileInfo(file).exists())
+                    continue;
+
+                if (!hc.unregisterDocumentation(nameSpace)) {
+                    qWarning() << "Error unregistering namespace '"
+                        << nameSpace << "' from file '" << file << "': "
+                        << hc.error();
+                }
+            }
+
+            while (!filesToRegister.isEmpty()) {
+                const QString &file = filesToRegister.takeFirst();
+                if (!QFileInfo(file).exists())
+                    continue;
+                const QString &nameSpace = hc.namespaceName(file);
+                if (nameSpace.isEmpty())
+                    continue;
+                if (!hc.registeredDocumentations().contains(nameSpace)) {
+                    if (hc.registerDocumentation(file)) {
+                        needsSetup = true;
+                    } else {
+                        qWarning() << "error registering" << file << hc.error();
+                    }
+                }
+            }
+        } else {
+            qWarning() << "Could not initialize help engine:" << hc.error();
+        }
+    }
+    if (needsSetup)
+        m_helpEngine->setupData();
+    return needsSetup;
+}
+
 void HelpPlugin::createRightPaneSideBar()
 {
     QAction *switchToHelpMode = new QAction(tr("Go to Help Mode"), this);
@@ -581,95 +603,80 @@ void HelpPlugin::slotHideRightPane()
 void HelpPlugin::extensionsInitialized()
 {
     m_sideBar->readSettings(m_core->settings(), QLatin1String("HelpSideBar"));
+
+    // force a block here to avoid the expensive indexing restart signal, etc...
+    bool blocked = m_helpEngine->blockSignals(true);
     if (!m_helpEngine->setupData()) {
+        m_helpEngine->blockSignals(blocked);
         qWarning() << "Could not initialize help engine: " << m_helpEngine->error();
         return;
     }
 
-    bool assistantInternalDocRegistered = false;
-    QStringList documentationToRemove;
-    QStringList filtersToRemove;
-
     const QString &docInternal = QString::fromLatin1("com.nokia.qtcreator.%1%2%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-    const QString filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
-        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-    const QRegExp filterRegExp("Qt Creator \\d*\\.\\d*\\.\\d*");
+
+    bool assistantInternalDocRegistered = false;
     const QStringList &docs = m_helpEngine->registeredDocumentations();
     foreach (const QString &ns, docs) {
         if (ns == docInternal) {
             assistantInternalDocRegistered = true;
         } else if (ns.startsWith(QLatin1String("com.nokia.qtcreator."))) {
-            documentationToRemove << ns;
-        }
-    }
-    foreach (const QString &filter, m_helpEngine->customFilters()) {
-        if (filterRegExp.exactMatch(filter) && filter != filterInternal) {
-            filtersToRemove << filter;
+            m_helpEngine->unregisterDocumentation(ns);
         }
     }
 
-    //remove any qtcreator documentation that doesn't belong to current version
-    if (!documentationToRemove.isEmpty() || !filtersToRemove.isEmpty() || !assistantInternalDocRegistered) {
-        QHelpEngineCore hc(m_helpEngine->collectionFile());
-        hc.setupData();
-        foreach (const QString &ns, documentationToRemove) {
-            hc.unregisterDocumentation(ns);
-        }
-        foreach (const QString &filter, filtersToRemove) {
-            hc.removeCustomFilter(filter);
-        }
+    const QString &filterInternal = QString::fromLatin1("Qt Creator %1.%2.%3")
+        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
 
-        if (!assistantInternalDocRegistered) {
-            const QString qchFileName =
-                QDir::cleanPath(QCoreApplication::applicationDirPath()
+    const QRegExp filterRegExp(QLatin1String("Qt Creator \\d*\\.\\d*\\.\\d*"));
+    const QStringList &filters = m_helpEngine->customFilters();
+    foreach (const QString &filter, filters) {
+        if (filterRegExp.exactMatch(filter) && filter != filterInternal)
+            m_helpEngine->removeCustomFilter(filter);
+    }
+
+    if (!assistantInternalDocRegistered) {
+        const QString &internalDoc = QCoreApplication::applicationDirPath()
 #if defined(Q_OS_MAC)
-                + QLatin1String("/../Resources/doc/qtcreator.qch"));
+            + QLatin1String("/../Resources/doc/qtcreator.qch");
 #else
-                + QLatin1String("../../share/doc/qtcreator/qtcreator.qch"));
+            + QLatin1String("../../share/doc/qtcreator/qtcreator.qch");
 #endif
-            if (!hc.registerDocumentation(qchFileName))
-                qDebug() << qPrintable(hc.error());
-        }
-
+        filesToRegister.append(QDir::cleanPath(internalDoc));
     }
 
     const QLatin1String weAddedFilterKey("UnfilteredFilterInserted");
     const QLatin1String previousFilterNameKey("UnfilteredFilterName");
-    int i = m_helpEngine->customValue(weAddedFilterKey).toInt();
+    if (m_helpEngine->customValue(weAddedFilterKey).toInt() == 1) {
+        // we added a filter at some point, remove previously added filter
+        const QString &previousFilter =
+            m_helpEngine->customValue(previousFilterNameKey).toString();
+        if (!previousFilter.isEmpty())
+            m_helpEngine->removeCustomFilter(previousFilter);
+    }
+
+    // potentially remove a filter with new name
     const QString filterName = tr("Unfiltered");
-    if (i == 1) { // we added a filter at some point
-        // remove previously added filter
-        QHelpEngineCore hc(m_helpEngine->collectionFile());
-        hc.setupData();
-        QString previousFilterName = hc.customValue(previousFilterNameKey).toString();
-        if (!previousFilterName.isEmpty()) { // we noted down the name of the previously added filter
-            hc.removeCustomFilter(previousFilterName);
-        }
-        if (previousFilterName != filterName) { // potentially remove a filter with new name
-            hc.removeCustomFilter(filterName);
-        }
-    }
-    {
-        QHelpEngineCore hc(m_helpEngine->collectionFile());
-        hc.setupData();
-        hc.addCustomFilter(filterName, QStringList());
-        hc.setCustomValue(weAddedFilterKey, 1);
-        hc.setCustomValue(previousFilterNameKey, filterName);
-    }
-    bool blocked = m_helpEngine->blockSignals(true);
+    m_helpEngine->removeCustomFilter(filterName);
+    m_helpEngine->addCustomFilter(filterName, QStringList());
+    m_helpEngine->setCustomValue(weAddedFilterKey, 1);
+    m_helpEngine->setCustomValue(previousFilterNameKey, filterName);
     m_helpEngine->setCurrentFilter(filterName);
+
     m_helpEngine->blockSignals(blocked);
 
-    QString addedDocs = m_helpEngine->customValue(QLatin1String("AddedDocs")).toString();
+    const QLatin1String key("AddedDocs");
+    const QString &addedDocs = m_helpEngine->customValue(key).toString();
     if (!addedDocs.isEmpty()) {
-        const QStringList documentationToAdd = addedDocs.split(QLatin1Char(';'));
-        foreach (const QString &item, documentationToAdd)
-            m_helpEngine->registerDocumentation(item);
-        m_helpEngine->removeCustomValue(QLatin1String("AddedDocs"));
+        m_helpEngine->removeCustomValue(key);
+        filesToRegister += addedDocs.split(QLatin1Char(';'));
     }
 
-    m_helpEngine->setupData();
+    if (!updateDocumentation()) {
+        // if no documentation has been added, we need to force a setup data,
+        // otherwise it has already been run in updateDocumentation
+        m_helpEngine->setupData();
+    }
 
     updateFilterComboBox();
     m_bookmarkManager->setupBookmarkModels();
@@ -700,6 +707,11 @@ void HelpPlugin::extensionsInitialized()
         SLOT(updateViewerComboBoxIndex(int)));
     connect(m_centralWidget, SIGNAL(viewerAboutToBeRemoved(int)), this,
         SLOT(removeViewerFromComboBox(int)));
+
+    connect(m_helpEngine, SIGNAL(setupFinished()), this,
+        SLOT(updateFilterComboBox()));
+    connect(helpManager, SIGNAL(helpPluginUpdateDocumentation()), this,
+        SLOT(pluginUpdateDocumentation()));
 }
 
 void HelpPlugin::shutdown()
@@ -970,7 +982,7 @@ void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
 
 void HelpPlugin::handleHelpRequest(const QUrl& url)
 {
-    if (url.queryItemValue("view") == QLatin1String("split"))
+    if (url.queryItemValue(QLatin1String("view")) == QLatin1String("split"))
         openContextHelpPage(url.toString());
     else
         openHelpPage(url.toString());

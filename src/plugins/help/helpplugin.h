@@ -35,6 +35,7 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QtCore/QMap>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -83,6 +84,9 @@ public:
     void openHelpPage(const QString& url);
     void openContextHelpPage(const QString &url);
 
+signals:
+    void helpPluginUpdateDocumentation();
+
 private:
     Internal::HelpPlugin *m_plugin;
 };
@@ -115,7 +119,11 @@ public:
     void openContextHelpPage(const QString &url);
 
     QHelpEngine* helpEngine() const;
+
+    void setFilesToRegister(const QStringList &files);
+
 public slots:
+    void pluginUpdateDocumentation();
     void handleHelpRequest(const QUrl& url);
 
 private slots:
@@ -146,6 +154,9 @@ private slots:
     void rebuildViewerComboBox();
     void removeViewerFromComboBox(int index);
     void updateViewerComboBoxIndex(int index);
+
+private:
+    bool updateDocumentation();
 
 private:
     QToolBar *createToolBar();
@@ -181,6 +192,9 @@ private:
 
     QAction *m_rightPaneBackwardAction;
     QAction *m_rightPaneForwardAction;
+
+    HelpManager *helpManager;
+    QStringList filesToRegister;
 };
 
 } // namespace Internal
