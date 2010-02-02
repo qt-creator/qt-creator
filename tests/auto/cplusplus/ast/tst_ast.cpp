@@ -51,6 +51,7 @@ private slots:
     void condition_1();
     void init_1();
     void conditional_1();
+    void throw_1();
 
     // statements
     void if_statement_1();
@@ -339,6 +340,14 @@ void tst_AST::conditional_1()
     one = assignment->right_expression->asNumericLiteral();
     QVERIFY(one);
     QCOMPARE(unit->spell(one->literal_token), "1");
+}
+
+void tst_AST::throw_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("throw 1;"));
+    AST *ast = unit->ast();
+    QVERIFY(ast != 0);
+    QVERIFY(ast->asExpressionStatement());
 }
 
 void tst_AST::function_call_1()

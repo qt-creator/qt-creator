@@ -182,7 +182,10 @@ inline bool isRightAssociative(int tokenKind)
 #endif
 
 #define PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, minPrecedence) { \
-    if (!parseCastExpression(node)) \
+    if (LA() == T_THROW) { \
+        if (!parseThrowExpression(node)) \
+            return false; \
+    } else if (!parseCastExpression(node)) \
         return false; \
     \
     parseExpressionWithOperatorPrecedence(node, minPrecedence); \
@@ -2322,14 +2325,27 @@ bool Parser::parseStringLiteral(ExpressionAST *&node)
 bool Parser::parseExpressionStatement(StatementAST *&node)
 {
     DEBUG_THIS_RULE();
-    ExpressionAST *expression = 0;
-    if (LA() == T_SEMICOLON || parseExpression(expression)) {
+    if (LA() == T_SEMICOLON) {
         ExpressionStatementAST *ast = new (_pool) ExpressionStatementAST;
-        ast->expression = expression;
         match(T_SEMICOLON, &ast->semicolon_token);
         node = ast;
         return true;
     }
+
+    ExpressionAST *expression = 0;
+    MemoryPool *oldPool = _pool;
+    MemoryPool tmp;
+    _pool = &tmp;
+    if (parseExpression(expression)) {
+        ExpressionStatementAST *ast = new (oldPool) ExpressionStatementAST;
+        ast->expression = expression->clone(oldPool);
+        match(T_SEMICOLON, &ast->semicolon_token);
+        node = ast;
+        _pool = oldPool;
+        return true;
+    }
+    _pool = oldPool;
+
     return false;
 }
 
