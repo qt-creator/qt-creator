@@ -2392,8 +2392,7 @@ bool Parser::parseStatement(StatementAST *&node)
     }
 
     case T_AT_SYNCHRONIZED:
-        if (objCEnabled())
-            return parseObjCSynchronizedStatement(node);
+        return objCEnabled() && parseObjCSynchronizedStatement(node);
 
     case T_Q_D:
     case T_Q_Q: {
@@ -2411,7 +2410,6 @@ bool Parser::parseStatement(StatementAST *&node)
 
         return parseExpressionOrDeclarationStatement(node);
     } // switch
-    return false;
 }
 
 bool Parser::parseBreakStatement(StatementAST *&node)
@@ -2746,6 +2744,10 @@ bool Parser::parseCompoundStatement(StatementAST *&node)
     if (LA() == T_LBRACE) {
         CompoundStatementAST *ast = new (_pool) CompoundStatementAST;
         ast->lbrace_token = consumeToken();
+
+        // ### TODO: the GNU "local label" extension: "__label__ X, Y, Z;"
+        // These are only allowed at the start of a compound stmt regardless of the language.
+
         StatementListAST **statement_ptr = &ast->statement_list;
         while (int tk = LA()) {
             if (tk == T_RBRACE)
