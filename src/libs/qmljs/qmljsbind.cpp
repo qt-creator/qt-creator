@@ -203,6 +203,11 @@ QStringList Bind::includedScripts() const
     return _includedScripts;
 }
 
+QStringList Bind::localImports() const
+{
+    return _localImports;
+}
+
 ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
 {
     ObjectValue *oldObjectValue = _currentObjectValue;
@@ -216,13 +221,37 @@ ObjectValue *Bind::scopeChainAt(Document::Ptr currentDocument, const Snapshot &s
     Bind *currentBind = 0;
     QList<Bind *> binds;
 
-    Snapshot::const_iterator end = snapshot.end();
-    for (Snapshot::const_iterator iter = snapshot.begin(); iter != end; ++iter) {
-        Document::Ptr doc = *iter;
-        Bind *newBind = new Bind(doc, snapshot, interp);
-        binds += newBind;
-        if (doc == currentDocument)
-            currentBind = newBind;
+    QSet<QString> processed;
+    QStringList todo;
+
+    QMultiHash<QString, Document::Ptr> documentByPath;
+    foreach (Document::Ptr doc, snapshot)
+        documentByPath.insert(doc->path(), doc);
+
+    todo.append(currentDocument->path());
+
+    // Bind the reachable documents.
+    while (! todo.isEmpty()) {
+        const QString path = todo.takeFirst();
+
+        if (processed.contains(path))
+            continue;
+
+        processed.insert(path);
+
+        QStringList localImports;
+        foreach (Document::Ptr doc, documentByPath.values(path)) {
+            Bind *newBind = new Bind(doc, snapshot, interp);
+            binds += newBind;
+
+            localImports += newBind->localImports();
+
+            if (doc == currentDocument)
+                currentBind = newBind;
+        }
+
+        localImports.removeDuplicates();
+        todo += localImports;
     }
 
     LinkImports linkImports;
@@ -397,6 +426,12 @@ bool Bind::visit(UiImport *ast)
             namespaceObject->setProperty(object->qmlTypeName(), object);
         }
 #endif // NO_DECLARATIVE_BACKEND
+    } else if (ast->fileName) {
+        QString path = _doc->path();
+        path += QLatin1Char('/');
+        path += ast->fileName->asString();
+        path = QDir::cleanPath(path);
+        _localImports.append(path);
     }
 
     return false;

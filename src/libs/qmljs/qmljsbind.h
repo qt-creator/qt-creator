@@ -51,6 +51,7 @@ public:
     virtual ~Bind();
 
     QStringList includedScripts() const;
+    QStringList localImports() const;
 
     // ### TODO: This methods should go. Bind each document after parsing, link later.
     static Interpreter::ObjectValue *scopeChainAt(Document::Ptr currentDocument,
@@ -95,6 +96,7 @@ private:
     QHash<AST::UiObjectDefinition *, Interpreter::ObjectValue *> _qmlObjectDefinitions;
     QHash<AST::UiObjectBinding *, Interpreter::ObjectValue *> _qmlObjectBindings;
     QStringList _includedScripts;
+    QStringList _localImports;
 
     friend class LinkImports;
     friend class Link;
