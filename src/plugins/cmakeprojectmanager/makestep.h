@@ -63,7 +63,7 @@ public:
 
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     virtual bool immutable() const;
-    bool buildsTarget(const QString &target) const;
+    bool buildsBuildTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QStringList additionalArguments() const;
     void setAdditionalArguments(const QStringList &list);
@@ -103,10 +103,10 @@ private slots:
     void itemChanged(QListWidgetItem*);
     void additionalArgumentsEdited();
     void updateDetails();
-    void targetsChanged();
+    void buildTargetsChanged();
 private:
     MakeStep *m_makeStep;
-    QListWidget *m_targetsList;
+    QListWidget *m_buildTargetsList;
     QLineEdit *m_additionalArguments;
     QString m_summaryText;
 };

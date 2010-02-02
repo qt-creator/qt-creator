@@ -106,7 +106,7 @@ private:
     QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
 
     RunMode m_runMode;
-    QString m_target;
+    QString m_buildTarget;
     QString m_workingDirectory;
     QString m_userWorkingDirectory;
     QString m_title;

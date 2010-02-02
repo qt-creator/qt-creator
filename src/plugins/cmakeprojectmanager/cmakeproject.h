@@ -53,7 +53,7 @@ namespace Internal {
 class CMakeFile;
 class CMakeBuildSettingsWidget;
 
-struct CMakeTarget
+struct CMakeBuildTarget
 {
     QString title;
     QString executable;
@@ -90,10 +90,11 @@ public:
     ProjectExplorer::ProjectNode *rootProjectNode() const;
 
     QStringList files(FilesMode fileMode) const;
-    QStringList targets() const;
-    bool hasTarget(const QString &title) const;
+    QStringList buildTargetTitles() const;
+    QList<CMakeBuildTarget> buildTargets() const;
+    bool hasBuildTarget(const QString &title) const;
 
-    CMakeTarget targetForTitle(const QString &title);
+    CMakeBuildTarget buildTargetForTitle(const QString &title);
 
     QString sourceDirectory() const;
 
@@ -102,7 +103,7 @@ signals:
     /// or if the activeBuildConfiguration changes
     void environmentChanged();
     /// emitted after parsing
-    void targetsChanged();
+    void buildTargetsChanged();
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -130,7 +131,7 @@ private:
     // TODO probably need a CMake specific node structure
     CMakeProjectNode *m_rootNode;
     QStringList m_files;
-    QList<CMakeTarget> m_targets;
+    QList<CMakeBuildTarget> m_buildTargets;
     ProjectExplorer::FileWatcher *m_watcher;
     bool m_insideFileChanged;
     QSet<QString> m_watchedFiles;
@@ -146,7 +147,7 @@ public:
     QList<ProjectExplorer::FileNode *> fileList();
     QList<ProjectExplorer::FileNode *> cmakeFileList();
     QStringList includeFiles();
-    QList<CMakeTarget> targets();
+    QList<CMakeBuildTarget> buildTargets();
     QString projectName() const;
     QString compilerName() const;
     bool hasCMakeFiles();
@@ -155,11 +156,11 @@ private:
     void parseProject();
     void parseBuild();
     void parseOption();
-    void parseTarget();
-    void parseTargetOption();
+    void parseBuildTarget();
+    void parseBuildTargetOption();
     void parseMakeCommand();
-    void parseTargetBuild();
-    void parseTargetClean();
+    void parseBuildTargetBuild();
+    void parseBuildTargetClean();
     void parseCompiler();
     void parseAdd();
     void parseUnit();
@@ -172,9 +173,9 @@ private:
     bool m_parsingCmakeUnit;
     QStringList m_includeFiles;
 
-    CMakeTarget m_target;
-    bool m_targetType;
-    QList<CMakeTarget> m_targets;
+    CMakeBuildTarget m_buildTarget;
+    bool m_buildTargetType;
+    QList<CMakeBuildTarget> m_buildTargets;
     QString m_projectName;
     QString m_compiler;
 };

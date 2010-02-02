@@ -59,14 +59,14 @@ const char * const ARGUMENTS_KEY("CMakeProjectManager.CMakeRunConfiguration.Argu
 const char * const USER_ENVIRONMENT_CHANGES_KEY("CMakeProjectManager.CMakeRunConfiguration.UserEnvironmentChanges");
 const char * const BASE_ENVIRONMENT_BASE_KEY("CMakeProjectManager.BaseEnvironmentBase");
 
-QString targetFromId(const QString &id)
+QString buildTargetFromId(const QString &id)
 {
     if (!id.startsWith(QLatin1String(CMAKE_RC_PREFIX)))
         return QString();
     return id.mid(QString::fromLatin1(CMAKE_RC_PREFIX).length());
 }
 
-QString idFromTarget(const QString &target)
+QString idFromBuildTarget(const QString &target)
 {
     return QString::fromLatin1(CMAKE_RC_PREFIX) + target;
 }
@@ -76,7 +76,7 @@ QString idFromTarget(const QString &target)
 CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title) :
     ProjectExplorer::LocalApplicationRunConfiguration(pro, QString::fromLatin1(CMAKE_RC_PREFIX)),
     m_runMode(Gui),
-    m_target(target),
+    m_buildTarget(target),
     m_workingDirectory(workingDirectory),
     m_title(title),
     m_baseEnvironmentBase(CMakeRunConfiguration::BuildEnvironmentBase)
@@ -87,7 +87,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
 CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, CMakeRunConfiguration *source) :
     ProjectExplorer::LocalApplicationRunConfiguration(pro, source),
     m_runMode(source->m_runMode),
-    m_target(source->m_target),
+    m_buildTarget(source->m_buildTarget),
     m_workingDirectory(source->m_workingDirectory),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
     m_title(source->m_title),
@@ -117,7 +117,7 @@ CMakeProject *CMakeRunConfiguration::cmakeProject() const
 
 QString CMakeRunConfiguration::executable() const
 {
-    return m_target;
+    return m_buildTarget;
 }
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode CMakeRunConfiguration::runMode() const
@@ -144,7 +144,7 @@ QString CMakeRunConfiguration::title() const
 
 void CMakeRunConfiguration::setExecutable(const QString &executable)
 {
-    m_target = executable;
+    m_buildTarget = executable;
 }
 
 void CMakeRunConfiguration::setWorkingDirectory(const QString &wd)
@@ -173,7 +173,7 @@ QVariantMap CMakeRunConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::LocalApplicationRunConfiguration::toMap());
 
-    map.insert(QLatin1String(TARGET_KEY), m_target);
+    map.insert(QLatin1String(TARGET_KEY), m_buildTarget);
     map.insert(QLatin1String(WORKING_DIRECTORY_KEY), m_workingDirectory);
     map.insert(QLatin1String(USER_WORKING_DIRECTORY_KEY), m_userWorkingDirectory);
     map.insert(QLatin1String(USE_TERMINAL_KEY), m_runMode == Console);
@@ -187,7 +187,7 @@ QVariantMap CMakeRunConfiguration::toMap() const
 
 bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 {
-    m_target = map.value(QLatin1String(TARGET_KEY)).toString();
+    m_buildTarget = map.value(QLatin1String(TARGET_KEY)).toString();
     m_workingDirectory = map.value(QLatin1String(WORKING_DIRECTORY_KEY)).toString();
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
     m_runMode = map.value(QLatin1String(USE_TERMINAL_KEY)).toBool() ? Console : Gui;
@@ -453,15 +453,15 @@ QStringList CMakeRunConfigurationFactory::availableCreationIds(ProjectExplorer::
     if (!project)
         return QStringList();
     QStringList allIds;
-    foreach (const QString &target, project->targets())
-        allIds << idFromTarget(target);
+    foreach (const QString &buildTarget, project->buildTargetTitles())
+        allIds << idFromBuildTarget(buildTarget);
     return allIds;
 }
 
 // used to translate the ids to names to display to the user
 QString CMakeRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    return targetFromId(id);
+    return buildTargetFromId(id);
 }
 
 bool CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
@@ -469,7 +469,7 @@ bool CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *parent, c
     CMakeProject *project(qobject_cast<CMakeProject *>(parent));
     if (!project)
         return false;
-    return project->hasTarget(targetFromId(id));
+    return project->hasBuildTarget(buildTargetFromId(id));
 }
 
 ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
@@ -478,8 +478,8 @@ ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::create(ProjectE
         return 0;
     CMakeProject *project(static_cast<CMakeProject *>(parent));
 
-    const QString title(targetFromId(id));
-    const CMakeTarget &ct = project->targetForTitle(title);
+    const QString title(buildTargetFromId(id));
+    const CMakeBuildTarget &ct = project->buildTargetForTitle(title);
     return new CMakeRunConfiguration(project, ct.executable, ct.workingDirectory, ct.title);
 }
 

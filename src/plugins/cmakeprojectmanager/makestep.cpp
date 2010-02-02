@@ -172,18 +172,18 @@ void MakeStep::stdOut(const QString &line)
     AbstractProcessStep::stdOutput(line);
 }
 
-bool MakeStep::buildsTarget(const QString &target) const
+bool MakeStep::buildsBuildTarget(const QString &target) const
 {
     return m_buildTargets.contains(target);
 }
 
-void MakeStep::setBuildTarget(const QString &target, bool on)
+void MakeStep::setBuildTarget(const QString &buildTarget, bool on)
 {
     QStringList old = m_buildTargets;
-    if (on && !old.contains(target))
-        old << target;
-    else if(!on && old.contains(target))
-        old.removeOne(target);
+    if (on && !old.contains(buildTarget))
+        old << buildTarget;
+    else if(!on && old.contains(buildTarget))
+        old.removeOne(buildTarget);
     m_buildTargets = old;
 }
 
@@ -214,20 +214,20 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(m_additionalArguments, SIGNAL(textEdited(const QString &)), this, SLOT(additionalArgumentsEdited()));
 
-    m_targetsList = new QListWidget;
-    m_targetsList->setMinimumHeight(200);
-    fl->addRow(tr("Targets:"), m_targetsList);
+    m_buildTargetsList = new QListWidget;
+    m_buildTargetsList->setMinimumHeight(200);
+    fl->addRow(tr("Targets:"), m_buildTargetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
     // TODO shouldn't be accessing project
     CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
-    foreach(const QString& target, pro->targets()) {
-        QListWidgetItem *item = new QListWidgetItem(target, m_targetsList);
+    foreach(const QString& buildTarget, pro->buildTargetTitles()) {
+        QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
     }
 
-    connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
 
@@ -253,34 +253,34 @@ QString MakeStepConfigWidget::displayName() const
 void MakeStepConfigWidget::init()
 {
     // disconnect to make the changes to the items
-    disconnect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
-    int count = m_targetsList->count();
+    disconnect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    int count = m_buildTargetsList->count();
     for(int i = 0; i < count; ++i) {
-        QListWidgetItem *item = m_targetsList->item(i);
-        item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
+        QListWidgetItem *item = m_buildTargetsList->item(i);
+        item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
     // and connect again
-    connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
 
     m_additionalArguments->setText(Environment::joinArgumentList(m_makeStep->additionalArguments()));
     updateDetails();
 
     CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
-    connect(pro, SIGNAL(targetsChanged()),
-            this, SLOT(targetsChanged()));
+    connect(pro, SIGNAL(buildTargetsChanged()),
+            this, SLOT(buildTargetsChanged()));
 }
 
-void MakeStepConfigWidget::targetsChanged()
+void MakeStepConfigWidget::buildTargetsChanged()
 {
-    disconnect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
-    m_targetsList->clear();
+    disconnect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    m_buildTargetsList->clear();
     CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
-    foreach(const QString& target, pro->targets()) {
-        QListWidgetItem *item = new QListWidgetItem(target, m_targetsList);
+    foreach(const QString& buildTarget, pro->buildTargetTitles()) {
+        QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(m_makeStep->buildsTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
+        item->setCheckState(m_makeStep->buildsBuildTarget(item->text()) ? Qt::Checked : Qt::Unchecked);
     }
-    connect(m_targetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
+    connect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     updateSummary();
 }
 

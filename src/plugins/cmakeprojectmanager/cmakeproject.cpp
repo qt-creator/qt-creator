@@ -205,7 +205,7 @@ bool CMakeProject::parseCMakeLists()
         buildTree(m_rootNode, fileList);
 
         //qDebug()<<"Adding Targets";
-        m_targets = cbpparser.targets();
+        m_buildTargets = cbpparser.buildTargets();
 //        qDebug()<<"Printing targets";
 //        foreach(CMakeTarget ct, m_targets) {
 //            qDebug()<<ct.title<<" with executable:"<<ct.executable;
@@ -257,7 +257,7 @@ bool CMakeProject::parseCMakeLists()
         }
 
         bool setActive = existingRunConfigurations.isEmpty();
-        foreach(const CMakeTarget &ct, m_targets) {
+        foreach(const CMakeBuildTarget &ct, m_buildTargets) {
             if (ct.executable.isEmpty())
                 continue;
             if (ct.title.endsWith(QLatin1String("/fast")))
@@ -299,17 +299,17 @@ bool CMakeProject::parseCMakeLists()
         // TODO report error
         qDebug()<<"Parsing failed";
         // activeBC->updateToolChain(QString::null);
-        emit targetsChanged();
+        emit buildTargetsChanged();
         return false;
     }
-    emit targetsChanged();
+    emit buildTargetsChanged();
     return true;
 }
 
-QStringList CMakeProject::targets() const
+QStringList CMakeProject::buildTargetTitles() const
 {
     QStringList results;
-    foreach (const CMakeTarget &ct, m_targets) {
+    foreach (const CMakeBuildTarget &ct, m_buildTargets) {
         if (ct.executable.isEmpty())
             continue;
         if (ct.title.endsWith(QLatin1String("/fast")))
@@ -319,9 +319,9 @@ QStringList CMakeProject::targets() const
     return results;
 }
 
-bool CMakeProject::hasTarget(const QString &title) const
+bool CMakeProject::hasBuildTarget(const QString &title) const
 {
-    foreach (const CMakeTarget &ct, m_targets) {
+    foreach (const CMakeBuildTarget &ct, m_buildTargets) {
         if (ct.executable.isEmpty())
             continue;
         if (ct.title.endsWith(QLatin1String("/fast")))
@@ -556,7 +556,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     if (!result)
         return false;
 
-    if (!hasUserFile && hasTarget("all"))
+    if (!hasUserFile && hasBuildTarget("all"))
         makeStep->setBuildTarget("all", true);
 
     m_lastActiveBuildConfiguration = activeCMakeBuildConfiguration();
@@ -569,12 +569,12 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     return true;
 }
 
-CMakeTarget CMakeProject::targetForTitle(const QString &title)
+CMakeBuildTarget CMakeProject::buildTargetForTitle(const QString &title)
 {
-    foreach(const CMakeTarget &ct, m_targets)
+    foreach(const CMakeBuildTarget &ct, m_buildTargets)
         if (ct.title == title)
             return ct;
-    return CMakeTarget();
+    return CMakeBuildTarget();
 }
 
 // CMakeFile
@@ -747,45 +747,45 @@ void CMakeCbpParser::parseBuild()
         if (isEndElement()) {
             return;
         } else if (name() == "Target") {
-            parseTarget();
+            parseBuildTarget();
         } else if (isStartElement()) {
             parseUnknownElement();
         }
     }
 }
 
-void CMakeCbpParser::parseTarget()
+void CMakeCbpParser::parseBuildTarget()
 {
-    m_targetType = false;
-    m_target.clear();
+    m_buildTargetType = false;
+    m_buildTarget.clear();
 
     if (attributes().hasAttribute("title"))
-        m_target.title = attributes().value("title").toString();
+        m_buildTarget.title = attributes().value("title").toString();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
-            if (m_targetType || m_target.title == "all" || m_target.title == "install") {
-                m_targets.append(m_target);
+            if (m_buildTargetType || m_buildTarget.title == "all" || m_buildTarget.title == "install") {
+                m_buildTargets.append(m_buildTarget);
             }
             return;
         } else if (name() == "Compiler") {
             parseCompiler();
         } else if (name() == "Option") {
-            parseTargetOption();
+            parseBuildTargetOption();
         } else if (isStartElement()) {
             parseUnknownElement();
         }
     }
 }
 
-void CMakeCbpParser::parseTargetOption()
+void CMakeCbpParser::parseBuildTargetOption()
 {
     if (attributes().hasAttribute("output"))
-        m_target.executable = attributes().value("output").toString();
+        m_buildTarget.executable = attributes().value("output").toString();
     else if (attributes().hasAttribute("type") && (attributes().value("type") == "1" || attributes().value("type") == "0"))
-        m_targetType = true;
+        m_buildTargetType = true;
     else if (attributes().hasAttribute("working_dir"))
-        m_target.workingDirectory = attributes().value("working_dir").toString();
+        m_buildTarget.workingDirectory = attributes().value("working_dir").toString();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -828,19 +828,19 @@ void CMakeCbpParser::parseMakeCommand()
         if (isEndElement()) {
             return;
         } else if (name() == "Build") {
-            parseTargetBuild();
+            parseBuildTargetBuild();
         } else if (name() == "Clean") {
-            parseTargetClean();
+            parseBuildTargetClean();
         } else if (isStartElement()) {
             parseUnknownElement();
         }
     }
 }
 
-void CMakeCbpParser::parseTargetBuild()
+void CMakeCbpParser::parseBuildTargetBuild()
 {
     if (attributes().hasAttribute("command"))
-        m_target.makeCommand = attributes().value("command").toString();
+        m_buildTarget.makeCommand = attributes().value("command").toString();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -851,10 +851,10 @@ void CMakeCbpParser::parseTargetBuild()
     }
 }
 
-void CMakeCbpParser::parseTargetClean()
+void CMakeCbpParser::parseBuildTargetClean()
 {
     if (attributes().hasAttribute("command"))
-        m_target.makeCleanCommand = attributes().value("command").toString();
+        m_buildTarget.makeCleanCommand = attributes().value("command").toString();
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -972,9 +972,9 @@ QStringList CMakeCbpParser::includeFiles()
     return m_includeFiles;
 }
 
-QList<CMakeTarget> CMakeCbpParser::targets()
+QList<CMakeBuildTarget> CMakeCbpParser::buildTargets()
 {
-    return m_targets;
+    return m_buildTargets;
 }
 
 QString CMakeCbpParser::compilerName() const
@@ -982,7 +982,7 @@ QString CMakeCbpParser::compilerName() const
     return m_compiler;
 }
 
-void CMakeTarget::clear()
+void CMakeBuildTarget::clear()
 {
     executable = QString::null;
     makeCommand = QString::null;

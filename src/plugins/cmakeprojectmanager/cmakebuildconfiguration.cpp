@@ -297,7 +297,7 @@ ProjectExplorer::BuildConfiguration *CMakeBuildConfigurationFactory::create(Proj
     cmProject->parseCMakeLists();
 
     // Default to all
-    if (cmProject->hasTarget("all"))
+    if (cmProject->hasBuildTarget("all"))
         makeStep->setBuildTarget("all", true);
 
     return bc;
