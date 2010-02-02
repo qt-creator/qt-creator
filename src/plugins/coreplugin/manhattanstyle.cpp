@@ -407,6 +407,9 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
         if (panelWidget(widget))
             ret = false;
         break;
+    case QStyle::SH_ItemView_ArrowKeysNavigateIntoChildren:
+        ret = true;
+        break;
     default:
         break;
     }
