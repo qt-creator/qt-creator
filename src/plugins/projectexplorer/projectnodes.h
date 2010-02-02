@@ -167,7 +167,7 @@ public:
 
     // determines if the project will be shown in the flat view
     // TODO find a better name
-    virtual bool hasTargets() const = 0;
+    virtual bool hasBuildTargets() const = 0;
 
     virtual QList<ProjectAction> supportedActions() const = 0;
 

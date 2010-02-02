@@ -53,7 +53,7 @@ public:
     Core::IFile *projectFile() const;
     QString projectFilePath() const;
 
-    virtual bool hasTargets() const;
+    virtual bool hasBuildTargets() const;
 
     virtual QList<ProjectExplorer::ProjectNode::ProjectAction> supportedActions() const;
 

@@ -41,7 +41,7 @@ class CMakeProjectNode : public ProjectExplorer::ProjectNode
     friend class CMakeProject;
 public:
     CMakeProjectNode(const QString &fileName);
-    virtual bool hasTargets() const;
+    virtual bool hasBuildTargets() const;
     virtual QList<ProjectExplorer::ProjectNode::ProjectAction> supportedActions() const;
     virtual bool addSubProjects(const QStringList &proFilePaths);
     virtual bool removeSubProjects(const QStringList &proFilePaths);

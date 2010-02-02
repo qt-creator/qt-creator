@@ -162,7 +162,7 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
     return findOrCreateFolderByName(components, components.length());
 }
 
-bool GenericProjectNode::hasTargets() const
+bool GenericProjectNode::hasBuildTargets() const
 {
     return true;
 }

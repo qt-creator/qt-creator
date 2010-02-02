@@ -783,7 +783,7 @@ void Qt4ProFileNode::buildStateChanged(ProjectExplorer::Project *project)
     }
 }
 
-bool Qt4ProFileNode::hasTargets() const
+bool Qt4ProFileNode::hasBuildTargets() const
 {
     return (projectType() == ApplicationTemplate) || (projectType() == LibraryTemplate);
 }

@@ -140,7 +140,7 @@ public:
 // ProjectNode interface
     QList<ProjectAction> supportedActions() const;
 
-    bool hasTargets() const { return false; }
+    bool hasBuildTargets() const { return false; }
 
     bool addSubProjects(const QStringList &proFilePaths);
     bool removeSubProjects(const QStringList &proFilePaths);
@@ -203,7 +203,7 @@ public:
                    QObject *parent = 0);
     ~Qt4ProFileNode();
 
-    bool hasTargets() const;
+    bool hasBuildTargets() const;
 
     Qt4ProjectType projectType() const;
 
