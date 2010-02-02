@@ -142,10 +142,12 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         return;
 
     const SemanticInfo semanticInfo = edit->semanticInfo();
-    const Snapshot snapshot = semanticInfo.snapshot;
-    Document::Ptr qmlDocument = semanticInfo.document;
-    if (qmlDocument.isNull())
+
+    if (semanticInfo.revision() != edit->documentRevision())
         return;
+
+    const Snapshot snapshot = semanticInfo.snapshot;
+    const Document::Ptr qmlDocument = semanticInfo.document;
 
     if (m_helpEngineNeedsSetup && m_helpEngine->registeredDocumentations().count() > 0) {
         m_helpEngine->setupData();
@@ -169,10 +171,10 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(pos);
 
             Interpreter::Engine interp;
-            Interpreter::ObjectValue *scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
+            const Interpreter::ObjectValue *scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
 
             Check check(&interp);
-            const Interpreter::Value *value = check(node->expressionCast(), scope);
+            const Interpreter::Value *value = check(node, scope);
 
             QStringList baseClasses;
             m_toolTip = prettyPrint(value, &interp, &baseClasses);

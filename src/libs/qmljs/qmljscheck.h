@@ -48,11 +48,11 @@ public:
     Check(Interpreter::Engine *engine);
     virtual ~Check();
 
-    const Interpreter::Value *operator()(AST::ExpressionNode *ast, const Interpreter::ObjectValue *scope);
-    const Interpreter::Value *check(AST::ExpressionNode *ast);
+    const Interpreter::Value *operator()(AST::Node *ast, const Interpreter::ObjectValue *scope);
 
 protected:
     void accept(AST::Node *node);
+    const Interpreter::Value *check(AST::Node *ast);
 
     Interpreter::Engine *switchEngine(Interpreter::Engine *engine);
     const Interpreter::Value *switchResult(const Interpreter::Value *result);

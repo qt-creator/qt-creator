@@ -131,7 +131,8 @@ public:
 
     virtual void unCommentSelection();
 
-    SemanticInfo semanticInfo() const { return m_semanticInfo; }
+    SemanticInfo semanticInfo() const;
+    int documentRevision() const;
 
 public slots:
     virtual void setFontSettings(const TextEditor::FontSettings &);

@@ -567,6 +567,16 @@ QmlJSTextEditor::~QmlJSTextEditor()
 {
 }
 
+SemanticInfo QmlJSTextEditor::semanticInfo() const
+{
+    return m_semanticInfo;
+}
+
+int QmlJSTextEditor::documentRevision() const
+{
+    return document()->revision();
+}
+
 Core::IEditor *QmlJSEditorEditable::duplicate(QWidget *parent)
 {
     QmlJSTextEditor *newEditor = new QmlJSTextEditor(parent);

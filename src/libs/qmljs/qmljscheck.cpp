@@ -47,7 +47,7 @@ Check::~Check()
 {
 }
 
-const Interpreter::Value *Check::operator()(AST::ExpressionNode *ast, const Interpreter::ObjectValue *scope)
+const Interpreter::Value *Check::operator()(AST::Node *ast, const Interpreter::ObjectValue *scope)
 {
     const Interpreter::ObjectValue *previousScope = switchScope(scope);
     const Interpreter::Value *result = check(ast);
@@ -55,7 +55,7 @@ const Interpreter::Value *Check::operator()(AST::ExpressionNode *ast, const Inte
     return result;
 }
 
-const Interpreter::Value *Check::check(AST::ExpressionNode *ast)
+const Interpreter::Value *Check::check(AST::Node *ast)
 {
     const Value *previousResult = switchResult(0);
     accept(ast);
@@ -151,8 +151,31 @@ bool Check::visit(AST::UiArrayMemberList *)
     return false;
 }
 
-bool Check::visit(AST::UiQualifiedId *)
+bool Check::visit(AST::UiQualifiedId *ast)
 {
+    if (! ast->name)
+         return false;
+
+    const Value *value = _scope->lookup(ast->name->asString());
+    if (! ast->next) {
+        _result = value;
+
+    } else {
+        const ObjectValue *base = value_cast<const ObjectValue *>(value);
+
+        for (AST::UiQualifiedId *it = ast->next; base && it; it = it->next) {
+            NameId *name = it->name;
+            if (! name)
+                break;
+
+            const Value *value = base->property(name->asString());
+            if (! it->next)
+                _result = value;
+            else
+                base = value_cast<const ObjectValue *>(value);
+        }
+    }
+
     return false;
 }
 
