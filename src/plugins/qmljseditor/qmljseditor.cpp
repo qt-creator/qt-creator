@@ -837,7 +837,7 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
     Link link;
     const SemanticInfo semanticInfo = m_semanticInfo;
 
-    if (semanticInfo.document) {
+    if (semanticInfo.document && semanticInfo.revision() == document()->revision()) {
         CollectASTNodes nodes;
         nodes.accept(semanticInfo.document->ast());
 
