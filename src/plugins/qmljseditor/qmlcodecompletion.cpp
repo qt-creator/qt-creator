@@ -616,11 +616,9 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     m_completions.clear();
 
-    SemanticInfo semanticInfo = edit->semanticInfo();
+    const SemanticInfo semanticInfo = edit->semanticInfo();
     const QmlJS::Snapshot snapshot = semanticInfo.snapshot;
-    Document::Ptr qmlDocument = semanticInfo.document;
-    if (qmlDocument.isNull())
-        return -1;
+    const Document::Ptr qmlDocument = semanticInfo.document;
 
     const QFileInfo currentFileInfo(fileName);
 
@@ -635,7 +633,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     // Set up the current scope chain.
     Interpreter::ObjectValue *scope = interp.globalObject();
 
-    if (isQmlFile) {
+    if (isQmlFile && qmlDocument) {
         AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(editor->position());
         scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
     }
