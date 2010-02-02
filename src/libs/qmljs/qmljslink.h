@@ -29,6 +29,7 @@ public:
 private:
     static QList<Document::Ptr> reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot);
     static const Interpreter::ObjectValue *lookupType(Interpreter::ObjectValue *env, AST::UiQualifiedId *id);
+    static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
     void linkImports();
 
@@ -37,7 +38,7 @@ private:
                     AST::UiImport *import, const QString &startPath);
     void importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
                        AST::UiImport *import);
-    void importObject(BindPtr bind, const QString &name, Interpreter::ObjectValue *object, NameId* targetNamespace);
+    void importObject(BindPtr bind, const QString &name, Interpreter::ObjectValue *object, NameId* targetNamespace);    
 
 private:
     Snapshot _snapshot;

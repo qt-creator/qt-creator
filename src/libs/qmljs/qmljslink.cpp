@@ -31,11 +31,7 @@ Link::~Link()
             bind->_idEnvironment->setScope(0);
             bind->_functionEnvironment->setScope(0);
 
-            foreach (ObjectValue *object, bind->_qmlObjectBindings) {
-                object->setPrototype(0);
-                object->setScope(0);
-            }
-            foreach (ObjectValue *object, bind->_qmlObjectDefinitions) {
+            foreach (ObjectValue *object, bind->_qmlObjects) {
                 object->setPrototype(0);
                 object->setScope(0);
             }
@@ -55,13 +51,9 @@ ObjectValue *Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 {
     BindPtr bind = doc->bind();
 
-    ObjectValue *scopeObject;
+    ObjectValue *scopeObject = 0;
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
-        scopeObject = bind->_qmlObjectDefinitions.value(definition);
-    else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
-        scopeObject = bind->_qmlObjectBindings.value(binding);
-    else
-        return bind->_interp.globalObject();
+        scopeObject = bind->_qmlObjects.value(definition);
 
     if (!scopeObject)
         return bind->_interp.globalObject();
@@ -103,29 +95,14 @@ void Link::linkImports()
         populateImportedTypes(typeEnv, doc);
 
         // Set the prototypes.
-        {
-            QHash<UiObjectDefinition *, ObjectValue *>::iterator it = bind->_qmlObjectDefinitions.begin();
-            QHash<UiObjectDefinition *, ObjectValue *>::iterator end = bind->_qmlObjectDefinitions.end();
-            for (; it != end; ++it) {
-                UiObjectDefinition *key = it.key();
-                ObjectValue *value = it.value();
-                if (!key->qualifiedTypeNameId)
-                    continue;
+        QHashIterator<Node *, ObjectValue *> it(bind->_qmlObjects);
+        while (it.hasNext()) {
+            it.next();
+            Node *binding = it.key();
+            ObjectValue *value = it.value();
 
-                value->setPrototype(lookupType(typeEnv, key->qualifiedTypeNameId));
-            }
-        }
-        {
-            QHash<UiObjectBinding *, ObjectValue *>::iterator it = bind->_qmlObjectBindings.begin();
-            QHash<UiObjectBinding *, ObjectValue *>::iterator end = bind->_qmlObjectBindings.end();
-            for (; it != end; ++it) {
-                UiObjectBinding *key = it.key();
-                ObjectValue *value = it.value();
-                if (!key->qualifiedTypeNameId)
-                    continue;
-
-                value->setPrototype(lookupType(typeEnv, key->qualifiedTypeNameId));
-            }
+            if (UiQualifiedId *qualifiedId = qualifiedTypeNameId(binding))
+                value->setPrototype(lookupType(typeEnv, qualifiedId));
         }
     }
 }
@@ -288,6 +265,16 @@ const ObjectValue *Link::lookupType(ObjectValue *env, UiQualifiedId *id)
     }
 
     return objectValue;
+}
+
+UiQualifiedId *Link::qualifiedTypeNameId(Node *node)
+{
+    if (UiObjectBinding *binding = AST::cast<UiObjectBinding *>(node))
+        return binding->qualifiedTypeNameId;
+    else if (UiObjectDefinition *binding = AST::cast<UiObjectDefinition *>(node))
+        return binding->qualifiedTypeNameId;
+    else
+        return 0;
 }
 
 QList<Document::Ptr> Link::reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot)

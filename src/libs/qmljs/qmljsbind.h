@@ -83,8 +83,7 @@ private:
     Interpreter::ObjectValue *_functionEnvironment;
     Interpreter::ObjectValue *_rootObjectValue;
 
-    QHash<AST::UiObjectDefinition *, Interpreter::ObjectValue *> _qmlObjectDefinitions;
-    QHash<AST::UiObjectBinding *, Interpreter::ObjectValue *> _qmlObjectBindings;
+    QHash<AST::Node *, Interpreter::ObjectValue *> _qmlObjects;
     QStringList _includedScripts;
     QStringList _localImports;
 

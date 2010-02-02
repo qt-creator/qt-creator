@@ -270,7 +270,7 @@ bool Bind::visit(UiPublicMember *)
 bool Bind::visit(UiObjectDefinition *ast)
 {
     ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
-    _qmlObjectDefinitions.insert(ast, value);
+    _qmlObjects.insert(ast, value);
 
     return false;
 }
@@ -279,7 +279,7 @@ bool Bind::visit(UiObjectBinding *ast)
 {
 //    const QString name = serialize(ast->qualifiedId);
     ObjectValue *value = bindObject(ast->qualifiedTypeNameId, ast->initializer);
-    _qmlObjectBindings.insert(ast, value);
+    _qmlObjects.insert(ast, value);
     // ### FIXME: we don't handle dot-properties correctly (i.e. font.size)
 //    _currentObjectValue->setProperty(name, value);
 
