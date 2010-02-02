@@ -44,7 +44,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <help/helpplugin.h>
+#include <help/helpmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QProcess>

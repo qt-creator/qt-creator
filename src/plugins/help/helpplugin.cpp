@@ -26,7 +26,6 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-
 #include "helpplugin.h"
 
 #include "bookmarkmanager.h"
@@ -37,12 +36,11 @@
 #include "generalsettingspage.h"
 #include "helpfindsupport.h"
 #include "helpindexfilter.h"
+#include "helpmanager.h"
 #include "helpmode.h"
 #include "helpviewer.h"
 #include "indexwindow.h"
 #include "searchwidget.h"
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -55,65 +53,38 @@
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
 #include <coreplugin/uniqueidmanager.h>
-
+#include <extensionsystem/pluginmanager.h>
+#include <texteditor/texteditorconstants.h>
+#include <utils/styledbar.h>
 #include <welcome/welcomemode.h>
 
-#include <texteditor/texteditorconstants.h>
-
-#include <utils/styledbar.h>
-
-#include <QtCore/QDebug>
-#include <QtCore/qplugin.h>
-#include <QtCore/QFileInfo>
-#include <QtCore/QSettings>
 #include <QtCore/QDir>
-#include <QtCore/QResource>
+#include <QtCore/QFileInfo>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
+#include <QtCore/qplugin.h>
+
 #include <QtGui/QAction>
+#include <QtGui/QComboBox>
+#include <QtGui/QMessageBox>
+#include <QtGui/QDesktopServices>
 #include <QtGui/QShortcut>
 #include <QtGui/QSplitter>
-#include <QtGui/QStyle>
 #include <QtGui/QToolBar>
-#include <QtGui/QComboBox>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QMessageBox>
+
 #include <QtHelp/QHelpEngine>
 
-#ifndef QT_NO_WEBKIT
-#include <QtGui/QApplication>
+#if defined(QT_NO_WEBKIT)
+#   include <QtGui/QApplication>
 #else
-#include <QtWebKit/QWebSettings>
+#   include <QtWebKit/QWebSettings>
 #endif
 
 using namespace Help;
 using namespace Help::Internal;
 
-HelpManager::HelpManager(Internal::HelpPlugin* plugin)
-    : m_plugin(plugin)
-{
-}
-
-void HelpManager::registerDocumentation(const QStringList &fileNames)
-{
-    if (m_plugin) {
-        m_plugin->setFilesToRegister(fileNames);
-        emit helpPluginUpdateDocumentation();
-    }
-}
-
-void HelpManager::openHelpPage(const QString& url)
-{
-    m_plugin->handleHelpRequest(url);
-}
-
-void HelpManager::openContextHelpPage(const QString& url)
-{
-    m_plugin->openContextHelpPage(url);
-}
-
-HelpPlugin::HelpPlugin() :
-    m_core(0),
+HelpPlugin::HelpPlugin()
+    : m_core(0),
     m_helpEngine(0),
     m_contextHelpEngine(0),
     m_contentWidget(0),
@@ -167,8 +138,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 #endif
 
     // FIXME shouldn't the help engine create the directory if it doesn't exist?
-    QFileInfo fi(m_core->settings()->fileName());
-    QDir directory(fi.absolutePath()+"/qtcreator");
+    const QFileInfo &fi(m_core->settings()->fileName());
+    const QDir &directory(fi.absolutePath()+"/qtcreator");
     if (!directory.exists())
         directory.mkpath(directory.absolutePath());
     m_helpEngine = new QHelpEngine(directory.absolutePath() +

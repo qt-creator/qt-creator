@@ -51,7 +51,7 @@
 #include <texteditor/textfilewizard.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/completionsupport.h>
-#include <help/helpplugin.h>
+#include <help/helpmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QtPlugin>

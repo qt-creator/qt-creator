@@ -37,7 +37,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <help/helpplugin.h>
+#include <help/helpmanager.h>
 
 #include <QtCore/QDateTime>
 #include <QtCore/QDir>

@@ -26,11 +26,8 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-
 #ifndef HELPPLUGIN_H
 #define HELPPLUGIN_H
-
-#include "help_global.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -40,9 +37,8 @@
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
-class QHelpEngineCore;
 class QHelpEngine;
-class QShortcut;
+class QHelpEngineCore;
 class QToolBar;
 class QUrl;
 QT_END_NAMESPACE
@@ -53,50 +49,28 @@ class BookmarkManager;
 class BookmarkWidget;
 class HelpViewer;
 
-
 namespace Core {
 class ICore;
 class IMode;
 class SideBar;
 class SideBarItem;
-}
+}   // Core
 
 namespace Help {
-namespace Internal {
-    class CentralWidget;
-    class HelpPlugin;
-}
+class HelpManager;
 
 namespace Constants {
-    const char * const C_MODE_HELP    = "Help Mode";
-    const char * const C_HELP_SIDEBAR = "Help Sidebar";
-    const int          P_MODE_HELP    = 70;
-    const char * const ID_MODE_HELP   = "Help";
-}
-
-class HELP_EXPORT HelpManager : public QObject
-{
-    Q_OBJECT
-public:
-    HelpManager(Internal::HelpPlugin*);
-
-    void registerDocumentation(const QStringList &fileNames);
-    void openHelpPage(const QString& url);
-    void openContextHelpPage(const QString &url);
-
-signals:
-    void helpPluginUpdateDocumentation();
-
-private:
-    Internal::HelpPlugin *m_plugin;
-};
+const char * const C_MODE_HELP    = "Help Mode";
+const char * const C_HELP_SIDEBAR = "Help Sidebar";
+const int          P_MODE_HELP    = 70;
+const char * const ID_MODE_HELP   = "Help";
+}   // Constants
 
 namespace Internal {
-
-class HelpMode;
-class HelpPluginEditorFactory;
+class CentralWidget;
 class DocSettingsPage;
 class FilterSettingsPage;
+class HelpMode;
 class SearchWidget;
 
 class HelpPlugin : public ExtensionSystem::IPlugin
@@ -124,7 +98,7 @@ public:
 
 public slots:
     void pluginUpdateDocumentation();
-    void handleHelpRequest(const QUrl& url);
+    void handleHelpRequest(const QUrl &url);
 
 private slots:
     void modeChanged(Core::IMode *mode);
@@ -172,7 +146,7 @@ private:
     BookmarkWidget *m_bookmarkWidget;
     BookmarkManager *m_bookmarkManager;
     SearchWidget *m_searchWidget;
-    Help::Internal::CentralWidget *m_centralWidget;
+    CentralWidget *m_centralWidget;
     HelpViewer *m_helpViewerForSideBar;
     HelpMode *m_mode;
     bool m_shownLastPages;
