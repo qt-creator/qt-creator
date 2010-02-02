@@ -86,67 +86,86 @@ public:
 
 int DebugRule::depth = 0;
 
+inline bool lookAtAssignmentOperator(int tokenKind)
+{
+    switch (tokenKind) {
+    case T_EQUAL:
+    case T_AMPER_EQUAL:
+    case T_CARET_EQUAL:
+    case T_SLASH_EQUAL:
+    case T_GREATER_GREATER_EQUAL:
+    case T_LESS_LESS_EQUAL:
+    case T_MINUS_EQUAL:
+    case T_PERCENT_EQUAL:
+    case T_PIPE_EQUAL:
+    case T_PLUS_EQUAL:
+    case T_STAR_EQUAL:
+    case T_TILDE_EQUAL:
+        return true;
+    default:
+        return false;
+    } // switch
+}
+
+namespace Prec { // operator-precedence
+
+enum {
+    Unknown         = 0,
+    Comma           = 1,
+    Assignment      = 2,
+    Conditional     = 3,
+    LogicalOr       = 4,
+    LogicalAnd      = 5,
+    InclusiveOr     = 6,
+    ExclusiveOr     = 7,
+    And             = 8,
+    Equality        = 9,
+    Relational      = 10,
+    Shift           = 11,
+    Additive        = 12,
+    Multiplicative  = 13,
+    PointerToMember = 14
+};
+
 inline int precedence(int tokenKind, bool templateArguments)
 {
     if (templateArguments && tokenKind == T_GREATER)
         return -1;
 
+    if (lookAtAssignmentOperator(tokenKind))
+        return Assignment;
+
     switch (tokenKind) {
-    case T_PIPE_PIPE:       return 0;
-    case T_AMPER_AMPER:     return 1;
-    case T_PIPE:            return 2;
-    case T_CARET:           return 3;
-    case T_AMPER:           return 4;
+    case T_COMMA:           return Comma;
+    case T_QUESTION:        return Conditional;
+    case T_PIPE_PIPE:       return LogicalOr;
+    case T_AMPER_AMPER:     return LogicalAnd;
+    case T_PIPE:            return InclusiveOr;
+    case T_CARET:           return ExclusiveOr;
+    case T_AMPER:           return And;
     case T_EQUAL_EQUAL:
-    case T_EXCLAIM_EQUAL:   return 5;
+    case T_EXCLAIM_EQUAL:   return Equality;
     case T_GREATER:
     case T_LESS:
     case T_LESS_EQUAL:
-    case T_GREATER_EQUAL:   return 6;
+    case T_GREATER_EQUAL:   return Relational;
     case T_LESS_LESS:
-    case T_GREATER_GREATER: return 7;
+    case T_GREATER_GREATER: return ExclusiveOr;
     case T_PLUS:
-    case T_MINUS:           return 8;
+    case T_MINUS:           return Additive;
     case T_STAR:
     case T_SLASH:
-    case T_PERCENT:         return 9;
+    case T_PERCENT:         return Multiplicative;
     case T_ARROW_STAR:
-    case T_DOT_STAR:        return 10;
-
-    default:
-        return -1;
+    case T_DOT_STAR:        return PointerToMember;
+    default:                return Unknown;
     }
 }
+
+} // end of namespace Precedece
 
 inline bool isBinaryOperator(int tokenKind)
-{
-    switch (tokenKind) {
-    case T_PIPE_PIPE:
-    case T_AMPER_AMPER:
-    case T_PIPE:
-    case T_CARET:
-    case T_AMPER:
-    case T_EQUAL_EQUAL:
-    case T_EXCLAIM_EQUAL:
-    case T_GREATER:
-    case T_LESS:
-    case T_LESS_EQUAL:
-    case T_GREATER_EQUAL:
-    case T_LESS_LESS:
-    case T_GREATER_GREATER:
-    case T_PLUS:
-    case T_MINUS:
-    case T_STAR:
-    case T_SLASH:
-    case T_PERCENT:
-    case T_ARROW_STAR:
-    case T_DOT_STAR:
-        return true;
-
-    default:
-        return false;
-    }
-}
+{ return Prec::precedence(tokenKind, false) != Prec::Unknown; }
 
 } // end of anonymous namespace
 
@@ -4231,57 +4250,57 @@ bool Parser::parseCastExpression(ExpressionAST *&node)
 
 bool Parser::parsePmExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_ARROW_STAR, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_ARROW_STAR, _templateArguments))
 }
 
 bool Parser::parseMultiplicativeExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_STAR, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_STAR, _templateArguments))
 }
 
 bool Parser::parseAdditiveExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_PLUS, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_PLUS, _templateArguments))
 }
 
 bool Parser::parseShiftExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_LESS_LESS, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_LESS_LESS, _templateArguments))
 }
 
 bool Parser::parseRelationalExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_LESS, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_LESS, _templateArguments))
 }
 
 bool Parser::parseEqualityExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_EQUAL_EQUAL, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_EQUAL_EQUAL, _templateArguments))
 }
 
 bool Parser::parseAndExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_AMPER, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_AMPER, _templateArguments))
 }
 
 bool Parser::parseExclusiveOrExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_CARET, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_CARET, _templateArguments))
 }
 
 bool Parser::parseInclusiveOrExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_PIPE, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_PIPE, _templateArguments))
 }
 
 bool Parser::parseLogicalAndExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_AMPER_AMPER, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_AMPER_AMPER, _templateArguments))
 }
 
 bool Parser::parseLogicalOrExpression(ExpressionAST *&node)
 {
-    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, precedence(T_PIPE_PIPE, _templateArguments))
+    PARSE_EXPRESSION_WITH_OPERATOR_PRECEDENCE(node, Prec::precedence(T_PIPE_PIPE, _templateArguments))
 }
 
 bool Parser::parseConditionalExpression(ExpressionAST *&node)
@@ -4303,27 +4322,6 @@ bool Parser::parseConditionalExpression(ExpressionAST *&node)
     return true;
 }
 
-bool Parser::lookAtAssignmentOperator() const
-{
-    switch (LA()) {
-    case T_EQUAL:
-    case T_AMPER_EQUAL:
-    case T_CARET_EQUAL:
-    case T_SLASH_EQUAL:
-    case T_GREATER_GREATER_EQUAL:
-    case T_LESS_LESS_EQUAL:
-    case T_MINUS_EQUAL:
-    case T_PERCENT_EQUAL:
-    case T_PIPE_EQUAL:
-    case T_PLUS_EQUAL:
-    case T_STAR_EQUAL:
-    case T_TILDE_EQUAL:
-        return true;
-    default:
-        return false;
-    } // switch
-}
-
 bool Parser::parseAssignmentExpression(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
@@ -4332,7 +4330,7 @@ bool Parser::parseAssignmentExpression(ExpressionAST *&node)
     else if (! parseConditionalExpression(node))
         return false;
 
-    if (lookAtAssignmentOperator()) {
+    if (lookAtAssignmentOperator(LA())) {
         unsigned op = consumeToken();
 
         ExpressionAST *rightExpr = 0;
@@ -4392,16 +4390,16 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
 {
     DEBUG_THIS_RULE();
 
-    while (precedence(tok().kind(), _templateArguments) >= minPrecedence) {
-        const int operPrecedence = precedence(tok().kind(), _templateArguments);
+    while (Prec::precedence(tok().kind(), _templateArguments) >= minPrecedence) {
+        const int operPrecedence = Prec::precedence(tok().kind(), _templateArguments);
         const int oper = consumeToken();
         ExpressionAST *rhs = 0;
         if (!parseCastExpression(rhs))
             return;
 
-        for (int tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments);
+        for (int tokenKindAhead = tok().kind(), precedenceAhead = Prec::precedence(tokenKindAhead, _templateArguments);
                 precedenceAhead > operPrecedence && isBinaryOperator(tokenKindAhead);
-                tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments)) {
+                tokenKindAhead = tok().kind(), precedenceAhead = Prec::precedence(tokenKindAhead, _templateArguments)) {
             parseExpressionWithOperatorPrecedence(rhs, precedenceAhead);
         }
 

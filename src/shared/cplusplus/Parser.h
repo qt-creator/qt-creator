@@ -267,7 +267,6 @@ public:
     bool lookAtStorageClassSpecifier() const;
     bool lookAtBuiltinTypeSpecifier() const;
     bool lookAtClassKey() const;
-    bool lookAtAssignmentOperator() const;
 
     void match(int kind, unsigned *token);
 
