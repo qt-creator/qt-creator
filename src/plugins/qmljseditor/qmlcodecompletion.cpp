@@ -616,9 +616,8 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     m_completions.clear();
 
-    QmlJS::Snapshot snapshot = m_modelManager->snapshot();
-
     SemanticInfo semanticInfo = edit->semanticInfo();
+    const QmlJS::Snapshot snapshot = semanticInfo.snapshot;
     Document::Ptr qmlDocument = semanticInfo.document;
     if (qmlDocument.isNull())
         return -1;

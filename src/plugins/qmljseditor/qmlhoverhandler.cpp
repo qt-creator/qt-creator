@@ -140,8 +140,8 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!edit)
         return;
 
-    const Snapshot snapshot = m_modelManager->snapshot();
-    SemanticInfo semanticInfo = edit->semanticInfo();
+    const SemanticInfo semanticInfo = edit->semanticInfo();
+    const Snapshot snapshot = semanticInfo.snapshot;
     Document::Ptr qmlDocument = semanticInfo.document;
     if (qmlDocument.isNull())
         return;
@@ -181,13 +181,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
         QmlExpressionUnderCursor expressionUnderCursor;
         QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
 
-        AST::UiObjectMember *declaringMember = 0;
-
-        foreach (const Range &range, semanticInfo.ranges) {
-            if (pos >= range.begin.position() && pos <= range.end.position()) {
-                declaringMember = range.ast;
-            }
-        }
+        AST::UiObjectMember *declaringMember = semanticInfo.declaringMember(pos);
 
         Interpreter::Engine interp;
         Interpreter::ObjectValue *scope = Bind::scopeChainAt(qmlDocument, snapshot, &interp, declaringMember);
