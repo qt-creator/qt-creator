@@ -1121,10 +1121,19 @@ void BinEditor::zoomOut(int range)
 
 void BinEditor::copy()
 {
-    int selStart = qMin(m_cursorPosition, m_anchorPosition);
-    int selEnd = qMax(m_cursorPosition, m_anchorPosition);
-    if (selStart < selEnd)
-        QApplication::clipboard()->setText(QString::fromLatin1(dataMid(selStart, selEnd - selStart)));
+    const int selStart = selectionStart();
+    const int selEnd = selectionEnd();
+    if (selStart < selEnd) {
+        const QByteArray &data = dataMid(selStart, selEnd - selStart);
+        QString hexString;
+        const char * const hex = "0123456789abcdef";
+        for (int i = 0; i < data.size(); ++i) {
+            const uchar val = static_cast<uchar>(data[i]);
+            hexString.append(hex[val >> 4]).append(hex[val & 0xf]).append(' ');
+        }
+        hexString.chop(1);
+        QApplication::clipboard()->setText(hexString);
+    }
 }
 
 void BinEditor::highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags findFlags)
