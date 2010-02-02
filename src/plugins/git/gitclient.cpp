@@ -131,7 +131,8 @@ GitClient::GitClient(GitPlugin* plugin)
   : m_msgWait(tr("Waiting for data...")),
     m_plugin(plugin),
     m_core(Core::ICore::instance()),
-    m_repositoryChangedSignalMapper(0)
+    m_repositoryChangedSignalMapper(0),
+    m_cachedGitVersion(0)
 {
     if (QSettings *s = m_core->settings()) {
         m_settings.fromSettings(s);
@@ -463,17 +464,45 @@ void GitClient::addFile(const QString &workingDirectory, const QString &fileName
     executeGit(workingDirectory, arguments, 0, true);
 }
 
-bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringList &files)
+// Warning: 'intendToAdd' works only from 1.6.1 onwards
+bool GitClient::synchronousAdd(const QString &workingDirectory,
+                               bool intendToAdd,
+                               const QStringList &files)
 {
     if (Git::Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDirectory << files;
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
-    arguments << QLatin1String("add") << files;
+    arguments << QLatin1String("add");
+    if (intendToAdd)
+        arguments << QLatin1String("--intent-to-add");
+    arguments.append(files);
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString errorMessage = tr("Unable to add %n file(s) to %1: %2", 0, files.size()).
+                                     arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
+    }
+    return rc;
+}
+
+bool GitClient::synchronousDelete(const QString &workingDirectory,
+                                  bool force,
+                                  const QStringList &files)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory << files;
+    QByteArray outputText;
+    QByteArray errorText;
+    QStringList arguments;
+    arguments << QLatin1String("rm");
+    if (force)
+        arguments << QLatin1String("--force");
+    arguments.append(files);
+    const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
+    if (!rc) {
+        const QString errorMessage = tr("Unable to remove %n file(s) from %1: %2", 0, files.size()).
                                      arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
         VCSBase::VCSBaseOutputWindow::instance()->appendError(errorMessage);
     }
@@ -1233,7 +1262,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     // for deletion
     QStringList addFiles = checkedFiles.toSet().subtract(origDeletedFiles.toSet()).toList();
     if (!addFiles.isEmpty())
-        if (!synchronousAdd(repositoryDirectory, addFiles))
+        if (!synchronousAdd(repositoryDirectory, false, addFiles))
             return false;
 
     // Do the final commit
@@ -1526,6 +1555,7 @@ void GitClient::setSettings(const GitSettings &s)
         if (QSettings *s = m_core->settings())
             m_settings.toSettings(s);
         m_binaryPath = m_settings.gitBinaryPath();
+        m_cachedGitVersion = 0u;
     }
 }
 
@@ -1542,5 +1572,52 @@ void GitClient::connectRepositoryChanged(const QString & repository, GitCommand 
             Qt::QueuedConnection);
 }
 
+// determine version as '(major << 16) + (minor << 8) + patch' or 0.
+unsigned GitClient::gitVersion(QString *errorMessage  /* = 0 */)
+{
+    if (!m_cachedGitVersion)
+        m_cachedGitVersion = synchronousGitVersion(errorMessage);
+    return m_cachedGitVersion;
 }
+
+QString GitClient::gitVersionString(QString *errorMessage)
+{
+    if (const unsigned version = gitVersion(errorMessage)) {
+        QString rc;
+        QTextStream(&rc) << (version >> 16) << '.'
+                << (0xFF & (version >> 8)) << '.'
+                << (version & 0xFF);
+        return rc;
+    }
+    return QString();
 }
+
+// determine version as '(major << 16) + (minor << 8) + patch' or 0.
+unsigned GitClient::synchronousGitVersion(QString *errorMessage /* = 0 */)
+{
+    // run git --version
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = synchronousGit(QString(), QStringList("--version"), &outputText, &errorText);
+    if (!rc) {
+        const QString msg = tr("Unable to determine git version: %1").arg(commandOutputFromLocal8Bit(errorText));
+        if (errorMessage) {
+            *errorMessage = msg;
+        } else {
+            VCSBase::VCSBaseOutputWindow::instance()->appendError(msg);
+        }
+        return 0;
+    }
+    // cut 'git version 1.6.5.1.sha'
+    const QString output = commandOutputFromLocal8Bit(outputText);
+    const QRegExp versionPattern(QLatin1String("^[^\\d]+([\\d])\\.([\\d])\\.([\\d]).*$"));
+    QTC_ASSERT(versionPattern.isValid(), return 0);
+    QTC_ASSERT(versionPattern.exactMatch(output), return 0);
+    const unsigned major = versionPattern.cap(1).toUInt();
+    const unsigned minor = versionPattern.cap(2).toUInt();
+    const unsigned patch = versionPattern.cap(3).toUInt();
+    return version(major, minor, patch);
+}
+
+} // namespace Internal
+} // namespace Git

@@ -32,6 +32,11 @@
 #include "gitplugin.h"
 #include "gitutils.h"
 
+#include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+
 static const char stashMessageKeywordC[] = "IVersionControl@";
 static const char stashRevisionIdC[] = "revision";
 
@@ -54,12 +59,22 @@ QString GitVersionControl::displayName() const
     return QLatin1String("git");
 }
 
+// Add: Implement using "git add --intent-to-add" starting from 1.6.1
+static inline bool addOperationSupported()
+{
+    return gitClient()->gitVersion() >= version(1, 6, 1);
+}
+
 bool GitVersionControl::supportsOperation(Operation operation) const
 {
     bool rc = false;
     switch (operation) {
     case AddOperation:
+        rc = addOperationSupported();
+        break;
     case DeleteOperation:
+        rc = true;
+        break;
     case OpenOperation:
         break;
     case CreateRepositoryOperation:
@@ -75,15 +90,18 @@ bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
     return false;
 }
 
-bool GitVersionControl::vcsAdd(const QString & /*fileName*/)
+bool GitVersionControl::vcsAdd(const QString & fileName)
 {
-    return false;
+    // Implement in terms of using "--intent-to-add"
+    QTC_ASSERT(addOperationSupported(), return false);
+    const QFileInfo fi(fileName);
+    return gitClient()->synchronousAdd(fi.absolutePath(), true, QStringList(fi.fileName()));
 }
 
-bool GitVersionControl::vcsDelete(const QString & /*fileName*/)
+bool GitVersionControl::vcsDelete(const QString & fileName)
 {
-    // TODO: implement using 'git rm'.
-    return false;
+    const QFileInfo fi(fileName);
+    return gitClient()->synchronousDelete(fi.absolutePath(), true, QStringList(fi.fileName()));
 }
 
 bool GitVersionControl::vcsCreateRepository(const QString &directory)

@@ -95,7 +95,13 @@ public:
     void checkoutBranch(const QString &workingDirectory, const QString &branch);
     void hardReset(const QString &workingDirectory, const QString &commit = QString());
     void addFile(const QString &workingDirectory, const QString &fileName);
-    bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
+    bool synchronousAdd(const QString &workingDirectory,
+                        // Warning: Works only from 1.6.1 onwards
+                        bool intendToAdd,
+                        const QStringList &files);
+    bool synchronousDelete(const QString &workingDirectory,
+                           bool force,
+                           const QStringList &files);
     bool synchronousReset(const QString &workingDirectory,
                           const QStringList &files = QStringList(),
                           QString *errorMessage = 0);
@@ -139,6 +145,10 @@ public:
                                       QStringList *descriptions, QString *errorMessage);
     bool synchronousTopRevision(const QString &workingDirectory, QString *revision = 0,
                                 QString *branch = 0, QString *errorMessage = 0);
+    // determine version as '(major << 16) + (minor << 8) + patch' or 0
+    // with some smart caching.
+    unsigned gitVersion(QString *errorMessage = 0);
+    QString gitVersionString(QString *errorMessage = 0);
 
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
@@ -223,6 +233,8 @@ private:
                         QByteArray* outputText = 0,
                         QByteArray* errorText = 0,
                         bool logCommandToWindow = true);
+    // determine version as '(major << 16) + (minor << 8) + patch' or 0.
+    unsigned synchronousGitVersion(QString *errorMessage = 0);
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
     RevertResult revertI(QStringList files, bool *isDirectory, QString *errorMessage);
@@ -234,6 +246,7 @@ private:
     GitSettings   m_settings;
     QString m_binaryPath;
     QSignalMapper *m_repositoryChangedSignalMapper;
+    unsigned      m_cachedGitVersion;
 };
 
 
