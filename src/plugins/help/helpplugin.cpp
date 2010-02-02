@@ -144,12 +144,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     QList<int> modecontext;
     modecontext << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_MODE_HELP);
 
-    QString locale = qApp->property("qtc_locale").toString();
+    const QString &locale = qApp->property("qtc_locale").toString();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
         QTranslator *qhelptr = new QTranslator(this);
-        const QString &creatorTrPath =
-                Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
+        const QString &creatorTrPath = Core::ICore::instance()->resourcePath()
+            + QLatin1String("/translations");
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &trFile = QLatin1String("assistant_") + locale;
         const QString &helpTrFile = QLatin1String("qt_help_") + locale;
@@ -802,43 +802,47 @@ void HelpPlugin::updateViewerComboBoxIndex(int index)
 
 HelpViewer* HelpPlugin::viewerForContextMode()
 {
-    HelpViewer *viewer = 0;
-    bool showSideBySide = false;
-    Core::RightPanePlaceHolder* placeHolder = Core::RightPanePlaceHolder::current();
-    Core::IEditor *editor = Core::EditorManager::instance()->currentEditor();
+    using namespace Core;
 
-    switch (m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt())
-    {
-    case 0: // side by side if possible
-        {
-            if ((!placeHolder || !placeHolder->isVisible()) && editor) {
-                if (!editor->widget() && editor->widget()->isVisible() && editor->widget()->width() < 800 )
-                    break;
+    bool showSideBySide = false;
+    RightPanePlaceHolder *placeHolder = RightPanePlaceHolder::current();
+    switch (m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt()) {
+        case 0: {
+            // side by side if possible
+            if (IEditor *editor = EditorManager::instance()->currentEditor()) {
+                if (!placeHolder || !placeHolder->isVisible()) {
+                    if (!editor->widget() && editor->widget()->isVisible()
+                        && editor->widget()->width() < 800) {
+                        break;
+                    }
+                }
             }
-        }
-        // fall through
-    case 1: // side by side
-        showSideBySide = true;
-        break;
-    default: // help mode
-        break;
+        }   // fall through
+        case 1: {
+            // side by side
+            showSideBySide = true;
+        }   break;
+    
+        default: // help mode
+            break;
     }
 
+    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
     if (placeHolder && showSideBySide) {
-        Core::RightPaneWidget::instance()->setShown(true);
+        RightPaneWidget::instance()->setShown(true);
         viewer = m_helpViewerForSideBar;
     } else {
-        if (!m_centralWidget->currentHelpViewer())
+        if (!viewer)
             activateHelpMode();
-        viewer = m_centralWidget->currentHelpViewer();
     }
-
     return viewer;
 }
 
 void HelpPlugin::activateContext()
 {
-    Core::RightPanePlaceHolder* placeHolder = Core::RightPanePlaceHolder::current();
+    using namespace Core;
+
+    RightPanePlaceHolder* placeHolder = RightPanePlaceHolder::current();
     if (placeHolder && m_helpViewerForSideBar->hasFocus()) {
         switchToHelpMode();
         return;
@@ -849,7 +853,7 @@ void HelpPlugin::activateContext()
     QMap<QString, QUrl> links;
 
     // Find out what to show
-    if (Core::IContext *context = m_core->currentContextObject()) {
+    if (IContext *context = m_core->currentContextObject()) {
         if (!m_contextHelpEngine) {
             m_contextHelpEngine =
                 new QHelpEngineCore(m_helpEngine->collectionFile(), this);
@@ -861,9 +865,7 @@ void HelpPlugin::activateContext()
         links = m_contextHelpEngine->linksForIdentifier(id);
     }
 
-    HelpViewer* viewer = viewerForContextMode();
-
-    if (viewer) {
+    if (HelpViewer* viewer = viewerForContextMode()) {
         if (links.isEmpty()) {
             // No link found or no context object
             viewer->setHtml(tr("<html><head><title>No Documentation</title>"
@@ -871,7 +873,7 @@ void HelpPlugin::activateContext()
                 "available.</center></body></html>").arg(id));
             viewer->setSource(QUrl());
         } else {
-            QUrl source = *links.begin();
+            const QUrl &source = *links.begin();
             if (viewer->source() != source)
                 viewer->setSource(source);
             viewer->setFocus();
@@ -891,8 +893,9 @@ void HelpPlugin::activateContents()
 {
     activateHelpMode();
     m_sideBar->activateItem(m_contentItem);
-    openHelpPage(QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2%3/doc/index.html")
-                 .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE));
+    openHelpPage(QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2%3/doc/"
+        "index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
+        .arg(IDE_VERSION_RELEASE));
 }
 
 void HelpPlugin::activateSearch()
@@ -997,22 +1000,26 @@ void HelpPlugin::openHelpPage(const QString& url)
         // local help not installed, resort to external web help
         QString urlPrefix;
         if (url.startsWith(QLatin1String("qthelp://com.nokia.qtcreator"))) {
-            urlPrefix = QString::fromLatin1("http://doc.trolltech.com/qtcreator-%1.%2/")
-                        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR);
+            urlPrefix = QString::fromLatin1("http://doc.trolltech.com/qtcreator"
+                "-%1.%2/").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR);
         } else {
             urlPrefix = QLatin1String("http://doc.trolltech.com/latest/");
         }
-        QDesktopServices::openUrl(urlPrefix + url.mid(url.lastIndexOf('/') + 1));
+        QDesktopServices::openUrl(urlPrefix + url.mid(url
+            .lastIndexOf(QLatin1Char('/')) + 1));
     }
 }
 
 void HelpPlugin::openContextHelpPage(const QString &url)
 {
+    using namespace Core::Constants;
+
     Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
-    if (modeManager->currentMode() == modeManager->mode(Core::Constants::MODE_WELCOME))
-        modeManager->activateMode(Core::Constants::MODE_EDIT);
-    HelpViewer* viewer = viewerForContextMode();
-    viewer->setSource(QUrl(url));
+    if (modeManager->currentMode() == modeManager->mode(MODE_WELCOME))
+        modeManager->activateMode(MODE_EDIT);
+
+    if (HelpViewer* viewer = viewerForContextMode())
+        viewer->setSource(QUrl(url));
 }
 
 Q_EXPORT_PLUGIN(HelpPlugin)
