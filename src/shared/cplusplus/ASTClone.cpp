@@ -164,7 +164,6 @@ QEnumDeclarationAST *QEnumDeclarationAST::clone(MemoryPool *pool) const
     ast->enum_specifier_token = enum_specifier_token;
     ast->lparen_token = lparen_token;
     ast->rparen_token = rparen_token;
-    EnumeratorListAST *enumerator_list;
     for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
@@ -178,7 +177,6 @@ QFlagsDeclarationAST *QFlagsDeclarationAST::clone(MemoryPool *pool) const
     ast->flags_specifier_token = flags_specifier_token;
     ast->lparen_token = lparen_token;
     ast->rparen_token = rparen_token;
-    EnumeratorListAST *enumerator_list;
     for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
