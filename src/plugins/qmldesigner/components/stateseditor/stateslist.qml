@@ -433,7 +433,7 @@ Rectangle {
         // border
         Rectangle {
             anchors.fill:parent;
-            color:"Transparent";
+            color:"#000000"
             border.width:1;
             border.color:"#8F8F8F";
         }

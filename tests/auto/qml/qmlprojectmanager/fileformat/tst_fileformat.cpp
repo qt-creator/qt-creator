@@ -15,6 +15,7 @@ public:
 
 private slots:
     void testFileFilter();
+    void testLibraryPaths();
 };
 
 TestProject::TestProject()
@@ -201,6 +202,36 @@ void TestProject::testFileFilter()
         QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
         qDebug() << project->files().toSet() << expectedFiles.toSet();
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+    }
+}
+
+void TestProject::testLibraryPaths()
+{
+    //
+    // search for qml files in local directory
+    //
+    QString projectFile = QLatin1String(
+            "import QmlProject 1.0\n"
+            "Project {\n"
+            "  libraryPaths: [ \"../otherLibrary\", \"library\" ]\n"
+            "}\n");
+
+    {
+        QmlEngine engine;
+        QmlComponent component(&engine);
+        component.setData(projectFile.toUtf8(), QUrl());
+        if (!component.isReady())
+            qDebug() << component.errorsString();
+        QVERIFY(component.isReady());
+
+        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QVERIFY(project);
+
+        project->setSourceDirectory(testDataDir);
+
+        QStringList expectedPaths(QStringList() << "../otherLibrary"
+                                                << "library");
+        QCOMPARE(project->libraryPaths().toSet(), expectedPaths.toSet());
     }
 }
 

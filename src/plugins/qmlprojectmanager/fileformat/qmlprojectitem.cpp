@@ -9,6 +9,7 @@ class QmlProjectItemPrivate : public QObject {
 
 public:
     QString sourceDirectory;
+    QStringList libraryPaths;
 
     QList<QmlFileFilterItem*> qmlFileFilters() const;
 
@@ -76,6 +77,23 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
     }
 
     emit sourceDirectoryChanged();
+}
+
+QStringList QmlProjectItem::libraryPaths() const
+{
+    const Q_D(QmlProjectItem);
+    return d->libraryPaths;
+}
+
+void QmlProjectItem::setLibraryPaths(const QStringList &libraryPaths)
+{
+    Q_D(QmlProjectItem);
+
+    if (d->libraryPaths == libraryPaths)
+        return;
+
+    d->libraryPaths = libraryPaths;
+    emit libraryPathsChanged();
 }
 
 /* Returns list of absolute paths */
