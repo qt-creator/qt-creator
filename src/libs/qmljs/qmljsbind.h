@@ -32,7 +32,6 @@
 
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsdocument.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
@@ -42,9 +41,12 @@ namespace QmlJS {
 
 class LinkImports;
 class Link;
+class Document;
 
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
+    Q_DISABLE_COPY(Bind)
+
 public:
     Bind(Document *doc);
     virtual ~Bind();
@@ -96,7 +98,6 @@ private:
     friend class LinkImports;
     friend class Link;
 };
-typedef QSharedPointer<Bind> BindPtr;
 
 } // end of namespace Qml
 

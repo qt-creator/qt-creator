@@ -40,7 +40,7 @@ private:
                     AST::UiImport *import, const QString &startPath);
     void importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
                        AST::UiImport *import);
-    void importObject(BindPtr bind, const QString &name, Interpreter::ObjectValue *object, NameId* targetNamespace);    
+    void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
 
 private:
     Snapshot _snapshot;

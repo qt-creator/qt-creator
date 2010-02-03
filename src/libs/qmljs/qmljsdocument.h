@@ -41,13 +41,11 @@
 namespace QmlJS {
 
 class Bind;
-typedef QSharedPointer<Bind> BindPtr;
 
 class QMLJS_EXPORT Document
 {
 public:
     typedef QSharedPointer<Document> Ptr;
-    typedef QList<Document::Ptr> PtrList;
 
 protected:
     Document(const QString &fileName);
@@ -57,12 +55,12 @@ public:
 
     static Document::Ptr create(const QString &fileName);
 
-    QmlJS::AST::UiProgram *qmlProgram() const;
-    QmlJS::AST::Program *jsProgram() const;
-    QmlJS::AST::ExpressionNode *expression() const;
-    QmlJS::AST::Node *ast() const;
+    AST::UiProgram *qmlProgram() const;
+    AST::Program *jsProgram() const;
+    AST::ExpressionNode *expression() const;
+    AST::Node *ast() const;
 
-    QList<QmlJS::DiagnosticMessage> diagnosticMessages() const;
+    QList<DiagnosticMessage> diagnosticMessages() const;
 
     QString source() const;
     void setSource(const QString &source);
@@ -74,7 +72,7 @@ public:
     bool isParsedCorrectly() const
     { return _parsedCorrectly; }
 
-    BindPtr bind() const;
+    Bind *bind() const;
 
     int documentRevision() const;
     void setDocumentRevision(int documentRevision);
@@ -85,8 +83,9 @@ public:
 
 private:
     QmlJS::Engine *_engine;
-    QmlJS::NodePool *_pool;
-    QmlJS::AST::Node *_ast;
+    NodePool *_pool;
+    AST::Node *_ast;
+    Bind *_bind;
     int _documentRevision;
     bool _parsedCorrectly;
     QList<QmlJS::DiagnosticMessage> _diagnosticMessages;
@@ -94,7 +93,6 @@ private:
     QString _path;
     QString _componentName;
     QString _source;
-    BindPtr _bind;
 };
 
 class QMLJS_EXPORT Snapshot
@@ -117,7 +115,7 @@ public:
     Document::Ptr document(const QString &fileName) const
     { return _documents.value(fileName); }
 
-    Document::PtrList importedDocuments(const Document::Ptr &doc, const QString &importPath) const;
+    QList<Document::Ptr> importedDocuments(const Document::Ptr &doc, const QString &importPath) const;
     QMap<QString, Document::Ptr> componentsDefinedByImportedDocuments(const Document::Ptr &doc, const QString &importPath) const;
 };
 

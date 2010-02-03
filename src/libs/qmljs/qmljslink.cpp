@@ -45,7 +45,7 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
     if (doc->qmlProgram() != 0)
         _context.setLookupMode(Context::QmlLookup);
 
-    BindPtr bind = doc->bind();
+    Bind *bind = doc->bind();
 
     // Build the scope chain.
 

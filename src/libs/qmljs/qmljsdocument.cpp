@@ -37,13 +37,13 @@
 #include <QtCore/QDir>
 
 using namespace QmlJS;
-using namespace QmlJS;
 using namespace QmlJS::AST;
 
 Document::Document(const QString &fileName)
     : _engine(0)
     , _pool(0)
     , _ast(0)
+    , _bind(0)
     , _documentRevision(0)
     , _parsedCorrectly(false)
     , _fileName(fileName)
@@ -65,6 +65,9 @@ Document::Document(const QString &fileName)
 
 Document::~Document()
 {
+    if (_bind)
+        delete _bind;
+
     if (_engine)
         delete _engine;
 
@@ -131,6 +134,7 @@ bool Document::parseQml()
     Q_ASSERT(! _engine);
     Q_ASSERT(! _pool);
     Q_ASSERT(! _ast);
+    Q_ASSERT(! _bind);
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
@@ -144,7 +148,7 @@ bool Document::parseQml()
     _ast = parser.ast();
     _diagnosticMessages = parser.diagnosticMessages();
 
-    _bind = BindPtr(new Bind(this));
+    _bind = new Bind(this);
 
     return _parsedCorrectly;
 }
@@ -154,6 +158,7 @@ bool Document::parseJavaScript()
     Q_ASSERT(! _engine);
     Q_ASSERT(! _pool);
     Q_ASSERT(! _ast);
+    Q_ASSERT(! _bind);
 
     _engine = new Engine();
     _pool = new NodePool(_fileName, _engine);
@@ -167,7 +172,7 @@ bool Document::parseJavaScript()
     _ast = cast<Program*>(parser.rootNode());
     _diagnosticMessages = parser.diagnosticMessages();
 
-    _bind = BindPtr(new Bind(this));
+    _bind = new Bind(this);
 
     return _parsedCorrectly;
 }
@@ -195,7 +200,7 @@ bool Document::parseExpression()
     return _parsedCorrectly;
 }
 
-BindPtr Document::bind() const
+Bind *Document::bind() const
 {
     return _bind;
 }
@@ -214,11 +219,11 @@ void Snapshot::insert(const Document::Ptr &document)
         _documents.insert(document->fileName(), document);
 }
 
-Document::PtrList Snapshot::importedDocuments(const Document::Ptr &doc, const QString &importPath) const
+QList<Document::Ptr> Snapshot::importedDocuments(const Document::Ptr &doc, const QString &importPath) const
 {
     // ### TODO: maybe we should add all imported documents in the parse Document::parse() method, regardless of whether they're in the path or not.
 
-    Document::PtrList result;
+    QList<Document::Ptr> result;
 
     QString docPath = doc->path();
     docPath += QLatin1Char('/');
