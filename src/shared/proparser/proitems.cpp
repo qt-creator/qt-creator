@@ -48,66 +48,9 @@ ProBlock::~ProBlock()
             delete itm;
 }
 
-void ProBlock::appendItem(ProItem *proitem)
-{
-    m_proitems << proitem;
-}
-
-QList<ProItem *> ProBlock::items() const
-{
-    return m_proitems;
-}
-
-void ProBlock::setBlockKind(int blockKind)
-{
-    m_blockKind = blockKind;
-}
-
-int ProBlock::blockKind() const
-{
-    return m_blockKind;
-}
-
 ProItem::ProItemKind ProBlock::kind() const
 {
     return ProItem::BlockKind;
-}
-
-// --------------- ProVariable ----------------
-ProVariable::ProVariable(const QString &name)
-{
-    m_variable = name;
-    m_variableKind = SetOperator;
-}
-
-void ProVariable::setVariableOperator(VariableOperator variableKind)
-{
-    m_variableKind = variableKind;
-}
-
-ProVariable::VariableOperator ProVariable::variableOperator() const
-{
-    return m_variableKind;
-}
-
-void ProVariable::setVariable(const QString &name)
-{
-    m_variable = name;
-}
-
-QString ProVariable::variable() const
-{
-    return m_variable;
-}
-
-void ProVariable::setValue(const QString &val)
-{
-    m_value = val;
-}
-
-QString ProVariable::value() const
-{
-    return m_value;
 }
 
 ProItem::ProItemKind ProVariable::kind() const
@@ -115,62 +58,14 @@ ProItem::ProItemKind ProVariable::kind() const
     return ProItem::VariableKind;
 }
 
-// --------------- ProFunction ----------------
-ProFunction::ProFunction(const QString &text)
-{
-    m_text = text;
-}
-
-void ProFunction::setText(const QString &text)
-{
-    m_text = text;
-}
-
-QString ProFunction::text() const
-{
-    return m_text;
-}
-
 ProItem::ProItemKind ProFunction::kind() const
 {
     return ProItem::FunctionKind;
 }
 
-// --------------- ProCondition ----------------
-ProCondition::ProCondition(const QString &text)
-{
-    m_text = text;
-}
-
-void ProCondition::setText(const QString &text)
-{
-    m_text = text;
-}
-
-QString ProCondition::text() const
-{
-    return m_text;
-}
-
 ProItem::ProItemKind ProCondition::kind() const
 {
     return ProItem::ConditionKind;
-}
-
-// --------------- ProOperator ----------------
-ProOperator::ProOperator(OperatorKind operatorKind)
-{
-    m_operatorKind = operatorKind;
-}
-
-void ProOperator::setOperatorKind(OperatorKind operatorKind)
-{
-    m_operatorKind = operatorKind;
-}
-
-ProOperator::OperatorKind ProOperator::operatorKind() const
-{
-    return m_operatorKind;
 }
 
 ProItem::ProItemKind ProOperator::kind() const
@@ -190,21 +85,6 @@ ProFile::ProFile(const QString &fileName)
     m_displayFileName = QString::fromRawData(fileName.constData() + nameOff + 1,
                                              fileName.length() - nameOff - 1);
     m_directoryName = QString::fromRawData(fileName.constData(), nameOff);
-}
-
-QString ProFile::displayFileName() const
-{
-    return m_displayFileName;
-}
-
-QString ProFile::fileName() const
-{
-    return m_fileName;
-}
-
-QString ProFile::directoryName() const
-{
-    return m_directoryName;
 }
 
 QT_END_NAMESPACE

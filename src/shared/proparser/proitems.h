@@ -83,11 +83,10 @@ public:
     ProBlock();
     ~ProBlock();
 
-    void appendItem(ProItem *proitem);
-    QList<ProItem *> items() const;
-
-    void setBlockKind(int blockKind);
-    int blockKind() const;
+    void appendItem(ProItem *proitem) { m_proitems << proitem; }
+    QList<ProItem *> items() const { return m_proitems; }
+    void setBlockKind(int blockKind) { m_blockKind = blockKind; }
+    int blockKind() const { return m_blockKind; }
 
     void ref() { ++m_refCount; }
     void deref() { if (!--m_refCount) delete this; }
@@ -111,16 +110,13 @@ public:
         UniqueAddOperator   = 4
     };
 
-    ProVariable(const QString &name);
-
-    void setVariableOperator(VariableOperator variableKind);
-    VariableOperator variableOperator() const;
-
-    void setVariable(const QString &name);
-    QString variable() const;
-
-    void setValue(const QString &value);
-    QString value() const;
+    ProVariable(const QString &name) : m_variableKind(SetOperator), m_variable(name) {}
+    void setVariableOperator(VariableOperator variableKind) { m_variableKind = variableKind; }
+    VariableOperator variableOperator() const { return m_variableKind; }
+    void setVariable(const QString &name) { m_variable = name; }
+    QString variable() const { return m_variable; }
+    void setValue(const QString &value) { m_value = value; }
+    QString value() const { return m_value; }
 
     ProItem::ProItemKind kind() const;
 
@@ -133,10 +129,9 @@ private:
 class ProFunction : public ProItem
 {
 public:
-    explicit ProFunction(const QString &text);
-
-    void setText(const QString &text);
-    QString text() const;
+    explicit ProFunction(const QString &text) : m_text(text) {}
+    void setText(const QString &text) { m_text = text; }
+    QString text() const { return m_text; }
 
     ProItem::ProItemKind kind() const;
 
@@ -147,10 +142,9 @@ private:
 class ProCondition : public ProItem
 {
 public:
-    explicit ProCondition(const QString &text);
-
-    void setText(const QString &text);
-    QString text() const;
+    explicit ProCondition(const QString &text) : m_text(text) {}
+    void setText(const QString &text) { m_text = text; }
+    QString text() const { return m_text; }
 
     ProItem::ProItemKind kind() const;
 
@@ -166,10 +160,9 @@ public:
         NotOperator     = 2
     };
 
-    explicit ProOperator(OperatorKind operatorKind);
-
-    void setOperatorKind(OperatorKind operatorKind);
-    OperatorKind operatorKind() const;
+    explicit ProOperator(OperatorKind operatorKind) : m_operatorKind(operatorKind) {}
+    void setOperatorKind(OperatorKind operatorKind) { m_operatorKind = operatorKind; }
+    OperatorKind operatorKind() const { return m_operatorKind; }
 
     ProItem::ProItemKind kind() const;
 
@@ -182,9 +175,9 @@ class ProFile : public ProBlock
 public:
     explicit ProFile(const QString &fileName);
 
-    QString displayFileName() const;
-    QString fileName() const;
-    QString directoryName() const;
+    QString displayFileName() const { return m_displayFileName; }
+    QString fileName() const { return m_fileName; }
+    QString directoryName() const { return m_directoryName; }
 
 private:
     QString m_fileName;
