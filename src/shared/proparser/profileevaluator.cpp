@@ -282,7 +282,6 @@ public:
     bool m_hadCondition; // Nested calls set it on return, so no need for it to be in State
     int m_skipLevel;
     bool m_cumulative;
-    QStack<QString> m_oldPathStack;                 // To restore the current path to the path
     QStack<ProFile*> m_profileStack;                // To handle 'include(a.pri), so we can track back to 'a.pro' when finished with 'a.pri'
     struct ProLoop {
         QString variable;
@@ -1051,12 +1050,6 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
 {
     m_lineNo = pro->lineNumber();
 
-    m_oldPathStack.push(QDir::currentPath());
-    if (!QDir::setCurrent(pro->directoryName())) {
-        m_oldPathStack.pop();
-        return ProItem::ReturnFalse;
-    }
-
     m_profileStack.push(pro);
     if (m_profileStack.count() == 1) {
         // Do this only for the initial profile we visit, since
@@ -1114,7 +1107,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
                 }
 
                 if (IoUtils::isRelativePath(qmakespec)) {
-                    if (IoUtils::exists(qmakespec + QLatin1String("/qmake.conf"))) {
+                    if (IoUtils::exists(currentDirectory() + QLatin1Char('/') + qmakespec
+                                        + QLatin1String("/qmake.conf"))) {
                         qmakespec = currentDirectory() + QLatin1Char('/') + qmakespec;
                     } else if (!m_outputDir.isEmpty()
                                && IoUtils::exists(m_outputDir + QLatin1Char('/') + qmakespec
@@ -1199,7 +1193,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
     }
     m_profileStack.pop();
 
-    return returnBool(QDir::setCurrent(m_oldPathStack.pop()));
+    return ProItem::ReturnTrue;
 }
 
 ProItem::ProItemReturn ProFileEvaluator::Private::visitProFunction(ProFunction *func)
@@ -1927,7 +1921,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 if (args.count() > 1)
                     singleLine = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive));
 
-                QFile qfile(file);
+                QFile qfile(resolvePath(file));
                 if (qfile.open(QIODevice::ReadOnly)) {
                     QTextStream stream(&qfile);
                     while (!stream.atEnd()) {
@@ -1981,7 +1975,9 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                     logMessage(format("system(execute) requires one or two arguments."));
                 } else {
                     char buff[256];
-                    FILE *proc = QT_POPEN(args[0].toLatin1(), "r");
+                    FILE *proc = QT_POPEN((QLatin1String("cd ")
+                                           + IoUtils::shellQuote(currentDirectory())
+                                           + QLatin1String(" && ") + args[0]).toLatin1(), "r");
                     bool singleLine = true;
                     if (args.count() > 1)
                         singleLine = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive));
@@ -2068,20 +2064,20 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 if (args.count() == 2)
                     recursive = (!args[1].compare(QLatin1String("true"), Qt::CaseInsensitive) || args[1].toInt());
                 QStringList dirs;
-                QString r = fixPathToLocalOS(args[0]);
+                QString r = fixPathToLocalOS(resolvePath(args[0]));
                 int slash = r.lastIndexOf(QDir::separator());
                 if (slash != -1) {
                     dirs.append(r.left(slash));
                     r = r.mid(slash+1);
                 } else {
-                    dirs.append(QString());
+                    dirs.append(fixPathToLocalOS(currentDirectory()));
                 }
 
                 const QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
                 for (int d = 0; d < dirs.count(); d++) {
                     QString dir = dirs[d];
-                    if (!dir.isEmpty() && !dir.endsWith(m_option->dir_sep))
-                        dir += QLatin1Char('/');
+                    if (!dir.endsWith(QDir::separator()))
+                        dir += QDir::separator();
 
                     QDir qdir(dir);
                     for (int i = 0; i < (int)qdir.count(); ++i) {
@@ -2617,7 +2613,9 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("system(exec) requires one argument."));
                 ProItem::ReturnFalse;
             }
-            return returnBool(system(args.first().toLatin1().constData()) == 0);
+            return returnBool(system((QLatin1String("cd ")
+                                      + IoUtils::shellQuote(currentDirectory())
+                                      + QLatin1String(" && ") + args.first()).toLatin1().constData()) == 0);
         }
 #endif
         case T_ISEMPTY: {
@@ -2641,7 +2639,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
             QString file = args.first();
-            file = fixPathToLocalOS(file);
+            file = fixPathToLocalOS(resolvePath(file));
 
             if (IoUtils::exists(file)) {
                 return ProItem::ReturnTrue;
@@ -2871,7 +2869,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
     if (!fn.endsWith(QLatin1String(".prf")))
         fn += QLatin1String(".prf");
 
-    if (!fileName.contains((ushort)'/') || !IoUtils::exists(fn)) {
+    if (!fileName.contains((ushort)'/') || !IoUtils::exists(resolvePath(fn))) {
         if (m_option->feature_roots.isEmpty())
             m_option->feature_roots = qmakeFeaturePaths();
         int start_root = 0;
