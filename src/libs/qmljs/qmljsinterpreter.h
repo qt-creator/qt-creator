@@ -151,20 +151,6 @@ template <> Q_INLINE_TEMPLATE const Reference *value_cast(const Value *v)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Execution environment
-////////////////////////////////////////////////////////////////////////////////
-class QMLJS_EXPORT Environment
-{
-public:
-    Environment();
-    virtual ~Environment();
-
-    virtual const Environment *parent() const;
-    virtual const Value *lookup(const QString &name) const;
-    virtual const Value *lookupMember(const QString &name) const;
-};
-
-////////////////////////////////////////////////////////////////////////////////
 // Value nodes
 ////////////////////////////////////////////////////////////////////////////////
 class QMLJS_EXPORT NullValue: public Value
@@ -250,7 +236,7 @@ public:
     virtual void accept(ValueVisitor *) const;
 };
 
-class QMLJS_EXPORT ObjectValue: public Value, public Environment
+class QMLJS_EXPORT ObjectValue: public Value
 {
 public:
     ObjectValue(Engine *engine);
@@ -264,17 +250,12 @@ public:
     const ObjectValue *prototype() const;
     void setPrototype(const ObjectValue *prototype);
 
-    const ObjectValue *scope() const;
-    void setScope(const ObjectValue *scope);
-
     virtual void processMembers(MemberProcessor *processor) const;
 
     virtual const Value *property(const QString &name) const;
     virtual void setProperty(const QString &name, const Value *value);
     virtual void removeProperty(const QString &name);
 
-    // Environment interface
-    virtual const Environment *parent() const;
     virtual const Value *lookupMember(const QString &name) const;
 
     // Value interface
@@ -287,7 +268,6 @@ private:
 private:
     Engine *_engine;
     const ObjectValue *_prototype;
-    const ObjectValue *_scope;
     QHash<QString, const Value *> _members;
     QString _className;
 };

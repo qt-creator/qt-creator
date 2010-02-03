@@ -29,6 +29,7 @@
 
 #include "qmljscheck.h"
 #include "qmljsinterpreter.h"
+#include "qmljslink.h"
 #include "parser/qmljsparser_p.h"
 #include "parser/qmljsast_p.h"
 #include <QtCore/QDebug>
@@ -36,10 +37,10 @@
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 
-Check::Check(Interpreter::Engine *engine, Interpreter::Context *context)
-    : _engine(engine),
-      _context(context),
-      _scope(engine->globalObject()),
+Check::Check(Link *link)
+    : _engine(link->engine()),
+      _link(link),
+      _scope(_engine->globalObject()),
       _result(0)
 {
 }
@@ -48,12 +49,9 @@ Check::~Check()
 {
 }
 
-const Interpreter::Value *Check::operator()(AST::Node *ast, const Interpreter::ObjectValue *scope)
+const Interpreter::Value *Check::operator()(AST::Node *ast)
 {
-    const Interpreter::ObjectValue *previousScope = switchScope(scope);
-    const Interpreter::Value *result = check(ast);
-    (void) switchScope(previousScope);
-    return result;
+    return check(ast);
 }
 
 const Interpreter::Value *Check::check(AST::Node *ast)
@@ -68,7 +66,7 @@ const Interpreter::Value *Check::check(AST::Node *ast)
     const Value *result = switchResult(previousResult);
 
     if (const Reference *ref = value_cast<const Reference *>(result))
-        result = ref->value(_context);
+        result = ref->value(_link->context());
 
     if (! result)
         result = _engine->undefinedValue();
@@ -167,7 +165,7 @@ bool Check::visit(AST::UiQualifiedId *ast)
     if (! ast->name)
          return false;
 
-    const Value *value = _scope->lookup(ast->name->asString());
+    const Value *value = _link->lookup(ast->name->asString());
     if (! ast->next) {
         _result = value;
 
@@ -215,7 +213,7 @@ bool Check::visit(AST::IdentifierExpression *ast)
     if (! ast->name)
         return false;
 
-    _result = _scope->lookup(ast->name->asString());
+    _result = _link->lookup(ast->name->asString());
     return false;
 }
 

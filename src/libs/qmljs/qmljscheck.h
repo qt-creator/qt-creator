@@ -35,6 +35,8 @@
 
 namespace QmlJS {
 
+class Link;
+
 namespace Interpreter {
     class Engine;
     class Context;
@@ -46,10 +48,10 @@ namespace Interpreter {
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
 public:
-    Check(Interpreter::Engine *engine, Interpreter::Context *context);
+    Check(Link *link);
     virtual ~Check();
 
-    const Interpreter::Value *operator()(AST::Node *ast, const Interpreter::ObjectValue *scope);
+    const Interpreter::Value *operator()(AST::Node *ast);
 
 protected:
     void accept(AST::Node *node);
@@ -156,7 +158,7 @@ protected:
 private:
     QmlJS::Document::Ptr _doc;
     Interpreter::Engine *_engine;
-    Interpreter::Context *_context;
+    Link *_link;
     const Interpreter::ObjectValue *_scope;
     const Interpreter::Value *_result;
 };

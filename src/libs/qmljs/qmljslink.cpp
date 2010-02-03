@@ -24,28 +24,16 @@ Link::Link(Document::Ptr currentDoc, const Snapshot &snapshot, Interpreter::Engi
 
 Link::~Link()
 {
-    // unset all prototypes and scopes
+    // unset all prototypes
     foreach (Document::Ptr doc, _docs) {
         BindPtr bind = doc->bind();
 
         if (doc->qmlProgram()) {
-            bind->_idEnvironment->setScope(0);
-            bind->_functionEnvironment->setScope(0);
-
             foreach (ObjectValue *object, bind->_qmlObjects) {
                 object->setPrototype(0);
-                object->setScope(0);
             }
-        } else if (doc->jsProgram()) {
-            bind->_rootObjectValue->setScope(0);
         }
     }
-}
-
-static ObjectValue *pushScope(ObjectValue *next, ObjectValue *onto)
-{
-    onto->setScope(next);
-    return next;
 }
 
 Context *Link::context()
@@ -53,40 +41,64 @@ Context *Link::context()
     return &_context;
 }
 
-ObjectValue *Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
+Link::ScopeChain Link::scopeChain() const
 {
+    return _scopeChain;
+}
+
+Interpreter::Engine *Link::engine()
+{
+    return _interp;
+}
+
+void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
+{
+    _scopeChain.clear();
+
+    if (! doc) {
+        _scopeChain.append(_interp->globalObject());
+        return;
+    }
+
     BindPtr bind = doc->bind();
 
-    ObjectValue *scopeObject = 0;
-    if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
-        scopeObject = bind->_qmlObjects.value(definition);
-
-    if (!scopeObject)
-        return bind->_interp.globalObject();
-
     // Build the scope chain.
-    ObjectValue *scopeStart = _typeEnvironments.value(doc.data());
-    ObjectValue *scope = scopeStart;
-    scope = pushScope(bind->_idEnvironment, scope);
-    scope = pushScope(bind->_functionEnvironment, scope);
+    _scopeChain.append(_typeEnvironments.value(doc.data()));
+    _scopeChain.append(bind->_idEnvironment);
+    _scopeChain.append(bind->_functionEnvironment);
 
     foreach (const QString &scriptFile, doc->bind()->includedScripts()) {
         if (Document::Ptr scriptDoc = _snapshot.document(scriptFile)) {
             if (scriptDoc->jsProgram()) {
-                scope = pushScope(scriptDoc->bind()->_rootObjectValue, scope);
+                _scopeChain.append(scriptDoc->bind()->_rootObjectValue);
             }
         }
     }
 
-    scope = pushScope(scopeObject, scope);
-    if (scopeObject != bind->_rootObjectValue)
-        scope = pushScope(bind->_rootObjectValue, scope);
 
-    scope = pushScope(bind->_interp.globalObject(), scope);
+    if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject)) {
+        ObjectValue *scopeObject = bind->_qmlObjects.value(definition);
+        _scopeChain.append(scopeObject);
+
+        // ### FIXME: should add the root regardless
+        if (scopeObject != bind->_rootObjectValue)
+            _scopeChain.append(bind->_rootObjectValue);
+    }
+
+    _scopeChain.append(bind->_interp.globalObject());
 
     // May want to link to instantiating components from here.
+}
 
-    return scopeStart;
+const Value *Link::lookup(const QString &name) const
+{
+    foreach (const ObjectValue *scope, _scopeChain) {
+        if (const Value *member = scope->lookupMember(name)) {
+            return member;
+        }
+    }
+
+    return _interp->undefinedValue();
 }
 
 void Link::linkImports()

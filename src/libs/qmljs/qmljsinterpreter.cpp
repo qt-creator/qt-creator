@@ -623,39 +623,6 @@ const Reference *Value::asReference() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Environment
-////////////////////////////////////////////////////////////////////////////////
-Environment::Environment()
-{
-}
-
-Environment::~Environment()
-{
-}
-
-const Environment *Environment::parent() const
-{
-    return 0;
-}
-
-const Value *Environment::lookup(const QString &name) const
-{
-    if (const Value *member = lookupMember(name))
-        return member;
-
-    else if (const Environment *p = parent())
-        return p->lookup(name);
-
-    else
-        return 0;
-}
-
-const Value *Environment::lookupMember(const QString &) const
-{
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // Values
 ////////////////////////////////////////////////////////////////////////////////
 const NullValue *NullValue::asNullValue() const
@@ -788,8 +755,7 @@ bool MemberProcessor::processGeneratedSlot(const QString &, const Value *)
 
 ObjectValue::ObjectValue(Engine *engine)
     : _engine(engine),
-      _prototype(0),
-      _scope(0)
+      _prototype(0)
 {
     engine->registerObject(this);
 }
@@ -816,16 +782,6 @@ void ObjectValue::setClassName(const QString &className)
 const ObjectValue *ObjectValue::prototype() const
 {
     return _prototype;
-}
-
-const ObjectValue *ObjectValue::scope() const
-{
-    return _scope;
-}
-
-void ObjectValue::setScope(const ObjectValue *scope)
-{
-    _scope = scope;
 }
 
 void ObjectValue::setProperty(const QString &name, const Value *value)
@@ -891,11 +847,6 @@ void ObjectValue::processMembers(MemberProcessor *processor) const
         if (! processor->processProperty(it.key(), it.value()))
             break;
     }
-}
-
-const Environment *ObjectValue::parent() const
-{
-    return _scope;
 }
 
 const Value *ObjectValue::lookupMember(const QString &name) const

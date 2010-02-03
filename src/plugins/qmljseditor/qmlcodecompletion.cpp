@@ -129,10 +129,12 @@ class EnumerateProperties: private Interpreter::MemberProcessor
     QSet<const Interpreter::ObjectValue *> _processed;
     QHash<QString, const Interpreter::Value *> _properties;
     bool _globalCompletion;
+    Link *_link;
 
 public:
-    EnumerateProperties()
-        : _globalCompletion(false)
+    EnumerateProperties(Link *link)
+        : _globalCompletion(false),
+          _link(link)
     {
     }
 
@@ -141,12 +143,16 @@ public:
         _globalCompletion = globalCompletion;
     }
 
-    QHash<QString, const Interpreter::Value *> operator()(const Interpreter::Value *value,
-                                                          bool lookAtScope = false)
+    QHash<QString, const Interpreter::Value *> operator ()(bool lookAtScope = false)
     {
         _processed.clear();
         _properties.clear();
-        enumerateProperties(value, lookAtScope);
+        if (!lookAtScope) {
+            enumerateProperties(_link->scopeChain().first());
+        } else {
+            foreach (const Interpreter::ObjectValue *scope, _link->scopeChain())
+                enumerateProperties(scope);
+        }
         return _properties;
     }
 
@@ -183,25 +189,22 @@ private:
         return true;
     }
 
-    void enumerateProperties(const Interpreter::Value *value, bool lookAtScope)
+    void enumerateProperties(const Interpreter::Value *value)
     {
         if (! value)
             return;
         else if (const Interpreter::ObjectValue *object = value->asObjectValue()) {
-            enumerateProperties(object, lookAtScope);
+            enumerateProperties(object);
         }
     }
 
-    void enumerateProperties(const Interpreter::ObjectValue *object, bool lookAtScope)
+    void enumerateProperties(const Interpreter::ObjectValue *object)
     {
         if (! object || _processed.contains(object))
             return;
 
         _processed.insert(object);
-        enumerateProperties(object->prototype(), /* lookAtScope = */ false);
-
-        if (lookAtScope)
-            enumerateProperties(object->scope(), /* lookAtScope = */ true);
+        enumerateProperties(object->prototype());
 
         object->processMembers(this);
     }
@@ -631,13 +634,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     Interpreter::Engine interp;
 
     // Set up the current scope chain.
-    Interpreter::ObjectValue *scope = interp.globalObject();
     Link link(document, snapshot, &interp);
 
-    if (document) {
-        AST::Node *declaringMember = semanticInfo.declaringMember(editor->position());
-        scope = link.scopeChainAt(document, declaringMember);
-    }
+    AST::Node *declaringMember = semanticInfo.declaringMember(editor->position());
+    link.scopeChainAt(document, declaringMember);
+    Link::ScopeChain scope = link.scopeChain();
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -647,9 +648,9 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
         // It's a global completion.
-        EnumerateProperties enumerateProperties;
+        EnumerateProperties enumerateProperties(&link);
         enumerateProperties.setGlobalCompletion(true);
-        QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(scope, /* lookAtScope = */ true));
+        QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(/* lookAtScope = */ true));
         while (it.hasNext()) {
             it.next();
 
@@ -670,15 +671,15 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         //qDebug() << "expression:" << expression;
 
         if (expression  != 0) {
-            Check evaluate(&interp, link.context());
+            Check evaluate(&link);
 
             // Evaluate the expression under cursor.
-            const Interpreter::Value *value = interp.convertToObject(evaluate(expression , scope));
+            const Interpreter::Value *value = interp.convertToObject(evaluate(expression));
             //qDebug() << "type:" << interp.typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
-                EnumerateProperties enumerateProperties;
-                QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(value));
+                EnumerateProperties enumerateProperties(&link);
+                QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties());
                 while (it.hasNext()) {
                     it.next();
 
