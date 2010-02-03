@@ -56,15 +56,15 @@ public:
         ReturnReturn
    };
 
-    ProItem() : m_lineNumber(0) {}
-    virtual ~ProItem() {}
+    ProItem(ProItemKind kind) : m_kind(kind), m_lineNumber(0) {}
 
-    virtual ProItemKind kind() const = 0;
+    ProItemKind kind() const { return m_kind; }
 
     int lineNumber() const { return m_lineNumber; }
     void setLineNumber(int lineNumber) { m_lineNumber = lineNumber; }
 
 private:
+    ProItemKind m_kind;
     int m_lineNumber;
 };
 
@@ -91,8 +91,6 @@ public:
     void ref() { ++m_refCount; }
     void deref() { if (!--m_refCount) delete this; }
 
-    ProItem::ProItemKind kind() const;
-
 private:
     QList<ProItem *> m_proitems;
     int m_blockKind;
@@ -110,15 +108,13 @@ public:
         UniqueAddOperator   = 4
     };
 
-    ProVariable(const QString &name) : m_variableKind(SetOperator), m_variable(name) {}
+    ProVariable(const QString &name) : ProItem(VariableKind), m_variableKind(SetOperator), m_variable(name) {}
     void setVariableOperator(VariableOperator variableKind) { m_variableKind = variableKind; }
     VariableOperator variableOperator() const { return m_variableKind; }
     void setVariable(const QString &name) { m_variable = name; }
     QString variable() const { return m_variable; }
     void setValue(const QString &value) { m_value = value; }
     QString value() const { return m_value; }
-
-    ProItem::ProItemKind kind() const;
 
 private:
     VariableOperator m_variableKind;
@@ -129,11 +125,9 @@ private:
 class ProFunction : public ProItem
 {
 public:
-    explicit ProFunction(const QString &text) : m_text(text) {}
+    explicit ProFunction(const QString &text) : ProItem(FunctionKind), m_text(text) {}
     void setText(const QString &text) { m_text = text; }
     QString text() const { return m_text; }
-
-    ProItem::ProItemKind kind() const;
 
 private:
     QString m_text;
@@ -142,11 +136,9 @@ private:
 class ProCondition : public ProItem
 {
 public:
-    explicit ProCondition(const QString &text) : m_text(text) {}
+    explicit ProCondition(const QString &text) : ProItem(ConditionKind), m_text(text) {}
     void setText(const QString &text) { m_text = text; }
     QString text() const { return m_text; }
-
-    ProItem::ProItemKind kind() const;
 
 private:
     QString m_text;
@@ -160,11 +152,9 @@ public:
         NotOperator     = 2
     };
 
-    explicit ProOperator(OperatorKind operatorKind) : m_operatorKind(operatorKind) {}
+    explicit ProOperator(OperatorKind operatorKind) : ProItem(ProItem::OperatorKind), m_operatorKind(operatorKind) {}
     void setOperatorKind(OperatorKind operatorKind) { m_operatorKind = operatorKind; }
     OperatorKind operatorKind() const { return m_operatorKind; }
-
-    ProItem::ProItemKind kind() const;
 
 private:
     OperatorKind m_operatorKind;

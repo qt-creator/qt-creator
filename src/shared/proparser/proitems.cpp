@@ -34,6 +34,7 @@
 QT_BEGIN_NAMESPACE
 
 ProBlock::ProBlock()
+    : ProItem(BlockKind)
 {
     m_blockKind = 0;
     m_refCount = 1;
@@ -48,32 +49,6 @@ ProBlock::~ProBlock()
             delete itm;
 }
 
-ProItem::ProItemKind ProBlock::kind() const
-{
-    return ProItem::BlockKind;
-}
-
-ProItem::ProItemKind ProVariable::kind() const
-{
-    return ProItem::VariableKind;
-}
-
-ProItem::ProItemKind ProFunction::kind() const
-{
-    return ProItem::FunctionKind;
-}
-
-ProItem::ProItemKind ProCondition::kind() const
-{
-    return ProItem::ConditionKind;
-}
-
-ProItem::ProItemKind ProOperator::kind() const
-{
-    return ProItem::OperatorKind;
-}
-
-// --------------- ProFile ----------------
 ProFile::ProFile(const QString &fileName)
     : ProBlock()
 {
