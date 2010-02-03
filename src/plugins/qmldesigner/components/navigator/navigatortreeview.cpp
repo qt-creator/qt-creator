@@ -35,6 +35,8 @@
 
 #include <nodeproperty.h>
 
+#define _separator_line_color_ "#5f5f5f"
+
 namespace QmlDesigner {
 
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
@@ -60,7 +62,7 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
         painter->drawPixmap(option.rect.x()+2,option.rect.y()+1,offPix);
 
     painter->setOpacity(1.0);
-    painter->setPen(QColor("#4f4f4f"));
+    painter->setPen(QColor(_separator_line_color_));
     painter->drawLine(option.rect.topLeft(),option.rect.bottomLeft());
 
     painter->restore();
@@ -99,7 +101,7 @@ void NavigatorTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &o
     painter->save();
 
     QTreeView::drawRow(painter,options,index);
-    painter->setPen(QColor("#4f4f4f"));
+    painter->setPen(QColor(_separator_line_color_));
     painter->drawLine(options.rect.bottomLeft(),options.rect.bottomRight());
 //    painter->drawLine(options.rect.topLeft(),options.rect.topRight());
 
