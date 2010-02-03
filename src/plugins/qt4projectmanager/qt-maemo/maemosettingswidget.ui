@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>526</width>
-    <height>487</height>
+    <height>514</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -346,8 +346,8 @@ p, li { white-space: pre-wrap; }
    <slot>timeoutEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>282</y>
+     <x>396</x>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -362,8 +362,8 @@ p, li { white-space: pre-wrap; }
    <slot>userNameEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>309</y>
+     <x>396</x>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
      <x>422</x>
@@ -378,8 +378,8 @@ p, li { white-space: pre-wrap; }
    <slot>passwordEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>336</y>
+     <x>396</x>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel">
      <x>423</x>
@@ -475,7 +475,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>357</y>
+     <y>384</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -491,7 +491,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>357</y>
+     <y>384</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
@@ -538,12 +538,28 @@ p, li { white-space: pre-wrap; }
    <slot>gdbServerPortEditingFinished()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>218</x>
-     <y>255</y>
+     <x>369</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>427</x>
      <y>467</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>keyButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>maemoSettingsWidget</receiver>
+   <slot>authenticationTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>257</x>
+     <y>189</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>525</x>
+     <y>408</y>
     </hint>
    </hints>
   </connection>

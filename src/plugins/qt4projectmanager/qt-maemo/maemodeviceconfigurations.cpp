@@ -74,6 +74,12 @@ namespace {
     const QString DefaultKeyFile =
         QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
         + QLatin1String("/.ssh/id_rsa");
+    const int DefaultSshPort(22);
+    const int DefaultGdbServerPort(10000);
+    const QString DefaultUserName(QLatin1String("developer"));
+    const MaemoDeviceConfig::AuthType DefaultAuthType(MaemoDeviceConfig::Key);
+    const int DefaultTimeout(30);
+    const MaemoDeviceConfig::DeviceType DefaultDeviceType(MaemoDeviceConfig::Physical);
 };
 
 class DevConfIdMatcher
@@ -90,12 +96,13 @@ private:
 
 MaemoDeviceConfig::MaemoDeviceConfig(const QString &name)
     : name(name),
-      type(Physical),
-      sshPort(22),
-      gdbServerPort(10000),
-      authentication(Key),
+      type(DefaultDeviceType),
+      sshPort(DefaultSshPort),
+      gdbServerPort(DefaultGdbServerPort),
+      uname(DefaultUserName),
+      authentication(DefaultAuthType),
       keyFile(DefaultKeyFile),
-      timeout(30),
+      timeout(DefaultTimeout),
       internalId(MaemoDeviceConfigurations::instance().m_nextId++)
 {
 }
@@ -103,15 +110,15 @@ MaemoDeviceConfig::MaemoDeviceConfig(const QString &name)
 MaemoDeviceConfig::MaemoDeviceConfig(const QSettings &settings,
                                      quint64 &nextId)
     : name(settings.value(NameKey).toString()),
-      type(static_cast<DeviceType>(settings.value(TypeKey, Physical).toInt())),
+      type(static_cast<DeviceType>(settings.value(TypeKey, DefaultDeviceType).toInt())),
       host(settings.value(HostKey).toString()),
-      sshPort(settings.value(SshPortKey, 22).toInt()),
-      gdbServerPort(settings.value(GdbServerPortKey, 10000).toInt()),
-      uname(settings.value(UserNameKey).toString()),
-      authentication(static_cast<AuthType>(settings.value(AuthKey).toInt())),
+      sshPort(settings.value(SshPortKey, DefaultSshPort).toInt()),
+      gdbServerPort(settings.value(GdbServerPortKey, DefaultGdbServerPort).toInt()),
+      uname(settings.value(UserNameKey, DefaultUserName).toString()),
+      authentication(static_cast<AuthType>(settings.value(AuthKey, DefaultAuthType).toInt())),
       pwd(settings.value(PasswordKey).toString()),
-      keyFile(settings.value(KeyFileKey).toString()),
-      timeout(settings.value(TimeoutKey, 30).toInt()),
+      keyFile(settings.value(KeyFileKey, DefaultKeyFile).toString()),
+      timeout(settings.value(TimeoutKey, DefaultTimeout).toInt()),
       internalId(settings.value(InternalIdKey, nextId).toInt())
 {
     if (internalId == nextId)
