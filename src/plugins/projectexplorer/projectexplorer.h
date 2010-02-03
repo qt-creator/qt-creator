@@ -41,6 +41,7 @@ QT_BEGIN_NAMESPACE
 class QPoint;
 class QAction;
 class QComboBox;
+class QMenu;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -122,6 +123,8 @@ public:
     bool saveModifiedFiles();
 
     void showContextMenu(const QPoint &globalPos, Node *node);
+    static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
+    static void openEditorFromAction(QAction *action, const QString &fileName);
 
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *error_message);

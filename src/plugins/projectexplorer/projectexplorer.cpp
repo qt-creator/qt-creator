@@ -2025,15 +2025,14 @@ void ProjectExplorerPlugin::runConfigurationMenuTriggered(QAction *action)
         setStartupProject(runConfiguration->project());
 }
 
-void ProjectExplorerPlugin::populateOpenWithMenu()
+void ProjectExplorerPlugin::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 {
     typedef QList<Core::IEditorFactory*> EditorFactoryList;
     typedef QList<Core::IExternalEditor*> ExternalEditorList;
 
-    d->m_openWithMenu->clear();
+    menu->clear();
 
     bool anyMatches = false;
-    const QString fileName = currentNode()->path();
 
     Core::ICore *core = Core::ICore::instance();
     if (const Core::MimeType mt = core->mimeDatabase()->findByFile(QFileInfo(fileName))) {
@@ -2046,7 +2045,7 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
             foreach (Core::IEditorFactory *editorFactory, factories) {
                 // Add action to open with this very editor factory
                 QString const actionTitle = editorFactory->displayName();
-                QAction * const action = d->m_openWithMenu->addAction(actionTitle);
+                QAction * const action = menu->addAction(actionTitle);
                 action->setData(qVariantFromValue(editorFactory));
                 // File already open in an editor -> only enable that entry since
                 // we currently do not support opening a file in two editors at once
@@ -2062,31 +2061,40 @@ void ProjectExplorerPlugin::populateOpenWithMenu()
             } // for editor factories
             // Add all suitable external editors
             foreach (Core::IExternalEditor *externalEditor, externalEditors) {
-                QAction * const action = d->m_openWithMenu->addAction(externalEditor->displayName());
+                QAction * const action = menu->addAction(externalEditor->displayName());
                 action->setData(qVariantFromValue(externalEditor));
             }
         } // matches
     }
-    d->m_openWithMenu->setEnabled(anyMatches);
+    menu->setEnabled(anyMatches);
+}
+
+void ProjectExplorerPlugin::populateOpenWithMenu()
+{
+    populateOpenWithMenu(d->m_openWithMenu, currentNode()->path());
 }
 
 void ProjectExplorerPlugin::openWithMenuTriggered(QAction *action)
 {
-    if (!action) {
+    if (!action)
         qWarning() << "ProjectExplorerPlugin::openWithMenuTriggered no action, can't happen.";
-        return;
-    }
+    else
+        openEditorFromAction(action, currentNode()->path());
+}
+
+void ProjectExplorerPlugin::openEditorFromAction(QAction *action, const QString &fileName)
+{
     Core::EditorManager *em = Core::EditorManager::instance();
     const QVariant data = action->data();
     if (qVariantCanConvert<Core::IEditorFactory *>(data)) {
         Core::IEditorFactory *factory = qVariantValue<Core::IEditorFactory *>(data);
-        em->openEditor(currentNode()->path(), factory->id());
+        em->openEditor(fileName, factory->id());
         em->ensureEditorManagerVisible();
         return;
     }
     if (qVariantCanConvert<Core::IExternalEditor *>(data)) {
         Core::IExternalEditor *externalEditor = qVariantValue<Core::IExternalEditor *>(data);
-        em->openExternalEditor(currentNode()->path(), externalEditor->id());
+        em->openExternalEditor(fileName, externalEditor->id());
     }
 }
 

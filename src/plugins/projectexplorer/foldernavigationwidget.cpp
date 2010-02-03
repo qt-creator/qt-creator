@@ -284,6 +284,14 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     actionExplorer->setEnabled(hasCurrentItem);
     QAction *actionTerminal = menu.addAction(msgTerminalAction());
     actionTerminal->setEnabled(hasCurrentItem);
+
+    // open with...
+    if (!m_fileSystemModel->isDir(current)) {
+        QMenu *openWith = menu.addMenu(tr("Open with"));
+        ProjectExplorerPlugin::populateOpenWithMenu(openWith,
+                                                    m_fileSystemModel->filePath(current));
+    }
+
     // Open file dialog to choose a path starting from current
     QAction *actionChooseFolder = menu.addAction(tr("Choose folder..."));
     // Sync checkable action
@@ -319,6 +327,8 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         showInGraphicalShell(this, m_fileSystemModel->filePath(current));
         return;
     }
+    ProjectExplorerPlugin::openEditorFromAction(action,
+                                                m_fileSystemModel->filePath(current));
 }
 
 QString FolderNavigationWidget::msgGraphicalShellAction()
