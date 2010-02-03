@@ -192,11 +192,23 @@ public:
 
     /////////////// Reading pro file
 
+    struct BlockCursor {
+        BlockCursor() : cursor(0) {}
+        BlockCursor(ProBlock *blk) : block(blk), cursor(blk->itemsRef()) {}
+        ~BlockCursor() { if (cursor) *cursor = 0; }
+        void set(ProBlock *blk) { if (cursor) *cursor = 0; block = blk; cursor = blk->itemsRef(); }
+        void reset() { if (cursor) { *cursor = 0; cursor = 0; } }
+        void append(ProItem *item) { *cursor = item; cursor = item->nextRef(); }
+        bool isValid() const { return cursor != 0; }
+        ProBlock *block;
+        ProItem **cursor;
+    };
+
     bool read(ProFile *pro);
     bool read(ProBlock *pro, const QString &content);
     bool readInternal(ProBlock *pro, const QString &content, ushort *buf);
 
-    ProBlock *currentBlock();
+    BlockCursor &currentBlock();
     void updateItem(ushort *uc, ushort *ptr);
     ProVariable *startVariable(ushort *uc, ushort *ptr);
     void finalizeVariable(ProVariable *var, ushort *uc, ushort *ptr);
@@ -205,8 +217,8 @@ public:
     void leaveScope();
     void finalizeBlock();
 
-    QStack<ProBlock *> m_blockstack;
-    ProBlock *m_block;
+    QStack<BlockCursor> m_blockstack;
+    BlockCursor m_block;
 
     /////////////// Evaluating pro file contents
 
@@ -355,9 +367,7 @@ bool ProFileEvaluator::Private::read(ProBlock *pro, const QString &content)
 bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, ushort *buf)
 {
     // Parser state
-    m_block = 0;
-    m_blockstack.clear();
-    m_blockstack.push(pro);
+    m_blockstack.push(BlockCursor(pro));
 
     // We rely on QStrings being null-terminated, so don't maintain a global end pointer.
     const ushort *cur = (const ushort *)in.unicode();
@@ -387,6 +397,8 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
                     ++m_lineNo;
                     goto freshLine;
                 }
+                m_block.reset();
+                m_blockstack.clear(); // FIXME: should actually check the state here
                 return true;
             }
             if (c != ' ' && c != '\t' && c != '\r')
@@ -560,9 +572,9 @@ bool ProFileEvaluator::Private::readInternal(ProBlock *pro, const QString &in, u
 
 void ProFileEvaluator::Private::finalizeBlock()
 {
-    if (m_blockstack.top()->blockKind() & ProBlock::SingleLine)
+    if (m_blockstack.top().block->blockKind() & ProBlock::SingleLine)
         leaveScope();
-    m_block = 0;
+    m_block.reset();
 }
 
 ProVariable *ProFileEvaluator::Private::startVariable(ushort *uc, ushort *ptr)
@@ -610,8 +622,7 @@ void ProFileEvaluator::Private::finalizeVariable(ProVariable *variable, ushort *
 {
     variable->setValue(QString((QChar*)uc, ptr - uc));
 
-    ProBlock *block = m_blockstack.top();
-    block->appendItem(variable);
+    m_blockstack.top().append(variable);
 }
 
 void ProFileEvaluator::Private::insertOperator(const char op)
@@ -628,28 +639,27 @@ void ProFileEvaluator::Private::insertOperator(const char op)
             opkind = ProOperator::OrOperator;
     }
 
-    ProBlock * const block = currentBlock();
     ProOperator * const proOp = new ProOperator(opkind);
     proOp->setLineNumber(m_lineNo);
-    block->appendItem(proOp);
+    currentBlock().append(proOp);
 }
 
 void ProFileEvaluator::Private::enterScope(bool multiLine)
 {
-    ProBlock *parent = currentBlock();
+    BlockCursor &parent = currentBlock();
+
     ProBlock *block = new ProBlock();
     block->setLineNumber(m_lineNo);
-    parent->setBlockKind(ProBlock::ScopeKind);
-
-    parent->appendItem(block);
-
     if (multiLine)
         block->setBlockKind(ProBlock::ScopeContentsKind);
     else
         block->setBlockKind(ProBlock::ScopeContentsKind|ProBlock::SingleLine);
+    m_blockstack.push(BlockCursor(block));
 
-    m_blockstack.push(block);
-    m_block = 0;
+    parent.block->setBlockKind(ProBlock::ScopeKind);
+    parent.append(block);
+
+    m_block.reset();
 }
 
 void ProFileEvaluator::Private::leaveScope()
@@ -661,16 +671,14 @@ void ProFileEvaluator::Private::leaveScope()
     finalizeBlock();
 }
 
-ProBlock *ProFileEvaluator::Private::currentBlock()
+ProFileEvaluator::Private::BlockCursor &ProFileEvaluator::Private::currentBlock()
 {
-    if (m_block)
-        return m_block;
-
-    ProBlock *parent = m_blockstack.top();
-    m_block = new ProBlock();
-    m_block->setLineNumber(m_lineNo);
-    parent->appendItem(m_block);
-
+    if (!m_block.isValid()) {
+        ProBlock *blk = new ProBlock();
+        blk->setLineNumber(m_lineNo);
+        m_blockstack.top().append(blk);
+        m_block.set(blk);
+    }
     return m_block;
 }
 
@@ -681,7 +689,6 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
 
     QString proItem = QString((QChar*)uc, ptr - uc);
 
-    ProBlock *block = currentBlock();
     ProItem *item;
     if (proItem.endsWith(QLatin1Char(')'))) {
         item = new ProFunction(proItem);
@@ -689,7 +696,7 @@ void ProFileEvaluator::Private::updateItem(ushort *uc, ushort *ptr)
         item = new ProCondition(proItem);
     }
     item->setLineNumber(m_lineNo);
-    block->appendItem(item);
+    currentBlock().append(item);
 }
 
 //////// Evaluator tools /////////
@@ -866,15 +873,14 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProBlock(ProBlock *block)
         }
     }
     ProItem::ProItemReturn rt = ProItem::ReturnTrue;
-    QList<ProItem *> items = block->items();
-    for (int i = 0; i < items.count(); ++i) {
-        rt = visitProItem(items.at(i));
+    for (ProItem *item = block->items(); item; item = item->next()) {
+        rt = visitProItem(item);
         if (rt != ProItem::ReturnTrue && rt != ProItem::ReturnFalse) {
             if (rt == ProItem::ReturnLoop) {
                 rt = ProItem::ReturnTrue;
                 while (visitProLoopIteration())
-                    for (int j = i; ++j < items.count(); ) {
-                        rt = visitProItem(items.at(j));
+                    for (ProItem *lItem = item; (lItem = lItem->next()); ) {
+                        rt = visitProItem(lItem);
                         if (rt != ProItem::ReturnTrue && rt != ProItem::ReturnFalse) {
                             if (rt == ProItem::ReturnNext) {
                                 rt = ProItem::ReturnTrue;

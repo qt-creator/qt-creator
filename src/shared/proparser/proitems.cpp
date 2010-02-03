@@ -36,17 +36,20 @@ QT_BEGIN_NAMESPACE
 ProBlock::ProBlock()
     : ProItem(BlockKind)
 {
+    m_proitems = 0;
     m_blockKind = 0;
     m_refCount = 1;
 }
 
 ProBlock::~ProBlock()
 {
-    foreach (ProItem *itm, m_proitems)
+    for (ProItem *itm, *nitm = m_proitems; (itm = nitm); ) {
+        nitm = itm->m_next;
         if (itm->kind() == BlockKind)
             static_cast<ProBlock *>(itm)->deref();
         else
             delete itm;
+    }
 }
 
 ProFile::ProFile(const QString &fileName)

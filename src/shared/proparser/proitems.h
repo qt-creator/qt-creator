@@ -63,9 +63,15 @@ public:
     int lineNumber() const { return m_lineNumber; }
     void setLineNumber(int lineNumber) { m_lineNumber = lineNumber; }
 
+    ProItem *next() const { return m_next; }
+    ProItem **nextRef() { return &m_next; }
+
 private:
+    ProItem *m_next;
     ProItemKind m_kind;
     int m_lineNumber;
+
+    friend class ProBlock; // C++ is braindead ...
 };
 
 class ProBlock : public ProItem
@@ -83,16 +89,17 @@ public:
     ProBlock();
     ~ProBlock();
 
-    void appendItem(ProItem *proitem) { m_proitems << proitem; }
-    QList<ProItem *> items() const { return m_proitems; }
     void setBlockKind(int blockKind) { m_blockKind = blockKind; }
     int blockKind() const { return m_blockKind; }
+
+    ProItem *items() const { return m_proitems; }
+    ProItem **itemsRef() { return &m_proitems; }
 
     void ref() { ++m_refCount; }
     void deref() { if (!--m_refCount) delete this; }
 
 private:
-    QList<ProItem *> m_proitems;
+    ProItem *m_proitems;
     int m_blockKind;
     int m_refCount;
 };

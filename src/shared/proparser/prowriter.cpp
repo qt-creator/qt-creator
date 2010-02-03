@@ -40,7 +40,7 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
                          const QStringList &vars)
 {
     // Check if variable item exists as child of root item
-    foreach (ProItem *item, profile->items()) {
+    for (ProItem *item = profile->items(); item; item = item->next()) {
         if (item->kind() == ProItem::VariableKind) {
             ProVariable *proVar = static_cast<ProVariable*>(item);
             if (vars.contains(proVar->variable())
@@ -87,7 +87,7 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines,
 static void findProVariables(ProBlock *block, const QStringList &vars,
                              QList<ProVariable *> *proVars)
 {
-    foreach (ProItem *item, block->items()) {
+    for (ProItem *item = block->items(); item; item = item->next()) {
         if (item->kind() == ProItem::BlockKind) {
             findProVariables(static_cast<ProBlock*>(item), vars, proVars);
         } else if (item->kind() == ProItem::VariableKind) {
