@@ -284,7 +284,11 @@ DebuggerSettings *DebuggerSettings::instance()
     //
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("Location"));
-    item->setDefaultValue("gdb");
+#ifdef Q_OS_WIN
+    item->setDefaultValue(QLatin1String("gdb-i686-pc-mingw32.exe"));
+#else
+    item->setDefaultValue(QLatin1String("gdb"));
+#endif
     instance->insertItem(GdbLocation, item);
 
     item = new SavedAction(instance);

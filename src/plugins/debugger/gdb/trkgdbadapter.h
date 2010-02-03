@@ -40,7 +40,6 @@
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
 #include <QtCore/QSharedPointer>
-#include <QtCore/QProcess>
 #include <QtCore/QQueue>
 #include <QtCore/QString>
 #include <QtCore/QStringList>

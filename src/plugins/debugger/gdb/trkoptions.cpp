@@ -39,13 +39,13 @@
 enum { firstSerialPort = 1, lastSerialPort = 12 };
 enum { modeDefault = Debugger::Internal::TrkOptions::Serial };
 static const char *serialPortDefaultC = SERIALPORT_ROOT"1";
-static const char *gdbDefaultC = "symgdb";
+static const char *gdbDefaultC = "gdb-arm-none-symbianelf.exe";
 #else
 #    define SERIALPORT_ROOT "/dev/ttyS"
 enum { firstSerialPort = 0, lastSerialPort = 3 };
 enum { modeDefault = Debugger::Internal::TrkOptions::BlueTooth };
 static const char *serialPortDefaultC = SERIALPORT_ROOT"0";
-static const char *gdbDefaultC = "symgdb";
+static const char *gdbDefaultC = "gdb-arm-none-symbianelf";
 #endif
 
 static const char *settingsGroupC = "S60Debugger";

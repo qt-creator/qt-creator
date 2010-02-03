@@ -96,6 +96,8 @@ namespace Internal {
 
 //#define DEBUG_PENDING  1
 
+static const char winPythonVersionC[] = "python2.5";
+
 #if DEBUG_PENDING
 #   define PENDING_DEBUG(s) qDebug() << s
 #else
@@ -3740,6 +3742,28 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     gdbArgs << _("-i");
     gdbArgs << _("mi");
     gdbArgs += args;
+#ifdef Q_OS_WIN
+    // Set python path. By convention, python is located below gdb executable
+    const QFileInfo fi(location);
+    if (fi.isAbsolute()) {
+        const QString winPythonVersion = QLatin1String(winPythonVersionC);
+        const QDir dir = fi.absoluteDir();
+        if (dir.exists(winPythonVersion)) {
+            QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+            const QString pythonPathVariable = QLatin1String("PYTHONPATH");
+            // Check for existing values.
+            if (environment.contains(pythonPathVariable)) {
+                const QString oldPythonPath = environment.value(pythonPathVariable);
+                manager()->showDebuggerOutput(LogMisc, QString::fromLatin1("Using existing python path: %1").arg(oldPythonPath));
+            } else {
+                const QString pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
+                environment.insert(pythonPathVariable, pythonPath);
+                manager()->showDebuggerOutput(LogMisc, QString::fromLatin1("Python path: %1").arg(pythonPath));
+                m_gdbProc.setProcessEnvironment(environment);
+            }
+        }
+    }
+#endif
     m_gdbProc.start(location, gdbArgs);
 
     if (!m_gdbProc.waitForStarted()) {

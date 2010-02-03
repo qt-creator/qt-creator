@@ -7,7 +7,10 @@ import sys
 import traceback
 import gdb
 import base64
-import curses.ascii
+import os
+
+if os.name != "nt":
+    import curses.ascii
 
 # only needed for gdb 7.0/7.0.1 that do not implement parse_and_eval
 import os
@@ -40,7 +43,7 @@ def cleanAddress(addr):
 def numericTemplateArgument(type, position):
     try:
         return int(type.template_argument(position))
-    except RuntimeError as error:
+    except RuntimeError, error:
         # ": No type named 30."
         msg = str(error)
         return int(msg[14:-1])
@@ -103,8 +106,10 @@ def listOfBreakpoints(d):
             continue
         lines.append(line)
     file.close()
-    os.remove(filename)
-
+    try:  # files may still be locked by gdb on Windows
+        os.remove(filename)
+    except:
+        pass
     lines.reverse()
     bp = Breakpoint()
     for line in lines:
@@ -254,8 +259,10 @@ def listOfLocals(varList):
                 continue
             varList.append(line[0:pos])
         file.close()
-        os.remove(filename)
-
+        try:  # files may still be locked by gdb on Windows
+            os.remove(filename)
+        except:
+            pass
         #warn("VARLIST: %s " % varList)
         for name in varList:
             #warn("NAME %s " % name)
