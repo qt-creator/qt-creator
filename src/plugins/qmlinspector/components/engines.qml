@@ -2,7 +2,7 @@ import Qt 4.6
 
 Item {
     height: 100
-    id: Root
+    id: root
     signal engineClicked(int id)
     signal refreshEngines()
 
@@ -13,18 +13,18 @@ Item {
             Item {
                 width: 100; height: 100;
                 Image { 
-                    id: EngineIcon; 
+                    id: engineIcon; 
                     source: "qrc:/engine.png"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 Text { 
-                    anchors.top: EngineIcon.bottom; 
+                    anchors.top: engineIcon.bottom; 
                     text: modelData.name + "(" + modelData.engineId + ")"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 MouseRegion {
                     anchors.fill: parent
-                    onClicked: Root.engineClicked(modelData.engineId);
+                    onClicked: root.engineClicked(modelData.engineId);
                 }
             }
         }

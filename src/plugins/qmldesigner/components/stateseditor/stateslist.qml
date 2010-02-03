@@ -58,7 +58,7 @@ Rectangle {
                 spacing: 4
                 Repeater {
                     model: statesEditorModel
-                    delegate: Delegate
+                    delegate: delegate
                 }
             }
             Loader {
@@ -81,14 +81,14 @@ Rectangle {
     }
 
     Component {
-        id: Delegate
+        id: delegate
         Item {
             id: container
             width: Math.max(img.width, txt.width+removeState.width+2,stateNameEditor.width) + 4
             height: img.height + txt.height + 4
 
             Rectangle {
-                id: Highlight
+                id: highlight
                 anchors.fill: parent
                 color: "#0303e0"
                 radius: 4
@@ -152,7 +152,7 @@ Rectangle {
                 Rectangle {
                     width: parent.width - 4;
                     height:2
-                    color:(root.currentStateIndex==index?Highlight.color:root.color);
+                    color:(root.currentStateIndex==index?highlight.color:root.color);
                     anchors.centerIn:parent
                 }
 
@@ -237,7 +237,7 @@ Rectangle {
                     }
 
                     MouseRegion {
-                        id: AbsorbAllClicks
+                        id: absorbAllClicks
                         anchors.fill:parent
                     }
                     Text {
