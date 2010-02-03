@@ -63,6 +63,7 @@ using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 
+// #define QML_WITH_SNIPPETS
 
 // Temporary workaround until we have proper icons for QML completion items
 static QIcon iconForColor(const QColor &color)
@@ -733,10 +734,12 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         return -1;
     }
 
+#ifdef QML_WITH_SNIPPETS
     if (isQmlFile && (completionOperator.isNull() || completionOperator.isSpace() || isDelimiter(completionOperator))) {
         updateSnippets();
         m_completions.append(m_snippets);
     }
+#endif
 
     if (! m_completions.isEmpty())
         return m_startPosition;
