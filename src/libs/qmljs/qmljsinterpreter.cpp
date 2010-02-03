@@ -743,7 +743,7 @@ const Value *Context::lookup(const QString &name)
     return _engine->undefinedValue();
 }
 
-const ObjectValue *Context::lookupType(AST::UiQualifiedId *qmlTypeName)
+const ObjectValue *Context::lookupType(UiQualifiedId *qmlTypeName)
 {
     const ObjectValue *objectValue = _typeEnvironment;
 
@@ -1992,7 +1992,7 @@ bool ASTFunctionValue::isVariadic() const
     return true;
 }
 
-QmlPrototypeReference::QmlPrototypeReference(AST::UiQualifiedId *qmlTypeName, Engine *engine)
+QmlPrototypeReference::QmlPrototypeReference(UiQualifiedId *qmlTypeName, Engine *engine)
     : Reference(engine),
       _qmlTypeName(qmlTypeName)
 {
