@@ -155,7 +155,7 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
     QByteArray processedName = QByteArray::number(dumpChildren) + '-' + data.iname;
     if (m_processedNames.contains(processedName)) {
         gdbInputAvailable(LogStatus,
-            _("<Breaking endless loop for " + data.iname + ">"));
+            _("<Breaking endless loop for " + data.iname + '>'));
         data.setAllUnneeded();
         data.setValue(_("<unavailable>"));
         data.setHasChildren(false);
@@ -178,7 +178,7 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
     if (data.addr.startsWith("0x"))
         addr = "(void*)" + data.addr;
     else if (data.exp.isEmpty()) // happens e.g. for QAbstractItem
-        addr = "0";
+        addr =  QByteArray (1, '0');
     else
         addr = "&(" + data.exp + ')';
 
@@ -186,7 +186,7 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
 
     QString cmd;
     QTextStream(&cmd) << "call " << "(void*)qDumpObjectData440(" <<
-            protocol << ",0," <<  addr << ',' << (dumpChildren ? "1" : "0")
+            protocol << ",0," <<  addr << ',' << (dumpChildren ? '1' : '0')
             << ',' << extraArgs.join(QString(_c(','))) <<  ')';
 
     postCommand(cmd.toLatin1(), WatchUpdate | NonCriticalResponse);
@@ -465,7 +465,7 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
                     data1.type = data.type.left(data.type.size() - 4);
                     data1.iname = data.iname + '.' + QByteArray::number(i);
                     data1.addr = list.at(i);
-                    data1.exp = "((" + gdbQuoteTypes(data1.type).toLatin1() + "*)" + data1.addr + ")";
+                    data1.exp = "((" + gdbQuoteTypes(data1.type).toLatin1() + "*)" + data1.addr + ')';
                     data1.setHasChildren(false);
                     data1.setValueNeeded();
                     QByteArray cmd = "qdumpqstring (" + data1.exp + ')';
@@ -787,7 +787,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
                 // A type we derive from? gdb crashes when creating variables here
                 data.exp = parent.exp;
             }
-        } else if (exp.startsWith("*")) {
+        } else if (exp.startsWith('*')) {
             // A pointer
             data.exp = "*(" + parent.exp + ')';
         } else if (startsWithDigit(data.name)) {

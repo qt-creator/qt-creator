@@ -94,7 +94,8 @@ static QByteArray dumpRegister(uint n, uint value)
         ba += '#';
         ba += QByteArray::number(n);
     }
-    ba += "=" + hexxNumber(value);
+    ba += '=';
+    ba += hexxNumber(value);
     return ba;
 }
 
@@ -537,7 +538,7 @@ void TrkGdbAdapter::sendGdbServerAck()
     if (!m_gdbAckMode)
         return;
     logMessage("gdb: <- +");
-    sendGdbServerPacket("+", false);
+    sendGdbServerPacket(QByteArray(1, '+'), false);
 }
 
 void TrkGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray &logNote)
@@ -552,7 +553,7 @@ void TrkGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray
     //logMessage(QString("Packet checksum: %1").arg(sum));
 
     QByteArray packet;
-    packet.append("$");
+    packet.append('$');
     packet.append(msg);
     packet.append('#');
     packet.append(checkSum);
@@ -608,7 +609,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerMessage("OK", "extended mode enabled");
     }
 
-    else if (cmd.startsWith("?")) {
+    else if (cmd.startsWith('?')) {
         logMessage(msgGdbPacket(QLatin1String("Query halted")));
         // Indicate the reason the target halted.
         // The reply is the same as for step and continue.
@@ -634,7 +635,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendTrkMessage(0x18, TrkCallback(), ba);
     }
 
-    else if (cmd.startsWith("C")) {
+    else if (cmd.startsWith('C')) {
         logMessage(msgGdbPacket(QLatin1String("Continue with signal")));
         // C sig[;addr] Continue with signal sig (hex signal number)
         //Reply: See section D.3 Stop Reply Packets, for the reply specifications.
@@ -647,7 +648,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendTrkMessage(0x18, TrkCB(handleSignalContinue), ba, signalNumber);
     }
 
-    else if (cmd.startsWith("D")) {
+    else if (cmd.startsWith('D')) {
         sendGdbServerAck();
         sendGdbServerMessage("OK", "shutting down");
     }
@@ -704,7 +705,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             trkDeleteProcessMessage(), "Delete process");
     }
 
-    else if (cmd.startsWith("m")) {
+    else if (cmd.startsWith('m')) {
         logMessage(msgGdbPacket(QLatin1String("Read memory")));
         // m addr,length
         sendGdbServerAck();
@@ -728,7 +729,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         }
     }
 
-    else if (cmd.startsWith("p")) {
+    else if (cmd.startsWith('p')) {
         logMessage(msgGdbPacket(QLatin1String("read register")));
         // 0xf == current instruction pointer?
         //sendGdbServerMessage("0000", "current IP");
@@ -760,7 +761,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         }
     }
 
-    else if (cmd.startsWith("P")) {
+    else if (cmd.startsWith('P')) {
         logMessage(msgGdbPacket(QLatin1String("write register")));
         // $Pe=70f96678#d3
         sendGdbServerAck();
@@ -782,8 +783,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // 1: attached to an existing process
         // 0: created a new process
         sendGdbServerAck();
-        sendGdbServerMessage("0", "new process created");
-        //sendGdbServerMessage("1", "attached to existing process");
+        sendGdbServerMessage(QByteArray(1, '0'), "new process created");
+        //sendGdbServerMessage('1', "attached to existing process");
         //sendGdbServerMessage("E01", "new process created");
     }
 
@@ -823,7 +824,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // Name=hexname,TextSeg=textaddr[,DataSeg=dataaddr]
         sendGdbServerAck();
         if (!m_session.libraries.isEmpty()) {
-            QByteArray response = "m";
+            QByteArray response(1, 'm');
             // FIXME: Limit packet length by using qsDllInfo packages?
             for (int i = 0; i != m_session.libraries.size(); ++i) {
                 if (i)
@@ -835,14 +836,14 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             }
             sendGdbServerMessage(response, "library information transferred");
         } else {
-            sendGdbServerMessage("l", "library information transfer finished");
+            sendGdbServerMessage(QByteArray(1, 'l'), "library information transfer finished");
         }
     }
 
     else if (cmd == "qsDllInfo") {
         // That's a following query package
         sendGdbServerAck();
-        sendGdbServerMessage("l", "library information transfer finished");
+        sendGdbServerMessage(QByteArray(1, 'l'), "library information transfer finished");
     }
 
     else if (cmd == "qPacketInfo") {
@@ -881,20 +882,20 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         // That's the _first_ query package.
         sendGdbServerAck();
         if (!m_session.threads.isEmpty()) {
-            QByteArray response = "m";
+            QByteArray response(1, 'm');
             // FIXME: Limit packet length by using qsThreadInfo packages?
             qDebug()  << "CURRENT THREAD: " << m_session.tid;
             response += hexNumber(m_session.tid);
             sendGdbServerMessage(response, "thread information transferred");
         } else {
-            sendGdbServerMessage("l", "thread information transfer finished");
+            sendGdbServerMessage(QByteArray(1, 'l'), "thread information transfer finished");
         }
     }
 
     else if (cmd == "qsThreadInfo") {
         // That's a following query package
         sendGdbServerAck();
-        sendGdbServerMessage("l", "thread information transfer finished");
+        sendGdbServerMessage(QByteArray(1, 'l'), "thread information transfer finished");
     }
 
     else if (cmd.startsWith("qXfer:libraries:read")) {

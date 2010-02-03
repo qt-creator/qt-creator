@@ -3310,7 +3310,7 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
     int i = 0;
-    foreach (GdbMi child, children.children()) {
+    foreach (const GdbMi &child, children.children()) {
         WatchData data1 = childtemplate;
         GdbMi name = child.findChild("name");
         if (name.isValid())
