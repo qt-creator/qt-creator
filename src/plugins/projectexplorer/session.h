@@ -37,6 +37,7 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -169,6 +170,7 @@ private slots:
     void saveActiveMode(Core::IMode *mode);
     void clearProjectFileCache();
     void setEditorCodec(Core::IEditor *editor, const QString &fileName);
+    void handleCurrentEditorChange(Core::IEditor *editor);
     void updateWindowTitle();
 
 private:
@@ -188,6 +190,7 @@ private:
 
     Internal::SessionFile *m_file;
     Internal::SessionNodeImpl *m_sessionNode;
+    QPointer<Core::IEditor> m_currentEditor;
     QString m_displayName;
     QString m_sessionName;
 

@@ -368,7 +368,8 @@ SessionManager::SessionManager(QObject *parent)
   : QObject(parent),
     m_core(Core::ICore::instance()),
     m_file(new SessionFile),
-    m_sessionNode(new Internal::SessionNodeImpl(this))
+    m_sessionNode(new Internal::SessionNodeImpl(this)),
+    m_currentEditor(0)
 {
     // Create qtcreator dir if it doesn't yet exist
     QString configDir = QFileInfo(m_core->settings()->fileName()).path();
@@ -394,7 +395,7 @@ SessionManager::SessionManager(QObject *parent)
     connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(updateWindowTitle()));
     connect(m_core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(updateWindowTitle()));
+            this, SLOT(handleCurrentEditorChange(Core::IEditor*)));
 }
 
 SessionManager::~SessionManager()
@@ -874,6 +875,18 @@ void SessionManager::setEditorCodec(Core::IEditor *editor, const QString &fileNa
 Core::IFile *SessionManager::file() const
 {
     return m_file;
+}
+
+void SessionManager::handleCurrentEditorChange(Core::IEditor *editor)
+{
+    if (editor != m_currentEditor) {
+        if (m_currentEditor)
+            disconnect(m_currentEditor, SIGNAL(changed()), this, SLOT(updateWindowTitle()));
+        if (editor)
+            connect(editor, SIGNAL(changed()), this, SLOT(updateWindowTitle()));
+        m_currentEditor = editor;
+    }
+    updateWindowTitle();
 }
 
 void SessionManager::updateWindowTitle()
