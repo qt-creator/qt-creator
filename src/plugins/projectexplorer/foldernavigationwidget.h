@@ -93,7 +93,6 @@ private:
     QSortFilterProxyModel *m_filterModel;
     QLabel *m_title;
     bool m_autoSync;
-    QAction *m_autoSyncAction;
 };
 
 class FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory

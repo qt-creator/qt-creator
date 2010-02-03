@@ -101,8 +101,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
       m_fileSystemModel(new QFileSystemModel(this)),
       m_filterModel(new DotRemovalFilter(this)),
       m_title(new QLabel(this)),
-      m_autoSync(false),
-      m_autoSyncAction(0)
+      m_autoSync(false)
 {
     m_fileSystemModel->setResolveSymlinks(false);
     m_fileSystemModel->setIconProvider(Core::FileIconProvider::instance());
@@ -161,9 +160,6 @@ void FolderNavigationWidget::setAutoSynchronization(bool sync)
         disconnect(fileManager, SIGNAL(currentFileChanged(QString)),
                 this, SLOT(setCurrentFile(QString)));
     }
-
-    if (m_autoSyncAction && m_autoSyncAction->isChecked() != m_autoSync)
-        m_autoSyncAction->setChecked(m_autoSync);
 }
 
 void FolderNavigationWidget::setCurrentFile(const QString &filePath)
@@ -294,15 +290,6 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
 
     // Open file dialog to choose a path starting from current
     QAction *actionChooseFolder = menu.addAction(tr("Choose folder..."));
-    // Sync checkable action
-    if (!m_autoSyncAction) {
-        m_autoSyncAction = new QAction(tr("Synchronize"), this);
-        m_autoSyncAction->setCheckable(true);
-        m_autoSyncAction->setChecked(autoSynchronization());
-        connect(m_autoSyncAction, SIGNAL(toggled(bool)), this, SLOT(setAutoSynchronization(bool)));
-    }
-    menu.addSeparator();
-    menu.addAction(m_autoSyncAction);
 
     QAction *action = menu.exec(ev->globalPos());
     if (!action)
