@@ -64,9 +64,12 @@ using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 
 // #define QML_WITH_SNIPPETS
+// #define QML_WITH_AUTO_COMPLETION
+
+namespace {
 
 // Temporary workaround until we have proper icons for QML completion items
-static QIcon iconForColor(const QColor &color)
+QIcon iconForColor(const QColor &color)
 {
     QPixmap pix(6, 6);
 
@@ -96,7 +99,32 @@ static QIcon iconForColor(const QColor &color)
     return pix;
 }
 
-namespace {
+bool checkStartOfIdentifier(const QString &word)
+{
+    if (word.isEmpty())
+        return false;
+
+    const QChar ch = word.at(0);
+
+    switch (ch.unicode()) {
+    case '_': case '$':
+        return true;
+
+    default:
+        return ch.isLetter();
+    }
+}
+
+bool isIdentifierChar(QChar ch)
+{
+    switch (ch.unicode()) {
+    case '_': case '$':
+        return true;
+
+    default:
+        return ch.isLetterOrNumber();
+    }
+}
 
 class SearchPropertyDefinitions: protected AST::Visitor
 {
@@ -512,33 +540,6 @@ bool QmlCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
     return false;
 }
 
-static bool checkStartOfIdentifier(const QString &word)
-{
-    if (word.isEmpty())
-        return false;
-
-    const QChar ch = word.at(0);
-
-    switch (ch.unicode()) {
-    case '_': case '$':
-        return true;
-
-    default:
-        return ch.isLetter();
-    }
-}
-
-static bool isIdentifierChar(QChar ch)
-{
-    switch (ch.unicode()) {
-    case '_': case '$':
-        return true;
-
-    default:
-        return ch.isLetterOrNumber();
-    }
-}
-
 bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     if (maybeTriggersCompletion(editor)) {
@@ -572,12 +573,15 @@ bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 bool QmlCodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *editor)
 {
     const int cursorPosition = editor->position();
-    const QChar characterUnderCursor = editor->characterAt(cursorPosition);
     const QChar ch = editor->characterAt(cursorPosition - 1);
 
     if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
         return true;
-    else if (isIdentifierChar(ch) && (characterUnderCursor.isSpace() ||
+
+#ifdef QML_WITH_AUTO_COMPLETION
+    const QChar characterUnderCursor = editor->characterAt(cursorPosition);
+
+    if (isIdentifierChar(ch) && (characterUnderCursor.isSpace() ||
                                       characterUnderCursor.isNull() ||
                                       isDelimiter(characterUnderCursor))) {
         int pos = editor->position() - 1;
@@ -596,6 +600,7 @@ bool QmlCodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *edito
             return true;
         }
     }
+#endif
 
     return false;
 }
