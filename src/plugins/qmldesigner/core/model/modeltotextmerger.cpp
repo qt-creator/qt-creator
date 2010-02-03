@@ -287,15 +287,16 @@ void ModelToTextMerger::applyChanges()
     }
 }
 
-void ModelToTextMerger::reindent(const QMap<int, int> &/*dirtyAreas*/) const
+void ModelToTextMerger::reindent(const QMap<int, int> &dirtyAreas) const
 {
-//    QList<int> offsets = dirtyAreas.keys();
-//    qSort(offsets);
-//
-//    foreach (const int offset, offsets) {
-//        const int length = dirtyAreas[offset];
-//        xxxx
-//    }
+    QList<int> offsets = dirtyAreas.keys();
+    qSort(offsets);
+    TextModifier *textModifier = m_rewriterView->textModifier();
+
+    foreach (const int offset, offsets) {
+        const int length = dirtyAreas[offset];
+        textModifier->indent(offset, length);
+    }
 }
 
 void ModelToTextMerger::schedule(RewriteAction *action)

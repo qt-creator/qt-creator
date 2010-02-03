@@ -43,6 +43,8 @@ public:
 
     virtual void replace(int offset, int length, const QString& replacement);
     virtual void move(const MoveInfo &moveInfo);
+    virtual void indent(int offset, int length);
+
     virtual void startGroup();
     virtual void flushGroup();
     virtual void commitGroup();

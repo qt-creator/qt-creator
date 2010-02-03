@@ -58,6 +58,11 @@ void ComponentTextModifier::move(const MoveInfo &moveInfo)
     m_originalModifier->move(moveInfo);
 }
 
+void ComponentTextModifier::indent(int offset, int length)
+{
+    m_originalModifier->indent(offset, length);
+}
+
 void ComponentTextModifier::startGroup()
 {
     m_originalModifier->startGroup();
