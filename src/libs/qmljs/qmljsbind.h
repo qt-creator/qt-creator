@@ -61,6 +61,9 @@ protected:
 
     void accept(AST::Node *node);
 
+    virtual bool visit(AST::UiProgram *ast);
+    virtual bool visit(AST::Program *ast);
+
     // Ui
     virtual bool visit(AST::UiImport *ast);
     virtual bool visit(AST::UiPublicMember *ast);
@@ -68,7 +71,10 @@ protected:
     virtual bool visit(AST::UiObjectBinding *ast);
     virtual bool visit(AST::UiScriptBinding *ast);
     virtual bool visit(AST::UiArrayBinding *ast);
+
+    // QML/JS
     virtual bool visit(AST::FunctionDeclaration *ast);
+    virtual bool visit(AST::VariableDeclaration *ast);
 
 protected:
     Interpreter::ObjectValue *switchObjectValue(Interpreter::ObjectValue *newObjectValue);

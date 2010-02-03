@@ -48,7 +48,7 @@ namespace Interpreter {
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
 public:
-    Check(Link *link);
+    Check(Interpreter::Context *context);
     virtual ~Check();
 
     const Interpreter::Value *operator()(AST::Node *ast);
@@ -158,7 +158,7 @@ protected:
 private:
     QmlJS::Document::Ptr _doc;
     Interpreter::Engine *_engine;
-    Link *_link;
+    Interpreter::Context *_context;
     const Interpreter::ObjectValue *_scope;
     const Interpreter::Value *_result;
 };

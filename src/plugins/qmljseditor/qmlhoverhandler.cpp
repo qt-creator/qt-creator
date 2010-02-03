@@ -175,7 +175,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             Link link(qmlDocument, snapshot, &interp);
             link.scopeChainAt(qmlDocument, declaringMember);
 
-            Check check(&link);
+            Check check(link.context());
             const Interpreter::Value *value = check(node);
 
             QStringList baseClasses;

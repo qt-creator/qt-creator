@@ -32,6 +32,7 @@
 
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsmetatypesystem.h>
+#include <qmljs/parser/qmljsastfwd_p.h>
 
 #include <QtCore/QList>
 #include <QtCore/QString>
@@ -39,6 +40,9 @@
 #include <QtCore/QSet>
 
 namespace QmlJS {
+
+class NameId;
+
 namespace Interpreter {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,10 +212,27 @@ public:
 class QMLJS_EXPORT Context
 {
 public:
+    typedef QList<const ObjectValue *> ScopeChain;
+
+    enum LookupMode {
+        JSLookup,
+        QmlLookup
+    };
+
+public:
     Context(Engine *engine);
-    virtual ~Context();
+    ~Context();
 
     Engine *engine() const;
+    ScopeChain scopeChain() const;
+
+    LookupMode lookupMode() const;
+    void setLookupMode(LookupMode lookupMode);
+
+    void pushScope(const ObjectValue *object);
+    void popScope();
+
+    const Value *lookup(const QString &name) const;
 
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
@@ -220,20 +241,26 @@ private:
     typedef QHash<QString, const Value *> Properties;
 
     Engine *_engine;
+    LookupMode _lookupMode;
     QHash<const ObjectValue *, Properties> _properties;
+    ScopeChain _scopeChain;
 };
 
 class QMLJS_EXPORT Reference: public Value
 {
 public:
-    Reference();
+    Reference(Engine *engine);
     virtual ~Reference();
 
-    virtual const Value *value(const Context *context) const = 0;
+    Engine *engine() const;
+    virtual const Value *value(Context *context) const;
 
     // Value interface
     virtual const Reference *asReference() const;
     virtual void accept(ValueVisitor *) const;
+
+private:
+    Engine *_engine;
 };
 
 class QMLJS_EXPORT ObjectValue: public Value
@@ -506,8 +533,6 @@ public:
     ObjectValue *globalObject() const;
     const ObjectValue *mathObject() const;
 
-    void registerObject(ObjectValue *object);
-
     // prototypes
     ObjectValue *objectPrototype() const;
     ObjectValue *functionPrototype() const;
@@ -538,6 +563,8 @@ public:
     // typing:
     const MetaTypeSystem &metaTypeSystem() const
     { return _metaTypeSystem; }
+
+    void registerValue(Value *value); // internal
 
 private:
     void initializePrototypes();
@@ -575,7 +602,7 @@ private:
     NumberValue _numberValue;
     BooleanValue _booleanValue;
     StringValue _stringValue;
-    QList<ObjectValue *> _registeredObjects;
+    QList<Value *> _registeredValues;
 
     ConvertToNumber _convertToNumber;
     ConvertToString _convertToString;
@@ -584,6 +611,51 @@ private:
 
     MetaTypeSystem _metaTypeSystem;
 };
+
+
+// internal
+class QMLJS_EXPORT ASTObjectValue: public ObjectValue
+{
+    AST::UiQualifiedId *_typeName;
+    AST::UiObjectInitializer *_initializer;
+
+public:
+    ASTObjectValue(AST::UiQualifiedId *typeName, AST::UiObjectInitializer *initializer, Engine *engine);
+    virtual ~ASTObjectValue();
+
+    virtual void processMembers(MemberProcessor *processor) const;
+};
+
+class QMLJS_EXPORT ASTVariableReference: public Reference
+{
+    AST::VariableDeclaration *_ast;
+
+public:
+    ASTVariableReference(AST::VariableDeclaration *ast, Engine *engine);
+    virtual ~ASTVariableReference();
+
+    virtual const Value *value(Context *context) const;
+};
+
+class QMLJS_EXPORT ASTFunctionValue: public FunctionValue
+{
+    AST::FunctionDeclaration *_ast;
+    QList<NameId *> _argumentNames;
+
+public:
+    ASTFunctionValue(AST::FunctionDeclaration *ast, Engine *engine);
+    virtual ~ASTFunctionValue();
+
+    AST::FunctionDeclaration *ast() const;
+
+    virtual const Value *returnValue() const;
+    virtual int argumentCount() const;
+    virtual const Value *argument(int) const;
+    virtual QString argumentName(int index) const;
+    virtual bool isVariadic() const;
+};
+
+
 
 } } // end of namespace QmlJS::Interpreter
 

@@ -14,7 +14,6 @@ using namespace QmlJS::AST;
 
 Link::Link(Document::Ptr currentDoc, const Snapshot &snapshot, Interpreter::Engine *interp)
     : _snapshot(snapshot)
-    , _interp(interp)
     , _context(interp)
 {
     _docs = reachableDocuments(currentDoc, snapshot);
@@ -41,64 +40,58 @@ Context *Link::context()
     return &_context;
 }
 
-Link::ScopeChain Link::scopeChain() const
-{
-    return _scopeChain;
-}
-
 Interpreter::Engine *Link::engine()
 {
-    return _interp;
+    return _context.engine();
 }
 
 void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 {
-    _scopeChain.clear();
+    _context.pushScope(engine()->globalObject());
 
-    if (! doc) {
-        _scopeChain.append(_interp->globalObject());
+    if (! doc)
         return;
-    }
+
+    if (doc->qmlProgram() != 0)
+        _context.setLookupMode(Context::QmlLookup);
 
     BindPtr bind = doc->bind();
 
     // Build the scope chain.
-    _scopeChain.append(_typeEnvironments.value(doc.data()));
-    _scopeChain.append(bind->_idEnvironment);
-    _scopeChain.append(bind->_functionEnvironment);
 
-    foreach (const QString &scriptFile, doc->bind()->includedScripts()) {
+    // ### FIXME: May want to link to instantiating components from here.
+
+    if (bind->_rootObjectValue)
+        _context.pushScope(bind->_rootObjectValue);
+
+    ObjectValue *scopeObject = 0;
+    if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
+        scopeObject = bind->_qmlObjects.value(definition);
+    else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
+        scopeObject = bind->_qmlObjects.value(binding);
+
+    if (scopeObject && scopeObject != bind->_rootObjectValue)
+        _context.pushScope(scopeObject);
+
+    const QStringList &includedScripts = bind->includedScripts();
+    for (int index = includedScripts.size() - 1; index != -1; --index) {
+        const QString &scriptFile = includedScripts.at(index);
+
         if (Document::Ptr scriptDoc = _snapshot.document(scriptFile)) {
             if (scriptDoc->jsProgram()) {
-                _scopeChain.append(scriptDoc->bind()->_rootObjectValue);
+                _context.pushScope(scriptDoc->bind()->_rootObjectValue);
             }
         }
     }
 
+    if (bind->_functionEnvironment)
+        _context.pushScope(bind->_functionEnvironment);
 
-    if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject)) {
-        ObjectValue *scopeObject = bind->_qmlObjects.value(definition);
-        _scopeChain.append(scopeObject);
+    if (bind->_idEnvironment)
+        _context.pushScope(bind->_idEnvironment);
 
-        // ### FIXME: should add the root regardless
-        if (scopeObject != bind->_rootObjectValue)
-            _scopeChain.append(bind->_rootObjectValue);
-    }
-
-    _scopeChain.append(bind->_interp.globalObject());
-
-    // May want to link to instantiating components from here.
-}
-
-const Value *Link::lookup(const QString &name) const
-{
-    foreach (const ObjectValue *scope, _scopeChain) {
-        if (const Value *member = scope->lookupMember(name)) {
-            return member;
-        }
-    }
-
-    return _interp->undefinedValue();
+    if (const ObjectValue *typeEnvironment = _typeEnvironments.value(doc.data()))
+        _context.pushScope(typeEnvironment);
 }
 
 void Link::linkImports()
@@ -106,7 +99,7 @@ void Link::linkImports()
     foreach (Document::Ptr doc, _docs) {
         BindPtr bind = doc->bind();
 
-        ObjectValue *typeEnv = _interp->newObject(/*prototype =*/0);
+        ObjectValue *typeEnv = engine()->newObject(/*prototype =*/0); // ### FIXME
         _typeEnvironments.insert(doc.data(), typeEnv);
 
         // Populate the _typeEnvironment with imports.
@@ -205,7 +198,7 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
             continue;
 
         if (directoryImport && import->importId && !importNamespace) {
-            importNamespace = _interp->newObject(/*prototype =*/0);
+            importNamespace = engine()->newObject(/*prototype =*/0);
             typeEnv->setProperty(import->importId->asString(), importNamespace);
         }
 
@@ -234,7 +227,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
     ObjectValue *namespaceObject = 0;
 
     if (import->importId) { // with namespace we insert an object in the type env. to hold the imported types
-        namespaceObject = _interp->newObject(/*prototype */ 0);
+        namespaceObject = engine()->newObject(/*prototype */ 0);
         typeEnv->setProperty(import->importId->asString(), namespaceObject);
 
     } else { // without namespace we insert all types directly into the type env.
@@ -260,7 +253,7 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
             }
         }
 #ifndef NO_DECLARATIVE_BACKEND
-        foreach (QmlObjectValue *object, _interp->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
+        foreach (QmlObjectValue *object, engine()->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
             namespaceObject->setProperty(object->qmlTypeName(), object);
         }
 #endif // NO_DECLARATIVE_BACKEND

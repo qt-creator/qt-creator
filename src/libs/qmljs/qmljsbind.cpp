@@ -41,88 +41,6 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
-namespace {
-
-class ASTObjectValue: public ObjectValue
-{
-    UiQualifiedId *_typeName;
-    UiObjectInitializer *_initializer;
-
-public:
-    ASTObjectValue(UiQualifiedId *typeName, UiObjectInitializer *initializer, Interpreter::Engine *engine)
-        : ObjectValue(engine), _typeName(typeName), _initializer(initializer)
-    {
-    }
-
-    virtual void processMembers(MemberProcessor *processor) const
-    {
-        if (_initializer) {
-            for (UiObjectMemberList *it = _initializer->members; it; it = it->next) {
-                UiObjectMember *member = it->member;
-                if (UiPublicMember *def = cast<UiPublicMember *>(member)) {
-                    if (def->name && def->memberType) {
-                        const QString propName = def->name->asString();
-                        const QString propType = def->memberType->asString();
-
-                        processor->processProperty(propName, engine()->defaultValueForBuiltinType(propType));
-                    }
-                }
-            }
-        }
-        ObjectValue::processMembers(processor);
-    }
-};
-
-class ASTFunctionValue: public FunctionValue
-{
-    FunctionDeclaration *_ast;
-    QList<NameId *> _argumentNames;
-
-public:
-    ASTFunctionValue(FunctionDeclaration *ast, Interpreter::Engine *engine)
-        : FunctionValue(engine), _ast(ast)
-    {
-        setPrototype(engine->functionPrototype());
-
-        for (FormalParameterList *it = ast->formals; it; it = it->next)
-            _argumentNames.append(it->name);
-    }
-
-    FunctionDeclaration *ast() const { return _ast; }
-
-    virtual const Value *returnValue() const
-    {
-        return engine()->undefinedValue();
-    }
-
-    virtual int argumentCount() const
-    {
-        return _argumentNames.size();
-    }
-
-    virtual const Value *argument(int) const
-    {
-        return engine()->undefinedValue();
-    }
-
-    virtual QString argumentName(int index) const
-    {
-        if (index < _argumentNames.size()) {
-            if (NameId *nameId = _argumentNames.at(index))
-                return nameId->asString();
-        }
-
-        return FunctionValue::argumentName(index);
-    }
-
-    virtual bool isVariadic() const
-    {
-        return true;
-    }
-};
-
-} // end of anonymous namespace
-
 Bind::Bind(Document *doc)
     : _doc(doc),
       _currentObjectValue(0),
@@ -130,18 +48,8 @@ Bind::Bind(Document *doc)
       _functionEnvironment(0),
       _rootObjectValue(0)
 {
-    if (!_doc)
-        return;
-
-    if (_doc->qmlProgram()) {
-        _idEnvironment = _interp.newObject(/*prototype =*/ 0);
-        _functionEnvironment = _interp.newObject(/*prototype =*/ 0);
-    } else if (_doc->jsProgram()) {
-        _currentObjectValue = _interp.globalObject();
-        _rootObjectValue = _interp.globalObject();
-    }
-
-    accept(_doc->ast());
+    if (_doc)
+        accept(_doc->ast());
 }
 
 Bind::~Bind()
@@ -248,6 +156,20 @@ void Bind::accept(Node *node)
     Node::accept(node, this);
 }
 
+bool Bind::visit(AST::UiProgram *)
+{
+    _idEnvironment = _interp.newObject(/*prototype =*/ 0);
+    _functionEnvironment = _interp.newObject(/*prototype =*/ 0);
+    return true;
+}
+
+bool Bind::visit(AST::Program *)
+{
+    _currentObjectValue = _interp.globalObject();
+    _rootObjectValue = _interp.globalObject();
+    return true;
+}
+
 bool Bind::visit(UiImport *ast)
 {
     if (ast->fileName) {
@@ -303,6 +225,16 @@ bool Bind::visit(UiArrayBinding *)
     // ### FIXME: do we need to store the members into the property? Or, maybe the property type is an JS Array?
 
     return true;
+}
+
+bool Bind::visit(VariableDeclaration *ast)
+{
+    if (! ast->name)
+        return false;
+
+    ASTVariableReference *ref = new ASTVariableReference(ast, &_interp);
+    _currentObjectValue->setProperty(ast->name->asString(), ref);
+    return false;
 }
 
 bool Bind::visit(FunctionDeclaration *ast)

@@ -37,9 +37,9 @@
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 
-Check::Check(Link *link)
-    : _engine(link->engine()),
-      _link(link),
+Check::Check(Context *context)
+    : _engine(context->engine()),
+      _context(context),
       _scope(_engine->globalObject()),
       _result(0)
 {
@@ -66,7 +66,7 @@ const Interpreter::Value *Check::check(AST::Node *ast)
     const Value *result = switchResult(previousResult);
 
     if (const Reference *ref = value_cast<const Reference *>(result))
-        result = ref->value(_link->context());
+        result = ref->value(_context);
 
     if (! result)
         result = _engine->undefinedValue();
@@ -165,7 +165,7 @@ bool Check::visit(AST::UiQualifiedId *ast)
     if (! ast->name)
          return false;
 
-    const Value *value = _link->lookup(ast->name->asString());
+    const Value *value = _context->lookup(ast->name->asString());
     if (! ast->next) {
         _result = value;
 
@@ -213,7 +213,7 @@ bool Check::visit(AST::IdentifierExpression *ast)
     if (! ast->name)
         return false;
 
-    _result = _link->lookup(ast->name->asString());
+    _result = _context->lookup(ast->name->asString());
     return false;
 }
 

@@ -28,7 +28,8 @@
 **************************************************************************/
 
 #include "qmljsinterpreter.h"
-
+#include "qmljscheck.h"
+#include "parser/qmljsast_p.h"
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
 #include <QtCore/QDebug>
@@ -42,6 +43,7 @@
 #endif
 
 using namespace QmlJS::Interpreter;
+using namespace QmlJS::AST;
 
 namespace {
 
@@ -677,7 +679,8 @@ void StringValue::accept(ValueVisitor *visitor) const
 
 
 Context::Context(Engine *engine)
-    : _engine(engine)
+    : _engine(engine),
+      _lookupMode(JSLookup)
 {
 }
 
@@ -688,6 +691,46 @@ Context::~Context()
 Engine *Context::engine() const
 {
     return _engine;
+}
+
+Context::ScopeChain Context::scopeChain() const
+{
+    return _scopeChain;
+}
+
+Context::LookupMode Context::lookupMode() const
+{
+    return _lookupMode;
+}
+
+void Context::setLookupMode(LookupMode lookupMode)
+{
+    _lookupMode = lookupMode;
+}
+
+void Context::pushScope(const ObjectValue *object)
+{
+    _scopeChain.append(object);
+}
+
+void Context::popScope()
+{
+    _scopeChain.removeLast();
+}
+
+const Value *Context::lookup(const QString &name) const
+{
+    for (int index = _scopeChain.size() - 1; index != -1; --index) {
+        const ObjectValue *scope = _scopeChain.at(index);
+
+        if (const Value *member = scope->lookupMember(name)) {
+            if (_lookupMode == JSLookup || ! dynamic_cast<const ASTVariableReference *>(member)) {
+                return member;
+            }
+        }
+    }
+
+    return _engine->undefinedValue();
 }
 
 const Value *Context::property(const ObjectValue *object, const QString &name) const
@@ -701,12 +744,19 @@ void Context::setProperty(const ObjectValue *object, const QString &name, const 
     _properties[object].insert(name, value);
 }
 
-Reference::Reference()
+Reference::Reference(Engine *engine)
+    : _engine(engine)
 {
+    _engine->registerValue(this);
 }
 
 Reference::~Reference()
 {
+}
+
+Engine *Reference::engine() const
+{
+    return _engine;
 }
 
 const Reference *Reference::asReference() const
@@ -719,6 +769,10 @@ void Reference::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
+const Value *Reference::value(Context *) const
+{
+    return _engine->undefinedValue();
+}
 
 MemberProcessor::MemberProcessor()
 {
@@ -757,7 +811,7 @@ ObjectValue::ObjectValue(Engine *engine)
     : _engine(engine),
       _prototype(0)
 {
-    engine->registerObject(this);
+    engine->registerValue(this);
 }
 
 ObjectValue::~ObjectValue()
@@ -1314,7 +1368,7 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-    qDeleteAll(_registeredObjects);
+    qDeleteAll(_registeredValues);
 }
 
 const NullValue *Engine::nullValue() const
@@ -1456,9 +1510,9 @@ const ObjectValue *Engine::mathObject() const
     return _mathObject;
 }
 
-void Engine::registerObject(ObjectValue *object)
+void Engine::registerValue(Value *value)
 {
-    _registeredObjects.append(object);
+    _registeredValues.append(value);
 }
 
 const Value *Engine::convertToBoolean(const Value *value)
@@ -1802,3 +1856,94 @@ QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix,
 }
 #endif
 
+
+
+ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName, UiObjectInitializer *initializer, Engine *engine)
+    : ObjectValue(engine), _typeName(typeName), _initializer(initializer)
+{
+}
+
+ASTObjectValue::~ASTObjectValue()
+{
+}
+
+void ASTObjectValue::processMembers(MemberProcessor *processor) const
+{
+    if (_initializer) {
+        for (UiObjectMemberList *it = _initializer->members; it; it = it->next) {
+            UiObjectMember *member = it->member;
+            if (UiPublicMember *def = cast<UiPublicMember *>(member)) {
+                if (def->name && def->memberType) {
+                    const QString propName = def->name->asString();
+                    const QString propType = def->memberType->asString();
+
+                    processor->processProperty(propName, engine()->defaultValueForBuiltinType(propType));
+                }
+            }
+        }
+    }
+    ObjectValue::processMembers(processor);
+}
+
+ASTVariableReference::ASTVariableReference(VariableDeclaration *ast, Engine *engine)
+    : Reference(engine), _ast(ast)
+{
+}
+
+ASTVariableReference::~ASTVariableReference()
+{
+}
+
+const Value *ASTVariableReference::value(Context *context) const
+{
+    Check check(context);
+    return check(_ast->expression);
+}
+
+ASTFunctionValue::ASTFunctionValue(FunctionDeclaration *ast, Engine *engine)
+    : FunctionValue(engine), _ast(ast)
+{
+    setPrototype(engine->functionPrototype());
+
+    for (FormalParameterList *it = ast->formals; it; it = it->next)
+        _argumentNames.append(it->name);
+}
+
+ASTFunctionValue::~ASTFunctionValue()
+{
+}
+
+FunctionDeclaration *ASTFunctionValue::ast() const
+{
+    return _ast;
+}
+
+const Value *ASTFunctionValue::returnValue() const
+{
+    return engine()->undefinedValue();
+}
+
+int ASTFunctionValue::argumentCount() const
+{
+    return _argumentNames.size();
+}
+
+const Value *ASTFunctionValue::argument(int) const
+{
+    return engine()->undefinedValue();
+}
+
+QString ASTFunctionValue::argumentName(int index) const
+{
+    if (index < _argumentNames.size()) {
+        if (NameId *nameId = _argumentNames.at(index))
+            return nameId->asString();
+    }
+
+    return FunctionValue::argumentName(index);
+}
+
+bool ASTFunctionValue::isVariadic() const
+{
+    return true;
+}

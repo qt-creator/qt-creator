@@ -129,12 +129,12 @@ class EnumerateProperties: private Interpreter::MemberProcessor
     QSet<const Interpreter::ObjectValue *> _processed;
     QHash<QString, const Interpreter::Value *> _properties;
     bool _globalCompletion;
-    Link *_link;
+    Interpreter::Context *_context;
 
 public:
-    EnumerateProperties(Link *link)
+    EnumerateProperties(Interpreter::Context *context)
         : _globalCompletion(false),
-          _link(link)
+          _context(context)
     {
     }
 
@@ -158,23 +158,30 @@ public:
         _processed.clear();
         _properties.clear();
 
-        foreach (const Interpreter::ObjectValue *scope, _link->scopeChain())
+        foreach (const Interpreter::ObjectValue *scope, _context->scopeChain())
             enumerateProperties(scope);
 
         return _properties;
     }
 
 private:
+    void insertProperty(const QString &name, const Interpreter::Value *value)
+    {
+        if (_context->lookupMode() == Interpreter::Context::JSLookup ||
+                ! dynamic_cast<const Interpreter::ASTVariableReference *>(value))
+            _properties.insert(name, value);
+    }
+
     virtual bool processProperty(const QString &name, const Interpreter::Value *value)
     {
-        _properties.insert(name, value);
+        insertProperty(name, value);
         return true;
     }
 
     virtual bool processEnumerator(const QString &name, const Interpreter::Value *value)
     {
         if (! _globalCompletion)
-            _properties.insert(name, value);
+            insertProperty(name, value);
         return true;
     }
 
@@ -186,14 +193,14 @@ private:
     virtual bool processSlot(const QString &name, const Interpreter::Value *value)
     {
         if (! _globalCompletion)
-            _properties.insert(name, value);
+            insertProperty(name, value);
         return true;
     }
 
     virtual bool processGeneratedSlot(const QString &name, const Interpreter::Value *value)
     {
         if (_globalCompletion)
-            _properties.insert(name, value);
+            insertProperty(name, value);
         return true;
     }
 
@@ -646,7 +653,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     AST::Node *declaringMember = semanticInfo.declaringMember(editor->position());
     link.scopeChainAt(document, declaringMember);
-    Link::ScopeChain scope = link.scopeChain();
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -656,7 +662,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
         // It's a global completion.
-        EnumerateProperties enumerateProperties(&link);
+        EnumerateProperties enumerateProperties(link.context());
         enumerateProperties.setGlobalCompletion(true);
         QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties());
         while (it.hasNext()) {
@@ -679,14 +685,14 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         //qDebug() << "expression:" << expression;
 
         if (expression  != 0) {
-            Check evaluate(&link);
+            Check evaluate(link.context());
 
             // Evaluate the expression under cursor.
             const Interpreter::Value *value = interp.convertToObject(evaluate(expression));
             //qDebug() << "type:" << interp.typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
-                EnumerateProperties enumerateProperties(&link);
+                EnumerateProperties enumerateProperties(link.context());
                 QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(value));
                 while (it.hasNext()) {
                     it.next();

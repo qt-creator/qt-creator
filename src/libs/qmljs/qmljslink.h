@@ -19,21 +19,15 @@ namespace QmlJS {
 class QMLJS_EXPORT Link
 {
 public:
-    typedef QList<const Interpreter::ObjectValue *> ScopeChain;
-
-public:
     // Link all documents in snapshot reachable from doc.
     Link(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp);
     ~Link();
 
     Interpreter::Context *context();
-    ScopeChain scopeChain() const;
     Interpreter::Engine *engine();
 
     // Get the scope chain for the currentObject inside doc.
     void scopeChainAt(Document::Ptr doc, AST::Node *currentObject);
-
-    const Interpreter::Value *lookup(const QString &name) const;
 
 private:
     static QList<Document::Ptr> reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot);
@@ -51,11 +45,9 @@ private:
 
 private:
     Snapshot _snapshot;
-    Interpreter::Engine *_interp;
     Interpreter::Context _context;
     QList<Document::Ptr> _docs;
     QHash<Document *, Interpreter::ObjectValue *> _typeEnvironments;
-    ScopeChain _scopeChain;
 };
 
 } // namespace QmlJS
