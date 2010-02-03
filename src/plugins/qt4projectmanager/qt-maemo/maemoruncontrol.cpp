@@ -76,6 +76,7 @@ AbstractMaemoRunControl::AbstractMaemoRunControl(RunConfiguration *rc)
     connect(&deployProcess, SIGNAL(finished(int, QProcess::ExitStatus)), this,
         SLOT(deployProcessFinished()));
 #endif // USE_SSH_LIB
+    qDebug("%s: runconfig = %p, exdecutable = %s", Q_FUNC_INFO, runConfig, qPrintable(runConfig->executable()));
 }
 
 void AbstractMaemoRunControl::startDeployment(bool forDebugging)
@@ -87,7 +88,7 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
         tr("Deploying"), QLatin1String("Maemo.Deploy"));
 #endif // USE_SSH_LIB
     if (devConfig.isValid()) {
-        deployables.clear();
+        deployables.clear();        
         if (runConfig->currentlyNeedsDeployment()) {
             deployables.append(Deployable(executableFileName(),
                 QFileInfo(executableOnHost()).canonicalPath(),
@@ -152,8 +153,8 @@ void AbstractMaemoRunControl::deploy()
 
         QStringList cmdArgs;
         cmdArgs << "-P" << sshPort() << options() << deployable.fileName
-            << (devConfig.uname + QLatin1Char('@') + devConfig.host +
-                QLatin1Char(':') + remoteDir());
+            << (devConfig.uname % QLatin1Char('@') % devConfig.host
+                % QLatin1Char(':') % remoteDir());
         deployProcess.setWorkingDirectory(deployable.dir);
 
         deployProcess.start(runConfig->scpCmd(), cmdArgs);
@@ -237,6 +238,7 @@ void AbstractMaemoRunControl::deploymentFinished(bool success)
 
 const QString AbstractMaemoRunControl::executableOnHost() const
 {
+    qDebug("runconfig->executable: %s", qPrintable(runConfig->executable()));
     return runConfig->executable();
 }
 
@@ -474,8 +476,9 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     startParams->startMode = Debugger::StartRemote;
     startParams->executable = executableOnHost();
     startParams->remoteChannel
-        = devConfig.host + QLatin1Char(':') + QString::number(devConfig.gdbServerPort);
-    startParams->remoteArchitecture = "arm";
+        = devConfig.host % QLatin1Char(':')
+          % QString::number(devConfig.gdbServerPort);
+    startParams->remoteArchitecture = QLatin1String("arm");
     startParams->sysRoot = runConfig->sysRoot();
     startParams->toolChainType = ToolChain::GCC_MAEMO;
     startParams->debuggerCommand = runConfig->gdbCmd();

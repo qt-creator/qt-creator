@@ -49,6 +49,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
+#include <QtCore/QStringBuilder>
 
 namespace {
 const char * const MAEMO_RC_ID("Qt4ProjectManager.MaemoRunConfiguration");
@@ -477,8 +478,9 @@ void MaemoRunConfiguration::updateTarget()
     m_executable.clear();
     m_cachedTargetInformationValid = true;
 
-    Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
-                                                             m_proFilePath);
+    Qt4TargetInformation info
+        = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
+                                          m_proFilePath);
     if (info.error != Qt4TargetInformation::NoError) {
         if (info.error == Qt4TargetInformation::ProParserError) {
             Core::ICore::instance()->messageManager()->printToOutputPane(tr(
@@ -489,7 +491,8 @@ void MaemoRunConfiguration::updateTarget()
         return;
     }
 
-    m_executable = QDir::cleanPath(info.workingDir + QLatin1Char('/') + info.target);
+    m_executable
+        = QDir::cleanPath(info.workingDir % QLatin1Char('/') % info.target);
 
     emit targetInformationChanged();
 }

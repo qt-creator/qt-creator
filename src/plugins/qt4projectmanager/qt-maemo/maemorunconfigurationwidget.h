@@ -53,8 +53,8 @@ class MaemoRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
 public:
-    MaemoRunConfigurationWidget(MaemoRunConfiguration *runConfiguration,
-                                QWidget *parent = 0);
+    explicit MaemoRunConfigurationWidget(MaemoRunConfiguration *runConfiguration,
+                                         QWidget *parent = 0);
 
 private slots:
     void configNameEdited(const QString &text);
