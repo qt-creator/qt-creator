@@ -45,6 +45,7 @@ NavigatorWidget::NavigatorWidget(QWidget* parent) :
     m_treeView->setDragEnabled(true);
     m_treeView->setAcceptDrops(true);
     m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_treeView->header()->setStretchLastSection(false);
     m_treeView->setDefaultDropAction(Qt::LinkAction);
 

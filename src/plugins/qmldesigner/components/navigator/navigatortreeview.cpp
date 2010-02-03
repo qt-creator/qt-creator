@@ -103,7 +103,6 @@ void NavigatorTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &o
     QTreeView::drawRow(painter,options,index);
     painter->setPen(QColor(_separator_line_color_));
     painter->drawLine(options.rect.bottomLeft(),options.rect.bottomRight());
-//    painter->drawLine(options.rect.topLeft(),options.rect.topRight());
 
     painter->restore();
 }

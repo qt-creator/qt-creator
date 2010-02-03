@@ -176,6 +176,8 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         }
     }
 
+    propagateInvisible(parentItemNode, isNodeInvisible(parentIdIndex));
+
     return false; // don't let the view do drag&drop on its own
 }
 
@@ -281,7 +283,7 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
         bool invisible = (item->checkState() == Qt::Unchecked);
 
         node.setAuxiliaryData("invisible", invisible);
-        propagateInvisible(node,invisible);
+        propagateInvisible(node,isNodeInvisible(node));
     }
 }
 
@@ -290,7 +292,6 @@ void NavigatorTreeModel::propagateInvisible(const ModelNode &node, const bool &i
     QList <ModelNode> children = node.allDirectSubModelNodes();
     foreach (ModelNode child, children) {
         child.setAuxiliaryData("childOfInvisible",invisible);
-        bool childIsInvisible = child.auxiliaryData("invisible").toBool();
         if (!child.auxiliaryData("invisible").toBool())
             propagateInvisible(child,invisible);
     }
@@ -358,7 +359,11 @@ bool NavigatorTreeModel::isInTree(const ModelNode &node) const
 
 bool NavigatorTreeModel::isNodeInvisible(const QModelIndex &index) const
 {
-    ModelNode node = nodeForIndex(index);
+    return isNodeInvisible(nodeForIndex(index));
+}
+
+bool NavigatorTreeModel::isNodeInvisible(const ModelNode &node) const
+{
     bool nodeInvisible = node.auxiliaryData("invisible").toBool();
     if (node.hasAuxiliaryData("childOfInvisible"))
         nodeInvisible = nodeInvisible || node.auxiliaryData("childOfInvisible").toBool();
