@@ -143,16 +143,24 @@ public:
         _globalCompletion = globalCompletion;
     }
 
-    QHash<QString, const Interpreter::Value *> operator ()(bool lookAtScope = false)
+    QHash<QString, const Interpreter::Value *> operator ()(const Interpreter::Value *value)
     {
         _processed.clear();
         _properties.clear();
-        if (!lookAtScope) {
-            enumerateProperties(_link->scopeChain().first());
-        } else {
-            foreach (const Interpreter::ObjectValue *scope, _link->scopeChain())
-                enumerateProperties(scope);
-        }
+
+        enumerateProperties(value);
+
+        return _properties;
+    }
+
+    QHash<QString, const Interpreter::Value *> operator ()()
+    {
+        _processed.clear();
+        _properties.clear();
+
+        foreach (const Interpreter::ObjectValue *scope, _link->scopeChain())
+            enumerateProperties(scope);
+
         return _properties;
     }
 
@@ -650,7 +658,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         // It's a global completion.
         EnumerateProperties enumerateProperties(&link);
         enumerateProperties.setGlobalCompletion(true);
-        QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(/* lookAtScope = */ true));
+        QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties());
         while (it.hasNext()) {
             it.next();
 
@@ -679,7 +687,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
                 EnumerateProperties enumerateProperties(&link);
-                QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties());
+                QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(value));
                 while (it.hasNext()) {
                     it.next();
 
