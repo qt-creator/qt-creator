@@ -176,7 +176,7 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *data,
         }
     }
 
-    propagateInvisible(parentItemNode, isNodeInvisible(parentIdIndex));
+    propagateInvisible(parentItemNode, isNodeInvisible(parentItemNode));
 
     return false; // don't let the view do drag&drop on its own
 }
