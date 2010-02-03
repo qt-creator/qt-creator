@@ -147,7 +147,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Project *project,
     , m_cachedSimulatorInformationValid(false)
     , qemu(0)
 {
-    ctor();
+    init();
 }
 
 MaemoRunConfiguration::MaemoRunConfiguration(Qt4Project *project,
@@ -160,6 +160,9 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Project *project,
     , m_simulatorArgs(source->m_simulatorArgs)
     , m_simulatorPath(source->m_simulatorPath)
     , m_visibleSimulatorParameter(source->m_visibleSimulatorParameter)
+    , m_simulatorLibPath(source->m_simulatorLibPath)
+    , m_simulatorSshPort(source->m_simulatorSshPort)
+    , m_simulatorGdbServerPort(source->m_simulatorGdbServerPort)
     , m_cachedSimulatorInformationValid(false)
     , m_isUserSetSimulator(source->m_isUserSetSimulator)
     , m_userSimulatorPath(source->m_userSimulatorPath)
@@ -174,10 +177,10 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Project *project,
     , m_remoteHostRequiresPassword(source->m_remoteHostRequiresPassword)
 #endif
 {
-    ctor();
+    init();
 }
 
-void MaemoRunConfiguration::ctor()
+void MaemoRunConfiguration::init()
 {
     if (!m_proFilePath.isEmpty()) {
         setDisplayName(tr("%1 on Maemo device").arg(QFileInfo(m_proFilePath)
@@ -537,8 +540,15 @@ void MaemoRunConfiguration::updateSimulatorInformation()
                             line.mid(index + 1).remove(QLatin1Char('\'')));
                     }
 
-                    m_simulator = map.value(QLatin1String("runcommand"));
-                    m_simulatorArgs = map.value(QLatin1String("runcommand_args"));
+                    m_simulator = map.value(QLatin1String("qemu"));
+                    m_simulatorArgs = map.value(QLatin1String("qemu_args"));
+                    const QString &libPathSpec
+                        = map.value(QLatin1String("libpath"));
+                    m_simulatorLibPath
+                        = libPathSpec.mid(libPathSpec.indexOf(QLatin1Char('=')) + 1);
+                    m_simulatorSshPort = map.value(QLatin1String("sshport"));
+                    m_simulatorGdbServerPort
+                        = map.value(QLatin1String("redirport2"));
 
                     m_visibleSimulatorParameter = m_simulator
 #ifdef Q_OS_WIN
@@ -571,23 +581,27 @@ void MaemoRunConfiguration::startStopQemu()
     if (root.isEmpty() || simulator().isEmpty())
         return;
 
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+#ifdef Q_OS_WIN
     const QLatin1Char colon(';');
     const QString path = QDir::toNativeSeparators(root + QLatin1Char('/'));
-
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert("PATH", env.value("Path") + colon + path + QLatin1String("bin"));
-    env.insert("PATH", env.value("Path") + colon + path + QLatin1String("madlib"));
-
+    const QLatin1String key("PATH");
+    env.insert(key, env.value(key) % colon % path % QLatin1String("bin"));
+    env.insert(key, env.value(key) % colon % path % QLatin1String("madlib"));
+#elif defined(Q_OS_UNIX)
+    const QLatin1String key("LD_LIBRARY_PATH");
+    env.insert(key, env.value(key) % QLatin1Char(':') % m_simulatorLibPath);
+#endif
     qemu->setProcessEnvironment(env);
     qemu->setWorkingDirectory(simulatorPath());
 
-    QString app = root + QLatin1String("/madlib/") + simulator()
+    const QString app = root % QLatin1String("/madlib/") % simulator()
 #ifdef Q_OS_WIN
-        + QLatin1String(".exe")
+        % QLatin1String(".exe")
 #endif
     ;   // keep
 
-    qemu->start(app + QLatin1Char(' ') + simulatorArgs(), QIODevice::ReadWrite);
+    qemu->start(app % QLatin1Char(' ') % simulatorArgs(), QIODevice::ReadWrite);
     emit qemuProcessStatus(qemu->waitForStarted());
 }
 

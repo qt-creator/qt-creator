@@ -172,6 +172,7 @@ private slots:
 private:
     virtual void handleDeploymentFinished(bool success);
 
+    QString gdbServerPort() const;
     void startGdbServer();
     void gdbServerStartFailed(const QString &reason);
     void startDebugging();

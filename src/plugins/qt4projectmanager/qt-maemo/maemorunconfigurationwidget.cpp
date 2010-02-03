@@ -69,6 +69,7 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     QHBoxLayout *devConfLayout = new QHBoxLayout(devConfWidget);
     m_devConfBox = new QComboBox;
     m_devConfBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    devConfLayout->setMargin(0);
     devConfLayout->addWidget(m_devConfBox);
     QLabel *addDevConfLabel
         = new QLabel(tr("<a href=\"#\">Manage device configurations</a>"));

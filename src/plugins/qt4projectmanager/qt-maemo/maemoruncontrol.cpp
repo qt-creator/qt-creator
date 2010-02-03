@@ -244,7 +244,9 @@ const QString AbstractMaemoRunControl::executableOnHost() const
 
 const QString AbstractMaemoRunControl::sshPort() const
 {
-    return QString::number(devConfig.sshPort);
+    return devConfig.type == MaemoDeviceConfig::Physical
+        ? QString::number(devConfig.sshPort)
+        : runConfig->simulatorSshPort();
 }
 
 const QString AbstractMaemoRunControl::executableFileName() const
@@ -476,8 +478,7 @@ MaemoDebugRunControl::MaemoDebugRunControl(RunConfiguration *runConfiguration)
     startParams->startMode = Debugger::StartRemote;
     startParams->executable = executableOnHost();
     startParams->remoteChannel
-        = devConfig.host % QLatin1Char(':')
-          % QString::number(devConfig.gdbServerPort);
+        = devConfig.host % QLatin1Char(':') % gdbServerPort();
     startParams->remoteArchitecture = QLatin1String("arm");
     startParams->sysRoot = runConfig->sysRoot();
     startParams->toolChainType = ToolChain::GCC_MAEMO;
@@ -518,7 +519,7 @@ void MaemoDebugRunControl::handleDeploymentFinished(bool success)
 void MaemoDebugRunControl::startGdbServer()
 {
     const QString remoteCall(QString::fromLocal8Bit("%1 gdbserver :%2 %3 %4").
-        arg(targetCmdLinePrefix()).arg(devConfig.gdbServerPort)
+        arg(targetCmdLinePrefix()).arg(gdbServerPort())
         .arg(executableOnTarget()).arg(runConfig->arguments().join(" ")));
     inferiorPid = -1;
 #ifdef USE_SSH_LIB
@@ -669,6 +670,13 @@ void MaemoDebugRunControl::debuggingFinished()
 void MaemoDebugRunControl::debuggerOutput(const QString &output)
 {
     emit addToOutputWindowInline(this, output);
+}
+
+QString MaemoDebugRunControl::gdbServerPort() const
+{
+    return devConfig.type == MaemoDeviceConfig::Physical
+        ? QString::number(devConfig.gdbServerPort)
+        : runConfig->simulatorGdbServerPort();
 }
 
 } // namespace Internal

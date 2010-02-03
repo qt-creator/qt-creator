@@ -355,6 +355,19 @@ void MaemoSettingsWidget::deviceTypeChanged()
         m_ui->deviceButton->isChecked()
             ? MaemoDeviceConfig::Physical
             : MaemoDeviceConfig::Simulator;
+
+    // Port values for the simulator are specified by Qemu's
+    // "information" file, to which we have no access here,
+    // so we hard-code the last known values.
+    if (currentConfig().type == MaemoDeviceConfig::Simulator) {
+        currentConfig().sshPort = 6666;
+        currentConfig().gdbServerPort = 13219;
+        m_ui->sshPortLineEdit->setReadOnly(true);
+        m_ui->gdbServerPortLineEdit->setReadOnly(true);
+    } else {
+        m_ui->sshPortLineEdit->setReadOnly(false);
+        m_ui->gdbServerPortLineEdit->setReadOnly(false);
+    }
 }
 
 void MaemoSettingsWidget::authenticationTypeChanged()
@@ -452,7 +465,6 @@ void MaemoSettingsWidget::processSshOutput(const QString &data)
 void MaemoSettingsWidget::handleTestThreadFinished()
 {
 #ifdef USE_SSH_LIB
-    qDebug("================> %s", Q_FUNC_INFO);
     if (!m_deviceTester)
         return;
 
@@ -460,6 +472,8 @@ void MaemoSettingsWidget::handleTestThreadFinished()
     if (m_deviceTester->hasError()) {
         output = tr("Device configuration test failed:\n");
         output.append(m_deviceTester->error());
+        if (currentConfig().type == MaemoDeviceConfig::Simulator)
+            output.append(tr("\nDid you start Qemu?"));
     } else {
         output = parseTestOutput();
     }

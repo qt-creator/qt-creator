@@ -96,6 +96,8 @@ public:
     QString simulator() const;
     QString simulatorArgs() const;
     QString simulatorPath() const;
+    QString simulatorSshPort() const { return m_simulatorSshPort; }
+    QString simulatorGdbServerPort() const { return m_simulatorGdbServerPort; }
     QString visibleSimulatorParameter() const;
 
     const QString sshCmd() const;
@@ -142,7 +144,7 @@ private slots:
     void enabledStateChanged();
 
 private:
-    void ctor();
+    void init();
     void updateTarget();
     void updateSimulatorInformation();
     const QString cmd(const QString &cmdName) const;
@@ -157,6 +159,9 @@ private:
     QString m_simulatorArgs;
     QString m_simulatorPath;
     QString m_visibleSimulatorParameter;
+    QString m_simulatorLibPath;
+    QString m_simulatorSshPort;
+    QString m_simulatorGdbServerPort;
     bool m_cachedSimulatorInformationValid;
 
     bool m_isUserSetSimulator;
