@@ -20,6 +20,6 @@ TARGET=tst_$$TARGET
 include(./ichecklib.pri)
 HEADERS += ./ichecklib.h \
            ./ichecklib_global.h \
-           ./ParseManager.h
+           ./parsemanager.h
 SOURCES += ./ichecklib.cpp \
-           ./ParseManager.cpp
+           ./parsemanager.cpp

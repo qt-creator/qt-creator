@@ -222,7 +222,9 @@ bool Function::isEqualTo(const Type *other) const
     else if (isVolatile() != o->isVolatile())
         return false;
 #ifdef ICHECK_BUILD
-     else if (isInvokable() != o->isInvokable())
+    else if (isInvokable() != o->isInvokable())
+        return false;
+    else if (isSignal() != o->isSignal())
         return false;
 #endif
 
@@ -257,6 +259,8 @@ bool Function::isEqualTo(const Function* fct, bool ignoreName/* = false*/) const
     else if (isVolatile() != fct->isVolatile())
         return false;
     else if (isInvokable() != fct->isInvokable())
+        return false;
+    else if (isSignal() != fct->isSignal())
         return false;
 
     if (_arguments->symbolCount() != fct->_arguments->symbolCount())

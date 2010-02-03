@@ -33,30 +33,32 @@
 #include <cplusplus/CheckUndefinedSymbols.h>
 
 #include "cppmodelmanager.h"
-#include "cpptoolsconstants.h"
-#include "cpptoolseditorsupport.h"
-#include "cppfindreferences.h"
+#ifndef ICHECK_BUILD
+#  include "cpptoolsconstants.h"
+#  include "cpptoolseditorsupport.h"
+#  include "cppfindreferences.h"
+#endif
 
 #include <functional>
 #include <QtConcurrentRun>
-#include <QFutureSynchronizer>
-#include <qtconcurrent/runextensions.h>
-
-#include <texteditor/itexteditor.h>
-#include <texteditor/basetexteditor.h>
-
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
-
-#include <coreplugin/icore.h>
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/mimedatabase.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-
-#include <extensionsystem/pluginmanager.h>
+#ifndef ICHECK_BUILD
+#  include <QFutureSynchronizer>
+#  include <qtconcurrent/runextensions.h>
+#  include <texteditor/itexteditor.h>
+#  include <texteditor/basetexteditor.h>
+#  include <projectexplorer/project.h>
+#  include <projectexplorer/projectexplorer.h>
+#  include <projectexplorer/projectexplorerconstants.h>
+#  include <projectexplorer/session.h>
+#  include <coreplugin/icore.h>
+#  include <coreplugin/uniqueidmanager.h>
+#  include <coreplugin/mimedatabase.h>
+#  include <coreplugin/editormanager/editormanager.h>
+#  include <coreplugin/progressmanager/progressmanager.h>
+#  include <extensionsystem/pluginmanager.h>
+#else
+#  include <QDir>
+#endif
 
 #include <utils/qtcassert.h>
 
@@ -199,9 +201,8 @@ void CppPreprocessor::setProjectFiles(const QStringList &files)
 void CppPreprocessor::setTodo(const QStringList &files)
 { m_todo = QSet<QString>::fromList(files); }
 
-
-namespace {
 #ifndef ICHECK_BUILD
+namespace {
 class Process: public std::unary_function<Document::Ptr, void>
 {
     QPointer<CppModelManager> _modelManager;
@@ -256,8 +257,8 @@ public:
             _modelManager->emitDocumentUpdated(doc); // ### TODO: compress
     }
 };
-#endif
 } // end of anonymous namespace
+#endif
 
 void CppPreprocessor::run(const QString &fileName)
 {

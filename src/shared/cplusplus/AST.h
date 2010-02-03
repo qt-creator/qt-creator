@@ -586,6 +586,8 @@ public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
+    virtual QPropertyDeclarationAST *clone(MemoryPool *pool) const;
+
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
@@ -605,6 +607,8 @@ public:
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
+
+    virtual QEnumDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
@@ -626,6 +630,8 @@ public:
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
+    virtual QFlagsDeclarationAST *clone(MemoryPool *pool) const;
+
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
@@ -646,6 +652,8 @@ public:
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
+
+    virtual QDeclareFlagsDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

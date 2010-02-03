@@ -56,11 +56,13 @@ HEADERS += $$REL_PATH_TO_SRC/shared/cplusplus/Array.h \
     $$REL_PATH_TO_SRC/shared/cplusplus/Type.h \
     $$REL_PATH_TO_SRC/shared/cplusplus/TypeMatcher.h \
     $$REL_PATH_TO_SRC/libs/cplusplus/TypePrettyPrinter.h \
-    $$REL_PATH_TO_SRC/shared/cplusplus/TypeVisitor.h
+    $$REL_PATH_TO_SRC/shared/cplusplus/TypeVisitor.h \
+    $$REL_PATH_TO_SRC/plugins/cpptools/cpptools_global.h
 SOURCES += $$REL_PATH_TO_SRC/shared/cplusplus/Array.cpp \
     $$REL_PATH_TO_SRC/shared/cplusplus/AST.cpp \
     $$REL_PATH_TO_SRC/shared/cplusplus/ASTMatch0.cpp \
     $$REL_PATH_TO_SRC/shared/cplusplus/ASTMatcher.cpp \
+    $$REL_PATH_TO_SRC/shared/cplusplus/ASTClone.cpp \
     $$REL_PATH_TO_SRC/shared/cplusplus/ASTVisit.cpp \
     $$REL_PATH_TO_SRC/shared/cplusplus/ASTVisitor.cpp \
     $$REL_PATH_TO_SRC/shared/cplusplus/CheckDeclaration.cpp \

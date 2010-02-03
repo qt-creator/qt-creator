@@ -1748,11 +1748,12 @@ bool Parser::parseAccessSpecifier(SpecifierAST *&node)
 bool Parser::parseAccessDeclaration(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (LA() == T_PUBLIC || LA() == T_PROTECTED || LA() == T_PRIVATE || LA() == T_Q_SIGNALS) {
+    if (LA() == T_PUBLIC || LA() == T_PROTECTED || LA() == T_PRIVATE || LA() == T_Q_SIGNALS || LA() == T_Q_SLOTS) {
         bool isSignals = LA() == T_Q_SIGNALS;
+        bool isSlots = LA() == T_Q_SLOTS;
         AccessDeclarationAST *ast = new (_pool) AccessDeclarationAST;
         ast->access_specifier_token = consumeToken();
-        if (! isSignals && LA() == T_Q_SLOTS)
+        if (! isSignals && (LA() == T_Q_SLOTS || isSlots))
             ast->slots_token = consumeToken();
         match(T_COLON, &ast->colon_token);
         node = ast;
@@ -1930,6 +1931,7 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
     case T_PUBLIC:
     case T_PROTECTED:
     case T_PRIVATE:
+    case T_Q_SLOTS:
         return parseAccessDeclaration(node);
 
 #ifdef ICHECK_BUILD
@@ -2426,6 +2428,7 @@ bool Parser::parseStatement(StatementAST *&node)
 
         return parseExpressionOrDeclarationStatement(node);
     } // switch
+    return false; //Avoid compiler warning
 }
 
 bool Parser::parseBreakStatement(StatementAST *&node)

@@ -31,21 +31,26 @@
 #define CPPMODELMANAGER_H
 
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <projectexplorer/project.h>
+#ifndef ICHECK_BUILD
+#  include <projectexplorer/project.h>
+#endif
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/PreprocessorClient.h>
-#include <texteditor/basetexteditor.h>
+#ifndef ICHECK_BUILD
+#  include <texteditor/basetexteditor.h>
+#endif
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp-engine.h>
 #ifdef ICHECK_BUILD
-#  include "ParseManager.h"
+#  include "parsemanager.h"
+#else
+#  include <QtCore/QHash>
+#  include <QtCore/QFutureInterface>
+#  include <QtCore/QFutureSynchronizer>
+#  include <QtCore/QMutex>
+#  include <QtCore/QTimer>
+#  include <QtGui/QTextEdit> // for QTextEdit::ExtraSelection
 #endif
-#include <QtCore/QHash>
-#include <QtCore/QFutureInterface>
-#include <QtCore/QFutureSynchronizer>
-#include <QtCore/QMutex>
-#include <QtCore/QTimer>
-#include <QtGui/QTextEdit> // for QTextEdit::ExtraSelection
 
 namespace Core {
 class ICore;

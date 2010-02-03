@@ -138,6 +138,67 @@ AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+#ifdef ICHECK_BUILD
+QPropertyDeclarationAST *QPropertyDeclarationAST::clone(MemoryPool *pool) const
+{
+    QPropertyDeclarationAST *ast = new (pool) QPropertyDeclarationAST;
+    ast->property_specifier_token = property_specifier_token;
+    ast->lparen_token = lparen_token;
+    ast->type_token = type_token;
+    ast->type_name_token = type_name_token;
+    ast->read_token = read_token;
+    ast->read_function_token = read_function_token;
+    ast->write_token = write_token;
+    ast->write_function_token = write_function_token;
+    ast->reset_token = reset_token;
+    ast->reset_function_token = reset_function_token;
+    ast->notify_token = notify_token;
+    ast->notify_function_token = notify_function_token;
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
+QEnumDeclarationAST *QEnumDeclarationAST::clone(MemoryPool *pool) const
+{
+    QEnumDeclarationAST *ast = new (pool)QEnumDeclarationAST;
+    ast->enum_specifier_token = enum_specifier_token;
+    ast->lparen_token = lparen_token;
+    ast->rparen_token = rparen_token;
+    EnumeratorListAST *enumerator_list;
+    for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
+
+    return ast;
+}
+
+QFlagsDeclarationAST *QFlagsDeclarationAST::clone(MemoryPool *pool) const
+{
+    QFlagsDeclarationAST *ast = new (pool) QFlagsDeclarationAST;
+    ast->flags_specifier_token = flags_specifier_token;
+    ast->lparen_token = lparen_token;
+    ast->rparen_token = rparen_token;
+    EnumeratorListAST *enumerator_list;
+    for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
+
+    return ast;
+}
+
+QDeclareFlagsDeclarationAST *QDeclareFlagsDeclarationAST::clone(MemoryPool *pool) const
+{
+    QDeclareFlagsDeclarationAST *ast = new (pool) QDeclareFlagsDeclarationAST;
+    ast->declareflags_specifier_token = declareflags_specifier_token;
+    ast->lparen_token = lparen_token;
+    ast->flag_token = flag_token;
+    ast->enum_token = enum_token;
+    ast->rparen_token = rparen_token;
+
+    return ast;
+}
+#endif
+
 AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 {
     AsmDefinitionAST *ast = new (pool) AsmDefinitionAST;

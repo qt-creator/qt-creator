@@ -272,7 +272,7 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     if (semantic()->isObjCClassMethod(tokenKind(ast->method_type_token)))
         method->setStorage(Symbol::Static);
 
-    if (ast->selector->asObjCSelectorWithArguments()) {
+    if (ast->selector && ast->selector->asObjCSelectorWithArguments()) {
         for (ObjCMessageArgumentDeclarationListAST *it = ast->argument_list; it; it = it->next) {
             ObjCMessageArgumentDeclarationAST *argDecl = it->value;
 

@@ -210,6 +210,16 @@ public:
 
 } // end of anonymous namespace
 
+#ifdef ICHECK_BUILD
+//Symbian compiler has some difficulties to understand the templates.
+static void delete_array_entries(std::vector<Symbol *> vt)
+{
+    std::vector<Symbol *>::iterator it;
+    for (it = vt.begin(); it != vt.end(); ++it) {
+        delete *it;
+    }
+}
+#else
 template <typename _Iterator>
 static void delete_array_entries(_Iterator first, _Iterator last)
 {
@@ -220,6 +230,7 @@ static void delete_array_entries(_Iterator first, _Iterator last)
 template <typename _Array>
 static void delete_array_entries(const _Array &a)
 { delete_array_entries(a.begin(), a.end()); }
+#endif
 
 class Control::Data
 {
