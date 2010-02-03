@@ -39,7 +39,6 @@ class ProItem
 {
 public:
     enum ProItemKind {
-        ValueKind,
         FunctionKind,
         ConditionKind,
         OperatorKind,
@@ -81,18 +80,14 @@ public:
         SingleLine          = 0x80
     };
 
-    ProBlock(ProBlock *parent);
+    ProBlock();
     ~ProBlock();
 
     void appendItem(ProItem *proitem);
-    void setItems(const QList<ProItem *> &proitems);
     QList<ProItem *> items() const;
 
     void setBlockKind(int blockKind);
     int blockKind() const;
-
-    void setParent(ProBlock *parent);
-    ProBlock *parent() const;
 
     void ref() { ++m_refCount; }
     void deref() { if (!--m_refCount) delete this; }
@@ -100,7 +95,6 @@ public:
     ProItem::ProItemKind kind() const;
 
 private:
-    ProBlock *m_parent;
     QList<ProItem *> m_proitems;
     int m_blockKind;
     int m_refCount;
@@ -187,7 +181,6 @@ class ProFile : public ProBlock
 {
 public:
     explicit ProFile(const QString &fileName);
-    ~ProFile();
 
     QString displayFileName() const;
     QString fileName() const;

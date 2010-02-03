@@ -33,12 +33,9 @@
 
 QT_BEGIN_NAMESPACE
 
-// --------------- ProBlock ----------------
-
-ProBlock::ProBlock(ProBlock *parent)
+ProBlock::ProBlock()
 {
     m_blockKind = 0;
-    m_parent = parent;
     m_refCount = 1;
 }
 
@@ -56,11 +53,6 @@ void ProBlock::appendItem(ProItem *proitem)
     m_proitems << proitem;
 }
 
-void ProBlock::setItems(const QList<ProItem *> &proitems)
-{
-    m_proitems = proitems;
-}
-
 QList<ProItem *> ProBlock::items() const
 {
     return m_proitems;
@@ -74,16 +66,6 @@ void ProBlock::setBlockKind(int blockKind)
 int ProBlock::blockKind() const
 {
     return m_blockKind;
-}
-
-void ProBlock::setParent(ProBlock *parent)
-{
-    m_parent = parent;
-}
-
-ProBlock *ProBlock::parent() const
-{
-    return m_parent;
 }
 
 ProItem::ProItemKind ProBlock::kind() const
@@ -198,7 +180,7 @@ ProItem::ProItemKind ProOperator::kind() const
 
 // --------------- ProFile ----------------
 ProFile::ProFile(const QString &fileName)
-    : ProBlock(0)
+    : ProBlock()
 {
     setBlockKind(ProBlock::ProFileKind);
     m_fileName = fileName;
@@ -208,10 +190,6 @@ ProFile::ProFile(const QString &fileName)
     m_displayFileName = QString::fromRawData(fileName.constData() + nameOff + 1,
                                              fileName.length() - nameOff - 1);
     m_directoryName = QString::fromRawData(fileName.constData(), nameOff);
-}
-
-ProFile::~ProFile()
-{
 }
 
 QString ProFile::displayFileName() const

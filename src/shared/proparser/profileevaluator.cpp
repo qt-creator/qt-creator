@@ -637,7 +637,7 @@ void ProFileEvaluator::Private::insertOperator(const char op)
 void ProFileEvaluator::Private::enterScope(bool multiLine)
 {
     ProBlock *parent = currentBlock();
-    ProBlock *block = new ProBlock(parent);
+    ProBlock *block = new ProBlock();
     block->setLineNumber(m_lineNo);
     parent->setBlockKind(ProBlock::ScopeKind);
 
@@ -667,7 +667,7 @@ ProBlock *ProFileEvaluator::Private::currentBlock()
         return m_block;
 
     ProBlock *parent = m_blockstack.top();
-    m_block = new ProBlock(parent);
+    m_block = new ProBlock();
     m_block->setLineNumber(m_lineNo);
     parent->appendItem(m_block);
 
@@ -2268,7 +2268,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
         case T_REQUIRES:
 #endif
         case T_EVAL: {
-                ProBlock *pro = new ProBlock(0);
+                ProBlock *pro = new ProBlock();
                 QString buf = args.join(QLatin1String(" "));
                 if (!readInternal(pro, buf, (ushort*)buf.data())) {
                     delete pro;
