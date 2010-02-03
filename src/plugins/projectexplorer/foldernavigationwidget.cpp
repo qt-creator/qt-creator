@@ -90,6 +90,26 @@ bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &paren
     return fileName != m_dot;
 }
 
+class FolderNavigationModel : public QFileSystemModel
+{
+public:
+    explicit FolderNavigationModel(QObject *parent = 0);
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+};
+
+FolderNavigationModel::FolderNavigationModel(QObject *parent) :
+    QFileSystemModel(parent)
+{
+}
+
+QVariant FolderNavigationModel::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::ToolTipRole)
+        return QDir::toNativeSeparators(QDir::cleanPath(filePath(index)));
+    else
+        return QFileSystemModel::data(index, role);
+}
+
 /*!
   /class FolderNavigationWidget
 
@@ -98,7 +118,7 @@ bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &paren
 FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
     : QWidget(parent),
       m_listView(new QListView(this)),
-      m_fileSystemModel(new QFileSystemModel(this)),
+      m_fileSystemModel(new FolderNavigationModel(this)),
       m_filterModel(new DotRemovalFilter(this)),
       m_title(new QLabel(this)),
       m_autoSync(false)
