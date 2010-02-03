@@ -47,6 +47,7 @@ class IEditor;
 namespace QmlJS {
     namespace Interpreter {
         class Engine;
+        class Context;
         class Value;
     }
 }
@@ -74,7 +75,7 @@ private slots:
 
 private:
     void updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos);
-    QString prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Engine *interp,
+    QString prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context,
                         QStringList *baseClasses) const;
 
 private:

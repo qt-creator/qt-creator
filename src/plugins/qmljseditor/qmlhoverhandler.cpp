@@ -179,7 +179,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             const Interpreter::Value *value = check(node);
 
             QStringList baseClasses;
-            m_toolTip = prettyPrint(value, &interp, &baseClasses);
+            m_toolTip = prettyPrint(value, link.context(), &baseClasses);
 
             foreach (const QString &baseClass, baseClasses) {
                 QString helpId = QLatin1String("QML.");
@@ -210,10 +210,10 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     }
 }
 
-QString QmlHoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Engine *interp,
+QString QmlHoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context,
                                      QStringList *baseClasses) const
 {
-    if (!value)
+    if (! value)
         return QString();
 
     if (const Interpreter::ObjectValue *objectValue = value->asObjectValue()) {
@@ -223,14 +223,14 @@ QString QmlHoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, Qml
             if (! className.isEmpty())
                 baseClasses->append(className);
 
-            objectValue = objectValue->prototype();
+            objectValue = objectValue->prototype(context);
         } while (objectValue);
 
         if (! baseClasses->isEmpty())
             return baseClasses->first();
     }
 
-    QString typeId = interp->typeId(value);
+    QString typeId = context->engine()->typeId(value);
 
     if (typeId == QLatin1String("undefined"))
         typeId.clear();

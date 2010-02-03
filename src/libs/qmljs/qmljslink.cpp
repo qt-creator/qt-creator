@@ -23,16 +23,6 @@ Link::Link(Document::Ptr currentDoc, const Snapshot &snapshot, Interpreter::Engi
 
 Link::~Link()
 {
-    // unset all prototypes
-    foreach (Document::Ptr doc, _docs) {
-        BindPtr bind = doc->bind();
-
-        if (doc->qmlProgram()) {
-            foreach (ObjectValue *object, bind->_qmlObjects) {
-                object->setPrototype(0);
-            }
-        }
-    }
 }
 
 Context *Link::context()
@@ -90,31 +80,20 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
     if (bind->_idEnvironment)
         _context.pushScope(bind->_idEnvironment);
 
-    if (const ObjectValue *typeEnvironment = _typeEnvironments.value(doc.data()))
+    if (const ObjectValue *typeEnvironment = _typeEnvironments.value(doc.data())) {
         _context.pushScope(typeEnvironment);
+        _context.setTypeEnvironment(typeEnvironment);
+    }
 }
 
 void Link::linkImports()
 {
     foreach (Document::Ptr doc, _docs) {
-        BindPtr bind = doc->bind();
-
         ObjectValue *typeEnv = engine()->newObject(/*prototype =*/0); // ### FIXME
         _typeEnvironments.insert(doc.data(), typeEnv);
 
         // Populate the _typeEnvironment with imports.
         populateImportedTypes(typeEnv, doc);
-
-        // Set the prototypes.
-        QHashIterator<Node *, ObjectValue *> it(bind->_qmlObjects);
-        while (it.hasNext()) {
-            it.next();
-            Node *binding = it.key();
-            ObjectValue *value = it.value();
-
-            if (UiQualifiedId *qualifiedId = qualifiedTypeNameId(binding))
-                value->setPrototype(lookupType(typeEnv, qualifiedId));
-        }
     }
 }
 
@@ -258,24 +237,6 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         }
 #endif // NO_DECLARATIVE_BACKEND
     }
-}
-
-const ObjectValue *Link::lookupType(ObjectValue *env, UiQualifiedId *id)
-{
-    const ObjectValue *objectValue = env;
-
-    for (UiQualifiedId *iter = id; objectValue && iter; iter = iter->next) {
-        if (! iter->name)
-            return 0;
-
-        const Value *value = objectValue->property(iter->name->asString());
-        if (!value)
-            return 0;
-
-        objectValue = value->asObjectValue();
-    }
-
-    return objectValue;
 }
 
 UiQualifiedId *Link::qualifiedTypeNameId(Node *node)

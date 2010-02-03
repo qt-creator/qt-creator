@@ -162,9 +162,9 @@ QmlObjectValue::QmlObjectValue(const QMetaObject *metaObject, const QString &qml
 
 QmlObjectValue::~QmlObjectValue() {}
 
-const Value *QmlObjectValue::lookupMember(const QString &name) const
+const Value *QmlObjectValue::lookupMember(const QString &name, Context *context) const
 {
-    return ObjectValue::lookupMember(name);
+    return ObjectValue::lookupMember(name, context);
 }
 
 const Value *QmlObjectValue::findOrCreateSignature(int index, const QMetaMethod &method, QString *methodName) const
@@ -708,6 +708,16 @@ void Context::setLookupMode(LookupMode lookupMode)
     _lookupMode = lookupMode;
 }
 
+const ObjectValue *Context::typeEnvironment() const
+{
+    return _typeEnvironment;
+}
+
+void Context::setTypeEnvironment(const ObjectValue *typeEnvironment)
+{
+    _typeEnvironment = typeEnvironment;
+}
+
 void Context::pushScope(const ObjectValue *object)
 {
     _scopeChain.append(object);
@@ -718,12 +728,12 @@ void Context::popScope()
     _scopeChain.removeLast();
 }
 
-const Value *Context::lookup(const QString &name) const
+const Value *Context::lookup(const QString &name)
 {
     for (int index = _scopeChain.size() - 1; index != -1; --index) {
         const ObjectValue *scope = _scopeChain.at(index);
 
-        if (const Value *member = scope->lookupMember(name)) {
+        if (const Value *member = scope->lookupMember(name, this)) {
             if (_lookupMode == JSLookup || ! dynamic_cast<const ASTVariableReference *>(member)) {
                 return member;
             }
@@ -731,6 +741,24 @@ const Value *Context::lookup(const QString &name) const
     }
 
     return _engine->undefinedValue();
+}
+
+const ObjectValue *Context::lookupType(AST::UiQualifiedId *qmlTypeName)
+{
+    const ObjectValue *objectValue = _typeEnvironment;
+
+    for (UiQualifiedId *iter = qmlTypeName; objectValue && iter; iter = iter->next) {
+        if (! iter->name)
+            return 0;
+
+        const Value *value = objectValue->property(iter->name->asString(), this);
+        if (!value)
+            return 0;
+
+        objectValue = value->asObjectValue();
+    }
+
+    return objectValue;
 }
 
 const Value *Context::property(const ObjectValue *object, const QString &name) const
@@ -833,9 +861,21 @@ void ObjectValue::setClassName(const QString &className)
     _className = className;
 }
 
-const ObjectValue *ObjectValue::prototype() const
+const ObjectValue *ObjectValue::prototype(Context *context) const
 {
-    return _prototype;
+    const ObjectValue *prototypeObject = value_cast<const ObjectValue *>(_prototype);
+    if (! prototypeObject) {
+        if (const Reference *prototypeReference = value_cast<const Reference *>(_prototype)) {
+            prototypeObject = value_cast<const ObjectValue *>(prototypeReference->value(context));
+        }
+    }
+    return prototypeObject;
+}
+
+void ObjectValue::setPrototype(const Value *prototype)
+{
+    // ### FIXME: Check for cycles.
+    _prototype = prototype;
 }
 
 void ObjectValue::setProperty(const QString &name, const Value *value)
@@ -858,23 +898,14 @@ void ObjectValue::accept(ValueVisitor *visitor) const
     visitor->visit(this);
 }
 
-const Value *ObjectValue::property(const QString &name) const
+const Value *ObjectValue::property(const QString &name, Context *context) const
 {
-    return lookupMember(name);
+    return lookupMember(name, context);
 }
 
-void ObjectValue::setPrototype(const ObjectValue *prototype)
+bool ObjectValue::checkPrototype(const ObjectValue *, QSet<const ObjectValue *> *) const
 {
-    QSet<const ObjectValue *> processed;
-
-    if (! prototype || checkPrototype(prototype, &processed))
-        _prototype = prototype;
-    else
-        qWarning() << "**** invalid prototype:";
-}
-
-bool ObjectValue::checkPrototype(const ObjectValue *proto, QSet<const ObjectValue *> *processed) const
-{
+#if 0
     const int previousSize = processed->size();
     processed->insert(this);
 
@@ -887,7 +918,7 @@ bool ObjectValue::checkPrototype(const ObjectValue *proto, QSet<const ObjectValu
 
         return true;
     }
-
+#endif
     return false;
 }
 
@@ -903,7 +934,7 @@ void ObjectValue::processMembers(MemberProcessor *processor) const
     }
 }
 
-const Value *ObjectValue::lookupMember(const QString &name) const
+const Value *ObjectValue::lookupMember(const QString &name, Context *context) const
 {
     if (const Value *m = _members.value(name))
         return m;
@@ -914,22 +945,35 @@ const Value *ObjectValue::lookupMember(const QString &name) const
             return slowLookup.value();
     }
 
-    if (_prototype) {
-        if (const Value *m = _prototype->lookupMember(name))
+    const ObjectValue *prototypeObject = prototype(context);
+    if (prototypeObject) {
+        if (const Value *m = prototypeObject->lookupMember(name, context))
             return m;
     }
 
     return 0;
 }
 
-Activation::Activation()
+Activation::Activation(Context *parentContext)
     : _thisObject(0),
-      _calledAsFunction(true)
+      _calledAsFunction(true),
+      _parentContext(parentContext)
 {
 }
 
 Activation::~Activation()
 {
+}
+
+Context *Activation::parentContext() const
+{
+    return _parentContext;
+}
+
+Context *Activation::context() const
+{
+    // ### FIXME: Real context for activations.
+    return 0;
 }
 
 bool Activation::calledAsConstructor() const
@@ -1083,12 +1127,12 @@ const Value *Function::argument(int index) const
     return _arguments.at(index);
 }
 
-const Value *Function::property(const QString &name) const
+const Value *Function::property(const QString &name, Context *context) const
 {
     if (name == "length")
         return engine()->numberValue();
 
-    return FunctionValue::property(name);
+    return FunctionValue::property(name, context);
 }
 
 const Value *Function::invoke(const Activation *activation) const
@@ -1148,14 +1192,14 @@ void ConvertToNumber::visit(const StringValue *)
 
 void ConvertToNumber::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf"))) {
+    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf", 0))) {
         _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
 
 void ConvertToNumber::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf"))) {
+    if (const FunctionValue *valueOfMember = value_cast<const FunctionValue *>(object->lookupMember("valueOf", 0))) {
         _result = value_cast<const NumberValue *>(valueOfMember->call(object)); // ### invoke convert-to-number?
     }
 }
@@ -1209,14 +1253,14 @@ void ConvertToString::visit(const StringValue *value)
 
 void ConvertToString::visit(const ObjectValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString"))) {
+    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString", 0))) {
         _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
 
 void ConvertToString::visit(const FunctionValue *object)
 {
-    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString"))) {
+    if (const FunctionValue *toStringMember = value_cast<const FunctionValue *>(object->lookupMember("toString", 0))) {
         _result = value_cast<const StringValue *>(toStringMember->call(object)); // ### invoke convert-to-string?
     }
 }
@@ -1947,3 +1991,24 @@ bool ASTFunctionValue::isVariadic() const
 {
     return true;
 }
+
+QmlPrototypeReference::QmlPrototypeReference(AST::UiQualifiedId *qmlTypeName, Engine *engine)
+    : Reference(engine),
+      _qmlTypeName(qmlTypeName)
+{
+}
+
+QmlPrototypeReference::~QmlPrototypeReference()
+{
+}
+
+UiQualifiedId *QmlPrototypeReference::qmlTypeName() const
+{
+    return _qmlTypeName;
+}
+
+const Value *QmlPrototypeReference::value(Context *context) const
+{
+    return context->lookupType(_qmlTypeName);
+}
+

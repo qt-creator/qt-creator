@@ -139,6 +139,9 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
 
     // normal component instance
     ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, &_interp);
+    QmlPrototypeReference *prototypeReference = new QmlPrototypeReference(qualifiedTypeNameId, &_interp);
+    objectValue->setPrototype(prototypeReference);
+
     parentObjectValue = switchObjectValue(objectValue);
 
     if (parentObjectValue)
@@ -241,9 +244,9 @@ bool Bind::visit(FunctionDeclaration *ast)
 {
     if (!ast->name)
         return false;
-    // the first declaration counts
-    if (_currentObjectValue->property(ast->name->asString()))
-        return false;
+    // ### FIXME: the first declaration counts
+    //if (_currentObjectValue->property(ast->name->asString(), 0))
+    //    return false;
 
     ASTFunctionValue *function = new ASTFunctionValue(ast, &_interp);
     // ### set the function's scope.

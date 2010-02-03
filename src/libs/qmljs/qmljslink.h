@@ -31,7 +31,6 @@ public:
 
 private:
     static QList<Document::Ptr> reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot);
-    static const Interpreter::ObjectValue *lookupType(Interpreter::ObjectValue *env, AST::UiQualifiedId *id);
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
     void linkImports();

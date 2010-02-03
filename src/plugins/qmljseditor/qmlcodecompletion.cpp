@@ -219,7 +219,7 @@ private:
             return;
 
         _processed.insert(object);
-        enumerateProperties(object->prototype());
+        enumerateProperties(object->prototype(_context));
 
         object->processMembers(this);
     }

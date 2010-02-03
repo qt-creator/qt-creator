@@ -229,10 +229,14 @@ public:
     LookupMode lookupMode() const;
     void setLookupMode(LookupMode lookupMode);
 
+    const ObjectValue *typeEnvironment() const;
+    void setTypeEnvironment(const ObjectValue *typeEnvironment);
+
     void pushScope(const ObjectValue *object);
     void popScope();
 
-    const Value *lookup(const QString &name) const;
+    const Value *lookup(const QString &name);
+    const ObjectValue *lookupType(AST::UiQualifiedId *qmlTypeName);
 
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
@@ -242,6 +246,7 @@ private:
 
     Engine *_engine;
     LookupMode _lookupMode;
+    const ObjectValue *_typeEnvironment;
     QHash<const ObjectValue *, Properties> _properties;
     ScopeChain _scopeChain;
 };
@@ -274,16 +279,16 @@ public:
     QString className() const;
     void setClassName(const QString &className);
 
-    const ObjectValue *prototype() const;
-    void setPrototype(const ObjectValue *prototype);
+    const ObjectValue *prototype(Context *context) const;
+    void setPrototype(const Value *prototype);
 
     virtual void processMembers(MemberProcessor *processor) const;
 
-    virtual const Value *property(const QString &name) const;
+    virtual const Value *property(const QString &name, Context *context) const;
     virtual void setProperty(const QString &name, const Value *value);
     virtual void removeProperty(const QString &name);
 
-    virtual const Value *lookupMember(const QString &name) const;
+    virtual const Value *lookupMember(const QString &name, Context *context) const;
 
     // Value interface
     virtual const ObjectValue *asObjectValue() const;
@@ -294,7 +299,7 @@ private:
 
 private:
     Engine *_engine;
-    const ObjectValue *_prototype;
+    const Value *_prototype;
     QHash<QString, const Value *> _members;
     QString _className;
 };
@@ -307,7 +312,7 @@ public:
     QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName, int majorVersion, int minorVersion, Engine *engine);
     virtual ~QmlObjectValue();
 
-    virtual const Value *lookupMember(const QString &name) const;
+    virtual const Value *lookupMember(const QString &name, Context *context) const;
     virtual void processMembers(MemberProcessor *processor) const;
     const Value *propertyValue(const QMetaProperty &prop) const;
 
@@ -336,8 +341,11 @@ private:
 class QMLJS_EXPORT Activation
 {
 public:
-    Activation();
+    explicit Activation(Context *parentContext = 0);
     virtual ~Activation();
+
+    Context *context() const;
+    Context *parentContext() const;
 
     bool calledAsConstructor() const;
     void setCalledAsConstructor(bool calledAsConstructor);
@@ -355,6 +363,7 @@ private:
     ObjectValue *_thisObject;
     ValueList _arguments;
     bool _calledAsFunction;
+    Context *_parentContext;
 };
 
 
@@ -398,7 +407,7 @@ public:
     void setReturnValue(const Value *returnValue);
 
     // ObjectValue interface
-    virtual const Value *property(const QString &name) const;
+    virtual const Value *property(const QString &name, Context *context) const;
 
     // FunctionValue interface
     virtual const Value *returnValue() const;
@@ -614,6 +623,20 @@ private:
 
 
 // internal
+class QMLJS_EXPORT QmlPrototypeReference: public Reference
+{
+public:
+    QmlPrototypeReference(AST::UiQualifiedId *qmlTypeName, Engine *engine);
+    virtual ~QmlPrototypeReference();
+
+    AST::UiQualifiedId *qmlTypeName() const;
+
+    virtual const Value *value(Context *context) const;
+
+private:
+    AST::UiQualifiedId *_qmlTypeName;
+};
+
 class QMLJS_EXPORT ASTObjectValue: public ObjectValue
 {
     AST::UiQualifiedId *_typeName;
