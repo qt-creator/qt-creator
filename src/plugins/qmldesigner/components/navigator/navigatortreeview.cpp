@@ -42,6 +42,8 @@ namespace QmlDesigner {
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
 {
+    Q_UNUSED(option);
+    Q_UNUSED(index);
     return QSize(15,17);
 }
 
