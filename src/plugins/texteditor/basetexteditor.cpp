@@ -1381,8 +1381,8 @@ void BaseTextEditor::insertCodeSnippet(const QString &snippet)
 
 void BaseTextEditor::universalHelper()
 {
-    const QString snippet = QLatin1String("for ($initializer$; $condition$; $expresssion$) {\n$$\n}\n");
-    insertCodeSnippet(snippet);
+    // Test function for development. Place your new fangled experiment here to
+    // give it proper scrutiny before pushing it onto others.
 }
 
 void BaseTextEditor::setTextCursor(const QTextCursor &cursor)
