@@ -186,6 +186,7 @@ public:
 
     QDir projectDir() const;
     QStringList files() const;
+    QStringList libraryPaths() const;
 
 private slots:
     void refreshProjectFile();

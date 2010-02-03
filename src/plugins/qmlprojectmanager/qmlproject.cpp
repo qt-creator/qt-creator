@@ -211,6 +211,14 @@ QStringList QmlProject::files() const
     return files;
 }
 
+QStringList QmlProject::libraryPaths() const
+{
+    QStringList libraryPaths;
+    if (m_projectItem)
+        libraryPaths = m_projectItem.data()->libraryPaths();
+    return libraryPaths;
+}
+
 void QmlProject::refreshProjectFile()
 {
     refresh(QmlProject::ProjectFile | Files);
@@ -403,8 +411,17 @@ QStringList QmlRunConfiguration::viewerArguments() const
 {
     QStringList args;
 
+    // arguments in .user file
     if (!m_qmlViewerArgs.isEmpty())
         args.append(m_qmlViewerArgs);
+
+    // arguments from .qmlproject file
+    if (qmlProject()) {
+        foreach (const QString &libraryPath, qmlProject()->libraryPaths()) {
+            args.append(QLatin1String("-L"));
+            args.append(libraryPath);
+        }
+    }
 
     const QString s = mainScript();
     if (! s.isEmpty())
@@ -642,7 +659,8 @@ void QmlRunControl::start()
 {
     m_applicationLauncher.start(ApplicationLauncher::Gui, m_executable, m_commandLineArguments);
     emit started();
-    emit addToOutputWindow(this, tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)));
+    emit addToOutputWindow(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),
+                           m_commandLineArguments.join(QLatin1String(" "))));
 }
 
 void QmlRunControl::stop()
