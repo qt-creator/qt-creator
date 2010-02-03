@@ -72,6 +72,20 @@ private:
     QVariantMap convertBuildSteps(Project *project, const QVariantMap &map);
 };
 
+QString fileNameFor(const QString &name) {
+    QString baseName(name);
+    QString environmentExtension(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")));
+    if (!environmentExtension.isEmpty()) {
+        // replace fishy characters:
+        environmentExtension = environmentExtension.replace(QRegExp("[^a-zA-Z0-9_.-]"), QChar('_'));
+
+        if (!environmentExtension.startsWith('.'))
+            environmentExtension = environmentExtension.prepend(QLatin1Char('.'));
+        return baseName + environmentExtension;
+    }
+    return baseName + QLatin1String(PROJECT_FILE_POSTFIX);
+}
+
 } // namespace
 
 // -------------------------------------------------------------------------
@@ -108,7 +122,7 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
         return QVariantMap();
 
     PersistentSettingsReader reader;
-    QString fileName = project->file()->fileName() + QLatin1String(PROJECT_FILE_POSTFIX);
+    QString fileName(fileNameFor(project->file()->fileName()));
     reader.load(fileName);
 
     QVariantMap map(reader.restoreValues());
@@ -143,7 +157,7 @@ bool UserFileAccessor::saveSettings(Project *project, const QVariantMap &map)
 
     writer.saveValue(QLatin1String(USER_FILE_VERSION), m_lastVersion + 1);
 
-    return writer.save(project->file()->fileName() + QLatin1String(PROJECT_FILE_POSTFIX), "QtCreatorProject");
+    return writer.save(fileNameFor(project->file()->fileName()), "QtCreatorProject");
 }
 
 void UserFileAccessor::addVersionHandler(UserFileVersionHandler *handler)
