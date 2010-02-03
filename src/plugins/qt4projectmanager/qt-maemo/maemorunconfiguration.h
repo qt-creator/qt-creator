@@ -48,8 +48,6 @@ class MaemoManager;
 class MaemoToolChain;
 class Qt4ProFileNode;
 
-#define USE_SSL_PASSWORD 0
-
 class ErrorDumper : public QObject
 {
     Q_OBJECT
@@ -106,15 +104,6 @@ public:
     const QString dumperLib() const;
 
     bool isQemuRunning() const;
-
-#if USE_SSL_PASSWORD
-    // Only valid if remoteHostRequiresPassword() == true.
-    void setRemotePassword(const QString &password);
-    const QString remoteUserPassword() const { return m_remoteUserPassword; }
-
-    void setRemoteHostRequiresPassword(bool requiresPassword);
-    bool remoteHostRequiresPassword() const { return m_remoteHostRequiresPassword; }
-#endif
 
     virtual QVariantMap toMap() const;
 
@@ -177,11 +166,6 @@ private:
 
     QProcess *qemu;
     ErrorDumper dumper;
-
-#if USE_SSL_PASSWORD
-    QString m_remoteUserPassword;
-    bool m_remoteHostRequiresPassword;
-#endif
 };
 
 class MaemoRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory

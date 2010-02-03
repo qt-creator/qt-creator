@@ -172,10 +172,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Project *project,
     , m_lastDeployed(source->m_lastDeployed)
     , m_debuggingHelpersLastDeployed(source->m_debuggingHelpersLastDeployed)
     , qemu(0)
-#if USE_SSL_PASSWORD
-    , m_remoteUserPassword(source->m_remoteUserPassword)
-    , m_remoteHostRequiresPassword(source->m_remoteHostRequiresPassword)
-#endif
 {
     init();
 }
