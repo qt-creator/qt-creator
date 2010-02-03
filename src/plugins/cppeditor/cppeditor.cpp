@@ -1561,11 +1561,6 @@ bool CPPEditor::isInComment(const QTextCursor &cursor) const
     return false;
 }
 
-void CPPEditor::indentInsertedText(const QTextCursor &tc)
-{
-    indent(tc.document(), tc, QChar::Null);
-}
-
 // Indent a code line based on previous
 template <class Iterator>
 static void indentCPPBlock(const CPPEditor::TabSettings &ts,

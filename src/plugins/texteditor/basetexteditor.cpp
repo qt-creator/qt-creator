@@ -3803,6 +3803,11 @@ bool BaseTextEditor::isElectricCharacter(const QChar &) const
     return false;
 }
 
+void BaseTextEditor::indentInsertedText(const QTextCursor &tc)
+{
+    indent(tc.document(), tc, QChar::Null);
+}
+
 void BaseTextEditor::countBracket(QChar open, QChar close, QChar c, int *errors, int *stillopen)
 {
     if (c == open)

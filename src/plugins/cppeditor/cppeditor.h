@@ -186,8 +186,6 @@ public:
     ~CPPEditor();
     void unCommentSelection();
 
-    void indentInsertedText(const QTextCursor &tc);
-
     unsigned editorRevision() const;
     bool isOutdated() const;
     SemanticInfo semanticInfo() const;

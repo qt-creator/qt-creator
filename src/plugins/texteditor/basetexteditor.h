@@ -533,6 +533,9 @@ protected:
 public:
     // Returns true if key triggers an indent.
     virtual bool isElectricCharacter(const QChar &ch) const;
+
+    void indentInsertedText(const QTextCursor &tc);
+
 protected:
     // Returns the text to complete at the cursor position, or an empty string
     virtual QString autoComplete(QTextCursor &cursor, const QString &text) const;
