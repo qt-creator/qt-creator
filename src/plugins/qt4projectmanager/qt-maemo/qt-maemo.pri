@@ -11,6 +11,7 @@ SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
         $$PWD/maemotoolchain.h \
         $$PWD/maemodeviceconfigurations.h \
         $$PWD/maemosettingspage.h \
+        $$PWD/maemosettingswidget.h \
         $$PWD/maemosshconnection.h \
         $$PWD/maemosshthread.h \
         $$PWD/maemoruncontrol.h \
@@ -20,6 +21,7 @@ SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
         $$PWD/maemotoolchain.cpp \
         $$PWD/maemodeviceconfigurations.cpp \
         $$PWD/maemosettingspage.cpp \
+        $$PWD/maemosettingswidget.cpp \
         $$PWD/maemosshconnection.cpp \
         $$PWD/maemosshthread.cpp \
         $$PWD/maemoruncontrol.cpp \
