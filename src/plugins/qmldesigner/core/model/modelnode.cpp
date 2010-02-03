@@ -162,7 +162,7 @@ QString ModelNode::validId()
 
 static bool idContainsWrongLetter(const QString& id)
 {
-    static QRegExp idExpr(QLatin1String("[a-zA-Z][a-zA-Z0-9_]*"));
+    static QRegExp idExpr(QLatin1String("[a-z][a-zA-Z0-9_]*"));
     return !idExpr.exactMatch(id);
 }
 
