@@ -15,6 +15,7 @@ using namespace QmlJS::AST;
 Link::Link(Document::Ptr currentDoc, const Snapshot &snapshot, Interpreter::Engine *interp)
     : _snapshot(snapshot)
     , _interp(interp)
+    , _context(interp)
 {
     _docs = reachableDocuments(currentDoc, snapshot);
 
@@ -45,6 +46,11 @@ static ObjectValue *pushScope(ObjectValue *next, ObjectValue *onto)
 {
     onto->setScope(next);
     return next;
+}
+
+Context *Link::context()
+{
+    return &_context;
 }
 
 ObjectValue *Link::scopeChainAt(Document::Ptr doc, Node *currentObject)

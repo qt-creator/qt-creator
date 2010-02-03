@@ -37,6 +37,7 @@ namespace QmlJS {
 
 namespace Interpreter {
     class Engine;
+    class Context;
     class Value;
     class ObjectValue;
     class FunctionValue;
@@ -45,7 +46,7 @@ namespace Interpreter {
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
 public:
-    Check(Interpreter::Engine *engine);
+    Check(Interpreter::Engine *engine, Interpreter::Context *context);
     virtual ~Check();
 
     const Interpreter::Value *operator()(AST::Node *ast, const Interpreter::ObjectValue *scope);
@@ -155,6 +156,7 @@ protected:
 private:
     QmlJS::Document::Ptr _doc;
     Interpreter::Engine *_engine;
+    Interpreter::Context *_context;
     const Interpreter::ObjectValue *_scope;
     const Interpreter::Value *_result;
 };

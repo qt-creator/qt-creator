@@ -567,6 +567,9 @@ void ValueVisitor::visit(const FunctionValue *)
 {
 }
 
+void ValueVisitor::visit(const Reference *)
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Value
@@ -610,6 +613,11 @@ const ObjectValue *Value::asObjectValue() const
 }
 
 const FunctionValue *Value::asFunctionValue() const
+{
+    return 0;
+}
+
+const Reference *Value::asReference() const
 {
     return 0;
 }
@@ -699,6 +707,51 @@ void StringValue::accept(ValueVisitor *visitor) const
 {
     visitor->visit(this);
 }
+
+
+Context::Context(Engine *engine)
+    : _engine(engine)
+{
+}
+
+Context::~Context()
+{
+}
+
+Engine *Context::engine() const
+{
+    return _engine;
+}
+
+const Value *Context::property(const ObjectValue *object, const QString &name) const
+{
+    const Properties properties = _properties.value(object);
+    return properties.value(name, engine()->undefinedValue());
+}
+
+void Context::setProperty(const ObjectValue *object, const QString &name, const Value *value)
+{
+    _properties[object].insert(name, value);
+}
+
+Reference::Reference()
+{
+}
+
+Reference::~Reference()
+{
+}
+
+const Reference *Reference::asReference() const
+{
+    return this;
+}
+
+void Reference::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
+
 
 MemberProcessor::MemberProcessor()
 {

@@ -23,6 +23,8 @@ public:
     Link(Document::Ptr doc, const Snapshot &snapshot, Interpreter::Engine *interp);
     ~Link();
 
+    Interpreter::Context *context();
+
     // Get the scope chain for the currentObject inside doc.
     Interpreter::ObjectValue *scopeChainAt(Document::Ptr doc, AST::Node *currentObject);
 
@@ -43,6 +45,7 @@ private:
 private:
     Snapshot _snapshot;
     Interpreter::Engine *_interp;
+    Interpreter::Context _context;
     QList<Document::Ptr> _docs;
     QHash<Document *, Interpreter::ObjectValue *> _typeEnvironments;
 };

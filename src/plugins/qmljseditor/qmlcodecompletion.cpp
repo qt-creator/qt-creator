@@ -670,7 +670,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         //qDebug() << "expression:" << expression;
 
         if (expression  != 0) {
-            Check evaluate(&interp);
+            Check evaluate(&interp, link.context());
 
             // Evaluate the expression under cursor.
             const Interpreter::Value *value = interp.convertToObject(evaluate(expression , scope));

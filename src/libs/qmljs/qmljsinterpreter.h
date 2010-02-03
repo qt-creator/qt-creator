@@ -53,6 +53,7 @@ class BooleanValue;
 class StringValue;
 class ObjectValue;
 class FunctionValue;
+class Reference;
 
 typedef QList<const Value *> ValueList;
 
@@ -72,6 +73,7 @@ public:
     virtual void visit(const StringValue *);
     virtual void visit(const ObjectValue *);
     virtual void visit(const FunctionValue *);
+    virtual void visit(const Reference *);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +95,7 @@ public:
     virtual const StringValue *asStringValue() const;
     virtual const ObjectValue *asObjectValue() const;
     virtual const FunctionValue *asFunctionValue() const;
+    virtual const Reference *asReference() const;
 
     virtual void accept(ValueVisitor *) const = 0;
 };
@@ -138,6 +141,12 @@ template <> Q_INLINE_TEMPLATE const ObjectValue *value_cast(const Value *v)
 template <> Q_INLINE_TEMPLATE const FunctionValue *value_cast(const Value *v)
 {
     if (v) return v->asFunctionValue();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const Reference *value_cast(const Value *v)
+{
+    if (v) return v->asReference();
     else   return 0;
 }
 
@@ -208,6 +217,37 @@ public:
     virtual bool processSignal(const QString &name, const Value *value);
     virtual bool processSlot(const QString &name, const Value *value);
     virtual bool processGeneratedSlot(const QString &name, const Value *value);
+};
+
+class QMLJS_EXPORT Context
+{
+public:
+    Context(Engine *engine);
+    virtual ~Context();
+
+    Engine *engine() const;
+
+    const Value *property(const ObjectValue *object, const QString &name) const;
+    void setProperty(const ObjectValue *object, const QString &name, const Value *value);
+
+private:
+    typedef QHash<QString, const Value *> Properties;
+
+    Engine *_engine;
+    QHash<const ObjectValue *, Properties> _properties;
+};
+
+class QMLJS_EXPORT Reference: public Value
+{
+public:
+    Reference();
+    virtual ~Reference();
+
+    virtual const Value *value(const Context *context) const = 0;
+
+    // Value interface
+    virtual const Reference *asReference() const;
+    virtual void accept(ValueVisitor *) const;
 };
 
 class QMLJS_EXPORT ObjectValue: public Value, public Environment

@@ -36,8 +36,9 @@
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 
-Check::Check(Interpreter::Engine *engine)
+Check::Check(Interpreter::Engine *engine, Interpreter::Context *context)
     : _engine(engine),
+      _context(context),
       _scope(engine->globalObject()),
       _result(0)
 {
@@ -57,11 +58,21 @@ const Interpreter::Value *Check::operator()(AST::Node *ast, const Interpreter::O
 
 const Interpreter::Value *Check::check(AST::Node *ast)
 {
+    // save the result
     const Value *previousResult = switchResult(0);
+
+    // process the expression
     accept(ast);
+
+    // restore the previous result
     const Value *result = switchResult(previousResult);
+
+    if (const Reference *ref = value_cast<const Reference *>(result))
+        result = ref->value(_context);
+
     if (! result)
         result = _engine->undefinedValue();
+
     return result;
 }
 
