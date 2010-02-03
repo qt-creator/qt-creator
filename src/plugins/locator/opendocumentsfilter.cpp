@@ -56,13 +56,13 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(const QString &entry)
     const QRegExp regexp(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
     if (!regexp.isValid())
         return value;
-    foreach (IEditor *editor, m_editors) {
-        QString fileName = editor->file()->fileName();
-        if (regexp.exactMatch(editor->displayName())) {
-            QString visibleName;
-            QVariant data;
+    foreach (const OpenEditorsModel::Entry &entry, m_editors) {
+        QString fileName = entry.fileName();
+        QString displayName = entry.displayName();
+        if (regexp.exactMatch(displayName)) {
             if (fileName.isEmpty()) {
-                value.append(FilterEntry(this, editor->displayName(), qVariantFromValue(editor)));
+                if (entry.editor)
+                    value.append(FilterEntry(this, displayName, qVariantFromValue(entry.editor)));
             } else {
                 QFileInfo fi(fileName);
                 FilterEntry entry(this, fi.fileName(), fileName);
@@ -77,7 +77,13 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(const QString &entry)
 
 void OpenDocumentsFilter::refreshInternally()
 {
-    m_editors = m_editorManager->openedEditors();
+    m_editors.clear();
+    foreach (IEditor *editor, m_editorManager->openedEditors()) {
+        OpenEditorsModel::Entry entry;
+        entry.editor = editor;
+        m_editors.append(entry);
+    }
+    m_editors += m_editorManager->openedEditorsModel()->restoredEditors();
 }
 
 void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)

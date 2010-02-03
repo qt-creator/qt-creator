@@ -188,15 +188,15 @@ void OpenEditorsModel::removeAllRestoredEditors()
     }
 }
 
-int OpenEditorsModel::restoredEditorCount() const
+QList<OpenEditorsModel::Entry> OpenEditorsModel::restoredEditors() const
 {
-    int count = 0;
+    QList<Entry> result;
     for (int i = m_editors.count()-1; i >= 0; --i) {
         if (!m_editors.at(i).editor) {
-            ++count;
+            result.append(m_editors.at(i));
         }
     }
-    return count;
+    return result;
 }
 
 bool OpenEditorsModel::isDuplicate(IEditor *editor) const

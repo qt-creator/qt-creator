@@ -256,7 +256,7 @@ void DesignMode::updateActions()
 
     Core::IEditor *curEditor = m_currentEditor.data();
     int openedCount = editorManager->openedEditors().count()
-                      + editorManager->openedEditorsModel()->restoredEditorCount();
+                      + editorManager->openedEditorsModel()->restoredEditors().count();
 
     QString fName;
     if (curEditor) {

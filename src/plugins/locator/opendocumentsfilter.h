@@ -39,6 +39,7 @@
 #include <QtGui/QWidget>
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 namespace Locator {
@@ -63,7 +64,7 @@ public slots:
 private:
     Core::EditorManager *m_editorManager;
 
-    QList<Core::IEditor *> m_editors;
+    QList<Core::OpenEditorsModel::Entry> m_editors;
 };
 
 } // namespace Internal

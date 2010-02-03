@@ -1428,7 +1428,7 @@ void EditorManager::updateActions()
 {
     QString fName;
     IEditor *curEditor = currentEditor();
-    int openedCount = openedEditors().count() + m_d->m_editorModel->restoredEditorCount();
+    int openedCount = openedEditors().count() + m_d->m_editorModel->restoredEditors().count();
     if (curEditor) {
         if (!curEditor->file()->fileName().isEmpty()) {
             QFileInfo fi(curEditor->file()->fileName());

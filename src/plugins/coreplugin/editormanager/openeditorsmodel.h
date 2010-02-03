@@ -72,10 +72,10 @@ public:
     void removeEditor(const QModelIndex &index);
 
     void removeAllRestoredEditors();
-    int restoredEditorCount() const;
     void emitDataChanged(IEditor *editor);
 
     QList<IEditor *> editors() const;
+    QList<Entry> restoredEditors() const;
     bool isDuplicate(IEditor *editor) const;
     QList<IEditor *> duplicatesFor(IEditor *editor) const;
     IEditor *originalForDuplicate(IEditor *duplicate) const;
