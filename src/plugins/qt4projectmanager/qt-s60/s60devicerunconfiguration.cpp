@@ -107,7 +107,7 @@ QString pathToId(const QString &path)
 // ======== S60DeviceRunConfiguration
 
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QString &proFilePath) :
-    RunConfiguration(project, pathToId(proFilePath)),
+    RunConfiguration(project, QLatin1String(S60_DEVICE_RC_ID)),
     m_proFilePath(proFilePath),
     m_cachedTargetInformationValid(false),
 #ifdef Q_OS_WIN
