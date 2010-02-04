@@ -3724,7 +3724,7 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
             } else {
                 // Can happen e.g. for initializer list on symbian/rvct where
                 // we get a file name and line number but where the 'fully
-                // disassembled function' does not cover the code in the 
+                // disassembled function' does not cover the code in the
                 // initializer list. Fall back needed:
                 //fetchDisassemblerByAddress(ac.agent, true);
                 fetchDisassemblerByCli(ac.agent, true);
@@ -3733,7 +3733,7 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
     } else {
         // 536^error,msg="mi_cmd_disassemble: Invalid line number"
         QByteArray msg = response.data.findChild("msg").data();
-        if (msg == "mi_cmd_disassemble: Invalid line number" 
+        if (msg == "mi_cmd_disassemble: Invalid line number"
                 || msg.startsWith("Cannot access memory at address"))
             fetchDisassemblerByAddress(ac.agent, true);
         else
