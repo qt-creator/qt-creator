@@ -164,8 +164,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Project *project,
     , m_simulatorSshPort(source->m_simulatorSshPort)
     , m_simulatorGdbServerPort(source->m_simulatorGdbServerPort)
     , m_cachedSimulatorInformationValid(false)
-    , m_isUserSetSimulator(source->m_isUserSetSimulator)
-    , m_userSimulatorPath(source->m_userSimulatorPath)
     , m_gdbPath(source->m_gdbPath)
     , m_devConfig(source->m_devConfig)
     , m_arguments(source->m_arguments)
@@ -396,27 +394,38 @@ QString MaemoRunConfiguration::simulatorPath() const
     qDebug("MaemoRunConfiguration::simulatorPath() called, %s",
         qPrintable(m_simulatorPath));
 
-    const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
+    if (!m_cachedSimulatorInformationValid)
+        const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
     return m_simulatorPath;
 }
 
 QString MaemoRunConfiguration::visibleSimulatorParameter() const
 {
-    qDebug("MaemoRunConfiguration::visibleSimulatorParameter() called");
+    qDebug("MaemoRunConfiguration::visibleSimulatorParameter() called, %s",
+        qPrintable(m_visibleSimulatorParameter));
 
-    const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
+    if (!m_cachedSimulatorInformationValid)
+        const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
     return m_visibleSimulatorParameter;
 }
 
 QString MaemoRunConfiguration::simulator() const
 {
-    const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
+    qDebug("MaemoRunConfiguration::simulator() called, %s",
+        qPrintable(m_simulator));
+
+    if (!m_cachedSimulatorInformationValid)
+        const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
     return m_simulator;
 }
 
 QString MaemoRunConfiguration::simulatorArgs() const
 {
-    const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
+    qDebug("MaemoRunConfiguration::simulatorArgs() called, %s",
+        qPrintable(m_simulatorArgs));
+
+    if (!m_cachedSimulatorInformationValid)
+        const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
     return m_simulatorArgs;
 }
 
@@ -424,7 +433,6 @@ void MaemoRunConfiguration::setArguments(const QStringList &args)
 {
     m_arguments = args;
 }
-
 
 bool MaemoRunConfiguration::isQemuRunning() const
 {
@@ -435,38 +443,6 @@ void MaemoRunConfiguration::invalidateCachedTargetInformation()
 {
     m_cachedTargetInformationValid = false;
     emit targetInformationChanged();
-}
-
-void MaemoRunConfiguration::setUserSimulatorPath(const QString &path)
-{
-    qDebug("MaemoRunConfiguration::setUserSimulatorPath() called, "
-        "m_simulatorPath: %s, new path: %s", qPrintable(m_simulatorPath),
-        qPrintable(path));
-
-    m_isUserSetSimulator = true;
-    if (m_userSimulatorPath != path)
-        m_cachedSimulatorInformationValid = false;
-
-    m_userSimulatorPath = path;
-    emit cachedSimulatorInformationChanged();
-}
-
-void MaemoRunConfiguration::invalidateCachedSimulatorInformation()
-{
-    qDebug("MaemoRunConfiguration::invalidateCachedSimulatorInformation() "
-        "called");
-
-    m_cachedSimulatorInformationValid = false;
-    emit cachedSimulatorInformationChanged();
-}
-
-void MaemoRunConfiguration::resetCachedSimulatorInformation()
-{
-    m_userSimulatorPath.clear();
-    m_isUserSetSimulator = false;
-
-    m_cachedSimulatorInformationValid = false;
-    emit cachedSimulatorInformationChanged();
 }
 
 void MaemoRunConfiguration::updateTarget()
@@ -502,20 +478,17 @@ void MaemoRunConfiguration::updateSimulatorInformation()
         return;
 
     m_simulator.clear();
+    m_simulatorPath.clear();
     m_simulatorArgs.clear();
+    m_visibleSimulatorParameter.clear();
     m_cachedSimulatorInformationValid = true;
-    m_simulatorPath = QDir::toNativeSeparators(m_userSimulatorPath);
-    m_visibleSimulatorParameter = tr("Could not autodetect target simulator, "
-        "please choose one on your own.");
 
-    if (!m_isUserSetSimulator) {
-        if (const MaemoToolChain *tc = toolchain())
-            m_simulatorPath = QDir::toNativeSeparators(tc->simulatorRoot());
-    }
+    if (const MaemoToolChain *tc = toolchain())
+        m_simulatorPath = QDir::toNativeSeparators(tc->simulatorRoot());
 
     if (!m_simulatorPath.isEmpty()) {
-        m_visibleSimulatorParameter = tr("'%1' is not a valid Maemo simulator.")
-            .arg(m_simulatorPath);
+        m_visibleSimulatorParameter = tr("'%1' does not contain a valid Maemo "
+            "simulator image.").arg(m_simulatorPath);
     }
 
     QDir dir(m_simulatorPath);
@@ -555,8 +528,8 @@ void MaemoRunConfiguration::updateSimulatorInformation()
             }
         }
     } else {
-        m_visibleSimulatorParameter = tr("'%1' could not be found. Please "
-            "choose a simulator on your own.").arg(m_simulatorPath);
+        m_visibleSimulatorParameter = tr("'%1' could not be found. Do you have "
+            "already installed a Maemo simulator image?").arg(m_simulatorPath);
     }
 
     emit cachedSimulatorInformationChanged();

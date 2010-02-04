@@ -123,10 +123,6 @@ private slots:
     void updateDeviceConfigurations();
     void invalidateCachedTargetInformation();
 
-    void setUserSimulatorPath(const QString &path);
-    void invalidateCachedSimulatorInformation();
-    void resetCachedSimulatorInformation();
-
     void startStopQemu();
     void qemuProcessFinished();
 
@@ -152,9 +148,6 @@ private:
     QString m_simulatorSshPort;
     QString m_simulatorGdbServerPort;
     bool m_cachedSimulatorInformationValid;
-
-    bool m_isUserSetSimulator;
-    QString m_userSimulatorPath;
 
     QString m_gdbPath;
 

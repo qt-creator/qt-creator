@@ -74,8 +74,8 @@ private:
     QLabel *m_executableLabel;
     QLabel *m_debuggerLabel;
     QComboBox *m_devConfBox;
-    QLabel *m_simPathNameLabel;
-    QLabel *m_simPathValueLabel;
+    QLabel *m_simNameLabel;
+    QLabel *m_simValueLabel;
     MaemoRunConfiguration *m_runConfiguration;
 };
 

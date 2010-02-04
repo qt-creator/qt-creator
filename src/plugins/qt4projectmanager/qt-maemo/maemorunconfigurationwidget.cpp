@@ -82,9 +82,9 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     m_debuggerLabel = new QLabel(m_runConfiguration->gdbCmd());
     mainLayout->addRow(tr("Debugger:"), m_debuggerLabel);
     mainLayout->addItem(new QSpacerItem(10, 10));
-    m_simPathNameLabel = new QLabel(tr("Simulator Path:"));
-    m_simPathValueLabel = new QLabel(m_runConfiguration->simulatorPath());
-    mainLayout->addRow(m_simPathNameLabel, m_simPathValueLabel);
+    m_simNameLabel = new QLabel(tr("Simulator:"));
+    m_simValueLabel = new QLabel(m_runConfiguration->visibleSimulatorParameter());
+    mainLayout->addRow(m_simNameLabel, m_simValueLabel);
     resetDeviceConfigurations();
 
     connect(m_runConfiguration, SIGNAL(cachedSimulatorInformationChanged()),
@@ -121,7 +121,7 @@ void MaemoRunConfigurationWidget::updateTargetInformation()
 
 void MaemoRunConfigurationWidget::updateSimulatorPath()
 {
-    m_simPathValueLabel->setText(m_runConfiguration->simulatorPath());
+    m_simValueLabel->setText(m_runConfiguration->visibleSimulatorParameter());
 }
 
 void MaemoRunConfigurationWidget::deviceConfigurationChanged(const QString &name)
@@ -135,8 +135,8 @@ void MaemoRunConfigurationWidget::deviceConfigurationChanged(const QString &name
 void MaemoRunConfigurationWidget::setSimInfoVisible(const MaemoDeviceConfig &devConf)
 {
     const bool isSimulator = devConf.type == MaemoDeviceConfig::Simulator;
-    m_simPathNameLabel->setVisible(isSimulator);
-    m_simPathValueLabel->setVisible(isSimulator);
+    m_simNameLabel->setVisible(isSimulator);
+    m_simValueLabel->setVisible(isSimulator);
 }
 
 void MaemoRunConfigurationWidget::resetDeviceConfigurations()
