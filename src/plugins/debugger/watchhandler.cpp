@@ -397,10 +397,11 @@ void WatchModel::emitAllChanged()
     emit layoutChanged();
 }
 
-void WatchModel::beginCycle()
+void WatchModel::beginCycle(bool clearFetchTriggered)
 {
-    m_fetchTriggered.clear();
     emit enableUpdates(false);
+    if (clearFetchTriggered)
+        m_fetchTriggered.clear();
 }
 
 void WatchModel::endCycle()
@@ -1192,12 +1193,12 @@ WatchHandler::WatchHandler(DebuggerManager *manager)
         SIGNAL(triggered()), this, SLOT(emitAllChanged()));
 }
 
-void WatchHandler::beginCycle()
+void WatchHandler::beginCycle(bool clearFetchTriggered)
 {
     ++generationCounter;
-    m_locals->beginCycle();
-    m_watchers->beginCycle();
-    m_tooltips->beginCycle();
+    m_locals->beginCycle(clearFetchTriggered);
+    m_watchers->beginCycle(clearFetchTriggered);
+    m_tooltips->beginCycle(clearFetchTriggered);
 }
 
 void WatchHandler::endCycle()

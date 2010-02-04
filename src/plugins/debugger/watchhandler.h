@@ -225,7 +225,7 @@ private:
 
     void emitDataChanged(int column,
         const QModelIndex &parentIndex = QModelIndex());
-    void beginCycle(); // called at begin of updateLocals() cycle
+    void beginCycle(bool clearFetchTriggered); // called at begin of updateLocals() cycle
     void endCycle(); // called after all results have been received
 
     friend QDebug operator<<(QDebug d, const WatchModel &m);
@@ -266,7 +266,9 @@ public:
     Q_SLOT void removeWatchExpression();
     Q_SLOT void removeWatchExpression(const QString &exp);
     Q_SLOT void emitAllChanged();
-    void beginCycle(); // called at begin of updateLocals() cycle
+
+    // called at begin of updateLocals() cycle
+    void beginCycle(bool clearFetchTriggered = true);
     void updateWatchers(); // called after locals are fetched
     void endCycle(); // called after all results have been received
     void showEditValue(const WatchData &data);
