@@ -5251,11 +5251,18 @@ bool Parser::parseObjCTypeQualifiers(unsigned &type_qualifier)
         return false;
 
     const Identifier *id = tok().identifier;
-    const int k = classifyObjectiveCContextKeyword(id->chars(), id->size());
-    if (k == Token_identifier)
+    switch (classifyObjectiveCContextKeyword(id->chars(), id->size())) {
+    case Token_bycopy:
+    case Token_byref:
+    case Token_in:
+    case Token_inout:
+    case Token_oneway:
+    case Token_out:
+        type_qualifier = consumeToken();
+        return true;
+    default:
         return false;
-    type_qualifier = consumeToken();
-    return true;
+    }
 }
 
 bool Parser::peekAtObjCContextKeyword(int kind)
