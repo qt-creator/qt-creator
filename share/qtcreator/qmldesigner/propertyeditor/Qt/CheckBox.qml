@@ -1,45 +1,80 @@
 import Qt 4.6
 import Bauhaus 1.0
 
-QCheckBox { //This is a special CheckBox that does color coding for states
-   id: CheckBox;
+QWidget { //This is a special CheckBox that does color coding for states
 
-   property var backendValue;
-   property var baseStateFlag;
+    id: CheckBox;
 
-   checkable: true;
-   checked: (backendValue === undefined || backendValue === null) ? false : backendValue.value;
-   onToggled: {
-       backendValue.value = checked;
-   }
+    property var backendValue;
 
-   onBaseStateFlagChanged: {
-       evaluate();
-   }
+    property var baseStateFlag;
+    property alias checkable: LocalCheckBox.checkable
+    property alias text: LocalLabel.text
 
-   onBackendValueChanged: {
+    onBaseStateFlagChanged: {
         evaluate();
     }
 
-   Script {
-       function evaluate() {
+    onBackendValueChanged: {
+        evaluate();
+    }
+	
+	property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
+
+    onIsInModelChanged: {
+        evaluate();
+    }
+
+    property bool isInSubState: (backendValue === undefined || backendValue === null) ? false: backendValue.isInSubState;
+
+    onIsInSubStateChanged: {
+        evaluate();
+    }
+
+
+    Script {
+        function evaluate() {
             if (baseStateFlag) {
                 if (backendValue != null && backendValue.isInModel)
-                    CheckBox.setStyleSheet("color: white;");
+                    LocalLabel.setStyleSheet("color: white;");
                 else
-                    CheckBox.setStyleSheet("color: gray;");
+                    LocalLabel.setStyleSheet("color: gray;");
             } else {
                 if (backendValue != null && backendValue.isInSubState)
-                    CheckBox.setStyleSheet("color: #7799FF;");
+                    LocalLabel.setStyleSheet("color: #7799FF;");
                 else
-                    CheckBox.setStyleSheet("color: gray;");
+                    LocalLabel.setStyleSheet("color: gray;");
             }
-		}
-   }
-   
-   ExtendedFunctionButton {
+        }
+    }
+		 
+
+
+    layout: HorizontalLayout {
+        spacing: 4
+
+        QCheckBox {
+            id: LocalCheckBox
+            checkable: true;
+            checked: (backendValue === undefined || backendValue === null) ? false : backendValue.value;
+            onToggled: {
+                backendValue.value = checked;
+            }
+        }
+
+        QLabel {
+            id: LocalLabel
+            font.bold: true;
+			alignment: "Qt::AlignLeft | Qt::AlignVCenter"
+        }
+
+    }
+
+
+    ExtendedFunctionButton {
         backendValue: CheckBox.backendValue
-        y: 2
-        x: 0
+        y: 4
+        x: LocalCheckBox.x + 18;
     }
 }
+
