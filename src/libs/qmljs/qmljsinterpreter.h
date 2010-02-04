@@ -42,6 +42,7 @@
 namespace QmlJS {
 
 class NameId;
+class Document;
 
 namespace Interpreter {
 
@@ -229,14 +230,14 @@ public:
     LookupMode lookupMode() const;
     void setLookupMode(LookupMode lookupMode);
 
-    const ObjectValue *typeEnvironment() const;
-    void setTypeEnvironment(const ObjectValue *typeEnvironment);
+    const ObjectValue *typeEnvironment(const Document *doc) const;
+    void setTypeEnvironment(const Document *doc, const ObjectValue *typeEnvironment);
 
     void pushScope(const ObjectValue *object);
     void popScope();
 
     const Value *lookup(const QString &name);
-    const ObjectValue *lookupType(AST::UiQualifiedId *qmlTypeName);
+    const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName);
 
     const Value *property(const ObjectValue *object, const QString &name) const;
     void setProperty(const ObjectValue *object, const QString &name, const Value *value);
@@ -246,9 +247,9 @@ private:
 
     Engine *_engine;
     LookupMode _lookupMode;
-    const ObjectValue *_typeEnvironment;
     QHash<const ObjectValue *, Properties> _properties;
     ScopeChain _scopeChain;
+    QHash<const Document *, const ObjectValue *> _typeEnvironments;
 };
 
 class QMLJS_EXPORT Reference: public Value
@@ -626,7 +627,7 @@ private:
 class QMLJS_EXPORT QmlPrototypeReference: public Reference
 {
 public:
-    QmlPrototypeReference(AST::UiQualifiedId *qmlTypeName, Engine *engine);
+    QmlPrototypeReference(AST::UiQualifiedId *qmlTypeName, const Document *doc, Engine *engine);
     virtual ~QmlPrototypeReference();
 
     AST::UiQualifiedId *qmlTypeName() const;
@@ -635,6 +636,7 @@ public:
 
 private:
     AST::UiQualifiedId *_qmlTypeName;
+    const Document *_doc;
 };
 
 class QMLJS_EXPORT ASTObjectValue: public ObjectValue

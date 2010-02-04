@@ -708,14 +708,14 @@ void Context::setLookupMode(LookupMode lookupMode)
     _lookupMode = lookupMode;
 }
 
-const ObjectValue *Context::typeEnvironment() const
+const ObjectValue *Context::typeEnvironment(const Document *doc) const
 {
-    return _typeEnvironment;
+    return _typeEnvironments.value(doc, 0);
 }
 
-void Context::setTypeEnvironment(const ObjectValue *typeEnvironment)
+void Context::setTypeEnvironment(const Document *doc, const ObjectValue *typeEnvironment)
 {
-    _typeEnvironment = typeEnvironment;
+    _typeEnvironments[doc] = typeEnvironment;
 }
 
 void Context::pushScope(const ObjectValue *object)
@@ -743,9 +743,9 @@ const Value *Context::lookup(const QString &name)
     return _engine->undefinedValue();
 }
 
-const ObjectValue *Context::lookupType(UiQualifiedId *qmlTypeName)
+const ObjectValue *Context::lookupType(const Document *doc, UiQualifiedId *qmlTypeName)
 {
-    const ObjectValue *objectValue = _typeEnvironment;
+    const ObjectValue *objectValue = typeEnvironment(doc);
 
     for (UiQualifiedId *iter = qmlTypeName; objectValue && iter; iter = iter->next) {
         if (! iter->name)
@@ -1992,9 +1992,11 @@ bool ASTFunctionValue::isVariadic() const
     return true;
 }
 
-QmlPrototypeReference::QmlPrototypeReference(UiQualifiedId *qmlTypeName, Engine *engine)
+QmlPrototypeReference::QmlPrototypeReference(UiQualifiedId *qmlTypeName, const Document *doc,
+                                             Engine *engine)
     : Reference(engine),
-      _qmlTypeName(qmlTypeName)
+      _qmlTypeName(qmlTypeName),
+      _doc(doc)
 {
 }
 
@@ -2009,6 +2011,6 @@ UiQualifiedId *QmlPrototypeReference::qmlTypeName() const
 
 const Value *QmlPrototypeReference::value(Context *context) const
 {
-    return context->lookupType(_qmlTypeName);
+    return context->lookupType(_doc, _qmlTypeName);
 }
 

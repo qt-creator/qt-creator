@@ -80,20 +80,19 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
     if (bind->_idEnvironment)
         _context.pushScope(bind->_idEnvironment);
 
-    if (const ObjectValue *typeEnvironment = _typeEnvironments.value(doc.data())) {
+    if (const ObjectValue *typeEnvironment = _context.typeEnvironment(doc.data()))
         _context.pushScope(typeEnvironment);
-        _context.setTypeEnvironment(typeEnvironment);
-    }
 }
 
 void Link::linkImports()
 {
     foreach (Document::Ptr doc, _docs) {
         ObjectValue *typeEnv = engine()->newObject(/*prototype =*/0); // ### FIXME
-        _typeEnvironments.insert(doc.data(), typeEnv);
 
         // Populate the _typeEnvironment with imports.
         populateImportedTypes(typeEnv, doc);
+
+        _context.setTypeEnvironment(doc.data(), typeEnv);
     }
 }
 

@@ -46,7 +46,6 @@ private:
     Snapshot _snapshot;
     Interpreter::Context _context;
     QList<Document::Ptr> _docs;
-    QHash<Document *, Interpreter::ObjectValue *> _typeEnvironments;
 };
 
 } // namespace QmlJS
