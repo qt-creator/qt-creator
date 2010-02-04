@@ -54,7 +54,7 @@ public:
     void addRestoredEditor(const QString &fileName, const QString &displayName, const QString &id);
     QModelIndex firstRestoredEditor() const;
 
-    struct Entry {
+    struct CORE_EXPORT Entry {
         Entry():editor(0){}
         IEditor *editor;
         QString fileName() const;
