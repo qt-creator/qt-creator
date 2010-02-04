@@ -29,31 +29,26 @@
 
 #include "texteditor_global.h"
 
-#include "texteditorconstants.h"
-#ifndef TEXTEDITOR_STANDALONE
-#include "texteditorplugin.h"
-#include "completionsupport.h"
-#endif
-#include "behaviorsettings.h"
 #include "basetextdocument.h"
 #include "basetexteditor_p.h"
+#include "behaviorsettings.h"
 #include "codecselector.h"
+#include "completionsupport.h"
 #include "tabsettings.h"
+#include "texteditorconstants.h"
+#include "texteditorplugin.h"
 
-#ifndef TEXTEDITOR_STANDALONE
 #include <aggregation/aggregate.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/manhattanstyle.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/manhattanstyle.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
-#include <utils/stylehelper.h>
-#endif
-
 #include <utils/linecolumnlabel.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTextCodec>
@@ -5430,7 +5425,6 @@ void BaseTextEditor::insertFromMimeData(const QMimeData *source)
 BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
   : e(editor)
 {
-#ifndef TEXTEDITOR_STANDALONE
     using namespace Find;
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     BaseTextFind *baseTextFind = new BaseTextFind(editor);
@@ -5439,7 +5433,6 @@ BaseTextEditorEditable::BaseTextEditorEditable(BaseTextEditor *editor)
     connect(baseTextFind, SIGNAL(findScopeChanged(QTextCursor)), editor, SLOT(setFindScope(QTextCursor)));
     aggregate->add(baseTextFind);
     aggregate->add(editor);
-#endif
 
     m_cursorPositionLabel = new Utils::LineColumnLabel;
 

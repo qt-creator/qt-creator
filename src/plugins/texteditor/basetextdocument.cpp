@@ -39,12 +39,10 @@
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QApplication>
 
-#ifndef TEXTEDITOR_STANDALONE
-#include <utils/reloadpromptutils.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#endif
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <utils/reloadpromptutils.h>
 
 using namespace TextEditor;
 
@@ -271,8 +269,6 @@ void BaseTextDocument::modified(Core::IFile::ReloadBehavior *behavior)
         break;
     }
 
-#ifndef TEXTEDITOR_STANDALONE
-
     switch (Utils::reloadPrompt(m_fileName, isModified(), QApplication::activeWindow())) {
     case Utils::ReloadCurrent:
         reload();
@@ -287,7 +283,6 @@ void BaseTextDocument::modified(Core::IFile::ReloadBehavior *behavior)
         *behavior = Core::IFile::ReloadNone;
         break;
     }
-#endif
 }
 
 void BaseTextDocument::setSyntaxHighlighter(QSyntaxHighlighter *highlighter)

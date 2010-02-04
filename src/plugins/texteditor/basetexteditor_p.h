@@ -143,9 +143,7 @@ public:
     BaseTextEditorPrivate();
     ~BaseTextEditorPrivate();
 
-#ifndef TEXTEDITOR_STANDALONE
     void setupBasicEditActions(TextEditorActionHandler *actionHandler);
-#endif
     void setupDocumentSignals(BaseTextDocument *document);
     void updateLineSelectionColor();
 
