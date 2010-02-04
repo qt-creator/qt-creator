@@ -271,7 +271,7 @@ QString MatchingText::insertParagraphSeparator(const QTextCursor &tc) const
         // anonymous namespace
         return QLatin1String("}");
 
-    } else if (token.is(T_CLASS) || token.is(T_STRUCT) || token.is(T_UNION)) {
+    } else if (token.is(T_CLASS) || token.is(T_STRUCT) || token.is(T_UNION) || token.is(T_ENUM)) {
         if (tk[index - 2].is(T_TYPEDEF)) {
             // recognized:
             //   typedef struct {

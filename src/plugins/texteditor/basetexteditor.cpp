@@ -2311,13 +2311,13 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         lineX = fontMetrics().averageCharWidth() * d->m_visibleWrapColumn + offset.x() + 4;
 
         if (lineX < viewportRect.width()) {
-            const QColor backgroundColor = d->m_ifdefedOutFormat.background().color();
+            const QBrush background = d->m_ifdefedOutFormat.background();
             painter.fillRect(QRectF(lineX, er.top(), viewportRect.width() - lineX, er.height()),
-                             backgroundColor);
+                             background);
 
             const QColor col = (palette().base().color().value() > 128) ? Qt::black : Qt::white;
             const QPen pen = painter.pen();
-            painter.setPen(blendColors(backgroundColor, col, 32));
+            painter.setPen(blendColors(background.color(), col, 32));
             painter.drawLine(QPointF(lineX, er.top()), QPointF(lineX, er.bottom()));
             painter.setPen(pen);
         }
