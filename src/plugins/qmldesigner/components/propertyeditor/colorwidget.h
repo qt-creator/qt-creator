@@ -252,10 +252,10 @@ private:
 };
 
 
+} //QmlDesigner
+
 QML_DECLARE_TYPE(QmlDesigner::ColorButton);
 QML_DECLARE_TYPE(QmlDesigner::HueControl);
 QML_DECLARE_TYPE(QmlDesigner::ColorBox);
-
-} //QmlDesigner
 
 #endif //COLORWIDGET_H
