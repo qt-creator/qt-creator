@@ -72,7 +72,7 @@ public:
 protected:
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &parent) const;
 private:
-    const QString m_dot;
+    const QVariant m_dot;
 };
 
 DotRemovalFilter::DotRemovalFilter(QObject *parent) :
@@ -83,11 +83,7 @@ DotRemovalFilter::DotRemovalFilter(QObject *parent) :
 
 bool DotRemovalFilter::filterAcceptsRow(int source_row, const QModelIndex &parent) const
 {
-    // Check for first entry unless we are at '/'.
-    if (source_row || !parent.isValid())
-        return true;
-    const QString fileName = sourceModel()->data(parent.child(source_row, 0)).toString();
-    return fileName != m_dot;
+    return sourceModel()->data(parent.child(source_row, 0)) != m_dot;
 }
 
 class FolderNavigationModel : public QFileSystemModel
