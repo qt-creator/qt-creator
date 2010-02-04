@@ -11,8 +11,8 @@ QWidget {
 
     QLineEdit {
         id: lineEditWidget
-        x: 18
-        width: LineEdit.width - 18
+		styleSheet: "padding-left: 16;"
+        width: LineEdit.width
         height: LineEdit.height
 
         text: backendValue.value
