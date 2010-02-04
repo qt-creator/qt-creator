@@ -1622,7 +1622,7 @@ void TrkGdbAdapter::handleStepOver(const TrkResult &result)
         logMessage("ERROR: " + result.errorString() + "in handleStepOver");
         // Try fallback with Step Into
         QByteArray ba = trkStepRangeMessage(0x01);  // options "step into"
-        sendTrkMessage(0x19, TrkCB(handleStepOver), ba, "Step range");
+        sendTrkMessage(0x19, TrkCB(handleStepOver2), ba, "Step range");
         return;
     }
     logMessage("STEP OVER FINISHED ");
@@ -1633,6 +1633,7 @@ void TrkGdbAdapter::handleStepOver2(const TrkResult &result)
     if (result.errorCode()) {
         logMessage("ERROR: " + result.errorString() + "in handleStepOver2");
         // Try fallback with Continue
+        debugMessage("FALLBACK TO 'CONTINUE'");
         sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
         //sendGdbServerMessage("S05", "Stepping finished");
         return;
