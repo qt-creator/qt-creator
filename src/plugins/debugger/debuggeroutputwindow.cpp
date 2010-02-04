@@ -45,18 +45,13 @@
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextBlock>
 
-#ifndef GDBDEBUGGERLEAN
-
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
 #include <find/basetextfind.h>
 
-using namespace Find;
-
-#endif // GDBDEBUGGERLEAN
-
 using namespace Debugger;
 using namespace Debugger::Internal;
+using namespace Find;
 
 static QChar charForChannel(int channel)
 {
@@ -317,12 +312,9 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_splitter);
-#ifndef GDBDEBUGGERLEAN
     layout->addWidget(new Core::FindToolBarPlaceHolder(this));
-#endif
     setLayout(layout);
 
-#ifndef GDBDEBUGGERLEAN
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(m_combinedText);
     aggregate->add(new BaseTextFind(m_combinedText));
@@ -330,7 +322,6 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
     aggregate = new Aggregation::Aggregate;
     aggregate->add(m_inputText);
     aggregate->add(new BaseTextFind(m_inputText));
-#endif
 
     connect(m_inputText, SIGNAL(statusMessageRequested(QString,int)),
        this, SIGNAL(statusMessageRequested(QString,int)));
