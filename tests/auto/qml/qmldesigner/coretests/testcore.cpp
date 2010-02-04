@@ -150,17 +150,17 @@ void TestCore::testRewriterView()
         testRewriterView->setTextModifier(&textModifier);
         model->attachView(testRewriterView.data());
 
-        ModelNode childNode(rootModelNode.addChildNode("Qt/Item", 4, 6, "data"));
+        ModelNode childNode(addChildNode(rootModelNode, "Qt/Item", 4, 6, "data"));
         QVERIFY(childNode.isValid());
 
         childNode.changeType("Qt/Rectangle", 4, 6);
         childNode.setId("childNode");
 
-        ModelNode childNode2(childNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
+        ModelNode childNode2(addChildNode(childNode, "Qt/Rectangle", 4, 6, "data"));
         childNode2.setId("childNode2");
-        ModelNode childNode3(childNode2.addChildNode("Qt/Rectangle", 4, 6, "data"));
+        ModelNode childNode3(addChildNode(childNode2, "Qt/Rectangle", 4, 6, "data"));
         childNode3.setId("childNode3");
-        ModelNode childNode4(childNode3.addChildNode("Qt/Rectangle", 4, 6, "data"));
+        ModelNode childNode4(addChildNode(childNode3, "Qt/Rectangle", 4, 6, "data"));
         childNode4.setId("childNode4");
 
         QVERIFY(childNode.isValid());
@@ -186,7 +186,7 @@ void TestCore::testRewriterView()
 
         testRewriterView->modelToTextMerger()->applyChanges();
 
-        childNode = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+        childNode = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
         QVERIFY(testRewriterView->modelToTextMerger()->isNodeScheduledForAddition(childNode));
 
         testRewriterView->modelToTextMerger()->applyChanges();
@@ -349,7 +349,7 @@ void TestCore::testModelCreateRect()
     model->attachView(view.data());
 
     QVERIFY(view->rootModelNode().isValid());
-    ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
     QVERIFY(childNode.isValid());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
     QVERIFY(childNode.parentProperty().parentModelNode() == view->rootModelNode());
@@ -423,7 +423,6 @@ void TestCore::loadSubItems()
     model1->attachView(testRewriterView1.data());
 }
 
-
 void TestCore::createInvalidCoreModel()
 {
     QScopedPointer<Model> invalidModel(Model::create("ItemSUX"));
@@ -447,7 +446,7 @@ void TestCore::testModelCreateSubNode()
     QCOMPARE(view->methodCalls(), expectedCalls);
 
     QVERIFY(view->rootModelNode().isValid());
-    ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
     QVERIFY(childNode.isValid());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
     QVERIFY(childNode.parentProperty().parentModelNode() == view->rootModelNode());
@@ -510,7 +509,7 @@ void TestCore::testTypicalRewriterOperations()
 
     QCOMPARE(rootModelNode.bindingProperty("test").expression(), QString("parent.x"));
 
-    ModelNode childNode(rootModelNode.addChildNode("Qt/Rectangle", 4 ,6, "data"));
+    ModelNode childNode(addChildNode(rootModelNode, "Qt/Rectangle", 4 ,6, "data"));
     rootModelNode.nodeListProperty("test").reparentHere(childNode);
     QCOMPARE(childNode.parentProperty(), rootModelNode.nodeAbstractProperty("test"));
     QVERIFY(rootModelNode.property("test").isNodeAbstractProperty());
@@ -699,8 +698,8 @@ void TestCore::testModelBasicOperations()
     QVERIFY(!rootModelNode.hasProperty("width"));
 
     QVERIFY(!rootModelNode.hasProperty("children"));
-    ModelNode childNode1(rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "children"));
-    ModelNode childNode2(rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
+    ModelNode childNode1(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "children"));
+    ModelNode childNode2(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data"));
 
     QVERIFY(childNode1.isValid());
     QVERIFY(childNode2.isValid());
@@ -748,9 +747,9 @@ void TestCore::testModelResolveIds()
     ModelNode rootNode = view->rootModelNode();
     rootNode.setId("rootNode");
 
-    ModelNode childNode1(rootNode.addChildNode("Qt/Rectangle", 4, 6, "children"));
+    ModelNode childNode1(addChildNode(rootNode, "Qt/Rectangle", 4, 6, "children"));
 
-    ModelNode childNode2(childNode1.addChildNode("Qt/Rectangle", 4, 6, "children"));
+    ModelNode childNode2(addChildNode(childNode1, "Qt/Rectangle", 4, 6, "children"));
     childNode2.setId("childNode2");
     childNode2.bindingProperty("test").setExpression("parent.parent");
 
@@ -761,7 +760,7 @@ void TestCore::testModelResolveIds()
     childNode2.bindingProperty("test").setExpression("rootNode");
     QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), rootNode);
 
-    ModelNode childNode3(childNode2.addChildNode("Qt/Rectangle", 4, 6, "children"));
+    ModelNode childNode3(addChildNode(childNode2, "Qt/Rectangle", 4, 6, "children"));
     childNode3.setId("childNode3");
     childNode2.nodeProperty("front").setModelNode(childNode3);
     childNode2.bindingProperty("test").setExpression("childNode3.parent");
@@ -886,8 +885,8 @@ void TestCore::testBasicOperationsWithView()
     QCOMPARE(rootInstance.size().width(), 10.0);
     QCOMPARE(rootInstance.size().height(), 10.0);
 
-    ModelNode childNode(rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
-    ModelNode childNode2(childNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
+    ModelNode childNode(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data"));
+    ModelNode childNode2(addChildNode(childNode, "Qt/Rectangle", 4, 6, "data"));
     QVERIFY(childNode2.parentProperty().parentModelNode() == childNode);
 
     QVERIFY(childNode.isValid());
@@ -922,10 +921,10 @@ void TestCore::testBasicOperationsWithView()
         QVERIFY(!childInstance2.isValid());
     }
 
-    childNode = rootModelNode.addChildNode("Qt/Image", 4, 6, "data");
+    childNode = addChildNode(rootModelNode, "Qt/Image", 4, 6, "data");
     QVERIFY(childNode.isValid());
     QCOMPARE(childNode.type(), QString("Qt/Image"));
-    childNode2 = childNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    childNode2 = addChildNode(childNode, "Qt/Rectangle", 4, 6, "data");
     QVERIFY(childNode2.isValid());
     childNode2.setParentProperty(rootModelNode, "data");
     QVERIFY(childNode2.isValid());
@@ -1097,7 +1096,7 @@ void TestCore::testModelCreateInvalidSubNode()
     model->attachView(view.data());
 
     try {
-        ModelNode invalidChildNode = view->rootModelNode().addChildNode("InvalidNode", 0, 0, "data");
+        ModelNode invalidChildNode = addChildNode(view->rootModelNode(), "InvalidNode", 0, 0, "data");
         QFAIL("Adding an invalid typed node should result in an exception");
     } catch (Exception& exception) {
         QCOMPARE(exception.type(), QString("InvalidModelNodeException"));
@@ -1119,7 +1118,7 @@ void TestCore::testModelRemoveNode()
     QCOMPARE(view->rootModelNode().allDirectSubModelNodes().count(), 0);
 
 
-    ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
     QVERIFY(childNode.isValid());
     QCOMPARE(view->rootModelNode().allDirectSubModelNodes().count(), 1);
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
@@ -1131,7 +1130,7 @@ void TestCore::testModelRemoveNode()
         QVERIFY(childInstance.parent() == nodeInstanceView->instanceForNode(view->rootModelNode()));
     }
 
-    ModelNode subChildNode = childNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode subChildNode = addChildNode(childNode, "Qt/Rectangle", 4, 6, "data");
     QVERIFY(subChildNode.isValid());
     QCOMPARE(childNode.allDirectSubModelNodes().count(), 1);
     QVERIFY(childNode.allDirectSubModelNodes().contains(subChildNode));
@@ -1187,7 +1186,7 @@ void TestCore::reparentingNode()
     NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data());
     model->attachView(nodeInstanceView);
 
-    ModelNode childNode = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
     QCOMPARE(childNode.parentProperty().parentModelNode(), rootModelNode);
     QVERIFY(rootModelNode.allDirectSubModelNodes().contains(childNode));
 
@@ -1197,7 +1196,7 @@ void TestCore::reparentingNode()
         QVERIFY(childInstance.parent() == nodeInstanceView->instanceForNode(view->rootModelNode()));
     }
 
-    ModelNode childNode2 = rootModelNode.addChildNode("Qt/Item", 4, 6, "data");
+    ModelNode childNode2 = addChildNode(rootModelNode, "Qt/Item", 4, 6, "data");
     QCOMPARE(childNode2.parentProperty().parentModelNode(), rootModelNode);
     QVERIFY(rootModelNode.allDirectSubModelNodes().contains(childNode2));
 
@@ -1257,7 +1256,7 @@ void TestCore::reparentingNodeLikeDragAndDrop()
     view->rootModelNode().setId("rootModelNode");
     QCOMPARE(view->rootModelNode().id(), QString("rootModelNode"));
 
-    ModelNode rectNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode rectNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
     rectNode.setId("Rect_1");
     rectNode.variantProperty("x").setValue(20);
     rectNode.variantProperty("y").setValue(30);
@@ -1266,7 +1265,7 @@ void TestCore::reparentingNodeLikeDragAndDrop()
 
     RewriterTransaction transaction(view->beginRewriterTransaction());
 
-    ModelNode textNode = view->rootModelNode().addChildNode("Qt/Text", 4, 6, "data");
+    ModelNode textNode = addChildNode(view->rootModelNode(), "Qt/Text", 4, 6, "data");
     QCOMPARE(textNode.parentProperty().parentModelNode(), view->rootModelNode());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(textNode));
 
@@ -1367,11 +1366,11 @@ void TestCore::testModelReorderSiblings()
     ModelNode rootModelNode = view->rootModelNode();
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode a = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode a = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
     QVERIFY(a.isValid());
-    ModelNode b = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode b = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
     QVERIFY(b.isValid());
-    ModelNode c = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode c = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
     QVERIFY(c.isValid());
 
     {
@@ -1416,10 +1415,10 @@ void TestCore::testModelRootNode()
         ModelNode rootModelNode = view->rootModelNode();
         QVERIFY(rootModelNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
-        ModelNode topChildNode = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+        ModelNode topChildNode = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
         QVERIFY(topChildNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
-        ModelNode childNode = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+        ModelNode childNode = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
         QVERIFY(childNode.isValid());
         QVERIFY(rootModelNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
@@ -1443,8 +1442,8 @@ void TestCore::reparentingNodeInModificationGroup()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
-    ModelNode childNode2 = view->rootModelNode().addChildNode("Qt/Item", 4, 6, "data");
+    ModelNode childNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode2 = addChildNode(view->rootModelNode(), "Qt/Item", 4, 6, "data");
     childNode.variantProperty("x").setValue(10);
     childNode.variantProperty("y").setValue(10);
 
@@ -1559,7 +1558,7 @@ void TestCore::testModelViewNotification()
     QCOMPARE(view1->methodCalls(), expectedCalls);
     QCOMPARE(view2->methodCalls(), expectedCalls);
 
-    ModelNode childNode = view2->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(view2->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
     expectedCalls << TestView::MethodCall("nodeCreated", QStringList() << "");
     expectedCalls << TestView::MethodCall("nodeReparented", QStringList() << "" << "data" << "" << "PropertiesAdded");
     QCOMPARE(view1->methodCalls(), expectedCalls);
@@ -1619,7 +1618,7 @@ void TestCore::testRewriterTransaction()
     RewriterTransaction transaction = view->beginRewriterTransaction();
     QVERIFY(transaction.isValid());
 
-    ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
     QVERIFY(childNode.isValid());
 
     childNode.destroy();
@@ -1629,7 +1628,7 @@ void TestCore::testRewriterTransaction()
         RewriterTransaction transaction2 = view->beginRewriterTransaction();
         QVERIFY(transaction2.isValid());
 
-        ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+        ModelNode childNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
         QVERIFY(childNode.isValid());
 
         childNode.destroy();
@@ -1727,12 +1726,12 @@ void TestCore::testRewriterNodeReparentingTransaction1()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode childNode1 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-    ModelNode childNode2 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-    ModelNode childNode3 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-    ModelNode childNode4 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode1 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode2 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode3 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode4 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
 
-    ModelNode reparentNode = childNode1.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode reparentNode = addChildNode(childNode1, "Qt/Rectangle", 4, 6, "data");
 
     RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -1772,8 +1771,8 @@ void TestCore::testRewriterNodeReparentingTransaction2()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode childNode1 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-    ModelNode childNode2 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode1 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode2 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
 
     childNode2.variantProperty("x") = 200;
     childNode2.variantProperty("y") = 50;
@@ -1838,10 +1837,10 @@ void TestCore::testRewriterNodeReparentingTransaction3()
 
    QVERIFY(rootModelNode.isValid());
 
-   ModelNode childNode1 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-   ModelNode childNode2 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-   ModelNode childNode3 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-   ModelNode childNode4 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode1 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode2 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode3 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode4 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
 
    RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -1888,11 +1887,11 @@ void TestCore::testRewriterNodeReparentingTransaction4()
 
    QVERIFY(rootModelNode.isValid());
 
-   ModelNode childNode1 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-   ModelNode childNode2 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-   ModelNode childNode3 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-   ModelNode childNode4 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
-   ModelNode childNode5 = childNode2.addChildNode("Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode1 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode2 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode3 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode4 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
+   ModelNode childNode5 = addChildNode(childNode2, "Qt/Rectangle", 4, 6, "data");
 
    RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -1940,7 +1939,7 @@ void TestCore::testRewriterAddNodeTransaction()
     QVERIFY(rootModelNode.isValid());
 
 
-    ModelNode childNode = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
 
     RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -2022,7 +2021,7 @@ void TestCore::testRewriterTransactionRewriter()
 
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
-        childNode1 = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+        childNode1 = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
         childNode1.variantProperty("x") = "10";
         childNode1.variantProperty("y") = "10";
     }
@@ -2034,7 +2033,7 @@ void TestCore::testRewriterTransactionRewriter()
 
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
-        childNode2 = childNode1.addChildNode("Qt/Rectangle", 4, 6, "data");
+        childNode2 = addChildNode(childNode1, "Qt/Rectangle", 4, 6, "data");
         childNode2.destroy();
     }
 
@@ -2399,7 +2398,7 @@ void TestCore::testRewriterPreserveType()
     textNode.variantProperty("font.bold") = QVariant(true);
     textNode.variantProperty("font.pointSize") = QVariant(13.0);
 
-    ModelNode newTextNode = rootNode.addChildNode("Qt/Text", 4, 6, "data");
+    ModelNode newTextNode = addChildNode(rootNode, "Qt/Text", 4, 6, "data");
 
     newTextNode.variantProperty("font.bold") = QVariant(true);
     newTextNode.variantProperty("font.pointSize") = QVariant(13.0);
@@ -3051,7 +3050,7 @@ void TestCore::testMetaInfo()
     QVERIFY(!view->rootModelNode().metaInfo().property("blah").isValid());
     QVERIFY(view->rootModelNode().metaInfo().isContainer());
 
-    ModelNode rectNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode rectNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
 
     QVERIFY(rectNode.metaInfo().isSubclassOf("Qt/QtObject"));
     QVERIFY(rectNode.metaInfo().isSubclassOf("Qt/Item"));
@@ -3061,7 +3060,7 @@ void TestCore::testMetaInfo()
     QVERIFY(!rectNode.metaInfo().hasProperty("blah"));
     QVERIFY(rectNode.metaInfo().isContainer());
 
-    ModelNode textNode = view->rootModelNode().addChildNode("Qt/TextEdit", 4, 6, "data");
+    ModelNode textNode = addChildNode(view->rootModelNode(), "Qt/TextEdit", 4, 6, "data");
     NodeMetaInfo textNodeMetaInfo = textNode.metaInfo();
     QVERIFY(textNodeMetaInfo.hasProperty("text"));
     QVERIFY(textNodeMetaInfo.property("text").isValid());
@@ -3105,7 +3104,7 @@ void TestCore::testMetaInfoDotProperties()
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font.pointSize", true));
     QVERIFY(view->rootModelNode().metaInfo().property("font.pointSize", true).isValid());
 
-    ModelNode rectNode(view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data"));
+    ModelNode rectNode(addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data"));
 
 
     QVERIFY(rectNode.metaInfo().properties(true).keys().contains("pos.x"));
@@ -3249,7 +3248,7 @@ void TestCore::testGradientsRewriter()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode rectNode(rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
+    ModelNode rectNode(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data"));
 
     const QLatin1String expected1("\nimport Qt 4.6\n"
                                   "\n"
@@ -3259,7 +3258,7 @@ void TestCore::testGradientsRewriter()
                                   "}\n");
     QCOMPARE(textEdit.toPlainText(), expected1);
 
-    ModelNode gradientNode(rectNode.addChildNode("Qt/Gradient", 4, 6, "gradient"));
+    ModelNode gradientNode(addChildNode(rectNode, "Qt/Gradient", 4, 6, "gradient"));
 
     QVERIFY(rectNode.hasNodeProperty("gradient"));
 
@@ -3900,11 +3899,11 @@ void TestCore::testQmlModelStatesInvalidForRemovedNodes()
     QVERIFY(state1.isValid());
     QCOMPARE(state1.name(), QString("state1"));
 
-    ModelNode childNode = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
     QVERIFY(childNode.isValid());
     childNode.setId("childNode");
 
-    ModelNode subChildNode = childNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode subChildNode = addChildNode(childNode, "Qt/Rectangle", 4, 6, "data");
     QVERIFY(subChildNode.isValid());
     subChildNode.setId("subChildNode");
 
@@ -3932,7 +3931,7 @@ void TestCore::testInstancesAttachToExistingModel()
     model->attachView(view.data());
 
     ModelNode rootNode = view->rootModelNode();
-    ModelNode rectangleNode = rootNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode rectangleNode = addChildNode(rootNode, "Qt/Rectangle", 4, 6, "data");
 
     rectangleNode.variantProperty("width").setValue(100);
 
@@ -4216,12 +4215,12 @@ void TestCore::defaultPropertyValues()
     QCOMPARE(view->rootModelNode().variantProperty("x").value().toDouble(), 0.0);
     QCOMPARE(view->rootModelNode().variantProperty("width").value().toDouble(), 0.0);
 
-    ModelNode rectNode(view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data"));
+    ModelNode rectNode(addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data"));
 
     QCOMPARE(rectNode.variantProperty("y").value().toDouble(), 0.0);
     QCOMPARE(rectNode.variantProperty("width").value().toDouble(), 0.0);
 
-    ModelNode imageNode(view->rootModelNode().addChildNode("Qt/Image", 4, 6, "data"));
+    ModelNode imageNode(addChildNode(view->rootModelNode(), "Qt/Image", 4, 6, "data"));
 
     QCOMPARE(imageNode.variantProperty("y").value().toDouble(), 0.0);
     QCOMPARE(imageNode.variantProperty("width").value().toDouble(), 0.0);
@@ -4259,7 +4258,7 @@ void TestCore::testModelNodeInHierarchy()
     model->attachView(view.data());
 
     QVERIFY(view->rootModelNode().isInHierarchy());
-    ModelNode node1 = view->rootModelNode().addChildNode("Qt/Item", 4, 6, "data");
+    ModelNode node1 = addChildNode(view->rootModelNode(), "Qt/Item", 4, 6, "data");
     QVERIFY(node1.isInHierarchy());
     ModelNode node2 = view->createModelNode("Qt/Item", 4, 6);
     QVERIFY(!node2.isInHierarchy());
@@ -4294,11 +4293,11 @@ void TestCore::testModelNodeIsAncestorOf()
     model->attachView(view.data());
 
     view->rootModelNode().setId("item1");
-    ModelNode item2 = view->rootModelNode().addChildNode("Qt/Item", 4, 6, "data");
+    ModelNode item2 = addChildNode(view->rootModelNode(), "Qt/Item", 4, 6, "data");
     item2.setId("item2");
-    ModelNode item3 = view->rootModelNode().addChildNode("Qt/Item", 4, 6, "data");
+    ModelNode item3 = addChildNode(view->rootModelNode(), "Qt/Item", 4, 6, "data");
     item3.setId("item3");
-    ModelNode item4 = item3.addChildNode("Qt/Item", 4, 6, "data");
+    ModelNode item4 = addChildNode(item3, "Qt/Item", 4, 6, "data");
     item4.setId("item4");
 
     QVERIFY(view->rootModelNode().isAncestorOf(item2));
@@ -4667,7 +4666,7 @@ void TestCore::testModelBindings()
     QCOMPARE(rootInstance.size().width(), 200.0);
     QCOMPARE(rootInstance.size().height(), 100.0);
 
-    ModelNode childNode = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
 
     childNode.variantProperty("width") = 100;
     childNode.variantProperty("height") = 100;
@@ -4830,10 +4829,10 @@ void TestCore::testModelSliding()
 
     ModelNode rootModelNode(view->rootModelNode());
 
-    ModelNode rect00(rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
-    ModelNode rect01(rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
-    ModelNode rect02(rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
-    ModelNode rect03(rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
+    ModelNode rect00(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data"));
+    ModelNode rect01(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data"));
+    ModelNode rect02(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data"));
+    ModelNode rect03(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data"));
 
     QVERIFY(rect00.isValid());
     QVERIFY(rect01.isValid());
@@ -5471,8 +5470,8 @@ void TestCore::testRewriterRemoveObjectDefinition()
 
     // don't crash when deleting nodes not in any hierarchy
     ModelNode node1 = view->createModelNode("Qt/Rectangle", 4, 6);
-    ModelNode node2 = node1.addChildNode("Qt/Item", 4, 6, "data");
-    ModelNode node3 = node2.addChildNode("Qt/Item", 4, 6, "data");
+    ModelNode node2 = addChildNode(node1, "Qt/Item", 4, 6, "data");
+    ModelNode node3 = addChildNode(node2, "Qt/Item", 4, 6, "data");
 
     node3.destroy();
     node1.destroy();
@@ -5998,7 +5997,7 @@ void TestCore::changePropertyBinding()
     ModelNode rootModelNode(view->rootModelNode());
     rootModelNode.variantProperty("width") = 20;
 
-    ModelNode firstChild = rootModelNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode firstChild = addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data");
     firstChild.bindingProperty("width").setExpression(QString("parent.width"));
     firstChild.variantProperty("height")=  10;
     QVERIFY(firstChild.isValid());
@@ -6207,7 +6206,7 @@ void TestCore::changeGradientId()
         firstStop.destroy();
         QVERIFY(!firstStop.isValid());
 
-        ModelNode gradientStop  = gradientNode.addChildNode("Qt/GradientStop", 4, 6, "stops");
+        ModelNode gradientStop  = addChildNode(gradientNode, "Qt/GradientStop", 4, 6, "stops");
         gradientStop.variantProperty("position") = 0.5;
         gradientStop.variantProperty("color") = QColor("yellow");
 

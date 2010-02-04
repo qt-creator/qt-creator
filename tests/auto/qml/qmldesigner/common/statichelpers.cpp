@@ -61,6 +61,13 @@ static void testMessageOutput(QtMsgType type, const char *msg)
      }
  }
 
+static ModelNode addChildNode(const ModelNode &parentNode, const QString &typeName, int major, int minor, const QString &parentProperty)
+{
+    ModelNode newNode = parentNode.view()->createModelNode(typeName, major, minor);
+    parentNode.nodeListProperty(parentProperty).reparentHere(newNode);
+    return newNode;
+}
+
 static QString bareTemplate("import Qt 4.6\n"
                             "Item { id: parentItem;"
                             "  %1"
