@@ -158,7 +158,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryInfo &itemLibraryRe
 
         QString id;
         int i = 1;
-        QString name(itemLibraryRepresentation.name());
+        QString name(itemLibraryRepresentation.name().toLower());
         name.remove(QLatin1Char(' '));
         do {
             id = name + QString::number(i);
