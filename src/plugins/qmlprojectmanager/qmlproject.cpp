@@ -291,11 +291,13 @@ QStringList QmlProject::files(FilesMode) const
 
 bool QmlProject::fromMap(const QVariantMap &map)
 {
-    Project::fromMap(map);
+    if (!Project::fromMap(map))
+        return false;
 
     if (runConfigurations().isEmpty()) {
         QmlRunConfiguration *runConf = new QmlRunConfiguration(this);
         addRunConfiguration(runConf);
+        setActiveRunConfiguration(runConf);
     }
 
     refresh(Everything);
