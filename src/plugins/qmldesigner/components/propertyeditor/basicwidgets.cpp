@@ -37,8 +37,6 @@
 #include <QFile>
 #include <QPixmap>
 #include <QTimeLine>
-#include "colorwidget.h"
-#include "filewidget.h"
 #include <QFileInfo>
 #include <QMenu>
 #include <QAction>

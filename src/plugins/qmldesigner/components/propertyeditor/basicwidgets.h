@@ -54,7 +54,6 @@
 #include <QCalendarWidget>
 #include <QTabWidget>
 #include <QAction>
-#include "colorwidget.h"
 #include "filewidget.h"
 #include "layoutwidget.h"
 
