@@ -28,13 +28,11 @@
 **************************************************************************/
 
 #include "colorwidget.h"
-#include "qtcolorline.h"
-#include "qtcolorbutton.h"
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QToolButton>
 #include <QGradient>
-#include <qtgradientdialog.h>
+#include <QPainter>
 #include <QtDebug>
 #include <modelnode.h>
 #include <abstractview.h>
@@ -43,217 +41,151 @@
 #include <variantproperty.h>
 #include <qmlobjectnode.h>
 
-QML_DEFINE_TYPE(Bauhaus,1,0,ColorWidget,QmlDesigner::ColorWidget);
+QML_DEFINE_TYPE(Bauhaus,1,0,ColorButton,QmlDesigner::ColorButton);
+QML_DEFINE_TYPE(Bauhaus,1,0,HueControl,QmlDesigner::HueControl);
+QML_DEFINE_TYPE(Bauhaus,1,0,ColorBox,QmlDesigner::ColorBox);
+
 
 namespace QmlDesigner {
 
-ColorWidget::ColorWidget(QWidget *parent) :
-        QWidget(parent),
-        m_label(new QLabel(this)),
-        m_colorButton(new QtColorButton(this)),
-        m_gradientButton(new QToolButton(this))
+void ColorButton::paintEvent(QPaintEvent *event)
 {
-    QHBoxLayout *horizonalBoxLayout = new QHBoxLayout(this);
-
-    m_colorButton->setFixedHeight(32);
-    m_colorButton->setStyleSheet("");
-
-    m_gradientButton->setIcon(QIcon(":/images/gradient.png"));
-
-    m_gradientButton->setFixedHeight(32);
-    m_gradientButton->setFixedWidth(100);
-    m_gradientButton->setStyleSheet("");
-
-    QFont f = m_label->font();
-    f.setBold(true);
-    m_label->setFont(f);
-    m_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    horizonalBoxLayout->addWidget(m_label);
-    horizonalBoxLayout->addWidget(m_colorButton);
-    horizonalBoxLayout->addWidget(m_gradientButton);
-    horizonalBoxLayout->setSpacing(20);
-    horizonalBoxLayout->setMargin(0);
-    m_gradientButton->setCheckable(true);
-    m_gradientButton->setVisible(false);
-    connect(m_colorButton, SIGNAL(colorChanged(QColor)), this, SLOT(setColor(QColor)));
-    connect(m_gradientButton, SIGNAL(toggled(bool)), SLOT(openGradientEditor(bool)));
-}
-
-ColorWidget::~ColorWidget()
-{
-}
-
-QString ColorWidget::text() const
-{
-    if (m_label)
-        return m_label->text();
-    else
-        return QString();
-}
-
-QColor ColorWidget::color() const
-{
-    return m_color;
-}
-
-void ColorWidget::setColor(const QColor &color)
-{
-    if (m_color == color)
+    QToolButton::paintEvent(event);
+    if (!isEnabled())
         return;
-    bool valid = m_color.isValid();
-    m_color = color;
-    m_colorButton->setColor(color);
-    if (valid)
-        emit colorChanged(color);
-}
 
-QString ColorWidget::strColor() const
-{
-    return m_color.name();
-}
+    QColor color(m_colorString);
 
-void ColorWidget::setText(const QString &text)
-{
-    if (m_label)
-        m_label->setText(text);
-}
+    const int pixSize = 8;
 
-ModelNode ColorWidget::gradientNode() const
-{
-    return m_gradientNode;
-}
+    QPainter p(this);
 
-QGradient ColorWidget::gradient() const
-{
-    if (!m_gradientNode.isValid()) {
-        return QGradient();
-    }
+    QRect r(0, 0, width(), height());
+    if (isEnabled())
+        p.setBrush(color);
+    else
+        p.setBrush(Qt::transparent);
+    p.setPen(Qt::black);
+    p.drawRect(r);
 
-    if (m_gradientNode.type() != "Qt/Gradient") {
-        qWarning() << "ColorWidget: gradient node is of wrong type";
-        return QGradient();
-    }
-
-    QLinearGradient gradient;
-
-    QGradientStops oldStops;
-
-    //QVariantList stopList(m_modelState.nodeState(m_gradientNode).property("stops").value().toList()); /###
-    foreach (const ModelNode &stopNode, m_gradientNode.nodeListProperty("stops").toModelNodeList()) {
-            oldStops.append(QPair<qreal, QColor>(stopNode.variantProperty("position").value().toReal(), stopNode.variantProperty("color").value().value<QColor>()));
-        }
-    gradient.setStops(oldStops);
-
-    return gradient;
-}
-
-void ColorWidget::setGradientNode(const ModelNode &gradient)
-{
-    m_gradientNode = gradient;
-}
-
-bool ColorWidget::gradientButtonShown() const
-{
-    return m_gradientButton->isVisible();
-}
-
-void ColorWidget::setShowGradientButton(bool showButton)
-{
-    m_gradientButton->setVisible(showButton);
-    if (showButton && layout()->children().contains(m_gradientButton))
-        layout()->removeWidget(m_gradientButton);
-    else if (showButton && !layout()->children().contains(m_gradientButton) )
-        layout()->addWidget(m_gradientButton);
-}
-
-void ColorWidget::openGradientEditor(bool show)
-{
-    if (show && m_gradientDialog.isNull()) {
-        m_gradientDialog = new QtGradientDialog(this);
-        m_gradientDialog->setAttribute(Qt::WA_DeleteOnClose);
-        m_gradientDialog->setGradient(gradient());
-        m_gradientDialog->show();
-        connect(m_gradientDialog.data(), SIGNAL(accepted()), SLOT(updateGradientNode()));
-        connect(m_gradientDialog.data(), SIGNAL(destroyed()), SLOT(resetGradientButton()));
+    QVector<QPointF> points;
+    if (isChecked()) {
+        points.append(QPointF(2, 3));
+        points.append(QPointF(8, 3));
+        points.append(QPointF(5, 9));
     } else {
-        delete m_gradientDialog.data();
+        points.append(QPointF(8, 6));
+        points.append(QPointF(2, 9));
+        points.append(QPointF(2, 3));
     }
+    p.setPen("#707070");
+    p.setBrush(Qt::white);
+    p.drawPolygon(points);
 }
 
-void ColorWidget::updateGradientNode()
+
+void HueControl::setCurrent(int y)
 {
-    QGradient gradient(m_gradientDialog->gradient());
+       QColor oldColor(m_colorString);
+       oldColor.toHsv();
+       QColor newColor;
+       newColor.setHsvF(qreal(y) / 120.0, oldColor.hsvSaturationF(), oldColor.valueF());
 
-    ModelNode gradientNode;
+       QString newColorStr = QVariant(newColor).toString();
+       setColor(newColorStr);
+       setHue(qreal(y) / 120.0);
+}
 
-    if (m_modelNode.hasNodeProperty("gradient"))
-        m_gradientNode = m_modelNode.nodeProperty("gradient").modelNode();
+void HueControl::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);    
 
-    if (m_gradientNode.isValid() && m_gradientNode.type() == "Qt/Gradient") {
-        gradientNode = m_gradientNode;
-    } else {
-        if (m_modelNode.hasProperty("gradient")) {
-            m_modelNode.removeProperty("gradient");
+    QColor color(m_colorString);
+    color.toHsv();
+
+    QPainter p(this);
+
+    int height = 120;
+
+    if (m_cache.isNull()) {
+        m_cache = QPixmap(10, height);
+
+        QPainter cacheP(&m_cache);
+
+        for (int i = 0; i < height; i++)
+        {
+            QColor c;
+            c.setHsvF(qreal(i) / 120.0, 1,1.0);
+            cacheP.fillRect(0, i, 10, i + 1, c);
         }
-        gradientNode =  m_modelNode.view()->createModelNode("Qt/Gradient", 4, 6);
-        m_modelNode.nodeProperty("gradient").reparentHere(gradientNode);
-        m_gradientNode = gradientNode;
     }
 
-    if (QmlObjectNode(m_gradientNode).isInBaseState()) {
+    p.drawPixmap(10, 5, m_cache);
 
-        NodeListProperty stops(gradientNode.nodeListProperty("stops"));
+    QVector<QPointF> points;
 
-        foreach (ModelNode node, stops.allSubNodes())
-            node.destroy();
+    int y = hue() * 120 + 5;
 
-        if (gradientNode.hasProperty("stops"))
-            gradientNode.removeProperty("stops");
+    points.append(QPointF(15, y));
+    points.append(QPointF(25, y + 5));
+    points.append(QPointF(25, y - 5));
 
-        foreach(const QGradientStop &stop, gradient.stops()) {
-            QList<QPair<QString, QVariant> > propertyList;
+    p.setPen(Qt::black);
+    p.setBrush(QColor("#707070"));
+    p.drawPolygon(points);
+}
 
-            qreal p = stop.first * 100;
-            int ip = qRound(p);
-            p = qreal(ip) / 100;
+void ColorBox::setCurrent(int x, int y)
+{
 
-            ModelNode gradientStop(gradientNode.view()->createModelNode("Qt/GradientStop", 4, 6));
-            stops.reparentHere(gradientStop);
-            gradientStop.variantProperty("position").setValue(p);
-            gradientStop.variantProperty("color").setValue(stop.second.name());
-        }
-    } else { //not in base state
-        //## TODO
+      QColor oldColor(m_colorString);
+       oldColor.toHsv();
+       QColor newColor;
+       newColor.setHsvF(hue(), qreal(x) / 120, 1.0 - qreal(y) / 120);
+
+       QString newColorStr = QVariant(newColor).toString();
+       setColor(newColorStr);
+}
+
+void ColorBox::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+
+    QPainter p(this);
+    QColor color(m_colorString);
+
+    if (m_hue != (m_lastHue) || (m_cache.isNull())) {
+        m_lastHue = m_hue;
+        m_cache = QPixmap(120, 120);
+
+        
+        color.toHsv();
+
+        int height = 120;
+        int width = 120;
+
+        QPainter chacheP(&m_cache);
+
+        if (color.hsvHueF() < 0)
+            color.setHsvF(hue(), color.hsvSaturationF(), color.valueF());
+
+        for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+            {
+                QColor c;
+                c.setHsvF(color.hsvHueF(), qreal(x) / 120, 1.0 - qreal(y) / 120);
+                chacheP.setPen(c);
+                chacheP.drawPoint(x ,y);
+            }
     }
-}
 
-void ColorWidget::resetGradientButton()
-{
-    m_gradientButton->setChecked(false);
-}
+    p.drawPixmap(5, 5, m_cache);
 
-void ColorWidget::setModelNode(const ModelNode &modelNode)
-{
-    if (m_modelNode != modelNode) {
-        m_modelNode = modelNode;
-        emit modelNodeChanged();
-    }
-}
+    int x = color.hsvSaturationF() * 120 + 5;
+    int y = 120 - color.valueF() * 120 + 5;
 
-ModelNode ColorWidget::modelNode() const
-{
-    return m_modelNode;
-}
-
-PropertyEditorNodeWrapper* ColorWidget::complexGradientNode() const
-{
-    return m_complexGradientNode;
-}
-
-void ColorWidget::setComplexGradientNode(PropertyEditorNodeWrapper* complexNode)
-{
-    m_complexGradientNode = complexNode;
-    setModelNode(complexNode->parentModelNode());
+    p.setPen(Qt::white);
+    p.drawEllipse(x - 2, y - 2, 4, 4);
 }
 
 }

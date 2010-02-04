@@ -33,6 +33,8 @@
 #include <QWeakPointer>
 #include <QtGui/QWidget>
 #include <QLabel>
+#include <QToolButton>
+#include <QMouseEvent>
 #include <modelnode.h>
 #include <qml.h>
 #include <propertyeditorvalue.h>
@@ -40,69 +42,220 @@
 
 class QtColorButton;
 class QToolButton;
-class QtGradientDialog;
 
 namespace QmlDesigner {
 
-class ColorWidget : public QWidget
-{
-    Q_OBJECT
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
-    Q_PROPERTY(QColor strColor READ strColor)
-    Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(QmlDesigner::ModelNode gradient READ gradientNode WRITE setGradientNode NOTIFY gradientNodeChanged)
-    Q_PROPERTY(bool showGradientButton READ gradientButtonShown WRITE setShowGradientButton)
-    Q_PROPERTY(QmlDesigner::ModelNode modelNode READ modelNode WRITE setModelNode NOTIFY modelNodeChanged)
-    Q_PROPERTY(PropertyEditorNodeWrapper* complexGradientNode READ complexGradientNode WRITE setComplexGradientNode)
+class ColorButton : public QToolButton {
+
+Q_OBJECT
+
+Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
+
 public:
 
-    ColorWidget(QWidget *parent = 0);
-    ~ColorWidget();
+    ColorButton(QWidget *parent = 0) : QToolButton (parent), m_colorString("#ffffff")
+    {
+    }
 
-    QColor color() const;
-    QString text() const;
-    QString strColor() const;
-    void setText(const QString &text);
-    ModelNode gradientNode() const;
-    bool gradientButtonShown() const;
-    void setShowGradientButton(bool showButton);
+    void setColor(const QString &colorStr)
+    {
+        if (m_colorString == colorStr)
+            return;
 
-    void setModelNode(const ModelNode &modelNode);
-    ModelNode modelNode() const;
+        m_colorString = colorStr;
+        update();
+        emit colorChanged();
+    }
 
-    PropertyEditorNodeWrapper* complexGradientNode() const;
-    void setComplexGradientNode(PropertyEditorNodeWrapper* complexNode);
-
-public slots:
-    void setColor(const QColor &color);
-    void setGradientNode(const QmlDesigner::ModelNode &gradient);
+    QString color() const
+    {
+        return m_colorString;
+    }
 
 signals:
-    void colorChanged(const QColor &color);
-    void gradientNodeChanged();
-    void modelStateChanged();
-    void modelNodeChanged();
+    void colorChanged();
 
 protected:
-    QGradient gradient() const;
-
-private slots:
-    void openGradientEditor(bool show);
-    void updateGradientNode();
-    void resetGradientButton();
+    void paintEvent(QPaintEvent *event);
 private:
-    QColor m_color;
-    ModelNode m_gradientNode;
-    ModelNode m_modelNode;
-    QWeakPointer<QtGradientDialog> m_gradientDialog;
-    QLabel *m_label;
-    QtColorButton *m_colorButton;
-    QToolButton *m_gradientButton;
-    PropertyEditorNodeWrapper* m_complexGradientNode;
+    QString m_colorString;
 };
 
+class ColorBox : public QWidget
+{
+Q_OBJECT
+
+Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
+Q_PROPERTY(qreal hue READ hue WRITE setHue NOTIFY hueChanged)
+
+public:
+
+ColorBox(QWidget *parent = 0) : QWidget(parent), m_colorString("#ffffff"), m_hue(0), m_lastHue(0)
+{
+    setFixedWidth(130);
+    setFixedHeight(130);
 }
 
-QML_DECLARE_TYPE(QmlDesigner::ColorWidget);
+void setHue(qreal newHue)
+{
+    if (m_hue == newHue)
+        return;
 
-#endif
+    m_hue = newHue;
+    update();
+    emit hueChanged();
+}
+
+qreal hue() const
+{
+    return m_hue;
+}
+
+void setColor(const QString &colorStr)
+{
+    if (m_colorString == colorStr)
+        return;
+
+    m_colorString = colorStr;
+    update();
+    qreal newHue = QColor(m_colorString).hsvHueF();
+    if (newHue >= 0)
+        setHue(newHue);
+    emit colorChanged();
+}
+
+QString color() const
+{
+    return m_colorString;
+}
+
+signals:
+    void colorChanged();
+    void hueChanged();
+
+protected:
+    void paintEvent(QPaintEvent *event);
+
+    void mousePressEvent(QMouseEvent *e)
+    {
+        // The current cell marker is set to the cell the mouse is pressed in
+        QPoint pos = e->pos();
+        m_mousePressed = true;
+        setCurrent(pos.x() - 5, pos.y() - 5);
+    }
+
+    void mouseReleaseEvent(QMouseEvent * /* event */)
+    {
+        m_mousePressed = false;
+    }
+
+void mouseMoveEvent(QMouseEvent *e)
+{
+    if (!m_mousePressed)
+        return;
+    QPoint pos = e->pos();
+    setCurrent(pos.x() - 5, pos.y() - 5);
+}
+
+void setCurrent(int x, int y);
+
+
+private:
+    QString m_colorString;
+    bool m_mousePressed;
+    qreal m_hue;
+    qreal m_lastHue;
+    QPixmap m_cache;
+};
+
+class HueControl : public QWidget
+{
+Q_OBJECT
+
+Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
+Q_PROPERTY(qreal hue READ hue WRITE setHue NOTIFY hueChanged)
+
+public:
+
+HueControl(QWidget *parent = 0) : QWidget(parent), m_colorString("#ffffff"), m_mousePressed(false), m_hue(0)
+{
+    setFixedWidth(40);
+    setFixedHeight(130);
+}
+
+void setHue(qreal newHue)
+{
+    if (m_hue == newHue)
+        return;
+
+    m_hue = newHue;
+    update();
+    emit hueChanged();
+}
+
+qreal hue() const
+{
+    return m_hue;
+}
+
+void setColor(const QString &colorStr)
+{
+    if (m_colorString == colorStr)
+        return;
+
+    m_colorString = colorStr;
+    update();
+    emit colorChanged();
+}
+
+QString color() const
+{
+    return m_colorString;
+}
+
+signals:
+    void colorChanged();
+    void hueChanged();
+
+protected:
+    void paintEvent(QPaintEvent *event);
+
+    void mousePressEvent(QMouseEvent *e)
+    {
+        // The current cell marker is set to the cell the mouse is pressed in
+        QPoint pos = e->pos();
+        m_mousePressed = true;
+        setCurrent(pos.y() - 5);
+    }
+
+    void mouseReleaseEvent(QMouseEvent * /* event */)
+    {
+        m_mousePressed = false;
+    }
+
+void mouseMoveEvent(QMouseEvent *e)
+{
+    if (!m_mousePressed)
+        return;
+    QPoint pos = e->pos();
+    setCurrent(pos.y() - 5);
+}
+
+void setCurrent(int y);
+
+
+private:
+    QString m_colorString;
+    bool m_mousePressed;
+    qreal m_hue;
+    QPixmap m_cache;
+};
+
+
+QML_DECLARE_TYPE(QmlDesigner::ColorButton);
+QML_DECLARE_TYPE(QmlDesigner::HueControl);
+QML_DECLARE_TYPE(QmlDesigner::ColorBox);
+
+} //QmlDesigner
+
+#endif //COLORWIDGET_H
