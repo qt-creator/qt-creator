@@ -689,7 +689,7 @@ Context::~Context()
 {
 }
 
-void Context::build(AST::Node *node, Document::Ptr doc, const Snapshot &snapshot)
+void Context::build(Node *node, QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot)
 {
     Link link(this, doc, snapshot);
     link.scopeChainAt(doc, node);
@@ -715,12 +715,12 @@ void Context::setLookupMode(LookupMode lookupMode)
     _lookupMode = lookupMode;
 }
 
-const ObjectValue *Context::typeEnvironment(const Document *doc) const
+const ObjectValue *Context::typeEnvironment(const QmlJS::Document *doc) const
 {
     return _typeEnvironments.value(doc, 0);
 }
 
-void Context::setTypeEnvironment(const Document *doc, const ObjectValue *typeEnvironment)
+void Context::setTypeEnvironment(const QmlJS::Document *doc, const ObjectValue *typeEnvironment)
 {
     _typeEnvironments[doc] = typeEnvironment;
 }
@@ -750,7 +750,7 @@ const Value *Context::lookup(const QString &name)
     return _engine->undefinedValue();
 }
 
-const ObjectValue *Context::lookupType(const Document *doc, UiQualifiedId *qmlTypeName)
+const ObjectValue *Context::lookupType(const QmlJS::Document *doc, UiQualifiedId *qmlTypeName)
 {
     const ObjectValue *objectValue = typeEnvironment(doc);
 
@@ -1999,7 +1999,7 @@ bool ASTFunctionValue::isVariadic() const
     return true;
 }
 
-QmlPrototypeReference::QmlPrototypeReference(UiQualifiedId *qmlTypeName, const Document *doc,
+QmlPrototypeReference::QmlPrototypeReference(UiQualifiedId *qmlTypeName, const QmlJS::Document *doc,
                                              Engine *engine)
     : Reference(engine),
       _qmlTypeName(qmlTypeName),
