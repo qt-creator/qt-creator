@@ -30,13 +30,12 @@ QLabel {
 QScrollArea {
      border: 0px;
      border-radius: 0px;
-     background-color: #4a4a4a;
+     background-color: #4f4f4f;
 }
 
 QGroupBox 
 {
-background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
-                                       stop: 0 #4a4a4a, stop: 1 #4f4f4f);
+	 background-color: #4f4f4f;
      border: 1px solid #4F4F4F;
      color: white;
      font: bold 
@@ -332,7 +331,7 @@ QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off, QDoubleSpinBox::up-arrow:di
 
 QCheckBox {
     spacing: 4px;
-	padding-left: 14px;
+	padding-right: 14px;
     font-size: 11px;
 }
 
