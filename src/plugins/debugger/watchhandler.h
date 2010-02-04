@@ -117,6 +117,7 @@ public:
 
     static QString msgNotInScope();
     static QString shadowedName(const QString &name, int seen);
+    static const QString &shadowedNameFormat();
 
 public:
     QByteArray iname;     // internal name sth like 'local.baz.public.a'

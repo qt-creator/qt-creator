@@ -31,12 +31,13 @@
 #define CDBSYMBOLGROUPCONTEXT_H
 
 #include "cdbcom.h"
-#include "watchhandler.h"
+#include "symbolgroupcontext.h"
 
 #include <QtCore/QString>
 #include <QtCore/QVector>
 #include <QtCore/QList>
 #include <QtCore/QStringList>
+#include <QtCore/QSharedPointer>
 #include <QtCore/QPair>
 #include <QtCore/QMap>
 #include <QtCore/QSet>
@@ -47,50 +48,47 @@ namespace Internal {
 class WatchData;
 class WatchHandler;
 struct CdbSymbolGroupRecursionContext;
+class CdbDumperHelper;
 
-/* A thin wrapper around the IDebugSymbolGroup2 interface which represents
- * a flat list of symbols using an index (for example, belonging to a stack
- * frame). It uses the hierarchical naming convention of WatchHandler as in:
- * "local" (invisible root)
- * "local.string" (local class variable)
- * "local.string.data" (class member)
- * and maintains a mapping iname -> index.
- * IDebugSymbolGroup2 can "expand" expandable symbols, inserting them into the
- * flat list after their parent.
- *
- * Note the pecularity of IDebugSymbolGroup2 with regard to pointed to items:
- * 1) A pointer to a POD (say int *) will expand to a pointed-to integer named '*'.
- * 2) A pointer to a class (QString *), will expand to the class members right away,
- *    omitting the '*' derefenced item. That is a problem since the dumpers trigger
- *    only on the derefenced item, so, additional handling is required.
- */
 
-class CdbSymbolGroupContext
+/* CdbSymbolGroupContext manages a symbol group context and
+ * a dumper context. It dispatches calls between the local items
+ * that are handled by the symbol group and those that are handled by the dumpers. */
+
+class CdbSymbolGroupContext : public CdbCore::SymbolGroupContext
 {
     Q_DISABLE_COPY(CdbSymbolGroupContext);
      explicit CdbSymbolGroupContext(const QString &prefix,
                                     CIDebugSymbolGroup *symbolGroup,
-                                    const QStringList &uninitializedVariables = QStringList());
+                                    const QSharedPointer<CdbDumperHelper> &dumper,
+                                    const QStringList &uninitializedVariables);
 
 public:
-    ~CdbSymbolGroupContext();
-    static CdbSymbolGroupContext *create(const QString &prefix,
-                                         CIDebugSymbolGroup *symbolGroup,
-                                         const QStringList &uninitializedVariables,
-                                         QString *errorMessage);
+     // Mask bits for the source field of watch data.
+     enum { SourceMask = 0xFF, ChildrenKnownBit = 0x0100 };
 
-    QString prefix() const { return m_prefix; }
+     static CdbSymbolGroupContext *create(const QString &prefix,
+                                          CIDebugSymbolGroup *symbolGroup,
+                                          const QSharedPointer<CdbDumperHelper> &dumper,
+                                          const QStringList &uninitializedVariables,
+                                          QString *errorMessage);
 
-    bool assignValue(const QString &iname, const QString &value,
-                     QString *newValue /* = 0 */, QString *errorMessage);
+     bool editorToolTip(const QString &iname, QString *value, QString *errorMessage);
 
+     bool populateModelInitially(WatchHandler *wh, QString *errorMessage);
+
+     bool completeData(const WatchData &incompleteLocal,
+                       WatchHandler *wh,
+                       QString *errorMessage);     
+
+private:
     // Initially populate the locals model for a new stackframe.
     // Write a sequence of WatchData to it, recurse down if the
     // recursionPredicate agrees. The ignorePredicate can be used
     // to terminate processing after insertion of an item (if the calling
     // routine wants to insert another subtree).
     template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-    static bool populateModelInitially(const CdbSymbolGroupRecursionContext &ctx,
+    static bool populateModelInitiallyHelper(const CdbSymbolGroupRecursionContext &ctx,
                                        OutputIterator it,
                                        RecursionPredicate recursionPredicate,
                                        IgnorePredicate ignorePredicate,
@@ -102,7 +100,7 @@ public:
     // to terminate processing after insertion of an item (if the calling
     // routine wants to insert another subtree).
     template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-    static bool completeData (const CdbSymbolGroupRecursionContext &ctx,
+    static bool completeDataHelper (const CdbSymbolGroupRecursionContext &ctx,
                               WatchData incompleteLocal,
                               OutputIterator it,
                               RecursionPredicate recursionPredicate,
@@ -116,67 +114,30 @@ public:
     // Retrieve child symbols of prefix as a sequence of WatchData.
     // Is CIDebugDataSpaces is != 0, try internal dumper and set owner
     template <class OutputIterator>
-            bool getDumpChildSymbols(CIDebugDataSpaces *ds, const QString &prefix,
-                                      int dumpedOwner,
-                                      OutputIterator it, QString *errorMessage);
+            bool getDumpChildSymbols(const QString &prefix,
+                                     int dumpedOwner,
+                                     OutputIterator it, QString *errorMessage);
 
-    WatchData watchDataAt(unsigned long index) const;
-    // Run the internal dumpers on the symbol
-    WatchData dumpSymbolAt(CIDebugDataSpaces *ds, unsigned long index);
+    template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
+    static bool insertSymbolRecursion(WatchData wd,
+                                      const CdbSymbolGroupRecursionContext &ctx,
+                                      OutputIterator it,
+                                      RecursionPredicate recursionPredicate,
+                                      IgnorePredicate ignorePredicate,
+                                      QString *errorMessage);
 
-    bool lookupPrefix(const QString &prefix, unsigned long *index) const;
+    unsigned watchDataAt(unsigned long index, WatchData *);
 
-    enum SymbolState { LeafSymbol, ExpandedSymbol, CollapsedSymbol };
-    SymbolState symbolState(unsigned long index) const;
-    SymbolState symbolState(const QString &prefix) const;
-
-    inline bool isExpanded(unsigned long index) const   { return symbolState(index) == ExpandedSymbol; }
-    inline bool isExpanded(const QString &prefix) const { return symbolState(prefix) == ExpandedSymbol; }
-
-    // Dump
-    enum DumperResult { DumperOk, DumperError, DumperNotHandled };
-    DumperResult dump(CIDebugDataSpaces *ds, WatchData *wd);
-
-private:
-    typedef QMap<QString, unsigned long>  NameIndexMap;
-
-    static inline bool isSymbolDisplayable(const DEBUG_SYMBOL_PARAMETERS &p);
-
-    bool init(QString *errorMessage);
-    void clear();
-    QString toString(bool verbose = false) const;
-    bool getChildSymbolsPosition(const QString &prefix,
-                                 unsigned long *startPos,
-                                 unsigned long *parentId,
-                                 QString *errorMessage);
-    bool expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage);
-    void populateINameIndexMap(const QString &prefix, unsigned long parentId, unsigned long end);
-    QString symbolINameAt(unsigned long index) const;
-
-    int dumpQString(CIDebugDataSpaces *ds, WatchData *wd);
-    int dumpStdString(WatchData *wd);
-
-    inline DEBUG_SYMBOL_PARAMETERS *symbolParameters() { return &(*m_symbolParameters.begin()); }
-    inline const DEBUG_SYMBOL_PARAMETERS *symbolParameters() const { return &(*m_symbolParameters.constBegin()); }
-
-    const QString m_prefix;
-    const QChar m_nameDelimiter;
-    const QSet<QString> m_uninitializedVariables;
-
-    CIDebugSymbolGroup *m_symbolGroup;
-    NameIndexMap m_inameIndexMap;
-    QVector<DEBUG_SYMBOL_PARAMETERS> m_symbolParameters;
-    int m_unnamedSymbolNumber;
+    const bool m_useDumpers;
+    const QSharedPointer<CdbDumperHelper> m_dumper;
 };
-
 
 // A convenience struct to save parameters for the model recursion.
 struct CdbSymbolGroupRecursionContext {
-    explicit CdbSymbolGroupRecursionContext(CdbSymbolGroupContext *ctx, int internalDumperOwner, CIDebugDataSpaces *ds);
+    explicit CdbSymbolGroupRecursionContext(CdbSymbolGroupContext *ctx, int internalDumperOwner);
 
     CdbSymbolGroupContext *context;
     int internalDumperOwner;
-    CIDebugDataSpaces *dataspaces;
 };
 
 // Helper to a sequence of  WatchData into a list.

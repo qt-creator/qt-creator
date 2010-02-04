@@ -32,6 +32,8 @@
 #include "cdbdebugoutput.h"
 #include "cdbpromptthread.h"
 #include "debugeventcallback.h"
+#include "symbolgroupcontext.h"
+#include "stacktracecontext.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
@@ -149,6 +151,45 @@ void CdbApplication::asyncCommand(int command, const QString &arg)
     }
 }
 
+void CdbApplication::printFrame(const QString &arg)
+{
+    QString errorMessage;
+    do {
+        if (m_stackTrace.isNull()) {
+            errorMessage = QLatin1String("No trace.");
+            break;
+        }
+        bool ok;
+        const int frame = arg.toInt(&ok);
+        if (!ok || frame < 0 || frame >= m_stackTrace->frameCount()) {
+            errorMessage = QLatin1String("Invalid or out of range.");
+            break;
+        }
+        CdbCore::SymbolGroupContext *ctx = m_stackTrace->symbolGroupContextAt(frame, &errorMessage);
+        if (!ctx)
+            break;
+        printf("%s\n", qPrintable(ctx->toString()));
+    } while (false);
+    if (!errorMessage.isEmpty())
+        printf("%s\n", qPrintable(errorMessage));
+}
+
+bool CdbApplication::queueBreakPoint(const QString &arg)
+{
+    // Queue file:line
+    const int cpos = arg.lastIndexOf(QLatin1Char(':'));
+    if (cpos == -1)
+        return false;
+    CdbCore::BreakPoint bp;
+    bp.fileName = arg.left(cpos);
+    bool ok;
+    bp.lineNumber = arg.mid(cpos + 1).toInt(&ok);
+    if (!ok || bp.lineNumber < 1)
+        return false;
+    m_queuedBreakPoints.push_back(bp);
+    return true;
+}
+
 void CdbApplication::syncCommand(int command, const QString &arg)
 {
     QString errorMessage;
@@ -162,6 +203,34 @@ void CdbApplication::syncCommand(int command, const QString &arg)
                 std::printf("%s\n", qPrintable(errorMessage));
             }
         }
+        break;
+    case Sync_Queue: {
+        const QString targs = arg.trimmed();
+        if (targs.isEmpty()) {
+            std::printf("Queue cleared\n");
+            m_queuedCommands.clear();
+        } else {
+            std::printf("Queueing %s\n", qPrintable(targs));
+            m_queuedCommands.push_back(targs);
+        }
+    }
+        break;
+    case Sync_QueueBreakPoint: {
+        const QString targs = arg.trimmed();
+        if (targs.isEmpty()) {
+            std::printf("Breakpoint queue cleared\n");
+            m_queuedBreakPoints.clear();
+        } else {
+            if (queueBreakPoint(targs)) {
+                std::printf("Queueing breakpoint %s\n", qPrintable(targs));
+            } else {
+                std::printf("BREAKPOINT SYNTAX ERROR: %s\n", qPrintable(targs));
+            }
+        }
+    }
+        break;
+    case Sync_PrintFrame:
+        printFrame(arg);
         break;
     case Unknown:
         if (!m_engine->executeDebuggerCommand(arg, &errorMessage))
@@ -196,6 +265,7 @@ void CdbApplication::executionCommand(int command, const QString &arg)
     }
     if (ok) {
         m_engine->startWatchTimer();
+        m_stackTrace.reset();
     } else {
         std::fprintf(stderr, "%s\n", qPrintable(errorMessage));
     }
@@ -203,11 +273,50 @@ void CdbApplication::executionCommand(int command, const QString &arg)
 
 void CdbApplication::debugEvent()
 {
+    QString errorMessage;
     std::printf("Debug event\n");
+
+    CdbCore::StackTraceContext::ThreadIdFrameMap threads;
+    ULONG currentThreadId;
+    if (CdbCore::StackTraceContext::getThreads(m_engine->interfaces(), &threads,
+                                               &currentThreadId, &errorMessage)) {
+        printf("%s\n", qPrintable(CdbCore::StackTraceContext::formatThreads(threads)));
+    } else {
+        std::fprintf(stderr, "%s\n", qPrintable(errorMessage));
+    }
+
+    CdbCore::StackTraceContext *trace =
+        CdbCore::StackTraceContext::create(&m_engine->interfaces(),
+                                           0xFFFF, &errorMessage);
+    if (trace) {
+        m_stackTrace.reset(trace);
+        printf("%s\n", qPrintable(m_stackTrace->toString()));
+    } else {
+        std::fprintf(stderr, "%s\n", qPrintable(errorMessage));
+    }
 }
 
 void CdbApplication::processAttached(void *handle)
 {
-    std::printf("pe\n");
+    std::printf("### Process attached\n");
     m_processHandle = handle;
+    QString errorMessage;
+    // Commands
+    foreach(const QString &qc, m_queuedCommands) {
+        if (m_engine->executeDebuggerCommand(qc, &errorMessage)) {
+            std::printf("'%s' [ok]\n", qPrintable(qc));
+        } else {
+            std::printf("%s\n", qPrintable(errorMessage));
+        }
+    }
+    // Breakpoints
+    foreach(const CdbCore::BreakPoint &bp, m_queuedBreakPoints) {
+        if (bp.add(m_engine->interfaces().debugControl, &errorMessage)) {
+            std::printf("'%s' [ok]\n", qPrintable(bp.expression()));
+        } else {
+            std::fprintf(stderr, "%s: %s\n",
+                         qPrintable(bp.expression()),
+                         qPrintable(errorMessage));
+        }
+    }
 }

@@ -40,6 +40,11 @@ static const char help[] =
 "S binary args            Start binary\n"
 "I                        Interrupt\n"
 "G                        Go\n"
+"Q cmd                    Queue command for execution in AttachProcess\n"
+"Q                        Clear command queue\n"
+"B file:line              Queue a breakpoint for adding in AttachProcess\n"
+"B                        Clear breakpoint queue\n"
+"F <n>                    Print stack frame <n>, 0 being top\n"
 "\nThe remaining commands are passed to CDB.\n";
 
 CdbPromptThread::CdbPromptThread(QObject *parent) :
@@ -75,12 +80,18 @@ static Command evaluateCommand(const QString &cmdToken)
         switch(cmdToken.at(0).toAscii()) {
         case 'I':
             return Async_Interrupt;
+        case 'Q':
+            return Sync_Queue;
+        case 'B':
+            return Sync_QueueBreakPoint;
         case 'E':
             return Sync_EvalExpression;
         case 'G':
             return Execution_Go;
         case 'S':
             return Execution_StartBinary;
+        case 'F':
+            return Sync_PrintFrame;
         default:
             break;
         }

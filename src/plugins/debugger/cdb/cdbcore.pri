@@ -26,14 +26,23 @@ HEADERS += \
     $$PWD/cdbcom.h \
     $$PWD/coreengine.h \
     $$PWD/debugoutputbase.h \
-    $$PWD/debugeventcallbackbase.h
+    $$PWD/debugeventcallbackbase.h \
+    $$PWD/symbolgroupcontext.h \
+    $$PWD/stacktracecontext.h \
+    $$PWD/breakpoint.h
+
 SOURCES += \
     $$PWD/coreengine.cpp \
     $$PWD/debugoutputbase.cpp \
-    $$PWD/debugeventcallbackbase.cpp
+    $$PWD/debugeventcallbackbase.cpp \
+    $$PWD/symbolgroupcontext.cpp \
+    $$PWD/stacktracecontext.cpp \
+    $$PWD/breakpoint.cpp
 
 INCLUDEPATH*=$$PWD
 DEPENDPATH*=$$PWD
+
+LIBS+=-lpsapi
 
 } else {
    message("Debugging Tools for Windows could not be found in $$CDB_PATH")

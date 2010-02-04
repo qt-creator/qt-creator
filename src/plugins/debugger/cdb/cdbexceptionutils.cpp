@@ -29,8 +29,7 @@
 
 #include "cdbexceptionutils.h"
 #include "cdbdebugengine_p.h"
-#include "cdbdumperhelper.h"
-#include "cdbstacktracecontext.h"
+#include "stacktracecontext.h"
 
 #include <QtCore/QString>
 #include <QtCore/QTextStream>
@@ -247,15 +246,13 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
 
 // Format exception with stacktrace in case of C++ exception
 void formatException(const EXCEPTION_RECORD64 *e,
-                     const QSharedPointer<CdbDumperHelper> &dumper,
+                     const CdbCore::ComInterfaces *cif,
                      QTextStream &str)
 {
     formatException(e, str);
     if (e->ExceptionCode == winExceptionCppException) {
         QString errorMessage;
-        ULONG currentThreadId = 0;
-        dumper->comInterfaces()->debugSystemObjects->GetCurrentThreadId(&currentThreadId);
-        if (CdbStackTraceContext *stc = CdbStackTraceContext::create(dumper, currentThreadId, &errorMessage)) {
+        if (CdbCore::StackTraceContext *stc = CdbCore::StackTraceContext::create(cif, 9999, &errorMessage)) {
             str << "at:\n";
             stc->format(str);
             str <<'\n';

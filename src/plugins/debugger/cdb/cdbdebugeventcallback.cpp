@@ -75,7 +75,7 @@ STDMETHODIMP CdbDebugEventCallback::Exception(
     QString msg;
     {
         QTextStream str(&msg);
-        formatException(Exception, m_pEngine->m_d->m_dumper, str);
+        formatException(Exception, &m_pEngine->m_d->interfaces(), str);
     }
     const bool fatal = isFatalException(Exception->ExceptionCode);
     if (debugCDB)

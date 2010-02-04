@@ -46,8 +46,8 @@ class DebuggerManager;
 namespace Internal {
 
 class WatchHandler;
-class CdbStackFrameContext;
 class CdbStackTraceContext;
+class CdbSymbolGroupContext;
 
 class CdbDebugEnginePrivate : public CdbCore::CoreEngine
 {
@@ -82,7 +82,7 @@ public:
     void cleanStackTrace();
     void clearForRun();
     void handleModuleLoad(const QString &);
-    CdbStackFrameContext *getStackFrameContext(int frameIndex, QString *errorMessage) const;
+    CdbSymbolGroupContext *getSymbolGroupContext(int frameIndex, QString *errorMessage) const;
     void clearDisplay();
 
     bool interruptInterferiorProcess(QString *errorMessage);
@@ -135,6 +135,7 @@ enum { messageTimeOut = 5000 };
 enum { debugCDB = 0 };
 enum { debugCDBExecution = 0 };
 enum { debugCDBWatchHandling = 0 };
+enum { debugToolTips = 0 };
 
 } // namespace Internal
 } // namespace Debugger

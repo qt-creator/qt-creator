@@ -31,6 +31,7 @@
 #define CDBSTACKTRACECONTEXT_H
 
 #include "stackhandler.h"
+#include "stacktracecontext.h"
 
 #include "cdbcom.h"
 
@@ -54,65 +55,38 @@ class CdbStackFrameContext;
 class CdbDumperHelper;
 struct ThreadData;
 
-/* Context representing a break point stack consisting of several frames.
- * Maintains an on-demand constructed list of CdbStackFrameContext
- * containining the local variables of the stack. */
+/* CdbStackTraceContext: Bridges  CdbCore data structures and
+ * Debugger structures and handles CdbSymbolGroupContext's. */
 
-class CdbStackTraceContext
+class CdbStackTraceContext : public CdbCore::StackTraceContext
 {
     Q_DISABLE_COPY(CdbStackTraceContext)
 
     explicit CdbStackTraceContext(const QSharedPointer<CdbDumperHelper> &dumper);
+
 public:
-    enum { maxFrames = 100 };
-
-    // Some well known-functions
-    static const char *winFuncFastSystemCallRet;
-    // WaitFor...
-    static const char *winFuncWaitForPrefix;
-    static const char *winFuncMsgWaitForPrefix;
-
-    // Dummy function used for interrupting a debuggee
-    static const char *winFuncDebugBreakPoint;
-
-    ~CdbStackTraceContext();
     static CdbStackTraceContext *create(const QSharedPointer<CdbDumperHelper> &dumper,
-                                        unsigned long threadid,
                                         QString *errorMessage);
 
-    QList<StackFrame> frames() const { return m_frames; }
-    inline int frameCount() const { return m_frames.size(); }
-    // Search for function. Should ideally contain the module as 'module!foo'.
-    int indexOf(const QString &function) const;
+    CdbSymbolGroupContext *cdbSymbolGroupContextAt(int index, QString *errorMessage);
 
-    // Top-Level instruction offset for disassembler
-    ULONG64 instructionOffset() const { return m_instructionOffset; }
+    QList<StackFrame> stackFrames() const;
 
-    CdbStackFrameContext *frameContextAt(int index, QString *errorMessage);
-
-    // Format for logging
-    void format(QTextStream &str) const;
-    QString toString() const;
-
-    // Retrieve information about threads. When stopped, add
-    // current stack frame.
+    // get threads in stopped state
     static bool getThreads(const CdbCore::ComInterfaces &cif,
-                           bool isStopped,
                            QList<ThreadData> *threads,
                            ULONG *currentThreadId,
                            QString *errorMessage);
 
+protected:
+    virtual CdbCore::SymbolGroupContext *createSymbolGroup(const CdbCore::ComInterfaces &cif,
+                                                           int index,
+                                                           const QString &prefix,
+                                                           CIDebugSymbolGroup *comSymbolGroup,
+                                                           QString *errorMessage);
+
 private:
-    bool init(unsigned long frameCount, QString *errorMessage);
-    CIDebugSymbolGroup *createSymbolGroup(int index, QString *errorMessage);
-
     const QSharedPointer<CdbDumperHelper> m_dumper;
-    const CdbCore::ComInterfaces *m_cif;
-
-    DEBUG_STACK_FRAME m_cdbFrames[maxFrames];
-    QVector <CdbStackFrameContext*> m_frameContexts;
-    QList<StackFrame> m_frames;
-    ULONG64 m_instructionOffset;
 };
 
 } // namespace Internal

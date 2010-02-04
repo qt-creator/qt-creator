@@ -248,17 +248,21 @@ QString CdbDebugEngine::editorToolTip(const QString &exp, const QString &functio
     QString errorMessage;
     QString rc;
     // Find the frame of the function if there is any
-    CdbStackFrameContext *frame = 0;
+    CdbSymbolGroupContext *frame = 0;
     if (m_d->m_currentStackTrace &&  !function.isEmpty()) {
         const int frameIndex = m_d->m_currentStackTrace->indexOf(function);
+        if (debugToolTips)
+            qDebug() << "CdbDebugEngine::editorToolTip" << exp << function << frameIndex;
         if (frameIndex != -1)
-            frame = m_d->m_currentStackTrace->frameContextAt(frameIndex, &errorMessage);
+            frame = m_d->m_currentStackTrace->cdbSymbolGroupContextAt(frameIndex, &errorMessage);
     }
     if (frame && frame->editorToolTip(QLatin1String("local.") + exp, &rc, &errorMessage))
         return rc;
     // No function/symbol context found, try to evaluate in current context.
     // Do not append type as this will mostly be 'long long' for integers, etc.
     QString type;
+    if (debugToolTips)
+        qDebug() << "Defaulting to expression";
     if (!m_d->evaluateExpression(exp, &rc, &type, &errorMessage))
         return QString();
     return rc;
@@ -341,7 +345,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
 {
     if (debugCDBExecution)
         qDebug() << "startDebugger" << *sp;
-    CDBBreakPoint::clearNormalizeFileNameCache();
+    CdbCore::BreakPoint::clearNormalizeFileNameCache();
     setState(AdapterStarting, Q_FUNC_INFO, __LINE__);
     m_d->checkVersion();
     if (m_d->m_hDebuggeeProcess) {
@@ -599,13 +603,13 @@ void CdbDebugEngine::detachDebugger()
     m_d->endDebugging(CdbDebugEnginePrivate::EndDebuggingDetach);
 }
 
-CdbStackFrameContext *CdbDebugEnginePrivate::getStackFrameContext(int frameIndex, QString *errorMessage) const
+CdbSymbolGroupContext *CdbDebugEnginePrivate::getSymbolGroupContext(int frameIndex, QString *errorMessage) const
 {
     if (!m_currentStackTrace) {
         *errorMessage = QLatin1String(msgNoStackTraceC);
         return 0;
     }
-    if (CdbStackFrameContext *sg = m_currentStackTrace->frameContextAt(frameIndex, errorMessage))
+    if (CdbSymbolGroupContext *sg = m_currentStackTrace->cdbSymbolGroupContextAt(frameIndex, errorMessage))
         return sg;
     return 0;
 }
@@ -649,7 +653,7 @@ void CdbDebugEngine::updateWatchData(const WatchData &incomplete)
     bool success = false;
     QString errorMessage;
     do {
-        CdbStackFrameContext *sg = m_d->m_currentStackTrace->frameContextAt(frameIndex, &errorMessage);
+        CdbSymbolGroupContext *sg = m_d->m_currentStackTrace->cdbSymbolGroupContextAt(frameIndex, &errorMessage);
         if (!sg)
             break;
         if (!sg->completeData(incomplete, watchHandler, &errorMessage))
@@ -902,7 +906,7 @@ void CdbDebugEngine::runToLineExec(const QString &fileName, int lineNumber)
 {
     manager()->showDebuggerOutput(LogMisc, tr("Running up to %1:%2...").arg(fileName).arg(lineNumber));
     QString errorMessage;
-    CDBBreakPoint tempBreakPoint;
+    CdbCore::BreakPoint tempBreakPoint;
     tempBreakPoint.fileName = fileName;
     tempBreakPoint.lineNumber = lineNumber;
     tempBreakPoint.oneShot = true;
@@ -916,7 +920,7 @@ void CdbDebugEngine::runToFunctionExec(const QString &functionName)
 {
     manager()->showDebuggerOutput(LogMisc, tr("Running up to function '%1()'...").arg(functionName));
     QString errorMessage;
-    CDBBreakPoint tempBreakPoint;
+    CdbCore::BreakPoint tempBreakPoint;
     tempBreakPoint.funcName = functionName;
     tempBreakPoint.oneShot = true;
     const bool ok = tempBreakPoint.add(m_d->interfaces().debugControl, &errorMessage)
@@ -939,7 +943,7 @@ void CdbDebugEngine::assignValueInDebugger(const QString &expr, const QString &v
     bool success = false;
     do {
         QString newValue;
-        CdbStackFrameContext *sg = m_d->getStackFrameContext(frameIndex, &errorMessage);
+        CdbSymbolGroupContext *sg = m_d->getSymbolGroupContext(frameIndex, &errorMessage);
         if (!sg)
             break;
         if (!sg->assignValue(expr, value, &newValue, &errorMessage))
@@ -1004,7 +1008,7 @@ void CdbDebugEngine::activateFrame(int frameIndex)
 
         if (oldIndex != frameIndex || m_d->m_firstActivatedFrame) {
             watchHandler->beginCycle();
-            if (CdbStackFrameContext *sgc = m_d->getStackFrameContext(frameIndex, &errorMessage))
+            if (CdbSymbolGroupContext *sgc = m_d->getSymbolGroupContext(frameIndex, &errorMessage))
                 success = sgc->populateModelInitially(watchHandler, &errorMessage);
             watchHandler->endCycle();
         } else {
@@ -1059,7 +1063,7 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
     // called again from the debug event handler.
 
     ULONG dummy;
-    const bool wasRunning = !CDBBreakPoint::getBreakPointCount(interfaces().debugControl, &dummy);
+    const bool wasRunning = !CdbCore::BreakPoint::getBreakPointCount(interfaces().debugControl, &dummy);
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << "\n  Running=" << wasRunning;
 
@@ -1074,10 +1078,10 @@ bool CdbDebugEnginePrivate::attemptBreakpointSynchronization(QString *errorMessa
     }
 
     QStringList warnings;
-    const bool ok = CDBBreakPoint::synchronizeBreakPoints(interfaces().debugControl,
-                                                 interfaces().debugSymbols,
-                                                 manager()->breakHandler(),
-                                                 errorMessage, &warnings);
+    const bool ok = synchronizeBreakPoints(interfaces().debugControl,
+                                           interfaces().debugSymbols,
+                                           manager()->breakHandler(),
+                                           errorMessage, &warnings);
     if (const int warningsCount = warnings.size())
         for (int w = 0; w < warningsCount; w++)
             m_engine->warning(warnings.at(w));
@@ -1361,7 +1365,7 @@ ULONG CdbDebugEnginePrivate::updateThreadList()
     ULONG currentThreadId;
     QString errorMessage;
     // When interrupting, an artifical thread with a breakpoint is created.
-    if (!CdbStackTraceContext::getThreads(interfaces(), true, &threads, &currentThreadId, &errorMessage))
+    if (!CdbStackTraceContext::getThreads(interfaces(), &threads, &currentThreadId, &errorMessage))
         m_engine->warning(errorMessage);
     manager()->threadsHandler()->setThreads(threads);
     return currentThreadId;
@@ -1378,14 +1382,18 @@ static inline unsigned long dumperThreadId(const QList<StackFrame> &frames,
 {
     if (frames.empty())
         return CdbDumperHelper::InvalidDumperCallThread;
-    if (frames.at(0).function == QLatin1String(CdbStackTraceContext::winFuncDebugBreakPoint))
+    switch (CdbCore::StackTraceContext::specialFunction(frames.at(0).from, frames.at(0).function)) {
+    case CdbCore::StackTraceContext::BreakPointFunction:
+    case CdbCore::StackTraceContext::WaitFunction:
         return CdbDumperHelper::InvalidDumperCallThread;
+    default:
+        break;
+    }
+    // Check remaining frames for wait
     const int waitCheckDepth = qMin(frames.size(), 5);
-    static const QString waitForPrefix = QLatin1String(CdbStackTraceContext::winFuncWaitForPrefix);
-    static const QString msgWaitForPrefix = QLatin1String(CdbStackTraceContext::winFuncMsgWaitForPrefix);
-    for (int f = 0; f < waitCheckDepth; f++) {
-        const QString &function = frames.at(f).function;
-        if (function.startsWith(waitForPrefix) || function.startsWith(msgWaitForPrefix))
+    for (int f = 1; f < waitCheckDepth; f++) {
+        if (CdbCore::StackTraceContext::specialFunction(frames.at(f).from, frames.at(f).function)
+            == CdbCore::StackTraceContext::WaitFunction)
             return CdbDumperHelper::InvalidDumperCallThread;
     }
     return currentThread;
@@ -1404,7 +1412,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
         return;
     }
     m_currentStackTrace =
-            CdbStackTraceContext::create(m_dumper, m_currentThreadId, &errorMessage);
+            CdbStackTraceContext::create(m_dumper, &errorMessage);
     if (!m_currentStackTrace) {
         m_engine->warning(msgFunctionFailed(Q_FUNC_INFO, errorMessage));
         return;
@@ -1413,7 +1421,7 @@ void CdbDebugEnginePrivate::updateStackTrace()
 #if 0
     m_engine->reloadDisassembler(); // requires stack trace
 #endif
-    const QList<StackFrame> stackFrames = m_currentStackTrace->frames();
+    const QList<StackFrame> stackFrames = m_currentStackTrace->stackFrames();
     // find the first usable frame and select it
     int current = -1;
     const int count = stackFrames.count();

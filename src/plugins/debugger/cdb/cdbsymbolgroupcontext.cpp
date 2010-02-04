@@ -29,9 +29,13 @@
 
 #include "cdbsymbolgroupcontext.h"
 #include "cdbdebugengine_p.h"
+#include "cdbdumperhelper.h"
 #include "watchhandler.h"
 #include "watchutils.h"
+#include "debuggeractions.h"
+#include "coreengine.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QRegExp>
@@ -39,95 +43,262 @@
 enum { debug = 0 };
 enum { debugInternalDumpers = 0 };
 
-// name separator for shadowed variables
-static const char iNameShadowDelimiter = '#';
-
-static inline QString msgSymbolNotFound(const QString &s)
-{
-    return QString::fromLatin1("The symbol '%1' could not be found.").arg(s);
-}
-
-static inline QString msgOutOfScope()
-{
-    return QCoreApplication::translate("SymbolGroup", "Out of scope");
-}
-
-static inline bool isTopLevelSymbol(const DEBUG_SYMBOL_PARAMETERS &p)
-{
-    return p.ParentSymbol == DEBUG_ANY_ID;
-}
-
-static inline void debugSymbolFlags(unsigned long f, QTextStream &str)
-{
-    if (f & DEBUG_SYMBOL_EXPANDED)
-        str << "DEBUG_SYMBOL_EXPANDED";
-    if (f & DEBUG_SYMBOL_READ_ONLY)
-        str << "|DEBUG_SYMBOL_READ_ONLY";
-    if (f & DEBUG_SYMBOL_IS_ARRAY)
-        str << "|DEBUG_SYMBOL_IS_ARRAY";
-    if (f & DEBUG_SYMBOL_IS_FLOAT)
-        str << "|DEBUG_SYMBOL_IS_FLOAT";
-    if (f & DEBUG_SYMBOL_IS_ARGUMENT)
-        str << "|DEBUG_SYMBOL_IS_ARGUMENT";
-    if (f & DEBUG_SYMBOL_IS_LOCAL)
-        str << "|DEBUG_SYMBOL_IS_LOCAL";
-}
-
-QTextStream &operator<<(QTextStream &str, const DEBUG_SYMBOL_PARAMETERS &p)
-{
-    str << " Type=" << p.TypeId << " parent=";
-    if (isTopLevelSymbol(p)) {
-        str << "<ROOT>";
-    } else {
-        str << p.ParentSymbol;
-    }
-    str << " Subs=" << p.SubElements << " flags=" << p.Flags << '/';
-    debugSymbolFlags(p.Flags, str);
-    return str;
-}
-
-static inline QByteArray hexSymbolOffset(CIDebugSymbolGroup *sg, unsigned long index)
-{
-    ULONG64 rc = 0;
-    if (FAILED(sg->GetSymbolOffset(index, &rc)))
-        rc = 0;
-
-    return QByteArray("0x") + QByteArray::number(rc, 16);
-}
-
-// A helper function to extract a string value from a member function of
-// IDebugSymbolGroup2 taking the symbol index and a character buffer.
-// Pass in the the member function as '&IDebugSymbolGroup2::GetSymbolNameWide'
-
-typedef HRESULT  (__stdcall IDebugSymbolGroup2::*WideStringRetrievalFunction)(ULONG, PWSTR, ULONG, PULONG);
-
-static inline QString getSymbolString(IDebugSymbolGroup2 *sg,
-                                      WideStringRetrievalFunction wsf,
-                                      unsigned long index)
-{
-    // Template type names can get quite long....
-    enum { BufSize = 1024 };
-    static WCHAR nameBuffer[BufSize + 1];
-    // Name
-    ULONG nameLength;
-    const HRESULT hr = (sg->*wsf)(index, nameBuffer, BufSize, &nameLength);
-    if (SUCCEEDED(hr)) {
-        nameBuffer[nameLength] = 0;
-        return QString::fromUtf16(reinterpret_cast<const ushort *>(nameBuffer));
-    }
-    return QString();
-}
-
 namespace Debugger {
 namespace Internal {
 
+enum { OwnerNewItem, OwnerSymbolGroup, OwnerSymbolGroupDumper , OwnerDumper };
+
+typedef QSharedPointer<CdbDumperHelper> SharedPointerCdbDumperHelper;
+typedef QList<WatchData> WatchDataList;
+
+// Predicates for parametrizing the symbol group
+inline bool truePredicate(const WatchData & /* whatever */) { return true; }
+inline bool falsePredicate(const WatchData & /* whatever */) { return false; }
+inline bool isDumperPredicate(const WatchData &wd)
+{ return (wd.source & CdbSymbolGroupContext::SourceMask) == OwnerDumper; }
+
+static inline void debugWatchDataList(const QList<WatchData> &l, const char *why = 0)
+{
+    QDebug nospace = qDebug().nospace();
+    if (why)
+        nospace << why << '\n';
+    foreach(const WatchData &wd, l)
+        nospace << wd.toString() << '\n';
+    nospace << '\n';
+}
+
+// Match an item that is expanded in the watchhandler.
+class WatchHandlerExpandedPredicate {
+public:
+    explicit inline WatchHandlerExpandedPredicate(const WatchHandler *wh) : m_wh(wh) {}
+    inline bool operator()(const WatchData &wd) { return m_wh->isExpandedIName(wd.iname); }
+private:
+    const WatchHandler *m_wh;
+};
+
+// Match an item by iname
+class MatchINamePredicate {
+public:
+    explicit inline MatchINamePredicate(const QString &iname) : m_iname(iname) {}
+    inline bool operator()(const WatchData &wd) { return wd.iname == m_iname; }
+private:
+    const QString &m_iname;
+};
+
+// Put a sequence of  WatchData into the model for the non-dumper case
+class WatchHandlerModelInserter {
+public:
+    explicit WatchHandlerModelInserter(WatchHandler *wh) : m_wh(wh) {}
+
+    inline WatchHandlerModelInserter & operator*() { return *this; }
+    inline WatchHandlerModelInserter &operator=(const WatchData &wd)  {
+        m_wh->insertData(wd);
+        return *this;
+    }
+    inline WatchHandlerModelInserter &operator++() { return *this; }
+
+private:
+    WatchHandler *m_wh;
+};
+
+// Put a sequence of  WatchData into the model for the dumper case.
+// Sorts apart a sequence of  WatchData using the Dumpers.
+// Puts the stuff for which there is no dumper in the model
+// as is and sets ownership to symbol group. The rest goes
+// to the dumpers. Additionally, checks for items pointing to a
+// dumpeable type and inserts a fake dereferenced item and value.
+class WatchHandleDumperInserter {
+public:
+    explicit WatchHandleDumperInserter(WatchHandler *wh,
+                                        const SharedPointerCdbDumperHelper &dumper);
+
+    inline WatchHandleDumperInserter & operator*() { return *this; }
+    inline WatchHandleDumperInserter &operator=(WatchData &wd);
+    inline WatchHandleDumperInserter &operator++() { return *this; }
+
+private:
+    bool expandPointerToDumpable(const WatchData &wd, QString *errorMessage);
+
+    const QRegExp m_hexNullPattern;
+    WatchHandler *m_wh;
+    const SharedPointerCdbDumperHelper m_dumper;
+    QList<WatchData> m_dumperResult;
+};
+
+WatchHandleDumperInserter::WatchHandleDumperInserter(WatchHandler *wh,
+                                                       const SharedPointerCdbDumperHelper &dumper) :
+    m_hexNullPattern(QLatin1String("0x0+")),
+    m_wh(wh),
+    m_dumper(dumper)
+{
+    Q_ASSERT(m_hexNullPattern.isValid());
+}
+
+// Prevent recursion of the model by setting value and type
+static inline bool fixDumperType(WatchData *wd, const WatchData *source = 0)
+{
+    const bool missing = wd->isTypeNeeded() || wd->type.isEmpty();
+    if (missing) {
+        static const QString unknownType = QCoreApplication::translate("CdbSymbolGroupContext", "<Unknown Type>");
+        wd->setType(source ? source->type : unknownType, false);
+    }
+    return missing;
+}
+
+static inline bool fixDumperValue(WatchData *wd, const WatchData *source = 0)
+{
+    const bool missing = wd->isValueNeeded();
+    if (missing) {
+        if (source && source->isValueKnown()) {
+            wd->setValue(source->value);
+        } else {
+            static const QString unknownValue = QCoreApplication::translate("CdbSymbolGroupContext", "<Unknown Value>");
+            wd->setValue(unknownValue);
+        }
+    }
+    return missing;
+}
+
+// When querying an item, the queried item is sometimes returned in incomplete form.
+// Take over values from source.
+static inline void fixDumperResult(const WatchData &source,
+                                   QList<WatchData> *result,
+                                   bool suppressGrandChildren)
+{
+
+    const int size = result->size();
+    if (!size)
+        return;
+    if (debugCDBWatchHandling)
+        debugWatchDataList(*result, suppressGrandChildren ? ">fixDumperResult suppressGrandChildren" : ">fixDumperResult");
+    WatchData &returned = result->front();
+    if (returned.iname != source.iname)
+        return;
+    fixDumperType(&returned, &source);
+    fixDumperValue(&returned, &source);
+    // Indicate owner and known children
+    returned.source = OwnerDumper;
+    if (returned.isChildrenKnown() && returned.isHasChildrenKnown() && returned.hasChildren)
+        returned.source |= CdbSymbolGroupContext::ChildrenKnownBit;
+    if (size == 1)
+        return;
+    // If the model queries the expanding item by pretending childrenNeeded=1,
+    // refuse the request as the children are already known
+    returned.source |= CdbSymbolGroupContext::ChildrenKnownBit;
+    // Fix the children: If the address is missing, we cannot query any further.
+    const QList<WatchData>::iterator wend = result->end();
+    QList<WatchData>::iterator it = result->begin();
+    for (++it; it != wend; ++it) {
+        WatchData &wd = *it;
+        // Indicate owner and known children
+        it->source = OwnerDumper;
+        if (it->isChildrenKnown() && it->isHasChildrenKnown() && it->hasChildren)
+            it->source |= CdbSymbolGroupContext::ChildrenKnownBit;
+        // Cannot dump items with missing addresses or missing types
+        const bool typeFixed = fixDumperType(&wd); // Order of evaluation!
+        if ((wd.addr.isEmpty() && wd.isSomethingNeeded()) || typeFixed) {
+            wd.setHasChildren(false);
+            wd.setAllUnneeded();
+        } else {
+            // Hack: Suppress endless recursion of the model. To be fixed,
+            // the model should not query non-visible items.
+            if (suppressGrandChildren && (wd.isChildrenNeeded() || wd.isHasChildrenNeeded()))
+                wd.setHasChildren(false);
+        }
+    }
+    if (debugCDBWatchHandling)
+        debugWatchDataList(*result, "<fixDumperResult");
+}
+
+// Is this a non-null pointer to a dumpeable item with a value
+// "0x4343 class QString *" ? - Insert a fake '*' dereferenced item
+// and run dumpers on it. If that succeeds, insert the fake items owned by dumpers,
+// which will trigger the ignore predicate.
+// Note that the symbol context does not create '*' dereferenced items for
+// classes (see note in its header documentation).
+bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QString *errorMessage)
+{
+    if (debugCDBWatchHandling)
+        qDebug() << ">expandPointerToDumpable" << wd.toString();
+
+    bool handled = false;
+    do {
+        if (wd.error || !isPointerType(wd.type))
+            break;
+        const int classPos = wd.value.indexOf(" class ");
+        if (classPos == -1)
+            break;
+        const QString hexAddrS = wd.value.mid(0, classPos);
+        if (m_hexNullPattern.exactMatch(hexAddrS))
+            break;
+        const QString type = stripPointerType(wd.value.mid(classPos + 7));
+        WatchData derefedWd;
+        derefedWd.setType(type);
+        derefedWd.setAddress(hexAddrS);
+        derefedWd.name = QString(QLatin1Char('*'));
+        derefedWd.iname = wd.iname + ".*";
+        derefedWd.source = OwnerDumper | CdbSymbolGroupContext::ChildrenKnownBit;
+        const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(derefedWd, true, &m_dumperResult, errorMessage);
+        if (dr != CdbDumperHelper::DumpOk)
+            break;
+        fixDumperResult(derefedWd, &m_dumperResult, false);
+        // Insert the pointer item with 1 additional child + its dumper results
+        // Note: formal arguments might already be expanded in the symbol group.
+        WatchData ptrWd = wd;
+        ptrWd.source = OwnerDumper | CdbSymbolGroupContext::ChildrenKnownBit;
+        ptrWd.setHasChildren(true);
+        ptrWd.setChildrenUnneeded();
+        m_wh->insertData(ptrWd);
+        m_wh->insertBulkData(m_dumperResult);
+        handled = true;
+    } while (false);
+    if (debugCDBWatchHandling)
+        qDebug() << "<expandPointerToDumpable returns " << handled << *errorMessage;
+    return handled;
+}
+
+WatchHandleDumperInserter &WatchHandleDumperInserter::operator=(WatchData &wd)
+{
+    if (debugCDBWatchHandling)
+        qDebug() << "WatchHandleDumperInserter::operator=" << wd.toString();
+    // Check pointer to dumpeable, dumpeable, insert accordingly.
+    QString errorMessage;
+    if (expandPointerToDumpable(wd, &errorMessage)) {
+        // Nasty side effect: Modify owner for the ignore predicate
+        wd.source = OwnerDumper;
+        return *this;
+    }
+    // Expanded by internal dumper? : ok
+    if ((wd.source & CdbSymbolGroupContext::SourceMask) == OwnerSymbolGroupDumper) {
+        m_wh->insertData(wd);
+        return *this;
+    }
+    // Try library dumpers.
+    switch (m_dumper->dumpType(wd, true, &m_dumperResult, &errorMessage)) {
+    case CdbDumperHelper::DumpOk:
+        if (debugCDBWatchHandling)
+            qDebug() << "dumper triggered";
+        // Dumpers omit types for complicated templates
+        fixDumperResult(wd, &m_dumperResult, false);
+        // Discard the original item and insert the dumper results
+        m_wh->insertBulkData(m_dumperResult);
+        // Nasty side effect: Modify owner for the ignore predicate
+        wd.source = OwnerDumper;
+        break;
+    case CdbDumperHelper::DumpNotHandled:
+    case CdbDumperHelper::DumpError:
+        wd.source = OwnerSymbolGroup;
+        m_wh->insertData(wd);
+        break;
+    }
+    return *this;
+}
+
 
 CdbSymbolGroupRecursionContext::CdbSymbolGroupRecursionContext(CdbSymbolGroupContext *ctx,
-                                                         int ido,
-                                                         CIDebugDataSpaces *ds) :
+                                                         int ido) :
     context(ctx),
-    internalDumperOwner(ido),
-    dataspaces(ds)
+    internalDumperOwner(ido)
 {
 }
 
@@ -142,313 +313,31 @@ static inline CdbSymbolGroupContext::SymbolState getSymbolState(const DEBUG_SYMB
 
 CdbSymbolGroupContext::CdbSymbolGroupContext(const QString &prefix,
                                              CIDebugSymbolGroup *symbolGroup,
+                                             const QSharedPointer<CdbDumperHelper> &dumper,
                                              const QStringList &uninitializedVariables) :
-    m_prefix(prefix),
-    m_nameDelimiter(QLatin1Char('.')),
-    m_uninitializedVariables(uninitializedVariables.toSet()),
-    m_symbolGroup(symbolGroup),
-    m_unnamedSymbolNumber(1)
+    CdbCore::SymbolGroupContext(prefix, symbolGroup,
+                                dumper->comInterfaces()->debugDataSpaces,
+                                uninitializedVariables),
+    m_useDumpers(dumper->isEnabled() && theDebuggerBoolSetting(UseDebuggingHelpers)),
+    m_dumper(dumper)
 {
-
-}
-
-CdbSymbolGroupContext::~CdbSymbolGroupContext()
-{
-    m_symbolGroup->Release();
+    setShadowedNameFormat(WatchData::shadowedNameFormat());
 }
 
 CdbSymbolGroupContext *CdbSymbolGroupContext::create(const QString &prefix,
                                                      CIDebugSymbolGroup *symbolGroup,
+                                                     const QSharedPointer<CdbDumperHelper> &dumper,
                                                      const QStringList &uninitializedVariables,
                                                      QString *errorMessage)
 {
-    CdbSymbolGroupContext *rc = new CdbSymbolGroupContext(prefix, symbolGroup, uninitializedVariables);
+    CdbSymbolGroupContext *rc = new CdbSymbolGroupContext(prefix, symbolGroup,
+                                                          dumper,
+                                                          uninitializedVariables);
     if (!rc->init(errorMessage)) {
         delete rc;
         return 0;
     }
     return rc;
-}
-
-bool CdbSymbolGroupContext::init(QString *errorMessage)
-{
-    // retrieve the root symbols
-    ULONG count;
-    HRESULT hr = m_symbolGroup->GetNumberSymbols(&count);
-    if (FAILED(hr)) {
-        *errorMessage = CdbCore::msgComFailed("GetNumberSymbols", hr);
-        return false;
-    }
-
-    if (count) {
-        m_symbolParameters.reserve(3u * count);
-        m_symbolParameters.resize(count);
-
-        hr = m_symbolGroup->GetSymbolParameters(0, count, symbolParameters());
-        if (FAILED(hr)) {
-            *errorMessage = QString::fromLatin1("In %1: %2 (%3 symbols)").arg(QLatin1String(Q_FUNC_INFO),
-                                                                              CdbCore::msgComFailed("GetSymbolParameters", hr)).arg(count);
-            return false;
-        }
-        populateINameIndexMap(m_prefix, DEBUG_ANY_ID, count);
-    }
-    if (debug)
-        qDebug() << Q_FUNC_INFO << '\n'<< toString(true);
-    return true;
-}
-
-/* Make the entries for iname->index mapping. We might encounter
- * already expanded subitems when doing it for top-level ('this'-pointers),
- * recurse in that case, (skip over expanded children).
- * Loop backwards to detect shadowed variables in the order the
-/* debugger expects them:
-\code
-int x;             // Occurrence (1), should be reported as "x <shadowed 1>"
-if (true) {
-   int x = 5; (2)  // Occurrence (2), should be reported as "x"
-}
-\endcode
- * The order in the symbol group is (1),(2). Give them an iname of
- * <root>#<shadowed-nr>, which will be split apart for display. */
-
-void CdbSymbolGroupContext::populateINameIndexMap(const QString &prefix, unsigned long parentId,
-                                                  unsigned long end)
-{
-    const QString symbolPrefix = prefix + m_nameDelimiter;
-    if (debug)
-        qDebug() << Q_FUNC_INFO << '\n'<< symbolPrefix << parentId << end;
-    for (unsigned long i = end - 1; ; i--) {
-        const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(i);
-        if (parentId == p.ParentSymbol) {
-            // "__formal" occurs when someone writes "void foo(int /* x */)..."
-            static const QString unnamedFormalParameter = QLatin1String("__formal");
-            QString symbolName = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i);
-            if (symbolName == unnamedFormalParameter) {
-                symbolName = QLatin1String("<unnamed");
-                symbolName += QString::number(m_unnamedSymbolNumber++);
-                symbolName += QLatin1Char('>');
-            }
-            // Find a unique name in case the variable is shadowed by
-            // an existing one
-            const QString namePrefix = symbolPrefix + symbolName;
-            QString name = namePrefix;
-            for (int n = 1; m_inameIndexMap.contains(name); n++) {
-                name.truncate(namePrefix.size());
-                name += QLatin1Char(iNameShadowDelimiter);
-                name += QString::number(n);
-            }
-            m_inameIndexMap.insert(name, i);
-            if (getSymbolState(p) == ExpandedSymbol)
-                populateINameIndexMap(name, i, i + 1 + p.SubElements);
-        }
-        if (i == 0 || i == parentId)
-            break;
-    }
-}
-
-QString CdbSymbolGroupContext::toString(bool verbose) const
-{
-    QString rc;
-    QTextStream str(&rc);
-    const int count = m_symbolParameters.size();
-    for (int i = 0; i < count; i++) {
-        str << i << ' ';
-        const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(i);
-        if (!isTopLevelSymbol(p))
-            str << "    ";
-        str << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolNameWide, i);
-        if (p.Flags & DEBUG_SYMBOL_IS_LOCAL)
-            str << " '" << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, i) << '\'';
-        str << " Address: " << hexSymbolOffset(m_symbolGroup, i);
-        if (verbose)
-            str << " '" << getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, i) << '\'';
-        str << p << '\n';
-    }
-    if (verbose) {
-        str << "NameIndexMap\n";
-        NameIndexMap::const_iterator ncend = m_inameIndexMap.constEnd();
-        for (NameIndexMap::const_iterator it = m_inameIndexMap.constBegin() ; it != ncend; ++it)
-            str << it.key() << ' ' << it.value() << '\n';
-    }
-    return rc;
-}
-
-CdbSymbolGroupContext::SymbolState CdbSymbolGroupContext::symbolState(unsigned long index) const
-{
-    return getSymbolState(m_symbolParameters.at(index));
-}
-
-CdbSymbolGroupContext::SymbolState CdbSymbolGroupContext::symbolState(const QString &prefix) const
-{
-    if (prefix == m_prefix) // root
-        return ExpandedSymbol;
-    unsigned long index;
-    if (!lookupPrefix(prefix, &index)) {
-        qWarning("WARNING %s: %s\n", Q_FUNC_INFO, qPrintable(msgSymbolNotFound(prefix)));
-        return LeafSymbol;
-    }
-    return symbolState(index);
-}
-
-// Find index of a prefix
-bool CdbSymbolGroupContext::lookupPrefix(const QString &prefix, unsigned long *index) const
-{
-    *index = 0;
-    const NameIndexMap::const_iterator it = m_inameIndexMap.constFind(prefix);
-    if (it == m_inameIndexMap.constEnd())
-        return false;
-    *index = it.value();
-    return true;
-}
-
-/* Retrieve children and get the position. */
-bool CdbSymbolGroupContext::getChildSymbolsPosition(const QString &prefix,
-                                                    unsigned long *start,
-                                                    unsigned long *parentId,
-                                                    QString *errorMessage)
-{
-    if (debug)
-        qDebug() << Q_FUNC_INFO << '\n'<< prefix;
-
-    *start = *parentId = 0;
-    // Root item?
-    if (prefix == m_prefix) {
-        *start = 0;
-        *parentId = DEBUG_ANY_ID;
-        if (debug)
-            qDebug() << '<' << prefix << "at" << *start;
-        return true;
-    }
-    // Get parent index, make sure it is expanded
-    NameIndexMap::const_iterator nit = m_inameIndexMap.constFind(prefix);
-    if (nit == m_inameIndexMap.constEnd()) {
-        *errorMessage = QString::fromLatin1("'%1' not found.").arg(prefix);
-        return false;
-    }
-    *parentId = nit.value();
-    *start = nit.value() + 1;
-    if (!expandSymbol(prefix, *parentId, errorMessage))
-        return false;
-    if (debug)
-        qDebug() << '<' << prefix << "at" << *start;
-    return true;
-}
-
-static inline QString msgExpandFailed(const QString &prefix, unsigned long index, const QString &why)
-{
-    return QString::fromLatin1("Unable to expand '%1' %2: %3").arg(prefix).arg(index).arg(why);
-}
-
-// Expand a symbol using the symbol group interface.
-bool CdbSymbolGroupContext::expandSymbol(const QString &prefix, unsigned long index, QString *errorMessage)
-{
-    if (debug)
-        qDebug() << '>' << Q_FUNC_INFO << '\n' << prefix << index;
-
-    switch (symbolState(index)) {
-    case LeafSymbol:
-        *errorMessage = QString::fromLatin1("Attempt to expand leaf node '%1' %2!").arg(prefix).arg(index);
-        return false;
-    case ExpandedSymbol:
-        return true;
-    case CollapsedSymbol:
-        break;
-    }
-
-    HRESULT hr = m_symbolGroup->ExpandSymbol(index, TRUE);
-    if (FAILED(hr)) {
-        *errorMessage = msgExpandFailed(prefix, index, CdbCore::msgComFailed("ExpandSymbol", hr));
-        return false;
-    }
-    // Hopefully, this will never fail, else data structure will be foobar.
-    const ULONG oldSize = m_symbolParameters.size();
-    ULONG newSize;
-    hr = m_symbolGroup->GetNumberSymbols(&newSize);
-    if (FAILED(hr)) {
-        *errorMessage = msgExpandFailed(prefix, index, CdbCore::msgComFailed("GetNumberSymbols", hr));
-        return false;
-    }
-
-    // Retrieve the new parameter structs which will be inserted
-    // after the parents, offsetting consecutive indexes.
-    m_symbolParameters.resize(newSize);
-
-    hr = m_symbolGroup->GetSymbolParameters(0, newSize, symbolParameters());
-    if (FAILED(hr)) {
-        *errorMessage = msgExpandFailed(prefix, index, CdbCore::msgComFailed("GetSymbolParameters", hr));
-        return false;
-    }
-    // The new symbols are inserted after the parent symbol.
-    // We need to correct the following values in the name->index map
-    const unsigned long newSymbolCount = newSize - oldSize;
-    const NameIndexMap::iterator nend = m_inameIndexMap.end();
-    for (NameIndexMap::iterator it = m_inameIndexMap.begin(); it != nend; ++it)
-        if (it.value() > index)
-            it.value() += newSymbolCount;
-    // insert the new symbols
-    populateINameIndexMap(prefix, index, index + 1 + newSymbolCount);
-    if (debug > 1)
-        qDebug() << '<' << Q_FUNC_INFO << '\n' << prefix << index << '\n' << toString();
-    return true;
-}
-
-void CdbSymbolGroupContext::clear()
-{
-    m_symbolParameters.clear();
-    m_inameIndexMap.clear();
-}
-
-QString CdbSymbolGroupContext::symbolINameAt(unsigned long index) const
-{
-    return m_inameIndexMap.key(index);
-}
-
-// Return hexadecimal pointer value from a CDB pointer value
-// which look like "0x000032a" or "0x00000000`0250124a" or
-// "0x1`0250124a" on 64-bit systems.
-static bool inline getUnsignedHexValue(QString stringValue, quint64 *value)
-{
-    *value = 0;
-    if (!stringValue.startsWith(QLatin1String("0x")))
-        return false;
-    stringValue.remove(0, 2);
-    // Remove 64bit separator
-    if (stringValue.size() > 9) {
-        const int sepPos = stringValue.size() - 9;
-        if (stringValue.at(sepPos) == QLatin1Char('`'))
-            stringValue.remove(sepPos, 1);
-    }
-    bool ok;
-    *value = stringValue.toULongLong(&ok, 16);
-    return ok;
-}
-
-// check for "0x000", "0x000 class X" or its 64-bit equivalents.
-static inline bool isNullPointer(const WatchData &wd)
-{
-    if (!isPointerType(wd.type))
-        return false;
-    QString stringValue = wd.value;
-    const int blankPos = stringValue.indexOf(QLatin1Char(' '));
-    if (blankPos != -1)
-        stringValue.truncate(blankPos);
-    quint64 value;
-    return getUnsignedHexValue(stringValue, &value) && value == 0u;
-}
-
-// Fix a symbol group value. It is set to the class type for
-// expandable classes (type="class std::foo<..>[*]",
-// value="std::foo<...>[*]". This is not desired
-// as it widens the value column for complex std::template types.
-// Remove the inner template type.
-
-static inline QString removeInnerTemplateType(QString value)
-{
-    const int firstBracketPos = value.indexOf(QLatin1Char('<'));
-    const int lastBracketPos = firstBracketPos != -1 ? value.lastIndexOf(QLatin1Char('>')) : -1;
-    if (lastBracketPos != -1)
-        value.replace(firstBracketPos + 1, lastBracketPos - firstBracketPos -1, QLatin1String("..."));
-    return value;
 }
 
 // Fix display values: Pass through strings, convert unsigned integers
@@ -463,267 +352,155 @@ static inline QString fixValue(const QString &value, const QString &type)
     // Unsigned hex numbers
     if (isIntType(type) && (size > 2 && value.at(1) == QLatin1Char('x'))) {
         quint64 intValue;
-        if (getUnsignedHexValue(value, &intValue))
+        if (CdbCore::SymbolGroupContext::getUnsignedHexValue(value, &intValue))
             return QString::number(intValue);
     }
-    return size < 20 ? value : removeInnerTemplateType(value);
+    return size < 20 ? value : CdbCore::SymbolGroupContext::removeInnerTemplateType(value);
 }
 
-WatchData CdbSymbolGroupContext::watchDataAt(unsigned long index) const
+unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
 {
-    WatchData wd;
-    wd.iname = symbolINameAt(index).toLatin1();
-    wd.exp = wd.iname;
-    // Determine name from iname and format shadowed variables correctly
-    // as "<shadowed X>, see populateINameIndexMap().
-    const int lastDelimiterPos = wd.iname.lastIndexOf(m_nameDelimiter.toLatin1());
-    QString name = lastDelimiterPos == -1 ? wd.iname : wd.iname.mid(lastDelimiterPos + 1);
-    int shadowedNumber = 0;
-    const int shadowedPos = name.lastIndexOf(QLatin1Char(iNameShadowDelimiter));
-    if (shadowedPos != -1) {
-        shadowedNumber = name.mid(shadowedPos + 1).toInt();
-        name.truncate(shadowedPos);
-    }
-    // For class hierarchies, we get sometimes complicated std::template types here.
-    // (std::map extends std::tree<>... Remove them for display only.
-    const QString fullShadowedName = WatchData::shadowedName(name, shadowedNumber);
-    wd.name = WatchData::shadowedName(removeInnerTemplateType(name), shadowedNumber);
-    wd.addr = hexSymbolOffset(m_symbolGroup, index);
-    const QString type = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolTypeNameWide, index);
-    wd.setType(type);
-    // Check for uninitialized variables at level 0 only.
-    const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(index);
-    if (p.ParentSymbol == DEBUG_ANY_ID && m_uninitializedVariables.contains(fullShadowedName)) {
-        wd.setError(WatchData::msgNotInScope());
-        return wd;
-    }
-    const QString value = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    wd.setValue(fixValue(value, type));
-    wd.setChildrenNeeded(); // compensate side effects of above setters
-    // Figure out children. The SubElement is only a guess unless the symbol,
-    // is expanded, so, we leave this as a guess for later updates.
-    // If the symbol has children (expanded or not), we leave the 'Children' flag
-    // in 'needed' state. Suppress 0-pointers right ("0x000 class X")
-    // here as they only lead to children with memory access errors.
-    const bool hasChildren = p.SubElements && !isNullPointer(wd);
-    wd.setHasChildren(hasChildren);
-    if (debug > 1)
-        qDebug() << Q_FUNC_INFO << index << '\n' << wd.toString();
-    return wd;
-}
-
-WatchData CdbSymbolGroupContext::dumpSymbolAt(CIDebugDataSpaces *ds, unsigned long index)
-{
-    WatchData rc = watchDataAt(index);
-    dump(ds, &rc);
-    return rc;
-}
-
-bool CdbSymbolGroupContext::assignValue(const QString &iname, const QString &value,
-                                        QString *newValue, QString *errorMessage)
-{
-    if (debugCDB)
-        qDebug() << Q_FUNC_INFO << '\n' << iname << value;
-    const NameIndexMap::const_iterator it = m_inameIndexMap.constFind(iname);
-    if (it == m_inameIndexMap.constEnd()) {
-        *errorMessage = msgSymbolNotFound(iname);
-        return false;
-    }
-    const unsigned long  index = it.value();
-    const HRESULT hr = m_symbolGroup->WriteSymbolWide(index, reinterpret_cast<PCWSTR>(value.utf16()));
-    if (FAILED(hr)) {
-        *errorMessage = QString::fromLatin1("Unable to assign '%1' to '%2': %3").
-                        arg(value, iname, CdbCore::msgComFailed("WriteSymbolWide", hr));
-        return false;
-    }
-    if (newValue)
-        *newValue = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    return true;
-}
-
-/* The special type dumpers have an integer return code meaning:
- *  0:  ok
- *  1:  Dereferencing or retrieving memory failed, this is out of scope,
- *      do not try to query further.
- * > 1: A structural error was encountered, that is, the implementation
- *      of the class changed (Qt or say, a different STL implementation).
- *      Visibly warn about it.
- * To add further types, have a look at the toString() output of the
- * symbol group. */
-
-static QString msgStructuralError(const QString &name, const QString &type, int code)
-{
-    return QString::fromLatin1("Warning: Internal dumper for '%1' (%2) failed with %3.").arg(name, type).arg(code);
-}
-
-static inline bool isStdStringOrPointer(const QString &type)
-{
-#define STD_WSTRING "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >"
-#define STD_STRING "std::basic_string<char,std::char_traits<char>,std::allocator<char> >"
-    return type.endsWith(QLatin1String(STD_STRING))
-            || type.endsWith(QLatin1String(STD_STRING" *"))
-            || type.endsWith(QLatin1String(STD_WSTRING))
-            || type.endsWith(QLatin1String(STD_WSTRING" *"));
-#undef STD_WSTRING
-#undef STD_STRING
-}
-
-CdbSymbolGroupContext::DumperResult
-        CdbSymbolGroupContext::dump(CIDebugDataSpaces *ds, WatchData *wd)
-{
-    DumperResult rc = DumperNotHandled;
-    do {
-        // Is this a previously detected Null-Pointer?
-        if (wd->isHasChildrenKnown() && !wd->hasChildren)
-            break;
-        // QString
-        if (wd->type.endsWith(QLatin1String("QString")) || wd->type.endsWith(QLatin1String("QString *"))) {
-            const int drc = dumpQString(ds, wd);
-            switch (drc) {
-            case 0:
-                rc = DumperOk;
-                break;
-            case 1:
-                rc = DumperError;
-                break;
-            default:
-                qWarning("%s\n", qPrintable(msgStructuralError(wd->iname, wd->type, drc)));
-                rc = DumperNotHandled;
-                break;
-            }
-        }
-        // StdString
-        if (isStdStringOrPointer(wd->type)) {
-            const int drc = dumpStdString(wd);
-            switch (drc) {
-            case 0:
-                rc = DumperOk;
-                break;
-            case 1:
-                rc = DumperError;
-                break;
-            default:
-                qWarning("%s\n", qPrintable(msgStructuralError(wd->iname, wd->type, drc)));
-                rc = DumperNotHandled;
-                break;
-            }
-
-        }
-    } while (false);
-    if (debugInternalDumpers)
-        qDebug() << "CdbSymbolGroupContext::dump" << rc << wd->toString();
-    return rc;
-}
-
-// Get integer value of symbol group
-static inline bool getIntValue(CIDebugSymbolGroup *sg, int index, int *value)
-{
-    const QString valueS = getSymbolString(sg, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    bool ok;
-    *value = valueS.toInt(&ok);
-    return ok;
-}
-
-// Get pointer value of symbol group ("0xAAB")
-// Note that this is on "00000000`0250124a" on 64bit systems.
-static inline bool getUnsignedHexValue(CIDebugSymbolGroup *sg, int index, quint64 *value)
-{
-    const QString stringValue = getSymbolString(sg, &IDebugSymbolGroup2::GetSymbolValueTextWide, index);
-    return getUnsignedHexValue(stringValue, value);
-}
-
-enum { maxStringLength = 4096 };
-
-int CdbSymbolGroupContext::dumpQString(CIDebugDataSpaces *ds, WatchData *wd)
-{
-    QString errorMessage;
-    unsigned long stringIndex;
-    if (!lookupPrefix(wd->iname, &stringIndex))
-        return 1;
-
-    // Expand string and it's "d" (step over 'static null')
-    if (!expandSymbol(wd->iname, stringIndex, &errorMessage))
-        return 2;
-    const unsigned long dIndex = stringIndex + 4;
-    if (!expandSymbol(wd->iname, dIndex, &errorMessage))
-        return 3;
-    const unsigned long sizeIndex = dIndex + 3;
-    const unsigned long arrayIndex = dIndex + 4;
-    // Get size and pointer
-    int size;
-    if (!getIntValue(m_symbolGroup, sizeIndex, &size))
-        return 4;
-    quint64 array;
-    if (!getUnsignedHexValue(m_symbolGroup, arrayIndex, &array))
-        return 5;
-    // Fetch
-    const bool truncated = size > maxStringLength;
-    if (truncated)
-        size = maxStringLength;
-    const QChar doubleQuote = QLatin1Char('"');
+    ULONG typeId;
+    ULONG64 address;
+    QString iname;
     QString value;
-    if (size > 0) {
-        value += doubleQuote;
-        // Should this ever be a remote debugger, need to check byte order.
-        unsigned short *buf =  new unsigned short[size + 1];
-        unsigned long bytesRead;
-        const HRESULT hr = ds->ReadVirtual(array, buf, size * sizeof(unsigned short), &bytesRead);
-        if (FAILED(hr)) {
-            delete [] buf;
-            return 1;
+    QString type;
+    const unsigned rc = dumpValue(index, &iname, &(wd->name), &address,
+                                  &typeId, &type, &value);
+    wd->exp = wd->iname = iname.toLatin1();
+    // Trigger numeric sorting for arrays "local.[22]" -> "local.22"
+    if (wd->iname.endsWith(']')) {
+        const int openingBracketPos = wd->iname.lastIndexOf('[');
+        if (openingBracketPos != -1) {
+            wd->iname.truncate(wd->iname.size() - 1);
+            wd->iname.remove(openingBracketPos, 1);
         }
-        buf[bytesRead / sizeof(unsigned short)] = 0;
-        value += QString::fromUtf16(buf);
-        delete [] buf;
-        if (truncated)
-            value += QLatin1String("...");
-        value += doubleQuote;
-    } else if (size == 0) {
-        value = QString(doubleQuote) + doubleQuote;
-    } else {
-        value = "Invalid QString";
     }
-
-    wd->setValue(value);
-    wd->setHasChildren(false);
-    return 0;
+    wd->setAddress(QString::fromLatin1("0x") + QString::number(address, 16));
+    wd->setType(type, false);
+    wd->setValue(fixValue(value, type));
+    if (rc & OutOfScope) {
+        wd->setError(WatchData::msgNotInScope());
+    } else {
+        const bool hasChildren = rc & HasChildren;
+        wd->setHasChildren(hasChildren);
+        if (hasChildren)
+            wd->setChildrenNeeded();
+    }
+    if (debug > 1)
+        qDebug() << "watchDataAt" << index << QString::number(rc, 16) << wd->toString();
+    return rc;
 }
 
-int CdbSymbolGroupContext::dumpStdString(WatchData *wd)
+bool CdbSymbolGroupContext::populateModelInitially(WatchHandler *wh, QString *errorMessage)
 {
-    QString errorMessage;
-    unsigned long stringIndex;
-    if (!lookupPrefix(wd->iname, &stringIndex))
-        return 1;
+    if (debugCDBWatchHandling)
+        qDebug() << "populateModelInitially dumpers=" << m_useDumpers;
+    // Recurse down items that are initially expanded in the view, stop processing for
+    // dumper items.
+    const CdbSymbolGroupRecursionContext rctx(this, OwnerSymbolGroupDumper);
+    const bool rc = m_useDumpers ?
+        populateModelInitiallyHelper(rctx,
+                                     WatchHandleDumperInserter(wh, m_dumper),
+                                     WatchHandlerExpandedPredicate(wh),
+                                     isDumperPredicate,
+                                     errorMessage) :
+        populateModelInitiallyHelper(rctx,
+                                     WatchHandlerModelInserter(wh),
+                                     WatchHandlerExpandedPredicate(wh),
+                                     falsePredicate,
+                                     errorMessage);
+    return rc;
+}
 
-    // Expand string ->string_val->_bx.
-    if (!expandSymbol(wd->iname, stringIndex, &errorMessage))
-        return 1;
-    const unsigned long bxIndex = stringIndex + 3;
-    if (!expandSymbol(wd->iname, bxIndex, &errorMessage))
-        return 2;
-    // Check if size is something sane
-    const int sizeIndex = stringIndex + 6;
-    int size;
-    if (!getIntValue(m_symbolGroup, sizeIndex, &size))
-        return 3;
-    if (size < 0)
-        return 1;
-    // Just copy over the value of the buf[]-array, which should be the string
-    const QChar doubleQuote = QLatin1Char('"');
-    const int bufIndex = stringIndex + 4;
-    QString bufValue = getSymbolString(m_symbolGroup, &IDebugSymbolGroup2::GetSymbolValueTextWide, bufIndex);
-    const int quotePos = bufValue.indexOf(doubleQuote);
-    if (quotePos == -1)
-        return 1;
-    bufValue.remove(0, quotePos);
-    if (bufValue.size() > maxStringLength) {
-        bufValue.truncate(maxStringLength);
-        bufValue += QLatin1String("...\"");
+bool CdbSymbolGroupContext::completeData(const WatchData &incompleteLocal,
+                                         WatchHandler *wh,
+                                         QString *errorMessage)
+{
+    if (debugCDBWatchHandling)
+        qDebug() << ">completeData src=" << incompleteLocal.source << incompleteLocal.toString();
+
+    const CdbSymbolGroupRecursionContext rctx(this, OwnerSymbolGroupDumper);
+    // Expand symbol group items, recurse one level from desired item
+    if (!m_useDumpers) {
+        return completeDataHelper(rctx, incompleteLocal,
+                                  WatchHandlerModelInserter(wh),
+                                  MatchINamePredicate(incompleteLocal.iname),
+                                  falsePredicate,
+                                  errorMessage);
     }
-    wd->setValue(bufValue);
-    wd->setHasChildren(false);
-    return 0;
+
+    // Expand artifical dumper items
+    if ((incompleteLocal.source & CdbSymbolGroupContext::SourceMask) == OwnerDumper) {
+        // If the model queries the expanding item by pretending childrenNeeded=1,
+        // refuse the request if the children are already known
+        if (incompleteLocal.state == WatchData::ChildrenNeeded && (incompleteLocal.source & CdbSymbolGroupContext::ChildrenKnownBit)) {
+            WatchData local = incompleteLocal;
+            local.setChildrenUnneeded();
+            wh->insertData(local);
+            return true;
+        }
+        QList<WatchData> dumperResult;
+        const CdbDumperHelper::DumpResult dr = m_dumper->dumpType(incompleteLocal, true, &dumperResult, errorMessage);
+        if (dr == CdbDumperHelper::DumpOk) {
+            // Hack to stop endless model recursion
+            const bool suppressGrandChildren = !wh->isExpandedIName(incompleteLocal.iname);
+            fixDumperResult(incompleteLocal, &dumperResult, suppressGrandChildren);
+            wh->insertBulkData(dumperResult);
+        } else {
+            const QString msg = QString::fromLatin1("Unable to further expand dumper watch data: '%1' (%2): %3/%4").arg(incompleteLocal.name, incompleteLocal.type).arg(int(dr)).arg(*errorMessage);
+            qWarning("%s", qPrintable(msg));
+            WatchData wd = incompleteLocal;
+            if (wd.isValueNeeded())
+                wd.setValue(QCoreApplication::translate("CdbSymbolGroupContext", "<Unknown>"));
+            wd.setHasChildren(false);
+            wd.setAllUnneeded();
+            wh->insertData(wd);
+        }
+        return true;
+    }
+
+    // Expand symbol group items, recurse one level from desired item
+    return completeDataHelper(rctx, incompleteLocal,
+                              WatchHandleDumperInserter(wh, m_dumper),
+                              MatchINamePredicate(incompleteLocal.iname),
+                              isDumperPredicate,
+                              errorMessage);
+}
+
+bool CdbSymbolGroupContext::editorToolTip(const QString &iname,
+                                         QString *value,
+                                         QString *errorMessage)
+{
+    if (debugToolTips)
+        qDebug() << iname;
+    value->clear();
+    unsigned long index;
+    if (!lookupPrefix(iname, &index)) {
+        *errorMessage = QString::fromLatin1("%1 not found.").arg(iname);
+        return false;
+    }
+    // Check dumpers. Should actually be just one item.
+
+    WatchData wd;
+    const unsigned rc = watchDataAt(index, &wd);
+    if (m_useDumpers && !wd.error
+        && (0u == (rc & CdbCore::SymbolGroupContext::InternalDumperMask))
+        && m_dumper->state() != CdbDumperHelper::Disabled) {
+        QList<WatchData> result;
+        if (CdbDumperHelper::DumpOk == m_dumper->dumpType(wd, false, &result, errorMessage))  {
+            foreach (const WatchData &dwd, result) {
+                if (!value->isEmpty())
+                    value->append(QLatin1Char('\n'));
+                value->append(dwd.toToolTip());
+            }
+            return true;
+        } // Dumped ok
+    }     // has Dumpers
+    if (debugToolTips)
+        qDebug() << iname << wd.toString();
+    *value = wd.toToolTip();
+    return true;
 }
 
 } // namespace Internal

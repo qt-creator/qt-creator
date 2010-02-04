@@ -31,73 +31,39 @@
 #define CDBBREAKPOINTS_H
 
 #include "cdbcom.h"
+#include "breakpoint.h"
+#include "breakhandler.h"
 
 #include <QtCore/QString>
 #include <QtCore/QList>
+#include <QtCore/QDir>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
 QT_END_NAMESPACE
 
+// Convert breakpoint structs
+inline CdbCore::BreakPoint breakPointFromBreakPointData(const Debugger::Internal::BreakpointData &bpd)
+{
+    CdbCore::BreakPoint rc;
+    rc.fileName = QDir::toNativeSeparators(bpd.fileName);
+    rc.condition = bpd.condition;
+    rc.funcName = bpd.funcName;
+    rc.ignoreCount = bpd.ignoreCount.isEmpty() ? 0  : bpd.ignoreCount.toInt();
+    rc.lineNumber  = bpd.lineNumber.isEmpty()  ? -1 : bpd.lineNumber.toInt();
+    rc.oneShot = false;
+    rc.enabled = bpd.enabled;
+    return rc;
+}
+
 namespace Debugger {
 namespace Internal {
 
-class BreakHandler;
-class BreakpointData;
+// Synchronize (halted) engine with BreakHandler.
+bool synchronizeBreakPoints(CIDebugControl* ctl, CIDebugSymbols *syms,
+                            BreakHandler *bh,
+                            QString *errorMessage, QStringList *warnings);
 
-/* CDB Break point data structure with utilities to
- * apply to engine and to retrieve them from the engine and comparison. */
-
-struct CDBBreakPoint
-{
-    CDBBreakPoint();
-    CDBBreakPoint(const BreakpointData &bpd);
-
-    int compare(const CDBBreakPoint& rhs) const;
-
-    void clear();
-    void clearExpressionData();
-
-    QString expression() const;
-
-    // Apply parameters
-    bool apply(IDebugBreakpoint2 *ibp, QString *errorMessage) const;
-    // Convenience to add to a IDebugControl4
-    bool add(CIDebugControl* debugControl,
-             QString *errorMessage,
-             unsigned long *id = 0,
-             quint64 *address = 0) const;
-
-    // Retrieve/parse breakpoints from the interfaces
-    bool retrieve(IDebugBreakpoint2 *ibp, QString *errorMessage);
-    bool parseExpression(const QString &expr);
-    // Retrieve all breakpoints from the engine
-    static bool getBreakPointCount(CIDebugControl* debugControl, ULONG *count, QString *errorMessage = 0);
-    static bool getBreakPoints(CIDebugControl* debugControl, QList<CDBBreakPoint> *bps, QString *errorMessage);
-    // Synchronize (halted) engine with BreakHandler.
-    static bool synchronizeBreakPoints(CIDebugControl* ctl, CIDebugSymbols *syms,
-                                       BreakHandler *bh,
-                                       QString *errorMessage, QStringList *warnings);
-
-    // Return a 'canonical' file (using '/' and capitalized drive letter)
-    static QString normalizeFileName(const QString &f);
-    static void clearNormalizeFileNameCache();
-
-    QString fileName;       // short name of source file
-    QString condition;      // condition associated with breakpoint
-    unsigned long ignoreCount;    // ignore count associated with breakpoint
-    int lineNumber;     // line in source file
-    QString funcName;       // name of containing function
-    bool oneShot;
-    bool enabled;
-};
-
-QDebug operator<<(QDebug, const CDBBreakPoint &bp);
-
-inline bool operator==(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
-    { return b1.compare(b2) == 0; }
-inline bool operator!=(const CDBBreakPoint& b1, const CDBBreakPoint& b2)
-    { return b1.compare(b2) != 0; }
 } // namespace Internal
 } // namespace Debugger
 

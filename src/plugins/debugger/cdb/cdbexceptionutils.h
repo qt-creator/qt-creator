@@ -39,6 +39,10 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
+namespace CdbCore {
+    struct ComInterfaces;
+}
+
 namespace Debugger {
 namespace Internal {
 
@@ -94,7 +98,7 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str);
 
 // Format exception with stacktrace in case of C++ exception
 void formatException(const EXCEPTION_RECORD64 *e,
-                     const QSharedPointer<CdbDumperHelper> &dumper,
+                     const CdbCore::ComInterfaces *cif,
                      QTextStream &str);
 
 // Is this a crash/recoverable?

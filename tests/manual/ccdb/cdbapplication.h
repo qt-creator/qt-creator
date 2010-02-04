@@ -30,11 +30,16 @@
 #ifndef CDBAPPLICATION_H
 #define CDBAPPLICATION_H
 
+#include "breakpoint.h"
+
 #include <QtCore/QCoreApplication>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
+#include <QtCore/QStringList>
 
 namespace CdbCore {
     class CoreEngine;
+    class StackTraceContext;
 }
 
 class CdbPromptThread;
@@ -61,10 +66,16 @@ private slots:
 
 private:
     bool parseOptions();
+    void printFrame(const QString &arg);
+    bool queueBreakPoint(const QString &arg);
 
     QString m_engineDll;
     QSharedPointer<CdbCore::CoreEngine> m_engine;
+    QScopedPointer<CdbCore::StackTraceContext> m_stackTrace;
     CdbPromptThread *m_promptThread;
+    QStringList m_queuedCommands;
+    QList<CdbCore::BreakPoint> m_queuedBreakPoints;
+
     void *m_processHandle;
 };
 

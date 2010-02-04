@@ -324,13 +324,18 @@ QString WatchData::msgNotInScope()
     return rc;
 }
 
+const QString &WatchData::shadowedNameFormat()
+{
+    static const QString format = QCoreApplication::translate("Debugger::Internal::WatchData", "%1 <shadowed %2>");
+    return format;
+}
+
 QString WatchData::shadowedName(const QString &name, int seen)
 {
     if (seen <= 0)
         return name;
-    return QCoreApplication::translate("Debugger::Internal::WatchData", "%1 <shadowed %2>").arg(name).arg(seen);
+    return shadowedNameFormat().arg(name, seen);
 }
-
 
 ///////////////////////////////////////////////////////////////////////
 //

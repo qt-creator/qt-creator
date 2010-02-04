@@ -30,6 +30,8 @@
 #ifndef CDBSYMBOLGROUPCONTEXT_TPL_H
 #define CDBSYMBOLGROUPCONTEXT_TPL_H
 
+#include "watchhandler.h"
+
 #include <QtCore/QDebug>
 
 namespace Debugger {
@@ -37,20 +39,10 @@ namespace Internal {
 
 enum { debugSgRecursion = 0 };
 
-/* inline static */ bool CdbSymbolGroupContext::isSymbolDisplayable(const DEBUG_SYMBOL_PARAMETERS &p)
-{
-    if (p.Flags & (DEBUG_SYMBOL_IS_LOCAL|DEBUG_SYMBOL_IS_ARGUMENT))
-        return true;
-    // Do not display static members.
-    if (p.Flags & DEBUG_SYMBOL_READ_ONLY)
-        return false;
-    return true;
-}
-
 template <class OutputIterator>
-bool CdbSymbolGroupContext::getDumpChildSymbols(CIDebugDataSpaces *ds, const QString &prefix,
-                             int dumpedOwner,
-                             OutputIterator it, QString *errorMessage)
+bool CdbSymbolGroupContext::getDumpChildSymbols(const QString &prefix,
+                                                int dumpedOwner,
+                                                OutputIterator it, QString *errorMessage)
 {
     unsigned long start;
     unsigned long parentId;
@@ -58,21 +50,14 @@ bool CdbSymbolGroupContext::getDumpChildSymbols(CIDebugDataSpaces *ds, const QSt
         return false;
     // Skip over expanded children. Internal dumping might expand
     // children, so, re-evaluate size in end condition.
-    for (int s = start; s < m_symbolParameters.size(); ++s) {
-        const DEBUG_SYMBOL_PARAMETERS &p = m_symbolParameters.at(s);
+    const int count = size();
+    for (int s = start; s < count; ++s) {
+        const DEBUG_SYMBOL_PARAMETERS &p = symbolParameterAt(s);
         if (p.ParentSymbol == parentId && isSymbolDisplayable(p)) {
-            WatchData wd = watchDataAt(s);
-            // Run internal dumper, mark ownership
-            if (ds) {
-                switch (dump(ds, &wd)) {
-                case DumperOk:
-                case DumperError: // Not initialized yet, do not run other dumpers
-                    wd.source = dumpedOwner;
-                    break;
-                case DumperNotHandled:
-                    break;
-                }
-            }
+            WatchData wd;
+            const unsigned rc = watchDataAt(s, &wd);
+            if (rc & InternalDumperMask)
+                wd.source = dumpedOwner;
             *it = wd;
             ++it;
         }
@@ -86,7 +71,7 @@ bool CdbSymbolGroupContext::getDumpChildSymbols(CIDebugDataSpaces *ds, const QSt
 // children but can expand none, which would lead to invalid parent information
 // (expand icon), though (ignore for simplicity).
 template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-bool insertSymbolRecursion(WatchData wd,
+bool CdbSymbolGroupContext::insertSymbolRecursion(WatchData wd,
                            const CdbSymbolGroupRecursionContext &ctx,
                            OutputIterator it,
                            RecursionPredicate recursionPredicate,
@@ -124,8 +109,7 @@ bool insertSymbolRecursion(WatchData wd,
         return true;
     QList<WatchData> watchList;
     // This implicitly enforces expansion
-    if (!ctx.context->getDumpChildSymbols(ctx.dataspaces,
-                                          wd.iname,
+    if (!ctx.context->getDumpChildSymbols(wd.iname,
                                           ctx.internalDumperOwner,
                                           WatchDataBackInserter(watchList), errorMessage))
         return false;
@@ -145,11 +129,11 @@ bool insertSymbolRecursion(WatchData wd,
 }
 
 template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-bool CdbSymbolGroupContext::populateModelInitially(const CdbSymbolGroupRecursionContext &ctx,
-                                                   OutputIterator it,
-                                                   RecursionPredicate recursionPredicate,
-                                                   IgnorePredicate ignorePredicate,
-                                                   QString *errorMessage)
+bool CdbSymbolGroupContext::populateModelInitiallyHelper(const CdbSymbolGroupRecursionContext &ctx,
+                                                         OutputIterator it,
+                                                         RecursionPredicate recursionPredicate,
+                                                         IgnorePredicate ignorePredicate,
+                                                         QString *errorMessage)
 {
     if (debugSgRecursion)
         qDebug() << "### CdbSymbolGroupContext::populateModelInitially";
@@ -157,7 +141,7 @@ bool CdbSymbolGroupContext::populateModelInitially(const CdbSymbolGroupRecursion
     // Insert root items
     QList<WatchData> watchList;
     CdbSymbolGroupContext *sg = ctx.context;
-    if (!sg->getDumpChildSymbols(ctx.dataspaces, sg->prefix(),
+    if (!sg->getDumpChildSymbols(sg->prefix(),
                                  ctx.internalDumperOwner,
                                  WatchDataBackInserter(watchList), errorMessage))
         return false;
@@ -169,7 +153,7 @@ bool CdbSymbolGroupContext::populateModelInitially(const CdbSymbolGroupRecursion
 }
 
 template <class OutputIterator, class RecursionPredicate, class IgnorePredicate>
-bool CdbSymbolGroupContext::completeData(const CdbSymbolGroupRecursionContext &ctx,
+bool CdbSymbolGroupContext::completeDataHelper(const CdbSymbolGroupRecursionContext &ctx,
                                          WatchData incompleteLocal,
                                          OutputIterator it,
                                          RecursionPredicate recursionPredicate,

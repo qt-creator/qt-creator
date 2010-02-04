@@ -10,7 +10,6 @@ HEADERS += \
     $$PWD/cdbsymbolgroupcontext.h \
     $$PWD/cdbsymbolgroupcontext_tpl.h \
     $$PWD/cdbstacktracecontext.h \
-    $$PWD/cdbstackframecontext.h \
     $$PWD/cdbbreakpoint.h \
     $$PWD/cdbmodules.h \
     $$PWD/cdbassembler.h \
@@ -25,7 +24,6 @@ SOURCES += \
     $$PWD/cdbdebugeventcallback.cpp \
     $$PWD/cdbdebugoutput.cpp \
     $$PWD/cdbsymbolgroupcontext.cpp \
-    $$PWD/cdbstackframecontext.cpp \
     $$PWD/cdbstacktracecontext.cpp \
     $$PWD/cdbbreakpoint.cpp \
     $$PWD/cdbmodules.cpp \
@@ -37,6 +35,4 @@ SOURCES += \
     $$PWD/cdbexceptionutils.cpp
 
 FORMS += $$PWD/cdboptionspagewidget.ui
-
-LIBS+=-lpsapi
 }

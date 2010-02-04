@@ -310,15 +310,14 @@ bool CdbStackFrameContext::populateModelInitially(WatchHandler *wh, QString *err
         qDebug() << "populateModelInitially dumpers=" << m_useDumpers;
     // Recurse down items that are initially expanded in the view, stop processing for
     // dumper items.
-    const CdbSymbolGroupRecursionContext rctx(m_symbolContext, OwnerSymbolGroupDumper,
-                                              m_dumper->comInterfaces()->debugDataSpaces);
+    const CdbSymbolGroupRecursionContext rctx(m_symbolContext, OwnerSymbolGroupDumper);
     const bool rc = m_useDumpers ?
-        CdbSymbolGroupContext::populateModelInitially(rctx,
+        CdbSymbolGroupContext::populateModelInitiallyHelper(rctx,
                                                       WatchHandleDumperInserter(wh, m_dumper),
                                                       WatchHandlerExpandedPredicate(wh),
                                                       isDumperPredicate,
                                                       errorMessage) :
-        CdbSymbolGroupContext::populateModelInitially(rctx,
+        CdbSymbolGroupContext::populateModelInitiallyHelper(rctx,
                                                       WatchHandlerModelInserter(wh),
                                                       WatchHandlerExpandedPredicate(wh),
                                                       falsePredicate,
@@ -333,11 +332,10 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
     if (debugCDBWatchHandling)
         qDebug() << ">completeData src=" << incompleteLocal.source << incompleteLocal.toString();
 
-    const CdbSymbolGroupRecursionContext rctx(m_symbolContext, OwnerSymbolGroupDumper,
-                                              m_dumper->comInterfaces()->debugDataSpaces);
+    const CdbSymbolGroupRecursionContext rctx(m_symbolContext, OwnerSymbolGroupDumper);
     // Expand symbol group items, recurse one level from desired item
     if (!m_useDumpers) {
-        return CdbSymbolGroupContext::completeData(rctx, incompleteLocal,
+        return CdbSymbolGroupContext::completeDataHelper(rctx, incompleteLocal,
                                                    WatchHandlerModelInserter(wh),
                                                    MatchINamePredicate(incompleteLocal.iname),
                                                    falsePredicate,
@@ -375,7 +373,7 @@ bool CdbStackFrameContext::completeData(const WatchData &incompleteLocal,
     }
 
     // Expand symbol group items, recurse one level from desired item
-    return CdbSymbolGroupContext::completeData(rctx, incompleteLocal,
+    return CdbSymbolGroupContext::completeDataHelper(rctx, incompleteLocal,
                                                WatchHandleDumperInserter(wh, m_dumper),
                                                MatchINamePredicate(incompleteLocal.iname),
                                                isDumperPredicate,
@@ -398,8 +396,12 @@ bool CdbStackFrameContext::editorToolTip(const QString &iname,
         return false;
     }
     // Check dumpers. Should actually be just one item.
-    const WatchData wd = m_symbolContext->watchDataAt(index);
-    if (m_useDumpers && !wd.error && m_dumper->state() != CdbDumperHelper::Disabled) {
+
+    WatchData wd;
+    const unsigned rc = m_symbolContext->watchDataAt(index, &wd);
+    if (m_useDumpers && !wd.error
+        && (0u == (rc & CdbCore::SymbolGroupContext::InternalDumperMask))
+        && m_dumper->state() != CdbDumperHelper::Disabled) {
         QList<WatchData> result;
         if (CdbDumperHelper::DumpOk == m_dumper->dumpType(wd, false, &result, errorMessage))  {
             foreach (const WatchData &dwd, result) {
