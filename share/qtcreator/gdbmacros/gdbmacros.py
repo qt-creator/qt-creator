@@ -317,11 +317,11 @@ def qdump__QHashNode(d, item):
         d.beginChildren()
         d.beginHash()
         d.putName("key")
-        d.putItemHelper(Item(key, None, None))
+        d.putItemHelper(Item(key, item.iname, "key"))
         d.endHash()
         d.beginHash()
         d.putName("value")
-        d.putItemHelper(Item(value, None, None))
+        d.putItemHelper(Item(value, item.iname, "value"))
         d.endHash()
         d.endChildren()
 
