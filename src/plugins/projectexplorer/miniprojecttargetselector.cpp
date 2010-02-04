@@ -154,11 +154,6 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     Q_FOREACH(RunConfiguration* rc, m_target->runConfigurations())
             addRunConfiguration(rc);
 
-    connect(m_target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            SLOT(addBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-    connect(m_target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            SLOT(addBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
-
     connect(m_target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
             SLOT(addRunConfiguration(ProjectExplorer::RunConfiguration*)));
     connect(m_target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
@@ -166,8 +161,6 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
 
     connect(m_runComboBox, SIGNAL(currentIndexChanged(int)), SLOT(setActiveRunConfiguration(int)));
 
-    connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            SLOT(setActiveBuildConfiguration()));
     connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             SLOT(setActiveRunConfiguration()));
 
