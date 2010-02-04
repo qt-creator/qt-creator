@@ -82,6 +82,7 @@ static LogChannel channelForChar(QChar c)
     }
 }
 
+
 /////////////////////////////////////////////////////////////////////
 //
 // OutputHighlighter
@@ -132,9 +133,37 @@ private:
     QPlainTextEdit *m_parent;
 };
 
+
 /////////////////////////////////////////////////////////////////////
 //
-// InputPane
+// InputHighlighter
+//
+/////////////////////////////////////////////////////////////////////
+
+class InputHighlighter : public QSyntaxHighlighter
+{
+public:
+    InputHighlighter(QPlainTextEdit *parent)
+        : QSyntaxHighlighter(parent->document()), m_parent(parent)
+    {}
+
+private:
+    void highlightBlock(const QString &text)
+    {
+        if (text.size() > 3 && text.at(2) == QLatin1Char(':')) {
+            QTextCharFormat format;
+            format.setForeground(Qt::darkRed);
+            setFormat(1, text.size(), format);
+        }
+    }
+
+    QPlainTextEdit *m_parent;
+};
+
+
+/////////////////////////////////////////////////////////////////////
+//
+// DebbuggerPane base class
 //
 /////////////////////////////////////////////////////////////////////
 
@@ -181,13 +210,22 @@ public:
     QAction *m_saveContentsAction;
 };
 
+
+/////////////////////////////////////////////////////////////////////
+//
+// InputPane
+//
+/////////////////////////////////////////////////////////////////////
+
 class InputPane : public DebuggerPane
 {
     Q_OBJECT
 public:
     InputPane(QWidget *parent)
         : DebuggerPane(parent)
-    {}
+    {
+        (void) new InputHighlighter(this);
+    }
 
 signals:
     void clearContentsRequested();

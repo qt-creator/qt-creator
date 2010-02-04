@@ -1904,6 +1904,8 @@ void GdbEngine::setTokenBarrier()
     }
     PENDING_DEBUG("\n--- token barrier ---\n");
     gdbInputAvailable(LogMisc, _("--- token barrier ---"));
+    if (theDebuggerBoolSetting(LogTimeStamps))
+        gdbInputAvailable(LogMisc, currentTime());
     m_oldestAcceptableToken = currentToken();
 }
 
@@ -3163,6 +3165,8 @@ void GdbEngine::rebuildModel()
     if (!isSynchroneous())
         m_processedNames.clear();
     PENDING_DEBUG("REBUILDING MODEL" << count);
+    if (theDebuggerBoolSetting(LogTimeStamps))
+        gdbInputAvailable(LogMisc, currentTime());
     gdbInputAvailable(LogStatus, _("<Rebuild Watchmodel %1>").arg(count));
     showStatusMessage(tr("Finished retrieving data."), 400);
     manager()->watchHandler()->endCycle();
