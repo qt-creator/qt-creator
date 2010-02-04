@@ -64,7 +64,6 @@ using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 
 // #define QML_WITH_SNIPPETS
-// #define QML_WITH_AUTO_COMPLETION
 
 namespace {
 
@@ -578,7 +577,6 @@ bool QmlCodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *edito
     if (ch == QLatin1Char('(') || ch == QLatin1Char('.'))
         return true;
 
-#ifdef QML_WITH_AUTO_COMPLETION
     const QChar characterUnderCursor = editor->characterAt(cursorPosition);
 
     if (isIdentifierChar(ch) && (characterUnderCursor.isSpace() ||
@@ -600,7 +598,6 @@ bool QmlCodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *edito
             return true;
         }
     }
-#endif
 
     return false;
 }
