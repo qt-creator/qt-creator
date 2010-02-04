@@ -77,7 +77,7 @@ PropertyEditor::NodeType::~NodeType()
 void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value, QmlPropertyMap *propertyMap, PropertyEditor *propertyEditor)
 {
     QString propertyName(name);
-    propertyName.replace(".", "_");
+    propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
     PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(propertyMap->value(propertyName)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(propertyMap);
@@ -206,7 +206,7 @@ void PropertyEditor::changeValue(const QString &name)
     }
 
     QString propertyName(name);
-    propertyName.replace("_", ".");
+    propertyName.replace(QLatin1Char('_'), QLatin1Char('.'));
 
     PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(name)));
 
@@ -528,7 +528,7 @@ QUrl PropertyEditor::fileToUrl(const QString &filePath) const {
     if (filePath.isEmpty())
         return fileUrl;
 
-    if (filePath.startsWith(":")) {
+    if (filePath.startsWith(QLatin1Char(':'))) {
         fileUrl.setScheme("qrc");
         QString path = filePath;
         path.remove(0, 1); // remove trailing ':'

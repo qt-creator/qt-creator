@@ -415,12 +415,12 @@ uint qHash(const AbstractProperty &property)
 
 QDebug operator<<(QDebug debug, const AbstractProperty &property)
 {
-    return debug.nospace() << "AbstractProperty(" << (property.isValid() ? property.name() : QLatin1String("invalid")) << ")";
+    return debug.nospace() << "AbstractProperty(" << (property.isValid() ? property.name() : QLatin1String("invalid")) << ')';
 }
 
 QTextStream& operator<<(QTextStream &stream, const AbstractProperty &property)
 {
-    stream << "AbstractProperty(" << property.name() << ")";
+    stream << "AbstractProperty(" << property.name() << ')';
 
     return stream;
 }

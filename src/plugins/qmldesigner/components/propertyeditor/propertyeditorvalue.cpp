@@ -239,7 +239,7 @@ void PropertyEditorNodeWrapper::add(const QString &type)
     QString propertyType = type;
 
     if ((m_editorValue && m_editorValue->modelNode().isValid())) {
-        if (propertyType == "")
+        if (propertyType.isEmpty())
             propertyType = m_editorValue->modelNode().metaInfo().property(m_editorValue->name()).type();
         while (propertyType.contains('*')) //strip star
             propertyType.chop(1);

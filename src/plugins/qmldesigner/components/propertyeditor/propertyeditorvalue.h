@@ -57,7 +57,7 @@ public:
     QString propertyName() const;
 
 public slots:
-    void add(const QString &type = "");
+    void add(const QString &type = QString());
     void remove();
     void changeValue(const QString &name);
     void update();

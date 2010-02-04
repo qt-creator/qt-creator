@@ -72,7 +72,7 @@ static void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputN
 
 static void syncId(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash)
 {
-    if (!inputNode.id().isNull() && inputNode.id() != "") {
+    if (!inputNode.id().isNull() && !inputNode.id().isEmpty()) {
         outputNode.setId(idRenamingHash.value(inputNode.id()));
     }
 }
@@ -82,7 +82,7 @@ static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QStri
     QList<ModelNode> allNodes(modelNode.allSubModelNodes());
     allNodes.append(modelNode);
     foreach (const ModelNode &node, allNodes) {
-        if (!node.id().isNull() && node.id() != "") {
+        if (!node.id().isNull() && !node.id().isEmpty()) {
             QString newId = node.id();
             int i = 1;
             while (view->hasId(newId) || idRenamingHash.contains(newId)) {
@@ -96,7 +96,7 @@ static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QStri
 
 static void syncNodeProperties(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash, AbstractView *view)
 {
-    foreach (NodeProperty nodeProperty, inputNode.nodeProperties()) {
+    foreach (const NodeProperty &nodeProperty, inputNode.nodeProperties()) {
         ModelNode newNode = createNodeFromNode(nodeProperty.modelNode(), idRenamingHash, view);
         outputNode.nodeProperty(nodeProperty.name()).reparentHere(newNode);
     }
@@ -104,7 +104,7 @@ static void syncNodeProperties(ModelNode &outputNode, const ModelNode &inputNode
 
 static void syncNodeListProperties(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash, AbstractView *view)
 {
-    foreach (NodeListProperty nodeListProperty, inputNode.nodeListProperties()) {
+    foreach (const NodeListProperty &nodeListProperty, inputNode.nodeListProperties()) {
         foreach (const ModelNode &node, nodeListProperty.toModelNodeList()) {
             ModelNode newNode = createNodeFromNode(node, idRenamingHash, view);
             outputNode.nodeListProperty(nodeListProperty.name()).reparentHere(newNode);

@@ -590,7 +590,7 @@ void TextToModelMerger::setupComponent(const ModelNode &node)
     if (componentText.isEmpty())
         return;
 
-    QString result = "";
+    QString result;
     if (componentText.contains("Component")) { //explicit component
         FirstDefinitionFinder firstDefinitionFinder(componentText);
         int offset = firstDefinitionFinder(0);

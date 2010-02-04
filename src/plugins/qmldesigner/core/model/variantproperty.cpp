@@ -133,11 +133,11 @@ VariantProperty& VariantProperty::operator= (const QPair<QString, QVariant> &typ
 
 QDebug operator<<(QDebug debug, const VariantProperty &VariantProperty)
 {
-    return debug.nospace() << "VariantProperty(" << VariantProperty.name() << ")";
+    return debug.nospace() << "VariantProperty(" << VariantProperty.name() << ')';
 }
 QTextStream& operator<<(QTextStream &stream, const VariantProperty &property)
 {
-    stream << "VariantProperty(" << property.name() << ")";
+    stream << "VariantProperty(" << property.name() << ')';
 
     return stream;
 }

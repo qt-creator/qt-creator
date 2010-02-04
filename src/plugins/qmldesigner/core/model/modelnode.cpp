@@ -249,7 +249,7 @@ QString ModelNode::simplifiedTypeName() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return type().split("/").last();
+    return type().split(QLatin1Char('/')).last();
 }
 
 /*! \brief Returns whether the node is valid
@@ -842,7 +842,7 @@ QDebug operator<<(QDebug debug, const ModelNode &modelNode)
         debug.nospace() << "ModelNode("
                 << modelNode.internalNode().data() << ", "
                 << modelNode.type() << ", "
-                << modelNode.id() <<")";
+                << modelNode.id() << ')';
     } else {
         debug.nospace() << "ModelNode(invalid)";
     }
@@ -855,7 +855,7 @@ QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode)
     if (modelNode.isValid()) {
         stream << "ModelNode("
                 << "type: " << modelNode.type() << ", "
-                << "id: " << modelNode.id() <<")";
+                << "id: " << modelNode.id() << ')';
     } else {
         stream << "ModelNode(invalid)";
     }

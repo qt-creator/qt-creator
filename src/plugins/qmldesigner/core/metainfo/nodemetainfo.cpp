@@ -278,7 +278,7 @@ QHash<QString,PropertyMetaInfo> NodeMetaInfo::dotProperties() const
                     while (iter.hasNext()) {
                         iter.next();
                         if (!propertiesInfo.contains(iter.key()) && iter.key() != "objectName")
-                            propertiesInfo.insert(propertyName + "." + iter.key(), iter.value());
+                            propertiesInfo.insert(propertyName + '.' + iter.key(), iter.value());
                     }
             }
         }

@@ -105,7 +105,7 @@ void AddArrayMemberVisitor::insertInto(QmlJS::AST::UiArrayBinding *arrayBinding)
 void AddArrayMemberVisitor::convertAndAdd(QmlJS::AST::UiObjectBinding *objectBinding)
 {
     const int indentDepth = calculateIndentDepth(objectBinding->firstSourceLocation());
-    const QString arrayPrefix = QLatin1String("[\n") + addIndentation(QLatin1String(""), indentDepth);
+    const QString arrayPrefix = QLatin1String("[\n") + addIndentation(QString(), indentDepth);
     replace(objectBinding->qualifiedTypeNameId->identifierToken.offset, 0, arrayPrefix);
     const int insertionPoint = objectBinding->lastSourceLocation().end();
     replace(insertionPoint, 0,

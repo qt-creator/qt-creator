@@ -145,7 +145,7 @@ void QmlAnchors::setAnchor(AnchorLine::Type sourceAnchorLine,
         QString targetExpression = targetQmlItemNode.modelNode().validId();
         if (targetQmlItemNode.modelNode() == qmlItemNode().modelNode().parentProperty().parentModelNode())
             targetExpression = "parent";
-        targetExpression = targetExpression + "." + lineTypeToString(targetAnchorLine);
+        targetExpression = targetExpression + QLatin1Char('.') + lineTypeToString(targetAnchorLine);
         qmlItemNode().modelNode().bindingProperty(propertyName).setExpression(targetExpression);
     }
 }

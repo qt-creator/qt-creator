@@ -102,7 +102,7 @@ BindingProperty& BindingProperty::operator= (const QString &expression)
 static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, AbstractView* view)
 {
     int i = 0;
-    QString element = binding.split(".").at(0);
+    QString element = binding.split(QLatin1Char('.')).at(0);
     while (!element.isEmpty())
     {
         if (element == "parent") {
@@ -119,10 +119,10 @@ static ModelNode resolveBinding(const QString &binding, ModelNode currentNode, A
             currentNode = view->modelNodeForId(element); //id
         }
         i++;
-        if (i < binding.split(".").count())
-            element = binding.split(".").at(i);
+        if (i < binding.split(QLatin1Char('.')).count())
+            element = binding.split(QLatin1Char('.')).at(i);
         else
-            element = "";
+            element.clear();
     }
     return currentNode;
 
@@ -144,8 +144,8 @@ AbstractProperty BindingProperty::resolveToProperty() const
     QString binding = expression();
     ModelNode node = parentModelNode();
     QString element;
-    if (binding.contains(".")) {
-        element = binding.split(".").last();
+    if (binding.contains(QLatin1Char('.'))) {
+        element = binding.split(QLatin1Char('.')).last();
         QString nodeBinding = binding;
         nodeBinding.chop(element.length());
         node = resolveBinding(nodeBinding, parentModelNode(), view());

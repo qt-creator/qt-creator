@@ -165,7 +165,7 @@ void ItemCreatorTool::createAtItem(const QRectF &rect)
         pos = parentItem->mapFromScene(pos);
     }
 
-    QStringList list = m_itemString.split("^");
+    QStringList list = m_itemString.split(QLatin1Char('^'));
     if (list.count() != 2)
         return;
     if (list.first() == "item") {

@@ -223,7 +223,7 @@ void SubComponentManagerPrivate::parseDirectory(const QString &dirPath)
     while (newIter != newList.constEnd()) {
         parseFile(newIter->filePath());
         if (debug)
-            qDebug() << "m_watcher.addPath(" << newIter->filePath() << ")";
+            qDebug() << "m_watcher.addPath(" << newIter->filePath() << ')';
         m_watcher.addPath(newIter->filePath());
         ++newIter;
     }

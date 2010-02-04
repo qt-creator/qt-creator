@@ -115,7 +115,7 @@ QmlItemNode QmlModelView::createQmlItemNodeFromImage(const QString &imageName, c
         QString id;
         int i = 1;
         QString name("image");
-        name.replace(" ", "");
+        name.remove(QLatin1Char(' '));
         do {
             id = name + QString::number(i);
             i++;
@@ -159,7 +159,7 @@ QmlItemNode QmlModelView::createQmlItemNode(const ItemLibraryInfo &itemLibraryRe
         QString id;
         int i = 1;
         QString name(itemLibraryRepresentation.name());
-        name.replace(" ", "");
+        name.remove(QLatin1Char(' '));
         do {
             id = name + QString::number(i);
             i++;

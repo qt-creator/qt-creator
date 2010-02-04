@@ -72,7 +72,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
                 result += arrayContentIndentation;
                 result += toQml(nodes.at(i), arrayContentDepth);
             }
-            return result + QLatin1String("]");
+            return result + QLatin1Char(']');
         }
     } else if (property.isVariantProperty()) {
         const VariantProperty variantProperty = property.toVariantProperty();

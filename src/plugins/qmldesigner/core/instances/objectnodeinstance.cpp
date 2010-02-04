@@ -489,7 +489,7 @@ QVariant ObjectNodeInstance::property(const QString &name) const
             return QVariant();
 
         if (url.scheme() == "file") {
-            int basePathLength = nodeInstanceView()->model()->fileUrl().toLocalFile().lastIndexOf("/");
+            int basePathLength = nodeInstanceView()->model()->fileUrl().toLocalFile().lastIndexOf('/');
             return QUrl(url.toLocalFile().mid(basePathLength + 1));
         }
     }
@@ -612,11 +612,11 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
         if (metaProperty.isReadable() && !metaProperty.isWritable()) {
             QObject *childObject = QmlMetaType::toQObject(metaProperty.read(object));
             if (childObject)
-                propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + "."));
+                propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.'));
         } else if (QmlValueTypeFactory::valueType(metaProperty.userType())) {
             QmlValueType *valueType = QmlValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
-            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + "."));
+            propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.'));
         } else if (metaProperty.isReadable() && metaProperty.isWritable()) {
             propertyNameList.append(baseName + QString::fromUtf8(metaProperty.name()));
         }

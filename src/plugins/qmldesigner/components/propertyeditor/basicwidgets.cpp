@@ -430,7 +430,7 @@ public:
         _styleSheetFile.setScheme("file"); //### todo
         QString fileName;
         if (!QFileInfo(_styleSheetFile.toLocalFile()).exists())
-            fileName = (":" + _styleSheetFile.toLocalFile().split(":").last()); //try if it is a resource
+            fileName = (QLatin1Char(':') + _styleSheetFile.toLocalFile().split(QLatin1Char(':')).last()); //try if it is a resource
         else
             fileName = (_styleSheetFile.toLocalFile());
         QFile file(fileName);
@@ -550,7 +550,7 @@ private:
 
         QString path;
         if (_url.scheme() == QLatin1String("qrc")) {
-            path = ":" + _url.path();
+            path = QLatin1Char(':') + _url.path();
         } else {
             path = _url.toLocalFile();
         }
@@ -623,7 +623,7 @@ private:
 
         QString path;
         if (_url.scheme() == QLatin1String("qrc")) {
-            path = ":" + _url.path();
+            path = QLatin1Char(':') + _url.path();
         } else {
             path = _url.toLocalFile();
         }
