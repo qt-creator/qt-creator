@@ -35,7 +35,7 @@
 
 #include <nodeproperty.h>
 
-#define _separator_line_color_ "#5f5f5f"
+#define _separator_line_color_ "#757575"
 
 namespace QmlDesigner {
 
