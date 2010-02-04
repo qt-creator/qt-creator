@@ -203,13 +203,14 @@ void MiniTargetWidget::setActiveBuildConfiguration(int index)
     ProjectExplorer::BuildConfiguration* bc =
             m_buildComboBox->itemData(index).value<ProjectExplorer::BuildConfiguration*>();
     m_target->setActiveBuildConfiguration(bc);
-    emit activeBuildConfigurationChanged(bc);
+    emit changed();
 }
 
 void MiniTargetWidget::setActiveRunConfiguration(int index)
 {
     m_target->setActiveRunConfiguration(
             m_runComboBox->itemData(index).value<ProjectExplorer::RunConfiguration*>());
+    emit changed();
 }
 void MiniTargetWidget::setActiveBuildConfiguration()
 {
@@ -264,6 +265,7 @@ void MiniTargetWidget::updateDisplayName()
         m_buildComboBox->setItemText(m_buildComboBox->findData(QVariant::fromValue(bc)),
                                      bc->displayName());
     }
+    emit changed();
 }
 
 bool MiniTargetWidget::hasBuildConfiguration() const
@@ -377,14 +379,12 @@ void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool 
     if (index < 0)
         return;
 
-    connect(target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            SLOT(updateAction()));
-
     ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
 
     QListWidgetItem *lwi = new QListWidgetItem();
     plw->addItem(lwi);
     MiniTargetWidget *targetWidget = new MiniTargetWidget(target);
+    connect(targetWidget, SIGNAL(changed()), this, SLOT(updateAction()));
     targetWidget->installEventFilter(this);
     if (targetWidget->buildSettingsComboBox())
         targetWidget->buildSettingsComboBox()->installEventFilter(this);
@@ -425,23 +425,36 @@ void MiniProjectTargetSelector::updateAction()
     Project *project = ProjectExplorerPlugin::instance()->startupProject();
 
     QString projectName = tr("No Project");
-    QString buildConfig = tr("None");
+    QString targetName;
+    QString buildConfig;
+    QString runConfig;
 
     if (project) {
         projectName = project->displayName();
 
-        if (project->activeTarget() && project->activeTarget()->activeBuildConfiguration()) {
-            if (BuildConfiguration* bc = project->activeTarget()->activeBuildConfiguration())
+        if (Target *target = project->activeTarget()) {
+            if (project->targets().count() > 1) {
+                targetName = project->activeTarget()->displayName();
+            }
+            if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
                 buildConfig = bc->displayName();
+            }
+
+            if (RunConfiguration *rc = target->activeRunConfiguration()) {
+                runConfig = rc->displayName();
+            }
         }
     }
     m_projectAction->setProperty("heading", projectName);
     m_projectAction->setProperty("subtitle", buildConfig);
-    if (project &&
-        project->activeTarget())
+    if (project && project->activeTarget())
         m_projectAction->setIcon(project->activeTarget()->icon());
-    else
-        m_projectAction->setIcon(m_projectAction->icon()); // Hack to force update!
+    QString toolTip = tr("<html><b>Project:</b> %1<br/>%2%3<b>Run:</b> %4</html>");
+    QString targetTip = targetName.isEmpty() ? QLatin1String("")
+        : tr("<b>Target:</b> %1<br/>").arg(targetName);
+    QString buildTip = buildConfig.isEmpty() ? QLatin1String("")
+        : tr("<b>Build:</b> %2<br/>").arg(buildConfig);
+    m_projectAction->setToolTip(toolTip.arg(projectName, targetTip, buildTip, runConfig));
 }
 
 int MiniProjectTargetSelector::indexFor(ProjectExplorer::Project *project) const

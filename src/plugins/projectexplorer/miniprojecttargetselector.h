@@ -93,7 +93,7 @@ private slots:
     void updateDisplayName();
 
 signals:
-    void activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *buildConfig);
+    void changed();
 
 private:
     QLabel *m_targetName;
