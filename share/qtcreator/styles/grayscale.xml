@@ -5,7 +5,6 @@
   <style name="CurrentLine" foreground="#000000" background="#f2f2f2"/>
   <style name="DiffFile"/>
   <style name="DiffLocation"/>
-  <style name="DisabledCode" foreground="#a0a0a4"/>
   <style name="Doxygen.Comment" foreground="#808080"/>
   <style name="Doxygen.Tag" foreground="#808080" italic="true"/>
   <style name="Keyword" bold="true"/>
@@ -24,6 +23,7 @@
   Relying on default colors for:
 
   CurrentLineNumber
+  DisabledCode
   LineNumber
   SearchResult
   SearchScope
