@@ -25,7 +25,7 @@ GroupBox {
                 }
                 CheckBox {
                     id: ClipCheckBox;
-                    text: "Clips";
+                    text: "Clip Content";
                     backendValue: backendValues.clip === undefined ? false : backendValues.clip;
                     baseStateFlag: isBaseState;
                     checkable: true;
@@ -98,12 +98,13 @@ GroupBox {
                     id: ScaleSpinBox;
                     objectName: "ScaleSpinBox";
                     backendValue: backendValues.scale;
+					property var backendValueValue: backendValues.scale.value;
                     minimumWidth: 60;
                     minimum: 0.01
                     maximum: 10
                     singleStep: 0.1
                     baseStateFlag: isBaseState;
-                    onBackendValueChanged: {
+                    onBackendValueValueChanged: {
                         ScaleSlider.value = backendValue.value * 10;
                     }
                 }
@@ -112,7 +113,7 @@ GroupBox {
                     minimum: 1;
                     maximum: 100;
                     singleStep: 1;
-                    onValueChanged: {
+                    onValueChanged: {						
                         backendValues.scale.value = value / 10;
                     }
                 }
