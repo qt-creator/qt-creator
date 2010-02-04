@@ -93,6 +93,7 @@ protected:
     virtual bool visit(TypeIdAST *ast);
     virtual bool visit(UnaryExpressionAST *ast);
     virtual bool visit(CompoundLiteralAST *ast);
+    virtual bool visit(CompoundExpressionAST *ast);
 
     //names
     virtual bool visit(QualifiedNameAST *ast);

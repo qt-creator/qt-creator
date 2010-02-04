@@ -326,6 +326,20 @@ unsigned BoolLiteralAST::lastToken() const
     return literal_token + 1;
 }
 
+unsigned CompoundExpressionAST::firstToken() const
+{
+    return lparen_token;
+}
+
+unsigned CompoundExpressionAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (compoundStatement)
+        return compoundStatement->lastToken();
+    else
+        return lparen_token + 1;
+}
 
 unsigned CompoundLiteralAST::firstToken() const
 {
@@ -2300,5 +2314,3 @@ unsigned ObjCSynchronizedStatementAST::lastToken() const
     if (lparen_token) return lparen_token + 1;
     return synchronized_token + 1;
 }
-
-

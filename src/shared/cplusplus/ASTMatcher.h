@@ -59,6 +59,7 @@ public:
     virtual bool match(CastExpressionAST *node, CastExpressionAST *pattern);
     virtual bool match(CatchClauseAST *node, CatchClauseAST *pattern);
     virtual bool match(ClassSpecifierAST *node, ClassSpecifierAST *pattern);
+    virtual bool match(CompoundExpressionAST *node, CompoundExpressionAST *pattern);
     virtual bool match(CompoundLiteralAST *node, CompoundLiteralAST *pattern);
     virtual bool match(CompoundStatementAST *node, CompoundStatementAST *pattern);
     virtual bool match(ConditionAST *node, ConditionAST *pattern);

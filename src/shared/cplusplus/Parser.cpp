@@ -3437,7 +3437,19 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
         return parseThisExpression(node);
 
     case T_LPAREN:
-        return parseNestedExpression(node);
+        if (LA(2) == T_LBRACE) {
+            // GNU extension: '(' '{' statement-list '}' ')'
+            CompoundExpressionAST *ast = new (_pool) CompoundExpressionAST;
+            ast->lparen_token = consumeToken();
+            StatementAST *statement = 0;
+            parseCompoundStatement(statement);
+            ast->compoundStatement = statement->asCompoundStatement();
+            match(T_RPAREN, &ast->rparen_token);
+            node = ast;
+            return true;
+        } else {
+            return parseNestedExpression(node);
+        }
 
     case T_SIGNAL:
     case T_SLOT:
@@ -3799,19 +3811,6 @@ bool Parser::parseNestedExpression(ExpressionAST *&node)
     DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
         unsigned lparen_token = consumeToken();
-
-        if (LA() == T_LBRACE) {
-            NestedExpressionAST *ast = new (_pool) NestedExpressionAST;
-            ast->lparen_token = lparen_token;
-
-            // ### ast
-            StatementAST *statement = 0;
-            parseCompoundStatement(statement);
-            match(T_RPAREN, &ast->rparen_token);
-            node = ast;
-            return true;
-        }
-
         bool previousTemplateArguments = switchTemplateArguments(false);
 
         ExpressionAST *expression = 0;
@@ -5275,12 +5274,11 @@ bool Parser::parseObjCContextKeyword(int kind, unsigned &in_token)
 {
     DEBUG_THIS_RULE();
 
-    if (peekAtObjCContextKeyword(kind)) {
-        in_token = consumeToken();
-        return true;
-    } else {
+    if (!peekAtObjCContextKeyword(kind))
         return false;
-    }
+
+    in_token = consumeToken();
+    return true;
 }
 
 

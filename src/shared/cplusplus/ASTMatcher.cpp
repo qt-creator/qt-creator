@@ -331,6 +331,23 @@ bool ASTMatcher::match(BaseSpecifierAST *node, BaseSpecifierAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(CompoundExpressionAST *node, CompoundExpressionAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->compoundStatement)
+        pattern->compoundStatement = node->compoundStatement;
+    else if (! AST::match(node->compoundStatement, pattern->compoundStatement, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(CompoundLiteralAST *node, CompoundLiteralAST *pattern)
 {
     (void) node;

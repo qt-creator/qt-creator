@@ -287,6 +287,11 @@ bool CheckExpression::visit(ThisExpressionAST *)
     return false;
 }
 
+bool CheckExpression::visit(CompoundExpressionAST *ast)
+{
+    return true; // ###
+}
+
 bool CheckExpression::visit(NestedExpressionAST *ast)
 {
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);

@@ -75,6 +75,7 @@ class CaseStatementAST;
 class CastExpressionAST;
 class CatchClauseAST;
 class ClassSpecifierAST;
+class CompoundExpressionAST;
 class CompoundLiteralAST;
 class CompoundStatementAST;
 class ConditionAST;

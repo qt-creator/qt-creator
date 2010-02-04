@@ -122,6 +122,7 @@ public:
     virtual bool visit(CastExpressionAST *) { return true; }
     virtual bool visit(CatchClauseAST *) { return true; }
     virtual bool visit(ClassSpecifierAST *) { return true; }
+    virtual bool visit(CompoundExpressionAST *) { return true; }
     virtual bool visit(CompoundLiteralAST *) { return true; }
     virtual bool visit(CompoundStatementAST *) { return true; }
     virtual bool visit(ConditionAST *) { return true; }
@@ -252,6 +253,7 @@ public:
     virtual void endVisit(CastExpressionAST *) { }
     virtual void endVisit(CatchClauseAST *) { }
     virtual void endVisit(ClassSpecifierAST *) { }
+    virtual void endVisit(CompoundExpressionAST *) { }
     virtual void endVisit(CompoundLiteralAST *) { }
     virtual void endVisit(CompoundStatementAST *) { }
     virtual void endVisit(ConditionAST *) { }

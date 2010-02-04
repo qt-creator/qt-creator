@@ -293,6 +293,11 @@ bool ResolveExpression::visit(ThisExpressionAST *)
     return false;
 }
 
+bool ResolveExpression::visit(CompoundExpressionAST *ast)
+{
+    return true; // ###
+}
+
 bool ResolveExpression::visit(NestedExpressionAST *ast)
 {
     accept(ast->expression);

@@ -153,6 +153,14 @@ bool BaseSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool CompoundExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (CompoundExpressionAST *_other = pattern->asCompoundExpression())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool CompoundLiteralAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (CompoundLiteralAST *_other = pattern->asCompoundLiteral())

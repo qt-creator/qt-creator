@@ -161,6 +161,7 @@ public:
     virtual CastExpressionAST *asCastExpression() { return 0; }
     virtual CatchClauseAST *asCatchClause() { return 0; }
     virtual ClassSpecifierAST *asClassSpecifier() { return 0; }
+    virtual CompoundExpressionAST *asCompoundExpression() { return 0; }
     virtual CompoundLiteralAST *asCompoundLiteral() { return 0; }
     virtual CompoundStatementAST *asCompoundStatement() { return 0; }
     virtual ConditionAST *asCondition() { return 0; }
@@ -694,6 +695,26 @@ public:
     virtual unsigned lastToken() const;
 
     virtual BaseSpecifierAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT CompoundExpressionAST: public ExpressionAST
+{
+public:
+    unsigned lparen_token;
+    CompoundStatementAST *compoundStatement;
+    unsigned rparen_token;
+
+public:
+    virtual CompoundExpressionAST *asCompoundExpression() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual CompoundExpressionAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

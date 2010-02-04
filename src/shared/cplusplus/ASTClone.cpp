@@ -213,6 +213,16 @@ BaseSpecifierAST *BaseSpecifierAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+CompoundExpressionAST *CompoundExpressionAST::clone(MemoryPool *pool) const
+{
+    CompoundExpressionAST *ast = new (pool) CompoundExpressionAST;
+    ast->lparen_token = lparen_token;
+    if (compoundStatement)
+        ast->compoundStatement = compoundStatement->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 CompoundLiteralAST *CompoundLiteralAST::clone(MemoryPool *pool) const
 {
     CompoundLiteralAST *ast = new (pool) CompoundLiteralAST;
