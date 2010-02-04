@@ -2003,9 +2003,8 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if(args.count() != 1) {
                 logMessage(format("unique(var) requires one argument."));
             } else {
-                foreach (const QString &var, values(args.first()))
-                    if (!ret.contains(var))
-                        ret.append(var);
+                ret = values(args.first());
+                ret.removeDuplicates();
             }
             break;
         case E_QUOTE:
