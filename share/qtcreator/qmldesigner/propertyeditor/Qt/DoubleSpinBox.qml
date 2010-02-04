@@ -9,7 +9,9 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
     property alias singleStep: box.singleStep
     property alias minimum: box.minimum
     property alias maximum: box.maximum
+	property alias spacing: LayoutH.spacing
     property alias text: label.text
+	property bool alignRight: true
     property bool enabled: true
 
     minimumHeight: 22;
@@ -50,13 +52,14 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
         evaluate();
     }
 
-    layout: HorizontalLayout {        
+    layout: HorizontalLayout {
+		id: LayoutH;
 
         QLabel {
             id: label;
             font.bold: true;
-            alignment: "Qt::AlignRight | Qt::AlignVCenter"
-            maximumWidth: 80
+            alignment: DoubleSpinBox.alignRight  ? "Qt::AlignRight | Qt::AlignVCenter" : "Qt::AlignLeft | Qt::AlignVCenter";
+            maximumWidth: 40
             visible: DoubleSpinBox.text != "";
         }
 
