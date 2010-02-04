@@ -39,7 +39,6 @@
 
 namespace QmlJS {
 
-class LinkImports;
 class Link;
 class Document;
 
@@ -95,7 +94,6 @@ private:
     QStringList _includedScripts;
     QStringList _localImports;
 
-    friend class LinkImports;
     friend class Link;
 };
 
