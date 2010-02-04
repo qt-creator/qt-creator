@@ -63,6 +63,8 @@
 #include <private/qmlvaluetype_p.h>
 #include <private/qmlgraphicsanchors_p.h>
 #include <private/qmlgraphicsrectangle_p.h> // to get QmlGraphicsPen
+#include <private/qmetaobjectbuilder_p.h>
+#include <private/qmlvmemetaobject_p.h>
 
 
 
@@ -88,7 +90,8 @@ bool ChildrenChangeEventFilter::eventFilter(QObject *object, QEvent *event)
 
 ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     : m_deleteHeldInstance(true),
-    m_object(object)
+    m_object(object),
+    m_metaObject(0)
 {
 }
 
@@ -374,19 +377,9 @@ void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const Q
     refreshBindings(context()->engine()->rootContext());
 }
 
-void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &valueArg)
+void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    QVariant value = valueArg;
-
     QmlMetaProperty qmlMetaProperty = QmlMetaProperty::createProperty(object(), name, context());
-
-//    if (qmlMetaProperty.propertyType() == QVariant::Url) {
-//        QUrl url = value.toUrl();
-//        if (url.isRelative()) {
-//            QUrl baseUrl(nodeInstanceView()->model()->fileUrl());
-//            value.setValue(baseUrl.resolved(url));
-//        }
-//    }
 
     qmlMetaProperty.write(value);
 }
@@ -592,7 +585,7 @@ QmlContext *ObjectNodeInstance::context() const
     QmlContext *context = QmlEngine::contextForObject(object());
     if (context)
         return context;
-    else  if (nodeInstanceView())
+    else if (nodeInstanceView())
         return nodeInstanceView()->engine()->rootContext();
 
     return 0;
@@ -687,10 +680,27 @@ void ObjectNodeInstance::setVisible(bool /*isVisible*/)
 {
 }
 
-void ObjectNodeInstance::createDynamicProperty(const QString &/*name*/, const QString &/*typeName*/)
+static bool metaObjectHasNotPropertyName(NodeInstanceMetaObject *metaObject, const QString &propertyName)
 {
-    //todo not implemented at all
+    for (int i = 0; i < metaObject->count(); i++) {
+        if (metaObject->name(i) == propertyName)
+            return false;
+    }
 
+    return true;
+}
+
+void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
+{
+    if (m_metaObject == 0) {
+        if (modelNode().isRootNode())
+            m_metaObject = new NodeInstanceMetaObject(object(), context());
+        else
+            m_metaObject = new NodeInstanceMetaObject(object(), 0);
+    }
+
+    if (metaObjectHasNotPropertyName(m_metaObject, name))
+        m_metaObject->createNewProperty(name);
 }
 
 /**

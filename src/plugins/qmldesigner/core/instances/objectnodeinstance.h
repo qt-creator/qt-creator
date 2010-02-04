@@ -34,9 +34,11 @@
 #include <QStyleOptionGraphicsItem>
 #include "modelnode.h"
 #include <QSharedPointer>
+#include <QScopedPointer>
 #include <QWeakPointer>
 #include <propertymetainfo.h>
 #include <nodeinstanceview.h>
+#include "nodeinstancemetaobject.h"
 
 class QGraphicsItem;
 class QmlContext;
@@ -179,6 +181,7 @@ private:
     QWeakPointer<NodeInstanceView> m_nodeInstanceView;
     bool m_deleteHeldInstance;
     QWeakPointer<QObject> m_object;
+    NodeInstanceMetaObject *m_metaObject;
 };
 
 

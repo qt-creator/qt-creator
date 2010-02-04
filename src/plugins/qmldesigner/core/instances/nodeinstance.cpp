@@ -366,10 +366,10 @@ void NodeInstance::setPropertyVariant(const QString &name, const QVariant &value
     m_nodeInstance->setPropertyVariant(name, value);
 }
 
-void NodeInstance::setPropertyDynamicVariant(const QString &/*name*/, const QString &/*typeName*/, const QVariant &/*value*/)
+void NodeInstance::setPropertyDynamicVariant(const QString &name, const QString &typeName, const QVariant &value)
 {
-//    m_nodeInstance->createDynamicProperty(name, typeName);
-//    m_nodeInstance->setPropertyVariant(name, value);
+    m_nodeInstance->createDynamicProperty(name, typeName);
+    m_nodeInstance->setPropertyVariant(name, value);
 }
 
 void NodeInstance::setPropertyBinding(const QString &name, const QString &expression)
@@ -377,10 +377,10 @@ void NodeInstance::setPropertyBinding(const QString &name, const QString &expres
     m_nodeInstance->setPropertyBinding(name, expression);
 }
 
-void NodeInstance::setPropertyDynamicBinding(const QString &/*name*/, const QString &/*typeName*/, const QString &/*expression*/)
+void NodeInstance::setPropertyDynamicBinding(const QString &name, const QString &typeName, const QString &expression)
 {
-//    m_nodeInstance->createDynamicProperty(name, typeName);
-//    m_nodeInstance->setPropertyBinding(name, value);
+    m_nodeInstance->createDynamicProperty(name, typeName);
+    m_nodeInstance->setPropertyBinding(name, expression);
 }
 
 void NodeInstance::resetProperty(const QString &name)

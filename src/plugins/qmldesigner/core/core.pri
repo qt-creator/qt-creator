@@ -91,7 +91,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/qmltextgenerator.cpp \
     $$PWD/model/modelmerger.cpp \
     $$PWD/instances/qmltransitionnodeinstance.cpp \
-    $$PWD/exceptions/rewritingexception.cpp
+    $$PWD/exceptions/rewritingexception.cpp \
+    $$PWD/instances/nodeinstancemetaobject.cpp
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
@@ -179,7 +180,8 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/mathutils.h \
     $$PWD/instances/qmltransitionnodeinstance.h \
     $$PWD/include/customnotifications.h \
-    $$PWD/include/rewritingexception.h
+    $$PWD/include/rewritingexception.h \
+    $$PWD/instances/nodeinstancemetaobject.h
 DISTFILES += $$PWD/metafile/widget.metafile
 RESOURCES += $$PWD/core.qrc
 OTHER_FILES += $$PWD/metainfo/gui.metainfo

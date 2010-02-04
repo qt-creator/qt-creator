@@ -159,9 +159,9 @@ MetaInfo NodeMetaInfo::metaInfo() const
   \throws InvalidArgumentException when the context argument is a null pointer
   \throws InvalidMetaInfoException if the object is not valid
   */
-QObject *NodeMetaInfo::createInstance(QmlContext *parentContext) const
+QObject *NodeMetaInfo::createInstance(QmlContext *context) const
 {
-    if (!parentContext) {
+    if (!context) {
         Q_ASSERT_X(0, Q_FUNC_INFO, "Context cannot be null");
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "context");
     }
@@ -175,13 +175,13 @@ QObject *NodeMetaInfo::createInstance(QmlContext *parentContext) const
     if (isComponent()) {
         // qml component
         // TODO: This is maybe expensive ...
-        QmlComponent component(parentContext->engine(), QUrl::fromLocalFile(m_data->qmlFile));
-        object = component.create(parentContext);
+        QmlComponent component(context->engine(), QUrl::fromLocalFile(m_data->qmlFile));
+        object = component.create(context);
     } else {
         // primitive
         object = QmlMetaType::qmlType(typeName().toAscii(), 4, 6)->create();
-        if (object && parentContext)
-            QmlEngine::setContextForObject(object, new QmlContext(parentContext, object));
+        if (object && context)
+            QmlEngine::setContextForObject(object, context);
     }
     return object;
 }
