@@ -67,21 +67,29 @@ GroupBox {
                 }
             }
         }
-        ColorWidget {
-            text: "Color:";
-            color: backendValues.color.value;
-            onColorChanged: {
-                backendValues.color.value = strColor;
-            }
+		
+		ColorLabel {
+            text: "    Color"			
         }
-        ColorWidget {
-            visible: showStyleColor
-            text: "Style color:";
-            color: (backendValues.styleColor === undefined || backendValues.styleColor === null)
-        ? "#000000" : backendValues.styleColor.value;
-        onColorChanged: {
-                backendValues.styleColor.value = strColor;
-            }
+
+        ColorGroupBox {
+
+            finished: finishedNotify
+
+            backendColor: backendValues.color
         }
+		
+		ColorLabel {
+			visible: showStyleColor
+            text: "    Style Color"			
+        }
+
+        ColorGroupBox {
+			visible: showStyleColor
+            finished: finishedNotify
+
+            backendColor: backendValues.styleColor || null
+        }
+		        
     }
 }

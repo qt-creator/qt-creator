@@ -7,24 +7,28 @@ GroupBox {
     caption: "Text Input";
 
     layout: VerticalLayout {
-
-        ColorWidget {
-            text: "Selection Color:";
-            color: backendValues.selectionColor.value;
-            onColorChanged: {
-                backendValues.selectionColor.value = strColor;
-            }
+	
+		ColorLabel {
+            text: "    Selection Color"			
         }
 
-        ColorWidget {
-            text: "Selected Text Color:";
-            color: backendValues.selectedTextColor.value;
-            onColorChanged: {
-                backendValues.selectedTextColor.value = strColor;
-            }
+        ColorGroupBox {
+
+            finished: finishedNotify
+
+            backendColor: backendValues.selectionColor
+        }
+		
+		ColorLabel {
+            text: "    Selected Text Color"			
         }
 
+        ColorGroupBox {
 
+            finished: finishedNotify
+
+            backendColor: backendValues.selectedTextColor
+        }
 
         QWidget {
             layout: HorizontalLayout {

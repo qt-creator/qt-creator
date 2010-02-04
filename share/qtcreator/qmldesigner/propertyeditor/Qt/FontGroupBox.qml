@@ -15,7 +15,7 @@ GroupBox {
                 QWidget {
                     id: parentWidget
                     minimumWidth: 180
-                    minimumHeight: 24
+                    minimumHeight: 26
                     QFontComboBox {
                         width: parentWidget.width
                         height: parentWidget.height
