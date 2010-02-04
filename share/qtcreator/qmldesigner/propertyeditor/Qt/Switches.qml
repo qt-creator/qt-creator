@@ -20,7 +20,7 @@ QFrame {
             id: standardMode;
             toolTip: "general item properties";
             //iconFromFile: "images/rect-icon.png";
-                        text: "Common"
+            text: "Common"
             onClicked: {
                 extendedMode.checked = false;
                 layoutMode.checked = false;
@@ -35,7 +35,7 @@ QFrame {
             toolTip: "extended properties";
             checkable: true;
             checked: false;            
-			text: "Advanced"
+            text: "Advanced"
             onClicked: {
                 standardMode.checked = false;
                 layoutMode.checked = false;
@@ -50,7 +50,7 @@ QFrame {
             checkable: true;
             checked: false;
             toolTip: "layout properties";            
-			text: "Anchor";
+            text: "Anchor";
             onClicked: {
                 extendedMode.checked = false;
                 standardMode.checked = false;

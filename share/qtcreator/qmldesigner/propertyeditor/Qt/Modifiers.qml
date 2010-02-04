@@ -96,7 +96,7 @@ GroupBox {
                 DoubleSpinBox {
                     text: ""
                     id: scaleSpinBox;
-                    objectName: "scaleSpinBox";
+
                     backendValue: backendValues.scale;
 					property var backendValueValue: backendValues.scale.value;
                     minimumWidth: 60;

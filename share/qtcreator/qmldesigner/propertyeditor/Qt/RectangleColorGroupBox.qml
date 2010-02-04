@@ -2,13 +2,13 @@ import Qt 4.6
 import Bauhaus 1.0
 
 GroupBox {
-		id: rectangleColorGroupBox
+    id: rectangleColorGroupBox
 
-            finished: finishedNotify;
-            caption: "Colors"
-			
-layout: VerticalLayout {
-				
+    finished: finishedNotify;
+    caption: "Colors"
+
+    layout: VerticalLayout {
+
         ColorLabel {
             text: "    Color"			
         }
@@ -34,7 +34,7 @@ layout: VerticalLayout {
 
             backendColor: backendValues.border_color
         }
-		
-		}
 
-        }
+    }
+
+}

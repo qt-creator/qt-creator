@@ -2,6 +2,7 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QWidget { //This is a special doubleSpinBox that does color coding for states
+
     id: doubleSpinBox;
 
     property var backendValue;

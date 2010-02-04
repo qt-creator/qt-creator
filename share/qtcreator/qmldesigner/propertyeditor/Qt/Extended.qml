@@ -23,173 +23,171 @@ GroupBox {
                     property var dirty;
                     id: effectComboBox;
                     items : { [
-                        "None",
-                        "Blur",
-                        "Opacity",
-                        "Colorize",
-                        "DropShadow"
-                        ] }
+                            "None",
+                            "Blur",
+                            "Opacity",
+                            "Colorize",
+                            "DropShadow"
+                            ] }
 
-                    onCurrentTextChanged: {
+                            onCurrentTextChanged: {
 
-                        if (dirty) //avoid recursion;
-                            return;
+                                if (dirty) //avoid recursion;
+                                return;
+                                if (currentText == "")
 
+                                if (backendValues.effect.complexNode.exists)
+                                backendValues.effect.complexNode.remove();
+                                if (currentText == "None") {
+                                    ;
+                                    } else if (backendValues.effect.complexNode != null) {
+                                    backendValues.effect.complexNode.add("Qt/" + currentText);
+                                    }
+                            }
 
-                        if (backendValues.effect.complexNode.exists)
-                            backendValues.effect.complexNode.remove();
-                        if (currentText == "None") {
-                            ;
-                        } else if (backendValues.effect.complexNode != null) {
-
-                            backendValues.effect.complexNode.add("Qt/" + currentText);
-                        }
-                    }
-
-                    onTypeChanged: {
-                        dirty = true;
-                        if (backendValues.effect.complexNode.exists)
-                            currentText = backendValues.effect.complexNode.type;
-                        else
-                            currentText = "None";
-                        dirty = false;
-                    }
+                            onTypeChanged: {
+                                dirty = true;
+                                if (backendValues.effect.complexNode.exists)
+                                currentText = backendValues.effect.complexNode.type;
+                                else
+                                currentText = "None";
+                                dirty = false;
+                            }
                 }
-
                 QWidget {
                     fixedWidth: 100
                 }
             }
-        }// QWidget
+            }// QWidget
 
-        property var properties: complexNode == null ? null : complexNode.properties
+            property var properties: complexNode == null ? null : complexNode.properties
 
-        QWidget {
-            minimumHeight: 20;
-            layout: QVBoxLayout {
+            QWidget {
+                minimumHeight: 20;
+                layout: QVBoxLayout {
 
-                QWidget {
-                    visible: effectComboBox.currentText == "Blur";
-                    layout: QVBoxLayout {
-                        topMargin: 12;
-                        IntEditor {
-                            id: blurRadius;
-                            backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : null;
-                            caption: "Blur Radius:"
-                            baseStateFlag: isBaseState;
+                    QWidget {
+                        visible: effectComboBox.currentText == "Blur";
+                        layout: QVBoxLayout {
+                            topMargin: 12;
+                            IntEditor {
+                                id: blurRadius;
+                                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : null;
+                                caption: "Blur Radius:"
+                                baseStateFlag: isBaseState;
 
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 20;
+                                step: 1;
+                                minimumValue: 0;
+                                maximumValue: 20;
+                            }
                         }
                     }
-                }
 
-                QWidget {
-                    visible: effectComboBox.currentText == "Opacity";
-                    layout: QVBoxLayout {
-                        DoubleSpinBox {
-                            id: opcacityEffectSpinBox;
-                            objectName: "opcacityEffectSpinBox";
-                            backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.opacity : null;
-                            minimum: 0;
-                            maximum: 1;
-                            singleStep: 0.1;
-                            baseStateFlag: isBaseState;
+                    QWidget {
+                        visible: effectComboBox.currentText == "Opacity";
+                        layout: QVBoxLayout {
+                            DoubleSpinBox {
+                                id: OpcacityEffectSpinBox;
+                                objectName: "OpcacityEffectSpinBox";
+                                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.opacity : null;
+                                minimum: 0;
+                                maximum: 1;
+                                singleStep: 0.1;
+                                baseStateFlag: isBaseState;
+                            }
                         }
                     }
-                }
 
-                QWidget {
-                    visible: effectComboBox.currentText == "Colorize";
-                    layout: QVBoxLayout {
+                    QWidget {
+                        visible: effectComboBox.currentText == "Colorize";
+                        layout: QVBoxLayout {
 
-                        property var colorProp: properties == null ? null : properties.color
+                            property var colorProp: properties == null ? null : properties.color
 
-			
-                        ColorLabel {
-                            text: "    Color"
-                        }
 
-                        ColorGroupBox {
+                            ColorLabel {
+                                text: "    Color"
+                            }
 
-                            finished: finishedNotify
+                            ColorGroupBox {
 
-                            backendColor: properties.color
-                        }
+                                finished: finishedNotify
 
-                    }
-                }
+                                backendColor: properties.color
+                            }
 
-                QWidget {
-                    visible: effectComboBox.currentText == "Pixelize";
-                    layout: QVBoxLayout {
-                        topMargin: 12;
-                        IntEditor {
-                            id: pixelSize;
-                            backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.pixelSize : null;
-                            caption: "Pixel Size:"
-                            baseStateFlag: isBaseState;
-
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 20;
                         }
                     }
-                }
 
-                QWidget {
-                    visible: effectComboBox.currentText == "DropShadow";
-                    layout: QVBoxLayout {
+                    QWidget {
+                        visible: effectComboBox.currentText == "Pixelize";
+                        layout: QVBoxLayout {
+                            topMargin: 12;
+                            IntEditor {
+                                id: pixelSize;
+                                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.pixelSize : null;
+                                caption: "Pixel Size:"
+                                baseStateFlag: isBaseState;
 
-                        topMargin: 12;
-                        IntEditor {
-                            id: blurRadiusShadow;
-                            backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : null;
-                            caption: "Blur Radius:"
-                            baseStateFlag: isBaseState;
-
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 20;
+                                step: 1;
+                                minimumValue: 0;
+                                maximumValue: 20;
+                            }
                         }
+                    }
+
+                    QWidget {
+                        visible: effectComboBox.currentText == "DropShadow";
+                        layout: QVBoxLayout {
+
+                            topMargin: 12;
+                            IntEditor {
+                                id: blurRadiusShadow;
+                                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.blurRadius : null;
+                                caption: "Blur Radius:"
+                                baseStateFlag: isBaseState;
+
+                                step: 1;
+                                minimumValue: 0;
+                                maximumValue: 20;
+                            }
 
 
-			ColorLabel {
-                            text: "    Color"
-                        }
+                            ColorLabel {
+                                text: "    Color"
+                            }
 
-			ColorGroupBox {
+                            ColorGroupBox {
 
-                            finished: finishedNotify
+                                finished: finishedNotify
 
-                            backendColor: properties.color
-			}               
+                                backendColor: properties.color
+                            }
 
-                        IntEditor {
-                            id: xOffset;
-                            backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.xOffset : null;
-                            caption: "x Offset:     "
-                            baseStateFlag: isBaseState;
+                            IntEditor {
+                                id: xOffset;
+                                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.xOffset : null;
+                                caption: "x Offset:     "
+                                baseStateFlag: isBaseState;
 
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 20;
-                        }
+                                step: 1;
+                                minimumValue: 0;
+                                maximumValue: 20;
+                            }
 
-                        IntEditor {
-                            id: yOffset;
-                            backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.yOffset : null;
-                            caption: "y Offset:     "
-                            baseStateFlag: isBaseState;
+                            IntEditor {
+                                id: yOffset;
+                                backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.yOffset : null;
+                                caption: "y Offset:     "
+                                baseStateFlag: isBaseState;
 
-                            step: 1;
-                            minimumValue: 0;
-                            maximumValue: 20;
+                                step: 1;
+                                minimumValue: 0;
+                                maximumValue: 20;
+                            }
                         }
                     }
                 }
             }
-        }
-    } //QVBoxLayout
-} //GroupBox
+            } //QVBoxLayout
+            } //GroupBox

@@ -9,9 +9,9 @@ QWidget {
         leftMargin: 0
         rightMargin: 0
         spacing: 0
-		
-		RectangleColorGroupBox {
-		}
+
+        RectangleColorGroupBox {
+        }
 
         GroupBox {
 
@@ -43,8 +43,8 @@ QWidget {
                 }
             }
         }
-		
-		QScrollArea {
+
+        QScrollArea {
         }		
     }
 }

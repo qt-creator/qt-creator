@@ -14,12 +14,11 @@ QWidget {
         StandardTextGroupBox {
             showStyleColor: true
             finished: finishedNotify;
-
         }
 
         FontGroupBox {
             finished: finishedNotify;
-
+            showStyle: true
         }
 
         QScrollArea {

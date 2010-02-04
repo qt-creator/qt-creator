@@ -2,11 +2,12 @@ import Qt 4.6
 import Bauhaus 1.0
 
 GroupBox {
-    finished: finishedNotify;
-    id: geometry;
-    caption: "geometry";
+    finished: finishedNotify
+    id: geometry
 
-    layout: VerticalLayout {        
+    caption: "geometry"
+
+    layout: VerticalLayout {
 
         QWidget {  // 1
             layout: HorizontalLayout {

@@ -4,6 +4,7 @@ import Bauhaus 1.0
 GroupBox {
     id: fontGroupBox
     caption: "Font";
+    property var showStyle: false
 
     layout: VerticalLayout {
 
@@ -11,15 +12,8 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {
                     text: "Font"
-                }
-                QWidget {
-                    id: parentWidget
-                    minimumWidth: 180
-                    minimumHeight: 26
-                    QFontComboBox {
-                        width: parentWidget.width
-                        height: parentWidget.height
-                    }
+                }                
+                QFontComboBox {
                 }
             }
         }
@@ -35,7 +29,7 @@ GroupBox {
         QWidget {
             layout: HorizontalLayout {
                 Label {
-                    text: "Style"
+                    text: "Font Style"
                 }
 
                 CheckBox {
@@ -51,6 +45,27 @@ GroupBox {
                     checkable: true;
                 }
 
+            }
+        }
+
+        QWidget {
+            visible: showStyle
+            layout: HorizontalLayout {
+                Label {
+                    text: "Style"
+                }
+
+                ComboBox {
+                    items : { ["Normal", "Outline", "Raised", "Sunken"] }
+                    currentText: backendValues.style.value;
+                    onItemsChanged: {
+                        currentText =  backendValues.style.value;
+                    }
+                    onCurrentTextChanged: {
+                        if (count == 4)
+                        backendValues.style.value = currentText;
+                    }
+                }
             }
         }
     }

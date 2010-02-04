@@ -3,7 +3,11 @@ import Bauhaus 1.0
 
 GroupBox {
     finished: finishedNotify;
+<<<<<<< HEAD:share/qtcreator/qmldesigner/propertyeditor/Qt/Layout.qml
     caption: "layout";
+=======
+    caption: "Layout";
+>>>>>>> QmlDesigner.propertyEditor: ids have to be lower case:share/qtcreator/qmldesigner/propertyeditor/Qt/Layout.qml
 id: layout;
   minimumHeight: 280;
   enabled: anchorBackend.hasParent;

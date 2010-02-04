@@ -22,6 +22,7 @@ QExtGroupBox {
     QToolButton {
         //QCheckBox {
         id: checkBox;
+
         text: groupBox.caption;
         focusPolicy: "Qt::NoFocus";
         styleSheetFile: "specialcheckBox.css";
