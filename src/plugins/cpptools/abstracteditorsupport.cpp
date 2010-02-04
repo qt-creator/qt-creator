@@ -40,6 +40,7 @@
 #include <Scope.h>
 
 #include <coreplugin/icore.h>
+#include <QtCore/QDebug>
 
 namespace CppTools {
 
@@ -70,7 +71,23 @@ QString AbstractEditorSupport::functionAt(const CppModelManagerInterface *modelM
             if (const CPlusPlus::Scope *functionScope = scope->enclosingFunctionScope())
                 if (const CPlusPlus::Symbol *function = functionScope->owner()) {
                     const CPlusPlus::Overview o;
-                    return o.prettyName(function->name());
+                    QString rc = o.prettyName(function->name());
+                    // Prepend namespace "Foo::Foo::foo()" up to empty root namespace
+                    for (const CPlusPlus::Symbol *owner = function; ; ) {
+                        if (const CPlusPlus::Scope *nameSpace = owner->enclosingNamespaceScope()) {
+                            owner = nameSpace->owner();
+                            const QString name = o.prettyName(owner->name());
+                            if (name.isEmpty()) {
+                                break;
+                            } else {
+                                rc.prepend(QLatin1String("::"));
+                                rc.prepend(name);
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                    return rc;
                 }
     return QString();
 }
