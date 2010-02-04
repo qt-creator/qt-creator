@@ -116,8 +116,8 @@ void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rec
     painter->setBrushOrigin(0, 0);
     painter->fillRect(rect.intersected(sceneRect()), backgroundBrush());
     // paint rect around editable area
-    painter->setPen(Qt::darkGray);
-    QRectF frameRect = sceneRect().adjusted(-1, -1, 0, 0);
+    painter->setPen(Qt::black);
+    QRectF frameRect = sceneRect().adjusted(0, 0, 0, 0);
     painter->drawRect(frameRect);
     painter->restore();
 }
