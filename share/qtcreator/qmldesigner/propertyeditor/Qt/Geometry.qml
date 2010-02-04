@@ -18,6 +18,8 @@ GroupBox {
                 DoubleSpinBox {
                     id: XSpinBox;
                     text: "X"
+					alignRight: false
+					spacing: 4
                     singleStep: 1;
                     objectName: "XSpinBox";
                     enabled: anchorBackend.hasParent;
@@ -31,6 +33,8 @@ GroupBox {
                     id: YSpinBox;
                     singleStep: 1;
                     text: "Y"
+					alignRight: false
+					spacing: 4
                     objectName: "YSpinBox";
                     backendValue: backendValues.y
                     enabled: anchorBackend.hasParent;
@@ -53,6 +57,8 @@ GroupBox {
                 DoubleSpinBox {
                     id: WidthSpinBox;
                     text: "W"
+					alignRight: false
+					spacing: 4
                     singleStep: 1;
                     objectName: "WidthSpinBox";
                     backendValue: backendValues.width
@@ -64,6 +70,8 @@ GroupBox {
                 DoubleSpinBox {
                     id: HeightSpinBox;
                     text: "H"
+					alignRight: false
+					spacing: 4
                     singleStep: 1;
                     objectName: "HeightSpinBox";
                     backendValue: backendValues.height
