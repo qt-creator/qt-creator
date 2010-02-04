@@ -63,6 +63,30 @@ def parseAndEvaluate(exp):
     return gdb.history(0)
 
 
+def catchCliOutput(command):
+    file = tempfile.mkstemp(prefix="gdbpy_")
+    filename = file[1]
+    gdb.execute("set logging off")
+    gdb.execute("set logging redirect off")
+    gdb.execute("set logging file %s" % filename)
+    gdb.execute("set logging redirect on")
+    gdb.execute("set logging on")
+    gdb.execute(command)
+    gdb.execute("set logging off")
+    gdb.execute("set logging redirect off")
+    gdb.execute("set logging file \"\"")
+    file = open(filename, "r")
+    lines = []
+    for line in file:
+        lines.append(line)
+    file.close()
+    try:  # files may still be locked by gdb on Windows
+        os.remove(filename)
+    except:
+        pass
+    return lines
+
+
 class Breakpoint:
     def __init__(self):
         self.number = None
@@ -75,17 +99,6 @@ class Breakpoint:
         self.times = None
 
 def listOfBreakpoints(d):
-    file = tempfile.mkstemp(prefix="gdbpy_")
-    filename = file[1]
-    gdb.execute("set logging off")
-    gdb.execute("set logging redirect off")
-    gdb.execute("set logging file %s" % filename)
-    gdb.execute("set logging redirect on")
-    gdb.execute("set logging on")
-    gdb.execute("info break")
-    gdb.execute("set logging off")
-    gdb.execute("set logging redirect off")
-
     # [bkpt={number="1",type="breakpoint",disp="keep",enabled="y",
     #addr="0x0804da6d",func="testHidden()",file="../app.cpp",
     #fullname="...",line="1292",times="1",original-location="\"app.cpp\":1292"},
@@ -98,21 +111,13 @@ def listOfBreakpoints(d):
     #4.1                         y     0x08056673 in Foo at ../app.cpp:126\n"
     #4.2                         y     0x0805678b in Foo at ../app.cpp:126\n"
     #5       hw watchpoint  keep y              &main\n"
+    lines = catchCliOutput("info break")
 
-    file = open(filename, "r")
-    lines = []
-    for line in file:
-        if len(line) == 0 or line.startswith(" "):
-            continue
-        lines.append(line)
-    file.close()
-    try:  # files may still be locked by gdb on Windows
-        os.remove(filename)
-    except:
-        pass
     lines.reverse()
     bp = Breakpoint()
     for line in lines:
+        if len(line) == 0 or line.startswith(" "):
+            continue
         if line[0] < '0' or line[0] > '9':
             continue
         if line.startswith("\tstop only if "):
@@ -681,6 +686,34 @@ class FrameCommand(gdb.Command):
 FrameCommand()
 
 
+#######################################################################
+#
+# Step Command
+#
+#######################################################################
+
+
+class SalCommand(gdb.Command):
+    """Do fancy stuff."""
+
+    def __init__(self):
+        super(SalCommand, self).__init__("sal", gdb.COMMAND_OBSCURE)
+
+    def invoke(self, arg, from_tty):
+        lines = catchCliOutput("info line *" + arg)
+        fromAddr = "0x0"
+        toAddr = "0x0"
+        for line in lines:
+            pos0from = line.find(" starts at address") + 19
+            pos1from = line.find(" ", pos0from)
+            pos0to = line.find(" ends at", pos1from) + 9
+            pos1to = line.find(" ", pos0to)
+            if pos1to > 0:
+                fromAddr = line[pos0from : pos1from]
+                toAddr = line[pos0to : pos1to]
+        gdb.execute("maint packet sal%s,%s" % (fromAddr, toAddr))
+
+SalCommand()
 
 #######################################################################
 #

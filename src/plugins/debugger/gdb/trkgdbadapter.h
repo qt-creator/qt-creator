@@ -59,7 +59,6 @@ enum CodeMode
 
 enum TargetConstants
 {
-
     RegisterCount = 17,
     RegisterSP = 13, // Stack Pointer
     RegisterLR = 14, // Return address
@@ -91,6 +90,8 @@ struct Snapshot
     void insertMemory(const MemoryRange &range, const QByteArray &ba);
 
     uint registers[RegisterCount];
+    uint lineFromAddress;
+    uint lineToAddress;
     bool registerValid;
     typedef QMap<MemoryRange, QByteArray> Memory;
     Memory memory;

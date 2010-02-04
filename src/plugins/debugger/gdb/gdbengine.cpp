@@ -1762,6 +1762,9 @@ void GdbEngine::stepIExec()
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step by instruction requested..."), 5000);
+    StackHandler *stackHandler = manager()->stackHandler();
+    if (m_gdbAdapter->isTrkAdapter() && stackHandler->stackSize() > 0)
+        postCommand("sal " + stackHandler->topAddress().toLatin1());
     if (manager()->isReverseDebugging())
         postCommand("-reverse-stepi", RunRequest, CB(handleExecContinue));
     else
@@ -1783,6 +1786,9 @@ void GdbEngine::nextExec()
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step next requested..."), 5000);
+    StackHandler *stackHandler = manager()->stackHandler();
+    if (m_gdbAdapter->isTrkAdapter() && stackHandler->stackSize() > 0)
+        postCommand("sal " + stackHandler->topAddress().toLatin1());
     if (manager()->isReverseDebugging())
         postCommand("-reverse-next", RunRequest, CB(handleExecNext));
     else

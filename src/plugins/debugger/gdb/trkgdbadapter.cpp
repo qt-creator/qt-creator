@@ -122,7 +122,7 @@ QDebug operator<<(QDebug d, MemoryRange range)
 MemoryRange::MemoryRange(uint f, uint t)
     : from(f), to(t)
 {
-    QTC_ASSERT(f <= t, /**/);
+    QTC_ASSERT(f <= t, qDebug() << "F: " << f << " T: " << t);
 }
 
 bool MemoryRange::intersects(const MemoryRange &other) const
@@ -167,6 +167,8 @@ void Snapshot::reset()
         registers[i] = 0;
     registerValid = false;
     wantedMemory = MemoryRange();
+    lineFromAddress = 0;
+    lineToAddress = 0;
 }
 
 void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
@@ -374,8 +376,18 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
     ba.reserve(17);
     appendByte(&ba, option);
     //qDebug() << "STEP ON " << hexxNumber(m_snapshot.registers[RegisterPC]);
-    appendInt(&ba, m_snapshot.registers[RegisterPC]); // Start address
-    appendInt(&ba, m_snapshot.registers[RegisterPC]); // End address
+    uint from = m_snapshot.lineFromAddress;
+    uint to = m_snapshot.lineToAddress;
+    uint pc = m_snapshot.registers[RegisterPC];
+    if (from <= pc && pc <= to) {
+        qDebug() << "STEP IN " << hexxNumber(from) << hexxNumber(to)
+             << "INSTEAD OF " << hexxNumber(pc);
+    } else {
+        from = pc;
+        to = pc;
+    }
+    appendInt(&ba, from); // Start address
+    appendInt(&ba, to); // End address
     appendInt(&ba, m_session.pid);
     appendInt(&ba, m_session.tid);
     return ba;
@@ -676,6 +688,19 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendTrkMessage(0x12,
             TrkCB(handleAndReportReadRegisters),
             trkReadRegistersMessage());
+    }
+
+    else if (cmd.startsWith("sal")) {
+        // Receive address range for current line for future use when stepping.
+        sendGdbServerAck();
+        int pos = cmd.indexOf(',');
+        //qDebug() << "SAL: " << cmd << cmd.mid(3, pos - 3) << cmd.mid(pos + 1);
+        bool ok = false;
+        m_snapshot.lineFromAddress = cmd.mid(3, pos - 3).toUInt(0, 16);
+        m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
+        //qDebug() << "SAL: " << hexxNumber(m_snapshot.lineFromAddress)
+        //    << hexxNumber(m_snapshot.lineToAddress);
+        sendGdbServerMessage("", "Stepping range received");
     }
 
     else if (cmd.startsWith("Hc")) {
@@ -1823,6 +1848,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
     }
     m_engine->postCommand("set breakpoint always-inserted on");
+    m_engine->postCommand("set breakpoint auto-hw off");
     m_engine->postCommand("set trust-readonly-sections"); // No difference?
     m_engine->postCommand("set displaced-stepping on"); // No difference?
     m_engine->postCommand("mem 0x00400000 0x00800000 cache");

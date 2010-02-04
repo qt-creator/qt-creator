@@ -69,6 +69,7 @@ public:
     int currentIndex() const { return m_currentIndex; }
     StackFrame currentFrame() const;
     int stackSize() const { return m_stackFrames.size(); }
+    QString topAddress() const { return m_stackFrames.at(0).address; }
 
     // Called from StackHandler after a new stack list has been received
     void removeAll();
