@@ -50,8 +50,8 @@
 #define CPLUSPLUS_CHECKSTATEMENT_H
 
 #include "CPlusPlusForwardDeclarations.h"
+#include "FullySpecifiedType.h"
 #include "SemanticCheck.h"
-
 
 namespace CPlusPlus {
 
@@ -61,9 +61,10 @@ public:
     CheckStatement(Semantic *semantic);
     virtual ~CheckStatement();
 
-    void check(StatementAST *statement, Scope *scope);
+    FullySpecifiedType check(StatementAST *statement, Scope *scope);
 
 protected:
+    FullySpecifiedType switchExprType(const FullySpecifiedType &type);
     StatementAST *switchStatement(StatementAST *statement);
     Scope *switchScope(Scope *scope);
 
@@ -98,9 +99,12 @@ protected:
                          ExpressionAST *expression,
                          StatementAST *statement,
                          Block *&symbol);
+    FullySpecifiedType checkCompoundStmt(CompoundStatementAST *stmt);
+
 private:
     StatementAST *_statement;
     Scope *_scope;
+    FullySpecifiedType _exprType;
 };
 
 } // end of namespace CPlusPlus

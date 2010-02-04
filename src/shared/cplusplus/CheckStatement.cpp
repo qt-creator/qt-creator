@@ -69,13 +69,22 @@ CheckStatement::CheckStatement(Semantic *semantic)
 CheckStatement::~CheckStatement()
 { }
 
-void CheckStatement::check(StatementAST *statement, Scope *scope)
+FullySpecifiedType CheckStatement::check(StatementAST *statement, Scope *scope)
 {
+    FullySpecifiedType previousExprType = switchExprType(FullySpecifiedType());
     Scope *previousScope = switchScope(scope);
     StatementAST *previousStatement = switchStatement(statement);
     accept(statement);
     (void) switchStatement(previousStatement);
     (void) switchScope(previousScope);
+    return switchExprType(previousExprType);
+}
+
+FullySpecifiedType CheckStatement::switchExprType(const FullySpecifiedType &type)
+{
+    const FullySpecifiedType &previousExprType = _exprType;
+    _exprType = type;
+    return previousExprType;
 }
 
 StatementAST *CheckStatement::switchStatement(StatementAST *statement)
@@ -94,8 +103,8 @@ Scope *CheckStatement::switchScope(Scope *scope)
 
 bool CheckStatement::visit(CaseStatementAST *ast)
 {
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    semantic()->check(ast->statement, _scope);
+    (void) semantic()->check(ast->expression, _scope);
+    _exprType = semantic()->check(ast->statement, _scope);
     return false;
 }
 
@@ -110,7 +119,7 @@ bool CheckStatement::visit(CompoundStatementAST *ast)
     StatementAST *previousStatement = 0;
     for (StatementListAST *it = ast->statement_list; it; it = it->next) {
         StatementAST *statement = it->value;
-        semantic()->check(statement, _scope);
+        _exprType = semantic()->check(statement, _scope);
 
         if (statement && previousStatement) {
             ExpressionStatementAST *expressionStatement = statement->asExpressionStatement();
@@ -128,13 +137,15 @@ bool CheckStatement::visit(CompoundStatementAST *ast)
 bool CheckStatement::visit(DeclarationStatementAST *ast)
 {
     semantic()->check(ast->declaration, _scope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
 bool CheckStatement::visit(DoStatementAST *ast)
 {
     semantic()->check(ast->statement, _scope);
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
+    (void) semantic()->check(ast->expression, _scope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
@@ -142,16 +153,18 @@ bool CheckStatement::visit(ExpressionOrDeclarationStatementAST *ast)
 {
 //    translationUnit()->warning(ast->firstToken(),
 //                               "ambiguous expression or declaration statement");
-    if (ast->declaration)
+    if (ast->declaration) {
         semantic()->check(ast->declaration, _scope);
-    else
-        semantic()->check(ast->expression, _scope);
+        _exprType = FullySpecifiedType();
+    } else {
+        _exprType = semantic()->check(ast->expression, _scope);
+    }
     return false;
 }
 
 bool CheckStatement::visit(ExpressionStatementAST *ast)
 {
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
+    _exprType = semantic()->check(ast->expression, _scope);
     return false;
 }
 
@@ -181,13 +194,13 @@ bool CheckStatement::forEachFastEnum(unsigned firstToken,
         decl->setType(ty);
         _scope->enterSymbol(decl);
     } else {
-        FullySpecifiedType exprTy = semantic()->check(initializer, _scope);
-        (void) exprTy;
+        (void) semantic()->check(initializer, _scope);
     }
 
-    FullySpecifiedType exprTy = semantic()->check(expression, _scope);
+    (void) semantic()->check(expression, _scope);
     semantic()->check(statement, _scope);
     (void) switchScope(previousScope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
@@ -228,6 +241,7 @@ bool CheckStatement::visit(ForStatementAST *ast)
     FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
     semantic()->check(ast->statement, _scope);
     (void) switchScope(previousScope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
@@ -243,33 +257,38 @@ bool CheckStatement::visit(IfStatementAST *ast)
     semantic()->check(ast->statement, _scope);
     semantic()->check(ast->else_statement, _scope);
     (void) switchScope(previousScope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
 bool CheckStatement::visit(LabeledStatementAST *ast)
 {
     semantic()->check(ast->statement, _scope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
 bool CheckStatement::visit(BreakStatementAST *)
 {
+    _exprType = FullySpecifiedType();
     return false;
 }
 
 bool CheckStatement::visit(ContinueStatementAST *)
 {
+    _exprType = FullySpecifiedType();
     return false;
 }
 
 bool CheckStatement::visit(GotoStatementAST *)
 {
+    _exprType = FullySpecifiedType();
     return false;
 }
 
 bool CheckStatement::visit(ReturnStatementAST *ast)
 {
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
+    _exprType = semantic()->check(ast->expression, _scope);
     return false;
 }
 
@@ -284,6 +303,7 @@ bool CheckStatement::visit(SwitchStatementAST *ast)
     FullySpecifiedType condTy = semantic()->check(ast->condition, _scope);
     semantic()->check(ast->statement, _scope);
     (void) switchScope(previousScope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
@@ -293,6 +313,7 @@ bool CheckStatement::visit(TryBlockStatementAST *ast)
     for (CatchClauseListAST *it = ast->catch_clause_list; it; it = it->next) {
         semantic()->check(it->value, _scope);
     }
+    _exprType = FullySpecifiedType();
     return false;
 }
 
@@ -307,6 +328,7 @@ bool CheckStatement::visit(CatchClauseAST *ast)
     semantic()->check(ast->exception_declaration, _scope);
     semantic()->check(ast->statement, _scope);
     (void) switchScope(previousScope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
@@ -321,6 +343,7 @@ bool CheckStatement::visit(WhileStatementAST *ast)
     FullySpecifiedType condTy = semantic()->check(ast->condition, _scope);
     semantic()->check(ast->statement, _scope);
     (void) switchScope(previousScope);
+    _exprType = FullySpecifiedType();
     return false;
 }
 
@@ -353,6 +376,6 @@ bool CheckStatement::visit(QtMemberDeclarationAST *ast)
     symbol->setType(control()->pointerType(declTy));
 
     _scope->enterSymbol(symbol);
-
+    _exprType = FullySpecifiedType();
     return false;
 }

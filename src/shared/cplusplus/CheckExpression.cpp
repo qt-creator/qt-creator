@@ -289,12 +289,13 @@ bool CheckExpression::visit(ThisExpressionAST *)
 
 bool CheckExpression::visit(CompoundExpressionAST *ast)
 {
-    return true; // ###
+    _fullySpecifiedType = semantic()->check(ast->compoundStatement, _scope);
+    return false;
 }
 
 bool CheckExpression::visit(NestedExpressionAST *ast)
 {
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
+    _fullySpecifiedType = semantic()->check(ast->expression, _scope);
     return false;
 }
 

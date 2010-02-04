@@ -81,6 +81,17 @@ public:
 
     unsigned lastToken() const
     {
+        _Tp lv = lastValue();
+
+        if (lv)
+            return lv->lastToken();
+
+        // ### assert(0);
+        return 0;
+    }
+
+    _Tp lastValue() const
+    {
         _Tp lastValue = 0;
 
         for (const List *it = this; it; it = it->next) {
@@ -88,11 +99,7 @@ public:
                 lastValue = it->value;
         }
 
-        if (lastValue)
-            return lastValue->lastToken();
-
-        // ### assert(0);
-        return 0;
+        return lastValue;
     }
     
     _Tp value;

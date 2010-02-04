@@ -3446,6 +3446,14 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
             ast->compoundStatement = statement->asCompoundStatement();
             match(T_RPAREN, &ast->rparen_token);
             node = ast;
+            if (ast->compoundStatement && ast->compoundStatement->statement_list) {
+                // check that the last statement is an expression-statement
+                StatementAST *lastStmt = ast->compoundStatement->statement_list->lastValue();
+                if (!lastStmt || ! ast->asExpressionStatement())
+                    _translationUnit->error(cursor(),
+                                            "expected an expression statement before token `%s'",
+                                            tok().spell());
+            }
             return true;
         } else {
             return parseNestedExpression(node);

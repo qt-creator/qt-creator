@@ -151,8 +151,8 @@ void Semantic::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
 FullySpecifiedType Semantic::check(ExpressionAST *expression, Scope *scope)
 { return d->checkExpression->check(expression, scope); }
 
-void Semantic::check(StatementAST *statement, Scope *scope)
-{ d->checkStatement->check(statement, scope); }
+FullySpecifiedType Semantic::check(StatementAST *statement, Scope *scope)
+{ return d->checkStatement->check(statement, scope); }
 
 const Name *Semantic::check(NameAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }

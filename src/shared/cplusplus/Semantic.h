@@ -81,7 +81,7 @@ public:
 
     void check(DeclarationAST *declaration, Scope *scope, TemplateParameters *templateParameters = 0);
 
-    void check(StatementAST *statement, Scope *scope);
+    FullySpecifiedType check(StatementAST *statement, Scope *scope);
 
     const Name *check(NameAST *name, Scope *scope);
 
