@@ -50,7 +50,6 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
     PRECONDITION;
     m_processedNames.clear();
 
-    manager()->watchHandler()->beginCycle();
     //m_toolTipExpression.clear();
     WatchHandler *handler = m_manager->watchHandler();
 

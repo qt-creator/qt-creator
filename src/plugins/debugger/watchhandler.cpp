@@ -407,7 +407,7 @@ void WatchModel::endCycle()
 {
     removeOutdated();
     emit enableUpdates(true);
-    // Prevent 'fetchMore()' from being triggered
+    // Prevent 'fetchMore()' from being triggered.
     m_inExtraLayoutChanged = true;
     emit layoutChanged();
     QTimer::singleShot(0, this, SLOT(resetExtraLayoutChanged()));
@@ -669,8 +669,10 @@ static QString formattedValue(const WatchData &data, int format)
 
 bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
+    WatchItem *item = watchItem(index);
+    QTC_ASSERT(item, return false);
     return !m_inExtraLayoutChanged && index.isValid()
-        && !m_fetchTriggered.contains(watchItem(index)->iname);
+        && !m_fetchTriggered.contains(item->iname);
 }
 
 void WatchModel::fetchMore(const QModelIndex &index)
