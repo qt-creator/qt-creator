@@ -882,7 +882,7 @@ class MyGroupBox : public QGroupBox
      Q_OBJECT
 
 public:
-    MyGroupBox(QWidget * parent = 0) : QGroupBox(parent), m_animated(false)
+    MyGroupBox(QWidget * parent = 0) : QGroupBox(parent), m_animated(false), m_firstExpand(true)
     {}
 
 void setPixmap(const QPixmap &pixmap, qreal alpha = 1)
@@ -890,6 +890,9 @@ void setPixmap(const QPixmap &pixmap, qreal alpha = 1)
 
 void setAnimated(bool animated)
 { m_animated = animated; }
+
+void finishFirstExpand()
+{ m_firstExpand = false; }
 
 public slots:
     virtual void setVisible ( bool visible );
@@ -900,6 +903,7 @@ private:
     qreal m_alpha;
     QPixmap m_pixmap;
     bool m_animated;
+    bool m_firstExpand;
 };
 
 void MyGroupBox::paintEvent(QPaintEvent * event)
@@ -908,7 +912,8 @@ void MyGroupBox::paintEvent(QPaintEvent * event)
     if (m_animated) {
         QPainter p(this);
         p.setOpacity(m_alpha);
-        p.drawPixmap(5, 5,  m_pixmap.width(), m_pixmap.height(), m_pixmap);
+        if (!m_pixmap.isNull() && !m_firstExpand)
+            p.drawPixmap(5, 5,  m_pixmap.width(), m_pixmap.height(), m_pixmap);
     }
 }
 
@@ -958,6 +963,7 @@ private:
     bool m_expanded;
     int m_oldHeight;
     int m_oldMAxHeight;
+    int m_oldMinHeight;
     QPixmap m_contens;
 
     void hideChildren();
@@ -980,11 +986,15 @@ void QGroupBoxDeclarativeUI::finish()
     gb->setAnimated(false);
     if (m_expanded) {
         showChildren();
-
+        gb->setMinimumHeight(m_oldMinHeight);
         gb->setMaximumHeight(m_oldMAxHeight);
+        gb->resize(gb->sizeHint());
+        gb->finishFirstExpand();
     }
     else {
+        gb->setMinimumHeight(30);
         gb->setMaximumHeight(30);
+        gb->resize(gb->sizeHint().width(), 30);
     }
     reLayout();
 }
@@ -993,22 +1003,23 @@ void QGroupBoxDeclarativeUI::hideChildren()
 {
     if (gb->isVisible()) {
         gb->setMinimumHeight(gb->height());
-        foreach (QWidget *widget, gb->findChildren<QWidget*>()) {
-            widget->setProperty("wasVisibleGB", widget->property("visible"));
-        }
         foreach (QWidget *widget, gb->findChildren<QWidget*>())
-            if (widget->parent() == gb)
+            if (widget->parent() == gb) {
+                widget->setProperty("wasVisibleGB", widget->property("visible"));
                 widget->hide();
+            }
     }
 }
 
 void QGroupBoxDeclarativeUI::showChildren()
 {
     foreach (QWidget *widget, gb->findChildren<QWidget*>()) {
-        if (widget->property("wasVisibleGB").toBool())
-          widget->show();
-        widget->setProperty("wasVisibleGB", QVariant());
-        widget->ensurePolished();
+        if (widget->parent() == gb) {
+            if (widget->property("wasVisibleGB").toBool())
+                widget->show();
+            widget->setProperty("wasVisibleGB", QVariant());
+            widget->ensurePolished();
+        }
     }
     gb->show();
 }
@@ -1017,11 +1028,12 @@ void QGroupBoxDeclarativeUI::collapse()
 {
     m_oldMAxHeight = gb->maximumHeight();
     m_oldHeight = gb->height();
+    m_oldMinHeight =gb->minimumHeight();
     if (!m_expanded)
         return;
     m_contens = QPixmap::grabWidget (gb, 5, 5, gb->width() - 5, gb->height() - 5);
     gb->setPixmap(m_contens,1);
-    hideChildren();
+    hideChildren(); 
     m_expanded = false;
     m_timeLine.start();
 }
@@ -1151,6 +1163,7 @@ QML_DECLARE_TYPE(WidgetFrame)
 //buttons
 //QML_DEFINE_TYPE(Bauhaus,1,0,QPushButton,QPushButton);
 QML_DEFINE_TYPE(Bauhaus,1,0,QCheckBox,QCheckBox)
+QML_DEFINE_TYPE(Bauhaus,1,0,QGroupBox,QGroupBox)
 QML_DEFINE_TYPE(Bauhaus,1,0,QAction,Action)
 QML_DEFINE_TYPE(Bauhaus,1,0,QRadioButton,QRadioButton)
 QML_DEFINE_TYPE(Bauhaus,1,0,FileWidget, FileWidget)
