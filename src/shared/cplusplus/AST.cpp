@@ -144,7 +144,6 @@ unsigned AccessDeclarationAST::lastToken() const
     return access_specifier_token + 1;
 }
 
-#ifdef ICHECK_BUILD
 unsigned QPropertyDeclarationAST::firstToken() const
 {
     return property_specifier_token;
@@ -184,7 +183,6 @@ unsigned QDeclareFlagsDeclarationAST::lastToken() const
 {
     return rparen_token;
 }
-#endif
 
 unsigned ArrayAccessAST::firstToken() const
 {

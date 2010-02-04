@@ -3087,13 +3087,9 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node,
 {
     DEBUG_THIS_RULE();
     unsigned qt_invokable_token = 0;
-    if (acceptStructDeclarator && (LA() == T_Q_SIGNAL || LA() == T_Q_SLOT))
+    if (acceptStructDeclarator
+            && (LA() == T_Q_SIGNAL || LA() == T_Q_SLOT || LA() == T_Q_INVOKABLE))
         qt_invokable_token = consumeToken();
-#ifdef ICHECK_BUILD
-    unsigned invoke_token = 0;
-    if (LA() == T_Q_INVOKABLE)
-        invoke_token = consumeToken();
-#endif
 
     // parse a simple declaration, a function definition,
     // or a contructor declaration.

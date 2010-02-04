@@ -248,6 +248,10 @@ public:
     virtual PostfixDeclaratorAST *asPostfixDeclarator() { return 0; }
     virtual PostfixExpressionAST *asPostfixExpression() { return 0; }
     virtual PtrOperatorAST *asPtrOperator() { return 0; }
+    virtual QDeclareFlagsDeclarationAST *asQDeclareFlagsDeclaration() { return 0; }
+    virtual QEnumDeclarationAST *asQEnumDeclaration() { return 0; }
+    virtual QFlagsDeclarationAST *asQFlagsDeclaration() { return 0; }
+    virtual QPropertyDeclarationAST *asQPropertyDeclaration() { return 0; }
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return 0; }
     virtual QtMethodAST *asQtMethod() { return 0; }
     virtual QualifiedNameAST *asQualifiedName() { return 0; }
@@ -278,12 +282,6 @@ public:
     virtual UsingAST *asUsing() { return 0; }
     virtual UsingDirectiveAST *asUsingDirective() { return 0; }
     virtual WhileStatementAST *asWhileStatement() { return 0; }
-#ifdef ICHECK_BUILD
-    virtual QPropertyDeclarationAST *asQPropertyDeclarationAST() { return 0; }
-    virtual QEnumDeclarationAST *asQEnumDeclarationAST() { return 0; }
-    virtual QFlagsDeclarationAST *asQFlagsDeclarationAST() { return 0; }
-    virtual QDeclareFlagsDeclarationAST *asQDeclareFlagsDeclarationAST() { return 0; }
-#endif
 
 protected:
     virtual void accept0(ASTVisitor *visitor) = 0;
@@ -312,10 +310,6 @@ public:
     virtual DeclarationAST *asDeclaration() { return this; }
 
     virtual DeclarationAST *clone(MemoryPool *pool) const = 0;
-
-#ifdef ICHECK_BUILD
-    unsigned invoke_token;
-#endif
 };
 
 class CPLUSPLUS_EXPORT NameAST: public ExpressionAST
@@ -550,7 +544,6 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-#ifdef ICHECK_BUILD
 class CPLUSPLUS_EXPORT QPropertyDeclarationAST: public DeclarationAST
 {
     /*
@@ -581,7 +574,7 @@ public:
     unsigned rparen_token;
 
 public:
-    virtual QPropertyDeclarationAST *asQPropertyDeclarationAST() { return this; }
+    virtual QPropertyDeclarationAST *asQPropertyDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -603,7 +596,7 @@ public:
     EnumeratorListAST *enumerator_list;
 
 public:
-    virtual QEnumDeclarationAST *asQEnumDeclarationAST() { return this; }
+    virtual QEnumDeclarationAST *asQEnumDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -625,7 +618,7 @@ public:
     EnumeratorListAST *enumerator_list;
 
 public:
-    virtual QFlagsDeclarationAST *asQFlagsDeclarationAST() { return this; }
+    virtual QFlagsDeclarationAST *asQFlagsDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -648,7 +641,7 @@ public:
     unsigned rparen_token;
 
 public:
-    virtual QDeclareFlagsDeclarationAST *asQDeclareFlagsDeclarationAST() { return this; }
+    virtual QDeclareFlagsDeclarationAST *asQDeclareFlagsDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
@@ -659,7 +652,6 @@ protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
 };
-#endif
 
 class CPLUSPLUS_EXPORT AsmDefinitionAST: public DeclarationAST
 {

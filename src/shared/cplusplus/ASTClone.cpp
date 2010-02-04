@@ -138,7 +138,6 @@ AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-#ifdef ICHECK_BUILD
 QPropertyDeclarationAST *QPropertyDeclarationAST::clone(MemoryPool *pool) const
 {
     QPropertyDeclarationAST *ast = new (pool) QPropertyDeclarationAST;
@@ -160,14 +159,13 @@ QPropertyDeclarationAST *QPropertyDeclarationAST::clone(MemoryPool *pool) const
 
 QEnumDeclarationAST *QEnumDeclarationAST::clone(MemoryPool *pool) const
 {
-    QEnumDeclarationAST *ast = new (pool)QEnumDeclarationAST;
+    QEnumDeclarationAST *ast = new (pool) QEnumDeclarationAST;
     ast->enum_specifier_token = enum_specifier_token;
     ast->lparen_token = lparen_token;
     ast->rparen_token = rparen_token;
     for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
-
     return ast;
 }
 
@@ -180,7 +178,6 @@ QFlagsDeclarationAST *QFlagsDeclarationAST::clone(MemoryPool *pool) const
     for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
-
     return ast;
 }
 
@@ -192,10 +189,8 @@ QDeclareFlagsDeclarationAST *QDeclareFlagsDeclarationAST::clone(MemoryPool *pool
     ast->flag_token = flag_token;
     ast->enum_token = enum_token;
     ast->rparen_token = rparen_token;
-
     return ast;
 }
-#endif
 
 AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 {

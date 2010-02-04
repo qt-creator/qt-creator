@@ -465,19 +465,14 @@ public:
                 << generatedHeader
                 << "#include \"AST.h\"" << endl
                 << "#include \"ASTMatcher.h\"" << endl
-                << "#include \"TranslationUnit.h\"" << endl
                 << endl
                 << "using namespace CPlusPlus;" << endl
                 << endl
-                << "ASTMatcher::ASTMatcher(TranslationUnit *translationUnit)"
-                << "    : _translationUnit(translationUnit)" << endl
+                << "ASTMatcher::ASTMatcher()" << endl
                 << "{ }" << endl
                 << endl
                 << "ASTMatcher::~ASTMatcher()" << endl
                 << "{ }" << endl
-                << endl
-                << "TranslationUnit *ASTMatcher::translationUnit() const" << endl
-                << "{ return _translationUnit; }" << endl
                 << endl;
 
         accept(ast);

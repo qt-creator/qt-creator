@@ -171,7 +171,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
     const bool isQ_SLOT   = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SLOT;
     const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
 #ifdef ICHECK_BUILD
-    const bool isQ_INVOKABLE = (ast->invoke_token > 0);
+    const bool isQ_INVOKABLE = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_INVOKABLE;
 #endif
 
     List<Declaration *> **decl_it = &ast->symbols;
