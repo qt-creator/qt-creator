@@ -5153,7 +5153,7 @@ bool Parser::parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node)
     node = new (_pool) ObjCPropertyAttributeAST;
 
     const Identifier *id = tok().identifier;
-    const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
+    const int k = classifyObjectiveCContextKeyword(id->chars(), id->size());
     switch (k) {
     case Token_copy:
     case Token_assign:
@@ -5251,7 +5251,7 @@ bool Parser::parseObjCTypeQualifiers(unsigned &type_qualifier)
         return false;
 
     const Identifier *id = tok().identifier;
-    const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
+    const int k = classifyObjectiveCContextKeyword(id->chars(), id->size());
     if (k == Token_identifier)
         return false;
     type_qualifier = consumeToken();
@@ -5264,7 +5264,7 @@ bool Parser::peekAtObjCContextKeyword(int kind)
         return false;
 
     const Identifier *id = tok().identifier;
-    const int k = classifyObjectiveCTypeQualifiers(id->chars(), id->size());
+    const int k = classifyObjectiveCContextKeyword(id->chars(), id->size());
     return k == kind;
 }
 

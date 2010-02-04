@@ -234,7 +234,7 @@ static inline int classify9(const char *s) {
     return Token_identifier;
 }
 
-int CPlusPlus::classifyObjectiveCTypeQualifiers(const char *s, int n) {
+int CPlusPlus::classifyObjectiveCContextKeyword(const char *s, int n) {
   switch (n) {
     case 2: return classify2(s);
     case 3: return classify3(s);

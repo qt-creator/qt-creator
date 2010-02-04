@@ -52,7 +52,7 @@ enum {
   Token_identifier
 };
 
-CPLUSPLUS_EXPORT int classifyObjectiveCTypeQualifiers(const char *s, int n);
+CPLUSPLUS_EXPORT int classifyObjectiveCContextKeyword(const char *s, int n);
 
 } // end of namespace CPlusPlus
 

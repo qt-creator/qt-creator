@@ -158,7 +158,7 @@ QList<SimpleToken> SimpleLexer::operator()(const QString &text, int state)
             lex.setScanAngleStringLiteralTokens(true);
 
         if (_objCEnabled && tk.is(T_IDENTIFIER))
-            simpleTk.f._objcTypeQualifier = (classifyObjectiveCTypeQualifiers(firstChar + tk.offset, tk.f.length) != Token_identifier);
+            simpleTk.f._objcTypeQualifier = (classifyObjectiveCContextKeyword(firstChar + tk.offset, tk.f.length) != Token_identifier);
 
         tokens.append(simpleTk);
     }

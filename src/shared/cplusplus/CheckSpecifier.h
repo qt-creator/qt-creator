@@ -80,8 +80,6 @@ protected:
     virtual bool visit(TypeofSpecifierAST *ast);
     virtual bool visit(AttributeSpecifierAST *ast);
 
-    virtual bool visit(ObjCTypeNameAST *ast);
-
 private:
     SpecifierListAST *_specifier;
     FullySpecifiedType _fullySpecifiedType;
