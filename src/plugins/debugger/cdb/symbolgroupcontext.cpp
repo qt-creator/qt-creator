@@ -570,7 +570,7 @@ unsigned SymbolGroupContext::dumpValue(unsigned long index,
                          typeNameIn, valueIn);
     do {
         // Is this a previously detected Null-Pointer or out of scope
-        if ( (rc & (HasChildren|OutOfScope)) )
+        if ( (rc & OutOfScope) || !(rc & HasChildren) )
             break;
         // QString
         if (typeNameIn->endsWith(QLatin1String("QString")) || typeNameIn->endsWith(QLatin1String("QString *"))) {
@@ -606,8 +606,15 @@ unsigned SymbolGroupContext::dumpValue(unsigned long index,
 
         }
     } while (false);
-    if (debugInternalDumpers)
-        qDebug() << "SymbolGroupContext::dump" << rc << nameIn << valueIn;
+    if (debugInternalDumpers) {
+        QString msg;
+        QTextStream str(&msg);
+        str.setIntegerBase(16);
+        str << "SymbolGroupContext::dump rc=0x" << rc << ' ' << *typeNameIn;
+        str.setIntegerBase(10);
+        str << " (" << *typeIdIn << ") '" << *nameIn << "' '" << *valueIn << '\'';
+        qDebug("%s", qPrintable(msg));
+    }
     return rc;
 }
 
