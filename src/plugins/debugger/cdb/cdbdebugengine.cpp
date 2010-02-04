@@ -32,7 +32,6 @@
 #include "cdbdebugoutput.h"
 #include "cdbdebugeventcallback.h"
 #include "cdbstacktracecontext.h"
-#include "cdbstackframecontext.h"
 #include "cdbsymbolgroupcontext.h"
 #include "cdbbreakpoint.h"
 #include "cdbmodules.h"
