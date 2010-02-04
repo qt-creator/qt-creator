@@ -172,14 +172,14 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             AST::Node *declaringMember = semanticInfo.declaringMember(pos);
 
             Interpreter::Engine interp;
-            Link link(qmlDocument, snapshot, &interp);
-            link.scopeChainAt(qmlDocument, declaringMember);
+            Interpreter::Context context(&interp);
+            context.build(declaringMember, qmlDocument, snapshot);
 
-            Check check(link.context());
+            Check check(&context);
             const Interpreter::Value *value = check(node);
 
             QStringList baseClasses;
-            m_toolTip = prettyPrint(value, link.context(), &baseClasses);
+            m_toolTip = prettyPrint(value, &context, &baseClasses);
 
             foreach (const QString &baseClass, baseClasses) {
                 QString helpId = QLatin1String("QML.");

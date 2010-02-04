@@ -12,12 +12,11 @@ using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
-Link::Link(Document::Ptr currentDoc, const Snapshot &snapshot, Interpreter::Engine *interp)
+Link::Link(Context *context, Document::Ptr currentDoc, const Snapshot &snapshot)
     : _snapshot(snapshot)
-    , _context(interp)
+    , _context(context)
 {
     _docs = reachableDocuments(currentDoc, snapshot);
-
     linkImports();
 }
 
@@ -25,25 +24,20 @@ Link::~Link()
 {
 }
 
-Context *Link::context()
-{
-    return &_context;
-}
-
 Interpreter::Engine *Link::engine()
 {
-    return _context.engine();
+    return _context->engine();
 }
 
 void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 {
-    _context.pushScope(engine()->globalObject());
+    _context->pushScope(engine()->globalObject());
 
     if (! doc)
         return;
 
     if (doc->qmlProgram() != 0)
-        _context.setLookupMode(Context::QmlLookup);
+        _context->setLookupMode(Context::QmlLookup);
 
     Bind *bind = doc->bind();
 
@@ -52,7 +46,7 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
     // ### FIXME: May want to link to instantiating components from here.
 
     if (bind->_rootObjectValue)
-        _context.pushScope(bind->_rootObjectValue);
+        _context->pushScope(bind->_rootObjectValue);
 
     ObjectValue *scopeObject = 0;
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
@@ -61,7 +55,7 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
         scopeObject = bind->_qmlObjects.value(binding);
 
     if (scopeObject && scopeObject != bind->_rootObjectValue)
-        _context.pushScope(scopeObject);
+        _context->pushScope(scopeObject);
 
     const QStringList &includedScripts = bind->includedScripts();
     for (int index = includedScripts.size() - 1; index != -1; --index) {
@@ -69,19 +63,19 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 
         if (Document::Ptr scriptDoc = _snapshot.document(scriptFile)) {
             if (scriptDoc->jsProgram()) {
-                _context.pushScope(scriptDoc->bind()->_rootObjectValue);
+                _context->pushScope(scriptDoc->bind()->_rootObjectValue);
             }
         }
     }
 
     if (bind->_functionEnvironment)
-        _context.pushScope(bind->_functionEnvironment);
+        _context->pushScope(bind->_functionEnvironment);
 
     if (bind->_idEnvironment)
-        _context.pushScope(bind->_idEnvironment);
+        _context->pushScope(bind->_idEnvironment);
 
-    if (const ObjectValue *typeEnvironment = _context.typeEnvironment(doc.data()))
-        _context.pushScope(typeEnvironment);
+    if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
+        _context->pushScope(typeEnvironment);
 }
 
 void Link::linkImports()
@@ -92,7 +86,7 @@ void Link::linkImports()
         // Populate the _typeEnvironment with imports.
         populateImportedTypes(typeEnv, doc);
 
-        _context.setTypeEnvironment(doc.data(), typeEnv);
+        _context->setTypeEnvironment(doc.data(), typeEnv);
     }
 }
 

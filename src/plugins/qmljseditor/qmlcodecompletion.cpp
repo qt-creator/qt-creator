@@ -653,12 +653,11 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     const QIcon symbolIcon = iconForColor(Qt::darkCyan);
 
     Interpreter::Engine interp;
+    Interpreter::Context context(&interp);
 
     // Set up the current scope chain.
-    Link link(document, snapshot, &interp);
-
     AST::Node *declaringMember = semanticInfo.declaringMember(editor->position());
-    link.scopeChainAt(document, declaringMember);
+    context.build(declaringMember, document, snapshot);
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
@@ -668,7 +667,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     if (completionOperator.isSpace() || completionOperator.isNull() || isDelimiter(completionOperator) ||
             (completionOperator == QLatin1Char('(') && m_startPosition != editor->position())) {
         // It's a global completion.
-        EnumerateProperties enumerateProperties(link.context());
+        EnumerateProperties enumerateProperties(&context);
         enumerateProperties.setGlobalCompletion(true);
         QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties());
         while (it.hasNext()) {
@@ -691,14 +690,14 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         //qDebug() << "expression:" << expression;
 
         if (expression  != 0) {
-            Check evaluate(link.context());
+            Check evaluate(&context);
 
             // Evaluate the expression under cursor.
             const Interpreter::Value *value = interp.convertToObject(evaluate(expression));
             //qDebug() << "type:" << interp.typeId(value);
 
             if (value && completionOperator == QLatin1Char('.')) { // member completion
-                EnumerateProperties enumerateProperties(link.context());
+                EnumerateProperties enumerateProperties(&context);
                 QHashIterator<QString, const Interpreter::Value *> it(enumerateProperties(value));
                 while (it.hasNext()) {
                     it.next();

@@ -30,6 +30,7 @@
 #ifndef QMLJS_INTERPRETER_H
 #define QMLJS_INTERPRETER_H
 
+#include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsmetatypesystem.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
@@ -223,6 +224,8 @@ public:
 public:
     Context(Engine *engine);
     ~Context();
+
+    void build(AST::Node *node, Document::Ptr doc, const Snapshot &snapshot);
 
     Engine *engine() const;
     ScopeChain scopeChain() const;

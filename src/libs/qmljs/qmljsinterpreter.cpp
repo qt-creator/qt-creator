@@ -29,6 +29,7 @@
 
 #include "qmljsinterpreter.h"
 #include "qmljscheck.h"
+#include "qmljslink.h"
 #include "parser/qmljsast_p.h"
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
@@ -686,6 +687,12 @@ Context::Context(Engine *engine)
 
 Context::~Context()
 {
+}
+
+void Context::build(AST::Node *node, Document::Ptr doc, const Snapshot &snapshot)
+{
+    Link link(this, doc, snapshot);
+    link.scopeChainAt(doc, node);
 }
 
 Engine *Context::engine() const
