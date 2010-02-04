@@ -33,7 +33,7 @@
 #include "debuggermanager.h"
 #include "stackframe.h"
 
-#include <texteditor/basetextmark.h>
+#include "imports.h" // TextEditor::BaseTextMark
 
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
