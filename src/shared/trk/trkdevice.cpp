@@ -907,7 +907,7 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
         qDebug() << "Opening" << port << "is open: " << isOpen() << " serialFrame=" << serialFrame();
     close();
 #ifdef Q_OS_WIN
-    d->deviceContext->device = CreateFile(port.toStdWString().c_str(),
+    d->deviceContext->device = CreateFile(QString("\\\\.\\").append(port).toStdWString().c_str(),
                            GENERIC_READ | GENERIC_WRITE,
                            0,
                            NULL,
