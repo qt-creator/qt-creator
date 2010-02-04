@@ -96,6 +96,7 @@ class CdbExceptionLoggerEventCallback;
 class GdbEngine;
 class CdbDebugEngine;
 class CdbDebugEnginePrivate;
+class TrkGdbAdapter;
 } // namespace Internal
 
 class DEBUGGER_EXPORT DebuggerStartParameters
@@ -171,6 +172,7 @@ public:
     friend class Internal::ScriptEngine;
     friend class Internal::CdbDebugEngine;
     friend class Internal::CdbDebugEnginePrivate;
+    friend class Internal::TrkGdbAdapter;
 
     DebuggerState state() const;
     QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);

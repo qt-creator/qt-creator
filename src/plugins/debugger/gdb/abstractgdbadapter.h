@@ -57,7 +57,8 @@ public:
     virtual ~AbstractGdbAdapter();
 
     virtual void write(const QByteArray &data);
-    virtual bool isTrkAdapter() const; // isUtterlyBrokenAdapter
+    virtual bool isTrkAdapter() const;
+    virtual void trkReloadRegisters() {}
 
     virtual void startAdapter() = 0;
     virtual void startInferior() = 0;

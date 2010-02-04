@@ -28,12 +28,14 @@
 **************************************************************************/
 
 #include "trkgdbadapter.h"
+
 #include "launcher.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
 #include "s60debuggerbluetoothstarter.h"
 #include "bluetoothlistener_gui.h"
 
+#include "registerhandler.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"
 #ifndef STANDALONE_RUNNER
@@ -695,7 +697,6 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         int pos = cmd.indexOf(',');
         //qDebug() << "SAL: " << cmd << cmd.mid(3, pos - 3) << cmd.mid(pos + 1);
-        bool ok = false;
         m_snapshot.lineFromAddress = cmd.mid(3, pos - 3).toUInt(0, 16);
         m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
         //qDebug() << "SAL: " << hexxNumber(m_snapshot.lineFromAddress)
@@ -2111,6 +2112,29 @@ void TrkGdbAdapter::shutdown()
 {
     cleanup();
 }
+
+void TrkGdbAdapter::trkReloadRegisters()
+{
+    // Take advantage of direct access to cached register values.
+    QTC_ASSERT(m_snapshot.registerValid, /**/);
+    RegisterHandler *handler = m_engine->manager()->registerHandler();
+    QList<Register> registers = handler->registers();
+    QTC_ASSERT(registers.size() >= 25, return);
+    for (int i = 0; i < 16; ++i) {
+        Register &reg = registers[i];
+        QString value = hexxNumber(m_snapshot.registers[i]);
+        reg.changed = (value != reg.value);
+        if (reg.changed)
+            reg.value = value;
+    }
+    Register &reg = registers[24];
+    QString value = hexxNumber(m_snapshot.registers[16]);
+    reg.changed = (value != reg.value);
+    if (reg.changed)
+        reg.value = value;
+    handler->setRegisters(registers);
+}
+
 
 } // namespace Internal
 } // namespace Debugger

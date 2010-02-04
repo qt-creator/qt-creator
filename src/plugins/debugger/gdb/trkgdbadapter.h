@@ -145,6 +145,7 @@ public:
     void setVerbose(int verbose);
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
     trk::Session &session() { return m_session; }
+    void trkReloadRegisters();
 
 signals:
     void output(const QString &msg);
