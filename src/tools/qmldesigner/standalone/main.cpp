@@ -95,7 +95,7 @@ static void parseArguments(const QStringList& argumentList, MainWindow& mainWind
                 qWarning() << "  -f, --file      open this file";
                 qWarning() << "  --no-resync     disable rewriter";
                 exit(0);
-            } else if (passArgumentList.contains(argumentList[i].split("=").first())) {
+            } else if (passArgumentList.contains(argumentList[i].split('=').first())) {
             } else {
                 qWarning() << "bauhaus: unrecognized option "<< argumentList[i];
                 qWarning() << "Try `bauhaus --help'";

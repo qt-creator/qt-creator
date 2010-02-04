@@ -58,14 +58,14 @@ void DesignDocumentControllerView::nodeOrderChanged(const NodeListProperty & /*l
 static QStringList arrayToStringList(const QByteArray &byteArray)
 {
     QString str(QString::fromLatin1(byteArray));
-    return str.split("\n");
+    return str.split('\n');
 }
 
 static QByteArray stringListToArray(const QStringList &stringList)
 {
     QString str;
     foreach (const QString &subString, stringList)
-        str += subString + "\n";
+        str += subString + '\n';
     return str.toLatin1();
 }
 

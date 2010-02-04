@@ -71,7 +71,7 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
     QVariant result;
     switch (role) {
     case StateNameRole: {
-            if ((index.row()==0) && m_stateNames.at(index.row()).isEmpty())
+            if (index.row()==0)
                 result = QString("base state");
             else
                 result = m_stateNames.at(index.row());

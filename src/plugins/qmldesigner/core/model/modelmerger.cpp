@@ -72,7 +72,7 @@ static void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputN
 
 static void syncId(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash)
 {
-    if (!inputNode.id().isNull() && !inputNode.id().isEmpty()) {
+    if (!inputNode.id().isEmpty()) {
         outputNode.setId(idRenamingHash.value(inputNode.id()));
     }
 }
@@ -82,7 +82,7 @@ static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QStri
     QList<ModelNode> allNodes(modelNode.allSubModelNodes());
     allNodes.append(modelNode);
     foreach (const ModelNode &node, allNodes) {
-        if (!node.id().isNull() && !node.id().isEmpty()) {
+        if (!node.id().isEmpty()) {
             QString newId = node.id();
             int i = 1;
             while (view->hasId(newId) || idRenamingHash.contains(newId)) {
