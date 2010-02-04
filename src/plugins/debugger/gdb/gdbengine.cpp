@@ -3634,8 +3634,8 @@ QString GdbEngine::parseDisassembler(const GdbMi &lines)
                 fileLoaded = true;
             }
             int line = child.findChild("line").data().toInt();
-            if (line >= 0 && line < fileContents.size())
-                ba += "    " + fileContents.at(line) + '\n';
+            if (line >= 1 && line <= fileContents.size())
+                ba += "    " + fileContents.at(line - 1) + '\n';
             GdbMi insn = child.findChild("line_asm_insn");
             foreach (const GdbMi &line, insn.children())
                 ba += parseLine(line);
