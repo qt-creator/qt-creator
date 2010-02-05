@@ -331,7 +331,6 @@ QSpinBox::up-arrow:disabled, QSpinBox::up-arrow:off, QDoubleSpinBox::up-arrow:di
 
 QCheckBox {
     spacing: 4px;
-	padding-right: 4px;
     font-size: 11px;
 }
 
