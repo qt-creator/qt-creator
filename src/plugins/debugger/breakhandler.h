@@ -91,7 +91,7 @@ public:
     QString bpFileName;      // file name acknowledged by the debugger engine
     QByteArray bpLineNumber; // line number acknowledged by the debugger engine
     QString bpFuncName;      // function name acknowledged by the debugger engine
-    QString bpAddress;       // address acknowledged by the debugger engine
+    QByteArray bpAddress;    // address acknowledged by the debugger engine
     bool    bpMultiple;      // happens in constructors/gdb
     bool    bpEnabled;       // enable/disable command sent
 

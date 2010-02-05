@@ -1315,14 +1315,16 @@ void GdbEngine::handleStop1(const GdbMi &data)
     if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints))
         reloadSourceFilesInternal(); // This needs to be done before fullName() may need it
 
-    if (m_breakListOutdated)
-        reloadBreakListInternal();
-    else
-        // Older gdb versions do not produce "library loaded" messages
-        // so the breakpoint update is not triggered.
-        if (m_gdbVersion < 70000 && !m_isMacGdb && !m_breakListUpdating
-            && manager()->breakHandler()->size() > 0)
+    if (!hasPython()) {
+        if (m_breakListOutdated)
             reloadBreakListInternal();
+        else
+            // Older gdb versions do not produce "library loaded" messages
+            // so the breakpoint update is not triggered.
+            if (m_gdbVersion < 70000 && !m_isMacGdb && !m_breakListUpdating
+                && manager()->breakHandler()->size() > 0)
+                reloadBreakListInternal();
+    }
 
     if (reason == "breakpoint-hit") {
         showStatusMessage(tr("Stopped at breakpoint."));
@@ -1945,7 +1947,7 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
             if (child.data() == "<MULTIPLE>")
                 data->bpMultiple = true;
             else
-                data->bpAddress = _(child.data());
+                data->bpAddress = child.data();
         } else if (child.hasName("file")) {
             file = child.data();
         } else if (child.hasName("fullname")) {
@@ -2190,7 +2192,7 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
     re.setMinimal(true);
 
     if (re.indexIn(output) != -1) {
-        data->bpAddress = re.cap(1);
+        data->bpAddress = re.cap(1).toLatin1();
         data->bpFuncName = re.cap(2).trimmed();
         data->bpLineNumber = re.cap(4).toLatin1();
         QString full = fullName(re.cap(3));

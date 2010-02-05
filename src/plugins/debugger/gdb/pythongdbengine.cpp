@@ -33,6 +33,7 @@
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"
 
+#include "breakhandler.h"
 #include "watchhandler.h"
 #include "stackhandler.h"
 
@@ -140,6 +141,35 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         manager()->watchHandler()->insertBulkData(list);
         //for (int i = 0; i != list.size(); ++i)
         //    qDebug() << "LOCAL: " << list.at(i).toString();
+
+        data = all.findChild("bkpts");
+        if (data.isValid()) {
+            BreakHandler *handler = manager()->breakHandler();
+            foreach (const GdbMi &child, data.children()) {
+                int bpNumber = child.findChild("number").data().toInt();
+                int found = handler->findBreakpoint(bpNumber);
+                if (found != -1) {
+                    BreakpointData *bp = handler->at(found);
+                    GdbMi addr = child.findChild("addr");
+                    if (addr.isValid()) {
+                        bp->bpAddress = child.findChild("addr").data();
+                        bp->pending = false;
+                    } else {
+                        bp->bpAddress = "<PENDING>";
+                        bp->pending = true;
+                    }
+                    bp->bpFuncName = child.findChild("func").data();
+                    bp->bpLineNumber = child.findChild("line").data();
+                    bp->bpFileName = child.findChild("file").data();
+                    bp->markerLineNumber = bp->bpLineNumber.toInt();
+                    bp->markerFileName = bp->bpFileName;
+                } else {
+                    QTC_ASSERT(false, qDebug() << child.toString());
+                    //bp->bpNumber = "<unavailable>";
+                }
+            }
+            handler->updateMarkers();
+        }
 
         //PENDING_DEBUG("AFTER handleStackFrame()");
         // FIXME: This should only be used when updateLocals() was

@@ -128,13 +128,14 @@ def listOfBreakpoints(d):
             continue
         number = line[0:5]
         pos0x = line.find(" 0x")
-        posin = line.find(" in ")
-        posat = line.find(" at ")
+        posin = line.find(" in ", pos0x)
+        posat = line.find(" at ", posin)
         poscol = line.find(":", posat)
         if pos0x < posin and pos0x != -1:
             bp.address.append(line[pos0x + 1 : posin])
-        if line.find("<PENDING>") >= 0:
-            bp.address.append("<PENDING>")
+        # Take "no address" as indication that the bp is pending.
+        #if line.find("<PENDING>") >= 0:
+        #    bp.address.append("<PENDING>")
         if posin < posat and posin != -1:
             bp.function = line[posin + 4 : posat]
         if posat < poscol and poscol != -1:
@@ -625,10 +626,10 @@ class FrameCommand(gdb.Command):
         # Breakpoints
         #
         breakpoints = ""
-        #d.safeoutput = ""
-        #listOfBreakpoints(d)
-        #d.pushOutput()
-        #breakpoints = d.safeoutput
+        d.safeoutput = ""
+        listOfBreakpoints(d)
+        d.pushOutput()
+        breakpoints = d.safeoutput
 
         print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
 
