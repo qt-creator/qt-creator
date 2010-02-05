@@ -1,15 +1,15 @@
 import Qt 4.6
 import Bauhaus 1.0
 
-QWidget { //This is a special DoubleSpinBox that does color coding for states
-    id: DoubleSpinBox;
+QWidget { //This is a special doubleSpinBox that does color coding for states
+    id: doubleSpinBox;
 
     property var backendValue;
     property var baseStateFlag;
     property alias singleStep: box.singleStep
     property alias minimum: box.minimum
     property alias maximum: box.maximum
-	property alias spacing: LayoutH.spacing
+	property alias spacing: layoutH.spacing
     property alias text: label.text
 	property bool alignRight: true
     property bool enabled: true
@@ -53,28 +53,28 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
     }
 
     layout: HorizontalLayout {
-		id: LayoutH;
+		id: layoutH;
 
         QLabel {
             id: label;
             font.bold: true;
-            alignment: DoubleSpinBox.alignRight  ? "Qt::AlignRight | Qt::AlignVCenter" : "Qt::AlignLeft | Qt::AlignVCenter";
+            alignment: doubleSpinBox.alignRight  ? "Qt::AlignRight | Qt::AlignVCenter" : "Qt::AlignLeft | Qt::AlignVCenter";
             maximumWidth: 40
-            visible: DoubleSpinBox.text != "";
+            visible: doubleSpinBox.text != "";
         }
 
         QDoubleSpinBox {
             id: box;
             decimals: 1;
             keyboardTracking: false;
-            enabled: (DoubleSpinBox.backendValue === undefined ||
-                      DoubleSpinBox.backendValue === null)
-            ? true : !backendValue.isBound && DoubleSpinBox.enabled;
+            enabled: (doubleSpinBox.backendValue === undefined ||
+                      doubleSpinBox.backendValue === null)
+            ? true : !backendValue.isBound && doubleSpinBox.enabled;
 
             property bool readingFromBackend: false;
-            property real valueFromBackend: (DoubleSpinBox.backendValue === undefined ||
-                                             DoubleSpinBox.backendValue === null || DoubleSpinBox.backendValue.value === undefined)
-            ? .0 : DoubleSpinBox.backendValue.value;
+            property real valueFromBackend: (doubleSpinBox.backendValue === undefined ||
+                                             doubleSpinBox.backendValue === null || doubleSpinBox.backendValue.value === undefined)
+            ? .0 : doubleSpinBox.backendValue.value;
             
             onValueFromBackendChanged: {
                 readingFromBackend = true;
@@ -83,8 +83,8 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
             }           
 
             onValueChanged: {
-                if (DoubleSpinBox.backendValue != null && readingFromBackend == false)
-                    DoubleSpinBox.backendValue.value = value;
+                if (doubleSpinBox.backendValue != null && readingFromBackend == false)
+                    doubleSpinBox.backendValue.value = value;
             }
 
             onMouseOverChanged: {
@@ -94,11 +94,11 @@ QWidget { //This is a special DoubleSpinBox that does color coding for states
     }
 
     ExtendedFunctionButton {
-        backendValue: (DoubleSpinBox.backendValue === undefined ||
-                       DoubleSpinBox.backendValue === null)
-             ? null : DoubleSpinBox.backendValue;
+        backendValue: (doubleSpinBox.backendValue === undefined ||
+                       doubleSpinBox.backendValue === null)
+             ? null : doubleSpinBox.backendValue;
         y: box.y + 4
         x: box.x + 2
-        visible: DoubleSpinBox.enabled
+        visible: doubleSpinBox.enabled
     }
 }

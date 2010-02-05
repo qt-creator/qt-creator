@@ -5,12 +5,12 @@ QScrollArea {
     widgetResizable: true;
     styleSheetFile: ":/qmldesigner/scrollbar.css";
     horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
-    id: LayoutPane;
+    id: layoutPane;
     visible: false;
-    content: ProperyEditorLayout;
+    content: properyEditorLayout;
     QFrame {
         enabled: isBaseState;
-        id: ProperyEditorLayout;
+        id: properyEditorLayout;
         minimumHeight: 460;
         layout: QVBoxLayout {
             topMargin: 0;

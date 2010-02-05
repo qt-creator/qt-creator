@@ -3,8 +3,8 @@ import Bauhaus 1.0
 
 GroupBox {
     finished: finishedNotify;
-    caption: "Layout";
-id: Layout;
+    caption: "layout";
+id: layout;
   minimumHeight: 280;
   enabled: anchorBackend.hasParent;
 
@@ -15,7 +15,7 @@ id: Layout;
         rightMargin: 20;
         spacing: 20
         QLabel {
-            text: "Layout"
+            text: "layout"
         }
 	AnchorBox {}
   }

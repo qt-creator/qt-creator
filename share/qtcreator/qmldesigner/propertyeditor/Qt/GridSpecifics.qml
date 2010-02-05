@@ -6,7 +6,7 @@ GroupBox {
 
     finished: finishedNotify;
     caption: "Grid";
-    id: GridSpecifics;
+    id: gridSpecifics;
 
     layout: QVBoxLayout {
 

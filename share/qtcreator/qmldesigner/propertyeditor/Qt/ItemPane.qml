@@ -37,10 +37,10 @@ PropertyFrame {
             id: standardPane;
 
 
-            content: ProperyEditorStandard;
+            content: properyEditorStandard;
             QFrame {
                 //minimumHeight: 1100
-                id: ProperyEditorStandard
+                id: properyEditorStandard
                 layout: QVBoxLayout {
                     topMargin: 0;
                     bottomMargin: 0;

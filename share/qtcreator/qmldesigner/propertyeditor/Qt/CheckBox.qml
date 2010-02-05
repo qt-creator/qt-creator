@@ -1,15 +1,15 @@
 import Qt 4.6
 import Bauhaus 1.0
 
-QWidget { //This is a special CheckBox that does color coding for states
+QWidget { //This is a special checkBox that does color coding for states
 
-    id: CheckBox;
+    id: checkBox;
 
     property var backendValue;
 
     property var baseStateFlag;
-    property alias checkable: LocalCheckBox.checkable
-    property alias text: LocalLabel.text
+    property alias checkable: localCheckBox.checkable
+    property alias text: localLabel.text
 
     onBaseStateFlagChanged: {
         evaluate();
@@ -36,14 +36,14 @@ QWidget { //This is a special CheckBox that does color coding for states
         function evaluate() {
             if (baseStateFlag) {
                 if (backendValue != null && backendValue.isInModel)
-                    LocalLabel.setStyleSheet("color: white;");
+                    localLabel.setStyleSheet("color: white;");
                 else
-                    LocalLabel.setStyleSheet("color: gray;");
+                    localLabel.setStyleSheet("color: gray;");
             } else {
                 if (backendValue != null && backendValue.isInSubState)
-                    LocalLabel.setStyleSheet("color: #7799FF;");
+                    localLabel.setStyleSheet("color: #7799FF;");
                 else
-                    LocalLabel.setStyleSheet("color: gray;");
+                    localLabel.setStyleSheet("color: gray;");
             }
         }
     }
@@ -54,7 +54,7 @@ QWidget { //This is a special CheckBox that does color coding for states
         spacing: 4
 
         QCheckBox {
-            id: LocalCheckBox
+            id: localCheckBox
             checkable: true;
             checked: (backendValue === undefined || backendValue === null) ? false : backendValue.value;
             onToggled: {
@@ -63,7 +63,7 @@ QWidget { //This is a special CheckBox that does color coding for states
         }
 
         QLabel {
-            id: LocalLabel
+            id: localLabel
             font.bold: true;
 			alignment: "Qt::AlignLeft | Qt::AlignVCenter"
         }
@@ -72,9 +72,9 @@ QWidget { //This is a special CheckBox that does color coding for states
 
 
     ExtendedFunctionButton {
-        backendValue: CheckBox.backendValue
+        backendValue: checkBox.backendValue
         y: 4
-        x: LocalCheckBox.x + 18;
+        x: localCheckBox.x + 18;
     }
 }
 

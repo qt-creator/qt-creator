@@ -2,7 +2,7 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QWidget {
-    id: ExpressionEditor;
+    id: expressionEditor;
     x: 6
     y: -400
     width: frame.width - 22

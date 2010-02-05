@@ -2,7 +2,7 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QExtGroupBox {
-    id: GroupBoxOption;
+    id: groupBoxOption;
 
     property var finished;
 

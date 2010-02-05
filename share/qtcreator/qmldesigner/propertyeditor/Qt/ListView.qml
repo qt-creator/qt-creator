@@ -15,10 +15,10 @@ PropertyFrame {
         QScrollArea {
             horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
             id: standardPane;
-            content: ProperyEditorStandard;
+            content: properyEditorStandard;
             QFrame {
                 minimumHeight: 400;
-                id: ProperyEditorStandard
+                id: properyEditorStandard
                 layout: QVBoxLayout {
                     topMargin: 2;
                     bottomMargin: 2;
@@ -49,10 +49,10 @@ PropertyFrame {
                         id: specialPane;
                         visible: false;
                         visible: false;
-                        content: ProperyEditorSpecial;
+                        content: properyEditorSpecial;
                         QFrame {
                             minimumHeight: 200;
-                            id: ProperyEditorSpecial
+                            id: properyEditorSpecial
                             layout: QVBoxLayout {
                                 topMargin: 2;
                                 bottomMargin: 2;

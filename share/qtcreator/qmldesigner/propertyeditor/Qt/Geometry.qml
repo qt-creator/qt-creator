@@ -3,8 +3,8 @@ import Bauhaus 1.0
 
 GroupBox {
     finished: finishedNotify;
-    id: Geometry;
-    caption: "Geometry";
+    id: geometry;
+    caption: "geometry";
 
     layout: VerticalLayout {        
 
@@ -16,12 +16,12 @@ GroupBox {
                 }
 
                 DoubleSpinBox {
-                    id: XSpinBox;
+                    id: xSpinBox;
                     text: "X"
 					alignRight: false
 					spacing: 4
                     singleStep: 1;
-                    objectName: "XSpinBox";
+                    objectName: "xSpinBox";
                     enabled: anchorBackend.hasParent;
                     backendValue: backendValues.x
                     minimum: -2000;
@@ -30,12 +30,12 @@ GroupBox {
                 }
 
                 DoubleSpinBox {
-                    id: YSpinBox;
+                    id: ySpinBox;
                     singleStep: 1;
                     text: "Y"
 					alignRight: false
 					spacing: 4
-                    objectName: "YSpinBox";
+                    objectName: "ySpinBox";
                     backendValue: backendValues.y
                     enabled: anchorBackend.hasParent;
                     minimum: -2000;
@@ -55,12 +55,12 @@ GroupBox {
                 }
 
                 DoubleSpinBox {
-                    id: WidthSpinBox;
+                    id: widthSpinBox;
                     text: "W"
 					alignRight: false
 					spacing: 4
                     singleStep: 1;
-                    objectName: "WidthSpinBox";
+                    objectName: "widthSpinBox";
                     backendValue: backendValues.width
                     minimum: -2000;
                     maximum: 2000;
@@ -68,12 +68,12 @@ GroupBox {
                 }
 
                 DoubleSpinBox {
-                    id: HeightSpinBox;
+                    id: heightSpinBox;
                     text: "H"
 					alignRight: false
 					spacing: 4
                     singleStep: 1;
-                    objectName: "HeightSpinBox";
+                    objectName: "heightSpinBox";
                     backendValue: backendValues.height
                     minimum: -2000;
                     maximum: 2000;

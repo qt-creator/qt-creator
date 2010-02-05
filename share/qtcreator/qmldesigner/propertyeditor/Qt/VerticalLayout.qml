@@ -2,7 +2,7 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QVBoxLayout {
-    id: VerticalLayout
+    id: verticalLayout
     topMargin: 20;
     bottomMargin: 4;
     leftMargin: 0;

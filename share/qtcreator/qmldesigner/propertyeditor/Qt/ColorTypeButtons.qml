@@ -2,7 +2,7 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QGroupBox {
-    id: ColorTypeButtons
+    id: colorTypeButtons
     layout: HorizontalLayout {
         topMargin: 6
         rightMargin: 10;

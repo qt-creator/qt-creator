@@ -63,8 +63,8 @@ GroupBox {
 
 
 						DoubleSpinBox {
-							id: HorizontalVelocitySpinBox;
-							objectName: "HorizontalVelocitySpinBox";
+							id: horizontalVelocitySpinBox;
+							objectName: "horizontalVelocitySpinBox";
 							backendValue: backendValues.horizontalVelocity;
 							minimumWidth: 30;
 							minimum: 0.1
@@ -74,8 +74,8 @@ GroupBox {
 						}
 
 						DoubleSpinBox {
-							id: VerticalVelocitySpinBox;
-							objectName: "VerticalVelocitySpinBox";
+							id: verticalVelocitySpinBox;
+							objectName: "verticalVelocitySpinBox";
 							backendValue: backendValues.verticalVelocity;
 							minimumWidth: 30;
 							minimum: 0.1
@@ -85,8 +85,8 @@ GroupBox {
 						}
 
 						DoubleSpinBox {
-							id: MaximumVelocitySpinBox;
-							objectName: "MaximumVelocitySpinBox";
+							id: maximumVelocitySpinBox;
+							objectName: "maximumVelocitySpinBox";
 							backendValue: backendValues.maximumFlickVelocity;
 							minimumWidth: 30;
 							minimum: 0.1
@@ -96,7 +96,7 @@ GroupBox {
 						}
 
 						CheckBox {
-							id: OvershootCheckBox;
+							id: overshootCheckBox;
 							text: "overshoot";
 							backendValue: backendValues.overShoot;
 							baseStateFlag: isBaseState;

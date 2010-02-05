@@ -26,7 +26,7 @@ QWidget {
         x: 0;
         y: 0;
         width:200;fixedWidth: width;
-        id: QPushButton1;
+        id: qPushButton1;
 	onReleased: fill();
     }
 
@@ -36,7 +36,7 @@ QWidget {
 	height:20;fixedHeight: height;
 	width:200;fixedWidth: width;
 	x: 0;
-	id: QPushButton3;
+	id: qPushButton3;
 	onReleased: breakLayout();
     }
 
@@ -48,7 +48,7 @@ QWidget {
         y: 60;
         //styleSheet: "border-radius:5px; background-color: #ffda82";
         width:30;fixedWidth: width;
-        id: QPushButton5;
+        id: qPushButton5;
 	checkable: true;
 	checked: anchorBackend.leftAnchored;
 	onReleased: {
@@ -69,7 +69,7 @@ QWidget {
         width:100;fixedWidth: 100;
         x: 49;
         y: 30;
-        id: QPushButton6;
+        id: qPushButton6;
 	checkable: true;
 	checked: anchorBackend.topAnchored;
 	onReleased: {
@@ -90,7 +90,7 @@ QWidget {
 	//styleSheet: "border-radius:5px; background-color: #ffda82";
 	width:30;fixedWidth: width;
 	height:100;fixedHeight: height;
-	id: QPushButton7;
+	id: qPushButton7;
 	checkable: true;
 	checked: anchorBackend.rightAnchored;
 	onReleased: {
@@ -111,7 +111,7 @@ QWidget {
         x: 49;
         y: 164;
         height:27;fixedHeight: height;
-        id: QPushButton8;
+        id: qPushButton8;
 	checkable: true;
 	checked: anchorBackend.bottomAnchored;
 	onReleased: {
@@ -130,7 +130,7 @@ QWidget {
         x: 49;
         y: 60;
         height:100;fixedHeight: height;
-        id: QPushButton9;
+        id: qPushButton9;
 
 	QPushButton {
 	    width:24;fixedWidth: width;

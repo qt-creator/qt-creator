@@ -2,15 +2,15 @@ import Qt 4.6
 import Bauhaus 1.0
 
 GroupBox {
-    id: Type;
+    id: type;
     finished: finishedNotify;
-    caption: "Type";
+    caption: "type";
 
     layout: VerticalLayout {
         QWidget {
             layout: HorizontalLayout {
                 Label {
-                    text: "Type";
+                    text: "type";
                     windowTextColor: isBaseState ? "#000000" : "#FF0000";                 
                 }                
                 QLineEdit {
@@ -27,8 +27,8 @@ GroupBox {
                 }
 
                 QLineEdit {
-                    id: IdLineEdit;
-                    objectName: "IdLineEdit";
+                    id: idLineEdit;
+                    objectName: "idLineEdit";
                     readOnly: isBaseState != true;
                     text: backendValues.id === undefined ? "" : backendValues.id.value;
                     onEditingFinished: {

@@ -6,7 +6,7 @@ GroupBox {
     caption: "Manipulation"
     maximumHeight: 200;
     minimumHeight: 180;
-    id: Mofifiers;
+    id: mofifiers;
 
     layout: VerticalLayout {        
 
@@ -17,14 +17,14 @@ GroupBox {
                 }
 
                 CheckBox {
-                    id: VisibleCheckBox;
+                    id: visibleCheckBox;
                     text: "Is visible";
                     backendValue: backendValues.visible === undefined ? false : backendValues.visible;
                     baseStateFlag: isBaseState;
                     checkable: true;
                 }
                 CheckBox {
-                    id: ClipCheckBox;
+                    id: clipCheckBox;
                     text: "Clip Content";
                     backendValue: backendValues.clip === undefined ? false : backendValues.clip;
                     baseStateFlag: isBaseState;
@@ -41,7 +41,7 @@ GroupBox {
 
                 DoubleSpinBox {
                     text: ""
-                    id: OpacitySpinBox;
+                    id: opacitySpinBox;
                     backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
                     minimumWidth: 60;
                     minimum: 0;
@@ -95,8 +95,8 @@ GroupBox {
 
                 DoubleSpinBox {
                     text: ""
-                    id: ScaleSpinBox;
-                    objectName: "ScaleSpinBox";
+                    id: scaleSpinBox;
+                    objectName: "scaleSpinBox";
                     backendValue: backendValues.scale;
 					property var backendValueValue: backendValues.scale.value;
                     minimumWidth: 60;
@@ -105,11 +105,11 @@ GroupBox {
                     singleStep: 0.1
                     baseStateFlag: isBaseState;
                     onBackendValueValueChanged: {
-                        ScaleSlider.value = backendValue.value * 10;
+                        scaleSlider.value = backendValue.value * 10;
                     }
                 }
                 SliderWidget {
-                    id: ScaleSlider;
+                    id: scaleSlider;
                     minimum: 1;
                     maximum: 100;
                     singleStep: 1;

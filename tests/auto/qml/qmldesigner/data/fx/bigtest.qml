@@ -9,21 +9,21 @@ Item {
         color: "#009920";
         x: 22;
         y: 31;
-        id: Rectangle_1;
+        id: rectangle_1;
         Rectangle {
             width: 299;
             color: "#009920";
             x: 109;
             height: 334;
             y: 42;
-            id: Rectangle_3;
+            id: rectangle_3;
             Rectangle {
                 color: "#009920";
                 height: 209;
                 width: 288;
                 x: 98;
                 y: 152;
-                id: Rectangle_5;
+                id: rectangle_5;
             }
             
             
@@ -33,14 +33,14 @@ Item {
                 x: -154;
                 width: 330;
                 y: -31;
-                id: Image_1;
+                id: image_1;
             }Image {
                 width: 293;
                 x: 33;
                 height: 172;
                 y: 39;
                 source: "qrc:/fxplugin/images/template_image.png";
-                id: Image_2;
+                id: image_2;
             }}
         
     }
@@ -50,14 +50,14 @@ Item {
         x: 360;
         y: 42;
         color: "#009920";
-        id: Rectangle_2;
+        id: rectangle_2;
     Image {
             source: "qrc:/fxplugin/images/template_image.png";
             x: -40;
             y: 12;
             width: 281;
             height: 280;
-            id: Image_3;
+            id: image_3;
         }}
     Rectangle {
         height: 206;
@@ -65,7 +65,7 @@ Item {
         color: "#009920";
         x: 4;
         y: 234;
-        id: Rectangle_4;
+        id: rectangle_4;
     }
     Text {
         text: "text";
@@ -73,6 +73,6 @@ Item {
         height: 20;
         x: 71;
         y: 15;
-        id: Text_1;
+        id: text_1;
     }
 }

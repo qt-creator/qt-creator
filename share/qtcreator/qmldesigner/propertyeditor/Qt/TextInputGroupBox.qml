@@ -3,7 +3,7 @@ import Bauhaus 1.0
 
 GroupBox {
 
-    id: TextInputGroupBox
+    id: textInputGroupBox
     caption: "Text Input";
 
     layout: VerticalLayout {

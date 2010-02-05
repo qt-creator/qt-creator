@@ -2,18 +2,18 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QWidget {
-    id: LineEdit
+    id: lineEdit
 
     property var backendValue
-    property alias enabled: LineEdit.enabled
+    property alias enabled: lineEdit.enabled
 
     minimumHeight: 24;
 
     QLineEdit {
         id: lineEditWidget
 		styleSheet: "padding-left: 16;"
-        width: LineEdit.width
-        height: LineEdit.height
+        width: lineEdit.width
+        height: lineEdit.height
 
         text: backendValue.value
 
@@ -24,9 +24,9 @@ QWidget {
 
     }    
     ExtendedFunctionButton {
-        backendValue: LineEdit.backendValue
+        backendValue: lineEdit.backendValue
         y: 4
         x: 3
-        visible: LineEdit.enabled
+        visible: lineEdit.enabled
     }
 }

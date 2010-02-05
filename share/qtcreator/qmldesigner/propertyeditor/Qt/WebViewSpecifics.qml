@@ -53,7 +53,7 @@ GroupBox {
                     text: "Zoom Factor"
                 }
                 DoubleSpinBox {
-                    id: ZoomSpinBox;
+                    id: zoomSpinBox;
                     minimumWidth: 60;
                     text: ""
                     backendValue: backendValues.zoomFactor;

@@ -2,7 +2,7 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QExtGroupBox {
-    id: ColorGroupBox
+    id: colorGroupBox
 
     property var finished;
 
@@ -23,7 +23,7 @@ QExtGroupBox {
     QWidget {
         id: colorButtonWidget
         height: 32
-        width: ColorGroupBox.width
+        width: colorGroupBox.width
         layout: HorizontalLayout {
             topMargin: 4
             rightMargin: 10;
@@ -33,11 +33,11 @@ QExtGroupBox {
             }
 
             LineEdit {
-                backendValue: ColorGroupBox.backendColor
+                backendValue: colorGroupBox.backendColor
             }
 
             ColorButton {
-                color: ColorGroupBox.backendColor.value;
+                color: colorGroupBox.backendColor.value;
                 checkable: true;
                 checked: false;
                 minimumHeight: 18;
@@ -45,10 +45,10 @@ QExtGroupBox {
 
                 onClicked: {
                     if (checked) {
-                        ColorGroupBox.collapsed = false;
+                        colorGroupBox.collapsed = false;
                         colorButtonWidget.visible = true;
                     } else {
-                        ColorGroupBox.collapsed = true;
+                        colorGroupBox.collapsed = true;
                         colorButtonWidget.visible = true;
                     }
                 }
@@ -69,18 +69,18 @@ QExtGroupBox {
             layout: HorizontalLayout {
 
                 ColorBox {
-                    color: ColorGroupBox.backendColor.value;
+                    color: colorGroupBox.backendColor.value;
                     onColorChanged: {
-                        ColorGroupBox.backendColor.value = color;
+                        colorGroupBox.backendColor.value = color;
                     }
                     hue: hueControl.hue;
                 }
 
                 HueControl {
                     id: hueControl;
-                    color: ColorGroupBox.backendColor.value;
+                    color: colorGroupBox.backendColor.value;
                     onColorChanged: {
-                        ColorGroupBox.backendColor.value = color;
+                        colorGroupBox.backendColor.value = color;
                     }
                 }
 

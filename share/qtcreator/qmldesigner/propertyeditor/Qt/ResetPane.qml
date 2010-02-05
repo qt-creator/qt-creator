@@ -3,12 +3,12 @@ import Bauhaus 1.0
 
 QScrollArea {
     horizontalScrollBarPolicy: "Qt::ScrollBarAlwaysOff";
-    id: ResetPane;
+    id: resetPane;
     visible: false;
-    content: ProperyEditorReset;
+    content: properyEditorReset;
     QFrame {
     //minimumHeight: 1800;
-    id: ProperyEditorReset
+    id: properyEditorReset
     layout: QVBoxLayout {
     topMargin: 2;
     bottomMargin: 2;

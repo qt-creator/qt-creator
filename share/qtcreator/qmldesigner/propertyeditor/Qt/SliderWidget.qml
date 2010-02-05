@@ -2,22 +2,22 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QWidget {
-    id: SliderWidget
+    id: sliderWidget
 
     property var value
-    property alias singleStep: LocalSlider.singleStep
-    property alias minimum: LocalSlider.minimum
-    property alias maximum: LocalSlider.maximum
+    property alias singleStep: localSlider.singleStep
+    property alias minimum: localSlider.minimum
+    property alias maximum: localSlider.maximum
 
     QSlider {
         orientation: "Qt::Horizontal";
-        id: LocalSlider
-        y: SliderWidget.height / 2 - 12
-        width: SliderWidget.width
+        id: localSlider
+        y: sliderWidget.height / 2 - 12
+        width: sliderWidget.width
         height: 24
-		value: SliderWidget.value
+		value: sliderWidget.value
 		onValueChanged: {
-			SliderWidget.value = value	
+			sliderWidget.value = value	
 		}
     }
 }

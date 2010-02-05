@@ -3,7 +3,7 @@ import Qt 4.6
 Rectangle {
     width: 300
     height: 300
-    id: Page
+    id: page
     color: "#ffff00"
     Rectangle {
         width: 183
@@ -22,7 +22,7 @@ Rectangle {
             x: 11
             y: 10
             height: 20
-            id: HelloText2
+            id: helloText2
             text: "Hello QmlGraphics!"
         }
         Text {
@@ -31,7 +31,7 @@ Rectangle {
             objectName: "xt5"
             y: 165
             height: 18
-            id: HelloText5
+            id: helloText5
             text: "blah!!!!!"
         }
         Image {
@@ -53,7 +53,7 @@ Rectangle {
             y: 11.64
             rotation: 90
             height: 20
-            id: HelloText11
+            id: helloText11
             text: "Hello QmlGraphics!"
         }
     }
@@ -62,7 +62,7 @@ Rectangle {
         x: 10
         y: 13
         height: 20
-        id: HelloText3
+        id: helloText3
         text: "Hello QmlGraphics!"
     }
     Text {
@@ -70,7 +70,7 @@ Rectangle {
         x: 163
         y: 184
         height: 106
-        id: HelloText4
+        id: helloText4
         text: "Hello QmlGraphics!"
     }
 }

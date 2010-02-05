@@ -1,7 +1,7 @@
 import Qt 4.6
 
 Item {
-    id: RootItem
+    id: rootItem
     width: 640
     height: 480
 Rectangle {
@@ -10,7 +10,7 @@ Rectangle {
         y: 178;
         color: "#ffffff";
         width: 100;
-        id: Rectangle_1;
+        id: rectangle_1;
     }
 Rectangle {
         x: 110;
@@ -18,7 +18,7 @@ Rectangle {
         color: "#ffffff";
         height: 100;
         width: 100;
-        id: Rectangle_2;
+        id: rectangle_2;
     }
 Rectangle {
         width: 100;
@@ -26,7 +26,7 @@ Rectangle {
         height: 100;
         x: 323;
         y: 160;
-        id: Rectangle_3;
+        id: rectangle_3;
     }
 Rectangle {
         color: "#ffffff";
@@ -34,6 +34,6 @@ Rectangle {
         height: 100;
         x: 233;
         y: 293;
-        id: Rectangle_4;
+        id: rectangle_4;
     }
 }

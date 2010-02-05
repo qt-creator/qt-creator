@@ -2,7 +2,7 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QWidget {
-    id: IntEditor;
+    id: intEditor;
 
     property var backendValue;
     property var baseStateFlag;
@@ -22,26 +22,26 @@ QWidget {
         }
 
         SpinBox {
-            backendValue: (IntEditor.backendValue === undefined ||
-                           IntEditor.backendValue === null)
-            ? null : IntEditor.backendValue;
+            backendValue: (intEditor.backendValue === undefined ||
+                           intEditor.backendValue === null)
+            ? null : intEditor.backendValue;
 
             minimum: minimumValue
             maximum: maximumValue
-            baseStateFlag: (IntEditor.backendValue === undefined ||
-                            IntEditor.backendValue === null)
-            ? null : IntEditor.baseStateFlag;
+            baseStateFlag: (intEditor.backendValue === undefined ||
+                            intEditor.backendValue === null)
+            ? null : intEditor.baseStateFlag;
         }
 
 
         QWidget {
-            visible: IntEditor.slider
+            visible: intEditor.slider
             id: sliderWidget
             QSlider {
                 y: sliderWidget.height / 2 - 12
                 width: sliderWidget.width
                 height: 24
-                property alias backendValue: IntEditor.backendValue
+                property alias backendValue: intEditor.backendValue
                 orientation: "Qt::Horizontal"
                 minimum: minimumValue
                 maximum: maximumValue

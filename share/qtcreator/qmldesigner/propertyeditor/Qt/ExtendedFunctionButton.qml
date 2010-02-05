@@ -2,21 +2,21 @@ import Qt 4.6
 import Bauhaus 1.0
 
 QToolButton {
-    id: ExtendedFunctionButton
+    id: extendedFunctionButton
 
     property var backendValue
 
     Script {
         function setIcon() {
             if (backendValue == null)
-                ExtendedFunctionButton.iconFromFile = "images/placeholder.png"
+                extendedFunctionButton.iconFromFile = "images/placeholder.png"
             else if (backendValue.isBound) {
-                ExtendedFunctionButton.iconFromFile = "images/expression.png"
+                extendedFunctionButton.iconFromFile = "images/expression.png"
             } else {
                 if (backendValue.complexNode != null && backendValue.complexNode.exists) {
-                    ExtendedFunctionButton.iconFromFile = "images/behaivour.png"
+                    extendedFunctionButton.iconFromFile = "images/behaivour.png"
                 } else {
-                    ExtendedFunctionButton.iconFromFile = "images/placeholder.png"
+                    extendedFunctionButton.iconFromFile = "images/placeholder.png"
                 }
             }
         }    
@@ -73,8 +73,8 @@ QToolButton {
     QAction {
         text: "Set Expression";
         onTriggered: {
-            expressionEdit.globalY = ExtendedFunctionButton.globalY;
-            expressionEdit.backendValue = ExtendedFunctionButton.backendValue
+            expressionEdit.globalY = extendedFunctionButton.globalY;
+            expressionEdit.backendValue = extendedFunctionButton.backendValue
             expressionEdit.show();
             expressionEdit.raise();
             expressionEdit.active = true;

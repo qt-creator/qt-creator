@@ -1,15 +1,15 @@
 import Qt 4.6
 import Bauhaus 1.0
 
-QWidget { //This is a special SpinBox that does color coding for states
-    id: SpinBox;
+QWidget { //This is a special spinBox that does color coding for states
+    id: spinBox;
 
     property var backendValue;
     property var baseStateFlag;
     property alias singleStep: box.singleStep;
     property alias minimum: box.minimum
     property alias maximum: box.maximum
-    property alias enabled: SpinBox.enabled
+    property alias enabled: spinBox.enabled
 
     minimumHeight: 22;
 
@@ -41,14 +41,14 @@ QWidget { //This is a special SpinBox that does color coding for states
     layout: HorizontalLayout {
         
         QSpinBox {
-            property alias backendValue: SpinBox.backendValue
+            property alias backendValue: spinBox.backendValue
 
             keyboardTracking: false;
             id: box;
             enabled: backendValue === undefined || backendValue.isBound === undefined || backendValue.isBound === null ? false : !backendValue.isBound
             property bool readingFromBackend: false;
-            property int valueFromBackend: (SpinBox.backendValue === undefined || SpinBox.backendValue == null)
-            ? .0 : SpinBox.backendValue.value;
+            property int valueFromBackend: (spinBox.backendValue === undefined || spinBox.backendValue == null)
+            ? .0 : spinBox.backendValue.value;
 
             onValueFromBackendChanged: {
                 readingFromBackend = true;
@@ -58,7 +58,7 @@ QWidget { //This is a special SpinBox that does color coding for states
             }
 
             onValueChanged: {
-                if (SpinBox.backendValue != null && readingFromBackend == false)
+                if (spinBox.backendValue != null && readingFromBackend == false)
                     backendValue.value = value;
             }
             onFocusChanged: {
@@ -69,11 +69,11 @@ QWidget { //This is a special SpinBox that does color coding for states
     }
 
     ExtendedFunctionButton {        
-        backendValue: (SpinBox.backendValue === undefined ||
-                       SpinBox.backendValue === null)
-        ? null : SpinBox.backendValue;
+        backendValue: (spinBox.backendValue === undefined ||
+                       spinBox.backendValue === null)
+        ? null : spinBox.backendValue;
         y: box.y + 4
         x: box.x + 2
-        visible: SpinBox.enabled
+        visible: spinBox.enabled
     }
 }

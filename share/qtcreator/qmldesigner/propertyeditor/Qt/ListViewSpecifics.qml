@@ -61,7 +61,7 @@ GroupBox {
                         rightMargin: 0;
 
                         CheckBox {
-                            id: HighlightFollowsCurrentItemCheckBox;
+                            id: highlightFollowsCurrentItemCheckBox;
                             text: "";
                             backendValue: backendValues.highlightFollowsCurrentItem;
                             baseStateFlag: isBaseState;
@@ -69,7 +69,7 @@ GroupBox {
                         }
 
                         CheckBox {
-                            id: WrapCheckBox;
+                            id: wrapCheckBox;
                             text: "";
                             backendValue: backendValues.wrap;
                             baseStateFlag: isBaseState;
@@ -77,8 +77,8 @@ GroupBox {
                         }
 
                         SpinBox {
-                            id: SnapPositionSpinBox;
-                            objectName: "SnapPositionSpinBox";
+                            id: snapPositionSpinBox;
+                            objectName: "snapPositionSpinBox";
                             backendValue: backendValues.snapPosition;
                             minimumWidth: 30;
                             minimum: 0;
@@ -88,8 +88,8 @@ GroupBox {
                         }
 
                         SpinBox {
-                            id: SpacingSpinBox;
-                            objectName: "SpacingSpinBox";
+                            id: spacingSpinBox;
+                            objectName: "spacingSpinBox";
                             backendValue: backendValues.spacing;
                             minimumWidth: 30;
                             minimum: 0;

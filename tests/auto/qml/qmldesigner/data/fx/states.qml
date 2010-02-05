@@ -9,14 +9,14 @@ Item {
         height: 120;
         x: 145;
         y: 157;
-        id: Rectangle_1;
+        id: rectangle_1;
     }
 
     Rectangle {
         x: 49;
         y: 6;
         width: 100;
-        id: Rectangle_2;
+        id: rectangle_2;
         color: "#009920";
         height: 100;
     }
@@ -27,7 +27,7 @@ Item {
             when: destination === "one";
 
             PropertyChanges {
-                target: Rectangle_2;
+                target: rectangle_2;
                 height: 200
                 width: 300
             }
@@ -39,7 +39,7 @@ Item {
         State {
             name: "State3";
             PropertyChanges {
-                target: Rectangle_2;
+                target: rectangle_2;
                 x: 200
                 y: 300
             }
