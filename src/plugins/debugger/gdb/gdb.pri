@@ -1,5 +1,4 @@
-include(../../../shared/trk/trk.pri)
-
+include(../../../libs/symbianutils/symbianutils.pri)
 HEADERS += \
     $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \

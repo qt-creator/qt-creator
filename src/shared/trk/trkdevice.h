@@ -30,6 +30,7 @@
 #ifndef TRKDEVICE_H
 #define TRKDEVICE_H
 
+#include "symbianutils_global.h"
 #include "callback.h"
 
 #include <QtCore/QObject>
@@ -62,7 +63,7 @@ enum { TRK_WRITE_QUEUE_NOOP_CODE = 0x7f };
 
 typedef trk::Callback<const TrkResult &> TrkCallback;
 
-class TrkDevice : public QObject
+class SYMBIANUTILS_EXPORT TrkDevice : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool serialFrame READ serialFrame WRITE setSerialFrame)

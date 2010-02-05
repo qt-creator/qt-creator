@@ -43,7 +43,7 @@ struct LauncherPrivate;
 
 typedef QSharedPointer<TrkDevice> TrkDevicePtr;
 
-class Launcher : public QObject
+class SYMBIANUTILS_EXPORT Launcher : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(Launcher)

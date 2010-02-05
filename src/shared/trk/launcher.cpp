@@ -29,6 +29,7 @@
 
 #include "launcher.h"
 #include "trkutils.h"
+#include "trkutils_p.h"
 #include "trkdevice.h"
 #include "bluetoothlistener.h"
 
@@ -604,9 +605,7 @@ void Launcher::cleanUp()
     //  Sub Cmd: Delete Process
     //ProcessID: 0x0000071F (1823)
     // [41 24 00 00 00 00 07 1F]
-    QByteArray ba;
-    appendByte(&ba, 0x00);
-    appendByte(&ba, 0x00);
+    QByteArray ba(2, char(0));
     appendInt(&ba, d->m_session.pid);
     d->m_device->sendTrkMessage(TrkDeleteItem, TrkCallback(), ba, "Delete process");
 
@@ -659,7 +658,7 @@ void Launcher::copyFileToRemote()
 {
     emit copyingStarted();
     QByteArray ba;
-    appendByte(&ba, 0x10);
+    ba.append(char(10));
     appendString(&ba, d->m_copyState.destinationFileName.toLocal8Bit(), TargetByteOrder, false);
     d->m_device->sendTrkMessage(TrkOpenFile, TrkCallback(this, &Launcher::handleFileCreation), ba);
 }
@@ -668,7 +667,7 @@ void Launcher::installRemotePackageSilently()
 {
     emit installingStarted();
     QByteArray ba;
-    appendByte(&ba, 'C');
+    ba.append('C');
     appendString(&ba, d->m_installFileName.toLocal8Bit(), TargetByteOrder, false);
     d->m_device->sendTrkMessage(TrkInstallFile, TrkCallback(this, &Launcher::handleInstallPackageFinished), ba);
 }
@@ -695,7 +694,7 @@ QByteArray Launcher::startProcessMessage(const QString &executable,
     // It's not started yet
     QByteArray ba;
     appendShort(&ba, 0, TargetByteOrder); // create new process
-    appendByte(&ba, 0); // options - currently unused
+    ba.append(char(0)); // options - currently unused
     if(arguments.isEmpty()) {
         appendString(&ba, executable.toLocal8Bit(), TargetByteOrder);
         return ba;

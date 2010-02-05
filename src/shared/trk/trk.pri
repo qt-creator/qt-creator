@@ -1,8 +1,10 @@
 INCLUDEPATH *= $$PWD
 
 # Input
-HEADERS += $$PWD/callback.h \
+HEADERS += $$PWD/symbianutils_global.h \
+    $$PWD/callback.h \
     $$PWD/trkutils.h \
+    $$PWD/trkutils_p.h \
     $$PWD/trkdevice.h \
     $$PWD/launcher.h \
     $$PWD/bluetoothlistener.h \

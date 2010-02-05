@@ -1,5 +1,6 @@
 TEMPLATE  = subdirs
 CONFIG   += ordered
+QT += core gui
 
 SUBDIRS   = \
     qtconcurrent \
@@ -8,7 +9,8 @@ SUBDIRS   = \
     utils \
     utils/process_stub.pro \
     cplusplus \
-    qmljs
+    qmljs \
+    symbianutils
 
 SUPPORT_QT_MAEMO = $$(QTCREATOR_WITH_MAEMO)
 !isEmpty(SUPPORT_QT_MAEMO) {

@@ -29,6 +29,7 @@
 
 #include "trkdevice.h"
 #include "trkutils.h"
+#include "trkutils_p.h"
 
 #include <QtCore/QString>
 #include <QtCore/QDebug>
@@ -844,8 +845,8 @@ void UnixReaderThread::terminate()
 {
     // Trigger select() by writing to the pipe
     char c = 0;
-    int written = write(m_terminatePipeFileDescriptors[1], &c, 1);
-    // FIXME: Use result.
+    const int written = write(m_terminatePipeFileDescriptors[1], &c, 1);
+    Q_UNUSED(written)
     wait();
 }
 

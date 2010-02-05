@@ -75,6 +75,8 @@ namespace Internal {
 
 enum { KnownRegisters = RegisterPSGdb + 1};
 
+static inline void appendByte(QByteArray *ba, trk::byte b) { ba->append(b); }
+
 static const char *registerNames[KnownRegisters] =
 {
     "A1", "A2", "A3", "A4",
@@ -330,7 +332,7 @@ QByteArray TrkGdbAdapter::trkReadRegistersMessage()
     return ba;
 }
 
-QByteArray TrkGdbAdapter::trkWriteRegisterMessage(byte reg, uint value)
+   QByteArray TrkGdbAdapter::trkWriteRegisterMessage(trk::byte reg, uint value)
 {
     QByteArray ba;
     appendByte(&ba, 0); // ?
@@ -372,7 +374,7 @@ QByteArray TrkGdbAdapter::trkWriteMemoryMessage(uint addr, const QByteArray &dat
     return ba;
 }
 
-QByteArray TrkGdbAdapter::trkStepRangeMessage(byte option)
+QByteArray TrkGdbAdapter::trkStepRangeMessage(trk::byte option)
 {
     QByteArray ba;
     ba.reserve(17);
@@ -510,7 +512,7 @@ void TrkGdbAdapter::readGdbServerCommand()
         }
 
         //logMessage(QString("Packet checksum: %1").arg(checkSum));
-        byte sum = 0;
+        trk::byte sum = 0;
         for (int i = 0; i < pos; ++i)
             sum += ba.at(i);
 
@@ -557,7 +559,7 @@ void TrkGdbAdapter::sendGdbServerAck()
 
 void TrkGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray &logNote)
 {
-    byte sum = 0;
+    trk::byte sum = 0;
     for (int i = 0; i != msg.size(); ++i)
         sum += msg.at(i);
 
@@ -1071,7 +1073,7 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 }
 
-void TrkGdbAdapter::sendTrkMessage(byte code, TrkCallback callback,
+void TrkGdbAdapter::sendTrkMessage(trk::byte code, TrkCallback callback,
     const QByteArray &data, const QVariant &cookie)
 {
     if (m_verbose >= 2)
@@ -1080,7 +1082,7 @@ void TrkGdbAdapter::sendTrkMessage(byte code, TrkCallback callback,
     m_trkDevice->sendTrkMessage(code, callback, data, cookie);
 }
 
-void TrkGdbAdapter::sendTrkAck(byte token)
+void TrkGdbAdapter::sendTrkAck(trk::byte token)
 {
     //logMessage(QString("SENDING ACKNOWLEDGEMENT FOR TOKEN %1").arg(int(token)));
     m_trkDevice->sendTrkAck(token);
@@ -1184,9 +1186,9 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             debugMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
             m_snapshot.reset();
             const char *data = result.data.data();
-            const byte error = result.data.at(0);
+            const trk::byte error = result.data.at(0);
             // type: 1 byte; for dll item, this value is 2.
-            const byte type = result.data.at(1);
+            const trk::byte type = result.data.at(1);
             const uint pid = extractInt(data + 2);
             const uint tid = extractInt(data + 6);
             const uint codeseg = extractInt(data + 10);

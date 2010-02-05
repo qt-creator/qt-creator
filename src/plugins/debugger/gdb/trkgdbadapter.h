@@ -186,7 +186,7 @@ private:
     //
     // TRK
     //
-    void sendTrkMessage(byte code,
+    void sendTrkMessage(trk::byte code,
         TrkCallback callback = TrkCallback(),
         const QByteArray &data = QByteArray(),
         const QVariant &cookie = QVariant());
@@ -194,7 +194,7 @@ private:
     Q_SLOT void handleTrkError(const QString &msg);
 
     // convenience messages
-    void sendTrkAck(byte token);
+    void sendTrkAck(trk::byte token);
 
     void handleCpuType(const TrkResult &result);
     void handleCreateProcess(const TrkResult &result);
@@ -245,12 +245,12 @@ private:
 
     QByteArray trkContinueMessage();
     QByteArray trkReadRegistersMessage();
-    QByteArray trkWriteRegisterMessage(byte reg, uint value);
+    QByteArray trkWriteRegisterMessage(trk::byte reg, uint value);
     QByteArray trkReadMemoryMessage(const MemoryRange &range);
     QByteArray trkReadMemoryMessage(uint addr, uint len);
     QByteArray trkWriteMemoryMessage(uint addr, const QByteArray &date);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
-    QByteArray trkStepRangeMessage(byte option);
+    QByteArray trkStepRangeMessage(trk::byte option);
     QByteArray trkDeleteProcessMessage();
     QByteArray trkInterruptMessage();
 

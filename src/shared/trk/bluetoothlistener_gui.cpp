@@ -38,7 +38,7 @@
 
 namespace trk {
 
-PromptStartCommunicationResult
+SYMBIANUTILS_EXPORT PromptStartCommunicationResult
     promptStartCommunication(BaseCommunicationStarter &starter,
                              const QString &msgBoxTitle,
                              const QString &msgBoxText,
@@ -76,7 +76,7 @@ PromptStartCommunicationResult
     return PromptStartCommunicationConnected;
 }
 
-PromptStartCommunicationResult
+SYMBIANUTILS_EXPORT PromptStartCommunicationResult
     promptStartSerial(BaseCommunicationStarter &starter,
                          QWidget *msgBoxParent,
                          QString *errorMessage)
@@ -86,7 +86,7 @@ PromptStartCommunicationResult
     return promptStartCommunication(starter, title, message, msgBoxParent, errorMessage);
 }
 
-PromptStartCommunicationResult
+SYMBIANUTILS_EXPORT PromptStartCommunicationResult
     promptStartBluetooth(BaseCommunicationStarter &starter,
                          QWidget *msgBoxParent,
                          QString *errorMessage)
