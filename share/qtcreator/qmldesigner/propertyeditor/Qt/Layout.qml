@@ -9,7 +9,6 @@ GroupBox {
     caption: "Layout";
 >>>>>>> QmlDesigner.propertyEditor: ids have to be lower case:share/qtcreator/qmldesigner/propertyeditor/Qt/Layout.qml
 id: layout;
-  minimumHeight: 280;
   enabled: anchorBackend.hasParent;
 
   layout: QVBoxLayout {
@@ -21,7 +20,7 @@ id: layout;
         QLabel {
             text: "layout"
         }
-	AnchorBox {}
+        AnchorButtons {}
   }
 
 }

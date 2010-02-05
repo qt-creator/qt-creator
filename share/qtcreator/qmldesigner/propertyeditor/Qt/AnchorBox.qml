@@ -5,7 +5,7 @@ QWidget {
     width:220;fixedWidth:  width
     height:220;fixedHeight: height
     styleSheetFile: "anchorbox.css"
-
+		
     Script {
         function isBorderAnchored() {
             return anchorBackend.leftAnchored || anchorBackend.topAnchored || anchorBackend.rightAnchored || anchorBackend.bottomAnchored;
