@@ -31,4 +31,4 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/rvctparser.h \
     $$PWD/winscwparser.h
 FORMS += $$PWD/s60devicespreferencepane.ui
-include(../../libs/symbianutils/symbianutils.pri)||error("could not include symbianutils.pri")
+
