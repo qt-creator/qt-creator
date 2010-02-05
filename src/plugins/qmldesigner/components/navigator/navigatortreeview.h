@@ -51,7 +51,7 @@ class NavigatorTreeModel;
 class IconCheckboxItemDelegate : public QStyledItemDelegate
 {
     public:
-    IconCheckboxItemDelegate(QObject *parent = 0, QString checkedPixmapURL="", QString uncheckedPixmapURL="", NavigatorTreeModel *treeModel=NULL)
+    explicit IconCheckboxItemDelegate(QObject *parent = 0, QString checkedPixmapURL="", QString uncheckedPixmapURL="", NavigatorTreeModel *treeModel=NULL)
             : QStyledItemDelegate(parent),offPix(uncheckedPixmapURL),onPix(checkedPixmapURL),m_TreeModel(treeModel)
     {}
 
@@ -71,7 +71,7 @@ class IconCheckboxItemDelegate : public QStyledItemDelegate
 class IdItemDelegate : public QStyledItemDelegate
 {
     public:
-    IdItemDelegate(QObject *parent=0, NavigatorTreeModel *treeModel=NULL) : QStyledItemDelegate(parent),m_TreeModel(treeModel) {}
+    explicit IdItemDelegate(QObject *parent=0, NavigatorTreeModel *treeModel=NULL) : QStyledItemDelegate(parent),m_TreeModel(treeModel) {}
 
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option, const QModelIndex &index) const;

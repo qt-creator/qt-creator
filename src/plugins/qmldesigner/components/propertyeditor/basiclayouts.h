@@ -54,7 +54,7 @@ class QBoxLayoutObject : public QLayoutObject
     Q_CLASSINFO("DefaultProperty", "children")
 public:
     QBoxLayoutObject(QObject *parent=0);
-    QBoxLayoutObject(QBoxLayout *, QObject *parent=0);
+    explicit QBoxLayoutObject(QBoxLayout *, QObject *parent=0);
     virtual QLayout *layout() const;
 
     QmlList<QWidget *> *children() { return &_widgets; }

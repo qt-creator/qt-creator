@@ -99,7 +99,7 @@ class DocumentWarningWidget : public QFrame
     Q_OBJECT
     Q_DISABLE_COPY(DocumentWarningWidget)
 public:
-    DocumentWarningWidget(DocumentWidget *documentWidget, QWidget *parent = 0);
+    explicit DocumentWarningWidget(DocumentWidget *documentWidget, QWidget *parent = 0);
 
     void setError(const RewriterView::Error &error);
 

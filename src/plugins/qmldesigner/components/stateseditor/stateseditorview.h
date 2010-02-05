@@ -42,7 +42,7 @@ class StatesEditorView : public QmlModelView {
     Q_OBJECT
 
 public:
-    StatesEditorView(StatesEditorModel *model, QObject *parent = 0);
+    explicit StatesEditorView(StatesEditorModel *model, QObject *parent = 0);
 
     void setCurrentState(int index);
     void setCurrentStateSilent(int index);

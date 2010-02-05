@@ -44,7 +44,7 @@ namespace Internal {
 class ParsedQML
 {
 public:
-    ParsedQML(const QString &sourceCode, const QString &fileName = QString());
+    explicit ParsedQML(const QString &sourceCode, const QString &fileName = QString());
 
     bool isValid() const { return m_ast != 0; }
     QmlJS::AST::UiProgram *ast() const { return m_ast; }

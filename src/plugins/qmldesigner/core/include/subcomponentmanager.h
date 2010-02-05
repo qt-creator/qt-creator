@@ -45,7 +45,7 @@ class CORESHARED_EXPORT SubComponentManager : public QObject
 {
     Q_OBJECT
 public:
-    SubComponentManager(MetaInfo metaInfo, QObject *parent = 0);
+    explicit SubComponentManager(MetaInfo metaInfo, QObject *parent = 0);
     ~SubComponentManager();
 
     void update(const QUrl &fileUrl, const QByteArray &data);
