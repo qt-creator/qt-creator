@@ -4412,8 +4412,8 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
         }
 
         for (int tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments);
-                precedenceAhead > operPrecedence && isBinaryOperator(tokenKindAhead)
-                        || precedenceAhead == operPrecedence && isRightAssociative(tokenKindAhead);
+                (precedenceAhead > operPrecedence && isBinaryOperator(tokenKindAhead))
+                        || (precedenceAhead == operPrecedence && isRightAssociative(tokenKindAhead));
                 tokenKindAhead = tok().kind(), precedenceAhead = precedence(tokenKindAhead, _templateArguments)) {
             parseExpressionWithOperatorPrecedence(rhs, precedenceAhead);
         }
