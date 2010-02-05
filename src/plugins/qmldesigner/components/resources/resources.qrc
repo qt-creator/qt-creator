@@ -65,5 +65,11 @@
 		<file>images/anchor-horizontal-pressed.png</file>
 		<file>images/anchor-horizontal-normal.png</file>
 		<file>images/anchor-spacer.png</file>
+		<file>images/icon-left.png</file>
+		<file>images/icon-right.png</file>
+		<file>images/icon-top.png</file>
+		<file>images/icon-bottom.png</file>
+		<file>images/icon-vertical.png</file>
+		<file>images/icon-horizontal.png</file>
     </qresource>
 </RCC>
