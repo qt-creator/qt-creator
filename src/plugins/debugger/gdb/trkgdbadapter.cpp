@@ -384,8 +384,9 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage(trk::byte option)
     uint to = m_snapshot.lineToAddress;
     uint pc = m_snapshot.registers[RegisterPC];
     if (from <= pc && pc <= to) {
-        qDebug() << "STEP IN " << hexxNumber(from) << hexxNumber(to)
-             << "INSTEAD OF " << hexxNumber(pc);
+        to = qMax(to - 4, from);
+        debugMessage("STEP IN " + hexxNumber(from) + " " + hexxNumber(to)
+            + " INSTEAD OF " + hexxNumber(pc));
     } else {
         from = pc;
         to = pc;
@@ -1852,7 +1853,7 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
         m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
     }
     m_engine->postCommand("set breakpoint always-inserted on");
-    m_engine->postCommand("set breakpoint auto-hw off");
+    m_engine->postCommand("set breakpoint auto-hw on");
     m_engine->postCommand("set trust-readonly-sections"); // No difference?
     m_engine->postCommand("set displaced-stepping on"); // No difference?
     m_engine->postCommand("set mem inaccessible-by-default");

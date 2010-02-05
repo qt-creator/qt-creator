@@ -2021,6 +2021,8 @@ void GdbEngine::sendInsertBreakpoint(int index)
     QByteArray cmd;
     if (m_isMacGdb)
         cmd = "-break-insert -l -1 -f ";
+    else if (m_gdbAdapter->isTrkAdapter())
+        cmd = "-break-insert -h -f ";
     else if (m_gdbVersion >= 60800) // Probably some earlier version would work as well ...
         cmd = "-break-insert -f ";
     else
