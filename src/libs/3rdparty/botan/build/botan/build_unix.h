@@ -36,13 +36,6 @@
   #define BOTAN_USE_GCC_INLINE_ASM 0
 #endif
 
-/* Target identification and feature test macros */
-#define BOTAN_TARGET_OS_IS_LINUX
-#define BOTAN_TARGET_OS_HAS_POSIX_MLOCK
-
-#define BOTAN_TARGET_ARCH_IS_IA32
-#define BOTAN_TARGET_CPU_IS_LITTLE_ENDIAN
-#define BOTAN_TARGET_UNALIGNED_LOADSTOR_OK 1
 
 #define BOTAN_USE_STD_TR1
 
