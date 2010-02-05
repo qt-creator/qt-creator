@@ -1077,17 +1077,19 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
                     }
                 }
                 if (!qmake_cache.isEmpty()) {
-                    qmake_cache = QDir::cleanPath(qmake_cache);
+                    qmake_cache = resolvePath(qmake_cache);
                     QHash<QString, QStringList> cache_valuemap;
                     if (evaluateFileInto(qmake_cache, &cache_valuemap, 0)) {
-                        m_option->cachefile = qmake_cache;
                         if (m_option->qmakespec.isEmpty()) {
                             const QStringList &vals = cache_valuemap.value(QLatin1String("QMAKESPEC"));
                             if (!vals.isEmpty())
                                 m_option->qmakespec = vals.first();
                         }
+                    } else {
+                        qmake_cache.clear();
                     }
                 }
+                m_option->cachefile = qmake_cache;
 
                 QStringList mkspec_roots = qmakeMkspecPaths();
 
@@ -1273,16 +1275,13 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     QByteArray mkspec_path = qgetenv("QMAKEFEATURES");
     if (!mkspec_path.isEmpty())
         foreach (const QString &f, QString::fromLocal8Bit(mkspec_path).split(m_option->dirlist_sep))
-            feature_roots += QDir::cleanPath(f);
+            feature_roots += resolvePath(f);
 
     feature_roots += propertyValue(QLatin1String("QMAKEFEATURES"), false).split(
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
     if (!m_option->cachefile.isEmpty()) {
-        QString path;
-        int last_slash = m_option->cachefile.lastIndexOf((ushort)'/');
-        if (last_slash != -1)
-            path = m_option->cachefile.left(last_slash);
+        QString path = m_option->cachefile.left(m_option->cachefile.lastIndexOf((ushort)'/'));
         foreach (const QString &concat_it, concat)
             feature_roots << (path + concat_it);
     }
@@ -1291,16 +1290,17 @@ QStringList ProFileEvaluator::Private::qmakeFeaturePaths() const
     if (!qmakepath.isNull()) {
         const QStringList lst = QString::fromLocal8Bit(qmakepath).split(m_option->dirlist_sep);
         foreach (const QString &item, lst) {
-            QString citem = QDir::cleanPath(item);
+            QString citem = resolvePath(item);
             foreach (const QString &concat_it, concat)
                 feature_roots << (citem + mkspecs_concat + concat_it);
         }
     }
 
     if (!m_option->qmakespec.isEmpty()) {
-        feature_roots << (m_option->qmakespec + features_concat);
+        QString qmakespec = resolvePath(m_option->qmakespec);
+        feature_roots << (qmakespec + features_concat);
 
-        QDir specdir(m_option->qmakespec);
+        QDir specdir(qmakespec);
         while (!specdir.isRoot()) {
             if (!specdir.cdUp() || specdir.isRoot())
                 break;
