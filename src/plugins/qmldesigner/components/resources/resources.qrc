@@ -37,7 +37,6 @@
         <file>images/spinup_pressed.png</file>
         <file>images/up_arrow.png</file>
         <file>images/up_arrow_disabled.png</file>
-
         <file>images/apply.png</file>
         <file>images/cancel.png</file>
         <file>images/applybright.png</file>
@@ -45,11 +44,26 @@
         <file>images/placeholder.png</file>
         <file>images/triangle_horz.png</file>
         <file>images/triangle_vert.png</file>
-	<file>images/button_color_gradient_pressed.png</file>
-	<file>images/button_color_gradient_normal.png</file>
-	<file>images/button_color_none_pressed.png</file>
-	<file>images/button_color_none_normal.png</file>
-	<file>images/button_color_solid_normal.png</file>
-	<file>images/button_color_solid_pressed.png</file>
+	    <file>images/button_color_gradient_pressed.png</file>
+	    <file>images/button_color_gradient_normal.png</file>
+	    <file>images/button_color_none_pressed.png</file>
+	    <file>images/button_color_none_normal.png</file>
+	    <file>images/button_color_solid_normal.png</file>
+	    <file>images/button_color_solid_pressed.png</file>
+		<file>images/anchor-bottom-normal.png</file>
+		<file>images/anchor-bottom-pressed.png</file>
+		<file>images/anchor-top-normal.png</file>
+		<file>images/anchor-top-pressed.png</file>
+		<file>images/anchor-left-pressed.png</file>
+		<file>images/anchor-left-normal.png</file>
+		<file>images/anchor-right-normal.png</file>
+		<file>images/anchor-right-pressed.png</file>
+		<file>images/anchor-fill-pressed.png</file>
+		<file>images/anchor-fill-normal.png</file>
+		<file>images/anchor-vertical-pressed.png</file>
+		<file>images/anchor-vertical-normal.png</file>
+		<file>images/anchor-horizontal-pressed.png</file>
+		<file>images/anchor-horizontal-normal.png</file>
+		<file>images/anchor-spacer.png</file>
     </qresource>
 </RCC>
