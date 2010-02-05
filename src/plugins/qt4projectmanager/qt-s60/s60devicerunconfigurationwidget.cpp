@@ -34,7 +34,7 @@
 #include "s60manager.h"
 #include "launcher.h"
 #include "bluetoothlistener.h"
-#include "serialdevicelister.h"
+#include "symbiandevicemanager.h"
 
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
@@ -56,7 +56,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 
-Q_DECLARE_METATYPE(Qt4ProjectManager::Internal::SymbianDevice)
+Q_DECLARE_METATYPE(SymbianUtils::SymbianDevice)
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -100,7 +100,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
 
     updateSerialDevices();
-    connect(SymbianDeviceManager::instance(), SIGNAL(updated()),
+    connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(updated()),
             this, SLOT(updateSerialDevices()));
     // Serial devices control
     connect(m_serialPortsCombo, SIGNAL(activated(int)), this, SLOT(setSerialPort(int)));
@@ -180,10 +180,10 @@ void S60DeviceRunConfigurationWidget::updateSerialDevices()
     m_serialPortsCombo->clear();
     clearDeviceInfo();
     const QString previousRunConfigurationPortName = m_runConfiguration->serialPortName();
-    const QList<SymbianDevice> devices = SymbianDeviceManager::instance()->devices();
+    const QList<SymbianUtils::SymbianDevice> devices = SymbianUtils::SymbianDeviceManager::instance()->devices();
     int newIndex = -1;
     for (int i = 0; i < devices.size(); ++i) {
-        const SymbianDevice &device = devices.at(i);
+        const SymbianUtils::SymbianDevice &device = devices.at(i);
         m_serialPortsCombo->addItem(device.friendlyName(), qVariantFromValue(device));
         if (device.portName() == previousRunConfigurationPortName)
             newIndex = i;
@@ -203,17 +203,17 @@ void S60DeviceRunConfigurationWidget::updateSerialDevices()
     }
 }
 
-SymbianDevice S60DeviceRunConfigurationWidget::device(int i) const
+SymbianUtils::SymbianDevice S60DeviceRunConfigurationWidget::device(int i) const
 {
     if (i >= 0) {
         const QVariant data = m_serialPortsCombo->itemData(i);
-        if (qVariantCanConvert<Qt4ProjectManager::Internal::SymbianDevice>(data))
-            return qVariantValue<Qt4ProjectManager::Internal::SymbianDevice>(data);
+        if (qVariantCanConvert<SymbianUtils::SymbianDevice>(data))
+            return qVariantValue<SymbianUtils::SymbianDevice>(data);
     }
-    return SymbianDevice();
+    return SymbianUtils::SymbianDevice();
 }
 
-SymbianDevice S60DeviceRunConfigurationWidget::currentDevice() const
+SymbianUtils::SymbianDevice S60DeviceRunConfigurationWidget::currentDevice() const
 {
     return device(m_serialPortsCombo->currentIndex());
 }
@@ -242,7 +242,7 @@ void S60DeviceRunConfigurationWidget::updateTargetInformation()
 
 void S60DeviceRunConfigurationWidget::setSerialPort(int index)
 {
-    const SymbianDevice d = device(index);
+    const SymbianUtils::SymbianDevice d = device(index);
     m_runConfiguration->setSerialPortName(d.portName());
     m_runConfiguration->setCommunicationType(d.type());
     m_deviceInfoButton->setEnabled(index >= 0);
@@ -323,8 +323,8 @@ void S60DeviceRunConfigurationWidget::updateDeviceInfo()
     // go asynchronous afterwards to pop up launch trk box if a timeout occurs.
     m_infoLauncher = new trk::Launcher(trk::Launcher::ActionPingOnly, QSharedPointer<trk::TrkDevice>(), this);
     connect(m_infoLauncher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
-    const SymbianDevice commDev = currentDevice();
-    m_infoLauncher->setSerialFrame(commDev.type() == SerialPortCommunication);
+    const SymbianUtils::SymbianDevice commDev = currentDevice();
+    m_infoLauncher->setSerialFrame(commDev.type() == SymbianUtils::SerialPortCommunication);
     m_infoLauncher->setTrkServerName(commDev.portName());
     // Prompt user
     QString message;

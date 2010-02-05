@@ -29,7 +29,7 @@
 
 #include "s60runconfigbluetoothstarter.h"
 #include "bluetoothlistener.h"
-#include "serialdevicelister.h"
+#include "symbiandevicemanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -59,7 +59,7 @@ S60RunConfigBluetoothStarter::startCommunication(const TrkDevicePtr &trkDevice,
                                                  QString *errorMessage)
 {
     // Bluetooth?
-    if (communicationType == BlueToothCommunication) {
+    if (communicationType == SymbianUtils::BlueToothCommunication) {
         S60RunConfigBluetoothStarter bluetoothStarter(trkDevice);
         bluetoothStarter.setDevice(device);
         return trk::promptStartBluetooth(bluetoothStarter, msgBoxParent, errorMessage);

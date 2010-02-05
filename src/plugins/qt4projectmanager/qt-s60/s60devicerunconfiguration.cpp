@@ -36,7 +36,7 @@
 #include "s60devices.h"
 #include "s60runconfigbluetoothstarter.h"
 #include "bluetoothlistener_gui.h"
-#include "serialdevicelister.h"
+#include "symbiandevicemanager.h"
 #include "qt4buildconfiguration.h"
 
 #include <coreplugin/icore.h>
@@ -112,10 +112,10 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     m_cachedTargetInformationValid(false),
 #ifdef Q_OS_WIN
     m_serialPortName(QLatin1String("COM5")),
-    m_communicationType(SerialPortCommunication),
+    m_communicationType(SymbianUtils::SerialPortCommunication),
 #else
-    m_serialPortName(QLatin1String(SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
-    m_communicationType(BlueToothCommunication),
+    m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
+    m_communicationType(SymbianUtils::BlueToothCommunication),
 #endif
     m_signingMode(SignSelf)
 {
@@ -498,7 +498,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     QTC_ASSERT(s60runConfig, return);
     m_toolChain = s60runConfig->toolChainType();
     m_serialPortName = s60runConfig->serialPortName();
-    m_serialPortFriendlyName = SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
+    m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_communicationType = s60runConfig->communicationType();
     m_targetName = s60runConfig->targetName();
     m_baseFileName = s60runConfig->basePackageFilePath();
@@ -750,7 +750,7 @@ void S60DeviceRunControlBase::startDeployment()
 
     //TODO sisx destination and file path user definable
     m_launcher->setTrkServerName(m_serialPortName);
-    m_launcher->setSerialFrame(m_communicationType == SerialPortCommunication);
+    m_launcher->setSerialFrame(m_communicationType == SymbianUtils::SerialPortCommunication);
     if (!m_commandLineArguments.isEmpty())
         m_launcher->setCommandLineArgs(m_commandLineArguments);
     const QString copySrc(m_baseFileName + ".sisx");

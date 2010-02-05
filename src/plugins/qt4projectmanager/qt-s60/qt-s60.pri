@@ -10,7 +10,6 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/s60emulatorrunconfiguration.cpp \
     $$PWD/s60devicerunconfiguration.cpp \
     $$PWD/s60devicerunconfigurationwidget.cpp \
-    $$PWD/serialdevicelister.cpp \
     $$PWD/rvcttoolchain.cpp \
     $$PWD/s60runconfigbluetoothstarter.cpp \
     $$PWD/abldparser.cpp \
@@ -24,7 +23,6 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/s60emulatorrunconfiguration.h \
     $$PWD/s60devicerunconfiguration.h \
     $$PWD/s60devicerunconfigurationwidget.h \
-    $$PWD/serialdevicelister.h \
     $$PWD/rvcttoolchain.h \
     $$PWD/s60runconfigbluetoothstarter.h \
     $$PWD/abldparser.h \

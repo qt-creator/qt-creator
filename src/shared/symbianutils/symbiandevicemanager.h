@@ -27,8 +27,10 @@
 **
 **************************************************************************/
 
-#ifndef SERIALDEVICELISTER_H
-#define SERIALDEVICELISTER_H
+#ifndef SYMBIANDEVICEMANAGER_H
+#define SYMBIANDEVICEMANAGER_H
+
+#include "symbianutils_global.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QExplicitlySharedDataPointer>
@@ -38,8 +40,7 @@ class QDebug;
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
-namespace Internal {
+namespace SymbianUtils {
 
 struct SymbianDeviceManagerPrivate;
 class SymbianDeviceData;
@@ -50,7 +51,7 @@ enum DeviceCommunicationType {
 };
 
 // SymbianDevice, explicitly shared.
-class SymbianDevice {
+class SYMBIANUTILS_EXPORT SymbianDevice {
     explicit SymbianDevice(SymbianDeviceData *data);
     friend class SymbianDeviceManager;
 public:
@@ -89,7 +90,7 @@ inline bool operator<(const SymbianDevice &d1, const SymbianDevice &d2)
  * and emits change signals.
  * On Windows, the update slot must be connected to a signal
  * emitted from an event handler listening for WM_DEVICECHANGE. */
-class SymbianDeviceManager : public QObject
+class SYMBIANUTILS_EXPORT SymbianDeviceManager : public QObject
 {
     Q_OBJECT
 public:
@@ -127,7 +128,6 @@ private:
 
 QDebug operator<<(QDebug d, const SymbianDeviceManager &);
 
-} // Internal
-} // Qt4ProjectManager
+} // namespace SymbianUtils
 
-#endif // SERIALDEVICELISTER_H
+#endif // SYMBIANDEVICEMANAGER_H

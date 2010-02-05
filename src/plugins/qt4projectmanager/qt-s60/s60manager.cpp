@@ -30,7 +30,7 @@
 #include "s60manager.h"
 
 #include "s60devicespreferencepane.h"
-#include "serialdevicelister.h"
+#include "symbiandevicemanager.h"
 #include "winscwtoolchain.h"
 #include "gccetoolchain.h"
 #include "rvcttoolchain.h"
@@ -126,7 +126,7 @@ S60Manager::S60Manager(QObject *parent)
     connect(m_devices, SIGNAL(qtVersionsChanged()),
             this, SLOT(updateQtVersions()));
     connect(Core::ICore::instance()->mainWindow(), SIGNAL(deviceChange()),
-            SymbianDeviceManager::instance(), SLOT(update()));
+            SymbianUtils::SymbianDeviceManager::instance(), SLOT(update()));
 }
 
 S60Manager::~S60Manager()

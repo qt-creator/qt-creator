@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "serialdevicelister.h"
+#include "symbiandevicemanager.h"
 
 #include <QtCore/QSettings>
 #include <QtCore/QStringList>
@@ -37,8 +37,7 @@
 #include <QtCore/QSharedData>
 #include <QtCore/QScopedPointer>
 
-namespace Qt4ProjectManager {
-namespace Internal {
+namespace SymbianUtils {
 
 enum { debug = 0 };
 
@@ -317,5 +316,4 @@ QDebug operator<<(QDebug d, const SymbianDeviceManager &sdm)
     return d;
 }
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace SymbianUtilsInternal
