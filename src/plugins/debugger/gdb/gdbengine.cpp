@@ -1735,7 +1735,7 @@ void GdbEngine::stepExec()
     showStatusMessage(tr("Step requested..."), 5000);
     StackHandler *stackHandler = manager()->stackHandler();
     if (m_gdbAdapter->isTrkAdapter() && stackHandler->stackSize() > 0)
-        postCommand("sal " + stackHandler->topAddress().toLatin1());
+        postCommand("sal step," + stackHandler->topAddress().toLatin1());
     if (manager()->isReverseDebugging())
         postCommand("-reverse-step", RunRequest, CB(handleExecStep));
     else
@@ -1797,7 +1797,7 @@ void GdbEngine::nextExec()
     showStatusMessage(tr("Step next requested..."), 5000);
     StackHandler *stackHandler = manager()->stackHandler();
     if (m_gdbAdapter->isTrkAdapter() && stackHandler->stackSize() > 0)
-        postCommand("sal " + stackHandler->topAddress().toLatin1());
+        postCommand("sal next," + stackHandler->topAddress().toLatin1());
     if (manager()->isReverseDebugging())
         postCommand("-reverse-next", RunRequest, CB(handleExecNext));
     else

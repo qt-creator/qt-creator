@@ -86,18 +86,23 @@ struct MemoryRange
 
 struct Snapshot
 {
+    Snapshot() { reset(); }
+
     void reset();
     void insertMemory(const MemoryRange &range, const QByteArray &ba);
 
     uint registers[RegisterCount];
-    uint lineFromAddress;
-    uint lineToAddress;
     bool registerValid;
     typedef QMap<MemoryRange, QByteArray> Memory;
     Memory memory;
 
     // Current state.
     MemoryRange wantedMemory;
+
+    // For next step.
+    uint lineFromAddress;
+    uint lineToAddress;
+    bool stepOver;
 };
 
 
@@ -215,10 +220,7 @@ private:
     void handleAndReportSetBreakpoint(const TrkResult &result);
     void handleReadMemoryBuffered(const TrkResult &result);
     void handleReadMemoryUnbuffered(const TrkResult &result);
-    void handleStepInto(const TrkResult &result);
-    void handleStepInto2(const TrkResult &result);
-    void handleStepOver(const TrkResult &result);
-    void handleStepOver2(const TrkResult &result);
+    void handleStep(const TrkResult &result);
     void handleReadRegisters(const TrkResult &result);
     void handleWriteRegister(const TrkResult &result);
     void reportToGdb(const TrkResult &result);
@@ -250,7 +252,7 @@ private:
     QByteArray trkReadMemoryMessage(uint addr, uint len);
     QByteArray trkWriteMemoryMessage(uint addr, const QByteArray &date);
     QByteArray trkBreakpointMessage(uint addr, uint len, bool armMode = true);
-    QByteArray trkStepRangeMessage(trk::byte option);
+    QByteArray trkStepRangeMessage();
     QByteArray trkDeleteProcessMessage();
     QByteArray trkInterruptMessage();
 

@@ -701,7 +701,8 @@ class SalCommand(gdb.Command):
         super(SalCommand, self).__init__("sal", gdb.COMMAND_OBSCURE)
 
     def invoke(self, arg, from_tty):
-        lines = catchCliOutput("info line *" + arg)
+        (cmd, addr) = arg.split(",")
+        lines = catchCliOutput("info line *" + addr)
         fromAddr = "0x0"
         toAddr = "0x0"
         for line in lines:
@@ -712,9 +713,10 @@ class SalCommand(gdb.Command):
             if pos1to > 0:
                 fromAddr = line[pos0from : pos1from]
                 toAddr = line[pos0to : pos1to]
-        gdb.execute("maint packet sal%s,%s" % (fromAddr, toAddr))
+        gdb.execute("maint packet sal%s,%s,%s" % (cmd,fromAddr, toAddr))
 
 SalCommand()
+
 
 #######################################################################
 #

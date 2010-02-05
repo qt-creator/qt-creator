@@ -374,23 +374,27 @@ QByteArray TrkGdbAdapter::trkWriteMemoryMessage(uint addr, const QByteArray &dat
     return ba;
 }
 
-QByteArray TrkGdbAdapter::trkStepRangeMessage(trk::byte option)
+QByteArray TrkGdbAdapter::trkStepRangeMessage()
 {
-    QByteArray ba;
-    ba.reserve(17);
-    appendByte(&ba, option);
     //qDebug() << "STEP ON " << hexxNumber(m_snapshot.registers[RegisterPC]);
     uint from = m_snapshot.lineFromAddress;
     uint to = m_snapshot.lineToAddress;
     uint pc = m_snapshot.registers[RegisterPC];
+    trk::byte option = 0x01; // Step into.
     if (from <= pc && pc <= to) {
         to = qMax(to - 4, from);
         debugMessage("STEP IN " + hexxNumber(from) + " " + hexxNumber(to)
             + " INSTEAD OF " + hexxNumber(pc));
+        if (m_snapshot.stepOver)
+            option = 0x11;  // Step over.
     } else {
         from = pc;
         to = pc;
     }
+
+    QByteArray ba;
+    ba.reserve(17);
+    appendByte(&ba, option);
     appendInt(&ba, from); // Start address
     appendInt(&ba, to); // End address
     appendInt(&ba, m_session.pid);
@@ -695,16 +699,24 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             trkReadRegistersMessage());
     }
 
-    else if (cmd.startsWith("sal")) {
+    else if (cmd.startsWith("salstep,")) {
         // Receive address range for current line for future use when stepping.
         sendGdbServerAck();
         int pos = cmd.indexOf(',');
-        //qDebug() << "SAL: " << cmd << cmd.mid(3, pos - 3) << cmd.mid(pos + 1);
-        m_snapshot.lineFromAddress = cmd.mid(3, pos - 3).toUInt(0, 16);
+        m_snapshot.lineFromAddress = cmd.mid(8, pos - 8).toUInt(0, 16);
         m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
-        //qDebug() << "SAL: " << hexxNumber(m_snapshot.lineFromAddress)
-        //    << hexxNumber(m_snapshot.lineToAddress);
-        sendGdbServerMessage("", "Stepping range received");
+        m_snapshot.stepOver = false;
+        sendGdbServerMessage("", "Stepping range received for Step Into");
+    }
+
+    else if (cmd.startsWith("salnext")) {
+        // Receive address range for current line for future use when stepping.
+        sendGdbServerAck();
+        int pos = cmd.indexOf(',');
+        m_snapshot.lineFromAddress = cmd.mid(8, pos - 8).toUInt(0, 16);
+        m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
+        m_snapshot.stepOver = true;
+        sendGdbServerMessage("", "Stepping range received for Step Over");
     }
 
     else if (cmd.startsWith("Hc")) {
@@ -967,8 +979,8 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         sendGdbServerAck();
         //m_snapshot.reset();
         m_running = true;
-        QByteArray ba = trkStepRangeMessage(0x01);  // options "step into"
-        sendTrkMessage(0x19, TrkCB(handleStepInto), ba, "Step range");
+        QByteArray ba = trkStepRangeMessage();
+        sendTrkMessage(0x19, TrkCB(handleStep), ba, "Step range");
     }
 
     else if (cmd.startsWith('T')) {
@@ -1576,15 +1588,15 @@ void TrkGdbAdapter::reportReadMemoryBuffered(const TrkResult &result)
 }
 */
 
-void TrkGdbAdapter::handleStepInto(const TrkResult &result)
+void TrkGdbAdapter::handleStep(const TrkResult &result)
 {
     if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + " in handleStepInto");
+        logMessage("ERROR: " + result.errorString() + " in handleStep");
 
-        // Try fallback with Step Over.
-        debugMessage("FALLBACK TO 'STEP OVER'");
-        QByteArray ba = trkStepRangeMessage(0x11);  // options "step over"
-        sendTrkMessage(0x19, TrkCB(handleStepInto2), ba, "Step range");
+        // Try fallback with Continue.
+        debugMessage("FALLBACK TO 'CONTINUE'");
+        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
+        //sendGdbServerMessage("S05", "Stepping finished");
 
         // Doing nothing as below does not work as gdb seems to insist on
         // making some progress through a 'step'.
@@ -1594,52 +1606,7 @@ void TrkGdbAdapter::handleStepInto(const TrkResult &result)
         return;
     }
     // The gdb server response is triggered later by the Stop Reply packet
-    logMessage("STEP INTO FINISHED ");
-}
-
-void TrkGdbAdapter::handleStepInto2(const TrkResult &result)
-{
-    if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + " in handleStepInto2");
-
-        // Try fallback with Continue.
-        debugMessage("FALLBACK TO 'CONTINUE'");
-        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
-        //sendGdbServerMessage("S05", "Stepping finished");
-
-        // Doing nothing as below does not work as gdb seems to insist on
-        // making some progress through a 'next'.
-        // sendTrkMessage(0x12,
-        //     TrkCB(handleAndReportReadRegistersAfterStop),
-        //     trkReadRegistersMessage());
-        return;
-    }
-    logMessage("STEP INTO FINISHED (FALLBACK)");
-}
-
-void TrkGdbAdapter::handleStepOver(const TrkResult &result)
-{
-    if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + "in handleStepOver");
-        // Try fallback with Step Into
-        QByteArray ba = trkStepRangeMessage(0x01);  // options "step into"
-        sendTrkMessage(0x19, TrkCB(handleStepOver2), ba, "Step range");
-        return;
-    }
-    logMessage("STEP OVER FINISHED ");
-}
-
-void TrkGdbAdapter::handleStepOver2(const TrkResult &result)
-{
-    if (result.errorCode()) {
-        logMessage("ERROR: " + result.errorString() + "in handleStepOver2");
-        // Try fallback with Continue
-        debugMessage("FALLBACK TO 'CONTINUE'");
-        sendTrkMessage(0x18, TrkCallback(), trkContinueMessage(), "CONTINUE");
-        //sendGdbServerMessage("S05", "Stepping finished");
-        return;
-    }
-    logMessage("STEP OVER FINISHED (FALLBACK)");
+    logMessage("STEP FINISHED ");
 }
 
 void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
