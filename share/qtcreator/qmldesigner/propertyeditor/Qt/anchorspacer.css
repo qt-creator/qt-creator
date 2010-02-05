@@ -1,0 +1,12 @@
+QPushButton {
+    border-image: url(:/qmldesigner/images/anchor-spacer.png) 3;
+    border-width: 3;
+ }
+ 
+  QPushButton:pressed {
+    border-image: url(:/qmldesigner/images/anchor-spacer.png) 3;
+ }
+ 
+ QPushButton:checked {
+    border-image: url(:/qmldesigner/images/anchor-spacer.png) 3;
+ }
