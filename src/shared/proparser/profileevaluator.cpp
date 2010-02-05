@@ -2735,12 +2735,13 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
             break;
 #if defined(Q_OS_WIN32)
         case V_QMAKE_HOST_os: ret = QLatin1String("Windows"); break;
-        case V_QMAKE_HOST_name:
+        case V_QMAKE_HOST_name: {
             DWORD name_length = 1024;
             TCHAR name[1024];
             if (GetComputerName(name, &name_length))
                 ret = QString::fromUtf16((ushort*)name, name_length);
             break;
+        }
         case V_QMAKE_HOST_version:
             ret = QString::number(QSysInfo::WindowsVersion);
             break;

@@ -97,7 +97,7 @@ bool synchronizeBreakPoints(CIDebugControl* debugControl,
                 updateMarkers = true;
                 nbd->pending = false;
                 nbd->bpNumber = QByteArray::number(uint(id));
-                nbd->bpAddress = QLatin1String("0x") + QString::number(address, 16);
+                nbd->bpAddress = "0x" + QByteArray::number(address, 16);
                 // Take over rest as is
                 nbd->bpCondition = nbd->condition;
                 nbd->bpIgnoreCount = nbd->ignoreCount;
