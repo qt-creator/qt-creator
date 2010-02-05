@@ -52,7 +52,7 @@ namespace trk {
 namespace Qt4ProjectManager {
 namespace Internal {
 
-struct CommunicationDevice;
+class SymbianDevice;
 class S60DeviceRunConfiguration;
 
 /* Configuration widget for S60 devices on serial ports that are
@@ -81,8 +81,8 @@ private slots:
     void slotWaitingForTrkClosed();
 
 private:
-    inline CommunicationDevice device(int i) const;
-    inline CommunicationDevice currentDevice() const;
+    inline SymbianDevice device(int i) const;
+    inline SymbianDevice currentDevice() const;
 
     void setDeviceInfoLabel(const QString &message, bool isError = false);
 

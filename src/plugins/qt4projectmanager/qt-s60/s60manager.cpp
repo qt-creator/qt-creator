@@ -98,8 +98,7 @@ S60Manager *S60Manager::instance() { return m_instance; }
 
 S60Manager::S60Manager(QObject *parent)
         : QObject(parent),
-        m_devices(new S60Devices(this)),
-        m_serialDeviceLister(new SerialDeviceLister(this))
+        m_devices(new S60Devices(this))
 {
     m_instance = this;
 #ifdef QTCREATOR_WITH_S60
@@ -127,7 +126,7 @@ S60Manager::S60Manager(QObject *parent)
     connect(m_devices, SIGNAL(qtVersionsChanged()),
             this, SLOT(updateQtVersions()));
     connect(Core::ICore::instance()->mainWindow(), SIGNAL(deviceChange()),
-            m_serialDeviceLister, SLOT(update()));
+            SymbianDeviceManager::instance(), SLOT(update()));
 }
 
 S60Manager::~S60Manager()

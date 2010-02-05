@@ -42,8 +42,6 @@ class ToolChain;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class SerialDeviceLister;
-
 class S60Manager : public QObject
 {
     Q_OBJECT
@@ -62,8 +60,6 @@ public:
     S60Devices::Device deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     QString deviceIdFromDetectionSource(const QString &autoDetectionSource) const;
 
-    SerialDeviceLister *serialDeviceLister() const { return m_serialDeviceLister; }
-
 private slots:
     void updateQtVersions();
 
@@ -74,7 +70,6 @@ private:
 
     S60Devices *m_devices;
     QObjectList m_pluginObjects;
-    SerialDeviceLister *m_serialDeviceLister;
 };
 
 } // namespace Internal

@@ -114,7 +114,7 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     m_serialPortName(QLatin1String("COM5")),
     m_communicationType(SerialPortCommunication),
 #else
-    m_serialPortName(QLatin1String(SerialDeviceLister::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
+    m_serialPortName(QLatin1String(SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
     m_communicationType(BlueToothCommunication),
 #endif
     m_signingMode(SignSelf)
@@ -498,7 +498,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     QTC_ASSERT(s60runConfig, return);
     m_toolChain = s60runConfig->toolChainType();
     m_serialPortName = s60runConfig->serialPortName();
-    m_serialPortFriendlyName = S60Manager::instance()->serialDeviceLister()->friendlyNameForPort(m_serialPortName);
+    m_serialPortFriendlyName = SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_communicationType = s60runConfig->communicationType();
     m_targetName = s60runConfig->targetName();
     m_baseFileName = s60runConfig->basePackageFilePath();

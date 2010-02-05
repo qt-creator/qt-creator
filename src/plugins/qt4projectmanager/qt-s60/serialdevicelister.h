@@ -31,34 +31,81 @@
 #define SERIALDEVICELISTER_H
 
 #include <QtCore/QObject>
+#include <QtCore/QExplicitlySharedDataPointer>
+
+QT_BEGIN_NAMESPACE
+class QDebug;
+class QTextStream;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
+
+struct SymbianDeviceManagerPrivate;
+class SymbianDeviceData;
 
 enum DeviceCommunicationType {
     SerialPortCommunication = 0,
     BlueToothCommunication = 1
 };
 
-struct CommunicationDevice {
-    explicit CommunicationDevice(DeviceCommunicationType type = SerialPortCommunication,
-                                 const QString &portName = QString(),
-                                 const QString &friendlyName = QString());
-    QString portName;
-    QString friendlyName;
-    DeviceCommunicationType type;
+// SymbianDevice, explicitly shared.
+class SymbianDevice {
+    explicit SymbianDevice(SymbianDeviceData *data);
+    friend class SymbianDeviceManager;
+public:
+    SymbianDevice();
+    SymbianDevice(const SymbianDevice &rhs);
+    SymbianDevice &operator=(const SymbianDevice &rhs);
+    ~SymbianDevice();
+    int compare(const SymbianDevice &rhs) const;
+
+    DeviceCommunicationType type() const;
+    bool isNull() const;
+    QString portName() const;
+    QString friendlyName() const;
+
+    // Windows only.
+    QString deviceDesc() const;
+    QString manufacturer() const;
+
+    void format(QTextStream &str) const;
+    QString toString() const;
+
+private:
+    QExplicitlySharedDataPointer<SymbianDeviceData> m_data;
 };
 
-class SerialDeviceLister : public QObject
+QDebug operator<<(QDebug d, const SymbianDevice &);
+
+inline bool operator==(const SymbianDevice &d1, const SymbianDevice &d2)
+    { return d1.compare(d2) == 0; }
+inline bool operator!=(const SymbianDevice &d1, const SymbianDevice &d2)
+    { return d1.compare(d2) != 0; }
+inline bool operator<(const SymbianDevice &d1, const SymbianDevice &d2)
+    { return d1.compare(d2) < 0; }
+
+/* SymbianDeviceManager: Singleton that maintains a list of Symbian devices.
+ * and emits change signals.
+ * On Windows, the update slot must be connected to a signal
+ * emitted from an event handler listening for WM_DEVICECHANGE. */
+class SymbianDeviceManager : public QObject
 {
     Q_OBJECT
 public:
+    typedef QList<SymbianDevice> SymbianDeviceList;
+
     static const char *linuxBlueToothDeviceRootC;
 
-    explicit SerialDeviceLister(QObject *parent = 0);
-    ~SerialDeviceLister();
+    // Do not use this constructor, it is just public for Q_GLOBAL_STATIC
+    explicit SymbianDeviceManager(QObject *parent = 0);
+    virtual ~SymbianDeviceManager();
 
-    QList<CommunicationDevice> communicationDevices() const;
+    // Singleton access.
+    static SymbianDeviceManager *instance();
+
+    SymbianDeviceList devices() const;
+    QString toString() const;
 
     QString friendlyNameForPort(const QString &port) const;
 
@@ -66,16 +113,19 @@ public slots:
     void update();
 
 signals:
+    void deviceRemoved(const SymbianDevice &d);
+    void deviceAdded(const SymbianDevice &d);
     void updated();
 
 private:
-    void updateSilently() const;
-    QList<CommunicationDevice> serialPorts() const;
-    QList<CommunicationDevice> blueToothDevices() const;
+    void update(bool emitSignals);
+    SymbianDeviceList serialPorts() const;
+    SymbianDeviceList blueToothDevices() const;
 
-    mutable bool m_initialized;
-    mutable QList<CommunicationDevice> m_devices2;
+    SymbianDeviceManagerPrivate *d;
 };
+
+QDebug operator<<(QDebug d, const SymbianDeviceManager &);
 
 } // Internal
 } // Qt4ProjectManager
