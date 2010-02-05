@@ -163,6 +163,11 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
                     bp->bpFileName = child.findChild("file").data();
                     bp->markerLineNumber = bp->bpLineNumber.toInt();
                     bp->markerFileName = bp->bpFileName;
+                    // Happens with moved/symlinked sources.
+                    if (!bp->fileName.isEmpty()
+                            && !bp->bpFileName.isEmpty()
+                            && bp->fileName !=  bp->bpFileName)
+                        bp->markerFileName = bp->fileName;
                 } else {
                     QTC_ASSERT(false, qDebug() << child.toString());
                     //bp->bpNumber = "<unavailable>";
