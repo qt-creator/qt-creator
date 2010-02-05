@@ -103,10 +103,8 @@ private: ////////// General Interface //////////
     virtual void addOptionPages(QList<Core::IOptionsPage*> *opts) const;
 
     virtual bool checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage= 0) const;
-
-    virtual bool isGdbEngine() const { return true; }
-
     virtual void startDebugger(const DebuggerStartParametersPtr &sp);
+    virtual unsigned debuggerCapabilities() const;
     virtual void exitDebugger();
     virtual void detachDebugger();
     virtual void shutdown();

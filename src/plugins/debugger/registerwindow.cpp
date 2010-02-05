@@ -165,7 +165,12 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu menu;
 
+    const unsigned engineCapabilities = m_manager->debuggerCapabilities();
+    const bool actionsEnabled = m_manager->debuggerActionsEnabled();
+
     QAction *actReload = menu.addAction(tr("Reload register listing"));
+    actReload->setEnabled(engineCapabilities & RegisterCapability);
+
     menu.addSeparator();
 
     QModelIndex idx = indexAt(ev->pos());
@@ -176,8 +181,8 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowMemory->setEnabled(false);
     } else {
         actShowMemory->setText(tr("Open memory editor at %1").arg(address));
+        actShowMemory->setEnabled(actionsEnabled & (engineCapabilities & ShowMemoryCapability));
     }
-    actShowMemory->setEnabled(m_manager->debuggerActionsEnabled());
     menu.addSeparator();
 
     int base = model()->data(QModelIndex(), RegisterNumberBaseRole).toInt();

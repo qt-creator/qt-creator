@@ -67,6 +67,7 @@ public:
     virtual void exitDebugger();
     virtual void detachDebugger();
     virtual void updateWatchData(const WatchData &data);
+    virtual unsigned debuggerCapabilities() const;
 
     virtual void stepExec();
     virtual void stepOutExec();

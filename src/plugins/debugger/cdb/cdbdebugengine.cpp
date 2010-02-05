@@ -1499,6 +1499,11 @@ void CdbDebugEngine::syncDebuggerPaths()
     }
 }
 
+unsigned CdbDebugEngine::debuggerCapabilities() const
+{
+    return DisassemblerCapability | RegisterCapability | ShowMemoryCapability;
+}
+
 // Accessed by DebuggerManager
 IDebuggerEngine *createWinEngine(DebuggerManager *parent,
                                  bool cmdLineEnabled,

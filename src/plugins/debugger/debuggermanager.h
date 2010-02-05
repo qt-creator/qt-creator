@@ -188,6 +188,7 @@ public:
         int buttons = 0);
 
     bool debuggerActionsEnabled() const;
+    unsigned debuggerCapabilities() const;
 
     bool checkDebugConfiguration(int toolChain,
                                  QString *errorMessage,

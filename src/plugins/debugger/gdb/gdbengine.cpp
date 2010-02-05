@@ -1696,6 +1696,13 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
     m_gdbAdapter->startAdapter();
 }
 
+unsigned GdbEngine::debuggerCapabilities() const
+{
+    return ReverseSteppingCapability | SnapshotCapability | AutoDerefPointersCapability
+           | DisassemblerCapability | RegisterCapability | ShowMemoryCapability
+           | JumpToLineCapability | ReloadModuleCapability | ReloadModuleSymbolsCapability;
+}
+
 void GdbEngine::continueInferiorInternal()
 {
     QTC_ASSERT(state() == InferiorStopped || state() == InferiorStarting,

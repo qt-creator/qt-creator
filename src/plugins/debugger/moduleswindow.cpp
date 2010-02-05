@@ -108,27 +108,29 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu menu;
     const bool enabled = Debugger::DebuggerManager::instance()->debuggerActionsEnabled();
+    const unsigned capabilities = Debugger::DebuggerManager::instance()->debuggerCapabilities();
     QAction *act0 = new QAction(tr("Update module list"), &menu);
-    act0->setEnabled(enabled);
+    act0->setEnabled(enabled && (capabilities & ReloadModuleCapability));
     QAction *act3 = new QAction(tr("Show source files for module \"%1\"").arg(name), &menu);
-    act3->setEnabled(enabled);
+    act3->setEnabled(enabled && (capabilities & ReloadModuleCapability));
     QAction *act4 = new QAction(tr("Load symbols for all modules"), &menu);
-    act4->setEnabled(enabled);
+    act4->setEnabled(enabled && (capabilities & ReloadModuleSymbolsCapability));
     QAction *act5 = 0;
     QAction *act6 = 0;
     QAction *act7 = 0;
     if (name.isEmpty()) {
         act5 = new QAction(tr("Load symbols for module"), &menu);
+        act5->setEnabled(false);
         act6 = new QAction(tr("Edit file"), &menu);
+        act6->setEnabled(false);
         act7 = new QAction(tr("Show symbols"), &menu);
+        act7->setEnabled(false);
     } else {
         act5 = new QAction(tr("Load symbols for module \"%1\"").arg(name), &menu);
+        act5->setEnabled(capabilities & ReloadModuleSymbolsCapability);
         act6 = new QAction(tr("Edit file \"%1\"").arg(name), &menu);
         act7 = new QAction(tr("Show symbols in file \"%1\"").arg(name), &menu);
     }
-    act5->setDisabled(name.isEmpty());
-    act6->setDisabled(name.isEmpty());
-    act7->setDisabled(name.isEmpty());
 
     menu.addAction(act0);
     menu.addAction(act4);

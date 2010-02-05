@@ -1051,6 +1051,10 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     setState(EngineStarting);
     connect(d->m_engine, SIGNAL(startFailed()), this, SLOT(startFailed()));
     d->m_engine->startDebugger(d->m_startParameters);
+
+    const unsigned engineCapabilities = d->m_engine->debuggerCapabilities();
+    theDebuggerAction(OperateByInstruction)->setEnabled(engineCapabilities & DisassemblerCapability);
+    d->m_actions.reverseDirectionAction->setEnabled(engineCapabilities & ReverseSteppingCapability);
 }
 
 void DebuggerManager::startFailed()
@@ -1717,10 +1721,12 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     if (stopped)
         QApplication::alert(mainWindow(), 3000);
 
+    const bool actionsEnabled = debuggerActionsEnabled();
+    const unsigned engineCapabilities = debuggerCapabilities();
     d->m_actions.watchAction1->setEnabled(true);
     d->m_actions.watchAction2->setEnabled(true);
     d->m_actions.breakAction->setEnabled(true);
-    d->m_actions.snapshotAction->setEnabled(stopped);
+    d->m_actions.snapshotAction->setEnabled(stopped && (engineCapabilities & SnapshotCapability));
 
     bool interruptIsExit = !running;
     if (interruptIsExit) {
@@ -1740,12 +1746,13 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     d->m_actions.stepOutAction->setEnabled(stopped);
     d->m_actions.runToLineAction->setEnabled(stopped);
     d->m_actions.runToFunctionAction->setEnabled(stopped);
-    d->m_actions.jumpToLineAction->setEnabled(stopped);
+    d->m_actions.jumpToLineAction->setEnabled(stopped &&
+                                              (engineCapabilities & JumpToLineCapability));
     d->m_actions.nextAction->setEnabled(stopped);
 
-    const bool actionsEnabled = debuggerActionsEnabled();
     theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(actionsEnabled);
-    theDebuggerAction(AutoDerefPointers)->setEnabled(actionsEnabled && d->m_engine->isGdbEngine());
+    theDebuggerAction(AutoDerefPointers)->setEnabled(actionsEnabled &&
+                                                     (engineCapabilities & AutoDerefPointersCapability));
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
     theDebuggerAction(ExecuteCommand)->setEnabled(d->m_state != DebuggerNotReady);
 
@@ -1785,6 +1792,11 @@ bool DebuggerManager::debuggerActionsEnabled() const
         break;
     }
     return false;
+}
+
+unsigned DebuggerManager::debuggerCapabilities() const
+{
+    return d->m_engine ? d->m_engine->debuggerCapabilities() : 0;
 }
 
 bool DebuggerManager::checkDebugConfiguration(int toolChain,

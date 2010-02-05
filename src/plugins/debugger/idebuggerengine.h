@@ -118,7 +118,7 @@ public:
         { Q_UNUSED(regnr); Q_UNUSED(value); }
 
     virtual void addOptionPages(QList<Core::IOptionsPage*> *) const {}
-    virtual bool isGdbEngine() const { return false; }
+    virtual unsigned debuggerCapabilities() const { return 0; }
     virtual bool checkConfiguration(int /* toolChain */, QString * /* errorMessage */, QString * /* settingsPage */ = 0) const { return true; }
 
     virtual bool isSynchroneous() const { return false; }

@@ -109,6 +109,19 @@ enum DebuggerStartMode
     StartRemote            // Start and attach to a remote process
 };
 
+enum DebuggerCapabilities
+{
+    ReverseSteppingCapability = 0x1,
+    SnapshotCapability = 0x2,
+    AutoDerefPointersCapability = 0x4,
+    DisassemblerCapability = 0x80,
+    RegisterCapability = 0x10,
+    ShowMemoryCapability = 0x20,
+    JumpToLineCapability = 0x40,
+    ReloadModuleCapability = 0x80,
+    ReloadModuleSymbolsCapability = 0x100,
+};
+
 enum LogChannel
 {
     LogInput,               // Used for user input

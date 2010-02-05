@@ -261,12 +261,14 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select widget to watch"));
 
     const bool actionsEnabled = m_manager->debuggerActionsEnabled();
+    const unsigned engineCapabilities = m_manager->debuggerCapabilities();
     const QString address = model()->data(mi0, AddressRole).toString();
     QAction *actWatchKnownMemory = 0;
     QAction *actWatchUnknownMemory = new QAction(tr("Open memory editor..."), &menu);
-    actWatchUnknownMemory->setEnabled(actionsEnabled);
+    const bool canShowMemory = engineCapabilities & ShowMemoryCapability;
+    actWatchUnknownMemory->setEnabled(actionsEnabled && canShowMemory);
 
-    if (!address.isEmpty())
+    if (canShowMemory && !address.isEmpty())
         actWatchKnownMemory = new QAction(tr("Open memory editor at %1").arg(address), &menu);
     menu.addSeparator();
 

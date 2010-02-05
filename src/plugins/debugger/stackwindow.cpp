@@ -96,6 +96,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu menu;
 
+    const unsigned engineCapabilities = m_manager->debuggerCapabilities();
     menu.addAction(theDebuggerAction(ExpandStack));
 
     QAction *actCopyContents = menu.addAction(tr("Copy contents to clipboard"));
@@ -107,6 +108,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowMemory->setEnabled(false);
     } else {
         actShowMemory->setText(tr("Open memory editor at %1").arg(address));
+        actShowMemory->setEnabled(engineCapabilities & ShowMemoryCapability);
     }
 
     QAction *actShowDisassembler = menu.addAction(QString());
@@ -115,6 +117,7 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowDisassembler->setEnabled(false);
     } else {
         actShowDisassembler->setText(tr("Open disassembler at %1").arg(address));
+        actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
     }
 
     menu.addSeparator();
