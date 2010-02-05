@@ -1,3 +1,3 @@
-INCLUDEPATH *= $$PWD/../../shared/trk
-DEPENDPATH += $$PWD/../../shared/trk
+INCLUDEPATH *= $$PWD/../../shared/symbianutils
+DEPENDPATH += $$PWD/../../shared/symbianutils
 LIBS *= -l$$qtLibraryTarget(symbianutils)
