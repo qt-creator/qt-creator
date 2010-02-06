@@ -138,40 +138,60 @@ AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-QPropertyDeclarationAST *QPropertyDeclarationAST::clone(MemoryPool *pool) const
+QtPropertyDeclarationAST *QtPropertyDeclarationAST::clone(MemoryPool *pool) const
 {
-    QPropertyDeclarationAST *ast = new (pool) QPropertyDeclarationAST;
+    QtPropertyDeclarationAST *ast = new (pool) QtPropertyDeclarationAST;
     ast->property_specifier_token = property_specifier_token;
     ast->lparen_token = lparen_token;
-    ast->type_token = type_token;
-    ast->type_name_token = type_name_token;
+    if (type_id)
+        ast->type_id = type_id->clone(pool);
+    if (type_name)
+        ast->type_name = type_name->clone(pool);
     ast->read_token = read_token;
-    ast->read_function_token = read_function_token;
+    if (read_function)
+        ast->read_function = read_function->clone(pool);
     ast->write_token = write_token;
-    ast->write_function_token = write_function_token;
+    if (write_function)
+        ast->write_function = write_function->clone(pool);
     ast->reset_token = reset_token;
-    ast->reset_function_token = reset_function_token;
+    if (reset_function)
+        ast->reset_function = reset_function->clone(pool);
     ast->notify_token = notify_token;
-    ast->notify_function_token = notify_function_token;
+    if (notify_function)
+        ast->notify_function = notify_function->clone(pool);
+    ast->designable_token = designable_token;
+    if (designable_value)
+        ast->designable_value = designable_value->clone(pool);
+    ast->scriptable_token = scriptable_token;
+    if (scriptable_value)
+        ast->scriptable_value = scriptable_value->clone(pool);
+    ast->stored_token = stored_token;
+    if (stored_value)
+        ast->stored_value = stored_value->clone(pool);
+    ast->user_token = user_token;
+    if (user_value)
+        ast->user_value = user_value->clone(pool);
+    ast->constant_token = constant_token;
+    ast->final_token = final_token;
     ast->rparen_token = rparen_token;
     return ast;
 }
 
-QEnumDeclarationAST *QEnumDeclarationAST::clone(MemoryPool *pool) const
+QtEnumDeclarationAST *QtEnumDeclarationAST::clone(MemoryPool *pool) const
 {
-    QEnumDeclarationAST *ast = new (pool) QEnumDeclarationAST;
+    QtEnumDeclarationAST *ast = new (pool) QtEnumDeclarationAST;
     ast->enum_specifier_token = enum_specifier_token;
     ast->lparen_token = lparen_token;
-    ast->rparen_token = rparen_token;
-    for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
+    for (NameListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->rparen_token = rparen_token;
     return ast;
 }
 
-QFlagsDeclarationAST *QFlagsDeclarationAST::clone(MemoryPool *pool) const
+QtFlagsDeclarationAST *QtFlagsDeclarationAST::clone(MemoryPool *pool) const
 {
-    QFlagsDeclarationAST *ast = new (pool) QFlagsDeclarationAST;
+    QtFlagsDeclarationAST *ast = new (pool) QtFlagsDeclarationAST;
     ast->flags_specifier_token = flags_specifier_token;
     ast->lparen_token = lparen_token;
     ast->rparen_token = rparen_token;
@@ -181,9 +201,9 @@ QFlagsDeclarationAST *QFlagsDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-QDeclareFlagsDeclarationAST *QDeclareFlagsDeclarationAST::clone(MemoryPool *pool) const
+QtDeclareFlagsDeclarationAST *QtDeclareFlagsDeclarationAST::clone(MemoryPool *pool) const
 {
-    QDeclareFlagsDeclarationAST *ast = new (pool) QDeclareFlagsDeclarationAST;
+    QtDeclareFlagsDeclarationAST *ast = new (pool) QtDeclareFlagsDeclarationAST;
     ast->declareflags_specifier_token = declareflags_specifier_token;
     ast->lparen_token = lparen_token;
     ast->flag_token = flag_token;
@@ -1225,9 +1245,9 @@ ObjCClassForwardDeclarationAST *ObjCClassForwardDeclarationAST::clone(MemoryPool
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->class_token = class_token;
-    for (ObjCIdentifierListAST *iter = identifier_list, **ast_iter = &ast->identifier_list;
+    for (NameListAST *iter = identifier_list, **ast_iter = &ast->identifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ObjCIdentifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->semicolon_token = semicolon_token;
     return ast;
 }
@@ -1267,9 +1287,9 @@ ObjCProtocolForwardDeclarationAST *ObjCProtocolForwardDeclarationAST::clone(Memo
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->protocol_token = protocol_token;
-    for (ObjCIdentifierListAST *iter = identifier_list, **ast_iter = &ast->identifier_list;
+    for (NameListAST *iter = identifier_list, **ast_iter = &ast->identifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ObjCIdentifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->semicolon_token = semicolon_token;
     return ast;
 }
@@ -1296,9 +1316,9 @@ ObjCProtocolRefsAST *ObjCProtocolRefsAST::clone(MemoryPool *pool) const
 {
     ObjCProtocolRefsAST *ast = new (pool) ObjCProtocolRefsAST;
     ast->less_token = less_token;
-    for (ObjCIdentifierListAST *iter = identifier_list, **ast_iter = &ast->identifier_list;
+    for (NameListAST *iter = identifier_list, **ast_iter = &ast->identifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ObjCIdentifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->greater_token = greater_token;
     return ast;
 }
@@ -1501,9 +1521,9 @@ ObjCDynamicPropertiesDeclarationAST *ObjCDynamicPropertiesDeclarationAST::clone(
 {
     ObjCDynamicPropertiesDeclarationAST *ast = new (pool) ObjCDynamicPropertiesDeclarationAST;
     ast->dynamic_token = dynamic_token;
-    for (ObjCIdentifierListAST *iter = property_identifier_list, **ast_iter = &ast->property_identifier_list;
+    for (NameListAST *iter = property_identifier_list, **ast_iter = &ast->property_identifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ObjCIdentifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->semicolon_token = semicolon_token;
     return ast;
 }

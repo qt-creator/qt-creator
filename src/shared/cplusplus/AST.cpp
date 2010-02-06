@@ -144,42 +144,42 @@ unsigned AccessDeclarationAST::lastToken() const
     return access_specifier_token + 1;
 }
 
-unsigned QPropertyDeclarationAST::firstToken() const
+unsigned QtPropertyDeclarationAST::firstToken() const
 {
     return property_specifier_token;
 }
 
-unsigned QPropertyDeclarationAST::lastToken() const
+unsigned QtPropertyDeclarationAST::lastToken() const
 {
     return rparen_token;
 }
 
-unsigned QEnumDeclarationAST::firstToken() const
+unsigned QtEnumDeclarationAST::firstToken() const
 {
     return enum_specifier_token;
 }
 
-unsigned QEnumDeclarationAST::lastToken() const
+unsigned QtEnumDeclarationAST::lastToken() const
 {
     return rparen_token;
 }
 
-unsigned QFlagsDeclarationAST::firstToken() const
+unsigned QtFlagsDeclarationAST::firstToken() const
 {
     return this->flags_specifier_token;
 }
 
-unsigned QFlagsDeclarationAST::lastToken() const
+unsigned QtFlagsDeclarationAST::lastToken() const
 {
     return rparen_token;
 }
 
-unsigned QDeclareFlagsDeclarationAST::firstToken() const
+unsigned QtDeclareFlagsDeclarationAST::firstToken() const
 {
     return declareflags_specifier_token;
 }
 
-unsigned QDeclareFlagsDeclarationAST::lastToken() const
+unsigned QtDeclareFlagsDeclarationAST::lastToken() const
 {
     return rparen_token;
 }

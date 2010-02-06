@@ -105,33 +105,33 @@ bool AccessDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool QPropertyDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+bool QtPropertyDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (QPropertyDeclarationAST *_other = pattern->asQPropertyDeclaration())
+    if (QtPropertyDeclarationAST *_other = pattern->asQtPropertyDeclaration())
         return matcher->match(this, _other);
 
     return false;
 }
 
-bool QEnumDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+bool QtEnumDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (QEnumDeclarationAST *_other = pattern->asQEnumDeclaration())
+    if (QtEnumDeclarationAST *_other = pattern->asQtEnumDeclaration())
         return matcher->match(this, _other);
 
     return false;
 }
 
-bool QFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+bool QtFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (QFlagsDeclarationAST *_other = pattern->asQFlagsDeclaration())
+    if (QtFlagsDeclarationAST *_other = pattern->asQtFlagsDeclaration())
         return matcher->match(this, _other);
 
     return false;
 }
 
-bool QDeclareFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+bool QtDeclareFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (QDeclareFlagsDeclarationAST *_other = pattern->asQDeclareFlagsDeclaration())
+    if (QtDeclareFlagsDeclarationAST *_other = pattern->asQtDeclareFlagsDeclaration())
         return matcher->match(this, _other);
 
     return false;

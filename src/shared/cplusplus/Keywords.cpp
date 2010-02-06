@@ -718,7 +718,6 @@ static inline int classify7(const char *s, bool q) {
           }
         }
       }
-#ifdef ICHECK_BUILD
       else if (s[2] == 'E') {
         if (s[3] == 'N') {
           if (s[4] == 'U') {
@@ -741,7 +740,6 @@ static inline int classify7(const char *s, bool q) {
           }
         }
       }
-#endif
     }
   }
   return T_IDENTIFIER;
@@ -1103,7 +1101,6 @@ static inline int classify10(const char *s, bool) {
       }
     }
   }
-#ifdef ICHECK_BUILD
   else if (s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'P') {
@@ -1125,7 +1122,6 @@ static inline int classify10(const char *s, bool) {
       }
     }
   }
-#endif
   return T_IDENTIFIER;
 }
 
@@ -1176,7 +1172,6 @@ static inline int classify11(const char *s, bool) {
       }
     }
   }
-#ifdef ICHECK_BUILD
   else if (s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'I') {
@@ -1200,7 +1195,6 @@ static inline int classify11(const char *s, bool) {
       }
     }
   }
-#endif
   return T_IDENTIFIER;
 }
 
@@ -1289,7 +1283,6 @@ static inline int classify13(const char *s, bool) {
   return T_IDENTIFIER;
 }
 
-#ifdef ICHECK_BUILD
 static inline int classify15(const char *s, bool) {
   if (s[0] == 'Q') {
     if (s[1] == '_') {
@@ -1324,7 +1317,6 @@ static inline int classify15(const char *s, bool) {
   }
   return T_IDENTIFIER;
 }
-#endif
 
 static inline int classify16(const char *s, bool) {
   if (s[0] == 'r') {
@@ -1377,9 +1369,7 @@ int Lexer::classify(const char *s, int n, bool q) {
     case 11: return classify11(s, q);
     case 12: return classify12(s, q);
     case 13: return classify13(s, q);
-#ifdef ICHECK_BUILD
     case 15: return classify15(s, q);
-#endif
     case 16: return classify16(s, q);
     default: return T_IDENTIFIER;
   } // switch

@@ -108,14 +108,24 @@ void AccessDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void QPropertyDeclarationAST::accept0(ASTVisitor *visitor)
+void QtPropertyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(type_id, visitor);
+        accept(type_name, visitor);
+        accept(read_function, visitor);
+        accept(write_function, visitor);
+        accept(reset_function, visitor);
+        accept(notify_function, visitor);
+        accept(designable_value, visitor);
+        accept(scriptable_value, visitor);
+        accept(stored_value, visitor);
+        accept(user_value, visitor);
     }
     visitor->endVisit(this);
 }
 
-void QEnumDeclarationAST::accept0(ASTVisitor *visitor)
+void QtEnumDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(enumerator_list, visitor);
@@ -123,7 +133,7 @@ void QEnumDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void QFlagsDeclarationAST::accept0(ASTVisitor *visitor)
+void QtFlagsDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(enumerator_list, visitor);
@@ -131,7 +141,7 @@ void QFlagsDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void QDeclareFlagsDeclarationAST::accept0(ASTVisitor *visitor)
+void QtDeclareFlagsDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
     }

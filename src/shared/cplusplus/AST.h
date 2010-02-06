@@ -256,12 +256,12 @@ public:
     virtual PostfixDeclaratorAST *asPostfixDeclarator() { return 0; }
     virtual PostfixExpressionAST *asPostfixExpression() { return 0; }
     virtual PtrOperatorAST *asPtrOperator() { return 0; }
-    virtual QDeclareFlagsDeclarationAST *asQDeclareFlagsDeclaration() { return 0; }
-    virtual QEnumDeclarationAST *asQEnumDeclaration() { return 0; }
-    virtual QFlagsDeclarationAST *asQFlagsDeclaration() { return 0; }
-    virtual QPropertyDeclarationAST *asQPropertyDeclaration() { return 0; }
+    virtual QtDeclareFlagsDeclarationAST *asQtDeclareFlagsDeclaration() { return 0; }
+    virtual QtEnumDeclarationAST *asQtEnumDeclaration() { return 0; }
+    virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return 0; }
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return 0; }
     virtual QtMethodAST *asQtMethod() { return 0; }
+    virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return 0; }
     virtual QualifiedNameAST *asQualifiedName() { return 0; }
     virtual ReferenceAST *asReference() { return 0; }
     virtual ReturnStatementAST *asReturnStatement() { return 0; }
@@ -552,7 +552,7 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT QPropertyDeclarationAST: public DeclarationAST
+class CPLUSPLUS_EXPORT QtPropertyDeclarationAST: public DeclarationAST
 {
     /*
     Q_PROPERTY(type name
@@ -569,54 +569,63 @@ class CPLUSPLUS_EXPORT QPropertyDeclarationAST: public DeclarationAST
 public:
     unsigned property_specifier_token;
     unsigned lparen_token;
-    unsigned type_token;
-    unsigned type_name_token;
+    ExpressionAST *type_id;
+    SimpleNameAST *type_name;
     unsigned read_token;
-    unsigned read_function_token;
+    SimpleNameAST *read_function;
     unsigned write_token;
-    unsigned write_function_token;
+    SimpleNameAST *write_function;
     unsigned reset_token;
-    unsigned reset_function_token;
+    SimpleNameAST *reset_function;
     unsigned notify_token;
-    unsigned notify_function_token;
+    SimpleNameAST *notify_function;
+    unsigned designable_token;
+    BoolLiteralAST *designable_value;
+    unsigned scriptable_token;
+    BoolLiteralAST *scriptable_value;
+    unsigned stored_token;
+    BoolLiteralAST *stored_value;
+    unsigned user_token;
+    BoolLiteralAST *user_value;
+    unsigned constant_token;
+    unsigned final_token;
     unsigned rparen_token;
 
 public:
-    virtual QPropertyDeclarationAST *asQPropertyDeclaration() { return this; }
+    virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual QPropertyDeclarationAST *clone(MemoryPool *pool) const;
+    virtual QtPropertyDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT QEnumDeclarationAST: public DeclarationAST
+class CPLUSPLUS_EXPORT QtEnumDeclarationAST: public DeclarationAST
 {
-    /*Q_ENUMS(enum1, enum2)*/
 public:
     unsigned enum_specifier_token;
     unsigned lparen_token;
+    NameListAST *enumerator_list;
     unsigned rparen_token;
-    EnumeratorListAST *enumerator_list;
 
 public:
-    virtual QEnumDeclarationAST *asQEnumDeclaration() { return this; }
+    virtual QtEnumDeclarationAST *asQtEnumDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual QEnumDeclarationAST *clone(MemoryPool *pool) const;
+    virtual QtEnumDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT QFlagsDeclarationAST: public DeclarationAST
+class CPLUSPLUS_EXPORT QtFlagsDeclarationAST: public DeclarationAST
 {
     /*Q_FLAGS(enum1 enum2 flags1 ...)*/
 public:
@@ -626,19 +635,19 @@ public:
     EnumeratorListAST *enumerator_list;
 
 public:
-    virtual QFlagsDeclarationAST *asQFlagsDeclaration() { return this; }
+    virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual QFlagsDeclarationAST *clone(MemoryPool *pool) const;
+    virtual QtFlagsDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT QDeclareFlagsDeclarationAST: public DeclarationAST
+class CPLUSPLUS_EXPORT QtDeclareFlagsDeclarationAST: public DeclarationAST
 {
     /*Q_DECLARE_FLAGS(flag enum)*/
 public:
@@ -649,12 +658,12 @@ public:
     unsigned rparen_token;
 
 public:
-    virtual QDeclareFlagsDeclarationAST *asQDeclareFlagsDeclaration() { return this; }
+    virtual QtDeclareFlagsDeclarationAST *asQtDeclareFlagsDeclaration() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual QDeclareFlagsDeclarationAST *clone(MemoryPool *pool) const;
+    virtual QtDeclareFlagsDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
@@ -2568,7 +2577,7 @@ class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
 public:
     SpecifierListAST *attribute_list;
     unsigned class_token;
-    ObjCIdentifierListAST *identifier_list;
+    NameListAST *identifier_list;
     unsigned semicolon_token;
 
 public: // annotations
@@ -2625,7 +2634,7 @@ class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
 public:
     SpecifierListAST *attribute_list;
     unsigned protocol_token;
-    ObjCIdentifierListAST *identifier_list;
+    NameListAST *identifier_list;
     unsigned semicolon_token;
 
 public: // annotations
@@ -2674,7 +2683,7 @@ class CPLUSPLUS_EXPORT ObjCProtocolRefsAST: public AST
 {
 public:
     unsigned less_token;
-    ObjCIdentifierListAST *identifier_list;
+    NameListAST *identifier_list;
     unsigned greater_token;
 
 public:
@@ -3064,7 +3073,7 @@ class CPLUSPLUS_EXPORT ObjCDynamicPropertiesDeclarationAST: public DeclarationAS
 {
 public:
     unsigned dynamic_token;
-    ObjCIdentifierListAST *property_identifier_list;
+    NameListAST *property_identifier_list;
     unsigned semicolon_token;
 
 public:

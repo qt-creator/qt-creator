@@ -53,10 +53,8 @@
 #include "AST.h"
 #include "Literals.h"
 #include "ObjectiveCTypeQualifiers.h"
+#include "QtContextKeywords.h"
 #include <cstdio> // for putchar
-#ifdef ICHECK_BUILD
-#  include <QString>
-#endif
 
 #define CPLUSPLUS_NO_DEBUG_RULE
 #define MAX_EXPRESSION_DEPTH 100
@@ -1762,107 +1760,165 @@ bool Parser::parseAccessDeclaration(DeclarationAST *&node)
     return false;
 }
 
-#ifdef ICHECK_BUILD
+/*
+ Q_PROPERTY(type name
+        READ getFunction
+        [WRITE setFunction]
+        [RESET resetFunction]
+        [NOTIFY notifySignal]
+        [DESIGNABLE bool]
+        [SCRIPTABLE bool]
+        [STORED bool]
+        [USER bool]
+        [CONSTANT]
+        [FINAL])
+
+    Note that "type" appears to be any valid type. So these are valid:
+      Q_PROPERTY(const char *zoo READ zoo)
+      Q_PROPERTY(const class Blah *blah READ blah)
+
+    Furthermore, the only restriction on the order of the items in between the
+    parenthesis is that the type is the first parameter and the name comes after
+    the type.
+*/
 bool Parser::parseQPropertyDeclaration(DeclarationAST *&node)
 {
-    /*
-     Q_PROPERTY(type name
-            READ getFunction
-            [WRITE setFunction]
-            [RESET resetFunction]
-            [NOTIFY notifySignal]
-            [DESIGNABLE bool]
-            [SCRIPTABLE bool]
-            [STORED bool]
-            [USER bool]
-            [CONSTANT]
-            [FINAL])*/
     DEBUG_THIS_RULE();
-    if (LA() == T_Q_PROPERTY) {
-        QPropertyDeclarationAST *ast = new (_pool)QPropertyDeclarationAST;
-        ast->property_specifier_token = consumeToken();
-        if(LA() == T_LPAREN){
-            ast->lparen_token = consumeToken();
-            QString tokenstr;
-            tokenstr = tok().spell();
-            //read the type and the name of the type
-            if(tokenstr !=  "READ" ){
-                ast->type_token = consumeToken();
-                tokenstr = tok().spell();
-            }
-            if(tokenstr !=  "READ" ){
-                ast->type_name_token = consumeToken();
-                tokenstr = tok().spell();
-            }
-            unsigned fctdefinition = 0;
-            unsigned fctname = 0;
-            for(int i = 0; i < 18; i++){
-                if(cursor() < _translationUnit->tokenCount() - 1){
-                    if(LA() == T_RPAREN){
-                        ast->rparen_token = consumeToken();
+    if (LA() != T_Q_PROPERTY)
+        return false;
+
+    QtPropertyDeclarationAST *ast = new (_pool)QtPropertyDeclarationAST;
+    ast->property_specifier_token = consumeToken();
+    if (LA() == T_LPAREN) {
+        ast->lparen_token = consumeToken();
+        parseTypeId(ast->type_id);
+        ast->type_name = new (_pool) SimpleNameAST;
+        match(T_IDENTIFIER, &ast->type_name->identifier_token);
+
+        while (true) {
+            if (LA() == T_RPAREN) {
+                ast->rparen_token = consumeToken();
+                node = ast;
+                break;
+            } else if (LA() == T_IDENTIFIER) {
+                switch (peekAtQtContextKeyword()) {
+                case Token_READ:
+                    ast->read_token = consumeToken();
+                    ast->read_function = new (_pool) SimpleNameAST;
+                    match(T_IDENTIFIER, &ast->read_function->identifier_token);
+                    break;
+
+                case Token_WRITE:
+                    ast->write_token = consumeToken();
+                    ast->write_function = new (_pool) SimpleNameAST;
+                    match(T_IDENTIFIER, &ast->write_function->identifier_token);
+                    break;
+
+                case Token_RESET:
+                    ast->reset_token = consumeToken();
+                    ast->reset_function = new (_pool) SimpleNameAST;
+                    match(T_IDENTIFIER, &ast->reset_function->identifier_token);
+                    break;
+
+                case Token_NOTIFY:
+                    ast->notify_token = consumeToken();
+                    ast->notify_function = new (_pool) SimpleNameAST;
+                    match(T_IDENTIFIER, &ast->notify_function->identifier_token);
+                    break;
+
+                case Token_DESIGNABLE:
+                    ast->designable_token = consumeToken();
+                    if (!matchBoolean(ast->designable_value))
                         break;
-                    }
-                    tokenstr = tok().spell();
-                    fctdefinition = consumeToken();
-                    fctname = consumeToken();
-                    if(tokenstr == "READ"){
-                        ast->read_token = fctdefinition;
-                        ast->read_function_token = fctname;
-                    }
-                    else if(tokenstr == "WRITE"){
-                        ast->write_token = fctdefinition;
-                        ast->write_function_token = fctname;
-                    }
-                    else if(tokenstr == "RESET"){
-                        ast->reset_token = fctdefinition;
-                        ast->reset_function_token = fctname;
-                    }
-                    else if(tokenstr == "NOTIFY"){
-                        ast->notify_token = fctdefinition;
-                        ast->notify_function_token = fctname;
-                    }
+                    break;
+
+                case Token_SCRIPTABLE:
+                    ast->scriptable_token = consumeToken();
+                    if (!matchBoolean(ast->scriptable_value))
+                        break;
+                    break;
+
+                case Token_STORED:
+                    ast->stored_token = consumeToken();
+                    if (!matchBoolean(ast->stored_value))
+                        break;
+                    break;
+
+                case Token_USER:
+                    ast->user_token = consumeToken();
+                    if (!matchBoolean(ast->user_value))
+                        break;
+                    break;
+
+                case Token_CONSTANT:
+                    ast->constant_token = consumeToken();
+                    break;
+
+                case Token_FINAL:
+                    ast->final_token = consumeToken();
+                    break;
+
+                default:
+                    _translationUnit->error(cursor(), "expected `)' before `%s'", tok().spell());
+                    return true;
                 }
+            } else {
+                _translationUnit->error(cursor(), "expected `)' before `%s'", tok().spell());
+                break;
             }
         }
-        node = ast;
-        return true;
     }
-    return false;
+    return true;
 }
 
+bool Parser::matchBoolean(BoolLiteralAST *&node)
+{
+    ExpressionAST *expr = 0;
+    if (parseBoolLiteral(expr)) {
+        node = expr->asBoolLiteral();
+        return true;
+    } else {
+        _translationUnit->error(cursor(), "expected `true' or `false' before `%s'", tok().spell());
+        return false;
+    }
+}
+
+// q-enums-decl ::= 'Q_ENUMS' '(' q-enums-list? ')'
+// q-enums-list ::= identifier
+// q-enums-list ::= q-enums-list identifier
+//
+// Note: Q_ENUMS is a CPP macro with exactly 1 parameter.
+// Examples of valid uses:
+//   Q_ENUMS()
+//   Q_ENUMS(Priority)
+//   Q_ENUMS(Priority Severity)
+// so, these are not allowed:
+//   Q_ENUMS
+//   Q_ENUMS(Priority, Severity)
 bool Parser::parseQEnumDeclaration(DeclarationAST *&node)
 {
-     /*Q_ENUMS(ConnectionState)*/
     DEBUG_THIS_RULE();
-    if (LA() == T_Q_ENUMS) {
-        QEnumDeclarationAST *ast = new (_pool)QEnumDeclarationAST;
-        ast->enum_specifier_token = consumeToken();
-        EnumeratorListAST** enumerator_list_ptr;
-        enumerator_list_ptr = &ast->enumerator_list;
+    if (LA() != T_Q_ENUMS)
+        return false;
 
-        if(LA() == T_LPAREN){
-            ast->lparen_token = consumeToken();
-            while(LA() != T_EOF_SYMBOL && LA() != T_RPAREN){
-                *enumerator_list_ptr = new (_pool) EnumeratorListAST;
-                EnumeratorAST *pdecl = new (_pool) EnumeratorAST;
-                pdecl->identifier_token = consumeToken();
-                (*enumerator_list_ptr)->value = pdecl;
-                enumerator_list_ptr = &(*enumerator_list_ptr)->next;
-                if (LA() == T_COMMA)
-                    consumeToken();
-            }
-            if(LA() == T_RPAREN)
-                ast->rparen_token = consumeToken();
-        }
-        node = ast;
-        return true;
+    QtEnumDeclarationAST *ast = new (_pool) QtEnumDeclarationAST;
+    ast->enum_specifier_token = consumeToken();
+    match(T_LPAREN, &ast->lparen_token);
+    for (NameListAST **iter = &ast->enumerator_list; LA() == T_IDENTIFIER; iter = &(*iter)->next) {
+        *iter = new (_pool) NameListAST;
+        SimpleNameAST *name = new (_pool) SimpleNameAST;
+        name->identifier_token = consumeToken();
+        (*iter)->value = name;
     }
-    return false;
+    match(T_RPAREN, &ast->rparen_token);
+    node = ast;
+    return true;
 }
 
+#ifdef ICHECK_BUILD
 bool Parser::parseQFlags(DeclarationAST *&node)
 {
-     /*Q_FLAGS(enum1 enum2 flags1)*/
+    /*Q_FLAGS(enum1 enum2 flags1)*/
     DEBUG_THIS_RULE();
     if (LA() == T_Q_FLAGS) {
         QFlagsDeclarationAST *ast = new (_pool)QFlagsDeclarationAST;
@@ -1934,13 +1990,13 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
     case T_Q_SLOTS:
         return parseAccessDeclaration(node);
 
-#ifdef ICHECK_BUILD
     case T_Q_PROPERTY:
         return parseQPropertyDeclaration(node);
 
     case T_Q_ENUMS:
         return parseQEnumDeclaration(node);
 
+#ifdef ICHECK_BUILD
     case T_Q_FLAGS:
         return parseQFlags(node);
 
@@ -4496,17 +4552,17 @@ bool Parser::parseObjCClassForwardDeclaration(DeclarationAST *&node)
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
 
-    ast->identifier_list = new (_pool) ObjCIdentifierListAST;
+    ast->identifier_list = new (_pool) NameListAST;
     SimpleNameAST *name = new (_pool) SimpleNameAST;
     name->identifier_token = identifier_token;
     ast->identifier_list->value = name;
-    ObjCIdentifierListAST **nextId = &ast->identifier_list->next;
+    NameListAST **nextId = &ast->identifier_list->next;
 
     while (LA() == T_COMMA) {
         consumeToken(); // consume T_COMMA
         match(T_IDENTIFIER, &identifier_token);
 
-        *nextId = new (_pool) ObjCIdentifierListAST;
+        *nextId = new (_pool) NameListAST;
         name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
         (*nextId)->value = name;
@@ -4646,17 +4702,17 @@ bool Parser::parseObjCProtocol(DeclarationAST *&node,
         ObjCProtocolForwardDeclarationAST *ast = new (_pool) ObjCProtocolForwardDeclarationAST;
         ast->attribute_list = attributes;
         ast->protocol_token = protocol_token;
-        ast->identifier_list = new (_pool) ObjCIdentifierListAST;
+        ast->identifier_list = new (_pool) NameListAST;
         SimpleNameAST *name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
         ast->identifier_list->value = name;
-        ObjCIdentifierListAST **nextId = &ast->identifier_list->next;
+        NameListAST **nextId = &ast->identifier_list->next;
 
         while (LA() == T_COMMA) {
             consumeToken(); // consume T_COMMA
             match(T_IDENTIFIER, &identifier_token);
 
-            *nextId = new (_pool) ObjCIdentifierListAST;
+            *nextId = new (_pool) NameListAST;
             name = new (_pool) SimpleNameAST;
             name->identifier_token = identifier_token;
             (*nextId)->value = name;
@@ -4810,16 +4866,16 @@ bool Parser::parseObjCMethodDefinitionList(DeclarationListAST *&node)
         case T_AT_DYNAMIC: {
             ObjCDynamicPropertiesDeclarationAST *ast = new (_pool) ObjCDynamicPropertiesDeclarationAST;
             ast->dynamic_token = consumeToken();
-            ast->property_identifier_list = new (_pool) ObjCIdentifierListAST;
+            ast->property_identifier_list = new (_pool) NameListAST;
             SimpleNameAST *name = new (_pool) SimpleNameAST;
             match(T_IDENTIFIER, &name->identifier_token);
             ast->property_identifier_list->value = name;
 
-            ObjCIdentifierListAST *last = ast->property_identifier_list;
+            NameListAST *last = ast->property_identifier_list;
             while (LA() == T_COMMA) {
                 consumeToken(); // consume T_COMMA
 
-                last->next = new (_pool) ObjCIdentifierListAST;
+                last->next = new (_pool) NameListAST;
                 last = last->next;
                 name = new (_pool) SimpleNameAST;
                 match(T_IDENTIFIER, &name->identifier_token);
@@ -4895,17 +4951,17 @@ bool Parser::parseObjCProtocolRefs(ObjCProtocolRefsAST *&node)
 
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
-    ast->identifier_list = new (_pool) ObjCIdentifierListAST;
+    ast->identifier_list = new (_pool) NameListAST;
     SimpleNameAST *name = new (_pool) SimpleNameAST;
     name->identifier_token = identifier_token;
     ast->identifier_list->value = name;
-    ObjCIdentifierListAST **nextId = &ast->identifier_list->next;
+    NameListAST **nextId = &ast->identifier_list->next;
 
     while (LA() == T_COMMA) {
         consumeToken(); // consume T_COMMA
         match(T_IDENTIFIER, &identifier_token);
 
-        *nextId = new (_pool) ObjCIdentifierListAST;
+        *nextId = new (_pool) NameListAST;
         name = new (_pool) SimpleNameAST;
         name->identifier_token = identifier_token;
         (*nextId)->value = name;
@@ -5289,4 +5345,12 @@ bool Parser::parseObjCContextKeyword(int kind, unsigned &in_token)
     return true;
 }
 
+int Parser::peekAtQtContextKeyword() const
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_IDENTIFIER)
+        return false;
 
+    const Identifier *id = tok().identifier;
+    return classifyQtContextKeyword(id->chars(), id->size());
+}

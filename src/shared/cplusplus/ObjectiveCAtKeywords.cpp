@@ -489,5 +489,3 @@ int Lexer::classifyObjCAtKeyword(const char *s, int n) {
     default: return T_ERROR;
   } // switch
 }
-
-

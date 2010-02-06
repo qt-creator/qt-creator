@@ -206,7 +206,7 @@ bool ASTMatcher::match(AccessDeclarationAST *node, AccessDeclarationAST *pattern
     return true;
 }
 
-bool ASTMatcher::match(QPropertyDeclarationAST *node, QPropertyDeclarationAST *pattern)
+bool ASTMatcher::match(QtPropertyDeclarationAST *node, QtPropertyDeclarationAST *pattern)
 {
     (void) node;
     (void) pattern;
@@ -215,32 +215,82 @@ bool ASTMatcher::match(QPropertyDeclarationAST *node, QPropertyDeclarationAST *p
 
     pattern->lparen_token = node->lparen_token;
 
-    pattern->type_token = node->type_token;
+    if (! pattern->type_id)
+        pattern->type_id = node->type_id;
+    else if (! AST::match(node->type_id, pattern->type_id, this))
+        return false;
 
-    pattern->type_name_token = node->type_name_token;
+    if (! pattern->type_name)
+        pattern->type_name = node->type_name;
+    else if (! AST::match(node->type_name, pattern->type_name, this))
+        return false;
 
     pattern->read_token = node->read_token;
 
-    pattern->read_function_token = node->read_function_token;
+    if (! pattern->read_function)
+        pattern->read_function = node->read_function;
+    else if (! AST::match(node->read_function, pattern->read_function, this))
+        return false;
 
     pattern->write_token = node->write_token;
 
-    pattern->write_function_token = node->write_function_token;
+    if (! pattern->write_function)
+        pattern->write_function = node->write_function;
+    else if (! AST::match(node->write_function, pattern->write_function, this))
+        return false;
 
     pattern->reset_token = node->reset_token;
 
-    pattern->reset_function_token = node->reset_function_token;
+    if (! pattern->reset_function)
+        pattern->reset_function = node->reset_function;
+    else if (! AST::match(node->reset_function, pattern->reset_function, this))
+        return false;
 
     pattern->notify_token = node->notify_token;
 
-    pattern->notify_function_token = node->notify_function_token;
+    if (! pattern->notify_function)
+        pattern->notify_function = node->notify_function;
+    else if (! AST::match(node->notify_function, pattern->notify_function, this))
+        return false;
+
+    pattern->designable_token = node->designable_token;
+
+    if (! pattern->designable_value)
+        pattern->designable_value = node->designable_value;
+    else if (! AST::match(node->designable_value, pattern->designable_value, this))
+        return false;
+
+    pattern->scriptable_token = node->scriptable_token;
+
+    if (! pattern->scriptable_value)
+        pattern->scriptable_value = node->scriptable_value;
+    else if (! AST::match(node->scriptable_value, pattern->scriptable_value, this))
+        return false;
+
+    pattern->stored_token = node->stored_token;
+
+    if (! pattern->stored_value)
+        pattern->stored_value = node->stored_value;
+    else if (! AST::match(node->stored_value, pattern->stored_value, this))
+        return false;
+
+    pattern->user_token = node->user_token;
+
+    if (! pattern->user_value)
+        pattern->user_value = node->user_value;
+    else if (! AST::match(node->user_value, pattern->user_value, this))
+        return false;
+
+    pattern->constant_token = node->constant_token;
+
+    pattern->final_token = node->final_token;
 
     pattern->rparen_token = node->rparen_token;
 
     return true;
 }
 
-bool ASTMatcher::match(QEnumDeclarationAST *node, QEnumDeclarationAST *pattern)
+bool ASTMatcher::match(QtEnumDeclarationAST *node, QtEnumDeclarationAST *pattern)
 {
     (void) node;
     (void) pattern;
@@ -249,17 +299,17 @@ bool ASTMatcher::match(QEnumDeclarationAST *node, QEnumDeclarationAST *pattern)
 
     pattern->lparen_token = node->lparen_token;
 
-    pattern->rparen_token = node->rparen_token;
-
     if (! pattern->enumerator_list)
         pattern->enumerator_list = node->enumerator_list;
     else if (! AST::match(node->enumerator_list, pattern->enumerator_list, this))
         return false;
 
+    pattern->rparen_token = node->rparen_token;
+
     return true;
 }
 
-bool ASTMatcher::match(QFlagsDeclarationAST *node, QFlagsDeclarationAST *pattern)
+bool ASTMatcher::match(QtFlagsDeclarationAST *node, QtFlagsDeclarationAST *pattern)
 {
     (void) node;
     (void) pattern;
@@ -278,7 +328,7 @@ bool ASTMatcher::match(QFlagsDeclarationAST *node, QFlagsDeclarationAST *pattern
     return true;
 }
 
-bool ASTMatcher::match(QDeclareFlagsDeclarationAST *node, QDeclareFlagsDeclarationAST *pattern)
+bool ASTMatcher::match(QtDeclareFlagsDeclarationAST *node, QtDeclareFlagsDeclarationAST *pattern)
 {
     (void) node;
     (void) pattern;

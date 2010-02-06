@@ -556,7 +556,7 @@ bool CheckDeclaration::visit(ObjCProtocolForwardDeclarationAST *ast)
     const unsigned sourceLocation = ast->firstToken();
 
     List<ObjCForwardProtocolDeclaration *> **symbolIter = &ast->symbols;
-    for (ObjCIdentifierListAST *it = ast->identifier_list; it; it = it->next) {
+    for (NameListAST *it = ast->identifier_list; it; it = it->next) {
         unsigned declarationLocation;
         if (it->value)
             declarationLocation = it->value->firstToken();
@@ -592,7 +592,7 @@ bool CheckDeclaration::visit(ObjCProtocolDeclarationAST *ast)
     protocol->setEndOffset(tokenAt(ast->lastToken()).offset);
 
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
-        for (ObjCIdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
+        for (NameListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
             NameAST* name = iter->value;
             const Name *protocolName = semantic()->check(name, _scope);
             ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(name->firstToken(), protocolName);
@@ -617,7 +617,7 @@ bool CheckDeclaration::visit(ObjCClassForwardDeclarationAST *ast)
     const unsigned sourceLocation = ast->firstToken();
 
     List<ObjCForwardClassDeclaration *> **symbolIter = &ast->symbols;
-    for (ObjCIdentifierListAST *it = ast->identifier_list; it; it = it->next) {
+    for (NameListAST *it = ast->identifier_list; it; it = it->next) {
         unsigned declarationLocation;
         if (it->value)
             declarationLocation = it->value->firstToken();
@@ -667,7 +667,7 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
     }
 
     if (ast->protocol_refs && ast->protocol_refs->identifier_list) {
-        for (ObjCIdentifierListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
+        for (NameListAST *iter = ast->protocol_refs->identifier_list; iter; iter = iter->next) {
             NameAST* name = iter->value;
             const Name *protocolName = semantic()->check(name, _scope);
             ObjCBaseProtocol *baseProtocol = control()->newObjCBaseProtocol(name->firstToken(), protocolName);

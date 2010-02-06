@@ -498,7 +498,7 @@ bool CheckUndefinedSymbols::visit(ObjCClassDeclarationAST *ast)
 
 bool CheckUndefinedSymbols::visit(ObjCProtocolRefsAST *ast)
 {
-    for (ObjCIdentifierListAST *iter = ast->identifier_list; iter; iter = iter->next) {
+    for (NameListAST *iter = ast->identifier_list; iter; iter = iter->next) {
         if (NameAST *nameAST = iter->value) {
             bool resolvedProtocolName = false;
 

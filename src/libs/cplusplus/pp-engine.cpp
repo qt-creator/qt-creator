@@ -766,10 +766,11 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                     expandBuiltinMacro(identifierToken, spell);
 
                 else {
-#ifdef ICHECK_BUILD
-                    if(spell != "Q_PROPERTY" && spell != "Q_INVOKABLE" && spell != "Q_ENUMS"
-                        && spell != "Q_FLAGS" && spell != "Q_DECLARE_FLAGS"){
-#endif
+                    if (spell != "Q_PROPERTY" && spell != "Q_INVOKABLE" && spell != "Q_ENUMS"
+                        && spell != "Q_FLAGS" && spell != "Q_DECLARE_FLAGS") {
+
+                        // ### FIXME: shouldn't this be T_Q_PROPERTY & friends?
+
                         if (Macro *m = env->resolve(spell)) {
                             if (! m->isFunctionLike()) {
                                 if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
@@ -790,9 +791,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                                 }
                             }
                         }
-#ifdef ICHECK_BUILD
                     }
-#endif
                     // it's not a function or object-like macro.
                     out(spell);
                 }

@@ -103,10 +103,10 @@ public:
     virtual void postVisit(AST *) {}
 
     virtual bool visit(AccessDeclarationAST *) { return true; }
-    virtual bool visit(QPropertyDeclarationAST *) { return true; }
-    virtual bool visit(QEnumDeclarationAST *) { return true; }
-    virtual bool visit(QFlagsDeclarationAST *) { return true; }
-    virtual bool visit(QDeclareFlagsDeclarationAST *) { return true; }
+    virtual bool visit(QtPropertyDeclarationAST *) { return true; }
+    virtual bool visit(QtEnumDeclarationAST *) { return true; }
+    virtual bool visit(QtFlagsDeclarationAST *) { return true; }
+    virtual bool visit(QtDeclareFlagsDeclarationAST *) { return true; }
     virtual bool visit(ArrayAccessAST *) { return true; }
     virtual bool visit(ArrayDeclaratorAST *) { return true; }
     virtual bool visit(ArrayInitializerAST *) { return true; }
@@ -234,10 +234,10 @@ public:
     virtual bool visit(ObjCSynchronizedStatementAST *) { return true; }
 
     virtual void endVisit(AccessDeclarationAST *) { }
-    virtual void endVisit(QPropertyDeclarationAST *) { }
-    virtual void endVisit(QEnumDeclarationAST *) { }
-    virtual void endVisit(QFlagsDeclarationAST *) { }
-    virtual void endVisit(QDeclareFlagsDeclarationAST *) { }
+    virtual void endVisit(QtPropertyDeclarationAST *) { }
+    virtual void endVisit(QtEnumDeclarationAST *) { }
+    virtual void endVisit(QtFlagsDeclarationAST *) { }
+    virtual void endVisit(QtDeclareFlagsDeclarationAST *) { }
     virtual void endVisit(ArrayAccessAST *) { }
     virtual void endVisit(ArrayDeclaratorAST *) { }
     virtual void endVisit(ArrayInitializerAST *) { }

@@ -78,9 +78,10 @@ public:
     bool parseAbstractDeclarator(DeclaratorAST *&node);
     bool parseEmptyDeclaration(DeclarationAST *&node);
     bool parseAccessDeclaration(DeclarationAST *&node);
-#ifdef ICHECK_BUILD
     bool parseQPropertyDeclaration(DeclarationAST *&node);
+    bool matchBoolean(BoolLiteralAST *&node);
     bool parseQEnumDeclaration(DeclarationAST *&node);
+#ifdef ICHECK_BUILD
     bool parseQFlags(DeclarationAST *&node);
     bool parseQDeclareFlags(DeclarationAST *&node);
 #endif
@@ -273,6 +274,8 @@ public:
     bool maybeAmbiguousStatement(DeclarationStatementAST *ast) const;
     bool maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const;
     bool isPointerDeclaration(DeclarationStatementAST *ast) const;
+
+    int peekAtQtContextKeyword() const;
 
 private:
     bool switchTemplateArguments(bool templateArguments);
