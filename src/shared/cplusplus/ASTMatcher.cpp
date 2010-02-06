@@ -220,9 +220,9 @@ bool ASTMatcher::match(QtPropertyDeclarationAST *node, QtPropertyDeclarationAST 
     else if (! AST::match(node->type_id, pattern->type_id, this))
         return false;
 
-    if (! pattern->type_name)
-        pattern->type_name = node->type_name;
-    else if (! AST::match(node->type_name, pattern->type_name, this))
+    if (! pattern->property_name)
+        pattern->property_name = node->property_name;
+    else if (! AST::match(node->property_name, pattern->property_name, this))
         return false;
 
     pattern->read_token = node->read_token;

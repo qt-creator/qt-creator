@@ -353,16 +353,6 @@ bool Function::isPureVirtual() const
 void Function::setPureVirtual(bool isPureVirtual)
 { f._isPureVirtual = isPureVirtual; }
 
-#ifdef ICHECK_BUILD
-
-bool Function::isInvokable() const
-{ return f._isInvokable == 1; }
-
-void Function::setInvokable(bool isInvokable)
-{ f._isInvokable = isInvokable; }
-
-#endif
-
 bool Function::isAmbiguous() const
 { return f._isAmbiguous; }
 

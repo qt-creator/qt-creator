@@ -570,7 +570,7 @@ public:
     unsigned property_specifier_token;
     unsigned lparen_token;
     ExpressionAST *type_id;
-    SimpleNameAST *type_name;
+    SimpleNameAST *property_name;
     unsigned read_token;
     SimpleNameAST *read_function;
     unsigned write_token;

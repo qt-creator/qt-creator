@@ -1792,8 +1792,8 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
     if (LA() == T_LPAREN) {
         ast->lparen_token = consumeToken();
         parseTypeId(ast->type_id);
-        ast->type_name = new (_pool) SimpleNameAST;
-        match(T_IDENTIFIER, &ast->type_name->identifier_token);
+        ast->property_name = new (_pool) SimpleNameAST;
+        match(T_IDENTIFIER, &ast->property_name->identifier_token);
 
         while (true) {
             if (LA() == T_RPAREN) {
@@ -1963,6 +1963,7 @@ bool Parser::parseQtDeclareFlags(DeclarationAST *&node)
     ast->flags_name = new (_pool) SimpleNameAST;
     match(T_IDENTIFIER, &ast->flags_name->identifier_token);
     match(T_COMMA, &ast->comma_token);
+    ast->enum_name = new (_pool) SimpleNameAST;
     match(T_IDENTIFIER, &ast->enum_name->identifier_token);
     match(T_RPAREN, &ast->rparen_token);
     node = ast;
@@ -1995,13 +1996,11 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
     case T_Q_ENUMS:
         return parseQtEnumDeclaration(node);
 
-#ifdef ICHECK_BUILD
     case T_Q_FLAGS:
-        return parseQFlags(node);
+        return parseQtFlags(node);
 
     case T_Q_DECLARE_FLAGS:
-        return parseQDeclareFlags(node);
-#endif
+        return parseQtDeclareFlags(node);
 
     default:
         return parseSimpleDeclaration(node, /*acceptStructDeclarator=*/true);

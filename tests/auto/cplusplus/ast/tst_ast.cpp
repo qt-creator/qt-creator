@@ -19,19 +19,21 @@ public:
 
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,
-                           bool blockErrors = false)
+                           bool blockErrors = false,
+                           bool qtMocRun = false)
     {
         const StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setObjCEnabled(true);
+        unit->setQtMocRunEnabled(qtMocRun);
         unit->setSource(source.constData(), source.length());
         unit->blockErrors(blockErrors);
         unit->parse(mode);
         return unit;
     }
 
-    TranslationUnit *parseDeclaration(const QByteArray &source, bool blockErrors = false)
-    { return parse(source, TranslationUnit::ParseDeclaration, blockErrors); }
+    TranslationUnit *parseDeclaration(const QByteArray &source, bool blockErrors = false, bool qtMocRun = false)
+    { return parse(source, TranslationUnit::ParseDeclaration, blockErrors, qtMocRun); }
 
     TranslationUnit *parseExpression(const QByteArray &source)
     { return parse(source, TranslationUnit::ParseExpression); }
@@ -83,6 +85,9 @@ private slots:
     void array_access_with_nested_expression();
     void objc_msg_send_expression();
     void objc_msg_send_expression_without_selector();
+
+    // Qt "keywords"
+    void q_enum_1();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -975,6 +980,38 @@ void tst_AST::objc_msg_send_expression_without_selector()
     QVERIFY(bodyStatements->next->value);
     QVERIFY(bodyStatements->next->value->asReturnStatement());
     QVERIFY(!bodyStatements->next->value->asReturnStatement()->expression);
+}
+
+void tst_AST::q_enum_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
+                                                          "class Tst {\n"
+                                                          "Q_ENUMS(e)\n"
+                                                          "public:\n"
+                                                          "enum e { x, y };\n"
+                                                          "};\n",
+                                                          false, true));
+    QVERIFY(unit->ast());
+    SimpleDeclarationAST *tstDecl = unit->ast()->asSimpleDeclaration();
+    QVERIFY(tstDecl);
+    QVERIFY(! tstDecl->declarator_list);
+    QVERIFY(tstDecl->decl_specifier_list);
+    QVERIFY(tstDecl->decl_specifier_list->value);
+    QVERIFY(! tstDecl->decl_specifier_list->next);
+    ClassSpecifierAST *tst = tstDecl->decl_specifier_list->value->asClassSpecifier();
+    QVERIFY(tst);
+
+    QVERIFY(tst->member_specifier_list);
+    QVERIFY(tst->member_specifier_list->value);
+    QtEnumDeclarationAST *qtEnum = tst->member_specifier_list->value->asQtEnumDeclaration();
+    QVERIFY(qtEnum);
+    QVERIFY(qtEnum->enumerator_list);
+    QVERIFY(qtEnum->enumerator_list->value);
+    QVERIFY(! qtEnum->enumerator_list->next);
+
+    SimpleNameAST *e = qtEnum->enumerator_list->value->asSimpleName();
+    QVERIFY(e);
+    QCOMPARE(unit->spell(e->identifier_token), "e");
 }
 
 QTEST_APPLESS_MAIN(tst_AST)

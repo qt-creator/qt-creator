@@ -77,12 +77,10 @@ protected:
     virtual bool visit(SimpleDeclarationAST *ast);
     virtual bool visit(EmptyDeclarationAST *ast);
     virtual bool visit(AccessDeclarationAST *ast);
-#ifdef ICHECK_BUILD
-    virtual bool visit(QPropertyDeclarationAST *ast);
-    virtual bool visit(QEnumDeclarationAST *ast);
-    virtual bool visit(QFlagsDeclarationAST *ast);
-    virtual bool visit(QDeclareFlagsDeclarationAST *ast);
-#endif
+    virtual bool visit(QtPropertyDeclarationAST *ast);
+    virtual bool visit(QtEnumDeclarationAST *ast);
+    virtual bool visit(QtFlagsDeclarationAST *ast);
+    virtual bool visit(QtDeclareFlagsDeclarationAST *ast);
     virtual bool visit(AsmDefinitionAST *ast);
     virtual bool visit(ExceptionDeclarationAST *ast);
     virtual bool visit(FunctionDefinitionAST *ast);

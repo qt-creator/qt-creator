@@ -93,9 +93,7 @@ static const char *token_names[] = {
 
     ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots"),
     ("Q_FOREACH"), ("Q_D"), ("Q_Q"),
-#ifdef ICHECK_BUILD
     ("Q_INVOKABLE"), ("Q_PROPERTY"), ("Q_ENUMS"), ("Q_FLAGS"), ("Q_DECLARE_FLAGS")
-#endif
 };
 
 Token::Token() :

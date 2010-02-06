@@ -170,9 +170,7 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
 
     const bool isQ_SLOT   = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SLOT;
     const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
-#ifdef ICHECK_BUILD
     const bool isQ_INVOKABLE = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_INVOKABLE;
-#endif
 
     List<Declaration *> **decl_it = &ast->symbols;
     for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next) {
@@ -199,10 +197,8 @@ bool CheckDeclaration::visit(SimpleDeclarationAST *ast)
                 fun->setMethodKey(Function::SignalMethod);
             else if (isQ_SLOT)
                 fun->setMethodKey(Function::SlotMethod);
-#ifdef ICHECK_BUILD
             else if (isQ_INVOKABLE)
-                fun->setInvokable(true);
-#endif
+                fun->setMethodKey(Function::InvokableMethod);
             fun->setVisibility(semantic()->currentVisibility());
         } else if (semantic()->currentMethodKey() != Function::NormalMethod) {
             translationUnit()->warning(ast->firstToken(),
@@ -265,28 +261,6 @@ bool CheckDeclaration::visit(AccessDeclarationAST *ast)
         semantic()->switchMethodKey(Function::NormalMethod);
     return false;
 }
-
-#ifdef ICHECK_BUILD
-bool CheckDeclaration::visit(QPropertyDeclarationAST *)
-{
-    return false;
-}
-
-bool CheckDeclaration::visit(QEnumDeclarationAST *)
-{
-    return false;
-}
-
-bool CheckDeclaration::visit(QFlagsDeclarationAST *)
-{
-    return false;
-}
-
-bool CheckDeclaration::visit(QDeclareFlagsDeclarationAST *)
-{
-    return false;
-}
-#endif
 
 bool CheckDeclaration::visit(AsmDefinitionAST *)
 {
@@ -825,5 +799,45 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
         lastSymbols = &(*lastSymbols)->next;
     }
 
+    return false;
+}
+
+bool CheckDeclaration::visit(QtDeclareFlagsDeclarationAST *ast)
+{
+    if (ast->flags_name)
+        semantic()->check(ast->flags_name, _scope);
+    if (ast->enum_name)
+        semantic()->check(ast->enum_name, _scope);
+    return false;
+}
+
+bool CheckDeclaration::visit(QtEnumDeclarationAST *ast)
+{
+    for (NameListAST *iter = ast->enumerator_list; iter; iter = iter->next)
+        semantic()->check(iter->value, _scope);
+    return false;
+}
+
+bool CheckDeclaration::visit(QtFlagsDeclarationAST *ast)
+{
+    for (NameListAST *iter = ast->flag_enums_list; iter; iter = iter->next)
+        semantic()->check(iter->value, _scope);
+    return false;
+}
+
+bool CheckDeclaration::visit(QtPropertyDeclarationAST *ast)
+{
+    if (ast->type_id)
+        semantic()->check(ast->type_id, _scope);
+    if (ast->property_name)
+        semantic()->check(ast->property_name, _scope);
+    if (ast->read_function)
+        semantic()->check(ast->read_function, _scope);
+    if (ast->write_function)
+        semantic()->check(ast->write_function, _scope);
+    if (ast->reset_function)
+        semantic()->check(ast->reset_function, _scope);
+    if (ast->notify_function)
+        semantic()->check(ast->notify_function, _scope);
     return false;
 }

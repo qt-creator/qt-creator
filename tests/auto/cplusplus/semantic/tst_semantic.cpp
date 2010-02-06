@@ -32,12 +32,14 @@ public:
 
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,
-                           bool enableObjc)
+                           bool enableObjc,
+                           bool qtMocRun)
     {
         const StringLiteral *fileId = control.findOrInsertStringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
         unit->setSource(source.constData(), source.length());
         unit->setObjCEnabled(enableObjc);
+        unit->setQtMocRunEnabled(qtMocRun);
         unit->parse(mode);
         return unit;
     }
@@ -92,10 +94,10 @@ public:
     Diagnostic diag;
 
 
-    QSharedPointer<Document> document(const QByteArray &source, bool enableObjc = false)
+    QSharedPointer<Document> document(const QByteArray &source, bool enableObjc = false, bool qtMocRun = false)
     {
         diag.errorCount = 0; // reset the error count.
-        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, enableObjc);
+        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, enableObjc, qtMocRun);
         QSharedPointer<Document> doc(new Document(unit));
         doc->check();
         doc->errorCount = diag.errorCount;
@@ -128,6 +130,8 @@ private slots:
     void bracketed_expression_under_cursor_8();
 
     void objcClass_1();
+
+    void q_enum_1();
 };
 
 void tst_Semantic::function_declaration_1()
@@ -619,6 +623,33 @@ void tst_Semantic::objcClass_1()
     QVERIFY(deallocMethod->name() && deallocMethod->name()->identifier());
     QCOMPARE(QLatin1String(deallocMethod->name()->identifier()->chars()), QLatin1String("dealloc"));
     QVERIFY(!deallocMethod->isStatic());
+}
+
+void tst_Semantic::q_enum_1()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "class Tst {\n"
+                                            "Q_ENUMS(e)\n"
+                                            "public:\n"
+                                            "enum e { x, y };\n"
+                                            "};\n",
+                                            false, true);
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 1U);
+    QVERIFY(doc->unit);
+    TranslationUnitAST *xUnit = doc->unit->ast()->asTranslationUnit();
+    QVERIFY(xUnit);
+    SimpleDeclarationAST *tstDecl = xUnit->declaration_list->value->asSimpleDeclaration();
+    QVERIFY(tstDecl);
+    ClassSpecifierAST *tst = tstDecl->decl_specifier_list->value->asClassSpecifier();
+    QVERIFY(tst);
+    QtEnumDeclarationAST *qtEnum = tst->member_specifier_list->value->asQtEnumDeclaration();
+    QVERIFY(qtEnum);
+    SimpleNameAST *e = qtEnum->enumerator_list->value->asSimpleName();
+    QVERIFY(e);
+    QCOMPARE(doc->unit->spell(e->identifier_token), "e");
+    QCOMPARE(e->name->identifier()->chars(), "e");
 }
 
 QTEST_APPLESS_MAIN(tst_Semantic)

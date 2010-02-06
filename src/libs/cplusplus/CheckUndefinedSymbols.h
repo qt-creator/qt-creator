@@ -98,6 +98,11 @@ protected:
     virtual bool visit(ObjCProtocolRefsAST *ast);
     virtual bool visit(ObjCPropertyDeclarationAST *ast);
 
+    virtual bool visit(QtDeclareFlagsDeclarationAST *ast);
+    virtual bool visit(QtEnumDeclarationAST *ast);
+    virtual bool visit(QtFlagsDeclarationAST *ast);
+    virtual bool visit(QtPropertyDeclarationAST *ast);
+
 private:
     Document::Ptr _doc;
     NamespaceBindingPtr _globalNamespaceBinding;

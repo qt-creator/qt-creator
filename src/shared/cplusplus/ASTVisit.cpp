@@ -112,7 +112,7 @@ void QtPropertyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(type_id, visitor);
-        accept(type_name, visitor);
+        accept(property_name, visitor);
         accept(read_function, visitor);
         accept(write_function, visitor);
         accept(reset_function, visitor);

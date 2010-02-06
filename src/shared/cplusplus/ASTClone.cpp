@@ -145,8 +145,8 @@ QtPropertyDeclarationAST *QtPropertyDeclarationAST::clone(MemoryPool *pool) cons
     ast->lparen_token = lparen_token;
     if (type_id)
         ast->type_id = type_id->clone(pool);
-    if (type_name)
-        ast->type_name = type_name->clone(pool);
+    if (property_name)
+        ast->property_name = property_name->clone(pool);
     ast->read_token = read_token;
     if (read_function)
         ast->read_function = read_function->clone(pool);

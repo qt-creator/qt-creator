@@ -303,7 +303,8 @@ public:
     enum MethodKey {
         NormalMethod,
         SlotMethod,
-        SignalMethod
+        SignalMethod,
+        InvokableMethod
     };
 
 public:
@@ -351,11 +352,7 @@ public:
     void setPureVirtual(bool isPureVirtual);
 
 #ifdef ICHECK_BUILD
-
-    bool isInvokable() const;
-    void setInvokable(bool isInvokable);
     bool isEqualTo(const Function* fct, bool ignoreName = false) const;
-
 #endif
 
     // Symbol's interface
@@ -395,9 +392,6 @@ private:
         unsigned _isVolatile: 1;
         unsigned _isAmbiguous: 1;
         unsigned _methodKey: 3;
-#ifdef ICHECK_BUILD
-        unsigned _isInvokable: 1;
-#endif
     };
     union {
         unsigned _flags;
