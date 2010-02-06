@@ -142,6 +142,9 @@ public:
     virtual bool match(QtMethodAST *node, QtMethodAST *pattern);
     virtual bool match(QtMemberDeclarationAST *node, QtMemberDeclarationAST *pattern);
     virtual bool match(ObjCClassDeclarationAST *node, ObjCClassDeclarationAST *pattern);
+    virtual bool match(QtPropertyDeclarationBoolItemAST *node, QtPropertyDeclarationBoolItemAST *pattern);
+    virtual bool match(QtPropertyDeclarationFlaggingItemAST *node, QtPropertyDeclarationFlaggingItemAST *pattern);
+    virtual bool match(QtPropertyDeclarationNamingItemAST *node, QtPropertyDeclarationNamingItemAST *pattern);
     virtual bool match(ObjCClassForwardDeclarationAST *node, ObjCClassForwardDeclarationAST *pattern);
     virtual bool match(ObjCProtocolDeclarationAST *node, ObjCProtocolDeclarationAST *pattern);
     virtual bool match(ObjCProtocolForwardDeclarationAST *node, ObjCProtocolForwardDeclarationAST *pattern);

@@ -169,6 +169,10 @@ class QtFlagsDeclarationAST;
 class QtMemberDeclarationAST;
 class QtMethodAST;
 class QtPropertyDeclarationAST;
+class QtPropertyDeclarationBoolItemAST;
+class QtPropertyDeclarationFlaggingItemAST;
+class QtPropertyDeclarationItemAST;
+class QtPropertyDeclarationNamingItemAST;
 class QualifiedNameAST;
 class ReferenceAST;
 class ReturnStatementAST;
@@ -213,8 +217,9 @@ typedef List<NestedNameSpecifierAST *> NestedNameSpecifierListAST;
 typedef List<CatchClauseAST *> CatchClauseListAST;
 typedef List<PtrOperatorAST *> PtrOperatorListAST;
 typedef List<SpecifierAST *> SpecifierListAST;
-
+typedef List<QtPropertyDeclarationItemAST *> QtPropertyDeclarationItemListAST;
 typedef List<NameAST *> NameListAST;
+
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;
 typedef List<ObjCSelectorArgumentAST *> ObjCSelectorArgumentListAST;
 typedef List<ObjCPropertyAttributeAST *> ObjCPropertyAttributeListAST;

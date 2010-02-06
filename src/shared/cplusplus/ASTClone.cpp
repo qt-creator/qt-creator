@@ -138,6 +138,28 @@ AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+QtPropertyDeclarationNamingItemAST *QtPropertyDeclarationNamingItemAST::clone(MemoryPool *pool) const
+{
+    QtPropertyDeclarationNamingItemAST *ast = new (pool) QtPropertyDeclarationNamingItemAST;
+    if (name_value)
+        ast->name_value = name_value->clone(pool);
+    return ast;
+}
+
+QtPropertyDeclarationBoolItemAST *QtPropertyDeclarationBoolItemAST::clone(MemoryPool *pool) const
+{
+    QtPropertyDeclarationBoolItemAST *ast = new (pool) QtPropertyDeclarationBoolItemAST;
+    if (bool_value)
+        ast->bool_value = bool_value->clone(pool);
+    return ast;
+}
+
+QtPropertyDeclarationFlaggingItemAST *QtPropertyDeclarationFlaggingItemAST::clone(MemoryPool *pool) const
+{
+    QtPropertyDeclarationFlaggingItemAST *ast = new (pool) QtPropertyDeclarationFlaggingItemAST;
+    return ast;
+}
+
 QtPropertyDeclarationAST *QtPropertyDeclarationAST::clone(MemoryPool *pool) const
 {
     QtPropertyDeclarationAST *ast = new (pool) QtPropertyDeclarationAST;
@@ -147,32 +169,9 @@ QtPropertyDeclarationAST *QtPropertyDeclarationAST::clone(MemoryPool *pool) cons
         ast->type_id = type_id->clone(pool);
     if (property_name)
         ast->property_name = property_name->clone(pool);
-    ast->read_token = read_token;
-    if (read_function)
-        ast->read_function = read_function->clone(pool);
-    ast->write_token = write_token;
-    if (write_function)
-        ast->write_function = write_function->clone(pool);
-    ast->reset_token = reset_token;
-    if (reset_function)
-        ast->reset_function = reset_function->clone(pool);
-    ast->notify_token = notify_token;
-    if (notify_function)
-        ast->notify_function = notify_function->clone(pool);
-    ast->designable_token = designable_token;
-    if (designable_value)
-        ast->designable_value = designable_value->clone(pool);
-    ast->scriptable_token = scriptable_token;
-    if (scriptable_value)
-        ast->scriptable_value = scriptable_value->clone(pool);
-    ast->stored_token = stored_token;
-    if (stored_value)
-        ast->stored_value = stored_value->clone(pool);
-    ast->user_token = user_token;
-    if (user_value)
-        ast->user_value = user_value->clone(pool);
-    ast->constant_token = constant_token;
-    ast->final_token = final_token;
+    for (QtPropertyDeclarationItemListAST *iter = property_declaration_items, **ast_iter = &ast->property_declaration_items;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) QtPropertyDeclarationItemListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->rparen_token = rparen_token;
     return ast;
 }

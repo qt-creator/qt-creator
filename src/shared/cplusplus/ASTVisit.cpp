@@ -108,19 +108,35 @@ void AccessDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void QtPropertyDeclarationNamingItemAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(name_value, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void QtPropertyDeclarationBoolItemAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(bool_value, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void QtPropertyDeclarationFlaggingItemAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
 void QtPropertyDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(type_id, visitor);
         accept(property_name, visitor);
-        accept(read_function, visitor);
-        accept(write_function, visitor);
-        accept(reset_function, visitor);
-        accept(notify_function, visitor);
-        accept(designable_value, visitor);
-        accept(scriptable_value, visitor);
-        accept(stored_value, visitor);
-        accept(user_value, visitor);
+        accept(property_declaration_items, visitor);
     }
     visitor->endVisit(this);
 }

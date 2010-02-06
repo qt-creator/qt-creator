@@ -1794,73 +1794,58 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
         parseTypeId(ast->type_id);
         ast->property_name = new (_pool) SimpleNameAST;
         match(T_IDENTIFIER, &ast->property_name->identifier_token);
-
+        QtPropertyDeclarationItemListAST **iter = &ast->property_declaration_items;
         while (true) {
             if (LA() == T_RPAREN) {
                 ast->rparen_token = consumeToken();
                 node = ast;
                 break;
             } else if (LA() == T_IDENTIFIER) {
+                QtPropertyDeclarationItemAST *item = 0;
                 switch (peekAtQtContextKeyword()) {
                 case Token_READ:
-                    ast->read_token = consumeToken();
-                    ast->read_function = new (_pool) SimpleNameAST;
-                    match(T_IDENTIFIER, &ast->read_function->identifier_token);
-                    break;
-
                 case Token_WRITE:
-                    ast->write_token = consumeToken();
-                    ast->write_function = new (_pool) SimpleNameAST;
-                    match(T_IDENTIFIER, &ast->write_function->identifier_token);
-                    break;
-
                 case Token_RESET:
-                    ast->reset_token = consumeToken();
-                    ast->reset_function = new (_pool) SimpleNameAST;
-                    match(T_IDENTIFIER, &ast->reset_function->identifier_token);
+                case Token_NOTIFY: {
+                    QtPropertyDeclarationNamingItemAST *nItem = new (_pool) QtPropertyDeclarationNamingItemAST;
+                    nItem->item_name_token = consumeToken();
+                    nItem->name_value = new (_pool) SimpleNameAST;
+                    match(T_IDENTIFIER, &nItem->name_value->identifier_token);
+                    item = nItem;
                     break;
-
-                case Token_NOTIFY:
-                    ast->notify_token = consumeToken();
-                    ast->notify_function = new (_pool) SimpleNameAST;
-                    match(T_IDENTIFIER, &ast->notify_function->identifier_token);
-                    break;
+                }
 
                 case Token_DESIGNABLE:
-                    ast->designable_token = consumeToken();
-                    if (!matchBoolean(ast->designable_value))
-                        break;
-                    break;
-
                 case Token_SCRIPTABLE:
-                    ast->scriptable_token = consumeToken();
-                    if (!matchBoolean(ast->scriptable_value))
-                        break;
-                    break;
-
                 case Token_STORED:
-                    ast->stored_token = consumeToken();
-                    if (!matchBoolean(ast->stored_value))
-                        break;
+                case Token_USER: {
+                    QtPropertyDeclarationBoolItemAST *bItem = new (_pool) QtPropertyDeclarationBoolItemAST;
+                    bItem->item_name_token = consumeToken();
+                    ExpressionAST *expr = 0;
+                    if (parseBoolLiteral(expr))
+                        bItem->bool_value = expr->asBoolLiteral();
+                    else
+                        _translationUnit->error(cursor(), "expected `true' or `false' before `%s'", tok().spell());
+                    item = bItem;
                     break;
-
-                case Token_USER:
-                    ast->user_token = consumeToken();
-                    if (!matchBoolean(ast->user_value))
-                        break;
-                    break;
+                }
 
                 case Token_CONSTANT:
-                    ast->constant_token = consumeToken();
+                case Token_FINAL: {
+                    QtPropertyDeclarationFlaggingItemAST *fItem = new (_pool) QtPropertyDeclarationFlaggingItemAST;
+                    fItem->item_name_token = consumeToken();
+                    item = fItem;
                     break;
-
-                case Token_FINAL:
-                    ast->final_token = consumeToken();
-                    break;
+                }
 
                 default:
                     _translationUnit->error(cursor(), "expected `)' before `%s'", tok().spell());
                     return true;
+                }
+                if (item) {
+                    *iter = new (_pool) QtPropertyDeclarationItemListAST;
+                    (*iter)->value = item;
+                    iter = &(*iter)->next;
                 }
             } else {
                 _translationUnit->error(cursor(), "expected `)' before `%s'", tok().spell());
@@ -1869,18 +1854,6 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
         }
     }
     return true;
-}
-
-bool Parser::matchBoolean(BoolLiteralAST *&node)
-{
-    ExpressionAST *expr = 0;
-    if (parseBoolLiteral(expr)) {
-        node = expr->asBoolLiteral();
-        return true;
-    } else {
-        _translationUnit->error(cursor(), "expected `true' or `false' before `%s'", tok().spell());
-        return false;
-    }
 }
 
 // q-enums-decl ::= 'Q_ENUMS' '(' q-enums-list? ')'

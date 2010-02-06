@@ -206,6 +206,40 @@ bool ASTMatcher::match(AccessDeclarationAST *node, AccessDeclarationAST *pattern
     return true;
 }
 
+bool ASTMatcher::match(QtPropertyDeclarationNamingItemAST *node, QtPropertyDeclarationNamingItemAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    if (! pattern->name_value)
+        pattern->name_value = node->name_value;
+    else if (! AST::match(node->name_value, pattern->name_value, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(QtPropertyDeclarationBoolItemAST *node, QtPropertyDeclarationBoolItemAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    if (! pattern->bool_value)
+        pattern->bool_value = node->bool_value;
+    else if (! AST::match(node->bool_value, pattern->bool_value, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(QtPropertyDeclarationFlaggingItemAST *node, QtPropertyDeclarationFlaggingItemAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    return true;
+}
+
 bool ASTMatcher::match(QtPropertyDeclarationAST *node, QtPropertyDeclarationAST *pattern)
 {
     (void) node;
@@ -225,65 +259,10 @@ bool ASTMatcher::match(QtPropertyDeclarationAST *node, QtPropertyDeclarationAST 
     else if (! AST::match(node->property_name, pattern->property_name, this))
         return false;
 
-    pattern->read_token = node->read_token;
-
-    if (! pattern->read_function)
-        pattern->read_function = node->read_function;
-    else if (! AST::match(node->read_function, pattern->read_function, this))
+    if (! pattern->property_declaration_items)
+        pattern->property_declaration_items = node->property_declaration_items;
+    else if (! AST::match(node->property_declaration_items, pattern->property_declaration_items, this))
         return false;
-
-    pattern->write_token = node->write_token;
-
-    if (! pattern->write_function)
-        pattern->write_function = node->write_function;
-    else if (! AST::match(node->write_function, pattern->write_function, this))
-        return false;
-
-    pattern->reset_token = node->reset_token;
-
-    if (! pattern->reset_function)
-        pattern->reset_function = node->reset_function;
-    else if (! AST::match(node->reset_function, pattern->reset_function, this))
-        return false;
-
-    pattern->notify_token = node->notify_token;
-
-    if (! pattern->notify_function)
-        pattern->notify_function = node->notify_function;
-    else if (! AST::match(node->notify_function, pattern->notify_function, this))
-        return false;
-
-    pattern->designable_token = node->designable_token;
-
-    if (! pattern->designable_value)
-        pattern->designable_value = node->designable_value;
-    else if (! AST::match(node->designable_value, pattern->designable_value, this))
-        return false;
-
-    pattern->scriptable_token = node->scriptable_token;
-
-    if (! pattern->scriptable_value)
-        pattern->scriptable_value = node->scriptable_value;
-    else if (! AST::match(node->scriptable_value, pattern->scriptable_value, this))
-        return false;
-
-    pattern->stored_token = node->stored_token;
-
-    if (! pattern->stored_value)
-        pattern->stored_value = node->stored_value;
-    else if (! AST::match(node->stored_value, pattern->stored_value, this))
-        return false;
-
-    pattern->user_token = node->user_token;
-
-    if (! pattern->user_value)
-        pattern->user_value = node->user_value;
-    else if (! AST::match(node->user_value, pattern->user_value, this))
-        return false;
-
-    pattern->constant_token = node->constant_token;
-
-    pattern->final_token = node->final_token;
 
     pattern->rparen_token = node->rparen_token;
 

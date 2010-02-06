@@ -144,6 +144,42 @@ unsigned AccessDeclarationAST::lastToken() const
     return access_specifier_token + 1;
 }
 
+unsigned QtPropertyDeclarationNamingItemAST::firstToken() const
+{
+    return item_name_token;
+}
+
+unsigned QtPropertyDeclarationNamingItemAST::lastToken() const
+{
+    if (name_value)
+        return name_value->lastToken();
+    else
+        return item_name_token + 1;
+}
+
+unsigned QtPropertyDeclarationBoolItemAST::firstToken() const
+{
+    return item_name_token;
+}
+
+unsigned QtPropertyDeclarationBoolItemAST::lastToken() const
+{
+    if (bool_value)
+        return bool_value->lastToken();
+    else
+        return item_name_token + 1;
+}
+
+unsigned QtPropertyDeclarationFlaggingItemAST::firstToken() const
+{
+    return item_name_token;
+}
+
+unsigned QtPropertyDeclarationFlaggingItemAST::lastToken() const
+{
+    return item_name_token + 1;
+}
+
 unsigned QtPropertyDeclarationAST::firstToken() const
 {
     return property_specifier_token;
@@ -151,7 +187,18 @@ unsigned QtPropertyDeclarationAST::firstToken() const
 
 unsigned QtPropertyDeclarationAST::lastToken() const
 {
-    return rparen_token;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (property_declaration_items)
+        return property_declaration_items->lastToken();
+    else if (property_name)
+        return property_name->lastToken();
+    else if (type_id)
+        return type_id->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    else
+        return property_specifier_token + 1;
 }
 
 unsigned QtEnumDeclarationAST::firstToken() const
@@ -161,17 +208,31 @@ unsigned QtEnumDeclarationAST::firstToken() const
 
 unsigned QtEnumDeclarationAST::lastToken() const
 {
-    return rparen_token;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (enumerator_list)
+        return enumerator_list->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    else
+        return enum_specifier_token + 1;
 }
 
 unsigned QtFlagsDeclarationAST::firstToken() const
 {
-    return this->flags_specifier_token;
+    return flags_specifier_token + 1;
 }
 
 unsigned QtFlagsDeclarationAST::lastToken() const
 {
-    return rparen_token;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (flag_enums_list)
+        return flag_enums_list->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    else
+        return flags_specifier_token + 1;
 }
 
 unsigned QtDeclareFlagsDeclarationAST::firstToken() const
@@ -181,7 +242,18 @@ unsigned QtDeclareFlagsDeclarationAST::firstToken() const
 
 unsigned QtDeclareFlagsDeclarationAST::lastToken() const
 {
-    return rparen_token;
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (flags_name)
+        return flags_name->lastToken();
+    else if (comma_token)
+        return comma_token + 1;
+    else if (enum_name)
+        return enum_name->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    else
+        return declareflags_specifier_token + 1;
 }
 
 unsigned ArrayAccessAST::firstToken() const

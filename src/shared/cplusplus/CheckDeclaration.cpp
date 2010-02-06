@@ -831,13 +831,16 @@ bool CheckDeclaration::visit(QtPropertyDeclarationAST *ast)
         semantic()->check(ast->type_id, _scope);
     if (ast->property_name)
         semantic()->check(ast->property_name, _scope);
-    if (ast->read_function)
-        semantic()->check(ast->read_function, _scope);
-    if (ast->write_function)
-        semantic()->check(ast->write_function, _scope);
-    if (ast->reset_function)
-        semantic()->check(ast->reset_function, _scope);
-    if (ast->notify_function)
-        semantic()->check(ast->notify_function, _scope);
+
+    for (QtPropertyDeclarationItemListAST *iter = ast->property_declaration_items;
+         iter; iter = iter->next) {
+        if (! iter->value)
+            continue;
+
+        if (QtPropertyDeclarationNamingItemAST *namedItem = iter->value->asQtPropertyDeclarationNamingItem())
+            if (namedItem->name_value)
+                semantic()->check(namedItem->name_value, _scope);
+    }
+
     return false;
 }

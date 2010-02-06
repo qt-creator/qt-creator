@@ -262,6 +262,10 @@ public:
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return 0; }
     virtual QtMethodAST *asQtMethod() { return 0; }
     virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return 0; }
+    virtual QtPropertyDeclarationBoolItemAST *asQtPropertyDeclarationBoolItem() { return 0; }
+    virtual QtPropertyDeclarationFlaggingItemAST *asQtPropertyDeclarationFlaggingItem() { return 0; }
+    virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return 0; }
+    virtual QtPropertyDeclarationNamingItemAST *asQtPropertyDeclarationNamingItem() { return 0; }
     virtual QualifiedNameAST *asQualifiedName() { return 0; }
     virtual ReferenceAST *asReference() { return 0; }
     virtual ReturnStatementAST *asReturnStatement() { return 0; }
@@ -552,43 +556,76 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
+class QtPropertyDeclarationItemAST: public AST
+{
+public:
+    unsigned item_name_token;
+
+public:
+    virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return this; }
+
+    virtual QtPropertyDeclarationItemAST *clone(MemoryPool *pool) const = 0;
+};
+
+class QtPropertyDeclarationNamingItemAST: public QtPropertyDeclarationItemAST
+{
+public:
+    SimpleNameAST *name_value;
+
+public:
+    virtual QtPropertyDeclarationNamingItemAST *asQtPropertyDeclarationNamingItem() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual QtPropertyDeclarationNamingItemAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class QtPropertyDeclarationBoolItemAST: public QtPropertyDeclarationItemAST
+{
+public:
+    BoolLiteralAST *bool_value;
+
+public:
+    virtual QtPropertyDeclarationBoolItemAST *asQtPropertyDeclarationBoolItem() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual QtPropertyDeclarationBoolItemAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class QtPropertyDeclarationFlaggingItemAST: public QtPropertyDeclarationItemAST
+{
+public:
+    virtual QtPropertyDeclarationFlaggingItemAST *asQtPropertyDeclarationFlaggingItem() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual QtPropertyDeclarationFlaggingItemAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
 class CPLUSPLUS_EXPORT QtPropertyDeclarationAST: public DeclarationAST
 {
-    /*
-    Q_PROPERTY(type name
-            READ getFunction
-            [WRITE setFunction]
-            [RESET resetFunction]
-            [NOTIFY notifySignal]
-            [DESIGNABLE bool]
-            [SCRIPTABLE bool]
-            [STORED bool]
-            [USER bool]
-            [CONSTANT]
-            [FINAL])*/
 public:
     unsigned property_specifier_token;
     unsigned lparen_token;
     ExpressionAST *type_id;
     SimpleNameAST *property_name;
-    unsigned read_token;
-    SimpleNameAST *read_function;
-    unsigned write_token;
-    SimpleNameAST *write_function;
-    unsigned reset_token;
-    SimpleNameAST *reset_function;
-    unsigned notify_token;
-    SimpleNameAST *notify_function;
-    unsigned designable_token;
-    BoolLiteralAST *designable_value;
-    unsigned scriptable_token;
-    BoolLiteralAST *scriptable_value;
-    unsigned stored_token;
-    BoolLiteralAST *stored_value;
-    unsigned user_token;
-    BoolLiteralAST *user_value;
-    unsigned constant_token;
-    unsigned final_token;
+    QtPropertyDeclarationItemListAST *property_declaration_items;
     unsigned rparen_token;
 
 public:

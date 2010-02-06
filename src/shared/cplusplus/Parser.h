@@ -79,7 +79,6 @@ public:
     bool parseEmptyDeclaration(DeclarationAST *&node);
     bool parseAccessDeclaration(DeclarationAST *&node);
     bool parseQtPropertyDeclaration(DeclarationAST *&node);
-    bool matchBoolean(BoolLiteralAST *&node);
     bool parseQtEnumDeclaration(DeclarationAST *&node);
     bool parseQtFlags(DeclarationAST *&node);
     bool parseQtDeclareFlags(DeclarationAST *&node);
