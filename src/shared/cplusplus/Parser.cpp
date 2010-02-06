@@ -1781,7 +1781,7 @@ bool Parser::parseAccessDeclaration(DeclarationAST *&node)
     parenthesis is that the type is the first parameter and the name comes after
     the type.
 */
-bool Parser::parseQPropertyDeclaration(DeclarationAST *&node)
+bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() != T_Q_PROPERTY)
@@ -1895,7 +1895,7 @@ bool Parser::matchBoolean(BoolLiteralAST *&node)
 // so, these are not allowed:
 //   Q_ENUMS
 //   Q_ENUMS(Priority, Severity)
-bool Parser::parseQEnumDeclaration(DeclarationAST *&node)
+bool Parser::parseQtEnumDeclaration(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() != T_Q_ENUMS)
@@ -1915,60 +1915,59 @@ bool Parser::parseQEnumDeclaration(DeclarationAST *&node)
     return true;
 }
 
-#ifdef ICHECK_BUILD
-bool Parser::parseQFlags(DeclarationAST *&node)
+// q-flags-decl ::= 'Q_FLAGS' '(' q-flags-list? ')'
+// q-flags-list ::= identifier
+// q-flags-list ::= q-flags-list identifier
+//
+// Note: Q_FLAGS is a CPP macro with exactly 1 parameter.
+// Examples of valid uses:
+//   Q_FLAGS()
+//   Q_FLAGS(Orientation)
+//   Q_FLAGS(Orientation DropActions)
+// so, these are not allowed:
+//   Q_FLAGS
+//   Q_FLAGS(Orientation, DropActions)
+bool Parser::parseQtFlags(DeclarationAST *&node)
 {
-    /*Q_FLAGS(enum1 enum2 flags1)*/
     DEBUG_THIS_RULE();
-    if (LA() == T_Q_FLAGS) {
-        QFlagsDeclarationAST *ast = new (_pool)QFlagsDeclarationAST;
-        ast->flags_specifier_token = consumeToken();
-        EnumeratorListAST** enumerator_list_ptr;
-        enumerator_list_ptr = &ast->enumerator_list;
-        if(LA() == T_LPAREN){
-            ast->lparen_token = consumeToken();
-            while(LA() != T_EOF_SYMBOL && LA() != T_RPAREN){
-                *enumerator_list_ptr = new (_pool) EnumeratorListAST;
-                EnumeratorAST *pdecl = new (_pool) EnumeratorAST;
-                pdecl->identifier_token = consumeToken();
-                (*enumerator_list_ptr)->value = pdecl;
-                enumerator_list_ptr = &(*enumerator_list_ptr)->next;
-                if (LA() == T_COMMA)
-                    consumeToken();
-            }
-            if(LA() == T_RPAREN)
-                ast->rparen_token = consumeToken();
-        }
-        node = ast;
-        return true;
+    if (LA() != T_Q_FLAGS)
+        return false;
+
+    QtFlagsDeclarationAST *ast = new (_pool) QtFlagsDeclarationAST;
+    ast->flags_specifier_token = consumeToken();
+    match(T_LPAREN, &ast->lparen_token);
+    for (NameListAST **iter = &ast->flag_enums_list; LA() == T_IDENTIFIER; iter = &(*iter)->next) {
+        *iter = new (_pool) NameListAST;
+        SimpleNameAST *name = new (_pool) SimpleNameAST;
+        name->identifier_token = consumeToken();
+        (*iter)->value = name;
     }
-    return false;
+    match(T_RPAREN, &ast->rparen_token);
+    node = ast;
+    return true;
 }
 
-bool Parser::parseQDeclareFlags(DeclarationAST *&node)
+// q-declare-flags ::= 'Q_DECLARE_FLAGS' '(' q-flags-name ',' q-enum-name ')'
+// q-flags-name    ::= T_IDENTIFIER
+// q-enum-name     ::= T_IDENTIFIER
+bool Parser::parseQtDeclareFlags(DeclarationAST *&node)
 {
      /*Q_DECLARE_FLAGS(flag enum)*/
     DEBUG_THIS_RULE();
-    if (LA() == T_Q_DECLARE_FLAGS) {
-        QDeclareFlagsDeclarationAST *ast = new (_pool)QDeclareFlagsDeclarationAST;
-        ast->declareflags_specifier_token = consumeToken();
-        if(LA() == T_LPAREN){
-            ast->lparen_token = consumeToken();
-            if(LA() != T_EOF_SYMBOL)
-                ast->flag_token = consumeToken();
-            if(LA() == T_COMMA && LA() != T_EOF_SYMBOL)
-                consumeToken();
-            if(LA() != T_EOF_SYMBOL)
-                ast->enum_token = consumeToken();
-            if(LA() != T_EOF_SYMBOL && LA() == T_RPAREN)
-                ast->rparen_token = consumeToken();
-        }
-        node = ast;
-        return true;
-    }
-    return false;
+    if (LA() != T_Q_DECLARE_FLAGS)
+        return false;
+
+    QtDeclareFlagsDeclarationAST *ast = new (_pool) QtDeclareFlagsDeclarationAST;
+    ast->declareflags_specifier_token = consumeToken();
+    match(T_LPAREN, &ast->lparen_token);
+    ast->flags_name = new (_pool) SimpleNameAST;
+    match(T_IDENTIFIER, &ast->flags_name->identifier_token);
+    match(T_COMMA, &ast->comma_token);
+    match(T_IDENTIFIER, &ast->enum_name->identifier_token);
+    match(T_RPAREN, &ast->rparen_token);
+    node = ast;
+    return true;
 }
-#endif
 
 bool Parser::parseMemberSpecification(DeclarationAST *&node)
 {
@@ -1991,10 +1990,10 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
         return parseAccessDeclaration(node);
 
     case T_Q_PROPERTY:
-        return parseQPropertyDeclaration(node);
+        return parseQtPropertyDeclaration(node);
 
     case T_Q_ENUMS:
-        return parseQEnumDeclaration(node);
+        return parseQtEnumDeclaration(node);
 
 #ifdef ICHECK_BUILD
     case T_Q_FLAGS:

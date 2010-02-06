@@ -627,12 +627,11 @@ protected:
 
 class CPLUSPLUS_EXPORT QtFlagsDeclarationAST: public DeclarationAST
 {
-    /*Q_FLAGS(enum1 enum2 flags1 ...)*/
 public:
     unsigned flags_specifier_token;
     unsigned lparen_token;
+    NameListAST *flag_enums_list;
     unsigned rparen_token;
-    EnumeratorListAST *enumerator_list;
 
 public:
     virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return this; }
@@ -649,12 +648,12 @@ protected:
 
 class CPLUSPLUS_EXPORT QtDeclareFlagsDeclarationAST: public DeclarationAST
 {
-    /*Q_DECLARE_FLAGS(flag enum)*/
 public:
     unsigned declareflags_specifier_token;
     unsigned lparen_token;
-    unsigned flag_token;
-    unsigned enum_token;
+    SimpleNameAST *flags_name;
+    unsigned comma_token;
+    SimpleNameAST *enum_name;
     unsigned rparen_token;
 
 public:

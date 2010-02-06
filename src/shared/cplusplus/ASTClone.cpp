@@ -194,10 +194,10 @@ QtFlagsDeclarationAST *QtFlagsDeclarationAST::clone(MemoryPool *pool) const
     QtFlagsDeclarationAST *ast = new (pool) QtFlagsDeclarationAST;
     ast->flags_specifier_token = flags_specifier_token;
     ast->lparen_token = lparen_token;
-    ast->rparen_token = rparen_token;
-    for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
+    for (NameListAST *iter = flag_enums_list, **ast_iter = &ast->flag_enums_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) EnumeratorListAST((iter->value) ? iter->value->clone(pool) : 0);
+        *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->rparen_token = rparen_token;
     return ast;
 }
 
@@ -206,8 +206,11 @@ QtDeclareFlagsDeclarationAST *QtDeclareFlagsDeclarationAST::clone(MemoryPool *po
     QtDeclareFlagsDeclarationAST *ast = new (pool) QtDeclareFlagsDeclarationAST;
     ast->declareflags_specifier_token = declareflags_specifier_token;
     ast->lparen_token = lparen_token;
-    ast->flag_token = flag_token;
-    ast->enum_token = enum_token;
+    if (flags_name)
+        ast->flags_name = flags_name->clone(pool);
+    ast->comma_token = comma_token;
+    if (enum_name)
+        ast->enum_name = enum_name->clone(pool);
     ast->rparen_token = rparen_token;
     return ast;
 }

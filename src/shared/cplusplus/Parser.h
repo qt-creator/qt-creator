@@ -78,13 +78,11 @@ public:
     bool parseAbstractDeclarator(DeclaratorAST *&node);
     bool parseEmptyDeclaration(DeclarationAST *&node);
     bool parseAccessDeclaration(DeclarationAST *&node);
-    bool parseQPropertyDeclaration(DeclarationAST *&node);
+    bool parseQtPropertyDeclaration(DeclarationAST *&node);
     bool matchBoolean(BoolLiteralAST *&node);
-    bool parseQEnumDeclaration(DeclarationAST *&node);
-#ifdef ICHECK_BUILD
-    bool parseQFlags(DeclarationAST *&node);
-    bool parseQDeclareFlags(DeclarationAST *&node);
-#endif
+    bool parseQtEnumDeclaration(DeclarationAST *&node);
+    bool parseQtFlags(DeclarationAST *&node);
+    bool parseQtDeclareFlags(DeclarationAST *&node);
     bool parseAdditiveExpression(ExpressionAST *&node);
     bool parseAndExpression(ExpressionAST *&node);
     bool parseAsmDefinition(DeclarationAST *&node);

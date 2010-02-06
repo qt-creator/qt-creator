@@ -318,12 +318,12 @@ bool ASTMatcher::match(QtFlagsDeclarationAST *node, QtFlagsDeclarationAST *patte
 
     pattern->lparen_token = node->lparen_token;
 
-    pattern->rparen_token = node->rparen_token;
-
-    if (! pattern->enumerator_list)
-        pattern->enumerator_list = node->enumerator_list;
-    else if (! AST::match(node->enumerator_list, pattern->enumerator_list, this))
+    if (! pattern->flag_enums_list)
+        pattern->flag_enums_list = node->flag_enums_list;
+    else if (! AST::match(node->flag_enums_list, pattern->flag_enums_list, this))
         return false;
+
+    pattern->rparen_token = node->rparen_token;
 
     return true;
 }
@@ -337,9 +337,17 @@ bool ASTMatcher::match(QtDeclareFlagsDeclarationAST *node, QtDeclareFlagsDeclara
 
     pattern->lparen_token = node->lparen_token;
 
-    pattern->flag_token = node->flag_token;
+    if (! pattern->flags_name)
+        pattern->flags_name = node->flags_name;
+    else if (! AST::match(node->flags_name, pattern->flags_name, this))
+        return false;
 
-    pattern->enum_token = node->enum_token;
+    pattern->comma_token = node->comma_token;
+
+    if (! pattern->enum_name)
+        pattern->enum_name = node->enum_name;
+    else if (! AST::match(node->enum_name, pattern->enum_name, this))
+        return false;
 
     pattern->rparen_token = node->rparen_token;
 

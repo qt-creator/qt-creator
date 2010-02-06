@@ -136,7 +136,7 @@ void QtEnumDeclarationAST::accept0(ASTVisitor *visitor)
 void QtFlagsDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(enumerator_list, visitor);
+        accept(flag_enums_list, visitor);
     }
     visitor->endVisit(this);
 }
@@ -144,6 +144,8 @@ void QtFlagsDeclarationAST::accept0(ASTVisitor *visitor)
 void QtDeclareFlagsDeclarationAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
+        accept(flags_name, visitor);
+        accept(enum_name, visitor);
     }
     visitor->endVisit(this);
 }
