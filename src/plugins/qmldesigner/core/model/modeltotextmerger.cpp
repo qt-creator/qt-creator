@@ -327,6 +327,8 @@ QStringList ModelToTextMerger::getPropertyOrder()
     if (m_propertyOrder.isEmpty()) {
         m_propertyOrder
                 << QLatin1String("id")
+                << QLatin1String("name")
+                << QLatin1String("target")
                 << QLatin1String("property")
                 << QLatin1String("x")
                 << QLatin1String("y")
