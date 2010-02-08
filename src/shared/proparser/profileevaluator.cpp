@@ -296,6 +296,7 @@ public:
     QHash<const ProFile*, QHash<QString, QStringList> > m_filevaluemap; // Variables per include file
     QString m_outputDir;
 
+    int m_listCount;
     bool m_definingTest;
     QString m_definingFunc;
     FunctionDefs m_functionDefs;
@@ -330,6 +331,7 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option)
     m_invertNext = false;
     m_skipLevel = 0;
     m_definingFunc.clear();
+    m_listCount = 0;
 }
 
 ProFileEvaluator::Private::~Private()
@@ -1951,9 +1953,8 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             }
             break;
         case E_LIST: {
-            static int x = 0;
             QString tmp;
-            tmp.sprintf(".QMAKE_INTERNAL_TMP_variableName_%d", x++);
+            tmp.sprintf(".QMAKE_INTERNAL_TMP_variableName_%d", m_listCount++);
             ret = QStringList(tmp);
             QStringList lst;
             foreach (const QString &arg, args)
