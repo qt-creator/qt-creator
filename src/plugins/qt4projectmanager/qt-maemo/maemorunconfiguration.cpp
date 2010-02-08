@@ -385,8 +385,22 @@ const QString MaemoRunConfiguration::dumperLib() const
 
 QString MaemoRunConfiguration::executable() const
 {
-    const_cast<MaemoRunConfiguration*> (this)->updateTarget();
+    updateTarget();
     return m_executable;
+}
+
+QString MaemoRunConfiguration::simulatorSshPort() const
+{
+    if (!m_cachedSimulatorInformationValid)
+        updateTarget();
+    return m_simulatorSshPort;
+}
+
+QString MaemoRunConfiguration::simulatorGdbServerPort() const
+{
+    if (!m_cachedSimulatorInformationValid)
+        updateTarget();
+    return m_simulatorGdbServerPort;
 }
 
 QString MaemoRunConfiguration::simulatorPath() const
@@ -395,7 +409,7 @@ QString MaemoRunConfiguration::simulatorPath() const
         qPrintable(m_simulatorPath));
 
     if (!m_cachedSimulatorInformationValid)
-        const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
+        updateSimulatorInformation();
     return m_simulatorPath;
 }
 
@@ -405,7 +419,7 @@ QString MaemoRunConfiguration::visibleSimulatorParameter() const
         qPrintable(m_visibleSimulatorParameter));
 
     if (!m_cachedSimulatorInformationValid)
-        const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
+        updateSimulatorInformation();
     return m_visibleSimulatorParameter;
 }
 
@@ -415,7 +429,7 @@ QString MaemoRunConfiguration::simulator() const
         qPrintable(m_simulator));
 
     if (!m_cachedSimulatorInformationValid)
-        const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
+        updateSimulatorInformation();
     return m_simulator;
 }
 
@@ -425,7 +439,7 @@ QString MaemoRunConfiguration::simulatorArgs() const
         qPrintable(m_simulatorArgs));
 
     if (!m_cachedSimulatorInformationValid)
-        const_cast<MaemoRunConfiguration*> (this)->updateSimulatorInformation();
+        updateSimulatorInformation();
     return m_simulatorArgs;
 }
 
@@ -445,7 +459,7 @@ void MaemoRunConfiguration::invalidateCachedTargetInformation()
     emit targetInformationChanged();
 }
 
-void MaemoRunConfiguration::updateTarget()
+void MaemoRunConfiguration::updateTarget() const
 {
     if (m_cachedTargetInformationValid)
         return;
@@ -472,7 +486,7 @@ void MaemoRunConfiguration::updateTarget()
     emit targetInformationChanged();
 }
 
-void MaemoRunConfiguration::updateSimulatorInformation()
+void MaemoRunConfiguration::updateSimulatorInformation() const
 {
     if (m_cachedSimulatorInformationValid)
         return;
@@ -481,6 +495,9 @@ void MaemoRunConfiguration::updateSimulatorInformation()
     m_simulatorPath.clear();
     m_simulatorArgs.clear();
     m_visibleSimulatorParameter.clear();
+    m_simulatorLibPath.clear();
+    m_simulatorSshPort.clear();
+    m_simulatorGdbServerPort.clear();
     m_cachedSimulatorInformationValid = true;
 
     if (const MaemoToolChain *tc = toolchain())

@@ -94,8 +94,8 @@ public:
     QString simulator() const;
     QString simulatorArgs() const;
     QString simulatorPath() const;
-    QString simulatorSshPort() const { return m_simulatorSshPort; }
-    QString simulatorGdbServerPort() const { return m_simulatorGdbServerPort; }
+    QString simulatorSshPort() const;
+    QString simulatorGdbServerPort() const;
     QString visibleSimulatorParameter() const;
 
     const QString sshCmd() const;
@@ -109,8 +109,8 @@ public:
 
 signals:
     void deviceConfigurationsUpdated();
-    void targetInformationChanged();
-    void cachedSimulatorInformationChanged();
+    void targetInformationChanged() const;
+    void cachedSimulatorInformationChanged() const;
     void qemuProcessStatus(bool running);
 
 protected:
@@ -130,24 +130,24 @@ private slots:
 
 private:
     void init();
-    void updateTarget();
-    void updateSimulatorInformation();
+    void updateTarget() const;
+    void updateSimulatorInformation() const;
     const QString cmd(const QString &cmdName) const;
     const MaemoToolChain *toolchain() const;
     bool fileNeedsDeployment(const QString &path, const QDateTime &lastDeployed) const;
 
-    QString m_executable;
+    mutable QString m_executable;
     QString m_proFilePath;
-    bool m_cachedTargetInformationValid;
+    mutable bool m_cachedTargetInformationValid;
 
-    QString m_simulator;
-    QString m_simulatorArgs;
-    QString m_simulatorPath;
-    QString m_visibleSimulatorParameter;
-    QString m_simulatorLibPath;
-    QString m_simulatorSshPort;
-    QString m_simulatorGdbServerPort;
-    bool m_cachedSimulatorInformationValid;
+    mutable QString m_simulator;
+    mutable QString m_simulatorArgs;
+    mutable QString m_simulatorPath;
+    mutable QString m_visibleSimulatorParameter;
+    mutable QString m_simulatorLibPath;
+    mutable QString m_simulatorSshPort;
+    mutable QString m_simulatorGdbServerPort;
+    mutable bool m_cachedSimulatorInformationValid;
 
     QString m_gdbPath;
 
