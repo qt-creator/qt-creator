@@ -460,7 +460,11 @@ void EditorManager::handleContextChange(Core::IContext *context)
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO;
     IEditor *editor = context ? qobject_cast<IEditor*>(context) : 0;
-    setCurrentEditor(editor);
+    if (editor) {
+        setCurrentEditor(editor);
+    } else {
+        updateActions();
+    }
 }
 
 void EditorManager::setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory)
