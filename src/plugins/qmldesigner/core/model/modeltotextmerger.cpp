@@ -272,9 +272,9 @@ void ModelToTextMerger::applyChanges()
         qDeleteAll(m_rewriteActions);
         m_rewriteActions.clear();
 
-        textModifier->commitGroup();
-
         reindent(positionRecalculator.dirtyAreas());
+
+        textModifier->commitGroup();
 
         textModifier->reactivateChangeSignals();
     } catch (Exception &e) {
