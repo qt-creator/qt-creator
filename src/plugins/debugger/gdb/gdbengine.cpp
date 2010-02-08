@@ -1377,8 +1377,11 @@ void GdbEngine::handleStop1(const GdbMi &data)
 
     if (supportsThreads()) {
         int currentId = data.findChild("thread-id").data().toInt();
-        postCommand("-thread-list-ids", WatchUpdate,
-            CB(handleStackListThreads), currentId);
+        if (m_gdbAdapter->isTrkAdapter())
+            m_gdbAdapter->trkReloadThreads();
+        else
+            postCommand("-thread-list-ids", WatchUpdate,
+                CB(handleStackListThreads), currentId);
     }
 
     //
@@ -1415,7 +1418,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
 
         QRegExp supported(_("GNU gdb(.*) (\\d+)\\.(\\d+)(\\.(\\d+))?(-(\\d+))?"));
         if (supported.indexIn(msg) >= 0) {
-            debugMessage(_("UNSUPPORTED GDB VERSION ") + msg);
+            debugMessage(_("SUPPORTED GDB VERSION ") + msg);
             m_gdbVersion = 10000 * supported.cap(2).toInt()
                          +   100 * supported.cap(3).toInt()
                          +     1 * supported.cap(5).toInt();
@@ -1441,6 +1444,7 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
         }
 
         if (!foundIt) {
+            debugMessage(_("UNSUPPORTED GDB VERSION ") + msg);
 #if 0
             QStringList list = msg.split(_c('\n'));
             while (list.size() > 2)

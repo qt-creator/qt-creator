@@ -151,6 +151,7 @@ public:
     void setBufferedMemoryRead(bool b) { m_bufferedMemoryRead = b; }
     trk::Session &session() { return m_session; }
     void trkReloadRegisters();
+    void trkReloadThreads();
 
 signals:
     void output(const QString &msg);

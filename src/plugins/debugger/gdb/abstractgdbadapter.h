@@ -57,8 +57,6 @@ public:
     virtual ~AbstractGdbAdapter();
 
     virtual void write(const QByteArray &data);
-    virtual bool isTrkAdapter() const;
-    virtual void trkReloadRegisters() {}
 
     virtual void startAdapter() = 0;
     virtual void startInferior() = 0;
@@ -75,6 +73,11 @@ public:
     static QString msgInferiorStarted();
     static QString msgInferiorRunning();
     static QString msgConnectRemoteServerFailed(const QString &why);
+
+    // Trk specific stuff
+    virtual bool isTrkAdapter() const;
+    virtual void trkReloadRegisters() {}
+    virtual void trkReloadThreads() {}
 
 signals:
     void adapterStarted();

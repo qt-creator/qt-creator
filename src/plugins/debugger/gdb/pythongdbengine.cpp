@@ -198,7 +198,10 @@ void GdbEngine::updateAllPython()
     postCommand("-stack-list-frames", WatchUpdate, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     manager()->stackHandler()->setCurrentIndex(0);
-    if (supportsThreads())
+    qDebug() << "IS TRK: " << m_gdbAdapter->isTrkAdapter();
+    if (m_gdbAdapter->isTrkAdapter())
+        m_gdbAdapter->trkReloadThreads();
+    else
         postCommand("-thread-list-ids", WatchUpdate, CB(handleStackListThreads), 0);
     manager()->reloadRegisters();
     updateLocals();

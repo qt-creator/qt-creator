@@ -36,6 +36,7 @@
 #include "bluetoothlistener_gui.h"
 
 #include "registerhandler.h"
+#include "stackhandler.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"
 #ifndef STANDALONE_RUNNER
@@ -381,17 +382,18 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage()
     uint to = m_snapshot.lineToAddress;
     uint pc = m_snapshot.registers[RegisterPC];
     trk::byte option = 0x01; // Step into.
+    if (m_snapshot.stepOver)
+        option = 0x11;  // Step over.
     if (from <= pc && pc <= to) {
-        to = qMax(to - 4, from);
+        //to = qMax(to - 4, from);
         debugMessage("STEP IN " + hexxNumber(from) + " " + hexxNumber(to)
             + " INSTEAD OF " + hexxNumber(pc));
-        if (m_snapshot.stepOver)
-            option = 0x11;  // Step over.
     } else {
         from = pc;
         to = pc;
     }
 
+    //qDebug() << "USING" << int(option) << (option == 1 ? " INTO " : " OVER");
     QByteArray ba;
     ba.reserve(17);
     appendByte(&ba, option);
@@ -702,17 +704,17 @@ void TrkGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     else if (cmd.startsWith("salstep,")) {
         // Receive address range for current line for future use when stepping.
         sendGdbServerAck();
-        int pos = cmd.indexOf(',');
+        int pos = cmd.indexOf(',', 8);
         m_snapshot.lineFromAddress = cmd.mid(8, pos - 8).toUInt(0, 16);
         m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
         m_snapshot.stepOver = false;
         sendGdbServerMessage("", "Stepping range received for Step Into");
     }
 
-    else if (cmd.startsWith("salnext")) {
+    else if (cmd.startsWith("salnext,")) {
         // Receive address range for current line for future use when stepping.
         sendGdbServerAck();
-        int pos = cmd.indexOf(',');
+        int pos = cmd.indexOf(',', 8);
         m_snapshot.lineFromAddress = cmd.mid(8, pos - 8).toUInt(0, 16);
         m_snapshot.lineToAddress = cmd.mid(pos + 1).toUInt(0, 16);
         m_snapshot.stepOver = true;
@@ -1823,9 +1825,9 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     m_engine->postCommand("set breakpoint auto-hw on");
     m_engine->postCommand("set trust-readonly-sections"); // No difference?
     m_engine->postCommand("set displaced-stepping on"); // No difference?
-    m_engine->postCommand("set mem inaccessible-by-default");
+    //m_engine->postCommand("set mem inaccessible-by-default");
     m_engine->postCommand("mem 0x00400000 0x00800000 cache");
-    m_engine->postCommand("mem 0x70000000 0x80000000 cache");
+    m_engine->postCommand("mem 0x70000000 0x80000000 cache ro");
     // FIXME: replace with  stack-cache for newer gdb?
     m_engine->postCommand("set remotecache on");  // "info dcache" to check
     m_engine->postCommand("target remote " + gdbServerName().toLatin1(),
@@ -2107,6 +2109,17 @@ void TrkGdbAdapter::trkReloadRegisters()
     handler->setRegisters(registers);
 }
 
+void TrkGdbAdapter::trkReloadThreads()
+{
+    // Take advantage of direct access to cached register values.
+    QTC_ASSERT(m_snapshot.registerValid, /**/);
+    QList<ThreadData> threads;
+    foreach (const Session::Thread &thread, m_session.threads) {
+        threads.append(thread);
+    }
+    ThreadsHandler *handler = m_engine->manager()->threadsHandler();
+    handler->setThreads(threads);
+}
 
 } // namespace Internal
 } // namespace Debugger
