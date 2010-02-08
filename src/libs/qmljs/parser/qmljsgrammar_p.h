@@ -61,7 +61,7 @@ QT_BEGIN_NAMESPACE
 class QmlJSGrammar
 {
 public:
-  enum {
+  enum VariousConstants {
     EOF_SYMBOL = 0,
     REDUCE_HERE = 99,
     SHIFT_THERE = 98,
