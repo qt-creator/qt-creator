@@ -130,7 +130,6 @@ void StatesEditorModel::updateState(int i)
     Q_ASSERT(i >= 0 && i < m_stateNames.count());
 
     emit dataChanged(createIndex(i, 0), createIndex(i, 0));
-    emit countChanged();
 }
 
 void StatesEditorModel::setStatesEditorView(StatesEditorView *statesView)

@@ -25,7 +25,7 @@ Rectangle {
     Connection {
         sender: statesEditorModel
         signal: "changedToState(n)"
-        script: {root.currentStateIndex = n}
+        script: root.currentStateIndex = n;
     }
 
     // TextInputs don't loose focus automatically when user clicks away, have to be done explicitly
@@ -35,27 +35,29 @@ Rectangle {
         hoverEnabled:true
         onExited: root.unFocus();
     }
+    onCurrentStateIndexChanged: unFocus();
 
+    // Colors
+    SystemPalette { id:systemPalette; }
 
     Flickable {
         id: listView
 
-        anchors.fill: root;
-
-        anchors.bottomMargin: 10;
-        anchors.topMargin: 2;
-        anchors.leftMargin: 2;
-        anchors.rightMargin: 2;
+        anchors.left:root.left
+        anchors.right:root.right
+        anchors.top:root.top
+        height:statesRow.height
+        anchors.topMargin:-1;
+        anchors.leftMargin:-1;
 
         viewportHeight: height
         viewportWidth: statesRow.width+2
 
         Row {
             id: statesRow
-            spacing:4
+            spacing:10
             Row {
                 id: listViewRow
-                spacing: 4
                 Repeater {
                     model: statesEditorModel
                     delegate: delegate
@@ -84,38 +86,71 @@ Rectangle {
         id: delegate
         Item {
             id: container
-            width: Math.max(img.width, txt.width+removeState.width+2,stateNameEditor.width) + 4
-            height: img.height + txt.height + 4
+            //width: Math.max(img.width, txt.width+2) + 32
+            width:img.width+32
+            height: img.height + txt.height + 32
+
+            property bool isCurrentState:root.currentStateIndex==index;
+            onXChanged: scrollBarAdjuster.adjustScrollBar();
+            onIsCurrentStateChanged: scrollBarAdjuster.adjustScrollBar();
+
+            Item {
+                id:scrollBarAdjuster
+                function adjustScrollBar() {
+                    if (parent.isCurrentState) {
+                        if (container.x+container.width > listView.viewportX + listView.width)
+                            horizontalScrollbar.viewPosition = container.x+container.width - listView.width;
+                        if (container.x < listView.viewportX)
+                            horizontalScrollbar.viewPosition = container.x;
+                    }
+                }
+            }
+
 
             Rectangle {
                 id: highlight
                 anchors.fill: parent
-                color: "#0303e0"
-                radius: 4
-                opacity: (index==root.currentStateIndex);
-                onOpacityChanged: if (opacity) {
-                    // If the current item becomes selected, check if it is in the viewport
-                    if (container.x < listView.viewportX)
-                        horizontalScrollbar.viewPosition = container.x;
-                    if (container.x+container.width > listView.viewportX + listView.width)
-                        horizontalScrollbar.viewPosition = container.x+container.width - listView.width;
+                border.width:1
+                border.color:"black"
+                color:parent.isCurrentState?systemPalette.highlight:"#4F4F4F";
+                Rectangle {
+                    width:parent.width-1
+                    x:1
+                    y:-30
+                    height:45
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: "#FFFFFF" }
+                        GradientStop { position: 1.0; color: highlight.color }
+                    }
                 }
             }
 
-            Image {
+            Item {
                 id: img
-                pixmap: statePixmap
+
+                width:100
+                height:100
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: textLimits.bottom
-                anchors.topMargin: 2
+                anchors.topMargin: 16
+                Image {
+                    anchors.centerIn:parent
+                    pixmap: statePixmap
+                    Rectangle {
+                        anchors.fill:parent
+                        color:"transparent"
+                        border.width:1
+                        border.color:"black"
+                    }
+                }
             }
 
             MouseRegion {
                 id: itemRegion
                 anchors.fill: container
                 onClicked: {
-                    root.currentStateIndex = index
                     root.unFocus();
+                    root.currentStateIndex = index;
                 }
             }
 
@@ -125,17 +160,17 @@ Rectangle {
             Rectangle {
                 id: removeState
 
-                visible: { index != 0 }
+                visible: (index != 0 && root.currentStateIndex==index)
 
                 anchors.right: parent.right
                 anchors.top: parent.top
-                anchors.topMargin: 4;
-                anchors.rightMargin:2;
+                anchors.topMargin: 7;
+                anchors.rightMargin:4;
 
                 width: 12
                 height: width
 
-                color: "#AEAEAE"
+                color: root.currentStateIndex==index?"#AEAEAE":"#707070"
                 radius: 6
 
                 // "clicked" overlay
@@ -152,7 +187,7 @@ Rectangle {
                 Rectangle {
                     width: parent.width - 4;
                     height:2
-                    color:(root.currentStateIndex==index?highlight.color:root.color);
+                    color:highlight.color;
                     anchors.centerIn:parent
                 }
 
@@ -185,19 +220,35 @@ Rectangle {
             Item {
                 id: textLimits
                 anchors.top: parent.top
+                anchors.topMargin:4
                 anchors.left:parent.left
                 anchors.right:removeState.left
+                anchors.leftMargin:4
                 height: txt.height
                 clip: false
+
+                onWidthChanged: txt.updateText();
 
                 Text{
                     anchors.top: parent.top
                     anchors.topMargin: 2
                     anchors.horizontalCenter: textLimits.horizontalCenter
                     id: txt
-                    text: stateName
                     color: "#E1E1E1";
+                    property string candidateText: stateName
+                    onCandidateTextChanged: updateText();
+                    function updateText() {
+                        var cut=Math.floor(candidateText.length/2);
+                        text=candidateText;
+                        if (parent.width<=0) return;
+                        while (width > parent.width) {
+                            cut = cut-1;
+                            text = candidateText.substring(0,cut)+"..."+
+                                   candidateText.substring(candidateText.length-cut,candidateText.length);
+                        }
                     }
+
+                }
                 MouseRegion {
                     id: txtRegion
                     anchors.fill:parent
@@ -205,7 +256,6 @@ Rectangle {
                         if (root.currentStateIndex != index)
                             root.unFocus();
                         root.currentStateIndex = index;
-
                     }
                     onDoubleClicked: if (index!=0) {
                         stateNameInput.text=stateName;
@@ -219,16 +269,18 @@ Rectangle {
                 Rectangle {
                     id:stateNameEditor
                     visible:false
+                    // force update
+                    onVisibleChanged: stateNameInput.updateScroll();
 
-                    x:2
+                    x:2-parent.anchors.leftMargin
                     y:2
                     height:parent.height
-                    width:Math.max(img.width,txt.width+removeState.width+2,transparentText.width+16)
+                    width:container.width-3
                     clip:true
 
                     color:"white"
                     border.width:2
-                    border.color:"#8f8f8f"
+                    border.color:"#4f4f4f"
                     radius:4
                     function unFocus() {
                         if (visible)
@@ -236,31 +288,47 @@ Rectangle {
                         visible=false;
                     }
 
-                    MouseRegion {
-                        id: absorbAllClicks
-                        anchors.fill:parent
-                    }
+                    // There is no QFontMetrics equivalent in QML
                     Text {
                         text:stateNameInput.text
                         visible:false
-                        id:transparentText
+                        id:textMetric
                     }
-                    TextInput {
-                        id:stateNameInput
-                        text:stateName
-                        anchors.fill:parent
-                        anchors.leftMargin:8
-                        onAccepted: {
-                            statesEditorModel.renameState(index,text);
-                            parent.visible=false;
+                    Text {
+                        visible:false
+                        id:cursorMetric
+                    }
+
+
+                    Item {
+                        x:6
+                        width:parent.width-10
+                        height:parent.height
+                        clip:true
+
+                        TextInput {
+                            id:stateNameInput
+                            text:stateName
+                            width:Math.max(textMetric.width+4, parent.width)
+                            onCursorPositionChanged: updateScroll();
+                            function updateScroll() {
+                                cursorMetric.text=text.substring(0,cursorPosition);
+                                var cM = cursorPosition>0?cursorMetric.width:0;
+                                if (cM+4+x>parent.width)
+                                    x = parent.width - cM - 4;
+                                cursorMetric.text=text.substring(0,cursorPosition-1);
+                                var cM = cursorPosition>1?cursorMetric.width:0;
+                                if (cM+x<0)
+                                    x = -cM;
+                            }
+                            onAccepted: {
+                                statesEditorModel.renameState(index,text);
+                                stateNameEditor.visible=false;
+                            }
                         }
-
                     }
-
                 }
             }
-
-
         }
     }
 
@@ -347,15 +415,12 @@ Rectangle {
             MouseRegion {
                 anchors.fill:parent
                 onClicked: {
-                    root.unFocus();
                     if (root.currentStateIndex == 0)
                         root.createNewState(); //create new state
                     else
                         root.duplicateCurrentState(); //duplicate current state
-
-                    listView.viewportX = horizontalScrollbar.viewPosition;
-                    // select the newly created state
-                    root.currentStateIndex=statesEditorModel.count - 1;
+                    // select the new state
+                    root.currentStateIndex = statesEditorModel.count - 1;
                 }
                 onPressed: {parent.state="Pressed"}
                 onReleased: {parent.state=""}
@@ -382,12 +447,12 @@ Rectangle {
                 viewPosition = totalLength-viewLength;
         }
 
-        opacity: viewLength < totalLength;
+        //opacity: viewLength < totalLength;
 
         anchors.left : listView.left
         anchors.right : listView.right
-        anchors.bottom : root.bottom
-        anchors.bottomMargin: 4
+        anchors.top : listView.bottom
+        anchors.topMargin: 1
 
         height: 10;
 
@@ -439,5 +504,4 @@ Rectangle {
         }
 
     }
-
 }

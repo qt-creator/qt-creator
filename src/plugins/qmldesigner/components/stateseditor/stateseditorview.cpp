@@ -34,6 +34,7 @@
 #include <QPainter>
 #include <QTimerEvent>
 #include <QDebug>
+#include <math.h>
 
 enum {
     debug = false
@@ -354,10 +355,13 @@ QPixmap StatesEditorView::renderState(int i)
     tilePainter.end();
 
 
-    QSize pixmapSize(nodeInstanceView()->sceneRect().size().toSize());
-    if (pixmapSize.width() > 150 || pixmapSize.height() > 150) // sensible maximum size
-        pixmapSize.scale(QSize(150, 150), Qt::KeepAspectRatio);
-    QPixmap pixmap(pixmapSize);
+    QSizeF pixmapSize(nodeInstanceView()->sceneRect().size());
+    if (pixmapSize.width() > 100 || pixmapSize.height() > 100) // sensible maximum size
+        pixmapSize.scale(QSize(100, 100), Qt::KeepAspectRatio);
+    QSize cutSize(floor(pixmapSize.width()),floor(pixmapSize.height()));
+    pixmapSize.setWidth(ceil(pixmapSize.width()));
+    pixmapSize.setHeight(ceil(pixmapSize.height()));
+    QPixmap pixmap(pixmapSize.toSize());
 
     QPainter painter(&pixmap);
     painter.drawTiledPixmap(pixmap.rect(), tilePixmap);
@@ -367,7 +371,7 @@ QPixmap StatesEditorView::renderState(int i)
     nodeInstanceView()->setBlockChangeSignal(false);
     Q_ASSERT(oldState == currentState());
 
-    return pixmap;
+    return pixmap.copy(0,0,cutSize.width(),cutSize.height());
 }
 
 void StatesEditorView::sceneChanged()

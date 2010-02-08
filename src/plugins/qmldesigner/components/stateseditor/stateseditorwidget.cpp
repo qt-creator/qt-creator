@@ -210,7 +210,7 @@ void StatesEditorWidget::setup(Model *model)
 
 QSize StatesEditorWidget::sizeHint() const
 {
-    return QSize(9999, 188);
+    return QSize(9999, 159);
 }
 
 }
