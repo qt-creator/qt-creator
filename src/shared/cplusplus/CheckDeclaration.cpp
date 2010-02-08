@@ -802,15 +802,6 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
     return false;
 }
 
-bool CheckDeclaration::visit(QtDeclareFlagsDeclarationAST *ast)
-{
-    if (ast->flags_name)
-        semantic()->check(ast->flags_name, _scope);
-    if (ast->enum_name)
-        semantic()->check(ast->enum_name, _scope);
-    return false;
-}
-
 bool CheckDeclaration::visit(QtEnumDeclarationAST *ast)
 {
     for (NameListAST *iter = ast->enumerator_list; iter; iter = iter->next)

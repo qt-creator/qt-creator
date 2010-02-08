@@ -256,7 +256,6 @@ public:
     virtual PostfixDeclaratorAST *asPostfixDeclarator() { return 0; }
     virtual PostfixExpressionAST *asPostfixExpression() { return 0; }
     virtual PtrOperatorAST *asPtrOperator() { return 0; }
-    virtual QtDeclareFlagsDeclarationAST *asQtDeclareFlagsDeclaration() { return 0; }
     virtual QtEnumDeclarationAST *asQtEnumDeclaration() { return 0; }
     virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return 0; }
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return 0; }
@@ -677,29 +676,6 @@ public:
     virtual unsigned lastToken() const;
 
     virtual QtFlagsDeclarationAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT QtDeclareFlagsDeclarationAST: public DeclarationAST
-{
-public:
-    unsigned declareflags_specifier_token;
-    unsigned lparen_token;
-    SimpleNameAST *flags_name;
-    unsigned comma_token;
-    SimpleNameAST *enum_name;
-    unsigned rparen_token;
-
-public:
-    virtual QtDeclareFlagsDeclarationAST *asQtDeclareFlagsDeclaration() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual QtDeclareFlagsDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

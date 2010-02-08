@@ -153,14 +153,6 @@ bool QtFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool QtDeclareFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (QtDeclareFlagsDeclarationAST *_other = pattern->asQtDeclareFlagsDeclaration())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
 bool AsmDefinitionAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (AsmDefinitionAST *_other = pattern->asAsmDefinition())

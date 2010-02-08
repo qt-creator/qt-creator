@@ -200,20 +200,6 @@ QtFlagsDeclarationAST *QtFlagsDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-QtDeclareFlagsDeclarationAST *QtDeclareFlagsDeclarationAST::clone(MemoryPool *pool) const
-{
-    QtDeclareFlagsDeclarationAST *ast = new (pool) QtDeclareFlagsDeclarationAST;
-    ast->declareflags_specifier_token = declareflags_specifier_token;
-    ast->lparen_token = lparen_token;
-    if (flags_name)
-        ast->flags_name = flags_name->clone(pool);
-    ast->comma_token = comma_token;
-    if (enum_name)
-        ast->enum_name = enum_name->clone(pool);
-    ast->rparen_token = rparen_token;
-    return ast;
-}
-
 AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 {
     AsmDefinitionAST *ast = new (pool) AsmDefinitionAST;

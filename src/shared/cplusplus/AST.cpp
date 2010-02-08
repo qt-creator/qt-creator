@@ -235,27 +235,6 @@ unsigned QtFlagsDeclarationAST::lastToken() const
         return flags_specifier_token + 1;
 }
 
-unsigned QtDeclareFlagsDeclarationAST::firstToken() const
-{
-    return declareflags_specifier_token;
-}
-
-unsigned QtDeclareFlagsDeclarationAST::lastToken() const
-{
-    if (rparen_token)
-        return rparen_token + 1;
-    else if (flags_name)
-        return flags_name->lastToken();
-    else if (comma_token)
-        return comma_token + 1;
-    else if (enum_name)
-        return enum_name->lastToken();
-    else if (lparen_token)
-        return lparen_token + 1;
-    else
-        return declareflags_specifier_token + 1;
-}
-
 unsigned ArrayAccessAST::firstToken() const
 {
     return lbracket_token;

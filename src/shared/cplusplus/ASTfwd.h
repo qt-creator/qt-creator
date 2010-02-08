@@ -163,7 +163,6 @@ class PostfixAST;
 class PostfixDeclaratorAST;
 class PostfixExpressionAST;
 class PtrOperatorAST;
-class QtDeclareFlagsDeclarationAST;
 class QtEnumDeclarationAST;
 class QtFlagsDeclarationAST;
 class QtMemberDeclarationAST;

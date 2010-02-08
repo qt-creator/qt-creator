@@ -307,32 +307,6 @@ bool ASTMatcher::match(QtFlagsDeclarationAST *node, QtFlagsDeclarationAST *patte
     return true;
 }
 
-bool ASTMatcher::match(QtDeclareFlagsDeclarationAST *node, QtDeclareFlagsDeclarationAST *pattern)
-{
-    (void) node;
-    (void) pattern;
-
-    pattern->declareflags_specifier_token = node->declareflags_specifier_token;
-
-    pattern->lparen_token = node->lparen_token;
-
-    if (! pattern->flags_name)
-        pattern->flags_name = node->flags_name;
-    else if (! AST::match(node->flags_name, pattern->flags_name, this))
-        return false;
-
-    pattern->comma_token = node->comma_token;
-
-    if (! pattern->enum_name)
-        pattern->enum_name = node->enum_name;
-    else if (! AST::match(node->enum_name, pattern->enum_name, this))
-        return false;
-
-    pattern->rparen_token = node->rparen_token;
-
-    return true;
-}
-
 bool ASTMatcher::match(AsmDefinitionAST *node, AsmDefinitionAST *pattern)
 {
     (void) node;

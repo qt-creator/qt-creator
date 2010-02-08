@@ -766,8 +766,10 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                     expandBuiltinMacro(identifierToken, spell);
 
                 else {
-                    if (spell != "Q_PROPERTY" && spell != "Q_INVOKABLE" && spell != "Q_ENUMS"
-                        && spell != "Q_FLAGS" && spell != "Q_DECLARE_FLAGS") {
+                    if (spell != "Q_PROPERTY"
+                        && spell != "Q_INVOKABLE"
+                        && spell != "Q_ENUMS"
+                        && spell != "Q_FLAGS") {
 
                         // ### FIXME: shouldn't this be T_Q_PROPERTY & friends?
 

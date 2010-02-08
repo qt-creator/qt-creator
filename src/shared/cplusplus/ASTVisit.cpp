@@ -157,15 +157,6 @@ void QtFlagsDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void QtDeclareFlagsDeclarationAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(flags_name, visitor);
-        accept(enum_name, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void AsmDefinitionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

@@ -540,20 +540,6 @@ bool CheckUndefinedSymbols::visit(ObjCPropertyDeclarationAST *ast)
     return false;
 }
 
-bool CheckUndefinedSymbols::visit(QtDeclareFlagsDeclarationAST *ast)
-{
-    // ### check flags name too?
-
-    if (ast->enum_name && ast->enum_name->name) {
-        const Identifier *enumId = ast->enum_name->name->identifier();
-        if (!isType(enumId)) // ### we're only checking if the enum name is known as a type name, not as an *enum*.
-            translationUnit()->warning(ast->enum_name->firstToken(),
-                                       "unknown enum '%s'",
-                                       enumId->chars());
-    }
-    return false;
-}
-
 bool CheckUndefinedSymbols::visit(QtEnumDeclarationAST *ast)
 {
     for (NameListAST *iter = ast->enumerator_list; iter; iter = iter->next) {

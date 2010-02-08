@@ -1283,41 +1283,6 @@ static inline int classify13(const char *s, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify15(const char *s, bool) {
-  if (s[0] == 'Q') {
-    if (s[1] == '_') {
-      if (s[2] == 'D') {
-        if (s[3] == 'E') {
-          if (s[4] == 'C') {
-            if (s[5] == 'L') {
-              if (s[6] == 'A') {
-                if (s[7] == 'R') {
-                  if (s[8] == 'E') {
-                    if (s[9] == '_') {
-                      if (s[10] == 'F') {
-                        if (s[11] == 'L') {
-                          if (s[12] == 'A') {
-                            if (s[13] == 'G') {
-                              if (s[14] == 'S') {
-                                return T_Q_DECLARE_FLAGS;
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return T_IDENTIFIER;
-}
-
 static inline int classify16(const char *s, bool) {
   if (s[0] == 'r') {
     if (s[1] == 'e') {
@@ -1369,7 +1334,6 @@ int Lexer::classify(const char *s, int n, bool q) {
     case 11: return classify11(s, q);
     case 12: return classify12(s, q);
     case 13: return classify13(s, q);
-    case 15: return classify15(s, q);
     case 16: return classify16(s, q);
     default: return T_IDENTIFIER;
   } // switch

@@ -1920,29 +1920,6 @@ bool Parser::parseQtFlags(DeclarationAST *&node)
     return true;
 }
 
-// q-declare-flags ::= 'Q_DECLARE_FLAGS' '(' q-flags-name ',' q-enum-name ')'
-// q-flags-name    ::= T_IDENTIFIER
-// q-enum-name     ::= T_IDENTIFIER
-bool Parser::parseQtDeclareFlags(DeclarationAST *&node)
-{
-     /*Q_DECLARE_FLAGS(flag enum)*/
-    DEBUG_THIS_RULE();
-    if (LA() != T_Q_DECLARE_FLAGS)
-        return false;
-
-    QtDeclareFlagsDeclarationAST *ast = new (_pool) QtDeclareFlagsDeclarationAST;
-    ast->declareflags_specifier_token = consumeToken();
-    match(T_LPAREN, &ast->lparen_token);
-    ast->flags_name = new (_pool) SimpleNameAST;
-    match(T_IDENTIFIER, &ast->flags_name->identifier_token);
-    match(T_COMMA, &ast->comma_token);
-    ast->enum_name = new (_pool) SimpleNameAST;
-    match(T_IDENTIFIER, &ast->enum_name->identifier_token);
-    match(T_RPAREN, &ast->rparen_token);
-    node = ast;
-    return true;
-}
-
 bool Parser::parseMemberSpecification(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
@@ -1971,9 +1948,6 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
 
     case T_Q_FLAGS:
         return parseQtFlags(node);
-
-    case T_Q_DECLARE_FLAGS:
-        return parseQtDeclareFlags(node);
 
     default:
         return parseSimpleDeclaration(node, /*acceptStructDeclarator=*/true);

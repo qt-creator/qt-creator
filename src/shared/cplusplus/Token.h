@@ -242,8 +242,7 @@ enum Kind {
     T_Q_PROPERTY,
     T_Q_ENUMS,
     T_Q_FLAGS,
-    T_Q_DECLARE_FLAGS,
-    T_LAST_KEYWORD = T_Q_DECLARE_FLAGS,
+    T_LAST_KEYWORD = T_Q_FLAGS,
 
     // aliases
     T_OR = T_PIPE_PIPE,

@@ -106,7 +106,6 @@ public:
     virtual bool visit(QtPropertyDeclarationAST *) { return true; }
     virtual bool visit(QtEnumDeclarationAST *) { return true; }
     virtual bool visit(QtFlagsDeclarationAST *) { return true; }
-    virtual bool visit(QtDeclareFlagsDeclarationAST *) { return true; }
     virtual bool visit(ArrayAccessAST *) { return true; }
     virtual bool visit(ArrayDeclaratorAST *) { return true; }
     virtual bool visit(ArrayInitializerAST *) { return true; }
@@ -241,7 +240,6 @@ public:
     virtual void endVisit(QtPropertyDeclarationAST *) { }
     virtual void endVisit(QtEnumDeclarationAST *) { }
     virtual void endVisit(QtFlagsDeclarationAST *) { }
-    virtual void endVisit(QtDeclareFlagsDeclarationAST *) { }
     virtual void endVisit(ArrayAccessAST *) { }
     virtual void endVisit(ArrayDeclaratorAST *) { }
     virtual void endVisit(ArrayInitializerAST *) { }
