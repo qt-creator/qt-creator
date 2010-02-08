@@ -518,20 +518,21 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
     else
         dlopenLib = manager()->qtDumperLibraryName().toLocal8Bit();
 
-    // Do not use STRINGIFY as we really want to expand that to a number.
-    const QByteArray flag = QByteArray::number(RTLD_NOW);
+    // Do not use STRINGIFY for RTLD_NOW as we really want to expand that to a number.
 #if defined(Q_OS_WIN) || defined(Q_OS_SYMBIAN)
     // We are using Python on Windows and Symbian.
     QTC_ASSERT(false, /**/);
 #elif defined(Q_OS_MAC)
     //postCommand("sharedlibrary libc"); // for malloc
     //postCommand("sharedlibrary libdl"); // for dlopen
+    const QByteArray flag = QByteArray::number(RTLD_NOW);
     postCommand("call (void)dlopen(\"" + GdbMi::escapeCString(dlopenLib)
                 + "\", " + flag + ")",
         CB(handleDebuggingHelperSetup));
     //postCommand("sharedlibrary " + dotEscape(dlopenLib));
 #else
     //postCommand("p dlopen");
+    const QByteArray flag = QByteArray::number(RTLD_NOW);
     postCommand("sharedlibrary libc"); // for malloc
     postCommand("sharedlibrary libdl"); // for dlopen
     postCommand("call (void*)dlopen(\"" + GdbMi::escapeCString(dlopenLib)
