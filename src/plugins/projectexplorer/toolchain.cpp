@@ -438,7 +438,8 @@ void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
                 return;
             QString filename = tf.fileName();
             tf.write("call \"" + varsbat.toLocal8Bit()+"\"\r\n");
-            tf.write(("set > \"" + QDir::tempPath() + "\\qtcreator-msvc-environment.txt\"\r\n").toLocal8Bit());
+            QString redirect = "set > \"" + QDir::tempPath() + "\\qtcreator-msvc-environment.txt\"\r\n";
+            tf.write(redirect.toLocal8Bit());
             tf.flush();
             tf.waitForBytesWritten(30000);
 

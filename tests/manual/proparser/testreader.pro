@@ -18,3 +18,4 @@ SOURCES = main.cpp profileevaluator.cpp proitems.cpp ioutils.cpp
 HEADERS = profileevaluator.h proitems.h ioutils.h
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
+DEFINES += QT_USE_FAST_OPERATOR_PLUS QT_USE_FAST_CONCATENATION

@@ -139,7 +139,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
     // FIXME shouldn't the help engine create the directory if it doesn't exist?
     const QFileInfo &fi(m_core->settings()->fileName());
-    const QDir &directory(fi.absolutePath()+"/qtcreator");
+    const QDir directory(fi.absolutePath() + QLatin1String("/qtcreator"));
     if (!directory.exists())
         directory.mkpath(directory.absolutePath());
     m_helpEngine = new QHelpEngine(directory.absolutePath() +
@@ -976,8 +976,8 @@ void HelpPlugin::openHelpPage(const QString& url)
         } else {
             urlPrefix = QLatin1String("http://doc.trolltech.com/latest/");
         }
-        QDesktopServices::openUrl(urlPrefix + url.mid(url
-            .lastIndexOf(QLatin1Char('/')) + 1));
+        QDesktopServices::openUrl(QUrl(urlPrefix + url.mid(url
+            .lastIndexOf(QLatin1Char('/')) + 1)));
     }
 }
 
