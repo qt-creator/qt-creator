@@ -46,12 +46,13 @@ Rectangle {
         anchors.left:root.left
         anchors.right:root.right
         anchors.top:root.top
-        height:statesRow.height
+        height:statesRow.height+1
         anchors.topMargin:-1;
         anchors.leftMargin:-1;
 
         viewportHeight: height
         viewportWidth: statesRow.width+2
+
 
         Row {
             id: statesRow
