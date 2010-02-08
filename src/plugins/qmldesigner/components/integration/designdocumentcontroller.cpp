@@ -40,7 +40,7 @@
 #include <stateseditorwidget.h>
 #include <formeditorview.h>
 #include <formeditorwidget.h>
-#include <plaintexteditmodifier.h>
+#include <basetexteditmodifier.h>
 #include <componenttextmodifier.h>
 #include <metainfo.h>
 #include <invalidargumentexception.h>
@@ -92,7 +92,7 @@ public:
     QWeakPointer<QmlDesigner::Model> masterModel;
     QWeakPointer<QPlainTextEdit> textEdit;
     QWeakPointer<RewriterView> rewriterView;
-    QmlDesigner::PlainTextEditModifier *textModifier;
+    QmlDesigner::BaseTextEditModifier *textModifier;
     QmlDesigner::ComponentTextModifier *componentTextModifier;
     QWeakPointer<SubComponentManager> subComponentManager;
     QWeakPointer<Internal::ViewLogger> viewLogger;
@@ -326,7 +326,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     connect(edit, SIGNAL(modificationChanged(bool)),
             this, SIGNAL(dirtyStateChanged(bool)));
 
-    m_d->textModifier = new PlainTextEditModifier(m_d->textEdit.data());
+    m_d->textModifier = new BaseTextEditModifier(m_d->textEdit.data());
 
     m_d->componentTextModifier = 0;
 

@@ -29,7 +29,7 @@
 
 #include "designdocumentcontrollerview.h"
 #include <rewriterview.h>
-#include <plaintexteditmodifier.h>
+#include <basetexteditmodifier.h>
 #include <metainfo.h>
 
 #include <QApplication>
@@ -102,7 +102,7 @@ QString DesignDocumentControllerView::toText() const
     outputModel->setMetaInfo(model()->metaInfo());
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.6; Item {}");
-    PlainTextEditModifier modifier(&textEdit);
+    BaseTextEditModifier modifier(&textEdit);
 
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
     rewriterView->setTextModifier(&modifier);
@@ -126,7 +126,7 @@ void DesignDocumentControllerView::fromText(QString text)
     QPlainTextEdit textEdit;
     QString imports("import Qt 4.6;\n");
     textEdit.setPlainText(imports + text);
-    PlainTextEditModifier modifier(&textEdit);
+    BaseTextEditModifier modifier(&textEdit);
 
     QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, 0));
     rewriterView->setTextModifier(&modifier);

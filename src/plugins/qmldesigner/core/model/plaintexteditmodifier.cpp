@@ -29,7 +29,6 @@
 
 #include "plaintexteditmodifier.h"
 
-#include <texteditor/basetexteditor.h>
 #include <utils/changeset.h>
 
 #include <QtGui/QPlainTextEdit>
@@ -110,27 +109,6 @@ void PlainTextEditModifier::move(const MoveInfo &moveInfo)
         changeSet.remove(moveInfo.objectEnd, moveInfo.trailingCharsToRemove);
         emit moved(moveInfo);
         runRewriting(&changeSet);
-    }
-}
-
-void PlainTextEditModifier::indent(int offset, int length)
-{
-    if (length == 0 || offset < 0 || offset + length >= text().length())
-        return;
-
-//    qDebug() << "PlainTextEditModifier::indent(" << offset << "," << length << ")";
-    if (TextEditor::BaseTextEditor *bte = dynamic_cast<TextEditor::BaseTextEditor*>(m_textEdit)) {
-//        qDebug() << "**** Doing indentation";
-        // find the applicable block:
-        QTextDocument *doc = bte->document();
-        QTextCursor tc(doc);
-        tc.beginEditBlock();
-        tc.setPosition(offset);
-        tc.setPosition(offset + length, QTextCursor::KeepAnchor);
-        bte->indentInsertedText(tc);
-        tc.endEditBlock();
-    } else {
-//        qDebug() << "**** Skipping indentation";
     }
 }
 

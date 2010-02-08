@@ -74,6 +74,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/modeltotextmerger.cpp \
     $$PWD/model/texttomodelmerger.cpp \
     $$PWD/model/plaintexteditmodifier.cpp \
+    $$PWD/model/basetexteditmodifier.cpp \
     $$PWD/model/componenttextmodifier.cpp \
     $$PWD/model/textmodifier.cpp \
     $$PWD/model/qmlmodelview.cpp \
@@ -158,6 +159,7 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/model/internalnodeabstractproperty.h \
     $$PWD/include/nodeabstractproperty.h \
     $$PWD/include/plaintexteditmodifier.h \
+    $$PWD/include/basetexteditmodifier.h \
     $$PWD/include/componenttextmodifier.h \
     $$PWD/include/textmodifier.h \
     $$PWD/model/modeltotextmerger.h \

@@ -64,7 +64,7 @@ public:
 
     virtual void replace(int offset, int length, const QString &replacement);
     virtual void move(const MoveInfo &moveInfo);
-    virtual void indent(int offset, int length);
+    virtual void indent(int offset, int length) = 0;
 
     virtual void startGroup();
     virtual void flushGroup();
@@ -72,6 +72,10 @@ public:
 
     virtual void deactivateChangeSignals();
     virtual void reactivateChangeSignals();
+
+protected:
+    QPlainTextEdit *plainTextEdit() const
+    { return m_textEdit; }
 
 private slots:
     void textEditChanged();
