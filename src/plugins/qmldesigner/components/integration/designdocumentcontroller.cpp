@@ -627,13 +627,18 @@ void DesignDocumentController::paste()
         model->detachView(&view);
         m_d->model->attachView(&view);
 
-        ModelNode selectedNode;
+        ModelNode targetNode;
 
         if (!view.selectedModelNodes().isEmpty())
-            selectedNode = view.selectedModelNodes().first();
+            targetNode = view.selectedModelNodes().first();
 
-        if (!selectedNode.isValid())
-            selectedNode = view.rootModelNode();
+        if (!targetNode.isValid())
+            targetNode = view.rootModelNode();
+
+
+        if (targetNode.parentProperty().isValid())
+            targetNode = targetNode.parentProperty().parentModelNode();
+
         foreach (const ModelNode &node, selectedNodes) {
             foreach (const ModelNode &node2, selectedNodes) {
                 if (node.isAncestorOf(node2))
@@ -641,25 +646,36 @@ void DesignDocumentController::paste()
             }
 
         }
+
+        QList<ModelNode> pastedNodeList;
+
         foreach (const ModelNode &node, selectedNodes) {
-            QString defaultProperty(selectedNode.metaInfo().defaultProperty());
+            QString defaultProperty(targetNode.metaInfo().defaultProperty());
             ModelNode pastedNode(view.insertModel(node));
-            selectedNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+            pastedNodeList.append(pastedNode);
+            targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
         }
+
+        view.setSelectedModelNodes(pastedNodeList);
     } else {
         model->detachView(&view);
         m_d->model->attachView(&view);
         ModelNode pastedNode(view.insertModel(rootNode));
-        ModelNode selectedNode;
+        ModelNode targetNode;
 
         if (!view.selectedModelNodes().isEmpty())
-            selectedNode = view.selectedModelNodes().first();
+            targetNode = view.selectedModelNodes().first();
 
-        if (!selectedNode.isValid())
-            selectedNode = view.rootModelNode();
+        if (!targetNode.isValid())
+            targetNode = view.rootModelNode();
 
-        QString defaultProperty(selectedNode.metaInfo().defaultProperty());
-        selectedNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+        if (targetNode.parentProperty().isValid())
+            targetNode = targetNode.parentProperty().parentModelNode();
+
+        QString defaultProperty(targetNode.metaInfo().defaultProperty());
+        targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+
+
     }
 }
 
