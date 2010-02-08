@@ -292,19 +292,37 @@ DependenciesPanelFactory::DependenciesPanelFactory(SessionManager *session)
 {
 }
 
+QString DependenciesPanelFactory::id() const
+{
+    return QLatin1String(DEPENDENCIES_PANEL_ID);
+}
+
 QString DependenciesPanelFactory::displayName() const
 {
     return QApplication::tr("Dependencies");
 }
 
-bool DependenciesPanelFactory::supports(Project * /* project */)
+bool DependenciesPanelFactory::supports(Project *project)
 {
+    Q_UNUSED(project);
     return true;
+}
+
+bool DependenciesPanelFactory::supports(Target *target)
+{
+    Q_UNUSED(target);
+    return false;
 }
 
 IPropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
 {
     return new DependenciesPanel(m_session, project);
+}
+
+IPropertiesPanel *DependenciesPanelFactory::createPanel(Target *target)
+{
+    Q_UNUSED(target);
+    return 0;
 }
 
 } // namespace Internal

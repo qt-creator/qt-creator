@@ -32,6 +32,7 @@
 #include "qt4project.h"
 #include "qt4projectmanager.h"
 #include "qmakestep.h"
+#include "qt4target.h"
 #include "makestep.h"
 #include "qt4buildconfiguration.h"
 
@@ -119,21 +120,33 @@ void ProjectLoadWizard::done(int result)
         // Importing
         if (m_temporaryVersion)
             vm->addVersion(m_importVersion);
+
         // Import the existing stuff
         // qDebug()<<"Creating m_buildconfiguration entry from imported stuff";
         // qDebug()<<((m_importBuildConfig& QtVersion::BuildAll)? "debug_and_release" : "")<<((m_importBuildConfig & QtVersion::DebugBuild)? "debug" : "release");
         bool debug = m_importBuildConfig & QtVersion::DebugBuild;
-        m_project->addQt4BuildConfiguration(debug ? "Debug" : "Release", m_importVersion, m_importBuildConfig, m_additionalArguments);
 
-        if (m_importBuildConfig & QtVersion::BuildAll) {
-            // Also create the other configuration
-            QtVersion::QmakeBuildConfigs otherBuildConfiguration = m_importBuildConfig;
-            if (debug)
-                otherBuildConfiguration = otherBuildConfiguration & ~ QtVersion::DebugBuild;
-            else
-                otherBuildConfiguration = otherBuildConfiguration | QtVersion::DebugBuild;
+        foreach (const QString &id, m_importVersion->supportedTargetIds()) {
+            Qt4Target *t(m_project->targetFactory()->create(m_project, id));
+            if (!t)
+                continue;
+            // Remove default BCs
+            foreach (ProjectExplorer::BuildConfiguration *bc, t->buildConfigurations())
+                t->removeBuildConfiguration(bc);
 
-            m_project->addQt4BuildConfiguration(debug ? "Release" : "Debug", m_importVersion, otherBuildConfiguration, m_additionalArguments);
+            // ... and add our own!
+            t->addQt4BuildConfiguration(debug ? "Debug" : "Release", m_importVersion, m_importBuildConfig, m_additionalArguments);
+            if (m_importBuildConfig & QtVersion::BuildAll) {
+                // Also create the other configuration
+                QtVersion::QmakeBuildConfigs otherBuildConfiguration = m_importBuildConfig;
+                if (debug)
+                    otherBuildConfiguration = otherBuildConfiguration & ~ QtVersion::DebugBuild;
+                else
+                    otherBuildConfiguration = otherBuildConfiguration | QtVersion::DebugBuild;
+
+                t->addQt4BuildConfiguration(debug ? "Release" : "Debug", m_importVersion, otherBuildConfiguration, m_additionalArguments);
+            }
+            m_project->addTarget(t);
         }
     } else {
         // Not importing
@@ -141,20 +154,30 @@ void ProjectLoadWizard::done(int result)
             delete m_importVersion;
         // Create default
         bool buildAll = false;
-        QtVersion *defaultVersion = vm->version(0);
-        if (defaultVersion && defaultVersion->isValid() && (defaultVersion->defaultBuildConfig() & QtVersion::BuildAll))
+
+        // Find a Qt version:
+        // TODO: Update the wizard to support targets properly.
+        QList<QtVersion *> candidates = vm->versions();
+        QtVersion *defaultVersion = candidates.at(0);
+        foreach (QtVersion *v, candidates) {
+            if (v->isValid())
+                defaultVersion = v;
+            if (v->supportsTargetId(DESKTOP_TARGET_ID) && v->isValid()) {
+                defaultVersion = v;
+                break;
+            }
+        }
+
+        if (defaultVersion->isValid() && (defaultVersion->defaultBuildConfig() & QtVersion::BuildAll))
             buildAll = true;
-        if (buildAll) {
-            m_project->addQt4BuildConfiguration("Debug", 0, QtVersion::BuildAll | QtVersion::DebugBuild, m_additionalArguments);
-            m_project->addQt4BuildConfiguration("Release", 0, QtVersion::BuildAll, m_additionalArguments);
-        } else {
-            m_project->addQt4BuildConfiguration("Debug", 0, QtVersion::DebugBuild, m_additionalArguments);
-            m_project->addQt4BuildConfiguration("Release", 0, QtVersion::QmakeBuildConfig(0), m_additionalArguments);
+
+        foreach (const QString &id, defaultVersion->supportedTargetIds()) {
+            Qt4Target *t(m_project->targetFactory()->create(m_project, id));
+            if (!t)
+                continue;
+            m_project->addTarget(t);
         }
     }
-
-    if (!m_project->buildConfigurations().isEmpty())
-        m_project->setActiveBuildConfiguration(m_project->buildConfigurations().at(0));
 }
 
 // This function used to do the commented stuff instead of having only one page

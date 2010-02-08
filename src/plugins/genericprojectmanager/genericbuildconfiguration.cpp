@@ -31,6 +31,7 @@
 
 #include "genericmakestep.h"
 #include "genericproject.h"
+#include "generictarget.h"
 
 #include <utils/qtcassert.h>
 
@@ -46,18 +47,18 @@ const char * const GENERIC_BC_ID("GenericProjectManager.GenericBuildConfiguratio
 const char * const BUILD_DIRECTORY_KEY("GenericProjectManager.GenericBuildConfiguration.BuildDirectory");
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro)
-    : BuildConfiguration(pro, QLatin1String(GENERIC_BC_ID))
+GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent)
+    : BuildConfiguration(parent, QLatin1String(GENERIC_BC_ID))
 {
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro, const QString &id)
-    : BuildConfiguration(pro, id)
+GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent, const QString &id)
+    : BuildConfiguration(parent, id)
 {
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(GenericProject *pro, GenericBuildConfiguration *source) :
-    BuildConfiguration(pro, source),
+GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent, GenericBuildConfiguration *source) :
+    BuildConfiguration(parent, source),
     m_buildDirectory(source->m_buildDirectory)
 {
 }
@@ -89,7 +90,7 @@ QString GenericBuildConfiguration::buildDirectory() const
 {
     QString buildDirectory = m_buildDirectory;
     if (buildDirectory.isEmpty()) {
-        QFileInfo fileInfo(project()->file()->fileName());
+        QFileInfo fileInfo(target()->project()->file()->fileName());
 
         buildDirectory = fileInfo.absolutePath();
     }
@@ -104,9 +105,9 @@ void GenericBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
     emit buildDirectoryChanged();
 }
 
-GenericProject *GenericBuildConfiguration::genericProject() const
+GenericTarget *GenericBuildConfiguration::genericTarget() const
 {
-    return static_cast<GenericProject *>(project());
+    return static_cast<GenericTarget *>(target());
 }
 
 
@@ -123,9 +124,10 @@ GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory()
 {
 }
 
-QStringList GenericBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Project *parent) const
+QStringList GenericBuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
-    Q_UNUSED(parent);
+    if (!qobject_cast<GenericTarget *>(parent))
+        return QStringList();
     return QStringList() << QLatin1String(GENERIC_BC_ID);
 }
 
@@ -136,20 +138,20 @@ QString GenericBuildConfigurationFactory::displayNameForId(const QString &id) co
     return QString();
 }
 
-bool GenericBuildConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool GenericBuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
 {
-    if (!qobject_cast<GenericProject *>(parent))
+    if (!qobject_cast<GenericTarget *>(parent))
         return false;
     if (id == QLatin1String(GENERIC_BC_ID))
         return true;
     return false;
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
+BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
-    GenericProject *project(static_cast<GenericProject *>(parent));
+    GenericTarget *target(static_cast<GenericTarget *>(parent));
 
     //TODO asking for name is duplicated everywhere, but maybe more
     // wizards will show up, that incorporate choosing the name
@@ -162,41 +164,42 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Pr
                           &ok);
     if (!ok || buildConfigurationName.isEmpty())
         return false;
-    GenericBuildConfiguration *bc = new GenericBuildConfiguration(project);
+    GenericBuildConfiguration *bc = new GenericBuildConfiguration(target);
     bc->setDisplayName(buildConfigurationName);
-    project->addBuildConfiguration(bc); // also makes the name unique...
 
     GenericMakeStep *makeStep = new GenericMakeStep(bc);
     bc->insertBuildStep(0, makeStep);
     makeStep->setBuildTarget("all", /* on = */ true);
+
+    target->addBuildConfiguration(bc); // also makes the name unique...
     return bc;
 }
 
-bool GenericBuildConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source) const
+bool GenericBuildConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::clone(ProjectExplorer::Project *parent, BuildConfiguration *source)
+BuildConfiguration *GenericBuildConfigurationFactory::clone(ProjectExplorer::Target *parent, BuildConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
-    GenericProject *project(static_cast<GenericProject *>(parent));
-    return new GenericBuildConfiguration(project, qobject_cast<GenericBuildConfiguration *>(source));
+    GenericTarget *target(static_cast<GenericTarget *>(parent));
+    return new GenericBuildConfiguration(target, qobject_cast<GenericBuildConfiguration *>(source));
 }
 
-bool GenericBuildConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+bool GenericBuildConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
     return canCreate(parent, id);
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+BuildConfiguration *GenericBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    GenericProject *project(static_cast<GenericProject *>(parent));
-    GenericBuildConfiguration *bc(new GenericBuildConfiguration(project));
+    GenericTarget *target(static_cast<GenericTarget *>(parent));
+    GenericBuildConfiguration *bc(new GenericBuildConfiguration(target));
     if (bc->fromMap(map))
         return bc;
     delete bc;

@@ -32,6 +32,7 @@
 #include "qt4buildconfiguration.h"
 
 #include <projectexplorer/environmenteditmodel.h>
+#include <utils/qtcassert.h>
 
 #include <QtGui/QCheckBox>
 
@@ -68,6 +69,8 @@ QString Qt4BuildEnvironmentWidget::displayName() const
 
 void Qt4BuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
 {
+    QTC_ASSERT(bc, return);
+
     if (debug)
         qDebug() << "Qt4BuildConfigWidget::init()";
 
@@ -77,6 +80,13 @@ void Qt4BuildEnvironmentWidget::init(ProjectExplorer::BuildConfiguration *bc)
     }
 
     m_buildConfiguration = static_cast<Qt4BuildConfiguration *>(bc);
+
+    if (!m_buildConfiguration) {
+        setEnabled(false);
+        return;
+    }
+    setEnabled(true);
+
     connect(m_buildConfiguration, SIGNAL(environmentChanged()),
             this, SLOT(environmentChanged()));
 

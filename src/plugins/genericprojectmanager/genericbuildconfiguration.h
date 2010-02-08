@@ -35,7 +35,7 @@
 namespace GenericProjectManager {
 namespace Internal {
 
-class GenericProject;
+class GenericTarget;
 class GenericBuildConfigurationFactory;
 
 class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
@@ -44,10 +44,10 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
     friend class GenericBuildConfigurationFactory;
 
 public:
-    explicit GenericBuildConfiguration(GenericProject *pro);
+    explicit GenericBuildConfiguration(GenericTarget *parent);
     virtual ~GenericBuildConfiguration();
 
-    GenericProject *genericProject() const;
+    GenericTarget *genericTarget() const;
 
     virtual ProjectExplorer::Environment environment() const;
     virtual QString buildDirectory() const;
@@ -55,8 +55,8 @@ public:
     QVariantMap toMap() const;
 
 protected:
-    GenericBuildConfiguration(GenericProject *pro, GenericBuildConfiguration *source);
-    GenericBuildConfiguration(GenericProject *pro, const QString &id);
+    GenericBuildConfiguration(GenericTarget *parent, GenericBuildConfiguration *source);
+    GenericBuildConfiguration(GenericTarget *parent, const QString &id);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -71,15 +71,15 @@ public:
     explicit GenericBuildConfigurationFactory(QObject *parent = 0);
     virtual ~GenericBuildConfigurationFactory();
 
-    QStringList availableCreationIds(ProjectExplorer::Project *project) const;
+    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const QString &id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Project *parent, const QString &id);
-    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
 };
 
 } // namespace GenericProjectManager

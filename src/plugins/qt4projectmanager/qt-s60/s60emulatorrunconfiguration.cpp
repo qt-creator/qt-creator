@@ -30,6 +30,7 @@
 #include "s60emulatorrunconfiguration.h"
 
 #include "qt4project.h"
+#include "qt4target.h"
 #include "qtversionmanager.h"
 #include "profilereader.h"
 #include "s60manager.h"
@@ -73,16 +74,16 @@ QString pathToId(const QString &path)
 
 // ======== S60EmulatorRunConfiguration
 
-S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, const QString &proFilePath) :
-    RunConfiguration(project, QLatin1String(S60_EMULATOR_RC_ID)),
+S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Target *parent, const QString &proFilePath) :
+    RunConfiguration(parent, QLatin1String(S60_EMULATOR_RC_ID)),
     m_proFilePath(proFilePath),
     m_cachedTargetInformationValid(false)
 {
     ctor();
 }
 
-S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Project *project, S60EmulatorRunConfiguration *source) :
-    RunConfiguration(project, source),
+S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Target *parent, S60EmulatorRunConfiguration *source) :
+    RunConfiguration(parent, source),
     m_proFilePath(source->m_proFilePath),
     m_cachedTargetInformationValid(false)
 {
@@ -96,10 +97,10 @@ void S60EmulatorRunConfiguration::ctor()
     else
         setDisplayName(tr("Qt Symbian Emulator RunConfiguration"));
 
-    connect(qt4Project(), SIGNAL(targetInformationChanged()),
+    connect(qt4Target(), SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
 
-    connect(qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
@@ -115,9 +116,9 @@ void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4
 }
 
 
-Qt4Project *S60EmulatorRunConfiguration::qt4Project() const
+Qt4Target *S60EmulatorRunConfiguration::qt4Target() const
 {
-    return static_cast<Qt4Project *>(project());
+    return static_cast<Qt4Target *>(target());
 }
 
 bool S60EmulatorRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configuration) const
@@ -136,14 +137,14 @@ QWidget *S60EmulatorRunConfiguration::configurationWidget()
 QVariantMap S60EmulatorRunConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
-    const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
     return map;
 }
 
 bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 {
-    const QDir projectDir = QFileInfo(qt4Project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
 
     return RunConfiguration::fromMap(map);
@@ -159,7 +160,7 @@ void S60EmulatorRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
+    Qt4TargetInformation info = qt4Target()->targetInformation(qt4Target()->activeBuildConfiguration(),
                                                                 m_proFilePath);
     if (info.error != Qt4TargetInformation::NoError) {
         if (info.error == Qt4TargetInformation::ProParserError) {
@@ -173,7 +174,7 @@ void S60EmulatorRunConfiguration::updateTarget()
         return;
     }
 
-    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
+    Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
     QtVersion *qtVersion = qt4bc->qtVersion();
     QString baseDir = S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot;
     QString qmakeBuildConfig = "urel";
@@ -251,64 +252,66 @@ S60EmulatorRunConfigurationFactory::~S60EmulatorRunConfigurationFactory()
 {
 }
 
-bool S60EmulatorRunConfigurationFactory::canCreate(Project *parent, const QString &id) const
+bool S60EmulatorRunConfigurationFactory::canCreate(Target *parent, const QString &id) const
 {
-    Qt4Project *project(qobject_cast<Qt4Project *>(parent));
-    if (!project)
+    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
+    if (!t ||
+        t->id() != QLatin1String(S60_EMULATOR_TARGET_ID))
         return false;
-    return project->hasApplicationProFile(pathFromId(id));
+    return t->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
 
-RunConfiguration *S60EmulatorRunConfigurationFactory::create(Project *parent, const QString &id)
+RunConfiguration *S60EmulatorRunConfigurationFactory::create(Target *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
-    Qt4Project *project(static_cast<Qt4Project *>(parent));
-    return new S60EmulatorRunConfiguration(project, pathFromId(id));
+    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    return new S60EmulatorRunConfiguration(t, pathFromId(id));
 }
 
-bool S60EmulatorRunConfigurationFactory::canRestore(Project *parent, const QVariantMap &map) const
+bool S60EmulatorRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    if (!qobject_cast<Qt4Project *>(parent))
+    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
+    if (!t ||
+        t->id() != QLatin1String(S60_EMULATOR_TARGET_ID))
         return false;
     QString id(ProjectExplorer::idFromMap(map));
-    return id.startsWith(QLatin1String(S60_EMULATOR_RC_ID));
+    return id == QLatin1String(S60_EMULATOR_RC_ID);
 }
 
-RunConfiguration *S60EmulatorRunConfigurationFactory::restore(Project *parent, const QVariantMap &map)
+RunConfiguration *S60EmulatorRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Project *project(static_cast<Qt4Project *>(parent));
-    S60EmulatorRunConfiguration *rc(new S60EmulatorRunConfiguration(project, QString()));
+    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    S60EmulatorRunConfiguration *rc(new S60EmulatorRunConfiguration(t, QString()));
     if (rc->fromMap(map))
         return rc;
     delete rc;
     return 0;
 }
 
-bool S60EmulatorRunConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const
+bool S60EmulatorRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
-    if (!qobject_cast<Qt4Project *>(parent))
-        return false;
-    return source->id() == QLatin1String(S60_EMULATOR_RC_ID);
+    return canCreate(parent, source->id());
 }
 
-RunConfiguration *S60EmulatorRunConfigurationFactory::clone(Project *parent, RunConfiguration *source)
+RunConfiguration *S60EmulatorRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4Project *project(static_cast<Qt4Project *>(parent));
-    return new S60EmulatorRunConfiguration(project, QString());
+    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    return new S60EmulatorRunConfiguration(t, QString());
 }
 
-QStringList S60EmulatorRunConfigurationFactory::availableCreationIds(Project *pro) const
+QStringList S60EmulatorRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    Qt4Project *qt4project(qobject_cast<Qt4Project *>(pro));
-    if (!qt4project)
+    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
+    if (!t ||
+        t->id() != QLatin1String(S60_EMULATOR_TARGET_ID))
         return QStringList();
 
-    return qt4project->applicationProFilePathes(QLatin1String(S60_EMULATOR_RC_PREFIX));
+    return t->qt4Project()->applicationProFilePathes(QLatin1String(S60_EMULATOR_RC_PREFIX));
 }
 
 QString S60EmulatorRunConfigurationFactory::displayNameForId(const QString &id) const
@@ -325,7 +328,7 @@ S60EmulatorRunControl::S60EmulatorRunControl(S60EmulatorRunConfiguration *runCon
 {
     // stuff like the EPOCROOT and EPOCDEVICE env variable
     Environment env = Environment::systemEnvironment();
-    runConfiguration->qt4Project()->activeQt4BuildConfiguration()->toolChain()->addToEnvironment(env);
+    runConfiguration->qt4Target()->activeBuildConfiguration()->toolChain()->addToEnvironment(env);
     m_applicationLauncher.setEnvironment(env.toStringList());
 
     m_executable = runConfiguration->executable();

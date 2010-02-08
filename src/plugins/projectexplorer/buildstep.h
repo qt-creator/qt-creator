@@ -82,18 +82,18 @@ public:
     // use it to retrieve any information that you need in run()
     virtual bool init() = 0;
 
-    // Reimplement this. This function is called when the project is build.
+    // Reimplement this. This function is called when the target is build.
     // This function is NOT run in the gui thread. It runs in its own thread
     // If you need an event loop, you need to create one.
     // The absolute minimal implementation is:
     // fi.reportResult(true);
     virtual void run(QFutureInterface<bool> &fi) = 0;
 
-    // the Widget shown in the project settings dialog for this buildStep
+    // the Widget shown in the target settings dialog for this buildStep
     // ownership is transferred to the caller
     virtual BuildStepConfigWidget *createConfigWidget() = 0;
 
-    // if this function returns true, the user can't delete this BuildStep for this project
+    // if this function returns true, the user can't delete this BuildStep for this target
     // and the user is prevented from changing the order immutable steps are run
     // the default implementation returns false
     virtual bool immutable() const;
@@ -121,7 +121,7 @@ public:
     explicit IBuildStepFactory(QObject *parent = 0);
     virtual ~IBuildStepFactory();
 
-    // used to show the list of possible additons to a project, returns a list of types
+    // used to show the list of possible additons to a target, returns a list of types
     virtual QStringList availableCreationIds(BuildConfiguration *parent) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;

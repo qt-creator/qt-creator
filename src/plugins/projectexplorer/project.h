@@ -31,13 +31,11 @@
 #define PROJECT_H
 
 #include "projectexplorer_export.h"
+#include "target.h"
 
 #include <QtCore/QObject>
+#include <QtCore/QSet>
 #include <QtGui/QFileSystemModel>
-
-QT_BEGIN_NAMESPACE
-class QMenu;
-QT_END_NAMESPACE
 
 namespace Core {
 class IFile;
@@ -46,17 +44,12 @@ class IFile;
 namespace ProjectExplorer {
 
 class BuildManager;
-class BuildStep;
 class BuildConfigWidget;
 class IProjectManager;
-class RunConfiguration;
 class EditorConfiguration;
-class Environment;
 class ProjectNode;
-class PersistentSettingsWriter;
-class PersistentSettingsReader;
-class BuildConfiguration;
-class IBuildConfigurationFactory;
+class Target;
+class ITargetFactory;
 
 class PROJECTEXPLORER_EXPORT Project
     : public QObject
@@ -81,28 +74,29 @@ public:
     virtual QList<Project *> dependsOn() = 0; //NBS TODO implement dependsOn
 
     virtual bool isApplication() const = 0;
+    bool hasActiveBuildSettings() const;
 
-    virtual bool hasBuildSettings() const;
-
-    // Build configuration
-    void addBuildConfiguration(BuildConfiguration *configuration);
-    void removeBuildConfiguration(BuildConfiguration *configuration);
-
-    QList<BuildConfiguration *> buildConfigurations() const;
-    BuildConfiguration *activeBuildConfiguration() const;
-    void setActiveBuildConfiguration(BuildConfiguration *configuration);
-
-    virtual IBuildConfigurationFactory *buildConfigurationFactory() const = 0;
-
-    // Running
-    QList<RunConfiguration *> runConfigurations() const;
-    void addRunConfiguration(RunConfiguration* runConfiguration);
-    void removeRunConfiguration(RunConfiguration* runConfiguration);
-
-    RunConfiguration* activeRunConfiguration() const;
-    void setActiveRunConfiguration(RunConfiguration* runConfiguration);
-
+    // EditorConfiguration:
     EditorConfiguration *editorConfiguration() const;
+
+    // Target:
+
+    // Note: You can only add a specific kind of target (identified by id)
+    //       once.
+    QSet<QString> supportedTargetIds() const;
+    QSet<QString> possibleTargetIds() const;
+    bool canAddTarget(const QString &id) const;
+
+    void addTarget(Target *target);
+    void removeTarget(Target *target);
+
+    QList<Target *> targets() const;
+    // Note: activeTarget can be 0 (if no targets are defined).
+    Target *activeTarget() const;
+    void setActiveTarget(Target *target);
+    Target *target(const QString &id) const;
+
+    virtual ITargetFactory *targetFactory() const = 0;
 
     void saveSettings();
     bool restoreSettings();
@@ -117,13 +111,13 @@ public:
     // TODO: generalize to find source(s) of generated files?
     virtual QString generatedUiHeader(const QString &formFile) const;
 
+    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
+
     // C++ specific
     // TODO do a C++ project as a base ?
     virtual QByteArray predefinedMacros(const QString &fileName) const;
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
-
-    static QString makeUnique(const QString &preferedName, const QStringList &usedNames);
 
     // Serialize all data into a QVariantMap. This map is then saved
     // in the .user file of the project.
@@ -138,17 +132,19 @@ public:
 signals:
     void fileListChanged();
 
-// TODO clean up signal names
-// might be better to also have aboutToRemove signals
-    void activeBuildConfigurationChanged();
-    void activeRunConfigurationChanged();
-    void runConfigurationsEnabledStateChanged();
+    // Note: activeTarget can be 0 (if no targets are defined).
+    void activeTargetChanged(ProjectExplorer::Target *target);
 
-    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
-    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void aboutToRemoveTarget(ProjectExplorer::Target *target);
+    void removedTarget(ProjectExplorer::Target *target);
+    void addedTarget(ProjectExplorer::Target *target);
 
-    void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
-    void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
+    void supportedTargetIdsChanged();
+
+    /// convenience signal emitted if the activeBuildConfiguration emits environmentChanged
+    /// or if the activeBuildConfiguration changes
+    /// (which theoretically might happen due to the active target changing).
+    void environmentChanged();
 
 protected:
     // restore all data from the map.
@@ -156,11 +152,15 @@ protected:
     // Note: Do not forget to call your base class' fromMap method!
     virtual bool fromMap(const QVariantMap &map);
 
+    void setSupportedTargetIds(const QSet<QString> &ids);
+
+private slots:
+    void changeEnvironment();
+
 private:
-    QList<BuildConfiguration *> m_buildConfigurations;
-    BuildConfiguration *m_activeBuildConfiguration;
-    QList<RunConfiguration *> m_runConfigurations;
-    RunConfiguration* m_activeRunConfiguration;
+    QSet<QString> m_supportedTargetIds;
+    QList<Target *> m_targets;
+    Target *m_activeTarget;
     EditorConfiguration *m_editorConfiguration;
 };
 

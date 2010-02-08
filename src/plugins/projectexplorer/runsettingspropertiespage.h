@@ -42,6 +42,8 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 namespace Internal {
 
+const char * const RUNSETTINGS_PANEL_ID("ProjectExplorer.RunSettingsPanel");
+
 namespace Ui {
 class RunSettingsPropertiesPage;
 }
@@ -52,15 +54,18 @@ class RunSettingsWidget;
 class RunSettingsPanelFactory : public IPanelFactory
 {
 public:
+    QString id() const;
     QString displayName() const;
     bool supports(Project *project);
+    bool supports(Target *target);
     IPropertiesPanel *createPanel(Project *project);
+    IPropertiesPanel *createPanel(Target *target);
 };
 
 class RunSettingsPanel : public IPropertiesPanel
 {
 public:
-    RunSettingsPanel(Project *project);
+    RunSettingsPanel(Target *target);
     ~RunSettingsPanel();
 
     QString displayName() const;
@@ -76,7 +81,7 @@ class RunSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    RunSettingsWidget(Project *project);
+    RunSettingsWidget(Target *target);
     ~RunSettingsWidget();
 
 private slots:
@@ -88,7 +93,7 @@ private slots:
     void initRunConfigurationComboBox();
     void activeRunConfigurationChanged();
 private:
-    Project *m_project;
+    Target *m_target;
     RunConfigurationsModel *m_runConfigurationsModel;
     Ui::RunSettingsPropertiesPage *m_ui;
     QWidget *m_runConfigurationWidget;

@@ -30,6 +30,7 @@
 #include "genericmakestep.h"
 #include "genericprojectconstants.h"
 #include "genericproject.h"
+#include "generictarget.h"
 #include "ui_genericmakestep.h"
 #include "genericbuildconfiguration.h"
 
@@ -111,8 +112,8 @@ bool GenericMakeStep::init()
     setEnvironment(bc->environment());
 
     setOutputParser(new ProjectExplorer::GnuMakeParser(buildDir));
-    if (bc->genericProject()->toolChain())
-        appendOutputParser(bc->genericProject()->toolChain()->outputParser());
+    if (bc->genericTarget()->genericProject()->toolChain())
+        appendOutputParser(bc->genericTarget()->genericProject()->toolChain()->outputParser());
 
     return AbstractProcessStep::init();
 }
@@ -155,7 +156,7 @@ QString GenericMakeStep::makeCommand() const
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
-        GenericProject *pro = genericBuildConfiguration()->genericProject();
+        GenericProject *pro = genericBuildConfiguration()->genericTarget()->genericProject();
         if (ProjectExplorer::ToolChain *toolChain = pro->toolChain())
             command = toolChain->makeCommand();
         else
@@ -206,8 +207,8 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     m_ui->setupUi(this);
 
     // TODO update this list also on rescans of the GenericLists.txt
-    GenericProject *pro = m_makeStep->genericBuildConfiguration()->genericProject();
-    foreach (const QString &target, pro->targets()) {
+    GenericProject *pro = m_makeStep->genericBuildConfiguration()->genericTarget()->genericProject();
+    foreach (const QString &target, pro->buildTargets()) {
         QListWidgetItem *item = new QListWidgetItem(target, m_ui->targetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);

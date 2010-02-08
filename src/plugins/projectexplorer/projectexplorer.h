@@ -218,6 +218,7 @@ private slots:
 
     void loadProject(const QString &project) { openProject(project); }
     void currentModeChanged(Core::IMode *mode);
+    void updateActions();
 
 private:
     void runProjectImpl(Project *pro, QString mode);
@@ -229,7 +230,6 @@ private:
     QStringList allFilesWithDependencies(Project *pro);
     IRunControlFactory *findRunControlFactory(RunConfiguration *config, const QString &mode);
 
-    void updateActions();
     void addToRecentProjects(const QString &fileName, const QString &displayName);
     void updateWelcomePage();
     Internal::ProjectFileFactory *findProjectFileFactory(const QString &filename) const;

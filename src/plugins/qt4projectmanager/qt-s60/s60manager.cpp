@@ -208,11 +208,13 @@ void S60Manager::updateQtVersions()
 
 ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
+    Q_ASSERT(version);
     return new WINSCWToolChain(deviceForQtVersion(version), version->mwcDirectory());
 }
 
 ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
+    Q_ASSERT(version);
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     env.prependOrSetPath(version->gcceDirectory()+"/bin");
     QString gcceCommandPath= env.searchInPath(GCCE_COMMAND);
@@ -221,6 +223,7 @@ ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectMana
 
 ProjectExplorer::ToolChain *S60Manager::createGCCE_GnuPocToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
+    Q_ASSERT(version);
     return new GCCEToolChain(deviceForQtVersion(version), QLatin1String("arm-none-symbianelf-g++"), ProjectExplorer::ToolChain::GCCE_GNUPOC);
 }
 
@@ -228,11 +231,13 @@ ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(
         const Qt4ProjectManager::QtVersion *version,
         ProjectExplorer::ToolChain::ToolChainType type) const
 {
+    Q_ASSERT(version);
     return new RVCTToolChain(deviceForQtVersion(version), type);
 }
 
 S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVersion *version) const
 {
+    Q_ASSERT(version);
     S60Devices::Device device;
     QString deviceId;
     if (version->isAutodetected())

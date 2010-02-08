@@ -29,9 +29,10 @@
 
 #include "cmakerunconfiguration.h"
 
-#include "cmakeproject.h"
 #include "cmakebuildconfiguration.h"
+#include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
+#include "cmaketarget.h"
 
 #include <projectexplorer/environment.h>
 #include <projectexplorer/debugginghelper.h>
@@ -73,8 +74,8 @@ QString idFromBuildTarget(const QString &target)
 
 } // namespace
 
-CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &target, const QString &workingDirectory, const QString &title) :
-    ProjectExplorer::LocalApplicationRunConfiguration(pro, QString::fromLatin1(CMAKE_RC_PREFIX)),
+CMakeRunConfiguration::CMakeRunConfiguration(CMakeTarget *parent, const QString &target, const QString &workingDirectory, const QString &title) :
+    ProjectExplorer::LocalApplicationRunConfiguration(parent, QString::fromLatin1(CMAKE_RC_PREFIX)),
     m_runMode(Gui),
     m_buildTarget(target),
     m_workingDirectory(workingDirectory),
@@ -84,8 +85,8 @@ CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, const QString &t
     ctor();
 }
 
-CMakeRunConfiguration::CMakeRunConfiguration(CMakeProject *pro, CMakeRunConfiguration *source) :
-    ProjectExplorer::LocalApplicationRunConfiguration(pro, source),
+CMakeRunConfiguration::CMakeRunConfiguration(CMakeTarget *parent, CMakeRunConfiguration *source) :
+    ProjectExplorer::LocalApplicationRunConfiguration(parent, source),
     m_runMode(source->m_runMode),
     m_buildTarget(source->m_buildTarget),
     m_workingDirectory(source->m_workingDirectory),
@@ -105,14 +106,16 @@ CMakeRunConfiguration::~CMakeRunConfiguration()
 void CMakeRunConfiguration::ctor()
 {
     setDisplayName(m_title);
-
-    connect(project(), SIGNAL(environmentChanged()),
-            this, SIGNAL(baseEnvironmentChanged()));
 }
 
-CMakeProject *CMakeRunConfiguration::cmakeProject() const
+CMakeTarget *CMakeRunConfiguration::cmakeTarget() const
 {
-    return static_cast<CMakeProject *>(project());
+    return static_cast<CMakeTarget *>(target());
+}
+
+CMakeBuildConfiguration *CMakeRunConfiguration::activeBuildConfiguration() const
+{
+    return cmakeTarget()->activeBuildConfiguration();
 }
 
 QString CMakeRunConfiguration::executable() const
@@ -232,7 +235,7 @@ ProjectExplorer::Environment CMakeRunConfiguration::baseEnvironment() const
     } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::SystemEnvironmentBase) {
         env = ProjectExplorer::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CMakeRunConfiguration::BuildEnvironmentBase) {
-        env = project()->activeBuildConfiguration()->environment();
+        env = activeBuildConfiguration()->environment();
     }
     return env;
 }
@@ -284,7 +287,9 @@ void CMakeRunConfiguration::setUserEnvironmentChanges(const QList<ProjectExplore
 
 ProjectExplorer::ToolChain::ToolChainType CMakeRunConfiguration::toolChainType() const
 {
-    CMakeBuildConfiguration *bc = cmakeProject()->activeCMakeBuildConfiguration();
+    CMakeBuildConfiguration *bc = activeBuildConfiguration();
+    if (!bc)
+        return ProjectExplorer::ToolChain::UNKNOWN;
     return bc->toolChainType();
 }
 
@@ -447,13 +452,13 @@ CMakeRunConfigurationFactory::~CMakeRunConfigurationFactory()
 }
 
 // used to show the list of possible additons to a project, returns a list of ids
-QStringList CMakeRunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *parent) const
+QStringList CMakeRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
-    CMakeProject *project(qobject_cast<CMakeProject *>(parent));
-    if (!project)
+    CMakeTarget *t(qobject_cast<CMakeTarget *>(parent));
+    if (!t)
         return QStringList();
     QStringList allIds;
-    foreach (const QString &buildTarget, project->buildTargetTitles())
+    foreach (const QString &buildTarget, t->cmakeProject()->buildTargetTitles())
         allIds << idFromBuildTarget(buildTarget);
     return allIds;
 }
@@ -464,55 +469,55 @@ QString CMakeRunConfigurationFactory::displayNameForId(const QString &id) const
     return buildTargetFromId(id);
 }
 
-bool CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool CMakeRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
 {
-    CMakeProject *project(qobject_cast<CMakeProject *>(parent));
-    if (!project)
+    CMakeTarget *t(qobject_cast<CMakeTarget *>(parent));
+    if (!t)
         return false;
-    return project->hasBuildTarget(buildTargetFromId(id));
+    return t->cmakeProject()->hasBuildTarget(buildTargetFromId(id));
 }
 
-ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
-    CMakeProject *project(static_cast<CMakeProject *>(parent));
+    CMakeTarget *t(static_cast<CMakeTarget *>(parent));
 
     const QString title(buildTargetFromId(id));
-    const CMakeBuildTarget &ct = project->buildTargetForTitle(title);
-    return new CMakeRunConfiguration(project, ct.executable, ct.workingDirectory, ct.title);
+    const CMakeBuildTarget &ct = t->cmakeProject()->buildTargetForTitle(title);
+    return new CMakeRunConfiguration(t, ct.executable, ct.workingDirectory, ct.title);
 }
 
-bool CMakeRunConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const
+bool CMakeRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const
 {
-    if (!qobject_cast<CMakeProject *>(parent))
+    if (!qobject_cast<CMakeTarget *>(parent))
         return false;
     return source->id() == QLatin1String(CMAKE_RC_ID);
 }
 
-ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration * source)
+ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration * source)
 {
     if (!canClone(parent, source))
         return 0;
-    CMakeProject *project(static_cast<CMakeProject *>(parent));
+    CMakeTarget *t(static_cast<CMakeTarget *>(parent));
     CMakeRunConfiguration *crc(static_cast<CMakeRunConfiguration *>(source));
-    return new CMakeRunConfiguration(project, crc);
+    return new CMakeRunConfiguration(t, crc);
 }
 
-bool CMakeRunConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+bool CMakeRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
-    if (!qobject_cast<CMakeProject *>(parent))
+    if (!qobject_cast<CMakeTarget *>(parent))
         return false;
     QString id(ProjectExplorer::idFromMap(map));
     return id.startsWith(QLatin1String(CMAKE_RC_ID));
 }
 
-ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    CMakeProject *project(static_cast<CMakeProject *>(parent));
-    CMakeRunConfiguration *rc(new CMakeRunConfiguration(project, QString(), QString(), QString()));
+    CMakeTarget *t(static_cast<CMakeTarget *>(parent));
+    CMakeRunConfiguration *rc(new CMakeRunConfiguration(t, QString(), QString(), QString()));
     if (rc->fromMap(map))
         return rc;
     delete rc;

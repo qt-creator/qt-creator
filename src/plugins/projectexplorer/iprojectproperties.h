@@ -36,10 +36,22 @@
 
 namespace ProjectExplorer {
 class Project;
+class Target;
+
+namespace Constants {
+    const int PANEL_LEFT_MARGIN = 70;
+}
 
 class PROJECTEXPLORER_EXPORT IPropertiesPanel
 {
 public:
+    enum PanelFlag {
+        NoFlag = 0x00,
+        NoLeftMargin = 0x01,
+        NoAutomaticStyle = 0x02
+    };
+    Q_DECLARE_FLAGS(PanelFlags, PanelFlag)
+
     IPropertiesPanel()
     { }
     virtual ~IPropertiesPanel()
@@ -48,16 +60,19 @@ public:
     virtual QString displayName() const = 0;
     virtual QIcon icon() const = 0;
     virtual QWidget *widget() const = 0;
-    virtual void widgetWasAddedToLayout() { }
+    virtual PanelFlags flags() const { return NoFlag; }
 };
 
 class PROJECTEXPLORER_EXPORT IPanelFactory : public QObject
 {
     Q_OBJECT
 public:
+    virtual QString id() const = 0;
     virtual QString displayName() const = 0;
     virtual bool supports(Project *project) = 0;
+    virtual bool supports(Target *target) = 0;
     virtual IPropertiesPanel *createPanel(Project *project) = 0;
+    virtual IPropertiesPanel *createPanel(Target *target) = 0;
 };
 
 } // namespace ProjectExplorer

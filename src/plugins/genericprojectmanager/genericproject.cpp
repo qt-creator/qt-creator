@@ -28,9 +28,10 @@
 **************************************************************************/
 
 #include "genericproject.h"
-#include "genericprojectconstants.h"
-#include "genericmakestep.h"
+
 #include "genericbuildconfiguration.h"
+#include "genericprojectconstants.h"
+#include "generictarget.h"
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -116,7 +117,7 @@ public:
 GenericProject::GenericProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_buildConfigurationFactory(new GenericBuildConfigurationFactory(this)),
+      m_targetFactory(new GenericTargetFactory(this)),
       m_toolChain(0)
 {
     QFileInfo fileInfo(m_fileName);
@@ -141,9 +142,14 @@ GenericProject::~GenericProject()
     delete m_toolChain;
 }
 
-IBuildConfigurationFactory *GenericProject::buildConfigurationFactory() const
+GenericTargetFactory *GenericProject::targetFactory() const
 {
-    return m_buildConfigurationFactory;
+    return m_targetFactory;
+}
+
+GenericTarget *GenericProject::activeTarget() const
+{
+    return static_cast<GenericTarget *>(Project::activeTarget());
 }
 
 QString GenericProject::filesFileName() const
@@ -424,7 +430,7 @@ QStringList GenericProject::files(FilesMode fileMode) const
     return m_files; // ### TODO: handle generated files here.
 }
 
-QStringList GenericProject::targets() const
+QStringList GenericProject::buildTargets() const
 {
     QStringList targets;
     targets.append(QLatin1String("all"));
@@ -445,21 +451,8 @@ bool GenericProject::fromMap(const QVariantMap &map)
         return false;
 
     // Add default BC:
-    if (buildConfigurations().isEmpty()) {
-        GenericBuildConfiguration *bc = new GenericBuildConfiguration(this);
-        bc->setDisplayName("all");
-        addBuildConfiguration(bc);
-
-        GenericMakeStep *makeStep = new GenericMakeStep(bc);
-        bc->insertBuildStep(0, makeStep);
-
-        makeStep->setBuildTarget("all", /* on = */ true);
-
-        const QFileInfo fileInfo(file()->fileName());
-        bc->setBuildDirectory(fileInfo.absolutePath());
-
-        setActiveBuildConfiguration(bc);
-    }
+    if (targets().isEmpty())
+        addTarget(targetFactory()->create(this, QLatin1String(GENERIC_DESKTOP_TARGET_ID)));
 
     ToolChain::ToolChainType type =
             static_cast<ProjectExplorer::ToolChain::ToolChainType>

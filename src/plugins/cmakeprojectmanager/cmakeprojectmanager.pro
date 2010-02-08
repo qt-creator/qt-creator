@@ -7,6 +7,7 @@ HEADERS = cmakeproject.h \
     cmakeprojectmanager.h \
     cmakeprojectconstants.h \
     cmakeprojectnodes.h \
+    cmaketarget.h \
     makestep.h \
     cmakerunconfiguration.h \
     cmakeopenprojectwizard.h \
@@ -16,6 +17,7 @@ SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
     cmakeprojectmanager.cpp \
     cmakeprojectnodes.cpp \
+    cmaketarget.cpp \
     makestep.cpp \
     cmakerunconfiguration.cpp \
     cmakeopenprojectwizard.cpp \

@@ -37,12 +37,17 @@ namespace ProjectExplorer {
 
 namespace Internal {
 
+const char * const EDITORSETTINGS_PANEL_ID("ProjectExplorer.EditorSettingsPanel");
+
 class EditorSettingsPanelFactory : public IPanelFactory
 {
 public:
+    QString id() const;
     QString displayName() const;
     bool supports(Project *project);
+    bool supports(Target *target);
     IPropertiesPanel *createPanel(Project *project);
+    IPropertiesPanel *createPanel(Target *target);
 };
 
 class EditorSettingsWidget;

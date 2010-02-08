@@ -62,30 +62,18 @@ const char * const CLEAN_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.CleanS
 
 } // namespace
 
-BuildConfiguration::BuildConfiguration(Project *project, const QString &id) :
+BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(id),
-    m_project(project)
+    m_target(target)
 {
-    Q_ASSERT(m_project);
+    Q_ASSERT(m_target);
 }
 
-BuildConfiguration::BuildConfiguration(Project *project, BuildConfiguration *source) :
+BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
     ProjectConfiguration(source),
-    m_project(project)
+    m_target(target)
 {
-    Q_ASSERT(m_project);
-    foreach(BuildStep *originalbs, source->buildSteps()) {
-        IBuildStepFactory *factory = findCloneFactory(this, originalbs);
-        BuildStep *clonebs = factory->clone(this, originalbs);
-        if (clonebs)
-            m_buildSteps.append(clonebs);
-    }
-    foreach(BuildStep *originalcs, source->cleanSteps()) {
-        IBuildStepFactory *factory = findCloneFactory(this, originalcs);
-        BuildStep *clonecs = factory->clone(this, originalcs);
-        if (clonecs)
-            m_cleanSteps.append(clonecs);
-    }
+    Q_ASSERT(m_target);
 }
 
 BuildConfiguration::~BuildConfiguration()
@@ -107,9 +95,32 @@ QVariantMap BuildConfiguration::toMap() const
     return map;
 }
 
+void BuildConfiguration::cloneSteps(BuildConfiguration *source)
+{
+    Q_ASSERT(source);
+    foreach(BuildStep *originalbs, source->buildSteps()) {
+        IBuildStepFactory *factory(findCloneFactory(this, originalbs));
+        if (!factory)
+            continue;
+        BuildStep *clonebs(factory->clone(this, originalbs));
+        if (clonebs)
+            m_buildSteps.append(clonebs);
+    }
+    foreach(BuildStep *originalcs, source->cleanSteps()) {
+        IBuildStepFactory *factory = findCloneFactory(this, originalcs);
+        if (!factory)
+            continue;
+        BuildStep *clonecs = factory->clone(this, originalcs);
+        if (clonecs)
+            m_cleanSteps.append(clonecs);
+    }
+}
 
 bool BuildConfiguration::fromMap(const QVariantMap &map)
 {
+    if (!ProjectConfiguration::fromMap(map))
+        return false;
+
     int maxI(map.value(QLatin1String(BUILD_STEPS_COUNT_KEY), 0).toInt());
     if (maxI < 0)
         maxI = 0;
@@ -142,7 +153,7 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         insertCleanStep(m_cleanSteps.count(), bs);
     }
 
-    return ProjectConfiguration::fromMap(map);
+    return true;
 }
 
 QList<BuildStep *> BuildConfiguration::buildSteps() const
@@ -192,9 +203,9 @@ void BuildConfiguration::moveCleanStepUp(int position)
     m_cleanSteps.swap(position - 1, position);
 }
 
-Project *BuildConfiguration::project() const
+Target *BuildConfiguration::target() const
 {
-    return m_project;
+    return m_target;
 }
 
 ///

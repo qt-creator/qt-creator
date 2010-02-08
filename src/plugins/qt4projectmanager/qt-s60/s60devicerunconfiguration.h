@@ -48,10 +48,10 @@ class DebuggerStartParameters;
 }
 
 namespace Qt4ProjectManager {
-class Qt4Project;
 
 namespace Internal {
 class Qt4ProFileNode;
+class Qt4Target;
 class S60DeviceRunConfigurationFactory;
 
 class S60DeviceRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -65,10 +65,10 @@ public:
         SignCustom
     };
 
-    S60DeviceRunConfiguration(ProjectExplorer::Project *project, const QString &proFilePath);
+    S60DeviceRunConfiguration(ProjectExplorer::Target *parent, const QString &proFilePath);
     virtual ~S60DeviceRunConfiguration();
 
-    Qt4Project *qt4Project() const;
+    Qt4Target *qt4Target() const;
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *configuration) const;
     QWidget *configurationWidget();
@@ -109,7 +109,7 @@ private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
-    S60DeviceRunConfiguration(ProjectExplorer::Project *project, S60DeviceRunConfiguration *source);
+    S60DeviceRunConfiguration(ProjectExplorer::Target *parent, S60DeviceRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -140,14 +140,14 @@ public:
     explicit S60DeviceRunConfigurationFactory(QObject *parent = 0);
     ~S60DeviceRunConfigurationFactory();
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *parent, const QString &id);
-    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
-    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
-    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const;
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source);
+    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
 
-    QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
+    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
     // used to translate the ids to names to display to the user
     QString displayNameForId(const QString &id) const;
 };

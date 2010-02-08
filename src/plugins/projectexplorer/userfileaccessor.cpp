@@ -32,22 +32,24 @@
 #include "buildconfiguration.h"
 #include "persistentsettings.h"
 #include "project.h"
+#include "target.h"
 #include "toolchain.h"
 
 #include <coreplugin/ifile.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QFile>
 
 using namespace ProjectExplorer;
 
 namespace {
 const char * const USER_FILE_VERSION("ProjectExplorer.Project.Updater.FileVersion");
+const char * const WAS_UPDATED("ProjectExplorer.Project.Updater.DidUpdate");
 const char * const PROJECT_FILE_POSTFIX(".user");
 
 // Version 0 is used in Qt Creator 1.3.x and
-// (in a slighly differnt flavour) 1.4 pre-alpha releases.
-
+// (in a slighly differnt flavour) post 1.3 master.
 class Version0Handler : public UserFileVersionHandler
 {
 public:
@@ -71,6 +73,51 @@ private:
     QVariantMap convertRunConfigurations(Project *project, const QVariantMap &map);
     QVariantMap convertBuildSteps(Project *project, const QVariantMap &map);
 };
+
+// Version 1 is used in master post Qt Creator 1.3.x.
+// It was never used in any official release but is required for the
+// transition to later versions (which introduce support for targets).
+class Version1Handler : public UserFileVersionHandler
+{
+public:
+    Version1Handler();
+    ~Version1Handler();
+
+    int userFileVersion() const
+    {
+        return 1;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("1.3+git");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+
+private:
+    struct TargetDescription
+    {
+        TargetDescription(QString tid, QString dn) :
+            id(tid),
+            displayName(dn)
+        {
+        }
+
+        TargetDescription(const TargetDescription &td) :
+            id(td.id),
+            displayName(td.displayName)
+        {
+        }
+
+        QString id;
+        QString displayName;
+    };
+};
+
+//
+// Helper functions:
+//
 
 QString fileNameFor(const QString &name) {
     QString baseName(name);
@@ -109,6 +156,7 @@ UserFileAccessor::UserFileAccessor() :
     m_lastVersion(-1)
 {
     addVersionHandler(new Version0Handler);
+    addVersionHandler(new Version1Handler);
 }
 
 UserFileAccessor::~UserFileAccessor()
@@ -134,13 +182,17 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
         return QVariantMap();
     }
 
-    // Copy user file before changing it:
-    if (fileVersion != m_lastVersion + 1)
+    // Do we need to do a update?
+    if (fileVersion != m_lastVersion + 1) {
+        map.insert(QLatin1String(WAS_UPDATED), true);
         QFile::copy(fileName, fileName + '.' + m_handlers.value(fileVersion)->displayUserFileVersion());
+    }
 
     // Update:
     for (int i = fileVersion; i <= m_lastVersion; ++i)
         map = m_handlers.value(i)->update(project, map);
+
+    map.insert(QLatin1String(USER_FILE_VERSION), m_lastVersion + 1);
 
     return map;
 }
@@ -640,8 +692,120 @@ QVariantMap Version0Handler::update(Project *project, const QVariantMap &map)
         }
         result.insert(QLatin1String("GenericProjectManager.GenericProject.Toolchain"), type);
     }
-    // File version information:
-    result.insert(QLatin1String(USER_FILE_VERSION), 1);
+
+    return result;
+}
+
+// -------------------------------------------------------------------------
+// Version1Handler
+// -------------------------------------------------------------------------
+
+Version1Handler::Version1Handler()
+{
+}
+
+Version1Handler::~Version1Handler()
+{
+}
+
+QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
+{
+    QVariantMap result;
+
+    // The only difference between version 1 and 2 of the user file is that
+    // we need to add targets.
+
+    // Generate a list of all possible targets for the project:
+    QList<TargetDescription> targets;
+    if (project->id() == QLatin1String("GenericProjectManager.GenericProject"))
+        targets << TargetDescription(QString::fromLatin1("GenericProjectManager.GenericTarget"),
+                                     QCoreApplication::translate("GenericProjectManager::GenericTarget",
+                                                                 "Desktop",
+                                                                 "Generic desktop target display name"));
+    else if (project->id() == QLatin1String("CMakeProjectManager.CMakeProject"))
+        targets << TargetDescription(QString::fromLatin1("CMakeProjectManager.DefaultCMakeTarget"),
+                                     QCoreApplication::translate("CMakeProjectManager::Internal::CMakeTarget",
+                                                                 "Desktop",
+                                                                 "CMake Default target display name"));
+    else if (project->id() == QLatin1String("Qt4ProjectManager.Qt4Project"))
+        targets << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.DesktopTarget"),
+                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
+                                                                 "Desktop",
+                                                                 "Qt4 Desktop target display name"))
+        << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.S60EmulatorTarget"),
+                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
+                                                                 "S60 Emulator",
+                                                                 "Qt4 S60 Emulator target display name"))
+        << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.S60DeviceTarget"),
+                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
+                                                                 "S60 Device",
+                                                                 "Qt4 S60 Device target display name"))
+        << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.MaemoEmulatorTarget"),
+                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
+                                                                 "Maemo Emulator",
+                                                                 "Qt4 Maemo Emulator target display name"))
+        << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.MaemoDeviceTarget"),
+                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
+                                                                 "Maemo Device",
+                                                                 "Qt4 Maemo Device target display name"));
+    else if (project->id() == QLatin1String("QmlProjectManager.QmlProject"))
+        targets << TargetDescription(QString::fromLatin1("QmlProjectManager.QmlTarget"),
+                                     QCoreApplication::translate("QmlProjectManager::QmlTarget",
+                                                                 "QML Viewer",
+                                                                 "Qml Viewer target display name"));
+    else
+        return QVariantMap(); // We do not know how to handle this.
+
+    result.insert(QLatin1String("ProjectExplorer.Project.ActiveTarget"), 0);
+    result.insert(QLatin1String("ProjectExplorer.Project.TargetCount"), targets.count());
+    int pos(0);
+    foreach (const TargetDescription &td, targets) {
+        QVariantMap targetMap;
+        // Do not set displayName or icon!
+        targetMap.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), td.id);
+
+        int count = map.value(QLatin1String("ProjectExplorer.Project.BuildConfigurationCount")).toInt();
+        targetMap.insert(QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"), count);
+        for (int i = 0; i < count; ++i) {
+            QString key(QString::fromLatin1("ProjectExplorer.Project.BuildConfiguration.") + QString::number(i));
+            if (map.contains(key))
+                targetMap.insert(QString::fromLatin1("ProjectExplorer.Target.BuildConfiguration.") + QString::number(i),
+                                 map.value(key));
+        }
+
+        count = map.value(QLatin1String("ProjectExplorer.Project.RunConfigurationCount")).toInt();
+        for (int i = 0; i < count; ++i) {
+            QString key(QString::fromLatin1("ProjectExplorer.Project.RunConfiguration.") + QString::number(i));
+            if (map.contains(key))
+                targetMap.insert(QString::fromLatin1("ProjectExplorer.Target.RunConfiguration.") + QString::number(i),
+                                 map.value(key));
+        }
+
+        if (map.contains(QLatin1String("ProjectExplorer.Project.ActiveBuildConfiguration")))
+            targetMap.insert(QLatin1String("ProjectExplorer.Target.ActiveBuildConfiguration"),
+                             map.value(QLatin1String("ProjectExplorer.Project.ActiveBuildConfiguration")));
+        if (map.contains(QLatin1String("ProjectExplorer.Project.ActiveRunConfiguration")))
+            targetMap.insert(QLatin1String("ProjectExplorer.Target.ActiveRunConfiguration"),
+                             map.value(QLatin1String("ProjectExplorer.Project.ActiveRunConfiguration")));
+        if (map.contains(QLatin1String("ProjectExplorer.Project.RunConfigurationCount")))
+            targetMap.insert(QLatin1String("ProjectExplorer.Target.RunConfigurationCount"),
+                             map.value(QLatin1String("ProjectExplorer.Project.RunConfigurationCount")));
+
+        result.insert(QString::fromLatin1("ProjectExplorer.Project.Target.") + QString::number(pos), targetMap);
+        ++pos;
+    }
+
+    // copy everything else:
+    for (QVariantMap::const_iterator i = map.constBegin(); i != map.constEnd(); ++i) {
+        if (i.key() == QLatin1String("ProjectExplorer.Project.ActiveBuildConfiguration") ||
+            i.key() == QLatin1String("ProjectExplorer.Project.BuildConfigurationCount") ||
+            i.key() == QLatin1String("ProjectExplorer.Project.ActiveRunConfiguration") ||
+            i.key() == QLatin1String("ProjectExplorer.Project.RunConfigurationCount") ||
+            i.key().startsWith(QLatin1String("ProjectExplorer.Project.BuildConfiguration.")) ||
+            i.key().startsWith(QLatin1String("ProjectExplorer.Project.RunConfiguration.")))
+            continue;
+        result.insert(i.key(), i.value());
+    }
 
     return result;
 }

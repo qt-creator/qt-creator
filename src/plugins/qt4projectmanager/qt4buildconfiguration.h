@@ -38,13 +38,13 @@
 
 namespace Qt4ProjectManager {
 
-class Qt4Project;
 class QMakeStep;
 class MakeStep;
 
 namespace Internal {
 
 class Qt4BuildConfigurationFactory;
+class Qt4Target;
 
 class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -52,10 +52,10 @@ class Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
     friend class Qt4BuildConfigurationFactory;
 
 public:
-    explicit Qt4BuildConfiguration(Qt4Project *pro);
+    explicit Qt4BuildConfiguration(Qt4Target *target);
     virtual ~Qt4BuildConfiguration();
 
-    Qt4Project *qt4Project() const;
+    Qt4Target *qt4Target() const;
 
     ProjectExplorer::Environment environment() const;
     ProjectExplorer::Environment baseEnvironment() const;
@@ -73,19 +73,9 @@ public:
     void setSubNodeBuild(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
     Qt4ProjectManager::Internal::Qt4ProFileNode *subNodeBuild() const;
 
-    //returns the qtVersion, if the project is set to use the default qt version, then
-    // that is returned
-    // to check whether the project uses the default qt version use qtVersionId
+    // returns the qtVersion
     QtVersion *qtVersion() const;
-
-    // returns the id of the qt version, if the project is using the default qt version
-    // this function returns 0
-    int qtVersionId() const;
-    //returns the name of the qt version, might be QString::Null, which means default qt version
-    // qtVersion is in general the better method to use
-    QString qtVersionName() const;
-
-    void setQtVersion(int id);
+    void setQtVersion(QtVersion *);
 
     ProjectExplorer::ToolChain *toolChain() const;
     void setToolChainType(ProjectExplorer::ToolChain::ToolChainType type);
@@ -131,21 +121,22 @@ signals:
     void targetInformationChanged();
 
 private slots:
-    void defaultQtVersionChanged();
     void qtVersionsChanged(const QList<int> &changedVersions);
 
 protected:
-    Qt4BuildConfiguration(Qt4Project *pro, Qt4BuildConfiguration *source);
-    Qt4BuildConfiguration(Qt4Project *pro, const QString &id);
+    Qt4BuildConfiguration(Qt4Target *target, Qt4BuildConfiguration *source);
+    Qt4BuildConfiguration(Qt4Target *target, const QString &id);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
     void ctor();
+    void pickValidQtVersion();
+
     bool m_clearSystemEnvironment;
     QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
     bool m_shadowBuild;
     QString m_buildDirectory;
-    mutable int m_qtVersion; // Changed if the qtversion is invalid
+    int m_qtVersionId;
     int m_toolChainType;
     QtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     Qt4ProjectManager::Internal::Qt4ProFileNode *m_subNodeBuild;
@@ -159,15 +150,15 @@ public:
     explicit Qt4BuildConfigurationFactory(QObject *parent = 0);
     ~Qt4BuildConfigurationFactory();
 
-    QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
+    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const QString &id) const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Project *parent, const QString &id);
-    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source) const;
-    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source);
-    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
+    ProjectExplorer::BuildConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const;
+    ProjectExplorer::BuildConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
 
 private slots:
     void update();

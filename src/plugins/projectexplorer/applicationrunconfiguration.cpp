@@ -42,13 +42,13 @@ using namespace ProjectExplorer::Internal;
 
 /// LocalApplicationRunConfiguration
 
-LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Project *project, const QString &id) :
-    RunConfiguration(project, id)
+LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, const QString &id) :
+    RunConfiguration(target, id)
 {
 }
 
-LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Project *project, LocalApplicationRunConfiguration *rc) :
-    RunConfiguration(project, rc)
+LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc) :
+    RunConfiguration(target, rc)
 {
 }
 

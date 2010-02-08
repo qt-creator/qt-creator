@@ -12,6 +12,8 @@ HEADERS += projectexplorer.h \
     projectwindow.h \
     buildmanager.h \
     compileoutputwindow.h \
+    target.h \
+    targetsettingspanel.h \
     taskwindow.h \
     outputwindow.h \
     persistentsettings.h \
@@ -71,11 +73,14 @@ HEADERS += projectexplorer.h \
     miniprojecttargetselector.h \
     targetselector.h \
     targetsettingswidget.h \
-    doubletabwidget.h
+    doubletabwidget.h \
+    addtargetdialog.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
     compileoutputwindow.cpp \
+    target.cpp \
+    targetsettingspanel.cpp \
     ioutputparser.cpp \
     projectconfiguration.cpp \
     gnumakeparser.cpp \
@@ -130,7 +135,8 @@ SOURCES += projectexplorer.cpp \
     miniprojecttargetselector.cpp \
     targetselector.cpp \
     targetsettingswidget.cpp \
-    doubletabwidget.cpp
+    doubletabwidget.cpp \
+    addtargetdialog.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \
@@ -140,22 +146,20 @@ FORMS += processstep.ui \
     projectexplorersettingspage.ui \
     projectwelcomepagewidget.ui \
     targetsettingswidget.ui \
-    doubletabwidget.ui
+    doubletabwidget.ui \
+    addtargetdialog.ui
 
 win32 {
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp
     HEADERS += winguiprocess.h
 }
-else:macx {
+else:macx { 
     SOURCES += applicationlauncher_x11.cpp
     LIBS += -framework \
         Carbon
 }
-else:unix {
-    SOURCES += applicationlauncher_x11.cpp
-}
-
+else:unix:SOURCES += applicationlauncher_x11.cpp
 RESOURCES += projectexplorer.qrc
 DEFINES += PROJECTEXPLORER_LIBRARY
 OTHER_FILES += ProjectExplorer.pluginspec

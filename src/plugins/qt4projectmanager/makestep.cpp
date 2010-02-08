@@ -30,6 +30,7 @@
 #include "makestep.h"
 
 #include "qt4project.h"
+#include "qt4target.h"
 #include "qt4buildconfiguration.h"
 #include "qt4projectmanagerconstants.h"
 
@@ -175,7 +176,7 @@ bool MakeStep::init()
 
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
-    if (qt4BuildConfiguration()->qt4Project()->rootProjectNode()->projectType() == ScriptTemplate) {
+    if (qt4BuildConfiguration()->qt4Target()->qt4Project()->rootProjectNode()->projectType() == ScriptTemplate) {
         fi.reportResult(true);
         return;
     }

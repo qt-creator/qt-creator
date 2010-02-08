@@ -60,6 +60,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlproject.h>
 
@@ -186,7 +187,7 @@ void QmlInspectorMode::connectToViewer()
     }
 
     QmlProjectManager::QmlRunConfiguration* config =
-            qobject_cast<QmlProjectManager::QmlRunConfiguration*>(project->activeRunConfiguration());
+            qobject_cast<QmlProjectManager::QmlRunConfiguration*>(project->activeTarget()->activeRunConfiguration());
     if (!config) {
         emit statusMessage(tr("Cannot find project run configuration, debugging canceled."));
         return;

@@ -47,6 +47,8 @@ class SessionManager;
 
 namespace Internal {
 
+const char * const DEPENDENCIES_PANEL_ID("ProjectExplorer.DependenciesPanel");
+
 class DependenciesWidget;
 
 class DependenciesPanelFactory : public IPanelFactory
@@ -54,9 +56,12 @@ class DependenciesPanelFactory : public IPanelFactory
 public:
     DependenciesPanelFactory(SessionManager *session);
 
+    QString id() const;
     QString displayName() const;
     bool supports(Project *project);
+    bool supports(Target *target);
     IPropertiesPanel *createPanel(Project *project);
+    IPropertiesPanel *createPanel(Target *target);
 
 private:
     SessionManager *m_session;

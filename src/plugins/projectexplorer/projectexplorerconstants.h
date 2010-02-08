@@ -77,6 +77,9 @@ const char * const RENAMEFILE           = "ProjectExplorer.RenameFile";
 const char * const RUNMODE              = "ProjectExplorer.RunMode";
 const char * const DEBUGMODE            = "ProjectExplorer.DebugMode";
 
+const char * const SELECTTARGET         = "ProjectExplorer.SelectTarget";
+
+
 // action priorities
 const int          P_ACTION_RUN            = 100;
 const int          P_ACTION_DEBUG          = 90;

@@ -107,7 +107,7 @@ QString QtOptionsPage::displayCategory() const
 QWidget *QtOptionsPage::createPage(QWidget *parent)
 {
     QtVersionManager *vm = QtVersionManager::instance();
-    m_widget = new QtOptionsPageWidget(parent, vm->versions(), vm->defaultVersion());
+    m_widget = new QtOptionsPageWidget(parent, vm->versions());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -122,7 +122,7 @@ void QtOptionsPage::apply()
     QList<QtVersion *> versions;
     foreach(const QSharedPointerQtVersion &spv, m_widget->versions())
         versions.push_back(new QtVersion(*spv));
-    vm->setNewQtVersions(versions, m_widget->defaultVersion());
+    vm->setNewQtVersions(versions);
 }
 
 bool QtOptionsPage::matches(const QString &s) const
@@ -133,7 +133,7 @@ bool QtOptionsPage::matches(const QString &s) const
 //-----------------------------------------------------
 
 
-QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion)
+QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions)
     : QWidget(parent)
     , m_debuggingHelperOkPixmap(QLatin1String(":/extensionsystem/images/ok.png"))
     , m_debuggingHelperErrorPixmap(QLatin1String(":/extensionsystem/images/error.png"))
@@ -142,7 +142,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
     , m_specifyNameString(tr("<specify a name>"))
     , m_specifyPathString(tr("<specify a qmake location>"))
     , m_ui(new Internal::Ui::QtVersionManager())
-    , m_defaultVersion(versions.indexOf(defaultVersion))
 {
     // Initialize m_versions
     foreach(QtVersion *version, versions)
@@ -182,15 +181,10 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
         item->setText(1, QDir::toNativeSeparators(version->qmakeCommand()));
         item->setData(0, Qt::UserRole, version->uniqueId());
 
-        if (version->isValid()) {
+        if (version->isValid())
             item->setData(2, Qt::DecorationRole, version->hasDebuggingHelper() ? m_debuggingHelperOkIcon : m_debuggingHelperErrorIcon);
-        } else {
+        else
             item->setData(2, Qt::DecorationRole, QIcon());
-        }
-
-        m_ui->defaultCombo->addItem(version->displayName());
-        if (i == m_defaultVersion)
-            m_ui->defaultCombo->setCurrentIndex(i);
     }
     m_ui->qtdirList->expandAll();
 
@@ -221,9 +215,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     connect(m_ui->qtdirList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
             this, SLOT(versionChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
-    connect(m_ui->defaultCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(defaultChanged(int)));
-
     connect(m_ui->msvcComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(msvcVersionChanged()));
 
@@ -356,14 +347,8 @@ void QtOptionsPageWidget::addQtDir()
 
     m_ui->nameEdit->setText(newVersion->displayName());
     m_ui->qmakePath->setPath(newVersion->qmakeCommand());
-    m_ui->defaultCombo->addItem(newVersion->displayName());
     m_ui->nameEdit->setFocus();
     m_ui->nameEdit->selectAll();
-
-    if (!m_versions.at(m_defaultVersion)->isValid()) {
-        m_defaultVersion = m_versions.count() - 1;
-        m_ui->defaultCombo->setCurrentIndex(m_versions.count() - 1);
-    }
 }
 
 void QtOptionsPageWidget::removeQtDir()
@@ -372,13 +357,6 @@ void QtOptionsPageWidget::removeQtDir()
     int index = indexForTreeItem(item);
     if (index < 0)
         return;
-
-    for (int i = 0; i < m_ui->defaultCombo->count(); ++i) {
-        if (m_ui->defaultCombo->itemText(i) == item->text(0)) {
-            m_ui->defaultCombo->removeItem(i);
-            break;
-        }
-    }
 
     delete item;
 
@@ -602,18 +580,6 @@ void QtOptionsPageWidget::onMingwBrowsed()
     updateState();
 }
 
-void QtOptionsPageWidget::defaultChanged(int)
-{
-    for (int i=0; i<m_ui->defaultCombo->count(); ++i) {
-        if (m_versions.at(i)->displayName() == m_ui->defaultCombo->currentText()) {
-            m_defaultVersion = i;
-            return;
-        }
-    }
-
-    m_defaultVersion = 0;
-}
-
 void QtOptionsPageWidget::updateCurrentQtName()
 {
     QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
@@ -623,8 +589,6 @@ void QtOptionsPageWidget::updateCurrentQtName()
         return;
     m_versions[currentItemIndex]->setDisplayName(m_ui->nameEdit->text());
     currentItem->setText(0, m_versions[currentItemIndex]->displayName());
-
-    m_ui->defaultCombo->setItemText(currentItemIndex, m_versions[currentItemIndex]->displayName());
 }
 
 
@@ -661,7 +625,6 @@ void QtOptionsPageWidget::fixQtVersionName(int index)
                 // set new name
                 m_versions[index]->setDisplayName(name);
                 treeItemForIndex(index)->setText(0, name);
-                m_ui->defaultCombo->setItemText(index, name);
 
                 // Now check again...
                 fixQtVersionName(index);
@@ -748,11 +711,6 @@ void QtOptionsPageWidget::updateCurrentGcceDirectory()
 QList<QSharedPointerQtVersion> QtOptionsPageWidget::versions() const
 {
     return m_versions;
-}
-
-int QtOptionsPageWidget::defaultVersion() const
-{
-    return m_defaultVersion;
 }
 
 QString QtOptionsPageWidget::searchKeywords() const

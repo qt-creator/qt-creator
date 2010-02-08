@@ -29,12 +29,12 @@
 
 #include "customexecutablerunconfiguration.h"
 #include "environment.h"
-#include "project.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/environmenteditmodel.h>
 #include <projectexplorer/debugginghelper.h>
+#include <projectexplorer/target.h>
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
@@ -263,7 +263,7 @@ void CustomExecutableRunConfiguration::ctor()
         setDisplayName(m_userName);
     else
         setDisplayName(tr("Custom Executable"));
-    connect(project(), SIGNAL(activeBuildConfigurationChanged()),
+    connect(target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(activeBuildConfigurationChanged()));
 
     m_lastActiveBuildConfiguration = activeBuildConfiguration();
@@ -274,8 +274,8 @@ void CustomExecutableRunConfiguration::ctor()
     }
 }
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *project) :
-    LocalApplicationRunConfiguration(project, QLatin1String(CUSTOM_EXECUTABLE_ID)),
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
+    LocalApplicationRunConfiguration(parent, QLatin1String(CUSTOM_EXECUTABLE_ID)),
     m_runMode(Gui),
     m_userSetName(false),
     m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
@@ -284,8 +284,8 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *proj
     ctor();
 }
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Project *project, CustomExecutableRunConfiguration *source) :
-    LocalApplicationRunConfiguration(project, source),
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent, CustomExecutableRunConfiguration *source) :
+    LocalApplicationRunConfiguration(parent, source),
     m_executable(source->m_executable),
     m_workingDirectory(source->m_workingDirectory),
     m_cmdArguments(source->m_cmdArguments),
@@ -551,54 +551,54 @@ CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactor
 
 }
 
-bool CustomExecutableRunConfigurationFactory::canCreate(Project *project, const QString &id) const
+bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, const QString &id) const
 {
-    Q_UNUSED(project);
+    Q_UNUSED(parent);
     return id == QLatin1String(CUSTOM_EXECUTABLE_ID);
 }
 
-RunConfiguration *CustomExecutableRunConfigurationFactory::create(Project *project, const QString &id)
+RunConfiguration *CustomExecutableRunConfigurationFactory::create(Target *parent, const QString &id)
 {
-    if (!canCreate(project, id))
+    if (!canCreate(parent, id))
         return 0;
 
-    RunConfiguration *rc(new CustomExecutableRunConfiguration(project));
+    RunConfiguration *rc(new CustomExecutableRunConfiguration(parent));
     rc->setDisplayName(tr("Custom Executable"));
     return rc;
 }
 
-bool CustomExecutableRunConfigurationFactory::canRestore(Project *project, const QVariantMap &map) const
+bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     QString id(idFromMap(map));
-    return canCreate(project, id);
+    return canCreate(parent, id);
 }
 
-RunConfiguration *CustomExecutableRunConfigurationFactory::restore(Project *project, const QVariantMap &map)
+RunConfiguration *CustomExecutableRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    if (!canRestore(project, map))
+    if (!canRestore(parent, map))
         return 0;
-    CustomExecutableRunConfiguration *rc(new CustomExecutableRunConfiguration(project));
+    CustomExecutableRunConfiguration *rc(new CustomExecutableRunConfiguration(parent));
     if (rc->fromMap(map))
         return rc;
     delete rc;
     return 0;
 }
 
-bool CustomExecutableRunConfigurationFactory::canClone(Project *parent, RunConfiguration *source) const
+bool CustomExecutableRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
 
-RunConfiguration *CustomExecutableRunConfigurationFactory::clone(Project *parent, RunConfiguration *source)
+RunConfiguration *CustomExecutableRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
     return new CustomExecutableRunConfiguration(parent, static_cast<CustomExecutableRunConfiguration*>(source));
 }
 
-QStringList CustomExecutableRunConfigurationFactory::availableCreationIds(Project *project) const
+QStringList CustomExecutableRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    Q_UNUSED(project)
+    Q_UNUSED(parent)
     return QStringList() << QLatin1String(CUSTOM_EXECUTABLE_ID);
 }
 

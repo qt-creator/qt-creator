@@ -43,22 +43,21 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-class Project;
+class Target;
 
 class RunControl;
 class BuildConfiguration;
 
 /* Base class for a run configuration. A run configuration specifies how a
- * project should be run, while the runner (see below) does the actual running.
+ * target should be run, while the runner (see below) does the actual running.
  *
- * Note that all RunControls and the project hold a shared pointer to the RunConfiguration.
- * That is the lifetime of the RunConfiguration might exceed the life of the project.
+ * Note that all RunControls and the target hold a shared pointer to the RunConfiguration.
+ * That is the lifetime of the RunConfiguration might exceed the life of the target.
  * The user might still have a RunControl running (or output tab of that RunControl open)
- * and yet unloaded the project.
- * Also a RunConfiguration might be already removed from the list of RunConfigurations
- * for a project, but stil be runnable via the output tab.
-
-*/
+ * and yet unloaded the target.
+ * Also a RunConfiguration might be already removed from the list of RunConfigurations 
+ * for a target, but stil be runnable via the output tab.
+ */
 class PROJECTEXPLORER_EXPORT RunConfiguration : public ProjectConfiguration
 {
     Q_OBJECT
@@ -78,24 +77,24 @@ public:
     // rename to createConfigurationWidget
     virtual QWidget *configurationWidget() = 0;
 
-    Project *project() const;
+    Target *target() const;
 
 protected:
-    RunConfiguration(Project *project, const QString &id);
-    RunConfiguration(Project *project, RunConfiguration *source);
+    RunConfiguration(Target *parent, const QString &id);
+    RunConfiguration(Target *parent, RunConfiguration *source);
 
     // convenience method to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
 
 private:
-    Project *m_project;
+    Target *m_target;
 };
 
 /* The run configuration factory is used for restoring run configurations from
  * settings. And used to create new runconfigurations in the "Run Settings" Dialog.
- * For the first case bool canRestore(const QString &type) and
- * RunConfiguration* create(Project *project, QString type) are used.
- * For the second type the functions QStringList availableCreationIds(Project *pro) and
+ * For the first case bool canRestore(Target *parent, const QString &id) and
+ * RunConfiguration* create(Target *parent, const QString &id) are used.
+ * For the second type the functions QStringList availableCreationIds(Target *parent) and
  * QString displayNameForType(const QString&) are used to generate a list of creatable
  * RunConfigurations, and create(..) is used to create it.
  */
@@ -108,17 +107,21 @@ public:
     explicit IRunConfigurationFactory(QObject *parent = 0);
     virtual ~IRunConfigurationFactory();
 
-    // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList availableCreationIds(Project *parent) const = 0;
+    // used to show the list of possible additons to a target, returns a list of types
+    virtual QStringList availableCreationIds(Target *parent) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
-    virtual bool canCreate(Project *parent, const QString &id) const = 0;
-    virtual RunConfiguration *create(Project *parent, const QString &id) = 0;
-    virtual bool canRestore(Project *parent, const QVariantMap &map) const = 0;
-    virtual RunConfiguration *restore(Project *parent, const QVariantMap &map) = 0;
-    virtual bool canClone(Project *parent, RunConfiguration *product) const = 0;
-    virtual RunConfiguration *clone(Project *parent, RunConfiguration *product) = 0;
+    virtual bool canCreate(Target *parent, const QString &id) const = 0;
+    virtual RunConfiguration *create(Target *parent, const QString &id) = 0;
+    virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
+    virtual RunConfiguration *restore(Target *parent, const QVariantMap &map) = 0;
+    virtual bool canClone(Target *parent, RunConfiguration *product) const = 0;
+    virtual RunConfiguration *clone(Target *parent, RunConfiguration *product) = 0;
+
+    static IRunConfigurationFactory *createFactory(Target *parent, const QString &id);
+    static IRunConfigurationFactory *cloneFactory(Target *parent, RunConfiguration *source);
+    static IRunConfigurationFactory *restoreFactory(Target *parent, const QVariantMap &map);
 
 signals:
     void availableCreationIdsChanged();

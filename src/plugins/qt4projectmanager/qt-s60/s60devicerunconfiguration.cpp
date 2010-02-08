@@ -30,6 +30,7 @@
 #include "s60devicerunconfiguration.h"
 #include "s60devicerunconfigurationwidget.h"
 #include "qt4project.h"
+#include "qt4target.h"
 #include "qtversionmanager.h"
 #include "profilereader.h"
 #include "s60manager.h"
@@ -45,7 +46,6 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/persistentsettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 
@@ -106,8 +106,8 @@ QString pathToId(const QString &path)
 
 // ======== S60DeviceRunConfiguration
 
-S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QString &proFilePath) :
-    RunConfiguration(project, QLatin1String(S60_DEVICE_RC_ID)),
+S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QString &proFilePath) :
+    RunConfiguration(parent,  QLatin1String(S60_DEVICE_RC_ID)),
     m_proFilePath(proFilePath),
     m_cachedTargetInformationValid(false),
 #ifdef Q_OS_WIN
@@ -122,8 +122,8 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, const QSt
     ctor();
 }
 
-S60DeviceRunConfiguration::S60DeviceRunConfiguration(Project *project, S60DeviceRunConfiguration *source) :
-    RunConfiguration(project, source),
+S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRunConfiguration *source) :
+    RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
     m_cachedTargetInformationValid(false),
     m_serialPortName(source->m_serialPortName),
@@ -148,10 +148,10 @@ void S60DeviceRunConfiguration::ctor()
     else
         setDisplayName(tr("QtS60DeviceRunConfiguration"));
 
-    connect(qt4Project(), SIGNAL(targetInformationChanged()),
+    connect(target(), SIGNAL(targetInformationChanged()),
             this, SLOT(invalidateCachedTargetInformation()));
 
-    connect(qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
@@ -160,9 +160,9 @@ S60DeviceRunConfiguration::~S60DeviceRunConfiguration()
 {
 }
 
-Qt4Project *S60DeviceRunConfiguration::qt4Project() const
+Qt4Target *S60DeviceRunConfiguration::qt4Target() const
 {
-    return static_cast<Qt4Project *>(project());
+    return static_cast<Qt4Target *>(target());
 }
 
 ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType(
@@ -175,7 +175,7 @@ ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainTy
 
 ProjectExplorer::ToolChain::ToolChainType S60DeviceRunConfiguration::toolChainType() const
 {
-    if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration()))
+    if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration()))
         return bc->toolChainType();
     return ProjectExplorer::ToolChain::INVALID;
 }
@@ -195,7 +195,7 @@ QWidget *S60DeviceRunConfiguration::configurationWidget()
 QVariantMap S60DeviceRunConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
-    const QDir projectDir = QFileInfo(project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
 
     map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
     map.insert(QLatin1String(SIGNING_MODE_KEY), (int)m_signingMode);
@@ -210,7 +210,7 @@ QVariantMap S60DeviceRunConfiguration::toMap() const
 
 bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
 {
-    const QDir projectDir = QFileInfo(qt4Project()->file()->fileName()).absoluteDir();
+    const QDir projectDir = QFileInfo(target()->project()->file()->fileName()).absoluteDir();
 
     m_proFilePath = projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString());
     m_signingMode = static_cast<SigningMode>(map.value(QLatin1String(SIGNING_MODE_KEY)).toInt());
@@ -313,7 +313,7 @@ QString S60DeviceRunConfiguration::packageFileName() const
 
 QString S60DeviceRunConfiguration::localExecutableFileName() const
 {
-    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(project()->activeBuildConfiguration());
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
     S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(qt4bc->qtVersion());
 
     QString localExecutable = device.epocRoot;
@@ -337,7 +337,7 @@ void S60DeviceRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
         return;
-    Qt4TargetInformation info = qt4Project()->targetInformation(qt4Project()->activeQt4BuildConfiguration(),
+    Qt4TargetInformation info = qt4Target()->targetInformation(qt4Target()->activeBuildConfiguration(),
                                                                 m_proFilePath);
     if (info.error != Qt4TargetInformation::NoError) {
         if (info.error == Qt4TargetInformation::ProParserError) {
@@ -359,7 +359,7 @@ void S60DeviceRunConfiguration::updateTarget()
     m_baseFileName = info.workingDir + QLatin1Char('/') + m_targetName;
     m_packageTemplateFileName = m_baseFileName + QLatin1String("_template.pkg");
 
-    Qt4BuildConfiguration *qt4bc = qt4Project()->activeQt4BuildConfiguration();
+    Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
     switch (qt4bc->toolChainType()) {
     case ToolChain::GCCE:
     case ToolChain::GCCE_GNUPOC:
@@ -400,13 +400,14 @@ S60DeviceRunConfigurationFactory::~S60DeviceRunConfigurationFactory()
 {
 }
 
-QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Project *parent) const
+QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
-    Qt4Project *qt4project = qobject_cast<Qt4Project *>(parent);
-    if (!qt4project)
+    Qt4Target *target = qobject_cast<Qt4Target *>(parent);
+    if (!target ||
+        target->id() != QLatin1String(S60_DEVICE_TARGET_ID))
         return QStringList();
 
-    return qt4project->applicationProFilePathes(QLatin1String(S60_DEVICE_RC_PREFIX));
+    return target->qt4Project()->applicationProFilePathes(QLatin1String(S60_DEVICE_RC_PREFIX));
 }
 
 QString S60DeviceRunConfigurationFactory::displayNameForId(const QString &id) const
@@ -416,37 +417,40 @@ QString S60DeviceRunConfigurationFactory::displayNameForId(const QString &id) co
     return QString();
 }
 
-bool S60DeviceRunConfigurationFactory::canCreate(Project *parent, const QString &id) const
+bool S60DeviceRunConfigurationFactory::canCreate(Target *parent, const QString &id) const
 {
-    Qt4Project * project(qobject_cast<Qt4Project *>(parent));
-    if (!project)
+    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
+    if (!t ||
+        t->id() != QLatin1String(S60_DEVICE_TARGET_ID))
         return false;
-    return project->hasApplicationProFile(pathFromId(id));
+    return t->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
 
-RunConfiguration *S60DeviceRunConfigurationFactory::create(Project *parent, const QString &id)
+RunConfiguration *S60DeviceRunConfigurationFactory::create(Target *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
 
-    Qt4Project *project(static_cast<Qt4Project *>(parent));
-    return new S60DeviceRunConfiguration(project, pathFromId(id));
+    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    return new S60DeviceRunConfiguration(t, pathFromId(id));
 }
 
-bool S60DeviceRunConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+bool S60DeviceRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    if (!qobject_cast<Qt4Project *>(parent))
+    Qt4Target * t(qobject_cast<Qt4Target *>(parent));
+    if (!t ||
+        t->id() != QLatin1String(S60_DEVICE_TARGET_ID))
         return false;
     QString id(ProjectExplorer::idFromMap(map));
     return id == QLatin1String(S60_DEVICE_RC_ID);
 }
 
-RunConfiguration *S60DeviceRunConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+RunConfiguration *S60DeviceRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Project *project(static_cast<Qt4Project *>(parent));
-    S60DeviceRunConfiguration *rc(new S60DeviceRunConfiguration(project, QString()));
+    Qt4Target *t(static_cast<Qt4Target *>(parent));
+    S60DeviceRunConfiguration *rc(new S60DeviceRunConfiguration(t, QString()));
     if (rc->fromMap(map))
         return rc;
 
@@ -454,20 +458,20 @@ RunConfiguration *S60DeviceRunConfigurationFactory::restore(ProjectExplorer::Pro
     return 0;
 }
 
-bool S60DeviceRunConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source) const
+bool S60DeviceRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
-    if (!qobject_cast<Qt4Project *>(parent))
+    if (!qobject_cast<Qt4Target *>(parent))
         return false;
     return source->id() == QLatin1String(S60_DEVICE_RC_ID);
 }
 
-RunConfiguration *S60DeviceRunConfigurationFactory::clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *source)
+RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4Project *project = static_cast<Qt4Project *>(parent);
+    Qt4Target *t = static_cast<Qt4Target *>(parent);
     S60DeviceRunConfiguration * old(static_cast<S60DeviceRunConfiguration *>(source));
-    return new S60DeviceRunConfiguration(project, old);
+    return new S60DeviceRunConfiguration(t, old);
 }
 
 // ======== S60DeviceRunControlBase
@@ -493,7 +497,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
 
     S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
 
-    Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Project()->activeQt4BuildConfiguration();
+    Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Target()->activeBuildConfiguration();
 
     QTC_ASSERT(s60runConfig, return);
     m_toolChain = s60runConfig->toolChainType();

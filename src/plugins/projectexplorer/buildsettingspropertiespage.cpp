@@ -31,6 +31,7 @@
 #include "buildstep.h"
 #include "buildstepspage.h"
 #include "project.h"
+#include "target.h"
 #include "buildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
@@ -54,6 +55,11 @@ using namespace ProjectExplorer::Internal;
 // BuildSettingsPanelFactory
 ///
 
+QString BuildSettingsPanelFactory::id() const
+{
+    return QLatin1String(BUILDSETTINGS_PANEL_ID);
+}
+
 QString BuildSettingsPanelFactory::displayName() const
 {
     return QApplication::tr("Build Settings");
@@ -61,20 +67,33 @@ QString BuildSettingsPanelFactory::displayName() const
 
 bool BuildSettingsPanelFactory::supports(Project *project)
 {
-    return project->hasBuildSettings();
+    return project->targets().count() == 1;
 }
+
+bool BuildSettingsPanelFactory::supports(Target *target)
+{
+    return target->buildConfigurationFactory();
+}
+
 
 IPropertiesPanel *BuildSettingsPanelFactory::createPanel(Project *project)
 {
-    return new BuildSettingsPanel(project);
+    Q_ASSERT(supports(project));
+    return new BuildSettingsPanel(project->activeTarget());
 }
+
+IPropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
+{
+    return new BuildSettingsPanel(target);
+}
+
 
 ///
 // BuildSettingsPanel
 ///
 
-BuildSettingsPanel::BuildSettingsPanel(Project *project) :
-    m_widget(new BuildSettingsWidget(project)),
+BuildSettingsPanel::BuildSettingsPanel(Target *target) :
+    m_widget(new BuildSettingsWidget(target)),
     m_icon(":/projectexplorer/images/rebuild.png")
 {
 }
@@ -99,11 +118,6 @@ QIcon BuildSettingsPanel::icon() const
     return m_icon;
 }
 
-void BuildSettingsPanel::widgetWasAddedToLayout()
-{
-    m_widget->setupUi();
-}
-
 ///
 // BuildSettingsWidget
 ///
@@ -113,26 +127,32 @@ BuildSettingsWidget::~BuildSettingsWidget()
     clear();
 }
 
-BuildSettingsWidget::BuildSettingsWidget(Project *project) :
-    m_project(project),
+BuildSettingsWidget::BuildSettingsWidget(Target *target) :
+    m_target(target),
     m_buildConfiguration(0),
     m_leftMargin(0)
 {
-    // setup is done after panel has been added to layout.
-    // setupUi will be called by the IPropertiesPanel implementation then.
-    // this is necessary to handle the margin by hand for the up/down/delete hover
+    Q_ASSERT(m_target);
+    setupUi();
 }
 
 void BuildSettingsWidget::setupUi()
 {
-    // called by IPropertiesPanel implementation once the panel has been added
-    QMargins margins(contentsMargins());
-    m_leftMargin = margins.left();
-    margins.setLeft(0);
-    setContentsMargins(margins);
-
+    m_leftMargin = Constants::PANEL_LEFT_MARGIN;
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
+
+    if (!m_target->buildConfigurationFactory()) {
+        QLabel * noSettingsLabel(new QLabel(this));
+        noSettingsLabel->setText(tr("No Build Settings available"));
+        {
+            QFont f(noSettingsLabel->font());
+            f.setPointSizeF(f.pointSizeF() * 1.2);
+            noSettingsLabel->setFont(f);
+        }
+        vbox->addWidget(noSettingsLabel);
+        return;
+    }
 
     { // Edit Build Configuration row
         QHBoxLayout *hbox = new QHBoxLayout();
@@ -157,7 +177,7 @@ void BuildSettingsWidget::setupUi()
         vbox->addLayout(hbox);
     }
 
-    m_buildConfiguration = m_project->activeBuildConfiguration();
+    m_buildConfiguration = m_target->activeBuildConfiguration();
 
     connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(currentIndexChanged(int)));
@@ -169,21 +189,23 @@ void BuildSettingsWidget::setupUi()
 //    connect(m_project, SIGNAL(buildConfigurationDisplayNameChanged(const QString &)),
 //            this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
 
-    connect(m_project, SIGNAL(activeBuildConfigurationChanged()),
+    connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateConfigurationComboBoxLabels()));
-    connect(m_project, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+
+    connect(m_target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
 
-    connect(m_project, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+    connect(m_target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
 
-    foreach (BuildConfiguration *bc, m_project->buildConfigurations()) {
+    foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
         connect(bc, SIGNAL(displayNameChanged()),
                 this, SLOT(buildConfigurationDisplayNameChanged()));
     }
 
-    if (m_project->buildConfigurationFactory())
-        connect(m_project->buildConfigurationFactory(), SIGNAL(availableCreationIdsChanged()), SLOT(updateAddButtonMenu()));
+    if (m_target->buildConfigurationFactory())
+        connect(m_target->buildConfigurationFactory(), SIGNAL(availableCreationIdsChanged()),
+                SLOT(updateAddButtonMenu()));
 
     updateAddButtonMenu();
     updateBuildSettings();
@@ -235,7 +257,6 @@ void BuildSettingsWidget::clear()
     m_subWidgets.clear();
     qDeleteAll(m_labels);
     m_labels.clear();
-
 }
 
 QList<QWidget *> BuildSettingsWidget::subWidgets() const
@@ -246,11 +267,14 @@ QList<QWidget *> BuildSettingsWidget::subWidgets() const
 void BuildSettingsWidget::updateAddButtonMenu()
 {
     m_addButtonMenu->clear();
-    m_addButtonMenu->addAction(tr("&Clone Selected"),
-                               this, SLOT(cloneConfiguration()));
-    IBuildConfigurationFactory *factory = m_project->buildConfigurationFactory();
+    if (m_target &&
+        m_target->activeBuildConfiguration()) {
+        m_addButtonMenu->addAction(tr("&Clone Selected"),
+                                   this, SLOT(cloneConfiguration()));
+    }
+    IBuildConfigurationFactory *factory = m_target->buildConfigurationFactory();
     if (factory) {
-        foreach (const QString &id, factory->availableCreationIds(m_project)) {
+        foreach (const QString &id, factory->availableCreationIds(m_target)) {
             QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
             action->setData(id);
         }
@@ -267,21 +291,21 @@ void BuildSettingsWidget::updateBuildSettings()
     clear();
 
     // update buttons
-    m_removeButton->setEnabled(m_project->buildConfigurations().size() > 1);
+    m_removeButton->setEnabled(m_target->buildConfigurations().size() > 1);
 
     // Add pages
-    BuildConfigWidget *generalConfigWidget = m_project->createConfigWidget();
+    BuildConfigWidget *generalConfigWidget = m_target->project()->createConfigWidget();
     addSubWidget(generalConfigWidget->displayName(), generalConfigWidget);
 
-    addSubWidget(tr("Build Steps"), new BuildStepsPage(m_project, false));
-    addSubWidget(tr("Clean Steps"), new BuildStepsPage(m_project, true));
+    addSubWidget(tr("Build Steps"), new BuildStepsPage(m_target, false));
+    addSubWidget(tr("Clean Steps"), new BuildStepsPage(m_target, true));
 
-    QList<BuildConfigWidget *> subConfigWidgets = m_project->subConfigWidgets();
+    QList<BuildConfigWidget *> subConfigWidgets = m_target->project()->subConfigWidgets();
     foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)
         addSubWidget(subConfigWidget->displayName(), subConfigWidget);
 
     // Add tree items
-    foreach (BuildConfiguration *bc, m_project->buildConfigurations()) {
+    foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
         m_buildConfigurationComboBox->addItem(buildConfigurationItemName(bc), QVariant::fromValue<BuildConfiguration *>(bc));
         if (bc == m_buildConfiguration)
             m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
@@ -300,12 +324,16 @@ void BuildSettingsWidget::currentIndexChanged(int index)
 
 void BuildSettingsWidget::currentBuildConfigurationChanged()
 {
+    if (!m_buildConfiguration)
+        return;
+
     for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
         if (m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>() == m_buildConfiguration) {
             m_buildConfigurationComboBox->setCurrentIndex(i);
             break;
         }
     }
+
     foreach (QWidget *widget, subWidgets()) {
         if (BuildConfigWidget *buildStepWidget = qobject_cast<BuildConfigWidget*>(widget)) {
             buildStepWidget->init(m_buildConfiguration);
@@ -323,16 +351,19 @@ void BuildSettingsWidget::updateConfigurationComboBoxLabels()
 
 QString BuildSettingsWidget::buildConfigurationItemName(const BuildConfiguration *bc) const
 {
-    if (bc == m_project->activeBuildConfiguration())
+    if (bc == m_target->activeBuildConfiguration())
         return tr("%1 (Active)").arg(bc->displayName());
     return bc->displayName();
 }
 
 void BuildSettingsWidget::createConfiguration()
 {
+    if (!m_target->buildConfigurationFactory())
+        return;
+
     QAction *action = qobject_cast<QAction *>(sender());
-    const QString &type = action->data().toString();
-    BuildConfiguration *bc = m_project->buildConfigurationFactory()->create(m_project, type);
+    const QString &id = action->data().toString();
+    BuildConfiguration *bc = m_target->buildConfigurationFactory()->create(m_target, id);
     if (bc) {
         m_buildConfiguration = bc;
         updateBuildSettings();
@@ -355,7 +386,8 @@ void BuildSettingsWidget::deleteConfiguration()
 
 void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfiguration)
 {
-    if (!sourceConfiguration)
+    if (!sourceConfiguration ||
+        !m_target->buildConfigurationFactory())
         return;
 
     QString newDisplayName(QInputDialog::getText(this, tr("Clone configuration"), tr("New Configuration Name:")));
@@ -363,35 +395,38 @@ void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfigura
         return;
 
     QStringList buildConfigurationDisplayNames;
-    foreach(BuildConfiguration *bc, m_project->buildConfigurations())
+    foreach(BuildConfiguration *bc, m_target->buildConfigurations())
         buildConfigurationDisplayNames << bc->displayName();
     newDisplayName = Project::makeUnique(newDisplayName, buildConfigurationDisplayNames);
 
-    m_buildConfiguration = m_project->buildConfigurationFactory()->clone(m_project, sourceConfiguration);
-    if (!m_buildConfiguration)
+    BuildConfiguration * bc(m_target->buildConfigurationFactory()->clone(m_target, sourceConfiguration));
+    if (!bc)
         return;
+
+    m_buildConfiguration = bc;
     m_buildConfiguration->setDisplayName(newDisplayName);
-    m_project->addBuildConfiguration(m_buildConfiguration);
+    m_target->addBuildConfiguration(m_buildConfiguration);
 
     updateBuildSettings();
 }
 
 void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfiguration)
 {
-    if (!deleteConfiguration || m_project->buildConfigurations().size() <= 1)
+    if (!deleteConfiguration ||
+        m_target->buildConfigurations().size() <= 1)
         return;
 
-    if (m_project->activeBuildConfiguration() == deleteConfiguration) {
-        foreach (BuildConfiguration *bc, m_project->buildConfigurations()) {
+    if (m_target->activeBuildConfiguration() == deleteConfiguration) {
+        foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
             if (bc != deleteConfiguration) {
-                m_project->setActiveBuildConfiguration(bc);
+                m_target->setActiveBuildConfiguration(bc);
                 break;
             }
         }
     }
 
     if (m_buildConfiguration == deleteConfiguration) {
-        foreach (BuildConfiguration *bc, m_project->buildConfigurations()) {
+        foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
             if (bc != deleteConfiguration) {
                 m_buildConfiguration = bc;
                 break;
@@ -399,7 +434,7 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
         }
     }
 
-    m_project->removeBuildConfiguration(deleteConfiguration);
+    m_target->removeBuildConfiguration(deleteConfiguration);
 
     updateBuildSettings();
 }

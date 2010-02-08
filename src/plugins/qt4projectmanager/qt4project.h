@@ -30,7 +30,9 @@
 #ifndef QT4PROJECT_H
 #define QT4PROJECT_H
 
+#include "profileevaluator.h"
 #include "qt4nodes.h"
+#include "qt4target.h"
 #include "qmakestep.h"
 #include "makestep.h"
 #include "qtversionmanager.h"
@@ -73,8 +75,6 @@ namespace Internal {
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
-    class Qt4BuildConfiguration;
-    class Qt4BuildConfigurationFactory;
 
     class CodeModelInfo
     {
@@ -119,20 +119,6 @@ private:
     QString m_filePath;
 };
 
-struct Qt4TargetInformation
-{
-    enum ErrorCode {
-        NoError,
-        InvalidProjectError,
-        ProParserError
-    };
-
-    ErrorCode error;
-    QString workingDir;
-    QString target;
-    QString executable;
-};
-
 class Qt4Project : public ProjectExplorer::Project
 {
     Q_OBJECT
@@ -141,19 +127,15 @@ public:
     explicit Qt4Project(Qt4Manager *manager, const QString &proFile);
     virtual ~Qt4Project();
 
-    Internal::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
-
     QString displayName() const;
     QString id() const;
     Core::IFile *file() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
-    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
 
-    Internal::Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
-                                                              QtVersion *qtversion,
-                                                              QtVersion::QmakeBuildConfigs qmakeBuildConfiguration,
-                                                              QStringList additionalArguments = QStringList());
+    Internal::Qt4TargetFactory *targetFactory() const;
+
+    Internal::Qt4Target *activeTarget() const;
 
     QList<Core::IFile *> dependencies();     //NBS remove
     QList<ProjectExplorer::Project *>dependsOn();
@@ -184,28 +166,24 @@ public:
     Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode);
     void destroyProFileReader(Internal::ProFileReader *reader);
 
-    Qt4TargetInformation targetInformation(Internal::Qt4BuildConfiguration *buildConfiguration,
-                                           const QString &proFilePath);
-
 signals:
     /// convenience signal, emitted if either the active buildconfiguration emits
     /// targetInformationChanged() or if the active build configuration changes
+    /// (which can happen by the active target changing, too).
     void targetInformationChanged();
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
-    /// convenience signal, emitted if either the active buildconfiguration emits
-    /// environmentChanged() or if the active build configuration changes
-    void environmentChanged();
 
 public slots:
-    void update();
     void proFileParseError(const QString &errorMessage);
-    void scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *);
+    void update();
+    void changeTargetInformation();
 
 private slots:
     void updateCodeModel();
-    void qtVersionChanged();
-    void slotActiveBuildConfigurationChanged();
+    void scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *);
+    void qtVersionsChanged();
     void updateFileList();
+    void onAddedTarget(ProjectExplorer::Target *t);
 
     void foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &);
     void checkForNewApplicationProjects();
@@ -213,6 +191,7 @@ private slots:
     void projectTypeChanged(Qt4ProjectManager::Internal::Qt4ProFileNode *node,
                             const Qt4ProjectManager::Internal::Qt4ProjectType oldType,
                             const Qt4ProjectManager::Internal::Qt4ProjectType newType);
+    void activeTargetWasChanged();
 
 protected:
     virtual bool fromMap(const QVariantMap &map);
@@ -232,7 +211,7 @@ private:
     Qt4Manager *m_manager;
     Internal::Qt4ProFileNode *m_rootProjectNode;
     Internal::Qt4NodesWatcher *m_nodesWatcher;
-    Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
+    Internal::Qt4TargetFactory *m_targetFactory;
 
     Qt4ProjectFile *m_fileInfo;
     bool m_isApplication;
@@ -248,7 +227,6 @@ private:
     QList<Qt4ProjectManager::Internal::Qt4ProFileNode *> m_proFilesForCodeModelUpdate;
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
-    Internal::Qt4BuildConfiguration *m_lastActiveQt4BuildConfiguration;
 
     friend class Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;

@@ -30,6 +30,7 @@
 #include "qt4buildconfiguration.h"
 
 #include "qt4project.h"
+#include "qt4target.h"
 
 #include <utils/qtcassert.h>
 
@@ -54,11 +55,11 @@ const char * const QT_VERSION_ID_KEY("Qt4ProjectManager.Qt4BuildConfiguration.Qt
 enum { debug = 0 };
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro) :
-    BuildConfiguration(pro, QLatin1String(QT4_BC_ID)),
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target) :
+    BuildConfiguration(target, QLatin1String(QT4_BC_ID)),
     m_clearSystemEnvironment(false),
     m_shadowBuild(false),
-    m_qtVersion(0),
+    m_qtVersionId(-1),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
     m_qmakeBuildConfiguration(0),
     m_subNodeBuild(0)
@@ -66,11 +67,11 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro) :
     ctor();
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro, const QString &id) :
-    BuildConfiguration(pro, id),
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, const QString &id) :
+    BuildConfiguration(target, id),
     m_clearSystemEnvironment(false),
     m_shadowBuild(false),
-    m_qtVersion(0),
+    m_qtVersionId(-1),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
     m_qmakeBuildConfiguration(0),
     m_subNodeBuild(0)
@@ -78,17 +79,18 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro, const QString &id)
     ctor();
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Project *pro, Qt4BuildConfiguration *source) :
-    BuildConfiguration(pro, source),
+Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, Qt4BuildConfiguration *source) :
+    BuildConfiguration(target, source),
     m_clearSystemEnvironment(source->m_clearSystemEnvironment),
     m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_shadowBuild(source->m_shadowBuild),
     m_buildDirectory(source->m_buildDirectory),
-    m_qtVersion(source->m_qtVersion),
+    m_qtVersionId(source->m_qtVersionId),
     m_toolChainType(source->m_toolChainType),
     m_qmakeBuildConfiguration(source->m_qmakeBuildConfiguration),
     m_subNodeBuild(0) // temporary value, so not copied
 {
+    cloneSteps(source);
     ctor();
 }
 
@@ -103,7 +105,7 @@ QVariantMap Qt4BuildConfiguration::toMap() const
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(USE_SHADOW_BUILD_KEY), m_shadowBuild);
     map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
-    map.insert(QLatin1String(QT_VERSION_ID_KEY), m_qtVersion);
+    map.insert(QLatin1String(QT_VERSION_ID_KEY), m_qtVersionId);
     map.insert(QLatin1String(TOOLCHAIN_KEY), m_toolChainType);
     map.insert(QLatin1String(BUILD_CONFIGURATION_KEY), int(m_qmakeBuildConfiguration));
     return map;
@@ -112,29 +114,48 @@ QVariantMap Qt4BuildConfiguration::toMap() const
 
 bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 {
+    if (!BuildConfiguration::fromMap(map))
+        return false;
+
     m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
     m_userEnvironmentChanges = EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY)).toBool();
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
-    m_qtVersion = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
+    m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
     m_toolChainType = map.value(QLatin1String(TOOLCHAIN_KEY)).toInt();
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
-    return BuildConfiguration::fromMap(map);
+    if (!qtVersion()->supportedTargetIds().contains(target()->id()))
+        return false;
+
+    QList<ToolChain::ToolChainType> possibleTcs(qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()));
+    if (!possibleTcs.contains(toolChainType()))
+        setToolChainType(qt4Target()->preferredToolChainType(possibleTcs));
+
+    if (toolChainType() == ToolChain::INVALID)
+        return false;
+    return true;
 }
 
 void Qt4BuildConfiguration::ctor()
 {
     QtVersionManager *vm = QtVersionManager::instance();
-    connect(vm, SIGNAL(defaultQtVersionChanged()),
-            this, SLOT(defaultQtVersionChanged()));
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(qtVersionsChanged(QList<int>)));
 }
 
-Qt4Project *Qt4BuildConfiguration::qt4Project() const
+void Qt4BuildConfiguration::pickValidQtVersion()
 {
-    return static_cast<Qt4Project *>(project());
+    QList<QtVersion *> versions = QtVersionManager::instance()->versionsForTargetId(qt4Target()->id());
+    if (!versions.isEmpty())
+        setQtVersion(versions.at(0));
+    else
+        setQtVersion(QtVersionManager::instance()->emptyVersion());
+}
+
+Qt4Target *Qt4BuildConfiguration::qt4Target() const
+{
+    return static_cast<Qt4Target *>(target());
 }
 
 QString Qt4BuildConfiguration::baseEnvironmentText() const
@@ -192,7 +213,7 @@ QString Qt4BuildConfiguration::buildDirectory() const
     if (m_shadowBuild)
         workingDirectory = m_buildDirectory;
     if (workingDirectory.isEmpty())
-        workingDirectory = QFileInfo(project()->file()->fileName()).absolutePath();
+        workingDirectory = QFileInfo(target()->project()->file()->fileName()).absolutePath();
     return workingDirectory;
 }
 
@@ -286,32 +307,18 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
 
 QtVersion *Qt4BuildConfiguration::qtVersion() const
 {
-    return QtVersionManager::instance()->version(qtVersionId());
+    QtVersionManager *vm = QtVersionManager::instance();
+    return vm->version(m_qtVersionId);
 }
 
-int Qt4BuildConfiguration::qtVersionId() const
+void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
 {
-    QtVersionManager *vm = QtVersionManager::instance();
-    if (!vm->version(m_qtVersion)->isValid())
-        m_qtVersion = 0;
+    Q_ASSERT(version);
 
-    return m_qtVersion;
-}
-
-// TODO: This assumes there is always at least one Qt version... Is that valid?
-void Qt4BuildConfiguration::setQtVersion(int id)
-{
-    if (m_qtVersion == id)
+    if (m_qtVersionId == version->uniqueId())
         return;
 
-    if (!QtVersionManager::instance()->isValidId(id))
-        return;
-
-    QtVersionManager *vm = QtVersionManager::instance();
-    if (!vm->version(id)->isValid())
-        return;
-
-    m_qtVersion = id;
+    m_qtVersionId = version->uniqueId();
     emit qtVersionChanged();
     emit targetInformationChanged();
     emit environmentChanged();
@@ -319,7 +326,8 @@ void Qt4BuildConfiguration::setQtVersion(int id)
 
 void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolChainType type)
 {
-    if (m_toolChainType == type)
+    if (!qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()).contains(type) ||
+        m_toolChainType == type)
         return;
     m_toolChainType = type;
     emit toolChainTypeChanged();
@@ -329,16 +337,7 @@ void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolCha
 
 ProjectExplorer::ToolChain::ToolChainType Qt4BuildConfiguration::toolChainType() const
 {
-    ToolChain::ToolChainType originalType = ToolChain::ToolChainType(m_toolChainType);
-    ToolChain::ToolChainType type = originalType;
-    const QtVersion *version = qtVersion();
-    if (!version->possibleToolChainTypes().contains(type)) {
-        // Oh no the saved type is not valid for this qt version
-        // use default tool chain
-        type = version->defaultToolchainType();
-        const_cast<Qt4BuildConfiguration *>(this)->setToolChainType(type);
-    }
-    return type;
+    return ToolChain::ToolChainType(m_toolChainType);
 }
 
 QtVersion::QmakeBuildConfigs Qt4BuildConfiguration::qmakeBuildConfiguration() const
@@ -396,23 +395,13 @@ MakeStep *Qt4BuildConfiguration::makeStep() const
     return 0;
 }
 
-void Qt4BuildConfiguration::defaultQtVersionChanged()
-{
-    if (qtVersionId() == 0) {
-        emit qtVersionChanged();
-        emit targetInformationChanged();
-        emit environmentChanged();
-    }
-}
-
 void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &changedVersions)
 {
-    if (changedVersions.contains(qtVersionId())) {
-        if (!qtVersion()->isValid())
-            setQtVersion(0);
-        emit qtVersionChanged();
-        emit targetInformationChanged();
-    }
+    if (!changedVersions.contains(m_qtVersionId) ||
+        qtVersion()->isValid())
+        return;
+
+    pickValidQtVersion();
 }
 
 // returns true if both are equal
@@ -559,8 +548,6 @@ Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(QObject *parent) :
     update();
 
     QtVersionManager *vm = QtVersionManager::instance();
-    connect(vm, SIGNAL(defaultQtVersionChanged()),
-            this, SLOT(update()));
     connect(vm, SIGNAL(qtVersionsChanged(QList<int>)),
             this, SLOT(update()));
 }
@@ -581,11 +568,19 @@ void Qt4BuildConfigurationFactory::update()
     emit availableCreationIdsChanged();
 }
 
-QStringList Qt4BuildConfigurationFactory::availableCreationIds(ProjectExplorer::Project *parent) const
+QStringList Qt4BuildConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
-    if (!qobject_cast<Qt4Project *>(parent))
+    if (!qobject_cast<Qt4Target *>(parent))
         return QStringList();
-    return m_versions.keys();
+
+    QStringList results;
+    QtVersionManager *vm = QtVersionManager::instance();
+    for (QMap<QString, VersionInfo>::const_iterator i = m_versions.constBegin();
+         i != m_versions.constEnd(); ++i) {
+        if (vm->version(i.value().versionId)->supportsTargetId(parent->id()))
+            results.append(i.key());
+    }
+    return results;
 }
 
 QString Qt4BuildConfigurationFactory::displayNameForId(const QString &id) const
@@ -595,20 +590,21 @@ QString Qt4BuildConfigurationFactory::displayNameForId(const QString &id) const
     return m_versions.value(id).displayName;
 }
 
-bool Qt4BuildConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool Qt4BuildConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
 {
-    if (!qobject_cast<Qt4Project *>(parent))
+    if (!qobject_cast<Qt4Target *>(parent))
         return false;
     if (!m_versions.contains(id))
         return false;
     const VersionInfo &info = m_versions.value(id);
     QtVersion *version = QtVersionManager::instance()->version(info.versionId);
-    if (!version)
+    if (!version ||
+        !version->supportsTargetId(parent->id()))
         return false;
     return true;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
+BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -617,7 +613,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Projec
     QtVersion *version = QtVersionManager::instance()->version(info.versionId);
     Q_ASSERT(version);
 
-    Qt4Project *qt4project(static_cast<Qt4Project *>(parent));
+    Qt4Target *qt4Target(static_cast<Qt4Target *>(parent));
 
     bool ok;
     QString buildConfigurationName = QInputDialog::getText(0,
@@ -629,45 +625,55 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Projec
     if (!ok || buildConfigurationName.isEmpty())
         return false;
 
-    qt4project->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
-                                         version,
-                                         (version->defaultBuildConfig() | QtVersion::DebugBuild));
+    qt4Target->addQt4BuildConfiguration(tr("%1 Debug").arg(buildConfigurationName),
+                                        version,
+                                        (version->defaultBuildConfig() | QtVersion::DebugBuild));
     BuildConfiguration *bc =
-    qt4project->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
-                                         version,
-                                         (version->defaultBuildConfig() & ~QtVersion::DebugBuild));
+    qt4Target->addQt4BuildConfiguration(tr("%1 Release").arg(buildConfigurationName),
+                                        version,
+                                        (version->defaultBuildConfig() & ~QtVersion::DebugBuild));
     return bc;
 }
 
-bool Qt4BuildConfigurationFactory::canClone(ProjectExplorer::Project *parent, ProjectExplorer::BuildConfiguration *source) const
+bool Qt4BuildConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const
 {
-    return canCreate(parent, source->id());
+    if (!qobject_cast<Qt4Target *>(parent))
+        return false;
+    Qt4BuildConfiguration *qt4bc(qobject_cast<Qt4BuildConfiguration *>(source));
+    if (!qt4bc)
+        return false;
+
+    QtVersion *version = qt4bc->qtVersion();
+    if (!version ||
+        !version->supportsTargetId(parent->id()))
+        return false;
+    return true;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::clone(ProjectExplorer::Project *parent, BuildConfiguration *source)
+BuildConfiguration *Qt4BuildConfigurationFactory::clone(Target *parent, BuildConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4Project *project(static_cast<Qt4Project *>(parent));
+    Qt4Target *target(static_cast<Qt4Target *>(parent));
     Qt4BuildConfiguration *oldbc(static_cast<Qt4BuildConfiguration *>(source));
-    return new Qt4BuildConfiguration(project, oldbc);
+    return new Qt4BuildConfiguration(target, oldbc);
 }
 
-bool Qt4BuildConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+bool Qt4BuildConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
-    if (!qobject_cast<Qt4Project *>(parent))
+    if (!qobject_cast<Qt4Target *>(parent))
         return false;
     return id.startsWith(QLatin1String(QT4_BC_ID_PREFIX)) ||
            id == QLatin1String(QT4_BC_ID);
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Project *project(static_cast<Qt4Project *>(parent));
-    Qt4BuildConfiguration *bc(new Qt4BuildConfiguration(project));
+    Qt4Target *target(static_cast<Qt4Target *>(parent));
+    Qt4BuildConfiguration *bc(new Qt4BuildConfiguration(target));
     if (bc->fromMap(map))
         return bc;
     delete bc;

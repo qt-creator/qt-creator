@@ -33,6 +33,7 @@
 #include "qt4projectmanagerplugin.h"
 #include "qt4nodes.h"
 #include "qt4project.h"
+#include "qt4target.h"
 #include "profilereader.h"
 #include "qmakestep.h"
 #include "qt4buildconfiguration.h"
@@ -251,7 +252,11 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(p);
     QTC_ASSERT(qt4pro, return);
 
-    Qt4BuildConfiguration *bc = qt4pro->activeQt4BuildConfiguration();
+    if (!qt4pro->activeTarget() ||
+        !qt4pro->activeTarget()->activeBuildConfiguration())
+    return;
+
+    Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeBuildConfiguration();
     QMakeStep *qs = bc->qmakeStep();
 
     if (!qs)
@@ -272,7 +277,11 @@ void Qt4Manager::buildSubDirContextMenu()
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(m_contextProject);
     QTC_ASSERT(qt4pro, return);
 
-    Qt4BuildConfiguration *bc = qt4pro->activeQt4BuildConfiguration();
+    if (!qt4pro->activeTarget() ||
+        !qt4pro->activeTarget()->activeBuildConfiguration())
+    return;
+
+    Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeBuildConfiguration();
     if (m_contextNode != 0 && m_contextNode != qt4pro->rootProjectNode())
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
             bc->setSubNodeBuild(profile);

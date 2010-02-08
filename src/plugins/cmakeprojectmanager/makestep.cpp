@@ -31,6 +31,7 @@
 
 #include "cmakeprojectconstants.h"
 #include "cmakeproject.h"
+#include "cmaketarget.h"
 #include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
@@ -220,7 +221,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     // TODO update this list also on rescans of the CMakeLists.txt
     // TODO shouldn't be accessing project
-    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
+    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
     foreach(const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
@@ -265,7 +266,7 @@ void MakeStepConfigWidget::init()
     m_additionalArguments->setText(Environment::joinArgumentList(m_makeStep->additionalArguments()));
     updateDetails();
 
-    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
+    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
     connect(pro, SIGNAL(buildTargetsChanged()),
             this, SLOT(buildTargetsChanged()));
 }
@@ -274,7 +275,7 @@ void MakeStepConfigWidget::buildTargetsChanged()
 {
     disconnect(m_buildTargetsList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemChanged(QListWidgetItem*)));
     m_buildTargetsList->clear();
-    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeProject();
+    CMakeProject *pro = m_makeStep->cmakeBuildConfiguration()->cmakeTarget()->cmakeProject();
     foreach(const QString& buildTarget, pro->buildTargetTitles()) {
         QListWidgetItem *item = new QListWidgetItem(buildTarget, m_buildTargetsList);
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);

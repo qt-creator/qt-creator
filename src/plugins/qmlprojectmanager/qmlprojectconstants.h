@@ -38,7 +38,6 @@ const char *const LANG_QML           = "QML";
 const char *const QMLMIMETYPE        = "application/x-qmlproject";
 
 const char *const QMLRUNCONFIGURATION = "QmlProject.QmlLocalApplicationRunConfiguration";
-const char *const MAKESTEP            = "QmlProject.QmlMakeStep";
 
 // contexts
 const char *const C_FILESEDITOR      = ".files Editor";

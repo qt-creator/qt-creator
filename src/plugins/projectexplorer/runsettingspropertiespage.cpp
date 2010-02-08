@@ -29,6 +29,7 @@
 
 #include "runsettingspropertiespage.h"
 #include "runconfiguration.h"
+#include "target.h"
 #include "project.h"
 
 #include "ui_runsettingspropertiespage.h"
@@ -92,27 +93,44 @@ using ExtensionSystem::PluginManager;
 /// RunSettingsPanelFactory
 ///
 
+QString RunSettingsPanelFactory::id() const
+{
+    return QLatin1String(RUNSETTINGS_PANEL_ID);
+}
+
 QString RunSettingsPanelFactory::displayName() const
 {
     return QApplication::tr("Run Settings");
 }
 
-bool RunSettingsPanelFactory::supports(Project * /* project */)
+bool RunSettingsPanelFactory::supports(Project *project)
 {
+    return project->targets().count() == 1;
+}
+
+bool RunSettingsPanelFactory::supports(Target *target)
+{
+    Q_UNUSED(target);
     return true;
 }
 
 IPropertiesPanel *RunSettingsPanelFactory::createPanel(Project *project)
 {
-    return new RunSettingsPanel(project);
+    Q_ASSERT(supports(project));
+    return new RunSettingsPanel(project->activeTarget());
+}
+
+IPropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)
+{
+    return new RunSettingsPanel(target);
 }
 
 ///
 /// RunSettingsPanel
 ///
 
-RunSettingsPanel::RunSettingsPanel(Project *project) :
-     m_widget(new RunSettingsWidget(project)),
+RunSettingsPanel::RunSettingsPanel(Target *target) :
+     m_widget(new RunSettingsWidget(target)),
      m_icon(":/projectexplorer/images/run.png")
 {
 }
@@ -193,11 +211,13 @@ void RunConfigurationsModel::setRunConfigurations(const QList<RunConfiguration *
 /// RunSettingsWidget
 ///
 
-RunSettingsWidget::RunSettingsWidget(Project *project)
-    : m_project(project),
+RunSettingsWidget::RunSettingsWidget(Target *target)
+    : m_target(target),
       m_runConfigurationsModel(new RunConfigurationsModel(this)),
       m_runConfigurationWidget(0)
 {
+    Q_ASSERT(m_target);
+
     m_ui = new Ui::RunSettingsPropertiesPage;
     m_ui->setupUi(this);
     m_addMenu = new QMenu(m_ui->addToolButton);
@@ -213,15 +233,17 @@ RunSettingsWidget::RunSettingsWidget(Project *project)
     connect(m_ui->removeToolButton, SIGNAL(clicked(bool)),
             this, SLOT(removeRunConfiguration()));
 
-    connect(m_project, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration *)),
+    connect(m_target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration *)),
             this, SLOT(initRunConfigurationComboBox()));
-    connect(m_project, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration *)),
+    connect(m_target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration *)),
             this, SLOT(initRunConfigurationComboBox()));
-    connect(m_project, SIGNAL(activeRunConfigurationChanged()),
+
+    connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(activeRunConfigurationChanged()));
 
     initRunConfigurationComboBox();
-    const QList<RunConfiguration *> runConfigurations = m_project->runConfigurations();
+
+    const QList<RunConfiguration *> runConfigurations = m_target->runConfigurations();
     for (int i=0; i<runConfigurations.size(); ++i) {
         connect(runConfigurations.at(i), SIGNAL(displayNameChanged()),
                 this, SLOT(displayNameChanged()));
@@ -248,7 +270,7 @@ void RunSettingsWidget::aboutToShowAddMenu()
     QList<IRunConfigurationFactory *> factories =
         ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
     foreach (IRunConfigurationFactory *factory, factories) {
-        QStringList ids = factory->availableCreationIds(m_project);
+        QStringList ids = factory->availableCreationIds(m_target);
         foreach (const QString &id, ids) {
             QAction *action = m_addMenu->addAction(factory->displayNameForId(id));;
             FactoryAndId fai;
@@ -269,10 +291,10 @@ void RunSettingsWidget::addRunConfiguration()
     if (!act)
         return;
     FactoryAndId fai = act->data().value<FactoryAndId>();
-    RunConfiguration *newRC = fai.factory->create(m_project, fai.id);
+    RunConfiguration *newRC = fai.factory->create(m_target, fai.id);
     if (!newRC)
         return;
-    m_project->addRunConfiguration(newRC);
+    m_target->addRunConfiguration(newRC);
     initRunConfigurationComboBox();
     m_ui->runConfigurationCombo->setCurrentIndex(
             m_runConfigurationsModel->runConfigurations().indexOf(newRC));
@@ -284,14 +306,14 @@ void RunSettingsWidget::removeRunConfiguration()
     int index = m_ui->runConfigurationCombo->currentIndex();
     RunConfiguration *rc = m_runConfigurationsModel->runConfigurations().at(index);
     disconnect(rc, SIGNAL(displayNameChanged()), this, SLOT(displayNameChanged()));
-    m_project->removeRunConfiguration(rc);
+    m_target->removeRunConfiguration(rc);
     initRunConfigurationComboBox();
 }
 
 void RunSettingsWidget::initRunConfigurationComboBox()
 {
-    const QList<RunConfiguration *> &runConfigurations = m_project->runConfigurations();
-    RunConfiguration *activeRunConfiguration = m_project->activeRunConfiguration();
+    const QList<RunConfiguration *> &runConfigurations = m_target->runConfigurations();
+    RunConfiguration *activeRunConfiguration = m_target->activeRunConfiguration();
     RunConfiguration *currentSelection = 0;
     if (m_ui->runConfigurationCombo->currentIndex() >= 0)
         currentSelection = m_runConfigurationsModel->runConfigurations().at(m_ui->runConfigurationCombo->currentIndex());
@@ -307,12 +329,11 @@ void RunSettingsWidget::initRunConfigurationComboBox()
 
 void RunSettingsWidget::activeRunConfigurationChanged()
 {
-    m_runConfigurationsModel->activeRunConfigurationChanged(m_project->activeRunConfiguration());
+    m_runConfigurationsModel->activeRunConfigurationChanged(m_target->activeRunConfiguration());
 }
 
 void RunSettingsWidget::showRunConfigurationWidget(int index)
 {
-    Q_ASSERT(m_project);
     if (index == -1) {
         delete m_runConfigurationWidget;
         m_runConfigurationWidget = 0;

@@ -125,6 +125,9 @@ MaemoManager::maemoToolChain(const QtVersion *version) const
 void
 MaemoManager::addQemuSimulatorStarter(Project *project)
 {
+    if (projects.contains(project))
+        return;
+
     projects.insert(project);
 
     if (m_qemuCommand) {

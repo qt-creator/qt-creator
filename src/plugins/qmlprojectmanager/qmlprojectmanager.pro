@@ -16,14 +16,16 @@ HEADERS += qmlproject.h \
     qmlprojectwizard.h \
     qmlnewprojectwizard.h \
     qmltaskmanager.h \
-    qmlprojectmanager_global.h
+    qmlprojectmanager_global.h \
+    qmltarget.h
 SOURCES += qmlproject.cpp \
     qmlprojectplugin.cpp \
     qmlprojectmanager.cpp \
     qmlprojectnodes.cpp \
     qmlprojectwizard.cpp \
     qmlnewprojectwizard.cpp \
-    qmltaskmanager.cpp
+    qmltaskmanager.cpp \
+    qmltarget.cpp
 RESOURCES += qmlproject.qrc
 
 OTHER_FILES += QmlProjectManager.pluginspec

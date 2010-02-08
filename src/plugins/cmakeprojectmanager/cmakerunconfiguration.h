@@ -44,7 +44,8 @@ QT_END_NAMESPACE
 namespace CMakeProjectManager {
 namespace Internal {
 
-class CMakeProject;
+class CMakeBuildConfiguration;
+class CMakeTarget;
 
 class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
@@ -53,11 +54,12 @@ class CMakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfigu
     friend class CMakeRunConfigurationFactory;
 
 public:
-    CMakeRunConfiguration(CMakeProject *project, const QString &target,
+    CMakeRunConfiguration(CMakeTarget *parent, const QString &target,
                           const QString &workingDirectory, const QString &title);
     ~CMakeRunConfiguration();
 
-    CMakeProject *cmakeProject() const;
+    CMakeTarget *cmakeTarget() const;
+    CMakeBuildConfiguration *activeBuildConfiguration() const;
 
     QString executable() const;
     RunMode runMode() const;
@@ -88,7 +90,7 @@ private slots:
     void setArguments(const QString &newText);
 
 protected:
-    CMakeRunConfiguration(CMakeProject *project, CMakeRunConfiguration *source);
+    CMakeRunConfiguration(CMakeTarget *parent, CMakeRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -150,17 +152,15 @@ class CMakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFa
 public:
     explicit CMakeRunConfigurationFactory(QObject *parent = 0);
     ~CMakeRunConfigurationFactory();
-    // used to recreate the runConfigurations when restoring settings
-    bool canCreate(ProjectExplorer::Project *project, const QString &id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
-    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
-    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
-    bool canClone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *product) const;
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *parent, ProjectExplorer::RunConfiguration *product);
 
-    // used to show the list of possible additons to a project, returns a list of types
-    QStringList availableCreationIds(ProjectExplorer::Project *pro) const;
-    // used to translate the types to names to display to the user
+    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product);
+
+    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const QString &id) const;
 };
 

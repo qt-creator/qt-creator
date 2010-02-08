@@ -52,6 +52,7 @@ namespace ProjectExplorer {
 
 class IPropertiesPanel;
 class Project;
+class Target;
 class BuildConfiguration;
 class RunConfiguration;
 
@@ -93,10 +94,13 @@ private slots:
     void aboutToRemoveProject(ProjectExplorer::Project*);
 
 private:
+    void removeCurrentWidget();
+
     DoubleTabWidget *m_tabWidget;
     QWidget *m_noprojectLabel;
     QStackedWidget *m_centralWidget;
-    PanelsWidget *m_panelsWidget;
+    QWidget *m_currentWidget;
+    IPropertiesPanel *m_currentPanel;
     QList<ProjectExplorer::Project *> m_tabIndexToProject;
 };
 

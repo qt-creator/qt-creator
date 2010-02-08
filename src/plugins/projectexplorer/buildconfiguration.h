@@ -43,7 +43,7 @@
 
 namespace ProjectExplorer {
 
-class Project;
+class Target;
 
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
@@ -66,7 +66,7 @@ public:
     virtual Environment environment() const = 0;
     virtual QString buildDirectory() const = 0;
 
-    Project *project() const;
+    Target *target() const;
 
     virtual QVariantMap toMap() const;
 
@@ -75,15 +75,16 @@ signals:
     void buildDirectoryChanged();
 
 protected:
-    BuildConfiguration(Project *project, const QString &id);
-    BuildConfiguration(Project *project, BuildConfiguration *source);
+    BuildConfiguration(Target *target, const QString &id);
+    BuildConfiguration(Target *target, BuildConfiguration *source);
+    void cloneSteps(BuildConfiguration *source);
 
     virtual bool fromMap(const QVariantMap &map);
 
 private:
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
-    Project *m_project;
+    Target *m_target;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :
@@ -95,18 +96,18 @@ public:
     explicit IBuildConfigurationFactory(QObject *parent = 0);
     virtual ~IBuildConfigurationFactory();
 
-    // used to show the list of possible additons to a project, returns a list of types
-    virtual QStringList availableCreationIds(Project *parent) const = 0;
+    // used to show the list of possible additons to a target, returns a list of types
+    virtual QStringList availableCreationIds(Target *parent) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
-    virtual bool canCreate(Project *parent, const QString &id) const = 0;
-    virtual BuildConfiguration *create(Project *parent, const QString &id) = 0;
+    virtual bool canCreate(Target *parent, const QString &id) const = 0;
+    virtual BuildConfiguration *create(Target *parent, const QString &id) = 0;
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(Project *parent, const QVariantMap &map) const = 0;
-    virtual BuildConfiguration *restore(Project *parent, const QVariantMap &map) = 0;
-    virtual bool canClone(Project *parent, BuildConfiguration *product) const = 0;
-    virtual BuildConfiguration *clone(Project *parent, BuildConfiguration *product) = 0;
+    virtual bool canRestore(Target *parent, const QVariantMap &map) const = 0;
+    virtual BuildConfiguration *restore(Target *parent, const QVariantMap &map) = 0;
+    virtual bool canClone(Target *parent, BuildConfiguration *product) const = 0;
+    virtual BuildConfiguration *clone(Target *parent, BuildConfiguration *product) = 0;
 
 signals:
     void availableCreationIdsChanged();

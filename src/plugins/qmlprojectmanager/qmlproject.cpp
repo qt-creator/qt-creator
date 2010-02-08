@@ -29,6 +29,7 @@
 
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
+#include "qmltarget.h"
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/persistentsettings.h>
@@ -85,8 +86,10 @@ QmlProject::QmlProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
       m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJSEditor::QmlModelManagerInterface>()),
-      m_fileWatcher(new ProjectExplorer::FileWatcher(this))
+      m_fileWatcher(new ProjectExplorer::FileWatcher(this)),
+      m_targetFactory(new QmlTargetFactory(this))
 {
+    setSupportedTargetIds(QSet<QString>() << QLatin1String(VIEWER_TARGET_ID));
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();
 
@@ -259,11 +262,6 @@ bool QmlProject::isApplication() const
     return true;
 }
 
-bool QmlProject::hasBuildSettings() const
-{
-    return false;
-}
-
 ProjectExplorer::BuildConfigWidget *QmlProject::createConfigWidget()
 {
     return 0;
@@ -274,9 +272,14 @@ QList<ProjectExplorer::BuildConfigWidget*> QmlProject::subConfigWidgets()
     return QList<ProjectExplorer::BuildConfigWidget*>();
 }
 
-ProjectExplorer::IBuildConfigurationFactory *QmlProject::buildConfigurationFactory() const
+QmlTargetFactory *QmlProject::targetFactory() const
 {
-    return 0;
+    return m_targetFactory;
+}
+
+QmlTarget *QmlProject::activeTarget() const
+{
+    return static_cast<QmlTarget *>(Project::activeTarget());
 }
 
 QmlProjectNode *QmlProject::rootProjectNode() const
@@ -294,10 +297,9 @@ bool QmlProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    if (runConfigurations().isEmpty()) {
-        QmlRunConfiguration *runConf = new QmlRunConfiguration(this);
-        addRunConfiguration(runConf);
-        setActiveRunConfiguration(runConf);
+    if (targets().isEmpty()) {
+        Internal::QmlTarget *target(targetFactory()->create(this, QLatin1String(VIEWER_TARGET_ID)));
+        addTarget(target);
     }
 
     refresh(Everything);
@@ -365,14 +367,14 @@ void QmlProjectFile::modified(ReloadBehavior *)
 // QmlRunConfiguration
 ////////////////////////////////////////////////////////////////////////////////////
 
-QmlRunConfiguration::QmlRunConfiguration(QmlProject *parent) :
+QmlRunConfiguration::QmlRunConfiguration(QmlTarget *parent) :
     ProjectExplorer::RunConfiguration(parent, QLatin1String(QML_RC_ID)),
     m_debugServerPort(DEFAULT_DEBUG_SERVER_PORT)
 {
     ctor();
 }
 
-QmlRunConfiguration::QmlRunConfiguration(QmlProject *parent, QmlRunConfiguration *source) :
+QmlRunConfiguration::QmlRunConfiguration(QmlTarget *parent, QmlRunConfiguration *source) :
     ProjectExplorer::RunConfiguration(parent, source),
     m_scriptFile(source->m_scriptFile),
     m_qmlViewerCustomPath(source->m_qmlViewerCustomPath),
@@ -397,9 +399,9 @@ QmlRunConfiguration::~QmlRunConfiguration()
 {
 }
 
-QmlProject *QmlRunConfiguration::qmlProject() const
+QmlTarget *QmlRunConfiguration::qmlTarget() const
 {
-    return static_cast<QmlProject *>(project());
+    return static_cast<Internal::QmlTarget *>(target());
 }
 
 QString QmlRunConfiguration::viewerPath() const
@@ -418,11 +420,9 @@ QStringList QmlRunConfiguration::viewerArguments() const
         args.append(m_qmlViewerArgs);
 
     // arguments from .qmlproject file
-    if (qmlProject()) {
-        foreach (const QString &libraryPath, qmlProject()->libraryPaths()) {
-            args.append(QLatin1String("-L"));
-            args.append(libraryPath);
-        }
+    foreach (const QString &libraryPath, qmlTarget()->qmlProject()->libraryPaths()) {
+        args.append(QLatin1String("-L"));
+        args.append(libraryPath);
     }
 
     const QString s = mainScript();
@@ -433,7 +433,7 @@ QStringList QmlRunConfiguration::viewerArguments() const
 
 QString QmlRunConfiguration::workingDirectory() const
 {
-    QFileInfo projectFile(qmlProject()->file()->fileName());
+    QFileInfo projectFile(qmlTarget()->qmlProject()->file()->fileName());
     return projectFile.absolutePath();
 }
 
@@ -449,14 +449,14 @@ QWidget *QmlRunConfiguration::configurationWidget()
 
     QComboBox *combo = new QComboBox;
 
-    QDir projectDir = qmlProject()->projectDir();
+    QDir projectDir = qmlTarget()->qmlProject()->projectDir();
     QStringList files;
 
     files.append(tr("<Current File>"));
 
     int currentIndex = -1;
 
-    foreach (const QString &fn, qmlProject()->files()) {
+    foreach (const QString &fn, qmlTarget()->qmlProject()->files()) {
         QFileInfo fileInfo(fn);
         if (fileInfo.suffix() != QLatin1String("qml"))
             continue;
@@ -506,7 +506,7 @@ QString QmlRunConfiguration::mainScript() const
         }
     }
 
-    return qmlProject()->projectDir().absoluteFilePath(m_scriptFile);
+    return qmlTarget()->qmlProject()->projectDir().absoluteFilePath(m_scriptFile);
 }
 
 void QmlRunConfiguration::setMainScript(const QString &scriptFile)
@@ -568,8 +568,10 @@ QmlRunConfigurationFactory::~QmlRunConfigurationFactory()
 {
 }
 
-QStringList QmlRunConfigurationFactory::availableCreationIds(ProjectExplorer::Project *) const
+QStringList QmlRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
+    if (!qobject_cast<QmlTarget *>(parent))
+        return QStringList();
     return QStringList() << QLatin1String(QML_RC_ID);
 }
 
@@ -580,50 +582,50 @@ QString QmlRunConfigurationFactory::displayNameForId(const QString &id) const
     return QString();
 }
 
-bool QmlRunConfigurationFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool QmlRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const QString &id) const
 {
-    if (!qobject_cast<QmlProject *>(parent))
+    if (!qobject_cast<QmlTarget *>(parent))
         return false;
     return id == QLatin1String(QML_RC_ID);
 }
 
-ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExplorer::Project *parent, const QString &id)
+ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::create(ProjectExplorer::Target *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
-    QmlProject *project(static_cast<QmlProject *>(parent));
-    return new QmlRunConfiguration(project);
+    QmlTarget *qmlparent(static_cast<QmlTarget *>(parent));
+    return new QmlRunConfiguration(qmlparent);
 }
 
-bool QmlRunConfigurationFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+bool QmlRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
 {
     QString id(idFromMap(map));
     return canCreate(parent, id);
 }
 
-ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    QmlProject *project(static_cast<QmlProject *>(parent));
-    QmlRunConfiguration *rc(new QmlRunConfiguration(project));
+    QmlTarget *qmlparent(static_cast<QmlTarget *>(parent));
+    QmlRunConfiguration *rc(new QmlRunConfiguration(qmlparent));
     if (rc->fromMap(map))
         return rc;
     delete rc;
     return 0;
 }
 
-bool QmlRunConfigurationFactory::canClone(ProjectExplorer::Project *parent, RunConfiguration *source) const
+bool QmlRunConfigurationFactory::canClone(ProjectExplorer::Target *parent, RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
 
-ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::clone(ProjectExplorer::Project *parent, RunConfiguration *source)
+ProjectExplorer::RunConfiguration *QmlRunConfigurationFactory::clone(ProjectExplorer::Target *parent, RunConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
-    QmlProject *project(static_cast<QmlProject *>(parent));
-    return new QmlRunConfiguration(project, qobject_cast<QmlRunConfiguration *>(source));
+    QmlTarget *qmlparent(static_cast<QmlTarget *>(parent));
+    return new QmlRunConfiguration(qmlparent, qobject_cast<QmlRunConfiguration *>(source));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

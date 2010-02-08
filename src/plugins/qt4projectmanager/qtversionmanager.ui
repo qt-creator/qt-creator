@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>Qt4ProjectManager::Internal::QtVersionManager</class>
  <widget class="QWidget" name="Qt4ProjectManager::Internal::QtVersionManager">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>375</width>
+    <height>474</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="versionListGroupBox">
@@ -107,7 +115,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="Utils::PathChooser" name="qmakePath"/>
+         <widget class="Utils::PathChooser" name="qmakePath" native="true"/>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="mingwLabel">
@@ -117,7 +125,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="Utils::PathChooser" name="mingwPath"/>
+         <widget class="Utils::PathChooser" name="mingwPath" native="true"/>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="msvcLabel">
@@ -165,7 +173,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="Utils::PathChooser" name="s60SDKPath"/>
+         <widget class="Utils::PathChooser" name="s60SDKPath" native="true"/>
         </item>
         <item row="5" column="0">
          <widget class="QLabel" name="gcceLabel">
@@ -175,7 +183,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="5" column="1">
-         <widget class="Utils::PathChooser" name="gccePath"/>
+         <widget class="Utils::PathChooser" name="gccePath" native="true"/>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="mwcLabel">
@@ -185,7 +193,7 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="Utils::PathChooser" name="mwcPath"/>
+         <widget class="Utils::PathChooser" name="mwcPath" native="true"/>
         </item>
         <item row="7" column="0">
          <widget class="QLabel" name="debuggingHelperLabel">
@@ -237,27 +245,6 @@ p, li { white-space: pre-wrap; }
      </layout>
     </widget>
    </item>
-   <item>
-    <layout class="QFormLayout" name="defaultFormLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="defaultLabel">
-       <property name="text">
-        <string>Default Qt Version:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="defaultCombo">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -278,7 +265,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>msvcComboBox</tabstop>
   <tabstop>showLogButton</tabstop>
   <tabstop>rebuildButton</tabstop>
-  <tabstop>defaultCombo</tabstop>
  </tabstops>
  <resources/>
  <connections/>

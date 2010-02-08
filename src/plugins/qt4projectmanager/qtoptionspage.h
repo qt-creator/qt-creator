@@ -76,10 +76,9 @@ class QtOptionsPageWidget : public QWidget
     Q_OBJECT
     Q_DISABLE_COPY(QtOptionsPageWidget)
 public:
-    QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions, QtVersion *defaultVersion);
+    QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> versions);
     ~QtOptionsPageWidget();
     QList<QSharedPointerQtVersion> versions() const;
-    int defaultVersion() const;
     void finish();
     QString searchKeywords() const;
 
@@ -115,7 +114,6 @@ private slots:
     void makeS60Visible(bool visible);
     void onQtBrowsed();
     void onMingwBrowsed();
-    void defaultChanged(int index);
     void updateCurrentQtName();
     void updateCurrentQMakeLocation();
     void updateCurrentMingwDirectory();

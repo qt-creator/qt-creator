@@ -38,19 +38,37 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+QString EditorSettingsPanelFactory::id() const
+{
+    return QLatin1String(EDITORSETTINGS_PANEL_ID);
+}
+
 QString EditorSettingsPanelFactory::displayName() const
 {
     return QApplication::tr("Editor Settings");
 }
 
-bool EditorSettingsPanelFactory::supports(Project * /*project*/)
+bool EditorSettingsPanelFactory::supports(Project *project)
 {
+    Q_UNUSED(project);
     return true;
+}
+
+bool EditorSettingsPanelFactory::supports(Target *target)
+{
+    Q_UNUSED(target);
+    return false;
 }
 
 IPropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
 {
     return new EditorSettingsPanel(project);
+}
+
+IPropertiesPanel *EditorSettingsPanelFactory::createPanel(Target *target)
+{
+    Q_UNUSED(target);
+    return 0;
 }
 
 EditorSettingsPanel::EditorSettingsPanel(Project *project) :

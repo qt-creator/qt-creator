@@ -806,6 +806,7 @@ void Qt4ProFileNode::scheduleUpdate()
 void Qt4ProFileNode::update()
 {
     ProFileReader *reader = m_project->createProFileReader(this);
+    Q_ASSERT(reader);
     if (!reader->readProFile(m_projectFilePath)) {
         m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
         m_project->destroyProFileReader(reader);
@@ -1174,7 +1175,7 @@ QString Qt4ProFileNode::buildDir() const
 {
     const QDir srcDirRoot = QFileInfo(m_project->rootProjectNode()->path()).absoluteDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
-    return QDir(m_project->activeBuildConfiguration()->buildDirectory()).absoluteFilePath(relativeDir);
+    return QDir(m_project->activeTarget()->activeBuildConfiguration()->buildDirectory()).absoluteFilePath(relativeDir);
 }
 
 /*

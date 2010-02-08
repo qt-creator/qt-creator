@@ -46,13 +46,13 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-BuildStepsPage::BuildStepsPage(Project *project, bool clean) :
+BuildStepsPage::BuildStepsPage(Target *target, bool clean) :
     BuildConfigWidget(),
     m_clean(clean),
     m_addButton(0),
     m_leftMargin(-1)
 {
-    Q_UNUSED(project);
+    Q_UNUSED(target);
 }
 
 BuildStepsPage::~BuildStepsPage()

@@ -48,12 +48,17 @@ class IBuildStepFactory;
 
 namespace Internal {
 
+const char * const BUILDSETTINGS_PANEL_ID("ProjectExplorer.BuildSettingsPanel");
+
 class BuildSettingsPanelFactory : public IPanelFactory
 {
 public:
+    QString id() const;
     QString displayName() const;
     bool supports(Project *project);
+    bool supports(Target *target);
     IPropertiesPanel *createPanel(Project *project);
+    IPropertiesPanel *createPanel(Target *target);
 };
 
 class BuildSettingsWidget;
@@ -61,12 +66,12 @@ class BuildSettingsWidget;
 class BuildSettingsPanel : public IPropertiesPanel
 {
 public:
-    BuildSettingsPanel(Project *project);
+    BuildSettingsPanel(Target *target);
     ~BuildSettingsPanel();
     QString displayName() const;
     QWidget *widget() const;
     QIcon icon() const;
-    void widgetWasAddedToLayout();
+    PanelFlags flags() const { return IPropertiesPanel::NoLeftMargin; }
 
 private:
     BuildSettingsWidget *m_widget;
@@ -79,7 +84,7 @@ class BuildSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    BuildSettingsWidget(Project *project);
+    BuildSettingsWidget(Target *target);
     ~BuildSettingsWidget();
 
     void clear();
@@ -108,7 +113,7 @@ private:
     void deleteConfiguration(BuildConfiguration *toDelete);
     QString buildConfigurationItemName(const BuildConfiguration *bc) const;
 
-    Project *m_project;
+    Target *m_target;
     BuildConfiguration *m_buildConfiguration;
 
     QPushButton *m_addButton;

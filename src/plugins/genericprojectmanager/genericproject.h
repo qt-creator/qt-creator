@@ -32,18 +32,15 @@
 
 #include "genericprojectmanager.h"
 #include "genericprojectnodes.h"
+#include "generictarget.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/ifile.h>
-
-QT_BEGIN_NAMESPACE
-class QPushButton;
-class QStringListModel;
-QT_END_NAMESPACE
 
 namespace Utils {
 class PathChooser;
@@ -51,11 +48,12 @@ class PathChooser;
 
 namespace GenericProjectManager {
 namespace Internal {
+class GenericBuildConfiguration;
 class GenericProject;
+class GenericTarget;
+class GenericTargetFactory;
 class GenericMakeStep;
 class GenericProjectFile;
-class GenericBuildConfiguration;
-class GenericBuildConfigurationFactory;
 
 class GenericProject : public ProjectExplorer::Project
 {
@@ -69,23 +67,24 @@ public:
     QString includesFileName() const;
     QString configFileName() const;
 
-    virtual QString displayName() const;
-    virtual QString id() const;
-    virtual Core::IFile *file() const;
-    virtual ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
-    virtual ProjectExplorer::IProjectManager *projectManager() const;
+    QString displayName() const;
+    QString id() const;
+    Core::IFile *file() const;
+    GenericTargetFactory *targetFactory() const;
+    ProjectExplorer::IProjectManager *projectManager() const;
+    GenericTarget *activeTarget() const;
 
-    virtual QList<ProjectExplorer::Project *> dependsOn();
+    QList<ProjectExplorer::Project *> dependsOn();
 
-    virtual bool isApplication() const;
+    bool isApplication() const;
 
-    virtual ProjectExplorer::BuildConfigWidget *createConfigWidget();
-    virtual QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
+    ProjectExplorer::BuildConfigWidget *createConfigWidget();
+    QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
-    virtual GenericProjectNode *rootProjectNode() const;
-    virtual QStringList files(FilesMode fileMode) const;
+    GenericProjectNode *rootProjectNode() const;
+    QStringList files(FilesMode fileMode) const;
 
-    QStringList targets() const;
+    QStringList buildTargets() const;
     ProjectExplorer::ToolChain *toolChain() const;
 
     bool setFiles(const QStringList &filePaths);
@@ -127,7 +126,7 @@ private:
     QString m_configFileName;
     GenericProjectFile *m_file;
     QString m_projectName;
-    GenericBuildConfigurationFactory *m_buildConfigurationFactory;
+    GenericTargetFactory *m_targetFactory;
 
     QStringList m_files;
     QStringList m_generated;

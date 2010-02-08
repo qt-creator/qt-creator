@@ -29,33 +29,24 @@
 
 #include "project.h"
 
-#include "buildconfiguration.h"
-#include "environment.h"
-#include "projectnodes.h"
-#include "buildstep.h"
-#include "projectexplorer.h"
-#include "runconfiguration.h"
-#include "userfileaccessor.h"
 #include "editorconfiguration.h"
+#include "environment.h"
+#include "projectexplorer.h"
+#include "projectnodes.h"
+#include "target.h"
+#include "userfileaccessor.h"
 
 #include <coreplugin/ifile.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QDebug>
-#include <QtCore/QTextCodec>
-
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 namespace {
-const char * const ACTIVE_BC_KEY("ProjectExplorer.Project.ActiveBuildConfiguration");
-const char * const BC_KEY_PREFIX("ProjectExplorer.Project.BuildConfiguration.");
-const char * const BC_COUNT_KEY("ProjectExplorer.Project.BuildConfigurationCount");
-
-const char * const ACTIVE_RC_KEY("ProjectExplorer.Project.ActiveRunConfiguration");
-const char * const RC_KEY_PREFIX("ProjectExplorer.Project.RunConfiguration.");
-const char * const RC_COUNT_KEY("ProjectExplorer.Project.RunConfigurationCount");
+const char * const ACTIVE_TARGET_KEY("ProjectExplorer.Project.ActiveTarget");
+const char * const TARGET_KEY_PREFIX("ProjectExplorer.Project.Target.");
+const char * const TARGET_COUNT_KEY("ProjectExplorer.Project.TargetCount");
 
 const char * const EDITOR_SETTINGS_KEY("ProjectExplorer.Project.EditorSettings");
 } // namespace
@@ -65,17 +56,21 @@ const char * const EDITOR_SETTINGS_KEY("ProjectExplorer.Project.EditorSettings")
 // -------------------------------------------------------------------------
 
 Project::Project() :
-    m_activeBuildConfiguration(0),
-    m_activeRunConfiguration(0),
+    m_activeTarget(0),
     m_editorConfiguration(new EditorConfiguration())
 {
 }
 
 Project::~Project()
 {
-    qDeleteAll(m_buildConfigurations);
-    qDeleteAll(m_runConfigurations);
+    qDeleteAll(m_targets);
     delete m_editorConfiguration;
+}
+
+bool Project::hasActiveBuildSettings() const
+{
+    return activeTarget() &&
+           activeTarget()->buildConfigurationFactory();
 }
 
 QString Project::makeUnique(const QString &preferredName, const QStringList &usedNames)
@@ -89,59 +84,112 @@ QString Project::makeUnique(const QString &preferredName, const QStringList &use
     return tryName;
 }
 
-void Project::addBuildConfiguration(BuildConfiguration *configuration)
+QSet<QString> Project::supportedTargetIds() const
 {
-    QTC_ASSERT(configuration && !m_buildConfigurations.contains(configuration), return);
+    return m_supportedTargetIds;
+}
+
+QSet<QString> Project::possibleTargetIds() const
+{
+    QSet<QString> result(m_supportedTargetIds);
+    foreach (ProjectExplorer::Target *t, targets())
+        result.remove(t->id());
+
+    return result;
+}
+
+bool Project::canAddTarget(const QString &id) const
+{
+    return possibleTargetIds().contains(id);
+}
+
+void Project::setSupportedTargetIds(const QSet<QString> &ids)
+{
+    if (ids == m_supportedTargetIds)
+        return;
+
+    m_supportedTargetIds = ids;
+    emit supportedTargetIdsChanged();
+}
+
+void Project::changeEnvironment()
+{
+    Target *t(qobject_cast<Target *>(sender()));
+    if (t == activeTarget())
+        emit environmentChanged();
+}
+
+
+void Project::addTarget(Target *t)
+{
+    QTC_ASSERT(t && !m_targets.contains(t), return);
+    QTC_ASSERT(!target(t->id()), return);
+    Q_ASSERT(t->project() == this);
 
     // Check that we don't have a configuration with the same displayName
-    QString configurationDisplayName = configuration->displayName();
+    QString targetDisplayName = t->displayName();
     QStringList displayNames;
-    foreach (const BuildConfiguration *bc, m_buildConfigurations)
-        displayNames << bc->displayName();
-    configurationDisplayName = makeUnique(configurationDisplayName, displayNames);
-    configuration->setDisplayName(configurationDisplayName);
+    foreach (const Target *target, m_targets)
+        displayNames << target->displayName();
+    targetDisplayName = makeUnique(targetDisplayName, displayNames);
+    t->setDisplayName(targetDisplayName);
 
     // add it
-    m_buildConfigurations.push_back(configuration);
+    m_targets.push_back(t);
+    connect(t, SIGNAL(environmentChanged()),
+            SLOT(changeEnvironment()));
+    emit addedTarget(t);
 
-    emit addedBuildConfiguration(configuration);
+    // check activeTarget:
+    if (activeTarget() == 0)
+        setActiveTarget(t);
 }
 
-void Project::removeBuildConfiguration(BuildConfiguration *configuration)
+void Project::removeTarget(Target *target)
 {
-    //todo: this might be error prone
-    if (!m_buildConfigurations.contains(configuration))
-        return;
+    QTC_ASSERT(target && m_targets.contains(target), return);
 
-    m_buildConfigurations.removeOne(configuration);
+    emit aboutToRemoveTarget(target);
 
-    emit removedBuildConfiguration(configuration);
-    delete configuration;
+    m_targets.removeOne(target);
+
+    emit removedTarget(target);
+    if (target == activeTarget()) {
+        if (m_targets.isEmpty())
+            setActiveTarget(0);
+        else
+            setActiveTarget(m_targets.at(0));
+    }
+    delete target;
 }
 
-QList<BuildConfiguration *> Project::buildConfigurations() const
+QList<Target *> Project::targets() const
 {
-    return m_buildConfigurations;
+    return m_targets;
 }
 
-BuildConfiguration *Project::activeBuildConfiguration() const
+Target *Project::activeTarget() const
 {
-    return m_activeBuildConfiguration;
+    return m_activeTarget;
 }
 
-void Project::setActiveBuildConfiguration(BuildConfiguration *configuration)
+void Project::setActiveTarget(Target *target)
 {
-    if (!configuration ||
-        m_activeBuildConfiguration == configuration ||
-        !m_buildConfigurations.contains(configuration))
-        return;
-    m_activeBuildConfiguration = configuration;
-    emit activeBuildConfigurationChanged();
+    if ((!target && !m_targets.isEmpty()) ||
+        (target && m_targets.contains(target) && m_activeTarget != target)) {
+        m_activeTarget = target;
+        emit activeTargetChanged(m_activeTarget);
+        emit environmentChanged();
+    }
 }
 
-bool Project::hasBuildSettings() const
+Target *Project::target(const QString &id) const
 {
-    return true;
+    foreach (Target * target, m_targets) {
+        if (target->id() == id)
+            return target;
+    }
+    return 0;
 }
 
 void Project::saveSettings()
@@ -164,19 +212,13 @@ QList<BuildConfigWidget*> Project::subConfigWidgets()
 
 QVariantMap Project::toMap() const
 {
-    const QList<BuildConfiguration *> bcs = buildConfigurations();
+    const QList<Target *> ts = targets();
 
     QVariantMap map;
-    map.insert(QLatin1String(ACTIVE_BC_KEY), bcs.indexOf(m_activeBuildConfiguration));
-    map.insert(QLatin1String(BC_COUNT_KEY), bcs.size());
-    for (int i = 0; i < bcs.size(); ++i)
-        map.insert(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i), bcs.at(i)->toMap());
-
-    const QList<RunConfiguration *> rcs = runConfigurations();
-    map.insert(QLatin1String(ACTIVE_RC_KEY), rcs.indexOf(m_activeRunConfiguration));
-    map.insert(QLatin1String(RC_COUNT_KEY), rcs.size());
-    for (int i = 0; i < rcs.size(); ++i)
-        map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), rcs.at(i)->toMap());
+    map.insert(QLatin1String(ACTIVE_TARGET_KEY), ts.indexOf(m_activeTarget));
+    map.insert(QLatin1String(TARGET_COUNT_KEY), ts.size());
+    for (int i = 0; i < ts.size(); ++i)
+        map.insert(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i), ts.at(i)->toMap());
 
     map.insert(QLatin1String(EDITOR_SETTINGS_KEY), m_editorConfiguration->toMap());
 
@@ -192,120 +234,27 @@ bool Project::fromMap(const QVariantMap &map)
     }
 
     bool ok;
-    int maxI(map.value(QLatin1String(BC_COUNT_KEY), 0).toInt(&ok));
+    int maxI(map.value(QLatin1String(TARGET_COUNT_KEY), 0).toInt(&ok));
     if (!ok || maxI < 0)
         maxI = 0;
-    int activeConfiguration(map.value(QLatin1String(ACTIVE_BC_KEY), 0).toInt(&ok));
-    if (!ok || activeConfiguration < 0)
-        activeConfiguration = 0;
-    if (0 > activeConfiguration || maxI < activeConfiguration)
-        activeConfiguration = 0;
+    int active(map.value(QLatin1String(ACTIVE_TARGET_KEY), 0).toInt(&ok));
+    if (!ok || active < 0)
+        active = 0;
+    if (0 > active || maxI < active)
+        active = 0;
 
     for (int i = 0; i < maxI; ++i) {
-        const QString key(QString::fromLatin1(BC_KEY_PREFIX) + QString::number(i));
+        const QString key(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i));
         if (!map.contains(key))
             return false;
-        if (!buildConfigurationFactory()->canRestore(this, map.value(key).toMap()))
-            return false;
-        BuildConfiguration *bc(buildConfigurationFactory()->restore(this, map.value(key).toMap()));
-        if (!bc)
+        Target *t(targetFactory()->restore(this, map.value(key).toMap()));
+        if (!t)
             continue;
-        addBuildConfiguration(bc);
-        if (i == activeConfiguration)
-            setActiveBuildConfiguration(bc);
+        addTarget(t);
+        if (i == active)
+            setActiveTarget(t);
     }
-    if (!activeBuildConfiguration() && !m_buildConfigurations.isEmpty())
-        setActiveBuildConfiguration(m_buildConfigurations.at(0));
-
-    maxI = map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok);
-    if (!ok || maxI < 0)
-        maxI = 0;
-    activeConfiguration = map.value(QLatin1String(ACTIVE_RC_KEY), 0).toInt(&ok);
-    if (!ok || activeConfiguration < 0)
-        activeConfiguration = 0;
-    if (0 > activeConfiguration || maxI < activeConfiguration)
-        activeConfiguration = 0;
-
-    QList<IRunConfigurationFactory *>
-        factories(ExtensionSystem::PluginManager::instance()->
-            getObjects<IRunConfigurationFactory>());
-
-    for (int i = 0; i < maxI; ++i) {
-        const QString key(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i));
-        if (!map.contains(key))
-            return false;
-
-        QVariantMap valueMap(map.value(key).toMap());
-        IRunConfigurationFactory *factory(0);
-        foreach (IRunConfigurationFactory *f, factories) {
-            if (!f->canRestore(this, valueMap))
-                continue;
-            factory = f;
-            break;
-        }
-        if (!factory)
-            return false;
-
-        RunConfiguration *rc(factory->restore(this, valueMap));
-        if (!rc)
-            return false;
-        addRunConfiguration(rc);
-        if (i == activeConfiguration)
-            setActiveRunConfiguration(rc);
-    }
-
-    if (!activeRunConfiguration() && !m_runConfigurations.isEmpty())
-        setActiveRunConfiguration(m_runConfigurations.at(0));
-
     return true;
-}
-
-QList<RunConfiguration *> Project::runConfigurations() const
-{
-    return m_runConfigurations;
-}
-
-void Project::addRunConfiguration(RunConfiguration* runConfiguration)
-{
-    QTC_ASSERT(runConfiguration && !m_runConfigurations.contains(runConfiguration), return);
-
-    m_runConfigurations.push_back(runConfiguration);
-    emit addedRunConfiguration(runConfiguration);
-}
-
-void Project::removeRunConfiguration(RunConfiguration* runConfiguration)
-{
-    if(!m_runConfigurations.contains(runConfiguration)) {
-        qWarning()<<"Not removing runConfiguration"<<runConfiguration->displayName()<<"becasue it doesn't exist";
-        return;
-    }
-
-    if (m_activeRunConfiguration == runConfiguration) {
-        if (m_runConfigurations.size() <= 1)
-            setActiveRunConfiguration(0);
-        else if (m_runConfigurations.at(0) == m_activeRunConfiguration)
-            setActiveRunConfiguration(m_runConfigurations.at(1));
-        else
-            setActiveRunConfiguration(m_runConfigurations.at(0));
-    }
-
-    m_runConfigurations.removeOne(runConfiguration);
-    emit removedRunConfiguration(runConfiguration);
-    delete runConfiguration;
-}
-
-RunConfiguration* Project::activeRunConfiguration() const
-{
-    return m_activeRunConfiguration;
-}
-
-void Project::setActiveRunConfiguration(RunConfiguration* runConfiguration)
-{
-    if (runConfiguration == m_activeRunConfiguration)
-        return;
-    Q_ASSERT(m_runConfigurations.contains(runConfiguration) || runConfiguration == 0);
-    m_activeRunConfiguration = runConfiguration;
-    emit activeRunConfigurationChanged();
 }
 
 EditorConfiguration *Project::editorConfiguration() const
@@ -332,4 +281,3 @@ QString Project::generatedUiHeader(const QString & /* formFile */) const
 {
     return QString();
 }
-

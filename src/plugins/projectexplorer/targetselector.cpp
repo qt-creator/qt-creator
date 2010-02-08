@@ -14,10 +14,10 @@ TargetSelector::TargetSelector(QWidget *parent) :
     QWidget(parent),
     m_currentTargetIndex(-1)
 {
-        QFont f = font();
-        f.setPixelSize(10);
-        f.setBold(true);
-        setFont(f);
+    QFont f = font();
+    f.setPixelSize(10);
+    f.setBold(true);
+    setFont(f);
 }
 
 void TargetSelector::addTarget(const QString &name)
@@ -25,16 +25,55 @@ void TargetSelector::addTarget(const QString &name)
     Target target;
     target.name = name;
     target.currentSubIndex = 0;
+    target.isActive = false;
     m_targets.append(target);
     if (m_currentTargetIndex == -1)
-        m_currentTargetIndex = m_targets.size() - 1;
+        setCurrentIndex(m_targets.size() - 1);
+    update();
+}
+
+void TargetSelector::markActive(int index)
+{
+    if (index < 0 || index >= m_targets.count())
+        return;
+    for (int i = 0; i < m_targets.count(); ++i)
+        m_targets[i].isActive = (i == index);
     update();
 }
 
 void TargetSelector::removeTarget(int index)
 {
     m_targets.removeAt(index);
+    if (m_currentTargetIndex == index)
+        setCurrentIndex(m_targets.size() - 1);
     update();
+}
+
+void TargetSelector::setCurrentIndex(int index)
+{
+    if (index < -1 ||
+        index >= m_targets.count() ||
+        index == m_currentTargetIndex)
+        return;
+
+    m_currentTargetIndex = index;
+
+    update();
+    emit currentIndexChanged(m_currentTargetIndex,
+                             m_currentTargetIndex >= 0 ? m_targets.at(m_currentTargetIndex).currentSubIndex : -1);
+}
+
+void TargetSelector::setCurrentSubIndex(int subindex)
+{
+    if (subindex < 0 ||
+        subindex >= 2 ||
+        subindex == m_targets.at(m_currentTargetIndex).currentSubIndex)
+        return;
+    m_targets[m_currentTargetIndex].currentSubIndex = subindex;
+
+    update();
+    emit currentIndexChanged(m_currentTargetIndex,
+                             m_targets.at(m_currentTargetIndex).currentSubIndex);
 }
 
 TargetSelector::Target TargetSelector::targetAt(int index) const
@@ -117,8 +156,13 @@ void TargetSelector::paintEvent(QPaintEvent *event)
             p.setPen(QColor(0, 0, 0));
         }
         p.drawPixmap(x, 1, *pixmap);
+        QString targetName;
+        if (target.isActive)
+            targetName = QChar('*') + target.name + QChar('*');
+        else
+            targetName = target.name;
         p.drawText(x + (TARGET_WIDTH - fm.width(target.name))/2 + 1, 7 + fm.ascent(),
-            target.name);
+            targetName);
         x += TARGET_WIDTH;
         p.drawLine(x, 1, x, TARGET_HEIGHT);
         ++x;

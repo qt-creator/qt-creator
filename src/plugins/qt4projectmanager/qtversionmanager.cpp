@@ -30,6 +30,7 @@
 #include "qtversionmanager.h"
 
 #include "qt4projectmanagerconstants.h"
+#include "qt4target.h"
 #include "profilereader.h"
 
 #include "qt-maemo/maemomanager.h"
@@ -64,7 +65,6 @@ using namespace Qt4ProjectManager::Internal;
 using ProjectExplorer::DebuggingHelperLibrary;
 
 static const char *QtVersionsSectionName = "QtVersions";
-static const char *defaultQtVersionKey = "DefaultQtVersion";
 static const char *newQtVersionsKey = "NewQtVersions";
 static const char *PATH_AUTODETECTION_SOURCE = "PATH";
 
@@ -77,7 +77,6 @@ QtVersionManager::QtVersionManager()
 {
     m_self = this;
     QSettings *s = Core::ICore::instance()->settings();
-    m_defaultVersion = s->value(defaultQtVersionKey, 0).toInt();
 
     m_idcount = 1;
     int size = s->beginReadArray(QtVersionsSectionName);
@@ -140,22 +139,6 @@ QtVersionManager::QtVersionManager()
 
     updateDocumentation();
 
-    if (m_defaultVersion > m_versions.size() || m_defaultVersion < 0) {
-        // Invalid default version, correct that...
-        for(int i = 0; i < m_versions.size(); ++i) {
-            QtVersion *version = m_versions.at(i);
-            if (version->isAutodetected() && version->autodetectionSource() == PATH_AUTODETECTION_SOURCE && version->isValid()) {
-                m_defaultVersion = i;
-                break;
-            }
-        }
-    }
-
-    if (m_defaultVersion > m_versions.size() || m_defaultVersion < 0) {
-        // Still invalid? Use the first one
-        m_defaultVersion = 0;
-    }
-
     // cannot call from ctor, needs to get connected extenernally first
     QTimer::singleShot(0, this, SLOT(updateExamples()));
 }
@@ -194,6 +177,33 @@ void QtVersionManager::removeVersion(QtVersion *version)
     delete version;
 }
 
+bool QtVersionManager::supportsTargetId(const QString &id) const
+{
+    foreach (QtVersion *version, m_versions) {
+        if (version->supportsTargetId(id))
+            return true;
+    }
+    return false;
+}
+
+QList<QtVersion *> QtVersionManager::versionsForTargetId(const QString &id) const
+{
+    QList<QtVersion *> targetVersions;
+    foreach (QtVersion *version, m_versions) {
+        if (version->supportsTargetId(id))
+            targetVersions.append(version);
+    }
+    return targetVersions;
+}
+
+QSet<QString> QtVersionManager::supportedTargetIds() const
+{
+    QSet<QString> results;
+    foreach (QtVersion *version, m_versions)
+        results.unite(version->supportedTargetIds());
+    return results;
+}
+
 void QtVersionManager::updateDocumentation()
 {
     Help::HelpManager *helpManager
@@ -214,14 +224,13 @@ void QtVersionManager::updateDocumentation()
 void QtVersionManager::updateExamples()
 {
     QList<QtVersion *> versions;
-    versions.append(defaultVersion());
     versions.append(m_versions);
 
     QString examplesPath;
     QString docPath;
     QString demosPath;
     QtVersion *version = 0;
-    // try to find a version which has both, demos and examples, starting with default Qt
+    // try to find a version which has both, demos and examples
     foreach (version, versions) {
         if (version->hasExamples())
             examplesPath = version->examplesPath();
@@ -249,7 +258,6 @@ void QtVersionManager::updateUniqueIdToIndexMap()
 void QtVersionManager::writeVersionsIntoSettings()
 {
     QSettings *s = Core::ICore::instance()->settings();
-    s->setValue(defaultQtVersionKey, m_defaultVersion);
     s->beginWriteArray(QtVersionsSectionName);
     for (int i = 0; i < m_versions.size(); ++i) {
         const QtVersion *version = m_versions.at(i);
@@ -288,10 +296,7 @@ QtVersion *QtVersionManager::version(int id) const
     if (pos != -1)
         return m_versions.at(pos);
 
-    if (m_defaultVersion < m_versions.count())
-        return m_versions.at(m_defaultVersion);
-    else
-        return m_emptyVersion;
+    return m_emptyVersion;
 }
 
 void QtVersionManager::addNewVersionsFromInstaller()
@@ -324,7 +329,6 @@ void QtVersionManager::addNewVersionsFromInstaller()
         newVersionsValue = settings->value(QLatin1String("Installer/")+newQtVersionsKey).toString();
 
     QStringList newVersionsList = newVersionsValue.split(';', QString::SkipEmptyParts);
-    bool defaultVersionWasReset = false;
     foreach (const QString &newVersion, newVersionsList) {
         QStringList newVersionData = newVersion.split('=');
         if (newVersionData.count() >= 2) {
@@ -352,10 +356,6 @@ void QtVersionManager::addNewVersionsFromInstaller()
                 } else {
                     // clean up
                     delete version;
-                }
-                if (!defaultVersionWasReset) {
-                    m_defaultVersion = versionWasAlreadyInList? m_defaultVersion : m_versions.count() - 1;
-                    defaultVersionWasReset = true;
                 }
             }
         }
@@ -388,16 +388,11 @@ void QtVersionManager::updateSystemVersion()
                                        PATH_AUTODETECTION_SOURCE);
     m_versions.prepend(version);
     updateUniqueIdToIndexMap();
-    if (m_versions.size() > 1) // we had other versions before adding system version
-        ++m_defaultVersion;
 }
 
-QtVersion *QtVersionManager::defaultVersion() const
+QtVersion *QtVersionManager::emptyVersion() const
 {
-    if (m_defaultVersion < m_versions.count())
-        return m_versions.at(m_defaultVersion);
-    else
-        return m_emptyVersion;
+    return m_emptyVersion;
 }
 
 class SortByUniqueId
@@ -422,7 +417,7 @@ bool QtVersionManager::equals(QtVersion *a, QtVersion *b)
     return true;
 }
 
-void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion)
+void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions)
 {
     // We want to preserve the same order as in the settings dialog
     // so we sort a copy
@@ -477,19 +472,11 @@ void QtVersionManager::setNewQtVersions(QList<QtVersion *> newVersions, int newD
         updateDocumentation();
     updateUniqueIdToIndexMap();
 
-    bool emitDefaultChanged = false;
-    if (m_defaultVersion != newDefaultVersion) {
-        m_defaultVersion = newDefaultVersion;
-        emitDefaultChanged = true;
-    }
-
     updateExamples();
     writeVersionsIntoSettings();
 
     if (!changedVersions.isEmpty())
         emit qtVersionsChanged(changedVersions);
-    if (emitDefaultChanged)
-        emit defaultQtVersionChanged();
 }
 
 ///
@@ -575,7 +562,6 @@ QtVersion::QtVersion()
 
 QtVersion::~QtVersion()
 {
-
 }
 
 QString QtVersion::toHtml() const
@@ -1091,6 +1077,33 @@ QString QtVersion::linguistCommand() const
     return m_linguistCommand;
 }
 
+bool QtVersion::supportsTargetId(const QString &id) const
+{
+    return supportedTargetIds().contains(id);
+}
+
+QSet<QString> QtVersion::supportedTargetIds() const
+{
+    QSet<QString> result;
+    QList<ProjectExplorer::ToolChain::ToolChainType>  tcs(possibleToolChainTypes());
+
+    if (tcs.contains(ProjectExplorer::ToolChain::WINSCW))
+        result.insert(QLatin1String(S60_EMULATOR_TARGET_ID));
+    if (tcs.contains(ProjectExplorer::ToolChain::RVCT_ARMV5) ||
+        tcs.contains(ProjectExplorer::ToolChain::RVCT_ARMV6) ||
+        tcs.contains(ProjectExplorer::ToolChain::GCCE) ||
+        tcs.contains(ProjectExplorer::ToolChain::GCCE_GNUPOC))
+        result.insert(QLatin1String(S60_DEVICE_TARGET_ID));
+    if (tcs.contains(ToolChain::GCC_MAEMO)) {
+        result.insert(QLatin1String(MAEMO_EMULATOR_TARGET_ID));
+        result.insert(QLatin1String(MAEMO_DEVICE_TARGET_ID));
+    }
+    // If the version is not for a specific device, then assume desktop
+    if (result.isEmpty() && !tcs.isEmpty())
+        result.insert(QLatin1String(DESKTOP_TARGET_ID));
+    return result;
+}
+
 QList<QSharedPointer<ProjectExplorer::ToolChain> > QtVersion::toolChains() const
 {
     updateToolChainAndMkspec();
@@ -1113,14 +1126,6 @@ QList<ProjectExplorer::ToolChain::ToolChainType> QtVersion::possibleToolChainTyp
     return types;
 }
 
-ProjectExplorer::ToolChain::ToolChainType QtVersion::defaultToolchainType() const
-{
-    const QList<ProjectExplorer::ToolChain::ToolChainType> & list = possibleToolChainTypes();
-    if (list.isEmpty())
-        return ProjectExplorer::ToolChain::INVALID;
-    return list.first();
-}
-
 // if none, then it's INVALID everywhere this function is called
 void QtVersion::updateToolChainAndMkspec() const
 {
@@ -1128,10 +1133,10 @@ void QtVersion::updateToolChainAndMkspec() const
     if (m_toolChainUpToDate)
         return;
 
+    m_toolChains.clear();
+
     if (!isValid())
         return;
-
-    m_toolChains.clear();
 
 //    qDebug()<<"Finding mkspec for"<<qmakeCommand();
 
@@ -1240,10 +1245,13 @@ void QtVersion::updateToolChainAndMkspec() const
                makefileGenerator == QLatin1String("SYMBIAN_SBSV2")) {
         if (S60Manager *s60mgr = S60Manager::instance()) {
 #    ifdef Q_OS_WIN
-            m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this))
-                         << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
-                         << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6))
-                         << ToolChainPtr(s60mgr->createWINSCWToolChain(this));
+            if (!gcceDirectory().isEmpty())
+                m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this));
+            if (!qgetenv("RVCT22BIN").isEmpty())
+                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
+                             << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6));
+            if (!mwcDirectory().isEmpty())
+                m_toolChains << ToolChainPtr(s60mgr->createWINSCWToolChain(this));
 #    else
             m_toolChains << ToolChainPtr(s60mgr->createGCCE_GnuPocToolChain(this))
                          << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC));
@@ -1303,6 +1311,7 @@ QString QtVersion::mwcDirectory() const
 void QtVersion::setMwcDirectory(const QString &directory)
 {
     m_mwcDirectory = directory;
+    m_toolChainUpToDate = false;
 }
 QString QtVersion::s60SDKDirectory() const
 {
@@ -1312,6 +1321,7 @@ QString QtVersion::s60SDKDirectory() const
 void QtVersion::setS60SDKDirectory(const QString &directory)
 {
     m_s60SDKDirectory = directory;
+    m_toolChainUpToDate = false;
 }
 
 QString QtVersion::gcceDirectory() const
@@ -1322,6 +1332,7 @@ QString QtVersion::gcceDirectory() const
 void QtVersion::setGcceDirectory(const QString &directory)
 {
     m_gcceDirectory = directory;
+    m_toolChainUpToDate = false;
 }
 
 QString QtVersion::mingwDirectory() const

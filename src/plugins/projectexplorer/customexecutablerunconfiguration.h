@@ -49,7 +49,10 @@ class PathChooser;
 }
 
 namespace ProjectExplorer {
+
 class EnvironmentWidget;
+class Target;
+
 namespace Internal {
 class CustomExecutableConfigurationWidget;
 }
@@ -64,7 +67,7 @@ class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public LocalAppl
     friend class CustomExecutableRunConfigurationFactory;
 
 public:
-    explicit CustomExecutableRunConfiguration(Project *project);
+    explicit CustomExecutableRunConfiguration(Target *parent);
     ~CustomExecutableRunConfiguration();
 
     /**
@@ -109,7 +112,7 @@ private slots:
     void activeBuildConfigurationChanged();
 
 protected:
-    CustomExecutableRunConfiguration(Project *project, CustomExecutableRunConfiguration *source);
+    CustomExecutableRunConfiguration(Target *parent, CustomExecutableRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -149,15 +152,15 @@ public:
     explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
     ~CustomExecutableRunConfigurationFactory();
 
-    QStringList availableCreationIds(Project *project) const;
+    QStringList availableCreationIds(Target *parent) const;
     QString displayNameForId(const QString &id) const;
 
-    bool canCreate(Project *project, const QString &id) const;
-    RunConfiguration *create(Project *project, const QString &id);
-    bool canRestore(Project *project, const QVariantMap &map) const;
-    RunConfiguration *restore(Project *project, const QVariantMap &map);
-    bool canClone(Project *parent, RunConfiguration *product) const;
-    RunConfiguration *clone(Project *parent, RunConfiguration *source);
+    bool canCreate(Target *parent, const QString &id) const;
+    RunConfiguration *create(Target *parent, const QString &id);
+    bool canRestore(Target *parent, const QVariantMap &map) const;
+    RunConfiguration *restore(Target *parent, const QVariantMap &map);
+    bool canClone(Target *parent, RunConfiguration *product) const;
+    RunConfiguration *clone(Target *parent, RunConfiguration *source);
 };
 
 namespace Internal {

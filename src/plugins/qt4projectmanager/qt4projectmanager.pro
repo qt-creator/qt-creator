@@ -42,6 +42,7 @@ HEADERS += qt4projectmanagerplugin.h \
     gettingstartedwelcomepagewidget.h \
     gettingstartedwelcomepage.h \
     qt4buildconfiguration.h \
+    qt4target.h \
     qmakeparser.h
 SOURCES += qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \
@@ -81,6 +82,7 @@ SOURCES += qt4projectmanagerplugin.cpp \
     gettingstartedwelcomepagewidget.cpp \
     gettingstartedwelcomepage.cpp \
     qt4buildconfiguration.cpp \
+    qt4target.cpp \
     qmakeparser.cpp
 FORMS += makestep.ui \
     qmakestep.ui \

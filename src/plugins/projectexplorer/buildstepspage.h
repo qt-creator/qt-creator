@@ -43,7 +43,7 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-class Project;
+class Target;
 class BuildConfiguration;
 
 namespace Internal {
@@ -64,9 +64,9 @@ struct BuildStepsWidgetStruct
 class BuildStepsPage : public BuildConfigWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY(BuildStepsPage)
+
 public:
-    explicit BuildStepsPage(Project *project, bool clean = false);
+    explicit BuildStepsPage(Target *target, bool clean = false);
     virtual ~BuildStepsPage();
 
     QString displayName() const;

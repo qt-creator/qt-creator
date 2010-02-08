@@ -33,6 +33,7 @@
 #include "cmakeprojectmanager.h"
 #include "cmakeprojectnodes.h"
 #include "cmakebuildconfiguration.h"
+#include "cmaketarget.h"
 #include "makestep.h"
 
 #include <projectexplorer/project.h>
@@ -72,13 +73,13 @@ public:
     CMakeProject(CMakeManager *manager, const QString &filename);
     ~CMakeProject();
 
-    CMakeBuildConfiguration *activeCMakeBuildConfiguration() const;
-
     QString displayName() const;
     QString id() const;
     Core::IFile *file() const;
-    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
+    CMakeTargetFactory *targetFactory() const;
     CMakeManager *projectManager() const;
+
+    CMakeTarget *activeTarget() const;
 
     QList<ProjectExplorer::Project *> dependsOn(); //NBS TODO implement dependsOn
 
@@ -98,10 +99,9 @@ public:
 
     QString sourceDirectory() const;
 
+    bool parseCMakeLists();
+
 signals:
-    /// convenience signal emitted if the activeBuildConfiguration emits environmentChanged
-    /// or if the activeBuildConfiguration changes
-    void environmentChanged();
     /// emitted after parsing
     void buildTargetsChanged();
 
@@ -113,11 +113,10 @@ protected:
 
 private slots:
     void fileChanged(const QString &fileName);
-    void slotActiveBuildConfiguration();
+    void changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*);
+    void targetAdded(ProjectExplorer::Target *);
 
 private:
-    bool parseCMakeLists();
-
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);
@@ -126,7 +125,6 @@ private:
     QString m_fileName;
     CMakeFile *m_file;
     QString m_projectName;
-    CMakeBuildConfigurationFactory *m_buildConfigurationFactory;
 
     // TODO probably need a CMake specific node structure
     CMakeProjectNode *m_rootNode;
@@ -135,9 +133,7 @@ private:
     ProjectExplorer::FileWatcher *m_watcher;
     bool m_insideFileChanged;
     QSet<QString> m_watchedFiles;
-    CMakeBuildConfiguration *m_lastActiveBuildConfiguration;
-
-    friend class CMakeBuildConfigurationFactory; // for parseCMakeLists
+    CMakeTargetFactory *m_targetFactory;
 };
 
 class CMakeCbpParser : public QXmlStreamReader

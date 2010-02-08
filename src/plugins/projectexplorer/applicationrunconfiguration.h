@@ -59,8 +59,8 @@ public:
     virtual ProjectExplorer::ToolChain::ToolChainType toolChainType() const = 0;
 
 protected:
-    LocalApplicationRunConfiguration(Project *project, const QString &id);
-    LocalApplicationRunConfiguration(Project *project, LocalApplicationRunConfiguration *rc);
+    LocalApplicationRunConfiguration(Target *target, const QString &id);
+    LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc);
 };
 
 namespace Internal {

@@ -36,6 +36,7 @@
 #include "projectexplorer.h"
 #include "project.h"
 #include "projectexplorersettings.h"
+#include "target.h"
 #include "taskwindow.h"
 #include "buildconfiguration.h"
 
@@ -136,7 +137,7 @@ void BuildManager::cancel()
                    this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
         disconnect(m_currentBuildStep, SIGNAL(addOutput(QString)),
                    this, SLOT(addToOutputWindow(QString)));
-        decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->project());
+        decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->target()->project());
 
         m_progressFutureInterface->setProgressValueAndText(m_progress*100, "Build canceled"); //TODO NBS fix in qtconcurrent
         clearBuildQueue();
@@ -169,7 +170,7 @@ void BuildManager::emitCancelMessage()
 void BuildManager::clearBuildQueue()
 {
     foreach (BuildStep *bs, m_buildQueue) {
-        decrementActiveBuildSteps(bs->buildConfiguration()->project());
+        decrementActiveBuildSteps(bs->buildConfiguration()->target()->project());
         disconnect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
                    this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
         disconnect(bs, SIGNAL(addOutput(QString)),
@@ -281,12 +282,12 @@ void BuildManager::nextBuildQueue()
 
     ++m_progress;
     m_progressFutureInterface->setProgressValueAndText(m_progress*100, msgProgress(m_progress, m_maxProgress));
-    decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->project());
+    decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->target()->project());
 
     bool result = m_watcher.result();
     if (!result) {
         // Build Failure
-        const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
+        const QString projectName = m_currentBuildStep->buildConfiguration()->target()->displayName();
         addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(projectName));
         addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
         // NBS TODO fix in qtconcurrent
@@ -316,11 +317,11 @@ void BuildManager::nextStep()
         m_currentBuildStep = m_buildQueue.front();
         m_buildQueue.pop_front();
 
-        if (m_currentBuildStep->buildConfiguration()->project() != m_previousBuildStepProject) {
-            const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
+        if (m_currentBuildStep->buildConfiguration()->target()->project() != m_previousBuildStepProject) {
+            const QString projectName = m_currentBuildStep->buildConfiguration()->target()->displayName();
             addToOutputWindow(tr("<b>Running build steps for project %2...</b>")
                               .arg(projectName));
-            m_previousBuildStepProject = m_currentBuildStep->buildConfiguration()->project();
+            m_previousBuildStepProject = m_currentBuildStep->buildConfiguration()->target()->project();
         }
         m_watcher.setFuture(QtConcurrent::run(&BuildStep::run, m_currentBuildStep));
     } else {
@@ -339,7 +340,7 @@ bool BuildManager::buildQueueAppend(BuildStep *bs)
 {
     m_buildQueue.append(bs);
     ++m_maxProgress;
-    incrementActiveBuildSteps(bs->buildConfiguration()->project());
+    incrementActiveBuildSteps(bs->buildConfiguration()->target()->project());
 
     connect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
             this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
@@ -348,7 +349,7 @@ bool BuildManager::buildQueueAppend(BuildStep *bs)
 
     bool init = bs->init();
     if (!init) {
-        const QString projectName = m_currentBuildStep->buildConfiguration()->project()->displayName();
+        const QString projectName = m_currentBuildStep->buildConfiguration()->target()->displayName();
         addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(projectName));
         addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
         cancel();

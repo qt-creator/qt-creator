@@ -75,8 +75,10 @@ public:
     QString designerCommand() const;
     QString linguistCommand() const;
 
+    bool supportsTargetId(const QString &id) const;
+    QSet<QString> supportedTargetIds() const;
+
     QList<ProjectExplorer::ToolChain::ToolChainType> possibleToolChainTypes() const;
-    ProjectExplorer::ToolChain::ToolChainType defaultToolchainType() const;
     ProjectExplorer::ToolChain *toolChain(ProjectExplorer::ToolChain::ToolChainType type) const;
 
     /// @returns the name of the mkspec, which is generally not enough
@@ -123,6 +125,7 @@ public:
     bool hasDemos() const;
     QString demosPath() const;
 
+    // All valid Ids are >= 0
     int uniqueId() const;
     bool isQt64Bit() const;
 
@@ -197,23 +200,36 @@ public:
     QtVersionManager();
     ~QtVersionManager();
 
+    // This will *always* return at least one (Qt in Path), even if that is
+    // unconfigured.
     QList<QtVersion *> versions() const;
 
+    // Note: DO NOT STORE THIS POINTER!
+    //       The QtVersionManager will delete it at random times and you will
+    //       need to get a new pointer by calling this method again!
     QtVersion *version(int id) const;
-    QtVersion *defaultVersion() const;
+    QtVersion *emptyVersion() const;
 
     QtVersion *qtVersionForQMakeBinary(const QString &qmakePath);
+
     // Used by the projectloadwizard
     void addVersion(QtVersion *version);
     void removeVersion(QtVersion *version);
+
+    // Target Support:
+    bool supportsTargetId(const QString &id) const;
+    // This returns a list of versions that support the target with the given id.
+    // @return A list of QtVersions that supports a target. This list may be empty!
+    QList<QtVersion *> versionsForTargetId(const QString &id) const;
+    QSet<QString> supportedTargetIds() const;
 
     // Static Methods
     static QPair<QtVersion::QmakeBuildConfigs, QStringList> scanMakeFile(const QString &directory,
                                                                          QtVersion::QmakeBuildConfigs defaultBuildConfig);
     static QString findQMakeBinaryFromMakefile(const QString &directory);
     bool isValidId(int id) const;
+
 signals:
-    void defaultQtVersionChanged();
     void qtVersionsChanged(const QList<int> &uniqueIds);
     void updateExamples(QString, QString, QString);
 
@@ -232,7 +248,7 @@ private:
     static QtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments,
                                                                     QtVersion::QmakeBuildConfigs defaultBuildConfig);
     // Used by QtOptionsPage
-    void setNewQtVersions(QList<QtVersion *> newVersions, int newDefaultVersion);
+    void setNewQtVersions(QList<QtVersion *> newVersions);
     // Used by QtVersion
     int getUniqueId();
     void writeVersionsIntoSettings();
@@ -244,7 +260,6 @@ private:
     void updateUniqueIdToIndexMap();
 
     QtVersion *m_emptyVersion;
-    int m_defaultVersion;
     QList<QtVersion *> m_versions;
     QMap<int, int> m_uniqueIdToIndex;
     int m_idcount;

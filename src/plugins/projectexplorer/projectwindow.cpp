@@ -37,9 +37,13 @@
 #include "projectexplorerconstants.h"
 #include "iprojectproperties.h"
 #include "session.h"
+#include "target.h"
 #include "projecttreewidget.h"
 #include "runconfiguration.h"
 #include "buildconfiguration.h"
+#include "buildsettingspropertiespage.h"
+#include "runsettingspropertiespage.h"
+#include "targetsettingspanel.h"
 
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/fileiconprovider.h>
@@ -68,7 +72,29 @@ const int ICON_SIZE(64);
 const int ABOVE_HEADING_MARGIN(10);
 const int ABOVE_CONTENTS_MARGIN(4);
 const int BELOW_CONTENTS_MARGIN(16);
+
+bool skipPanelFactory(Project *project, IPanelFactory *factory)
+{
+    bool simplifyTargets(project->supportedTargetIds().count() <= 1);
+    if (simplifyTargets) {
+        // Do not show the targets list:
+        if (factory->id() == QLatin1String(TARGETSETTINGS_PANEL_ID))
+            return true;
+        // Skip build settigns if none are available anyway:
+        if (project->activeTarget() &&
+            !project->activeTarget()->buildConfigurationFactory() &&
+            factory->id() == QLatin1String(BUILDSETTINGS_PANEL_ID))
+            return true;
+    } else {
+        // Skip panels embedded into the targets panel:
+        if (factory->id() == QLatin1String(BUILDSETTINGS_PANEL_ID) ||
+            factory->id() == QLatin1String(RUNSETTINGS_PANEL_ID))
+            return true;
+    }
+    return false;
 }
+
+} // namespace
 
 ///
 // OnePixelBlackLine
@@ -135,10 +161,10 @@ void PanelsWidget::addPropertiesPanel(IPropertiesPanel *panel)
 {
     QTC_ASSERT(panel, return);
 
-    // icon:
     const int headerRow(m_layout->rowCount() - 1);
     m_layout->setRowStretch(headerRow, 0);
 
+    // icon:
     if (!panel->icon().isNull()) {
         QLabel *iconLabel = new QLabel(m_root);
         iconLabel->setPixmap(panel->icon().pixmap(ICON_SIZE, ICON_SIZE));
@@ -168,9 +194,11 @@ void PanelsWidget::addPropertiesPanel(IPropertiesPanel *panel)
 void PanelsWidget::addPanelWidget(IPropertiesPanel *panel, int row)
 {
     QWidget *widget = panel->widget();
-    widget->setContentsMargins(m_layout->columnMinimumWidth(0),
-                                           ABOVE_CONTENTS_MARGIN, 0,
-                                           BELOW_CONTENTS_MARGIN);
+    int leftMargin = (panel->flags() & IPropertiesPanel::NoLeftMargin)
+                     ? 0 : Constants::PANEL_LEFT_MARGIN;
+    widget->setContentsMargins(leftMargin,
+                               ABOVE_CONTENTS_MARGIN, 0,
+                               BELOW_CONTENTS_MARGIN);
     widget->setParent(m_root);
     m_layout->addWidget(widget, row, 0, 1, 2);
 
@@ -186,7 +214,8 @@ void PanelsWidget::addPanelWidget(IPropertiesPanel *panel, int row)
 
 ProjectWindow::ProjectWindow(QWidget *parent)
     : QWidget(parent),
-    m_panelsWidget(0)
+    m_currentWidget(0),
+    m_currentPanel(0)
 {
     ProjectExplorer::SessionManager *session = ProjectExplorerPlugin::instance()->session();
 
@@ -252,11 +281,16 @@ void ProjectWindow::projectAdded(ProjectExplorer::Project *project)
 {
     QList<Project *> projects = ProjectExplorerPlugin::instance()->session()->projects();
     int index = projects.indexOf(project);
+    if (index < 0)
+        return;
+
     QStringList subtabs;
     foreach (IPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>()) {
-        if (panelFactory->supports(project))
-            subtabs << panelFactory->displayName();
+        if (skipPanelFactory(project, panelFactory))
+            continue;
+        subtabs << panelFactory->displayName();
     }
+
     m_tabIndexToProject.insert(index, project);
     m_tabWidget->insertTab(index, project->displayName(), subtabs);
 }
@@ -282,41 +316,46 @@ void ProjectWindow::showProperties(int index, int subIndex)
 {
     if (index < 0) {
         m_centralWidget->setCurrentWidget(m_noprojectLabel);
-        if (m_panelsWidget) {
-            m_centralWidget->removeWidget(m_panelsWidget);
-            delete m_panelsWidget;
-            m_panelsWidget = 0;
-        }
+        removeCurrentWidget();
         return;
     }
     Project *project = m_tabIndexToProject.at(index);
 
-
-    PanelsWidget *panelsWidget = 0;
     // Set up custom panels again:
-    QList<IPanelFactory *> pages =
-            ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>();
-    int indexOfPanel = 0;
-    foreach (IPanelFactory *panelFactory, pages) {
-        if (panelFactory->supports(project)) {
-            if (indexOfPanel == subIndex) {
-                panelsWidget = new PanelsWidget(m_centralWidget);
-                IPropertiesPanel *panel = panelFactory->createPanel(project);
+    int pos = 0;
+    foreach (IPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>()) {
+        if (skipPanelFactory(project, panelFactory))
+            continue;
+        if (pos == subIndex) {
+            removeCurrentWidget();
+            IPropertiesPanel *panel(panelFactory->createPanel(project));
+            if (panel->flags() & IPropertiesPanel::NoAutomaticStyle) {
+                m_currentWidget = panel->widget();
+                m_currentPanel = panel;
+            } else {
+                PanelsWidget *panelsWidget = new PanelsWidget(m_centralWidget);
                 panelsWidget->addPropertiesPanel(panel);
-                panel->widgetWasAddedToLayout();
-                break;
+                m_currentWidget = panelsWidget;
             }
-            ++indexOfPanel;
+            m_centralWidget->addWidget(m_currentWidget);
+            m_centralWidget->setCurrentWidget(m_currentWidget);
+            break;
         }
+        ++pos;
     }
-    if (panelsWidget) {
-        // add the new stuff to the stack widget
-        m_centralWidget->addWidget(panelsWidget);
-        m_centralWidget->setCurrentWidget(panelsWidget);
-        if (m_panelsWidget) {
-            m_centralWidget->removeWidget(m_panelsWidget);
-            delete m_panelsWidget;
+}
+
+void ProjectWindow::removeCurrentWidget()
+{
+    if (m_currentWidget) {
+        m_centralWidget->removeWidget(m_currentWidget);
+        if (m_currentPanel) {
+            delete m_currentPanel;
+            m_currentPanel = 0;
+            m_currentWidget = 0; // is deleted by the panel
+        } else if (m_currentWidget) {
+            delete m_currentWidget;
+            m_currentWidget = 0;
         }
-        m_panelsWidget = panelsWidget;
     }
 }

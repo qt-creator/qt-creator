@@ -34,6 +34,7 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
+#include "qt4target.h"
 #include "qtversionmanager.h"
 
 #include <coreplugin/icore.h>
@@ -96,7 +97,7 @@ QStringList QMakeStep::allArguments()
     if (bc->subNodeBuild())
         arguments << bc->subNodeBuild()->path();
     else
-        arguments << buildConfiguration()->project()->file()->fileName();
+        arguments << buildConfiguration()->target()->project()->file()->fileName();
     arguments << "-r";
 
     if (!additonalArguments.contains("-spec"))
@@ -179,7 +180,7 @@ bool QMakeStep::init()
 
 void QMakeStep::run(QFutureInterface<bool> &fi)
 {
-    Qt4Project *pro = qt4BuildConfiguration()->qt4Project();
+    Qt4Project *pro = qt4BuildConfiguration()->qt4Target()->qt4Project();
     if (pro->rootProjectNode()->projectType() == ScriptTemplate) {
         fi.reportResult(true);
         return;
@@ -367,7 +368,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
 
     QStringList args = m_step->allArguments();
     // We don't want the full path to the .pro file
-    const QString projectFileName = m_step->buildConfiguration()->project()->file()->fileName();
+    const QString projectFileName = m_step->buildConfiguration()->target()->project()->file()->fileName();
     int index = args.indexOf(projectFileName);
     if (index != -1)
         args[index] = QFileInfo(projectFileName).fileName();
@@ -383,12 +384,8 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 {
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
-    if (qtVersion) {
-        QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-        m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + ProjectExplorer::Environment::joinArgumentList(m_step->allArguments()));
-    } else {
-        m_ui.qmakeArgumentsEdit->setPlainText(tr("No valid Qt version set."));
-    }
+    QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
+    m_ui.qmakeArgumentsEdit->setPlainText(program + QLatin1Char(' ') + ProjectExplorer::Environment::joinArgumentList(m_step->allArguments()));
 }
 
 ////

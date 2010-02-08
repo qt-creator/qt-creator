@@ -40,13 +40,16 @@
 #include <projectexplorer/applicationlauncher.h>
 
 namespace Qt4ProjectManager {
+
 class Qt4Project;
 
 namespace Internal {
 
 class MaemoManager;
 class MaemoToolChain;
+class Qt4BuildConfiguration;
 class Qt4ProFileNode;
+class Qt4Target;
 
 class ErrorDumper : public QObject
 {
@@ -67,14 +70,15 @@ class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class MaemoRunConfigurationFactory;
 
 public:
-    MaemoRunConfiguration(Qt4Project *project,
+    MaemoRunConfiguration(Qt4Target *parent,
                           const QString &proFilePath);
     virtual ~MaemoRunConfiguration();
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
     using RunConfiguration::isEnabled;
     QWidget *configurationWidget();
-    Qt4Project *qt4Project() const;
+    Qt4Target *qt4Target() const;
+    Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     bool currentlyNeedsDeployment() const;
     void wasDeployed();
@@ -114,7 +118,7 @@ signals:
     void qemuProcessStatus(bool running);
 
 protected:
-    MaemoRunConfiguration(Qt4Project *project,
+    MaemoRunConfiguration(Qt4Target *parent,
                           MaemoRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
@@ -169,22 +173,23 @@ public:
     explicit MaemoRunConfigurationFactory(QObject *parent = 0);
     ~MaemoRunConfigurationFactory();
 
-    QStringList availableCreationIds(ProjectExplorer::Project *project) const;
+    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const QString &id) const;
 
-    bool canRestore(ProjectExplorer::Project *project, const QVariantMap &map) const;
-    bool canClone(ProjectExplorer::Project *project, ProjectExplorer::RunConfiguration *source) const;
-    bool canCreate(ProjectExplorer::Project *project, const QString &id) const;
-    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Project *project, const QVariantMap &map);
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Project *project, ProjectExplorer::RunConfiguration *source);
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Project *project, const QString &id);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
+    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
 
 private slots:
-    void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
-    void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
-
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
+
+    void targetAdded(ProjectExplorer::Target *target);
+    void targetRemoved(ProjectExplorer::Target *target);
+
     void currentProjectChanged(ProjectExplorer::Project *project);
 
 private:

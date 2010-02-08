@@ -32,6 +32,7 @@
 #include "buildstep.h"
 #include "ioutputparser.h"
 #include "project.h"
+#include "target.h"
 
 #include <utils/qtcassert.h>
 
@@ -270,7 +271,7 @@ void AbstractProcessStep::taskAdded(const ProjectExplorer::TaskWindow::Task &tas
 
         QList<QFileInfo> possibleFiles;
         QString fileName = QFileInfo(filePath).fileName();
-        foreach (const QString &file, buildConfiguration()->project()->files(ProjectExplorer::Project::AllFiles)) {
+        foreach (const QString &file, buildConfiguration()->target()->project()->files(ProjectExplorer::Project::AllFiles)) {
             QFileInfo candidate(file);
             if (candidate.fileName() == fileName)
                 possibleFiles << candidate;
