@@ -626,6 +626,7 @@ private:
     void moveLineUpDown(bool up);
     void copyLineUpDown(bool up);
     void saveCurrentCursorPositionForNavigation();
+    void updateHighlights();
     void updateCurrentLineHighlight();
 
     void drawFoldingMarker(QPainter *painter, const QPalette &pal,

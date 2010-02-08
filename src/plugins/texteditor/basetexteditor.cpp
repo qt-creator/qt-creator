@@ -223,7 +223,7 @@ BaseTextEditor::BaseTextEditor(QWidget *parent)
     d->m_searchResultFormat.setBackground(QColor(0xffef0b));
 
     slotUpdateExtraAreaWidth();
-    slotCursorPositionChanged();
+    updateHighlights();
     setFrameStyle(QFrame::NoFrame);
 
     d->m_delayedUpdateTimer = new QTimer(this);
@@ -3198,7 +3198,11 @@ void BaseTextEditor::slotCursorPositionChanged()
     } else if (d->m_contentsChanged) {
         saveCurrentCursorPositionForNavigation();
     }
+    updateHighlights();
+}
 
+void BaseTextEditor::updateHighlights()
+{
     if (d->m_parenthesesMatchingEnabled && hasFocus()) {
         // Delay update when no matching is displayed yet, to avoid flicker
         if (extraSelections(ParenthesesMatchingSelection).isEmpty()
@@ -4774,7 +4778,7 @@ void BaseTextEditor::changeEvent(QEvent *e)
 void BaseTextEditor::focusInEvent(QFocusEvent *e)
 {
     QPlainTextEdit::focusInEvent(e);
-    slotCursorPositionChanged();
+    updateHighlights();
 }
 
 void BaseTextEditor::focusOutEvent(QFocusEvent *e)
@@ -5157,7 +5161,7 @@ void BaseTextEditor::setDisplaySettings(const DisplaySettings &ds)
         d->m_highlightBlocksInfo = BaseTextEditorPrivateHighlightBlocks();
     }
 
-    slotCursorPositionChanged();
+    updateHighlights();
     viewport()->update();
     extraArea()->update();
 }
