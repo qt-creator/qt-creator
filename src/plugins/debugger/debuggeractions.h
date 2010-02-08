@@ -147,9 +147,11 @@ struct DebuggerManagerActions
     QAction *resetAction; // FIXME: Should not be needed in a stable release
     QAction *stepAction;
     QAction *stepOutAction;
-    QAction *runToLineAction;
+    QAction *runToLineAction1; // in the Debug menu
+    QAction *runToLineAction2; // in the text editor context menu
     QAction *runToFunctionAction;
-    QAction *jumpToLineAction;
+    QAction *jumpToLineAction1; // in the Debug menu
+    QAction *jumpToLineAction2; // in the text editor context menu
     QAction *nextAction;
     QAction *snapshotAction;
     QAction *watchAction1; // in the Debug menu

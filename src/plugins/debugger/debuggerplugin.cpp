@@ -113,9 +113,11 @@ const char * const ATTACHCORE           = "Debugger.AttachCore";
 const char * const ATTACHREMOTE         = "Debugger.AttachRemote";
 const char * const DETACH               = "Debugger.Detach";
 
-const char * const RUN_TO_LINE          = "Debugger.RunToLine";
+const char * const RUN_TO_LINE1         = "Debugger.RunToLine1";
+const char * const RUN_TO_LINE2         = "Debugger.RunToLine2";
 const char * const RUN_TO_FUNCTION      = "Debugger.RunToFunction";
-const char * const JUMP_TO_LINE         = "Debugger.JumpToLine";
+const char * const JUMP_TO_LINE1        = "Debugger.JumpToLine1";
+const char * const JUMP_TO_LINE2        = "Debugger.JumpToLine2";
 const char * const SNAPSHOT             = "Debugger.Snapshot";
 const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
@@ -786,8 +788,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(actions.runToLineAction,
-        Constants::RUN_TO_LINE, debuggercontext);
+    cmd = am->registerAction(actions.runToLineAction1,
+        Constants::RUN_TO_LINE1, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
     mdebug->addAction(cmd);
 
@@ -796,8 +798,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_FUNCTION_KEY));
     mdebug->addAction(cmd);
 
-    cmd = am->registerAction(actions.jumpToLineAction,
-        Constants::JUMP_TO_LINE, debuggercontext);
+    cmd = am->registerAction(actions.jumpToLineAction1,
+        Constants::JUMP_TO_LINE1, debuggercontext);
     mdebug->addAction(cmd);
 
 #ifdef USE_REVERSE_DEBUGGING
@@ -838,16 +840,29 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
     mdebug->addAction(cmd);
 
+    // Editor context menu
     ActionContainer *editorContextMenu =
         am->actionContainer(CppEditor::Constants::M_CONTEXT);
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Views"),
         debuggercontext);
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
+
     cmd = am->registerAction(actions.watchAction2,
         Constants::ADD_TO_WATCH2, debuggercontext);
     cmd->action()->setEnabled(true);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
+    editorContextMenu->addAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+
+    cmd = am->registerAction(actions.runToLineAction2,
+        Constants::RUN_TO_LINE2, debuggercontext);
+    cmd->action()->setEnabled(true);
+    editorContextMenu->addAction(cmd);
+    cmd->setAttribute(Command::CA_Hide);
+
+    cmd = am->registerAction(actions.jumpToLineAction2,
+        Constants::JUMP_TO_LINE2, debuggercontext);
+    cmd->action()->setEnabled(true);
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
 

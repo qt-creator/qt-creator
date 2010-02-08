@@ -473,11 +473,13 @@ void DebuggerManager::init()
     d->m_actions.stepOutAction = new QAction(tr("Step Out"), this);
     d->m_actions.stepOutAction->setIcon(QIcon(":/debugger/images/debugger_stepout_small.png"));
 
-    d->m_actions.runToLineAction = new QAction(tr("Run to Line"), this);
+    d->m_actions.runToLineAction1 = new QAction(tr("Run to Line"), this);
+    d->m_actions.runToLineAction2 = new QAction(tr("Run to Line"), this);
 
     d->m_actions.runToFunctionAction = new QAction(tr("Run to Outermost Function"), this);
 
-    d->m_actions.jumpToLineAction = new QAction(tr("Jump to Line"), this);
+    d->m_actions.jumpToLineAction1 = new QAction(tr("Jump to Line"), this);
+    d->m_actions.jumpToLineAction2 = new QAction(tr("Jump to Line"), this);
 
     d->m_actions.breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
@@ -503,11 +505,15 @@ void DebuggerManager::init()
         this, SLOT(stepExec()));
     connect(d->m_actions.stepOutAction, SIGNAL(triggered()),
         this, SLOT(stepOutExec()));
-    connect(d->m_actions.runToLineAction, SIGNAL(triggered()),
+    connect(d->m_actions.runToLineAction1, SIGNAL(triggered()),
+        this, SLOT(runToLineExec()));
+    connect(d->m_actions.runToLineAction2, SIGNAL(triggered()),
         this, SLOT(runToLineExec()));
     connect(d->m_actions.runToFunctionAction, SIGNAL(triggered()),
         this, SLOT(runToFunctionExec()));
-    connect(d->m_actions.jumpToLineAction, SIGNAL(triggered()),
+    connect(d->m_actions.jumpToLineAction1, SIGNAL(triggered()),
+        this, SLOT(jumpToLineExec()));
+    connect(d->m_actions.jumpToLineAction2, SIGNAL(triggered()),
         this, SLOT(jumpToLineExec()));
     connect(d->m_actions.watchAction1, SIGNAL(triggered()),
         this, SLOT(addToWatchWindow()));
@@ -1728,7 +1734,7 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     d->m_actions.breakAction->setEnabled(true);
     d->m_actions.snapshotAction->setEnabled(stopped && (engineCapabilities & SnapshotCapability));
 
-    bool interruptIsExit = !running;
+    const bool interruptIsExit = !running;
     if (interruptIsExit) {
         static QIcon icon(":/debugger/images/debugger_stop_small.png");
         d->m_actions.stopAction->setIcon(icon);
@@ -1744,15 +1750,20 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
 
     d->m_actions.stepAction->setEnabled(stopped);
     d->m_actions.stepOutAction->setEnabled(stopped);
-    d->m_actions.runToLineAction->setEnabled(stopped);
+    d->m_actions.runToLineAction1->setEnabled(stopped);
+    d->m_actions.runToLineAction2->setEnabled(stopped);
     d->m_actions.runToFunctionAction->setEnabled(stopped);
-    d->m_actions.jumpToLineAction->setEnabled(stopped &&
-                                              (engineCapabilities & JumpToLineCapability));
+
+    const bool canJump = stopped && (engineCapabilities & JumpToLineCapability);
+    d->m_actions.jumpToLineAction1->setEnabled(canJump);
+    d->m_actions.jumpToLineAction2->setEnabled(canJump);
+
     d->m_actions.nextAction->setEnabled(stopped);
 
     theDebuggerAction(RecheckDebuggingHelpers)->setEnabled(actionsEnabled);
-    theDebuggerAction(AutoDerefPointers)->setEnabled(actionsEnabled &&
-                                                     (engineCapabilities & AutoDerefPointersCapability));
+    const bool canDeref = actionsEnabled
+        && (engineCapabilities & AutoDerefPointersCapability);
+    theDebuggerAction(AutoDerefPointers)->setEnabled(canDeref);
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
     theDebuggerAction(ExecuteCommand)->setEnabled(d->m_state != DebuggerNotReady);
 
