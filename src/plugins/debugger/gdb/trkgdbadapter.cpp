@@ -159,6 +159,11 @@ void MemoryRange::operator-=(const MemoryRange &other)
         << *this << " - " << other);
 }
 
+bool MemoryRange::isReadOnly() const
+{
+    return from >= 0x70000000 && to < 0x80000000;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // Snapshot
@@ -167,13 +172,25 @@ void MemoryRange::operator-=(const MemoryRange &other)
 
 void Snapshot::reset()
 {
-    memory.clear();
+    for (Memory::Iterator it = memory.begin(); it != memory.end(); ++it) {
+        if (it.key().isReadOnly()) {
+            MEMORY_DEBUG("KEEPING READ-ONLY RANGE" << it.key());
+        } else {
+            it = memory.erase(it);
+        }
+    }
     for (int i = 0; i < RegisterCount; ++i)
         registers[i] = 0;
     registerValid = false;
     wantedMemory = MemoryRange();
     lineFromAddress = 0;
     lineToAddress = 0;
+}
+
+void Snapshot::fullReset()
+{
+    memory.clear();
+    reset();
 }
 
 void Snapshot::insertMemory(const MemoryRange &range, const QByteArray &ba)
@@ -1199,7 +1216,7 @@ void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
             // Sending this ACK does not seem to make a difference. Why?
             //sendTrkAck(result.token);
             debugMessage(_("RESET SNAPSHOT (NOTIFY CREATED)"));
-            m_snapshot.reset();
+            m_snapshot.fullReset();
             const char *data = result.data.data();
             const trk::byte error = result.data.at(0);
             // type: 1 byte; for dll item, this value is 2.
@@ -1497,7 +1514,7 @@ void TrkGdbAdapter::handleReadMemoryUnbuffered(const TrkResult &result)
 
 void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
 {
-    //logMessage("TRYING TO ANSWERING MEMORY REQUEST ");
+    //logMessage("TRYING TO ANSWER MEMORY REQUEST ");
 
     MemoryRange wanted = m_snapshot.wantedMemory;
     MemoryRange needed = m_snapshot.wantedMemory;
@@ -1546,7 +1563,7 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         logMessage(_("Requesting buffered memory %1 bytes from 0x%2")
             .arg(MemoryChunkSize).arg(blockaddr, 0, 16));
         MemoryRange range(blockaddr, blockaddr + MemoryChunkSize);
-        MEMORY_DEBUG("   FETCH MEMORY : " << range);
+        MEMORY_DEBUG("   FETCH BUFFERED MEMORY : " << range);
         sendTrkMessage(0x10, TrkCB(handleReadMemoryBuffered),
             trkReadMemoryMessage(range),
             QVariant::fromValue(range));
@@ -1557,7 +1574,7 @@ void TrkGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
         sendTrkMessage(0x10, TrkCB(handleReadMemoryUnbuffered),
             trkReadMemoryMessage(needed),
             QVariant::fromValue(needed));
-        MEMORY_DEBUG("   FETCH MEMORY : " << needed);
+        MEMORY_DEBUG("   FETCH UNBUFFERED MEMORY : " << needed);
     }
 }
 
@@ -1710,6 +1727,8 @@ void TrkGdbAdapter::interruptInferior()
 
 void TrkGdbAdapter::startAdapter()
 {
+    m_snapshot.fullReset();
+
     // Retrieve parameters
     const DebuggerStartParameters &parameters = startParameters();
     m_overrideTrkDevice = parameters.remoteChannel;

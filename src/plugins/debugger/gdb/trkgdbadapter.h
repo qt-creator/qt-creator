@@ -79,6 +79,7 @@ struct MemoryRange
     bool operator==(const MemoryRange &other) const { return hash() == other.hash(); }
     bool operator<(const MemoryRange &other) const { return hash() < other.hash(); }
     uint size() const { return to - from; }
+    bool isReadOnly() const;
 
     uint from; // Inclusive.
     uint to;   // Exclusive.
@@ -88,7 +89,8 @@ struct Snapshot
 {
     Snapshot() { reset(); }
 
-    void reset();
+    void reset(); // Leaves read-only memory cache alive.
+    void fullReset(); // Also removes read-only memory cache.
     void insertMemory(const MemoryRange &range, const QByteArray &ba);
 
     uint registers[RegisterCount];
