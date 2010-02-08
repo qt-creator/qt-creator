@@ -63,24 +63,24 @@ protected:
     bool equals(ToolChain *other) const;
 
 private:
-    void setMaddeRoot();
-    void setSimulatorRoot();
-    void setSysrootAndToolchain();
+    void setMaddeRoot() const;
+    void setSimulatorRoot() const;
+    void setSysrootAndToolchain() const;
 
 private:
-    QString m_maddeRoot;
-    bool m_maddeInitialized;
+    mutable QString m_maddeRoot;
+    mutable bool m_maddeInitialized;
 
-    QString m_sysrootRoot;
-    bool m_sysrootInitialized;
+    mutable QString m_sysrootRoot;
+    mutable bool m_sysrootInitialized;
 
-    QString m_simulatorRoot;
-    bool m_simulatorInitialized;
+    mutable QString m_simulatorRoot;
+    mutable bool m_simulatorInitialized;
 
     QString m_targetRoot;
 
-    QString m_toolchainRoot;
-    bool m_toolchainInitialized;
+    mutable QString m_toolchainRoot;
+    mutable bool m_toolchainInitialized;
 };
 
     } // namespace Internal

@@ -97,7 +97,7 @@ bool MaemoToolChain::equals(ToolChain *other) const
 QString MaemoToolChain::maddeRoot() const
 {
     if (!m_maddeInitialized)
-        (const_cast<MaemoToolChain*> (this))->setMaddeRoot();
+        setMaddeRoot();
     return m_maddeRoot;
 }
 
@@ -109,25 +109,25 @@ QString MaemoToolChain::targetRoot() const
 QString MaemoToolChain::sysrootRoot() const
 {
     if (!m_sysrootInitialized)
-        (const_cast<MaemoToolChain*> (this))->setSysrootAndToolchain();
+        setSysrootAndToolchain();
     return m_sysrootRoot;
 }
 
 QString MaemoToolChain::simulatorRoot() const
 {
     if (!m_simulatorInitialized)
-        (const_cast<MaemoToolChain*> (this))->setSimulatorRoot();
+        setSimulatorRoot();
     return m_simulatorRoot;
 }
 
 QString MaemoToolChain::toolchainRoot() const
 {
     if (!m_toolchainInitialized)
-        (const_cast<MaemoToolChain*> (this))->setSysrootAndToolchain();
+        setSysrootAndToolchain();
     return m_toolchainRoot;
 }
 
-void MaemoToolChain::setMaddeRoot()
+void MaemoToolChain::setMaddeRoot() const
 {
     QDir dir(targetRoot());
     dir.cdUp(); dir.cdUp();
@@ -136,7 +136,7 @@ void MaemoToolChain::setMaddeRoot()
     m_maddeRoot = dir.absolutePath();
 }
 
-void MaemoToolChain::setSimulatorRoot()
+void MaemoToolChain::setSimulatorRoot() const
 {
     QString target = QDir::cleanPath(targetRoot());
     target = target.mid(target.lastIndexOf(QLatin1Char('/')) + 1);
@@ -171,7 +171,7 @@ void MaemoToolChain::setSimulatorRoot()
     m_simulatorInitialized = true;
 }
 
-void MaemoToolChain::setSysrootAndToolchain()
+void MaemoToolChain::setSysrootAndToolchain() const
 {
     QFile file(QDir::cleanPath(targetRoot()) + QLatin1String("/information"));
     if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
