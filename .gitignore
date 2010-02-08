@@ -16,6 +16,7 @@
 .#*
 *.*#
 core
+!core/
 tags
 .DS_Store
 *.debug
