@@ -127,7 +127,7 @@ QList<Core::GeneratedFile>  PluginGenerator::generatePlugin(const GenerationPara
                     QLatin1String(", ") +
                     wo.pluginClassName +
                     QLatin1Char(')') :
-                QString());
+                QLatin1String(""));
         const QString pluginSourceContents = processTemplate(p.templatePath + QLatin1String("/tpl_single.cpp"), sm, errorMessage);
         if (pluginSourceContents.isEmpty())
             return QList<Core::GeneratedFile>();

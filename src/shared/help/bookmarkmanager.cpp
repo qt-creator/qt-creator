@@ -800,9 +800,8 @@ QString BookmarkManager::uniqueFolderName() const
         foreach (const QStandardItem *item, list)
             names << item->text();
 
-        QString folderNameBase = tr("New Folder") + QLatin1String(" %1");
         for (int i = 1; i <= names.count(); ++i) {
-            folderName = folderNameBase.arg(i);
+            folderName = (tr("New Folder") + QLatin1String(" %1")).arg(i);
             if (!names.contains(folderName))
                 break;
         }
