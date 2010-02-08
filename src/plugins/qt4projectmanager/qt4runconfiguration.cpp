@@ -131,17 +131,25 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
 {
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(configuration);
     QTC_ASSERT(qt4bc, return false);
-    ProjectExplorer::ToolChain::ToolChainType type = qt4bc->toolChainType();
-    if (type == ProjectExplorer::ToolChain::WINSCW
-        || type == ProjectExplorer::ToolChain::GCCE
-        || type == ProjectExplorer::ToolChain::RVCT_ARMV5
-        || type == ProjectExplorer::ToolChain::RVCT_ARMV6)
-        return false;
-#ifdef QTCREATOR_WITH_MAEMO
-    if (type == ProjectExplorer::ToolChain::GCC_MAEMO)
-        return false;
-#endif
-    return true;
+
+    using namespace ProjectExplorer;
+    ToolChain::ToolChainType type = qt4bc->toolChainType();
+    bool enabled;
+    switch (type) {
+    case ToolChain::MSVC:        case ToolChain::WINCE:
+    case ToolChain::GCC:         case ToolChain::MinGW:
+    case ToolChain::GCCE_GNUPOC: case ToolChain::RVCT_ARMV6_GNUPOC:
+    case ToolChain::OTHER:       case ToolChain::UNKNOWN:
+    case ToolChain::INVALID:
+        enabled = true;
+        break;
+    case ToolChain::WINSCW:      case ToolChain::GCCE:
+    case ToolChain::RVCT_ARMV5:  case ToolChain::RVCT_ARMV6:
+    case ToolChain::GCC_MAEMO:
+        enabled = false;
+        break;
+    }
+    return enabled;
 }
 
 void Qt4RunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)

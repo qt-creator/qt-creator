@@ -47,12 +47,9 @@ namespace Internal {
 
 QString homeDirOnDevice(const QString &uname)
 {
-    const QString &dir = uname == QLatin1String("root")
+    return uname == QLatin1String("root")
         ? QString::fromLatin1("/root")
         : QLatin1String("/home/") + uname;
-    qDebug("%s: user name %s is mapped to home dir %s",
-           Q_FUNC_INFO, qPrintable(uname), qPrintable(dir));
-    return dir;
 }
 
 namespace {

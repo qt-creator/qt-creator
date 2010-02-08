@@ -32,10 +32,8 @@
 #include "qt4projectmanagerconstants.h"
 #include "profilereader.h"
 
-#include "qt-s60/s60manager.h"
-#ifdef QTCREATOR_WITH_MAEMO
 #include "qt-maemo/maemomanager.h"
-#endif
+#include "qt-s60/s60manager.h"
 
 #include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1251,11 +1249,9 @@ void QtVersion::updateToolChainAndMkspec() const
                          << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC));
 #    endif
         }
-    } else if (qt_arch == "arm") {
-#ifdef QTCREATOR_WITH_MAEMO
-        if (MaemoManager::instance()->isValidMaemoQtVersion(this))
-            m_toolChains << ToolChainPtr(MaemoManager::instance()->maemoToolChain(this));
-#endif
+    } else if (qt_arch == "arm"
+               && MaemoManager::instance()->isValidMaemoQtVersion(this)) {
+        m_toolChains << ToolChainPtr(MaemoManager::instance()->maemoToolChain(this));
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl
         m_toolChains << ToolChainPtr(
