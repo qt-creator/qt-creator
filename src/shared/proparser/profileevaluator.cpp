@@ -2876,7 +2876,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
         QString currFn = currentFileName();
         if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {
             for (int root = 0; root < m_option->feature_roots.size(); ++root)
-                if (m_option->feature_roots.at(root) + fn == currFn) {
+                if (currFn == m_option->feature_roots.at(root) + fn) {
                     start_root = root + 1;
                     break;
                 }
