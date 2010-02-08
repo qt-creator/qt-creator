@@ -2669,19 +2669,17 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     int endLine = lineForPosition(position());
     if (beginLine > endLine)
         qSwap(beginLine, endLine);
-    int shift = config(ConfigShiftWidth).toInt() * repeat;
-    int tab = config(ConfigTabStop).toInt();
-    int firstPos = firstPositionInLine(beginLine);
+    const int shift = config(ConfigShiftWidth).toInt() * repeat;
+    const int tab = config(ConfigTabStop).toInt();
+    const int firstPos = firstPositionInLine(beginLine);
 
     beginEditBlock(firstPos);
-    for (int line = beginLine; line <= endLine; ++line) {
+    for (int line = endLine; line >= beginLine; --line) {
         int pos = firstPositionInLine(line);
-        setPosition(pos);
-        setAnchor(pos);
-        QString text = m_tc.block().text();
+        const QString text = lineContents(line);
         int amount = 0;
         int i = 0;
-        for (; i < text.size() && amount <= shift; ++i) {
+        for (; i < text.size() && amount < shift; ++i) {
             if (text.at(i) == ' ')
                 amount++;
             else if (text.at(i) == '\t')
@@ -2689,9 +2687,7 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
             else
                 break;
         }
-        setPosition(pos + i);
-        text = selectedText();
-        removeSelectedText();
+        removeText(Range(pos, pos + i));
         setPosition(pos);
     }
     endEditBlock();
