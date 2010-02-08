@@ -136,10 +136,10 @@ private: ////////// Gdb Process Management //////////
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
 
-    void gdbInputAvailable(int channel, const QString &msg)
-    { m_manager->showDebuggerInput(channel, msg); }
-    void gdbOutputAvailable(int channel, const QString &msg)
-    { m_manager->showDebuggerOutput(channel, msg); }
+    void showDebuggerInput(int channel, const QString &msg)
+        { m_manager->showDebuggerInput(channel, msg); }
+    void showDebuggerOutput(int channel, const QString &msg)
+        { m_manager->showDebuggerOutput(channel, msg); }
 
 private slots:
     void handleGdbFinished(int, QProcess::ExitStatus status);
