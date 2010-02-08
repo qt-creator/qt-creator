@@ -387,8 +387,8 @@ public:
     {
         _textDocument = textDocument;
         _ranges.clear();
-        if (doc && doc->qmlProgram() != 0)
-            doc->qmlProgram()->accept(this);
+        if (doc && doc->ast() != 0)
+            doc->ast()->accept(this);
         return _ranges;
     }
 
@@ -409,7 +409,6 @@ protected:
         return true;
     }
 
-#if 0 // ### create ranges for function declarations.
     virtual bool visit(AST::FunctionExpression *ast)
     {
         _ranges.append(createRange(ast));
@@ -421,7 +420,6 @@ protected:
         _ranges.append(createRange(ast));
         return true;
     }
-#endif
 
     Range createRange(AST::UiObjectMember *member, AST::UiObjectInitializer *ast)
     {
@@ -448,6 +446,7 @@ protected:
 
         range.end = QTextCursor(_textDocument);
         range.end.setPosition(ast->rbraceToken.end());
+
         return range;
     }
 
@@ -649,8 +648,9 @@ void QmlJSTextEditor::updateDocumentNow()
 
 void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
-    if (file()->fileName() != doc->fileName())
+    if (file()->fileName() != doc->fileName()) {
         return;
+    }
 
     if (doc->documentRevision() != document()->revision()) {
         // got an outdated document.

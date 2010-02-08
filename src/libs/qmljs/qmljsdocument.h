@@ -82,6 +82,9 @@ public:
     QString componentName() const { return _componentName; }
 
 private:
+    bool parse_helper(int kind);
+
+private:
     QmlJS::Engine *_engine;
     NodePool *_pool;
     AST::Node *_ast;

@@ -129,7 +129,7 @@ void Document::setDocumentRevision(int revision)
     _documentRevision = revision;
 }
 
-bool Document::parseQml()
+bool Document::parse_helper(int startToken)
 {
     Q_ASSERT(! _engine);
     Q_ASSERT(! _pool);
@@ -144,60 +144,41 @@ bool Document::parseQml()
 
     lexer.setCode(_source, /*line = */ 1);
 
-    _parsedCorrectly = parser.parse();
-    _ast = parser.ast();
+    switch (startToken) {
+    case QmlJSGrammar::T_FEED_UI_PROGRAM:
+        _parsedCorrectly = parser.parse();
+        break;
+    case QmlJSGrammar::T_FEED_JS_PROGRAM:
+        _parsedCorrectly = parser.parseProgram();
+        break;
+    case QmlJSGrammar::T_FEED_JS_EXPRESSION:
+        _parsedCorrectly = parser.parseExpression();
+        break;
+    default:
+        Q_ASSERT(0);
+    }
+
+    _ast = parser.rootNode();
     _diagnosticMessages = parser.diagnosticMessages();
 
     _bind = new Bind(this);
 
     return _parsedCorrectly;
+}
+
+bool Document::parseQml()
+{
+    return parse_helper(QmlJSGrammar::T_FEED_UI_PROGRAM);
 }
 
 bool Document::parseJavaScript()
 {
-    Q_ASSERT(! _engine);
-    Q_ASSERT(! _pool);
-    Q_ASSERT(! _ast);
-    Q_ASSERT(! _bind);
-
-    _engine = new Engine();
-    _pool = new NodePool(_fileName, _engine);
-
-    Lexer lexer(_engine);
-    Parser parser(_engine);
-
-    lexer.setCode(_source, /*line = */ 1);
-
-    _parsedCorrectly = parser.parseProgram();
-    _ast = cast<Program*>(parser.rootNode());
-    _diagnosticMessages = parser.diagnosticMessages();
-
-    _bind = new Bind(this);
-
-    return _parsedCorrectly;
+    return parse_helper(QmlJSGrammar::T_FEED_JS_PROGRAM);
 }
 
 bool Document::parseExpression()
 {
-    Q_ASSERT(! _engine);
-    Q_ASSERT(! _pool);
-    Q_ASSERT(! _ast);
-
-    _engine = new Engine();
-    _pool = new NodePool(_fileName, _engine);
-
-    Lexer lexer(_engine);
-    Parser parser(_engine);
-
-    lexer.setCode(_source, /*line = */ 1);
-
-    _parsedCorrectly = parser.parseExpression();
-    _ast = parser.rootNode();
-    if (_ast)
-        _ast = _ast->expressionCast();
-    _diagnosticMessages = parser.diagnosticMessages();
-
-    return _parsedCorrectly;
+    return parse_helper(QmlJSGrammar::T_FEED_JS_EXPRESSION);
 }
 
 Bind *Document::bind() const

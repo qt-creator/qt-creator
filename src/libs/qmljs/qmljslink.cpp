@@ -45,17 +45,31 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 
     // ### FIXME: May want to link to instantiating components from here.
 
-    if (bind->_rootObjectValue)
-        _context->pushScope(bind->_rootObjectValue);
+    qDebug() << "**** here" << currentObject;
 
     ObjectValue *scopeObject = 0;
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
         scopeObject = bind->_qmlObjects.value(definition);
     else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
         scopeObject = bind->_qmlObjects.value(binding);
+    else if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(currentObject)) {
+        _context->pushScope(bind->_rootObjectValue);
 
-    if (scopeObject && scopeObject != bind->_rootObjectValue)
-        _context->pushScope(scopeObject);
+        ObjectValue *activation = engine()->newObject(/*prototype = */ 0);
+        for (FormalParameterList *it = fun->formals; it; it = it->next) {
+            if (it->name)
+                activation->setProperty(it->name->asString(), engine()->undefinedValue());
+        }
+        _context->pushScope(activation);
+    }
+
+    if (scopeObject) {
+        if (bind->_rootObjectValue)
+            _context->pushScope(bind->_rootObjectValue);
+
+        if (scopeObject != bind->_rootObjectValue)
+            _context->pushScope(scopeObject);
+    }
 
     const QStringList &includedScripts = bind->includedScripts();
     for (int index = includedScripts.size() - 1; index != -1; --index) {
