@@ -41,6 +41,10 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
+#if !defined(Q_OS_WIN)
+#include <dlfcn.h>
+#endif
+
 
 #define PRECONDITION QTC_ASSERT(!hasPython(), /**/)
 #define CB(callback) &GdbEngine::callback, STRINGIFY(callback)
@@ -513,14 +517,17 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         dlopenLib = startParameters().remoteDumperLib.toLocal8Bit();
     else
         dlopenLib = manager()->qtDumperLibraryName().toLocal8Bit();
-#if defined(Q_OS_WIN)
-    // We are using Python on Windows.
+
+    // Do not use STRINGIFY as we really want to expand that to a number.
+    const QByteArray flag = QByteArray::number(RTLD_NOW);
+#if defined(Q_OS_WIN) || defined(Q_OS_SYMBIAN)
+    // We are using Python on Windows and Symbian.
     QTC_ASSERT(false, /**/);
 #elif defined(Q_OS_MAC)
     //postCommand("sharedlibrary libc"); // for malloc
     //postCommand("sharedlibrary libdl"); // for dlopen
     postCommand("call (void)dlopen(\"" + GdbMi::escapeCString(dlopenLib)
-                + "\", " STRINGIFY(RTLD_NOW) ")",
+                + "\", " + flag + ")",
         CB(handleDebuggingHelperSetup));
     //postCommand("sharedlibrary " + dotEscape(dlopenLib));
 #else
@@ -528,11 +535,11 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
     postCommand("sharedlibrary libc"); // for malloc
     postCommand("sharedlibrary libdl"); // for dlopen
     postCommand("call (void*)dlopen(\"" + GdbMi::escapeCString(dlopenLib)
-                + "\", " STRINGIFY(RTLD_NOW) ")",
+                + "\", " + flag + ")",
         CB(handleDebuggingHelperSetup));
     // some older systems like CentOS 4.6 prefer this:
     postCommand("call (void*)__dlopen(\"" + GdbMi::escapeCString(dlopenLib)
-                + "\", " STRINGIFY(RTLD_NOW) ")",
+                + "\", " + flag + ")",
         CB(handleDebuggingHelperSetup));
     postCommand("sharedlibrary " + dotEscape(dlopenLib));
 #endif
