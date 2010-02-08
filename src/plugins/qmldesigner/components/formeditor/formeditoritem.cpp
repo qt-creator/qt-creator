@@ -198,7 +198,8 @@ FormEditorItem* FormEditorItem::fromQGraphicsItem(QGraphicsItem *graphicsItem)
 
 void FormEditorItem::paintBoundingRect(QPainter *painter) const
 {
-    if (QGraphicsItem::parentItem() == scene()->formLayerItem() && qFuzzyIsNull(m_borderWidth))
+    if (!boundingRect().isValid()
+        || (QGraphicsItem::parentItem() == scene()->formLayerItem() && qFuzzyIsNull(m_borderWidth)))
           return;
 
     QPen pen;
@@ -234,9 +235,7 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     painter->setPen(pen);
 //    int offset =  m_borderWidth / 2;
 
-    const QRectF br = boundingRect();
-    if (br.isValid())
-        painter->drawRect(br.adjusted(0., 0., -1., -1.));
+    painter->drawRect(boundingRect().adjusted(0., 0., -1., -1.));
 }
 
 void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
