@@ -386,7 +386,6 @@ static inline void showGraphicalShellError(QWidget *parent,
 
 void FolderNavigationWidget::showInGraphicalShell(QWidget *parent, const QString &pathIn)
 {
-    Q_UNUSED(parent)
     // Mac, Windows support folder or file.
 #if defined(Q_OS_WIN)
     const QString explorer = Environment::systemEnvironment().searchInPath(QLatin1String("explorer.exe"));
@@ -396,8 +395,13 @@ void FolderNavigationWidget::showInGraphicalShell(QWidget *parent, const QString
                              tr("Could not find explorer.exe in path to launch Windows Explorer."));
         return;
     }
-    QProcess::startDetached(explorer, QStringList(QLatin1String("/select,") + QDir::toNativeSeparators(pathIn)));
+    QString param;
+    if (!QFileInfo(pathIn).isDir())
+        param = QLatin1String("/select,");
+    param += QDir::toNativeSeparators(pathIn);
+    QProcess::startDetached(explorer, QStringList(param));
 #elif defined(Q_OS_MAC)
+    Q_UNUSED(parent)
     QStringList scriptArgs;
     scriptArgs << QLatin1String("-e")
                << QString::fromLatin1("tell application \"Finder\" to reveal POSIX file \"%1\"")
@@ -410,7 +414,7 @@ void FolderNavigationWidget::showInGraphicalShell(QWidget *parent, const QString
 #else
     // we cannot select a file here, because no file browser really supports it...
     const QFileInfo fileInfo(pathIn);
-    const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.absolutePath();
+    const QString folder = fileInfo.absoluteFilePath();
     const QString app = Utils::UnixUtils::fileBrowser(Core::ICore::instance()->settings());
     QProcess browserProc;
     const QString browserArgs = Utils::UnixUtils::substituteFileBrowserParameters(app, folder);
