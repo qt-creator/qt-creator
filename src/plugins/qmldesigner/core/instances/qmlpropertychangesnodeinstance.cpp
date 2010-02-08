@@ -50,7 +50,7 @@ QmlStateOperation::ActionList QmlPropertyChangesObject::actions()
     ActionList list;
 
     foreach (const QString &property, m_properties.keys()) {
-        Action a(m_targetObject.data(), property, m_properties.value(property));
+        QmlAction a(m_targetObject.data(), property, m_properties.value(property));
 
         if (a.property.isValid()) {
             a.restore = restoreEntryValues();
@@ -78,7 +78,7 @@ QmlStateOperation::ActionList QmlPropertyChangesObject::actions()
         QmlMetaProperty mProperty = metaProperty(property);
 
         if (mProperty.isValid()) {
-            Action a;
+            QmlAction a;
             a.restore = restoreEntryValues();
             a.property = mProperty;
             a.fromValue = a.property.read();
