@@ -313,6 +313,7 @@ public:
 #if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::State, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::ProLoop, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::BlockCursor, Q_MOVABLE_TYPE);
 #endif
 
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option)
