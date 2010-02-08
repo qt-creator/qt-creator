@@ -93,6 +93,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 {
     Q_UNUSED(arguments)
 
+    ProFileEvaluator::initialize();
+
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;

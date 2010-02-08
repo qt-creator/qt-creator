@@ -75,6 +75,9 @@ public:
         TT_Subdirs
     };
 
+    // Call this from a concurrency-free context
+    static void initialize();
+
     ProFileEvaluator(ProFileOption *option);
     virtual ~ProFileEvaluator();
 
@@ -155,7 +158,6 @@ struct ProFileOption
   private:
     friend class ProFileEvaluator;
     friend class ProFileEvaluator::Private;
-    static QString field_sep; // Just a cache for quick construction
     QHash<QString, QStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
     ProFileEvaluator::FunctionDefs base_functions;
     QStringList feature_roots;

@@ -162,8 +162,6 @@ ProFileOption::ProFileOption()
     target_mode = TARG_UNIX_MODE;
 #endif
 
-    field_sep = QLatin1String(" ");
-
     cache = 0;
 }
 
@@ -171,8 +169,6 @@ ProFileOption::~ProFileOption()
 {
     clearFunctions(&base_functions);
 }
-
-QString ProFileOption::field_sep;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -183,6 +179,7 @@ QString ProFileOption::field_sep;
 class ProFileEvaluator::Private
 {
 public:
+    static void initStatics();
     Private(ProFileEvaluator *q_, ProFileOption *option);
     ~Private();
 
@@ -309,6 +306,32 @@ public:
     bool m_parsePreAndPostFiles;
 
     ProFileOption *m_option;
+
+    enum ExpandFunc {
+        E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
+        E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
+        E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
+        E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
+        E_REPLACE
+    };
+
+    enum TestFunc {
+        T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
+        T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
+        T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
+        T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF,
+        T_FOR, T_DEFINE_TEST, T_DEFINE_REPLACE
+    };
+
+    enum VarName {
+        V_LITERAL_DOLLAR, V_LITERAL_HASH, V_LITERAL_WHITESPACE,
+        V_DIRLIST_SEPARATOR, V_DIR_SEPARATOR,
+        V_OUT_PWD, V_PWD, V_IN_PWD,
+        V__FILE_, V__LINE_, V__PRO_FILE_, V__PRO_FILE_PWD_,
+        V_QMAKE_HOST_arch, V_QMAKE_HOST_name, V_QMAKE_HOST_os,
+        V_QMAKE_HOST_version, V_QMAKE_HOST_version_string,
+        V__DATE_, V__QMAKE_CACHE_
+    };
 };
 
 #if !defined(__GNUC__) || __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3)
@@ -317,9 +340,115 @@ Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::ProLoop, Q_MOVABLE_TYPE);
 Q_DECLARE_TYPEINFO(ProFileEvaluator::Private::BlockCursor, Q_MOVABLE_TYPE);
 #endif
 
+static struct {
+    QString field_sep;
+    QString deppath;
+    QString incpath;
+    QHash<QString, int> expands;
+    QHash<QString, int> functions;
+    QHash<QString, int> varList;
+} statics;
+
+void ProFileEvaluator::Private::initStatics()
+{
+    if (!statics.field_sep.isNull())
+        return;
+
+    statics.field_sep = QLatin1String(" ");
+    statics.deppath = QLatin1String("DEPENDPATH");
+    statics.incpath = QLatin1String("INCLUDEPATH");
+
+    static const struct {
+        const char * const name;
+        const ExpandFunc func;
+    } expandInits[] = {
+        { "member", E_MEMBER },
+        { "first", E_FIRST },
+        { "last", E_LAST },
+        { "cat", E_CAT },
+        { "fromfile", E_FROMFILE },
+        { "eval", E_EVAL },
+        { "list", E_LIST },
+        { "sprintf", E_SPRINTF },
+        { "join", E_JOIN },
+        { "split", E_SPLIT },
+        { "basename", E_BASENAME },
+        { "dirname", E_DIRNAME },
+        { "section", E_SECTION },
+        { "find", E_FIND },
+        { "system", E_SYSTEM },
+        { "unique", E_UNIQUE },
+        { "quote", E_QUOTE },
+        { "escape_expand", E_ESCAPE_EXPAND },
+        { "upper", E_UPPER },
+        { "lower", E_LOWER },
+        { "re_escape", E_RE_ESCAPE },
+        { "files", E_FILES },
+        { "prompt", E_PROMPT }, // interactive, so cannot be implemented
+        { "replace", E_REPLACE }
+    };
+    for (unsigned i = 0; i < sizeof(expandInits)/sizeof(expandInits[0]); ++i)
+        statics.expands.insert(QLatin1String(expandInits[i].name), expandInits[i].func);
+
+    static const struct {
+        const char * const name;
+        const TestFunc func;
+    } testInits[] = {
+        { "requires", T_REQUIRES },
+        { "greaterThan", T_GREATERTHAN },
+        { "lessThan", T_LESSTHAN },
+        { "equals", T_EQUALS },
+        { "isEqual", T_EQUALS },
+        { "exists", T_EXISTS },
+        { "export", T_EXPORT },
+        { "clear", T_CLEAR },
+        { "unset", T_UNSET },
+        { "eval", T_EVAL },
+        { "CONFIG", T_CONFIG },
+        { "if", T_IF },
+        { "isActiveConfig", T_CONFIG },
+        { "system", T_SYSTEM },
+        { "return", T_RETURN },
+        { "break", T_BREAK },
+        { "next", T_NEXT },
+        { "defined", T_DEFINED },
+        { "contains", T_CONTAINS },
+        { "infile", T_INFILE },
+        { "count", T_COUNT },
+        { "isEmpty", T_ISEMPTY },
+        { "load", T_LOAD },
+        { "include", T_INCLUDE },
+        { "debug", T_DEBUG },
+        { "message", T_MESSAGE },
+        { "warning", T_MESSAGE },
+        { "error", T_MESSAGE },
+        { "for", T_FOR },
+        { "defineTest", T_DEFINE_TEST },
+        { "defineReplace", T_DEFINE_REPLACE }
+    };
+    for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
+        statics.functions.insert(QLatin1String(testInits[i].name), testInits[i].func);
+
+    static const char * const names[] = {
+        "LITERAL_DOLLAR", "LITERAL_HASH", "LITERAL_WHITESPACE",
+        "DIRLIST_SEPARATOR", "DIR_SEPARATOR",
+        "OUT_PWD", "PWD", "IN_PWD",
+        "_FILE_", "_LINE_", "_PRO_FILE_", "_PRO_FILE_PWD_",
+        "QMAKE_HOST.arch", "QMAKE_HOST.name", "QMAKE_HOST.os",
+        "QMAKE_HOST.version", "QMAKE_HOST.version_string",
+        "_DATE_", "_QMAKE_CACHE_"
+    };
+    for (unsigned i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
+        statics.varList.insert(QLatin1String(names[i]), i);
+}
+
+
 ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option)
   : q(q_), m_option(option)
 {
+    // So that single-threaded apps don't have to call initialize() for now.
+    initStatics();
+
     // Configuration, more or less
     m_verbose = true;
     m_cumulative = true;
@@ -984,9 +1113,7 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
             replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
         }
     } else {
-        static const QString deppath(QLatin1String("DEPENDPATH"));
-        static const QString incpath(QLatin1String("INCLUDEPATH"));
-        bool doSemicolon = (varName == deppath || varName == incpath);
+        bool doSemicolon = (varName == statics.deppath || varName == statics.incpath);
         QStringList varVal = expandVariableReferences(var->value(), doSemicolon);
 
         switch (var->variableOperator()) {
@@ -1367,7 +1494,7 @@ QString ProFileEvaluator::Private::currentDirectory() const
 
 void ProFileEvaluator::Private::doVariableReplace(QString *str)
 {
-    *str = expandVariableReferences(*str).join(ProFileOption::field_sep);
+    *str = expandVariableReferences(*str).join(statics.field_sep);
 }
 
 // Be fast even for debug builds
@@ -1569,7 +1696,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                 }
                 if (!replacement.isEmpty()) {
                     if (quote) {
-                        appendString(replacement.join(ProFileOption::field_sep),
+                        appendString(replacement.join(statics.field_sep),
                                      &current, &ptr, &pending);
                     } else {
                         appendString(replacement.first(), &current, &ptr, &pending);
@@ -1732,42 +1859,9 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
 
     QStringList args; //why don't the builtin functions just use args_list? --Sam
     foreach (const QStringList &arg, args_list)
-        args += arg.join(ProFileOption::field_sep);
+        args += arg.join(statics.field_sep);
 
-    enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
-                      E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
-                      E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
-                      E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
-                      E_REPLACE };
-
-    static QHash<QString, int> expands;
-    if (expands.isEmpty()) {
-        expands.insert(QLatin1String("member"), E_MEMBER);
-        expands.insert(QLatin1String("first"), E_FIRST);
-        expands.insert(QLatin1String("last"), E_LAST);
-        expands.insert(QLatin1String("cat"), E_CAT);
-        expands.insert(QLatin1String("fromfile"), E_FROMFILE);
-        expands.insert(QLatin1String("eval"), E_EVAL);
-        expands.insert(QLatin1String("list"), E_LIST);
-        expands.insert(QLatin1String("sprintf"), E_SPRINTF);
-        expands.insert(QLatin1String("join"), E_JOIN);
-        expands.insert(QLatin1String("split"), E_SPLIT);
-        expands.insert(QLatin1String("basename"), E_BASENAME);
-        expands.insert(QLatin1String("dirname"), E_DIRNAME);
-        expands.insert(QLatin1String("section"), E_SECTION);
-        expands.insert(QLatin1String("find"), E_FIND);
-        expands.insert(QLatin1String("system"), E_SYSTEM);
-        expands.insert(QLatin1String("unique"), E_UNIQUE);
-        expands.insert(QLatin1String("quote"), E_QUOTE);
-        expands.insert(QLatin1String("escape_expand"), E_ESCAPE_EXPAND);
-        expands.insert(QLatin1String("upper"), E_UPPER);
-        expands.insert(QLatin1String("lower"), E_LOWER);
-        expands.insert(QLatin1String("re_escape"), E_RE_ESCAPE);
-        expands.insert(QLatin1String("files"), E_FILES);
-        expands.insert(QLatin1String("prompt"), E_PROMPT); // interactive, so cannot be implemented
-        expands.insert(QLatin1String("replace"), E_REPLACE);
-    }
-    ExpandFunc func_t = ExpandFunc(expands.value(func.toLower()));
+    ExpandFunc func_t = ExpandFunc(statics.expands.value(func.toLower()));
 
     QStringList ret;
 
@@ -1846,7 +1940,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if (args.count() != 2) {
                 logMessage(format("split(var, sep) requires one or two arguments"));
             } else {
-                const QString &sep = (args.count() == 2) ? args[1] : ProFileOption::field_sep;
+                const QString &sep = (args.count() == 2) ? args[1] : statics.field_sep;
                 foreach (const QString &var, values(args.first()))
                     foreach (const QString &splt, var.split(sep))
                         ret.append(splt);
@@ -2150,50 +2244,9 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
 
     QStringList args; //why don't the builtin functions just use args_list? --Sam
     foreach (const QStringList &arg, args_list)
-        args += arg.join(ProFileOption::field_sep);
+        args += arg.join(statics.field_sep);
 
-    enum TestFunc { T_REQUIRES=1, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
-                    T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
-                    T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
-                    T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF,
-                    T_FOR, T_DEFINE_TEST, T_DEFINE_REPLACE };
-
-    static QHash<QString, int> functions;
-    if (functions.isEmpty()) {
-        functions.insert(QLatin1String("requires"), T_REQUIRES);
-        functions.insert(QLatin1String("greaterThan"), T_GREATERTHAN);
-        functions.insert(QLatin1String("lessThan"), T_LESSTHAN);
-        functions.insert(QLatin1String("equals"), T_EQUALS);
-        functions.insert(QLatin1String("isEqual"), T_EQUALS);
-        functions.insert(QLatin1String("exists"), T_EXISTS);
-        functions.insert(QLatin1String("export"), T_EXPORT);
-        functions.insert(QLatin1String("clear"), T_CLEAR);
-        functions.insert(QLatin1String("unset"), T_UNSET);
-        functions.insert(QLatin1String("eval"), T_EVAL);
-        functions.insert(QLatin1String("CONFIG"), T_CONFIG);
-        functions.insert(QLatin1String("if"), T_IF);
-        functions.insert(QLatin1String("isActiveConfig"), T_CONFIG);
-        functions.insert(QLatin1String("system"), T_SYSTEM);
-        functions.insert(QLatin1String("return"), T_RETURN);
-        functions.insert(QLatin1String("break"), T_BREAK);
-        functions.insert(QLatin1String("next"), T_NEXT);
-        functions.insert(QLatin1String("defined"), T_DEFINED);
-        functions.insert(QLatin1String("contains"), T_CONTAINS);
-        functions.insert(QLatin1String("infile"), T_INFILE);
-        functions.insert(QLatin1String("count"), T_COUNT);
-        functions.insert(QLatin1String("isEmpty"), T_ISEMPTY);
-        functions.insert(QLatin1String("load"), T_LOAD);         //v
-        functions.insert(QLatin1String("include"), T_INCLUDE);   //v
-        functions.insert(QLatin1String("debug"), T_DEBUG);
-        functions.insert(QLatin1String("message"), T_MESSAGE);   //v
-        functions.insert(QLatin1String("warning"), T_MESSAGE);   //v
-        functions.insert(QLatin1String("error"), T_MESSAGE);     //v
-        functions.insert(QLatin1String("for"), T_FOR);     //v
-        functions.insert(QLatin1String("defineTest"), T_DEFINE_TEST);        //v
-        functions.insert(QLatin1String("defineReplace"), T_DEFINE_REPLACE);  //v
-    }
-
-    TestFunc func_t = (TestFunc)functions.value(function);
+    TestFunc func_t = (TestFunc)statics.functions.value(function);
 
     switch (func_t) {
         case T_DEFINE_TEST:
@@ -2516,7 +2569,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("%1(variable, value) requires two arguments.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            QString rhs(args[1]), lhs(values(args[0]).join(ProFileOption::field_sep));
+            QString rhs(args[1]), lhs(values(args[0]).join(statics.field_sep));
             bool ok;
             int rhs_int = rhs.toInt(&ok);
             if (ok) { // do integer compare
@@ -2536,7 +2589,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("%1(variable, value) requires two arguments.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            return returnBool(values(args[0]).join(ProFileOption::field_sep) == args[1]);
+            return returnBool(values(args[0]).join(statics.field_sep) == args[1]);
         case T_CLEAR: {
             if (m_skipLevel && !m_cumulative)
                 return ProItem::ReturnFalse;
@@ -2671,33 +2724,8 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
                                               const QHash<QString, QStringList> &place,
                                               const ProFile *pro) const
 {
-    enum VarName {
-        V_LITERAL_DOLLAR, V_LITERAL_HASH, V_LITERAL_WHITESPACE,
-        V_DIRLIST_SEPARATOR, V_DIR_SEPARATOR,
-        V_OUT_PWD, V_PWD, V_IN_PWD,
-        V__FILE_, V__LINE_, V__PRO_FILE_, V__PRO_FILE_PWD_,
-        V_QMAKE_HOST_arch, V_QMAKE_HOST_name, V_QMAKE_HOST_os,
-        V_QMAKE_HOST_version, V_QMAKE_HOST_version_string,
-        V__DATE_, V__QMAKE_CACHE_
-    };
-
-    static QHash<QString, int> varList;
-    if (varList.isEmpty()) {
-        static const char * const names[] = {
-            "LITERAL_DOLLAR", "LITERAL_HASH", "LITERAL_WHITESPACE",
-            "DIRLIST_SEPARATOR", "DIR_SEPARATOR",
-            "OUT_PWD", "PWD", "IN_PWD",
-            "_FILE_", "_LINE_", "_PRO_FILE_", "_PRO_FILE_PWD_",
-            "QMAKE_HOST.arch", "QMAKE_HOST.name", "QMAKE_HOST.os",
-            "QMAKE_HOST.version", "QMAKE_HOST.version_string",
-            "_DATE_", "_QMAKE_CACHE_"
-        };
-        for (unsigned i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
-            varList.insert(QLatin1String(names[i]), i);
-    }
-
-    QHash<QString, int>::ConstIterator vli = varList.find(variableName);
-    if (vli != varList.constEnd()) {
+    QHash<QString, int>::ConstIterator vli = statics.varList.find(variableName);
+    if (vli != statics.varList.constEnd()) {
         int vlidx = *vli;
         QString ret;
         switch ((VarName)vlidx) {
@@ -2975,6 +3003,11 @@ void ProFileEvaluator::Private::errorMessage(const QString &message) const
 // ProFileEvaluator
 //
 ///////////////////////////////////////////////////////////////////////
+
+void ProFileEvaluator::initialize()
+{
+    Private::initStatics();
+}
 
 ProFileEvaluator::ProFileEvaluator(ProFileOption *option)
   : d(new Private(this, option))
