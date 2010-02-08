@@ -2459,7 +2459,10 @@ bool ASTMatcher::match(ObjCMessageArgumentDeclarationAST *node, ObjCMessageArgum
     else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
         return false;
 
-    pattern->param_name_token = node->param_name_token;
+    if (! pattern->param_name)
+        pattern->param_name = node->param_name;
+    else if (! AST::match(node->param_name, pattern->param_name, this))
+        return false;
 
     return true;
 }

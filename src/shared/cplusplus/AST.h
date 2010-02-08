@@ -2996,12 +2996,12 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public NameAST
+class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public AST
 {
 public:
     ObjCTypeNameAST* type_name;
     SpecifierListAST *attribute_list;
-    unsigned param_name_token;
+    SimpleNameAST *param_name;
 
 public: // annotations
     Argument *argument;

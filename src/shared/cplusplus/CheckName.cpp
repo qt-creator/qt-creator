@@ -418,12 +418,11 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
     if (ast->type_name)
         type = semantic()->check(ast->type_name, _scope);
 
-    if (ast->param_name_token) {
-        const Identifier *id = identifier(ast->param_name_token);
-        _name = control()->nameId(id);
-        ast->name = _name;
+    if (ast->param_name) {
+        accept(ast->param_name);
 
-        Argument *arg = control()->newArgument(ast->param_name_token, _name);
+        Argument *arg = control()->newArgument(ast->param_name->firstToken(),
+                                               ast->param_name->name);
         ast->argument = arg;
         arg->setType(type);
         arg->setInitializer(0);

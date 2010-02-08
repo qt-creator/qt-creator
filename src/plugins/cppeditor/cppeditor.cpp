@@ -261,9 +261,6 @@ protected:
     virtual bool visit(SimpleNameAST *ast)
     { return findMemberForToken(ast->firstToken(), ast); }
 
-    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast)
-    { return findMemberForToken(ast->param_name_token, ast); }
-
     bool findMemberForToken(unsigned tokenIdx, NameAST *ast)
     {
         unsigned line, column;
@@ -1276,6 +1273,49 @@ void CPPEditor::switchDeclarationDefinition()
     }
 }
 
+static inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbols)
+{
+    QList<LookupItem> candidates = resolvedSymbols;
+
+    LookupItem result = candidates.first();
+    const FullySpecifiedType ty = result.type().simplified();
+
+    if (ty->isForwardClassDeclarationType()) {
+        while (! candidates.isEmpty()) {
+            LookupItem r = candidates.takeFirst();
+
+            if (! r.type()->isForwardClassDeclarationType()) {
+                result = r;
+                break;
+            }
+        }
+    }
+
+    if (ty->isObjCForwardClassDeclarationType()) {
+        while (! candidates.isEmpty()) {
+            LookupItem r = candidates.takeFirst();
+
+            if (! r.type()->isObjCForwardClassDeclarationType()) {
+                result = r;
+                break;
+            }
+        }
+    }
+
+    if (ty->isObjCForwardProtocolDeclarationType()) {
+        while (! candidates.isEmpty()) {
+            LookupItem r = candidates.takeFirst();
+
+            if (! r.type()->isObjCForwardProtocolDeclarationType()) {
+                result = r;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
 CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
                                       bool resolveTarget)
 {
@@ -1340,41 +1380,7 @@ CPPEditor::Link CPPEditor::findLinkAt(const QTextCursor &cursor,
             typeOfExpression(expression, doc, lastSymbol);
 
     if (!resolvedSymbols.isEmpty()) {
-        LookupItem result = resolvedSymbols.first();
-        const FullySpecifiedType ty = result.type().simplified();
-
-        if (ty->isForwardClassDeclarationType()) {
-            while (! resolvedSymbols.isEmpty()) {
-                LookupItem r = resolvedSymbols.takeFirst();
-
-                if (! r.type()->isForwardClassDeclarationType()) {
-                    result = r;
-                    break;
-                }
-            }
-        }
-
-        if (ty->isObjCForwardClassDeclarationType()) {
-            while (! resolvedSymbols.isEmpty()) {
-                LookupItem r = resolvedSymbols.takeFirst();
-
-                if (! r.type()->isObjCForwardClassDeclarationType()) {
-                    result = r;
-                    break;
-                }
-            }
-        }
-
-        if (ty->isObjCForwardProtocolDeclarationType()) {
-            while (! resolvedSymbols.isEmpty()) {
-                LookupItem r = resolvedSymbols.takeFirst();
-
-                if (! r.type()->isObjCForwardProtocolDeclarationType()) {
-                    result = r;
-                    break;
-                }
-            }
-        }
+        LookupItem result = skipForwardDeclarations(resolvedSymbols);
 
         if (Symbol *symbol = result.lastVisibleSymbol()) {
             Symbol *def = 0;

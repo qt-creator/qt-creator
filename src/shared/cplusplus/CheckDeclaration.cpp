@@ -319,18 +319,14 @@ bool CheckDeclaration::visit(FunctionDefinitionAST *ast)
 
     const bool isQ_SLOT   = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SLOT;
     const bool isQ_SIGNAL = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_SIGNAL;
-#ifdef ICHECK_BUILD
-    const bool isQ_INVOKABLE = (ast->invoke_token > 0);
-#endif
+    const bool isQ_INVOKABLE = ast->qt_invokable_token && tokenKind(ast->qt_invokable_token) == T_Q_INVOKABLE;
 
     if (isQ_SIGNAL)
         fun->setMethodKey(Function::SignalMethod);
     else if (isQ_SLOT)
         fun->setMethodKey(Function::SlotMethod);
-#ifdef ICHECK_BUILD
     else if (isQ_INVOKABLE)
-        fun->setInvokable(true);
-#endif
+        fun->setMethodKey(Function::InvokableMethod);
 
     checkFunctionArguments(fun);
 
@@ -672,10 +668,14 @@ bool CheckDeclaration::visit(ObjCClassDeclarationAST *ast)
 
 bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
 {
-    if (!ast->method_prototype)
+    ObjCMethodPrototypeAST *methodProto = ast->method_prototype;
+    if (!methodProto)
+        return false;
+    ObjCSelectorAST *selector = methodProto->selector;
+    if (!selector)
         return false;
 
-    FullySpecifiedType ty = semantic()->check(ast->method_prototype, _scope);
+    FullySpecifiedType ty = semantic()->check(methodProto, _scope);
     ObjCMethod *methodTy = ty.type()->asObjCMethodType();
     if (!methodTy)
         return false;
@@ -688,15 +688,15 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
 
         symbol = methodTy;
     } else {
-        Declaration *decl = control()->newDeclaration(ast->firstToken(), methodTy->name());
+        Declaration *decl = control()->newDeclaration(selector->firstToken(), methodTy->name());
         decl->setType(methodTy);
         symbol = decl;
         symbol->setStorage(methodTy->storage());
     }
 
-    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
-    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
-    symbol->setVisibility(semantic()->currentVisibility());
+    symbol->setStartOffset(tokenAt(selector->firstToken()).offset);
+    symbol->setEndOffset(tokenAt(selector->lastToken()).offset);
+    symbol->setVisibility(semantic()->currentObjCVisibility());
 
     _scope->enterSymbol(symbol);
 

@@ -100,6 +100,8 @@ protected:
     virtual bool visit(FunctionDeclaratorAST *ast);
     virtual bool visit(SimpleDeclarationAST *);
     virtual void endVisit(SimpleDeclarationAST *);
+    virtual bool visit(ObjCSelectorWithoutArgumentsAST *ast);
+    virtual bool visit(ObjCSelectorWithArgumentsAST *ast);
 
 private:
     const Identifier *_id;

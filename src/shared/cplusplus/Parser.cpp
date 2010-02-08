@@ -5269,7 +5269,8 @@ bool Parser::parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, Obj
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
-    match(T_IDENTIFIER, &node->param_name_token);
+    node->param_name = new (_pool) SimpleNameAST;
+    match(T_IDENTIFIER, &node->param_name->identifier_token);
 
     return true;
 }

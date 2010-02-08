@@ -1466,7 +1466,8 @@ ObjCMessageArgumentDeclarationAST *ObjCMessageArgumentDeclarationAST::clone(Memo
     for (SpecifierListAST *iter = attribute_list, **ast_iter = &ast->attribute_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
-    ast->param_name_token = param_name_token;
+    if (param_name)
+        ast->param_name = param_name->clone(pool);
     return ast;
 }
 

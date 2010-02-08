@@ -2250,13 +2250,13 @@ unsigned ObjCMessageArgumentDeclarationAST::firstToken() const
     if (type_name)
         return type_name->firstToken();
     else
-        return param_name_token;
+        return param_name->firstToken();
 }
 
 unsigned ObjCMessageArgumentDeclarationAST::lastToken() const
 {
-    if (param_name_token)
-        return param_name_token + 1;
+    if (param_name)
+        return param_name->lastToken();
     else if (type_name)
         return type_name->lastToken();
 

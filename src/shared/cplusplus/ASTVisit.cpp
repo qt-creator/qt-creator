@@ -1087,6 +1087,7 @@ void ObjCMessageArgumentDeclarationAST::accept0(ASTVisitor *visitor)
     if (visitor->visit(this)) {
         accept(type_name, visitor);
         accept(attribute_list, visitor);
+        accept(param_name, visitor);
     }
     visitor->endVisit(this);
 }
