@@ -229,8 +229,10 @@ int TabSettings::indentedColumn(int column, bool doIndent) const
     return qMax(0, aligned - m_indentSize);
 }
 
-bool TabSettings::guessSpacesForTabs(const QTextBlock& _block) const {
+bool TabSettings::guessSpacesForTabs(const QTextBlock &_block) const
+{
     if (m_spacesForTabs && m_autoSpacesForTabs && _block.isValid()) {
+        const QTextDocument *doc = _block.document();
         QVector<QTextBlock> currentBlocks(2, _block); // [0] looks back; [1] looks forward
         int maxLookAround = 100;
         while (maxLookAround-- > 0) {
@@ -239,12 +241,12 @@ bool TabSettings::guessSpacesForTabs(const QTextBlock& _block) const {
             if (currentBlocks.at(1).isValid())
                 currentBlocks[1] = currentBlocks.at(1).next();
             bool done = true;
-            foreach(QTextBlock block, currentBlocks) {
+            foreach (const QTextBlock &block, currentBlocks) {
                 if (block.isValid())
                     done = false;
-                if (!block.isValid() || block.text().isEmpty())
+                if (!block.isValid() || block.length() == 0)
                     continue;
-                QChar firstChar = block.text().at(0);
+                const QChar firstChar = doc->characterAt(block.position());
                 if (firstChar == QLatin1Char(' ')) {
                     return true;
                 } else if (firstChar == QLatin1Char('\t')) {
@@ -258,7 +260,7 @@ bool TabSettings::guessSpacesForTabs(const QTextBlock& _block) const {
     return m_spacesForTabs;
 }
 
-QString TabSettings::indentationString(int startColumn, int targetColumn, const QTextBlock& block) const
+QString TabSettings::indentationString(int startColumn, int targetColumn, const QTextBlock &block) const
 {
     targetColumn = qMax(startColumn, targetColumn);
     if (guessSpacesForTabs(block))
