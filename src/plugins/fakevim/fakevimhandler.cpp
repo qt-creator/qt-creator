@@ -2354,14 +2354,19 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
                 ("Cannot open file '%1' for reading").arg(fileName));
         }
     } else if (cmd.startsWith(QLatin1String("r "))) { // :r
+        beginEditBlock();
+        moveToStartOfLine();
+        setTargetColumn();
+        moveDown();
         m_currentFileName = cmd.mid(2);
         QFile file(m_currentFileName);
         file.open(QIODevice::ReadOnly);
         QTextStream ts(&file);
         QString data = ts.readAll();
-        EDITOR(setPlainText(data));
+        m_tc.insertText(data);
         showBlackMessage(FakeVimHandler::tr("\"%1\" %2L, %3C")
             .arg(m_currentFileName).arg(data.count('\n')).arg(data.size()));
+        endEditBlock();
     } else if (cmd.startsWith(QLatin1Char('!'))) {
         selectRange(beginLine, endLine);
         QString command = cmd.mid(1).trimmed();
