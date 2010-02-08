@@ -345,6 +345,16 @@ void MoveManipulator::moveBy(double deltaX, double deltaY)
     }
 }
 
+void MoveManipulator::beginRewriterTransaction()
+{
+    m_rewriterTransaction = m_view->beginRewriterTransaction();
+}
+
+void MoveManipulator::endRewriterTransaction()
+{
+    m_rewriterTransaction.commit();
+}
+
 void MoveManipulator::setOpacityForAllElements(qreal opacity)
 {
     foreach (FormEditorItem* item, m_itemList)

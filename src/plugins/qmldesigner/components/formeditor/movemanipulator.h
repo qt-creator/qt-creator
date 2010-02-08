@@ -69,6 +69,9 @@ public:
 
     void moveBy(double deltaX, double deltaY);
 
+    void beginRewriterTransaction();
+    void endRewriterTransaction();
+
     QPointF beginPoint() const;
 
     void clear();
