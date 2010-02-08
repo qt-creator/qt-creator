@@ -63,13 +63,20 @@ Rectangle {
                     delegate: delegate
                 }
             }
-            Loader {
-                sourceComponent: newStateBox;
-                // make it square
-                width: height
-                height: listViewRow.height - 21
-                y:18
-                id: newStateBoxLoader;
+            Item {
+                width:132
+                height:listViewRow.height
+                Loader {
+                    sourceComponent: newStateBox;
+                    // make it square
+                    width: 100
+                    height: 100
+                    anchors.horizontalCenter:parent.horizontalCenter
+                    anchors.bottom:parent.bottom
+                    anchors.bottomMargin:12
+                    y:18
+                    id: newStateBoxLoader;
+                }
             }
 
 
