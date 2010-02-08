@@ -41,8 +41,6 @@
 
 #include "maemosshthread.h"
 
-#ifdef USE_SSH_LIB
-
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -122,5 +120,3 @@ void MaemoSshDeployer::runInternal()
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
-#endif

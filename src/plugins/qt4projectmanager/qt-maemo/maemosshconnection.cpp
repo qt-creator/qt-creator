@@ -41,8 +41,6 @@
 
 #include "maemosshconnection.h"
 
-#ifdef USE_SSH_LIB
-
 #include "maemodeviceconfigurations.h"
 
 #include <ne7ssh.h>
@@ -209,5 +207,3 @@ MaemoSftpConnection::Ptr MaemoSftpConnection::create(const MaemoDeviceConfig &de
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
-#endif

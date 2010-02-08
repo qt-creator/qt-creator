@@ -49,8 +49,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QThread>
 
-#ifdef USE_SSH_LIB
-
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -117,7 +115,5 @@ private:
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
-#endif
 
 #endif // MAEMOSSHTHREAD_H

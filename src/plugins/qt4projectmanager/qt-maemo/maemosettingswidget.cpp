@@ -114,11 +114,9 @@ MaemoSettingsWidget::MaemoSettingsWidget(QWidget *parent)
       m_nameValidator(new NameValidator(m_devConfs)),
       m_sshPortValidator(new PortAndTimeoutValidator),
       m_gdbServerPortValidator(new PortAndTimeoutValidator),
-      m_timeoutValidator(new PortAndTimeoutValidator)
-#ifdef USE_SSH_LIB
-      , m_deviceTester(0)
-      , m_keyDeployer(0)
-#endif
+      m_timeoutValidator(new PortAndTimeoutValidator),
+      m_deviceTester(0),
+      m_keyDeployer(0)
 
 {
     initGui();
@@ -139,16 +137,6 @@ void MaemoSettingsWidget::initGui()
     foreach(const MaemoDeviceConfig &devConf, m_devConfs)
         m_ui->configListWidget->addItem(devConf.name);
     m_defaultTestOutput = m_ui->testResultEdit->toPlainText();
-
-#ifndef USE_SSH_LIB // Password authentication does not currently work due to ssh/scp issues.
-    m_ui->testConfigButton->hide();
-    m_ui->deployKeyButton->hide();
-    m_ui->testResultEdit->hide();
-    m_ui->authTypeLabel->hide();
-    m_ui->authTypeButtonsWidget->hide();
-    m_ui->passwordLabel->hide();
-    m_ui->pwdLineEdit->hide();
-#endif
     if (m_devConfs.count() == 1)
         m_ui->configListWidget->setCurrentRow(0, QItemSelectionModel::Select);
 }
@@ -326,8 +314,6 @@ void MaemoSettingsWidget::keyFileEditingFinished()
 
 void MaemoSettingsWidget::testConfig()
 {
-#ifdef USE_SSH_LIB
-    qDebug("Oh yes, this config will be tested!");
     if (m_deviceTester)
         return;
 
@@ -347,7 +333,6 @@ void MaemoSettingsWidget::testConfig()
     connect(m_ui->testConfigButton, SIGNAL(clicked()),
             this, SLOT(stopConfigTest()));
     m_deviceTester->start();
-#endif
 }
 
 void MaemoSettingsWidget::processSshOutput(const QString &data)
@@ -358,7 +343,6 @@ void MaemoSettingsWidget::processSshOutput(const QString &data)
 
 void MaemoSettingsWidget::handleTestThreadFinished()
 {
-#ifdef USE_SSH_LIB
     if (!m_deviceTester)
         return;
 
@@ -373,15 +357,11 @@ void MaemoSettingsWidget::handleTestThreadFinished()
     }
     m_ui->testResultEdit->setPlainText(output);
     stopConfigTest();
-#endif
 }
 
 void MaemoSettingsWidget::stopConfigTest()
 {
-#ifdef USE_SSH_LIB
-    qDebug("================> %s", Q_FUNC_INFO);
     if (m_deviceTester) {
-        qDebug("Actually doing something");
         m_ui->testConfigButton->disconnect();
         const bool buttonWasEnabled = m_ui->testConfigButton->isEnabled();
         m_deviceTester->disconnect();
@@ -394,7 +374,6 @@ void MaemoSettingsWidget::stopConfigTest()
                 this, SLOT(testConfig()));
         m_ui->testConfigButton->setEnabled(buttonWasEnabled);
     }
-#endif
 }
 
 QString MaemoSettingsWidget::parseTestOutput()
@@ -428,8 +407,6 @@ QString MaemoSettingsWidget::parseTestOutput()
 
 void MaemoSettingsWidget::deployKey()
 {
-#ifdef USE_SSH_LIB
-    qDebug("Deploying key");
     if (m_keyDeployer)
         return;
 
@@ -452,13 +429,10 @@ void MaemoSettingsWidget::deployKey()
     connect(m_ui->deployKeyButton, SIGNAL(clicked()),
             this, SLOT(stopDeploying()));
     m_keyDeployer->start();
-#endif
 }
 
 void MaemoSettingsWidget::handleDeployThreadFinished()
 {
-#ifdef USE_SSH_LIB
-    qDebug("================> %s", Q_FUNC_INFO);
     if (!m_keyDeployer)
         return;
 
@@ -471,13 +445,10 @@ void MaemoSettingsWidget::handleDeployThreadFinished()
     }
     m_ui->testResultEdit->setPlainText(output);
     stopDeploying();
-#endif
 }
 
 void MaemoSettingsWidget::stopDeploying()
 {
-#ifdef USE_SSH_LIB
-    qDebug("================> %s", Q_FUNC_INFO);
     if (m_keyDeployer) {
         m_ui->deployKeyButton->disconnect();
         const bool buttonWasEnabled = m_ui->deployKeyButton->isEnabled();
@@ -490,7 +461,6 @@ void MaemoSettingsWidget::stopDeploying()
                 this, SLOT(deployKey()));
         m_ui->deployKeyButton->setEnabled(buttonWasEnabled);
     }
-#endif
 }
 
 void MaemoSettingsWidget::selectionChanged()

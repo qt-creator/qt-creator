@@ -50,12 +50,10 @@ QT_END_NAMESPACE
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class PortAndTimeoutValidator;
-class NameValidator;
-#ifdef USE_SSH_LIB
 class MaemoSshRunner;
 class MaemoSshDeployer;
-#endif
+class NameValidator;
+class PortAndTimeoutValidator;
 
 class MaemoSettingsWidget : public QWidget
 {
@@ -105,10 +103,8 @@ private:
     PortAndTimeoutValidator * const m_sshPortValidator;
     PortAndTimeoutValidator * const m_gdbServerPortValidator;
     PortAndTimeoutValidator * const m_timeoutValidator;
-#ifdef USE_SSH_LIB
     MaemoSshRunner *m_deviceTester;
     MaemoSshDeployer *m_keyDeployer;
-#endif
     QString m_deviceTestOutput;
     QString m_defaultTestOutput;
 };

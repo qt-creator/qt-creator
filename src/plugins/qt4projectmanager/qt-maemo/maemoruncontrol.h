@@ -41,9 +41,6 @@
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QFutureInterface>
-#ifndef USE_SSH_LIB
-#include <QtCore/QProcess>
-#endif
 #include <QtCore/QScopedPointer>
 #include <QtCore/QString>
 
@@ -77,19 +74,9 @@ protected:
     const QString targetCmdLinePrefix() const;
     const QString remoteDir() const;
     const QStringList options() const;
-#ifndef USE_SSH_LIB
-    void deploymentFinished(bool success);
-    virtual bool setProcessEnvironment(QProcess &process);
-#endif // USE_SSH_LIB
 private slots:
-#ifndef USE_SSH_LIB
-    void readStandardError();
-    void readStandardOutput();
-#endif // USE_SSH_LIB
     void deployProcessFinished();
-#ifdef USE_SSH_LIB
     void handleFileCopied();
-#endif
 
 protected:
     MaemoRunConfiguration *runConfig; // TODO this pointer can be invalid
@@ -99,11 +86,8 @@ private:
     virtual void handleDeploymentFinished(bool success)=0;
 
     QFutureInterface<void> m_progress;
-#ifdef USE_SSH_LIB
     QScopedPointer<MaemoSshDeployer> sshDeployer;
-#else
-    QProcess deployProcess;
-#endif // USE_SSH_LIB
+
     struct Deployable
     {
         typedef void (MaemoRunConfiguration::*updateFunc)();
@@ -128,21 +112,14 @@ public:
 
 private slots:
     void executionFinished();
-#ifdef USE_SSH_LIB
     void handleRemoteOutput(const QString &output);
-#endif
 
 private:
     virtual void handleDeploymentFinished(bool success);
     void startExecution();
 
-#ifdef USE_SSH_LIB
     QScopedPointer<MaemoSshRunner> sshRunner;
     QScopedPointer<MaemoSshRunner> sshStopper;
-#else
-    QProcess sshProcess;
-    QProcess stopProcess;
-#endif // USE_SSH_LIB
     bool stoppedByUser;
 };
 
@@ -161,12 +138,7 @@ signals:
     void stopRequested();
 
 private slots:
-#ifdef USE_SSH_LIB
     void gdbServerStarted(const QString &output);
-#else
-    void gdbServerStarted();
-#endif // USE_SSH_LIB
-
     void debuggerOutput(const QString &output);
 
 private:
@@ -177,13 +149,8 @@ private:
     void gdbServerStartFailed(const QString &reason);
     void startDebugging();
 
-#ifdef USE_SSH_LIB
     QScopedPointer<MaemoSshRunner> sshRunner;
     QScopedPointer<MaemoSshRunner> sshStopper;
-#else
-    QProcess gdbServer;
-    QProcess stopProcess;
-#endif // USE_SSH_LIB
     Debugger::DebuggerManager *debuggerManager;
     QSharedPointer<Debugger::DebuggerStartParameters> startParams;
     int inferiorPid;

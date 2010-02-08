@@ -42,8 +42,6 @@
 #ifndef MAEMOSSHCONNECTION_H
 #define MAEMOSSHCONNECTION_H
 
-#ifdef USE_SSH_LIB
-
 #include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
 #include <QtCore/QSharedPointer>
@@ -148,7 +146,5 @@ private:
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
-
-#endif
 
 #endif // MAEMOSSHCONNECTION_H
