@@ -355,7 +355,7 @@ bool QmlAnchors::instanceHasAnchors() const
 void QmlAnchors::setMargin(AnchorLine::Type sourceAnchorLineType, double margin) const
 {
     QString propertyName = marginPropertyName(sourceAnchorLineType);
-    qmlItemNode().setVariantProperty(propertyName, round(margin, 4));
+    qmlItemNode().setVariantProperty(propertyName, qRound(margin));
 }
 
 bool QmlAnchors::instanceHasMargin(AnchorLine::Type sourceAnchorLineType) const
