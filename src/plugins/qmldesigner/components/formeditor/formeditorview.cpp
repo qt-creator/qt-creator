@@ -251,6 +251,11 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
             item->update();
     }
 
+    if (selectedNodeList.count() == 1)
+        m_formEditorWidget->setFeedbackNode(QmlItemNode(selectedNodeList.first()));
+    else
+        m_formEditorWidget->setFeedbackNode(QmlItemNode());
+
     m_scene->update();
 }
 
@@ -482,6 +487,8 @@ void FormEditorView::transformChanged(const QmlObjectNode &qmlObjectNode)
         m_scene->synchronizeTransformation(itemNode);
         m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));
     }
+
+    scene()->update();
 }
 
 void FormEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)

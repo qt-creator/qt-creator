@@ -42,6 +42,8 @@ class FormEditorScene;
 class FormEditorGraphicsView;
 class ToolBox;
 class NumberSeriesAction;
+class QmlItemNode;
+
 
 class FormEditorWidget : public QWidget
 {
@@ -62,6 +64,8 @@ public:
 
     double spacing() const;
     double margins() const;
+
+    void setFeedbackNode(const QmlItemNode &node);
 
 
 protected:

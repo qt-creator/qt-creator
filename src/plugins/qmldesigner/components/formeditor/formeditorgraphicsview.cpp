@@ -110,6 +110,126 @@ void FormEditorGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
+void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*rect*/ )
+{
+    if (!m_feedbackNode.isValid())
+        return;
+
+    painter->save();
+
+    if (m_beginX != m_feedbackNode.instanceValue("x"))
+        painter->setPen(Qt::green);
+    else
+        painter->setPen(Qt::black);
+
+    painter->drawText(mapToScene(QPoint(2.0, 12.0)), QString("x: \t\t%1").arg(m_feedbackNode.instanceValue("x").toString()));
+
+
+    if (m_beginY != m_feedbackNode.instanceValue("y"))
+        painter->setPen(Qt::green);
+    else
+        painter->setPen(Qt::black);
+
+    painter->drawText(mapToScene(QPoint(2.0, 24.0)), QString("y: \t\t%1").arg(m_feedbackNode.instanceValue("y").toString()));
+
+
+    if (m_beginWidth != m_feedbackNode.instanceValue("width"))
+        painter->setPen(Qt::green);
+    else
+        painter->setPen(Qt::black);
+
+    painter->drawText(mapToScene(QPoint(2.0, 36.0)), QString("width: \t\t%1").arg(m_feedbackNode.instanceValue("width").toString()));
+
+
+    if (m_beginHeight != m_feedbackNode.instanceValue("height"))
+        painter->setPen(Qt::green);
+    else
+        painter->setPen(Qt::black);
+
+    painter->drawText(mapToScene(QPoint(2.0, 48.0)), QString("height:\t\t%1").arg(m_feedbackNode.instanceValue("height").toString()));
+
+    if (m_parentNode == m_feedbackNode.instanceParent()) {
+
+        if (m_feedbackNode.canReparent()) {
+            painter->setPen(Qt::black);
+            painter->drawText(mapToScene(QPoint(2.0, 60.0)), QString("Can reparent."));
+        } else {
+            painter->setPen(Qt::red);
+            painter->drawText(mapToScene(QPoint(2.0, 60.0)), QString("Cannot reparent."));
+        }
+    } else {
+        painter->setPen(Qt::yellow);
+        if (m_feedbackNode.instanceParent().id().isEmpty())
+            painter->drawText(mapToScene(QPoint(2.0, 60.0)), QString("Parent has changed."));
+        else
+            painter->drawText(mapToScene(QPoint(2.0, 60.0)), QString("Parent has changed to %1.").arg(m_feedbackNode.instanceParent().id()));
+    }
+
+
+    if (m_beginTopMargin != m_feedbackNode.instanceValue("anchors.leftMargin"))
+        painter->setPen(Qt::green);
+    else
+        painter->setPen(Qt::black);
+
+    painter->drawText(mapToScene(QPoint(2.0, 72.0)), QString("leftMargin: \t\t%1").arg(m_feedbackNode.instanceValue("anchors.leftMargin").toString()));
+
+    if (m_beginRightMargin != m_feedbackNode.instanceValue("anchors.rightMargin"))
+        painter->setPen(Qt::green);
+    else
+        painter->setPen(Qt::black);
+
+    painter->drawText(mapToScene(QPoint(2.0, 84.0)), QString("rightMargin: \t\t%1").arg(m_feedbackNode.instanceValue("anchors.rightMargin").toString()));
+
+
+
+    if (m_beginTopMargin != m_feedbackNode.instanceValue("anchors.topMargin"))
+        painter->setPen(Qt::green);
+    else
+        painter->setPen(Qt::black);
+
+    painter->drawText(mapToScene(QPoint(2.0, 96.0)), QString("topMargin: \t\t%1").arg(m_feedbackNode.instanceValue("anchors.topMargin").toString()));
+
+
+    if (m_beginBottomMargin != m_feedbackNode.instanceValue("anchors.bottomMargin"))
+        painter->setPen(Qt::green);
+    else
+        painter->setPen(Qt::black);
+
+    painter->drawText(mapToScene(QPoint(2.0, 108.0)), QString("bottomMargin: \t%1").arg(m_feedbackNode.instanceValue("anchors.bottomMargin").toString()));
+
+    painter->restore();
+}
+
+void FormEditorGraphicsView::setFeedbackNode(const QmlItemNode &node)
+{
+    if (node == m_feedbackNode)
+        return;
+
+    m_feedbackNode = node;
+
+    if (m_feedbackNode.isValid()) {
+        m_beginX = m_feedbackNode.instanceValue("x");
+        m_beginY = m_feedbackNode.instanceValue("y");
+        m_beginWidth = m_feedbackNode.instanceValue("width");
+        m_beginHeight = m_feedbackNode.instanceValue("height");
+        m_parentNode = m_feedbackNode.instanceParent();
+        m_beginLeftMargin = m_feedbackNode.instanceValue("anchors.leftMargin");
+        m_beginRightMargin = m_feedbackNode.instanceValue("anchors.rightMargin");
+        m_beginTopMargin = m_feedbackNode.instanceValue("anchors.topMargin");
+        m_beginBottomMargin = m_feedbackNode.instanceValue("anchors.bottomMargin");
+    } else {
+        m_beginX = QVariant();
+        m_beginY = QVariant();
+        m_beginWidth = QVariant();
+        m_beginHeight = QVariant();
+        m_parentNode = QmlObjectNode();
+        m_beginLeftMargin = QVariant();
+        m_beginRightMargin = QVariant();
+        m_beginTopMargin = QVariant();
+        m_beginBottomMargin = QVariant();
+    }
+}
+
 void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
 {
     painter->save();

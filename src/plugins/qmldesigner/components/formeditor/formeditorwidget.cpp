@@ -284,6 +284,11 @@ double FormEditorWidget::margins() const
     return m_snappingMarginAction->currentValue().toDouble();
 }
 
+void FormEditorWidget::setFeedbackNode(const QmlItemNode &node)
+{
+    m_graphicsView->setFeedbackNode(node);
+}
+
 }
 
 

@@ -31,6 +31,7 @@
 #define FORMEDITORGRAPHICSVIEW_H
 
 #include <QGraphicsView>
+#include <qmlitemnode.h>
 
 namespace QmlDesigner {
 
@@ -40,12 +41,25 @@ Q_OBJECT
 public:
     explicit FormEditorGraphicsView(QWidget *parent = 0);
 
+    void setFeedbackNode(const QmlItemNode &node);
 
 protected:
+    void drawForeground(QPainter *painter, const QRectF &rect );
     void drawBackground(QPainter *painter, const QRectF &rect);
     void wheelEvent(QWheelEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+private:
+    QmlItemNode m_feedbackNode;
+    QmlObjectNode m_parentNode;
+    QVariant m_beginX;
+    QVariant m_beginY;
+    QVariant m_beginWidth;
+    QVariant m_beginHeight;
+    QVariant m_beginLeftMargin;
+    QVariant m_beginRightMargin;
+    QVariant m_beginTopMargin;
+    QVariant m_beginBottomMargin;
 };
 
 } // namespace QmlDesigner
