@@ -135,6 +135,7 @@ public:
     int documentRevision() const;
 
 public slots:
+    void followSymbolUnderCursor();
     virtual void setFontSettings(const TextEditor::FontSettings &);
 
 private slots:

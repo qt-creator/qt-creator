@@ -910,10 +910,26 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
 
     AST::Node *node = semanticInfo.nodeUnderCursor(cursorPosition);
 
+    Interpreter::Engine interp;
+    Interpreter::Context context(&interp);
+    context.build(semanticInfo.declaringMember(cursorPosition), semanticInfo.document, semanticInfo.snapshot);
+
+    Check check(&context);
+    const Interpreter::Value *value = check.reference(node);
+    QString fileName;
+    int line = 0, column = 0;
+
+    if (! (value && value->getSourceLocation(&fileName, &line, &column)))
+        return Link();
+
+    Link link;
+    link.fileName = fileName;
+    link.line = line;
+    link.column = column - 1; // adjust the column
+
     if (AST::UiQualifiedId *q = AST::cast<AST::UiQualifiedId *>(node)) {
         for (AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
             if (! tail->next && cursorPosition <= tail->identifierToken.end()) {
-                Link link;
                 link.begin = tail->identifierToken.begin();
                 link.end = tail->identifierToken.end();
                 return link;
@@ -921,19 +937,22 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
         }
 
     } else if (AST::IdentifierExpression *id = AST::cast<AST::IdentifierExpression *>(node)) {
-        Link link;
         link.begin = id->firstSourceLocation().begin();
         link.end = id->lastSourceLocation().end();
         return link;
 
     } else if (AST::FieldMemberExpression *mem = AST::cast<AST::FieldMemberExpression *>(node)) {
-        Link link;
         link.begin = mem->lastSourceLocation().begin();
         link.end = mem->lastSourceLocation().end();
         return link;
     }
 
     return Link();
+}
+
+void QmlJSTextEditor::followSymbolUnderCursor()
+{
+    openLink(findLinkAt(textCursor()));
 }
 
 void QmlJSTextEditor::contextMenuEvent(QContextMenuEvent *e)

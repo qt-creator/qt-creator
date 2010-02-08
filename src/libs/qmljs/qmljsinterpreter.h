@@ -104,6 +104,8 @@ public:
     virtual const Reference *asReference() const;
 
     virtual void accept(ValueVisitor *) const = 0;
+
+    virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
 };
 
 template <typename _RetTy> _RetTy value_cast(const Value *v);
@@ -225,7 +227,7 @@ public:
     Context(Engine *engine);
     ~Context();
 
-    void build(AST::Node *node, Document::Ptr doc, const Snapshot &snapshot);
+    void build(AST::Node *node, const Document::Ptr doc, const Snapshot &snapshot);
 
     Engine *engine() const;
     ScopeChain scopeChain() const;
@@ -642,18 +644,6 @@ private:
     const Document *_doc;
 };
 
-class QMLJS_EXPORT ASTObjectValue: public ObjectValue
-{
-    AST::UiQualifiedId *_typeName;
-    AST::UiObjectInitializer *_initializer;
-
-public:
-    ASTObjectValue(AST::UiQualifiedId *typeName, AST::UiObjectInitializer *initializer, Engine *engine);
-    virtual ~ASTObjectValue();
-
-    virtual void processMembers(MemberProcessor *processor) const;
-};
-
 class QMLJS_EXPORT ASTVariableReference: public Reference
 {
     AST::VariableDeclaration *_ast;
@@ -683,7 +673,38 @@ public:
     virtual bool isVariadic() const;
 };
 
+class QMLJS_EXPORT ASTPropertyReference: public Reference
+{
+    AST::UiPublicMember *_ast;
+    const Document *_doc;
 
+public:
+    ASTPropertyReference(AST::UiPublicMember *ast, const Document *doc, Engine *engine);
+    virtual ~ASTPropertyReference();
+
+    AST::UiPublicMember *ast() const { return _ast; }
+
+    virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
+    virtual const Value *value(Context *context) const;
+};
+
+class QMLJS_EXPORT ASTObjectValue: public ObjectValue
+{
+    AST::UiQualifiedId *_typeName;
+    AST::UiObjectInitializer *_initializer;
+    const Document *_doc;
+    QList<ASTPropertyReference *> _properties;
+
+public:
+    ASTObjectValue(AST::UiQualifiedId *typeName,
+                   AST::UiObjectInitializer *initializer,
+                   const Document *doc,
+                   Engine *engine);
+    virtual ~ASTObjectValue();
+
+    bool getSourceLocation(QString *fileName, int *line, int *column) const;
+    virtual void processMembers(MemberProcessor *processor) const;
+};
 
 } } // end of namespace QmlJS::Interpreter
 

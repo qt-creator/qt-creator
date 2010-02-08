@@ -139,7 +139,7 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
     }
 
     // normal component instance
-    ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, &_interp);
+    ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _doc, &_interp);
     QmlPrototypeReference *prototypeReference =
             new QmlPrototypeReference(qualifiedTypeNameId, _doc, &_interp);
     objectValue->setPrototype(prototypeReference);

@@ -64,6 +64,9 @@ public:
 
     void initializeEditor(QmlJSTextEditor *editor);
 
+public Q_SLOTS:
+    void followSymbolUnderCursor();
+
 private:
     static QmlJSEditorPlugin *m_instance;
 

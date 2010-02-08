@@ -51,19 +51,7 @@ Check::~Check()
 
 const Interpreter::Value *Check::operator()(AST::Node *ast)
 {
-    return check(ast);
-}
-
-const Interpreter::Value *Check::check(AST::Node *ast)
-{
-    // save the result
-    const Value *previousResult = switchResult(0);
-
-    // process the expression
-    accept(ast);
-
-    // restore the previous result
-    const Value *result = switchResult(previousResult);
+    const Value *result = reference(ast);
 
     if (const Reference *ref = value_cast<const Reference *>(result))
         result = ref->value(_context);
@@ -72,6 +60,18 @@ const Interpreter::Value *Check::check(AST::Node *ast)
         result = _engine->undefinedValue();
 
     return result;
+}
+
+const Interpreter::Value *Check::reference(AST::Node *ast)
+{
+    // save the result
+    const Value *previousResult = switchResult(0);
+
+    // process the expression
+    accept(ast);
+
+    // restore the previous result
+    return switchResult(previousResult);
 }
 
 Interpreter::Engine *Check::switchEngine(Interpreter::Engine *engine)
@@ -309,7 +309,7 @@ bool Check::visit(AST::FieldMemberExpression *ast)
     if (! ast->name)
         return false;
 
-    if (const Interpreter::Value *base = _engine->convertToObject(check(ast->base))) {
+    if (const Interpreter::Value *base = _engine->convertToObject(reference(ast->base))) {
         if (const Interpreter::ObjectValue *obj = base->asObjectValue()) {
             _result = obj->property(ast->name->asString(), _context);
         }
@@ -320,7 +320,7 @@ bool Check::visit(AST::FieldMemberExpression *ast)
 
 bool Check::visit(AST::NewMemberExpression *ast)
 {
-    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(check(ast->base))) {
+    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(reference(ast->base))) {
         _result = ctor->construct();
     }
     return false;
@@ -328,7 +328,7 @@ bool Check::visit(AST::NewMemberExpression *ast)
 
 bool Check::visit(AST::NewExpression *ast)
 {
-    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(check(ast->expression))) {
+    if (const FunctionValue *ctor = value_cast<const FunctionValue *>(reference(ast->expression))) {
         _result = ctor->construct();
     }
     return false;
@@ -336,7 +336,7 @@ bool Check::visit(AST::NewExpression *ast)
 
 bool Check::visit(AST::CallExpression *ast)
 {
-    if (const Interpreter::Value *base = check(ast->base)) {
+    if (const Interpreter::Value *base = reference(ast->base)) {
         if (const Interpreter::FunctionValue *obj = base->asFunctionValue()) {
             _result = obj->returnValue();
         }

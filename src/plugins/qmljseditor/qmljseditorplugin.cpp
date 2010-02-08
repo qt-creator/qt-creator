@@ -43,6 +43,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/storagesettings.h>
@@ -114,9 +115,19 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_actionHandler->initializeActions();
 
     Core::ActionManager *am =  core->actionManager();
-    Core::ActionContainer *contextMenu= am->createMenu(QmlJSEditor::Constants::M_CONTEXT);
-    Core::Command *cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    Core::ActionContainer *contextMenu = am->createMenu(QmlJSEditor::Constants::M_CONTEXT);
+
+    Core::Command *cmd = 0;
+
+    QAction *followSymbolUnderCursorAction = new QAction(tr("Follow Symbol Under Cursor"), this);
+    cmd = am->registerAction(followSymbolUnderCursorAction, Constants::FOLLOW_SYMBOL_UNDER_CURSOR, context);
+    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F2));
+    connect(followSymbolUnderCursorAction, SIGNAL(triggered()), this, SLOT(followSymbolUnderCursor()));
     contextMenu->addAction(cmd);
+
+    cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    contextMenu->addAction(cmd);
+
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
@@ -175,6 +186,14 @@ void QmlJSEditorPlugin::initializeEditor(QmlJSEditor::Internal::QmlJSTextEditor 
     // auto completion
     connect(editor, SIGNAL(requestAutoCompletion(TextEditor::ITextEditable*, bool)),
             TextEditor::Internal::CompletionSupport::instance(), SLOT(autoComplete(TextEditor::ITextEditable*, bool)));
+}
+
+void QmlJSEditorPlugin::followSymbolUnderCursor()
+{
+    Core::EditorManager *em = Core::EditorManager::instance();
+
+    if (QmlJSTextEditor *editor = qobject_cast<QmlJSTextEditor*>(em->currentEditor()->widget()))
+        editor->followSymbolUnderCursor();
 }
 
 Q_EXPORT_PLUGIN(QmlJSEditorPlugin)

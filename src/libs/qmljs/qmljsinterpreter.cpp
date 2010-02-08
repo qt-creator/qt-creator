@@ -585,6 +585,11 @@ Value::~Value()
 {
 }
 
+bool Value::getSourceLocation(QString *, int *, int *) const
+{
+    return false;
+}
+
 const NullValue *Value::asNullValue() const
 {
     return 0;
@@ -1909,30 +1914,42 @@ QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix,
 
 
 
-ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName, UiObjectInitializer *initializer, Engine *engine)
-    : ObjectValue(engine), _typeName(typeName), _initializer(initializer)
-{
-}
-
-ASTObjectValue::~ASTObjectValue()
-{
-}
-
-void ASTObjectValue::processMembers(MemberProcessor *processor) const
+ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
+                               UiObjectInitializer *initializer,
+                               const Document *doc,
+                               Engine *engine)
+    : ObjectValue(engine), _typeName(typeName), _initializer(initializer), _doc(doc)
 {
     if (_initializer) {
         for (UiObjectMemberList *it = _initializer->members; it; it = it->next) {
             UiObjectMember *member = it->member;
             if (UiPublicMember *def = cast<UiPublicMember *>(member)) {
                 if (def->name && def->memberType) {
-                    const QString propName = def->name->asString();
-                    const QString propType = def->memberType->asString();
-
-                    processor->processProperty(propName, engine()->defaultValueForBuiltinType(propType));
+                    ASTPropertyReference *ref = new ASTPropertyReference(def, _doc, engine);
+                    _properties.append(ref);
                 }
             }
         }
     }
+}
+
+ASTObjectValue::~ASTObjectValue()
+{
+}
+
+bool ASTObjectValue::getSourceLocation(QString *fileName, int *line, int *column) const
+{
+    *fileName = _doc->fileName();
+    *line = _typeName->identifierToken.startLine;
+    *column = _typeName->identifierToken.startColumn;
+    return true;
+}
+
+void ASTObjectValue::processMembers(MemberProcessor *processor) const
+{
+    foreach (ASTPropertyReference *ref, _properties)
+        processor->processProperty(ref->ast()->name->asString(), ref);
+
     ObjectValue::processMembers(processor);
 }
 
@@ -2021,3 +2038,32 @@ const Value *QmlPrototypeReference::value(Context *context) const
     return context->lookupType(_doc, _qmlTypeName);
 }
 
+ASTPropertyReference::ASTPropertyReference(AST::UiPublicMember *ast, const Document *doc, Engine *engine)
+    : Reference(engine), _ast(ast), _doc(doc)
+{
+}
+
+ASTPropertyReference::~ASTPropertyReference()
+{
+}
+
+bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *column) const
+{
+    *fileName = _doc->fileName();
+    *line = _ast->identifierToken.startLine;
+    *column = _ast->identifierToken.startColumn;
+    return true;
+}
+
+const Value *ASTPropertyReference::value(Context *context) const
+{
+    if (_ast->expression) {
+        Check check(context);
+        return check(_ast->expression);
+    }
+
+    if (_ast->memberType)
+        return engine()->defaultValueForBuiltinType(_ast->memberType->asString());
+
+    return engine()->undefinedValue();
+}

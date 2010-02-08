@@ -52,10 +52,10 @@ public:
     virtual ~Check();
 
     const Interpreter::Value *operator()(AST::Node *ast);
+    const Interpreter::Value *reference(AST::Node *ast);
 
 protected:
     void accept(AST::Node *node);
-    const Interpreter::Value *check(AST::Node *ast);
 
     Interpreter::Engine *switchEngine(Interpreter::Engine *engine);
     const Interpreter::Value *switchResult(const Interpreter::Value *result);
