@@ -55,7 +55,6 @@ struct LauncherPrivate {
     explicit LauncherPrivate(const TrkDevicePtr &d);
 
     TrkDevicePtr m_device;
-    QString m_trkServerName;
     QByteArray m_trkReadBuffer;
     Launcher::State m_state;
 
@@ -119,12 +118,12 @@ void Launcher::addStartupActions(trk::Launcher::Actions startupActions)
 
 void Launcher::setTrkServerName(const QString &name)
 {
-    d->m_trkServerName = name;
+    d->m_device->setPort(name);
 }
 
 QString Launcher::trkServerName() const
 {
-    return d->m_trkServerName;
+    return d->m_device->port();
 }
 
 TrkDevicePtr Launcher::trkDevice() const
@@ -179,7 +178,7 @@ bool Launcher::startServer(QString *errorMessage)
     errorMessage->clear();
     if (d->m_verbose) {
         const QString msg = QString::fromLatin1("Port=%1 Executable=%2 Arguments=%3 Package=%4 Remote Package=%5 Install file=%6")
-                            .arg(d->m_trkServerName, d->m_fileName,
+                            .arg(trkServerName(), d->m_fileName,
                                  d->m_commandLineArgs.join(QString(QLatin1Char(' '))),
                                  d->m_copyState.sourceFileName, d->m_copyState.destinationFileName, d->m_installFileName);
         logMessage(msg);
@@ -201,7 +200,7 @@ bool Launcher::startServer(QString *errorMessage)
         qWarning("No remote executable given for running.");
         return false;
     }
-    if (!d->m_device->isOpen() && !d->m_device->open(d->m_trkServerName, errorMessage))
+    if (!d->m_device->isOpen() && !d->m_device->open(errorMessage))
         return false;
     if (d->m_closeDevice) {
         connect(this, SIGNAL(finished()), d->m_device.data(), SLOT(close()));

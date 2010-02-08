@@ -67,8 +67,7 @@ public:
     int attempts() const;
     void setAttempts(int a);
 
-    QString device() const;
-    void setDevice(const QString &);
+    QString device() const; // via TrkDevice
 
     State state() const;
     QString errorString() const;
@@ -130,7 +129,6 @@ class SYMBIANUTILS_EXPORT ConsoleBluetoothStarter : public AbstractBluetoothStar
 public:
     static bool startBluetooth(const TrkDevicePtr& trkDevice,
                                QObject *listenerParent,
-                               const QString &device,
                                int attempts,
                                QString *errorMessage);
 

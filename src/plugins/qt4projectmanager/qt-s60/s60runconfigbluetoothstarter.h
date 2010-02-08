@@ -49,7 +49,6 @@ public:
     // passing on the right messages.
     static trk::PromptStartCommunicationResult
             startCommunication(const TrkDevicePtr &trkDevice,
-                               const QString &device,
                                int communicationType,
                                QWidget *msgBoxParent,
                                QString *errorMessage);

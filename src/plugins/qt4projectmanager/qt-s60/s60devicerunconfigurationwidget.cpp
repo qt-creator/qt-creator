@@ -330,7 +330,6 @@ void S60DeviceRunConfigurationWidget::updateDeviceInfo()
     QString message;
     const trk::PromptStartCommunicationResult src =
             S60RunConfigBluetoothStarter::startCommunication(m_infoLauncher->trkDevice(),
-                                                             commDev.portName(),
                                                              commDev.type(), this,
                                                              &message);
     switch (src) {

@@ -764,7 +764,6 @@ void S60DeviceRunControlBase::startDeployment()
     // Prompt the user to start up the Blue tooth connection
     const trk::PromptStartCommunicationResult src =
             S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
-                                                             m_serialPortName,
                                                              m_communicationType, 0,
                                                              &errorMessage);
     switch (src) {
@@ -779,7 +778,6 @@ void S60DeviceRunControlBase::startDeployment()
     };
 
     if (!m_launcher->startServer(&errorMessage)) {
-
         error(this, tr("Could not connect to phone on port '%1': %2\n"
                        "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage));
         stop();

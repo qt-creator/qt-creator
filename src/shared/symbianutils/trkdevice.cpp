@@ -871,6 +871,7 @@ struct TrkDevicePrivate
     QByteArray trkReadBuffer;
     int verbose;
     QString errorString;
+    QString port;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -902,13 +903,19 @@ TrkDevice::~TrkDevice()
     delete d;
 }
 
-bool TrkDevice::open(const QString &port, QString *errorMessage)
+bool TrkDevice::open(QString *errorMessage)
 {
     if (d->verbose)
-        qDebug() << "Opening" << port << "is open: " << isOpen() << " serialFrame=" << serialFrame();
+        qDebug() << "Opening" << port() << "is open: " << isOpen() << " serialFrame=" << serialFrame();
+    if (d->port.isEmpty()) {
+        *errorMessage = QLatin1String("Internal error: No port set on TrkDevice");
+        return false;
+    }
+
     close();
 #ifdef Q_OS_WIN
-    d->deviceContext->device = CreateFile(QString("\\\\.\\").append(port).toStdWString().c_str(),
+    const QString fullPort = QLatin1String("\\\\.\\") + d->port;
+    d->deviceContext->device = CreateFile(reinterpret_cast<const WCHAR*>(fullPort.utf16()),
                            GENERIC_READ | GENERIC_WRITE,
                            0,
                            NULL,
@@ -917,7 +924,7 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
                            NULL);
 
     if (INVALID_HANDLE_VALUE == d->deviceContext->device) {
-        *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port, winErrorMessage(GetLastError()));
+        *errorMessage = QString::fromLatin1("Could not open device '%1': %2").arg(port(), winErrorMessage(GetLastError()));
         return false;
     }
     memset(&d->deviceContext->readOverlapped, 0, sizeof(OVERLAPPED));
@@ -929,9 +936,9 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
         return false;
     }
 #else
-    d->deviceContext->file.setFileName(port);
+    d->deviceContext->file.setFileName(d->port);
     if (!d->deviceContext->file.open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
-        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(port, d->deviceContext->file.errorString());
+        *errorMessage = QString::fromLatin1("Cannot open %1: %2").arg(d->port, d->deviceContext->file.errorString());
         return false;
     }
 
@@ -970,7 +977,7 @@ bool TrkDevice::open(const QString &port, QString *errorMessage)
     d->writerThread->start();
 
     if (d->verbose)
-        qDebug() << "Opened" << port;
+        qDebug() << "Opened" << d->port;
     return true;
 }
 
@@ -1002,6 +1009,16 @@ bool TrkDevice::isOpen() const
 #else
     return d->deviceContext->file.isOpen();
 #endif
+}
+
+QString TrkDevice::port() const
+{
+    return d->port;
+}
+
+void TrkDevice::setPort(const QString &p)
+{
+    d->port = p;
 }
 
 QString TrkDevice::errorString() const

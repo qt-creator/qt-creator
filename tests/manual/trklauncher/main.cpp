@@ -153,7 +153,6 @@ int main(int argc, char *argv[])
     QString errorMessage;
     if (bluetooth && !trk::ConsoleBluetoothStarter::startBluetooth(launcher->trkDevice(),
                                                      launcher.data(),
-                                                     launcher->trkServerName(),
                                                      30, &errorMessage)) {
         qWarning("%s\n", qPrintable(errorMessage));
         return -1;

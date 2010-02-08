@@ -53,7 +53,6 @@ trk::BluetoothListener *S60RunConfigBluetoothStarter::createListener()
 
 trk::PromptStartCommunicationResult
 S60RunConfigBluetoothStarter::startCommunication(const TrkDevicePtr &trkDevice,
-                                                 const QString &device,
                                                  int communicationType,
                                                  QWidget *msgBoxParent,
                                                  QString *errorMessage)
@@ -61,12 +60,10 @@ S60RunConfigBluetoothStarter::startCommunication(const TrkDevicePtr &trkDevice,
     // Bluetooth?
     if (communicationType == SymbianUtils::BlueToothCommunication) {
         S60RunConfigBluetoothStarter bluetoothStarter(trkDevice);
-        bluetoothStarter.setDevice(device);
         return trk::promptStartBluetooth(bluetoothStarter, msgBoxParent, errorMessage);
     }
     // Serial
     BaseCommunicationStarter serialStarter(trkDevice);
-    serialStarter.setDevice(device);
     return trk::promptStartSerial(serialStarter, msgBoxParent, errorMessage);
 }
 

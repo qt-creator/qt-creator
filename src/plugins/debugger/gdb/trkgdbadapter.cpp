@@ -1730,12 +1730,13 @@ void TrkGdbAdapter::startAdapter()
     setState(AdapterStarting);
     debugMessage(_("TRYING TO START ADAPTER"));
     logMessage(QLatin1String("### Starting TrkGdbAdapter"));
+    m_trkDevice->setPort(effectiveTrkDevice());
     m_trkDevice->setSerialFrame(effectiveTrkDeviceType() != TrkOptions::BlueTooth);
     // Prompt the user to start communication
     QString message;
+
     const trk::PromptStartCommunicationResult src =
             S60DebuggerBluetoothStarter::startCommunication(m_trkDevice,
-                                                            effectiveTrkDevice(),
                                                             effectiveTrkDeviceType(),
                                                             0, &message);
     switch (src) {

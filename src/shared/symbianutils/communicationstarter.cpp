@@ -46,7 +46,6 @@ struct BaseCommunicationStarterPrivate {
     int intervalMS;
     int attempts;
     int n;
-    QString device;
     QString errorString;
     BaseCommunicationStarter::State state;
 };
@@ -58,7 +57,6 @@ BaseCommunicationStarterPrivate::BaseCommunicationStarterPrivate(const BaseCommu
         intervalMS(1000),
         attempts(-1),
         n(0),
-        device(QLatin1String("/dev/rfcomm0")),
         state(BaseCommunicationStarter::TimedOut)
 {
 }
@@ -96,7 +94,7 @@ BaseCommunicationStarter::StartResult BaseCommunicationStarter::start()
     // Before we instantiate timers, and such, try to open the device,
     // which should succeed if another listener is already running in
     // 'Watch' mode
-    if (d->trkDevice->open(d->device , &(d->errorString)))
+    if (d->trkDevice->open(&(d->errorString)))
         return ConnectionSucceeded;
     // Pull up resources for next attempt
     d->n = 0;
@@ -143,12 +141,7 @@ void BaseCommunicationStarter::setAttempts(int a)
 
 QString BaseCommunicationStarter::device() const
 {
-    return d->device;
-}
-
-void BaseCommunicationStarter::setDevice(const QString &dv)
-{
-    d->device = dv;
+    return d->trkDevice->port();
 }
 
 QString BaseCommunicationStarter::errorString() const
@@ -163,20 +156,20 @@ void BaseCommunicationStarter::slotTimer()
     if (d->attempts >= 0 && d->n >= d->attempts) {
         stopTimer();
         d->errorString = tr("%1: timed out after %n attempts using an interval of %2ms.", 0, d->n)
-                         .arg(d->device).arg(d->intervalMS);
+                         .arg(d->trkDevice->port()).arg(d->intervalMS);
         d->state = TimedOut;
         emit timeout();
     } else {
         // Attempt n to connect?
-        if (d->trkDevice->open(d->device , &(d->errorString))) {
+        if (d->trkDevice->open(&(d->errorString))) {
             stopTimer();
-            const QString msg = tr("%1: Connection attempt %2 succeeded.").arg(d->device).arg(d->n);
+            const QString msg = tr("%1: Connection attempt %2 succeeded.").arg(d->trkDevice->port()).arg(d->n);
             emit message(msg);
             d->state = Connected;
             emit connected();
         } else {
             const QString msg = tr("%1: Connection attempt %2 failed: %3 (retrying)...")
-                                .arg(d->device).arg(d->n).arg(d->errorString);
+                                .arg(d->trkDevice->port()).arg(d->n).arg(d->errorString);
             emit message(msg);
         }
     }
@@ -216,13 +209,11 @@ BluetoothListener *ConsoleBluetoothStarter::createListener()
 
 bool ConsoleBluetoothStarter::startBluetooth(const TrkDevicePtr &trkDevice,
                                              QObject *listenerParent,
-                                             const QString &device,
                                              int attempts,
                                              QString *errorMessage)
 {
     // Set up a console starter to print to stdout.
     ConsoleBluetoothStarter starter(trkDevice, listenerParent);
-    starter.setDevice(device);
     starter.setAttempts(attempts);
     switch (starter.start()) {
     case Started:
