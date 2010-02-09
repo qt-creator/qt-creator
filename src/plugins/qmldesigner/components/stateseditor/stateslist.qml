@@ -65,6 +65,7 @@ Rectangle {
                 }
             }
             Item {
+                id: newStateBoxLoader;
                 width:132
                 height:listViewRow.height
                 Loader {
@@ -76,7 +77,6 @@ Rectangle {
                     anchors.bottom:parent.bottom
                     anchors.bottomMargin:12
                     y:18
-                    id: newStateBoxLoader;
                 }
             }
 
