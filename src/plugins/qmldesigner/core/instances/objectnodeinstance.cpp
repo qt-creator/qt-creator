@@ -301,10 +301,7 @@ static bool isObject(const QmlMetaProperty &metaProperty)
 
 static QVariant objectToVariant(QObject *object)
 {
-    const QMetaObject *metaObject = object->metaObject();
-    QmlType *qmlType = QmlMetaType::qmlType(metaObject);
-
-    return qmlType->fromObject(object);
+    return QVariant::fromValue(object);
 }
 
 static void removeObjectFromList(const QmlMetaProperty &metaProperty, QObject *object, QmlEngine *engine)

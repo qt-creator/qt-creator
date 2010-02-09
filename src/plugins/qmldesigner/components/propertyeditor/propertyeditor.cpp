@@ -83,7 +83,7 @@ void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString 
         valueObject = new PropertyEditorValue(propertyMap);
         QObject::connect(valueObject, SIGNAL(valueChanged(QString)), propertyMap, SIGNAL(valueChanged(QString)));
         QObject::connect(valueObject, SIGNAL(expressionChanged(QString)), propertyEditor, SLOT(changeExpression(QString)));
-        propertyMap->insert(propertyName, QmlMetaType::qmlType(valueObject->metaObject())->fromObject(valueObject));
+        propertyMap->insert(propertyName, QVariant::fromValue(valueObject));
     }
     valueObject->setName(propertyName);
     valueObject->setModelNode(fxObjectNode);
@@ -129,14 +129,14 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         valueObject->setModelNode(fxObjectNode.modelNode());
         valueObject->setValue(fxObjectNode.modelNode().simplifiedTypeName());
         QObject::connect(valueObject, SIGNAL(valueChanged(QString)), &m_backendValuesPropertyMap, SIGNAL(valueChanged(QString)));
-        m_backendValuesPropertyMap.insert("className", QmlMetaType::qmlType(valueObject->metaObject())->fromObject(valueObject));
+        m_backendValuesPropertyMap.insert("className", QVariant::fromValue(valueObject));
 
         // id
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("id");
         valueObject->setValue(fxObjectNode.id());
         QObject::connect(valueObject, SIGNAL(valueChanged(QString)), &m_backendValuesPropertyMap, SIGNAL(valueChanged(QString)));
-        m_backendValuesPropertyMap.insert("id", QmlMetaType::qmlType(valueObject->metaObject())->fromObject(valueObject));
+        m_backendValuesPropertyMap.insert("id", QVariant::fromValue(valueObject));
 
         // anchors
         m_backendAnchorBinding.setup(QmlItemNode(fxObjectNode.modelNode()));

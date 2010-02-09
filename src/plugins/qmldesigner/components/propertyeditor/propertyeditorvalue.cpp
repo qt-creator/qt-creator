@@ -306,7 +306,7 @@ void PropertyEditorNodeWrapper::setup()
             valueObject->setValue(fxObjectNode.instanceValue(propertyName));
 
             connect(valueObject, SIGNAL(valueChanged(QString)), &m_valuesPropertyMap, SIGNAL(valueChanged(QString)));
-            m_valuesPropertyMap.insert(propertyName, QmlMetaType::qmlType(valueObject->metaObject())->fromObject(valueObject));
+            m_valuesPropertyMap.insert(propertyName, QVariant::fromValue(valueObject));
         }
     }
     connect(&m_valuesPropertyMap, SIGNAL(valueChanged(const QString &)), this, SLOT(changeValue(const QString&)));
