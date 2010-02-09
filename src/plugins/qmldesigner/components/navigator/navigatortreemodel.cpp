@@ -220,8 +220,6 @@ void NavigatorTreeModel::updateItemRow(const ModelNode &node, ItemRow items)
     bool blockSignal = blockItemChangedSignal(true);
 
     items.idItem->setText(node.id());
-    //items.idItem->setToolTip(!node.id().isEmpty()?node.type():"");
-    items.idItem->setToolTip(node.type());
     items.visibilityItem->setCheckState(node.auxiliaryData("invisible").toBool() ? Qt::Unchecked : Qt::Checked);
 
     blockItemChangedSignal(blockSignal);
