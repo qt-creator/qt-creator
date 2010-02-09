@@ -1822,11 +1822,12 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
                     QtPropertyDeclarationBoolItemAST *bItem = new (_pool) QtPropertyDeclarationBoolItemAST;
                     bItem->item_name_token = consumeToken();
                     ExpressionAST *expr = 0;
-                    if (parseBoolLiteral(expr))
+                    if (parseBoolLiteral(expr)) {
                         bItem->bool_value = expr->asBoolLiteral();
-                    else
+                        item = bItem;
+                    } else {
                         _translationUnit->error(cursor(), "expected `true' or `false' before `%s'", tok().spell());
-                    item = bItem;
+                    }
                     break;
                 }
 
@@ -1840,16 +1841,20 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
 
                 default:
                     _translationUnit->error(cursor(), "expected `)' before `%s'", tok().spell());
-                    return true;
+                    // skip the token
+                    consumeToken();
                 }
                 if (item) {
                     *iter = new (_pool) QtPropertyDeclarationItemListAST;
                     (*iter)->value = item;
                     iter = &(*iter)->next;
                 }
+            } else if (!LA()) {
+                break;
             } else {
                 _translationUnit->error(cursor(), "expected `)' before `%s'", tok().spell());
-                break;
+                // skip the token
+                consumeToken();
             }
         }
     }
