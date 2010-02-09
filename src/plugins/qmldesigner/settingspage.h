@@ -27,51 +27,65 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNERPLUGIN_H
-#define QMLDESIGNERPLUGIN_H
 
-#include <qmldesigner/designersettings.h>
+#ifndef SETTINGSPAGE_H
+#define SETTINGSPAGE_H
 
-#include <extensionsystem/iplugin.h>
+#include "ui_settingspage.h"
 
-namespace Core {
-    class IWizard;
-    class ICore;
-    class IEditorFactory;
-    class IEditor;
-}
+#include <coreplugin/dialogs/ioptionspage.h>
 
-namespace QmlDesigner {
-    class IntegrationCore;
-}
+#include <QtGui/QWidget>
+
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
+
+class DesignerSettings;
+
 namespace Internal {
 
-class BauhausPlugin : public ExtensionSystem::IPlugin
+class SettingsPageWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit SettingsPageWidget(QWidget *parent = 0);
+
+    DesignerSettings settings() const;
+    void setSettings(const DesignerSettings &);
+
+    QString searchKeywords() const;
+
+private:
+    Ui::SettingsPage m_ui;
+};
+
+
+class SettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    BauhausPlugin();
-    virtual ~BauhausPlugin();
+    SettingsPage();
 
-    //Plugin
-    virtual bool initialize(const QStringList &arguments, QString *error_message = 0);
-    virtual void extensionsInitialized();
+    QString id() const;
+    QString displayName() const;
+    QString category() const;
+    QString displayCategory() const;
 
-    static BauhausPlugin *pluginInstance();
-
-    DesignerSettings settings() const;
-    void setSettings(const DesignerSettings &s);
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
+    virtual bool matches(const QString &) const;
 
 private:
-    QmlDesigner::IntegrationCore *m_designerCore;
-    static BauhausPlugin *m_pluginInstance;
-    DesignerSettings m_settings;
+    QString m_searchKeywords;
+    SettingsPageWidget* m_widget;
 };
 
 } // namespace Internal
 } // namespace QmlDesigner
 
-#endif // QMLDESIGNERPLUGIN_H
+#endif // SETTINGSPAGE_H

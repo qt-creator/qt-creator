@@ -19,11 +19,16 @@ HEADERS += qmldesignerconstants.h \
     qmldesignerplugin.h \
     designmode.h \
     designmodewidget.h \
-    application.h
+    application.h \
+    designersettings.h \
+    settingspage.h
 SOURCES += qmldesignerplugin.cpp \
     designmode.cpp \
     designmodewidget.cpp \
-    application.cpp
+    application.cpp \
+    designersettings.cpp \
+    settingspage.cpp
+FORMS += settingspage.ui
 
 OTHER_FILES += QmlDesigner.pluginspec
 RESOURCES += qmldesignerplugin.qrc

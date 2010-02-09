@@ -27,51 +27,33 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNERPLUGIN_H
-#define QMLDESIGNERPLUGIN_H
 
-#include <qmldesigner/designersettings.h>
+#ifndef DESIGNERSETTINGS_H
+#define DESIGNERSETTINGS_H
 
-#include <extensionsystem/iplugin.h>
+#include <QtCore/QtGlobal>
 
-namespace Core {
-    class IWizard;
-    class ICore;
-    class IEditorFactory;
-    class IEditor;
-}
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
-    class IntegrationCore;
-}
 
-namespace QmlDesigner {
-namespace Internal {
+struct DesignerSettings {
+    void fromSettings(QSettings *);
+    void toSettings(QSettings *) const;
 
-class BauhausPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
+    bool equals(const DesignerSettings &other) const;
 
-public:
-    BauhausPlugin();
-    virtual ~BauhausPlugin();
-
-    //Plugin
-    virtual bool initialize(const QStringList &arguments, QString *error_message = 0);
-    virtual void extensionsInitialized();
-
-    static BauhausPlugin *pluginInstance();
-
-    DesignerSettings settings() const;
-    void setSettings(const DesignerSettings &s);
-
-private:
-    QmlDesigner::IntegrationCore *m_designerCore;
-    static BauhausPlugin *m_pluginInstance;
-    DesignerSettings m_settings;
+    bool snapToGrid;
+    bool showBoundingRectangles;
 };
 
-} // namespace Internal
+inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)
+{ return s1.equals(s2); }
+inline bool operator!=(const DesignerSettings &s1, const DesignerSettings &s2)
+{ return !s1.equals(s2); }
+
 } // namespace QmlDesigner
 
-#endif // QMLDESIGNERPLUGIN_H
+#endif // DESIGNERSETTINGS_H

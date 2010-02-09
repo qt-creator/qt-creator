@@ -51,6 +51,8 @@
 namespace QmlDesigner {
 namespace Internal {
 
+BauhausPlugin *BauhausPlugin::m_pluginInstance = 0;
+
 BauhausPlugin::BauhausPlugin() :
     m_designerCore(0)
 {
@@ -85,6 +87,8 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
 
     m_designerCore = new QmlDesigner::IntegrationCore;
 
+    m_pluginInstance = this;
+
 #ifdef Q_OS_MAC
     const QString pluginPath = QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner";
 #else
@@ -103,6 +107,25 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
 
 void BauhausPlugin::extensionsInitialized()
 {
+}
+
+BauhausPlugin *BauhausPlugin::pluginInstance()
+{
+    return m_pluginInstance;
+}
+
+DesignerSettings BauhausPlugin::settings() const
+{
+    return m_settings;
+}
+
+void BauhausPlugin::setSettings(const DesignerSettings &s)
+{
+    if (s != m_settings) {
+        m_settings = s;
+        if (QSettings *settings = Core::ICore::instance()->settings())
+            m_settings.toSettings(settings);
+    }
 }
 
 }
