@@ -33,6 +33,8 @@
 #include <QApplication>
 #include <QtDebug>
 
+#include <qmlanchors.h>
+
 namespace QmlDesigner {
 
 FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent) :
@@ -136,11 +138,12 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     painter->setPen(Qt::black);
     int height = 40;
     if (m_feedbackNode.instanceHasAnchors())
-        height += 24;
+        height += 36;
     painter->drawRoundedRect(QRect(-1, -1, 100, height), 5, 5);
     painter->restore();
 
 
+    if (m_feedbackNode.instanceHasAnchors())
     if (m_beginXHasExpression) {
         if(m_feedbackNode.hasBindingProperty("x"))
             painter->setPen(Qt::blue);
@@ -220,6 +223,8 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     if (m_feedbackNode.instanceHasAnchors()) {
         if (m_beginTopMargin != m_feedbackNode.instanceValue("anchors.leftMargin"))
             painter->setPen(changeColor);
+        else if (m_feedbackNode.anchors().instanceHasAnchor(AnchorLine::Left))
+            painter->setPen(Qt::yellow);
         else
             painter->setPen(Qt::black);
 
@@ -229,6 +234,8 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
 
         if (m_beginRightMargin != m_feedbackNode.instanceValue("anchors.rightMargin"))
             painter->setPen(changeColor);
+        else if (m_feedbackNode.anchors().instanceHasAnchor(AnchorLine::Right))
+            painter->setPen(Qt::yellow);
         else
             painter->setPen(Qt::black);
 
@@ -238,19 +245,44 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
 
         if (m_beginTopMargin != m_feedbackNode.instanceValue("anchors.topMargin"))
             painter->setPen(changeColor);
+        else if (m_feedbackNode.anchors().instanceHasAnchor(AnchorLine::Top))
+            painter->setPen(Qt::yellow);
         else
             painter->setPen(Qt::black);
+
         painter->drawText(QPoint(2.0, 60.0), QString("t:"));
         painter->drawText(QPoint(14.0, 60.0), m_feedbackNode.instanceValue("anchors.topMargin").toString());
 
 
         if (m_beginBottomMargin != m_feedbackNode.instanceValue("anchors.bottomMargin"))
             painter->setPen(changeColor);
+        else if (m_feedbackNode.anchors().instanceHasAnchor(AnchorLine::Bottom))
+            painter->setPen(Qt::yellow);
         else
             painter->setPen(Qt::black);
 
-        painter->drawText(QPoint(50.0, 60.0), QString("b:"));
+        painter->drawText(QPoint(50.0, 60.0), QString("h:"));
         painter->drawText(QPoint(60.0, 60.0), m_feedbackNode.instanceValue("anchors.bottomMargin").toString());
+
+        if (m_beginTopMargin != m_feedbackNode.instanceValue("anchors.horizontalCenterOffset"))
+            painter->setPen(changeColor);
+        else if (m_feedbackNode.anchors().instanceHasAnchor(AnchorLine::HorizontalCenter))
+            painter->setPen(Qt::yellow);
+        else
+            painter->setPen(Qt::black);
+        painter->drawText(QPoint(2.0, 72.0), QString("h:"));
+        painter->drawText(QPoint(14.0, 72.0), m_feedbackNode.instanceValue("anchors.horizontalCenterOffset").toString());
+
+
+        if (m_beginBottomMargin != m_feedbackNode.instanceValue("anchors.verticalCenterOffset"))
+            painter->setPen(changeColor);
+        else if (m_feedbackNode.anchors().instanceHasAnchor(AnchorLine::VerticalCenter))
+            painter->setPen(Qt::yellow);
+        else
+            painter->setPen(Qt::black);
+
+        painter->drawText(QPoint(50.0, 72.0), QString("v:"));
+        painter->drawText(QPoint(60.0, 72.0), m_feedbackNode.instanceValue("anchors.verticalCenterOffset").toString());
     }
 
     painter->restore();
