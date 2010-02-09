@@ -40,8 +40,12 @@
 #include "qt-s60/s60emulatorrunconfiguration.h"
 
 #include <projectexplorer/toolchain.h>
+#include <coreplugin/coreconstants.h>
+#include <symbianutils/symbiandevicemanager.h>
 
 #include <QtGui/QApplication>
+#include <QtGui/QPixmap>
+#include <QtGui/QPainter>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
@@ -67,13 +71,13 @@ QIcon iconForId(const QString &id) {
     if (id == QLatin1String(DESKTOP_TARGET_ID))
         return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
     if (id == QLatin1String(S60_EMULATOR_TARGET_ID))
-        return QIcon();
+        return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
     if (id == QLatin1String(S60_DEVICE_TARGET_ID))
-        return QIcon();
+        return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
     if (id == QLatin1String(MAEMO_EMULATOR_TARGET_ID))
-        return QIcon();
+        return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
     if (id == QLatin1String(MAEMO_DEVICE_TARGET_ID))
-        return QIcon();
+        return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
     return QIcon();
 }
 
@@ -182,9 +186,13 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
             this, SIGNAL(targetInformationChanged()));
     connect(this, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SIGNAL(environmentChanged()));
+    connect(this, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(onAddedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(this, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(updateToolTipAndIcon()));
 
     setDisplayName(displayNameForId(id));
-    setIcon(iconForId(id));
+    updateToolTipAndIcon();
 }
 
 Qt4Target::~Qt4Target()
@@ -385,18 +393,54 @@ void Qt4Target::updateQtVersion()
     setEnabled(project()->supportedTargetIds().contains(id()));
 }
 
-void Qt4Target::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+void Qt4Target::onAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
-    Q_ASSERT(bc);
-    Qt4BuildConfiguration *qt4bc(qobject_cast<Qt4BuildConfiguration *>(bc));
-    Q_ASSERT(qt4bc);
-    connect(qt4bc, SIGNAL(targetInformationChanged()),
-            this, SLOT(changeTargetInformation()));
+    Q_ASSERT(rc);
+    S60DeviceRunConfiguration *deviceRc(qobject_cast<S60DeviceRunConfiguration *>(rc));
+    if (!deviceRc)
+        return;
+    connect(deviceRc, SIGNAL(serialPortNameChanged()),
+            this, SLOT(slotUpdateDeviceInformation()));
 }
 
-void Qt4Target::changeTargetInformation()
+void Qt4Target::slotUpdateDeviceInformation()
 {
-    ProjectExplorer::BuildConfiguration *bc(qobject_cast<ProjectExplorer::BuildConfiguration *>(sender()));
-    if (bc && bc == activeBuildConfiguration())
-        emit targetInformationChanged();
+    S60DeviceRunConfiguration *deviceRc(qobject_cast<S60DeviceRunConfiguration *>(sender()));
+    if (deviceRc && deviceRc == activeRunConfiguration()) {
+        updateToolTipAndIcon();
+    }
+}
+
+void Qt4Target::updateToolTipAndIcon()
+{
+    static const QPixmap connected(":/qt4projectmanager/images/connected.png");
+    static const QPixmap notconnected(":/qt4projectmanager/images/notconnected.png");
+    S60DeviceRunConfiguration *deviceRc(qobject_cast<S60DeviceRunConfiguration *>(activeRunConfiguration()));
+    if (!deviceRc) {
+        setToolTip(QString());
+        setIcon(iconForId(id()));
+    } else {
+        QString friendlyPortName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(
+                deviceRc->serialPortName());
+        QPixmap pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
+        pixmap.fill(Qt::transparent);
+        QPainter painter(&pixmap);
+        const QIcon &icon = iconForId(id());
+        QSize actualSize = icon.actualSize(QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE));
+        painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE-actualSize.width())/2,
+                           (Core::Constants::TARGET_ICON_SIZE-actualSize.height())/2,
+                           icon.pixmap(Core::Constants::TARGET_ICON_SIZE));
+
+        if (!friendlyPortName.isEmpty()) {
+            // device connected
+            setToolTip(tr("<b>Device:</b> %1").arg(friendlyPortName));
+            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - connected.width(),
+                               connected.height(), connected);
+        } else {
+            setToolTip(tr("<b>Device:</b> Not connected"));
+            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - notconnected.width(),
+                               notconnected.height(), notconnected);
+        }
+        setIcon(QIcon(pixmap));
+    }
 }

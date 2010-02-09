@@ -75,7 +75,7 @@ public:
 
     QString serialPortName() const;
     void setSerialPortName(const QString &name);
-    // See SerialDeviceListener
+    // See SymbianDeviceManager
     int communicationType() const;
     void setCommunicationType(int t);
 
@@ -103,6 +103,7 @@ public:
 
 signals:
     void targetInformationChanged();
+    void serialPortNameChanged();
 
 private slots:
     void invalidateCachedTargetInformation();

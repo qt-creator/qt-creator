@@ -230,7 +230,11 @@ QString S60DeviceRunConfiguration::serialPortName() const
 
 void S60DeviceRunConfiguration::setSerialPortName(const QString &name)
 {
-    m_serialPortName = name.trimmed();
+    const QString &candidate = name.trimmed();
+    if (m_serialPortName == candidate)
+        return;
+    m_serialPortName = candidate;
+    emit serialPortNameChanged();
 }
 
 int S60DeviceRunConfiguration::communicationType() const

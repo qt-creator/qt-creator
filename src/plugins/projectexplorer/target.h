@@ -82,12 +82,15 @@ public:
 
     QIcon icon() const;
     void setIcon(QIcon icon);
+    QString toolTip() const;
+    void setToolTip(const QString &text);
 
     virtual QVariantMap toMap() const;
 
 signals:
     void targetEnabled(bool);
     void iconChanged();
+    void toolTipChanged();
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
@@ -119,6 +122,7 @@ private:
     Project *m_project;
     bool m_isEnabled;
     QIcon m_icon;
+    QString m_toolTip;
 
     QList<BuildConfiguration *> m_buildConfigurations;
     BuildConfiguration *m_activeBuildConfiguration;

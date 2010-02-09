@@ -227,6 +227,8 @@ const char * const SETTINGS_CATEGORY_CORE = "A.Core";
 const char * const SETTINGS_TR_CATEGORY_CORE = QT_TRANSLATE_NOOP("Core", "Environment");
 const char * const SETTINGS_ID_ENVIRONMENT = "A.General";
 
+const int TARGET_ICON_SIZE = 32;
+
 } // namespace Constants
 } // namespace Core
 

@@ -35,6 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mainwindow.h>
+#include <coreplugin/coreconstants.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -50,6 +51,7 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QKeyEvent>
+#include <QtGui/QPainter>
 
 #include <QtGui/QApplication>
 
@@ -135,8 +137,7 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     m_targetName = new QLabel(m_target->displayName());
     m_targetName->setObjectName(QLatin1String("target"));
     m_targetIcon = new QLabel();
-    m_targetIcon->setPixmap(m_target->icon().pixmap(48, 48));
-
+    updateIcon();
     if (hasBuildConfiguration()) {
         Q_FOREACH(BuildConfiguration* bc, m_target->buildConfigurations())
                 addBuildConfiguration(bc);
@@ -163,6 +164,7 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
 
     connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             SLOT(setActiveRunConfiguration()));
+    connect(m_target, SIGNAL(iconChanged()), this, SLOT(updateIcon()));
 
     QHBoxLayout *buildHelperLayout = 0;
     if (hasBuildConfiguration()) {
@@ -193,6 +195,24 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     gridLayout->addLayout(formLayout, 1, 0);
 }
 
+void MiniTargetWidget::updateIcon()
+{
+    QPixmap targetPixmap;
+    QPixmap targetPixmapCandidate = m_target->icon().pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
+    QSize actualSize = m_target->icon().actualSize(QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE));
+    if (actualSize == QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE)) {
+        targetPixmap = targetPixmapCandidate;
+    } else {
+        targetPixmap = QPixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
+        targetPixmap.fill(Qt::transparent);
+        QPainter painter(&targetPixmap);
+        painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - actualSize.width())/2,
+                           (Core::Constants::TARGET_ICON_SIZE - actualSize.height())/2,
+                           targetPixmapCandidate);
+    }
+    m_targetIcon->setPixmap(targetPixmap);
+}
+
 ProjectExplorer::Target *MiniTargetWidget::target() const
 {
     return m_target;
@@ -210,6 +230,7 @@ void MiniTargetWidget::setActiveRunConfiguration(int index)
 {
     m_target->setActiveRunConfiguration(
             m_runComboBox->itemData(index).value<ProjectExplorer::RunConfiguration*>());
+    updateIcon();
     emit changed();
 }
 void MiniTargetWidget::setActiveBuildConfiguration()
@@ -379,6 +400,8 @@ void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool 
     if (index < 0)
         return;
 
+    connect(target, SIGNAL(toolTipChanged()), this, SLOT(updateAction()));
+    connect(target, SIGNAL(iconChanged()), this, SLOT(updateAction()));
     ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
 
     QListWidgetItem *lwi = new QListWidgetItem();
@@ -426,6 +449,8 @@ void MiniProjectTargetSelector::updateAction()
 
     QString projectName = tr("No Project");
     QString targetName;
+    QString targetToolTipText;
+    QIcon targetIcon;
     QString buildConfig;
     QString runConfig;
 
@@ -443,18 +468,21 @@ void MiniProjectTargetSelector::updateAction()
             if (RunConfiguration *rc = target->activeRunConfiguration()) {
                 runConfig = rc->displayName();
             }
+            targetToolTipText = target->toolTip();
+            targetIcon = target->icon();
         }
     }
     m_projectAction->setProperty("heading", projectName);
     m_projectAction->setProperty("subtitle", buildConfig);
-    if (project && project->activeTarget())
-        m_projectAction->setIcon(project->activeTarget()->icon());
-    QString toolTip = tr("<html><b>Project:</b> %1<br/>%2%3<b>Run:</b> %4</html>");
+    m_projectAction->setIcon(targetIcon);
+    QString toolTip = tr("<html><b>Project:</b> %1<br/>%2%3<b>Run:</b> %4%5</html>");
     QString targetTip = targetName.isEmpty() ? QLatin1String("")
         : tr("<b>Target:</b> %1<br/>").arg(targetName);
     QString buildTip = buildConfig.isEmpty() ? QLatin1String("")
         : tr("<b>Build:</b> %2<br/>").arg(buildConfig);
-    m_projectAction->setToolTip(toolTip.arg(projectName, targetTip, buildTip, runConfig));
+    QString targetToolTip = targetToolTipText.isEmpty() ? QLatin1String("")
+        : tr("<br/>%1").arg(targetToolTipText);
+    m_projectAction->setToolTip(toolTip.arg(projectName, targetTip, buildTip, runConfig, targetToolTip));
 }
 
 int MiniProjectTargetSelector::indexFor(ProjectExplorer::Project *project) const

@@ -102,8 +102,9 @@ protected:
 
 private slots:
     void updateQtVersion();
-    void onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
-    void changeTargetInformation();
+    void onAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void slotUpdateDeviceInformation();
+    void updateToolTipAndIcon();
 
 private:
     Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;

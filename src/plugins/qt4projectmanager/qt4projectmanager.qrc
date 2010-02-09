@@ -10,5 +10,7 @@
         <file>images/qt_qrc.png</file>
         <file>images/sources.png</file>
         <file>images/unknown.png</file>
+        <file>images/connected.png</file>
+        <file>images/notconnected.png</file>
     </qresource>
 </RCC>

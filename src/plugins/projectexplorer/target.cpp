@@ -214,6 +214,17 @@ void Target::setIcon(QIcon icon)
     emit iconChanged();
 }
 
+QString Target::toolTip() const
+{
+    return m_toolTip;
+}
+
+void Target::setToolTip(const QString &text)
+{
+    m_toolTip = text;
+    emit toolTipChanged();
+}
+
 QVariantMap Target::toMap() const
 {
     const QList<BuildConfiguration *> bcs = buildConfigurations();

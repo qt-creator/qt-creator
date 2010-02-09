@@ -91,6 +91,7 @@ private slots:
     void setActiveRunConfiguration();
 
     void updateDisplayName();
+    void updateIcon();
 
 signals:
     void changed();

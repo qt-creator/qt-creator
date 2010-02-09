@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "fancyactionbar.h"
+#include "coreconstants.h"
 
 #include <utils/stylehelper.h>
 
@@ -98,7 +99,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     QRect drawRect = rect();
     qDrawBorderPixmap(&painter, drawRect, margins, borderPixmap);
 
-    QPixmap pix = icon().pixmap(32, 32, isEnabled() ? QIcon::Normal : QIcon::Disabled);
+    QPixmap pix = icon().pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE, isEnabled() ? QIcon::Normal : QIcon::Disabled);
     QPoint center = rect().center();
     QSizeF halfPixSize = pix.size()/2.0;
 
