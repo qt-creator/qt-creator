@@ -45,8 +45,6 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 
     // ### FIXME: May want to link to instantiating components from here.
 
-    qDebug() << "**** here" << currentObject;
-
     ObjectValue *scopeObject = 0;
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
         scopeObject = bind->_qmlObjects.value(definition);
