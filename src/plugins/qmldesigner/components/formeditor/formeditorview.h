@@ -95,6 +95,7 @@ public:
 
     void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
     void auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data);
+    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
     double margins() const;
     double spacing() const;
@@ -132,7 +133,7 @@ private: //variables
     DragTool *m_dragTool;
     ItemCreatorTool *m_itemCreatorTool;
     AbstractFormEditorTool *m_currentTool;
-
+    int m_transactionCounter;
 };
 
 }

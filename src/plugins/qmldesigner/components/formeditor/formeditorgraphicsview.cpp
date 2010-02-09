@@ -116,95 +116,115 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
         return;
 
     painter->save();
+
+    painter->translate(mapToScene(QPoint(3, 3)));
+
+    QColor changeColor(QColor(Qt::green).lighter(170));
+
     QFont font;
     font.setPixelSize(12);
     painter->setFont(font);
 
+    painter->save();
+    painter->setOpacity(0.7);
+
+    QLinearGradient gradient(QPoint(0, 0), QPoint(100, 0));
+    gradient.setColorAt(0.0, Qt::darkGray);
+    gradient.setColorAt(1.0, Qt::gray);
+    painter->setBrush(gradient);
+
+    painter->setPen(Qt::black);
+    int height = 40;
+    if (m_feedbackNode.instanceHasAnchors())
+        height += 24;
+    painter->drawRoundedRect(QRect(-1, -1, 100, height), 5, 5);
+    painter->restore();
+
 
     if (m_beginX != m_feedbackNode.instanceValue("x"))
-        painter->setPen(Qt::green);
+        painter->setPen(changeColor);
     else
         painter->setPen(Qt::black);
 
-    painter->drawText(mapToScene(QPoint(2.0, 12.0)), QString("x:"));
-    painter->drawText(mapToScene(QPoint(14.0, 12.0)), m_feedbackNode.instanceValue("x").toString());
+    painter->drawText(QPoint(2.0, 12.0), QString("x:"));
+    painter->drawText(QPoint(14.0, 12.0), m_feedbackNode.instanceValue("x").toString());
 
 
     if (m_beginY != m_feedbackNode.instanceValue("y"))
-        painter->setPen(Qt::green);
+        painter->setPen(changeColor);
     else
         painter->setPen(Qt::black);
 
-    painter->drawText(mapToScene(QPoint(50.0, 12.0)), QString("y:"));
-    painter->drawText(mapToScene(QPoint(60.0, 12.0)), m_feedbackNode.instanceValue("y").toString());
+    painter->drawText(QPoint(50.0, 12.0), QString("y:"));
+    painter->drawText(QPoint(60.0, 12.0), m_feedbackNode.instanceValue("y").toString());
 
 
     if (m_beginWidth != m_feedbackNode.instanceValue("width"))
-        painter->setPen(Qt::green);
+        painter->setPen(changeColor);
     else
         painter->setPen(Qt::black);
 
-    painter->drawText(mapToScene(QPoint(2.0, 24.0)), QString("w:"));
-    painter->drawText(mapToScene(QPoint(14.0, 24.0)), m_feedbackNode.instanceValue("width").toString());
+    painter->drawText(QPoint(2.0, 24.0), QString("w:"));
+    painter->drawText(QPoint(14.0, 24.0), m_feedbackNode.instanceValue("width").toString());
 
 
     if (m_beginHeight != m_feedbackNode.instanceValue("height"))
-        painter->setPen(Qt::green);
+        painter->setPen(changeColor);
     else
         painter->setPen(Qt::black);
 
-    painter->drawText(mapToScene(QPoint(50.0, 24.0)), QString("h:"));
-    painter->drawText(mapToScene(QPoint(60.0, 24.0)),m_feedbackNode.instanceValue("height").toString());
+    painter->drawText(QPoint(50.0, 24.0), QString("h:"));
+    painter->drawText(QPoint(60.0, 24.0),m_feedbackNode.instanceValue("height").toString());
 
     if (m_parentNode == m_feedbackNode.instanceParent()) {
 
         if (!m_feedbackNode.canReparent()) {
             painter->setPen(Qt::red);
-            painter->drawText(mapToScene(QPoint(2.0, 36.0)), QString("Cannot reparent."));
+            painter->drawText(QPoint(2.0, 36.0), QString("Cannot reparent."));
         }
     } else {
         painter->setPen(Qt::yellow);
         if (m_feedbackNode.instanceParent().id().isEmpty())
-            painter->drawText(mapToScene(QPoint(2.0, 36.0)), QString("Parent has changed."));
+            painter->drawText(QPoint(2.0, 36.0), QString("Parent has changed."));
         else
-            painter->drawText(mapToScene(QPoint(2.0, 36.0)), QString("Parent has changed to %1.").arg(m_feedbackNode.instanceParent().id()));
+            painter->drawText(QPoint(2.0, 36.0), QString("Parent has changed to %1.").arg(m_feedbackNode.instanceParent().id()));
     }
 
 
     if (m_feedbackNode.instanceHasAnchors()) {
         if (m_beginTopMargin != m_feedbackNode.instanceValue("anchors.leftMargin"))
-            painter->setPen(Qt::green);
+            painter->setPen(changeColor);
         else
             painter->setPen(Qt::black);
 
-        painter->drawText(mapToScene(QPoint(2.0, 48.0)), QString("l:"));
-        painter->drawText(mapToScene(QPoint(14.0, 48.0)), m_feedbackNode.instanceValue("anchors.leftMargin").toString());
+        painter->drawText(QPoint(2.0, 48.0), QString("l:"));
+        painter->drawText(QPoint(14.0, 48.0), m_feedbackNode.instanceValue("anchors.leftMargin").toString());
 
 
         if (m_beginRightMargin != m_feedbackNode.instanceValue("anchors.rightMargin"))
-            painter->setPen(Qt::green);
+            painter->setPen(changeColor);
         else
             painter->setPen(Qt::black);
 
-        painter->drawText(mapToScene(QPoint(50.0, 48.0)), QString("r:"));
-        painter->drawText(mapToScene(QPoint(60.0, 48.0)), m_feedbackNode.instanceValue("anchors.rightMargin").toString());
+        painter->drawText(QPoint(50.0, 48.0), QString("r:"));
+        painter->drawText(QPoint(60.0, 48.0), m_feedbackNode.instanceValue("anchors.rightMargin").toString());
 
 
         if (m_beginTopMargin != m_feedbackNode.instanceValue("anchors.topMargin"))
-            painter->setPen(Qt::green);
+            painter->setPen(changeColor);
         else
             painter->setPen(Qt::black);
-        painter->drawText(mapToScene(QPoint(2.0, 60.0)), QString("t:"));
-        painter->drawText(mapToScene(QPoint(14.0, 60.0)), m_feedbackNode.instanceValue("anchors.topMargin").toString());
+        painter->drawText(QPoint(2.0, 60.0), QString("t:"));
+        painter->drawText(QPoint(14.0, 60.0), m_feedbackNode.instanceValue("anchors.topMargin").toString());
 
 
         if (m_beginBottomMargin != m_feedbackNode.instanceValue("anchors.bottomMargin"))
-            painter->setPen(Qt::green);
+            painter->setPen(changeColor);
         else
             painter->setPen(Qt::black);
 
-        painter->drawText(mapToScene(QPoint(50.0, 60.0)), QString("b:"));
-        painter->drawText(mapToScene(QPoint(60.0, 60.0)), m_feedbackNode.instanceValue("anchors.bottomMargin").toString());
+        painter->drawText(QPoint(50.0, 60.0), QString("b:"));
+        painter->drawText(QPoint(60.0, 60.0), m_feedbackNode.instanceValue("anchors.bottomMargin").toString());
     }
 
     painter->restore();

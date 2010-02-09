@@ -64,7 +64,8 @@ FormEditorView::FormEditorView(QObject *parent)
       m_anchorTool(new AnchorTool(this)),
       m_dragTool(new DragTool(this)),
       m_itemCreatorTool(new ItemCreatorTool(this)),
-      m_currentTool(m_selectionTool)
+      m_currentTool(m_selectionTool),
+      m_transactionCounter(0)
 {
     connect(widget()->zoomAction(), SIGNAL(zoomLevelChanged(double)), SLOT(updateGraphicsIndicators()));
     connect(widget()->showBoundingRectAction(), SIGNAL(toggled(bool)), scene(), SLOT(setShowBoundingRects(bool)));
@@ -251,9 +252,7 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
             item->update();
     }
 
-    if (selectedNodeList.count() == 1)
-        m_formEditorWidget->setFeedbackNode(QmlItemNode(selectedNodeList.first()));
-    else
+    if (selectedNodeList.count() != 1)
         m_formEditorWidget->setFeedbackNode(QmlItemNode());
 
     m_scene->update();
@@ -425,6 +424,24 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const QString &
             newNode.deselectNode();
     }
 }
+
+void FormEditorView::customNotification(const AbstractView */*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
+{
+    if (identifier == "__start rewriter transaction__") {
+        m_transactionCounter++;
+        if (m_transactionCounter == 1
+            && selectedModelNodes().count() == 1)
+            m_formEditorWidget->setFeedbackNode(QmlItemNode(selectedModelNodes().first()));
+    }
+
+    if (identifier == "__end rewriter transaction__") {
+        m_transactionCounter--;
+        if (m_transactionCounter == 0)
+            m_formEditorWidget->setFeedbackNode(QmlItemNode());
+    }
+
+}
+
 
 double FormEditorView::margins() const
 {
