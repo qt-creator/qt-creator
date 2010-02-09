@@ -229,7 +229,10 @@ public:
     void visitProOperator(ProOperator *oper);
     void visitProCondition(ProCondition *condition);
 
-    QStringList valuesDirect(const QString &variableName) const { return m_valuemap[variableName]; }
+    QHash<QString, QStringList> *findValues(const QString &variableName,
+                                            QHash<QString, QStringList>::Iterator *it);
+    QStringList &valuesRef(const QString &variableName);
+    QStringList valuesDirect(const QString &variableName) const;
     QStringList values(const QString &variableName) const;
     QString propertyValue(const QString &val, bool complain = true) const;
 
@@ -286,8 +289,6 @@ public:
     };
     QStack<ProLoop> m_loopStack;
 
-    QHash<QString, QStringList> m_valuemap;         // VariableName must be us-ascii, the content however can be non-us-ascii.
-    QHash<const ProFile*, QHash<QString, QStringList> > m_filevaluemap; // Variables per include file
     QString m_outputDir;
 
     int m_listCount;
@@ -295,7 +296,8 @@ public:
     QString m_definingFunc;
     FunctionDefs m_functionDefs;
     QStringList m_returnValue;
-    QStack<QHash<QString, QStringList> > m_valuemapStack;
+    QStack<QHash<QString, QStringList> > m_valuemapStack;         // VariableName must be us-ascii, the content however can be non-us-ascii.
+    QHash<const ProFile*, QHash<QString, QStringList> > m_filevaluemap; // Variables per include file
 
     QStringList m_addUserConfigCmdArgs;
     QStringList m_removeUserConfigCmdArgs;
@@ -361,6 +363,7 @@ static struct {
     QHash<QString, int> functions;
     QHash<QString, int> varList;
     QRegExp reg_variableName;
+    QStringList fakeValue;
 } statics;
 
 void ProFileEvaluator::Private::initStatics()
@@ -391,6 +394,8 @@ void ProFileEvaluator::Private::initStatics()
 
     statics.reg_variableName.setPattern(QLatin1String("\\$\\(.*\\)"));
     statics.reg_variableName.setMinimal(true);
+
+    statics.fakeValue.detach(); // It has to have a unique begin() value
 
     static const struct {
         const char * const name;
@@ -495,6 +500,7 @@ ProFileEvaluator::Private::Private(ProFileEvaluator *q_, ProFileOption *option)
     m_skipLevel = 0;
     m_definingFunc.clear();
     m_listCount = 0;
+    m_valuemapStack.push(QHash<QString, QStringList>());
 }
 
 ProFileEvaluator::Private::~Private()
@@ -1077,7 +1083,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoopIteration()
 
     if (loop.infinite) {
         if (!loop.variable.isEmpty())
-            m_valuemap[loop.variable] = QStringList(QString::number(loop.index++));
+            m_valuemapStack.top()[loop.variable] = QStringList(QString::number(loop.index++));
         if (loop.index > 1000) {
             errorMessage(format("ran into infinite loop (> 1000 iterations)."));
             return ProItem::ReturnFalse;
@@ -1089,7 +1095,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoopIteration()
                 return ProItem::ReturnFalse;
             val = loop.list.at(loop.index++);
         } while (val.isEmpty()); // stupid, but qmake is like that
-        m_valuemap[loop.variable] = QStringList(val);
+        m_valuemapStack.top()[loop.variable] = QStringList(val);
     }
     return ProItem::ReturnTrue;
 }
@@ -1097,7 +1103,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProLoopIteration()
 void ProFileEvaluator::Private::visitProLoopCleanup()
 {
     ProLoop &loop = m_loopStack.top();
-    m_valuemap[loop.variable] = loop.oldVarVal;
+    m_valuemapStack.top()[loop.variable] = loop.oldVarVal;
     m_loopStack.pop_back();
 }
 
@@ -1138,7 +1144,7 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
         if (!m_skipLevel || m_cumulative) {
             // We could make a union of modified and unmodified values,
             // but this will break just as much as it fixes, so leave it as is.
-            replaceInList(&m_valuemap[varName], regexp, replace, global);
+            replaceInList(&valuesRef(varName), regexp, replace, global);
             replaceInList(&m_filevaluemap[currentProFile()][varName], regexp, replace, global);
         }
     } else {
@@ -1150,31 +1156,31 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
         case ProVariable::SetOperator:          // =
             if (!m_cumulative) {
                 if (!m_skipLevel) {
-                    m_valuemap[varName] = varVal;
+                    m_valuemapStack.top()[varName] = varVal;
                     m_filevaluemap[currentProFile()][varName] = varVal;
                 }
             } else {
                 // We are greedy for values.
-                m_valuemap[varName] += varVal;
+                valuesRef(varName) += varVal;
                 m_filevaluemap[currentProFile()][varName] += varVal;
             }
             break;
         case ProVariable::UniqueAddOperator:    // *=
             if (!m_skipLevel || m_cumulative) {
-                insertUnique(&m_valuemap[varName], varVal);
+                insertUnique(&valuesRef(varName), varVal);
                 insertUnique(&m_filevaluemap[currentProFile()][varName], varVal);
             }
             break;
         case ProVariable::AddOperator:          // +=
             if (!m_skipLevel || m_cumulative) {
-                m_valuemap[varName] += varVal;
+                valuesRef(varName) += varVal;
                 m_filevaluemap[currentProFile()][varName] += varVal;
             }
             break;
         case ProVariable::RemoveOperator:       // -=
             if (!m_cumulative) {
                 if (!m_skipLevel) {
-                    removeEach(&m_valuemap[varName], varVal);
+                    removeEach(&valuesRef(varName), varVal);
                     removeEach(&m_filevaluemap[currentProFile()][varName], varVal);
                 }
             } else {
@@ -1307,18 +1313,18 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
                                     &m_option->base_valuemap, &m_option->base_functions);
             }
 
-            m_valuemap = m_option->base_valuemap;
+            m_valuemapStack.top() = m_option->base_valuemap;
 
             clearFunctions(&m_functionDefs);
             m_functionDefs = m_option->base_functions;
             refFunctions(&m_functionDefs.testFunctions);
             refFunctions(&m_functionDefs.replaceFunctions);
 
-            QStringList &tgt = m_valuemap[QLatin1String("TARGET")];
+            QStringList &tgt = m_valuemapStack.top()[QLatin1String("TARGET")];
             if (tgt.isEmpty())
                 tgt.append(QFileInfo(pro->fileName()).baseName());
 
-            QStringList &tmp = m_valuemap[QLatin1String("CONFIG")];
+            QStringList &tmp = m_valuemapStack.top()[QLatin1String("CONFIG")];
             tmp.append(m_addUserConfigCmdArgs);
             foreach (const QString &remove, m_removeUserConfigCmdArgs)
                 tmp.removeAll(remove);
@@ -1817,7 +1823,7 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
             return true;
 
         // CONFIG variable
-        foreach (const QString &configValue, m_valuemap.value(statics.strCONFIG)) {
+        foreach (const QString &configValue, valuesDirect(statics.strCONFIG)) {
             if (re.exactMatch(configValue))
                 return true;
         }
@@ -1827,7 +1833,7 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
             return true;
 
         // CONFIG variable
-        foreach (const QString &configValue, m_valuemap.value(statics.strCONFIG)) {
+        foreach (const QString &configValue, valuesDirect(statics.strCONFIG)) {
             if (configValue == config)
                 return true;
         }
@@ -1855,19 +1861,19 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
         oki = false;
     } else {
         State sts = m_sts;
-        m_valuemapStack.push(m_valuemap);
+        m_valuemapStack.push(QHash<QString, QStringList>());
 
         QStringList args;
         for (int i = 0; i < argumentsList.count(); ++i) {
             args += argumentsList[i];
-            m_valuemap[QString::number(i+1)] = argumentsList[i];
+            m_valuemapStack.top()[QString::number(i+1)] = argumentsList[i];
         }
-        m_valuemap[statics.strARGS] = args;
+        m_valuemapStack.top()[statics.strARGS] = args;
         oki = (visitProBlock(funcPtr) != ProItem::ReturnFalse); // True || Return
         ret = m_returnValue;
         m_returnValue.clear();
 
-        m_valuemap = m_valuemapStack.pop();
+        m_valuemapStack.pop();
         m_sts = sts;
     }
     if (ok)
@@ -2080,7 +2086,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             QStringList lst;
             foreach (const QString &arg, args)
                 lst += split_value_list(arg);
-            m_valuemap[tmp] = lst;
+            m_valuemapStack.top()[tmp] = lst;
             break; }
         case E_FIND:
             if (args.count() != 2) {
@@ -2323,8 +2329,21 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("export(variable) requires one argument."));
                 return ProItem::ReturnFalse;
             }
-            for (int i = 0; i < m_valuemapStack.size(); ++i)
-                m_valuemapStack[i][args[0]] = m_valuemap.value(args[0]);
+            for (int i = m_valuemapStack.size(); --i > 0; ) {
+                QHash<QString, QStringList>::Iterator it = m_valuemapStack[i].find(args.at(0));
+                if (it != m_valuemapStack.at(i).end()) {
+                    if (it->constBegin() == statics.fakeValue.constBegin()) {
+                        // This is stupid, but qmake doesn't propagate deletions
+                        m_valuemapStack[0][args.at(0)] = QStringList();
+                    } else {
+                        m_valuemapStack[0][args.at(0)] = *it;
+                    }
+                    m_valuemapStack[i].erase(it);
+                    while (--i)
+                        m_valuemapStack[i].remove(args.at(0));
+                    break;
+                }
+            }
             return ProItem::ReturnTrue;
         case T_INFILE:
             if (args.count() < 2 || args.count() > 3) {
@@ -2383,11 +2402,11 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 it_list = statics.strforever;
             } else {
                 loop.variable = args[0];
-                loop.oldVarVal = m_valuemap.value(loop.variable);
+                loop.oldVarVal = valuesDirect(loop.variable);
                 doVariableReplace(&args[1]);
                 it_list = args[1];
             }
-            loop.list = m_valuemap.value(it_list);
+            loop.list = valuesDirect(it_list);
             if (loop.list.isEmpty()) {
                 if (it_list == statics.strforever) {
                     loop.infinite = true;
@@ -2621,10 +2640,14 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("%1(variable) requires one argument.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            QHash<QString, QStringList>::Iterator it = m_valuemap.find(args[0]);
-            if (it == m_valuemap.end())
+            QHash<QString, QStringList> *hsh;
+            QHash<QString, QStringList>::Iterator it;
+            if (!(hsh = findValues(args.at(0), &it)))
                 return ProItem::ReturnFalse;
-            it->clear();
+            if (hsh == &m_valuemapStack.top())
+                it->clear();
+            else
+                m_valuemapStack.top()[args.at(0)].clear();
             return ProItem::ReturnTrue;
         }
         case T_UNSET: {
@@ -2634,10 +2657,16 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("%1(variable) requires one argument.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            QHash<QString, QStringList>::Iterator it = m_valuemap.find(args[0]);
-            if (it == m_valuemap.end())
+            QHash<QString, QStringList> *hsh;
+            QHash<QString, QStringList>::Iterator it;
+            if (!(hsh = findValues(args.at(0), &it)))
                 return ProItem::ReturnFalse;
-            m_valuemap.erase(it);
+            if (m_valuemapStack.size() == 1)
+                hsh->erase(it);
+            else if (hsh == &m_valuemapStack.top())
+                *it = statics.fakeValue;
+            else
+                m_valuemapStack.top()[args.at(0)] = statics.fakeValue;
             return ProItem::ReturnTrue;
         }
         case T_INCLUDE: {
@@ -2742,6 +2771,50 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             logMessage(format("Function '%1' is not implemented").arg(function));
             return ProItem::ReturnFalse;
     }
+}
+
+QHash<QString, QStringList> *ProFileEvaluator::Private::findValues(
+        const QString &variableName, QHash<QString, QStringList>::Iterator *rit)
+{
+    for (int i = m_valuemapStack.size(); --i >= 0; ) {
+        QHash<QString, QStringList>::Iterator it = m_valuemapStack[i].find(variableName);
+        if (it != m_valuemapStack[i].end()) {
+            if (it->constBegin() == statics.fakeValue.constBegin())
+                return 0;
+            *rit = it;
+            return &m_valuemapStack[i];
+        }
+    }
+    return 0;
+}
+
+QStringList &ProFileEvaluator::Private::valuesRef(const QString &variableName)
+{
+    QHash<QString, QStringList>::Iterator it = m_valuemapStack.top().find(variableName);
+    if (it != m_valuemapStack.top().end())
+        return *it;
+    for (int i = m_valuemapStack.size() - 1; --i >= 0; ) {
+        QHash<QString, QStringList>::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
+        if (it != m_valuemapStack.at(i).constEnd()) {
+            QStringList &ret = m_valuemapStack.top()[variableName];
+            ret = *it;
+            return ret;
+        }
+    }
+    return m_valuemapStack.top()[variableName];
+}
+
+QStringList ProFileEvaluator::Private::valuesDirect(const QString &variableName) const
+{
+    for (int i = m_valuemapStack.size(); --i >= 0; ) {
+        QHash<QString, QStringList>::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
+        if (it != m_valuemapStack.at(i).constEnd()) {
+            if (it->constBegin() == statics.fakeValue.constBegin())
+                break;
+            return *it;
+        }
+    }
+    return QStringList();
 }
 
 QStringList ProFileEvaluator::Private::values(const QString &variableName) const
@@ -2934,7 +3007,7 @@ bool ProFileEvaluator::Private::evaluateFeatureFile(
 
       cool:
         // It's beyond me why qmake has this inside this if ...
-        QStringList &already = m_valuemap[QLatin1String("QMAKE_INTERNAL_INCLUDED_FEATURES")];
+        QStringList &already = valuesRef(QLatin1String("QMAKE_INTERNAL_INCLUDED_FEATURES"));
         if (already.contains(fn))
             return true;
         already.append(fn);
@@ -2968,12 +3041,12 @@ bool ProFileEvaluator::Private::evaluateFileInto(
     visitor.d->m_cumulative = false;
     visitor.d->m_parsePreAndPostFiles = false;
     visitor.d->m_verbose = m_verbose;
-    visitor.d->m_valuemap = *values;
+    visitor.d->m_valuemapStack.top() = *values;
     if (funcs)
         visitor.d->m_functionDefs = *funcs;
     if (!visitor.d->evaluateFile(fileName))
         return false;
-    *values = visitor.d->m_valuemap;
+    *values = visitor.d->m_valuemapStack.top();
     if (funcs) {
         *funcs = visitor.d->m_functionDefs;
         // So they are not unref'd
@@ -3033,7 +3106,7 @@ ProFileEvaluator::~ProFileEvaluator()
 
 bool ProFileEvaluator::contains(const QString &variableName) const
 {
-    return d->m_valuemap.contains(variableName);
+    return d->m_valuemapStack.top().contains(variableName);
 }
 
 QStringList ProFileEvaluator::values(const QString &variableName) const
