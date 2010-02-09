@@ -147,11 +147,11 @@ static inline int classify10(const char *s) {
       if (s[2] == 'S') {
         if (s[3] == 'I') {
           if (s[4] == 'G') {
-            if (s[0] == 'N') {
-              if (s[1] == 'A') {
-                if (s[2] == 'B') {
-                  if (s[3] == 'L') {
-                    if (s[4] == 'E') {
+            if (s[5] == 'N') {
+              if (s[6] == 'A') {
+                if (s[7] == 'B') {
+                  if (s[8] == 'L') {
+                    if (s[9] == 'E') {
                       return Token_DESIGNABLE;
                     }
                   }
@@ -168,11 +168,11 @@ static inline int classify10(const char *s) {
       if (s[2] == 'R') {
         if (s[3] == 'I') {
           if (s[4] == 'P') {
-            if (s[0] == 'T') {
-              if (s[1] == 'A') {
-                if (s[2] == 'B') {
-                  if (s[3] == 'L') {
-                    if (s[4] == 'E') {
+            if (s[5] == 'T') {
+              if (s[6] == 'A') {
+                if (s[7] == 'B') {
+                  if (s[8] == 'L') {
+                    if (s[9] == 'E') {
                       return Token_SCRIPTABLE;
                     }
                   }
