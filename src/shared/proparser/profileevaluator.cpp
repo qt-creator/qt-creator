@@ -910,21 +910,17 @@ QStringList ProFileEvaluator::Private::split_value_list(const QString &vals)
     return ret;
 }
 
-static void insertUnique(QHash<QString, QStringList> *map,
-    const QString &key, const QStringList &value)
+static void insertUnique(QStringList *varlist, const QStringList &value)
 {
-    QStringList &sl = (*map)[key];
     foreach (const QString &str, value)
-        if (!sl.contains(str))
-            sl.append(str);
+        if (!varlist->contains(str))
+            varlist->append(str);
 }
 
-static void removeEach(QHash<QString, QStringList> *map,
-    const QString &key, const QStringList &value)
+static void removeEach(QStringList *varlist, const QStringList &value)
 {
-    QStringList &sl = (*map)[key];
     foreach (const QString &str, value)
-        sl.removeAll(str);
+        varlist->removeAll(str);
 }
 
 static void replaceInList(QStringList *varlist,
@@ -1166,8 +1162,8 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
             break;
         case ProVariable::UniqueAddOperator:    // *=
             if (!m_skipLevel || m_cumulative) {
-                insertUnique(&m_valuemap, varName, varVal);
-                insertUnique(&m_filevaluemap[currentProFile()], varName, varVal);
+                insertUnique(&m_valuemap[varName], varVal);
+                insertUnique(&m_filevaluemap[currentProFile()][varName], varVal);
             }
             break;
         case ProVariable::AddOperator:          // +=
@@ -1179,8 +1175,8 @@ void ProFileEvaluator::Private::visitProVariable(ProVariable *var)
         case ProVariable::RemoveOperator:       // -=
             if (!m_cumulative) {
                 if (!m_skipLevel) {
-                    removeEach(&m_valuemap, varName, varVal);
-                    removeEach(&m_filevaluemap[currentProFile()], varName, varVal);
+                    removeEach(&m_valuemap[varName], varVal);
+                    removeEach(&m_filevaluemap[currentProFile()][varName], varVal);
                 }
             } else {
                 // We are stingy with our values, too.
