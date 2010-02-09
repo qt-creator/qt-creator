@@ -529,7 +529,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
     m_currentTextEdit = textEdit;
     DocumentWidget *documentWidget = 0;
 
-    if (textEdit && textEditor && fileName.endsWith(".qml")) {
+    if (textEdit && textEditor && fileName.endsWith(QLatin1String(".qml"))) {
         if (m_documentHash.contains(textEdit)) {
             documentWidget = m_documentHash.value(textEdit);
         } else {

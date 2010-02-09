@@ -449,7 +449,7 @@ QMap<ModelNode, QString> RewriterView::extractText(const QList<ModelNode> &nodes
         const int nodeLocation = m_positionStorage->nodeOffset(node);
 
         if (nodeLocation == ModelNodePositionStorage::INVALID_LOCATION)
-            result.insert(node, QString::null);
+            result.insert(node, QString());
         else
             result.insert(node, extract(nodeLocation));
     }

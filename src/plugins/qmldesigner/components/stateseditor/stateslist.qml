@@ -76,7 +76,6 @@ Rectangle {
                     anchors.horizontalCenter:parent.horizontalCenter
                     anchors.bottom:parent.bottom
                     anchors.bottomMargin:12
-                    y:18
                 }
             }
 

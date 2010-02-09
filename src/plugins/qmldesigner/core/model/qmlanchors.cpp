@@ -53,7 +53,7 @@ static QString lineTypeToString(AnchorLine::Type lineType)
         case AnchorLine::Baseline:         return QLatin1String("baseline");
         case AnchorLine::Fill:             return QLatin1String("fill");
         case AnchorLine::Center:           return QLatin1String("centerIn");
-        default:                           return QString::null;
+        default:                           return QString();
     }
 }
 
@@ -101,7 +101,7 @@ static QString marginPropertyName(AnchorLine::Type lineType)
         case AnchorLine::Bottom:           return QLatin1String("anchors.bottomMargin");
         case AnchorLine::HorizontalCenter: return QLatin1String("anchors.horizontalCenterOffset");
         case AnchorLine::VerticalCenter:   return QLatin1String("anchors.verticalCenterOffset");
-        default:                           return QString::null;
+        default:                           return QString();
     }
 }
 

@@ -166,7 +166,7 @@ void InternalProperty::setDynamicTypeName(const QString &name)
 
 void InternalProperty::resetDynamicTypeName()
 {
-   m_dynamicType = QString();
+   m_dynamicType.clear();
 }
 
 

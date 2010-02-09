@@ -145,7 +145,7 @@ public:
 
     void enterErrorState(const QString &errorMessage);
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
-    void leaveErrorState() { m_rewritingErrorMessage = QString::null; }
+    void leaveErrorState() { m_rewritingErrorMessage.clear(); }
     void resetToLastCorrectQml();
 
     QMap<ModelNode, QString> extractText(const QList<ModelNode> &nodes) const;

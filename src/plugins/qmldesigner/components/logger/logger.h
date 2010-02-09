@@ -49,7 +49,7 @@ public:
         setEnabled(false);
     }
     static void setLevel(int level);
-    static void setModul(const QString &modul);
+    static void setModul(const QString &module);
     static void setFilename(const QString &filename);
     static void setEnabled(bool enabled);
     static void setFlush(int msec);

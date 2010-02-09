@@ -62,7 +62,7 @@ class StyleAction: public QAction
 {
 public:
     StyleAction(const QString& text, const QString& styleName, QObject* parent): QAction(text, parent), m_styleName(styleName) {}
-    StyleAction(const QString& text, QObject* parent): QAction(text, parent), m_styleName(QString::null) {}
+    StyleAction(const QString& text, QObject* parent): QAction(text, parent), m_styleName(QString()) {}
 
     QString styleName() const { return m_styleName; }
 
@@ -73,7 +73,7 @@ private:
 MainWindow::MainWindow(QWidget* parent):
         QMainWindow(parent),
         m_shutdown(false),
-        m_lastPath(QString::null),
+        m_lastPath(QString()),
         m_documentCount(0),
         m_menuBar(new QMenuBar(this)),
         m_itemLibraryController(new ItemLibraryController(this)),

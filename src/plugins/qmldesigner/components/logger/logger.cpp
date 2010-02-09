@@ -71,9 +71,9 @@ void QLogger::setSilent(bool silent)
     instance()->m_silent = silent;
 }
 
-void QLogger::setModul(const QString &modul)
+void QLogger::setModul(const QString &module)
 {
-    instance()->m_modul = modul;
+    instance()->m_modul = module;
 }
 
 void QLogger::setFilename(const QString &filename)

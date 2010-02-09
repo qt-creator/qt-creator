@@ -294,7 +294,7 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
 
     int idx = propertyOrder.indexOf(propertyName);
     if (idx == -1)
-        idx = propertyOrder.indexOf(QString::null);
+        idx = propertyOrder.indexOf(QString());
     if (idx == -1)
         idx = propertyOrder.size() - 1;
 

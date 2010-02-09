@@ -101,7 +101,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
         }
     } else {
         Q_ASSERT("Unknown property type");
-        return QString::null;
+        return QString();
     }
 }
 

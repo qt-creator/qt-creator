@@ -92,7 +92,7 @@ QList<ItemLibraryInfo::Property> ItemLibraryInfo::properties() const
 
 ItemLibraryInfo::ItemLibraryInfo() : m_data(new Internal::ItemLibraryInfoData)
 {
-    m_data->name = QString();
+    m_data->name.clear();
 }
 
 ItemLibraryInfo::~ItemLibraryInfo()
