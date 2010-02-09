@@ -181,7 +181,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowMemory->setEnabled(false);
     } else {
         actShowMemory->setText(tr("Open memory editor at %1").arg(address));
-        actShowMemory->setEnabled(actionsEnabled & (engineCapabilities & ShowMemoryCapability));
+        actShowMemory->setEnabled(actionsEnabled && (engineCapabilities & ShowMemoryCapability));
     }
     menu.addSeparator();
 
