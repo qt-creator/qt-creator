@@ -75,18 +75,18 @@ void AddObjectVisitor::insertInto(QmlJS::AST::UiObjectInitializer *ast)
     UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, QString(), m_propertyOrder);
 
     int insertionPoint;
-    int indentDepth;
+    int depth;
     QString textToInsert;
     if (insertAfter && insertAfter->member) {
         insertionPoint = insertAfter->member->lastSourceLocation().end();
-        indentDepth = calculateIndentDepth(insertAfter->member->lastSourceLocation());
+        depth = calculateIndentDepth(insertAfter->member->lastSourceLocation());
         textToInsert += QLatin1String("\n");
     } else {
         insertionPoint = ast->lbraceToken.end();
-        indentDepth = calculateIndentDepth(ast->lbraceToken) + 4;
+        depth = calculateIndentDepth(ast->lbraceToken) + indentDepth();
     }
 
-    textToInsert += addIndentation(m_content, indentDepth);
+    textToInsert += addIndentation(m_content, depth);
     replace(insertionPoint, 0, QLatin1String("\n") + textToInsert);
 
     setDidRewriting(true);

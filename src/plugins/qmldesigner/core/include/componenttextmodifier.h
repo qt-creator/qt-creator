@@ -45,6 +45,8 @@ public:
     virtual void move(const MoveInfo &moveInfo);
     virtual void indent(int offset, int length);
 
+    virtual int indentDepth() const;
+
     virtual void startGroup();
     virtual void flushGroup();
     virtual void commitGroup();

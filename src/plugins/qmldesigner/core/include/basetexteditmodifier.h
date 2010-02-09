@@ -42,6 +42,8 @@ public:
     BaseTextEditModifier(QPlainTextEdit *textEdit);
 
     virtual void indent(int offset, int length);
+
+    virtual int indentDepth() const;
 };
 
 } // namespace QmlDesigner

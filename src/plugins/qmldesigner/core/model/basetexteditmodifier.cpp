@@ -30,6 +30,7 @@
 #include "basetexteditmodifier.h"
 
 #include <texteditor/basetexteditor.h>
+#include <texteditor/tabsettings.h>
 
 using namespace QmlDesigner;
 
@@ -56,5 +57,15 @@ void BaseTextEditModifier::indent(int offset, int length)
         tc.endEditBlock();
     } else {
 //        qDebug() << "**** Skipping indentation";
+    }
+}
+
+int BaseTextEditModifier::indentDepth() const
+{
+    if (TextEditor::BaseTextEditor *bte = dynamic_cast<TextEditor::BaseTextEditor*>(plainTextEdit())) {
+        return bte->tabSettings().m_indentSize;
+    } else {
+        Q_ASSERT(false && "BaseTextEditModifier does not have a BaseTextEditor");
+        return 0;
     }
 }

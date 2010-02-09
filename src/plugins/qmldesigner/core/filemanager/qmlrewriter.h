@@ -61,6 +61,8 @@ protected:
     QString textBetween(int startPosition, int endPosition) const;
     QString textAt(const QmlJS::AST::SourceLocation &location) const;
 
+    int indentDepth() const
+    { return textModifier()->indentDepth(); }
     unsigned calculateIndentDepth(const QmlJS::AST::SourceLocation &position) const;
     static QString addIndentation(const QString &text, unsigned depth);
     static QString removeIndentation(const QString &text, unsigned depth);

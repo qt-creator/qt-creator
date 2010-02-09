@@ -63,6 +63,11 @@ void ComponentTextModifier::indent(int offset, int length)
     m_originalModifier->indent(offset, length);
 }
 
+int ComponentTextModifier::indentDepth() const
+{
+    return m_originalModifier->indentDepth();
+}
+
 void ComponentTextModifier::startGroup()
 {
     m_originalModifier->startGroup();

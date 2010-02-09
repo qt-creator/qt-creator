@@ -41,8 +41,6 @@
 
 #include <QDebug>
 
-#define INDENT_DEPTH 4
-
 namespace {
     enum {
         DebugRewriteActions = 0
@@ -92,6 +90,9 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
             continue;
 
         ModelNode containedModelNode;
+        const int indentDepth = m_rewriterView->textModifier()->indentDepth();
+        const QString propertyTextValue = QmlTextGenerator(getPropertyOrder(),
+                                                           indentDepth)(property);
 
         switch (propertyChange) {
         case AbstractView::PropertiesAdded:
@@ -99,7 +100,7 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
                 containedModelNode = property.toNodeProperty().modelNode();
 
             schedule(new AddPropertyRewriteAction(property,
-                                                  QmlTextGenerator(getPropertyOrder(), INDENT_DEPTH)(property),
+                                                  propertyTextValue,
                                                   propertyType(property),
                                                   containedModelNode));
             break;
@@ -109,7 +110,7 @@ void ModelToTextMerger::propertiesChanged(const QList<AbstractProperty>& propert
                 containedModelNode = property.toNodeProperty().modelNode();
 
             schedule(new ChangePropertyRewriteAction(property,
-                                                     QmlTextGenerator(getPropertyOrder(), INDENT_DEPTH)(property),
+                                                     propertyTextValue,
                                                      propertyType(property),
                                                      containedModelNode));
             break;

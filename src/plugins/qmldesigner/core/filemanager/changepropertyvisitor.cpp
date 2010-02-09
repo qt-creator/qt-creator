@@ -184,8 +184,8 @@ void ChangePropertyVisitor::insertIntoArray(QmlJS::AST::UiArrayBinding *ast)
         return;
 
     const int insertionPoint = lastMember->lastSourceLocation().end();
-    const int indentDepth = calculateIndentDepth(lastMember->firstSourceLocation());
-    const QString indentedArrayMember = addIndentation(m_value, indentDepth);
+    const int depth = calculateIndentDepth(lastMember->firstSourceLocation());
+    const QString indentedArrayMember = addIndentation(m_value, depth);
     replace(insertionPoint, 0, QLatin1String(",\n") + indentedArrayMember);
     setDidRewriting(true);
 }

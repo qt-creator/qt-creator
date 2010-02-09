@@ -70,6 +70,8 @@ public:
     virtual void move(const MoveInfo &moveInfo) = 0;
     virtual void indent(int offset, int length) = 0;
 
+    virtual int indentDepth() const = 0;
+
     virtual void startGroup() = 0;
     virtual void flushGroup() = 0;
     virtual void commitGroup() = 0;

@@ -83,7 +83,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     UiObjectMemberList *insertAfter = searchMemberToInsertAfter(initializer->members, m_name, m_propertyOrder);
     SourceLocation endOfPreviousMember;
     SourceLocation startOfNextMember;
-    unsigned indentDepth;
+    unsigned depth;
 
     if (insertAfter == 0 || insertAfter->member == 0) {
         // insert as first member
@@ -94,7 +94,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         else
             startOfNextMember = initializer->rbraceToken;
 
-        indentDepth = calculateIndentDepth(endOfPreviousMember) + 4;
+        depth = calculateIndentDepth(endOfPreviousMember) + indentDepth();
     } else {
         endOfPreviousMember = insertAfter->member->lastSourceLocation();
 
@@ -103,7 +103,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         else
             startOfNextMember = initializer->rbraceToken;
 
-        indentDepth = calculateIndentDepth(endOfPreviousMember);
+        depth = calculateIndentDepth(endOfPreviousMember);
     }
 
     QString newPropertyTemplate;
@@ -129,7 +129,7 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
     if (isOneLiner)
         newPropertyTemplate += QLatin1Char('\n');
 
-    const QString newPropertyText = addIndentation(newPropertyTemplate.arg(m_name, m_value), indentDepth);
+    const QString newPropertyText = addIndentation(newPropertyTemplate.arg(m_name, m_value), depth);
     replace(endOfPreviousMember.end(), 0, QLatin1Char('\n') + newPropertyText);
 
     setDidRewriting(true);
