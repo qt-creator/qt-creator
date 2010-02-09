@@ -296,7 +296,6 @@ public:
     FunctionDefs m_functionDefs;
     QStringList m_returnValue;
     QStack<QHash<QString, QStringList> > m_valuemapStack;
-    QStack<QHash<const ProFile*, QHash<QString, QStringList> > > m_filevaluemapStack;
 
     QStringList m_addUserConfigCmdArgs;
     QStringList m_removeUserConfigCmdArgs;
@@ -1857,7 +1856,6 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
     } else {
         State sts = m_sts;
         m_valuemapStack.push(m_valuemap);
-        m_filevaluemapStack.push(m_filevaluemap);
 
         QStringList args;
         for (int i = 0; i < argumentsList.count(); ++i) {
@@ -1870,7 +1868,6 @@ QStringList ProFileEvaluator::Private::evaluateFunction(
         m_returnValue.clear();
 
         m_valuemap = m_valuemapStack.pop();
-        m_filevaluemap = m_filevaluemapStack.pop();
         m_sts = sts;
     }
     if (ok)
@@ -2326,11 +2323,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("export(variable) requires one argument."));
                 return ProItem::ReturnFalse;
             }
-            for (int i = 0; i < m_valuemapStack.size(); ++i) {
+            for (int i = 0; i < m_valuemapStack.size(); ++i)
                 m_valuemapStack[i][args[0]] = m_valuemap.value(args[0]);
-                m_filevaluemapStack[i][currentProFile()][args[0]] =
-                        m_filevaluemap.value(currentProFile()).value(args[0]);
-            }
             return ProItem::ReturnTrue;
         case T_INFILE:
             if (args.count() < 2 || args.count() > 3) {
