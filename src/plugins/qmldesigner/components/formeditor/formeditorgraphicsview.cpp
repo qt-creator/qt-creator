@@ -141,37 +141,53 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     painter->restore();
 
 
-    if (m_beginX != m_feedbackNode.instanceValue("x"))
-        painter->setPen(changeColor);
-    else
-        painter->setPen(Qt::black);
+    if (m_beginXHasExpression != m_feedbackNode.hasBindingProperty("x")) {
+        painter->setPen(Qt::red);
+    } else {
+        if (m_beginX != m_feedbackNode.instanceValue("x"))
+            painter->setPen(changeColor);
+        else
+            painter->setPen(Qt::black);
+    }
 
     painter->drawText(QPoint(2.0, 12.0), QString("x:"));
     painter->drawText(QPoint(14.0, 12.0), m_feedbackNode.instanceValue("x").toString());
 
 
-    if (m_beginY != m_feedbackNode.instanceValue("y"))
-        painter->setPen(changeColor);
-    else
-        painter->setPen(Qt::black);
+    if (m_beginYHasExpression != m_feedbackNode.hasBindingProperty("y")) {
+        painter->setPen(Qt::red);
+    } else {
+        if (m_beginY != m_feedbackNode.instanceValue("y"))
+            painter->setPen(changeColor);
+        else
+            painter->setPen(Qt::black);
+    }
 
     painter->drawText(QPoint(50.0, 12.0), QString("y:"));
     painter->drawText(QPoint(60.0, 12.0), m_feedbackNode.instanceValue("y").toString());
 
 
-    if (m_beginWidth != m_feedbackNode.instanceValue("width"))
-        painter->setPen(changeColor);
-    else
-        painter->setPen(Qt::black);
+    if (m_beginWidthHasExpression != m_feedbackNode.hasBindingProperty("width")) {
+        painter->setPen(Qt::red);
+    } else {
+        if (m_beginWidth != m_feedbackNode.instanceValue("width"))
+            painter->setPen(changeColor);
+        else
+            painter->setPen(Qt::black);
+    }
 
     painter->drawText(QPoint(2.0, 24.0), QString("w:"));
     painter->drawText(QPoint(14.0, 24.0), m_feedbackNode.instanceValue("width").toString());
 
 
-    if (m_beginHeight != m_feedbackNode.instanceValue("height"))
-        painter->setPen(changeColor);
-    else
-        painter->setPen(Qt::black);
+    if (m_beginHeightHasExpression != m_feedbackNode.hasBindingProperty("height")) {
+        painter->setPen(Qt::red);
+    } else {
+        if (m_beginHeight != m_feedbackNode.instanceValue("height"))
+            painter->setPen(changeColor);
+        else
+            painter->setPen(Qt::black);
+    }
 
     painter->drawText(QPoint(50.0, 24.0), QString("h:"));
     painter->drawText(QPoint(60.0, 24.0),m_feedbackNode.instanceValue("height").toString());
@@ -245,6 +261,10 @@ void FormEditorGraphicsView::setFeedbackNode(const QmlItemNode &node)
         m_beginRightMargin = m_feedbackNode.instanceValue("anchors.rightMargin");
         m_beginTopMargin = m_feedbackNode.instanceValue("anchors.topMargin");
         m_beginBottomMargin = m_feedbackNode.instanceValue("anchors.bottomMargin");
+        m_beginXHasExpression = m_feedbackNode.hasBindingProperty("x");
+        m_beginYHasExpression = m_feedbackNode.hasBindingProperty("y");
+        m_beginWidthHasExpression = m_feedbackNode.hasBindingProperty("width");
+        m_beginHeightHasExpression = m_feedbackNode.hasBindingProperty("height");
     } else {
         m_beginX = QVariant();
         m_beginY = QVariant();
@@ -255,6 +275,10 @@ void FormEditorGraphicsView::setFeedbackNode(const QmlItemNode &node)
         m_beginRightMargin = QVariant();
         m_beginTopMargin = QVariant();
         m_beginBottomMargin = QVariant();
+        m_beginXHasExpression = false;
+        m_beginYHasExpression = false;
+        m_beginWidthHasExpression = false;
+        m_beginHeightHasExpression = false;
     }
 }
 

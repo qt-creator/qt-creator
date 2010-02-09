@@ -65,6 +65,7 @@ public:
     QVariant instanceValue(const QString &name) const;
 
     bool hasProperty(const QString &name) const;
+    bool hasBindingProperty(const QString &name) const;
     bool propertyAffectedByCurrentState(const QString &name) const;
     QVariant modelValue(const QString &name) const;
     bool isInBaseState() const;

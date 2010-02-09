@@ -102,7 +102,27 @@ bool QmlObjectNode::hasProperty(const QString &name) const
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
+    if (currentState().hasPropertyChanges(modelNode())) {
+        QmlPropertyChanges propertyChanges = currentState().propertyChanges(modelNode());
+        if (propertyChanges.modelNode().hasProperty(name))
+            return true;
+    }
+
     return modelNode().hasProperty(name);
+}
+
+bool QmlObjectNode::hasBindingProperty(const QString &name) const
+{
+    if (!isValid())
+        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (currentState().hasPropertyChanges(modelNode())) {
+        QmlPropertyChanges propertyChanges = currentState().propertyChanges(modelNode());
+        if (propertyChanges.modelNode().hasBindingProperty(name))
+            return true;
+    }
+
+    return modelNode().hasBindingProperty(name);
 }
 
 NodeAbstractProperty QmlObjectNode::nodeAbstractProperty(const QString &name) const

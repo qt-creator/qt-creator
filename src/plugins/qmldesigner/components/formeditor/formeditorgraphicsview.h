@@ -60,6 +60,10 @@ private:
     QVariant m_beginRightMargin;
     QVariant m_beginTopMargin;
     QVariant m_beginBottomMargin;
+    bool m_beginXHasExpression;
+    bool m_beginYHasExpression;
+    bool m_beginWidthHasExpression;
+    bool m_beginHeightHasExpression;
 };
 
 } // namespace QmlDesigner
