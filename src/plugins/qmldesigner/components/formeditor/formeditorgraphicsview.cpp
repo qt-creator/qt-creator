@@ -180,14 +180,12 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
 
         if (!m_feedbackNode.canReparent()) {
             painter->setPen(Qt::red);
-            painter->drawText(QPoint(2.0, 36.0), QString("Cannot reparent."));
+            painter->drawText(QPoint(2.0, 36.0), QString("Cannot reparent"));
         }
     } else {
         painter->setPen(Qt::yellow);
-        if (m_feedbackNode.instanceParent().id().isEmpty())
-            painter->drawText(QPoint(2.0, 36.0), QString("Parent has changed."));
-        else
-            painter->drawText(QPoint(2.0, 36.0), QString("Parent has changed to %1.").arg(m_feedbackNode.instanceParent().id()));
+        painter->drawText(QPoint(2.0, 36.0), QString("Parent changed"));
+
     }
 
 
