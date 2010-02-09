@@ -261,7 +261,7 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
         else
             painter->setPen(Qt::black);
 
-        painter->drawText(QPoint(50.0, 60.0), QString("h:"));
+        painter->drawText(QPoint(50.0, 60.0), QString("b:"));
         painter->drawText(QPoint(60.0, 60.0), m_feedbackNode.instanceValue("anchors.bottomMargin").toString());
 
         if (m_beginTopMargin != m_feedbackNode.instanceValue("anchors.horizontalCenterOffset"))
