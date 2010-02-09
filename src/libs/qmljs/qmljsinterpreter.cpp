@@ -1916,7 +1916,7 @@ QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix,
 
 ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
                                UiObjectInitializer *initializer,
-                               const Document *doc,
+                               const QmlJS::Document *doc,
                                Engine *engine)
     : ObjectValue(engine), _typeName(typeName), _initializer(initializer), _doc(doc)
 {
@@ -2038,7 +2038,7 @@ const Value *QmlPrototypeReference::value(Context *context) const
     return context->lookupType(_doc, _qmlTypeName);
 }
 
-ASTPropertyReference::ASTPropertyReference(AST::UiPublicMember *ast, const Document *doc, Engine *engine)
+ASTPropertyReference::ASTPropertyReference(UiPublicMember *ast, const QmlJS::Document *doc, Engine *engine)
     : Reference(engine), _ast(ast), _doc(doc)
 {
 }
