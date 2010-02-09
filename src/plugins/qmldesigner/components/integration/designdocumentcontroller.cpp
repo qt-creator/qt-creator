@@ -675,7 +675,7 @@ void DesignDocumentController::paste()
         QString defaultProperty(targetNode.metaInfo().defaultProperty());
         targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
 
-
+        view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
     }
 }
 
