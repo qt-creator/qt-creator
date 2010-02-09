@@ -210,7 +210,7 @@ public:
 
 } // end of anonymous namespace
 
-#ifdef ICHECK_BUILD
+#ifdef Q_OS_SYMBIAN
 //Symbian compiler has some difficulties to understand the templates.
 static void delete_array_entries(std::vector<Symbol *> vt)
 {
