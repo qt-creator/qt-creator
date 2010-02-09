@@ -199,9 +199,10 @@ void QmlItemNode::paintInstance(QPainter *painter) const
 
 void QmlItemNode::setSize(const QSizeF &size)
 {
+    int penWidth = (nodeInstance().penWidth() / 2) * 2;
     RewriterTransaction transaction = qmlModelView()->beginRewriterTransaction();
-    setVariantProperty("width", qRound(size.width()) - (nodeInstance().penWidth()));
-    setVariantProperty("height", qRound(size.height()) - (nodeInstance().penWidth()));
+    setVariantProperty("width", qRound(size.width()) - penWidth);
+    setVariantProperty("height", qRound(size.height()) - penWidth);
 }
 
 void QmlItemNode::setPosition(const QPointF &position)
