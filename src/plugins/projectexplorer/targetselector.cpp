@@ -161,7 +161,7 @@ void TargetSelector::paintEvent(QPaintEvent *event)
             targetName = QChar('*') + target.name + QChar('*');
         else
             targetName = target.name;
-        p.drawText(x + (TARGET_WIDTH - fm.width(target.name))/2 + 1, 7 + fm.ascent(),
+        p.drawText(x + (TARGET_WIDTH - fm.width(targetName))/2 + 1, 7 + fm.ascent(),
             targetName);
         x += TARGET_WIDTH;
         p.drawLine(x, 1, x, TARGET_HEIGHT);
