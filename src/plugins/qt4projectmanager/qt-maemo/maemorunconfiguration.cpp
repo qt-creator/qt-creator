@@ -345,8 +345,7 @@ const MaemoToolChain *MaemoRunConfiguration::toolchain() const
     Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>
         (qt4Project()->activeBuildConfiguration());
     QTC_ASSERT(qt4bc, return 0);
-    MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(
-        qt4bc->toolChain() );
+    MaemoToolChain *tc = dynamic_cast<MaemoToolChain *>(qt4bc->toolChain());
     QTC_ASSERT(tc != 0, return 0);
     return tc;
 }
@@ -545,8 +544,9 @@ void MaemoRunConfiguration::updateSimulatorInformation() const
             }
         }
     } else {
-        m_visibleSimulatorParameter = tr("'%1' could not be found. Do you have "
-            "already installed a Maemo simulator image?").arg(m_simulatorPath);
+        m_visibleSimulatorParameter = tr("Simulator could not be found. Please "
+            "check the Qt Version you are using and that a simulator image is "
+            "already installed.");
     }
 
     emit cachedSimulatorInformationChanged();
