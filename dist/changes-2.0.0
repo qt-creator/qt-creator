@@ -25,3 +25,7 @@ Mac
 
 Symbian Target
 
+Maemo Target
+   * new feature
+   * built on top of MADDE package
+   * supports building for, deploying to and running on N900 devices
