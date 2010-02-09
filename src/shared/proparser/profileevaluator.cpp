@@ -231,9 +231,6 @@ public:
 
     QStringList valuesDirect(const QString &variableName) const { return m_valuemap[variableName]; }
     QStringList values(const QString &variableName) const;
-    QStringList values(const QString &variableName, const ProFile *pro) const;
-    QStringList values(const QString &variableName, const QHash<QString, QStringList> &place,
-                       const ProFile *pro) const;
     QString propertyValue(const QString &val, bool complain = true) const;
 
     static QStringList split_value_list(const QString &vals);
@@ -2757,9 +2754,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
     }
 }
 
-QStringList ProFileEvaluator::Private::values(const QString &variableName,
-                                              const QHash<QString, QStringList> &place,
-                                              const ProFile *pro) const
+QStringList ProFileEvaluator::Private::values(const QString &variableName) const
 {
     QHash<QString, int>::ConstIterator vli = statics.varList.find(variableName);
     if (vli != statics.varList.constEnd()) {
@@ -2786,7 +2781,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
             ret = QString::number(m_lineNo);
             break;
         case V__FILE_: //parser file; qmake is a bit weird here
-            ret = m_profileStack.size() == 1 ? pro->fileName() : QFileInfo(pro->fileName()).fileName();
+            ret = m_profileStack.size() == 1 ? currentFileName() : currentProFile()->displayFileName();
             break;
         case V__DATE_: //current date/time
             ret = QDateTime::currentDateTime().toString();
@@ -2873,7 +2868,7 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
         return QStringList(ret);
     }
 
-    QStringList result = place.value(variableName);
+    QStringList result = valuesDirect(variableName);
     if (result.isEmpty()) {
         if (variableName == statics.strTEMPLATE) {
             result.append(QLatin1String("app"));
@@ -2882,16 +2877,6 @@ QStringList ProFileEvaluator::Private::values(const QString &variableName,
         }
     }
     return result;
-}
-
-QStringList ProFileEvaluator::Private::values(const QString &variableName) const
-{
-    return values(variableName, m_valuemap, currentProFile());
-}
-
-QStringList ProFileEvaluator::Private::values(const QString &variableName, const ProFile *pro) const
-{
-    return values(variableName, m_filevaluemap[pro], pro);
 }
 
 ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool cache,
@@ -3068,7 +3053,8 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
 
 QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
 {
-    return expandEnvVars(d->values(variableName, pro));
+    // It makes no sense to put any kind of magic into expanding these
+    return expandEnvVars(d->m_filevaluemap.value(pro).value(variableName));
 }
 
 QStringList ProFileEvaluator::absolutePathValues(
