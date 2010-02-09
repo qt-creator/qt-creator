@@ -143,6 +143,10 @@ Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QStr
             t->addQt4BuildConfiguration("Release", version, QtVersion::QmakeBuildConfig(0));
     }
 
+    QStringList pathes = qt4project->applicationProFilePathes();
+    foreach (const QString &path, pathes)
+        t->addRunConfigurationForPath(path);
+
     return t;
 }
 
