@@ -650,7 +650,6 @@ void EditorManager::closeOtherEditors(IEditor *editor)
     closeEditors(editors, true);
 }
 
-
 void EditorManager::closeOtherEditors()
 {
     IEditor *current = currentEditor();
@@ -658,12 +657,10 @@ void EditorManager::closeOtherEditors()
     closeOtherEditors(current);
 }
 
-
 // SLOT connected to action
-// since this is potentially called in the event handler of the editor
-// we simply postpone it with a single shot timer
 void EditorManager::closeEditor()
 {
+    addCurrentPositionToNavigationHistory();
     closeEditor(m_d->m_currentEditor);
 }
 
