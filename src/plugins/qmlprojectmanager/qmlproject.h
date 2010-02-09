@@ -226,6 +226,7 @@ public:
     QString viewerPath() const;
     QStringList viewerArguments() const;
     QString workingDirectory() const;
+    QString debugServerAddress() const;
     uint debugServerPort() const;
 
     // RunConfiguration
@@ -238,6 +239,7 @@ private slots:
     void setMainScript(const QString &scriptFile);
     void onQmlViewerChanged();
     void onQmlViewerArgsChanged();
+    void onDebugServerAddressChanged();
     void onDebugServerPortChanged();
 
 protected:
@@ -251,6 +253,7 @@ private:
     QString m_qmlViewerCustomPath;
     QString m_qmlViewerDefaultPath;
     QString m_qmlViewerArgs;
+    QString m_debugServerAddress;
     uint m_debugServerPort;
 };
 

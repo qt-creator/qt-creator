@@ -33,6 +33,8 @@
 #include "gdboptionspage.h"
 #include "trkoptions.h"
 #include "trkoptionspage.h"
+#include "debugger/debuggeruiswitcher.h"
+#include "debugger/debuggermainwindow.h"
 
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
@@ -210,7 +212,7 @@ DebuggerStartMode GdbEngine::startMode() const
 
 QMainWindow *GdbEngine::mainWindow() const
 {
-    return m_manager->mainWindow();
+    return DebuggerUISwitcher::instance()->mainWindow();
 }
 
 GdbEngine::~GdbEngine()

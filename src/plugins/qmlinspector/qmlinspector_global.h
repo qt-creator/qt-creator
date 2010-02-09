@@ -26,61 +26,15 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLINSPECTORPLUGIN_H
-#define QMLINSPECTORPLUGIN_H
+#ifndef QMLINSPECTOR_GLOBAL_H
+#define QMLINSPECTOR_GLOBAL_H
 
-#include <extensionsystem/iplugin.h>
+#include <QtCore/QtGlobal>
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QTimer>
+#if defined(QMLINSPECTOR_LIBRARY)
+#  define QMLINSPECTOR_EXPORT Q_DECL_EXPORT
+#else
+#  define QMLINSPECTOR_EXPORT Q_DECL_IMPORT
+#endif
 
-class QStringList;
-
-namespace ProjectExplorer {
-    class Project;
-}
-
-namespace Core {
-    class IMode;
-}
-
-namespace Qml {
-    class QmlInspector;
-    class InspectorOutputPane;
-
-const int MaxConnectionAttempts = 20;
-
-class QmlInspectorPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-
-public:
-    QmlInspectorPlugin();
-    ~QmlInspectorPlugin();
-
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
-    virtual void shutdown();
-
-public slots:
-    void activateDebugger(const QString &langName);
-    void activateDebuggerForProject(ProjectExplorer::Project *project);
-    void setDockWidgetArrangement(const QString &activeLanguage);
-
-private slots:
-    void pollInspector();
-    void prepareDebugger(Core::IMode *mode);
-
-private:
-    QmlInspector *m_inspector;
-    InspectorOutputPane *m_outputPane;
-    QTimer *m_connectionTimer;
-    int m_connectionAttempts;
-};
-
-}
-
-QT_END_NAMESPACE
-
-#endif // QMLINSPECTORPLUGIN_H
+#endif // QMLINSPECTOR_GLOBAL_H

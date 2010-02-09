@@ -30,6 +30,8 @@
 
 #include <QtGui/qtextedit.h>
 
+using namespace Qml;
+
 InspectorOutputPane::InspectorOutputPane(QObject *parent)
     : Core::IOutputPane(parent),
       m_textEdit(new QTextEdit)

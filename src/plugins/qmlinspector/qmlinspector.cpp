@@ -26,8 +26,11 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+#include "qmlinspectorconstants.h"
 #include "qmlinspector.h"
-#include "qmlinspectormode.h"
+#include "debugger/debuggermainwindow.h"
+
+#include <debugger/debuggeruiswitcher.h>
 
 #include "components/objectpropertiesview.h"
 #include "components/objecttree.h"
@@ -52,7 +55,6 @@
 #include <coreplugin/uniqueidmanager.h>
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <texteditor/itexteditor.h>
 
@@ -66,6 +68,8 @@
 
 #include <QtCore/QStringList>
 #include <QtCore/QtPlugin>
+#include <QtCore/QTimer>
+
 #include <QtCore/QDebug>
 
 #include <QtGui/qtoolbutton.h>
@@ -80,9 +84,9 @@
 
 #include <QtNetwork/QHostAddress>
 
+using namespace Qml;
 
-QT_BEGIN_NAMESPACE
-
+namespace Qml {
 
 class EngineSpinBox : public QSpinBox
 {
@@ -106,6 +110,8 @@ protected:
 private:
     QList<EngineInfo> m_engines;
 };
+
+}
 
 EngineSpinBox::EngineSpinBox(QWidget *parent)
     : QSpinBox(parent)
@@ -152,8 +158,8 @@ int EngineSpinBox::valueFromText(const QString &text) const
 }
 
 
-QmlInspectorMode::QmlInspectorMode(QObject *parent)
-  : Core::BaseMode(parent),
+QmlInspector::QmlInspector(QObject *parent)
+  : QObject(parent),
     m_conn(0),
     m_client(0),
     m_engineQuery(0),
@@ -161,17 +167,13 @@ QmlInspectorMode::QmlInspectorMode(QObject *parent)
 {
     m_watchTableModel = new WatchTableModel(0, this);
 
-    setWidget(createModeWindow());
-
-    setDisplayName(tr("QML Inspect"));
-    setIcon(QIcon(":/qmlinspector/images/logo.png"));
-    setId(QLatin1String("QML_INSPECT_MODE"));
+    initWidgets();
 }
 
-void QmlInspectorMode::connectToViewer()
+bool QmlInspector::connectToViewer()
 {
     if (m_conn && m_conn->state() != QAbstractSocket::UnconnectedState)
-        return;
+        return false;
 
     delete m_client; m_client = 0;
 
@@ -183,17 +185,17 @@ void QmlInspectorMode::connectToViewer()
     ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject();
     if (!project) {
         emit statusMessage(tr("No active project, debugging canceled."));
-        return;
+        return false;
     }
 
     QmlProjectManager::QmlRunConfiguration* config =
             qobject_cast<QmlProjectManager::QmlRunConfiguration*>(project->activeTarget()->activeRunConfiguration());
     if (!config) {
         emit statusMessage(tr("Cannot find project run configuration, debugging canceled."));
-        return;
+        return false;
     }
 
-    QHostAddress host = QHostAddress::LocalHost;
+    QString host = config->debugServerAddress();
     quint16 port = quint16(config->debugServerPort());
 
     m_conn = new QmlDebugConnection(this);
@@ -202,16 +204,21 @@ void QmlInspectorMode::connectToViewer()
     connect(m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
             SLOT(connectionError()));
 
-    emit statusMessage(tr("[Inspector] set to connect to debug server %1:%2").arg(host.toString()).arg(port));
+    emit statusMessage(tr("[Inspector] set to connect to debug server %1:%2").arg(host).arg(port));
     m_conn->connectToHost(host, port);
+    // blocks until connected; if no connection is available, will fail immediately
+    if (m_conn->waitForConnected())
+        return true;
+
+    return false;
 }
 
-void QmlInspectorMode::disconnectFromViewer()
+void QmlInspector::disconnectFromViewer()
 {
     m_conn->disconnectFromHost();
 }
 
-void QmlInspectorMode::connectionStateChanged()
+void QmlInspector::connectionStateChanged()
 {
     switch (m_conn->state()) {
         case QAbstractSocket::UnconnectedState:
@@ -260,35 +267,27 @@ void QmlInspectorMode::connectionStateChanged()
     }
 }
 
-void QmlInspectorMode::connectionError()
+void QmlInspector::connectionError()
 {
     emit statusMessage(tr("[Inspector] error: (%1) %2", "%1=error code, %2=error message")
             .arg(m_conn->error()).arg(m_conn->errorString()));
 }
 
-QToolButton *QmlInspectorMode::createToolButton(QAction *action)
+void QmlInspector::initWidgets()
 {
-    QToolButton *button = new QToolButton;
-    button->setDefaultAction(action);
-    return button;
-}
+    m_objectTreeWidget = new ObjectTree;
+    m_propertiesWidget = new ObjectPropertiesView;
+    m_watchTableView = new WatchTableView(m_watchTableModel);
+    m_frameRateWidget = new CanvasFrameRate;
+    m_expressionWidget = new ExpressionQueryWidget(ExpressionQueryWidget::ShellMode);
 
-QWidget *QmlInspectorMode::createMainView()
-{
-    initWidgets();
+    m_engineSpinBox = new EngineSpinBox;
+    m_engineSpinBox->setEnabled(false);
+    connect(m_engineSpinBox, SIGNAL(valueChanged(int)),
+            SLOT(queryEngineContext(int)));
 
-    Utils::FancyMainWindow *mainWindow = new Utils::FancyMainWindow;
-    mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
-    mainWindow->setDocumentMode(true);
-
-    QBoxLayout *editorHolderLayout = new QVBoxLayout;
-    editorHolderLayout->setMargin(0);
-    editorHolderLayout->setSpacing(0);
-
-    QWidget *editorAndFindWidget = new QWidget;
-    editorAndFindWidget->setLayout(editorHolderLayout);
-    editorHolderLayout->addWidget(new Core::EditorManagerPlaceHolder(this));
-    editorHolderLayout->addWidget(new Core::FindToolBarPlaceHolder(editorAndFindWidget));
+    // FancyMainWindow uses widgets' window titles for tab labels
+    m_frameRateWidget->setWindowTitle(tr("Frame rate"));
 
     Utils::StyledBar *treeOptionBar = new Utils::StyledBar;
     QHBoxLayout *treeOptionBarLayout = new QHBoxLayout(treeOptionBar);
@@ -298,120 +297,12 @@ QWidget *QmlInspectorMode::createMainView()
     treeOptionBarLayout->addWidget(m_engineSpinBox);
 
     QWidget *treeWindow = new QWidget;
+    treeWindow->setWindowTitle(tr("Object Tree"));
     QVBoxLayout *treeWindowLayout = new QVBoxLayout(treeWindow);
     treeWindowLayout->setMargin(0);
     treeWindowLayout->setSpacing(0);
     treeWindowLayout->addWidget(treeOptionBar);
     treeWindowLayout->addWidget(m_objectTreeWidget);
-
-    Core::MiniSplitter *documentAndTree = new Core::MiniSplitter;
-    documentAndTree->addWidget(editorAndFindWidget);
-    documentAndTree->addWidget(new Core::RightPanePlaceHolder(this));
-    documentAndTree->addWidget(treeWindow);
-    documentAndTree->setStretchFactor(0, 2);
-    documentAndTree->setStretchFactor(1, 0);
-    documentAndTree->setStretchFactor(2, 0);
-
-    Utils::StyledBar *configBar = new Utils::StyledBar;
-    configBar->setProperty("topBorder", true);
-
-    QHBoxLayout *configBarLayout = new QHBoxLayout(configBar);
-    configBarLayout->setMargin(0);
-    configBarLayout->setSpacing(5);
-
-    Core::ICore *core = Core::ICore::instance();
-    Core::ActionManager *am = core->actionManager();
-    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
-    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
-
-    configBarLayout->addStretch();
-
-    QWidget *widgetAboveTabs = new QWidget;
-    QVBoxLayout *widgetAboveTabsLayout = new QVBoxLayout(widgetAboveTabs);
-    widgetAboveTabsLayout->setMargin(0);
-    widgetAboveTabsLayout->setSpacing(0);
-    widgetAboveTabsLayout->addWidget(documentAndTree);
-    widgetAboveTabsLayout->addWidget(configBar);
-
-    Core::MiniSplitter *mainSplitter = new Core::MiniSplitter(Qt::Vertical);
-    mainSplitter->addWidget(widgetAboveTabs);
-    mainSplitter->addWidget(createBottomWindow());
-    mainSplitter->setStretchFactor(0, 3);
-    mainSplitter->setStretchFactor(1, 1);
-
-    QWidget *centralWidget = new QWidget;
-    QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
-    centralLayout->setMargin(0);
-    centralLayout->setSpacing(0);
-    centralLayout->addWidget(mainSplitter);
-
-    mainWindow->setCentralWidget(centralWidget);
-
-    return mainWindow;
-}
-
-QWidget *QmlInspectorMode::createBottomWindow()
-{
-    Utils::FancyMainWindow *win = new Utils::FancyMainWindow;
-    win->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
-    win->setDocumentMode(true);
-    win->setTrackingEnabled(true);
-
-    Core::MiniSplitter *leftSplitter = new Core::MiniSplitter(Qt::Vertical);
-    leftSplitter->addWidget(m_propertiesWidget);
-    leftSplitter->addWidget(m_expressionWidget);
-    leftSplitter->setStretchFactor(0, 2);
-    leftSplitter->setStretchFactor(1, 1);
-
-    Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Horizontal);
-    propSplitter->addWidget(leftSplitter);
-    propSplitter->addWidget(m_watchTableView);
-    propSplitter->setStretchFactor(0, 2);
-    propSplitter->setStretchFactor(1, 1);
-    propSplitter->setWindowTitle(tr("Properties and Watchers"));
-
-    QDockWidget *propertiesDock = win->addDockForWidget(propSplitter);
-    win->addDockWidget(Qt::TopDockWidgetArea, propertiesDock);
-
-    QDockWidget *frameRateDock = win->addDockForWidget(m_frameRateWidget);
-    win->addDockWidget(Qt::TopDockWidgetArea, frameRateDock);
-
-    // stack the dock widgets as tabs
-    win->tabifyDockWidget(frameRateDock, propertiesDock);
-
-    return win;
-}
-
-QWidget *QmlInspectorMode::createModeWindow()
-{
-    // right-side window with editor, output etc.
-    Core::MiniSplitter *mainWindowSplitter = new Core::MiniSplitter;
-    mainWindowSplitter->addWidget(createMainView());
-    mainWindowSplitter->addWidget(new Core::OutputPanePlaceHolder(this, mainWindowSplitter));
-    mainWindowSplitter->setStretchFactor(0, 10);
-    mainWindowSplitter->setStretchFactor(1, 0);
-    mainWindowSplitter->setOrientation(Qt::Vertical);
-
-    // navigation + right-side window
-    Core::MiniSplitter *splitter = new Core::MiniSplitter;
-    splitter->addWidget(new Core::NavigationWidgetPlaceHolder(this));
-    splitter->addWidget(mainWindowSplitter);
-    splitter->setStretchFactor(0, 0);
-    splitter->setStretchFactor(1, 1);
-    return splitter;
-}
-
-void QmlInspectorMode::initWidgets()
-{
-    m_objectTreeWidget = new ObjectTree;
-    m_propertiesWidget = new ObjectPropertiesView;
-    m_watchTableView = new WatchTableView(m_watchTableModel);
-    m_frameRateWidget = new CanvasFrameRate;
-    m_expressionWidget = new ExpressionQueryWidget(ExpressionQueryWidget::ShellMode);
-
-    // FancyMainWindow uses widgets' window titles for tab labels
-    m_objectTreeWidget->setWindowTitle(tr("Object Tree"));
-    m_frameRateWidget->setWindowTitle(tr("Frame rate"));
 
     m_watchTableView->setModel(m_watchTableModel);
     WatchTableHeaderView *header = new WatchTableHeaderView(m_watchTableModel);
@@ -441,13 +332,59 @@ void QmlInspectorMode::initWidgets()
     connect(m_objectTreeWidget, SIGNAL(currentObjectChanged(QmlDebugObjectReference)),
             m_expressionWidget, SLOT(setCurrentObject(QmlDebugObjectReference)));
 
-    m_engineSpinBox = new EngineSpinBox;
-    m_engineSpinBox->setEnabled(false);
-    connect(m_engineSpinBox, SIGNAL(valueChanged(int)),
-            SLOT(queryEngineContext(int)));
+
+    Core::MiniSplitter *leftSplitter = new Core::MiniSplitter(Qt::Vertical);
+    leftSplitter->addWidget(m_propertiesWidget);
+    leftSplitter->addWidget(m_expressionWidget);
+    leftSplitter->setStretchFactor(0, 2);
+    leftSplitter->setStretchFactor(1, 1);
+
+    Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Horizontal);
+    propSplitter->addWidget(leftSplitter);
+    propSplitter->addWidget(m_watchTableView);
+    propSplitter->setStretchFactor(0, 2);
+    propSplitter->setStretchFactor(1, 1);
+    propSplitter->setWindowTitle(tr("Properties and Watchers"));
+
+    m_objectTreeDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+                                                            treeWindow, Qt::BottomDockWidgetArea);
+    m_frameRateDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+                                                            m_frameRateWidget, Qt::BottomDockWidgetArea);
+    m_propertyWatcherDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+                                                            propSplitter, Qt::BottomDockWidgetArea);
+    m_dockWidgets << m_objectTreeDock << m_frameRateDock << m_propertyWatcherDock;
 }
 
-void QmlInspectorMode::reloadEngines()
+void QmlInspector::setSimpleDockWidgetArrangement()
+{
+    Debugger::DebuggerMainWindow *mainWindow = Debugger::DebuggerUISwitcher::instance()->mainWindow();
+
+    mainWindow->setTrackingEnabled(false);
+    QList<QDockWidget *> dockWidgets = mainWindow->dockWidgets();
+    foreach (QDockWidget *dockWidget, dockWidgets) {
+        if (m_dockWidgets.contains(dockWidget)) {
+            dockWidget->setFloating(false);
+            mainWindow->removeDockWidget(dockWidget);
+        }
+    }
+
+    foreach (QDockWidget *dockWidget, dockWidgets) {
+        if (m_dockWidgets.contains(dockWidget)) {
+            if (dockWidget == m_objectTreeDock)
+                mainWindow->addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+            else
+                mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+            dockWidget->show();
+            // dockwidget is not actually visible during init because debugger is
+            // not visible, either. we can use isVisibleTo(), though.
+        }
+    }
+
+    mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
+    mainWindow->setTrackingEnabled(true);
+}
+
+void QmlInspector::reloadEngines()
 {
     if (m_engineQuery) {
         emit statusMessage("[Inspector] Waiting for response to previous engine query");
@@ -464,7 +401,7 @@ void QmlInspectorMode::reloadEngines()
                          this, SLOT(enginesChanged()));
 }
 
-void QmlInspectorMode::enginesChanged()
+void QmlInspector::enginesChanged()
 {
     m_engineSpinBox->clearEngines();
 
@@ -485,7 +422,7 @@ void QmlInspectorMode::enginesChanged()
     }
 }
 
-void QmlInspectorMode::queryEngineContext(int id)
+void QmlInspector::queryEngineContext(int id)
 {
     if (id < 0)
         return;
@@ -503,7 +440,7 @@ void QmlInspectorMode::queryEngineContext(int id)
                          this, SLOT(contextChanged()));
 }
 
-void QmlInspectorMode::contextChanged()
+void QmlInspector::contextChanged()
 {
     //dump(m_contextQuery->rootContext(), 0);
 
@@ -513,7 +450,7 @@ void QmlInspectorMode::contextChanged()
     delete m_contextQuery; m_contextQuery = 0;
 }
 
-void QmlInspectorMode::treeObjectActivated(const QmlDebugObjectReference &obj)
+void QmlInspector::treeObjectActivated(const QmlDebugObjectReference &obj)
 {
     QmlDebugFileReference source = obj.source();
     QString fileName = source.url().toLocalFile();
@@ -531,7 +468,4 @@ void QmlInspectorMode::treeObjectActivated(const QmlDebugObjectReference &obj)
     }
 }
 
-QT_END_NAMESPACE
-
-#include "qmlinspectormode.moc"
-
+#include "qmlinspector.moc"

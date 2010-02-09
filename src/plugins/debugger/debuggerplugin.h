@@ -40,6 +40,7 @@ class QAction;
 class QCursor;
 class QMenu;
 class QPoint;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -54,7 +55,9 @@ class BaseTextMark;
 }
 
 namespace Debugger {
+
 class DebuggerManager;
+class DebuggerUISwitcher;
 
 namespace Internal {
 
@@ -122,12 +125,14 @@ private:
     void writeSettings() const;
     void attachExternalApplication(qint64 pid, const QString &crashParameter = QString());
     void attachCore(const QString &core, const QString &exeFileName);
+    QWidget *createToolbar() const;
 
     friend class Debugger::DebuggerManager;
     friend class GdbOptionPage;
     friend class DebuggingHelperOptionPage;
     friend class Debugger::Internal::DebugMode; // FIXME: Just a hack now so that it can access the views
 
+    DebuggerUISwitcher *m_uiSwitcher;
     DebuggerManager *m_manager;
     DebugMode *m_debugMode;
     DebuggerRunControlFactory *m_debuggerRunControlFactory;
@@ -138,13 +143,12 @@ private:
     AttachRemoteParameters m_attachRemoteParameters;
     unsigned m_cmdLineEnabledEngines;
 
-    QAction *m_toggleLockedAction;
-
     QAction *m_startExternalAction;
     QAction *m_startRemoteAction;
     QAction *m_attachExternalAction;
     QAction *m_attachCoreAction;
     QAction *m_detachAction;
+    QComboBox *m_langBox;
 };
 
 } // namespace Internal

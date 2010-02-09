@@ -26,61 +26,29 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLINSPECTORPLUGIN_H
-#define QMLINSPECTORPLUGIN_H
+#ifndef QMLINSPECTORCONSTANTS_H
+#define QMLINSPECTORCONSTANTS_H
 
-#include <extensionsystem/iplugin.h>
-
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
-#include <QtCore/QTimer>
-
-class QStringList;
-
-namespace ProjectExplorer {
-    class Project;
-}
-
-namespace Core {
-    class IMode;
-}
+#include <QString>
 
 namespace Qml {
-    class QmlInspector;
-    class InspectorOutputPane;
+    namespace Constants {
+        const char * const RUN = "QmlInspector.Run";
+        const char * const STOP = "QmlInspector.Stop";
 
-const int MaxConnectionAttempts = 20;
+        const char * const C_INSPECTOR = "QmlInspector";
+        const char * const LANG_QML = "QML";
+    };
 
-class QmlInspectorPlugin : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
+    class StartParameters
+    {
+    public:
+        StartParameters() : port(0) {}
+        ~StartParameters() {}
 
-public:
-    QmlInspectorPlugin();
-    ~QmlInspectorPlugin();
-
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
-    virtual void shutdown();
-
-public slots:
-    void activateDebugger(const QString &langName);
-    void activateDebuggerForProject(ProjectExplorer::Project *project);
-    void setDockWidgetArrangement(const QString &activeLanguage);
-
-private slots:
-    void pollInspector();
-    void prepareDebugger(Core::IMode *mode);
-
-private:
-    QmlInspector *m_inspector;
-    InspectorOutputPane *m_outputPane;
-    QTimer *m_connectionTimer;
-    int m_connectionAttempts;
+        QString address;
+        quint16 port;
+    };
 };
 
-}
-
-QT_END_NAMESPACE
-
-#endif // QMLINSPECTORPLUGIN_H
+#endif
