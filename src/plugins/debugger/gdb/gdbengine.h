@@ -369,6 +369,10 @@ private: ////////// View & Data Stuff //////////
     virtual void fetchDisassembler(DisassemblerViewAgent *agent);
     void fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
         bool useMixedMode);
+    void fetchDisassemblerByCli(DisassemblerViewAgent *agent,
+        bool useMixedMode);
+    void fetchDisassemblerByAddressCli(DisassemblerViewAgent *agent);
+    void handleFetchDisassemblerByCli(const GdbResponse &response);
     void handleFetchDisassemblerByLine(const GdbResponse &response);
     void handleFetchDisassemblerByAddress1(const GdbResponse &response);
     void handleFetchDisassemblerByAddress0(const GdbResponse &response);

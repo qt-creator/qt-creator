@@ -39,6 +39,7 @@
 #include "stackhandler.h"
 #include "debuggeractions.h"
 #include "debuggerstringutils.h"
+#include "watchutils.h"
 #ifndef STANDALONE_RUNNER
 #include "gdbengine.h"
 #endif
@@ -487,7 +488,7 @@ void TrkGdbAdapter::readGdbServerCommand()
     QByteArray packet = m_gdbConnection->readAll();
     m_gdbReadBuffer.append(packet);
 
-    logMessage("gdb: -> " + QString::fromAscii(packet));
+    logMessage("gdb: -> " + currentTime() + ' ' + QString::fromAscii(packet));
     if (packet != m_gdbReadBuffer)
         logMessage("buffer: " + m_gdbReadBuffer);
 
@@ -598,7 +599,7 @@ void TrkGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray
     packet.append('#');
     packet.append(checkSum);
     int pad = qMax(0, 24 - packet.size());
-    logMessage("gdb: <- " + packet + QByteArray(pad, ' ') + logNote);
+    logMessage("gdb: <- " + currentTime() + ' ' + packet + QByteArray(pad, ' ') + logNote);
     sendGdbServerPacket(packet, true);
 }
 
@@ -1624,8 +1625,8 @@ void TrkGdbAdapter::handleStep(const TrkResult &result)
         //    trkReadRegistersMessage());
         return;
     }
-    // The gdb server response is triggered later by the Stop Reply packet
-    logMessage("STEP FINISHED ");
+    // The gdb server response is triggered later by the Stop Reply packet.
+    logMessage("STEP FINISHED " + currentTime());
 }
 
 void TrkGdbAdapter::handleAndReportSetBreakpoint(const TrkResult &result)
@@ -1717,7 +1718,6 @@ void TrkGdbAdapter::readMemory(uint addr, uint len, bool buffered)
 
     m_snapshot.wantedMemory = MemoryRange(addr, addr + len);
     tryAnswerGdbMemoryRequest(buffered);
-
 }
 
 void TrkGdbAdapter::interruptInferior()
@@ -2113,7 +2113,8 @@ void TrkGdbAdapter::trkReloadRegisters()
     QTC_ASSERT(m_snapshot.registerValid, /**/);
     RegisterHandler *handler = m_engine->manager()->registerHandler();
     QList<Register> registers = handler->registers();
-    QTC_ASSERT(registers.size() >= 25, return);
+    QTC_ASSERT(registers.size() >= 25,
+        qDebug() << "HAVE: " << registers.size(); return);
     for (int i = 0; i < 16; ++i) {
         Register &reg = registers[i];
         QString value = hexxNumber(m_snapshot.registers[i]);

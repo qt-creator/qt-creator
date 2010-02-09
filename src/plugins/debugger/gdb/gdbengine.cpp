@@ -3568,6 +3568,8 @@ struct DisassemblerAgentCookie
 // FIXME: add agent->frame() accessor and use that
 void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
 {
+    fetchDisassemblerByCli(agent, agent->isMixed());
+/*
     if (agent->isMixed()) {
         // Disassemble full function:
         const StackFrame &frame = agent->frame();
@@ -3579,6 +3581,7 @@ void GdbEngine::fetchDisassembler(DisassemblerViewAgent *agent)
     } else {
         fetchDisassemblerByAddress(agent, true);
     }
+*/
 }
 
 void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
@@ -3600,6 +3603,33 @@ void GdbEngine::fetchDisassemblerByAddress(DisassemblerViewAgent *agent,
         postCommand("-data-disassemble -s 0x" + start + " -e 0x" + end + " -- 0",
             Discardable, CB(handleFetchDisassemblerByAddress0),
             QVariant::fromValue(DisassemblerAgentCookie(agent)));
+}
+
+void GdbEngine::fetchDisassemblerByCli(DisassemblerViewAgent *agent,
+    bool useMixedMode)
+{
+    QTC_ASSERT(agent, return);
+    bool ok = false;
+    quint64 address = agent->address().toULongLong(&ok, 0);
+    QByteArray cmd = "disassemble ";
+    if (useMixedMode && m_gdbVersion >= 60850)
+        cmd += "/m ";
+    cmd += " 0x";
+    cmd += QByteArray::number(address, 16);
+    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCli),
+        QVariant::fromValue(DisassemblerAgentCookie(agent)));
+}
+
+void GdbEngine::fetchDisassemblerByAddressCli(DisassemblerViewAgent *agent)
+{
+    QTC_ASSERT(agent, return);
+    bool ok = false;
+    quint64 address = agent->address().toULongLong(&ok, 0);
+    QByteArray start = QByteArray::number(address - 20, 16);
+    QByteArray end = QByteArray::number(address + 100, 16);
+    QByteArray cmd = "disassemble 0x" + start + " 0x" + end;
+    postCommand(cmd, Discardable, CB(handleFetchDisassemblerByCli),
+        QVariant::fromValue(DisassemblerAgentCookie(agent)));
 }
 
 static QByteArray parseLine(const GdbMi &line)
@@ -3684,7 +3714,8 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
                 // we get a file name and line number but where the 'fully
                 // disassembled function' does not cover the code in the 
                 // initializer list. Fall back needed:
-                fetchDisassemblerByAddress(ac.agent, true);
+                //fetchDisassemblerByAddress(ac.agent, true);
+                fetchDisassemblerByCli(ac.agent, true);
             }
         }
     } else {
@@ -3694,7 +3725,8 @@ void GdbEngine::handleFetchDisassemblerByLine(const GdbResponse &response)
                 || msg.startsWith("Cannot access memory at address"))
             fetchDisassemblerByAddress(ac.agent, true);
         else
-            showStatusMessage(tr("Disassembler failed: %1").arg(QString::fromLocal8Bit(msg)), 5000);
+            showStatusMessage(tr("Disassembler failed: %1")
+                .arg(QString::fromLocal8Bit(msg)), 5000);
     }
 }
 
@@ -3719,7 +3751,8 @@ void GdbEngine::handleFetchDisassemblerByAddress1(const GdbResponse &response)
     } else {
         // 26^error,msg="Cannot access memory at address 0x801ca308"
         QByteArray msg = response.data.findChild("msg").data();
-        showStatusMessage(tr("Disassembler failed: %1").arg(QString::fromLocal8Bit(msg)), 5000);
+        showStatusMessage(tr("Disassembler failed: %1")
+            .arg(QString::fromLocal8Bit(msg)), 5000);
     }
 }
 
@@ -3733,7 +3766,59 @@ void GdbEngine::handleFetchDisassemblerByAddress0(const GdbResponse &response)
         ac.agent->setContents(parseDisassembler(lines));
     } else {
         QByteArray msg = response.data.findChild("msg").data();
-        showStatusMessage(tr("Disassembler failed: %1").arg(QString::fromLocal8Bit(msg)), 5000);
+        showStatusMessage(tr("Disassembler failed: %1")
+            .arg(QString::fromLocal8Bit(msg)), 5000);
+    }
+}
+
+void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
+{
+    DisassemblerAgentCookie ac = response.cookie.value<DisassemblerAgentCookie>();
+    QTC_ASSERT(ac.agent, return);
+
+    if (response.resultClass == GdbResultDone) {
+        const QString someSpace = _("        ");
+        // First line is something like
+        // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
+        GdbMi output = response.data.findChild("consolestreamoutput");
+        QStringList res;
+        QString out = QString::fromLatin1(output.data()).trimmed();
+        foreach (const QString &line, out.split(_c('\n'))) {
+            if (line.startsWith(_("Current language:")))
+                continue;
+            if (line.startsWith(_("The current source")))
+                continue;
+            if (line.startsWith(_("0x"))) {
+                int pos1 = line.indexOf(_c('<'));
+                int pos2 = line.indexOf(_c('+'), pos1);
+                int pos3 = line.indexOf(_c('>'), pos2);
+                if (pos3 >= 0) {
+                    QString ba = _("  <+") + line.mid(pos2 + 1, pos3 - pos2 - 1);
+                    res.append(line.left(pos1 - 1) + ba.rightJustified(4)
+                        + _(">:            ") + line.mid(pos3 + 2));
+                } else {
+                    res.append(line);
+                }
+                continue;
+            }
+            res.append(someSpace + line);
+        }
+        // Drop "End of assembler dump." line.
+        res.takeLast();
+        if (res.size() > 1)
+            ac.agent->setContents(res.join(_("\n")));
+        else
+            fetchDisassemblerByAddressCli(ac.agent);
+    } else {
+        QByteArray msg = response.data.findChild("msg").data();
+        //76^error,msg="No function contains program counter for selected..."
+        //76^error,msg="No function contains specified address."
+        //>568^error,msg="Line number 0 out of range;
+        if (msg.startsWith("No function ") || msg.startsWith("Line number "))
+            fetchDisassemblerByAddressCli(ac.agent);
+        else
+            showStatusMessage(tr("Disassembler failed: %1")
+                .arg(QString::fromLocal8Bit(msg)), 5000);
     }
 }
 
