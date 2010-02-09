@@ -36,6 +36,7 @@
 #include <invalididexception.h>
 
 #include <QMimeData>
+#include <QMessageBox>
 
 namespace QmlDesigner {
 
@@ -272,8 +273,14 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
         try {
             if (ModelNode::isValidId(item->text()))
                 node.setId(item->text());
-            else
+            else {
+                QMessageBox errorDialog;
+                errorDialog.setModal(true);
+                errorDialog.setText(tr("Invalid id.\nOnly alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter."));
+                errorDialog.exec();
+
                 item->setText(node.id());
+            }
         } catch (InvalidIdException &) {
             item->setText(node.id());
         }

@@ -44,7 +44,7 @@ QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 {
     Q_UNUSED(option);
     Q_UNUSED(index);
-    return QSize(15,17);
+    return QSize(15,21);
 }
 
 void IconCheckboxItemDelegate::paint(QPainter *painter,
@@ -63,10 +63,6 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     else
         painter->drawPixmap(option.rect.x()+2,option.rect.y()+1,offPix);
 
-    painter->setOpacity(1.0);
-    painter->setPen(QColor(_separator_line_color_));
-    painter->drawLine(option.rect.topLeft(),option.rect.bottomLeft());
-
     painter->restore();
 }
 
@@ -81,19 +77,32 @@ void IdItemDelegate::paint(QPainter *painter,
 
     ModelNode node = m_TreeModel->nodeForIndex(index);
 
-    //            QIcon icon=node.metaInfo().icon();
-    //            if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
-    //            QPixmap pixmap = icon.pixmap(option.rect.width(),option.rect.height());
-    //            painter->drawPixmap(option.rect.x()+1,option.rect.y(),pixmap);
+    QIcon icon=node.metaInfo().icon();
+    if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
+    QPixmap pixmap = icon.pixmap(option.rect.width(),option.rect.height()-4);
+    painter->drawPixmap(option.rect.x()+5,option.rect.y()+2,pixmap);
 
     QString myString = node.id();
     if (myString.isEmpty())
         myString = node.simplifiedTypeName();
 
+    // Check text length does not exceed available space
+    int extraSpace=12+pixmap.width();
+    QFontMetrics metric(painter->fontMetrics());
+    if (painter->fontMetrics().boundingRect(myString).width() > option.rect.width()-extraSpace)
+    {
+        QString origString(myString);
+        int cutpoint=origString.length()/2;
+        while (painter->fontMetrics().boundingRect(myString).width() > option.rect.width()-extraSpace)
+        {
+            cutpoint--;
+            myString = origString.left(cutpoint)+QLatin1String("...")+origString.right(cutpoint);
+        }
+    }
+
     if (m_TreeModel->isNodeInvisible( index ))
         painter->setOpacity(0.5);
-    //            painter->drawText(option.rect.bottomLeft()+QPoint(4+pixmap.width(),-4),myString);
-    painter->drawText(option.rect.bottomLeft()+QPoint(4,-4),myString);
+    painter->drawText(option.rect.bottomLeft()+QPoint(8+pixmap.width(),-4),myString);
 
     painter->restore();
 }
