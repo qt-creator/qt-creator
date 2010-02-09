@@ -49,6 +49,8 @@ DesignerSettings SettingsPageWidget::settings() const
     DesignerSettings ds;
     ds.snapToGrid = m_ui.snapToGridCheckbox->isChecked();
     ds.showBoundingRectangles = m_ui.showBoundingRectanglesCheckbox->isChecked();
+    ds.onlyShowItemsWithContents =
+            m_ui.onlyShowItemsWithContentsCheckBox->isChecked();
     return ds;
 }
 
@@ -56,6 +58,7 @@ void SettingsPageWidget::setSettings(const DesignerSettings &s)
 {
     m_ui.snapToGridCheckbox->setChecked(s.snapToGrid);
     m_ui.showBoundingRectanglesCheckbox->setChecked(s.showBoundingRectangles);
+    m_ui.onlyShowItemsWithContentsCheckBox->setChecked(s.onlyShowItemsWithContents);
 }
 
 QString SettingsPageWidget::searchKeywords() const
@@ -63,7 +66,8 @@ QString SettingsPageWidget::searchKeywords() const
     QString rc;
     QTextStream(&rc)
             << m_ui.snapToGridCheckbox->text()
-            << m_ui.showBoundingRectanglesCheckbox->text()
+            << ' ' << m_ui.showBoundingRectanglesCheckbox->text()
+            << ' ' << m_ui.onlyShowItemsWithContentsCheckBox->text()
             << ' ' << m_ui.groupBox->title();
     rc.remove(QLatin1Char('&'));
     return rc;

@@ -32,6 +32,7 @@
 #include "designmode.h"
 #include "qmldesignerconstants.h"
 #include "pluginmanager.h"
+#include "settingspage.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/iwizard.h>
@@ -99,6 +100,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     m_designerCore->pluginManager()->setPluginPaths(QStringList() << pluginPath);
 
     addAutoReleasedObject(new DesignMode);
+    addAutoReleasedObject(new SettingsPage);
 
     error_message->clear();
 

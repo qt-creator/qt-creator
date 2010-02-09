@@ -34,6 +34,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="onlyShowItemsWithContentsCheckBox">
+        <property name="text">
+         <string>Only Show Items with Contents</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

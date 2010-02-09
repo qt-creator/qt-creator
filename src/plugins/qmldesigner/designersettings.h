@@ -40,6 +40,8 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 struct DesignerSettings {
+    DesignerSettings();
+
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
 
@@ -47,6 +49,7 @@ struct DesignerSettings {
 
     bool snapToGrid;
     bool showBoundingRectangles;
+    bool onlyShowItemsWithContents;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)

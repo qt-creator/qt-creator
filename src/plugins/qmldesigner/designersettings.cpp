@@ -37,7 +37,13 @@ static const char *qmlGroup = "Qml";
 static const char *qmlDesignerGroup = "Designer";
 static const char *snapToGridKey = "SnapToGrid";
 static const char *showBoundingRectanglesKey = "ShowBoundingRectangles";
+static const char *onlyShowItemsWithContentsKey = "OnlyShowItemsWithContents";
 
+DesignerSettings::DesignerSettings()
+    : snapToGrid(false)
+    , showBoundingRectangles(false)
+    , onlyShowItemsWithContents(false)
+{}
 void DesignerSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(qmlGroup));
@@ -45,6 +51,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
     snapToGrid = settings->value(QLatin1String(snapToGridKey), false).toBool();
     showBoundingRectangles = settings->value(
             QLatin1String(showBoundingRectanglesKey), false).toBool();
+    onlyShowItemsWithContents = settings->value(
+            QLatin1String(onlyShowItemsWithContentsKey), false).toBool();
     settings->endGroup();
     settings->endGroup();
 }
@@ -56,6 +64,8 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(snapToGridKey), snapToGrid);
     settings->setValue(QLatin1String(showBoundingRectanglesKey),
                        showBoundingRectangles);
+    settings->setValue(QLatin1String(onlyShowItemsWithContentsKey),
+                       onlyShowItemsWithContents);
     settings->endGroup();
     settings->endGroup();
 }
