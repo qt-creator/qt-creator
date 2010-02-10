@@ -547,6 +547,7 @@ public:
     // global object
     ObjectValue *globalObject() const;
     const ObjectValue *mathObject() const;
+    const ObjectValue *qtObject() const;
 
     // prototypes
     ObjectValue *objectPrototype() const;
@@ -608,6 +609,7 @@ private:
 
     ObjectValue *_globalObject;
     ObjectValue *_mathObject;
+    ObjectValue *_qtObject;
 #ifndef NO_DECLARATIVE_BACKEND
     ObjectValue *_qmlKeysObject;
 #endif

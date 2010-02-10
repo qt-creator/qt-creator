@@ -1410,6 +1410,7 @@ Engine::Engine()
       _regexpCtor(0),
       _globalObject(0),
       _mathObject(0),
+      _qtObject(0),
 #ifndef NO_DECLARATIVE_BACKEND
       _qmlKeysObject(0),
 #endif
@@ -1564,6 +1565,11 @@ const FunctionValue *Engine::regexpCtor() const
 const ObjectValue *Engine::mathObject() const
 {
     return _mathObject;
+}
+
+const ObjectValue *Engine::qtObject() const
+{
+    return _qtObject;
 }
 
 void Engine::registerValue(Value *value)
@@ -1856,6 +1862,40 @@ void Engine::initializePrototypes()
     _globalObject->setProperty("Number", numberCtor());
     _globalObject->setProperty("Date", dateCtor());
     _globalObject->setProperty("RegExp", regexpCtor());
+
+
+    //types
+    _qtObject = newObject(/*prototype */ 0);
+    addFunction(_qtObject, QLatin1String("rgba"), 4);
+    addFunction(_qtObject, QLatin1String("hsla"), 4);
+    addFunction(_qtObject, QLatin1String("rect"), 4);
+    addFunction(_qtObject, QLatin1String("point"), 2);
+    addFunction(_qtObject, QLatin1String("size"), 2);
+    addFunction(_qtObject, QLatin1String("vector3d"), 3);
+
+    //color helpers
+    addFunction(_qtObject, QLatin1String("lighter"), 1);
+    addFunction(_qtObject, QLatin1String("darker"), 1);
+    addFunction(_qtObject, QLatin1String("tint"), 2);
+
+    //misc methods
+    addFunction(_qtObject, QLatin1String("closestAngle"), 2);
+    addFunction(_qtObject, QLatin1String("playSound"), 1);
+    addFunction(_qtObject, QLatin1String("openUrlExternally"), 1);
+    addFunction(_qtObject, QLatin1String("md5"), 1);
+    addFunction(_qtObject, QLatin1String("btoa"), 1);
+    addFunction(_qtObject, QLatin1String("atob"), 1);
+    addFunction(_qtObject, QLatin1String("quit"), 0);
+    addFunction(_qtObject, QLatin1String("resolvedUrl"), 1);
+
+    //firebug/webkit compat
+    ObjectValue *consoleObject = newObject(/*prototype */ 0);
+    addFunction(consoleObject, QLatin1String("log"), 1);
+    addFunction(consoleObject, QLatin1String("debug"), 1);
+
+    _globalObject->setProperty(QLatin1String("console"), consoleObject);
+
+    _globalObject->setProperty(QLatin1String("Qt"), _qtObject);
 }
 
 const ObjectValue *Engine::qmlKeysObject()
