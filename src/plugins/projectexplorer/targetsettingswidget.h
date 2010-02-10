@@ -25,15 +25,21 @@ public:
     int currentIndex() const;
     int currentSubIndex() const;
 
+    bool isAddButtonEnabled() const;
+    bool isRemoveButtonEnabled() const;
+
 public slots:
     void addTarget(const QString &name);
     void markActive(int index);
     void removeTarget(int index);
     void setCurrentIndex(int index);
     void setCurrentSubIndex(int index);
+    void setAddButtonEnabled(bool enabled);
+    void setRemoveButtonEnabled(bool enabled);
 
 signals:
     void addButtonClicked();
+    void removeButtonClicked();
     void currentIndexChanged(int targetIndex, int subIndex);
 
 protected:

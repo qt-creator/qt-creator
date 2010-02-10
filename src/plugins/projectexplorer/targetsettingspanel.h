@@ -85,8 +85,9 @@ public:
 private slots:
     void currentTargetIndexChanged(int targetIndex, int subIndex);
     void addTarget();
+    void removeTarget();
     void targetAdded(ProjectExplorer::Target *target);
-    void targetRemoved(ProjectExplorer::Target *target);
+    void aboutToRemoveTarget(ProjectExplorer::Target *target);
     void activeTargetChanged(ProjectExplorer::Target *target);
 
 private:

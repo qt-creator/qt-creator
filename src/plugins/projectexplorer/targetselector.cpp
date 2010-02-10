@@ -16,7 +16,10 @@ TargetSelector::TargetSelector(QWidget *parent) :
     m_runselected(QLatin1String(":/projectexplorer/images/targetrunselected.png")),
     m_buildselected(QLatin1String(":/projectexplorer/images/targetbuildselected.png")),
     m_targetaddbutton(QLatin1String(":/projectexplorer/images/targetaddbutton.png")),
-    m_currentTargetIndex(-1)
+    m_targetremovebutton(QLatin1String(":/projectexplorer/images/targetremovebutton.png")),
+    m_currentTargetIndex(-1),
+    m_addButtonEnabled(true),
+    m_removeButtonEnabled(false)
 {
     QFont f = font();
     f.setPixelSize(10);
@@ -67,6 +70,16 @@ void TargetSelector::setCurrentIndex(int index)
                              m_currentTargetIndex >= 0 ? m_targets.at(m_currentTargetIndex).currentSubIndex : -1);
 }
 
+void TargetSelector::setAddButtonEnabled(bool enabled)
+{
+    m_addButtonEnabled = enabled;
+}
+
+void TargetSelector::setRemoveButtonEnabled(bool enabled)
+{
+    m_removeButtonEnabled = enabled;
+}
+
 void TargetSelector::setCurrentSubIndex(int subindex)
 {
     if (subindex < 0 ||
@@ -85,20 +98,35 @@ TargetSelector::Target TargetSelector::targetAt(int index) const
     return m_targets.at(index);
 }
 
+bool TargetSelector::isAddButtonEnabled() const
+{
+    return m_addButtonEnabled;
+}
+
+bool TargetSelector::isRemoveButtonEnabled() const
+{
+    return m_removeButtonEnabled;
+}
+
 QSize TargetSelector::minimumSizeHint() const
 {
-    return QSize((TARGET_WIDTH + 1) * m_targets.size() + ADDBUTTON_WIDTH + 2, TARGET_HEIGHT + 2);
+    return QSize((TARGET_WIDTH + 1) * m_targets.size() + (ADDBUTTON_WIDTH + 1) * 2 + 1, TARGET_HEIGHT + 2);
 }
 
 void TargetSelector::mousePressEvent(QMouseEvent *event)
 {
-    if (event->x() > (TARGET_WIDTH + 1) * m_targets.size()) {
+    if (event->x() < ADDBUTTON_WIDTH) {
+        event->accept();
+        if (m_removeButtonEnabled)
+            emit removeButtonClicked();
+    } else if (event->x() > ADDBUTTON_WIDTH + (TARGET_WIDTH + 1) * m_targets.size()) {
         // check for add button
         event->accept();
-        emit addButtonClicked();
+        if (m_addButtonEnabled)
+            emit addButtonClicked();
     } else {
         // find the clicked target button
-        int x = 1;
+        int x = ADDBUTTON_WIDTH;
         int index;
         for (index = 0; index < m_targets.size(); ++index) {
             if (event->x() <= x) {
@@ -143,6 +171,11 @@ void TargetSelector::paintEvent(QPaintEvent *event)
     int x = 1;
     int index = 0;
     QFontMetrics fm(font());
+    p.drawPixmap(x, 1, m_targetremovebutton);
+    x += m_targetremovebutton.width();
+    p.setPen(QColor(0, 0, 0));
+    p.drawLine(x, 1, x, TARGET_HEIGHT);
+    x += 1;
     foreach (const Target &target, m_targets) {
         const QPixmap *pixmap = &m_unselected;
         if (index == m_currentTargetIndex) {

@@ -1,7 +1,7 @@
 #include "targetsettingswidget.h"
 #include "ui_targetsettingswidget.h"
 
-static int WIDTH = 750;
+static int WIDTH = 900;
 
 using namespace ProjectExplorer::Internal;
 
@@ -17,6 +17,8 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
     m_targetSelector->raise();
     connect(m_targetSelector, SIGNAL(addButtonClicked()),
             this, SIGNAL(addButtonClicked()));
+    connect(m_targetSelector, SIGNAL(removeButtonClicked()),
+            this, SIGNAL(removeButtonClicked()));
     connect(m_targetSelector, SIGNAL(currentIndexChanged(int,int)),
             this, SIGNAL(currentIndexChanged(int,int)));
     updateTargetSelector();
@@ -53,6 +55,16 @@ void TargetSettingsWidget::setCurrentSubIndex(int index)
     m_targetSelector->setCurrentSubIndex(index);
 }
 
+void TargetSettingsWidget::setAddButtonEnabled(bool enabled)
+{
+    m_targetSelector->setAddButtonEnabled(enabled);
+}
+
+void TargetSettingsWidget::setRemoveButtonEnabled(bool enabled)
+{
+    m_targetSelector->setRemoveButtonEnabled(enabled);
+}
+
 QString TargetSettingsWidget::targetNameAt(int index) const
 {
     return m_targetSelector->targetAt(index).name;
@@ -76,6 +88,16 @@ int TargetSettingsWidget::currentIndex() const
 int TargetSettingsWidget::currentSubIndex() const
 {
     return m_targetSelector->currentSubIndex();
+}
+
+bool TargetSettingsWidget::isAddButtonEnabled() const
+{
+    return m_targetSelector->isAddButtonEnabled();
+}
+
+bool TargetSettingsWidget::isRemoveButtonEnabled() const
+{
+    return m_targetSelector->isRemoveButtonEnabled();
 }
 
 void TargetSettingsWidget::updateTargetSelector()

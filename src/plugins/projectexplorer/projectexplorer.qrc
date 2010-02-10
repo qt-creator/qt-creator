@@ -27,5 +27,6 @@
         <file>images/leftselection.png</file>
         <file>images/rightselection.png</file>
         <file>images/midselection.png</file>
+        <file>images/targetremovebutton.png</file>
     </qresource>
 </RCC>

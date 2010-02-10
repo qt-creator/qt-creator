@@ -130,7 +130,7 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
     connect(m_project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             this, SLOT(targetAdded(ProjectExplorer::Target*)));
     connect(m_project, SIGNAL(aboutToRemoveTarget(ProjectExplorer::Target*)),
-            this, SLOT(targetRemoved(ProjectExplorer::Target*)));
+            this, SLOT(aboutToRemoveTarget(ProjectExplorer::Target*)));
     connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
 }
@@ -178,6 +178,8 @@ void TargetSettingsPanelWidget::setupUi()
             this, SLOT(currentTargetIndexChanged(int,int)));
     connect(m_selector, SIGNAL(addButtonClicked()),
             this, SLOT(addTarget()));
+    connect(m_selector, SIGNAL(removeButtonClicked()),
+            this, SLOT(removeTarget()));
 
     if (m_project->targets().count())
         currentTargetIndexChanged(m_project->targets().indexOf(m_project->activeTarget()), 0);
@@ -241,16 +243,25 @@ void TargetSettingsPanelWidget::addTarget()
     dialog.exec();
 }
 
+void TargetSettingsPanelWidget::removeTarget()
+{
+    int index = m_selector->currentIndex();
+    Target *t = m_project->targets().at(index);
+    // TODO: Ask before removal?
+    m_project->removeTarget(t);
+}
+
 void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
 {
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
 
     m_selector->addTarget(target->displayName());
-    // TODO: Disable/enable add button.
+    m_selector->setAddButtonEnabled(m_project->possibleTargetIds().count() > 0);
+    m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
 }
 
-void TargetSettingsPanelWidget::targetRemoved(ProjectExplorer::Target *target)
+void TargetSettingsPanelWidget::aboutToRemoveTarget(ProjectExplorer::Target *target)
 {
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
@@ -259,7 +270,8 @@ void TargetSettingsPanelWidget::targetRemoved(ProjectExplorer::Target *target)
     if (index < 0)
         return;
     m_selector->removeTarget(index);
-    // TODO: Disable/enable add button.
+    m_selector->setAddButtonEnabled(m_project->possibleTargetIds().count() > 0);
+    m_selector->setRemoveButtonEnabled(m_project->targets().count() > 2); // target is not yet removed!
 }
 
 void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *target)
