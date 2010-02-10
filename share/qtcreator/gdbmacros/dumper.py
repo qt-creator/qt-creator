@@ -148,29 +148,28 @@ def listOfBreakpoints(d):
 
         # A breakpoint of its own
         bp.number = int(number)
-        d.putCommaIfNeeded()
-        d.put('bkpt={number="%s"' % bp.number)
-        d.put(',type="breakpoint"')
-        d.put(',disp="keep"')
-        d.put(',enabled="y"')
+        d.put('bkpt={number="%s",' % bp.number)
+        d.put('type="breakpoint",')
+        d.put('disp="keep",')
+        d.put('enabled="y",')
         for address in bp.address:
-            d.put(',addr="%s"' % address)
+            d.put('addr="%s",' % address)
         if not bp.function is None:
-            d.put(',func="%s"' % bp.function)
+            d.put('func="%s",' % bp.function)
         if not bp.filename is None:
-            d.put(',file="%s"' % bp.filename)
+            d.put('file="%s",' % bp.filename)
         if not bp.fullname is None:
-            d.put(',fullname="%s"' % bp.fullname)
+            d.put('fullname="%s",' % bp.fullname)
         if not bp.linenumber is None:
-            d.put(',line="%s"' % bp.linenumber)
+            d.put('line="%s",' % bp.linenumber)
         if not bp.condition is None:
-            d.put(',cond="%s"' % bp.condition)
+            d.put('cond="%s",' % bp.condition)
         if not bp.fullname is None:
-            d.put(',fullname="%s"' % bt.fullname)
+            d.put('fullname="%s",' % bt.fullname)
         if not bp.times is None:
-            d.put(',times="1"' % bp.times)
+            d.put('times="1",' % bp.times)
         #d.put('original-location="-"')
-        d.put('}')
+        d.put('},')
         bp = Breakpoint()
 
 
@@ -632,6 +631,7 @@ class FrameCommand(gdb.Command):
         breakpoints = d.safeoutput
 
         print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
+        #print('data=[' + locals + sep + watchers + ']\n')
 
 
     def handleWatch(self, d, exp, iname):
@@ -671,16 +671,14 @@ class FrameCommand(gdb.Command):
         d.put('exp="%s",' % exp)
         handled = False
         if exp == "<Edit>":
-            d.put(',value=" ",')
-            d.put('type=" ",numchild="0"')
+            d.put('value=" ",type=" ",numchild="0",')
         else:
             try:
                 value = parseAndEvaluate(exp)
                 item = Item(value, iname, None, None)
                 d.putItemHelper(item)
             except RuntimeError:
-                d.put(',value="<invalid>",')
-                d.put('type="<unknown>",numchild="0"')
+                d.put('value="<invalid>",type="<unknown>",numchild="0",')
         d.endHash()
 
 
@@ -736,31 +734,20 @@ class Dumper:
     def put(self, value):
         self.output += value
 
-    def putCommaIfNeeded(self):
-        c = self.output[-1:]
-        if c == '}' or c == '"' or c == ']' or c == '\n':
-            self.put(',')
-        #warn("C:'%s' COND:'%d' OUT:'%s'" %
-        #    (c, c == '}' or c == '"' or c == ']' or c == '\n', self.output))
-
     def putField(self, name, value):
-        self.putCommaIfNeeded()
-        self.put('%s="%s"' % (name, value))
+        self.put('%s="%s",' % (name, value))
 
     def beginHash(self):
-        self.putCommaIfNeeded()
         self.put('{')
 
     def endHash(self):
-        self.put('}')
+        self.put('},')
 
     def beginItem(self, name):
-        self.putCommaIfNeeded()
-        self.put(name)
-        self.put('="')
+        self.put('%s="' %s)
 
     def endItem(self):
-        self.put('"')
+        self.put('",')
 
     def beginChildren(self, numChild_ = 1, childType_ = None, childNumChild_ = None):
         childType = ""
@@ -773,7 +760,6 @@ class Dumper:
             maxNumChild = numChild_
         if numChild == 0:
             childType_ = None
-        self.putCommaIfNeeded()
         if not childType_ is None:
             childType = stripClassTag(str(childType_))
             self.put('childtype="%s",' % childType)
@@ -801,32 +787,29 @@ class Dumper:
             self.putEllipsis();
         self.childTypes.pop()
         self.childNumChilds.pop()
-        self.put(']')
+        self.put('],')
 
     def childRange(self):
         return xrange(qmin(self.maxNumChilds[-1], self.numChilds[-1]))
 
     # convenience
     def putItemCount(self, count):
-        self.putCommaIfNeeded()
-        self.put('value="<%s items>"' % count)
+        self.put('value="<%s items>",' % count)
 
     def putEllipsis(self):
-        self.putCommaIfNeeded()
-        self.put('{name="<incomplete>",value="",type="",numchild="0"}')
+        self.put('{name="<incomplete>",value="",type="",numchild="0"},')
 
     def putType(self, type):
         #warn("TYPES: '%s' '%s'" % (type, self.childTypes))
         #warn("  EQUAL 2: %s " % (str(type) == self.childTypes[-1]))
         type = stripClassTag(str(type))
         if len(type) > 0 and type != self.childTypes[-1]:
-            self.putCommaIfNeeded()
-            self.put('type="%s"' % type) # str(type.unqualified()) ?
+            self.put('type="%s",' % type) # str(type.unqualified()) ?
 
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.childNumChilds[-1]))
         if numchild != self.childNumChilds[-1]:
-            self.put(',numchild="%s"' % numchild)
+            self.put('numchild="%s",' % numchild)
 
     def putValue(self, value, encoding = None):
         if not encoding is None:
@@ -835,21 +818,17 @@ class Dumper:
 
     def putStringValue(self, value):
         if value is None:
-            self.putCommaIfNeeded()
-            self.put('value="<not available>"')
+            self.put('value="<not available>",')
         else:
             str = encodeString(value)
-            self.putCommaIfNeeded()
-            self.put('valueencoded="%d",value="%s"' % (7, str))
+            self.put('valueencoded="%d",value="%s",' % (7, str))
 
     def putByteArrayValue(self, value):
         str = encodeByteArray(value)
-        self.putCommaIfNeeded()
-        self.put('valueencoded="%d",value="%s"' % (6, str))
+        self.put('valueencoded="%d",value="%s",' % (6, str))
 
     def putName(self, name):
-        self.putCommaIfNeeded()
-        self.put('name="%s"' % name)
+        self.put('name="%s",' % name)
 
     def isExpanded(self, item):
         #warn("IS EXPANDED: %s in %s" % (item.iname, self.expandedINames))
