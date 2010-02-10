@@ -9,7 +9,7 @@ DEPENDPATH += .
 INCLUDEPATH += $$PWD $$PWD/../build $$PWD/../build/botan
 
 win32 {
-    LIBS += advapi32.lib user32.lib
+    LIBS += -ladvapi32 -luser32
     win32-msvc*: QMAKE_CXXFLAGS += -wd4251 -wd4290
 
     DEFINES += _CRT_SECURE_NO_WARNINGS
