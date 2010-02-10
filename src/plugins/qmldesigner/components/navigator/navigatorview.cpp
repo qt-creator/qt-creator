@@ -138,11 +138,11 @@ void NavigatorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& pr
     }
 }
 
-void NavigatorView::nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion)
+void NavigatorView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
-    QmlModelView::nodeTypeChanged(node, type, majorVersion, minorVersion);
-    if (m_treeModel->isInTree(node))
-        m_treeModel->updateItemRow(node);
+    QmlModelView::rootNodeTypeChanged(type, majorVersion, minorVersion);
+    if (m_treeModel->isInTree(rootModelNode()))
+        m_treeModel->updateItemRow(rootModelNode());
 }
 
 void NavigatorView::auxiliaryDataChanged(const ModelNode &node, const QString &name, const QVariant &data)

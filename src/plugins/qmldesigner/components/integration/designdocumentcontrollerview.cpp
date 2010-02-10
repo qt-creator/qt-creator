@@ -48,7 +48,7 @@ void DesignDocumentControllerView::propertiesAboutToBeRemoved(const QList<Abstra
 void DesignDocumentControllerView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/) {};
 void DesignDocumentControllerView::variantPropertiesChanged(const QList<VariantProperty>& /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {};
 void DesignDocumentControllerView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, AbstractView::PropertyChangeFlags /*propertyChange*/) {};
-void DesignDocumentControllerView::nodeTypeChanged(const ModelNode & /*node*/,const QString & /*type*/, int /*majorVersion*/, int /*minorVersion*/) {};
+void DesignDocumentControllerView::rootNodeTypeChanged(const QString & /*type*/, int /*majorVersion*/, int /*minorVersion*/) {};
 
 void DesignDocumentControllerView::selectedNodesChanged(const QList<ModelNode> & /*selectedNodeList*/,
                           const QList<ModelNode> & /*lastSelectedNodeList*/) {};

@@ -90,7 +90,6 @@ public:
 
     ModelNode& operator=(const ModelNode &other);
     QString type() const;
-    void changeType(const QString &type, int majorVersion, int minorVersion);
     QString simplifiedTypeName() const;
     int minorVersion() const;
     int majorVersion() const;

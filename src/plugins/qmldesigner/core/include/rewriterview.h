@@ -122,7 +122,7 @@ public:
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
-    void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
     void importAdded(const Import &import);

@@ -58,7 +58,7 @@ public:
     void nodeRemoved(const QmlDesigner::ModelNode &removedNode, const QmlDesigner::NodeAbstractProperty &parentProperty, AbstractView::PropertyChangeFlags propertyChange);
     void nodeReparented(const QmlDesigner::ModelNode &node, const QmlDesigner::NodeAbstractProperty &newPropertyParent, const QmlDesigner::NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
     void nodeIdChanged(const QmlDesigner::ModelNode& node, const QString& newId, const QString& oldId);
-    void nodeTypeChanged(const QmlDesigner::ModelNode &node,const QString &type, int majorVersion, int minorVersion);
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
     void bindingPropertiesChanged(const QList<QmlDesigner::BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
     void variantPropertiesChanged(const QList<QmlDesigner::VariantProperty>& propertyList, PropertyChangeFlags propertyChange);

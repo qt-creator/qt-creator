@@ -158,7 +158,7 @@ void ComponentView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& /*
 void ComponentView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/) {}
 void ComponentView::variantPropertiesChanged(const QList<VariantProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
 void ComponentView::bindingPropertiesChanged(const QList<BindingProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/) {}
-void ComponentView::nodeTypeChanged(const ModelNode &/*node*/, const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/) {}
+void ComponentView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/) {}
 
 
 

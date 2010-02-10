@@ -319,13 +319,13 @@ void RewriterView::nodeOrderChanged(const NodeListProperty &listProperty, const 
         applyChanges();
 }
 
-void RewriterView::nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion)
+void RewriterView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
      Q_ASSERT(textModifier());
     if (textToModelMerger()->isActive())
         return;
 
-    modelToTextMerger()->nodeTypeChanged(node, type, majorVersion, minorVersion);
+    modelToTextMerger()->nodeTypeChanged(rootModelNode(), type, majorVersion, minorVersion);
 
     if (!isModificationGroupActive())
         applyChanges();

@@ -136,7 +136,7 @@ public:
     void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListPropertyPointer, const InternalNodePointer &internalNodePointer, int oldIndex);
     void notifyAuxiliaryDataChanged(const InternalNodePointer &internalNode, const QString &name, const QVariant &data);
 
-    void notifyNodeTypeChanged(const InternalNodePointer &internalNode, const QString &type, int majorVersion, int minorVersion);
+    void notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
     void notifyCustomNotification(const AbstractView *senderView, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
@@ -175,7 +175,7 @@ public:
     void changeNodeOrder(const InternalNodePointer &internalParentNode, const QString &listPropertyName, int from, int to);
     void checkPropertyName(const QString &propertyName);
     void clearParent(const InternalNodePointer &internalNode);
-    void changeType(const InternalNodePointer & internalNode, const QString &type, int majorVersion, int minorVersion);
+    void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);
 
     InternalNodePointer nodeForId(const QString &id) const;
     bool hasId(const QString &id) const;

@@ -151,9 +151,9 @@ void ViewLogger::bindingPropertiesChanged(const QList<BindingProperty>& property
         m_output << time() << indent() << property << endl;
 }
 
-void ViewLogger::nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion)
+void ViewLogger::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
-    m_output << time() << indent("nodeTypeChanged:") << node << type << majorVersion << minorVersion << endl;
+    m_output << time() << indent("rootNodeTypeChanged:") << rootModelNode() << type << majorVersion << minorVersion << endl;
 }
 
 void ViewLogger::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

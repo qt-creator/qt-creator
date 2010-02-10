@@ -65,7 +65,7 @@ public:
     void nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex);
 
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange);
-    void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId);
     void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
 

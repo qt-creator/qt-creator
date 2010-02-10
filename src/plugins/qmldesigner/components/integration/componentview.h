@@ -63,7 +63,7 @@ public:
     void propertiesRemoved(const QList<AbstractProperty>& propertyList);
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
-    void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
 
 

@@ -162,9 +162,9 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
     QmlModelView::nodeAboutToBeRemoved(removedNode);
 }
 
- void FormEditorView::nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion)
+ void FormEditorView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
  {
-     QmlItemNode oldItemNode(node);
+     QmlItemNode oldItemNode(rootModelNode());
      if (oldItemNode.isValid() && m_scene->hasItemForQmlItemNode(oldItemNode)) {
          FormEditorItem *item = m_scene->itemForQmlItemNode(oldItemNode);
 
@@ -179,9 +179,9 @@ void FormEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
          delete item;
      }
 
-     QmlModelView::nodeTypeChanged(node, type, majorVersion, minorVersion);
+     QmlModelView::rootNodeTypeChanged(type, majorVersion, minorVersion);
 
-     QmlItemNode newItemNode(node);
+     QmlItemNode newItemNode(rootModelNode());
      if (newItemNode.isValid()) //only setup QmlItems
          setupFormEditorItemTree(newItemNode);
 

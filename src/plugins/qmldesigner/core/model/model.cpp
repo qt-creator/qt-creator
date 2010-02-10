@@ -168,6 +168,7 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
                                                int minorVersion,
                                                const QList<QPair<QString, QVariant> > &propertyList)
 {
+    qDebug() << __FUNCTION__ << typeString;
     if (typeString.isEmpty())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "typeString");
     if (!m_metaInfo.nodeMetaInfo(typeString).isValid())
@@ -298,16 +299,15 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &interna
     }
 }
 
-void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &internalNode, const QString &type, int majorVersion, int minorVersion)
+void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
     bool resetModel = false;
     QString description;
 
     foreach (const QWeakPointer<AbstractView> &view, m_viewList) {
         Q_ASSERT(view != 0);
-        ModelNode node(internalNode, model(), view.data());
         try {
-            view->nodeTypeChanged(node, type, majorVersion, minorVersion);
+            view->rootNodeTypeChanged(type, majorVersion, minorVersion);
         } catch (RewritingException &e) {
             description = e.description();
             resetModel = true;
@@ -834,13 +834,13 @@ void ModelPrivate::clearParent(const InternalNodePointer &node)
     notifyNodeReparent(node, InternalNodeAbstractProperty::Pointer(), oldParentNode, oldParentPropertyName, AbstractView::NoAdditionalChanges);
 }
 
-void ModelPrivate::changeType(const InternalNodePointer &internalNode, const QString &type, int majorVersion, int minorVersion)
+void ModelPrivate::changeRootNodeType(const QString &type, int majorVersion, int minorVersion)
 {
-    Q_ASSERT(!internalNode.isNull());
-    internalNode->setType(type);
-    internalNode->setMajorVersion(majorVersion);
-    internalNode->setMinorVersion(minorVersion);
-    notifyNodeTypeChanged(internalNode, type, majorVersion, minorVersion);
+    Q_ASSERT(!rootNode().isNull());
+    rootNode()->setType(type);
+    rootNode()->setMajorVersion(majorVersion);
+    rootNode()->setMinorVersion(minorVersion);
+    notifyRootNodeTypeChanged(type, majorVersion, minorVersion);
 }
 
 void ModelPrivate::changeNodeOrder(const InternalNode::Pointer &internalParentNode, const QString &listPropertyName, int from, int to)

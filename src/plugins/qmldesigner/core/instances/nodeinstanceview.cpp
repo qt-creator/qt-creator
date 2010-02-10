@@ -197,14 +197,13 @@ void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
     }
 }
 
-void NodeInstanceView::nodeTypeChanged(const ModelNode &node, const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
+void NodeInstanceView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    removeInstanceAndSubInstances(node);
+    removeAllInstanceNodeRelationships();
 
     QList<ModelNode> nodeList;
 
-    nodeList.append(node.allSubModelNodes());
-    nodeList.append(node);
+    nodeList.append(allModelNodes());
 
     loadNodes(nodeList);
 }

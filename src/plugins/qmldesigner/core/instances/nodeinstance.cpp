@@ -132,6 +132,8 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
 {
     Internal::ObjectNodeInstance::Pointer instance;
 
+    qDebug() << __FUNCTION__ << metaInfo.typeName();
+
     if (metaInfo.isSubclassOf("Qt/QGraphicsView", 4, 6))
         instance = Internal::GraphicsViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QmlView", 4, 6))

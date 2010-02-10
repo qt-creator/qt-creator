@@ -359,4 +359,11 @@ void AbstractView::emitCustomNotification(const QString &identifier, const QList
     model()->m_d->notifyCustomNotification(this, identifier, nodeList, data);
 }
 
+void AbstractView::changeRootNodeType(const QString &type, int majorVersion, int minorVersion)
+{
+    Internal::WriteLocker locker(m_model.data());
+
+    m_model.data()->m_d->changeRootNodeType(type, majorVersion, minorVersion);
+}
+
 } // namespace QmlDesigner

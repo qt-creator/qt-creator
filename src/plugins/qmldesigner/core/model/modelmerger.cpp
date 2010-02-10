@@ -182,7 +182,7 @@ void ModelMerger::replaceModel(const ModelNode &modelNode)
     syncId(rootNode, modelNode, idRenamingHash);
     syncNodeProperties(rootNode, modelNode, idRenamingHash, view());
     syncNodeListProperties(rootNode, modelNode, idRenamingHash, view());
-    rootNode.changeType(modelNode.type(), modelNode.majorVersion(), modelNode.minorVersion());
+    m_view->changeRootNodeType(modelNode.type(), modelNode.majorVersion(), modelNode.minorVersion());
 }
 
 } //namespace QmlDesigner

@@ -111,7 +111,7 @@ public:
     virtual void propertiesRemoved(const QList<AbstractProperty>& propertyList) = 0;
     virtual void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
     virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange) = 0;
-    virtual void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion) = 0;
+    virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) = 0;
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList) = 0;
@@ -128,6 +128,8 @@ public:
     virtual void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 
     QmlModelView *toQmlModelView();
+
+    void changeRootNodeType(const QString &type, int majorVersion, int minorVersion);
 
 protected:
     void setModel(Model * model);

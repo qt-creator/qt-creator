@@ -203,19 +203,6 @@ QString ModelNode::type() const
     return m_internalNode->type();
 }
 
-/*! \brief set the fully-qualified type name of the node
-*/
-void ModelNode::changeType(const QString &type, int majorVersion, int minorVersion)
-{
-    Internal::WriteLocker locker(m_model.data());
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
-
-    m_model.data()->m_d->changeType(internalNode(), type, majorVersion, minorVersion);
-}
-
 /*! \brief minor number of the Qml Type
 \return minor number
 */

@@ -51,7 +51,7 @@ public:
     virtual void propertiesRemoved(const QList<AbstractProperty>& propertyList);
     virtual void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
     virtual void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
-    virtual void nodeTypeChanged(const ModelNode &node,const QString &type, int majorVersion, int minorVersion);
+    virtual void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
 
     virtual void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                       const QList<ModelNode> &lastSelectedNodeList);

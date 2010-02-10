@@ -584,7 +584,7 @@ void DesignDocumentController::copySelected()
         foreach (ModelNode node, view.rootModelNode().allDirectSubModelNodes()) {
             node.destroy();
         }
-        view.rootModelNode().changeType("Qt/Rectangle", 4, 6);
+        view.changeRootNodeType("Qt/Rectangle", 4, 6);
         view.rootModelNode().setId("designer__Selection");
 
         foreach (const ModelNode &selectedNode, selectedNodes) {

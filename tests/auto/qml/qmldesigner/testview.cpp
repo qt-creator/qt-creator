@@ -60,10 +60,10 @@ void TestView::nodeIdChanged(const QmlDesigner::ModelNode &node, const QString& 
     m_methodCalls += MethodCall("nodeIdChanged", QStringList() << node.id() << newId << oldId);
 }
 
-void TestView::nodeTypeChanged(const QmlDesigner::ModelNode &node,const QString &type, int majorVersion, int minorVersion)
+void TestView::rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
-    QmlDesigner::QmlModelView::nodeTypeChanged(node, type, majorVersion, minorVersion);
-    m_methodCalls += MethodCall("nodeTypeChanged", QStringList() << node.id() << type << QString::number(majorVersion) << QString::number(minorVersion));
+    QmlDesigner::QmlModelView::rootNodeTypeChanged(type, majorVersion, minorVersion);
+    m_methodCalls += MethodCall("rootNodeTypeChanged", QStringList() << rootModelNode().id() << type << QString::number(majorVersion) << QString::number(minorVersion));
 }
 
 void TestView::fileUrlChanged(const QUrl & oldBaseUrl, const QUrl &newBaseUrl)

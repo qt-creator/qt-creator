@@ -543,7 +543,7 @@ ModelNode ModelAmender::listPropertyMissingModelNode(NodeListProperty &modelProp
 void ModelAmender::typeDiffers(bool isRootNode, ModelNode &modelNode, const QmlDomObject &domObject)
 {
     if (isRootNode) {
-        modelNode.changeType(domObject.objectType(), domObject.objectTypeMajorVersion(), domObject.objectTypeMinorVersion());
+        modelNode.view()->changeRootNodeType(domObject.objectType(), domObject.objectTypeMajorVersion(), domObject.objectTypeMinorVersion());
     } else {
         NodeAbstractProperty parentProperty = modelNode.parentProperty();
         int nodeIndex = -1;
