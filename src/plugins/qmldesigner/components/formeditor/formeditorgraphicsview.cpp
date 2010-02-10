@@ -143,7 +143,6 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     painter->restore();
 
 
-    if (m_feedbackNode.instanceHasAnchors())
     if (m_beginXHasExpression) {
         if(m_feedbackNode.hasBindingProperty("x"))
             painter->setPen(Qt::blue);
