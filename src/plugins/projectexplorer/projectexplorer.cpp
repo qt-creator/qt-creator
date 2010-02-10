@@ -1285,7 +1285,7 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, const QStrin
         d->m_debuggingRunControl = runControl;
 
     runControl->start();
-    updateToolBarActions();
+    updateRunActions();
 }
 
 void ProjectExplorerPlugin::buildQueueFinished(bool success)
@@ -1390,7 +1390,9 @@ void ProjectExplorerPlugin::updateActions()
     d->m_cleanSessionAction->setEnabled(hasProjects && !building);
     d->m_cancelBuildAction->setEnabled(building);
 
-    updateToolBarActions();
+    d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
+
+    updateRunActions();
 }
 
 // NBS TODO check projectOrder()
@@ -1585,7 +1587,7 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
                 configurations << pro->activeTarget()->activeBuildConfiguration();
             d->m_buildManager->buildProjects(configurations);
 
-            updateToolBarActions();
+            updateRunActions();
         }
     } else {
         // TODO this ignores RunConfiguration::isEnabled()
@@ -1648,7 +1650,7 @@ void ProjectExplorerPlugin::runControlFinished()
     if (sender() == d->m_debuggingRunControl)
         d->m_debuggingRunControl = 0;
 
-    updateToolBarActions();
+    updateRunActions();
 }
 
 void ProjectExplorerPlugin::startupProjectChanged()
@@ -1660,7 +1662,7 @@ void ProjectExplorerPlugin::startupProjectChanged()
 
     if (previousStartupProject) {
         disconnect(previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                   this, SLOT(updateToolBarActions()));
+                   this, SLOT(updateRunActions()));
         foreach (Target *t, previousStartupProject->targets())
             disconnect(t, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
                        this, SLOT(updateActions()));
@@ -1670,13 +1672,13 @@ void ProjectExplorerPlugin::startupProjectChanged()
 
     if (project) {
         connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
-                this, SLOT(updateToolBarActions()));
+                this, SLOT(updateRunActions()));
         foreach (Target *t, project->targets())
             connect(t, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
                     this, SLOT(updateActions()));
     }
 
-    updateToolBarActions();
+    updateRunActions();
 }
 
 // NBS TODO implement more than one runner
@@ -1690,7 +1692,7 @@ IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguratio
     return 0;
 }
 
-void ProjectExplorerPlugin::updateToolBarActions()
+void ProjectExplorerPlugin::updateRunActions()
 {
     const Project *project = startupProject();
 
@@ -1711,9 +1713,6 @@ void ProjectExplorerPlugin::updateToolBarActions()
     d->m_runActionContextMenu->setEnabled(canRun && !building);
 
     d->m_debugAction->setEnabled(canDebug && !building);
-
-    d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
-
 }
 
 void ProjectExplorerPlugin::cancelBuild()

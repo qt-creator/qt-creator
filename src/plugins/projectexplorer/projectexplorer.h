@@ -210,7 +210,7 @@ private slots:
     void runControlFinished();
 
     void startupProjectChanged(); // Calls updateRunAction
-    void updateToolBarActions();
+    void updateRunActions();
 
     void addToApplicationOutputWindow(RunControl *, const QString &line);
     void addToApplicationOutputWindowInline(RunControl *, const QString &line);
