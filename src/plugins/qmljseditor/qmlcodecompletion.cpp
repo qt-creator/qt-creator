@@ -654,7 +654,6 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     // Set up the current scope chain.
     AST::Node *declaringMember = semanticInfo.declaringMember(editor->position());
-    qDebug() << "*** declaring member:" << declaringMember;
     context.build(declaringMember, document, snapshot);
 
     // Search for the operator that triggered the completion.
