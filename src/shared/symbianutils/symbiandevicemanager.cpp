@@ -193,6 +193,8 @@ QString SymbianDeviceManager::toString() const
 
 QString SymbianDeviceManager::friendlyNameForPort(const QString &port) const
 {
+    if (!d->m_initialized)
+        const_cast<SymbianDeviceManager*>(this)->update(false);
     foreach (const SymbianDevice &device, d->m_devices) {
         if (device.portName() == port)
             return device.friendlyName();
