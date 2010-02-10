@@ -81,16 +81,20 @@ static void syncId(ModelNode &outputNode, const ModelNode &inputNode, const QHas
 
 static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *number)
 {
-    QRegExp regularExpression("(.*)(\\d*)");
-//    regularExpression.setMinimal(true);
-    regularExpression.setPatternSyntax(QRegExp::RegExp2);
-    regularExpression.indexIn(id);
-    QStringList splitedList = regularExpression.capturedTexts();
 
-    *baseId = regularExpression.cap(1);
+    int counter = 0;
+    while(counter < id.count()) {
+        bool canConvertToInteger = false;
+        int newNumber = id.right(counter +1).toInt(&canConvertToInteger);
+        if (canConvertToInteger)
+            *number = newNumber;
+        else
+            break;
 
+        counter++;
+    }
 
-    qDebug() <<splitedList;
+    *baseId = id.left(id.count() - counter);
 }
 
 static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QString> &idRenamingHash, AbstractView *view)
@@ -105,10 +109,10 @@ static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QStri
             splitIdInBaseNameAndNumber(newId, &baseId, &number);
 
             while (view->hasId(newId) || idRenamingHash.contains(newId)) {
-
-                newId = baseId + QString::number(number).toLower();
+                newId = baseId + QString::number(number);
                 number++;
             }
+
             idRenamingHash.insert(node.id(), newId);
         }
     }
