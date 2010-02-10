@@ -1245,8 +1245,7 @@ void QtVersion::updateToolChainAndMkspec() const
                makefileGenerator == QLatin1String("SYMBIAN_SBSV2")) {
         if (S60Manager *s60mgr = S60Manager::instance()) {
 #    ifdef Q_OS_WIN
-            if (!gcceDirectory().isEmpty())
-                m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this));
+            m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this));
             if (!qgetenv("RVCT22BIN").isEmpty())
                 m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
                              << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6));
