@@ -35,26 +35,16 @@
 
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/persistentsettings.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
-#include <QtCore/QtDebug>
 #include <QtCore/QDir>
-#include <QtCore/QSettings>
-#include <QtCore/QProcess>
-#include <QtCore/QCoreApplication>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QMainWindow>
-#include <QtGui/QInputDialog>
 #include <QtGui/QComboBox>
-#include <QtGui/QStringListModel>
-#include <QtGui/QListWidget>
-#include <QtGui/QPushButton>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;
@@ -62,52 +52,6 @@ using namespace ProjectExplorer;
 
 namespace {
 const char * const TOOLCHAIN_KEY("GenericProjectManager.GenericProject.Toolchain");
-
-/**
- * An editable string list model. New strings can be added by editing the entry
- * called "<new>", displayed at the end.
- */
-class ListModel: public QStringListModel
-{
-public:
-    ListModel(QObject *parent)
-        : QStringListModel(parent) {}
-
-    virtual ~ListModel() {}
-
-    virtual int rowCount(const QModelIndex &parent) const
-    { return 1 + QStringListModel::rowCount(parent); }
-
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const
-    { return QStringListModel::flags(index) | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled; }
-
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent) const
-    {
-        if (row == stringList().size())
-            return createIndex(row, column);
-
-        return QStringListModel::index(row, column, parent);
-    }
-
-    virtual QVariant data(const QModelIndex &index, int role) const
-    {
-        if (role == Qt::DisplayRole || role == Qt::EditRole) {
-            if (index.row() == stringList().size())
-                return QCoreApplication::translate("GenericProject", "<new>");
-        }
-
-        return QStringListModel::data(index, role);
-    }
-
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role)
-    {
-        if (role == Qt::EditRole && index.row() == stringList().size())
-            insertRow(index.row(), QModelIndex());
-
-        return QStringListModel::setData(index, value, role);
-    }
-};
-
 } // end of anonymous namespace
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -232,8 +176,8 @@ void GenericProject::parseProject(RefreshOptions options)
     if (options & Configuration) {
         m_projectIncludePaths = convertToAbsoluteFiles(readLines(includesFileName()));
 
-        QSettings projectInfo(m_fileName, QSettings::IniFormat);
-        m_generated = convertToAbsoluteFiles(projectInfo.value(QLatin1String("generated")).toStringList());
+        // TODO: Possibly load some configuration from the project file
+        //QSettings projectInfo(m_fileName, QSettings::IniFormat);
 
         m_defines.clear();
 
