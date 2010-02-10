@@ -183,11 +183,11 @@ void DocumentToolBar::updateEditorStatus()
     Core::IEditor *editor = m_documentWidget->textEditor();
 
     if (editor->file()->isReadOnly()) {
-        m_lockButton->setIcon(Core::ICore::instance()->editorManager()->openedEditorsModel()->lockedIcon());
+        m_lockButton->setIcon(m_editorsListModel->lockedIcon());
         m_lockButton->setEnabled(!editor->file()->fileName().isEmpty());
         m_lockButton->setToolTip(tr("Make writable"));
     } else {
-        m_lockButton->setIcon(Core::ICore::instance()->editorManager()->openedEditorsModel()->unlockedIcon());
+        m_lockButton->setIcon(m_editorsListModel->unlockedIcon());
         m_lockButton->setEnabled(false);
         m_lockButton->setToolTip(tr("File is writable"));
     }
