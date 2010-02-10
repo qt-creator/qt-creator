@@ -180,10 +180,12 @@ void Lexer::scan_helper(Token *tok)
 {
   _Lagain:
     while (_yychar && std::isspace(_yychar)) {
-        if (_yychar == '\n')
+        if (_yychar == '\n') {
+            tok->f.joined = false;
             tok->f.newline = true;
-        else
+        } else {
             tok->f.whitespace = true;
+        }
         yyinp();
     }
 
