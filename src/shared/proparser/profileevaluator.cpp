@@ -2220,7 +2220,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 }
                 int slash = r.lastIndexOf(QDir::separator());
                 if (slash != -1) {
-                    dirs.append(r.left(slash));
+                    dirs.append(r.left(slash+1));
                     r = r.mid(slash+1);
                 } else {
                     dirs.append(QString());
@@ -2230,15 +2230,13 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 for (int d = 0; d < dirs.count(); d++) {
                     QString dir = dirs[d];
                     QDir qdir(pfx + dir);
-                    if (!dir.isEmpty() && !dir.endsWith(QDir::separator()))
-                        dir += QDir::separator();
                     for (int i = 0; i < (int)qdir.count(); ++i) {
                         if (qdir[i] == statics.strDot || qdir[i] == statics.strDotDot)
                             continue;
                         QString fname = dir + qdir[i];
                         if (IoUtils::fileType(pfx + fname) == IoUtils::FileIsDir) {
                             if (recursive)
-                                dirs.append(fname);
+                                dirs.append(fname + QDir::separator());
                         }
                         if (regex.exactMatch(qdir[i]))
                             ret += fname;
