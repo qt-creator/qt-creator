@@ -7,6 +7,7 @@
 #include <Control.h>
 #include <Parser.h>
 #include <AST.h>
+#include <ASTVisitor.h>
 #include <Semantic.h>
 #include <Scope.h>
 #include <Symbols.h>
@@ -17,6 +18,7 @@
 #include <GenTemplateInstance.h>
 #include <Overview.h>
 #include <ExpressionUnderCursor.h>
+#include <Names.h>
 
 using namespace CPlusPlus;
 
@@ -130,6 +132,8 @@ private slots:
     void bracketed_expression_under_cursor_8();
 
     void objcClass_1();
+    void objcSelector_1();
+    void objcSelector_2();
 
     void q_enum_1();
 };
@@ -623,6 +627,82 @@ void tst_Semantic::objcClass_1()
     QVERIFY(deallocMethod->name() && deallocMethod->name()->identifier());
     QCOMPARE(QLatin1String(deallocMethod->name()->identifier()->chars()), QLatin1String("dealloc"));
     QVERIFY(!deallocMethod->isStatic());
+}
+
+void tst_Semantic::objcSelector_1()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "@interface A {}\n"
+                                            "-(void)a:(int)a b:(int)b c:(int)c;\n"
+                                            "@end\n",
+                                            true);
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 1U);
+
+    ObjCClass *iface = doc->globals->symbolAt(0)->asObjCClass();
+    QVERIFY(iface);
+    QVERIFY(iface->isInterface());
+    QCOMPARE(iface->memberCount(), 1U);
+
+    Declaration *decl = iface->memberAt(0)->asDeclaration();
+    QVERIFY(decl);
+    QVERIFY(decl->name());
+    const SelectorNameId *selId = decl->name()->asSelectorNameId();
+    QVERIFY(selId);
+    QCOMPARE(selId->nameCount(), 3U);
+    QCOMPARE(selId->nameAt(0)->identifier()->chars(), "a");
+    QCOMPARE(selId->nameAt(1)->identifier()->chars(), "b");
+    QCOMPARE(selId->nameAt(2)->identifier()->chars(), "c");
+}
+
+class CollectSelectors: public ASTVisitor
+{
+public:
+    CollectSelectors(TranslationUnit *xUnit): ASTVisitor(xUnit) {}
+
+    QList<ObjCSelectorAST *> operator()() {
+        selectors.clear();
+        accept(translationUnit()->ast());
+        return selectors;
+    }
+
+    virtual bool visit(ObjCSelectorWithArgumentsAST *ast) {selectors.append(ast); return false;}
+    virtual bool visit(ObjCSelectorWithoutArgumentsAST *ast) {selectors.append(ast); return false;}
+
+private:
+    QList<ObjCSelectorAST *> selectors;
+};
+
+void tst_Semantic::objcSelector_2()
+{
+    QSharedPointer<Document> doc = document("\n"
+                                            "@implementation A {}\n"
+                                            "-(SEL)x {\n"
+                                            "  return @selector(a:b:c:);\n"
+                                            "}\n"
+                                            "@end\n",
+                                            true);
+
+    QCOMPARE(doc->errorCount, 0U);
+    QCOMPARE(doc->globals->symbolCount(), 1U);
+
+    ObjCClass *iface = doc->globals->symbolAt(0)->asObjCClass();
+    QVERIFY(iface);
+    QCOMPARE(iface->memberCount(), 1U);
+
+    QList<ObjCSelectorAST*>selectors = CollectSelectors(doc->unit)();
+    QCOMPARE(selectors.size(), 2);
+
+    ObjCSelectorWithArgumentsAST *sel = selectors.at(1)->asObjCSelectorWithArguments();
+    QVERIFY(sel);
+
+    const SelectorNameId *selId = sel->selector_name->asSelectorNameId();
+    QVERIFY(selId);
+    QCOMPARE(selId->nameCount(), 3U);
+    QCOMPARE(selId->nameAt(0)->identifier()->chars(), "a");
+    QCOMPARE(selId->nameAt(1)->identifier()->chars(), "b");
+    QCOMPARE(selId->nameAt(2)->identifier()->chars(), "c");
 }
 
 void tst_Semantic::q_enum_1()
