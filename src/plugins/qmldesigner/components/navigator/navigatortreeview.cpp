@@ -34,6 +34,7 @@
 #include "navigatorwidget.h"
 
 #include <nodeproperty.h>
+#include "metainfo.h"
 
 #define _separator_line_color_ "#757575"
 
@@ -78,7 +79,22 @@ void IdItemDelegate::paint(QPainter *painter,
     ModelNode node = m_TreeModel->nodeForIndex(index);
 
     QIcon icon=node.metaInfo().icon();
-    if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
+    if (icon.isNull())
+    {
+        // if node has no own icon, search for it in the itemlibrary
+        QList <ItemLibraryInfo> InfoList = node.metaInfo().metaInfo().itemLibraryRepresentations(node.metaInfo());
+        foreach (const ItemLibraryInfo &entry, InfoList)
+        {
+            if (entry.typeName()==node.metaInfo().typeName()) {
+                icon = entry.icon();
+                break;
+            }
+        }
+
+        // if the library was also empty, use the default icon
+        if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
+    }
+
     QPixmap pixmap = icon.pixmap(option.rect.width(),option.rect.height()-4);
     painter->drawPixmap(option.rect.x()+5,option.rect.y()+2,pixmap);
 
