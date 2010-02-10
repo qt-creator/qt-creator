@@ -509,6 +509,9 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             if (role == Qt::DisplayRole) {
                 QString str = data->pending ? data->fileName : data->bpFileName;
                 str = QFileInfo(str).fileName();
+                // FIXME: better?
+                //if (data->bpMultiple && str.isEmpty() && !data->markerFileName.isEmpty())
+                //    str = data->markerFileName;
                 str = str.isEmpty() ? empty : str;
                 if (data->useFullPath)
                     str = "/.../" + str;
@@ -519,6 +522,9 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 3:
             if (role == Qt::DisplayRole) {
+                // FIXME: better?
+                //if (data->bpMultiple && str.isEmpty() && !data->markerFileName.isEmpty())
+                //    str = data->markerLineNumber;
                 const QString str = data->pending ? data->lineNumber : data->bpLineNumber;
                 return str.isEmpty() ? empty : str;
             }
