@@ -307,7 +307,7 @@ bool Target::fromMap(const QVariantMap &map)
         if (i == activeConfiguration)
             setActiveRunConfiguration(rc);
     }
-    // Ignore missing RCs: We will just populate them usign the default ones.
+    // Ignore missing RCs: We will just populate them using the default ones.
 
     return true;
 }
