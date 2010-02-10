@@ -182,15 +182,12 @@ void DocumentToolBar::updateEditorStatus()
 {
     Core::IEditor *editor = m_documentWidget->textEditor();
 
-    static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
-    static const QIcon unlockedIcon(QLatin1String(":/core/images/unlocked.png"));
-
     if (editor->file()->isReadOnly()) {
-        m_lockButton->setIcon(lockedIcon);
+        m_lockButton->setIcon(Core::ICore::instance()->editorManager()->openedEditorsModel()->lockedIcon());
         m_lockButton->setEnabled(!editor->file()->fileName().isEmpty());
         m_lockButton->setToolTip(tr("Make writable"));
     } else {
-        m_lockButton->setIcon(unlockedIcon);
+        m_lockButton->setIcon(Core::ICore::instance()->editorManager()->openedEditorsModel()->unlockedIcon());
         m_lockButton->setEnabled(false);
         m_lockButton->setToolTip(tr("File is writable"));
     }

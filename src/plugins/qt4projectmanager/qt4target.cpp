@@ -178,6 +178,8 @@ Qt4Target *Qt4TargetFactory::restore(ProjectExplorer::Project *parent, const QVa
 
 Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
     ProjectExplorer::Target(parent, id),
+    m_connectedPixmap(QLatin1String(":/qt4projectmanager/images/connected.png")),
+    m_disconnectedPixmap(QLatin1String(":/qt4projectmanager/images/notconnected.png")),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {
     connect(project(), SIGNAL(supportedTargetIdsChanged()),
@@ -413,8 +415,6 @@ void Qt4Target::slotUpdateDeviceInformation()
 
 void Qt4Target::updateToolTipAndIcon()
 {
-    static const QPixmap connected(":/qt4projectmanager/images/connected.png");
-    static const QPixmap notconnected(":/qt4projectmanager/images/notconnected.png");
     S60DeviceRunConfiguration *deviceRc(qobject_cast<S60DeviceRunConfiguration *>(activeRunConfiguration()));
     if (!deviceRc) {
         setToolTip(QString());
@@ -434,12 +434,12 @@ void Qt4Target::updateToolTipAndIcon()
         if (!friendlyPortName.isEmpty()) {
             // device connected
             setToolTip(tr("<b>Device:</b> %1").arg(friendlyPortName));
-            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - connected.width(),
-                               connected.height(), connected);
+            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - m_connectedPixmap.width(),
+                               m_connectedPixmap.height(), m_connectedPixmap);
         } else {
             setToolTip(tr("<b>Device:</b> Not connected"));
-            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - notconnected.width(),
-                               notconnected.height(), notconnected);
+            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - m_disconnectedPixmap.width(),
+                               m_disconnectedPixmap.height(), m_disconnectedPixmap);
         }
         setIcon(QIcon(pixmap));
     }

@@ -47,6 +47,7 @@ class QLabel;
 class QMessageBox;
 class QPoint;
 class QVariant;
+class QIcon;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -97,6 +98,7 @@ class GdbEngine;
 class CdbDebugEngine;
 class CdbDebugEnginePrivate;
 class TrkGdbAdapter;
+class BreakpointMarker;
 } // namespace Internal
 
 class DEBUGGER_EXPORT DebuggerStartParameters
@@ -173,6 +175,7 @@ public:
     friend class Internal::CdbDebugEngine;
     friend class Internal::CdbDebugEnginePrivate;
     friend class Internal::TrkGdbAdapter;
+    friend class Internal::BreakpointMarker;
 
     DebuggerState state() const;
     QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);
@@ -196,6 +199,8 @@ public:
                                  QString *settingsPage = 0) const;
 
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
+
+    QIcon locationMarkIcon() const;
 
     static DebuggerManager *instance();
 

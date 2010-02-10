@@ -247,9 +247,13 @@ static Debugger::Internal::IDebuggerEngine *winEngine = 0;
 
 struct DebuggerManagerPrivate
 {
-    DebuggerManagerPrivate(DebuggerManager *manager);
+    explicit DebuggerManagerPrivate(DebuggerManager *manager);
 
     static DebuggerManager *instance;
+
+    const QIcon m_stopSmallIcon;
+    const QIcon m_interruptSmallIcon;
+    const QIcon m_locationMarkIcon;
 
     // FIXME: Remove engine-specific state
     DebuggerStartParametersPtr m_startParameters;
@@ -303,12 +307,15 @@ struct DebuggerManagerPrivate
 
 DebuggerManager *DebuggerManagerPrivate::instance = 0;
 
-DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager)
-  : m_startParameters(new DebuggerStartParameters),
-    m_disassemblerViewAgent(manager),
-    m_engine(0)
+DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager) :
+   m_stopSmallIcon(QLatin1String(":/debugger/images/debugger_stop_small.png")),
+   m_interruptSmallIcon(QLatin1String(":/debugger/images/debugger_interrupt_small.png")),
+   m_locationMarkIcon(QLatin1String(":/debugger/images/location.svg")),
+   m_startParameters(new DebuggerStartParameters),
+   m_inferiorPid(0),
+   m_disassemblerViewAgent(manager),
+   m_engine(0)
 {
-    m_inferiorPid = 0;
 }
 
 DebuggerManager::DebuggerManager()
@@ -460,7 +467,7 @@ void DebuggerManager::init()
     d->m_actions.continueAction->setIcon(QIcon(":/debugger/images/debugger_continue_small.png"));
 
     d->m_actions.stopAction = new QAction(tr("Interrupt"), this);
-    d->m_actions.stopAction->setIcon(QIcon(":/debugger/images/debugger_interrupt_small.png"));
+    d->m_actions.stopAction->setIcon(d->m_interruptSmallIcon);
 
     d->m_actions.resetAction = new QAction(tr("Reset Debugger"), this);
 
@@ -1736,12 +1743,10 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
 
     const bool interruptIsExit = !running;
     if (interruptIsExit) {
-        static QIcon icon(":/debugger/images/debugger_stop_small.png");
-        d->m_actions.stopAction->setIcon(icon);
+        d->m_actions.stopAction->setIcon(d->m_stopSmallIcon);
         d->m_actions.stopAction->setText(tr("Stop Debugger"));
     } else {
-        static QIcon icon(":/debugger/images/debugger_interrupt_small.png");
-        d->m_actions.stopAction->setIcon(icon);
+        d->m_actions.stopAction->setIcon(d->m_interruptSmallIcon);
         d->m_actions.stopAction->setText(tr("Interrupt"));
     }
 
@@ -1858,6 +1863,11 @@ void DebuggerManager::ensureLogVisible()
     QAction *action = d->m_outputDock->toggleViewAction();
     if (!action->isChecked())
         action->trigger();
+}
+
+QIcon DebuggerManager::locationMarkIcon() const
+{
+    return d->m_locationMarkIcon;
 }
 
 QDebug operator<<(QDebug d, DebuggerState state)

@@ -56,6 +56,9 @@ static void drawSecondLevelSeparator(QPainter *painter, QPoint top, QPoint botto
 
 DoubleTabWidget::DoubleTabWidget(QWidget *parent) :
     QWidget(parent),
+    m_left(QLatin1String(":/projectexplorer/images/leftselection.png")),
+    m_mid(QLatin1String(":/projectexplorer/images/midselection.png")),
+    m_right(QLatin1String(":/projectexplorer/images/rightselection.png")),
     ui(new Ui::DoubleTabWidget),
     m_currentIndex(-1),
     m_lastVisibleIndex(-1)
@@ -358,12 +361,9 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
     }
 
     // second level tabs
-    static QPixmap left(":/projectexplorer/images/leftselection.png");
-    static QPixmap mid(":/projectexplorer/images/midselection.png");
-    static QPixmap right(":/projectexplorer/images/rightselection.png");
     if (m_currentIndex != -1) {
-        int y = r.height() + (OTHER_HEIGHT - left.height()) / 2.;
-        int imageHeight = left.height();
+        int y = r.height() + (OTHER_HEIGHT - m_left.height()) / 2.;
+        int imageHeight = m_left.height();
         Tab currentTab = m_tabs.at(m_currentIndex);
         QStringList subTabs = currentTab.subTabs;
         x = 0;
@@ -372,11 +372,11 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
             int textWidth = fm.width(subTabs.at(i));
             if (currentTab.currentSubTab == i) {
                 painter.setPen(Qt::white);
-                painter.drawPixmap(x, y, left);
+                painter.drawPixmap(x, y, m_left);
                 painter.drawPixmap(QRect(x + SELECTION_IMAGE_WIDTH, y,
                                          textWidth, imageHeight),
-                                   mid, QRect(0, 0, mid.width(), mid.height()));
-                painter.drawPixmap(x + SELECTION_IMAGE_WIDTH + textWidth, y, right);
+                                   m_mid, QRect(0, 0, m_mid.width(), m_mid.height()));
+                painter.drawPixmap(x + SELECTION_IMAGE_WIDTH + textWidth, y, m_right);
             } else {
                 painter.setPen(Qt::black);
             }

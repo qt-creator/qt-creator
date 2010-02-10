@@ -86,15 +86,10 @@ public:
 
     QIcon icon() const
     {
-        return icon(m_pending, m_enabled);
-    }
-
-    static const QIcon &icon(bool pending, bool enabled)
-    {
-        static const QIcon icon(":/debugger/images/breakpoint.svg");
-        static const QIcon icon1(":/debugger/images/breakpoint_disabled.svg");
-        static const QIcon icon2(":/debugger/images/breakpoint_pending.svg");
-        return enabled ? (pending ? icon2 : icon) : icon1;
+        const BreakHandler *handler = DebuggerManager::instance()->breakHandler();
+        if (!m_enabled)
+            return handler->disabledBreakpointIcon();
+        return m_pending ? handler->pendingBreakPointIcon() : handler->breakpointIcon();
     }
 
     void setPending(bool pending, bool enabled)
@@ -289,9 +284,14 @@ bool BreakpointData::conditionsMatch() const
 //
 //////////////////////////////////////////////////////////////////
 
-BreakHandler::BreakHandler(DebuggerManager *manager, QObject *parent)
-    : QAbstractTableModel(parent), m_manager(manager)
-{}
+BreakHandler::BreakHandler(DebuggerManager *manager, QObject *parent) :
+    QAbstractTableModel(parent),
+    m_breakpointIcon(QLatin1String(":/debugger/images/breakpoint.svg")),
+    m_disabledBreakpointIcon(QLatin1String(":/debugger/images/breakpoint_disabled.svg")),
+    m_pendingBreakPointIcon(QLatin1String(":/debugger/images/breakpoint_pending.svg")),
+    m_manager(manager)
+{
+}
 
 BreakHandler::~BreakHandler()
 {
@@ -488,19 +488,20 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
     switch (mi.column()) {
         case 0:
             if (role == Qt::DisplayRole) {
-                QString str = data->bpNumber;
+                const QString str = data->bpNumber;
                 return str.isEmpty() ? empty : str;
             }
-            //if (role == Qt::CheckStateRole)
-            //    return data->enabled ? Qt::Checked : Qt::Unchecked;
             if (role == Qt::UserRole)
                 return data->enabled;
-            if (role == Qt::DecorationRole)
-                return BreakpointMarker::icon(data->pending, data->enabled);
+            if (role == Qt::DecorationRole) {
+                if (!data->enabled)
+                    return m_disabledBreakpointIcon;
+                return data->pending ? m_pendingBreakPointIcon : m_breakpointIcon;
+            }
             break;
         case 1:
             if (role == Qt::DisplayRole) {
-                QString str = data->pending ? data->funcName : data->bpFuncName;
+                const QString str = data->pending ? data->funcName : data->bpFuncName;
                 return str.isEmpty() ? empty : str;
             }
             break;
@@ -508,8 +509,6 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             if (role == Qt::DisplayRole) {
                 QString str = data->pending ? data->fileName : data->bpFileName;
                 str = QFileInfo(str).fileName();
-                //if (data->bpMultiple && str.isEmpty() && !data->markerFileName.isEmpty())
-                //    str = data->markerFileName;
                 str = str.isEmpty() ? empty : str;
                 if (data->useFullPath)
                     str = "/.../" + str;
@@ -520,9 +519,7 @@ QVariant BreakHandler::data(const QModelIndex &mi, int role) const
             break;
         case 3:
             if (role == Qt::DisplayRole) {
-                QString str = data->pending ? data->lineNumber : data->bpLineNumber;
-                //if (data->bpMultiple && str.isEmpty() && !data->markerFileName.isEmpty())
-                //    str = data->markerLineNumber;
+                const QString str = data->pending ? data->lineNumber : data->bpLineNumber;
                 return str.isEmpty() ? empty : str;
             }
             break;

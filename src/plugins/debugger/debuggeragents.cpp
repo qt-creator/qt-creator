@@ -132,19 +132,13 @@ void MemoryViewAgent::addLazyData(quint64 addr, const QByteArray &ba)
 //
 ///////////////////////////////////////////////////////////////////////
 
-static QIcon locationMarkIcon()
-{
-    static const QIcon icon(":/debugger/images/location.svg");
-    return icon;
-}
-
 // Used for the disassembler view
 class LocationMark2 : public TextEditor::ITextMark
 {
 public:
     LocationMark2() {}
 
-    QIcon icon() const { return locationMarkIcon(); }
+    QIcon icon() const { return DebuggerManager::instance()->locationMarkIcon(); }
     void updateLineNumber(int /*lineNumber*/) {}
     void updateBlock(const QTextBlock & /*block*/) {}
     void removedFromEditor() {}

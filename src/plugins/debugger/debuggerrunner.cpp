@@ -131,7 +131,7 @@ DebuggerRunControl::DebuggerRunControl(DebuggerManager *manager,
     default:
         break;
     }
-    if (const ProjectExplorer::Project *project = runConfiguration->target()->project()) {
+    if (runConfiguration->target()->project()) {
         m_startParameters->buildDir =
             runConfiguration->target()->activeBuildConfiguration()->buildDirectory();
     }

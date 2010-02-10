@@ -113,9 +113,6 @@ Qt::ItemFlags SourceFilesModel::flags(const QModelIndex &index) const
 
 QVariant SourceFilesModel::data(const QModelIndex &index, int role) const
 {
-    //static const QIcon icon(":/gdbdebugger/images/breakpoint.svg");
-    //static const QIcon icon2(":/gdbdebugger/images/breakpoint_pending.svg");
-
     int row = index.row();
     if (row < 0 || row >= m_shortNames.size())
         return QVariant();

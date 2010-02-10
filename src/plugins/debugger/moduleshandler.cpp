@@ -96,9 +96,6 @@ QVariant ModulesModel::headerData(int section,
 
 QVariant ModulesModel::data(const QModelIndex &index, int role) const
 {
-    //static const QIcon icon(":/debugger/images/breakpoint.svg");
-    //static const QIcon icon2(":/debugger/images/breakpoint_pending.svg");
-
     int row = index.row();
     if (row < 0 || row >= m_modules.size())
         return QVariant();

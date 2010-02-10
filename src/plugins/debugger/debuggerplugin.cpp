@@ -280,12 +280,6 @@ bool DebuggerListener::coreAboutToClose()
 namespace Debugger {
 namespace Internal {
 
-static QIcon locationMarkIcon()
-{
-    static const QIcon icon(":/debugger/images/location.svg");
-    return icon;
-}
-
 // Used in "real" editors
 class LocationMark : public TextEditor::BaseTextMark
 {
@@ -296,7 +290,7 @@ public:
         : BaseTextMark(fileName, linenumber)
     {}
 
-    QIcon icon() const { return locationMarkIcon(); }
+    QIcon icon() const { return DebuggerManager::instance()->locationMarkIcon(); }
     void updateLineNumber(int /*lineNumber*/) {}
     void updateBlock(const QTextBlock & /*block*/) {}
     void removedFromEditor() {}

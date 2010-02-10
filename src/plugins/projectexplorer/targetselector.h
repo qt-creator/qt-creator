@@ -1,7 +1,8 @@
 #ifndef TARGETSELECTOR_H
 #define TARGETSELECTOR_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
+#include <QtGui/QPixmap>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -41,6 +42,11 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 private:
+    const QPixmap m_unselected;
+    const QPixmap m_runselected;
+    const QPixmap m_buildselected;
+    const QPixmap m_targetaddbutton;
+
     QList<Target> m_targets;
 
     int m_currentTargetIndex;

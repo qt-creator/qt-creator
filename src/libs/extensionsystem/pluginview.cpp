@@ -114,16 +114,16 @@ PluginSpec *PluginView::currentPlugin() const
 
 void PluginView::updateList()
 {
-    static QIcon okIcon(":/extensionsystem/images/ok.png");
-    static QIcon errorIcon(":/extensionsystem/images/error.png");
+    const QIcon okIcon(QLatin1String(":/extensionsystem/images/ok.png"));
+    const QIcon errorIcon(QLatin1String(":/extensionsystem/images/error.png"));
     QList<QTreeWidgetItem *> items;
     QTreeWidgetItem *currentItem = 0;
     PluginSpec *currPlugin = currentPlugin();
     foreach (PluginSpec *spec, p->manager->plugins()) {
         QTreeWidgetItem *item = new QTreeWidgetItem(QStringList()
-            << ""
+            << QString()
             << spec->name()
-            << QString("%1 (%2)").arg(spec->version()).arg(spec->compatVersion())
+            << QString::fromLatin1("%1 (%2)").arg(spec->version(), spec->compatVersion())
             << spec->vendor()
             << QDir::toNativeSeparators(spec->filePath()));
         item->setToolTip(4, QDir::toNativeSeparators(spec->filePath()));

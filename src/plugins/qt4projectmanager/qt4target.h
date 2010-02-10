@@ -36,6 +36,8 @@
 
 #include <projectexplorer/target.h>
 
+#include <QtGui/QPixmap>
+
 namespace Qt4ProjectManager {
 
 class Qt4Project;
@@ -72,7 +74,7 @@ class Qt4Target : public ProjectExplorer::Target
     friend class Qt4TargetFactory;
 
 public:
-    Qt4Target(Qt4Project *parent, const QString &id);
+    explicit Qt4Target(Qt4Project *parent, const QString &id);
     virtual ~Qt4Target();
 
     Qt4BuildConfiguration *activeBuildConfiguration() const;
@@ -107,6 +109,9 @@ private slots:
     void updateToolTipAndIcon();
 
 private:
+    const QPixmap m_connectedPixmap;
+    const QPixmap m_disconnectedPixmap;
+
     Internal::Qt4BuildConfigurationFactory *m_buildConfigurationFactory;
 };
 

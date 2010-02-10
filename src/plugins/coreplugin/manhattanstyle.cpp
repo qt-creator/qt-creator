@@ -99,14 +99,7 @@ bool panelWidget(const QWidget *widget)
 class ManhattanStylePrivate
 {
 public:
-    ManhattanStylePrivate(const QString &baseStyleName)
-    {
-        style = QStyleFactory::create(baseStyleName);
-        QTC_ASSERT(style, /**/);
-
-        lineeditImage = QImage(":/core/images/inputfield.png");
-        lineeditImage_disabled = QImage(":/core/images/inputfield_disabled.png");
-    }
+    explicit ManhattanStylePrivate(const QString &baseStyleName);
 
     ~ManhattanStylePrivate()
     {
@@ -118,11 +111,22 @@ public:
 
 public:
     QStyle *style;
-    QImage lineeditImage;
-    QImage lineeditImage_disabled;
-
+    const QImage lineeditImage;
+    const QImage lineeditImage_disabled;
+    const QPixmap extButtonPixmap;
+    const QPixmap closeButtonPixmap;
     StyleAnimator animator;
 };
+
+ManhattanStylePrivate::ManhattanStylePrivate(const QString &baseStyleName) :
+    style(QStyleFactory::create(baseStyleName)),
+    lineeditImage(QLatin1String(":/core/images/inputfield.png")),
+    lineeditImage_disabled(QLatin1String(":/core/images/inputfield_disabled.png")),
+    extButtonPixmap(QLatin1String(":/core/images/extension.png")),
+    closeButtonPixmap(QLatin1String(":/core/images/closebutton.png"))
+{
+    QTC_ASSERT(style, /**/);
+}
 
 ManhattanStyle::ManhattanStyle(const QString &baseStyleName)
     : QWindowsStyle(), d(new ManhattanStylePrivate(baseStyleName))
@@ -376,22 +380,18 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
 
     QPixmap pixmap;
     switch (standardPixmap) {
-    case QStyle::SP_ToolBarHorizontalExtensionButton: {
-            static const QPixmap extButton(":/core/images/extension.png");
-            pixmap = extButton;
-        }
+    case QStyle::SP_ToolBarHorizontalExtensionButton:
+        pixmap = d->extButtonPixmap;
         break;
-    case QStyle::SP_TitleBarCloseButton: {
-            static const QPixmap closeButton(":/core/images/closebutton.png");
-            pixmap = closeButton;
-        }
+    case QStyle::SP_TitleBarCloseButton:
+        pixmap = d->closeButtonPixmap;
         break;
     default:
         pixmap = d->style->standardPixmap(standardPixmap, opt, widget);
+        break;
     }
     return pixmap;
 }
-
 
 int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                               QStyleHintReturn *returnData) const

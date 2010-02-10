@@ -38,6 +38,23 @@ Q_DECLARE_METATYPE(Core::IEditor*)
 
 namespace Core {
 
+OpenEditorsModel::OpenEditorsModel(QObject *parent) :
+    QAbstractItemModel(parent),
+    m_lockedIcon(QLatin1String(":/core/images/locked.png")),
+    m_unlockedIcon(QLatin1String(":/core/images/unlocked.png"))
+{
+}
+
+QIcon OpenEditorsModel::lockedIcon() const
+{
+    return m_lockedIcon;
+}
+
+QIcon OpenEditorsModel::unlockedIcon() const
+{
+    return m_unlockedIcon;
+}
+
 QString OpenEditorsModel::Entry::fileName() const {
     return editor ? editor->file()->fileName() : m_fileName;
 }
@@ -265,8 +282,7 @@ QVariant OpenEditorsModel::data(const QModelIndex &index, int role) const
                 : e.displayName();
     case Qt::DecorationRole:
         return (e.editor && e.editor->file()->isReadOnly())
-                ? QIcon(QLatin1String(":/core/images/locked.png"))
-                : QIcon();
+                ? m_lockedIcon : QIcon();
     case Qt::ToolTipRole:
         return e.fileName().isEmpty()
                 ? e.displayName()

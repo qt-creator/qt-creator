@@ -375,9 +375,6 @@ void EditorView::checkEditorStatus()
 
 void EditorView::updateEditorStatus(IEditor *editor)
 {
-    static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
-    static const QIcon unlockedIcon(QLatin1String(":/core/images/unlocked.png"));
-
     m_lockButton->setVisible(editor != 0);
 
     if (!editor) {
@@ -386,11 +383,11 @@ void EditorView::updateEditorStatus(IEditor *editor)
     }
 
     if (editor->file()->isReadOnly()) {
-        m_lockButton->setIcon(lockedIcon);
+        m_lockButton->setIcon(m_model->lockedIcon());
         m_lockButton->setEnabled(!editor->file()->fileName().isEmpty());
         m_lockButton->setToolTip(tr("Make writable"));
     } else {
-        m_lockButton->setIcon(unlockedIcon);
+        m_lockButton->setIcon(m_model->unlockedIcon());
         m_lockButton->setEnabled(false);
         m_lockButton->setToolTip(tr("File is writable"));
     }

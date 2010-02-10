@@ -3,6 +3,7 @@
 
 #include <QtCore/QVector>
 #include <QtGui/QWidget>
+#include <QtGui/QPixmap>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -41,7 +42,12 @@ private:
         int currentSubTab;
     };
 
+    const QPixmap m_left;
+    const QPixmap m_mid;
+    const QPixmap m_right;
+
     Ui::DoubleTabWidget *ui;
+
 
     QString m_title;
     QList<Tab> m_tabs;

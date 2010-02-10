@@ -35,6 +35,8 @@
 #include <utils/qtcassert.h>
 
 #include <QtGui/QHeaderView>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QFocusEvent>
 
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
 Q_DECLARE_METATYPE(Core::IFile *)
@@ -48,6 +50,7 @@ const int OpenEditorsWindow::MARGIN = 4;
 
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QWidget(parent, Qt::Popup),
+    m_emptyIcon(QLatin1String(":/core/images/empty14.png")),
     m_editorList(new QTreeWidget(this))
 {
     resize(QSize(WIDTH, HEIGHT));
@@ -184,9 +187,6 @@ void OpenEditorsWindow::centerOnItem(int selectedIndex)
 
 void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenEditorsModel *model)
 {
-    static const QIcon lockedIcon(QLatin1String(":/core/images/locked.png"));
-    static const QIcon emptyIcon(QLatin1String(":/core/images/empty14.png"));
-
     m_editorList->clear();
     bool first = true;
 
@@ -200,7 +200,7 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
         QTreeWidgetItem *item = new QTreeWidgetItem();
         if (hi.file->isModified())
             title += tr("*");
-        item->setIcon(0, hi.file->isReadOnly() ? lockedIcon : emptyIcon);
+        item->setIcon(0, hi.file->isReadOnly() ? model->lockedIcon() : m_emptyIcon);
         item->setText(0, title);
         item->setToolTip(0, hi.file->fileName());
         item->setData(0, Qt::UserRole, QVariant::fromValue(hi.file.data()));
@@ -227,7 +227,7 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
             QString title = model->displayNameForFile(hi.file);
             if (hi.file->isModified())
                 title += tr("*");
-            item->setIcon(0, hi.file->isReadOnly() ? lockedIcon : emptyIcon);
+            item->setIcon(0, hi.file->isReadOnly() ? model->lockedIcon() : m_emptyIcon);
             item->setText(0, title);
             item->setToolTip(0, hi.file->fileName());
             item->setData(0, Qt::UserRole, QVariant::fromValue(hi.file.data()));
@@ -250,7 +250,7 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
             continue;
         QTreeWidgetItem *item = new QTreeWidgetItem();
         QString title = entry.displayName();
-        item->setIcon(0, emptyIcon);
+        item->setIcon(0, m_emptyIcon);
         item->setText(0, title);
         item->setToolTip(0, entry.fileName());
         item->setData(0, Qt::UserRole+2, QVariant::fromValue(entry.id()));

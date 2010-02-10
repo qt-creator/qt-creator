@@ -33,6 +33,7 @@
 #include "../core_global.h"
 
 #include <QtCore/QAbstractItemModel>
+#include <QtGui/QIcon>
 
 namespace Core {
 
@@ -43,7 +44,11 @@ class CORE_EXPORT OpenEditorsModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    OpenEditorsModel(QObject *parent) : QAbstractItemModel(parent) {}
+    explicit OpenEditorsModel(QObject *parent);
+
+    QIcon lockedIcon() const;
+    QIcon unlockedIcon() const;
+
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QModelIndex parent(const QModelIndex &/*index*/) const { return QModelIndex(); }
@@ -91,6 +96,10 @@ private:
     void addEntry(const Entry &entry);
     int findEditor(IEditor *editor) const;
     int findFileName(const QString &filename) const;
+
+    const QIcon m_lockedIcon;
+    const QIcon m_unlockedIcon;
+
     QList<Entry> m_editors;
     QList<IEditor *>m_duplicateEditors;
 };

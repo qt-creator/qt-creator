@@ -12,6 +12,10 @@ using namespace ProjectExplorer::Internal;
 
 TargetSelector::TargetSelector(QWidget *parent) :
     QWidget(parent),
+    m_unselected(QLatin1String(":/projectexplorer/images/targetunselected.png")),
+    m_runselected(QLatin1String(":/projectexplorer/images/targetrunselected.png")),
+    m_buildselected(QLatin1String(":/projectexplorer/images/targetbuildselected.png")),
+    m_targetaddbutton(QLatin1String(":/projectexplorer/images/targetaddbutton.png")),
     m_currentTargetIndex(-1)
 {
     QFont f = font();
@@ -125,10 +129,6 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
 
 void TargetSelector::paintEvent(QPaintEvent *event)
 {
-    static QPixmap unselected(":/projectexplorer/images/targetunselected.png");
-    static QPixmap runselected(":/projectexplorer/images/targetrunselected.png");
-    static QPixmap buildselected(":/projectexplorer/images/targetbuildselected.png");
-    static QPixmap targetaddbutton(":/projectexplorer/images/targetaddbutton.png");
     Q_UNUSED(event)
 
     QPainter p(this);
@@ -144,13 +144,13 @@ void TargetSelector::paintEvent(QPaintEvent *event)
     int index = 0;
     QFontMetrics fm(font());
     foreach (const Target &target, m_targets) {
-        QPixmap *pixmap = &unselected;
+        const QPixmap *pixmap = &m_unselected;
         if (index == m_currentTargetIndex) {
             p.setPen(QColor(255, 255, 255));
             if (target.currentSubIndex == 0) {
-                pixmap = &buildselected;
+                pixmap = &m_buildselected;
             } else {
-                pixmap = &runselected;
+                pixmap = &m_runselected;
             }
         } else {
             p.setPen(QColor(0, 0, 0));
@@ -169,5 +169,5 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         ++index;
     }
     // draw add button
-    p.drawPixmap(x, 1, targetaddbutton);
+    p.drawPixmap(x, 1, m_targetaddbutton);
 }

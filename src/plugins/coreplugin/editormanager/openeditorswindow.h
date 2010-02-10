@@ -30,12 +30,13 @@
 #ifndef OPENEDITORSWINDOW_H
 #define OPENEDITORSWINDOW_H
 
-#include <QtCore/QTimer>
 #include <QtGui/QWidget>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QFocusEvent>
-#include <QtGui/QTreeWidget>
-#include <QtDebug>
+#include <QtGui/QIcon>
+
+QT_BEGIN_NAMESPACE
+class QTreeWidgetItem;
+class QTreeWidget;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -54,8 +55,7 @@ class OpenEditorsWindow : public QWidget
 public:
     enum Mode {ListMode, HistoryMode };
 
-    OpenEditorsWindow(QWidget *parent = 0);
-    ~OpenEditorsWindow() {}
+    explicit OpenEditorsWindow(QWidget *parent = 0);
 
     void setEditors(EditorView *mainView, EditorView *view, OpenEditorsModel *model);
 
@@ -85,6 +85,7 @@ private:
 
     bool isSameFile(IEditor *editorA, IEditor *editorB) const;
 
+    const QIcon m_emptyIcon;
     QTreeWidget *m_editorList;
 };
 

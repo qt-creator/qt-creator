@@ -34,6 +34,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QAbstractTableModel>
+#include <QtGui/QIcon>
 
 namespace Debugger {
 class DebuggerManager;
@@ -143,6 +144,10 @@ public:
     QList<BreakpointData *> takeEnabledBreakpoints(); // not owned
     QList<BreakpointData *> takeDisabledBreakpoints(); // not owned
 
+    QIcon breakpointIcon() const         { return m_breakpointIcon; }
+    QIcon disabledBreakpointIcon() const { return m_disabledBreakpointIcon; }
+    QIcon pendingBreakPointIcon() const  { return m_pendingBreakPointIcon; }
+
 public slots:
     void setBreakpoint(const QString &fileName, int lineNumber);
     void toggleBreakpointEnabled(BreakpointData *data);
@@ -167,6 +172,10 @@ private:
     void saveBreakpoints();
     void resetBreakpoints();
     void removeBreakpointHelper(int index);
+
+    const QIcon m_breakpointIcon;
+    const QIcon m_disabledBreakpointIcon;
+    const QIcon m_pendingBreakPointIcon;
 
     DebuggerManager *m_manager; // not owned
     QList<BreakpointData *> m_bp;
