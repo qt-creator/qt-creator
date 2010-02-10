@@ -48,12 +48,50 @@ class tst_FindUsages: public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void inlineMethod();
+
     // Objective-C
     void objc_args();
 //    void objc_methods();
 //    void objc_fields();
 //    void objc_classes();
 };
+
+void tst_FindUsages::inlineMethod()
+{
+    const QByteArray src = "\n"
+                           "class Tst {\n"
+                           "  int method(int arg) {\n"
+                           "    return arg;\n"
+                           "  }\n"
+                           "};\n";
+    Document::Ptr doc = Document::create("inlineMethod");
+    doc->setSource(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 1U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *tst = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(tst);
+    QCOMPARE(tst->memberCount(), 1U);
+    Function *method = tst->memberAt(0)->asFunction();
+    QVERIFY(method);
+    QCOMPARE(method->argumentCount(), 1U);
+    Argument *arg = method->argumentAt(0)->asArgument();
+    QVERIFY(arg);
+    QCOMPARE(arg->identifier()->chars(), "arg");
+
+    FindUsages findUsages(doc, snapshot);
+    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
+    findUsages(arg);
+    QCOMPARE(findUsages.usages().size(), 2);
+    QCOMPARE(findUsages.references().size(), 2);
+}
 
 #if 0
 @interface Clazz {} +(void)method:(int)arg; @end
