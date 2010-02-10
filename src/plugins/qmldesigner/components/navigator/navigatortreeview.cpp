@@ -76,6 +76,9 @@ void IdItemDelegate::paint(QPainter *painter,
     if (option.state & QStyle::State_Selected)
         painter->fillRect(option.rect, option.palette.highlight());
 
+    if (m_TreeModel->isNodeInvisible( index ))
+        painter->setOpacity(0.5);
+
     ModelNode node = m_TreeModel->nodeForIndex(index);
 
     QIcon icon=node.metaInfo().icon();
@@ -116,8 +119,6 @@ void IdItemDelegate::paint(QPainter *painter,
         }
     }
 
-    if (m_TreeModel->isNodeInvisible( index ))
-        painter->setOpacity(0.5);
     painter->drawText(option.rect.bottomLeft()+QPoint(8+pixmap.width(),-4),myString);
 
     painter->restore();
