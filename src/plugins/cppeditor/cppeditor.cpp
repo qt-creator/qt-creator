@@ -411,6 +411,12 @@ protected:
         accept(ast->argument_list);
         return false;
     }
+
+    virtual bool visit(ObjCMessageArgumentDeclarationAST *ast)
+    {
+        accept(ast->param_name);
+        return false;
+    }
 };
 
 

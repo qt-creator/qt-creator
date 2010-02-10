@@ -694,8 +694,8 @@ bool CheckDeclaration::visit(ObjCMethodDeclarationAST *ast)
         symbol->setStorage(methodTy->storage());
     }
 
-    symbol->setStartOffset(tokenAt(selector->firstToken()).offset);
-    symbol->setEndOffset(tokenAt(selector->lastToken()).offset);
+    symbol->setStartOffset(tokenAt(ast->firstToken()).offset);
+    symbol->setEndOffset(tokenAt(ast->lastToken()).offset);
     symbol->setVisibility(semantic()->currentObjCVisibility());
 
     _scope->enterSymbol(symbol);

@@ -265,7 +265,6 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
 
     ObjCMethod *method = control()->newObjCMethod(location, ast->selector->selector_name);
     ast->symbol = method;
-    method->setSourceLocation(location);
     method->setScope(_scope);
     method->setVisibility(semantic()->currentVisibility());
     method->setReturnType(returnType);
