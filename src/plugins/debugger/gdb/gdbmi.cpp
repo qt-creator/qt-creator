@@ -39,6 +39,12 @@
 namespace Debugger {
 namespace Internal {
 
+void skipCommas(const char *&from, const char *to)
+{
+    while (*from == ',' && from != to)
+        ++from;
+}
+
 QTextStream &operator<<(QTextStream &os, const GdbMi &mi)
 {
     return os << mi.toString();
@@ -180,6 +186,7 @@ void GdbMi::parseTuple(const char *&from, const char *to)
 
 void GdbMi::parseTuple_helper(const char *&from, const char *to)
 {
+    skipCommas(from, to);
     //qDebug() << "parseTuple_helper: " << QByteArray(from, to - from);
     m_type = Tuple;
     while (from < to) {
@@ -193,8 +200,7 @@ void GdbMi::parseTuple_helper(const char *&from, const char *to)
         if (!child.isValid())
             return;
         m_children += child;
-        if (*from == ',')
-            ++from;
+        skipCommas(from, to);
     }
 }
 
@@ -204,6 +210,7 @@ void GdbMi::parseList(const char *&from, const char *to)
     QTC_ASSERT(*from == '[', /**/);
     ++from;
     m_type = List;
+    skipCommas(from, to);
     while (from < to) {
         if (*from == ']') {
             ++from;
@@ -213,8 +220,7 @@ void GdbMi::parseList(const char *&from, const char *to)
         child.parseResultOrValue(from, to);
         if (child.isValid())
             m_children += child;
-        if (*from == ',')
-            ++from;
+        skipCommas(from, to);
     }
 }
 
