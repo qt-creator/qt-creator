@@ -425,7 +425,7 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const QString &
     }
 }
 
-void FormEditorView::customNotification(const AbstractView */*view*/, const QString &identifier, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
+void FormEditorView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     if (identifier == "__start rewriter transaction__") {
         m_transactionCounter++;
@@ -440,6 +440,7 @@ void FormEditorView::customNotification(const AbstractView */*view*/, const QStr
             m_formEditorWidget->setFeedbackNode(QmlItemNode());
     }
 
+    QmlModelView::customNotification(view, identifier, nodeList, data);
 }
 
 
