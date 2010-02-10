@@ -147,13 +147,13 @@ bool RegisterHandler::isEmpty() const
     return m_registers.isEmpty();
 }
 
-void RegisterHandler::setRegisters(const QList<Register> &registers)
+void RegisterHandler::setRegisters(const Registers &registers)
 {
     m_registers = registers;
     reset();
 }
 
-QList<Register> RegisterHandler::registers() const
+Registers RegisterHandler::registers() const
 {
     return m_registers;
 }

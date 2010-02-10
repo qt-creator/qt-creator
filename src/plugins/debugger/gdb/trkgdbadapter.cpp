@@ -2113,8 +2113,9 @@ void TrkGdbAdapter::trkReloadRegisters()
     // Take advantage of direct access to cached register values.
     QTC_ASSERT(m_snapshot.registerValid, /**/);
     RegisterHandler *handler = m_engine->manager()->registerHandler();
-    QList<Register> registers = handler->registers();
-    QTC_ASSERT(registers.size() >= 25,
+    Registers registers = handler->registers();
+
+    QTC_ASSERT(registers.size() >= 26,
         qDebug() << "HAVE: " << registers.size(); return);
     for (int i = 0; i < 16; ++i) {
         Register &reg = registers[i];
@@ -2123,7 +2124,7 @@ void TrkGdbAdapter::trkReloadRegisters()
         if (reg.changed)
             reg.value = value;
     }
-    Register &reg = registers[24];
+    Register &reg = registers[25];
     QString value = hexxNumber(m_snapshot.registers[16]);
     reg.changed = (value != reg.value);
     if (reg.changed)

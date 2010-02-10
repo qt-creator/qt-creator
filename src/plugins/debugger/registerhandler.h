@@ -31,6 +31,7 @@
 #define DEBUGGER_REGISTERHANDLER_H
 
 #include <QtCore/QAbstractTableModel>
+#include <QtCore/QVector>
 
 namespace Debugger {
 namespace Internal {
@@ -54,6 +55,8 @@ public:
     bool changed;
 };
 
+typedef QVector<Register> Registers;
+
 class RegisterHandler : public QAbstractTableModel
 {
     Q_OBJECT
@@ -64,8 +67,8 @@ public:
     QAbstractItemModel *model() { return this; }
 
     bool isEmpty() const; // nothing known so far?
-    void setRegisters(const QList<Register> &registers);
-    QList<Register> registers() const;
+    void setRegisters(const Registers &registers);
+    Registers registers() const;
     void removeAll();
     Q_SLOT void setNumberBase(int base);
 
@@ -77,7 +80,7 @@ private:
         int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &idx) const;
 
-    QList<Register> m_registers;
+    Registers m_registers;
     int m_base;
     int m_strlen; // approximate width of an value in chars
 };

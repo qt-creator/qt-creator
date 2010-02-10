@@ -2819,6 +2819,9 @@ void GdbEngine::reloadRegisters()
     if (!m_registerNamesListed) {
         postCommand("-data-list-register-names", CB(handleRegisterListNames));
         m_registerNamesListed = true;
+        // FIXME: Maybe better completely re-do this logic in TRK adapter.
+        if (m_gdbAdapter->isTrkAdapter())
+            return;
     }
 
     if (m_gdbAdapter->isTrkAdapter()) {
@@ -2850,11 +2853,14 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
         return;
     }
 
-    QList<Register> registers;
+    Registers registers;
     foreach (const GdbMi &item, response.data.findChild("register-names").children())
         registers.append(Register(item.data()));
 
     manager()->registerHandler()->setRegisters(registers);
+
+    if (m_gdbAdapter->isTrkAdapter())
+        m_gdbAdapter->trkReloadRegisters();
 }
 
 void GdbEngine::handleRegisterListValues(const GdbResponse &response)
@@ -2862,7 +2868,7 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
     if (response.resultClass != GdbResultDone)
         return;
 
-    QList<Register> registers = manager()->registerHandler()->registers();
+    Registers registers = manager()->registerHandler()->registers();
 
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     foreach (const GdbMi &item, response.data.findChild("register-values").children()) {
