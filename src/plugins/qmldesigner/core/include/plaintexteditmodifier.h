@@ -66,6 +66,8 @@ public:
     virtual void move(const MoveInfo &moveInfo);
     virtual void indent(int offset, int length) = 0;
 
+    virtual int indentDepth() const = 0;
+
     virtual void startGroup();
     virtual void flushGroup();
     virtual void commitGroup();
@@ -89,6 +91,20 @@ private:
     bool m_changeSignalsEnabled;
     bool m_pendingChangeSignal;
     bool m_ongoingTextChange;
+};
+
+class CORESHARED_EXPORT NotIndentingTextEditModifier: public PlainTextEditModifier
+{
+public:
+    NotIndentingTextEditModifier(QPlainTextEdit *textEdit)
+        : PlainTextEditModifier(textEdit)
+    {}
+
+    virtual void indent(int /*offset*/, int /*length*/)
+    {}
+
+    virtual int indentDepth() const
+    { return 0; }
 };
 
 }

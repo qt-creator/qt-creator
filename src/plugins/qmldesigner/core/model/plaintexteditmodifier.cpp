@@ -46,6 +46,8 @@ PlainTextEditModifier::PlainTextEditModifier(QPlainTextEdit *textEdit):
         m_pendingChangeSignal(false),
         m_ongoingTextChange(false)
 {
+    Q_ASSERT(textEdit);
+
     connect(m_textEdit, SIGNAL(textChanged()),
             this, SLOT(textEditChanged()));
 }

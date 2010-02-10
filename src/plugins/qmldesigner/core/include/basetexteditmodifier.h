@@ -34,12 +34,14 @@
 #include "corelib_global.h"
 #include "plaintexteditmodifier.h"
 
+#include <texteditor/basetexteditor.h>
+
 namespace QmlDesigner {
 
 class CORESHARED_EXPORT BaseTextEditModifier: public PlainTextEditModifier
 {
 public:
-    BaseTextEditModifier(QPlainTextEdit *textEdit);
+    BaseTextEditModifier(TextEditor::BaseTextEditor *textEdit);
 
     virtual void indent(int offset, int length);
 

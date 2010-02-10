@@ -29,12 +29,11 @@
 
 #include "basetexteditmodifier.h"
 
-#include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
 
 using namespace QmlDesigner;
 
-BaseTextEditModifier::BaseTextEditModifier(QPlainTextEdit *textEdit):
+BaseTextEditModifier::BaseTextEditModifier(TextEditor::BaseTextEditor *textEdit):
         PlainTextEditModifier(textEdit)
 {
 }
@@ -44,9 +43,7 @@ void BaseTextEditModifier::indent(int offset, int length)
     if (length == 0 || offset < 0 || offset + length >= text().length())
         return;
 
-//    qDebug() << "PlainTextEditModifier::indent(" << offset << "," << length << ")";
     if (TextEditor::BaseTextEditor *bte = dynamic_cast<TextEditor::BaseTextEditor*>(plainTextEdit())) {
-//        qDebug() << "**** Doing indentation";
         // find the applicable block:
         QTextDocument *doc = bte->document();
         QTextCursor tc(doc);
@@ -55,8 +52,6 @@ void BaseTextEditModifier::indent(int offset, int length)
         tc.setPosition(offset + length, QTextCursor::KeepAnchor);
         bte->indentInsertedText(tc);
         tc.endEditBlock();
-    } else {
-//        qDebug() << "**** Skipping indentation";
     }
 }
 
@@ -65,7 +60,6 @@ int BaseTextEditModifier::indentDepth() const
     if (TextEditor::BaseTextEditor *bte = dynamic_cast<TextEditor::BaseTextEditor*>(plainTextEdit())) {
         return bte->tabSettings().m_indentSize;
     } else {
-        Q_ASSERT(false && "BaseTextEditModifier does not have a BaseTextEditor");
         return 0;
     }
 }
