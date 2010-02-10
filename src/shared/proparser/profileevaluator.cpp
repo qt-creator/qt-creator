@@ -2540,10 +2540,8 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("CONFIG(config) requires one or two arguments."));
                 return ProItem::ReturnFalse;
             }
-            if (args.count() == 1) {
-                //cond = isActiveConfig(args.first()); XXX
-                return ProItem::ReturnFalse;
-            }
+            if (args.count() == 1)
+                return returnBool(isActiveConfig(args.first()));
             const QStringList mutuals = args[1].split(QLatin1Char('|'));
             const QStringList &configs = valuesDirect(statics.strCONFIG);
 
