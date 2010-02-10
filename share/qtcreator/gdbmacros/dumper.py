@@ -74,7 +74,6 @@ def catchCliOutput(command):
     gdb.execute(command)
     gdb.execute("set logging off")
     gdb.execute("set logging redirect off")
-    gdb.execute("set logging file \"\"")
     file = open(filename, "r")
     lines = []
     for line in file:
