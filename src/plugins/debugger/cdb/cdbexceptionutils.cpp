@@ -165,6 +165,8 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
         break;
     case winExceptionDllNotFound:
         str << "DLL not found";
+    case winExceptionDllEntryPointNoFound:
+        str << "DLL entry point not found";
         break;
     case winExceptionDllInitFailed:
         str << "DLL failed to initialize";
@@ -269,6 +271,7 @@ bool isFatalException(LONG code)
     case winExceptionStartupCompleteTrap: // Mysterious exception at start of application
     case winExceptionRpcServerUnavailable:
     case winExceptionDllNotFound:
+    case winExceptionDllEntryPointNoFound:
     case winExceptionCppException:
         return false;
     default:
