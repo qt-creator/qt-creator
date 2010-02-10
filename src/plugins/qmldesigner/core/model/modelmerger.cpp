@@ -42,6 +42,8 @@
 #include <QSet>
 #include <QStringList>
 
+#include <QtDebug>
+
 namespace QmlDesigner {
 
 static ModelNode createNodeFromNode(const ModelNode &modelNode,const QHash<QString, QString> &idRenamingHash, AbstractView *view);
@@ -77,6 +79,20 @@ static void syncId(ModelNode &outputNode, const ModelNode &inputNode, const QHas
     }
 }
 
+static void splitIdInBaseNameAndNumber(const QString &id, QString *baseId, int *number)
+{
+    QRegExp regularExpression("(.*)(\\d*)");
+//    regularExpression.setMinimal(true);
+    regularExpression.setPatternSyntax(QRegExp::RegExp2);
+    regularExpression.indexIn(id);
+    QStringList splitedList = regularExpression.capturedTexts();
+
+    *baseId = regularExpression.cap(1);
+
+
+    qDebug() <<splitedList;
+}
+
 static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QString> &idRenamingHash, AbstractView *view)
 {
     QList<ModelNode> allNodes(modelNode.allSubModelNodes());
@@ -84,10 +100,14 @@ static void setupIdRenamingHash(const ModelNode &modelNode, QHash<QString, QStri
     foreach (const ModelNode &node, allNodes) {
         if (!node.id().isEmpty()) {
             QString newId = node.id();
-            int i = 1;
+            QString baseId;
+            int number = 1;
+            splitIdInBaseNameAndNumber(newId, &baseId, &number);
+
             while (view->hasId(newId) || idRenamingHash.contains(newId)) {
-                newId = node.id() + QString::number(i).toLower();
-                i++;
+
+                newId = baseId + QString::number(number).toLower();
+                number++;
             }
             idRenamingHash.insert(node.id(), newId);
         }

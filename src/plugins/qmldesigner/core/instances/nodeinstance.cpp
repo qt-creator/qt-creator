@@ -42,6 +42,7 @@
 #include "componentnodeinstance.h"
 #include "qmltransitionnodeinstance.h"
 #include "qmlpropertychangesnodeinstance.h"
+#include "behaviornodeinstance.h"
 #include "qmlstatenodeinstance.h"
 #include "nodeabstractproperty.h"
 #include "variantproperty.h"
@@ -151,6 +152,8 @@ Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMet
         instance = Internal::QmlStateNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/Transition", 4, 6))
         instance = Internal::QmlTransitionNodeInstance::create(metaInfo, context, objectToBeWrapped);
+    else if (metaInfo.isSubclassOf("Qt/Behavior", 4, 6))
+        instance = Internal::BehaviorNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QtObject", 4, 6))
         instance = Internal::ObjectNodeInstance::create(metaInfo, context, objectToBeWrapped);
 
