@@ -87,7 +87,6 @@ public:
     QStringList buildTargets() const;
     ProjectExplorer::ToolChain *toolChain() const;
 
-    bool setFiles(const QStringList &filePaths);
     bool addFiles(const QStringList &filePaths);
     bool removeFiles(const QStringList &filePaths);
 
@@ -116,8 +115,10 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private:
+    bool saveRawFileList(const QStringList &rawFileList);
     void parseProject(RefreshOptions options);
-    QStringList convertToAbsoluteFiles(const QStringList &paths) const;
+    QStringList convertToAbsoluteFiles(const QStringList &paths,
+                                       QHash<QString, QString> *map = 0) const;
 
     Manager *m_manager;
     QString m_fileName;
@@ -128,7 +129,9 @@ private:
     QString m_projectName;
     GenericTargetFactory *m_targetFactory;
 
+    QStringList m_rawFileList;
     QStringList m_files;
+    QHash<QString, QString> m_rawListEntries;
     QStringList m_generated;
     QStringList m_includePaths;
     QStringList m_projectIncludePaths;

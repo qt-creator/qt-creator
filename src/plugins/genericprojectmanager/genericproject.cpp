@@ -174,10 +174,6 @@ static QStringList readLines(const QString &absoluteFileName)
             if (line.isNull())
                 break;
 
-            line = line.trimmed();
-            if (line.isEmpty())
-                continue;
-
             lines.append(line);
         }
     }
@@ -185,7 +181,7 @@ static QStringList readLines(const QString &absoluteFileName)
     return lines;
 }
 
-bool GenericProject::setFiles(const QStringList &filePaths)
+bool GenericProject::saveRawFileList(const QStringList &rawFileList)
 {
     // Make sure we can open the file for writing
     QFile file(filesFileName());
@@ -193,9 +189,8 @@ bool GenericProject::setFiles(const QStringList &filePaths)
         return false;
 
     QTextStream stream(&file);
-    QDir baseDir(QFileInfo(m_fileName).dir());
-    foreach (const QString &filePath, filePaths)
-        stream << baseDir.relativeFilePath(filePath) << QLatin1Char('\n');
+    foreach (const QString &filePath, rawFileList)
+        stream << filePath << QLatin1Char('\n');
 
     file.close();
     refresh(GenericProject::Files);
@@ -204,29 +199,35 @@ bool GenericProject::setFiles(const QStringList &filePaths)
 
 bool GenericProject::addFiles(const QStringList &filePaths)
 {
-    QStringList newFileList = m_files;
-    newFileList.append(filePaths);
+    QStringList newList = m_rawFileList;
 
-    return setFiles(newFileList);
+    QDir baseDir(QFileInfo(m_fileName).dir());
+    foreach (const QString &filePath, filePaths)
+        newList.append(baseDir.relativeFilePath(filePath));
+
+    return saveRawFileList(newList);
 }
 
 bool GenericProject::removeFiles(const QStringList &filePaths)
 {
-    QStringList newFileList;
-    QSet<QString> filesToRemove = filePaths.toSet();
+    QStringList newList = m_rawFileList;
 
-    foreach (const QString &file, m_files) {
-        if (!filesToRemove.contains(file))
-            newFileList.append(file);
+    foreach (const QString &filePath, filePaths) {
+        QHash<QString, QString>::iterator i = m_rawListEntries.find(filePath);
+        if (i != m_rawListEntries.end())
+            newList.removeOne(i.value());
     }
 
-    return setFiles(newFileList);
+    return saveRawFileList(newList);
 }
 
 void GenericProject::parseProject(RefreshOptions options)
 {
-    if (options & Files)
-        m_files = convertToAbsoluteFiles(readLines(filesFileName()));
+    if (options & Files) {
+        m_rawListEntries.clear();
+        m_rawFileList = readLines(filesFileName());
+        m_files = convertToAbsoluteFiles(m_rawFileList, &m_rawListEntries);
+    }
 
     if (options & Configuration) {
         m_projectIncludePaths = convertToAbsoluteFiles(readLines(includesFileName()));
@@ -261,14 +262,14 @@ void GenericProject::refresh(RefreshOptions options)
 
     if (m_toolChain && modelManager) {
         const QByteArray predefinedMacros = m_toolChain->predefinedMacros();
-        const QList<ProjectExplorer::HeaderPath> systemHeaderPaths = m_toolChain->systemHeaderPaths();
 
         CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
         pinfo.defines = predefinedMacros;
         pinfo.defines += '\n';
         pinfo.defines += m_defines;
 
-        QStringList allIncludePaths, allFrameworkPaths;
+        QStringList allIncludePaths;
+        QStringList allFrameworkPaths;
 
         foreach (const ProjectExplorer::HeaderPath &headerPath, m_toolChain->systemHeaderPaths()) {
             if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
@@ -303,13 +304,23 @@ void GenericProject::refresh(RefreshOptions options)
     }
 }
 
-QStringList GenericProject::convertToAbsoluteFiles(const QStringList &paths) const
+/**
+ * The \a map variable is an optional argument that will map the returned
+ * absolute paths back to their original \a paths.
+ */
+QStringList GenericProject::convertToAbsoluteFiles(const QStringList &paths,
+                                                   QHash<QString, QString> *map) const
 {
     const QDir projectDir(QFileInfo(m_fileName).dir());
     QStringList absolutePaths;
-    foreach (const QString &file, paths) {
-        QFileInfo fileInfo(projectDir, file);
-        absolutePaths.append(fileInfo.absoluteFilePath());
+    foreach (const QString &path, paths) {
+        if (path.trimmed().isEmpty())
+            continue;
+
+        const QString absPath = QFileInfo(projectDir, path).absoluteFilePath();
+        absolutePaths.append(absPath);
+        if (map)
+            map->insert(absPath, path);
     }
     absolutePaths.removeDuplicates();
     return absolutePaths;
