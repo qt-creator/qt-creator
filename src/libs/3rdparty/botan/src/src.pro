@@ -9,12 +9,15 @@ DEPENDPATH += .
 INCLUDEPATH += $$PWD $$PWD/../build $$PWD/../build/botan
 
 win32 {
+    win32-msvc* {
+        QMAKE_CXXFLAGS += -wd4251 -wd4290
+        DEFINES += _CRT_SECURE_NO_WARNINGS
+        DEFINES += BOTAN_DLL=__declspec(dllexport)
+    } else {
+        QMAKE_CFLAGS += -fpermissive -finline-functions -Wno-long-long
+        QMAKE_CXXFLAGS += -fpermissive -finline-functions -Wno-long-long
+    }
     LIBS += -ladvapi32 -luser32
-    win32-msvc*: QMAKE_CXXFLAGS += -wd4251 -wd4290
-
-    DEFINES += _CRT_SECURE_NO_WARNINGS
-    DEFINES += BOTAN_USE_WINDOWS_BUILD_H
-    DEFINES += BOTAN_DLL=__declspec(dllexport)
 }
 
 unix {

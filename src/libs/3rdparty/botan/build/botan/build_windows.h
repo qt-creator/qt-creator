@@ -9,7 +9,11 @@
 #define BOTAN_VERSION_PATCH 8
 
 #ifndef BOTAN_DLL
-  #define BOTAN_DLL __declspec(dllexport)
+#   if !defined(Q_CC_MINGW)
+#       define BOTAN_DLL __declspec(dllexport)
+#   else
+#       define BOTAN_DLL
+#   endif
 #endif
 
 /* Chunk sizes */
@@ -40,12 +44,15 @@
 #define BOTAN_TARGET_OS_IS_WINDOWS
 #define BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK
 
-#define BOTAN_TARGET_ARCH_IS_IA64
-#define BOTAN_TARGET_UNALIGNED_LOADSTOR_OK 0
-
-
-
 /* Module definitions */
+#if defined(Q_CC_MINGW)
+#   define BOTAN_USE_STD_TR1
+#   define BOTAN_HAS_BIGINT_GFP
+#   define BOTAN_HAS_CARD_VERIFIABLE_CERTIFICATES
+#   define BOTAN_HAS_ECC_DOMAIN_PARAMATERS
+#   define BOTAN_HAS_ECC_PUBLIC_KEY_CRYPTO
+#endif
+
 #define BOTAN_HAS_ADLER32
 #define BOTAN_HAS_AES
 #define BOTAN_HAS_ALGORITHM_FACTORY
@@ -174,18 +181,11 @@
 #define BOTAN_HAS_XTEA
 #define BOTAN_HAS_XTS
 
+
 /* Local configuration options */
 
 
 /*
-kheimric@deepburner ran 'E:\dev\creator\src\libs\3rdparty\botan\configure.py --cc=msvc --os=windows --cpu=ia64 --disable-asm'
-
-Target
--------
-Compiler: cl.exe /O2
-Arch: ia64/ia64
-OS: windows
-
 Modules
 -------
 adler32 (Adler32)
