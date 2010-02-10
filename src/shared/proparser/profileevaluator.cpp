@@ -2192,27 +2192,32 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 if (args.count() == 2)
                     recursive = (!args[1].compare(statics.strtrue, Qt::CaseInsensitive) || args[1].toInt());
                 QStringList dirs;
-                QString r = fixPathToLocalOS(resolvePath(args[0]));
+                QString r = fixPathToLocalOS(args[0]);
+                QString pfx;
+                if (IoUtils::isRelativePath(r)) {
+                    pfx = currentDirectory();
+                    if (!pfx.endsWith(QLatin1Char('/')))
+                        pfx += QLatin1Char('/');
+                }
                 int slash = r.lastIndexOf(QDir::separator());
                 if (slash != -1) {
                     dirs.append(r.left(slash));
                     r = r.mid(slash+1);
                 } else {
-                    dirs.append(fixPathToLocalOS(currentDirectory()));
+                    dirs.append(QString());
                 }
 
                 const QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
                 for (int d = 0; d < dirs.count(); d++) {
                     QString dir = dirs[d];
-                    if (!dir.endsWith(QDir::separator()))
+                    QDir qdir(pfx + dir);
+                    if (!dir.isEmpty() && !dir.endsWith(QDir::separator()))
                         dir += QDir::separator();
-
-                    QDir qdir(dir);
                     for (int i = 0; i < (int)qdir.count(); ++i) {
                         if (qdir[i] == statics.strDot || qdir[i] == statics.strDotDot)
                             continue;
                         QString fname = dir + qdir[i];
-                        if (IoUtils::fileType(fname) == IoUtils::FileIsDir) {
+                        if (IoUtils::fileType(pfx + fname) == IoUtils::FileIsDir) {
                             if (recursive)
                                 dirs.append(fname);
                         }
