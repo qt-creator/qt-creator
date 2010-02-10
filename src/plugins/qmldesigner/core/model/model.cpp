@@ -168,7 +168,6 @@ InternalNode::Pointer ModelPrivate::createNode(const QString &typeString,
                                                int minorVersion,
                                                const QList<QPair<QString, QVariant> > &propertyList)
 {
-    qDebug() << __FUNCTION__ << typeString;
     if (typeString.isEmpty())
         throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "typeString");
     if (!m_metaInfo.nodeMetaInfo(typeString).isValid())
