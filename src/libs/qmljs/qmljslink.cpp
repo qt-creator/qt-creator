@@ -47,11 +47,11 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 
     ObjectValue *scopeObject = 0;
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
-        scopeObject = bind->_qmlObjects.value(definition);
+        scopeObject = bind->findQmlObject(definition);
     else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
-        scopeObject = bind->_qmlObjects.value(binding);
+        scopeObject = bind->findQmlObject(binding);
     else if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(currentObject)) {
-        _context->pushScope(bind->_rootObjectValue);
+        _context->pushScope(bind->rootObjectValue());
 
         ObjectValue *activation = engine()->newObject(/*prototype = */ 0);
         for (FormalParameterList *it = fun->formals; it; it = it->next) {
@@ -62,10 +62,10 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
     }
 
     if (scopeObject) {
-        if (bind->_rootObjectValue)
-            _context->pushScope(bind->_rootObjectValue);
+        if (bind->rootObjectValue())
+            _context->pushScope(bind->rootObjectValue());
 
-        if (scopeObject != bind->_rootObjectValue)
+        if (scopeObject != bind->rootObjectValue())
             _context->pushScope(scopeObject);
     }
 
@@ -75,16 +75,13 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 
         if (Document::Ptr scriptDoc = _snapshot.document(scriptFile)) {
             if (scriptDoc->jsProgram()) {
-                _context->pushScope(scriptDoc->bind()->_rootObjectValue);
+                _context->pushScope(scriptDoc->bind()->rootObjectValue());
             }
         }
     }
 
-    if (bind->_functionEnvironment)
-        _context->pushScope(bind->_functionEnvironment);
-
-    if (bind->_idEnvironment)
-        _context->pushScope(bind->_idEnvironment);
+    _context->pushScope(bind->functionEnvironment());
+    _context->pushScope(bind->idEnvironment());
 
     if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
         _context->pushScope(typeEnvironment);
@@ -133,7 +130,7 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
             continue;
 
         typeEnv->setProperty(componentName(otherFileInfo.fileName()),
-                             otherDoc->bind()->_rootObjectValue);
+                             otherDoc->bind()->rootObjectValue());
     }
 
     // explicit imports, whether directories or files
@@ -197,7 +194,7 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
         if (importNamespace)
             importInto = importNamespace;
 
-        importInto->setProperty(targetName, otherDoc->bind()->_rootObjectValue);
+        importInto->setProperty(targetName, otherDoc->bind()->rootObjectValue());
     }
 }
 

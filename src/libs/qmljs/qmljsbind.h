@@ -53,12 +53,17 @@ public:
     QStringList includedScripts() const;
     QStringList localImports() const;
 
-protected:
-    using AST::Visitor::visit;
+    Interpreter::ObjectValue *currentObjectValue() const;
+    Interpreter::ObjectValue *idEnvironment() const;
+    Interpreter::ObjectValue *functionEnvironment() const;
+    Interpreter::ObjectValue *rootObjectValue() const;
+
+    Interpreter::ObjectValue *findQmlObject(AST::Node *node) const;
 
     static QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
-    AST::ExpressionNode *expression(AST::UiScriptBinding *ast) const;
-    void processScript(AST::UiQualifiedId *qualifiedId, AST::UiObjectInitializer *initializer);
+
+protected:
+    using AST::Visitor::visit;
 
     void accept(AST::Node *node);
 
@@ -77,13 +82,15 @@ protected:
     virtual bool visit(AST::FunctionDeclaration *ast);
     virtual bool visit(AST::VariableDeclaration *ast);
 
-protected:
     Interpreter::ObjectValue *switchObjectValue(Interpreter::ObjectValue *newObjectValue);
     Interpreter::ObjectValue *bindObject(AST::UiQualifiedId *qualifiedTypeNameId, AST::UiObjectInitializer *initializer);
 
+    AST::ExpressionNode *expression(AST::UiScriptBinding *ast) const;
+    void processScript(AST::UiQualifiedId *qualifiedId, AST::UiObjectInitializer *initializer);
+
 private:
     Document *_doc;
-    Interpreter::Engine _interp;
+    Interpreter::Engine _engine;
 
     Interpreter::ObjectValue *_currentObjectValue;
     Interpreter::ObjectValue *_idEnvironment;
@@ -93,8 +100,6 @@ private:
     QHash<AST::Node *, Interpreter::ObjectValue *> _qmlObjects;
     QStringList _includedScripts;
     QStringList _localImports;
-
-    friend class Link;
 };
 
 } // end of namespace Qml

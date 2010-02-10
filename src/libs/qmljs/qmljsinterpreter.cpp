@@ -732,7 +732,8 @@ void Context::setTypeEnvironment(const QmlJS::Document *doc, const ObjectValue *
 
 void Context::pushScope(const ObjectValue *object)
 {
-    _scopeChain.append(object);
+    if (object != 0)
+        _scopeChain.append(object);
 }
 
 void Context::popScope()

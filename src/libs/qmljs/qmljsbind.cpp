@@ -67,6 +67,31 @@ QStringList Bind::localImports() const
     return _localImports;
 }
 
+Interpreter::ObjectValue *Bind::currentObjectValue() const
+{
+    return _currentObjectValue;
+}
+
+Interpreter::ObjectValue *Bind::idEnvironment() const
+{
+    return _idEnvironment;
+}
+
+Interpreter::ObjectValue *Bind::functionEnvironment() const
+{
+    return _functionEnvironment;
+}
+
+Interpreter::ObjectValue *Bind::rootObjectValue() const
+{
+    return _rootObjectValue;
+}
+
+Interpreter::ObjectValue *Bind::findQmlObject(AST::Node *node) const
+{
+    return _qmlObjects.value(node);
+}
+
 ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
 {
     ObjectValue *oldObjectValue = _currentObjectValue;
@@ -139,9 +164,9 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
     }
 
     // normal component instance
-    ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _doc, &_interp);
+    ASTObjectValue *objectValue = new ASTObjectValue(qualifiedTypeNameId, initializer, _doc, &_engine);
     QmlPrototypeReference *prototypeReference =
-            new QmlPrototypeReference(qualifiedTypeNameId, _doc, &_interp);
+            new QmlPrototypeReference(qualifiedTypeNameId, _doc, &_engine);
     objectValue->setPrototype(prototypeReference);
 
     parentObjectValue = switchObjectValue(objectValue);
@@ -163,15 +188,15 @@ void Bind::accept(Node *node)
 
 bool Bind::visit(AST::UiProgram *)
 {
-    _idEnvironment = _interp.newObject(/*prototype =*/ 0);
-    _functionEnvironment = _interp.newObject(/*prototype =*/ 0);
+    _idEnvironment = _engine.newObject(/*prototype =*/ 0);
+    _functionEnvironment = _engine.newObject(/*prototype =*/ 0);
     return true;
 }
 
 bool Bind::visit(AST::Program *)
 {
-    _currentObjectValue = _interp.globalObject();
-    _rootObjectValue = _interp.globalObject();
+    _currentObjectValue = _engine.globalObject();
+    _rootObjectValue = _engine.globalObject();
     return true;
 }
 
@@ -237,7 +262,7 @@ bool Bind::visit(VariableDeclaration *ast)
     if (! ast->name)
         return false;
 
-    ASTVariableReference *ref = new ASTVariableReference(ast, &_interp);
+    ASTVariableReference *ref = new ASTVariableReference(ast, &_engine);
     _currentObjectValue->setProperty(ast->name->asString(), ref);
     return false;
 }
@@ -250,7 +275,7 @@ bool Bind::visit(FunctionDeclaration *ast)
     //if (_currentObjectValue->property(ast->name->asString(), 0))
     //    return false;
 
-    ASTFunctionValue *function = new ASTFunctionValue(ast, &_interp);
+    ASTFunctionValue *function = new ASTFunctionValue(ast, &_engine);
     // ### set the function's scope.
 
     _currentObjectValue->setProperty(ast->name->asString(), function);
