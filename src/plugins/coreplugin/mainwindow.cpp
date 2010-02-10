@@ -30,7 +30,6 @@
 #include "mainwindow.h"
 #include "actioncontainer.h"
 #include "actionmanager_p.h"
-#include "basemode.h"
 #include "coreimpl.h"
 #include "coreconstants.h"
 #include "editormanager.h"

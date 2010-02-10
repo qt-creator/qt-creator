@@ -49,7 +49,6 @@ QT_END_NAMESPACE
 namespace Core {
 
 class ActionManager;
-class BaseMode;
 class StatusBarWidget;
 class EditorManager;
 class FileManager;
