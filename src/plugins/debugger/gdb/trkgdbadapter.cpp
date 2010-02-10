@@ -1843,9 +1843,10 @@ void TrkGdbAdapter::handleCreateProcess(const TrkResult &result)
     }
     m_engine->postCommand("set breakpoint always-inserted on");
     m_engine->postCommand("set breakpoint auto-hw on");
-    m_engine->postCommand("set trust-readonly-sections"); // No difference?
+    m_engine->postCommand("set trust-readonly-sections on"); // No difference?
     m_engine->postCommand("set displaced-stepping on"); // No difference?
-    //m_engine->postCommand("set mem inaccessible-by-default");
+    m_engine->postCommand("set remotelogfile /tmp/gdb-remotelog");
+    m_engine->postCommand("set mem inaccessible-by-default");
     m_engine->postCommand("mem 0x00400000 0x00800000 cache");
     m_engine->postCommand("mem 0x70000000 0x80000000 cache ro");
     // FIXME: replace with  stack-cache for newer gdb?
