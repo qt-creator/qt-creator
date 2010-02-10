@@ -158,11 +158,13 @@ class EnumerateProperties: private Interpreter::MemberProcessor
     QHash<QString, const Interpreter::Value *> _properties;
     bool _globalCompletion;
     Interpreter::Context *_context;
+    const Interpreter::ObjectValue *_currentObject;
 
 public:
     EnumerateProperties(Interpreter::Context *context)
         : _globalCompletion(false),
-          _context(context)
+          _context(context),
+          _currentObject(0)
     {
     }
 
@@ -175,6 +177,7 @@ public:
     {
         _processed.clear();
         _properties.clear();
+        _currentObject = Interpreter::value_cast<const Interpreter::ObjectValue *>(value);
 
         enumerateProperties(value);
 
@@ -185,6 +188,7 @@ public:
     {
         _processed.clear();
         _properties.clear();
+        _currentObject = 0;
 
         foreach (const Interpreter::ObjectValue *scope, _context->scopeChain())
             enumerateProperties(scope);
@@ -227,8 +231,10 @@ private:
 
     virtual bool processGeneratedSlot(const QString &name, const Interpreter::Value *value)
     {
-        if (_globalCompletion)
+        if (_globalCompletion || (_currentObject && _currentObject->className().endsWith(QLatin1String("Keys")))) {
+            // ### FIXME: add support for attached properties.
             insertProperty(name, value);
+        }
         return true;
     }
 
