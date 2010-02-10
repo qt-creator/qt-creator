@@ -1307,6 +1307,25 @@ ProItem::ProItemReturn ProFileEvaluator::Private::visitProFile(ProFile *pro)
                         evaluateFileInto(m_option->cachefile,
                                          &m_option->base_valuemap, &m_option->base_functions);
                     }
+                    m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
+                    if (m_option->qmakespec_name == QLatin1String("default")) {
+#ifdef Q_OS_UNIX
+                        char buffer[1024];
+                        int l = ::readlink(m_option->qmakespec.toLatin1().constData(), buffer, 1024);
+                        if (l != -1)
+                            m_option->qmakespec_name =
+                                    IoUtils::fileName(QString::fromLatin1(buffer, l)).toString();
+#else
+                        // We can't resolve symlinks as they do on Unix, so configure.exe puts
+                        // the source of the qmake.conf at the end of the default/qmake.conf in
+                        // the QMAKESPEC_ORG variable.
+                        const QStringList &spec_org =
+                                m_option->base_valuemap.value(QLatin1String("QMAKESPEC_ORIGINAL"));
+                        if (!spec_org.isEmpty())
+                            m_option->qmakespec_name =
+                                    IoUtils::fileName(spec_org.first()).toString();
+#endif
+                    }
                 }
 
                 evaluateFeatureFile(QLatin1String("default_pre.prf"),
@@ -1819,7 +1838,7 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
     if (regex && (config.contains(QLatin1Char('*')) || config.contains(QLatin1Char('?')))) {
         QRegExp re(config, Qt::CaseSensitive, QRegExp::Wildcard);
 
-        if (re.exactMatch(m_option->qmakespec))
+        if (re.exactMatch(m_option->qmakespec_name))
             return true;
 
         // CONFIG variable
@@ -1829,7 +1848,7 @@ bool ProFileEvaluator::Private::isActiveConfig(const QString &config, bool regex
         }
     } else {
         // mkspecs
-        if (m_option->qmakespec == config)
+        if (m_option->qmakespec_name == config)
             return true;
 
         // CONFIG variable

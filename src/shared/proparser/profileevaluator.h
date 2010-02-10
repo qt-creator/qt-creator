@@ -161,6 +161,7 @@ struct ProFileOption
     QHash<QString, QStringList> base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
     ProFileEvaluator::FunctionDefs base_functions;
     QStringList feature_roots;
+    QString qmakespec_name;
 };
 
 QT_END_NAMESPACE
