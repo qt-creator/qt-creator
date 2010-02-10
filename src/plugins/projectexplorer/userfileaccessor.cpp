@@ -734,12 +734,12 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
                                                                  "Qt4 Desktop target display name"))
         << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.S60EmulatorTarget"),
                                      QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
-                                                                 "S60 Emulator",
-                                                                 "Qt4 S60 Emulator target display name"))
+                                                                 "Symbian Emulator",
+                                                                 "Qt4 Symbian Emulator target display name"))
         << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.S60DeviceTarget"),
                                      QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
-                                                                 "S60 Device",
-                                                                 "Qt4 S60 Device target display name"))
+                                                                 "Symbian Device",
+                                                                 "Qt4 Symbian Device target display name"))
         << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.MaemoEmulatorTarget"),
                                      QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
                                                                  "Maemo Emulator",

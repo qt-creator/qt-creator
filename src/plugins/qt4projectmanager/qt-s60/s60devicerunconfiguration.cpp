@@ -346,7 +346,7 @@ void S60DeviceRunConfiguration::updateTarget()
     if (info.error != Qt4TargetInformation::NoError) {
         if (info.error == Qt4TargetInformation::ProParserError) {
             Core::ICore::instance()->messageManager()->printToOutputPane(
-                    tr("Could not parse %1. The QtS60 Device run configuration %2 can not be started.")
+                    tr("Could not parse %1. The Qt Symbian Device run configuration %2 can not be started.")
                     .arg(m_proFilePath).arg(displayName()));
         }
         m_targetName.clear();

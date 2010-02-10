@@ -46,7 +46,6 @@ const char * const ACTIVE_RC_KEY("ProjectExplorer.Target.ActiveRunConfiguration"
 const char * const RC_KEY_PREFIX("ProjectExplorer.Target.RunConfiguration.");
 const char * const RC_COUNT_KEY("ProjectExplorer.Target.RunConfigurationCount");
 
-const char * const ICON_KEY("ProjectExplorer.Target.Icon");
 } // namespace
 
 // -------------------------------------------------------------------------
@@ -241,8 +240,6 @@ QVariantMap Target::toMap() const
     for (int i = 0; i < rcs.size(); ++i)
         map.insert(QString::fromLatin1(RC_KEY_PREFIX) + QString::number(i), rcs.at(i)->toMap());
 
-    map.insert(QLatin1String(ICON_KEY), m_icon);
-
     return map;
 }
 
@@ -259,8 +256,6 @@ bool Target::fromMap(const QVariantMap &map)
 {
     if (!ProjectConfiguration::fromMap(map))
         return false;
-
-    m_icon = map.value(QLatin1String(ICON_KEY)).value<QIcon>();
 
     bool ok;
     int bcCount(map.value(QLatin1String(BC_COUNT_KEY), 0).toInt(&ok));

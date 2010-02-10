@@ -57,9 +57,9 @@ QString displayNameForId(const QString &id) {
     if (id == QLatin1String(DESKTOP_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Desktop", "Qt4 Desktop target display name");
     if (id == QLatin1String(S60_EMULATOR_TARGET_ID))
-        return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "S60 Emulator", "Qt4 S60 Emulator target display name");
+        return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Emulator", "Qt4 Symbian Emulator target display name");
     if (id == QLatin1String(S60_DEVICE_TARGET_ID))
-        return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "S60 Device", "Qt4 S60 Device target display name");
+        return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Device", "Qt4 Symbian Device target display name");
     if (id == QLatin1String(MAEMO_EMULATOR_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Maemo Emulator", "Qt4 Maemo Emulator target display name");
     if (id == QLatin1String(MAEMO_DEVICE_TARGET_ID))
@@ -382,10 +382,8 @@ bool Qt4Target::fromMap(const QVariantMap &map)
     if (!Target::fromMap(map))
         return false;
 
-    if (displayName().isEmpty())
-        setDisplayName(displayNameForId(id()));
-    if (icon().isNull())
-        setIcon(iconForId(id()));
+    setDisplayName(displayNameForId(id()));
+    updateToolTipAndIcon();
 
     return true;
 }

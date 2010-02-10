@@ -73,12 +73,9 @@ bool QmlTarget::fromMap(const QVariantMap &map)
     if (!Target::fromMap(map))
         return false;
 
-    if (displayName().isEmpty())
-        setDisplayName(QApplication::translate("QmlProjectManager::QmlTarget",
-                                               VIEWER_TARGET_DISPLAY_NAME,
-                                               "Qml Viewer target display name"));
-    if (icon().isNull())
-        setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
+    setDisplayName(QApplication::translate("QmlProjectManager::QmlTarget",
+                                           VIEWER_TARGET_DISPLAY_NAME,
+                                           "Qml Viewer target display name"));
 
     return true;
 }

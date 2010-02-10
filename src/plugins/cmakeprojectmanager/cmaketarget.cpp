@@ -86,11 +86,7 @@ bool CMakeTarget::fromMap(const QVariantMap &map)
     if (!Target::fromMap(map))
         return false;
 
-    if (displayName().isEmpty())
-        setDisplayName(displayNameForId(id()));
-    if (icon().isNull())
-        setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
-
+    setDisplayName(displayNameForId(id()));
     return true;
 }
 

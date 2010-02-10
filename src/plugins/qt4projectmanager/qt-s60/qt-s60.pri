@@ -1,5 +1,5 @@
 !isEmpty(SUPPORT_QT_S60) {
-    message("Adding experimental support for Qt/S60 applications.")
+    message("Adding experimental support for Qt Symbian applications.")
     DEFINES += QTCREATOR_WITH_S60
 }
 SOURCES += $$PWD/s60devices.cpp \
