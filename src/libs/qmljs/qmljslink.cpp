@@ -258,6 +258,9 @@ QList<Document::Ptr> Link::reachableDocuments(Document::Ptr startDoc, const Snap
 {
     QList<Document::Ptr> docs;
 
+    if (! startDoc)
+        return docs;
+
     QSet<QString> processed;
     QStringList todo;
 
