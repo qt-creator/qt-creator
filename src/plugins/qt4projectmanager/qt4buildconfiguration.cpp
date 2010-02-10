@@ -125,6 +125,19 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     m_toolChainType = map.value(QLatin1String(TOOLCHAIN_KEY)).toInt();
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
+    // Pick a decent Qt version if the default version is used:
+    if (m_qtVersionId == 0) {
+        QList<QtVersion *> versions = QtVersionManager::instance()->versions();
+        foreach (QtVersion *v, versions) {
+            if (v->isValid())
+                m_qtVersionId = v->uniqueId();
+            if (v->supportsTargetId(QLatin1String(DESKTOP_TARGET_ID)))
+                break;
+        }
+        if (m_qtVersionId == 0)
+            m_qtVersionId = versions.at(0)->uniqueId();
+    }
+
     if (!qtVersion()->supportedTargetIds().contains(target()->id()))
         return false;
 
