@@ -63,6 +63,7 @@ private Q_SLOTS:
     void simple_class_1();
     void class_with_baseclass();
     void class_with_protocol_with_protocol();
+    void iface_impl_scoping();
 };
 
 void tst_Lookup::base_class_defined_1()
@@ -311,10 +312,78 @@ void tst_Lookup::class_with_protocol_with_protocol()
     QList<LookupItem> results = resolver.resolveMember(p1method->name(), zooImpl);
     QCOMPARE(results.size(), 1);
     QCOMPARE(results.at(0).lastVisibleSymbol(), p1method);
+}
 
-    results = resolver.resolveMember(p1method->name(), zooImpl);
-    QCOMPARE(results.size(), 1);
-    QCOMPARE(results.at(0).lastVisibleSymbol(), p1method);
+void tst_Lookup::iface_impl_scoping()
+{
+    const QByteArray source = "\n"
+                              "@interface Scooping{}-(int)method1:(int)arg;-(void)method2;@end\n"
+                              "@implementation Scooping-(int)method1:(int)arg{return arg;}@end\n";
+
+    Document::Ptr doc = Document::create("class_with_protocol_with_protocol");
+    doc->setSource(source);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 2U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Document::Ptr emptyDoc = Document::create("<empty>");
+    ObjCClass *iface = doc->globalSymbolAt(0)->asObjCClass();
+    QVERIFY(iface);
+    QVERIFY(iface->isInterface());
+    ObjCClass *impl = doc->globalSymbolAt(1)->asObjCClass();
+    QVERIFY(impl);
+    QVERIFY(!impl->isInterface());
+
+    QCOMPARE(iface->memberCount(), 2U);
+    QCOMPARE(impl->memberCount(), 1U);
+
+    ObjCMethod *method1Impl = impl->memberAt(0)->asObjCMethod();
+    QVERIFY(method1Impl);
+    QCOMPARE(method1Impl->identifier()->chars(), "method1");
+
+    // get the body of method1
+    QCOMPARE(method1Impl->memberCount(), 1U);
+    Block *method1Body = method1Impl->memberAt(0)->asBlock();
+    QVERIFY(method1Body);
+
+    const LookupContext ctxt(method1Body, emptyDoc, doc, snapshot);
+
+    { // verify if we can resolve "arg" in the body
+        QCOMPARE(method1Impl->argumentCount(), 1U);
+        Argument *arg = method1Impl->argumentAt(0)->asArgument();
+        QVERIFY(arg);
+        QVERIFY(arg->name());
+        QVERIFY(arg->name()->identifier());
+        QCOMPARE(arg->name()->identifier()->chars(), "arg");
+
+        const QList<Symbol *> candidates = ctxt.resolve(arg->name());
+        QCOMPARE(candidates.size(), 1);
+        QVERIFY(candidates.at(0)->type()->asIntegerType());
+    }
+
+    Declaration *method2 = iface->memberAt(1)->asDeclaration();
+    QVERIFY(method2);
+    QCOMPARE(method2->identifier()->chars(), "method2");
+
+    { // verify if we can resolve "method2" in the body
+        const QList<Symbol *> candidates = ctxt.resolve(method2->name());
+        QCOMPARE(candidates.size(), 1);
+        QCOMPARE(candidates.at(0), method2);
+    }
+
+    { // now let's see if the resolver can do the same for method2
+        const ResolveExpression resolver(ctxt);
+
+        const QList<LookupItem> results = resolver.resolveMember(method2->name(),
+                                                                 impl);
+        QCOMPARE(results.size(), 1);
+        QCOMPARE(results.at(0).lastVisibleSymbol(), method2);
+    }
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)
