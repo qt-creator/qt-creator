@@ -1058,7 +1058,7 @@ bool QmlJSTextEditor::contextAllowsAutoParentheses(const QTextCursor &cursor, co
             const QStringRef tokenText = blockText.midRef(token.offset, token.length);
             const QChar quote = tokenText.at(0);
 
-            if (ch == quote && isCompleteStringLiteral(tokenText))
+            if (ch != quote || isCompleteStringLiteral(tokenText))
                 break;
 
             return false;
