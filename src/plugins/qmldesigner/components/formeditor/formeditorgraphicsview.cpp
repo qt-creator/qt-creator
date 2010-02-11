@@ -124,7 +124,8 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     QColor changeColor(QColor(Qt::green).lighter(170));
 
     QFont font;
-    font.setPixelSize(12);
+    font.setFamily("Helvetica");
+    font.setPixelSize(11);
     painter->setFont(font);
 
     painter->save();
@@ -209,7 +210,7 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
     if (m_parentNode == m_feedbackNode.instanceParent()) {
 
         if (!m_feedbackNode.canReparent()) {
-            painter->setPen(Qt::red);
+            painter->setPen(Qt::blue);
             painter->drawText(QPoint(2.0, 36.0), QString("Cannot reparent"));
         }
     } else {
