@@ -1704,9 +1704,11 @@ void GdbEngine::startDebugger(const DebuggerStartParametersPtr &sp)
 
 unsigned GdbEngine::debuggerCapabilities() const
 {
-    return ReverseSteppingCapability | SnapshotCapability | AutoDerefPointersCapability
-           | DisassemblerCapability | RegisterCapability | ShowMemoryCapability
-           | JumpToLineCapability | ReloadModuleCapability | ReloadModuleSymbolsCapability;
+    return ReverseSteppingCapability | SnapshotCapability
+        | AutoDerefPointersCapability | DisassemblerCapability
+        | RegisterCapability | ShowMemoryCapability
+        | JumpToLineCapability | ReloadModuleCapability
+        | ReloadModuleSymbolsCapability;
 }
 
 void GdbEngine::continueInferiorInternal()
@@ -3465,24 +3467,12 @@ void GdbEngine::insertData(const WatchData &data0)
     manager()->watchHandler()->insertData(data);
 }
 
-
-#if 0
-void GdbEngine::handleChangedItem(QStandardItem *item)
-{
-    // HACK: Just store the item for the slot
-    //  handleChangedItem(QWidget *widget) below.
-    QModelIndex index = item->index().sibling(item->index().row(), 0);
-    //WatchData data = m_currentSet.takeData(iname);
-    //m_editedData = inameFromItem(m_model.itemFromIndex(index)).exp;
-    //qDebug() << "HANDLE CHANGED EXPRESSION:" << m_editedData;
-}
-#endif
-
 void GdbEngine::assignValueInDebugger(const QString &expression, const QString &value)
 {
     postCommand("-var-delete assign");
     postCommand("-var-create assign * " + expression.toLatin1());
-    postCommand("-var-assign assign " + value.toLatin1(), Discardable, CB(handleVarAssign));
+    postCommand("-var-assign assign " + value.toLatin1(),
+        Discardable, CB(handleVarAssign));
 }
 
 QString GdbEngine::qtDumperLibraryName() const

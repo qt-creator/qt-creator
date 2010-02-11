@@ -1235,7 +1235,8 @@ void WatchHandler::insertData(const WatchData &data)
 {
     MODEL_DEBUG("INSERTDATA: " << data.toString());
     if (!data.isValid()) {
-        qWarning("%s:%d: Attempt to insert invalid watch item: %s", __FILE__, __LINE__, qPrintable(data.toString()));
+        qWarning("%s:%d: Attempt to insert invalid watch item: %s",
+            __FILE__, __LINE__, qPrintable(data.toString()));
         return;
     }
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
@@ -1280,7 +1281,8 @@ void WatchHandler::insertBulkData(const QList<WatchData> &list)
         if (data.isValid()) {
             hash[parentName(data.iname)].append(data);
         } else {
-            qWarning("%s:%d: Attempt to bulk-insert invalid watch item: %s", __FILE__, __LINE__, qPrintable(data.toString()));
+            qWarning("%s:%d: Attempt to bulk-insert invalid watch item: %s",
+                __FILE__, __LINE__, qPrintable(data.toString()));
         }
     }
     foreach (const QByteArray &parentIName, hash.keys()) {
