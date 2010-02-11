@@ -117,8 +117,8 @@ protected:
 private:
     bool saveRawFileList(const QStringList &rawFileList);
     void parseProject(RefreshOptions options);
-    QStringList convertToAbsoluteFiles(const QStringList &paths,
-                                       QHash<QString, QString> *map = 0) const;
+    QStringList processEntries(const QStringList &paths,
+                               QHash<QString, QString> *map = 0) const;
 
     Manager *m_manager;
     QString m_fileName;

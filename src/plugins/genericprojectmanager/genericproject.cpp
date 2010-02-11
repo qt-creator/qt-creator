@@ -41,6 +41,7 @@
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QProcessEnvironment>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QMainWindow>
@@ -170,11 +171,11 @@ void GenericProject::parseProject(RefreshOptions options)
     if (options & Files) {
         m_rawListEntries.clear();
         m_rawFileList = readLines(filesFileName());
-        m_files = convertToAbsoluteFiles(m_rawFileList, &m_rawListEntries);
+        m_files = processEntries(m_rawFileList, &m_rawListEntries);
     }
 
     if (options & Configuration) {
-        m_projectIncludePaths = convertToAbsoluteFiles(readLines(includesFileName()));
+        m_projectIncludePaths = processEntries(readLines(includesFileName()));
 
         // TODO: Possibly load some configuration from the project file
         //QSettings projectInfo(m_fileName, QSettings::IniFormat);
@@ -249,22 +250,49 @@ void GenericProject::refresh(RefreshOptions options)
 }
 
 /**
- * The \a map variable is an optional argument that will map the returned
- * absolute paths back to their original \a paths.
+ * Expands environment variables in the given \a string when they are written
+ * like $$(VARIABLE).
  */
-QStringList GenericProject::convertToAbsoluteFiles(const QStringList &paths,
-                                                   QHash<QString, QString> *map) const
+static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &string)
 {
+    const static QRegExp candidate(QLatin1String("\\$\\$\\((.+)\\)"));
+
+    int index = candidate.indexIn(string);
+    while (index != -1) {
+        const QString value = env.value(candidate.cap(1));
+
+        string.replace(index, candidate.matchedLength(), value);
+        index += value.length();
+
+        index = candidate.indexIn(string, index);
+    }
+}
+
+/**
+ * Expands environment variables and converts the path from relative to the
+ * project to an absolute path.
+ *
+ * The \a map variable is an optional argument that will map the returned
+ * absolute paths back to their original \a entries.
+ */
+QStringList GenericProject::processEntries(const QStringList &paths,
+                                           QHash<QString, QString> *map) const
+{
+    const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     const QDir projectDir(QFileInfo(m_fileName).dir());
+
     QStringList absolutePaths;
     foreach (const QString &path, paths) {
-        if (path.trimmed().isEmpty())
+        QString trimmedPath = path.trimmed();
+        if (trimmedPath.isEmpty())
             continue;
 
-        const QString absPath = QFileInfo(projectDir, path).absoluteFilePath();
+        expandEnvironmentVariables(env, trimmedPath);
+
+        const QString absPath = QFileInfo(projectDir, trimmedPath).absoluteFilePath();
         absolutePaths.append(absPath);
         if (map)
-            map->insert(absPath, path);
+            map->insert(absPath, trimmedPath);
     }
     absolutePaths.removeDuplicates();
     return absolutePaths;
