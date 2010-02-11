@@ -114,9 +114,9 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
         painter->setOpacity(0.5);
 
     if (isChecked)
-        painter->drawPixmap(option.rect.x()+2,option.rect.y()+6,onPix);
+        painter->drawPixmap(option.rect.x()+2,option.rect.y()+5,onPix);
     else
-        painter->drawPixmap(option.rect.x()+2,option.rect.y()+6,offPix);
+        painter->drawPixmap(option.rect.x()+2,option.rect.y()+5,offPix);
 
     painter->restore();
 }
@@ -152,7 +152,7 @@ void IdItemDelegate::paint(QPainter *painter,
     }
 
     QPixmap pixmap = icon.pixmap(22,22);
-    painter->drawPixmap(option.rect.x()+5,option.rect.y()+2,pixmap);
+    painter->drawPixmap(option.rect.x()+5,option.rect.y()+1,pixmap);
 
     QString myString = node.id();
     if (myString.isEmpty())
