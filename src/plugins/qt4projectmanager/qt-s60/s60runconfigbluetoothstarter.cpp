@@ -30,6 +30,7 @@
 #include "s60runconfigbluetoothstarter.h"
 #include "bluetoothlistener.h"
 #include "symbiandevicemanager.h"
+#include "trkdevice.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -53,18 +54,16 @@ trk::BluetoothListener *S60RunConfigBluetoothStarter::createListener()
 
 trk::PromptStartCommunicationResult
 S60RunConfigBluetoothStarter::startCommunication(const TrkDevicePtr &trkDevice,
-                                                 int communicationType,
                                                  QWidget *msgBoxParent,
                                                  QString *errorMessage)
 {
     // Bluetooth?
-    if (communicationType == SymbianUtils::BlueToothCommunication) {
-        S60RunConfigBluetoothStarter bluetoothStarter(trkDevice);
-        return trk::promptStartBluetooth(bluetoothStarter, msgBoxParent, errorMessage);
+    if (trkDevice->serialFrame()) {
+        BaseCommunicationStarter serialStarter(trkDevice);
+        return trk::promptStartSerial(serialStarter, msgBoxParent, errorMessage);
     }
-    // Serial
-    BaseCommunicationStarter serialStarter(trkDevice);
-    return trk::promptStartSerial(serialStarter, msgBoxParent, errorMessage);
+    S60RunConfigBluetoothStarter bluetoothStarter(trkDevice);
+    return trk::promptStartBluetooth(bluetoothStarter, msgBoxParent, errorMessage);
 }
 
 } // namespace Internal

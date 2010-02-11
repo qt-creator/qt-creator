@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "symbiandevicemanager.h"
+#include "trkdevice.h"
 
 #include <QtCore/QSettings>
 #include <QtCore/QStringList>
@@ -36,6 +37,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QSharedData>
 #include <QtCore/QScopedPointer>
+#include <QtCore/QSignalMapper>
 
 namespace SymbianUtils {
 
@@ -49,19 +51,51 @@ const char *SymbianDeviceManager::linuxBlueToothDeviceRootC = "/dev/rfcomm";
 // ------------- SymbianDevice
 class SymbianDeviceData : public QSharedData {
 public:
-    SymbianDeviceData() : type(SerialPortCommunication) {}
+    SymbianDeviceData();
+    ~SymbianDeviceData();
+
+    inline bool isOpen() const { return !device.isNull() && device->isOpen(); }
+    void forcedClose();
 
     QString portName;
     QString friendlyName;
     QString deviceDesc;
     QString manufacturer;
+    QString additionalInformation;
+
     DeviceCommunicationType type;
+    QSharedPointer<trk::TrkDevice> device;
+    bool deviceAcquired;
 };
+
+SymbianDeviceData::SymbianDeviceData() :
+        type(SerialPortCommunication),
+        deviceAcquired(false)
+{
+}
+
+SymbianDeviceData::~SymbianDeviceData()
+{
+    forcedClose();
+}
+
+void SymbianDeviceData::forcedClose()
+{
+    // Close the device when unplugging. Should devices be in 'acquired' state,
+    // their owners should hit on write failures.
+    // Apart from the <shared item> destructor, also called by the devicemanager
+    // to ensure it also happens if other shared instances are still around.
+    if (isOpen()) {
+        if (deviceAcquired)
+            qWarning("Device on '%s' unplugged while an operation is in progress.",
+                     qPrintable(portName));
+        device->close();
+    }
+}
 
 SymbianDevice::SymbianDevice(SymbianDeviceData *data) :
     m_data(data)
 {
-
 }
 
 SymbianDevice::SymbianDevice() :
@@ -84,6 +118,11 @@ SymbianDevice::~SymbianDevice()
 {
 }
 
+void SymbianDevice::forcedClose()
+{
+    m_data->forcedClose();
+}
+
 QString SymbianDevice::portName() const
 {
     return m_data->portName;
@@ -92,6 +131,49 @@ QString SymbianDevice::portName() const
 QString SymbianDevice::friendlyName() const
 {
     return m_data->friendlyName;
+}
+
+QString SymbianDevice::additionalInformation() const
+{
+    return m_data->additionalInformation;
+}
+
+void SymbianDevice::setAdditionalInformation(const QString &a)
+{
+    m_data->additionalInformation = a;
+}
+
+SymbianDevice::TrkDevicePtr SymbianDevice::acquireDevice()
+{
+    if (debug)
+        qDebug() << "SymbianDevice::acquireDevice" << m_data->portName
+                << "acquired: " << m_data->deviceAcquired << " open: " << isOpen();
+    if (isNull() || m_data->deviceAcquired)
+        return TrkDevicePtr();
+    if (m_data->device.isNull()) {
+        m_data->device = TrkDevicePtr(new trk::TrkDevice);
+        m_data->device->setPort(m_data->portName);
+        m_data->device->setSerialFrame(m_data->type == SerialPortCommunication);
+    }
+    m_data->deviceAcquired = true;
+    return m_data->device;
+}
+
+void SymbianDevice::releaseDevice(TrkDevicePtr *ptr /* = 0 */)
+{
+    if (debug)
+        qDebug() << "SymbianDevice::releaseDevice" << m_data->portName
+                << " open: " << isOpen();
+    if (m_data->deviceAcquired) {
+        // Release if a valid pointer was passed in.
+        if (ptr && !ptr->isNull()) {
+            ptr->data()->disconnect();
+            *ptr = TrkDevicePtr();
+        }
+        m_data->deviceAcquired = false;
+    } else {
+        qWarning("Internal error: Attempt to release device that is not acquired.");
+    }
 }
 
 QString SymbianDevice::deviceDesc() const
@@ -111,7 +193,12 @@ DeviceCommunicationType SymbianDevice::type() const
 
 bool SymbianDevice::isNull() const
 {
-    return !m_data->portName.isEmpty();
+    return m_data->portName.isEmpty();
+}
+
+bool SymbianDevice::isOpen() const
+{
+    return m_data->isOpen();
 }
 
 QString SymbianDevice::toString() const
@@ -146,7 +233,7 @@ int SymbianDevice::compare(const SymbianDevice &rhs) const
     return 0;
 }
 
-QDebug operator<<(QDebug d, const SymbianDevice &cd)
+SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDevice &cd)
 {
     d.nospace() << cd.toString();
     return d;
@@ -154,10 +241,11 @@ QDebug operator<<(QDebug d, const SymbianDevice &cd)
 
 // ------------- SymbianDeviceManagerPrivate
 struct SymbianDeviceManagerPrivate {
-    SymbianDeviceManagerPrivate() : m_initialized(false) {}
+    SymbianDeviceManagerPrivate() : m_initialized(false), m_destroyReleaseMapper(0) {}
 
     bool m_initialized;
     SymbianDeviceManager::SymbianDeviceList m_devices;
+    QSignalMapper *m_destroyReleaseMapper;
 };
 
 SymbianDeviceManager::SymbianDeviceManager(QObject *parent) :
@@ -173,8 +261,7 @@ SymbianDeviceManager::~SymbianDeviceManager()
 
 SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::devices() const
 {
-    if (!d->m_initialized)
-        const_cast<SymbianDeviceManager*>(this)->update(false);
+    ensureInitialized();
     return d->m_devices;
 }
 
@@ -182,6 +269,7 @@ QString SymbianDeviceManager::toString() const
 {
     QString rc;
     QTextStream str(&rc);
+    str << d->m_devices.size() << " devices:\n";
     const int count = d->m_devices.size();
     for (int i = 0; i < count; i++) {
         str << '#' << i << ' ';
@@ -191,15 +279,37 @@ QString SymbianDeviceManager::toString() const
     return rc;
 }
 
+int SymbianDeviceManager::findByPortName(const QString &p) const
+{
+    ensureInitialized();
+    const int count = d->m_devices.size();
+    for (int i = 0; i < count; i++)
+        if (d->m_devices.at(i).portName() == p)
+            return i;
+    return -1;
+}
+
 QString SymbianDeviceManager::friendlyNameForPort(const QString &port) const
 {
-    if (!d->m_initialized)
-        const_cast<SymbianDeviceManager*>(this)->update(false);
-    foreach (const SymbianDevice &device, d->m_devices) {
-        if (device.portName() == port)
-            return device.friendlyName();
-    }
-    return QString();
+    const int idx = findByPortName(port);
+    return idx == -1 ? QString() : d->m_devices.at(idx).friendlyName();
+}
+
+SymbianDeviceManager::TrkDevicePtr
+        SymbianDeviceManager::acquireDevice(const QString &port)
+{
+    ensureInitialized();
+    const int idx = findByPortName(port);
+    if (idx == -1) {
+        qWarning("Attempt to acquire device '%s' that does not exist.", qPrintable(port));
+        if (debug)
+            qDebug() << *this;
+        return TrkDevicePtr();
+      }
+    const TrkDevicePtr rc = d->m_devices[idx].acquireDevice();
+    if (debug)
+        qDebug() << "SymbianDeviceManager::acquireDevice" << port << " returns " << !rc.isNull();
+    return rc;
 }
 
 void SymbianDeviceManager::update()
@@ -207,12 +317,38 @@ void SymbianDeviceManager::update()
     update(true);
 }
 
+void SymbianDeviceManager::releaseDevice(const QString &port)
+{
+    const int idx = findByPortName(port);
+    if (debug)
+        qDebug() << "SymbianDeviceManager::releaseDevice" << port << idx << sender();
+    if (idx != -1) {
+        d->m_devices[idx].releaseDevice();
+    } else {
+        qWarning("Attempt to release non-existing device %s.", qPrintable(port));
+    }
+}
+
+void SymbianDeviceManager::setAdditionalInformation(const QString &port, const QString &ai)
+{
+    const int idx = findByPortName(port);
+    if (idx != -1)
+        d->m_devices[idx].setAdditionalInformation(ai);
+}
+
+void SymbianDeviceManager::ensureInitialized() const
+{
+    if (!d->m_initialized) // Flag is set in update()
+        const_cast<SymbianDeviceManager*>(this)->update(false);
+}
+
 void SymbianDeviceManager::update(bool emitSignals)
 {
+    static int n = 0;
     typedef SymbianDeviceList::iterator SymbianDeviceListIterator;
 
     if (debug)
-        qDebug(">SerialDeviceLister::update(%d)\n%s", int(emitSignals),
+        qDebug(">SerialDeviceLister::update(#%d, signals=%d)\n%s", n++, int(emitSignals),
                qPrintable(toString()));
 
     d->m_initialized = true;
@@ -220,8 +356,11 @@ void SymbianDeviceManager::update(bool emitSignals)
     SymbianDeviceList newDevices = serialPorts() + blueToothDevices();
     if (newDevices.size() > 1)
         qStableSort(newDevices.begin(), newDevices.end());
-    if (d->m_devices == newDevices) // Happy, nothing changed.
+    if (d->m_devices == newDevices) { // Happy, nothing changed.
+        if (debug)
+            qDebug("<SerialDeviceLister::update: unchanged\n");
         return;
+    }
     // Merge the lists and emit the respective added/removed signals, assuming
     // no one can plug a different device on the same port at the speed of lightning
     if (!d->m_devices.isEmpty()) {
@@ -230,7 +369,8 @@ void SymbianDeviceManager::update(bool emitSignals)
             if (newDevices.contains(*oldIt)) {
                 ++oldIt;
             } else {
-                const SymbianDevice toBeDeleted = *oldIt;
+                SymbianDevice toBeDeleted = *oldIt;
+                toBeDeleted.forcedClose();
                 oldIt = d->m_devices.erase(oldIt);
                 if (emitSignals)
                     emit deviceRemoved(toBeDeleted);
@@ -312,7 +452,7 @@ SymbianDeviceManager *SymbianDeviceManager::instance()
     return symbianDeviceManager();
 }
 
-QDebug operator<<(QDebug d, const SymbianDeviceManager &sdm)
+SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDeviceManager &sdm)
 {
     d.nospace() << sdm.toString();
     return d;

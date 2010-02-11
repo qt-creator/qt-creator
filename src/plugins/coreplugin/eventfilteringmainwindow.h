@@ -32,6 +32,10 @@
 
 #include <QtGui/QMainWindow>
 
+QT_BEGIN_NAMESPACE
+
+QT_END_NAMESPACE
+
 namespace Core {
 namespace Internal {
 
@@ -46,14 +50,17 @@ class EventFilteringMainWindow : public QMainWindow
 public:
     EventFilteringMainWindow();
 
-#ifdef Q_OS_WIN
-protected:
-    bool winEvent(MSG *message, long *result);
-#endif
-
 signals:
     void deviceChange();
 
+#ifdef Q_OS_WIN
+protected:
+    virtual bool winEvent(MSG *message, long *result);
+    virtual bool event(QEvent *event);
+#endif
+
+private:
+    const int m_deviceEventId;
 };
 
 } // Internal

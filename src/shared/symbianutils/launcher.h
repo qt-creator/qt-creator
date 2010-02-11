@@ -96,6 +96,15 @@ public:
     // becomes valid after successful execution of ActionPingOnly
     QString deviceDescription(unsigned verbose = 0u) const;
 
+    // Acquire a device from SymbianDeviceManager, return 0 if not available.
+    // The device will be released on destruction.
+    static Launcher *acquireFromDeviceManager(const QString &serverName,
+                                              QObject *parent,
+                                              QString *errorMessage);
+    // Preliminary release of device, disconnecting the signal.
+    static void releaseToDeviceManager(Launcher *l);
+
+    // Create Trk message to start a process.
     static QByteArray startProcessMessage(const QString &executable,
                                           const QStringList &arguments);
     // Parse a TrkNotifyStopped message
@@ -106,6 +115,7 @@ public:
     static QString msgStopped(uint pid, uint tid, uint address, const QString &why);
 
 signals:
+    void deviceDescriptionReceived(const QString &port, const QString &description);
     void copyingStarted();
     void canNotConnect(const QString &errorMessage);
     void canNotCreateFile(const QString &filename, const QString &errorMessage);
@@ -122,6 +132,8 @@ signals:
     void copyProgress(int percent);
     void stateChanged(int);
     void processStopped(uint pc, uint pid, uint tid, const QString& reason);
+    // Emitted by the destructor, for releasing devices of SymbianDeviceManager by name
+    void destroyed(const QString &serverName);
 
 public slots:
     void terminate();
@@ -154,6 +166,7 @@ private:
     void copyFileToRemote();
     void installRemotePackageSilently();
     void startInferiorIfNeeded();
+    void handleFinished();
 
     void logMessage(const QString &msg);
     void setState(State s);

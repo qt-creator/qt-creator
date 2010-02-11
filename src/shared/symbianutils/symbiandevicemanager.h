@@ -34,11 +34,16 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QExplicitlySharedDataPointer>
+#include <QtCore/QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
 class QTextStream;
 QT_END_NAMESPACE
+
+namespace trk {
+    class TrkDevice;
+}
 
 namespace SymbianUtils {
 
@@ -50,11 +55,16 @@ enum DeviceCommunicationType {
     BlueToothCommunication = 1
 };
 
-// SymbianDevice, explicitly shared.
+// SymbianDevice: Explicitly shared device data and a TrkDevice
+// instance that can be acquired (exclusively) for use.
+// A device removal from the manager will result in the
+// device being closed.
 class SYMBIANUTILS_EXPORT SymbianDevice {
     explicit SymbianDevice(SymbianDeviceData *data);
     friend class SymbianDeviceManager;
 public:
+    typedef QSharedPointer<trk::TrkDevice> TrkDevicePtr;
+
     SymbianDevice();
     SymbianDevice(const SymbianDevice &rhs);
     SymbianDevice &operator=(const SymbianDevice &rhs);
@@ -65,6 +75,17 @@ public:
     bool isNull() const;
     QString portName() const;
     QString friendlyName() const;
+    QString additionalInformation() const;
+    void setAdditionalInformation(const QString &);
+
+    // Acquire: Mark the device as 'out' and return a shared pointer
+    // unless it is already in use by another owner. The result should not
+    // be passed on further.
+    TrkDevicePtr acquireDevice();
+    // Give back a device and mark it as 'free'.
+    void releaseDevice(TrkDevicePtr *ptr = 0);
+
+    bool isOpen() const;
 
     // Windows only.
     QString deviceDesc() const;
@@ -74,10 +95,12 @@ public:
     QString toString() const;
 
 private:
+    void forcedClose();
+
     QExplicitlySharedDataPointer<SymbianDeviceData> m_data;
 };
 
-QDebug operator<<(QDebug d, const SymbianDevice &);
+SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDevice &);
 
 inline bool operator==(const SymbianDevice &d1, const SymbianDevice &d2)
     { return d1.compare(d2) == 0; }
@@ -88,13 +111,15 @@ inline bool operator<(const SymbianDevice &d1, const SymbianDevice &d2)
 
 /* SymbianDeviceManager: Singleton that maintains a list of Symbian devices.
  * and emits change signals.
- * On Windows, the update slot must be connected to a signal
- * emitted from an event handler listening for WM_DEVICECHANGE. */
+ * On Windows, the update slot must be connected to a [delayed] signal
+ * emitted from an event handler listening for WM_DEVICECHANGE.
+ * Device removal will result in the device being closed. */
 class SYMBIANUTILS_EXPORT SymbianDeviceManager : public QObject
 {
     Q_OBJECT
 public:
     typedef QList<SymbianDevice> SymbianDeviceList;
+    typedef QSharedPointer<trk::TrkDevice> TrkDevicePtr;
 
     static const char *linuxBlueToothDeviceRootC;
 
@@ -108,17 +133,25 @@ public:
     SymbianDeviceList devices() const;
     QString toString() const;
 
+    // Acquire a device for use. See releaseDevice().
+    TrkDevicePtr acquireDevice(const QString &port);
+
+    int findByPortName(const QString &p) const;
     QString friendlyNameForPort(const QString &port) const;
 
 public slots:
     void update();
+    // Relase a device, make it available for further use.
+    void releaseDevice(const QString &port);
+    void setAdditionalInformation(const QString &port, const QString &ai);
 
 signals:
-    void deviceRemoved(const SymbianDevice &d);
-    void deviceAdded(const SymbianDevice &d);
+    void deviceRemoved(const SymbianUtils::SymbianDevice &d);
+    void deviceAdded(const SymbianUtils::SymbianDevice &d);
     void updated();
 
 private:
+    void ensureInitialized() const;
     void update(bool emitSignals);
     SymbianDeviceList serialPorts() const;
     SymbianDeviceList blueToothDevices() const;
@@ -126,7 +159,7 @@ private:
     SymbianDeviceManagerPrivate *d;
 };
 
-QDebug operator<<(QDebug d, const SymbianDeviceManager &);
+SYMBIANUTILS_EXPORT QDebug operator<<(QDebug d, const SymbianDeviceManager &);
 
 } // namespace SymbianUtils
 

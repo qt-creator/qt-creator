@@ -413,13 +413,7 @@ void Qt4Target::slotUpdateDeviceInformation()
 
 void Qt4Target::updateToolTipAndIcon()
 {
-    S60DeviceRunConfiguration *deviceRc(qobject_cast<S60DeviceRunConfiguration *>(activeRunConfiguration()));
-    if (!deviceRc) {
-        setToolTip(QString());
-        setIcon(iconForId(id()));
-    } else {
-        QString friendlyPortName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(
-                deviceRc->serialPortName());
+    if (const S60DeviceRunConfiguration *s60DeviceRc = qobject_cast<S60DeviceRunConfiguration *>(activeRunConfiguration()))  {
         QPixmap pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
@@ -429,16 +423,25 @@ void Qt4Target::updateToolTipAndIcon()
                            (Core::Constants::TARGET_ICON_SIZE-actualSize.height())/2,
                            icon.pixmap(Core::Constants::TARGET_ICON_SIZE));
 
-        if (!friendlyPortName.isEmpty()) {
-            // device connected
-            setToolTip(tr("<b>Device:</b> %1").arg(friendlyPortName));
-            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - m_connectedPixmap.width(),
-                               m_connectedPixmap.height(), m_connectedPixmap);
-        } else {
+        const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
+        const int deviceIndex = sdm->findByPortName(s60DeviceRc->serialPortName());
+        if (deviceIndex == -1) {
             setToolTip(tr("<b>Device:</b> Not connected"));
             painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - m_disconnectedPixmap.width(),
                                m_disconnectedPixmap.height(), m_disconnectedPixmap);
+        } else {
+            // device connected
+            const SymbianUtils::SymbianDevice device = sdm->devices().at(deviceIndex);
+            const QString tooltip = device.additionalInformation().isEmpty() ?
+                                    tr("<b>Device:</b> %1").arg(device.friendlyName()) :
+                                    tr("<b>Device:</b> %1, %2").arg(device.friendlyName(), device.additionalInformation());
+            setToolTip(tooltip);
+            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - m_connectedPixmap.width(),
+                               m_connectedPixmap.height(), m_connectedPixmap);
         }
         setIcon(QIcon(pixmap));
+        return;
     }
+    setToolTip(QString());
+    setIcon(iconForId(id()));
 }

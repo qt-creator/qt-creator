@@ -244,7 +244,6 @@ void S60DeviceRunConfigurationWidget::setSerialPort(int index)
 {
     const SymbianUtils::SymbianDevice d = device(index);
     m_runConfiguration->setSerialPortName(d.portName());
-    m_runConfiguration->setCommunicationType(d.type());
     m_deviceInfoButton->setEnabled(index >= 0);
     clearDeviceInfo();
 }
@@ -321,17 +320,21 @@ void S60DeviceRunConfigurationWidget::updateDeviceInfo()
     setDeviceInfoLabel(tr("Connecting..."));
     // Do a launcher run with the ping protocol. Prompt to connect and
     // go asynchronous afterwards to pop up launch trk box if a timeout occurs.
-    m_infoLauncher = new trk::Launcher(trk::Launcher::ActionPingOnly, QSharedPointer<trk::TrkDevice>(), this);
-    connect(m_infoLauncher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+    QString message;
     const SymbianUtils::SymbianDevice commDev = currentDevice();
+    m_infoLauncher = trk::Launcher::acquireFromDeviceManager(commDev.portName(), this, &message);
+    if (!m_infoLauncher) {
+        setDeviceInfoLabel(message, true);
+        return;
+    }
+    connect(m_infoLauncher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+
     m_infoLauncher->setSerialFrame(commDev.type() == SymbianUtils::SerialPortCommunication);
     m_infoLauncher->setTrkServerName(commDev.portName());
     // Prompt user
-    QString message;
     const trk::PromptStartCommunicationResult src =
             S60RunConfigBluetoothStarter::startCommunication(m_infoLauncher->trkDevice(),
-                                                             commDev.type(), this,
-                                                             &message);
+                                                             this, &message);
     switch (src) {
     case trk::PromptStartCommunicationConnected:
         break;

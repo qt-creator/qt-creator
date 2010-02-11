@@ -112,10 +112,8 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QStri
     m_cachedTargetInformationValid(false),
 #ifdef Q_OS_WIN
     m_serialPortName(QLatin1String("COM5")),
-    m_communicationType(SymbianUtils::SerialPortCommunication),
 #else
     m_serialPortName(QLatin1String(SymbianUtils::SymbianDeviceManager::linuxBlueToothDeviceRootC) + QLatin1Char('0')),
-    m_communicationType(SymbianUtils::BlueToothCommunication),
 #endif
     m_signingMode(SignSelf)
 {
@@ -127,7 +125,6 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRu
     m_proFilePath(source->m_proFilePath),
     m_cachedTargetInformationValid(false),
     m_serialPortName(source->m_serialPortName),
-    m_communicationType(source->m_communicationType),
     m_signingMode(source->m_signingMode),
     m_customSignaturePath(source->m_customSignaturePath),
     m_customKeyPath(source->m_customKeyPath)
@@ -202,7 +199,6 @@ QVariantMap S60DeviceRunConfiguration::toMap() const
     map.insert(QLatin1String(CUSTOM_SIGNATURE_PATH_KEY), m_customSignaturePath);
     map.insert(QLatin1String(CUSTOM_KEY_PATH_KEY), m_customKeyPath);
     map.insert(QLatin1String(SERIAL_PORT_NAME_KEY), m_serialPortName);
-    map.insert(QLatin1String(COMMUNICATION_TYPE_KEY), m_communicationType);
     map.insert(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY), m_commandLineArguments);
 
     return map;
@@ -217,7 +213,6 @@ bool S60DeviceRunConfiguration::fromMap(const QVariantMap &map)
     m_customSignaturePath = map.value(QLatin1String(CUSTOM_SIGNATURE_PATH_KEY)).toString();
     m_customKeyPath = map.value(QLatin1String(CUSTOM_KEY_PATH_KEY)).toString();
     m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
-    m_communicationType = map.value(QLatin1String(COMMUNICATION_TYPE_KEY)).toInt();
     m_commandLineArguments = map.value(QLatin1String(COMMAND_LINE_ARGUMENTS_KEY)).toStringList();
 
     return RunConfiguration::fromMap(map);
@@ -235,16 +230,6 @@ void S60DeviceRunConfiguration::setSerialPortName(const QString &name)
         return;
     m_serialPortName = candidate;
     emit serialPortNameChanged();
-}
-
-int S60DeviceRunConfiguration::communicationType() const
-{
-    return m_communicationType;
-}
-
-void S60DeviceRunConfiguration::setCommunicationType(int t)
-{
-    m_communicationType = t;
 }
 
 QString S60DeviceRunConfiguration::targetName() const
@@ -485,6 +470,8 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_toolChain(ProjectExplorer::ToolChain::INVALID),
     m_makesis(new QProcess(this)),
     m_signsis(0),
+    m_releaseDeviceAfterLauncherFinish(false),
+    m_handleDeviceRemoval(true),
     m_launcher(0)
 {
     // connect for automatically reporting the "finished deploy" state to the progress manager
@@ -507,7 +494,6 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_toolChain = s60runConfig->toolChainType();
     m_serialPortName = s60runConfig->serialPortName();
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
-    m_communicationType = s60runConfig->communicationType();
     m_targetName = s60runConfig->targetName();
     m_baseFileName = s60runConfig->basePackageFilePath();
     m_commandLineArguments = s60runConfig->commandLineArguments();
@@ -553,7 +539,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_packageFile = QFileInfo(m_packageFilePath).fileName();
     if (debug)
         qDebug() << "S60DeviceRunControlBase" << m_targetName << ProjectExplorer::ToolChain::toolChainName(m_toolChain)
-                 << m_serialPortName << m_communicationType << m_workingDirectory;
+                 << m_serialPortName << m_workingDirectory;
 }
 
 S60DeviceRunControlBase::~S60DeviceRunControlBase()
@@ -562,6 +548,11 @@ S60DeviceRunControlBase::~S60DeviceRunControlBase()
         m_launcher->deleteLater();
         m_launcher = 0;
     }
+}
+
+void S60DeviceRunControlBase::setReleaseDeviceAfterLauncherFinish(bool v)
+{
+    m_releaseDeviceAfterLauncherFinish = v;
 }
 
 void S60DeviceRunControlBase::start()
@@ -739,55 +730,59 @@ void S60DeviceRunControlBase::signsisProcessFinished()
     }
 }
 
+
 void S60DeviceRunControlBase::startDeployment()
 {
-    m_launcher = new trk::Launcher();
-    connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
-    connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(printConnectFailed(QString)));
-    connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
-    connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
-    connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
-    connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
-    connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
-    connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
-    connect(m_launcher, SIGNAL(processStopped(uint,uint,uint,QString)),
-            this, SLOT(processStopped(uint,uint,uint,QString)));
-
-    //TODO sisx destination and file path user definable
-    m_launcher->setTrkServerName(m_serialPortName);
-    m_launcher->setSerialFrame(m_communicationType == SymbianUtils::SerialPortCommunication);
-    if (!m_commandLineArguments.isEmpty())
-        m_launcher->setCommandLineArgs(m_commandLineArguments);
-    const QString copySrc(m_baseFileName + ".sisx");
-    const QString copyDst = QString("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName());
-    const QString runFileName = QString("C:\\sys\\bin\\%1.exe").arg(m_targetName);
-    m_launcher->setCopyFileName(copySrc, copyDst);
-    m_launcher->setInstallFileName(copyDst);
-    initLauncher(runFileName, m_launcher);
-    emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(lsFile(copySrc), m_serialPortFriendlyName));
     QString errorMessage;
-    // Prompt the user to start up the Blue tooth connection
-    const trk::PromptStartCommunicationResult src =
-            S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
-                                                             m_communicationType, 0,
-                                                             &errorMessage);
-    switch (src) {
-    case trk::PromptStartCommunicationConnected:
-        break;
-    case trk::PromptStartCommunicationCanceled:
-    case trk::PromptStartCommunicationError:
-        error(this, errorMessage);
-        stop();
-        emit finished();
-        return;
-    };
+    bool success = false;
+    do {
+        connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(deviceRemoved(const SymbianUtils::SymbianDevice)),
+                this, SLOT(deviceRemoved(SymbianUtils::SymbianDevice)));
+        m_launcher = trk::Launcher::acquireFromDeviceManager(m_serialPortName, 0, &errorMessage);
+        if (!m_launcher)
+            break;
 
-    if (!m_launcher->startServer(&errorMessage)) {
-        error(this, tr("Could not connect to phone on port '%1': %2\n"
-                       "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage));
+        connect(m_launcher, SIGNAL(finished()), this, SLOT(launcherFinished()));
+        connect(m_launcher, SIGNAL(canNotConnect(QString)), this, SLOT(printConnectFailed(QString)));
+        connect(m_launcher, SIGNAL(copyingStarted()), this, SLOT(printCopyingNotice()));
+        connect(m_launcher, SIGNAL(canNotCreateFile(QString,QString)), this, SLOT(printCreateFileFailed(QString,QString)));
+        connect(m_launcher, SIGNAL(canNotWriteFile(QString,QString)), this, SLOT(printWriteFileFailed(QString,QString)));
+        connect(m_launcher, SIGNAL(canNotCloseFile(QString,QString)), this, SLOT(printCloseFileFailed(QString,QString)));
+        connect(m_launcher, SIGNAL(installingStarted()), this, SLOT(printInstallingNotice()));
+        connect(m_launcher, SIGNAL(canNotInstall(QString,QString)), this, SLOT(printInstallFailed(QString,QString)));
+        connect(m_launcher, SIGNAL(installingFinished()), this, SLOT(printInstallingFinished()));
+        connect(m_launcher, SIGNAL(copyProgress(int)), this, SLOT(printCopyProgress(int)));
+        connect(m_launcher, SIGNAL(stateChanged(int)), this, SLOT(slotLauncherStateChanged(int)));
+        connect(m_launcher, SIGNAL(processStopped(uint,uint,uint,QString)),
+                this, SLOT(processStopped(uint,uint,uint,QString)));
+
+        //TODO sisx destination and file path user definable
+        if (!m_commandLineArguments.isEmpty())
+            m_launcher->setCommandLineArgs(m_commandLineArguments);
+        const QString copySrc(m_baseFileName + QLatin1String(".sisx"));
+        const QString copyDst = QString::fromLatin1("C:\\Data\\%1.sisx").arg(QFileInfo(m_baseFileName).fileName());
+        const QString runFileName = QString::fromLatin1("C:\\sys\\bin\\%1.exe").arg(m_targetName);
+        m_launcher->setCopyFileName(copySrc, copyDst);
+        m_launcher->setInstallFileName(copyDst);
+        initLauncher(runFileName, m_launcher);
+        emit addToOutputWindow(this, tr("Package: %1\nDeploying application to '%2'...").arg(lsFile(copySrc), m_serialPortFriendlyName));
+        // Prompt the user to start up the Blue tooth connection
+        const trk::PromptStartCommunicationResult src =
+            S60RunConfigBluetoothStarter::startCommunication(m_launcher->trkDevice(),
+                                                             0, &errorMessage);
+        if (src != trk::PromptStartCommunicationConnected)
+            break;
+        if (!m_launcher->startServer(&errorMessage)) {
+            errorMessage = tr("Could not connect to phone on port '%1': %2\n"
+                              "Check if the phone is connected and App TRK is running.").arg(m_serialPortName, errorMessage);
+            break;
+        }
+        success = true;
+    } while (false);
+
+    if (!success) {
+        if (!errorMessage.isEmpty())
+            error(this, errorMessage);
         stop();
         emit finished();
     }
@@ -845,6 +840,10 @@ void S60DeviceRunControlBase::printInstallFailed(const QString &filename, const 
 
 void S60DeviceRunControlBase::launcherFinished()
 {
+    if (m_releaseDeviceAfterLauncherFinish) {
+        m_handleDeviceRemoval = false;
+        trk::Launcher::releaseToDeviceManager(m_launcher);
+    }
     m_launcher->deleteLater();
     m_launcher = 0;
     handleLauncherFinished();
@@ -919,6 +918,14 @@ void S60DeviceRunControlBase::printApplicationOutput(const QString &output)
     emit addToOutputWindowInline(this, output);
 }
 
+void S60DeviceRunControlBase::deviceRemoved(const SymbianUtils::SymbianDevice &d)
+{
+    if (m_handleDeviceRemoval && d.portName() == m_serialPortName) {
+        error(this, tr("The device '%1' has been disconnected").arg(d.friendlyName()));
+        emit finished();
+    }
+}
+
 bool S60DeviceRunControlBase::checkConfiguration(QString * /* errorMessage */,
                                                  QString * /* settingsCategory */,
                                                  QString * /* settingsPage */) const
@@ -969,6 +976,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *ru
     S60DeviceRunControlBase(runConfiguration),
     m_startParams(new Debugger::DebuggerStartParameters)
 {
+    setReleaseDeviceAfterLauncherFinish(true); // Debugger controls device after install
     Debugger::DebuggerManager *dm = Debugger::DebuggerManager::instance();
     S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     QTC_ASSERT(dm && rc, return);
@@ -981,7 +989,6 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *ru
 
     m_startParams->remoteChannel = rc->serialPortName();
     m_startParams->processArgs = rc->commandLineArguments();
-    m_startParams->remoteChannelType = rc->communicationType();
     m_startParams->startMode = Debugger::StartInternal;
     m_startParams->toolChainType = rc->toolChainType();
 
@@ -1018,6 +1025,8 @@ void S60DeviceDebugRunControl::initLauncher(const QString &executable, trk::Laun
     }
 
     launcher->addStartupActions(trk::Launcher::ActionCopyInstall);
+    // Avoid close/open sequence in quick succession, which may cause crashs
+    launcher->setCloseDevice(false);
 }
 
 void S60DeviceDebugRunControl::handleLauncherFinished()

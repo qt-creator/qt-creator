@@ -47,6 +47,10 @@ namespace Debugger {
 class DebuggerStartParameters;
 }
 
+namespace SymbianUtils {
+class SymbianDevice;
+}
+
 namespace Qt4ProjectManager {
 
 namespace Internal {
@@ -75,9 +79,6 @@ public:
 
     QString serialPortName() const;
     void setSerialPortName(const QString &name);
-    // See SymbianDeviceManager
-    int communicationType() const;
-    void setCommunicationType(int t);
 
     QString targetName() const;
     QString basePackageFilePath() const;
@@ -126,7 +127,6 @@ private:
     QString m_packageTemplateFileName;
     bool m_cachedTargetInformationValid;
     QString m_serialPortName;
-    int m_communicationType;
     SigningMode m_signingMode;
     QString m_customSignaturePath;
     QString m_customKeyPath;
@@ -179,9 +179,11 @@ protected:
     virtual bool checkConfiguration(QString *errorMessage,
                                     QString *settingsCategory,
                                     QString *settingsPage) const;
+    void setReleaseDeviceAfterLauncherFinish(bool);
 
 protected slots:
     void printApplicationOutput(const QString &output);
+    void deviceRemoved(const SymbianUtils::SymbianDevice &);
 
 private slots:
     void processStopped(uint pc, uint pid, uint tid, const QString& reason);
@@ -213,7 +215,6 @@ private:
     ProjectExplorer::ToolChain::ToolChainType m_toolChain;
     QString m_serialPortName;
     QString m_serialPortFriendlyName;
-    int     m_communicationType;
     QString m_targetName;
     QString m_baseFileName;
     QStringList m_commandLineArguments;
@@ -232,7 +233,8 @@ private:
     QProcess *m_signsis;
     QString m_makesisTool;
     QString m_packageFile;
-
+    bool m_releaseDeviceAfterLauncherFinish;
+    bool m_handleDeviceRemoval;
     QFutureInterface<void> *m_deployProgress;
     trk::Launcher *m_launcher;
 };

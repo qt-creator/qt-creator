@@ -47,6 +47,9 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 
+namespace SymbianUtils {
+class SymbianDevice;
+}
 
 namespace Debugger {
 namespace Internal {
@@ -160,8 +163,6 @@ signals:
 
 private:
     const TrkOptionsPtr m_options;
-    QString m_overrideTrkDevice;
-    int m_overrideTrkDeviceType;
 
     QString m_gdbServerName; // 127.0.0.1:(2222+uid)
 
@@ -180,6 +181,7 @@ public:
 
 private:
     void startAdapter();
+    bool initializeDevice(const QString &remoteChannel, QString *errorMessage);
     void startInferior();
     void startInferiorPhase2();
     void interruptInferior();
@@ -258,8 +260,10 @@ private:
     QByteArray trkStepRangeMessage();
     QByteArray trkDeleteProcessMessage();
     QByteArray trkInterruptMessage();
+    Q_SLOT void trkDeviceRemoved(const SymbianUtils::SymbianDevice &);
 
     QSharedPointer<trk::TrkDevice> m_trkDevice;
+    bool m_deviceFromSymbianDeviceManager;
     QString m_adapterFailMessage;
 
     //
@@ -298,9 +302,6 @@ private:
     bool m_gdbAckMode;
 
     QHash<int, GdbCommand> m_gdbCookieForToken;
-
-    QString effectiveTrkDevice() const;
-    int effectiveTrkDeviceType() const;
 
     // Debuggee state
     trk::Session m_session; // global-ish data (process id, target information)

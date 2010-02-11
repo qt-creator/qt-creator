@@ -33,21 +33,50 @@
 #include <windows.h>
 #endif
 
-#include <QtDebug>
+#include <QtCore/QtDebug>
+#include <QtCore/QEvent>
+#include <QtCore/QCoreApplication>
 
-using namespace Core::Internal;
+namespace Core {
+namespace Internal {
 
-EventFilteringMainWindow::EventFilteringMainWindow()
+/* The notification signal is delayed by using a custom event
+ * as otherwise device removal is not detected properly
+ * (devices are still present in the registry. */
+
+class DeviceNotifyEvent : public QEvent {
+public:
+    explicit DeviceNotifyEvent(int id) : QEvent(static_cast<QEvent::Type>(id)) {}
+};
+
+EventFilteringMainWindow::EventFilteringMainWindow() :
+        m_deviceEventId(QEvent::registerEventType(QEvent::User + 2))
 {
 }
 
 #ifdef Q_OS_WIN
+bool EventFilteringMainWindow::event(QEvent *event)
+{
+    if (event->type() == m_deviceEventId) {
+        event->accept();
+        emit deviceChange();
+        return true;
+    }
+    return QMainWindow::event(event);
+}
+
 bool EventFilteringMainWindow::winEvent(MSG *msg, long *result)
 {
     if (msg->message == WM_DEVICECHANGE) {
-        emit deviceChange();
-        *result = TRUE;
+        if (msg->wParam & 0x7 /* DBT_DEVNODES_CHANGED */) {
+            *result = TRUE;
+            QCoreApplication::postEvent(this, new DeviceNotifyEvent(m_deviceEventId));
+        }
     }
     return false;
 }
 #endif
+
+} // namespace Internal
+} // namespace Core
+

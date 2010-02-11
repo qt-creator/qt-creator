@@ -224,7 +224,6 @@ const char *DebuggerManager::stateName(int s)
 DebuggerStartParameters::DebuggerStartParameters()
   : attachPID(-1),
     useTerminal(false),
-    remoteChannelType(-1),
     toolChainType(ProjectExplorer::ToolChain::UNKNOWN),
     startMode(NoStartMode)
 {}

@@ -47,7 +47,6 @@ class S60DebuggerBluetoothStarter : public trk::AbstractBluetoothStarter
 public:
     static trk::PromptStartCommunicationResult
         startCommunication(const TrkDevicePtr &trkDevice,
-                           int communicationType,
                            QWidget *msgBoxParent,
                            QString *errorMessage);
 

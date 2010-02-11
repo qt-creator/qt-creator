@@ -40,6 +40,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QScopedPointer>
 #include <QtCore/QMetaType>
 
 #ifdef Q_OS_WIN
@@ -89,6 +90,11 @@ QString winErrorMessage(unsigned long error)
 #endif
 
 enum { verboseTrk = 0 };
+
+static inline QString msgAccessingClosedDevice(const QString &msg)
+{
+    return QString::fromLatin1("Error: Attempt to access device '%1', which is closed.").arg(msg);
+}
 
 namespace trk {
 
@@ -147,6 +153,7 @@ class TrkWriteQueue
     Q_DISABLE_COPY(TrkWriteQueue)
 public:
     explicit TrkWriteQueue();
+    void clear();
 
     // Enqueue messages.
     void queueTrkMessage(byte code, TrkCallback callback,
@@ -196,13 +203,21 @@ TrkWriteQueue::TrkWriteQueue() :
 {
 }
 
+void TrkWriteQueue::clear()
+{
+    m_trkWriteToken = 0;
+    m_trkWriteBusy = false;
+    m_trkWriteQueue.clear();
+    m_writtenTrkMessages.clear();
+}
+
 byte TrkWriteQueue::nextTrkWriteToken()
 {
     ++m_trkWriteToken;
     if (m_trkWriteToken == 0)
         ++m_trkWriteToken;
     if (verboseTrk)
-        qDebug() << "Write token: " << m_trkWriteToken;
+        qDebug() << "nextTrkWriteToken:" << m_trkWriteToken;
     return m_trkWriteToken;
 }
 
@@ -450,6 +465,7 @@ void WriterThread::terminate()
     m_waitCondition.wakeAll();
     wait();
     m_terminate = false;
+    m_queue.clear();
 }
 
 #ifdef Q_OS_WIN
@@ -579,6 +595,8 @@ class ReaderThreadBase : public QThread
     Q_OBJECT
     Q_DISABLE_COPY(ReaderThreadBase)
 public:
+
+    int bytesPending() const { return m_trkReadBuffer.size(); }
 
 signals:
     void messageReceived(const trk::TrkResult &result, const QByteArray &rawData);
@@ -865,8 +883,8 @@ struct TrkDevicePrivate
     TrkDevicePrivate();
 
     QSharedPointer<DeviceContext> deviceContext;
-    QSharedPointer<WriterThread> writerThread;
-    QSharedPointer<ReaderThread> readerThread;
+    QScopedPointer<WriterThread> writerThread;
+    QScopedPointer<ReaderThread> readerThread;
 
     QByteArray trkReadBuffer;
     int verbose;
@@ -905,14 +923,14 @@ TrkDevice::~TrkDevice()
 
 bool TrkDevice::open(QString *errorMessage)
 {
-    if (d->verbose)
+    if (d->verbose || verboseTrk)
         qDebug() << "Opening" << port() << "is open: " << isOpen() << " serialFrame=" << serialFrame();
+    if (isOpen())
+        return true;
     if (d->port.isEmpty()) {
         *errorMessage = QLatin1String("Internal error: No port set on TrkDevice");
         return false;
     }
-
-    close();
 #ifdef Q_OS_WIN
     const QString fullPort = QLatin1String("\\\\.\\") + d->port;
     d->deviceContext->device = CreateFile(reinterpret_cast<const WCHAR*>(fullPort.utf16()),
@@ -963,7 +981,7 @@ bool TrkDevice::open(QString *errorMessage)
         return false;
     }
 #endif
-    d->readerThread = QSharedPointer<ReaderThread>(new ReaderThread(d->deviceContext));
+    d->readerThread.reset(new ReaderThread(d->deviceContext));
     connect(d->readerThread.data(), SIGNAL(error(QString)), this, SLOT(emitError(QString)),
             Qt::QueuedConnection);
     connect(d->readerThread.data(), SIGNAL(messageReceived(trk::TrkResult,QByteArray)),
@@ -971,18 +989,22 @@ bool TrkDevice::open(QString *errorMessage)
             Qt::QueuedConnection);
     d->readerThread->start();
 
-    d->writerThread = QSharedPointer<WriterThread>(new WriterThread(d->deviceContext));
+    d->writerThread.reset(new WriterThread(d->deviceContext));
     connect(d->writerThread.data(), SIGNAL(error(QString)), this, SLOT(emitError(QString)),
             Qt::QueuedConnection);
     d->writerThread->start();
 
-    if (d->verbose)
-        qDebug() << "Opened" << d->port;
+    if (d->verbose || verboseTrk)
+        qDebug() << "Opened" << d->port << d->readerThread.data() << d->writerThread.data();
     return true;
 }
 
 void TrkDevice::close()
 {
+    if (verboseTrk)
+        qDebug() << "close" << d->port << " is open: " << isOpen()
+        << " read pending " << (d->readerThread.isNull() ? 0 : d->readerThread->bytesPending())
+        << sender();
     if (!isOpen())
         return;
     if (d->readerThread)
@@ -998,6 +1020,7 @@ void TrkDevice::close()
 #else
     d->deviceContext->file.close();
 #endif
+
     if (d->verbose)
         emitLogMessage("Close");
 }
@@ -1018,6 +1041,8 @@ QString TrkDevice::port() const
 
 void TrkDevice::setPort(const QString &p)
 {
+    if (verboseTrk)
+        qDebug() << "setPort" << p;
     d->port = p;
 }
 
@@ -1033,6 +1058,8 @@ bool TrkDevice::serialFrame() const
 
 void TrkDevice::setSerialFrame(bool f)
 {
+    if (verboseTrk)
+        qDebug() << "setSerialFrame" << f;
     d->deviceContext->serialFrame = f;
 }
 
@@ -1048,12 +1075,14 @@ void TrkDevice::setVerbose(int b)
 
 void TrkDevice::slotMessageReceived(const trk::TrkResult &result, const QByteArray &rawData)
 {
-    d->writerThread->slotHandleResult(result);
-    if (d->verbose > 1)
-        qDebug() << "Received: " << result.toString();
-    emit messageReceived(result);
-    if (!rawData.isEmpty())
-        emit rawDataReceived(rawData);
+    if (isOpen()) { // Might receive bytes after closing due to queued connections.
+        d->writerThread->slotHandleResult(result);
+        if (d->verbose > 1)
+            qDebug() << "Received: " << result.toString();
+        emit messageReceived(result);
+        if (!rawData.isEmpty())
+            emit rawDataReceived(rawData);
+    }
 }
 
 void TrkDevice::emitError(const QString &s)
@@ -1066,12 +1095,18 @@ void TrkDevice::emitError(const QString &s)
 void TrkDevice::sendTrkMessage(byte code, TrkCallback callback,
      const QByteArray &data, const QVariant &cookie)
 {
+    if (!isOpen()) {
+        emitError(msgAccessingClosedDevice(d->port));
+        return;
+    }
     if (!d->writerThread.isNull()) {
         if (d->verbose > 1) {
-            QByteArray msg = "Sending:  ";
+            QByteArray msg = "Sending:  0x";
             msg += QByteArray::number(code, 16);
             msg += ": ";
             msg += stringFromArray(data).toLatin1();
+            if (cookie.isValid())
+                msg += " Cookie: " + cookie.toString().toLatin1();
             qDebug("%s", msg.data());
         }
         d->writerThread->queueTrkMessage(code, callback, data, cookie);
@@ -1080,12 +1115,20 @@ void TrkDevice::sendTrkMessage(byte code, TrkCallback callback,
 
 void TrkDevice::sendTrkInitialPing()
 {
+    if (!isOpen()) {
+        emitError(msgAccessingClosedDevice(d->port));
+        return;
+    }
     if (!d->writerThread.isNull())
         d->writerThread->queueTrkInitialPing();
 }
 
 bool TrkDevice::sendTrkAck(byte token)
 {
+    if (!isOpen()) {
+        emitError(msgAccessingClosedDevice(d->port));
+        return false;
+    }
     if (d->writerThread.isNull())
         return false;
     // The acknowledgement must not be queued!
