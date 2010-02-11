@@ -336,11 +336,9 @@ void BreakHandler::clear()
 int BreakHandler::findBreakpoint(const BreakpointData &needle)
 {
     // Search a breakpoint we might refer to.
-    qDebug() << "NEEDLE: " << needle.toString();
     for (int index = 0; index != size(); ++index) {
         const BreakpointData *data = at(index);
         // Clear hit.
-        qDebug() << "  TEST: " << data->toString();
         if (data->bpNumber == needle.bpNumber)
             return index;
         // At least at a position we were looking for.
