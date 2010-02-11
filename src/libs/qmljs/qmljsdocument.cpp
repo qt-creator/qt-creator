@@ -129,6 +129,22 @@ void Document::setDocumentRevision(int revision)
     _documentRevision = revision;
 }
 
+QString Document::fileName() const
+{
+    return _fileName;
+
+}
+
+QString Document::path() const
+{
+    return _path;
+}
+
+QString Document::componentName() const
+{
+    return _componentName;
+}
+
 bool Document::parse_helper(int startToken)
 {
     Q_ASSERT(! _engine);

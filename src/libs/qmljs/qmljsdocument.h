@@ -77,9 +77,9 @@ public:
     int documentRevision() const;
     void setDocumentRevision(int documentRevision);
 
-    QString fileName() const { return _fileName; }
-    QString path() const { return _path; }
-    QString componentName() const { return _componentName; }
+    QString fileName() const;
+    QString path() const;
+    QString componentName() const;
 
 private:
     bool parse_helper(int kind);
