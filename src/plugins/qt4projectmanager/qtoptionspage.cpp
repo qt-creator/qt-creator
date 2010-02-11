@@ -444,15 +444,23 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
 {
     if (item) {
         int index = indexForTreeItem(item);
+        m_ui->errorLabel->setText("");
         if (index < 0) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
             return;
         }
-        m_ui->errorLabel->setText("");
         QList<ProjectExplorer::ToolChain::ToolChainType> types = m_versions.at(index)->possibleToolChainTypes();
-        if (types.contains(ProjectExplorer::ToolChain::MinGW)) {
+        if (types.isEmpty()) {
+            makeMSVCVisible(false);
+            makeMingwVisible(false);
+            makeS60Visible(false);
+            if (!m_versions.at(index)->isValid())
+                m_ui->errorLabel->setText(m_versions.at(index)->invalidReason());
+            else
+                m_ui->errorLabel->setText(tr("%1 does not specify a valid Qt installation").arg(QDir::toNativeSeparators(m_versions.at(index)->qmakeCommand())));
+        } else if (types.contains(ProjectExplorer::ToolChain::MinGW)) {
             makeMSVCVisible(false);
             makeMingwVisible(true);
             makeS60Visible(false);
@@ -487,18 +495,12 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             m_ui->mwcPath->setPath(m_versions.at(index)->mwcDirectory());
             m_ui->s60SDKPath->setPath(m_versions.at(index)->s60SDKDirectory());
             m_ui->gccePath->setPath(m_versions.at(index)->gcceDirectory());
-        } else if (types.contains(ProjectExplorer::ToolChain::INVALID)) {
-            makeMSVCVisible(false);
-            makeMingwVisible(false);
-            makeS60Visible(false);
-            if (!m_versions.at(index)->isValid())
-                m_ui->errorLabel->setText(m_versions.at(index)->invalidReason());
-            else
-                m_ui->errorLabel->setText(tr("%1 does not specify a valid Qt installation").arg(QDir::toNativeSeparators(m_versions.at(index)->qmakeCommand())));
         } else { //ProjectExplorer::ToolChain::GCC
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
+        }
+        if (m_ui->errorLabel->text().isEmpty()) {
             m_ui->errorLabel->setText(tr("Found Qt version %1, using mkspec %2")
                                      .arg(m_versions.at(index)->qtVersionString(),
                                           m_versions.at(index)->mkspec()));
