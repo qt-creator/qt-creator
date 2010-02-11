@@ -968,7 +968,7 @@ static QStringList expandEnvVars(const QStringList &x)
 // This is braindead, but we want qmake compat
 static QString fixPathToLocalOS(const QString &str)
 {
-    QString string = str;
+    QString string = expandEnvVars(str);
 
     if (string.length() > 2 && string.at(0).isLetter() && string.at(1) == QLatin1Char(':'))
         string[0] = string[0].toLower();
@@ -2070,7 +2070,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 if (args.count() > 1)
                     singleLine = (!args[1].compare(statics.strtrue, Qt::CaseInsensitive));
 
-                QFile qfile(resolvePath(file));
+                QFile qfile(resolvePath(expandEnvVars(file)));
                 if (qfile.open(QIODevice::ReadOnly)) {
                     QTextStream stream(&qfile);
                     while (!stream.atEnd()) {
@@ -2087,7 +2087,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 logMessage(format("fromfile(file, variable) requires two arguments."));
             } else {
                 QHash<QString, QStringList> vars;
-                if (evaluateFileInto(resolvePath(args.at(0)), &vars, 0))
+                if (evaluateFileInto(resolvePath(expandEnvVars(args.at(0))), &vars, 0))
                     ret = vars.value(args.at(1));
             }
             break;
@@ -2372,7 +2372,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("infile(file, var, [values]) requires two or three arguments."));
             } else {
                 QHash<QString, QStringList> vars;
-                if (!evaluateFileInto(resolvePath(args.at(0)), &vars, 0))
+                if (!evaluateFileInto(resolvePath(expandEnvVars(args.at(0))), &vars, 0))
                     return ProItem::ReturnFalse;
                 if (args.count() == 2)
                     return returnBool(vars.contains(args.at(1)));
@@ -2702,7 +2702,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
             State sts = m_sts;
-            bool ok = evaluateFile(resolvePath(args.first()));
+            bool ok = evaluateFile(resolvePath(expandEnvVars(args.first())));
             m_sts = sts;
             return returnBool(ok);
         }
@@ -2719,7 +2719,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
             // XXX ignore_error unused
-            return returnBool(evaluateFeatureFile(args.first()));
+            return returnBool(evaluateFeatureFile(expandEnvVars(args.first())));
         }
         case T_DEBUG:
             // Yup - do nothing. Nothing is going to enable debug output anyway.
@@ -2765,8 +2765,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("exists(file) requires one argument."));
                 return ProItem::ReturnFalse;
             }
-            QString file = args.first();
-            file = fixPathToLocalOS(resolvePath(file));
+            QString file = resolvePath(expandEnvVars(args.first()));
 
             if (IoUtils::exists(file)) {
                 return ProItem::ReturnTrue;
