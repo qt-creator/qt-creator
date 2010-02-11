@@ -380,55 +380,37 @@ QString MaemoRunConfiguration::executable() const
 
 QString MaemoRunConfiguration::simulatorSshPort() const
 {
-    if (!m_cachedSimulatorInformationValid)
-        updateTarget();
+    updateSimulatorInformation();
     return m_simulatorSshPort;
 }
 
 QString MaemoRunConfiguration::simulatorGdbServerPort() const
 {
-    if (!m_cachedSimulatorInformationValid)
-        updateTarget();
+    updateSimulatorInformation();;
     return m_simulatorGdbServerPort;
 }
 
 QString MaemoRunConfiguration::simulatorPath() const
 {
-    qDebug("MaemoRunConfiguration::simulatorPath() called, %s",
-        qPrintable(m_simulatorPath));
-
-    if (!m_cachedSimulatorInformationValid)
-        updateSimulatorInformation();
+    updateSimulatorInformation();
     return m_simulatorPath;
 }
 
 QString MaemoRunConfiguration::visibleSimulatorParameter() const
 {
-    qDebug("MaemoRunConfiguration::visibleSimulatorParameter() called, %s",
-        qPrintable(m_visibleSimulatorParameter));
-
-    if (!m_cachedSimulatorInformationValid)
-        updateSimulatorInformation();
+    updateSimulatorInformation();
     return m_visibleSimulatorParameter;
 }
 
 QString MaemoRunConfiguration::simulator() const
 {
-    qDebug("MaemoRunConfiguration::simulator() called, %s",
-        qPrintable(m_simulator));
-
-    if (!m_cachedSimulatorInformationValid)
-        updateSimulatorInformation();
+    updateSimulatorInformation();
     return m_simulator;
 }
 
 QString MaemoRunConfiguration::simulatorArgs() const
 {
-    qDebug("MaemoRunConfiguration::simulatorArgs() called, %s",
-        qPrintable(m_simulatorArgs));
-
-    if (!m_cachedSimulatorInformationValid)
-        updateSimulatorInformation();
+    updateSimulatorInformation();
     return m_simulatorArgs;
 }
 
