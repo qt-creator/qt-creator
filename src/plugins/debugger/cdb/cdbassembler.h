@@ -34,6 +34,7 @@
 #include <QtCore/QString>
 
 #include "cdbcom.h"
+#include "registerhandler.h"
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -47,13 +48,11 @@ namespace Debugger {
 namespace Internal {
 
 // Utilities related to assembler code.
-class Register;
 
-bool getRegisters(CIDebugControl *ctl,
-                  CIDebugRegisters *ireg,
-                  QList<Register> *registers,
-                  QString *errorMessage,
-                  int base = 10 /* 16 for hex, etc */);
+Registers getRegisters(CIDebugControl *ctl,
+                       CIDebugRegisters *ireg,
+                       QString *errorMessage,
+                       int base = 10 /* 16 for hex, etc */);
 
 bool dissassemble(CdbCore::CoreEngine *engine,
                   ULONG64 offset,

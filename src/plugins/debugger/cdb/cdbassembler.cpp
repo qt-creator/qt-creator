@@ -61,31 +61,29 @@ static inline void formatAddress(QTextStream &str, QString hexAddressS, int fiel
 namespace Debugger {
 namespace Internal {
 
-bool getRegisters(CIDebugControl *ctl,
-                  CIDebugRegisters *ireg,
-                  QList<Register> *registers,
-                  QString *errorMessage, int base)
+Registers getRegisters(CIDebugControl *ctl,
+                       CIDebugRegisters *ireg,
+                       QString *errorMessage, int base)
 {
-    registers->clear();
+
     ULONG count;
     HRESULT hr = ireg->GetNumberRegisters(&count);
     if (FAILED(hr)) {
         *errorMessage= CdbCore::msgComFailed("GetNumberRegisters", hr);
-        return false;
+        return Registers();
     }
     if (!count)
-        return true;
+        return Registers();
+    Registers registers(count);
     // Retrieve names
     char buf[MAX_PATH];
     for (ULONG r = 0; r < count; r++) {
         hr = ireg->GetDescription(r, buf, MAX_PATH - 1, 0, 0);
         if (FAILED(hr)) {
             *errorMessage= CdbCore::msgComFailed("GetDescription", hr);
-            return false;
+            return Registers();
         }
-        Register reg;
-        reg.name = QByteArray(buf);
-        registers->push_back(reg);
+        registers[r].name = QByteArray(buf);
     }
     // get values
     QVector<DEBUG_VALUE> values(count);
@@ -94,13 +92,13 @@ bool getRegisters(CIDebugControl *ctl,
     hr = ireg->GetValues(count, 0, 0, valuesPtr);
     if (FAILED(hr)) {
         *errorMessage= CdbCore::msgComFailed("GetValues", hr);
-        return false;
+        return Registers();
     }
     if (base < 2)
         base = 10;
     for (ULONG r = 0; r < count; r++)
-        (*registers)[r].value = CdbCore::debugValueToString(values.at(r), 0, base, ctl);
-    return true;
+        registers[r].value = CdbCore::debugValueToString(values.at(r), 0, base, ctl);
+    return registers;
 }
 
 // Output parser for disassembler lines.

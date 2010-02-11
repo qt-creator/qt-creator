@@ -1192,9 +1192,10 @@ void CdbDebugEngine::reloadRegisters()
     const int intBase = 10;
     if (debugCDB)
         qDebug() << Q_FUNC_INFO << intBase;
-    QList<Register> registers;
+
     QString errorMessage;
-    if (!getRegisters(m_d->interfaces().debugControl, m_d->interfaces().debugRegisters, &registers, &errorMessage, intBase))
+    const Registers registers = getRegisters(m_d->interfaces().debugControl, m_d->interfaces().debugRegisters, &errorMessage, intBase);
+    if (registers.isEmpty() && !errorMessage.isEmpty())
         warning(msgFunctionFailed("reloadRegisters" , errorMessage));
     manager()->registerHandler()->setRegisters(registers);
 }
