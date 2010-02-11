@@ -307,14 +307,14 @@ void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const Qm
         NodeInstance newStateInstance = instanceForModelNode(newQmlModelState.modelNode());
         Q_ASSERT(newStateInstance.isValid());
         if (!newQmlModelState.isBaseState())
-            newStateInstance.setPropertyVariant("__activateState", true);
+            newStateInstance.activateState();
     }
 
     if (oldQmlModelState.isValid()) {
         NodeInstance oldStateInstance = instanceForModelNode(oldQmlModelState.modelNode());
         Q_ASSERT(oldStateInstance.isValid());
         if (!oldQmlModelState.isBaseState())
-            oldStateInstance.setPropertyVariant("__activateState", false);
+            oldStateInstance.deactivateState();
     }
 }
 

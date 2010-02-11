@@ -592,6 +592,18 @@ void ObjectNodeInstance::paintUpdate()
 {
 }
 
+void ObjectNodeInstance::activateState()
+{
+}
+
+void ObjectNodeInstance::deactivateState()
+{
+}
+
+void ObjectNodeInstance::refreshState()
+{
+}
+
 QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString())
 {
     QStringList propertyNameList;

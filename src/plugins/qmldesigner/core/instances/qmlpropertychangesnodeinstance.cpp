@@ -196,7 +196,7 @@ void QmlPropertyChangesNodeInstance::updateStateInstance() const
         || !qmlStateInstance.modelNode().isValid())
         return;
 
-    qmlStateInstance.setPropertyVariant(PROPERTY_STATEACTIONSCHANGED, true);
+    qmlStateInstance.refreshState();
 }
 
 } // namespace Internal

@@ -37,8 +37,6 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-const char * const PROPERTY_STATEACTIONSCHANGED = "__stateActionsChanged";
-
 class QmlStateNodeInstance : public ObjectNodeInstance
 {
 public:
@@ -47,9 +45,9 @@ public:
 
     static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
 
-    virtual void setPropertyVariant(const QString &name, const QVariant &value);
-    virtual QVariant property(const QString &name) const;
-    virtual void resetProperty(const QString &name);
+    void activateState();
+    void deactivateState();
+    void refreshState();
 
 protected:
     QmlStateNodeInstance(QmlState *object);

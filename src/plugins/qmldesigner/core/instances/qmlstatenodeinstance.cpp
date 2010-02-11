@@ -33,9 +33,6 @@
 namespace QmlDesigner {
 namespace Internal {
 
-const char * const ACTIVATESTATEPROPERTY = "__activateState";
-const char * const STATEACTIONSCHANGED = "__stateActionsChanged";
-
 /**
   \class QmlStateNodeInstance
 
@@ -65,52 +62,22 @@ QmlStateNodeInstance::Pointer
     return instance;
 }
 
-void QmlStateNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void QmlStateNodeInstance::activateState()
 {
-    if (name == ACTIVATESTATEPROPERTY) {
-        Q_ASSERT(value.type() == QVariant::Bool);
-        bool shouldActivate = value.toBool();
-
-        if (shouldActivate != isStateActive()) {
-            if (shouldActivate) {
-//                QmlState *currentState = stateGroup()->findState(stateGroup()->state());
-//                stateObject()->apply(stateGroup(), 0, currentState);
-
-                // TODO: Will this activate transitions????
-                stateGroup()->setState(property("name").toString());
-            } else {
-                resetProperty(name);
-            }
-        }
-    } else if (name == PROPERTY_STATEACTIONSCHANGED) {
-        if (isStateActive()) {
-            stateGroup()->setState(QString());
-            stateGroup()->setState(property("name").toString());
-        }
-    } else {
-        ObjectNodeInstance::setPropertyVariant(name, value);
-    }
+    if (!isStateActive())
+        stateGroup()->setState(property("name").toString());
 }
 
-QVariant QmlStateNodeInstance::property(const QString &name) const
+void QmlStateNodeInstance::deactivateState()
 {
-    if (name == ACTIVATESTATEPROPERTY) {
-        return isStateActive();
-    } else {
-        return ObjectNodeInstance::property(name);
-    }
+    if (isStateActive())
+         stateGroup()->setState(QString());
 }
 
-void QmlStateNodeInstance::resetProperty(const QString &name)
+void QmlStateNodeInstance::refreshState()
 {
-    if (name == ACTIVATESTATEPROPERTY) {
-        if (isStateActive()) {
-            // TODO: Will this activate transitions????
-            stateGroup()->setState(QString());
-        }
-    } else {
-        ObjectNodeInstance::resetProperty(name);
-    }
+    deactivateState();
+    activateState();
 }
 
 QmlState *QmlStateNodeInstance::stateObject() const

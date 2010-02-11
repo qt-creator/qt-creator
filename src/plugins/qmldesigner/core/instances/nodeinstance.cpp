@@ -594,4 +594,18 @@ QObject *NodeInstance::internalObject() const
     return m_nodeInstance->object();
 }
 
+void NodeInstance::activateState()
+{
+    m_nodeInstance->activateState();
+}
+
+void NodeInstance::deactivateState()
+{
+    m_nodeInstance->deactivateState();
+}
+
+void NodeInstance::refreshState()
+{
+    m_nodeInstance->refreshState();
+}
 }

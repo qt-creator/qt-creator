@@ -131,6 +131,10 @@ public:
 
     int penWidth() const;
 
+    void activateState();
+    void deactivateState();
+    void refreshState();
+
 private: // functions
     NodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 

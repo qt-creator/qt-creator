@@ -150,6 +150,10 @@ public:
     virtual void updateAnchors();
     virtual void paintUpdate();
 
+    virtual void activateState();
+    virtual void deactivateState();
+    virtual void refreshState();
+
     void populateResetValueHash();
     QVariant resetValue(const QString &propertyName) const;
 
