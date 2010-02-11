@@ -59,6 +59,8 @@ public:
     Interpreter::ObjectValue *rootObjectValue() const;
 
     Interpreter::ObjectValue *findQmlObject(AST::Node *node) const;
+    bool usesQmlPrototype(Interpreter::ObjectValue *prototype,
+                          Interpreter::Context *context) const;
 
     static QString toString(AST::UiQualifiedId *qualifiedId, QChar delimiter = QChar('.'));
 

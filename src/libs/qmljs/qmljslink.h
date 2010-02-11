@@ -28,6 +28,9 @@ public:
 private:
     Interpreter::Engine *engine();
 
+    void pushScopeChainForComponent(Document::Ptr doc, QStringList *linkedDocs,
+                                    Interpreter::ObjectValue *scopeObject = 0);
+
     static QList<Document::Ptr> reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot);
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 

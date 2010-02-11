@@ -31,28 +31,41 @@ Interpreter::Engine *Link::engine()
 
 void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 {
+    // ### TODO: This object ought to contain the global namespace additions by QML.
     _context->pushScope(engine()->globalObject());
 
     if (! doc)
         return;
 
-    if (doc->qmlProgram() != 0)
+    Bind *bind = doc->bind();
+    QStringList linkedDocs; // to prevent cycles
+
+    if (doc->qmlProgram()) {
         _context->setLookupMode(Context::QmlLookup);
 
-    Bind *bind = doc->bind();
+        ObjectValue *scopeObject = 0;
+        if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
+            scopeObject = bind->findQmlObject(definition);
+        else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
+            scopeObject = bind->findQmlObject(binding);
 
-    // Build the scope chain.
+        pushScopeChainForComponent(doc, &linkedDocs, scopeObject);
 
-    // ### FIXME: May want to link to instantiating components from here.
+        if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
+            _context->pushScope(typeEnvironment);
+    } else {
+        // add scope chains for all components that source this document
+        foreach (Document::Ptr otherDoc, _docs) {
+            if (otherDoc->bind()->includedScripts().contains(doc->fileName()))
+                pushScopeChainForComponent(otherDoc, &linkedDocs);
+        }
 
-    ObjectValue *scopeObject = 0;
-    if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
-        scopeObject = bind->findQmlObject(definition);
-    else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
-        scopeObject = bind->findQmlObject(binding);
-    else if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(currentObject)) {
+        // ### TODO: Which type environment do scripts see?
+
         _context->pushScope(bind->rootObjectValue());
+    }
 
+    if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(currentObject)) {
         ObjectValue *activation = engine()->newObject(/*prototype = */ 0);
         for (FormalParameterList *it = fun->formals; it; it = it->next) {
             if (it->name)
@@ -60,14 +73,34 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
         }
         _context->pushScope(activation);
     }
+}
 
-    if (scopeObject) {
-        if (bind->rootObjectValue())
-            _context->pushScope(bind->rootObjectValue());
+void Link::pushScopeChainForComponent(Document::Ptr doc, QStringList *linkedDocs,
+                                      ObjectValue *scopeObject)
+{
+    if (!doc->qmlProgram())
+        return;
 
-        if (scopeObject != bind->rootObjectValue())
-            _context->pushScope(scopeObject);
+    linkedDocs->append(doc->fileName());
+
+    Bind *bind = doc->bind();
+
+    // add scopes for all components instantiating this one
+    foreach (Document::Ptr otherDoc, _docs) {
+        if (linkedDocs->contains(otherDoc->fileName()))
+            continue;
+
+        if (otherDoc->bind()->usesQmlPrototype(bind->rootObjectValue(), _context)) {
+            // ### TODO: Depth-first insertion doesn't give us correct name shadowing.
+            pushScopeChainForComponent(otherDoc, linkedDocs);
+        }
     }
+
+    if (bind->rootObjectValue())
+        _context->pushScope(bind->rootObjectValue());
+
+    if (scopeObject && scopeObject != bind->rootObjectValue())
+        _context->pushScope(scopeObject);
 
     const QStringList &includedScripts = bind->includedScripts();
     for (int index = includedScripts.size() - 1; index != -1; --index) {
@@ -82,9 +115,6 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 
     _context->pushScope(bind->functionEnvironment());
     _context->pushScope(bind->idEnvironment());
-
-    if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
-        _context->pushScope(typeEnvironment);
 }
 
 void Link::linkImports()
@@ -251,40 +281,85 @@ UiQualifiedId *Link::qualifiedTypeNameId(Node *node)
         return 0;
 }
 
+static uint qHash(Document::Ptr doc) {
+    return qHash(doc.data());
+}
+
 QList<Document::Ptr> Link::reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot)
 {
-    QList<Document::Ptr> docs;
+    QSet<Document::Ptr> docs;
 
     if (! startDoc)
-        return docs;
-
-    QSet<QString> processed;
-    QStringList todo;
+        return docs.values();
 
     QMultiHash<QString, Document::Ptr> documentByPath;
     foreach (Document::Ptr doc, snapshot)
         documentByPath.insert(doc->path(), doc);
 
-    todo.append(startDoc->path());
+    // ### TODO: This doesn't scale well. Maybe just use the whole snapshot?
+    // Find all documents that (indirectly) include startDoc
+    {
+        QList<Document::Ptr> todo;
+        todo += startDoc;
 
-    // Find the reachable documents.
-    while (! todo.isEmpty()) {
-        const QString path = todo.takeFirst();
+        while (! todo.isEmpty()) {
+            Document::Ptr doc = todo.takeFirst();
 
-        if (processed.contains(path))
-            continue;
-
-        processed.insert(path);
-
-        QStringList localImports;
-        foreach (Document::Ptr doc, documentByPath.values(path)) {
             docs += doc;
-            localImports += doc->bind()->localImports();
-        }
 
-        localImports.removeDuplicates();
-        todo += localImports;
+            Snapshot::const_iterator it, end = snapshot.end();
+            for (it = snapshot.begin(); it != end; ++it) {
+                Document::Ptr otherDoc = *it;
+                if (docs.contains(otherDoc))
+                    continue;
+
+                QStringList localImports = otherDoc->bind()->localImports();
+                if (localImports.contains(doc->fileName())
+                    || localImports.contains(doc->path())
+                    || otherDoc->bind()->includedScripts().contains(doc->fileName())
+                ) {
+                    todo += otherDoc;
+                }
+            }
+        }
     }
 
-    return docs;
+    // Find all documents that are included by these (even if indirectly).
+    {
+        QSet<QString> processed;
+        QStringList todo;
+        foreach (Document::Ptr doc, docs)
+            todo.append(doc->fileName());
+
+        while (! todo.isEmpty()) {
+            QString path = todo.takeFirst();
+
+            if (processed.contains(path))
+                continue;
+            processed.insert(path);
+
+            if (Document::Ptr doc = snapshot.document(path)) {
+                docs += doc;
+
+                if (doc->qmlProgram())
+                    path = doc->path();
+                else
+                    continue;
+            }
+
+            QStringList localImports;
+            foreach (Document::Ptr doc, documentByPath.values(path)) {
+                if (doc->qmlProgram()) {
+                    docs += doc;
+                    localImports += doc->bind()->localImports();
+                    localImports += doc->bind()->includedScripts();
+                }
+            }
+
+            localImports.removeDuplicates();
+            todo += localImports;
+        }
+    }
+
+    return docs.values();
 }

@@ -92,6 +92,19 @@ Interpreter::ObjectValue *Bind::findQmlObject(AST::Node *node) const
     return _qmlObjects.value(node);
 }
 
+bool Bind::usesQmlPrototype(ObjectValue *prototype,
+                            Context *context) const
+{
+    foreach (ObjectValue *object, _qmlObjects.values()) {
+        const ObjectValue *resolvedPrototype = object->prototype(context);
+
+        if (resolvedPrototype == prototype)
+            return true;
+    }
+
+    return false;
+}
+
 ObjectValue *Bind::switchObjectValue(ObjectValue *newObjectValue)
 {
     ObjectValue *oldObjectValue = _currentObjectValue;
@@ -195,8 +208,8 @@ bool Bind::visit(AST::UiProgram *)
 
 bool Bind::visit(AST::Program *)
 {
-    _currentObjectValue = _engine.globalObject();
-    _rootObjectValue = _engine.globalObject();
+    _currentObjectValue = _engine.newObject(/*prototype =*/ 0);
+    _rootObjectValue = _currentObjectValue;
     return true;
 }
 
