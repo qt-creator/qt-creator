@@ -79,7 +79,7 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-BreakWindow::BreakWindow(DebuggerManager *manager)
+BreakWindow::BreakWindow(Debugger::DebuggerManager *manager)
   : m_manager(manager), m_alwaysResizeColumnsToContents(false)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
