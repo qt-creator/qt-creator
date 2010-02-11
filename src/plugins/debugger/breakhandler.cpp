@@ -335,13 +335,15 @@ void BreakHandler::clear()
 
 int BreakHandler::findBreakpoint(const BreakpointData &needle)
 {
-    // looks for a breakpoint we might refer to
+    // Search a breakpoint we might refer to.
+    qDebug() << "NEEDLE: " << needle.toString();
     for (int index = 0; index != size(); ++index) {
         const BreakpointData *data = at(index);
-        // clear hit.
+        // Clear hit.
+        qDebug() << "  TEST: " << data->toString();
         if (data->bpNumber == needle.bpNumber)
             return index;
-        // at least at a position we were looking for
+        // At least at a position we were looking for.
         // FIXME: breaks multiple breakpoints at the same location
         if (fileNameMatch(data->fileName, needle.bpFileName)
                 && data->lineNumber == needle.bpLineNumber)

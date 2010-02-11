@@ -33,9 +33,11 @@
 #include <QtGui/QTreeView>
 
 namespace Debugger {
+
 class DebuggerManager;
 
 namespace Internal {
+
 class RegisterWindow : public QTreeView
 {
     Q_OBJECT

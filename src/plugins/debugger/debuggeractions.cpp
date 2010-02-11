@@ -279,6 +279,22 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setSettingsKey(debugModeGroup, QLatin1String("UsePreciseBreakpoints"));
     instance->insertItem(UsePreciseBreakpoints, item);
 
+    item = new SavedAction(instance);
+    item->setText(tr("Break on \"throw\""));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    item->setSettingsKey(debugModeGroup, QLatin1String("BreakOnThrow"));
+    instance->insertItem(BreakOnThrow, item);
+
+    item = new SavedAction(instance);
+    item->setText(tr("Break on \"catch\""));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    item->setSettingsKey(debugModeGroup, QLatin1String("BreakOnCatch"));
+    instance->insertItem(BreakOnCatch, item);
+
     //
     // Settings
     //

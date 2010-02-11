@@ -79,8 +79,8 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-BreakWindow::BreakWindow(QWidget *parent)
-  : QTreeView(parent), m_alwaysResizeColumnsToContents(false)
+BreakWindow::BreakWindow(DebuggerManager *manager)
+  : m_manager(manager), m_alwaysResizeColumnsToContents(false)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Breakpoints"));
@@ -143,6 +143,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     si = normalizeIndexes(si);
 
     const int rowCount = itemModel->rowCount();
+    const unsigned engineCapabilities = m_manager->debuggerCapabilities();
 
     QAction *deleteAction = new QAction(tr("Delete breakpoint"), &menu);
     deleteAction->setEnabled(si.size() > 0);
@@ -190,12 +191,18 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     toggleEnabledAction->setEnabled(si.size() > 0);
 
     const bool fullpath = si.isEmpty() || itemModel->data(idx2, Qt::UserRole).toBool();
-    const QString str6 = fullpath ? tr("Use short path") : tr("Use full path");
+    const QString str6 = fullpath ? tr("Use Short Path") : tr("Use Full Path");
     QAction *pathAction = new QAction(str6, &menu);
     pathAction->setEnabled(si.size() > 0);
 
-    QAction *breakAtFunctionAction = new QAction(tr("Set Breakpoint at Function..."), this);
-    QAction *breakAtMainAction = new QAction(tr("Set Breakpoint at Function \"main\""), this);
+    QAction *breakAtFunctionAction =
+        new QAction(tr("Set Breakpoint at Function..."), this);
+    QAction *breakAtMainAction =
+        new QAction(tr("Set Breakpoint at Function \"main\""), this);
+    QAction *breakAtThrowAction =
+        new QAction(tr("Set Breakpoint at \"throw\""), this);
+    QAction *breakAtCatchAction =
+        new QAction(tr("Set Breakpoint at \"catch\""), this);
 
     menu.addAction(deleteAction);
     menu.addAction(editConditionAction);
@@ -209,6 +216,10 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addSeparator();
     menu.addAction(breakAtFunctionAction);
     menu.addAction(breakAtMainAction);
+    if (engineCapabilities & BreakOnThrowAndCatchCapability) {
+        menu.addAction(breakAtThrowAction);
+        menu.addAction(breakAtCatchAction);
+    }
     menu.addSeparator();
     menu.addAction(theDebuggerAction(UseToolTipsInBreakpointsView));
     menu.addAction(theDebuggerAction(UseAddressInBreakpointsView));
@@ -246,6 +257,10 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
             emit breakByFunctionRequested(dlg.functionName());
     } else if (act == breakAtMainAction)
         emit breakByFunctionMainRequested();
+     else if (act == breakAtThrowAction)
+        emit breakByFunctionRequested("__cxa_throw");
+     else if (act == breakAtCatchAction)
+        emit breakByFunctionRequested("__cxa_begin_catch");
 }
 
 void BreakWindow::setBreakpointsEnabled(const QModelIndexList &list, bool enabled)

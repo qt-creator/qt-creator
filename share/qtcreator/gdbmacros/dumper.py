@@ -110,6 +110,7 @@ def listOfBreakpoints(d):
     #4.1                         y     0x08056673 in Foo at ../app.cpp:126\n"
     #4.2                         y     0x0805678b in Foo at ../app.cpp:126\n"
     #5       hw watchpoint  keep y              &main\n"
+    #6       breakpoint     keep y   0xb6cf18e5 <__cxa_throw+5>\n"
     lines = catchCliOutput("info break")
 
     lines.reverse()
@@ -128,10 +129,15 @@ def listOfBreakpoints(d):
         number = line[0:5]
         pos0x = line.find(" 0x")
         posin = line.find(" in ", pos0x)
+        poslt = line.find(" <", pos0x)
         posat = line.find(" at ", posin)
         poscol = line.find(":", posat)
-        if pos0x < posin and pos0x != -1:
-            bp.address.append(line[pos0x + 1 : posin])
+        if pos0x != -1:
+            if pos0x < posin:
+                bp.address.append(line[pos0x + 1 : posin])
+            elif pos0x < poslt:
+                bp.address.append(line[pos0x + 1 : poslt])
+                bp.function = line[poslt + 2 : line.find('>', poslt)]
         # Take "no address" as indication that the bp is pending.
         #if line.find("<PENDING>") >= 0:
         #    bp.address.append("<PENDING>")

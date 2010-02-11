@@ -120,6 +120,7 @@ enum DebuggerCapabilities
     JumpToLineCapability = 0x40,
     ReloadModuleCapability = 0x80,
     ReloadModuleSymbolsCapability = 0x100,
+    BreakOnThrowAndCatchCapability = 0x200,
 };
 
 enum LogChannel

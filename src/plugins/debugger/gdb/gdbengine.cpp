@@ -1708,7 +1708,7 @@ unsigned GdbEngine::debuggerCapabilities() const
         | AutoDerefPointersCapability | DisassemblerCapability
         | RegisterCapability | ShowMemoryCapability
         | JumpToLineCapability | ReloadModuleCapability
-        | ReloadModuleSymbolsCapability;
+        | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability;
 }
 
 void GdbEngine::continueInferiorInternal()

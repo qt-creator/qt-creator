@@ -33,6 +33,9 @@
 #include <QtGui/QTreeView>
 
 namespace Debugger {
+
+class DebuggerManager;
+
 namespace Internal {
 
 class BreakWindow : public QTreeView
@@ -40,7 +43,7 @@ class BreakWindow : public QTreeView
     Q_OBJECT
 
 public:
-    BreakWindow(QWidget *parent = 0);
+    explicit BreakWindow(DebuggerManager *manager);
 
 public slots:
     void resizeColumnsToContents();
@@ -70,6 +73,7 @@ private:
     void setBreakpointsEnabled(const QModelIndexList &list, bool enabled);
     void setBreakpointsFullPath(const QModelIndexList &list, bool fullpath);
 
+    DebuggerManager *m_manager;
     bool m_alwaysResizeColumnsToContents;
 };
 

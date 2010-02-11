@@ -230,6 +230,27 @@ void testQByteArray()
     ba += 2;
 }
 
+static void throwit1()
+{
+    throw 14;
+}
+
+static void throwit()
+{
+    throwit1();
+}
+
+int testCatchThrow()
+{
+    int gotit = 0;
+    try {
+        throwit();
+    } catch (int what) {
+        gotit = what;
+    }
+    return gotit;
+}
+
 void testQDateTime()
 {
     QDateTime date;
@@ -1422,6 +1443,7 @@ int main(int argc, char *argv[])
     testIO();
     testHidden();
     testArray();
+    testCatchThrow();
     testQByteArray();
 
     testStdDeque();

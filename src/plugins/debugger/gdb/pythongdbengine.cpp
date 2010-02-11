@@ -169,7 +169,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
                             && bp->fileName !=  bp->bpFileName)
                         bp->markerFileName = bp->fileName;
                 } else {
-                    QTC_ASSERT(false, qDebug() << child.toString());
+                    QTC_ASSERT(false, qDebug() << child.toString() << bpNumber);
                     //bp->bpNumber = "<unavailable>";
                 }
             }

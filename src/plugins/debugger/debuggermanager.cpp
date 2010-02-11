@@ -351,7 +351,7 @@ void DebuggerManager::init()
     d->m_statusLabel = new QLabel;
     d->m_statusLabel->setMinimumSize(QSize(30, 10));
 
-    d->m_breakWindow = new BreakWindow;
+    d->m_breakWindow = new BreakWindow(this);
     d->m_modulesWindow = new ModulesWindow(this);
     d->m_outputWindow = new DebuggerOutputWindow;
     d->m_registerWindow = new RegisterWindow(this);
