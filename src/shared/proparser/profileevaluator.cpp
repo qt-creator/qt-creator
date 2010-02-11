@@ -2771,16 +2771,13 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             if (IoUtils::exists(file)) {
                 return ProItem::ReturnTrue;
             }
-            //regular expression I guess
-            QString dirstr = currentDirectory();
-            int slsh = file.lastIndexOf(m_option->dir_sep);
-            if (slsh != -1) {
-                dirstr = file.left(slsh+1);
-                file = file.right(file.length() - slsh - 1);
-            }
-            if (file.contains(QLatin1Char('*')) || file.contains(QLatin1Char('?')))
-                if (!QDir(dirstr).entryList(QStringList(file)).isEmpty())
+            int slsh = file.lastIndexOf(QLatin1Char('/'));
+            QString fn = file.mid(slsh+1);
+            if (fn.contains(QLatin1Char('*')) || fn.contains(QLatin1Char('?'))) {
+                QString dirstr = file.left(slsh+1);
+                if (!QDir(dirstr).entryList(QStringList(fn)).isEmpty())
                     return ProItem::ReturnTrue;
+            }
 
             return ProItem::ReturnFalse;
         }
