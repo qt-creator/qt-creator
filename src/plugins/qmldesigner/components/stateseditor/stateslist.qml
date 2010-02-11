@@ -422,6 +422,8 @@ Rectangle {
             MouseRegion {
                 anchors.fill:parent
                 onClicked: {
+                    // force close textinput
+                    root.unFocus();
                     if (root.currentStateIndex == 0)
                         root.createNewState(); //create new state
                     else
