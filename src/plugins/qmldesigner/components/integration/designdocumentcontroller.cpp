@@ -531,6 +531,7 @@ void DesignDocumentController::deleteSelected()
         return;
 
     if (m_d->formEditorView) {
+        RewriterTransaction transaction(m_d->formEditorView.data());
         QList<ModelNode> toDelete = m_d->formEditorView->selectedModelNodes();
         foreach (ModelNode node, toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode(node).isValid())
@@ -649,6 +650,8 @@ void DesignDocumentController::paste()
 
         QList<ModelNode> pastedNodeList;
 
+        RewriterTransaction transaction(m_d->formEditorView.data());
+
         foreach (const ModelNode &node, selectedNodes) {
             QString defaultProperty(targetNode.metaInfo().defaultProperty());
             ModelNode pastedNode(view.insertModel(node));
@@ -658,6 +661,8 @@ void DesignDocumentController::paste()
 
         view.setSelectedModelNodes(pastedNodeList);
     } else {
+        RewriterTransaction transaction(m_d->formEditorView.data());
+
         model->detachView(&view);
         m_d->model->attachView(&view);
         ModelNode pastedNode(view.insertModel(rootNode));
