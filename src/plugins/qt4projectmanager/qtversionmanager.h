@@ -35,6 +35,7 @@
 #include <QSharedPointer>
 
 #include <QtCore/QHash>
+#include <QtCore/QSet>
 #include <QtCore/QSharedPointer>
 
 namespace ProjectExplorer {
@@ -180,6 +181,7 @@ private:
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
+    mutable QSet<QString> m_targetIds;
 };
 
 struct QMakeAssignment
