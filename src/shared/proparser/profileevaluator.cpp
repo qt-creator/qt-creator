@@ -229,6 +229,7 @@ public:
     void visitProOperator(ProOperator *oper);
     void visitProCondition(ProCondition *condition);
 
+    static inline QString map(const QString &var);
     QHash<QString, QStringList> *findValues(const QString &variableName,
                                             QHash<QString, QStringList>::Iterator *it);
     QStringList &valuesRef(const QString &variableName);
@@ -362,6 +363,7 @@ static struct {
     QHash<QString, int> expands;
     QHash<QString, int> functions;
     QHash<QString, int> varList;
+    QHash<QString, QString> varMap;
     QRegExp reg_variableName;
     QStringList fakeValue;
 } statics;
@@ -479,6 +481,38 @@ void ProFileEvaluator::Private::initStatics()
     };
     for (unsigned i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
         statics.varList.insert(QLatin1String(names[i]), i);
+
+    static const struct {
+        const char * const oldname, * const newname;
+    } mapInits[] = {
+        { "INTERFACES", "FORMS" },
+        { "QMAKE_POST_BUILD", "QMAKE_POST_LINK" },
+        { "TARGETDEPS", "POST_TARGETDEPS" },
+        { "LIBPATH", "QMAKE_LIBDIR" },
+        { "QMAKE_EXT_MOC", "QMAKE_EXT_CPP_MOC" },
+        { "QMAKE_MOD_MOC", "QMAKE_H_MOD_MOC" },
+        { "QMAKE_LFLAGS_SHAPP", "QMAKE_LFLAGS_APP" },
+        { "PRECOMPH", "PRECOMPILED_HEADER" },
+        { "PRECOMPCPP", "PRECOMPILED_SOURCE" },
+        { "INCPATH", "INCLUDEPATH" },
+        { "QMAKE_EXTRA_WIN_COMPILERS", "QMAKE_EXTRA_COMPILERS" },
+        { "QMAKE_EXTRA_UNIX_COMPILERS", "QMAKE_EXTRA_COMPILERS" },
+        { "QMAKE_EXTRA_WIN_TARGETS", "QMAKE_EXTRA_TARGETS" },
+        { "QMAKE_EXTRA_UNIX_TARGETS", "QMAKE_EXTRA_TARGETS" },
+        { "QMAKE_EXTRA_UNIX_INCLUDES", "QMAKE_EXTRA_INCLUDES" },
+        { "QMAKE_EXTRA_UNIX_VARIABLES", "QMAKE_EXTRA_VARIABLES" },
+        { "QMAKE_RPATH", "QMAKE_LFLAGS_RPATH" },
+        { "QMAKE_FRAMEWORKDIR", "QMAKE_FRAMEWORKPATH" },
+        { "QMAKE_FRAMEWORKDIR_FLAGS", "QMAKE_FRAMEWORKPATH_FLAGS" }
+    };
+    for (unsigned i = 0; i < sizeof(mapInits)/sizeof(mapInits[0]); ++i)
+        statics.varMap.insert(QLatin1String(mapInits[i].oldname),
+                              QLatin1String(mapInits[i].newname));
+}
+
+QString ProFileEvaluator::Private::map(const QString &var)
+{
+    return statics.varMap.value(var, var);
 }
 
 
@@ -783,7 +817,7 @@ ProVariable *ProFileEvaluator::Private::startVariable(ushort *uc, ushort *ptr)
         --ptr;
 
   skipTrunc:
-    ProVariable *variable = new ProVariable(QString((QChar*)uc, ptr - uc));
+    ProVariable *variable = new ProVariable(map(QString((QChar*)uc, ptr - uc)));
     variable->setLineNumber(m_lineNo);
     variable->setVariableOperator(opkind);
     return variable;
@@ -1746,7 +1780,7 @@ QStringList ProFileEvaluator::Private::expandVariableReferences(
                 } else if (var_type == FUNCTION) {
                     replacement << evaluateExpandFunction(var, args);
                 } else if (var_type == VAR) {
-                    replacement = values(var);
+                    replacement = values(map(var));
                 }
                 if (!replacement.isEmpty()) {
                     if (quote) {
@@ -1952,10 +1986,10 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if (!var.isNull()) {
                 if (regexp) {
                     QRegExp sepRx(sep);
-                    foreach (const QString &str, values(var))
+                    foreach (const QString &str, values(map(var)))
                         ret += str.section(sepRx, beg, end);
                 } else {
-                    foreach (const QString &str, values(var))
+                    foreach (const QString &str, values(map(var)))
                         ret += str.section(sep, beg, end);
                 }
             }
@@ -1982,7 +2016,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                     before = args[2];
                 if (args.count() == 4)
                     after = args[3];
-                const QStringList &var = values(args.first());
+                const QStringList &var = values(map(args.first()));
                 if (!var.isEmpty())
                     ret.append(before + var.join(glue) + after);
             }
@@ -1993,7 +2027,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 logMessage(format("split(var, sep) requires one or two arguments"));
             } else {
                 const QString &sep = (args.count() == 2) ? args[1] : statics.field_sep;
-                foreach (const QString &var, values(args.first()))
+                foreach (const QString &var, values(map(args.first())))
                     foreach (const QString &splt, var.split(sep))
                         ret.append(splt);
             }
@@ -2003,7 +2037,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 logMessage(format("member(var, start, end) requires one to three arguments."));
             } else {
                 bool ok = true;
-                const QStringList var = values(args.first());
+                const QStringList &var = values(map(args.first()));
                 int start = 0, end = 0;
                 if (args.count() >= 2) {
                     QString start_str = args[1];
@@ -2051,7 +2085,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if (args.count() != 1) {
                 logMessage(format("%1(var) requires one argument.").arg(func));
             } else {
-                const QStringList var = values(args.first());
+                const QStringList var = values(map(args.first()));
                 if (!var.isEmpty()) {
                     if (func_t == E_FIRST)
                         ret.append(var[0]);
@@ -2095,7 +2129,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if (args.count() != 1) {
                 logMessage(format("eval(variable) requires one argument"));
             } else {
-                ret += values(args.at(0));
+                ret += values(map(args.at(0)));
             }
             break;
         case E_LIST: {
@@ -2112,7 +2146,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
                 logMessage(format("find(var, str) requires two arguments."));
             } else {
                 QRegExp regx(args[1]);
-                foreach (const QString &val, values(args.first()))
+                foreach (const QString &val, values(map(args.first())))
                     if (regx.indexIn(val) != -1)
                         ret += val;
             }
@@ -2151,7 +2185,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             if(args.count() != 1) {
                 logMessage(format("unique(var) requires one argument."));
             } else {
-                ret = values(args.first());
+                ret = values(map(args.first()));
                 ret.removeDuplicates();
             }
             break;
@@ -2250,7 +2284,7 @@ QStringList ProFileEvaluator::Private::evaluateExpandFunction(const QString &fun
             } else {
                 const QRegExp before(args[1]);
                 const QString after(args[2]);
-                foreach (QString val, values(args.first()))
+                foreach (QString val, values(map(args.first())))
                     ret += val.replace(before, after);
             }
             break;
@@ -2344,29 +2378,31 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 return ProItem::ReturnFalse;
             }
             return ProItem::ReturnReturn;
-        case T_EXPORT:
+        case T_EXPORT: {
             if (m_skipLevel && !m_cumulative)
                 return ProItem::ReturnTrue;
             if (args.count() != 1) {
                 logMessage(format("export(variable) requires one argument."));
                 return ProItem::ReturnFalse;
             }
+            const QString &var = map(args.at(0));
             for (int i = m_valuemapStack.size(); --i > 0; ) {
-                QHash<QString, QStringList>::Iterator it = m_valuemapStack[i].find(args.at(0));
+                QHash<QString, QStringList>::Iterator it = m_valuemapStack[i].find(var);
                 if (it != m_valuemapStack.at(i).end()) {
                     if (it->constBegin() == statics.fakeValue.constBegin()) {
                         // This is stupid, but qmake doesn't propagate deletions
-                        m_valuemapStack[0][args.at(0)] = QStringList();
+                        m_valuemapStack[0][var] = QStringList();
                     } else {
-                        m_valuemapStack[0][args.at(0)] = *it;
+                        m_valuemapStack[0][var] = *it;
                     }
                     m_valuemapStack[i].erase(it);
                     while (--i)
-                        m_valuemapStack[i].remove(args.at(0));
+                        m_valuemapStack[i].remove(var);
                     break;
                 }
             }
             return ProItem::ReturnTrue;
+        }
         case T_INFILE:
             if (args.count() < 2 || args.count() > 3) {
                 logMessage(format("infile(file, var, [values]) requires two or three arguments."));
@@ -2423,10 +2459,10 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 }
                 it_list = statics.strforever;
             } else {
-                loop.variable = args[0];
+                loop.variable = map(args.at(0));
                 loop.oldVarVal = valuesDirect(loop.variable);
                 doVariableReplace(&args[1]);
-                it_list = args[1];
+                it_list = map(args.at(1));
             }
             loop.list = valuesDirect(it_list);
             if (loop.list.isEmpty()) {
@@ -2581,7 +2617,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             QRegExp regx;
             if (qry != QRegExp::escape(qry))
                 regx.setPattern(qry);
-            const QStringList &l = values(args.first());
+            const QStringList &l = values(map(args.first()));
             if (args.count() == 2) {
                 for (int i = 0; i < l.size(); ++i) {
                     const QString val = l[i];
@@ -2607,7 +2643,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("count(var, count, op=\"equals\") requires two or three arguments."));
                 return ProItem::ReturnFalse;
             }
-            int cnt = values(args.first()).count();
+            int cnt = values(map(args.first())).count();
             if (args.count() == 3) {
                 QString comp = args[2];
                 if (comp == QLatin1String(">") || comp == QLatin1String("greaterThan")) {
@@ -2634,7 +2670,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("%1(variable, value) requires two arguments.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            QString rhs(args[1]), lhs(values(args[0]).join(statics.field_sep));
+            QString rhs(args[1]), lhs(values(map(args.at(0))).join(statics.field_sep));
             bool ok;
             int rhs_int = rhs.toInt(&ok);
             if (ok) { // do integer compare
@@ -2654,7 +2690,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("%1(variable, value) requires two arguments.").arg(function));
                 return ProItem::ReturnFalse;
             }
-            return returnBool(values(args[0]).join(statics.field_sep) == args[1]);
+            return returnBool(values(map(args.at(0))).join(statics.field_sep) == args.at(1));
         case T_CLEAR: {
             if (m_skipLevel && !m_cumulative)
                 return ProItem::ReturnFalse;
@@ -2664,12 +2700,13 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             }
             QHash<QString, QStringList> *hsh;
             QHash<QString, QStringList>::Iterator it;
-            if (!(hsh = findValues(args.at(0), &it)))
+            const QString &var = map(args.at(0));
+            if (!(hsh = findValues(var, &it)))
                 return ProItem::ReturnFalse;
             if (hsh == &m_valuemapStack.top())
                 it->clear();
             else
-                m_valuemapStack.top()[args.at(0)].clear();
+                m_valuemapStack.top()[var].clear();
             return ProItem::ReturnTrue;
         }
         case T_UNSET: {
@@ -2681,14 +2718,15 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             }
             QHash<QString, QStringList> *hsh;
             QHash<QString, QStringList>::Iterator it;
-            if (!(hsh = findValues(args.at(0), &it)))
+            const QString &var = map(args.at(0));
+            if (!(hsh = findValues(var, &it)))
                 return ProItem::ReturnFalse;
             if (m_valuemapStack.size() == 1)
                 hsh->erase(it);
             else if (hsh == &m_valuemapStack.top())
                 *it = statics.fakeValue;
             else
-                m_valuemapStack.top()[args.at(0)] = statics.fakeValue;
+                m_valuemapStack.top()[var] = statics.fakeValue;
             return ProItem::ReturnTrue;
         }
         case T_INCLUDE: {
@@ -2763,7 +2801,7 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 logMessage(format("isEmpty(var) requires one argument."));
                 return ProItem::ReturnFalse;
             }
-            QStringList sl = values(args.first());
+            QStringList sl = values(map(args.first()));
             if (sl.count() == 0) {
                 return ProItem::ReturnTrue;
             } else if (sl.count() > 0) {
