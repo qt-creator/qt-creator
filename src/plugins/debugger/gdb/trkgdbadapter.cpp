@@ -1124,6 +1124,7 @@ void TrkGdbAdapter::sendTrkAck(trk::byte token)
 void TrkGdbAdapter::handleTrkError(const QString &msg)
 {
     logMessage("## TRK ERROR: " + msg);
+    emit adapterCrashed("TRK problem encountered:\n" + msg);
 }
 
 void TrkGdbAdapter::handleTrkResult(const TrkResult &result)
