@@ -55,6 +55,7 @@ public:
     QPixmap renderState(int i);
     QmlItemNode stateRootNode() { return m_stateRootNode; }
 
+protected:
     // AbstractView
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
