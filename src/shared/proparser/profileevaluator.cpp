@@ -2698,18 +2698,29 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             if ((args.count() == 2) || (args.count() == 3) ) {
                 parseInto = args[1];
             } else if (args.count() != 1) {
-                logMessage(format("include(file) requires one, two or three arguments."));
+                logMessage(format("include(file, into, silent) requires one, two or three arguments."));
                 return ProItem::ReturnFalse;
             }
-            State sts = m_sts;
-            bool ok = evaluateFile(resolvePath(expandEnvVars(args.first())));
-            m_sts = sts;
+            QString fn = resolvePath(expandEnvVars(args.first()));
+            bool ok;
+            if (parseInto.isEmpty()) {
+                State sts = m_sts;
+                ok = evaluateFile(fn);
+                m_sts = sts;
+            } else {
+                QHash<QString, QStringList> symbols;
+                if ((ok = evaluateFileInto(fn, &symbols, 0)))
+                    for (QHash<QString, QStringList>::ConstIterator it = symbols.constBegin();
+                         it != symbols.constEnd(); ++it)
+                        if (!it.key().startsWith(QLatin1Char('.')))
+                            m_valuemapStack.top().insert(parseInto + QLatin1Char('.') + it.key(),
+                                                         it.value());
+            }
             return returnBool(ok);
         }
         case T_LOAD: {
             if (m_skipLevel && !m_cumulative)
                 return ProItem::ReturnFalse;
-            QString parseInto;
             bool ignore_error = false;
             if (args.count() == 2) {
                 QString sarg = args[1];
