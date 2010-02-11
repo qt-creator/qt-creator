@@ -2602,30 +2602,32 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
             }
             return ProItem::ReturnFalse;
         }
-        case T_COUNT:
+        case T_COUNT: {
             if (args.count() != 2 && args.count() != 3) {
                 logMessage(format("count(var, count, op=\"equals\") requires two or three arguments."));
                 return ProItem::ReturnFalse;
             }
+            int cnt = values(args.first()).count();
             if (args.count() == 3) {
                 QString comp = args[2];
                 if (comp == QLatin1String(">") || comp == QLatin1String("greaterThan")) {
-                    return returnBool(values(args.first()).count() > args[1].toInt());
+                    return returnBool(cnt > args[1].toInt());
                 } else if (comp == QLatin1String(">=")) {
-                    return returnBool(values(args.first()).count() >= args[1].toInt());
+                    return returnBool(cnt >= args[1].toInt());
                 } else if (comp == QLatin1String("<") || comp == QLatin1String("lessThan")) {
-                    return returnBool(values(args.first()).count() < args[1].toInt());
+                    return returnBool(cnt < args[1].toInt());
                 } else if (comp == QLatin1String("<=")) {
-                    return returnBool(values(args.first()).count() <= args[1].toInt());
+                    return returnBool(cnt <= args[1].toInt());
                 } else if (comp == QLatin1String("equals") || comp == QLatin1String("isEqual")
                            || comp == QLatin1String("=") || comp == QLatin1String("==")) {
-                    return returnBool(values(args.first()).count() == args[1].toInt());
+                    return returnBool(cnt == args[1].toInt());
                 } else {
                     logMessage(format("unexpected modifier to count(%2)").arg(comp));
                     return ProItem::ReturnFalse;
                 }
             }
-            return returnBool(values(args.first()).count() == args[1].toInt());
+            return returnBool(cnt == args[1].toInt());
+        }
         case T_GREATERTHAN:
         case T_LESSTHAN: {
             if (args.count() != 2) {
