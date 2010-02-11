@@ -69,6 +69,7 @@ void FindUsages::operator()(Symbol *symbol)
     _references.clear();
     _usages.clear();
     _declSymbol = symbol;
+    _inSimpleDeclaration = 0;
 
     _id = 0;
     if (_declSymbol && 0 != (_id = _declSymbol->identifier()))
@@ -450,14 +451,17 @@ bool FindUsages::visit(FunctionDeclaratorAST *ast)
     return false;
 }
 
-bool FindUsages::visit(SimpleDeclarationAST *)
+bool FindUsages::visit(SimpleDeclarationAST *ast)
 {
-    ++_inSimpleDeclaration;
-    return true;
-}
+    for  (SpecifierListAST *it = ast->decl_specifier_list; it; it = it->next)
+        accept(it->value);
 
-void FindUsages::endVisit(SimpleDeclarationAST *)
-{ --_inSimpleDeclaration; }
+    ++_inSimpleDeclaration;
+    for (DeclaratorListAST *it = ast->declarator_list; it; it = it->next)
+        accept(it->value);
+    --_inSimpleDeclaration;
+    return false;
+}
 
 bool FindUsages::visit(ObjCSelectorWithoutArgumentsAST *ast)
 {

@@ -99,7 +99,6 @@ protected:
     virtual bool visit(ExpressionOrDeclarationStatementAST *ast);
     virtual bool visit(FunctionDeclaratorAST *ast);
     virtual bool visit(SimpleDeclarationAST *);
-    virtual void endVisit(SimpleDeclarationAST *);
     virtual bool visit(ObjCSelectorWithoutArgumentsAST *ast);
     virtual bool visit(ObjCSelectorWithArgumentsAST *ast);
 
