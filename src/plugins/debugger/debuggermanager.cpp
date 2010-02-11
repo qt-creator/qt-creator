@@ -469,7 +469,9 @@ void DebuggerManager::init()
     d->m_actions.stopAction = new QAction(tr("Interrupt"), this);
     d->m_actions.stopAction->setIcon(d->m_interruptSmallIcon);
 
-    d->m_actions.resetAction = new QAction(tr("Reset Debugger"), this);
+    d->m_actions.resetAction = new QAction(tr("Abort Debugging"), this);
+    d->m_actions.resetAction->setToolTip(tr("Aborts debugging and "
+        "resets the debugger to the initial state."));
 
     d->m_actions.nextAction = new QAction(tr("Step Over"), this);
     d->m_actions.nextAction->setIcon(QIcon(":/debugger/images/debugger_stepover_small.png"));
@@ -1052,10 +1054,9 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
         emit debuggingFinished();
         // Create Message box with possibility to go to settings
         const QString msg = tr("Cannot debug '%1' (tool chain: '%2'): %3").
-                            arg(d->m_startParameters->executable, toolChainName, errorMessage);
-        Core::ICore::instance()->showWarningWithOptions(tr("Warning"),  msg, QString(),
-                                            QLatin1String(DEBUGGER_SETTINGS_CATEGORY),
-                                            settingsIdHint);
+            arg(d->m_startParameters->executable, toolChainName, errorMessage);
+        Core::ICore::instance()->showWarningWithOptions(tr("Warning"), msg, QString(),
+            QLatin1String(DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         return;
     }
 
@@ -1066,8 +1067,10 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     d->m_engine->startDebugger(d->m_startParameters);
 
     const unsigned engineCapabilities = d->m_engine->debuggerCapabilities();
-    theDebuggerAction(OperateByInstruction)->setEnabled(engineCapabilities & DisassemblerCapability);
-    d->m_actions.reverseDirectionAction->setEnabled(engineCapabilities & ReverseSteppingCapability);
+    theDebuggerAction(OperateByInstruction)
+        ->setEnabled(engineCapabilities & DisassemblerCapability);
+    d->m_actions.reverseDirectionAction
+        ->setEnabled(engineCapabilities & ReverseSteppingCapability);
 }
 
 void DebuggerManager::startFailed()
@@ -1739,7 +1742,8 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     d->m_actions.watchAction1->setEnabled(true);
     d->m_actions.watchAction2->setEnabled(true);
     d->m_actions.breakAction->setEnabled(true);
-    d->m_actions.snapshotAction->setEnabled(stopped && (engineCapabilities & SnapshotCapability));
+    d->m_actions.snapshotAction->setEnabled(
+        stopped && (engineCapabilities & SnapshotCapability));
 
     const bool interruptIsExit = !running;
     if (interruptIsExit) {
@@ -1751,7 +1755,7 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     }
 
     d->m_actions.stopAction->setEnabled(stoppable);
-    d->m_actions.resetAction->setEnabled(true);
+    d->m_actions.resetAction->setEnabled(state != DebuggerNotReady);
 
     d->m_actions.stepAction->setEnabled(stopped);
     d->m_actions.stepOutAction->setEnabled(stopped);
@@ -1777,7 +1781,6 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
         || state == DebuggerNotReady
         || state == InferiorUnrunnable;
     setBusyCursor(!notbusy);
-
 }
 
 bool DebuggerManager::debuggerActionsEnabled() const

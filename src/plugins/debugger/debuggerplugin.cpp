@@ -758,9 +758,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd = am->registerAction(actions.resetAction,
         Constants::RESET, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
+    //cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
     cmd->setDefaultText(tr("Reset Debugger"));
-    //disabled mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
@@ -884,7 +884,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m->addAction(m_toggleLockedAction);
     m->addSeparator();
 
-    QAction *resetToSimpleAction = viewsMenu->menu()->addAction(tr("Reset to default layout"));
+    QAction *resetToSimpleAction =
+        viewsMenu->menu()->addAction(tr("Reset to default layout"));
     connect(resetToSimpleAction, SIGNAL(triggered()),
         m_manager, SLOT(setSimpleDockWidgetArrangement()));
 
