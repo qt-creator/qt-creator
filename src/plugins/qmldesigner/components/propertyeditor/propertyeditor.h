@@ -81,13 +81,11 @@ public:
 
     ModelState modelState() const;
 
-    void otherPropertyChanged(const QmlObjectNode &);
-    void transformChanged(const QmlObjectNode &qmlObjectNode);
+
 
     void anyPropertyChanged(const QmlObjectNode &qmlObjectNode);
 
 
-    void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
     void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
@@ -97,6 +95,9 @@ public:
 
 protected:
     void timerEvent(QTimerEvent *event);
+    void otherPropertyChanged(const QmlObjectNode &);
+    void transformChanged(const QmlObjectNode &qmlObjectNode);
+    void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
 private slots:
     void reloadQml();
