@@ -169,7 +169,9 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     const bool actionsEnabled = m_manager->debuggerActionsEnabled();
 
     QAction *actReload = menu.addAction(tr("Reload register listing"));
-    actReload->setEnabled(engineCapabilities & RegisterCapability);
+    actReload->setEnabled((engineCapabilities & RegisterCapability)
+        && (m_manager->state() == InferiorStopped 
+            || m_manager->state() == InferiorUnrunnable));
 
     menu.addSeparator();
 
@@ -181,7 +183,8 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowMemory->setEnabled(false);
     } else {
         actShowMemory->setText(tr("Open memory editor at %1").arg(address));
-        actShowMemory->setEnabled(actionsEnabled && (engineCapabilities & ShowMemoryCapability));
+        actShowMemory->setEnabled(actionsEnabled
+            && (engineCapabilities & ShowMemoryCapability));
     }
     menu.addSeparator();
 

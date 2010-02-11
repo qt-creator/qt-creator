@@ -2814,7 +2814,7 @@ void GdbEngine::activateSnapshot2()
 
 void GdbEngine::reloadRegisters()
 {
-    if (state() != InferiorStopped)
+    if (state() != InferiorStopped && state() != InferiorUnrunnable)
         return;
     if (!m_registerNamesListed) {
         postCommand("-data-list-register-names", CB(handleRegisterListNames));
