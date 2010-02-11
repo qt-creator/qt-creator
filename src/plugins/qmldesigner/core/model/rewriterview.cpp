@@ -434,8 +434,7 @@ void RewriterView::enterErrorState(const QString &errorMessage)
 void RewriterView::resetToLastCorrectQml()
 {
     m_textModifier->textDocument()->undo();
-    // FIXME: enable the next line when commit 54290ef776a311f0c303e2a8df4de5e39e9a032a shows up in Qt.
-//    m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
+    m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
     ModelAmender differenceHandler(m_textToModelMerger.data());
 //    m_textToModelMerger->load(lastCorrectQmlSource.toUtf8(), differenceHandler);
     m_textToModelMerger->load(m_textModifier->text().toUtf8(), differenceHandler);
