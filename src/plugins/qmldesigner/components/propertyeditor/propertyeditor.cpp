@@ -290,11 +290,14 @@ void PropertyEditor::anyPropertyChanged(const QmlObjectNode &fxObjectNode)
 
 void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode)
 {
+    QmlModelView::transformChanged(fxObjectNode);
     anyPropertyChanged(fxObjectNode);
 }
 
 void PropertyEditor::transformChanged(const QmlObjectNode &fxObjectNode)
 {
+    QmlModelView::transformChanged(fxObjectNode);
+
     anyPropertyChanged(fxObjectNode);
 }
 
