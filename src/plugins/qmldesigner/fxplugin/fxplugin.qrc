@@ -7,9 +7,16 @@
         <file>images/rect-icon.png</file>
         <file>images/text-edit-icon.png</file>
         <file>images/text-icon.png</file>
-		<file>images/list-icon.png</file>
-		<file>images/grid-icon.png</file>
-	<file>images/template_image.png</file>
+        <file>images/list-icon.png</file>
+        <file>images/template_image.png</file>
         <file>fx.metainfo</file>
+        <file>images/webview-icon.png</file>
+        <file>images/row-icon.png</file>
+        <file>images/column-icon.png</file>
+        <file>images/grid-icon.png</file>
+        <file>images/gridview-icon.png</file>
+        <file>images/flickable-icon.png</file>
+        <file>images/flipable-icon.png</file>
+        <file>images/focusscope-icon.png</file>
     </qresource>
 </RCC>

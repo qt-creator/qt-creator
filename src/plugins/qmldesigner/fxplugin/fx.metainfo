@@ -1,5 +1,5 @@
 <metainfo>
-  <node name="Qt/Item" showInItemLibrary="true" category="Qt" isContainer="true">
+  <node name="Qt/Item" showInItemLibrary="true" category="Qt" isContainer="true" icon=":/fxplugin/images/item-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="600"/>
     <propertyDefaultValue name="height" type="int" defaultValue="400"/>
     <itemlibraryrepresentation name="Item" icon=":/fxplugin/images/item-icon.png">
@@ -7,14 +7,14 @@
       <property name="height" type="int" value="200"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/Rectangle" showInItemLibrary="true" category="Qt" isContainer="true">
+  <node name="Qt/Rectangle" showInItemLibrary="true" category="Qt" isContainer="true" icon=":/fxplugin/images/rect-icon.png">
     <itemlibraryrepresentation name="Rectangle" icon=":/fxplugin/images/rect-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
       <property name="color" type="QColor" value="#ffffff"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/Text" showInItemLibrary="true" category="Qt">
+  <node name="Qt/Text" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/text-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="80"/>
     <propertyDefaultValue name="height" type="int" defaultValue="20"/>
     <itemlibraryrepresentation name="Text" icon=":/fxplugin/images/text-icon.png">
@@ -23,7 +23,7 @@
       <property name="text" type="QString" value="text"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/TextEdit" showInItemLibrary="true" category="Qt" isContainer="false">
+  <node name="Qt/TextEdit" showInItemLibrary="true" category="Qt" isContainer="false" icon=":/fxplugin/images/text-edit-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="80"/>
     <propertyDefaultValue name="height" type="int" defaultValue="20"/>
     <itemlibraryrepresentation name="Text Edit" icon=":/fxplugin/images/text-edit-icon.png">
@@ -32,7 +32,7 @@
       <property name="text" type="QString" value="textEdit"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/TextInput" showInItemLibrary="true" category="Qt" isContainer="false">
+  <node name="Qt/TextInput" showInItemLibrary="true" category="Qt" isContainer="false" icon=":/fxplugin/images/text-edit-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="80"/>
     <propertyDefaultValue name="height" type="int" defaultValue="20"/>
     <itemlibraryrepresentation name="Text Input" icon=":/fxplugin/images/text-edit-icon.png">
@@ -41,14 +41,14 @@
       <property name="text" type="QString" value="textInput"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/MouseRegion" showInItemLibrary="true" category="Qt">
+  <node name="Qt/MouseRegion" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/mouse-region-icon.png">
     <inherits name="Item" />
     <itemlibraryrepresentation name="Mouse Region" icon=":/fxplugin/images/mouse-region-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/Image" showInItemLibrary="true" category="Qt">
+  <node name="Qt/Image" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/image-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="200"/>
     <propertyDefaultValue name="height" type="int" defaultValue="200"/>
     <itemlibraryrepresentation name="Image" icon=":/fxplugin/images/image-icon.png">
@@ -57,7 +57,7 @@
       <property name="source" type="QUrl" value="qrc:/fxplugin/images/template_image.png"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/BorderImage" showInItemLibrary="true" category="Qt">
+  <node name="Qt/BorderImage" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/image-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="200"/>
     <propertyDefaultValue name="height" type="int" defaultValue="200"/>
     <itemlibraryrepresentation name="Border Image" icon=":/fxplugin/images/image-icon.png">
@@ -66,75 +66,75 @@
       <property name="source" type="QUrl" value="qrc:/fxplugin/images/template_image.png"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/Flickable" showInItemLibrary="true" category="Qt">
+  <node name="Qt/Flickable" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/flickable-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="300"/>
     <propertyDefaultValue name="height" type="int" defaultValue="300"/>
-    <itemlibraryrepresentation name="Flickable">
+    <itemlibraryrepresentation name="Flickable" icon=":/fxplugin/images/flickable-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/Flipable" showInItemLibrary="true" category="Qt">
+  <node name="Qt/Flipable" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/flipable-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="300"/>
     <propertyDefaultValue name="height" type="int" defaultValue="300"/>
-    <itemlibraryrepresentation name="Flipable">
+    <itemlibraryrepresentation name="Flipable" icon=":/fxplugin/images/flipable-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/GridView" showInItemLibrary="true" category="Qt">
-    <itemlibraryrepresentation name="Grid View" icon=":/fxplugin/images/grid-icon.png">
+  <node name="Qt/GridView" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/gridview-icon.png">
+    <itemlibraryrepresentation name="Grid View" icon=":/fxplugin/images/gridview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/ListView" showInItemLibrary="true" category="Qt">
+  <node name="Qt/ListView" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/list-icon.png">
     <itemlibraryrepresentation name="List View" icon=":/fxplugin/images/list-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryrepresentation>
   </node>
 
-  <node name="Qt/FocusScope" showInItemLibrary="true" category="Qt">
+  <node name="Qt/FocusScope" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/focusscope-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="100"/>
     <propertyDefaultValue name="height" type="int" defaultValue="100"/>
-    <itemlibraryrepresentation name="Focus Scope">
+    <itemlibraryrepresentation name="Focus Scope" icon=":/fxplugin/images/focusscope-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryrepresentation>
   </node>
 
-  <node name="Qt/Row" showInItemLibrary="true" category="Qt" isContainer="true">
+  <node name="Qt/Row" showInItemLibrary="true" category="Qt" isContainer="true" icon=":/fxplugin/images/row-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="100"/>
     <propertyDefaultValue name="height" type="int" defaultValue="100"/>
-    <itemlibraryrepresentation name="Row">
+    <itemlibraryrepresentation name="Row" icon=":/fxplugin/images/row-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryrepresentation>
   </node>
 
-  <node name="Qt/Column" showInItemLibrary="true" category="Qt" isContainer="true">
+  <node name="Qt/Column" showInItemLibrary="true" category="Qt" isContainer="true" icon=":/fxplugin/images/column-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="100"/>
     <propertyDefaultValue name="height" type="int" defaultValue="100"/>
-    <itemlibraryrepresentation name="Column">
+    <itemlibraryrepresentation name="Column" icon=":/fxplugin/images/column-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryrepresentation>
   </node>
 
-  <node name="Qt/Grid" showInItemLibrary="true" category="Qt" isContainer="true">
+  <node name="Qt/Grid" showInItemLibrary="true" category="Qt" isContainer="true" icon=":/fxplugin/images/grid-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="100"/>
     <propertyDefaultValue name="height" type="int" defaultValue="100"/>
-    <itemlibraryrepresentation name="Grid">
+    <itemlibraryrepresentation name="Grid" icon=":/fxplugin/images/grid-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryrepresentation>
   </node>
 
-  <node name="Qt/WebView" showInItemLibrary="true" category="Qt">
+  <node name="Qt/WebView" showInItemLibrary="true" category="Qt" icon=":/fxplugin/images/webview-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="300"/>
     <propertyDefaultValue name="height" type="int" defaultValue="300"/>
-    <itemlibraryrepresentation name="Web View">
+    <itemlibraryrepresentation name="Web View" icon=":/fxplugin/images/webview-icon.png">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
       <property name="url" type="QString" value="http://www.trolltech.com"/>
