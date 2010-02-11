@@ -520,6 +520,7 @@ private: ////////// Convenience Functions //////////
     static void setWatchDataValueEditable(WatchData &data, const GdbMi &mi);
     static void setWatchDataExpression(WatchData &data, const GdbMi &mi);
     static void setWatchDataAddress(WatchData &data, const GdbMi &mi);
+    static void setWatchDataAddressHelper(WatchData &data, const QByteArray &addr);
     static void setWatchDataSAddress(WatchData &data, const GdbMi &mi);
 };
 

@@ -1058,7 +1058,7 @@ class Dumper:
                 self.childTypes.pop()
                 isHandled = True
 
-            # Fall back to plain pointer printing
+            # Fall back to plain pointer printing.
             if not isHandled:
                 #warn("GENERIC PLAIN POINTER: %s" % value.type)
                 self.putType(item.value.type)
@@ -1071,7 +1071,7 @@ class Dumper:
                     self.endChildren()
 
         else:
-            #warn("GENERIC STRUCT: %s" % value.type)
+            #warn("GENERIC STRUCT: %s" % item.value.type)
             #warn("INAME: %s " % item.iname)
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
@@ -1094,6 +1094,14 @@ class Dumper:
             self.putNumChild(numfields)
 
             if self.isExpanded(item):
+                if value.type.code == gdb.TYPE_CODE_ARRAY:
+                    baseptr = value.cast(value.type.target().pointer())
+                    charptr = gdb.lookup_type("unsigned char").pointer()
+                    addr1 = (baseptr+1).cast(charptr)
+                    addr0 = baseptr.cast(charptr)
+                    self.putField("addrbase", cleanAddress(addr0))
+                    self.putField("addrstep", addr1 - addr0)
+
                 innerType = None
                 if len(fields) == 1 and fields[0].name is None:
                     innerType = value.type.target()
@@ -1117,7 +1125,7 @@ class Dumper:
                             p = p + 1
                         continue
 
-                    # ignore vtable pointers for virtual inheritance
+                    # Ignore vtable pointers for virtual inheritance.
                     if field.name.startswith("_vptr."):
                         continue
 

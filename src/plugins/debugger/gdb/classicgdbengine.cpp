@@ -734,7 +734,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
     QByteArray exp = item.findChild("exp").data();
     QByteArray name = item.findChild("name").data();
     if (isAccessSpecifier(exp)) {
-        // suppress 'private'/'protected'/'public' level
+        // Suppress 'private'/'protected'/'public' level.
         WatchData data;
         data.variable = name;
         data.iname = parent.iname;
@@ -744,13 +744,13 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         data.setValueUnneeded();
         data.setHasChildrenUnneeded();
         data.setChildrenUnneeded();
-        //qDebug() << "DATA" << data.toString();
         QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
         //iname += '.' + exp;
         postCommand(cmd, WatchUpdate,
             CB(handleVarListChildrenClassic), QVariant::fromValue(data));
-    } else if (item.findChild("numchild").data() == "0") {
-        // happens for structs without data, e.g. interfaces.
+    } else if (!startsWithDigit(exp)
+            && item.findChild("numchild").data() == "0") {
+        // Happens for structs without data, e.g. interfaces.
         WatchData data;
         data.name = _(exp);
         data.iname = parent.iname + '.' + data.name.toLatin1();
@@ -762,7 +762,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         data.setHasChildren(false);
         insertData(data);
     } else if (parent.iname.endsWith('.')) {
-        // Happens with anonymous unions
+        // Happens with anonymous unions.
         WatchData data;
         data.iname = name;
         QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
@@ -775,6 +775,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         // special "clever" hack to avoid clutter in the GUI.
         // I am not sure this is a good idea...
     } else {
+        // Suppress 'private'/'protected'/'public' level.
         WatchData data;
         data.iname = parent.iname + '.' + exp;
         data.variable = name;

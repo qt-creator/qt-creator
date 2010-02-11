@@ -3074,11 +3074,15 @@ void GdbEngine::setWatchDataExpression(WatchData &data, const GdbMi &mi)
 
 void GdbEngine::setWatchDataAddress(WatchData &data, const GdbMi &mi)
 {
-    if (mi.isValid()) {
-        data.addr = mi.data();
-        if (data.exp.isEmpty() && !data.addr.startsWith("$"))
-            data.exp = "*(" + gdbQuoteTypes(data.type).toLatin1() + "*)" + data.addr;
-    }
+    if (mi.isValid())
+        setWatchDataAddressHelper(data, mi.data());
+}
+
+void GdbEngine::setWatchDataAddressHelper(WatchData &data, const QByteArray &addr)
+{
+    data.addr = addr;
+    if (data.exp.isEmpty() && !data.addr.startsWith("$"))
+        data.exp = "*(" + gdbQuoteTypes(data.type).toLatin1() + "*)" + data.addr;
 }
 
 void GdbEngine::setWatchDataSAddress(WatchData &data, const GdbMi &mi)
@@ -3319,11 +3323,11 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     }
     setWatchDataType(data, item.findChild("type"));
     setWatchDataEditValue(data, item.findChild("editvalue"));
-    setWatchDataExpression(data, item.findChild("exp"));
     setWatchDataChildCount(data, item.findChild("numchild"));
     setWatchDataValue(data, item.findChild("value"),
         item.findChild("valueencoded").data().toInt());
     setWatchDataAddress(data, item.findChild("addr"));
+    setWatchDataExpression(data, item.findChild("exp"));
     setWatchDataSAddress(data, item.findChild("saddr"));
     setWatchDataValueToolTip(data, item.findChild("valuetooltip"),
         item.findChild("valuetooltipencoded").data().toInt());
@@ -3332,7 +3336,11 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
     list->append(data);
 
-    // try not to repeat data too often
+    bool ok = false;
+    qulonglong addressBase = item.findChild("addrbase").data().toULongLong(&ok, 0);
+    qulonglong addressStep = item.findChild("addrstep").data().toULongLong();
+
+    // Try not to repeat data too often.
     WatchData childtemplate;
     setWatchDataType(childtemplate, item.findChild("childtype"));
     setWatchDataChildCount(childtemplate, item.findChild("childnumchild"));
@@ -3353,6 +3361,11 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
             data1.iname = data.iname + '.' + data1.name.toLatin1();
         if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
             data1.name = _c('[') + data1.name + _c(']');
+        if (addressStep) {
+            const QByteArray addr = "0x" + QByteArray::number(addressBase, 16);
+            setWatchDataAddressHelper(data1, addr);
+            addressBase += addressStep;
+        }
         QByteArray key = child.findChild("key").data();
         if (!key.isEmpty()) {
             int encoding = child.findChild("keyencoded").data().toInt();
