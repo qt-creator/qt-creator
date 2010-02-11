@@ -92,6 +92,8 @@ void FormEditorGraphicsView::mouseMoveEvent(QMouseEvent *event)
         QGraphicsView::mouseMoveEvent(mouseEvent);
         delete mouseEvent;
     }
+
+    m_feedbackOriginPoint = event->pos() + QPoint(50, -80);
 }
 
 
@@ -119,7 +121,7 @@ void FormEditorGraphicsView::drawForeground(QPainter *painter, const QRectF &/*r
 
     painter->save();
 
-    painter->translate(mapToScene(QPoint(3, 3)));
+    painter->translate(mapToScene(m_feedbackOriginPoint));
 
     QColor changeColor(QColor(Qt::green).lighter(170));
 
