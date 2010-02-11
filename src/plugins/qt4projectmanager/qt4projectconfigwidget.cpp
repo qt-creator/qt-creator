@@ -322,10 +322,9 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     } else {
         m_ui->importWarningLabel->setVisible(visible);
         m_ui->importProblemLabel->setVisible(visible);
-        m_ui->importProblemLabel->setText(tr("Qt Version used in %1 does not support target %2.",
-                                             "%1 is the build directory, %2 the targets display name.").
-                                          arg(m_ui->shadowBuildDirEdit->path()).
-                                          arg(m_buildConfiguration->target()->displayName()));
+        m_ui->importProblemLabel->setText(tr("A incompatible build exists in %1 and will be overwritten!",
+                                             "%1 build directory").
+                                          arg(m_ui->shadowBuildDirEdit->path()));
         m_ui->importLabel->setVisible(false);
     }
 }
