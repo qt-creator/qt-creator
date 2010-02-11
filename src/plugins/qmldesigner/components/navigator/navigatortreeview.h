@@ -82,17 +82,9 @@ class IdItemDelegate : public QStyledItemDelegate
 
     class NavigatorTreeView : public QTreeView
     {
-        public:
-        NavigatorTreeView(QWidget *parent = 0)
-            : QTreeView(parent)
-        {
-        }
-
-        protected:
-        virtual void drawRow(QPainter *painter,
-                         const QStyleOptionViewItem &options,
-                         const QModelIndex &index) const;
-    };
+    public:
+        NavigatorTreeView(QWidget *parent = 0);
+  };
 }
 
 #endif // NAVIGATORTREEVIEW_H

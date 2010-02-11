@@ -32,20 +32,73 @@
 #include "navigatorview.h"
 #include "navigatortreemodel.h"
 #include "navigatorwidget.h"
+#include "qproxystyle.h"
 
 #include <nodeproperty.h>
 #include "metainfo.h"
 
-#define _separator_line_color_ "#757575"
-
 namespace QmlDesigner {
+
+static void drawSelectionBackground(QPainter *painter, const QStyleOption &option)
+{
+    painter->save();
+    QLinearGradient gradient;
+    QColor highlight = option.palette.highlight().color();
+    gradient.setColorAt(0, highlight.lighter(130));
+    gradient.setColorAt(1, highlight.darker(130));
+    gradient.setStart(option.rect.topLeft());
+    gradient.setFinalStop(option.rect.bottomLeft());
+    painter->fillRect(option.rect, gradient);
+    painter->setPen(highlight.lighter());
+    painter->drawLine(option.rect.topLeft(),option.rect.topRight());
+    painter->setPen(highlight.darker());
+    painter->drawLine(option.rect.bottomLeft(),option.rect.bottomRight());
+    painter->restore();
+}
+
+// This style basically allows us to span the entire row
+// including the arrow indicators which would otherwise not be
+// drawn by the delegate
+class TreeViewStyle : public QProxyStyle
+{
+public:
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget * = 0) const
+    {
+        if (element == QStyle::PE_PanelItemViewRow) {
+            if (option->state & QStyle::State_Selected) {
+                drawSelectionBackground(painter, *option);
+            } else {
+                painter->save();
+                painter->setPen(QColor(0, 0, 0, 25));
+                painter->drawLine(option->rect.bottomLeft() - QPoint(0, 1), option->rect.bottomRight() - QPoint(0, 1));
+                painter->setPen(QColor(255, 255, 255, 15));
+                painter->drawLine(option->rect.bottomLeft(),option->rect.bottomRight());
+                painter->restore();
+            }
+        }
+    }
+    int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const {
+        if (hint == SH_ItemView_ShowDecorationSelected)
+            return 0;
+        else
+            return QProxyStyle::styleHint(hint, option, widget, returnData);
+    }
+};
+
+NavigatorTreeView::NavigatorTreeView(QWidget *parent)
+    : QTreeView(parent)
+{
+    TreeViewStyle *style = new TreeViewStyle;
+    setStyle(style);
+    style->setParent(this);
+};
 
 QSize IconCheckboxItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
 {
     Q_UNUSED(option);
     Q_UNUSED(index);
-    return QSize(15,21);
+    return QSize(15,26);
 }
 
 void IconCheckboxItemDelegate::paint(QPainter *painter,
@@ -53,28 +106,28 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
 {
     painter->save();
     if (option.state & QStyle::State_Selected)
-        painter->fillRect(option.rect, option.palette.highlight());
+        drawSelectionBackground(painter, option);
+
     bool isChecked= (m_TreeModel->itemFromIndex(index)->checkState() == Qt::Checked);
 
     if (m_TreeModel->isNodeInvisible( index ))
         painter->setOpacity(0.5);
 
     if (isChecked)
-        painter->drawPixmap(option.rect.x()+2,option.rect.y()+1,onPix);
+        painter->drawPixmap(option.rect.x()+2,option.rect.y()+6,onPix);
     else
-        painter->drawPixmap(option.rect.x()+2,option.rect.y()+1,offPix);
+        painter->drawPixmap(option.rect.x()+2,option.rect.y()+6,offPix);
 
     painter->restore();
 }
 
-
 void IdItemDelegate::paint(QPainter *painter,
                const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    painter->save();
-
     if (option.state & QStyle::State_Selected)
-        painter->fillRect(option.rect, option.palette.highlight());
+        drawSelectionBackground(painter, option);
+
+    painter->save();
 
     if (m_TreeModel->isNodeInvisible( index ))
         painter->setOpacity(0.5);
@@ -98,7 +151,7 @@ void IdItemDelegate::paint(QPainter *painter,
         if (icon.isNull()) icon = QIcon(":/ItemLibrary/images/default-icon.png");
     }
 
-    QPixmap pixmap = icon.pixmap(option.rect.width(),option.rect.height()-4);
+    QPixmap pixmap = icon.pixmap(22,22);
     painter->drawPixmap(option.rect.x()+5,option.rect.y()+2,pixmap);
 
     QString myString = node.id();
@@ -119,18 +172,7 @@ void IdItemDelegate::paint(QPainter *painter,
         }
     }
 
-    painter->drawText(option.rect.bottomLeft()+QPoint(8+pixmap.width(),-4),myString);
-
-    painter->restore();
-}
-
-void NavigatorTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &options, const QModelIndex &index) const
-{
-    painter->save();
-
-    QTreeView::drawRow(painter,options,index);
-    painter->setPen(QColor(_separator_line_color_));
-    painter->drawLine(options.rect.bottomLeft(),options.rect.bottomRight());
+    painter->drawText(option.rect.bottomLeft()+QPoint(8+pixmap.width(),-8),myString);
 
     painter->restore();
 }
