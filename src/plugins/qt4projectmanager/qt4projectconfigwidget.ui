@@ -6,15 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>455</width>
-    <height>201</height>
+    <width>487</width>
+    <height>194</height>
    </rect>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <property name="margin">
-    <number>0</number>
-   </property>
-   <item row="1" column="1">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="nameLabel">
+     <property name="text">
+      <string>Configuration Name:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
     <widget class="QLineEdit" name="nameLineEdit">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -24,7 +28,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QLabel" name="qtVersionLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -37,7 +41,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="1" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>4</number>
@@ -74,21 +78,31 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0">
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Tool Chain:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="toolChainComboBox"/>
+   </item>
+   <item row="3" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Shadow Build:</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="3" column="1">
     <widget class="QCheckBox" name="shadowBuildCheckBox">
      <property name="text">
       <string/>
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="buildDirLabel">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -101,7 +115,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="4" column="1">
     <widget class="Utils::PathChooser" name="shadowBuildDirEdit" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -111,32 +125,46 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
-    <widget class="QLabel" name="importLabel">
-     <property name="text">
-      <string>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::RichText</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="nameLabel">
-     <property name="text">
-      <string>Configuration Name:</string>
-     </property>
-    </widget>
-   </item>
    <item row="5" column="1">
-    <widget class="QComboBox" name="toolChainComboBox"/>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Tool Chain:</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="importLabel">
+       <property name="text">
+        <string>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="importWarningLabel">
+       <property name="pixmap">
+        <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="importProblemLabel">
+       <property name="text">
+        <string>Qt Version to import does not support this target!</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -148,6 +176,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../projectexplorer/projectexplorer.qrc"/>
+ </resources>
  <connections/>
 </ui>

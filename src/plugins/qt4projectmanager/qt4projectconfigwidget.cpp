@@ -284,7 +284,9 @@ void Qt4ProjectConfigWidget::shadowBuildEdited()
 void Qt4ProjectConfigWidget::updateImportLabel()
 {
     bool visible = false;
+    bool targetMatches = false;
 
+    QtVersionManager *vm = QtVersionManager::instance();
     // we only show if we actually have a qmake and makestep
     if (m_buildConfiguration->qmakeStep() && m_buildConfiguration->makeStep()) {
         QString qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(m_buildConfiguration->buildDirectory());
@@ -295,6 +297,15 @@ void Qt4ProjectConfigWidget::updateImportLabel()
             if (qmakePath != (version ? version->qmakeCommand() : QString())) {
                 // import enable
                 visible = true;
+                QtVersion *newVersion = vm->qtVersionForQMakeBinary(qmakePath);
+                bool mustDelete(false);
+                if (!newVersion) {
+                    newVersion = new QtVersion(qmakePath);
+                    mustDelete = true;
+                }
+                targetMatches = newVersion->supportsTargetId(m_buildConfiguration->target()->id());
+                if (mustDelete)
+                    delete newVersion;
             } else {
                 // check that the qmake flags, arguments match
                 visible = !m_buildConfiguration->compareToImportFrom(m_buildConfiguration->buildDirectory());
@@ -304,7 +315,19 @@ void Qt4ProjectConfigWidget::updateImportLabel()
         }
     }
 
-    m_ui->importLabel->setVisible(visible);
+    if (targetMatches) {
+        m_ui->importProblemLabel->setVisible(false);
+        m_ui->importWarningLabel->setVisible(false);
+        m_ui->importLabel->setVisible(visible);
+    } else {
+        m_ui->importWarningLabel->setVisible(visible);
+        m_ui->importProblemLabel->setVisible(visible);
+        m_ui->importProblemLabel->setText(tr("Qt Version used in %1 does not support target %2.",
+                                             "%1 is the build directory, %2 the targets display name.").
+                                          arg(m_ui->shadowBuildDirEdit->path()).
+                                          arg(m_buildConfiguration->target()->displayName()));
+        m_ui->importLabel->setVisible(false);
+    }
 }
 
 void Qt4ProjectConfigWidget::importLabelClicked()
