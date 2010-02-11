@@ -328,7 +328,7 @@ QString CustomExecutableRunConfiguration::userName() const
 QString CustomExecutableRunConfiguration::executable() const
 {
     QString exec;
-    if (QDir::isRelativePath(m_executable)) {
+    if (!m_executable.isEmpty() && QDir::isRelativePath(m_executable)) {
         Environment env = activeBuildConfiguration()->environment();
         exec = env.searchInPath(m_executable);
         if (exec.isEmpty())
@@ -337,7 +337,7 @@ QString CustomExecutableRunConfiguration::executable() const
         exec = m_executable;
     }
 
-    if (!QFileInfo(exec).exists()) {
+    if (m_executable.isEmpty() || !QFileInfo(exec).exists()) {
         // Oh the executable doesn't exists, ask the user.
         QWidget *confWidget = const_cast<CustomExecutableRunConfiguration *>(this)->configurationWidget();
         QDialog dialog(Core::ICore::instance()->mainWindow());
