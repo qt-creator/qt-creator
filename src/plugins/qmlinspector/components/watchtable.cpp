@@ -162,7 +162,7 @@ QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
             const QVariant &value = m_values.at(idx.row()).variant;
             QString str = value.toString();
 
-            if (str.isEmpty() && QmlMetaType::isObject(value.userType())) {
+            if (str.isEmpty() && QmlMetaType::isQObject(value.userType())) {
                 QObject *o = QmlMetaType::toQObject(value);
                 if(o) {
                     QString objectName = o->objectName();
