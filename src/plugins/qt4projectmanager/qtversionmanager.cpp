@@ -1149,6 +1149,8 @@ void QtVersion::updateToolChainAndMkspec() const
                 const QList<QByteArray> &temp = line.split('=');
                 if (temp.size() == 2) {
                     mkspecFullPath = temp.at(1).trimmed();
+                    // We sometimes get a mix of different slash styles here...
+                    mkspecFullPath = mkspecFullPath.replace('\\', '/');
                 }
                 break;
             }
