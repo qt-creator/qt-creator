@@ -152,7 +152,7 @@ void IdItemDelegate::paint(QPainter *painter,
     }
 
     QPixmap pixmap = icon.pixmap(22,22);
-    painter->drawPixmap(option.rect.x()+5,option.rect.y()+2,pixmap);
+    painter->drawPixmap(option.rect.x(),option.rect.y()+2,pixmap);
 
     QString myString = node.id();
     if (myString.isEmpty())
@@ -172,7 +172,7 @@ void IdItemDelegate::paint(QPainter *painter,
         }
     }
 
-    painter->drawText(option.rect.bottomLeft()+QPoint(8+pixmap.width(),-8),myString);
+    painter->drawText(option.rect.bottomLeft()+QPoint(3+pixmap.width(),-8),myString);
 
     painter->restore();
 }

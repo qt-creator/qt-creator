@@ -82,6 +82,7 @@ void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
     m_treeView->header()->setResizeMode(0, QHeaderView::Stretch);
     m_treeView->header()->resizeSection(1,26);
     m_treeView->setRootIsDecorated(false);
+    m_treeView->setIndentation(40);
 #ifdef _LOCK_ITEMS_
     m_treeView->header()->resizeSection(2,20);
 #endif
