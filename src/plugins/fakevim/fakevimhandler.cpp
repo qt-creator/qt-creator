@@ -2001,6 +2001,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         moveUp(count() * (linesOnScreen() - 2));
         m_lastInsertion.clear();
     } else if (key == Key_Tab && hasConfig(ConfigExpandTab)) {
+        m_justAutoIndented = 0;
         int ts = config(ConfigTabStop).toInt();
         int col = cursorColumnInDocument();
         QString str = QString(ts - col % ts, ' ');
@@ -2016,7 +2017,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         } else {
             joinPreviousEditBlock();
         }
-        m_justAutoIndented = false;
+        m_justAutoIndented = 0;
         m_lastInsertion.append(text);
         if (m_submode == ReplaceSubMode) {
             if (atEndOfLine())
