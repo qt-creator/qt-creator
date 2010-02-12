@@ -284,9 +284,12 @@ UiQualifiedId *Link::qualifiedTypeNameId(Node *node)
         return 0;
 }
 
-static uint qHash(Document::Ptr doc) {
+QT_BEGIN_NAMESPACE
+static uint qHash(Document::Ptr doc)
+{
     return qHash(doc.data());
 }
+QT_END_NAMESPACE
 
 QList<Document::Ptr> Link::reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot)
 {
