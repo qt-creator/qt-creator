@@ -59,6 +59,7 @@ class FancyMainWindow;
 
 namespace TextEditor {
 class ITextEditor;
+class FontSettings;
 }
 
 namespace CPlusPlus {
@@ -321,6 +322,7 @@ private:
     Q_SLOT void loadSessionData();
     Q_SLOT void saveSessionData();
     Q_SLOT void dumpLog();
+    Q_SLOT void fontSettingsChanged(const TextEditor::FontSettings &settings);
 
 public:
     // stuff in this block should be made private by moving it to

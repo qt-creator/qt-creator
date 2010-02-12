@@ -68,6 +68,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/itexteditor.h>
 
 #include <QtCore/QDebug>
@@ -1875,6 +1876,27 @@ QIcon DebuggerManager::locationMarkIcon() const
 QDebug operator<<(QDebug d, DebuggerState state)
 {
     return d << DebuggerManager::stateName(state) << '(' << int(state) << ')';
+}
+
+static void changeFontSize(QWidget *widget, int size)
+{
+    QFont font = widget->font();
+    font.setPointSize(size);
+    widget->setFont(font);
+}
+
+void DebuggerManager::fontSettingsChanged(const TextEditor::FontSettings &settings)
+{
+    int size = settings.fontZoom() * settings.fontSize() / 100;
+    changeFontSize(d->m_localsWindow, size);
+    changeFontSize(d->m_watchersWindow, size);
+    changeFontSize(d->m_breakWindow, size);
+    changeFontSize(d->m_modulesWindow, size);
+    changeFontSize(d->m_outputWindow, size);
+    changeFontSize(d->m_registerWindow, size);
+    changeFontSize(d->m_stackWindow, size);
+    changeFontSize(d->m_sourceFilesWindow, size);
+    changeFontSize(d->m_threadsWindow, size);
 }
 
 //////////////////////////////////////////////////////////////////////
