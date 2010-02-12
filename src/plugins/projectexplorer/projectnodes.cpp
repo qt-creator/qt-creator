@@ -149,15 +149,11 @@ bool FileNode::isGenerated() const
   \see FileNode
   \see ProjectNode
 */
-FolderNode::FolderNode(const QString &folderPath)
-        : Node(FolderNodeType, folderPath),
-          m_folderName(folderPath)
+FolderNode::FolderNode(const QString &folderPath)  :
+    Node(FolderNodeType, folderPath),
+    m_folderName(folderPath),
+    m_icon(QApplication::style()->standardIcon(QStyle::SP_DirIcon))
 {
-    static QIcon dirIcon;
-    if (dirIcon.isNull()) {
-        dirIcon = QApplication::style()->standardIcon(QStyle::SP_DirIcon);
-    }
-    m_icon = dirIcon;
 }
 
 FolderNode::~FolderNode()
