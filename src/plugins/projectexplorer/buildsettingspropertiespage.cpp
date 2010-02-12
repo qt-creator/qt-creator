@@ -173,6 +173,13 @@ void BuildSettingsWidget::setupUi()
         m_removeButton->setText(tr("Remove"));
         m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_removeButton);
+
+        m_makeActiveButton = new QPushButton(this);
+        m_makeActiveButton->setText(tr("Make Active"));
+        m_makeActiveButton->setToolTip(tr("Sets this build configuration to be used for this target."));
+        m_makeActiveButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        hbox->addWidget(m_makeActiveButton);
+
         hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
         vbox->addLayout(hbox);
     }
@@ -185,12 +192,15 @@ void BuildSettingsWidget::setupUi()
     connect(m_removeButton, SIGNAL(clicked()),
             this, SLOT(deleteConfiguration()));
 
+    connect(m_makeActiveButton, SIGNAL(clicked()),
+            this, SLOT(makeActive()));
+
     // TODO update on displayNameChange
 //    connect(m_project, SIGNAL(buildConfigurationDisplayNameChanged(const QString &)),
 //            this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
 
     connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(updateConfigurationComboBoxLabels()));
+            this, SLOT(updateActiveConfiguration()));
 
     connect(m_target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
@@ -324,6 +334,9 @@ void BuildSettingsWidget::currentIndexChanged(int index)
 
 void BuildSettingsWidget::currentBuildConfigurationChanged()
 {
+    m_makeActiveButton->setEnabled(m_buildConfiguration
+            && m_buildConfiguration != m_target->activeBuildConfiguration());
+
     if (!m_buildConfiguration)
         return;
 
@@ -341,12 +354,14 @@ void BuildSettingsWidget::currentBuildConfigurationChanged()
     }
 }
 
-void BuildSettingsWidget::updateConfigurationComboBoxLabels()
+void BuildSettingsWidget::updateActiveConfiguration()
 {
     for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
         BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>();
         m_buildConfigurationComboBox->setItemText(i, buildConfigurationItemName(bc));
     }
+    m_makeActiveButton->setEnabled(currentBuildConfiguration()
+            && currentBuildConfiguration() != m_target->activeBuildConfiguration());
 }
 
 QString BuildSettingsWidget::buildConfigurationItemName(const BuildConfiguration *bc) const
@@ -354,6 +369,11 @@ QString BuildSettingsWidget::buildConfigurationItemName(const BuildConfiguration
     if (bc == m_target->activeBuildConfiguration())
         return tr("%1 (Active)").arg(bc->displayName());
     return bc->displayName();
+}
+
+BuildConfiguration *BuildSettingsWidget::currentBuildConfiguration() const {
+    const int index = m_buildConfigurationComboBox->currentIndex();
+    return m_buildConfigurationComboBox->itemData(index).value<BuildConfiguration *>();
 }
 
 void BuildSettingsWidget::createConfiguration()
@@ -372,16 +392,17 @@ void BuildSettingsWidget::createConfiguration()
 
 void BuildSettingsWidget::cloneConfiguration()
 {
-    const int index = m_buildConfigurationComboBox->currentIndex();
-    BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(index).value<BuildConfiguration *>();
-    cloneConfiguration(bc);
+    cloneConfiguration(currentBuildConfiguration());
 }
 
 void BuildSettingsWidget::deleteConfiguration()
 {
-    const int index = m_buildConfigurationComboBox->currentIndex();
-    BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(index).value<BuildConfiguration *>();
-    deleteConfiguration(bc);
+    deleteConfiguration(currentBuildConfiguration());
+}
+
+void BuildSettingsWidget::makeActive()
+{
+    m_target->setActiveBuildConfiguration(currentBuildConfiguration());
 }
 
 void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfiguration)

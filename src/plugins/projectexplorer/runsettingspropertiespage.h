@@ -40,6 +40,9 @@ class QLabel;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+
+class RunConfiguration;
+
 namespace Internal {
 
 const char * const RUNSETTINGS_PANEL_ID("ProjectExplorer.RunSettingsPanel");
@@ -85,14 +88,17 @@ public:
     ~RunSettingsWidget();
 
 private slots:
-    void showRunConfigurationWidget(int index);
+    void currentRunConfigurationChanged(int index);
     void aboutToShowAddMenu();
     void addRunConfiguration();
     void removeRunConfiguration();
+    void makeActive();
     void displayNameChanged();
     void initRunConfigurationComboBox();
     void activeRunConfigurationChanged();
 private:
+    RunConfiguration *currentRunConfiguration() const;
+
     Target *m_target;
     RunConfigurationsModel *m_runConfigurationsModel;
     Ui::RunSettingsPropertiesPage *m_ui;

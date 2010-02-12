@@ -101,23 +101,26 @@ private slots:
     void createConfiguration();
     void cloneConfiguration();
     void deleteConfiguration();
+    void makeActive();
     void updateAddButtonMenu();
 
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void buildConfigurationDisplayNameChanged();
-    void updateConfigurationComboBoxLabels();
+    void updateActiveConfiguration();
 
 private:
     void cloneConfiguration(BuildConfiguration *toClone);
     void deleteConfiguration(BuildConfiguration *toDelete);
     QString buildConfigurationItemName(const BuildConfiguration *bc) const;
+    BuildConfiguration *currentBuildConfiguration() const;
 
     Target *m_target;
     BuildConfiguration *m_buildConfiguration;
 
     QPushButton *m_addButton;
     QPushButton *m_removeButton;
+    QPushButton *m_makeActiveButton;
     QComboBox *m_buildConfigurationComboBox;
     QMenu *m_addButtonMenu;
 

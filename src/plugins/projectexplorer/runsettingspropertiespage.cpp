@@ -229,9 +229,11 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     connect(m_addMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowAddMenu()));
     connect(m_ui->runConfigurationCombo, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(showRunConfigurationWidget(int)));
+            this, SLOT(currentRunConfigurationChanged(int)));
     connect(m_ui->removeToolButton, SIGNAL(clicked(bool)),
             this, SLOT(removeRunConfiguration()));
+    connect(m_ui->makeActiveButton, SIGNAL(clicked()),
+            this, SLOT(makeActive()));
 
     connect(m_target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration *)),
             this, SLOT(initRunConfigurationComboBox()));
@@ -285,6 +287,15 @@ void RunSettingsWidget::aboutToShowAddMenu()
     }
 }
 
+RunConfiguration *RunSettingsWidget::currentRunConfiguration() const
+{
+    RunConfiguration *currentSelection = 0;
+    const int index = m_ui->runConfigurationCombo->currentIndex();
+    if (index >= 0)
+        currentSelection = m_runConfigurationsModel->runConfigurations().at(index);
+    return currentSelection;
+}
+
 void RunSettingsWidget::addRunConfiguration()
 {
     QAction *act = qobject_cast<QAction *>(sender());
@@ -303,20 +314,22 @@ void RunSettingsWidget::addRunConfiguration()
 
 void RunSettingsWidget::removeRunConfiguration()
 {
-    int index = m_ui->runConfigurationCombo->currentIndex();
-    RunConfiguration *rc = m_runConfigurationsModel->runConfigurations().at(index);
+    RunConfiguration *rc = currentRunConfiguration();
     disconnect(rc, SIGNAL(displayNameChanged()), this, SLOT(displayNameChanged()));
     m_target->removeRunConfiguration(rc);
     initRunConfigurationComboBox();
+}
+
+void RunSettingsWidget::makeActive()
+{
+    m_target->setActiveRunConfiguration(currentRunConfiguration());
 }
 
 void RunSettingsWidget::initRunConfigurationComboBox()
 {
     const QList<RunConfiguration *> &runConfigurations = m_target->runConfigurations();
     RunConfiguration *activeRunConfiguration = m_target->activeRunConfiguration();
-    RunConfiguration *currentSelection = 0;
-    if (m_ui->runConfigurationCombo->currentIndex() >= 0)
-        currentSelection = m_runConfigurationsModel->runConfigurations().at(m_ui->runConfigurationCombo->currentIndex());
+    RunConfiguration *currentSelection = currentRunConfiguration();
 
     m_runConfigurationsModel->setRunConfigurations(runConfigurations);
     if (runConfigurations.contains(currentSelection))
@@ -330,10 +343,15 @@ void RunSettingsWidget::initRunConfigurationComboBox()
 void RunSettingsWidget::activeRunConfigurationChanged()
 {
     m_runConfigurationsModel->activeRunConfigurationChanged(m_target->activeRunConfiguration());
+    m_ui->makeActiveButton->setEnabled(currentRunConfiguration()
+                                       && currentRunConfiguration() != m_target->activeRunConfiguration());
 }
 
-void RunSettingsWidget::showRunConfigurationWidget(int index)
+void RunSettingsWidget::currentRunConfigurationChanged(int index)
 {
+    m_ui->makeActiveButton->setEnabled(currentRunConfiguration()
+                                       && currentRunConfiguration() != m_target->activeRunConfiguration());
+
     if (index == -1) {
         delete m_runConfigurationWidget;
         m_runConfigurationWidget = 0;
