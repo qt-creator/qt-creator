@@ -54,7 +54,9 @@ class ICore;
 namespace Utils {
 class ParameterAction;
 }
-
+namespace Locator {
+    class CommandLocator;
+}
 namespace Git {
 namespace Internal {
 
@@ -125,6 +127,7 @@ private:
 
     static GitPlugin *m_instance;
     Core::ICore *m_core;
+    Locator::CommandLocator *m_commandLocator;
     Utils::ParameterAction *m_diffAction;
     Utils::ParameterAction *m_diffProjectAction;
     QAction *m_diffRepositoryAction;

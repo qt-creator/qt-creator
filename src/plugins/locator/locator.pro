@@ -4,6 +4,7 @@ DEFINES += LOCATOR_LIBRARY
 include(../../qtcreatorplugin.pri)
 include(locator_dependencies.pri)
 HEADERS += locatorplugin.h \
+    commandlocator.h \
     locatorwidget.h \
     locatorfiltersfilter.h \
     settingspage.h \
@@ -16,6 +17,7 @@ HEADERS += locatorplugin.h \
     basefilefilter.h \
     locator_global.h
 SOURCES += locatorplugin.cpp \
+    commandlocator.cpp \
     locatorwidget.cpp \
     locatorfiltersfilter.cpp \
     opendocumentsfilter.cpp \
@@ -25,6 +27,7 @@ SOURCES += locatorplugin.cpp \
     locatormanager.cpp \
     basefilefilter.cpp \
     ilocatorfilter.cpp
+
 FORMS += settingspage.ui \
     filesystemfilter.ui \
     directoryfilter.ui

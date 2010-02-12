@@ -54,6 +54,10 @@ namespace VCSBase {
     class VCSBaseSubmitEditor;
 }
 
+namespace Locator {
+    class CommandLocator;
+}
+
 namespace CVS {
 namespace Internal {
 
@@ -151,6 +155,7 @@ private:
     QString m_commitMessageFileName;
     QString m_commitRepository;
 
+    Locator::CommandLocator *m_commandLocator;
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;
     Utils::ParameterAction *m_revertAction;

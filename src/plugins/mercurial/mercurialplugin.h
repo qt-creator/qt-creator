@@ -60,6 +60,10 @@ namespace VCSBase {
 class VCSBaseSubmitEditor;
 }
 
+namespace Locator {
+    class CommandLocator;
+}
+
 namespace Mercurial {
 namespace Internal {
 
@@ -150,6 +154,7 @@ private:
     MercurialClient *m_client;
 
     Core::ICore *core;
+    Locator::CommandLocator *m_commandLocator;
     Core::ActionManager *actionManager;
     Core::ActionContainer *mercurialContainer;
 

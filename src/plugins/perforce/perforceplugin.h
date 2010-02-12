@@ -53,6 +53,10 @@ namespace Utils {
     class ParameterAction;
 }
 
+namespace Locator {
+    class CommandLocator;
+}
+
 namespace Perforce {
 namespace Internal {
 
@@ -192,6 +196,7 @@ private:
 
     inline PerforceVersionControl *perforceVersionControl() const;
 
+    Locator::CommandLocator *m_commandLocator;
     Utils::ParameterAction *m_editAction;
     Utils::ParameterAction *m_addAction;
     Utils::ParameterAction *m_deleteAction;
