@@ -31,6 +31,7 @@
 #include "ui_showbuildlog.h"
 #include "ui_qtversionmanager.h"
 #include "qt4projectmanagerconstants.h"
+#include "qt4target.h"
 #include "qtversionmanager.h"
 
 #include <projectexplorer/debugginghelper.h>
@@ -45,6 +46,7 @@
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QSet>
 #include <QtCore/QTextStream>
 #include <QtCore/QDateTime>
 #include <QtGui/QHelpEvent>
@@ -452,6 +454,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             return;
         }
         QList<ProjectExplorer::ToolChain::ToolChainType> types = m_versions.at(index)->possibleToolChainTypes();
+        QSet<QString> targets = m_versions.at(index)->supportedTargetIds();
         if (types.isEmpty()) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
@@ -465,7 +468,8 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMingwVisible(true);
             makeS60Visible(false);
             m_ui->mingwPath->setPath(m_versions.at(index)->mingwDirectory());
-        } else if (types.contains(ProjectExplorer::ToolChain::MSVC) || types.contains(ProjectExplorer::ToolChain::WINCE)){
+        } else if (types.contains(ProjectExplorer::ToolChain::MSVC) ||
+                   types.contains(ProjectExplorer::ToolChain::WINCE)) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
@@ -485,10 +489,8 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
                  }
                  m_ui->msvcComboBox->blockSignals(block);
             }
-        } else if (types.contains(ProjectExplorer::ToolChain::WINSCW)
-                || types.contains(ProjectExplorer::ToolChain::RVCT_ARMV5)
-                || types.contains(ProjectExplorer::ToolChain::RVCT_ARMV6)
-                || types.contains(ProjectExplorer::ToolChain::GCCE)) {
+        } else if (targets.contains(S60_DEVICE_TARGET_ID) ||
+                   targets.contains(S60_EMULATOR_TARGET_ID)) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(true);
@@ -500,10 +502,22 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMingwVisible(false);
             makeS60Visible(false);
         }
+
         if (m_ui->errorLabel->text().isEmpty()) {
-            m_ui->errorLabel->setText(tr("Found Qt version %1, using mkspec %2")
-                                     .arg(m_versions.at(index)->qtVersionString(),
-                                          m_versions.at(index)->mkspec()));
+            QString envs;
+            if (targets.contains(DESKTOP_TARGET_ID))
+                envs = tr("Desktop", "Qt Version is meant for the desktop");
+            else if (targets.contains(S60_DEVICE_TARGET_ID) ||
+                     targets.contains(S60_EMULATOR_TARGET_ID))
+                envs = tr("Symbian", "Qt Version is meant for Symbian");
+            else if (targets.contains(MAEMO_DEVICE_TARGET_ID) ||
+                     targets.contains(MAEMO_EMULATOR_TARGET_ID))
+                envs = tr("Maemo", "Qt Version is meant for Maemo");
+            else
+                envs = tr("unkown", "No idea what this Qt Version is meant for!");
+            m_ui->errorLabel->setText(tr("Found Qt version %1, using mkspec %2 (%3)")
+                                      .arg(m_versions.at(index)->qtVersionString(),
+                                           m_versions.at(index)->mkspec(), envs));
         }
     } else {
         makeMSVCVisible(false);
