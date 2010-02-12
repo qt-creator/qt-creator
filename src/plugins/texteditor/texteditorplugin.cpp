@@ -140,6 +140,9 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
     connect(quickFixShortcut, SIGNAL(activated()), this, SLOT(invokeQuickFix()));
 
+    connect(m_settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+        this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
+
     return true;
 }
 
