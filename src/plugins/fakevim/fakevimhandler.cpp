@@ -423,6 +423,7 @@ public:
     QString m_opcount;
     MoveType m_movetype;
     RangeMode m_rangemode;
+    int m_visualInsertCount;
 
     bool m_fakeEnd;
     bool m_anchorPastEnd;
@@ -1564,13 +1565,20 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveLeft();
     } else if (key == 'I') {
         setDotCommand(QString(QLatin1Char('I'))); // setDotCommand("%1I", count());
-        enterInsertMode();
-        if (m_gflag)
-            moveToStartOfLine();
-        else
-            moveToFirstNonBlankOnLine();
-        m_gflag = false;
-        m_tc.clearSelection();
+        if (isVisualMode()) {
+            int beginLine = lineForPosition(anchor());
+            int endLine = lineForPosition(position());
+            m_visualInsertCount = qAbs(endLine - beginLine);
+            setPosition(qMin(position(), anchor()));
+            enterInsertMode();
+        } else {
+            if (m_gflag)
+                moveToStartOfLine();
+            else
+                moveToFirstNonBlankOnLine();
+            m_gflag = false;
+            m_tc.clearSelection();
+        }
     } else if (key == control('i')) {
         if (!m_jumpListRedo.isEmpty()) {
             m_jumpListUndo.append(cursorPosition());
@@ -1918,18 +1926,38 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
 {
     if (key == Key_Escape || key == 27 || key == control('c') ||
 			key == 379 /* ^[ */) {
-        // start with '1', as one instance was already physically inserted
-        // while typing
-        QString data = m_lastInsertion;
-        for (int i = 1; i < count(); ++i) {
-            m_tc.insertText(m_lastInsertion);
-            data += m_lastInsertion;
+        if (isVisualBlockMode() && !m_lastInsertion.contains('\n')) {
+            leaveVisualMode();
+            joinPreviousEditBlock();
+            moveLeft(m_lastInsertion.size());
+            setAnchor();
+            int pos = position();
+            setTargetColumn();
+            for (int i = 0; i < m_visualInsertCount; ++i) {
+                moveDown();
+                m_tc.insertText(m_lastInsertion);
+            }
+            moveLeft(1);
+            Range range(pos, position(), RangeBlockMode);
+            yankText(range);
+            setPosition(pos);
+            setDotCommand("p");
+            endEditBlock();
+        } else {
+            // normal insertion. start with '1', as one instance was
+            // already physically inserted while typing
+            QString data = m_lastInsertion;
+            for (int i = 1; i < count(); ++i) {
+                m_tc.insertText(m_lastInsertion);
+                data += m_lastInsertion;
+            }
+            moveLeft(qMin(1, leftDist()));
+            setTargetColumn();
+            leaveVisualMode();
+            recordNewUndo();
         }
-        moveLeft(qMin(1, leftDist()));
-        setTargetColumn();
         m_dotCommand += m_lastInsertion;
         m_dotCommand += QChar(27);
-        recordNewUndo();
         enterCommandMode();
         m_submode = NoSubMode;
     } else if (key == Key_Insert) {
@@ -2954,7 +2982,6 @@ QString FakeVimHandler::Private::text(const Range &range) const
         int column2 = range.endPos - firstPositionInLine(endLine);
         beginColumn = qMin(column1, column2);
         endColumn = qMax(column1, column2);
-        qDebug() << "COLS: " << beginColumn << endColumn;
     }
     int len = endColumn - beginColumn + 1;
     QString contents;
@@ -3315,7 +3342,7 @@ void FakeVimHandler::Private::enterInsertMode()
 {
     EDITOR(setCursorWidth(m_cursorWidth));
     EDITOR(setOverwriteMode(false));
-    leaveVisualMode();
+    //leaveVisualMode();
     m_mode = InsertMode;
     m_lastInsertion.clear();
     m_beginEditBlock = true;
