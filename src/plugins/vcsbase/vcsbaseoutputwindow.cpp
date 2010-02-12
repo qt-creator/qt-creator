@@ -65,7 +65,7 @@ private:
 // and functions to append specially formatted entries.
 class OutputWindowPlainTextEdit : public QPlainTextEdit {
 public:
-    explicit OutputWindowPlainTextEdit(QWidget *parent);
+    explicit OutputWindowPlainTextEdit(QWidget *parent = 0);
 
     void appendLines(QString s, const QString &repository = QString());
     // Append red error text and pop up.
@@ -225,9 +225,21 @@ void OutputWindowPlainTextEdit::appendCommand(const QString &text)
 // ------------------- VCSBaseOutputWindowPrivate
 struct VCSBaseOutputWindowPrivate {
     static VCSBaseOutputWindow *instance;
-    QPointer<Internal::OutputWindowPlainTextEdit> plainTextEdit;
+    Internal::OutputWindowPlainTextEdit *plainTextEdit();
+
+    QPointer<Internal::OutputWindowPlainTextEdit> m_plainTextEdit;
     QString repository;
 };
+
+// Create log editor on demand. Some errors might be logged
+// before CorePlugin::extensionsInitialized() pulls up the windows.
+
+Internal::OutputWindowPlainTextEdit *VCSBaseOutputWindowPrivate::plainTextEdit()
+{
+    if (!m_plainTextEdit)
+        m_plainTextEdit = new Internal::OutputWindowPlainTextEdit();
+    return m_plainTextEdit;
+}
 
 VCSBaseOutputWindow *VCSBaseOutputWindowPrivate::instance = 0;
 
@@ -245,9 +257,13 @@ VCSBaseOutputWindow::~VCSBaseOutputWindow()
 
 QWidget *VCSBaseOutputWindow::outputWidget(QWidget *parent)
 {
-    if (!d->plainTextEdit)
-        d->plainTextEdit = new Internal::OutputWindowPlainTextEdit(parent);
-    return d->plainTextEdit;
+    if (d->m_plainTextEdit) {
+        if (parent != d->m_plainTextEdit->parent())
+            d->m_plainTextEdit->setParent(parent);
+    } else {
+        d->m_plainTextEdit = new Internal::OutputWindowPlainTextEdit(parent);
+    }
+    return d->m_plainTextEdit;
 }
 
 QWidgetList VCSBaseOutputWindow::toolBarWidgets() const
@@ -267,14 +283,14 @@ int VCSBaseOutputWindow::priorityInStatusBar() const
 
 void VCSBaseOutputWindow::clearContents()
 {
-    QTC_ASSERT(d->plainTextEdit, return)
-    d->plainTextEdit->clear();
+    if (d->m_plainTextEdit)
+        d->m_plainTextEdit->clear();
 }
 
 void VCSBaseOutputWindow::visibilityChanged(bool visible)
 {
-    if (visible && d->plainTextEdit)
-        d->plainTextEdit->setFocus();
+    if (visible && d->m_plainTextEdit)
+        d->m_plainTextEdit->setFocus();
 }
 
 void VCSBaseOutputWindow::setFocus()
@@ -316,8 +332,7 @@ void VCSBaseOutputWindow::goToPrev()
 
 void VCSBaseOutputWindow::setText(const QString &text)
 {
-    QTC_ASSERT(d->plainTextEdit, return)
-    d->plainTextEdit->setPlainText(text);
+    d->plainTextEdit()->setPlainText(text);
 }
 
 void VCSBaseOutputWindow::setData(const QByteArray &data)
@@ -327,46 +342,40 @@ void VCSBaseOutputWindow::setData(const QByteArray &data)
 
 void VCSBaseOutputWindow::appendSilently(const QString &text)
 {
-    QTC_ASSERT(d->plainTextEdit, return)
-    d->plainTextEdit->appendLines(text, d->repository);
+    d->plainTextEdit()->appendLines(text, d->repository);
 }
 
 void VCSBaseOutputWindow::append(const QString &text)
 {
-    QTC_ASSERT(d->plainTextEdit, return)
     appendSilently(text);
     // Pop up without focus
-    if (!d->plainTextEdit->isVisible())
+    if (!d->plainTextEdit()->isVisible())
         popup(false);
 }
 
 void VCSBaseOutputWindow::appendError(const QString &text)
 {
-    QTC_ASSERT(d->plainTextEdit, return)
-    d->plainTextEdit->appendError(text);
-    if (!d->plainTextEdit->isVisible())
+    d->plainTextEdit()->appendError(text);
+    if (!d->plainTextEdit()->isVisible())
         popup(false); // Pop up without focus
 }
 
 void VCSBaseOutputWindow::appendWarning(const QString &text)
 {
-    QTC_ASSERT(d->plainTextEdit, return)
-    d->plainTextEdit->appendWarning(text);
-    if (!d->plainTextEdit->isVisible())
+    d->plainTextEdit()->appendWarning(text);
+    if (!d->plainTextEdit()->isVisible())
         popup(false); // Pop up without focus
 }
 
 void VCSBaseOutputWindow::appendCommand(const QString &text)
 {
-    QTC_ASSERT(d->plainTextEdit, return)
-    d->plainTextEdit->appendCommand(text);
+    d->plainTextEdit()->appendCommand(text);
 }
 
 void VCSBaseOutputWindow::appendData(const QByteArray &data)
 {
-    QTC_ASSERT(d->plainTextEdit, return)
     appendDataSilently(data);
-    if (!d->plainTextEdit->isVisible())
+    if (!d->plainTextEdit()->isVisible())
         popup(false); // Pop up without focus
 }
 
