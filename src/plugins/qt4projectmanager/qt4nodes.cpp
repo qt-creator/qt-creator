@@ -65,12 +65,88 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QPushButton>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+// Static cached data in struct Qt4NodeStaticData providing information and icons
+// for file types and the project. Do some magic via qAddPostRoutine()
+// to make sure the icons do not outlive QApplication, triggering warnings on X11.
 
-namespace {
-    bool debug = false;
+struct FileTypeDataStorage {
+    ProjectExplorer::FileType type;
+    const char *typeName;
+    const char *icon;
+};
+
+static const FileTypeDataStorage fileTypeDataStorage[] = {
+    { ProjectExplorer::HeaderType,
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Headers"),
+      ":/qt4projectmanager/images/headers.png" },
+    { ProjectExplorer::SourceType,
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Sources"),
+      ":/qt4projectmanager/images/sources.png" },
+    { ProjectExplorer::FormType,
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Forms"),
+      ":/qt4projectmanager/images/forms.png" },
+    { ProjectExplorer::ResourceType,
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Resources"),
+      ":/qt4projectmanager/images/qt_qrc.png" },
+    { ProjectExplorer::UnknownFileType,
+      QT_TRANSLATE_NOOP("Qt4ProjectManager::Internal::Qt4PriFileNode", "Other files"),
+      ":/qt4projectmanager/images/unknown.png" }
+};
+
+struct Qt4NodeStaticData {
+    struct FileTypeData {
+        FileTypeData(ProjectExplorer::FileType t = ProjectExplorer::UnknownFileType,
+                     const QString &tN = QString(),
+                     const QIcon &i = QIcon()) :
+        type(t), typeName(tN), icon(i) { }
+
+        ProjectExplorer::FileType type;
+        QString typeName;
+        QIcon icon;
+    };
+
+    QVector<FileTypeData> fileTypeData;
+    QIcon projectIcon;
+};
+
+static void clearQt4NodeStaticData();
+
+Q_GLOBAL_STATIC_WITH_INITIALIZER(Qt4NodeStaticData, qt4NodeStaticData, {
+    // File type data
+    const unsigned count = sizeof(fileTypeDataStorage)/sizeof(FileTypeDataStorage);
+    x->fileTypeData.reserve(count);
+
+    // Overlay the SP_DirIcon with the custom icons
+    const QSize desiredSize = QSize(16, 16);
+
+    for (unsigned i = 0 ; i < count; i++) {
+        const QIcon overlayIcon = QIcon(QLatin1String(fileTypeDataStorage[i].icon));
+        const QPixmap folderPixmap =
+                Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
+                                                    overlayIcon, desiredSize);
+        QIcon folderIcon;
+        folderIcon.addPixmap(folderPixmap);
+        const QString desc = Qt4ProjectManager::Internal::Qt4PriFileNode::tr(fileTypeDataStorage[i].typeName);
+        x->fileTypeData.push_back(Qt4NodeStaticData::FileTypeData(fileTypeDataStorage[i].type,
+                                                                  desc, folderIcon));
+    }
+    // Project icon
+    const QIcon projectBaseIcon(QLatin1String(":/qt4projectmanager/images/qt_project.png"));
+    const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
+                                                                      projectBaseIcon,
+                                                                      desiredSize);
+    x->projectIcon.addPixmap(projectPixmap);
+
+    qAddPostRoutine(clearQt4NodeStaticData);
+});
+
+static void clearQt4NodeStaticData()
+{
+    qt4NodeStaticData()->fileTypeData.clear();
+    qt4NodeStaticData()->projectIcon = QIcon();
 }
+
+enum { debug = 0 };
 
 namespace {
     // sorting helper function
@@ -80,7 +156,8 @@ namespace {
     }
 }
 
-
+namespace Qt4ProjectManager {
+namespace Internal {
 
 Qt4PriFile::Qt4PriFile(Qt4PriFileNode *qt4PriFile)
     : IFile(qt4PriFile), m_priFile(qt4PriFile)
@@ -154,16 +231,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
 
     setFolderName(QFileInfo(filePath).completeBaseName());
 
-    static QIcon dirIcon;
-    if (dirIcon.isNull()) {
-        // Create a custom Qt dir icon based on the system icon
-        Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-        QPixmap dirIconPixmap = iconProvider->overlayIcon(QStyle::SP_DirIcon,
-                                                          QIcon(":/qt4projectmanager/images/qt_project.png"),
-                                                          QSize(16, 16));
-        dirIcon.addPixmap(dirIconPixmap);
-    }
-    setIcon(dirIcon);
+    setIcon(qt4NodeStaticData()->projectIcon);
 }
 
 void Qt4PriFileNode::scheduleUpdate()
@@ -172,9 +240,7 @@ void Qt4PriFileNode::scheduleUpdate()
     m_qt4ProFileNode->scheduleUpdate();
 }
 
-namespace Qt4ProjectManager {
-namespace Internal {
-    struct InternalNode
+struct InternalNode
     {
         QMap<QString, InternalNode*> subnodes;
         QStringList files;
@@ -376,8 +442,6 @@ namespace Internal {
                 projectNode->addFileNodes(filesToAdd, folder);
         }
     };
-} // Internal namespace
-} // namespace
 
 void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
 {
@@ -388,37 +452,6 @@ void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
     if (m_fileNodes.isEmpty())
         addFileNodes(QList<FileNode*>() << new FileNode(m_projectFilePath, ProjectFileType, false), this);
 
-    static QList<FileType> fileTypes =
-               (QList<FileType>() << ProjectExplorer::HeaderType
-                                  << ProjectExplorer::SourceType
-                                  << ProjectExplorer::FormType
-                                  << ProjectExplorer::ResourceType
-                                  << ProjectExplorer::UnknownFileType);
-    static QStringList fileTypeNames =
-                QStringList() << tr("Headers")
-                              << tr("Sources")
-                              << tr("Forms")
-                              << tr("Resources")
-                              << tr("Other files");
-    static QList<QIcon> fileTypeIcons;
-    if (fileTypeIcons.isEmpty()) {
-        QStringList iconPaths;
-        iconPaths << ":/qt4projectmanager/images/headers.png"
-                  << ":/qt4projectmanager/images/sources.png"
-                  << ":/qt4projectmanager/images/forms.png"
-                  << ":/qt4projectmanager/images/qt_qrc.png"
-                  << ":/qt4projectmanager/images/unknown.png";
-        foreach (const QString &iconPath, iconPaths) {
-            QIcon dirIcon;
-            Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-            QPixmap dirIconPixmap = iconProvider->overlayIcon(QStyle::SP_DirIcon,
-                                                              QIcon(iconPath),
-                                                              QSize(16, 16));
-            dirIcon.addPixmap(dirIconPixmap);
-            fileTypeIcons.append(dirIcon);
-        }
-    }
-
     const QString &projectDir = m_qt4ProFileNode->m_projectDir;
 
     QStringList baseVPaths;
@@ -427,11 +460,13 @@ void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
     baseVPaths += reader->absolutePathValues("DEPENDPATH", projectDir);
     baseVPaths.removeDuplicates();
 
+    const QVector<Qt4NodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
+
     InternalNode contents;
 
     // update files
     for (int i = 0; i < fileTypes.size(); ++i) {
-        FileType type = fileTypes.at(i);
+        FileType type = fileTypes.at(i).type;
         const QStringList qmakeVariables = varNames(type);
 
         QStringList newFilePaths;
@@ -450,9 +485,9 @@ void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
         if (!newFilePaths.isEmpty()) {
             InternalNode *subfolder = new InternalNode;
             subfolder->type = type;
-            subfolder->icon = fileTypeIcons.at(i);
-            subfolder->fullName = m_projectDir + '#' + fileTypeNames.at(i);
-            contents.subnodes.insert(fileTypeNames.at(i), subfolder);
+            subfolder->icon = fileTypes.at(i).icon;
+            subfolder->fullName = m_projectDir + '#' + fileTypes.at(i).typeName;
+            contents.subnodes.insert(fileTypes.at(i).typeName, subfolder);
             // create the hierarchy with subdirectories
             subfolder->create(m_projectDir, newFilePaths, type);
         }
@@ -1289,4 +1324,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
 Qt4NodesWatcher::Qt4NodesWatcher(QObject *parent)
         : NodesWatcher(parent)
 {
+}
+
+}
 }

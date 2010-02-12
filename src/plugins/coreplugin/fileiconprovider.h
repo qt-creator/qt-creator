@@ -61,7 +61,7 @@ public:
     virtual QString type(const QFileInfo &info) const;
 
     // Register additional overlay icons
-    QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size) const;
+    static QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size);
     void registerIconOverlayForSuffix(const QIcon &icon, const QString &suffix);
     void registerIconOverlayForMimeType(const QIcon &icon, const MimeType &mimeType);
 

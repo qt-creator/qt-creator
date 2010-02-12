@@ -163,7 +163,7 @@ QString FileIconProvider::type(const QFileInfo &info) const
   Creates a pixmap with baseicon at size and overlays overlayIcon over it.
   See platform note in class documentation about recommended usage.
   */
-QPixmap FileIconProvider::overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size) const
+QPixmap FileIconProvider::overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size)
 {
     QPixmap iconPixmap = qApp->style()->standardIcon(baseIcon).pixmap(size);
     QPainter painter(&iconPixmap);
