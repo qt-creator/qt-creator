@@ -231,8 +231,8 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
 
 const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
 {
-    if (QmlMetaType::isObject(prop.userType())) {
-        QmlType *qmlPropertyType = QmlMetaType::qmlType(QmlMetaType::metaObjectForType(prop.userType()));
+    if (QmlMetaType::isQObject(prop.userType())) {
+        QmlType *qmlPropertyType = QmlMetaType::qmlType(prop.userType());
 
         if (qmlPropertyType && !qmlPropertyType->qmlTypeName().isEmpty()) {
             QString typeName = qmlPropertyType->qmlTypeName();

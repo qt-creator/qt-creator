@@ -525,7 +525,7 @@ void ObjectNodeInstance::updateObjectSignals(QObject *object)
     int transformSignalIndex = QGraphicsObject::staticMetaObject.indexOfSignal("xChanged()");
     // iterate over all proeprties and find the object
     for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < object->metaObject()->propertyCount(); propertyIndex++) {
-        if (QmlMetaType::isObject(object->metaObject()->property(propertyIndex).userType())) {
+        if (QmlMetaType::isQObject(object->metaObject()->property(propertyIndex).userType())) {
             QObject *propertyObject = QmlMetaType::toQObject(object->metaObject()->property(propertyIndex).read(object));
             if (propertyObject) {
                 int signalIndex = -1;
