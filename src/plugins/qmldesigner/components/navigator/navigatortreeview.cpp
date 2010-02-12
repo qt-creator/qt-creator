@@ -69,9 +69,9 @@ public:
                 drawSelectionBackground(painter, *option);
             } else {
                 painter->save();
-                painter->setPen(QColor(0, 0, 0, 25));
-                painter->drawLine(option->rect.bottomLeft() - QPoint(0, 1), option->rect.bottomRight() - QPoint(0, 1));
                 painter->setPen(QColor(255, 255, 255, 15));
+                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+                painter->setPen(QColor(0, 0, 0, 25));
                 painter->drawLine(option->rect.bottomLeft(),option->rect.bottomRight());
                 painter->restore();
             }
@@ -152,7 +152,7 @@ void IdItemDelegate::paint(QPainter *painter,
     }
 
     QPixmap pixmap = icon.pixmap(22,22);
-    painter->drawPixmap(option.rect.x()+5,option.rect.y()+1,pixmap);
+    painter->drawPixmap(option.rect.x()+5,option.rect.y()+2,pixmap);
 
     QString myString = node.id();
     if (myString.isEmpty())
