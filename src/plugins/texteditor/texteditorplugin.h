@@ -39,7 +39,6 @@ class SearchResultWindow;
 namespace TextEditor {
 
 class FontSettings;
-class FontSettingsPage;
 class PlainTextEditor;
 class TextEditorSettings;
 class TextFileWizard;
