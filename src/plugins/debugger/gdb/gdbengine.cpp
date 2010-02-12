@@ -1327,7 +1327,10 @@ void GdbEngine::handleStop1(const GdbMi &data)
     }
 
     if (reason == "breakpoint-hit") {
-        showStatusMessage(tr("Stopped at breakpoint."));
+        QByteArray bpNumber = data.findChild("bkptno").data();
+        QByteArray threadId = data.findChild("thread-id").data();
+        showStatusMessage(tr("Stopped at breakpoint %1 in thread %2.")
+            .arg(_(bpNumber), _(threadId)));
     } else {
         if (reason == "signal-received"
             && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
