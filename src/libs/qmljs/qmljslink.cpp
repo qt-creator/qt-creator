@@ -54,13 +54,16 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
         if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
             _context->pushScope(typeEnvironment);
     } else {
-        // add scope chains for all components that source this document
-        foreach (Document::Ptr otherDoc, _docs) {
-            if (otherDoc->bind()->includedScripts().contains(doc->fileName()))
-                pushScopeChainForComponent(otherDoc, &linkedDocs);
-        }
+        // the global scope of a js file does not see the instantiating component
+        if (currentObject != 0) {
+            // add scope chains for all components that source this document
+            foreach (Document::Ptr otherDoc, _docs) {
+                if (otherDoc->bind()->includedScripts().contains(doc->fileName()))
+                    pushScopeChainForComponent(otherDoc, &linkedDocs);
+            }
 
-        // ### TODO: Which type environment do scripts see?
+            // ### TODO: Which type environment do scripts see?
+        }
 
         _context->pushScope(bind->rootObjectValue());
     }
