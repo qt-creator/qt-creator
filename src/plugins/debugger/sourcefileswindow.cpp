@@ -196,15 +196,15 @@ void SourceFilesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QString name = model()->data(index).toString();
 
     QMenu menu;
-    QAction *act1 = new QAction(tr("Reload data"), &menu);
+    QAction *act1 = new QAction(tr("Reload Data"), &menu);
     act1->setEnabled(Debugger::DebuggerManager::instance()->debuggerActionsEnabled());
     //act1->setCheckable(true);
     QAction *act2 = 0;
     if (name.isEmpty()) {
-        act2 = new QAction(tr("Open file"), &menu);
+        act2 = new QAction(tr("Open File"), &menu);
         act2->setEnabled(false);
     } else {
-        act2 = new QAction(tr("Open file \"%1\"'").arg(name), &menu);
+        act2 = new QAction(tr("Open File \"%1\"'").arg(name), &menu);
         act2->setEnabled(true);
     }
 

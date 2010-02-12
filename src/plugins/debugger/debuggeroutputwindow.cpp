@@ -177,13 +177,13 @@ public:
     {
         setMaximumBlockCount(100000);
         m_clearContentsAction = new QAction(this);
-        m_clearContentsAction->setText(tr("Clear contents"));
+        m_clearContentsAction->setText(tr("Clear Contents"));
         m_clearContentsAction->setEnabled(true);
         connect(m_clearContentsAction, SIGNAL(triggered(bool)),
             parent, SLOT(clearContents()));
 
         m_saveContentsAction = new QAction(this);
-        m_saveContentsAction->setText(tr("Save contents"));
+        m_saveContentsAction->setText(tr("Save Contents"));
         m_saveContentsAction->setEnabled(true);
     }
 

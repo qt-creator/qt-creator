@@ -145,48 +145,56 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     const int rowCount = itemModel->rowCount();
     const unsigned engineCapabilities = m_manager->debuggerCapabilities();
 
-    QAction *deleteAction = new QAction(tr("Delete breakpoint"), &menu);
+    QAction *deleteAction = new QAction(tr("Delete Breakpoint"), &menu);
     deleteAction->setEnabled(si.size() > 0);
 
-    QAction *deleteAllAction = new QAction(tr("Delete all breakpoints"), &menu);
+    QAction *deleteAllAction = new QAction(tr("Delete All Breakpoints"), &menu);
     deleteAllAction->setEnabled(si.size() > 0);
 
-    // Delete by file: Find indexes of breakpoints of the same file
+    // Delete by file: Find indices of breakpoints of the same file.
     QAction *deleteByFileAction = 0;
     QList<int> breakPointsOfFile;
     if (indexUnderMouse.isValid()) {
-        const QString file = itemModel->data(indexUnderMouse.sibling(indexUnderMouse.row(), 2)).toString();
+        const QModelIndex index = indexUnderMouse.sibling(indexUnderMouse.row(), 2);
+        const QString file = itemModel->data(index).toString();
         if (!file.isEmpty()) {
             for (int i = 0; i < rowCount; i++)
                 if (itemModel->data(itemModel->index(i, 2)).toString() == file)
                     breakPointsOfFile.push_back(i);
             if (breakPointsOfFile.size() > 1) {
-                deleteByFileAction = new QAction(tr("Delete breakpoints of \"%1\"").arg(file), &menu);
+                deleteByFileAction =
+                    new QAction(tr("Delete Breakpoints of \"%1\"").arg(file), &menu);
                 deleteByFileAction->setEnabled(true);
             }
         }
     }
     if (!deleteByFileAction) {
-        deleteByFileAction = new QAction(tr("Delete breakpoints of file"), &menu);
+        deleteByFileAction = new QAction(tr("Delete Breakpoints of File"), &menu);
         deleteByFileAction->setEnabled(false);
     }
 
-    QAction *adjustColumnAction = new QAction(tr("Adjust column widths to contents"), &menu);
+    QAction *adjustColumnAction =
+        new QAction(tr("Adjust Column Widths to Contents"), &menu);
 
-    QAction *alwaysAdjustAction = new QAction(tr("Always adjust column widths to contents"), &menu);
+    QAction *alwaysAdjustAction =
+        new QAction(tr("Always Adjust Column Widths to Contents"), &menu);
+
     alwaysAdjustAction->setCheckable(true);
     alwaysAdjustAction->setChecked(m_alwaysResizeColumnsToContents);
 
-    QAction *editConditionAction = new QAction(tr("Edit condition..."), &menu);
+    QAction *editConditionAction =
+        new QAction(tr("Edit Condition..."), &menu);
     editConditionAction->setEnabled(si.size() > 0);
 
-    QAction *synchronizeAction = new QAction(tr("Synchronize breakpoints"), &menu);
-    synchronizeAction->setEnabled(Debugger::DebuggerManager::instance()->debuggerActionsEnabled());
+    QAction *synchronizeAction =
+        new QAction(tr("Synchronize Breakpoints"), &menu);
+    synchronizeAction->setEnabled(
+        Debugger::DebuggerManager::instance()->debuggerActionsEnabled());
 
     QModelIndex idx0 = (si.size() ? si.front() : QModelIndex());
     QModelIndex idx2 = idx0.sibling(idx0.row(), 2);
     bool enabled = si.isEmpty() || itemModel->data(idx0, Qt::UserRole).toBool();
-    const QString str5 = enabled ? tr("Disable breakpoint") : tr("Enable breakpoint");
+    const QString str5 = enabled ? tr("Disable Breakpoint") : tr("Enable Breakpoint");
     QAction *toggleEnabledAction = new QAction(str5, &menu);
     toggleEnabledAction->setEnabled(si.size() > 0);
 

@@ -109,27 +109,27 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     QMenu menu;
     const bool enabled = Debugger::DebuggerManager::instance()->debuggerActionsEnabled();
     const unsigned capabilities = Debugger::DebuggerManager::instance()->debuggerCapabilities();
-    QAction *act0 = new QAction(tr("Update module list"), &menu);
+    QAction *act0 = new QAction(tr("Update Module List"), &menu);
     act0->setEnabled(enabled && (capabilities & ReloadModuleCapability));
-    QAction *act3 = new QAction(tr("Show source files for module \"%1\"").arg(name), &menu);
+    QAction *act3 = new QAction(tr("Show Source Files for Module \"%1\"").arg(name), &menu);
     act3->setEnabled(enabled && (capabilities & ReloadModuleCapability));
-    QAction *act4 = new QAction(tr("Load symbols for all modules"), &menu);
+    QAction *act4 = new QAction(tr("Load Symbols for All Modules"), &menu);
     act4->setEnabled(enabled && (capabilities & ReloadModuleSymbolsCapability));
     QAction *act5 = 0;
     QAction *act6 = 0;
     QAction *act7 = 0;
     if (name.isEmpty()) {
-        act5 = new QAction(tr("Load symbols for module"), &menu);
+        act5 = new QAction(tr("Load Symbols for Module"), &menu);
         act5->setEnabled(false);
-        act6 = new QAction(tr("Edit file"), &menu);
+        act6 = new QAction(tr("Edit File"), &menu);
         act6->setEnabled(false);
-        act7 = new QAction(tr("Show symbols"), &menu);
+        act7 = new QAction(tr("Show Symbols"), &menu);
         act7->setEnabled(false);
     } else {
-        act5 = new QAction(tr("Load symbols for module \"%1\"").arg(name), &menu);
+        act5 = new QAction(tr("Load Symbols for Module \"%1\"").arg(name), &menu);
         act5->setEnabled(capabilities & ReloadModuleSymbolsCapability);
-        act6 = new QAction(tr("Edit file \"%1\"").arg(name), &menu);
-        act7 = new QAction(tr("Show symbols in file \"%1\"").arg(name), &menu);
+        act6 = new QAction(tr("Edit File \"%1\"").arg(name), &menu);
+        act7 = new QAction(tr("Show Symbols in File \"%1\"").arg(name), &menu);
     }
 
     menu.addAction(act0);
@@ -139,9 +139,9 @@ void ModulesWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(act7);
     menu.addSeparator();
     QAction *actAdjustColumnWidths =
-        menu.addAction(tr("Adjust column widths to contents"));
+        menu.addAction(tr("Adjust Column Widths to Contents"));
     QAction *actAlwaysAdjustColumnWidth =
-        menu.addAction(tr("Always adjust column widths to contents"));
+        menu.addAction(tr("Always Adjust Column Widths to Contents"));
     actAlwaysAdjustColumnWidth->setCheckable(true);
     actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
     menu.addSeparator();

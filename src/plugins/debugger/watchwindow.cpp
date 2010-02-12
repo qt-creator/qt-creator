@@ -223,8 +223,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QList<QAction *> individualFormatActions;
     QAction *clearIndividualFormatAction = 0;
     if (idx.isValid()) {
-        typeFormatMenu.setTitle(tr("Change format for type '%1'").arg(type));
-        individualFormatMenu.setTitle(tr("Change format for expression '%1'").arg(exp));
+        typeFormatMenu.setTitle(tr("Change Format for Type '%1'").arg(type));
+        individualFormatMenu.setTitle(tr("Change Format for Expression '%1'").arg(exp));
         if (alternativeFormats.isEmpty()) {
             typeFormatMenu.setEnabled(false);
             individualFormatMenu.setEnabled(false);
@@ -257,19 +257,19 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu menu;
 
-    QAction *actInsertNewWatchItem = menu.addAction(tr("Insert new watch item"));
-    QAction *actSelectWidgetToWatch = menu.addAction(tr("Select widget to watch"));
+    QAction *actInsertNewWatchItem = menu.addAction(tr("Insert New Watch Item"));
+    QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Watch"));
 
     const bool actionsEnabled = m_manager->debuggerActionsEnabled();
     const unsigned engineCapabilities = m_manager->debuggerCapabilities();
     const QString address = model()->data(mi0, AddressRole).toString();
     QAction *actWatchKnownMemory = 0;
-    QAction *actWatchUnknownMemory = new QAction(tr("Open memory editor..."), &menu);
+    QAction *actWatchUnknownMemory = new QAction(tr("Open Memory Editor..."), &menu);
     const bool canShowMemory = engineCapabilities & ShowMemoryCapability;
     actWatchUnknownMemory->setEnabled(actionsEnabled && canShowMemory);
 
     if (canShowMemory && !address.isEmpty())
-        actWatchKnownMemory = new QAction(tr("Open memory editor at %1").arg(address), &menu);
+        actWatchKnownMemory = new QAction(tr("Open Memory Editor at %1").arg(address), &menu);
     menu.addSeparator();
 
     QAction *actWatchOrRemove;
@@ -293,7 +293,7 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
     menu.addAction(theDebuggerAction(UseDebuggingHelpers));
-    QAction *actClearCodeModelSnapshot = new QAction(tr("Refresh code model snapshot"), &menu);
+    QAction *actClearCodeModelSnapshot = new QAction(tr("Refresh Code Model Snapshot"), &menu);
     actClearCodeModelSnapshot->setEnabled(actionsEnabled && theDebuggerAction(UseCodeModel)->isChecked());
     menu.addAction(actClearCodeModelSnapshot);
     menu.addSeparator();
@@ -304,9 +304,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(theDebuggerAction(ShowQtNamespace));
 
     QAction *actAdjustColumnWidths =
-        menu.addAction(tr("Adjust column widths to contents"));
+        menu.addAction(tr("Adjust Column Widths to Contents"));
     QAction *actAlwaysAdjustColumnWidth =
-        menu.addAction(tr("Always adjust column widths to contents"));
+        menu.addAction(tr("Always Adjust Column Widths to Contents"));
     actAlwaysAdjustColumnWidth->setCheckable(true);
     actAlwaysAdjustColumnWidth->setChecked(m_alwaysResizeColumnsToContents);
 

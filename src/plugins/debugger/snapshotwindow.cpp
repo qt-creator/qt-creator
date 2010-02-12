@@ -138,10 +138,10 @@ void SnapshotWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     QMenu menu;
 
-    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
+    QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
 
     QAction *actAlwaysAdjust =
-        menu.addAction(tr("Always adjust column widths to contents"));
+        menu.addAction(tr("Always Adjust Column Widths to Contents"));
     actAlwaysAdjust->setCheckable(true);
     actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
 

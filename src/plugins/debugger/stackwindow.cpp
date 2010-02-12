@@ -107,16 +107,16 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
         actShowMemory->setText(tr("Open memory editor"));
         actShowMemory->setEnabled(false);
     } else {
-        actShowMemory->setText(tr("Open memory editor at %1").arg(address));
+        actShowMemory->setText(tr("Open Memory Editor at %1").arg(address));
         actShowMemory->setEnabled(engineCapabilities & ShowMemoryCapability);
     }
 
     QAction *actShowDisassembler = menu.addAction(QString());
     if (address.isEmpty()) {
-        actShowDisassembler->setText(tr("Open disassembler"));
+        actShowDisassembler->setText(tr("Open Disassembler"));
         actShowDisassembler->setEnabled(false);
     } else {
-        actShowDisassembler->setText(tr("Open disassembler at %1").arg(address));
+        actShowDisassembler->setText(tr("Open Disassembler at %1").arg(address));
         actShowDisassembler->setEnabled(engineCapabilities & DisassemblerCapability);
     }
 
@@ -126,10 +126,10 @@ void StackWindow::contextMenuEvent(QContextMenuEvent *ev)
 #endif
     menu.addAction(theDebuggerAction(UseAddressInStackView));
 
-    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
+    QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
 
     QAction *actAlwaysAdjust =
-        menu.addAction(tr("Always adjust column widths to contents"));
+        menu.addAction(tr("Always Adjust Column Widths to Contents"));
     actAlwaysAdjust->setCheckable(true);
     actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
 

@@ -168,7 +168,7 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     const unsigned engineCapabilities = m_manager->debuggerCapabilities();
     const bool actionsEnabled = m_manager->debuggerActionsEnabled();
 
-    QAction *actReload = menu.addAction(tr("Reload register listing"));
+    QAction *actReload = menu.addAction(tr("Reload Register Listing"));
     actReload->setEnabled((engineCapabilities & RegisterCapability)
         && (m_manager->state() == InferiorStopped 
             || m_manager->state() == InferiorUnrunnable));
@@ -179,10 +179,10 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     QString address = model()->data(idx, RegisterAddressRole).toString();
     QAction *actShowMemory = menu.addAction(QString());
     if (address.isEmpty()) {
-        actShowMemory->setText(tr("Open memory editor"));
+        actShowMemory->setText(tr("Open Memory Editor"));
         actShowMemory->setEnabled(false);
     } else {
-        actShowMemory->setText(tr("Open memory editor at %1").arg(address));
+        actShowMemory->setText(tr("Open Memory Editor at %1").arg(address));
         actShowMemory->setEnabled(actionsEnabled
             && (engineCapabilities & ShowMemoryCapability));
     }
@@ -203,9 +203,9 @@ void RegisterWindow::contextMenuEvent(QContextMenuEvent *ev)
     act2->setChecked(base == 2);
     menu.addSeparator();
 
-    QAction *actAdjust = menu.addAction(tr("Adjust column widths to contents"));
+    QAction *actAdjust = menu.addAction(tr("Adjust Column Widths to Contents"));
     QAction *actAlwaysAdjust =
-        menu.addAction(tr("Always adjust column widths to contents"));
+        menu.addAction(tr("Always Adjust Column Widths to Contents"));
     actAlwaysAdjust->setCheckable(true);
     actAlwaysAdjust->setChecked(m_alwaysResizeColumnsToContents);
     menu.addSeparator();
