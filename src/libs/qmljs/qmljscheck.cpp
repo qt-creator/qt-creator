@@ -29,7 +29,6 @@
 
 #include "qmljscheck.h"
 #include "qmljsinterpreter.h"
-#include "qmljslink.h"
 #include "parser/qmljsparser_p.h"
 #include "parser/qmljsast_p.h"
 #include <QtCore/QDebug>

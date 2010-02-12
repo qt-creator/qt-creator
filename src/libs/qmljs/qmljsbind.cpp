@@ -29,8 +29,6 @@
 
 #include "parser/qmljsast_p.h"
 #include "qmljsbind.h"
-#include "qmljslink.h"
-#include "qmljscheck.h"
 #include "qmljsdocument.h"
 #include "qmljsmetatypesystem.h"
 

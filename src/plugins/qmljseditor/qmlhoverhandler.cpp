@@ -37,7 +37,6 @@
 #include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljslink.h>
 #include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
