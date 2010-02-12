@@ -300,6 +300,16 @@ S60Devices::Device S60Devices::deviceForEpocRoot(const QString &root) const
     return Device();
 }
 
+S60Devices::Device S60Devices::defaultDevice() const
+{
+    foreach (const S60Devices::Device &i, m_devices) {
+        if (i.isDefault) {
+            return i;
+        }
+    }
+    return Device();
+}
+
 QString S60Devices::cleanedRootPath(const QString &deviceRoot)
 {
     QString path = deviceRoot;

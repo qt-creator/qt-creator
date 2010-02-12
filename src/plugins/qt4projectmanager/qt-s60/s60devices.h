@@ -66,6 +66,7 @@ public:
     bool detectQtForDevices();
     Device deviceForId(const QString &id) const;
     Device deviceForEpocRoot(const QString &root) const;
+    Device defaultDevice() const;
 
     static QString cleanedRootPath(const QString &deviceRoot);
 signals:

@@ -492,9 +492,9 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(true);
-            m_ui->mwcPath->setPath(m_versions.at(index)->mwcDirectory());
-            m_ui->s60SDKPath->setPath(m_versions.at(index)->s60SDKDirectory());
-            m_ui->gccePath->setPath(m_versions.at(index)->gcceDirectory());
+            m_ui->mwcPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->mwcDirectory()));
+            m_ui->s60SDKPath->setPath(QDir::toNativeSeparators(m_versions.at(index)->s60SDKDirectory()));
+            m_ui->gccePath->setPath(QDir::toNativeSeparators(m_versions.at(index)->gcceDirectory()));
         } else { //ProjectExplorer::ToolChain::GCC
             makeMSVCVisible(false);
             makeMingwVisible(false);
@@ -689,7 +689,8 @@ void QtOptionsPageWidget::updateCurrentMwcDirectory()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    m_versions[currentItemIndex]->setMwcDirectory(m_ui->mwcPath->path());
+    m_versions[currentItemIndex]->setMwcDirectory(
+            QDir::fromNativeSeparators(m_ui->mwcPath->path()));
 }
 void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
 {
@@ -698,7 +699,8 @@ void QtOptionsPageWidget::updateCurrentS60SDKDirectory()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    m_versions[currentItemIndex]->setS60SDKDirectory(m_ui->s60SDKPath->path());
+    m_versions[currentItemIndex]->setS60SDKDirectory(
+            QDir::fromNativeSeparators(m_ui->s60SDKPath->path()));
 }
 void QtOptionsPageWidget::updateCurrentGcceDirectory()
 {
@@ -707,7 +709,8 @@ void QtOptionsPageWidget::updateCurrentGcceDirectory()
     int currentItemIndex = indexForTreeItem(currentItem);
     if (currentItemIndex < 0)
         return;
-    m_versions[currentItemIndex]->setGcceDirectory(m_ui->gccePath->path());
+    m_versions[currentItemIndex]->setGcceDirectory(
+            QDir::fromNativeSeparators(m_ui->gccePath->path()));
 }
 
 QList<QSharedPointerQtVersion> QtOptionsPageWidget::versions() const

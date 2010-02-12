@@ -245,18 +245,31 @@ S60Devices::Device S60Manager::deviceForQtVersion(const Qt4ProjectManager::QtVer
     if (deviceId.isEmpty()) { // it's not an s60 autodetected version
         // try to find a device entry belonging to the root given in Qt prefs
         QString sdkRoot = version->s60SDKDirectory();
-        device = m_devices->deviceForEpocRoot(sdkRoot);
+        if (sdkRoot.isEmpty()) { // no sdk explicitly set in the preferences
+            // check if EPOCROOT is set and use that
+            QString epocRootEnv = QProcessEnvironment::systemEnvironment()
+                                  .value(QLatin1String("EPOCROOT"));
+            if (!epocRootEnv.isEmpty())
+                sdkRoot = QDir::fromNativeSeparators(epocRootEnv);
+        }
+        if (sdkRoot.isEmpty()) { // no sdk set via preference or EPOCROOT
+            // try default device
+            device = m_devices->defaultDevice();
+        } else {
+            device = m_devices->deviceForEpocRoot(sdkRoot);
+        }
         if (device.epocRoot.isEmpty()) { // no device found
             // check if we can construct a dummy one
             if (QFile::exists(QString::fromLatin1("%1/epoc32").arg(sdkRoot))) {
                 device.epocRoot = sdkRoot;
                 device.toolsRoot = device.epocRoot;
-                device.qt = QFileInfo(QFileInfo(version->qmakeCommand()).path()).path();
                 device.isDefault = false;
                 device.name = QString::fromLatin1("Manual");
                 device.id = QString::fromLatin1("Manual");
             }
         }
+        // override any Qt version that might be still autodetected
+        device.qt = QFileInfo(QFileInfo(version->qmakeCommand()).path()).path();
     } else {
         device = m_devices->deviceForId(deviceId);
     }

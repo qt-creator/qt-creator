@@ -337,11 +337,11 @@ void QtVersionManager::addNewVersionsFromInstaller()
                 if (newVersionData.count() >= 3)
                     version->setMingwDirectory(newVersionData[2]);
                 if (newVersionData.count() >= 4)
-                    version->setS60SDKDirectory(newVersionData[3]);
+                    version->setS60SDKDirectory(QDir::fromNativeSeparators(newVersionData[3]));
                 if (newVersionData.count() >= 5)
-                    version->setGcceDirectory(newVersionData[4]);
+                    version->setGcceDirectory(QDir::fromNativeSeparators(newVersionData[4]));
                 if (newVersionData.count() >= 6)
-                    version->setMwcDirectory(newVersionData[5]);
+                    version->setMwcDirectory(QDir::fromNativeSeparators(newVersionData[5]));
 
                 bool versionWasAlreadyInList = false;
                 foreach(const QtVersion * const it, m_versions) {
