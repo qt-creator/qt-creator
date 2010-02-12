@@ -43,7 +43,6 @@ class IFile;
 
 namespace ProjectExplorer {
 
-class BuildManager;
 class BuildConfigWidget;
 class IProjectManager;
 class EditorConfiguration;

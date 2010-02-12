@@ -70,7 +70,6 @@ public:
     //shows with focus
     void gotoTaskWindow();
 
-    //TODO these should take buildconfiguration object
     void buildProject(BuildConfiguration *bc);
     void buildProjects(const QList<BuildConfiguration *> &configurations);
     void cleanProject(BuildConfiguration *configuration);
