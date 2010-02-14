@@ -1197,18 +1197,35 @@ bool CppCodeCompletion::completeScope(const QList<LookupItem> &results,
     return ! m_completions.isEmpty();
 }
 
+void CppCodeCompletion::addKeyword(const QString &text)
+{
+    TextEditor::CompletionItem item(this);
+    item.text = text;
+    item.icon = m_icons.keywordIcon();
+    m_completions.append(item);
+}
+
 void CppCodeCompletion::addKeywords()
 {
-    int keywordLimit = T_FIRST_OBJC_AT_KEYWORD;
-    if (objcKeywordsWanted())
-        keywordLimit = T_LAST_OBJC_AT_KEYWORD + 1;
-
     // keyword completion items.
-    for (int i = T_FIRST_KEYWORD; i < keywordLimit; ++i) {
-        TextEditor::CompletionItem item(this);
-        item.text = QLatin1String(Token::name(i));
-        item.icon = m_icons.keywordIcon();
-        m_completions.append(item);
+    for (int i = T_FIRST_KEYWORD; i < T_FIRST_OBJC_KEYWORD; ++i) {
+        addKeyword(QLatin1String(Token::name(i)));
+    }
+
+    if (objcKeywordsWanted()) {
+        // unique Objective-C keywords:
+        for (int i = T_FIRST_OBJC_KEYWORD; i <= T_LAST_OBJC_KEYWORD; ++i) {
+            addKeyword(QLatin1Char('@') + QLatin1String(Token::name(i)));
+        }
+
+        // overlapping keywords:
+        addKeyword(QLatin1Char('@') + QLatin1String(Token::name(T_CATCH)));
+        addKeyword(QLatin1Char('@') + QLatin1String(Token::name(T_CLASS)));
+        addKeyword(QLatin1Char('@') + QLatin1String(Token::name(T_PRIVATE)));
+        addKeyword(QLatin1Char('@') + QLatin1String(Token::name(T_PROTECTED)));
+        addKeyword(QLatin1Char('@') + QLatin1String(Token::name(T_PUBLIC)));
+        addKeyword(QLatin1Char('@') + QLatin1String(Token::name(T_THROW)));
+        addKeyword(QLatin1Char('@') + QLatin1String(Token::name(T_TRY)));
     }
 }
 

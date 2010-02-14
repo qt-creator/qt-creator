@@ -596,52 +596,11 @@ void Lexer::scan_helper(Token *tok)
         tok->f.kind = T_COMMA;
         break;
 
+    case '@':
+        tok->f.kind = T_AT;
+        break;
+
     default: {
-        if (f._objCEnabled) {
-            if (ch == '@' && _yychar >= 'a' && _yychar <= 'z') {
-                const char *yytext = _currentChar;
-
-                do {
-                    yyinp();
-                    if (! (isalnum(_yychar) || _yychar == '_' || _yychar == '$'))
-                        break;
-                } while (_yychar);
-
-                const int yylen = _currentChar - yytext;
-                tok->f.kind = classifyObjCAtKeyword(yytext, yylen);
-                break;
-            } else if (ch == '@' && _yychar == '"') {
-                // objc @string literals
-                ch = _yychar;
-                yyinp();
-                tok->f.kind = T_AT_STRING_LITERAL;
-
-                const char *yytext = _currentChar;
-
-                while (_yychar && _yychar != '"') {
-                    if (_yychar != '\\')
-                        yyinp();
-                    else {
-                        yyinp(); // skip `\\'
-
-                        if (_yychar)
-                            yyinp();
-                    }
-                }
-                // assert(_yychar == '"');
-
-                int yylen = _currentChar - yytext;
-
-                if (_yychar == '"')
-                    yyinp();
-
-                if (control())
-                    tok->string = control()->findOrInsertStringLiteral(yytext, yylen);
-
-                break;
-            }
-        }
-
         if (ch == 'L' && (_yychar == '"' || _yychar == '\'')) {
             // wide char/string literals
             ch = _yychar;
@@ -679,11 +638,18 @@ void Lexer::scan_helper(Token *tok)
             while (std::isalnum(_yychar) || _yychar == '_' || _yychar == '$')
                 yyinp();
             int yylen = _currentChar - yytext;
-            if (f._scanKeywords)
+            if (f._scanKeywords) {
                 tok->f.kind = classify(yytext, yylen, f._qtMocRunEnabled);
-            else
+            } else {
                 tok->f.kind = T_IDENTIFIER;
-
+            }
+            // ### is this correct w.r.t. the _scanKeywords?
+            if (f._objCEnabled && tok->f.kind == T_IDENTIFIER) {
+                tok->f.kind = classifyObjCAtKeyword(yytext, yylen);
+                if (tok->f.kind == T_ERROR)
+                    tok->f.kind = T_IDENTIFIER;
+            }
+            // ### is this correct w.r.t. the _scanKeywords?
             if (tok->f.kind == T_IDENTIFIER) {
                 tok->f.kind = classifyOperator(yytext, yylen);
 

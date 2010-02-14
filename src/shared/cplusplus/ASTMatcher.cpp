@@ -1771,6 +1771,8 @@ bool ASTMatcher::match(StringLiteralAST *node, StringLiteralAST *pattern)
     (void) node;
     (void) pattern;
 
+    pattern->at_token = node->at_token;
+
     pattern->literal_token = node->literal_token;
 
     if (! pattern->next)
@@ -2063,6 +2065,8 @@ bool ASTMatcher::match(ObjCClassForwardDeclarationAST *node, ObjCClassForwardDec
     else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
         return false;
 
+    pattern->at_token = node->at_token;
+
     pattern->class_token = node->class_token;
 
     if (! pattern->identifier_list)
@@ -2084,6 +2088,8 @@ bool ASTMatcher::match(ObjCClassDeclarationAST *node, ObjCClassDeclarationAST *p
         pattern->attribute_list = node->attribute_list;
     else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
         return false;
+
+    pattern->at_token = node->at_token;
 
     pattern->interface_token = node->interface_token;
 
@@ -2125,6 +2131,8 @@ bool ASTMatcher::match(ObjCClassDeclarationAST *node, ObjCClassDeclarationAST *p
     else if (! AST::match(node->member_declaration_list, pattern->member_declaration_list, this))
         return false;
 
+    pattern->ending_at_token = node->ending_at_token;
+
     pattern->end_token = node->end_token;
 
     return true;
@@ -2139,6 +2147,8 @@ bool ASTMatcher::match(ObjCProtocolForwardDeclarationAST *node, ObjCProtocolForw
         pattern->attribute_list = node->attribute_list;
     else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
         return false;
+
+    pattern->at_token = node->at_token;
 
     pattern->protocol_token = node->protocol_token;
 
@@ -2162,6 +2172,8 @@ bool ASTMatcher::match(ObjCProtocolDeclarationAST *node, ObjCProtocolDeclaration
     else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
         return false;
 
+    pattern->at_token = node->at_token;
+
     pattern->protocol_token = node->protocol_token;
 
     if (! pattern->name)
@@ -2178,6 +2190,8 @@ bool ASTMatcher::match(ObjCProtocolDeclarationAST *node, ObjCProtocolDeclaration
         pattern->member_declaration_list = node->member_declaration_list;
     else if (! AST::match(node->member_declaration_list, pattern->member_declaration_list, this))
         return false;
+
+    pattern->ending_at_token = node->ending_at_token;
 
     pattern->end_token = node->end_token;
 
@@ -2246,6 +2260,8 @@ bool ASTMatcher::match(ObjCProtocolExpressionAST *node, ObjCProtocolExpressionAS
     (void) node;
     (void) pattern;
 
+    pattern->at_token = node->at_token;
+
     pattern->protocol_token = node->protocol_token;
 
     pattern->lparen_token = node->lparen_token;
@@ -2280,6 +2296,8 @@ bool ASTMatcher::match(ObjCEncodeExpressionAST *node, ObjCEncodeExpressionAST *p
 {
     (void) node;
     (void) pattern;
+
+    pattern->at_token = node->at_token;
 
     pattern->encode_token = node->encode_token;
 
@@ -2331,6 +2349,8 @@ bool ASTMatcher::match(ObjCSelectorExpressionAST *node, ObjCSelectorExpressionAS
     (void) node;
     (void) pattern;
 
+    pattern->at_token = node->at_token;
+
     pattern->selector_token = node->selector_token;
 
     pattern->lparen_token = node->lparen_token;
@@ -2367,6 +2387,8 @@ bool ASTMatcher::match(ObjCVisibilityDeclarationAST *node, ObjCVisibilityDeclara
     (void) node;
     (void) pattern;
 
+    pattern->at_token = node->at_token;
+
     pattern->visibility_token = node->visibility_token;
 
     return true;
@@ -2398,6 +2420,8 @@ bool ASTMatcher::match(ObjCPropertyDeclarationAST *node, ObjCPropertyDeclaration
         pattern->attribute_list = node->attribute_list;
     else if (! AST::match(node->attribute_list, pattern->attribute_list, this))
         return false;
+
+    pattern->at_token = node->at_token;
 
     pattern->property_token = node->property_token;
 
@@ -2586,6 +2610,8 @@ bool ASTMatcher::match(ObjCSynchronizedStatementAST *node, ObjCSynchronizedState
 {
     (void) node;
     (void) pattern;
+
+    pattern->at_token = node->at_token;
 
     pattern->synchronized_token = node->synchronized_token;
 

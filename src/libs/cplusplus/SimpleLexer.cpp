@@ -71,7 +71,7 @@ bool SimpleToken::isComment() const
 
 bool SimpleToken::isObjCAtKeyword() const
 {
-    return _kind >= T_FIRST_OBJC_AT_KEYWORD && _kind <= T_LAST_OBJC_AT_KEYWORD;
+    return _kind >= T_FIRST_OBJC_KEYWORD && _kind <= T_LAST_OBJC_KEYWORD;
 }
 
 const char *SimpleToken::name() const
