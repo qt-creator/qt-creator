@@ -235,6 +235,10 @@ public:
     virtual bool visit(ObjCDynamicPropertiesDeclarationAST *) { return true; }
     virtual bool visit(ObjCFastEnumerationAST *) { return true; }
     virtual bool visit(ObjCSynchronizedStatementAST *) { return true; }
+    virtual bool visit(ObjCTryBlockStatementAST *) { return true; }
+    virtual bool visit(ObjCCatchClauseAST *) { return true; }
+    virtual bool visit(ObjCFinallyClauseAST *) { return true; }
+    virtual bool visit(ObjCThrowExpressionAST *) { return true; }
 
     virtual void endVisit(AccessDeclarationAST *) { }
     virtual void endVisit(QtPropertyDeclarationAST *) { }
@@ -369,6 +373,10 @@ public:
     virtual void endVisit(ObjCDynamicPropertiesDeclarationAST *) { }
     virtual void endVisit(ObjCFastEnumerationAST *) { }
     virtual void endVisit(ObjCSynchronizedStatementAST *) { }
+    virtual void endVisit(ObjCTryBlockStatementAST *) { }
+    virtual void endVisit(ObjCCatchClauseAST *) { }
+    virtual void endVisit(ObjCFinallyClauseAST *) { }
+    virtual void endVisit(ObjCThrowExpressionAST *) { }
 
 private:
     TranslationUnit *_translationUnit;

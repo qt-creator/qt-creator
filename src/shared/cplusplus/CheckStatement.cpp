@@ -379,3 +379,35 @@ bool CheckStatement::visit(QtMemberDeclarationAST *ast)
     _exprType = FullySpecifiedType();
     return false;
 }
+
+bool CheckStatement::visit(ObjCTryBlockStatementAST *ast)
+{
+    semantic()->check(ast->statement, _scope);
+    for (ObjCCatchClauseListAST *it = ast->catch_clause_list; it; it = it->next) {
+        semantic()->check(it->value, _scope);
+    }
+    _exprType = FullySpecifiedType();
+    return false;
+}
+
+bool CheckStatement::visit(ObjCCatchClauseAST *ast)
+{
+    Block *block = control()->newBlock(ast->at_token);
+    block->setStartOffset(tokenAt(ast->firstToken()).offset);
+    block->setEndOffset(tokenAt(ast->lastToken()).offset);
+    ast->symbol = block;
+    _scope->enterSymbol(block);
+    Scope *previousScope = switchScope(block->members());
+    semantic()->check(ast->exception_declaration, _scope);
+    semantic()->check(ast->statement, _scope);
+    (void) switchScope(previousScope);
+    _exprType = FullySpecifiedType();
+    return false;
+}
+
+bool CheckStatement::visit(ObjCFinallyClauseAST *ast)
+{
+    semantic()->check(ast->statement, _scope);
+    _exprType = FullySpecifiedType();
+    return false;
+}

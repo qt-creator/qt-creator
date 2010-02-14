@@ -322,6 +322,11 @@ bool ResolveExpression::visit(ThrowExpressionAST *)
     return false;
 }
 
+bool ResolveExpression::visit(ObjCThrowExpressionAST *)
+{
+    return false;
+}
+
 bool ResolveExpression::visit(TypeIdAST *)
 {
     return false;

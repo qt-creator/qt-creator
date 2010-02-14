@@ -1848,6 +1848,23 @@ bool ASTMatcher::match(ThrowExpressionAST *node, ThrowExpressionAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(ObjCThrowExpressionAST *node, ObjCThrowExpressionAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->at_token = node->at_token;
+
+    pattern->throw_token = node->throw_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
+        return false;
+
+    return true;
+}
+
 bool ASTMatcher::match(TranslationUnitAST *node, TranslationUnitAST *pattern)
 {
     (void) node;
@@ -2623,6 +2640,76 @@ bool ASTMatcher::match(ObjCSynchronizedStatementAST *node, ObjCSynchronizedState
         return false;
 
     pattern->rparen_token = node->rparen_token;
+
+    if (! pattern->statement)
+        pattern->statement = node->statement;
+    else if (! AST::match(node->statement, pattern->statement, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(ObjCTryBlockStatementAST *node, ObjCTryBlockStatementAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->at_token = node->at_token;
+
+    pattern->try_token = node->try_token;
+
+    if (! pattern->statement)
+        pattern->statement = node->statement;
+    else if (! AST::match(node->statement, pattern->statement, this))
+        return false;
+
+    if (! pattern->catch_clause_list)
+        pattern->catch_clause_list = node->catch_clause_list;
+    else if (! AST::match(node->catch_clause_list, pattern->catch_clause_list, this))
+        return false;
+
+    if (! pattern->finally_clause)
+        pattern->finally_clause = node->finally_clause;
+    else if (! AST::match(node->finally_clause, pattern->finally_clause, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(ObjCCatchClauseAST *node, ObjCCatchClauseAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->at_token = node->at_token;
+
+    pattern->catch_token = node->catch_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->exception_declaration)
+        pattern->exception_declaration = node->exception_declaration;
+    else if (! AST::match(node->exception_declaration, pattern->exception_declaration, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    if (! pattern->statement)
+        pattern->statement = node->statement;
+    else if (! AST::match(node->statement, pattern->statement, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(ObjCFinallyClauseAST *node, ObjCFinallyClauseAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->at_token = node->at_token;
+
+    pattern->finally_token = node->finally_token;
 
     if (! pattern->statement)
         pattern->statement = node->statement;
