@@ -19930,7 +19930,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../../src/plugins/projectexplorer/baseprojectwizarddialog.cpp" line="+124"/>
         <source>untitled</source>
-        <translation type="unfinished">kein Titel</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
