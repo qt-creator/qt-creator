@@ -66,7 +66,11 @@ using namespace Locator::Internal;
 namespace {
     static bool filterLessThan(const ILocatorFilter *first, const ILocatorFilter *second)
     {
-        return first->priority() < second->priority();
+        if (first->priority() < second->priority())
+            return true;
+        if (first->id().compare(second->id(), Qt::CaseInsensitive) < 0)
+            return true;
+        return false;
     }
 }
 

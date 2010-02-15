@@ -708,11 +708,13 @@ void MercurialPlugin::createSeparator(const QList<int> &context, const QString &
 
 void MercurialPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
 {
-    if (!enableMenuAction(as, m_menuAction))
+    if (!enableMenuAction(as, m_menuAction)) {
+        m_commandLocator->setEnabled(false);
         return;
-
+    }
     const QString filename = currentState().currentFileName();
     const bool repoEnabled = currentState().hasTopLevel();
+    m_commandLocator->setEnabled(repoEnabled);
 
     annotateFile->setParameter(filename);
     diffFile->setParameter(filename);
