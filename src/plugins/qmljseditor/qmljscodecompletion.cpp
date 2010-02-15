@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "qmlcodecompletion.h"
+#include "qmljscodecompletion.h"
 #include "qmlexpressionundercursor.h"
 #include "qmljseditor.h"
 #include "qmlmodelmanagerinterface.h"
@@ -508,7 +508,7 @@ void FunctionArgumentWidget::updateHintText()
 
 } } // end of namespace QmlJSEditor::Internal
 
-QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent)
+CodeCompletion::CodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
       m_editor(0),
@@ -518,25 +518,25 @@ QmlCodeCompletion::QmlCodeCompletion(QmlModelManagerInterface *modelManager, QOb
     Q_ASSERT(modelManager);
 }
 
-QmlCodeCompletion::~QmlCodeCompletion()
+CodeCompletion::~CodeCompletion()
 { }
 
-Qt::CaseSensitivity QmlCodeCompletion::caseSensitivity() const
+Qt::CaseSensitivity CodeCompletion::caseSensitivity() const
 { return m_caseSensitivity; }
 
-void QmlCodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
+void CodeCompletion::setCaseSensitivity(Qt::CaseSensitivity caseSensitivity)
 { m_caseSensitivity = caseSensitivity; }
 
-TextEditor::ITextEditable *QmlCodeCompletion::editor() const
+TextEditor::ITextEditable *CodeCompletion::editor() const
 { return m_editor; }
 
-int QmlCodeCompletion::startPosition() const
+int CodeCompletion::startPosition() const
 { return m_startPosition; }
 
-bool QmlCodeCompletion::shouldRestartCompletion()
+bool CodeCompletion::shouldRestartCompletion()
 { return false; }
 
-bool QmlCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
+bool CodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
 {
     if (qobject_cast<QmlJSTextEditor *>(editor->widget()))
         return true;
@@ -544,7 +544,7 @@ bool QmlCodeCompletion::supportsEditor(TextEditor::ITextEditable *editor)
     return false;
 }
 
-bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
+bool CodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
 {
     if (maybeTriggersCompletion(editor)) {
         // check the token under cursor
@@ -574,7 +574,7 @@ bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
     return false;
 }
 
-bool QmlCodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *editor)
+bool CodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *editor)
 {
     const int cursorPosition = editor->position();
     const QChar ch = editor->characterAt(cursorPosition - 1);
@@ -607,7 +607,7 @@ bool QmlCodeCompletion::maybeTriggersCompletion(TextEditor::ITextEditable *edito
     return false;
 }
 
-bool QmlCodeCompletion::isDelimiter(const QChar &ch) const
+bool CodeCompletion::isDelimiter(const QChar &ch) const
 {
     switch (ch.unicode()) {
     case '{':
@@ -627,7 +627,7 @@ bool QmlCodeCompletion::isDelimiter(const QChar &ch) const
     }
 }
 
-int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
+int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
 
@@ -755,7 +755,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     return -1;
 }
 
-void QmlCodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
+void CodeCompletion::completions(QList<TextEditor::CompletionItem> *completions)
 {
     const int length = m_editor->position() - m_startPosition;
 
@@ -768,7 +768,7 @@ void QmlCodeCompletion::completions(QList<TextEditor::CompletionItem> *completio
     }
 }
 
-void QmlCodeCompletion::complete(const TextEditor::CompletionItem &item)
+void CodeCompletion::complete(const TextEditor::CompletionItem &item)
 {
     QString toInsert = item.text;
 
@@ -792,7 +792,7 @@ void QmlCodeCompletion::complete(const TextEditor::CompletionItem &item)
     m_editor->replace(length, toInsert);
 }
 
-bool QmlCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
+bool CodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem> &completionItems)
 {
     if (completionItems.count() == 1) {
         const TextEditor::CompletionItem item = completionItems.first();
@@ -806,7 +806,7 @@ bool QmlCodeCompletion::partiallyComplete(const QList<TextEditor::CompletionItem
     return TextEditor::ICompletionCollector::partiallyComplete(completionItems);
 }
 
-void QmlCodeCompletion::cleanup()
+void CodeCompletion::cleanup()
 {
     m_editor = 0;
     m_startPosition = 0;
@@ -814,7 +814,7 @@ void QmlCodeCompletion::cleanup()
 }
 
 
-void QmlCodeCompletion::updateSnippets()
+void CodeCompletion::updateSnippets()
 {
     QString qmlsnippets = Core::ICore::instance()->resourcePath() + QLatin1String("/snippets/qml.xml");
     if (!QFile::exists(qmlsnippets))
@@ -891,7 +891,7 @@ static bool qmlCompletionItemLessThan(const TextEditor::CompletionItem &l, const
     return l.text < r.text;
 }
 
-QList<TextEditor::CompletionItem> QmlCodeCompletion::getCompletions()
+QList<TextEditor::CompletionItem> CodeCompletion::getCompletions()
 {
     QList<TextEditor::CompletionItem> completionItems;
 

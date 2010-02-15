@@ -44,7 +44,7 @@ class QmlFileWizard;
 namespace Internal {
 
 class QmlJSEditorFactory;
-class QmlCodeCompletion;
+class CodeCompletion;
 class QmlJSTextEditor;
 
 class QmlJSEditorPlugin : public ExtensionSystem::IPlugin
@@ -74,7 +74,7 @@ private:
     QmlFileWizard *m_wizard;
     QmlJSEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;
-    QmlCodeCompletion *m_completion;
+    CodeCompletion *m_completion;
 };
 
 } // namespace Internal

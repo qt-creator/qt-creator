@@ -33,7 +33,7 @@
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditorfactory.h"
-#include "qmlcodecompletion.h"
+#include "qmljscodecompletion.h"
 #include "qmlhoverhandler.h"
 #include "qmlmodelmanager.h"
 #include "qmlfilewizard.h"
@@ -131,7 +131,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    m_completion = new QmlCodeCompletion(m_modelManager);
+    m_completion = new CodeCompletion(m_modelManager);
     addAutoReleasedObject(m_completion);
 
     addAutoReleasedObject(new QmlHoverHandler());

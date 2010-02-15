@@ -9,7 +9,7 @@ DEFINES += \
     QT_CREATOR
 
 HEADERS += \
-    qmlcodecompletion.h \
+    qmljscodecompletion.h \
     qmljseditor.h \
     qmljseditor_global.h \
     qmljseditoractionhandler.h \
@@ -24,7 +24,7 @@ HEADERS += \
     qmlmodelmanagerinterface.h
 
 SOURCES += \
-    qmlcodecompletion.cpp \
+    qmljscodecompletion.cpp \
     qmljseditor.cpp \
     qmljseditoractionhandler.cpp \
     qmljseditorfactory.cpp \

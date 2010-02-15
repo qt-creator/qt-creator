@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLCODECOMPLETION_H
-#define QMLCODECOMPLETION_H
+#ifndef QMLJSCODECOMPLETION_H
+#define QMLJSCODECOMPLETION_H
 
 #include <qmljs/qmljsdocument.h>
 #include <texteditor/icompletioncollector.h>
@@ -47,13 +47,13 @@ namespace Internal {
 
 class FunctionArgumentWidget;
 
-class QmlCodeCompletion: public TextEditor::ICompletionCollector
+class CodeCompletion: public TextEditor::ICompletionCollector
 {
     Q_OBJECT
 
 public:
-    QmlCodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent = 0);
-    virtual ~QmlCodeCompletion();
+    CodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent = 0);
+    virtual ~CodeCompletion();
 
     Qt::CaseSensitivity caseSensitivity() const;
     void setCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
@@ -92,4 +92,4 @@ private:
 } // end of namespace Internal
 } // end of namespace QmlJSEditor
 
-#endif // QMLCODECOMPLETION_H
+#endif // QMLJSCODECOMPLETION_H
