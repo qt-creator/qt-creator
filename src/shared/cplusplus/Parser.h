@@ -251,9 +251,6 @@ public:
     bool parseObjCTypeQualifiers(unsigned &type_qualifier);
     bool peekAtObjCContextKeyword(int kind);
     bool parseObjCContextKeyword(int kind, unsigned &in_token);
-    bool parseObjCTryBlockStatement(StatementAST *&node);
-    bool parseObjCCatchClause(ObjCCatchClauseListAST *&node);
-    bool parseObjCFinallyClause(ObjCFinallyClauseAST *&node);
 
     bool lookAtObjCSelector() const;
 

@@ -1108,16 +1108,6 @@ ThrowExpressionAST *ThrowExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-ObjCThrowExpressionAST *ObjCThrowExpressionAST::clone(MemoryPool *pool) const
-{
-    ObjCThrowExpressionAST *ast = new (pool) ObjCThrowExpressionAST;
-    ast->at_token = at_token;
-    ast->throw_token = throw_token;
-    if (expression)
-        ast->expression = expression->clone(pool);
-    return ast;
-}
-
 TranslationUnitAST *TranslationUnitAST::clone(MemoryPool *pool) const
 {
     TranslationUnitAST *ast = new (pool) TranslationUnitAST;
@@ -1569,45 +1559,6 @@ ObjCSynchronizedStatementAST *ObjCSynchronizedStatementAST::clone(MemoryPool *po
     if (synchronized_object)
         ast->synchronized_object = synchronized_object->clone(pool);
     ast->rparen_token = rparen_token;
-    if (statement)
-        ast->statement = statement->clone(pool);
-    return ast;
-}
-
-ObjCTryBlockStatementAST *ObjCTryBlockStatementAST::clone(MemoryPool *pool) const
-{
-    ObjCTryBlockStatementAST *ast = new (pool) ObjCTryBlockStatementAST;
-    ast->at_token = at_token;
-    ast->try_token = try_token;
-    if (statement)
-        ast->statement = statement->clone(pool);
-    for (ObjCCatchClauseListAST *iter = catch_clause_list, **ast_iter = &ast->catch_clause_list;
-         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ObjCCatchClauseListAST((iter->value) ? iter->value->clone(pool) : 0);
-    if (finally_clause)
-        ast->finally_clause = finally_clause->clone(pool);
-    return ast;
-}
-
-ObjCCatchClauseAST *ObjCCatchClauseAST::clone(MemoryPool *pool) const
-{
-    ObjCCatchClauseAST *ast = new (pool) ObjCCatchClauseAST;
-    ast->at_token = at_token;
-    ast->catch_token = catch_token;
-    ast->lparen_token = lparen_token;
-    if (exception_declaration)
-        ast->exception_declaration = exception_declaration->clone(pool);
-    ast->rparen_token = rparen_token;
-    if (statement)
-        ast->statement = statement->clone(pool);
-    return ast;
-}
-
-ObjCFinallyClauseAST *ObjCFinallyClauseAST::clone(MemoryPool *pool) const
-{
-    ObjCFinallyClauseAST *ast = new (pool) ObjCFinallyClauseAST;
-    ast->at_token = at_token;
-    ast->finally_token = finally_token;
     if (statement)
         ast->statement = statement->clone(pool);
     return ast;

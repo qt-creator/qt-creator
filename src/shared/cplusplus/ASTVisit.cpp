@@ -831,14 +831,6 @@ void ThrowExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void ObjCThrowExpressionAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(expression, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void TranslationUnitAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -1150,33 +1142,6 @@ void ObjCSynchronizedStatementAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(synchronized_object, visitor);
-        accept(statement, visitor);
-    }
-    visitor->endVisit(this);
-}
-
-void ObjCTryBlockStatementAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(statement, visitor);
-        accept(catch_clause_list, visitor);
-        accept(finally_clause, visitor);
-    }
-    visitor->endVisit(this);
-}
-
-void ObjCCatchClauseAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(exception_declaration, visitor);
-        accept(statement, visitor);
-    }
-    visitor->endVisit(this);
-}
-
-void ObjCFinallyClauseAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
         accept(statement, visitor);
     }
     visitor->endVisit(this);

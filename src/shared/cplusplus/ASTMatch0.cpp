@@ -793,14 +793,6 @@ bool ThrowExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool ObjCThrowExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (ObjCThrowExpressionAST *_other = pattern->asObjCThrowExpression())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
 bool TranslationUnitAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (TranslationUnitAST *_other = pattern->asTranslationUnit())
@@ -1084,30 +1076,6 @@ bool ObjCFastEnumerationAST::match0(AST *pattern, ASTMatcher *matcher)
 bool ObjCSynchronizedStatementAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (ObjCSynchronizedStatementAST *_other = pattern->asObjCSynchronizedStatement())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
-bool ObjCTryBlockStatementAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (ObjCTryBlockStatementAST *_other = pattern->asObjCTryBlockStatement())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
-bool ObjCCatchClauseAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (ObjCCatchClauseAST *_other = pattern->asObjCCatchClause())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
-bool ObjCFinallyClauseAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (ObjCFinallyClauseAST *_other = pattern->asObjCFinallyClause())
         return matcher->match(this, _other);
 
     return false;

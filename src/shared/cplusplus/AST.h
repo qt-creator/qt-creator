@@ -218,13 +218,11 @@ public:
     virtual NewPlacementAST *asNewPlacement() { return 0; }
     virtual NewTypeIdAST *asNewTypeId() { return 0; }
     virtual NumericLiteralAST *asNumericLiteral() { return 0; }
-    virtual ObjCCatchClauseAST *asObjCCatchClause() { return 0; }
     virtual ObjCClassDeclarationAST *asObjCClassDeclaration() { return 0; }
     virtual ObjCClassForwardDeclarationAST *asObjCClassForwardDeclaration() { return 0; }
     virtual ObjCDynamicPropertiesDeclarationAST *asObjCDynamicPropertiesDeclaration() { return 0; }
     virtual ObjCEncodeExpressionAST *asObjCEncodeExpression() { return 0; }
     virtual ObjCFastEnumerationAST *asObjCFastEnumeration() { return 0; }
-    virtual ObjCFinallyClauseAST *asObjCFinallyClause() { return 0; }
     virtual ObjCInstanceVariablesDeclarationAST *asObjCInstanceVariablesDeclaration() { return 0; }
     virtual ObjCMessageArgumentAST *asObjCMessageArgument() { return 0; }
     virtual ObjCMessageArgumentDeclarationAST *asObjCMessageArgumentDeclaration() { return 0; }
@@ -245,8 +243,6 @@ public:
     virtual ObjCSynchronizedStatementAST *asObjCSynchronizedStatement() { return 0; }
     virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() { return 0; }
     virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return 0; }
-    virtual ObjCThrowExpressionAST *asObjCThrowExpression() { return 0; }
-    virtual ObjCTryBlockStatementAST *asObjCTryBlockStatement() { return 0; }
     virtual ObjCTypeNameAST *asObjCTypeName() { return 0; }
     virtual ObjCVisibilityDeclarationAST *asObjCVisibilityDeclaration() { return 0; }
     virtual OperatorAST *asOperator() { return 0; }
@@ -2363,26 +2359,6 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT ObjCThrowExpressionAST: public ExpressionAST
-{
-public:
-    unsigned at_token;
-    unsigned throw_token;
-    ExpressionAST *expression;
-
-public:
-    virtual ObjCThrowExpressionAST *asObjCThrowExpression() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCThrowExpressionAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
 class CPLUSPLUS_EXPORT TranslationUnitAST: public AST
 {
 public:
@@ -3187,74 +3163,6 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ObjCSynchronizedStatementAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT ObjCTryBlockStatementAST: public StatementAST
-{
-public:
-    unsigned at_token;
-    unsigned try_token;
-    StatementAST *statement;
-    ObjCCatchClauseListAST *catch_clause_list;
-    ObjCFinallyClauseAST *finally_clause;
-
-public:
-    virtual ObjCTryBlockStatementAST *asObjCTryBlockStatement() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCTryBlockStatementAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT ObjCCatchClauseAST: public StatementAST
-{
-public:
-    unsigned at_token;
-    unsigned catch_token;
-    unsigned lparen_token;
-    ExceptionDeclarationAST *exception_declaration;
-    unsigned rparen_token;
-    StatementAST *statement;
-
-public: // annotations
-    Block *symbol;
-
-public:
-    virtual ObjCCatchClauseAST *asObjCCatchClause() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCCatchClauseAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT ObjCFinallyClauseAST: public StatementAST
-{
-public:
-    unsigned at_token;
-    unsigned finally_token;
-    StatementAST *statement;
-
-public:
-    virtual ObjCFinallyClauseAST *asObjCFinallyClause() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCFinallyClauseAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

@@ -305,12 +305,6 @@ bool CheckExpression::visit(ThrowExpressionAST *ast)
     return false;
 }
 
-bool CheckExpression::visit(ObjCThrowExpressionAST *ast)
-{
-    FullySpecifiedType exprTy = semantic()->check(ast->expression, _scope);
-    return false;
-}
-
 bool CheckExpression::visit(TypeIdAST *ast)
 {
     FullySpecifiedType typeSpecTy = semantic()->check(ast->type_specifier_list, _scope);

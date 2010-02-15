@@ -1691,6 +1691,7 @@ unsigned ThisExpressionAST::lastToken() const
     return this_token + 1;
 }
 
+
 unsigned ThrowExpressionAST::firstToken() const
 {
     return throw_token;
@@ -1701,20 +1702,6 @@ unsigned ThrowExpressionAST::lastToken() const
     if (expression)
         return expression->lastToken();
     return throw_token + 1;
-}
-
-unsigned ObjCThrowExpressionAST::firstToken() const
-{
-    return at_token;
-}
-
-unsigned ObjCThrowExpressionAST::lastToken() const
-{
-    if (expression)
-        return expression->lastToken();
-    if (throw_token)
-        return throw_token + 1;
-    return at_token + 1;
 }
 
 unsigned TranslationUnitAST::firstToken() const
@@ -2403,51 +2390,5 @@ unsigned ObjCSynchronizedStatementAST::lastToken() const
     if (synchronized_object) return synchronized_object->lastToken();
     if (lparen_token) return lparen_token + 1;
     if (synchronized_token) return synchronized_token + 1;
-    return at_token + 1;
-}
-
-unsigned ObjCTryBlockStatementAST::firstToken() const
-{ return at_token; }
-
-unsigned ObjCTryBlockStatementAST::lastToken() const
-{
-    if (finally_clause)
-        return finally_clause->lastToken();
-    if (catch_clause_list)
-        return catch_clause_list->lastToken();
-    if (statement)
-        return statement->lastToken();
-    if (try_token)
-        return try_token + 1;
-    return at_token + 1;
-}
-
-unsigned ObjCCatchClauseAST::firstToken() const
-{ return at_token; }
-
-unsigned ObjCCatchClauseAST::lastToken() const
-{
-    if (statement)
-        return statement->lastToken();
-    if (rparen_token)
-        return rparen_token + 1;
-    if (exception_declaration)
-        return exception_declaration->lastToken();
-    if (lparen_token)
-        return lparen_token + 1;
-    if (catch_token)
-        return catch_token + 1;
-    return at_token + 1;
-}
-
-unsigned ObjCFinallyClauseAST::firstToken() const
-{ return at_token; }
-
-unsigned ObjCFinallyClauseAST::lastToken() const
-{
-    if (statement)
-        return statement->lastToken();
-    if (finally_token)
-        return finally_token + 1;
     return at_token + 1;
 }

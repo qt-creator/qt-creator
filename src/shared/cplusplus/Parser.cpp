@@ -362,17 +362,8 @@ bool Parser::skipUntilStatement()
                 return true;
 
             case T_AT:
-                if (objCEnabled()) {
-                    switch (LA(2)) {
-                    case T_SYNCHRONIZED:
-                    case T_TRY:
-                    case T_THROW:
-                       return true;
-                    default: {
-                        // INTENTIONAL FALL-THROUGH!
-                    }
-                    }
-                }
+                if (objCEnabled() && LA(2) == T_SYNCHRONIZED)
+                    return true;
 
             default:
                 consumeToken();
@@ -2451,12 +2442,8 @@ bool Parser::parseStatement(StatementAST *&node)
     } return true;
 
     case T_AT:
-        if (objCEnabled()) {
-            if (LA(2) == T_SYNCHRONIZED)
-                return parseObjCSynchronizedStatement(node);
-            if (LA(2) == T_TRY)
-                return parseObjCTryBlockStatement(node);
-        }
+        return objCEnabled() && LA(2) == T_SYNCHRONIZED
+                && parseObjCSynchronizedStatement(node);
 
     default:
         if (LA() == T_IDENTIFIER && LA(2) == T_COLON)
@@ -3565,7 +3552,7 @@ bool Parser::parseObjCStringLiteral(ExpressionAST *&node)
     if (LA() != T_AT || LA(2) != T_STRING_LITERAL)
         return false;
 
-    StringLiteralAST **ast = reinterpret_cast<StringLiteralAST **> (&node);
+    StringLiteralAST **ast = 0;
     while (LA()) {
         if (LA() == T_AT && LA(2) == T_STRING_LITERAL) {
             *ast = new (_pool) StringLiteralAST;
@@ -4516,14 +4503,6 @@ bool Parser::parseThrowExpression(ExpressionAST *&node)
         node = ast;
         return true;
     }
-    if (LA() == T_AT && LA(2) == T_THROW) {
-        ObjCThrowExpressionAST *ast = new (_pool) ObjCThrowExpressionAST;
-        ast->at_token = consumeToken();
-        ast->throw_token = consumeToken();
-        parseAssignmentExpression(ast->expression);
-        node = ast;
-        return true;
-    }
     return false;
 }
 
@@ -5393,52 +5372,4 @@ int Parser::peekAtQtContextKeyword() const
 
     const Identifier *id = tok().identifier;
     return classifyQtContextKeyword(id->chars(), id->size());
-}
-
-bool Parser::parseObjCTryBlockStatement(StatementAST *&node)
-{
-    DEBUG_THIS_RULE();
-    if (LA() == T_AT && LA(2) == T_TRY) {
-        ObjCTryBlockStatementAST *ast = new (_pool) ObjCTryBlockStatementAST;
-        ast->at_token = consumeToken();
-        ast->try_token = consumeToken();
-        parseCompoundStatement(ast->statement);
-        ObjCCatchClauseListAST **catch_clause_ptr = &ast->catch_clause_list;
-        while (parseObjCCatchClause(*catch_clause_ptr))
-            catch_clause_ptr = &(*catch_clause_ptr)->next;
-        parseObjCFinallyClause(ast->finally_clause);
-        node = ast;
-        return true;
-    }
-    return false;
-}
-
-bool Parser::parseObjCCatchClause(ObjCCatchClauseListAST *&node)
-{
-    DEBUG_THIS_RULE();
-    if (LA() == T_AT && LA(2) == T_CATCH) {
-        ObjCCatchClauseAST *ast = new (_pool) ObjCCatchClauseAST;
-        ast->at_token = consumeToken();
-        ast->catch_token = consumeToken();
-        match(T_LPAREN, &ast->lparen_token);
-        parseExceptionDeclaration(ast->exception_declaration);
-        match(T_RPAREN, &ast->rparen_token);
-        parseCompoundStatement(ast->statement);
-        node = new (_pool) ObjCCatchClauseListAST(ast);
-        return true;
-    }
-    return false;
-}
-
-bool Parser::parseObjCFinallyClause(ObjCFinallyClauseAST *&node)
-{
-    DEBUG_THIS_RULE();
-    if (LA() == T_AT && LA(2) == T_FINALLY) {
-        node = new (_pool) ObjCFinallyClauseAST;
-        node->at_token = consumeToken();
-        node->finally_token = consumeToken();
-        parseCompoundStatement(node->statement);
-        return true;
-    }
-    return false;
 }

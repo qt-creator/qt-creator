@@ -126,7 +126,6 @@ public:
     virtual bool match(TemplateTypeParameterAST *node, TemplateTypeParameterAST *pattern);
     virtual bool match(ThisExpressionAST *node, ThisExpressionAST *pattern);
     virtual bool match(ThrowExpressionAST *node, ThrowExpressionAST *pattern);
-    virtual bool match(ObjCThrowExpressionAST *node, ObjCThrowExpressionAST *pattern);
     virtual bool match(TranslationUnitAST *node, TranslationUnitAST *pattern);
     virtual bool match(TryBlockStatementAST *node, TryBlockStatementAST *pattern);
     virtual bool match(TypeConstructorCallAST *node, TypeConstructorCallAST *pattern);
@@ -170,9 +169,6 @@ public:
     virtual bool match(ObjCDynamicPropertiesDeclarationAST *node, ObjCDynamicPropertiesDeclarationAST *pattern);
     virtual bool match(ObjCFastEnumerationAST *node, ObjCFastEnumerationAST *pattern);
     virtual bool match(ObjCSynchronizedStatementAST *node, ObjCSynchronizedStatementAST *pattern);
-    virtual bool match(ObjCTryBlockStatementAST *node, ObjCTryBlockStatementAST *pattern);
-    virtual bool match(ObjCCatchClauseAST *node, ObjCCatchClauseAST *pattern);
-    virtual bool match(ObjCFinallyClauseAST *node, ObjCFinallyClauseAST *pattern);
 };
 
 } // end of namespace CPlusPlus

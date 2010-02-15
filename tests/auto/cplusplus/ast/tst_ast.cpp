@@ -79,7 +79,6 @@ private slots:
     void objc_protocol_forward_declaration_1();
     void objc_protocol_definition_1();
     void objc_method_attributes_1();
-    void objc_exceptions();
 
     // expressions with (square) brackets
     void normal_array_access();
@@ -785,22 +784,6 @@ void tst_AST::objc_method_attributes_1()
     QCOMPARE(unit->spell(unavailableAttr->identifier_token), "unavailable");
 }
 
-void tst_AST::objc_exceptions()
-{
-    const char *src = "\n"
-                      "@try {@throw [NSException exceptionWithName:@\"FileNotFoundException\" reason:@\"Disk went wild.\" userInfo:nil];}\n"
-                      "@catch (FileNotFoundException *e) { [e raise]; }\n"
-                      "@catch (NSException *e) { @throw; }\n"
-                      "@catch(...){}\n"
-                      "@finally { }\n"
-                      ;
-
-    QSharedPointer<TranslationUnit> unit(parseStatement(src));
-
-    AST *ast = unit->ast();
-    QVERIFY(ast);
-}
-
 void tst_AST::normal_array_access()
 {
     QSharedPointer<TranslationUnit> unit(parseDeclaration("\n"
@@ -984,7 +967,8 @@ void tst_AST::objc_msg_send_expression_without_selector()
                                                           "int f() {\n"
                                                           "  NSObject *obj = [[[NSObject alloc] init] autorelease];\n"
                                                           "  return [obj];\n"
-                                                          "}", true));
+                                                          "}",
+                                                          true));
     AST *ast = unit->ast();
     QVERIFY(ast);
 

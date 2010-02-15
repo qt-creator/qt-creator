@@ -90,9 +90,6 @@ protected:
     virtual bool visit(CatchClauseAST *ast);
     virtual bool visit(WhileStatementAST *ast);
     virtual bool visit(QtMemberDeclarationAST *ast);
-    virtual bool visit(ObjCTryBlockStatementAST *ast);
-    virtual bool visit(ObjCCatchClauseAST *ast);
-    virtual bool visit(ObjCFinallyClauseAST *ast);
 
     bool forEachFastEnum(unsigned firstToken,
                          unsigned lastToken,
