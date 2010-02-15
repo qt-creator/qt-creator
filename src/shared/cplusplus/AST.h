@@ -2275,7 +2275,6 @@ protected:
 class CPLUSPLUS_EXPORT StringLiteralAST: public ExpressionAST
 {
 public:
-    unsigned at_token;
     unsigned literal_token;
     StringLiteralAST *next;
 
@@ -2589,7 +2588,6 @@ class CPLUSPLUS_EXPORT ObjCClassForwardDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned at_token;
     unsigned class_token;
     NameListAST *identifier_list;
     unsigned semicolon_token;
@@ -2614,7 +2612,6 @@ class CPLUSPLUS_EXPORT ObjCClassDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned at_token;
     unsigned interface_token;
     unsigned implementation_token;
     NameAST *class_name;
@@ -2626,7 +2623,6 @@ public:
     ObjCProtocolRefsAST *protocol_refs;
     ObjCInstanceVariablesDeclarationAST *inst_vars_decl;
     DeclarationListAST *member_declaration_list;
-    unsigned ending_at_token;
     unsigned end_token;
 
 public: // annotations
@@ -2649,7 +2645,6 @@ class CPLUSPLUS_EXPORT ObjCProtocolForwardDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned at_token;
     unsigned protocol_token;
     NameListAST *identifier_list;
     unsigned semicolon_token;
@@ -2674,12 +2669,10 @@ class CPLUSPLUS_EXPORT ObjCProtocolDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned at_token;
     unsigned protocol_token;
     NameAST *name;
     ObjCProtocolRefsAST *protocol_refs;
     DeclarationListAST *member_declaration_list;
-    unsigned ending_at_token;
     unsigned end_token;
 
 public: // annotations
@@ -2761,7 +2754,6 @@ protected:
 class CPLUSPLUS_EXPORT ObjCProtocolExpressionAST: public ExpressionAST
 {
 public:
-    unsigned at_token;
     unsigned protocol_token;
     unsigned lparen_token;
     unsigned identifier_token;
@@ -2804,7 +2796,6 @@ protected:
 class CPLUSPLUS_EXPORT ObjCEncodeExpressionAST: public ExpressionAST
 {
 public:
-    unsigned at_token;
     unsigned encode_token;
     ObjCTypeNameAST *type_name;
 
@@ -2879,7 +2870,6 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSelectorExpressionAST: public ExpressionAST
 {
 public:
-    unsigned at_token;
     unsigned selector_token;
     unsigned lparen_token;
     ObjCSelectorAST *selector;
@@ -2921,7 +2911,6 @@ protected:
 class CPLUSPLUS_EXPORT ObjCVisibilityDeclarationAST: public DeclarationAST
 {
 public:
-    unsigned at_token;
     unsigned visibility_token;
 
 public:
@@ -2961,7 +2950,6 @@ class CPLUSPLUS_EXPORT ObjCPropertyDeclarationAST: public DeclarationAST
 {
 public:
     SpecifierListAST *attribute_list;
-    unsigned at_token;
     unsigned property_token;
     unsigned lparen_token;
     ObjCPropertyAttributeListAST *property_attribute_list;
@@ -3149,7 +3137,6 @@ protected:
 class CPLUSPLUS_EXPORT ObjCSynchronizedStatementAST: public StatementAST
 {
 public:
-    unsigned at_token;
     unsigned synchronized_token;
     unsigned lparen_token;
     ExpressionAST *synchronized_object;

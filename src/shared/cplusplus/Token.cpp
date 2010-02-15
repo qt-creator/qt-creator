@@ -59,14 +59,14 @@ static const char *token_names[] = {
 
     ("<identifier>"), ("<numeric literal>"), ("<char literal>"),
     ("<wide char literal>"), ("<string literal>"), ("<wide char literal>"),
-    ("<angle string literal>"),
+    ("<@string literal>"), ("<angle string literal>"),
 
-    ("&"), ("&&"), ("&="), ("->"), ("->*"), ("@"), ("^"), ("^="), (":"),
-    ("::"), (","), ("/"), ("/="), ("."), ("..."), (".*"), ("="), ("=="),
-    ("!"), ("!="), (">"), (">="), (">>"), (">>="), ("{"), ("["), ("<"),
-    ("<="), ("<<"), ("<<="), ("("), ("-"), ("-="), ("--"), ("%"), ("%="),
-    ("|"), ("|="), ("||"), ("+"), ("+="), ("++"), ("#"), ("##"), ("?"),
-    ("}"), ("]"), (")"), (";"), ("*"), ("*="), ("~"), ("~="),
+    ("&"), ("&&"), ("&="), ("->"), ("->*"), ("^"), ("^="), (":"), ("::"),
+    (","), ("/"), ("/="), ("."), ("..."), (".*"), ("="), ("=="), ("!"),
+    ("!="), (">"), (">="), (">>"), (">>="), ("{"), ("["), ("<"), ("<="),
+    ("<<"), ("<<="), ("("), ("-"), ("-="), ("--"), ("%"), ("%="), ("|"),
+    ("|="), ("||"), ("+"), ("+="), ("++"), ("#"), ("##"), ("?"), ("}"),
+    ("]"), (")"), (";"), ("*"), ("*="), ("~"), ("~="),
 
     ("asm"), ("auto"), ("bool"), ("break"), ("case"), ("catch"), ("char"),
     ("class"), ("const"), ("const_cast"), ("continue"), ("default"),
@@ -84,11 +84,12 @@ static const char *token_names[] = {
     // gnu
     ("__attribute__"), ("__typeof__"),
 
-    // objc keywords
-    ("@compatibility_alias"), ("@defs"), ("@dynamic"), ("@encode"), ("@end"),
-    ("@finally"), ("@implementation"), ("@interface"), ("@not_keyword"),
-    ("@optional"), ("@package"), ("@property"), ("@protocol"), ("@required"),
-    ("@selector"), ("@synchronized"), ("@synthesize"),
+    // objc @keywords
+    ("@catch"), ("@class"), ("@compatibility_alias"), ("@defs"), ("@dynamic"),
+    ("@encode"), ("@end"), ("@finally"), ("@implementation"), ("@interface"),
+    ("@not_keyword"), ("@optional"), ("@package"), ("@private"), ("@property"),
+    ("@protected"), ("@protocol"), ("@public"), ("@required"), ("@selector"),
+    ("@synchronized"), ("@synthesize"), ("@throw"), ("@try"),
 
     ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots"),
     ("Q_FOREACH"), ("Q_D"), ("Q_Q"),
@@ -123,6 +124,7 @@ const char *Token::spell() const
     case T_NUMERIC_LITERAL:
     case T_CHAR_LITERAL:
     case T_STRING_LITERAL:
+    case T_AT_STRING_LITERAL:
     case T_ANGLE_STRING_LITERAL:
     case T_WIDE_CHAR_LITERAL:
     case T_WIDE_STRING_LITERAL:

@@ -89,7 +89,6 @@ public:
     void setPartialCompletionEnabled(bool partialCompletionEnabled);
 
 private:
-    void addKeyword(const QString &text);
     void addKeywords();
     void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);
     void addMacros_helper(const CPlusPlus::Snapshot &snapshot,

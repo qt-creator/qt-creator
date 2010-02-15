@@ -69,6 +69,7 @@ enum Kind {
     T_WIDE_CHAR_LITERAL,
     T_STRING_LITERAL,
     T_WIDE_STRING_LITERAL,
+    T_AT_STRING_LITERAL,
     T_ANGLE_STRING_LITERAL,
     T_LAST_LITERAL = T_ANGLE_STRING_LITERAL,
 
@@ -78,7 +79,6 @@ enum Kind {
     T_AMPER_EQUAL,
     T_ARROW,
     T_ARROW_STAR,
-    T_AT,
     T_CARET,
     T_CARET_EQUAL,
     T_COLON,
@@ -196,28 +196,35 @@ enum Kind {
     T___ATTRIBUTE__,
     T___TYPEOF__,
 
-    // obj c keywords
-    T_FIRST_OBJC_KEYWORD,
+    // obj c++ @ keywords
+    T_FIRST_OBJC_AT_KEYWORD,
 
-    T_COMPATIBILITY_ALIAS = T_FIRST_OBJC_KEYWORD,
-    T_DEFS,
-    T_DYNAMIC,
-    T_ENCODE,
-    T_END,
-    T_FINALLY,
-    T_IMPLEMENTATION,
-    T_INTERFACE,
-    T_NOT_KEYWORD,
-    T_OPTIONAL,
-    T_PACKAGE,
-    T_PROPERTY,
-    T_PROTOCOL,
-    T_REQUIRED,
-    T_SELECTOR,
-    T_SYNCHRONIZED,
-    T_SYNTHESIZE,
+    T_AT_CATCH = T_FIRST_OBJC_AT_KEYWORD,
+    T_AT_CLASS,
+    T_AT_COMPATIBILITY_ALIAS,
+    T_AT_DEFS,
+    T_AT_DYNAMIC,
+    T_AT_ENCODE,
+    T_AT_END,
+    T_AT_FINALLY,
+    T_AT_IMPLEMENTATION,
+    T_AT_INTERFACE,
+    T_AT_NOT_KEYWORD,
+    T_AT_OPTIONAL,
+    T_AT_PACKAGE,
+    T_AT_PRIVATE,
+    T_AT_PROPERTY,
+    T_AT_PROTECTED,
+    T_AT_PROTOCOL,
+    T_AT_PUBLIC,
+    T_AT_REQUIRED,
+    T_AT_SELECTOR,
+    T_AT_SYNCHRONIZED,
+    T_AT_SYNTHESIZE,
+    T_AT_THROW,
+    T_AT_TRY,
 
-    T_LAST_OBJC_KEYWORD = T_SYNTHESIZE,
+    T_LAST_OBJC_AT_KEYWORD = T_AT_TRY,
 
     T_FIRST_QT_KEYWORD,
 
@@ -305,6 +312,9 @@ public:
     inline bool isComment() const
     { return f.kind == T_COMMENT || f.kind == T_DOXY_COMMENT ||
       f.kind == T_CPP_COMMENT || f.kind == T_CPP_DOXY_COMMENT; }
+
+    inline bool isObjCAtKeyword() const
+    { return f.kind >= T_FIRST_OBJC_AT_KEYWORD && f.kind <= T_LAST_OBJC_AT_KEYWORD; }
 
     static const char *name(int kind);
 

@@ -218,13 +218,13 @@ int Semantic::visibilityForAccessSpecifier(int tokenKind) const
 int Semantic::visibilityForObjCAccessSpecifier(int tokenKind) const
 {
     switch (tokenKind) {
-    case T_PUBLIC:
+    case T_AT_PUBLIC:
         return Symbol::Public;
-    case T_PROTECTED:
+    case T_AT_PROTECTED:
         return Symbol::Protected;
-    case T_PRIVATE:
+    case T_AT_PRIVATE:
         return Symbol::Private;
-    case T_PACKAGE:
+    case T_AT_PACKAGE:
         return Symbol::Package;
     default:
         return Symbol::Protected;

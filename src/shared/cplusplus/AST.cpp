@@ -1561,16 +1561,14 @@ unsigned SizeofExpressionAST::lastToken() const
 
 unsigned StringLiteralAST::firstToken() const
 {
-    return at_token;
+    return literal_token;
 }
 
 unsigned StringLiteralAST::lastToken() const
 {
     if (next)
         return next->lastToken();
-    if (literal_token)
-        return literal_token + 1;
-    return at_token + 1;
+    return literal_token + 1;
 }
 
 
@@ -1912,7 +1910,7 @@ unsigned ObjCClassForwardDeclarationAST::firstToken() const
     if (attribute_list)
         return attribute_list->firstToken();
 
-    return at_token;
+    return class_token;
 }
 
 unsigned ObjCClassForwardDeclarationAST::lastToken() const
@@ -1923,10 +1921,7 @@ unsigned ObjCClassForwardDeclarationAST::lastToken() const
     else if (identifier_list)
         return identifier_list->lastToken();
 
-    else if (class_token)
-        return class_token + 1;
-    else
-        return at_token + 1;
+    return class_token + 1;
 }
 
 unsigned ObjCProtocolForwardDeclarationAST::firstToken() const
@@ -1934,7 +1929,7 @@ unsigned ObjCProtocolForwardDeclarationAST::firstToken() const
     if (attribute_list)
         return attribute_list->firstToken();
 
-    return at_token;
+    return protocol_token;
 }
 
 unsigned ObjCProtocolForwardDeclarationAST::lastToken() const
@@ -1945,10 +1940,7 @@ unsigned ObjCProtocolForwardDeclarationAST::lastToken() const
     else if (identifier_list)
         return identifier_list->lastToken();
 
-    else if (protocol_token)
-        return protocol_token + 1;
-    else
-        return at_token + 1;
+    return protocol_token + 1;
 }
 
 unsigned ObjCClassDeclarationAST::firstToken() const
@@ -1956,14 +1948,15 @@ unsigned ObjCClassDeclarationAST::firstToken() const
     if (attribute_list)
         return attribute_list->firstToken();
 
-    return at_token;
+    if (interface_token)
+        return interface_token;
+    else
+        return implementation_token;
 }
 
 unsigned ObjCClassDeclarationAST::lastToken() const
 {
     if (end_token)                   return end_token + 1;
-    if (ending_at_token)
-        return ending_at_token + 1;
     if (member_declaration_list)         return member_declaration_list->lastToken();
     if (inst_vars_decl)              return inst_vars_decl->lastToken();
     if (protocol_refs)
@@ -1981,25 +1974,21 @@ unsigned ObjCClassDeclarationAST::lastToken() const
 
     if (interface_token)
         return interface_token + 1;
-    else if (implementation_token)
-        return implementation_token + 1;
     else
-        return at_token + 1;
+        return implementation_token + 1;
 }
 
 unsigned ObjCProtocolDeclarationAST::firstToken() const
 {
     if (attribute_list)
         return attribute_list->firstToken();
-    return at_token;
+    return protocol_token;
 }
 
 unsigned ObjCProtocolDeclarationAST::lastToken() const
 {
     if (end_token)
         return end_token + 1;
-    else if (ending_at_token)
-        return ending_at_token + 1;
 
     else if (member_declaration_list)
         return member_declaration_list->lastToken();
@@ -2012,10 +2001,8 @@ unsigned ObjCProtocolDeclarationAST::lastToken() const
 
     else if (attribute_list)
         return attribute_list->lastToken();
-    else if (protocol_token)
-        return protocol_token + 1;
-    else
-        return at_token + 1;
+
+    return protocol_token + 1;
 }
 
 unsigned ObjCProtocolRefsAST::firstToken() const
@@ -2076,7 +2063,7 @@ unsigned ObjCMessageArgumentAST::lastToken() const
 
 unsigned ObjCProtocolExpressionAST::firstToken() const
 {
-    return at_token;
+    return protocol_token;
 }
 
 unsigned ObjCProtocolExpressionAST::lastToken() const
@@ -2090,10 +2077,7 @@ unsigned ObjCProtocolExpressionAST::lastToken() const
     if (lparen_token)
         return lparen_token + 1;
 
-    if (protocol_token)
-        return protocol_token + 1;
-
-    return at_token + 1;
+    return protocol_token + 1;
 }
 
 unsigned ObjCTypeNameAST::firstToken() const
@@ -2117,7 +2101,7 @@ unsigned ObjCTypeNameAST::lastToken() const
 
 unsigned ObjCEncodeExpressionAST::firstToken() const
 {
-    return at_token;
+    return encode_token;
 }
 
 unsigned ObjCEncodeExpressionAST::lastToken() const
@@ -2125,10 +2109,7 @@ unsigned ObjCEncodeExpressionAST::lastToken() const
     if (type_name)
         return type_name->lastToken();
 
-    if (encode_token)
-        return encode_token + 1;
-
-    return at_token + 1;
+    return encode_token + 1;
 }
 
 unsigned ObjCSelectorWithoutArgumentsAST::firstToken() const
@@ -2166,7 +2147,7 @@ unsigned ObjCSelectorWithArgumentsAST::lastToken() const
 
 unsigned ObjCSelectorExpressionAST::firstToken() const
 {
-    return at_token;
+    return selector_token;
 }
 
 unsigned ObjCSelectorExpressionAST::lastToken() const
@@ -2177,9 +2158,7 @@ unsigned ObjCSelectorExpressionAST::lastToken() const
         return selector->lastToken();
     if (lparen_token)
         return rparen_token + 1;
-    if (selector_token)
-        return selector_token + 1;
-    return at_token + 1;
+    return selector_token + 1;
 }
 
 unsigned ObjCInstanceVariablesDeclarationAST::firstToken() const
@@ -2200,15 +2179,12 @@ unsigned ObjCInstanceVariablesDeclarationAST::lastToken() const
 
 unsigned ObjCVisibilityDeclarationAST::firstToken() const
 {
-    return at_token;
+    return visibility_token;
 }
 
 unsigned ObjCVisibilityDeclarationAST::lastToken() const
 {
-    if (visibility_token)
-        return visibility_token + 1;
-    else
-        return at_token + 1;
+    return visibility_token + 1;
 }
 
 unsigned ObjCPropertyAttributeAST::firstToken() const
@@ -2231,7 +2207,7 @@ unsigned ObjCPropertyDeclarationAST::firstToken() const
     if (attribute_list)
         return attribute_list->firstToken();
 
-    return at_token;
+    return property_token;
 }
 
 unsigned ObjCPropertyDeclarationAST::lastToken() const
@@ -2244,10 +2220,8 @@ unsigned ObjCPropertyDeclarationAST::lastToken() const
         return property_attribute_list->lastToken();
     else if (lparen_token)
         return lparen_token + 1;
-    else if (property_token)
-        return property_token + 1;
-    else
-        return at_token + 1;
+
+    return property_token + 1;
 }
 
 unsigned ObjCMessageArgumentDeclarationAST::firstToken() const
@@ -2380,7 +2354,7 @@ unsigned ObjCFastEnumerationAST::lastToken() const
 
 unsigned ObjCSynchronizedStatementAST::firstToken() const
 {
-    return at_token;
+    return synchronized_token;
 }
 
 unsigned ObjCSynchronizedStatementAST::lastToken() const
@@ -2389,6 +2363,5 @@ unsigned ObjCSynchronizedStatementAST::lastToken() const
     if (rparen_token) return rparen_token + 1;
     if (synchronized_object) return synchronized_object->lastToken();
     if (lparen_token) return lparen_token + 1;
-    if (synchronized_token) return synchronized_token + 1;
-    return at_token + 1;
+    return synchronized_token + 1;
 }
