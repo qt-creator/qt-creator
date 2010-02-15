@@ -36,7 +36,7 @@
 #include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -914,7 +914,7 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
     Interpreter::Context context(&interp);
     context.build(semanticInfo.declaringMember(cursorPosition), semanticInfo.document, semanticInfo.snapshot);
 
-    Check check(&context);
+    Evaluate check(&context);
     const Interpreter::Value *value = check.reference(node);
     QString fileName;
     int line = 0, column = 0;

@@ -45,11 +45,11 @@ namespace Interpreter {
     class FunctionValue;
 } // end of namespace Interpreter
 
-class QMLJS_EXPORT Check: protected AST::Visitor
+class QMLJS_EXPORT Evaluate: protected AST::Visitor
 {
 public:
-    Check(Interpreter::Context *context);
-    virtual ~Check();
+    Evaluate(Interpreter::Context *context);
+    virtual ~Evaluate();
 
     const Interpreter::Value *operator()(AST::Node *ast);
     const Interpreter::Value *reference(AST::Node *ast);

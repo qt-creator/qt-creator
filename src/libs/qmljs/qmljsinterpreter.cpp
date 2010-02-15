@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "qmljsinterpreter.h"
-#include "qmljscheck.h"
+#include "qmljsevaluate.h"
 #include "qmljslink.h"
 #include "parser/qmljsast_p.h"
 #include <QtCore/QMetaObject>
@@ -2005,7 +2005,7 @@ ASTVariableReference::~ASTVariableReference()
 
 const Value *ASTVariableReference::value(Context *context) const
 {
-    Check check(context);
+    Evaluate check(context);
     return check(_ast->expression);
 }
 
@@ -2099,7 +2099,7 @@ bool ASTPropertyReference::getSourceLocation(QString *fileName, int *line, int *
 const Value *ASTPropertyReference::value(Context *context) const
 {
     if (_ast->expression) {
-        Check check(context);
+        Evaluate check(context);
         return check(_ast->expression);
     }
 

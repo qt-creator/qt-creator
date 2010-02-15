@@ -14,7 +14,7 @@ INCLUDEPATH += $$PWD/..
 HEADERS += \
     $$PWD/qmljs_global.h \
     $$PWD/qmljsbind.h \
-    $$PWD/qmljscheck.h \
+    $$PWD/qmljsevaluate.h \
     $$PWD/qmljsdocument.h \
     $$PWD/qmljsscanner.h \
     $$PWD/qmljsinterpreter.h \
@@ -22,7 +22,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
-    $$PWD/qmljscheck.cpp \
+    $$PWD/qmljsevaluate.cpp \
     $$PWD/qmljsdocument.cpp \
     $$PWD/qmljsscanner.cpp \
     $$PWD/qmljsinterpreter.cpp \

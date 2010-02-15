@@ -37,7 +37,7 @@
 #include <debugger/debuggerconstants.h>
 #include <extensionsystem/pluginmanager.h>
 #include <qmljs/qmljsbind.h>
-#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <texteditor/itexteditor.h>
@@ -174,7 +174,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
             Interpreter::Context context(&interp);
             context.build(declaringMember, qmlDocument, snapshot);
 
-            Check check(&context);
+            Evaluate check(&context);
             const Interpreter::Value *value = check(node);
 
             QStringList baseClasses;

@@ -36,7 +36,7 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsscanner.h>
-#include <qmljs/qmljscheck.h>
+#include <qmljs/qmljsevaluate.h>
 
 #include <texteditor/basetexteditor.h>
 
@@ -692,7 +692,7 @@ int QmlCodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
         //qDebug() << "expression:" << expression;
 
         if (expression  != 0) {
-            Check evaluate(&context);
+            Evaluate evaluate(&context);
 
             // Evaluate the expression under cursor.
             const Interpreter::Value *value = interp.convertToObject(evaluate(expression));

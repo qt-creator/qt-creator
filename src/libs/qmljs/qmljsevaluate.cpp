@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "qmljscheck.h"
+#include "qmljsevaluate.h"
 #include "qmljsinterpreter.h"
 #include "parser/qmljsparser_p.h"
 #include "parser/qmljsast_p.h"
@@ -36,7 +36,7 @@
 using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 
-Check::Check(Context *context)
+Evaluate::Evaluate(Context *context)
     : _engine(context->engine()),
       _context(context),
       _scope(_engine->globalObject()),
@@ -44,11 +44,11 @@ Check::Check(Context *context)
 {
 }
 
-Check::~Check()
+Evaluate::~Evaluate()
 {
 }
 
-const Interpreter::Value *Check::operator()(AST::Node *ast)
+const Interpreter::Value *Evaluate::operator()(AST::Node *ast)
 {
     const Value *result = reference(ast);
 
@@ -61,7 +61,7 @@ const Interpreter::Value *Check::operator()(AST::Node *ast)
     return result;
 }
 
-const Interpreter::Value *Check::reference(AST::Node *ast)
+const Interpreter::Value *Evaluate::reference(AST::Node *ast)
 {
     // save the result
     const Value *previousResult = switchResult(0);
@@ -73,93 +73,93 @@ const Interpreter::Value *Check::reference(AST::Node *ast)
     return switchResult(previousResult);
 }
 
-Interpreter::Engine *Check::switchEngine(Interpreter::Engine *engine)
+Interpreter::Engine *Evaluate::switchEngine(Interpreter::Engine *engine)
 {
     Interpreter::Engine *previousEngine = _engine;
     _engine = engine;
     return previousEngine;
 }
 
-const Interpreter::Value *Check::switchResult(const Interpreter::Value *result)
+const Interpreter::Value *Evaluate::switchResult(const Interpreter::Value *result)
 {
     const Interpreter::Value *previousResult = _result;
     _result = result;
     return previousResult;
 }
 
-const Interpreter::ObjectValue *Check::switchScope(const Interpreter::ObjectValue *scope)
+const Interpreter::ObjectValue *Evaluate::switchScope(const Interpreter::ObjectValue *scope)
 {
     const Interpreter::ObjectValue *previousScope = _scope;
     _scope = scope;
     return previousScope;
 }
 
-void Check::accept(AST::Node *node)
+void Evaluate::accept(AST::Node *node)
 {
     AST::Node::accept(node, this);
 }
 
-bool Check::visit(AST::UiProgram *)
+bool Evaluate::visit(AST::UiProgram *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiImportList *)
+bool Evaluate::visit(AST::UiImportList *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiImport *)
+bool Evaluate::visit(AST::UiImport *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiPublicMember *)
+bool Evaluate::visit(AST::UiPublicMember *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiSourceElement *)
+bool Evaluate::visit(AST::UiSourceElement *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiObjectDefinition *)
+bool Evaluate::visit(AST::UiObjectDefinition *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiObjectInitializer *)
+bool Evaluate::visit(AST::UiObjectInitializer *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiObjectBinding *)
+bool Evaluate::visit(AST::UiObjectBinding *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiScriptBinding *)
+bool Evaluate::visit(AST::UiScriptBinding *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiArrayBinding *)
+bool Evaluate::visit(AST::UiArrayBinding *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiObjectMemberList *)
+bool Evaluate::visit(AST::UiObjectMemberList *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiArrayMemberList *)
+bool Evaluate::visit(AST::UiArrayMemberList *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiQualifiedId *ast)
+bool Evaluate::visit(AST::UiQualifiedId *ast)
 {
     if (! ast->name)
          return false;
@@ -187,27 +187,27 @@ bool Check::visit(AST::UiQualifiedId *ast)
     return false;
 }
 
-bool Check::visit(AST::UiSignature *)
+bool Evaluate::visit(AST::UiSignature *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiFormalList *)
+bool Evaluate::visit(AST::UiFormalList *)
 {
     return false;
 }
 
-bool Check::visit(AST::UiFormal *)
+bool Evaluate::visit(AST::UiFormal *)
 {
     return false;
 }
 
-bool Check::visit(AST::ThisExpression *)
+bool Evaluate::visit(AST::ThisExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::IdentifierExpression *ast)
+bool Evaluate::visit(AST::IdentifierExpression *ast)
 {
     if (! ast->name)
         return false;
@@ -216,94 +216,94 @@ bool Check::visit(AST::IdentifierExpression *ast)
     return false;
 }
 
-bool Check::visit(AST::NullExpression *)
+bool Evaluate::visit(AST::NullExpression *)
 {
     _result = _engine->nullValue();
     return false;
 }
 
-bool Check::visit(AST::TrueLiteral *)
+bool Evaluate::visit(AST::TrueLiteral *)
 {
     _result = _engine->booleanValue();
     return false;
 }
 
-bool Check::visit(AST::FalseLiteral *)
+bool Evaluate::visit(AST::FalseLiteral *)
 {
     _result = _engine->booleanValue();
     return false;
 }
 
-bool Check::visit(AST::StringLiteral *)
+bool Evaluate::visit(AST::StringLiteral *)
 {
     _result = _engine->stringValue();
     return false;
 }
 
-bool Check::visit(AST::NumericLiteral *)
+bool Evaluate::visit(AST::NumericLiteral *)
 {
     _result = _engine->numberValue();
     return false;
 }
 
-bool Check::visit(AST::RegExpLiteral *)
+bool Evaluate::visit(AST::RegExpLiteral *)
 {
     _result = _engine->regexpCtor()->construct();
     return false;
 }
 
-bool Check::visit(AST::ArrayLiteral *)
+bool Evaluate::visit(AST::ArrayLiteral *)
 {
     _result = _engine->arrayCtor()->construct();
     return false;
 }
 
-bool Check::visit(AST::ObjectLiteral *)
+bool Evaluate::visit(AST::ObjectLiteral *)
 {
     return false;
 }
 
-bool Check::visit(AST::ElementList *)
+bool Evaluate::visit(AST::ElementList *)
 {
     return false;
 }
 
-bool Check::visit(AST::Elision *)
+bool Evaluate::visit(AST::Elision *)
 {
     return false;
 }
 
-bool Check::visit(AST::PropertyNameAndValueList *)
+bool Evaluate::visit(AST::PropertyNameAndValueList *)
 {
     return false;
 }
 
-bool Check::visit(AST::NestedExpression *)
+bool Evaluate::visit(AST::NestedExpression *)
 {
     return true; // visit the child expression
 }
 
-bool Check::visit(AST::IdentifierPropertyName *)
+bool Evaluate::visit(AST::IdentifierPropertyName *)
 {
     return false;
 }
 
-bool Check::visit(AST::StringLiteralPropertyName *)
+bool Evaluate::visit(AST::StringLiteralPropertyName *)
 {
     return false;
 }
 
-bool Check::visit(AST::NumericLiteralPropertyName *)
+bool Evaluate::visit(AST::NumericLiteralPropertyName *)
 {
     return false;
 }
 
-bool Check::visit(AST::ArrayMemberExpression *)
+bool Evaluate::visit(AST::ArrayMemberExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::FieldMemberExpression *ast)
+bool Evaluate::visit(AST::FieldMemberExpression *ast)
 {
     if (! ast->name)
         return false;
@@ -317,7 +317,7 @@ bool Check::visit(AST::FieldMemberExpression *ast)
     return false;
 }
 
-bool Check::visit(AST::NewMemberExpression *ast)
+bool Evaluate::visit(AST::NewMemberExpression *ast)
 {
     if (const FunctionValue *ctor = value_cast<const FunctionValue *>(reference(ast->base))) {
         _result = ctor->construct();
@@ -325,7 +325,7 @@ bool Check::visit(AST::NewMemberExpression *ast)
     return false;
 }
 
-bool Check::visit(AST::NewExpression *ast)
+bool Evaluate::visit(AST::NewExpression *ast)
 {
     if (const FunctionValue *ctor = value_cast<const FunctionValue *>(reference(ast->expression))) {
         _result = ctor->construct();
@@ -333,7 +333,7 @@ bool Check::visit(AST::NewExpression *ast)
     return false;
 }
 
-bool Check::visit(AST::CallExpression *ast)
+bool Evaluate::visit(AST::CallExpression *ast)
 {
     if (const Interpreter::Value *base = reference(ast->base)) {
         if (const Interpreter::FunctionValue *obj = base->asFunctionValue()) {
@@ -343,262 +343,262 @@ bool Check::visit(AST::CallExpression *ast)
     return false;
 }
 
-bool Check::visit(AST::ArgumentList *)
+bool Evaluate::visit(AST::ArgumentList *)
 {
     return false;
 }
 
-bool Check::visit(AST::PostIncrementExpression *)
+bool Evaluate::visit(AST::PostIncrementExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::PostDecrementExpression *)
+bool Evaluate::visit(AST::PostDecrementExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::DeleteExpression *)
+bool Evaluate::visit(AST::DeleteExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::VoidExpression *)
+bool Evaluate::visit(AST::VoidExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::TypeOfExpression *)
+bool Evaluate::visit(AST::TypeOfExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::PreIncrementExpression *)
+bool Evaluate::visit(AST::PreIncrementExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::PreDecrementExpression *)
+bool Evaluate::visit(AST::PreDecrementExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::UnaryPlusExpression *)
+bool Evaluate::visit(AST::UnaryPlusExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::UnaryMinusExpression *)
+bool Evaluate::visit(AST::UnaryMinusExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::TildeExpression *)
+bool Evaluate::visit(AST::TildeExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::NotExpression *)
+bool Evaluate::visit(AST::NotExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::BinaryExpression *)
+bool Evaluate::visit(AST::BinaryExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::ConditionalExpression *)
+bool Evaluate::visit(AST::ConditionalExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::Expression *)
+bool Evaluate::visit(AST::Expression *)
 {
     return false;
 }
 
-bool Check::visit(AST::Block *)
+bool Evaluate::visit(AST::Block *)
 {
     return false;
 }
 
-bool Check::visit(AST::StatementList *)
+bool Evaluate::visit(AST::StatementList *)
 {
     return false;
 }
 
-bool Check::visit(AST::VariableStatement *)
+bool Evaluate::visit(AST::VariableStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::VariableDeclarationList *)
+bool Evaluate::visit(AST::VariableDeclarationList *)
 {
     return false;
 }
 
-bool Check::visit(AST::VariableDeclaration *)
+bool Evaluate::visit(AST::VariableDeclaration *)
 {
     return false;
 }
 
-bool Check::visit(AST::EmptyStatement *)
+bool Evaluate::visit(AST::EmptyStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::ExpressionStatement *)
+bool Evaluate::visit(AST::ExpressionStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::IfStatement *)
+bool Evaluate::visit(AST::IfStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::DoWhileStatement *)
+bool Evaluate::visit(AST::DoWhileStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::WhileStatement *)
+bool Evaluate::visit(AST::WhileStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::ForStatement *)
+bool Evaluate::visit(AST::ForStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::LocalForStatement *)
+bool Evaluate::visit(AST::LocalForStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::ForEachStatement *)
+bool Evaluate::visit(AST::ForEachStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::LocalForEachStatement *)
+bool Evaluate::visit(AST::LocalForEachStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::ContinueStatement *)
+bool Evaluate::visit(AST::ContinueStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::BreakStatement *)
+bool Evaluate::visit(AST::BreakStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::ReturnStatement *)
+bool Evaluate::visit(AST::ReturnStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::WithStatement *)
+bool Evaluate::visit(AST::WithStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::SwitchStatement *)
+bool Evaluate::visit(AST::SwitchStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::CaseBlock *)
+bool Evaluate::visit(AST::CaseBlock *)
 {
     return false;
 }
 
-bool Check::visit(AST::CaseClauses *)
+bool Evaluate::visit(AST::CaseClauses *)
 {
     return false;
 }
 
-bool Check::visit(AST::CaseClause *)
+bool Evaluate::visit(AST::CaseClause *)
 {
     return false;
 }
 
-bool Check::visit(AST::DefaultClause *)
+bool Evaluate::visit(AST::DefaultClause *)
 {
     return false;
 }
 
-bool Check::visit(AST::LabelledStatement *)
+bool Evaluate::visit(AST::LabelledStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::ThrowStatement *)
+bool Evaluate::visit(AST::ThrowStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::TryStatement *)
+bool Evaluate::visit(AST::TryStatement *)
 {
     return false;
 }
 
-bool Check::visit(AST::Catch *)
+bool Evaluate::visit(AST::Catch *)
 {
     return false;
 }
 
-bool Check::visit(AST::Finally *)
+bool Evaluate::visit(AST::Finally *)
 {
     return false;
 }
 
-bool Check::visit(AST::FunctionDeclaration *)
+bool Evaluate::visit(AST::FunctionDeclaration *)
 {
     return false;
 }
 
-bool Check::visit(AST::FunctionExpression *)
+bool Evaluate::visit(AST::FunctionExpression *)
 {
     return false;
 }
 
-bool Check::visit(AST::FormalParameterList *)
+bool Evaluate::visit(AST::FormalParameterList *)
 {
     return false;
 }
 
-bool Check::visit(AST::FunctionBody *)
+bool Evaluate::visit(AST::FunctionBody *)
 {
     return false;
 }
 
-bool Check::visit(AST::Program *)
+bool Evaluate::visit(AST::Program *)
 {
     return false;
 }
 
-bool Check::visit(AST::SourceElements *)
+bool Evaluate::visit(AST::SourceElements *)
 {
     return false;
 }
 
-bool Check::visit(AST::FunctionSourceElement *)
+bool Evaluate::visit(AST::FunctionSourceElement *)
 {
     return false;
 }
 
-bool Check::visit(AST::StatementSourceElement *)
+bool Evaluate::visit(AST::StatementSourceElement *)
 {
     return false;
 }
 
-bool Check::visit(AST::DebuggerStatement *)
+bool Evaluate::visit(AST::DebuggerStatement *)
 {
     return false;
 }
