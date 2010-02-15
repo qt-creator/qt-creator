@@ -583,6 +583,24 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
         return;
     }
 
+    if (IEditor *e = view->currentEditor()) {
+        /*
+           when we are closing a view with an original editor which has
+           duplicates, then make one of the duplicates the original.
+           Otherwise the original would be kept around and the user might
+           experience jumping to a missleading position within the file when
+           visiting the file again. With the code below, the position within
+           the file will be the position of the first duplicate which is still
+           around.
+        */
+        if (!m_d->m_editorModel->isDuplicate(e)) {
+            QList<IEditor *> duplicates = m_d->m_editorModel->duplicatesFor(e);
+            if (!duplicates.isEmpty()) {
+                m_d->m_editorModel->makeOriginal(duplicates.first());
+            }
+        }
+    }
+
     emptyView(view);
 
     SplitterOrView *splitterOrView = m_d->m_splitter->findView(view);
@@ -597,10 +615,11 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
 
     SplitterOrView *newCurrent = splitter->findFirstView();
     if (newCurrent) {
-        if (newCurrent->editor())
-            activateEditor(newCurrent->view(), newCurrent->editor());
-        else
+        if (IEditor *e = newCurrent->editor()) {
+            activateEditor(newCurrent->view(), e);
+        } else {
             setCurrentView(newCurrent);
+        }
     }
 }
 
