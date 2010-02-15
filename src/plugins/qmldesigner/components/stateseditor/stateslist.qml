@@ -35,7 +35,9 @@ Rectangle {
         hoverEnabled:true
         onExited: root.unFocus();
     }
-    onCurrentStateIndexChanged: unFocus();
+    onCurrentStateIndexChanged: {
+        if (currentStateIndex<0) currentStateIndex=0; else unFocus();
+    }
 
     // Colors
     SystemPalette { id:systemPalette; }
