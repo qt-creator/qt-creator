@@ -110,10 +110,9 @@ signals:
     void ItemCreatorDeActivated();
 
 protected:
-    void transformChanged(const QmlObjectNode &qmlObjectNode);
+    void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     void parentChanged(const QmlObjectNode &qmlObjectNode);
-    void otherPropertyChanged(const QmlObjectNode &qmlObjectNode);
-    void updateItem(const QmlObjectNode &qmlObjectNode);
+    void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
 protected slots:

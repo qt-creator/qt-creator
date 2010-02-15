@@ -94,7 +94,8 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/qmltransitionnodeinstance.cpp \
     $$PWD/exceptions/rewritingexception.cpp \
     $$PWD/instances/nodeinstancemetaobject.cpp \
-    $$PWD/instances/behaviornodeinstance.cpp
+    $$PWD/instances/behaviornodeinstance.cpp \
+    $$PWD/instances/nodeinstancesignalspy.cpp
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
@@ -185,7 +186,8 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/customnotifications.h \
     $$PWD/include/rewritingexception.h \
     $$PWD/instances/nodeinstancemetaobject.h \
-    $$PWD/instances/behaviornodeinstance.h
+    $$PWD/instances/behaviornodeinstance.h \
+    $$PWD/instances/nodeinstancesignalspy.h
 DISTFILES += $$PWD/metafile/widget.metafile
 RESOURCES += $$PWD/core.qrc
 OTHER_FILES += $$PWD/metainfo/gui.metainfo

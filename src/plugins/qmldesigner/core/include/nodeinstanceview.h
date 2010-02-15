@@ -109,18 +109,16 @@ public:
     QRectF sceneRect() const;
     void setBlockChangeSignal(bool block);
 
+    void notifyPropertyChange(const ModelNode &modelNode, const QString &propertyName);
+
+    void setQmlModelView(QmlModelView *qmlModelView);
+    QmlModelView *qmlModelView() const ;
+
 signals:
     void instanceRemoved(const NodeInstance &nodeInstance);
-    void transformPropertyChanged(const NodeInstance &nodeInstance);
-    void parentPropertyChanged(const NodeInstance &nodeInstance);
-    void otherPropertyChanged(const NodeInstance &nodeInstance);
-    void updateItem(const NodeInstance &nodeInstance);
 
 private slots:
-    void emitOtherPropertyChanged();
-    void emitParentPropertyChanged();
-    void emitTransformPropertyChanged();
-    void emitUpdateItem(QObject *object);
+    void emitParentChanged(QObject *child);
 
 private: // functions
     NodeInstance loadNode(const ModelNode &rootNode, QObject *objectToBeWrapped = 0);
@@ -146,6 +144,8 @@ private: //variables
     QHash<QObject*, NodeInstance> m_objectInstanceHash; // This is purely internal. Might contain dangling pointers!
     QWeakPointer<QmlEngine> m_engine;
     QWeakPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
+
+    QWeakPointer<QmlModelView> m_qmlModelView;
 
     bool m_blockChangeSignal;
 };

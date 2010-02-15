@@ -183,6 +183,8 @@ NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const Mode
 
     instance.m_nodeInstance->setNodeInstanceView(nodeInstanceView);
 
+    instance.m_nodeInstance->initializePropertyWatcher(instance.m_nodeInstance);
+
     instance.setId(node.id());
 
     foreach (const VariantProperty &property, node.variantProperties()) {

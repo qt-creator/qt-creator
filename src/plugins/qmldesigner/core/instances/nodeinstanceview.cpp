@@ -56,6 +56,8 @@
 
 #include "objectnodeinstance.h"
 
+#include "qmlmodelview.h"
+
 enum {
     debug = false
 };
@@ -459,42 +461,12 @@ NodeInstance NodeInstanceView::rootNodeInstance() const
 \see NodeInstance
 */
 
-static bool isTransformProperty(const QString &name)
-{
-    static QStringList transformProperties(QStringList() << "xChanged()"
-                                                         << "yChanged()"
-                                                         << "zChanged()"
-                                                         << "rotationChanged()"
-                                                         << "scaleChanged()"
-                                                         << "widthChanged()"
-                                                         << "heightChanged()"
-                                                         << "transformOriginChanged(TransformOrigin)");
 
-    return transformProperties.contains(name);
-}
 
 void NodeInstanceView::insertInstanceNodeRelationship(const ModelNode &node, const NodeInstance &instance)
 {
-    // connect with every signal of the object to get the formeditor updated
-    int otherPropertuChangedSlotIndex = staticMetaObject.indexOfSlot("emitOtherPropertyChanged()");
-    int transformPropertuChangedSlotIndex = staticMetaObject.indexOfSlot("emitTransformPropertyChanged()");
-    int parentPropertuChangedSlotIndex = staticMetaObject.indexOfSlot("emitParentPropertyChanged()");
-    for (int index = QObject::staticMetaObject.methodCount();
-         index < instance.internalObject()->metaObject()->methodCount();
-         index++) {
-        QMetaMethod metaMethod = instance.internalObject()->metaObject()->method(index);
-        if (metaMethod.methodType() == QMetaMethod::Signal) {
-            if (isTransformProperty(metaMethod.signature())) {
-                staticMetaObject.connect(instance.internalObject(),index, this, transformPropertuChangedSlotIndex);
-            } else if (QByteArray(metaMethod.signature()) == QByteArray("parentChanged()")) {
-                staticMetaObject.connect(instance.internalObject(),index, this, parentPropertuChangedSlotIndex);
-            } else {
-                 staticMetaObject.connect(instance.internalObject(),index, this, otherPropertuChangedSlotIndex);
-            }
-        }
-    }
-
     instance.internalObject()->installEventFilter(childrenChangeEventFilter());
+
 
     Q_ASSERT(!m_nodeInstanceHash.contains(node));
     m_nodeInstanceHash.insert(node, instance);
@@ -510,7 +482,7 @@ Internal::ChildrenChangeEventFilter *NodeInstanceView::childrenChangeEventFilter
 {
     if (m_childrenChangeEventFilter.isNull()) {
         m_childrenChangeEventFilter = new Internal::ChildrenChangeEventFilter(this);
-        connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitUpdateItem(QObject*)));
+        connect(m_childrenChangeEventFilter.data(), SIGNAL(childrenChanged(QObject*)), this, SLOT(emitParentChanged(QObject*)));
     }
 
     return m_childrenChangeEventFilter.data();
@@ -526,38 +498,30 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
     instance.makeInvalid();
 }
 
-void NodeInstanceView::emitOtherPropertyChanged()
+void NodeInstanceView::notifyPropertyChange(const ModelNode &node, const QString &propertyName)
 {
-    if (m_blockChangeSignal)
-        return;
-    if (hasInstanceForObject(sender()))
-        emit otherPropertyChanged(instanceForObject(sender()));
+    if (qmlModelView()) {
+        qmlModelView()->nodeInstancePropertyChanged(ModelNode(node,qmlModelView()), propertyName);
+    }
 }
 
-void NodeInstanceView::emitParentPropertyChanged()
+
+void NodeInstanceView::setQmlModelView(QmlModelView *qmlModelView)
 {
-    if (m_blockChangeSignal)
-        return;
-    if (hasInstanceForObject(sender()))
-        emit parentPropertyChanged(instanceForObject(sender()));
+    m_qmlModelView = qmlModelView;
 }
 
-void NodeInstanceView::emitTransformPropertyChanged()
+QmlModelView *NodeInstanceView::qmlModelView() const
 {
-    if (m_blockChangeSignal)
-        return;
-    if (hasInstanceForObject(sender()))
-        emit transformPropertyChanged(instanceForObject(sender()));
+    return m_qmlModelView.data();
 }
 
-void NodeInstanceView::emitUpdateItem(QObject *object)
+void NodeInstanceView::emitParentChanged(QObject *child)
 {
-    if (m_blockChangeSignal)
-        return;
-    if (hasInstanceForObject(object))
-        emit updateItem(instanceForObject(object));
+    if (hasInstanceForObject(child)) {
+        notifyPropertyChange(instanceForObject(child).modelNode(), "parent");
+    }
 }
-
 
 NodeInstance NodeInstanceView::loadNode(const ModelNode &node, QObject *objectToBeWrapped)
 {

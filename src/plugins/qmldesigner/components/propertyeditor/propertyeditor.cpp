@@ -351,52 +351,34 @@ void PropertyEditor::changeExpression(const QString &name)
     }
 }
 
-void PropertyEditor::anyPropertyChanged(const QmlObjectNode &fxObjectNode)
+void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode, const QString &propertyName)
 {
+    QmlModelView::otherPropertyChanged(fxObjectNode, propertyName);
+
     if (fxObjectNode.isValid() && m_currentType && fxObjectNode == m_selectedNode && fxObjectNode.currentState().isValid()) {
-        foreach (const QString &propertyName, fxObjectNode.modelNode().metaInfo().properties(true).keys()) {
-            if ( propertyName != "id" && propertyName != "objectName") {
-                AbstractProperty property = fxObjectNode.modelNode().property(propertyName);
-                if (fxObjectNode == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == fxObjectNode) {
-                    if ( m_selectedNode.property(property.name()).isBindingProperty() || !m_selectedNode.hasProperty(propertyName))
-                        m_currentType->setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
-                    else
-                        m_currentType->setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).modelValue(property.name()));
-                }
-            }
+        AbstractProperty property = fxObjectNode.modelNode().property(propertyName);
+        if (fxObjectNode == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == fxObjectNode) {
+            if ( m_selectedNode.property(property.name()).isBindingProperty() || !m_selectedNode.hasProperty(propertyName))
+                m_currentType->setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
+            else
+                m_currentType->setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).modelValue(property.name()));
         }
     }
 }
 
-void PropertyEditor::geometryPropertyChanged(const QmlObjectNode &fxObjectNode)
+void PropertyEditor::transformChanged(const QmlObjectNode &fxObjectNode, const QString &propertyName)
 {
+    QmlModelView::transformChanged(fxObjectNode, propertyName);
+
     if (fxObjectNode.isValid() && m_currentType && fxObjectNode == m_selectedNode && fxObjectNode.currentState().isValid()) {
-        QStringList geometryProperties;
-        geometryProperties << "x" << "y" << "width" << "height" << "rotation" << "scale";
-        foreach (const QString &propertyName, geometryProperties) {
-            if ( propertyName != "id" && propertyName != "objectName") {
-                AbstractProperty property = fxObjectNode.modelNode().property(propertyName);
-                if (fxObjectNode == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == fxObjectNode) {
-                    if ( m_selectedNode.property(property.name()).isBindingProperty() || !m_selectedNode.hasProperty(propertyName))
-                        m_currentType->setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
-                    else
-                        m_currentType->setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).modelValue(property.name()));
-                }
-            }
+        AbstractProperty property = fxObjectNode.modelNode().property(propertyName);
+        if (fxObjectNode == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == fxObjectNode) {
+            if ( m_selectedNode.property(property.name()).isBindingProperty() || !m_selectedNode.hasProperty(propertyName))
+                m_currentType->setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
+            else
+                m_currentType->setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).modelValue(property.name()));
         }
     }
-}
-
-void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode)
-{
-    QmlModelView::otherPropertyChanged(fxObjectNode);
-    anyPropertyChanged(fxObjectNode);
-}
-
-void PropertyEditor::transformChanged(const QmlObjectNode &fxObjectNode)
-{
-    QmlModelView::transformChanged(fxObjectNode);
-    geometryPropertyChanged(fxObjectNode);
 }
 
 void PropertyEditor::setQmlDir(const QString &qmlDir)

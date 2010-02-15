@@ -42,11 +42,9 @@ namespace QmlDesigner {
 QmlModelView::QmlModelView(QObject *parent)
     : ForwardView<NodeInstanceView>(parent)
 {
-    appendView(new NodeInstanceView(this));
-    connect(nodeInstanceView(), SIGNAL(transformPropertyChanged(NodeInstance)), SLOT(notifyTransformChanged(NodeInstance)));
-    connect(nodeInstanceView(), SIGNAL(parentPropertyChanged(NodeInstance)), SLOT(notifyParentChanged(NodeInstance)));
-    connect(nodeInstanceView(), SIGNAL(otherPropertyChanged(NodeInstance)), SLOT(notifyOtherPropertyChanged(NodeInstance)));
-    connect(nodeInstanceView(), SIGNAL(updateItem(NodeInstance)), SLOT(notifyUpdateItem(NodeInstance)));
+    NodeInstanceView *nodeInstanceView = new NodeInstanceView(this);
+    nodeInstanceView->setQmlModelView(this);
+    appendView(nodeInstanceView);
 }
 
 void QmlModelView::setCurrentState(const QmlModelState &state)
@@ -220,27 +218,6 @@ QmlObjectNode QmlModelView::fxObjectNodeForId(const QString &id)
     return QmlObjectNode(modelNodeForId(id));
 }
 
-
-void QmlModelView::notifyTransformChanged(const NodeInstance &nodeInstance)
-{
-    transformChanged(QmlObjectNode(ModelNode(nodeInstance.modelNode(), this)));
-}
-
-void QmlModelView::notifyParentChanged(const NodeInstance &nodeInstance)
-{
-    parentChanged(QmlObjectNode(ModelNode(nodeInstance.modelNode(), this)));
-}
-
-void QmlModelView::notifyOtherPropertyChanged(const NodeInstance &nodeInstance)
-{
-    otherPropertyChanged(QmlObjectNode(ModelNode(nodeInstance.modelNode(), this)));
-}
-
-void QmlModelView::notifyUpdateItem(const NodeInstance &nodeInstance)
-{
-    updateItem(QmlObjectNode(ModelNode(nodeInstance.modelNode(), this)));
-}
-
 void QmlModelView::customNotification(const AbstractView * /* view */, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> & /* data */)
 {
     if (identifier == "__state changed__") {
@@ -281,7 +258,36 @@ void QmlModelView::modelAboutToBeDetached(Model *model)
     m_state = QmlModelState();
 }
 
-void QmlModelView::transformChanged(const QmlObjectNode &/*qmlObjectNode*/)
+static bool isTransformProperty(const QString &name)
+{
+    static QStringList transformProperties(QStringList() << "x"
+                                                         << "y"
+                                                         << "width"
+                                                         << "height"
+                                                         << "z"
+                                                         << "rotation"
+                                                         << "scale"
+                                                         << "transformOrigin");
+
+    return transformProperties.contains(name);
+}
+
+void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName)
+{
+    QmlObjectNode qmlObjectNode(node);
+
+    if (!qmlObjectNode.isValid())
+        return;
+
+    if (isTransformProperty(propertyName))
+        transformChanged(qmlObjectNode, propertyName);
+    else if (propertyName == "parent")
+        parentChanged(qmlObjectNode);
+    else
+        otherPropertyChanged(qmlObjectNode, propertyName);
+}
+
+void QmlModelView::transformChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)
 {
 }
 
@@ -290,15 +296,11 @@ void QmlModelView::parentChanged(const QmlObjectNode &/*qmlObjectNode*/)
 
 }
 
-void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/)
+void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)
 {
 
 }
 
-void QmlModelView::updateItem(const QmlObjectNode &/*qmlObjectNode*/)
-{
-
-}
 
 void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
 {
