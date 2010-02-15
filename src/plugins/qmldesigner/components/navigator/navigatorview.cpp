@@ -32,6 +32,7 @@
 #include "navigatorwidget.h"
 
 #include <nodeproperty.h>
+#include <QHeaderView>
 
 
 namespace QmlDesigner {
@@ -85,6 +86,15 @@ void NavigatorView::modelAttached(Model *model)
     m_treeModel->setView(this);
 
     treeWidget()->expandAll();
+
+    treeWidget()->header()->setResizeMode(0, QHeaderView::Stretch);
+    treeWidget()->header()->resizeSection(1,26);
+    treeWidget()->setRootIsDecorated(false);
+    treeWidget()->setIndentation(40);
+#ifdef _LOCK_ITEMS_
+    treeWidget()->header()->resizeSection(2,20);
+#endif
+    treeWidget()->setHeaderHidden(true);
 }
 
 void NavigatorView::modelAboutToBeDetached(Model *model)
