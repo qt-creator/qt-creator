@@ -212,6 +212,25 @@ void testArray()
     }
 }
 
+struct TestAnonymous
+{
+    union {
+        struct { int i; int b; };
+        struct { float f; };
+        double d;
+    };
+};
+
+// union { struct { int a; }; struct { int b; }; };
+
+void testAnonymous()
+{
+    TestAnonymous a;
+    a.i = 1;
+    a.i = 2;
+    a.i = 3;
+}
+
 void testQByteArray()
 {
     QByteArray ba = "Hello";
@@ -1415,6 +1434,7 @@ int testReference()
 
 int main(int argc, char *argv[])
 {
+    testAnonymous();
     testReference();
     //testEndlessRecursion();
     testQStack();

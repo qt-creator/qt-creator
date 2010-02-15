@@ -178,6 +178,17 @@ def listOfBreakpoints(d):
         bp = Breakpoint()
 
 
+# Creates a list of field names of an anon union or struct
+def listOfFields(type):
+    fields = []
+    for field in type.fields():
+        if len(field.name) > 0:
+            fields += field.name
+        else:
+            fields += listOfFields(field.type)
+    return fields
+
+
 def listOfLocals(varList):
     try:
         frame = gdb.selected_frame()
@@ -1148,22 +1159,36 @@ class Dumper:
                         self.putField("iname", child.iname)
                         self.safePutItemHelper(child)
                         self.endHash()
-                    elif field.name == "":
+                    elif len(field.name) == 0:
                         # Anonymous union. We need a dummy name to distinguish
                         # multiple anonymous unions in the struct.
-                        iname = "%s.#%d" % (item.iname, anonNumber)
                         anonNumber += 1
+                        iname = "%s.#%d" % (item.iname, anonNumber)
+
+                        #innerType = item.value.type.target()
+                        #self.putType(innerType)
+                        #self.childTypes.append(
+                        #    stripClassTag(str(innerType)))
+                        #self.putItemHelper(
+                        #    Item(item.value.dereference(), item.iname, None, None))
+                        #self.childTypes.pop()
+                        #isHandled = True
+
                         self.beginHash()
                         self.putField("iname", iname)
-                        self.putField("name", "<n/a>")
+                        self.putField("name", "#%d" % anonNumber)
                         self.putField("value", " ")
                         self.putField("type", "<anonymous union>")
                         if self.isExpandedIName(iname):
                             self.beginChildren()
-                            for f in field.type.fields():
-                                child = Item(item.value[f.name],
-                                    item.iname, f.name, f.name)
-                                self.safePutItem(child)
+                            fields = listOfFields(field.type)
+                            for field in fields:
+                                value = item.value[field]
+                                child = Item(value, item.iname, field, field)
+                                self.beginHash()
+                                self.put('addr="%s",' % cleanAddress(value.address))
+                                self.safePutItemHelper(child)
+                                self.endHash();
                             self.endChildren()
                         self.endHash()
                     else:
