@@ -265,6 +265,17 @@ QString quoteUnprintable(const QString &ba)
     return res;
 }
 
+static bool startsWithWhitespace(const QString &str, int col)
+{
+    QTC_ASSERT(str.size() >= col, return false);
+    for (int i = 0; i < col; ++i) {
+        uint u = str.at(i).unicode();
+        if (u != ' ' && u != '\t')
+            return false;
+    }
+    return true;
+}
+
 inline QString msgE20MarkNotSet(const QString &text)
 {
     return FakeVimHandler::tr("E20: Mark '%1' not set").arg(text);
@@ -1996,26 +2007,23 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         setTargetColumn();
     } else if (key == Key_Backspace || key == control('h')) {
         joinPreviousEditBlock();
-        if (!removeAutomaticIndentation()
-            && (!m_lastInsertion.isEmpty()
-                || hasConfig(ConfigBackspace, "start")))
-            {
-                int line = cursorLineInDocument() + 1;
-                int col = cursorColumnInDocument();
-                QString data = lineContents(line);
-                Indentation ind = indentation(data);
-                if (col <= ind.logical) {
-                    int ts = config(ConfigTabStop).toInt();
-                    int newcol = col - 1 - (col - 1) % ts;
-                    data = tabExpand(newcol) + data.mid(col);
-                    setLineContents(line, data);
-                    m_lastInsertion.clear(); // FIXME
-                } else {
-                    m_tc.deletePreviousChar();
-                    m_lastInsertion.chop(1);
-                }
-                setTargetColumn();
+        m_justAutoIndented = 0;
+        if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
+            const int line = cursorLineInDocument() + 1;
+            const int col = cursorColumnInDocument();
+            const QString data = lineContents(line);
+            const Indentation ind = indentation(data);
+            if (col <= ind.logical && col && startsWithWhitespace(data, col)) {
+                const int ts = config(ConfigTabStop).toInt();
+                const int newcol = col - 1 - (col - 1) % ts;
+                setLineContents(line, tabExpand(newcol) + data.midRef(col));
+                m_lastInsertion.clear(); // FIXME
+            } else {
+                m_tc.deletePreviousChar();
+                m_lastInsertion.chop(1);
             }
+            setTargetColumn();
+        }
         endEditBlock();
     } else if (key == Key_Delete) {
         m_tc.deleteChar();
