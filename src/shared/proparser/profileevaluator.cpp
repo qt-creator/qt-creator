@@ -2749,12 +2749,22 @@ ProItem::ProItemReturn ProFileEvaluator::Private::evaluateConditionalFunction(
                 m_sts = sts;
             } else {
                 QHash<QString, QStringList> symbols;
-                if ((ok = evaluateFileInto(fn, &symbols, 0)))
+                if ((ok = evaluateFileInto(fn, &symbols, 0))) {
+                    QHash<QString, QStringList> newMap;
+                    for (QHash<QString, QStringList>::ConstIterator
+                            it = m_valuemapStack.top().constBegin(),
+                            end = m_valuemapStack.top().constEnd();
+                         it != end; ++it)
+                        if (!(it.key().startsWith(parseInto) &&
+                              (it.key().length() == parseInto.length()
+                               || it.key().at(parseInto.length()) == QLatin1Char('.'))))
+                            newMap[it.key()] = it.value();
                     for (QHash<QString, QStringList>::ConstIterator it = symbols.constBegin();
                          it != symbols.constEnd(); ++it)
                         if (!it.key().startsWith(QLatin1Char('.')))
-                            m_valuemapStack.top().insert(parseInto + QLatin1Char('.') + it.key(),
-                                                         it.value());
+                            newMap.insert(parseInto + QLatin1Char('.') + it.key(), it.value());
+                    m_valuemapStack.top() = newMap;
+                }
             }
             return returnBool(ok);
         }
