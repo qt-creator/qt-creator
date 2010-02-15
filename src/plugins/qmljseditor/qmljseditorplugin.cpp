@@ -28,13 +28,12 @@
 **************************************************************************/
 
 #include "qmljseditorplugin.h"
-
 #include "qmljshighlighter.h"
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditorfactory.h"
 #include "qmljscodecompletion.h"
-#include "qmlhoverhandler.h"
+#include "qmljshoverhandler.h"
 #include "qmlmodelmanager.h"
 #include "qmlfilewizard.h"
 
@@ -134,7 +133,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_completion = new CodeCompletion(m_modelManager);
     addAutoReleasedObject(m_completion);
 
-    addAutoReleasedObject(new QmlHoverHandler());
+    addAutoReleasedObject(new HoverHandler());
 
     // Restore settings
     QSettings *settings = Core::ICore::instance()->settings();

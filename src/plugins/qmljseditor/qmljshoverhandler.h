@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLHOVERHANDLER_H
-#define QMLHOVERHANDLER_H
+#ifndef QMLJSHOVERHANDLER_H
+#define QMLJSHOVERHANDLER_H
 
 #include "qmlmodelmanagerinterface.h"
 
@@ -59,12 +59,12 @@ class ITextEditor;
 namespace QmlJSEditor {
 namespace Internal {
 
-class QmlHoverHandler : public QObject
+class HoverHandler : public QObject
 {
     Q_OBJECT
 
 public:
-    QmlHoverHandler(QObject *parent = 0);
+    HoverHandler(QObject *parent = 0);
 
 public slots:
     void showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos);
@@ -89,4 +89,4 @@ private:
 } // namespace Internal
 } // namespace QmlJSEditor
 
-#endif // QMLHOVERHANDLER_H
+#endif // QMLJSHOVERHANDLER_H

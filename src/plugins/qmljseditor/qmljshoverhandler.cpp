@@ -29,7 +29,7 @@
 
 #include "qmljseditor.h"
 #include "qmlexpressionundercursor.h"
-#include "qmlhoverhandler.h"
+#include "qmljshoverhandler.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -57,7 +57,7 @@ using namespace QmlJS;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
-QmlHoverHandler::QmlHoverHandler(QObject *parent)
+HoverHandler::HoverHandler(QObject *parent)
     : QObject(parent)
     , m_helpEngineNeedsSetup(false)
 {
@@ -83,7 +83,7 @@ QmlHoverHandler::QmlHoverHandler(QObject *parent)
             this, SLOT(editorOpened(Core::IEditor *)));
 }
 
-void QmlHoverHandler::editorOpened(IEditor *editor)
+void HoverHandler::editorOpened(IEditor *editor)
 {
     QmlJSEditorEditable *qmlEditor = qobject_cast<QmlJSEditorEditable *>(editor);
     if (!qmlEditor)
@@ -96,7 +96,7 @@ void QmlHoverHandler::editorOpened(IEditor *editor)
             this, SLOT(updateContextHelpId(TextEditor::ITextEditor*, int)));
 }
 
-void QmlHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos)
+void HoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint &point, int pos)
 {
     if (! editor)
         return;
@@ -124,12 +124,12 @@ void QmlHoverHandler::showToolTip(TextEditor::ITextEditor *editor, const QPoint 
     }
 }
 
-void QmlHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
+void HoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int pos)
 {
     updateHelpIdAndTooltip(editor, pos);
 }
 
-void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
+void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int pos)
 {
     m_helpId.clear();
     m_toolTip.clear();
@@ -209,7 +209,7 @@ void QmlHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     }
 }
 
-QString QmlHoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context,
+QString HoverHandler::prettyPrint(const QmlJS::Interpreter::Value *value, QmlJS::Interpreter::Context *context,
                                      QStringList *baseClasses) const
 {
     if (! value)
