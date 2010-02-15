@@ -235,6 +235,7 @@ public slots:
     void stepOutExec();
     void nextExec();
     void continueExec();
+    void returnExec();
     void detachDebugger();
     void makeSnapshot();
 

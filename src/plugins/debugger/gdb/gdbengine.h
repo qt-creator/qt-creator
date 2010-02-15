@@ -296,10 +296,12 @@ private: ////////// Inferior Management //////////
     virtual void runToFunctionExec(const QString &functionName);
 //    void handleExecRunToFunction(const GdbResponse &response);
     virtual void jumpToLineExec(const QString &fileName, int lineNumber);
+    virtual void returnExec();
 
     void handleExecContinue(const GdbResponse &response);
     void handleExecStep(const GdbResponse &response);
     void handleExecNext(const GdbResponse &response);
+    void handleExecReturn(const GdbResponse &response);
 
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
     void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }

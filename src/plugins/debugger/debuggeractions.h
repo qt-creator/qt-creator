@@ -154,6 +154,7 @@ struct DebuggerManagerActions
     QAction *runToFunctionAction;
     QAction *jumpToLineAction1; // in the Debug menu
     QAction *jumpToLineAction2; // in the text editor context menu
+    QAction *returnFromFunctionAction;
     QAction *nextAction;
     QAction *snapshotAction;
     QAction *watchAction1; // in the Debug menu

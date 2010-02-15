@@ -119,6 +119,7 @@ const char * const RUN_TO_LINE2         = "Debugger.RunToLine2";
 const char * const RUN_TO_FUNCTION      = "Debugger.RunToFunction";
 const char * const JUMP_TO_LINE1        = "Debugger.JumpToLine1";
 const char * const JUMP_TO_LINE2        = "Debugger.JumpToLine2";
+const char * const RETURN_FROM_FUNCTION = "Debugger.ReturnFromFunction";
 const char * const SNAPSHOT             = "Debugger.Snapshot";
 const char * const TOGGLE_BREAK         = "Debugger.ToggleBreak";
 const char * const BREAK_BY_FUNCTION    = "Debugger.BreakByFunction";
@@ -797,6 +798,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     cmd = am->registerAction(actions.jumpToLineAction1,
         Constants::JUMP_TO_LINE1, debuggercontext);
+    mdebug->addAction(cmd);
+
+    cmd = am->registerAction(actions.returnFromFunctionAction,
+        Constants::RETURN_FROM_FUNCTION, debuggercontext);
     mdebug->addAction(cmd);
 
 #ifdef USE_REVERSE_DEBUGGING

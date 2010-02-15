@@ -485,7 +485,11 @@ void DebuggerManager::init()
     d->m_actions.runToLineAction1 = new QAction(tr("Run to Line"), this);
     d->m_actions.runToLineAction2 = new QAction(tr("Run to Line"), this);
 
-    d->m_actions.runToFunctionAction = new QAction(tr("Run to Outermost Function"), this);
+    d->m_actions.runToFunctionAction =
+        new QAction(tr("Run to Outermost Function"), this);
+
+    d->m_actions.returnFromFunctionAction =
+        new QAction(tr("Immediately Return From Inner Function"), this);
 
     d->m_actions.jumpToLineAction1 = new QAction(tr("Jump to Line"), this);
     d->m_actions.jumpToLineAction2 = new QAction(tr("Jump to Line"), this);
@@ -524,6 +528,8 @@ void DebuggerManager::init()
         this, SLOT(jumpToLineExec()));
     connect(d->m_actions.jumpToLineAction2, SIGNAL(triggered()),
         this, SLOT(jumpToLineExec()));
+    connect(d->m_actions.returnFromFunctionAction, SIGNAL(triggered()),
+        this, SLOT(returnExec()));
     connect(d->m_actions.watchAction1, SIGNAL(triggered()),
         this, SLOT(addToWatchWindow()));
     connect(d->m_actions.watchAction2, SIGNAL(triggered()),
@@ -1185,6 +1191,13 @@ void DebuggerManager::nextExec()
         d->m_engine->nextExec();
 }
 
+void DebuggerManager::returnExec()
+{
+    QTC_ASSERT(d->m_engine, return);
+    resetLocation();
+    d->m_engine->returnExec();
+}
+
 void DebuggerManager::watchPoint()
 {
     if (QAction *action = qobject_cast<QAction *>(sender()))
@@ -1742,8 +1755,8 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     d->m_actions.watchAction1->setEnabled(true);
     d->m_actions.watchAction2->setEnabled(true);
     d->m_actions.breakAction->setEnabled(true);
-    d->m_actions.snapshotAction->setEnabled(
-        stopped && (engineCapabilities & SnapshotCapability));
+    d->m_actions.snapshotAction->
+        setEnabled(stopped && (engineCapabilities & SnapshotCapability));
 
     const bool interruptIsExit = !running;
     if (interruptIsExit) {
@@ -1762,6 +1775,8 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     d->m_actions.runToLineAction1->setEnabled(stopped);
     d->m_actions.runToLineAction2->setEnabled(stopped);
     d->m_actions.runToFunctionAction->setEnabled(stopped);
+    d->m_actions.returnFromFunctionAction->
+        setEnabled(stopped && (engineCapabilities & ReturnFromFunctionCapability));
 
     const bool canJump = stopped && (engineCapabilities & JumpToLineCapability);
     d->m_actions.jumpToLineAction1->setEnabled(canJump);

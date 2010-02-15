@@ -53,9 +53,11 @@ const char * const C_GDBDEBUGGER        = "Gdb Debugger";
 const char * const GDBRUNNING           = "Gdb.Running";
 
 const char * const DEBUGGER_COMMON_SETTINGS_ID = "A.Common";
-const char * const DEBUGGER_COMMON_SETTINGS_NAME = QT_TRANSLATE_NOOP("Debugger", "Common");
+const char * const DEBUGGER_COMMON_SETTINGS_NAME =
+    QT_TRANSLATE_NOOP("Debugger", "Common");
 const char * const DEBUGGER_SETTINGS_CATEGORY = "O.Debugger";
-const char * const DEBUGGER_SETTINGS_TR_CATEGORY = QT_TRANSLATE_NOOP("Debugger", "Debugger");
+const char * const DEBUGGER_SETTINGS_TR_CATEGORY =
+    QT_TRANSLATE_NOOP("Debugger", "Debugger");
 
 namespace Internal {
     enum { debug = 0 };
@@ -65,8 +67,9 @@ namespace Internal {
     const char * const LD_PRELOAD_ENV_VAR = "LD_PRELOAD";
 #endif
 
-}
+} // namespace Internal
 } // namespace Constants
+
 
 enum DebuggerState
 {
@@ -121,6 +124,7 @@ enum DebuggerCapabilities
     ReloadModuleCapability = 0x80,
     ReloadModuleSymbolsCapability = 0x100,
     BreakOnThrowAndCatchCapability = 0x200,
+    ReturnFromFunctionCapability = 0x400,
 };
 
 enum LogChannel

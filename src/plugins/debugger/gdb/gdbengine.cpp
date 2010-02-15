@@ -1711,7 +1711,8 @@ unsigned GdbEngine::debuggerCapabilities() const
         | AutoDerefPointersCapability | DisassemblerCapability
         | RegisterCapability | ShowMemoryCapability
         | JumpToLineCapability | ReloadModuleCapability
-        | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability;
+        | ReloadModuleSymbolsCapability | BreakOnThrowAndCatchCapability
+        | ReturnFromFunctionCapability;
 }
 
 void GdbEngine::continueInferiorInternal()
@@ -1902,6 +1903,21 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 #endif
 }
 
+void GdbEngine::returnExec()
+{
+    QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
+    setTokenBarrier();
+    setState(InferiorRunningRequested);
+    showStatusMessage(tr("Immediate return from function requested..."), 5000);
+    postCommand("-exec-finish", RunRequest, CB(handleExecReturn));
+}
+
+void GdbEngine::handleExecReturn(const GdbResponse &response)
+{
+    if (response.resultClass == GdbResultDone) {
+        updateAll();
+    }
+}
 /*!
     \fn void GdbEngine::setTokenBarrier()
     \brief Discard the results of all pending watch-updating commands.
