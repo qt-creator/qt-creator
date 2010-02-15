@@ -35,8 +35,6 @@
 
 namespace QmlJS {
 
-class Link;
-
 namespace Interpreter {
     class Engine;
     class Context;
