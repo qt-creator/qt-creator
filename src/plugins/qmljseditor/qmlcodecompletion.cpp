@@ -614,7 +614,9 @@ bool QmlCodeCompletion::isDelimiter(const QChar &ch) const
     case '}':
     case '[':
     case ']':
+    case ')':
     case '?':
+    case '!':
     case ':':
     case ';':
     case ',':
