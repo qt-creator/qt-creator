@@ -30,7 +30,7 @@
 #ifndef QMLJSHOVERHANDLER_H
 #define QMLJSHOVERHANDLER_H
 
-#include "qmlmodelmanagerinterface.h"
+#include "qmljsmodelmanagerinterface.h"
 
 #include <QtCore/QObject>
 
@@ -79,7 +79,7 @@ private:
                         QStringList *baseClasses) const;
 
 private:
-    QmlModelManagerInterface *m_modelManager;
+    ModelManagerInterface *m_modelManager;
     QHelpEngineCore *m_helpEngine;
     QString m_helpId;
     QString m_toolTip;

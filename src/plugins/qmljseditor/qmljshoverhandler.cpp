@@ -61,7 +61,7 @@ HoverHandler::HoverHandler(QObject *parent)
     : QObject(parent)
     , m_helpEngineNeedsSetup(false)
 {
-    m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
+    m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
 
     ICore *core = ICore::instance();
     QFileInfo fi(core->settings()->fileName());

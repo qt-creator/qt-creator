@@ -27,10 +27,10 @@
 **
 **************************************************************************/
 
-#ifndef QMLMODELMANAGER_H
-#define QMLMODELMANAGER_H
+#ifndef QMLJSMODELMANAGER_H
+#define QMLJSMODELMANAGER_H
 
-#include "qmlmodelmanagerinterface.h"
+#include "qmljsmodelmanagerinterface.h"
 
 #include <qmljs/qmljsdocument.h>
 
@@ -46,12 +46,12 @@ class MimeType;
 namespace QmlJSEditor {
 namespace Internal {
 
-class QmlModelManager: public QmlModelManagerInterface
+class ModelManager: public ModelManagerInterface
 {
     Q_OBJECT
 
 public:
-    QmlModelManager(QObject *parent = 0);
+    ModelManager(QObject *parent = 0);
 
     virtual QmlJS::Snapshot snapshot() const;
     virtual void updateSourceFiles(const QStringList &files);
@@ -80,7 +80,7 @@ protected:
     static void parse(QFutureInterface<void> &future,
                       QMap<QString, WorkingCopy> workingCopy,
                       QStringList files,
-                      QmlModelManager *modelManager);
+                      ModelManager *modelManager);
 
 private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
@@ -95,4 +95,4 @@ private:
 } // namespace Internal
 } // namespace QmlJSEditor
 
-#endif // QMLMODELMANAGER_H
+#endif // QMLJSMODELMANAGER_H

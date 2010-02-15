@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "qmljseditorconstants.h"
-#include "qmlmodelmanager.h"
+#include "qmljsmodelmanager.h"
 #include "qmljseditor.h"
 
 #include <coreplugin/icore.h>
@@ -47,8 +47,8 @@ using namespace QmlJS;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
 
-QmlModelManager::QmlModelManager(QObject *parent):
-        QmlModelManagerInterface(parent),
+ModelManager::ModelManager(QObject *parent):
+        ModelManagerInterface(parent),
         m_core(Core::ICore::instance())
 {
     m_synchronizer.setCancelOnWait(true);
@@ -59,19 +59,19 @@ QmlModelManager::QmlModelManager(QObject *parent):
             this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
 }
 
-Snapshot QmlModelManager::snapshot() const
+Snapshot ModelManager::snapshot() const
 {
     QMutexLocker locker(&m_mutex);
 
     return _snapshot;
 }
 
-void QmlModelManager::updateSourceFiles(const QStringList &files)
+void ModelManager::updateSourceFiles(const QStringList &files)
 {
     refreshSourceFiles(files);
 }
 
-QFuture<void> QmlModelManager::refreshSourceFiles(const QStringList &sourceFiles)
+QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles)
 {
     if (sourceFiles.isEmpty()) {
         return QFuture<void>();
@@ -79,7 +79,7 @@ QFuture<void> QmlModelManager::refreshSourceFiles(const QStringList &sourceFiles
 
     const QMap<QString, WorkingCopy> workingCopy = buildWorkingCopyList();
 
-    QFuture<void> result = QtConcurrent::run(&QmlModelManager::parse,
+    QFuture<void> result = QtConcurrent::run(&ModelManager::parse,
                                               workingCopy, sourceFiles,
                                               this);
 
@@ -104,7 +104,7 @@ QFuture<void> QmlModelManager::refreshSourceFiles(const QStringList &sourceFiles
     return result;
 }
 
-QMap<QString, QmlModelManager::WorkingCopy> QmlModelManager::buildWorkingCopyList()
+QMap<QString, ModelManager::WorkingCopy> ModelManager::buildWorkingCopyList()
 {
     QMap<QString, WorkingCopy> workingCopy;
     Core::EditorManager *editorManager = m_core->editorManager();
@@ -123,20 +123,20 @@ QMap<QString, QmlModelManager::WorkingCopy> QmlModelManager::buildWorkingCopyLis
     return workingCopy;
 }
 
-void QmlModelManager::emitDocumentUpdated(Document::Ptr doc)
+void ModelManager::emitDocumentUpdated(Document::Ptr doc)
 { emit documentUpdated(doc); }
 
-void QmlModelManager::onDocumentUpdated(Document::Ptr doc)
+void ModelManager::onDocumentUpdated(Document::Ptr doc)
 {
     QMutexLocker locker(&m_mutex);
 
     _snapshot.insert(doc);
 }
 
-void QmlModelManager::parse(QFutureInterface<void> &future,
+void ModelManager::parse(QFutureInterface<void> &future,
                             QMap<QString, WorkingCopy> workingCopy,
                             QStringList files,
-                            QmlModelManager *modelManager)
+                            ModelManager *modelManager)
 {
     Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
     Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
@@ -186,7 +186,7 @@ void QmlModelManager::parse(QFutureInterface<void> &future,
 }
 
 // Check whether fileMimeType is the same or extends knownMimeType
-bool QmlModelManager::matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType)
+bool ModelManager::matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType)
 {
     Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
 

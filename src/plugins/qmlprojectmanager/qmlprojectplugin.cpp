@@ -43,7 +43,7 @@
 #include <texteditor/texteditoractionhandler.h>
 
 #include <projectexplorer/taskwindow.h>
-#include <qmljseditor/qmlmodelmanagerinterface.h>
+#include <qmljseditor/qmljsmodelmanagerinterface.h>
 
 #include <QtCore/QtPlugin>
 
@@ -88,7 +88,7 @@ void QmlProjectPlugin::extensionsInitialized()
     ProjectExplorer::TaskWindow *taskWindow = pluginManager->getObject<ProjectExplorer::TaskWindow>();
     m_qmlTaskManager->setTaskWindow(taskWindow);
 
-    QmlJSEditor::QmlModelManagerInterface *modelManager = pluginManager->getObject<QmlJSEditor::QmlModelManagerInterface>();
+    QmlJSEditor::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJSEditor::ModelManagerInterface>();
     Q_ASSERT(modelManager);
     connect(modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
             m_qmlTaskManager, SLOT(documentUpdated(QmlJS::Document::Ptr)));

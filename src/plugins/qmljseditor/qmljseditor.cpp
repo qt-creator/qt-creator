@@ -31,7 +31,7 @@
 #include "qmljseditorconstants.h"
 #include "qmljshighlighter.h"
 #include "qmljseditorplugin.h"
-#include "qmlmodelmanager.h"
+#include "qmljsmodelmanager.h"
 
 #include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljsinterpreter.h>
@@ -583,7 +583,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
 
     baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
-    m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
+    m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
 
     if (m_modelManager) {
         connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),

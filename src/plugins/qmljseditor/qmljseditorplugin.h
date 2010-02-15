@@ -38,7 +38,7 @@ class TextEditorActionHandler;
 
 namespace QmlJSEditor {
 
-class QmlModelManagerInterface;
+class ModelManagerInterface;
 class QmlFileWizard;
 
 namespace Internal {
@@ -70,7 +70,7 @@ public Q_SLOTS:
 private:
     static QmlJSEditorPlugin *m_instance;
 
-    QmlModelManagerInterface *m_modelManager;
+    ModelManagerInterface *m_modelManager;
     QmlFileWizard *m_wizard;
     QmlJSEditorFactory *m_editor;
     TextEditor::TextEditorActionHandler *m_actionHandler;

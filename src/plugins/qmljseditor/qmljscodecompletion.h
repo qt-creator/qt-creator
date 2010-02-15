@@ -41,7 +41,7 @@ class ITextEditable;
 
 namespace QmlJSEditor {
 
-class QmlModelManagerInterface;
+class ModelManagerInterface;
 
 namespace Internal {
 
@@ -52,7 +52,7 @@ class CodeCompletion: public TextEditor::ICompletionCollector
     Q_OBJECT
 
 public:
-    CodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent = 0);
+    CodeCompletion(ModelManagerInterface *modelManager, QObject *parent = 0);
     virtual ~CodeCompletion();
 
     Qt::CaseSensitivity caseSensitivity() const;
@@ -77,7 +77,7 @@ private:
     bool maybeTriggersCompletion(TextEditor::ITextEditable *editor);
     bool isDelimiter(const QChar &ch) const;
 
-    QmlModelManagerInterface *m_modelManager;
+    ModelManagerInterface *m_modelManager;
     TextEditor::ITextEditable *m_editor;
     int m_startPosition;
     QList<TextEditor::CompletionItem> m_completions;

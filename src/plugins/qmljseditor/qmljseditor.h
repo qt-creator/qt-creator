@@ -45,7 +45,7 @@ class ICore;
 
 namespace QmlJSEditor {
 
-class QmlModelManagerInterface;
+class ModelManagerInterface;
 
 namespace Internal {
 
@@ -178,7 +178,7 @@ private:
     QTimer *m_updateDocumentTimer;
     QTimer *m_updateUsesTimer;
     QComboBox *m_methodCombo;
-    QmlModelManagerInterface *m_modelManager;
+    ModelManagerInterface *m_modelManager;
     QTextCharFormat m_occurrencesFormat;
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;

@@ -20,8 +20,8 @@ HEADERS += \
     qmlfilewizard.h \
     qmljshighlighter.h \
     qmljshoverhandler.h \
-    qmlmodelmanager.h \
-    qmlmodelmanagerinterface.h
+    qmljsmodelmanager.h \
+    qmljsmodelmanagerinterface.h
 
 SOURCES += \
     qmljscodecompletion.cpp \
@@ -33,8 +33,8 @@ SOURCES += \
     qmlfilewizard.cpp \
     qmljshighlighter.cpp \
     qmljshoverhandler.cpp \
-    qmlmodelmanager.cpp \
-    qmlmodelmanagerinterface.cpp
+    qmljsmodelmanager.cpp \
+    qmljsmodelmanagerinterface.cpp
 
 RESOURCES += qmljseditor.qrc
 OTHER_FILES += QmlJSEditor.pluginspec QmlJSEditor.mimetypes.xml

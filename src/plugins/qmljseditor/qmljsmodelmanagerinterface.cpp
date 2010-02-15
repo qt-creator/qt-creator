@@ -27,15 +27,15 @@
 **
 **************************************************************************/
 
-#include "qmlmodelmanagerinterface.h"
+#include "qmljsmodelmanagerinterface.h"
 
 using namespace QmlJSEditor;
 
-QmlModelManagerInterface::QmlModelManagerInterface(QObject *parent):
+ModelManagerInterface::ModelManagerInterface(QObject *parent):
     QObject(parent)
 {
 }
 
-QmlModelManagerInterface::~QmlModelManagerInterface()
+ModelManagerInterface::~ModelManagerInterface()
 {
 }

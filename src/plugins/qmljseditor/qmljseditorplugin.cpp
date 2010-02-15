@@ -34,7 +34,7 @@
 #include "qmljseditorfactory.h"
 #include "qmljscodecompletion.h"
 #include "qmljshoverhandler.h"
-#include "qmlmodelmanager.h"
+#include "qmljsmodelmanager.h"
 #include "qmlfilewizard.h"
 
 #include <coreplugin/icore.h>
@@ -90,7 +90,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/qmljseditor/QmlJSEditor.mimetypes.xml"), error_message))
         return false;
 
-    m_modelManager = new QmlModelManager(this);
+    m_modelManager = new ModelManager(this);
     addAutoReleasedObject(m_modelManager);
 
     QList<int> context;

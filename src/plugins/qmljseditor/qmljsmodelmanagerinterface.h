@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLMODELMANAGERINTERFACE_H
-#define QMLMODELMANAGERINTERFACE_H
+#ifndef QMLJSMODELMANAGERINTERFACE_H
+#define QMLJSMODELMANAGERINTERFACE_H
 
 #include "qmljseditor_global.h"
 
@@ -44,13 +44,13 @@ class Snapshot;
 
 namespace QmlJSEditor {
 
-class QMLJSEDITOR_EXPORT QmlModelManagerInterface: public QObject
+class QMLJSEDITOR_EXPORT ModelManagerInterface: public QObject
 {
     Q_OBJECT
 
 public:
-    QmlModelManagerInterface(QObject *parent = 0);
-    virtual ~QmlModelManagerInterface();
+    ModelManagerInterface(QObject *parent = 0);
+    virtual ~ModelManagerInterface();
 
     virtual QmlJS::Snapshot snapshot() const = 0;
     virtual void updateSourceFiles(const QStringList &files) = 0;
@@ -61,4 +61,4 @@ signals:
 
 } // namespace QmlJSEditor
 
-#endif // QMLMODELMANAGERINTERFACE_H
+#endif // QMLJSMODELMANAGERINTERFACE_H

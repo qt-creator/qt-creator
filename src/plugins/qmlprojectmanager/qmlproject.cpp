@@ -42,7 +42,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/modemanager.h>
 
-#include <qmljseditor/qmlmodelmanagerinterface.h>
+#include <qmljseditor/qmljsmodelmanagerinterface.h>
 
 #include <utils/synchronousprocess.h>
 
@@ -85,7 +85,7 @@ const int DEFAULT_DEBUG_SERVER_PORT(3768);
 QmlProject::QmlProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
-      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJSEditor::QmlModelManagerInterface>()),
+      m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJSEditor::ModelManagerInterface>()),
       m_fileWatcher(new ProjectExplorer::FileWatcher(this)),
       m_targetFactory(new QmlTargetFactory(this))
 {

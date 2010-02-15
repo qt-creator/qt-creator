@@ -30,7 +30,7 @@
 #include "qmljscodecompletion.h"
 #include "qmlexpressionundercursor.h"
 #include "qmljseditor.h"
-#include "qmlmodelmanagerinterface.h"
+#include "qmljsmodelmanagerinterface.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsbind.h>
@@ -508,7 +508,7 @@ void FunctionArgumentWidget::updateHintText()
 
 } } // end of namespace QmlJSEditor::Internal
 
-CodeCompletion::CodeCompletion(QmlModelManagerInterface *modelManager, QObject *parent)
+CodeCompletion::CodeCompletion(ModelManagerInterface *modelManager, QObject *parent)
     : TextEditor::ICompletionCollector(parent),
       m_modelManager(modelManager),
       m_editor(0),

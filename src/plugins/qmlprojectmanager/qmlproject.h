@@ -47,7 +47,7 @@
 #include <QtDeclarative/QmlEngine>
 
 namespace QmlJSEditor {
-class QmlModelManagerInterface;
+class ModelManagerInterface;
 }
 
 namespace QmlProjectManager {
@@ -198,7 +198,7 @@ private:
     QString m_fileName;
     Internal::QmlProjectFile *m_file;
     QString m_projectName;
-    QmlJSEditor::QmlModelManagerInterface *m_modelManager;
+    QmlJSEditor::ModelManagerInterface *m_modelManager;
 
     // plain format
     QStringList m_files;
