@@ -148,6 +148,18 @@ void ModelManager::parse(QFutureInterface<void> &future,
         future.setProgressValue(i);
 
         const QString fileName = files.at(i);
+
+        const QFileInfo fileInfo(fileName);
+        Core::MimeType fileMimeTy = db->findByFile(fileInfo);
+
+        bool isQmlFile = true;
+
+        if (matchesMimeType(fileMimeTy, jsSourceTy))
+            isQmlFile = false;
+
+        else if (! matchesMimeType(fileMimeTy, qmlSourceTy))
+            continue; // skip it. it's not a QML or a JS file.
+
         QString contents;
         int documentRevision = 0;
 
@@ -169,15 +181,10 @@ void ModelManager::parse(QFutureInterface<void> &future,
         doc->setDocumentRevision(documentRevision);
         doc->setSource(contents);
 
-        const QFileInfo fileInfo(fileName);
-        Core::MimeType fileMimeTy = db->findByFile(fileInfo);
-
-        if (matchesMimeType(fileMimeTy, jsSourceTy))
-            doc->parseJavaScript();
-        else if (matchesMimeType(fileMimeTy, qmlSourceTy))
+        if (isQmlFile)
             doc->parseQml();
         else
-            qWarning() << "Don't know how to treat" << fileName;
+            doc->parseJavaScript();
 
         modelManager->emitDocumentUpdated(doc);
     }
