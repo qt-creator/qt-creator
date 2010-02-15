@@ -390,6 +390,10 @@ void Qt4Project::onAddedTarget(ProjectExplorer::Target *t)
     Q_ASSERT(t);
     connect(t, SIGNAL(targetInformationChanged()),
             this, SLOT(changeTargetInformation()));
+    Qt4Target *qt4target = qobject_cast<Qt4Target *>(t);
+    Q_ASSERT(qt4target);
+    connect(qt4target, SIGNAL(buildDirectoryInitialized()),
+            this, SIGNAL(buildDirectoryInitialized()));
 }
 
 void Qt4Project::updateCodeModel()

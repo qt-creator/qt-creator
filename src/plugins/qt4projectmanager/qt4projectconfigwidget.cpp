@@ -41,7 +41,6 @@
 #include <coreplugin/mainwindow.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildmanager.h>
 #include <utils/qtcassert.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -103,8 +102,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4Project *project)
     connect(m_ui->manageQtVersionPushButtons, SIGNAL(clicked()),
             this, SLOT(manageQtVersions()));
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager(),
-            SIGNAL(buildQueueFinished(bool)),
+    connect(project, SIGNAL(buildDirectoryInitialized()),
             this, SLOT(updateImportLabel()));
 
     QtVersionManager *vm = QtVersionManager::instance();

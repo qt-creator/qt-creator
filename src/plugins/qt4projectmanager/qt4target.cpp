@@ -190,6 +190,8 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
             this, SIGNAL(environmentChanged()));
     connect(this, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
             this, SLOT(onAddedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    connect(this, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
     connect(this, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(updateToolTipAndIcon()));
 
@@ -401,6 +403,15 @@ void Qt4Target::onAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
         return;
     connect(deviceRc, SIGNAL(serialPortNameChanged()),
             this, SLOT(slotUpdateDeviceInformation()));
+}
+
+void Qt4Target::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+{
+    Q_ASSERT(bc);
+    Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc);
+    Q_ASSERT(qt4bc);
+    connect(qt4bc, SIGNAL(buildDirectoryInitialized()),
+            this, SIGNAL(buildDirectoryInitialized()));
 }
 
 void Qt4Target::slotUpdateDeviceInformation()

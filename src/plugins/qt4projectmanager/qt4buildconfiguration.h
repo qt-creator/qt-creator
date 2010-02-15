@@ -86,6 +86,9 @@ public:
     // used by qmake step to notify that the qmake args have changed
     // not really nice
     void emitQMakeBuildConfigurationChanged();
+    // used by qmake step to notify that the build directory was initialized
+    // not really nice
+    void emitBuildDirectoryInitialized();
     void getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const;
 
     // Those functions are used in a few places.
@@ -119,6 +122,8 @@ signals:
     /// a covenience signal, emitted if either the qtversion, the toolchainType or the qmake build
     /// configuration changed
     void targetInformationChanged();
+
+    void buildDirectoryInitialized();
 
 private slots:
     void qtVersionsChanged(const QList<int> &changedVersions);

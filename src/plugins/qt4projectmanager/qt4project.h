@@ -172,6 +172,7 @@ signals:
     /// (which can happen by the active target changing, too).
     void targetInformationChanged();
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
+    void buildDirectoryInitialized();
 
 public slots:
     void proFileParseError(const QString &errorMessage);

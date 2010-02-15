@@ -99,12 +99,15 @@ signals:
     /// targetInformationChanged() or if the active build configuration changes
     void targetInformationChanged();
 
+    void buildDirectoryInitialized();
+
 protected:
     bool fromMap(const QVariantMap &map);
 
 private slots:
     void updateQtVersion();
     void onAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
+    void onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void slotUpdateDeviceInformation();
     void updateToolTipAndIcon();
 

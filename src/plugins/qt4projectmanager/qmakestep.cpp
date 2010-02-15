@@ -225,6 +225,7 @@ bool QMakeStep::processFinished(int exitCode, QProcess::ExitStatus status)
     bool result = AbstractProcessStep::processFinished(exitCode, status);
     if (!result)
         m_forced = true;
+    qt4BuildConfiguration()->emitBuildDirectoryInitialized();
     return result;
 }
 

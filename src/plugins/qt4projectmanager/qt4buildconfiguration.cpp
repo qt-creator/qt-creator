@@ -372,6 +372,11 @@ void Qt4BuildConfiguration::emitQMakeBuildConfigurationChanged()
     emit qmakeBuildConfigurationChanged();
 }
 
+void Qt4BuildConfiguration::emitBuildDirectoryInitialized()
+{
+    emit buildDirectoryInitialized();
+}
+
 void Qt4BuildConfiguration::getConfigCommandLineArguments(QStringList *addedUserConfigs, QStringList *removedUserConfigs) const
 {
     QtVersion::QmakeBuildConfigs defaultBuildConfiguration = qtVersion()->defaultBuildConfig();
