@@ -627,6 +627,16 @@ bool CodeCompletion::isDelimiter(const QChar &ch) const
     }
 }
 
+static bool isLiteral(AST::Node *ast)
+{
+    if (AST::cast<AST::StringLiteral *>(ast))
+        return true;
+    else if (AST::cast<AST::NumericLiteral *>(ast))
+        return true;
+    else
+        return false;
+}
+
 int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 {
     m_editor = editor;
@@ -691,9 +701,8 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
         QmlExpressionUnderCursor expressionUnderCursor;
         QmlJS::AST::ExpressionNode *expression = expressionUnderCursor(tc);
-        //qDebug() << "expression:" << expression;
 
-        if (expression  != 0) {
+        if (expression != 0 && ! isLiteral(expression)) {
             Evaluate evaluate(&context);
 
             // Evaluate the expression under cursor.

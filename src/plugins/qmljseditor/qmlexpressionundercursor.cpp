@@ -39,89 +39,83 @@
 using namespace QmlJS;
 using namespace QmlJS::AST;
 
-namespace QmlJSEditor {
-    namespace Internal {
+namespace {
 
-        class ExpressionUnderCursor
-        {
-            QTextCursor _cursor;
-            Scanner scanner;
+class ExpressionUnderCursor
+{
+    QTextCursor _cursor;
+    Scanner scanner;
 
-        public:
-            ExpressionUnderCursor()
-                : start(0), end(0)
-            {}
+public:
+    ExpressionUnderCursor()
+        : start(0), end(0)
+    {}
 
-            int start, end;
+    int start, end;
 
-            QString operator()(const QTextCursor &cursor)
-            {
-                _cursor = cursor;
-
-                QTextBlock block = _cursor.block();
-                const QString blockText = block.text().left(cursor.columnNumber());
-                //qDebug() << "block text:" << blockText;
-
-                int startState = block.previous().userState();
-                if (startState == -1)
-                    startState = 0;
-                else
-                    startState = startState & 0xff;
-
-                const QList<Token> originalTokens = scanner(blockText, startState);
-                QList<Token> tokens;
-                int skipping = 0;
-                for (int index = originalTokens.size() - 1; index != -1; --index) {
-                    const Token &tk = originalTokens.at(index);
-
-                    if (tk.is(Token::Comment) || tk.is(Token::String) || tk.is(Token::Number))
-                        continue;
-
-                    if (! skipping) {
-                        tokens.append(tk);
-
-                        if (tk.is(Token::Identifier)) {
-                            if (index > 0 && originalTokens.at(index - 1).isNot(Token::Dot))
-                                break;
-                        }
-                    } else {
-                        //qDebug() << "skip:" << blockText.mid(tk.offset, tk.length);
-                    }
-
-                    if (tk.is(Token::RightParenthesis) || tk.is(Token::RightBracket))
-                        ++skipping;
-
-                    else if (tk.is(Token::LeftParenthesis) || tk.is(Token::LeftBracket)) {
-                        --skipping;
-
-                        if (! skipping)
-                            tokens.append(tk);
-
-                        if (index > 0 && originalTokens.at(index - 1).isNot(Token::Identifier))
-                            break;
-                    }
-                }
-
-                if (! tokens.isEmpty()) {
-                    QString expr;
-                    for (int index = tokens.size() - 1; index >= 0; --index) {
-                        Token tk = tokens.at(index);
-                        expr.append(QLatin1Char(' '));
-                        expr.append(blockText.midRef(tk.offset, tk.length));
-
-                    }
-                    start = tokens.first().begin();
-                    end = tokens.first().end();
-                    //qDebug() << "expression under cursor:" << expr;
-                    return expr;
-                }
-
-                //qDebug() << "no expression";
-                return QString();
-            }
-        };
+    int startState(const QTextBlock &block) const
+    {
+        int state = block.previous().userState();
+        if (state == -1)
+            return 0;
+        return state & 0xff;
     }
-}
+
+    QString operator()(const QTextCursor &cursor)
+    {
+        return process(cursor);
+    }
+
+    int startOfExpression(const QList<Token> &tokens) const
+    {
+        return startOfExpression(tokens, tokens.size() - 1);
+    }
+
+    int startOfExpression(const QList<Token> &tokens, int index) const
+    {
+        if (index != -1) {
+            const Token &tk = tokens.at(index);
+
+            if (tk.is(Token::Identifier)) {
+                if (index > 0 && tokens.at(index - 1).is(Token::Dot))
+                    index = startOfExpression(tokens, index - 2);
+
+            } else if (tk.is(Token::RightParenthesis)) {
+                do { --index; }
+                while (index != -1 && tokens.at(index).isNot(Token::LeftParenthesis));
+                if (index > 0 && tokens.at(index - 1).is(Token::Identifier))
+                    index = startOfExpression(tokens, index - 1);
+
+            } else if (tk.is(Token::RightBracket)) {
+                do { --index; }
+                while (index != -1 && tokens.at(index).isNot(Token::LeftBracket));
+                if (index > 0 && tokens.at(index - 1).is(Token::Identifier))
+                    index = startOfExpression(tokens, index - 1);
+            }
+        }
+
+        return index;
+    }
+
+    QString process(const QTextCursor &cursor)
+    {
+        _cursor = cursor;
+
+        QTextBlock block = _cursor.block();
+        const QString blockText = block.text().left(cursor.columnNumber());
+
+        scanner.setScanComments(false);
+        const QList<Token> tokens = scanner(blockText, startState(block));
+        int start = startOfExpression(tokens);
+        if (start == -1)
+            return QString();
+
+        const Token &tk = tokens.at(start);
+        return blockText.mid(tk.begin(), tokens.last().end() - tk.begin());
+    }
+};
+
+} // enf of anonymous namespace
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
