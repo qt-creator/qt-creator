@@ -80,6 +80,7 @@ public:
     bool parseAccessDeclaration(DeclarationAST *&node);
     bool parseQtPropertyDeclaration(DeclarationAST *&node);
     bool parseQtEnumDeclaration(DeclarationAST *&node);
+    bool parseEnumName(NameAST *&node);
     bool parseQtFlags(DeclarationAST *&node);
     bool parseAdditiveExpression(ExpressionAST *&node);
     bool parseAndExpression(ExpressionAST *&node);
