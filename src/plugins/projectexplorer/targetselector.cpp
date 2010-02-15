@@ -139,7 +139,7 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
             // handle clicked target
             // check if user clicked on Build or Run
             if (event->y() > TARGET_HEIGHT * 3/5) {
-                if ((event->x() - (TARGET_WIDTH + 1) * index) - 2 > TARGET_WIDTH / 2) {
+                if ((event->x() - (ADDBUTTON_WIDTH + (TARGET_WIDTH + 1) * index)) - 2 > TARGET_WIDTH / 2) {
                     m_targets[index].currentSubIndex = 1;
                 } else {
                     m_targets[index].currentSubIndex = 0;
