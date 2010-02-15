@@ -281,6 +281,8 @@ QString MakeStepConfigWidget::displayName() const
 
 void MakeStepConfigWidget::userArgumentsChanged()
 {
+    if (m_ignoreChange)
+        return;
     const QStringList &makeArguments = m_makeStep->userArguments();
     m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
     updateDetails();
