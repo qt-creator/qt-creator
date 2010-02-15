@@ -94,7 +94,7 @@ private:
     bool m_qmlEnabled;
     int m_braceDepth;
 
-    QmlJS::QmlJSScanner m_scanner;
+    QmlJS::Scanner m_scanner;
     Parentheses m_currentBlockParentheses;
 
     QTextCharFormat m_formats[NumFormats];

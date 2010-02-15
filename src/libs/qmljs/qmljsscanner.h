@@ -74,11 +74,11 @@ public:
     Kind kind;
 };
 
-class QMLJS_EXPORT QmlJSScanner
+class QMLJS_EXPORT Scanner
 {
 public:
-    QmlJSScanner();
-    virtual ~QmlJSScanner();
+    Scanner();
+    virtual ~Scanner();
 
     bool scanComments() const;
     void setScanComments(bool scanComments);

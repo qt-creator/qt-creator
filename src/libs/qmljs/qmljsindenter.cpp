@@ -205,7 +205,7 @@ void QmlJSIndenter::eraseChar(QString &t, int k, QChar ch) const
 */
 QString QmlJSIndenter::trimmedCodeLine(const QString &t)
 {
-    QmlJSScanner scanner;
+    Scanner scanner;
 
     QTextBlock currentLine = yyLinizerState.iter;
     int startState = qMax(0, currentLine.previous().userState()) & 0xff;

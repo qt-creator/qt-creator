@@ -402,7 +402,7 @@ void FunctionArgumentWidget::updateArgumentHighlight()
     QString str = m_editor->textAt(m_startpos, curpos - m_startpos);
     int argnr = 0;
     int parcount = 0;
-    QmlJSScanner tokenize;
+    Scanner tokenize;
     const QList<Token> tokens = tokenize(str);
     for (int i = 0; i < tokens.count(); ++i) {
         const Token &tk = tokens.at(i);
@@ -557,7 +557,7 @@ bool QmlCodeCompletion::triggersCompletion(TextEditor::ITextEditable *editor)
             const int blockState = qMax(0, block.previous().userState()) & 0xff;
             const QString blockText = block.text();
 
-            QmlJSScanner scanner;
+            Scanner scanner;
             const QList<Token> tokens = scanner(blockText, blockState);
             foreach (const Token &tk, tokens) {
                 if (column >= tk.begin() && column <= tk.end()) {

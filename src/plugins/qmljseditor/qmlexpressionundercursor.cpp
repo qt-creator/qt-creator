@@ -45,7 +45,7 @@ namespace QmlJSEditor {
         class ExpressionUnderCursor
         {
             QTextCursor _cursor;
-            QmlJSScanner scanner;
+            Scanner scanner;
 
         public:
             ExpressionUnderCursor()

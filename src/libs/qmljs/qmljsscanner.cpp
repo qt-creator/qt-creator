@@ -76,22 +76,22 @@ const _Tp *end(const _Tp (&a)[N])
     return a + N;
 }
 
-QmlJSScanner::QmlJSScanner()
+Scanner::Scanner()
     : _state(0),
       _scanComments(true)
 {
 }
 
-QmlJSScanner::~QmlJSScanner()
+Scanner::~Scanner()
 {
 }
 
-bool QmlJSScanner::scanComments() const
+bool Scanner::scanComments() const
 {
     return _scanComments;
 }
 
-void QmlJSScanner::setScanComments(bool scanComments)
+void Scanner::setScanComments(bool scanComments)
 {
     _scanComments = scanComments;
 }
@@ -120,7 +120,7 @@ static bool isNumberChar(QChar ch)
     }
 }
 
-QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
+QList<Token> Scanner::operator()(const QString &text, int startState)
 {
     enum {
         Normal = 0,
@@ -297,12 +297,12 @@ QList<Token> QmlJSScanner::operator()(const QString &text, int startState)
     return tokens;
 }
 
-int QmlJSScanner::state() const
+int Scanner::state() const
 {
     return _state;
 }
 
-bool QmlJSScanner::isKeyword(const QString &text) const
+bool Scanner::isKeyword(const QString &text) const
 {
     if (qBinaryFind(begin(js_keywords), end(js_keywords), text) != end(js_keywords))
         return true;
