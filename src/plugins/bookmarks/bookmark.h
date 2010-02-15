@@ -64,16 +64,13 @@ public:
     inline int lineNumber() const { return m_lineNumber; }
 
 private:
-    static const QIcon m_bookmarkIcon;
-
     BookmarkManager *m_manager;
-    int m_lineNumber;
-    QString m_name;
-    QString m_fileName;
-    QString m_onlyFile;
-    QString m_path;
+    const QFileInfo m_fileInfo;
+    const QString m_fileName;
+    const QString m_onlyFile;
+    const QString m_path;
     QString m_lineText;
-    QFileInfo m_fileInfo;
+    int m_lineNumber;
 };
 
 } // namespace Internal

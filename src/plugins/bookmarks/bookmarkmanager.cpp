@@ -202,16 +202,16 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->restore();
 }
 
-BookmarkView::BookmarkView(QWidget *parent)
-    : QListView(parent)
+BookmarkView::BookmarkView(QWidget *parent)  :
+    QListView(parent),
+    m_bookmarkContext(new BookmarkContext(this)),
+    m_manager(0)
 {
     setWindowTitle(tr("Bookmarks"));
-    setWindowIcon(QIcon(":/bookmarks/images/bookmark.png"));
 
     connect(this, SIGNAL(clicked(const QModelIndex &)),
             this, SLOT(gotoBookmark(const QModelIndex &)));
 
-    m_bookmarkContext = new BookmarkContext(this);
     ICore::instance()->addContextObject(m_bookmarkContext);
 
     setItemDelegate(new BookmarkDelegate(this));
@@ -317,11 +317,10 @@ QWidget *BookmarkContext::widget()
 // BookmarkManager
 ////
 
-BookmarkManager::BookmarkManager()
-  : m_bookmarkIcon(QIcon(QLatin1String(":/bookmarks/images/bookmark.png")))
+BookmarkManager::BookmarkManager() :
+    m_bookmarkIcon(QLatin1String(":/bookmarks/images/bookmark.png")),
+    m_selectionModel(new QItemSelectionModel(this, this))
 {
-    m_selectionModel = new QItemSelectionModel(this, this);
-
     connect(Core::ICore::instance(), SIGNAL(contextChanged(Core::IContext*)),
             this, SLOT(updateActionStatus()));
 

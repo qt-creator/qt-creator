@@ -35,21 +35,20 @@
 
 using namespace Bookmarks::Internal;
 
-const QIcon Bookmark::m_bookmarkIcon = QIcon(":/bookmarks/images/bookmark.png");
-
-Bookmark::Bookmark(const QString& fileName, int lineNumber, BookmarkManager *manager)
-    : BaseTextMark(fileName, lineNumber), m_manager(manager)
+Bookmark::Bookmark(const QString& fileName, int lineNumber, BookmarkManager *manager) :
+    BaseTextMark(fileName, lineNumber),
+    m_manager(manager),
+    m_fileInfo(fileName),
+    m_fileName(fileName),
+    m_onlyFile(m_fileInfo.fileName()),
+    m_path(m_fileInfo.path()),
+    m_lineNumber(lineNumber)
 {
-    m_fileName = fileName;
-    m_fileInfo.setFile(fileName);
-    m_onlyFile = m_fileInfo.fileName();
-    m_path = m_fileInfo.path();
-    m_lineNumber= lineNumber;
 }
 
 QIcon Bookmark::icon() const
 {
-    return m_bookmarkIcon;
+    return m_manager->bookmarkIcon();
 }
 
 void Bookmark::removedFromEditor()

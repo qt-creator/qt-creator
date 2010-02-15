@@ -182,9 +182,10 @@ private:
         const qint32 depth) const;
 
 private:
+    const QIcon m_folderIcon;
+    const QIcon m_bookmarkIcon;
+
     QString oldText;
-    QIcon folderIcon;
-    QIcon bookmarkIcon;
 
     BookmarkModel *treeModel;
     BookmarkModel *listModel;

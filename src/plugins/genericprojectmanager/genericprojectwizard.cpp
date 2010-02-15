@@ -89,8 +89,8 @@ GenericProjectWizard::~GenericProjectWizard()
 
 Core::BaseFileWizardParameters GenericProjectWizard::parameters()
 {
-    static Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(":/wizards/images/console.png"));
+    Core::BaseFileWizardParameters parameters(ProjectWizard);
+    parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
     parameters.setDisplayName(tr("Import of Makefile-based Project"));
     parameters.setId(QLatin1String("Z.Makefile"));
     parameters.setDescription(tr("Creates a generic project, supporting any build system."));

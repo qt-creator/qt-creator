@@ -603,14 +603,13 @@ Qt::ItemFlags BookmarkModel::flags(const QModelIndex &index) const
 // #pragma mark -- BookmarkManager
 
 
-BookmarkManager::BookmarkManager(QHelpEngineCore* _helpEngine)
-    : treeModel(new BookmarkModel(0, 1, this))
-    , listModel(new BookmarkModel(0, 1, this))
-    , helpEngine(_helpEngine)
+BookmarkManager::BookmarkManager(QHelpEngineCore* _helpEngine)  :
+    m_folderIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon)),
+    m_bookmarkIcon(QLatin1String(":/help/images/bookmark.png")),
+    treeModel(new BookmarkModel(0, 1, this)),
+    listModel(new BookmarkModel(0, 1, this)),
+    helpEngine(_helpEngine)
 {
-    bookmarkIcon = QIcon(QLatin1String(":/help/images/bookmark.png"));
-    folderIcon = QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon);
-
     connect(treeModel, SIGNAL(itemChanged(QStandardItem*)), this,
         SLOT(itemChanged(QStandardItem*)));
 }
@@ -660,7 +659,7 @@ QModelIndex BookmarkManager::addNewFolder(const QModelIndex& index)
 {
     QStandardItem *item = new QStandardItem(uniqueFolderName());
     item->setEditable(false);
-    item->setIcon(folderIcon);
+    item->setIcon(m_folderIcon);
     item->setData(false, Qt::UserRole + 11);
     item->setData(QLatin1String("Folder"), Qt::UserRole + 10);
     item->setIcon(QApplication::style()->standardIcon(QStyle::SP_DirClosedIcon));
@@ -716,7 +715,7 @@ void BookmarkManager::addNewBookmark(const QModelIndex& index,
 {
     QStandardItem *item = new QStandardItem(name);
     item->setEditable(false);
-    item->setIcon(bookmarkIcon);
+    item->setIcon(m_bookmarkIcon);
     item->setData(false, Qt::UserRole + 11);
     item->setData(url, Qt::UserRole + 10);
 
@@ -782,10 +781,10 @@ void BookmarkManager::setupBookmarkModels()
         }
 
         if (type != QLatin1String("Folder")) {
-            item->setIcon(bookmarkIcon);
+            item->setIcon(m_bookmarkIcon);
             listModel->appendRow(item->clone());
         } else {
-            item->setIcon(folderIcon);
+            item->setIcon(m_folderIcon);
         }
     }
 }

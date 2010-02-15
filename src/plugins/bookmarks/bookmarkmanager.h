@@ -66,6 +66,9 @@ class BookmarkManager : public QAbstractItemModel
 public:
     BookmarkManager();
     ~BookmarkManager();
+
+    QIcon bookmarkIcon() const { return m_bookmarkIcon; }
+
     void updateBookmark(Bookmark *bookmark);
     void removeBookmark(Bookmark *bookmark); // Does not remove the mark
     void removeAllBookmarks();
@@ -127,7 +130,7 @@ private:
 
     DirectoryFileBookmarksMap m_bookmarksMap;
 
-    QIcon m_bookmarkIcon;
+    const QIcon m_bookmarkIcon;
 
     QList<Bookmark *> m_bookmarksList;
     QItemSelectionModel *m_selectionModel;
