@@ -87,7 +87,7 @@ private:
     {
         if (targetPropertyName.isEmpty()) {
             // insert as UiObjectDefinition:
-            UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, QString(), propertyOrder);
+            UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, propertyOrder);
 
             if (insertAfter && insertAfter->member) {
                 moveInfo.destination = insertAfter->member->lastSourceLocation().end();

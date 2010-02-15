@@ -270,6 +270,34 @@ void QMLRewriter::includeLeadingEmptyLine(int &start) const
     start = prevBlock.position();
 }
 
+UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QStringList &propertyOrder)
+{
+    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(QString::null);
+    UiObjectMemberList *previous = 0;
+    for (UiObjectMemberList *iter = members; iter; iter = iter->next) {
+        UiObjectMember *member = iter->member;
+        int idx = -1;
+
+        if (UiArrayBinding *arrayBinding = cast<UiArrayBinding*>(member))
+            idx = propertyOrder.indexOf(flatten(arrayBinding->qualifiedId));
+        else if (UiObjectBinding *objectBinding = cast<UiObjectBinding*>(member))
+            idx = propertyOrder.indexOf(flatten(objectBinding->qualifiedId));
+        else if (cast<UiObjectDefinition*>(member))
+            idx = propertyOrder.indexOf(QString::null);
+        else if (UiScriptBinding *scriptBinding = cast<UiScriptBinding*>(member))
+            idx = propertyOrder.indexOf(flatten(scriptBinding->qualifiedId));
+        else if (cast<UiPublicMember*>(member))
+            idx = propertyOrder.indexOf(QLatin1String("property"));
+
+        if (idx > objectDefinitionInsertionPoint)
+            return iter;
+
+        previous = iter;
+    }
+
+    return previous;
+}
+
 UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *members, const QString &propertyName, const QStringList &propertyOrder)
 {
     if (!members)
@@ -298,9 +326,9 @@ UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(UiObjectMemberList *m
     if (idx == -1)
         idx = propertyOrder.size() - 1;
 
-    for (; idx >= 0; --idx) {
-        const QString prop = propertyOrder.at(idx);
-        UiObjectMemberList *candidate = orderedMembers[prop];
+    for (; idx > 0; --idx) {
+        const QString prop = propertyOrder.at(idx - 1);
+        UiObjectMemberList *candidate = orderedMembers.value(prop, 0);
         if (candidate != 0)
             return candidate;
     }

@@ -72,7 +72,7 @@ bool AddObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 
 void AddObjectVisitor::insertInto(QmlJS::AST::UiObjectInitializer *ast)
 {
-    UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, QString(), m_propertyOrder);
+    UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
 
     int insertionPoint;
     int depth;
