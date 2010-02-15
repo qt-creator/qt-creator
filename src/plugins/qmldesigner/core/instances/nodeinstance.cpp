@@ -181,7 +181,7 @@ NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const Mode
 
     instance.m_nodeInstance->setModelNode(node);
 
-    instance.m_nodeInstance->setNodeInstance(nodeInstanceView);
+    instance.m_nodeInstance->setNodeInstanceView(nodeInstanceView);
 
     instance.setId(node.id());
 
@@ -198,7 +198,7 @@ NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const Mode
 NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const NodeMetaInfo &metaInfo, QmlContext *context)
 {
     NodeInstance instance(createInstance(metaInfo, context, 0));
-    instance.m_nodeInstance->setNodeInstance(nodeInstanceView);
+    instance.m_nodeInstance->setNodeInstanceView(nodeInstanceView);
 
     return instance;
 }

@@ -93,6 +93,10 @@ ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     m_object(object),
     m_metaObject(0)
 {
+    if (modelNode().isRootNode())
+        m_metaObject = new NodeInstanceMetaObject(object, context());
+    else
+        m_metaObject = new NodeInstanceMetaObject(object, 0);
 }
 
 ObjectNodeInstance::~ObjectNodeInstance()
@@ -701,13 +705,6 @@ static bool metaObjectHasNotPropertyName(NodeInstanceMetaObject *metaObject, con
 
 void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
 {
-    if (m_metaObject == 0) {
-        if (modelNode().isRootNode())
-            m_metaObject = new NodeInstanceMetaObject(object(), context());
-        else
-            m_metaObject = new NodeInstanceMetaObject(object(), 0);
-    }
-
     if (metaObjectHasNotPropertyName(m_metaObject, name))
         m_metaObject->createNewProperty(name);
 }
