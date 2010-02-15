@@ -29,7 +29,7 @@
 
 #include "qmljseditorplugin.h"
 
-#include "qmlhighlighter.h"
+#include "qmljshighlighter.h"
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditorfactory.h"

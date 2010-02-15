@@ -27,37 +27,41 @@
 **
 **************************************************************************/
 
-#include <qmljs/qmljshighlighter.h>
+#include "qmljshighlighter.h"
 
 #include <QtCore/QSet>
 #include <QtCore/QtAlgorithms>
 #include <QtCore/QDebug>
 
+#include <utils/qtcassert.h>
+
+using namespace QmlJSEditor;
+using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 
-QScriptHighlighter::QScriptHighlighter(bool duiEnabled, QTextDocument *parent):
-        QSyntaxHighlighter(parent),
-        m_duiEnabled(duiEnabled)
+Highlighter::Highlighter(QTextDocument *parent)
+    : QSyntaxHighlighter(parent),
+      m_qmlEnabled(true)
 {
-    QVector<QTextCharFormat> rc;
-    rc.resize(NumFormats);
-    rc[NumberFormat].setForeground(Qt::blue);
-    rc[StringFormat].setForeground(Qt::darkGreen);
-    rc[TypeFormat].setForeground(Qt::darkMagenta);
-    rc[KeywordFormat].setForeground(Qt::darkYellow);
-    rc[LabelFormat].setForeground(Qt::darkRed);
-    rc[CommentFormat].setForeground(Qt::red); rc[CommentFormat].setFontItalic(true);
-    rc[PreProcessorFormat].setForeground(Qt::darkBlue);
-    rc[VisualWhitespace].setForeground(Qt::lightGray); // for debug: rc[VisualWhitespace].setBackground(Qt::red);
-    setFormats(rc);
+    m_currentBlockParentheses.reserve(20);
+    m_braceDepth = 0;
 }
 
-bool QScriptHighlighter::isDuiEnabled() const
+Highlighter::~Highlighter()
 {
-    return m_duiEnabled;
 }
 
-QTextCharFormat QScriptHighlighter::labelTextCharFormat() const
+bool Highlighter::isQmlEnabled() const
+{
+    return m_qmlEnabled;
+}
+
+void Highlighter::setQmlEnabled(bool qmlEnabled)
+{
+    m_qmlEnabled = qmlEnabled;
+}
+
+QTextCharFormat Highlighter::labelTextCharFormat() const
 {
     return m_formats[LabelFormat];
 }
@@ -77,7 +81,7 @@ static bool checkStartOfBinding(const Token &token)
     } // end of switch
 }
 
-void QScriptHighlighter::highlightBlock(const QString &text)
+void Highlighter::highlightBlock(const QString &text)
 {
     const QList<Token> tokens = m_scanner(text, onBlockStart());
 
@@ -125,7 +129,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
             case Token::Identifier: {
                 const QStringRef spell = text.midRef(token.offset, token.length);
 
-                if (m_duiEnabled && maybeQmlKeyword(spell)) {
+                if (m_qmlEnabled && maybeQmlKeyword(spell)) {
                     // check the previous token
                     if (index == 0 || tokens.at(index - 1).isNot(Token::Dot)) {
                         if (index + 1 == tokens.size() || tokens.at(index + 1).isNot(Token::Colon)) {
@@ -133,7 +137,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
                             break;
                         }
                     }
-                } else if (m_duiEnabled && index > 0 && maybeQmlBuiltinType(spell)) {
+                } else if (m_qmlEnabled && index > 0 && maybeQmlBuiltinType(spell)) {
                     const Token &previousToken = tokens.at(index - 1);
                     if (previousToken.is(Token::Identifier) && text.at(previousToken.offset) == QLatin1Char('p')
                         && text.midRef(previousToken.offset, previousToken.length) == QLatin1String("property")) {
@@ -219,30 +223,7 @@ void QScriptHighlighter::highlightBlock(const QString &text)
     onBlockEnd(m_scanner.state(), firstNonSpace);
 }
 
-void QScriptHighlighter::setFormats(const QVector<QTextCharFormat> &s)
-{
-    Q_ASSERT(s.size() == NumFormats);
-    qCopy(s.constBegin(), s.constEnd(), m_formats);
-}
-
-int QScriptHighlighter::onBlockStart()
-{
-    return currentBlockState();
-}
-
-void QScriptHighlighter::onBlockEnd(int, int)
-{
-}
-
-void QScriptHighlighter::onOpeningParenthesis(QChar, int)
-{
-}
-
-void QScriptHighlighter::onClosingParenthesis(QChar, int)
-{
-}
-
-bool QScriptHighlighter::maybeQmlKeyword(const QStringRef &text) const
+bool Highlighter::maybeQmlKeyword(const QStringRef &text) const
 {
     if (text.isEmpty())
         return false;
@@ -265,7 +246,7 @@ bool QScriptHighlighter::maybeQmlKeyword(const QStringRef &text) const
     }
 }
 
-bool QScriptHighlighter::maybeQmlBuiltinType(const QStringRef &text) const
+bool Highlighter::maybeQmlBuiltinType(const QStringRef &text) const
 {
     if (text.isEmpty())
         return false;
@@ -296,3 +277,68 @@ bool QScriptHighlighter::maybeQmlBuiltinType(const QStringRef &text) const
         return false;
     }
 }
+
+int Highlighter::onBlockStart()
+{
+    m_currentBlockParentheses.clear();
+    m_braceDepth = 0;
+
+    int state = 0;
+    int previousState = previousBlockState();
+    if (previousState != -1) {
+        state = previousState & 0xff;
+        m_braceDepth = previousState >> 8;
+    }
+
+    return state;
+}
+
+void Highlighter::onBlockEnd(int state, int firstNonSpace)
+{
+    typedef TextEditor::TextBlockUserData TextEditorBlockData;
+
+    setCurrentBlockState((m_braceDepth << 8) | state);
+
+    // Set block data parentheses. Force creation of block data unless empty
+    TextEditorBlockData *blockData = 0;
+
+    if (QTextBlockUserData *userData = currentBlockUserData())
+        blockData = static_cast<TextEditorBlockData *>(userData);
+
+    if (!blockData && !m_currentBlockParentheses.empty()) {
+        blockData = new TextEditorBlockData;
+        setCurrentBlockUserData(blockData);
+    }
+    if (blockData) {
+        blockData->setParentheses(m_currentBlockParentheses);
+        blockData->setClosingCollapseMode(TextEditor::TextBlockUserData::NoClosingCollapse);
+        blockData->setCollapseMode(TextEditor::TextBlockUserData::NoCollapse);
+    }
+    if (!m_currentBlockParentheses.isEmpty()) {
+        QTC_ASSERT(blockData, return);
+        int collapse = Parenthesis::collapseAtPos(m_currentBlockParentheses);
+        if (collapse >= 0) {
+            if (collapse == firstNonSpace)
+                blockData->setCollapseMode(TextEditor::TextBlockUserData::CollapseThis);
+            else
+                blockData->setCollapseMode(TextEditor::TextBlockUserData::CollapseAfter);
+        }
+        if (Parenthesis::hasClosingCollapse(m_currentBlockParentheses))
+            blockData->setClosingCollapseMode(TextEditor::TextBlockUserData::NoClosingCollapse);
+    }
+}
+
+void Highlighter::onOpeningParenthesis(QChar parenthesis, int pos)
+{
+    if (parenthesis == QLatin1Char('{') || parenthesis == QLatin1Char('['))
+        ++m_braceDepth;
+    m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Opened, parenthesis, pos));
+}
+
+void Highlighter::onClosingParenthesis(QChar parenthesis, int pos)
+{
+    if (parenthesis == QLatin1Char('}') || parenthesis == QLatin1Char(']'))
+        --m_braceDepth;
+    m_currentBlockParentheses.push_back(Parenthesis(Parenthesis::Closed, parenthesis, pos));
+}
+

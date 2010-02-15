@@ -18,7 +18,7 @@ HEADERS += \
     qmljseditorplugin.h \
     qmlexpressionundercursor.h \
     qmlfilewizard.h \
-    qmlhighlighter.h \
+    qmljshighlighter.h \
     qmlhoverhandler.h \
     qmlmodelmanager.h \
     qmlmodelmanagerinterface.h
@@ -31,7 +31,7 @@ SOURCES += \
     qmljseditorplugin.cpp \
     qmlexpressionundercursor.cpp \
     qmlfilewizard.cpp \
-    qmlhighlighter.cpp \
+    qmljshighlighter.cpp \
     qmlhoverhandler.cpp \
     qmlmodelmanager.cpp \
     qmlmodelmanagerinterface.cpp

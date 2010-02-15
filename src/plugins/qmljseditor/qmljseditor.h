@@ -49,7 +49,7 @@ class QmlModelManagerInterface;
 
 namespace Internal {
 
-class QmlHighlighter;
+class Highlighter;
 class QmlJSTextEditor;
 
 class QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable
@@ -180,6 +180,8 @@ private:
     QComboBox *m_methodCombo;
     QmlModelManagerInterface *m_modelManager;
     QTextCharFormat m_occurrencesFormat;
+    QTextCharFormat m_occurrencesUnusedFormat;
+    QTextCharFormat m_occurrenceRenameFormat;
 
     SemanticInfo m_semanticInfo;
 };

@@ -6,8 +6,6 @@ contains(CONFIG, dll) {
 
 include(parser/parser.pri)
 
-DEFINES += QSCRIPTHIGHLIGHTER_BUILD_LIB
-
 DEPENDPATH += $$PWD
 INCLUDEPATH += $$PWD/..
 
@@ -36,6 +34,6 @@ contains(QT_CONFIG, declarative) {
 }
 
 contains(QT, gui) {
-    SOURCES += $$PWD/qmljshighlighter.cpp $$PWD/qmljsindenter.cpp
-    HEADERS += $$PWD/qmljshighlighter.h $$PWD/qmljsindenter.h
+    SOURCES += $$PWD/qmljsindenter.cpp
+    HEADERS += $$PWD/qmljsindenter.h
 }

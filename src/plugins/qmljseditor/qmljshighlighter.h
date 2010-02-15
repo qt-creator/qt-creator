@@ -36,47 +36,71 @@
 #include <QtCore/QSet>
 #include <QtGui/QSyntaxHighlighter>
 
-namespace QmlJS {
+#include <texteditor/basetexteditor.h>
 
-class QMLJS_EXPORT QScriptHighlighter : public QSyntaxHighlighter
+namespace QmlJSEditor {
+namespace Internal {
+
+class Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
+
 public:
-    QScriptHighlighter(bool duiEnabled = false, QTextDocument *parent = 0);
-    virtual void highlightBlock(const QString &text);
+    Highlighter(QTextDocument *parent = 0);
+    virtual ~Highlighter();
 
-    enum { NumberFormat, StringFormat, TypeFormat,
-           KeywordFormat, PreProcessorFormat, LabelFormat, CommentFormat,
-           VisualWhitespace,
-           NumFormats };
+    enum {
+        NumberFormat,
+        StringFormat,
+        TypeFormat,
+        KeywordFormat,
+        LabelFormat,
+        CommentFormat,
+        VisualWhitespace,
+        NumFormats
+    };
 
-    bool isDuiEnabled() const;
+    bool isQmlEnabled() const;
+    void setQmlEnabled(bool duiEnabled);
 
     // MS VC 6 compatible, still.
-    void setFormats(const QVector<QTextCharFormat> &s);
+    // Set formats from a sequence of type QTextCharFormat
+    template <class InputIterator>
+    void setFormats(InputIterator begin, InputIterator end)
+    {
+        qCopy(begin, end, m_formats);
+    }
 
     QTextCharFormat labelTextCharFormat() const;
 
 protected:
-    virtual int onBlockStart();
-    virtual void onBlockEnd(int state, int firstNonSpace);
+    virtual void highlightBlock(const QString &text);
+
+    int onBlockStart();
+    void onBlockEnd(int state, int firstNonSpace);
 
     // The functions are notified whenever parentheses are encountered.
     // Custom behaviour can be added, for example storing info for indenting.
-    virtual void onOpeningParenthesis(QChar parenthesis, int pos);
-    virtual void onClosingParenthesis(QChar parenthesis, int pos);
+    void onOpeningParenthesis(QChar parenthesis, int pos);
+    void onClosingParenthesis(QChar parenthesis, int pos);
 
     bool maybeQmlKeyword(const QStringRef &text) const;
     bool maybeQmlBuiltinType(const QStringRef &text) const;
 
-protected:
-    QmlJSScanner m_scanner;
-
 private:
+    typedef TextEditor::Parenthesis Parenthesis;
+    typedef TextEditor::Parentheses Parentheses;
+
+    bool m_qmlEnabled;
+    int m_braceDepth;
+
+    QmlJS::QmlJSScanner m_scanner;
+    Parentheses m_currentBlockParentheses;
+
     QTextCharFormat m_formats[NumFormats];
-    bool m_duiEnabled;
 };
 
-} // namespace QmlJS
+} // end of namespace Internal
+} // end of namespace QmlJSEditor
 
 #endif // QSCRIPTSYNTAXHIGHLIGHTER_H

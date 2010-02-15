@@ -29,7 +29,7 @@
 
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
-#include "qmlhighlighter.h"
+#include "qmljshighlighter.h"
 #include "qmljseditorplugin.h"
 #include "qmlmodelmanager.h"
 
@@ -581,7 +581,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
-    baseTextDocument()->setSyntaxHighlighter(new QmlHighlighter);
+    baseTextDocument()->setSyntaxHighlighter(new Highlighter(document()));
 
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<QmlModelManagerInterface>();
 
@@ -810,28 +810,47 @@ void QmlJSTextEditor::renameIdUnderCursor()
 void QmlJSTextEditor::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditor::setFontSettings(fs);
-    QmlHighlighter *highlighter = qobject_cast<QmlHighlighter*>(baseTextDocument()->syntaxHighlighter());
+    Highlighter *highlighter = qobject_cast<Highlighter*>(baseTextDocument()->syntaxHighlighter());
     if (!highlighter)
         return;
 
+    /*
+        NumberFormat,
+        StringFormat,
+        TypeFormat,
+        KeywordFormat,
+        LabelFormat,
+        CommentFormat,
+        VisualWhitespace,
+     */
     static QVector<QString> categories;
     if (categories.isEmpty()) {
         categories << QLatin1String(TextEditor::Constants::C_NUMBER)
                 << QLatin1String(TextEditor::Constants::C_STRING)
                 << QLatin1String(TextEditor::Constants::C_TYPE)
                 << QLatin1String(TextEditor::Constants::C_KEYWORD)
-                << QLatin1String(TextEditor::Constants::C_PREPROCESSOR)
                 << QLatin1String(TextEditor::Constants::C_LABEL)
                 << QLatin1String(TextEditor::Constants::C_COMMENT)
                 << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
     }
 
-    m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
-    m_occurrencesFormat.clearForeground();
-
-    highlighter->setFormats(fs.toTextCharFormats(categories));
+    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
+    highlighter->setFormats(formats.constBegin(), formats.constEnd());
     highlighter->rehighlight();
+
+    m_occurrencesFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES));
+    m_occurrencesUnusedFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_UNUSED));
+    m_occurrencesUnusedFormat.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+    m_occurrencesUnusedFormat.setUnderlineColor(m_occurrencesUnusedFormat.foreground().color());
+    m_occurrencesUnusedFormat.clearForeground();
+    m_occurrencesUnusedFormat.setToolTip(tr("Unused variable"));
+    m_occurrenceRenameFormat = fs.toTextCharFormat(QLatin1String(TextEditor::Constants::C_OCCURRENCES_RENAME));
+
+    // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link
+    m_occurrencesFormat.clearForeground();
+    m_occurrenceRenameFormat.clearForeground();
 }
+
 
 QString QmlJSTextEditor::wordUnderCursor() const
 {
