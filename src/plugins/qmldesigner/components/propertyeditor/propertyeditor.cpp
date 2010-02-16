@@ -389,18 +389,12 @@ void PropertyEditor::geometryPropertyChanged(const QmlObjectNode &fxObjectNode)
 void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode)
 {
     QmlModelView::otherPropertyChanged(fxObjectNode);
-
-    return ;
-
     anyPropertyChanged(fxObjectNode);
 }
 
 void PropertyEditor::transformChanged(const QmlObjectNode &fxObjectNode)
 {
     QmlModelView::transformChanged(fxObjectNode);
-
-    return ;
-
     geometryPropertyChanged(fxObjectNode);
 }
 
