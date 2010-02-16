@@ -99,7 +99,7 @@ protected:
     void timerEvent(QTimerEvent *event);
     void otherPropertyChanged(const QmlObjectNode &);
     void transformChanged(const QmlObjectNode &qmlObjectNode);
-    void PropertyEditor::setupPane(const QString &typeName);
+    void setupPane(const QString &typeName);
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
 private slots:
