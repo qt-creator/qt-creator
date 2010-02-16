@@ -87,8 +87,7 @@ GroupBox {
                         visible: effectComboBox.currentText == "Opacity";
                         layout: QVBoxLayout {
                             DoubleSpinBox {
-                                id: OpcacityEffectSpinBox;
-                                objectName: "OpcacityEffectSpinBox";
+                                id: opcacityEffectSpinBox;
                                 backendValue: backendValues.effect.complexNode.exists ? backendValues.effect.complexNode.properties.opacity : null;
                                 minimum: 0;
                                 maximum: 1;
