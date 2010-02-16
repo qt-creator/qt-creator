@@ -417,7 +417,7 @@ void Qt4ProjectConfigWidget::updateToolChainCombo()
     foreach (ToolChain::ToolChainType toolchain, toolchains)
         m_ui->toolChainComboBox->addItem(ToolChain::toolChainName(toolchain), qVariantFromValue(toolchain));
     m_ui->toolChainComboBox->setEnabled(toolchains.size() > 1);
-    m_ui->toolChainComboBox->setCurrentIndex(toolchains.indexOf(m_buildConfiguration->qt4Target()->preferredToolChainType(toolchains)));
+    m_ui->toolChainComboBox->setCurrentIndex(toolchains.indexOf(m_buildConfiguration->toolChainType()));
     updateDetails();
 }
 
