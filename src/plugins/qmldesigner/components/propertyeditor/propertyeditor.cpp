@@ -193,6 +193,9 @@ void PropertyEditor::changeValue(const QString &name)
     if (name == "type")
         return;
 
+    if (!m_selectedNode.isValid())
+        return;
+
     if (name == "id") {
         PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(name)));
         const QString newId = value->value().toString();
