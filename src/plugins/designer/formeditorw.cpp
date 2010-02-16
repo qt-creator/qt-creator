@@ -356,7 +356,7 @@ void FormEditorW::setupActions()
 
     Core::ActionContainer *mformtools =
         am->createMenu(M_FORMEDITOR);
-    mformtools->menu()->setTitle(tr("For&m editor"));
+    mformtools->menu()->setTitle(tr("For&m Editor"));
     mtools->addMenu(mformtools);
 
     //overridden actions
