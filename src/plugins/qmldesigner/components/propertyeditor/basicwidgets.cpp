@@ -151,8 +151,6 @@ signals:
 
 public:
     QWidgetDeclarativeUI(QObject *other) : QObject(other), _children(other), _layout(0), _graphicsOpacityEffect(0), _actions(other) {
-
-
         q = qobject_cast<QWidget*>(other);
         ResizeEventFilter *filter(new ResizeEventFilter(q));
         filter->setTarget(q);
@@ -567,6 +565,50 @@ private:
     }
 
     QPushButton *pb;
+    QUrl _url;
+};
+
+
+class QLabelDeclarativeUI : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QUrl iconFromFile READ iconFromFile WRITE setIconFromFile)
+public:
+    QLabelDeclarativeUI(QObject *parent = 0) : QObject(parent)
+     {
+         lb = qobject_cast<QLabel*>(parent);
+     }
+private:
+    QUrl iconFromFile() const
+    {
+        return _url;
+    }
+
+    void setIconFromFile(const QUrl &url) {
+        _url = url;
+
+        QString path;
+        if (_url.scheme() == QLatin1String("qrc")) {
+            path = QLatin1Char(':') + _url.path();
+        } else {
+            path = _url.toLocalFile();
+        }
+
+        QFile file(path);
+        file.open(QIODevice::ReadOnly);
+        if (file.exists() && file.isOpen()) {
+            QPixmap pixmap(path);
+            if (pixmap.isNull())
+                qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+            lb->setPixmap(pixmap);
+        } else {
+            qWarning() << QLatin1String("setIconFromFile: ") << url << QLatin1String(" not found!");
+        }
+
+    }
+
+    QLabel *lb;
     QUrl _url;
 };
 
@@ -1132,7 +1174,6 @@ public:
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QWidget,QWidget,QWidgetDeclarativeUI);
 
 //display
-QML_DEFINE_TYPE(Bauhaus,1,0,QLabel,QLabel)
 QML_DEFINE_TYPE(Bauhaus,1,0,QProgressBar,QProgressBar)
 QML_DEFINE_TYPE(Bauhaus,1,0,QLCDNumber,QLCDNumber)
 
@@ -1175,6 +1216,7 @@ QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QExtGroupBox,MyGroupBox,QGroupBoxDeclarativ
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QTabWidget,QTabWidget,QTabWidgetDeclarativeUI)
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea,QScrollAreaDeclarativeUI)
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QPushButton,QPushButton,QPushButtonDeclarativeUI)
+QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QLabel,QLabel,QLabelDeclarativeUI)
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QToolButton,QToolButton, QToolButtonDeclarativeUI)
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QComboBox,QComboBox, QComboBoxDeclarativeUI)
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QMenu,QMenu, QMenuDeclarativeUI)
