@@ -412,6 +412,8 @@ void Qt4Target::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *b
     Q_ASSERT(qt4bc);
     connect(qt4bc, SIGNAL(buildDirectoryInitialized()),
             this, SIGNAL(buildDirectoryInitialized()));
+    connect(qt4bc, SIGNAL(targetInformationChanged()),
+            this, SLOT(changeTargetInformation()));
 }
 
 void Qt4Target::slotUpdateDeviceInformation()
@@ -420,6 +422,13 @@ void Qt4Target::slotUpdateDeviceInformation()
     if (deviceRc && deviceRc == activeRunConfiguration()) {
         updateToolTipAndIcon();
     }
+}
+
+void Qt4Target::changeTargetInformation()
+{
+    Qt4BuildConfiguration * bc = qobject_cast<Qt4BuildConfiguration *>(sender());
+    if (bc && bc == activeBuildConfiguration())
+        emit targetInformationChanged();
 }
 
 void Qt4Target::updateToolTipAndIcon()

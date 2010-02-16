@@ -109,6 +109,7 @@ private slots:
     void onAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void slotUpdateDeviceInformation();
+    void changeTargetInformation();
     void updateToolTipAndIcon();
 
 private:
