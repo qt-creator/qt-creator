@@ -121,6 +121,11 @@ class CustomItemLibraryDrag : public QDrag {
         void exec()
         { QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::startCustomDrag(m_pixmap, m_preview, m_mimeData); }
 
+    public slots:
+        void stopDrag() {
+            QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::endCustomDrag();
+        }
+
 private:
         QPixmap m_pixmap, m_preview;
         QMimeData *m_mimeData;

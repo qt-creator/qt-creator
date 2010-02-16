@@ -27,54 +27,40 @@
 **
 **************************************************************************/
 
-#ifndef ITEMLIBRARY_H
-#define ITEMLIBRARY_H
+#ifndef ITEMLIBRARYTREEVIEW_H
+#define ITEMLIBRARYTREEVIEW_H
 
-#include <QtGui/QFrame>
+#include <QtGui/QTreeView>
+#include <QtGui/QStandardItemModel>
+#include <QDrag>
+#include <QDebug>
+#include <QTimeLine>
 
-QT_BEGIN_NAMESPACE
-class QGraphicsItem;
-class QPixmap;
-class QMimeData;
-QT_END_NAMESPACE
+class QLabel;
 
 namespace QmlDesigner {
 
-class ItemLibraryPrivate;
-class MetaInfo;
-class ItemLibraryInfo;
+namespace Internal {
 
-class ItemLibrary : public QFrame
-{
+// ItemLibraryTreeView with Drag implementation
+class ItemLibraryTreeView : public QTreeView {
     Q_OBJECT
-    Q_DISABLE_COPY(ItemLibrary)
-
 public:
-    ItemLibrary(QWidget *parent = 0);
-    virtual ~ItemLibrary();
+    explicit ItemLibraryTreeView(QWidget *parent = 0);
 
-    void addItemLibraryInfo(const ItemLibraryInfo &ItemLibraryInfo);
-    void setMetaInfo(const MetaInfo &metaInfo);
-
-public Q_SLOTS:
-    void itemLibraryButtonToggled();
-    void resourcesButtonToggled();
-
-    void setSearchFilter(const QString &nameFilter);
-    void setResourcePath(const QString &resourcePath);
-
-    void startDragAndDrop(int itemLibId);
-    void showItemInfo(int itemLibId);
+    virtual void startDrag(Qt::DropActions supportedActions);
 
 signals:
-    void itemActivated(const QString& itemName);
-    void expandAllItems();
+    void itemActivated(const QString &itemName);
 
-private:
-    ItemLibraryPrivate *m_d;
+private slots:
+    void activateItem( const QModelIndex &index);
 };
 
-}
 
-#endif // ITEMLIBRARY_H
+} // namespace Internal
+
+} // namespace QmlDesigner
+
+#endif // ITEMLIBRARYTREEVIEW_H
 

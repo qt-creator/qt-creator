@@ -1,5 +1,13 @@
 <RCC>
-    <qresource prefix="/ItemLibrary/images" >
-        <file>default-icon.png</file>
+    <qresource prefix="/ItemLibrary" >
+        <file>qml/ItemsView.qml</file>
+        <file>qml/ItemsViewStyle.qml</file>
+        <file>qml/SectionView.qml</file>
+        <file>qml/ItemView.qml</file>
+        <file>qml/Scrollbar.qml</file>
+        <file>qml/Selector.qml</file>
+
+        <file>images/item-default-icon.png</file>
     </qresource>
 </RCC>
+

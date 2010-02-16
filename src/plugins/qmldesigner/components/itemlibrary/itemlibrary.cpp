@@ -52,6 +52,11 @@
 #include <QFile>
 #include <QDirModel>
 #include <QFileIconProvider>
+#include <QImageReader>
+
+#include <QmlView>
+#include <QmlGraphicsItem>
+#include <private/qmlengine_p.h>
 
 
 namespace QmlDesigner {
@@ -59,83 +64,64 @@ namespace QmlDesigner {
 class MyFileIconProvider : public QFileIconProvider
 {
 public:
-    MyFileIconProvider() : QFileIconProvider()
+    MyFileIconProvider(const QSize &iconSize)
+        : QFileIconProvider(),
+          m_iconSize(iconSize)
     {}
+
     virtual QIcon icon ( const QFileInfo & info ) const
     {
         QPixmap pixmap(info.absoluteFilePath());
-        if (pixmap.isNull())
-            return QFileIconProvider::icon(info);
-        else return pixmap; //pixmap.scaled(128, 128, Qt::KeepAspectRatio);
+        if (pixmap.isNull()) {
+            QIcon defaultIcon(QFileIconProvider::icon(info));
+            pixmap = defaultIcon.pixmap(defaultIcon.actualSize(m_iconSize));
+        }
+
+        if (pixmap.width() == m_iconSize.width()
+            && pixmap.height() == m_iconSize.height())
+            return pixmap;
+
+        if ((pixmap.width() > m_iconSize.width())
+            || (pixmap.height() > m_iconSize.height()))
+            return pixmap.scaled(m_iconSize, Qt::KeepAspectRatio);
+
+        QPoint offset((m_iconSize.width() - pixmap.width()) / 2,
+                      (m_iconSize.height() - pixmap.height()) / 2);
+        QImage newIcon(m_iconSize, QImage::Format_ARGB32_Premultiplied);
+        newIcon.fill(Qt::transparent);
+        QPainter painter(&newIcon);
+        painter.drawPixmap(offset, pixmap);
+        return QPixmap::fromImage(newIcon);
     }
-};
-
-
-
-class GrabHelper {
-    Q_DISABLE_COPY(GrabHelper)
-public:
-    GrabHelper();
-    QPixmap grabItem(QGraphicsItem *item);
 
 private:
-    QGraphicsScene m_scene;
-    QGraphicsView m_view;
+    QSize m_iconSize;
 };
 
-GrabHelper::GrabHelper()
-{
-    m_view.setScene(&m_scene);
-    m_view.setFrameShape(QFrame::NoFrame);
-    m_view.setAlignment(Qt::AlignLeft|Qt::AlignTop);
-    m_view.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_view.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-}
-
-QPixmap GrabHelper::grabItem(QGraphicsItem *item)
-{
-    if (item->scene()) {
-        qWarning("%s: WARNING: Attempt to grab item that is part of another scene!", Q_FUNC_INFO);
-        return QPixmap();
-    }
-    // Temporarily add the item, resize the view widget and grab it.
-    m_scene.addItem(item);
-    item->setPos(0.0, 0.0);
-    const QSize size = item->boundingRect().size().toSize();
-    QPixmap rc;
-    if (!size.isEmpty()) { // We have seen horses barf...
-        m_view.resize(size);
-        rc = QPixmap::grabWidget(&m_view);
-    }
-    m_scene.removeItem(item);
-    return rc;
-}
 
 // ---------- ItemLibraryPrivate
 class ItemLibraryPrivate {
 public:
     ItemLibraryPrivate(QObject *object);
-    ~ItemLibraryPrivate();
 
     Ui::ItemLibrary m_ui;
     Internal::ItemLibraryModel *m_itemLibraryModel;
+    QmlView *m_itemsView;
     QDirModel *m_resourcesDirModel;
-    QSortFilterProxyModel *m_filterProxy;
-    GrabHelper *m_grabHelper;
     QString m_resourcePath;
+    QSize m_itemIconSize, m_resIconSize;
+    MyFileIconProvider m_iconProvider;
 };
 
 ItemLibraryPrivate::ItemLibraryPrivate(QObject *object) :
     m_itemLibraryModel(0),
-    m_grabHelper(0)
+    m_itemsView(0),
+    m_itemIconSize(32, 32),
+    m_resIconSize(32, 32),
+    m_iconProvider(m_resIconSize)
 {
     m_resourcePath = QDir::currentPath();
     Q_UNUSED(object);
-}
-
-ItemLibraryPrivate::~ItemLibraryPrivate()
-{
-    delete m_grabHelper;
 }
 
 ItemLibrary::ItemLibrary(QWidget *parent) :
@@ -143,35 +129,62 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     m_d(new ItemLibraryPrivate(this))
 {
     m_d->m_ui.setupUi(this);
-    m_d->m_itemLibraryModel = new Internal::ItemLibraryModel(this);
+    layout()->setContentsMargins(3, 3, 3, 3);
+    layout()->setSpacing(3);
+
     m_d->m_resourcesDirModel = new QDirModel(this);
-    m_d->m_filterProxy = new QSortFilterProxyModel(this);
-    m_d->m_filterProxy->setSourceModel(m_d->m_itemLibraryModel);
-    m_d->m_ui.ItemLibraryTreeView->setModel(m_d->m_filterProxy);
-    m_d->m_filterProxy->setDynamicSortFilter(true);
-    m_d->m_ui.ItemLibraryTreeView->setRealModel(m_d->m_itemLibraryModel);
-    m_d->m_ui.ItemLibraryTreeView->setIconSize(QSize(64, 64));
+
+    m_d->m_ui.ItemLibraryTreeView->setModel(m_d->m_resourcesDirModel);
+    m_d->m_ui.ItemLibraryTreeView->setIconSize(m_d->m_resIconSize);
+    m_d->m_ui.ItemLibraryTreeView->setColumnHidden(1, true);
+    m_d->m_ui.ItemLibraryTreeView->setColumnHidden(2, true);
+    m_d->m_ui.ItemLibraryTreeView->setColumnHidden(3, true);
     m_d->m_ui.ItemLibraryTreeView->setSortingEnabled(true);
     m_d->m_ui.ItemLibraryTreeView->setHeaderHidden(true);
     m_d->m_ui.ItemLibraryTreeView->setIndentation(10);
-    m_d->m_ui.ItemLibraryTreeView->setAnimated(true);
     m_d->m_ui.ItemLibraryTreeView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_d->m_ui.ItemLibraryTreeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_d->m_ui.ItemLibraryTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_d->m_filterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_d->m_filterProxy->setFilterRole(Qt::UserRole);
-    m_d->m_filterProxy->setSortRole(Qt::DisplayRole);
-    connect(m_d->m_ui.lineEdit, SIGNAL(textChanged(QString)), m_d->m_filterProxy, SLOT(setFilterRegExp(QString)));
-    connect(m_d->m_ui.lineEdit, SIGNAL(textChanged(QString)), this, SLOT(setNameFilter(QString)));
-    connect(m_d->m_ui.lineEdit, SIGNAL(textChanged(QString)), this, SLOT(expandAll()));
-    connect(m_d->m_ui.buttonItems, SIGNAL(toggled (bool)), this, SLOT(itemLibraryButton()));
-    connect(m_d->m_ui.buttonResources, SIGNAL(toggled (bool)), this, SLOT(resourcesButton()));
-    connect(m_d->m_ui.ItemLibraryTreeView, SIGNAL(itemActivated(const QString&)), this, SIGNAL(itemActivated(const QString&)));
-    m_d->m_ui.lineEdit->setDragEnabled(false);
-    setNameFilter("");
+    m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
 
-    MyFileIconProvider *fileIconProvider = new MyFileIconProvider();
-    m_d->m_resourcesDirModel->setIconProvider(fileIconProvider);
+    const QString qmlSourcePath(":/ItemLibrary/qml/ItemsView.qml");
+    QFile qmlSourceFile(qmlSourcePath);
+    qmlSourceFile.open(QFile::ReadOnly);
+    Q_ASSERT(qmlSourceFile.isOpen());
+    QString qmlSource(qmlSourceFile.readAll());
+
+    m_d->m_itemsView = new QmlView(this);
+    m_d->m_itemsView->setQml(qmlSource, qmlSourcePath);
+    m_d->m_itemsView->setAttribute(Qt::WA_OpaquePaintEvent);
+    m_d->m_itemsView->setAttribute(Qt::WA_NoSystemBackground);
+    m_d->m_itemsView->setAcceptDrops(false);
+    m_d->m_itemsView->setFocusPolicy(Qt::ClickFocus);
+    m_d->m_itemsView->setContentResizable(true);
+    m_d->m_ui.ItemLibraryGridLayout->addWidget(m_d->m_itemsView, 0, 0);
+
+    m_d->m_itemLibraryModel = new Internal::ItemLibraryModel(QmlEnginePrivate::getScriptEngine(m_d->m_itemsView->engine()), this);
+    m_d->m_itemLibraryModel->setItemIconSize(m_d->m_itemIconSize);
+    m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryModel"), m_d->m_itemLibraryModel);
+    m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryIconWidth"), m_d->m_itemIconSize.width());
+    m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryIconHeight"), m_d->m_itemIconSize.height());
+
+    m_d->m_itemsView->execute();
+
+    connect(m_d->m_itemsView->root(), SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
+    connect(m_d->m_itemsView->root(), SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
+    connect(this, SIGNAL(expandAllItems()), m_d->m_itemsView->root(), SLOT(expandAll()));
+
+    connect(m_d->m_ui.lineEdit, SIGNAL(textChanged(QString)), this, SLOT(setSearchFilter(QString)));
+    m_d->m_ui.lineEdit->setDragEnabled(false);
+
+    connect(m_d->m_ui.buttonItems, SIGNAL(clicked()), this, SLOT(itemLibraryButtonToggled()));
+    connect(m_d->m_ui.buttonResources, SIGNAL(clicked()), this, SLOT(resourcesButtonToggled()));
+
+    m_d->m_ui.buttonItems->setChecked(true);
+    itemLibraryButtonToggled();
+    setSearchFilter("");
+
+    m_d->m_resourcesDirModel->setIconProvider(&m_d->m_iconProvider);
 
     setWindowTitle(tr("Library", "Title of library view"));
 
@@ -194,8 +207,6 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
         QString styleSheet = QLatin1String(file.readAll());
         m_d->m_ui.ItemLibraryTreeView->setStyleSheet(styleSheet);
     }
-
-    m_d->m_ui.buttonItems->setChecked(true);
 }
 
 ItemLibrary::~ItemLibrary()
@@ -203,48 +214,44 @@ ItemLibrary::~ItemLibrary()
     delete m_d;
 }
 
-void ItemLibrary::setNameFilter(const QString &nameFilter)
-{
-    QStringList nameFilterList;
-    nameFilterList.append(nameFilter + "*.gif");
-    nameFilterList.append(nameFilter + "*.png");
-    nameFilterList.append(nameFilter + "*.jpg");
-    nameFilterList.append(nameFilter + "*.");
-    m_d->m_resourcesDirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-    m_d->m_resourcesDirModel->setNameFilters(nameFilterList);
-    if (m_d->m_ui.ItemLibraryTreeView->model() == m_d->m_resourcesDirModel)
-        m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
-}
-
-void ItemLibrary::itemLibraryButton()
+void ItemLibrary::setSearchFilter(const QString &searchFilter)
 {
     if (m_d->m_ui.buttonItems->isChecked()) {
-        m_d->m_filterProxy->setSourceModel(m_d->m_itemLibraryModel);
-        m_d->m_ui.ItemLibraryTreeView->setModel(m_d->m_filterProxy);
-        m_d->m_ui.ItemLibraryTreeView->setIconSize(QSize(64, 64));
-        m_d->m_ui.buttonResources->setChecked(false);
-        m_d->m_ui.ItemLibraryTreeView->setRealModel(m_d->m_itemLibraryModel);
-        expandAll();
+        m_d->m_itemLibraryModel->setSearchText(searchFilter);
+        m_d->m_itemsView->update();
+        emit expandAllItems();
+    } else {
+        QStringList nameFilterList;
+        if (searchFilter.contains('.')) {
+            nameFilterList.append(QString("*%1*").arg(searchFilter));
+        } else {
+            foreach (const QByteArray &extension, QImageReader::supportedImageFormats()) {
+                nameFilterList.append(QString("*%1*.%2").arg(searchFilter, QString::fromAscii(extension)));
+            }
+        }
+
+        m_d->m_resourcesDirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
+        m_d->m_resourcesDirModel->setNameFilters(nameFilterList);
+        if (m_d->m_ui.ItemLibraryTreeView->model() == m_d->m_resourcesDirModel)
+            m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
+        m_d->m_ui.ItemLibraryTreeView->expandToDepth(1);
     }
 }
 
-void ItemLibrary::resourcesButton()
+void ItemLibrary::itemLibraryButtonToggled()
 {
-    if (m_d->m_ui.buttonResources->isChecked()) {
-        m_d->m_ui.ItemLibraryTreeView->setModel(m_d->m_resourcesDirModel);
-        m_d->m_ui.ItemLibraryTreeView->setIconSize(QSize(32, 32));
-        m_d->m_ui.buttonItems->setChecked(false);
-        m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
-        m_d->m_ui.ItemLibraryTreeView->setColumnHidden(1, true);
-        m_d->m_ui.ItemLibraryTreeView->setColumnHidden(2, true);
-        m_d->m_ui.ItemLibraryTreeView->setColumnHidden(3, true);
-        expandAll();
-    }
+    m_d->m_ui.LibraryStackedWidget->setCurrentIndex(0);
+    m_d->m_ui.buttonItems->setChecked(true);
+    m_d->m_ui.buttonResources->setChecked(false);
+    setSearchFilter(m_d->m_ui.lineEdit->text());
 }
 
-void ItemLibrary::addItemLibraryInfo(const ItemLibraryInfo &itemLibraryInfo)
+void ItemLibrary::resourcesButtonToggled()
 {
-    m_d->m_itemLibraryModel->addItemLibraryInfo(itemLibraryInfo);
+    m_d->m_ui.LibraryStackedWidget->setCurrentIndex(1);
+    m_d->m_ui.buttonResources->setChecked(true);
+    m_d->m_ui.buttonItems->setChecked(false);
+    setSearchFilter(m_d->m_ui.lineEdit->text());
 }
 
 void ItemLibrary::setResourcePath(const QString &resourcePath)
@@ -252,70 +259,30 @@ void ItemLibrary::setResourcePath(const QString &resourcePath)
     m_d->m_resourcePath = resourcePath;
 }
 
+void ItemLibrary::startDragAndDrop(int itemLibId)
+{
+    QMimeData *mimeData = m_d->m_itemLibraryModel->getMimeData(itemLibId);
+    CustomItemLibraryDrag *drag = new CustomItemLibraryDrag(this);
+    const QImage image = qvariant_cast<QImage>(mimeData->imageData());
+
+    drag->setPixmap(m_d->m_itemLibraryModel->getIcon(itemLibId).pixmap(32, 32));
+    drag->setPreview(QPixmap::fromImage(image));
+    drag->setMimeData(mimeData);
+
+    connect(m_d->m_itemsView->root(), SIGNAL(stopDragAndDrop()), drag, SLOT(stopDrag()));
+
+    drag->exec();
+}
+
+void ItemLibrary::showItemInfo(int /*itemLibId*/)
+{
+//    qDebug() << "showing item info about id" << itemLibId;
+}
+
 void ItemLibrary::setMetaInfo(const MetaInfo &metaInfo)
 {
-    m_d->m_itemLibraryModel->clear();
-
-    foreach (const QString &type, metaInfo.itemLibraryItems()) {
-        NodeMetaInfo nodeInfo = metaInfo.nodeMetaInfo(type);
-
-        QList<ItemLibraryInfo> itemLibraryRepresentationList = metaInfo.itemLibraryRepresentations(nodeInfo);
-
-        if (!metaInfo.hasNodeMetaInfo(type))
-            qWarning() << "ItemLibrary: type not declared: " << type;
-        if (!itemLibraryRepresentationList.isEmpty() && metaInfo.hasNodeMetaInfo(type)) {
-            foreach (ItemLibraryInfo itemLibraryRepresentation, itemLibraryRepresentationList) {
-                QImage image(64, 64, QImage::Format_RGB32); // = m_d->m_queryView->paintObject(nodeInfo, itemLibraryRepresentation.properties()); TODO
-                image.fill(0xffffffff);
-                if (!image.isNull()) {
-                    QPainter p(&image);
-                    QPen pen(Qt::gray);
-                    pen.setWidth(2);
-                    p.setPen(pen);
-                    p.drawRect(1, 1, image.width() - 2, image.height() - 2);
-                }
-                QIcon icon = itemLibraryRepresentation.icon();
-                if (itemLibraryRepresentation.icon().isNull())
-                    itemLibraryRepresentation.setIcon(QIcon(":/ItemLibrary/images/default-icon.png"));
-
-                if (itemLibraryRepresentation.category().isEmpty())
-                    itemLibraryRepresentation.setCategory(nodeInfo.category());
-                if (!image.isNull()) {
-                    itemLibraryRepresentation.setDragIcon(QPixmap::fromImage(image));
-                    addItemLibraryInfo(itemLibraryRepresentation);
-                }
-            }
-        } else {
-            QImage image; // = m_d->m_queryView->paintObject(nodeInfo); TODO we have to render image
-            QIcon icon = nodeInfo.icon();
-            if (icon.isNull())
-                icon = QIcon(":/ItemLibrary/images/default-icon.png");
-
-            ItemLibraryInfo itemLibraryInfo;
-            itemLibraryInfo.setName(type);
-            itemLibraryInfo.setTypeName(nodeInfo.typeName());
-            itemLibraryInfo.setCategory(nodeInfo.category());
-            itemLibraryInfo.setIcon(icon);
-            itemLibraryInfo.setMajorVersion(nodeInfo.majorVersion());
-            itemLibraryInfo.setMinorVersion(nodeInfo.minorVersion());
-            itemLibraryInfo.setDragIcon(QPixmap::fromImage(image));
-            addItemLibraryInfo(itemLibraryInfo);
-        }
-    }
-    expandAll();
-}
-
-void ItemLibrary::expandAll()
-{
-    m_d->m_ui.ItemLibraryTreeView->expandToDepth(1);
-}
-
-void ItemLibrary::contextMenuEvent (QContextMenuEvent *event)
-{
-    event->accept();
-    QMenu menu;
-    menu.addAction(tr("About plugins..."));
-    menu.exec(event->globalPos());
+    m_d->m_itemLibraryModel->update(metaInfo);
 }
 
 }
+
