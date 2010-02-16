@@ -64,32 +64,32 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 
 bool QmlAnchorBindingProxy::hasParent()
 {
-    return m_fxItemNode.hasNodeParent();
+    return m_fxItemNode.isValid() && m_fxItemNode.hasNodeParent();
 }
 
 bool QmlAnchorBindingProxy::topAnchored()
 {
-    return m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Top);
+    return m_fxItemNode.isValid() && m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Top);
 }
 
 bool QmlAnchorBindingProxy::bottomAnchored()
 {
-    return m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Bottom);
+    return m_fxItemNode.isValid() && m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Bottom);
 }
 
 bool QmlAnchorBindingProxy::leftAnchored()
 {
-    return m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Left);
+    return m_fxItemNode.isValid() && m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Left);
 }
 
 bool QmlAnchorBindingProxy::rightAnchored()
 {
-    return m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Right);
+    return m_fxItemNode.isValid() && m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::Right);
 }
 
 bool QmlAnchorBindingProxy::hasAnchors()
 {
-    return m_fxItemNode.anchors().instanceHasAnchors();
+    return m_fxItemNode.isValid() && m_fxItemNode.anchors().instanceHasAnchors();
 }
 
 
@@ -258,17 +258,20 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
 
 bool QmlAnchorBindingProxy::verticalCentered()
 {
-    return m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::VerticalCenter);
+    return m_fxItemNode.isValid() && m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::VerticalCenter);
 }
 
 bool QmlAnchorBindingProxy::horizontalCentered()
 {
-    return m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::HorizontalCenter);
+    return m_fxItemNode.isValid() && m_fxItemNode.anchors().instanceHasAnchor(AnchorLine::HorizontalCenter);
 }
 
 void QmlAnchorBindingProxy::fill()
 {
     m_fxItemNode.anchors().fill();
+
+    setHorizontalCentered(false);
+    setVerticalCentered(false);
 
     m_fxItemNode.anchors().setMargin(AnchorLine::Right, 0);
     m_fxItemNode.anchors().setMargin(AnchorLine::Left, 0);
