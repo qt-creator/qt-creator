@@ -610,7 +610,7 @@ CPPEditor::CPPEditor(QWidget *parent)
     , m_firstRenameChange(false)
 {
     m_initialized = false;
-    qRegisterMetaType<SemanticInfo>("SemanticInfo");
+    qRegisterMetaType<CppEditor::Internal::SemanticInfo>("CppEditor::Internal::SemanticInfo");
 
     m_semanticHighlighter = new SemanticHighlighter(this);
     m_semanticHighlighter->start();
@@ -700,8 +700,8 @@ void CPPEditor::createToolBar(CPPEditorEditable *editable)
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
-    connect(m_semanticHighlighter, SIGNAL(changed(SemanticInfo)),
-            this, SLOT(updateSemanticInfo(SemanticInfo)));
+    connect(m_semanticHighlighter, SIGNAL(changed(CppEditor::Internal::SemanticInfo)),
+            this, SLOT(updateSemanticInfo(CppEditor::Internal::SemanticInfo)));
 
     QToolBar *toolBar = static_cast<QToolBar*>(editable->toolBar());
     QList<QAction*> actions = toolBar->actions();
