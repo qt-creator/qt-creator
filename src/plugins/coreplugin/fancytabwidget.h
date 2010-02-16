@@ -48,6 +48,7 @@ namespace Internal {
         QIcon icon;
         QString text;
         QString toolTip;
+        bool enabled;
     };
 
 class FancyTabBar : public QWidget
@@ -70,8 +71,12 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
+    void setTabEnabled(int index, bool enable);
+    bool isTabEnabled(int index) const;
+
     void insertTab(int index, const QIcon &icon, const QString &label) {
         FancyTab tab;
+        tab.enabled = true;
         tab.icon = icon;
         tab.text = label;
         m_tabs.insert(index, tab);
@@ -129,6 +134,9 @@ public:
 
     int currentIndex() const;
     QStatusBar *statusBar() const;
+
+    void setTabEnabled(int index, bool enable);
+    bool isTabEnabled(int index) const;
 
 signals:
     void currentAboutToShow(int index);
