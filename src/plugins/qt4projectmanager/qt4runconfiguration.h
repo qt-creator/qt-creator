@@ -99,7 +99,6 @@ public slots:
     void invalidateCachedTargetInformation();
 
 signals:
-    void displayNameChanged(const QString&);
     void commandLineArgumentsChanged(const QString&);
     void workingDirectoryChanged(const QString&);
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
@@ -171,7 +170,7 @@ private slots:
 
     void workingDirectoryChanged(const QString &workingDirectory);
     void commandLineArgumentsChanged(const QString &args);
-    void displayNameChanged(const QString &name);
+    void displayNameChanged();
     void runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
     void userEnvironmentChangesChanged(const QList<ProjectExplorer::EnvironmentItem> &userChanges);
     void baseEnvironmentChanged();

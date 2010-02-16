@@ -287,8 +287,8 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(commandLineArgumentsChanged(QString)),
             this, SLOT(commandLineArgumentsChanged(QString)));
-    connect(qt4RunConfiguration, SIGNAL(displayNameChanged(QString)),
-            this, SLOT(displayNameChanged(QString)));
+    connect(qt4RunConfiguration, SIGNAL(displayNameChanged()),
+            this, SLOT(displayNameChanged()));
     connect(qt4RunConfiguration, SIGNAL(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)),
             this, SLOT(runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode)));
     connect(qt4RunConfiguration, SIGNAL(usingDyldImageSuffixChanged(bool)),
@@ -395,10 +395,10 @@ void Qt4RunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
     m_argumentsLineEdit->setText(args);
 }
 
-void Qt4RunConfigurationWidget::displayNameChanged(const QString &name)
+void Qt4RunConfigurationWidget::displayNameChanged()
 {
     if (!m_ignoreChange)
-        m_nameLineEdit->setText(name);
+        m_nameLineEdit->setText(m_qt4RunConfiguration->displayName());
 }
 
 void Qt4RunConfigurationWidget::runModeChanged(LocalApplicationRunConfiguration::RunMode runMode)
