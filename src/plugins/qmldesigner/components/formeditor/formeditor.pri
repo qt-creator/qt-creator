@@ -1,5 +1,4 @@
 VPATH += $$PWD
-QT += opengl
 INCLUDEPATH += $$PWD
 INCLUDEPATH += $$PWD/../navigator
 DEPENDPATH += $$PWD

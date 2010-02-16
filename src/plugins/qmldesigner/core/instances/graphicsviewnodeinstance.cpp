@@ -33,8 +33,6 @@
 #include <QmlEngine>
 #include <invalidnodeinstanceexception.h>
 
-#include <QtOpenGL/QGLWidget>
-
 namespace QmlDesigner {
 namespace Internal {
 
