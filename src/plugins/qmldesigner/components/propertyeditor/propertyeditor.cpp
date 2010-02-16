@@ -30,6 +30,7 @@
 #include "propertyeditor.h"
 
 #include <nodemetainfo.h>
+#include <metainfo.h>
 
 #include <propertymetainfo.h>
 
