@@ -133,7 +133,7 @@ GroupBox {
             caption: "z"
             baseStateFlag: isBaseState;
             step: 1;
-            minimumValue: 0;
+            minimumValue: -100;
             maximumValue: 100;
         }
     }
