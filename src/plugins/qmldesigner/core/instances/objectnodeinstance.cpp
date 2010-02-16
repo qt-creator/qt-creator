@@ -552,49 +552,12 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeM
     return instance;
 }
 
-void ObjectNodeInstance::updateObjectSignals(QObject *object)
-{
-    // iterates over all properties and find the QObjects.
-    // connect all signal of this property objects to the visibleChanged signal of this object
-    // to get updates of this item
-    int visibleSignalIndex = QGraphicsObject::staticMetaObject.indexOfSignal("visibleChanged()");
-    int transformSignalIndex = QGraphicsObject::staticMetaObject.indexOfSignal("xChanged()");
-    // iterate over all proeprties and find the object
-    for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < object->metaObject()->propertyCount(); propertyIndex++) {
-        if (QmlMetaType::isQObject(object->metaObject()->property(propertyIndex).userType())) {
-            QObject *propertyObject = QmlMetaType::toQObject(object->metaObject()->property(propertyIndex).read(object));
-            if (propertyObject) {
-                int signalIndex = -1;
-                if (qobject_cast<QmlGraphicsAnchors*>(propertyObject)
-                    || qobject_cast<QmlGraphicsPen*>(propertyObject)) // test if this is a anchor and use the tranform signal instead
-                    signalIndex = transformSignalIndex;
-                else
-                    signalIndex = visibleSignalIndex;
-
-                // connect with every signal of the object to get the formeditor updated
-
-                for (int methodIndex = QObject::staticMetaObject.methodCount();
-                     methodIndex <  propertyObject->metaObject()->methodCount();
-                     methodIndex++) {
-                    QMetaMethod metaMethod = propertyObject->metaObject()->method(methodIndex);
-                    if (metaMethod.methodType() == QMetaMethod::Signal) {
-                        QObject::staticMetaObject.connect(propertyObject, methodIndex, object, signalIndex);
-                    }
-                }
-
-            }
-        }
-    }
-}
-
 QObject* ObjectNodeInstance::createObject(const NodeMetaInfo &metaInfo, QmlContext *context)
 {
     QObject *object = metaInfo.createInstance(context);
 
     if (object == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
-
-    updateObjectSignals(object);
 
     return object;
 }
