@@ -37,11 +37,8 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
 
-using namespace QmlProjectManager::Internal;
-
-//////////////////////////////////////////////////////////////////////////////
-// QmlNewProjectWizardDialog
-//////////////////////////////////////////////////////////////////////////////
+namespace QmlProjectManager {
+namespace Internal {
 
 QmlNewProjectWizardDialog::QmlNewProjectWizardDialog(QWidget *parent) :
     ProjectExplorer::BaseProjectWizardDialog(parent)
@@ -167,4 +164,7 @@ bool QmlNewProjectWizard::postGenerateFiles(const Core::GeneratedFiles &l, QStri
     }
     return true;
 }
+
+} // namespace Internal
+} // namespace QmlProjectManager
 

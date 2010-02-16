@@ -27,60 +27,44 @@
 **
 **************************************************************************/
 
-#ifndef QMLTARGET_H
-#define QMLTARGET_H
+#ifndef QMLPROJECTFILE_H
+#define QMLPROJECTFILE_H
 
-#include <projectexplorer/target.h>
-
-#include <QtCore/QStringList>
-#include <QtCore/QVariantMap>
+#include <coreplugin/ifile.h>
 
 namespace QmlProjectManager {
+
 class QmlProject;
-class QmlRunConfiguration;
 
 namespace Internal {
 
-const char * const VIEWER_TARGET_ID("QmlProjectManager.QmlTarget");
-
-class QmlTargetFactory;
-
-class QmlTarget : public ProjectExplorer::Target
-{
-    Q_OBJECT
-    friend class QmlTargetFactory;
-
-public:
-    explicit QmlTarget(QmlProject *parent);
-    ~QmlTarget();
-
-    QmlProject *qmlProject() const;
-
-    ProjectExplorer::IBuildConfigurationFactory *buildConfigurationFactory() const;
-
-protected:
-    bool fromMap(const QVariantMap &map);
-};
-
-class QmlTargetFactory : public ProjectExplorer::ITargetFactory
+class QmlProjectFile : public Core::IFile
 {
     Q_OBJECT
 
 public:
-    explicit QmlTargetFactory(QObject *parent = 0);
-    ~QmlTargetFactory();
+    QmlProjectFile(QmlProject *parent, QString fileName);
+    virtual ~QmlProjectFile();
 
-    QStringList availableCreationIds(ProjectExplorer::Project *parent) const;
-    QString displayNameForId(const QString &id) const;
+    virtual bool save(const QString &fileName = QString());
+    virtual QString fileName() const;
 
-    bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
-    QmlTarget *create(ProjectExplorer::Project *parent, const QString &id);
-    bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
-    QmlTarget *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
+    virtual QString defaultPath() const;
+    virtual QString suggestedFileName() const;
+    virtual QString mimeType() const;
+
+    virtual bool isModified() const;
+    virtual bool isReadOnly() const;
+    virtual bool isSaveAsAllowed() const;
+
+    virtual void modified(ReloadBehavior *behavior);
+
+private:
+    QmlProject *m_project;
+    QString m_fileName;
 };
 
 } // namespace Internal
-
 } // namespace QmlProjectManager
 
-#endif // QMLTARGET_H
+#endif // QMLPROJECTFILE_H

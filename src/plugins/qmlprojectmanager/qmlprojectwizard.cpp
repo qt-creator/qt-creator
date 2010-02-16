@@ -43,8 +43,11 @@
 #include <QtCore/QtDebug>
 #include <QtCore/QCoreApplication>
 
-using namespace QmlProjectManager::Internal;
+
 using namespace Utils;
+
+namespace QmlProjectManager {
+namespace Internal {
 
 //////////////////////////////////////////////////////////////////////////////
 // QmlProjectWizardDialog
@@ -174,3 +177,5 @@ bool QmlProjectWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString 
     return true;
 }
 
+} // namespace Internal
+} // namespace QmlProjectManager

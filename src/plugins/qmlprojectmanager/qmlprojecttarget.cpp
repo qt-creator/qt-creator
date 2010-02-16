@@ -27,122 +27,115 @@
 **
 **************************************************************************/
 
-#include "qmltarget.h"
+#include "qmlprojecttarget.h"
 
 #include "qmlproject.h"
+#include "qmlprojectmanagerconstants.h"
+#include "qmlprojectrunconfiguration.h"
 
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>
 
-namespace {
-const char * const VIEWER_TARGET_DISPLAY_NAME("QML Viewer");
-}
+namespace QmlProjectManager {
+namespace Internal {
 
-using namespace QmlProjectManager;
-using namespace QmlProjectManager::Internal;
-
-////////////////////////////////////////////////////////////////////////////////////
-// QmlTarget
-////////////////////////////////////////////////////////////////////////////////////
-
-QmlTarget::QmlTarget(QmlProject *parent) :
-    ProjectExplorer::Target(parent, QLatin1String(VIEWER_TARGET_ID))
+QmlProjectTarget::QmlProjectTarget(QmlProject *parent) :
+    ProjectExplorer::Target(parent, QLatin1String(Constants::QML_VIEWER_TARGET_ID))
 {
     setDisplayName(QApplication::translate("QmlProjectManager::QmlTarget",
-                                           VIEWER_TARGET_DISPLAY_NAME,
+                                           Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
                                            "Qml Viewer target display name"));
     setIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
 }
 
-QmlTarget::~QmlTarget()
+QmlProjectTarget::~QmlProjectTarget()
 {
 }
 
-QmlProject *QmlTarget::qmlProject() const
+QmlProject *QmlProjectTarget::qmlProject() const
 {
     return static_cast<QmlProject *>(project());
 }
 
-ProjectExplorer::IBuildConfigurationFactory *QmlTarget::buildConfigurationFactory(void) const
+ProjectExplorer::IBuildConfigurationFactory *QmlProjectTarget::buildConfigurationFactory(void) const
 {
     return 0;
 }
 
-bool QmlTarget::fromMap(const QVariantMap &map)
+bool QmlProjectTarget::fromMap(const QVariantMap &map)
 {
     if (!Target::fromMap(map))
         return false;
 
     setDisplayName(QApplication::translate("QmlProjectManager::QmlTarget",
-                                           VIEWER_TARGET_DISPLAY_NAME,
+                                           Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
                                            "Qml Viewer target display name"));
 
     return true;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-// QmlTargetFactory
-////////////////////////////////////////////////////////////////////////////////////
-
-QmlTargetFactory::QmlTargetFactory(QObject *parent) :
+QmlProjectTargetFactory::QmlProjectTargetFactory(QObject *parent) :
     ITargetFactory(parent)
 {
 }
 
-QmlTargetFactory::~QmlTargetFactory()
+QmlProjectTargetFactory::~QmlProjectTargetFactory()
 {
 }
 
-QStringList QmlTargetFactory::availableCreationIds(ProjectExplorer::Project *parent) const
+QStringList QmlProjectTargetFactory::availableCreationIds(ProjectExplorer::Project *parent) const
 {
     if (!qobject_cast<QmlProject *>(parent))
         return QStringList();
-    return QStringList() << QLatin1String(VIEWER_TARGET_ID);
+    return QStringList() << QLatin1String(Constants::QML_VIEWER_TARGET_ID);
 }
 
-QString QmlTargetFactory::displayNameForId(const QString &id) const
+QString QmlProjectTargetFactory::displayNameForId(const QString &id) const
 {
-    if (id == QLatin1String(VIEWER_TARGET_ID))
+    if (id == QLatin1String(Constants::QML_VIEWER_TARGET_ID))
         return QCoreApplication::translate("QmlProjectManager::QmlTarget",
-                                           VIEWER_TARGET_DISPLAY_NAME,
+                                           Constants::QML_VIEWER_TARGET_DISPLAY_NAME,
                                            "Qml Viewer target display name");
     return QString();
 }
 
-bool QmlTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
+bool QmlProjectTargetFactory::canCreate(ProjectExplorer::Project *parent, const QString &id) const
 {
     if (!qobject_cast<QmlProject *>(parent))
         return false;
-    return id == QLatin1String(VIEWER_TARGET_ID);
+    return id == QLatin1String(Constants::QML_VIEWER_TARGET_ID);
 }
 
-QmlTarget *QmlTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
+QmlProjectTarget *QmlProjectTargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
     if (!canCreate(parent, id))
         return 0;
     QmlProject *qmlproject(static_cast<QmlProject *>(parent));
-    QmlTarget *t(new QmlTarget(qmlproject));
+    QmlProjectTarget *t(new QmlProjectTarget(qmlproject));
 
     // Add RunConfiguration (Qml does not have BuildConfigurations)
-    QmlRunConfiguration *runConf(new QmlRunConfiguration(t));
+    QmlProjectRunConfiguration *runConf(new QmlProjectRunConfiguration(t));
     t->addRunConfiguration(runConf);
 
     return t;
 }
 
-bool QmlTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
+bool QmlProjectTargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {
     return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
-QmlTarget *QmlTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
+QmlProjectTarget *QmlProjectTargetFactory::restore(ProjectExplorer::Project *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
     QmlProject *qmlproject(static_cast<QmlProject *>(parent));
-    QmlTarget *target(new QmlTarget(qmlproject));
+    QmlProjectTarget *target(new QmlProjectTarget(qmlproject));
     if (target->fromMap(map))
         return target;
     delete target;
     return 0;
 }
+
+} // namespace Internal
+} // namespace QmlProjectManager

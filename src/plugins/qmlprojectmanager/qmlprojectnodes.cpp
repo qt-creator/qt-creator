@@ -36,9 +36,10 @@
 
 #include <QFileInfo>
 #include <QDir>
+#include <QTextStream>
 
-using namespace QmlProjectManager;
-using namespace QmlProjectManager::Internal;
+namespace QmlProjectManager {
+namespace Internal {
 
 QmlProjectNode::QmlProjectNode(QmlProject *project, Core::IFile *projectFile)
     : ProjectExplorer::ProjectNode(QFileInfo(projectFile->fileName()).absoluteFilePath()),
@@ -235,3 +236,6 @@ bool QmlProjectNode::renameFile(const ProjectExplorer::FileType fileType,
     Q_UNUSED(newFilePath)
     return false;
 }
+
+} // namespace Internal
+} // namespace QmlProjectManager

@@ -27,43 +27,21 @@
 **
 **************************************************************************/
 
-#include "qmltaskmanager.h"
-#include "qmlprojectconstants.h"
-#include <QDebug>
+#include <qglobal.h>
 
 namespace QmlProjectManager {
-namespace Internal {
+namespace Constants {
 
-QmlTaskManager::QmlTaskManager(QObject *parent) :
-        QObject(parent),
-        m_taskWindow(0)
-{
-}
+const char * const QML_RC_ID("QmlProjectManager.QmlRunConfiguration");
+const char * const QML_RC_DISPLAY_NAME(QT_TRANSLATE_NOOP("QmlProjectManager::Internal::QmlRunConfiguration", "QML Viewer"));
+const char * const QML_VIEWER_KEY("QmlProjectManager.QmlRunConfiguration.QmlViewer");
+const char * const QML_VIEWER_ARGUMENTS_KEY("QmlProjectManager.QmlRunConfiguration.QmlViewerArguments");
+const char * const QML_VIEWER_TARGET_ID("QmlProjectManager.QmlTarget");
+const char * const QML_VIEWER_TARGET_DISPLAY_NAME("QML Viewer");
+const char * const QML_MAINSCRIPT_KEY("QmlProjectManager.QmlRunConfiguration.MainScript");
+const char * const QML_DEBUG_SERVER_PORT_KEY("QmlProjectManager.QmlRunConfiguration.DebugServerPort");
 
-void QmlTaskManager::setTaskWindow(ProjectExplorer::TaskWindow *taskWindow)
-{
-    Q_ASSERT(taskWindow);
-    m_taskWindow = taskWindow;
+const int QML_DEFAULT_DEBUG_SERVER_PORT(3768);
 
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, "Qml");
-}
-
-void QmlTaskManager::documentUpdated(QmlJS::Document::Ptr /*doc*/)
-{
-#if 0 // This will give way too many flickering errors in the build-results pane *when you're typing*
-    m_taskWindow->clearTasks(Constants::TASK_CATEGORY_QML);
-
-    foreach (const QmlJS::DiagnosticMessage &msg, doc->diagnosticMessages()) {
-        ProjectExplorer::TaskWindow::TaskType type
-                = msg.isError() ? ProjectExplorer::TaskWindow::Error
-                                : ProjectExplorer::TaskWindow::Warning;
-
-        ProjectExplorer::TaskWindow::Task task(type, msg.message, doc->fileName(), msg.loc.startLine,
-                                                Constants::TASK_CATEGORY_QML);
-        m_taskWindow->addTask(task);
-    }
-#endif
-}
-
-} // Internal
-} // QmlProjectManager
+} // namespace Constants
+} // namespace QmlProjectManager

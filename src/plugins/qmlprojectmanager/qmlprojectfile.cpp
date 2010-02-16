@@ -27,43 +27,65 @@
 **
 **************************************************************************/
 
-#include "qmltaskmanager.h"
+#include "qmlprojectfile.h"
+#include "qmlproject.h"
 #include "qmlprojectconstants.h"
-#include <QDebug>
 
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlTaskManager::QmlTaskManager(QObject *parent) :
-        QObject(parent),
-        m_taskWindow(0)
+QmlProjectFile::QmlProjectFile(QmlProject *parent, QString fileName)
+    : Core::IFile(parent),
+      m_project(parent),
+      m_fileName(fileName)
+{ }
+
+QmlProjectFile::~QmlProjectFile()
+{ }
+
+bool QmlProjectFile::save(const QString &)
+{
+    return false;
+}
+
+QString QmlProjectFile::fileName() const
+{
+    return m_fileName;
+}
+
+QString QmlProjectFile::defaultPath() const
+{
+    return QString();
+}
+
+QString QmlProjectFile::suggestedFileName() const
+{
+    return QString();
+}
+
+QString QmlProjectFile::mimeType() const
+{
+    return Constants::QMLMIMETYPE;
+}
+
+bool QmlProjectFile::isModified() const
+{
+    return false;
+}
+
+bool QmlProjectFile::isReadOnly() const
+{
+    return true;
+}
+
+bool QmlProjectFile::isSaveAsAllowed() const
+{
+    return false;
+}
+
+void QmlProjectFile::modified(ReloadBehavior *)
 {
 }
 
-void QmlTaskManager::setTaskWindow(ProjectExplorer::TaskWindow *taskWindow)
-{
-    Q_ASSERT(taskWindow);
-    m_taskWindow = taskWindow;
-
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, "Qml");
-}
-
-void QmlTaskManager::documentUpdated(QmlJS::Document::Ptr /*doc*/)
-{
-#if 0 // This will give way too many flickering errors in the build-results pane *when you're typing*
-    m_taskWindow->clearTasks(Constants::TASK_CATEGORY_QML);
-
-    foreach (const QmlJS::DiagnosticMessage &msg, doc->diagnosticMessages()) {
-        ProjectExplorer::TaskWindow::TaskType type
-                = msg.isError() ? ProjectExplorer::TaskWindow::Error
-                                : ProjectExplorer::TaskWindow::Warning;
-
-        ProjectExplorer::TaskWindow::Task task(type, msg.message, doc->fileName(), msg.loc.startLine,
-                                                Constants::TASK_CATEGORY_QML);
-        m_taskWindow->addTask(task);
-    }
-#endif
-}
-
-} // Internal
-} // QmlProjectManager
+} // namespace Internal
+} // namespace QmlProjectManager

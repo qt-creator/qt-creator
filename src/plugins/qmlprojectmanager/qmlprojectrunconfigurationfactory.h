@@ -27,43 +27,35 @@
 **
 **************************************************************************/
 
-#include "qmltaskmanager.h"
-#include "qmlprojectconstants.h"
-#include <QDebug>
+#ifndef QMLPROJECTRUNCONFIGURATIONFACTORY_H
+#define QMLPROJECTRUNCONFIGURATIONFACTORY_H
+
+#include <projectexplorer/runconfiguration.h>
 
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlTaskManager::QmlTaskManager(QObject *parent) :
-        QObject(parent),
-        m_taskWindow(0)
+class QmlProjectRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
-}
+    Q_OBJECT
 
-void QmlTaskManager::setTaskWindow(ProjectExplorer::TaskWindow *taskWindow)
-{
-    Q_ASSERT(taskWindow);
-    m_taskWindow = taskWindow;
+public:
+    explicit QmlProjectRunConfigurationFactory(QObject *parent = 0);
+    ~QmlProjectRunConfigurationFactory();
 
-    m_taskWindow->addCategory(Constants::TASK_CATEGORY_QML, "Qml");
-}
+    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const QString &id) const;
 
-void QmlTaskManager::documentUpdated(QmlJS::Document::Ptr /*doc*/)
-{
-#if 0 // This will give way too many flickering errors in the build-results pane *when you're typing*
-    m_taskWindow->clearTasks(Constants::TASK_CATEGORY_QML);
+    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
+};
 
-    foreach (const QmlJS::DiagnosticMessage &msg, doc->diagnosticMessages()) {
-        ProjectExplorer::TaskWindow::TaskType type
-                = msg.isError() ? ProjectExplorer::TaskWindow::Error
-                                : ProjectExplorer::TaskWindow::Warning;
+} // namespace Internal
+} // namespace QmlProjectManager
 
-        ProjectExplorer::TaskWindow::Task task(type, msg.message, doc->fileName(), msg.loc.startLine,
-                                                Constants::TASK_CATEGORY_QML);
-        m_taskWindow->addTask(task);
-    }
-#endif
-}
 
-} // Internal
-} // QmlProjectManager
+#endif // QMLPROJECTRUNCONFIGURATIONFACTORY_H

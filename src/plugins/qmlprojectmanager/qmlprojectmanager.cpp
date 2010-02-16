@@ -32,6 +32,7 @@
 #include "qmlproject.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/ifile.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -40,8 +41,8 @@
 
 #include <QtDebug>
 
-using namespace QmlProjectManager;
-using namespace QmlProjectManager::Internal;
+namespace QmlProjectManager {
+namespace Internal {
 
 Manager::Manager()
 {
@@ -101,3 +102,6 @@ void Manager::notifyChanged(const QString &fileName)
         }
     }
 }
+
+} // namespace Internal
+} // namespace QmlProjectManager

@@ -31,113 +31,30 @@
 #define QMLPROJECT_H
 
 #include "qmlprojectmanager.h"
-#include "qmlprojectnodes.h"
 #include "qmlprojectmanager_global.h"
-#include "qmltarget.h"
-#include "fileformat/qmlprojectitem.h"
+#include "qmlprojectnodes.h"
+#include "qmlprojecttarget.h"
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
-#include <projectexplorer/buildstep.h>
-#include <projectexplorer/applicationrunconfiguration.h>
-#include <projectexplorer/filewatcher.h>
-#include <coreplugin/ifile.h>
 
-#include <QtCore/QDir>
 #include <QtDeclarative/QmlEngine>
 
 namespace QmlJSEditor {
 class ModelManagerInterface;
 }
 
+namespace ProjectExplorer {
+class FileWatcher;
+}
+
 namespace QmlProjectManager {
-class QmlProject;
-class QmlRunConfiguration;
+
+class QmlProjectItem;
 
 namespace Internal {
 
-class QmlProjectFile : public Core::IFile
-{
-    Q_OBJECT
-
-public:
-    QmlProjectFile(QmlProject *parent, QString fileName);
-    virtual ~QmlProjectFile();
-
-    virtual bool save(const QString &fileName = QString());
-    virtual QString fileName() const;
-
-    virtual QString defaultPath() const;
-    virtual QString suggestedFileName() const;
-    virtual QString mimeType() const;
-
-    virtual bool isModified() const;
-    virtual bool isReadOnly() const;
-    virtual bool isSaveAsAllowed() const;
-
-    virtual void modified(ReloadBehavior *behavior);
-
-private:
-    QmlProject *m_project;
-    QString m_fileName;
-};
-
-class QmlRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
-{
-    Q_OBJECT
-
-public:
-    explicit QmlRunConfigurationFactory(QObject *parent = 0);
-    ~QmlRunConfigurationFactory();
-
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
-
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
-};
-
-class QmlRunControl : public ProjectExplorer::RunControl {
-    Q_OBJECT
-public:
-    explicit QmlRunControl(QmlRunConfiguration *runConfiguration, bool debugMode);
-    virtual ~QmlRunControl ();
-
-    // RunControl
-    virtual void start();
-    virtual void stop();
-    virtual bool isRunning() const;
-
-private slots:
-    void processExited(int exitCode);
-    void slotBringApplicationToForeground(qint64 pid);
-    void slotAddToOutputWindow(const QString &line);
-    void slotError(const QString & error);
-
-private:
-    ProjectExplorer::ApplicationLauncher m_applicationLauncher;
-
-    QString m_executable;
-    QStringList m_commandLineArguments;
-    bool m_debugMode;
-};
-
-class QmlRunControlFactory : public ProjectExplorer::IRunControlFactory {
-    Q_OBJECT
-public:
-    explicit QmlRunControlFactory(QObject *parent = 0);
-    virtual ~QmlRunControlFactory();
-
-    // IRunControlFactory
-    virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode) const;
-    virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, const QString &mode);
-    virtual QString displayName() const;
-    virtual QWidget *configurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
-};
+class QmlProjectFile;
+class QmlProjectNode;
 
 } // namespace Internal
 
@@ -155,8 +72,8 @@ public:
     QString id() const;
     Core::IFile *file() const;
     Internal::Manager *projectManager() const;
-    Internal::QmlTargetFactory *targetFactory() const;
-    Internal::QmlTarget *activeTarget() const;
+    Internal::QmlProjectTargetFactory *targetFactory() const;
+    Internal::QmlProjectTarget *activeTarget() const;
 
     QList<ProjectExplorer::Project *> dependsOn();
 
@@ -209,49 +126,7 @@ private:
     ProjectExplorer::FileWatcher *m_fileWatcher;
 
     Internal::QmlProjectNode *m_rootNode;
-    Internal::QmlTargetFactory *m_targetFactory;
-};
-
-class QMLPROJECTMANAGER_EXPORT QmlRunConfiguration : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-    friend class Internal::QmlRunConfigurationFactory;
-
-public:
-    QmlRunConfiguration(Internal::QmlTarget *parent);
-    virtual ~QmlRunConfiguration();
-
-    Internal::QmlTarget *qmlTarget() const;
-
-    QString viewerPath() const;
-    QStringList viewerArguments() const;
-    QString workingDirectory() const;
-    uint debugServerPort() const;
-
-    // RunConfiguration
-    virtual QWidget *configurationWidget();
-
-    QVariantMap toMap() const;
-
-private slots:
-    QString mainScript() const;
-    void setMainScript(const QString &scriptFile);
-    void onQmlViewerChanged();
-    void onQmlViewerArgsChanged();
-    void onDebugServerPortChanged();
-
-protected:
-    QmlRunConfiguration(Internal::QmlTarget *parent, QmlRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
-
-private:
-    void ctor();
-
-    QString m_scriptFile;
-    QString m_qmlViewerCustomPath;
-    QString m_qmlViewerDefaultPath;
-    QString m_qmlViewerArgs;
-    uint m_debugServerPort;
+    Internal::QmlProjectTargetFactory *m_targetFactory;
 };
 
 } // namespace QmlProjectManager

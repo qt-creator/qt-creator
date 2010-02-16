@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROJECTNODE_H
-#define QMLPROJECTNODE_H
+#ifndef QMLPROJECTNODES_H
+#define QMLPROJECTNODES_H
 
 #include <projectexplorer/projectnodes.h>
 
@@ -89,4 +89,4 @@ private:
 } // namespace Internal
 } // namespace QmlProjectManager
 
-#endif // QMLPROJECTNODE_H
+#endif // QMLPROJECTNODES_H

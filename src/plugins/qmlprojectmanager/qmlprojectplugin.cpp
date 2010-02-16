@@ -33,6 +33,8 @@
 #include "qmlnewprojectwizard.h"
 #include "qmlprojectconstants.h"
 #include "qmlproject.h"
+#include "qmlprojectrunconfigurationfactory.h"
+#include "qmlprojectruncontrol.h"
 #include "qmltaskmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -47,8 +49,8 @@
 
 #include <QtCore/QtPlugin>
 
-using namespace QmlProjectManager;
-using namespace QmlProjectManager::Internal;
+namespace QmlProjectManager {
+namespace Internal {
 
 QmlProjectPlugin::QmlProjectPlugin() :
         m_qmlTaskManager(0)
@@ -75,8 +77,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     m_qmlTaskManager = new QmlTaskManager(this);
 
     addAutoReleasedObject(manager);
-    addAutoReleasedObject(new QmlRunConfigurationFactory);
-    addAutoReleasedObject(new QmlRunControlFactory);
+    addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
+    addAutoReleasedObject(new Internal::QmlRunControlFactory);
     addAutoReleasedObject(new QmlNewProjectWizard);
     addAutoReleasedObject(new QmlProjectWizard);
     return true;
@@ -94,4 +96,7 @@ void QmlProjectPlugin::extensionsInitialized()
             m_qmlTaskManager, SLOT(documentUpdated(QmlJS::Document::Ptr)));
 }
 
-Q_EXPORT_PLUGIN(QmlProjectPlugin)
+} // namespace Internal
+} // namespace QmlProjectManager
+
+Q_EXPORT_PLUGIN(QmlProjectManager::Internal::QmlProjectPlugin)
