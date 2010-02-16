@@ -124,7 +124,9 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
             createPropertyEditorValue(fxObjectNode, propertyName, fxObjectNode.instanceValue(propertyName), &m_backendValuesPropertyMap, propertyEditor);
 
         // className
-        PropertyEditorValue *valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
+        PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
+        if (!valueObject)
+            valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("className");
         valueObject->setModelNode(fxObjectNode.modelNode());
         valueObject->setValue(fxObjectNode.modelNode().simplifiedTypeName());
@@ -132,7 +134,9 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         m_backendValuesPropertyMap.insert("className", QVariant::fromValue(valueObject));
 
         // id
-        valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
+        valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value("id")));
+        if (!valueObject)
+            valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("id");
         valueObject->setValue(fxObjectNode.id());
         QObject::connect(valueObject, SIGNAL(valueChanged(QString)), &m_backendValuesPropertyMap, SIGNAL(valueChanged(QString)));
