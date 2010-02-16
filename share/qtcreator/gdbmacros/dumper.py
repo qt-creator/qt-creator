@@ -35,6 +35,8 @@ def isGoodGdb():
     return 'parse_and_eval' in dir(gdb)
 
 def cleanAddress(addr):
+    if addr is None:
+        return "<no address>"
     # We cannot use str(addr) as it yields rubbish for char pointers
     # that might trigger Unicode encoding errors.
     return addr.cast(gdb.lookup_type("void").pointer())
