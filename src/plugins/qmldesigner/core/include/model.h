@@ -38,7 +38,9 @@
 
 #include <import.h>
 
+QT_BEGIN_NAMESPACE
 class QUrl;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

@@ -160,7 +160,6 @@ private:
     int mTop, mLeft, mBottom, mRight;
 
 };
-QML_DECLARE_TYPE(QBoxLayoutObject);
 
 class QHBoxLayoutObject : public QBoxLayoutObject
 {
@@ -168,7 +167,6 @@ Q_OBJECT
 public:
     QHBoxLayoutObject(QObject *parent=0);
 };
-QML_DECLARE_TYPE(QHBoxLayoutObject);
 
 class QVBoxLayoutObject : public QBoxLayoutObject
 {
@@ -176,11 +174,14 @@ Q_OBJECT
 public:
     QVBoxLayoutObject(QObject *parent=0);
 };
-QML_DECLARE_TYPE(QVBoxLayoutObject);
 
 #endif // BASICLAYOUTS_H
 
 
 QT_END_NAMESPACE
+
+QML_DECLARE_TYPE(QBoxLayoutObject);
+QML_DECLARE_TYPE(QHBoxLayoutObject);
+QML_DECLARE_TYPE(QVBoxLayoutObject);
 
 QT_END_HEADER

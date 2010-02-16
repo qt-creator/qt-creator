@@ -88,22 +88,17 @@ public:
     void modelAttached(Model *model);
     void modelAboutToBeDetached(Model *model);
 
+    virtual void nodeInstancePropertyChanged(const ModelNode &node, const QString &propertyName);
+
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);
     bool hasInstanceForModelNode(const ModelNode &modelNode);
     NodeInstanceView *nodeInstanceView() const;
-    virtual void transformChanged(const QmlObjectNode &qmlObjectNode) ;
+    virtual void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName) ;
     virtual void parentChanged(const QmlObjectNode &qmlObjectNode);
-    virtual void otherPropertyChanged(const QmlObjectNode &qmlObjectNode);
+    virtual void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     virtual void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
-    virtual void updateItem(const QmlObjectNode &qmlObjectNode);
 
-
-private slots:
-    void notifyTransformChanged(const NodeInstance &nodeInstance);
-    void notifyParentChanged(const NodeInstance &nodeInstance);
-    void notifyOtherPropertyChanged(const NodeInstance &nodeInstance);
-    void notifyUpdateItem(const NodeInstance &nodeInstance);
 
 private:
     QmlModelState m_state;

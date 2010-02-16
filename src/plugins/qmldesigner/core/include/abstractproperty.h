@@ -35,7 +35,9 @@
 #include <QSharedPointer>
 #include "corelib_global.h"
 
+QT_BEGIN_NAMESPACE
 class QTextStream;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
     namespace Internal {

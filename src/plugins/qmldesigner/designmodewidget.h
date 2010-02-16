@@ -52,10 +52,12 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QLabel>
 
+QT_BEGIN_NAMESPACE
 class QStackedWidget;
 class QTabWidget;
 class QVBoxLayout;
 class QToolButton;
+QT_END_NAMESPACE
 
 namespace Core {
     class SideBar;

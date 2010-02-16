@@ -32,7 +32,9 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QToolBar;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

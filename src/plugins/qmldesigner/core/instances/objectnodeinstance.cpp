@@ -57,6 +57,7 @@
 #include <QmlBinding>
 #include <QmlMetaType>
 #include <QmlEngine>
+#include <QSharedPointer>
 
 #include <private/qmlcontext_p.h>
 #include <private/qmllistaccessor_p.h>
@@ -65,11 +66,13 @@
 #include <private/qmlgraphicsrectangle_p.h> // to get QmlGraphicsPen
 #include <private/qmetaobjectbuilder_p.h>
 #include <private/qmlvmemetaobject_p.h>
+#include <private/qobject_p.h>
 
 
 
 namespace QmlDesigner {
 namespace Internal {
+
 
 ChildrenChangeEventFilter::ChildrenChangeEventFilter(QObject *parent)
     : QObject(parent)
@@ -81,7 +84,11 @@ bool ChildrenChangeEventFilter::eventFilter(QObject *object, QEvent *event)
 {
     switch (event->type()) {
         case QEvent::ChildAdded:
-        case QEvent::ChildRemoved: emit childrenChanged(object); break;
+        case QEvent::ChildRemoved:
+            {
+                QChildEvent *childEvent = static_cast<QChildEvent*>(event);
+                emit childrenChanged(childEvent->child()); break;
+            }
         default: break;
     }
 
@@ -93,6 +100,7 @@ ObjectNodeInstance::ObjectNodeInstance(QObject *object)
     m_object(object),
     m_metaObject(0)
 {
+
 }
 
 ObjectNodeInstance::~ObjectNodeInstance()
@@ -158,9 +166,37 @@ NodeInstanceView *ObjectNodeInstance::nodeInstanceView() const
     return m_nodeInstanceView.data();
 }
 
-void ObjectNodeInstance::setNodeInstance(NodeInstanceView *view)
+void ObjectNodeInstance::setNodeInstanceView(NodeInstanceView *view)
 {
+    Q_ASSERT(!m_nodeInstanceView.data());
+
     m_nodeInstanceView = view;
+}
+
+static bool hasPropertiesWitoutNotifications(const QMetaObject *metaObject)
+{
+    for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
+        if (!metaObject->property(propertyIndex).hasNotifySignal())
+            return true;
+    }
+
+    return false;
+}
+
+void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
+{
+    m_metaObject = new NodeInstanceMetaObject(objectNodeInstance);
+    const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
+    for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
+        if (QmlMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
+            QObject *propertyObject = QmlMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
+            if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
+                new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name());
+            }
+        }
+    }
+
+    m_signalSpy.setObjectNodeInstance(objectNodeInstance);
 }
 
 void ObjectNodeInstance::setId(const QString &id)
@@ -701,13 +737,6 @@ static bool metaObjectHasNotPropertyName(NodeInstanceMetaObject *metaObject, con
 
 void ObjectNodeInstance::createDynamicProperty(const QString &name, const QString &/*typeName*/)
 {
-    if (m_metaObject == 0) {
-        if (modelNode().isRootNode())
-            m_metaObject = new NodeInstanceMetaObject(object(), context());
-        else
-            m_metaObject = new NodeInstanceMetaObject(object(), 0);
-    }
-
     if (metaObjectHasNotPropertyName(m_metaObject, name))
         m_metaObject->createNewProperty(name);
 }

@@ -498,7 +498,7 @@ QmlItemNode findRecursiveQmlItemNode(const QmlObjectNode &firstQmlObjectNode)
     return QmlItemNode();
 }
 
-void FormEditorView::transformChanged(const QmlObjectNode &qmlObjectNode)
+void FormEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const QString &/*propertyName*/)
 {
     QmlItemNode itemNode = qmlObjectNode.toQmlItemNode();
     if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
@@ -523,7 +523,7 @@ void FormEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
     }
 }
 
-void FormEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode)
+void FormEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &/*propertyName*/)
 {
     Q_ASSERT(qmlObjectNode.isValid());
 
@@ -544,19 +544,6 @@ void FormEditorView::updateGraphicsIndicators()
 void FormEditorView::setSelectOnlyContentItemsAction(bool selectOnlyContentItems)
 {
     m_selectionTool->setSelectOnlyContentItems(selectOnlyContentItems);
-}
-
-void FormEditorView::updateItem(const QmlObjectNode &qmlObjectNode)
-{
-
-    Q_ASSERT(qmlObjectNode.isValid());
-
-    QmlItemNode itemNode = findRecursiveQmlItemNode(qmlObjectNode);
-
-    if (itemNode.isValid() && scene()->hasItemForQmlItemNode(itemNode)) {
-        m_scene->synchronizeOtherProperty(itemNode);
-        m_currentTool->formEditorItemsChanged(QList<FormEditorItem*>() << m_scene->itemForQmlItemNode(itemNode));
-    }
 }
 
 void FormEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)

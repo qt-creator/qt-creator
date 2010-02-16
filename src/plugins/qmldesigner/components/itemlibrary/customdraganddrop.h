@@ -32,7 +32,9 @@
 #include <QTimeLine>
 #include <QDrag>
 
+QT_BEGIN_NAMESPACE
 class QMimeData;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -118,6 +120,11 @@ class CustomItemLibraryDrag : public QDrag {
         { m_mimeData = mimeData; }
         void exec()
         { QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::startCustomDrag(m_pixmap, m_preview, m_mimeData); }
+
+    public slots:
+        void stopDrag() {
+            QmlDesignerItemLibraryDragAndDrop::CustomDragAndDrop::endCustomDrag();
+        }
 
 private:
         QPixmap m_pixmap, m_preview;

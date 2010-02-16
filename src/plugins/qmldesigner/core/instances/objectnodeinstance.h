@@ -39,12 +39,15 @@
 #include <propertymetainfo.h>
 #include <nodeinstanceview.h>
 #include "nodeinstancemetaobject.h"
+#include "nodeinstancesignalspy.h"
 
+QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QmlContext;
 class QmlMetaProperty;
 class QmlContext;
 class QmlBinding;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -91,8 +94,8 @@ public:
     void setModelNode(const ModelNode &node);
 
     NodeInstanceView *nodeInstanceView() const;
-    void setNodeInstance(NodeInstanceView *view);
-
+    void setNodeInstanceView(NodeInstanceView *view);
+    void initializePropertyWatcher(const Pointer &objectNodeInstance);
     virtual void paint(QPainter *painter) const;
 
     virtual bool isTopLevel() const;
@@ -186,6 +189,8 @@ private:
     bool m_deleteHeldInstance;
     QWeakPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;
+    NodeInstanceSignalSpy m_signalSpy;
+
 };
 
 

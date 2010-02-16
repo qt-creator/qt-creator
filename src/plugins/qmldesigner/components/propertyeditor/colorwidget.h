@@ -39,9 +39,10 @@
 #include <qml.h>
 #include <propertyeditorvalue.h>
 
-
+QT_BEGIN_NAMESPACE
 class QtColorButton;
 class QToolButton;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

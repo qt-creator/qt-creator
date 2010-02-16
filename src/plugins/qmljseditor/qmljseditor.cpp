@@ -564,7 +564,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_methodCombo(0),
     m_modelManager(0)
 {
-    qRegisterMetaType<SemanticInfo>("SemanticInfo");
+    qRegisterMetaType<QmlJSEditor::Internal::SemanticInfo>("QmlJSEditor::Internal::SemanticInfo");
 
     m_semanticHighlighter = new SemanticHighlighter(this);
     m_semanticHighlighter->start();
@@ -596,8 +596,8 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
                 this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
     }
 
-    connect(m_semanticHighlighter, SIGNAL(changed(SemanticInfo)),
-            this, SLOT(updateSemanticInfo(SemanticInfo)));
+    connect(m_semanticHighlighter, SIGNAL(changed(QmlJSEditor::Internal::SemanticInfo)),
+            this, SLOT(updateSemanticInfo(QmlJSEditor::Internal::SemanticInfo)));
 }
 
 QmlJSTextEditor::~QmlJSTextEditor()

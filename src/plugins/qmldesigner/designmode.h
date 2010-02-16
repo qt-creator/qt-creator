@@ -36,7 +36,9 @@
 
 #include <QWeakPointer>
 
+QT_BEGIN_NAMESPACE
 class QAction;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 namespace Internal {

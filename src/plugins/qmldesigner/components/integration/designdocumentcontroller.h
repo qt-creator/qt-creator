@@ -35,12 +35,14 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
 class QUndoStack;
 class QWidget;
 class QIODevice;
 class QProcess;
 class QPlainTextEdit;
 class QmlError;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

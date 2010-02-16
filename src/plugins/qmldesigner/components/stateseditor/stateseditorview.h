@@ -69,10 +69,9 @@ protected:
 
     // QmlModelView
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
-    void transformChanged(const QmlObjectNode &qmlObjectNode) ;
+    void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     void parentChanged(const QmlObjectNode &qmlObjectNode);
-    void otherPropertyChanged(const QmlObjectNode &qmlObjectNode);
-    void updateItem(const QmlObjectNode &qmlObjectNode);
+    void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
 
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 

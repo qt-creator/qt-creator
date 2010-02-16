@@ -37,8 +37,10 @@
 
 #include "qmlanchorbindingproxy.h"
 
+QT_BEGIN_NAMESPACE
 class QShortcut;
 class QStackedWidget;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -84,10 +86,6 @@ public:
 
 
 
-    void anyPropertyChanged(const QmlObjectNode &qmlObjectNode);
-    void geometryPropertyChanged(const QmlObjectNode &fxObjectNode);
-
-
 
     void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
@@ -97,8 +95,8 @@ public:
 
 protected:
     void timerEvent(QTimerEvent *event);
-    void otherPropertyChanged(const QmlObjectNode &);
-    void transformChanged(const QmlObjectNode &qmlObjectNode);
+    void otherPropertyChanged(const QmlObjectNode &, const QString &propertyName);
+    void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     void setupPane(const QString &typeName);
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 

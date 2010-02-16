@@ -27,32 +27,40 @@
 **
 **************************************************************************/
 
-#ifndef QLAYOUTOBJECT_H
-#define QLAYOUTOBJECT_H
+#ifndef ITEMLIBRARYTREEVIEW_H
+#define ITEMLIBRARYTREEVIEW_H
 
-#include <QObject>
-#include <QLayout>
-#include <qml.h>
+#include <QtGui/QTreeView>
+#include <QtGui/QStandardItemModel>
+#include <QDrag>
+#include <QDebug>
+#include <QTimeLine>
 
+class QLabel;
 
-QT_BEGIN_HEADER
+namespace QmlDesigner {
 
-QT_BEGIN_NAMESPACE
+namespace Internal {
 
-QT_MODULE(Declarative)
-class QLayoutObject : public QObject
-{
-Q_OBJECT
+// ItemLibraryTreeView with Drag implementation
+class ItemLibraryTreeView : public QTreeView {
+    Q_OBJECT
 public:
-    QLayoutObject(QObject *parent = 0);
+    explicit ItemLibraryTreeView(QWidget *parent = 0);
 
-    virtual QLayout *layout() const;
+    virtual void startDrag(Qt::DropActions supportedActions);
+
+signals:
+    void itemActivated(const QString &itemName);
+
+private slots:
+    void activateItem( const QModelIndex &index);
 };
 
-QT_END_NAMESPACE
 
-QML_DECLARE_TYPE(QLayoutObject);
+} // namespace Internal
 
-QT_END_HEADER
+} // namespace QmlDesigner
 
-#endif // QLAYOUTOBJECT_H
+#endif // ITEMLIBRARYTREEVIEW_H
+

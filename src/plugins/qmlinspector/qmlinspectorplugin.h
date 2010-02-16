@@ -35,6 +35,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QTimer>
 
+QT_BEGIN_NAMESPACE
+
 class QStringList;
 
 namespace ProjectExplorer {

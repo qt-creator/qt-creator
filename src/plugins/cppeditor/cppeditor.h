@@ -141,7 +141,7 @@ public:
     void rehighlight(const Source &source);
 
 Q_SIGNALS:
-    void changed(const SemanticInfo &semanticInfo);
+    void changed(const CppEditor::Internal::SemanticInfo &semanticInfo);
 
 protected:
     virtual void run();
@@ -242,7 +242,7 @@ private Q_SLOTS:
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
 
     void semanticRehighlight();
-    void updateSemanticInfo(const SemanticInfo &semanticInfo);
+    void updateSemanticInfo(const CppEditor::Internal::SemanticInfo &semanticInfo);
 
     void performQuickFix(int index);
 

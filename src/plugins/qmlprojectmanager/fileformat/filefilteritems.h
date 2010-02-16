@@ -92,10 +92,19 @@ public:
     ImageFileFilterItem(QObject *parent = 0);
 };
 
+class CssFileFilterItem : public FileFilterBaseItem {
+    Q_OBJECT
+    Q_PROPERTY(QString filter READ filter WRITE setFilter NOTIFY filterChanged())
+
+public:
+    CssFileFilterItem(QObject *parent = 0);
+};
+
 } // namespace QmlProjectManager
 
 QML_DECLARE_TYPE(QmlProjectManager::QmlFileFilterItem)
 QML_DECLARE_TYPE(QmlProjectManager::JsFileFilterItem)
 QML_DECLARE_TYPE(QmlProjectManager::ImageFileFilterItem)
+QML_DECLARE_TYPE(QmlProjectManager::CssFileFilterItem)
 
 #endif // FILEFILTERITEMS_HPROJECTITEM_H

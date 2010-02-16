@@ -32,7 +32,9 @@
 
 #include "formeditoritem.h"
 
+QT_BEGIN_NAMESPACE
 class QLineF;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

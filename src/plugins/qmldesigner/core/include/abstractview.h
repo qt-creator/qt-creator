@@ -39,7 +39,9 @@
 
 #include <QObject>
 
+QT_BEGIN_NAMESPACE
 class QStyle;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
     namespace Internal {

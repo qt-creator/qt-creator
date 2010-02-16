@@ -175,7 +175,7 @@ public:
     void rehighlight(const Source &source);
 
 Q_SIGNALS:
-    void changed(const SemanticInfo &semanticInfo);
+    void changed(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
 
 protected:
     virtual void run();
@@ -228,7 +228,7 @@ private slots:
     void renameIdUnderCursor();
 
     void semanticRehighlight();
-    void updateSemanticInfo(const SemanticInfo &semanticInfo);
+    void updateSemanticInfo(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);

@@ -32,8 +32,10 @@
 
 #include <QtCore/QObject>
 
+QT_BEGIN_NAMESPACE
 class QWidget;
 class QDialog;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

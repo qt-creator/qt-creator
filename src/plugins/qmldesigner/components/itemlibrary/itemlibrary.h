@@ -32,9 +32,11 @@
 
 #include <QtGui/QFrame>
 
+QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QPixmap;
 class QMimeData;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
@@ -46,6 +48,7 @@ class ItemLibrary : public QFrame
 {
     Q_OBJECT
     Q_DISABLE_COPY(ItemLibrary)
+
 public:
     ItemLibrary(QWidget *parent = 0);
     virtual ~ItemLibrary();
@@ -53,28 +56,25 @@ public:
     void addItemLibraryInfo(const ItemLibraryInfo &ItemLibraryInfo);
     void setMetaInfo(const MetaInfo &metaInfo);
 
-    // Helper for creating widget box items. Note that this temporarily
-    // adds the item to a scene, so, the item must not be associated
-    // with a scene.
-
 public Q_SLOTS:
-    void expandAll();
-    void itemLibraryButton();
-    void resourcesButton();
-    void setNameFilter(const QString &nameFilter);
+    void itemLibraryButtonToggled();
+    void resourcesButtonToggled();
+
+    void setSearchFilter(const QString &nameFilter);
     void setResourcePath(const QString &resourcePath);
+
+    void startDragAndDrop(int itemLibId);
+    void showItemInfo(int itemLibId);
+
 signals:
     void itemActivated(const QString& itemName);
-
-protected:
-    virtual void contextMenuEvent (QContextMenuEvent * event);
+    void expandAllItems();
 
 private:
     ItemLibraryPrivate *m_d;
 };
 
-//class ItemLibraryFilter : public QObject
-
 }
 
 #endif // ITEMLIBRARY_H
+

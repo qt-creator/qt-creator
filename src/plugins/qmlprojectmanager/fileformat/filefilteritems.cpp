@@ -194,8 +194,15 @@ ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
     setFilter(filter);
 }
 
+CssFileFilterItem::CssFileFilterItem(QObject *parent)
+    : FileFilterBaseItem(parent)
+{
+    setFilter(QLatin1String("*.css"));
+}
+
 } // namespace QmlProjectManager
 
 QML_DEFINE_TYPE(QmlProject,1,0,QmlFiles,QmlProjectManager::QmlFileFilterItem)
 QML_DEFINE_TYPE(QmlProject,1,0,JavaScriptFiles,QmlProjectManager::JsFileFilterItem)
 QML_DEFINE_TYPE(QmlProject,1,0,ImageFiles,QmlProjectManager::ImageFileFilterItem)
+QML_DEFINE_TYPE(QmlProject,1,0,CssFiles,QmlProjectManager::CssFileFilterItem)

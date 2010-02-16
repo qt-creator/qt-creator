@@ -52,13 +52,6 @@ StatesEditorView::StatesEditorView(StatesEditorModel *editorModel, QObject *pare
         m_editorModel(editorModel)
 {
     Q_ASSERT(m_editorModel);
-
-
-    connect(nodeInstanceView(), SIGNAL(instanceRemoved(NodeInstance)), this, SLOT(sceneChanged()));
-    connect(nodeInstanceView(), SIGNAL(transformPropertyChanged(NodeInstance)), this, SLOT(sceneChanged()));
-    connect(nodeInstanceView(), SIGNAL(parentPropertyChanged(NodeInstance)), this, SLOT(sceneChanged()));
-    connect(nodeInstanceView(), SIGNAL(otherPropertyChanged(NodeInstance)), this, SLOT(sceneChanged()));
-    connect(nodeInstanceView(), SIGNAL(updateItem(NodeInstance)), this, SLOT(sceneChanged()));
 }
 
 void StatesEditorView::setCurrentStateSilent(int index)
@@ -304,9 +297,9 @@ void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const
         m_editorModel->emitChangedToState(m_modelStates.indexOf(newQmlModelState));
 }
 
-void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode)
+void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
 {
-    QmlModelView::transformChanged(qmlObjectNode);
+    QmlModelView::transformChanged(qmlObjectNode, propertyName);
 }
 
 void StatesEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
@@ -314,15 +307,11 @@ void StatesEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
     QmlModelView::parentChanged(qmlObjectNode);
 }
 
-void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode)
+void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
 {
-    QmlModelView::otherPropertyChanged(qmlObjectNode);
+    QmlModelView::otherPropertyChanged(qmlObjectNode, propertyName);
 }
 
-void StatesEditorView::updateItem(const QmlObjectNode &qmlObjectNode)
-{
-    QmlModelView::updateItem(qmlObjectNode);
-}
 
 void StatesEditorView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
