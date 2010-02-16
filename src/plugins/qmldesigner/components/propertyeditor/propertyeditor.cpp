@@ -385,12 +385,9 @@ void PropertyEditor::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
 {
     Q_UNUSED(lastSelectedNodeList);
 
-    if (m_selectedNode.isValid() && selectedNodeList.contains(m_selectedNode))
-        return;
-
-    if (selectedNodeList.isEmpty())
+    if (selectedNodeList.isEmpty() || selectedNodeList.count() > 1)
         select(ModelNode());
-    else
+    else if (m_selectedNode != selectedNodeList.first())
         select(selectedNodeList.first());
 }
 
