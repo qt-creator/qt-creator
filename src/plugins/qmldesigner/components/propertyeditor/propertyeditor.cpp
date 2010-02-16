@@ -294,7 +294,7 @@ void PropertyEditor::anyPropertyChanged(const QmlObjectNode &fxObjectNode)
 
 void PropertyEditor::otherPropertyChanged(const QmlObjectNode &fxObjectNode)
 {
-    QmlModelView::transformChanged(fxObjectNode);
+    QmlModelView::otherPropertyChanged(fxObjectNode);
 
     anyPropertyChanged(fxObjectNode);
 }
