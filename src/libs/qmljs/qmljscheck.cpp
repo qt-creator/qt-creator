@@ -30,6 +30,7 @@
 #include "qmljscheck.h"
 #include "qmljsbind.h"
 #include "qmljsinterpreter.h"
+#include "qmljsevaluate.h"
 #include "parser/qmljsast_p.h"
 
 #include <QtCore/QDebug>
@@ -43,6 +44,8 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot)
     , _snapshot(snapshot)
     , _context(&_engine)
     , _link(&_context, doc, snapshot)
+    , _extraScope(0)
+    , _allowAnyProperty(false)
 {
 }
 
@@ -68,12 +71,7 @@ bool Check::visit(UiProgram *ast)
 
 bool Check::visit(UiObjectDefinition *ast)
 {
-    const ObjectValue *oldScopeObject = _context.qmlScopeObject();
-    _context.setQmlScopeObject(_doc->bind()->findQmlObject(ast));
-
-    Node::accept(ast->initializer, this);
-
-    _context.setQmlScopeObject(oldScopeObject);
+    visitQmlObject(ast, ast->initializer);
     return false;
 }
 
@@ -81,13 +79,58 @@ bool Check::visit(UiObjectBinding *ast)
 {
     checkScopeObjectMember(ast->qualifiedId);
 
-    const ObjectValue *oldScopeObject = _context.qmlScopeObject();
-    _context.setQmlScopeObject(_doc->bind()->findQmlObject(ast));
+    visitQmlObject(ast, ast->initializer);
+    return false;
+}
 
-    Node::accept(ast->initializer, this);
+void Check::visitQmlObject(AST::Node *ast, AST::UiObjectInitializer *initializer)
+{
+    const ObjectValue *oldScopeObject = _context.qmlScopeObject();
+    const ObjectValue *oldExtraScope = _extraScope;
+    const bool oldAllowAnyProperty = _allowAnyProperty;
+    const ObjectValue *scopeObject = _doc->bind()->findQmlObject(ast);
+    _context.setQmlScopeObject(scopeObject);
+
+#ifndef NO_DECLARATIVE_BACKEND
+    // check if the object has a Qt.PropertyChanges ancestor
+    const ObjectValue *prototype = scopeObject->prototype(&_context);
+    while (prototype) {
+        if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
+            // ### Also check for Qt package. Involves changes in QmlObjectValue.
+            if (qmlMetaObject->qmlTypeName() == QLatin1String("PropertyChanges"))
+                break;
+        }
+        prototype = prototype->prototype(&_context);
+    }
+
+    // find the target script binding
+    if (prototype && initializer) {
+        for (UiObjectMemberList *m = initializer->members; m; m = m->next) {
+            if (UiScriptBinding *scriptBinding = cast<UiScriptBinding *>(m->member)) {
+                if (scriptBinding->qualifiedId
+                        && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
+                        && ! scriptBinding->qualifiedId->next) {
+                    if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(scriptBinding->statement)) {
+                        Evaluate evaluator(&_context);
+                        const Value *targetValue = evaluator(expStmt->expression);
+
+                        if (const ObjectValue *target = value_cast<const ObjectValue *>(targetValue)) {
+                            _extraScope = target;
+                        } else {
+                            _allowAnyProperty = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+#endif
+
+    Node::accept(initializer, this);
 
     _context.setQmlScopeObject(oldScopeObject);
-    return false;
+    _extraScope = oldExtraScope;
+    _allowAnyProperty = oldAllowAnyProperty;
 }
 
 bool Check::visit(UiScriptBinding *ast)
@@ -106,6 +149,9 @@ bool Check::visit(UiArrayBinding *ast)
 
 void Check::checkScopeObjectMember(const AST::UiQualifiedId *id)
 {
+    if (_allowAnyProperty)
+        return;
+
     const ObjectValue *scopeObject = _context.qmlScopeObject();
 
     if (! id)
@@ -121,6 +167,8 @@ void Check::checkScopeObjectMember(const AST::UiQualifiedId *id)
         scopeObject = _context.typeEnvironment(_doc.data());
 
     const Value *value = scopeObject->lookupMember(propertyName, &_context);
+    if (_extraScope && !value)
+        value = _extraScope->lookupMember(propertyName, &_context);
     if (!value) {
         error(id->identifierToken,
               QString("'%1' is not a valid property name").arg(propertyName));

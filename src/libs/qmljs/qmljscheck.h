@@ -53,6 +53,7 @@ protected:
     virtual bool visit(AST::UiArrayBinding *ast);
 
 private:
+    void visitQmlObject(AST::Node *ast, AST::UiObjectInitializer *initializer);
     void checkScopeObjectMember(const AST::UiQualifiedId *id);
 
     void warning(const AST::SourceLocation &loc, const QString &message);
@@ -66,6 +67,9 @@ private:
     Link _link;
 
     QList<DiagnosticMessage> _messages;
+
+    const Interpreter::ObjectValue *_extraScope;
+    bool _allowAnyProperty;
 };
 
 } // namespace QmlJS
