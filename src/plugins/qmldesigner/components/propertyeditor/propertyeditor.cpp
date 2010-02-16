@@ -74,6 +74,20 @@ PropertyEditor::NodeType::~NodeType()
 {
 }
 
+void setupPropertyEditorValue(const QString &name, QmlPropertyMap *propertyMap, PropertyEditor *propertyEditor)
+{
+    QString propertyName(name);
+    propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
+    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(propertyMap->value(propertyName)));
+    if (!valueObject) {
+        valueObject = new PropertyEditorValue(propertyMap);
+        QObject::connect(valueObject, SIGNAL(valueChanged(QString)), propertyMap, SIGNAL(valueChanged(QString)));
+        QObject::connect(valueObject, SIGNAL(expressionChanged(QString)), propertyEditor, SLOT(changeExpression(QString)));
+        propertyMap->insert(propertyName, QVariant::fromValue(valueObject));
+    }
+    valueObject->setName(propertyName);
+}
+
 void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value, QmlPropertyMap *propertyMap, PropertyEditor *propertyEditor)
 {
     QString propertyName(name);
@@ -157,6 +171,41 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
     }
 }
 
+void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor)
+{
+    QmlContext *ctxt = m_view->rootContext();
+
+    NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo().nodeMetaInfo(typeName, 4, 6);
+
+    foreach (const QString &propertyName, metaInfo.properties(true).keys())
+        setupPropertyEditorValue(propertyName, &m_backendValuesPropertyMap, propertyEditor);
+
+    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
+    if (!valueObject)
+        valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
+    valueObject->setName("className");
+
+    valueObject->setValue(typeName);
+    QObject::connect(valueObject, SIGNAL(valueChanged(QString)), &m_backendValuesPropertyMap, SIGNAL(valueChanged(QString)));
+    m_backendValuesPropertyMap.insert("className", QVariant::fromValue(valueObject));
+
+    // id
+    valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value("id")));
+    if (!valueObject)
+        valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
+    valueObject->setName("id");
+    valueObject->setValue("id");
+    QObject::connect(valueObject, SIGNAL(valueChanged(QString)), &m_backendValuesPropertyMap, SIGNAL(valueChanged(QString)));
+    m_backendValuesPropertyMap.insert("id", QVariant::fromValue(valueObject));
+
+    ctxt->setContextProperty("anchorBackend", &m_backendAnchorBinding);
+    ctxt->setContextProperty("backendValues", &m_backendValuesPropertyMap);
+
+    ctxt->setContextProperty("specificsUrl", QVariant(qmlSpecificsFile));
+    ctxt->setContextProperty("stateName", QVariant(QLatin1String("basestate")));
+    ctxt->setContextProperty("isBaseState", QVariant(true));
+}
+
 PropertyEditor::PropertyEditor(QWidget *parent) :
         QmlModelView(parent),
         m_parent(parent),
@@ -180,6 +229,30 @@ PropertyEditor::~PropertyEditor()
 {
     delete m_stackedWidget;
     qDeleteAll(m_typeHash);
+}
+
+void PropertyEditor::setupPane(const QString &typeName)
+{
+    if (m_typeHash.contains(typeName))
+        return;
+
+    QUrl qmlFile = fileToUrl(locateQmlFile(QLatin1String("Qt/ItemPane.qml")));
+    QUrl qmlSpecificsFile;
+
+    qmlSpecificsFile = fileToUrl(locateQmlFile(typeName + "Specifics.qml"));
+
+    NodeType *type = m_typeHash.value(typeName);
+
+    type = new NodeType(qmlFile, this);
+
+    m_stackedWidget->addWidget(type->m_view);
+    m_typeHash.insert(typeName, type);
+
+    QmlContext *ctxt = type->m_view->rootContext();
+    type->initialSetup(typeName, qmlSpecificsFile, this);
+    ctxt->setContextProperty("finishedNotify", QVariant(false) );
+    type->m_view->execute();
+    ctxt->setContextProperty("finishedNotify", QVariant(true) );
 }
 
 void PropertyEditor::changeValue(const QString &name)

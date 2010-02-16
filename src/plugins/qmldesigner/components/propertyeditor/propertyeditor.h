@@ -52,6 +52,7 @@ class PropertyEditor: public QmlModelView
         ~NodeType();
 
         void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
+        void initialSetup(const QString &typeName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
         void setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value);
 
         QmlView *m_view;
@@ -98,6 +99,7 @@ protected:
     void timerEvent(QTimerEvent *event);
     void otherPropertyChanged(const QmlObjectNode &);
     void transformChanged(const QmlObjectNode &qmlObjectNode);
+    void PropertyEditor::setupPane(const QString &typeName);
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
 private slots:
