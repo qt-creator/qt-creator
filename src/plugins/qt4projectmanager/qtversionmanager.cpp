@@ -1385,7 +1385,7 @@ QString QtVersion::invalidReason() const
     if (isValid())
         return QString();
     if (qmakeCommand().isEmpty())
-        return QApplication::translate("QtVersion", "No QMake path set");
+        return QApplication::translate("QtVersion", "No qmake path set");
     if (displayName().isEmpty())
         return QApplication::translate("QtVersion", "Qt Version has no name");
     if (m_notInstalled)

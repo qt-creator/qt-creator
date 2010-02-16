@@ -151,7 +151,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent, QList<QtVersion *> ver
 
     m_ui->setupUi(this);
     m_ui->qmakePath->setExpectedKind(Utils::PathChooser::File);
-    m_ui->qmakePath->setPromptDialogTitle(tr("Select QMake Executable"));
+    m_ui->qmakePath->setPromptDialogTitle(tr("Select qmake Executable"));
     m_ui->mingwPath->setExpectedKind(Utils::PathChooser::Directory);
     m_ui->mingwPath->setPromptDialogTitle(tr("Select the MinGW Directory"));
     m_ui->mwcPath->setExpectedKind(Utils::PathChooser::Directory);

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>375</width>
+    <width>405</width>
     <height>474</height>
    </rect>
   </property>
@@ -34,7 +34,7 @@
           </column>
           <column>
            <property name="text">
-            <string>QMake Location</string>
+            <string>qmake Location</string>
            </property>
           </column>
           <column>
@@ -110,7 +110,7 @@
         <item row="1" column="0">
          <widget class="QLabel" name="pathLabel">
           <property name="text">
-           <string>QMake Location:</string>
+           <string>qmake Location:</string>
           </property>
          </widget>
         </item>

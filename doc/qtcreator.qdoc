@@ -382,7 +382,7 @@
             \i \image qtcreator-qt4-qtversions.png
             \i \bold{Linux and Mac OS X}
 
-               On Linux and Mac OS X, set the \gui{path to QMake}
+               On Linux and Mac OS X, set the \gui{path to qmake}
                to the \c qmake binary of the Qt installation. If a Qt is
                found in the \c PATH environment variable, it shows up
                automatically as \gui{Qt in PATH}.
@@ -1966,7 +1966,7 @@
     describe the procedure required for each project type.
 
 
-    \section1 QMake Projects (the default)
+    \section1 qmake Projects (the default)
 
     Open your project file (\c{.pro}) from the \gui{Projects} pane. Then,
     follow the guidelines in the

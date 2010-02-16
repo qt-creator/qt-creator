@@ -434,7 +434,7 @@ bool Qt4BuildConfiguration::compareToImportFrom(const QString &workingDirectory)
             QPair<QtVersion::QmakeBuildConfigs, QStringList> result =
                     QtVersionManager::scanMakeFile(workingDirectory, version->defaultBuildConfig());
             if (qmakeBuildConfiguration() == result.first) {
-                // The QMake Build Configuration are the same,
+                // The qmake Build Configuration are the same,
                 // now compare arguments lists
                 // we have to compare without the spec/platform cmd argument
                 // and compare that on its own

@@ -204,7 +204,7 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
     importLabel->setText(tr("Qt Creator has found an already existing build in the source directory.<br><br>"
                          "<b>Qt Version:</b> %1<br>"
                          "<b>Build configuration:</b> %2<br>"
-                         "<b>Additional QMake Arguments:</b>%3")
+                         "<b>Additional qmake Arguments:</b>%3")
                          .arg(versionString)
                          .arg(buildConfigString)
                          .arg(ProjectExplorer::Environment::joinArgumentList(addtionalArguments)));

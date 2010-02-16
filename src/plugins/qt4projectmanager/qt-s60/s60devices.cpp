@@ -315,7 +315,7 @@ QString S60Devices::cleanedRootPath(const QString &deviceRoot)
     QString path = deviceRoot;
 #ifdef Q_OS_WIN
     // sbsv2 actually recommends having the DK on a separate drive...
-    // But QMake breaks when doing that!
+    // But qmake breaks when doing that!
     if (path.size() > 1 && path.at(1) == QChar(':'))
         path = path.mid(2);
 #endif

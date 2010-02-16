@@ -85,7 +85,7 @@ enum { BinaryMatchPriority = 1, TextMatchPriority = 2};
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
   <!-- Mime types must match the desktop file associations -->
   <mime-type type="application/vnd.nokia.qt.qmakeprofile">
-    <comment xml:lang="en">Qt QMake Profile</comment>
+    <comment xml:lang="en">Qt qmake Profile</comment>
     <glob pattern="*.pro"/>
   </mime-type>
 </mime-info>

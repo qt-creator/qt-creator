@@ -77,7 +77,7 @@ QMakeStep::QMakeStep(Qt4BuildConfiguration *bc, QMakeStep *bs) :
 
 void QMakeStep::ctor()
 {
-    setDisplayName(tr("QMake", "QMakeStep display name."));
+    setDisplayName(tr("qmake", "QMakeStep display name."));
 }
 
 QMakeStep::~QMakeStep()
@@ -187,7 +187,7 @@ void QMakeStep::run(QFutureInterface<bool> &fi)
     }
 
     if (!m_needToRunQMake) {
-        emit addOutput(tr("<font color=\"#0000ff\">Configuration unchanged, skipping QMake step.</font>"));
+        emit addOutput(tr("<font color=\"#0000ff\">Configuration unchanged, skipping qmake step.</font>"));
         fi.reportResult(true);
         return;
     }
@@ -362,7 +362,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
     if (!qtVersion) {
-        m_summaryText = tr("<b>QMake:</b> No Qt version set. QMake can not be run.");
+        m_summaryText = tr("<b>qmake:</b> No Qt version set. Can not be run qmake.");
         emit updateSummary();
         return;
     }
@@ -376,7 +376,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
 
     // And we only use the .pro filename not the full path
     QString program = QFileInfo(qtVersion->qmakeCommand()).fileName();
-    m_summaryText = tr("<b>QMake:</b> %1 %2").arg(program, args.join(QString(QLatin1Char(' '))));
+    m_summaryText = tr("<b>qmake:</b> %1 %2").arg(program, args.join(QString(QLatin1Char(' '))));
     emit updateSummary();
 
 }
@@ -462,6 +462,6 @@ QStringList QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfigu
 QString QMakeStepFactory::displayNameForId(const QString &id) const
 {
     if (id == QLatin1String(QMAKE_BS_ID))
-        return tr("QMake");
+        return tr("qmake");
     return QString();
 }
