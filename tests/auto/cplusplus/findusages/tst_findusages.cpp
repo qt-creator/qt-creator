@@ -50,6 +50,9 @@ class tst_FindUsages: public QObject
 private Q_SLOTS:
     void inlineMethod();
 
+    // Qt keywords
+    void qproperty_1();
+
     // Objective-C
     void objc_args();
 //    void objc_methods();
@@ -149,8 +152,47 @@ void tst_FindUsages::objc_args()
     FindUsages findUsages(doc, snapshot);
     findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
     findUsages(arg);
-    QCOMPARE(findUsages.usages().size(), 3);
-    QCOMPARE(findUsages.references().size(), 3);
+    QCOMPARE(findUsages.usages().size(), 2);
+    QCOMPARE(findUsages.references().size(), 2);
+}
+
+void tst_FindUsages::qproperty_1()
+{
+    const QByteArray src = "\n"
+                           "class Tst: public QObject {\n"
+                           "  Q_PROPERTY(int x READ x WRITE setX NOTIFY xChanged)\n"
+                           "public:\n"
+                           "  int x() { return _x; }\n"
+                           "  void setX(int x) { if (_x != x) { _x = x; emit xChanged(x); } }\n"
+                           "signals:\n"
+                           "  void xChanged(int);\n"
+                           "private:\n"
+                           "  int _x;\n"
+                           "};\n";
+    Document::Ptr doc = Document::create("qproperty_1");
+    doc->setSource(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 1U);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Class *tst = doc->globalSymbolAt(0)->asClass();
+    QVERIFY(tst);
+    QCOMPARE(tst->memberCount(), 4U);
+    Function *setX_method = tst->memberAt(1)->asFunction();
+    QVERIFY(setX_method);
+    QCOMPARE(setX_method->identifier()->chars(), "setX");
+    QCOMPARE(setX_method->argumentCount(), 1U);
+
+    FindUsages findUsages(doc, snapshot);
+    findUsages.setGlobalNamespaceBinding(bind(doc, snapshot));
+    findUsages(setX_method);
+    QCOMPARE(findUsages.usages().size(), 2);
+    QCOMPARE(findUsages.references().size(), 2);
 }
 
 QTEST_APPLESS_MAIN(tst_FindUsages)
