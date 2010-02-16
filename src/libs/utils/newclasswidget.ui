@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>Utils::NewClassWidget</class>
  <widget class="QWidget" name="Utils::NewClassWidget">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>431</width>
-    <height>291</height>
-   </rect>
-  </property>
   <layout class="QFormLayout" name="formLayout">
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::ExpandingFieldsGrow</enum>
@@ -20,7 +12,10 @@
    <item row="0" column="0">
     <widget class="QLabel" name="classNameLabel">
      <property name="text">
-      <string>Class name:</string>
+      <string>&amp;Class name:</string>
+     </property>
+     <property name="buddy">
+      <cstring>classLineEdit</cstring>
      </property>
     </widget>
    </item>
@@ -30,7 +25,10 @@
    <item row="1" column="0">
     <widget class="QLabel" name="baseClassLabel">
      <property name="text">
-      <string>Base class:</string>
+      <string>&amp;Base class:</string>
+     </property>
+     <property name="buddy">
+      <cstring>baseClassComboBox</cstring>
      </property>
     </widget>
    </item>
@@ -47,7 +45,10 @@
    <item row="2" column="0">
     <widget class="QLabel" name="classTypeLabel">
      <property name="text">
-      <string>Type information:</string>
+      <string>&amp;Type information:</string>
+     </property>
+     <property name="buddy">
+      <cstring>classTypeComboBox</cstring>
      </property>
     </widget>
    </item>
@@ -110,7 +111,10 @@
    <item row="4" column="0">
     <widget class="QLabel" name="headerLabel">
      <property name="text">
-      <string>Header file:</string>
+      <string>&amp;Header file:</string>
+     </property>
+     <property name="buddy">
+      <cstring>headerFileLineEdit</cstring>
      </property>
     </widget>
    </item>
@@ -120,7 +124,10 @@
    <item row="5" column="0">
     <widget class="QLabel" name="sourceLabel">
      <property name="text">
-      <string>Source file:</string>
+      <string>&amp;Source file:</string>
+     </property>
+     <property name="buddy">
+      <cstring>sourceFileLineEdit</cstring>
      </property>
     </widget>
    </item>
@@ -130,7 +137,10 @@
    <item row="6" column="0">
     <widget class="QLabel" name="generateFormLabel">
      <property name="text">
-      <string>Generate form:</string>
+      <string>&amp;Generate form:</string>
+     </property>
+     <property name="buddy">
+      <cstring>generateFormCheckBox</cstring>
      </property>
     </widget>
    </item>
@@ -144,7 +154,10 @@
    <item row="7" column="0">
     <widget class="QLabel" name="formLabel">
      <property name="text">
-      <string>Form file:</string>
+      <string>&amp;Form file:</string>
+     </property>
+     <property name="buddy">
+      <cstring>formFileLineEdit</cstring>
      </property>
     </widget>
    </item>
@@ -154,12 +167,15 @@
    <item row="8" column="0">
     <widget class="QLabel" name="pathLabel">
      <property name="text">
-      <string>Path:</string>
+      <string>&amp;Path:</string>
+     </property>
+     <property name="buddy">
+      <cstring>pathLabel</cstring>
      </property>
     </widget>
    </item>
    <item row="8" column="1">
-    <widget class="Utils::PathChooser" name="pathChooser"/>
+    <widget class="Utils::PathChooser" name="pathChooser" native="true"/>
    </item>
   </layout>
  </widget>

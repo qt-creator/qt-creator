@@ -103,6 +103,8 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
             this, SLOT(slotValidChanged()));
     connect(m_d->m_ui.pathChooser, SIGNAL(validChanged()),
             this, SLOT(slotValidChanged()));
+    connect(m_d->m_ui.generateFormCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(slotValidChanged()));
 
     connect(m_d->m_ui.classLineEdit, SIGNAL(validReturnPressed()),
             this, SLOT(slotActivated()));
@@ -431,7 +433,8 @@ bool NewClassWidget::isValid(QString *error) const
         return false;
     }
 
-    if (isFormInputVisible()) {
+    if (isFormInputVisible() &&
+        (!m_d->m_formInputCheckable || m_d->m_ui.generateFormCheckBox->isChecked())) {
         if (!m_d->m_ui.formFileLineEdit->isValid()) {
             if (error)
                 *error = tr("Invalid form file name: '%1'").arg(m_d->m_ui.formFileLineEdit->errorMessage());
