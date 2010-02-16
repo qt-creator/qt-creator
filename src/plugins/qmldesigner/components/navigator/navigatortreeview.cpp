@@ -160,17 +160,8 @@ void IdItemDelegate::paint(QPainter *painter,
 
     // Check text length does not exceed available space
     int extraSpace=12+pixmap.width();
-    QFontMetrics metric(painter->fontMetrics());
-    if (painter->fontMetrics().boundingRect(myString).width() > option.rect.width()-extraSpace)
-    {
-        QString origString(myString);
-        int cutpoint=origString.length()/2;
-        while (painter->fontMetrics().boundingRect(myString).width() > option.rect.width()-extraSpace)
-        {
-            cutpoint--;
-            myString = origString.left(cutpoint)+QLatin1String("...")+origString.right(cutpoint);
-        }
-    }
+    QFontMetrics fm(option.font);
+    myString = fm.elidedText(myString,Qt::ElideMiddle,option.rect.width()-extraSpace);
 
     painter->drawText(option.rect.bottomLeft()+QPoint(3+pixmap.width(),-8),myString);
 

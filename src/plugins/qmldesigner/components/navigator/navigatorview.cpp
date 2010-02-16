@@ -90,7 +90,7 @@ void NavigatorView::modelAttached(Model *model)
     treeWidget()->header()->setResizeMode(0, QHeaderView::Stretch);
     treeWidget()->header()->resizeSection(1,26);
     treeWidget()->setRootIsDecorated(false);
-    treeWidget()->setIndentation(40);
+    treeWidget()->setIndentation(20);
 #ifdef _LOCK_ITEMS_
     treeWidget()->header()->resizeSection(2,20);
 #endif
