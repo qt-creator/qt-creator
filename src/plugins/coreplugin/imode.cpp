@@ -27,42 +27,24 @@
 **
 **************************************************************************/
 
-#ifndef IMODE_H
-#define IMODE_H
+#include "imode.h"
 
-#include "icontext.h"
-
-#include <coreplugin/core_global.h>
-
-QT_BEGIN_NAMESPACE
-class QIcon;
-QT_END_NAMESPACE
-
-namespace Core {
-
-class CORE_EXPORT IMode : public IContext
+using namespace Core;
+IMode::IMode(QObject *parent)
+    : IContext(parent),
+    m_isEnabled(true)
 {
-    Q_OBJECT
-    Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-public:
-    IMode(QObject *parent = 0);
-    virtual ~IMode() {}
+}
 
-    virtual QString displayName() const = 0;
-    virtual QIcon icon() const = 0;
-    virtual int priority() const = 0;
-    virtual QString id() const = 0;
+void IMode::setEnabled(bool enabled)
+{
+    if (m_isEnabled == enabled)
+        return;
+    m_isEnabled = enabled;
+    emit enabledStateChanged(m_isEnabled);
+}
 
-    void setEnabled(bool enabled);
-    bool isEnabled() const;
-
-signals:
-    void enabledStateChanged(bool enabled);
-
-private:
-    bool m_isEnabled;
-};
-
-} // namespace Core
-
-#endif // IMODE_H
+bool IMode::isEnabled() const
+{
+    return m_isEnabled;
+}

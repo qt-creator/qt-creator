@@ -140,6 +140,7 @@ void ModeManager::objectAdded(QObject *obj)
 
     m_modes.insert(index, mode);
     m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName());
+    m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Register mode shortcut
     ActionManager *am = m_mainWindow->actionManager();
@@ -165,6 +166,8 @@ void ModeManager::objectAdded(QObject *obj)
 
     m_signalMapper->setMapping(shortcut, mode->id());
     connect(shortcut, SIGNAL(activated()), m_signalMapper, SLOT(map()));
+    connect(mode, SIGNAL(enabledStateChanged(bool)),
+            this, SLOT(enabledStateChanged()));
 }
 
 void ModeManager::updateModeToolTip()
@@ -175,6 +178,15 @@ void ModeManager::updateModeToolTip()
         if (index != -1)
             m_modeStack->setTabToolTip(index, cmd->stringWithAppendedShortcut(cmd->shortcut()->whatsThis()));
     }
+}
+
+void ModeManager::enabledStateChanged()
+{
+    IMode *mode = qobject_cast<IMode *>(sender());
+    QTC_ASSERT(mode, return);
+    int index = m_modes.indexOf(mode);
+    QTC_ASSERT(index >= 0, return);
+    m_modeStack->setTabEnabled(index, mode->isEnabled());
 }
 
 void ModeManager::aboutToRemoveObject(QObject *obj)

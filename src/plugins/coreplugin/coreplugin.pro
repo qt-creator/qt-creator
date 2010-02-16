@@ -78,7 +78,8 @@ SOURCES += mainwindow.cpp \
     dialogs/ioptionspage.cpp \
     dialogs/iwizard.cpp \
     settingsdatabase.cpp \
-    eventfilteringmainwindow.cpp
+    eventfilteringmainwindow.cpp \
+    imode.cpp
 HEADERS += mainwindow.h \
     editmode.h \
     tabpositionindicator.h \
