@@ -115,29 +115,29 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     instance->insertItem(SettingsDialog, item);
-    item->setText(tr("Debugger properties..."));
+    item->setText(tr("Debugger Properties..."));
 
     //
     // View
     //
     item = new SavedAction(instance);
-    item->setText(tr("Adjust column widths to contents"));
+    item->setText(tr("Adjust Column Widths to Contents"));
     instance->insertItem(AdjustColumnWidths, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Always adjust column widths to contents"));
+    item->setText(tr("Always Adjust Column Widths to Contents"));
     item->setCheckable(true);
     instance->insertItem(AlwaysAdjustColumnWidths, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Use alternating row colors"));
+    item->setText(tr("Use Alternating Row Colors"));
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAlternatingRowColours"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(UseAlternatingRowColors, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Show a message box when receiving a signal"));
+    item->setText(tr("Show a Message Box When Receiving a Signal"));
     item->setSettingsKey(debugModeGroup, QLatin1String("UseMessageBoxForSignals"));
     item->setCheckable(true);
     item->setDefaultValue(true);
@@ -145,7 +145,7 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(UseMessageBoxForSignals, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Log time stamps"));
+    item->setText(tr("Log Time Stamps"));
     item->setSettingsKey(debugModeGroup, QLatin1String("LogTimeStamps"));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -159,7 +159,7 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(VerboseLog, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Operate by instruction"));
+    item->setText(tr("Operate by Instruction"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setIcon(QIcon(":/debugger/images/debugger_stepoverproc_small.png"));
@@ -170,7 +170,7 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(OperateByInstruction, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Dereference pointers automatically"));
+    item->setText(tr("Dereference Pointers Automatically"));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setToolTip(tr("This switches the Locals&Watchers view to "
@@ -183,15 +183,15 @@ DebuggerSettings *DebuggerSettings::instance()
     // Locals & Watchers
     //
     item = new SavedAction(instance);
-    item->setTextPattern(tr("Watch expression \"%1\""));
+    item->setTextPattern(tr("Watch Expression \"%1\""));
     instance->insertItem(WatchExpression, item);
 
     item = new SavedAction(instance);
-    item->setTextPattern(tr("Remove watch expression \"%1\""));
+    item->setTextPattern(tr("Remove Watch Expression \"%1\""));
     instance->insertItem(RemoveWatchExpression, item);
 
     item = new SavedAction(instance);
-    item->setTextPattern(tr("Watch expression \"%1\" in separate window"));
+    item->setTextPattern(tr("Watch Expression \"%1\" in Separate Window"));
     instance->insertItem(WatchExpressionInWindow, item);
 
     item = new SavedAction(instance);
@@ -205,7 +205,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowStandardNamespace"));
-    item->setText(tr("Show std:: namespace for types"));
+    item->setText(tr("Show \"std::\" Namespace in Types"));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -213,7 +213,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("ShowQtNamespace"));
-    item->setText(tr("Show Qt's namespace for types"));
+    item->setText(tr("Show Qt's Namespace in Types"));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -224,7 +224,7 @@ DebuggerSettings *DebuggerSettings::instance()
     //
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseDebuggingHelper"));
-    item->setText(tr("Use debugging helper"));
+    item->setText(tr("Use Debugging Helpers"));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
@@ -246,7 +246,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("DebugDebuggingHelpers"));
-    item->setText(tr("Debug debugging helper"));
+    item->setText(tr("Debug Debugging Helpers"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setValue(false);
@@ -254,25 +254,32 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseCodeModel"));
-    item->setText(tr("Use code model"));
+    item->setText(tr("Use Code Model"));
+    item->setToolTip(tr("Selecting this causes the C++ Code Model being asked "
+      "for variable scope information. This might result in slightly faster "
+      "debugger operation but may fail for optimized code."));
     item->setCheckable(true);
     item->setDefaultValue(true);
     item->setValue(true);
     instance->insertItem(UseCodeModel, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Recheck debugging helper availability"));
+    item->setText(tr("Recheck Debugging Helper Availability"));
     instance->insertItem(RecheckDebuggingHelpers, item);
 
     //
     // Breakpoints
     //
     item = new SavedAction(instance);
-    item->setText(tr("Synchronize breakpoints"));
+    item->setText(tr("Synchronize Breakpoints"));
     instance->insertItem(SynchronizeBreakpoints, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Use precise breakpoints"));
+    item->setText(tr("Use Precise Breakpoints"));
+    item->setToolTip(tr("Selecting this causes breakpoint synchronization "
+      "being done after each step. This results in up-to-date breakpoint "
+      "information on whether a breakpoint has been resolved after "
+      "loading shared libraries, but slows down stepping."));
     item->setCheckable(true);
     item->setDefaultValue(false);
     item->setValue(false);
@@ -319,7 +326,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("AutoQuit"));
-    item->setText(tr("Automatically quit debugger"));
+    item->setText(tr("Automatically Quit Debugger"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(AutoQuit, item);
@@ -337,7 +344,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInLocalsView"));
-    item->setText(tr("Use tooltips in locals view when debugging"));
+    item->setText(tr("Use Tooltips in Locals View When Debugging"));
     item->setToolTip(tr("Checking this will enable tooltips in the locals "
         "view during debugging."));
     item->setCheckable(true);
@@ -346,7 +353,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseToolTipsInBreakpointsView"));
-    item->setText(tr("Use tooltips in breakpoints view when debugging"));
+    item->setText(tr("Use Tooltips in Breakpoints View When Debugging"));
     item->setToolTip(tr("Checking this will enable tooltips in the breakpoints "
         "view during debugging."));
     item->setCheckable(true);
@@ -355,7 +362,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInBreakpointsView"));
-    item->setText(tr("Show address data in breakpoints view when debugging"));
+    item->setText(tr("Show Address Data in Breakpoints View When Debugging"));
     item->setToolTip(tr("Checking this will show a column with address "
         "information in the breakpoint view during debugging."));
     item->setCheckable(true);
@@ -365,7 +372,7 @@ DebuggerSettings *DebuggerSettings::instance()
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("UseAddressInStackView"));
-    item->setText(tr("Show address data in stack view when debugging"));
+    item->setText(tr("Show Address Data in Stack View When Debugging"));
     item->setToolTip(tr("Checking this will show a column with address "
         "information in the stack view during debugging."));
     item->setCheckable(true);
@@ -374,21 +381,24 @@ DebuggerSettings *DebuggerSettings::instance()
     item = new SavedAction(instance);
 
     item->setSettingsKey(debugModeGroup, QLatin1String("ListSourceFiles"));
-    item->setText(tr("List source files"));
+    item->setText(tr("List Source Files"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(ListSourceFiles, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("SkipKnownFrames"));
-    item->setText(tr("Skip known frames"));
+    item->setText(tr("Skip Known Frames"));
+    item->setToolTip(tr("Selecting this results in well-known but usually "
+      "not interesting frames belonging to reference counting and "
+      "signal emission being skipped while single-stepping."));
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(SkipKnownFrames, item);
 
     item = new SavedAction(instance);
     item->setSettingsKey(debugModeGroup, QLatin1String("EnableReverseDebugging"));
-    item->setText(tr("Enable reverse debugging"));
+    item->setText(tr("Enable Reverse Debugging"));
     item->setCheckable(true);
     item->setDefaultValue(false);
     instance->insertItem(EnableReverseDebugging, item);
@@ -419,11 +429,11 @@ DebuggerSettings *DebuggerSettings::instance()
     instance->insertItem(MaximalStackDepth, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Reload full stack"));
+    item->setText(tr("Reload Full Stack"));
     instance->insertItem(ExpandStack, item);
 
     item = new SavedAction(instance);
-    item->setText(tr("Execute line"));
+    item->setText(tr("Execute Line"));
     instance->insertItem(ExecuteCommand, item);
 
     item = new SavedAction(instance);
