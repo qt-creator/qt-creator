@@ -84,6 +84,7 @@ public:
 
 
     void anyPropertyChanged(const QmlObjectNode &qmlObjectNode);
+    void geometryPropertyChanged(const QmlObjectNode &fxObjectNode);
 
 
 
