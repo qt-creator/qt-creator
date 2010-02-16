@@ -17091,7 +17091,7 @@ Namen &lt;E-Mail&gt; Alias &lt;E-Mail?</translation>
         <location line="+1"/>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>
-        <translation>Möchten Sie die Datei aus der Versionskontrolle entferned (%1)?
+        <translation>Möchten Sie die Datei aus der Versionskontrolle (%1) entfernen?
 Hinweis: Unter Umständen wird die Datei gelöscht.</translation>
     </message>
 </context>
