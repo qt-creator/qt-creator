@@ -55,6 +55,13 @@ QWidget {
                     if (backendValue != undefined && backendValue != null)
                         backendValue.value = value;
                 }
+				
+				onSliderPressed: {
+				    backendValue.lock();
+		        }
+                onSliderReleased: {				    
+					backendValue.unlock();
+		        }
             }
         }
     }

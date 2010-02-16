@@ -43,17 +43,22 @@ GroupBox {
                     text: ""
                     id: opacitySpinBox;
                     backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
+					property var backendValueValue: backendValues.opacity.value;
                     minimumWidth: 60;
                     minimum: 0;
                     maximum: 1;
                     singleStep: 0.1
                     baseStateFlag: isBaseState;
+					onBackendValueValueChanged: {
+                        opacitySlider.value = backendValue.value * 100;
+                    }
                 }
                 SliderWidget {
+					id: opacitySlider
                     minimum: 0
                     maximum: 100
                     singleStep: 5;
-                    value: backendValues.opacity === undefined ? 0 : (backendValues.opacity.value * 100)
+					backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
                     onValueChanged: {
                         if (backendValues.opacity !== undefined)
                             backendValues.opacity.value = value / 100;
@@ -110,6 +115,7 @@ GroupBox {
                 }
                 SliderWidget {
                     id: scaleSlider;
+					backendValue: backendValues.scale;
                     minimum: 1;
                     maximum: 100;
                     singleStep: 1;

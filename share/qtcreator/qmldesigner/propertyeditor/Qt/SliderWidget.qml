@@ -8,6 +8,7 @@ QWidget {
     property alias singleStep: localSlider.singleStep
     property alias minimum: localSlider.minimum
     property alias maximum: localSlider.maximum
+	property var backendValue
 
     QSlider {
         orientation: "Qt::Horizontal";
@@ -18,6 +19,13 @@ QWidget {
 		value: sliderWidget.value
 		onValueChanged: {
 			sliderWidget.value = value	
+		}		
+		
+		onSliderPressed: {				
+				backendValue.lock();
+		}
+        onSliderReleased: {				
+				backendValue.unlock();
 		}
     }
 }

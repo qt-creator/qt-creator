@@ -34,6 +34,7 @@
 #include <QmlPropertyMap>
 #include <qml.h>
 #include <modelnode.h>
+#include <rewritertransaction.h>
 
 class PropertyEditorValue;
 
@@ -118,6 +119,8 @@ public:
 
 public slots:
     void resetValue();
+    void lock();
+    void unlock();
 
 signals:
     void valueChanged(const QString &name);
@@ -140,6 +143,7 @@ private: //variables
     bool m_isBound;
     bool m_isValid; // if the property value belongs to a non-existing complexProperty it is invalid
     PropertyEditorNodeWrapper *m_complexNode;
+    QmlDesigner::RewriterTransaction m_rewriterTransaction;
 };
 
 QML_DECLARE_TYPE(PropertyEditorValue);

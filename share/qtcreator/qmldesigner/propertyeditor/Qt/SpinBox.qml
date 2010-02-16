@@ -61,11 +61,14 @@ QWidget { //This is a special spinBox that does color coding for states
             onValueChanged: {
                 if (spinBox.backendValue != null && readingFromBackend == false)
                     backendValue.value = value;
-            }
-            onFocusChanged: {
-                //extendedSwitches.active = focus;
-                //extendedSwitches.backendValue = backendValue;
-            }
+            }     
+			
+			onFocusChanged: {				
+				if (focus)
+				    spinBox.backendValue.lock();
+				else
+				    spinBox.backendValue.unlock();
+			}
         }
     }
 

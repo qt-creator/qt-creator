@@ -91,6 +91,13 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
             onMouseOverChanged: {
 
             }
+			
+			onFocusChanged: {				
+				if (focus)
+				    doubleSpinBox.backendValue.lock();
+				else
+				    doubleSpinBox.backendValue.unlock();
+			}
         }
     }
 

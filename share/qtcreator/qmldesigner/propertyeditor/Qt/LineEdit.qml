@@ -20,6 +20,13 @@ QWidget {
         onTextEdited: {
             backendValue.value = text
         }
+		
+		onFocusChanged: {				
+			if (focus)
+			    backendValue.lock();
+			else
+			    backendValue.unlock();
+		}
 
 
     }    
