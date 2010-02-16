@@ -76,8 +76,10 @@ void QmlStateNodeInstance::deactivateState()
 
 void QmlStateNodeInstance::refreshState()
 {
+    nodeInstanceView()->setBlockStatePropertyChanges(true);
     deactivateState();
     activateState();
+    nodeInstanceView()->setBlockStatePropertyChanges(false);
 }
 
 QmlState *QmlStateNodeInstance::stateObject() const

@@ -114,6 +114,8 @@ public:
     void setQmlModelView(QmlModelView *qmlModelView);
     QmlModelView *qmlModelView() const ;
 
+    void setBlockStatePropertyChanges(bool block);
+
 signals:
     void instanceRemoved(const NodeInstance &nodeInstance);
 
@@ -148,6 +150,7 @@ private: //variables
     QWeakPointer<QmlModelView> m_qmlModelView;
 
     bool m_blockChangeSignal;
+    bool m_blockStatePropertyChanges;
 };
 
 }

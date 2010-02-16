@@ -49,9 +49,9 @@ QmlModelView::QmlModelView(QObject *parent)
 
 void QmlModelView::setCurrentState(const QmlModelState &state)
 {
-    if (m_state == state)
+    if (!state.isValid())
         return;
-    QmlModelState oldState = m_state;
+
     emitCustomNotification("__state changed__", QList<ModelNode>() << state.modelNode());
 }
 
@@ -223,9 +223,9 @@ void QmlModelView::customNotification(const AbstractView * /* view */, const QSt
     if (identifier == "__state changed__") {
         QmlModelState state(nodeList.first());
         if (state.isValid())
-            stateChanged(state, currentState());
+            activateState(state);
         else
-            stateChanged(baseState(), currentState());
+            activateState(baseState());
     }
 }
 
@@ -283,9 +283,51 @@ void QmlModelView::nodeInstancePropertyChanged(const ModelNode &node, const QStr
         transformChanged(qmlObjectNode, propertyName);
     else if (propertyName == "parent")
         parentChanged(qmlObjectNode);
+    else if (propertyName == "state")
+        changeToState(node, qmlObjectNode.instanceValue(propertyName).toString());
     else
         otherPropertyChanged(qmlObjectNode, propertyName);
 }
+
+void QmlModelView::activateState(const QmlModelState &state)
+{
+    if (!state.isValid())
+        return;
+
+    if (m_state == state)
+        return;
+
+    QmlModelState oldState = m_state;
+
+    NodeInstance newStateInstance = instanceForModelNode(state.modelNode());
+    NodeInstance oldStateInstance = instanceForModelNode(oldState.modelNode());
+    if (state.isBaseState()) {
+        oldStateInstance.deactivateState();
+    } else {
+        newStateInstance.activateState();
+    }
+}
+
+void QmlModelView::changeToState(const ModelNode &node, const QString &stateName)
+{
+    QmlItemNode itemNode(node);
+
+
+    QmlModelState newState;
+    if (stateName.isEmpty())
+        newState = baseState();
+    else
+        newState = itemNode.states().state(stateName);
+
+
+    QmlModelState  oldState = m_state;
+
+    if (newState.isValid())
+        m_state = newState;
+
+    stateChanged(newState, oldState);
+}
+
 
 void QmlModelView::transformChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)
 {
@@ -302,22 +344,8 @@ void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, 
 }
 
 
-void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
+void  QmlModelView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &/*oldQmlModelState*/)
 {
-    m_state = newQmlModelState;
-    if (newQmlModelState.isValid()) {
-        NodeInstance newStateInstance = instanceForModelNode(newQmlModelState.modelNode());
-        Q_ASSERT(newStateInstance.isValid());
-        if (!newQmlModelState.isBaseState())
-            newStateInstance.activateState();
-    }
-
-    if (oldQmlModelState.isValid()) {
-        NodeInstance oldStateInstance = instanceForModelNode(oldQmlModelState.modelNode());
-        Q_ASSERT(oldStateInstance.isValid());
-        if (!oldQmlModelState.isBaseState())
-            oldStateInstance.deactivateState();
-    }
 }
 
 } //QmlDesigner

@@ -99,6 +99,8 @@ protected:
     virtual void otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     virtual void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
 
+    void activateState(const QmlModelState &state);
+    void changeToState(const ModelNode &node, const QString &stateName);
 
 private:
     QmlModelState m_state;

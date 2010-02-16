@@ -92,7 +92,8 @@ NodeInstanceView::NodeInstanceView(QObject *parent)
         : AbstractView(parent),
     m_graphicsView(new QGraphicsView),
     m_engine(new QmlEngine(this)),
-    m_blockChangeSignal(false)
+    m_blockChangeSignal(false),
+    m_blockStatePropertyChanges(false)
 {
     m_graphicsView->setAttribute(Qt::WA_DontShowOnScreen, true);
     m_graphicsView->setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
@@ -500,6 +501,9 @@ void NodeInstanceView::removeInstanceNodeRelationship(const ModelNode &node)
 
 void NodeInstanceView::notifyPropertyChange(const ModelNode &node, const QString &propertyName)
 {
+    if (m_blockStatePropertyChanges && propertyName == "state")
+        return;
+
     if (qmlModelView()) {
         qmlModelView()->nodeInstancePropertyChanged(ModelNode(node,qmlModelView()), propertyName);
     }
@@ -514,6 +518,11 @@ void NodeInstanceView::setQmlModelView(QmlModelView *qmlModelView)
 QmlModelView *NodeInstanceView::qmlModelView() const
 {
     return m_qmlModelView.data();
+}
+
+void NodeInstanceView::setBlockStatePropertyChanges(bool block)
+{
+    m_blockStatePropertyChanges = block;
 }
 
 void NodeInstanceView::emitParentChanged(QObject *child)
