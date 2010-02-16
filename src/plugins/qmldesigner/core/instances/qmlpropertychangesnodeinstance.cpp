@@ -134,26 +134,27 @@ QmlPropertyChangesNodeInstance::Pointer
 
 void QmlPropertyChangesNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), name, context());
-    if (metaProperty.isValid()) { // 'restoreEntryValues', 'explicit'
+    QMetaObject metaObject = QmlPropertyChangesObject::staticMetaObject;
+
+    if (metaObject.indexOfProperty(name.toLatin1()) > 0) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyVariant(name, value);
         return;
+    } else {
+        changesObject()->m_properties.insert(name, value);       updateStateInstance();
     }
-    changesObject()->m_properties.insert(name, value);
-
-    updateStateInstance();
 }
 
 void QmlPropertyChangesNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
 {
-    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), name, context());
-    if (metaProperty.isValid()) { // 'target'
+    QMetaObject metaObject = QmlPropertyChangesObject::staticMetaObject;
+
+    if (metaObject.indexOfProperty(name.toLatin1()) > 0) { // 'restoreEntryValues', 'explicit'
         ObjectNodeInstance::setPropertyBinding(name, expression);
         return;
+    } else {
+        changesObject()->m_expressions.insert(name, expression);
+        updateStateInstance();
     }
-    changesObject()->m_expressions.insert(name, expression);
-
-    updateStateInstance();
 }
 
 QVariant QmlPropertyChangesNodeInstance::property(const QString &name) const
