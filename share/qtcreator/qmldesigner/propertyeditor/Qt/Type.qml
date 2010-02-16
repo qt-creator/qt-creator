@@ -27,6 +27,7 @@ GroupBox {
                 }
 
                 QLineEdit {
+                    enabled: baseStateFlag
                     id: idLineEdit;
                     objectName: "idLineEdit";
                     readOnly: isBaseState != true;
