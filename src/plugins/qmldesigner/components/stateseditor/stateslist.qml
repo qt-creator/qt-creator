@@ -200,8 +200,6 @@ Rectangle {
                     anchors.centerIn:parent
                 }
 
-
-
                 MouseRegion {
                     anchors.fill:parent
                     onClicked: {
@@ -235,28 +233,16 @@ Rectangle {
                 anchors.leftMargin:4
                 height: txt.height
                 clip: false
-
-                onWidthChanged: txt.updateText();
-
-                Text{
+                Text {
                     anchors.top: parent.top
                     anchors.topMargin: 2
                     anchors.horizontalCenter: textLimits.horizontalCenter
                     id: txt
                     color: "#E1E1E1";
-                    property string candidateText: stateName
-                    onCandidateTextChanged: updateText();
-                    function updateText() {
-                        var cut=Math.floor(candidateText.length/2);
-                        text=candidateText;
-                        if (parent.width<=0) return;
-                        while (width > parent.width) {
-                            cut = cut-1;
-                            text = candidateText.substring(0,cut)+"..."+
-                                   candidateText.substring(candidateText.length-cut,candidateText.length);
-                        }
-                    }
-
+                    text: stateName
+                    width:parent.width
+                    elide:Qt.ElideMiddle
+                    horizontalAlignment:Qt.AlignHCenter
                 }
                 MouseRegion {
                     id: txtRegion
