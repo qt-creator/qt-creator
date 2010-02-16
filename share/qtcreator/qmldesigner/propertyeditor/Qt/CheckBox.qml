@@ -56,10 +56,11 @@ QWidget { //This is a special checkBox that does color coding for states
         QCheckBox {
             id: localCheckBox
             checkable: true;
-            checked: (backendValue === undefined || backendValue === null) ? false : backendValue.value;
+            checked: (backendValue === undefined || backendValue === null) ? false : backendValue.value || null;
             onToggled: {
                 backendValue.value = checked;
             }
+			maximumWidth: 30
         }
 
         QLabel {
