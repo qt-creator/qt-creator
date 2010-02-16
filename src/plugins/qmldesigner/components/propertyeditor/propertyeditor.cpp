@@ -400,9 +400,9 @@ void PropertyEditor::transformChanged(const QmlObjectNode &fxObjectNode)
 {
     QmlModelView::transformChanged(fxObjectNode);
 
-    anyPropertyChanged(fxObjectNode);
     return ;
 
+    geometryPropertyChanged(fxObjectNode);
 }
 
 void PropertyEditor::setQmlDir(const QString &qmlDir)
