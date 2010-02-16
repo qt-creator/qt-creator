@@ -206,36 +206,17 @@ bool ASTMatcher::match(AccessDeclarationAST *node, AccessDeclarationAST *pattern
     return true;
 }
 
-bool ASTMatcher::match(QtPropertyDeclarationNamingItemAST *node, QtPropertyDeclarationNamingItemAST *pattern)
+bool ASTMatcher::match(QtPropertyDeclarationItemAST *node, QtPropertyDeclarationItemAST *pattern)
 {
     (void) node;
     (void) pattern;
 
-    if (! pattern->name_value)
-        pattern->name_value = node->name_value;
-    else if (! AST::match(node->name_value, pattern->name_value, this))
+    pattern->item_name_token = node->item_name_token;
+
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
         return false;
-
-    return true;
-}
-
-bool ASTMatcher::match(QtPropertyDeclarationBoolItemAST *node, QtPropertyDeclarationBoolItemAST *pattern)
-{
-    (void) node;
-    (void) pattern;
-
-    if (! pattern->bool_value)
-        pattern->bool_value = node->bool_value;
-    else if (! AST::match(node->bool_value, pattern->bool_value, this))
-        return false;
-
-    return true;
-}
-
-bool ASTMatcher::match(QtPropertyDeclarationFlaggingItemAST *node, QtPropertyDeclarationFlaggingItemAST *pattern)
-{
-    (void) node;
-    (void) pattern;
 
     return true;
 }

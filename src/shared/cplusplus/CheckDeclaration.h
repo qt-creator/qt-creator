@@ -77,7 +77,6 @@ protected:
     virtual bool visit(SimpleDeclarationAST *ast);
     virtual bool visit(EmptyDeclarationAST *ast);
     virtual bool visit(AccessDeclarationAST *ast);
-    virtual bool visit(QtPropertyDeclarationAST *ast);
     virtual bool visit(QtEnumDeclarationAST *ast);
     virtual bool visit(QtFlagsDeclarationAST *ast);
     virtual bool visit(AsmDefinitionAST *ast);

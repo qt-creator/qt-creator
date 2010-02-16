@@ -138,25 +138,12 @@ AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-QtPropertyDeclarationNamingItemAST *QtPropertyDeclarationNamingItemAST::clone(MemoryPool *pool) const
+QtPropertyDeclarationItemAST *QtPropertyDeclarationItemAST::clone(MemoryPool *pool) const
 {
-    QtPropertyDeclarationNamingItemAST *ast = new (pool) QtPropertyDeclarationNamingItemAST;
-    if (name_value)
-        ast->name_value = name_value->clone(pool);
-    return ast;
-}
-
-QtPropertyDeclarationBoolItemAST *QtPropertyDeclarationBoolItemAST::clone(MemoryPool *pool) const
-{
-    QtPropertyDeclarationBoolItemAST *ast = new (pool) QtPropertyDeclarationBoolItemAST;
-    if (bool_value)
-        ast->bool_value = bool_value->clone(pool);
-    return ast;
-}
-
-QtPropertyDeclarationFlaggingItemAST *QtPropertyDeclarationFlaggingItemAST::clone(MemoryPool *pool) const
-{
-    QtPropertyDeclarationFlaggingItemAST *ast = new (pool) QtPropertyDeclarationFlaggingItemAST;
+    QtPropertyDeclarationItemAST *ast = new (pool) QtPropertyDeclarationItemAST;
+    ast->item_name_token = item_name_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
     return ast;
 }
 

@@ -105,25 +105,9 @@ bool AccessDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool QtPropertyDeclarationNamingItemAST::match0(AST *pattern, ASTMatcher *matcher)
+bool QtPropertyDeclarationItemAST::match0(AST *pattern, ASTMatcher *matcher)
 {
-    if (QtPropertyDeclarationNamingItemAST *_other = pattern->asQtPropertyDeclarationNamingItem())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
-bool QtPropertyDeclarationBoolItemAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (QtPropertyDeclarationBoolItemAST *_other = pattern->asQtPropertyDeclarationBoolItem())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
-bool QtPropertyDeclarationFlaggingItemAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (QtPropertyDeclarationFlaggingItemAST *_other = pattern->asQtPropertyDeclarationFlaggingItem())
+    if (QtPropertyDeclarationItemAST *_other = pattern->asQtPropertyDeclarationItem())
         return matcher->match(this, _other);
 
     return false;

@@ -56,8 +56,11 @@
 #include "Symbols.h"
 #include "Control.h"
 #include "Literals.h"
+#include "QtContextKeywords.h"
 #include <string>
 #include <cassert>
+
+#include <QDebug>
 
 using namespace CPlusPlus;
 
@@ -813,25 +816,5 @@ bool CheckDeclaration::visit(QtFlagsDeclarationAST *ast)
 {
     for (NameListAST *iter = ast->flag_enums_list; iter; iter = iter->next)
         semantic()->check(iter->value, _scope);
-    return false;
-}
-
-bool CheckDeclaration::visit(QtPropertyDeclarationAST *ast)
-{
-    if (ast->type_id)
-        semantic()->check(ast->type_id, _scope);
-    if (ast->property_name)
-        semantic()->check(ast->property_name, _scope);
-
-    for (QtPropertyDeclarationItemListAST *iter = ast->property_declaration_items;
-         iter; iter = iter->next) {
-        if (! iter->value)
-            continue;
-
-        if (QtPropertyDeclarationNamingItemAST *namedItem = iter->value->asQtPropertyDeclarationNamingItem())
-            if (namedItem->name_value)
-                semantic()->check(namedItem->name_value, _scope);
-    }
-
     return false;
 }

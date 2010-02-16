@@ -144,40 +144,17 @@ unsigned AccessDeclarationAST::lastToken() const
     return access_specifier_token + 1;
 }
 
-unsigned QtPropertyDeclarationNamingItemAST::firstToken() const
+unsigned QtPropertyDeclarationItemAST::firstToken() const
 {
     return item_name_token;
 }
 
-unsigned QtPropertyDeclarationNamingItemAST::lastToken() const
+unsigned QtPropertyDeclarationItemAST::lastToken() const
 {
-    if (name_value)
-        return name_value->lastToken();
+    if (expression)
+        return expression->lastToken();
     else
         return item_name_token + 1;
-}
-
-unsigned QtPropertyDeclarationBoolItemAST::firstToken() const
-{
-    return item_name_token;
-}
-
-unsigned QtPropertyDeclarationBoolItemAST::lastToken() const
-{
-    if (bool_value)
-        return bool_value->lastToken();
-    else
-        return item_name_token + 1;
-}
-
-unsigned QtPropertyDeclarationFlaggingItemAST::firstToken() const
-{
-    return item_name_token;
-}
-
-unsigned QtPropertyDeclarationFlaggingItemAST::lastToken() const
-{
-    return item_name_token + 1;
 }
 
 unsigned QtPropertyDeclarationAST::firstToken() const

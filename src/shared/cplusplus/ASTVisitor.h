@@ -203,10 +203,7 @@ public:
     virtual bool visit(WhileStatementAST *) { return true; }
     virtual bool visit(QtMethodAST *) { return true; }
     virtual bool visit(QtMemberDeclarationAST *) { return true; }
-
-    virtual bool visit(QtPropertyDeclarationBoolItemAST *) { return true; }
-    virtual bool visit(QtPropertyDeclarationFlaggingItemAST *) { return true; }
-    virtual bool visit(QtPropertyDeclarationNamingItemAST *) { return true; }
+    virtual bool visit(QtPropertyDeclarationItemAST *) { return true; }
 
     // ObjC++
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
@@ -337,10 +334,7 @@ public:
     virtual void endVisit(WhileStatementAST *) { }
     virtual void endVisit(QtMethodAST *) { }
     virtual void endVisit(QtMemberDeclarationAST *) { }
-
-    virtual void endVisit(QtPropertyDeclarationBoolItemAST *) { }
-    virtual void endVisit(QtPropertyDeclarationFlaggingItemAST *) { }
-    virtual void endVisit(QtPropertyDeclarationNamingItemAST *) { }
+    virtual void endVisit(QtPropertyDeclarationItemAST *) { }
 
     // ObjC++
     virtual void endVisit(ObjCClassDeclarationAST *) { }

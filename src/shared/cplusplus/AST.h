@@ -261,10 +261,7 @@ public:
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return 0; }
     virtual QtMethodAST *asQtMethod() { return 0; }
     virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return 0; }
-    virtual QtPropertyDeclarationBoolItemAST *asQtPropertyDeclarationBoolItem() { return 0; }
-    virtual QtPropertyDeclarationFlaggingItemAST *asQtPropertyDeclarationFlaggingItem() { return 0; }
     virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return 0; }
-    virtual QtPropertyDeclarationNamingItemAST *asQtPropertyDeclarationNamingItem() { return 0; }
     virtual QualifiedNameAST *asQualifiedName() { return 0; }
     virtual ReferenceAST *asReference() { return 0; }
     virtual ReturnStatementAST *asReturnStatement() { return 0; }
@@ -559,58 +556,15 @@ class QtPropertyDeclarationItemAST: public AST
 {
 public:
     unsigned item_name_token;
+    ExpressionAST *expression;
 
 public:
     virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return this; }
 
-    virtual QtPropertyDeclarationItemAST *clone(MemoryPool *pool) const = 0;
-};
-
-class QtPropertyDeclarationNamingItemAST: public QtPropertyDeclarationItemAST
-{
-public:
-    SimpleNameAST *name_value;
-
-public:
-    virtual QtPropertyDeclarationNamingItemAST *asQtPropertyDeclarationNamingItem() { return this; }
-
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual QtPropertyDeclarationNamingItemAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class QtPropertyDeclarationBoolItemAST: public QtPropertyDeclarationItemAST
-{
-public:
-    BoolLiteralAST *bool_value;
-
-public:
-    virtual QtPropertyDeclarationBoolItemAST *asQtPropertyDeclarationBoolItem() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual QtPropertyDeclarationBoolItemAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class QtPropertyDeclarationFlaggingItemAST: public QtPropertyDeclarationItemAST
-{
-public:
-    virtual QtPropertyDeclarationFlaggingItemAST *asQtPropertyDeclarationFlaggingItem() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual QtPropertyDeclarationFlaggingItemAST *clone(MemoryPool *pool) const;
+    virtual QtPropertyDeclarationItemAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

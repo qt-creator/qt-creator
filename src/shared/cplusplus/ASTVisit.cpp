@@ -108,25 +108,10 @@ void AccessDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void QtPropertyDeclarationNamingItemAST::accept0(ASTVisitor *visitor)
+void QtPropertyDeclarationItemAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(name_value, visitor);
-    }
-    visitor->endVisit(this);
-}
-
-void QtPropertyDeclarationBoolItemAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(bool_value, visitor);
-    }
-    visitor->endVisit(this);
-}
-
-void QtPropertyDeclarationFlaggingItemAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
+        accept(expression, visitor);
     }
     visitor->endVisit(this);
 }

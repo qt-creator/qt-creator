@@ -1806,34 +1806,30 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
                 case Token_READ:
                 case Token_WRITE:
                 case Token_RESET:
-                case Token_NOTIFY: {
-                    QtPropertyDeclarationNamingItemAST *nItem = new (_pool) QtPropertyDeclarationNamingItemAST;
-                    nItem->item_name_token = consumeToken();
-                    nItem->name_value = new (_pool) SimpleNameAST;
-                    match(T_IDENTIFIER, &nItem->name_value->identifier_token);
-                    item = nItem;
-                    break;
-                }
-
+                case Token_NOTIFY:
                 case Token_DESIGNABLE:
                 case Token_SCRIPTABLE:
                 case Token_STORED:
                 case Token_USER: {
-                    QtPropertyDeclarationBoolItemAST *bItem = new (_pool) QtPropertyDeclarationBoolItemAST;
-                    bItem->item_name_token = consumeToken();
+                    unsigned item_name_token = consumeToken();
                     ExpressionAST *expr = 0;
-                    if (parseBoolLiteral(expr)) {
-                        bItem->bool_value = expr->asBoolLiteral();
+                    if (parsePostfixExpression(expr)) {
+                        QtPropertyDeclarationItemAST *bItem =
+                                new (_pool) QtPropertyDeclarationItemAST;
+                        bItem->item_name_token = item_name_token;
+                        bItem->expression = expr;
                         item = bItem;
                     } else {
-                        _translationUnit->error(cursor(), "expected `true' or `false' before `%s'", tok().spell());
+                        _translationUnit->error(cursor(),
+                                                "expected expression before `%s'",
+                                                tok().spell());
                     }
                     break;
                 }
 
                 case Token_CONSTANT:
                 case Token_FINAL: {
-                    QtPropertyDeclarationFlaggingItemAST *fItem = new (_pool) QtPropertyDeclarationFlaggingItemAST;
+                    QtPropertyDeclarationItemAST *fItem = new (_pool) QtPropertyDeclarationItemAST;
                     fItem->item_name_token = consumeToken();
                     item = fItem;
                     break;
