@@ -40,11 +40,13 @@
 #include <nodeinstanceview.h>
 #include "nodeinstancemetaobject.h"
 
+QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QmlContext;
 class QmlMetaProperty;
 class QmlContext;
 class QmlBinding;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

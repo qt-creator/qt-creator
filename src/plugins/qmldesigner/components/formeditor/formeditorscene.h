@@ -37,8 +37,9 @@
 #include <qmlitemnode.h>
 #include "abstractformeditortool.h"
 
-
+QT_BEGIN_NAMESPACE
 class QGraphicsSceneMouseEvent;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

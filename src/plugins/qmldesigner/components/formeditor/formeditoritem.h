@@ -35,7 +35,9 @@
 #include <qmlitemnode.h>
 #include "snappinglinecreator.h"
 
+QT_BEGIN_NAMESPACE
 class QTimeLine;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

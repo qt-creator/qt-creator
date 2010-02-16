@@ -48,11 +48,11 @@ public:
 
     virtual QLayout *layout() const;
 };
-QML_DECLARE_TYPE(QLayoutObject);
-
-#endif // QLAYOUTOBJECT_H
-
 
 QT_END_NAMESPACE
 
+QML_DECLARE_TYPE(QLayoutObject);
+
 QT_END_HEADER
+
+#endif // QLAYOUTOBJECT_H

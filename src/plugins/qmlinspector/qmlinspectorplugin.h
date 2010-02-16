@@ -34,17 +34,18 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 
+namespace Core
+{
+    class IMode;
+}
+
+
 QT_BEGIN_NAMESPACE
 
 class QStringList;
 
 class QmlInspectorMode;
 class InspectorOutputPane;
-
-namespace Core
-{
-    class IMode;
-}
 
 class QmlInspectorPlugin : public ExtensionSystem::IPlugin
 {

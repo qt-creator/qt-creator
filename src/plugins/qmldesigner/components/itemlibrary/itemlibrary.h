@@ -32,9 +32,11 @@
 
 #include <QtGui/QFrame>
 
+QT_BEGIN_NAMESPACE
 class QGraphicsItem;
 class QPixmap;
 class QMimeData;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

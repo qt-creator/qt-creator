@@ -57,9 +57,6 @@
 #include "filewidget.h"
 #include "layoutwidget.h"
 
-
-QT_BEGIN_NAMESPACE
-
 QML_DECLARE_TYPE(QWidget);
 
 //display
@@ -97,11 +94,15 @@ QML_DECLARE_TYPE(QTabWidget);
 QML_DECLARE_TYPE(FileWidget);
 QML_DECLARE_TYPE(LayoutWidget);
 
+QT_BEGIN_NAMESPACE
+
 class Action : public QAction {
     Q_OBJECT
 public:
     Action(QObject *parent = 0) : QAction(parent) {}
 };
+
+QT_END_NAMESPACE
 
 QML_DECLARE_TYPE(QMenu);
 QML_DECLARE_TYPE(Action);
@@ -115,6 +116,4 @@ QML_DECLARE_TYPE(Action);
 
 //top-level windows?
 
-
-QT_END_NAMESPACE
 #endif // BASICWIDGETS_H

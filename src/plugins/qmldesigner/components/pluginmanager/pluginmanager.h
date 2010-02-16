@@ -34,9 +34,11 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 
+QT_BEGIN_NAMESPACE
 class QString;
 class QAbstractItemModel;
 class QDialog;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

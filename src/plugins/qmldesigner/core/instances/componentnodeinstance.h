@@ -32,7 +32,9 @@
 
 #include "objectnodeinstance.h"
 
+QT_BEGIN_NAMESPACE
 class QmlComponent;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 namespace Internal {

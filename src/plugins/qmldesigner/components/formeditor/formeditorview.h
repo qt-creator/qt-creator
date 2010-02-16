@@ -32,8 +32,10 @@
 
 #include <qmlmodelview.h>
 
+QT_BEGIN_NAMESPACE
 class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

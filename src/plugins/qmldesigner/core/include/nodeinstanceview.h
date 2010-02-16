@@ -41,9 +41,11 @@
 #include <modelnode.h>
 #include <nodeinstance.h>
 
+QT_BEGIN_NAMESPACE
 class QmlEngine;
 class QGraphicsScene;
 class QGraphicsView;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

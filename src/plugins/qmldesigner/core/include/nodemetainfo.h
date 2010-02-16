@@ -38,7 +38,9 @@
 #include "corelib_global.h"
 #include "invalidmetainfoexception.h"
 
+QT_BEGIN_NAMESPACE
 class QmlContext;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

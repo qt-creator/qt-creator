@@ -63,7 +63,6 @@ private:
     QRectF geometry;
     QGraphicsLayout *proxy;
 };
-QML_DECLARE_TYPE(QProxyLayout);
 
 class QProxyLayoutItem : public QObject, public QGraphicsLayoutItem
 {
@@ -87,10 +86,12 @@ private:
     QRectF geometry;
     QGraphicsLayoutItem *other;
 };
-QML_DECLARE_TYPE(QProxyLayoutItem);
 
 #endif // QPROXYLAYOUTITEM_H
 
 QT_END_NAMESPACE
+
+QML_DECLARE_TYPE(QProxyLayout);
+QML_DECLARE_TYPE(QProxyLayoutItem);
 
 QT_END_HEADER

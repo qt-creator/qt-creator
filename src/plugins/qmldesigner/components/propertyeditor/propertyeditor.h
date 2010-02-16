@@ -37,8 +37,10 @@
 
 #include "qmlanchorbindingproxy.h"
 
+QT_BEGIN_NAMESPACE
 class QShortcut;
 class QStackedWidget;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

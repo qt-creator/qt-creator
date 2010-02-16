@@ -34,7 +34,9 @@
 #include <QString>
 #include <QStringList>
 
+QT_BEGIN_NAMESPACE
 class QmlValueType;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 namespace Internal {

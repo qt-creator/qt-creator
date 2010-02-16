@@ -33,6 +33,9 @@
 #include "corelib_global.h"
 #include "abstractproperty.h"
 
+QT_BEGIN_NAMESPACE
+class QTextStream;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

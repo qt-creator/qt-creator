@@ -1109,9 +1109,6 @@ void QGroupBoxDeclarativeUI::animate(int frame)
     gb->update();
 }
 
-QML_DECLARE_TYPE(QTabObject);
-QML_DEFINE_TYPE(Qt,4,6,QTabObject,QTabObject); //### with namespacing, this should just be 'Tab'
-
 class QTabWidgetDeclarativeUI : public QObject
 {
     Q_OBJECT
@@ -1170,6 +1167,8 @@ public:
     WidgetFrame( QWidget * parent = 0, Qt::WindowFlags f = 0 ) : QFrame(parent, f)
     {}
 };
+
+QT_END_NAMESPACE
 
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QWidget,QWidget,QWidgetDeclarativeUI);
 
@@ -1230,7 +1229,7 @@ QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QMenu,QMenu, QMenuDeclarativeUI)
 //QML_DEFINE_TYPE(Bauhaus,1,0,BauhausreeView,BauhausreeView);
 //QML_DEFINE_TYPE(Bauhaus,1,0,BauhausableView,BauhausableView);
 
+QML_DECLARE_TYPE(QTabObject);
+QML_DEFINE_TYPE(Qt,4,6,QTabObject,QTabObject); //### with namespacing, this should just be 'Tab'
 
 #include "basicwidgets.moc"
-
-QT_END_NAMESPACE

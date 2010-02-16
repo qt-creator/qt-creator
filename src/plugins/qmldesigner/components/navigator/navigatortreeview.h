@@ -37,10 +37,12 @@
 
 #include <QPainter>
 
+QT_BEGIN_NAMESPACE
 class QTreeView;
 class QStandardItem;
 class QItemSelection;
 class QModelIndex;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

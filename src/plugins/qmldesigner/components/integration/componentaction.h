@@ -33,7 +33,9 @@
 #include <QWidgetAction>
 #include <QWeakPointer>
 
+QT_BEGIN_NAMESPACE
 class QComboBox;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

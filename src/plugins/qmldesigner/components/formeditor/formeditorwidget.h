@@ -32,7 +32,9 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QActionGroup;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

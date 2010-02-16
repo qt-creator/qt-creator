@@ -35,10 +35,11 @@
 #include <qml.h>
 
 
-
+QT_BEGIN_NAMESPACE
 class QLabel;
 class QPushButton;
 class QFontDialog;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

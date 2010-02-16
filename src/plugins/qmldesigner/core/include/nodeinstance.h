@@ -37,11 +37,13 @@
 #include <propertymetainfo.h>
 #include <qmlanchors.h>
 
+QT_BEGIN_NAMESPACE
 class QPainter;
 class QStyleOptionGraphicsItem;
 class QmlContext;
 class QGraphicsItem;
 class QGraphicsTransform;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

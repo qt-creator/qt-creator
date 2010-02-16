@@ -33,9 +33,11 @@
 #include <QtGui/QGroupBox>
 #include <QtGui/QPushButton>
 
+QT_BEGIN_NAMESPACE
 class QListWidget;
 class QVBoxLayout;
 class QTableWidget;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

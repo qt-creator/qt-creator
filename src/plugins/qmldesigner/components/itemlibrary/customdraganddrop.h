@@ -32,7 +32,9 @@
 #include <QTimeLine>
 #include <QDrag>
 
+QT_BEGIN_NAMESPACE
 class QMimeData;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

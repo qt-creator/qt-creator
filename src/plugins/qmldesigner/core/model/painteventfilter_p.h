@@ -33,7 +33,9 @@
 #include <QObject>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
 class QTimer;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 namespace Internal {

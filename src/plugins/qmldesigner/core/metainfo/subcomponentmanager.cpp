@@ -40,6 +40,7 @@
 
 enum { debug = false };
 
+QT_BEGIN_NAMESPACE
 
 // Allow usage of QFileInfo in hash / qSort
 
@@ -53,6 +54,7 @@ static uint qHash(const QFileInfo &fileInfo)
     return qHash(fileInfo.filePath());
 }
 
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
