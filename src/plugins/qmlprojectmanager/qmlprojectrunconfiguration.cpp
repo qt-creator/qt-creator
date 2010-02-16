@@ -201,6 +201,12 @@ QString QmlProjectRunConfiguration::mainScript() const
     return qmlTarget()->qmlProject()->projectDir().absoluteFilePath(m_scriptFile);
 }
 
+void QmlProjectRunConfiguration::onDebugServerAddressChanged()
+{
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
+        m_debugServerAddress = lineEdit->text();
+}
+
 void QmlProjectRunConfiguration::setMainScript(const QString &scriptFile)
 {
     m_scriptFile = scriptFile;
