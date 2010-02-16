@@ -71,7 +71,7 @@ bool Check::visit(UiProgram *ast)
 
 bool Check::visit(UiObjectDefinition *ast)
 {
-    visitQmlObject(ast, ast->initializer);
+    visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
     return false;
 }
 
@@ -79,12 +79,18 @@ bool Check::visit(UiObjectBinding *ast)
 {
     checkScopeObjectMember(ast->qualifiedId);
 
-    visitQmlObject(ast, ast->initializer);
+    visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
     return false;
 }
 
-void Check::visitQmlObject(AST::Node *ast, AST::UiObjectInitializer *initializer)
+void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
+                           UiObjectInitializer *initializer)
 {
+    if (! _context.lookupType(_doc.data(), typeId)) {
+        warning(typeId->identifierToken, QLatin1String("unknown type"));
+        return;
+    }
+
     const ObjectValue *oldScopeObject = _context.qmlScopeObject();
     const ObjectValue *oldExtraScope = _extraScope;
     const bool oldAllowAnyProperty = _allowAnyProperty;

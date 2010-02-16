@@ -1114,9 +1114,6 @@ static void appendExtraSelectionsForMessages(
         const QTextDocument *document)
 {
     foreach (const DiagnosticMessage &d, messages) {
-        if (d.isWarning())
-            continue;
-
         const int line = d.loc.startLine;
         const int column = qMax(1U, d.loc.startColumn);
 
@@ -1130,7 +1127,11 @@ static void appendExtraSelectionsForMessages(
         else
             sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
 
-        sel.format.setUnderlineColor(Qt::red);
+        if (d.isWarning())
+            sel.format.setUnderlineColor(Qt::darkYellow);
+        else
+            sel.format.setUnderlineColor(Qt::red);
+
         sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
         sel.format.setToolTip(d.message);
 
