@@ -132,7 +132,8 @@ GitClient::GitClient(GitPlugin* plugin)
     m_plugin(plugin),
     m_core(Core::ICore::instance()),
     m_repositoryChangedSignalMapper(0),
-    m_cachedGitVersion(0)
+    m_cachedGitVersion(0),
+    m_hasCachedGitVersion(false)
 {
     if (QSettings *s = m_core->settings()) {
         m_settings.fromSettings(s);
@@ -1021,16 +1022,24 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
     process.setWorkingDirectory(workingDirectory);
     process.setEnvironment(processEnvironment());
 
-    QStringList args = binary();
+    QStringList args = binary(); // "cmd /c git" on Windows
     const QString executable = args.front();
     args.pop_front();
     args.append(gitArguments);
     process.start(executable, args);
     process.closeWriteChannel();
+    if (!process.waitForStarted()) {
+        if (errorText) {
+            const QString msg = QString::fromLatin1("Unable to execute '%1': %2:")
+                                .arg(binary().join(QString(QLatin1Char(' '))), process.errorString());
+            *errorText = msg.toLocal8Bit();
+        }
+        return false;
+    }
 
     if (!process.waitForFinished()) {
         if (errorText)
-            *errorText = "Error: Git timed out";
+            *errorText = "Error: Git timed out.";
         process.kill();
         return false;
     }
@@ -1556,6 +1565,7 @@ void GitClient::setSettings(const GitSettings &s)
             m_settings.toSettings(s);
         m_binaryPath = m_settings.gitBinaryPath();
         m_cachedGitVersion = 0u;
+        m_hasCachedGitVersion = false;
     }
 }
 
@@ -1573,16 +1583,20 @@ void GitClient::connectRepositoryChanged(const QString & repository, GitCommand 
 }
 
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::gitVersion(QString *errorMessage  /* = 0 */)
+unsigned GitClient::gitVersion(bool silent, QString *errorMessage  /* = 0 */)
 {
-    if (!m_cachedGitVersion)
-        m_cachedGitVersion = synchronousGitVersion(errorMessage);
+    if (!m_hasCachedGitVersion) {
+        // Do not execute repeatedly if that fails (due to git
+        // not being installed) until settings are changed.
+        m_cachedGitVersion = synchronousGitVersion(silent, errorMessage);
+        m_hasCachedGitVersion = true;
+    }
     return m_cachedGitVersion;
 }
 
-QString GitClient::gitVersionString(QString *errorMessage)
+QString GitClient::gitVersionString(bool silent, QString *errorMessage)
 {
-    if (const unsigned version = gitVersion(errorMessage)) {
+    if (const unsigned version = gitVersion(silent, errorMessage)) {
         QString rc;
         QTextStream(&rc) << (version >> 16) << '.'
                 << (0xFF & (version >> 8)) << '.'
@@ -1593,7 +1607,7 @@ QString GitClient::gitVersionString(QString *errorMessage)
 }
 
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::synchronousGitVersion(QString *errorMessage /* = 0 */)
+unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage /* = 0 */)
 {
     // run git --version
     QByteArray outputText;
@@ -1604,7 +1618,11 @@ unsigned GitClient::synchronousGitVersion(QString *errorMessage /* = 0 */)
         if (errorMessage) {
             *errorMessage = msg;
         } else {
-            VCSBase::VCSBaseOutputWindow::instance()->appendError(msg);
+            if (silent) {
+                VCSBase::VCSBaseOutputWindow::instance()->append(msg);
+            } else {
+                VCSBase::VCSBaseOutputWindow::instance()->appendError(msg);
+            }
         }
         return 0;
     }

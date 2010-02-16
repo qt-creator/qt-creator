@@ -147,8 +147,8 @@ public:
                                 QString *branch = 0, QString *errorMessage = 0);
     // determine version as '(major << 16) + (minor << 8) + patch' or 0
     // with some smart caching.
-    unsigned gitVersion(QString *errorMessage = 0);
-    QString gitVersionString(QString *errorMessage = 0);
+    unsigned gitVersion(bool silent, QString *errorMessage = 0);
+    QString gitVersionString(bool silent, QString *errorMessage = 0);
 
     void pull(const QString &workingDirectory);
     void push(const QString &workingDirectory);
@@ -234,7 +234,7 @@ private:
                         QByteArray* errorText = 0,
                         bool logCommandToWindow = true);
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-    unsigned synchronousGitVersion(QString *errorMessage = 0);
+    unsigned synchronousGitVersion(bool silent, QString *errorMessage = 0);
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
     RevertResult revertI(QStringList files, bool *isDirectory, QString *errorMessage);
@@ -247,6 +247,7 @@ private:
     QString m_binaryPath;
     QSignalMapper *m_repositoryChangedSignalMapper;
     unsigned      m_cachedGitVersion;
+    bool          m_hasCachedGitVersion;
 };
 
 

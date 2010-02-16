@@ -62,7 +62,7 @@ QString GitVersionControl::displayName() const
 // Add: Implement using "git add --intent-to-add" starting from 1.6.1
 static inline bool addOperationSupported()
 {
-    return gitClient()->gitVersion() >= version(1, 6, 1);
+    return gitClient()->gitVersion(true) >= version(1, 6, 1);
 }
 
 bool GitVersionControl::supportsOperation(Operation operation) const
