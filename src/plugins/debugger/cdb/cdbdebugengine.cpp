@@ -40,6 +40,8 @@
 #include "cdboptions.h"
 #include "cdbexceptionutils.h"
 #include "debuggeragents.h"
+#include "debuggeruiswitcher.h"
+#include "debuggermainwindow.h"
 
 #include "debuggeractions.h"
 #include "debuggermanager.h"
@@ -1211,13 +1213,13 @@ void CdbDebugEngine::slotConsoleStubStarted()
         m_d->startWatchTimer();
         manager()->notifyInferiorPidChanged(appPid);
     } else {
-        QMessageBox::critical(manager()->mainWindow(), tr("Debugger Error"), errorMessage);
+        QMessageBox::critical(DebuggerUISwitcher::instance()->mainWindow(), tr("Debugger Error"), errorMessage);
     }
 }
 
 void CdbDebugEngine::slotConsoleStubError(const QString &msg)
 {
-    QMessageBox::critical(manager()->mainWindow(), tr("Debugger Error"), msg);
+    QMessageBox::critical(DebuggerUISwitcher::instance()->mainWindow(), tr("Debugger Error"), msg);
 }
 
 void CdbDebugEngine::slotConsoleStubTerminated()
