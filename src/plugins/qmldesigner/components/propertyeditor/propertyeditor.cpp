@@ -120,7 +120,6 @@ void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString 
 
 void PropertyEditor::NodeType::setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value)
 {
-    //createPropertyEditorValue(fxObjectNode, name, value, &m_backendValuesPropertyMap);
     PropertyEditorValue *propertyValue = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value(name)));
     if (propertyValue)
         propertyValue->setValue(value);
