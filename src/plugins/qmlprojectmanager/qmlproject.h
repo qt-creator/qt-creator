@@ -127,6 +127,7 @@ private:
 
     Internal::QmlProjectNode *m_rootNode;
     Internal::QmlProjectTargetFactory *m_targetFactory;
+
 };
 
 } // namespace QmlProjectManager

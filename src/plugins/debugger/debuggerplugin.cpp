@@ -36,6 +36,8 @@
 #include "debuggermanager.h"
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
+#include "debuggeruiswitcher.h"
+#include "debuggermainwindow.h"
 
 #include "ui_commonoptionspage.h"
 #include "ui_dumperoptionpage.h"
@@ -76,7 +78,6 @@
 
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
-#include <utils/fancymainwindow.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QObject>
@@ -97,6 +98,7 @@
 #include <climits>
 
 using namespace Core;
+using namespace Debugger;
 using namespace Debugger::Constants;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -260,7 +262,8 @@ bool DebuggerListener::coreAboutToClose()
            " state (%1) can leave the target in an inconsistent state."
            " Would you still like to terminate it?")
         .arg(QLatin1String(DebuggerManager::stateName(mgr->state())));
-    QMessageBox::StandardButton answer = QMessageBox::question(mgr->mainWindow(), title, question,
+    QMessageBox::StandardButton answer = QMessageBox::question(DebuggerUISwitcher::instance()->mainWindow(),
+                                         title, question,
                                          QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
     if (answer != QMessageBox::Yes)
         return false;
@@ -521,8 +524,7 @@ DebuggerPlugin::DebuggerPlugin()
     m_debugMode(0),
     m_locationMark(0),
     m_gdbRunningContext(0),
-    m_cmdLineEnabledEngines(AllEngineTypes),
-    m_toggleLockedAction(0)
+    m_cmdLineEnabledEngines(AllEngineTypes)
 {}
 
 DebuggerPlugin::~DebuggerPlugin()
@@ -535,9 +537,12 @@ void DebuggerPlugin::shutdown()
         m_manager->shutdown();
 
     writeSettings();
+
+    if (m_uiSwitcher)
+        m_uiSwitcher->shutdown();
+
     delete DebuggerSettings::instance();
 
-    //qDebug() << "DebuggerPlugin::~DebuggerPlugin";
     removeObject(m_debugMode);
 
     // FIXME: when using the line below, BreakWindow etc gets deleted twice.
@@ -551,6 +556,10 @@ void DebuggerPlugin::shutdown()
     removeObject(m_manager);
     delete m_manager;
     m_manager = 0;
+
+    removeObject(m_uiSwitcher);
+    delete m_uiSwitcher;
+    m_uiSwitcher = 0;
 }
 
 static QString msgParameterMissing(const QString &a)
@@ -658,6 +667,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         errorMessage->clear();
     }
 
+    // Debug mode setup
+    m_debugMode = new DebugMode(this);
+    //addAutoReleasedObject(m_debugMode);
+    m_uiSwitcher = new DebuggerUISwitcher(m_debugMode, this);
+    ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
+    m_uiSwitcher->addLanguage(LANG_CPP);
+
     m_manager = new DebuggerManager;
     ExtensionSystem::PluginManager::instance()->addObject(m_manager);
     const QList<Core::IOptionsPage *> engineOptionPages =
@@ -689,6 +705,16 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     m_gdbRunningContext = uidm->uniqueIdentifier(Constants::GDBRUNNING);
 
+    // register factory of DebuggerRunControl
+    m_debuggerRunControlFactory = new DebuggerRunControlFactory(m_manager);
+    addAutoReleasedObject(m_debuggerRunControlFactory);
+
+    QList<int> context;
+    context.append(uidm->uniqueIdentifier(Core::Constants::C_EDITORMANAGER));
+    context.append(uidm->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER));
+    context.append(uidm->uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE));
+    m_debugMode->setContext(context);
+
     //Core::ActionContainer *mcppcontext =
     //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
 
@@ -707,26 +733,26 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_attachCoreAction->setText(tr("Attach to Core..."));
     connect(m_attachCoreAction, SIGNAL(triggered()), this, SLOT(attachCore()));
 
-
     m_startRemoteAction = new QAction(this);
     m_startRemoteAction->setText(tr("Start and Attach to Remote Application..."));
     connect(m_startRemoteAction, SIGNAL(triggered()),
         this, SLOT(startRemoteApplication()));
-
 
     m_detachAction = new QAction(this);
     m_detachAction->setText(tr("Detach Debugger"));
     connect(m_detachAction, SIGNAL(triggered()),
         m_manager, SLOT(detachDebugger()));
 
-    Core::ActionContainer *mdebug =
-        am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
+   // Core::ActionContainer *mdebug =
+    //    am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
+
+    Core::Command *cmd = 0;
+    const DebuggerManagerActions actions = m_manager->debuggerManagerActions();
+
 
     Core::ActionContainer *mstart =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
 
-    Core::Command *cmd = 0;
-    const DebuggerManagerActions actions = m_manager->debuggerManagerActions();
     cmd = am->registerAction(actions.continueAction,
         ProjectExplorer::Constants::DEBUG, QList<int>() << m_gdbRunningContext);
     mstart->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
@@ -749,7 +775,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     cmd = am->registerAction(m_detachAction,
         Constants::DETACH, globalcontext);
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    m_uiSwitcher->addMenuAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(actions.stopAction,
         Constants::INTERRUPT, globalcontext);
@@ -757,90 +783,90 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     cmd->setAttribute(Core::Command::CA_UpdateIcon);
     cmd->setDefaultKeySequence(QKeySequence(Constants::INTERRUPT_KEY));
     cmd->setDefaultText(tr("Stop Debugger/Interrupt Debugger"));
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    m_uiSwitcher->addMenuAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     cmd = am->registerAction(actions.resetAction,
         Constants::RESET, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     //cmd->setDefaultKeySequence(QKeySequence(Constants::RESET_KEY));
     cmd->setDefaultText(tr("Reset Debugger"));
-    mdebug->addAction(cmd, Core::Constants::G_DEFAULT_ONE);
+    m_uiSwitcher->addMenuAction(cmd, Core::Constants::G_DEFAULT_ONE);
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Step"), globalcontext);
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.nextAction,
         Constants::NEXT, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::NEXT_KEY));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.stepAction,
         Constants::STEP, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEP_KEY));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.stepOutAction,
         Constants::STEPOUT, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::STEPOUT_KEY));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.runToLineAction1,
         Constants::RUN_TO_LINE1, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_LINE_KEY));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.runToFunctionAction,
         Constants::RUN_TO_FUNCTION, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::RUN_TO_FUNCTION_KEY));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.jumpToLineAction1,
         Constants::JUMP_TO_LINE1, debuggercontext);
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.returnFromFunctionAction,
         Constants::RETURN_FROM_FUNCTION, debuggercontext);
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
 #ifdef USE_REVERSE_DEBUGGING
     cmd = am->registerAction(actions.reverseDirectionAction,
         Constants::REVERSE, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 #endif
 
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Break"), globalcontext);
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.snapshotAction,
         Constants::SNAPSHOT, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::SNAPSHOT_KEY));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(theDebuggerAction(OperateByInstruction),
         Constants::OPERATE_BY_INSTRUCTION, debuggercontext);
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.breakAction,
         Constants::TOGGLE_BREAK, cppeditorcontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::TOGGLE_BREAK_KEY));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
     //mcppcontext->addAction(cmd);
 
     sep = new QAction(this);
     sep->setSeparator(true);
     cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Watch"), globalcontext);
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     cmd = am->registerAction(actions.watchAction1,
         Constants::ADD_TO_WATCH1, cppeditorcontext);
     cmd->action()->setEnabled(true);
     //cmd->setDefaultKeySequence(QKeySequence(tr("ALT+D,ALT+W")));
-    mdebug->addAction(cmd);
+    m_uiSwitcher->addMenuAction(cmd);
 
     // Editor context menu
     ActionContainer *editorContextMenu =
@@ -868,35 +894,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     editorContextMenu->addAction(cmd);
     cmd->setAttribute(Command::CA_Hide);
 
-    // Views menu
-    cmd = am->registerAction(sep, QLatin1String("Debugger.Sep.Views"), globalcontext);
-    mdebug->addAction(cmd);
-    ActionContainer *viewsMenu = am->createMenu(Constants::M_DEBUG_VIEWS);
-    QMenu *m = viewsMenu->menu();
-    m->setEnabled(true);
-    m->setTitle(tr("&Views"));
-    mdebug->addMenu(viewsMenu, Core::Constants::G_DEFAULT_THREE);
-
-    m_toggleLockedAction = new QAction(tr("Locked"), this);
-    m_toggleLockedAction->setCheckable(true);
-    m_toggleLockedAction->setChecked(true);
-    connect(m_toggleLockedAction, SIGNAL(toggled(bool)),
-        m_manager->mainWindow(), SLOT(setLocked(bool)));
-    foreach (QDockWidget *dockWidget, m_manager->mainWindow()->dockWidgets()) {
-        cmd = am->registerAction(dockWidget->toggleViewAction(),
-            "Debugger." + dockWidget->objectName(), debuggercontext);
-        viewsMenu->addAction(cmd);
-        //m->addAction(dockWidget->toggleViewAction());
-    }
-    m->addSeparator();
-    m->addAction(m_toggleLockedAction);
-    m->addSeparator();
-
-    QAction *resetToSimpleAction =
-        viewsMenu->menu()->addAction(tr("Reset to default layout"));
-    connect(resetToSimpleAction, SIGNAL(triggered()),
-        m_manager, SLOT(setSimpleDockWidgetArrangement()));
-
     // FIXME:
     addAutoReleasedObject(new CommonOptionsPage);
     addAutoReleasedObject(new DebuggingHelperOptionPage);
@@ -905,91 +902,12 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     addAutoReleasedObject(new DebuggerListener);
     m_locationMark = 0;
 
-
-    //
-    // Debug mode setup
-    //
-    m_debugMode = new DebugMode(this);
-    //addAutoReleasedObject(m_debugMode);
-
-    // register factory of DebuggerRunControl
-    m_debuggerRunControlFactory = new DebuggerRunControlFactory(m_manager);
-    addAutoReleasedObject(m_debuggerRunControlFactory);
-
-    QList<int> context;
-    context.append(uidm->uniqueIdentifier(Core::Constants::C_EDITORMANAGER));
-    context.append(uidm->uniqueIdentifier(Debugger::Constants::C_GDBDEBUGGER));
-    context.append(uidm->uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE));
-    m_debugMode->setContext(context);
-
-    QBoxLayout *editorHolderLayout = new QVBoxLayout;
-    editorHolderLayout->setMargin(0);
-    editorHolderLayout->setSpacing(0);
-
-    QWidget *editorAndFindWidget = new QWidget;
-    editorAndFindWidget->setLayout(editorHolderLayout);
-    editorHolderLayout->addWidget(new EditorManagerPlaceHolder(m_debugMode));
-    editorHolderLayout->addWidget(new FindToolBarPlaceHolder(editorAndFindWidget));
-
-    MiniSplitter *rightPaneSplitter = new MiniSplitter;
-    rightPaneSplitter->addWidget(editorAndFindWidget);
-    rightPaneSplitter->addWidget(new RightPanePlaceHolder(m_debugMode));
-    rightPaneSplitter->setStretchFactor(0, 1);
-    rightPaneSplitter->setStretchFactor(1, 0);
-
-    QWidget *centralWidget = new QWidget;
-
-    m_manager->mainWindow()->setCentralWidget(centralWidget);
-
-    MiniSplitter *splitter = new MiniSplitter;
-    splitter->addWidget(m_manager->mainWindow());
-    splitter->addWidget(new OutputPanePlaceHolder(m_debugMode, splitter));
-    splitter->setStretchFactor(0, 10);
-    splitter->setStretchFactor(1, 0);
-    splitter->setOrientation(Qt::Vertical);
-
-    MiniSplitter *splitter2 = new MiniSplitter;
-    splitter2->addWidget(new NavigationWidgetPlaceHolder(m_debugMode));
-    splitter2->addWidget(splitter);
-    splitter2->setStretchFactor(0, 0);
-    splitter2->setStretchFactor(1, 1);
-
-    m_debugMode->setWidget(splitter2);
-
-    Utils::StyledBar *debugToolBar = new Utils::StyledBar;
-    debugToolBar->setProperty("topBorder", true);
-    QHBoxLayout *debugToolBarLayout = new QHBoxLayout(debugToolBar);
-    debugToolBarLayout->setMargin(0);
-    debugToolBarLayout->setSpacing(0);
-    debugToolBarLayout->addWidget(toolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::INTERRUPT)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXT)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::SNAPSHOT)->action()));
-#ifdef USE_REVERSE_DEBUGGING
-    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
-#endif
-    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
-    debugToolBarLayout->addWidget(new QLabel(tr("Threads:")));
-
-    QComboBox *threadBox = new QComboBox;
-    threadBox->setModel(m_manager->threadsModel());
-    connect(threadBox, SIGNAL(activated(int)),
-        m_manager->threadsWindow(), SIGNAL(threadSelected(int)));
-    debugToolBarLayout->addWidget(threadBox);
-    debugToolBarLayout->addWidget(m_manager->statusLabel(), 10);
-
-    QBoxLayout *toolBarAddingLayout = new QVBoxLayout(centralWidget);
-    toolBarAddingLayout->setMargin(0);
-    toolBarAddingLayout->setSpacing(0);
-    toolBarAddingLayout->addWidget(rightPaneSplitter);
-    toolBarAddingLayout->addWidget(debugToolBar);
-
-    m_manager->setSimpleDockWidgetArrangement();
+    m_manager->setSimpleDockWidgetArrangement(LANG_CPP);
     readSettings();
+
+    m_uiSwitcher->setToolbar(LANG_CPP, createToolbar());
+    connect(m_uiSwitcher, SIGNAL(dockArranged(QString)), m_manager,
+            SLOT(setSimpleDockWidgetArrangement(QString)));
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(onModeChanged(Core::IMode*)));
@@ -1047,6 +965,38 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     return true;
 }
 
+QWidget *DebuggerPlugin::createToolbar() const
+{
+    Core::ActionManager *am = ICore::instance()->actionManager();
+
+    QWidget *toolbarContainer = new QWidget;
+    QHBoxLayout *debugToolBarLayout = new QHBoxLayout(toolbarContainer);
+
+    debugToolBarLayout->setMargin(0);
+    debugToolBarLayout->setSpacing(0);
+    debugToolBarLayout->addWidget(toolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::INTERRUPT)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXT)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
+#ifdef USE_REVERSE_DEBUGGING
+    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
+    debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
+#endif
+    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
+    debugToolBarLayout->addWidget(new QLabel(tr("Threads:")));
+
+    QComboBox *threadBox = new QComboBox;
+    threadBox->setModel(m_manager->threadsModel());
+    connect(threadBox, SIGNAL(activated(int)),
+        m_manager->threadsWindow(), SIGNAL(threadSelected(int)));
+    debugToolBarLayout->addWidget(threadBox);
+    debugToolBarLayout->addWidget(m_manager->statusLabel(), 10);
+
+    return toolbarContainer;
+}
+
 void DebuggerPlugin::extensionsInitialized()
 {
     // time gdb -i mi -ex 'debuggerplugin.cpp:800' -ex r -ex q bin/qtcreator.bin
@@ -1056,6 +1006,9 @@ void DebuggerPlugin::extensionsInitialized()
         m_manager->runTest(QString::fromLocal8Bit(env));
     if (m_attachRemoteParameters.attachPid || !m_attachRemoteParameters.attachCore.isEmpty())
         QTimer::singleShot(0, this, SLOT(attachCmdLine()));
+
+    readSettings();
+    m_uiSwitcher->initialize();
 }
 
 void DebuggerPlugin::attachCmdLine()
@@ -1289,33 +1242,14 @@ void DebuggerPlugin::handleStateChanged(int state)
 
 void DebuggerPlugin::writeSettings() const
 {
-    QTC_ASSERT(m_manager, return);
-    QTC_ASSERT(m_manager->mainWindow(), return);
-
     QSettings *s = settings();
     DebuggerSettings::instance()->writeSettings(s);
-    s->beginGroup(QLatin1String("DebugMode"));
-    m_manager->mainWindow()->saveSettings(s);
-    s->endGroup();
 }
 
 void DebuggerPlugin::readSettings()
 {
     QSettings *s = settings();
     DebuggerSettings::instance()->readSettings(s);
-
-    QString defaultCommand("gdb");
-#ifdef Q_OS_WIN
-    defaultCommand.append(".exe");
-#endif
-    //QString defaultScript = ICore::instance()->resourcePath() +
-    //    QLatin1String("/gdb/qt4macros");
-    QString defaultScript;
-
-    s->beginGroup(QLatin1String("DebugMode"));
-    m_manager->mainWindow()->restoreSettings(s);
-    m_toggleLockedAction->setChecked(m_manager->mainWindow()->isLocked());
-    s->endGroup();
 }
 
 void DebuggerPlugin::onModeChanged(IMode *mode)
@@ -1328,8 +1262,14 @@ void DebuggerPlugin::onModeChanged(IMode *mode)
         return;
 
     EditorManager *editorManager = EditorManager::instance();
-    if (editorManager->currentEditor())
+    if (editorManager->currentEditor()) {
         editorManager->currentEditor()->widget()->setFocus();
+
+        if (editorManager->currentEditor()->id() == CppEditor::Constants::C_CPPEDITOR) {
+            m_uiSwitcher->setActiveLanguage(Debugger::Constants::LANG_CPP);
+        }
+
+    }
 }
 
 void DebuggerPlugin::showSettingsDialog()
@@ -1342,7 +1282,7 @@ void DebuggerPlugin::showSettingsDialog()
 void DebuggerPlugin::startExternalApplication()
 {
     const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
-    StartExternalDialog dlg(m_manager->mainWindow());
+    StartExternalDialog dlg(m_uiSwitcher->mainWindow());
     dlg.setExecutableFile(
             configValue(_("LastExternalExecutableFile")).toString());
     dlg.setExecutableArguments(
@@ -1368,7 +1308,7 @@ void DebuggerPlugin::startExternalApplication()
 
 void DebuggerPlugin::attachExternalApplication()
 {
-    AttachExternalDialog dlg(m_manager->mainWindow());
+    AttachExternalDialog dlg(m_uiSwitcher->mainWindow());
     if (dlg.exec() == QDialog::Accepted)
         attachExternalApplication(dlg.attachPID());
 }
@@ -1376,7 +1316,7 @@ void DebuggerPlugin::attachExternalApplication()
 void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashParameter)
 {
     if (pid == 0) {
-        QMessageBox::warning(m_manager->mainWindow(), tr("Warning"), tr("Cannot attach to PID 0"));
+        QMessageBox::warning(m_uiSwitcher->mainWindow(), tr("Warning"), tr("Cannot attach to PID 0"));
         return;
     }
     const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
@@ -1389,7 +1329,7 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
 
 void DebuggerPlugin::attachCore()
 {
-    AttachCoreDialog dlg(m_manager->mainWindow());
+    AttachCoreDialog dlg(m_uiSwitcher->mainWindow());
     dlg.setExecutableFile(
             configValue(_("LastExternalExecutableFile")).toString());
     dlg.setCoreFile(
@@ -1417,7 +1357,7 @@ void DebuggerPlugin::attachCore(const QString &core, const QString &exe)
 void DebuggerPlugin::startRemoteApplication()
 {
     const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
-    StartRemoteDialog dlg(m_manager->mainWindow());
+    StartRemoteDialog dlg(m_uiSwitcher->mainWindow());
     QStringList arches;
     arches.append(_("i386:x86-64:intel"));
     arches.append(_("i386"));

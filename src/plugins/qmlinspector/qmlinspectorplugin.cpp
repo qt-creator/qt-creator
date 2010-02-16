@@ -26,16 +26,25 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+#include "qmlinspectorconstants.h"
 #include "qmlinspector.h"
-#include "qmlinspectormode.h"
 #include "inspectoroutputpane.h"
 #include "qmlinspectorplugin.h"
+
+#include <debugger/debuggeruiswitcher.h>
+#include <debugger/debuggerconstants.h>
+
+#include <qmlprojectmanager/qmlproject.h>
+#include <qmljseditor/qmljseditorconstants.h>
 
 #include <private/qmldebug_p.h>
 #include <private/qmldebugclient_p.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
@@ -44,19 +53,34 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QStringList>
 #include <QtCore/QtPlugin>
+#include <QtCore/QTimer>
+
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QToolButton>
+
 #include <QtCore/QDebug>
 
-QT_BEGIN_NAMESPACE
 
+using namespace Qml;
+
+static QToolButton *createToolButton(QAction *action)
+{
+    QToolButton *button = new QToolButton;
+    button->setDefaultAction(action);
+    return button;
+}
 
 QmlInspectorPlugin::QmlInspectorPlugin()
-    : m_inspectMode(0)
+    : m_inspector(0), m_connectionTimer(new QTimer(this)),
+    m_connectionAttempts(0)
 {
+    m_connectionTimer->setInterval(75);
 }
 
 QmlInspectorPlugin::~QmlInspectorPlugin()
@@ -65,13 +89,13 @@ QmlInspectorPlugin::~QmlInspectorPlugin()
 
 void QmlInspectorPlugin::shutdown()
 {
-    removeObject(m_inspectMode);
-    delete m_inspectMode;
-    m_inspectMode = 0;
-
     removeObject(m_outputPane);
     delete m_outputPane;
     m_outputPane = 0;
+
+    removeObject(m_inspector);
+    delete m_inspector;
+    m_inspector = 0;
 }
 
 bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -79,42 +103,100 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    Core::ICore *core = Core::ICore::instance();
-    Core::UniqueIDManager *uidm = core->uniqueIDManager();
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            SLOT(prepareDebugger(Core::IMode*)));
 
-    QList<int> context;
-    context.append(uidm->uniqueIdentifier(QmlInspector::Constants::C_INSPECTOR));
-    context.append(uidm->uniqueIdentifier(Core::Constants::C_EDITORMANAGER));
-    context.append(uidm->uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE));
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
+    uiSwitcher->addLanguage(Qml::Constants::LANG_QML);
 
-    m_inspectMode = new QmlInspectorMode(this);
-    m_inspectMode->setContext(context);
-    addObject(m_inspectMode);
+    m_inspector = new QmlInspector;
+    addObject(m_inspector);
+
+    connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 
     m_outputPane = new InspectorOutputPane;
     addObject(m_outputPane);
 
-    connect(m_inspectMode, SIGNAL(statusMessage(QString)),
+    connect(m_inspector, SIGNAL(statusMessage(QString)),
             m_outputPane, SLOT(addInspectorStatus(QString)));
-
-    connect(core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
-            SLOT(currentModeChanged(Core::IMode*)));
 
     return true;
 }
 
 void QmlInspectorPlugin::extensionsInitialized()
 {
+    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+    Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
+    //connect(uiSwitcher, SIGNAL(languageChanged(QString)), SLOT(activateDebugger(QString)));
+    connect(uiSwitcher, SIGNAL(dockArranged(QString)), SLOT(setDockWidgetArrangement(QString)));
+
+    ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
+    if (pex) {
+        connect(pex, SIGNAL(aboutToExecuteProject(ProjectExplorer::Project*)),
+                SLOT(activateDebuggerForProject(ProjectExplorer::Project*)));
+    }
+
+    QWidget *configBar = new QWidget;
+    configBar->setProperty("topBorder", true);
+
+    QHBoxLayout *configBarLayout = new QHBoxLayout(configBar);
+    configBarLayout->setMargin(0);
+    configBarLayout->setSpacing(5);
+
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
+    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
+    configBarLayout->addWidget(createToolButton(am->command(ProjectExplorer::Constants::STOP)->action()));
+
+    configBarLayout->addStretch();
+
+    uiSwitcher->setToolbar(Qml::Constants::LANG_QML, configBar);
 }
 
-void QmlInspectorPlugin::currentModeChanged(Core::IMode *mode)
+void QmlInspectorPlugin::activateDebugger(const QString &langName)
 {
-    if (mode == m_inspectMode)
-        m_inspectMode->connectToViewer();
+    if (langName == Qml::Constants::LANG_QML) {
+        m_inspector->connectToViewer();
+    }
+}
+
+void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project)
+{
+    QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
+    if (qmlproj)
+        m_connectionTimer->start();
+
+}
+void QmlInspectorPlugin::pollInspector()
+{
+    ++m_connectionAttempts;
+    if (m_inspector->connectToViewer() || m_connectionAttempts == MaxConnectionAttempts) {
+        m_connectionTimer->stop();
+        m_connectionAttempts = 0;
+    }
+}
+
+void QmlInspectorPlugin::prepareDebugger(Core::IMode *mode)
+{
+    if (mode->id() != Debugger::Constants::MODE_DEBUG)
+        return;
+
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+
+    if (editorManager->currentEditor() &&
+        editorManager->currentEditor()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
+        ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
+        Debugger::DebuggerUISwitcher *uiSwitcher = pluginManager->getObject<Debugger::DebuggerUISwitcher>();
+        uiSwitcher->setActiveLanguage(Qml::Constants::LANG_QML);
+    }
+}
+
+void QmlInspectorPlugin::setDockWidgetArrangement(const QString &activeLanguage)
+{
+    if (activeLanguage == Qml::Constants::LANG_QML || activeLanguage.isEmpty())
+        m_inspector->setSimpleDockWidgetArrangement();
 }
 
 
 Q_EXPORT_PLUGIN(QmlInspectorPlugin)
-
-QT_END_NAMESPACE
-

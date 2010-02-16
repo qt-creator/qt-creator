@@ -26,28 +26,92 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLINSPECTOR_H
-#define QMLINSPECTOR_H
+#ifndef QMLINSPECTORMODE_H
+#define QMLINSPECTORMODE_H
 
-#include <QString>
+#include "qmlinspector_global.h"
+#include <coreplugin/basemode.h>
 
-namespace QmlInspector {
-    namespace Constants {
-        const char * const RUN = "QmlInspector.Run";
-        const char * const STOP = "QmlInspector.Stop";
+#include <QtGui/QAction>
+#include <QtCore/QObject>
 
-        const char * const C_INSPECTOR = "QmlInspector";
-    };
+QT_BEGIN_NAMESPACE
 
-    class StartParameters
-    {
-    public:
-        StartParameters() : port(0) {}
-        ~StartParameters() {}
+class QDockWidget;
+class QToolButton;
+class QLineEdit;
+class QSpinBox;
+class QLabel;
 
-        QString address;
-        quint16 port;
-    };
+class QmlEngineDebug;
+class QmlDebugConnection;
+class QmlDebugEnginesQuery;
+class QmlDebugRootContextQuery;
+class QmlDebugObjectReference;
+class ObjectTree;
+class WatchTableModel;
+class WatchTableView;
+class ObjectPropertiesView;
+class CanvasFrameRate;
+class ExpressionQueryWidget;
+
+
+namespace Qml {
+    class EngineSpinBox;
+
+class QMLINSPECTOR_EXPORT QmlInspector : public QObject
+{
+    Q_OBJECT
+
+public:
+    QmlInspector(QObject *parent = 0);
+
+    bool connectToViewer(); // using host, port from widgets
+
+signals:
+    void statusMessage(const QString &text);
+
+public slots:
+    void disconnectFromViewer();
+    void setSimpleDockWidgetArrangement();
+
+private slots:
+    void connectionStateChanged();
+    void connectionError();
+    void reloadEngines();
+    void enginesChanged();
+    void queryEngineContext(int);
+    void contextChanged();
+    void treeObjectActivated(const QmlDebugObjectReference &obj);
+
+private:
+
+    void initWidgets();
+
+    QmlDebugConnection *m_conn;
+    QmlEngineDebug *m_client;
+
+    QmlDebugEnginesQuery *m_engineQuery;
+    QmlDebugRootContextQuery *m_contextQuery;
+
+    ObjectTree *m_objectTreeWidget;
+    ObjectPropertiesView *m_propertiesWidget;
+    WatchTableModel *m_watchTableModel;
+    WatchTableView *m_watchTableView;
+    CanvasFrameRate *m_frameRateWidget;
+    ExpressionQueryWidget *m_expressionWidget;
+
+    EngineSpinBox *m_engineSpinBox;
+
+    QDockWidget *m_objectTreeDock;
+    QDockWidget *m_frameRateDock;
+    QDockWidget *m_propertyWatcherDock;
+    QList<QDockWidget*> m_dockWidgets;
+
 };
+
+}
+
+QT_END_NAMESPACE
 
 #endif

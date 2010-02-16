@@ -49,6 +49,7 @@ namespace QmlProjectManager {
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent) :
     ProjectExplorer::RunConfiguration(parent, QLatin1String(Constants::QML_RC_ID)),
+    m_debugServerAddress("127.0.0.1"),
     m_debugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT)
 {
     ctor();
@@ -59,6 +60,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
     m_scriptFile(source->m_scriptFile),
     m_qmlViewerCustomPath(source->m_qmlViewerCustomPath),
     m_qmlViewerArgs(source->m_qmlViewerArgs),
+    m_debugServerAddress(source->m_debugServerAddress),
     m_debugServerPort(source->m_debugServerPort)
 {
     ctor();
@@ -77,6 +79,11 @@ void QmlProjectRunConfiguration::ctor()
 
 QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
 {
+}
+
+QString QmlProjectRunConfiguration::debugServerAddress() const
+{
+    return m_debugServerAddress;
 }
 
 Internal::QmlProjectTarget *QmlProjectRunConfiguration::qmlTarget() const
@@ -163,6 +170,10 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
     qmlViewerArgs->setText(m_qmlViewerArgs);
     connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onQmlViewerArgsChanged()));
 
+    QLineEdit *debugServer = new QLineEdit;
+    debugServer->setText(m_debugServerAddress);
+    connect(debugServer, SIGNAL(textChanged(QString)), this, SLOT(onDebugServerAddressChanged()));
+
     QSpinBox *debugPort = new QSpinBox;
     debugPort->setMinimum(1024); // valid registered/dynamic/free ports according to http://www.iana.org/assignments/port-numbers
     debugPort->setMaximum(65535);
@@ -172,6 +183,7 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
     form->addRow(tr("QML Viewer"), qmlViewer);
     form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML File:"), combo);
+    form->addRow(tr("Debugging Address:"), debugServer);
     form->addRow(tr("Debugging Port:"), debugPort);
 
     return config;

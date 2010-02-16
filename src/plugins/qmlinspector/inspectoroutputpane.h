@@ -33,11 +33,10 @@
 
 #include <QtCore/QObject>
 
-QT_BEGIN_NAMESPACE
-
 class QTextEdit;
-
 class RunControl;
+
+namespace Qml {
 
 class InspectorOutputPane : public Core::IOutputPane
 {
@@ -76,7 +75,7 @@ private:
     QTextEdit *m_textEdit;
 };
 
-QT_END_NAMESPACE
+}
 
 #endif
 

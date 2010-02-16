@@ -43,7 +43,9 @@ HEADERS += breakhandler.h \
     threadswindow.h \
     watchhandler.h \
     watchwindow.h \
-    name_demangler.h
+    name_demangler.h \
+    debuggeruiswitcher.h \
+    debuggermainwindow.h
 SOURCES += breakhandler.cpp \
     breakwindow.cpp \
     breakwindow.h \
@@ -70,7 +72,10 @@ SOURCES += breakhandler.cpp \
     threadswindow.cpp \
     watchhandler.cpp \
     watchwindow.cpp \
-    name_demangler.cpp
+    name_demangler.cpp \
+    debuggeruiswitcher.cpp \
+    debuggermainwindow.cpp
+
 FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
     breakbyfunction.ui \

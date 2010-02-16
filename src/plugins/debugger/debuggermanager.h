@@ -53,9 +53,6 @@ QT_END_NAMESPACE
 namespace Core {
 class IOptionsPage;
 }
-namespace Utils {
-class FancyMainWindow;
-}
 
 namespace TextEditor {
 class ITextEditor;
@@ -180,7 +177,6 @@ public:
     DebuggerState state() const;
     QList<Core::IOptionsPage*> initializeEngines(unsigned enabledTypeFlags);
 
-    Utils::FancyMainWindow *mainWindow() const;
     QLabel *statusLabel() const;
     Internal::IDebuggerEngine *currentEngine() const;
 
@@ -208,7 +204,7 @@ public slots:
     void startNewDebugger(const DebuggerStartParametersPtr &sp);
     void exitDebugger();
 
-    void setSimpleDockWidgetArrangement();
+    void setSimpleDockWidgetArrangement(const QString &activeLanguage);
 
     void setBusyCursor(bool on);
     void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);

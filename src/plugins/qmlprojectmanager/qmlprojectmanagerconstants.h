@@ -39,6 +39,7 @@ const char * const QML_VIEWER_ARGUMENTS_KEY("QmlProjectManager.QmlRunConfigurati
 const char * const QML_VIEWER_TARGET_ID("QmlProjectManager.QmlTarget");
 const char * const QML_VIEWER_TARGET_DISPLAY_NAME("QML Viewer");
 const char * const QML_MAINSCRIPT_KEY("QmlProjectManager.QmlRunConfiguration.MainScript");
+const char * const QML_DEBUG_SERVER_ADDRESS_KEY("QmlProjectManager.QmlRunConfiguration.DebugServerAddress");
 const char * const QML_DEBUG_SERVER_PORT_KEY("QmlProjectManager.QmlRunConfiguration.DebugServerPort");
 
 const int QML_DEFAULT_DEBUG_SERVER_PORT(3768);

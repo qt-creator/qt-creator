@@ -6,13 +6,16 @@ DEPENDPATH += .
 
 include(components/qmldebugger.pri)
 
+DEFINES += QMLINSPECTOR_LIBRARY
+
 HEADERS += qmlinspectorplugin.h \
+           qmlinspectorconstants.h \
            qmlinspector.h \
-           qmlinspectormode.h \
-           inspectoroutputpane.h
+           inspectoroutputpane.h \
+           qmlinspector_global.h
 
 SOURCES += qmlinspectorplugin.cpp \
-           qmlinspectormode.cpp \
+           qmlinspector.cpp \
            inspectoroutputpane.cpp
 
 OTHER_FILES += QmlInspector.pluginspec
@@ -23,4 +26,4 @@ include(../../plugins/projectexplorer/projectexplorer.pri)
 include(../../plugins/qmlprojectmanager/qmlprojectmanager.pri)
 include(../../plugins/coreplugin/coreplugin.pri)
 include(../../plugins/texteditor/texteditor.pri)
-
+include(../../plugins/debugger/debugger.pri)

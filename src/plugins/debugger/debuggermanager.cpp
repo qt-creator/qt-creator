@@ -36,6 +36,8 @@
 #include "idebuggerengine.h"
 #include "debuggerstringutils.h"
 #include "watchutils.h"
+#include "debuggeruiswitcher.h"
+#include "debuggermainwindow.h"
 
 #include "breakwindow.h"
 #include "debuggeroutputwindow.h"
@@ -60,10 +62,10 @@
 #  include "shared/peutils.h"
 #endif
 
+#include <coreplugin/minisplitter.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
-#include <utils/fancymainwindow.h>
 #include <projectexplorer/toolchain.h>
 #include <cplusplus/CppDocument.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -260,7 +262,7 @@ struct DebuggerManagerPrivate
     qint64 m_inferiorPid;
 
     /// Views
-    Utils::FancyMainWindow *m_mainWindow;
+    DebuggerMainWindow *m_mainWindow;
     QLabel *m_statusLabel;
 
     QDockWidget *m_breakDock;
@@ -272,6 +274,7 @@ struct DebuggerManagerPrivate
     QDockWidget *m_stackDock;
     QDockWidget *m_threadsDock;
     QDockWidget *m_watchDock;
+    QList<QDockWidget *> m_dockWidgets;
 
     BreakHandler *m_breakHandler;
     ModulesHandler *m_modulesHandler;
@@ -364,9 +367,7 @@ void DebuggerManager::init()
     d->m_watchersWindow = new WatchWindow(WatchWindow::WatchersType, this);
     d->m_statusTimer = new QTimer(this);
 
-    d->m_mainWindow = new Utils::FancyMainWindow;
-    d->m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
-    d->m_mainWindow->setDocumentMode(true);
+    d->m_mainWindow = DebuggerUISwitcher::instance()->mainWindow();
 
     // Snapshots
     d->m_snapshotHandler = new SnapshotHandler;
@@ -551,30 +552,32 @@ void DebuggerManager::init()
     connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),
         this, SLOT(operateByInstructionTriggered()));
 
+    DebuggerUISwitcher *uiSwitcher = DebuggerUISwitcher::instance();
+    d->m_breakDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_breakWindow);
+    d->m_modulesDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_modulesWindow,
+                                                                     Qt::TopDockWidgetArea, false);
 
-    d->m_breakDock = d->m_mainWindow->addDockForWidget(d->m_breakWindow);
-
-    d->m_modulesDock = d->m_mainWindow->addDockForWidget(d->m_modulesWindow);
     connect(d->m_modulesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadModules()), Qt::QueuedConnection);
 
-    d->m_registerDock = d->m_mainWindow->addDockForWidget(d->m_registerWindow);
+    d->m_registerDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_registerWindow,
+                                                                      Qt::TopDockWidgetArea, false);
     connect(d->m_registerDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadRegisters()), Qt::QueuedConnection);
 
-    d->m_outputDock = d->m_mainWindow->addDockForWidget(d->m_outputWindow);
+    d->m_outputDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_outputWindow,
+                                                                    Qt::TopDockWidgetArea, false);
 
-    d->m_snapshotDock = d->m_mainWindow->addDockForWidget(d->m_snapshotWindow);
-
-    d->m_stackDock = d->m_mainWindow->addDockForWidget(d->m_stackWindow);
-
-    d->m_sourceFilesDock = d->m_mainWindow->addDockForWidget(d->m_sourceFilesWindow);
+    d->m_snapshotDock =  uiSwitcher->createDockWidget(LANG_CPP, d->m_snapshotWindow);
+    d->m_stackDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_stackWindow);
+    d->m_sourceFilesDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_sourceFilesWindow,
+                                                                         Qt::TopDockWidgetArea, false);
     connect(d->m_sourceFilesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadSourceFiles()), Qt::QueuedConnection);
 
-    d->m_threadsDock = d->m_mainWindow->addDockForWidget(d->m_threadsWindow);
+    d->m_threadsDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_threadsWindow);
 
-    QSplitter *localsAndWatchers = new QSplitter(Qt::Vertical, 0);
+    QSplitter *localsAndWatchers = new Core::MiniSplitter(Qt::Vertical);
     localsAndWatchers->setWindowTitle(d->m_localsWindow->windowTitle());
     localsAndWatchers->addWidget(d->m_localsWindow);
     localsAndWatchers->addWidget(d->m_watchersWindow);
@@ -582,7 +585,10 @@ void DebuggerManager::init()
     localsAndWatchers->setStretchFactor(0, 3);
     localsAndWatchers->setStretchFactor(1, 1);
     localsAndWatchers->setStretchFactor(2, 1);
-    d->m_watchDock = d->m_mainWindow->addDockForWidget(localsAndWatchers);
+    d->m_watchDock = DebuggerUISwitcher::instance()->createDockWidget(LANG_CPP, localsAndWatchers);
+    d->m_dockWidgets << d->m_breakDock << d->m_modulesDock << d->m_registerDock
+                     << d->m_outputDock << d->m_stackDock << d->m_sourceFilesDock
+                     << d->m_threadsDock << d->m_watchDock;
 
     setState(DebuggerNotReady);
 }
@@ -611,11 +617,6 @@ QList<Core::IOptionsPage*> DebuggerManager::initializeEngines(unsigned enabledTy
 DebuggerManagerActions DebuggerManager::debuggerManagerActions() const
 {
     return d->m_actions;
-}
-
-Utils::FancyMainWindow *DebuggerManager::mainWindow() const
-{
-    return d->m_mainWindow;
 }
 
 QLabel *DebuggerManager::statusLabel() const
@@ -687,45 +688,51 @@ QWidget *DebuggerManager::threadsWindow() const
 
 void DebuggerManager::createNewDock(QWidget *widget)
 {
-    QDockWidget *dockWidget = new QDockWidget(widget->windowTitle(), d->m_mainWindow);
+    QDockWidget *dockWidget = DebuggerUISwitcher::instance()->createDockWidget(LANG_CPP, widget);
+    dockWidget->setWindowTitle(widget->windowTitle());
     dockWidget->setObjectName(widget->windowTitle());
     dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
-    dockWidget->setWidget(widget);
-    d->m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+    //dockWidget->setWidget(widget);
+    //d->m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
     dockWidget->show();
 }
 
-void DebuggerManager::setSimpleDockWidgetArrangement()
+void DebuggerManager::setSimpleDockWidgetArrangement(const QString &activeLanguage)
 {
-    d->m_mainWindow->setTrackingEnabled(false);
-    QList<QDockWidget *> dockWidgets = d->m_mainWindow->dockWidgets();
-    foreach (QDockWidget *dockWidget, dockWidgets) {
-        dockWidget->setFloating(false);
-        d->m_mainWindow->removeDockWidget(dockWidget);
+    if (activeLanguage == LANG_CPP || !activeLanguage.length()) {
+        d->m_mainWindow->setTrackingEnabled(false);
+        QList<QDockWidget *> dockWidgets = d->m_mainWindow->dockWidgets();
+        foreach (QDockWidget *dockWidget, dockWidgets) {
+            if (d->m_dockWidgets.contains(dockWidget)) {
+                dockWidget->setFloating(false);
+                d->m_mainWindow->removeDockWidget(dockWidget);
+            }
+        }
+
+        foreach (QDockWidget *dockWidget, dockWidgets) {
+            if (d->m_dockWidgets.contains(dockWidget)) {
+                if (dockWidget == d->m_outputDock)
+                    d->m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+                else
+                    d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+                dockWidget->show();
+            }
+        }
+
+        d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_breakDock);
+        d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_modulesDock);
+        d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_registerDock);
+        d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_threadsDock);
+        d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_sourceFilesDock);
+        d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_snapshotDock);
+        // They following views are rarely used in ordinary debugging. Hiding them
+        // saves cycles since the corresponding information won't be retrieved.
+        d->m_sourceFilesDock->hide();
+        d->m_registerDock->hide();
+        d->m_modulesDock->hide();
+        d->m_outputDock->hide();
+        d->m_mainWindow->setTrackingEnabled(true);
     }
-
-    foreach (QDockWidget *dockWidget, dockWidgets) {
-        if (dockWidget == d->m_outputDock)
-            d->m_mainWindow->addDockWidget(Qt::TopDockWidgetArea, dockWidget);
-        else
-            d->m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
-        dockWidget->show();
-    }
-
-    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_breakDock);
-    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_modulesDock);
-    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_registerDock);
-    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_threadsDock);
-    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_sourceFilesDock);
-    d->m_mainWindow->tabifyDockWidget(d->m_watchDock, d->m_snapshotDock);
-
-    // They following views are rarely used in ordinary debugging. Hiding them
-    // saves cycles since the corresponding information won't be retrieved.
-    d->m_sourceFilesDock->hide();
-    d->m_registerDock->hide();
-    d->m_modulesDock->hide();
-    d->m_outputDock->hide();
-    d->m_mainWindow->setTrackingEnabled(true);
 }
 
 QAbstractItemModel *DebuggerManager::threadsModel()
@@ -1248,7 +1255,7 @@ void DebuggerManager::saveSessionData()
 
 void DebuggerManager::dumpLog()
 {
-    QString fileName = QFileDialog::getSaveFileName(mainWindow(),
+    QString fileName = QFileDialog::getSaveFileName(d->m_mainWindow,
         tr("Save Debugger Log"), QDir::tempPath());
     if (fileName.isEmpty())
         return;
@@ -1575,7 +1582,7 @@ QStringList DebuggerManager::qtDumperLibraryLocations() const
 
 void DebuggerManager::showQtDumperLibraryWarning(const QString &details)
 {
-    QMessageBox dialog(mainWindow());
+    QMessageBox dialog(d->m_mainWindow);
     QPushButton *qtPref = dialog.addButton(tr("Open Qt preferences"),
         QMessageBox::ActionRole);
     QPushButton *helperOff = dialog.addButton(tr("Turn off helper usage"),
@@ -1636,7 +1643,7 @@ QMessageBox *DebuggerManager::showMessageBox(int icon, const QString &title,
     const QString &text, int buttons)
 {
     QMessageBox *mb = new QMessageBox(QMessageBox::Icon(icon),
-        title, text, QMessageBox::StandardButtons(buttons), mainWindow());
+        title, text, QMessageBox::StandardButtons(buttons), d->m_mainWindow);
     mb->setAttribute(Qt::WA_DeleteOnClose);
     mb->show();
     return mb;
@@ -1748,7 +1755,7 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     const bool stopped = state == InferiorStopped;
 
     if (stopped)
-        QApplication::alert(mainWindow(), 3000);
+        QApplication::alert(d->m_mainWindow, 3000);
 
     const bool actionsEnabled = debuggerActionsEnabled();
     const unsigned engineCapabilities = debuggerCapabilities();
