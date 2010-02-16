@@ -91,7 +91,7 @@ QmlProjectWizard::~QmlProjectWizard()
 
 Core::BaseFileWizardParameters QmlProjectWizard::parameters()
 {
-    static Core::BaseFileWizardParameters parameters(ProjectWizard);
+    Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
     parameters.setDisplayName(tr("Import of existing QML directory"));
     parameters.setId(QLatin1String("QI.QML Import"));
