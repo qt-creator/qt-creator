@@ -2016,7 +2016,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
             if (col <= ind.logical && col && startsWithWhitespace(data, col)) {
                 const int ts = config(ConfigTabStop).toInt();
                 const int newcol = col - 1 - (col - 1) % ts;
-                setLineContents(line, tabExpand(newcol) + data.midRef(col));
+                setLineContents(line, tabExpand(newcol).append(data.midRef(col)));
                 m_lastInsertion.clear(); // FIXME
             } else {
                 m_tc.deletePreviousChar();
