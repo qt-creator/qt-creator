@@ -94,7 +94,7 @@ void TermGdbAdapter::startAdapter()
     m_stubProc.setWorkingDirectory(startParameters().workingDir);
     // Set environment + dumper preload.
     QStringList environment = startParameters().environment;
-    if (dumperHandling() == DumperLoadedByGdbPreload
+    if (dumperHandling() == DumperLoadedByAdapter
         && m_engine->checkDebuggingHelpers()) {
         QString var = QLatin1String(Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR);
         var += QLatin1Char('=');
