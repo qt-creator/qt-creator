@@ -36,6 +36,7 @@
 #include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljsbind.h>
+#include <qmljs/qmljscheck.h>
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
@@ -563,6 +564,11 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_methodCombo(0),
     m_modelManager(0)
 {
+    qRegisterMetaType<SemanticInfo>("SemanticInfo");
+
+    m_semanticHighlighter = new SemanticHighlighter(this);
+    m_semanticHighlighter->start();
+
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);
     setCodeFoldingSupported(true);
@@ -589,10 +595,15 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
         connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
                 this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
     }
+
+    connect(m_semanticHighlighter, SIGNAL(changed(SemanticInfo)),
+            this, SLOT(updateSemanticInfo(SemanticInfo)));
 }
 
 QmlJSTextEditor::~QmlJSTextEditor()
 {
+    m_semanticHighlighter->abort();
+    m_semanticHighlighter->wait();
 }
 
 SemanticInfo QmlJSTextEditor::semanticInfo() const
@@ -660,62 +671,9 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
     if (doc->ast()) {
         // got a correctly parsed (or recovered) file.
 
-        // create the ranges and update the semantic info.
-        CreateRanges createRanges;
-        SemanticInfo sem;
-        sem.snapshot = m_modelManager->snapshot();
-        sem.document = doc;
-        sem.ranges = createRanges(document(), doc);
-
-        // Refresh the ids
-        FindIdDeclarations updateIds;
-        sem.idLocations = updateIds(doc);
-
-        if (doc->isParsedCorrectly()) {
-            FindDeclarations findDeclarations;
-            sem.declarations = findDeclarations(doc->ast());
-
-            QStringList items;
-            items.append(tr("<Select Symbol>"));
-
-            foreach (Declaration decl, sem.declarations)
-                items.append(decl.text);
-
-            m_methodCombo->clear();
-            m_methodCombo->addItems(items);
-            updateMethodBoxIndex();
-        }
-
-        m_semanticInfo = sem;
+        const SemanticHighlighter::Source source = currentSource(/*force = */ true);
+        m_semanticHighlighter->rehighlight(source);
     }
-
-    QList<QTextEdit::ExtraSelection> selections;
-
-    foreach (const DiagnosticMessage &d, doc->diagnosticMessages()) {
-        if (d.isWarning())
-            continue;
-
-        const int line = d.loc.startLine;
-        const int column = qMax(1U, d.loc.startColumn);
-
-        QTextEdit::ExtraSelection sel;
-        QTextCursor c(document()->findBlockByNumber(line - 1));
-        sel.cursor = c;
-
-        sel.cursor.setPosition(c.position() + column - 1);
-        if (sel.cursor.atBlockEnd())
-            sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
-        else
-            sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-
-        sel.format.setUnderlineColor(Qt::red);
-        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-        sel.format.setToolTip(d.message);
-
-        selections.append(sel);
-    }
-
-    setExtraSelections(CodeWarningsSelection, selections);
 }
 
 void QmlJSTextEditor::jumpToMethod(int index)
@@ -1150,3 +1108,196 @@ QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &) const
     return QLatin1String("}\n");
 }
 
+static void appendExtraSelectionsForMessages(
+        QList<QTextEdit::ExtraSelection> *selections,
+        const QList<DiagnosticMessage> &messages,
+        const QTextDocument *document)
+{
+    foreach (const DiagnosticMessage &d, messages) {
+        if (d.isWarning())
+            continue;
+
+        const int line = d.loc.startLine;
+        const int column = qMax(1U, d.loc.startColumn);
+
+        QTextEdit::ExtraSelection sel;
+        QTextCursor c(document->findBlockByNumber(line - 1));
+        sel.cursor = c;
+
+        sel.cursor.setPosition(c.position() + column - 1);
+        if (sel.cursor.atBlockEnd())
+            sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+        else
+            sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+
+        sel.format.setUnderlineColor(Qt::red);
+        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        sel.format.setToolTip(d.message);
+
+        selections->append(sel);
+    }
+}
+
+void QmlJSTextEditor::semanticRehighlight()
+{
+    m_semanticHighlighter->rehighlight(currentSource());
+}
+
+void QmlJSTextEditor::updateSemanticInfo(const SemanticInfo &semanticInfo)
+{
+    if (semanticInfo.revision() != document()->revision()) {
+        // got outdated semantic info
+        semanticRehighlight();
+        return;
+    }
+
+    m_semanticInfo = semanticInfo;
+    Document::Ptr doc = semanticInfo.document;
+
+    // create the ranges
+    CreateRanges createRanges;
+    m_semanticInfo.ranges = createRanges(document(), doc);
+
+    // Refresh the ids
+    FindIdDeclarations updateIds;
+    m_semanticInfo.idLocations = updateIds(doc);
+
+    if (doc->isParsedCorrectly()) {
+        FindDeclarations findDeclarations;
+        m_semanticInfo.declarations = findDeclarations(doc->ast());
+
+        QStringList items;
+        items.append(tr("<Select Symbol>"));
+
+        foreach (Declaration decl, m_semanticInfo.declarations)
+            items.append(decl.text);
+
+        m_methodCombo->clear();
+        m_methodCombo->addItems(items);
+        updateMethodBoxIndex();
+    }
+
+    // update warning/error extra selections
+    QList<QTextEdit::ExtraSelection> selections;
+    appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
+    appendExtraSelectionsForMessages(&selections, m_semanticInfo.semanticMessages, document());
+    setExtraSelections(CodeWarningsSelection, selections);
+}
+
+SemanticHighlighter::Source QmlJSTextEditor::currentSource(bool force)
+{
+    int line = 0, column = 0;
+    convertPosition(position(), &line, &column);
+
+    const Snapshot snapshot = m_modelManager->snapshot();
+    const QString fileName = file()->fileName();
+
+    QString code;
+    if (force || m_semanticInfo.revision() != document()->revision())
+        code = toPlainText(); // get the source code only when needed.
+
+    const unsigned revision = document()->revision();
+    SemanticHighlighter::Source source(snapshot, fileName, code,
+                                       line, column, revision);
+    source.force = force;
+    return source;
+}
+
+SemanticHighlighter::SemanticHighlighter(QObject *parent)
+        : QThread(parent),
+          m_done(false)
+{
+}
+
+SemanticHighlighter::~SemanticHighlighter()
+{
+}
+
+void SemanticHighlighter::abort()
+{
+    QMutexLocker locker(&m_mutex);
+    m_done = true;
+    m_condition.wakeOne();
+}
+
+void SemanticHighlighter::rehighlight(const Source &source)
+{
+    QMutexLocker locker(&m_mutex);
+    m_source = source;
+    m_condition.wakeOne();
+}
+
+bool SemanticHighlighter::isOutdated()
+{
+    QMutexLocker locker(&m_mutex);
+    const bool outdated = ! m_source.fileName.isEmpty() || m_done;
+    return outdated;
+}
+
+void SemanticHighlighter::run()
+{
+    setPriority(QThread::IdlePriority);
+
+    forever {
+        m_mutex.lock();
+
+        while (! (m_done || ! m_source.fileName.isEmpty()))
+            m_condition.wait(&m_mutex);
+
+        const bool done = m_done;
+        const Source source = m_source;
+        m_source.clear();
+
+        m_mutex.unlock();
+
+        if (done)
+            break;
+
+        const SemanticInfo info = semanticInfo(source);
+
+        if (! isOutdated()) {
+            m_mutex.lock();
+            m_lastSemanticInfo = info;
+            m_mutex.unlock();
+
+            emit changed(info);
+        }
+    }
+}
+
+SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
+{
+    m_mutex.lock();
+    const int revision = m_lastSemanticInfo.revision();
+    m_mutex.unlock();
+
+    Snapshot snapshot;
+    Document::Ptr doc;
+
+    if (! source.force && revision == source.revision) {
+        m_mutex.lock();
+        snapshot = m_lastSemanticInfo.snapshot;
+        doc = m_lastSemanticInfo.document;
+        m_mutex.unlock();
+    }
+
+    if (! doc) {
+        snapshot = source.snapshot;
+        doc = snapshot.documentFromSource(source.code, source.fileName);
+
+        // ### This doesn't really work: what if snapshot doesn't have the doc?
+        if (snapshot.document(source.fileName)->qmlProgram())
+            doc->parseQml();
+        else if (snapshot.document(source.fileName)->jsProgram())
+            doc->parseJavaScript();
+    }
+
+    SemanticInfo semanticInfo;
+    semanticInfo.snapshot = snapshot;
+    semanticInfo.document = doc;
+
+    Check checker(doc, snapshot);
+    semanticInfo.semanticMessages = checker();
+
+    return semanticInfo;
+}

@@ -16,7 +16,8 @@ HEADERS += \
     $$PWD/qmljsdocument.h \
     $$PWD/qmljsscanner.h \
     $$PWD/qmljsinterpreter.h \
-    $$PWD/qmljslink.h
+    $$PWD/qmljslink.h \
+    $$PWD/qmljscheck.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -25,7 +26,8 @@ SOURCES += \
     $$PWD/qmljsscanner.cpp \
     $$PWD/qmljsinterpreter.cpp \
     $$PWD/qmljsmetatypesystem.cpp \
-    $$PWD/qmljslink.cpp
+    $$PWD/qmljslink.cpp \
+    $$PWD/qmljscheck.cpp
 
 contains(QT_CONFIG, declarative) {
     QT += declarative

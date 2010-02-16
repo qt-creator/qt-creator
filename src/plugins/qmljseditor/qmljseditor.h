@@ -34,6 +34,10 @@
 #include <qmljs/qmljsscanner.h>
 #include <texteditor/basetexteditor.h>
 
+#include <QtCore/QWaitCondition>
+#include <QtCore/QMutex>
+#include <QtCore/QThread>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QTimer;
@@ -117,6 +121,75 @@ public: // attributes
     QList<Range> ranges;
     QHash<QString, QList<QmlJS::AST::SourceLocation> > idLocations;
     QList<Declaration> declarations;
+
+    // these are in addition to the parser messages in the document
+    QList<QmlJS::DiagnosticMessage> semanticMessages;
+};
+
+class SemanticHighlighter: public QThread
+{
+    Q_OBJECT
+
+public:
+    SemanticHighlighter(QObject *parent = 0);
+    virtual ~SemanticHighlighter();
+
+    void abort();
+
+    struct Source
+    {
+        QmlJS::Snapshot snapshot;
+        QString fileName;
+        QString code;
+        int line;
+        int column;
+        int revision;
+        bool force;
+
+        Source()
+            : line(0), column(0), revision(0), force(false)
+        { }
+
+        Source(const QmlJS::Snapshot &snapshot,
+               const QString &fileName,
+               const QString &code,
+               int line, int column,
+               int revision)
+            : snapshot(snapshot), fileName(fileName),
+              code(code), line(line), column(column),
+              revision(revision), force(false)
+        { }
+
+        void clear()
+        {
+            snapshot = QmlJS::Snapshot();
+            fileName.clear();
+            code.clear();
+            line = 0;
+            column = 0;
+            revision = 0;
+            force = false;
+        }
+    };
+
+    void rehighlight(const Source &source);
+
+Q_SIGNALS:
+    void changed(const SemanticInfo &semanticInfo);
+
+protected:
+    virtual void run();
+
+private:
+    bool isOutdated();
+    SemanticInfo semanticInfo(const Source &source);
+
+private:
+    QMutex m_mutex;
+    QWaitCondition m_condition;
+    bool m_done;
+    Source m_source;
+    SemanticInfo m_lastSemanticInfo;
 };
 
 class QmlJSTextEditor : public TextEditor::BaseTextEditor
@@ -154,6 +227,9 @@ private slots:
     // refactoring ops
     void renameIdUnderCursor();
 
+    void semanticRehighlight();
+    void updateSemanticInfo(const SemanticInfo &semanticInfo);
+
 protected:
     void contextMenuEvent(QContextMenuEvent *e);
     TextEditor::BaseTextEditorEditable *createEditableInterface();
@@ -173,6 +249,8 @@ private:
 
     QString wordUnderCursor() const;
 
+    SemanticHighlighter::Source currentSource(bool force = false);
+
     const Context m_context;
 
     QTimer *m_updateDocumentTimer;
@@ -183,6 +261,7 @@ private:
     QTextCharFormat m_occurrencesUnusedFormat;
     QTextCharFormat m_occurrenceRenameFormat;
 
+    SemanticHighlighter *m_semanticHighlighter;
     SemanticInfo m_semanticInfo;
 };
 

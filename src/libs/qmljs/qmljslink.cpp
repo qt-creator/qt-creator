@@ -102,8 +102,11 @@ void Link::pushScopeChainForComponent(Document::Ptr doc, QStringList *linkedDocs
     if (bind->rootObjectValue())
         _context->pushScope(bind->rootObjectValue());
 
-    if (scopeObject && scopeObject != bind->rootObjectValue())
-        _context->pushScope(scopeObject);
+    if (scopeObject) {
+        _context->markQmlScopeObject();
+        if (scopeObject != bind->rootObjectValue())
+            _context->setQmlScopeObject(scopeObject);
+    }
 
     const QStringList &includedScripts = bind->includedScripts();
     for (int index = includedScripts.size() - 1; index != -1; --index) {

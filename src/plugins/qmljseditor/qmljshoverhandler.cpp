@@ -165,7 +165,7 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
     }
 
     QString symbolName = QLatin1String("<unknown>");
-    if (m_helpId.isEmpty()) {
+    if (m_helpId.isEmpty() && m_toolTip.isEmpty()) {
         AST::Node *node = semanticInfo.nodeUnderCursor(pos);
         if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 || AST::cast<AST::NumericLiteral *>(node) != 0)) {
             AST::Node *declaringMember = semanticInfo.declaringMember(pos);

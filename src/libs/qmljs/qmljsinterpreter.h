@@ -241,6 +241,10 @@ public:
     void pushScope(const ObjectValue *object);
     void popScope();
 
+    void markQmlScopeObject();
+    void setQmlScopeObject(const ObjectValue *scopeObject);
+    const ObjectValue *qmlScopeObject() const;
+
     const Value *lookup(const QString &name);
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName);
 
@@ -253,8 +257,10 @@ private:
     Engine *_engine;
     LookupMode _lookupMode;
     QHash<const ObjectValue *, Properties> _properties;
-    ScopeChain _scopeChain;
     QHash<const Document *, const ObjectValue *> _typeEnvironments;
+    ScopeChain _scopeChain;
+    int _qmlScopeObjectIndex;
+    bool _qmlScopeObjectSet;
 };
 
 class QMLJS_EXPORT Reference: public Value

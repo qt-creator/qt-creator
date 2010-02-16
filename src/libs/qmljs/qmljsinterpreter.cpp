@@ -686,7 +686,9 @@ void StringValue::accept(ValueVisitor *visitor) const
 
 Context::Context(Engine *engine)
     : _engine(engine),
-      _lookupMode(JSLookup)
+      _lookupMode(JSLookup),
+      _qmlScopeObjectIndex(-1),
+      _qmlScopeObjectSet(false)
 {
 }
 
@@ -739,6 +741,39 @@ void Context::pushScope(const ObjectValue *object)
 void Context::popScope()
 {
     _scopeChain.removeLast();
+    if (_scopeChain.length() <= _qmlScopeObjectIndex)
+        _qmlScopeObjectSet = false;
+}
+
+// Marks this to be the location where a scope object can be inserted.
+void Context::markQmlScopeObject()
+{
+    _qmlScopeObjectIndex = _scopeChain.length();
+}
+
+// Sets or inserts the scope object if scopeObject != 0, removes it otherwise.
+void Context::setQmlScopeObject(const ObjectValue *scopeObject)
+{
+    if (_qmlScopeObjectSet) {
+        if (scopeObject == 0) {
+            _scopeChain.removeAt(_qmlScopeObjectIndex);
+            _qmlScopeObjectSet = false;
+        } else {
+            _scopeChain[_qmlScopeObjectIndex] = scopeObject;
+        }
+    } else if (scopeObject != 0 && _scopeChain.length() >= _qmlScopeObjectIndex) {
+        _scopeChain.insert(_qmlScopeObjectIndex, scopeObject);
+        _qmlScopeObjectSet = true;
+    }
+}
+
+// Gets the scope object, if set. Returns 0 otherwise.
+const ObjectValue *Context::qmlScopeObject() const
+{
+    if (!_qmlScopeObjectSet)
+        return 0;
+    else
+        return _scopeChain[_qmlScopeObjectIndex];
 }
 
 const Value *Context::lookup(const QString &name)

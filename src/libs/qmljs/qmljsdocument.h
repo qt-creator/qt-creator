@@ -41,6 +41,7 @@
 namespace QmlJS {
 
 class Bind;
+class Snapshot;
 
 class QMLJS_EXPORT Document
 {
@@ -96,6 +97,9 @@ private:
     QString _path;
     QString _componentName;
     QString _source;
+
+    // for documentFromSource
+    friend class Snapshot;
 };
 
 class QMLJS_EXPORT Snapshot
@@ -117,6 +121,9 @@ public:
 
     Document::Ptr document(const QString &fileName) const
     { return _documents.value(fileName); }
+
+    Document::Ptr documentFromSource(const QString &code,
+                                     const QString &fileName) const;
 
     QList<Document::Ptr> importedDocuments(const Document::Ptr &doc, const QString &importPath) const;
     QMap<QString, Document::Ptr> componentsDefinedByImportedDocuments(const Document::Ptr &doc, const QString &importPath) const;
