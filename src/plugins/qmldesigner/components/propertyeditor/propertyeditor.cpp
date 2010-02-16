@@ -445,12 +445,19 @@ void PropertyEditor::resetView()
     if (m_selectedNode.isValid())
         qmlSpecificsFile = fileToUrl(locateQmlFile(m_selectedNode.type() + "Specifics.qml"));
 
-    NodeType *type = m_typeHash.value(qmlFile.toString());
+    QString typeString("invalid");
+
+    if (m_selectedNode.isValid()) {
+        qmlSpecificsFile = fileToUrl(locateQmlFile(m_selectedNode.type() + "Specifics.qml"));
+        typeString = m_selectedNode.type();
+    }
+
+    NodeType *type = m_typeHash.value(typeString);
     if (!type) {
         type = new NodeType(qmlFile, this);
 
         m_stackedWidget->addWidget(type->m_view);
-        m_typeHash.insert(qmlFile.toString(), type);
+        m_typeHash.insert(typeString, type);
 
         QmlObjectNode fxObjectNode;
         if (m_selectedNode.isValid()) {
