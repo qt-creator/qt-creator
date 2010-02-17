@@ -33,10 +33,8 @@
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "modulespage.h"
-#include "targetspage.h"
 
 #include <coreplugin/icore.h>
-#include <extensionsystem/pluginmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 
 #include <QtCore/QCoreApplication>
