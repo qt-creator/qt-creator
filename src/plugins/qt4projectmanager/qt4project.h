@@ -124,7 +124,7 @@ class Qt4Project : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    explicit Qt4Project(Qt4Manager *manager, const QString &proFile);
+    Qt4Project(Qt4Manager *manager, const QString &proFile);
     virtual ~Qt4Project();
 
     QString displayName() const;
