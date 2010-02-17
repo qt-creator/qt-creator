@@ -190,6 +190,10 @@ void setHue(qreal newHue)
         return;
 
     m_hue = newHue;
+    QColor color(m_colorString);
+    color.toHsv();
+    color.setHsvF(newHue, color.hsvSaturationF(), color.valueF());
+    m_colorString = color.name();
     update();
     emit hueChanged();
 }
@@ -205,6 +209,8 @@ void setColor(const QString &colorStr)
         return;
 
     m_colorString = colorStr;
+    QColor color(m_colorString);
+    m_hue = color.hueF();
     update();
     emit colorChanged();
 }

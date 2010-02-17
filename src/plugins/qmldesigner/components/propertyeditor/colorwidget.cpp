@@ -48,144 +48,140 @@ QML_DEFINE_TYPE(Bauhaus,1,0,ColorBox,QmlDesigner::ColorBox);
 
 namespace QmlDesigner {
 
-void ColorButton::paintEvent(QPaintEvent *event)
-{
-    QToolButton::paintEvent(event);
-    if (!isEnabled())
-        return;
+    void ColorButton::paintEvent(QPaintEvent *event)
+    {
+        QToolButton::paintEvent(event);
+        if (!isEnabled())
+            return;
 
-    QColor color(m_colorString);
+        QColor color(m_colorString);
 
-    const int pixSize = 8;
+        const int pixSize = 8;
 
-    QPainter p(this);
+        QPainter p(this);
 
-    QRect r(0, 0, width(), height());
-    if (isEnabled())
-        p.setBrush(color);
-    else
-        p.setBrush(Qt::transparent);
-    p.setPen(Qt::black);
-    p.drawRect(r);
+        QRect r(0, 0, width(), height());
+        if (isEnabled())
+            p.setBrush(color);
+        else
+            p.setBrush(Qt::transparent);
+        p.setPen(Qt::black);
+        p.drawRect(r);
 
-    QVector<QPointF> points;
-    if (isChecked()) {
-        points.append(QPointF(2, 3));
-        points.append(QPointF(8, 3));
-        points.append(QPointF(5, 9));
-    } else {
-        points.append(QPointF(8, 6));
-        points.append(QPointF(2, 9));
-        points.append(QPointF(2, 3));
-    }
-    p.setPen("#707070");
-    p.setBrush(Qt::white);
-    p.drawPolygon(points);
-}
-
-
-void HueControl::setCurrent(int y)
-{
-       QColor oldColor(m_colorString);
-       oldColor.toHsv();
-       QColor newColor;
-       newColor.setHsvF(qreal(y) / 120.0, oldColor.hsvSaturationF(), oldColor.valueF());
-
-       QString newColorStr = QVariant(newColor).toString();
-       setColor(newColorStr);
-       setHue(qreal(y) / 120.0);
-}
-
-void HueControl::paintEvent(QPaintEvent *event)
-{
-    QWidget::paintEvent(event);    
-
-    QColor color(m_colorString);
-    color.toHsv();
-
-    QPainter p(this);
-
-    int height = 120;
-
-    if (m_cache.isNull()) {
-        m_cache = QPixmap(10, height);
-
-        QPainter cacheP(&m_cache);
-
-        for (int i = 0; i < height; i++)
-        {
-            QColor c;
-            c.setHsvF(qreal(i) / 120.0, 1,1.0);
-            cacheP.fillRect(0, i, 10, i + 1, c);
+        QVector<QPointF> points;
+        if (isChecked()) {
+            points.append(QPointF(2, 3));
+            points.append(QPointF(8, 3));
+            points.append(QPointF(5, 9));
+        } else {
+            points.append(QPointF(8, 6));
+            points.append(QPointF(2, 9));
+            points.append(QPointF(2, 3));
         }
+        p.setPen("#707070");
+        p.setBrush(Qt::white);
+        p.drawPolygon(points);
     }
 
-    p.drawPixmap(10, 5, m_cache);
 
-    QVector<QPointF> points;
+    void HueControl::setCurrent(int y)
+    {
+        QColor oldColor(m_colorString);
+        oldColor.toHsv();
+        QColor newColor;
+        newColor.setHsvF(qreal(y) / 120.0, oldColor.hsvSaturationF(), oldColor.valueF());
 
-    int y = hue() * 120 + 5;
+        QString newColorStr = QVariant(newColor).toString();
+        setColor(newColorStr);
+        setHue(qreal(y) / 120.0);
+    }
 
-    points.append(QPointF(15, y));
-    points.append(QPointF(25, y + 5));
-    points.append(QPointF(25, y - 5));
+    void HueControl::paintEvent(QPaintEvent *event)
+    {
+        QWidget::paintEvent(event);
 
-    p.setPen(Qt::black);
-    p.setBrush(QColor("#707070"));
-    p.drawPolygon(points);
-}
-
-void ColorBox::setCurrent(int x, int y)
-{
-
-      QColor oldColor(m_colorString);
-       oldColor.toHsv();
-       QColor newColor;
-       newColor.setHsvF(hue(), qreal(x) / 120, 1.0 - qreal(y) / 120);
-
-       QString newColorStr = QVariant(newColor).toString();
-       setColor(newColorStr);
-}
-
-void ColorBox::paintEvent(QPaintEvent *event)
-{
-    QWidget::paintEvent(event);
-
-    QPainter p(this);
-    QColor color(m_colorString);
-
-    if (m_hue != (m_lastHue) || (m_cache.isNull())) {
-        m_lastHue = m_hue;
-        m_cache = QPixmap(120, 120);
-
-        
-        color.toHsv();
+        QPainter p(this);
 
         int height = 120;
-        int width = 120;
 
-        QPainter chacheP(&m_cache);
+        if (m_cache.isNull()) {
+            m_cache = QPixmap(10, height);
 
-        if (color.hsvHueF() < 0)
-            color.setHsvF(hue(), color.hsvSaturationF(), color.valueF());
+            QPainter cacheP(&m_cache);
 
-        for (int y = 0; y < height; y++)
-            for (int x = 0; x < width; x++)
+            for (int i = 0; i < height; i++)
             {
+                QColor c;
+                c.setHsvF(qreal(i) / 120.0, 1,1.0);
+                cacheP.fillRect(0, i, 10, i + 1, c);
+            }
+        }
+
+        p.drawPixmap(10, 5, m_cache);
+
+        QVector<QPointF> points;
+
+        int y = hue() * 120 + 5;
+
+        points.append(QPointF(15, y));
+        points.append(QPointF(25, y + 5));
+        points.append(QPointF(25, y - 5));
+
+        p.setPen(Qt::black);
+        p.setBrush(QColor("#707070"));
+        p.drawPolygon(points);
+    }
+
+    void ColorBox::setCurrent(int x, int y)
+    {
+
+        QColor oldColor(m_colorString);
+        oldColor.toHsv();
+        QColor newColor;
+        newColor.setHsvF(hue(), qreal(x) / 120, 1.0 - qreal(y) / 120);
+
+        QString newColorStr = QVariant(newColor).toString();
+        setColor(newColorStr);
+    }
+
+    void ColorBox::paintEvent(QPaintEvent *event)
+    {
+        QWidget::paintEvent(event);
+
+        QPainter p(this);
+        QColor color(m_colorString);
+
+        if (m_hue != (m_lastHue) || (m_cache.isNull())) {
+            m_lastHue = m_hue;
+            m_cache = QPixmap(120, 120);
+
+            color.toHsv();
+
+            int height = 120;
+            int width = 120;
+
+            QPainter chacheP(&m_cache);
+
+            if (color.hsvHueF() < 0)
+                color.setHsvF(hue(), color.hsvSaturationF(), color.valueF());
+
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                {
                 QColor c;
                 c.setHsvF(color.hsvHueF(), qreal(x) / 120, 1.0 - qreal(y) / 120);
                 chacheP.setPen(c);
                 chacheP.drawPoint(x ,y);
             }
+        }
+
+        p.drawPixmap(5, 5, m_cache);
+
+        int x = color.hsvSaturationF() * 120 + 5;
+        int y = 120 - color.valueF() * 120 + 5;
+
+        p.setPen(Qt::white);
+        p.drawEllipse(x - 2, y - 2, 4, 4);
     }
-
-    p.drawPixmap(5, 5, m_cache);
-
-    int x = color.hsvSaturationF() * 120 + 5;
-    int y = 120 - color.valueF() * 120 + 5;
-
-    p.setPen(Qt::white);
-    p.drawEllipse(x - 2, y - 2, 4, 4);
-}
 
 }
