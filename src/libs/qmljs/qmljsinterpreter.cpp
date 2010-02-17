@@ -2173,7 +2173,7 @@ bool ASTSignalReference::getSourceLocation(QString *fileName, int *line, int *co
     return true;
 }
 
-const Value *ASTSignalReference::value(Context *context) const
+const Value *ASTSignalReference::value(Context *) const
 {
     return engine()->undefinedValue();
 }
