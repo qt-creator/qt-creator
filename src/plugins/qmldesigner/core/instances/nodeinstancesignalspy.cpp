@@ -35,7 +35,8 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &
                  && !metaProperty.isWritable()
                  && QmlMetaType::isQObject(metaProperty.userType())) {
                   QObject *propertyObject = QmlMetaType::toQObject(metaProperty.read(spiedObject));
-                  registerObject(propertyObject, prefix + metaProperty.name() + ".");
+                  if (propertyObject)
+                      registerObject(propertyObject, prefix + metaProperty.name() + ".");
              } else if (metaProperty.hasNotifySignal()) {
                  QMetaMethod metaMethod = metaProperty.notifySignal();
                  bool isConnecting = QMetaObject::connect(spiedObject, metaMethod.methodIndex(), this, methodeOffset, Qt::DirectConnection);
