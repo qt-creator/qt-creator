@@ -98,8 +98,21 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     _context.setQmlScopeObject(scopeObject);
 
 #ifndef NO_DECLARATIVE_BACKEND
-    // check if the object has a Qt.PropertyChanges ancestor
+    // check if the object has a Qt.ListElement ancestor
     const ObjectValue *prototype = scopeObject->prototype(&_context);
+    while (prototype) {
+        if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
+            // ### Also check for Qt package. Involves changes in QmlObjectValue.
+            if (qmlMetaObject->qmlTypeName() == QLatin1String("ListElement")) {
+                _allowAnyProperty = true;
+                break;
+            }
+        }
+        prototype = prototype->prototype(&_context);
+    }
+
+    // check if the object has a Qt.PropertyChanges ancestor
+    prototype = scopeObject->prototype(&_context);
     while (prototype) {
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
             // ### Also check for Qt package. Involves changes in QmlObjectValue.
@@ -108,7 +121,6 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
         }
         prototype = prototype->prototype(&_context);
     }
-
     // find the target script binding
     if (prototype && initializer) {
         for (UiObjectMemberList *m = initializer->members; m; m = m->next) {
