@@ -119,7 +119,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 
     m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
     m_userEnvironmentChanges = EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
-    m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY)).toBool();
+    m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), false).toBool();
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
     m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
     m_toolChainType = map.value(QLatin1String(TOOLCHAIN_KEY)).toInt();
