@@ -107,13 +107,15 @@ QVariant AutoCompletionModel::data(const QModelIndex &index, int role) const
 CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *editor)
     : QFrame(0, Qt::Popup),
       m_support(support),
-      m_editor(editor)
+      m_editor(editor),
+      m_completionListView(new CompletionListView(support, editor, this))
 {
     // We disable the frame on this list view and use a QFrame around it instead.
     // This improves the look with QGTKStyle.
 #ifndef Q_WS_MAC
-    setFrameStyle(frameStyle());
+    setFrameStyle(m_completionListView->frameStyle());
 #endif
+    m_completionListView->setFrameStyle(QFrame::NoFrame);
 
     setObjectName(QLatin1String("m_popupFrame"));
     setAttribute(Qt::WA_DeleteOnClose);
@@ -122,7 +124,6 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
 
-    m_completionListView = new CompletionListView(support, editor, this);
     layout->addWidget(m_completionListView);
     setFocusProxy(m_completionListView);
 
@@ -132,7 +133,6 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
             this, SIGNAL(completionListClosed()));
     connect(m_completionListView, SIGNAL(activated(QModelIndex)),
             SLOT(closeList(QModelIndex)));
-
 }
 
 CompletionWidget::~CompletionWidget()
@@ -224,7 +224,6 @@ CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable
     setUniformItemSizes(true);
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setSelectionMode(QAbstractItemView::SingleSelection);
-    setFrameStyle(QFrame::NoFrame);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setMinimumSize(1, 1);
     setModel(m_model);
