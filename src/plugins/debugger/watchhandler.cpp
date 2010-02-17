@@ -85,6 +85,12 @@ class WatchItem : public WatchData
 public:
     WatchItem() { parent = 0; }
 
+    ~WatchItem() {
+        if (parent != 0)
+            parent->children.removeOne(this);
+        qDeleteAll(children);
+    }
+
     WatchItem(const WatchData &data) : WatchData(data)
         { parent = 0; }
 
