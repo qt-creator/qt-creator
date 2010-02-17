@@ -30,10 +30,18 @@
 #include "rvcttoolchain.h"
 #include "rvctparser.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QProcess>
+#include <QtCore/QProcessEnvironment>
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
+
+static const char rvctBinaryC[] = "armcc";
 
 RVCTToolChain::RVCTToolChain(const S60Devices::Device &device, ToolChain::ToolChainType type) :
     m_mixin(device),
@@ -45,6 +53,54 @@ RVCTToolChain::RVCTToolChain(const S60Devices::Device &device, ToolChain::ToolCh
 {
 }
 
+// Return the environment variable indicating the RVCT version
+// 'RVCT<major><minor>BIN'
+QByteArray RVCTToolChain::rvctBinEnvironmentVariable()
+{
+    static QByteArray binVar;
+    // Grep the environment list
+    if (binVar.isEmpty()) {
+        const QRegExp regex(QLatin1String("^(RVCT\\d\\dBIN)=.*$"));
+        QTC_ASSERT(regex.isValid(), return QByteArray());
+        foreach(const QString &v, QProcessEnvironment::systemEnvironment().toStringList()) {
+            if (regex.exactMatch(v)) {
+                binVar = regex.cap(1).toLocal8Bit();
+                break;
+            }
+        }
+    }
+    return binVar;
+}
+
+// Return binary path as pointed to by RVCT<X><X>BIN
+QString RVCTToolChain::rvctBinPath()
+{
+    static QString binPath;
+    if (binPath.isEmpty()) {
+        const QByteArray binVar = rvctBinEnvironmentVariable();
+        if (!binVar.isEmpty()) {
+            const QByteArray binPathB = qgetenv(binVar);
+            if (!binPathB.isEmpty()) {
+                const QFileInfo fi(QString::fromLocal8Bit(binPathB));
+                if (fi.isDir())
+                    binPath = fi.absoluteFilePath();
+            }
+        }
+    }
+    return binPath;
+}
+
+// Return binary expanded by path or resort to PATH
+QString RVCTToolChain::rvctBinary()
+{
+    QString executable = QLatin1String(rvctBinaryC);
+#ifdef Q_OS_WIN
+    executable += QLatin1String(".exe");
+#endif
+    const QString binPath = rvctBinPath();
+    return binPath.isEmpty() ? executable : (binPath + QLatin1Char('/') + executable);
+}
+
 ToolChain::ToolChainType RVCTToolChain::type() const
 {
     return m_type;
@@ -54,6 +110,7 @@ void RVCTToolChain::updateVersion()
 {
     if (m_versionUpToDate)
         return;
+
     m_versionUpToDate = true;
     m_major = 0;
     m_minor = 0;
@@ -62,13 +119,19 @@ void RVCTToolChain::updateVersion()
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     addToEnvironment(env);
     armcc.setEnvironment(env.toStringList());
-    armcc.start("armcc", QStringList());
+    const QString binary = rvctBinary();
+    armcc.start(rvctBinary(), QStringList());
+    if (!armcc.waitForStarted()) {
+        qWarning("Unable to run rvct binary '%s' when trying to determine version.", qPrintable(binary));
+        return;
+    }
     armcc.closeWriteChannel();
     armcc.waitForFinished();
-    QString versionLine = armcc.readAllStandardOutput();
-    versionLine += armcc.readAllStandardError();
-    QRegExp versionRegExp("RVCT(\\d*)\\.(\\d*).*\\[Build.(\\d*)\\]",
-        Qt::CaseInsensitive);
+    QString versionLine = QString::fromLocal8Bit(armcc.readAllStandardOutput());
+    versionLine += QString::fromLocal8Bit(armcc.readAllStandardError());
+    const QRegExp versionRegExp(QLatin1String("RVCT(\\d*)\\.(\\d*).*\\[Build.(\\d*)\\]"),
+                                Qt::CaseInsensitive);
+    QTC_ASSERT(versionRegExp.isValid(), return);
     if (versionRegExp.indexIn(versionLine) != -1) {
         m_major = versionRegExp.cap(1).toInt();
 	m_minor = versionRegExp.cap(2).toInt();
@@ -113,8 +176,8 @@ QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
         if (!rvctInclude.isEmpty())
             m_systemHeaderPaths.append(HeaderPath(rvctInclude, HeaderPath::GlobalHeaderPath));
         switch (m_type) {
-        case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC:
-            m_systemHeaderPaths += m_mixin.gnuPocHeaderPaths();
+        case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+            m_systemHeaderPaths += m_mixin.gnuPocRvctHeaderPaths(m_major, m_minor);
             break;
         default:
             m_systemHeaderPaths += m_mixin.epocHeaderPaths();
@@ -124,11 +187,66 @@ QList<HeaderPath> RVCTToolChain::systemHeaderPaths()
     return m_systemHeaderPaths;
 }
 
+static inline QStringList headerPathToStringList(const QList<ProjectExplorer::HeaderPath> &hl)
+{
+    QStringList rc;
+    foreach(const ProjectExplorer::HeaderPath &hp, hl)
+        rc.push_back(hp.path());
+    return rc;
+}
+
+// Expand an RVCT variable, such as RVCT22BIN, by some new values
+void RVCTToolChain::addToRVCTPathVariable(const QString &postfix, const QStringList &values,
+                                  ProjectExplorer::Environment &env) const
+{
+    // get old values
+    const QChar separator = QLatin1Char(',');
+    const QString variable = QString::fromLatin1("RVCT%1%2%3").arg(m_major).arg(m_minor).arg(postfix);
+    const QString oldValueS = env.value(variable);
+    const QStringList oldValue = oldValueS.isEmpty() ? QStringList() : oldValueS.split(separator);
+    // merge new values
+    QStringList newValue = oldValue;
+    foreach(const QString &v, values) {
+        const QString normalized = QDir::toNativeSeparators(v);
+        if (!newValue.contains(normalized))
+            newValue.push_back(normalized);
+    }
+    if (newValue != oldValue)
+        env.set(variable, newValue.join(QString(separator)));
+}
+
+// Figure out lib path via
+QStringList RVCTToolChain::libPaths()
+{
+    const QByteArray binLocation = qgetenv(rvctBinEnvironmentVariable());
+    if (binLocation.isEmpty())
+        return QStringList();
+    const QString pathRoot = QFileInfo(QString::fromLocal8Bit(binLocation)).path();
+    QStringList rc;
+    rc.push_back(pathRoot + QLatin1String("/lib"));
+    rc.push_back(pathRoot + QLatin1String("/lib/armlib"));
+    return rc;
+}
+
 void RVCTToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
+    updateVersion();
     switch (m_type) {
-    case ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC: {
         m_mixin.addGnuPocToEnvironment(&env);
+        // setup RVCT22INC, LIB
+        addToRVCTPathVariable(QLatin1String("INC"),
+                      headerPathToStringList(m_mixin.gnuPocRvctHeaderPaths(m_major, m_minor)),
+                      env);
+        addToRVCTPathVariable(QLatin1String("LIB"),
+                              libPaths() + m_mixin.gnuPocRvctLibPaths(5, true),
+                              env);
+        // Add rvct to path and set locale to 'C'
+        const QString binPath = rvctBinPath();
+        if (!binPath.isEmpty())
+            env.prependOrSetPath(binPath);
+        env.set(QLatin1String("LANG"), QString(QLatin1Char('C')));
+    }
         break;
     default:
         m_mixin.addEpocToEnvironment(&env);

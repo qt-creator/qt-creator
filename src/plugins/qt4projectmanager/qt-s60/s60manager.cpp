@@ -138,6 +138,11 @@ S60Manager::~S60Manager()
     }
 }
 
+bool S60Manager::hasRvctCompiler()
+{
+    return !RVCTToolChain::rvctBinEnvironmentVariable().isEmpty();
+}
+
 void S60Manager::addAutoReleasedObject(QObject *o)
 {
     ExtensionSystem::PluginManager::instance()->addObject(o);

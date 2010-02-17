@@ -85,7 +85,7 @@ S60Devices::S60Devices(QObject *parent)
 }
 
 // GNU-Poc stuff
-static const char *gnuPocRootC = "GNUPOC_ROOT";
+static const char *epocRootC = "EPOCROOT";
 
 static inline QString msgEnvVarNotSet(const char *var)
 {
@@ -100,28 +100,22 @@ static inline QString msgEnvVarDirNotExist(const QString &dir, const char *var)
 bool S60Devices::readLinux()
 {
     // Detect GNUPOC_ROOT/EPOC ROOT
-    const QByteArray gnuPocRootA = qgetenv(gnuPocRootC);
-    if (gnuPocRootA.isEmpty()) {
-        m_errorString = msgEnvVarNotSet(gnuPocRootC);
+    const QByteArray epocRootA = qgetenv(epocRootC);
+    if (epocRootA.isEmpty()) {
+        m_errorString = msgEnvVarNotSet(epocRootC);
         return false;
     }
 
-    const QDir gnuPocRootDir(QString::fromLocal8Bit(gnuPocRootA));
-    if (!gnuPocRootDir.exists()) {
-        m_errorString = msgEnvVarDirNotExist(gnuPocRootDir.absolutePath(), gnuPocRootC);
+    const QDir epocRootDir(QString::fromLocal8Bit(epocRootA));
+    if (!epocRootDir.exists()) {
+        m_errorString = msgEnvVarDirNotExist(epocRootDir.absolutePath(), epocRootC);
         return false;
     }
 
-    const QDir epocDir(gnuPocRootDir.absolutePath() + QLatin1String("/symbian-sdks/5.0"));
-    if (!epocDir.exists()) {
-        m_errorString = QString::fromLatin1("EPOC could not be found at %1.").arg(epocDir.absolutePath());
-        return false;
-    }
     // Check Qt
     Device device;
     device.id = device.name = QLatin1String("GnuPoc");
-    device.epocRoot = epocDir.absolutePath();
-    device.toolsRoot = gnuPocRootDir.absolutePath();
+    device.toolsRoot = device.epocRoot = epocRootDir.absolutePath();
     device.isDefault = true;
     m_devices.push_back(device);
     return true;
@@ -233,40 +227,73 @@ bool S60Devices::readWin()
     return true;
 }
 
-bool S60Devices::detectQtForDevices()
+// Detect a Qt version that is installed into a Symbian SDK
+static QString detect_SDK_installedQt(const QString &epocRoot)
 {
+    const QString coreLibDllFileName = epocRoot + QLatin1String("/epoc32/release/winscw/udeb/QtCore.dll");
+    QFile coreLibDllFile(coreLibDllFileName);
+    if (!coreLibDllFile.exists() || !coreLibDllFile.open(QIODevice::ReadOnly))
+        return false;
+
     // Do not normalize these backslashes since they are in ARM binaries:
     const QByteArray indicator("\\src\\corelib\\kernel\\qobject.h");
     const int indicatorlength = indicator.size();
-    for (int i = 0; i < m_devices.size(); ++i) {
-        if (!m_devices.at(i).qt.isEmpty())
-            continue;
-        QFile qtDll(QString("%1/epoc32/release/winscw/udeb/QtCore.dll").arg(m_devices.at(i).epocRoot));
-        if (!qtDll.exists() || !qtDll.open(QIODevice::ReadOnly)) {
-            m_devices[i].qt.clear();
-            continue;
-        }
-        QByteArray buffer;
-        int index = -1;
-        while (!qtDll.atEnd()) {
-            buffer = qtDll.read(10000);
-            index = buffer.indexOf(indicator);
-            if (index >= 0)
-                break;
-            if (!qtDll.atEnd())
-                qtDll.seek(qtDll.pos()-indicatorlength);
-        }
-        int lastIndex = index;
-        while (index >= 0 && buffer.at(index))
-            --index;
-        if (index < 0) { // this is untested
-        } else {
-            index += 2; // the 0 and another byte for some reason
-            m_devices[i].qt = QDir(buffer.mid(index, lastIndex-index)).absolutePath();
-        }
-        qtDll.close();
+    const int chunkSize = 10000;
+
+    int index = -1;
+    QByteArray buffer;
+    while (true) {
+        buffer = coreLibDllFile.read(chunkSize);
+        index = buffer.indexOf(indicator);
+        if (index >= 0)
+            break;
+        if (buffer.size() < chunkSize || coreLibDllFile.atEnd())
+            return QString();
+        coreLibDllFile.seek(coreLibDllFile.pos() - indicatorlength);
     }
-    emit qtVersionsChanged();
+    coreLibDllFile.close();
+
+    int lastIndex = index;
+    while (index >= 0 && buffer.at(index))
+        --index;
+    if (index < 0)
+        return QString();
+
+    index += 2; // the 0 and another byte for some reason
+    return QDir(QString::fromLatin1(buffer.mid(index, lastIndex-index))).absolutePath();
+}
+
+// GnuPoc: Detect a Qt version that is symlinked/below an SDK
+// TODO: Find a proper way of doing that
+static QString detectGnuPocQt(const QString &epocRoot)
+{
+    const QFileInfo fi(epocRoot + QLatin1String("/qt"));
+    if (!fi.exists())
+        return QString();
+    if (fi.isSymLink())
+        return QFileInfo(fi.symLinkTarget()).absoluteFilePath();
+    return fi.absoluteFilePath();
+}
+
+bool S60Devices::detectQtForDevices()
+{
+    bool changed = false;
+    const int deviceCount = m_devices.size();
+    for (int i = 0; i < deviceCount; ++i) {
+        Device &device = m_devices[i];
+        if (device.qt.isEmpty()) {
+            device.qt = detect_SDK_installedQt(device.epocRoot);
+            if (device.qt.isEmpty())
+                device.qt = detectGnuPocQt(device.epocRoot);
+            if (device.qt.isEmpty()) {
+                qWarning("Unable to detect Qt version for '%s'.", qPrintable(device.epocRoot));
+            } else {
+                changed = true;
+            }
+        }
+    }
+    if (changed)
+        emit qtVersionsChanged();
     return true;
 }
 
@@ -389,15 +416,49 @@ void S60ToolChainMixin::addEpocToEnvironment(ProjectExplorer::Environment *env) 
     env->set(QLatin1String("EPOCROOT"), QDir::toNativeSeparators(epocRootPath));
 }
 
+static const char *gnuPocHeaderPathsC[] = {
+    "epoc32/include", "epoc32/include/variant",  "epoc32/include/stdapis",
+    "epoc32/include/stdapis/stlport" };
+
 QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::gnuPocHeaderPaths() const
 {
-    return QList<ProjectExplorer::HeaderPath>(); // TODO:
+    QList<ProjectExplorer::HeaderPath> rc;
+    const QString root = m_device.epocRoot + QLatin1Char('/');
+    const int count = sizeof(gnuPocHeaderPathsC)/sizeof(const char *);
+    for (int i = 0; i < count; i++)
+        rc.push_back(ProjectExplorer::HeaderPath(root + QLatin1String(gnuPocHeaderPathsC[i]),
+                                                 ProjectExplorer::HeaderPath::GlobalHeaderPath));
+    return rc;
+}
+
+QStringList S60ToolChainMixin::gnuPocRvctLibPaths(int armver, bool debug) const
+{
+    QStringList rc;
+    QString root;
+    QTextStream(&root) << m_device.epocRoot  << "epoc32/release/armv" << armver << '/';
+    rc.push_back(root + QLatin1String("lib"));
+    rc.push_back(root + (debug ? QLatin1String("udeb") : QLatin1String("urel")));
+    return rc;
+}
+
+QList<ProjectExplorer::HeaderPath> S60ToolChainMixin::gnuPocRvctHeaderPaths(int major, int minor) const
+{
+    // Additional header for rvct
+    QList<ProjectExplorer::HeaderPath> rc = gnuPocHeaderPaths();
+    QString rvctHeader;
+    QTextStream(&rvctHeader) << m_device.epocRoot << "/epoc32/include/rvct" << major << '_' << minor;
+    rc.push_back(ProjectExplorer::HeaderPath(rvctHeader, ProjectExplorer::HeaderPath::GlobalHeaderPath));
+    return rc;
 }
 
 void S60ToolChainMixin::addGnuPocToEnvironment(ProjectExplorer::Environment *env) const
 {
-    env->prependOrSetPath(QDir::toNativeSeparators(m_device.toolsRoot + QLatin1String("/bin")));
-    env->set(QLatin1String("EPOCROOT"),  QDir::toNativeSeparators(S60Devices::cleanedRootPath(m_device.epocRoot)));
+    env->prependOrSetPath(QDir::toNativeSeparators(m_device.toolsRoot + QLatin1String("/epoc32/tools")));
+    const QString epocRootVar = QLatin1String("EPOCROOT");
+    // No trailing slash is required here, so, do not perform path cleaning.
+    // The variable also should be set since it is currently used for autodetection.
+    if (env->find(epocRootVar) == env->constEnd())
+        env->set(epocRootVar, m_device.epocRoot);
 }
 
 QDebug operator<<(QDebug db, const S60Devices::Device &d)

@@ -305,13 +305,13 @@ QString Qt4BuildConfiguration::defaultMakeTarget() const
 
     switch (tc->type()) {
     case ToolChain::GCCE:
-    case ToolChain::GCCE_GNUPOC:
         return symbianMakeTarget(buildConfig, QLatin1String("gcce"));
     case ToolChain::RVCT_ARMV5:
         return symbianMakeTarget(buildConfig, QLatin1String("armv5"));
     case ToolChain::RVCT_ARMV6:
-    case ToolChain::RVCT_ARMV6_GNUPOC:
         return symbianMakeTarget(buildConfig, QLatin1String("armv6"));
+    case ToolChain::RVCT_ARMV5_GNUPOC:
+    case ToolChain::GCCE_GNUPOC:
     default:
         break;
     }

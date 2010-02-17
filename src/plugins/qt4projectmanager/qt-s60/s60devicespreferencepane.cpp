@@ -32,8 +32,10 @@
 
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
+#include <utils/qtcassert.h>
+
 #include <QtCore/QDir>
-#include <QtDebug>
+#include <QtCore/QtDebug>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -56,7 +58,7 @@ S60DevicesWidget::~S60DevicesWidget()
 void S60DevicesWidget::updateDevices()
 {
     m_devices->read();
-    Q_ASSERT(m_devices->detectQtForDevices());
+    QTC_ASSERT(m_devices->detectQtForDevices(), return);
     updateDevicesList();
 }
 

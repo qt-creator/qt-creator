@@ -95,6 +95,8 @@ public:
 
     // GnuPoc
     QList<ProjectExplorer::HeaderPath> gnuPocHeaderPaths() const;
+    QList<ProjectExplorer::HeaderPath> gnuPocRvctHeaderPaths(int major, int minor) const;
+    QStringList gnuPocRvctLibPaths(int armver, bool debug) const;
     void addGnuPocToEnvironment(ProjectExplorer::Environment *env) const;
 
     bool equals(const S60ToolChainMixin &rhs) const;

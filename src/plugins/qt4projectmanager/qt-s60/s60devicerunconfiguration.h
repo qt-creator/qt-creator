@@ -156,7 +156,7 @@ public:
 /* S60DeviceRunControlBase: Builds the package and starts launcher
  * to deploy. Subclasses can configure the launcher to run or start a debugger.
  * Building the  package comprises for:
- * GnuPoc: run 'make sis'
+ * GnuPoc: run 'make sis' with environment variables for signing set
  * Other:  run the makesis.exe tool, run signsis */
 
 class S60DeviceRunControlBase : public ProjectExplorer::RunControl
@@ -211,6 +211,8 @@ private:
     bool createPackageFileFromTemplate(QString *errorMessage);
     void startSigning();
     void startDeployment();
+    QString signSisKey() const;
+    QString signSisCertificate() const;
 
     ProjectExplorer::ToolChain::ToolChainType m_toolChain;
     QString m_serialPortName;
@@ -229,8 +231,8 @@ private:
     bool m_useCustomSignature;
     QString m_customSignaturePath;
     QString m_customKeyPath;
-    QProcess *m_makesis;
-    QProcess *m_signsis;
+    QProcess *m_makesisProcess;
+    QProcess *m_signsisProcess;
     QString m_makesisTool;
     QString m_packageFile;
     bool m_releaseDeviceAfterLauncherFinish;

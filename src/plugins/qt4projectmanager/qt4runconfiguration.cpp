@@ -139,7 +139,7 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
     switch (type) {
     case ToolChain::MSVC:        case ToolChain::WINCE:
     case ToolChain::GCC:         case ToolChain::MinGW:
-    case ToolChain::GCCE_GNUPOC: case ToolChain::RVCT_ARMV6_GNUPOC:
+    case ToolChain::GCCE_GNUPOC: case ToolChain::RVCT_ARMV5_GNUPOC:
     case ToolChain::OTHER:       case ToolChain::UNKNOWN:
     case ToolChain::INVALID:
         enabled = true;

@@ -123,14 +123,15 @@ void Environment::appendOrSet(const QString &key, const QString &value, const QS
 #else
     const QString &_key = key;
 #endif
-    QMap<QString, QString>::const_iterator it = m_values.constFind(key);
-    if (it == m_values.constEnd()) {
+    QMap<QString, QString>::iterator it = m_values.find(key);
+    if (it == m_values.end()) {
         m_values.insert(_key, value);
     } else {
-        QString tmp = *it + sep + value;
-        m_values.insert(_key, tmp);
+        // Append unless it is already there
+        const QString toAppend = sep + value;
+        if (!it.value().endsWith(toAppend))
+            it.value().append(toAppend);
     }
-
 }
 
 void Environment::prependOrSet(const QString&key, const QString &value, const QString &sep)
@@ -140,12 +141,14 @@ void Environment::prependOrSet(const QString&key, const QString &value, const QS
 #else
     const QString &_key = key;
 #endif
-    QMap<QString, QString>::const_iterator it = m_values.constFind(key);
-    if (it == m_values.constEnd()) {
+    QMap<QString, QString>::iterator it = m_values.find(key);
+    if (it == m_values.end()) {
         m_values.insert(_key, value);
     } else {
-        QString tmp = value + sep + *it;
-        m_values.insert(_key, tmp);
+        // Prepend unless it is already there
+        const QString toPrepend = value + sep;
+        if (!it.value().startsWith(toPrepend))
+            it.value().prepend(toPrepend);
     }
 }
 

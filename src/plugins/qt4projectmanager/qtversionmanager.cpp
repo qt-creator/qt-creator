@@ -1231,12 +1231,13 @@ void QtVersion::updateToolChainAndMkspec() const
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
         m_targetIds.insert(DESKTOP_TARGET_ID);
     } else if (makefileGenerator == QLatin1String("SYMBIAN_ABLD") ||
-               makefileGenerator == QLatin1String("SYMBIAN_SBSV2")) {
+               makefileGenerator == QLatin1String("SYMBIAN_SBSV2") ||
+               makefileGenerator == QLatin1String("SYMBIAN_UNIX")) {
         if (S60Manager *s60mgr = S60Manager::instance()) {
 #    ifdef Q_OS_WIN
             m_targetIds.insert(QLatin1String(S60_DEVICE_TARGET_ID));
             m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this));
-            if (!qgetenv("RVCT22BIN").isEmpty())
+            if (S60Manager::hasRvctCompiler())
                 m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
                              << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6));
             if (!mwcDirectory().isEmpty()) {
@@ -1244,8 +1245,9 @@ void QtVersion::updateToolChainAndMkspec() const
                 m_targetIds.insert(QLatin1String(S60_EMULATOR_TARGET_ID));
             }
 #    else
-            m_toolChains << ToolChainPtr(s60mgr->createGCCE_GnuPocToolChain(this))
-                         << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6_GNUPOC));
+            if (S60Manager::hasRvctCompiler())
+                m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC));
+            m_toolChains << ToolChainPtr(s60mgr->createGCCE_GnuPocToolChain(this));
             m_targetIds.insert(QLatin1String(S60_DEVICE_TARGET_ID));
 #    endif
         }

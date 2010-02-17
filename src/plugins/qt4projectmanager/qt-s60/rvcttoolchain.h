@@ -49,10 +49,19 @@ public:
     QString makeCommand() const;
     ProjectExplorer::IOutputParser *outputParser() const;
 
+    // Return the environment variable indicating the RVCT version
+    // 'RVCT<major><minor>BIN' and its setting
+    static QByteArray rvctBinEnvironmentVariable();
+    static QString rvctBinPath();
+    static QString rvctBinary();
+
 protected:
     bool equals(ToolChain *other) const;
 
 private:
+    void addToRVCTPathVariable(const QString &postfix, const QStringList &values,
+                               ProjectExplorer::Environment &env) const;
+    static QStringList libPaths();
     void updateVersion();
 
     const S60ToolChainMixin m_mixin;

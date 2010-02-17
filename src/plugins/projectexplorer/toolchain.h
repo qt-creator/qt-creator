@@ -86,7 +86,7 @@ public:
         RVCT_ARMV6 = 8,
         GCC_MAEMO = 9,
         GCCE_GNUPOC = 10,
-        RVCT_ARMV6_GNUPOC = 11,
+        RVCT_ARMV5_GNUPOC = 11,
         LAST_VALID = 11,
         OTHER = 200,
         UNKNOWN = 201,
