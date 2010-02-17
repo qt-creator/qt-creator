@@ -56,8 +56,8 @@ protected:
 QT_BEGIN_NAMESPACE
 QML_DECLARE_TYPE(QmlProjectManager::QmlProjectItem);
 QML_DECLARE_TYPE(QmlProjectManager::QmlProjectContentItem);
-QT_DECLARE_METATYPE(QList<QmlProjectManager::QmlProjectContentItem *>);
 QT_END_NAMESPACE
+Q_DECLARE_METATYPE(QList<QmlProjectManager::QmlProjectContentItem *>);
 
 
 #endif // PROJECTITEM_H
