@@ -87,11 +87,12 @@ private:
     QGraphicsLayoutItem *other;
 };
 
-#endif // QPROXYLAYOUTITEM_H
-
-QT_END_NAMESPACE
-
 QML_DECLARE_TYPE(QProxyLayout);
 QML_DECLARE_TYPE(QProxyLayoutItem);
 
+QT_END_NAMESPACE
+
 QT_END_HEADER
+
+#endif // QPROXYLAYOUTITEM_H
+

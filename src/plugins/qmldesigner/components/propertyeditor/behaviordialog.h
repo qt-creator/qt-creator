@@ -93,6 +93,8 @@ private:
 
 };
 
+QT_BEGIN_NAMESPACE
 QML_DECLARE_TYPE(QmlDesigner::BehaviorWidget);
+QT_END_NAMESPACE
 
 #endif// BEHAVIORDIALOG_H

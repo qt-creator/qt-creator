@@ -40,9 +40,10 @@
 #include <QDebug>
 #include <QApplication>
 
+QT_BEGIN_NAMESPACE
 QML_DECLARE_TYPE(QmlDesigner::ResetWidget);
 QML_DEFINE_TYPE(Bauhaus, 1, 0, ResetWidget, QmlDesigner::ResetWidget);
-
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 

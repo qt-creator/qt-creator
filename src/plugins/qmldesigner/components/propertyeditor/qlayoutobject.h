@@ -49,9 +49,9 @@ public:
     virtual QLayout *layout() const;
 };
 
-QT_END_NAMESPACE
-
 QML_DECLARE_TYPE(QLayoutObject);
+
+QT_END_NAMESPACE
 
 QT_END_HEADER
 

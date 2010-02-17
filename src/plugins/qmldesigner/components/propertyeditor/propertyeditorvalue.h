@@ -146,9 +146,11 @@ private: //variables
     QmlDesigner::RewriterTransaction m_rewriterTransaction;
 };
 
+QT_BEGIN_NAMESPACE
 QML_DECLARE_TYPE(PropertyEditorValue);
 QML_DECLARE_TYPE(PropertyEditorNodeWrapper);
 QML_DECLARE_TYPE(QmlPropertyMap);
+QT_END_NAMESPACE
 
 
 #endif // PROPERTYEDITORVALUE_H

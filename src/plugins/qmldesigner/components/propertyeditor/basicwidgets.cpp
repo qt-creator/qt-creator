@@ -1168,8 +1168,6 @@ public:
     {}
 };
 
-QT_END_NAMESPACE
-
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QWidget,QWidget,QWidgetDeclarativeUI);
 
 //display
@@ -1231,5 +1229,7 @@ QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QMenu,QMenu, QMenuDeclarativeUI)
 
 QML_DECLARE_TYPE(QTabObject);
 QML_DEFINE_TYPE(Qt,4,6,QTabObject,QTabObject); //### with namespacing, this should just be 'Tab'
+
+QT_END_NAMESPACE
 
 #include "basicwidgets.moc"

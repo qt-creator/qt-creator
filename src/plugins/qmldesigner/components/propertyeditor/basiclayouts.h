@@ -175,13 +175,13 @@ public:
     QVBoxLayoutObject(QObject *parent=0);
 };
 
-#endif // BASICLAYOUTS_H
-
-
-QT_END_NAMESPACE
 
 QML_DECLARE_TYPE(QBoxLayoutObject);
 QML_DECLARE_TYPE(QHBoxLayoutObject);
 QML_DECLARE_TYPE(QVBoxLayoutObject);
 
+QT_END_NAMESPACE
+
 QT_END_HEADER
+
+#endif // BASICLAYOUTS_H

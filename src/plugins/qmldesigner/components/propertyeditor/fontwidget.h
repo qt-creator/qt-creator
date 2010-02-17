@@ -96,6 +96,8 @@ private: //variables
 
 } // namespace QmlDesigner
 
+QT_BEGIN_NAMESPACE
 QML_DECLARE_TYPE(QmlDesigner::FontWidget);
+QT_END_NAMESPACE
 
 #endif // FONTWIDGET_H
