@@ -33,6 +33,7 @@
 #include "utils_global.h"
 
 #include <QtGui/QColor>
+#include <QtGui/QStyle>
 
 QT_BEGIN_NAMESPACE
 class QPalette;
@@ -62,6 +63,9 @@ public:
 
     // Sets the base color and makes sure all top level widgets are updated
     static void setBaseColor(const QColor &color);
+
+    // Draws a shaded anti-aliased arrow
+    static void drawArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option);
 
     // Gradients used for panels
     static void horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);

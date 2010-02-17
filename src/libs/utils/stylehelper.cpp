@@ -35,6 +35,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QApplication>
 #include <QtGui/QPalette>
+#include <QtGui/QStyleOption>
+#include <QtCore/QObject>
 
 // Clamps float color values within (0, 255)
 static int clamp(float x)
@@ -245,6 +247,84 @@ static void menuGradientHelper(QPainter *p, const QRect &spanRect, const QRect &
     grad.setColorAt(0, menuColor.lighter(112));
     grad.setColorAt(1, menuColor);
     p->fillRect(rect, grad);
+}
+
+void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option)
+{
+    // From windowsstyle but modified to enable AA
+    if (option->rect.width() <= 1 || option->rect.height() <= 1)
+        return;
+
+    QRect r = option->rect;
+    int size = qMin(r.height(), r.width());
+    QPixmap pixmap;
+    QString pixmapName;
+    pixmapName.sprintf("arrow-%s-%d-%d-%d-%lld",
+                       "$qt_ia",
+                       uint(option->state), element,
+                       size, option->palette.cacheKey());
+    if (!QPixmapCache::find(pixmapName, pixmap)) {
+        int border = size/5;
+        int sqsize = 2*(size/2);
+        QImage image(sqsize, sqsize, QImage::Format_ARGB32);
+        image.fill(Qt::transparent);
+        QPainter imagePainter(&image);
+        imagePainter.setRenderHint(QPainter::Antialiasing, true);
+        imagePainter.translate(0.5, 0.5);
+        QPolygon a;
+        switch (element) {
+            case QStyle::PE_IndicatorArrowUp:
+                a.setPoints(3, border, sqsize/2,  sqsize/2, border,  sqsize - border, sqsize/2);
+                break;
+            case QStyle::PE_IndicatorArrowDown:
+                a.setPoints(3, border, sqsize/2,  sqsize/2, sqsize - border,  sqsize - border, sqsize/2);
+                break;
+            case QStyle::PE_IndicatorArrowRight:
+                a.setPoints(3, sqsize - border, sqsize/2,  sqsize/2, border,  sqsize/2, sqsize - border);
+                break;
+            case QStyle::PE_IndicatorArrowLeft:
+                a.setPoints(3, border, sqsize/2,  sqsize/2, border,  sqsize/2, sqsize - border);
+                break;
+            default:
+                break;
+        }
+
+        int bsx = 0;
+        int bsy = 0;
+
+        if (option->state & QStyle::State_Sunken) {
+            bsx = qApp->style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal);
+            bsy = qApp->style()->pixelMetric(QStyle::PM_ButtonShiftVertical);
+        }
+
+        QRect bounds = a.boundingRect();
+        int sx = sqsize / 2 - bounds.center().x() - 1;
+        int sy = sqsize / 2 - bounds.center().y() - 1;
+        imagePainter.translate(sx + bsx, sy + bsy);
+
+        if (!(option->state & QStyle::State_Enabled)) {
+            QColor foreGround(150, 150, 150, 150);
+            imagePainter.setBrush(option->palette.mid().color());
+            imagePainter.setPen(option->palette.mid().color());
+        } else {
+            QColor shadow(0, 0, 0, 100);
+            imagePainter.translate(0, 1);
+            imagePainter.setPen(shadow);
+            imagePainter.setBrush(shadow);
+            QColor foreGround(255, 255, 255, 210);
+            imagePainter.drawPolygon(a);
+            imagePainter.translate(0, -1);
+            imagePainter.setPen(foreGround);
+            imagePainter.setBrush(foreGround);
+        }
+        imagePainter.drawPolygon(a);
+        imagePainter.end();
+        pixmap = QPixmap::fromImage(image);
+        QPixmapCache::insert(pixmapName, pixmap);
+    }
+    int xOffset = r.x() + (r.width() - size)/2;
+    int yOffset = r.y() + (r.height() - size)/2;
+    painter->drawPixmap(xOffset, yOffset, pixmap);
 }
 
 void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)

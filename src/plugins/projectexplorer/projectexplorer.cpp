@@ -698,7 +698,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectSelectorAction->setEnabled(false);
     QWidget *mainWindow = Core::ICore::instance()->mainWindow();
     d->m_targetSelector = new Internal::MiniProjectTargetSelector(d->m_projectSelectorAction, mainWindow);
-    connect(d->m_projectSelectorAction, SIGNAL(triggered()), d->m_targetSelector, SLOT(show()));
+    d->m_projectSelectorAction->setCheckable(true);
+    connect(d->m_projectSelectorAction, SIGNAL(toggled(bool)), d->m_targetSelector, SLOT(setVisible(bool)));
+
     modeManager->addProjectSelector(d->m_projectSelectorAction);
     cmd = am->registerAction(d->m_projectSelectorAction, ProjectExplorer::Constants::SELECTTARGET,
                        globalcontext);

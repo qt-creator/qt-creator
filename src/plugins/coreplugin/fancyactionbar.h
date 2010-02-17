@@ -45,16 +45,39 @@ class FancyToolButton : public QToolButton
 {
     Q_OBJECT
 
+    Q_PROPERTY(float fader READ fader WRITE setFader)
+
 public:
     FancyToolButton(QWidget *parent = 0);
 
     void paintEvent(QPaintEvent *event);
+    bool event(QEvent *e);
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
+
+    float m_fader;
+    float fader() { return m_fader; }
+    void setFader(float value) { m_fader = value; update(); }
 
 private slots:
     void actionChanged();
 };
+
+class FancySeparator: public QWidget
+{
+    Q_OBJECT
+
+public:
+    FancySeparator(QWidget *parent = 0) :
+            QWidget(parent)
+    {
+        setMinimumHeight(2);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    }
+    void paintEvent(QPaintEvent *event);
+};
+
+
 
 class FancyActionBar : public QWidget
 {
