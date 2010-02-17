@@ -183,9 +183,9 @@ bool QmlProjectNode::removeSubProjects(const QStringList &proFilePaths)
 }
 
 bool QmlProjectNode::addFiles(const ProjectExplorer::FileType /*fileType*/,
-                              const QStringList & /*filePaths*/, QStringList * /*notAdded*/)
+                              const QStringList &filePaths, QStringList * /*notAdded*/)
 {
-    return false;
+    return m_project->addFiles(filePaths);
 }
 
 bool QmlProjectNode::removeFiles(const ProjectExplorer::FileType /*fileType*/,

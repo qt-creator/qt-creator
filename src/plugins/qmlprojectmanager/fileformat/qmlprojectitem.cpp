@@ -115,6 +115,26 @@ QStringList QmlProjectItem::files() const
     return files;
 }
 
+/**
+  Check whether the project would include a file path
+  - regardless whether the file already exists or not.
+
+  @param filePath: absolute file path to check
+  */
+bool QmlProjectItem::matchesFile(const QString &filePath) const
+{
+    const Q_D(QmlProjectItem);
+    for (int i = 0; i < d->content.size(); ++i) {
+        QmlProjectContentItem *contentElement = d->content.at(i);
+        FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
+        if (fileFilter) {
+            if (fileFilter->matchesFile(filePath))
+                return true;
+        }
+    }
+    return false;
+}
+
 } // namespace QmlProjectManager
 
 QML_DEFINE_NOCREATE_TYPE(QmlProjectManager::QmlProjectContentItem)

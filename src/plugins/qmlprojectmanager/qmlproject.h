@@ -99,6 +99,8 @@ public:
     QStringList files() const;
     QStringList libraryPaths() const;
 
+    bool addFiles(const QStringList &filePaths);
+
 private slots:
     void refreshProjectFile();
     void refreshFiles();

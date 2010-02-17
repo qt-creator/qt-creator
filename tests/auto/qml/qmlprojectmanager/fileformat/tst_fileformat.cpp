@@ -15,6 +15,7 @@ public:
 
 private slots:
     void testFileFilter();
+    void testMatchesFile();
     void testLibraryPaths();
 };
 
@@ -203,6 +204,41 @@ void TestProject::testFileFilter()
         qDebug() << project->files().toSet() << expectedFiles.toSet();
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
     }
+}
+
+void TestProject::testMatchesFile()
+{
+    //
+    // search for qml files in local directory
+    //
+    QString projectFile = QLatin1String(
+            "import QmlProject 1.0\n"
+            "Project {\n"
+            "  QmlFiles {"
+            "    recursive: true"
+            "  }"
+            "  JavaScriptFiles {"
+            "    paths: [\"script.js\"]"
+            "  }"
+            "}\n");
+
+    QmlEngine engine;
+    QmlComponent component(&engine);
+    component.setData(projectFile.toUtf8(), QUrl());
+    if (!component.isReady())
+        qDebug() << component.errorsString();
+    QVERIFY(component.isReady());
+
+    QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+    QVERIFY(project);
+
+    project->setSourceDirectory(testDataDir);
+
+    QVERIFY(project->matchesFile(testDataDir + "/file1.qml"));
+    QVERIFY(project->matchesFile(testDataDir + "/notyetexistingfile.qml"));
+    QVERIFY(project->matchesFile(testDataDir + "/subdir/notyetexistingfile.qml"));
+    QVERIFY(project->matchesFile(testDataDir + "/script.js"));
+    QVERIFY(!project->matchesFile(testDataDir + "/script.css"));
 }
 
 void TestProject::testLibraryPaths()

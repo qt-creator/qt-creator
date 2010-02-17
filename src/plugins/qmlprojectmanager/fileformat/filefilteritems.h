@@ -38,6 +38,7 @@ public:
     void setPathsProperty(const QString &path);
 
     virtual QStringList files() const;
+    bool matchesFile(const QString &filePath) const;
 
 signals:
     void directoryChanged();
@@ -50,6 +51,7 @@ private slots:
     void updateFileList();
 
 private:
+    QString absolutePath(const QString &path) const;
     QString absoluteDir() const;
 
     QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = 0);

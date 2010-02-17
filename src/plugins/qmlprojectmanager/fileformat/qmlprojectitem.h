@@ -40,6 +40,7 @@ public:
     void setLibraryPaths(const QStringList &paths);
 
     QStringList files() const;
+    bool matchesFile(const QString &filePath) const;
 
 signals:
     void qmlFilesChanged();

@@ -242,6 +242,16 @@ QStringList QmlProject::libraryPaths() const
     return libraryPaths;
 }
 
+bool QmlProject::addFiles(const QStringList &filePaths)
+{
+    QStringList toAdd;
+    foreach (const QString &filePath, filePaths) {
+        if (!m_projectItem.data()->matchesFile(filePath))
+            toAdd << filePaths;
+    }
+    return toAdd.isEmpty();
+}
+
 void QmlProject::refreshProjectFile()
 {
     refresh(QmlProject::ProjectFile | Files);

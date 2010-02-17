@@ -89,6 +89,47 @@ QStringList FileFilterBaseItem::files() const
     return m_files.toList();
 }
 
+/**
+  Check whether filter matches a file path - regardless whether the file already exists or not.
+
+  @param filePath: absolute file path
+  */
+bool FileFilterBaseItem::matchesFile(const QString &filePath) const
+{
+    foreach (const QString &explicitFile, m_explicitFiles) {
+        if (absolutePath(explicitFile) == filePath)
+            return true;
+    }
+
+    bool regexMatches = false;
+    const QString &fileName = QFileInfo(filePath).fileName();
+    foreach (const QRegExp &exp, m_regExpList) {
+        if (exp.exactMatch(fileName)) {
+            regexMatches = true;
+            break;
+        }
+    }
+
+    if (!regexMatches)
+        return false;
+
+    const QStringList watchedDirectories = m_fsWatcher.directories();
+    const QDir fileDir = QFileInfo(filePath).absoluteDir();
+    foreach (const QString &watchedDirectory, watchedDirectories) {
+        if (QDir(watchedDirectory) == fileDir)
+            return true;
+    }
+
+    return false;
+}
+
+QString FileFilterBaseItem::absolutePath(const QString &path) const
+{
+    if (QFileInfo(path).isAbsolute())
+        return path;
+    return QDir(absoluteDir()).absoluteFilePath(path);
+}
+
 QString FileFilterBaseItem::absoluteDir() const
 {
     QString absoluteDir;
@@ -110,11 +151,7 @@ void FileFilterBaseItem::updateFileList()
     QSet<QString> dirsToBeWatched;
     QSet<QString> newFiles;
     foreach (const QString &explicitPath, m_explicitFiles) {
-        if (QFileInfo(explicitPath).isAbsolute()) {
-            newFiles << explicitPath;
-        } else {
-            newFiles << QDir(projectDir).absoluteFilePath(explicitPath);
-        }
+        newFiles << absolutePath(explicitPath);
     }
     if (!m_regExpList.isEmpty() && m_explicitFiles.isEmpty())
         newFiles += filesInSubTree(QDir(m_defaultDir), QDir(projectDir), &dirsToBeWatched);
