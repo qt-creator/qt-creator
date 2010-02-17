@@ -47,7 +47,6 @@ namespace ProjectExplorer {
 
 namespace Qml {
     class QmlInspector;
-    class InspectorOutputPane;
 
 const int MaxConnectionAttempts = 20;
 
@@ -74,7 +73,6 @@ private slots:
 
 private:
     QmlInspector *m_inspector;
-    InspectorOutputPane *m_outputPane;
     QTimer *m_connectionTimer;
     int m_connectionAttempts;
 };

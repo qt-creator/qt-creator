@@ -11,12 +11,12 @@ DEFINES += QMLINSPECTOR_LIBRARY
 HEADERS += qmlinspectorplugin.h \
            qmlinspectorconstants.h \
            qmlinspector.h \
-           inspectoroutputpane.h \
+           inspectoroutputwidget.h \
            qmlinspector_global.h
 
 SOURCES += qmlinspectorplugin.cpp \
            qmlinspector.cpp \
-           inspectoroutputpane.cpp
+           inspectoroutputwidget.cpp
 
 OTHER_FILES += QmlInspector.pluginspec
 RESOURCES += qmlinspector.qrc

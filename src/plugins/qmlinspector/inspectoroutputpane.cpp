@@ -27,114 +27,63 @@
 **
 **************************************************************************/
 #include "inspectoroutputpane.h"
+#include <coreplugin/coreconstants.h>
 
-#include <QtGui/qtextedit.h>
+#include <QtGui/QTextEdit>
+#include <QtGui/QContextMenuEvent>
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
+#include <QtGui/QIcon>
 
 using namespace Qml;
 
-InspectorOutputPane::InspectorOutputPane(QObject *parent)
-    : Core::IOutputPane(parent),
-      m_textEdit(new QTextEdit)
+InspectorOutputWidget::InspectorOutputWidget(QWidget *parent)
+    : QTextEdit(parent)
 {
+    setWindowTitle(tr("Output"));
+
+    m_clearContents = new QAction(QString(tr("Clear")), this);
+    m_clearContents->setIcon(QIcon(Core::Constants::ICON_CLEAR));
+    connect(m_clearContents, SIGNAL(triggered()), SLOT(clear()));
 }
 
-InspectorOutputPane::~InspectorOutputPane()
+InspectorOutputWidget::~InspectorOutputWidget()
 {
-    delete m_textEdit;
+
 }
 
-QWidget *InspectorOutputPane::outputWidget(QWidget *parent)
+void InspectorOutputWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    Q_UNUSED(parent);
-    return m_textEdit;
+    QMenu *menu = createStandardContextMenu(e->globalPos());
+
+    menu->addSeparator();
+    menu->addAction(m_clearContents);
+    menu->exec(e->globalPos());
 }
 
-QList<QWidget*> InspectorOutputPane::toolBarWidgets() const
+void InspectorOutputWidget::addOutput(RunControl *, const QString &text)
 {
-    return QList<QWidget *>();
+    insertPlainText(text);
+    moveCursor(QTextCursor::End);
 }
 
-QString InspectorOutputPane::name() const
+void InspectorOutputWidget::addOutputInline(RunControl *, const QString &text)
 {
-    return tr("Inspector Output");
+    insertPlainText(text);
+    moveCursor(QTextCursor::End);
 }
 
-int InspectorOutputPane::priorityInStatusBar() const
+void InspectorOutputWidget::addErrorOutput(RunControl *, const QString &text)
 {
-    return 1;
+    append(text);
+    moveCursor(QTextCursor::End);
 }
 
-void InspectorOutputPane::clearContents()
+void InspectorOutputWidget::addInspectorStatus(const QString &text)
 {
-    m_textEdit->clear();
-}
-
-void InspectorOutputPane::visibilityChanged(bool visible)
-{
-    Q_UNUSED(visible);
-}
-
-void InspectorOutputPane::setFocus()
-{
-    m_textEdit->setFocus();
-}
-
-bool InspectorOutputPane::hasFocus()
-{
-    return m_textEdit->hasFocus();
-}
-
-bool InspectorOutputPane::canFocus()
-{
-    return true;
-}
-
-bool InspectorOutputPane::canNavigate()
-{
-    return false;
-}
-
-bool InspectorOutputPane::canNext()
-{
-    return false;
-}
-
-bool InspectorOutputPane::canPrevious()
-{
-    return false;
-}
-
-void InspectorOutputPane::goToNext()
-{
-}
-
-void InspectorOutputPane::goToPrev()
-{
-}
-
-void InspectorOutputPane::addOutput(RunControl *, const QString &text)
-{
-    m_textEdit->insertPlainText(text);
-    m_textEdit->moveCursor(QTextCursor::End);
-}
-
-void InspectorOutputPane::addOutputInline(RunControl *, const QString &text)
-{
-    m_textEdit->insertPlainText(text);
-    m_textEdit->moveCursor(QTextCursor::End);
-}
-
-void InspectorOutputPane::addErrorOutput(RunControl *, const QString &text)
-{
-    m_textEdit->append(text);
-    m_textEdit->moveCursor(QTextCursor::End);
-}
-
-void InspectorOutputPane::addInspectorStatus(const QString &text)
-{
-    m_textEdit->setTextColor(Qt::darkGreen);
-    m_textEdit->append(text);
-    m_textEdit->moveCursor(QTextCursor::End);
-    m_textEdit->setTextColor(Qt::black);
+    setTextColor(Qt::darkGreen);
+    append(text);
+    moveCursor(QTextCursor::End);
+    setTextColor(Qt::black);
 }
 

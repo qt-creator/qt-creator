@@ -26,43 +26,28 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef INSPECTOROUTPUTPANE_H
-#define INSPECTOROUTPUTPANE_H
-
-#include <coreplugin/ioutputpane.h>
+#ifndef INSPECTOROUTPUTWIDGET_H
+#define INSPECTOROUTPUTWIDGET_H
 
 #include <QtCore/QObject>
+#include <QtGui/QTextEdit>
 
-QT_FORWARD_DECLARE_CLASS(QTextEdit);
+QT_BEGIN_NAMESPACE
+class QAction;
+class QContextMenuEvent;
+QT_END_NAMESPACE
+
 QT_FORWARD_DECLARE_CLASS(RunControl);
 
 namespace Qml {
 
-class InspectorOutputPane : public Core::IOutputPane
+class InspectorOutputWidget : public QTextEdit
 {
     Q_OBJECT
+
 public:
-    InspectorOutputPane(QObject *parent = 0);
-    virtual ~InspectorOutputPane();
-
-    virtual QWidget *outputWidget(QWidget *parent);
-    virtual QList<QWidget*> toolBarWidgets() const;
-    virtual QString name() const;
-
-    virtual int priorityInStatusBar() const;
-
-    virtual void clearContents();
-    virtual void visibilityChanged(bool visible);
-
-    virtual void setFocus();
-    virtual bool hasFocus();
-    virtual bool canFocus();
-
-    virtual bool canNavigate();
-    virtual bool canNext();
-    virtual bool canPrevious();
-    virtual void goToNext();
-    virtual void goToPrev();
+    InspectorOutputWidget(QWidget *parent = 0);
+    virtual ~InspectorOutputWidget();
 
 public slots:
     void addOutput(RunControl *, const QString &text);
@@ -71,11 +56,14 @@ public slots:
     void addErrorOutput(RunControl *, const QString &text);
     void addInspectorStatus(const QString &text);
 
+protected:
+    void contextMenuEvent(QContextMenuEvent *e);
+
 private:
-    QTextEdit *m_textEdit;
+    QAction *m_clearContents;
 };
 
 }
 
-#endif
+#endif // INSPECTOROUTPUTWIDGET_H
 

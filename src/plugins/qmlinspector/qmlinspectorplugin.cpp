@@ -28,7 +28,6 @@
 **************************************************************************/
 #include "qmlinspectorconstants.h"
 #include "qmlinspector.h"
-#include "inspectoroutputpane.h"
 #include "qmlinspectorplugin.h"
 
 #include <debugger/debuggeruiswitcher.h>
@@ -89,10 +88,6 @@ QmlInspectorPlugin::~QmlInspectorPlugin()
 
 void QmlInspectorPlugin::shutdown()
 {
-    removeObject(m_outputPane);
-    delete m_outputPane;
-    m_outputPane = 0;
-
     removeObject(m_inspector);
     delete m_inspector;
     m_inspector = 0;
@@ -114,12 +109,6 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     addObject(m_inspector);
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
-
-    m_outputPane = new InspectorOutputPane;
-    addObject(m_outputPane);
-
-    connect(m_inspector, SIGNAL(statusMessage(QString)),
-            m_outputPane, SLOT(addInspectorStatus(QString)));
 
     return true;
 }

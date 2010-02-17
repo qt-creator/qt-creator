@@ -107,6 +107,7 @@ private:
     QDockWidget *m_objectTreeDock;
     QDockWidget *m_frameRateDock;
     QDockWidget *m_propertyWatcherDock;
+    QDockWidget *m_inspectorOutputDock;
     QList<QDockWidget*> m_dockWidgets;
 
 };

@@ -29,6 +29,7 @@
 #include "qmlinspectorconstants.h"
 #include "qmlinspector.h"
 #include "debugger/debuggermainwindow.h"
+#include "inspectoroutputwidget.h"
 
 #include <debugger/debuggeruiswitcher.h>
 
@@ -163,7 +164,11 @@ QmlInspector::QmlInspector(QObject *parent)
     m_conn(0),
     m_client(0),
     m_engineQuery(0),
-    m_contextQuery(0)
+    m_contextQuery(0),
+    m_objectTreeDock(0),
+    m_frameRateDock(0),
+    m_propertyWatcherDock(0),
+    m_inspectorOutputDock(0)
 {
     m_watchTableModel = new WatchTableModel(0, this);
 
@@ -346,13 +351,20 @@ void QmlInspector::initWidgets()
     propSplitter->setStretchFactor(1, 1);
     propSplitter->setWindowTitle(tr("Properties and Watchers"));
 
+
+    InspectorOutputWidget *inspectorOutput = new InspectorOutputWidget();
+    connect(this, SIGNAL(statusMessage(QString)),
+            inspectorOutput, SLOT(addInspectorStatus(QString)));
+
     m_objectTreeDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
                                                             treeWindow, Qt::BottomDockWidgetArea);
     m_frameRateDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
                                                             m_frameRateWidget, Qt::BottomDockWidgetArea);
     m_propertyWatcherDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
                                                             propSplitter, Qt::BottomDockWidgetArea);
-    m_dockWidgets << m_objectTreeDock << m_frameRateDock << m_propertyWatcherDock;
+    m_inspectorOutputDock = Debugger::DebuggerUISwitcher::instance()->createDockWidget(Qml::Constants::LANG_QML,
+                                                            inspectorOutput, Qt::BottomDockWidgetArea);
+    m_dockWidgets << m_objectTreeDock << m_frameRateDock << m_propertyWatcherDock << m_inspectorOutputDock;
 }
 
 void QmlInspector::setSimpleDockWidgetArrangement()
@@ -381,6 +393,8 @@ void QmlInspector::setSimpleDockWidgetArrangement()
     }
 
     mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
+    mainWindow->tabifyDockWidget(m_frameRateDock, m_inspectorOutputDock);
+
     mainWindow->setTrackingEnabled(true);
 }
 
