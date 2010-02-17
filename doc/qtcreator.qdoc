@@ -1571,9 +1571,9 @@
            The main.cpp file opens in the editor.
     \endlist
 
-    You can enter only a part of a string you are searching for. As you type,
-    the locator shows the occurrences of that string regardless of where in the
-    name of an item it appears.
+    It is also possible to enter only a part of a search string.
+    As you type, the locator shows the occurrences of that string regardless
+    of where in the name of an item it appears.
 
     To narrow down the search results, you can use the following wildcard
     characters:
@@ -2068,14 +2068,14 @@
     use Debugging Helpers also for user defined types. All that is needed is
     to define one Python function per user defined type in .gdbinit.
 
-    The function's name has to be qdump__NS__Foo where  NS::Foo is the class
+    The function's name has to be qdump__NS__Foo where NS::Foo is the class
     or class template to be examined. Nested namespaces are possible.
 
     Qt Creator's debugger integration will call this function whenever it
     wants to display an object of this type. The function gets passed two
     parameters, 'd' of type 'Dumper', and 'item' of type 'Item'. The function
-    itself has to feed the Dumper object with certain information that
-    are used to build up the object and it's children's display in the
+    itself has to feed the Dumper object with certain information which is
+    used to build up the object and its children's display in the
     Locals-and-Watchers view.
 
 
@@ -2156,7 +2156,7 @@
     a complete framework to take care of the 'iname' and 'addr' fields,
     to handle children of simple types, references,
     pointers, enums, known and unknown structs as well as some
-    convenience method to handle common situations.
+    convenience methods to handle common situations.
 
     The 'Dumper' members are the following:
 
@@ -2186,7 +2186,7 @@
 
     \o \gui{beginChildren(self, numChild_ = 1, childType_ = None, childNumChild_ = None)}
         - Starts writing a list of \a numChild children, with type
-        \a childType_ and \a childNumChild grandchildren each. If \a numChild_
+        \a childType_ and \a childNumChild_ grandchildren each. If \a numChild_
         is a list of two integers, the first one specifies the actual number
         of children and the second the maximum number of children to print.
 
@@ -2214,7 +2214,7 @@
 
     \o \gui{putValue(self, value, encoding = None)} - Append a file \c {value='...'},
         optionally followed by a field \c {valueencoding='...'}. The \a value
-        needs to be convertiable to a string entirely consisting of
+        needs to be convertible to a string entirely consisting of
         alphanumerical values. The \a encoding parameter can be used to
         specify the encoding in case the real value had to be encoded in some
         way to meet the alphanumerical-only requirement.
@@ -2275,9 +2275,9 @@
         self.endHash()
         \endcode
 
-    \o \gui{pushOutput(self)} - Moves output string to a safe location
-        from with it will be send to the frontend even if further operations
-        raise exception.
+    \o \gui{pushOutput(self)} - Moves the output string to a safe location
+        from with it will be sent to the frontend even if further operations
+        raise an exception.
 
     \o \gui{putCallItem(self, name, item, func)} -
         Uses gdb to call the function \a func on the value specified by
@@ -2297,7 +2297,7 @@
 
     \o \gui{safePutItemHelper(self, item)} - Calls \c putItemHelper(self, item).
         If an exception is raised, catch it, and replace all output produced by
-        \c putItemHelper by \code
+        \c putItemHelper with the output of \code
             self.putName(item.name)
             self.putValue("<invalid>")
             self.putType(str(item.value.type))
