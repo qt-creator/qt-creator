@@ -73,16 +73,14 @@ ProjectExplorer::Project *Manager::openProject(const QString &fileName)
 
     foreach (ProjectExplorer::Project *pi, projectExplorer->session()->projects()) {
         if (fileName == pi->file()->fileName()) {
-            messageManager->printToOutputPane(tr("Failed opening project '%1': Project already open").arg(QDir::toNativeSeparators(fileName)));
-            messageManager->displayStatusBarMessage(tr("Failed opening project"), 5000);
+            messageManager->printToOutputPanePopup(tr("Failed opening project '%1': Project already open")
+                                                   .arg(QDir::toNativeSeparators(fileName)));
             return 0;
         }
     }
 
     if (fileInfo.isFile()) {
-        QmlProject *project = new QmlProject(this, fileName);
-        messageManager->displayStatusBarMessage(tr("Done opening project"), 5000);
-        return project;
+        return new QmlProject(this, fileName);
     }
 
     return 0;

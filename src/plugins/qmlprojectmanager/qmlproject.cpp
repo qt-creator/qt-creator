@@ -31,6 +31,9 @@
 #include "qmlprojectfile.h"
 #include "qmlprojectmanagerconstants.h"
 #include "fileformat/qmlprojectitem.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/filewatcher.h>
 #include <qmljseditor/qmljsmodelmanagerinterface.h>
@@ -77,30 +80,6 @@ QDir QmlProject::projectDir() const
 QString QmlProject::filesFileName() const
 { return m_fileName; }
 
-static QStringList readLines(const QString &absoluteFileName)
-{
-    QStringList lines;
-
-    QFile file(absoluteFileName);
-    if (file.open(QFile::ReadOnly)) {
-        QTextStream stream(&file);
-
-        forever {
-            QString line = stream.readLine();
-            if (line.isNull())
-                break;
-
-            line = line.trimmed();
-            if (line.isEmpty())
-                continue;
-
-            lines.append(line);
-        }
-    }
-
-    return lines;
-}
-
 void QmlProject::parseProject(RefreshOptions options)
 {
     if (options & Files) {
@@ -116,10 +95,9 @@ void QmlProject::parseProject(RefreshOptions options)
                     m_projectItem = qobject_cast<QmlProjectItem*>(component->create());
                     connect(m_projectItem.data(), SIGNAL(qmlFilesChanged()), this, SLOT(refreshFiles()));
                 } else {
-                    qWarning() << m_fileName << "is not valid qml file, falling back to old format ...";
-                    m_files = convertToAbsoluteFiles(readLines(filesFileName()));
-                    m_files.removeDuplicates();
-                    m_modelManager->updateSourceFiles(m_files);
+                    Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
+                    messageManager->printToOutputPane(tr("Error while loading project file!"));
+                    messageManager->printToOutputPane(component->errorsString(), true);
                 }
             }
         }
@@ -171,6 +149,11 @@ QStringList QmlProject::files() const
         files = m_files;
     }
     return files;
+}
+
+bool QmlProject::validProjectFile() const
+{
+    return !m_projectItem.isNull();
 }
 
 QStringList QmlProject::libraryPaths() const

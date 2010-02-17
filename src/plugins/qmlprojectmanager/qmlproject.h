@@ -85,6 +85,8 @@ public:
     Internal::QmlProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
 
+    bool validProjectFile() const;
+
     enum RefreshOption {
         ProjectFile   = 0x01,
         Files         = 0x02,
