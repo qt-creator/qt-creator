@@ -132,9 +132,33 @@ Item {
     x: selector.staticX
     y: selector.staticY
 
+    SystemPalette { id:systemPalette }
+
     Rectangle {
         anchors.fill: parent
-        color: "steelblue"
+        color: systemPalette.highlight
+        clip:true
+        Rectangle {
+            width:parent.width-1
+            x:1
+            y:-parent.height/2
+            height:parent.height
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.lighter(systemPalette.highlight) }
+                GradientStop { position: 1.0; color: systemPalette.highlight }
+            }
+        }
+
+        Rectangle {
+            width:parent.width-1
+            x:1
+            y:parent.height/2
+            height:parent.height
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: systemPalette.highlight }
+                GradientStop { position: 1.0; color: Qt.darker(systemPalette.highlight) }
+            }
+        }
     }
 }
 
