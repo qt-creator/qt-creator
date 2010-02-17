@@ -2026,11 +2026,14 @@ bool ASTObjectValue::getSourceLocation(QString *fileName, int *line, int *column
 
 void ASTObjectValue::processMembers(MemberProcessor *processor) const
 {
-    foreach (ASTPropertyReference *ref, _properties)
+    foreach (ASTPropertyReference *ref, _properties) {
         processor->processProperty(ref->ast()->name->asString(), ref);
+        // ### Should get a different value?
+        processor->processGeneratedSlot(ref->onChangedSlotName(), ref);
+    }
     foreach (ASTSignalReference *ref, _signals) {
-        // ### These two should get different values?
         processor->processSignal(ref->ast()->name->asString(), ref);
+        // ### Should get a different value?
         processor->processGeneratedSlot(ref->slotName(), ref);
     }
 
@@ -2125,6 +2128,11 @@ const Value *QmlPrototypeReference::value(Context *context) const
 ASTPropertyReference::ASTPropertyReference(UiPublicMember *ast, const QmlJS::Document *doc, Engine *engine)
     : Reference(engine), _ast(ast), _doc(doc)
 {
+    const QString propertyName = ast->name->asString();
+    _onChangedSlotName = QLatin1String("on");
+    _onChangedSlotName += propertyName.at(0).toUpper();
+    _onChangedSlotName += propertyName.midRef(1);
+    _onChangedSlotName += QLatin1String("Changed");
 }
 
 ASTPropertyReference::~ASTPropertyReference()

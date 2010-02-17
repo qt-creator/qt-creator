@@ -685,12 +685,14 @@ class QMLJS_EXPORT ASTPropertyReference: public Reference
 {
     AST::UiPublicMember *_ast;
     const Document *_doc;
+    QString _onChangedSlotName;
 
 public:
     ASTPropertyReference(AST::UiPublicMember *ast, const Document *doc, Engine *engine);
     virtual ~ASTPropertyReference();
 
     AST::UiPublicMember *ast() const { return _ast; }
+    QString onChangedSlotName() const { return _onChangedSlotName; }
 
     virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
     virtual const Value *value(Context *context) const;
