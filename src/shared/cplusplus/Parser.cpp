@@ -1792,8 +1792,9 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
     if (LA() == T_LPAREN) {
         ast->lparen_token = consumeToken();
         parseTypeId(ast->type_id);
-        ast->property_name = new (_pool) SimpleNameAST;
-        match(T_IDENTIFIER, &ast->property_name->identifier_token);
+        SimpleNameAST *property_name = new (_pool) SimpleNameAST;
+        match(T_IDENTIFIER, &property_name->identifier_token);
+        ast->property_name = property_name;
         QtPropertyDeclarationItemListAST **iter = &ast->property_declaration_items;
         while (true) {
             if (LA() == T_RPAREN) {
@@ -5277,8 +5278,9 @@ bool Parser::parseObjCKeywordDeclaration(ObjCSelectorArgumentAST *&argument, Obj
     while (parseAttributeSpecifier(*attr))
         attr = &(*attr)->next;
 
-    node->param_name = new (_pool) SimpleNameAST;
-    match(T_IDENTIFIER, &node->param_name->identifier_token);
+    SimpleNameAST *param_name = new (_pool) SimpleNameAST;
+    match(T_IDENTIFIER, &param_name->identifier_token);
+    node->param_name = param_name;
 
     return true;
 }

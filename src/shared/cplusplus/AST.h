@@ -577,7 +577,7 @@ public:
     unsigned property_specifier_token;
     unsigned lparen_token;
     ExpressionAST *type_id;
-    SimpleNameAST *property_name;
+    NameAST *property_name;
     QtPropertyDeclarationItemListAST *property_declaration_items;
     unsigned rparen_token;
 
@@ -2931,7 +2931,7 @@ class CPLUSPLUS_EXPORT ObjCMessageArgumentDeclarationAST: public AST
 public:
     ObjCTypeNameAST* type_name;
     SpecifierListAST *attribute_list;
-    SimpleNameAST *param_name;
+    NameAST *param_name;
 
 public: // annotations
     Argument *argument;
