@@ -14,7 +14,7 @@ Item {
     Rectangle {
         anchors.top: parent.top
         anchors.left: parent.left
-        anchors.right: parent.right        
+        anchors.right: parent.right
         height: 1
         color: style.gridLineLighter
     }
