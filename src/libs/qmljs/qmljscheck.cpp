@@ -86,8 +86,17 @@ bool Check::visit(UiObjectBinding *ast)
 void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
                            UiObjectInitializer *initializer)
 {
+    // If the 'typeId' starts with a lower-case letter, it doesn't define
+    // a new object instance. For instance: anchors { ... }
+    if (typeId->name->asString().at(0).isLower() && ! typeId->next) {
+        checkScopeObjectMember(typeId);
+        // ### don't give up!
+        return;
+    }
+
     if (! _context.lookupType(_doc.data(), typeId)) {
         warning(typeId->identifierToken, QLatin1String("unknown type"));
+        // ### don't give up!
         return;
     }
 
