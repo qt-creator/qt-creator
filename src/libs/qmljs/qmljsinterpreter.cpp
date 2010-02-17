@@ -2000,9 +2000,12 @@ ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
         for (UiObjectMemberList *it = _initializer->members; it; it = it->next) {
             UiObjectMember *member = it->member;
             if (UiPublicMember *def = cast<UiPublicMember *>(member)) {
-                if (def->name && def->memberType) {
+                if (def->type == UiPublicMember::Property && def->name && def->memberType) {
                     ASTPropertyReference *ref = new ASTPropertyReference(def, _doc, engine);
                     _properties.append(ref);
+                } else if (def->type == UiPublicMember::Signal && def->name) {
+                    ASTSignalReference *ref = new ASTSignalReference(def, _doc, engine);
+                    _signals.append(ref);
                 }
             }
         }
@@ -2025,6 +2028,11 @@ void ASTObjectValue::processMembers(MemberProcessor *processor) const
 {
     foreach (ASTPropertyReference *ref, _properties)
         processor->processProperty(ref->ast()->name->asString(), ref);
+    foreach (ASTSignalReference *ref, _signals) {
+        // ### These two should get different values?
+        processor->processSignal(ref->ast()->name->asString(), ref);
+        processor->processGeneratedSlot(ref->slotName(), ref);
+    }
 
     ObjectValue::processMembers(processor);
 }
@@ -2141,5 +2149,31 @@ const Value *ASTPropertyReference::value(Context *context) const
     if (_ast->memberType)
         return engine()->defaultValueForBuiltinType(_ast->memberType->asString());
 
+    return engine()->undefinedValue();
+}
+
+ASTSignalReference::ASTSignalReference(UiPublicMember *ast, const QmlJS::Document *doc, Engine *engine)
+    : Reference(engine), _ast(ast), _doc(doc)
+{
+    const QString signalName = ast->name->asString();
+    _slotName = QLatin1String("on");
+    _slotName += signalName.at(0).toUpper();
+    _slotName += signalName.midRef(1);
+}
+
+ASTSignalReference::~ASTSignalReference()
+{
+}
+
+bool ASTSignalReference::getSourceLocation(QString *fileName, int *line, int *column) const
+{
+    *fileName = _doc->fileName();
+    *line = _ast->identifierToken.startLine;
+    *column = _ast->identifierToken.startColumn;
+    return true;
+}
+
+const Value *ASTSignalReference::value(Context *context) const
+{
     return engine()->undefinedValue();
 }

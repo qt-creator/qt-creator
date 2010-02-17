@@ -696,12 +696,30 @@ public:
     virtual const Value *value(Context *context) const;
 };
 
+class QMLJS_EXPORT ASTSignalReference: public Reference
+{
+    AST::UiPublicMember *_ast;
+    const Document *_doc;
+    QString _slotName;
+
+public:
+    ASTSignalReference(AST::UiPublicMember *ast, const Document *doc, Engine *engine);
+    virtual ~ASTSignalReference();
+
+    AST::UiPublicMember *ast() const { return _ast; }
+    QString slotName() const { return _slotName; }
+
+    virtual bool getSourceLocation(QString *fileName, int *line, int *column) const;
+    virtual const Value *value(Context *context) const;
+};
+
 class QMLJS_EXPORT ASTObjectValue: public ObjectValue
 {
     AST::UiQualifiedId *_typeName;
     AST::UiObjectInitializer *_initializer;
     const Document *_doc;
     QList<ASTPropertyReference *> _properties;
+    QList<ASTSignalReference *> _signals;
 
 public:
     ASTObjectValue(AST::UiQualifiedId *typeName,
