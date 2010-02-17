@@ -359,6 +359,7 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     m_d->m_inferiorStartupComplete = false;
     setState(AdapterStarted, Q_FUNC_INFO, __LINE__);
 
+    m_d->setVerboseSymbolLoading(m_d->m_options->verboseSymbolLoading);
     const DebuggerStartMode mode = sp->startMode;
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(manager()->qtDumperLibraryName());
@@ -451,7 +452,6 @@ bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *
                                                      sp->executable,
                                                      sp->processArgs,
                                                      sp->environment,
-                                                     m_d->m_options->verboseSymbolLoading,
                                                      errorMessage);
     if (rc)
         m_d->m_mode = sm;

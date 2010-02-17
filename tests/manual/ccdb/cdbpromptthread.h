@@ -49,7 +49,8 @@ enum Command {
     Sync_EvalExpression   = SyncCommand|1,
     Sync_Queue            = SyncCommand|2,
     Sync_QueueBreakPoint  = SyncCommand|3,
-    Sync_PrintFrame       = SyncCommand|4,
+    Sync_ListBreakPoints  = SyncCommand|4,
+    Sync_PrintFrame       = SyncCommand|5,
     Execution_Go          = ExecutionCommand|1,
     Execution_StartBinary = ExecutionCommand|2
 };

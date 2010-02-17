@@ -197,6 +197,8 @@ void CdbApplication::syncCommand(int command, const QString &arg)
     case Sync_EvalExpression: {
             QString value;
             QString type;
+            std::printf("Evaluating '%s' in code level %d, syntax %d\n",
+                        qPrintable(arg), m_engine->codeLevel(), m_engine->expressionSyntax());
             if (m_engine->evaluateExpression(arg, &value, &type, &errorMessage)) {
                 std::printf("[%s] %s\n", qPrintable(type), qPrintable(value));
             } else {
@@ -229,10 +231,22 @@ void CdbApplication::syncCommand(int command, const QString &arg)
         }
     }
         break;
+    case Sync_ListBreakPoints: {
+            QList<CdbCore::BreakPoint> bps;
+            if (CdbCore::BreakPoint::getBreakPoints(m_engine->interfaces().debugControl, &bps, &errorMessage)) {
+                foreach (const CdbCore::BreakPoint &bp, bps)
+                    std::printf("%s\n", qPrintable(bp.expression()));
+            } else {
+                std::printf("BREAKPOINT LIST FAILED: %s\n", qPrintable(errorMessage));
+            }
+}
+        break;
     case Sync_PrintFrame:
         printFrame(arg);
         break;
     case Unknown:
+        std::printf("Executing '%s' in code level %d, syntax %d\n",
+                    qPrintable(arg), m_engine->codeLevel(), m_engine->expressionSyntax());
         if (!m_engine->executeDebuggerCommand(arg, &errorMessage))
             std::printf("%s\n", qPrintable(errorMessage));
         break;
@@ -253,8 +267,7 @@ void CdbApplication::executionCommand(int command, const QString &arg)
                 const QString binary = args.front();
                 args.pop_front();
                 ok = m_engine->startDebuggerWithExecutable(QString(), binary, args,
-                                                           QStringList(), false,
-                                                           &errorMessage);
+                                                           QStringList(), &errorMessage);
             }
         }
         break;

@@ -82,7 +82,6 @@ public:
                                      const QString &filename,
                                      const QStringList &args,
                                      const QStringList &env,
-                                     bool verboseSymbolLoading,
                                      QString *errorMessage);
 
     bool startAttachDebugger(qint64 pid, bool suppressInitialBreakPoint,
@@ -124,6 +123,9 @@ public:
     bool setSourcePaths(const QStringList &s, QString *errorMessage);
     QStringList symbolPaths() const;
     bool setSymbolPaths(const QStringList &s, QString *errorMessage);
+
+    bool isVerboseSymbolLoading() const;
+    bool setVerboseSymbolLoading(bool v);
 
     // Options
     ExpressionSyntax expressionSyntax() const;

@@ -140,6 +140,10 @@ const char *msgExecutionStatusString(ULONG executionStatus)
     return "<Unknown execution status>";
 }
 
+static const ULONG defaultSymbolOptions = SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME |
+                                          SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST |
+                                          SYMOPT_AUTO_PUBLICS;
+
 // ComInterfaces
 ComInterfaces::ComInterfaces() :
     debugClient(0),
@@ -276,6 +280,11 @@ bool CoreEngine::init(const QString &dllEnginePath, QString *errorMessage)
         *errorMessage = QString::fromLatin1("Creation of IDebugSymbols3 failed: %1").arg(msgDebugEngineComResult(hr));
         return false;
     }
+    hr = m_cif.debugSymbols->SetSymbolOptions(defaultSymbolOptions);
+    if (FAILED(hr)) {
+        *errorMessage = msgComFailed("SetSymbolOptions", hr);
+        return false;
+    }
 
     WCHAR buf[bufLen];
     hr = m_cif.debugSymbols->GetImagePathWide(buf, bufLen, 0);
@@ -377,7 +386,6 @@ bool CoreEngine::startDebuggerWithExecutable(const QString &workingDirectory,
                                              const QString &filename,
                                              const QStringList &args,
                                              const QStringList &envList,
-                                             bool verboseSymbolLoading,
                                              QString *errorMessage)
 {
     DEBUG_CREATE_PROCESS_OPTIONS dbgopts;
@@ -399,11 +407,6 @@ bool CoreEngine::startDebuggerWithExecutable(const QString &workingDirectory,
 
     if (debug)
         qDebug() << Q_FUNC_INFO <<'\n' << filename << imagePath;
-
-    ULONG symbolOptions = SYMOPT_CASE_INSENSITIVE | SYMOPT_UNDNAME | SYMOPT_LOAD_LINES | SYMOPT_OMAP_FIND_NEAREST | SYMOPT_AUTO_PUBLICS;
-    if (verboseSymbolLoading)
-        symbolOptions |= SYMOPT_DEBUG;
-    m_cif.debugSymbols->SetSymbolOptions(symbolOptions);
 
     const QString cmd = Utils::AbstractProcess::createWinCommandline(filename, args);
     if (debug)
@@ -493,6 +496,37 @@ bool CoreEngine::setSymbolPaths(const QStringList &s, QString *errorMessage)
     if (FAILED(hr)) {
         if (errorMessage)
             *errorMessage = msgComFailed("SetSymbolPathWide", hr);
+        return false;
+    }
+    return true;
+}
+
+bool CoreEngine::isVerboseSymbolLoading() const
+{
+    ULONG opts;
+    const HRESULT hr = m_cif.debugSymbols->GetSymbolOptions(&opts);
+    return SUCCEEDED(hr) && (opts & SYMOPT_DEBUG);
+}
+
+bool CoreEngine::setVerboseSymbolLoading(bool newValue)
+{
+    ULONG opts;
+    HRESULT hr = m_cif.debugSymbols->GetSymbolOptions(&opts);
+    if (FAILED(hr)) {
+        qWarning("%s", qPrintable(msgComFailed("GetSymbolOptions", hr)));
+        return false;
+    }
+    const bool isVerbose = (opts & SYMOPT_DEBUG);
+    if (isVerbose == newValue)
+        return true;
+    if (newValue) {
+        opts |= SYMOPT_DEBUG;
+    } else {
+        opts &= ~SYMOPT_DEBUG;
+    }
+    hr = m_cif.debugSymbols->SetSymbolOptions(opts);
+    if (FAILED(hr)) {
+        qWarning("%s", qPrintable(msgComFailed("SetSymbolOptions", hr)));
         return false;
     }
     return true;
