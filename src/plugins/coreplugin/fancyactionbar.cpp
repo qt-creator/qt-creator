@@ -116,19 +116,19 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
 
     if (isDown() || isChecked()) {
         painter.save();
-        QColor whiteOverlay(Qt::black);
-        whiteOverlay.setAlpha(30);
+        QColor color(Qt::black);
+        color.setAlpha(15);
         QRect roundRect = rect().adjusted(5, 3, -5, -3);
         painter.translate(0.5, 0.5);
         painter.setRenderHint(QPainter::Antialiasing);
-        painter.setPen(QColor(255, 255, 255, 40));
+        painter.setPen(QColor(255, 255, 255, 20));
         static int rounding = 3;
         painter.drawRoundedRect(roundRect.adjusted(-1, -1, 1, 1), rounding, rounding);
-        painter.setPen(QColor(0, 0, 0, 40));
-        painter.setBrush(QColor(0, 0, 0, 30));
+        painter.setPen(QColor(0, 0, 0, 20));
+        painter.setBrush(QColor(0, 0, 0, 15));
         painter.drawRoundedRect(roundRect.adjusted(1, 1, 0, 0), rounding, rounding);
-        whiteOverlay.setAlpha(150);
-        painter.setPen(whiteOverlay);
+        color.setAlpha(75);
+        painter.setPen(color);
         painter.setBrush(Qt::NoBrush);
         painter.drawRoundedRect(roundRect, 3, 3);
         painter.restore();
