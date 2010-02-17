@@ -5,11 +5,14 @@ include(bineditor_dependencies.pri)
 
 HEADERS += bineditorplugin.h \
         bineditor.h \
-        bineditorconstants.h
+        bineditorconstants.h \
+    imageviewer.h
 
 SOURCES += bineditorplugin.cpp \
-        bineditor.cpp
+        bineditor.cpp \
+    imageviewer.cpp
 
 RESOURCES += bineditor.qrc
 
-OTHER_FILES += BinEditor.pluginspec
+OTHER_FILES += BinEditor.pluginspec BinEditor.mimetypes.xml \
+    ImageViewer.mimetypes.xml

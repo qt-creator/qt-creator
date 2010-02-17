@@ -75,4 +75,4 @@ FORMS += behaviorsettingspage.ui \
     fontsettingspage.ui \
     colorschemeedit.ui
 RESOURCES += texteditor.qrc
-OTHER_FILES += TextEditor.pluginspec
+OTHER_FILES += TextEditor.pluginspec TextEditor.mimetypes.xml

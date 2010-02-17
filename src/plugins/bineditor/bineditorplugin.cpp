@@ -31,6 +31,8 @@
 #include "bineditor.h"
 #include "bineditorconstants.h"
 
+#include "imageviewer.h"
+
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
@@ -477,9 +479,10 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
 bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
 
     Core::ICore *core = Core::ICore::instance();
+    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/bineditor/ImageViewer.mimetypes.xml"), errorMessage))
+        return false;
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/bineditor/BinEditor.mimetypes.xml"), errorMessage))
         return false;
 
@@ -487,7 +490,7 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
         this, SLOT(updateCurrentEditor(Core::IContext *)));
 
     addAutoReleasedObject(new BinEditorFactory(this));
-
+    addAutoReleasedObject(new ImageViewerFactory);
     return true;
 }
 
