@@ -37,8 +37,10 @@
 #include <QtCore/QTemporaryFile>
 
 #include <QtGui/QApplication>
+#include <QtGui/QAction>
 #include <QtGui/QClipboard>
 #include <QtGui/QFontMetrics>
+#include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 #include <QtGui/QWheelEvent>
@@ -93,6 +95,7 @@ BinEditor::BinEditor(QWidget *parent)
     m_lowNibble = false;
     m_cursorVisible = false;
     m_caseSensitiveSearch = false;
+    m_canRequestNewWindow = false;
     setFocusPolicy(Qt::WheelFocus);
 }
 
@@ -178,7 +181,8 @@ bool BinEditor::requestDataAt(int pos, bool synchronous) const
         if (!m_lazyRequests.contains(block)) {
             m_lazyRequests.insert(block);
             emit const_cast<BinEditor*>(this)->
-                lazyDataRequested(m_baseAddr / m_blockSize + block, synchronous);
+                lazyDataRequested(editorInterface(), m_baseAddr / m_blockSize + block,
+                                  synchronous);
             if (!m_lazyRequests.contains(block))
                 return true; // synchronous data source
         }
@@ -1119,12 +1123,16 @@ void BinEditor::zoomOut(int range)
     zoomIn(-range);
 }
 
-void BinEditor::copy()
+void BinEditor::copy(bool raw)
 {
     const int selStart = selectionStart();
     const int selEnd = selectionEnd();
     if (selStart < selEnd) {
         const QByteArray &data = dataMid(selStart, selEnd - selStart);
+        if (raw) {
+            QApplication::clipboard()->setText(data);
+            return;
+        }
         QString hexString;
         const char * const hex = "0123456789abcdef";
         for (int i = 0; i < data.size(); ++i) {
@@ -1216,4 +1224,82 @@ void BinEditor::redo()
         emit undoAvailable(true);
     if (!m_redoStack.size())
         emit redoAvailable(false);
+}
+
+void BinEditor::contextMenuEvent(QContextMenuEvent *event)
+{
+    const int selStart = selectionStart();
+    const int byteCount = selectionEnd() - selStart;
+    if (byteCount == 0)
+        return;
+
+    QMenu contextMenu;
+    QAction copyAsciiAction(tr("Copy Selection as ASCII Characters"), this);
+    QAction copyHexAction(tr("Copy Selection as Hex Values"), this);
+    QMenu jumpBeMenu;
+    QMenu jumpLeMenu;
+    QAction jumpToBeAddressHere(tr("In This Window"), this);
+    QAction jumpToBeAddressNewWindow(tr("In New Window"), this);
+    QAction jumpToLeAddressHere(tr("In This Window"), this);
+    QAction jumpToLeAddressNewWindow(tr("In New Window"), this);
+    contextMenu.addAction(&copyAsciiAction);
+    contextMenu.addAction(&copyHexAction);
+    contextMenu.addMenu(&jumpBeMenu);
+
+    quint64 beAddress = 0;
+    quint64 leAddress = 0;
+    if (byteCount <= 8) {
+        const QByteArray &data = dataMid(selStart, byteCount);
+        for (int pos = 0; pos < byteCount; ++pos) {
+            const quint64 val = static_cast<quint64>(data.at(pos)) & 0xff;
+            beAddress += val << (pos * 8);
+            leAddress += val << ((byteCount - pos - 1) * 8);
+        }
+
+        setupJumpToMenuAction(&jumpBeMenu, &jumpToBeAddressHere,
+                              &jumpToBeAddressNewWindow, beAddress);
+
+        // If the menu entries would be identical, show only one of them.
+        if (beAddress != leAddress) {
+            setupJumpToMenuAction(&jumpLeMenu, &jumpToLeAddressHere,
+                              &jumpToLeAddressNewWindow, leAddress);
+            contextMenu.addMenu(&jumpLeMenu);
+        }
+    } else {
+        jumpBeMenu.setTitle(tr("Jump to Address"));
+        jumpBeMenu.setEnabled(false);
+    }
+
+    QAction *action = contextMenu.exec(event->globalPos());
+    if (action == &copyAsciiAction)
+        copy(true);
+    else if (action == &copyHexAction)
+        copy(false);
+    else if (action == &jumpToBeAddressHere)
+        setCursorPosition(beAddress - m_baseAddr);
+    else if (action == &jumpToLeAddressHere)
+        setCursorPosition(leAddress - m_baseAddr);
+    else if (action == &jumpToBeAddressNewWindow)
+        emit newWindowRequested(beAddress);
+    else if (action == &jumpToLeAddressNewWindow)
+        emit newWindowRequested(leAddress);
+}
+
+void BinEditor::setupJumpToMenuAction(QMenu *menu, QAction *actionHere,
+                                      QAction *actionNew, quint64 addr)
+{
+    menu->setTitle(tr("Jump to Address 0x%1").arg(QString::number(addr, 16)));
+    menu->addAction(actionHere);
+    if (addr < m_baseAddr || addr >= m_baseAddr + m_size)
+        actionHere->setEnabled(false);
+    if (!m_canRequestNewWindow)
+        actionNew->setEnabled(false);
+    menu->addAction(actionNew);
+    if (!actionHere->isEnabled() && !actionNew->isEnabled())
+        menu->setEnabled(false);
+}
+
+void BinEditor::setNewWindowRequestAllowed()
+{
+    m_canRequestNewWindow = true;
 }

@@ -174,7 +174,8 @@ public:
         m_mimeType(QLatin1String(BINEditor::Constants::C_BINEDITOR_MIMETYPE))
     {
         m_editor = parent;
-        connect(m_editor, SIGNAL(lazyDataRequested(quint64, bool)), this, SLOT(provideData(quint64)));
+        connect(m_editor, SIGNAL(lazyDataRequested(Core::IEditor *, quint64, bool)),
+            this, SLOT(provideData(Core::IEditor *, quint64)));
     }
     ~BinEditorFile() {}
 
@@ -211,7 +212,7 @@ public:
     }
 
 private slots:
-    void provideData(quint64 block) {
+    void provideData(Core::IEditor *, quint64 block) {
         QFile file(m_fileName);
         if (file.open(QIODevice::ReadOnly)) {
             int blockSize = m_editor->lazyDataBlockSize();

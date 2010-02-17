@@ -37,6 +37,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QDebug>
+#include <QtCore/QList>
 #include <QtCore/QPointer>
 #include <QtGui/QAction>
 
@@ -61,15 +62,15 @@ public:
 
 public slots:
     // Called from Engine
-    void addLazyData(quint64 addr, const QByteArray &data);
+    void addLazyData(QObject *editorToken, quint64 addr, const QByteArray &data);
     // Called from Editor
-    void fetchLazyData(quint64 block, bool sync);
+    void fetchLazyData(Core::IEditor *, quint64 block, bool sync);
 
 private:
-    void init(quint64 startaddr);
+    Q_SLOT void createBinEditor(quint64 startAddr);
 
     QPointer<IDebuggerEngine> m_engine;
-    QPointer<Core::IEditor> m_editor;
+    QList<QPointer<Core::IEditor> > m_editors;
     QPointer<DebuggerManager> m_manager;
 };
 

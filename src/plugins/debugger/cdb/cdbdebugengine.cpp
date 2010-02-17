@@ -1135,7 +1135,7 @@ void CdbDebugEngine::fetchDisassembler(DisassemblerViewAgent *agent)
     }
 }
 
-void CdbDebugEngine::fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length)
+void CdbDebugEngine::fetchMemory(MemoryViewAgent *agent, QObject *token, quint64 addr, quint64 length)
 {
     if (!m_d->m_hDebuggeeProcess && !length)
         return;
@@ -1149,7 +1149,7 @@ void CdbDebugEngine::fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 l
     }
     if (received < length)
         data.truncate(received);
-    agent->addLazyData(addr, data);
+    agent->addLazyData(token, addr, data);
 }
 
 void CdbDebugEngine::reloadModules()

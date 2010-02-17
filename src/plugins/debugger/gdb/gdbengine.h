@@ -428,7 +428,8 @@ private: ////////// View & Data Stuff //////////
 
     virtual void assignValueInDebugger(const QString &expr, const QString &value);
 
-    virtual void fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length);
+    virtual void fetchMemory(MemoryViewAgent *agent, QObject *token,
+        quint64 addr, quint64 length);
     void handleFetchMemory(const GdbResponse &response);
 
     virtual void watchPoint(const QPoint &);

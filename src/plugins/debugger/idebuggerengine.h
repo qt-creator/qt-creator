@@ -112,7 +112,7 @@ public:
     virtual void reloadFullStack() = 0;
 
     virtual void watchPoint(const QPoint &) {}
-    virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length)
+    virtual void fetchMemory(MemoryViewAgent *, QObject *, quint64 addr, quint64 length)
         { Q_UNUSED(addr); Q_UNUSED(length); }
     virtual void fetchDisassembler(DisassemblerViewAgent *) {}
     virtual void setRegisterValue(int regnr, const QString &value)

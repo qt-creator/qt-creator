@@ -3542,21 +3542,23 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
 
 struct MemoryAgentCookie
 {
-    MemoryAgentCookie() : agent(0), address(0) {}
-    MemoryAgentCookie(MemoryViewAgent *agent_, quint64 address_)
-        : agent(agent_), address(address_)
+    MemoryAgentCookie() : agent(0), token(0), address(0) {}
+    MemoryAgentCookie(MemoryViewAgent *agent_, QObject *token_, quint64 address_)
+        : agent(agent_), token(token_), address(address_)
     {}
     QPointer<MemoryViewAgent> agent;
+    QPointer<QObject> token;
     quint64 address;
 };
 
-void GdbEngine::fetchMemory(MemoryViewAgent *agent, quint64 addr, quint64 length)
+void GdbEngine::fetchMemory(MemoryViewAgent *agent, QObject *token, quint64 addr,
+                            quint64 length)
 {
     //qDebug() << "GDB MEMORY FETCH" << agent << addr << length;
     postCommand("-data-read-memory " + QByteArray::number(addr) + " x 1 1 "
             + QByteArray::number(length),
         NeedsStop, CB(handleFetchMemory),
-        QVariant::fromValue(MemoryAgentCookie(agent, addr)));
+        QVariant::fromValue(MemoryAgentCookie(agent, token, addr)));
 }
 
 void GdbEngine::handleFetchMemory(const GdbResponse &response)
@@ -3581,7 +3583,7 @@ void GdbEngine::handleFetchMemory(const GdbResponse &response)
         QTC_ASSERT(ok, return);
         ba.append(c);
     }
-    ac.agent->addLazyData(ac.address, ba);
+    ac.agent->addLazyData(ac.token, ac.address, ba);
 }
 
 

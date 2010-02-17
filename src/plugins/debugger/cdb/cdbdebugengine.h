@@ -90,7 +90,7 @@ public:
     virtual void attemptBreakpointSynchronization();
 
     virtual void fetchDisassembler(DisassemblerViewAgent *agent);
-    virtual void fetchMemory(MemoryViewAgent *, quint64 addr, quint64 length);
+    virtual void fetchMemory(MemoryViewAgent *, QObject *, quint64 addr, quint64 length);
 
     virtual void reloadModules();
     virtual void loadSymbols(const QString &moduleName);

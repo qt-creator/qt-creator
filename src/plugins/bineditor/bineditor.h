@@ -40,6 +40,8 @@
 #include <QtGui/QTextDocument>
 #include <QtGui/QTextFormat>
 
+QT_FORWARD_DECLARE_CLASS(QMenu)
+
 namespace Core {
 class IEditor;
 }
@@ -69,6 +71,7 @@ public:
     Q_INVOKABLE void setLazyData(quint64 startAddr, int range, int blockSize = 4096);
     inline int lazyDataBlockSize() const { return m_blockSize; }
     Q_INVOKABLE void addLazyData(quint64 block, const QByteArray &data);
+    Q_INVOKABLE void setNewWindowRequestAllowed();
     bool save(const QString &oldFileName, const QString &newFileName);
 
     void zoomIn(int range = 1);
@@ -116,7 +119,7 @@ public:
 public Q_SLOTS:
     void setFontSettings(const TextEditor::FontSettings &fs);
     void highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags findFlags = 0);
-    void copy();
+    void copy(bool raw = false);
 
 Q_SIGNALS:
     void modificationChanged(bool modified);
@@ -125,7 +128,8 @@ Q_SIGNALS:
     void copyAvailable(bool);
     void cursorPositionChanged(int position);
 
-    void lazyDataRequested(quint64 block, bool synchronous);
+    void lazyDataRequested(Core::IEditor *editor, quint64 block, bool synchronous);
+    void newWindowRequested(quint64 address);
 
 protected:
     void scrollContentsBy(int dx, int dy);
@@ -140,6 +144,7 @@ protected:
     void focusInEvent(QFocusEvent *);
     void focusOutEvent(QFocusEvent *);
     void timerEvent(QTimerEvent *);
+    void contextMenuEvent(QContextMenuEvent *event);
 
 private:
     bool m_inLazyMode;
@@ -203,6 +208,9 @@ private:
     int findPattern(const QByteArray &data, const QByteArray &dataHex, int from, int offset, int *match);
     void drawItems(QPainter *painter, int x, int y, const QString &itemString);
 
+    void setupJumpToMenuAction(QMenu *menu, QAction *actionHere, QAction *actionNew,
+                               quint64 addr);
+
     struct BinEditorEditCommand {
         int position;
         uchar character;
@@ -214,6 +222,7 @@ private:
     Core::IEditor *m_ieditor;
     QString m_addressString;
     int m_addressBytes;
+    bool m_canRequestNewWindow;
 };
 
 } // namespace BINEditor
