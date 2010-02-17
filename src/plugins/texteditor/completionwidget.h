@@ -33,8 +33,6 @@
 #include <QtGui/QListView>
 #include <QPointer>
 
-class AutoCompletionModel;
-
 namespace TextEditor {
 
 struct CompletionItem;
@@ -42,42 +40,70 @@ class ITextEditable;
 
 namespace Internal {
 
+class AutoCompletionModel;
 class CompletionSupport;
+class CompletionListView;
 
 /* The completion widget is responsible for showing a list of possible completions.
    It is only used by the CompletionSupport.
  */
-class CompletionWidget : public QListView
+class CompletionWidget : public QFrame
 {
     Q_OBJECT
 
 public:
     CompletionWidget(CompletionSupport *support, ITextEditable *editor);
+    ~CompletionWidget();
 
     void setQuickFix(bool quickFix);
     void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
     void showCompletions(int startPos);
-    void keyboardSearch(const QString &search);
-    void closeList(const QModelIndex &index = QModelIndex());
-
-protected:
-    bool event(QEvent *e);
 
 signals:
     void itemSelected(const TextEditor::CompletionItem &item);
     void completionListClosed();
 
-private slots:
-    void completionActivated(const QModelIndex &index);
+public slots:
+    void closeList(const QModelIndex &index = QModelIndex());
 
 private:
     void updatePositionAndSize(int startPos);
 
-    QPointer<QFrame> m_popupFrame;
+private:
+    CompletionSupport *m_support;
+    ITextEditable *m_editor;
+    CompletionListView *m_completionListView;
+};
+
+class CompletionListView : public QListView
+{
+    Q_OBJECT
+
+public:
+    ~CompletionListView();
+
+signals:
+    void itemSelected(const TextEditor::CompletionItem &item);
+    void completionListClosed();
+
+protected:
+    bool event(QEvent *e);
+
+private:
+    friend class CompletionWidget;
+
+    CompletionListView(CompletionSupport *support, ITextEditable *editor, CompletionWidget *completionWidget);
+
+    void setQuickFix(bool quickFix);
+    void setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems);
+    void keyboardSearch(const QString &search);
+    void closeList(const QModelIndex &index);
+
     bool m_blockFocusOut;
     bool m_quickFix;
     ITextEditable *m_editor;
     QWidget *m_editorWidget;
+    CompletionWidget *m_completionWidget;
     AutoCompletionModel *m_model;
     CompletionSupport *m_support;
 };

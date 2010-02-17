@@ -47,10 +47,13 @@ using namespace TextEditor::Internal;
 
 #define NUMBER_OF_VISIBLE_ITEMS 10
 
+namespace TextEditor {
+namespace Internal {
+
 class AutoCompletionModel : public QAbstractListModel
 {
 public:
-    AutoCompletionModel(QObject *parent, const QList<CompletionItem> &items);
+    AutoCompletionModel(QObject *parent);
 
     inline const CompletionItem &itemAt(const QModelIndex &index) const
     { return m_items.at(index.row()); }
@@ -64,10 +67,13 @@ private:
     QList<CompletionItem> m_items;
 };
 
-AutoCompletionModel::AutoCompletionModel(QObject *parent, const QList<CompletionItem> &items)
+} // namespace Internal
+} // namespace TextEditor
+
+
+AutoCompletionModel::AutoCompletionModel(QObject *parent)
     : QAbstractListModel(parent)
 {
-    m_items = items;
 }
 
 void AutoCompletionModel::setItems(const QList<CompletionItem> &items)
@@ -97,13 +103,119 @@ QVariant AutoCompletionModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+
 CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *editor)
-    : QListView(),
+    : QFrame(0, Qt::Popup),
+      m_support(support),
+      m_editor(editor)
+{
+    // We disable the frame on this list view and use a QFrame around it instead.
+    // This improves the look with QGTKStyle.
+#ifndef Q_WS_MAC
+    setFrameStyle(frameStyle());
+#endif
+
+    setObjectName(QLatin1String("m_popupFrame"));
+    setAttribute(Qt::WA_DeleteOnClose);
+    setMinimumSize(1, 1);
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(0);
+
+    m_completionListView = new CompletionListView(support, editor, this);
+    layout->addWidget(m_completionListView);
+    setFocusProxy(m_completionListView);
+
+    connect(m_completionListView, SIGNAL(itemSelected(TextEditor::CompletionItem)),
+            this, SIGNAL(itemSelected(TextEditor::CompletionItem)));
+    connect(m_completionListView, SIGNAL(completionListClosed()),
+            this, SIGNAL(completionListClosed()));
+    connect(m_completionListView, SIGNAL(activated(QModelIndex)),
+            SLOT(closeList(QModelIndex)));
+
+}
+
+CompletionWidget::~CompletionWidget()
+{
+}
+
+void CompletionWidget::setQuickFix(bool quickFix)
+{
+    m_completionListView->setQuickFix(quickFix);
+}
+
+void CompletionWidget::setCompletionItems(const QList<TextEditor::CompletionItem> &completionitems)
+{
+    m_completionListView->setCompletionItems(completionitems);
+}
+
+void CompletionWidget::closeList(const QModelIndex &index)
+{
+    m_completionListView->closeList(index);
+    close();
+}
+
+void CompletionWidget::showCompletions(int startPos)
+{
+    updatePositionAndSize(startPos);
+    show();
+    setFocus();
+}
+
+void CompletionWidget::updatePositionAndSize(int startPos)
+{
+    // Determine size by calculating the space of the visible items
+    QAbstractItemModel *model = m_completionListView->model();
+    int visibleItems = model->rowCount();
+    if (visibleItems > NUMBER_OF_VISIBLE_ITEMS)
+        visibleItems = NUMBER_OF_VISIBLE_ITEMS;
+
+    const QStyleOptionViewItem &option = m_completionListView->viewOptions();
+
+    QSize shint;
+    for (int i = 0; i < visibleItems; ++i) {
+        QSize tmp = m_completionListView->itemDelegate()->sizeHint(option, model->index(i, 0));
+        if (shint.width() < tmp.width())
+            shint = tmp;
+    }
+
+    const int fw = frameWidth();
+    const int width = shint.width() + fw * 2 + 30;
+    const int height = shint.height() * visibleItems + fw * 2;
+
+    // Determine the position, keeping the popup on the screen
+    const QRect cursorRect = m_editor->cursorRect(startPos);
+    const QDesktopWidget *desktop = QApplication::desktop();
+
+    QWidget *editorWidget = m_editor->widget();
+
+#ifdef Q_WS_MAC
+    const QRect screen = desktop->availableGeometry(desktop->screenNumber(editorWidget));
+#else
+    const QRect screen = desktop->screenGeometry(desktop->screenNumber(editorWidget));
+#endif
+
+    QPoint pos = cursorRect.bottomLeft();
+    pos.rx() -= 16 + fw;    // Space for the icons
+
+    if (pos.y() + height > screen.bottom())
+        pos.setY(cursorRect.top() - height);
+
+    if (pos.x() + width > screen.right())
+        pos.setX(screen.right() - width);
+
+    setGeometry(pos.x(), pos.y(), width, height);
+}
+
+
+CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable *editor, CompletionWidget *completionWidget)
+    : QListView(completionWidget),
       m_blockFocusOut(false),
       m_quickFix(false),
       m_editor(editor),
       m_editorWidget(editor->widget()),
-      m_model(0),
+      m_completionWidget(completionWidget),
+      m_model(new AutoCompletionModel(this)),
       m_support(support)
 {
     QTC_ASSERT(m_editorWidget, return);
@@ -112,30 +224,17 @@ CompletionWidget::CompletionWidget(CompletionSupport *support, ITextEditable *ed
     setUniformItemSizes(true);
     setSelectionBehavior(QAbstractItemView::SelectItems);
     setSelectionMode(QAbstractItemView::SingleSelection);
-
-    connect(this, SIGNAL(activated(const QModelIndex &)),
-            this, SLOT(completionActivated(const QModelIndex &)));
-
-    // We disable the frame on this list view and use a QFrame around it instead.
-    // This improves the look with QGTKStyle.
-    m_popupFrame = new QFrame(0, Qt::Popup);
-#ifndef Q_WS_MAC
-    m_popupFrame->setFrameStyle(frameStyle());
-#endif
     setFrameStyle(QFrame::NoFrame);
-    setParent(m_popupFrame);
-    m_popupFrame->setObjectName("m_popupFrame");
-    m_popupFrame->setAttribute(Qt::WA_DeleteOnClose);
-    QVBoxLayout *layout = new QVBoxLayout(m_popupFrame);
-    layout->setMargin(0);
-    layout->addWidget(this);
-
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_popupFrame->setMinimumSize(1, 1);
     setMinimumSize(1, 1);
+    setModel(m_model);
 }
 
-bool CompletionWidget::event(QEvent *e)
+CompletionListView::~CompletionListView()
+{
+}
+
+bool CompletionListView::event(QEvent *e)
 {
     if (m_blockFocusOut)
         return QListView::event(e);
@@ -151,7 +250,7 @@ bool CompletionWidget::event(QEvent *e)
             index = currentIndex();
         }
 #endif
-        closeList(index);
+        m_completionWidget->closeList(index);
         return true;
     } else if (e->type() == QEvent::ShortcutOverride) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
@@ -162,7 +261,6 @@ bool CompletionWidget::event(QEvent *e)
             if (ke->modifiers() == Qt::ControlModifier)
             {
                 e->accept();
-                QModelIndex oldIndex = currentIndex();
                 int change = (ke->key() == Qt::Key_N) ? 1 : -1;
                 int nrows = model()->rowCount();
                 int row = currentIndex().row();
@@ -181,18 +279,22 @@ bool CompletionWidget::event(QEvent *e)
             if (ke->modifiers() == Qt::ControlModifier)
                 forwardKeys = false;
             break;
+
         case Qt::Key_Escape:
-            closeList();
+            m_completionWidget->closeList();
             return true;
+
         case Qt::Key_Right:
         case Qt::Key_Left:
             break;
+
         case Qt::Key_Tab:
         case Qt::Key_Return:
             //independently from style, accept current entry if return is pressed
             if (qApp->focusWidget() == this)
-                closeList(currentIndex());
+                m_completionWidget->closeList(currentIndex());
             return true;
+
         case Qt::Key_Up:
             if (!ke->isAutoRepeat()
                 && currentIndex().row() == 0) {
@@ -201,17 +303,22 @@ bool CompletionWidget::event(QEvent *e)
             }
             forwardKeys = false;
             break;
+
         case Qt::Key_Down:
             if (!ke->isAutoRepeat()
                 && currentIndex().row() == model()->rowCount()-1) {
                 setCurrentIndex(model()->index(0, 0));
                 return true;
             }
+            forwardKeys = false;
+            break;
+
         case Qt::Key_Enter:
         case Qt::Key_PageDown:
         case Qt::Key_PageUp:
             forwardKeys = false;
             break;
+
         default:
             // if a key is forwarded, completion widget is re-opened and selected item is reset to first,
             // so only forward keys that insert text and refine the completed item
@@ -233,41 +340,19 @@ bool CompletionWidget::event(QEvent *e)
     return QListView::event(e);
 }
 
-void CompletionWidget::keyboardSearch(const QString &search)
+void CompletionListView::keyboardSearch(const QString &search)
 {
     Q_UNUSED(search)
 }
 
-void CompletionWidget::closeList(const QModelIndex &index)
-{
-    m_blockFocusOut = true;
-    if (index.isValid())
-        emit itemSelected(m_model->itemAt(index));
-
-    close();
-    if (m_popupFrame) {
-        m_popupFrame->close();
-        m_popupFrame = 0;
-    }
-
-    emit completionListClosed();
-
-    m_blockFocusOut = false;
-}
-
-void CompletionWidget::setQuickFix(bool quickFix)
+void CompletionListView::setQuickFix(bool quickFix)
 {
     m_quickFix = quickFix;
 }
 
-void CompletionWidget::setCompletionItems(const QList<TextEditor::CompletionItem> &completionItems)
+void CompletionListView::setCompletionItems(const QList<TextEditor::CompletionItem> &completionItems)
 {
-    if (!m_model) {
-        m_model = new AutoCompletionModel(this, completionItems);
-        setModel(m_model);
-    } else {
-        m_model->setItems(completionItems);
-    }
+    m_model->setItems(completionItems);
 
     // Select the first of the most relevant completion items
     int relevance = INT_MIN;
@@ -283,56 +368,14 @@ void CompletionWidget::setCompletionItems(const QList<TextEditor::CompletionItem
     setCurrentIndex(m_model->index(mostRelevantIndex));
 }
 
-void CompletionWidget::showCompletions(int startPos)
+void CompletionListView::closeList(const QModelIndex &index)
 {
-    updatePositionAndSize(startPos);
-    m_popupFrame->show();
-    show();
-    setFocus();
-}
+    m_blockFocusOut = true;
 
-void CompletionWidget::updatePositionAndSize(int startPos)
-{
-    // Determine size by calculating the space of the visible items
-    int visibleItems = m_model->rowCount();
-    if (visibleItems > NUMBER_OF_VISIBLE_ITEMS)
-        visibleItems = NUMBER_OF_VISIBLE_ITEMS;
+    if (index.isValid())
+        emit itemSelected(m_model->itemAt(index));
 
-    const QStyleOptionViewItem &option = viewOptions();
+    emit completionListClosed();
 
-    QSize shint;
-    for (int i = 0; i < visibleItems; ++i) {
-        QSize tmp = itemDelegate()->sizeHint(option, m_model->index(i));
-        if (shint.width() < tmp.width())
-            shint = tmp;
-    }
-
-    const int frameWidth = m_popupFrame->frameWidth();
-    const int width = shint.width() + frameWidth * 2 + 30;
-    const int height = shint.height() * visibleItems + frameWidth * 2;
-
-    // Determine the position, keeping the popup on the screen
-    const QRect cursorRect = m_editor->cursorRect(startPos);
-    const QDesktopWidget *desktop = QApplication::desktop();
-#ifdef Q_WS_MAC
-    const QRect screen = desktop->availableGeometry(desktop->screenNumber(m_editorWidget));
-#else
-    const QRect screen = desktop->screenGeometry(desktop->screenNumber(m_editorWidget));
-#endif
-
-    QPoint pos = cursorRect.bottomLeft();
-    pos.rx() -= 16 + frameWidth;    // Space for the icons
-
-    if (pos.y() + height > screen.bottom())
-        pos.setY(cursorRect.top() - height);
-
-    if (pos.x() + width > screen.right())
-        pos.setX(screen.right() - width);
-
-    m_popupFrame->setGeometry(pos.x(), pos.y(), width, height);
-}
-
-void CompletionWidget::completionActivated(const QModelIndex &index)
-{
-    closeList(index);
+    m_blockFocusOut = false;
 }
