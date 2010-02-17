@@ -160,5 +160,50 @@ Item {
             }
         }
     }
+    Rectangle {
+        anchors.right:parent.right
+        anchors.left:parent.left
+        anchors.top:parent.top
+        anchors.topMargin:1
+        anchors.rightMargin:2
+        height:1
+        color:Qt.lighter(systemPalette.highlight)
+    }
+    Rectangle {
+        anchors.right:parent.right
+        anchors.left:parent.left
+        anchors.bottom:parent.bottom
+        anchors.bottomMargin:1
+        anchors.leftMargin:2
+        height:1
+        color:Qt.darker(systemPalette.highlight)
+    }
+    Rectangle {
+        anchors.left:parent.left
+        anchors.top:parent.top
+        anchors.bottom:parent.bottom
+        anchors.leftMargin:1
+        anchors.bottomMargin:2
+        width:1
+        //color:Qt.lighter(systemPalette.highlight)
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: Qt.lighter(systemPalette.highlight) }
+            GradientStop { position: 1.0; color: systemPalette.highlight }
+        }
+    }
+    Rectangle {
+        anchors.right:parent.right
+        anchors.top:parent.top
+        anchors.bottom:parent.bottom
+        anchors.rightMargin:1
+        anchors.topMargin:2
+        width:1
+        //color:Qt.darker(systemPalette.highlight)
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: systemPalette.highlight }
+            GradientStop { position: 1.0; color: Qt.darker(systemPalette.highlight) }
+        }
+    }
+
 }
 

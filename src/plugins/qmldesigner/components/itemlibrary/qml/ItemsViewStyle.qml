@@ -7,12 +7,15 @@ Item {
     property string scrollbarBackgroundColor: "#505050"
     property string scrollbarHandleColor: "#303030"
 
-    property string itemNameTextColor: "#c0c0c0"
+    property string itemNameTextColor: "#FFFFFF"
 
     property string sectionTitleTextColor: "#f0f0f0"
     property string sectionTitleBackgroundColor: "#909090"
 
-    property string gridLineColor: "#a0a0a0"
+//    property string gridLineLighter: "#787878"
+//    property string gridLineDarker: "#656565"
+    property string gridLineLighter: "#808080"
+    property string gridLineDarker: "#606060"
 
     property int sectionTitleHeight: 20
     property int sectionTitleSpacing: 2

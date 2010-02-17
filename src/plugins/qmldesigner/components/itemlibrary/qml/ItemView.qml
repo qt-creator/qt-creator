@@ -14,33 +14,44 @@ Item {
     Rectangle {
         anchors.top: parent.top
         anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.right: parent.right        
         height: 1
-        color: style.gridLineColor
+        color: style.gridLineLighter
     }
     Rectangle {
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: -1
         anchors.left: parent.left
         anchors.right: parent.right
         height: 1
-        color: style.gridLineColor
+        color: style.gridLineDarker
     }
     Rectangle {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         width: 1
-        color: style.gridLineColor
+        color: style.gridLineLighter
     }
     Rectangle {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: -1
         anchors.right: parent.right
-        anchors.rightMargin: -1
         width: 1
-        color: style.gridLineColor
+        color: style.gridLineDarker
+    }
+    Rectangle {
+        anchors.top:parent.top
+        anchors.right:parent.right
+        width:1
+        height:1
+        color: style.backgroundColor
+    }
+    Rectangle {
+        anchors.bottom:parent.bottom
+        anchors.left:parent.left
+        width:1
+        height:1
+        color: style.backgroundColor
     }
 
     Image {
