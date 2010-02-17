@@ -38,6 +38,8 @@
 
 #include "objecttree.h"
 
+Q_DECLARE_METATYPE(QmlDebugObjectReference)
+
 ObjectTree::ObjectTree(QmlEngineDebug *client, QWidget *parent)
     : QTreeWidget(parent),
       m_client(client),
