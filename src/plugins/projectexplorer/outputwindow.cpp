@@ -38,6 +38,7 @@
 #include <coreplugin/icontext.h>
 #include <find/basetextfind.h>
 #include <aggregation/aggregate.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QtGui/QIcon>
 #include <QtGui/QScrollBar>
@@ -343,15 +344,18 @@ bool OutputPane::canNavigate()
 
 OutputWindow::OutputWindow(QWidget *parent)
     : QPlainTextEdit(parent)
+    , m_qmlError(QLatin1String("(file:///[^:]+:\\d+:\\d+):"))
+    , m_enforceNewline(false)
+    , m_scrollToBottom(false)
+    , m_linksActive(true)
+    , m_mousePressed(false)
 {
-    m_enforceNewline = false;
-    m_scrollToBottom = false;
-
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     //setCenterOnScroll(false);
     setWindowTitle(tr("Application Output Window"));
     setWindowIcon(QIcon(":/qt4projectmanager/images/window.png"));
     setFrameShape(QFrame::NoFrame);
+    setMouseTracking(true);
 
     static uint usedIds = 0;
     Core::ICore *core = Core::ICore::instance();
@@ -367,12 +371,13 @@ OutputWindow::OutputWindow(QWidget *parent)
     QAction *pasteAction = new QAction(this);
     QAction *selectAllAction = new QAction(this);
 
-    core->actionManager()->registerAction(undoAction, Core::Constants::UNDO, context);
-    core->actionManager()->registerAction(redoAction, Core::Constants::REDO, context);
-    core->actionManager()->registerAction(cutAction, Core::Constants::CUT, context);
-    core->actionManager()->registerAction(copyAction, Core::Constants::COPY, context);
-    core->actionManager()->registerAction(pasteAction, Core::Constants::PASTE, context);
-    core->actionManager()->registerAction(selectAllAction, Core::Constants::SELECTALL, context);
+    Core::ActionManager *am = core->actionManager();
+    am->registerAction(undoAction, Core::Constants::UNDO, context);
+    am->registerAction(redoAction, Core::Constants::REDO, context);
+    am->registerAction(cutAction, Core::Constants::CUT, context);
+    am->registerAction(copyAction, Core::Constants::COPY, context);
+    am->registerAction(pasteAction, Core::Constants::PASTE, context);
+    am->registerAction(selectAllAction, Core::Constants::SELECTALL, context);
 
     connect(undoAction, SIGNAL(triggered()), this, SLOT(undo()));
     connect(redoAction, SIGNAL(triggered()), this, SLOT(redo()));
@@ -424,7 +429,6 @@ void OutputWindow::appendOutput(const QString &out)
     enableUndoRedo();
 }
 
-
 void OutputWindow::appendOutputInline(const QString &out)
 {
     m_scrollToBottom = true;
@@ -455,7 +459,19 @@ void OutputWindow::appendOutputInline(const QString &out)
         QTextCharFormat format;
         format.setForeground(palette().text().color());
         setCurrentCharFormat(format);
-        appendPlainText(s);
+
+        // Convert to HTML, preserving newlines and whitespace
+        s = Qt::convertFromPlainText(s);
+
+        // Create links from QML errors (anything of the form "file:///...:[line]:[column]:")
+        int index = 0;
+        while ((index = m_qmlError.indexIn(s, index)) != -1) {
+            const QString captured = m_qmlError.cap(1);
+            const QString link = QString(QLatin1String("<a href=\"%1\">%2</a>")).arg(captured, captured);
+            s.replace(index, captured.length(), link);
+            index += link.length();
+        }
+        appendHtml(s);
     }
 
     enableUndoRedo();
@@ -496,4 +512,48 @@ void OutputWindow::enableUndoRedo()
 {
     setMaximumBlockCount(0);
     setUndoRedoEnabled(true);
+}
+
+void OutputWindow::mousePressEvent(QMouseEvent *e)
+{
+    QPlainTextEdit::mousePressEvent(e);
+    m_mousePressed = true;
+}
+
+void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
+{
+    QPlainTextEdit::mouseReleaseEvent(e);
+    m_mousePressed = false;
+
+    if (!m_linksActive) {
+        // Mouse was released, activate links again
+        m_linksActive = true;
+        return;
+    }
+
+    const QString href = anchorAt(e->pos());
+    if (!href.isEmpty()) {
+        QRegExp qmlErrorLink(QLatin1String("^file://(/[^:]+):(\\d+):(\\d+)"));
+
+        if (qmlErrorLink.indexIn(href) != -1) {
+            const QString fileName = qmlErrorLink.cap(1);
+            const int line = qmlErrorLink.cap(2).toInt();
+            const int column = qmlErrorLink.cap(3).toInt();
+            TextEditor::BaseTextEditor::openEditorAt(fileName, line, column - 1);
+        }
+    }
+}
+
+void OutputWindow::mouseMoveEvent(QMouseEvent *e)
+{
+    QPlainTextEdit::mouseMoveEvent(e);
+
+    // Cursor was dragged to make a selection, deactivate links
+    if (m_mousePressed && textCursor().hasSelection())
+        m_linksActive = false;
+
+    if (!m_linksActive || anchorAt(e->pos()).isEmpty())
+        viewport()->setCursor(Qt::IBeamCursor);
+    else
+        viewport()->setCursor(Qt::PointingHandCursor);
 }

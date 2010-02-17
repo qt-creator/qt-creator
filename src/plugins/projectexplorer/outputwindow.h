@@ -131,11 +131,20 @@ public:
 
     void showEvent(QShowEvent *);
 
+protected:
+    void mousePressEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+
 private:
     Core::BaseContext *m_outputWindowContext;
     void enableUndoRedo();
+
+    QRegExp m_qmlError;
     bool m_enforceNewline;
     bool m_scrollToBottom;
+    bool m_linksActive;
+    bool m_mousePressed;
 };
 
 #if 0
