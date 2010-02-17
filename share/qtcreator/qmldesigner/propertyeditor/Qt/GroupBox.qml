@@ -25,7 +25,7 @@ QExtGroupBox {
 
         text: groupBox.caption;
         focusPolicy: "Qt::NoFocus";
-        styleSheetFile: "specialcheckBox.css";
+        styleSheetFile: "specialCheckBox.css";
         y: 0;		
         x: 0;
         fixedHeight: 17
