@@ -74,15 +74,12 @@ QExtGroupBox {
                     onColorChanged: {
                         colorGroupBox.backendColor.value = color;
                     }
-                    hue: hueControl.hue;
                 }
 
                 HueControl {
                     id: hueControl;
-                    color: colorGroupBox.backendColor.value;
-                    onColorChanged: {
-                        colorGroupBox.backendColor.value = color;
-                    }
+                    hue: colorControl.hue;
+                    onHueChanged: colorControl.hue=hue;
                 }
 
                 QWidget {
@@ -100,10 +97,10 @@ QExtGroupBox {
                                 }
 
                                 QSpinBox {
-                                    maximum: 360
-                                    value: colorControl.hue*360;
-                                    onValueChanged: if (colorControl.hue !=value/360.0)
-                                        colorControl.hue=value/360.0;
+                                    maximum: 359
+                                    value: colorControl.hue;
+                                    onValueChanged: if (colorControl.hue != value)
+                                        colorControl.hue=value;
                                 }
 
                             }
@@ -117,9 +114,9 @@ QExtGroupBox {
                                 }
                                 QSpinBox {
                                     maximum: 255
-                                    value: colorControl.saturation*255;
-                                    onValueChanged: if (colorControl.saturation !=value/255.0)
-                                        colorControl.saturation=value/255.0;
+                                    value: colorControl.saturation;
+                                    onValueChanged: if (colorControl.saturation !=value)
+                                            colorControl.saturation=value;
                                 }
                             }
 
@@ -132,16 +129,13 @@ QExtGroupBox {
                                 }
                                 QSpinBox {
                                     maximum: 255
-                                    value: colorControl.value*255;
-                                    onValueChanged: if (colorControl.value!=value/255.0)
-                                        colorControl.value=value/255.0;
+                                    value: colorControl.value;
+                                    onValueChanged: if (Math.floor(colorControl.value)!=value)
+                                        colorControl.value=value;
                                 }
-
                             }
                         }
 
-//                        QWidget {
-//                        }
                     }
                 }
             }

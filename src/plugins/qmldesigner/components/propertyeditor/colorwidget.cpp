@@ -84,12 +84,11 @@ namespace QmlDesigner {
 
     void HueControl::setCurrent(int y)
     {
-        QColor color(m_colorString);
         if (y<0) y=0;
-        if (y>119) y=119;
-        color.setHsvF(qreal(y) / 120.0, color.hsvSaturationF(), color.valueF());
-        setColor(color.name());
-        setHue(qreal(y) / 120.0);
+        if (y>120) y=120;
+        m_color.setHsv((y * 359)/120, m_color.hsvSaturation(), m_color.value());
+        update(); // redraw pointer
+        emit hueChanged();
     }
 
     void HueControl::paintEvent(QPaintEvent *event)
@@ -108,7 +107,7 @@ namespace QmlDesigner {
             for (int i = 0; i < height; i++)
             {
                 QColor c;
-                c.setHsvF(qreal(i) / 120.0, 1,1.0);
+                c.setHsv( (i*359) / 120.0, 255,255);
                 cacheP.fillRect(0, i, 10, i + 1, c);
             }
         }
@@ -117,7 +116,7 @@ namespace QmlDesigner {
 
         QVector<QPointF> points;
 
-        int y = hue() * 120 + 5;
+        int y = m_color.hueF() * 120 + 5;
 
         points.append(QPointF(15, y));
         points.append(QPointF(25, y + 5));
@@ -135,10 +134,8 @@ namespace QmlDesigner {
         if (x>120) x=120;
         if (y<0) y=0;
         if (y>120) y=120;
-        newColor.setHsvF(hue(), qreal(x) / 120, 1.0 - qreal(y) / 120);
-
-        QString newColorStr = QVariant(newColor).toString();
-        setColor(newColorStr);
+        newColor.setHsv(m_saturatedColor.hsvHue(), (x*255) / 120, 255 - (y*255) / 120);
+        setColor(newColor);
     }
 
     void ColorBox::paintEvent(QPaintEvent *event)
@@ -146,10 +143,12 @@ namespace QmlDesigner {
         QWidget::paintEvent(event);
 
         QPainter p(this);
-        QColor color(m_colorString);
 
-        if (m_hue != (m_lastHue) || (m_cache.isNull())) {
-            m_lastHue = m_hue;
+        if ((m_color.saturation()>1) && (m_color.value()>1))
+            m_saturatedColor.setHsv(m_color.hsvHue(),255,255);
+
+        if ((m_saturatedColor.hsvHue() != m_lastHue) || (m_cache.isNull())) {
+            m_lastHue = m_saturatedColor.hsvHue();
             m_cache = QPixmap(120, 120);
 
             int height = 120;
@@ -157,14 +156,11 @@ namespace QmlDesigner {
 
             QPainter chacheP(&m_cache);
 
-            if (color.hsvHueF() < 0)
-                color.setHsvF(hue(), color.hsvSaturationF(), color.valueF());
-
             for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)
                 {
                 QColor c;
-                c.setHsvF(color.hsvHueF(), qreal(x) / 120, 1.0 - qreal(y) / 120);
+                c.setHsv(m_saturatedColor.hsvHue(), (x*255) / 120, 255 - (y*255) / 120);
                 chacheP.setPen(c);
                 chacheP.drawPoint(x ,y);
             }
@@ -172,8 +168,8 @@ namespace QmlDesigner {
 
         p.drawPixmap(5, 5, m_cache);
 
-        int x = color.hsvSaturationF() * 120 + 5;
-        int y = 120 - color.valueF() * 120 + 5;
+        int x = m_color.hsvSaturationF() * 120 + 5;
+        int y = 120 - m_color.valueF() * 120 + 5;
 
         p.setPen(Qt::white);
         p.drawEllipse(x - 2, y - 2, 4, 4);

@@ -87,46 +87,53 @@ class ColorBox : public QWidget
 Q_OBJECT
 
 Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
-Q_PROPERTY(qreal hue READ hue WRITE setHue NOTIFY hueChanged)
-Q_PROPERTY(qreal saturation READ saturation WRITE setSaturation NOTIFY saturationChanged)
-Q_PROPERTY(qreal value READ value WRITE setValue NOTIFY valueChanged)
+Q_PROPERTY(int hue READ hue WRITE setHue NOTIFY hueChanged)
+Q_PROPERTY(int saturation READ saturation WRITE setSaturation NOTIFY saturationChanged)
+Q_PROPERTY(int value READ value WRITE setValue NOTIFY valueChanged)
 
 public:
 
-ColorBox(QWidget *parent = 0) : QWidget(parent), m_colorString("#ffffff"), m_hue(0), m_lastHue(0)
+ColorBox(QWidget *parent = 0) : QWidget(parent), m_color(Qt::white), m_saturatedColor(Qt::white), m_lastHue(0)
 {
     setFixedWidth(130);
     setFixedHeight(130);
 }
 
-void setHue(qreal newHue)
+void setHue(int newHue)
 {
-    if (m_hue == newHue)
+    if (m_color.hsvHue() == newHue)
         return;
 
-    m_hue = newHue;
+    m_color.setHsv(newHue,m_color.hsvSaturation(),m_color.value());
     update();
     emit hueChanged();
     emit colorChanged();
 }
 
-qreal hue() const
+int hue() const
 {
-    return m_hue;
+    return m_color.hue();
 }
 
 void setColor(const QString &colorStr)
 {
-    if (m_colorString == colorStr)
+    if (m_color.name() == colorStr)
         return;
 
-    qreal oldsaturation = saturation();
-    qreal oldvalue = value();
-    m_colorString = colorStr;
+    setColor(QColor(colorStr));
+}
+
+void setColor(const QColor &color)
+{
+    if (m_color == color)
+        return;
+
+    int oldsaturation = m_color.hsvSaturation();
+    int oldvalue = m_color.value();
+    int oldhue = m_color.hsvHue();
+    m_color=color;
     update();
-    qreal newHue = QColor(m_colorString).hsvHueF();
-    if (newHue >= 0)
-        setHue(newHue);
+    if (oldhue != m_color.hsvHue()) emit hueChanged();
     if (oldsaturation != saturation()) emit saturationChanged();
     if (oldvalue != value()) emit valueChanged();
     emit colorChanged();
@@ -134,37 +141,33 @@ void setColor(const QString &colorStr)
 
 QString color() const
 {
-    return m_colorString;
+    return m_color.name();
 }
 
 
-qreal saturation() const
+int saturation() const
 {
-  return QColor(m_colorString).hsvSaturationF();
+    return m_color.hsvSaturation();
 }
 
-void setSaturation(qreal newsaturation)
+void setSaturation(int newsaturation)
 {
-    QColor color(m_colorString);
-    if (color.hsvSaturationF()==newsaturation) return;
-    color.setHsvF(color.hsvHueF(),newsaturation,color.valueF());
-    m_colorString=color.name();
+    if (m_color.hsvSaturation()==newsaturation) return;
+    m_color.setHsv(m_color.hsvHue(),newsaturation,m_color.value());
     update();
     emit saturationChanged();
     emit colorChanged();
 }
 
-qreal value() const
+int value() const
 {
-  return QColor(m_colorString).valueF();
+    return m_color.value();
 }
 
-void setValue(qreal newvalue)
+void setValue(int newvalue)
 {
-    QColor color(m_colorString);
-    if (color.valueF()==newvalue) return;
-    color.setHsvF(color.hsvHueF(),color.hsvSaturationF(),newvalue);
-    m_colorString=color.name();
+    if (m_color.value()==newvalue) return;
+    m_color.setHsv(m_color.hsvHue(),m_color.hsvSaturation(),newvalue);
     update();
     emit valueChanged();
     emit colorChanged();
@@ -204,10 +207,10 @@ void setCurrent(int x, int y);
 
 
 private:
-    QString m_colorString;
+    QColor m_color;
+    QColor m_saturatedColor;
     bool m_mousePressed;
-    qreal m_hue;
-    qreal m_lastHue;
+    int m_lastHue;
     QPixmap m_cache;
 };
 
@@ -215,53 +218,31 @@ class HueControl : public QWidget
 {
 Q_OBJECT
 
-Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
 Q_PROPERTY(qreal hue READ hue WRITE setHue NOTIFY hueChanged)
 
 public:
 
-HueControl(QWidget *parent = 0) : QWidget(parent), m_colorString("#ffffff"), m_mousePressed(false), m_hue(0)
+HueControl(QWidget *parent = 0) : QWidget(parent), m_color(Qt::white), m_mousePressed(false)
 {
     setFixedWidth(40);
     setFixedHeight(130);
 }
 
-void setHue(qreal newHue)
+void setHue(int newHue)
 {
-    if (m_hue == newHue)
+    if (m_color.hsvHue() == newHue)
         return;
-
-    m_hue = newHue;
-    QColor color(m_colorString);
-    color.setHsvF(newHue, color.hsvSaturationF(), color.valueF());
-    m_colorString = color.name();
+    m_color.setHsv(newHue, m_color.hsvSaturation(), m_color.value());
     update();
     emit hueChanged();
 }
 
-qreal hue() const
+int hue() const
 {
-    return m_hue;
-}
-
-void setColor(const QString &colorStr)
-{
-    if (m_colorString == colorStr)
-        return;
-
-    m_colorString = colorStr;
-    m_hue = QColor(m_colorString).hsvHueF();
-    update();
-    emit colorChanged();
-}
-
-QString color() const
-{
-    return m_colorString;
+    return m_color.hsvHue();
 }
 
 signals:
-    void colorChanged();
     void hueChanged();
 
 protected:
@@ -292,9 +273,8 @@ void setCurrent(int y);
 
 
 private:
-    QString m_colorString;
+    QColor m_color;
     bool m_mousePressed;
-    qreal m_hue;
     QPixmap m_cache;
 };
 
