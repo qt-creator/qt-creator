@@ -121,30 +121,52 @@ bool Qt4TargetFactory::canCreate(ProjectExplorer::Project *parent, const QString
 
 Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
+    return create(parent, id, QList<QtVersion*>() << 0);
+}
+
+Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QString &id, QList<QtVersion *> versions)
+{
     if (!canCreate(parent, id))
         return 0;
 
     Qt4Project * qt4project(static_cast<Qt4Project *>(parent));
     Qt4Target *t(new Qt4Target(qt4project, id));
 
-    QList<QtVersion *> versions(QtVersionManager::instance()->versionsForTargetId(id));
-    if (versions.isEmpty())
+    QList<QtVersion *> knownVersions(QtVersionManager::instance()->versionsForTargetId(id));
+    if (knownVersions.isEmpty())
         return t;
 
-    // BuildConfigurations:
-    QtVersion *version(versions.at(0));
-    bool buildAll(false);
-    if (version && version->isValid() && (version->defaultBuildConfig() & QtVersion::BuildAll))
-        buildAll = true;
+    versions.removeAll(0);
+    if (versions.isEmpty())
+        versions.append(knownVersions.at(0));
 
-    if (buildAll) {
-        t->addQt4BuildConfiguration("Debug", version, QtVersion::BuildAll | QtVersion::DebugBuild);
-        if (id != QLatin1String(S60_EMULATOR_TARGET_ID))
-            t->addQt4BuildConfiguration("Release", version, QtVersion::BuildAll);
-    } else {
-        t->addQt4BuildConfiguration("Debug", version, QtVersion::DebugBuild);
-        if (id != QLatin1String(S60_EMULATOR_TARGET_ID))
-            t->addQt4BuildConfiguration("Release", version, QtVersion::QmakeBuildConfig(0));
+    foreach (QtVersion *version, versions) {
+        if (!knownVersions.contains(version))
+            continue;
+
+        bool buildAll(false);
+        if (version && version->isValid() && (version->defaultBuildConfig() & QtVersion::BuildAll))
+            buildAll = true;
+
+        QString debugName;
+        QString releaseName;
+        if (versions.count() > 1) {
+            debugName = tr("%1 Debug", "debug buildconfiguration name, %1 is Qt version").arg(version->displayName());
+            releaseName = tr("%1 Release", "release buildconfiguration name, %1 is Qt version").arg(version->displayName());
+        } else {
+            debugName = tr("Debug", "debug buildconfiguration name (only one Qt version!)");
+            releaseName = tr("Release", "release buildconfiguration name (only one Qt version!)");
+        }
+
+        if (buildAll) {
+            t->addQt4BuildConfiguration(debugName, version, QtVersion::BuildAll | QtVersion::DebugBuild);
+            if (id != QLatin1String(S60_EMULATOR_TARGET_ID))
+                t->addQt4BuildConfiguration(releaseName, version, QtVersion::BuildAll);
+        } else {
+            t->addQt4BuildConfiguration(debugName, version, QtVersion::DebugBuild);
+            if (id != QLatin1String(S60_EMULATOR_TARGET_ID))
+                t->addQt4BuildConfiguration(releaseName, version, QtVersion::QmakeBuildConfig(0));
+        }
     }
 
     QStringList pathes = qt4project->applicationProFilePathes();
@@ -153,6 +175,7 @@ Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QStr
 
     return t;
 }
+
 
 bool Qt4TargetFactory::canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const
 {

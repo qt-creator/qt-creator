@@ -234,11 +234,20 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_projectFiles(new Qt4ProjectFiles),
     m_proFileOption(0)
 {
-    m_manager->registerProject(this);
-
     m_updateCodeModelTimer.setSingleShot(true);
     m_updateCodeModelTimer.setInterval(20);
     connect(&m_updateCodeModelTimer, SIGNAL(timeout()), this, SLOT(updateCodeModel()));
+
+    m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
+    m_rootProjectNode->registerWatcher(m_nodesWatcher);
+
+    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+            this, SLOT(onAddedTarget(ProjectExplorer::Target*)));
+
+    // Setup Qt versions supported (== possible targets).
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
+            this, SLOT(qtVersionsChanged()));
+    setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
 }
 
 Qt4Project::~Qt4Project()
@@ -261,17 +270,6 @@ void Qt4Project::updateFileList()
 
 bool Qt4Project::fromMap(const QVariantMap &map)
 {
-    m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
-    m_rootProjectNode->registerWatcher(m_nodesWatcher);
-
-    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(onAddedTarget(ProjectExplorer::Target*)));
-
-    // Setup Qt versions supported (== possible targets).
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(qtVersionsChanged()));
-    setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
-
     if (!Project::fromMap(map))
         return false;
 

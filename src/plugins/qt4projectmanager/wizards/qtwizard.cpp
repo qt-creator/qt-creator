@@ -33,9 +33,11 @@
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "modulespage.h"
+#include "targetspage.h"
 
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QVariant>
@@ -100,10 +102,33 @@ QString QtWizard::profileSuffix()
     return preferredSuffix(QLatin1String(Constants::PROFILE_MIMETYPE));
 }
 
-bool QtWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage)
+bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
 {
-    // Post-Generate: Open the project
     const QString proFileName = l.back().path();
+    const BaseQt4ProjectWizardDialog *dialog = qobject_cast<const BaseQt4ProjectWizardDialog *>(w);
+
+    // Generate user settings:
+    QSet<QString> targets;
+    if (dialog)
+        targets = dialog->selectedTargets();
+    if (!targets.isEmpty()) {
+        Qt4Manager *manager = ExtensionSystem::PluginManager::instance()->getObject<Qt4Manager>();
+        Q_ASSERT(manager);
+        QtVersionManager *vm = QtVersionManager::instance();
+
+        Qt4Project *pro = new Qt4Project(manager, proFileName);
+        foreach (const QString &targetId, targets) {
+            QList<int> versionIds = dialog->selectedQtVersionIdsForTarget(targetId);
+            QList<QtVersion *> versions;
+            foreach (int id, versionIds)
+                versions.append(vm->version(id));
+            Qt4Target * target = pro->targetFactory()->create(pro, targetId, versions);
+            pro->addTarget(target);
+        }
+        pro->saveSettings();
+    }
+
+    // Post-Generate: Open the project
     if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName)) {
         *errorMessage = tr("The project %1 could not be opened.").arg(proFileName);
         return false;
@@ -140,7 +165,8 @@ bool QtWizard::showModulesPageForLibraries()
 // ----------------- BaseQt4ProjectWizardDialog
 BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent) :
     ProjectExplorer::BaseProjectWizardDialog(parent),
-    m_modulesPage(0)
+    m_modulesPage(0),
+    m_targetsPage(0)
 {
     init(showModulesPage);
 }
@@ -149,15 +175,20 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
                                                        Utils::ProjectIntroPage *introPage,
                                                        int introId, QWidget *parent) :
     ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent),
-    m_modulesPage(0)
+    m_modulesPage(0),
+    m_targetsPage(0)
 {
     init(showModulesPage);
 }
 
 void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
 {
+    QtVersionManager *vm = QtVersionManager::instance();
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
+    if (vm->supportedTargetIds().count() > 1 ||
+        vm->versions().count() > 1)
+        m_targetsPage = new TargetsPage;
 }
 
 void BaseQt4ProjectWizardDialog::addModulesPage(int id)
@@ -170,6 +201,18 @@ void BaseQt4ProjectWizardDialog::addModulesPage(int id)
         }
     }
 }
+
+void BaseQt4ProjectWizardDialog::addTargetsPage(int id)
+{
+    if (!m_targetsPage)
+        return;
+
+    if (id >= 0)
+        setPage(id, m_targetsPage);
+    else
+        addPage(m_targetsPage);
+}
+
 
 QString BaseQt4ProjectWizardDialog::selectedModules() const
 {
@@ -203,3 +246,16 @@ void BaseQt4ProjectWizardDialog::setDeselectedModules(const QString &modules)
     }
 }
 
+QSet<QString> BaseQt4ProjectWizardDialog::selectedTargets() const
+{
+    if (!m_targetsPage)
+        return QSet<QString>();
+    return m_targetsPage->selectedTargets();
+}
+
+QList<int> BaseQt4ProjectWizardDialog::selectedQtVersionIdsForTarget(const QString &target) const
+{
+    if (!m_targetsPage)
+        return QList<int>();
+    return m_targetsPage->selectedVersionIdsForTarget(target);
+}

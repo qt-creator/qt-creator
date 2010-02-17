@@ -187,7 +187,7 @@ protected:
 
     /* Overwrite to perform steps to be done after files are actually created.
      * The default implementation opens editors with the newly generated files. */
-    virtual bool postGenerateFiles(const GeneratedFiles &l, QString *errorMessage);
+    virtual bool postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage);
 
     // Utility that returns the preferred suffix for a mime type
     static QString preferredSuffix(const QString &mimeType);

@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -27,38 +27,43 @@
 **
 **************************************************************************/
 
-#include "emptyprojectwizarddialog.h"
-#include "qtprojectparameters.h"
+#ifndef TARGETSPAGE_H
+#define TARGETSPAGE_H
+
+#include <QtCore/QList>
+#include <QtCore/QSet>
+#include <QtCore/QString>
+
+#include <QtGui/QWizard>
+
+QT_BEGIN_NAMESPACE
+class QTreeWidget;
+QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
-                                               const QIcon &icon,
-                                               const QList<QWizardPage*> &extensionPages,
-                                               QWidget *parent) :
-    BaseQt4ProjectWizardDialog(parent)
+class TargetsPage : public QWizardPage
 {
-    setWindowIcon(icon);
-    setWindowTitle(templateName);
+    Q_OBJECT
 
-    setIntroDescription(tr("This wizard generates an empty Qt4 project. "
-                           "Add files to it later on by using the other wizards."));
+public:
+    explicit TargetsPage(QWidget* parent = 0);
 
-    addTargetsPage();
+    QSet<QString> selectedTargets() const;
+    QList<int> selectedVersionIdsForTarget(const QString &) const;
 
-    foreach (QWizardPage *p, extensionPages)
-        addPage(p);
-}
+    bool isComplete() const;
 
-QtProjectParameters EmptyProjectWizardDialog::parameters() const
-{
-    QtProjectParameters rc;
-    rc.type = QtProjectParameters::EmptyProject;
-    rc.fileName = projectName();
-    rc.path = path();
-    return rc;
-}
+private slots:
+    void itemWasClicked();
+
+private:
+    QTreeWidget * m_treeWidget;
+    bool m_isComplete;
+};
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
+
+#endif // TARGETSPAGE_H

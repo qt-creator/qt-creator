@@ -33,12 +33,11 @@
 #include "modulespage.h"
 
 #include <utils/projectintropage.h>
-#include <utils/qtcassert.h>
+
+#include <QtCore/QDebug>
 
 #include <QtGui/QComboBox>
 #include <QtGui/QLabel>
-
-#include <QtCore/QDebug>
 
 enum { debugLibWizard = 0 };
 enum { IntroPageId, ModulesPageId, FilePageId };
@@ -161,6 +160,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates a C++ library project."));
 
     addModulesPage(ModulesPageId);
+    addTargetsPage();
 
     m_filesPage->setNamespacesEnabled(true);
     m_filesPage->setFormFileInputVisible(false);

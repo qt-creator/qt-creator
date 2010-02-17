@@ -30,14 +30,14 @@
 #ifndef EMPTYPROJECTWIZARDDIALOG_H
 #define EMPTYPROJECTWIZARDDIALOG_H
 
-#include <projectexplorer/baseprojectwizarddialog.h>
+#include "qtwizard.h"
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 struct QtProjectParameters;
 
-class EmptyProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+class EmptyProjectWizardDialog : public BaseQt4ProjectWizardDialog
 {
     Q_OBJECT
 public:

@@ -207,9 +207,15 @@ ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
+    registerProject(pro);
 
     messageManager->displayStatusBarMessage(tr("Done opening project"), 5000);
     return pro;
+}
+
+Qt4Project * Qt4Manager::createEmptyProject(const QString &path)
+{
+    return new Qt4Project(this, path);
 }
 
 ProjectExplorer::ProjectExplorerPlugin *Qt4Manager::projectExplorer() const

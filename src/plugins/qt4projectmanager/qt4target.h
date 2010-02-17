@@ -132,6 +132,7 @@ public:
 
     bool canCreate(ProjectExplorer::Project *parent, const QString &id) const;
     Internal::Qt4Target *create(ProjectExplorer::Project *parent, const QString &id);
+    Internal::Qt4Target *create(ProjectExplorer::Project *parent, const QString &id, QList<QtVersion *> versions);
     bool canRestore(ProjectExplorer::Project *parent, const QVariantMap &map) const;
     Internal::Qt4Target *restore(ProjectExplorer::Project *parent, const QVariantMap &map);
 };

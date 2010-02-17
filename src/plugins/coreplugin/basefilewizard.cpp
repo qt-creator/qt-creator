@@ -526,7 +526,7 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
         }
 
     // Post generation handler
-    if (!postGenerateFiles(files, &errorMessage)) {
+    if (!postGenerateFiles(wizard.data(), files, &errorMessage)) {
         QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
         return QStringList();
     }
@@ -547,8 +547,9 @@ void BaseFileWizard::setupWizard(QWizard *w)
     w->setOption(QWizard::NoBackButtonOnStartPage, true);
 }
 
-bool BaseFileWizard::postGenerateFiles(const GeneratedFiles &l, QString *errorMessage)
+bool BaseFileWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage)
 {
+    Q_UNUSED(w);
     // File mode: open the editors in file mode and ensure editor pane
     const Core::GeneratedFiles::const_iterator cend = l.constEnd();
     Core::EditorManager *em = Core::EditorManager::instance();
