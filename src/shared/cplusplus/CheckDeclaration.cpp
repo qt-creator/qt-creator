@@ -818,3 +818,17 @@ bool CheckDeclaration::visit(QtFlagsDeclarationAST *ast)
         semantic()->check(iter->value, _scope);
     return false;
 }
+
+bool CheckDeclaration::visit(QtPropertyDeclarationAST *ast)
+{
+    if (ast->type_id)
+        semantic()->check(ast->type_id, _scope);
+    if (ast->property_name)
+        semantic()->check(ast->property_name, _scope);
+    for (QtPropertyDeclarationItemListAST *iter = ast->property_declaration_items;
+         iter; iter = iter->next) {
+        if (iter->value)
+            semantic()->check(iter->value->expression, _scope);
+    }
+    return false;
+}
