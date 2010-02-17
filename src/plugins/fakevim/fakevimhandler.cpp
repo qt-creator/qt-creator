@@ -2108,12 +2108,15 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
         if (!m_commandBuffer.isEmpty()) {
             m_commandHistory.takeLast();
             m_commandHistory.append(m_commandBuffer);
-            EDITOR(setTextCursor(m_tc));
+            // FIXME: This was inserted to prevent crashes when the
+            // editor 'vanishes' but broke things like :<line>.
+            // How can the crash be reproduced?
+            // when EDITOR(setTextCursor(m_tc));
             handleExCommand(m_commandBuffer);
-            if (m_textedit || m_plaintextedit) {
-                m_tc = EDITOR(textCursor());
-                leaveVisualMode();
-            }
+            //if (m_textedit || m_plaintextedit) {
+            //    m_tc = EDITOR(textCursor());
+            leaveVisualMode();
+            //}
         }
     } else if (unmodified == Key_Return && isSearchMode()) {
         if (!m_commandBuffer.isEmpty()) {
