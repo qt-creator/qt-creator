@@ -182,58 +182,21 @@ bool QmlProjectNode::removeSubProjects(const QStringList &proFilePaths)
     return false;
 }
 
-bool QmlProjectNode::addFiles(const ProjectExplorer::FileType,
-                              const QStringList &filePaths, QStringList *notAdded)
+bool QmlProjectNode::addFiles(const ProjectExplorer::FileType /*fileType*/,
+                              const QStringList & /*filePaths*/, QStringList * /*notAdded*/)
 {
-    QDir projectDir = QFileInfo(projectFilePath()).dir();
-
-    QFile file(projectFilePath());
-    if (! file.open(QFile::WriteOnly | QFile::Append))
-        return false;
-
-    QTextStream stream(&file);
-    QStringList failedFiles;
-
-    bool first = true;
-    foreach (const QString &filePath, filePaths) {
-        const QString rel = projectDir.relativeFilePath(filePath);
-
-        if (rel.isEmpty() || rel.startsWith(QLatin1Char('.'))) {
-            failedFiles.append(rel);
-        } else {
-            if (first) {
-                stream << endl;
-                first = false;
-            }
-
-            stream << rel << endl;
-        }
-    }
-
-    if (notAdded)
-        *notAdded += failedFiles;
-
-    if (! first)
-        m_project->projectManager()->notifyChanged(projectFilePath());
-
-    return failedFiles.isEmpty();
-}
-
-bool QmlProjectNode::removeFiles(const ProjectExplorer::FileType fileType,
-                                 const QStringList &filePaths, QStringList *notRemoved)
-{
-    Q_UNUSED(fileType)
-    Q_UNUSED(filePaths)
-    Q_UNUSED(notRemoved)
     return false;
 }
 
-bool QmlProjectNode::renameFile(const ProjectExplorer::FileType fileType,
-                                    const QString &filePath, const QString &newFilePath)
+bool QmlProjectNode::removeFiles(const ProjectExplorer::FileType /*fileType*/,
+                                 const QStringList & /*filePaths*/, QStringList * /*notRemoved*/)
 {
-    Q_UNUSED(fileType)
-    Q_UNUSED(filePath)
-    Q_UNUSED(newFilePath)
+    return false;
+}
+
+bool QmlProjectNode::renameFile(const ProjectExplorer::FileType /*fileType*/,
+                                    const QString & /*filePath*/, const QString & /*newFilePath*/)
+{
     return false;
 }
 
