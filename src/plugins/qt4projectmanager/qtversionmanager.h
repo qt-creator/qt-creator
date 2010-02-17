@@ -47,7 +47,6 @@ namespace Qt4ProjectManager {
 namespace Internal {
 class QtOptionsPageWidget;
 class QtOptionsPage;
-class Qt4ProjectManagerPlugin;
 }
 
 class QtVersion
