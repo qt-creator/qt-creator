@@ -33,6 +33,7 @@
     \endraw
 
     \list
+       \o \l{Introducing Qt Creator}
        \o \l{Operating Systems and Supported Platforms}
        \o \l{Quick Tour}
        \o \l{Writing a Simple Program}
@@ -69,6 +70,49 @@
 /*!
     \contentspage index.html
     \previouspage index.html
+    \page creator-overview.html
+    \nextpage creator-os-supported-platforms.html
+
+  \title Introducing Qt Creator
+
+  As an IDE, Qt Creator differs from a text editor in that it knows how to build and run
+  applications. It understands the code as code, not just as plain text. This allows
+  it to:
+  \list
+      \o Enable you to write well formatted code.
+      \o Anticipate what you are going to write and complete the code.
+      \o Display inline error and warning messages.
+      \o Enable you to semantically navigate to classes, functions, and symbols.
+      \o Provide you with context-sensitive help on classes, functions, and symbols.
+      \o Rename symbols in an intelligent way, so that only the symbol belonging to
+         a particular class is renamed everywhere.
+      \o Show you the locations in code where a function is declared or called.
+   \endlist
+
+      \section1 Why Do You Need Projects?
+
+      To be able to build and run applications, Qt Creator needs the same
+      information as a compiler would need. This information is specified in the
+      project build and run settings.
+
+      Creating a project allows you to:
+      \list
+      \o Group files together.
+      \o Add custom build steps.
+      \o Include forms and resource files.
+      \o Specify settings for running applications.
+      \endlist
+
+      You can either create a project from scratch or import an existing
+      project. Qt Creator generates all the necessary files, depending on the type of
+      project you create. For example, if you choose to create a graphical user
+      interface (GUI) application, Qt Creator generates an empty .ui file for you
+      that you can modify with the integrated Qt Designer.
+*/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-overview.html
     \page creator-os-supported-platforms.html
     \nextpage creator-quick-tour.html
 
