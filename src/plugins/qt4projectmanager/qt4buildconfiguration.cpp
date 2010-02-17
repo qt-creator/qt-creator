@@ -577,7 +577,6 @@ Qt4BuildConfigurationFactory::~Qt4BuildConfigurationFactory()
 void Qt4BuildConfigurationFactory::update()
 {
     m_versions.clear();
-    m_versions.insert(QString::fromLatin1(QT4_BC_ID_PREFIX) + QLatin1String("DefaultQt"), VersionInfo(tr("Using Default Qt Version"), 0));
     QtVersionManager *vm = QtVersionManager::instance();
     foreach (const QtVersion *version, vm->versions()) {
         m_versions.insert(QString::fromLatin1(QT4_BC_ID_PREFIX) + QString::fromLatin1("Qt%1").arg(version->uniqueId()),
