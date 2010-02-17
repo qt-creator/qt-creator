@@ -107,6 +107,7 @@ void setHue(qreal newHue)
     m_hue = newHue;
     update();
     emit hueChanged();
+    emit colorChanged();
 }
 
 qreal hue() const
@@ -142,12 +143,15 @@ qreal saturation() const
   return QColor(m_colorString).hsvSaturationF();
 }
 
-qreal setSaturation(qreal newsaturation)
+void setSaturation(qreal newsaturation)
 {
     QColor color(m_colorString);
+    if (color.hsvSaturationF()==newsaturation) return;
     color.setHsvF(color.hsvHueF(),newsaturation,color.valueF());
     m_colorString=color.name();
+    update();
     emit saturationChanged();
+    emit colorChanged();
 }
 
 qreal value() const
@@ -155,12 +159,15 @@ qreal value() const
   return QColor(m_colorString).valueF();
 }
 
-qreal setValue(qreal newvalue)
+void setValue(qreal newvalue)
 {
     QColor color(m_colorString);
+    if (color.valueF()==newvalue) return;
     color.setHsvF(color.hsvHueF(),color.hsvSaturationF(),newvalue);
     m_colorString=color.name();
+    update();
     emit valueChanged();
+    emit colorChanged();
 }
 
 signals:

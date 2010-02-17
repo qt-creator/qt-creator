@@ -102,7 +102,7 @@ QExtGroupBox {
                                 QSpinBox {
                                     maximum: 360
                                     value: colorControl.hue*360;
-                                    onValueChanged: if (colorControl.hue*360 !=value)
+                                    onValueChanged: if (colorControl.hue !=value/360.0)
                                         colorControl.hue=value/360.0;
                                 }
 
@@ -118,7 +118,7 @@ QExtGroupBox {
                                 QSpinBox {
                                     maximum: 255
                                     value: colorControl.saturation*255;
-                                    onValueChanged: if (colorControl.saturation*255 !=value)
+                                    onValueChanged: if (colorControl.saturation !=value/255.0)
                                         colorControl.saturation=value/255.0;
                                 }
                             }
@@ -133,7 +133,7 @@ QExtGroupBox {
                                 QSpinBox {
                                     maximum: 255
                                     value: colorControl.value*255;
-                                    onValueChanged: if (colorControl.value*255 !=value)
+                                    onValueChanged: if (colorControl.value!=value/255.0)
                                         colorControl.value=value/255.0;
                                 }
 

@@ -56,8 +56,6 @@ namespace QmlDesigner {
 
         QColor color(m_colorString);
 
-        const int pixSize = 8;
-
         QPainter p(this);
 
         QRect r(0, 0, width(), height());
