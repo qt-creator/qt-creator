@@ -116,8 +116,8 @@ public:
 ItemLibraryPrivate::ItemLibraryPrivate(QObject *object) :
     m_itemLibraryModel(0),
     m_itemsView(0),
-    m_itemIconSize(32, 32),
-    m_resIconSize(32, 32),
+    m_itemIconSize(22, 22),
+    m_resIconSize(22, 22),
     m_iconProvider(m_resIconSize)
 {
     m_resourcePath = QDir::currentPath();
