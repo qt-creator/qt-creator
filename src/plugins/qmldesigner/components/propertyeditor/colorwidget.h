@@ -88,6 +88,8 @@ Q_OBJECT
 
 Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
 Q_PROPERTY(qreal hue READ hue WRITE setHue NOTIFY hueChanged)
+Q_PROPERTY(qreal saturation READ saturation WRITE setSaturation NOTIFY saturationChanged)
+Q_PROPERTY(qreal value READ value WRITE setValue NOTIFY valueChanged)
 
 public:
 
@@ -117,11 +119,15 @@ void setColor(const QString &colorStr)
     if (m_colorString == colorStr)
         return;
 
+    qreal oldsaturation = saturation();
+    qreal oldvalue = value();
     m_colorString = colorStr;
     update();
     qreal newHue = QColor(m_colorString).hsvHueF();
     if (newHue >= 0)
         setHue(newHue);
+    if (oldsaturation != saturation()) emit saturationChanged();
+    if (oldvalue != value()) emit valueChanged();
     emit colorChanged();
 }
 
@@ -130,9 +136,38 @@ QString color() const
     return m_colorString;
 }
 
+
+qreal saturation() const
+{
+  return QColor(m_colorString).hsvSaturationF();
+}
+
+qreal setSaturation(qreal newsaturation)
+{
+    QColor color(m_colorString);
+    color.setHsvF(color.hsvHueF(),newsaturation,color.valueF());
+    m_colorString=color.name();
+    emit saturationChanged();
+}
+
+qreal value() const
+{
+  return QColor(m_colorString).valueF();
+}
+
+qreal setValue(qreal newvalue)
+{
+    QColor color(m_colorString);
+    color.setHsvF(color.hsvHueF(),color.hsvSaturationF(),newvalue);
+    m_colorString=color.name();
+    emit valueChanged();
+}
+
 signals:
     void colorChanged();
     void hueChanged();
+    void saturationChanged();
+    void valueChanged();
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -191,7 +226,6 @@ void setHue(qreal newHue)
 
     m_hue = newHue;
     QColor color(m_colorString);
-    color.toHsv();
     color.setHsvF(newHue, color.hsvSaturationF(), color.valueF());
     m_colorString = color.name();
     update();
@@ -209,8 +243,7 @@ void setColor(const QString &colorStr)
         return;
 
     m_colorString = colorStr;
-    QColor color(m_colorString);
-    m_hue = color.hueF();
+    m_hue = QColor(m_colorString).hsvHueF();
     update();
     emit colorChanged();
 }

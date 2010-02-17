@@ -69,6 +69,7 @@ QExtGroupBox {
             layout: HorizontalLayout {
 
                 ColorBox {
+                    id: colorControl;
                     color: colorGroupBox.backendColor.value;
                     onColorChanged: {
                         colorGroupBox.backendColor.value = color;
@@ -97,8 +98,12 @@ QExtGroupBox {
                                     text: "H"
                                     fixedWidth: 15
                                 }
-                                QSpinBox {
 
+                                QSpinBox {
+                                    maximum: 360
+                                    value: colorControl.hue*360;
+                                    onValueChanged: if (colorControl.hue*360 !=value)
+                                        colorControl.hue=value/360.0;
                                 }
 
                             }
@@ -111,7 +116,10 @@ QExtGroupBox {
                                     fixedWidth: 15
                                 }
                                 QSpinBox {
-
+                                    maximum: 255
+                                    value: colorControl.saturation*255;
+                                    onValueChanged: if (colorControl.saturation*255 !=value)
+                                        colorControl.saturation=value/255.0;
                                 }
                             }
 
@@ -123,14 +131,17 @@ QExtGroupBox {
                                     fixedWidth: 15
                                 }
                                 QSpinBox {
-
+                                    maximum: 255
+                                    value: colorControl.value*255;
+                                    onValueChanged: if (colorControl.value*255 !=value)
+                                        colorControl.value=value/255.0;
                                 }
 
                             }
                         }
-						
-						QWidget {
-						}
+
+//                        QWidget {
+//                        }
                     }
                 }
             }

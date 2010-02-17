@@ -86,13 +86,11 @@ namespace QmlDesigner {
 
     void HueControl::setCurrent(int y)
     {
-        QColor oldColor(m_colorString);
-        oldColor.toHsv();
-        QColor newColor;
-        newColor.setHsvF(qreal(y) / 120.0, oldColor.hsvSaturationF(), oldColor.valueF());
-
-        QString newColorStr = QVariant(newColor).toString();
-        setColor(newColorStr);
+        QColor color(m_colorString);
+        if (y<0) y=0;
+        if (y>119) y=119;
+        color.setHsvF(qreal(y) / 120.0, color.hsvSaturationF(), color.valueF());
+        setColor(color.name());
         setHue(qreal(y) / 120.0);
     }
 
@@ -134,10 +132,11 @@ namespace QmlDesigner {
 
     void ColorBox::setCurrent(int x, int y)
     {
-
-        QColor oldColor(m_colorString);
-        oldColor.toHsv();
         QColor newColor;
+        if (x<0) x=0;
+        if (x>120) x=120;
+        if (y<0) y=0;
+        if (y>120) y=120;
         newColor.setHsvF(hue(), qreal(x) / 120, 1.0 - qreal(y) / 120);
 
         QString newColorStr = QVariant(newColor).toString();
@@ -154,8 +153,6 @@ namespace QmlDesigner {
         if (m_hue != (m_lastHue) || (m_cache.isNull())) {
             m_lastHue = m_hue;
             m_cache = QPixmap(120, 120);
-
-            color.toHsv();
 
             int height = 120;
             int width = 120;
