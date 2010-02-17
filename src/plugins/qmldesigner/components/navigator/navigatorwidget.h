@@ -47,7 +47,7 @@ public:
     virtual ~NavigatorWidget();
 
     void setTreeModel(QAbstractItemModel *model);
-    QTreeView *treeView();
+    QTreeView *treeView() const { return m_treeView; }
 
 private:
     NavigatorTreeView *m_treeView;

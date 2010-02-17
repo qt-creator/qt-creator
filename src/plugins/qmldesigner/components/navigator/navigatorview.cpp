@@ -85,16 +85,17 @@ void NavigatorView::modelAttached(Model *model)
 
     m_treeModel->setView(this);
 
-    treeWidget()->expandAll();
+    QTreeView *treeView = treeWidget();
+    treeView->expandAll();
 
-    treeWidget()->header()->setResizeMode(0, QHeaderView::Stretch);
-    treeWidget()->header()->resizeSection(1,26);
-    treeWidget()->setRootIsDecorated(false);
-    treeWidget()->setIndentation(20);
+    treeView->header()->setResizeMode(0, QHeaderView::Stretch);
+    treeView->header()->resizeSection(1,26);
+    treeView->setRootIsDecorated(false);
+    treeView->setIndentation(20);
 #ifdef _LOCK_ITEMS_
-    treeWidget()->header()->resizeSection(2,20);
+    treeView->header()->resizeSection(2,20);
 #endif
-    treeWidget()->setHeaderHidden(true);
+    treeView->setHeaderHidden(true);
 }
 
 void NavigatorView::modelAboutToBeDetached(Model *model)

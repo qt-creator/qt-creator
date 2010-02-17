@@ -81,9 +81,4 @@ void NavigatorWidget::setTreeModel(QAbstractItemModel* model)
     m_treeView->setModel(model);
 }
 
-QTreeView *NavigatorWidget::treeView()
-{
-    return m_treeView;
-}
-
 }
