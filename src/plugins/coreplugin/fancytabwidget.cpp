@@ -44,6 +44,8 @@
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolButton>
 #include <QtGui/QToolTip>
+#include <QtCore/QAnimationGroup>
+#include <QtCore/QPropertyAnimation>
 
 using namespace Core;
 using namespace Internal;
@@ -79,7 +81,7 @@ QSize FancyTabBar::tabSizeHint(bool minimum) const
     boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
     boldFont.setBold(true);
     QFontMetrics fm(boldFont);
-    int spacing = 6;
+    int spacing = 8;
     int width = 60 + spacing + 2;
 
     int iconHeight = minimum ? 0 : 32;
@@ -203,7 +205,6 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     painter->save();
 
     QRect rect = tabRect(tabIndex);
-
     bool selected = (tabIndex == m_currentIndex);
     bool hover = (tabIndex == m_hoverIndex);
     bool enabled = isTabEnabled(tabIndex);
@@ -212,40 +213,46 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     hover = false; // Do not hover on Mac
 #endif
 
-    QColor background = QColor(0, 0, 0, 10);
     QColor hoverColor;
-
-    if (hover) {
+    if (hover)
         hoverColor = QColor(255, 255, 255, m_hoverControl.currentFrame());
-    }
-
-    QColor light = QColor(255, 255, 255, 40);
-    QColor dark = QColor(0, 0, 0, 60);
 
     if (selected) {
-        QLinearGradient selectedGradient(rect.topLeft(), QPoint(rect.center().x(), rect.bottom()));
-        selectedGradient.setColorAt(0, Qt::white);
-        selectedGradient.setColorAt(0.3, Qt::white);
-        selectedGradient.setColorAt(0.7, QColor(230, 230, 230));
+        //background
+        painter->fillRect(rect, QColor(220, 220, 220));
 
-        painter->fillRect(rect, selectedGradient);
-        painter->setPen(QColor(200, 200, 200));
+        //highlight
+        painter->setPen(QColor(255, 255, 255, 150));
+        painter->drawLine(rect.bottomLeft() - QPoint(-1, 1), rect.bottomRight() - QPoint(0,1));
+        painter->drawLine(rect.topRight(), rect.bottomRight());
+
+        //shadow
+        painter->setPen(QColor(255, 255, 255, 50));
+        painter->drawLine(rect.topLeft() - QPoint(0,2), rect.topRight() - QPoint(0,2));
+        painter->setPen(QColor(0, 0, 0, 150));
+        painter->drawLine(rect.topLeft() - QPoint(0,1), rect.topRight() - QPoint(0,1));
+        painter->drawLine(rect.topLeft(), rect.bottomLeft());
+        painter->setPen(QColor(0, 0, 0, 100));
         painter->drawLine(rect.topLeft(), rect.topRight());
-        painter->setPen(QColor(150, 160, 200));
+        painter->setPen(QColor(0, 0, 0, 40));
+        painter->drawLine(rect.topLeft() + QPoint(0,1), rect.topRight() + QPoint(0,1));
+        painter->drawLine(rect.topLeft() + QPoint(1,1), rect.bottomLeft() + QPoint(1,0));
+        painter->setPen(QColor(0, 0, 0, 20));
+        painter->drawLine(rect.topLeft() + QPoint(0,2), rect.topRight() + QPoint(0,2));
+        painter->drawLine(rect.topLeft() + QPoint(2,1), rect.bottomLeft() + QPoint(2,0));
+        painter->setPen(QColor(0, 0, 0, 150));
         painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+        painter->setPen(QColor(255, 255, 255, 50));
+        painter->drawLine(rect.bottomLeft() + QPoint(0,1), rect.bottomRight() + QPoint(0,1));
     } else {
-        painter->fillRect(rect, background);
         if (hover && enabled)
             painter->fillRect(rect, hoverColor);
-        painter->setPen(QPen(light, 0));
-        painter->drawLine(rect.topLeft(), rect.topRight());
-        painter->setPen(QPen(dark, 0));
-        painter->drawLine(rect.bottomLeft(), rect.bottomRight());
     }
 
     QString tabText(this->tabText(tabIndex));
     QRect tabTextRect(tabRect(tabIndex));
     QRect tabIconRect(tabTextRect);
+    tabTextRect.translate(0, -2);
     QFont boldFont(painter->font());
     boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
     boldFont.setBold(true);
@@ -405,13 +412,18 @@ void FancyTabWidget::setBackgroundBrush(const QBrush &brush)
 void FancyTabWidget::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
-    QPainter p(this);
+    QPainter painter(this);
 
     QRect rect = m_selectionWidget->rect().adjusted(0, 0, 1, 0);
     rect = style()->visualRect(layoutDirection(), geometry(), rect);
-    Utils::StyleHelper::verticalGradient(&p, rect, rect);
-    p.setPen(Utils::StyleHelper::borderColor());
-    p.drawLine(rect.topRight(), rect.bottomRight());
+    Utils::StyleHelper::verticalGradient(&painter, rect, rect);
+    painter.setPen(Utils::StyleHelper::borderColor());
+    painter.drawLine(rect.topRight(), rect.bottomRight());
+
+    QColor light = QColor(255, 255, 255, 40);
+    painter.setPen(light);
+    painter.drawLine(rect.bottomLeft(), rect.bottomRight());
+    setContentsMargins(0, 0, 0, 1);
 }
 
 void FancyTabWidget::insertCornerWidget(int pos, QWidget *widget)

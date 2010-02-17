@@ -52,7 +52,7 @@ using namespace Core;
 using namespace Internal;
 
 FancyToolButton::FancyToolButton(QWidget *parent)
-    : QToolButton(parent)
+    : QToolButton(parent), m_fader(0)
 {
     setAttribute(Qt::WA_Hover, true);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -71,7 +71,7 @@ bool FancyToolButton::event(QEvent *e)
     case QEvent::Enter:
         {
             QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
-            animation->setDuration(250);
+            animation->setDuration(125);
             animation->setEndValue(1.0);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         }
@@ -79,7 +79,7 @@ bool FancyToolButton::event(QEvent *e)
     case QEvent::Leave:
         {
             QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
-            animation->setDuration(250);
+            animation->setDuration(125);
             animation->setEndValue(0.0);
             animation->start(QAbstractAnimation::DeleteWhenStopped);
         }
@@ -102,12 +102,12 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     if (m_fader > 0 && isEnabled() && !isDown()) {
         painter.save();
         QColor whiteOverlay(Qt::white);
-        whiteOverlay.setAlpha(int(20 * m_fader));
+        whiteOverlay.setAlpha(int(10 * m_fader));
         QRect roundRect = rect().adjusted(5, 3, -5, -3);
         painter.translate(0.5, 0.5);
         painter.setRenderHint(QPainter::Antialiasing);
         painter.setBrush(whiteOverlay);
-        whiteOverlay.setAlpha(int(30*m_fader));
+        whiteOverlay.setAlpha(int(20*m_fader));
         painter.setPen(whiteOverlay);
         painter.drawRoundedRect(roundRect, 3, 3);
         painter.restore();

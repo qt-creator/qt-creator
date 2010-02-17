@@ -44,7 +44,7 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
-    struct FancyTab {
+    struct FancyTab{
         QIcon icon;
         QString text;
         QString toolTip;
@@ -81,6 +81,7 @@ public:
         tab.text = label;
         m_tabs.insert(index, tab);
     }
+    void setEnabled(int index, bool enabled);
     void removeTab(int index) {
         m_tabs.removeAt(index);
     }
@@ -94,7 +95,6 @@ public:
     QString tabText(int index) const { return m_tabs.at(index).text; }
     int count() const {return m_tabs.count(); }
     QRect tabRect(int index) const;
-
 
 signals:
     void currentChanged(int);
