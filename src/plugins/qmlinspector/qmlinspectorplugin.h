@@ -35,16 +35,14 @@
 #include <QtCore/QPointer>
 #include <QtCore/QTimer>
 
-QT_BEGIN_NAMESPACE
-
-class QStringList;
-
-namespace ProjectExplorer {
-    class Project;
-}
+QT_FORWARD_DECLARE_CLASS(QStringList);
 
 namespace Core {
     class IMode;
+}
+
+namespace ProjectExplorer {
+    class Project;
 }
 
 namespace Qml {
@@ -82,7 +80,5 @@ private:
 };
 
 }
-
-QT_END_NAMESPACE
 
 #endif // QMLINSPECTORPLUGIN_H

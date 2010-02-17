@@ -4,8 +4,7 @@
 #include "debuggeruiswitcher.h"
 #include <utils/fancymainwindow.h>
 
-
-class QMenu;
+QT_FORWARD_DECLARE_CLASS(QMenu);
 
 namespace Debugger {
 

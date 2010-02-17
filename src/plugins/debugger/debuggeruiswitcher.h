@@ -13,10 +13,10 @@ namespace Core {
     class Command;
 }
 
-class QAction;
-class QDockWidget;
-class QStackedWidget;
-class QComboBox;
+QT_FORWARD_DECLARE_CLASS(Action);
+QT_FORWARD_DECLARE_CLASS(QDockWidget);
+QT_FORWARD_DECLARE_CLASS(QStackedWidget);
+QT_FORWARD_DECLARE_CLASS(QComboBox);
 
 namespace Debugger {
     class DebuggerMainWindow;

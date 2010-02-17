@@ -55,6 +55,7 @@ class ObjectPropertiesView;
 class CanvasFrameRate;
 class ExpressionQueryWidget;
 
+QT_END_NAMESPACE
 
 namespace Qml {
     class EngineSpinBox;
@@ -111,7 +112,5 @@ private:
 };
 
 }
-
-QT_END_NAMESPACE
 
 #endif

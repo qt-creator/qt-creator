@@ -7,7 +7,7 @@
 #include <QScriptEngine>
 #include <private/qmllistmodel_p.h>
 
-class QMimeData;
+QT_FORWARD_DECLARE_CLASS(QMimeData);
 
 namespace QmlDesigner {
 

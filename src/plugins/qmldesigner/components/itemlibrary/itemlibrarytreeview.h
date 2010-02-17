@@ -36,7 +36,7 @@
 #include <QDebug>
 #include <QTimeLine>
 
-class QLabel;
+QT_FORWARD_DECLARE_CLASS(QLabel);
 
 namespace QmlDesigner {
 

@@ -33,8 +33,8 @@
 
 #include <QtCore/QObject>
 
-class QTextEdit;
-class RunControl;
+QT_FORWARD_DECLARE_CLASS(QTextEdit);
+QT_FORWARD_DECLARE_CLASS(RunControl);
 
 namespace Qml {
 
