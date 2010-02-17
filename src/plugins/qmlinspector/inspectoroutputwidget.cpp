@@ -26,7 +26,7 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#include "inspectoroutputpane.h"
+#include "inspectoroutputwidget.h"
 #include <coreplugin/coreconstants.h>
 
 #include <QtGui/QTextEdit>

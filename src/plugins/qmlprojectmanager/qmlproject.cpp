@@ -31,8 +31,6 @@
 #include "qmlprojectfile.h"
 #include "qmlprojectmanagerconstants.h"
 #include "fileformat/qmlprojectitem.h"
-
-//<<<<<<< HEAD:src/plugins/qmlprojectmanager/qmlproject.cpp
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/filewatcher.h>
 #include <qmljseditor/qmljsmodelmanagerinterface.h>
@@ -44,65 +42,6 @@
 namespace QmlProjectManager {
 
 QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
-/*=======
-#include "qmlinspector/qmlinspector.h"
-#include "qmlinspector/qmlinspectorconstants.h"
-
-#include <debugger/debuggeruiswitcher.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/persistentsettings.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <extensionsystem/pluginmanager.h>
-#include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-
-#include <qmljseditor/qmlmodelmanagerinterface.h>
-
-#include <utils/synchronousprocess.h>
-
-#include <QtCore/QtDebug>
-#include <QtCore/QDir>
-#include <QtCore/QSettings>
-#include <QtCore/QProcess>
-#include <QtCore/QCoreApplication>
-
-#include <QtGui/QFormLayout>
-#include <QtGui/QMainWindow>
-#include <QtGui/QComboBox>
-#include <QtGui/QMessageBox>
-#include <QtGui/QLineEdit>
-#include <QtGui/QLabel>
-#include <QtGui/QSpinBox>
-
-#include <QtDeclarative/QmlComponent>
-
-using namespace QmlProjectManager;
-using namespace QmlProjectManager::Internal;
-using namespace ProjectExplorer;
-
-namespace {
-const char * const QML_RC_ID("QmlProjectManager.QmlRunConfiguration");
-const char * const QML_RC_DISPLAY_NAME(QT_TRANSLATE_NOOP("QmlProjectManager::Internal::QmlRunConfiguration", "QML Viewer"));
-
-const char * const QML_VIEWER_KEY("QmlProjectManager.QmlRunConfiguration.QmlViewer");
-const char * const QML_VIEWER_ARGUMENTS_KEY("QmlProjectManager.QmlRunConfiguration.QmlViewerArguments");
-const char * const QML_MAINSCRIPT_KEY("QmlProjectManager.QmlRunConfiguration.MainScript");
-const char * const QML_DEBUG_SERVER_ADDRESS_KEY("QmlProjectManager.QmlRunConfiguration.DebugServerAddress");
-const char * const QML_DEBUG_SERVER_PORT_KEY("QmlProjectManager.QmlRunConfiguration.DebugServerPort");
-
-const int DEFAULT_DEBUG_SERVER_PORT(3768);
-} // namespace
-
-////////////////////////////////////////////////////////////////////////////////////
-// QmlProject
-////////////////////////////////////////////////////////////////////////////////////
-
-QmlProject::QmlProject(Manager *manager, const QString &fileName)
->>>>>>> debugintegration:src/plugins/qmlprojectmanager/qmlproject.cpp
-*/
     : m_manager(manager),
       m_fileName(fileName),
       m_modelManager(ExtensionSystem::PluginManager::instance()->getObject<QmlJSEditor::ModelManagerInterface>()),
