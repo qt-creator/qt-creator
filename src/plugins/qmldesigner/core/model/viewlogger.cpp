@@ -75,7 +75,7 @@ ViewLogger::ViewLogger(QObject *parent)
     const QString tempPath = QDir::tempPath();
 #endif
 
-    QTemporaryFile *temporaryFile = new QTemporaryFile(tempPath + QString("/bauhaus-logger-%1-XXXXXX.txt").arg(QDateTime::currentDateTime().toString(Qt::ISODate)), this);
+    QTemporaryFile *temporaryFile = new QTemporaryFile(tempPath + QString("/bauhaus-logger-%1-XXXXXX.txt").arg(QDateTime::currentDateTime().toString(Qt::ISODate).replace(":", "-")), this);
     temporaryFile->setAutoRemove(false);
     if (temporaryFile->open()) {
         qDebug() << "TemporaryLoggerFile is:" << temporaryFile->fileName();
