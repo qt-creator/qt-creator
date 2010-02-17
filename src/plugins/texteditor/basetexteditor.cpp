@@ -4733,11 +4733,14 @@ void BaseTextEditor::_q_highlightBlocks()
             while (TextBlockUserData::findPreviousBlockOpenParenthesis(&cursor, firstRun)) {
                 firstRun = false;
                 highlightBlocksInfo.open.prepend(cursor.blockNumber());
-                highlightBlocksInfo.visualIndent.prepend(d->visualIndent(cursor.block()));
+                int visualIndent = d->visualIndent(cursor.block());
                 if (closeCursor.isNull())
                     closeCursor = cursor;
-                if (TextBlockUserData::findNextBlockClosingParenthesis(&closeCursor))
+                if (TextBlockUserData::findNextBlockClosingParenthesis(&closeCursor)) {
                     highlightBlocksInfo.close.append(closeCursor.blockNumber());
+                    visualIndent = qMin(visualIndent, d->visualIndent(closeCursor.block()));
+                }
+                highlightBlocksInfo.visualIndent.prepend(visualIndent);
             }
         }
     }
