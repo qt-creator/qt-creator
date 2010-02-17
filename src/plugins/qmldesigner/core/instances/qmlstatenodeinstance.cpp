@@ -64,14 +64,18 @@ QmlStateNodeInstance::Pointer
 
 void QmlStateNodeInstance::activateState()
 {
-    if (!isStateActive())
-        stateGroup()->setState(property("name").toString());
+    if (stateGroup()) {
+        if (!isStateActive())
+            stateGroup()->setState(property("name").toString());
+    }
 }
 
 void QmlStateNodeInstance::deactivateState()
 {
-    if (isStateActive())
-         stateGroup()->setState(QString());
+    if (stateGroup()) {
+        if (isStateActive())
+            stateGroup()->setState(QString());
+    }
 }
 
 void QmlStateNodeInstance::refreshState()
@@ -96,6 +100,8 @@ QmlStateGroup *QmlStateNodeInstance::stateGroup() const
 
 bool QmlStateNodeInstance::isStateActive() const
 {
+    Q_ASSERT(stateObject());
+    Q_ASSERT(stateGroup());
     return (stateGroup()->state() == property("name"));
 }
 
