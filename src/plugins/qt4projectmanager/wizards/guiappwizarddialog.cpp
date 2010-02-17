@@ -28,10 +28,9 @@
 **************************************************************************/
 
 #include "guiappwizarddialog.h"
+
 #include "filespage.h"
 #include "qtprojectparameters.h"
-
-#include <QtGui/QAbstractButton>
 
 namespace Qt4ProjectManager {
 namespace Internal {

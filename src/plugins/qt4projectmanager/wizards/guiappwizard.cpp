@@ -28,22 +28,16 @@
 **************************************************************************/
 
 #include "guiappwizard.h"
+
 #include "guiappwizarddialog.h"
-#include "qt4projectmanager.h"
-#include "modulespage.h"
-#include "filespage.h"
 #include "qt4projectmanagerconstants.h"
 
-#include <projectexplorer/projectnodes.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <designer/cpp/formclasswizardparameters.h>
 #include <coreplugin/icore.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
-#include <QtCore/QSettings>
-#include <QtCore/QByteArray>
-#include <QtCore/QDebug>
 #include <QtCore/QTextStream>
 #include <QtCore/QFileInfo>
 #include <QtCore/QSharedPointer>

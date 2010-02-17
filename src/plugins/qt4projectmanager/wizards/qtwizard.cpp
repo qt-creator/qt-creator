@@ -28,21 +28,18 @@
 **************************************************************************/
 
 #include "qtwizard.h"
+
 #include "qt4project.h"
+#include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "modulespage.h"
+#include "targetspage.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <extensionsystem/pluginmanager.h>
 #include <cpptools/cpptoolsconstants.h>
 
-#include <QtCore/QByteArray>
 #include <QtCore/QCoreApplication>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
-#include <QtCore/QSettings>
 #include <QtCore/QVariant>
 
 using namespace Qt4ProjectManager;

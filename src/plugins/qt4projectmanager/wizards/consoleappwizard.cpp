@@ -30,16 +30,11 @@
 #include "consoleappwizard.h"
 
 #include "consoleappwizarddialog.h"
-#include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 
 #include <cpptools/cppmodelmanagerinterface.h>
 
-#include <QtCore/QDir>
 #include <QtCore/QTextStream>
-#include <QtCore/QDebug>
-
-#include <QtGui/QIcon>
 
 static const char *mainCppC =
 "#include <QtCore/QCoreApplication>\n\n"
