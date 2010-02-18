@@ -431,11 +431,7 @@ void BinEditor::setLazyData(quint64 startAddr, int range, int blockSize)
 
     init();
 
-    m_cursorPosition = startAddr - m_baseAddr;
-    verticalScrollBar()->setValue(m_cursorPosition / 16);
-
-    emit cursorPositionChanged(m_cursorPosition);
-    viewport()->update();
+    setCursorPosition(startAddr - m_baseAddr);
 }
 
 void BinEditor::resizeEvent(QResizeEvent *)
