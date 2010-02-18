@@ -51,11 +51,11 @@ using namespace Utils;
 GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     : QWizard(parent)
 {
-    setWindowTitle(tr("Import of Makefile-based Project"));
+    setWindowTitle(tr("Import Existing Project"));
 
     // first page
     m_firstPage = new FileWizardPage;
-    m_firstPage->setTitle(tr("Generic Project"));
+    m_firstPage->setTitle(tr("Project Name and Location"));
     m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
 
@@ -91,7 +91,7 @@ Core::BaseFileWizardParameters GenericProjectWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
-    parameters.setDisplayName(tr("Import of Makefile-based Project"));
+    parameters.setDisplayName(tr("Import Existing Project"));
     parameters.setId(QLatin1String("Z.Makefile"));
     parameters.setDescription(tr("Creates a generic project, supporting any build system."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::PROJECT_WIZARD_CATEGORY));

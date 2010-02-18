@@ -56,7 +56,7 @@ namespace Internal {
 QmlProjectImportWizardDialog::QmlProjectImportWizardDialog(QWidget *parent)
     : QWizard(parent)
 {
-    setWindowTitle(tr("Import of QML Project"));
+    setWindowTitle(tr("Import Existing QML Directory"));
 
     // first page
     m_firstPage = new FileWizardPage;
@@ -100,7 +100,7 @@ Core::BaseFileWizardParameters QmlProjectImportWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
-    parameters.setDisplayName(tr("Import of existing QML directory"));
+    parameters.setDisplayName(tr("Import Existing QML Directory"));
     parameters.setId(QLatin1String("QI.QML Import"));
     parameters.setDescription(tr("Creates a QML project from an existing directory of QML files."));
     parameters.setCategory(QLatin1String(Constants::QML_WIZARD_CATEGORY));
@@ -110,8 +110,8 @@ Core::BaseFileWizardParameters QmlProjectImportWizard::parameters()
 }
 
 QWizard *QmlProjectImportWizard::createWizardDialog(QWidget *parent,
-                                                  const QString &defaultPath,
-                                                  const WizardPageList &extensionPages) const
+                                                    const QString &defaultPath,
+                                                    const WizardPageList &extensionPages) const
 {
     QmlProjectImportWizardDialog *wizard = new QmlProjectImportWizardDialog(parent);
     setupWizard(wizard);
