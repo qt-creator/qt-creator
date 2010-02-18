@@ -108,16 +108,18 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     if (option.state & QStyle::State_Selected)
         drawSelectionBackground(painter, option);
 
-    bool isChecked= (m_TreeModel->itemFromIndex(index)->checkState() == Qt::Checked);
+    if (!m_TreeModel->nodeForIndex(index).isRootNode()) {
 
-    if (m_TreeModel->isNodeInvisible( index ))
-        painter->setOpacity(0.5);
+        bool isChecked= (m_TreeModel->itemFromIndex(index)->checkState() == Qt::Checked);
 
-    if (isChecked)
-        painter->drawPixmap(option.rect.x()+2,option.rect.y()+5,onPix);
-    else
-        painter->drawPixmap(option.rect.x()+2,option.rect.y()+5,offPix);
+        if (m_TreeModel->isNodeInvisible( index ))
+            painter->setOpacity(0.5);
 
+        if (isChecked)
+            painter->drawPixmap(option.rect.x()+2,option.rect.y()+5,onPix);
+        else
+            painter->drawPixmap(option.rect.x()+2,option.rect.y()+5,offPix);
+    }
     painter->restore();
 }
 
