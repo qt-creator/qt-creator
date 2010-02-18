@@ -55,20 +55,18 @@ const int FancyTabBar::m_textPadding = 4;
 
 void FancyTab::fadeIn()
 {
-    QPropertyAnimation *animation;
-    animation = new QPropertyAnimation(this, "fader");
-    animation->setDuration(70);
-    animation->setEndValue(50);
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
+    animator.stop();
+    animator.setDuration(80);
+    animator.setEndValue(40);
+    animator.start();
 }
 
 void FancyTab::fadeOut()
 {
-    QPropertyAnimation *animation;
-    animation = new QPropertyAnimation(this, "fader");
-    animation->setDuration(200);
-    animation->setEndValue(0);
-    animation->start(QAbstractAnimation::DeleteWhenStopped);
+    animator.stop();
+    animator.setDuration(160);
+    animator.setEndValue(0);
+    animator.start();
 }
 
 FancyTabBar::FancyTabBar(QWidget *parent)
@@ -176,14 +174,11 @@ void FancyTabBar::enterEvent(QEvent *e)
 void FancyTabBar::leaveEvent(QEvent *e)
 {
     Q_UNUSED(e)
-    if (validIndex(m_hoverIndex)) {
-        m_hoverIndex = -1;
-        update(m_hoverRect);
-        m_hoverRect = QRect();
-        for (int i = 0 ; i < m_tabs.count() ; ++i) {
-            if (m_tabs[i]->fader() > 0)
-                m_tabs[i]->fadeOut();
-        }
+    m_hoverIndex = -1;
+    update(m_hoverRect);
+    m_hoverRect = QRect();
+    for (int i = 0 ; i < m_tabs.count() ; ++i) {
+        m_tabs[i]->fadeOut();
     }
 }
 
@@ -245,9 +240,6 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     hover = false; // Do not hover on Mac
 #endif
 
-    QColor hoverColor;
-    hoverColor = QColor(255, 255, 255, m_tabs[tabIndex]->fader());
-
     if (selected) {
         //background
         painter->fillRect(rect, QColor(220, 220, 220));
@@ -293,7 +285,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     } else {
         painter->setPen(selected ? Utils::StyleHelper::panelTextColor() : QColor(255, 255, 255, 120));
     }
-
+#ifndef Q_WS_MAC
     if (!selected && enabled) {
         painter->save();
         int fader = int(m_tabs[tabIndex]->fader());
@@ -307,7 +299,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->drawLine(rect.bottomLeft(), rect.bottomRight());
         painter->restore();
     }
-
+#endif
     int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
     tabIconRect.adjust(0, 4, 0, -textHeight);
     int iconSize = qMin(tabIconRect.width(), tabIconRect.height());

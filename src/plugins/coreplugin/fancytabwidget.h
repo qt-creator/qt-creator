@@ -35,7 +35,7 @@
 #include <QtGui/QStyleOptionTabV2>
 #include <QtCore/QTimeLine>
 #include <QtCore/QTimer>
-
+#include <QtCore/QPropertyAnimation>
 QT_BEGIN_NAMESPACE
 class QPainter;
 class QStackedLayout;
@@ -50,7 +50,10 @@ class FancyTab : public QObject{
 
     Q_PROPERTY(float fader READ fader WRITE setFader)
 public:
-    FancyTab(QWidget *tabbar) : enabled(false), tabbar(tabbar), m_fader(0) {}
+    FancyTab(QWidget *tabbar) : enabled(false), tabbar(tabbar), m_fader(0) {
+        animator.setPropertyName("fader");
+        animator.setTargetObject(this);
+    }
     float fader() { return m_fader; }
     void setFader(float value) { m_fader = value; tabbar->update(); }
 
@@ -61,7 +64,9 @@ public:
     QString text;
     QString toolTip;
     bool enabled;
+
 private:
+    QPropertyAnimation animator;
     QWidget *tabbar;
     float m_fader;
 };
