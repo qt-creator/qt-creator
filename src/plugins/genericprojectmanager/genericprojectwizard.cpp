@@ -214,8 +214,9 @@ Core::GeneratedFiles GenericProjectWizard::generateFiles(const QWizard *w,
     return files;
 }
 
-bool GenericProjectWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage)
+bool GenericProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
 {
+    Q_UNUSED(w);
     // Post-Generate: Open the project
     const QString proFileName = l.back().path();
     if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName)) {
