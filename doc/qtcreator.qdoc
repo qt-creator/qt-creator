@@ -84,8 +84,8 @@
       \o Display inline error and warning messages.
       \o Enable you to semantically navigate to classes, functions, and symbols.
       \o Provide you with context-sensitive help on classes, functions, and symbols.
-      \o Rename symbols in an intelligent way, so that only the symbol belonging to
-         a particular class is renamed everywhere.
+      \o Rename symbols in an intelligent way, so that other symbols with the same name
+         that belong to other scopes are not renamed.
       \o Show you the locations in code where a function is declared or called.
    \endlist
 
