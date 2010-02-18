@@ -65,7 +65,7 @@ class ImageViewerFile : public Core::IFile
 {
     Q_OBJECT
 public:
-    explicit ImageViewerFile(QObject *parent = 0) {}
+    explicit ImageViewerFile(QObject *parent = 0) : Core::IFile(parent) {}
 
     bool save(const QString &fileName = QString()) { Q_UNUSED(fileName); return false; }
     QString fileName() const { return m_fileName; }
@@ -107,10 +107,10 @@ public:
     void setDisplayName(const QString &title);
 
     bool duplicateSupported() const { return false; }
-    IEditor *duplicate(QWidget *parent) { return 0; }
+    IEditor *duplicate(QWidget * /* parent */) { return 0; }
 
     QByteArray saveState() const { return QByteArray(); }
-    bool restoreState(const QByteArray &state) { Q_UNUSED(state); }
+    bool restoreState(const QByteArray & /* state */) { return true; }
 
     int currentLine() const { return 0; }
     int currentColumn() const { return 0; }

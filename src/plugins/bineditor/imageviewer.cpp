@@ -97,14 +97,14 @@ QString ImageViewerFactory::displayName() const
     return tr("Image Viewer");
 }
 
-Core::IFile *ImageViewerFactory::open(const QString &fileName)
+Core::IFile *ImageViewerFactory::open(const QString & /* fileName */)
 {
     return 0;
 }
 
 // #pragma mark -- ImageViewerFile
 
-void ImageViewerFile::modified(ReloadBehavior *behavior)
+void ImageViewerFile::modified(ReloadBehavior * /* behavior */)
 {
     // TODO
 }
