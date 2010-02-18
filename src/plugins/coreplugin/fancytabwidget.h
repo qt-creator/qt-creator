@@ -34,6 +34,7 @@
 #include <QtGui/QTabBar>
 #include <QtGui/QStyleOptionTabV2>
 #include <QtCore/QTimeLine>
+#include <QtCore/QTimer>
 
 QT_BEGIN_NAMESPACE
 class QPainter;
@@ -116,6 +117,7 @@ signals:
 
 public slots:
     void updateHover();
+    void emitCurrentIndex();
 
 private:
     static const int m_rounding;
@@ -124,7 +126,7 @@ private:
     int m_hoverIndex;
     int m_currentIndex;
     QList<FancyTab*> m_tabs;
-
+    QTimer m_triggerTimer;
     QSize tabSizeHint(bool minimum = false) const;
 
 };

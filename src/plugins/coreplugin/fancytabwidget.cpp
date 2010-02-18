@@ -82,6 +82,10 @@ FancyTabBar::FancyTabBar(QWidget *parent)
     setAttribute(Qt::WA_Hover, true);
     setFocusPolicy(Qt::NoFocus);
     setMouseTracking(true); // Needed for hover events
+    m_triggerTimer.setSingleShot(true);
+
+    // We use a zerotimer to keep the sidebar responsive
+    connect(&m_triggerTimer, SIGNAL(timeout()), this, SLOT(emitCurrentIndex()));
 }
 
 FancyTabBar::~FancyTabBar()
@@ -136,7 +140,6 @@ void FancyTabBar::mouseMoveEvent(QMouseEvent *e)
 
         if (validIndex(m_hoverIndex)) {
             m_tabs[m_hoverIndex]->fadeIn();
-            QRect oldHoverRect = m_hoverRect;
             m_hoverRect = tabRect(m_hoverIndex);
         }
     }
@@ -207,6 +210,14 @@ QRect FancyTabBar::tabRect(int index) const
 
 }
 
+// This keeps the sidebar responsive since
+// we get a repaint before loading the
+// mode itself
+void FancyTabBar::emitCurrentIndex()
+{
+    emit currentChanged(m_currentIndex);
+}
+
 void FancyTabBar::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
@@ -269,15 +280,21 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
             painter->save();
             QColor whiteOverlay(Qt::white);
             whiteOverlay.setAlpha(int(m_tabs[tabIndex]->fader()/2));
-            QRect roundRect = rect.adjusted(5, 3, -5, -3);
+            painter->fillRect(rect, whiteOverlay);
+            painter->setPen(whiteOverlay);
+            painter->drawLine(rect.topLeft(), rect.topRight());
+            painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+
+            /*            QRect roundRect = rect.adjusted(5, 3, -5, -3);
             painter->translate(0.5, 0.5);
             painter->setRenderHint(QPainter::Antialiasing);
             painter->setBrush(whiteOverlay);
             whiteOverlay.setAlpha(int(m_tabs[tabIndex]->fader()));
             painter->setPen(whiteOverlay);
             painter->drawRoundedRect(roundRect, 3, 3);
+*/
             painter->restore();
-        }
+      }
     }
 
     QString tabText(this->tabText(tabIndex));
@@ -312,7 +329,7 @@ void FancyTabBar::setCurrentIndex(int index) {
     if (isTabEnabled(index)) {
         m_currentIndex = index;
         update();
-        emit currentChanged(index);
+        m_triggerTimer.start(0);
     }
 }
 
