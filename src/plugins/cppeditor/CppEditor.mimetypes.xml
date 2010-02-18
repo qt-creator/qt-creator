@@ -4,6 +4,8 @@
         <sub-class-of type="text/plain"/>
         <comment>C Source file</comment>
         <glob pattern="*.c"/>
+        <!-- NVIDIA CUDA files are like C -->
+        <glob pattern="*.cu"/>
     </mime-type>
 
     <!-- A C Header file is virtually undistinguishable from the C++ header  -->
