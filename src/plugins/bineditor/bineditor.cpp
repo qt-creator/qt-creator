@@ -1236,15 +1236,12 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
     QMenu contextMenu;
     QAction copyAsciiAction(tr("Copy Selection as ASCII Characters"), this);
     QAction copyHexAction(tr("Copy Selection as Hex Values"), this);
-    QMenu jumpBeMenu;
-    QMenu jumpLeMenu;
-    QAction jumpToBeAddressHere(tr("In This Window"), this);
-    QAction jumpToBeAddressNewWindow(tr("In New Window"), this);
-    QAction jumpToLeAddressHere(tr("In This Window"), this);
-    QAction jumpToLeAddressNewWindow(tr("In New Window"), this);
+    QAction jumpToBeAddressHere(this);
+    QAction jumpToBeAddressNewWindow(this);
+    QAction jumpToLeAddressHere(this);
+    QAction jumpToLeAddressNewWindow(this);
     contextMenu.addAction(&copyAsciiAction);
     contextMenu.addAction(&copyHexAction);
-    contextMenu.addMenu(&jumpBeMenu);
 
     quint64 beAddress = 0;
     quint64 leAddress = 0;
@@ -1256,18 +1253,21 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
             leAddress += val << ((byteCount - pos - 1) * 8);
         }
 
-        setupJumpToMenuAction(&jumpBeMenu, &jumpToBeAddressHere,
+        setupJumpToMenuAction(&contextMenu, &jumpToBeAddressHere,
                               &jumpToBeAddressNewWindow, beAddress);
 
         // If the menu entries would be identical, show only one of them.
         if (beAddress != leAddress) {
-            setupJumpToMenuAction(&jumpLeMenu, &jumpToLeAddressHere,
+            setupJumpToMenuAction(&contextMenu, &jumpToLeAddressHere,
                               &jumpToLeAddressNewWindow, leAddress);
-            contextMenu.addMenu(&jumpLeMenu);
         }
     } else {
-        jumpBeMenu.setTitle(tr("Jump to Address"));
-        jumpBeMenu.setEnabled(false);
+        jumpToBeAddressHere.setText(tr("Jump to Address in This Window"));
+        jumpToBeAddressNewWindow.setText(tr("Jump to Address in New Window"));
+        jumpToBeAddressHere.setEnabled(false);
+        jumpToBeAddressNewWindow.setEnabled(false);
+        contextMenu.addAction(&jumpToBeAddressHere);
+        contextMenu.addAction(&jumpToBeAddressNewWindow);
     }
 
     QAction *action = contextMenu.exec(event->globalPos());
@@ -1288,15 +1288,16 @@ void BinEditor::contextMenuEvent(QContextMenuEvent *event)
 void BinEditor::setupJumpToMenuAction(QMenu *menu, QAction *actionHere,
                                       QAction *actionNew, quint64 addr)
 {
-    menu->setTitle(tr("Jump to Address 0x%1").arg(QString::number(addr, 16)));
+    actionHere->setText(tr("Jump to Address 0x%1 in This Window")
+                        .arg(QString::number(addr, 16)));
+    actionNew->setText(tr("Jump to Address 0x%1 in New Window")
+                        .arg(QString::number(addr, 16)));
     menu->addAction(actionHere);
+    menu->addAction(actionNew);
     if (addr < m_baseAddr || addr >= m_baseAddr + m_size)
         actionHere->setEnabled(false);
     if (!m_canRequestNewWindow)
         actionNew->setEnabled(false);
-    menu->addAction(actionNew);
-    if (!actionHere->isEnabled() && !actionNew->isEnabled())
-        menu->setEnabled(false);
 }
 
 void BinEditor::setNewWindowRequestAllowed()
