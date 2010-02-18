@@ -190,8 +190,11 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
         return;
 
     // attached properties
-    if (! propertyName.isEmpty() && propertyName[0].isUpper())
+    bool isAttachedProperty = false;
+    if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
+        isAttachedProperty = true;
         scopeObject = _context.typeEnvironment(_doc.data());
+    }
 
     if (! scopeObject)
         return;
@@ -205,6 +208,10 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
               QString("'%1' is not a valid property name").arg(propertyName));
         return;
     }
+
+    // can't look up members for attached properties
+    if (isAttachedProperty)
+        return;
 
     // member lookup
     const UiQualifiedId *idPart = id;
