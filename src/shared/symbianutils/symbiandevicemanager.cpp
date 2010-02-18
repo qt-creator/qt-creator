@@ -431,15 +431,25 @@ SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::blueToothDevices()
     // Bluetooth devices are created on connection. List the existing ones
     // or at least the first one.
     const QString prefix = QLatin1String(linuxBlueToothDeviceRootC);
-    const QString friendlyFormat = QLatin1String("Bluetooth device (%1)");
+    const QString blueToothfriendlyFormat = QLatin1String("Bluetooth device (%1)");
     for (int d = 0; d < 4; d++) {
         QScopedPointer<SymbianDeviceData> device(new SymbianDeviceData);
         device->type = BlueToothCommunication;
         device->portName = prefix + QString::number(d);
         if (d == 0 || QFileInfo(device->portName).exists()) {
-            device->friendlyName = friendlyFormat.arg(device->portName);
+            device->friendlyName = blueToothfriendlyFormat.arg(device->portName);
             rc.push_back(SymbianDevice(device.take()));
         }
+    }
+    // New kernel versions support /dev/ttyUSB0, /dev/ttyUSB1. Trk responds
+    // on the latter (usually).
+    const QString ttyUSBDevice = QLatin1String("/dev/ttyUSB1");
+    if (QFileInfo(ttyUSBDevice).exists()) {
+        SymbianDeviceData *device = new SymbianDeviceData;
+        device->type = SerialPortCommunication;
+        device->portName = ttyUSBDevice;
+        device->friendlyName = QString::fromLatin1("USB/Serial device (%1)").arg(device->portName);
+        rc.push_back(SymbianDevice(device));
     }
 #endif
     return rc;

@@ -133,6 +133,7 @@ protected:
     virtual bool equals(ToolChain *other) const;
     QByteArray m_predefinedMacros;
     QList<HeaderPath> m_systemHeaderPaths;
+    QString gcc() const { return m_gcc; }
 
 private:
     QString m_gcc;

@@ -47,8 +47,7 @@
 #include <QtGui/QMainWindow>
 
 namespace {
-    const char *GCCE_COMMAND = "arm-none-symbianelf-gcc.exe";
-    const char *S60_AUTODETECTION_SOURCE = "QTS60";
+    const char S60_AUTODETECTION_SOURCE[] = "QTS60";
 }
 
 namespace Qt4ProjectManager {
@@ -220,16 +219,13 @@ ProjectExplorer::ToolChain *S60Manager::createWINSCWToolChain(const Qt4ProjectMa
 ProjectExplorer::ToolChain *S60Manager::createGCCEToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
     Q_ASSERT(version);
-    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-    env.prependOrSetPath(version->gcceDirectory()+"/bin");
-    QString gcceCommandPath= env.searchInPath(GCCE_COMMAND);
-    return new GCCEToolChain(deviceForQtVersion(version), gcceCommandPath, ProjectExplorer::ToolChain::GCCE);
+    return GCCEToolChain::create(deviceForQtVersion(version), version->gcceDirectory(), ProjectExplorer::ToolChain::GCCE);
 }
 
 ProjectExplorer::ToolChain *S60Manager::createGCCE_GnuPocToolChain(const Qt4ProjectManager::QtVersion *version) const
 {
     Q_ASSERT(version);
-    return new GCCEToolChain(deviceForQtVersion(version), QLatin1String("arm-none-symbianelf-g++"), ProjectExplorer::ToolChain::GCCE_GNUPOC);
+    return GCCEToolChain::create(deviceForQtVersion(version), version->gcceDirectory(), ProjectExplorer::ToolChain::GCCE_GNUPOC);
 }
 
 ProjectExplorer::ToolChain *S60Manager::createRVCTToolChain(

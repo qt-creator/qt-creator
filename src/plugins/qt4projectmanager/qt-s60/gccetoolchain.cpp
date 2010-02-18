@@ -40,17 +40,49 @@ enum { debug = 0 };
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
+// Locate the compiler via path.
+static QString gcceCommand(const QString &dir)
+{
+    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    if (!dir.isEmpty())
+        env.prependOrSetPath(dir + QLatin1String("/bin"));
+    QString gcce = QLatin1String("arm-none-symbianelf-gcc");
+#ifdef Q_OS_WIN
+    gcce += QLatin1String(".exe");
+#endif
+    const QString rc = env.searchInPath(gcce);
+    if (rc.isEmpty()) {
+        const QString msg = QString::fromLatin1("GCCEToolChain: Unable to locate '%1' in '%2' (GCCE root: '%3')")
+                            .arg(gcce, env.value(QLatin1String("PATH")), dir);
+        qWarning("%s", qPrintable(msg));
+        return gcce;
+    }
+    return rc;
+}
+
+// The GccToolChain base class constructor wants to know the gcc command
+GCCEToolChain *GCCEToolChain::create(const S60Devices::Device &device,
+                                     const QString &gcceRoot,
+                                     ProjectExplorer::ToolChain::ToolChainType type)
+{
+    const QString gccCommand = gcceCommand(gcceRoot);
+    const QFileInfo gccCommandFi(gccCommand);
+    const QString binPath = gccCommandFi.isRelative() ? QString() : gccCommandFi.absolutePath();
+    return new GCCEToolChain(device, binPath, gccCommand, type);
+}
+
 GCCEToolChain::GCCEToolChain(const S60Devices::Device &device,
+                             const QString &gcceBinPath,
                              const QString &gcceCommand,
                              ProjectExplorer::ToolChain::ToolChainType type) :
     GccToolChain(gcceCommand),
     m_mixin(device),
     m_type(type),
-    m_gcceCommand(gcceCommand)
+    m_gcceBinPath(gcceBinPath)
 {
     QTC_ASSERT(m_type == ProjectExplorer::ToolChain::GCCE || m_type == ProjectExplorer::ToolChain::GCCE_GNUPOC, return)
     if (debug)
-        qDebug() << "GCCEToolChain on" << m_type << m_mixin.device();
+        qDebug() << "GCCEToolChain on" << m_type << gcceCommand << gcceBinPath << m_mixin.device();
 }
 
 ToolChain::ToolChainType GCCEToolChain::type() const
@@ -89,14 +121,18 @@ QList<HeaderPath> GCCEToolChain::systemHeaderPaths()
 
 void GCCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
+    if (debug)
+        qDebug() << "GCCEToolChain::addToEnvironment" << m_type << gcc() << m_gcceBinPath<< m_mixin.device();
+
+    if (!m_gcceBinPath.isEmpty())
+        env.prependOrSetPath(m_gcceBinPath);
     switch (m_type) {
     case ProjectExplorer::ToolChain::GCCE:
         m_mixin.addEpocToEnvironment(&env);
-        env.prependOrSetPath(QFileInfo(m_gcceCommand).absolutePath());
     case ProjectExplorer::ToolChain::GCCE_GNUPOC:
+        m_mixin.addGnuPocToEnvironment(&env);
         break;
     default:
-        m_mixin.addGnuPocToEnvironment(&env);
         break;
     }
 }
@@ -112,5 +148,6 @@ bool GCCEToolChain::equals(ToolChain *otherIn) const
                 return false;
     const GCCEToolChain *other = static_cast<const GCCEToolChain *>(otherIn);
     return m_mixin == other->m_mixin
-           && m_gcceCommand == other->m_gcceCommand;
+           && m_gcceBinPath == other->m_gcceBinPath
+           && gcc() == other->gcc();
 }
