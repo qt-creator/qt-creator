@@ -277,8 +277,10 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     // This can happen esp. when updating from a old version of Qt Creator
     QList<Target *>ts(targets());
     foreach (Target *t, ts) {
-        if (t->buildConfigurations().isEmpty())
+        if (t->buildConfigurations().isEmpty()) {
+            qWarning() << "Removing" << t->id() << "since it has no buildconfigurations!";
             removeTarget(t);
+        }
     }
 
     // Add buildconfigurations so we can parse the pro-files.

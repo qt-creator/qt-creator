@@ -126,14 +126,20 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         maxI = 0;
     for (int i = 0; i < maxI; ++i) {
         QVariantMap bsData(map.value(QString::fromLatin1(BUILD_STEPS_PREFIX) + QString::number(i)).toMap());
-        if (bsData.isEmpty())
+        if (bsData.isEmpty()) {
+            qWarning() << "No buildstep data found (continuing).";
             continue;
+        }
         IBuildStepFactory *factory(findRestoreFactory(this, bsData));
-        if (!factory)
+        if (!factory) {
+            qWarning() << "No factory for buildstep found (continuing).";
             continue;
+        }
         BuildStep *bs(factory->restore(this, bsData));
-        if (!bs)
+        if (!bs) {
+            qWarning() << "Restoration of buildstep failed (continuing).";
             continue;
+        }
         insertBuildStep(m_buildSteps.count(), bs);
     }
 
@@ -142,14 +148,20 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         maxI = 0;
     for (int i = 0; i < maxI; ++i) {
         QVariantMap bsData(map.value(QString::fromLatin1(CLEAN_STEPS_PREFIX) + QString::number(i)).toMap());
-        if (bsData.isEmpty())
+        if (bsData.isEmpty()) {
+            qWarning() << "No cleanstep data found for (continuing).";
             continue;
+        }
         IBuildStepFactory *factory(findRestoreFactory(this, bsData));
-        if (!factory)
+        if (!factory) {
+            qWarning() << "No factory for cleanstep found (continuing).";
             continue;
+        }
         BuildStep *bs(factory->restore(this, bsData));
-        if (!bs)
+        if (!bs) {
+            qWarning() << "Restoration of cleanstep failed (continuing).";
             continue;
+        }
         insertCleanStep(m_cleanSteps.count(), bs);
     }
 

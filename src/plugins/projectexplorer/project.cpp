@@ -40,6 +40,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QDebug>
+
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
@@ -245,11 +247,15 @@ bool Project::fromMap(const QVariantMap &map)
 
     for (int i = 0; i < maxI; ++i) {
         const QString key(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i));
-        if (!map.contains(key))
+        if (!map.contains(key)) {
+            qWarning() << key << "was not found in data.";
             return false;
+        }
         Target *t(targetFactory()->restore(this, map.value(key).toMap()));
-        if (!t)
+        if (!t) {
+            qWarning() << "Restoration of a target failed! (Continuing)";
             continue;
+        }
         addTarget(t);
         if (i == active)
             setActiveTarget(t);
