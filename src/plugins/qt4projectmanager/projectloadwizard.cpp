@@ -124,41 +124,20 @@ void ProjectLoadWizard::done(int result)
         // Import the existing stuff
         // qDebug()<<"Creating m_buildconfiguration entry from imported stuff";
         // qDebug()<<((m_importBuildConfig& QtVersion::BuildAll)? "debug_and_release" : "")<<((m_importBuildConfig & QtVersion::DebugBuild)? "debug" : "release");
-        bool debug = m_importBuildConfig & QtVersion::DebugBuild;
-
         foreach (const QString &id, m_importVersion->supportedTargetIds()) {
-            Qt4Target *t(m_project->targetFactory()->create(m_project, id));
+            Qt4Target *t(m_project->targetFactory()->create(m_project, id, QList<QtVersion*>() << m_importVersion));
             if (!t)
                 continue;
-            // Remove default BCs
-            foreach (ProjectExplorer::BuildConfiguration *bc, t->buildConfigurations())
-                t->removeBuildConfiguration(bc);
-
-            // ... and add our own!
-            t->addQt4BuildConfiguration(debug ? "Debug" : "Release", m_importVersion, m_importBuildConfig, m_additionalArguments);
-            if (m_importBuildConfig & QtVersion::BuildAll) {
-                // Also create the other configuration
-                QtVersion::QmakeBuildConfigs otherBuildConfiguration = m_importBuildConfig;
-                if (debug)
-                    otherBuildConfiguration = otherBuildConfiguration & ~ QtVersion::DebugBuild;
-                else
-                    otherBuildConfiguration = otherBuildConfiguration | QtVersion::DebugBuild;
-
-                t->addQt4BuildConfiguration(debug ? "Release" : "Debug", m_importVersion, otherBuildConfiguration, m_additionalArguments);
-            }
             m_project->addTarget(t);
         }
     } else {
         // Not importing
         if (m_temporaryVersion)
             delete m_importVersion;
-        // Create default
-        bool buildAll = false;
 
         // Find a Qt version:
-        // TODO: Update the wizard to support targets properly.
         QList<QtVersion *> candidates = vm->versions();
-        QtVersion *defaultVersion = candidates.at(0);
+        QtVersion *defaultVersion = candidates.at(0); // always there and always valid!
         foreach (QtVersion *v, candidates) {
             if (v->isValid())
                 defaultVersion = v;
@@ -168,11 +147,8 @@ void ProjectLoadWizard::done(int result)
             }
         }
 
-        if (defaultVersion->isValid() && (defaultVersion->defaultBuildConfig() & QtVersion::BuildAll))
-            buildAll = true;
-
         foreach (const QString &id, defaultVersion->supportedTargetIds()) {
-            Qt4Target *t(m_project->targetFactory()->create(m_project, id));
+            Qt4Target *t(m_project->targetFactory()->create(m_project, id, QList<QtVersion *>() << defaultVersion));
             if (!t)
                 continue;
             m_project->addTarget(t);
