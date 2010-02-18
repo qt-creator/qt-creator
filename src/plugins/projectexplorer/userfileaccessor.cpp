@@ -169,8 +169,11 @@ QVariantMap UserFileAccessor::restoreSettings(Project *project)
     if (m_lastVersion < 0 || !project)
         return QVariantMap();
 
-    PersistentSettingsReader reader;
     QString fileName(fileNameFor(project->file()->fileName()));
+    if (!QFile::exists(fileName))
+        return QVariantMap();
+
+    PersistentSettingsReader reader;
     reader.load(fileName);
 
     QVariantMap map(reader.restoreValues());
