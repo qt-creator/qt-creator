@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLPROJECTWIZARD_H
-#define QMLPROJECTWIZARD_H
+#ifndef QMLPROJECTIMPORTWIZARD_H
+#define QMLPROJECTIMPORTWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
 
@@ -48,13 +48,13 @@ class FileWizardPage;
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlProjectWizardDialog : public QWizard
+class QmlProjectImportWizardDialog : public QWizard
 {
     Q_OBJECT
 
 public:
-    QmlProjectWizardDialog(QWidget *parent = 0);
-    virtual ~QmlProjectWizardDialog();
+    QmlProjectImportWizardDialog(QWidget *parent = 0);
+    virtual ~QmlProjectImportWizardDialog();
 
     QString path() const;
     void setPath(const QString &path);
@@ -65,13 +65,13 @@ private:
     Utils::FileWizardPage *m_firstPage;
 };
 
-class QmlProjectWizard : public Core::BaseFileWizard
+class QmlProjectImportWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
 
 public:
-    QmlProjectWizard();
-    virtual ~QmlProjectWizard();
+    QmlProjectImportWizard();
+    virtual ~QmlProjectImportWizard();
 
     static Core::BaseFileWizardParameters parameters();
 
@@ -89,4 +89,4 @@ protected:
 } // end of namespace Internal
 } // end of namespace QmlProjectManager
 
-#endif // QMLPROJECTWIZARD_H
+#endif // QMLPROJECTIMPORTWIZARD_H

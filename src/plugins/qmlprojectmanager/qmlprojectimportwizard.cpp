@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "qmlprojectwizard.h"
+#include "qmlprojectimportwizard.h"
 
 #include "qmlprojectconstants.h"
 
@@ -50,10 +50,10 @@ namespace QmlProjectManager {
 namespace Internal {
 
 //////////////////////////////////////////////////////////////////////////////
-// QmlProjectWizardDialog
+// QmlProjectImportWizardDialog
 //////////////////////////////////////////////////////////////////////////////
 
-QmlProjectWizardDialog::QmlProjectWizardDialog(QWidget *parent)
+QmlProjectImportWizardDialog::QmlProjectImportWizardDialog(QWidget *parent)
     : QWizard(parent)
 {
     setWindowTitle(tr("Import of QML Project"));
@@ -67,32 +67,36 @@ QmlProjectWizardDialog::QmlProjectWizardDialog(QWidget *parent)
     addPage(m_firstPage);
 }
 
-QmlProjectWizardDialog::~QmlProjectWizardDialog()
+QmlProjectImportWizardDialog::~QmlProjectImportWizardDialog()
 { }
 
-QString QmlProjectWizardDialog::path() const
+QString QmlProjectImportWizardDialog::path() const
 {
     return m_firstPage->path();
 }
 
-void QmlProjectWizardDialog::setPath(const QString &path)
+void QmlProjectImportWizardDialog::setPath(const QString &path)
 {
     m_firstPage->setPath(path);
 }
 
-QString QmlProjectWizardDialog::projectName() const
+QString QmlProjectImportWizardDialog::projectName() const
 {
     return m_firstPage->fileName();
 }
 
-QmlProjectWizard::QmlProjectWizard()
+//////////////////////////////////////////////////////////////////////////////
+// QmlProjectImportWizard
+//////////////////////////////////////////////////////////////////////////////
+
+QmlProjectImportWizard::QmlProjectImportWizard()
     : Core::BaseFileWizard(parameters())
 { }
 
-QmlProjectWizard::~QmlProjectWizard()
+QmlProjectImportWizard::~QmlProjectImportWizard()
 { }
 
-Core::BaseFileWizardParameters QmlProjectWizard::parameters()
+Core::BaseFileWizardParameters QmlProjectImportWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
@@ -105,11 +109,11 @@ Core::BaseFileWizardParameters QmlProjectWizard::parameters()
     return parameters;
 }
 
-QWizard *QmlProjectWizard::createWizardDialog(QWidget *parent,
+QWizard *QmlProjectImportWizard::createWizardDialog(QWidget *parent,
                                                   const QString &defaultPath,
                                                   const WizardPageList &extensionPages) const
 {
-    QmlProjectWizardDialog *wizard = new QmlProjectWizardDialog(parent);
+    QmlProjectImportWizardDialog *wizard = new QmlProjectImportWizardDialog(parent);
     setupWizard(wizard);
 
     wizard->setPath(defaultPath);
@@ -120,12 +124,12 @@ QWizard *QmlProjectWizard::createWizardDialog(QWidget *parent,
     return wizard;
 }
 
-Core::GeneratedFiles QmlProjectWizard::generateFiles(const QWizard *w,
+Core::GeneratedFiles QmlProjectImportWizard::generateFiles(const QWizard *w,
                                                      QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
 
-    const QmlProjectWizardDialog *wizard = qobject_cast<const QmlProjectWizardDialog *>(w);
+    const QmlProjectImportWizardDialog *wizard = qobject_cast<const QmlProjectImportWizardDialog *>(w);
     const QString projectPath = wizard->path();
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();
@@ -166,7 +170,7 @@ Core::GeneratedFiles QmlProjectWizard::generateFiles(const QWizard *w,
     return files;
 }
 
-bool QmlProjectWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage)
+bool QmlProjectImportWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage)
 {
     // Post-Generate: Open the project
     const QString proFileName = l.back().path();

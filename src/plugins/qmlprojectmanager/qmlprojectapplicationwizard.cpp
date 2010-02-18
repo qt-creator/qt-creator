@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "qmlnewprojectwizard.h"
+#include "qmlprojectapplicationwizard.h"
 
 #include "qmlprojectconstants.h"
 
@@ -40,21 +40,21 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlNewProjectWizardDialog::QmlNewProjectWizardDialog(QWidget *parent) :
+QmlProjectApplicationWizardDialog::QmlProjectApplicationWizardDialog(QWidget *parent) :
     ProjectExplorer::BaseProjectWizardDialog(parent)
 {
     setWindowTitle(tr("New QML Project"));
     setIntroDescription(tr("This wizard generates a QML application project."));
 }
 
-QmlNewProjectWizard::QmlNewProjectWizard()
+QmlProjectApplicationWizard::QmlProjectApplicationWizard()
     : Core::BaseFileWizard(parameters())
 { }
 
-QmlNewProjectWizard::~QmlNewProjectWizard()
+QmlProjectApplicationWizard::~QmlProjectApplicationWizard()
 { }
 
-Core::BaseFileWizardParameters QmlNewProjectWizard::parameters()
+Core::BaseFileWizardParameters QmlProjectApplicationWizard::parameters()
 {
     Core::BaseFileWizardParameters parameters(ProjectWizard);
     parameters.setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
@@ -67,14 +67,14 @@ Core::BaseFileWizardParameters QmlNewProjectWizard::parameters()
     return parameters;
 }
 
-QWizard *QmlNewProjectWizard::createWizardDialog(QWidget *parent,
+QWizard *QmlProjectApplicationWizard::createWizardDialog(QWidget *parent,
                                                   const QString &defaultPath,
                                                   const WizardPageList &extensionPages) const
 {
-    QmlNewProjectWizardDialog *wizard = new QmlNewProjectWizardDialog(parent);
+    QmlProjectApplicationWizardDialog *wizard = new QmlProjectApplicationWizardDialog(parent);
 
     wizard->setPath(defaultPath);
-    wizard->setProjectName(QmlNewProjectWizardDialog::uniqueProjectName(defaultPath));
+    wizard->setProjectName(QmlProjectApplicationWizardDialog::uniqueProjectName(defaultPath));
 
     foreach (QWizardPage *p, extensionPages)
         wizard->addPage(p);
@@ -82,12 +82,12 @@ QWizard *QmlNewProjectWizard::createWizardDialog(QWidget *parent,
     return wizard;
 }
 
-Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
+Core::GeneratedFiles QmlProjectApplicationWizard::generateFiles(const QWizard *w,
                                                      QString *errorMessage) const
 {
     Q_UNUSED(errorMessage)
 
-    const QmlNewProjectWizardDialog *wizard = qobject_cast<const QmlNewProjectWizardDialog *>(w);
+    const QmlProjectApplicationWizardDialog *wizard = qobject_cast<const QmlProjectApplicationWizardDialog *>(w);
     const QString projectName = wizard->projectName();
     const QString projectPath = wizard->path() + QLatin1Char('/') + projectName;
 
@@ -154,7 +154,7 @@ Core::GeneratedFiles QmlNewProjectWizard::generateFiles(const QWizard *w,
     return files;
 }
 
-bool QmlNewProjectWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage)
+bool QmlProjectApplicationWizard::postGenerateFiles(const Core::GeneratedFiles &l, QString *errorMessage)
 {
     // Post-Generate: Open the project
     const QString proFileName = l.back().path();

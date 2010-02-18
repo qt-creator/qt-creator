@@ -13,12 +13,12 @@ HEADERS += qmlproject.h \
     qmlprojectmanager.h \
     qmlprojectconstants.h \
     qmlprojectnodes.h \
-    qmlprojectwizard.h \
+    qmlprojectimportwizard.h \
     qmlprojectfile.h \
     qmlprojectruncontrol.h \
     qmlprojectrunconfiguration.h \
     qmlprojectrunconfigurationfactory.h \
-    qmlnewprojectwizard.h \
+    qmlprojectapplicationwizard.h \
     qmltaskmanager.h \
     qmlprojectmanager_global.h \
     qmlprojectmanagerconstants.h \
@@ -27,12 +27,12 @@ SOURCES += qmlproject.cpp \
     qmlprojectplugin.cpp \
     qmlprojectmanager.cpp \
     qmlprojectnodes.cpp \
-    qmlprojectwizard.cpp \
+    qmlprojectimportwizard.cpp \
     qmlprojectfile.cpp \
     qmlprojectruncontrol.cpp \
     qmlprojectrunconfiguration.cpp \
     qmlprojectrunconfigurationfactory.cpp \
-    qmlnewprojectwizard.cpp \
+    qmlprojectapplicationwizard.cpp \
     qmltaskmanager.cpp \
     qmlprojecttarget.cpp
 RESOURCES += qmlproject.qrc

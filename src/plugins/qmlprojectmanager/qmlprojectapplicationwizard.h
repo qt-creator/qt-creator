@@ -27,8 +27,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLNEWPROJECTWIZARD_H
-#define QMLNEWPROJECTWIZARD_H
+#ifndef QMLPROJECTAPPLICATIONWIZARD_H
+#define QMLPROJECTAPPLICATIONWIZARD_H
 
 #include <coreplugin/basefilewizard.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
@@ -44,20 +44,20 @@ class ProjectIntroPage;
 namespace QmlProjectManager {
 namespace Internal {
 
-class QmlNewProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+class QmlProjectApplicationWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
 public:
-    explicit QmlNewProjectWizardDialog(QWidget *parent = 0);
+    explicit QmlProjectApplicationWizardDialog(QWidget *parent = 0);
 };
 
-class QmlNewProjectWizard : public Core::BaseFileWizard
+class QmlProjectApplicationWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
 
 public:
-    QmlNewProjectWizard();
-    virtual ~QmlNewProjectWizard();
+    QmlProjectApplicationWizard();
+    virtual ~QmlProjectApplicationWizard();
 
     static Core::BaseFileWizardParameters parameters();
 
@@ -75,4 +75,4 @@ protected:
 } // end of namespace Internal
 } // end of namespace QmlProjectManager
 
-#endif // QMLNEWPROJECTWIZARD_H
+#endif // QMLPROJECTAPPLICATIONWIZARD_H
