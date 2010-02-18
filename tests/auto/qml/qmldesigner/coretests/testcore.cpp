@@ -52,7 +52,6 @@
 
 #include <nodelistproperty.h>
 #include <nodeabstractproperty.h>
-#include <plaintexteditmodifier.h>
 #include <componenttextmodifier.h>
 
 #include <bytearraymodifier.h>
@@ -76,7 +75,6 @@ void TestCore::initTestCase()
 #ifndef QDEBUG_IN_TESTS
     qInstallMsgHandler(testMessageOutput);
 #endif
-    MetaInfo::setPluginPaths(pluginPaths());
     Exception::setShouldAssert(false);
 }
 
@@ -109,7 +107,7 @@ void TestCore::loadEmptyCoreModel()
 
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText(file.readAll());
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -119,7 +117,7 @@ void TestCore::loadEmptyCoreModel()
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import Qt 4.6; Item{}");
-    PlainTextEditModifier modifier2(&textEdit2);
+    NotIndentingTextEditModifier modifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("Qt/item"));
 
@@ -135,7 +133,7 @@ void TestCore::testRewriterView()
     try {
         QPlainTextEdit textEdit;
         textEdit.setPlainText("import Qt 4.6;\n\nItem {\n}\n");
-        PlainTextEditModifier textModifier(&textEdit);
+        NotIndentingTextEditModifier textModifier(&textEdit);
 
         QScopedPointer<Model> model(Model::create("Qt/Item"));
         QVERIFY(model.data());
@@ -150,10 +148,8 @@ void TestCore::testRewriterView()
         testRewriterView->setTextModifier(&textModifier);
         model->attachView(testRewriterView.data());
 
-        ModelNode childNode(addChildNode(rootModelNode, "Qt/Item", 4, 6, "data"));
+        ModelNode childNode(addChildNode(rootModelNode, "Qt/Rectangle", 4, 6, "data"));
         QVERIFY(childNode.isValid());
-
-        childNode.changeType("Qt/Rectangle", 4, 6);
         childNode.setId("childNode");
 
         ModelNode childNode2(addChildNode(childNode, "Qt/Rectangle", 4, 6, "data"));
@@ -207,7 +203,7 @@ void TestCore::testRewriterErrors()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.6;\n\nItem {\n}\n");
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -238,7 +234,7 @@ void TestCore::saveEmptyCoreModel()
 
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText(file.readAll());
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -253,7 +249,7 @@ void TestCore::saveEmptyCoreModel()
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import Qt 4.6; Item{}");
-    PlainTextEditModifier modifier2(&textEdit2);
+    NotIndentingTextEditModifier modifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("Qt/item"));
 
@@ -273,7 +269,7 @@ void TestCore::loadAttributesInCoreModel()
 
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText(file.readAll());
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -283,7 +279,7 @@ void TestCore::loadAttributesInCoreModel()
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import Qt 4.6; Item{}");
-    PlainTextEditModifier modifier2(&textEdit2);
+    NotIndentingTextEditModifier modifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("Qt/item"));
 
@@ -308,7 +304,7 @@ void TestCore::saveAttributesInCoreModel()
 
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText(file.readAll());
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -324,7 +320,7 @@ void TestCore::saveAttributesInCoreModel()
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText(buffer.data());
-    PlainTextEditModifier modifier2(&textEdit2);
+    NotIndentingTextEditModifier modifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("Qt/Item"));
 
@@ -357,8 +353,8 @@ void TestCore::testModelCreateRect()
 
     QVERIFY(childNode.id().isEmpty());
 
-    childNode.setId("Rect01");
-    QCOMPARE(childNode.id(), QString("Rect01"));
+    childNode.setId("rect01");
+    QCOMPARE(childNode.id(), QString("rect01"));
 
     childNode.variantProperty("x") = 100;
     childNode.variantProperty("y") = 100;
@@ -381,7 +377,7 @@ void TestCore::loadComponentPropertiesInCoreModel()
 
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText(file.readAll());
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -394,7 +390,7 @@ void TestCore::loadComponentPropertiesInCoreModel()
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import Qt 4.6; Item{}");
-    PlainTextEditModifier modifier2(&textEdit2);
+    NotIndentingTextEditModifier modifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("Qt/Item"));
 
@@ -409,12 +405,12 @@ void TestCore::loadComponentPropertiesInCoreModel()
 
 void TestCore::loadSubItems()
 {
-    QFile file(QCoreApplication::applicationDirPath() + "/../tests/data/fx/topitem.qml");
+    QFile file(QCoreApplication::applicationDirPath() + "/../data/fx/topitem.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText(file.readAll());
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -457,10 +453,10 @@ void TestCore::testModelCreateSubNode()
     QCOMPARE(view->methodCalls(), expectedCalls);
 
     QVERIFY(childNode.id().isEmpty());
-    childNode.setId("Blah");
-    QCOMPARE(childNode.id(), QString("Blah"));
+    childNode.setId("blah");
+    QCOMPARE(childNode.id(), QString("blah"));
 
-    expectedCalls << TestView::MethodCall("nodeIdChanged", QStringList() << "Blah" << "Blah" << "");
+    expectedCalls << TestView::MethodCall("nodeIdChanged", QStringList() << "blah" << "blah" << "");
     QCOMPARE(view->methodCalls(), expectedCalls);
 
     try {
@@ -470,7 +466,7 @@ void TestCore::testModelCreateSubNode()
         QCOMPARE(exception.type(), QString("InvalidIdException"));
     }
 
-    QCOMPARE(childNode.id(), QString("Blah"));
+    QCOMPARE(childNode.id(), QString("blah"));
     QCOMPARE(view->methodCalls(), expectedCalls);
 
     childNode.setId(QString());
@@ -566,7 +562,7 @@ void TestCore::testBasicStates()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -868,8 +864,9 @@ void TestCore::testBasicOperationsWithView()
     QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 0);
     NodeInstance rootInstance = nodeInstanceView->instanceForNode(rootModelNode);
 
-    QCOMPARE(rootInstance.size().width(), 0.0);
-    QCOMPARE(rootInstance.size().height(), 0.0);
+    // no width, height specified implicitly is set to 100x100
+    QCOMPARE(rootInstance.size().width(), 100.0);
+    QCOMPARE(rootInstance.size().height(), 100.0);
 
     QVERIFY(rootInstance.isValid());
     QVERIFY(rootInstance.isQmlGraphicsItem());
@@ -1238,7 +1235,7 @@ void TestCore::reparentingNodeLikeDragAndDrop()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.6;\n\nItem {\n}\n");
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1257,7 +1254,7 @@ void TestCore::reparentingNodeLikeDragAndDrop()
     QCOMPARE(view->rootModelNode().id(), QString("rootModelNode"));
 
     ModelNode rectNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
-    rectNode.setId("Rect_1");
+    rectNode.setId("rect_1");
     rectNode.variantProperty("x").setValue(20);
     rectNode.variantProperty("y").setValue(30);
     rectNode.variantProperty("width").setValue(40);
@@ -1269,7 +1266,7 @@ void TestCore::reparentingNodeLikeDragAndDrop()
     QCOMPARE(textNode.parentProperty().parentModelNode(), view->rootModelNode());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(textNode));
 
-    textNode.setId("Text_1");
+    textNode.setId("rext_1");
     textNode.variantProperty("x").setValue(10);
     textNode.variantProperty("y").setValue(10);
     textNode.variantProperty("width").setValue(50);
@@ -1661,7 +1658,7 @@ void TestCore::testRewriterId()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1689,9 +1686,9 @@ void TestCore::testRewriterId()
 
     const QLatin1String expected("import Qt 4.6\n"
                                   "Rectangle {\n"
-                                  "    Rectangle {\n"
-                                  "        id: testId\n"
-                                  "    }\n"
+                                  "Rectangle {\n"
+                                  "    id: testId\n"
+                                  "}\n"
                                   "}\n");
 
     QCOMPARE(textEdit.toPlainText(), expected);
@@ -1707,7 +1704,7 @@ void TestCore::testRewriterNodeReparentingTransaction1()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1752,7 +1749,7 @@ void TestCore::testRewriterNodeReparentingTransaction2()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1818,7 +1815,7 @@ void TestCore::testRewriterNodeReparentingTransaction3()
 
    QPlainTextEdit textEdit;
    textEdit.setPlainText(qmlString);
-   PlainTextEditModifier textModifier(&textEdit);
+   NotIndentingTextEditModifier textModifier(&textEdit);
 
    QScopedPointer<Model> model(Model::create("Qt/Item"));
    QVERIFY(model.data());
@@ -1868,7 +1865,7 @@ void TestCore::testRewriterNodeReparentingTransaction4()
 
    QPlainTextEdit textEdit;
    textEdit.setPlainText(qmlString);
-   PlainTextEditModifier textModifier(&textEdit);
+   NotIndentingTextEditModifier textModifier(&textEdit);
 
    QScopedPointer<Model> model(Model::create("Qt/Item"));
    QVERIFY(model.data());
@@ -1919,7 +1916,7 @@ void TestCore::testRewriterAddNodeTransaction()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1966,7 +1963,7 @@ void TestCore::testRewriterComponentId()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -1997,7 +1994,7 @@ void TestCore::testRewriterTransactionRewriter()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -2071,7 +2068,7 @@ void TestCore::testRewriterPropertyDeclarations()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -2132,7 +2129,7 @@ void TestCore::testRewriterPropertyAliases()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -2159,22 +2156,22 @@ void TestCore::testRewriterPositionAndOffset()
                                   "import Qt 4.6\n"
                                   "\n"
                                   "Rectangle {\n"
-                                  "    id: Root\n"
+                                  "    id: root\n"
                                   "    x: 10;\n"
                                   "    y: 10;\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle1\n"
+                                  "        id: rectangle1\n"
                                   "        x: 10;\n"
                                   "        y: 10;\n"
                                   "    }\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle2\n"
+                                  "        id: rectangle2\n"
                                   "        x: 100;\n"
                                   "        y: 100;\n"
-                                  "        anchors.fill: Root\n"
+                                  "        anchors.fill: root\n"
                                   "    }\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle3\n"
+                                  "        id: rectangle3\n"
                                   "        x: 140;\n"
                                   "        y: 180;\n"
                                   "        gradient: Gradient {\n"
@@ -2192,7 +2189,7 @@ void TestCore::testRewriterPositionAndOffset()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -2215,22 +2212,22 @@ void TestCore::testRewriterPositionAndOffset()
         string +=QString(qmlString)[i];
 
        const QString qmlExpected0("Rectangle {\n"
-                                  "    id: Root\n"
+                                  "    id: root\n"
                                   "    x: 10;\n"
                                   "    y: 10;\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle1\n"
+                                  "        id: rectangle1\n"
                                   "        x: 10;\n"
                                   "        y: 10;\n"
                                   "    }\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle2\n"
+                                  "        id: rectangle2\n"
                                   "        x: 100;\n"
                                   "        y: 100;\n"
-                                  "        anchors.fill: Root\n"
+                                  "        anchors.fill: root\n"
                                   "    }\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle3\n"
+                                  "        id: rectangle3\n"
                                   "        x: 140;\n"
                                   "        y: 180;\n"
                                   "        gradient: Gradient {\n"
@@ -2285,16 +2282,16 @@ void TestCore::testRewriterComponentTextModifier()
 {
     const QString qmlString("import Qt 4.6\n"
                             "Rectangle {\n"
-                            "    id: Root\n"
+                            "    id: root\n"
                             "    x: 10;\n"
                             "    y: 10;\n"
                             "    Rectangle {\n"
-                            "        id: Rectangle1\n"
+                            "        id: rectangle1\n"
                             "        x: 10;\n"
                             "        y: 10;\n"
                             "    }\n"
                             "    Component {\n"
-                            "        id: RectangleComponent\n"
+                            "        id: rectangleComponent\n"
                             "        Rectangle {\n"
                             "            x: 100;\n"
                             "            y: 100;\n"
@@ -2304,7 +2301,7 @@ void TestCore::testRewriterComponentTextModifier()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -2341,7 +2338,7 @@ void TestCore::testRewriterComponentTextModifier()
                             "               "
                             "      "
                             "    Component {\n"
-                            "        id: RectangleComponent\n"
+                            "        id: rectangleComponent\n"
                             "        Rectangle {\n"
                             "            x: 100;\n"
                             "            y: 100;\n"
@@ -2356,9 +2353,9 @@ void TestCore::testRewriterComponentTextModifier()
     testRewriterViewComponent->setTextModifier(&componentTextModifier);
     componentModel->attachView(testRewriterViewComponent.data());
 
-    ModelNode componentRootNode = testRewriterViewComponent->rootModelNode();
-    QVERIFY(componentRootNode.isValid());
-    QCOMPARE(componentRootNode.type(), QLatin1String("Qt/Component"));
+    ModelNode componentrootNode = testRewriterViewComponent->rootModelNode();
+    QVERIFY(componentrootNode.isValid());
+    QCOMPARE(componentrootNode.type(), QLatin1String("Qt/Component"));
 }
 
 void TestCore::testRewriterPreserveType()
@@ -2374,7 +2371,7 @@ void TestCore::testRewriterPreserveType()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -2418,7 +2415,7 @@ void TestCore::testRewriterForArrayMagic()
                                   "}\n");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -2465,7 +2462,7 @@ void TestCore::testRewriterWithSignals()
                                   "}\n");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -2508,7 +2505,7 @@ void TestCore::testRewriterNodeSliding()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -2548,7 +2545,7 @@ void TestCore::testRewriterExecptionHandling()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -2584,16 +2581,16 @@ void TestCore::testRewriterFirstDefinitionInside()
 {
     const QString qmlString("import Qt 4.6\n"
                             "Rectangle {\n"
-                            "    id: Root\n"
+                            "    id: root\n"
                             "    x: 10;\n"
                             "    y: 10;\n"
                             "    Rectangle {\n"
-                            "        id: Rectangle1\n"
+                            "        id: rectangle1\n"
                             "        x: 10;\n"
                             "        y: 10;\n"
                             "    }\n"
                             "    Component {\n"
-                            "        id: RectangleComponent\n"
+                            "        id: rectangleComponent\n"
                             "        Rectangle {\n"
                             "            x: 100;\n"
                             "            y: 100;\n"
@@ -2604,7 +2601,7 @@ void TestCore::testRewriterFirstDefinitionInside()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -2637,26 +2634,28 @@ void TestCore::testRewriterFirstDefinitionInside()
 
 void TestCore::testCopyModelRewriter1()
 {
+    QSKIP("Fix me!!! Task BaAUHAUS-393", SkipAll);
+
     const QLatin1String qmlString("\n"
                                   "import Qt 4.6\n"
                                   "\n"
                                   "Rectangle {\n"
-                                  "    id: Root\n"
+                                  "    id: root\n"
                                   "    x: 10;\n"
                                   "    y: 10;\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle1\n"
+                                  "        id: rectangle1\n"
                                   "        x: 10;\n"
                                   "        y: 10;\n"
                                   "    }\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle2\n"
+                                  "        id: rectangle2\n"
                                   "        x: 100;\n"
                                   "        y: 100;\n"
-                                  "        anchors.fill: Root\n"
+                                  "        anchors.fill: root\n"
                                   "    }\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle3\n"
+                                  "        id: rectangle3\n"
                                   "        x: 140;\n"
                                   "        y: 180;\n"
                                   "        gradient: Gradient {\n"
@@ -2674,7 +2673,7 @@ void TestCore::testCopyModelRewriter1()
 
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText(qmlString);
-    PlainTextEditModifier textModifier1(&textEdit1);
+    NotIndentingTextEditModifier textModifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 6));
     QVERIFY(model1.data());
@@ -2693,7 +2692,7 @@ void TestCore::testCopyModelRewriter1()
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText(qmlString);
-    PlainTextEditModifier textModifier2(&textEdit2);
+    NotIndentingTextEditModifier textModifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("Qt/Item", 4, 6));
     QVERIFY(model2.data());
@@ -2723,7 +2722,7 @@ void TestCore::testCopyModelRewriter1()
     ModelNode insertedNode(merger.insertModel(rootNode2));
     transaction.commit();
 
-    QCOMPARE(insertedNode.id(), QString("Root1"));
+    QCOMPARE(insertedNode.id(), QString("root1"));
 
     QVERIFY(insertedNode.isValid());
     childNode.nodeListProperty("data").reparentHere(insertedNode);
@@ -2736,33 +2735,33 @@ void TestCore::testCopyModelRewriter1()
         "import Qt 4.6\n"
         "\n"
         "Rectangle {\n"
-        "    id: Root\n"
+        "    id: root\n"
         "    x: 10;\n"
         "    y: 10;\n"
         "    Rectangle {\n"
-        "        id: Rectangle1\n"
+        "        id: rectangle1\n"
         "        x: 10;\n"
         "        y: 10;\n"
         "\n"
         "        Rectangle {\n"
-        "            id: Root1\n"
+        "            id: root1\n"
         "            x: 10\n"
         "            y: 10\n"
         "            Rectangle {\n"
-        "                id: Rectangle11\n"
+        "                id: rectangle11\n"
         "                x: 10\n"
         "                y: 10\n"
         "            }\n"
         "\n"
         "            Rectangle {\n"
-        "                id: Rectangle21\n"
+        "                id: rectangle21\n"
         "                x: 100\n"
         "                y: 100\n"
-        "                anchors.fill: Root1\n"
+        "                anchors.fill: root1\n"
         "            }\n"
         "\n"
         "            Rectangle {\n"
-        "                id: Rectangle31\n"
+        "                id: rectangle31\n"
         "                x: 140\n"
         "                y: 180\n"
         "                gradient: Gradient {\n"
@@ -2780,13 +2779,13 @@ void TestCore::testCopyModelRewriter1()
         "        }\n"
         "    }\n"
         "    Rectangle {\n"
-        "        id: Rectangle2\n"
+        "        id: rectangle2\n"
         "        x: 100;\n"
         "        y: 100;\n"
-        "        anchors.fill: Root\n"
+        "        anchors.fill: root\n"
         "    }\n"
         "    Rectangle {\n"
-        "        id: Rectangle3\n"
+        "        id: rectangle3\n"
         "        x: 140;\n"
         "        y: 180;\n"
         "        gradient: Gradient {\n"
@@ -2811,39 +2810,39 @@ void TestCore::testCopyModelRewriter2()
                                   "import Qt 4.6\n"
                                   "\n"
                                   "Rectangle {\n"
-                                  "    id: Root\n"
+                                  "id: root\n"
+                                  "x: 10\n"
+                                  "y: 10\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "    id: rectangle1\n"
                                   "    x: 10\n"
                                   "    y: 10\n"
+                                  "}\n"
                                   "\n"
-                                  "    Rectangle {\n"
-                                  "        id: Rectangle1\n"
-                                  "        x: 10\n"
-                                  "        y: 10\n"
-                                  "    }\n"
+                                  "Rectangle {\n"
+                                  "    id: rectangle2\n"
+                                  "    x: 100\n"
+                                  "    y: 100\n"
+                                  "    anchors.fill: rectangle1\n"
+                                  "}\n"
                                   "\n"
-                                  "    Rectangle {\n"
-                                  "        id: Rectangle2\n"
-                                  "        x: 100\n"
-                                  "        y: 100\n"
-                                  "        anchors.fill: Rectangle1\n"
-                                  "    }\n"
+                                  "Rectangle {\n"
+                                  "    id: rectangle3\n"
+                                  "    x: 140\n"
+                                  "    y: 180\n"
+                                  "    gradient: Gradient {\n"
+                                  "        GradientStop {\n"
+                                  "            position: 0\n"
+                                  "            color: \"#ffffff\"\n"
+                                  "        }\n"
                                   "\n"
-                                  "    Rectangle {\n"
-                                  "        id: Rectangle3\n"
-                                  "        x: 140\n"
-                                  "        y: 180\n"
-                                  "        gradient: Gradient {\n"
-                                  "            GradientStop {\n"
-                                  "                position: 0\n"
-                                  "                color: \"#ffffff\"\n"
-                                  "            }\n"
-                                  "\n"
-                                  "            GradientStop {\n"
-                                  "                position: 1\n"
-                                  "                color: \"#000000\"\n"
-                                  "            }\n"
+                                  "        GradientStop {\n"
+                                  "            position: 1\n"
+                                  "            color: \"#000000\"\n"
                                   "        }\n"
                                   "    }\n"
+                                  "}\n"
                                   "}");
 
 
@@ -2855,7 +2854,7 @@ void TestCore::testCopyModelRewriter2()
 
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText(qmlString1);
-    PlainTextEditModifier textModifier1(&textEdit1);
+    NotIndentingTextEditModifier textModifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 6));
     QVERIFY(model1.data());
@@ -2877,7 +2876,7 @@ void TestCore::testCopyModelRewriter2()
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText(qmlString2);
-    PlainTextEditModifier textModifier2(&textEdit2);
+    NotIndentingTextEditModifier textModifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("Qt/Item", 4, 6));
     QVERIFY(model2.data());
@@ -2947,7 +2946,7 @@ char qmlString[] = "import Qt 4.6\n"
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -3042,13 +3041,10 @@ void TestCore::testMetaInfo()
 
     QVERIFY(!model->metaInfo().isSubclassOf("Fooo", "Qt/QtObject"));
 
-    QVERIFY(model->metaInfo().nodeMetaInfo("Qt/Item", 4, 6).isContainer());
-
     QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("Qt/Item"));
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("x"));
     QVERIFY(!view->rootModelNode().metaInfo().hasProperty("blah"));
     QVERIFY(!view->rootModelNode().metaInfo().property("blah").isValid());
-    QVERIFY(view->rootModelNode().metaInfo().isContainer());
 
     ModelNode rectNode = addChildNode(view->rootModelNode(), "Qt/Rectangle", 4, 6, "data");
 
@@ -3058,7 +3054,6 @@ void TestCore::testMetaInfo()
     QVERIFY(rectNode.metaInfo().hasProperty("color"));
     QVERIFY(rectNode.metaInfo().hasProperty("x"));
     QVERIFY(!rectNode.metaInfo().hasProperty("blah"));
-    QVERIFY(rectNode.metaInfo().isContainer());
 
     ModelNode textNode = addChildNode(view->rootModelNode(), "Qt/TextEdit", 4, 6, "data");
     NodeMetaInfo textNodeMetaInfo = textNode.metaInfo();
@@ -3181,7 +3176,7 @@ void TestCore::testStatesRewriter()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import Qt 4.6; Item {}\n");
-    PlainTextEditModifier modifier(&textEdit);
+    NotIndentingTextEditModifier modifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -3226,11 +3221,11 @@ void TestCore::testStatesRewriter()
 
 void TestCore::testGradientsRewriter()
 {
-//    QSKIP("this crashes in the rewriter", SkipAll);
+    QSKIP("Fix me!!! Task BAUHAUS-392", SkipAll);
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText("\nimport Qt 4.6\n\nItem {\n}\n");
-    PlainTextEditModifier modifier(&textEdit);
+    NotIndentingTextEditModifier modifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -3253,8 +3248,8 @@ void TestCore::testGradientsRewriter()
     const QLatin1String expected1("\nimport Qt 4.6\n"
                                   "\n"
                                   "Item {\n"
-                                  "    Rectangle {\n"
-                                  "    }\n"
+                                  "Rectangle {\n"
+                                  "}\n"
                                   "}\n");
     QCOMPARE(textEdit.toPlainText(), expected1);
 
@@ -3265,10 +3260,10 @@ void TestCore::testGradientsRewriter()
     const QLatin1String expected2("\nimport Qt 4.6\n"
                                   "\n"
                                   "Item {\n"
-                                  "    Rectangle {\n"
-                                  "        gradient: Gradient {\n"
-                                  "        }\n"
+                                  "Rectangle {\n"
+                                  "    gradient: Gradient {\n"
                                   "    }\n"
+                                  "}\n"
                                   "}\n");
     QCOMPARE(textEdit.toPlainText(), expected2);
 
@@ -3286,14 +3281,14 @@ void TestCore::testGradientsRewriter()
     const QLatin1String expected3("\nimport Qt 4.6\n"
                                   "\n"
                                   "Item {\n"
-                                  "    Rectangle {\n"
-                                  "        gradient: Gradient {\n"
-                                  "            GradientStop {\n"
-                                  "                position: 0\n"
-                                  "                color: \"#ff0000\"\n"
-                                  "            }\n"
+                                  "Rectangle {\n"
+                                  "    gradient: Gradient {\n"
+                                  "        GradientStop {\n"
+                                  "            position: 0\n"
+                                  "            color: \"#ff0000\"\n"
                                   "        }\n"
                                   "    }\n"
+                                  "}\n"
                                   "}\n");
 
     QCOMPARE(textEdit.toPlainText(), expected3);
@@ -3309,19 +3304,19 @@ void TestCore::testGradientsRewriter()
     const QLatin1String expected4("\nimport Qt 4.6\n"
                                   "\n"
                                   "Item {\n"
-                                  "    Rectangle {\n"
-                                  "        gradient: Gradient {\n"
-                                  "            GradientStop {\n"
-                                  "                position: 0\n"
-                                  "                color: \"#ff0000\"\n"
-                                  "            }\n"
+                                  "Rectangle {\n"
+                                  "    gradient: Gradient {\n"
+                                  "        GradientStop {\n"
+                                  "            position: 0\n"
+                                  "            color: \"#ff0000\"\n"
+                                  "        }\n"
                                   "\n"
-                                  "            GradientStop {\n"
-                                  "                position: 0.5\n"
-                                  "                color: \"#0000ff\"\n"
-                                  "            }\n"
+                                  "        GradientStop {\n"
+                                  "            position: 0.5\n"
+                                  "            color: \"#0000ff\"\n"
                                   "        }\n"
                                   "    }\n"
+                                  "}\n"
                                   "}\n");
 
     QCOMPARE(textEdit.toPlainText(), expected4);
@@ -3337,24 +3332,24 @@ void TestCore::testGradientsRewriter()
     const QLatin1String expected5("\nimport Qt 4.6\n"
                                   "\n"
                                   "Item {\n"
-                                  "    Rectangle {\n"
-                                  "        gradient: Gradient {\n"
-                                  "            GradientStop {\n"
-                                  "                position: 0\n"
-                                  "                color: \"#ff0000\"\n"
-                                  "            }\n"
+                                  "Rectangle {\n"
+                                  "    gradient: Gradient {\n"
+                                  "        GradientStop {\n"
+                                  "            position: 0\n"
+                                  "            color: \"#ff0000\"\n"
+                                  "        }\n"
                                   "\n"
-                                  "            GradientStop {\n"
-                                  "                position: 0.5\n"
-                                  "                color: \"#0000ff\"\n"
-                                  "            }\n"
+                                  "        GradientStop {\n"
+                                  "            position: 0.5\n"
+                                  "            color: \"#0000ff\"\n"
+                                  "        }\n"
                                   "\n"
-                                  "            GradientStop {\n"
-                                  "                position: 0.8\n"
-                                  "                color: \"#ffff00\"\n"
-                                  "            }\n"
+                                  "        GradientStop {\n"
+                                  "            position: 0.8\n"
+                                  "            color: \"#ffff00\"\n"
                                   "        }\n"
                                   "    }\n"
+                                  "}\n"
                                   "}\n");
 
     QCOMPARE(textEdit.toPlainText(), expected5);
@@ -3364,10 +3359,10 @@ void TestCore::testGradientsRewriter()
     const QLatin1String expected6("\nimport Qt 4.6\n"
                                   "\n"
                                   "Item {\n"
-                                  "    Rectangle {\n"
-                                  "        gradient: Gradient {\n"
-                                  "        }\n"
+                                  "Rectangle {\n"
+                                  "    gradient: Gradient {\n"
                                   "    }\n"
+                                  "}\n"
                                   "}\n");
 
     QCOMPARE(textEdit.toPlainText(), expected6);
@@ -3522,7 +3517,7 @@ void TestCore::testInstancesStates()
     QCOMPARE(textInstance.property("x").toInt(), 0);
     QCOMPARE(textInstance.property("text").toString(), QString("base state"));
 
-    // base state -> state 1
+    // base state -> state
     state1Instance.setPropertyVariant("__activateState", true);
     QCOMPARE(state1Instance.property("__activateState").toBool(), true);
     QCOMPARE(state2Instance.property("__activateState").toBool(), false);
@@ -4018,7 +4013,7 @@ void TestCore::testQmlModelStateWithName()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Rectangle { id: theRect; width: 100; states: [ State { name: \"a\"; PropertyChanges { target: theRect; width: 200; } } ] }\n");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -4063,7 +4058,7 @@ void TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Rectangle {\n    width: 640\n    height: 480\n}\n");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -4230,7 +4225,7 @@ void TestCore::testModelPropertyValueTypes()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Rectangle { width: 100; radius: 1.5; color: \"red\"; }");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("Qt/Item"));
 
@@ -4327,7 +4322,7 @@ void TestCore::loadAnchors()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
 
@@ -4366,7 +4361,7 @@ void TestCore::changeAnchors()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
 
@@ -4427,7 +4422,7 @@ void TestCore::anchorToSibling()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Item { Rectangle {} Rectangle { id: secondChild } }");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
 
@@ -4487,7 +4482,7 @@ void TestCore::removeFillAnchorByDetaching()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
 
@@ -4568,7 +4563,7 @@ void TestCore::removeFillAnchorByChanging()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
 
@@ -4657,8 +4652,9 @@ void TestCore::testModelBindings()
     QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 0);
     NodeInstance rootInstance = nodeInstanceView->instanceForNode(rootModelNode);
 
-    QCOMPARE(rootInstance.size().width(), 0.0);
-    QCOMPARE(rootInstance.size().height(), 0.0);
+    // default width/height is forced to 100
+    QCOMPARE(rootInstance.size().width(), 100.0);
+    QCOMPARE(rootInstance.size().height(), 100.0);
 
     rootModelNode.variantProperty("width") = 200;
     rootModelNode.variantProperty("height") = 100;
@@ -4688,11 +4684,9 @@ void TestCore::testModelBindings()
 
     rootModelNode.setId("root");
     QCOMPARE(rootModelNode.id(), QString("root"));
-    QCOMPARE(rootInstance.testHandle()->objectName(), QString("root"));
 
     childNode.setId("child");
     QCOMPARE(childNode.id(), QString("child"));
-    QCOMPARE(childInstance.testHandle()->objectName(), QString("child"));
     childNode.variantProperty("width") = 100;
 
     QCOMPARE(childInstance.size().width(), 100.0);
@@ -4892,7 +4886,7 @@ void TestCore::testRewriterChangeId()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -4915,7 +4909,7 @@ void TestCore::testRewriterChangeId()
 
     QString expected = "import Qt 4.6\n"
                        "Rectangle {\n"
-                       "    id: rectId\n"
+                       "id: rectId\n"
                        " }";
 
     QCOMPARE(textEdit.toPlainText(), expected);
@@ -4931,7 +4925,7 @@ void TestCore::testRewriterChangeValueProperty()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -4971,7 +4965,7 @@ void TestCore::testRewriterRemoveValueProperty()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -5013,7 +5007,7 @@ void TestCore::testRewriterSignalProperty()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -5039,7 +5033,7 @@ void TestCore::testRewriterObjectTypeProperty()
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     QVERIFY(model.data());
@@ -5057,13 +5051,9 @@ void TestCore::testRewriterObjectTypeProperty()
 
     QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
 
-    rootModelNode.changeType(QLatin1String("Qt/Text"), 4, 6);
+    view->changeRootNodeType(QLatin1String("Qt/Text"), 4, 6);
 
     QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Text"));
-
-    // change type outside of hierarchy
-    ModelNode node = view->createModelNode("Qt/Rectangle", 4, 6);
-    node.changeType(QLatin1String("Qt/Item"), 4, 6);
 }
 
 void TestCore::testRewriterPropertyChanges()
@@ -5091,7 +5081,7 @@ void TestCore::testRewriterPropertyChanges()
 
         QPlainTextEdit textEdit;
         textEdit.setPlainText(qmlString);
-        PlainTextEditModifier textModifier(&textEdit);
+        NotIndentingTextEditModifier textModifier(&textEdit);
 
         QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
         QVERIFY(model.data());
@@ -5148,7 +5138,7 @@ void TestCore::testRewriterListModel()
 
         QPlainTextEdit textEdit;
         textEdit.setPlainText(qmlString);
-        PlainTextEditModifier textModifier(&textEdit);
+        NotIndentingTextEditModifier textModifier(&textEdit);
 
         QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
         QVERIFY(model.data());
@@ -5185,7 +5175,7 @@ void TestCore::testRewriterAddProperty()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5212,7 +5202,7 @@ void TestCore::testRewriterAddProperty()
                                  "import Qt 4.6\n"
                                  "\n"
                                  "Rectangle {\n"
-                                 "    x: 123\n"
+                                 "x: 123\n"
                                  "}");
     QCOMPARE(textEdit.toPlainText(), expected);
 }
@@ -5224,12 +5214,12 @@ void TestCore::testRewriterAddPropertyInNestedObject()
                                   "\n"
                                   "Rectangle {\n"
                                   "    Rectangle {\n"
-                                  "        id: Rectangle1\n"
+                                  "        id: rectangle1\n"
                                   "    }\n"
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5249,7 +5239,7 @@ void TestCore::testRewriterAddPropertyInNestedObject()
     ModelNode childNode = rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(0);
     QVERIFY(childNode.isValid());
     QCOMPARE(childNode.type(), QLatin1String("Qt/Rectangle"));
-    QCOMPARE(childNode.id(), QLatin1String("Rectangle1"));
+    QCOMPARE(childNode.id(), QLatin1String("rectangle1"));
 
     childNode.variantProperty(QLatin1String("x")).setValue(10);
     childNode.variantProperty(QLatin1String("y")).setValue(10);
@@ -5259,7 +5249,7 @@ void TestCore::testRewriterAddPropertyInNestedObject()
                                  "\n"
                                  "Rectangle {\n"
                                  "    Rectangle {\n"
-                                 "        id: Rectangle1\n"
+                                 "        id: rectangle1\n"
                                  "        x: 10\n"
                                  "        y: 10\n"
                                  "    }\n"
@@ -5275,7 +5265,7 @@ void TestCore::testRewriterAddObjectDefinition()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5309,7 +5299,7 @@ void TestCore::testRewriterAddStatesArray()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5332,10 +5322,10 @@ void TestCore::testRewriterAddStatesArray()
                                            "import Qt 4.6\n"
                                            "\n"
                                            "Rectangle {\n"
-                                           "    states: [\n"
-                                           "        State {\n"
-                                           "        }\n"
-                                           "    ]\n"
+                                           "states: [\n"
+                                           "    State {\n"
+                                           "    }\n"
+                                           "]\n"
                                            "}");
     QCOMPARE(textEdit.toPlainText(), expected1);
 
@@ -5346,12 +5336,12 @@ void TestCore::testRewriterAddStatesArray()
                                            "import Qt 4.6\n"
                                            "\n"
                                            "Rectangle {\n"
-                                           "    states: [\n"
-                                           "        State {\n"
-                                           "        },\n"
-                                           "        State {\n"
-                                           "        }\n"
-                                           "    ]\n"
+                                           "states: [\n"
+                                           "    State {\n"
+                                           "    },\n"
+                                           "    State {\n"
+                                           "    }\n"
+                                           "]\n"
                                            "}");
     QCOMPARE(textEdit.toPlainText(), expected2);
 }
@@ -5371,7 +5361,7 @@ void TestCore::testRewriterRemoveStates()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5429,7 +5419,7 @@ void TestCore::testRewriterRemoveObjectDefinition()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5488,7 +5478,7 @@ void TestCore::testRewriterRemoveScriptBinding()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5541,7 +5531,7 @@ void TestCore::testRewriterNodeReparenting()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5649,7 +5639,7 @@ void TestCore::testRewriterNodeReparentingWithTransaction()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5710,7 +5700,7 @@ void TestCore::testRewriterMovingInOut()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5734,8 +5724,8 @@ void TestCore::testRewriterMovingInOut()
                                   "import Qt 4.6\n"
                                   "\n"
                                   "Rectangle {\n"
-                                  "    MouseRegion {\n"
-                                  "    }\n"
+                                  "MouseRegion {\n"
+                                  "}\n"
                                   "}");
     QCOMPARE(textEdit.toPlainText(), expected1);
 
@@ -5766,7 +5756,7 @@ void TestCore::testRewriterMovingInOutWithTransaction()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5819,7 +5809,7 @@ void TestCore::testRewriterComplexMovingInOut()
                                   "}");
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -5868,8 +5858,8 @@ void TestCore::testRewriterComplexMovingInOut()
                                   "  }\n"
                                   "\n"
                                   "  MouseRegion {\n"
-                                  "      x: 3\n"
-                                  "      y: 3\n"
+                                  "  x: 3\n"
+                                  "  y: 3\n"
                                   "  }\n"
                                   "}");
     QCOMPARE(textEdit.toPlainText(), expected2);
@@ -5882,8 +5872,8 @@ void TestCore::testRewriterComplexMovingInOut()
                                   "Rectangle {\n"
                                   "  Item {\n"
                                   "MouseRegion {\n"
-                                  "      x: 3\n"
-                                  "      y: 3\n"
+                                  "  x: 3\n"
+                                  "  y: 3\n"
                                   "  }\n"
                                   "  }\n"
                                   "}");
@@ -5910,7 +5900,7 @@ void TestCore::removeCenteredInAnchorByDetaching()
 {
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import Qt 4.6; Item { Rectangle { id: child; anchors.centerIn: parent } }");
-    PlainTextEditModifier modifier1(&textEdit1);
+    NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
 
@@ -6075,7 +6065,7 @@ void TestCore::loadGradient()
 {
     QPlainTextEdit textEdit;
     textEdit.setPlainText(rectWithGradient);
-    PlainTextEditModifier textModifier(&textEdit);
+    NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
     QVERIFY(model.data());
@@ -6171,7 +6161,7 @@ void TestCore::changeGradientId()
     try {
         QPlainTextEdit textEdit;
         textEdit.setPlainText(rectWithGradient);
-        PlainTextEditModifier textModifier(&textEdit);
+        NotIndentingTextEditModifier textModifier(&textEdit);
 
         QScopedPointer<Model> model(Model::create("Qt/Item", 4, 6));
         QVERIFY(model.data());
@@ -6327,14 +6317,14 @@ void TestCore::changeSubModel()
 //    // Check that changes in the model for the Component are reflected in both the model for the component, and the original model:
 //    ModelNode subModelNode = subview->rootModelNode();
 //    Q_ASSERT(subModelNode.isValid());
-//    subModelNode.setId("AnotherId");
-//    QCOMPARE(subModelNode.id(), QString("AnotherId"));
-//    QCOMPARE(modelNode.id(), QString("AnotherId"));
+//    subModelNode.setId("anotherId");
+//    QCOMPARE(subModelNode.id(), QString("anotherId"));
+//    QCOMPARE(modelNode.id(), QString("anotherId"));
 //
 //    // Check that changes in the original model are reflected in the model for the component:
-//    modelNode.setId("YetAnotherId");
-//    QCOMPARE(subModelNode.id(), QString("YetAnotherId"));
-//    QCOMPARE(modelNode.id(), QString("YetAnotherId"));
+//    modelNode.setId("yetanotherId");
+//    QCOMPARE(subModelNode.id(), QString("yetanotherId"));
+//    QCOMPARE(modelNode.id(), QString("yetanotherId"));
 }
 
 
@@ -6353,17 +6343,17 @@ void TestCore::changeInlineComponent()
 //
 //    QScopedPointer<Model> componentModel(model1->createComponentModel(componentNode));
 //
-//    ModelNode componentRootNode = componentview->rootModelNode();
-//    QVERIFY(componentRootNode.isValid());
-//    QCOMPARE(componentRootNode.type(), QString("Qt/Rectangle"));
+//    ModelNode componentrootNode = componentview->rootModelNode();
+//    QVERIFY(componentrootNode.isValid());
+//    QCOMPARE(componentrootNode.type(), QString("Qt/Rectangle"));
 //
 //    ModificationGroupToken token = componentModel->beginModificationGroup();
-//    ModelNode childNode(componentRootNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
+//    ModelNode childNode(componentrootNode.addChildNode("Qt/Rectangle", 4, 6, "data"));
 //    QVERIFY(childNode.isValid());
 //    componentModel->endModificationGroup(token);
 //    QVERIFY(childNode.isValid());
-//    QVERIFY(!componentRootNode.childNodes().isEmpty());
-//    QVERIFY(componentRootNode.childNodes().first() == childNode);
+//    QVERIFY(!componentrootNode.childNodes().isEmpty());
+//    QVERIFY(componentrootNode.childNodes().first() == childNode);
 
 }
 
@@ -6525,14 +6515,14 @@ void TestCore::testStatesWithAnonymousTargets()
 //    changeList.append(change);
 //    model->changeNodeStates(changeList);
 //
-//    QCOMPARE(newState.modelNode().id(),QString("Rectangle1"));
-//    QCOMPARE(rectNode.id(),QString("Rectangle1"));
+//    QCOMPARE(newState.modelNode().id(),QString("rectangle1"));
+//    QCOMPARE(rectNode.id(),QString("rectangle1"));
 //    QCOMPARE(newState.property("x").value().toInt(),30);
 //
 //    // now we manually erase the new id and target
 //    QString Text = modifier->text();
-//    Text.remove(Text.indexOf(QString("id: Rectangle1;")),QString("id: Rectangle1;").length());
-//    Text.remove(Text.indexOf(QString("Rectangle1")),QString("Rectangle1").length());
+//    Text.remove(Text.indexOf(QString("id: rectangle1;")),QString("id: rectangle1;").length());
+//    Text.remove(Text.indexOf(QString("rectangle1")),QString("rectangle1").length());
 //
 //    // text2model again
 //    reload(Text,modifier);

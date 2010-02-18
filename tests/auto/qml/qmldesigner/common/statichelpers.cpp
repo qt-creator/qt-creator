@@ -27,18 +27,6 @@
 **
 **************************************************************************/
 
-static QStringList pluginPaths()
-{
-    QStringList result;
-#ifdef Q_OS_MAC
-    result += QCoreApplication::applicationDirPath() + "/Bauhaus.app/Contents/PlugIns/Bauhaus/ItemLibs";
-#else // Q_OS_MAC
-    result += QCoreApplication::applicationDirPath() + "/../lib/itemlibs";
-#endif // Q_OS_MAC
-
-    return result;
-}
-
 static void testMessageOutput(QtMsgType type, const char *msg)
  {
      switch (type) {

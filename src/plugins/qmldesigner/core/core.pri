@@ -74,7 +74,6 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/modeltotextmerger.cpp \
     $$PWD/model/texttomodelmerger.cpp \
     $$PWD/model/plaintexteditmodifier.cpp \
-    $$PWD/model/basetexteditmodifier.cpp \
     $$PWD/model/componenttextmodifier.cpp \
     $$PWD/model/textmodifier.cpp \
     $$PWD/model/qmlmodelview.cpp \
@@ -96,6 +95,7 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/nodeinstancemetaobject.cpp \
     $$PWD/instances/behaviornodeinstance.cpp \
     $$PWD/instances/nodeinstancesignalspy.cpp
+
 HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/abstractview.h \
     $$PWD/include/nodeinstanceview.h \
@@ -188,6 +188,14 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/instances/nodeinstancemetaobject.h \
     $$PWD/instances/behaviornodeinstance.h \
     $$PWD/instances/nodeinstancesignalspy.h
+
+contains(CONFIG, plugin) {
+# If core.pri has been included in the qmldesigner plugin
+SOURCES += $$PWD/model/basetexteditmodifier.cpp
+HEADERS +=     $$PWD/include/basetexteditmodifier.h
+
+}
+
 DISTFILES += $$PWD/metafile/widget.metafile
 RESOURCES += $$PWD/core.qrc
 OTHER_FILES += $$PWD/metainfo/gui.metainfo
