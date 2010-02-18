@@ -296,7 +296,8 @@ const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
     } break;
 
     case QMetaType::QPoint:
-    case QMetaType::QPointF: {
+    case QMetaType::QPointF:
+    case QMetaType::QVector2D: {
         // ### cache
         ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
         object->setProperty("x", engine()->numberValue());
@@ -312,6 +313,15 @@ const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
         object->setProperty("y", engine()->numberValue());
         object->setProperty("width", engine()->numberValue());
         object->setProperty("height", engine()->numberValue());
+        value = object;
+    } break;
+
+    case QMetaType::QVector3D: {
+        // ### cache
+        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setProperty("x", engine()->numberValue());
+        object->setProperty("y", engine()->numberValue());
+        object->setProperty("z", engine()->numberValue());
         value = object;
     } break;
 
