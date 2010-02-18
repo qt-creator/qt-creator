@@ -30,7 +30,10 @@
 #include "guiappwizarddialog.h"
 
 #include "filespage.h"
+#include "qt4target.h"
 #include "qtprojectparameters.h"
+
+#include <QtCore/QSet>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -104,6 +107,19 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.headerFileName = m_filesPage->headerFileName();
     rc.formFileName = m_filesPage->formFileName();
     rc.designerForm =  m_filesPage->formInputChecked();
+    QSet<QString> targets = selectedTargets();
+    if (targets.contains(QLatin1String(MAEMO_DEVICE_TARGET_ID)) ||
+        targets.contains(QLatin1String(MAEMO_EMULATOR_TARGET_ID))) {
+        rc.widgetWidth = 800;
+        rc.widgetHeight = 480;
+    } else if (targets.contains(QLatin1String(S60_DEVICE_TARGET_ID)) ||
+               targets.contains(QLatin1String(S60_EMULATOR_TARGET_ID))) {
+        rc.widgetWidth = 360;
+        rc.widgetHeight = 640;
+    } else {
+        rc.widgetWidth = 400;
+        rc.widgetHeight = 300;
+    }
     return rc;
 }
 

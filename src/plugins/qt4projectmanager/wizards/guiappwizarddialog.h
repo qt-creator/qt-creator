@@ -47,6 +47,8 @@ struct GuiAppParameters
     QString sourceFileName;
     QString headerFileName;
     QString formFileName;
+    int widgetWidth;
+    int widgetHeight;
     bool designerForm;
 };
 

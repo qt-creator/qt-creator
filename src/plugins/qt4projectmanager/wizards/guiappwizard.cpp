@@ -208,6 +208,8 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
     contents.replace(QLatin1String("%INCLUDE%"), params.headerFileName);
     contents.replace(QLatin1String("%CLASS%"), params.className);
     contents.replace(QLatin1String("%BASECLASS%"), params.baseClassName);
+    contents.replace(QLatin1String("%WIDGET_HEIGHT%"), QString::number(params.widgetHeight));
+    contents.replace(QLatin1String("%WIDGET_WIDTH%"), QString::number(params.widgetWidth));
 
     const QChar dot = QLatin1Char('.');
 
