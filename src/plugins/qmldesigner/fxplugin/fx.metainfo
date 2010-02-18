@@ -112,6 +112,7 @@
     </itemlibraryrepresentation>
   </node>
 
+<!--
   <node name="Qt/Row" showInItemLibrary="true" category="Qt - Positioners" isContainer="true" icon=":/fxplugin/images/row-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="100"/>
     <propertyDefaultValue name="height" type="int" defaultValue="100"/>
@@ -138,6 +139,7 @@
       <property name="height" type="int" value="100"/>
     </itemlibraryrepresentation>
   </node>
+-->
 
   <node name="Qt/WebView" showInItemLibrary="true" category="Qt - Widgets" icon=":/fxplugin/images/webview-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="300"/>
