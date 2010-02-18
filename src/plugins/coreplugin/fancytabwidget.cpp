@@ -57,7 +57,7 @@ void FancyTab::fadeIn()
 {
     QPropertyAnimation *animation;
     animation = new QPropertyAnimation(this, "fader");
-    animation->setDuration(90);
+    animation->setDuration(70);
     animation->setEndValue(50);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -66,7 +66,7 @@ void FancyTab::fadeOut()
 {
     QPropertyAnimation *animation;
     animation = new QPropertyAnimation(this, "fader");
-    animation->setDuration(185);
+    animation->setDuration(200);
     animation->setEndValue(0);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -275,26 +275,6 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->drawLine(rect.bottomLeft(), rect.bottomRight());
         painter->setPen(QColor(255, 255, 255, 50));
         painter->drawLine(rect.bottomLeft() + QPoint(0,1), rect.bottomRight() + QPoint(0,1));
-    } else {
-        if (enabled) {
-            painter->save();
-            QColor whiteOverlay(Qt::white);
-            whiteOverlay.setAlpha(int(m_tabs[tabIndex]->fader()/2));
-            painter->fillRect(rect, whiteOverlay);
-            painter->setPen(whiteOverlay);
-            painter->drawLine(rect.topLeft(), rect.topRight());
-            painter->drawLine(rect.bottomLeft(), rect.bottomRight());
-
-            /*            QRect roundRect = rect.adjusted(5, 3, -5, -3);
-            painter->translate(0.5, 0.5);
-            painter->setRenderHint(QPainter::Antialiasing);
-            painter->setBrush(whiteOverlay);
-            whiteOverlay.setAlpha(int(m_tabs[tabIndex]->fader()));
-            painter->setPen(whiteOverlay);
-            painter->drawRoundedRect(roundRect, 3, 3);
-*/
-            painter->restore();
-      }
     }
 
     QString tabText(this->tabText(tabIndex));
@@ -314,12 +294,27 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->setPen(selected ? Utils::StyleHelper::panelTextColor() : QColor(255, 255, 255, 120));
     }
 
+    if (!selected && enabled) {
+        painter->save();
+        int fader = int(m_tabs[tabIndex]->fader());
+        QLinearGradient grad(rect.topLeft(), rect.topRight());
+        grad.setColorAt(0, Qt::transparent);
+        grad.setColorAt(0.5, QColor(255, 255, 255, fader));
+        grad.setColorAt(1, Qt::transparent);
+        painter->fillRect(rect, grad);
+        painter->setPen(QPen(grad, 1.0));
+        painter->drawLine(rect.topLeft(), rect.topRight());
+        painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+        painter->restore();
+    }
+
     int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
     tabIconRect.adjust(0, 4, 0, -textHeight);
     int iconSize = qMin(tabIconRect.width(), tabIconRect.height());
     if (iconSize > 4)
         style()->drawItemPixmap(painter, tabIconRect, Qt::AlignCenter | Qt::AlignVCenter,
                                 tabIcon(tabIndex).pixmap(tabIconRect.size(), enabled ? QIcon::Normal : QIcon::Disabled));
+
     painter->translate(0, -1);
     painter->drawText(tabTextRect, textFlags, tabText);
     painter->restore();

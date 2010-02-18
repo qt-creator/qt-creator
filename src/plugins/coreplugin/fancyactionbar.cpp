@@ -58,13 +58,6 @@ FancyToolButton::FancyToolButton(QWidget *parent)
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 
-void FancySeparator::paintEvent(QPaintEvent *event)
-{
-    Q_UNUSED(event);
-    QPainter painter(this);
-    painter.fillRect(rect(), Qt::red);
-}
-
 bool FancyToolButton::event(QEvent *e)
 {
     switch(e->type()) {
@@ -99,41 +92,37 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     bool isTitledAction = defaultAction()->property("titledAction").toBool();
 
 #ifndef Q_WS_MAC // Mac UIs usually don't hover
-    if (m_fader > 0 && isEnabled() && !isDown()) {
+    if (m_fader > 0 && isEnabled() && !isDown() && !isChecked()) {
         painter.save();
-        QColor whiteOverlay(Qt::white);
-        whiteOverlay.setAlpha(int(10 * m_fader));
-        QRect roundRect = rect().adjusted(5, 3, -5, -3);
-        painter.translate(0.5, 0.5);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setBrush(whiteOverlay);
-        whiteOverlay.setAlpha(int(20*m_fader));
-        painter.setPen(whiteOverlay);
-        painter.drawRoundedRect(roundRect, 3, 3);
+        int fader = int(40 * m_fader);
+        QLinearGradient grad(rect().topLeft(), rect().topRight());
+        grad.setColorAt(0, Qt::transparent);
+        grad.setColorAt(0.5, QColor(255, 255, 255, fader));
+        grad.setColorAt(1, Qt::transparent);
+        painter.fillRect(rect(), grad);
+        painter.setPen(QPen(grad, 1.0));
+        painter.drawLine(rect().topLeft(), rect().topRight());
+        painter.drawLine(rect().bottomLeft(), rect().bottomRight());
         painter.restore();
-    }
-#endif
 
+    } else
+#endif
     if (isDown() || isChecked()) {
         painter.save();
-        QColor color(Qt::black);
-        color.setAlpha(15);
-        QRect roundRect = rect().adjusted(5, 3, -5, -3);
-        painter.translate(0.5, 0.5);
-        painter.setRenderHint(QPainter::Antialiasing);
-        painter.setPen(QColor(255, 255, 255, 20));
-        static int rounding = 3;
-        painter.drawRoundedRect(roundRect.adjusted(-1, -1, 1, 1), rounding, rounding);
-        painter.setPen(QColor(0, 0, 0, 20));
-        painter.setBrush(QColor(0, 0, 0, 15));
-        painter.drawRoundedRect(roundRect.adjusted(1, 1, 0, 0), rounding, rounding);
-        color.setAlpha(75);
-        painter.setPen(color);
-        painter.setBrush(Qt::NoBrush);
-        painter.drawRoundedRect(roundRect, 3, 3);
+        QLinearGradient grad(rect().topLeft(), rect().topRight());
+        grad.setColorAt(0, Qt::transparent);
+        grad.setColorAt(0.5, QColor(0, 0, 0, 50));
+        grad.setColorAt(1, Qt::transparent);
+        painter.fillRect(rect(), grad);
+        painter.setPen(QPen(grad, 1.0));
+        painter.drawLine(rect().topLeft(), rect().topRight());
+        painter.drawLine(rect().topLeft(), rect().topRight());
+        painter.drawLine(rect().topLeft() + QPoint(0,1), rect().topRight() + QPoint(0,1));
+        painter.drawLine(rect().bottomLeft(), rect().bottomRight());
+        painter.drawLine(rect().bottomLeft(), rect().bottomRight());
+        painter.drawLine(rect().topLeft() - QPoint(0,1), rect().topRight() - QPoint(0,1));
         painter.restore();
     }
-
     QPixmap borderPixmap;
     QMargins margins;
 
@@ -192,6 +181,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         opt.rect = rect().adjusted(rect().width() - 18, 0, -10, 0);
         Utils::StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
     }
+
 }
 
 void FancyActionBar::paintEvent(QPaintEvent *event)

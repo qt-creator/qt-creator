@@ -63,22 +63,6 @@ private slots:
     void actionChanged();
 };
 
-class FancySeparator: public QWidget
-{
-    Q_OBJECT
-
-public:
-    FancySeparator(QWidget *parent = 0) :
-            QWidget(parent)
-    {
-        setMinimumHeight(2);
-        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    }
-    void paintEvent(QPaintEvent *event);
-};
-
-
-
 class FancyActionBar : public QWidget
 {
     Q_OBJECT
