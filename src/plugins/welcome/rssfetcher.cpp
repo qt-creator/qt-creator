@@ -32,7 +32,8 @@
 #include <QtCore/QLocale>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QLineEdit>
-#include <QtNetwork/QHttp>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkProxyFactory>
 
 #include <coreplugin/coreconstants.h>
@@ -111,45 +112,31 @@ static const QString getOsString()
 RSSFetcher::RSSFetcher(int maxItems, QObject *parent)
     : QObject(parent), m_items(0), m_maxItems(maxItems)
 {
-    connect(&m_http, SIGNAL(readyRead(const QHttpResponseHeader &)),
-             this, SLOT(readData(const QHttpResponseHeader &)));
-
-    connect(&m_http, SIGNAL(requestFinished(int, bool)),
-             this, SLOT(finished(int, bool)));
+    connect(&m_networkAccessManager, SIGNAL(finished(QNetworkReply*)),
+            SLOT(fetchingFinished(QNetworkReply*)));
 }
 
 void RSSFetcher::fetch(const QUrl &url)
 {
-    QList<QNetworkProxy> proxies = QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url));
-    if (proxies.count() > 0)
-        m_http.setProxy(proxies.first());
-    m_http.setHost(url.host());
     QString agentStr = QString("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
                     .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
                     .arg(getOsString()).arg(QLocale::system().name())
                     .arg(QSysInfo::WordSize);
-    QHttpRequestHeader header("GET", url.path());
-    //qDebug() << agentStr;
-    header.setValue("User-Agent", agentStr);
-    header.setValue("Host", url.host());
-    m_connectionId = m_http.request(header);
+    QNetworkRequest req(url);
+    req.setRawHeader("User-Agent", agentStr.toLatin1());
+    m_networkAccessManager.get(req);
 }
 
-void RSSFetcher::readData(const QHttpResponseHeader &resp)
+void RSSFetcher::fetchingFinished(QNetworkReply *reply)
 {
-    if (resp.statusCode() != 200)
-        m_http.abort();
-    else {
-        m_xml.addData(m_http.readAll());
+    bool error = (reply->error() != QNetworkReply::NoError);
+    if (!error) {
+        m_xml.addData(reply->readAll());
         parseXml();
+        m_items = 0;
     }
-}
-
-void RSSFetcher::finished(int id, bool error)
-{
-    Q_UNUSED(id)
-    m_items = 0;
     emit finished(error);
+    reply->deleteLater();
 }
 
 void RSSFetcher::parseXml()
@@ -182,6 +169,5 @@ void RSSFetcher::parseXml()
     }
     if (m_xml.error() && m_xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
         qWarning() << "XML ERROR:" << m_xml.lineNumber() << ": " << m_xml.errorString();
-        m_http.abort();
     }
 }

@@ -43,6 +43,8 @@
 #include <QtCore/QSettings>
 #include <QtCore/QVariant>
 
+#include <QtNetwork/QNetworkProxyFactory>
+
 #include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
@@ -215,6 +217,9 @@ int main(int argc, char **argv)
             translator.load(QString()); // unload()
         }
     }
+
+    // Make sure we honor the system's proxy settings
+    QNetworkProxyFactory::setUseSystemConfiguration(true);
 
     // Load
     ExtensionSystem::PluginManager pluginManager;

@@ -32,7 +32,11 @@
 
 #include <QtCore/QUrl>
 #include <QtCore/QXmlStreamReader>
-#include <QtNetwork/QHttp>
+#include <QtNetwork/QNetworkAccessManager>
+
+QT_BEGIN_NAMESPACE
+class QNetworkReply;
+QT_END_NAMESPACE
 
 namespace Welcome {
 namespace Internal {
@@ -45,14 +49,11 @@ public:
 
 signals:
     void newsItemReady(const QString& title, const QString& desciption, const QString& url);
+    void finished(bool error);
 
 public slots:
+    void fetchingFinished(QNetworkReply *reply);
     void fetch(const QUrl &url);
-    void finished(int id, bool error);
-    void readData(const QHttpResponseHeader &);
-
- signals:
-    void finished(bool error);
 
 private:
     void parseXml();
@@ -63,8 +64,7 @@ private:
     QString m_descriptionString;
     QString m_titleString;
 
-    QHttp m_http;
-    int m_connectionId;
+    QNetworkAccessManager m_networkAccessManager;
     int m_items;
     int m_maxItems;
 };
