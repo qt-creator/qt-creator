@@ -129,8 +129,8 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     m_d(new ItemLibraryPrivate(this))
 {
     m_d->m_ui.setupUi(this);
-    layout()->setContentsMargins(3, 3, 3, 3);
-    layout()->setSpacing(3);
+    layout()->setContentsMargins(2, 2, 2, 0);
+    layout()->setSpacing(2);
 
     m_d->m_resourcesDirModel = new QDirModel(this);
 

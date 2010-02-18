@@ -128,23 +128,22 @@ Item {
         id: handle
 
         anchors.left: parent.left
+        anchors.leftMargin: 1
         anchors.right: parent.right
+//        anchors.rightMargin: 1
         height: Math.max(width, bar.height * Math.min(1, scrollFlickable.visibleArea.heightRatio))
 
-//        radius: width / 2
-//        color: style.scrollbarHandleColor
-
         Rectangle {
-            width: parent.height
+            width: parent.height - 1
             height: parent.width
-            y: parent.height
+            y: 1 - height
 
-            rotation: -90
-            transformOrigin: Item.TopLeft
+            rotation: 90
+            transformOrigin: Item.BottomLeft
 
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#C6C6C6" }
-                GradientStop { position: 1.0; color: "#7E7E7E" }
+                GradientStop { position: 0.0; color: "#7E7E7E" }
+                GradientStop { position: 1.0; color: "#C6C6C6" }
             }
         }
 

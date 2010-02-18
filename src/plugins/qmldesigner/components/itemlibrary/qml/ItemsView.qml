@@ -124,10 +124,11 @@ Rectangle {
         id: itemsFlickable
 
         anchors.top: parent.top
+        anchors.topMargin: 2
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: scrollbar.left
-        anchors.rightMargin: 6
+        anchors.rightMargin: 2
         clip: true
 
         interactive: false
@@ -161,7 +162,9 @@ Rectangle {
         id: scrollbar
 
         anchors.top: parent.top
+        anchors.topMargin: 2
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: 2
         anchors.left: parent.right
         anchors.leftMargin: -10
         anchors.right: parent.right
