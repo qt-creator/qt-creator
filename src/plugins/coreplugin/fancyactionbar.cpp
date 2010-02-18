@@ -106,7 +106,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.restore();
 
     } else
-#endif
+#endif        
     if (isDown() || isChecked()) {
         painter.save();
         QLinearGradient grad(rect().topLeft(), rect().topRight());

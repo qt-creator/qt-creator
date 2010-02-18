@@ -695,6 +695,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // target selector
     d->m_projectSelectorAction = new QAction(this);
+    d->m_projectSelectorAction->setCheckable(true);
     d->m_projectSelectorAction->setEnabled(false);
     QWidget *mainWindow = Core::ICore::instance()->mainWindow();
     d->m_targetSelector = new Internal::MiniProjectTargetSelector(d->m_projectSelectorAction, mainWindow);

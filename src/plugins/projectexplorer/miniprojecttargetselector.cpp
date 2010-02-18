@@ -294,7 +294,6 @@ bool MiniTargetWidget::hasBuildConfiguration() const
     return (m_target->buildConfigurationFactory() != 0);
 }
 
-
 MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, QWidget *parent) :
     QWidget(parent), m_projectAction(targetSelectorAction)
 {
@@ -352,6 +351,8 @@ void MiniProjectTargetSelector::setVisible(bool visible)
     QWidget::setVisible(visible);
     if (m_widgetStack->currentWidget())
         m_widgetStack->currentWidget()->setFocus();
+
+    m_projectAction->setChecked(visible);
 }
 
 void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
