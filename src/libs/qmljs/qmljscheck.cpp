@@ -174,7 +174,7 @@ bool Check::visit(UiArrayBinding *ast)
     return true;
 }
 
-void Check::checkScopeObjectMember(const AST::UiQualifiedId *id)
+void Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
     if (_allowAnyProperty)
         return;
@@ -184,7 +184,7 @@ void Check::checkScopeObjectMember(const AST::UiQualifiedId *id)
     if (! id)
         return; // ### error?
 
-    const QString propertyName = id->name->asString();
+    QString propertyName = id->name->asString();
 
     if (propertyName == QLatin1String("id") && ! id->next)
         return;
@@ -196,15 +196,36 @@ void Check::checkScopeObjectMember(const AST::UiQualifiedId *id)
     if (! scopeObject)
         return;
 
+    // global lookup for first part of id
     const Value *value = scopeObject->lookupMember(propertyName, &_context);
     if (_extraScope && !value)
         value = _extraScope->lookupMember(propertyName, &_context);
     if (!value) {
         error(id->identifierToken,
               QString("'%1' is not a valid property name").arg(propertyName));
+        return;
     }
 
-    // ### check for rest of qualifiedId
+    // member lookup
+    const UiQualifiedId *idPart = id;
+    while (idPart->next) {
+        const ObjectValue *objectValue = value_cast<const ObjectValue *>(value);
+        if (! objectValue) {
+            error(idPart->identifierToken,
+                  QString("'%1' does not have members").arg(propertyName));
+            return;
+        }
+
+        idPart = idPart->next;
+        propertyName = idPart->name->asString();
+
+        value = objectValue->lookupMember(propertyName, &_context);
+        if (! value) {
+            error(idPart->identifierToken,
+                  QString("'%1' is not a member of '%2'").arg(propertyName, objectValue->className()));
+            return;
+        }
+    }
 }
 
 void Check::error(const AST::SourceLocation &loc, const QString &message)
