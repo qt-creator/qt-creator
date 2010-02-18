@@ -190,11 +190,11 @@ void Check::checkScopeObjectMember(const AST::UiQualifiedId *id)
         return;
 
     // attached properties
-    if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
+    if (! propertyName.isEmpty() && propertyName[0].isUpper())
         scopeObject = _context.typeEnvironment(_doc.data());
-        if (! scopeObject)
-            return;
-    }
+
+    if (! scopeObject)
+        return;
 
     const Value *value = scopeObject->lookupMember(propertyName, &_context);
     if (_extraScope && !value)
