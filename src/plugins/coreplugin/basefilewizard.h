@@ -165,9 +165,7 @@ public:
     // Build a file name, adding the extension unless baseName already has one
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
 
-    // Return standard pixmap to be used as watermark
-    static QPixmap watermark();
-    // Set the standard watermark on a QWizard
+    // Sets some standard options on a QWizard
     static void setupWizard(QWizard *);
 
 protected:

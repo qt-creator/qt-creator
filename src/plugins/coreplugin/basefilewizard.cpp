@@ -534,14 +534,8 @@ QStringList BaseFileWizard::runWizard(const QString &path, QWidget *parent)
     return result;
 }
 
-QPixmap BaseFileWizard::watermark()
-{
-    return QPixmap(QLatin1String(":/core/images/qtwatermark.png"));
-}
-
 void BaseFileWizard::setupWizard(QWizard *w)
 {
-    w->setPixmap(QWizard::WatermarkPixmap, watermark());
     w->setOption(QWizard::NoCancelButton, false);
     w->setOption(QWizard::NoDefaultButton, false);
     w->setOption(QWizard::NoBackButtonOnStartPage, true);

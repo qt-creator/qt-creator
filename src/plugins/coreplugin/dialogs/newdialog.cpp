@@ -61,8 +61,6 @@ NewDialog::NewDialog(QWidget *parent) :
     m_okButton = m_ui->buttonBox->button(QDialogButtonBox::Ok);
     m_okButton->setDefault(true);
 
-    m_ui->watermark->setPixmap(BaseFileWizard::watermark());
-
     m_ui->templatesTree->header()->hide();
     connect(m_ui->templatesTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
         this, SLOT(currentItemChanged(QTreeWidgetItem*)));
