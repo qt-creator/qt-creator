@@ -38,8 +38,10 @@
 
 namespace QmlJS {
 namespace Messages {
-static const char *invalidPropertyName =  QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' is not a valid property name");
-static const char *unknownType = QT_TRANSLATE_NOOP("QmlJS::Check", "unknown type");
+static const char *invalid_property_name =  QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' is not a valid property name");
+static const char *unknown_type = QT_TRANSLATE_NOOP("QmlJS::Check", "unknown type");
+static const char *has_no_members = QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' does not have members");
+static const char *is_not_a_member = QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' is not a member of '%2'");
 } // namespace Messages
 
 static inline QString tr(const char *msg)
@@ -109,7 +111,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     const bool oldAllowAnyProperty = _allowAnyProperty;
 
     if (! _context.lookupType(_doc.data(), typeId)) {
-        warning(typeId->identifierToken, tr(Messages::unknownType));
+        warning(typeId->identifierToken, tr(Messages::unknown_type));
         _allowAnyProperty = true; // suppress subsequent "unknown property" errors
     }
 
@@ -217,7 +219,7 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
         value = _extraScope->lookupMember(propertyName, &_context);
     if (!value) {
         error(id->identifierToken,
-              tr(Messages::invalidPropertyName).arg(propertyName));
+              tr(Messages::invalid_property_name).arg(propertyName));
     }
 
     // can't look up members for attached properties
@@ -230,7 +232,7 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
         const ObjectValue *objectValue = value_cast<const ObjectValue *>(value);
         if (! objectValue) {
             error(idPart->identifierToken,
-                  QString("'%1' does not have members").arg(propertyName));
+                  tr(Messages::has_no_members).arg(propertyName));
             return;
         }
 
@@ -240,7 +242,8 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
         value = objectValue->lookupMember(propertyName, &_context);
         if (! value) {
             error(idPart->identifierToken,
-                  QString("'%1' is not a member of '%2'").arg(propertyName, objectValue->className()));
+                  tr(Messages::is_not_a_member).arg(propertyName,
+                                               objectValue->className()));
             return;
         }
     }
