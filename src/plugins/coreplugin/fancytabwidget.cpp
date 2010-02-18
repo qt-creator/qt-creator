@@ -57,8 +57,8 @@ void FancyTab::fadeIn()
 {
     QPropertyAnimation *animation;
     animation = new QPropertyAnimation(this, "fader");
-    animation->setDuration(160);
-    animation->setEndValue(25);
+    animation->setDuration(90);
+    animation->setEndValue(50);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
@@ -66,7 +66,7 @@ void FancyTab::fadeOut()
 {
     QPropertyAnimation *animation;
     animation = new QPropertyAnimation(this, "fader");
-    animation->setDuration(225);
+    animation->setDuration(185);
     animation->setEndValue(0);
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -451,7 +451,7 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
     painter.setPen(Utils::StyleHelper::borderColor());
     painter.drawLine(rect.topRight(), rect.bottomRight());
 
-    QColor light = QColor(255, 255, 255, 40);
+    QColor light = Utils::StyleHelper::sidebarHighlight();
     painter.setPen(light);
     painter.drawLine(rect.bottomLeft(), rect.bottomRight());
     setContentsMargins(0, 0, 0, 1);

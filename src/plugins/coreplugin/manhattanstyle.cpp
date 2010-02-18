@@ -836,7 +836,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 // Note: This is a hack to determine if the
                 // toolbar should draw the top or bottom outline
                 // (needed for the find toolbar for instance)
-                QColor lighter(255, 255, 255, 40);
+                QColor lighter(Utils::StyleHelper::sidebarHighlight());
                 if (widget && widget->property("topBorder").toBool()) {
                     painter->drawLine(rect.topLeft(), rect.topRight());
                     painter->setPen(lighter);

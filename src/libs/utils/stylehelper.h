@@ -61,6 +61,9 @@ public:
     static QColor buttonTextColor() { return QColor(0x4c4c4c); }
     static QColor mergedColors(const QColor &colorA, const QColor &colorB, int factor = 50);
 
+    static QColor sidebarHighlight() { return QColor(255, 255, 255, 40); }
+    static QColor sidebarShadow() { return QColor(0, 0, 0, 40); }
+
     // Sets the base color and makes sure all top level widgets are updated
     static void setBaseColor(const QColor &color);
 

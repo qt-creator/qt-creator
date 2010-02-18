@@ -48,7 +48,7 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow)
         m_taskWindow(taskWindow)
 {
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->setContentsMargins(8, 2, 0, 2);
+    layout->setContentsMargins(8, 4, 0, 4);
     layout->setSpacing(2);
     setLayout(layout);
     QHBoxLayout *errorLayout = new QHBoxLayout;

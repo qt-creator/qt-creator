@@ -198,8 +198,8 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     Q_UNUSED(event)
-    QColor light = QColor(255, 255, 255, 40);
-    QColor dark = QColor(0, 0, 0, 60);
+    QColor light = Utils::StyleHelper::sidebarHighlight();
+    QColor dark = Utils::StyleHelper::sidebarShadow();
     painter.setPen(dark);
     painter.drawLine(rect().topLeft(), rect().topRight());
     painter.setPen(light);
