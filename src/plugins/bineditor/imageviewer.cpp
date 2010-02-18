@@ -32,11 +32,14 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/uniqueidmanager.h>
 
+#include <utils/reloadpromptutils.h>
+
 #include <QtCore/QMap>
 #include <QtCore/QFileInfo>
 #include <QtGui/QImageReader>
 #include <QtGui/QWidget>
 #include <QtGui/QGridLayout>
+#include <QtGui/QMainWindow>
 #include <QtDebug>
 
 namespace {
@@ -104,9 +107,42 @@ Core::IFile *ImageViewerFactory::open(const QString & /* fileName */)
 
 // #pragma mark -- ImageViewerFile
 
-void ImageViewerFile::modified(ReloadBehavior * /* behavior */)
+ImageViewerFile::ImageViewerFile(ImageViewer *parent)
+ : Core::IFile(parent),
+    m_editor(parent)
 {
-    // TODO
+
+}
+
+void ImageViewerFile::modified(ReloadBehavior * behavior)
+{
+    switch (*behavior) {
+    case  Core::IFile::ReloadNone:
+        return;
+    case Core::IFile::ReloadUnmodified:
+    case Core::IFile::ReloadAll:
+        m_editor->open(m_fileName);
+        return;
+    case Core::IFile::ReloadPermissions:
+        return;
+    case Core::IFile::AskForReload:
+        break;
+    }
+
+    switch (Utils::reloadPrompt(m_fileName, isModified(), Core::ICore::instance()->mainWindow())) {
+    case Utils::ReloadCurrent:
+        m_editor->open(m_fileName);
+        break;
+    case Utils::ReloadAll:
+        m_editor->open(m_fileName);
+        *behavior = Core::IFile::ReloadAll;
+        break;
+    case Utils::ReloadSkipCurrent:
+        break;
+    case Utils::ReloadNone:
+        *behavior = Core::IFile::ReloadNone;
+        break;
+    }
 }
 
 // #pragma mark -- ImageViewer
@@ -114,7 +150,7 @@ void ImageViewerFile::modified(ReloadBehavior * /* behavior */)
 ImageViewer::ImageViewer(QObject *parent)
     : IEditor(parent)
 {
-    m_file = new ImageViewerFile;
+    m_file = new ImageViewerFile(this);
     m_context << Core::ICore::instance()->uniqueIDManager()->uniqueIdentifier(C_IMAGE_VIEWER);
 
     m_scrollArea = new QScrollArea;
@@ -132,7 +168,7 @@ ImageViewer::ImageViewer(QObject *parent)
 ImageViewer::~ImageViewer()
 {
     delete m_scrollArea;
-    delete m_file;
+    // m_file deleted by parent hierarchy
 }
 
 QList<int> ImageViewer::context() const

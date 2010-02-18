@@ -61,11 +61,13 @@ private:
     QStringList m_mimeTypes;
 };
 
+class ImageViewer;
+
 class ImageViewerFile : public Core::IFile
 {
     Q_OBJECT
 public:
-    explicit ImageViewerFile(QObject *parent = 0) : Core::IFile(parent) {}
+    explicit ImageViewerFile(ImageViewer *parent = 0);
 
     bool save(const QString &fileName = QString()) { Q_UNUSED(fileName); return false; }
     QString fileName() const { return m_fileName; }
@@ -87,6 +89,7 @@ public:
 private:
     QString m_fileName;
     QString m_mimeType;
+    ImageViewer *m_editor;
 };
 
 class ImageViewer : public Core::IEditor
