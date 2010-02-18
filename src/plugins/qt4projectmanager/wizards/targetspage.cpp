@@ -58,7 +58,8 @@ TargetsPage::TargetsPage(QWidget *parent)
     vbox->addWidget(m_treeWidget);
 
     QtVersionManager *vm = QtVersionManager::instance();
-    QSet<QString> targets = vm->supportedTargetIds();
+    QStringList targets = vm->supportedTargetIds().toList();
+    qSort(targets.begin(), targets.end());
 
     Qt4TargetFactory factory;
     bool hasDesktop = targets.contains(QLatin1String(DESKTOP_TARGET_ID));
