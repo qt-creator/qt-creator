@@ -33,7 +33,19 @@
 #include "qmljsevaluate.h"
 #include "parser/qmljsast_p.h"
 
+#include <QtGui/QApplication>
 #include <QtCore/QDebug>
+
+namespace QmlJS {
+namespace Messages {
+static const char *invalidPropertyName =  QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' is not a valid property name");
+static const char *unknownType = QT_TRANSLATE_NOOP("QmlJS::Check", "unknown type");
+} // namespace Messages
+
+static inline QString tr(const char *msg)
+{ return qApp->translate("QmlJS::Check", msg); }
+
+} // namespace QmlJS
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
@@ -94,15 +106,15 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
         return;
     }
 
+    const bool oldAllowAnyProperty = _allowAnyProperty;
+
     if (! _context.lookupType(_doc.data(), typeId)) {
-        warning(typeId->identifierToken, QLatin1String("unknown type"));
-        // ### don't give up!
-        return;
+        warning(typeId->identifierToken, tr(Messages::unknownType));
+        _allowAnyProperty = true; // suppress subsequent "unknown property" errors
     }
 
     const ObjectValue *oldScopeObject = _context.qmlScopeObject();
     const ObjectValue *oldExtraScope = _extraScope;
-    const bool oldAllowAnyProperty = _allowAnyProperty;
     const ObjectValue *scopeObject = _doc->bind()->findQmlObject(ast);
     _context.setQmlScopeObject(scopeObject);
 
@@ -205,8 +217,7 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
         value = _extraScope->lookupMember(propertyName, &_context);
     if (!value) {
         error(id->identifierToken,
-              QString("'%1' is not a valid property name").arg(propertyName));
-        return;
+              tr(Messages::invalidPropertyName).arg(propertyName));
     }
 
     // can't look up members for attached properties
