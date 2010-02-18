@@ -35,6 +35,7 @@
 #include <QDrag>
 #include <QDebug>
 #include <QTimeLine>
+#include <QToolButton>
 
 QT_FORWARD_DECLARE_CLASS(QLabel);
 
@@ -57,6 +58,13 @@ private slots:
     void activateItem( const QModelIndex &index);
 };
 
+class ItemLibraryButton : public QToolButton {
+public:
+    ItemLibraryButton(QWidget *parent = 0);
+
+protected:
+    void mousePressEvent(QMouseEvent *event);
+};
 
 } // namespace Internal
 

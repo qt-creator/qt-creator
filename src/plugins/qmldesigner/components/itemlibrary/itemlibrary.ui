@@ -33,7 +33,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="buttonItems">
+      <widget class="QmlDesigner::Internal::ItemLibraryButton" name="buttonItems">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -71,7 +71,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QToolButton" name="buttonResources">
+      <widget class="QmlDesigner::Internal::ItemLibraryButton" name="buttonResources">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -230,7 +230,12 @@
   <customwidget>
    <class>QmlDesigner::Internal::ItemLibraryTreeView</class>
    <extends>QTreeView</extends>
-   <header>itemlibrarytreeview.h</header>
+   <header>itemlibrarywidgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QmlDesigner::Internal::ItemLibraryButton</class>
+   <extends>QToolButton</extends>
+   <header>itemlibrarywidgets.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

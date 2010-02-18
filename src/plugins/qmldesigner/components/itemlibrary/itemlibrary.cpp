@@ -241,7 +241,6 @@ void ItemLibrary::setSearchFilter(const QString &searchFilter)
 void ItemLibrary::itemLibraryButtonToggled()
 {
     m_d->m_ui.LibraryStackedWidget->setCurrentIndex(0);
-    m_d->m_ui.buttonItems->setChecked(true);
     m_d->m_ui.buttonResources->setChecked(false);
     setSearchFilter(m_d->m_ui.lineEdit->text());
 }
@@ -249,7 +248,6 @@ void ItemLibrary::itemLibraryButtonToggled()
 void ItemLibrary::resourcesButtonToggled()
 {
     m_d->m_ui.LibraryStackedWidget->setCurrentIndex(1);
-    m_d->m_ui.buttonResources->setChecked(true);
     m_d->m_ui.buttonItems->setChecked(false);
     setSearchFilter(m_d->m_ui.lineEdit->text());
 }

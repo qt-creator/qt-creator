@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "itemlibrarytreeview.h"
+#include "itemlibrarywidgets.h"
 #include "itemlibrary.h"
 #include "customdraganddrop.h"
 
@@ -101,6 +101,17 @@ void ItemLibraryTreeView::activateItem( const QModelIndex & /*index*/)
         name = "image^" + fileInfo.absoluteFilePath();
         emit itemActivated(name);
     }
+}
+
+ItemLibraryButton::ItemLibraryButton(QWidget *parent)
+: QToolButton(parent)
+{
+}
+
+void ItemLibraryButton::mousePressEvent(QMouseEvent *event)
+{
+    if (!isChecked())
+        QToolButton::mousePressEvent(event);
 }
 
 } // namespace Internal
