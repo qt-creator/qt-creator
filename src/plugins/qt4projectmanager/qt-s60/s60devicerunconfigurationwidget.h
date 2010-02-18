@@ -94,7 +94,7 @@ private:
     QComboBox *m_serialPortsCombo;
     QLineEdit *m_nameLineEdit;
     QLineEdit *m_argumentsLineEdit;
-    QLabel *m_sisxFileLabel;
+    QLabel *m_sisFileLabel;
     QToolButton *m_deviceInfoButton;
     QLabel *m_deviceInfoDescriptionLabel;
     QLabel *m_deviceInfoLabel;

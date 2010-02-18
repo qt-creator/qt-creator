@@ -70,7 +70,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     m_serialPortsCombo(new QComboBox),
     m_nameLineEdit(new QLineEdit(m_runConfiguration->displayName())),
     m_argumentsLineEdit(new QLineEdit(m_runConfiguration->commandLineArguments().join(QString(QLatin1Char(' '))))),
-    m_sisxFileLabel(new QLabel),
+    m_sisFileLabel(new QLabel),
     m_deviceInfoButton(new QToolButton),
     m_deviceInfoDescriptionLabel(new QLabel(tr("Device:"))),
     m_deviceInfoLabel(new QLabel),
@@ -97,7 +97,7 @@ S60DeviceRunConfigurationWidget::S60DeviceRunConfigurationWidget(
     nameLabel->setBuddy(m_nameLineEdit);
     formLayout->addRow(nameLabel, m_nameLineEdit);
     formLayout->addRow(tr("Arguments:"), m_argumentsLineEdit);
-    formLayout->addRow(tr("Install File:"), m_sisxFileLabel);
+    formLayout->addRow(tr("Install File:"), m_sisFileLabel);
 
     updateSerialDevices();
     connect(SymbianUtils::SymbianDeviceManager::instance(), SIGNAL(updated()),
@@ -236,8 +236,7 @@ void S60DeviceRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void S60DeviceRunConfigurationWidget::updateTargetInformation()
 {
-    m_sisxFileLabel->setText(QDir::toNativeSeparators(m_runConfiguration->basePackageFilePath()
-                                                      + QLatin1String(".sisx")));
+    m_sisFileLabel->setText(m_runConfiguration->signedPackage());
 }
 
 void S60DeviceRunConfigurationWidget::setSerialPort(int index)

@@ -94,6 +94,8 @@ public:
 
     QString packageFileName() const;
     QString localExecutableFileName() const;
+    QString unsignedPackage() const;
+    QString signedPackage() const;
 
     QStringList commandLineArguments() const;
     void setCommandLineArguments(const QStringList &args);
@@ -228,6 +230,8 @@ private:
     QString m_toolsDirectory;
     QString m_executableFileName;
     QString m_qtDir;
+    QString m_unsignedPackage;
+    QString m_signedPackage;
     bool m_useCustomSignature;
     QString m_customSignaturePath;
     QString m_customKeyPath;
