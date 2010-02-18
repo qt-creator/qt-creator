@@ -12,8 +12,12 @@ GroupBox {
             layout: HorizontalLayout {
                 Label {
                     text: "Font"
-                }                
+                }
                 QFontComboBox {
+                    id: fontSelector
+                    currentFont.family:backendValues.font_family.value
+                    onCurrentFontChanged: if (backendValues.font_family.value != currentFont.family)
+                        backendValues.font_family.value = currentFont.family;
                 }
             }
         }
