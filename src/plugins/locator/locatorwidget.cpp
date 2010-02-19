@@ -211,6 +211,12 @@ CompletionList::CompletionList(QWidget *parent)
     // This is too slow when done on all results
     //header()->setResizeMode(QHeaderView::ResizeToContents);
     setWindowFlags(Qt::ToolTip);
+#ifdef Q_WS_MAC
+    if (horizontalScrollBar())
+        horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+    if (verticalScrollBar())
+        verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+#endif
 }
 
 void CompletionList::updatePreferredSize()

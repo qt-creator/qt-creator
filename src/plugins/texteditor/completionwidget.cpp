@@ -39,6 +39,7 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QScrollBar>
 
 #include <limits.h>
 
@@ -227,6 +228,12 @@ CompletionListView::CompletionListView(CompletionSupport *support, ITextEditable
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setMinimumSize(1, 1);
     setModel(m_model);
+#ifdef Q_WS_MAC
+    if (horizontalScrollBar())
+        horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+    if (verticalScrollBar())
+        verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+#endif
 }
 
 CompletionListView::~CompletionListView()
