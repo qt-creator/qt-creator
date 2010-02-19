@@ -86,7 +86,6 @@ public:
     MessageManagerPrototype(QObject *parent = 0);
 
 public slots:
-    void displayStatusBarMessage(const QString &text, int ms = 0);
     void printToOutputPane(const QString &text, bool bringToForeground);
     void printToOutputPanePopup(const QString &text); // pops up
     void printToOutputPane(const QString &text);
