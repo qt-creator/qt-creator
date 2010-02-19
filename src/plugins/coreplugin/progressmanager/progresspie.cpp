@@ -150,7 +150,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.drawLine(0,0, size().width(), 0);
 
     p.setPen(Utils::StyleHelper::sidebarHighlight());
-    p.drawLine(0, 1, size().width(), 1);
+    p.drawLine(1, 1, size().width(), 1);
 
     QRect textRect = rect().adjusted(0, 0, -1, 0);
     textRect.setHeight(h+5);

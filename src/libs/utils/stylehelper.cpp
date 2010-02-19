@@ -147,18 +147,19 @@ void StyleHelper::setBaseColor(const QColor &color)
 
 static void verticalGradientHelper(QPainter *p, const QRect &spanRect, const QRect &rect, bool lightColored)
 {
-    QColor base = StyleHelper::baseColor(lightColored);
     QColor highlight = StyleHelper::highlightColor(lightColored);
     QColor shadow = StyleHelper::shadowColor(lightColored);
     QLinearGradient grad(spanRect.topRight(), spanRect.topLeft());
-    grad.setColorAt(0, highlight);
-    grad.setColorAt(0.301, base);
-    grad.setColorAt(1, shadow);
+    grad.setColorAt(0, highlight.lighter(106));
+    grad.setColorAt(1, shadow.darker(106));
     p->fillRect(rect, grad);
 
     QColor light(255, 255, 255, 80);
     p->setPen(light);
     p->drawLine(rect.topRight() - QPoint(1, 0), rect.bottomRight() - QPoint(1, 0));
+    QColor dark(0, 0, 0, 90);
+    p->setPen(dark);
+    p->drawLine(rect.topLeft(), rect.bottomLeft());
 }
 
 void StyleHelper::verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored)

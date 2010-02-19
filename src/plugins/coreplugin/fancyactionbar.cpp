@@ -104,7 +104,6 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.drawLine(rect().topLeft(), rect().topRight());
         painter.drawLine(rect().bottomLeft(), rect().bottomRight());
         painter.restore();
-
     } else
 #endif        
     if (isDown() || isChecked()) {
@@ -193,7 +192,7 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
     painter.setPen(dark);
     painter.drawLine(rect().topLeft(), rect().topRight());
     painter.setPen(light);
-    painter.drawLine(rect().topLeft() + QPoint(0,1), rect().topRight() + QPoint(0,1));
+    painter.drawLine(rect().topLeft() + QPoint(1,1), rect().topRight() + QPoint(0,1));
 }
 
 QSize FancyToolButton::sizeHint() const

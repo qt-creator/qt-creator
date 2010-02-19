@@ -56,6 +56,7 @@
 #include <QtGui/QStyleOption>
 #include <QtGui/QToolBar>
 #include <QtGui/QToolButton>
+#include <QtGui/QAbstractItemView>
 
 // We define a currently unused state for indicating animations
 #define State_Animating 0x00000040
@@ -87,6 +88,7 @@ bool panelWidget(const QWidget *widget)
     while (p) {
         if (qobject_cast<const QToolBar *>(p) ||
             qobject_cast<const QStatusBar *>(p) ||
+            qobject_cast<const QAbstractItemView *>(p) ||
             qobject_cast<const QMenuBar *>(p))
             return styleEnabled(widget);
         if (p->property("panelwidget").toBool())
@@ -497,6 +499,25 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     }
 
     switch (element) {
+    case PE_PanelItemViewItem:
+        if (const QStyleOptionViewItemV4 *vopt = qstyleoption_cast<const QStyleOptionViewItemV4 *>(option)) {
+            if (vopt->state & State_Selected) {
+                QLinearGradient gradient;
+                gradient.setStart(option->rect.topLeft());
+                gradient.setFinalStop(option->rect.bottomRight());
+                gradient.setColorAt(0, option->palette.highlight().color().lighter(115));
+                gradient.setColorAt(1, option->palette.highlight().color().darker(135));
+                painter->fillRect(option->rect, Qt::blue);
+            } else {
+                if (vopt->backgroundBrush.style() != Qt::NoBrush) {
+                    QPointF oldBO = painter->brushOrigin();
+                    painter->setBrushOrigin(vopt->rect.topLeft());
+                    painter->fillRect(vopt->rect, vopt->backgroundBrush);
+                    painter->setBrushOrigin(oldBO);
+                }
+            }
+        }
+        break;
     case PE_PanelLineEdit:
         {
             painter->save();
