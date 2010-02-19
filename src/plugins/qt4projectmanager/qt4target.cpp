@@ -121,7 +121,7 @@ bool Qt4TargetFactory::canCreate(ProjectExplorer::Project *parent, const QString
 
 Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QString &id)
 {
-    return create(parent, id, QList<QtVersion*>() << 0);
+    return create(parent, id, QList<QtVersion*>());
 }
 
 Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QString &id, QList<QtVersion *> versions)
@@ -136,7 +136,6 @@ Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QStr
     if (knownVersions.isEmpty())
         return t;
 
-    versions.removeAll(0);
     if (versions.isEmpty())
         versions.append(knownVersions.at(0));
 
