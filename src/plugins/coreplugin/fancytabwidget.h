@@ -55,7 +55,7 @@ public:
         animator.setTargetObject(this);
     }
     float fader() { return m_fader; }
-    void setFader(float value) { m_fader = value; tabbar->update(); }
+    void setFader(float value);
 
     void fadeIn();
     void fadeOut();
@@ -121,7 +121,6 @@ signals:
     void currentChanged(int);
 
 public slots:
-    void updateHover();
     void emitCurrentIndex();
 
 private:

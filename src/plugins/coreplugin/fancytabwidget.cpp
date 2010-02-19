@@ -69,6 +69,12 @@ void FancyTab::fadeOut()
     animator.start();
 }
 
+void FancyTab::setFader(float value)
+{
+    m_fader = value;
+    tabbar->update();
+}
+
 FancyTabBar::FancyTabBar(QWidget *parent)
     : QWidget(parent)
 {
@@ -121,25 +127,25 @@ void FancyTabBar::paintEvent(QPaintEvent *event)
 // Handle hover events for mouse fade ins
 void FancyTabBar::mouseMoveEvent(QMouseEvent *e)
 {
-    if (!m_hoverRect.contains(e->pos())) {
-        int newHover = -1;
-        for (int i = 0; i < count(); ++i) {
-            QRect area = tabRect(i);
-            if (area.contains(e->pos())) {
-                newHover = i;
-                break;
-            }
+    int newHover = -1;
+    for (int i = 0; i < count(); ++i) {
+        QRect area = tabRect(i);
+        if (area.contains(e->pos())) {
+            newHover = i;
+            break;
         }
+    }
+    if (newHover == m_hoverIndex)
+        return;
 
-        if (validIndex(m_hoverIndex))
-            m_tabs[m_hoverIndex]->fadeOut();
+    if (validIndex(m_hoverIndex))
+        m_tabs[m_hoverIndex]->fadeOut();
 
-        m_hoverIndex = newHover;
+    m_hoverIndex = newHover;
 
-        if (validIndex(m_hoverIndex)) {
-            m_tabs[m_hoverIndex]->fadeIn();
-            m_hoverRect = tabRect(m_hoverIndex);
-        }
+    if (validIndex(m_hoverIndex)) {
+        m_tabs[m_hoverIndex]->fadeIn();
+        m_hoverRect = tabRect(m_hoverIndex);
     }
 }
 
@@ -157,11 +163,6 @@ bool FancyTabBar::event(QEvent *event)
     return QWidget::event(event);
 }
 
-void FancyTabBar::updateHover()
-{
-    update(m_hoverRect);
-}
-
 // Resets hover animation on mouse enter
 void FancyTabBar::enterEvent(QEvent *e)
 {
@@ -175,7 +176,6 @@ void FancyTabBar::leaveEvent(QEvent *e)
 {
     Q_UNUSED(e)
     m_hoverIndex = -1;
-    update(m_hoverRect);
     m_hoverRect = QRect();
     for (int i = 0 ; i < m_tabs.count() ; ++i) {
         m_tabs[i]->fadeOut();
