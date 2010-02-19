@@ -650,6 +650,9 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
                 Range range(m_oldPosition, m_tc.position());
                 m_lastInsertion.append(text(range));
             }
+        } else if (!isVisualMode()) {
+            if (atEndOfLine())
+                moveLeft();
         }
     }
 
@@ -3366,6 +3369,8 @@ void FakeVimHandler::Private::undo()
 
     if (m_undoCursorPosition.contains(rev))
         m_tc.setPosition(m_undoCursorPosition[rev]);
+    if (atEndOfLine())
+        moveLeft();
 }
 
 void FakeVimHandler::Private::redo()
@@ -3398,6 +3403,8 @@ void FakeVimHandler::Private::enterCommandMode()
 {
     EDITOR(setCursorWidth(m_cursorWidth));
     EDITOR(setOverwriteMode(true));
+    if (atEndOfLine())
+        moveLeft();
     m_mode = CommandMode;
 }
 
