@@ -248,8 +248,7 @@ void SubComponentManagerPrivate::parseFile(const QString &filePath)
         return;
     }
 
-    QString dir = QFileInfo(filePath).dir().path();
-    Q_ASSERT(m_dirToQualifier.contains(dir));
+    QFileInfo dir = QFileInfo(filePath).absolutePath();
     foreach (const QString &qualifier, m_dirToQualifier.values(dir)) {
         registerQmlFile(filePath, qualifier, document);
     }
