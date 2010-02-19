@@ -1164,7 +1164,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         removeText(range);
         setDotCommand("%1dd", count());
         m_submode = NoSubMode;
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
         setTargetColumn();
         finishMovement();
     } else if (m_submode == ShiftLeftSubMode && key == '<') {
@@ -1479,7 +1479,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_rangemode = RangeLineMode;
         yankSelectedText();
         removeSelectedText();
-        moveToFirstNonBlankOnLine();
+        handleStartOfLine();
     } else if ((key == 'd' || key == 'x') && isVisualBlockMode()) {
         leaveVisualMode();
         m_rangemode = RangeBlockMode;
