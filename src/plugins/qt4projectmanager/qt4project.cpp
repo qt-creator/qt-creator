@@ -287,6 +287,11 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     if (targets().isEmpty())
         addDefaultBuild();
 
+    if (targets().isEmpty()) {
+        qWarning() << "Unable to create targets!";
+        return false;
+    }
+
     Q_ASSERT(activeTarget());
     Q_ASSERT(activeTarget()->activeBuildConfiguration());
 
