@@ -130,6 +130,8 @@ void ProjectLoadWizard::done(int result)
                 continue;
             m_project->addTarget(t);
         }
+        if (m_project->targets().isEmpty())
+            qWarning() << "Failed to populate project with default targets for imported Qt" << m_importVersion->displayName();
     } else {
         // Not importing
         if (m_temporaryVersion)
@@ -138,13 +140,13 @@ void ProjectLoadWizard::done(int result)
         // Find a Qt version:
         QList<QtVersion *> candidates = vm->versions();
         QtVersion *defaultVersion = candidates.at(0); // always there and always valid!
+        // Check for the first valid desktop-Qt, fall back to any valid Qt if no desktop
+        // flavour is available.
         foreach (QtVersion *v, candidates) {
             if (v->isValid())
                 defaultVersion = v;
-            if (v->supportsTargetId(DESKTOP_TARGET_ID) && v->isValid()) {
-                defaultVersion = v;
+            if (v->supportsTargetId(DESKTOP_TARGET_ID) && v->isValid())
                 break;
-            }
         }
 
         foreach (const QString &id, defaultVersion->supportedTargetIds()) {
@@ -153,6 +155,8 @@ void ProjectLoadWizard::done(int result)
                 continue;
             m_project->addTarget(t);
         }
+        if (m_project->targets().isEmpty())
+            qWarning() << "Failed to populate project with default targets for default Qt" << m_importVersion->displayName();
     }
 }
 
