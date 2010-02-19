@@ -3,6 +3,7 @@
 #include "parser/qmljsast_p.h"
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
+#include "qmljsscopebuilder.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
@@ -44,37 +45,16 @@ void Link::scopeChainAt(Document::Ptr doc, const QList<Node *> &astPath)
     Bind *bind = doc->bind();
     QHash<Document *, ScopeChain::QmlComponentChain *> componentScopes;
 
-    int qmlScopeObjectIndex = -1;
-
     if (doc->qmlProgram()) {
         _context->setLookupMode(Context::QmlLookup);
 
         makeComponentChain(doc, &scopeChain.qmlComponentScope, &componentScopes);
 
-        // find the last object definition or object binding: that is the scope object
-        for (int i = astPath.size() - 1; i >= 0; --i) {
-            Node *node = astPath.at(i);
-
-            ObjectValue *scopeObject = 0;
-            if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(node))
-                scopeObject = bind->findQmlObject(definition);
-            else if (UiObjectBinding *binding = cast<UiObjectBinding *>(node))
-                scopeObject = bind->findQmlObject(binding);
-
-            if (scopeObject) {
-                if (scopeObject != scopeChain.qmlComponentScope.rootObject)
-                    scopeChain.qmlScopeObjects += scopeObject;
-                qmlScopeObjectIndex = i;
-                break;
-            }
-        }
-
         if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
             scopeChain.qmlTypes = typeEnvironment;
     } else {
         // the global scope of a js file does not see the instantiating component
-        qDebug() << "ast path length: " << astPath.size();
-        if (astPath.size() != 0) {
+        if (astPath.size() > 0) {
             // add scope chains for all components that source this document
             foreach (Document::Ptr otherDoc, _docs) {
                 if (otherDoc->bind()->includedScripts().contains(doc->fileName())) {
@@ -91,20 +71,9 @@ void Link::scopeChainAt(Document::Ptr doc, const QList<Node *> &astPath)
         scopeChain.jsScopes += bind->rootObjectValue();
     }
 
-    for (int i = qmlScopeObjectIndex + 1; i < astPath.size(); ++i) {
-        Node *node = astPath.at(i);
-
-        if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(node)) {
-            ObjectValue *activation = engine()->newObject(/*prototype = */ 0);
-            for (FormalParameterList *it = fun->formals; it; it = it->next) {
-                if (it->name)
-                    activation->setProperty(it->name->asString(), engine()->undefinedValue());
-            }
-            scopeChain.jsScopes += activation;
-        }
-    }
-
-    scopeChain.update();
+    ScopeBuilder scopeBuilder(doc, _context);
+    foreach (Node *node, astPath)
+        scopeBuilder.push(node);
 }
 
 void Link::makeComponentChain(

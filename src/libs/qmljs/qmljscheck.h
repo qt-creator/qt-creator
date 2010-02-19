@@ -33,6 +33,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsinterpreter.h>
 #include <qmljs/qmljslink.h>
+#include <qmljs/qmljsscopebuilder.h>
 #include <qmljs/parser/qmljsastvisitor_p.h>
 
 namespace QmlJS {
@@ -72,10 +73,9 @@ private:
     Interpreter::Engine _engine;
     Interpreter::Context _context;
     Link _link;
+    ScopeBuilder _scopeBuilder;
 
     QList<DiagnosticMessage> _messages;
-
-    bool _allowAnyProperty;
 };
 
 } // namespace QmlJS

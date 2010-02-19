@@ -61,7 +61,7 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot)
     , _snapshot(snapshot)
     , _context(&_engine)
     , _link(&_context, doc, snapshot)
-    , _allowAnyProperty(false)
+    , _scopeBuilder(doc, &_context)
 {
 }
 
@@ -109,71 +109,20 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
         return;
     }
 
-    const bool oldAllowAnyProperty = _allowAnyProperty;
+    _scopeBuilder.push(ast);
 
     if (! _context.lookupType(_doc.data(), typeId)) {
         warning(typeId->identifierToken, tr(Messages::unknown_type));
-        _allowAnyProperty = true; // suppress subsequent "unknown property" errors
+        // suppress subsequent errors about scope object lookup by clearing
+        // the scope object list
+        // ### todo: better way?
+        _context.scopeChain().qmlScopeObjects.clear();
+        _context.scopeChain().update();
     }
-
-    QList<const ObjectValue *> oldScopeObjects = _context.scopeChain().qmlScopeObjects;
-
-    _context.scopeChain().qmlScopeObjects.clear();
-    const ObjectValue *scopeObject = _doc->bind()->findQmlObject(ast);
-    _context.scopeChain().qmlScopeObjects += scopeObject;
-    _context.scopeChain().update();
-
-#ifndef NO_DECLARATIVE_BACKEND
-    // check if the object has a Qt.ListElement ancestor
-    const ObjectValue *prototype = scopeObject->prototype(&_context);
-    while (prototype) {
-        if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
-            // ### Also check for Qt package. Involves changes in QmlObjectValue.
-            if (qmlMetaObject->qmlTypeName() == QLatin1String("ListElement")) {
-                _allowAnyProperty = true;
-                break;
-            }
-        }
-        prototype = prototype->prototype(&_context);
-    }
-
-    // check if the object has a Qt.PropertyChanges ancestor
-    prototype = scopeObject->prototype(&_context);
-    while (prototype) {
-        if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
-            // ### Also check for Qt package. Involves changes in QmlObjectValue.
-            if (qmlMetaObject->qmlTypeName() == QLatin1String("PropertyChanges"))
-                break;
-        }
-        prototype = prototype->prototype(&_context);
-    }
-    // find the target script binding
-    if (prototype && initializer) {
-        for (UiObjectMemberList *m = initializer->members; m; m = m->next) {
-            if (UiScriptBinding *scriptBinding = cast<UiScriptBinding *>(m->member)) {
-                if (scriptBinding->qualifiedId
-                        && scriptBinding->qualifiedId->name->asString() == QLatin1String("target")
-                        && ! scriptBinding->qualifiedId->next) {
-                    if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(scriptBinding->statement)) {
-                        Evaluate evaluator(&_context);
-                        const Value *targetValue = evaluator(expStmt->expression);
-
-                        if (const ObjectValue *target = value_cast<const ObjectValue *>(targetValue)) {
-                            _context.scopeChain().qmlScopeObjects.prepend(target);
-                        } else {
-                            _allowAnyProperty = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-#endif
 
     Node::accept(initializer, this);
 
-    _context.scopeChain().qmlScopeObjects = oldScopeObjects;
-    _allowAnyProperty = oldAllowAnyProperty;
+    _scopeBuilder.pop();
 }
 
 bool Check::visit(UiScriptBinding *ast)
@@ -231,10 +180,9 @@ bool Check::visit(UiArrayBinding *ast)
 
 const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
-    if (_allowAnyProperty)
-        return 0;
-
     QList<const ObjectValue *> scopeObjects = _context.scopeChain().qmlScopeObjects;
+    if (scopeObjects.isEmpty())
+        return 0;
 
     if (! id)
         return 0; // ### error?
