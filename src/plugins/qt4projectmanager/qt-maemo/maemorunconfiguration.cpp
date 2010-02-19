@@ -479,7 +479,7 @@ void MaemoRunConfiguration::updateSimulatorInformation() const
     }
 
     QDir dir(m_simulatorPath);
-    if (dir.exists(m_simulatorPath)) {
+    if (!m_simulatorPath.isEmpty() && dir.exists(m_simulatorPath)) {
         const QStringList &files = dir.entryList(QDir::Files | QDir::NoSymLinks
             | QDir::NoDotAndDotDot);
         if (files.count() >= 2) {
