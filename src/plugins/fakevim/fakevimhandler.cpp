@@ -378,7 +378,7 @@ public:
     void setAnchor(int position) { if (!isVisualMode()) m_anchor = position; }
     void setPosition(int position) { m_tc.setPosition(position, MoveAnchor); }
 
-    void handleFfTt(int key);
+    bool handleFfTt(int key);
 
     // helper function for handleExCommand. return 1 based line index.
     int readLineCode(QString &cmd);
@@ -1222,12 +1222,17 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (m_subsubmode == FtSubSubMode) {
         m_semicolonType = m_subsubdata;
         m_semicolonKey = key;
-        handleFfTt(key);
+        bool valid = handleFfTt(key);
         m_subsubmode = NoSubSubMode;
-        finishMovement(QString("%1%2%3")
-            .arg(count())
-            .arg(QChar(m_semicolonType))
-            .arg(QChar(m_semicolonKey)));
+        if (!valid) {
+            m_submode = NoSubMode;
+            finishMovement();
+        } else {
+            finishMovement(QString("%1%2%3")
+                           .arg(count())
+                           .arg(QChar(m_semicolonType))
+                           .arg(QChar(m_semicolonKey)));
+        }
     } else if (m_submode == ReplaceSubMode) {
         if (count() <= (rightDist() + atEndOfLine()) && text.size() == 1
                 && (text.at(0).isPrint() || text.at(0).isSpace())) {
@@ -2806,8 +2811,9 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward, bool
     setTargetColumn();
 }
 
-void FakeVimHandler::Private::handleFfTt(int key)
+bool FakeVimHandler::Private::handleFfTt(int key)
 {
+    int oldPos = position();
     // m_subsubmode \in { 'f', 'F', 't', 'T' }
     bool forward = m_subsubdata == 'f' || m_subsubdata == 't';
     int repeat = count();
@@ -2839,7 +2845,13 @@ void FakeVimHandler::Private::handleFfTt(int key)
             break;
         }
     }
-    setTargetColumn();
+    if (repeat == 0) {
+        setTargetColumn();
+        return true;
+    } else {
+        setPosition(oldPos);
+        return false;
+    }
 }
 
 void FakeVimHandler::Private::moveToNextWord(bool simple, bool deleteWord)
