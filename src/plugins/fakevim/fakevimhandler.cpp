@@ -1269,6 +1269,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         }
     } else if (key == '^') {
         moveToFirstNonBlankOnLine();
+        setTargetColumn();
         m_movetype = MoveExclusive;
         finishMovement(QString(QLatin1Char('^')));
     } else if (0 && key == ',') {
