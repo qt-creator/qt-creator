@@ -134,6 +134,8 @@ StashDialog::StashDialog(QWidget *parent) :
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     ui->stashView->setModel(m_proxyModel);
     ui->stashView->setSelectionMode(QAbstractItemView::MultiSelection);
+    ui->stashView->setAllColumnsShowFocus(true);
+    ui->stashView->setUniformRowHeights(true);
     connect(ui->filterLineEdit, SIGNAL(filterChanged(QString)), m_proxyModel, SLOT(setFilterFixedString(QString)));
     connect(ui->stashView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
             this, SLOT(enableButtons()));
@@ -212,7 +214,7 @@ void StashDialog::deleteSelection()
     QStringList errors;
     // Delete in reverse order as stashes rotate
     for (int r = rows.size() - 1; r >= 0; r--)
-        if (!gitClient()->synchronousStashRemove(m_repository, m_model->at(r).name, &errorMessage))
+        if (!gitClient()->synchronousStashRemove(m_repository, m_model->at(rows.at(r)).name, &errorMessage))
             errors.push_back(errorMessage);
     refresh(m_repository, true);
     if (!errors.isEmpty())
