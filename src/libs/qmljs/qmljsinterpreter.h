@@ -222,11 +222,39 @@ public:
     virtual bool processGeneratedSlot(const QString &name, const Value *value);
 };
 
+class QMLJS_EXPORT ScopeChain
+{
+public:
+    ScopeChain();
+
+    struct QmlComponentChain
+    {
+        QmlComponentChain()
+            : rootObject(0), ids(0)
+        {}
+
+        QList<QmlComponentChain *> instantiatingComponents;
+        const ObjectValue *rootObject;
+        QList<const ObjectValue *> functionScopes;
+        const ObjectValue *ids;
+
+        void add(QList<const ObjectValue *> *list) const;
+    };
+
+    const ObjectValue *globalScope;
+    QmlComponentChain qmlComponentScope;
+    QList<const ObjectValue *> qmlScopeObjects;
+    const ObjectValue *qmlTypes;
+    QList<const ObjectValue *> jsScopes;
+
+    // rebuilds the flat list of all scopes
+    void update();
+    QList<const ObjectValue *> all;
+};
+
 class QMLJS_EXPORT Context
 {
 public:
-    typedef QList<const ObjectValue *> ScopeChain;
-
     enum LookupMode {
         JSLookup,
         QmlLookup
@@ -239,20 +267,14 @@ public:
     void build(AST::Node *node, const Document::Ptr doc, const Snapshot &snapshot);
 
     Engine *engine() const;
-    ScopeChain scopeChain() const;
+    const ScopeChain &scopeChain() const;
+    ScopeChain &scopeChain();
 
     LookupMode lookupMode() const;
     void setLookupMode(LookupMode lookupMode);
 
     const ObjectValue *typeEnvironment(const Document *doc) const;
     void setTypeEnvironment(const Document *doc, const ObjectValue *typeEnvironment);
-
-    void pushScope(const ObjectValue *object);
-    void popScope();
-
-    void markQmlScopeObject();
-    void setQmlScopeObject(const ObjectValue *scopeObject);
-    const ObjectValue *qmlScopeObject() const;
 
     const Value *lookup(const QString &name);
     const ObjectValue *lookupType(const Document *doc, AST::UiQualifiedId *qmlTypeName);

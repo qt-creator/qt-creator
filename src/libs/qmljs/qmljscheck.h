@@ -75,7 +75,6 @@ private:
 
     QList<DiagnosticMessage> _messages;
 
-    const Interpreter::ObjectValue *_extraScope;
     bool _allowAnyProperty;
 };
 

@@ -61,7 +61,6 @@ Check::Check(Document::Ptr doc, const Snapshot &snapshot)
     , _snapshot(snapshot)
     , _context(&_engine)
     , _link(&_context, doc, snapshot)
-    , _extraScope(0)
     , _allowAnyProperty(false)
 {
 }
@@ -118,10 +117,12 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
         _allowAnyProperty = true; // suppress subsequent "unknown property" errors
     }
 
-    const ObjectValue *oldScopeObject = _context.qmlScopeObject();
-    const ObjectValue *oldExtraScope = _extraScope;
+    QList<const ObjectValue *> oldScopeObjects = _context.scopeChain().qmlScopeObjects;
+
+    _context.scopeChain().qmlScopeObjects.clear();
     const ObjectValue *scopeObject = _doc->bind()->findQmlObject(ast);
-    _context.setQmlScopeObject(scopeObject);
+    _context.scopeChain().qmlScopeObjects += scopeObject;
+    _context.scopeChain().update();
 
 #ifndef NO_DECLARATIVE_BACKEND
     // check if the object has a Qt.ListElement ancestor
@@ -159,7 +160,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
                         const Value *targetValue = evaluator(expStmt->expression);
 
                         if (const ObjectValue *target = value_cast<const ObjectValue *>(targetValue)) {
-                            _extraScope = target;
+                            _context.scopeChain().qmlScopeObjects.prepend(target);
                         } else {
                             _allowAnyProperty = true;
                         }
@@ -172,8 +173,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
     Node::accept(initializer, this);
 
-    _context.setQmlScopeObject(oldScopeObject);
-    _extraScope = oldExtraScope;
+    _context.scopeChain().qmlScopeObjects = oldScopeObjects;
     _allowAnyProperty = oldAllowAnyProperty;
 }
 
@@ -235,7 +235,7 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     if (_allowAnyProperty)
         return 0;
 
-    const ObjectValue *scopeObject = _context.qmlScopeObject();
+    QList<const ObjectValue *> scopeObjects = _context.scopeChain().qmlScopeObjects;
 
     if (! id)
         return 0; // ### error?
@@ -249,16 +249,19 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
     bool isAttachedProperty = false;
     if (! propertyName.isEmpty() && propertyName[0].isUpper()) {
         isAttachedProperty = true;
-        scopeObject = _context.typeEnvironment(_doc.data());
+        scopeObjects += _context.scopeChain().qmlTypes;
     }
 
-    if (! scopeObject)
+    if (scopeObjects.isEmpty())
         return 0;
 
     // global lookup for first part of id
-    const Value *value = scopeObject->lookupMember(propertyName, &_context);
-    if (_extraScope && !value)
-        value = _extraScope->lookupMember(propertyName, &_context);
+    const Value *value = 0;
+    for (int i = scopeObjects.size() - 1; i >= 0; --i) {
+        value = scopeObjects[i]->lookupMember(propertyName, &_context);
+        if (value)
+            break;
+    }
     if (!value) {
         error(id->identifierToken,
               tr(Messages::invalid_property_name).arg(propertyName));

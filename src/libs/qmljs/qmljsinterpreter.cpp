@@ -725,6 +725,45 @@ void StringValue::accept(ValueVisitor *visitor) const
 }
 
 
+ScopeChain::ScopeChain()
+    : globalScope(0)
+    , qmlTypes(0)
+{
+}
+
+void ScopeChain::QmlComponentChain::add(QList<const ObjectValue *> *list) const
+{
+    foreach (QmlComponentChain *parent, instantiatingComponents)
+        parent->add(list);
+
+    if (rootObject)
+        list->append(rootObject);
+    list->append(functionScopes);
+    if (ids)
+        list->append(ids);
+}
+
+void ScopeChain::update()
+{
+    all.clear();
+
+    all += globalScope;
+
+    foreach (QmlComponentChain *parent, qmlComponentScope.instantiatingComponents)
+        parent->add(&all);
+
+    if (qmlComponentScope.rootObject)
+        all += qmlComponentScope.rootObject;
+    all += qmlScopeObjects;
+    all += qmlComponentScope.functionScopes;
+    if (qmlComponentScope.ids)
+        all += qmlComponentScope.ids;
+    if (qmlTypes)
+        all += qmlTypes;
+    all += jsScopes;
+}
+
+
 Context::Context(Engine *engine)
     : _engine(engine),
       _lookupMode(JSLookup),
@@ -748,7 +787,12 @@ Engine *Context::engine() const
     return _engine;
 }
 
-Context::ScopeChain Context::scopeChain() const
+const ScopeChain &Context::scopeChain() const
+{
+    return _scopeChain;
+}
+
+ScopeChain &Context::scopeChain()
 {
     return _scopeChain;
 }
@@ -773,54 +817,11 @@ void Context::setTypeEnvironment(const QmlJS::Document *doc, const ObjectValue *
     _typeEnvironments[doc] = typeEnvironment;
 }
 
-void Context::pushScope(const ObjectValue *object)
-{
-    if (object != 0)
-        _scopeChain.append(object);
-}
-
-void Context::popScope()
-{
-    _scopeChain.removeLast();
-    if (_scopeChain.length() <= _qmlScopeObjectIndex)
-        _qmlScopeObjectSet = false;
-}
-
-// Marks this to be the location where a scope object can be inserted.
-void Context::markQmlScopeObject()
-{
-    _qmlScopeObjectIndex = _scopeChain.length();
-}
-
-// Sets or inserts the scope object if scopeObject != 0, removes it otherwise.
-void Context::setQmlScopeObject(const ObjectValue *scopeObject)
-{
-    if (_qmlScopeObjectSet) {
-        if (scopeObject == 0) {
-            _scopeChain.removeAt(_qmlScopeObjectIndex);
-            _qmlScopeObjectSet = false;
-        } else {
-            _scopeChain[_qmlScopeObjectIndex] = scopeObject;
-        }
-    } else if (scopeObject != 0 && _scopeChain.length() >= _qmlScopeObjectIndex) {
-        _scopeChain.insert(_qmlScopeObjectIndex, scopeObject);
-        _qmlScopeObjectSet = true;
-    }
-}
-
-// Gets the scope object, if set. Returns 0 otherwise.
-const ObjectValue *Context::qmlScopeObject() const
-{
-    if (!_qmlScopeObjectSet)
-        return 0;
-    else
-        return _scopeChain[_qmlScopeObjectIndex];
-}
-
 const Value *Context::lookup(const QString &name)
 {
-    for (int index = _scopeChain.size() - 1; index != -1; --index) {
-        const ObjectValue *scope = _scopeChain.at(index);
+    QList<const ObjectValue *> scopes = _scopeChain.all;
+    for (int index = scopes.size() - 1; index != -1; --index) {
+        const ObjectValue *scope = scopes.at(index);
 
         if (const Value *member = scope->lookupMember(name, this)) {
             if (_lookupMode == JSLookup || ! dynamic_cast<const ASTVariableReference *>(member)) {

@@ -31,17 +31,21 @@ Interpreter::Engine *Link::engine()
 
 void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
 {
+    ScopeChain &scopeChain = _context->scopeChain();
+
     // ### TODO: This object ought to contain the global namespace additions by QML.
-    _context->pushScope(engine()->globalObject());
+    scopeChain.globalScope = engine()->globalObject();
 
     if (! doc)
         return;
 
     Bind *bind = doc->bind();
-    QStringList linkedDocs; // to prevent cycles
+    QHash<Document *, ScopeChain::QmlComponentChain *> componentScopes;
 
     if (doc->qmlProgram()) {
         _context->setLookupMode(Context::QmlLookup);
+
+        makeComponentChain(doc, &scopeChain.qmlComponentScope, &componentScopes);
 
         ObjectValue *scopeObject = 0;
         if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(currentObject))
@@ -49,23 +53,28 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
         else if (UiObjectBinding *binding = cast<UiObjectBinding *>(currentObject))
             scopeObject = bind->findQmlObject(binding);
 
-        pushScopeChainForComponent(doc, &linkedDocs, scopeObject);
+        if (scopeObject && scopeObject != scopeChain.qmlComponentScope.rootObject)
+            scopeChain.qmlScopeObjects += scopeObject;
 
         if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
-            _context->pushScope(typeEnvironment);
+            scopeChain.qmlTypes = typeEnvironment;
     } else {
         // the global scope of a js file does not see the instantiating component
         if (currentObject != 0) {
             // add scope chains for all components that source this document
             foreach (Document::Ptr otherDoc, _docs) {
-                if (otherDoc->bind()->includedScripts().contains(doc->fileName()))
-                    pushScopeChainForComponent(otherDoc, &linkedDocs);
+                if (otherDoc->bind()->includedScripts().contains(doc->fileName())) {
+                    ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
+                    componentScopes.insert(otherDoc.data(), component);
+                    scopeChain.qmlComponentScope.instantiatingComponents += component;
+                    makeComponentChain(otherDoc, component, &componentScopes);
+                }
             }
 
             // ### TODO: Which type environment do scripts see?
         }
 
-        _context->pushScope(bind->rootObjectValue());
+        scopeChain.jsScopes += bind->rootObjectValue();
     }
 
     if (FunctionDeclaration *fun = cast<FunctionDeclaration *>(currentObject)) {
@@ -74,53 +83,55 @@ void Link::scopeChainAt(Document::Ptr doc, Node *currentObject)
             if (it->name)
                 activation->setProperty(it->name->asString(), engine()->undefinedValue());
         }
-        _context->pushScope(activation);
+        scopeChain.jsScopes += activation;
     }
+
+    scopeChain.update();
 }
 
-void Link::pushScopeChainForComponent(Document::Ptr doc, QStringList *linkedDocs,
-                                      ObjectValue *scopeObject)
+void Link::makeComponentChain(
+        Document::Ptr doc,
+        ScopeChain::QmlComponentChain *target,
+        QHash<Document *, ScopeChain::QmlComponentChain *> *components)
 {
     if (!doc->qmlProgram())
         return;
-
-    linkedDocs->append(doc->fileName());
 
     Bind *bind = doc->bind();
 
     // add scopes for all components instantiating this one
     foreach (Document::Ptr otherDoc, _docs) {
-        if (linkedDocs->contains(otherDoc->fileName()))
+        if (otherDoc == doc)
             continue;
-
         if (otherDoc->bind()->usesQmlPrototype(bind->rootObjectValue(), _context)) {
-            // ### TODO: Depth-first insertion doesn't give us correct name shadowing.
-            pushScopeChainForComponent(otherDoc, linkedDocs);
+            if (components->contains(otherDoc.data())) {
+                target->instantiatingComponents += components->value(otherDoc.data());
+            } else {
+                ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
+                components->insert(otherDoc.data(), component);
+                target->instantiatingComponents += component;
+
+                makeComponentChain(otherDoc, component, components);
+            }
         }
     }
 
+    // build this component scope
     if (bind->rootObjectValue())
-        _context->pushScope(bind->rootObjectValue());
-
-    if (scopeObject) {
-        _context->markQmlScopeObject();
-        if (scopeObject != bind->rootObjectValue())
-            _context->setQmlScopeObject(scopeObject);
-    }
+        target->rootObject = bind->rootObjectValue();
 
     const QStringList &includedScripts = bind->includedScripts();
     for (int index = includedScripts.size() - 1; index != -1; --index) {
         const QString &scriptFile = includedScripts.at(index);
 
         if (Document::Ptr scriptDoc = _snapshot.document(scriptFile)) {
-            if (scriptDoc->jsProgram()) {
-                _context->pushScope(scriptDoc->bind()->rootObjectValue());
-            }
+            if (scriptDoc->jsProgram())
+                target->functionScopes += scriptDoc->bind()->rootObjectValue();
         }
     }
 
-    _context->pushScope(bind->functionEnvironment());
-    _context->pushScope(bind->idEnvironment());
+    target->functionScopes += bind->functionEnvironment();
+    target->ids = bind->idEnvironment();
 }
 
 void Link::linkImports()
