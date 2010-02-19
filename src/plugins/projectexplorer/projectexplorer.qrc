@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/projectexplorer">
-        <file>images/build.png</file>
         <file>images/build_small.png</file>
         <file>images/clean.png</file>
         <file>images/clean_small.png</file>
@@ -38,5 +37,6 @@
         <file>images/SymbianEmulator.png</file>
         <file>images/ConnectionOff.png</file>
         <file>images/ConnectionOn.png</file>
+        <file>images/build.png</file>
     </qresource>
 </RCC>
