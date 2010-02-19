@@ -60,6 +60,7 @@ class StringValue;
 class ObjectValue;
 class FunctionValue;
 class Reference;
+class EasingCurveNameValue;
 
 typedef QList<const Value *> ValueList;
 
@@ -80,6 +81,7 @@ public:
     virtual void visit(const ObjectValue *);
     virtual void visit(const FunctionValue *);
     virtual void visit(const Reference *);
+    virtual void visit(const EasingCurveNameValue *);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,6 +104,7 @@ public:
     virtual const ObjectValue *asObjectValue() const;
     virtual const FunctionValue *asFunctionValue() const;
     virtual const Reference *asReference() const;
+    virtual const EasingCurveNameValue *asEasingCurveNameValue() const;
 
     virtual void accept(ValueVisitor *) const = 0;
 
@@ -155,6 +158,12 @@ template <> Q_INLINE_TEMPLATE const FunctionValue *value_cast(const Value *v)
 template <> Q_INLINE_TEMPLATE const Reference *value_cast(const Value *v)
 {
     if (v) return v->asReference();
+    else   return 0;
+}
+
+template <> Q_INLINE_TEMPLATE const EasingCurveNameValue *value_cast(const Value *v)
+{
+    if (v) return v->asEasingCurveNameValue();
     else   return 0;
 }
 
@@ -280,6 +289,18 @@ private:
     Engine *_engine;
 };
 
+class QMLJS_EXPORT EasingCurveNameValue: public Value
+{
+    static QSet<QString> _curveNames;
+
+public:
+    static QSet<QString> curveNames();
+
+    // Value interface
+    virtual const EasingCurveNameValue *asEasingCurveNameValue() const;
+    virtual void accept(ValueVisitor *) const;
+};
+
 class QMLJS_EXPORT ObjectValue: public Value
 {
 public:
@@ -339,6 +360,7 @@ public:
 
 protected:
     const Value *findOrCreateSignature(int index, const QMetaMethod &method, QString *methodName) const;
+    bool isDerivedFrom(const QMetaObject *base) const;
 
 private:
     const QMetaObject *_metaObject;
@@ -537,6 +559,7 @@ public:
     const NumberValue *numberValue() const;
     const BooleanValue *booleanValue() const;
     const StringValue *stringValue() const;
+    const EasingCurveNameValue *easingCurveNameValue() const;
 
     ObjectValue *newObject(const ObjectValue *prototype);
     ObjectValue *newObject();
@@ -625,6 +648,7 @@ private:
     NumberValue _numberValue;
     BooleanValue _booleanValue;
     StringValue _stringValue;
+    EasingCurveNameValue _easingCurveNameValue;
     QList<Value *> _registeredValues;
 
     ConvertToNumber _convertToNumber;

@@ -55,10 +55,16 @@ protected:
 private:
     void visitQmlObject(AST::Node *ast, AST::UiQualifiedId *typeId,
                         AST::UiObjectInitializer *initializer);
-    void checkScopeObjectMember(const AST::UiQualifiedId *id);
+    const Interpreter::Value *checkScopeObjectMember(const AST::UiQualifiedId *id);
+    void checkPropertyAssignment(const AST::SourceLocation &location,
+                                 const Interpreter::Value *lhsValue,
+                                 const Interpreter::Value *rhsValue,
+                                 QmlJS::AST::ExpressionNode *ast);
 
     void warning(const AST::SourceLocation &loc, const QString &message);
     void error(const AST::SourceLocation &loc, const QString &message);
+    static AST::SourceLocation locationFromRange(const AST::SourceLocation &start,
+                                                 const AST::SourceLocation &end);
 
     Document::Ptr _doc;
     Snapshot _snapshot;

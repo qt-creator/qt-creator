@@ -41,6 +41,7 @@
 #  include <QtDeclarative/private/qmlgraphicsanchors_p.h> // ### remove me
 #  include <QtDeclarative/private/qmlgraphicsrectangle_p.h> // ### remove me
 #  include <QtDeclarative/private/qmlvaluetype_p.h> // ### remove me
+#  include <QtDeclarative/private/qmlanimation_p.h> // ### remove me
 #endif
 
 using namespace QmlJS::Interpreter;
@@ -329,8 +330,29 @@ const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
         break;
     } // end of switch
 
+    const QString typeName = prop.typeName();
+    if (typeName == QLatin1String("QmlGraphicsAnchorLine")) {
+        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setClassName(QLatin1String("AnchorLine"));
+        value = object;
+    }
+    if (value->asStringValue() && prop.name() == QLatin1String("easing")
+            && isDerivedFrom(&QmlPropertyAnimation::staticMetaObject)) {
+        value = engine()->easingCurveNameValue();
+    }
+
     return value;
 }
+
+bool QmlObjectValue::isDerivedFrom(const QMetaObject *base) const
+{
+    for (const QMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
+        if (iter == base)
+            return true;
+    }
+    return false;
+}
+
 #endif
 
 namespace {
@@ -584,6 +606,10 @@ void ValueVisitor::visit(const Reference *)
 {
 }
 
+void ValueVisitor::visit(const EasingCurveNameValue *)
+{
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Value
 ////////////////////////////////////////////////////////////////////////////////
@@ -636,6 +662,11 @@ const FunctionValue *Value::asFunctionValue() const
 }
 
 const Reference *Value::asReference() const
+{
+    return 0;
+}
+
+const EasingCurveNameValue *Value::asEasingCurveNameValue() const
 {
     return 0;
 }
@@ -858,6 +889,67 @@ void Reference::accept(ValueVisitor *visitor) const
 const Value *Reference::value(Context *) const
 {
     return _engine->undefinedValue();
+}
+
+void EasingCurveNameValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
+
+QSet<QString> EasingCurveNameValue::_curveNames;
+QSet<QString> EasingCurveNameValue::curveNames()
+{
+    if (_curveNames.isEmpty()) {
+        _curveNames = QSet<QString>()
+                      << "easeLinear"
+                      << "easeInQuad"
+                      << "easeOutQuad"
+                      << "easeInOutQuad"
+                      << "easeOutInQuad"
+                      << "easeInCubic"
+                      << "easeOutCubic"
+                      << "easeInOutCubic"
+                      << "easeOutInCubic"
+                      << "easeInQuart"
+                      << "easeOutQuart"
+                      << "easeInOutQuart"
+                      << "easeOutInQuart"
+                      << "easeInQuint"
+                      << "easeOutQuint"
+                      << "easeInOutQuint"
+                      << "easeOutInQuint"
+                      << "easeInSine"
+                      << "easeOutSine"
+                      << "easeInOutSine"
+                      << "easeOutInSine"
+                      << "easeInExpo"
+                      << "easeOutExpo"
+                      << "easeInOutExpo"
+                      << "easeOutInExpo"
+                      << "easeInCirc"
+                      << "easeOutCirc"
+                      << "easeInOutCirc"
+                      << "easeOutInCirc"
+                      << "easeInElastic"
+                      << "easeOutElastic"
+                      << "easeInOutElastic"
+                      << "easeOutInElastic"
+                      << "easeInBack"
+                      << "easeOutBack"
+                      << "easeInOutBack"
+                      << "easeOutInBack"
+                      << "easeInBounce"
+                      << "easeOutBounce"
+                      << "easeInOutBounce"
+                      << "easeOutInBounce";
+    }
+
+    return _curveNames;
+}
+
+const EasingCurveNameValue *EasingCurveNameValue::asEasingCurveNameValue() const
+{
+    return this;
 }
 
 MemberProcessor::MemberProcessor()
@@ -1497,6 +1589,11 @@ const BooleanValue *Engine::booleanValue() const
 const StringValue *Engine::stringValue() const
 {
     return &_stringValue;
+}
+
+const EasingCurveNameValue *Engine::easingCurveNameValue() const
+{
+    return &_easingCurveNameValue;
 }
 
 const Value *Engine::newArray()

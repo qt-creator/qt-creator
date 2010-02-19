@@ -42,6 +42,9 @@ static const char *invalid_property_name =  QT_TRANSLATE_NOOP("QmlJS::Check", "'
 static const char *unknown_type = QT_TRANSLATE_NOOP("QmlJS::Check", "unknown type");
 static const char *has_no_members = QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' does not have members");
 static const char *is_not_a_member = QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' is not a member of '%2'");
+static const char *easing_curve_not_a_string = QT_TRANSLATE_NOOP("QmlJS::Check", "easing-curve name is not a string");
+static const char *unknown_easing_curve_name = QT_TRANSLATE_NOOP("QmlJS::Check", "unknown easing-curve name");
+static const char *value_might_be_undefined = QT_TRANSLATE_NOOP("QmlJS::Check", "value might be 'undefined'");
 } // namespace Messages
 
 static inline QString tr(const char *msg)
@@ -176,9 +179,48 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
 
 bool Check::visit(UiScriptBinding *ast)
 {
-    checkScopeObjectMember(ast->qualifiedId);
+    const Value *lhsValue = checkScopeObjectMember(ast->qualifiedId);
+    if (lhsValue) {
+        // ### Fix the evaluator to accept statements!
+        if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement)) {
+            Evaluate evaluator(&_context);
+            const Value *rhsValue = evaluator(expStmt->expression);
+
+            const SourceLocation loc = locationFromRange(expStmt->firstSourceLocation(), expStmt->lastSourceLocation());
+            checkPropertyAssignment(loc, lhsValue, rhsValue, expStmt->expression);
+        }
+
+    }
 
     return true;
+}
+
+void Check::checkPropertyAssignment(const SourceLocation &location,
+                                    const Interpreter::Value *lhsValue,
+                                    const Interpreter::Value *rhsValue,
+                                    ExpressionNode *ast)
+{
+    if (lhsValue->asEasingCurveNameValue()) {
+        const StringValue *rhsStringValue = rhsValue->asStringValue();
+        if (!rhsStringValue) {
+            if (rhsValue->asUndefinedValue())
+                warning(location, tr(Messages::value_might_be_undefined));
+            else
+                error(location, tr(Messages::easing_curve_not_a_string));
+            return;
+        }
+
+        if (StringLiteral *string = cast<StringLiteral *>(ast)) {
+            const QString value = string->value->asString();
+            // ### do something with easing-curve attributes.
+            // ### Incomplete documentation at: http://qt.nokia.com/doc/4.7-snapshot/qml-propertyanimation.html#easing-prop
+            // ### The implementation is at: src/declarative/util/qmlanimation.cpp
+            const QString curveName = value.left(value.indexOf(QLatin1Char('(')));
+            if (!EasingCurveNameValue::curveNames().contains(curveName)) {
+                error(location, tr(Messages::unknown_easing_curve_name));
+            }
+        }
+    }
 }
 
 bool Check::visit(UiArrayBinding *ast)
@@ -188,20 +230,20 @@ bool Check::visit(UiArrayBinding *ast)
     return true;
 }
 
-void Check::checkScopeObjectMember(const UiQualifiedId *id)
+const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
     if (_allowAnyProperty)
-        return;
+        return 0;
 
     const ObjectValue *scopeObject = _context.qmlScopeObject();
 
     if (! id)
-        return; // ### error?
+        return 0; // ### error?
 
     QString propertyName = id->name->asString();
 
     if (propertyName == QLatin1String("id") && ! id->next)
-        return;
+        return 0; // ### should probably be a special value
 
     // attached properties
     bool isAttachedProperty = false;
@@ -211,7 +253,7 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
     }
 
     if (! scopeObject)
-        return;
+        return 0;
 
     // global lookup for first part of id
     const Value *value = scopeObject->lookupMember(propertyName, &_context);
@@ -224,7 +266,7 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
 
     // can't look up members for attached properties
     if (isAttachedProperty)
-        return;
+        return 0;
 
     // member lookup
     const UiQualifiedId *idPart = id;
@@ -233,7 +275,7 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
         if (! objectValue) {
             error(idPart->identifierToken,
                   tr(Messages::has_no_members).arg(propertyName));
-            return;
+            return 0;
         }
 
         idPart = idPart->next;
@@ -244,9 +286,11 @@ void Check::checkScopeObjectMember(const UiQualifiedId *id)
             error(idPart->identifierToken,
                   tr(Messages::is_not_a_member).arg(propertyName,
                                                objectValue->className()));
-            return;
+            return 0;
         }
     }
+
+    return value;
 }
 
 void Check::error(const AST::SourceLocation &loc, const QString &message)
@@ -257,4 +301,13 @@ void Check::error(const AST::SourceLocation &loc, const QString &message)
 void Check::warning(const AST::SourceLocation &loc, const QString &message)
 {
     _messages.append(DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
+}
+
+SourceLocation Check::locationFromRange(const SourceLocation &start,
+                                        const SourceLocation &end)
+{
+    return SourceLocation(start.offset,
+                          end.end() - start.begin(),
+                          start.startLine,
+                          start.startColumn);
 }
