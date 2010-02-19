@@ -714,7 +714,9 @@ QString QtVersionManager::findQMakeBinaryFromMakefile(const QString &directory)
 #ifdef Q_OS_WIN
                 qmakePath = qmakePath.toLower();
 #endif
-                return qmakePath;
+                // Is qmake still installed?
+                if (QFile::exists(qmakePath))
+                    return qmakePath;
             }
         }
         makefile.close();
