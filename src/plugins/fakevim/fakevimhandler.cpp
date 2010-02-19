@@ -1140,7 +1140,21 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
 {
     EventResult handled = EventHandled;
 
-    if (m_submode == WindowSubMode) {
+    if (m_subsubmode == FtSubSubMode) {
+        m_semicolonType = m_subsubdata;
+        m_semicolonKey = key;
+        bool valid = handleFfTt(key);
+        m_subsubmode = NoSubSubMode;
+        if (!valid) {
+            m_submode = NoSubMode;
+            finishMovement();
+        } else {
+            finishMovement(QString("%1%2%3")
+                           .arg(count())
+                           .arg(QChar(m_semicolonType))
+                           .arg(QChar(m_semicolonKey)));
+        }
+    } else if (m_submode == WindowSubMode) {
         emit q->windowCommandRequested(key);
         m_submode = NoSubMode;
     } else if (m_submode == RegisterSubMode) {
@@ -1219,20 +1233,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             handleCommand(QString(QLatin1Char('x')));
         else if (key == 'Q')
             handleCommand("q!");
-    } else if (m_subsubmode == FtSubSubMode) {
-        m_semicolonType = m_subsubdata;
-        m_semicolonKey = key;
-        bool valid = handleFfTt(key);
-        m_subsubmode = NoSubSubMode;
-        if (!valid) {
-            m_submode = NoSubMode;
-            finishMovement();
-        } else {
-            finishMovement(QString("%1%2%3")
-                           .arg(count())
-                           .arg(QChar(m_semicolonType))
-                           .arg(QChar(m_semicolonKey)));
-        }
     } else if (m_submode == ReplaceSubMode) {
         if (count() <= (rightDist() + atEndOfLine()) && text.size() == 1
                 && (text.at(0).isPrint() || text.at(0).isSpace())) {
