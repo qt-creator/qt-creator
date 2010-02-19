@@ -2050,6 +2050,24 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_lastInsertion.append(str);
         m_tc.insertText(str);
         setTargetColumn();
+    } else if (key == control('d')) {
+        // remove one level of indentation from the current line
+        int shift = config(ConfigShiftWidth).toInt();
+        int tab = config(ConfigTabStop).toInt();
+        int line = cursorLineInDocument() + 1;
+        int pos = firstPositionInLine(line);
+        QString text = lineContents(line);
+        int amount = 0;
+        int i = 0;
+        for (; i < text.size() && amount < shift; ++i) {
+            if (text.at(i) == ' ')
+                ++amount;
+            else if (text.at(i) == '\t')
+                amount += tab; // FIXME: take position into consideration
+            else
+                break;
+        }
+        removeText(Range(pos, pos+i));
     } else if (key >= control('a') && key <= control('z')) {
         // ignore these
     } else if (!text.isEmpty()) {
