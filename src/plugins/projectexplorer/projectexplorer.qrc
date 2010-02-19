@@ -5,9 +5,7 @@
         <file>images/clean.png</file>
         <file>images/clean_small.png</file>
         <file>images/closetab.png</file>
-        <file>images/compile_error.png</file>
         <file>images/compile_unspecified.png</file>
-        <file>images/compile_warning.png</file>
         <file>images/debugger_start.png</file>
         <file>images/debugger_start_small.png</file>
         <file>images/filtericon.png</file>
@@ -28,5 +26,7 @@
         <file>images/rightselection.png</file>
         <file>images/midselection.png</file>
         <file>images/targetremovebutton.png</file>
+        <file>images/compile_error.png</file>
+        <file>images/compile_warning.png</file>
     </qresource>
 </RCC>

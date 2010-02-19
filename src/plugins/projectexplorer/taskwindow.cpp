@@ -48,6 +48,11 @@
 #include <QtGui/QStyledItemDelegate>
 #include <QtGui/QSortFilterProxyModel>
 
+namespace {
+    const int TASK_ICON_SIZE = 16;
+    const int TASK_ICON_MARGIN = 2;
+}
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -769,6 +774,8 @@ QSize TaskDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelInd
     } else {
         s.setHeight(fontHeight + 3);
     }
+    if (s.height() < TASK_ICON_SIZE + 2 * TASK_ICON_MARGIN)
+        s.setHeight(TASK_ICON_SIZE + 2 * TASK_ICON_MARGIN);
     return s;
 }
 
@@ -817,7 +824,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
     TaskWindow::TaskType type = TaskWindow::TaskType(index.data(TaskModel::Type).toInt());
     QIcon icon = model->iconFor(type);
-    painter->drawPixmap(2, opt.rect.top() + 2, icon.pixmap(16, 16));
+    painter->drawPixmap(TASK_ICON_MARGIN, opt.rect.top() + TASK_ICON_MARGIN, icon.pixmap(TASK_ICON_SIZE, TASK_ICON_SIZE));
 
     int width = opt.rect.width() - model->sizeOfFile() - model->sizeOfLineNumber() - 12 - 22;
     if (!selected) {
