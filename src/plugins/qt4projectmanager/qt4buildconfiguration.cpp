@@ -34,6 +34,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QtCore/QDebug>
+
 #include <QtGui/QInputDialog>
 
 using namespace Qt4ProjectManager;
@@ -125,28 +127,34 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     m_toolChainType = map.value(QLatin1String(TOOLCHAIN_KEY)).toInt();
     m_qmakeBuildConfiguration = QtVersion::QmakeBuildConfigs(map.value(QLatin1String(BUILD_CONFIGURATION_KEY)).toInt());
 
-    // Pick a decent Qt version if the default version is used:
+    // Pick a Qt version if the default version is used:
+    // We assume that the default Qt version as used in earlier versions of Qt creator
+    // was supporting a desktop flavor of Qt.
     if (m_qtVersionId == 0) {
         QList<QtVersion *> versions = QtVersionManager::instance()->versions();
         foreach (QtVersion *v, versions) {
-            if (v->isValid())
+            if (v->isValid() && v->supportsTargetId(QLatin1String(DESKTOP_TARGET_ID))) {
                 m_qtVersionId = v->uniqueId();
-            if (v->supportsTargetId(QLatin1String(DESKTOP_TARGET_ID)))
                 break;
+            }
         }
         if (m_qtVersionId == 0)
             m_qtVersionId = versions.at(0)->uniqueId();
     }
 
-    if (!qtVersion()->supportedTargetIds().contains(target()->id()))
+    if (!qtVersion()->isValid() || !qtVersion()->supportedTargetIds().contains(target()->id())) {
+        qWarning() << "Buildconfiguration" << displayName() << ": Qt" << qtVersion()->displayName() << "not supported by target" << target()->id();
         return false;
+    }
 
     QList<ToolChain::ToolChainType> possibleTcs(qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()));
     if (!possibleTcs.contains(toolChainType()))
         setToolChainType(qt4Target()->preferredToolChainType(possibleTcs));
 
-    if (toolChainType() == ToolChain::INVALID)
+    if (toolChainType() == ToolChain::INVALID) {
+        qWarning() << "No toolchain available for" << qtVersion()->displayName() << "used in" << target()->id() << "!";
         return false;
+    }
     return true;
 }
 
