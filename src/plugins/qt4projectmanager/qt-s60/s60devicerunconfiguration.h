@@ -52,6 +52,7 @@ class SymbianDevice;
 }
 
 namespace Qt4ProjectManager {
+class QtVersion;
 
 namespace Internal {
 class Qt4ProFileNode;
@@ -96,6 +97,7 @@ public:
     QString localExecutableFileName() const;
     QString unsignedPackage() const;
     QString signedPackage() const;
+    const QtVersion *qtVersion() const;
 
     QStringList commandLineArguments() const;
     void setCommandLineArguments(const QStringList &args);
@@ -239,6 +241,7 @@ private:
     QProcess *m_signsisProcess;
     QString m_makesisTool;
     QString m_packageFile;
+    QString m_qtBinPath;
     bool m_releaseDeviceAfterLauncherFinish;
     bool m_handleDeviceRemoval;
     QFutureInterface<void> *m_deployProgress;
