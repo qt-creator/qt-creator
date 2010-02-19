@@ -133,7 +133,7 @@ StashDialog::StashDialog(QWidget *parent) :
     m_proxyModel->setFilterKeyColumn(-1);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     ui->stashView->setModel(m_proxyModel);
-    ui->stashView->setSelectionMode(QAbstractItemView::MultiSelection);
+    ui->stashView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->stashView->setAllColumnsShowFocus(true);
     ui->stashView->setUniformRowHeights(true);
     connect(ui->filterLineEdit, SIGNAL(filterChanged(QString)), m_proxyModel, SLOT(setFilterFixedString(QString)));
