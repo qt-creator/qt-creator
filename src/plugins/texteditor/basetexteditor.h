@@ -530,6 +530,8 @@ protected:
     void leaveEvent(QEvent *);
     void keyReleaseEvent(QKeyEvent *);
 
+    void dragEnterEvent(QDragEnterEvent *e);
+
 public:
     // Returns true if key triggers an indent.
     virtual bool isElectricCharacter(const QChar &ch) const;

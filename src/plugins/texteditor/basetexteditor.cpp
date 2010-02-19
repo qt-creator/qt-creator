@@ -3388,6 +3388,17 @@ void BaseTextEditor::keyReleaseEvent(QKeyEvent *e)
     QPlainTextEdit::keyReleaseEvent(e);
 }
 
+void BaseTextEditor::dragEnterEvent(QDragEnterEvent *e)
+{
+    // If the drag event contains URLs, we don't want to insert them as text
+    if (e->mimeData()->hasUrls()) {
+        e->ignore();
+        return;
+    }
+
+    QPlainTextEdit::dragEnterEvent(e);
+}
+
 void BaseTextEditor::extraAreaLeaveEvent(QEvent *)
 {
     // fake missing mouse move event from Qt

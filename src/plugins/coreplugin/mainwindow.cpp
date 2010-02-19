@@ -101,8 +101,6 @@ extern "C" void handleSigInt(int sig)
 using namespace Core;
 using namespace Core::Internal;
 
-static const char *uriListMimeFormatC = "text/uri-list";
-
 enum { debugMainWindow = 0 };
 
 MainWindow::MainWindow() :
@@ -358,7 +356,7 @@ static bool isDesktopFileManagerDrop(const QMimeData *d, QStringList *files = 0)
     if (files)
         files->clear();
     // Extract dropped files from Mime data.
-    if (!d->hasFormat(QLatin1String(uriListMimeFormatC)))
+    if (!d->hasUrls())
         return false;
     const QList<QUrl> urls = d->urls();
     if (urls.empty())
