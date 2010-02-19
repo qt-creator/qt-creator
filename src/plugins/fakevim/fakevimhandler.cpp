@@ -2657,6 +2657,7 @@ void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
 
 void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
 {
+    setTargetColumn();
     int beginLine = qMin(lineForPosition(position()), lineForPosition(anchor()));
     int endLine = qMax(lineForPosition(position()), lineForPosition(anchor()));
 
@@ -2665,7 +2666,8 @@ void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
     indentText(range, typedChar);
 
     setPosition(firstPositionInLine(beginLine));
-    moveToFirstNonBlankOnLine();
+    moveToTargetColumn();
+    handleStartOfLine();
     setTargetColumn();
     setDotCommand("%1==", endLine - beginLine + 1);
 }
@@ -2693,6 +2695,7 @@ bool FakeVimHandler::Private::isElectricCharacter(QChar c) const
 
 void FakeVimHandler::Private::shiftRegionRight(int repeat)
 {
+    setTargetColumn();
     int beginLine = lineForPosition(anchor());
     int endLine = lineForPosition(position());
     if (beginLine > endLine)
@@ -2709,13 +2712,15 @@ void FakeVimHandler::Private::shiftRegionRight(int repeat)
     endEditBlock();
 
     setPosition(firstPos);
-    moveToFirstNonBlankOnLine();
+    moveToTargetColumn();
+    handleStartOfLine();
     setTargetColumn();
     setDotCommand("%1>>", endLine - beginLine + 1);
 }
 
 void FakeVimHandler::Private::shiftRegionLeft(int repeat)
 {
+    setTargetColumn();
     int beginLine = lineForPosition(anchor());
     int endLine = lineForPosition(position());
     if (beginLine > endLine)
@@ -2744,7 +2749,8 @@ void FakeVimHandler::Private::shiftRegionLeft(int repeat)
     endEditBlock();
 
     setPosition(firstPos);
-    moveToFirstNonBlankOnLine();
+    moveToTargetColumn();
+    handleStartOfLine();
     setTargetColumn();
     setDotCommand("%1<<", endLine - beginLine + 1);
 }
