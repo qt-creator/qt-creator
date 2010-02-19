@@ -1458,7 +1458,8 @@ void ProjectExplorerPlugin::buildProject()
     if (saveModifiedFiles()) {
         QList<BuildConfiguration *> configurations;
         foreach (Project *pro, d->m_session->projectOrder(d->m_currentProject))
-            configurations << pro->activeTarget()->activeBuildConfiguration();
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
 
         d->m_buildManager->buildProjects(configurations);
     }
@@ -1472,7 +1473,8 @@ void ProjectExplorerPlugin::buildSession()
     if (saveModifiedFiles()) {
         QList<BuildConfiguration *> configurations;
         foreach (Project *pro, d->m_session->projectOrder())
-            configurations << pro->activeTarget()->activeBuildConfiguration();
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
         d->m_buildManager->buildProjects(configurations);
     }
 }
@@ -1497,7 +1499,8 @@ void ProjectExplorerPlugin::rebuildProject()
         const QList<Project *> &projects = d->m_session->projectOrder(d->m_currentProject);
         QList<BuildConfiguration *> configurations;
         foreach (Project *pro, projects)
-            configurations << pro->activeTarget()->activeBuildConfiguration();
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
 
         d->m_buildManager->cleanProjects(configurations);
         d->m_buildManager->buildProjects(configurations);
@@ -1513,7 +1516,8 @@ void ProjectExplorerPlugin::rebuildSession()
         const QList<Project *> & projects = d->m_session->projectOrder();
         QList<BuildConfiguration *> configurations;
         foreach (Project *pro, projects)
-            configurations << pro->activeTarget()->activeBuildConfiguration();
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
 
         d->m_buildManager->cleanProjects(configurations);
         d->m_buildManager->buildProjects(configurations);
@@ -1538,7 +1542,8 @@ void ProjectExplorerPlugin::cleanProject()
         const QList<Project *> & projects = d->m_session->projectOrder(d->m_currentProject);
         QList<BuildConfiguration *> configurations;
         foreach (Project *pro, projects)
-            configurations << pro->activeTarget()->activeBuildConfiguration();
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
         d->m_buildManager->cleanProjects(configurations);
     }
 }
@@ -1552,7 +1557,8 @@ void ProjectExplorerPlugin::cleanSession()
         const QList<Project *> & projects = d->m_session->projectOrder();
         QList<BuildConfiguration *> configurations;
         foreach (Project *pro, projects)
-            configurations << pro->activeTarget()->activeBuildConfiguration();
+            if (pro->activeTarget()->activeBuildConfiguration())
+                configurations << pro->activeTarget()->activeBuildConfiguration();
         d->m_buildManager->cleanProjects(configurations);
     }
 }
@@ -1584,7 +1590,8 @@ void ProjectExplorerPlugin::runProjectImpl(Project *pro, QString mode)
             const QList<Project *> & projects = d->m_session->projectOrder(pro);
             QList<BuildConfiguration *> configurations;
             foreach(Project *pro, projects)
-                configurations << pro->activeTarget()->activeBuildConfiguration();
+                if (pro->activeTarget()->activeBuildConfiguration())
+                    configurations << pro->activeTarget()->activeBuildConfiguration();
             d->m_buildManager->buildProjects(configurations);
 
             updateRunActions();
