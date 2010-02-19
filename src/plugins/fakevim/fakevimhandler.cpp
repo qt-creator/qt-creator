@@ -2132,15 +2132,10 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
         if (!m_commandBuffer.isEmpty()) {
             m_commandHistory.takeLast();
             m_commandHistory.append(m_commandBuffer);
-            // FIXME: This was inserted to prevent crashes when the
-            // editor 'vanishes' but broke things like :<line>.
-            // How can the crash be reproduced?
-            // when EDITOR(setTextCursor(m_tc));
             handleExCommand(m_commandBuffer);
-            //if (m_textedit || m_plaintextedit) {
-            //    m_tc = EDITOR(textCursor());
-            leaveVisualMode();
-            //}
+            if (m_textedit || m_plaintextedit) {
+                leaveVisualMode();
+            }
         }
     } else if (unmodified == Key_Return && isSearchMode()) {
         if (!m_commandBuffer.isEmpty()) {
@@ -2559,7 +2554,10 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
 
 void FakeVimHandler::Private::passUnknownExCommand(const QString &cmd)
 {
+    EDITOR(setTextCursor(m_tc));
     emit q->handleExCommandRequested(cmd);
+    if (m_plaintextedit || m_textedit)
+        m_tc = EDITOR(textCursor());
 }
 
 void FakeVimHandler::Private::passUnknownSetCommand(const QString &arg)
