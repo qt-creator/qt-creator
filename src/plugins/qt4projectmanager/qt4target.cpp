@@ -71,13 +71,13 @@ QIcon iconForId(const QString &id) {
     if (id == QLatin1String(DESKTOP_TARGET_ID))
         return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
     if (id == QLatin1String(S60_EMULATOR_TARGET_ID))
-        return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
+        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
     if (id == QLatin1String(S60_DEVICE_TARGET_ID))
-        return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
+        return QIcon(":/projectexplorer/images/SymbianDevice.png");
     if (id == QLatin1String(MAEMO_EMULATOR_TARGET_ID))
-        return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
+        return QIcon(":/projectexplorer/images/MaemoEmulator.png");
     if (id == QLatin1String(MAEMO_DEVICE_TARGET_ID))
-        return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
+        return QIcon(":/projectexplorer/images/MaemoDevice.png");
     return QIcon();
 }
 
@@ -200,8 +200,8 @@ Qt4Target *Qt4TargetFactory::restore(ProjectExplorer::Project *parent, const QVa
 
 Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
     ProjectExplorer::Target(parent, id),
-    m_connectedPixmap(QLatin1String(":/qt4projectmanager/images/connected.png")),
-    m_disconnectedPixmap(QLatin1String(":/qt4projectmanager/images/notconnected.png")),
+    m_connectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOn.png")),
+    m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOff.png")),
     m_buildConfigurationFactory(new Qt4BuildConfigurationFactory(this))
 {
     connect(project(), SIGNAL(supportedTargetIdsChanged()),
