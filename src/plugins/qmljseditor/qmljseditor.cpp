@@ -510,6 +510,21 @@ AST::Node *SemanticInfo::declaringMember(int cursorPosition) const
     return declaringMember;
 }
 
+QList<AST::Node *> SemanticInfo::astPath(int cursorPosition) const
+{
+    QList<AST::Node *> path;
+
+    foreach (const Range &range, ranges) {
+        if (range.begin.isNull() || range.end.isNull()) {
+            continue;
+        } else if (cursorPosition >= range.begin.position() && cursorPosition <= range.end.position()) {
+            path += range.ast;
+        }
+    }
+
+    return path;
+}
+
 AST::Node *SemanticInfo::nodeUnderCursor(int pos) const
 {
     if (! document)

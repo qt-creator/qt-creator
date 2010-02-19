@@ -115,6 +115,9 @@ public:
     // Returns the AST node under cursor
     QmlJS::AST::Node *nodeUnderCursor(int cursorPosition) const;
 
+    // Returns the list of nodes that enclose the given position.
+    QList<QmlJS::AST::Node *> astPath(int cursorPosition) const;
+
 public: // attributes
     QmlJS::Document::Ptr document;
     QmlJS::Snapshot snapshot;
