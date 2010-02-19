@@ -181,7 +181,6 @@ QString Qt4Manager::mimeType() const
 ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
 {
     Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
-    messageManager->displayStatusBarMessage(tr("Loading project %1 ...").arg(fileName), 50000);
 
     // TODO Make all file paths relative & remove this hack
     // We convert the path to an absolute one here because qt4project.cpp
@@ -191,25 +190,18 @@ ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
 
     if (canonicalFilePath.isEmpty()) {
         messageManager->printToOutputPane(tr("Failed opening project '%1': Project file does not exist").arg(QDir::toNativeSeparators(canonicalFilePath)));
-        messageManager->displayStatusBarMessage(tr("Failed opening project"), 5000);
         return 0;
     }
 
     foreach (ProjectExplorer::Project *pi, projectExplorer()->session()->projects()) {
         if (canonicalFilePath == pi->file()->fileName()) {
             messageManager->printToOutputPane(tr("Failed opening project '%1': Project already open").arg(QDir::toNativeSeparators(canonicalFilePath)));
-            messageManager->displayStatusBarMessage(tr("Failed opening project"), 5000);
             return 0;
         }
     }
 
-    messageManager->displayStatusBarMessage(tr("Opening %1 ...").arg(fileName));
-    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
     registerProject(pro);
-
-    messageManager->displayStatusBarMessage(tr("Done opening project"), 5000);
     return pro;
 }
 

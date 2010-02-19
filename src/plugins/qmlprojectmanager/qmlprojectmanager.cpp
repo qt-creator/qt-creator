@@ -66,7 +66,6 @@ QString Manager::mimeType() const
 ProjectExplorer::Project *Manager::openProject(const QString &fileName)
 {
     Core::MessageManager *messageManager = Core::ICore::instance()->messageManager();
-    messageManager->displayStatusBarMessage(tr("Loading project %1 ...").arg(fileName), 50000);
 
     QFileInfo fileInfo(fileName);
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();

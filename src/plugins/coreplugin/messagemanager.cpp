@@ -68,12 +68,6 @@ void MessageManager::showOutputPane()
         m_messageOutputWindow->popup(false);
 }
 
-void MessageManager::displayStatusBarMessage(const QString & /*text*/, int /*ms*/)
-{
-    // TODO: Currently broken, but no one really notices, so...
-    //m_mainWindow->statusBar()->showMessage(text, ms);
-}
-
 void MessageManager::printToOutputPane(const QString &text, bool bringToForeground)
 {
     if (!m_messageOutputWindow)

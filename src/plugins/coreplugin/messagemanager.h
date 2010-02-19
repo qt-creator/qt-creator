@@ -51,7 +51,6 @@ public:
 
     static MessageManager *instance() { return m_instance; }
 
-    void displayStatusBarMessage(const QString &text, int ms = 0);
     void showOutputPane();
 
 public slots:

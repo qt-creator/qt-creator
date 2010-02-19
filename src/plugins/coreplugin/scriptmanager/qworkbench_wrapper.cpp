@@ -109,13 +109,6 @@ MessageManagerPrototype::MessageManagerPrototype(QObject *parent) :
 {
 }
 
-void MessageManagerPrototype::displayStatusBarMessage(const QString &text, int ms)
-{
-    MessageManager *mm = qscriptvalue_cast<MessageManager *>(thisObject());
-    QTC_ASSERT(mm, return);
-    mm->displayStatusBarMessage(text, ms);
-}
-
 void MessageManagerPrototype::printToOutputPane(const QString &text, bool bringToForeground)
 {
     MessageManager *mm = qscriptvalue_cast<MessageManager *>(thisObject());
