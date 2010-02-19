@@ -37,6 +37,7 @@
 
 #include <QtCore/QStringList>
 #include <QtCore/QTimer>
+#include <QtCore/QDebug>
 
 #include <cstdio>
 
@@ -174,20 +175,30 @@ void CdbApplication::printFrame(const QString &arg)
         printf("%s\n", qPrintable(errorMessage));
 }
 
-bool CdbApplication::queueBreakPoint(const QString &arg)
+// Return address or 0 on failure
+quint64 CdbApplication::addQueuedBreakPoint(const QString &arg, QString *errorMessage)
 {
     // Queue file:line
     const int cpos = arg.lastIndexOf(QLatin1Char(':'));
-    if (cpos == -1)
-        return false;
-    CdbCore::BreakPoint bp;
-    bp.fileName = arg.left(cpos);
+    if (cpos == -1) {
+        *errorMessage = QString::fromLatin1("Syntax error in '%1': No colon.").arg(arg);
+        return 0;
+    }
+
+    const QString fileName = arg.left(cpos);
     bool ok;
-    bp.lineNumber = arg.mid(cpos + 1).toInt(&ok);
-    if (!ok || bp.lineNumber < 1)
-        return false;
-    m_queuedBreakPoints.push_back(bp);
-    return true;
+    const int lineNumber = arg.mid(cpos + 1).toInt(&ok);
+    if (!ok || lineNumber < 1) {
+        *errorMessage = QString::fromLatin1("Syntax error in '%1': No line number.").arg(arg);
+        return 0;
+    }
+    CdbCore::BreakPoint bp;
+    bp.address = m_engine->getSourceLineAddress(fileName, lineNumber, errorMessage);
+    if (!bp.address)
+        return 0;
+    if (!bp.add(m_engine->interfaces().debugControl, errorMessage))
+        return 0;
+    return bp.address;
 }
 
 void CdbApplication::syncCommand(int command, const QString &arg)
@@ -223,11 +234,8 @@ void CdbApplication::syncCommand(int command, const QString &arg)
             std::printf("Breakpoint queue cleared\n");
             m_queuedBreakPoints.clear();
         } else {
-            if (queueBreakPoint(targs)) {
-                std::printf("Queueing breakpoint %s\n", qPrintable(targs));
-            } else {
-                std::printf("BREAKPOINT SYNTAX ERROR: %s\n", qPrintable(targs));
-            }
+            m_queuedBreakPoints.push_back(targs);
+            std::printf("Queueing breakpoint %s\n", qPrintable(targs));
         }
     }
         break;
@@ -323,12 +331,12 @@ void CdbApplication::processAttached(void *handle)
         }
     }
     // Breakpoints
-    foreach(const CdbCore::BreakPoint &bp, m_queuedBreakPoints) {
-        if (bp.add(m_engine->interfaces().debugControl, &errorMessage)) {
-            std::printf("'%s' [ok]\n", qPrintable(bp.expression()));
+    foreach(const QString &bp, m_queuedBreakPoints) {
+        if (const quint64 address = addQueuedBreakPoint(bp, &errorMessage)) {
+            std::printf("'%s' 0x%lx [ok]\n", qPrintable(bp), address);
         } else {
             std::fprintf(stderr, "%s: %s\n",
-                         qPrintable(bp.expression()),
+                         qPrintable(bp),
                          qPrintable(errorMessage));
         }
     }

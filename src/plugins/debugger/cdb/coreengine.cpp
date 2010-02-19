@@ -789,6 +789,22 @@ bool CoreEngine::dissassemble(ULONG64 offset,
     return true;
 }
 
+quint64 CoreEngine::getSourceLineAddress(const QString &file,
+                                         int line,
+                                         QString *errorMessage) const
+{
+    ULONG64 rc = 0;
+    const HRESULT hr = m_cif.debugSymbols->GetOffsetByLineWide(line,
+                                                               const_cast<ushort*>(file.utf16()),
+                                                               &rc);
+    if (FAILED(hr)) {
+        *errorMessage = QString::fromLatin1("Unable to determine address of %1:%2 : %3").
+                        arg(file).arg(line).arg(msgComFailed("GetOffsetByLine", hr));
+        return 0;
+    }
+    return rc;
+}
+
 bool CoreEngine::autoDetectPath(QString *outPath,
                                 QStringList *checkedDirectories /* = 0 */)
 {

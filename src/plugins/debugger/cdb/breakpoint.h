@@ -42,7 +42,10 @@ QT_END_NAMESPACE
 namespace CdbCore {
 
 /* CDB Break point data structure with utilities to
- * apply to engine and to retrieve them from the engine and comparison. */
+ * apply to engine and to retrieve them from the engine and comparison.
+ * Can stop on 'sourcefile:line', function or address.
+ * When/How many times it triggers can be influenced by
+ * condition/ignorecount and 'oneshot'-flag. */
 
 struct BreakPoint
 {
@@ -79,10 +82,12 @@ struct BreakPoint
     static void clearNormalizeFileNameCache();
 
     QString fileName;       // short name of source file
-    QString condition;      // condition associated with breakpoint
-    unsigned long ignoreCount;    // ignore count associated with breakpoint
     int lineNumber;     // line in source file
     QString funcName;       // name of containing function
+    quint64 address;
+
+    QString condition;      // condition associated with breakpoint
+    unsigned long ignoreCount;    // ignore count associated with breakpoint
     bool oneShot;
     bool enabled;
 };
@@ -93,7 +98,6 @@ inline bool operator==(const BreakPoint& b1, const BreakPoint& b2)
     { return b1.compare(b2) == 0; }
 inline bool operator!=(const BreakPoint& b1, const BreakPoint& b2)
     { return b1.compare(b2) != 0; }
-
 }
 
 #endif // CDBCOREBREAKPOINTS_H

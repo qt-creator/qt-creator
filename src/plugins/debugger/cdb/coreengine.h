@@ -144,6 +144,8 @@ public:
     bool dissassemble(ULONG64 offset, unsigned long beforeLines, unsigned long afterLines,
                       QString *target, QString *errorMessage);
 
+    quint64 getSourceLineAddress(const QString &file, int line, QString *errorMessage) const;
+
     static bool autoDetectPath(QString *outPath,
                                QStringList *checkedDirectories = 0);
 

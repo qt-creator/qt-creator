@@ -50,8 +50,9 @@ namespace CdbCore {
 static const char sourceFileQuoteC = '`';
 
 BreakPoint::BreakPoint() :
-    ignoreCount(0),
     lineNumber(-1),
+    address(0),
+    ignoreCount(0),
     oneShot(false),
     enabled(true)
 {
@@ -59,13 +60,17 @@ BreakPoint::BreakPoint() :
 
 int BreakPoint::compare(const BreakPoint& rhs) const
 {
-    if (ignoreCount > rhs.ignoreCount)
-        return 1;
-    if (ignoreCount < rhs.ignoreCount)
-        return -1;
     if (lineNumber > rhs.lineNumber)
         return 1;
     if (lineNumber < rhs.lineNumber)
+        return -1;
+    if (address > rhs.address)
+        return 1;
+    if (address < rhs.address)
+        return -1;
+    if (ignoreCount > rhs.ignoreCount)
+        return 1;
+    if (ignoreCount < rhs.ignoreCount)
         return -1;
     if (oneShot && !rhs.oneShot)
         return 1;
@@ -98,11 +103,14 @@ void BreakPoint::clearExpressionData()
     condition.clear();
     funcName.clear();
     lineNumber = -1;
+    address = 0;
 }
 
 QDebug operator<<(QDebug dbg, const BreakPoint &bp)
 {
     QDebug nsp = dbg.nospace();
+    if (bp.address)
+        nsp << "0x" << QString::number(bp.address, 16) << ' ';
     if (!bp.fileName.isEmpty()) {
         nsp << "fileName='" << bp.fileName << ':' << bp.lineNumber << '\'';
     } else {
@@ -124,16 +132,26 @@ QString BreakPoint::expression() const
     // format the breakpoint expression (file/function and condition)
     QString rc;
     QTextStream str(&rc);
-    if (funcName.isEmpty()) {
-        const QChar sourceFileQuote = QLatin1Char(sourceFileQuoteC);
-        str << sourceFileQuote << QDir::toNativeSeparators(fileName) << QLatin1Char(':') << lineNumber << sourceFileQuote;
-    } else {
-        str << funcName;
-    }
-    if (!condition.isEmpty()) {
-        const QChar doubleQuote = QLatin1Char('"');
-        str << QLatin1Char(' ') << doubleQuote << condition << doubleQuote;
-    }
+    do {
+        if (address) {
+            str.setIntegerBase(16);
+            str << "0x" << address;
+            str.setIntegerBase(10);
+            break;
+        }
+        if (!fileName.isEmpty()) {
+            const QChar sourceFileQuote = QLatin1Char(sourceFileQuoteC);
+            str << sourceFileQuote << QDir::toNativeSeparators(fileName) << QLatin1Char(':')
+                    << lineNumber << sourceFileQuote;
+            break;
+        }
+        if (!funcName.isEmpty()) {
+            str << funcName;
+            break;
+        }
+    } while (false);
+    if (!condition.isEmpty())
+        str << " \"" << condition << '"';
     return rc;
 }
 
@@ -335,7 +353,22 @@ bool BreakPoint::parseExpression(const QString &expr)
     const QChar sourceFileQuote = QLatin1Char(sourceFileQuoteC);
     // Check for file or function
     int conditionPos = 0;
-    if (expr.startsWith(sourceFileQuote)) { // `c:\foo.cpp:523`[ "condition"]
+    if (expr.startsWith(QLatin1String("0x"))) { // Check address token
+        conditionPos = expr.indexOf(QLatin1Char(' '));
+        QString addressS;
+        if (conditionPos != -1) {
+            addressS = expr.mid(2, conditionPos - 2);
+            conditionPos++;
+        } else {
+            addressS = expr.mid(2);
+            conditionPos = expr.size();
+        }
+        addressS.remove(QLatin1Char('\'')); // 64bit separator
+        bool ok;
+        address = addressS.toULongLong(&ok, 16);
+        if (!ok)
+            return false;
+    } else if (expr.startsWith(sourceFileQuote)) { // `c:\foo.cpp:523`[ "condition"]
         // Do not fall for the drive letter colon here
         const int colonPos = expr.indexOf(QLatin1Char(':'), 3);
         if (colonPos == -1)

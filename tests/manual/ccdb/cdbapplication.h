@@ -67,14 +67,14 @@ private slots:
 private:
     bool parseOptions();
     void printFrame(const QString &arg);
-    bool queueBreakPoint(const QString &arg);
+    quint64 addQueuedBreakPoint(const QString &arg, QString *errorMessage);
 
     QString m_engineDll;
     QSharedPointer<CdbCore::CoreEngine> m_engine;
     QScopedPointer<CdbCore::StackTraceContext> m_stackTrace;
     CdbPromptThread *m_promptThread;
     QStringList m_queuedCommands;
-    QList<CdbCore::BreakPoint> m_queuedBreakPoints;
+    QStringList m_queuedBreakPoints;
 
     void *m_processHandle;
 };
