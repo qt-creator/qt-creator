@@ -37,7 +37,7 @@ Item {
     width: GridView.view.cellWidth
     height: style.cellHeight
 
-    signal itemClicked()
+    signal itemPressed()
     signal itemDragged()
 
     Rectangle {
@@ -116,12 +116,25 @@ Item {
         id: mouseRegion
         anchors.fill: parent
 
+        property bool reallyPressed: false
+        property int pressedX
+        property int pressedY
+
+        onPressed: {
+            reallyPressed = true
+            pressedX = mouse.x
+            pressedY = mouse.y
+            itemPressed()
+        }
         onPositionChanged: {
-            itemDragged();
+            if (reallyPressed &&
+                (Math.abs(mouse.x - pressedX) > 2 ||
+                 Math.abs(mouse.y - pressedY) > 2)) {
+                itemDragged()
+                reallyPressed = false;
+            }
         }
-        onClicked: {
-            itemClicked();
-        }
+        onReleased: reallyPressed = false
     }
 }
 

@@ -58,7 +58,7 @@ Column {
                 sectionView.itemSelected(itemLibId);
             }
 
-            onItemClicked: selectItem()
+            onItemPressed: selectItem()
             onItemDragged: {
                 selectItem();
                 sectionView.itemDragged(itemLibId);
