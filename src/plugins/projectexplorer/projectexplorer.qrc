@@ -28,5 +28,9 @@
         <file>images/targetremovebutton.png</file>
         <file>images/compile_error.png</file>
         <file>images/compile_warning.png</file>
+        <file>images/BuildSettings.png</file>
+        <file>images/RunSettings.png</file>
+        <file>images/EditorSettings.png</file>
+        <file>images/ProjectDependencies.png</file>
     </qresource>
 </RCC>

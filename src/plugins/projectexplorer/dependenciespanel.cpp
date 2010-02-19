@@ -259,7 +259,7 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
 
 DependenciesPanel::DependenciesPanel(SessionManager *session, Project *project) :
     m_widget(new DependenciesWidget(session, project)),
-    m_icon(":/projectexplorer/images/session.png")
+    m_icon(":/projectexplorer/images/ProjectDependencies.png")
 {
 }
 

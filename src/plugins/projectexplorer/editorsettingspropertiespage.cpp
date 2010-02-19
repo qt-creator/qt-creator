@@ -73,7 +73,7 @@ IPropertiesPanel *EditorSettingsPanelFactory::createPanel(Target *target)
 
 EditorSettingsPanel::EditorSettingsPanel(Project *project) :
     m_widget(new EditorSettingsWidget(project)),
-    m_icon(":/projectexplorer/images/rebuild.png")
+    m_icon(":/projectexplorer/images/EditorSettings.png")
 {
 }
 
