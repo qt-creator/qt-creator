@@ -278,7 +278,7 @@ bool Target::fromMap(const QVariantMap &map)
         if (i == activeConfiguration)
             setActiveBuildConfiguration(bc);
     }
-    if (buildConfigurations().isEmpty())
+    if (buildConfigurations().isEmpty() && buildConfigurationFactory())
         return false;
 
     int rcCount(map.value(QLatin1String(RC_COUNT_KEY), 0).toInt(&ok));
