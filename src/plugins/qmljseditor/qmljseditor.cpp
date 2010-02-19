@@ -1122,10 +1122,15 @@ static void appendExtraSelectionsForMessages(
         sel.cursor = c;
 
         sel.cursor.setPosition(c.position() + column - 1);
-        if (sel.cursor.atBlockEnd())
-            sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
-        else
-            sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+
+        if (d.loc.length == 0) {
+            if (sel.cursor.atBlockEnd())
+                sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+            else
+                sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        } else {
+            sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, d.loc.length);
+        }
 
         if (d.isWarning())
             sel.format.setUnderlineColor(Qt::darkYellow);
