@@ -776,10 +776,10 @@ Context::~Context()
 {
 }
 
-void Context::build(Node *node, QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot)
+void Context::build(const QList<AST::Node *> &astPath, Document::Ptr doc, const Snapshot &snapshot)
 {
     Link link(this, doc, snapshot);
-    link.scopeChainAt(doc, node);
+    link.scopeChainAt(doc, astPath);
 }
 
 Engine *Context::engine() const

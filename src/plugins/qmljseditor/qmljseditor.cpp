@@ -904,7 +904,7 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
 
     Interpreter::Engine interp;
     Interpreter::Context context(&interp);
-    context.build(semanticInfo.declaringMember(cursorPosition), semanticInfo.document, semanticInfo.snapshot);
+    context.build(semanticInfo.astPath(cursorPosition), semanticInfo.document, semanticInfo.snapshot);
 
     Evaluate check(&context);
     const Interpreter::Value *value = check.reference(node);

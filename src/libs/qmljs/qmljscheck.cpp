@@ -76,11 +76,10 @@ QList<DiagnosticMessage> Check::operator()()
     return _messages;
 }
 
-bool Check::visit(UiProgram *ast)
+bool Check::visit(UiProgram *)
 {
     // build the initial scope chain
-    if (ast->members && ast->members->member)
-        _link.scopeChainAt(_doc, ast->members->member);
+    _link.scopeChainAt(_doc);
 
     return true;
 }

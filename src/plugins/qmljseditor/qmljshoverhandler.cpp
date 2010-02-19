@@ -168,11 +168,11 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
     if (m_helpId.isEmpty() && m_toolTip.isEmpty()) {
         AST::Node *node = semanticInfo.nodeUnderCursor(pos);
         if (node && !(AST::cast<AST::StringLiteral *>(node) != 0 || AST::cast<AST::NumericLiteral *>(node) != 0)) {
-            AST::Node *declaringMember = semanticInfo.declaringMember(pos);
+            QList<AST::Node *> astPath = semanticInfo.astPath(pos);
 
             Interpreter::Engine interp;
             Interpreter::Context context(&interp);
-            context.build(declaringMember, qmlDocument, snapshot);
+            context.build(astPath, qmlDocument, snapshot);
 
             Evaluate check(&context);
             const Interpreter::Value *value = check(node);

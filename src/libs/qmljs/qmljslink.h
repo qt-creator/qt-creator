@@ -23,7 +23,7 @@ public:
     ~Link();
 
     // Get the scope chain for the currentObject inside doc.
-    void scopeChainAt(Document::Ptr doc, AST::Node *currentObject);
+    void scopeChainAt(Document::Ptr doc, const QList<AST::Node *> &astPath = QList<AST::Node *>());
 
 private:
     Interpreter::Engine *engine();

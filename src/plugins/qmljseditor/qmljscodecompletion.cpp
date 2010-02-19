@@ -670,8 +670,8 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
     Interpreter::Context context(&interp);
 
     // Set up the current scope chain.
-    AST::Node *declaringMember = semanticInfo.declaringMember(editor->position());
-    context.build(declaringMember, document, snapshot);
+    QList<AST::Node *> astPath = semanticInfo.astPath(editor->position());
+    context.build(astPath , document, snapshot);
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;
