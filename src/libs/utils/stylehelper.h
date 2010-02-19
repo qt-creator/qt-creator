@@ -52,11 +52,11 @@ public:
     static QPalette sidebarFontPalette(const QPalette &original);
 
     // This is our color table, all colors derive from baseColor
-    static QColor baseColor();
-    static QColor panelTextColor();
-    static QColor highlightColor();
-    static QColor shadowColor();
-    static QColor borderColor();
+    static QColor baseColor(bool lightColored = false);
+    static QColor panelTextColor(bool lightColored = false);
+    static QColor highlightColor(bool lightColored = false);
+    static QColor shadowColor(bool lightColored = false);
+    static QColor borderColor(bool lightColored = false);
     static QColor buttonTextColor() { return QColor(0x4c4c4c); }
     static QColor mergedColors(const QColor &colorA, const QColor &colorB, int factor = 50);
 
@@ -64,8 +64,8 @@ public:
     static void setBaseColor(const QColor &color);
 
     // Gradients used for panels
-    static void horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect);
-    static void verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect);
+    static void horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);
+    static void verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);
     static void menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect);
 
     // Pixmap cache should only be enabled for X11 due to slow gradients

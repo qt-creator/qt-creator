@@ -42,6 +42,10 @@ public:
     StyledBar(QWidget *parent = 0);
     void setSingleRow(bool singleRow);
     bool isSingleRow() const;
+
+    void setLightColored(bool lightColored);
+    bool isLightColored() const;
+
 protected:
     void paintEvent(QPaintEvent *event);
 };

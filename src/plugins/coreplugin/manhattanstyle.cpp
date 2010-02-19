@@ -96,6 +96,25 @@ bool panelWidget(const QWidget *widget)
     return false;
 }
 
+// Consider making this a QStyle state
+bool lightColored(const QWidget *widget)
+{
+    if (!widget)
+        return false;
+
+    // Don't style dialogs or explicitly ignored widgets
+    if (qobject_cast<const QDialog *>(widget->window()))
+        return false;
+
+    const QWidget *p = widget;
+    while (p) {
+        if (p->property("lightColored").toBool())
+            return true;
+        p = p->parentWidget();
+    }
+    return false;
+}
+
 class ManhattanStylePrivate
 {
 public:
@@ -293,9 +312,9 @@ void ManhattanStyle::unpolish(QApplication *app)
     d->style->unpolish(app);
 }
 
-QPalette panelPalette(const QPalette &oldPalette)
+QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
 {
-    QColor color = Utils::StyleHelper::panelTextColor();
+    QColor color = Utils::StyleHelper::panelTextColor(lightColored);
     QPalette pal = oldPalette;
     pal.setBrush(QPalette::All, QPalette::WindowText, color);
     pal.setBrush(QPalette::All, QPalette::ButtonText, color);
@@ -848,29 +867,41 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     case CE_ToolBar:
         {
             QString key;
-            key.sprintf("mh_toolbar %d %d %d", option->rect.width(), option->rect.height(), Utils::StyleHelper::baseColor().rgb());;
+            QColor keyColor = Utils::StyleHelper::baseColor(lightColored(widget));
+            key.sprintf("mh_toolbar %d %d %d", option->rect.width(), option->rect.height(), keyColor.rgb());;
 
             QPixmap pixmap;
             QPainter *p = painter;
             QRect rect = option->rect;
+            bool horizontal = option->state & State_Horizontal;
             if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
                 pixmap = QPixmap(option->rect.size());
                 p = new QPainter(&pixmap);
                 rect = QRect(0, 0, option->rect.width(), option->rect.height());
             }
 
-            bool horizontal = option->state & State_Horizontal;
-            // Map offset for global window gradient
-            QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
-                                                          widget->mapToGlobal(option->rect.topLeft());
-            QRect gradientSpan;
-            if (widget) {
-                gradientSpan = QRect(offset, widget->window()->size());
+            if (!Utils::StyleHelper::usePixmapCache() || !QPixmapCache::find(key, pixmap)) {
+                // Map offset for global window gradient
+                QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
+                                                              widget->mapToGlobal(option->rect.topLeft());
+                QRect gradientSpan;
+                if (widget) {
+                    gradientSpan = QRect(offset, widget->window()->size());
+                }
+                bool drawLightColored = lightColored(widget);
+                if (horizontal)
+                    Utils::StyleHelper::horizontalGradient(p, gradientSpan, rect, drawLightColored);
+                else
+                    Utils::StyleHelper::verticalGradient(p, gradientSpan, rect, drawLightColored);
             }
-            if (horizontal)
-                Utils::StyleHelper::horizontalGradient(p, gradientSpan, rect);
-            else
-                Utils::StyleHelper::verticalGradient(p, gradientSpan, rect);
+
+            if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
+                delete p;
+                QPixmapCache::insert(key, pixmap);
+            }
+            if (Utils::StyleHelper::usePixmapCache()) {
+                painter->drawPixmap(rect.topLeft(), pixmap);
+            }
 
             painter->setPen(Utils::StyleHelper::borderColor());
 
@@ -880,28 +911,20 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 // (needed for the find toolbar for instance)
                 QColor lighter(255, 255, 255, 40);
                 if (widget && widget->property("topBorder").toBool()) {
-                    p->drawLine(rect.topLeft(), rect.topRight());
-                    p->setPen(lighter);
-                    p->drawLine(rect.topLeft() + QPoint(0, 1), rect.topRight() + QPoint(0, 1));
+                    painter->drawLine(rect.topLeft(), rect.topRight());
+                    painter->setPen(lighter);
+                    painter->drawLine(rect.topLeft() + QPoint(0, 1), rect.topRight() + QPoint(0, 1));
                 } else {
-                    p->drawLine(rect.bottomLeft(), rect.bottomRight());
-                    p->setPen(lighter);
-                    p->drawLine(rect.topLeft(), rect.topRight());
+                    painter->drawLine(rect.bottomLeft(), rect.bottomRight());
+                    painter->setPen(lighter);
+                    painter->drawLine(rect.topLeft(), rect.topRight());
                 }
             } else {
-                p->drawLine(rect.topLeft(), rect.bottomLeft());
-                p->drawLine(rect.topRight(), rect.bottomRight());
-            }
-
-            if (Utils::StyleHelper::usePixmapCache() && !QPixmapCache::find(key, pixmap)) {
-                painter->drawPixmap(rect.topLeft(), pixmap);
-                p->end();
-                delete p;
-                QPixmapCache::insert(key, pixmap);
+                painter->drawLine(rect.topLeft(), rect.bottomLeft());
+                painter->drawLine(rect.topRight(), rect.bottomRight());
             }
         }
         break;
-
     default:
         d->style->drawControl(element, option, painter, widget);
         break;
@@ -964,9 +987,11 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             }
 
             QStyleOptionToolButton label = *toolbutton;
-            label.palette = panelPalette(option->palette);
+
+            label.palette = panelPalette(option->palette, lightColored(widget));
             int fw = pixelMetric(PM_DefaultFrameWidth, option, widget);
             label.rect = button.adjusted(fw, fw, -fw, -fw);
+
             drawControl(CE_ToolButtonLabel, &label, painter, widget);
 
             if (toolbutton->subControls & SC_ToolButtonMenu) {

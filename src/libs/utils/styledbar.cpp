@@ -44,6 +44,7 @@ StyledBar::StyledBar(QWidget *parent)
 {
     setProperty("panelwidget", true);
     setProperty("panelwidget_singlerow", true);
+    setProperty("lightColored", false);
 }
 
 void StyledBar::setSingleRow(bool singleRow)
@@ -54,6 +55,16 @@ void StyledBar::setSingleRow(bool singleRow)
 bool StyledBar::isSingleRow() const
 {
     return property("panelwidget_singlerow").toBool();
+}
+
+void StyledBar::setLightColored(bool lightColored)
+{
+    setProperty("lightColored", lightColored);
+}
+
+bool StyledBar::isLightColored() const
+{
+    return property("lightColored").toBool();
 }
 
 void StyledBar::paintEvent(QPaintEvent *event)

@@ -83,40 +83,51 @@ QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
     return palette;
 }
 
-QColor StyleHelper::panelTextColor()
+QColor StyleHelper::panelTextColor(bool lightColored)
 {
     //qApp->palette().highlightedText().color();
-    return Qt::white;
+    if (!lightColored)
+        return Qt::white;
+    else
+        return Qt::black;
 }
 
 QColor StyleHelper::m_baseColor(0x666666);
 
-QColor StyleHelper::baseColor()
+QColor StyleHelper::baseColor(bool lightColored)
 {
-    return m_baseColor;
+    if (!lightColored)
+        return m_baseColor;
+    else
+        return m_baseColor.lighter(230);
 }
 
-QColor StyleHelper::highlightColor()
+QColor StyleHelper::highlightColor(bool lightColored)
 {
-    QColor result = baseColor();
-    result.setHsv(result.hue(),
+    QColor result = baseColor(lightColored);
+    if (!lightColored)
+        result.setHsv(result.hue(),
                   clamp(result.saturation()),
                   clamp(result.value() * 1.16));
+    else
+        result.setHsv(result.hue(),
+                  clamp(result.saturation()),
+                  clamp(result.value() * 1.06));
     return result;
 }
 
-QColor StyleHelper::shadowColor()
+QColor StyleHelper::shadowColor(bool lightColored)
 {
-    QColor result = baseColor();
+    QColor result = baseColor(lightColored);
     result.setHsv(result.hue(),
                   clamp(result.saturation() * 1.1),
                   clamp(result.value() * 0.70));
     return result;
 }
 
-QColor StyleHelper::borderColor()
+QColor StyleHelper::borderColor(bool lightColored)
 {
-    QColor result = baseColor();
+    QColor result = baseColor(lightColored);
     result.setHsv(result.hue(),
                   result.saturation(),
                   result.value() / 2);
@@ -132,13 +143,15 @@ void StyleHelper::setBaseColor(const QColor &color)
     }
 }
 
-static void verticalGradientHelper(QPainter *p, const QRect &spanRect, const QRect &rect)
+static void verticalGradientHelper(QPainter *p, const QRect &spanRect, const QRect &rect, bool lightColored)
 {
-    QColor base = StyleHelper::baseColor();
+    QColor base = StyleHelper::baseColor(lightColored);
+    QColor highlight = StyleHelper::highlightColor(lightColored);
+    QColor shadow = StyleHelper::shadowColor(lightColored);
     QLinearGradient grad(spanRect.topRight(), spanRect.topLeft());
-    grad.setColorAt(0, StyleHelper::highlightColor());
+    grad.setColorAt(0, highlight);
     grad.setColorAt(0.301, base);
-    grad.setColorAt(1, StyleHelper::shadowColor());
+    grad.setColorAt(1, shadow);
     p->fillRect(rect, grad);
 
     QColor light(255, 255, 255, 80);
@@ -146,67 +159,74 @@ static void verticalGradientHelper(QPainter *p, const QRect &spanRect, const QRe
     p->drawLine(rect.topRight() - QPoint(1, 0), rect.bottomRight() - QPoint(1, 0));
 }
 
-void StyleHelper::verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
+void StyleHelper::verticalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored)
 {
     if (StyleHelper::usePixmapCache()) {
         QString key;
+        QColor keyColor = baseColor(lightColored);
         key.sprintf("mh_vertical %d %d %d %d %d",
             spanRect.width(), spanRect.height(), clipRect.width(),
-            clipRect.height(), StyleHelper::baseColor().rgb());;
+            clipRect.height(), keyColor.rgb());;
 
         QPixmap pixmap;
         if (!QPixmapCache::find(key, pixmap)) {
             pixmap = QPixmap(clipRect.size());
             QPainter p(&pixmap);
             QRect rect(0, 0, clipRect.width(), clipRect.height());
-            verticalGradientHelper(&p, spanRect, rect);
+            verticalGradientHelper(&p, spanRect, rect, lightColored);
             p.end();
             QPixmapCache::insert(key, pixmap);
         }
 
         painter->drawPixmap(clipRect.topLeft(), pixmap);
     } else {
-        verticalGradientHelper(painter, spanRect, clipRect);
+        verticalGradientHelper(painter, spanRect, clipRect, lightColored);
     }
 }
 
 static void horizontalGradientHelper(QPainter *p, const QRect &spanRect, const
-QRect &rect)
+QRect &rect, bool lightColored)
 {
-    QColor base = StyleHelper::baseColor();
+    QColor base = StyleHelper::baseColor(lightColored);
+    QColor highlight = StyleHelper::highlightColor(lightColored);
+    QColor shadow = StyleHelper::shadowColor(lightColored);
     QLinearGradient grad(rect.topLeft(), rect.bottomLeft());
-    grad.setColorAt(0, StyleHelper::highlightColor().lighter(120));
+    grad.setColorAt(0, highlight.lighter(120));
     if (rect.height() == StyleHelper::navigationWidgetHeight()) {
-        grad.setColorAt(0.4, StyleHelper::highlightColor());
+        grad.setColorAt(0.4, highlight);
         grad.setColorAt(0.401, base);
     }
-    grad.setColorAt(1, StyleHelper::shadowColor());
+    grad.setColorAt(1, shadow);
     p->fillRect(rect, grad);
 
     QLinearGradient shadowGradient(spanRect.topLeft(), spanRect.topRight());
-    shadowGradient.setColorAt(0, QColor(0, 0, 0, 30));
-    QColor highlight = StyleHelper::highlightColor().lighter(130);
-    highlight.setAlpha(100);
-    shadowGradient.setColorAt(0.7, highlight);
-    shadowGradient.setColorAt(1, QColor(0, 0, 0, 40));
+        shadowGradient.setColorAt(0, QColor(0, 0, 0, 30));
+    QColor lighterHighlight;
+    if (!lightColored)
+        lighterHighlight = highlight.lighter(130);
+    else
+        lighterHighlight = highlight.lighter(90);
+    lighterHighlight.setAlpha(100);
+    shadowGradient.setColorAt(0.7, lighterHighlight);
+        shadowGradient.setColorAt(1, QColor(0, 0, 0, 40));
     p->fillRect(rect, shadowGradient);
-
 }
 
-void StyleHelper::horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
+void StyleHelper::horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored)
 {
     if (StyleHelper::usePixmapCache()) {
         QString key;
+        QColor keyColor = baseColor(lightColored);
         key.sprintf("mh_horizontal %d %d %d %d %d",
             spanRect.width(), spanRect.height(), clipRect.width(),
-            clipRect.height(), StyleHelper::baseColor().rgb());
+            clipRect.height(), keyColor.rgb());
 
         QPixmap pixmap;
         if (!QPixmapCache::find(key, pixmap)) {
             pixmap = QPixmap(clipRect.size());
             QPainter p(&pixmap);
             QRect rect = QRect(0, 0, clipRect.width(), clipRect.height());
-            horizontalGradientHelper(&p, spanRect, rect);
+            horizontalGradientHelper(&p, spanRect, rect, lightColored);
             p.end();
             QPixmapCache::insert(key, pixmap);
         }
@@ -214,7 +234,7 @@ void StyleHelper::horizontalGradient(QPainter *painter, const QRect &spanRect, c
         painter->drawPixmap(clipRect.topLeft(), pixmap);
 
     } else {
-        horizontalGradientHelper(painter, spanRect, clipRect);
+        horizontalGradientHelper(painter, spanRect, clipRect, lightColored);
     }
 }
 
