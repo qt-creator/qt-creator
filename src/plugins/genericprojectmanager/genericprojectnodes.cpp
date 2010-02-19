@@ -90,16 +90,20 @@ void GenericProjectNode::refresh()
 
     QStringList filePaths;
     QHash<QString, QStringList> filesInPath;
+    const QString base = QFileInfo(path()).absolutePath();
+    const QDir baseDir(base);
 
     foreach (const QString &absoluteFileName, files) {
         QFileInfo fileInfo(absoluteFileName);
         const QString absoluteFilePath = fileInfo.path();
+        QString relativeFilePath;
 
-        QString baseDir = QFileInfo(path()).absolutePath();
-        if (! absoluteFilePath.startsWith(baseDir))
-            continue; // `file' is not part of the project.
-
-        const QString relativeFilePath = absoluteFilePath.mid(baseDir.length() + 1);
+        if (absoluteFilePath.startsWith(base)) {
+            relativeFilePath = absoluteFilePath.mid(base.length() + 1);
+        } else {
+            // `file' is not part of the project.
+            relativeFilePath = baseDir.relativeFilePath(absoluteFilePath);
+        }
 
         if (! filePaths.contains(relativeFilePath))
             filePaths.append(relativeFilePath);
@@ -128,8 +132,6 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
     if (! end)
         return 0;
 
-    QString baseDir = QFileInfo(path()).path();
-
     QString folderName;
     for (int i = 0; i < end; ++i) {
         folderName.append(components.at(i));
@@ -144,6 +146,7 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
     else if (FolderNode *folder = m_folderByName.value(folderName))
         return folder;
 
+    const QString baseDir = QFileInfo(path()).path();
     FolderNode *folder = new FolderNode(baseDir + QLatin1Char('/') + folderName);
     folder->setDisplayName(component);
     m_folderByName.insert(folderName, folder);
