@@ -49,7 +49,7 @@ SimpleToken TokenUnderCursor::operator()(const QTextCursor &cursor, QTextBlock *
     tokenize.setSkipComments(false);
 
     QTextBlock block = cursor.block();
-    int column = cursor.columnNumber();
+    int column = cursor.position() - cursor.block().position();
 
     _text = block.text();
     _tokens = tokenize(_text, previousBlockState(block));
