@@ -35,6 +35,12 @@ void TargetSettingsWidget::addTarget(const QString &name)
     updateTargetSelector();
 }
 
+void TargetSettingsWidget::insertTarget(int index, const QString &name)
+{
+    m_targetSelector->insertTarget(index, name);
+    updateTargetSelector();
+}
+
 void TargetSettingsWidget::markActive(int index)
 {
     m_targetSelector->markActive(index);
@@ -43,6 +49,7 @@ void TargetSettingsWidget::markActive(int index)
 void TargetSettingsWidget::removeTarget(int index)
 {
     m_targetSelector->removeTarget(index);
+    updateTargetSelector();
 }
 
 void TargetSettingsWidget::setCurrentIndex(int index)

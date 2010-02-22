@@ -1,5 +1,7 @@
 #include "targetselector.h"
 
+#include <utils/qtcassert.h>
+
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QFontMetrics>
@@ -29,20 +31,29 @@ TargetSelector::TargetSelector(QWidget *parent) :
 
 void TargetSelector::addTarget(const QString &name)
 {
+    insertTarget(m_targets.count(), name);
+}
+
+void TargetSelector::insertTarget(int index, const QString &name)
+{
+    QTC_ASSERT(index >= 0 && index <= m_targets.count(), return);
+
     Target target;
     target.name = name;
     target.currentSubIndex = 0;
     target.isActive = false;
-    m_targets.append(target);
+
+    m_targets.insert(index, target);
+
     if (m_currentTargetIndex == -1)
-        setCurrentIndex(m_targets.size() - 1);
+        setCurrentIndex(index);
     update();
 }
 
 void TargetSelector::markActive(int index)
 {
-    if (index < 0 || index >= m_targets.count())
-        return;
+    QTC_ASSERT(index >= 0 && index < m_targets.count(), return);
+
     for (int i = 0; i < m_targets.count(); ++i)
         m_targets[i].isActive = (i == index);
     update();
@@ -50,9 +61,13 @@ void TargetSelector::markActive(int index)
 
 void TargetSelector::removeTarget(int index)
 {
+    QTC_ASSERT(index >= 0 && index < m_targets.count(), return);
+
     m_targets.removeAt(index);
-    if (m_currentTargetIndex == index)
-        setCurrentIndex(m_targets.size() - 1);
+    if (m_currentTargetIndex > index)
+        setCurrentIndex(m_currentTargetIndex - 1);
+    if (m_currentTargetIndex == m_targets.count())
+        setCurrentIndex(m_currentTargetIndex - 1);
     update();
 }
 
@@ -61,6 +76,9 @@ void TargetSelector::setCurrentIndex(int index)
     if (index < -1 ||
         index >= m_targets.count() ||
         index == m_currentTargetIndex)
+        return;
+
+    if (index == -1 && !m_targets.isEmpty())
         return;
 
     m_currentTargetIndex = index;
@@ -84,6 +102,7 @@ void TargetSelector::setCurrentSubIndex(int subindex)
 {
     if (subindex < 0 ||
         subindex >= 2 ||
+        m_currentTargetIndex < 0 ||
         subindex == m_targets.at(m_currentTargetIndex).currentSubIndex)
         return;
     m_targets[m_currentTargetIndex].currentSubIndex = subindex;
