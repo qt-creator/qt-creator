@@ -240,6 +240,7 @@ QVariantMap QmlProjectRunConfiguration::toMap() const
     map.insert(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY), m_qmlViewerArgs);
     map.insert(QLatin1String(Constants::QML_MAINSCRIPT_KEY),  m_scriptFile);
     map.insert(QLatin1String(Constants::QML_DEBUG_SERVER_PORT_KEY), m_debugServerPort);
+    map.insert(QLatin1String(Constants::QML_DEBUG_SERVER_ADDRESS_KEY), m_debugServerAddress);
     return map;
 }
 
@@ -249,6 +250,7 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
     m_qmlViewerArgs = map.value(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY)).toString();
     m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), tr("<Current File>")).toString();
     m_debugServerPort = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
+    m_debugServerAddress = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_ADDRESS_KEY), QLatin1String("127.0.0.1")).toString();
 
     return RunConfiguration::fromMap(map);
 }
