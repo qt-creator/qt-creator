@@ -766,34 +766,27 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                     expandBuiltinMacro(identifierToken, spell);
 
                 else {
-                    if (spell != "Q_PROPERTY"
-                        && spell != "Q_INVOKABLE"
-                        && spell != "Q_ENUMS"
-                        && spell != "Q_FLAGS") {
+                    if (Macro *m = env->resolve(spell)) {
+                        if (! m->isFunctionLike()) {
+                            if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
+                                continue;
 
-                        // ### FIXME: shouldn't this be T_Q_PROPERTY & friends?
+                            // the macro expansion generated something that looks like
+                            // a function-like macro.
+                        }
 
-                        if (Macro *m = env->resolve(spell)) {
-                            if (! m->isFunctionLike()) {
-                                if (0 == (m = processObjectLikeMacro(identifierToken, spell, m)))
-                                    continue;
+                        // `m' is function-like macro.
+                        if (_dot->is(T_LPAREN)) {
+                            QVector<MacroArgumentReference> actuals;
+                            collectActualArguments(&actuals);
 
-                                // the macro expansion generated something that looks like
-                                // a function-like macro.
-                            }
-
-                            // `m' is function-like macro.
-                            if (_dot->is(T_LPAREN)) {
-                                QVector<MacroArgumentReference> actuals;
-                                collectActualArguments(&actuals);
-
-                                if (_dot->is(T_RPAREN)) {
-                                    expandFunctionLikeMacro(identifierToken, m, actuals);
-                                    continue;
-                                }
+                            if (_dot->is(T_RPAREN)) {
+                                expandFunctionLikeMacro(identifierToken, m, actuals);
+                                continue;
                             }
                         }
                     }
+
                     // it's not a function or object-like macro.
                     out(spell);
                 }
@@ -1389,6 +1382,12 @@ bool Preprocessor::isQtReservedWord(const QByteArray &macroId) const
     else if (size == 3 && macroId.at(0) == 'Q' && macroId == "Q_D")
         return true;
     else if (size == 3 && macroId.at(0) == 'Q' && macroId == "Q_Q")
+        return true;
+    else if (size == 10 && macroId.at(0) == 'Q' && macroId == "Q_PROPERTY")
+        return true;
+    else if (size == 7 && macroId.at(0) == 'Q' && macroId == "Q_ENUMS")
+        return true;
+    else if (size == 7 && macroId.at(0) == 'Q' && macroId == "Q_FLAGS")
         return true;
     else if (size == 6 && macroId.at(0) == 'S' && macroId == "SIGNAL")
         return true;
