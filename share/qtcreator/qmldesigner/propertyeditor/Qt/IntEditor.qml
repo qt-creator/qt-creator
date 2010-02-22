@@ -25,12 +25,18 @@ QWidget {
             backendValue: (intEditor.backendValue === undefined ||
                            intEditor.backendValue === null)
             ? null : intEditor.backendValue;
+			
+			property var backendValueValue: (intEditor.backendValue === undefined ||
+                           intEditor.backendValue === null)
+            ? null : intEditor.backendValue.value;
+			
+			onBackendValueValueChanged: {
+			   intSlider.value = intEditor.backendValue.value;
+			}
 
             minimum: minimumValue
             maximum: maximumValue
-            baseStateFlag: (intEditor.backendValue === undefined ||
-                            intEditor.backendValue === null)
-            ? null : intEditor.baseStateFlag;
+            baseStateFlag: intEditor.baseStateFlag
         }
 
 
@@ -38,6 +44,7 @@ QWidget {
             visible: intEditor.slider
             id: sliderWidget
             QSlider {
+				id: intSlider
                 y: sliderWidget.height / 2 - 12
                 width: sliderWidget.width
                 height: 24
@@ -46,15 +53,14 @@ QWidget {
                 minimum: minimumValue
                 maximum: maximumValue
                 singleStep: step
-
-                value: (backendValue == undefined
-                        || backendValue == null
-                        || backendValue.value == undefined
-                || backendValue.value == null) ? 0 : backendValue.value
+											
+				
                 onValueChanged: {
                     if (backendValue != undefined && backendValue != null)
                         backendValue.value = value;
                 }
+
+               
 				
 				onSliderPressed: {
 				    backendValue.lock();
