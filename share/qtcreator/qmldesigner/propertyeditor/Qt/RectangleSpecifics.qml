@@ -34,7 +34,7 @@ QWidget {
                     id: borderWidth;
                     backendValue: backendValues.border_width === undefined ? 0 : backendValues.border_width
 
-                    caption: "Pen Width"
+                    caption: "Border Width"
                     baseStateFlag: isBaseState;
 
                     step: 1;
