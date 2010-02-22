@@ -704,9 +704,9 @@ void MaemoRunConfigurationFactory::setupRunConfiguration(MaemoRunConfiguration *
 void MaemoRunConfigurationFactory::projectAdded(
     ProjectExplorer::Project *project)
 {
-    disconnect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)), this,
+    connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)), this,
         SLOT(targetAdded(ProjectExplorer::Target*)));
-    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)), this,
+    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)), this,
         SLOT(targetRemoved(ProjectExplorer::Target*)));
 
     foreach (Target *target, project->targets())
@@ -716,9 +716,9 @@ void MaemoRunConfigurationFactory::projectAdded(
 void MaemoRunConfigurationFactory::projectRemoved(
     ProjectExplorer::Project *project)
 {
-    connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)), this,
+    disconnect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)), this,
         SLOT(targetAdded(ProjectExplorer::Target*)));
-    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)), this,
+    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)), this,
         SLOT(targetRemoved(ProjectExplorer::Target*)));
 
     foreach (Target *target, project->targets())
