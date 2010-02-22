@@ -97,6 +97,7 @@ private:
     QStackedWidget *m_centralWidget;
     QWidget *m_noTargetLabel;
     PanelsWidget *m_panelWidgets[2];
+    QList<Target *> m_targets;
 };
 
 } // namespace Internal

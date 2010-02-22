@@ -172,7 +172,7 @@ void TargetSettingsPanelWidget::setupUi()
 
     foreach (Target *t, m_project->targets())
         targetAdded(t);
-    m_selector->markActive(m_project->targets().indexOf(m_project->activeTarget()));
+    m_selector->markActive(m_targets.indexOf(m_project->activeTarget()));
 
     connect(m_selector, SIGNAL(currentIndexChanged(int,int)),
             this, SLOT(currentTargetIndexChanged(int,int)));
@@ -182,7 +182,7 @@ void TargetSettingsPanelWidget::setupUi()
             this, SLOT(removeTarget()));
 
     if (m_project->targets().count())
-        currentTargetIndexChanged(m_project->targets().indexOf(m_project->activeTarget()), 0);
+        currentTargetIndexChanged(m_targets.indexOf(m_project->activeTarget()), 0);
 }
 
 void TargetSettingsPanelWidget::currentTargetIndexChanged(int targetIndex, int subIndex)
@@ -194,7 +194,7 @@ void TargetSettingsPanelWidget::currentTargetIndexChanged(int targetIndex, int s
     m_selector->setCurrentIndex(targetIndex);
     m_selector->setCurrentSubIndex(subIndex);
 
-    Target *target(m_project->targets().at(targetIndex));
+    Target *target(m_targets.at(targetIndex));
 
     // Target was not actually changed:
     if (m_currentIndex == targetIndex) {
@@ -246,7 +246,7 @@ void TargetSettingsPanelWidget::addTarget()
 void TargetSettingsPanelWidget::removeTarget()
 {
     int index = m_selector->currentIndex();
-    Target *t = m_project->targets().at(index);
+    Target *t = m_targets.at(index);
     // TODO: Ask before removal?
     m_project->removeTarget(t);
 }
@@ -256,7 +256,15 @@ void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
 
-    m_selector->addTarget(target->displayName());
+    for (int pos = 0; pos <= m_targets.count(); ++pos) {
+        if (m_targets.count() == pos ||
+            m_targets.at(pos)->displayName() > target->displayName()) {
+            m_targets.insert(pos, target);
+            m_selector->insertTarget(pos, target->displayName());
+            break;
+        }
+    }
+
     m_selector->setAddButtonEnabled(m_project->possibleTargetIds().count() > 0);
     m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
 }
@@ -266,9 +274,11 @@ void TargetSettingsPanelWidget::aboutToRemoveTarget(ProjectExplorer::Target *tar
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
 
-    int index(m_project->targets().indexOf(target));
+    int index(m_targets.indexOf(target));
     if (index < 0)
         return;
+    m_targets.removeAt(index);
+
     m_selector->removeTarget(index);
     m_selector->setAddButtonEnabled(m_project->possibleTargetIds().count() > 0);
     m_selector->setRemoveButtonEnabled(m_project->targets().count() > 2); // target is not yet removed!
@@ -279,6 +289,6 @@ void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *tar
     Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
 
-    int index(m_project->targets().indexOf(target));
+    int index(m_targets.indexOf(target));
     m_selector->markActive(index);
 }
