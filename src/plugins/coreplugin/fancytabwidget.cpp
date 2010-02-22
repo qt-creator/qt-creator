@@ -251,17 +251,15 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->drawLine(rect.bottomLeft(), rect.bottomRight());
         painter->setPen(QColor(0, 0, 0, 40));
         painter->drawLine(rect.topLeft(), rect.bottomLeft());
-        painter->setPen(QColor(0, 0, 0, 10));
-        painter->drawLine(rect.topLeft() + QPoint(1, 1), rect.bottomLeft() + QPoint(1, -1));
 
         //highlights
-        painter->setPen(QColor(255, 255, 255, 90));
-        painter->drawLine(rect.topLeft() + QPoint(1, -2), rect.topRight() - QPoint(0,2));
-        painter->drawLine(rect.bottomLeft() + QPoint(1, 1), rect.bottomRight() + QPoint(0,1));
-        painter->setPen(QColor(255, 255, 255, 160));
-        painter->drawLine(rect.topLeft() + QPoint(1, 0), rect.topRight());
+        painter->setPen(QColor(255, 255, 255, 50));
+        painter->drawLine(rect.topLeft() + QPoint(0, -2), rect.topRight() - QPoint(0,2));
+        painter->drawLine(rect.bottomLeft() + QPoint(0, 1), rect.bottomRight() + QPoint(0,1));
+        painter->setPen(QColor(255, 255, 255, 40));
+        painter->drawLine(rect.topLeft() + QPoint(0, 0), rect.topRight());
         painter->drawLine(rect.topRight() + QPoint(0, 1), rect.bottomRight() - QPoint(0, 1));
-        painter->drawLine(rect.bottomLeft() + QPoint(1,-1), rect.bottomRight()-QPoint(0,1));
+        painter->drawLine(rect.bottomLeft() + QPoint(0,-1), rect.bottomRight()-QPoint(0,1));
     }
 
     QString tabText(this->tabText(tabIndex));
@@ -453,10 +451,6 @@ void FancyTabWidget::paintEvent(QPaintEvent *event)
     QColor light = Utils::StyleHelper::sidebarHighlight();
     painter.setPen(light);
     painter.drawLine(rect.bottomLeft(), rect.bottomRight());
-    painter.setPen(QColor(0, 0, 0, 20));
-    painter.drawLine(rect.topLeft() + QPoint(1, 0), rect.bottomLeft() + QPoint(1, 0));
-
-    setContentsMargins(0, 0, 0, 1);
 }
 
 void FancyTabWidget::insertCornerWidget(int pos, QWidget *widget)
