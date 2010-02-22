@@ -44,6 +44,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
+#include <QtCore/QMutexLocker>
 
 #include <QtXml/QXmlStreamReader>
 
@@ -1125,56 +1126,85 @@ MimeDatabase::~MimeDatabase()
 
 MimeType MimeDatabase::findByType(const QString &typeOrAlias) const
 {
-    return m_d->findByType(typeOrAlias);
+    m_mutex.lock();
+    const MimeType rc = m_d->findByType(typeOrAlias);
+    m_mutex.unlock();
+    return rc;
 }
 
-MimeType MimeDatabase::findByFile(const QFileInfo &f) const
+MimeType MimeDatabase::findByFileUnlocked(const QFileInfo &f) const
 {
     return m_d->findByFile(f);
 }
 
+MimeType MimeDatabase::findByFile(const QFileInfo &f) const
+{
+    m_mutex.lock();
+    const MimeType rc = findByFileUnlocked(f);
+    m_mutex.unlock();
+    return rc;
+}
+
 bool MimeDatabase::addMimeType(const  MimeType &mt)
 {
-    return m_d->addMimeType(mt);
+    m_mutex.lock();
+    const bool rc = m_d->addMimeType(mt);
+    m_mutex.unlock();
+    return rc;
 }
 
 bool MimeDatabase::addMimeTypes(const QString &fileName, QString *errorMessage)
 {
-    return m_d->addMimeTypes(fileName, errorMessage);
+    m_mutex.lock();
+    const bool rc = m_d->addMimeTypes(fileName, errorMessage);
+    m_mutex.unlock();
+    return rc;
 }
 
 bool MimeDatabase::addMimeTypes(QIODevice *device, QString *errorMessage)
 {
-    return m_d->addMimeTypes(device, errorMessage);
+    m_mutex.lock();
+    const bool rc = m_d->addMimeTypes(device, errorMessage);
+    m_mutex.unlock();
+    return rc;
 }
 
 QStringList MimeDatabase::suffixes() const
 {
-    return m_d->suffixes();
+    m_mutex.lock();
+    const QStringList rc = m_d->suffixes();
+    m_mutex.unlock();
+    return rc;
 }
 
 QStringList MimeDatabase::filterStrings() const
 {
-    return m_d->filterStrings();
+    m_mutex.lock();
+    const  QStringList rc = m_d->filterStrings();
+    m_mutex.unlock();
+    return rc;
 }
 
 QString MimeDatabase::preferredSuffixByType(const QString &type) const
 {
     if (const MimeType mt = findByType(type))
-        return mt.preferredSuffix();
+        return mt.preferredSuffix(); // already does Mutex locking
     return QString();
 }
 
 QString MimeDatabase::preferredSuffixByFile(const QFileInfo &f) const
 {
     if (const MimeType mt = findByFile(f))
-        return mt.preferredSuffix();
+        return mt.preferredSuffix(); // already does Mutex locking
     return QString();
 }
 
 bool MimeDatabase::setPreferredSuffix(const QString &typeOrAlias, const QString &suffix)
 {
-    return m_d->setPreferredSuffix(typeOrAlias, suffix);
+    m_mutex.lock();
+    const bool rc = m_d->setPreferredSuffix(typeOrAlias, suffix);
+    m_mutex.unlock();
+    return rc;
 }
 
 QDebug operator<<(QDebug d, const MimeDatabase &mt)

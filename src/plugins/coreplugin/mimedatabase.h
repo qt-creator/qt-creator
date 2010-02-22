@@ -35,6 +35,7 @@
 #include <QtCore/QSharedDataPointer>
 #include <QtCore/QSharedPointer>
 #include <QtCore/QByteArray>
+#include <QtCore/QMutex>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
@@ -186,7 +187,7 @@ private:
 /* A Mime data base to which the plugins can add the mime types they handle.
  * When adding a "text/plain" to it, the mimetype will receive a magic matcher
  * that checks for text files that do not match the globs by heuristics.
- *
+ * The class is protected by a QMutex and can therefore be accessed by threads.
  * A good testcase is to run it over '/usr/share/mime/<*>/<*>.xml' on Linux. */
 
 class CORE_EXPORT MimeDatabase
@@ -203,8 +204,15 @@ public:
 
     // Returns a mime type or Null one if none found
     MimeType findByType(const QString &type) const;
+
     // Returns a mime type or Null one if none found
     MimeType findByFile(const QFileInfo &f) const;
+    // Convenience that mutex-locks the DB and calls a function
+    // of the signature 'void f(const MimeType &, const QFileInfo &, const QString &)'
+    // for each filename of a sequence. This avoids locking the DB for each
+    // single file.
+    template <class Iterator, typename Function>
+        inline void findByFile(Iterator i1, const Iterator &i2, Function f) const;
 
     // Convenience
     QString preferredSuffixByType(const QString &type) const;
@@ -219,8 +227,22 @@ public:
     friend QDebug operator<<(QDebug d, const MimeDatabase &mt);
 
 private:
+    MimeType findByFileUnlocked(const QFileInfo &f) const;
+
     MimeDatabasePrivate *m_d;
+    mutable QMutex m_mutex;
 };
+
+template <class Iterator, typename Function>
+    void MimeDatabase::findByFile(Iterator i1, const Iterator &i2, Function f) const
+{
+    m_mutex.lock();
+    for ( ; i1 != i2; ++i1) {
+        const QFileInfo fi(*i1);
+        f(findByFileUnlocked(fi), fi, *i1);
+    }
+    m_mutex.unlock();
+}
 
 } // namespace Core
 
