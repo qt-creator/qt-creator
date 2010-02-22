@@ -471,14 +471,11 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    bool hasUserFile = activeTarget() &&
-                       activeTarget()->activeBuildConfiguration();
+    bool hasUserFile = activeTarget();
     if (!hasUserFile) {
-        CMakeTarget *t(0);
-        if (!activeTarget())
-            t = new CMakeTarget(this);
-        else
-            t = activeTarget();
+        CMakeTarget *t = targetFactory()->create(this, QLatin1String(DEFAULT_CMAKE_TARGET_ID));
+        Q_ASSERT(t);
+        Q_ASSERT(t->activeBuildConfiguration());
 
         // Ask the user for where he wants to build it
         // and the cmake command line
