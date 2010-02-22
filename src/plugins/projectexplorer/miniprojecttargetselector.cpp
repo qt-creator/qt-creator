@@ -101,9 +101,10 @@ void ProjectListWidget::setBuildComboPopup()
 
 void ProjectListWidget::setTarget(int index)
 {
-    QList<Target *> targets(m_project->targets());
-    if (index >= 0 && index < targets.count())
-        m_project->setActiveTarget(targets.at(index));
+    MiniTargetWidget *mtw = qobject_cast<MiniTargetWidget *>(itemWidget(item(index)));
+    if (!mtw)
+        return;
+    m_project->setActiveTarget(mtw->target());
 }
 
 MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
@@ -406,7 +407,20 @@ void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool 
     ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
 
     QListWidgetItem *lwi = new QListWidgetItem();
-    plw->addItem(lwi);
+
+    // Sort on insert:
+    for (int idx = 0; idx <= plw->count(); ++idx) {
+        QListWidgetItem *itm(plw->item(idx));
+        MiniTargetWidget *mtw(qobject_cast<MiniTargetWidget *>(plw->itemWidget(itm)));
+        if (!mtw && idx < plw->count())
+            continue;
+        if (idx == plw->count() ||
+            mtw->target()->displayName() > target->displayName()) {
+            plw->insertItem(idx, lwi);
+            break;
+        }
+    }
+
     MiniTargetWidget *targetWidget = new MiniTargetWidget(target);
     connect(targetWidget, SIGNAL(changed()), this, SLOT(updateAction()));
     targetWidget->installEventFilter(this);
