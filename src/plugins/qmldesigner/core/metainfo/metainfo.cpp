@@ -44,6 +44,7 @@
 #include <QPair>
 #include <QtAlgorithms>
 #include <QMetaProperty>
+#include <QmlEngine>
 #include <QmlMetaType>
 #include <private/qmlgraphicsanchors_p.h>
 
@@ -106,6 +107,11 @@ void MetaInfoPrivate::clear()
 
 void MetaInfoPrivate::initialize()
 {
+    // make sure QmlGraphicsItemsModule gets initialized, that is
+    // QmlGraphicsItemsModule::defineModule called
+    QmlEngine engine;
+    Q_UNUSED(engine);
+
     parseQmlTypes();
     parseNonQmlTypes();
     parseValueTypes();
