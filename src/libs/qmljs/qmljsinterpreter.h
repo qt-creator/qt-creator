@@ -229,9 +229,8 @@ public:
 
     struct QmlComponentChain
     {
-        QmlComponentChain()
-            : rootObject(0), ids(0)
-        {}
+        QmlComponentChain();
+        ~QmlComponentChain();
 
         QList<QmlComponentChain *> instantiatingComponents;
         const ObjectValue *rootObject;
@@ -239,6 +238,7 @@ public:
         const ObjectValue *ids;
 
         void add(QList<const ObjectValue *> *list) const;
+        void clear();
     };
 
     const ObjectValue *globalScope;

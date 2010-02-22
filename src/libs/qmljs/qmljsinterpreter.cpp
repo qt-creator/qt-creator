@@ -731,6 +731,25 @@ ScopeChain::ScopeChain()
 {
 }
 
+ScopeChain::QmlComponentChain::QmlComponentChain()
+    : rootObject(0), ids(0)
+{
+}
+
+ScopeChain::QmlComponentChain::~QmlComponentChain()
+{
+    qDeleteAll(instantiatingComponents);
+}
+
+void ScopeChain::QmlComponentChain::clear()
+{
+    qDeleteAll(instantiatingComponents);
+    instantiatingComponents.clear();
+    rootObject = 0;
+    functionScopes.clear();
+    ids = 0;
+}
+
 void ScopeChain::QmlComponentChain::add(QList<const ObjectValue *> *list) const
 {
     foreach (QmlComponentChain *parent, instantiatingComponents)

@@ -48,6 +48,7 @@ void Link::scopeChainAt(Document::Ptr doc, const QList<Node *> &astPath)
     if (doc->qmlProgram()) {
         _context->setLookupMode(Context::QmlLookup);
 
+        scopeChain.qmlComponentScope.clear();
         makeComponentChain(doc, &scopeChain.qmlComponentScope, &componentScopes);
 
         if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
