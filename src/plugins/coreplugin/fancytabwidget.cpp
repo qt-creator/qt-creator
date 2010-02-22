@@ -236,10 +236,6 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     bool selected = (tabIndex == m_currentIndex);
     bool enabled = isTabEnabled(tabIndex);
 
-#ifdef Q_WS_MAC
-    hover = false; // Do not hover on Mac
-#endif
-
     if (selected) {
         //background
         painter->save();
