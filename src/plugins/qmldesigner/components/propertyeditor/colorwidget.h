@@ -112,7 +112,10 @@ void setHue(int newHue)
 
 int hue() const
 {
-    return m_color.hue();
+    int retval = m_color.hsvHue();
+    if (retval<0) retval=0;
+    if (retval>359) retval=359;
+    return retval;
 }
 
 void setColor(const QString &colorStr)
