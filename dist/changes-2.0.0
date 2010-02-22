@@ -16,14 +16,25 @@ General
 
 Editing
    * Text based search and replace in multiple files
+   * Added option to disable scroll wheel zooming
+   * Added option to indent braces (aligning them with the indented block)
+   * Added option to choose tabs or spaces based on surrounding code
+   * Added Join Lines action (Ctrl+J)
+   * Code completion is now only first-letter case-sensitive by default
    * Open with "System Editor"
+   * Fixed missing semicolon after } when creating unnamed enumeration
+   * Fixed auto indent for C style coments
 
 C++ Support
+   * Recognize *.cu as C files
 
 Project support
    * Reworked support for developing for different targets:
       * Reworked project settings
       * Reworked selection of active configuration
+   * Expand environment variables in Generic Project file lists
+   * Preserve the original paths of the Generic Project file list when
+     adding/removing files
 
 Debugging
    * CDB: Fixed bug in location marker
@@ -32,11 +43,17 @@ Debugging
 
 Help
 
+QML Support
+  * Runtime QML errors become links to the location of the error
+
 Platform Specific
 
 Mac
    * Show build error count in Dock icon
    * Handle the OBJECTIVE_HEADERS qmake variable
+
+Linux (GNOME and KDE)
+   * Dropping files on the editor now opens them instead of inserting a url
 
 Symbian Target
    * Deploying shows real progress bar
@@ -51,9 +68,9 @@ Symbian Target
    * Add support for command line arguments
 
 Maemo Target
-   * new feature
-   * built on top of MADDE package
-   * supports building for, deploying to and running on N900 devices
+   * New feature
+   * Built on top of MADDE package
+   * Supports building for, deploying to and running on N900 devices
 
 Version control plugins
    * Made menu actions more consistent, added some missing actions
@@ -77,3 +94,10 @@ Wizards
    * Improved summary page, added ordering, simplified application wizards
    * Added wizards for unit tests and classes based on QSharedData
    * Introduced project directory setting
+
+Additional credits go to:
+   * Roopesh Chander (choosing spaces or tabs based on surrounding code)
+   * Jeffrey Baumes (added option to indent braces)
+   * Roquette (fixed missing semicolon)
+   * Sergey Demchenko (fixed auto indent for C style coments)
+   * Falco Hirschenberger (added Join Lines action)
