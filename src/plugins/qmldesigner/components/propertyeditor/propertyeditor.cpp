@@ -65,8 +65,8 @@ PropertyEditor::NodeType::NodeType(const QUrl &qmlFile, PropertyEditor *property
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
 
-    m_view->setContentResizable(true);
-    m_view->setUrl(qmlFile);
+    m_view->setResizeMode(QmlView::SizeRootObjectToView);
+    m_view->setSource(qmlFile);
 
     connect(&m_backendValuesPropertyMap, SIGNAL(valueChanged(const QString&)), propertyEditor, SLOT(changeValue(const QString&)));
 }

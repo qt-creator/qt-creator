@@ -33,10 +33,10 @@
 #include <QDir>
 #include <QMetaType>
 #include <QUrl>
-#include <QmlDomDocument>
 #include <QmlEngine>
 #include <QmlMetaType>
 #include <QFileSystemWatcher>
+#include <private/qmldom_p.h>
 
 enum { debug = false };
 

@@ -37,9 +37,10 @@
 #include "texttomodelmerger.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
-#include <QmlDomDocument>
+
 #include <QmlEngine>
 #include <QSet>
+#include <private/qmldom_p.h>
 
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;

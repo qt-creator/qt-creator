@@ -81,7 +81,9 @@ bool QmlViewNodeInstance::isQmlView() const
 
 void QmlViewNodeInstance::addItem(QmlGraphicsItem *item)
 {
-    item->setParent(view()->root());
+    QmlGraphicsItem *rootItem = qobject_cast<QmlGraphicsItem *>(view()->rootObject());
+    Q_ASSERT_X(rootItem, Q_FUNC_INFO, "root item is QmlGraphicsItem based");
+    item->setParent(rootItem);
 }
 
 }

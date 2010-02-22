@@ -32,12 +32,12 @@
 
 #include "corelib_global.h"
 
+#include <metainfo.h>
+
 #include <QObject>
 #include <QString>
 #include <QUrl>
-#include <QmlDomImport>
-
-#include <metainfo.h>
+#include <private/qmldom_p.h>
 
 namespace QmlDesigner {
 

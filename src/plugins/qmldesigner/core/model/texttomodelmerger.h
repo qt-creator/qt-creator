@@ -35,7 +35,7 @@
 #include "nodelistproperty.h"
 #include "modelnode.h"
 
-#include <QmlDomObject>
+#include <private/qmldom_p.h>
 
 namespace QmlDesigner {
 

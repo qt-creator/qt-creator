@@ -147,19 +147,13 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     m_d->m_ui.ItemLibraryTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
 
-    const QString qmlSourcePath(":/ItemLibrary/qml/ItemsView.qml");
-    QFile qmlSourceFile(qmlSourcePath);
-    qmlSourceFile.open(QFile::ReadOnly);
-    Q_ASSERT(qmlSourceFile.isOpen());
-    QString qmlSource(qmlSourceFile.readAll());
-
     m_d->m_itemsView = new QmlView(this);
-    m_d->m_itemsView->setQml(qmlSource, qmlSourcePath);
+    m_d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
     m_d->m_itemsView->setAttribute(Qt::WA_OpaquePaintEvent);
     m_d->m_itemsView->setAttribute(Qt::WA_NoSystemBackground);
     m_d->m_itemsView->setAcceptDrops(false);
     m_d->m_itemsView->setFocusPolicy(Qt::ClickFocus);
-    m_d->m_itemsView->setContentResizable(true);
+    m_d->m_itemsView->setResizeMode(QmlView::SizeRootObjectToView);
     m_d->m_ui.ItemLibraryGridLayout->addWidget(m_d->m_itemsView, 0, 0);
 
     m_d->m_itemLibraryModel = new Internal::ItemLibraryModel(QmlEnginePrivate::getScriptEngine(m_d->m_itemsView->engine()), this);
@@ -170,9 +164,10 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
 
     m_d->m_itemsView->execute();
 
-    connect(m_d->m_itemsView->root(), SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
-    connect(m_d->m_itemsView->root(), SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
-    connect(this, SIGNAL(expandAllItems()), m_d->m_itemsView->root(), SLOT(expandAll()));
+    QmlGraphicsItem *rootItem = qobject_cast<QmlGraphicsItem*>(m_d->m_itemsView->rootObject());
+    connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
+    connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
+    connect(this, SIGNAL(expandAllItems()), rootItem, SLOT(expandAll()));
 
     connect(m_d->m_ui.lineEdit, SIGNAL(textChanged(QString)), this, SLOT(setSearchFilter(QString)));
     m_d->m_ui.lineEdit->setDragEnabled(false);
@@ -267,7 +262,8 @@ void ItemLibrary::startDragAndDrop(int itemLibId)
     drag->setPreview(QPixmap::fromImage(image));
     drag->setMimeData(mimeData);
 
-    connect(m_d->m_itemsView->root(), SIGNAL(stopDragAndDrop()), drag, SLOT(stopDrag()));
+    QmlGraphicsItem *rootItem = qobject_cast<QmlGraphicsItem*>(m_d->m_itemsView->rootObject());
+    connect(rootItem, SIGNAL(stopDragAndDrop()), drag, SLOT(stopDrag()));
 
     drag->exec();
 }

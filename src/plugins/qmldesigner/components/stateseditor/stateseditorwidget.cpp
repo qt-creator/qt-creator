@@ -91,14 +91,14 @@ StatesEditorWidgetPrivate::StatesEditorWidgetPrivate(StatesEditorWidget *q) :
 
 int StatesEditorWidgetPrivate::currentIndex() const
 {
-    Q_ASSERT(listView->root());
-    Q_ASSERT(listView->root()->property("currentStateIndex").isValid());
-    return listView->root()->property("currentStateIndex").toInt();
+    Q_ASSERT(listView->rootObject());
+    Q_ASSERT(listView->rootObject()->property("currentStateIndex").isValid());
+    return listView->rootObject()->property("currentStateIndex").toInt();
 }
 
 void StatesEditorWidgetPrivate::setCurrentIndex(int i)
 {
-    listView->root()->setProperty("currentStateIndex", i);
+    listView->rootObject()->setProperty("currentStateIndex", i);
 }
 
 bool StatesEditorWidgetPrivate::validStateName(const QString &name) const
@@ -148,10 +148,6 @@ StatesEditorWidget::StatesEditorWidget(QWidget *parent):
         QWidget(parent),
         m_d(new Internal::StatesEditorWidgetPrivate(this))
 {
-    QFile qmlFile(":/stateseditor/stateslist.qml");
-    qmlFile.open(QFile::ReadOnly);
-    Q_ASSERT(qmlFile.isOpen());
-
     m_d->statesEditorModel = new Internal::StatesEditorModel(this);
     m_d->listView = new QmlView(this);
 
@@ -162,26 +158,24 @@ StatesEditorWidget::StatesEditorWidget(QWidget *parent):
     layout->setSpacing(0);
     layout->addWidget(m_d->listView.data());
 
-    QString qmlSource(qmlFile.readAll());
-    m_d->listView->setQml(qmlSource,":/stateseditor/stateslist.qml");
+    m_d->listView->setSource(QUrl("qrc:/stateseditor/stateslist.qml"));
 
-
-    m_d->listView->setContentResizable(true);
+    m_d->listView->setResizeMode(QmlView::SizeRootObjectToView);
 
     m_d->listView->rootContext()->setContextProperty(QLatin1String("statesEditorModel"), m_d->statesEditorModel.data());
 
     m_d->listView->execute();
 
-    if (!m_d->listView->root())
-        throw InvalidQmlSourceException(__LINE__, __FUNCTION__, __FILE__, qmlSource);
+    if (!m_d->listView->rootObject())
+        throw InvalidQmlSourceException(__LINE__, __FUNCTION__, __FILE__);
 
     m_d->listView->setFocusPolicy(Qt::ClickFocus);
     QApplication::sendEvent(m_d->listView->scene(), new QEvent(QEvent::WindowActivate));
 
-    connect(m_d->listView->root(), SIGNAL(currentStateIndexChanged()), m_d, SLOT(currentStateChanged()));
-    connect(m_d->listView->root(), SIGNAL(createNewState()), m_d, SLOT(addState()));
-    connect(m_d->listView->root(), SIGNAL(duplicateCurrentState()), m_d, SLOT(duplicateCurrentState()));
-    connect(m_d->listView->root(), SIGNAL(deleteCurrentState()), m_d, SLOT(removeState()));
+    connect(m_d->listView->rootObject(), SIGNAL(currentStateIndexChanged()), m_d, SLOT(currentStateChanged()));
+    connect(m_d->listView->rootObject(), SIGNAL(createNewState()), m_d, SLOT(addState()));
+    connect(m_d->listView->rootObject(), SIGNAL(duplicateCurrentState()), m_d, SLOT(duplicateCurrentState()));
+    connect(m_d->listView->rootObject(), SIGNAL(deleteCurrentState()), m_d, SLOT(removeState()));
 
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
 

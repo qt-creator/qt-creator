@@ -32,6 +32,7 @@
 
 #include <QWeakPointer>
 #include <QmlView>
+#include <QmlGraphicsItem>
 
 #include "graphicsviewnodeinstance.h"
 
