@@ -827,7 +827,7 @@ int CppCodeCompletion::startCompletionInternal(TextEditor::BaseTextEditor *edit,
     }
 
 
-    QList<LookupItem> results = typeOfExpression(expression, thisDocument, lastVisibleSymbol);
+    QList<LookupItem> results = typeOfExpression(expression, thisDocument, lastVisibleSymbol, TypeOfExpression::Preprocess);
     LookupContext context = typeOfExpression.lookupContext();
 
     if (results.isEmpty()) {
