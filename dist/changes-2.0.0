@@ -10,6 +10,9 @@ git log --cherry-pick --pretty=oneline v1.3.1...v2.0.0
 General
    * The Output mode was replaced by the functionality to maximize
      the output panes
+   * File dialog is now opened in current directory
+   * File system view improvements (context menu)
+   * Options dialog: Added filters and ordering
 
 Editing
    * Text based search and replace in multiple files
@@ -23,6 +26,9 @@ Project support
       * Reworked selection of active configuration
 
 Debugging
+   * CDB: Fixed bug in location marker
+   * CDB: Fixed handling of mixed-case file names correctly by normalizing file
+     names
 
 Help
 
@@ -38,8 +44,36 @@ Symbian Target
      for the active configuration
    * Respect the EPOCROOT environment variable and the default device
      if no S60 SDK is explicitly given in the Qt Version preferences
+   * Prevent launching of debugger while application is running and vice
+     versa
+   * Handle unplugging of device
+   * Handle application crash when running, print proper error message
+   * Add support for command line arguments
 
 Maemo Target
    * new feature
    * built on top of MADDE package
    * supports building for, deploying to and running on N900 devices
+
+Version control plugins
+   * Made menu actions more consistent, added some missing actions
+   * Added "Annotate previous" accessible from context menu of annotation
+     view, added "annotate" action to context menu of file log
+   * Added command locator to be able to trigger menu actions from the
+     locator.
+   * Added setting for time-outs
+   * Added a plugin for Mercurial
+   * Diff highlighter: Mark trailing whitespace in added lines
+   * Support creating repositories from the project wizards (git, Mercurial)
+   * git: Added support for stashes
+   * git: Support adding files with intend-to-add in file wizards including
+     check on version of git
+   * git: Expand commit template relative to repository
+   * git: Added setting for whitespace in diff/blame
+   * Subversion: Add parent directories correctly when adding new files
+   * Added "Open file" context menu action to log pane
+
+Wizards
+   * Improved summary page, added ordering, simplified application wizards
+   * Added wizards for unit tests and classes based on QSharedData
+   * Introduced project directory setting
