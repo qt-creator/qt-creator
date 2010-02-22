@@ -745,22 +745,27 @@ void ScopeChain::QmlComponentChain::add(QList<const ObjectValue *> *list) const
 
 void ScopeChain::update()
 {
-    all.clear();
+    _all.clear();
 
-    all += globalScope;
+    _all += globalScope;
 
     foreach (QmlComponentChain *parent, qmlComponentScope.instantiatingComponents)
-        parent->add(&all);
+        parent->add(&_all);
 
     if (qmlComponentScope.rootObject)
-        all += qmlComponentScope.rootObject;
-    all += qmlScopeObjects;
-    all += qmlComponentScope.functionScopes;
+        _all += qmlComponentScope.rootObject;
+    _all += qmlScopeObjects;
+    _all += qmlComponentScope.functionScopes;
     if (qmlComponentScope.ids)
-        all += qmlComponentScope.ids;
+        _all += qmlComponentScope.ids;
     if (qmlTypes)
-        all += qmlTypes;
-    all += jsScopes;
+        _all += qmlTypes;
+    _all += jsScopes;
+}
+
+QList<const ObjectValue *> ScopeChain::all() const
+{
+    return _all;
 }
 
 
@@ -819,7 +824,7 @@ void Context::setTypeEnvironment(const QmlJS::Document *doc, const ObjectValue *
 
 const Value *Context::lookup(const QString &name)
 {
-    QList<const ObjectValue *> scopes = _scopeChain.all;
+    QList<const ObjectValue *> scopes = _scopeChain.all();
     for (int index = scopes.size() - 1; index != -1; --index) {
         const ObjectValue *scope = scopes.at(index);
 

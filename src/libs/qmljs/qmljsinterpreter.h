@@ -249,7 +249,10 @@ public:
 
     // rebuilds the flat list of all scopes
     void update();
-    QList<const ObjectValue *> all;
+    QList<const ObjectValue *> all() const;
+
+private:
+    QList<const ObjectValue *> _all;
 };
 
 class QMLJS_EXPORT Context

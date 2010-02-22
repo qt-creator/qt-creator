@@ -189,7 +189,7 @@ public:
         _properties.clear();
         _currentObject = 0;
 
-        foreach (const Interpreter::ObjectValue *scope, _context->scopeChain().all)
+        foreach (const Interpreter::ObjectValue *scope, _context->scopeChain().all())
             enumerateProperties(scope);
 
         return _properties;
