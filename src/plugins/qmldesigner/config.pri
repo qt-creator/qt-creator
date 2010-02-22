@@ -1,5 +1,3 @@
-contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
-
 # MOC_DIR = moc
 DEFINES += QT_NO_STYLE_S60
 
