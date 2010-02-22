@@ -53,6 +53,7 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
+							backendValue: backendValues.anchors_topMargin
                         }
 
                         PlaceHolder {
@@ -93,6 +94,7 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
+							backendValue: backendValues.anchors_bottomMargin
                         }
 
                         PlaceHolder {
@@ -132,6 +134,7 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
+							backendValue: backendValues.anchors_leftMargin
                         }
 
                         PlaceHolder {
@@ -171,6 +174,7 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
+							backendValue: backendValues.anchors_rightMargin
                         }
 
                         PlaceHolder {
