@@ -19,11 +19,11 @@ GroupBox {
             IntEditor {
                 id: spacing;
                 backendValue: backendValues.spacing;
-                caption: "Spacing:   "
+                caption: "Spacing"
                 baseStateFlag: isBaseState;
                 step: 1;
                 minimumValue: 0;
-                maximumValue: 2000;
+                maximumValue: 200;
             }
     }
 }
