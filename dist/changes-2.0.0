@@ -8,12 +8,19 @@ git clone git://gitorious.org/qt-creator/qt-creator.git
 git log --cherry-pick --pretty=oneline v1.3.1...v2.0.0
 
 General
+   * The Output mode was replaced by the functionality to maximize
+     the output panes
 
 Editing
+   * Text based search and replace in multiple files
+   * Open with "System Editor"
 
 C++ Support
 
 Project support
+   * Reworked support for developing for different targets:
+      * Reworked project settings
+      * Reworked selection of active configuration
 
 Debugging
 
@@ -22,8 +29,15 @@ Help
 Platform Specific
 
 Mac
+   * Show build error count in Dock icon
+   * Handle the OBJECTIVE_HEADERS qmake variable
 
 Symbian Target
+   * Deploying shows real progress bar
+   * Show the connection state of devices in the selector
+     for the active configuration
+   * Respect the EPOCROOT environment variable and the default device
+     if no S60 SDK is explicitly given in the Qt Version preferences
 
 Maemo Target
    * new feature
