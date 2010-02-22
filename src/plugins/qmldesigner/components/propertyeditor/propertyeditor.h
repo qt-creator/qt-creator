@@ -99,6 +99,7 @@ protected:
     void transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName);
     void setupPane(const QString &typeName);
     void stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState);
+    void setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value);
 
 private slots:
     void reloadQml();
