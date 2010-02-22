@@ -1,8 +1,8 @@
 include($$PWD/filemanager/filemanager.pri)
 include (../config.pri)
 QT += script \
-    declarative \
-    opengl
+    declarative
+
 DEFINES += TEST_EXPORTS
 INCLUDEPATH += $$PWD \
     $$PWD/include
