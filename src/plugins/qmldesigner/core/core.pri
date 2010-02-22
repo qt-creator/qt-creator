@@ -1,5 +1,6 @@
 include($$PWD/filemanager/filemanager.pri)
 include (../config.pri)
+
 QT += script \
     declarative
 
@@ -7,7 +8,6 @@ DEFINES += TEST_EXPORTS
 INCLUDEPATH += $$PWD \
     $$PWD/include
 DEPENDPATH += $$PWD $$PWD/include
-INCLUDEPATH += $$QT_SOURCE_TREE/src/declarative/qml
 SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/instances/nodeinstanceview.cpp \
     $$PWD/model/rewriterview.cpp \
@@ -190,10 +190,9 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/instances/nodeinstancesignalspy.h
 
 contains(CONFIG, plugin) {
-# If core.pri has been included in the qmldesigner plugin
-SOURCES += $$PWD/model/basetexteditmodifier.cpp
-HEADERS +=     $$PWD/include/basetexteditmodifier.h
-
+  # If core.pri has been included in the qmldesigner plugin
+  SOURCES += $$PWD/model/basetexteditmodifier.cpp
+  HEADERS += $$PWD/include/basetexteditmodifier.h
 }
 
 DISTFILES += $$PWD/metafile/widget.metafile
