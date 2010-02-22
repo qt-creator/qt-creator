@@ -232,24 +232,6 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     m_centralWidget = new QStackedWidget(this);
     viewLayout->addWidget(m_centralWidget);
 
-    // no projects label:
-    m_noprojectLabel = new QWidget;
-    QVBoxLayout *noprojectLayout = new QVBoxLayout;
-    noprojectLayout->setMargin(0);
-    QLabel *label = new QLabel(m_noprojectLabel);
-    label->setText(tr("No project loaded."));
-    {
-        QFont f = label->font();
-        f.setPointSizeF(f.pointSizeF() * 1.4);
-        f.setBold(true);
-        label->setFont(f);
-    }
-    label->setMargin(10);
-    label->setAlignment(Qt::AlignTop);
-    noprojectLayout->addWidget(label);
-    noprojectLayout->addStretch(10);
-    m_centralWidget->addWidget(m_noprojectLabel);
-
     // connects:
     connect(m_tabWidget, SIGNAL(currentIndexChanged(int,int)),
             this, SLOT(showProperties(int,int)));
@@ -314,11 +296,9 @@ void ProjectWindow::saveStatus()
 
 void ProjectWindow::showProperties(int index, int subIndex)
 {
-    if (index < 0) {
-        m_centralWidget->setCurrentWidget(m_noprojectLabel);
-        removeCurrentWidget();
+    if (index < 0 || index >= m_tabIndexToProject.count())
         return;
-    }
+
     Project *project = m_tabIndexToProject.at(index);
 
     // Set up custom panels again:

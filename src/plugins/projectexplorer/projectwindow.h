@@ -97,7 +97,6 @@ private:
     void removeCurrentWidget();
 
     DoubleTabWidget *m_tabWidget;
-    QWidget *m_noprojectLabel;
     QStackedWidget *m_centralWidget;
     QWidget *m_currentWidget;
     IPropertiesPanel *m_currentPanel;

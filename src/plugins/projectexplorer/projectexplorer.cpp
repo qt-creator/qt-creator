@@ -183,6 +183,8 @@ struct ProjectExplorerPluginPrivate {
     Internal::ProjectExplorerSettings m_projectExplorerSettings;
     Internal::ProjectWelcomePage *m_welcomePlugin;
     Internal::ProjectWelcomePageWidget *m_welcomePage;
+
+    Core::BaseMode * m_projectsMode;
 };
 
 ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
@@ -191,7 +193,8 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_currentProject(0),
     m_currentNode(0),
     m_delayedRunConfiguration(0),
-    m_debuggingRunControl(0)
+    m_debuggingRunControl(0),
+    m_projectsMode(0)
 {
 }
 
@@ -263,14 +266,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QList<int> pecontext;
     pecontext << core->uniqueIDManager()->uniqueIdentifier(Constants::C_PROJECTEXPLORER);
 
-    Core::BaseMode *mode = new Core::BaseMode;
-    mode->setDisplayName(tr("Projects"));
-    mode->setId(QLatin1String(Constants::MODE_SESSION));
-    mode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
-    mode->setPriority(Constants::P_MODE_SESSION);
-    mode->setWidget(d->m_proWindow);
-    mode->setContext(QList<int>() << pecontext);
-    addAutoReleasedObject(mode);
+    d->m_projectsMode = new Core::BaseMode;
+    d->m_projectsMode->setDisplayName(tr("Projects"));
+    d->m_projectsMode->setId(QLatin1String(Constants::MODE_SESSION));
+    d->m_projectsMode->setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Project.png")));
+    d->m_projectsMode->setPriority(Constants::P_MODE_SESSION);
+    d->m_projectsMode->setWidget(d->m_proWindow);
+    d->m_projectsMode->setContext(QList<int>() << pecontext);
+    d->m_projectsMode->setEnabled(session()->startupProject());
+    addAutoReleasedObject(d->m_projectsMode);
     d->m_proWindow->layout()->addWidget(new Core::FindToolBarPlaceHolder(d->m_proWindow));
 
     d->m_buildManager = new BuildManager(this);
@@ -902,6 +906,7 @@ void ProjectExplorerPlugin::shutdown()
 {
     d->m_proWindow->shutdown(); // disconnect from session
     d->m_session->clear();
+    d->m_projectsMode = 0;
 //    d->m_proWindow->saveConfigChanges();
 }
 
@@ -1668,6 +1673,9 @@ void ProjectExplorerPlugin::startupProjectChanged()
     Project *project = startupProject();
     if (project == previousStartupProject)
         return;
+
+    if (d->m_projectsMode)
+        d->m_projectsMode->setEnabled(project);
 
     if (previousStartupProject) {
         disconnect(previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
