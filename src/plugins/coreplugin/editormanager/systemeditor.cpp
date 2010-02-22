@@ -33,8 +33,6 @@
 #include <QtCore/QUrl>
 #include <QtGui/QDesktopServices>
 
-#include <QtDebug>
-
 using namespace Core;
 using namespace Core::Internal;
 
@@ -64,7 +62,6 @@ bool SystemEditor::startEditor(const QString &fileName, QString *errorMessage)
     QUrl url;
     url.setPath(fileName);
     url.setScheme(QLatin1String("file"));
-    qDebug() << url;
     if (!QDesktopServices::openUrl(url)) {
         if (errorMessage)
             *errorMessage = tr("Could not open url %1.").arg(url.toString());
