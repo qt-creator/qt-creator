@@ -43,5 +43,6 @@
         <file>images/unlocked.png</file>
         <file>images/extension.png</file>
         <file>images/darkclosebutton.png</file>
+        <file>editormanager/BinFiles.mimetypes.xml</file>
     </qresource>
 </RCC>

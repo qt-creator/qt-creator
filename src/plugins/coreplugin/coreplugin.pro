@@ -79,7 +79,8 @@ SOURCES += mainwindow.cpp \
     dialogs/iwizard.cpp \
     settingsdatabase.cpp \
     eventfilteringmainwindow.cpp \
-    imode.cpp
+    imode.cpp \
+    editormanager/systemeditor.cpp
 HEADERS += mainwindow.h \
     editmode.h \
     tabpositionindicator.h \
@@ -156,7 +157,8 @@ HEADERS += mainwindow.h \
     fileiconprovider.h \
     mimedatabase.h \
     settingsdatabase.h \
-    eventfilteringmainwindow.h
+    eventfilteringmainwindow.h \
+    editormanager/systemeditor.h
 FORMS += dialogs/newdialog.ui \
     dialogs/shortcutsettings.ui \
     dialogs/saveitemsdialog.ui \
@@ -181,4 +183,4 @@ else:unix {
     images.path = /share/pixmaps
     INSTALLS += images
 }
-OTHER_FILES += Core.pluginspec
+OTHER_FILES += Core.pluginspec editormanager/BinFiles.mimetypes.xml

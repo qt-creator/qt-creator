@@ -483,8 +483,6 @@ bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMes
     Core::ICore *core = Core::ICore::instance();
     if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/bineditor/ImageViewer.mimetypes.xml"), errorMessage))
         return false;
-    if (!core->mimeDatabase()->addMimeTypes(QLatin1String(":/bineditor/BinEditor.mimetypes.xml"), errorMessage))
-        return false;
 
     connect(core, SIGNAL(contextAboutToChange(Core::IContext *)),
         this, SLOT(updateCurrentEditor(Core::IContext *)));

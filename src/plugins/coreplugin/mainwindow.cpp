@@ -61,6 +61,7 @@
 #include "statusbarwidget.h"
 #include "basefilewizard.h"
 #include "ioutputpane.h"
+#include "editormanager/systemeditor.h"
 
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/settingsdatabase.h>
@@ -134,6 +135,7 @@ MainWindow::MainWindow() :
     m_activeContext(0),
     m_generalSettings(new GeneralSettings),
     m_shortcutSettings(new ShortcutSettings),
+    m_systemEditor(new SystemEditor),
     m_focusToEditor(0),
     m_newAction(0),
     m_openAction(0),
@@ -236,12 +238,15 @@ MainWindow::~MainWindow()
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     pm->removeObject(m_shortcutSettings);
     pm->removeObject(m_generalSettings);
+    pm->removeObject(m_systemEditor);
     delete m_messageManager;
     m_messageManager = 0;
     delete m_shortcutSettings;
     m_shortcutSettings = 0;
     delete m_generalSettings;
     m_generalSettings = 0;
+    delete m_systemEditor;
+    m_systemEditor = 0;
     delete m_settings;
     m_settings = 0;
     delete m_printer;
@@ -286,6 +291,9 @@ bool MainWindow::init(QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
+    if (!mimeDatabase()->addMimeTypes(QLatin1String(":/core/editormanager/BinFiles.mimetypes.xml"), errorMessage))
+        return false;
+
     ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     pm->addObject(m_coreImpl);
     m_statusBarManager->init();
@@ -294,6 +302,8 @@ bool MainWindow::init(QString *errorMessage)
 
     pm->addObject(m_generalSettings);
     pm->addObject(m_shortcutSettings);
+    pm->addObject(m_systemEditor);
+
 
     // Add widget to the bottom, we create the view here instead of inside the
     // OutputPaneManager, since the StatusBarManager needs to be initialized before

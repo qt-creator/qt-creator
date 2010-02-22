@@ -14,5 +14,5 @@ SOURCES += bineditorplugin.cpp \
 
 RESOURCES += bineditor.qrc
 
-OTHER_FILES += BinEditor.pluginspec BinEditor.mimetypes.xml \
+OTHER_FILES += BinEditor.pluginspec \
     ImageViewer.mimetypes.xml

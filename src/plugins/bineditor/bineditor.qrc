@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/bineditor">
-        <file>BinEditor.mimetypes.xml</file>
         <file>ImageViewer.mimetypes.xml</file>
     </qresource>
 </RCC>

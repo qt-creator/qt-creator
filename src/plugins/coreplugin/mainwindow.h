@@ -76,6 +76,7 @@ class ProgressManagerPrivate;
 class ShortcutSettings;
 class StatusBarManager;
 class VersionDialog;
+class SystemEditor;
 
 class CORE_EXPORT MainWindow : public EventFilteringMainWindow
 {
@@ -204,6 +205,7 @@ private:
 
     GeneralSettings *m_generalSettings;
     ShortcutSettings *m_shortcutSettings;
+    SystemEditor *m_systemEditor;
 
     // actions
     QShortcut *m_focusToEditor;
