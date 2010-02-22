@@ -44,8 +44,14 @@ AddTargetDialog::AddTargetDialog(Project *project, QWidget *parent) :
     ui->setupUi(this);
 
     foreach (const QString &id, m_project->possibleTargetIds()) {
-        ui->targetComboBox->addItem(m_project->targetFactory()->displayNameForId(id),
-                                    id);
+        for (int i = 0; i <= ui->targetComboBox->count(); ++i) {
+            const QString displayName = m_project->targetFactory()->displayNameForId(id);
+            if (i == ui->targetComboBox->count() ||
+                ui->targetComboBox->itemText(i) > displayName) {
+                ui->targetComboBox->insertItem(i, displayName, id);
+                break;
+            }
+        }
     }
     ui->targetComboBox->setCurrentIndex(0);
     ui->targetComboBox->setEnabled(ui->targetComboBox->count() > 1);
