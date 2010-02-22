@@ -781,7 +781,7 @@ Context::~Context()
 {
 }
 
-void Context::build(const QList<AST::Node *> &astPath, Document::Ptr doc, const Snapshot &snapshot)
+void Context::build(const QList<QmlJS::AST::Node *> &astPath, QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot)
 {
     Link link(this, doc, snapshot);
     link.scopeChainAt(doc, astPath);
