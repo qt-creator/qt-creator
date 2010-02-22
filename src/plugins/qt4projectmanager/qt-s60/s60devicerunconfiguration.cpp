@@ -671,12 +671,6 @@ void S60DeviceRunControlBase::start()
         return;
     }
 
-    if (!createPackageFileFromTemplate(&errorMessage)) {
-        error(this, errorMessage);
-        emit finished();
-        return;
-    }
-
     QStringList makeSisArgs;
     switch (m_toolChain) {
     case ProjectExplorer::ToolChain::GCCE_GNUPOC:
@@ -687,6 +681,12 @@ void S60DeviceRunControlBase::start()
                     << (QLatin1String("QT_SIS_KEY=") + signSisKey());
         break;
     default:
+        // ABLD: Create from template, replacing paths
+        if (!createPackageFileFromTemplate(&errorMessage)) {
+            error(this, errorMessage);
+            emit finished();
+            return;
+        }
         makeSisArgs.push_back(m_packageFile);
         break;
     }
@@ -737,29 +737,29 @@ void S60DeviceRunControlBase::readStandardOutput()
     emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
 }
 
+// ABLD: Create "foo_<platform>_<target>.pkg" and replace variables for the target
+// path pointing into the EPOC directories.
 bool S60DeviceRunControlBase::createPackageFileFromTemplate(QString *errorMessage)
 {
     if (debug)
         qDebug() << "Creating package file" << m_packageFilePath << " from " << m_packageTemplateFile
                 << m_symbianPlatform << m_symbianTarget;
     QFile packageTemplate(m_packageTemplateFile);
-    if (!packageTemplate.open(QIODevice::ReadOnly)) {
+    if (!packageTemplate.open(QIODevice::ReadOnly|QIODevice::Text)) {
         *errorMessage = tr("Could not read template package file '%1'").arg(QDir::toNativeSeparators(m_packageTemplateFile));
         return false;
     }
-    QString contents = packageTemplate.readAll();
+    QString contents = QString::fromLocal8Bit(packageTemplate.readAll());
     packageTemplate.close();
     contents.replace(QLatin1String("$(PLATFORM)"), m_symbianPlatform);
     contents.replace(QLatin1String("$(TARGET)"), m_symbianTarget);
     QFile packageFile(m_packageFilePath);
-    if (!packageFile.open(QIODevice::WriteOnly)) {
+    if (!packageFile.open(QIODevice::WriteOnly|QIODevice::Text)) {
         *errorMessage = tr("Could not write package file '%1'").arg(QDir::toNativeSeparators(m_packageFilePath));
         return false;
     }
     packageFile.write(contents.toLocal8Bit());
     packageFile.close();
-    if (debug > 1)
-        qDebug() << contents;
     return true;
 }
 
