@@ -25,6 +25,9 @@ QWidget { //This is a special spinBox that does color coding for states
 
     Script {
         function evaluate() {
+		    print("evaluate")
+			print(baseStateFlag)
+			print(backendValue.isInModel)
             if (baseStateFlag) {
                 if (backendValue != null && backendValue.isInModel)
                     box.setStyleSheet("color: white;");
@@ -38,6 +41,18 @@ QWidget { //This is a special spinBox that does color coding for states
             }
         }
     }
+	
+	property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
+
+    onIsInModelChanged: {
+        evaluate();
+    }
+
+    property bool isInSubState: (backendValue === undefined || backendValue === null) ? false: backendValue.isInSubState;
+
+    onIsInSubStateChanged: {
+        evaluate();
+    }
 
     layout: HorizontalLayout {
         
@@ -48,12 +63,13 @@ QWidget { //This is a special spinBox that does color coding for states
             id: box;
             enabled: backendValue === undefined || backendValue.isBound === undefined || backendValue.isBound === null ? false : !backendValue.isBound
             property bool readingFromBackend: false;
-            property int valueFromBackend: (spinBox.backendValue === undefined || spinBox.backendValue == null)
+            property int valueFromBackend: (spinBox.backendValue === undefined || spinBox.backendValue == null  || spinBox.backendValue.value === undefined)
             ? .0 : spinBox.backendValue.value;
 
             onValueFromBackendChanged: {
                 readingFromBackend = true;
-                value = valueFromBackend
+				if (!(valueFromBackend  === undefined))
+                    value = valueFromBackend;
                 readingFromBackend = false;
                 evaluate();
             }
@@ -68,6 +84,10 @@ QWidget { //This is a special spinBox that does color coding for states
 				    spinBox.backendValue.lock();
 				else
 				    spinBox.backendValue.unlock();
+			}
+			
+			onEditingFinished: {
+				focus = false;
 			}
         }
     }
