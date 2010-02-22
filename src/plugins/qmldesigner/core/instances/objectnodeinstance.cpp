@@ -80,7 +80,7 @@ ChildrenChangeEventFilter::ChildrenChangeEventFilter(QObject *parent)
 }
 
 
-bool ChildrenChangeEventFilter::eventFilter(QObject *object, QEvent *event)
+bool ChildrenChangeEventFilter::eventFilter(QObject * /*object*/, QEvent *event)
 {
     switch (event->type()) {
         case QEvent::ChildAdded:
