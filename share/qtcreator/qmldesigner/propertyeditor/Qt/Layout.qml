@@ -30,13 +30,13 @@ GroupBox {
                 rightMargin: 20;
                 QWidget {
                     layout: HorizontalLayout {
-                         leftMargin: 10
-                          QLabel {
+                        leftMargin: 10
+                        QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
                             fixedWidth: 32
                             fixedHeight: 32
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-top.png)";
-                          }
+                        }
 
                         Label {
                             text: "Target"
@@ -53,7 +53,10 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
-							backendValue: backendValues.anchors_topMargin
+                            backendValue: backendValues.anchors_topMargin
+                            baseStateFlag: isBaseState;
+                            maximumValue: 1000
+                            minimumValue: -1000
                         }
 
                         PlaceHolder {
@@ -71,13 +74,13 @@ GroupBox {
                 rightMargin: 20;
                 QWidget {
                     layout: HorizontalLayout {
-                         leftMargin: 10
-                          QLabel {
+                        leftMargin: 10
+                        QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
                             fixedWidth: 32
                             fixedHeight: 32
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-bottom.png)";
-                          }
+                        }
 
                         Label {
                             text: "Target"
@@ -94,7 +97,10 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
-							backendValue: backendValues.anchors_bottomMargin
+                            backendValue: backendValues.anchors_bottomMargin
+                            baseStateFlag: isBaseState;
+                            maximumValue: 1000
+                            minimumValue: -1000
                         }
 
                         PlaceHolder {
@@ -112,13 +118,13 @@ GroupBox {
                 rightMargin: 20;
                 QWidget {
                     layout: HorizontalLayout {
-                         leftMargin: 10
-                          QLabel {
+                        leftMargin: 10
+                        QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
                             fixedWidth: 32
                             fixedHeight: 32
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-left.png)";
-                          }
+                        }
 
                         Label {
                             text: "Target"
@@ -134,7 +140,10 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
-							backendValue: backendValues.anchors_leftMargin
+                            backendValue: backendValues.anchors_leftMargin
+                            baseStateFlag: isBaseState;
+                            maximumValue: 1000
+                            minimumValue: -1000
                         }
 
                         PlaceHolder {
@@ -152,13 +161,13 @@ GroupBox {
                 rightMargin: 20;
                 QWidget {
                     layout: HorizontalLayout {
-                         leftMargin: 10
-                          QLabel {
+                        leftMargin: 10
+                        QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
                             fixedWidth: 32
                             fixedHeight: 32
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-right.png)";
-                          }
+                        }
 
                         Label {
                             text: "Target"
@@ -174,7 +183,10 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
-							backendValue: backendValues.anchors_rightMargin
+                            backendValue: backendValues.anchors_rightMargin
+                            baseStateFlag: isBaseState;
+                            maximumValue: 1000
+                            minimumValue: -1000
                         }
 
                         PlaceHolder {
@@ -192,13 +204,13 @@ GroupBox {
                 rightMargin: 20;
                 QWidget {
                     layout: HorizontalLayout {
-                         leftMargin: 10
-                          QLabel {
+                        leftMargin: 10
+                        QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
                             fixedWidth: 32
                             fixedHeight: 32
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-horizontal.png)";
-                          }
+                        }
 
                         Label {
                             text: "Target"
@@ -214,6 +226,9 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
+                            baseStateFlag: isBaseState;
+                            maximumValue: 1000
+                            minimumValue: -1000
                         }
 
                         PlaceHolder {
@@ -231,13 +246,13 @@ GroupBox {
                 rightMargin: 20;
                 QWidget {
                     layout: HorizontalLayout {
-                         leftMargin: 10
-                          QLabel {
+                        leftMargin: 10
+                        QLabel {
                             //iconFromFile: "qrc:qmldesigner/images/icon-top.png"
                             fixedWidth: 32
                             fixedHeight: 32
                             styleSheet: "border-image: url(:/qmldesigner/images/icon-vertical.png)";
-                          }
+                        }
 
                         Label {
                             text: "Target"
@@ -253,6 +268,9 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
+                            baseStateFlag: isBaseState;
+                            maximumValue: 1000
+                            minimumValue: -1000
                         }
 
                         PlaceHolder {
