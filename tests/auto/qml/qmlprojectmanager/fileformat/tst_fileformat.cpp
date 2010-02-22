@@ -153,8 +153,8 @@ void TestProject::testFileFilter()
             "import QmlProject 1.0\n"
             "Project {\n"
             "  QmlFiles {\n"
-            "    paths: \"file1.qml,\n"
-            "file2.qml\"\n"
+            "    paths: [ \"file1.qml\",\n"
+            "\"file2.qml\" ]\n"
             "  }\n"
             "}\n");
 

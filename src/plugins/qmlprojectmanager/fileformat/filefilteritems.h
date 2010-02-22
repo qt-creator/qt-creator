@@ -16,7 +16,7 @@ class FileFilterBaseItem : public QmlProjectContentItem {
 
     Q_PROPERTY(QString directory READ directory WRITE setDirectory NOTIFY directoryChanged)
     Q_PROPERTY(bool recursive READ recursive WRITE setRecursive NOTIFY recursiveChanged)
-    Q_PROPERTY(QString paths READ pathsProperty WRITE setPathsProperty NOTIFY pathsPropertyChanged)
+    Q_PROPERTY(QStringList paths READ pathsProperty WRITE setPathsProperty NOTIFY pathsPropertyChanged)
 
     Q_PROPERTY(QStringList files READ files NOTIFY filesChanged DESIGNABLE false)
 
@@ -34,8 +34,8 @@ public:
     bool recursive() const;
     void setRecursive(bool recursive);
 
-    QString pathsProperty() const;
-    void setPathsProperty(const QString &path);
+    QStringList pathsProperty() const;
+    void setPathsProperty(const QStringList &paths);
 
     virtual QStringList files() const;
     bool matchesFile(const QString &filePath) const;
@@ -43,7 +43,7 @@ public:
 signals:
     void directoryChanged();
     void recursiveChanged();
-    void pathsPropertyChanged();
+    void pathsChanged();
     void filesChanged();
     void filterChanged();
 
@@ -62,7 +62,7 @@ private:
     QString m_filter;
     QList<QRegExp> m_regExpList;
     bool m_recursive;
-    QSet<QString> m_explicitFiles;
+    QStringList m_explicitFiles;
 
     QFileSystemWatcher m_fsWatcher;
 

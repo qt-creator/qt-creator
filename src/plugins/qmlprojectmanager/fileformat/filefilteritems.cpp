@@ -69,18 +69,14 @@ void FileFilterBaseItem::setRecursive(bool recursive)
     updateFileList();
 }
 
-QString FileFilterBaseItem::pathsProperty() const
+QStringList FileFilterBaseItem::pathsProperty() const
 {
-    return QStringList(m_explicitFiles.toList()).join(",");
+    return m_explicitFiles;
 }
 
-void FileFilterBaseItem::setPathsProperty(const QString &path)
+void FileFilterBaseItem::setPathsProperty(const QStringList &path)
 {
-    // we support listening paths both in an array, and in one string
-    m_explicitFiles.clear();
-    foreach (const QString &subpath, path.split(QLatin1Char(','), QString::SkipEmptyParts)) {
-        m_explicitFiles += subpath.trimmed();
-    }
+    m_explicitFiles = path;
     updateFileList();
 }
 
