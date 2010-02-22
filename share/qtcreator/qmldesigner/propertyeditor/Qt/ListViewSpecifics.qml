@@ -35,18 +35,6 @@ GroupBox {
 
                         QLabel {
                             minimumHeight: 22;
-                            text: "Key Navigation Wraps:"
-                            font.bold: true;
-                        }
-
-                        QLabel {
-                            minimumHeight: 22;
-                            text: "Snap Position:"
-                            font.bold: true;
-                        }
-
-                        QLabel {
-                            minimumHeight: 22;
                             text: "Spacing:"
                             font.bold: true;
                         }
@@ -66,26 +54,7 @@ GroupBox {
                             backendValue: backendValues.highlightFollowsCurrentItem;
                             baseStateFlag: isBaseState;
                             checkable: true;
-                        }
-
-                        CheckBox {
-                            id: wrapCheckBox;
-                            text: "";
-                            backendValue: backendValues.wrap;
-                            baseStateFlag: isBaseState;
-                            checkable: true;
-                        }
-
-                        SpinBox {
-                            id: snapPositionSpinBox;
-                            objectName: "snapPositionSpinBox";
-                            backendValue: backendValues.snapPosition;
-                            minimumWidth: 30;
-                            minimum: 0;
-                            maximum: 1000;
-                            singleStep: 1;
-                            baseStateFlag: isBaseState;
-                        }
+                        }                      
 
                         SpinBox {
                             id: spacingSpinBox;
