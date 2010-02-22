@@ -15,6 +15,7 @@ General
    * Options dialog: Added filters and ordering
    * .user-files get now saved before they are upgraded to a new version
      of Qt creator
+   * Added option to set interface language explicitly, overriding the locale setting
 
 Editing
    * Text based search and replace in multiple files
@@ -29,6 +30,7 @@ Editing
 
 C++ Support
    * Recognize *.cu as C files
+   * Fixed false errors in code model on windows when used with MSVC
 
 Project support
    * Reworked support for developing for different targets:
@@ -37,6 +39,7 @@ Project support
    * Expand environment variables in Generic Project file lists
    * Preserve the original paths of the Generic Project file list when
      adding/removing files
+   * Added context menu options to open file manager or terminal in a files directory 
 
 Debugging
    * CDB: Fixed bug in location marker
@@ -56,6 +59,10 @@ Mac
 
 Linux (GNOME and KDE)
    * Dropping files on the editor now opens them instead of inserting a url
+
+Windows
+   * Show build error count in Taskbar (Windows 7 only)
+   * Show build progress in Taskbar (Windows 7 only)
 
 Symbian Target
    * Deploying shows real progress bar
