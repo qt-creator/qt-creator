@@ -174,7 +174,6 @@ TestPropertyEditor::TestPropertyEditor()
 void TestPropertyEditor::initTestCase()
 {
     qInstallMsgHandler(testMessageOutput);
-    MetaInfo::setPluginPaths(pluginPaths());
     Exception::setShouldAssert(false);
 }
 
@@ -242,7 +241,10 @@ void TestPropertyEditor::createSubNode()
     setupPropertyEditor(widget.get(), model.data());
     QVERIFY(view->rootModelNode().isValid());
     selectThrough(view->rootModelNode());
-    ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+
+    ModelNode childNode = view->createModelNode("Qt/Rectangle", 4, 6);
+    view->rootModelNode().nodeListProperty("data").reparentHere(childNode);
+
     QVERIFY(childNode.isValid());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
     QVERIFY(childNode.parentProperty().parentModelNode() == view->rootModelNode());
@@ -278,7 +280,9 @@ void TestPropertyEditor::createRect()
 
         //selectThrough(view->rootModelNode());
 
-        ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+        ModelNode childNode = view->createModelNode("Qt/Rectangle", 4, 6);
+        view->rootModelNode().nodeListProperty("data").reparentHere(childNode);
+
         QVERIFY(childNode.isValid());
         QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
         QVERIFY(childNode.parentProperty().parentModelNode() == view->rootModelNode());
@@ -325,7 +329,8 @@ void TestPropertyEditor::removeNode()
 
     selectThrough(view->rootModelNode());
 
-    ModelNode childNode = view->rootModelNode().addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode childNode = view->createModelNode("Qt/Rectangle", 4, 6);
+    view->rootModelNode().nodeListProperty("data").reparentHere(childNode);
     QVERIFY(childNode.isValid());
     QCOMPARE(view->rootModelNode().allDirectSubModelNodes().count(), 1);
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
@@ -333,7 +338,8 @@ void TestPropertyEditor::removeNode()
 
     selectThrough(childNode);
 
-    ModelNode subChildNode = childNode.addChildNode("Qt/Rectangle", 4, 6, "data");
+    ModelNode subChildNode = view->createModelNode("Qt/Rectangle", 4, 6);
+    childNode.nodeListProperty("data").reparentHere(subChildNode);
     QVERIFY(subChildNode.isValid());
     QCOMPARE(childNode.allDirectSubModelNodes().count(), 1);
     QVERIFY(childNode.allDirectSubModelNodes().contains(subChildNode));
