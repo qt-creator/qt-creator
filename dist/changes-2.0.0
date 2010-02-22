@@ -13,6 +13,8 @@ General
    * File dialog is now opened in current directory
    * File system view improvements (context menu)
    * Options dialog: Added filters and ordering
+   * .user-files get now saved before they are upgraded to a new version
+     of Qt creator
 
 Editing
    * Text based search and replace in multiple files
