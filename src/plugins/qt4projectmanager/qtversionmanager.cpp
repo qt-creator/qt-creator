@@ -414,6 +414,8 @@ bool QtVersionManager::equals(QtVersion *a, QtVersion *b)
         || a->m_msvcVersion != b->m_msvcVersion
         || a->m_mwcDirectory != b->m_mwcDirectory)
         return false;
+    if (a->m_displayName != b->displayName())
+        return false;
     return true;
 }
 
