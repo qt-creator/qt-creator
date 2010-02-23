@@ -187,7 +187,7 @@ void TargetSettingsPanelWidget::setupUi()
 
 void TargetSettingsPanelWidget::currentTargetIndexChanged(int targetIndex, int subIndex)
 {
-    if (targetIndex < -1 || targetIndex >= m_project->targets().count())
+    if (targetIndex < -1 || targetIndex >= m_targets.count())
         return;
     if (subIndex < -1 || subIndex >= 2)
         return;
@@ -198,16 +198,16 @@ void TargetSettingsPanelWidget::currentTargetIndexChanged(int targetIndex, int s
 
     // Target was not actually changed:
     if (m_currentIndex == targetIndex) {
-        m_centralWidget->setCurrentWidget(m_panelWidgets[subIndex]);
+        if (m_panelWidgets[subIndex])
+            m_centralWidget->setCurrentWidget(m_panelWidgets[subIndex]);
+        else
+            m_centralWidget->setCurrentWidget(m_noTargetLabel);
         return;
     }
 
-    // Target has changed:
-    delete m_panelWidgets[0];
-    m_panelWidgets[0] = 0;
-    delete m_panelWidgets[1];
-    m_panelWidgets[1] = 0;
+    m_currentIndex = targetIndex;
 
+    // Target has changed:
     if (targetIndex == -1) { // no more targets!
         m_centralWidget->setCurrentWidget(m_noTargetLabel);
         return;
@@ -231,10 +231,12 @@ void TargetSettingsPanelWidget::currentTargetIndexChanged(int targetIndex, int s
     m_centralWidget->addWidget(buildPanel);
     m_centralWidget->addWidget(runPanel);
 
-    m_panelWidgets[0] = buildPanel;
-    m_panelWidgets[1] = runPanel;
+    m_centralWidget->setCurrentWidget(subIndex == 0 ? buildPanel : runPanel);
 
-    m_centralWidget->setCurrentWidget(m_panelWidgets[subIndex]);
+    delete m_panelWidgets[0];
+    m_panelWidgets[0] = buildPanel;
+    delete m_panelWidgets[1];
+    m_panelWidgets[1] = runPanel;
 }
 
 void TargetSettingsPanelWidget::addTarget()
