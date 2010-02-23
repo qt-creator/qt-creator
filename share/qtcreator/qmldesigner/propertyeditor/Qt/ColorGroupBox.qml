@@ -9,7 +9,6 @@ QExtGroupBox {
     property var backendColor
 
     property var oldMaximumHeight;
-    height: 180
 
     onFinishedChanged: {
         maximumHeight = height;
@@ -65,7 +64,6 @@ QExtGroupBox {
         topMargin: 36
 
         QWidget {
-            maximumHeight: 140;
             layout: HorizontalLayout {
 
                 ColorBox {

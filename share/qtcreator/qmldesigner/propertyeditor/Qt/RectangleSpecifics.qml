@@ -11,6 +11,7 @@ QWidget {
         spacing: 0
 
         RectangleColorGroupBox {
+            finished: finishedNotify;
         }
 
         GroupBox {

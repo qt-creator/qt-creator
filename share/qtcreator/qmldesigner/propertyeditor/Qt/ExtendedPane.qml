@@ -10,19 +10,15 @@ QScrollArea {
     visible: false;
     content: properyEditorExtended;
     QFrame {
-        minimumHeight: 440;
         id: properyEditorExtended
         layout: QVBoxLayout {
             topMargin: 0;
             bottomMargin: 0;
             leftMargin: 0;
             rightMargin: 0;
-			spacing: 0;
+            spacing: 0;
             Modifiers {
             }
-//            Extended {
-//                id: extendedBox;
-//            }
 
             QScrollArea {
             }

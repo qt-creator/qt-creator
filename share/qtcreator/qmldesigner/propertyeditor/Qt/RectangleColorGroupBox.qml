@@ -4,7 +4,6 @@ import Bauhaus 1.0
 GroupBox {
     id: rectangleColorGroupBox
 
-    finished: finishedNotify;
     caption: "Colors"
 
     layout: VerticalLayout {
@@ -12,10 +11,6 @@ GroupBox {
         ColorLabel {
             text: "    Color"			
         }
-
-//        ColorTypeButtons {
-//
-//        }
 
         ColorGroupBox {
 
