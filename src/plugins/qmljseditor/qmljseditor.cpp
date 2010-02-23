@@ -672,6 +672,42 @@ void QmlJSTextEditor::updateDocumentNow()
     m_modelManager->updateSourceFiles(QStringList() << fileName);
 }
 
+static void appendExtraSelectionsForMessages(
+        QList<QTextEdit::ExtraSelection> *selections,
+        const QList<DiagnosticMessage> &messages,
+        const QTextDocument *document)
+{
+    foreach (const DiagnosticMessage &d, messages) {
+        const int line = d.loc.startLine;
+        const int column = qMax(1U, d.loc.startColumn);
+
+        QTextEdit::ExtraSelection sel;
+        QTextCursor c(document->findBlockByNumber(line - 1));
+        sel.cursor = c;
+
+        sel.cursor.setPosition(c.position() + column - 1);
+
+        if (d.loc.length == 0) {
+            if (sel.cursor.atBlockEnd())
+                sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
+            else
+                sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        } else {
+            sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, d.loc.length);
+        }
+
+        if (d.isWarning())
+            sel.format.setUnderlineColor(Qt::darkYellow);
+        else
+            sel.format.setUnderlineColor(Qt::red);
+
+        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
+        sel.format.setToolTip(d.message);
+
+        selections->append(sel);
+    }
+}
+
 void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
     if (file()->fileName() != doc->fileName()) {
@@ -688,6 +724,10 @@ void QmlJSTextEditor::onDocumentUpdated(QmlJS::Document::Ptr doc)
 
         const SemanticHighlighter::Source source = currentSource(/*force = */ true);
         m_semanticHighlighter->rehighlight(source);
+    } else {
+        QList<QTextEdit::ExtraSelection> selections;
+        appendExtraSelectionsForMessages(&selections, doc->diagnosticMessages(), document());
+        setExtraSelections(CodeWarningsSelection, selections);
     }
 }
 
@@ -1121,42 +1161,6 @@ QString QmlJSTextEditor::insertMatchingBrace(const QTextCursor &tc, const QStrin
 QString QmlJSTextEditor::insertParagraphSeparator(const QTextCursor &) const
 {
     return QLatin1String("}\n");
-}
-
-static void appendExtraSelectionsForMessages(
-        QList<QTextEdit::ExtraSelection> *selections,
-        const QList<DiagnosticMessage> &messages,
-        const QTextDocument *document)
-{
-    foreach (const DiagnosticMessage &d, messages) {
-        const int line = d.loc.startLine;
-        const int column = qMax(1U, d.loc.startColumn);
-
-        QTextEdit::ExtraSelection sel;
-        QTextCursor c(document->findBlockByNumber(line - 1));
-        sel.cursor = c;
-
-        sel.cursor.setPosition(c.position() + column - 1);
-
-        if (d.loc.length == 0) {
-            if (sel.cursor.atBlockEnd())
-                sel.cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::KeepAnchor);
-            else
-                sel.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-        } else {
-            sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, d.loc.length);
-        }
-
-        if (d.isWarning())
-            sel.format.setUnderlineColor(Qt::darkYellow);
-        else
-            sel.format.setUnderlineColor(Qt::red);
-
-        sel.format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
-        sel.format.setToolTip(d.message);
-
-        selections->append(sel);
-    }
 }
 
 void QmlJSTextEditor::semanticRehighlight()
