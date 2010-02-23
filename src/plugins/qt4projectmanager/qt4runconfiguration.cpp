@@ -195,25 +195,25 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     toplayout->setMargin(0);
 
-    QLabel *nameLabel = new QLabel(tr("Name:"));
-    m_nameLineEdit = new QLineEdit(m_qt4RunConfiguration->displayName());
+    QLabel *nameLabel = new QLabel(tr("Name:"), this);
+    m_nameLineEdit = new QLineEdit(m_qt4RunConfiguration->displayName(), this);
     nameLabel->setBuddy(m_nameLineEdit);
     toplayout->addRow(nameLabel, m_nameLineEdit);
 
-    m_executableLabel = new QLabel(m_qt4RunConfiguration->executable());
+    m_executableLabel = new QLabel(m_qt4RunConfiguration->executable(), this);
     toplayout->addRow(tr("Executable:"), m_executableLabel);
 
-    QLabel *argumentsLabel = new QLabel(tr("Arguments:"));
-    m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()));
+    QLabel *argumentsLabel = new QLabel(tr("Arguments:"), this);
+    m_argumentsLineEdit = new QLineEdit(ProjectExplorer::Environment::joinArgumentList(qt4RunConfiguration->commandLineArguments()), this);
     argumentsLabel->setBuddy(m_argumentsLineEdit);
     toplayout->addRow(argumentsLabel, m_argumentsLineEdit);
 
-    m_workingDirectoryEdit = new Utils::PathChooser();
+    m_workingDirectoryEdit = new Utils::PathChooser(this);
     m_workingDirectoryEdit->setPath(m_qt4RunConfiguration->workingDirectory());
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectoryEdit->setPromptDialogTitle(tr("Select the working directory"));
 
-    QToolButton *resetButton = new QToolButton();
+    QToolButton *resetButton = new QToolButton(this);
     resetButton->setToolTip(tr("Reset to default"));
     resetButton->setIcon(QIcon(":/core/images/reset.png"));
 
@@ -223,12 +223,12 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     boxlayout->addWidget(resetButton);
     toplayout->addRow(tr("Working Directory:"), boxlayout);
 
-    m_useTerminalCheck = new QCheckBox(tr("Run in Terminal"));
+    m_useTerminalCheck = new QCheckBox(tr("Run in Terminal"), this);
     m_useTerminalCheck->setChecked(m_qt4RunConfiguration->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
     toplayout->addRow(QString(), m_useTerminalCheck);
 
 #ifdef Q_OS_MAC
-    m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"));
+    m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
     m_usingDyldImageSuffix->setChecked(m_qt4RunConfiguration->isUsingDyldImageSuffix());
     toplayout->addRow(QString(), m_usingDyldImageSuffix);
     connect(m_usingDyldImageSuffix, SIGNAL(toggled(bool)),
@@ -243,7 +243,7 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     environmentLabel->setFont(f);
     vboxTopLayout->addWidget(environmentLabel);
 
-    QWidget *baseEnvironmentWidget = new QWidget;
+    QWidget *baseEnvironmentWidget = new QWidget(this);
     QHBoxLayout *baseEnvironmentLayout = new QHBoxLayout(baseEnvironmentWidget);
     baseEnvironmentLayout->setMargin(0);
     QLabel *label = new QLabel(tr("Base environment for this runconfiguration:"), this);
@@ -301,6 +301,10 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
 
     connect(qt4RunConfiguration, SIGNAL(baseEnvironmentChanged()),
             this, SLOT(baseEnvironmentChanged()));
+}
+
+Qt4RunConfigurationWidget::~Qt4RunConfigurationWidget()
+{
 }
 
 void Qt4RunConfigurationWidget::baseEnvironmentSelected(int index)

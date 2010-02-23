@@ -158,6 +158,8 @@ class Qt4RunConfigurationWidget : public QWidget
 
 public:
     Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4runconfigration, QWidget *parent);
+    ~Qt4RunConfigurationWidget();
+
 protected:
     void showEvent(QShowEvent *event);
     void hideEvent(QHideEvent *event);
