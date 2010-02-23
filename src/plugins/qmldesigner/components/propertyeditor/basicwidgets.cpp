@@ -51,39 +51,6 @@ QT_BEGIN_NAMESPACE
 
 class QWidgetDeclarativeUI;
 
-class Actions : public QmlConcreteList<Action *>
-    {
-    public:
-        Actions(QObject *o) : widget(qobject_cast<QWidget*>(o)) {}
-        virtual void append(Action *o)
-        {
-            QmlConcreteList<Action *>::append(o);
-            o->setParent(widget);
-            widget->addAction(o);
-        }
-        virtual void clear()
-        {
-            QmlConcreteList<Action *>::clear();
-
-            while (!widget->actions().empty())
-                widget->removeAction(widget->actions().first());
-            //menu->clear();
-        }
-        virtual void removeAt(int i)
-        {
-            QmlConcreteList<Action *>::removeAt(i);
-            widget->removeAction(widget->actions().at(i));
-        }
-        virtual void insert(int i, Action *obj)
-        {
-            QmlConcreteList<Action *>::insert(i, obj);
-            obj->setParent(widget);
-            widget->addAction(obj);
-        }
-    private:
-        QWidget *widget;
-    };
-
 class ResizeEventFilter : public QObject
 {
     Q_OBJECT
@@ -104,9 +71,9 @@ class QWidgetDeclarativeUI : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QmlList<QObject *> *children READ children)
+    Q_PROPERTY(QmlListProperty<QObject> children READ children)
     Q_PROPERTY(QLayoutObject *layout READ layout WRITE setLayout)
-    Q_PROPERTY(QmlList<Action *> *actions READ actions)
+    Q_PROPERTY(QmlListProperty<Action> actions READ actions)
     Q_PROPERTY(QFont font READ font CONSTANT)
 
     Q_PROPERTY(QPoint pos READ pos)
@@ -150,7 +117,7 @@ signals:
     void opacityChanged();
 
 public:
-    QWidgetDeclarativeUI(QObject *other) : QObject(other), _children(other), _layout(0), _graphicsOpacityEffect(0), _actions(other) {
+    QWidgetDeclarativeUI(QObject *other) : QObject(other), _layout(0), _graphicsOpacityEffect(0) {
         q = qobject_cast<QWidget*>(other);
         ResizeEventFilter *filter(new ResizeEventFilter(q));
         filter->setTarget(q);
@@ -161,38 +128,6 @@ public:
     }
     virtual ~QWidgetDeclarativeUI() {
     }
-
-    class Children : public QmlConcreteList<QObject *>
-    {
-    public:
-        Children(QObject *widget) : q(qobject_cast<QWidget *>(widget)) {}
-        virtual void append(QObject *o)
-        {
-            insert(-1, o);
-        }
-        virtual void clear()
-        {
-            for (int i = 0; i < count(); ++i)
-                at(i)->setParent(0);
-            QmlConcreteList<QObject *>::clear();
-        }
-        virtual void removeAt(int i)
-        {
-            at(i)->setParent(0);
-            QmlConcreteList<QObject *>::removeAt(i);
-        }
-        virtual void insert(int i, QObject *o)
-        {
-            QmlConcreteList<QObject *>::insert(i, o);
-            if (QWidget *w = qobject_cast<QWidget *>(o))
-                w->setParent(static_cast<QWidget *>(q));
-            else
-                o->setParent(q);
-        }
-
-    private:
-        QWidget *q;
-    };
 
 public:
 
@@ -223,7 +158,9 @@ public:
         emit mouseOverChanged();
     }
 
-    QmlList<QObject *> *children() { return &_children; }
+    QmlListProperty<QObject> children() {
+        return QmlListProperty<QObject>(this, 0, children_append, children_count, children_at, children_clear);
+    }
 
     QLayoutObject *layout() const { return _layout; }
     void setLayout(QLayoutObject *lo)
@@ -440,18 +377,73 @@ public:
 
     }
 
-
-    QmlList<Action *> *actions() { return &_actions; }
+    QmlListProperty<Action> actions() {
+        return QmlListProperty<Action>(this, 0, actions_append, actions_count, actions_at, actions_clear);
+    }
 
 private:
     QWidget *q;
-    Children _children;
     QLayoutObject *_layout;
     QFont _font;
     QUrl _styleSheetFile;
     QGraphicsOpacityEffect *_graphicsOpacityEffect;
     bool m_mouseOver;
-    Actions _actions;
+
+    static void children_append(QmlListProperty<QObject> *property, QObject *o) {
+        QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
+        QWidget *q = p->q;
+        if (QWidget *w = qobject_cast<QWidget *>(o))
+            w->setParent(static_cast<QWidget *>(q));
+        else
+            o->setParent(q);
+    }
+
+    static int children_count(QmlListProperty<QObject> *property) {
+        QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
+        QWidget *q = p->q;
+        return q->children().count();
+    }
+
+    static QObject * children_at(QmlListProperty<QObject> *property, int index) {
+        QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
+        QWidget *q = p->q;
+        return q->children().at(index);
+    }
+
+    static void children_clear(QmlListProperty<QObject> *property) {
+        QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
+        QWidget *q = p->q;
+        QObjectList c = q->children();
+        for (int i = 0; i < c.count(); ++i)
+            c.at(i)->setParent(0);
+    }
+
+    // ### Original had an insert, and removeAt
+    static void actions_append(QmlListProperty<Action> *property, Action *o) {
+        QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
+        QWidget *w = p->q;
+        o->setParent(w);
+        w->addAction(o);
+    }
+
+    static int actions_count(QmlListProperty<Action> *property) {
+        QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
+        QWidget *w = p->q;
+        return w->actions().count();
+    }
+    static Action *actions_at(QmlListProperty<Action> *property, int index) {
+        QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
+        QWidget *w = p->q;
+        return qobject_cast<Action *>(w->actions().at(index));
+    }
+
+    static void actions_clear(QmlListProperty<Action> *property) {
+        QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
+        QWidget *w = p->q;
+
+        while (!w->actions().empty())
+            w->removeAction(w->actions().first());
+    }
 };
 
 bool ResizeEventFilter::eventFilter(QObject *obj, QEvent *event)
@@ -1073,7 +1065,7 @@ void QGroupBoxDeclarativeUI::collapse()
         return;
     m_contens = QPixmap::grabWidget (gb, 5, 5, gb->width() - 5, gb->height() - 5);
     gb->setPixmap(m_contens,1);
-    hideChildren(); 
+    hideChildren();
     m_expanded = false;
     m_timeLine.start();
 }
@@ -1113,50 +1105,28 @@ class QTabWidgetDeclarativeUI : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QmlList<QTabObject *> *tabs READ tabs)
+    Q_PROPERTY(QmlListProperty<QTabObject> tabs READ tabs)
     Q_CLASSINFO("DefaultProperty", "tabs")
 public:
-    QTabWidgetDeclarativeUI(QObject *other) : QObject(other), _tabs(other) {}
+    QTabWidgetDeclarativeUI(QObject *other) : QObject(other) {}
 
-    QmlList<QTabObject *> *tabs() { return &_tabs; }
+    QmlListProperty<QTabObject> tabs() {
+        return QmlListProperty<QTabObject>(this, 0, tabs_append, 0, 0, tabs_clear);
+    }
 
 private:
-    //if not for the at() function, we could use QmlList instead
-    class Tabs : public QmlConcreteList<QTabObject *>
-    {
-    public:
-        Tabs(QObject *o) : tw(o) {}
-        virtual void append(QTabObject *o)
-        {
-            QmlConcreteList<QTabObject *>::append(o);
-            //XXX can we insertTab(-1, o) instead?
-            if (!o->icon().isNull())
-                static_cast<QTabWidget *>(tw)->addTab(o->content(), o->icon(), o->label());
-            else
-                static_cast<QTabWidget *>(tw)->addTab(o->content(), o->label());
-        }
-        virtual void clear()
-        {
-            QmlConcreteList<QTabObject *>::clear();
-            static_cast<QTabWidget *>(tw)->clear();
-        }
-        virtual void removeAt(int i)
-        {
-            QmlConcreteList<QTabObject *>::removeAt(i);
-            static_cast<QTabWidget *>(tw)->removeTab(i);
-        }
-        virtual void insert(int i, QTabObject *obj)
-        {
-            QmlConcreteList<QTabObject *>::insert(i, obj);
-            if (!obj->icon().isNull())
-                static_cast<QTabWidget *>(tw)->insertTab(i, obj->content(), obj->icon(), obj->label());
-            else
-                static_cast<QTabWidget *>(tw)->insertTab(i, obj->content(), obj->label());
-        }
-    private:
-        QObject *tw;
-    };
-    Tabs _tabs;
+    static void tabs_append(QmlListProperty<QTabObject> *property, QTabObject *o) {
+        QTabWidget *tw = static_cast<QTabWidget*>(property->object->parent());
+        if (!o->icon().isNull())
+            tw->addTab(o->content(), o->icon(), o->label());
+        else
+            tw->addTab(o->content(), o->label());
+    }
+
+    static void tabs_clear(QmlListProperty<QTabObject> *property) {
+        QTabWidget *tw = static_cast<QTabWidget*>(property->object->parent());
+        tw->clear();
+    }
 };
 
 

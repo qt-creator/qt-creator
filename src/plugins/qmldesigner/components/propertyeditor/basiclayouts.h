@@ -43,7 +43,7 @@ class QBoxLayoutObject : public QLayoutObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QmlList<QWidget *> *children READ children)
+    Q_PROPERTY(QmlListProperty<QWidget> children READ children)
 
     Q_PROPERTY(int topMargin READ topMargin WRITE setTopMargin)
     Q_PROPERTY(int bottomMargin READ bottomMargin WRITE setBottomMargin)
@@ -57,30 +57,22 @@ public:
     explicit QBoxLayoutObject(QBoxLayout *, QObject *parent=0);
     virtual QLayout *layout() const;
 
-    QmlList<QWidget *> *children() { return &_widgets; }
+    QmlListProperty<QWidget> children() {
+        return QmlListProperty<QWidget>(this, 0, children_append, 0, 0, children_clear);
+    }
 
 private:
     friend class WidgetList;
     void addWidget(QWidget *);
     void clearWidget();
 
-    //XXX need to provide real implementations once QBoxLayoutObject is finished
-    class WidgetList : public QmlList<QWidget *>
-    {
-    public:
-        WidgetList(QBoxLayoutObject *o)
-            : obj(o) {}
+    static void children_append(QmlListProperty<QWidget> *property, QWidget *widget) {
+        static_cast<QBoxLayoutObject*>(property->object)->addWidget(widget);
+    }
 
-        virtual void append(QWidget *w)  { obj->addWidget(w); }
-        virtual void clear() { obj->clearWidget(); }
-        virtual int count() const { return 0; }
-        virtual void removeAt(int) {}
-        virtual QWidget *at(int) const { return 0; }
-        virtual void insert(int, QWidget *) {}
-
-    private:
-        QBoxLayoutObject *obj;
-    };
+    static void children_clear(QmlListProperty<QWidget> *property) {
+        static_cast<QBoxLayoutObject*>(property->object)->clearWidget();
+    }
 
     void getMargins()
     {
@@ -154,7 +146,6 @@ private:
         _layout->setSpacing(spacing);
     }
 
-    WidgetList _widgets;
     QBoxLayout *_layout;
 
     int mTop, mLeft, mBottom, mRight;

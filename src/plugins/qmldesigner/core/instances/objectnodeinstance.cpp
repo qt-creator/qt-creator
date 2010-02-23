@@ -52,7 +52,6 @@
 #include <QEvent>
 #include <QGraphicsScene>
 #include <QmlContext>
-#include <QmlList>
 #include <QmlError>
 #include <QmlBinding>
 #include <QmlMetaType>
@@ -327,7 +326,7 @@ QPair<QString, NodeInstance> ObjectNodeInstance::anchor(const QString &/*name*/)
 
 static bool isList(const QmlMetaProperty &metaProperty)
 {
-    return metaProperty.propertyCategory() == QmlMetaProperty::List || metaProperty.propertyCategory() == QmlMetaProperty::QmlList;
+    return metaProperty.propertyCategory() == QmlMetaProperty::List;
 }
 
 static bool isObject(const QmlMetaProperty &metaProperty)
@@ -342,15 +341,7 @@ static QVariant objectToVariant(QObject *object)
 
 static void removeObjectFromList(const QmlMetaProperty &metaProperty, QObject *object, QmlEngine *engine)
 {
-    QmlListAccessor listAccessor;
-    listAccessor.setList(metaProperty.read(), engine);
-
-    for (int i = 0; i < listAccessor.count(); ++i)  {
-        if (QmlMetaType::toQObject(listAccessor.at(i)) == object) {
-            listAccessor.removeAt(i);
-            break;
-        }
-    }
+    // ### Very few QML lists ever responded to removes
 }
 
 void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty)
@@ -371,9 +362,8 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(newParent, newParentProperty, context());
 
     if (isList(metaProperty)) {
-        QmlListAccessor listAccessor;
-        listAccessor.setList(metaProperty.read(), nodeInstanceView()->engine());
-        listAccessor.append(objectToVariant(object));
+        QmlListReference list = qvariant_cast<QmlListReference>(metaProperty.read());
+        list.append(object);
     } else if (isObject(metaProperty)) {
         metaProperty.write(objectToVariant(object));
     }
@@ -438,14 +428,13 @@ void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &
 void ObjectNodeInstance::deleteObjectsInList(const QmlMetaProperty &metaProperty)
 {
     QObjectList objectList;
-    QmlListAccessor listAccessor;
-    listAccessor.setList(metaProperty.read());
+    QmlListReference list = qvariant_cast<QmlListReference>(metaProperty.read());
 
-    for(int i = 0; i < listAccessor.count(); i++) {
-        objectList += QmlMetaType::toQObject(listAccessor.at(i));
+    for(int i = 0; i < list.count(); i++) {
+        objectList += list.at(i);
     }
 
-    listAccessor.clear();
+    list.clear();
 }
 
 void ObjectNodeInstance::resetProperty(const QString &name)
@@ -489,9 +478,8 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
         if (qmlMetaProperty.read() == resetValue(propertyName))
             return;
         qmlMetaProperty.write(resetValue(propertyName));
-    } else if (QmlMetaType::isList(qmlMetaProperty.propertyType()) ||
-               QmlMetaType::isQmlList(qmlMetaProperty.propertyType())) {
-        QmlMetaType::clear(object->property(propertyName.toLatin1()));
+    } else if (qmlMetaProperty.propertyCategory() == QmlMetaProperty::List) {
+        qvariant_cast<QmlListReference>(qmlMetaProperty.read()).clear();
     }
 }
 

@@ -34,12 +34,12 @@ QT_BEGIN_NAMESPACE
 QML_DEFINE_TYPE(Bauhaus,1,0,QBoxLayout,QBoxLayoutObject);
 
 QBoxLayoutObject::QBoxLayoutObject(QObject *parent)
-: QLayoutObject(parent), _widgets(this), _layout(0)
+: QLayoutObject(parent), _layout(0)
 {
 }
 
 QBoxLayoutObject::QBoxLayoutObject(QBoxLayout *layout, QObject *parent)
-: QLayoutObject(parent), _widgets(this), _layout(layout)
+: QLayoutObject(parent), _layout(layout)
 {
 }
 

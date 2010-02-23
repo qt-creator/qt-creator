@@ -14,7 +14,7 @@ public:
     QList<QmlFileFilterItem*> qmlFileFilters() const;
 
     // content property
-    QmlConcreteList<QmlProjectContentItem*> content;
+    QList<QmlProjectContentItem*> content;
 };
 
 QList<QmlFileFilterItem*> QmlProjectItemPrivate::qmlFileFilters() const
@@ -45,10 +45,10 @@ QmlProjectItem::~QmlProjectItem()
     delete d_ptr;
 }
 
-QmlList<QmlProjectContentItem*> *QmlProjectItem::content()
+QmlListProperty<QmlProjectContentItem> QmlProjectItem::content()
 {
     Q_D(QmlProjectItem);
-    return &d->content;
+    return QmlListProperty<QmlProjectContentItem>(this, d->content);
 }
 
 QString QmlProjectItem::sourceDirectory() const

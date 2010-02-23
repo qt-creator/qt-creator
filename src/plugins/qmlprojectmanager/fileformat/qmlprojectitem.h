@@ -21,7 +21,7 @@ class QmlProjectItem : public QObject {
     Q_DECLARE_PRIVATE(QmlProjectItem)
     Q_DISABLE_COPY(QmlProjectItem)
 
-    Q_PROPERTY(QmlList<QmlProjectManager::QmlProjectContentItem*> *content READ content DESIGNABLE false)
+    Q_PROPERTY(QmlListProperty<QmlProjectManager::QmlProjectContentItem> content READ content DESIGNABLE false)
     Q_PROPERTY(QString sourceDirectory READ sourceDirectory NOTIFY sourceDirectoryChanged)
     Q_PROPERTY(QStringList libraryPaths READ libraryPaths WRITE setLibraryPaths NOTIFY libraryPathsChanged)
 
@@ -31,7 +31,7 @@ public:
     QmlProjectItem(QObject *parent = 0);
     ~QmlProjectItem();
 
-    QmlList<QmlProjectContentItem*> *content();
+    QmlListProperty<QmlProjectContentItem> content();
 
     QString sourceDirectory() const;
     void setSourceDirectory(const QString &directoryPath);
