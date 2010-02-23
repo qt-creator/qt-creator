@@ -26,6 +26,7 @@ Makefile*
 moc_*.cpp
 ui_*.h
 qrc_*.cpp
+Thumbs.db
 
 # qtcreator generated files
 *.pro.user
