@@ -235,26 +235,31 @@ PropertyEditor::~PropertyEditor()
 
 void PropertyEditor::setupPane(const QString &typeName)
 {
-    if (m_typeHash.contains(typeName))
-        return;
 
     QUrl qmlFile = fileToUrl(locateQmlFile(QLatin1String("Qt/ItemPane.qml")));
     QUrl qmlSpecificsFile;
 
     qmlSpecificsFile = fileToUrl(locateQmlFile(typeName + "Specifics.qml"));
+    NodeType *type = m_typeHash.value(qmlFile.toString());
 
-    NodeType *type = m_typeHash.value(typeName);
+    if (!type) {
+        type = new NodeType(qmlFile, this);
 
-    type = new NodeType(qmlFile, this);
+        QmlContext *ctxt = type->m_view->rootContext();
+        ctxt->setContextProperty("finishedNotify", QVariant(false) );
+        type->initialSetup(typeName, qmlSpecificsFile, this);
+        type->m_view->execute();
+        ctxt->setContextProperty("finishedNotify", QVariant(true) );
 
-    m_stackedWidget->addWidget(type->m_view);
-    m_typeHash.insert(typeName, type);
-
-    QmlContext *ctxt = type->m_view->rootContext();
-    type->initialSetup(typeName, qmlSpecificsFile, this);
-    ctxt->setContextProperty("finishedNotify", QVariant(false) );
-    type->m_view->execute();
-    ctxt->setContextProperty("finishedNotify", QVariant(true) );
+        m_stackedWidget->addWidget(type->m_view);
+        m_typeHash.insert(qmlFile.toString(), type);
+    } else {
+        QmlContext *ctxt = type->m_view->rootContext();
+        ctxt->setContextProperty("finishedNotify", QVariant(false) );
+        type->initialSetup(typeName, qmlSpecificsFile, this); 
+        ctxt->setContextProperty("finishedNotify", QVariant(true) );
+    }
+    QApplication::processEvents();
 }
 
 void PropertyEditor::changeValue(const QString &propertyName)
