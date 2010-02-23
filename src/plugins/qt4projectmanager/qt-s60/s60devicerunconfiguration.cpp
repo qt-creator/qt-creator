@@ -371,12 +371,6 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
     return QDir::toNativeSeparators(localExecutable);
 }
 
-QString S60DeviceRunConfiguration::unsignedPackage() const
-{
-    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
-    return QDir::toNativeSeparators(m_baseFileName + QLatin1String("_unsigned.sis"));
-}
-
 QString S60DeviceRunConfiguration::signedPackage() const
 {
     const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
@@ -541,7 +535,6 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     RunControl(runConfiguration),
     m_toolChain(ProjectExplorer::ToolChain::INVALID),
     m_makesisProcess(new QProcess(this)),
-    m_signsisProcess(0),
     m_releaseDeviceAfterLauncherFinish(false),
     m_handleDeviceRemoval(true),
     m_launcher(0)
@@ -559,8 +552,7 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
             this, SLOT(makesisProcessFinished()));
 
     S60DeviceRunConfiguration *s60runConfig = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
-
-    Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Target()->activeBuildConfiguration();
+    const Qt4BuildConfiguration *activeBuildConf = s60runConfig->qt4Target()->activeBuildConfiguration();
 
     QTC_ASSERT(s60runConfig, return);
     m_toolChain = s60runConfig->toolChainType();
@@ -568,12 +560,8 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     m_serialPortFriendlyName = SymbianUtils::SymbianDeviceManager::instance()->friendlyNameForPort(m_serialPortName);
     m_targetName = s60runConfig->targetName();
     m_baseFileName = s60runConfig->basePackageFilePath();
-    m_unsignedPackage = s60runConfig->unsignedPackage();
     m_signedPackage = s60runConfig->signedPackage();
     m_commandLineArguments = s60runConfig->commandLineArguments();
-    m_symbianPlatform = s60runConfig->symbianPlatform();
-    m_symbianTarget = s60runConfig->symbianTarget();
-    m_packageTemplateFile = s60runConfig->packageTemplateFileName();
     m_workingDirectory = QFileInfo(m_baseFileName).absolutePath();
     m_qtDir = activeBuildConf->qtVersion()->versionInfo().value("QT_INSTALL_DATA");
     m_useCustomSignature = (s60runConfig->signingMode() == S60DeviceRunConfiguration::SignCustom);
@@ -583,35 +571,14 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
         m_qtBinPath = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
     QTC_ASSERT(!m_qtBinPath.isEmpty(), return);
     const S60Devices::Device device = S60Manager::instance()->deviceForQtVersion(activeBuildConf->qtVersion());
-    switch (m_toolChain) {
-    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC: {
-            // 'sis' is a make target here. Set up with correct environment
-            // Also add $QTDIR/bin, since it needs to find 'createpackage'.
-            ProjectExplorer::ToolChain *toolchain = activeBuildConf->toolChain();
-            m_makesisTool = toolchain->makeCommand();
-            m_toolsDirectory = device.epocRoot + QLatin1String("/epoc32/tools");
-            ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
-            toolchain->addToEnvironment(env);
-            env.prependOrSetPath(m_qtBinPath);
-            m_makesisProcess->setEnvironment(env.toStringList());
-        }
-        break;
-    default:
-        m_toolsDirectory = device.toolsRoot + QLatin1String("/epoc32/tools");
-        m_makesisTool = m_toolsDirectory + "/makesis.exe";
-        // Set up signing packages
-        m_signsisProcess = new QProcess(this);
-        connect(m_signsisProcess, SIGNAL(readyReadStandardError()),
-                this, SLOT(readStandardError()));
-        connect(m_signsisProcess, SIGNAL(readyReadStandardOutput()),
-                this, SLOT(readStandardOutput()));
-        connect(m_signsisProcess, SIGNAL(error(QProcess::ProcessError)),
-                this, SLOT(signsisProcessFailed()));
-        connect(m_signsisProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
-                this, SLOT(signsisProcessFinished()));
-        break;
-    }
+    // 'sis' is a make target. Set up with correct environment
+    // Also add $QTDIR/bin, since it needs to find 'createpackage'.
+    ProjectExplorer::ToolChain *toolchain = activeBuildConf->toolChain();
+    m_makeTool = toolchain->makeCommand();
+    ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
+    toolchain->addToEnvironment(env);
+    env.prependOrSetPath(m_qtBinPath);
+    m_makesisProcess->setEnvironment(env.toStringList());
     m_executableFileName = s60runConfig->localExecutableFileName();
     m_packageFilePath = s60runConfig->packageFileName();
     m_packageFile = QFileInfo(m_packageFilePath).fileName();
@@ -631,6 +598,20 @@ S60DeviceRunControlBase::~S60DeviceRunControlBase()
 void S60DeviceRunControlBase::setReleaseDeviceAfterLauncherFinish(bool v)
 {
     m_releaseDeviceAfterLauncherFinish = v;
+}
+
+QString S60DeviceRunControlBase::signSisKey() const
+{
+    const QString key = m_useCustomSignature ? m_customKeyPath:
+                        m_qtDir + QLatin1String("/src/s60installs/selfsigned.key");
+    return QDir::toNativeSeparators(key);
+}
+
+QString S60DeviceRunControlBase::signSisCertificate() const
+{
+    const QString cert = m_useCustomSignature ? m_customSignaturePath :
+                         m_qtDir + QLatin1String("/src/s60installs/selfsigned.cer");
+    return QDir::toNativeSeparators(cert);
 }
 
 // Format a message with command line
@@ -672,29 +653,15 @@ void S60DeviceRunControlBase::start()
     }
 
     QStringList makeSisArgs;
-    switch (m_toolChain) {
-    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
-        makeSisArgs << QLatin1String("sis")
-                    << QLatin1String("QT_SIS_OPTIONS=-i")
-                    << (QLatin1String("QT_SIS_CERTIFICATE=") + signSisCertificate())
-                    << (QLatin1String("QT_SIS_KEY=") + signSisKey());
-        break;
-    default:
-        // ABLD: Create from template, replacing paths
-        if (!createPackageFileFromTemplate(&errorMessage)) {
-            error(this, errorMessage);
-            emit finished();
-            return;
-        }
-        makeSisArgs.push_back(m_packageFile);
-        break;
-    }
+    makeSisArgs << QLatin1String("sis")
+            << (QLatin1String("QT_SIS_CERTIFICATE=") + signSisCertificate())
+            << (QLatin1String("QT_SIS_KEY=") + signSisKey());
     m_makesisProcess->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, msgRun(m_makesisTool, makeSisArgs));
+    emit addToOutputWindow(this, msgRun(m_makeTool, makeSisArgs));
     if (debug)
-        qDebug() << m_makesisTool <<  makeSisArgs << m_workingDirectory;
-    m_makesisProcess->start(m_makesisTool, makeSisArgs, QIODevice::ReadOnly);
+        qDebug() << m_makeTool <<  makeSisArgs << m_workingDirectory;
+    m_makesisProcess->start(m_makeTool, makeSisArgs, QIODevice::ReadOnly);
+    m_makesisProcess->closeWriteChannel();
 }
 
 static inline void stopProcess(QProcess *p)
@@ -712,8 +679,6 @@ void S60DeviceRunControlBase::stop()
 {
     if (m_makesisProcess)
         stopProcess(m_makesisProcess);
-    if (m_signsisProcess)
-        stopProcess(m_signsisProcess);
     if (m_launcher)
         m_launcher->terminate();
 }
@@ -737,35 +702,9 @@ void S60DeviceRunControlBase::readStandardOutput()
     emit addToOutputWindowInline(this, QString::fromLocal8Bit(data.constData(), data.length()));
 }
 
-// ABLD: Create "foo_<platform>_<target>.pkg" and replace variables for the target
-// path pointing into the EPOC directories.
-bool S60DeviceRunControlBase::createPackageFileFromTemplate(QString *errorMessage)
-{
-    if (debug)
-        qDebug() << "Creating package file" << m_packageFilePath << " from " << m_packageTemplateFile
-                << m_symbianPlatform << m_symbianTarget;
-    QFile packageTemplate(m_packageTemplateFile);
-    if (!packageTemplate.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        *errorMessage = tr("Could not read template package file '%1'").arg(QDir::toNativeSeparators(m_packageTemplateFile));
-        return false;
-    }
-    QString contents = QString::fromLocal8Bit(packageTemplate.readAll());
-    packageTemplate.close();
-    contents.replace(QLatin1String("$(PLATFORM)"), m_symbianPlatform);
-    contents.replace(QLatin1String("$(TARGET)"), m_symbianTarget);
-    QFile packageFile(m_packageFilePath);
-    if (!packageFile.open(QIODevice::WriteOnly|QIODevice::Text)) {
-        *errorMessage = tr("Could not write package file '%1'").arg(QDir::toNativeSeparators(m_packageFilePath));
-        return false;
-    }
-    packageFile.write(contents.toLocal8Bit());
-    packageFile.close();
-    return true;
-}
-
 void S60DeviceRunControlBase::makesisProcessFailed()
 {
-    processFailed(m_makesisTool, m_makesisProcess->error());
+    processFailed(m_makeTool, m_makesisProcess->error());
 }
 
 static inline bool renameFile(const QString &sourceName, const QString &targetName,
@@ -805,71 +744,23 @@ void S60DeviceRunControlBase::makesisProcessFinished()
         // 'targetname_armX_udeb.sis'.
         const QString oldName = m_workingDirectory + QLatin1Char('/') + m_targetName + QLatin1String(".sis");
         ok = renameFile(oldName, m_signedPackage, &errorMessage);
-        if (ok)
-            startDeployment();
     }
         break;
     default:
-        // makesis.exe derives the sis file name from the '.pkg'-file,
-        // it thus needs to renamed to '_unsigned.sis'.
-        ok = renameFile(m_signedPackage, m_unsignedPackage, &errorMessage);
-        if (ok)
-            startSigning();
+        // ABLD: Check on file 'targetname_armX_udeb.sis'.
+        ok = QFileInfo(m_signedPackage).isFile();
+        if (!ok)
+            errorMessage = tr("Failed to create '%1'").arg(m_signedPackage);
         break;
     }
-    if (!ok) {
+    if (ok) {
+        startDeployment();
+    } else {
         error(this, errorMessage);
         stop();
         emit finished();
     }
 }
-
-QString S60DeviceRunControlBase::signSisKey() const
-{
-    const QString key = m_useCustomSignature ? m_customKeyPath:
-                        m_qtDir + QLatin1String("/src/s60installs/selfsigned.key");
-    return QDir::toNativeSeparators(key);
-}
-
-QString S60DeviceRunControlBase::signSisCertificate() const
-{
-    const QString cert = m_useCustomSignature ? m_customSignaturePath :
-                         m_qtDir + QLatin1String("/src/s60installs/selfsigned.cer");
-    return QDir::toNativeSeparators(cert);
-}
-
-void S60DeviceRunControlBase::startSigning()
-{
-    // Signis creates a signed package ('.sis') from an 'unsigned.sis'
-    // using certificate and key.
-    QString signsisTool = m_toolsDirectory + QLatin1String("/signsis");
-#ifdef Q_OS_WIN
-    signsisTool += QLatin1String(".exe");
-#endif
-    QStringList arguments;
-    arguments << m_unsignedPackage << m_signedPackage << signSisCertificate() << signSisKey();
-    m_signsisProcess->setWorkingDirectory(m_workingDirectory);
-    emit addToOutputWindow(this, msgRun(signsisTool, arguments));
-    m_signsisProcess->start(signsisTool, arguments, QIODevice::ReadOnly);
-}
-
-void S60DeviceRunControlBase::signsisProcessFailed()
-{
-    processFailed("signsis.exe", m_signsisProcess->error());
-}
-
-void S60DeviceRunControlBase::signsisProcessFinished()
-{
-    if (m_signsisProcess->exitCode() != 0) {
-        error(this, tr("An error occurred while creating the package."));
-        stop();
-        emit finished();
-    } else {
-        m_deployProgress->setProgressValue(PROGRESS_PACKAGESIGNED);
-        startDeployment();
-    }
-}
-
 
 void S60DeviceRunControlBase::startDeployment()
 {

@@ -95,7 +95,6 @@ public:
 
     QString packageFileName() const;
     QString localExecutableFileName() const;
-    QString unsignedPackage() const;
     QString signedPackage() const;
     const QtVersion *qtVersion() const;
 
@@ -195,8 +194,6 @@ private slots:
     void readStandardOutput();
     void makesisProcessFailed();
     void makesisProcessFinished();
-    void signsisProcessFailed();
-    void signsisProcessFinished();
     void printConnectFailed(const QString &errorMessage);
     void printCopyingNotice();
     void printCreateFileFailed(const QString &filename, const QString &errorMessage);
@@ -212,8 +209,6 @@ private slots:
     void reportDeployFinished();
 
 private:
-    bool createPackageFileFromTemplate(QString *errorMessage);
-    void startSigning();
     void startDeployment();
     QString signSisKey() const;
     QString signSisCertificate() const;
@@ -224,22 +219,16 @@ private:
     QString m_targetName;
     QString m_baseFileName;
     QStringList m_commandLineArguments;
-    QString m_symbianPlatform;
-    QString m_symbianTarget;
-    QString m_packageTemplateFile;
     QString m_packageFilePath;
     QString m_workingDirectory;
-    QString m_toolsDirectory;
     QString m_executableFileName;
     QString m_qtDir;
-    QString m_unsignedPackage;
     QString m_signedPackage;
     bool m_useCustomSignature;
     QString m_customSignaturePath;
     QString m_customKeyPath;
     QProcess *m_makesisProcess;
-    QProcess *m_signsisProcess;
-    QString m_makesisTool;
+    QString m_makeTool;
     QString m_packageFile;
     QString m_qtBinPath;
     bool m_releaseDeviceAfterLauncherFinish;

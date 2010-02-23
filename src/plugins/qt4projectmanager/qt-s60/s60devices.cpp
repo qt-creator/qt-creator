@@ -411,8 +411,7 @@ void S60ToolChainMixin::addEpocToEnvironment(ProjectExplorer::Environment *env) 
     QString sbsHome(env->value(QLatin1String("SBS_HOME"))); // Do we use Raptor/SBSv2?
     if (!sbsHome.isEmpty())
         env->prependOrSetPath(sbsHome + QDir::separator() + QLatin1String("bin"));
-
-    env->set(QLatin1String("EPOCDEVICE"), m_device.id + QLatin1Char(':') + m_device.name);
+    // No longer set EPOCDEVICE as it conflicts with packaging
     env->set(QLatin1String("EPOCROOT"), QDir::toNativeSeparators(epocRootPath));
 }
 
