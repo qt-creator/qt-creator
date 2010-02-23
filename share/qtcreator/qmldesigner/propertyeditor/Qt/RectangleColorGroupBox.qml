@@ -13,9 +13,9 @@ GroupBox {
             text: "    Color"			
         }
 
-        ColorTypeButtons {
-
-        }
+//        ColorTypeButtons {
+//
+//        }
 
         ColorGroupBox {
 
