@@ -30,6 +30,7 @@
 #include "maemomanager.h"
 
 #include "maemodeviceconfigurations.h"
+#include "maemorunfactories.h"
 #include "maemosettingspage.h"
 #include "maemotoolchain.h"
 #include "maemorunconfiguration.h"

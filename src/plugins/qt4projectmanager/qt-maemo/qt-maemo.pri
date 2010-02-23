@@ -10,7 +10,10 @@ HEADERS += $$PWD/maemorunconfiguration.h \
     $$PWD/maemosshconnection.h \
     $$PWD/maemosshthread.h \
     $$PWD/maemoruncontrol.h \
-    $$PWD/maemorunconfigurationwidget.h
+    $$PWD/maemorunconfigurationwidget.h \
+    $$PWD/maemorunfactories.h \
+    $$PWD/maemoconstants.h
+
 SOURCES += $$PWD/maemorunconfiguration.cpp \
     $$PWD/maemomanager.cpp \
     $$PWD/maemotoolchain.cpp \
@@ -20,6 +23,8 @@ SOURCES += $$PWD/maemorunconfiguration.cpp \
     $$PWD/maemosshconnection.cpp \
     $$PWD/maemosshthread.cpp \
     $$PWD/maemoruncontrol.cpp \
-    $$PWD/maemorunconfigurationwidget.cpp
+    $$PWD/maemorunconfigurationwidget.cpp \
+    $$PWD/maemorunfactories.cpp
+
 FORMS += $$PWD/maemosettingswidget.ui
 RESOURCES += $$PWD/qt-maemo.qrc

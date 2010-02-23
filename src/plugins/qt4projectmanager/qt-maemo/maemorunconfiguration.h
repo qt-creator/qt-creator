@@ -32,12 +32,13 @@
 
 #include "maemodeviceconfigurations.h"
 
-#include <QtCore/QDateTime>
-#include <QtGui/QWidget>
-
-#include <debugger/debuggermanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/applicationlauncher.h>
+
+#include <QtCore/QDateTime>
+
+QT_FORWARD_DECLARE_CLASS(QProcess)
+QT_FORWARD_DECLARE_CLASS(QWidget)
 
 namespace Qt4ProjectManager {
 
@@ -59,8 +60,7 @@ class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class MaemoRunConfigurationFactory;
 
 public:
-    MaemoRunConfiguration(Qt4Target *parent,
-                          const QString &proFilePath);
+    MaemoRunConfiguration(Qt4Target *parent, const QString &proFilePath);
     virtual ~MaemoRunConfiguration();
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
@@ -107,8 +107,7 @@ signals:
     void qemuProcessStatus(bool running);
 
 protected:
-    MaemoRunConfiguration(Qt4Target *parent,
-                          MaemoRunConfiguration *source);
+    MaemoRunConfiguration(Qt4Target *parent, MaemoRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private slots:
@@ -151,56 +150,9 @@ private:
     QDateTime m_debuggingHelpersLastDeployed;
 
     QProcess *qemu;
-    ErrorDumper dumper;
 };
 
-class MaemoRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
-{
-    Q_OBJECT
-
-public:
-    explicit MaemoRunConfigurationFactory(QObject *parent = 0);
-    ~MaemoRunConfigurationFactory();
-
-    QStringList availableCreationIds(ProjectExplorer::Target *parent) const;
-    QString displayNameForId(const QString &id) const;
-
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source) const;
-    bool canCreate(ProjectExplorer::Target *parent, const QString &id) const;
-    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
-    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *source);
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const QString &id);
-
-private slots:
-    void projectAdded(ProjectExplorer::Project *project);
-    void projectRemoved(ProjectExplorer::Project *project);
-
-    void targetAdded(ProjectExplorer::Target *target);
-    void targetRemoved(ProjectExplorer::Target *target);
-
-    void currentProjectChanged(ProjectExplorer::Project *project);
-
-private:
-    void setupRunConfiguration(MaemoRunConfiguration *rc);
-};
-
-
-class MaemoRunControlFactory : public ProjectExplorer::IRunControlFactory
-{
-    Q_OBJECT
-public:
-    MaemoRunControlFactory(QObject *parent = 0);
-    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                const QString &mode) const;
-    ProjectExplorer::RunControl* create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        const QString &mode);
-    QString displayName() const;
-    QWidget *configurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
-};
-
-} // namespace Internal
+    } // namespace Internal
 } // namespace Qt4ProjectManager
-
 
 #endif // MAEMORUNCONFIGURATION_H
