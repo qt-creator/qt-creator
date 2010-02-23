@@ -348,8 +348,14 @@ void PropertyEditor::changeExpression(const QString &name)
 
     QmlObjectNode fxObjectNode(m_selectedNode);
     PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(name)));
-    if (fxObjectNode.currentState().isBaseState()) {
-        fxObjectNode.modelNode().bindingProperty(name).setExpression(value->expression());
+    try {
+        if (fxObjectNode.currentState().isBaseState()) {
+            fxObjectNode.modelNode().bindingProperty(name).setExpression(value->expression());
+        }
+    }
+
+    catch (Exception &e) {
+        QMessageBox::warning(0, "Error", e.description());
     }
 }
 
