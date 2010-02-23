@@ -54,7 +54,7 @@ GroupBox {
                             backendValue: backendValues.highlightFollowsCurrentItem;
                             baseStateFlag: isBaseState;
                             checkable: true;
-                        }                      
+                        }
 
                         SpinBox {
                             id: spacingSpinBox;
