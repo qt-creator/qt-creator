@@ -24,10 +24,7 @@ QWidget { //This is a special spinBox that does color coding for states
 
 
     Script {
-        function evaluate() {
-		    print("evaluate")
-			print(baseStateFlag)
-			print(backendValue.isInModel)
+        function evaluate() {		   
             if (baseStateFlag) {
                 if (backendValue != null && backendValue.isInModel)
                     box.setStyleSheet("color: white;");
