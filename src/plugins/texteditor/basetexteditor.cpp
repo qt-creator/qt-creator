@@ -3055,7 +3055,7 @@ void BaseTextEditor::drawFoldingMarker(QPainter *painter, const QPalette &pal,
     Q_UNUSED(hovered)
     QStyle *s = style();
     if (ManhattanStyle *ms = qobject_cast<ManhattanStyle*>(s))
-        s = ms->systemStyle();
+        s = ms->baseStyle();
 
     if (!qstrcmp(s->metaObject()->className(), "OxygenStyle")) {
         painter->save();

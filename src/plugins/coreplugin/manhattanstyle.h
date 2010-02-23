@@ -32,7 +32,7 @@
 
 #include "core_global.h"
 
-#include <QtGui/QWindowsStyle>
+#include <QtGui/QProxyStyle>
 
 QT_BEGIN_NAMESPACE
 class QLinearGradient;
@@ -41,7 +41,7 @@ QT_END_NAMESPACE
 
 class ManhattanStylePrivate;
 
-class CORE_EXPORT ManhattanStyle : public QWindowsStyle
+class CORE_EXPORT ManhattanStyle : public QProxyStyle
 {
     Q_OBJECT
 
@@ -49,8 +49,6 @@ public:
     ManhattanStyle(const QString &);
 
     ~ManhattanStyle();
-
-    QStyle *systemStyle() const;
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const;
     void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const;
@@ -76,17 +74,8 @@ public:
 
     void unpolish(QWidget *widget);
     void unpolish(QApplication *app);
-
-protected:
-    bool event(QEvent *e);
-
 protected Q_SLOTS:
     QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const;
-    int layoutSpacingImplementation(QSizePolicy::ControlType control1,
-                                    QSizePolicy::ControlType control2,
-                                    Qt::Orientation orientation,
-                                    const QStyleOption *option = 0,
-                                    const QWidget *widget = 0) const;
 
 private:
     ManhattanStylePrivate *d;

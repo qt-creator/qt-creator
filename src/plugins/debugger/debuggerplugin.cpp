@@ -412,7 +412,7 @@ bool CommonOptionsPage::matches(const QString &s) const
 static inline bool oxygenStyle()
 {
     if (const ManhattanStyle *ms = qobject_cast<const ManhattanStyle *>(qApp->style()))
-        return !qstrcmp("OxygenStyle", ms->systemStyle()->metaObject()->className());
+        return !qstrcmp("OxygenStyle", ms->baseStyle()->metaObject()->className());
     return false;
 }
 

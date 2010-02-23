@@ -120,18 +120,10 @@ bool lightColored(const QWidget *widget)
 class ManhattanStylePrivate
 {
 public:
-    explicit ManhattanStylePrivate(const QString &baseStyleName);
-
-    ~ManhattanStylePrivate()
-    {
-        delete style;
-        style = 0;
-    }
-
+    explicit ManhattanStylePrivate();
     void init();
 
 public:
-    QStyle *style;
     const QImage lineeditImage;
     const QImage lineeditImage_disabled;
     const QPixmap extButtonPixmap;
@@ -139,18 +131,17 @@ public:
     StyleAnimator animator;
 };
 
-ManhattanStylePrivate::ManhattanStylePrivate(const QString &baseStyleName) :
-    style(QStyleFactory::create(baseStyleName)),
+ManhattanStylePrivate::ManhattanStylePrivate() :
     lineeditImage(QLatin1String(":/core/images/inputfield.png")),
     lineeditImage_disabled(QLatin1String(":/core/images/inputfield_disabled.png")),
     extButtonPixmap(QLatin1String(":/core/images/extension.png")),
     closeButtonPixmap(QLatin1String(":/core/images/closebutton.png"))
 {
-    QTC_ASSERT(style, /**/);
 }
 
 ManhattanStyle::ManhattanStyle(const QString &baseStyleName)
-    : QWindowsStyle(), d(new ManhattanStylePrivate(baseStyleName))
+    : QProxyStyle(QStyleFactory::create(baseStyleName)),
+    d(new ManhattanStylePrivate())
 {
 }
 
@@ -158,11 +149,6 @@ ManhattanStyle::~ManhattanStyle()
 {
     delete d;
     d = 0;
-}
-
-QStyle *ManhattanStyle::systemStyle() const
-{
-    return d->style;
 }
 
 // Draws a CSS-like border image where the defined borders are not stretched
@@ -209,25 +195,13 @@ void drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
 
 QPixmap ManhattanStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap, const QStyleOption *opt) const
 {
-    QPixmap result;
-    result = d->style->generatedIconPixmap(iconMode, pixmap, opt);
-    return result;
-}
-
-int ManhattanStyle::layoutSpacingImplementation(QSizePolicy::ControlType control1,
-                                                 QSizePolicy::ControlType control2,
-                                                 Qt::Orientation orientation,
-                                                 const QStyleOption * option ,
-                                                 const QWidget * widget ) const
-{
-    return d->style->layoutSpacing(control1, control2, orientation, option, widget);
-
+    return QProxyStyle::generatedIconPixmap(iconMode, pixmap, opt);
 }
 
 QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
                                        const QSize &size, const QWidget *widget) const
 {
-    QSize newSize = d->style->sizeFromContents(type, option, size, widget);
+    QSize newSize = QProxyStyle::sizeFromContents(type, option, size, widget);
 
     if (type == CT_Splitter && widget && widget->property("minisplitter").toBool())
         return QSize(1, 1);
@@ -238,31 +212,25 @@ QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *op
 
 QRect ManhattanStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
 {
-    QRect rect;
-    rect = d->style->subElementRect(element, option, widget);
-    return rect;
+    return QProxyStyle::subElementRect(element, option, widget);
 }
 
 QRect ManhattanStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option,
                                      SubControl subControl, const QWidget *widget) const
 {
-    QRect rect;
-    rect = d->style->subControlRect(control, option, subControl, widget);
-    return rect;
+    return QProxyStyle::subControlRect(control, option, subControl, widget);
 }
 
 QStyle::SubControl ManhattanStyle::hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                                          const QPoint &pos, const QWidget *widget) const
 {
-    SubControl result = QStyle::SC_None;
-    result = d->style->hitTestComplexControl(control, option, pos, widget);
-    return result;
+    return QProxyStyle::hitTestComplexControl(control, option, pos, widget);
 }
 
 int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
     int retval = 0;
-    retval = d->style->pixelMetric(metric, option, widget);
+    retval = QProxyStyle::pixelMetric(metric, option, widget);
     switch (metric) {
     case PM_SplitterWidth:
         if (widget && widget->property("minisplitter").toBool())
@@ -299,19 +267,17 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
 
 QPalette ManhattanStyle::standardPalette() const
 {
-    QPalette result;
-    result = d->style->standardPalette();
-    return result;
+    return QProxyStyle::standardPalette();
 }
 
 void ManhattanStyle::polish(QApplication *app)
 {
-    d->style->polish(app);
+    return QProxyStyle::polish(app);
 }
 
 void ManhattanStyle::unpolish(QApplication *app)
 {
-    d->style->unpolish(app);
+    return QProxyStyle::unpolish(app);
 }
 
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
@@ -330,12 +296,12 @@ QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
 
 void ManhattanStyle::polish(QWidget *widget)
 {
-    d->style->polish(widget);
+    QProxyStyle::polish(widget);
 
     // OxygenStyle forces a rounded widget mask on toolbars
-    if (d->style->inherits("OxygenStyle")) {
+    if (baseStyle()->inherits("OxygenStyle")) {
         if (qobject_cast<QToolBar*>(widget))
-            widget->removeEventFilter(d->style);
+            widget->removeEventFilter(baseStyle());
     }
     if (panelWidget(widget)) {
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
@@ -362,7 +328,7 @@ void ManhattanStyle::polish(QWidget *widget)
 
 void ManhattanStyle::unpolish(QWidget *widget)
 {
-    d->style->unpolish(widget);
+    QProxyStyle::unpolish(widget);
     if (panelWidget(widget)) {
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, false);
         if (qobject_cast<QTabBar*>(widget))
@@ -376,11 +342,10 @@ void ManhattanStyle::unpolish(QWidget *widget)
 
 void ManhattanStyle::polish(QPalette &pal)
 {
-    d->style->polish(pal);
+    QProxyStyle::polish(pal);
 }
 
-QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
-                                                 const QWidget *widget) const
+QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option, const QWidget *widget) const
 {
     QIcon icon;
     switch (standardIcon) {
@@ -388,7 +353,7 @@ QIcon ManhattanStyle::standardIconImplementation(StandardPixmap standardIcon, co
     case QStyle::SP_ToolBarHorizontalExtensionButton:
         return QIcon(standardPixmap(standardIcon, option, widget));
     default:
-        icon = d->style->standardIcon(standardIcon, option, widget);
+        icon = baseStyle()->standardIcon(standardIcon, option, widget);
     }
     return icon;
 }
@@ -397,7 +362,7 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
                                        const QWidget *widget) const
 {
     if (widget && !panelWidget(widget))
-        return d->style->standardPixmap(standardPixmap, opt, widget);
+        return QProxyStyle::standardPixmap(standardPixmap, opt, widget);
 
     QPixmap pixmap;
     switch (standardPixmap) {
@@ -408,7 +373,7 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
         pixmap = d->closeButtonPixmap;
         break;
     default:
-        pixmap = d->style->standardPixmap(standardPixmap, opt, widget);
+        pixmap = QProxyStyle::standardPixmap(standardPixmap, opt, widget);
         break;
     }
     return pixmap;
@@ -417,7 +382,7 @@ QPixmap ManhattanStyle::standardPixmap(StandardPixmap standardPixmap, const QSty
 int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                               QStyleHintReturn *returnData) const
 {
-    int ret = d->style->styleHint(hint, option, widget, returnData);
+    int ret = QProxyStyle::styleHint(hint, option, widget, returnData);
     switch (hint) {
     // Make project explorer alternate rows all the way
     case QStyle::SH_ItemView_PaintAlternatingRowColorsForEmptyArea:
@@ -441,7 +406,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                                    QPainter *painter, const QWidget *widget) const
 {
     if (!panelWidget(widget))
-        return d->style->drawPrimitive(element, option, painter, widget);
+        return QProxyStyle::drawPrimitive(element, option, painter, widget);
 
     bool animating = (option->state & State_Animating);
     int state = option->state;
@@ -499,7 +464,8 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     }
 
     switch (element) {
-    case PE_PanelItemViewItem:
+/*
+case PE_PanelItemViewItem:
         if (const QStyleOptionViewItemV4 *vopt = qstyleoption_cast<const QStyleOptionViewItemV4 *>(option)) {
             if (vopt->state & State_Selected) {
                 QLinearGradient gradient;
@@ -507,7 +473,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 gradient.setFinalStop(option->rect.bottomRight());
                 gradient.setColorAt(0, option->palette.highlight().color().lighter(115));
                 gradient.setColorAt(1, option->palette.highlight().color().darker(135));
-                painter->fillRect(option->rect, Qt::blue);
+                painter->fillRect(option->rect, gradient);
             } else {
                 if (vopt->backgroundBrush.style() != Qt::NoBrush) {
                     QPointF oldBO = painter->brushOrigin();
@@ -518,6 +484,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             }
         }
         break;
+*/
     case PE_PanelLineEdit:
         {
             painter->save();
@@ -668,7 +635,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
         break;
 
     default:
-        d->style->drawPrimitive(element, option, painter, widget);
+        QProxyStyle::drawPrimitive(element, option, painter, widget);
         break;
     }
 }
@@ -677,7 +644,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                                  QPainter *painter, const QWidget *widget) const
 {
     if (!panelWidget(widget))
-        return d->style->drawControl(element, option, painter, widget);
+        return QProxyStyle::drawControl(element, option, painter, widget);
 
     switch (element) {
     case CE_MenuBarItem:
@@ -765,7 +732,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
                              customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
             } else {
-                d->style->drawControl(element, option, painter, widget);
+                QProxyStyle::drawControl(element, option, painter, widget);
             }
         }
         break;
@@ -874,7 +841,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         }
         break;
     default:
-        d->style->drawControl(element, option, painter, widget);
+        QProxyStyle::drawControl(element, option, painter, widget);
         break;
     }
 }
@@ -883,7 +850,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                                         QPainter *painter, const QWidget *widget) const
 {
     if (!panelWidget(widget))
-         return d->style->drawComplexControl(control, option, painter, widget);
+         return     QProxyStyle::drawComplexControl(control, option, painter, widget);
 
     QRect rect = option->rect;
     switch (control) {
@@ -1009,8 +976,8 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             int right = !reverse ? rect.right() : rect.left() + menuButtonWidth;
             QRect arrowRect((left + right) / 2 + (reverse ? 6 : -6), rect.center().y() - 3, 9, 9);
             if (option->state & State_On)
-                arrowRect.translate(d->style->pixelMetric(PM_ButtonShiftHorizontal, option, widget),
-                                    d->style->pixelMetric(PM_ButtonShiftVertical, option, widget));
+                arrowRect.translate(QProxyStyle::pixelMetric(PM_ButtonShiftHorizontal, option, widget),
+                                    QProxyStyle::pixelMetric(PM_ButtonShiftVertical, option, widget));
 
             QStyleOption arrowOpt = *option;
             arrowOpt.rect = arrowRect;
@@ -1029,15 +996,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
         }
         break;
     default:
-        d->style->drawComplexControl(control, option, painter, widget);
+        QProxyStyle::drawComplexControl(control, option, painter, widget);
         break;
     }
-}
-
-// Mac style reimplements this to control the
-// focus widget among other things
-bool ManhattanStyle::event(QEvent *e)
-{
-    Q_ASSERT(d->style);
-    return d->style->event(e);
 }
