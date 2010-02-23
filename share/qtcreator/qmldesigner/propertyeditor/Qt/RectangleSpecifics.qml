@@ -27,7 +27,7 @@ QWidget {
                     baseStateFlag: isBaseState;
                     step: 1;
                     minimumValue: 0;
-                    maximumValue: 100;
+                    maximumValue: Math.max(1,(Math.min(backendValues.width.value,backendValues.height.value)-backendValues.border_width.value)/2)
                 }
 
 
