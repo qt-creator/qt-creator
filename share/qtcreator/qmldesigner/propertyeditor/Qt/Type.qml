@@ -13,11 +13,11 @@ GroupBox {
                     text: "type";
                     windowTextColor: isBaseState ? "#000000" : "#FF0000";                 
                 }                
-                QLineEdit {
-                    styleSheetFile: "typeLabel.css"
-                    text: backendValues.className === undefined ? "" : backendValues.className.value;
-                    readOnly :true;
+
+                QLabel {
+                    text: backendValues.className.value;
                 }
+
             }
         }
         QWidget {            
