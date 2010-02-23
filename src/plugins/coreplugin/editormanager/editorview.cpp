@@ -86,9 +86,9 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
     m_currentNavigationHistoryPosition(0)
 {
 
-    m_goBackAction = new QAction(QIcon(QLatin1String(":/help/images/previous.png")), tr("Go Back"), this);
+    m_goBackAction = new QAction(QIcon(QLatin1String(":/core/images/prev.png")), tr("Go Back"), this);
     connect(m_goBackAction, SIGNAL(triggered()), this, SLOT(goBackInNavigationHistory()));
-    m_goForwardAction = new QAction(QIcon(QLatin1String(":/help/images/next.png")), tr("Go Forward"), this);
+    m_goForwardAction = new QAction(QIcon(QLatin1String(":/core/images/next.png")), tr("Go Forward"), this);
     connect(m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
 
     QVBoxLayout *tl = new QVBoxLayout(this);
@@ -122,10 +122,11 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
         m_lockButton->setAutoRaise(true);
+        m_lockButton->setVisible(false);
 
         m_closeButton->setAutoRaise(true);
         m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
-
+        m_closeButton->setEnabled(false);
 
         QHBoxLayout *toplayout = new QHBoxLayout;
         toplayout->setSpacing(0);
@@ -341,6 +342,12 @@ IEditor *EditorView::currentEditor() const
 
 void EditorView::setCurrentEditor(IEditor *editor)
 {
+    // FIXME: this keeps the editor hidden if switching from A to B and back
+    if (editor != m_editorForInfoWidget) {
+        m_infoWidget->hide();
+        m_editorForInfoWidget = 0;
+    }
+
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1) {
         updateEditorStatus(0);
@@ -358,12 +365,6 @@ void EditorView::setCurrentEditor(IEditor *editor)
     updateEditorStatus(editor);
     updateToolBar(editor);
     updateEditorHistory(editor);
-
-    // FIXME: this keeps the editor hidden if switching from A to B and back
-    if (editor != m_editorForInfoWidget) {
-        m_infoWidget->hide();
-        m_editorForInfoWidget = 0;
-    }
 }
 
 void EditorView::checkEditorStatus()
@@ -376,6 +377,7 @@ void EditorView::checkEditorStatus()
 void EditorView::updateEditorStatus(IEditor *editor)
 {
     m_lockButton->setVisible(editor != 0);
+    m_closeButton->setEnabled(editor != 0);
 
     if (!editor) {
         m_editorList->setToolTip(QString());
