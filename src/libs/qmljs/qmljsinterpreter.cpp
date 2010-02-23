@@ -771,7 +771,7 @@ void ScopeChain::update()
     foreach (QmlComponentChain *parent, qmlComponentScope.instantiatingComponents)
         parent->add(&_all);
 
-    if (qmlComponentScope.rootObject)
+    if (qmlComponentScope.rootObject && ! qmlScopeObjects.contains(qmlComponentScope.rootObject))
         _all += qmlComponentScope.rootObject;
     _all += qmlScopeObjects;
     _all += qmlComponentScope.functionScopes;

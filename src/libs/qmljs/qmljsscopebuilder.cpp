@@ -68,8 +68,7 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
 
     const ObjectValue *scopeObject = _doc->bind()->findQmlObject(node);
     if (scopeObject) {
-        if (scopeObject != scopeChain.qmlComponentScope.rootObject)
-            scopeChain.qmlScopeObjects += scopeObject;
+        scopeChain.qmlScopeObjects += scopeObject;
     }
 
 #ifndef NO_DECLARATIVE_BACKEND
