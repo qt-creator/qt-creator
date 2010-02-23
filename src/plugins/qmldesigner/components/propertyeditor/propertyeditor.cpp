@@ -88,6 +88,7 @@ void setupPropertyEditorValue(const QString &name, QmlPropertyMap *propertyMap, 
         propertyMap->insert(propertyName, QVariant::fromValue(valueObject));
     }
     valueObject->setName(propertyName);
+    valueObject->setValue(QVariant(""));
 }
 
 void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value, QmlPropertyMap *propertyMap, PropertyEditor *propertyEditor)
