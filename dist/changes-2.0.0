@@ -61,6 +61,7 @@ Linux (GNOME and KDE)
    * Dropping files on the editor now opens them instead of inserting a url
 
 Windows
+   * Fixed possible crash when searching files in file system
    * Show build error count in Taskbar (Windows 7 only)
    * Show build progress in Taskbar (Windows 7 only)
 
