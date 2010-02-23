@@ -500,6 +500,10 @@ void PropertyEditor::modelAttached(Model *model)
     if (debug)
         qDebug() << Q_FUNC_INFO;
 
+    setupPane("Qt/Rectangle");
+    setupPane("Qt/Text");
+    setupPane("Qt/TextInput");
+    setupPane("Qt/TextEdit");
     resetView();
 }
 
