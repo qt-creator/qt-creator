@@ -193,7 +193,7 @@ void GraphicsObjectNodeInstance::paint(QPainter *painter) const
 
         foreach(QGraphicsItem *graphicsItem, graphicsObject()->childItems()) {
             QGraphicsObject *graphicsObject = qgraphicsitem_cast<QGraphicsObject*>(graphicsItem);
-            if (graphicsObject && !graphicsObject->property("HasFormEditorItem").toBool())
+            if (graphicsObject && !nodeInstanceView()->hasInstanceForObject(graphicsObject))
                 paintRecursively(graphicsItem, painter);
         }
     }
@@ -212,8 +212,6 @@ QPair<QGraphicsObject*, bool> GraphicsObjectNodeInstance::createGraphicsObject(c
 //    graphicsObject->setCacheMode(QGraphicsItem::ItemCoordinateCache);
     bool hasContent = !graphicsObject->flags().testFlag(QGraphicsItem::ItemHasNoContents) || metaInfo.isComponent();
     graphicsObject->setFlag(QGraphicsItem::ItemHasNoContents, false);
-
-    graphicsObject->setProperty("HasFormEditorItem", true);
 
     return qMakePair(graphicsObject, hasContent);
 }
