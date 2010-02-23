@@ -839,7 +839,7 @@ private:
     QWidget *m_widget;
     QmlComponent *m_component;
     QVBoxLayout *m_layout;
-
+    QHash<QString, QWidget*> m_cachedWidgets;
 };
 
 QUrl WidgetLoader::source() const
@@ -872,36 +872,41 @@ void WidgetLoader::setSource(const QUrl &source)
         return;
     }
 
-    m_component = new QmlComponent(qmlEngine(this), m_source, this);
+    if (m_cachedWidgets.contains(source.toString())) {
+        m_widget = m_cachedWidgets.value(source.toString());
+        m_widget->show();
+    } else {
+        m_component = new QmlComponent(qmlEngine(this), m_source, this);
 
-    if (m_component) {
-        emit sourceChanged();
-        emit widgetChanged();
-
-        while (m_component->isLoading())
-            QApplication::processEvents();
-
-        if (!m_component->isReady()) {
-            if (!m_component->errors().isEmpty())
-                qWarning() << m_component->errors();
+        if (m_component) {
             emit sourceChanged();
-            return;
-        }
+            emit widgetChanged();
 
-        QmlContext *ctxt = new QmlContext(qmlContext(this));
-        ctxt->addDefaultObject(this);
+            while (m_component->isLoading())
+                QApplication::processEvents();
 
-        QObject *obj = m_component->create(ctxt);
-        if (obj) {
-            QWidget *widget = qobject_cast<QWidget *>(obj);
-            if (widget) {
-                m_widget = widget;
-                m_layout->addWidget(m_widget);
-                m_widget->show();
+            if (!m_component->isReady()) {
+                if (!m_component->errors().isEmpty())
+                    qWarning() << m_component->errors();
+                emit sourceChanged();
+                return;
+            }
+
+            QmlContext *ctxt = new QmlContext(qmlContext(this));
+            ctxt->addDefaultObject(this);
+
+            QObject *obj = m_component->create(ctxt);
+            if (obj) {
+                QWidget *widget = qobject_cast<QWidget *>(obj);
+                if (widget) {
+                    m_cachedWidgets.insert(source.toString(), widget);
+                    m_widget = widget;
+                    m_layout->addWidget(m_widget);
+                    m_widget->show();
+                }
             }
         }
     }
-
 }
 
 QWidget *WidgetLoader::widget() const
