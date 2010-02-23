@@ -1256,8 +1256,8 @@ void QtVersion::updateToolChainAndMkspec() const
 #    endif
         }
     } else if (qt_arch == "arm"
-               && MaemoManager::instance()->isValidMaemoQtVersion(this)) {
-        m_toolChains << ToolChainPtr(MaemoManager::instance()->maemoToolChain(this));
+               && MaemoManager::instance().isValidMaemoQtVersion(this)) {
+        m_toolChains << ToolChainPtr(MaemoManager::instance().maemoToolChain(this));
         m_targetIds.insert(QLatin1String(MAEMO_EMULATOR_TARGET_ID));
         m_targetIds.insert(QLatin1String(MAEMO_DEVICE_TARGET_ID));
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {

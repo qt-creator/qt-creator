@@ -62,9 +62,10 @@ class MaemoSettingsPage;
 class MaemoManager : public QObject
 {
     Q_OBJECT
-
 public:
-    static MaemoManager *instance();
+    MaemoManager();
+    ~MaemoManager();
+    static MaemoManager &instance();
 
     bool isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version) const;
     void addVersion(const Qt4ProjectManager::QtVersion *version) { Q_UNUSED(version); }
@@ -83,10 +84,6 @@ public slots:
 
 signals:
     void startStopQemu();
-
-private:
-    MaemoManager();
-    ~MaemoManager();
 
 private:
     static QMutex m_mutex;

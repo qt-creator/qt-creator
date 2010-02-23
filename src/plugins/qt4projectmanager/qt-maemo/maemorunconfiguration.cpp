@@ -493,7 +493,7 @@ void MaemoRunConfiguration::qemuProcessFinished()
 
 void MaemoRunConfiguration::enabledStateChanged()
 {
-    MaemoManager::instance()->setQemuSimulatorStarterEnabled(isEnabled());
+    MaemoManager::instance().setQemuSimulatorStarterEnabled(isEnabled());
 }
 
 void MaemoRunConfiguration::updateDeviceConfigurations()

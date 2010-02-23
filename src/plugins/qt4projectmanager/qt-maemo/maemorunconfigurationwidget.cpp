@@ -154,9 +154,9 @@ void MaemoRunConfigurationWidget::resetDeviceConfigurations()
 
 void MaemoRunConfigurationWidget::showSettingsDialog()
 {
-    MaemoSettingsPage *settingsPage = MaemoManager::instance()->settingsPage();
+    MaemoSettingsPage *settingsPage = MaemoManager::instance().settingsPage();
     Core::ICore::instance()->showOptionsDialog(settingsPage->category(),
-                                               settingsPage->id());
+        settingsPage->id());
 }
 
 } // namespace Internal

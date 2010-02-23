@@ -65,7 +65,7 @@ MaemoManager::MaemoManager()
     , m_settingsPage(new MaemoSettingsPage(this))
     , m_qemuCommand(0)
 {
-
+    m_instance = this;
     icon.addFile(":/qt-maemo/images/qemu-run.png", iconSize);
     icon.addFile(":/qt-maemo/images/qemu-stop.png", iconSize, QIcon::Normal,
         QIcon::On);
@@ -83,14 +83,14 @@ MaemoManager::~MaemoManager()
     ExtensionSystem::PluginManager::instance()->removeObject(m_settingsPage);
 }
 
-MaemoManager *MaemoManager::instance()
+MaemoManager &MaemoManager::instance()
 {
     if (!m_instance) {
         QMutexLocker _(&m_mutex);
         if (!m_instance)
-            m_instance = new MaemoManager;
+            new MaemoManager;
     }
-    return m_instance;
+    return *m_instance;
 }
 
 bool

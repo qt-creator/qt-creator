@@ -164,9 +164,9 @@ RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent,
 void MaemoRunConfigurationFactory::setupRunConfiguration(MaemoRunConfiguration *rc)
 {
     if (rc) {
-        connect(MaemoManager::instance(), SIGNAL(startStopQemu()), rc,
+        connect(&MaemoManager::instance(), SIGNAL(startStopQemu()), rc,
             SLOT(startStopQemu()));
-        connect(rc, SIGNAL(qemuProcessStatus(bool)), MaemoManager::instance(),
+        connect(rc, SIGNAL(qemuProcessStatus(bool)), &MaemoManager::instance(),
             SLOT(updateQemuSimulatorStarter(bool)));
     }
 }
@@ -201,7 +201,7 @@ void MaemoRunConfigurationFactory::targetAdded(ProjectExplorer::Target *target)
         && target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID))
         return;
 
-    MaemoManager::instance()->addQemuSimulatorStarter(target->project());
+    MaemoManager::instance().addQemuSimulatorStarter(target->project());
 }
 
 void MaemoRunConfigurationFactory::targetRemoved(ProjectExplorer::Target *target)
@@ -210,7 +210,7 @@ void MaemoRunConfigurationFactory::targetRemoved(ProjectExplorer::Target *target
         && target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID))
         return;
 
-    MaemoManager::instance()->removeQemuSimulatorStarter(target->project());
+    MaemoManager::instance().removeQemuSimulatorStarter(target->project());
 }
 
 void MaemoRunConfigurationFactory::currentProjectChanged(
@@ -222,7 +222,7 @@ void MaemoRunConfigurationFactory::currentProjectChanged(
     Target *maemoTarget(project->target(QLatin1String(MAEMO_EMULATOR_TARGET_ID)));
     if (!maemoTarget)
         maemoTarget = project->target(QLatin1String(MAEMO_DEVICE_TARGET_ID));
-    MaemoManager::instance()->setQemuSimulatorStarterEnabled(maemoTarget != 0);
+    MaemoManager::instance().setQemuSimulatorStarterEnabled(maemoTarget != 0);
 
     bool isRunning = false;
     if (maemoTarget
@@ -233,7 +233,7 @@ void MaemoRunConfigurationFactory::currentProjectChanged(
         if (mrc)
             isRunning = mrc->isQemuRunning();
     }
-    MaemoManager::instance()->updateQemuSimulatorStarter(isRunning);
+    MaemoManager::instance().updateQemuSimulatorStarter(isRunning);
 }
 
 

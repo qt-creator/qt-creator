@@ -146,7 +146,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new LinguistExternalEditor);
 
     addAutoReleasedObject(new S60Manager);
-    addAutoReleasedObject(MaemoManager::instance());
+    addAutoReleasedObject(new MaemoManager);
 
     new ProFileCacheManager(this);
 
