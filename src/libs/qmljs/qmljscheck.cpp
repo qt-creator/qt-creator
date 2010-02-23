@@ -144,6 +144,32 @@ void Check::errorOnWrongRhs(const SourceLocation &loc, const Value *lhsValue)
 
 bool Check::visit(UiScriptBinding *ast)
 {
+    // special case for id property
+    if (ast->qualifiedId->name->asString() == QLatin1String("id") && ! ast->qualifiedId->next) {
+        if (! ast->statement)
+            return false;
+
+        const SourceLocation loc = locationFromRange(ast->statement->firstSourceLocation(),
+                                                     ast->statement->lastSourceLocation());
+
+        ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement);
+        if (!expStmt) {
+            error(loc, QCoreApplication::translate("QmlJS::Check", "expected id"));
+            return false;
+        }
+
+        IdentifierExpression *idExp = cast<IdentifierExpression *>(expStmt->expression);
+        if (! idExp) {
+            error(loc, QCoreApplication::translate("QmlJS::Check", "expected id"));
+            return false;
+        }
+
+        if (! idExp->name->asString()[0].isLower()) {
+            error(loc, QCoreApplication::translate("QmlJS::Check", "ids must be lower case"));
+            return false;
+        }
+    }
+
     const Value *lhsValue = checkScopeObjectMember(ast->qualifiedId);
     if (lhsValue) {
         // ### Fix the evaluator to accept statements!
