@@ -48,8 +48,10 @@ Debugging
 
 Help
 
-QML Support
+QML/JS Support
   * Runtime QML errors become links to the location of the error
+  * Extended code navigation and completion
+  * Added initial semantic checks
 
 Platform Specific
 
