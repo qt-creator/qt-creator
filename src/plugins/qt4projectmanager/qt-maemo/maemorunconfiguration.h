@@ -51,17 +51,6 @@ class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 class Qt4Target;
 
-class ErrorDumper : public QObject
-{
-    Q_OBJECT
-public:
-    ErrorDumper(QObject *parent = 0)
-        : QObject(parent) {}
-
-public slots:
-    void printToStream(QProcess::ProcessError error);
-};
-
 class MaemoRunConfigurationFactory;
 
 class MaemoRunConfiguration : public ProjectExplorer::RunConfiguration

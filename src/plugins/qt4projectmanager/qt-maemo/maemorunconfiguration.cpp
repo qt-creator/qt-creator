@@ -26,7 +26,6 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-
 #include "maemorunconfiguration.h"
 
 #include "maemodeviceconfigurations.h"
@@ -83,47 +82,6 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 using namespace ProjectExplorer;
-
-void ErrorDumper::printToStream(QProcess::ProcessError error)
-{
-    QString reason;
-    switch (error) {
-        case QProcess::FailedToStart:
-            reason = "The process failed to start. Either the invoked program is"
-                " missing, or you may have insufficient permissions to invoke "
-                "the program.";
-            break;
-
-        case QProcess::Crashed:
-            reason = "The process crashed some time after starting successfully.";
-            break;
-
-        case QProcess::Timedout:
-            reason = "The last waitFor...() function timed out. The state of "
-                "QProcess is unchanged, and you can try calling waitFor...() "
-                "again.";
-            break;
-
-        case QProcess::WriteError:
-            reason = "An error occurred when attempting to write to the process."
-                " For example, the process may not be running, or it may have "
-                "closed its input channel.";
-            break;
-
-        case QProcess::ReadError:
-            reason = "An error occurred when attempting to read from the process."
-                " For example, the process may not be running.";
-            break;
-
-        default:
-            reason = "QProcess::UnknownError";
-            break;
-    }
-    qWarning() << "Failed to run emulator. Reason:" << reason;
-}
-
-
-// #pragma mark -- MaemoRunConfiguration
 
 MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
         const QString &proFilePath)
@@ -183,8 +141,6 @@ void MaemoRunConfiguration::init()
         this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 
     qemu = new QProcess(this);
-    connect(qemu, SIGNAL(error(QProcess::ProcessError)), &dumper,
-        SLOT(printToStream(QProcess::ProcessError)));
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this,
         SLOT(qemuProcessFinished()));
 }
