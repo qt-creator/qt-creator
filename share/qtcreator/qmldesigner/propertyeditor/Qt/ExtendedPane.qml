@@ -20,9 +20,9 @@ QScrollArea {
 			spacing: 0;
             Modifiers {
             }
-            Extended {
-                id: extendedBox;
-            }
+//            Extended {
+//                id: extendedBox;
+//            }
 
             QScrollArea {
             }
