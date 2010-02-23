@@ -82,6 +82,8 @@ public:
 
     QIcon icon() const;
     void setIcon(QIcon icon);
+    QIcon overlayIcon() const;
+    void setOverlayIcon(QIcon icon);
     QString toolTip() const;
     void setToolTip(const QString &text);
 
@@ -90,6 +92,7 @@ public:
 signals:
     void targetEnabled(bool);
     void iconChanged();
+    void overlayIconChanged();
     void toolTipChanged();
 
     // TODO clean up signal names
@@ -122,6 +125,7 @@ private:
     Project *m_project;
     bool m_isEnabled;
     QIcon m_icon;
+    QIcon m_overlayIcon;
     QString m_toolTip;
 
     QList<BuildConfiguration *> m_buildConfigurations;

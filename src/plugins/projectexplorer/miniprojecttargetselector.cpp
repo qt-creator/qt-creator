@@ -55,6 +55,26 @@
 
 #include <QtGui/QApplication>
 
+static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
+{
+    QPixmap targetPixmap;
+    targetPixmap = QPixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
+    targetPixmap.fill(Qt::transparent);
+    QPainter painter(&targetPixmap);
+
+    QSize actualSize = icon.actualSize(QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE));
+    painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - actualSize.width())/2,
+                       (Core::Constants::TARGET_ICON_SIZE - actualSize.height())/2,
+                       icon.pixmap(Core::Constants::TARGET_ICON_SIZE));
+    if (!overlay.isNull()) {
+        actualSize = overlay.actualSize(QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE));
+        painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - actualSize.width())/2,
+                           (Core::Constants::TARGET_ICON_SIZE - actualSize.height())/2,
+                           overlay.pixmap(Core::Constants::TARGET_ICON_SIZE));
+    }
+    return QIcon(targetPixmap);
+}
+
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
@@ -198,20 +218,7 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
 
 void MiniTargetWidget::updateIcon()
 {
-    QPixmap targetPixmap;
-    QPixmap targetPixmapCandidate = m_target->icon().pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
-    QSize actualSize = m_target->icon().actualSize(QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE));
-    if (actualSize == QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE)) {
-        targetPixmap = targetPixmapCandidate;
-    } else {
-        targetPixmap = QPixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
-        targetPixmap.fill(Qt::transparent);
-        QPainter painter(&targetPixmap);
-        painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - actualSize.width())/2,
-                           (Core::Constants::TARGET_ICON_SIZE - actualSize.height())/2,
-                           targetPixmapCandidate);
-    }
-    m_targetIcon->setPixmap(targetPixmap);
+    m_targetIcon->setPixmap(createCenteredIcon(m_target->icon(), QIcon()).pixmap(Core::Constants::TARGET_ICON_SIZE));
 }
 
 ProjectExplorer::Target *MiniTargetWidget::target() const
@@ -404,6 +411,7 @@ void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool 
 
     connect(target, SIGNAL(toolTipChanged()), this, SLOT(updateAction()));
     connect(target, SIGNAL(iconChanged()), this, SLOT(updateAction()));
+    connect(target, SIGNAL(overlayIconChanged()), this, SLOT(updateAction()));
     ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
 
     QListWidgetItem *lwi = new QListWidgetItem();
@@ -456,6 +464,9 @@ void MiniProjectTargetSelector::removeTarget(ProjectExplorer::Target *target)
         delete plw->takeItem(i);
         delete mtw;
     }
+    disconnect(target, SIGNAL(toolTipChanged()), this, SLOT(updateAction()));
+    disconnect(target, SIGNAL(iconChanged()), this, SLOT(updateAction()));
+    disconnect(target, SIGNAL(overlayIconChanged()), this, SLOT(updateAction()));
 }
 
 void MiniProjectTargetSelector::updateAction()
@@ -484,7 +495,7 @@ void MiniProjectTargetSelector::updateAction()
                 runConfig = rc->displayName();
             }
             targetToolTipText = target->toolTip();
-            targetIcon = target->icon();
+            targetIcon = createCenteredIcon(target->icon(), target->overlayIcon());
         }
     }
     m_projectAction->setProperty("heading", projectName);

@@ -213,6 +213,17 @@ void Target::setIcon(QIcon icon)
     emit iconChanged();
 }
 
+QIcon Target::overlayIcon() const
+{
+    return m_overlayIcon;
+}
+
+void Target::setOverlayIcon(QIcon icon)
+{
+    m_overlayIcon = icon;
+    emit overlayIconChanged();
+}
+
 QString Target::toolTip() const
 {
     return m_toolTip;

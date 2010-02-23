@@ -218,7 +218,7 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
             this, SLOT(updateToolTipAndIcon()));
 
     setDisplayName(displayNameForId(id));
-    updateToolTipAndIcon();
+    setIcon(iconForId(id));
 }
 
 Qt4Target::~Qt4Target()
@@ -407,7 +407,7 @@ bool Qt4Target::fromMap(const QVariantMap &map)
         return false;
 
     setDisplayName(displayNameForId(id()));
-    updateToolTipAndIcon();
+    setIcon(iconForId(id()));
 
     return true;
 }
@@ -455,22 +455,14 @@ void Qt4Target::changeTargetInformation()
 
 void Qt4Target::updateToolTipAndIcon()
 {
+    static const int TARGET_OVERLAY_ORIGINAL_SIZE = 32;
     if (const S60DeviceRunConfiguration *s60DeviceRc = qobject_cast<S60DeviceRunConfiguration *>(activeRunConfiguration()))  {
-        QPixmap pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
-        pixmap.fill(Qt::transparent);
-        QPainter painter(&pixmap);
-        const QIcon &icon = iconForId(id());
-        QSize actualSize = icon.actualSize(QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE));
-        painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE-actualSize.width())/2,
-                           (Core::Constants::TARGET_ICON_SIZE-actualSize.height())/2,
-                           icon.pixmap(Core::Constants::TARGET_ICON_SIZE));
-
         const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
         const int deviceIndex = sdm->findByPortName(s60DeviceRc->serialPortName());
+        QPixmap overlay;
         if (deviceIndex == -1) {
             setToolTip(tr("<b>Device:</b> Not connected"));
-            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - m_disconnectedPixmap.width(),
-                               m_disconnectedPixmap.height(), m_disconnectedPixmap);
+            overlay = m_disconnectedPixmap;
         } else {
             // device connected
             const SymbianUtils::SymbianDevice device = sdm->devices().at(deviceIndex);
@@ -478,12 +470,20 @@ void Qt4Target::updateToolTipAndIcon()
                                     tr("<b>Device:</b> %1").arg(device.friendlyName()) :
                                     tr("<b>Device:</b> %1, %2").arg(device.friendlyName(), device.additionalInformation());
             setToolTip(tooltip);
-            painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - m_connectedPixmap.width(),
-                               m_connectedPixmap.height(), m_connectedPixmap);
+            overlay = m_connectedPixmap;
         }
-        setIcon(QIcon(pixmap));
-        return;
+        double factor = Core::Constants::TARGET_ICON_SIZE / (double)TARGET_OVERLAY_ORIGINAL_SIZE;
+        QSize overlaySize(overlay.size().width()*factor, overlay.size().height()*factor);
+        QPixmap pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE);
+        pixmap.fill(Qt::transparent);
+        QPainter painter(&pixmap);
+        painter.drawPixmap(Core::Constants::TARGET_ICON_SIZE - overlaySize.width(),
+                           Core::Constants::TARGET_ICON_SIZE - overlaySize.height(),
+                           overlay.scaled(overlaySize));
+
+        setOverlayIcon(QIcon(pixmap));
+    } else {
+        setToolTip(QString());
+        setOverlayIcon(QIcon());
     }
-    setToolTip(QString());
-    setIcon(iconForId(id()));
 }
