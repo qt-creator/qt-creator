@@ -8,22 +8,24 @@
 /*!
     \contentspage{index.html}{Qt Creator}
     \page index.html
-    \nextpage creator-quick-tour.html
+    \nextpage creator-overview.html
 
     \title Qt Creator Manual
 
     \section1 Version 1.3.80
 
-    The goal of Qt Creator is to provide a cross-platform, complete Integrated
-    Development Environment (IDE) to develop Qt projects. It is available for
-    the Linux, Mac OS X and Windows platforms.
+    Qt Creator provides a cross-platform, complete integrated development
+    environment (IDE) for developing Qt projects. It is available for Linux,
+    Mac OS X and Windows operating systems. You can use Qt Creator to develop
+    applications for desktop and Symbian platforms. For more information, see
+    \l{Operating systems and supported platforms}.
 
     \note Please report bugs and suggestions to the
     \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
     You can also join the Qt Creator mailing list. To subscribe,
     send a message with the word \e subscribe to
     \l{mailto:qt-creator-request@trolltech.com}
-    {qt-creator-request@trolltech.com}. For more information on Qt mailing
+    {qt-creator-request@trolltech.com}. For more information about Qt mailing
     lists, visit \l{http://lists.trolltech.com}{http://lists.trolltech.com}.
 
     \raw HTML
@@ -31,26 +33,35 @@
     \endraw
 
     \list
-       \o   \l{A Quick Tour of Qt Creator}
-       \o   \l{Creating a Project in Qt Creator}
-       \o   \l{Writing a Simple Program with Qt Creator}
-       \o   \l{The Code Editor}
-       \o   \l{Navigating Around Your Code with Locator}
-       \o   \l{Session Management in Qt Creator}
-       \o   \l{Qt Version Management}
-       \o   \l{Project Settings}
-       \o   \l{CMake Support in Qt Creator}
-       \o   \l{Support for Generic Projects in Qt Creator}
-       \o   \l{External Libraries}
-       \o   \l{Development of Qt for Symbian Based Applications}
-       \o   \l{Qt Creator and Debugging}
-       \o   \l{Qt Creator and Version Control Systems}
-       \o   \l{Tips and Tricks}
-       \o   \l{Keyboard Shortcuts}
-       \o   \l{Glossary}
-       \o   \l{Supported Platforms}
-       \o   \l{Known Issues}
-       \o   \l{Acknowledgements}
+       \o \l{Operating Systems and Supported Platforms}
+       \o \l{Quick Tour}
+       \o \l{Writing a Simple Program}
+       \o \l{Using the Editor}
+            \list
+                \o \l{Finding and Replacing}
+                \o \l{Refactoring}
+                \o \l{Searching With the Locator}
+            \endlist
+       \o \l{Managing Projects}
+            \list
+                \o \l{Creating a Project}
+                \o \l{Setting Up a qmake Project}
+                \o \l{Setting Up a CMake Project}
+                \o \l{Setting Up a Generic Project}
+                \o \l{Managing Sessions}
+            \endlist
+       \o \l{Developing Applications}
+            \list
+                \o \l{Developing Maemo Applications}
+                \o \l{Developing Symbian Applications}
+            \endlist
+       \o \l{Debugging}
+       \o \l{Using Version Control Systems}
+       \o \l{Tips and Tricks}
+       \o \l{Keyboard Shortcuts}
+       \o \l{Known Issues}
+       \o \l{Glossary}
+       \o \l{Acknowledgements}
     \endlist
 */
 
@@ -58,77 +69,195 @@
 /*!
     \contentspage index.html
     \previouspage index.html
+    \page creator-os-supported-platforms.html
+    \nextpage creator-quick-tour.html
+
+    \title Operating Systems and Supported Platforms
+
+    \section1 Operating Systems
+
+    Qt Creator is available in binary packages for the following operating
+    systems:
+    \list
+        \o Windows XP Service Pack 2
+        \o Windows Vista
+        \o (K)Ubuntu Linux 7.04 32-bit and 64-bit with the following:
+           \list
+               \o g++
+               \o make
+               \o libglib2.0-dev
+               \o libSM-dev
+               \o libxrender-dev
+               \o libfontconfig1-dev
+               \o libxext-dev
+               \o libfreetype6-dev
+               \o libx11-dev
+               \o libxcursor-dev
+               \o libxfixes-dev
+               \o libxft-dev
+               \o libxi-dev
+               \o libxrandr-dev
+               \o If you are using QtOpenGL, libglui-dev
+           \endlist
+        \o Mac OS 10.4 or later with the following:
+           \list
+               \o Xcode tools for your Mac OS X version available from your Mac
+                  OS X installation DVDs or at \l http://developer.apple.com.
+           \endlist
+    \endlist
+
+    \section1 Building Qt Creator
+
+    To build Qt Creator itself from the source, you need:
+    \list
+        \o Qt 4.6.0 or later
+        \o On Windows, MinGW 4.4 or Microsoft Visual Studio 2008
+    \endlist
+
+    \section1 Supported Platforms
+
+    \table
+        \header
+            \o {1,2} Operating system
+            \o {2,1} Platform
+        \header
+            \o Desktop
+            \o Symbian
+        \row
+            \o Windows
+            \o Yes
+            \o Yes
+        \row
+            \o Linux
+            \o Yes
+            \o No
+        \row
+            \o Mac OS X
+            \o Yes
+            \o No
+    \endtable
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-os-supported-platforms.html
     \page creator-quick-tour.html
-    \nextpage creator-creating-project.html
+    \nextpage creator-writing-program.html
 
-    \title A Quick Tour of Qt Creator
+    \title Quick Tour
 
-    The labeled screenshot below shows some of the components of Qt Creator, in
-    \gui Edit mode.
+    The figure below shows some of the components of Qt Creator in
+    \gui{Edit mode}.
 
     \image qtcreator-breakdown.png
 
-    \section1 The Mode Selectors
+    \section1 Qt Creator Modes
 
-    When working in Qt Creator, you can be in one of six modes: \bold Welcome,
-    \bold Edit, \bold Debug, \bold Projects, \bold Help, and \bold Output.
-
-    Mode selectors allow you to quickly switch between tasks: editing, browsing
-    the Qt Creator manual, setting up the build environment, etc. You can
-    activate a mode by either clicking on its mode selector, or using the
-    \l{keyboard-shortcuts}{corresponding keyboard shortcut}. Certain actions also
-    trigger a mode change, e.g., \gui{Debug}/\gui{Start debugging} switches
-    to the \gui Debug mode.
+    The mode selector allows you to quickly switch between tasks such as
+    editing project and source files, configuring how projects are built and
+    executed, and debugging your applications. To change modes, click the
+    icons, or use the \l{keyboard-shortcuts}{corresponding keyboard shortcut}.
 
     \list
+        \o Use the \gui Welcome mode to open recent sessions and projects.
+        \o Use the \gui Edit mode to edit project and source files.
+           \l{The sidebar} in the Edit mode provides different views for
+           browsing files.
+        \o Use the \gui Debug mode to inspect the state of your program while
+           debugging. For more information, see \l Debugging.
+        \o Use the \gui Projects mode to configure project builing and
+           execution. For more information, see \l{Managing Projects}.
+        \o Use the \gui Help mode to view Qt documentation. For more
+           information, see \l{Qt Help Integration}.
+        \o Use the \gui Output mode to examine, for example, build issues
+           and compile and application output. This information is also
+           available in \l{The output panes}{the output panes}.
+    \endlist
 
-    \o \gui{Welcome mode} - Displays a welcome screen allowing you to quickly
-    load sessions or recent individual projects. This is the mode displayed
-    when Qt Creator is run without command line switches.
+    Certain actions in Qt Creator trigger a mode change. For example,
+    \gui Debug > \gui{Start debugging} > \gui{Start debugging}
+    automatically switches to \gui Debug mode.
 
-    \o \gui{Edit mode} - Lets you edit both project and source files. A sidebar
-    on the left provides different views for navigating between files.
 
-    \o \gui{Debug mode} - Provides various ways to inspect the state of the
-    program while debugging. See \l{Qt Creator and Debugging} for a hands-on
-    description of how to use this mode.
+    \section1 The Sidebar
 
-    \o \gui{Projects mode} - Lets you configure how projects can be built and
-    executed. Under the list of projects, there are tabs to configure the
-    build, run, and editor settings.
+    Use the sidebar to browse files, projects and bookmarks.
+    \image qtcreator-sidebar.png
 
-    \o \gui{Help mode} - Shows all documentation registered by Qt Assistant,
-    such as the Qt library and Qt Creator documentation.
+    You can select the content of the sidebar in the sidebar menu:
+    \list
+        \o \gui Projects shows a list of projects open in the current
+           session.
+        \o \gui{File System} shows the content of the currently selected
+           directory.
+        \o \gui Bookmarks shows all bookmarks for the current session.
+        \o \gui{Open Documents} shows currently open files.
+    \endlist
 
-    \o \gui{Output mode} - Lets you examine various data in detail, for example
-    build issues as well as compile and application output. This information
-    is also available in the output panes.
+    You can change the view of the sidebar in the following ways:
+    \list
+        \o To toggle the sidebar, click \inlineimage qtcreator-togglebutton.png
+           or press \key Alt+0 (\key Cmd+0 on Mac OS X).
+        \o To split the sidebar, click \inlineimage qtcreator-splitbar.png
+           . When you split the sidebar, the new view shows the same
+           contents as the view you are splitting.
+        \o To close a sidebar view, click
+           \inlineimage qtcreator-closesidebar.png
+           .
+    \endlist
 
+
+    \section2 Project Tree
+
+    When the sidebar shows projects, they are displayed in a project tree. The
+    project tree contains a list of all projects open in the current session.
+    The files for each project are grouped according to their file type.
+
+    You can use the project tree in the following ways:
+    \list
+        \o Right-clicking an item in the project tree brings up a
+           context menu containing the actions most commonly needed.
+           For example, through the menu of the project root directory you can,
+           among other actions, build, re-build, clean and run the project.
+        \o To list all files in a project, click
+           \inlineimage qtcreator-filter.png
+           and select \gui{Simplify tree}.
+        \o During a build, the build system automatically generates source
+           files. To hide these files, click \inlineimage qtcreator-filter.png
+           and select \gui{Hide generated files}.
+        \o To toggle the synchronization of your project tree with the file
+           opened in the editor, click
+           \inlineimage qtcreator-synchronizefocus.png
+           .
+        \o To see the absolute path of a file, move the mouse pointer over the
+           file name.
     \endlist
 
 
     \section1 The Output Panes
 
-    The task pane in Qt Creator can display one of four different panes:
+    The task pane in Qt Creator can display one of the following panes:
     \gui{Build Issues}, \gui{Search Results}, \gui{Application Output}, and
-    \gui{Compile Output}. These panes are available in all modes.
+    \gui{Compile Output}. Output panes are available in all
+    \l{Qt Creator modes}{modes}.
 
 
     \section2 Build Issues
 
-    The \gui{Build Issues} pane provides a list of issues, e.g., error messages
-    or warnings that need to be fixed. It filters out irrelevant output from
-    the compiler and presents the issues in an organized way.
+    The \gui{Build Issues} pane provides a list of errors and warnings
+    encoutered during a build. The pane filters out irrelevant output from
+    the build tools and presents the issues in an organized way.
 
     \image qtcreator-build-issues.png
 
 
     \section2 Search Results
 
-    The \gui{Search Results} pane displays the results for global searches such
-    as searching within a current document, files on disk, or all projects. In
-    the screenshot below, we searched for all occurrences of \c{textfinder}
-    within the \c{"/TextFinder"} folder.
+    The \gui{Search Results} pane displays the results for global searches
+    such as searching within a current document, files on disk, or all
+    projects. The figure below shows an example output of search result for all
+    occurrences of \c textfinder within the \c "/TextFinder" directory.
 
     \image qtcreator-search-pane.png
 
@@ -136,7 +265,8 @@
     \section2 Application Output
 
     The \gui{Application Output} pane displays the status of a program when
-    it is executed, and the debug output, e.g., output from qDebug().
+    it is executed, and the debug output. The figure below shows an example
+    output from qDebug().
 
     \image qtcreator-application-output.png
 
@@ -145,7 +275,7 @@
 
     The \gui{Compile Output} pane provides all output from the compiler. In
     other words, it is a more detailed version of information displayed in the
-    \gui{Build Issues}
+    \gui{Build Issues} pane.
 
     \image qtcreator-compile-pane.png
 
@@ -153,28 +283,34 @@
     \section1 Qt Help Integration
 
     Qt Creator comes fully integrated with all of Qt's documentation and
-    examples via the Qt Help plugin. To view the documentation, switch
-    to the \gui{Help} mode. To obtain context sensitive help, move the text
-    cursor to a Qt class or function and press \key{F1}. The documentation
-    is displayed in a pane on the right, as shown in the screenshot
-    below. If there is enough vertical space, it is shown in the
-    fullscreen help mode.
+    examples using the Qt Help plugin.
+
+    To view documentation, switch to \gui Help mode.
+
+    To obtain context sensitive help, move the text cursor to a Qt class or
+    function and press \key F1. The documentation is displayed in a pane
+    next to the code editor, or, if there is not enough vertical space, in the
+    fullscreen \gui Help mode.
 
     \image qtcreator-context-sensitive-help.png
 
-    External documentation provided by the user can be used to augment or
-    replace the documentation shipped with Qt Creator and Qt.
+    To select and configure how the documentation is displayed in the
+    \gui Help mode, select \gui Tools > \gui Options... > \gui Help.
 
+    \section2 Adding External Documentation
 
-    \section1 Qt Designer Integration
+    You can display external documentation in Qt Creator's \gui Help mode.
+    To augument or replace the documentation that ships with Qt Creator and Qt:
+    \list 1
+        \o Create a .qch file from your documentation.
 
-    Qt Creator is fully integrated with Qt Designer to help you design user
-    interface forms like you would with the standalone version. The Qt
-    Designer integration also includes project management and code completion.
-    For more information on Qt Designer, see
-    \l{http://doc.trolltech.com/designer-manual.html}{The Designer Manual}.
-
-    \image qtcreator-formedit.png
+           For information on how to prepare your documentation and create a
+           .qch file, see
+           \l http://doc.qt.nokia.com/4.6/qthelp-framework.html
+           {The Qt help framework}.
+        \o Add the .qch file to Qt Creator by selecting \gui Tools >
+           \gui Options... > \gui Help > \gui Documentation > \gui Add.
+    \endlist
 
 
     \section1 Keyboard Navigation
@@ -182,47 +318,207 @@
     Qt Creator caters not only to developers who are used to using the mouse,
     but also to developers who are more comfortable with the keyboard. A wide
     range of \l{keyboard-shortcuts}{keyboard} and
-    \l{Navigating Around Your Code with Locator}{navigation} shortcuts
-    are available to help speed up the process of developing your application.
+    \l{Searching With the Locator}{navigation} shortcuts are available to help
+    speed up the process of developing your application.
+
+
+    \section1 Qt Designer Integration
+
+    To help you design the user interface of your application, a complete
+    version of Qt Designer is integrated right into Qt Creator. Qt Creator
+    automatically opens all .ui files in Qt Designer.
+
+    The Qt Designer integration includes project management and code
+    completion.
+
+    \image qtcreator-formedit.png
+
+    To change the layout of Qt Designer user interface elements:
+    \list 1
+        \o Select \gui Tools > \gui{Form editor} > \gui Views >
+           \gui Locked.
+
+           When this option is unchecked, you can change the layout.
+        \o Click the header of an element and drag the element to a new
+           position.
+    \endlist
+
+    To change Qt Designer properties, select \gui Tools > \gui Options >
+    \gui Designer.
+    \list
+        \o Set the class properties and code generation preferences in \gui
+           {Class Generation}.
+        \o Set an additional folder for saving templates in \gui{Template
+           Paths}.
+        \o Set the grid settings and preview preferences in \gui Forms. To
+           preview your form with skins, enable \gui{Print/Preview
+           Configuration} and select your skin. Otherwise default preview
+           settings are used.
+
+           To preview the settings, select \gui Tools > \gui{Form Editor} >
+           \gui Preview, or press \key Ctrl+Alt+R.
+        \o To specify embedded device profiles, such as style, font, and screen
+           resolution, select \gui{Embedded Design}.
+    \endlist
+
+    For more information on Qt Designer, see
+    \l{http://doc.trolltech.com/designer-manual.html}{Qt Designer Manual}.
 */
+
 
 /*!
     \contentspage index.html
     \previouspage creator-writing-program.html
-    \page creator-code-editor.html
-    \nextpage creator-navigation.html
+    \page creator-editor-using.html
+    \nextpage creator-editor-finding.html
 
-    \title The Code Editor
+    \title Using the Editor
 
-    Qt Creator's code editor is designed to aid the developer in creating, editing,
-    and navigating code. It is fully equipped with syntax highlighting, code
-    completion, context sensitive help, and inline error indicators
-    while you are typing.
+    Qt Creator's code editor is designed to aid you in creating, editing and
+    navigating code. It is fully equipped with syntax checking, code
+    completion, context sensitive help and in-line error indicators while you
+    are typing.
 
-    \section1 Code Editor Configuration
 
-    The screenshots below show the various dialogs within
-    which you can configure your editor.
+    \section1 Configuring the Editor
 
-    \table
-        \row
-            \i  \inlineimage qtcreator-texteditor-fonts.png
-        \row
-            \i  \inlineimage qtcreator-texteditor-behavior.png
-        \row
-            \i  \inlineimage qtcreator-texteditor-display.png
-        \row
-            \i  \inlineimage qtcreator-texteditor-completion.png
-    \endtable
+    Qt Creator allows you to configure the text editor to suit your specific
+    needs. To configure the editor, select  \gui Tools > \gui Options >
+    \gui{Text Editor}:
+    \list
+        \o Set the font preferences and apply syntax highlighting in
+           \gui{Font & Colors}.
+        \o Set tabs, indentation and the handling of whitespace in
+           \gui Behavior.
+        \o Set various display properties, such as
+           \l{Highlighting and folding blocks}{highlighting and folding blocks},
+           text wrapping or \l{Moving to symbol definition or declaration}
+           {moving to symbol definition or declaration}
+           in \gui Display.
+        \o Enable \l{Code completion}{code completion} in \gui Completion.
+    \endlist
+
+
+    \section1 Using the Editor Toolbar
+
+    The editor toolbar is located at the top of the editor view. It is context
+    sensitive and shows items relevant to the file currently open in the
+    editor.
+
+    \image qtcreator-editortoolbar-symbols.png
+
+    Use the toolbar to navigate between open files and symbols in use:
+    \list
+        \o To browse the history of edits for the currently open session, click
+           \inlineimage qtcreator-back.png
+           and \inlineimage qtcreator-forward.png
+           .
+        \o To go to any open file, select it from the \gui{Open files}
+           drop-down menu.
+        \o To jump to any symbol used in the current file, select it from the
+           \gui Symbols drop-down menu.
+    \endlist
+
+    When you create or edit forms in an .ui file, the toolbar contains
+    Qt Designer specific tools.
+
+    If you are using a version control system, the toolbar enables you to
+    compare the current file with the version in the repository. For more
+    information on using Qt Creator with version control systems, see
+    \l{Using version control systems}.
+
+
+    \section1 Splitting the Editor View
+
+    Split the editor view when you want to work on and view multiple files on
+    the same screen.
+
+    \image qtcreator-spliteditorview.png
+
+    You can split the editor view in two ways:
+    \list
+        \o To split the editor view into a top and bottom view, select
+           \gui Window > \gui Split or press \key{Ctrl+E, 2}.
+
+           Split command creates views below the currently active editor view.
+        \o To split the editor view into adjacent views, select
+           \gui Window > \gui{Split Side by Side} or press
+           \key{Ctrl+E, 3}.
+
+           Side by side split command creates views to the right of the
+           currently active editor view.
+    \endlist
+
+    To move between split views, select \gui Window >
+    \gui{Go to Other Split} or press \key{Ctrl+E, 0}.
+
+    To remove a split view, place the cursor within the view you want to
+    remove and select \gui Window > \gui{Remove Current Split} or press
+    \key{Ctrl+E, 0}. To remove all but the currently selected split view,
+    select \gui Window > \gui{Remove All Splits} or press \key{Ctrl+E, 1}.
+
+
+    \section1 Highlighting and Folding Blocks
+
+    Use block highlighting to visually separate parts of the code that belong
+    together. For example, when you place the cursor within the braces,
+    the code enclosed in braces is highlighted.
+
+    \image qtcreator-blockhighlighting.png
+
+    To enable block highlighting, select \gui Tools > \gui Options >
+    \gui{Text Editor} > \gui Display > \gui{Highlight blocks}.
+
+    Use the folding markers to collapse and expand blocks of code within
+    braces. Click the folding marker to collapse or expand a block. In the
+    figure above, the folding markers are located between the line number and
+    the text pane.
+
+    To show the folding markers, select \gui Tools > \gui Options >
+    \gui{Text Editor} > \gui Display > \gui{Display folding markers}.
+
+
+    \section1 Syntax Checking
+
+    As you write code Qt Creator checks code syntax. When it spots syntax error
+    in your code it underlines it and shows error details when you move the
+    mouse pointer over the error:
+    \list
+        \o Syntax errors are underlined in red.
+
+           In the following figure, semicolon is missing at the end of line.
+
+           \image qtcreator-syntaxerror.png
+        \o Semantic errors and warnings are underlined in olive.
+
+           In the following figure, the type is unknown.
+
+           \image qtcreator-semanticerror.png
+    \endlist
+
 
     \section1 Code Completion
 
-    The completion popup shows possible completions to a certain statement.
-    These completions include classes, namespaces, functions, variables,
-    macros and keywords. Listed below are the icons used in the completion box
-    and their meaning.
+    As you write code Qt Creator provides a list of context-sensitive
+    suggestions to the statement where your cursor is.
+
+    \image qtcreator-codecompletion.png
+
+    Set code completion preferences in \gui Tools > \gui Options >
+    \gui{Text Editor} > \gui Completion.
+
+    Qt Creator can complete common prefixes before showing a list of
+    suggestions. This is especially useful for the classes with several
+    similarly named members. To use this functionality, in the code
+    completion preferences enable \gui{Autocomplete common prefix}.
+
+    The following table lists available types for code completion and icon
+    used for each.
 
     \table
+        \header
+            \o Icon
+            \o Description
         \row
             \i  \inlineimage completion/class.png
             \i  A class
@@ -273,260 +569,582 @@
             \i  A namespace
     \endtable
 
-    \section1 External Editor
 
-    To switch to an external editor, select \gui{Open in external editor} from the
-    \gui{Edit > Advanced} menu.
+    \section1 Moving to Symbol Definition or Declaration
 
+    In Qt Creator you can move directly to the definition or the declaration of
+    a symbol by holding the \key Ctrl and clicking the symbol.
+
+    To enable this function, in \gui Tools > \gui Options >
+    \gui{Text Editor} > \gui Display select \gui{Enable mouse navigation}.
+
+
+    \section1 Using an External Editor
+
+    To open the file you are currently viewing in an external editor, select
+    \gui Edit > \gui Advanced > \gui{Open in External Editor}.
+
+    To use the external editor of your choice:
+    \list 1
+        \o On Windows add the editor path to the \bold Path system variable.
+           On Linux and Mac OS X add the editor path to the \bold PATH
+           environment variable.
+        \o In Qt Creator select \gui Tools > \gui Options... >
+           \gui Environment > \gui General.
+        \o In \gui{External editor} enter the name of the application followed
+           by \key Space and \tt{\bold %f}. For example, to open the file in
+           Smultron, enter \tt{\bold{smultron %f}}
+
+           To further define how to open the file in the external editor, you
+           can use the following variables separated by space:
+           \list
+            \o Current line number \tt{\bold %l}
+            \o Current column number \tt{\bold %c}
+            \o Editor's x position on the screen \tt{\bold %x}
+            \o Editor's y position on the screen \tt{\bold %y}
+            \o Editor's width in pixels \tt{\bold %w}
+            \o Editor's height in pixels \tt{\bold %h}
+            \o Editor's width in characters \tt{\bold %W}
+            \o Editor's height in characters \tt{\bold %H}
+            \o To pass % symbol to the editor \tt{\bold %%}
+           \endlist
+
+           \note Not all variables work with all editors.
+    \endlist
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-version-management.html
-    \page creator-project-pane.html
-    \nextpage creator-cmake-support.html
+    \previouspage creator-editor-using.html
+    \page creator-editor-finding.html
+    \nextpage creator-editor-refactoring.html
 
-    \title Project Settings
+    \title Finding and Replacing
 
-    \table
-        \row
-            \i  \note This page describes Qt Creator's support for \c qmake.
-                For information on CMake support, see
-                \l{CMake Support in Qt Creator}.
-    \endtable
+    To search through the currently open file:
+    \list 1
+        \o Press \key Ctrl+F or select \gui Edit > \gui Find/Replace >
+           \gui{Current Document}.
+        \o Enter the text you are looking for.
 
-    To modify the project settings of your project, switch to the \gui{Projects}
-    mode by using the mouse or pressing \key{Ctrl+4}.
+           If the text is found, all occurrences are highlighted as you type.
+        \o To go to the next occurrence, click \inlineimage qtcreator-next.png
+           , or press \key F3. To go to the previous occurrence click
+           \inlineimage qtcreator-previous.png
+           , or press \key Shift+F3.
+    \endlist
+
+    To narrow your search results, click
+    \inlineimage qtcreator-locator-magnify.png
+    in the \gui Find/Replace pane and select any of the following
+    preferences:
+    \list
+        \o To make your search case sensitive, select
+           \inlineimage qtcreator-editor-casesensitive.png
+           .
+        \o To search only whole words, select
+           \inlineimage qtcreator-editor-wholewords.png
+           .
+        \o To search using regular expressions, select
+           \inlineimage qtcreator-editor-regularexpressions.png
+           .
+           Regular expressions used in Qt Creator are modeled on Perl's regular
+           expressions. For more information on using regular expressions, see
+           \l http://doc.qt.nokia.com/4.6/qregexp.html#details
+           {Detailed description of QRegExp class reference}.
+    \endlist
+
+    To replace occurrences of the existing text, enter the new text in the
+    \gui{Replace with} text box.
+    \list
+        \o To replace the selected occurrence and move to the next one,
+           click \inlineimage qtcreator-next.png
+           or press \key Ctrl+=.
+        \o To replace the selected occurrence and move to the previous one,
+           click \inlineimage qtcreator-previous.png
+           .
+        \o To replace all occurrences in the file, click \gui{Replace All}.
+    \endlist
+
+    \section1 Advanced Search
+
+    To search through projects, files on a file system or the currently open
+    file:
+    \list 1
+        \o Press \key Ctrl+Shift+F or select \gui Edit >
+           \gui Find/Replace > \gui Find....
+        \o Select the scope of your search:
+           \list
+            \o \gui{All Projects} searches files matching the defined file
+               pattern in all currently open projects.
+
+               For example, to search for \tt previewer only in \tt .cpp
+               and \tt .h files, enter in \gui{File pattern}
+               \tt *.cpp,*.h.
+
+               \image qtcreator-search-allprojects.png
+
+            \o \gui{Current Project} searches files matching the defined file
+               pattern only in the project you are currently editing.
+            \o \gui{Files on File System} recursively searches files matching
+               the defined file pattern in the selected directory.
+            \o \gui{Current File} searches only the current file.
+           \endlist
+        \o Enter the text you are looking for and click \gui Search.
+
+           \image qtcreator-searchresults.png
+
+           A list of files containing the searched text is displayed in the
+           \gui{Search Results} pane.
+           \list
+            \o To see all occurrences in a file, double-click the file name in
+               the list.
+            \o To go to an occurrence, double-click it.
+           \endlist
+    \endlist
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-finding.html
+    \page creator-editor-refactoring.html
+    \nextpage creator-editor-locator.html
+
+    \title Refactoring
+
+    Code refactoring is the process of changing the code without modifying the
+    existing functionality of your application. By refactoring your code you
+    can:
+    \list
+        \o Improve internal quality of your application
+        \o Improve performance and extensibility
+        \o Improve code readability and maintainability
+        \o Simplify code structure
+    \endlist
+
+    \section1 Finding Symbols
+
+    To find the use of a specific symbol in your project:
+    \list 1
+        \o In the editor place the cursor on the symbol and select \gui Tools
+           > \gui C++ > \gui{Rename Symbol under Cursor} or press
+           \key Ctrl+Shift+U.
+
+           Qt Creator looks for the symbol in the following locations:
+           \list
+            \o Files listed as a part of the project
+            \o Files directly used by the project files (for example, generated
+               files)
+            \o Header files of used frameworks and libraries
+           \endlist
+        \o The \gui{Search Results} pane opens and shows the location and
+           number of instances of the symbol in the current project.
+
+           \image qtcreator-refactoring-find.png
+    \endlist
+
+    You can browse the search results in the following ways:
+    \list
+        \o To go directly to an instance, double-click the instance in the
+           \gui{Search Results} pane.
+        \o To move between instances, click
+           \inlineimage qtcreator-forward.png
+           and
+           \inlineimage qtcreator-back.png
+           in the \gui{Search Results} pane.
+        \o To expand and collapse the list of all instances, click
+           \inlineimage qtcreator-expand.png
+           .
+        \o To clear the search results, click \inlineimage qtcreator-clear.png
+           .
+    \endlist
+
+    \section1 Renaming Symbols
+
+    To rename a specific symbol in your project:
+    \list 1
+        \o In the editor, place the cursor on the symbol you would like to
+           change and select \gui Tools > \gui C++ >
+           \gui{Rename Symbol under Cursor} or press \key Ctrl+Shift+R.
+
+           The \gui{Search Results} pane opens and shows the location and
+           number of instances of the symbol in the current project.
+
+           \image qtcreator-refactoring-replace.png
+        \o To replace all selected instances, enter the name of the new symbol
+           in the \gui{Replace with} text box and click \gui Replace.
+
+           To omit an instance, uncheck the check-box next to the instance.
+
+           \note This action replaces all selected instances of the symbol in
+           all files listed in the \gui{Search Results} pane. You cannot
+           undo this action.
+    \endlist
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-editor-locator.html
+    \page creator-project-managing.html
+    \nextpage creator-project-creating.html
+
+    \title Managing Projects
+
+    Qt Creator allows you to deploy various types of projects and provides a
+    platform to work on different types of projects:
+    \list
+       \o To work with \bold{qmake projects}, open a \c .pro file. For more
+          information, see \l{Setting Up a qmake Project}.
+       \o To work with \bold{CMake projects} you need to have CMake version
+          2.8.0 or later installed. For more information, see
+          \l{Setting Up a CMake Project}.
+       \o Qt Creator supports generic projects. For more information, see
+          \l{Setting Up a Generic Project}.
+    \endlist
+
+    \section1 External Libraries
+
+    Through external libraries Qt Creator can support code completion and
+    syntax highlighting for external libraries as if they were a part of the
+    current project or the Qt library.
+
+    The procedure of adding a library to a project depends on the type of
+    project, which influences the build system used.
+
+    \list
+       \o For information on adding external libraries to qmake projects, see
+          \l{Adding External Libraries to a qmake Project}.
+       \o For information on adding external libraries to CMake projects, see
+          \l{Adding External Libraries to a CMake Project}.
+       \o For information on adding external libraries to generic projects, see
+          \l{Adding External Libraries to a Generic Project}.
+   \endlist
+
+    \section1 Session Management
+    In Qt Creator a session is a collection of bookmarks, breakpoints and
+    watchers and can include multiple open projects. To learn about using and
+    managing sessions, see \l{Managing Sessions}.
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-managing.html
+    \page creator-project-creating.html
+    \nextpage creator-project-qmake.html
+
+    \title Creating a Project
+
+    To create a new project:
+    \list 1
+        \o Select \gui File > \gui{New Project} and select the type of your
+           project.
+
+           This example uses \bold{Qt4 Gui Application}.
+
+           \image qtcreator-new-project.png
+        \o Name the project and set its path. To select the path from a
+           directory tree, click \gui Choose....
+
+           Avoid using spaces and special characters in the project name and
+           path.
+
+           \image qtcreator-intro-and-location.png
+        \o Select the Qt modules you want to include in your project.
+
+           Since this example shows creation of a Qt4 Gui Application project
+           type, QtCore and QtGui modules are selected by default. However, you
+           can select any other you need.
+
+           \image qtcreator-select-modules.png
+        \o Specify the name of the class you want to create and using the
+           drop-down menu select its base class type.
+
+           Note that the \gui{Header file}, \gui{Source file} and
+           \gui{Form file} fields are automatically updated as you name your
+           class.
+
+           \image qtcreator-class-info.png
+        \o Review the project settings.
+
+           To create the project, click \gui Done.
+
+           \image qtcreator-new-project-summary.png
+    \endlist
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-project-creating.html
+    \page creator-project-qmake.html
+    \nextpage creator-project-cmake.html
+
+    \title Setting Up a qmake Project
+
+    \section1 Selecting the Qt Version
+
+    Qt Creator allows you to have multiple versions of Qt installed on
+    your computer and use different versions for your projects.
+
+    If Qt Creator finds \bold qmake in the PATH environment variable, it uses
+    that version. This \l{glossary-system-qt}{version of Qt} is referred to as
+    \bold{Qt in PATH}. If you intend to use only one version of Qt and it is
+    already in the PATH and correctly set up for command line use, you do not
+    need to manually configure your Qt version.
+
+    \note By default, Qt Creator compiles projects with the
+    \l{glossary-default-qt}{default Qt version}. For information on how to
+    override this setting, see \l{Build Settings}.
+
+    \section2 Windows
+
+    To add a Qt version for \bold MinGW:
+    \list 1
+        \o Select \gui Tools > \gui Options... > \gui Qt4 >
+           \gui{Qt Versions}.
+        \o Click \inlineimage qtcreator-windows-add.png
+           and enter the name of the version in \gui{Version Name} field.
+        \o Enter the qmake binary path in the \gui{qmake Location}.
+        \o Enter the MinGW installation path in the \gui{MinGW Directory}.
+
+           \image qtcreator-qt4-qtversions-win-mingw.png
+    \endlist
+
+    To add a Qt version for a \bold{Microsoft Visual C++} compiler:
+    \list 1
+        \o Select \gui Tools > \gui Options... > \gui Qt4 >
+           \gui{Qt Versions}.
+        \o Qt Creator automatically sets the correct environment variables for
+           compilation. Select the internal version number of the installed
+           Microsoft Visual C++ tool chains using the \gui MSVC drop-down
+           box:
+           \list
+               \o \bold 7.1 for Visual Studio 2003
+               \o \bold 8.0 for Visual Studio 2005
+               \o \bold 9.0 for Visual Studio 2008
+           \endlist
+
+           \note If you are using the
+           \bold{Windows SDK for Windows Server 2008}, Qt Creator identifies
+           it as version 9.0.
+
+           \image qtcreator-qt4-qtversions-win-msvc.png
+    \endlist
+
+    If you are using \bold{Qt for Symbian} and your S60 SDK is registered
+    with devices.exe, Qt Creator automatically detects the Qt version. To add a
+    Qt for Symbian version:
+    \list 1
+        \o Select \gui Tools > \gui Options... > \gui Qt4 >
+           \gui{Qt Versions}.
+        \o Select the \gui{S60 SDK} you want the Qt Creator to use.
+
+           \image qtcreator-qt4-qtversions-win-symbian.png
+        \o To build an application for your device using GCCE, enter the path
+           to the \bold{CSL ARM Toolchain} directory in
+           \gui{CSL\\GCCE Directory}.
+
+           You do not need to specify this path if the compiler is included in
+           the PATH environment variable.
+        \o To build an application for the emulator (WINSCW toolchain), enter
+           the path to your Carbide C++ installation directory in
+           \gui{Carbide Directory}.
+
+           You need to have Carbide C++ version 2.0 or later installed.
+    \endlist
+
+    \section2 Linux
+
+    To compile a project in Qt Creator, Linux uses GNU Compiler Collection
+    (GCC). Intel Compiler Collection (ICC) is supported as a drop-in
+    replacement for GCC.
+
+    To add a Qt version:
+    \list 1
+        \o Select \gui Tools > \gui Options... > \gui Qt4 >
+           \gui{Qt Versions}.
+        \o Click \inlineimage qtcreator-linux-add.png
+           and enter the name of the version in \gui{Version Name}.
+        \o Enter the path to the qmake binary in \gui{Path to qmake}.
+    \endlist
+
+    \section2 Mac OS X
+
+    To compile a project in Qt Creator, Mac OS X uses GNU Compiler Collection
+    (GCC), which is part of Xcode.
+
+    To add a Qt version:
+    \list 1
+        \o Select \gui{Qt Creator} > \gui Preferences... > \gui{Qt Versions}.
+        \o Click \inlineimage qtcreator-macosx-add.png
+           and enter the name of the version in \gui{Version Name}.
+        \o Enter the path to the qmake binary in \gui{Path to qmake}.
+
+           \image qtcreator-qt4-qtversions.png
+    \endlist
+
+
+    \section1 Setting Up a Project
+
+    To view and modify the settings for currently open projects, switch to the
+    \gui Projects mode by pressing \key Ctrl+4.
 
     \image qtcreator-projectpane.png
 
-    The project pane is divided into two areas. The currently active settings are
-    displayed at the top. The active build and run configuration for all projects
-    can be changed there. The bottom area allows you to quickly get an overview
-    of the build, run and editor settings as well as the dependencies between your
-    projects. It also allows you to edit those settings.
+    The project pane consists of three tabs
+    \list
+       \o Targets
+       \o Editor Settings
+       \o Dependencies
+    \endlist
+
+    Use the \gui Build and \gui Run buttons on *Desktop* to switch between
+    the build and run settings for the active project.
+
+    If you have multiple projects open in Qt Creator, use
+    \gui{Select a Project} option at the top to navigate between different
+    project edits.
 
     \section1 Build Settings
 
-    Build configurations allow you to quickly switch between different build
-    settings. By default, Qt Creator creates a \bold{debug} and a
-    \bold{release} build configuration. Both of these configurations use the
-    \l{glossary-default-qt}{default Qt version}. Action items to create, clone,
-    or delete build configurations can be found at the top. You can have as
-    many build configurations as necessary. To edit settings, click on the
-    \gui{Show Details} button. Here you can specify which
-    \l{glossary-project-qt}{Qt version} to use to build your project, or whether
-    to \l{glossary-shadow-build}{shadow build} the project, for instance.
+    Different build configurations allow you to quickly switch between
+    different build settings. By default, Qt Creator creates \bold debug
+    and \bold release build configurations. Both of these configurations use
+    the \l{glossary-default-qt}{default Qt version}.
 
     \image qtcreator-ppbuildsettings.png
 
-    The build system of Qt Creator is built on top of \c qmake and \c make. The
-    settings for \c qmake and \c make can be changed. Qt Creator runs the
-    make command using the correct Qt version.
+    \section2 Adding and Removing Build Configurations
 
-    In the \bold{Build Environment} section you can specify the environment used
-    for building. By default, the environment in which Qt Creator was started
-    is used and modified to include the Qt version. Depending on the selected
-    Qt version, Qt Creator automatically sets the necessary environment
-    variables.
+    To add a new build configuration, click \gui Add and select the type of
+    configuration you would like add. You can add as many build configurations
+    as you need.
+
+    To delete the build configuration currently selected, click \gui Remove.
+
+    \section2 Editing Build Configurations
+
+    To edit a build configuration:
+    \list 1
+        \o Select the build configuration you want to edit in
+           \gui{Edit Build Configuration}.
+        \o In section \gui General, you can specify:
+        \list
+            \o The \l{glossary-project-qt}{Qt version} you want to use to
+               build your project. For more information, see
+               \l{Selecting the Qt version}.
+            \o The toolchain required to build the project.
+            \o If you want to \l{glossary-shadow-build}{shadow build} your
+               project, check the \gui{Shadow Build} checkbox and select the
+               build directory.
+        \endlist
+    \endlist
+
+    \section2 Build Steps
+
+    The build system of Qt Creator is built on qmake and make. In
+    \gui{Build Steps} you can change the settings for qmake and make. Qt
+    Creator runs the make command using the Qt version defined for the current
+    build configuration.
+
+    \section2 Clean Steps
+
+    The cleaning process is used to remove intermediate files. This process
+    might help you to fix obscure issues during the process of building a
+    project.
+
+    You can define the cleaning steps for your builds in the \gui{Clean Steps}:
+    \list
+        \o To add a clean step using make or a custom process, click
+           \gui{Add clean step} and select the type of step you want to add.
+
+           By default, custom steps are disabled. Activate customs steps by
+           checking the \gui{Enable Custom Process Step} check-box.
+        \o To remove a clean step, click \gui{Remove clean step} and select the
+           step you want to remove.
+        \o To change the order of steps, click
+           \inlineimage qtcreator-movestep.png
+           .
+    \endlist
+
+    \section2 Build Environment
+
+    You can specify the environment you want to use for building in the
+    \bold{Build Environment} section. By default, the environment in which Qt
+    Creator was started is used and modified to include the Qt version.
+    Depending on the selected Qt version, Qt Creator automatically sets the
+    necessary environment variables. You can edit existing environment
+    variables or add, reset and unset new variables based on your project
+    requirements.
+
 
     \section1 Run Settings
 
-    \image qtcreator-pprunsettings.png
     Qt Creator automatically creates run configurations for your project.
-    These run configurations derive their executable
-    from the parsed .pro files. You can also create \bold{custom executable}
-    run configurations where you can freely set the executable to be run.
+    These run configurations derive their executable from the parsed .pro
+    files. You can also create custom executable run configurations where you
+    can set the executable to be run.
+
+    \image qtcreator-pprunsettings.png
+
+
+    \section1 File Encoding
+
+    To define the default file encoding, select the desired encoding in the
+    \gui{Editor Settings}. By default, the Qt Creator uses the file encoding
+    used by your system.
+
 
     \section1 Dependencies
 
-    If you have multiple projects loaded in your session, you can configure
+    If you have multiple projects loaded in your session, you can define the
     dependencies between them. This affects the build order of your
-    projects. To do this:
+    projects.
+
+    \note These dependencies are unrelated to the dependencies inside a qmake
+    project.
+
+    To define the dependencies:
     \list 1
-        \o Select the project for which you want to configure the dependencies.
-        \o Go to the \bold{Dependencies} section.
-        \o Check the checkboxes to select other projects as dependencies.
+        \o Select the project for which you want to configure dependencies.
+        \o In the \gui Dependencies section check the checkboxes to select
+           other projects as dependencies.
     \endlist
-    \note This is unrelated to the dependencies inside a qmake project.
-*/
 
 
-/*!
-    \contentspage index.html
-    \previouspage creator-session.html
-    \page creator-version-management.html
-    \nextpage creator-project-pane.html
+    \section1 Adding External Libraries to a qmake Project
 
-    \title Qt Version Management
+    Through external libraries Qt Creator can support code completion and
+    syntax highlighting as if they were part of the current project or the Qt
+    library.
 
-    Qt Creator allows you to use multiple versions of Qt installed on your hard
-    disk and switch between them easily.
+    To add an external library:
+    \list
+        \o Open your project file (.pro) using the \gui Projects pane.
+        \o Follow the instructions at \l http://doc.trolltech.com/latest/qmake-project-files.html#declaring-other-libraries
+           {Declaring other Libraries}.
+    \endlist
 
-    Qt Creator automatically detects if \c qmake is in the environment variable
-    \c PATH. This \l{glossary-system-qt}{version of Qt} is referred to as
-    \bold{Qt in PATH}. If you use only one version of Qt and it is
-    already in your path and correctly set up for command line usage, you do
-    not need to manually configure your Qt version.
-
-    Otherwise, you can add your Qt version in
-    \gui{Tools > Options... > Qt Versions} on Windows and Linux or
-    in \gui{Qt Creator > Preferences... > Qt Versions} on Mac OS X.
-
-    The detailed settings depend on your operating system and on the targeted
-    tool chain.
-
-        \table
-        \row
-            \i \image qtcreator-qt4-qtversions.png
-            \i \bold{Linux and Mac OS X}
-
-               On Linux and Mac OS X, set the \gui{path to qmake}
-               to the \c qmake binary of the Qt installation. If a Qt is
-               found in the \c PATH environment variable, it shows up
-               automatically as \gui{Qt in PATH}.
-
-               On both platforms, the platform's GNU Compiler Collection (GCC)
-               is used to compile Qt. On Mac OS, the GCC compiler is part of XCode.
-               On Linux, the Intel Compiler (ICC) is supported as a drop-in replacement
-               for GCC.
-
-        \row
-            \i \image qtcreator-qt4-qtversions-win-mingw.png
-            \i \bold{Windows and MinGW}
-
-               If you are on the Windows platform and used MinGW
-               to compile Qt, you need to tell Qt Creator
-               where MinGW is installed. This is done by setting the
-               \gui{MinGW directory}.
-        \row
-            \i \image qtcreator-qt4-qtversions-win-msvc.png
-            \i \bold{Microsoft Visual C++}
-
-               If your Qt version is compiled with Microsoft Visual C++'s
-               compiler, Qt Creator automatically sets the correct
-               environment variables for compilation. The \gui{MSVC}
-               drop-down box indicates the internal version number of the
-               installed Microsoft Visual C++ tool chains:
-
-               \list
-                   \o  \bold{7.1}: Visual Studio 2003
-                   \o  \bold{8.0}: Visual Studio 2005
-                   \o  \bold{9.0}: Visual Studio 2008
-               \endlist
-
-               If you are using the \c{Windows SDK for Windows Server 2008}
-               instead of Visual Studio, it identifies as version 9.0.
-        \row
-            \i \image qtcreator-qt4-qtversions-win-symbian.png
-            \i \bold{Symbian}
-
-               If you are using Qt for Symbian and your S60 SDK is registered
-               with \c devices.exe, Qt Creator detects the Qt version
-               automatically.
-               It is shown in the \bold{Auto-detected} section in the options
-               dialog.
-               You can also manually add Qt for Symbian versions. In this case
-               you need to tell Qt Creator the path to the S60 SDK
-               it is supposed to use with these Qt installations.
-               Add the path to your Carbide C++ install, version 2.0
-               or later, if you want to build for the emulator
-               (\c WINSCW tool chain).
-               If you want to use \c GCCE to build for your device,
-               you might need to add the path to the
-               \c{CSL ARM Toolchain} directory (\gui{CSL/GCCE Directory}),
-               if the compiler is not found in the \c PATH environment
-               variable.
-        \endtable
-
-    \note By default, projects are compiled with the
-    \l{glossary-default-qt}{default Qt version}. You can override this in the
-    \gui{build configuration}.
+    Syntax completion and highlighting work once your project successfully
+    builds and links against the external library.
 */
 
 
 /*!
     \contentspage index.html
     \previouspage creator-quick-tour.html
-    \page creator-creating-project.html
-    \nextpage creator-writing-program.html
-
-    \title Creating a Project in Qt Creator
-
-    \table
-        \row
-            \i \inlineimage qtcreator-new-project.png
-            \i \bold{Creating a new project}
-
-        To create a new project, select \gui{New Project} from the \gui{File} menu.
-        You can create one of the following three projects:
-
-        \list
-            \o Qt4 Console Application
-            \o Qt4 Gui Application
-            \o C++ Library
-        \endlist
-
-        In this example, we select a \e{Qt4 Gui Application} and click on \gui{OK}.
-
-        \row
-            \i \inlineimage qtcreator-intro-and-location.png
-            \i \bold{Setting the project name and location}
-
-        Next, we set the project's name and its path. Click on the \gui{Choose...}
-        button to browse and select your path.
-
-        Ideally, the path should not contain spaces or special characters.
-
-        \row
-            \i \inlineimage qtcreator-select-modules.png
-            \i \bold{Selecting the necessary Qt modules}
-
-        Check the check box for each Qt module you want to include into
-        your project.
-
-        Since we started a Qt4 Gui Application, the QtCore and QtGui modules are
-        set by default, but you are free to add more.
-
-        \row
-            \i \inlineimage qtcreator-class-info.png
-            \i \bold{Specifying class information}
-
-        Specify the name of the class you want to create. The
-        \e{Header file}, \e{Source file} and \e{Form file} fields update
-        automatically according to the class name you choose.
-
-        Remember to select the base class for your class, either a
-        QWidget, QDialog or QMainWindow, from the drop-down list.
-
-        \row
-            \i \inlineimage qtcreator-new-project-summary.png
-            \i \bold{Creating the project}
-
-        Finally, review the files that will be created for you. To generate your project,
-        click on \gui{Done}.
-
-    \endtable
-
-*/
-
-
-/*!
-    \contentspage index.html
-    \previouspage creator-creating-project.html
     \page creator-writing-program.html
-    \nextpage creator-code-editor.html
+    \nextpage creator-editor-using.html
 
-    \title Writing a Simple Program with Qt Creator
+    \title Writing a Simple Program
 
-    \table
-        \row
-        \o \note This tutorial assumes that the user has experience in writing
-           basic Qt applications, designing user interfaces with Qt Designer
-           and using the Qt Resource System.
-    \endtable
-
+    \note This tutorial assumes that you have experience in writing basic Qt
+    applications, using Qt Designer to design user interfaces and using the Qt
+    Resource System.
 
     In this example, we describe the steps involved in using Qt Creator
     to create a small Qt program, Text Finder. Inspired by the QtUiTools'
@@ -540,12 +1158,12 @@
 
     Once you have installed Qt Creator, it detects automatically if Qt's
     location is in your \c PATH variable. If not, please follow the
-    instructions in \l{Qt Version Management}.
+    instructions in \l{Selecting the Qt version}.
 
     \section1 Setting Up the Project
 
     We begin with a Qt4 Gui Application project generated by Qt Creator. The
-    \l{Creating a Project in Qt Creator} document describes this process in
+    \l{Creating a project} document describes this process in
     detail. Remember to select QWidget as the Text Finder's base class. If
     your project is not yet loaded, load it by selecting \gui{File} > \gui{Open}.
 
@@ -682,7 +1300,7 @@
 
     \image qtcreator-add-resource.png
 
-    \section1 Compiling and Running your Program
+    \section1 Compiling and Running Your Program
 
     Now that you have all the necessary files, click the \inlineimage qtcreator-run.png
     button to compile your program.
@@ -696,7 +1314,7 @@
     \page creator-version-control.html
     \nextpage creator-tips.html
 
-    \title Qt Creator and Version Control Systems
+    \title Using Version Control Systems
 
     \table
         \caption    Version control systems supported by Qt Creator
@@ -754,7 +1372,7 @@
     menu with \gui{Insert name...} that pops up a dialog letting the user
     select a name.
 
-    \gui{User field configuration file} is a simple text file consisting of
+    \gui{User fields configuration file} is a simple text file consisting of
     lines specifying submit message fields that take user names, for example:
 
     \code
@@ -770,11 +1388,12 @@
 
     \section1 Using Version Control Systems
 
-    The version control sub-menus are in \gui{Tools} menu. The version control system
+    The version control sub-menus are in \gui Tools > \gui Options...
+    > \gui{Version Control}. The version control system
     managing the current project is displayed here.
 
     Each version control system adds a pane to the \gui{Application Output}
-    panes within which itlogs the commands it executes, prepended by a
+    panes within which it logs the commands it executes, prepended by a
     timestamp and the relevant output.
 
     \image qtcreator-vcs-pane.png
@@ -811,6 +1430,21 @@
     This displays the lines of the file prepended by the change identifier
     they originate from. Clicking on the change identifier shows a detailed
     description of the file.
+
+    To show the annotation of a previous version in the \gui Annotate or
+    \gui Blame view, right-click on the version in the code. This option
+    allows you to navigate through the history of the file and obtain the
+    previous version of the code. This option also works for \gui git/hg
+    using SHA.
+
+    The file log view for a single file has \gui Annotate in
+    the context menu of the version mentioned in the log, the user can
+    right-click a line to open a context menu which contains
+    \gui{Annotate Previous}.
+
+    To set up a VCS repository for new projects, select \gui File >
+    \gui{New File or Project...}. It enables you to initialize a
+    repository for VCS that supports \gui git/hg
 
 
     \section2 Committing Changes
@@ -862,155 +1496,192 @@
 
                 \image qtcreator-vcs-gitbranch.png
     \endtable
-
-
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-code-editor.html
-    \page creator-navigation.html
-    \nextpage creator-session.html
+    \previouspage creator-editor-refactoring.html
+    \page creator-editor-locator.html
+    \nextpage creator-project-managing.html
 
-    \title Navigating Around Your Code with Locator
+    \title Searching With the Locator
 
-    With Qt Creator, navigating to different locations in your project or on
-    your disk, e.g., files, classes, methods, etc., is simple using
-    \gui Locator -- a smart line edit at the bottom left in Qt Creator
-    window.
+    The locator provides one of the easiest ways in Qt Creator to browse
+    through projects, files, classes, methods, documentation and file systems.
+    You can find the locator in the bottom left of the Qt Creator window.
+
+    To activate the locator, press \key Ctrl+K (\key Cmd+K on Mac OS
+    X) or select \gui Tools > \gui Locate....
 
     \image qtcreator-locator.png
 
-    For example, to open your project's \c{main.cpp} file:
+    To edit the currently open project's main.cpp file using the locator:
     \list 1
-        \o Click on \gui Locator or press \key{Ctrl+K} (Mac OS X: \key{Cmd+K}).
-        \o Type in the file name.
+        \o Activate the locator by pressing \key Ctrl+K.
+        \o Enter \tt \bold{main.cpp}.
+
+           \image qtcreator-locator-open.png
         \o Press \key Return.
+
+           The main.cpp file opens in the editor.
     \endlist
-    The file opens in the editor.
 
-    You can also type part of a file name and use the wildcard characters
-    \c{*} and \c{?} to match \e{any} number of \e{any} characters. A list
-    of files matching your criteria is displayed.
+    You can enter only a part of a string you are searching for. As you type,
+    the locator shows the occurrences of that string regardless of where in the
+    name of an item it appears.
 
-    \gui Locator allows you to navigate files both on disk and in other
-    "locations", which are organized with \bold{Filters}. There are
-    filters for:
-
+    To narrow down the search results, you can use the following wildcard
+    characters:
     \list
-        \o  Files anywhere on your hard disk (browsing through the file system)
-        \o  Files from a subdirectory structure defined by you
-        \o  Files mentioned in your \c{.pro} files, such as source, header
-            resource, and \c{.ui} files
+        \o To match any number of any or no characters, enter \tt \bold{*}.
+        \o To match a single instance of any character, enter \tt \bold{?}.
+    \endlist
+
+    \section1 Using the Locator Filters
+
+    The \gui Locator allows you to browse not only files, but any items
+    defined by \bold{locator filters}. By default, the locator contains
+    filters which locate:
+    \list
         \o  Any open document
+        \o  Files anywhere on your file systems
+        \o  Files belonging to your project, such as source, header resource,
+            and .ui files
         \o  Class and method definitions in your project or anywhere referenced
             from your project
-        \o  Help topics, including Qt's documentation
-        \o  Specific line in the document displayed on your editor
+        \o  Help topics, including Qt documentation
+        \o  Specific line in the document displayed in your editor
     \endlist
 
+    To use a specific locator filter, type the assigned prefix followed by
+    \key Space. The prefix is usually a single character.
 
-    Some of these filters require you to activate them by typing an assigned
-    \e prefix. This prefix is usually a single character followed by
-    \key{Space}. For example, to jump to the definition of the class
-    \l{http://doc.trolltech.com/qdatastream.html}{QDataStream}, activate
-    \gui Locator. Then type a colon (\key{:}) followed by a \key{Space} and
-    the class name.
-
-
-    Below is a full list of \l{http://doc.trolltech.com/qdatastream.html}
-    {QDataStream} related output:
-
-    \image qtcreator-navigate-popup.png
-
-
-    Filters can be added to provide quick navigation around files in a
-    subdirectory structure defined by you. This way, you can acccess files you
-    need that are not directly mentioned in your project.
+    For example, to locate symbols matching
+    \l http://doc.trolltech.com/qdatastream.html}{QDataStream:
     \list 1
-        \o Click the button \image qtcreator-locator-magnify.png
-        \o Select \gui{Configure...} from the menu displayed:
-        \image qtcreator-locator-customize.png
-        \o To create a new filter, select \gui Add from the \gui Configure...
-        dialog (\gui Options on Mac Os X).
-        \o In the \gui{Filter Configuration} dialog below:
-        \list
-            \o Give your filter a name.
-            \o Select your preferred directories.
-            \o Set file patterns with a comma separated list.
-            \o Specify a prefix string.
-        \endlist
-        \image qtcreator-navigate-customfilter.png
-        \o Close the dialog.
-    \endlist
-    \gui Locator searches the directories you selected for files matching
-    your file patterns. Information is cached. To update the cached information:
-    \list 1
-        \o Click the button \image qtcreator-locator-magnify.png again.
-        \o Select \gui Refresh.
+        \o Activate the locator.
+        \o Enter \tt{\bold{: QDataStream}} (: (colon) followed by a
+           \key Space and the symbol name (QDataStream)).
+
+           The locator lists the results.
+
+           \image qtcreator-navigate-popup.png
     \endlist
 
-    The following table lists available filters:
+    By default the following filters are enabled and you do not need to use
+    their prefixes explicitly:
+    \list
+        \o Going to a line in the current file (l).
+        \o Going to an open file (o).
+        \o Going to a file in any open project (a).
+    \endlist
+
+    \section2 Using the Default Locator Filters
+
+    The following locator filters are available by default:
 
     \table
         \header
             \o  Function
-            \o  Key Combination
-            \o  Screenshot
+            \o  Enter in locator
+            \o  Example
         \row
-            \o  Go to a line in the current document.
-            \o  Ctrl+K, l, Space, and the line number
+            \o  Go to a line in the current file.
+            \o  \tt{\bold{l \e{Line number}}}
             \o  \image qtcreator-locator-line.png
         \row
             \o  Go to a symbol definition.
-            \o  Ctrl+K, :, Space, and the function name
+            \o  \tt{\bold{: \e{Symbol name}}}
             \o  \image qtcreator-locator-symbols.png
         \row
             \o  Go to a help topic.
-            \o  Ctrl+K, ?, Space, and the topic name
+            \o  \tt{\bold{? \e{Help topic}}}
             \o  \image qtcreator-locator-help.png
         \row
-            \o  Go to an opened document.
-            \o  Ctrl+K, o, Space, and the document name
+            \o  Go to an open file.
+            \o  \tt{\bold{o \e{File name}}}
             \o  \image qtcreator-locator-opendocs.png
         \row
             \o  Go to a file in the file system (browse the file system).
-            \o  Ctrl+K, f, Space, and the file name
+            \o  \tt{\bold{f \e{File name}}}
             \o  \image qtcreator-locator-filesystem.png
         \row
-            \o  Go to a file in any project currently loaded.
-            \o  Ctrl+K, a, Space, and the file name
+            \o  Go to a file in any project currently open.
+            \o  \tt{\bold{a \e{File name}}}
             \o  \image qtcreator-locator-files.png
         \row
             \o  Go to a file in the current project.
-            \o  Ctrl+K, p, Space, and the file name
+            \o  \tt{\bold{p \e{File name}}}
             \o  \image qtcreator-locator-current-project.png
         \row
             \o  Go to a class definition.
-            \o  Ctrl+K, c, Space, and the class name
+            \o  \tt{\bold{c \e{Class name}}}
             \o  \image qtcreator-locator-classes.png
         \row
             \o  Go to a method definition.
-            \o  Ctrl+K, m, Space, and the method name
+            \o  \tt{\bold{m \e{Method name}}}
             \o  \image qtcreator-locator-methods.png
     \endtable
 
-    \note By default, if you press \key{Ctrl+K} and do not use a prefix to
-    specify a filter, three filters are enabled: \c{o}, \c{l}, and \c{a}.
+    \section2 Creating Locator Filters
 
-    \note On Mac OS X, press \key{Cmd+K} instead of \key{Ctrl+K}.
+    To quickly access files not directly mentioned in your project, you can
+    create your own locator filters. That way you can locate files in a
+    directory structure you have defined.
+
+    To create a locator filter:
+    \list 1
+        \o In the locator, click \inlineimage qtcreator-locator-magnify.png
+           and select \gui Configure....
+
+           \image qtcreator-locator-customize.png
+
+        \o In the \gui Options window click \gui Add.
+        \o In the \gui{Filter Configuration} dialog:
+        \list
+            \o Name your filter.
+            \o Select at least one directory. The locator searches directories
+               recursively.
+            \o Define the file pattern as a comma separated list. For example,
+               to search all .h and .cpp files, enter \tt \bold{*.h,*.cpp}
+            \o Specify the prefix string.
+
+               To show only results matching this filter, select
+               \gui{Limit to prefix}.
+
+               \image qtcreator-navigate-customfilter.png
+        \endlist
+        \o Click OK.
+    \endlist
+
+    \section3 Configuring the Locator Cache
+
+    The locator searches the files matching your file pattern in the
+    directories you have selected and caches that information. The cache for
+    all default filters is updated as you write your code. The filters you have
+    created Qt Creator by default updates once an hour.
+
+    To update the cached information manually, click
+    \inlineimage qtcreator-locator-magnify.png
+    and select \gui Refresh.
+
+    To set a new cache update time:
+    \list 1
+        \o Select \gui Tools > \gui Options... > \gui Locator.
+        \o In \gui{Refresh interval} define new time in minutes.
+    \endlist
 
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-navigation.html
-    \page creator-session.html
-    \nextpage creator-version-management.html
+    \previouspage creator-project-generic.html
+    \page creator-project-managing-sessions.html
+    \nextpage creator-developing-applications.html
 
-    \title Session Management in Qt Creator
+    \title Managing Sessions
 
     In Qt Creator, a session is a collection of:
 
@@ -1021,35 +1692,29 @@
         \o Bookmarks
     \endlist
 
-    When you run Qt Creator, you enter a default session. You can create a new
-    session using the \gui{Session Manager...} option, available in the
-    \gui{File > Session} menu.
-
-
-    \image qtcreator-session-manager.png
-
-
-    To switch between sessions, select \gui{File > Session}. If you do not
-    create and select any session, Qt Creator always uses the default
-    session.
-
-    \image qtcreator-session-menu.png
-
-    When you launch Qt Creator, a list of your sessions is
-    displayed on the \gui{Welcome screen}.
+    When you launch Qt Creator, a list of existing sessions is displayed on the
+    \gui{Welcome screen}.
 
     \image qtcreator-welcome-session.png
 
+    To switch between sessions, select the session from sessions listed in
+    \gui File > \gui Session. If you do not create or select a session,
+    Qt Creator always uses the default session.
+
+    To create a new session or remove exisitng sessions, select \gui File >
+    \gui Sessions > \gui{Session Manager...}.
+
+    \image qtcreator-session-manager.png
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-qt-for-symbian.html
+    \previouspage creator-developing-symbian.html
     \page creator-debugging.html
     \nextpage creator-version-control.html
 
-    \title Qt Creator and Debugging
+    \title Debugging
 
 
     \section1 About Debugging with Qt Creator
@@ -1123,6 +1788,25 @@
                Creator using the Microsoft Visual C++ Compiler, the
                \c{"%ProgramFiles%\Debugging Tools for Windows"} path is
                checked to ensure that all required header files are there.
+       \row
+           \o Debugging tools for Mac OS X
+           \o The Qt binary distribution contains both debug and release
+              variants of the libraries. But you have to explicitly tell the
+              runtime linker that you want to use the debug libraries even if
+              your application is compiled as debug as release is the default
+              library.
+
+              If you use a qmake based project in Qt Creator,  you can set a
+              flag in your run configuration, in Projects mode. In the run
+              configuration, select \gui{Use debug version of frameworks}.
+
+              For more detailed information about debugging on the Mac, refer:
+              \l http://developer.apple.com/mac/library/technotes/tn2004/tn2124.html
+
+        \note The Mac OS X Snow Leopard (10.6) has a bug, that can be worked
+              around as described in the link provided below:
+              \l http://bugreports.qt.nokia.com/browse/QTBUG-4962.
+
     \endtable
 
 
@@ -1135,10 +1819,8 @@
 
     \image qtcreator-debug-view.png
 
-    Here, you can lock or unlock the location of your views as well as display
-    or hide them. Among the views you can display are \gui Breakpoints,
-    \gui Stack, \gui Thread, \gui Modules, \gui Registers, \gui Disassembler,
-    and \gui Debugger. The position of your dock widgets is saved for future
+    Here, you can lock or unlock the location of your dock widgets as well as
+    display or hide them. The position of your dock widgets is saved for future
     sessions.
 
 
@@ -1203,9 +1885,11 @@
        \o At a particular line you want the program to stop -- click on the
           left margin or press \key F9 (\key F8 for Mac OS X).
        \o At a function that you want the program to interrupt -- enter the
-          function's name in \gui{Set Breakpoint at Function...} in
-          \gui Debug menu.
+          function's name in \gui{Set Breakpoint at Function...} located in the
+          context menu of the breakpoints view.
     \endlist
+
+    \note
 
     You can remove a breakpoint:
 
@@ -1303,12 +1987,12 @@
 
     The \gui{Locals and Watchers} view also provides access to the most
     powerful feature of the debugger: comprehensive display of data belonging
-    to Qt's basic objects. To enable this feature, select \gui{Use
-    debugging helper} from the \gui Debug menu.The
-    \gui{Locals and Watchers} view is re-organized to provide a high-level
-    view of the objects. For example, in case of QObject, instead of displaying
-    a pointer to some private data structure, you see a list of children,
-    signals and slots.
+    to Qt's basic objects. To enable this feature, check \gui{Use
+    debugging helper} checkbox from \gui Tools > \gui Options... >
+    \gui Debugger > \gui{Debugging Helper}. The \gui{Locals and Watchers} view
+    is re-organized to provide a high-level view of the objects. For example,
+    in case of QObject, instead of displaying a pointer to some private data
+    structure, you see a list of children, signals and slots.
 
     Similarly, instead of displaying many pointers and integers, Qt Creator's
     debugger displays the contents of a QHash or QMap in an orderly manner.
@@ -1587,7 +2271,7 @@
 
     \section1 Walkthrough for the Debugger Frontend
 
-    In our \l{Writing a Simple Program with Qt Creator}{TextFinder} example, we
+    In our \l{Writing a simple program}{TextFinder} example, we
     read a text file into QString and then display it with QTextEdit.
     Suppose you want to look at this QString, \c{line}, and see what
     data it actually stores. Follow the steps described below to place a
@@ -1668,11 +2352,11 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-pane.html
-    \page creator-cmake-support.html
-    \nextpage creator-generic-projects.html
+    \previouspage creator-project-qmake.html
+    \page creator-project-cmake.html
+    \nextpage creator-project-generic.html
 
-    \title CMake Support in Qt Creator
+    \title Setting Up a CMake Project
 
     Since Qt Creator 1.1, support for \c CMake project files is available.
     Qt Creator 1.3 supports the Microsoft Toolchain if the CMake version
@@ -1717,45 +2401,101 @@
 
     Known issues for the current version can be found
     \l{Known Issues of version 1.3.80}{here}.
+
+
+    \section1 Adding External Libraries to a CMake Project
+
+    Through external libraries Qt Creator can support code completion and
+    syntax highlighting as if they were part of the current project or the Qt
+    library.
+
+    External libraries are detected using the \c FIND_PACKAGE() macro. Some
+    libraries come with the CMake installation. You can find those in the
+    \b Modules directory of your CMake installation. If you provide your own
+    libraries, you also need to provide your own \c FindFoo.cmake file.
+    For more information, see
+    \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}{CMake FAQ}.
+
+    Syntax completion and highlighting work once your project successfully
+    builds and links against the external library.
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-cmake-support.html
-    \page creator-generic-projects.html
-    \nextpage creator-external-library-handling.html
+    \previouspage creator-project-cmake.html
+    \page creator-project-generic.html
+    \nextpage creator-project-managing-sessions.html
 
-    \title Support for Generic Projects in Qt Creator
+    \title Setting Up a Generic Project
 
-    Since Qt Creator 1.1, generic projects are supported in addition to
-    \c qmake projects. In other words, you can import existing projects that do
-    not use \c qmake or \c CMake and Qt Creator ignores your build
-    system.
+    Qt Creator supports generic projects, so you can import existing projects
+    that do not use qmake or CMake and Qt Creator ignores your build system
 
-    This feature lets you use Qt Creator as a code editor. You can change the
-    way your project is built by modifying the \c make command under
-    \gui{Build Settings} in the \gui{Projects} mode.
+    This allows you to use Qt Creator as a code editor. You can change the
+    way your project is built by modifying the \c make command in the
+    \gui Projects mode under \gui{Build Settings}.
+
+    When you import a project, Qt Creator creates the following files that
+    allow you to specify which files belong to your project and which include
+    directories or defines you want to pass to your compile:
+    .files, .includes, and .config.
+
+
+    \section1 Importing a Generic Project
+
+    To import an existing generic project:
+    \list 1
+        \o Select \gui File > \gui{New File or Project...} > \gui Projects >
+           \gui{Import of Makefile-based Project}.
+        \o In \gui{Generic Project}, enter the project name
+           and select the project file you want to import.
+
+           Qt Creator automatically generates the following files in the
+           project directory:
+           \list
+               \o \l{Specifying Files}{.files}
+               \o \l{Specifying Include Paths}{.includes}
+               \o \l{Specifying Defines}{.config}
+               \o .creator
+           \endlist
+    \endlist
+
+    When the project is successfully imported, Qt Creator creates its project
+    tree in the sidebar.
+
+    After importing a generic project into Qt Creator, open it by selecting the
+    .creator file.
+
+
+    \section1 Working with Generic Project Files
 
     For a generic project, you have to manually specify which files belong to
-    your project and which include directories/defines you want to pass to your
-    compiler.
+    your project and which include directories or defines you want to pass to
+    your compiler.
 
 
     \section1 Specifying Files
 
-    The list of files for a generic project is specified in the \c{.files}
+    The list of files for a generic project is specified in the \c .files
     file. When you first create a generic project, Qt Creator adds any
-    files it recognizes to your project. To add or remove files later,
-    edit the \c{.files} file in Qt Creator. Your project tree is refreshed
-    when you save this file. You can also add or remove files from the context
-    menu in the project tree.
+    files it recognizes to your project.
 
-    If you frequently need to update the \c{.files} file, we recommend the use
-    of a small script that updates the files for you. If the
-    file is modified externally, Qt Creator must be restarted for the changes
-    to take effect.
+    To add or remove files, edit the \c .files file in Qt Creator.
+    Qt Creator recreates your project tree when you save the \c{.files file}.
+    Alternatively, you can add and remove files using the context menu in the
+    project tree.
 
+    If you frequently need to update the \c .files file, you can do it
+    efficiently by using a script that updates the file for you. If the file
+    is modified externally, you have to restart Qt Creator for the changes to
+    take effect.
+
+    To update the \c .files on the \gui git repository use the following
+    script:
+    \code
+    git ls-files *.cpp > MyProject.files
+    \endcode
 
     \section1 Specifying Include Paths
 
@@ -1765,9 +2505,9 @@
 
     \section1 Specifying Defines
 
-    The defines are specified in the \c{.config} file. This file is a regular
-    C++ file, prepended to all your source files when they are being parsed.
-    However, you should only use it to add lines like the following:
+    The defines are specified in the \c .config file. This is a regular C++
+    file, prepended to all your source files when they are parsed. However,
+    use it only to add lines like the following:
 
     \code
     #define NAME value
@@ -1776,21 +2516,280 @@
 
     \section1 Creating a Run Configuration
 
-    Qt Creator cannot automatically determine which executable it should run.
-    To set up a custom executable run configuration in the \gui Projects mode,
-    use the \bold{Add} button. Here you can specify the name, executable, and
-    some optional arguments. By default, the working directory is
-    \c{$BUILDDIR} which should work fine.
+    Qt Creator cannot automatically determine which executable to run.
+
+    To define the executable file to run, in the \gui Projects mode under
+    \gui{Run Settings}:
+    \list 1
+        \o Click \gui Add and select \gui{Custom Executable}.
+        \o Define the configuration name, the location of the executable, any
+           additional arguments you want to and the working directory.
+    \endlist
+
+
+    \section1 Adding External Libraries to a Generic Project
+
+    Through external libraries Qt Creator can support code completion and
+    syntax highlighting as if they were part of the current project or the Qt
+    library.
+
+    If you import a project using the \gui{Import of Makefile-based Project}
+    function, Qt Creator creates a file called <projectname>.includes in your
+    project directory. This file contains all project subdirectories for which
+    Qt Creator found relevant headers. Add your include paths here.
+
+    Note that in \gui Projects mode of a generic project, Qt Creator does not
+    modify any project settings prior to the build.
+
+    Syntax completion and highlighting work once your project successfully
+    builds and links against the external library.
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-external-library-handling.html
-    \page creator-qt-for-symbian.html
+    \previouspage creator-project-managing-sessions.html
+    \page creator-developing-applications.html
+    \nextpage creator-developing-maemo.html
+
+    \title Developing Applications
+*/
+
+/*!
+
+    \contentspage index.html
+    \previouspage creator-developing-applications.html
+    \page creator-developing-maemo.html
+    \nextpage creator-developing-symbian.html
+
+    \title Developing Maemo Applications
+
+    Maemo is a software platform developed by Nokia for smartphones and
+    Internet Tablets. The platform is based on the Linux operating system
+    which itself is dervied from the Unix operating system. The platform
+    comprises of the Maemo operating system and Maemo SDK. The Maemo SDK
+    provides an open development environment for different applications on
+    top of the maemo platform. Maemo 5 is based on the Linux 2.6 operating
+    system. For more information refer, \l http://maemo.org/intro/platform/
+    {Maemo platform}.
+
+
+
+    \section1 Getting Started with Maemo Based Applications
+
+    To begin development for maemo applications, you require the following:
+    \list
+       \o  An N900 device with updates installed.
+       \o \bold MADDE is the acronym for Maemo Application Development and
+           Debugging Environment. It is a cross-platform maemo development
+           tool. For more information about \bold MADDE pertaining to its
+           installation, configuration, and deployment on the device refer to
+          \l{http://wiki.maemo.org/MADDE}{MADDE Preview}
+       \o  In order to setup the device IP address, you need to install
+           PC Connectivity or implement using CLI. For information on PC
+           Connectivity refer to the link,
+          \l http://pc-connectivity.garage.maemo.org/2nd_edition/node3.html#SECTION00032300000000000000
+           {PC Connectivity}.
+    \endlist
+
+    For deploying and running applications on the device, you need the
+    following:
+    \list
+       \o The Nokia USB drivers that come e.g. with PC Suite
+       \o Qt Creator should be installed on the device. A simple technique to
+          do this to run the maemo device \gui{Application Manager} and
+          download any application using Qt Creator. This installs all
+          dependencies required for Qt Creator at the same time.
+    \endlist
+
+    \section2 Supported Platform
+
+     The Qt Creator/MADDE integration is supported on the following platforms:
+    \list
+       \o  Linux (32 bit and 64 bit)
+       \o  Windows (32 bit and 64 bit)
+    \endlist
+
+    \section1 Setting Up the N900
+
+    \note The following assumes that you use the device's USB network
+     functionality. If you plan to connect your development PC to the N900
+     via a common WLAN network, you can ignore the USB-specific parts in the
+     following sections.
+
+     \section2 Installing the Mad Developer Package
+
+     To install the Mad Developer package on your device, follow the steps
+     listed below:
+     \list 1
+         \o Open the application manager and select,
+            \gui{Application catalogues} > \gui New.
+            Enter the data as displayed in the screenshot below
+            \note The complete web address is
+            \l http://repository.maemo.org/extras-devel
+
+            \image qtcreator-app-manager-extras-devel-screenshot.png
+
+         \o Click \gui Save and close the application manager.
+         \o Start xterm and create root: sudo gainroot.
+         \o Install \gui{apt-get install mad-developer}.
+         \o Start the Mad Developer apllication.
+     \endlist
+
+   \note In case you are using Microsoft Windows as development host, you will
+         need to change the driver loaded for instantiating the connection.
+         For this click, \gui{Manage USB} and select \gui{Load g_ether}.
+
+    Click \gui Edit in the usb0 row and confirm with \gui Configure. No
+    changes need to be made by default. The usb0 row should now display the
+    IP address 192.168.2.15. Now select \gui{Developer Password} to generate
+    a password for a freshly created user called "developer".
+    The password will stay valid for as long this dialog is open.
+    Refer to the screenshot below as an example.
+
+    \image qtcreator-mad-developer-screenshot.png
+
+    \section2 Installing the gdbserver
+
+    If you plan to debug your application on the N900 via Qt Creator, you will
+    need the gdbserver application, which is part of the gdb packages.
+    This package is not available in the standard repository yet,
+    as it is under development currently. This requires setting up another
+    repository in the application manager. Follow the steps as mentioned in
+    Installing the Mad Developer package and
+    enter the data as displayed in the screenshot below.
+
+    \image qtcreator-app-manager-sdk-screenshot.png
+
+    Click \gui Save and exit the application manager. Now you can
+    install gdb. Again, use the xterm and gain root access.
+    You can install gdb via xterm: \gui{apt-get install gdb}.
+
+    \section2 Establishing the USB Connection
+
+    Connect your device to the development PC via the USB cable. A dialog will
+    pop up asking for the mode to use. Choose \gui{PC suite mode}.
+
+    \note There have been reports about connection problems due to unreliable
+    USB ports. Switching to a different port might help in such a case.
+
+    \section1 Setting Up the Host PC
+
+    \section2 Establishing the USB Connection
+
+    \section3 Linux
+
+    Run the following command in a shell as root user:
+                  \c{ifconfig usb0 192.168.2.14 up}
+
+    \section3 Windows
+
+    For Microsoft Windows, you will have perform the same steps via the Network
+    configuration tools available with the operating system.
+    Please open the network interface properties as shown in following
+    screenshots:
+    \image qtcreator-win-usb-network1.png
+    \image qtcreator-win-usb-network2.png
+    \image qtcreator-win-usb-network3.png
+
+    Change the IP to be set statically and enter the following values:
+    \list
+       \o  IP Address: 192.168.2.14
+       \o  SubnetMask: 255.255.255.0
+    \endlist
+
+    Accept these settings and close the Network Configuration. Depending on
+    your version of Microsoft Windows you might have to unplug and re-plug the
+    N900 to reload the driver with its according configuration.
+
+    \section2 Setting Up MADDE
+
+    After having downloaded the MADDE installer file for your platform from
+    \l{http://wiki.maemo.org/MADDE}{here}, execute it and follow the
+    instructions. The package will be installed. Then run:
+    \c{mad-admin list targets} to see which targets are available.
+    One of them should start with "fremantle". Install that one:
+    \c{mad-admin create fremantle-qt-xxx}.
+    After that, you will have a toolchain and a sysroot environment for
+    cross-compiling available.
+
+
+    \section1 Setting Up Qt Creator
+
+    \section2 Registering the MADDE Toolchain
+
+    Select \gui Tools > \gui Options > \gui Qt4 > \gui{Qt Versions}.
+    Click \inlineimage qtcreator-windows-add.png,
+    to add a new Qt version. The \gui{QMake Location} is the qmake executable
+    in \c{<MADDE dir>/targets/<fremantle target>/bin}.
+
+    \image qtcreator-screenshot-toolchain.png
+
+
+    \section2 Creating a Device Configuration
+
+    In order to deploy applications and run them remotely, Qt Creator needs to
+    know some parameters for device access. These are set in device
+    configurations.
+
+    Select \gui Tools > \gui Options > \gui Qt4 >
+    \gui{Maemo Device Configurations} and add a new configuration.
+
+    \image qtcreator-screenshot-devconf.png
+
+
+   \note The password is the one mad developer displays on the device.
+   Click \gui Test to check whether the device can be accessed properly. It is
+   recommended that you use the password-based login only to deploy your public
+   SSH key to the device (using the \gui{Deploy Key} button) and then switch to
+   key-based authentication.
+
+   Close the dialog by clicking, the \gui OK button after completion.
+
+
+   \section2 Setting Build and Run Configuration
+
+   Open a project for an application you want to develop for your N900.
+   Click \gui Projects to open the projects mode. In the \gui{Build Settings}
+   section, choose the MADDE Qt version which you registered earlier:
+
+   \image qtcreator-screenshot-build-settings.png
+
+   In the \gui{Run Settings} section, click \gui Add to add a new
+   run configuration on the maemo device. Set a name and select the device
+   configuration you created above in the popup menu. The result is
+   shown below:
+
+   \image qtcreator-screenshot-run-settings.png
+
+   \section2 Compiling, Running and Debugging Your Application
+
+   You can now continue your work as you were developing for any other platform
+   supported by Qt Creator: For compiling, Qt Creator will use the MADDE
+   toolchain's cross compiler. When you run your application, it will be
+   automatically copied onto the device and executed there. Your application's
+   windows will be displayed on the N900, command-line output can be seen in Qt
+   Creator's "Application output" window. Debugging works transparently as well.
+
+
+   \section1 Deploying the Application On Your Device
+
+    Once you succesfully build and run you application on Qt Creator, you
+    can deploy it onto your mobile device. The executable is copied onto the
+    device and runs in the same manner on the device as on your PC.
+
+
+*/
+
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-developing-maemo.html
+    \page creator-developing-symbian.html
     \nextpage creator-debugging.html
 
-    \title Development of Qt for Symbian Based Applications
+    \title Developing Symbian Applications
 
     Qt Creator 1.3 comes with preliminary support for development of
     applications using Qt for the Symbian Platform.
@@ -1923,83 +2922,39 @@
 
     \section2 Troubleshooting
 
-    When something goes wrong, check the following:
-    \list
-        \o Did you build your application with a Qt version for Symbian?
-        \o Are the settings for the Qt version you use to build your project correct? Check the
-           path to the S60 SDK. Check also whether you need to specify the path to your compiler tool chain.
-        \o Is the emulator/device run configuration selected as the active run configuration?
-        \o Did you build using the right toolchain, i.e. WINSCW for running in the emulator,
-            GCCE or RVCT for running on the device?
-        \o If the emulator process could not be started, try closing Qt Creator and starting the
-            application directly from your file manager. Having done this, Qt Creator should be
-            able to run your projects in the emulator.
-        \o Is the device connected via USB in \e{PC Suite} mode?
-        \o Is App TRK running on the device, using the USB connection, and does it have status
-            \e{connected}?
-        \o Is your device detected and selected in the run configuration details?
-    \endlist
+    If you cannot build the application, check if:
+     \list
+        \o You selected a Qt version for Symbian for building the application.
+        \o The settings for the Qt version you use to build your project are
+           correct. The path to the S60 SDK must point to the S60 SDK
+           installation directory.  Select \gui Tools > \gui Options...
+           > \gui Debugger > \gui{Symbian TRK} and check if it points to the
+           debugger toolchain.
+     \endlist
+    If you cannot run the application in the emulator, check if:
+     \list
+        \o The emulator or device run configuration selected is in the active
+           run configuration.
+        \o You built the application for the emulator by using  WINSCW  or for
+           the device by using GCCE or RVCT.
+        \o The emulator process cannot be started, try closing Qt Creator and
+           starting the application directly from your file manager. Having
+           done this, Qt Creator should be able to run your projects in the
+           emulator.
+     \endlist
+    If you cannot run the application on a device, check if:
+     \list
+        \o The device is connected via USB in \e{PC Suite} mode.
+        \o App TRK is running on the device, using the USB connection, with the
+           status \e connected.
+        \o The device is detected and selected in the run configuration
+           details.
+     \endlist
 
-    If neither of this helps to solve your problem, search the qt-creator@trolltech.com
+    If this does not help to solve your problem, search the qt-creator@trolltech.com
     mailing list archives or provide feedback to us via the methods described on the
     \l{http://qt.gitorious.org/qt-creator/pages/Home}{Qt Creator Development Wiki}.
 
-*/
-
-
-/*!
-    \contentspage index.html
-    \previouspage creator-generic-projects.html
-    \page creator-external-library-handling.html
-    \nextpage creator-qt-for-symbian.html
-
-    \title External Libraries
-
-    The ability to recognize external libraries is not only important for the
-    underlying build system, but also for Qt Creator itself. This ability
-    allows Qt Creator to support code completion and syntax highlighting for
-    external libraries as if they were part of the current project or the Qt
-    library.
-
-    The procedure of adding a library to a project depends on the type of
-    project, which influences the build system used. The following sections
-    describe the procedure required for each project type.
-
-
-    \section1 qmake Projects (the default)
-
-    Open your project file (\c{.pro}) from the \gui{Projects} pane. Then,
-    follow the guidelines in the
-    \l{http://doc.trolltech.com/latest/make-project-files.html#declaring-other-libraries}
-    {Declaring other Libraries} section of the Qt documentation.
-
-    Syntax completion and highlighting work once your project successfully builds
-    and links against the external library.
-
-
-    \section1 CMake Projects
-
-    In CMake, libraries are usually detected using the \c{FIND_PACKAGE()}
-    macro. A couple of them are already being shipped with CMake, they can be
-    found in the \c{Modules} directory of your CMake installation. If you
-    provide libraries on your own, you need to provide your own
-    \c{FindFoo.cmake} file. Refer to the
-    \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}{CMake FAQ}
-    for details.
-
-    As with \c qmake projects, syntax completion and highlighting work
-    once you successfully build and link against the external library.
-
-
-    \section1 Generic Projects
-
-    If you import a project using the \e{Generic Projects} function, Qt Creator
-    creates a file called \c{<projectname>.includes} in your project root
-    directory. This file contains all project subdirectories for which Qt Creator
-    found relevant headers. Add your include paths here.
-
-    Note that in \gui{Generic Project} mode, Qt Creator does not modify any project
-    settings.
 */
 
 
@@ -2011,45 +2966,107 @@
 
     \title Tips and Tricks
 
-    \bold{Quickly Switching between Modes}
 
-    You can quickly switch between modes by pressing \key{Ctrl+1},
-    \key{Ctrl+2}, and so on.
+    \section1 Switching between modes
 
-    \bold{Keyboard Shortcuts}
+    Qt Creator uses different modes for different purposes. You can quickly
+    switch between these modes with the following keyboard shortcuts:
+    \list
+        \o \gui Welcome mode \key Ctrl+1
+        \o \gui Edit mode \key Ctrl+2
+        \o \gui Debug mode \key Ctrl+3
+        \o \gui Projects mode \key Ctrl+4
+        \o \gui Help mode \key Ctrl+5
+    \endlist
 
-    Qt Creator provides a lot of useful keyboard shortcuts. Some useful
-    shortcuts are listed \l{Keyboard Shortcuts}{here}.
+    For more information about Qt Creator modes, see \l{Qt Creator modes}.
 
-    \bold{Running Qt Creator from the command line}
 
-    You can start Qt Creator from a command prompt with the name of an existing
-    session or \c{.pro} file by giving the name as argument on the command
-    line.
+    \section1 Moving Between Open Files
 
-    \bold{Show and hide the sidebar}
+    To quickly move between currently open files, press
+    \key Ctrl+Tab.
 
-    You can show and hide the the sidebar in \gui Edit and \gui Debug mode by
-    clicking on the corresponding icon, or by pressing \key{Alt+0} (Mac OS X:
-    \key{Cmd+0}).
 
-    \bold{Display signals and slots}
+    \section1 Moving To the Edit Mode
 
-    If you have an instance of a class that is derived from QObject, and you
-    would like to find all other objects connected to one of your object's
-    slots using Qt's signals and slots mechanism -- you can enable
-    \gui{Use Custom Display for Qt Objects} feature under the \gui Debug menu.
+    To move to the \gui Edit mode and currently active file, press
+    \key Esc.
+
+    If you already are in the \gui Edit mode:
+    \list
+        \o The first press moves focus to the editor
+        \o The second press closes secondary windows
+    \endlist
+
+
+    \section1 Using Keyboard Shortcuts
+
+    Qt Creator provides \l{Keyboard shortcuts}{many useful keyboard shortcuts}.
+
+    To customize, import or export keyboard shortcuts, select \gui Tools >
+    \gui Options... > \gui Environment > \gui Keyboard.
+
+
+    \section1 Running Qt Creator From Command Line
+
+    You can launch Qt Creator from command line using the name of an
+    existing session or \c .pro file by giving the name as the command
+    argument.
+
+    For example, running \tt{qtcreator somesession}, launches Qt Creator and
+    loads session somesession.
+
+    \note Make sure Qt Creator is included in the PATH environment variable.
+    This can be done by typing the following in the command line:
+    \code
+    set PATH=c:\qtsdk\mingw\bin;c:\qtsdk\qt\bin;%PATH%
+    \endcode
+
+
+    \section1 Showing and Hiding the Sidebar
+
+    To toggle the sidebar in the \gui Edit and \gui Debug modes, click
+    \inlineimage qtcreator-togglebutton.png
+    or press \key Alt+0 (\key Cmd+0 on Mac OS X).
+
+    For more information on using the sidebar, see \l{The sidebar}.
+
+
+    \section1 Moving To Symbols
+
+    To move straight to a symbol used in a project, select the symbol in the
+    \gui Editor toolbar drop-down menu.
+
+    For more information on the editor toolbar,
+    see \l{Using the editor toolbar}.
+
+
+    \section1 Displaying Signals and Slots
+
+    If an instance of a class is derived from QObject, and you would like to
+    find all other objects connected to one of your object's slots using
+    Qt's signals and slots mechanism, select \gui Tools > \gui Options...
+    > \gui{Debugging Helper} > \gui{Use Debugging Helper}.
 
     In the \gui{Locals and Watchers} view, expand the object's entry and open
     the slot in the \e slots subitem. The objects connected to this slot are
     shown as children of the slot. This method works with signals too.
 
-    \bold{Display low level data}
+
+    \section1 Displaying Low Level Data
 
     If special debugging of Qt objects fails due to data corruption within the
-    debugged objects, you can switch the debugging helpers off in the
-    \gui{Debugger > Debugging Helper} options dialog.
-    This makes the low-level structures visible again.
+    debugged objects, you can switch off the debugging helpers. When debugging
+    helpers are switched off low-level structures become visible.
+
+    To switch off the debugging helpers:
+    \list 1
+        \o Select \gui Tools > \gui Options... > \gui Debugger >
+           \gui{Debugging Helper}.
+        \o Uncheck the \gui{Use debugging helper} checkbox.
+    \endlist
+
 */
 
 
@@ -2057,143 +3074,495 @@
     \contentspage index.html
     \previouspage creator-tips.html
     \page creator-keyboard-shortcuts.html
-    \nextpage creator-glossary.html
+    \nextpage creator-known-issues.html
 
     \title Keyboard Shortcuts
 
-    Qt Creator provides various keyboard shortcuts to aid in the development
-    process. These shortcuts are listed in the table below:
+    Qt Creator provides various keyboard shortcuts to speed up your development
+    process.
+
+
+    \section1 Configuring Keyboard Shortcuts
+
+    To customize a keyboard shortcut:
+    \list 1
+        \o Select \gui Tools > \gui Options > \gui Environment >
+           \gui Keyboard.
+        \o Select an action from the list.
+        \o In \gui{Key Sequence} enter the shortcut key you want to associate
+           with the selected action.
+    \endlist
+
+    Qt Creator allows you to use different keyboard shortcut mapping schemes:
+    \list
+        \o To import a keyboard shortcut mapping scheme, click \gui Import
+           and select the kms file containing keyboard shortcut mapping scheme
+           you want to import.
+        \o To export the current keyboard shortcut mapping scheme, click
+           \gui Export and select the location where you want to save the
+           exported kms file.
+    \endlist
+
+
+    \section1 Default Keyboard Shortcuts
+
+    The following tables list the default keyboard shortcuts. They are
+    categorized by actions.
+
+
+    \section2 General Keyboard Shortcuts
 
     \table
         \header
-            \o Function
-            \o Key Combination
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o Open file or project
+            \o Ctrl+O
+        \row
+            \o New file or project
+            \o Ctrl+N
+        \row
+            \o Open in external editor
+            \o Alt+V, Alt+I
+        \row
+            \o Cut
+            \o Ctrl+X
+        \row
+            \o Copy
+            \o Ctrl+C
+        \row
+            \o Paste
+            \o Ctrl+V
+        \row
+            \o Redo
+            \o Ctrl+Y
+        \row
+            \o Save
+            \o Ctrl+S
+        \row
+            \o Save all
+            \o Ctrl+A
+        \row
+            \o Close window
+            \o Ctrl+W
+        \row
+            \o Close all
+            \o Ctrl+Shift+W
+        \row
+            \o Go back
+            \o Alt+Left
+        \row
+            \o Go forward
+            \o Alt+Right
+        \row
+            \o Go to line
+            \o Ctrl+L
+        \row
+            \o Next open document in history
+            \o Ctrl+Shift+Tab
+        \row
+            \o Goto other split
+            \o Ctrl+E, O
+        \row
+            \o Previous open document in history
+            \o Ctrl+Tab
+        \row
+            \o Activate \gui Locator
+            \o Ctrl+K
+        \row
+            \o Switch to \gui Welcome mode
+            \o Ctrl+1
+        \row
+            \o Switch to \gui Edit mode
+            \o Ctrl+2
+        \row
+            \o Switch to \gui Debug mode
+            \o Ctrl+3
+        \row
+            \o Switch to \gui Projects mode
+            \o Ctrl+4
+        \row
+            \o Switch to \gui Help mode
+            \o Ctrl+5
+        \row
+            \o Switch to \gui Output mode
+            \o Ctrl+6
+        \row
+            \o Toggle \gui{Build Issues} pane
+            \o Alt+1 (Cmd+1 on Mac OS X)
+        \row
+            \o Toggle \gui{Search Results} pane
+            \o Alt+2 (Cmd+2 on Mac OS X)
+        \row
+            \o Toggle \gui{Application Output} pane
+            \o Alt+3 (Cmd+3 on Mac OS X)
+        \row
+            \o Toggle \gui{Compile Output} pane
+            \o Alt+4 (Cmd+4 on Mac OS X)
+        \row
+            \o Activate \gui Bookmarks pane
+            \o Alt+M
+        \row
+            \o Activate \gui{File System} pane
+            \o Alt+Y
+        \row
+            \o Activate \gui{Open Documents} pane
+            \o Alt+O
+        \row
+            \o Activate \gui Projects pane
+            \o Alt+X
+        \row
+            \o Full screen
+            \o Ctrl+Shift+F11
+        \row
+            \o Toggle the sidebar
+            \o Alt+0 (Cmd+0 on Mac OS X)
+        \row
+            \o Undo
+            \o Ctrl+Z
+        \row
+            \o Move to \gui Edit mode
 
+               In \gui Edit mode:
+               \list
+                \o The first press moves focus to the editor
+                \o The second press closes secondary windows
+               \endlist
+            \o Esc
+    \endtable
+
+
+    \section2 Editing Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
         \row
-            \o Activate \gui Welcome mode
-            \o Ctrl + 1
+            \o Auto-indent selection
+            \o Ctrl+I
         \row
-            \o Activate \gui Edit mode
-            \o Ctrl + 2
+            \o Collapse
+            \o Ctrl+<
         \row
-            \o Activate \gui Debug mode
-            \o Ctrl + 3
+            \o Expand
+            \o Ctrl+>
         \row
-            \o Activate \gui Projects mode
-            \o Ctrl + 4
+            \o Trigger a completion in this scope
+            \o Ctrl+Space
         \row
-            \o Activate \gui Help mode
-            \o Ctrl + 5
+            \o Copy line down
+            \o Ctrl+Alt+Down
         \row
-            \o Activate \gui Output mode
-            \o Ctrl + 6
+            \o Copy line up
+            \o Ctrl+Alt+Up
         \row
-            \o Find
-            \o Ctrl + F
+            \o Cut line
+            \o Shift+Del
         \row
-            \o Find next
+            \o Decrease font size
+            \o Ctrl+- (Ctrl+Roll mouse wheel down)
+        \row
+            \o Increase font size
+            \o Ctrl++ (Ctrl+Roll mouse wheel up)
+        \row
+            \o Toggle vim-style editing
+            \o Alt+V, Alt+V
+        \row
+            \o Split
+            \o Ctrl+E, 2
+        \row
+            \o Split side by side
+            \o Ctrl+E, 3
+        \row
+            \o Remove all splits
+            \o Ctrl+E, 1
+        \row
+            \o Remove current split
+            \o Ctrl+E, 0
+        \row
+            \o Select all
+            \o Ctrl+A
+        \row
+            \o Go to block end
+            \o Ctrl+]
+        \row
+            \o Go to block start
+            \o Ctrl+[
+        \row
+            \o Go to block end with selection
+            \o Ctrl+}
+        \row
+            \o Go to block start with selection
+            \o Ctrl+{
+        \row
+            \o Move current line down
+            \o Ctrl+Shift+Down
+        \row
+            \o Move current line up
+            \o Ctrl+Shift+Up
+        \row
+            \o Trigger a quick fix in this scope
+            \o Alt+Return
+        \row
+            \o Rewrap paragraph
+            \o Ctrl+E, R
+        \row
+            \o Select the current block
+
+               The second press extends the selection to the parent block
+            \o Ctrl+U
+        \row
+            \o Enable text wrapping
+            \o Ctrl+E, Ctrl+W
+        \row
+            \o Toggle comment for selection
+            \o Ctrl+/
+        \row
+            \o Visualize whitespace
+            \o Ctrl+E, Ctrl+V
+        \row
+            \o Delete
+            \o Del
+        \row
+            \o Adjust size
+            \o Ctrl+J
+        \row
+            \o Lay out in a grid
+            \o Ctrl+G
+        \row
+            \o Lay out horizontally
+            \o Ctrl+H
+        \row
+            \o Lay out vertically
+            \o Ctrl+L
+        \row
+            \o Preview
+            \o Ctrl+Alt+R
+        \row
+            \o Edit signals and slots
+            \o F4
+        \row
+            \o Edit widgets
             \o F3
         \row
-            \o Go back to the code editor (\gui Edit mode: The first press
-               gives the editor focus, without closing secondary windows; the
-               second press closes all secondary windows. \gui Debug mode or
-               \gui Help mode: Switch to \gui Edit mode.)
-            \o Esc
+            \o Toggle bookmark
+            \o Ctrl+M
         \row
-            \o Go to a line
-            \o Ctrl + L
+            \o Go to next bookmark
+            \o Ctrl+.
         \row
-            \o Navigate between pages
-            \o Alt + Left, Alt + Right
+            \o Go to previous bookmark
+            \o Ctrl+,
+        \row
+            \o Fetch snippet
+            \o Alt+C, Alt+F
+        \row
+            \o Paste snippet
+            \o Alt+C, Alt+P
+        \row
+            \o Find usages
+            \o Ctrl+Shift+U
+        \row
+            \o Follow symbol under cursor
+
+               Works with namespaces, classes, methods, variables, include
+               statements and macros
+            \o F2
+        \row
+            \o Rename symbol under cursor
+            \o Ctrl+Shift+R
+        \row
+            \o Switch between method declaration and definition
+            \o Shift+F2
+        \row
+            \o Switch between header and source file
+            \o F4
+    \endtable
+
+    \section2 Debugging Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
         \row
             \o Start debugging
             \o F5
         \row
-            \o Stop debugging
-            \o Shift + F5
+            \o Stop or interrupt debugger
+            \o Shift+F5
         \row
-            \o Toggle code declaration and definition
-            \o F2
+            \o Reset debugger
+            \o Ctrl+Shift+F5
         \row
-            \o Toggle header file and source file
-            \o F4
+            \o Step over
+            \o F10
         \row
-            \o Toggle Sidebar
-            \o Alt + 0 / Cmd + 0
+            \o Step into
+            \o F11
         \row
-            \o Toggle \gui{Build Issues} pane
-            \o Alt + 1 / Cmd + 1
+            \o Step out
+            \o Shift+F11
         \row
-            \o Toggle \gui{Search Results} pane
-            \o Alt + 2 / Cmd + 2
-        \row
-            \o Toggle \gui{Application Output} pane
-            \o Alt + 3 / Cmd + 3
-        \row
-            \o Toggle \gui{Compile Output} pane
-            \o Alt + 4 / Cmd + 4
+            \o Toggle breakpoint
+            \o F9
     \endtable
 
-    The table below lists keyboard shortcuts supported by the code editor.
+
+    \section2 Project Keyboard Shortcuts
 
     \table
+        \header
+            \o Action
+            \o Keyboard shortcut
         \row
-            \i  Block navigation
-            \i  To navigate between blocks, e.g., from one \bold{\{} to another
-                \bold{\}}, press \key{Ctrl+[} and \key{Ctrl+]}.
+            \o Build project
+            \o Ctrl+B
         \row
-            \i  Block selection
-            \i  To select the current block, press \key{Ctrl+U}. Pressing
-                \key{Ctrl+U} again extends the selection to the parent block.
-                To deselect, press \key{Ctrl+Shift+U}.
+            \o Build all
+            \o Ctrl+Shift+B
         \row
-            \i  Moving lines up and down
-            \i  Press \key{Ctrl+Shift+Up} and \key{Ctrl+Shift+Down}
-
+            \o New project
+            \o Ctrl+Shift+N
         \row
-            \i  Completion
-            \i  Press \key{Ctrl+Space}
-
-        \row
-            \i  Indenting Blocks
-            \i  Press \key{Ctrl+I}
-
-        \row
-            \i  Collapse
-            \i  Press \key{Ctrl+\<}
-
-        \row
-            \i  Commenting or uncommenting blocks
-            \i  Press \key{Ctrl+\/}
-
-        \row
-            \i  Delete a line
-            \i  Press \key{Shift+Del}
-
-        \row
-            \i  Switch between header file and source file
-            \i  Press \key{F4}.
-
-        \row
-            \i  Increasing and decreasing font size
-            \i  Press \key{Ctrl+Scroll Wheel}
-
-        \row
-            \i  Follow symbols under the cursor
-            \i  Press \key{F2} and \key{Shift+F2}. This feature works with
-                namespaces, classes, methods, variables, include statements,
-                and macros.
-
+            \o Run
+            \o Ctrl+R
     \endtable
 
+
+    \section2 Help Keyboard Shortcuts
+
+    \table
+        \header
+            \o Action
+            \o Keyboard shortcut
+        \row
+            \o View context-sensitive help
+            \o F1
+        \row
+            \o Activate contents in \gui Help mode
+            \o Ctrl+T
+        \row
+            \o Add bookmark in \gui Help mode
+            \o Ctrl+M
+        \row
+            \o Activate index in \gui Help mode
+            \o Ctrl+I
+        \row
+            \o Reset font size in \gui Help mode
+            \o Ctrl+0
+        \row
+            \o Activate search in \gui Help mode
+            \o Ctrl+S
+    \endtable
+
+
+    \section2 Version Control Keyboard Shortcuts
+
+    \table
+        \header
+            \o 1,2 Action
+            \o 4,1 Version control system
+        \header
+            \o CVS
+            \o Git
+            \o Perforce
+            \o Subversion
+        \row
+            \o Add
+            \o Alt+C, Alt+A
+            \o Alt+G, Alt+A
+            \o
+            \o Alt+S, Alt+A
+        \row
+            \o Commit
+            \o Alt+C, Alt+C
+            \o Alt+G, Alt+C
+            \o
+            \o
+        \row
+            \o Diff
+            \o Alt+C, Alt+D
+            \o Alt+G, Alt+D
+            \o
+            \o Alt+S, Alt+D
+        \row
+            \o Diff project
+            \o
+            \o Alt+G, Alt+Shift+D
+            \o Alt+P, Alt+D
+            \o
+        \row
+            \o Blame
+            \o
+            \o Alt+G, Alt+B
+            \o
+            \o
+        \row
+            \o Log
+            \o
+            \o Alt+G, Alt+L
+            \o Alt+P, Alt+F
+            \o
+        \row
+            \o Log project
+            \o
+            \o Alt+G, Alt+K
+            \o
+            \o
+        \row
+            \o Status
+            \o
+            \o Alt+G, Alt+S
+            \o
+            \o
+        \row
+            \o Undo changes
+            \o
+            \o Alt+G, Alt+U
+            \o
+            \o
+        \row
+            \o Diff project
+            \o
+            \o Alt+G, Alt+Shift+D
+            \o Alt+P, Alt+D
+            \o
+        \row
+            \o Edit
+            \o
+            \o
+            \o Alt+P, Alt+E
+            \o
+        \row
+            \o Opened
+            \o
+            \o
+            \o Alt+P, Alt+O
+            \o
+        \row
+            \o Revert
+            \o
+            \o
+            \o Alt+P, Alt+R
+            \o
+        \row
+            \o Submit
+            \o
+            \o
+            \o Alt+P, Alt+S
+            \o
+    \endtable
 */
 
 
 /*!
     \contentspage index.html
-    \previouspage creator-keyboard-shortcuts.html
+    \previouspage creator-known-issues.html
     \page creator-glossary.html
-    \nextpage creator-supported-platforms.html
+    \nextpage creator-acknowledgements.html
 
     \title Glossary
 
@@ -2253,32 +3622,9 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-glossary.html
-    \page creator-supported-platforms.html
-    \nextpage creator-known-issues.html
-
-    \title Supported Platforms
-
-    Qt Creator is available in binary packages for the following platforms:
-
-    \list
-        \o  Windows XP Service Pack 2
-        \o  Windows Vista
-        \o  (K)Ubuntu Linux 7.04 32bit and 64 bit
-        \o  Mac OS 10.4 and later
-    \endlist
-
-    \note Building Qt Creator itself from source requires \bold{Qt 4.6.0} or later.
-          On Windows, MinGW 4.4 or Microsoft Visual Studio 2008 or later are required for compiling
-          Qt Creator itself.
-*/
-
-
-/*!
-    \contentspage index.html
-    \previouspage creator-supported-platforms.html
+    \previouspage creator-keyboard-shortcuts.html
     \page creator-known-issues.html
-    \nextpage creator-acknowledgements.html
+    \nextpage creator-glossary.html
 
     \title Known Issues
 
@@ -2394,7 +3740,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-known-issues.html
+    \previouspage creator-glossary.html
     \page creator-acknowledgements.html
 
     \title Acknowledgements

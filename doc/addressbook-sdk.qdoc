@@ -125,11 +125,8 @@
     Now that we have all the files we need, click \gui Finish so can start
     designing the user interface.
 
-    \table
-        \row
-            \o  \bold{Note:} For more details on how to create a \gui Project
-                with Qt Creator, refer to \l{Creating a Project in Qt Creator}.
-    \endtable
+    \note For more information on how to create a \gui Project, see
+    \l {Creating a project}.
 
 
     \section1 Placing Widgets on The Form

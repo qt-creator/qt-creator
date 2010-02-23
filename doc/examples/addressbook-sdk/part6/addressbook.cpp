@@ -294,7 +294,7 @@ void AddressBook::loadFromFile()
 
         QDataStream in(&file);
         in.setVersion(QDataStream::Qt_4_5);
-        contacts.empty();   // empty existing contacts
+        contacts.clear();   // remove all items
         in >> contacts;
 //! [loadFromFile part2]
 
