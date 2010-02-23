@@ -336,9 +336,7 @@ const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
 
     const QString typeName = prop.typeName();
     if (typeName == QLatin1String("QmlGraphicsAnchorLine")) {
-        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
-        object->setClassName(QLatin1String("AnchorLine"));
-        value = object;
+        value = engine()->anchorLineValue();
     }
     if (value->asStringValue() && prop.name() == QLatin1String("easing")
             && isDerivedFrom(&QmlPropertyAnimation::staticMetaObject)) {
@@ -618,6 +616,10 @@ void ValueVisitor::visit(const ColorValue *)
 {
 }
 
+void ValueVisitor::visit(const AnchorLineValue *)
+{
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Value
 ////////////////////////////////////////////////////////////////////////////////
@@ -680,6 +682,11 @@ const EasingCurveNameValue *Value::asEasingCurveNameValue() const
 }
 
 const ColorValue *Value::asColorValue() const
+{
+    return 0;
+}
+
+const AnchorLineValue *Value::asAnchorLineValue() const
 {
     return 0;
 }
@@ -996,6 +1003,16 @@ void ColorValue::accept(ValueVisitor *visitor) const
 }
 
 const ColorValue *ColorValue::asColorValue() const
+{
+    return this;
+}
+
+void AnchorLineValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
+
+const AnchorLineValue *AnchorLineValue::asAnchorLineValue() const
 {
     return this;
 }
@@ -1577,6 +1594,21 @@ void TypeId::visit(const FunctionValue *object)
         _result = QLatin1String("Function");
 }
 
+void TypeId::visit(const EasingCurveNameValue *)
+{
+    _result = QLatin1String("string");
+}
+
+void TypeId::visit(const ColorValue *)
+{
+    _result = QLatin1String("string");
+}
+
+void TypeId::visit(const AnchorLineValue *)
+{
+    _result = QLatin1String("AnchorLine");
+}
+
 Engine::Engine()
     : _objectPrototype(0),
       _functionPrototype(0),
@@ -1647,6 +1679,11 @@ const EasingCurveNameValue *Engine::easingCurveNameValue() const
 const ColorValue *Engine::colorValue() const
 {
     return &_colorValue;
+}
+
+const AnchorLineValue *Engine::anchorLineValue() const
+{
+    return &_anchorLineValue;
 }
 
 const Value *Engine::newArray()

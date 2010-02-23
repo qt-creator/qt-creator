@@ -62,6 +62,108 @@ using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJS::Interpreter;
 
+
+namespace {
+
+class AssignmentCheck : public ValueVisitor
+{
+public:
+    DiagnosticMessage operator()(
+            const SourceLocation &location,
+            const Interpreter::Value *lhsValue,
+            const Interpreter::Value *rhsValue,
+            ExpressionNode *ast)
+    {
+        _message = DiagnosticMessage(DiagnosticMessage::Error, location, QString());
+        _rhsValue = rhsValue;
+        _ast = ast;
+
+        if (lhsValue)
+            lhsValue->accept(this);
+
+        return _message;
+    }
+
+    virtual void visit(const NumberValue *)
+    {
+        // ### Consider enums: elide: "ElideLeft" is valid, but currently elide is a NumberValue.
+        if (/*cast<StringLiteral *>(_ast)
+                ||*/ _ast->kind == Node::Kind_TrueLiteral
+                || _ast->kind == Node::Kind_FalseLiteral) {
+            _message.message = QCoreApplication::translate("QmlJS::Check", "numerical value expected");
+        }
+    }
+
+    virtual void visit(const BooleanValue *)
+    {
+        UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(_ast);
+
+        if (cast<StringLiteral *>(_ast)
+                || cast<NumericLiteral *>(_ast)
+                || (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression))) {
+            _message.message = QCoreApplication::translate("QmlJS::Check", "boolean value expected");
+        }
+    }
+
+    virtual void visit(const StringValue *)
+    {
+        UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(_ast);
+
+        if (cast<NumericLiteral *>(_ast)
+                || (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression))
+                || _ast->kind == Node::Kind_TrueLiteral
+                || _ast->kind == Node::Kind_FalseLiteral) {
+            _message.message = QCoreApplication::translate("QmlJS::Check", "string value expected");
+        }
+    }
+
+    virtual void visit(const EasingCurveNameValue *)
+    {
+        if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
+            const QString curveName = stringLiteral->value->asString();
+
+            // ### update when easing changes hit master
+            if (!EasingCurveNameValue::curveNames().contains(curveName)) {
+                _message.message = tr(Messages::unknown_easing_curve_name);
+            }
+        } else if (_rhsValue->asUndefinedValue()) {
+            _message.kind = DiagnosticMessage::Warning;
+            _message.message = tr(Messages::value_might_be_undefined);
+        } else if (! _rhsValue->asStringValue()) {
+            _message.message = tr(Messages::easing_curve_not_a_string);
+        }
+    }
+
+    virtual void visit(const ColorValue *)
+    {
+        if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
+            const QString colorString = stringLiteral->value->asString();
+
+#ifndef NO_DECLARATIVE_BACKEND
+            bool ok = false;
+            QmlStringConverters::colorFromString(colorString, &ok);
+            if (!ok)
+                _message.message = QCoreApplication::translate("QmlJS::Check", "not a valid color");
+#endif
+        } else {
+            visit((StringValue *)0);
+        }
+    }
+
+    virtual void visit(const AnchorLineValue *)
+    {
+        if (! (_rhsValue->asAnchorLineValue() || _rhsValue->asUndefinedValue()))
+            _message.message = QCoreApplication::translate("QmlJS::Check", "expected anchor line");
+    }
+
+    DiagnosticMessage _message;
+    const Value *_rhsValue;
+    ExpressionNode *_ast;
+};
+
+} // end of anonymous namespace
+
+
 Check::Check(Document::Ptr doc, const Snapshot &snapshot)
     : _doc(doc)
     , _snapshot(snapshot)
@@ -131,17 +233,6 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     _scopeBuilder.pop();
 }
 
-void Check::errorOnWrongRhs(const SourceLocation &loc, const Value *lhsValue)
-{
-    if (lhsValue->asBooleanValue()) {
-        error(loc, QCoreApplication::translate("QmlJS::Check", "boolean value expected"));
-    } else if (lhsValue->asNumberValue()) {
-        error(loc, QCoreApplication::translate("QmlJS::Check", "numerical value expected"));
-    } else if (lhsValue->asStringValue()) {
-        error(loc, QCoreApplication::translate("QmlJS::Check", "string value expected"));
-    }
-}
-
 bool Check::visit(UiScriptBinding *ast)
 {
     // special case for id property
@@ -181,68 +272,15 @@ bool Check::visit(UiScriptBinding *ast)
 
             const SourceLocation loc = locationFromRange(expStmt->firstSourceLocation(),
                                                          expStmt->lastSourceLocation());
-            checkPropertyAssignment(loc, lhsValue, rhsValue, expr);
+            AssignmentCheck assignmentCheck;
+            DiagnosticMessage message = assignmentCheck(loc, lhsValue, rhsValue, expr);
+            if (! message.message.isEmpty())
+                _messages += message;
         }
 
     }
 
     return true;
-}
-
-void Check::checkPropertyAssignment(const SourceLocation &location,
-                                    const Interpreter::Value *lhsValue,
-                                    const Interpreter::Value *rhsValue,
-                                    ExpressionNode *ast)
-{
-    UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(ast);
-
-    // Qml is particularly strict with literals
-    if (StringLiteral *stringLiteral = cast<StringLiteral *>(ast)) {
-        const QString string = stringLiteral->value->asString();
-
-        if (lhsValue->asStringValue()) {
-            // okay
-        } else if (lhsValue->asColorValue()) {
-#ifndef NO_DECLARATIVE_BACKEND
-            bool ok = false;
-            QmlStringConverters::colorFromString(string, &ok);
-            if (!ok)
-                error(location, QCoreApplication::translate("QmlJS::Check", "not a valid color"));
-#endif
-        } else if (lhsValue->asEasingCurveNameValue()) {
-            // ### do something with easing-curve attributes.
-            // ### Incomplete documentation at: http://qt.nokia.com/doc/4.7-snapshot/qml-propertyanimation.html#easing-prop
-            // ### The implementation is at: src/declarative/util/qmlanimation.cpp
-            const QString curveName = string.left(string.indexOf(QLatin1Char('(')));
-            if (!EasingCurveNameValue::curveNames().contains(curveName)) {
-                error(location, tr(Messages::unknown_easing_curve_name));
-            }
-        } else {
-            errorOnWrongRhs(location, lhsValue);
-        }
-    } else if ((ast->kind == Node::Kind_TrueLiteral
-                || ast->kind == Node::Kind_FalseLiteral)
-               && ! lhsValue->asBooleanValue()) {
-        errorOnWrongRhs(location, lhsValue);
-    } else if (cast<NumericLiteral *>(ast)
-               && ! lhsValue->asNumberValue()) {
-        errorOnWrongRhs(location, lhsValue);
-    } else if (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression)
-               && ! lhsValue->asNumberValue()) {
-        errorOnWrongRhs(location, lhsValue);
-    } else {
-        // rhs is not a literal
-        if (lhsValue->asEasingCurveNameValue()) {
-            const StringValue *rhsStringValue = rhsValue->asStringValue();
-            if (!rhsStringValue) {
-                if (rhsValue->asUndefinedValue())
-                    warning(location, tr(Messages::value_might_be_undefined));
-                else
-                    error(location, tr(Messages::easing_curve_not_a_string));
-                return;
-            }
-        }
-    }
 }
 
 bool Check::visit(UiArrayBinding *ast)
