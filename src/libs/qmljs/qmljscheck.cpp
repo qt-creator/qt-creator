@@ -33,8 +33,9 @@
 #include "qmljsevaluate.h"
 #include "parser/qmljsast_p.h"
 
-#include <QtGui/QApplication>
 #include <QtCore/QDebug>
+#include <QtCore/QCoreApplication>
+#include <QtGui/QApplication>
 
 namespace QmlJS {
 namespace Messages {
@@ -125,17 +126,48 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     _scopeBuilder.pop();
 }
 
+void Check::errorOnWrongRhs(const SourceLocation &loc, const Value *lhsValue)
+{
+    if (lhsValue->asBooleanValue()) {
+        error(loc, QCoreApplication::translate("QmlJS::Check", "boolean value expected"));
+    } else if (lhsValue->asNumberValue()) {
+        error(loc, QCoreApplication::translate("QmlJS::Check", "numerical value expected"));
+    } else if (lhsValue->asStringValue()) {
+        error(loc, QCoreApplication::translate("QmlJS::Check", "string value expected"));
+    }
+}
+
 bool Check::visit(UiScriptBinding *ast)
 {
     const Value *lhsValue = checkScopeObjectMember(ast->qualifiedId);
     if (lhsValue) {
         // ### Fix the evaluator to accept statements!
         if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement)) {
-            Evaluate evaluator(&_context);
-            const Value *rhsValue = evaluator(expStmt->expression);
-
+            ExpressionNode *expr = expStmt->expression;
             const SourceLocation loc = locationFromRange(expStmt->firstSourceLocation(), expStmt->lastSourceLocation());
-            checkPropertyAssignment(loc, lhsValue, rhsValue, expStmt->expression);
+
+            // Qml is particularly strict with literals
+            if (cast<StringLiteral *>(expr)
+                    && ! lhsValue->asStringValue()) {
+                errorOnWrongRhs(loc, lhsValue);
+            } else if ((expr->kind == Node::Kind_TrueLiteral
+                        || expr->kind == Node::Kind_FalseLiteral)
+                       && ! lhsValue->asBooleanValue()) {
+                errorOnWrongRhs(loc, lhsValue);
+            } else if (cast<NumericLiteral *>(expr)
+                       && ! lhsValue->asNumberValue()) {
+                errorOnWrongRhs(loc, lhsValue);
+            } else if (UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(expr)) {
+                if (cast<NumericLiteral *>(unaryMinus->expression)
+                    && ! lhsValue->asNumberValue()) {
+                    errorOnWrongRhs(loc, lhsValue);
+                }
+            } else {
+                Evaluate evaluator(&_context);
+                const Value *rhsValue = evaluator(expr);
+
+                checkPropertyAssignment(loc, lhsValue, rhsValue, expr);
+            }
         }
 
     }

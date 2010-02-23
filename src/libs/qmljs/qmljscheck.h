@@ -61,6 +61,7 @@ private:
                                  const Interpreter::Value *lhsValue,
                                  const Interpreter::Value *rhsValue,
                                  QmlJS::AST::ExpressionNode *ast);
+    void errorOnWrongRhs(const AST::SourceLocation &loc, const Interpreter::Value *lhsValue);
 
     void warning(const AST::SourceLocation &loc, const QString &message);
     void error(const AST::SourceLocation &loc, const QString &message);
