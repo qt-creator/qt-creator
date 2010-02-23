@@ -326,6 +326,10 @@ const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
         value = object;
     } break;
 
+    case QMetaType::QColor: {
+        value = engine()->colorValue();
+    } break;
+
     default:
         break;
     } // end of switch
@@ -610,6 +614,10 @@ void ValueVisitor::visit(const EasingCurveNameValue *)
 {
 }
 
+void ValueVisitor::visit(const ColorValue *)
+{
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Value
 ////////////////////////////////////////////////////////////////////////////////
@@ -667,6 +675,11 @@ const Reference *Value::asReference() const
 }
 
 const EasingCurveNameValue *Value::asEasingCurveNameValue() const
+{
+    return 0;
+}
+
+const ColorValue *Value::asColorValue() const
 {
     return 0;
 }
@@ -973,6 +986,16 @@ QSet<QString> EasingCurveNameValue::curveNames()
 }
 
 const EasingCurveNameValue *EasingCurveNameValue::asEasingCurveNameValue() const
+{
+    return this;
+}
+
+void ColorValue::accept(ValueVisitor *visitor) const
+{
+    visitor->visit(this);
+}
+
+const ColorValue *ColorValue::asColorValue() const
 {
     return this;
 }
@@ -1619,6 +1642,11 @@ const StringValue *Engine::stringValue() const
 const EasingCurveNameValue *Engine::easingCurveNameValue() const
 {
     return &_easingCurveNameValue;
+}
+
+const ColorValue *Engine::colorValue() const
+{
+    return &_colorValue;
 }
 
 const Value *Engine::newArray()

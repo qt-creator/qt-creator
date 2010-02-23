@@ -35,7 +35,12 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
+#include <QtGui/QColor>
 #include <QtGui/QApplication>
+
+#ifndef NO_DECLARATIVE_BACKEND
+#  include <QtDeclarative/private/qmlstringconverters_p.h> // ### remove me
+#endif
 
 namespace QmlJS {
 namespace Messages {
@@ -144,30 +149,13 @@ bool Check::visit(UiScriptBinding *ast)
         // ### Fix the evaluator to accept statements!
         if (ExpressionStatement *expStmt = cast<ExpressionStatement *>(ast->statement)) {
             ExpressionNode *expr = expStmt->expression;
-            const SourceLocation loc = locationFromRange(expStmt->firstSourceLocation(), expStmt->lastSourceLocation());
 
-            // Qml is particularly strict with literals
-            if (cast<StringLiteral *>(expr)
-                    && ! lhsValue->asStringValue()) {
-                errorOnWrongRhs(loc, lhsValue);
-            } else if ((expr->kind == Node::Kind_TrueLiteral
-                        || expr->kind == Node::Kind_FalseLiteral)
-                       && ! lhsValue->asBooleanValue()) {
-                errorOnWrongRhs(loc, lhsValue);
-            } else if (cast<NumericLiteral *>(expr)
-                       && ! lhsValue->asNumberValue()) {
-                errorOnWrongRhs(loc, lhsValue);
-            } else if (UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(expr)) {
-                if (cast<NumericLiteral *>(unaryMinus->expression)
-                    && ! lhsValue->asNumberValue()) {
-                    errorOnWrongRhs(loc, lhsValue);
-                }
-            } else {
-                Evaluate evaluator(&_context);
-                const Value *rhsValue = evaluator(expr);
+            Evaluate evaluator(&_context);
+            const Value *rhsValue = evaluator(expr);
 
-                checkPropertyAssignment(loc, lhsValue, rhsValue, expr);
-            }
+            const SourceLocation loc = locationFromRange(expStmt->firstSourceLocation(),
+                                                         expStmt->lastSourceLocation());
+            checkPropertyAssignment(loc, lhsValue, rhsValue, expr);
         }
 
     }
@@ -180,24 +168,52 @@ void Check::checkPropertyAssignment(const SourceLocation &location,
                                     const Interpreter::Value *rhsValue,
                                     ExpressionNode *ast)
 {
-    if (lhsValue->asEasingCurveNameValue()) {
-        const StringValue *rhsStringValue = rhsValue->asStringValue();
-        if (!rhsStringValue) {
-            if (rhsValue->asUndefinedValue())
-                warning(location, tr(Messages::value_might_be_undefined));
-            else
-                error(location, tr(Messages::easing_curve_not_a_string));
-            return;
-        }
+    UnaryMinusExpression *unaryMinus = cast<UnaryMinusExpression *>(ast);
 
-        if (StringLiteral *string = cast<StringLiteral *>(ast)) {
-            const QString value = string->value->asString();
+    // Qml is particularly strict with literals
+    if (StringLiteral *stringLiteral = cast<StringLiteral *>(ast)) {
+        const QString string = stringLiteral->value->asString();
+
+        if (lhsValue->asStringValue()) {
+            // okay
+        } else if (lhsValue->asColorValue()) {
+#ifndef NO_DECLARATIVE_BACKEND
+            bool ok = false;
+            QmlStringConverters::colorFromString(string, &ok);
+            if (!ok)
+                error(location, QCoreApplication::translate("QmlJS::Check", "not a valid color"));
+#endif
+        } else if (lhsValue->asEasingCurveNameValue()) {
             // ### do something with easing-curve attributes.
             // ### Incomplete documentation at: http://qt.nokia.com/doc/4.7-snapshot/qml-propertyanimation.html#easing-prop
             // ### The implementation is at: src/declarative/util/qmlanimation.cpp
-            const QString curveName = value.left(value.indexOf(QLatin1Char('(')));
+            const QString curveName = string.left(string.indexOf(QLatin1Char('(')));
             if (!EasingCurveNameValue::curveNames().contains(curveName)) {
                 error(location, tr(Messages::unknown_easing_curve_name));
+            }
+        } else {
+            errorOnWrongRhs(location, lhsValue);
+        }
+    } else if ((ast->kind == Node::Kind_TrueLiteral
+                || ast->kind == Node::Kind_FalseLiteral)
+               && ! lhsValue->asBooleanValue()) {
+        errorOnWrongRhs(location, lhsValue);
+    } else if (cast<NumericLiteral *>(ast)
+               && ! lhsValue->asNumberValue()) {
+        errorOnWrongRhs(location, lhsValue);
+    } else if (unaryMinus && cast<NumericLiteral *>(unaryMinus->expression)
+               && ! lhsValue->asNumberValue()) {
+        errorOnWrongRhs(location, lhsValue);
+    } else {
+        // rhs is not a literal
+        if (lhsValue->asEasingCurveNameValue()) {
+            const StringValue *rhsStringValue = rhsValue->asStringValue();
+            if (!rhsStringValue) {
+                if (rhsValue->asUndefinedValue())
+                    warning(location, tr(Messages::value_might_be_undefined));
+                else
+                    error(location, tr(Messages::easing_curve_not_a_string));
+                return;
             }
         }
     }
