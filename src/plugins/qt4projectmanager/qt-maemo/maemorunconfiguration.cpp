@@ -107,6 +107,11 @@ void MaemoRunConfiguration::init()
     qemu = new QProcess(this);
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this,
         SLOT(qemuProcessFinished()));
+
+    connect(&MaemoManager::instance(), SIGNAL(startStopQemu()), this,
+        SLOT(startStopQemu()));
+    connect(this, SIGNAL(qemuProcessStatus(bool)), &MaemoManager::instance(),
+        SLOT(updateQemuSimulatorStarter(bool)));
 }
 
 MaemoRunConfiguration::~MaemoRunConfiguration()

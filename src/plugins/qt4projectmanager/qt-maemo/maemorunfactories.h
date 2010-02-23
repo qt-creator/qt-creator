@@ -70,9 +70,6 @@ private slots:
     void targetRemoved(ProjectExplorer::Target *target);
 
     void currentProjectChanged(ProjectExplorer::Project *project);
-
-private:
-    void setupRunConfiguration(MaemoRunConfiguration *rc);
 };
 
 class MaemoRunControlFactory : public IRunControlFactory

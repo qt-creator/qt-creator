@@ -113,7 +113,7 @@ QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) c
 
 QString MaemoRunConfigurationFactory::displayNameForId(const QString &id) const
 {
-    QString target(targetFromId(id));
+    const QString &target = targetFromId(id);
     if (target.isEmpty())
         return QString();
     return tr("%1 on Maemo Device").arg(QFileInfo(target).completeBaseName());
@@ -125,10 +125,7 @@ RunConfiguration *MaemoRunConfigurationFactory::create(Target *parent,
     if (!canCreate(parent, id))
         return 0;
     Qt4Target *pqt4parent = static_cast<Qt4Target *>(parent);
-    MaemoRunConfiguration *rc = new MaemoRunConfiguration(pqt4parent,
-        targetFromId(id));
-    setupRunConfiguration(rc);
-    return rc;
+    return new MaemoRunConfiguration(pqt4parent, targetFromId(id));
 
 }
 
@@ -137,14 +134,13 @@ RunConfiguration *MaemoRunConfigurationFactory::restore(Target *parent,
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4Target *t = static_cast<Qt4Target *>(parent);
-    MaemoRunConfiguration *rc = new MaemoRunConfiguration(t, QString());
-    if (!rc->fromMap(map)) {
-        delete rc;
-        return 0;
-    }
-    setupRunConfiguration(rc);
-    return rc;
+    Qt4Target *target = static_cast<Qt4Target *>(parent);
+    MaemoRunConfiguration *rc = new MaemoRunConfiguration(target, QString());
+    if (rc->fromMap(map))
+        return rc;
+
+    delete rc;
+    return 0;
 }
 
 RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent,
@@ -152,23 +148,9 @@ RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent,
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4Target *t = static_cast<Qt4Target *>(parent);
+
     MaemoRunConfiguration *old = static_cast<MaemoRunConfiguration *>(source);
-    MaemoRunConfiguration *rc = new MaemoRunConfiguration(t, old);
-
-    setupRunConfiguration(rc);
-
-    return rc;
-}
-
-void MaemoRunConfigurationFactory::setupRunConfiguration(MaemoRunConfiguration *rc)
-{
-    if (rc) {
-        connect(&MaemoManager::instance(), SIGNAL(startStopQemu()), rc,
-            SLOT(startStopQemu()));
-        connect(rc, SIGNAL(qemuProcessStatus(bool)), &MaemoManager::instance(),
-            SLOT(updateQemuSimulatorStarter(bool)));
-    }
+    return new MaemoRunConfiguration(static_cast<Qt4Target *>(parent), old);
 }
 
 void MaemoRunConfigurationFactory::projectAdded(
