@@ -1269,6 +1269,9 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     if (files.isEmpty())
         return;
 
+    foreach (const QString &file, files)
+        preproc->snapshot.remove(file);
+
     QStringList sources;
     QStringList headers;
     const Core::MimeDatabase *mimeDb = Core::ICore::instance()->mimeDatabase();
@@ -1278,8 +1281,6 @@ void CppModelManager::parse(QFutureInterface<void> &future,
     const int sourceCount = sources.size();
     files = sources;
     files += headers;
-    foreach (const QString &file, files)
-        preproc->snapshot.remove(file);
 
     preproc->setTodo(files);
 
