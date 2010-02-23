@@ -41,6 +41,22 @@
 
 using namespace CPlusPlus;
 
+bool ObjCSelectorArgumentAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (ObjCSelectorArgumentAST *_other = pattern->asObjCSelectorArgument())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool ObjCSelectorAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (ObjCSelectorAST *_other = pattern->asObjCSelector())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool SimpleSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (SimpleSpecifierAST *_other = pattern->asSimpleSpecifier())
@@ -932,30 +948,6 @@ bool ObjCTypeNameAST::match0(AST *pattern, ASTMatcher *matcher)
 bool ObjCEncodeExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (ObjCEncodeExpressionAST *_other = pattern->asObjCEncodeExpression())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
-bool ObjCSelectorWithoutArgumentsAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (ObjCSelectorWithoutArgumentsAST *_other = pattern->asObjCSelectorWithoutArguments())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
-bool ObjCSelectorArgumentAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (ObjCSelectorArgumentAST *_other = pattern->asObjCSelectorArgument())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
-bool ObjCSelectorWithArgumentsAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (ObjCSelectorWithArgumentsAST *_other = pattern->asObjCSelectorWithArguments())
         return matcher->match(this, _other);
 
     return false;

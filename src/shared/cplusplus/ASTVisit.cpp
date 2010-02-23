@@ -41,6 +41,21 @@
 
 using namespace CPlusPlus;
 
+void ObjCSelectorArgumentAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void ObjCSelectorAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(selector_argument_list, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void SimpleSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -991,28 +1006,6 @@ void ObjCEncodeExpressionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(type_name, visitor);
-    }
-    visitor->endVisit(this);
-}
-
-void ObjCSelectorWithoutArgumentsAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-    }
-    visitor->endVisit(this);
-}
-
-void ObjCSelectorArgumentAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-    }
-    visitor->endVisit(this);
-}
-
-void ObjCSelectorWithArgumentsAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(selector_argument_list, visitor);
     }
     visitor->endVisit(this);
 }

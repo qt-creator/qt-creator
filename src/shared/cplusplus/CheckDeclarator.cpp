@@ -263,7 +263,7 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
 
     semantic()->check(ast->selector, _scope);
 
-    ObjCMethod *method = control()->newObjCMethod(location, ast->selector->selector_name);
+    ObjCMethod *method = control()->newObjCMethod(location, ast->selector->name);
     ast->symbol = method;
     method->setScope(_scope);
     method->setVisibility(semantic()->currentVisibility());
@@ -271,16 +271,14 @@ bool CheckDeclarator::visit(ObjCMethodPrototypeAST *ast)
     if (semantic()->isObjCClassMethod(tokenKind(ast->method_type_token)))
         method->setStorage(Symbol::Static);
 
-    if (ast->selector->asObjCSelectorWithArguments()) {
-        for (ObjCMessageArgumentDeclarationListAST *it = ast->argument_list; it; it = it->next) {
-            ObjCMessageArgumentDeclarationAST *argDecl = it->value;
+    for (ObjCMessageArgumentDeclarationListAST *it = ast->argument_list; it; it = it->next) {
+        ObjCMessageArgumentDeclarationAST *argDecl = it->value;
 
-            semantic()->check(argDecl, method->arguments());
-        }
-
-        if (ast->dot_dot_dot_token)
-            method->setVariadic(true);
+        semantic()->check(argDecl, method->arguments());
     }
+
+    if (ast->dot_dot_dot_token)
+        method->setVariadic(true);
 
     _fullySpecifiedType = FullySpecifiedType(method);
 

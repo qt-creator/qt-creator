@@ -47,6 +47,31 @@ ASTMatcher::ASTMatcher()
 ASTMatcher::~ASTMatcher()
 { }
 
+bool ASTMatcher::match(ObjCSelectorArgumentAST *node, ObjCSelectorArgumentAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->name_token = node->name_token;
+
+    pattern->colon_token = node->colon_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(ObjCSelectorAST *node, ObjCSelectorAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    if (! pattern->selector_argument_list)
+        pattern->selector_argument_list = node->selector_argument_list;
+    else if (! AST::match(node->selector_argument_list, pattern->selector_argument_list, this))
+        return false;
+
+    return true;
+}
+
 bool ASTMatcher::match(SimpleSpecifierAST *node, SimpleSpecifierAST *pattern)
 {
     (void) node;
@@ -2267,41 +2292,6 @@ bool ASTMatcher::match(ObjCEncodeExpressionAST *node, ObjCEncodeExpressionAST *p
     if (! pattern->type_name)
         pattern->type_name = node->type_name;
     else if (! AST::match(node->type_name, pattern->type_name, this))
-        return false;
-
-    return true;
-}
-
-bool ASTMatcher::match(ObjCSelectorWithoutArgumentsAST *node, ObjCSelectorWithoutArgumentsAST *pattern)
-{
-    (void) node;
-    (void) pattern;
-
-    pattern->name_token = node->name_token;
-
-    return true;
-}
-
-bool ASTMatcher::match(ObjCSelectorArgumentAST *node, ObjCSelectorArgumentAST *pattern)
-{
-    (void) node;
-    (void) pattern;
-
-    pattern->name_token = node->name_token;
-
-    pattern->colon_token = node->colon_token;
-
-    return true;
-}
-
-bool ASTMatcher::match(ObjCSelectorWithArgumentsAST *node, ObjCSelectorWithArgumentsAST *pattern)
-{
-    (void) node;
-    (void) pattern;
-
-    if (! pattern->selector_argument_list)
-        pattern->selector_argument_list = node->selector_argument_list;
-    else if (! AST::match(node->selector_argument_list, pattern->selector_argument_list, this))
         return false;
 
     return true;

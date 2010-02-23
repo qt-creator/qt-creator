@@ -667,8 +667,7 @@ public:
         return selectors;
     }
 
-    virtual bool visit(ObjCSelectorWithArgumentsAST *ast) {selectors.append(ast); return false;}
-    virtual bool visit(ObjCSelectorWithoutArgumentsAST *ast) {selectors.append(ast); return false;}
+    virtual bool visit(ObjCSelectorAST *ast) {selectors.append(ast); return false;}
 
 private:
     QList<ObjCSelectorAST *> selectors;
@@ -694,10 +693,10 @@ void tst_Semantic::objcSelector_2()
     QList<ObjCSelectorAST*>selectors = CollectSelectors(doc->unit)();
     QCOMPARE(selectors.size(), 2);
 
-    ObjCSelectorWithArgumentsAST *sel = selectors.at(1)->asObjCSelectorWithArguments();
+    ObjCSelectorAST *sel = selectors.at(1)->asObjCSelector();
     QVERIFY(sel);
 
-    const SelectorNameId *selId = sel->selector_name->asSelectorNameId();
+    const SelectorNameId *selId = sel->name->asSelectorNameId();
     QVERIFY(selId);
     QCOMPARE(selId->nameCount(), 3U);
     QCOMPARE(selId->nameAt(0)->identifier()->chars(), "a");

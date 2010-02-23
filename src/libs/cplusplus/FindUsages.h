@@ -99,8 +99,7 @@ protected:
     virtual bool visit(ExpressionOrDeclarationStatementAST *ast);
     virtual bool visit(FunctionDeclaratorAST *ast);
     virtual bool visit(SimpleDeclarationAST *);
-    virtual bool visit(ObjCSelectorWithoutArgumentsAST *ast);
-    virtual bool visit(ObjCSelectorWithArgumentsAST *ast);
+    virtual bool visit(ObjCSelectorAST *ast);
 
 private:
     const Identifier *_id;

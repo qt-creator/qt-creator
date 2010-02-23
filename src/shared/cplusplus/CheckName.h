@@ -63,7 +63,6 @@ public:
 
     const Name *check(NameAST *name, Scope *scope);
     const Name *check(NestedNameSpecifierListAST *name, Scope *scope);
-    const Name *check(ObjCSelectorAST *args, Scope *scope);
     void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);
 
 protected:
@@ -80,8 +79,7 @@ protected:
     virtual bool visit(TemplateIdAST *ast);
 
     // ObjC
-    virtual bool visit(ObjCSelectorWithoutArgumentsAST *ast);
-    virtual bool visit(ObjCSelectorWithArgumentsAST *ast);
+    virtual bool visit(ObjCSelectorAST *ast);
     virtual bool visit(ObjCMessageArgumentDeclarationAST *ast);
 
 private:

@@ -788,21 +788,9 @@ public:
         return __ast;
     }
 
-    ObjCSelectorWithoutArgumentsAST *ObjCSelectorWithoutArguments()
-    {
-        ObjCSelectorWithoutArgumentsAST *__ast = new (&pool) ObjCSelectorWithoutArgumentsAST;
-        return __ast;
-    }
-
     ObjCSelectorArgumentAST *ObjCSelectorArgument()
     {
         ObjCSelectorArgumentAST *__ast = new (&pool) ObjCSelectorArgumentAST;
-        return __ast;
-    }
-
-    ObjCSelectorWithArgumentsAST *ObjCSelectorWithArguments()
-    {
-        ObjCSelectorWithArgumentsAST *__ast = new (&pool) ObjCSelectorWithArgumentsAST;
         return __ast;
     }
 

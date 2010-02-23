@@ -741,8 +741,9 @@ void tst_AST::objc_method_attributes_1()
     QCOMPARE(unit->tokenKind(foo->method_type_token), (int) T_MINUS);
     QVERIFY(foo->type_name);
     QVERIFY(foo->selector);
-    QVERIFY(foo->selector->asObjCSelectorWithoutArguments());
-    QCOMPARE(unit->spell(foo->selector->asObjCSelectorWithoutArguments()->name_token), "foo");
+    QVERIFY(foo->selector->selector_argument_list->value);
+    QVERIFY(!foo->selector->selector_argument_list->next);
+    QCOMPARE(unit->spell(foo->selector->selector_argument_list->value->name_token), "foo");
     QVERIFY(foo->attribute_list);
     QVERIFY(foo->attribute_list->value);
     QVERIFY(! (foo->attribute_list->next));
@@ -767,8 +768,10 @@ void tst_AST::objc_method_attributes_1()
     QCOMPARE(unit->tokenKind(bar->method_type_token), (int) T_PLUS);
     QVERIFY(bar->type_name);
     QVERIFY(bar->selector);
-    QVERIFY(bar->selector->asObjCSelectorWithoutArguments());
-    QCOMPARE(unit->spell(bar->selector->asObjCSelectorWithoutArguments()->name_token), "bar");
+    QVERIFY(bar->selector->selector_argument_list);
+    QVERIFY(bar->selector->selector_argument_list->value);
+    QVERIFY(!bar->selector->selector_argument_list->next);
+    QCOMPARE(unit->spell(bar->selector->selector_argument_list->value->name_token), "bar");
     QVERIFY(bar->attribute_list);
     QVERIFY(bar->attribute_list->value);
     QVERIFY(! (bar->attribute_list->next));
@@ -954,9 +957,11 @@ void tst_AST::objc_msg_send_expression()
         QVERIFY(msgExpr->argument_list == 0);
 
         QVERIFY(msgExpr->selector);
-        ObjCSelectorWithoutArgumentsAST *sel = msgExpr->selector->asObjCSelectorWithoutArguments();
-        QVERIFY(sel);
-        QCOMPARE(QLatin1String(unit->identifier(sel->name_token)->chars()), QLatin1String("description"));
+        ObjCSelectorArgumentListAST *args = msgExpr->selector->selector_argument_list;
+        QVERIFY(args);
+        QVERIFY(args->value);
+        QVERIFY(! args->next);
+        QCOMPARE(QLatin1String(unit->identifier(args->value->name_token)->chars()), QLatin1String("description"));
     }
 }
 

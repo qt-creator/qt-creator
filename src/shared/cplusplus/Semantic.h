@@ -87,7 +87,6 @@ public:
 
     const Name *check(NestedNameSpecifierListAST *name, Scope *scope);
 
-    const Name *check(ObjCSelectorAST *args, Scope *scope);
     FullySpecifiedType check(ObjCTypeNameAST *typeName, Scope *scope);
 
     void check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope);

@@ -145,8 +145,6 @@ class ObjCProtocolRefsAST;
 class ObjCSelectorAST;
 class ObjCSelectorArgumentAST;
 class ObjCSelectorExpressionAST;
-class ObjCSelectorWithArgumentsAST;
-class ObjCSelectorWithoutArgumentsAST;
 class ObjCSynchronizedStatementAST;
 class ObjCSynthesizedPropertiesDeclarationAST;
 class ObjCSynthesizedPropertyAST;

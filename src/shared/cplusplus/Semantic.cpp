@@ -160,9 +160,6 @@ const Name *Semantic::check(NameAST *name, Scope *scope)
 const Name *Semantic::check(NestedNameSpecifierListAST *name, Scope *scope)
 { return d->checkName->check(name, scope); }
 
-const Name *Semantic::check(ObjCSelectorAST *args, Scope *scope)
-{ return d->checkName->check(args, scope); }
-
 bool Semantic::skipFunctionBodies() const
 { return d->skipFunctionBodies; }
 

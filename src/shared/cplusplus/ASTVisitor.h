@@ -211,14 +211,13 @@ public:
     virtual bool visit(ObjCProtocolDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolForwardDeclarationAST *) { return true; }
     virtual bool visit(ObjCProtocolRefsAST *) { return true; }
+    virtual bool visit(ObjCSelectorAST *) { return true; }
     virtual bool visit(ObjCMessageExpressionAST *) { return true; }
     virtual bool visit(ObjCMessageArgumentAST *) { return true; }
     virtual bool visit(ObjCProtocolExpressionAST *) { return true; }
     virtual bool visit(ObjCTypeNameAST *) { return true; }
     virtual bool visit(ObjCEncodeExpressionAST *) { return true; }
-    virtual bool visit(ObjCSelectorWithoutArgumentsAST *) { return true; }
     virtual bool visit(ObjCSelectorArgumentAST *) { return true; }
-    virtual bool visit(ObjCSelectorWithArgumentsAST *) { return true; }
     virtual bool visit(ObjCSelectorExpressionAST *) { return true; }
     virtual bool visit(ObjCInstanceVariablesDeclarationAST *) { return true; }
     virtual bool visit(ObjCVisibilityDeclarationAST *) { return true; }
@@ -342,14 +341,13 @@ public:
     virtual void endVisit(ObjCProtocolDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolForwardDeclarationAST *) { }
     virtual void endVisit(ObjCProtocolRefsAST *) { }
+    virtual void endVisit(ObjCSelectorAST *) { }
     virtual void endVisit(ObjCMessageExpressionAST *) { }
     virtual void endVisit(ObjCMessageArgumentAST *) { }
     virtual void endVisit(ObjCProtocolExpressionAST *) { }
     virtual void endVisit(ObjCTypeNameAST *) { }
     virtual void endVisit(ObjCEncodeExpressionAST *) { }
-    virtual void endVisit(ObjCSelectorWithoutArgumentsAST *) { }
     virtual void endVisit(ObjCSelectorArgumentAST *) { }
-    virtual void endVisit(ObjCSelectorWithArgumentsAST *) { }
     virtual void endVisit(ObjCSelectorExpressionAST *) { }
     virtual void endVisit(ObjCInstanceVariablesDeclarationAST *) { }
     virtual void endVisit(ObjCVisibilityDeclarationAST *) { }

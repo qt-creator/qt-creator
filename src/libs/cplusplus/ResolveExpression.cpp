@@ -803,12 +803,12 @@ bool ResolveExpression::visit(ObjCMessageExpressionAST *ast)
             }
         }
 
-        if (klassName&&ast->selector && ast->selector->selector_name) {
+        if (klassName&&ast->selector && ast->selector->name) {
             ResolveObjCClass resolveObjCClass;
             QList<Symbol *> resolvedSymbols = resolveObjCClass(klassName, result, _context);
             foreach (Symbol *resolvedSymbol, resolvedSymbols)
                 if (ObjCClass *klass = resolvedSymbol->asObjCClass())
-                    _results.append(resolveMember(ast->selector->selector_name, klass));
+                    _results.append(resolveMember(ast->selector->name, klass));
         }
     }
 

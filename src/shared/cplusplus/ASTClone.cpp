@@ -40,6 +40,23 @@
 
 using namespace CPlusPlus;
 
+ObjCSelectorArgumentAST *ObjCSelectorArgumentAST::clone(MemoryPool *pool) const
+{
+    ObjCSelectorArgumentAST *ast = new (pool) ObjCSelectorArgumentAST;
+    ast->name_token = name_token;
+    ast->colon_token = colon_token;
+    return ast;
+}
+
+ObjCSelectorAST *ObjCSelectorAST::clone(MemoryPool *pool) const
+{
+    ObjCSelectorAST *ast = new (pool) ObjCSelectorAST;
+    for (ObjCSelectorArgumentListAST *iter = selector_argument_list, **ast_iter = &ast->selector_argument_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) ObjCSelectorArgumentListAST((iter->value) ? iter->value->clone(pool) : 0);
+    return ast;
+}
+
 SimpleSpecifierAST *SimpleSpecifierAST::clone(MemoryPool *pool) const
 {
     SimpleSpecifierAST *ast = new (pool) SimpleSpecifierAST;
@@ -1348,30 +1365,6 @@ ObjCEncodeExpressionAST *ObjCEncodeExpressionAST::clone(MemoryPool *pool) const
     ast->encode_token = encode_token;
     if (type_name)
         ast->type_name = type_name->clone(pool);
-    return ast;
-}
-
-ObjCSelectorWithoutArgumentsAST *ObjCSelectorWithoutArgumentsAST::clone(MemoryPool *pool) const
-{
-    ObjCSelectorWithoutArgumentsAST *ast = new (pool) ObjCSelectorWithoutArgumentsAST;
-    ast->name_token = name_token;
-    return ast;
-}
-
-ObjCSelectorArgumentAST *ObjCSelectorArgumentAST::clone(MemoryPool *pool) const
-{
-    ObjCSelectorArgumentAST *ast = new (pool) ObjCSelectorArgumentAST;
-    ast->name_token = name_token;
-    ast->colon_token = colon_token;
-    return ast;
-}
-
-ObjCSelectorWithArgumentsAST *ObjCSelectorWithArgumentsAST::clone(MemoryPool *pool) const
-{
-    ObjCSelectorWithArgumentsAST *ast = new (pool) ObjCSelectorWithArgumentsAST;
-    for (ObjCSelectorArgumentListAST *iter = selector_argument_list, **ast_iter = &ast->selector_argument_list;
-         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ObjCSelectorArgumentListAST((iter->value) ? iter->value->clone(pool) : 0);
     return ast;
 }
 

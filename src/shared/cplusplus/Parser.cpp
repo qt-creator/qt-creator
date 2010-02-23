@@ -3620,7 +3620,7 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
     unsigned identifier_token = 0;
     match(T_IDENTIFIER, &identifier_token);
     if (LA() == T_COLON) {
-        ObjCSelectorWithArgumentsAST *args = new (_pool) ObjCSelectorWithArgumentsAST;
+        ObjCSelectorAST *args = new (_pool) ObjCSelectorAST;
         ast->selector = args;
         ObjCSelectorArgumentListAST *last = new (_pool) ObjCSelectorArgumentListAST;
         args->selector_argument_list = last;
@@ -3636,9 +3636,11 @@ bool Parser::parseObjCSelectorExpression(ExpressionAST *&node)
             match(T_COLON, &last->value->colon_token);
         }
     } else {
-        ObjCSelectorWithoutArgumentsAST *args = new (_pool) ObjCSelectorWithoutArgumentsAST;
+        ObjCSelectorAST *args = new (_pool) ObjCSelectorAST;
         ast->selector = args;
-        args->name_token = identifier_token;
+        args->selector_argument_list = new (_pool) ObjCSelectorArgumentListAST;
+        args->selector_argument_list->value = new (_pool) ObjCSelectorArgumentAST;
+        args->selector_argument_list->value->name_token = identifier_token;
     }
 
     match(T_RPAREN, &ast->rparen_token);
@@ -3727,7 +3729,7 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
             }
         }
 
-        ObjCSelectorWithArgumentsAST *selWithArgs = new (_pool) ObjCSelectorWithArgumentsAST;
+        ObjCSelectorAST *selWithArgs = new (_pool) ObjCSelectorAST;
         selWithArgs->selector_argument_list = selAst;
 
         selNode = selWithArgs;
@@ -3738,8 +3740,10 @@ bool Parser::parseObjCMessageArguments(ObjCSelectorAST *&selNode, ObjCMessageArg
         unsigned name_token = 0;
         if (!parseObjCSelector(name_token))
             return false;
-        ObjCSelectorWithoutArgumentsAST *sel = new (_pool) ObjCSelectorWithoutArgumentsAST;
-        sel->name_token = name_token;
+        ObjCSelectorAST *sel = new (_pool) ObjCSelectorAST;
+        sel->selector_argument_list = new (_pool) ObjCSelectorArgumentListAST;
+        sel->selector_argument_list->value = new (_pool) ObjCSelectorArgumentAST;
+        sel->selector_argument_list->value->name_token = name_token;
         selNode = sel;
         argNode = 0;
         return true;
@@ -5127,7 +5131,7 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
         ObjCMessageArgumentDeclarationAST *declaration = 0;
         parseObjCKeywordDeclaration(argument, declaration);
 
-        ObjCSelectorWithArgumentsAST *sel = new (_pool) ObjCSelectorWithArgumentsAST;
+        ObjCSelectorAST *sel = new (_pool) ObjCSelectorAST;
         ast->selector = sel;
         ObjCSelectorArgumentListAST *lastSel = new (_pool) ObjCSelectorArgumentListAST;
         sel->selector_argument_list = lastSel;
@@ -5160,8 +5164,10 @@ bool Parser::parseObjCMethodPrototype(ObjCMethodPrototypeAST *&node)
             parseParameterDeclaration(parameter_declaration);
         }
     } else if (lookAtObjCSelector()) {
-        ObjCSelectorWithoutArgumentsAST *sel = new (_pool) ObjCSelectorWithoutArgumentsAST;
-        parseObjCSelector(sel->name_token);
+        ObjCSelectorAST *sel = new (_pool) ObjCSelectorAST;
+        sel->selector_argument_list = new (_pool) ObjCSelectorArgumentListAST;
+        sel->selector_argument_list->value = new (_pool) ObjCSelectorArgumentAST;
+        parseObjCSelector(sel->selector_argument_list->value->name_token);
         ast->selector = sel;
     } else {
         _translationUnit->error(cursor(), "expected a selector");
@@ -5206,21 +5212,23 @@ bool Parser::parseObjCPropertyAttribute(ObjCPropertyAttributeAST *&node)
     case Token_getter: {
         node->attribute_identifier_token = consumeToken();
         match(T_EQUAL, &node->equals_token);
-        ObjCSelectorWithoutArgumentsAST *selector = new (_pool) ObjCSelectorWithoutArgumentsAST;
-        match(T_IDENTIFIER, &selector->name_token);
-        node->method_selector = selector;
+        ObjCSelectorAST *sel = new (_pool) ObjCSelectorAST;
+        sel->selector_argument_list = new (_pool) ObjCSelectorArgumentListAST;
+        sel->selector_argument_list->value = new (_pool) ObjCSelectorArgumentAST;
+        match(T_IDENTIFIER, &sel->selector_argument_list->value->name_token);
+        node->method_selector = sel;
         return true;
     }
 
     case Token_setter: {
         node->attribute_identifier_token = consumeToken();
         match(T_EQUAL, &node->equals_token);
-        ObjCSelectorWithArgumentsAST *selector = new (_pool) ObjCSelectorWithArgumentsAST;
-        selector->selector_argument_list = new (_pool) ObjCSelectorArgumentListAST;
-        selector->selector_argument_list->value = new (_pool) ObjCSelectorArgumentAST;
-        match(T_IDENTIFIER, &selector->selector_argument_list->value->name_token);
-        match(T_COLON, &selector->selector_argument_list->value->colon_token);
-        node->method_selector = selector;
+        ObjCSelectorAST *sel = new (_pool) ObjCSelectorAST;
+        sel->selector_argument_list = new (_pool) ObjCSelectorArgumentListAST;
+        sel->selector_argument_list->value = new (_pool) ObjCSelectorArgumentAST;
+        match(T_IDENTIFIER, &sel->selector_argument_list->value->name_token);
+        match(T_COLON, &sel->selector_argument_list->value->colon_token);
+        node->method_selector = sel;
         return true;
     }
 

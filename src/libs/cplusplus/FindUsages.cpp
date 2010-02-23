@@ -463,29 +463,26 @@ bool FindUsages::visit(SimpleDeclarationAST *ast)
     return false;
 }
 
-bool FindUsages::visit(ObjCSelectorWithoutArgumentsAST *ast)
+bool FindUsages::visit(ObjCSelectorAST *ast)
 {
-    const Identifier *id = identifier(ast->name_token);
+#if 1
+    const Identifier *id = ast->name->identifier();
     if (id == _id) {
         LookupContext context = currentContext(ast);
-        const QList<Symbol *> candidates = context.resolve(ast->selector_name);
-        reportResult(ast->name_token, candidates);
+        const QList<Symbol *> candidates = context.resolve(ast->name);
+        reportResult(ast->firstToken(), candidates);
     }
-
-    return false;
-}
-
-bool FindUsages::visit(ObjCSelectorWithArgumentsAST *ast)
-{
+#else
     for (ObjCSelectorArgumentListAST *iter = ast->selector_argument_list; iter;
          iter = iter->next) {
         const Identifier *id = identifier(iter->value->name_token);
         if (id == _id) {
             LookupContext context = currentContext(iter->value);
-            const QList<Symbol *> candidates = context.resolve(ast->selector_name);
+            const QList<Symbol *> candidates = context.resolve(ast->name);
             reportResult(iter->value->name_token, candidates);
         }
     }
+#endif
 
     return false;
 }

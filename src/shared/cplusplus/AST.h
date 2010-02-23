@@ -238,8 +238,6 @@ public:
     virtual ObjCSelectorAST *asObjCSelector() { return 0; }
     virtual ObjCSelectorArgumentAST *asObjCSelectorArgument() { return 0; }
     virtual ObjCSelectorExpressionAST *asObjCSelectorExpression() { return 0; }
-    virtual ObjCSelectorWithArgumentsAST *asObjCSelectorWithArguments() { return 0; }
-    virtual ObjCSelectorWithoutArgumentsAST *asObjCSelectorWithoutArguments() { return 0; }
     virtual ObjCSynchronizedStatementAST *asObjCSynchronizedStatement() { return 0; }
     virtual ObjCSynthesizedPropertiesDeclarationAST *asObjCSynthesizedPropertiesDeclaration() { return 0; }
     virtual ObjCSynthesizedPropertyAST *asObjCSynthesizedProperty() { return 0; }
@@ -371,15 +369,41 @@ public:
     virtual PostfixDeclaratorAST *clone(MemoryPool *pool) const = 0;
 };
 
-class CPLUSPLUS_EXPORT ObjCSelectorAST: public AST
+class CPLUSPLUS_EXPORT ObjCSelectorArgumentAST: public AST
 {
-public: // annotation
-    const Name *selector_name;
+public:
+    unsigned name_token;
+    unsigned colon_token;
+
+public:
+    virtual ObjCSelectorArgumentAST *asObjCSelectorArgument() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSelectorArgumentAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT ObjCSelectorAST: public NameAST
+{
+public:
+    ObjCSelectorArgumentListAST *selector_argument_list;
 
 public:
     virtual ObjCSelectorAST *asObjCSelector() { return this; }
 
-    virtual ObjCSelectorAST *clone(MemoryPool *pool) const = 0;
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual ObjCSelectorAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
 };
 
 class CPLUSPLUS_EXPORT SimpleSpecifierAST: public SpecifierAST
@@ -2760,61 +2784,6 @@ public:
     virtual unsigned lastToken() const;
 
     virtual ObjCEncodeExpressionAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT ObjCSelectorWithoutArgumentsAST: public ObjCSelectorAST
-{
-public:
-    unsigned name_token;
-
-public:
-    virtual ObjCSelectorWithoutArgumentsAST *asObjCSelectorWithoutArguments() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCSelectorWithoutArgumentsAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT ObjCSelectorArgumentAST: public AST
-{
-public:
-    unsigned name_token;
-    unsigned colon_token;
-
-public:
-    virtual ObjCSelectorArgumentAST *asObjCSelectorArgument() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCSelectorArgumentAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT ObjCSelectorWithArgumentsAST: public ObjCSelectorAST
-{
-public:
-    ObjCSelectorArgumentListAST *selector_argument_list;
-
-public:
-    virtual ObjCSelectorWithArgumentsAST *asObjCSelectorWithArguments() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual ObjCSelectorWithArgumentsAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

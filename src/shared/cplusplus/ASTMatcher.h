@@ -146,14 +146,13 @@ public:
     virtual bool match(ObjCProtocolDeclarationAST *node, ObjCProtocolDeclarationAST *pattern);
     virtual bool match(ObjCProtocolForwardDeclarationAST *node, ObjCProtocolForwardDeclarationAST *pattern);
     virtual bool match(ObjCProtocolRefsAST *node, ObjCProtocolRefsAST *pattern);
+    virtual bool match(ObjCSelectorAST *node, ObjCSelectorAST *pattern);
     virtual bool match(ObjCMessageExpressionAST *node, ObjCMessageExpressionAST *pattern);
     virtual bool match(ObjCMessageArgumentAST *node, ObjCMessageArgumentAST *pattern);
     virtual bool match(ObjCProtocolExpressionAST *node, ObjCProtocolExpressionAST *pattern);
     virtual bool match(ObjCTypeNameAST *node, ObjCTypeNameAST *pattern);
     virtual bool match(ObjCEncodeExpressionAST *node, ObjCEncodeExpressionAST *pattern);
-    virtual bool match(ObjCSelectorWithoutArgumentsAST *node, ObjCSelectorWithoutArgumentsAST *pattern);
     virtual bool match(ObjCSelectorArgumentAST *node, ObjCSelectorArgumentAST *pattern);
-    virtual bool match(ObjCSelectorWithArgumentsAST *node, ObjCSelectorWithArgumentsAST *pattern);
     virtual bool match(ObjCSelectorExpressionAST *node, ObjCSelectorExpressionAST *pattern);
     virtual bool match(ObjCInstanceVariablesDeclarationAST *node, ObjCInstanceVariablesDeclarationAST *pattern);
     virtual bool match(ObjCVisibilityDeclarationAST *node, ObjCVisibilityDeclarationAST *pattern);

@@ -1498,6 +1498,15 @@ unsigned SimpleNameAST::lastToken() const
     return identifier_token + 1;
 }
 
+unsigned ObjCSelectorAST::firstToken() const
+{
+    return selector_argument_list->firstToken();
+}
+
+unsigned ObjCSelectorAST::lastToken() const
+{
+    return selector_argument_list->lastToken();
+}
 
 unsigned SimpleSpecifierAST::firstToken() const
 {
@@ -2089,16 +2098,6 @@ unsigned ObjCEncodeExpressionAST::lastToken() const
     return encode_token + 1;
 }
 
-unsigned ObjCSelectorWithoutArgumentsAST::firstToken() const
-{
-    return name_token;
-}
-
-unsigned ObjCSelectorWithoutArgumentsAST::lastToken() const
-{
-    return name_token + 1;
-}
-
 unsigned ObjCSelectorArgumentAST::firstToken() const
 {
     return name_token;
@@ -2110,16 +2109,6 @@ unsigned ObjCSelectorArgumentAST::lastToken() const
         return colon_token + 1;
     else
         return name_token + 1;
-}
-
-unsigned ObjCSelectorWithArgumentsAST::firstToken() const
-{
-    return selector_argument_list->firstToken();
-}
-
-unsigned ObjCSelectorWithArgumentsAST::lastToken() const
-{
-    return selector_argument_list->lastToken();
 }
 
 unsigned ObjCSelectorExpressionAST::firstToken() const

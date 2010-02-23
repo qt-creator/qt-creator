@@ -100,17 +100,6 @@ const Name *CheckName::check(NestedNameSpecifierListAST *nested_name_specifier_l
     return switchName(previousName);
 }
 
-const Name *CheckName::check(ObjCSelectorAST *args, Scope *scope)
-{
-    const Name *previousName = switchName(0);
-    Scope *previousScope = switchScope(scope);
-
-    accept(args);
-
-    (void) switchScope(previousScope);
-    return switchName(previousName);
-}
-
 void CheckName::check(ObjCMessageArgumentDeclarationAST *arg, Scope *scope)
 {
     const Name *previousName = switchName(0);
@@ -375,21 +364,7 @@ bool CheckName::visit(TemplateIdAST *ast)
     return false;
 }
 
-bool CheckName::visit(ObjCSelectorWithoutArgumentsAST *ast)
-{
-    if (ast->name_token) {
-        std::vector<const Name *> names;
-        const Identifier *id = control()->findOrInsertIdentifier(spell(ast->name_token));
-        const NameId *nameId = control()->nameId(id);
-        names.push_back(nameId);
-        _name = control()->selectorNameId(&names[0], names.size(), false);
-        ast->selector_name = _name;
-    }
-
-    return false;
-}
-
-bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
+bool CheckName::visit(ObjCSelectorAST *ast)
 {
     std::vector<const Name *> names;
     for (ObjCSelectorArgumentListAST *it = ast->selector_argument_list; it; it = it->next) {
@@ -405,7 +380,7 @@ bool CheckName::visit(ObjCSelectorWithArgumentsAST *ast)
 
     if (!names.empty()) {
         _name = control()->selectorNameId(&names[0], names.size(), true);
-        ast->selector_name = _name;
+        ast->name = _name;
     }
 
     return false;
@@ -431,5 +406,3 @@ bool CheckName::visit(ObjCMessageArgumentDeclarationAST *ast)
 
     return false;
 }
-
-
