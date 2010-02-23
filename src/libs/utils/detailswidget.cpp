@@ -35,6 +35,8 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPainter>
+#include <QtGui/QScrollArea>
+#include <QtGui/QApplication>
 
 namespace Utils {
 
@@ -170,6 +172,18 @@ void DetailsWidget::updateControls()
     d->m_summaryLabel->setEnabled(d->m_state == Collapsed && d->m_widget);
     d->m_detailsButton->setVisible(d->m_state != NoSummary);
     d->m_summaryLabel->setVisible(d->m_state != NoSummary);
+    {
+        QWidget *w = this;
+        while (w) {
+            if (w->layout())
+                w->layout()->activate();
+            if (QScrollArea *area = qobject_cast<QScrollArea*>(w)) {
+                QEvent e(QEvent::LayoutRequest);
+                QCoreApplication::sendEvent(area, &e);
+            }
+            w = w->parentWidget();
+        }
+    }
 }
 
 QWidget *DetailsWidget::widget() const
