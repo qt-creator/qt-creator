@@ -53,6 +53,7 @@
 #include <QmlEngine>
 #include <QmlMetaType>
 #include <QMessageBox>
+#include <QApplication>
 
 enum {
     debug = false
@@ -435,21 +436,15 @@ void PropertyEditor::resetView()
     if (m_selectedNode.isValid())
         qmlSpecificsFile = fileToUrl(locateQmlFile(m_selectedNode.type() + "Specifics.qml"));
 
-    QString typeString("invalid");
-
-    if (m_selectedNode.isValid()) {
-        qmlSpecificsFile = fileToUrl(locateQmlFile(m_selectedNode.type() + "Specifics.qml"));
-        typeString = m_selectedNode.type();
-    }
-
     m_locked = true;
 
-    NodeType *type = m_typeHash.value(typeString);
+    NodeType *type = m_typeHash.value(qmlFile.toString());
+
     if (!type) {
         type = new NodeType(qmlFile, this);
 
         m_stackedWidget->addWidget(type->m_view);
-        m_typeHash.insert(typeString, type);
+        m_typeHash.insert(qmlFile.toString(), type);
 
         QmlObjectNode fxObjectNode;
         if (m_selectedNode.isValid()) {
