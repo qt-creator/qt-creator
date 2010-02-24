@@ -253,6 +253,7 @@ Rectangle {
                         stateNameInput.focus=true;
                         stateNameEditor.visible=true;
                         stateNameInput.cursorVisible=true;
+                        stateNameInput.selectAll();
                     }
                 }
 
