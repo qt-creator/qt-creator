@@ -63,15 +63,13 @@ static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
     targetPixmap.fill(Qt::transparent);
     QPainter painter(&targetPixmap);
 
-    QSize actualSize = icon.actualSize(QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE));
-    painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - actualSize.width())/2,
-                       (Core::Constants::TARGET_ICON_SIZE - actualSize.height())/2,
-                       icon.pixmap(Core::Constants::TARGET_ICON_SIZE));
+    QPixmap pixmap = icon.pixmap(Core::Constants::TARGET_ICON_SIZE);
+    painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - pixmap.width())/2,
+                       (Core::Constants::TARGET_ICON_SIZE - pixmap.height())/2, pixmap);
     if (!overlay.isNull()) {
-        actualSize = overlay.actualSize(QSize(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE));
-        painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - actualSize.width())/2,
-                           (Core::Constants::TARGET_ICON_SIZE - actualSize.height())/2,
-                           overlay.pixmap(Core::Constants::TARGET_ICON_SIZE));
+        pixmap = overlay.pixmap(Core::Constants::TARGET_ICON_SIZE);
+        painter.drawPixmap((Core::Constants::TARGET_ICON_SIZE - pixmap.width())/2,
+                           (Core::Constants::TARGET_ICON_SIZE - pixmap.height())/2, pixmap);
     }
     return QIcon(targetPixmap);
 }

@@ -105,7 +105,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.drawLine(rect().bottomLeft(), rect().bottomRight());
         painter.restore();
     } else
-#endif        
+#endif
     if (isDown() || isChecked()) {
         painter.save();
         QLinearGradient grad(rect().topLeft(), rect().topRight());
@@ -130,7 +130,6 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     QSizeF halfPixSize = pix.size()/2.0;
 
     painter.drawPixmap(center-QPointF(halfPixSize.width()-1, halfPixSize.height()-1), pix);
-
     // draw popup texts
     if (isTitledAction) {
         QFont normalFont(painter.font());
@@ -155,7 +154,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             penColor = Qt::gray;
         painter.setPen(penColor);
         const QString projectName = defaultAction()->property("heading").toString();
-        QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, r.width());
+        QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, r.width() - 6);
         if (isEnabled()) {
             const QRectF shadowR = r.translated(0, 1);
             painter.setPen(QColor(30, 30, 30, 80));
