@@ -126,6 +126,7 @@ bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l
             pro->addTarget(target);
         }
         pro->saveSettings();
+        delete pro;
     }
 
     // Post-Generate: Open the project
