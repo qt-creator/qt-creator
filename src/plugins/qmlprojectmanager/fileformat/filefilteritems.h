@@ -104,11 +104,9 @@ public:
 
 } // namespace QmlProjectManager
 
-QT_BEGIN_NAMESPACE
 QML_DECLARE_TYPE(QmlProjectManager::QmlFileFilterItem)
 QML_DECLARE_TYPE(QmlProjectManager::JsFileFilterItem)
 QML_DECLARE_TYPE(QmlProjectManager::ImageFileFilterItem)
 QML_DECLARE_TYPE(QmlProjectManager::CssFileFilterItem)
-QT_END_NAMESPACE
 
 #endif // FILEFILTERITEMS_HPROJECTITEM_H
