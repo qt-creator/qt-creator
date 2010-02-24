@@ -41,6 +41,8 @@
 
 #include "maemosshthread.h"
 
+#include <exception>
+
 namespace Qt4ProjectManager {
 namespace Internal {
 
@@ -62,6 +64,10 @@ void MaemoSshThread::run()
             runInternal();
     } catch (const MaemoSshException &e) {
         m_error = e.error();
+    } catch (const std::exception &e) {
+        // Should in theory not be necessary, but Net7 leaks Botan exceptions.
+        m_error = tr("Error in cryptography backend: ")
+                  + QLatin1String(e.what());
     }
 }
 
