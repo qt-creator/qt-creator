@@ -41,6 +41,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QLabel>
+#include <QtGui/QMessageBox>
 #include <QtGui/QVBoxLayout>
 
 using namespace ProjectExplorer;
@@ -249,8 +250,13 @@ void TargetSettingsPanelWidget::removeTarget()
 {
     int index = m_selector->currentIndex();
     Target *t = m_targets.at(index);
-    // TODO: Ask before removal?
-    m_project->removeTarget(t);
+    int ret = QMessageBox::warning(this, tr("Qt Creator"),
+                                   tr("Do you really want to remove the\n"
+                                      "\"%1\" target?").arg(t->displayName()),
+                                    QMessageBox::Yes | QMessageBox::No,
+                                    QMessageBox::No);
+    if (ret == QMessageBox::Yes)
+        m_project->removeTarget(t);
 }
 
 void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
