@@ -245,7 +245,7 @@ struct InternalNode
         QMap<QString, InternalNode*> subnodes;
         QStringList files;
         ProjectExplorer::FileType type;
-        QString fullName;
+        QString fullPath;
         QIcon icon;
 
         InternalNode()
@@ -269,6 +269,13 @@ struct InternalNode
         //          * file2
         //       * path2
         //          * file1
+        // The method first creates a tree that looks like the directory structure, i.e.
+        //    * /
+        //       * absolute
+        //          * path
+        // ...
+        // and afterwards calls compress() which merges directory nodes with single children, i.e. to
+        //    * /absolute/path
         void create(const QString &projectDir, const QStringList &newFilePaths, ProjectExplorer::FileType type)
         {
             static const QChar separator = QChar('/');
@@ -299,7 +306,7 @@ struct InternalNode
                         if (!currentNode->subnodes.contains(key)) {
                             InternalNode *val = new InternalNode;
                             val->type = type;
-                            val->fullName = path;
+                            val->fullPath = path;
                             currentNode->subnodes.insert(key, val);
                             currentNode = val;
                         } else {
@@ -317,7 +324,7 @@ struct InternalNode
         // Removes folder nodes with only a single sub folder in it
         void compress()
         {
-            static const QChar separator = QChar('/');
+            static const QChar separator = QDir::separator(); // it is used for the *keys* which will become display name
             QMap<QString, InternalNode*> newSubnodes;
             QMapIterator<QString, InternalNode*> i(subnodes);
             while (i.hasNext()) {
@@ -363,7 +370,7 @@ struct InternalNode
                     foldersToRemove << *existingNodeIter;
                     ++existingNodeIter;
                 } else if ((*existingNodeIter)->displayName() > newNodeIter.key()) {
-                    FolderNode *newNode = new FolderNode(newNodeIter.value()->fullName);
+                    FolderNode *newNode = new FolderNode(newNodeIter.value()->fullPath);
                     newNode->setDisplayName(newNodeIter.key());
                     if (!newNodeIter.value()->icon.isNull())
                         newNode->setIcon(newNodeIter.value()->icon);
@@ -382,7 +389,7 @@ struct InternalNode
                 ++existingNodeIter;
             }
             while (newNodeIter != subnodes.constEnd()) {
-                FolderNode *newNode = new FolderNode(newNodeIter.value()->fullName);
+                FolderNode *newNode = new FolderNode(newNodeIter.value()->fullPath);
                 newNode->setDisplayName(newNodeIter.key());
                 if (!newNodeIter.value()->icon.isNull())
                     newNode->setIcon(newNodeIter.value()->icon);
@@ -489,7 +496,7 @@ void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
             InternalNode *subfolder = new InternalNode;
             subfolder->type = type;
             subfolder->icon = fileTypes.at(i).icon;
-            subfolder->fullName = m_projectDir + '#' + fileTypes.at(i).typeName;
+            subfolder->fullPath = m_projectDir + '#' + fileTypes.at(i).typeName;
             contents.subnodes.insert(fileTypes.at(i).typeName, subfolder);
             // create the hierarchy with subdirectories
             subfolder->create(m_projectDir, newFilePaths, type);
