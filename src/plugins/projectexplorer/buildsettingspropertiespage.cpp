@@ -40,7 +40,7 @@
 
 #include <QtCore/QMargins>
 #include <QtCore/QTimer>
-#include <QtGui/QApplication>
+#include <QtCore/QCoreApplication>
 #include <QtGui/QComboBox>
 #include <QtGui/QInputDialog>
 #include <QtGui/QLabel>
@@ -62,7 +62,7 @@ QString BuildSettingsPanelFactory::id() const
 
 QString BuildSettingsPanelFactory::displayName() const
 {
-    return QApplication::tr("Build Settings");
+    return QCoreApplication::translate("BuildSettingsPanelFactory", "Build Settings");
 }
 
 bool BuildSettingsPanelFactory::supports(Project *project)
@@ -105,7 +105,7 @@ BuildSettingsPanel::~BuildSettingsPanel()
 
 QString BuildSettingsPanel::displayName() const
 {
-    return QApplication::tr("Build Settings");
+    return QCoreApplication::translate("BuildSettingsPanel", "Build Settings");
 }
 
 QWidget *BuildSettingsPanel::widget() const

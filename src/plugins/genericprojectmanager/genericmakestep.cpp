@@ -177,7 +177,14 @@ ProjectExplorer::BuildStepConfigWidget *GenericMakeStep::createConfigWidget()
 
 bool GenericMakeStep::immutable() const
 {
-    return true;
+    // Only make one GenericMakeStep immutable:
+    QList<BuildStep *> steps = buildConfiguration()->buildSteps();
+    int makestepCount = 0;
+    foreach (const BuildStep *bs, steps) {
+        if (qobject_cast<const GenericMakeStep *>(bs))
+            ++makestepCount;
+    }
+    return makestepCount <= 1;
 }
 
 bool GenericMakeStep::buildsTarget(const QString &target) const

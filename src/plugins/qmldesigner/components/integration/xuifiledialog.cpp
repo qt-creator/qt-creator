@@ -27,9 +27,10 @@
 **
 **************************************************************************/
 
-#include <QDebug>
+#include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QObject>
+#include <QtCore/QCoreApplication>
 
 #include "xuifiledialog.h"
 
@@ -41,7 +42,7 @@ void XUIFileDialog::runOpenFileDialog(const QString& path, QWidget* parent, QObj
     if (dir.isNull())
         dir = XUIFileDialog::defaultFolder();
 
-    QString caption = QObject::tr("Open file", "XUIFileDialog::runOpenFileDialog");
+    QString caption = QCoreApplication::translate("QmlDesigner::XUIFileDialog", "Open file");
     QString fileName = QFileDialog::getOpenFileName(parent, caption, dir, XUIFileDialog::fileNameFilters().join(";;"), 0, QFileDialog::ReadOnly);
 
     QmlDesigner::Internal::SignalEmitter emitter;
@@ -63,7 +64,7 @@ void XUIFileDialog::runSaveFileDialog(const QString& path, QWidget* parent, QObj
     dialog->setDirectory(dir);
     dialog->open(receiver, member);
 #else // !Q_WS_MAC
-    QString caption = QObject::tr("Save file", "XUIFileDialog::runSaveFileDialog");
+    QString caption = QCoreApplication::translate("QmlDesigner::XUIFileDialog", "Save file");
     QString fileName = QFileDialog::getSaveFileName(parent, caption, dir, XUIFileDialog::fileNameFilters().join(";;"));
 
     QmlDesigner::Internal::SignalEmitter emitter;
@@ -77,8 +78,8 @@ QStringList XUIFileDialog::fileNameFilters()
     QStringList filters;
 
     filters
-            << QObject::tr("Declarative UI files (*.qml)", "XUIFileDialog::fileNameFilters")
-            << QObject::tr("All files (*)", "XUIFileDialog::fileNameFilters");
+            << QCoreApplication::translate("QmlDesigner::XUIFileDialog", "Declarative UI files (*.qml)")
+            << QCoreApplication::translate("QmlDesigner::XUIFileDialog", "All files (*)");
 
     return filters;
 }

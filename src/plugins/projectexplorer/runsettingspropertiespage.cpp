@@ -100,7 +100,7 @@ QString RunSettingsPanelFactory::id() const
 
 QString RunSettingsPanelFactory::displayName() const
 {
-    return QApplication::tr("Run Settings");
+    return QCoreApplication::tr("RunSettingsPanelFactory", "Run Settings");
 }
 
 bool RunSettingsPanelFactory::supports(Project *project)
@@ -142,7 +142,7 @@ RunSettingsPanel::~RunSettingsPanel()
 
 QString RunSettingsPanel::displayName() const
 {
-    return QApplication::tr("Run Settings");
+    return QCoreApplication::translate("RunSettingsPanel", "Run Settings");
 }
 
 QWidget *RunSettingsPanel::widget() const
@@ -192,7 +192,7 @@ QVariant RunConfigurationsModel::data(const QModelIndex &index, int role) const
         if (row < m_runConfigurations.size()) {
             RunConfiguration *rc = m_runConfigurations.at(row);
             if (rc == m_activeRunConfiguration)
-                return tr("%1 (Active)").arg(rc->displayName());
+                return QCoreApplication::translate("RunConfigurationsModel", "%1 (Active)").arg(rc->displayName());
             return rc->displayName();
         }
     }

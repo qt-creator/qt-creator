@@ -270,7 +270,7 @@ DependenciesPanel::~DependenciesPanel()
 
 QString DependenciesPanel::displayName() const
 {
-    return QApplication::tr("Dependencies");
+    return QCoreApplication::translate("DependenciesPanel", "Dependencies");
 }
 
 QWidget *DependenciesPanel::widget() const
@@ -299,7 +299,7 @@ QString DependenciesPanelFactory::id() const
 
 QString DependenciesPanelFactory::displayName() const
 {
-    return QApplication::tr("Dependencies");
+    return QCoreApplication::translate("DependenciesPanelFactory", "Dependencies");
 }
 
 bool DependenciesPanelFactory::supports(Project *project)
