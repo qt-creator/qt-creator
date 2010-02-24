@@ -1,3 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS += qmleditor qmldesigner qmlprojectmanager
+SUBDIRS += qmldesigner qmlprojectmanager
+
+# SUBDIRS += qmleditor
