@@ -45,7 +45,7 @@ QString EditorSettingsPanelFactory::id() const
 
 QString EditorSettingsPanelFactory::displayName() const
 {
-    return QApplication::tr("Editor Settings");
+    return QCoreApplication::translate("EditorSettingsPanelFactory", "Editor Settings");
 }
 
 bool EditorSettingsPanelFactory::supports(Project *project)
@@ -84,7 +84,7 @@ EditorSettingsPanel::~EditorSettingsPanel()
 
 QString EditorSettingsPanel::displayName() const
 {
-    return QApplication::tr("Editor Settings");
+    return QCoreApplication::translate("EditorSettingsPanel", "Editor Settings");
 }
 
 QWidget *EditorSettingsPanel::widget() const
