@@ -339,7 +339,7 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-static void removeObjectFromList(const QmlMetaProperty &metaProperty, QObject *object, QmlEngine *engine)
+static void removeObjectFromList(const QmlMetaProperty & /*metaProperty*/, QObject * /*object*/, QmlEngine * /*engine*/)
 {
     // ### Very few QML lists ever responded to removes
 }
