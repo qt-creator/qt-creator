@@ -53,7 +53,9 @@ private:
     const QPixmap m_runselected;
     const QPixmap m_buildselected;
     const QPixmap m_targetaddbutton;
+    const QPixmap m_targetaddbuttondisabled;
     const QPixmap m_targetremovebutton;
+    const QPixmap m_targetremovebuttondisabled;
 
     QList<Target> m_targets;
 

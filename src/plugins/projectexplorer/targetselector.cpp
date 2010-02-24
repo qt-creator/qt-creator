@@ -18,7 +18,9 @@ TargetSelector::TargetSelector(QWidget *parent) :
     m_runselected(QLatin1String(":/projectexplorer/images/targetrunselected.png")),
     m_buildselected(QLatin1String(":/projectexplorer/images/targetbuildselected.png")),
     m_targetaddbutton(QLatin1String(":/projectexplorer/images/targetaddbutton.png")),
+    m_targetaddbuttondisabled(QLatin1String(":/projectexplorer/images/targetaddbutton_disabled.png")),
     m_targetremovebutton(QLatin1String(":/projectexplorer/images/targetremovebutton.png")),
+    m_targetremovebuttondisabled(QLatin1String(":/projectexplorer/images/targetremovebutton_disabled.png")),
     m_currentTargetIndex(-1),
     m_addButtonEnabled(true),
     m_removeButtonEnabled(false)
@@ -190,7 +192,10 @@ void TargetSelector::paintEvent(QPaintEvent *event)
     int x = 1;
     int index = 0;
     QFontMetrics fm(font());
-    p.drawPixmap(x, 1, m_targetremovebutton);
+    if (m_removeButtonEnabled)
+        p.drawPixmap(x, 1, m_targetremovebutton);
+    else
+        p.drawPixmap(x, 1, m_targetremovebuttondisabled);
     x += m_targetremovebutton.width();
     p.setPen(QColor(0, 0, 0));
     p.drawLine(x, 1, x, TARGET_HEIGHT);
@@ -221,5 +226,8 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         ++index;
     }
     // draw add button
-    p.drawPixmap(x, 1, m_targetaddbutton);
+    if (m_addButtonEnabled)
+        p.drawPixmap(x, 1, m_targetaddbutton);
+    else
+        p.drawPixmap(x, 1, m_targetaddbuttondisabled);
 }
