@@ -312,6 +312,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
             } else {
                 // check that the qmake flags, arguments match
                 visible = !m_buildConfiguration->compareToImportFrom(m_buildConfiguration->buildDirectory());
+                targetMatches = true;
             }
         } else {
             visible = false;
