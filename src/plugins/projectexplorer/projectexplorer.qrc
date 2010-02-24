@@ -38,5 +38,7 @@
         <file>images/ConnectionOff.png</file>
         <file>images/ConnectionOn.png</file>
         <file>images/build.png</file>
+        <file>images/targetpanel_bottom.png</file>
+        <file>images/targetpanel_gradient.png</file>
     </qresource>
 </RCC>

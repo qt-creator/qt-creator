@@ -88,7 +88,6 @@ bool panelWidget(const QWidget *widget)
     while (p) {
         if (qobject_cast<const QToolBar *>(p) ||
             qobject_cast<const QStatusBar *>(p) ||
-            qobject_cast<const QAbstractItemView *>(p) ||
             qobject_cast<const QMenuBar *>(p))
             return styleEnabled(widget);
         if (p->property("panelwidget").toBool())
@@ -149,48 +148,6 @@ ManhattanStyle::~ManhattanStyle()
 {
     delete d;
     d = 0;
-}
-
-// Draws a CSS-like border image where the defined borders are not stretched
-void drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
-                     int left = 0, int top = 0, int right = 0,
-                     int bottom = 0)
-{
-    QSize size = img.size();
-    if (top > 0) { //top
-        painter->drawImage(QRect(rect.left() + left, rect.top(), rect.width() -right - left, top), img,
-                           QRect(left, 0, size.width() -right - left, top));
-        if (left > 0) //top-left
-            painter->drawImage(QRect(rect.left(), rect.top(), left, top), img,
-                               QRect(0, 0, left, top));
-        if (right > 0) //top-right
-            painter->drawImage(QRect(rect.left() + rect.width() - right, rect.top(), right, top), img,
-                               QRect(size.width() - right, 0, right, top));
-    }
-    //left
-    if (left > 0)
-        painter->drawImage(QRect(rect.left(), rect.top()+top, left, rect.height() - top - bottom), img,
-                           QRect(0, top, left, size.height() - bottom - top));
-    //center
-    painter->drawImage(QRect(rect.left() + left, rect.top()+top, rect.width() -right - left,
-                             rect.height() - bottom - top), img,
-                       QRect(left, top, size.width() -right -left,
-                             size.height() - bottom - top));
-    if (right > 0) //right
-        painter->drawImage(QRect(rect.left() +rect.width() - right, rect.top()+top, right, rect.height() - top - bottom), img,
-                           QRect(size.width() - right, top, right, size.height() - bottom - top));
-    if (bottom > 0) { //bottom
-        painter->drawImage(QRect(rect.left() +left, rect.top() + rect.height() - bottom,
-                                 rect.width() - right - left, bottom), img,
-                           QRect(left, size.height() - bottom,
-                                 size.width() - right - left, bottom));
-    if (left > 0) //bottom-left
-        painter->drawImage(QRect(rect.left(), rect.top() + rect.height() - bottom, left, bottom), img,
-                           QRect(0, size.height() - bottom, left, bottom));
-    if (right > 0) //bottom-right
-        painter->drawImage(QRect(rect.left() + rect.width() - right, rect.top() + rect.height() - bottom, right, bottom), img,
-                           QRect(size.width() - right, size.height() - bottom, right, bottom));
-    }
 }
 
 QPixmap ManhattanStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap, const QStyleOption *opt) const
@@ -464,27 +421,6 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
     }
 
     switch (element) {
-/*
-case PE_PanelItemViewItem:
-        if (const QStyleOptionViewItemV4 *vopt = qstyleoption_cast<const QStyleOptionViewItemV4 *>(option)) {
-            if (vopt->state & State_Selected) {
-                QLinearGradient gradient;
-                gradient.setStart(option->rect.topLeft());
-                gradient.setFinalStop(option->rect.bottomRight());
-                gradient.setColorAt(0, option->palette.highlight().color().lighter(115));
-                gradient.setColorAt(1, option->palette.highlight().color().darker(135));
-                painter->fillRect(option->rect, gradient);
-            } else {
-                if (vopt->backgroundBrush.style() != Qt::NoBrush) {
-                    QPointF oldBO = painter->brushOrigin();
-                    painter->setBrushOrigin(vopt->rect.topLeft());
-                    painter->fillRect(vopt->rect, vopt->backgroundBrush);
-                    painter->setBrushOrigin(oldBO);
-                }
-            }
-        }
-        break;
-*/
     case PE_PanelLineEdit:
         {
             painter->save();
@@ -495,9 +431,9 @@ case PE_PanelItemViewItem:
             painter->fillRect(filledRect, option->palette.base());
 
             if (option->state & State_Enabled)
-                drawCornerImage(d->lineeditImage, painter, option->rect, 5, 5, 5, 5);
+                Utils::StyleHelper::drawCornerImage(d->lineeditImage, painter, option->rect, 5, 5, 5, 5);
             else
-                drawCornerImage(d->lineeditImage_disabled, painter, option->rect, 5, 5, 5, 5);
+                Utils::StyleHelper::drawCornerImage(d->lineeditImage_disabled, painter, option->rect, 5, 5, 5, 5);
 
             if (option->state & State_HasFocus || option->state & State_MouseOver) {
                 QColor hover = Utils::StyleHelper::baseColor();
@@ -945,29 +881,34 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             painter->save();
             bool isEmpty = cb->currentText.isEmpty() && cb->currentIcon.isNull();
             bool reverse = option->direction == Qt::RightToLeft;
+            bool drawborder = !(widget && widget->property("hideborder").toBool());
+            bool alignarrow = !(widget && widget->property("alignarrow").toBool());
 
             // Draw tool button
-            QLinearGradient grad(option->rect.topRight(), option->rect.bottomRight());
-            grad.setColorAt(0, QColor(255, 255, 255, 20));
-            grad.setColorAt(0.4, QColor(255, 255, 255, 60));
-            grad.setColorAt(0.7, QColor(255, 255, 255, 50));
-            grad.setColorAt(1, QColor(255, 255, 255, 40));
-            painter->setPen(QPen(grad, 0));
-            painter->drawLine(rect.topRight(), rect.bottomRight());
-            grad.setColorAt(0, QColor(0, 0, 0, 30));
-            grad.setColorAt(0.4, QColor(0, 0, 0, 70));
-            grad.setColorAt(0.7, QColor(0, 0, 0, 70));
-            grad.setColorAt(1, QColor(0, 0, 0, 40));
-            painter->setPen(QPen(grad, 0));
-            if (!reverse)
-                painter->drawLine(rect.topRight() - QPoint(1,0), rect.bottomRight() - QPoint(1,0));
-            else
-                painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            if (drawborder) {
+                QLinearGradient grad(option->rect.topRight(), option->rect.bottomRight());
+                grad.setColorAt(0, QColor(255, 255, 255, 20));
+                grad.setColorAt(0.4, QColor(255, 255, 255, 60));
+                grad.setColorAt(0.7, QColor(255, 255, 255, 50));
+                grad.setColorAt(1, QColor(255, 255, 255, 40));
+                painter->setPen(QPen(grad, 0));
+                painter->drawLine(rect.topRight(), rect.bottomRight());
+                grad.setColorAt(0, QColor(0, 0, 0, 30));
+                grad.setColorAt(0.4, QColor(0, 0, 0, 70));
+                grad.setColorAt(0.7, QColor(0, 0, 0, 70));
+                grad.setColorAt(1, QColor(0, 0, 0, 40));
+                painter->setPen(QPen(grad, 0));
+                if (!reverse)
+                    painter->drawLine(rect.topRight() - QPoint(1,0), rect.bottomRight() - QPoint(1,0));
+                else
+                    painter->drawLine(rect.topLeft(), rect.bottomLeft());
+            }
             QStyleOption toolbutton = *option;
             if (isEmpty)
                 toolbutton.state &= ~(State_Enabled | State_Sunken);
             painter->save();
-            painter->setClipRect(toolbutton.rect.adjusted(0, 0, -2, 0));
+            if (drawborder)
+                painter->setClipRect(toolbutton.rect.adjusted(0, 0, -2, 0));
             drawPrimitive(PE_PanelButtonTool, &toolbutton, painter, widget);
             painter->restore();
             // Draw arrow
@@ -975,6 +916,11 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             int left = !reverse ? rect.right() - menuButtonWidth : rect.left();
             int right = !reverse ? rect.right() : rect.left() + menuButtonWidth;
             QRect arrowRect((left + right) / 2 + (reverse ? 6 : -6), rect.center().y() - 3, 9, 9);
+
+            if (!alignarrow) {
+                int leftOffset = option->fontMetrics.width(cb->currentText) + 12;
+                arrowRect.moveLeft(leftOffset);
+            }
             if (option->state & State_On)
                 arrowRect.translate(QProxyStyle::pixelMetric(PM_ButtonShiftHorizontal, option, widget),
                                     QProxyStyle::pixelMetric(PM_ButtonShiftVertical, option, widget));

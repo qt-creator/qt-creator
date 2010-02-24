@@ -131,6 +131,7 @@ private slots:
     void emitStartupProjectChanged(int index);
     void changeStartupProject(ProjectExplorer::Project *project);
     void updateAction();
+    void paintEvent(QPaintEvent *);
 
 private:
     int indexFor(ProjectExplorer::Project *project) const;

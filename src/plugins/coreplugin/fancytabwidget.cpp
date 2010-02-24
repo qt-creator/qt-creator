@@ -293,6 +293,10 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->restore();
     }
 #endif
+
+    if (!enabled)
+        painter->setOpacity(0.7);
+
     int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
     tabIconRect.adjust(0, 4, 0, -textHeight);
     int iconSize = qMin(tabIconRect.width(), tabIconRect.height());

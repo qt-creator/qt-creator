@@ -52,6 +52,7 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QPainter>
+#include <QtGui/QItemDelegate>
 
 #include <QtGui/QApplication>
 
@@ -78,6 +79,40 @@ static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+class TargetSelectorDelegate : public QItemDelegate
+{
+public:
+    TargetSelectorDelegate(QObject *parent) : QItemDelegate(parent) { }
+private:
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
+    mutable QImage selectionGradient;
+};
+
+void TargetSelectorDelegate::paint(QPainter *painter,
+                                   const QStyleOptionViewItem &option,
+                                   const QModelIndex &) const
+{
+    painter->save();
+    painter->setClipping(false);
+
+    if (selectionGradient.isNull())
+        selectionGradient.load(QLatin1String(":/projectexplorer/images/targetpanel_gradient.png"));
+
+    if (option.state & QStyle::State_Selected) {
+        painter->fillRect(option.rect, option.palette.highlight().color().darker(140));
+        Utils::StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
+        painter->setPen(QColor(255, 255, 255, 60));
+        painter->drawLine(option.rect.topLeft(), option.rect.topRight());
+        painter->setPen(QColor(255, 255, 255, 30));
+        painter->drawLine(option.rect.bottomLeft() - QPoint(0,1), option.rect.bottomRight() -  QPoint(0,1));
+        painter->setPen(QColor(0, 0, 0, 80));
+        painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
+    }
+    painter->restore();
+}
+
 ProjectListWidget::ProjectListWidget(ProjectExplorer::Project *project, QWidget *parent)
     : QListWidget(parent), m_project(project)
 {
@@ -85,6 +120,7 @@ ProjectListWidget::ProjectListWidget(ProjectExplorer::Project *project, QWidget 
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setAlternatingRowColors(false);
     setFocusPolicy(Qt::WheelFocus);
+    setItemDelegate(new TargetSelectorDelegate(this));
 
     connect(this, SIGNAL(currentRowChanged(int)), SLOT(setTarget(int)));
 }
@@ -100,7 +136,17 @@ QSize ProjectListWidget::sizeHint() const
     for (int itemPos = 0; itemPos < count(); ++itemPos)
         height += item(itemPos)->sizeHint().height();
 
-    return QListWidget::sizeHint().expandedTo(QSize(0, height));
+    // We try to keep the height of the popup equal to the actionbar
+    QSize size(QListWidget::sizeHint().width(), height);
+    static QStatusBar *statusBar = Core::ICore::instance()->statusBar();
+    static QWidget *actionBar = Core::ICore::instance()->mainWindow()->findChild<QWidget*>("actionbar");
+    Q_ASSERT(actionBar);
+
+    QMargins popupMargins = window()->contentsMargins();
+    if (actionBar)
+        size.setHeight(qMax(actionBar->height() - statusBar->height() -
+                            (popupMargins.top() + popupMargins.bottom()), height));
+    return size;
 }
 
 void ProjectListWidget::setRunComboPopup()
@@ -134,6 +180,8 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
 
     if (hasBuildConfiguration()) {
         m_buildComboBox = new QComboBox;
+        m_buildComboBox->setProperty("alignarrow", true);
+        m_buildComboBox->setProperty("hideborder", true);
         m_buildComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
         m_buildComboBox->setToolTip(tr("Make active and press 'b' to select."));
     } else {
@@ -141,22 +189,22 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     }
  
     m_runComboBox = new QComboBox;
+    m_runComboBox ->setProperty("alignarrow", true);
+    m_runComboBox ->setProperty("hideborder", true);
     m_runComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     m_runComboBox->setToolTip(tr("Make active and press 'r' to select."));
 
     int fontSize = font().pointSize();
-    setStyleSheet(QString::fromLatin1("QWidget { font-size: %1pt; color: white; } "
-                                      "QLabel#targetName {  font-size: %2pt; font-weight: bold; } "
-                                      "QComboBox { background-color: transparent; margin: 0; border: none; } "
-                                      "QComboBox QWidget { background-color: %3;  border: 1px solid lightgrey; } "
-                                      "QComboBox::drop-down { border: none; }"
-                                      "QComboBox::down-arrow { image: url(:/welcome/images/combobox_arrow.png); } "
-                                      ).arg(fontSize-1).arg(fontSize).arg(Utils::StyleHelper::baseColor().name()));
+    setStyleSheet(QString::fromLatin1("QLabel { font-size: %2pt; color: white; } "
+                                      "#target { font: bold %1pt;} "
+                                      "#buildLabel{ font: bold; color: rgba(255, 255, 255, 160)} "
+                                      "#runLabel { font: bold ; color: rgba(255, 255, 255, 160)} "
+                                      ).arg(fontSize).arg(fontSize - 2));
 
     QGridLayout *gridLayout = new QGridLayout(this);
 
     m_targetName = new QLabel(m_target->displayName());
-    m_targetName->setObjectName(QLatin1String("target"));
+    m_targetName->setObjectName(QString::fromUtf8("target"));
     m_targetIcon = new QLabel();
     updateIcon();
     if (hasBuildConfiguration()) {
@@ -201,14 +249,17 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     runHelperLayout->addWidget(m_runComboBox);
 
     QFormLayout *formLayout = new QFormLayout;
+    formLayout->setLabelAlignment(Qt::AlignRight);
     QLabel *lbl;
     if (hasBuildConfiguration()) {
         lbl = new QLabel(tr("Build:"));
-        lbl->setIndent(6);
+        lbl->setObjectName(QString::fromUtf8("buildLabel"));
+        lbl->setIndent(10);
         formLayout->addRow(lbl, buildHelperLayout);
     }
     lbl = new QLabel(tr("Run:"));
-    lbl->setIndent(6);
+    lbl->setObjectName(QString::fromUtf8("runLabel"));
+    lbl->setIndent(10);
     formLayout->addRow(lbl, runHelperLayout);
 
     gridLayout->addWidget(m_targetName, 0, 0);
@@ -305,6 +356,8 @@ bool MiniTargetWidget::hasBuildConfiguration() const
 MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, QWidget *parent) :
     QWidget(parent), m_projectAction(targetSelectorAction)
 {
+    setProperty("panelwidget", true);
+    setContentsMargins(QMargins(0, 1, 1, 8));
     setWindowFlags(Qt::Popup);
     setFocusPolicy(Qt::WheelFocus);
 
@@ -327,8 +380,18 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     QFont f = lbl->font();
     f.setBold(true);
     lbl->setFont(f);
+
+    int panelHeight = lbl->fontMetrics().height() + 12;
+    bar->ensurePolished(); // Required since manhattanstyle overrides height
+    bar->setFixedHeight(panelHeight);
+
     m_projectsBox = new QComboBox;
-    m_projectsBox->setObjectName(QLatin1String("ProjectsBox"));
+    f.setBold(false);
+    m_projectsBox->setFont(f);
+    m_projectsBox->ensurePolished();
+    m_projectsBox->setFixedHeight(panelHeight);
+    m_projectsBox->setProperty("hideborder", true);
+    m_projectsBox->setObjectName(QString::fromUtf8("ProjectsBox"));
     m_projectsBox->setFocusPolicy(Qt::WheelFocus);
     m_projectsBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     m_projectsBox->setMaximumWidth(200);
@@ -369,7 +432,7 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
     ProjectListWidget *targetList = new ProjectListWidget(project);
     targetList->installEventFilter(this);
     targetList->setStyleSheet(QString::fromLatin1("QListWidget { background: %1; border: none; }")
-                              .arg(Utils::StyleHelper::baseColor().name()));
+                              .arg(QColor(70, 70, 70).name()));
     int pos = m_widgetStack->addWidget(targetList);
 
     m_projectsBox->addItem(project->displayName(), QVariant::fromValue(project));
@@ -413,7 +476,6 @@ void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool 
     connect(target, SIGNAL(iconChanged()), this, SLOT(updateAction()));
     connect(target, SIGNAL(overlayIconChanged()), this, SLOT(updateAction()));
     ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
-
     QListWidgetItem *lwi = new QListWidgetItem();
 
     // Sort on insert:
@@ -538,6 +600,18 @@ void MiniProjectTargetSelector::changeStartupProject(ProjectExplorer::Project *p
         }
     }
     updateAction();
+}
+
+void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.setPen(Utils::StyleHelper::borderColor());
+    painter.drawLine(rect().topLeft(), rect().topRight());
+    painter.drawLine(rect().topRight(), rect().bottomRight());
+
+    QRect bottomRect(0, rect().height() - 8, rect().width(), 8);
+    static QImage image(QLatin1String(":/projectexplorer/images/targetpanel_bottom.png"));
+    Utils::StyleHelper::drawCornerImage(image, &painter, bottomRect, 1, 1, 1, 1);
 }
 
 bool MiniProjectTargetSelector::eventFilter(QObject *o, QEvent *ev)

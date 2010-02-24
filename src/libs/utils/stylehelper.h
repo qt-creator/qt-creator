@@ -78,6 +78,9 @@ public:
     // Pixmap cache should only be enabled for X11 due to slow gradients
     static bool usePixmapCache() { return true; }
 
+    static void drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
+                         int left = 0, int top = 0, int right = 0, int bottom = 0);
+
 private:
     static QColor m_baseColor;
 };
