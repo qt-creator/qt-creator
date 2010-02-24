@@ -273,7 +273,7 @@ void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
         }
     }
 
-    m_selector->setAddButtonEnabled(m_project->possibleTargetIds().count() > 0);
+    m_selector->setAddButtonEnabled(m_project->supportedTargetIds().count() != m_targets.count());
     m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
 }
 
@@ -288,8 +288,8 @@ void TargetSettingsPanelWidget::aboutToRemoveTarget(ProjectExplorer::Target *tar
     m_targets.removeAt(index);
 
     m_selector->removeTarget(index);
-    m_selector->setAddButtonEnabled(m_project->possibleTargetIds().count() > 0);
-    m_selector->setRemoveButtonEnabled(m_project->targets().count() > 2); // target is not yet removed!
+    m_selector->setAddButtonEnabled(m_project->supportedTargetIds().count() != m_targets.count());
+    m_selector->setRemoveButtonEnabled(m_targets.count() > 1);
 }
 
 void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *target)
