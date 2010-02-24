@@ -66,7 +66,9 @@ void FileWidget::lineEditChanged()
 
 void FileWidget::buttonPressed()
 {
-    setFileNameStr(QFileDialog::getOpenFileName());
+    QString newFile = QFileDialog::getOpenFileName();
+    if (!newFile.isEmpty())
+        setFileNameStr(newFile);
 }
 
 void FileWidget::setFileNameStr(const QString &fileName)
