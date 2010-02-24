@@ -43,7 +43,7 @@ GenericProjectNode::GenericProjectNode(GenericProject *project, Core::IFile *pro
       m_project(project),
       m_projectFile(projectFile)
 {
-    setFolderName(QFileInfo(projectFile->fileName()).completeBaseName());
+    setDisplayName(QFileInfo(projectFile->fileName()).completeBaseName());
 }
 
 GenericProjectNode::~GenericProjectNode()
@@ -145,7 +145,7 @@ ProjectExplorer::FolderNode *GenericProjectNode::findOrCreateFolderByName(const 
         return folder;
 
     FolderNode *folder = new FolderNode(baseDir + QLatin1Char('/') + folderName);
-    folder->setFolderName(component);
+    folder->setDisplayName(component);
     m_folderByName.insert(folderName, folder);
 
     FolderNode *parent = findOrCreateFolderByName(components, end - 1);

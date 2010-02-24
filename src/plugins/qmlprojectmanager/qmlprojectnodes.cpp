@@ -46,7 +46,7 @@ QmlProjectNode::QmlProjectNode(QmlProject *project, Core::IFile *projectFile)
       m_project(project),
       m_projectFile(projectFile)
 {
-    setFolderName(QFileInfo(projectFile->fileName()).completeBaseName());
+    setDisplayName(QFileInfo(projectFile->fileName()).completeBaseName());
 }
 
 QmlProjectNode::~QmlProjectNode()

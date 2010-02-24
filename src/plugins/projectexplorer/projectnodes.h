@@ -136,7 +136,7 @@ public:
 
     virtual void accept(NodesVisitor *visitor);
 
-    void setFolderName(const QString &name);
+    void setDisplayName(const QString &name);
     void setIcon(const QIcon &icon);
 
 protected:
@@ -146,7 +146,7 @@ protected:
 private:
     // managed by ProjectNode
     friend class ProjectNode;
-    QString m_folderName;
+    QString m_displayName;
     QIcon m_icon;
 };
 

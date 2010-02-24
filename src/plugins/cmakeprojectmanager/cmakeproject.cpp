@@ -173,7 +173,7 @@ bool CMakeProject::parseCMakeLists()
     QString cbpFile = CMakeManager::findCbpFile(activeBC->buildDirectory());
 
     // setFolderName
-    m_rootNode->setFolderName(QFileInfo(cbpFile).completeBaseName());
+    m_rootNode->setDisplayName(QFileInfo(cbpFile).completeBaseName());
     CMakeCbpParser cbpparser;
     // Parsing
     //qDebug()<<"Parsing file "<<cbpFile;
@@ -188,7 +188,7 @@ bool CMakeProject::parseCMakeLists()
     // ToolChain
     // activeBC->updateToolChain(cbpparser.compilerName());
     m_projectName = cbpparser.projectName();
-    m_rootNode->setFolderName(cbpparser.projectName());
+    m_rootNode->setDisplayName(cbpparser.projectName());
 
     //qDebug()<<"Building Tree";
     QList<ProjectExplorer::FileNode *> fileList = cbpparser.fileList();
@@ -394,7 +394,7 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
         if (!found) {
             // No FolderNode yet, so create it
             ProjectExplorer::FolderNode *tmp = new ProjectExplorer::FolderNode(path);
-            tmp->setFolderName(part);
+            tmp->setDisplayName(part);
             rootNode->addFolderNodes(QList<ProjectExplorer::FolderNode *>() << tmp, parent);
             parent = tmp;
         }

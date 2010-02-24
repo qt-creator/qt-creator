@@ -359,7 +359,7 @@ void Internal::SessionNodeImpl::removeProjectNode(ProjectNode *projectNode)
 void Internal::SessionNodeImpl::setFileName(const QString &fileName)
 {
     setPath(fileName);
-    setFolderName(fileName);
+    setDisplayName(fileName);
 }
 
 /* --------------------------------- */

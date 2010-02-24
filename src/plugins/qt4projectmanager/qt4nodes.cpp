@@ -229,7 +229,7 @@ Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNo
     m_qt4PriFile = new Qt4PriFile(this);
     Core::ICore::instance()->fileManager()->addFile(m_qt4PriFile);
 
-    setFolderName(QFileInfo(filePath).completeBaseName());
+    setDisplayName(QFileInfo(filePath).completeBaseName());
 
     setIcon(qt4NodeStaticData()->projectIcon);
 }
@@ -285,15 +285,17 @@ struct InternalNode
                     fileWithoutPrefix = file;
                 }
                 QStringList parts = fileWithoutPrefix.split(separator, QString::SkipEmptyParts);
+#ifndef Q_OS_WIN
                 if (!isRelative && parts.count() > 0)
                     parts[0].prepend(separator);
+#endif
                 QStringListIterator it(parts);
                 InternalNode *currentNode = this;
                 QString path = (isRelative ? projectDir : "");
                 while (it.hasNext()) {
                     const QString &key = it.next();
-                    path += separator + key;
                     if (it.hasNext()) { // key is directory
+                        path += key;
                         if (!currentNode->subnodes.contains(key)) {
                             InternalNode *val = new InternalNode;
                             val->type = type;
@@ -303,6 +305,7 @@ struct InternalNode
                         } else {
                             currentNode = currentNode->subnodes.value(key);
                         }
+                        path += separator;
                     } else { // key is filename
                         currentNode->files.append(file);
                     }
@@ -361,7 +364,7 @@ struct InternalNode
                     ++existingNodeIter;
                 } else if ((*existingNodeIter)->displayName() > newNodeIter.key()) {
                     FolderNode *newNode = new FolderNode(newNodeIter.value()->fullName);
-                    newNode->setFolderName(newNodeIter.key());
+                    newNode->setDisplayName(newNodeIter.key());
                     if (!newNodeIter.value()->icon.isNull())
                         newNode->setIcon(newNodeIter.value()->icon);
                     foldersToAdd << newNode;
@@ -380,7 +383,7 @@ struct InternalNode
             }
             while (newNodeIter != subnodes.constEnd()) {
                 FolderNode *newNode = new FolderNode(newNodeIter.value()->fullName);
-                newNode->setFolderName(newNodeIter.key());
+                newNode->setDisplayName(newNodeIter.key());
                 if (!newNodeIter.value()->icon.isNull())
                     newNode->setIcon(newNodeIter.value()->icon);
                 foldersToAdd << newNode;

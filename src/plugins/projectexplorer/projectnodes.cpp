@@ -36,6 +36,7 @@
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 #include <QtGui/QApplication>
 #include <QtGui/QIcon>
 #include <QtGui/QStyle>
@@ -151,7 +152,7 @@ bool FileNode::isGenerated() const
 */
 FolderNode::FolderNode(const QString &folderPath)  :
     Node(FolderNodeType, folderPath),
-    m_folderName(folderPath),
+    m_displayName(QDir::toNativeSeparators(folderPath)),
     m_icon(QApplication::style()->standardIcon(QStyle::SP_DirIcon))
 {
 }
@@ -170,7 +171,7 @@ FolderNode::~FolderNode()
  */
 QString FolderNode::displayName() const
 {
-    return m_folderName;
+    return m_displayName;
 }
 
 /*
@@ -199,9 +200,9 @@ void FolderNode::accept(NodesVisitor *visitor)
         subFolder->accept(visitor);
 }
 
-void FolderNode::setFolderName(const QString &name)
+void FolderNode::setDisplayName(const QString &name)
 {
-    m_folderName = name;
+    m_displayName = name;
 }
 
 void FolderNode::setIcon(const QIcon &icon)
@@ -228,7 +229,7 @@ ProjectNode::ProjectNode(const QString &projectFilePath)
     setNodeType(ProjectNodeType);
     // project node "manages" itself
     setProjectNode(this);
-    setFolderName(QFileInfo(m_folderName).fileName());
+    setDisplayName(QFileInfo(projectFilePath).fileName());
 }
 
 QList<ProjectNode*> ProjectNode::subProjectNodes() const
