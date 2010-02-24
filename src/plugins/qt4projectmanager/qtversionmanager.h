@@ -123,6 +123,8 @@ public:
     bool hasDemos() const;
     QString demosPath() const;
 
+    QString headerInstallPath() const;
+
     // All valid Ids are >= 0
     int uniqueId() const;
     bool isQt64Bit() const;

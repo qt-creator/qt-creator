@@ -47,6 +47,7 @@
 #include <help/helpmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QtCore/QFile>
 #include <QtCore/QProcess>
 #include <QtCore/QSettings>
 #include <QtCore/QTime>
@@ -1420,6 +1421,31 @@ void QtVersion::updateToolChainAndMkspec() const
     delete reader;
     ProFileCacheManager::instance()->decRefCount();
     m_toolChainUpToDate = true;
+
+    // Check qconfig.h for QT_SIMULATOR define on desktop builds and switch the
+    // Qt version to Qt simulator target:
+    if (m_targetIds.contains(Constants::DESKTOP_TARGET_ID)) {
+        QString path(headerInstallPath());
+        path.append(QLatin1String("/Qt/qconfig.h"));
+        QFile qconfig(path);
+        if (!qconfig.exists())
+            return;
+        qconfig.open(QIODevice::ReadOnly);
+        QTextStream stream(&qconfig);
+        QString line;
+        bool isSimulator = false;
+        while (!(line = stream.readLine()).isNull()) {
+            if (line.startsWith(QLatin1String("#define QT_SIMULATOR"))) {
+                isSimulator = true;
+                break;
+            }
+        }
+        qconfig.close();
+        if (isSimulator) {
+            m_targetIds.remove(QLatin1String(Constants::DESKTOP_TARGET_ID));
+            m_targetIds.insert(QLatin1String(Constants::QT_SIMULATOR_TARGET_ID));
+        }
+    }
 }
 
 QString QtVersion::mwcDirectory() const
@@ -1588,6 +1614,12 @@ QString QtVersion::demosPath() const
 {
     updateVersionInfo();
     return m_versionInfo["QT_INSTALL_DEMOS"];
+}
+
+QString QtVersion::headerInstallPath() const
+{
+    updateVersionInfo();
+    return m_versionInfo["QT_INSTALL_HEADERS"];
 }
 
 bool QtVersion::hasExamples() const

@@ -65,6 +65,8 @@ QString displayNameForId(const QString &id) {
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Device", "Qt4 Symbian Device target display name");
     if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Maemo", "Qt4 Maemo target display name");
+    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+        return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Qt Simulator", "Qt4 Simulator target display name");
     return QString();
 }
 
@@ -77,6 +79,8 @@ QIcon iconForId(const QString &id) {
         return QIcon(":/projectexplorer/images/SymbianDevice.png");
     if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         return QIcon(":/projectexplorer/images/MaemoDevice.png");
+    if (id == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+        return QIcon(":/projectexplorer/images/SymbianEmulator.png");
     return QIcon();
 }
 
@@ -315,7 +319,8 @@ Qt4BuildConfigurationFactory *Qt4Target::buildConfigurationFactory() const
 
 void Qt4Target::addRunConfigurationForPath(const QString &proFilePath)
 {
-    if (id() == QLatin1String(Constants::DESKTOP_TARGET_ID))
+    if (id() == QLatin1String(Constants::DESKTOP_TARGET_ID) ||
+        id() == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
         addRunConfiguration(new Qt4RunConfiguration(this, proFilePath));
     else if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         addRunConfiguration(new S60EmulatorRunConfiguration(this, proFilePath));
@@ -370,6 +375,8 @@ QString Qt4Target::defaultBuildDirectory() const
         shortName = QLatin1String("symbian");
     else if (id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         shortName = QLatin1String("maemo");
+    else if (id() == QLatin1String(Constants::QT_SIMULATOR_TARGET_ID))
+        shortName = QLatin1String("simulator");
 
     // currently we can't have the build directory to be deeper then the source directory
     // since that is broken in qmake
