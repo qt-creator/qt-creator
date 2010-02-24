@@ -57,8 +57,6 @@
 #include "filewidget.h"
 #include "layoutwidget.h"
 
-QT_BEGIN_NAMESPACE
-
 QML_DECLARE_TYPE(QWidget);
 
 //display
@@ -113,7 +111,5 @@ QML_DECLARE_TYPE(Action);
 //QML_DECLARE_TYPE(QTableView);
 
 //top-level windows?
-
-QT_END_NAMESPACE
 
 #endif // BASICWIDGETS_H

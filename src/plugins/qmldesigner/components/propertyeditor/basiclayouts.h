@@ -166,12 +166,11 @@ public:
     QVBoxLayoutObject(QObject *parent=0);
 };
 
+QT_END_NAMESPACE
 
 QML_DECLARE_TYPE(QBoxLayoutObject);
 QML_DECLARE_TYPE(QHBoxLayoutObject);
 QML_DECLARE_TYPE(QVBoxLayoutObject);
-
-QT_END_NAMESPACE
 
 QT_END_HEADER
 

@@ -284,10 +284,8 @@ private:
 
 } //QmlDesigner
 
-QT_BEGIN_NAMESPACE
 QML_DECLARE_TYPE(QmlDesigner::ColorButton);
 QML_DECLARE_TYPE(QmlDesigner::HueControl);
 QML_DECLARE_TYPE(QmlDesigner::ColorBox);
-QT_END_NAMESPACE
 
 #endif //COLORWIDGET_H

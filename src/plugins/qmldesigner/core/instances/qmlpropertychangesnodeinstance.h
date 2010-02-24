@@ -98,8 +98,6 @@ protected:
 } // namespace Internal
 } // namespace QmlDesigner
 
-QT_BEGIN_NAMESPACE
 QML_DECLARE_TYPE(QmlDesigner::Internal::QmlPropertyChangesObject)
-QT_END_NAMESPACE
 
 #endif // QMLPROPERTYCHANGESNODEINSTANCE_H
