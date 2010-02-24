@@ -139,7 +139,7 @@ ProjectExplorer::FolderNode *QmlProjectNode::findOrCreateFolderByName(const QStr
         return folder;
 
     FolderNode *folder = new FolderNode(baseDir + "/" + folderName);
-    folder->setFolderName(component);
+    folder->setDisplayName(component);
 
     m_folderByName.insert(folderName, folder);
 
