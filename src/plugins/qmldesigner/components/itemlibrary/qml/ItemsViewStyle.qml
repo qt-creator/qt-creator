@@ -33,16 +33,16 @@ Item {
     property string backgroundColor: "#707070"
     property string raisedBackgroundColor: "#e0e0e0"
 
-    property string scrollbarBackgroundColor: "#505050"
-    property string scrollbarHandleColor: "#303030"
+    property string scrollbarBorderColor: "#8F8F8F"
+    property string scrollbarGradientStartColor: "#7E7E7E"
+    property string scrollbarGradientEndColor: "#C6C6C6"
+    property int scrollbarClickScrollAmount: 40
 
     property string itemNameTextColor: "#FFFFFF"
 
     property string sectionTitleTextColor: "#f0f0f0"
     property string sectionTitleBackgroundColor: "#909090"
 
-//    property string gridLineLighter: "#787878"
-//    property string gridLineDarker: "#656565"
     property string gridLineLighter: "#808080"
     property string gridLineDarker: "#606060"
 

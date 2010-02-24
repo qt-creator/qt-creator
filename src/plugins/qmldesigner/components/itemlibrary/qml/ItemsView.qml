@@ -67,7 +67,7 @@ Rectangle {
 
     function expandAll() {
         expandAllEntries();
-        scrollbar.handleBar.y = 0;
+        scrollbar.moveHandle(0, true)
     }
 
     signal expandAllEntries()
@@ -134,8 +134,6 @@ Rectangle {
         interactive: false
         viewportHeight: col.height
 
-        onViewportHeightChanged: scrollbar.limitHandle()
-
         Column {
             id: col
 
@@ -151,7 +149,7 @@ Rectangle {
             style: itemsView.style
             scrollFlickable: itemsFlickable
 
-            onMoveScrollbarHandle: scrollbar.moveHandle(viewportPos)
+            onMoveScrollbarHandle: scrollbar.moveHandle(viewportPos, true)
 
             width: itemsView.cellWidth
             height: itemsView.cellHeight
@@ -169,7 +167,7 @@ Rectangle {
         anchors.leftMargin: -10
         anchors.right: parent.right
 
-        scrollFlickable: itemsFlickable
+        flickable: itemsFlickable
         style: itemsView.style
     }
 }

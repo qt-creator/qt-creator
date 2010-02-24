@@ -32,20 +32,10 @@ import Qt 4.6
 Item {
     id: bar
 
-    property var handleBar: handle
-
-    property var scrollFlickable
+    property var flickable
     property var style
 
-    property bool scrolling: (scrollFlickable.viewportHeight > scrollFlickable.height)
     property int scrollHeight: height - handle.height
-
-    Binding {
-        target: scrollFlickable
-        property: "viewportY"
-        value: Math.max(0, scrollFlickable.viewportHeight - scrollFlickable.height) *
-               handle.y / scrollHeight
-    }
 
     Rectangle {
         anchors.fill: parent;
@@ -53,30 +43,26 @@ Item {
         anchors.bottomMargin: 1
         color: "transparent"
         border.width: 1;
-        border.color: "#8F8F8F";
+        border.color: style.scrollbarBorderColor;
     }
 
-    function moveHandle(viewportPos) {
-        var pos;
+    function moveHandle(viewportPos, updateFlickable) {
+	handle.updateFlickable = updateFlickable
 
-        if (bar.scrollFlickable) {//.visibleArea.yPosition) {
-            pos = bar.scrollHeight * viewportPos / (bar.scrollFlickable.viewportHeight - bar.scrollFlickable.height);
-        } else
-            pos = 0;
+	if (flickable)
+	    handle.y = scrollHeight * Math.min(
+		viewportPos / (flickable.viewportHeight - flickable.height),
+                1);
+	else
+	    handle.y = 0;
 
-//        handleMoveAnimation.to = Math.min(bar.scrollHeight, pos)
-//        handleMoveAnimation.start();
-        handle.y = Math.min(bar.scrollHeight, pos)
+	handle.updateFlickable = true
     }
 
-    function limitHandle() {
-        // the following "if" is needed to get around NaN when starting up
-        if (scrollFlickable)
-            handle.y = Math.min(handle.height * scrollFlickable.visibleArea.yPosition,
-                                scrollHeight);
-        else
-            handle.y = 0;
+    function updateHandle() {
+	moveHandle(flickable.viewportY, false);
     }
+    
 /*
     NumberAnimation {
         id: handleResetAnimation
@@ -87,31 +73,29 @@ Item {
         duration: 500
     }
 */
+
+    onFlickableChanged: moveHandle(0, true)
+
     Connection {
-        sender: scrollFlickable
+        sender: flickable
         signal: "heightChanged"
-        script: {
-            /* since binding loops prevent setting the handle properly,
-               let's animate it to 0 */
-            if (scrollFlickable.viewportY > (scrollFlickable.viewportHeight - scrollFlickable.height))
-//                handleResetAnimation.start()
-                handle.y = 0
-        }
+        script: moveHandle(0, true)
     }
 
-    onScrollFlickableChanged: handle.y = 0
-
-/*
-    Rectangle {
-        anchors.fill: parent
-        anchors.leftMargin: 3
-        anchors.rightMargin: 3
-        anchors.topMargin: 2
-        anchors.bottomMargin: 2
-        radius: width / 2
-        color: style.scrollbarBackgroundColor
+    Connection {
+        sender: flickable
+        signal: "viewportHeightChanged"
+        script: updateHandle()
     }
-*/
+
+    Connection {
+        sender: flickable
+        signal: "positionYChanged"
+        script: updateHandle()
+    }
+
+    onHeightChanged: updateHandle()
+    
     MouseRegion {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -120,7 +104,7 @@ Item {
         onClicked: {
 //            handleMoveAnimation.to = Math.max(0, handle.y - 40)
 //            handleMoveAnimation.start();
-            handle.y = Math.max(0, handle.y - 40)
+            handle.y = Math.max(0, handle.y - style.scrollbarClickScrollAmount)
         }
     }
 
@@ -131,7 +115,14 @@ Item {
         anchors.leftMargin: 1
         anchors.right: parent.right
 //        anchors.rightMargin: 1
-        height: Math.max(width, bar.height * Math.min(1, scrollFlickable.visibleArea.heightRatio))
+	height: Math.max(width, bar.height * Math.min(1, flickable.height / flickable.viewportHeight))
+
+	property bool updateFlickable: true
+	
+	onYChanged: {
+	    if (updateFlickable)
+		flickable.viewportY = Math.max(0, flickable.viewportHeight * y / bar.height)
+	}
 
         Rectangle {
             width: parent.height - 1
@@ -142,8 +133,8 @@ Item {
             transformOrigin: Item.BottomLeft
 
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#7E7E7E" }
-                GradientStop { position: 1.0; color: "#C6C6C6" }
+                GradientStop { position: 0.0; color: style.scrollbarGradientStartColor }
+                GradientStop { position: 1.0; color: style.scrollbarGradientEndColor }
             }
         }
 
@@ -164,7 +155,7 @@ Item {
         onClicked: {
 //            handleMoveAnimation.to = Math.min(scrollHeight, handle.y + 40)
 //            handleMoveAnimation.start();
-            handle.y = Math.min(scrollHeight, handle.y + 40)
+            handle.y = Math.min(scrollHeight, handle.y + style.scrollbarClickScrollAmount)
         }
     }
 /*
@@ -176,4 +167,3 @@ Item {
     }
 */
 }
-
