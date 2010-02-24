@@ -340,6 +340,12 @@ const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
             return 0;
         }
 
+        if (! idPart->next->name) {
+            // somebody typed "id." and error recovery still gave us a valid tree,
+            // so just bail out here.
+            return 0;
+        }
+
         idPart = idPart->next;
         propertyName = idPart->name->asString();
 
