@@ -131,7 +131,7 @@ IPropertiesPanel *RunSettingsPanelFactory::createPanel(Target *target)
 
 RunSettingsPanel::RunSettingsPanel(Target *target) :
      m_widget(new RunSettingsWidget(target)),
-     m_icon(":/projectexplorer/images/run.png")
+     m_icon(":/projectexplorer/images/RunSettings.png")
 {
 }
 

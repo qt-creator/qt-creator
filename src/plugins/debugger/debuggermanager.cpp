@@ -253,8 +253,8 @@ struct DebuggerManagerPrivate
 
     static DebuggerManager *instance;
 
-    const QIcon m_stopSmallIcon;
-    const QIcon m_interruptSmallIcon;
+    QIcon m_stopIcon;
+    QIcon m_interruptIcon;
     const QIcon m_locationMarkIcon;
 
     // FIXME: Remove engine-specific state
@@ -311,14 +311,16 @@ struct DebuggerManagerPrivate
 DebuggerManager *DebuggerManagerPrivate::instance = 0;
 
 DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager) :
-   m_stopSmallIcon(QLatin1String(":/debugger/images/debugger_stop_small.png")),
-   m_interruptSmallIcon(QLatin1String(":/debugger/images/debugger_interrupt_small.png")),
+   m_stopIcon(QLatin1String(":/debugger/images/debugger_stop_small.png")),
+   m_interruptIcon(QLatin1String(":/debugger/images/debugger_interrupt_small.png")),
    m_locationMarkIcon(QLatin1String(":/debugger/images/location.svg")),
    m_startParameters(new DebuggerStartParameters),
    m_inferiorPid(0),
    m_disassemblerViewAgent(manager),
    m_engine(0)
 {
+    m_interruptIcon.addFile(":/debugger/images/debugger_interrupt.png");
+    m_stopIcon.addFile(":/debugger/images/debugger_stop.png");
 }
 
 DebuggerManager::DebuggerManager()
@@ -465,10 +467,12 @@ void DebuggerManager::init()
     qRegisterMetaType<StackCookie>("StackCookie");
 
     d->m_actions.continueAction = new QAction(tr("Continue"), this);
-    d->m_actions.continueAction->setIcon(QIcon(":/debugger/images/debugger_continue_small.png"));
+    QIcon continueIcon = QIcon(":/debugger/images/debugger_continue_small.png");
+    continueIcon.addFile(":/debugger/images/debugger_continue.png");
+    d->m_actions.continueAction->setIcon(continueIcon);
 
     d->m_actions.stopAction = new QAction(tr("Interrupt"), this);
-    d->m_actions.stopAction->setIcon(d->m_interruptSmallIcon);
+    d->m_actions.stopAction->setIcon(d->m_interruptIcon);
 
     d->m_actions.resetAction = new QAction(tr("Abort Debugging"), this);
     d->m_actions.resetAction->setToolTip(tr("Aborts debugging and "
@@ -1767,10 +1771,10 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
 
     const bool interruptIsExit = !running;
     if (interruptIsExit) {
-        d->m_actions.stopAction->setIcon(d->m_stopSmallIcon);
+        d->m_actions.stopAction->setIcon(d->m_stopIcon);
         d->m_actions.stopAction->setText(tr("Stop Debugger"));
     } else {
-        d->m_actions.stopAction->setIcon(d->m_interruptSmallIcon);
+        d->m_actions.stopAction->setIcon(d->m_interruptIcon);
         d->m_actions.stopAction->setText(tr("Interrupt"));
     }
 

@@ -94,7 +94,7 @@ IPropertiesPanel *BuildSettingsPanelFactory::createPanel(Target *target)
 
 BuildSettingsPanel::BuildSettingsPanel(Target *target) :
     m_widget(new BuildSettingsWidget(target)),
-    m_icon(":/projectexplorer/images/rebuild.png")
+    m_icon(":/projectexplorer/images/BuildSettings.png")
 {
 }
 

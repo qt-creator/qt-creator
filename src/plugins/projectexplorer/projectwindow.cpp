@@ -169,7 +169,7 @@ void PanelsWidget::addPropertiesPanel(IPropertiesPanel *panel)
         QLabel *iconLabel = new QLabel(m_root);
         iconLabel->setPixmap(panel->icon().pixmap(ICON_SIZE, ICON_SIZE));
         iconLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
-        m_layout->addWidget(iconLabel, headerRow, 0, 2, 1, Qt::AlignTop | Qt::AlignHCenter);
+        m_layout->addWidget(iconLabel, headerRow, 0, 3, 1, Qt::AlignTop | Qt::AlignHCenter);
     }
 
     // name:
@@ -178,13 +178,14 @@ void PanelsWidget::addPropertiesPanel(IPropertiesPanel *panel)
     nameLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
     QFont f = nameLabel->font();
     f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() * 1.4);
+    f.setPointSizeF(f.pointSizeF() * 1.6);
     nameLabel->setFont(f);
-    m_layout->addWidget(nameLabel, headerRow, 1, 1, 1, Qt::AlignBottom | Qt::AlignLeft);
+    m_layout->addWidget(nameLabel, headerRow, 1, 1, 1, Qt::AlignVCenter | Qt::AlignLeft);
 
     // line:
     const int lineRow(headerRow + 1);
-    m_layout->addWidget(new OnePixelBlackLine(m_root), lineRow, 1);
+    QWidget *line = new OnePixelBlackLine(m_root);
+    m_layout->addWidget(line, lineRow, 1, 1, -1, Qt::AlignTop);
 
     // add the widget:
     const int widgetRow(lineRow + 1);

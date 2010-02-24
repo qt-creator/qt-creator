@@ -1,13 +1,10 @@
 <RCC>
     <qresource prefix="/projectexplorer">
-        <file>images/build.png</file>
         <file>images/build_small.png</file>
         <file>images/clean.png</file>
         <file>images/clean_small.png</file>
         <file>images/closetab.png</file>
-        <file>images/compile_error.png</file>
         <file>images/compile_unspecified.png</file>
-        <file>images/compile_warning.png</file>
         <file>images/debugger_start.png</file>
         <file>images/debugger_start_small.png</file>
         <file>images/filtericon.png</file>
@@ -28,5 +25,18 @@
         <file>images/rightselection.png</file>
         <file>images/midselection.png</file>
         <file>images/targetremovebutton.png</file>
+        <file>images/compile_error.png</file>
+        <file>images/compile_warning.png</file>
+        <file>images/BuildSettings.png</file>
+        <file>images/RunSettings.png</file>
+        <file>images/EditorSettings.png</file>
+        <file>images/ProjectDependencies.png</file>
+        <file>images/MaemoDevice.png</file>
+        <file>images/MaemoEmulator.png</file>
+        <file>images/SymbianDevice.png</file>
+        <file>images/SymbianEmulator.png</file>
+        <file>images/ConnectionOff.png</file>
+        <file>images/ConnectionOn.png</file>
+        <file>images/build.png</file>
     </qresource>
 </RCC>
