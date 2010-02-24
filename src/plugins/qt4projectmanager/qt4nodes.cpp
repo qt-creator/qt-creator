@@ -668,7 +668,7 @@ void Qt4PriFileNode::changeFiles(const FileType fileType,
                 contents = QString::fromLatin1(qfile.readAll()); // yes, really latin1
                 qfile.close();
                 lines = contents.split(QLatin1Char('\n'));
-                while (lines.last().isEmpty())
+                while (!lines.isEmpty() && lines.last().isEmpty())
                     lines.removeLast();
             } else {
                 m_project->proFileParseError(tr("Error while reading PRO file %1: %2")
