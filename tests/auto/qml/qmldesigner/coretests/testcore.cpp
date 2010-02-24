@@ -632,9 +632,10 @@ void TestCore::testBasicStates()
     NodeInstance state2Instance = view->instanceForModelNode(state2.modelNode());
     QVERIFY(state2Instance.isValid());
     QmlState *stateObject = qobject_cast<QmlState*>(const_cast<QObject*>(state2Instance.testHandle()));
-    QCOMPARE(stateObject->changes()->count(), 2);
-    QCOMPARE(stateObject->changes()->at(0)->actions().size(), 0);
-    QCOMPARE(stateObject->changes()->at(1)->actions().size(), 1);
+    QmlListProperty<QmlStateOperation> changesList = stateObject->changes();
+    QCOMPARE(changesList.count(&changesList), 2);
+    QCOMPARE(changesList.at(&changesList, 0)->actions().size(), 0);
+    QCOMPARE(changesList.at(&changesList, 1)->actions().size(), 1);
 
 
     //
@@ -3494,15 +3495,17 @@ void TestCore::testInstancesStates()
     QVERIFY(state1Instance.isValid());
     QmlState *state1 = const_cast<QmlState*>(qobject_cast<const QmlState*>(state1Instance.testHandle()));
     QVERIFY(state1);
-    QCOMPARE(state1->changes()->count(), 1);
-    QCOMPARE(state1->changes()->at(0)->actions().size(), 2);
+    QmlListProperty<QmlStateOperation> state1Changes = state1->changes();
+    QCOMPARE(state1Changes.count(&state1Changes), 1);
+    QCOMPARE(state1Changes.at(&state1Changes, 0)->actions().size(), 2);
 
     NodeInstance state2Instance = instanceView->instanceForNode(state2Node);
     QVERIFY(state2Instance.isValid());
     QmlState *state2 = const_cast<QmlState*>(qobject_cast<const QmlState*>(state1Instance.testHandle()));
     QVERIFY(state2);
-    QCOMPARE(state2->changes()->count(), 1);
-    QCOMPARE(state2->changes()->at(0)->actions().size(), 2);
+    QmlListProperty<QmlStateOperation> state2Changes = state2->changes();
+    QCOMPARE(state2Changes.count(&state2Changes), 1);
+    QCOMPARE(state2Changes.at(&state2Changes, 0)->actions().size(), 2);
 
     NodeInstance textInstance = instanceView->instanceForNode(textNode);
 
@@ -3672,8 +3675,9 @@ void TestCore::testStates()
 
     QmlState *qmlState1 = const_cast<QmlState*>(qobject_cast<const QmlState*>(state1Instance.testHandle()));
     QVERIFY(qmlState1);
-    QCOMPARE(qmlState1->changes()->count(), 1);
-    QCOMPARE(qmlState1->changes()->at(0)->actions().size(), 1);
+    QmlListProperty<QmlStateOperation> state1Changes = qmlState1->changes();
+    QCOMPARE(state1Changes.count(&state1Changes), 1);
+    QCOMPARE(state1Changes.at(&state1Changes, 0)->actions().size(), 1);
 
     QmlPropertyChanges changes(state1.propertyChanges(textNode));
     QVERIFY(changes.modelNode().hasProperty("text"));
