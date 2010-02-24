@@ -37,6 +37,10 @@
 #include <projectexplorer/applicationlauncher.h>
 #include <utils/qtcassert.h>
 
+#include <debugger/debuggerconstants.h>
+#include <debugger/debuggeruiswitcher.h>
+#include <qmlinspector/qmlinspectorconstants.h>
+
 #include <QDir>
 #include <QLabel>
 
@@ -77,6 +81,9 @@ void QmlRunControl::start()
 {
     m_applicationLauncher.start(ProjectExplorer::ApplicationLauncher::Gui, m_executable,
                                 m_commandLineArguments);
+
+    Debugger::DebuggerUISwitcher::instance()->setActiveLanguage(Qml::Constants::LANG_QML);
+
     emit started();
     emit addToOutputWindow(this, tr("Starting %1 %2").arg(QDir::toNativeSeparators(m_executable),
                            m_commandLineArguments.join(QLatin1String(" "))));
@@ -107,7 +114,7 @@ void QmlRunControl::slotAddToOutputWindow(const QString &line)
 {
     if (m_debugMode && line.startsWith("QmlDebugServer: Waiting for connection")) {
         Core::ICore *core = Core::ICore::instance();
-        core->modeManager()->activateMode(QLatin1String("QML_INSPECT_MODE"));
+        core->modeManager()->activateMode(Debugger::Constants::MODE_DEBUG);
     }
 
     emit addToOutputWindowInline(this, line);
