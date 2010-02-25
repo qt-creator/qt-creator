@@ -460,6 +460,13 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     fl->setContentsMargins(0, -1, 0, -1);
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
+    // Configuration name
+    m_nameLineEdit = new QLineEdit();
+    fl->addRow(tr("Configuration Name:"), m_nameLineEdit);
+
+    connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(configNameEdited(QString)));
+
     // build directory
     m_pathChooser = new Utils::PathChooser(this);
     m_pathChooser->setEnabled(true);
@@ -493,7 +500,13 @@ QString GenericBuildSettingsWidget::displayName() const
 void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
 {
     m_buildConfiguration = static_cast<GenericBuildConfiguration *>(bc);
+    m_nameLineEdit->setText(m_buildConfiguration->displayName());
     m_pathChooser->setPath(m_buildConfiguration->buildDirectory());
+}
+
+void GenericBuildSettingsWidget::configNameEdited(QString name)
+{
+    m_buildConfiguration->setDisplayName(name);
 }
 
 void GenericBuildSettingsWidget::buildDirectoryChanged()
