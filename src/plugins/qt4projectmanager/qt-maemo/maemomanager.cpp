@@ -140,10 +140,10 @@ MaemoManager::addQemuSimulatorStarter(Project *project)
     Core::ModeManager *modeManager = core->modeManager();
     Core::ActionManager *actionManager = core->actionManager();
 
-    QAction *action = new QAction("Qemu", this);
+    QAction *action = new QAction("Maemo Emulator", this);
     action->setIcon(icon.pixmap(iconSize));
-    action->setToolTip(tr("Start Qemu"));
-    m_qemuCommand = actionManager->registerAction(action, "qemu",
+    action->setToolTip(tr("Start Maemo Emulator"));
+    m_qemuCommand = actionManager->registerAction(action, "MaemoEmulator",
         QList<int>() << Core::Constants::C_GLOBAL_ID);
     modeManager->addAction(m_qemuCommand, 1);
     m_qemuCommand->action()->setEnabled(true);
@@ -179,10 +179,10 @@ MaemoManager::updateQemuSimulatorStarter(bool running)
 {
     if (m_qemuCommand) {
         QIcon::State state = QIcon::Off;
-        QString toolTip(tr("Start Qemu"));
+        QString toolTip(tr("Start Maemo Emulator"));
         if (running) {
             state = QIcon::On;
-            toolTip = tr("Stop Qemu");
+            toolTip = tr("Stop Maemo Emulator");
         }
 
         QAction *action = m_qemuCommand->action();
