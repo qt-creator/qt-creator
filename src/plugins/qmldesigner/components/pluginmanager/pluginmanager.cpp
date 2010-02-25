@@ -158,7 +158,7 @@ QDialog *PluginManager::createAboutPluginDialog(QWidget *parent)
 {
     QDialog *rc = new QDialog(parent);
     rc->setWindowFlags(rc->windowFlags() & ~Qt::WindowContextHelpButtonHint & Qt::Sheet);
-    rc->setWindowTitle(QCoreApplication::tr("About plugins"));
+    rc->setWindowTitle(QCoreApplication::translate("QmlDesigner::PluginManager", "About plugins"));
     QTreeView *treeView = new QTreeView;
     treeView->setModel(createModel(treeView));
     treeView->expandAll();

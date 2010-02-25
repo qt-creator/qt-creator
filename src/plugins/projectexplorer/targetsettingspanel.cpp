@@ -57,7 +57,7 @@ QString TargetSettingsPanelFactory::id() const
 
 QString TargetSettingsPanelFactory::displayName() const
 {
-    return QCoreApplication::tr("Targets");
+    return QCoreApplication::translate("TargetSettingsPanelFactory", "Targets");
 }
 
 bool TargetSettingsPanelFactory::supports(Project *project)
@@ -99,7 +99,7 @@ TargetSettingsPanel::~TargetSettingsPanel()
 
 QString TargetSettingsPanel::displayName() const
 {
-    return QCoreApplication::tr("Targets");
+    return QCoreApplication::translate("TargetSettingsPanel", "Targets");
 }
 
 QWidget *TargetSettingsPanel::widget() const

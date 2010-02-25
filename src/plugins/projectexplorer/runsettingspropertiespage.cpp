@@ -100,7 +100,7 @@ QString RunSettingsPanelFactory::id() const
 
 QString RunSettingsPanelFactory::displayName() const
 {
-    return QCoreApplication::tr("RunSettingsPanelFactory", "Run Settings");
+    return QCoreApplication::translate("RunSettingsPanelFactory", "Run Settings");
 }
 
 bool RunSettingsPanelFactory::supports(Project *project)

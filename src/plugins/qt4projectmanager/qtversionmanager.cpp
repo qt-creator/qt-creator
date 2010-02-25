@@ -1391,13 +1391,13 @@ QString QtVersion::invalidReason() const
     if (isValid())
         return QString();
     if (qmakeCommand().isEmpty())
-        return QApplication::translate("QtVersion", "No qmake path set");
+        return QCoreApplication::translate("QtVersion", "No qmake path set");
     if (displayName().isEmpty())
-        return QApplication::translate("QtVersion", "Qt Version has no name");
+        return QCoreApplication::translate("QtVersion", "Qt Version has no name");
     if (m_notInstalled)
-        return QApplication::translate("QtVersion", "Qt Version is not installed, please run make install");
+        return QCoreApplication::translate("QtVersion", "Qt Version is not installed, please run make install");
     if (!m_versionInfo.contains("QT_INSTALL_BINS"))
-        return QApplication::translate("QtVersion", "Could not determine qt install binary, maybe the qmake path is wrong?");
+        return QCoreApplication::translate("QtVersion", "Could not determine qt install binary, maybe the qmake path is wrong?");
     return QString();
 }
 
@@ -1503,7 +1503,7 @@ QString QtVersion::buildDebuggingHelperLibrary()
     QList<QSharedPointer<ProjectExplorer::ToolChain> > alltc = toolChains();
     ProjectExplorer::ToolChain *tc = alltc.isEmpty() ? 0 : alltc.first().data();
     if (!tc)
-        return QApplication::tr("The Qt Version has no toolchain.");
+        return QCoreApplication::translate("QtVersion", "The Qt Version has no toolchain.");
     tc->addToEnvironment(env);
     QString output;
     QString directory = DebuggingHelperLibrary::copyDebuggingHelperLibrary(qtInstallData, &output);
