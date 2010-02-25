@@ -1177,6 +1177,8 @@ public:
     {}
 };
 
+QT_END_NAMESPACE
+
 QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QWidget,QWidget,QWidgetDeclarativeUI);
 
 //display
