@@ -46,7 +46,6 @@ public:
 
     void setCurrentState(int index);
     void setCurrentStateSilent(int index);
-    void setBackCurrentState(int index, const QmlModelState &oldState);
     void createState(const QString &name);
     void removeState(int index);
     void renameState(int index,const QString &newName);

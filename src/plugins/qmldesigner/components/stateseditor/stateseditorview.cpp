@@ -62,7 +62,7 @@ void StatesEditorView::setCurrentStateSilent(int index)
         return;
     if (state == currentState())
         return;
-    QmlModelView::stateChanged(state, currentState());
+    QmlModelView::activateState(state);
 }
 
 void StatesEditorView::setCurrentState(int index)
@@ -79,18 +79,6 @@ void StatesEditorView::setCurrentState(int index)
     QmlModelView::setCurrentState(state);
 }
 
-
-void StatesEditorView::setBackCurrentState(int index, const QmlModelState &oldState)
-{
-    // TODO
-    QmlModelState state(m_modelStates.at(index));
-    if (!state.isValid())
-        return;
-    if (state == oldState)
-        return;
-    QmlModelView::stateChanged(oldState, state);
-}
-
 void StatesEditorView::createState(const QString &name)
 {
     stateRootNode().states().addState(name);
@@ -101,10 +89,15 @@ void StatesEditorView::removeState(int index)
     Q_ASSERT(index > 0 && index < m_modelStates.size());
     QmlModelState state = m_modelStates.at(index);
     Q_ASSERT(state.isValid());
+
+    setCurrentState(0);
+
     m_modelStates.removeAll(state);
-    m_editorModel->removeState(index);
-    QmlModelView::setCurrentState(baseState());
     state.destroy();
+    m_editorModel->removeState(index);
+
+    int newIndex = (index < m_modelStates.count()) ? index : m_modelStates.count() - 1;
+    setCurrentState(newIndex);
 }
 
 void StatesEditorView::renameState(int index,const QString &newName)
@@ -356,8 +349,9 @@ QPixmap StatesEditorView::renderState(int i)
     painter.drawTiledPixmap(pixmap.rect(), tilePixmap);
     nodeInstanceView()->render(&painter, pixmap.rect(), nodeInstanceView()->sceneRect());
 
-    setBackCurrentState(i, oldState);
+    setCurrentState(m_modelStates.indexOf(oldState));
     nodeInstanceView()->setBlockChangeSignal(false);
+
     Q_ASSERT(oldState == currentState());
 
     return pixmap.copy(0,0,cutSize.width(),cutSize.height());

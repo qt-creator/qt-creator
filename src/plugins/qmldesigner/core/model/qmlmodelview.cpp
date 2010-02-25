@@ -306,12 +306,15 @@ void QmlModelView::activateState(const QmlModelState &state)
     } else {
         newStateInstance.activateState();
     }
+
+    m_state = state;
+
+    stateChanged(state, oldState);
 }
 
 void QmlModelView::changeToState(const ModelNode &node, const QString &stateName)
 {
     QmlItemNode itemNode(node);
-
 
     QmlModelState newState;
     if (stateName.isEmpty())
@@ -319,13 +322,11 @@ void QmlModelView::changeToState(const ModelNode &node, const QString &stateName
     else
         newState = itemNode.states().state(stateName);
 
+    QmlModelState oldState = m_state;
 
-    QmlModelState  oldState = m_state;
-
-    if (newState.isValid())
-        m_state = newState;
-
-    stateChanged(newState, oldState);
+    if (newState.isValid() && oldState != newState) {
+        activateState(newState);
+    }
 }
 
 

@@ -71,7 +71,7 @@ private:
 private slots:
     void currentStateChanged();
     void addState();
-    void removeState();
+    void removeState(int);
     void duplicateCurrentState();
 
 private:
@@ -132,9 +132,9 @@ void StatesEditorWidgetPrivate::addState()
     statesEditorView->createState(newStateName);
 }
 
-void StatesEditorWidgetPrivate::removeState()
+void StatesEditorWidgetPrivate::removeState(int i)
 {
-    statesEditorView->removeState(currentIndex());
+    statesEditorView->removeState(i);
 }
 
 void StatesEditorWidgetPrivate::duplicateCurrentState()
@@ -175,7 +175,7 @@ StatesEditorWidget::StatesEditorWidget(QWidget *parent):
     connect(m_d->listView->rootObject(), SIGNAL(currentStateIndexChanged()), m_d, SLOT(currentStateChanged()));
     connect(m_d->listView->rootObject(), SIGNAL(createNewState()), m_d, SLOT(addState()));
     connect(m_d->listView->rootObject(), SIGNAL(duplicateCurrentState()), m_d, SLOT(duplicateCurrentState()));
-    connect(m_d->listView->rootObject(), SIGNAL(deleteCurrentState()), m_d, SLOT(removeState()));
+    connect(m_d->listView->rootObject(), SIGNAL(deleteState(int)), m_d, SLOT(removeState(int)));
 
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
 

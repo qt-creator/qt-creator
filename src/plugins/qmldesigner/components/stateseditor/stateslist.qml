@@ -6,7 +6,7 @@ Rectangle {
     id: root
     property int currentStateIndex : 0
     signal createNewState
-    signal deleteCurrentState
+    signal deleteState(int index)
     signal duplicateCurrentState
 
     color: "#707070";
@@ -203,13 +203,9 @@ Rectangle {
                 MouseRegion {
                     anchors.fill:parent
                     onClicked: {
-                        var oldindex = root.currentStateIndex;
-                        root.currentStateIndex = index;
                         root.unFocus();
-                        root.deleteCurrentState();
-                        root.currentStateIndex = oldindex;
-                        if (root.currentStateIndex >= statesEditorModel.count)
-                            root.currentStateIndex = root.currentStateIndex-1;
+
+                        root.deleteState(index);
                         horizontalScrollbar.totalLengthDecreased();
                     }
                     onPressed: {parent.state="Pressed"}
