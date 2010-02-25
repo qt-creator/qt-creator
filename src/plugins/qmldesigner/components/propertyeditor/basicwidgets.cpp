@@ -44,6 +44,42 @@
 #include <QDebug>
 #include <QApplication>
 #include <QGraphicsOpacityEffect>
+#include <QCleanlooksStyle>
+
+
+QT_BEGIN_NAMESPACE
+
+class CleanLooksSingleton
+{
+   public:
+     static CleanLooksSingleton* instance();
+     QCleanlooksStyle* style() {return &m_style; };
+
+   private:
+     static CleanLooksSingleton *m_instance;
+     QCleanlooksStyle m_style;
+
+     CleanLooksSingleton() {}
+     CleanLooksSingleton( const CleanLooksSingleton& );
+
+     class CleanLooksWatcher {
+         public: ~CleanLooksWatcher() {
+           if( CleanLooksSingleton::m_instance != 0 )
+             delete CleanLooksSingleton::m_instance;
+         }
+     };
+     friend class CleanLooksWatcher;
+};
+
+CleanLooksSingleton* CleanLooksSingleton::m_instance = 0;
+
+CleanLooksSingleton* CleanLooksSingleton::instance()
+{
+  static CleanLooksWatcher w;
+  if( m_instance == 0 )
+    m_instance = new CleanLooksSingleton();
+  return m_instance;
+}
 
 
 class QWidgetDeclarativeUI;
@@ -121,6 +157,7 @@ public:
         filter->setDuiTarget(this);
         m_mouseOver = false;
         q->installEventFilter(filter);
+        q->setStyle(CleanLooksSingleton::instance()->style());
         Q_ASSERT(q);
     }
     virtual ~QWidgetDeclarativeUI() {
