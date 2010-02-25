@@ -32,26 +32,33 @@ import Qt 4.6
 Column {
     id: sectionView
 
-    property var style
+    // public
+    
     property var itemHighlight
 
     property int entriesPerRow
     property int cellWidth
     property int cellHeight
 
-    signal itemSelected(int itemLibId)
-    signal itemDragged(int itemLibId)
-
     function expand() {
         gridFrame.state = "";
     }
 
+    signal itemSelected(int itemLibId)
+    signal itemDragged(int itemLibId)
+
+    // internal
+
+    ItemsViewStyle { id: style }
+    
     Component {
         id: itemDelegate
 
         ItemView {
             id: item
-            style: sectionView.style
+
+	    width: cellWidth
+	    height: cellHeight
 
             function selectItem() {
                 itemHighlight.select(sectionView, item, gridFrame.x, -gridView.viewportY);
@@ -76,11 +83,11 @@ Column {
         Item {
             id: arrow
 
-            Rectangle { y: 0; x: 0; height: 1; width: 9; color: "#aeaeae" }
-            Rectangle { y: 1; x: 1; height: 1; width: 7; color: "#aeaeae" }
-            Rectangle { y: 2; x: 2; height: 1; width: 5; color: "#aeaeae" }
-            Rectangle { y: 3; x: 3; height: 1; width: 3; color: "#aeaeae" }
-            Rectangle { y: 4; x: 4; height: 1; width: 1; color: "#aeaeae" }
+            Rectangle { y: 0; x: 0; height: 1; width: 9; color: style.sectionArrowColor }
+            Rectangle { y: 1; x: 1; height: 1; width: 7; color: style.sectionArrowColor }
+            Rectangle { y: 2; x: 2; height: 1; width: 5; color: style.sectionArrowColor }
+            Rectangle { y: 3; x: 3; height: 1; width: 3; color: style.sectionArrowColor }
+            Rectangle { y: 4; x: 4; height: 1; width: 1; color: style.sectionArrowColor }
 
             anchors.left: parent.left
             anchors.leftMargin: 5
@@ -99,7 +106,6 @@ Column {
 
             text: sectionName
             color: style.sectionTitleTextColor
-            Component.onCompleted: text.color = style.sectionTitleTextColor
         }
         MouseRegion {
             anchors.fill: parent
@@ -109,7 +115,7 @@ Column {
                     itemHighlight.unselect();
                     sectionView.itemSelected(-1);
                 }
-                gridFrame.toggleVisibility()
+                gridFrame.toggleExpanded()
             }
         }
     }
@@ -119,18 +125,19 @@ Column {
     Item {
         id: gridFrame
 
-        function toggleVisibility() {
-            state = ((state == "hidden")? "":"hidden")
+        function toggleExpanded() {
+            state = ((state == "")? "shrunk":"")
         }
 
         clip: true
-        width: sectionView.entriesPerRow * sectionView.cellWidth + 1
-        height: Math.ceil(sectionEntries.count / sectionView.entriesPerRow) * sectionView.cellHeight + 1
+        width: entriesPerRow * cellWidth + 1
+        height: Math.ceil(sectionEntries.count / entriesPerRow) * cellHeight + 1
         anchors.horizontalCenter: parent.horizontalCenter
 
         GridView {
             id: gridView
 
+	    // workaround
             Connection {
                 sender: itemLibraryModel
                 signal: "visibilityUpdated()"
@@ -151,7 +158,7 @@ Column {
 
         states: [
             State {
-                name: "hidden"
+                name: "shrunk"
                 PropertyChanges {
                     target: gridFrame
                     height: 0
@@ -163,18 +170,7 @@ Column {
                 }
             }
         ]
-/*
-        transitions: [
-            Transition {
-                NumberAnimation {
-                    matchProperties: "x,y,width,height,opacity,rotation"
-                    duration: 200
-                }
-            }
-        ]
-*/
     }
 
     Item { height: 4; width: 1 }
 }
-

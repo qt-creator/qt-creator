@@ -32,9 +32,14 @@ import Qt 4.6
 Item {
     id: bar
 
+    // public
+    
     property var flickable
-    property var style
 
+    // internal
+
+    ItemsViewStyle { id: style }
+    
     property int scrollHeight: height - handle.height
 
     Rectangle {
@@ -62,17 +67,6 @@ Item {
     function updateHandle() {
 	moveHandle(flickable.viewportY, false);
     }
-    
-/*
-    NumberAnimation {
-        id: handleResetAnimation
-        target: handle
-        property: "y"
-        from: handle.y
-        to: 0
-        duration: 500
-    }
-*/
 
     onFlickableChanged: moveHandle(0, true)
 
@@ -101,11 +95,7 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: handle.top
-        onClicked: {
-//            handleMoveAnimation.to = Math.max(0, handle.y - 40)
-//            handleMoveAnimation.start();
-            handle.y = Math.max(0, handle.y - style.scrollbarClickScrollAmount)
-        }
+        onClicked: handle.y = Math.max(0, handle.y - style.scrollbarClickScrollAmount)
     }
 
     Item {
@@ -152,18 +142,6 @@ Item {
         anchors.right: parent.right
         anchors.top: handle.bottom
         anchors.bottom: parent.bottom
-        onClicked: {
-//            handleMoveAnimation.to = Math.min(scrollHeight, handle.y + 40)
-//            handleMoveAnimation.start();
-            handle.y = Math.min(scrollHeight, handle.y + style.scrollbarClickScrollAmount)
-        }
+        onClicked: handle.y = Math.min(scrollHeight, handle.y + style.scrollbarClickScrollAmount)
     }
-/*
-    NumberAnimation {
-        id: handleMoveAnimation
-        target: handle
-        property: "y"
-        duration: 200
-    }
-*/
 }

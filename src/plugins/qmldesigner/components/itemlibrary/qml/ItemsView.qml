@@ -29,62 +29,36 @@
 
 import Qt 4.6
 
-/*
-    ListModel {
-        id: libraryModel
-        ListElement {
-            sectionTitle: "Section 1"
-            sectionEntries: [
-                ListElement { itemLibId: 0; itemName: "Comp"; itemIconPath: "../images/default-icon.png" },
-                ...
-            ]
-        }
-        ...
-    }
-*/
-
-/* workaround: ListView reports bogus viewportHeight
-
-ListView {
-    id: itemsView
-
-    property string name: "itemsFlickable"
-    anchors.fill: parent
-
-    interactive: false
-
-    model: itemsView.model
-    delegate: sectionDelegate
-}
-*/
-
-
 Rectangle {
     id: itemsView
 
-    signal itemSelected(int itemLibId)
-    signal itemDragged(int itemLibId)
-
+    // public
+    
     function expandAll() {
         expandAllEntries();
         scrollbar.moveHandle(0, true)
     }
 
-    signal expandAllEntries()
+    signal itemSelected(int itemLibId)
+    signal itemDragged(int itemLibId)
+
+    signal stopDragAndDrop
+
+    // internal
+    
+    signal expandAllEntries
+
+    ItemsViewStyle { id: style }
 
     property int entriesPerRow: Math.max(1, Math.floor((itemsFlickable.width - 2) / style.cellWidth))
     property int cellWidth: Math.floor((itemsFlickable.width - 2) / entriesPerRow)
     property int cellHeight: style.cellHeight
-
-    property var style
-    style: ItemsViewStyle {}
 
     color: style.backgroundColor
 
     /* workaround: without this, a completed drag and drop operation would
                    result in the drag being continued when QmlView re-gains
                    focus */
-    signal stopDragAndDrop
     MouseRegion {
         anchors.fill: parent
         hoverEnabled: true
@@ -96,7 +70,6 @@ Rectangle {
 
         SectionView {
             id: section
-            style: itemsView.style
 
             entriesPerRow: itemsView.entriesPerRow
             cellWidth: itemsView.cellWidth
@@ -107,10 +80,6 @@ Rectangle {
 
             onItemSelected: itemsView.itemSelected(itemLibId)
             onItemDragged: itemsView.itemDragged(itemLibId)
-
-            function focusSelection() {
-                itemSelection.focusSelection()
-            }
 
             Connection {
                 sender: itemsView
@@ -145,11 +114,9 @@ Rectangle {
 
         Selector {
             id: selector
+	    
             z: -1
-            style: itemsView.style
-            scrollFlickable: itemsFlickable
-
-            onMoveScrollbarHandle: scrollbar.moveHandle(viewportPos, true)
+            flickable: itemsFlickable
 
             width: itemsView.cellWidth
             height: itemsView.cellHeight
@@ -168,7 +135,6 @@ Rectangle {
         anchors.right: parent.right
 
         flickable: itemsFlickable
-        style: itemsView.style
     }
 }
 

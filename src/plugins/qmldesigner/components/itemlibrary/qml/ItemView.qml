@@ -32,14 +32,15 @@ import Qt 4.6
 Item {
     id: itemView
 
-    property var style
-
-    width: GridView.view.cellWidth
-    height: style.cellHeight
-
+    // public
+    
     signal itemPressed()
     signal itemDragged()
 
+    // internal
+
+    ItemsViewStyle { id: style }
+    
     Rectangle {
         anchors.top: parent.top
         anchors.left: parent.left
@@ -87,7 +88,7 @@ Item {
         id: itemIcon
 
         anchors.top: parent.top
-        anchors.topMargin: style.cellMargin
+        anchors.topMargin: style.cellVerticalMargin
         anchors.horizontalCenter: parent.horizontalCenter
 
         width: itemLibraryIconWidth
@@ -99,7 +100,7 @@ Item {
         id: text
 
         anchors.top: itemIcon.bottom
-        anchors.topMargin: itemView.style.cellSpacing
+        anchors.topMargin: style.cellVerticalSpacing
         anchors.horizontalCenter: parent.horizontalCenter
         width: style.textWidth
         height: style.textHeight
@@ -107,9 +108,7 @@ Item {
         verticalAlignment: "AlignVCenter"
         horizontalAlignment: "AlignHCenter"
         text: itemName
-        // workaround: text color not updated when 'style' var finally assigned
         color: style.itemNameTextColor
-        Component.onCompleted: text.color = style.itemNameTextColor
     }
 
     MouseRegion {

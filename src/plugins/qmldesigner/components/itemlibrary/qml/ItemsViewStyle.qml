@@ -40,27 +40,31 @@ Item {
 
     property string itemNameTextColor: "#FFFFFF"
 
-    property string sectionTitleTextColor: "#f0f0f0"
-    property string sectionTitleBackgroundColor: "#909090"
-
     property string gridLineLighter: "#808080"
     property string gridLineDarker: "#606060"
+
+    property string sectionArrowColor: "#aeaeae"
+    property string sectionTitleTextColor: "#f0f0f0"
+    property string sectionTitleBackgroundColor: "#909090"
 
     property int sectionTitleHeight: 20
     property int sectionTitleSpacing: 2
 
+    // the selector's offset from the start of the section
     property int selectionSectionOffset: sectionTitleHeight + sectionTitleSpacing
 
     property int iconWidth: 32
     property int iconHeight: 32
 
-    property int textWidth: 80
+    property int textWidth: 90
     property int textHeight: 15
 
-    property int cellSpacing: 7
-    property int cellMargin: 10
+    property int cellVerticalSpacing: 7
+    property int cellVerticalMargin: 10
 
-    property int cellWidth: textWidth + 2*cellMargin
-    property int cellHeight:  itemLibraryIconHeight + textHeight + 2*cellMargin + cellSpacing
+    // the following depend on the actual shape of the item delegate
+    property int cellWidth: textWidth
+    property int cellHeight: itemLibraryIconHeight + textHeight +
+	                     2 * cellVerticalMargin + cellVerticalSpacing
 }
 
