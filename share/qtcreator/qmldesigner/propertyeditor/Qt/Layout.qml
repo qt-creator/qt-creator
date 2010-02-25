@@ -42,7 +42,10 @@ GroupBox {
                             text: "Target"
                             fixedWidth: 90 - 20 - 32
                         }
-                        QComboBox {
+                        SiblingComboBox {
+						   itemNode: anchorBackend.itemNode						   
+						   selectedItemNode: anchorBackend.topTarget
+						   onSelectedItemNodeChanged: { anchorBackend.topTarget = selectedItemNode; }
                         }
 
                     }
@@ -86,7 +89,10 @@ GroupBox {
                             text: "Target"
                             fixedWidth: 90 - 20 - 32
                         }
-                        QComboBox {
+                        SiblingComboBox {
+						   itemNode: anchorBackend.itemNode						   
+						   selectedItemNode: anchorBackend.bottomTarget
+						   onSelectedItemNodeChanged: { anchorBackend.bottomTarget = selectedItemNode; }
                         }
 
                     }
@@ -130,7 +136,10 @@ GroupBox {
                             text: "Target"
                             fixedWidth: 90 - 20 - 32
                         }
-                        QComboBox {
+                        SiblingComboBox {
+						   itemNode: anchorBackend.itemNode						   
+						   selectedItemNode: anchorBackend.leftTarget
+						   onSelectedItemNodeChanged: { anchorBackend.leftTarget = selectedItemNode; }
                         }
                     }
                 }
@@ -173,7 +182,10 @@ GroupBox {
                             text: "Target"
                             fixedWidth: 90 - 20 - 32
                         }
-                        QComboBox {
+                        SiblingComboBox {
+						   itemNode: anchorBackend.itemNode						   
+						   selectedItemNode: anchorBackend.rightTarget
+						   onSelectedItemNodeChanged: { anchorBackend.rightTarget = selectedItemNode; }
                         }
                     }
                 }
@@ -216,7 +228,10 @@ GroupBox {
                             text: "Target"
                             fixedWidth: 90 - 20 - 32
                         }
-                        QComboBox {
+                        SiblingComboBox {
+						   itemNode: anchorBackend.itemNode						   
+						   selectedItemNode: anchorBackend.horizontalTarget
+						   onSelectedItemNodeChanged: { anchorBackend.horizontalTarget = selectedItemNode; }
                         }
                     }
                 }
@@ -227,6 +242,7 @@ GroupBox {
                             slider: false
                             caption: "Margin"
                             baseStateFlag: isBaseState;
+							backendValue: backendValues.anchors_horizontalCenterOffset
                             maximumValue: 1000
                             minimumValue: -1000
                         }
@@ -258,7 +274,10 @@ GroupBox {
                             text: "Target"
                             fixedWidth: 90 - 20 - 32
                         }
-                        QComboBox {
+                        SiblingComboBox {
+						   itemNode: anchorBackend.itemNode						   
+						   selectedItemNode: anchorBackend.verticalTarget
+						   onSelectedItemNodeChanged: { anchorBackend.verticalTarget = selectedItemNode; }
                         }
                     }
                 }
@@ -268,6 +287,7 @@ GroupBox {
                         IntEditor {
                             slider: false
                             caption: "Margin"
+							backendValue: backendValues.anchors_verticalCenterOffset
                             baseStateFlag: isBaseState;
                             maximumValue: 1000
                             minimumValue: -1000
