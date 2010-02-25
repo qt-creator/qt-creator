@@ -62,6 +62,8 @@ QWidget { //This is a special spinBox that does color coding for states
 
     ColorScheme { id:scheme; }
 
+    ColorScheme { id:scheme; }
+
     layout: HorizontalLayout {
 
         QSpinBox {

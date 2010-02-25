@@ -36,7 +36,6 @@ QWidget {
 
             minimum: minimumValue
             maximum: maximumValue
-
             baseStateFlag: intEditor.baseStateFlag
         }
 
