@@ -213,6 +213,7 @@ private:
     void handleStop(const TrkResult &result);
     void handleSupportMask(const TrkResult &result);
     void handleTrkVersionsStartGdb(const TrkResult &result);
+    Q_SLOT void slotStartGdb();
     void handleDisconnect(const TrkResult &result);
     void handleDeleteProcess(const TrkResult &result);
     void handleDeleteProcess2(const TrkResult &result);

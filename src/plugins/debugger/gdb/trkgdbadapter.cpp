@@ -1671,6 +1671,13 @@ void TrkGdbAdapter::handleTrkVersionsStartGdb(const TrkResult &result)
              << '.' << int(result.data.at(4));
     }
     logMessage(logMsg);
+    // As we are called from the TrkDevice handler, do not lock up when shutting
+    // down the device in case of gdb launch errors.
+    QTimer::singleShot(0, this, SLOT(slotStartGdb()));
+}
+
+void TrkGdbAdapter::slotStartGdb()
+{
     QStringList gdbArgs;
     gdbArgs.append(QLatin1String("--nx")); // Do not read .gdbinit file
     if (!m_engine->startGdb(gdbArgs, m_options->gdb, TrkOptionsPage::settingsId())) {

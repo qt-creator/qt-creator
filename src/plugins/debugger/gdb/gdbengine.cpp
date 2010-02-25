@@ -1645,6 +1645,8 @@ bool GdbEngine::checkConfiguration(int toolChain, QString *errorMessage, QString
     case ProjectExplorer::ToolChain::GCCE:
     case ProjectExplorer::ToolChain::RVCT_ARMV5:
     case ProjectExplorer::ToolChain::RVCT_ARMV6:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
         if (!m_trkOptions->check(errorMessage)) {
             if (settingsPage)
                 *settingsPage = TrkOptionsPage::settingsId();
@@ -1663,6 +1665,8 @@ AbstractGdbAdapter *GdbEngine::createAdapter(const DebuggerStartParametersPtr &s
     case ProjectExplorer::ToolChain::GCCE:
     case ProjectExplorer::ToolChain::RVCT_ARMV5:
     case ProjectExplorer::ToolChain::RVCT_ARMV6:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
         return new TrkGdbAdapter(this, m_trkOptions);
     default:
         break;

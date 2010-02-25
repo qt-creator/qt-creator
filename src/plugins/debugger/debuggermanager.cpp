@@ -945,6 +945,8 @@ static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::T
     case ProjectExplorer::ToolChain::GCCE:
     case ProjectExplorer::ToolChain::RVCT_ARMV5:
     case ProjectExplorer::ToolChain::RVCT_ARMV6:
+    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
+    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
         rc = gdbEngine;
         break;
     case ProjectExplorer::ToolChain::OTHER:
