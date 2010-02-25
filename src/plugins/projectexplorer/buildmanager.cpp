@@ -349,8 +349,9 @@ bool BuildManager::buildQueueAppend(BuildStep *bs)
 
     bool init = bs->init();
     if (!init) {
-        const QString projectName = m_currentBuildStep->buildConfiguration()->target()->displayName();
-        addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1</font>").arg(projectName));
+        const QString projectName = m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
+        const QString targetName = m_currentBuildStep->buildConfiguration()->target()->displayName();
+        addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1 (%2)</font>").arg(projectName, targetName));
         addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
         cancel();
         return false;
