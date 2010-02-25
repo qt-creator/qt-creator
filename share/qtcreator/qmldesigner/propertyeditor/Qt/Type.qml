@@ -4,11 +4,12 @@ import Bauhaus 1.0
 GroupBox {
     id: type;
     finished: finishedNotify;
-    caption: "type";
+    caption: "Type";
 
     layout: VerticalLayout {
+        spacing: 6
         QWidget {
-            layout: HorizontalLayout {
+            layout: HorizontalLayout {			
                 Label {
                     text: "type";
                     windowTextColor: isBaseState ? "#000000" : "#FF0000";                 

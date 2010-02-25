@@ -5,7 +5,7 @@ GroupBox {
     finished: finishedNotify
     id: geometry
 
-    caption: "geometry"
+    caption: "Geometry"
 
     layout: VerticalLayout {
 

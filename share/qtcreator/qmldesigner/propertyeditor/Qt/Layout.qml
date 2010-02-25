@@ -4,7 +4,7 @@ import Bauhaus 1.0
 GroupBox {
     finished: finishedNotify;
 
-    caption: "layout";
+    caption: "Layout";
 
     id: layout;
     enabled: anchorBackend.hasParent;
