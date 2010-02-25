@@ -74,7 +74,9 @@ public:
 
 signals:
     void currentModeAboutToChange(Core::IMode *mode);
-    void currentModeChanged(Core::IMode *mode);
+
+    // the default argument '=0' is important for connects without the oldMode argument.
+    void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode = 0);
 
 public slots:
     void activateMode(const QString &id);
@@ -100,6 +102,7 @@ private:
     QVector<Command*> m_modeShortcuts;
     QSignalMapper *m_signalMapper;
     QList<int> m_addedContexts;
+    int m_oldCurrent;
 };
 
 } // namespace Core

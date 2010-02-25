@@ -63,7 +63,9 @@ ModeManager *ModeManager::m_instance = 0;
 ModeManager::ModeManager(Internal::MainWindow *mainWindow, FancyTabWidget *modeStack) :
     m_mainWindow(mainWindow),
     m_modeStack(modeStack),
-    m_signalMapper(new QSignalMapper(this))
+    m_signalMapper(new QSignalMapper(this)),
+    m_oldCurrent(-1)
+
 {
     m_instance = this;
 
@@ -247,7 +249,11 @@ void ModeManager::currentTabChanged(int index)
         m_addedContexts = mode->context();
         foreach (const int context, m_addedContexts)
             core->addAdditionalContext(context);
-        emit currentModeChanged(mode);
+        IMode *oldMode = 0;
+        if (m_oldCurrent >= 0)
+            oldMode = m_modes.at(m_oldCurrent);
+        m_oldCurrent = index;
+        emit currentModeChanged(mode, oldMode);
         core->updateContext();
     }
 }

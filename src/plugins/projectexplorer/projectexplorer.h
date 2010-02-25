@@ -217,7 +217,7 @@ private slots:
     void addErrorToApplicationOutputWindow(RunControl *, const QString &error);
 
     void loadProject(const QString &project) { openProject(project); }
-    void currentModeChanged(Core::IMode *mode);
+    void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
     void updateActions();
 
 private:

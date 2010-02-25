@@ -1140,9 +1140,13 @@ void ProjectExplorerPlugin::updateWelcomePage()
     d->m_welcomePage->updateWelcomePage(welcomePageData);
 }
 
-void ProjectExplorerPlugin::currentModeChanged(Core::IMode *)
+void ProjectExplorerPlugin::currentModeChanged(Core::IMode *mode, Core::IMode *oldMode)
 {
+    if (mode && mode->id() == QLatin1String(Core::Constants::MODE_WELCOME))
         updateWelcomePage();
+    if (oldMode == d->m_projectsMode) {
+        savePersistentSettings();
+    }
 }
 
 void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
@@ -1189,7 +1193,8 @@ void ProjectExplorerPlugin::restoreSession()
 
     // update welcome page
     Core::ModeManager *modeManager = Core::ModeManager::instance();
-    connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)), this, SLOT(currentModeChanged(Core::IMode*)));
+    connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*, Core::IMode*)),
+            this, SLOT(currentModeChanged(Core::IMode*, Core::IMode*)));
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(loadProject(QString)));
 
