@@ -36,11 +36,21 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+namespace ProjectExplorer {
+    class RunConfiguration;
+    class RunControl;
+    class Target;
+}
+using ProjectExplorer::IRunConfigurationFactory;
+using ProjectExplorer::IRunControlFactory;
+using ProjectExplorer::RunConfiguration;
+using ProjectExplorer::RunControl;
+using ProjectExplorer::Target;
+
 namespace Qt4ProjectManager {
     namespace Internal {
 
 class MaemoRunConfiguration;
-using namespace ProjectExplorer;
 
 class MaemoRunConfigurationFactory : public IRunConfigurationFactory
 {
