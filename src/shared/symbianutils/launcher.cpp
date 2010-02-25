@@ -697,18 +697,14 @@ QByteArray Launcher::startProcessMessage(const QString &executable,
 {
     // It's not started yet
     QByteArray ba;
-    appendShort(&ba, 0, TargetByteOrder); // create new process
+    appendShort(&ba, 0, TargetByteOrder); // create new process (kDSOSProcessItem)
     ba.append(char(0)); // options - currently unused
-    if(arguments.isEmpty()) {
-        appendString(&ba, executable.toLocal8Bit(), TargetByteOrder);
-        return ba;
-    }
-    // Append full command line as one string (leading length information).
-    QByteArray commandLineBa;
-    commandLineBa.append(executable.toLocal8Bit());
-    commandLineBa.append('\0');
-    commandLineBa.append(arguments.join(QString(QLatin1Char(' '))).toLocal8Bit());
-    appendString(&ba, commandLineBa, TargetByteOrder);
+    // One string consisting of binary terminated by '\0' and arguments terminated by '\0'
+    QByteArray commandLineBa = executable.toLocal8Bit();
+    commandLineBa.append(char(0));
+    if (!arguments.isEmpty())
+        commandLineBa.append(arguments.join(QString(QLatin1Char(' '))).toLocal8Bit());
+    appendString(&ba, commandLineBa, TargetByteOrder, true);
     return ba;
 }
 
