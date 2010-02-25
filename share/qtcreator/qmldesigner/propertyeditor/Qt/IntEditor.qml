@@ -18,12 +18,12 @@ QWidget {
     layout: HorizontalLayout {
         Label {
             id: label
-            text: caption        
+            text: caption
         }
 
         SpinBox {
             backendValue: (intEditor.backendValue === undefined ||
-                           intEditor.backendValue === null)
+            intEditor.backendValue === null)
             ? null : intEditor.backendValue;
 			
 			property var backendValueValue: (intEditor.backendValue === undefined ||
@@ -36,6 +36,7 @@ QWidget {
 
             minimum: minimumValue
             maximum: maximumValue
+
             baseStateFlag: intEditor.baseStateFlag
         }
 
@@ -53,21 +54,23 @@ QWidget {
                 minimum: minimumValue
                 maximum: maximumValue
                 singleStep: step
-											
-				
+
+
+                value: (backendValue == undefined
+                || backendValue == null
+                || backendValue.value == undefined
+                || backendValue.value == null) ? 0 : backendValue.value
                 onValueChanged: {
                     if (backendValue != undefined && backendValue != null)
-                        backendValue.value = value;
+                    backendValue.value = value;
                 }
 
-               
-				
-				onSliderPressed: {
-				    backendValue.lock();
-		        }
-                onSliderReleased: {				    
-					backendValue.unlock();
-		        }
+                onSliderPressed: {
+                    backendValue.lock();
+                }
+                onSliderReleased: {
+                    backendValue.unlock();
+                }
             }
         }
     }

@@ -52,7 +52,7 @@ GroupBox {
                 }
 
                 QWidget {
-                    layout : HorizontalLayout {
+                    layout : HorizontalLayout {                        
                         IntEditor {
                             slider: false
                             caption: "Margin"

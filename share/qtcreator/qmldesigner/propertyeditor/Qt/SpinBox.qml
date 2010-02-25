@@ -22,21 +22,29 @@ QWidget { //This is a special spinBox that does color coding for states
         evaluate();
     }
 
+    property var isEnabled: spinBox.enabled
+    onIsEnabledChanged: {
+        evaluate();
+    }
+
 
     Script {
-        function evaluate() {		   
-            if (baseStateFlag) {
-                if (backendValue != null && backendValue.isInModel)
-                    box.setStyleSheet("color: white;");
-                else
-                    box.setStyleSheet("color: gray;");
+        if (!enabled) {
+            box.setStyleSheet("color: "+scheme.disabledColor);
+        } else {
+        if (baseStateFlag) {
+            if (backendValue != null && backendValue.isInModel)
+                box.setStyleSheet("color: "+scheme.changedBaseColor);
+            else
+                box.setStyleSheet("color: "+scheme.defaultColor);
             } else {
-                if (backendValue != null && backendValue.isInSubState)
-                    box.setStyleSheet("color: #7799FF;");
-                else
-                    box.setStyleSheet("color: gray;");
+            if (backendValue != null && backendValue.isInSubState)
+                box.setStyleSheet("color: "+scheme.changedStateColor);
+            else
+                box.setStyleSheet("color: "+scheme.defaultColor);
             }
         }
+    }
     }
 	
 	property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
@@ -51,8 +59,10 @@ QWidget { //This is a special spinBox that does color coding for states
         evaluate();
     }
 
+    ColorScheme { id:scheme; }
+
     layout: HorizontalLayout {
-        
+
         QSpinBox {
             property alias backendValue: spinBox.backendValue
 
@@ -74,24 +84,23 @@ QWidget { //This is a special spinBox that does color coding for states
             onValueChanged: {
                 if (spinBox.backendValue != null && readingFromBackend == false)
                     backendValue.value = value;
-            }     
-			
-			onFocusChanged: {				
-				if (focus)
-				    spinBox.backendValue.lock();
-				else
-				    spinBox.backendValue.unlock();
-			}
-			
-			onEditingFinished: {
-				focus = false;
-			}
+            }
+
+            onFocusChanged: {
+                if (focus)
+                    spinBox.backendValue.lock();
+                else
+                    spinBox.backendValue.unlock();
+            }
+            onEditingFinished: {
+                focus = false;
+            }
         }
     }
 
-    ExtendedFunctionButton {        
+    ExtendedFunctionButton {
         backendValue: (spinBox.backendValue === undefined ||
-                       spinBox.backendValue === null)
+        spinBox.backendValue === null)
         ? null : spinBox.backendValue;
         y: box.y + 4
         x: box.x + 2

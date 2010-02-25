@@ -12,7 +12,7 @@ GroupBox {
             layout: HorizontalLayout {			
                 Label {
                     text: "type";
-                    windowTextColor: isBaseState ? "#000000" : "#FF0000";                 
+                    windowTextColor: isBaseState ? "#000000" : "#FF0000";
                 }                
 
                 QLabel {

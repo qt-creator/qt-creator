@@ -10,9 +10,9 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
     property alias singleStep: box.singleStep
     property alias minimum: box.minimum
     property alias maximum: box.maximum
-	property alias spacing: layoutH.spacing
+    property alias spacing: layoutH.spacing
     property alias text: label.text
-	property bool alignRight: true
+    property bool alignRight: true
     property bool enabled: true
 
     minimumHeight: 22;
@@ -25,21 +25,27 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
         evaluate();
     }
 
-    Script {        
+    Script {
         function evaluate() {
-            if (baseStateFlag) {
-                if (backendValue != null && backendValue.isInModel)
-                    box.setStyleSheet("color: white;");
-                else
-                    box.setStyleSheet("color: gray;");
-            } else {
-                if (backendValue != null && backendValue.isInSubState)
-                    box.setStyleSheet("color: #7799FF;");
-                else
-                    box.setStyleSheet("color: gray;");
-            }
+            if (!enabled) {
+                box.setStyleSheet("color: "+scheme.disabledColor);
+                } else {
+                if (baseStateFlag) {
+                    if (backendValue != null && backendValue.isInModel)
+                    box.setStyleSheet("color: "+scheme.changedBaseColor);
+                    else
+                    box.setStyleSheet("color: "+scheme.defaultColor);
+                    } else {
+                    if (backendValue != null && backendValue.isInSubState)
+                    box.setStyleSheet("color: "+scheme.changedStateColor);
+                    else
+                    box.setStyleSheet("color: "+scheme.defaultColor);
+                    }
+                }
         }
     }
+
+    ColorScheme { id:scheme; }
 
     property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
 
@@ -54,7 +60,7 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
     }
 
     layout: HorizontalLayout {
-		id: layoutH;
+        id: layoutH;
 
         QLabel {
             id: label;
@@ -69,12 +75,12 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
             decimals: 1;
             keyboardTracking: false;
             enabled: (doubleSpinBox.backendValue === undefined ||
-                      doubleSpinBox.backendValue === null)
+            doubleSpinBox.backendValue === null)
             ? true : !backendValue.isBound && doubleSpinBox.enabled;
 
             property bool readingFromBackend: false;
             property real valueFromBackend: (doubleSpinBox.backendValue === undefined ||
-                                             doubleSpinBox.backendValue === null || doubleSpinBox.backendValue.value === undefined)
+            doubleSpinBox.backendValue === null || doubleSpinBox.backendValue.value === undefined)
             ? .0 : doubleSpinBox.backendValue.value;
             
             onValueFromBackendChanged: {
@@ -85,26 +91,26 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
 
             onValueChanged: {
                 if (doubleSpinBox.backendValue != null && readingFromBackend == false)
-                    doubleSpinBox.backendValue.value = value;
+                doubleSpinBox.backendValue.value = value;
             }
 
             onMouseOverChanged: {
 
             }
-			
-			onFocusChanged: {				
-				if (focus)
-				    doubleSpinBox.backendValue.lock();
-				else
-				    doubleSpinBox.backendValue.unlock();
-			}
+
+            onFocusChanged: {
+                if (focus)
+                doubleSpinBox.backendValue.lock();
+                else
+                doubleSpinBox.backendValue.unlock();
+            }
         }
     }
 
     ExtendedFunctionButton {
         backendValue: (doubleSpinBox.backendValue === undefined ||
-                       doubleSpinBox.backendValue === null)
-             ? null : doubleSpinBox.backendValue;
+        doubleSpinBox.backendValue === null)
+        ? null : doubleSpinBox.backendValue;
         y: box.y + 4
         x: box.x + 2
         visible: doubleSpinBox.enabled

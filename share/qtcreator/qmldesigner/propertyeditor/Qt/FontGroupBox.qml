@@ -60,6 +60,8 @@ GroupBox {
                 }
 
                 ComboBox {
+                    baseStateFlag:isBaseState
+                    backendValue: backendValues.style
                     items : { ["Normal", "Outline", "Raised", "Sunken"] }
                     currentText: backendValues.style.value;
                     onItemsChanged: {
