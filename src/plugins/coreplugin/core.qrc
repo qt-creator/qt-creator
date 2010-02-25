@@ -44,5 +44,6 @@
         <file>images/extension.png</file>
         <file>images/darkclosebutton.png</file>
         <file>editormanager/BinFiles.mimetypes.xml</file>
+        <file>images/progressbar.png</file>
     </qresource>
 </RCC>

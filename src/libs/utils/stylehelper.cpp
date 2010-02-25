@@ -150,8 +150,8 @@ static void verticalGradientHelper(QPainter *p, const QRect &spanRect, const QRe
     QColor highlight = StyleHelper::highlightColor(lightColored);
     QColor shadow = StyleHelper::shadowColor(lightColored);
     QLinearGradient grad(spanRect.topRight(), spanRect.topLeft());
-    grad.setColorAt(0, highlight.lighter(106));
-    grad.setColorAt(1, shadow.darker(106));
+    grad.setColorAt(0, highlight.lighter(112));
+    grad.setColorAt(1, shadow.darker(109));
     p->fillRect(rect, grad);
 
     QColor light(255, 255, 255, 80);

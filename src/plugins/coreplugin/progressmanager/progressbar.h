@@ -64,6 +64,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 private:
+    QImage bar;
     QString m_text;
     QString m_title;
     bool m_error;

@@ -51,7 +51,7 @@ SOURCES += mainwindow.cpp \
     dialogs/openwithdialog.cpp \
     progressmanager/progressmanager.cpp \
     progressmanager/progressview.cpp \
-    progressmanager/progresspie.cpp \
+    progressmanager/progressbar.cpp \
     progressmanager/futureprogress.cpp \
     scriptmanager/scriptmanager.cpp \
     scriptmanager/qworkbench_wrapper.cpp \
@@ -119,7 +119,7 @@ HEADERS += mainwindow.h \
     dialogs/ioptionspage.h \
     progressmanager/progressmanager_p.h \
     progressmanager/progressview.h \
-    progressmanager/progresspie.h \
+    progressmanager/progressbar.h \
     progressmanager/futureprogress.h \
     progressmanager/progressmanager.h \
     icontext.h \

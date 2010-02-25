@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "futureprogress.h"
-#include "progresspie.h"
+#include "progressbar.h"
 
 #include <QtGui/QColor>
 #include <QtGui/QVBoxLayout>
@@ -86,7 +86,7 @@ FutureProgress::FutureProgress(QWidget *parent)
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addLayout(m_widgetLayout);
-    m_widgetLayout->setContentsMargins(7, 0, 7, 0);
+    m_widgetLayout->setContentsMargins(7, 0, 7, 2);
     m_widgetLayout->setSpacing(0);
 
     connect(&m_watcher, SIGNAL(started()), this, SLOT(setStarted()));
