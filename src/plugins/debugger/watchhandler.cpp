@@ -1220,6 +1220,9 @@ void WatchHandler::cleanup()
     m_displayedINames.clear();
     m_locals->reinitialize();
     m_tooltips->reinitialize();
+    m_locals->m_fetchTriggered.clear();
+    m_watchers->m_fetchTriggered.clear();
+    m_tooltips->m_fetchTriggered.clear();
 #if 0
     for (EditWindows::ConstIterator it = m_editWindows.begin();
             it != m_editWindows.end(); ++it) {
