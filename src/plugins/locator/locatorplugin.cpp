@@ -68,6 +68,8 @@ namespace {
     {
         if (first->priority() < second->priority())
             return true;
+        if (first->priority() > second->priority())
+            return false;
         if (first->id().compare(second->id(), Qt::CaseInsensitive) < 0)
             return true;
         return false;
