@@ -29,6 +29,7 @@ QWidget { //This is a special spinBox that does color coding for states
 
 
     Script {
+	 function evaluate() {
         if (!enabled) {
             box.setStyleSheet("color: "+scheme.disabledColor);
         } else {
