@@ -335,14 +335,11 @@ void QmlModelView::transformChanged(const QmlObjectNode &/*qmlObjectNode*/, cons
 
 void QmlModelView::parentChanged(const QmlObjectNode &/*qmlObjectNode*/)
 {
-
 }
 
 void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)
 {
-
 }
-
 
 void  QmlModelView::stateChanged(const QmlModelState &/*newQmlModelState*/, const QmlModelState &/*oldQmlModelState*/)
 {
