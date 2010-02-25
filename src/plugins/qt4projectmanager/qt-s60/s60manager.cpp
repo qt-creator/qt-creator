@@ -36,6 +36,7 @@
 #include "rvcttoolchain.h"
 #include "s60emulatorrunconfiguration.h"
 #include "s60devicerunconfiguration.h"
+#include "s60createpackagestep.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -115,6 +116,7 @@ S60Manager::S60Manager(QObject *parent)
                                                 S60DeviceRunConfiguration>
                                                 (QLatin1String(ProjectExplorer::Constants::RUNMODE),
                                                  tr("Run on Device"), parent));
+    addAutoReleasedObject(new S60CreatePackageStepFactory);
 
     if (Debugger::DebuggerManager::instance())
         addAutoReleasedObject(new RunControlFactory<S60DeviceDebugRunControl,

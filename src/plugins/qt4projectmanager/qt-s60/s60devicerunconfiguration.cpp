@@ -39,6 +39,7 @@
 #include "bluetoothlistener_gui.h"
 #include "symbiandevicemanager.h"
 #include "qt4buildconfiguration.h"
+#include "qt4projectmanagerconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -428,7 +429,7 @@ QStringList S60DeviceRunConfigurationFactory::availableCreationIds(Target *paren
 {
     Qt4Target *target = qobject_cast<Qt4Target *>(parent);
     if (!target ||
-        target->id() != QLatin1String(S60_DEVICE_TARGET_ID))
+        target->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QStringList();
 
     return target->qt4Project()->applicationProFilePathes(QLatin1String(S60_DEVICE_RC_PREFIX));
@@ -445,7 +446,7 @@ bool S60DeviceRunConfigurationFactory::canCreate(Target *parent, const QString &
 {
     Qt4Target * t(qobject_cast<Qt4Target *>(parent));
     if (!t ||
-        t->id() != QLatin1String(S60_DEVICE_TARGET_ID))
+        t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
     return t->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
@@ -463,7 +464,7 @@ bool S60DeviceRunConfigurationFactory::canRestore(Target *parent, const QVariant
 {
     Qt4Target * t(qobject_cast<Qt4Target *>(parent));
     if (!t ||
-        t->id() != QLatin1String(S60_DEVICE_TARGET_ID))
+        t->id() != QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return false;
     QString id(ProjectExplorer::idFromMap(map));
     return id == QLatin1String(S60_DEVICE_RC_ID);

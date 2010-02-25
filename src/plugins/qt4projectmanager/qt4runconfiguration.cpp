@@ -35,6 +35,7 @@
 #include "qt4project.h"
 #include "qt4target.h"
 #include "qt4buildconfiguration.h"
+#include "qt4projectmanagerconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -674,7 +675,7 @@ bool Qt4RunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
     Qt4Target *t = qobject_cast<Qt4Target *>(parent);
     if (!t)
         return false;
-    if (t->id() != QLatin1String(DESKTOP_TARGET_ID))
+    if (t->id() != QLatin1String(Constants::DESKTOP_TARGET_ID))
         return false;
     return t->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
@@ -691,7 +692,7 @@ bool Qt4RunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, con
 {
     if (!qobject_cast<Qt4Target *>(parent))
         return false;
-    if (parent->id() != QLatin1String(DESKTOP_TARGET_ID))
+    if (parent->id() != QLatin1String(Constants::DESKTOP_TARGET_ID))
         return false;
     QString id(ProjectExplorer::idFromMap(map));
     return id.startsWith(QLatin1String(QT4_RC_ID));
@@ -729,7 +730,7 @@ QStringList Qt4RunConfigurationFactory::availableCreationIds(ProjectExplorer::Ta
     Qt4Target *t(qobject_cast<Qt4Target *>(parent));
     if (!t)
         return QStringList();
-    if (t->id() != DESKTOP_TARGET_ID)
+    if (t->id() != Constants::DESKTOP_TARGET_ID)
         return QStringList();
     return t->qt4Project()->applicationProFilePathes(QLatin1String(QT4_RC_PREFIX));
 }

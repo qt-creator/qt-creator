@@ -109,7 +109,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
     m_userArgs = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toStringList();
     m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
 
-    return BuildStep::fromMap(map);
+    return ProjectExplorer::AbstractProcessStep::fromMap(map);
 }
 
 bool MakeStep::init()

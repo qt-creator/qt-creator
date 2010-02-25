@@ -1245,20 +1245,20 @@ void QtVersion::updateToolChainAndMkspec() const
     if (!ce_sdk.isEmpty() && !ce_arch.isEmpty()) {
         QString wincePlatformName = ce_sdk + " (" + ce_arch + QLatin1Char(')');
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createWinCEToolChain(msvcVersion(), wincePlatformName));
-        m_targetIds.insert(DESKTOP_TARGET_ID);
+        m_targetIds.insert(Constants::DESKTOP_TARGET_ID);
     } else if (makefileGenerator == QLatin1String("SYMBIAN_ABLD") ||
                makefileGenerator == QLatin1String("SYMBIAN_SBSV2") ||
                makefileGenerator == QLatin1String("SYMBIAN_UNIX")) {
         if (S60Manager *s60mgr = S60Manager::instance()) {
 #    ifdef Q_OS_WIN
-            m_targetIds.insert(QLatin1String(S60_DEVICE_TARGET_ID));
+            m_targetIds.insert(QLatin1String(Constants::S60_DEVICE_TARGET_ID));
             m_toolChains << ToolChainPtr(s60mgr->createGCCEToolChain(this));
             if (S60Manager::hasRvctCompiler())
                 m_toolChains << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV5))
                              << ToolChainPtr(s60mgr->createRVCTToolChain(this, ProjectExplorer::ToolChain::RVCT_ARMV6));
             if (!mwcDirectory().isEmpty()) {
                 m_toolChains << ToolChainPtr(s60mgr->createWINSCWToolChain(this));
-                m_targetIds.insert(QLatin1String(S60_EMULATOR_TARGET_ID));
+                m_targetIds.insert(QLatin1String(Constants::S60_EMULATOR_TARGET_ID));
             }
 #    else
             if (S60Manager::hasRvctCompiler())
@@ -1270,12 +1270,12 @@ void QtVersion::updateToolChainAndMkspec() const
     } else if (qt_arch.startsWith(QLatin1String("arm"))
                && MaemoManager::instance().isValidMaemoQtVersion(this)) {
         m_toolChains << ToolChainPtr(MaemoManager::instance().maemoToolChain(this));
-        m_targetIds.insert(QLatin1String(MAEMO_DEVICE_TARGET_ID));
+        m_targetIds.insert(QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID));
     } else if (qmakeCXX == "cl" || qmakeCXX == "icl") {
         // TODO proper support for intel cl
         m_toolChains << ToolChainPtr(
                 ProjectExplorer::ToolChain::createMSVCToolChain(msvcVersion(), isQt64Bit()));
-        m_targetIds.insert(QLatin1String(DESKTOP_TARGET_ID));
+        m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     } else if (qmakeCXX == "g++" && makefileGenerator == "MINGW") {
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
@@ -1283,7 +1283,7 @@ void QtVersion::updateToolChainAndMkspec() const
         qmakeCXX = env.searchInPath(qmakeCXX);
         m_toolChains << ToolChainPtr(
                 ProjectExplorer::ToolChain::createMinGWToolChain(qmakeCXX, mingwDirectory()));
-        m_targetIds.insert(QLatin1String(DESKTOP_TARGET_ID));
+        m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     } else if (qmakeCXX == "g++" || qmakeCXX == "icc") {
         ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
         //addToEnvironment(env);
@@ -1294,7 +1294,7 @@ void QtVersion::updateToolChainAndMkspec() const
             qmakeCXX = QLatin1String("cc");
         }
         m_toolChains << ToolChainPtr(ProjectExplorer::ToolChain::createGccToolChain(qmakeCXX));
-        m_targetIds.insert(QLatin1String(DESKTOP_TARGET_ID));
+        m_targetIds.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     }
 
     if (m_toolChains.isEmpty()) {

@@ -27,6 +27,11 @@ macx {
     LIBS += -L../../../bin/QtCreator.app/Contents/PlugIns
     CONFIG(debug, debug|release):LIBS += -lUtils_debug
     else:LIBS += -lUtils
+} else:win32 {
+    message($$QTC_LIBS)
+    LIBS += -L$$QTC_LIBS
+    CONFIG(debug, debug|release):LIBS += -lUtilsd
+    else:LIBS += -lUtils
 } else {
     message($$QTC_LIBS)
     LIBS += -L$$QTC_LIBS -lUtils

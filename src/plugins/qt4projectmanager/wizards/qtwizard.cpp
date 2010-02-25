@@ -285,6 +285,6 @@ QSet<QString> BaseQt4ProjectWizardDialog::selectedTargets() const
 QSet<QString> BaseQt4ProjectWizardDialog::desktopTarget()
 {
     QSet<QString> rc;
-    rc.insert(QLatin1String(DESKTOP_TARGET_ID));
+    rc.insert(QLatin1String(Constants::DESKTOP_TARGET_ID));
     return rc;
 }

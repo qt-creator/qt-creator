@@ -35,6 +35,7 @@
 #include "qt4buildconfiguration.h"
 #include "qt4project.h"
 #include "qt4runconfiguration.h"
+#include "qt4projectmanagerconstants.h"
 #include "qt-maemo/maemorunconfiguration.h"
 #include "qt-s60/s60devicerunconfiguration.h"
 #include "qt-s60/s60emulatorrunconfiguration.h"
@@ -54,25 +55,25 @@ using namespace Qt4ProjectManager::Internal;
 namespace {
 
 QString displayNameForId(const QString &id) {
-    if (id == QLatin1String(DESKTOP_TARGET_ID))
+    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Desktop", "Qt4 Desktop target display name");
-    if (id == QLatin1String(S60_EMULATOR_TARGET_ID))
+    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Emulator", "Qt4 Symbian Emulator target display name");
-    if (id == QLatin1String(S60_DEVICE_TARGET_ID))
+    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Device", "Qt4 Symbian Device target display name");
-    if (id == QLatin1String(MAEMO_DEVICE_TARGET_ID))
+    if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Maemo", "Qt4 Maemo target display name");
     return QString();
 }
 
 QIcon iconForId(const QString &id) {
-    if (id == QLatin1String(DESKTOP_TARGET_ID))
+    if (id == QLatin1String(Constants::DESKTOP_TARGET_ID))
         return QIcon(qApp->style()->standardIcon(QStyle::SP_ComputerIcon));
-    if (id == QLatin1String(S60_EMULATOR_TARGET_ID))
+    if (id == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return QIcon(":/projectexplorer/images/SymbianEmulator.png");
-    if (id == QLatin1String(S60_DEVICE_TARGET_ID))
+    if (id == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         return QIcon(":/projectexplorer/images/SymbianDevice.png");
-    if (id == QLatin1String(MAEMO_DEVICE_TARGET_ID))
+    if (id == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         return QIcon(":/projectexplorer/images/MaemoDevice.png");
     return QIcon();
 }
@@ -155,11 +156,11 @@ Qt4Target *Qt4TargetFactory::create(ProjectExplorer::Project *parent, const QStr
 
         if (buildAll) {
             t->addQt4BuildConfiguration(debugName, version, QtVersion::BuildAll | QtVersion::DebugBuild);
-            if (id != QLatin1String(S60_EMULATOR_TARGET_ID))
+            if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
                 t->addQt4BuildConfiguration(releaseName, version, QtVersion::BuildAll);
         } else {
             t->addQt4BuildConfiguration(debugName, version, QtVersion::DebugBuild);
-            if (id != QLatin1String(S60_EMULATOR_TARGET_ID))
+            if (id != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
                 t->addQt4BuildConfiguration(releaseName, version, QtVersion::QmakeBuildConfig(0));
         }
     }
@@ -278,25 +279,25 @@ Qt4BuildConfigurationFactory *Qt4Target::buildConfigurationFactory() const
 
 void Qt4Target::addRunConfigurationForPath(const QString &proFilePath)
 {
-    if (id() == QLatin1String(DESKTOP_TARGET_ID))
+    if (id() == QLatin1String(Constants::DESKTOP_TARGET_ID))
         addRunConfiguration(new Qt4RunConfiguration(this, proFilePath));
-    else if (id() == QLatin1String(S60_EMULATOR_TARGET_ID))
+    else if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         addRunConfiguration(new S60EmulatorRunConfiguration(this, proFilePath));
-    else if (id() == QLatin1String(S60_DEVICE_TARGET_ID))
+    else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID))
         addRunConfiguration(new S60DeviceRunConfiguration(this, proFilePath));
-    else if (id() == QLatin1String(MAEMO_DEVICE_TARGET_ID))
+    else if (id() == QLatin1String(Constants::MAEMO_DEVICE_TARGET_ID))
         addRunConfiguration(new MaemoRunConfiguration(this, proFilePath));
 }
 
 QList<ToolChain::ToolChainType> Qt4Target::filterToolChainTypes(const QList<ToolChain::ToolChainType> &candidates) const
 {
     QList<ToolChain::ToolChainType> tmp(candidates);
-    if (id() == QLatin1String(S60_EMULATOR_TARGET_ID)) {
+    if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID)) {
         if (tmp.contains(ToolChain::WINSCW))
             return QList<ToolChain::ToolChainType>() << ToolChain::WINSCW;
         else
             return QList<ToolChain::ToolChainType>();
-    } else if (id() == QLatin1String(S60_DEVICE_TARGET_ID)) {
+    } else if (id() == QLatin1String(Constants::S60_DEVICE_TARGET_ID)) {
         tmp.removeAll(ToolChain::WINSCW);
         return tmp;
     }
@@ -306,7 +307,7 @@ QList<ToolChain::ToolChainType> Qt4Target::filterToolChainTypes(const QList<Tool
 ToolChain::ToolChainType Qt4Target::preferredToolChainType(const QList<ToolChain::ToolChainType> &candidates) const
 {
     ToolChain::ToolChainType preferredType = ToolChain::INVALID;
-    if (id() == QLatin1String(S60_EMULATOR_TARGET_ID) &&
+    if (id() == QLatin1String(Constants::S60_EMULATOR_TARGET_ID) &&
         candidates.contains(ToolChain::WINSCW))
         preferredType = ToolChain::WINSCW;
     if (!candidates.isEmpty())

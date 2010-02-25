@@ -88,6 +88,12 @@ const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectMana
 // Tasks
 const char * const PROFILE_EVALUATE = "Qt4ProjectManager.ProFileEvaluate";
 
+// Targets
+const char * const DESKTOP_TARGET_ID("Qt4ProjectManager.Target.DesktopTarget");
+const char * const S60_EMULATOR_TARGET_ID("Qt4ProjectManager.Target.S60EmulatorTarget");
+const char * const S60_DEVICE_TARGET_ID("Qt4ProjectManager.Target.S60DeviceTarget");
+const char * const MAEMO_DEVICE_TARGET_ID("Qt4ProjectManager.Target.MaemoDeviceTarget");
+
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

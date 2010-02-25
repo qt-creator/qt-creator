@@ -34,6 +34,7 @@
 #include "qt4target.h"
 #include "makestep.h"
 #include "qt4buildconfiguration.h"
+#include "qt4projectmanagerconstants.h"
 
 #include "wizards/targetspage.h"
 
@@ -139,7 +140,6 @@ void ProjectLoadWizard::done(int result)
         }
         if (m_project->targets().isEmpty())
             qWarning() << "Failed to populate project with default targets for imported Qt" << m_importVersion->displayName();
-
         return;
     }
 
@@ -160,7 +160,7 @@ void ProjectLoadWizard::done(int result)
     foreach (QtVersion *v, candidates) {
         if (v->isValid())
             defaultVersion = v;
-        if (v->supportsTargetId(DESKTOP_TARGET_ID) && v->isValid())
+        if (v->supportsTargetId(Constants::DESKTOP_TARGET_ID) && v->isValid())
             break;
     }
 

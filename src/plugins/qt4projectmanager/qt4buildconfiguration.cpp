@@ -31,6 +31,7 @@
 
 #include "qt4project.h"
 #include "qt4target.h"
+#include "qt4projectmanagerconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -123,7 +124,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     if (m_qtVersionId == 0) {
         QList<QtVersion *> versions = QtVersionManager::instance()->versions();
         foreach (QtVersion *v, versions) {
-            if (v->isValid() && v->supportsTargetId(QLatin1String(DESKTOP_TARGET_ID))) {
+            if (v->isValid() && v->supportsTargetId(QLatin1String(Constants::DESKTOP_TARGET_ID))) {
                 m_qtVersionId = v->uniqueId();
                 break;
             }

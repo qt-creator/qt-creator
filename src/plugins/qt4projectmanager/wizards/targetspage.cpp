@@ -33,6 +33,7 @@
 #include "qt4projectmanager/qt4projectmanager.h"
 #include "qt4projectmanager/qt4target.h"
 #include "qt4projectmanager/qtversionmanager.h"
+#include "qt4projectmanager/qt4projectmanagerconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 

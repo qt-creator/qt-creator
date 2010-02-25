@@ -36,6 +36,7 @@
 #include "s60manager.h"
 #include "s60devices.h"
 #include "qt4buildconfiguration.h"
+#include "qt4projectmanagerconstants.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -223,7 +224,7 @@ bool S60EmulatorRunConfigurationFactory::canCreate(Target *parent, const QString
 {
     Qt4Target * t(qobject_cast<Qt4Target *>(parent));
     if (!t ||
-        t->id() != QLatin1String(S60_EMULATOR_TARGET_ID))
+        t->id() != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return false;
     return t->qt4Project()->hasApplicationProFile(pathFromId(id));
 }
@@ -240,7 +241,7 @@ bool S60EmulatorRunConfigurationFactory::canRestore(Target *parent, const QVaria
 {
     Qt4Target * t(qobject_cast<Qt4Target *>(parent));
     if (!t ||
-        t->id() != QLatin1String(S60_EMULATOR_TARGET_ID))
+        t->id() != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return false;
     QString id(ProjectExplorer::idFromMap(map));
     return id == QLatin1String(S60_EMULATOR_RC_ID);
@@ -275,7 +276,7 @@ QStringList S60EmulatorRunConfigurationFactory::availableCreationIds(Target *par
 {
     Qt4Target * t(qobject_cast<Qt4Target *>(parent));
     if (!t ||
-        t->id() != QLatin1String(S60_EMULATOR_TARGET_ID))
+        t->id() != QLatin1String(Constants::S60_EMULATOR_TARGET_ID))
         return QStringList();
 
     return t->qt4Project()->applicationProFilePathes(QLatin1String(S60_EMULATOR_RC_PREFIX));

@@ -14,7 +14,8 @@ SOURCES += $$PWD/s60devices.cpp \
     $$PWD/s60runconfigbluetoothstarter.cpp \
     $$PWD/abldparser.cpp \
     $$PWD/rvctparser.cpp \
-    $$PWD/winscwparser.cpp
+    $$PWD/winscwparser.cpp \
+    qt-s60/s60createpackagestep.cpp
 HEADERS += $$PWD/s60devices.h \
     $$PWD/s60devicespreferencepane.h \
     $$PWD/s60manager.h \
@@ -27,6 +28,7 @@ HEADERS += $$PWD/s60devices.h \
     $$PWD/s60runconfigbluetoothstarter.h \
     $$PWD/abldparser.h \
     $$PWD/rvctparser.h \
-    $$PWD/winscwparser.h
-FORMS += $$PWD/s60devicespreferencepane.ui
-
+    $$PWD/winscwparser.h \
+    qt-s60/s60createpackagestep.h
+FORMS += $$PWD/s60devicespreferencepane.ui \
+    qt-s60/s60createpackagestep.ui
