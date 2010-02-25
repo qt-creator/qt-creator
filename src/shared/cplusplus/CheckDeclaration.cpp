@@ -60,8 +60,6 @@
 #include <string>
 #include <cassert>
 
-#include <QDebug>
-
 using namespace CPlusPlus;
 
 CheckDeclaration::CheckDeclaration(Semantic *semantic)

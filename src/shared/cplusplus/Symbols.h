@@ -787,7 +787,7 @@ public:
         NonAtomic = 1 << 7,
 
         WritabilityMask = ReadOnly | ReadWrite,
-        SetterSemanticsMask = Assign | Retain | Copy,
+        SetterSemanticsMask = Assign | Retain | Copy
     };
 
 public:

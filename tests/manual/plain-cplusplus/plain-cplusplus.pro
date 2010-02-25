@@ -1,5 +1,6 @@
 QT -= core gui
 TARGET = plain-c++
+DEFINES += CPLUSPLUS_WITHOUT_QT
 
 macx {
     CONFIG -= app_bundle
