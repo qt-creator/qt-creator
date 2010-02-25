@@ -2337,6 +2337,50 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
     QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
 
+    if (!d->m_highlightBlocksInfo.isEmpty()) {
+        // extra pass for the block highlight
+
+        const int margin = 5;
+        QTextBlock blockFP = block;
+        QPointF offsetFP = offset;
+        while (blockFP.isValid()) {
+            QRectF r = blockBoundingRect(blockFP).translated(offsetFP);
+
+            int n = blockFP.blockNumber();
+            int depth = 0;
+            foreach (int i, d->m_highlightBlocksInfo.open)
+                if (n >= i)
+                    ++depth;
+            foreach (int i, d->m_highlightBlocksInfo.close)
+                if (n > i)
+                    --depth;
+
+            int count = d->m_highlightBlocksInfo.count();
+            if (count) {
+                QRectF rr = r;
+                rr.setWidth(viewport()->width());
+                if (lineX > 0)
+                    rr.setRight(qMin(lineX, rr.right()));
+                for (int i = 0; i <= depth; ++i) {
+                    int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
+                    painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
+                }
+            }
+            offsetFP.ry() += r.height();
+
+            if (offsetFP.y() > viewportRect.height() + margin)
+                break;
+
+            blockFP = blockFP.next();
+            if (!blockFP.isVisible()) {
+                // invisible blocks do have zero line count
+                blockFP = doc->findBlockByLineNumber(blockFP.firstLineNumber());
+            }
+        }
+    }
+
+
+
     if (!d->m_findScope.isNull()) {
 
         TextEditorOverlay *overlay = new TextEditorOverlay(this);
@@ -2391,6 +2435,10 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 break;
 
             blockFP = blockFP.next();
+            if (!blockFP.isVisible()) {
+                // invisible blocks do have zero line count
+                blockFP = doc->findBlockByLineNumber(blockFP.firstLineNumber());
+            }
         }
 
     } // end first pass
@@ -2413,31 +2461,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
                 if (lineX > 0)
                     rr.setRight(qMin(lineX, rr.right()));
                 painter.fillRect(rr, d->m_ifdefedOutFormat.background());
-            }
-
-
-            if (!d->m_highlightBlocksInfo.isEmpty()) {
-
-                int n = block.blockNumber();
-                int depth = 0;
-                foreach (int i, d->m_highlightBlocksInfo.open)
-                    if (n >= i)
-                        ++depth;
-                foreach (int i, d->m_highlightBlocksInfo.close)
-                    if (n > i)
-                        --depth;
-
-                int count = d->m_highlightBlocksInfo.count();
-                if (count) {
-                    QRectF rr = r;
-                    rr.setWidth(viewport()->width());
-                    if (lineX > 0)
-                        rr.setRight(qMin(lineX, rr.right()));
-                    for (int i = 0; i <= depth; ++i) {
-                        int vi = i > 0 ? d->m_highlightBlocksInfo.visualIndent.at(i-1) : 0;
-                        painter.fillRect(rr.adjusted(vi, 0, -8*i, 0), calcBlendColor(baseColor, i, count));
-                    }
-                }
             }
 
             QTextLayout *layout = block.layout();
