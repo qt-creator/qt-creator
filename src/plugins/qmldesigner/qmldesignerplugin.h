@@ -65,6 +65,9 @@ public:
     DesignerSettings settings() const;
     void setSettings(const DesignerSettings &s);
 
+private slots:
+    void switchTextDesign();
+
 private:
     QmlDesigner::IntegrationCore *m_designerCore;
     static BauhausPlugin *m_pluginInstance;

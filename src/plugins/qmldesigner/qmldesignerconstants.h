@@ -35,18 +35,21 @@
 namespace QmlDesigner {
 namespace Constants {
 
-const char * const DELETE                  = "QmlDesigner.Delete";
+const char * const DELETE               = "QmlDesigner.Delete";
 
 // context
-const char * const C_DESIGN_MODE = "QmlDesigner::DesignMode";
-const char * const C_FORMEDITOR = "QmlDesigner::FormEditor";
+const char * const C_DESIGN_MODE        = "QmlDesigner::DesignMode";
+const char * const C_FORMEDITOR         = "QmlDesigner::FormEditor";
+
+// actions
+const char * const SWITCH_TEXT_DESIGN   = "QmlDesigner.SwitchTextDesign";
 
 // mode
-const char * const DESIGN_MODE_NAME = "Design";
-const int DESIGN_MODE_PRIORITY = Core::Constants::P_MODE_EDIT - 1;
+const char * const DESIGN_MODE_NAME     = "Design";
+const int DESIGN_MODE_PRIORITY          = Core::Constants::P_MODE_EDIT - 1;
 
 // Wizard type
-const char * const FORM_MIMETYPE = "application/x-qmldesigner";
+const char * const FORM_MIMETYPE        = "application/x-qmldesigner";
 
 namespace Internal {
     enum { debug = 0 };

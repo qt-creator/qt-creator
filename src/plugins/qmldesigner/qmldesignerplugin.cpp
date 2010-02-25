@@ -34,6 +34,11 @@
 #include "pluginmanager.h"
 #include "settingspage.h"
 
+#include <qmljseditor/qmljseditorconstants.h>
+
+#include <coreplugin/modemanager.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/iwizard.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -86,6 +91,17 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(QmlDesigner::Constants::C_FORMEDITOR));
     const QList<int> context = QList<int>() << uid;
 
+    const QList<int> switchContext = QList<int() << uid
+                                     << core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
+
+    Core::ActionManager *am = core->actionManager();
+
+    QAction *switchAction = new QAction(tr("Switch Text/Design"), this);
+    Core::Command *command = am->registerAction(switchAction, QmlDesigner::Constants::SWITCH_TEXT_DESIGN, switchContext);
+    command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
+
+    connect(switchAction, SIGNAL(triggered()), this, SLOT(switchTextDesign()));
+
     m_designerCore = new QmlDesigner::IntegrationCore;
 
     m_pluginInstance = this;
@@ -114,6 +130,24 @@ void BauhausPlugin::extensionsInitialized()
 BauhausPlugin *BauhausPlugin::pluginInstance()
 {
     return m_pluginInstance;
+}
+
+void BauhausPlugin::switchTextDesign()
+{
+    Core::ModeManager *modeManager = Core::ModeManager::instance();
+
+    if (modeManager->currentMode() == Core::Constants::MODE_EDIT) {
+
+    } else if (modeManager->currentMode() == Core::Constants::MODE_DESIGN) {
+
+    }
+
+    Core::IEditor *editor = editorManager->currentEditor();
+    QString otherFile = correspondingHeaderOrSource(editor->file()->fileName());
+    if (!otherFile.isEmpty()) {
+        editorManager->openEditor(otherFile);
+        editorManager->ensureEditorManagerVisible();
+    }
 }
 
 DesignerSettings BauhausPlugin::settings() const

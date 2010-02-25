@@ -75,11 +75,12 @@ void SiblingComboBox::setup()
     clear();
 
     foreach (const QmlItemNode &itemNode, m_itemList) {
-        if (itemNode.isValid())
+        if (itemNode.isValid()) {
             if (itemNode.id().isEmpty())
                 addItem(itemNode.simplfiedTypeName());
             else
                 addItem(itemNode.id());
+        }
     }
 
     QmlItemNode parent(m_itemNode.instanceParent().toQmlItemNode());
