@@ -18,7 +18,7 @@
     environment (IDE) for developing Qt projects. It is available for Linux,
     Mac OS X and Windows operating systems. You can use Qt Creator to develop
     applications for desktop and Symbian platforms. For more information, see
-    \l{Operating systems and supported platforms}.
+    \l{Operating Systems and Supported Platforms}.
 
     \note Please report bugs and suggestions to the
     \l{http://bugreports.qt.nokia.com}{Qt Bug Tracker}.
@@ -159,6 +159,8 @@
     \endlist
 
     \section1 Supported Platforms
+    Only the Windows operating system provides support for building
+    applications on the Symbian platform.
 
     \table
         \header
@@ -204,24 +206,18 @@
     icons, or use the \l{keyboard-shortcuts}{corresponding keyboard shortcut}.
 
     \list
-        \o Use the \gui Welcome mode to open recent sessions and projects.
-        \o Use the \gui Edit mode to edit project and source files.
-           \l{The sidebar} in the Edit mode provides different views for
-           browsing files.
-        \o Use the \gui Debug mode to inspect the state of your program while
-           debugging. For more information, see \l Debugging.
-        \o Use the \gui Projects mode to configure project builing and
-           execution. For more information, see \l{Managing Projects}.
-        \o Use the \gui Help mode to view Qt documentation. For more
-           information, see \l{Qt Help Integration}.
-        \o Use the \gui Output mode to examine, for example, build issues
-           and compile and application output. This information is also
-           available in \l{The output panes}{the output panes}.
+        \o \gui Welcome mode for opening recent sessions and projects.
+        \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
+        \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
+           debugging.
+        \o \gui{\l{Managing Projects}{Projects}} mode for configuring project building and
+           execution.
+        \o \gui{\l{Qt Help Integration}{Help}} mode for viewing Qt documentation.
     \endlist
 
     Certain actions in Qt Creator trigger a mode change. For example,
-    \gui Debug > \gui{Start debugging} > \gui{Start debugging}
-    automatically switches to \gui Debug mode.
+    \gui {Debug} > \gui {Start debugging} > \gui {Start debugging}
+    automatically switches to \gui {Debug} mode.
 
 
     \section1 The Sidebar
@@ -494,7 +490,7 @@
     \endlist
 
     To move between split views, select \gui Window >
-    \gui{Go to Other Split} or press \key{Ctrl+E, 0}.
+    \gui{Go to Next Split} or press \key{Ctrl+E, 0}.
 
     To remove a split view, place the cursor within the view you want to
     remove and select \gui Window > \gui{Remove Current Split} or press
@@ -620,7 +616,7 @@
     a symbol by holding the \key Ctrl and clicking the symbol.
 
     To enable this function, in \gui Tools > \gui Options >
-    \gui{Text Editor} > \gui Display select \gui{Enable mouse navigation}.
+    \gui{Text Editor} > \gui Behavior select \gui{Enable mouse navigation}.
 
 
     \section1 Using an External Editor
@@ -717,7 +713,8 @@
     file:
     \list 1
         \o Press \key Ctrl+Shift+F or select \gui Edit >
-           \gui Find/Replace > \gui Find....
+           \gui Find/Replace > \gui{Advanced Find} >
+           \gui{Open Advanced Find...}.
         \o Select the scope of your search:
            \list
             \o \gui{All Projects} searches files matching the defined file
@@ -897,13 +894,6 @@
            path.
 
            \image qtcreator-intro-and-location.png
-        \o Select the Qt modules you want to include in your project.
-
-           Since this example shows creation of a Qt4 Gui Application project
-           type, QtCore and QtGui modules are selected by default. However, you
-           can select any other you need.
-
-           \image qtcreator-select-modules.png
         \o Specify the name of the class you want to create and using the
            drop-down menu select its base class type.
 
@@ -918,6 +908,10 @@
 
            \image qtcreator-new-project-summary.png
     \endlist
+
+    \note You can create a new project with the \gui{Help} mode active and
+          follow the instructions to create a new project from the
+          documentation available in the help section.
 */
 
 
@@ -1563,7 +1557,7 @@
     To edit the currently open project's main.cpp file using the locator:
     \list 1
         \o Activate the locator by pressing \key Ctrl+K.
-        \o Enter \tt \bold{main.cpp}.
+        \o Enter \c{main.cpp}.
 
            \image qtcreator-locator-open.png
         \o Press \key Return.
@@ -2491,7 +2485,7 @@
     To import an existing generic project:
     \list 1
         \o Select \gui File > \gui{New File or Project...} > \gui Projects >
-           \gui{Import of Makefile-based Project}.
+           \gui{Import Existing Project}.
         \o In \gui{Generic Project}, enter the project name
            and select the project file you want to import.
 
@@ -2577,7 +2571,7 @@
     syntax highlighting as if they were part of the current project or the Qt
     library.
 
-    If you import a project using the \gui{Import of Makefile-based Project}
+    If you import a project using the \gui{Import Existing Project}
     function, Qt Creator creates a file called <projectname>.includes in your
     project directory. This file contains all project subdirectories for which
     Qt Creator found relevant headers. Add your include paths here.
@@ -2764,7 +2758,7 @@
 
     Select \gui Tools > \gui Options > \gui Qt4 > \gui{Qt Versions}.
     Click \inlineimage qtcreator-windows-add.png,
-    to add a new Qt version. The \gui{QMake Location} is the qmake executable
+    to add a new Qt version. The \gui{qMake Location} is the qmake executable
     in \c{<MADDE dir>/targets/<fremantle target>/bin}.
 
     \image qtcreator-screenshot-toolchain.png
@@ -3023,7 +3017,9 @@
         \o \gui Help mode \key Ctrl+5
     \endlist
 
-    For more information about Qt Creator modes, see \l{Qt Creator modes}.
+
+    For more information about Qt Creator modes, see \l {Qt Creator Modes}.
+
 
 
     \section1 Moving Between Open Files
@@ -3042,6 +3038,11 @@
         \o The first press moves focus to the editor
         \o The second press closes secondary windows
     \endlist
+
+    \section1 Using the Filter in Options Dialog
+
+    To find specific settings you require in \gui{Tools} > \gui{Options}
+    use the filter located at the top left of the Options dialog box.
 
 
     \section1 Using Keyboard Shortcuts
@@ -3074,7 +3075,8 @@
     \inlineimage qtcreator-togglebutton.png
     or press \key Alt+0 (\key Cmd+0 on Mac OS X).
 
-    For more information on using the sidebar, see \l{The sidebar}.
+    For more information on using the sidebar, see \l {The Sidebar}.
+
 
 
     \section1 Moving To Symbols
@@ -3083,7 +3085,8 @@
     \gui Editor toolbar drop-down menu.
 
     For more information on the editor toolbar,
-    see \l{Using the editor toolbar}.
+    see \l {Using the Editor Toolbar}.
+
 
 
     \section1 Displaying Signals and Slots
