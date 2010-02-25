@@ -19,7 +19,7 @@ QWidget {
             textEdit.plainText = backendValue.expression
             textEdit.setFocus();
             opacity = 1;
-            height = 100
+            height = 60
 
         } else {
             opacity = 0;
