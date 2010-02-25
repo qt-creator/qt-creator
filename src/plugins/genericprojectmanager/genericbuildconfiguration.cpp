@@ -61,6 +61,7 @@ GenericBuildConfiguration::GenericBuildConfiguration(GenericTarget *parent, Gene
     BuildConfiguration(parent, source),
     m_buildDirectory(source->m_buildDirectory)
 {
+    cloneSteps(source);
 }
 
 GenericBuildConfiguration::~GenericBuildConfiguration()
