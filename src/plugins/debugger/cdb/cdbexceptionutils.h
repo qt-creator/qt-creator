@@ -50,6 +50,7 @@ namespace Internal {
 enum { winExceptionCppException = 0xe06d7363,
        winExceptionStartupCompleteTrap = 0x406d1388,
        winExceptionRpcServerUnavailable = 0x6ba,
+       winExceptionRpcServerInvalid = 0x6a6,
        winExceptionDllNotFound = 0xc0000135,
        winExceptionDllEntryPointNoFound = 0xc0000139,
        winExceptionDllInitFailed = 0xc0000142,

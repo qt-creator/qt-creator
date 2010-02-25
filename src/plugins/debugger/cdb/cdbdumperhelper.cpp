@@ -570,7 +570,7 @@ CdbDumperHelper::CallResult
 
 static inline QString msgDumpFailed(const WatchData &wd, const QString *why)
 {
-    return QString::fromLatin1("Unable to dump '%1' (%2): %3").arg(wd.name, wd.type, *why);
+    return QString::fromLatin1("Unable to dump '%1' (%2): %3").arg(QString::fromLatin1(wd.iname), wd.type, *why);
 }
 
 static inline QString msgNotHandled(const QString &type)
@@ -582,10 +582,12 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpType(const WatchData &wd, bool 
                                                       QList<WatchData> *result, QString *errorMessage)
 {
     if (dumpDebug || debugCDBExecution)
-        qDebug() << ">dumpType() thread: " << m_dumperCallThread << " state: " << m_state << wd.type << QTime::currentTime().toString();
+        qDebug() << ">dumpType() thread: " << m_dumperCallThread << " state: " << m_state
+                 << wd.iname << wd.type << QTime::currentTime().toString();
     const CdbDumperHelper::DumpResult rc = dumpTypeI(wd, dumpChildren, result, errorMessage);
     if (dumpDebug)
-        qDebug() << "<dumpType() state: " << m_state << wd.type << " returns " << rc << *errorMessage << QTime::currentTime().toString();
+        qDebug() << "<dumpType() state: " << m_state << wd.iname
+                << wd.type << " returns " << rc << *errorMessage << QTime::currentTime().toString();
     return rc;
 }
 
@@ -644,7 +646,7 @@ CdbDumperHelper::DumpResult CdbDumperHelper::dumpTypeI(const WatchData &wd, bool
     // Now evaluate
     const QString message = QCoreApplication::translate("Debugger::Internal::CdbDumperHelper",
                                                         "Querying dumpers for '%1'/'%2' (%3)").
-                                                        arg(wd.name, wd.exp, wd.type);
+                                                        arg(QString::fromLatin1(wd.iname), wd.exp, wd.type);
     m_manager->showDebuggerOutput(LogMisc, message);
 
     const DumpExecuteResult der = executeDump(wd, td, dumpChildren, result, errorMessage);

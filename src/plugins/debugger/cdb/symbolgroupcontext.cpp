@@ -37,7 +37,7 @@
 #include <QtCore/QDebug>
 
 enum { debug = 0 };
-enum { debugInternalDumpers = 0 };
+enum { debugInternalDumpers = 1 };
 
 // name separator for shadowed variables
 static const char iNameShadowDelimiter = '#';
@@ -578,6 +578,7 @@ unsigned SymbolGroupContext::dumpValue(unsigned long index,
             switch (drc) {
             case 0:
                 rc |= InternalDumperSucceeded;
+                rc &= ~HasChildren;
                 break;
             case 1:
                 rc |= InternalDumperError;
@@ -594,6 +595,7 @@ unsigned SymbolGroupContext::dumpValue(unsigned long index,
             switch (drc) {
             case 0:
                 rc |= InternalDumperSucceeded;
+                rc &= ~HasChildren;
                 break;
             case 1:
                 rc |= InternalDumperError;
@@ -610,9 +612,10 @@ unsigned SymbolGroupContext::dumpValue(unsigned long index,
         QString msg;
         QTextStream str(&msg);
         str.setIntegerBase(16);
-        str << "SymbolGroupContext::dump rc=0x" << rc << ' ' << *typeNameIn;
+        str << "SymbolGroupContext::dump rc=0x" << rc;
         str.setIntegerBase(10);
-        str << " (" << *typeIdIn << ") '" << *nameIn << "' '" << *valueIn << '\'';
+         str << " Type='" << *typeNameIn;
+        str << " (" << *typeIdIn << ") Name='" << *nameIn << "' Value='" << *valueIn << '\'';
         qDebug("%s", qPrintable(msg));
     }
     return rc;

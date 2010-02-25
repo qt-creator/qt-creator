@@ -165,6 +165,7 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
         break;
     case winExceptionDllNotFound:
         str << "DLL not found";
+        break;
     case winExceptionDllEntryPointNoFound:
         str << "DLL entry point not found";
         break;
@@ -173,6 +174,12 @@ void formatException(const EXCEPTION_RECORD64 *e, QTextStream &str)
         break;
     case winExceptionMissingSystemFile:
         str << "System file is missing";
+        break;
+    case winExceptionRpcServerUnavailable:
+        str << "RPC server unavailable";
+        break;
+    case winExceptionRpcServerInvalid:
+        str << "Invalid RPC server";
         break;
     case EXCEPTION_ACCESS_VIOLATION: {
             const bool writeOperation = e->ExceptionInformation[0];
@@ -270,6 +277,7 @@ bool isFatalException(LONG code)
     case EXCEPTION_SINGLE_STEP:
     case winExceptionStartupCompleteTrap: // Mysterious exception at start of application
     case winExceptionRpcServerUnavailable:
+    case winExceptionRpcServerInvalid:
     case winExceptionDllNotFound:
     case winExceptionDllEntryPointNoFound:
     case winExceptionCppException:

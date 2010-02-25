@@ -231,7 +231,7 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         const QString hexAddrS = wd.value.mid(0, classPos);
         if (m_hexNullPattern.exactMatch(hexAddrS))
             break;
-        const QString type = stripPointerType(wd.value.mid(classPos + 7));
+        const QString type = stripPointerType(wd.type);
         WatchData derefedWd;
         derefedWd.setType(type);
         derefedWd.setAddress(hexAddrS);
@@ -395,7 +395,8 @@ unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
 bool CdbSymbolGroupContext::populateModelInitially(WatchHandler *wh, QString *errorMessage)
 {
     if (debugCDBWatchHandling)
-        qDebug() << "populateModelInitially dumpers=" << m_useDumpers;
+        qDebug() << "populateModelInitially dumpers=" << m_useDumpers
+                << toString();
     // Recurse down items that are initially expanded in the view, stop processing for
     // dumper items.
     const CdbSymbolGroupRecursionContext rctx(this, OwnerSymbolGroupDumper);
