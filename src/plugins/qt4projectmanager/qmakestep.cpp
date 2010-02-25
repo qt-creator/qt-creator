@@ -362,7 +362,7 @@ void QMakeStepConfigWidget::updateSummaryLabel()
     Qt4BuildConfiguration *qt4bc = m_step->qt4BuildConfiguration();
     const QtVersion *qtVersion = qt4bc->qtVersion();
     if (!qtVersion) {
-        m_summaryText = tr("<b>qmake:</b> No Qt version set. Can not be run qmake.");
+        m_summaryText = tr("<b>qmake:</b> No Qt version set. Cannot run qmake.");
         emit updateSummary();
         return;
     }

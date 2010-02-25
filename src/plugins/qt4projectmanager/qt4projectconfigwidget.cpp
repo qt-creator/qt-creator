@@ -326,7 +326,7 @@ void Qt4ProjectConfigWidget::updateImportLabel()
     } else {
         m_ui->importWarningLabel->setVisible(visible);
         m_ui->importProblemLabel->setVisible(visible);
-        m_ui->importProblemLabel->setText(tr("An incompatible build exists in %1 and will be overwritten!",
+        m_ui->importProblemLabel->setText(tr("An incompatible build exists in %1, which will be overwritten.",
                                              "%1 build directory").
                                           arg(m_ui->shadowBuildDirEdit->path()));
         m_ui->importLabel->setVisible(false);

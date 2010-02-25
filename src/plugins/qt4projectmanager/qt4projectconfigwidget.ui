@@ -147,7 +147,7 @@
      <item>
       <widget class="QLabel" name="importProblemLabel">
        <property name="text">
-        <string>Qt Version to import does not support this target!</string>
+        <string>The Qt Version about to be imported does not support this target.</string>
        </property>
       </widget>
      </item>
