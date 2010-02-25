@@ -98,7 +98,7 @@ QVariantMap BuildConfiguration::toMap() const
 void BuildConfiguration::cloneSteps(BuildConfiguration *source)
 {
     Q_ASSERT(source);
-    foreach(BuildStep *originalbs, source->buildSteps()) {
+    foreach (BuildStep *originalbs, source->buildSteps()) {
         IBuildStepFactory *factory(findCloneFactory(this, originalbs));
         if (!factory)
             continue;
@@ -106,7 +106,7 @@ void BuildConfiguration::cloneSteps(BuildConfiguration *source)
         if (clonebs)
             m_buildSteps.append(clonebs);
     }
-    foreach(BuildStep *originalcs, source->cleanSteps()) {
+    foreach (BuildStep *originalcs, source->cleanSteps()) {
         IBuildStepFactory *factory = findCloneFactory(this, originalcs);
         if (!factory)
             continue;

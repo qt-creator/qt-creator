@@ -183,7 +183,7 @@ public:
     virtual void init(ProjectExplorer::BuildConfiguration *bc);
 
 private Q_SLOTS:
-    void configNameEdited(QString name);
+    void configNameEdited(const QString &name);
     void buildDirectoryChanged();
     void toolChainSelected(int index);
 

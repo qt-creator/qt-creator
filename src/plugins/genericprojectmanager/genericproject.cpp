@@ -461,7 +461,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericProject *project)
     fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
     // Configuration name
-    m_nameLineEdit = new QLineEdit();
+    m_nameLineEdit = new QLineEdit;
     fl->addRow(tr("Configuration Name:"), m_nameLineEdit);
 
     connect(m_nameLineEdit, SIGNAL(textEdited(QString)),
@@ -504,7 +504,7 @@ void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
     m_pathChooser->setPath(m_buildConfiguration->buildDirectory());
 }
 
-void GenericBuildSettingsWidget::configNameEdited(QString name)
+void GenericBuildSettingsWidget::configNameEdited(const QString &name)
 {
     m_buildConfiguration->setDisplayName(name);
 }
