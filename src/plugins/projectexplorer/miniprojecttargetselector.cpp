@@ -119,6 +119,7 @@ ProjectListWidget::ProjectListWidget(ProjectExplorer::Project *project, QWidget 
     setAlternatingRowColors(false);
     setFocusPolicy(Qt::WheelFocus);
     setItemDelegate(new TargetSelectorDelegate(this));
+    setAttribute(Qt::WA_MacShowFocusRect, false);
 
     connect(this, SIGNAL(currentRowChanged(int)), SLOT(setTarget(int)));
 }
