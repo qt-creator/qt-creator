@@ -121,7 +121,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
           m_model(0),
           m_filterProjectsAction(0),
           m_autoSync(false),
-          m_currentItemLocked(false)
+          m_currentItemLocked(0)
 {
     m_model = new FlatModel(m_explorer->session()->sessionNode(), this);
     NodesWatcher *watcher = new NodesWatcher(this);
@@ -251,9 +251,13 @@ void ProjectTreeWidget::setCurrentItem(Node *node, Project *project)
         qDebug() << "ProjectTreeWidget::setCurrentItem(" << (project ? project->displayName() : "0")
                  << ", " <<  (node ? node->path() : "0") << ")";
     if (m_currentItemLocked) {
-        m_currentItemLocked = false;
-        return;
+        if (m_currentItemLocked == node) {
+            m_currentItemLocked = 0;
+            return;
+        }
+        m_currentItemLocked = 0;
     }
+
     if (!project) {
         return;
     }
@@ -290,11 +294,14 @@ void ProjectTreeWidget::showContextMenu(const QPoint &pos)
 
 void ProjectTreeWidget::handleProjectAdded(ProjectExplorer::Project *project)
 {
+    // We disable auto-synchronization for the current node so that the project
+    // is selected until another file is opened
+    m_currentItemLocked = m_model->nodeForIndex(m_view->currentIndex());
+
     Node *node = project->rootProjectNode();
     QModelIndex idx = m_model->indexForNode(node);
     m_view->setExpanded(idx, true);
     m_view->setCurrentIndex(idx);
-    m_currentItemLocked = true;
 }
 
 void ProjectTreeWidget::startupProjectChanged(ProjectExplorer::Project *project)
