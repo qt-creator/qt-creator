@@ -421,6 +421,7 @@ bool GitClient::synchronousCheckoutBranch(const QString &workingDirectory,
     VCSBase::VCSBaseOutputWindow::instance()->append(output);
     if (!rc) {
         const QString stdErr = commandOutputFromLocal8Bit(errorText);
+        //: Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message
         const QString msg = tr("Unable to checkout %1 of %2: %3").arg(branch, workingDirectory, stdErr);
         if (errorMessage) {
             *errorMessage = msg;
@@ -583,6 +584,8 @@ bool GitClient::synchronousCheckoutFiles(const QString &workingDirectory,
     const bool rc = synchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         const QString fileArg = files.join(QLatin1String(", "));
+        //: Meaning of the arguments: %1: revision, %2: files, %3: repository,
+        //: %4: Error message
         const QString msg = tr("Unable to checkout %1 of %2 in %3: %4").
                             arg(revision, fileArg, workingDirectory, commandOutputFromLocal8Bit(errorText));
         if (errorMessage) {
@@ -599,6 +602,7 @@ static inline QString msgParentRevisionFailed(const QString &workingDirectory,
                                               const QString &revision,
                                               const QString &why)
 {
+    //: Failed to find parent revisions of a SHA1 for "annotate previous"
     return GitClient::tr("Unable to find parent revisions of %1 in %2: %3").arg(revision, workingDirectory, why);
 }
 
@@ -897,6 +901,7 @@ bool GitClient::stashNameFromMessage(const QString &workingDirectory,
             return true;
         }
     }
+    //: Look-up of a stash via its descriptive message failed.
     const QString msg = tr("Unable to resolve stash message '%1' in %2").arg(message, workingDirectory);
     if (errorMessage) {
         *errorMessage = msg;

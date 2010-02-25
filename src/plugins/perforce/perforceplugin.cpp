@@ -348,7 +348,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString * e
     mperforce->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logProjectAction = new Utils::ParameterAction(tr("Log Project Log"), tr("Log Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
@@ -1387,6 +1387,8 @@ void PerforcePlugin::setSettings(const Settings &newSettings)
 
 static inline QString msgWhereFailed(const QString & file, const QString &why)
 {
+    //: Failed to run p4 "where" to resolve a Perforce file name to a local
+    //: file system name.
     return PerforcePlugin::tr("Error running \"where\" on %1: %2").arg(file, why);
 }
 
@@ -1417,6 +1419,7 @@ QString PerforcePlugin::fileNameFromPerforceName(const QString& perforceName,
         output.chop(1);
 
     if (output.isEmpty()) {
+        //: File is not managed by Perforce
         *errorMessage = msgWhereFailed(perforceName, tr("The file is not mapped"));
         return QString();
     }

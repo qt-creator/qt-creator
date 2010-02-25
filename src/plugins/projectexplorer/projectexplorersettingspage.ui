@@ -14,7 +14,7 @@
    <item>
     <widget class="QGroupBox" name="directoryGroupBox">
      <property name="title">
-      <string>Projects Directory </string>
+      <string>Projects Directory</string>
      </property>
      <layout class="QFormLayout" name="formLayout">
       <property name="fieldGrowthPolicy">
