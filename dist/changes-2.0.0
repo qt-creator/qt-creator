@@ -113,3 +113,4 @@ Additional credits go to:
    * Roquette (fixed missing semicolon)
    * Sergey Demchenko (fixed auto indent for C style coments)
    * Falco Hirschenberger (added Join Lines action)
+   * Brian McGillion (Mercurial plugin)
