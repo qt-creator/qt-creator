@@ -139,9 +139,6 @@ public:
     virtual QStringList files(FilesMode fileMode) const;
     virtual QString generatedUiHeader(const QString &formFile) const;
 
-    // returns the CONFIG variable from the .pro file
-    QStringList qmakeConfig() const;
-
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 
