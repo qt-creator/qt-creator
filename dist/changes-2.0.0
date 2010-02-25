@@ -15,7 +15,8 @@ General
    * Options dialog: Added filters and ordering
    * .user-files get now saved before they are upgraded to a new version
      of Qt creator
-   * Added option to set interface language explicitly, overriding the locale setting
+   * Added option to set interface language explicitly, overriding the locale
+     setting
 
 Editing
    * Text based search and replace in multiple files
@@ -39,7 +40,8 @@ Project support
    * Expand environment variables in Generic Project file lists
    * Preserve the original paths of the Generic Project file list when
      adding/removing files
-   * Added context menu options to open file manager or terminal in a files directory 
+   * Added context menu options to open file manager or terminal in a files
+     directory
 
 Debugging
    * CDB: Fixed bug in location marker
@@ -114,3 +116,4 @@ Additional credits go to:
    * Sergey Demchenko (fixed auto indent for C style coments)
    * Falco Hirschenberger (added Join Lines action)
    * Brian McGillion (Mercurial plugin)
+   * Laurent Desmecht (build configuration fixes)
