@@ -58,6 +58,7 @@
             \endlist
        \o \l{Debugging}
        \o \l{Using Version Control Systems}
+       \o \l{Adding Plugins}
        \o \l{Tips and Tricks}
        \o \l{Keyboard Shortcuts}
        \o \l{Known Issues}
@@ -1350,7 +1351,7 @@
     \contentspage index.html
     \previouspage creator-debugging.html
     \page creator-version-control.html
-    \nextpage creator-tips.html
+    \nextpage adding-plugins.html
 
     \title Using Version Control Systems
 
@@ -2995,10 +2996,66 @@
 
 */
 
-
 /*!
     \contentspage index.html
     \previouspage creator-version-control.html
+    \page adding-plugins.html
+    \nextpage creator-tips.html
+
+    \title Adding Plugins
+
+     You can use Qt APIs to create plugins that extend Qt applications. For
+     example, you can use plugins to add your own widgets to Qt Designer.
+     The most flexible way to include a plugin with an application is to compile it
+     into a dynamic library that is shipped separately, and detected and loaded at runtime.
+
+     In theory, you could also create plugins to extend Qt Creator functionality,
+     but you do not usually need to do so.
+
+     The applications can detect plugins that are stored in the standard plugin
+     subdirectories. To see a list of plugins loaded to Qt Creator, choose
+     \gui{Help > About Plugins}.
+
+     For more information on how to create and locate plugins and to
+     change the default plugin path, see \l{How to Create Qt Plugins}.
+
+    \section1 Locating Qt Designer Plugins
+
+     Qt Designer fetches plugins from the standard locations and loads the plugins
+     that match its build key. Qt Designer is integrated into Qt Creator and, in addition,
+     comes as a standalone application. The correct folder to place the plugins depends on
+     which one you use.
+
+     The integrated Qt Designer fetches plugins from the \c {%SDK%\bin\designer} folder on Windows
+     and Linux and \c {QtCreator.app/Contents/MacOS/designer} folder on Mac. To check which plugins
+     were loaded successfully and which failed, choose \gui{Tools > Form Editor >
+     About Qt Designer Plugins}.
+
+     The standalone Qt Designer is part of the Qt library used for building projects,
+     located under \c {%SDK%\qt}. Therefore, it fetches plugins from the following folder:
+     \c {%SDK%\qt\plugins\designer}. To check which plugins were loaded successfully and which
+     failed, choose \gui{Help > About Plugins}.
+
+     \section1 Matching Build Keys
+
+     The Qt Creator that is included in pre-built SDK packages on Windows is built with the
+     Microsoft Visual Studio compiler, whereas the version of Qt shipped for building applications
+     is configured and built to use the MinGW/g++ compiler. Plugins built by using this version of
+     Qt cannot be loaded by Qt Creator because the build-keys do not match. The plugins can only be
+     used in the standalone version of Qt Designer. Choose \gui{Help > About Qt Creator} to check
+     the Qt version Qt Creator was built with.
+
+     To use Qt Designer plugins that were built for the shipped Qt version, make sure that
+     Qt Creator is built with the same compiler by either recompiling Qt Creator using MinGW or
+     recompiling Qt with Microsoft Visual Studio, depending on which configuration you want to
+     use for your applications.
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage adding-plugins.html
     \page creator-tips.html
     \nextpage creator-keyboard-shortcuts.html
 
