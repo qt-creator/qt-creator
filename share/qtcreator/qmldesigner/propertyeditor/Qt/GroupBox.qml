@@ -12,7 +12,6 @@ QExtGroupBox {
 
     onFinishedChanged: {
         checkBox.raise();
-        maximumHeight = height;
         oldMaximumHeight = maximumHeight;
         visible = false;
         visible = true;

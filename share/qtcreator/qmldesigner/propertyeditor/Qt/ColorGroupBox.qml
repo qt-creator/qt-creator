@@ -11,13 +11,13 @@ QExtGroupBox {
     property var oldMaximumHeight;
 
     onFinishedChanged: {
-        maximumHeight = height;
         oldMaximumHeight = maximumHeight;
         visible = false;
         visible = true;
         if (finished)
-            collapsed = true;
+        collapsed = true;
     }
+
 
     QWidget {
         id: colorButtonWidget
@@ -46,10 +46,10 @@ QExtGroupBox {
                     if (checked) {
                         colorGroupBox.collapsed = false;
                         colorButtonWidget.visible = true;
-                    } else {
+                        } else {
                         colorGroupBox.collapsed = true;
                         colorButtonWidget.visible = true;
-                    }
+                        }
                 }
 
             }
@@ -59,6 +59,8 @@ QExtGroupBox {
 
         }
     }
+
+
 
     layout: VerticalLayout {
         topMargin: 36
@@ -95,10 +97,10 @@ QExtGroupBox {
                                 }
 
                                 QSpinBox {
-                                    maximum: 359
+                                    maximum: 255
                                     value: colorControl.hue;
                                     onValueChanged: if (colorControl.hue != value)
-                                        colorControl.hue=value;
+                                    colorControl.hue=value;
                                 }
 
                             }
@@ -114,7 +116,7 @@ QExtGroupBox {
                                     maximum: 255
                                     value: colorControl.saturation;
                                     onValueChanged: if (colorControl.saturation !=value)
-                                            colorControl.saturation=value;
+                                    colorControl.saturation=value;
                                 }
                             }
 
@@ -129,7 +131,7 @@ QExtGroupBox {
                                     maximum: 255
                                     value: colorControl.value;
                                     onValueChanged: if (Math.floor(colorControl.value)!=value)
-                                        colorControl.value=value;
+                                    colorControl.value=value;
                                 }
                             }
                         }
