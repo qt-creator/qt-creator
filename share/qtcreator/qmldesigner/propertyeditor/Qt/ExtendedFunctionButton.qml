@@ -79,9 +79,6 @@ QToolButton {
             expressionEdit.raise();
             expressionEdit.active = true;
         }
-    },
-    QAction {
-        text: "Add Behaivour";
-    }
+    }   
     ]
 }
