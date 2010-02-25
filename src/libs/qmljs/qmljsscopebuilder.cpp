@@ -69,6 +69,8 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
     const ObjectValue *scopeObject = _doc->bind()->findQmlObject(node);
     if (scopeObject) {
         scopeChain.qmlScopeObjects += scopeObject;
+    } else {
+        return; // Probably syntax errors, where we're working with a "recovered" AST.
     }
 
 #ifndef NO_DECLARATIVE_BACKEND

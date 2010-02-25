@@ -49,6 +49,7 @@ void Link::scopeChainAt(Document::Ptr doc, const QList<Node *> &astPath)
         _context->setLookupMode(Context::QmlLookup);
 
         scopeChain.qmlComponentScope.clear();
+        componentScopes.insert(doc.data(), &scopeChain.qmlComponentScope);
         makeComponentChain(doc, &scopeChain.qmlComponentScope, &componentScopes);
 
         if (const ObjectValue *typeEnvironment = _context->typeEnvironment(doc.data()))
@@ -93,7 +94,7 @@ void Link::makeComponentChain(
             continue;
         if (otherDoc->bind()->usesQmlPrototype(bind->rootObjectValue(), _context)) {
             if (components->contains(otherDoc.data())) {
-                target->instantiatingComponents += components->value(otherDoc.data());
+//                target->instantiatingComponents += components->value(otherDoc.data());
             } else {
                 ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
                 components->insert(otherDoc.data(), component);
