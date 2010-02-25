@@ -34,7 +34,6 @@
 
 #include <coreplugin/actionmanager/command.h>
 
-#include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include <QtCore/QSet>
 
@@ -86,7 +85,6 @@ signals:
     void startStopQemu();
 
 private:
-    static QMutex m_mutex;
     static MaemoManager *m_instance;
 
     MaemoRunControlFactory *m_runControlFactory;

@@ -44,7 +44,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QList>
-#include <QtCore/QMutexLocker>
 #include <QtCore/QTextStream>
 
 #include <QtGui/QAction>
@@ -52,8 +51,6 @@
 namespace Qt4ProjectManager {
     namespace Internal {
 
-
-QMutex MaemoManager::m_mutex;
 MaemoManager *MaemoManager::m_instance = 0;
 
 const QSize iconSize = QSize(24, 20);
@@ -65,7 +62,11 @@ MaemoManager::MaemoManager()
     , m_settingsPage(new MaemoSettingsPage(this))
     , m_qemuCommand(0)
 {
+    Q_ASSERT(!m_instance);
+
     m_instance = this;
+    MaemoDeviceConfigurations::instance(this);
+
     icon.addFile(":/qt-maemo/images/qemu-run.png", iconSize);
     icon.addFile(":/qt-maemo/images/qemu-stop.png", iconSize, QIcon::Normal,
         QIcon::On);
@@ -73,7 +74,6 @@ MaemoManager::MaemoManager()
     ExtensionSystem::PluginManager::instance()->addObject(m_runControlFactory);
     ExtensionSystem::PluginManager::instance()->addObject(m_runConfigurationFactory);
     ExtensionSystem::PluginManager::instance()->addObject(m_settingsPage);
-    MaemoDeviceConfigurations::instance(this);
 }
 
 MaemoManager::~MaemoManager()
@@ -81,15 +81,13 @@ MaemoManager::~MaemoManager()
     ExtensionSystem::PluginManager::instance()->removeObject(m_runControlFactory);
     ExtensionSystem::PluginManager::instance()->removeObject(m_runConfigurationFactory);
     ExtensionSystem::PluginManager::instance()->removeObject(m_settingsPage);
+
+    m_instance = 0;
 }
 
 MaemoManager &MaemoManager::instance()
 {
-    if (!m_instance) {
-        QMutexLocker _(&m_mutex);
-        if (!m_instance)
-            new MaemoManager;
-    }
+    Q_ASSERT(m_instance);
     return *m_instance;
 }
 
