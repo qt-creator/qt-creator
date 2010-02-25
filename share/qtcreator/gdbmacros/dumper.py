@@ -1165,34 +1165,7 @@ class Dumper:
                         # Anonymous union. We need a dummy name to distinguish
                         # multiple anonymous unions in the struct.
                         anonNumber += 1
-                        iname = "%s.#%d" % (item.iname, anonNumber)
-
-                        #innerType = item.value.type.target()
-                        #self.putType(innerType)
-                        #self.childTypes.append(
-                        #    stripClassTag(str(innerType)))
-                        #self.putItemHelper(
-                        #    Item(item.value.dereference(), item.iname, None, None))
-                        #self.childTypes.pop()
-                        #isHandled = True
-
-                        self.beginHash()
-                        self.putField("iname", iname)
-                        self.putField("name", "#%d" % anonNumber)
-                        self.putField("value", " ")
-                        self.putField("type", "<anonymous union>")
-                        if self.isExpandedIName(iname):
-                            self.beginChildren()
-                            fields = listOfFields(field.type)
-                            for field in fields:
-                                value = item.value[field]
-                                child = Item(value, item.iname, field, field)
-                                self.beginHash()
-                                self.put('addr="%s",' % cleanAddress(value.address))
-                                self.safePutItemHelper(child)
-                                self.endHash();
-                            self.endChildren()
-                        self.endHash()
+                        self.listAnonymous(item, "#%d" % anonNumber, type)
                     else:
                         # Named field.
                         self.beginHash()
@@ -1202,3 +1175,35 @@ class Dumper:
                         self.endHash()
 
                 self.endChildren()
+
+    def listAnonymous(self, item, name, type):
+        anonNumber = 0
+        for field in type.fields():
+            if len(field.name) > 0:
+                value = item.value[field.name]
+                child = Item(value, item.iname, field.name, field.name)
+                self.beginHash()
+                self.put('addr="%s",' % cleanAddress(value.address))
+                self.putItemHelper(child)
+                self.endHash();
+            else:
+                # Further nested.
+                anonNumber += 1
+                name = "#%d" % anonNumber
+                iname = "%s.%s" % (item.iname, name)
+                child = Item(item.value, iname, None, name)
+                self.beginHash()
+                self.putField("name", name)
+                self.putField("value", " ")
+                if str(field.type).endswith("<anonymous union>"):
+                    self.putField("type", "<anonymous union>")
+                elif str(field.type).endswith("<anonymous struct>"):
+                    self.putField("type", "<anonymous struct>")
+                else:
+                    self.putField("type", field.type)
+                self.beginChildren(1)
+                self.listAnonymous(child, name, field.type)
+                self.endChildren()
+                self.endHash()
+
+
