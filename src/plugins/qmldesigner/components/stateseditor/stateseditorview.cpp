@@ -56,6 +56,11 @@ StatesEditorView::StatesEditorView(StatesEditorModel *editorModel, QObject *pare
 
 void StatesEditorView::setCurrentStateSilent(int index)
 {
+    if (debug)
+        qDebug() << __FUNCTION__ << index;
+
+    Q_ASSERT(index >= 0 && index <= m_modelStates.count());
+
     // TODO
     QmlModelState state(m_modelStates.at(index));
     if (!state.isValid())
@@ -67,13 +72,16 @@ void StatesEditorView::setCurrentStateSilent(int index)
 
 void StatesEditorView::setCurrentState(int index)
 {
-    // TODO
+    if (debug)
+        qDebug() << __FUNCTION__ << index;
+
+    if (!(index >= 0 && index <= m_modelStates.count()))
+        Q_ASSERT(index >= 0 && index <= m_modelStates.count());
+
     if (m_modelStates.indexOf(currentState()) == index)
         return;
 
-    if (index >= m_modelStates.count())
-        return;
-
+    // TODO
     QmlModelState state(m_modelStates.at(index));
     Q_ASSERT(state.isValid());
     QmlModelView::setCurrentState(state);
@@ -81,11 +89,17 @@ void StatesEditorView::setCurrentState(int index)
 
 void StatesEditorView::createState(const QString &name)
 {
+    if (debug)
+        qDebug() << __FUNCTION__ << name;
+
     stateRootNode().states().addState(name);
 }
 
 void StatesEditorView::removeState(int index)
 {
+    if (debug)
+        qDebug() << __FUNCTION__ << index;
+
     Q_ASSERT(index > 0 && index < m_modelStates.size());
     QmlModelState state = m_modelStates.at(index);
     Q_ASSERT(state.isValid());
@@ -100,8 +114,11 @@ void StatesEditorView::removeState(int index)
     setCurrentState(newIndex);
 }
 
-void StatesEditorView::renameState(int index,const QString &newName)
+void StatesEditorView::renameState(int index, const QString &newName)
 {
+    if (debug)
+        qDebug() << __FUNCTION__ << index << newName;
+
     Q_ASSERT(index > 0 && index < m_modelStates.size());
     QmlModelState state = m_modelStates.at(index);
     Q_ASSERT(state.isValid());
@@ -110,13 +127,17 @@ void StatesEditorView::renameState(int index,const QString &newName)
         QmlModelState oldState = currentState();
         setCurrentStateSilent(0);
         state.setName(newName);
-        setBackCurrentState(0, oldState);
+        setCurrentState(m_modelStates.indexOf(oldState));
     }
 }
 
 void StatesEditorView::duplicateCurrentState(int index)
 {
+    if (debug)
+        qDebug() << __FUNCTION__ << index;
+
     Q_ASSERT(index > 0 && index < m_modelStates.size());
+
     QmlModelState state = m_modelStates.at(index);
     Q_ASSERT(state.isValid());
     QString newName = state.name();
@@ -136,6 +157,9 @@ void StatesEditorView::duplicateCurrentState(int index)
 
 void StatesEditorView::modelAttached(Model *model)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     if (model == QmlModelView::model())
         return;
 
@@ -171,8 +195,11 @@ void StatesEditorView::modelAboutToBeDetached(Model *model)
     QmlModelView::modelAboutToBeDetached(model);
 }
 
-void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
+void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     foreach (const AbstractProperty &property, propertyList) {
         // remove all states except base state
         if ((property.name()=="states") && (property.parentModelNode().isRootNode())) {
@@ -193,13 +220,19 @@ void StatesEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
     QmlModelView::propertiesAboutToBeRemoved(propertyList);
 }
 
-void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
+void StatesEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::propertiesRemoved(propertyList);
 }
 
-void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange)
+void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::variantPropertiesChanged(propertyList, propertyChange);
     foreach (const VariantProperty &property, propertyList) {
         ModelNode node (property.parentModelNode());
@@ -222,6 +255,9 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty>& pr
 
 void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     if (removedNode.parentProperty().parentModelNode() == m_stateRootNode
           && QmlModelState(removedNode).isValid()) {
         removeModelState(removedNode);
@@ -232,6 +268,9 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::nodeReparented(node, newPropertyParent, oldPropertyParent, propertyChange);
 
     // this would be sliding
@@ -263,6 +302,9 @@ void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractP
 
 void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, const ModelNode &movedNode, int oldIndex)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::nodeOrderChanged(listProperty, movedNode, oldIndex);
     if (listProperty.parentModelNode() == m_stateRootNode
         && listProperty.name() == "states") {
@@ -282,6 +324,9 @@ void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty, co
 
 void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const QmlModelState &oldQmlModelState)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
 
     if (newQmlModelState.isBaseState())
@@ -292,22 +337,34 @@ void StatesEditorView::stateChanged(const QmlModelState &newQmlModelState, const
 
 void StatesEditorView::transformChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::transformChanged(qmlObjectNode, propertyName);
 }
 
 void StatesEditorView::parentChanged(const QmlObjectNode &qmlObjectNode)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::parentChanged(qmlObjectNode);
 }
 
 void StatesEditorView::otherPropertyChanged(const QmlObjectNode &qmlObjectNode, const QString &propertyName)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::otherPropertyChanged(qmlObjectNode, propertyName);
 }
 
 
 void StatesEditorView::customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     QmlModelView::customNotification(view, identifier, nodeList, data);
     if (identifier == StartRewriterAmend) {
         m_oldRewriterAmendState = currentState();
@@ -320,6 +377,9 @@ void StatesEditorView::customNotification(const AbstractView *view, const QStrin
 
 QPixmap StatesEditorView::renderState(int i)
 {
+    if (debug)
+        qDebug() << __FUNCTION__ << i;
+
     Q_ASSERT(i >= 0 && i < m_modelStates.size());
     nodeInstanceView()->setBlockChangeSignal(true);
     QmlModelState oldState = currentState();
@@ -359,6 +419,9 @@ QPixmap StatesEditorView::renderState(int i)
 
 void StatesEditorView::sceneChanged()
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     // If we are in base state we have to update the pixmaps of all states
     // otherwise only the pixmpap for the current state
 
@@ -392,6 +455,9 @@ void StatesEditorView::startUpdateTimer(int i, int offset) {
 // index without base state
 void StatesEditorView::insertModelState(int i, const QmlModelState &state)
 {
+    if (debug)
+        qDebug() << __FUNCTION__ << i << state.name();
+
     Q_ASSERT(state.isValid());
     Q_ASSERT(!state.isBaseState());
     // For m_modelStates / m_editorModel, i=0 is base state
@@ -401,6 +467,9 @@ void StatesEditorView::insertModelState(int i, const QmlModelState &state)
 
 void StatesEditorView::removeModelState(const QmlModelState &state)
 {
+    if (debug)
+        qDebug() << __FUNCTION__ << state.name();
+
     Q_ASSERT(state.isValid());
     Q_ASSERT(!state.isBaseState());
     int index = m_modelStates.indexOf(state);
@@ -417,6 +486,9 @@ void StatesEditorView::removeModelState(const QmlModelState &state)
 
 void StatesEditorView::clearModelStates()
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     // For m_modelStates / m_editorModel, i=0 is base state
     while (m_modelStates.size()) {
         m_modelStates.removeFirst();
@@ -432,6 +504,9 @@ int StatesEditorView::modelStateIndex(const QmlModelState &state)
 
 void StatesEditorView::timerEvent(QTimerEvent *event)
 {
+    if (debug)
+        qDebug() << __FUNCTION__;
+
     int index = m_updateTimerIdList.indexOf(event->timerId());
     if (index > -1) {
         event->accept();
