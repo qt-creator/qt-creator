@@ -1749,7 +1749,7 @@ bool TrkGdbAdapter::initializeDevice(const QString &remoteChannel, QString *erro
     case trk::PromptStartCommunicationConnected:
         break;
     case trk::PromptStartCommunicationCanceled:
-        *errorMessage = tr("Canceled");
+        errorMessage->clear();
         return false;
     case trk::PromptStartCommunicationError:
         return false;

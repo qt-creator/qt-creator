@@ -4075,13 +4075,15 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
 {
     setState(AdapterStartFailed);
     debugMessage(_("ADAPTER START FAILED"));
-    const QString title = tr("Adapter start failed");
-    if (settingsIdHint.isEmpty()) {
-        Core::ICore::instance()->showWarningWithOptions(title, msg);
-    } else {
-        Core::ICore::instance()->showWarningWithOptions(title, msg, QString(),
-                    _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
-                    settingsIdHint);
+    if (!msg.isEmpty()) {
+        const QString title = tr("Adapter start failed");
+        if (settingsIdHint.isEmpty()) {
+            Core::ICore::instance()->showWarningWithOptions(title, msg);
+        } else {
+            Core::ICore::instance()->showWarningWithOptions(title, msg, QString(),
+                                                            _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
+                                                            settingsIdHint);
+        }
     }
     shutdown();
 }
