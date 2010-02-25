@@ -34,6 +34,7 @@
 #include <QmlPropertyMap>
 #include <qml.h>
 #include <modelnode.h>
+#include <qmlitemnode.h>
 #include <rewritertransaction.h>
 
 class PropertyEditorValue;
@@ -75,7 +76,6 @@ private:
     QmlPropertyMap m_valuesPropertyMap;
     PropertyEditorValue* m_editorValue;
 };
-
 
 class PropertyEditorValue : public QObject
 {
@@ -149,5 +149,6 @@ private: //variables
 QML_DECLARE_TYPE(PropertyEditorValue);
 QML_DECLARE_TYPE(PropertyEditorNodeWrapper);
 QML_DECLARE_TYPE(QmlPropertyMap);
+
 
 #endif // PROPERTYEDITORVALUE_H
