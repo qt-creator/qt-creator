@@ -387,6 +387,17 @@ void S60DeviceRunConfiguration::setCommandLineArguments(const QStringList &args)
     m_commandLineArguments = args;
 }
 
+// Fix up target specification for "make sis":
+// "udeb"-> "debug", "urel" -> "release"
+static inline QString fixBaseNameTarget(const QString &in)
+{
+    if (in == QLatin1String("udeb"))
+        return QLatin1String("debug");
+    if (in == QLatin1String("urel"))
+        return QLatin1String("release");
+    return in;
+}
+
 void S60DeviceRunConfiguration::updateTarget()
 {
     if (m_cachedTargetInformationValid)
@@ -431,8 +442,8 @@ void S60DeviceRunConfiguration::updateTarget()
         m_target = QLatin1String("udeb");
     else
         m_target = QLatin1String("urel");
-    m_baseFileName += QLatin1Char('_') + m_platform + QLatin1Char('_') + m_target;
-
+    m_baseFileName += QLatin1Char('_') + fixBaseNameTarget(m_target)
+                      + QLatin1Char('-') + m_platform;
     m_cachedTargetInformationValid = true;
     emit targetInformationChanged();
 }
@@ -621,6 +632,16 @@ static inline QString msgRun(const QString &cmd, const QStringList &args)
     return QDir::toNativeSeparators(cmd) + blank + args.join(QString(blank));
 }
 
+static inline bool ensureDeleteFile(const QString &fileName, QString *errorMessage)
+{
+    QFile file(fileName);
+    if (file.exists() && !file.remove()) {
+        *errorMessage = S60DeviceRunControlBase::tr("Unable to remove existing file '%1': %2").arg(fileName, file.errorString());
+        return false;
+    }
+    return true;
+}
+
 void S60DeviceRunControlBase::start()
 {
     m_deployProgress = new QFutureInterface<void>;
@@ -651,6 +672,11 @@ void S60DeviceRunControlBase::start()
                                                         settingsCategory, settingsPage);
         return;
     }
+    // Be sure to delete old files
+    if (!ensureDeleteFile(m_signedPackage, &errorMessage)) {
+        error(this, errorMessage);
+        emit finished();
+    }
 
     QStringList makeSisArgs;
     makeSisArgs << QLatin1String("sis")
@@ -660,6 +686,7 @@ void S60DeviceRunControlBase::start()
     emit addToOutputWindow(this, msgRun(m_makeTool, makeSisArgs));
     if (debug)
         qDebug() << m_makeTool <<  makeSisArgs << m_workingDirectory;
+
     m_makesisProcess->start(m_makeTool, makeSisArgs, QIODevice::ReadOnly);
     m_makesisProcess->closeWriteChannel();
 }
@@ -712,11 +739,8 @@ static inline bool renameFile(const QString &sourceName, const QString &targetNa
 {
     if (sourceName == targetName)
         return true;
-    QFile target(targetName);
-    if (target.exists() && !target.remove()) {
-        *errorMessage = S60DeviceRunControlBase::tr("Unable to remove existing file '%1': %2").arg(targetName, target.errorString());
+    if (!ensureDeleteFile(targetName, errorMessage))
         return false;
-    }
     QFile source(sourceName);
     if (!source.rename(targetName)) {
         *errorMessage = S60DeviceRunControlBase::tr("Unable to rename file '%1' to '%2': %3")

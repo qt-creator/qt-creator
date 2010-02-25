@@ -442,14 +442,18 @@ SymbianDeviceManager::SymbianDeviceList SymbianDeviceManager::blueToothDevices()
         }
     }
     // New kernel versions support /dev/ttyUSB0, /dev/ttyUSB1. Trk responds
-    // on the latter (usually).
-    const QString ttyUSBDevice = QLatin1String("/dev/ttyUSB1");
-    if (QFileInfo(ttyUSBDevice).exists()) {
-        SymbianDeviceData *device = new SymbianDeviceData;
-        device->type = SerialPortCommunication;
-        device->portName = ttyUSBDevice;
-        device->friendlyName = QString::fromLatin1("USB/Serial device (%1)").arg(device->portName);
-        rc.push_back(SymbianDevice(device));
+    // on the latter (usually), try first.
+    static const char *usbTtyDevices[] = { "/dev/ttyUSB1", "/dev/ttyUSB0" };
+    const int usbTtyCount = sizeof(usbTtyDevices)/sizeof(const char *);
+    for (int d = 0; d < usbTtyCount; d++) {
+        const QString ttyUSBDevice = QLatin1String(usbTtyDevices[d]);
+        if (QFileInfo(ttyUSBDevice).exists()) {
+            SymbianDeviceData *device = new SymbianDeviceData;
+            device->type = SerialPortCommunication;
+            device->portName = ttyUSBDevice;
+            device->friendlyName = QString::fromLatin1("USB/Serial device (%1)").arg(device->portName);
+            rc.push_back(SymbianDevice(device));
+        }
     }
 #endif
     return rc;
