@@ -259,7 +259,6 @@ void PropertyEditor::setupPane(const QString &typeName)
         QmlContext *ctxt = type->m_view->rootContext();
         ctxt->setContextProperty("finishedNotify", QVariant(false) );
         type->initialSetup(typeName, qmlSpecificsFile, this); 
-        ctxt->setContextProperty("finishedNotify", QVariant(true) );
     }
     QApplication::processEvents();
 }
