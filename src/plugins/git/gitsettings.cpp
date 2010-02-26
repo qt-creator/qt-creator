@@ -45,7 +45,14 @@ static const char *promptToSubmitKeyC = "PromptForSubmit";
 static const char *omitAnnotationDateKeyC = "OmitAnnotationDate";
 static const char *spaceIgnorantBlameKeyC = "SpaceIgnorantBlame";
 
-enum { defaultLogCount =  100 , defaultTimeOut = 30};
+enum {
+    defaultLogCount =  100 ,
+#ifdef Q_OS_WIN
+    defaultTimeOut = 60
+#else	
+    defaultTimeOut = 30
+#endif	
+};
 
 namespace Git {
 namespace Internal {
@@ -53,7 +60,7 @@ namespace Internal {
 GitSettings::GitSettings() :
     adoptPath(false),
     logCount(defaultLogCount),
-    timeout(defaultTimeOut),
+    timeoutSeconds(defaultTimeOut),
     promptToSubmit(true),
     omitAnnotationDate(false),
     spaceIgnorantBlame(true)
@@ -66,7 +73,7 @@ void GitSettings::fromSettings(QSettings *settings)
     adoptPath = settings->value(QLatin1String(sysEnvKeyC), false).toBool();
     path = settings->value(QLatin1String(pathKeyC), QString()).toString();
     logCount = settings->value(QLatin1String(logCountKeyC), defaultLogCount).toInt();
-    timeout = settings->value(QLatin1String(timeoutKeyC), defaultTimeOut).toInt();
+    timeoutSeconds = settings->value(QLatin1String(timeoutKeyC), defaultTimeOut).toInt();
     promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     omitAnnotationDate = settings->value(QLatin1String(omitAnnotationDateKeyC), false).toBool();
     spaceIgnorantBlame = settings->value(QLatin1String(spaceIgnorantBlameKeyC), true).toBool();
@@ -79,7 +86,7 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(sysEnvKeyC), adoptPath);
     settings->setValue(QLatin1String(pathKeyC), path);
     settings->setValue(QLatin1String(logCountKeyC), logCount);
-    settings->setValue(QLatin1String(timeoutKeyC), timeout);
+    settings->setValue(QLatin1String(timeoutKeyC), timeoutSeconds);
     settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->setValue(QLatin1String(omitAnnotationDateKeyC), omitAnnotationDate);
     settings->setValue(QLatin1String(spaceIgnorantBlameKeyC), spaceIgnorantBlame);
@@ -89,7 +96,7 @@ void GitSettings::toSettings(QSettings *settings) const
 bool GitSettings::equals(const GitSettings &s) const
 {
     return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount
-           && timeout == s.timeout && promptToSubmit == s.promptToSubmit
+           && timeoutSeconds == s.timeoutSeconds && promptToSubmit == s.promptToSubmit
            && omitAnnotationDate == s.omitAnnotationDate && spaceIgnorantBlame == s.spaceIgnorantBlame;
 }
 

@@ -112,6 +112,22 @@ void GitCommand::execute()
                                      QLatin1String("Git.action"));
 }
 
+QString GitCommand::msgTimeout(int seconds)
+{
+    return tr("Error: Git timed out after %1s.").arg(seconds);
+}
+
+bool GitCommand::stopProcess(QProcess &p)
+{
+    if (p.state() != QProcess::Running)
+        return true;
+    p.terminate();
+    if (p.waitForFinished(300))
+        return true;
+    p.kill();
+    return p.waitForFinished(300);
+}
+
 void GitCommand::run()
 {
     if (Git::Constants::debug)
@@ -139,10 +155,11 @@ void GitCommand::run()
         }
 
         process.closeWriteChannel();
-        if (!process.waitForFinished(m_jobs.at(j).timeout * 1000)) {
-            process.terminate();
+        const int timeOutSeconds = m_jobs.at(j).timeout;
+        if (!process.waitForFinished(timeOutSeconds * 1000)) {
+            stopProcess(process);
             ok = false;
-            error += QLatin1String("Error: Git timed out");
+            error += msgTimeout(timeOutSeconds);
             break;
         }
 

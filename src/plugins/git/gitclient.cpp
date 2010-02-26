@@ -236,20 +236,20 @@ void GitClient::diff(const QString &workingDirectory,
        QStringList arguments(commonDiffArgs);
        arguments << diffArgs;
        VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
-       command->addJob(arguments, m_settings.timeout);
+       command->addJob(arguments, m_settings.timeoutSeconds);
     } else {
         // Files diff.
         if (!unstagedFileNames.empty()) {
            QStringList arguments(commonDiffArgs);
            arguments << QLatin1String("--") << unstagedFileNames;
            VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
-           command->addJob(arguments, m_settings.timeout);
+           command->addJob(arguments, m_settings.timeoutSeconds);
         }
         if (!stagedFileNames.empty()) {
            QStringList arguments(commonDiffArgs);
            arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
            VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
-           command->addJob(arguments, m_settings.timeout);
+           command->addJob(arguments, m_settings.timeoutSeconds);
         }
     }
     command->execute();
@@ -985,7 +985,7 @@ GitCommand *GitClient::executeGit(const QString &workingDirectory,
 {
     VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
     GitCommand *command = createCommand(workingDirectory, editor, outputToWindow, editorLineNumber);
-    command->addJob(arguments, m_settings.timeout);
+    command->addJob(arguments, m_settings.timeoutSeconds);
     command->setTerminationReportMode(tm);
     command->execute();
     return command;
@@ -1042,10 +1042,10 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
         return false;
     }
 
-    if (!process.waitForFinished()) {
+    if (!process.waitForFinished(m_settings.timeoutSeconds * 1000)) {
         if (errorText)
-            *errorText = "Error: Git timed out.";
-        process.kill();
+            *errorText = GitCommand::msgTimeout(m_settings.timeoutSeconds).toLocal8Bit();
+        GitCommand::stopProcess(process);
         return false;
     }
 

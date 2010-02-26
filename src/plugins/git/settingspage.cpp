@@ -55,7 +55,7 @@ GitSettings SettingsPageWidget::settings() const
     rc.path = m_ui.pathLineEdit->text();
     rc.adoptPath = m_ui.environmentGroupBox->isChecked() && !rc.path.isEmpty();
     rc.logCount = m_ui.logCountSpinBox->value();
-    rc.timeout = m_ui.timeoutSpinBox->value();
+    rc.timeoutSeconds = m_ui.timeoutSpinBox->value();
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     rc.omitAnnotationDate = m_ui.omitAnnotationDataCheckBox->isChecked();
     rc.spaceIgnorantBlame = m_ui.spaceIgnorantBlameCheckBox->isChecked();
@@ -67,7 +67,7 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.environmentGroupBox->setChecked(s.adoptPath);
     m_ui.pathLineEdit->setText(s.path);
     m_ui.logCountSpinBox->setValue(s.logCount);
-    m_ui.timeoutSpinBox->setValue(s.timeout);
+    m_ui.timeoutSpinBox->setValue(s.timeoutSeconds);
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
     m_ui.omitAnnotationDataCheckBox->setChecked(s.omitAnnotationDate);
     m_ui.spaceIgnorantBlameCheckBox->setChecked(s.spaceIgnorantBlame);
