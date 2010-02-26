@@ -109,7 +109,7 @@ QWidget *DesignMode::widget()
 
 QString DesignMode::displayName() const
 {
-    return tr(Constants::MODE_DESIGN);
+    return tr("Design");
 }
 
 QIcon DesignMode::icon() const
