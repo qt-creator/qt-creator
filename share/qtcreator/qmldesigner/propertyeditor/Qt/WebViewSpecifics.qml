@@ -71,7 +71,7 @@ GroupBox {
                     minimum: 1;
                     maximum: 100;
                     singleStep: 1;
-                    onValueChanged: {                        
+                    onValueChanged: {
                         backendValues.zoomFactor.value = value / 10;
                     }
                 }

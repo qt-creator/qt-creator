@@ -19,7 +19,7 @@ QScrollArea {
             rightMargin: 0;
             Layout {
                 id: layoutBox;
-            }            
+            }
             QScrollArea {
             }
         }

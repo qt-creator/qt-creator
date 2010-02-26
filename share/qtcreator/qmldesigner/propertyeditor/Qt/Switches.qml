@@ -29,12 +29,12 @@ QFrame {
                 extendedPane.visible = false;
                 layoutPane.visible = false;
             }
-        }        
+        }
         QPushButton {
             id: extendedMode;
             toolTip: "extended properties";
             checkable: true;
-            checked: false;            
+            checked: false;
             text: "Advanced"
             onClicked: {
                 standardMode.checked = false;
@@ -49,7 +49,7 @@ QFrame {
             id: layoutMode;
             checkable: true;
             checked: false;
-            toolTip: "layout properties";            
+            toolTip: "layout properties";
             text: "Anchor";
             onClicked: {
                 extendedMode.checked = false;

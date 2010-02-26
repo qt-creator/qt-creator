@@ -63,7 +63,7 @@ QWidget {
         }
 
 
-    }    
+    }
     ExtendedFunctionButton {
         backendValue: lineEdit.backendValue
         y: 4

@@ -8,7 +8,7 @@ GroupBox {
     minimumHeight: 180;
     id: mofifiers;
 
-    layout: VerticalLayout {        
+    layout: VerticalLayout {
 
         QWidget {
             layout: HorizontalLayout {
@@ -43,25 +43,25 @@ GroupBox {
                     text: ""
                     id: opacitySpinBox;
                     backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
-					property var backendValueValue: backendValues.opacity.value;
+                    property var backendValueValue: backendValues.opacity.value;
                     minimumWidth: 60;
                     minimum: 0;
                     maximum: 1;
                     singleStep: 0.1
                     baseStateFlag: isBaseState;
-					onBackendValueValueChanged: {
+                    onBackendValueValueChanged: {
                         opacitySlider.value = backendValue.value * 100;
                     }
                 }
                 SliderWidget {
-					id: opacitySlider
+                    id: opacitySlider
                     minimum: 0
                     maximum: 100
                     singleStep: 5;
-					backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
+                    backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
                     onValueChanged: {
                         if (backendValues.opacity !== undefined)
-                            backendValues.opacity.value = value / 100;
+                        backendValues.opacity.value = value / 100;
                     }
                 }
             }
@@ -78,14 +78,14 @@ GroupBox {
                     backendValue: backendValues.transformOrigin
 
                     items : { [
-                        "TopLeft", "Top", "TopRight", "Left", "Center", "Right", "BottomLeft", "Bottom",
-                        "BottomRight"
-                        ] }
+                            "TopLeft", "Top", "TopRight", "Left", "Center", "Right", "BottomLeft", "Bottom",
+                            "BottomRight"
+                            ] }
 
-                    currentText: backendValues.transformOrigin.value;
-                    onItemsChanged: {
-                        currentText =  backendValues.transformOrigin.value;
-                    }
+                            currentText: backendValues.transformOrigin.value;
+                            onItemsChanged: {
+                                currentText =  backendValues.transformOrigin.value;
+                            }
                 }
             }
         }
@@ -101,7 +101,7 @@ GroupBox {
                     id: scaleSpinBox;
 
                     backendValue: backendValues.scale;
-					property var backendValueValue: backendValues.scale.value;
+                    property var backendValueValue: backendValues.scale.value;
                     minimumWidth: 60;
                     minimum: 0.01
                     maximum: 10
@@ -113,11 +113,11 @@ GroupBox {
                 }
                 SliderWidget {
                     id: scaleSlider;
-					backendValue: backendValues.scale;
+                    backendValue: backendValues.scale;
                     minimum: 1;
                     maximum: 100;
                     singleStep: 1;
-                    onValueChanged: {						
+                    onValueChanged: {
                         backendValues.scale.value = value / 10;
                     }
                 }

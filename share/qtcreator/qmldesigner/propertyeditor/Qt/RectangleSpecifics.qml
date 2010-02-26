@@ -46,6 +46,6 @@ QWidget {
         }
 
         QScrollArea {
-        }		
+        }
     }
 }

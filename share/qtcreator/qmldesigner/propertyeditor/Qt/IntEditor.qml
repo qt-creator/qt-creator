@@ -25,14 +25,14 @@ QWidget {
             backendValue: (intEditor.backendValue === undefined ||
             intEditor.backendValue === null)
             ? null : intEditor.backendValue;
-			
-			property var backendValueValue: (intEditor.backendValue === undefined ||
-                           intEditor.backendValue === null)
+
+            property var backendValueValue: (intEditor.backendValue === undefined ||
+            intEditor.backendValue === null)
             ? null : intEditor.backendValue.value;
-			
-			onBackendValueValueChanged: {
-			   intSlider.value = intEditor.backendValue.value;
-			}
+
+            onBackendValueValueChanged: {
+                intSlider.value = intEditor.backendValue.value;
+            }
 
             minimum: minimumValue
             maximum: maximumValue
@@ -44,7 +44,7 @@ QWidget {
             visible: intEditor.slider
             id: sliderWidget
             QSlider {
-				id: intSlider
+                id: intSlider
                 y: sliderWidget.height / 2 - 12
                 width: sliderWidget.width
                 height: 24

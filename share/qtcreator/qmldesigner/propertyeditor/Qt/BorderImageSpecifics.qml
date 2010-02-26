@@ -8,7 +8,7 @@ GroupBox {
     caption: "Image";
 
     layout: VerticalLayout {
-        
+
         FileWidget {
             enabled: isBaseState || backendValues.id.value != "";
             maximumWidth: 250;
@@ -17,7 +17,7 @@ GroupBox {
             onFileNameChanged: {
                 backendValues.source.value = fileName;
             }
-        }        
+        }
 
 
         IntEditor {

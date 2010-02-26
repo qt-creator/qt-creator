@@ -9,7 +9,7 @@ GroupBox {
     layout: VerticalLayout {
 
         ColorLabel {
-            text: "    Color"			
+            text: "    Color"
         }
 
         ColorGroupBox {
@@ -20,7 +20,7 @@ GroupBox {
         }
 
         ColorLabel {
-            text: "    Border Color"			
+            text: "    Border Color"
         }
 
         ColorGroupBox {

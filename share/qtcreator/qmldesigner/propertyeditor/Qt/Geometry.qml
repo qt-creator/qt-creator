@@ -19,8 +19,8 @@ GroupBox {
                 DoubleSpinBox {
                     id: xSpinBox;
                     text: "X"
-					alignRight: false
-					spacing: 4
+                    alignRight: false
+                    spacing: 4
                     singleStep: 1;
                     objectName: "xSpinBox";
                     enabled: anchorBackend.hasParent;
@@ -34,8 +34,8 @@ GroupBox {
                     id: ySpinBox;
                     singleStep: 1;
                     text: "Y"
-					alignRight: false
-					spacing: 4
+                    alignRight: false
+                    spacing: 4
                     objectName: "ySpinBox";
                     backendValue: backendValues.y
                     enabled: anchorBackend.hasParent;
@@ -49,7 +49,7 @@ GroupBox {
         } //QWidget  //1
 
         QWidget {
-            layout: HorizontalLayout {				
+            layout: HorizontalLayout {
 
                 Label {
                     text: "Size"
@@ -58,8 +58,8 @@ GroupBox {
                 DoubleSpinBox {
                     id: widthSpinBox;
                     text: "W"
-					alignRight: false
-					spacing: 4
+                    alignRight: false
+                    spacing: 4
                     singleStep: 1;
                     objectName: "widthSpinBox";
                     backendValue: backendValues.width
@@ -71,8 +71,8 @@ GroupBox {
                 DoubleSpinBox {
                     id: heightSpinBox;
                     text: "H"
-					alignRight: false
-					spacing: 4
+                    alignRight: false
+                    spacing: 4
                     singleStep: 1;
                     objectName: "heightSpinBox";
                     backendValue: backendValues.height
@@ -80,9 +80,7 @@ GroupBox {
                     maximum: 2000;
                     baseStateFlag: isBaseState;
                 }
-
             } //QVBoxLayout
         } //QWidget
-
     } //QHBoxLayout
 } //QGroupBox

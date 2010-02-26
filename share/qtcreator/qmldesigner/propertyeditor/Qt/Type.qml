@@ -9,11 +9,11 @@ GroupBox {
     layout: VerticalLayout {
         spacing: 6
         QWidget {
-            layout: HorizontalLayout {			
+            layout: HorizontalLayout {
                 Label {
                     text: "type";
                     windowTextColor: isBaseState ? "#000000" : "#FF0000";
-                }                
+                }
 
                 QLabel {
                     text: backendValues.className.value;
@@ -21,7 +21,7 @@ GroupBox {
 
             }
         }
-        QWidget {            
+        QWidget {
             layout: HorizontalLayout {
                 Label {
                     text: "Id";

@@ -49,7 +49,7 @@ PropertyFrame {
                     spacing: 0;
                     Type {
                     }
-                    
+
 
                     Geometry {
                     }
@@ -71,7 +71,7 @@ PropertyFrame {
 
                 } // layout
             } //QWidget
-        } //QScrollArea       
+        } //QScrollArea
 
         ExtendedPane {
             id: extendedPane;
