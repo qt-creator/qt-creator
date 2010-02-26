@@ -1023,9 +1023,17 @@ class Dumper:
 
 
         elif type.code == gdb.TYPE_CODE_PTR:
-            isHandled = False
             #warn("A POINTER: %s" % value.type)
-            if self.useFancy:
+            isHandled = False
+
+            if str(type.strip_typedefs()).find("(") != -1:
+                self.putValue(str(item.value))
+                self.put('addr="%s",' % cleanAddress(value.address))
+                self.putType(item.value.type)
+                self.putNumChild(0)
+                isHandled = True
+
+            if (not isHandled) and self.useFancy:
                 if isNull(value):
                     self.putValue("0x0")
                     self.putType(item.value.type)
