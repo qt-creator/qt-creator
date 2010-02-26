@@ -39,23 +39,23 @@
 
 QT_BEGIN_NAMESPACE
 
-class QmlDebugWatch;
-class QmlEngineDebug;
-class QmlDebugConnection;
-class QmlDebugPropertyReference;
-class QmlDebugObjectReference;
+class QDeclarativeDebugWatch;
+class QDeclarativeEngineDebug;
+class QDeclarativeDebugConnection;
+class QDeclarativeDebugPropertyReference;
+class QDeclarativeDebugObjectReference;
 
 class WatchTableModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    WatchTableModel(QmlEngineDebug *client = 0, QObject *parent = 0);
+    WatchTableModel(QDeclarativeEngineDebug *client = 0, QObject *parent = 0);
     ~WatchTableModel();
 
-    void setEngineDebug(QmlEngineDebug *client);
+    void setEngineDebug(QDeclarativeEngineDebug *client);
 
-    QmlDebugWatch *findWatch(int column) const;
-    int columnForWatch(QmlDebugWatch *watch) const;
+    QDeclarativeDebugWatch *findWatch(int column) const;
+    int columnForWatch(QDeclarativeDebugWatch *watch) const;
 
     void removeWatchAt(int column);
     void removeAllWatches();
@@ -66,22 +66,22 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 signals:
-    void watchCreated(QmlDebugWatch *watch);
+    void watchCreated(QDeclarativeDebugWatch *watch);
 
 public slots:
-    void togglePropertyWatch(const QmlDebugObjectReference &obj, const QmlDebugPropertyReference &prop);
-    void expressionWatchRequested(const QmlDebugObjectReference &, const QString &);
+    void togglePropertyWatch(const QDeclarativeDebugObjectReference &obj, const QDeclarativeDebugPropertyReference &prop);
+    void expressionWatchRequested(const QDeclarativeDebugObjectReference &, const QString &);
 
 private slots:
     void watchStateChanged();
     void watchedValueChanged(const QByteArray &propertyName, const QVariant &value);
 
 private:
-    void addWatch(QmlDebugWatch *watch, const QString &title);
-    void removeWatch(QmlDebugWatch *watch);
-    void updateWatch(QmlDebugWatch *watch, const QVariant &value);
+    void addWatch(QDeclarativeDebugWatch *watch, const QString &title);
+    void removeWatch(QDeclarativeDebugWatch *watch);
+    void updateWatch(QDeclarativeDebugWatch *watch, const QVariant &value);
 
-    QmlDebugWatch *findWatch(int objectDebugId, const QString &property) const;
+    QDeclarativeDebugWatch *findWatch(int objectDebugId, const QString &property) const;
 
     void addValue(int column, const QVariant &value);
 
@@ -90,7 +90,7 @@ private:
         QString title;
         bool hasFirstValue;
         QString property;
-        QPointer<QmlDebugWatch> watch;
+        QPointer<QDeclarativeDebugWatch> watch;
     };
 
     struct Value {
@@ -99,7 +99,7 @@ private:
         bool first;
     };
 
-    QmlEngineDebug *m_client;
+    QDeclarativeEngineDebug *m_client;
     QList<WatchedEntity> m_columns;
     QList<Value> m_values;
 };
@@ -130,7 +130,7 @@ signals:
 
 private slots:
     void indexActivated(const QModelIndex &index);
-    void watchCreated(QmlDebugWatch *watch);
+    void watchCreated(QDeclarativeDebugWatch *watch);
 
 private:
     WatchTableModel *m_model;

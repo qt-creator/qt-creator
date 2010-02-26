@@ -29,7 +29,7 @@
 #ifndef CANVASFRAMERATE_H
 #define CANVASFRAMERATE_H
 
-#include <private/qmldebugclient_p.h>
+#include <private/qdeclarativedebugclient_p.h>
 
 #include <QtCore/qpointer.h>
 #include <QtGui/qwidget.h>
@@ -52,7 +52,7 @@ class CanvasFrameRate : public QWidget
 public:
     CanvasFrameRate(QWidget *parent = 0);
 
-    void reset(QmlDebugConnection *conn);
+    void reset(QDeclarativeDebugConnection *conn);
 
     void setSizeHint(const QSize &);
     virtual QSize sizeHint() const;
@@ -64,7 +64,7 @@ private slots:
     void connectionStateChanged(QAbstractSocket::SocketState state);
 
 private:
-    void handleConnected(QmlDebugConnection *conn);
+    void handleConnected(QDeclarativeDebugConnection *conn);
 
     QGroupBox *m_group;
     QTabWidget *m_tabs;

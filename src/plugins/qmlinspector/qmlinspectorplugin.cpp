@@ -36,8 +36,8 @@
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
-#include <private/qmldebug_p.h>
-#include <private/qmldebugclient_p.h>
+#include <private/qdeclarativedebug_p.h>
+#include <private/qdeclarativedebugclient_p.h>
 
 #include <coreplugin/modemanager.h>
 #include <coreplugin/editormanager/ieditor.h>

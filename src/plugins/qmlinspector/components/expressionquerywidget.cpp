@@ -39,7 +39,7 @@
 #include <QtGui/qtextobject.h>
 #include <QtGui/qlayout.h>
 
-ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QmlEngineDebug *client, QWidget *parent)
+ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug *client, QWidget *parent)
     : QWidget(parent),
       m_mode(mode),
       m_client(client),
@@ -74,7 +74,7 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QmlEngineDebug *client, 
     }
 }
 
-void ExpressionQueryWidget::setEngineDebug(QmlEngineDebug *client)
+void ExpressionQueryWidget::setEngineDebug(QDeclarativeEngineDebug *client)
 {
     m_client = client;
 }
@@ -113,7 +113,7 @@ void ExpressionQueryWidget::appendPrompt()
     }
 }
 
-void ExpressionQueryWidget::setCurrentObject(const QmlDebugObjectReference &obj)
+void ExpressionQueryWidget::setCurrentObject(const QDeclarativeDebugObjectReference &obj)
 {
     m_currObject = obj;
     updateTitle();
@@ -161,7 +161,7 @@ void ExpressionQueryWidget::executeExpression()
         if (!m_query->isWaiting())
             showResult();
         else
-            QObject::connect(m_query, SIGNAL(stateChanged(QmlDebugQuery::State)),
+            QObject::connect(m_query, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
                             this, SLOT(showResult()));
 
         m_lastExpr = m_expr;
