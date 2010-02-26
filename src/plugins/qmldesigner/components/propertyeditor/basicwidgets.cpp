@@ -1204,7 +1204,7 @@ void BasicWidgets::registerDeclarativeTypes()
     //QML_REGISTER_TYPE(Bauhaus,1,0,BauhausreeView,BauhausreeView);
     //QML_REGISTER_TYPE(Bauhaus,1,0,BauhausableView,BauhausableView);
 
-    QML_REGISTER_TYPE(Qt,4,6,QTabObject,QTabObject); //### with namespacing, this should just be 'Tab'
+    QML_REGISTER_TYPE(Bauhaus,1,0,QTabObject,QTabObject); //### with namespacing, this should just be 'Tab'
 }
 
 #include "basicwidgets.moc"

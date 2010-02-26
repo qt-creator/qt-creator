@@ -34,7 +34,7 @@ QT_BEGIN_NAMESPACE
 
 void QLayoutObject::registerDeclarativeType()
 {
-    QML_REGISTER_TYPE(Qt,4,6,QLayoutObject,QLayoutObject);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QLayoutObject,QLayoutObject);
 }
 
 QLayoutObject::QLayoutObject(QObject *parent)
