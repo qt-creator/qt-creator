@@ -61,6 +61,7 @@ private slots:
     void search();
     void replace();
     void setCurrentFilter(int index);
+    void updateButtonStates();
 
 private:
     void acceptAndGetParameters(QString *term, IFindFilter **filter);

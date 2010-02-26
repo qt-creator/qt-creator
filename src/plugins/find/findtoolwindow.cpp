@@ -51,17 +51,28 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin)
     connect(m_ui.matchCase, SIGNAL(toggled(bool)), m_plugin, SLOT(setCaseSensitive(bool)));
     connect(m_ui.wholeWords, SIGNAL(toggled(bool)), m_plugin, SLOT(setWholeWord(bool)));
     connect(m_ui.filterList, SIGNAL(activated(int)), this, SLOT(setCurrentFilter(int)));
+    connect(m_ui.searchTerm, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStates()));
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_ui.searchTerm->setCompleter(m_findCompleter);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
     m_ui.configWidget->setLayout(layout);
+    updateButtonStates();
 }
 
 FindToolWindow::~FindToolWindow()
 {
     qDeleteAll(m_configWidgets);
+}
+
+void FindToolWindow::updateButtonStates()
+{
+    bool enabled = !m_ui.searchTerm->text().isEmpty()
+                   && m_currentFilter && m_currentFilter->isEnabled();
+    m_ui.searchButton->setEnabled(enabled);
+    m_ui.replaceButton->setEnabled(m_currentFilter
+                                   && m_currentFilter->isReplaceSupported() && enabled);
 }
 
 void FindToolWindow::setFindFilters(const QList<IFindFilter *> &filters)
@@ -105,23 +116,22 @@ void FindToolWindow::setCurrentFilter(int index)
     m_ui.filterList->setCurrentIndex(index);
     for (int i = 0; i < m_configWidgets.size(); ++i) {
         QWidget *configWidget = m_configWidgets.at(i);
-        if (!configWidget)
-            continue;
         if (i == index) {
-            IFindFilter *filter = m_filters.at(i);
-            m_ui.configWidget->layout()->addWidget(configWidget);
-            bool enabled = filter->isEnabled();
+            m_currentFilter = m_filters.at(i);
+            bool enabled = m_currentFilter->isEnabled();
             m_ui.matchCase->setEnabled(enabled);
             m_ui.wholeWords->setEnabled(enabled);
             m_ui.searchTerm->setEnabled(enabled);
-            m_ui.searchButton->setEnabled(enabled);
-            m_ui.replaceButton->setEnabled(filter->isReplaceSupported() && enabled);
-            configWidget->setEnabled(enabled);
+            updateButtonStates();
+            if (configWidget) {
+                configWidget->setEnabled(enabled);
+                m_ui.configWidget->layout()->addWidget(configWidget);
+            }
         } else {
-            configWidget->setParent(0);
+            if (configWidget)
+                configWidget->setParent(0);
         }
     }
-    m_currentFilter = m_filters.at(index);
 }
 
 void FindToolWindow::acceptAndGetParameters(QString *term, IFindFilter **filter)
@@ -145,7 +155,8 @@ void FindToolWindow::search()
     QString term;
     IFindFilter *filter;
     acceptAndGetParameters(&term, &filter);
-    filter->findAll(term, m_plugin->findFlags());
+    if (filter)
+        filter->findAll(term, m_plugin->findFlags());
 }
 
 void FindToolWindow::replace()
