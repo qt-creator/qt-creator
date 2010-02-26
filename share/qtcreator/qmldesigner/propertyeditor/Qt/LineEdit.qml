@@ -8,6 +8,7 @@ QWidget {
     property alias enabled: lineEdit.enabled
     property var baseStateFlag
     property alias text: lineEditWidget.text
+    property alias readOnly: lineEditWidget.readOnly
 
     minimumHeight: 24;
 
