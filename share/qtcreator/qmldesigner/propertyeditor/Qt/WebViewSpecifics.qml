@@ -16,11 +16,9 @@ GroupBox {
                 Label {
                     text: "Url"
                 }
-                QLineEdit {
-                    text: backendValues.url.value;
-                    onEditingFinished: {
-                        backendValues.url.value = text;
-                    }
+                LineEdit {
+                    backendValue: backendValues.url
+                    baseStateFlag: isBaseState;
                 }
             }
         }
