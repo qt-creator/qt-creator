@@ -196,8 +196,8 @@ void PropertyEditorValue::lock()
     if (!modelNode().isValid())
         return;
 
-    Q_ASSERT(!m_rewriterTransaction.isValid());
-    m_rewriterTransaction = modelNode().view()->beginRewriterTransaction();
+    //Q_ASSERT(!m_rewriterTransaction.isValid());
+    //m_rewriterTransaction = modelNode().view()->beginRewriterTransaction();
 }
 
 void PropertyEditorValue::unlock()
@@ -205,8 +205,8 @@ void PropertyEditorValue::unlock()
     if (!modelNode().isValid())
         return;
 
-    Q_ASSERT(m_rewriterTransaction.isValid());
-    m_rewriterTransaction.commit();
+    //Q_ASSERT(m_rewriterTransaction.isValid());
+    //m_rewriterTransaction.commit();
 }
 
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent) : m_valuesPropertyMap(this)

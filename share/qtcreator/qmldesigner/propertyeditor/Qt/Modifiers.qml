@@ -75,7 +75,6 @@ GroupBox {
                 ComboBox {
                     minimumWidth: 20
                     baseStateFlag: isBaseState
-					
                     backendValue: backendValues.transformOrigin
 
                     items : { [
@@ -86,9 +85,6 @@ GroupBox {
                     currentText: backendValues.transformOrigin.value;
                     onItemsChanged: {
                         currentText =  backendValues.transformOrigin.value;
-                    }
-                    onCurrentTextChanged: {
-                        backendValues.transformOrigin.value = currentText;
                     }
                 }
             }

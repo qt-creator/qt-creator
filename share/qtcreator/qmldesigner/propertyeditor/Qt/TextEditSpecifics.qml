@@ -28,6 +28,7 @@ QWidget {
                             text: "Text Format"
                         }
                         ComboBox {
+                            baseStateFlag: isBaseState
                             minimumHeight: 22;
                             items : { ["PlainText", "RichText", "AutoText"] }
                             currentText: backendValues.textFormat.value;
@@ -35,10 +36,7 @@ QWidget {
                                 currentText =  backendValues.textFormat.value;
                             }
 
-                            onCurrentTextChanged: {
-                                if (count == 3)
-                                    backendValues.textFormat.value = currentText;
-                            }
+                            backendValue: backendValues.textFormat
                         }
                     }
                 }

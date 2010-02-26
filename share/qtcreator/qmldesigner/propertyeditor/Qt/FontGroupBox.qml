@@ -67,10 +67,6 @@ GroupBox {
                     onItemsChanged: {
                         currentText =  backendValues.style.value;
                     }
-                    onCurrentTextChanged: {
-                        if (count == 4)
-                        backendValues.style.value = currentText;
-                    }
                 }
             }
         }

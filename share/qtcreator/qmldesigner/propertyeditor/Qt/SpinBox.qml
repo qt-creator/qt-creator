@@ -10,7 +10,7 @@ QWidget { //This is a special spinBox that does color coding for states
     property alias singleStep: box.singleStep;
     property alias minimum: box.minimum
     property alias maximum: box.maximum
-    property alias enabled: spinBox.enabled
+    property alias enabled: box.enabled
 
     minimumHeight: 22;
 
@@ -59,8 +59,6 @@ QWidget { //This is a special spinBox that does color coding for states
     onIsInSubStateChanged: {
         evaluate();
     }
-
-    ColorScheme { id:scheme; }
 
     ColorScheme { id:scheme; }
 

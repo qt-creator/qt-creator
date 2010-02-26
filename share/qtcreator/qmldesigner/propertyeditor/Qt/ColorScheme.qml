@@ -7,4 +7,5 @@ Item {
     property var defaultColor: "white";
     property var changedBaseColor: "#9999ff";
     property var changedStateColor: "#99ccff";
+    property var optionsColor: "white";
 }

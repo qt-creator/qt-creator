@@ -25,15 +25,13 @@ GroupBox {
                 }
 
                 ComboBox {
+                    baseStateFlag: isBaseState
                     items : { ["Stretch", "PreserveAspectFit", "PreserveAspectCrop", "Tile", "TileVertically", "TileHorizontally"] }
                     currentText: backendValues.fillMode.value;
                     onItemsChanged: {
                         currentText =  backendValues.fillMode.value;
                     }
-                    onCurrentTextChanged: {
-                        if (count == 6)
-                            backendValues.fillMode.value = currentText;
-                    }
+                    backendValue: backendValues.fillMode
                 }
             }
         }

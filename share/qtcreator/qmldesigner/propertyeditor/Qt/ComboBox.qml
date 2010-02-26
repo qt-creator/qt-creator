@@ -5,19 +5,15 @@ QWidget {
 
     id: comboBox
 
-    property var backendValue
+    property var backendValue;
     property var baseStateFlag;
-    property alias enabled: comboBox.enabled
+    property alias enabled: box.enabled;
 
-    property var items
-    property var currentText
+    property alias items: box.items;
+    property alias currentText: box.currentText;
 
 
     onBaseStateFlagChanged: {
-        evaluate();
-    }
-
-    onBackendValueChanged: {
         evaluate();
     }
 
@@ -26,8 +22,6 @@ QWidget {
         evaluate();
     }
 
-
-
     Script {
         function evaluate() {
             if (!enabled) {
@@ -35,16 +29,17 @@ QWidget {
             } else {
                 if (baseStateFlag) {
                     if (backendValue != null && backendValue.isInModel)
-                        box.setStyleSheet("QComboBox{color: "+scheme.changedBaseColor+"}QComboBox:on{color:white}");
+                        box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedBaseColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
                     else
-                        box.setStyleSheet("QComboBox{color: "+scheme.defaultColor+"}QComboBox:on{color:white}");
+                        box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
                     } else {
                     if (backendValue != null && backendValue.isInSubState)
-                        box.setStyleSheet("QComboBox{color: "+scheme.changedStateColor+"}QComboBox:on{color:white}");
+                        box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedStateColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
                     else
-                        box.setStyleSheet("QComboBox{color: "+scheme.defaultColor+"}QComboBox:on{color:white}");
+                        box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
                     }
             }
+
         }
     }
 
@@ -54,8 +49,7 @@ QWidget {
         QComboBox {
             id: box
             property var backendValue: comboBox.backendValue
-            items: comboBox.items
-            currentText: comboBox.currentText
+            onCurrentTextChanged: { backendValue.value = currentText; evaluate(); }
             ExtendedFunctionButton {
                 backendValue: (comboBox.backendValue === undefined || comboBox.backendValue === null)
                 ? null : comboBox.backendValue;

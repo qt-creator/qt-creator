@@ -42,28 +42,22 @@ GroupBox {
                     text: "Alignment"
                 }
                 ComboBox {
+                    baseStateFlag: isBaseState;
                     items : { ["AlignLeft", "AlignRight", "AlignHCenter"] }
+                    backendValue: backendValues.horizontalAlignment;
                     currentText: backendValues.horizontalAlignment.value;
                     onItemsChanged: {
                         currentText =  backendValues.horizontalAlignment.value;
                     }
 
-                    onCurrentTextChanged: {
-                        if (count == 3);
-                        backendValues.horizontalAlignment.value = currentText;
-                    }
-
                 }
                 ComboBox {
+                    baseStateFlag: isBaseState;
                     items : { ["AlignTop", "AlignBottom", "AlignVCenter"] }
+                    backendValue: backendValues.verticalAlignment;
                     currentText: backendValues.verticalAlignment.value;
                     onItemsChanged: {
                         currentText =  backendValues.verticalAlignment.value;
-                    }
-
-                    onCurrentTextChanged: {
-                        if (count == 3)
-                            backendValues.verticalAlignment.value = currentText;
                     }
                 }
             }
