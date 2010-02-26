@@ -40,12 +40,12 @@ QWidget { //This is a special checkBox that does color coding for states
                     if (backendValue != null && backendValue.isInModel)
                         localLabel.setStyleSheet("color: "+scheme.changedBaseColor);
                     else
-                        localLabel.setStyleSheet("color: "+scheme.defaultColor);
+                        localLabel.setStyleSheet("color: "+scheme.boldTextColor);
                 } else {
                     if (backendValue != null && backendValue.isInSubState)
                         localLabel.setStyleSheet("color: "+scheme.changedStateColor);
                     else
-                        localLabel.setStyleSheet("color: "+scheme.defaultColor);
+                        localLabel.setStyleSheet("color: "+scheme.boldTextColor);
                 }
             }
         }
