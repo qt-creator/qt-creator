@@ -121,7 +121,8 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
 
     connect(m_d->m_ui.generateFormCheckBox, SIGNAL(stateChanged(int)),
             this, SLOT(slotFormInputChecked()));
-
+    connect(m_d->m_ui.baseClassComboBox, SIGNAL(editTextChanged(QString)),
+            this, SLOT(slotBaseClassEdited(QString)));
     m_d->m_ui.generateFormCheckBox->setChecked(true);
     setFormInputCheckable(false, true);
     setClassType(NoClassType);
@@ -391,6 +392,31 @@ void NewClassWidget::setClassTypeComboVisible(bool v)
 {
     m_d->m_ui.classTypeLabel->setVisible(v);
     m_d->m_ui.classTypeComboBox->setVisible(v);
+}
+
+// Guess suitable type information with some smartness
+static inline NewClassWidget::ClassType classTypeForBaseClass(const QString &baseClass)
+{
+    if (!baseClass.startsWith(QLatin1Char('Q')))
+        return NewClassWidget::NoClassType;
+    // QObject types: QObject as such and models.
+    if (baseClass == QLatin1String("QObject") ||
+        (baseClass.startsWith(QLatin1String("QAbstract")) && baseClass.endsWith(QLatin1String("Model"))))
+        return NewClassWidget::ClassInheritsQObject;
+    // Widgets.
+    if (baseClass == QLatin1String("QWidget") || baseClass == QLatin1String("QMainWindow")
+        || baseClass == QLatin1String("QDialog"))
+        return NewClassWidget::ClassInheritsQWidget;
+    return NewClassWidget::NoClassType;
+}
+
+void NewClassWidget::slotBaseClassEdited(const QString &baseClass)
+{
+    // Set type information with some smartness.
+    const ClassType currentClassType = classType();
+    const ClassType recommendedClassType = classTypeForBaseClass(baseClass);
+    if (recommendedClassType != NoClassType && currentClassType != recommendedClassType)
+        setClassType(recommendedClassType);
 }
 
 void NewClassWidget::slotValidChanged()

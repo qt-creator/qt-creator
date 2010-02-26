@@ -156,6 +156,7 @@ private slots:
     void slotActivated();
     void classNameEdited();
     void slotFormInputChecked();
+    void slotBaseClassEdited(const QString &);
 
 private:
     void setFormInputCheckable(bool checkable, bool force);
