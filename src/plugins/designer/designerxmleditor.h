@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -27,45 +27,63 @@
 **
 **************************************************************************/
 
-#ifndef PLAINTEXTEDITOR_H
-#define PLAINTEXTEDITOR_H
+#ifndef DESIGNERXMLEDITOR_H
+#define DESIGNERXMLEDITOR_H
 
-#include "basetexteditor.h"
+#include <texteditor/plaintexteditor.h>
+#include <texteditor/basetexteditor.h>
 
-#include <QtCore/QList>
+namespace Core {
+    class IEditor;
+    class IMode;
+}
 
-namespace TextEditor {
+namespace Designer {
+namespace Internal {
 
-class PlainTextEditor;
+class DesignerXmlEditor;
 
-class TEXTEDITOR_EXPORT PlainTextEditorEditable : public BaseTextEditorEditable
+class TEXTEDITOR_EXPORT DesignerXmlEditorEditable : public TextEditor::PlainTextEditorEditable
 {
+    Q_OBJECT
 public:
-    PlainTextEditorEditable(PlainTextEditor *);
+    DesignerXmlEditorEditable(DesignerXmlEditor *editor);
     QList<int> context() const;
 
-    bool duplicateSupported() const { return true; }
+    bool duplicateSupported() const { return false; }
     Core::IEditor *duplicate(QWidget *parent);
-    bool isTemporary() const { return false; }
     virtual QString id() const;
 
 private:
     QList<int> m_context;
 };
 
-class TEXTEDITOR_EXPORT PlainTextEditor : public BaseTextEditor
+/**
+  * A stub-like, read-only text editor which displays UI files as text. Could be used as a
+  * read/write editor too, but due to lack of XML editor, highlighting and other such
+  * functionality, editing is disabled.
+  */
+class DesignerXmlEditor : public TextEditor::PlainTextEditor
 {
     Q_OBJECT
-
 public:
-    PlainTextEditor(QWidget *parent);
+    DesignerXmlEditor(QWidget *parent = 0);
+    virtual ~DesignerXmlEditor();
+    bool open(const QString &fileName = QString());
+
+private slots:
+    void designerOpened();
+    void updateEditorInfoBar(Core::IEditor *editor);
 
 protected:
-    virtual BaseTextEditorEditable *createEditableInterface() { return new PlainTextEditorEditable(this); }
-    // Indent a text block based on previous line.
-    virtual void indentBlock(QTextDocument *doc, QTextBlock block, QChar typedChar);
+    virtual TextEditor::BaseTextEditorEditable *createEditableInterface() { return new DesignerXmlEditorEditable(this); }
+
+private:
+
+
 };
 
-} // namespace TextEditor
+} // Internal
+} // Designer
 
-#endif // PLAINTEXTEDITOR_H
+#endif // DESIGNERXMLEDITOR_H

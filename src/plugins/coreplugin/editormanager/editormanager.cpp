@@ -230,6 +230,11 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     const QList<int> editManagerContext =
             QList<int>() << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER);
 
+    // combined context for edit & design modes
+    const QList<int> editDesignContext =
+            QList<int>() << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_EDITORMANAGER)
+                         << m_d->m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_DESIGN_MODE);
+
     ActionManager *am = m_d->m_core->actionManager();
     ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
 
@@ -284,7 +289,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_closeOtherEditorsAction, SIGNAL(triggered()), this, SLOT(closeOtherEditors()));
 
     // Goto Previous In History Action
-    cmd = am->registerAction(m_d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editManagerContext);
+    cmd = am->registerAction(m_d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
 #ifdef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Tab")));
 #else
@@ -294,7 +299,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_gotoPreviousDocHistoryAction, SIGNAL(triggered()), this, SLOT(gotoPreviousDocHistory()));
 
     // Goto Next In History Action
-    cmd = am->registerAction(m_d->m_gotoNextDocHistoryAction, Constants::GOTONEXTINHISTORY, editManagerContext);
+    cmd = am->registerAction(m_d->m_gotoNextDocHistoryAction, Constants::GOTONEXTINHISTORY, editDesignContext);
 #ifdef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+Tab")));
 #else
@@ -304,7 +309,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_gotoNextDocHistoryAction, SIGNAL(triggered()), this, SLOT(gotoNextDocHistory()));
 
     // Go back in navigation history
-    cmd = am->registerAction(m_d->m_goBackAction, Constants::GO_BACK, editManagerContext);
+    cmd = am->registerAction(m_d->m_goBackAction, Constants::GO_BACK, editDesignContext);
 #ifdef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Left")));
 #else
@@ -314,7 +319,7 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
     connect(m_d->m_goBackAction, SIGNAL(triggered()), this, SLOT(goBackInNavigationHistory()));
 
     // Go forward in navigation history
-    cmd = am->registerAction(m_d->m_goForwardAction, Constants::GO_FORWARD, editManagerContext);
+    cmd = am->registerAction(m_d->m_goForwardAction, Constants::GO_FORWARD, editDesignContext);
 #ifdef Q_WS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Right")));
 #else
@@ -521,8 +526,6 @@ Core::Internal::EditorView *EditorManager::currentEditorView() const
 {
     return currentSplitterOrView()->view();
 }
-
-
 
 QList<IEditor *> EditorManager::editorsForFileName(const QString &filename) const
 {
@@ -919,6 +922,7 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
         if (isVisible())
             editor->widget()->setFocus();
     }
+    emit currentEditorChanged(editor);
     return editor;
 }
 
@@ -1445,14 +1449,15 @@ void EditorManager::updateActions()
     QString fName;
     IEditor *curEditor = currentEditor();
     int openedCount = openedEditors().count() + m_d->m_editorModel->restoredEditors().count();
+
     if (curEditor) {
+
         if (!curEditor->file()->fileName().isEmpty()) {
             QFileInfo fi(curEditor->file()->fileName());
             fName = fi.fileName();
         } else {
             fName = curEditor->displayName();
         }
-
 
         if (curEditor->file()->isModified() && curEditor->file()->isReadOnly()) {
             // we are about to change a read-only file, warn user
@@ -1472,10 +1477,10 @@ void EditorManager::updateActions()
     QString quotedName;
     if (!fName.isEmpty())
         quotedName = '"' + fName + '"';
+
     m_d->m_saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
     m_d->m_saveAction->setText(tr("&Save %1").arg(quotedName));
     m_d->m_revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
-
 
     m_d->m_closeCurrentEditorAction->setEnabled(curEditor != 0);
     m_d->m_closeCurrentEditorAction->setText(tr("Close %1").arg(quotedName));
@@ -1700,7 +1705,6 @@ void EditorManager::showEditorInfoBar(const QString &id,
                                       const QString &buttonText,
                                       QObject *object, const char *member)
 {
-
     currentEditorView()->showEditorInfoBar(id, infoText, buttonText, object, member);
 }
 

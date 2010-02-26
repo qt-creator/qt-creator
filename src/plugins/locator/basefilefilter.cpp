@@ -95,7 +95,6 @@ void BaseFileFilter::accept(Locator::FilterEntry selection) const
 {
     Core::EditorManager *em = Core::EditorManager::instance();
     em->openEditor(selection.internalData.toString());
-    em->ensureEditorManagerVisible();
 }
 
 void BaseFileFilter::generateFileNames()

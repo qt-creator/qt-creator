@@ -788,7 +788,6 @@ static IFileFactory *findFileFactory(const QList<IFileFactory*> &fileFactories,
 // opens either an editor or loads a project
 void MainWindow::openFiles(const QStringList &fileNames)
 {
-    bool needToSwitchToEditor = false;
     QList<IFileFactory*> nonEditorFileFactories = getNonEditorFileFactories();
 
     foreach (const QString &fileName, fileNames) {
@@ -797,13 +796,9 @@ void MainWindow::openFiles(const QStringList &fileNames)
         if (IFileFactory *fileFactory = findFileFactory(nonEditorFileFactories, mimeDatabase(), fi)) {
             fileFactory->open(absoluteFilePath);
         } else {
-            IEditor *editor = editorManager()->openEditor(absoluteFilePath);
-            if (editor)
-                needToSwitchToEditor = true;
+            editorManager()->openEditor(absoluteFilePath);
         }
     }
-    if (needToSwitchToEditor)
-        editorManager()->ensureEditorManagerVisible();
 }
 
 void MainWindow::setFocusToEditor()

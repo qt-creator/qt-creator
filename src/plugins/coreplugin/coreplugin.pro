@@ -80,7 +80,9 @@ SOURCES += mainwindow.cpp \
     settingsdatabase.cpp \
     eventfilteringmainwindow.cpp \
     imode.cpp \
-    editormanager/systemeditor.cpp
+    editormanager/systemeditor.cpp \
+    designmode.cpp
+
 HEADERS += mainwindow.h \
     editmode.h \
     tabpositionindicator.h \
@@ -158,7 +160,9 @@ HEADERS += mainwindow.h \
     mimedatabase.h \
     settingsdatabase.h \
     eventfilteringmainwindow.h \
-    editormanager/systemeditor.h
+    editormanager/systemeditor.h \
+    designmode.h
+
 FORMS += dialogs/newdialog.ui \
     dialogs/shortcutsettings.ui \
     dialogs/saveitemsdialog.ui \

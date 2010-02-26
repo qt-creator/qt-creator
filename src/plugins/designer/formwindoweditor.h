@@ -35,6 +35,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QtCore/QStringList>
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
@@ -54,6 +55,7 @@ namespace Internal {
 class FormWindowFile;
 class FormWindowHost;
 class EditorWidget;
+class FakeToolBar;
 }
 
 // Master class maintaining a form window editor,
@@ -63,8 +65,7 @@ class DESIGNER_EXPORT FormWindowEditor : public Core::IEditor
 {
     Q_OBJECT
 public:
-    FormWindowEditor(const QList<int> &context,
-                     QDesignerFormWindowInterface *form,
+    FormWindowEditor(QDesignerFormWindowInterface *form,
                      QObject *parent = 0);
     ~FormWindowEditor();
 
@@ -82,6 +83,7 @@ public:
     bool restoreState(const QByteArray &state);
     virtual bool isTemporary() const { return false; }
 
+    void setContext(QList<int> ctx);
     // ContextInterface
     virtual QList<int> context() const;
     virtual QWidget *widget();
@@ -90,12 +92,12 @@ public:
     QDesignerFormWindowInterface *formWindow() const;
     QWidget *integrationContainer();
     void updateFormWindowSelectionHandles(bool state);
-    void setSuggestedFileName(const QString &fileName);
     QDockWidget* const* dockWidgets() const;
     bool isLocked() const;
     void setLocked(bool locked);
 
-    QString contents() const;
+    QString contents() const;\
+    void setFile(Core::IFile *file);
 
 signals:
     // Internal
@@ -111,18 +113,20 @@ private slots:
     void updateResources();
 
 private:
+    QWidget *m_containerWidget;
     QString m_displayName;
-    const QList<int> m_context;
+    QList<int> m_context;
     QDesignerFormWindowInterface *m_formWindow;
-    Internal::FormWindowFile *m_file;
+    QPointer<Core::IFile> m_file;
     Internal::FormWindowHost *m_host;
     Internal::EditorWidget *m_editorWidget;
     QToolBar *m_toolBar;
     QStringList m_originalUiQrcPaths;
     ProjectExplorer::SessionNode *m_sessionNode;
     ProjectExplorer::NodesWatcher *m_sessionWatcher;
+    Internal::FakeToolBar *m_fakeToolBar;
 };
 
-} // namespace Internal
+} // namespace Designer
 
 #endif // FORMWINDOWEDITOR_H

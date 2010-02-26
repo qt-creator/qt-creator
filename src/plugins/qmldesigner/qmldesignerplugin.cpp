@@ -29,11 +29,13 @@
 
 #include "exception.h"
 #include "qmldesignerplugin.h"
-#include "designmode.h"
 #include "qmldesignerconstants.h"
 #include "pluginmanager.h"
+#include "designmodewidget.h"
 #include "settingspage.h"
+#include "designmodecontext.h"
 
+#include <coreplugin/designmode.h>
 #include <qmljseditor/qmljseditorconstants.h>
 
 #include <coreplugin/modemanager.h>
@@ -46,13 +48,21 @@
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/editormanager/openeditorsmodel.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/modemanager.h>
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/qtcassert.h>
 
 #include <integrationcore.h>
 
-#include <QtCore/QDebug>
+#include <QtGui/QAction>
+
+#include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 #include <QtCore/qplugin.h>
+#include <QtCore/QDebug>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -60,7 +70,15 @@ namespace Internal {
 BauhausPlugin *BauhausPlugin::m_pluginInstance = 0;
 
 BauhausPlugin::BauhausPlugin() :
-    m_designerCore(0)
+    m_designerCore(0),
+    m_designMode(0),
+    m_isActive(false),
+    m_revertToSavedAction(new QAction(this)),
+    m_saveAction(new QAction(this)),
+    m_saveAsAction(new QAction(this)),
+    m_closeCurrentEditorAction(new QAction(this)),
+    m_closeAllEditorsAction(new QAction(this)),
+    m_closeOtherEditorsAction(new QAction(this))
 {
     // Exceptions should never ever assert: they are handled in a number of
     // places where it is actually VALID AND EXPECTED BEHAVIOUR to get an
@@ -77,6 +95,7 @@ BauhausPlugin::BauhausPlugin() :
 BauhausPlugin::~BauhausPlugin()
 {
     delete m_designerCore;
+    Core::ICore::instance()->removeContextObject(m_context);
 }
 
 ////////////////////////////////////////////////////
@@ -91,7 +110,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(QmlDesigner::Constants::C_FORMEDITOR));
     const QList<int> context = QList<int>() << uid;
 
-    const QList<int> switchContext = QList<int() << uid
+    const QList<int> switchContext = QList<int>() << uid
                                      << core->uniqueIDManager()->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
 
     Core::ActionManager *am = core->actionManager();
@@ -103,7 +122,6 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchTextDesign()));
 
     m_designerCore = new QmlDesigner::IntegrationCore;
-
     m_pluginInstance = this;
 
 #ifdef Q_OS_MAC
@@ -115,7 +133,8 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
 
     m_designerCore->pluginManager()->setPluginPaths(QStringList() << pluginPath);
 
-    addAutoReleasedObject(new DesignMode);
+    createDesignModeWidget();
+
     addAutoReleasedObject(new SettingsPage);
 
     error_message->clear();
@@ -123,8 +142,157 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     return true;
 }
 
+void BauhausPlugin::createDesignModeWidget()
+{
+    Core::ICore *creatorCore = Core::ICore::instance();
+    Core::ActionManager *actionManager = creatorCore->actionManager();
+    m_editorManager = creatorCore->editorManager();
+    Core::ActionContainer *editMenu = actionManager->actionContainer(Core::Constants::M_EDIT);
+
+    m_mainWidget = new DesignModeWidget;
+
+    m_context = new DesignModeContext(m_mainWidget);
+    creatorCore->addContextObject(m_context);
+
+    // Revert to saved
+    actionManager->registerAction(m_revertToSavedAction,
+                                      Core::Constants::REVERTTOSAVED, m_context->context());
+    connect(m_revertToSavedAction, SIGNAL(triggered()), m_editorManager, SLOT(revertToSaved()));
+
+    //Save
+    actionManager->registerAction(m_saveAction, Core::Constants::SAVE, m_context->context());
+    connect(m_saveAction, SIGNAL(triggered()), m_editorManager, SLOT(saveFile()));
+
+    //Save As
+    actionManager->registerAction(m_saveAsAction, Core::Constants::SAVEAS, m_context->context());
+    connect(m_saveAsAction, SIGNAL(triggered()), m_editorManager, SLOT(saveFileAs()));
+
+    //Close Editor
+    actionManager->registerAction(m_closeCurrentEditorAction, Core::Constants::CLOSE, m_context->context());
+    connect(m_closeCurrentEditorAction, SIGNAL(triggered()), m_editorManager, SLOT(closeEditor()));
+
+    //Close All
+    actionManager->registerAction(m_closeAllEditorsAction, Core::Constants::CLOSEALL, m_context->context());
+    connect(m_closeAllEditorsAction, SIGNAL(triggered()), m_editorManager, SLOT(closeAllEditors()));
+
+    //Close All Others Action
+    actionManager->registerAction(m_closeOtherEditorsAction, Core::Constants::CLOSEOTHERS, m_context->context());
+    connect(m_closeOtherEditorsAction, SIGNAL(triggered()), m_editorManager, SLOT(closeOtherEditors()));
+
+    // Undo / Redo
+    actionManager->registerAction(m_mainWidget->undoAction(), Core::Constants::UNDO, m_context->context());
+    actionManager->registerAction(m_mainWidget->redoAction(), Core::Constants::REDO, m_context->context());
+
+    Core::Command *command;
+    command = actionManager->registerAction(m_mainWidget->deleteAction(),
+                                            QmlDesigner::Constants::DELETE, m_context->context());
+    command->setDefaultKeySequence(QKeySequence::Delete);
+    command->setAttribute(Core::Command::CA_Hide); // don't show delete in other modes
+    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+
+    command = actionManager->registerAction(m_mainWidget->cutAction(),
+                                            Core::Constants::CUT, m_context->context());
+    command->setDefaultKeySequence(QKeySequence::Cut);
+    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+
+    command = actionManager->registerAction(m_mainWidget->copyAction(),
+                                            Core::Constants::COPY, m_context->context());
+    command->setDefaultKeySequence(QKeySequence::Copy);
+    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+
+    command = actionManager->registerAction(m_mainWidget->pasteAction(),
+                                            Core::Constants::PASTE, m_context->context());
+    command->setDefaultKeySequence(QKeySequence::Paste);
+    editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
+
+    command = actionManager->registerAction(m_mainWidget->selectAllAction(),
+                                            Core::Constants::SELECTALL, m_context->context());
+    command->setDefaultKeySequence(QKeySequence::SelectAll);
+    editMenu->addAction(command, Core::Constants::G_EDIT_SELECTALL);
+
+    // add second shortcut to trigger delete
+    QAction *deleteAction = new QAction(m_mainWidget);
+    deleteAction->setShortcut(QKeySequence(QLatin1String("Backspace")));
+    connect(deleteAction, SIGNAL(triggered()), m_mainWidget->deleteAction(),
+            SIGNAL(triggered()));
+
+    m_mainWidget->addAction(deleteAction);
+
+    Core::ModeManager *modeManager = creatorCore->modeManager();
+
+    connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(modeChanged(Core::IMode*)));
+
+    connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+            this, SLOT(textEditorsClosed(QList<Core::IEditor*>)));
+
+}
+
+void BauhausPlugin::modeChanged(Core::IMode *mode)
+{
+    if (mode == m_designMode) {
+        m_isActive = true;
+        m_mainWidget->showEditor(m_editorManager->currentEditor());
+    } else {
+        if (m_isActive) {
+            m_isActive = false;
+
+            m_mainWidget->showEditor(0);
+        }
+    }
+}
+
+void BauhausPlugin::textEditorsClosed(QList<Core::IEditor*> editors)
+{
+    m_mainWidget->closeEditors(editors);
+}
+
+// copied from EditorManager::updateActions
+void BauhausPlugin::updateActions(Core::IEditor* editor)
+{
+    Core::IEditor *curEditor = editor;
+    int openedCount = m_editorManager->openedEditors().count()
+                      + m_editorManager->openedEditorsModel()->restoredEditors().count();
+
+    QString fName;
+    if (curEditor) {
+        if (!curEditor->file()->fileName().isEmpty()) {
+            QFileInfo fi(curEditor->file()->fileName());
+            fName = fi.fileName();
+        } else {
+            fName = curEditor->displayName();
+        }
+    }
+
+    m_saveAction->setEnabled(curEditor != 0 && curEditor->file()->isModified());
+    m_saveAsAction->setEnabled(curEditor != 0 && curEditor->file()->isSaveAsAllowed());
+    m_revertToSavedAction->setEnabled(curEditor != 0
+                                      && !curEditor->file()->fileName().isEmpty()
+                                      && curEditor->file()->isModified());
+
+    QString quotedName;
+    if (!fName.isEmpty())
+        quotedName = '"' + fName + '"';
+    m_saveAsAction->setText(tr("Save %1 As...").arg(quotedName));
+    m_saveAction->setText(tr("&Save %1").arg(quotedName));
+    m_revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
+
+    m_closeCurrentEditorAction->setEnabled(curEditor != 0);
+    m_closeCurrentEditorAction->setText(tr("Close %1").arg(quotedName));
+    m_closeAllEditorsAction->setEnabled(openedCount > 0);
+    m_closeOtherEditorsAction->setEnabled(openedCount > 1);
+    m_closeOtherEditorsAction->setText((openedCount > 1 ? tr("Close All Except %1").arg(quotedName) : tr("Close Others")));
+}
+
 void BauhausPlugin::extensionsInitialized()
 {
+    m_designMode = ExtensionSystem::PluginManager::instance()->getObject<Core::DesignMode>();
+
+    m_mimeTypes << "application/x-qml" << "application/javascript"
+                << "application/x-javascript" << "text/javascript";
+
+    m_designMode->registerDesignWidget(m_mainWidget, m_mimeTypes);
+    connect(m_designMode, SIGNAL(actionsUpdated(Core::IEditor*)), SLOT(updateActions(Core::IEditor*)));
 }
 
 BauhausPlugin *BauhausPlugin::pluginInstance()
@@ -135,18 +303,15 @@ BauhausPlugin *BauhausPlugin::pluginInstance()
 void BauhausPlugin::switchTextDesign()
 {
     Core::ModeManager *modeManager = Core::ModeManager::instance();
-
-    if (modeManager->currentMode() == Core::Constants::MODE_EDIT) {
-
-    } else if (modeManager->currentMode() == Core::Constants::MODE_DESIGN) {
-
-    }
-
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *editor = editorManager->currentEditor();
-    QString otherFile = correspondingHeaderOrSource(editor->file()->fileName());
-    if (!otherFile.isEmpty()) {
-        editorManager->openEditor(otherFile);
-        editorManager->ensureEditorManagerVisible();
+
+
+    if (modeManager->currentMode()->id() == Core::Constants::MODE_EDIT) {
+        if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
+            modeManager->activateMode(Core::Constants::MODE_DESIGN);
+    } else if (modeManager->currentMode()->id() == Core::Constants::MODE_DESIGN) {
+        modeManager->activateMode(Core::Constants::MODE_EDIT);
     }
 }
 

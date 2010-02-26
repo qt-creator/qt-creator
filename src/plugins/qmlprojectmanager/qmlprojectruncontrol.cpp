@@ -36,6 +36,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/applicationlauncher.h>
 #include <utils/qtcassert.h>
+#include <debugger/debuggerconstants.h>
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggeruiswitcher.h>

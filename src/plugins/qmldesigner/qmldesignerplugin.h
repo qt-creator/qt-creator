@@ -34,11 +34,21 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <QWeakPointer>
+#include <QStringList>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
 namespace Core {
     class IWizard;
     class ICore;
     class IEditorFactory;
     class IEditor;
+    class IMode;
+    class DesignMode;
+    class EditorManager;
 }
 
 namespace QmlDesigner {
@@ -47,6 +57,9 @@ namespace QmlDesigner {
 
 namespace QmlDesigner {
 namespace Internal {
+
+class DesignModeWidget;
+class DesignModeContext;
 
 class BauhausPlugin : public ExtensionSystem::IPlugin
 {
@@ -66,12 +79,32 @@ public:
     void setSettings(const DesignerSettings &s);
 
 private slots:
+
     void switchTextDesign();
+    void modeChanged(Core::IMode *mode);
+    void textEditorsClosed(QList<Core::IEditor *> editors);
+    void updateActions(Core::IEditor* editor);
 
 private:
+    void createDesignModeWidget();
+
+    QStringList m_mimeTypes;
+    DesignModeWidget *m_mainWidget;
+
     QmlDesigner::IntegrationCore *m_designerCore;
     static BauhausPlugin *m_pluginInstance;
     DesignerSettings m_settings;
+    DesignModeContext *m_context;
+    Core::DesignMode *m_designMode;
+    Core::EditorManager *m_editorManager;
+    bool m_isActive;
+
+    QAction *m_revertToSavedAction;
+    QAction *m_saveAction;
+    QAction *m_saveAsAction;
+    QAction *m_closeCurrentEditorAction;
+    QAction *m_closeAllEditorsAction;
+    QAction *m_closeOtherEditorsAction;
 };
 
 } // namespace Internal

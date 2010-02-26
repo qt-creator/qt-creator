@@ -63,8 +63,10 @@ const char * const IDE_REVISION_STR      = "";
 //modes
 const char * const MODE_WELCOME          = "Welcome";
 const char * const MODE_EDIT             = "Edit";
+const char * const MODE_DESIGN           = "Design";
 const int          P_MODE_WELCOME        = 100;
 const int          P_MODE_EDIT           = 90;
+const int          P_MODE_DESIGN         = 89;
 const int          P_MODE_OUTPUT         = 10;
 
 //menubar
@@ -87,6 +89,7 @@ const char * const C_GLOBAL              = "Global Context";
 const int          C_GLOBAL_ID           = 0;
 const char * const C_WELCOME_MODE        = "Core.WelcomeMode";
 const char * const C_EDIT_MODE           = "Core.EditMode";
+const char * const C_DESIGN_MODE         = "Core.DesignMode";
 const char * const C_EDITORMANAGER       = "Core.EditorManager";
 const char * const C_NAVIGATION_PANE     = "Core.NavigationPane";
 const char * const C_PROBLEM_PANE        = "Core.ProblemPane";

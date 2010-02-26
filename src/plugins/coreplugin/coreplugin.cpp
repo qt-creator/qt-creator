@@ -33,12 +33,14 @@
 #include "mainwindow.h"
 #include "modemanager.h"
 #include "fileiconprovider.h"
+#include "designmode.h"
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 
+using namespace Core;
 using namespace Core::Internal;
 
 CorePlugin::CorePlugin() :
@@ -51,6 +53,11 @@ CorePlugin::~CorePlugin()
     if (m_editMode) {
         removeObject(m_editMode);
         delete m_editMode;
+    }
+
+    if (m_designMode) {
+        removeObject(m_designMode);
+        delete m_designMode;
     }
 
     // delete FileIconProvider singleton
@@ -78,6 +85,9 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         EditorManager *editorManager = m_mainWindow->editorManager();
         m_editMode = new EditMode(editorManager);
         addObject(m_editMode);
+
+        m_designMode = new DesignMode(editorManager);
+        addObject(m_designMode);
     }
     return success;
 }

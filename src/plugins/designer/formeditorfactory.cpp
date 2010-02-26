@@ -31,10 +31,12 @@
 #include "formeditorw.h"
 #include "formwindoweditor.h"
 #include "designerconstants.h"
+#include "designerxmleditor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
@@ -53,12 +55,12 @@ FormEditorFactory::FormEditorFactory()
 
 QString FormEditorFactory::id() const
 {
-    return QLatin1String(FORMEDITOR_ID);
+    return QLatin1String(DESIGNER_XML_EDITOR_ID); //FORMEDITOR_ID);
 }
 
 QString FormEditorFactory::displayName() const
 {
-    return tr(C_FORMEDITOR_DISPLAY_NAME);
+    return tr(C_DESIGNER_XML_DISPLAY_NAME);
 }
 
 Core::IFile *FormEditorFactory::open(const QString &fileName)
@@ -69,7 +71,9 @@ Core::IFile *FormEditorFactory::open(const QString &fileName)
 
 Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
 {
-    return FormEditorW::instance()->createFormWindowEditor(parent);
+    DesignerXmlEditor *xmlEditor = new DesignerXmlEditor(parent);
+    TextEditor::TextEditorSettings::instance()->initializeEditor(xmlEditor);
+    return xmlEditor->editableInterface();
 }
 
 QStringList FormEditorFactory::mimeTypes() const

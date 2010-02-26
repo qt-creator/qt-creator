@@ -36,7 +36,11 @@ HEADERS += formeditorplugin.h \
         formtemplatewizardpage.h \
         formwizarddialog.h \
         codemodelhelpers.h \
-        designer_export.h
+        designer_export.h \
+    designerxmleditor.h \
+    designercontext.h \
+    faketoolbar.h \
+    formeditorstack.h
 
 SOURCES += formeditorplugin.cpp \
         formeditorfactory.cpp \
@@ -51,8 +55,12 @@ SOURCES += formeditorplugin.cpp \
         settingsmanager.cpp \
         formtemplatewizardpage.cpp \
         formwizarddialog.cpp \
-        codemodelhelpers.cpp
+        codemodelhelpers.cpp \
+    designerxmleditor.cpp \
+    designercontext.cpp \
+    faketoolbar.cpp \
+    formeditorstack.cpp
 
 RESOURCES += designer.qrc
 
-OTHER_FILES += Designer.pluginspec
+OTHER_FILES += Designer.pluginspec Designer.mimetypes.xml

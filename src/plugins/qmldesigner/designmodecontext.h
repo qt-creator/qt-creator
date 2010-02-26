@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -27,43 +27,36 @@
 **
 **************************************************************************/
 
-#ifndef COREPLUGIN_H
-#define COREPLUGIN_H
+#ifndef DESIGNMODECONTEXT_H
+#define DESIGNMODECONTEXT_H
 
-#include <extensionsystem/iplugin.h>
+#include <coreplugin/icontext.h>
+#include <QList>
 
-namespace Core {
-class DesignMode;
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
+namespace QmlDesigner {
 namespace Internal {
 
-class EditMode;
-class MainWindow;
-
-class CorePlugin : public ExtensionSystem::IPlugin
+/**
+  * Bauhaus Design mode context object
+  */
+class DesignModeContext : public Core::IContext
 {
-    Q_OBJECT
-
 public:
-    CorePlugin();
-    ~CorePlugin();
+    DesignModeContext(QWidget *widget);
+    ~DesignModeContext();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    virtual void extensionsInitialized();
-    virtual void shutdown();
-    virtual void remoteCommand(const QStringList & /* options */, const QStringList &args);
-
-public slots:
-    void fileOpenRequest(const QString&);
-
+    QList<int> context() const;
+    QWidget *widget();
 private:
-    void parseArguments(const QStringList & arguments);
-
-    MainWindow *m_mainWindow;
-    EditMode *m_editMode;
-    DesignMode *m_designMode;
+    QList<int> m_context;
+    QWidget *m_widget;
 };
 
-} // namespace Internal
-} // namespace Core
+}
+}
 
-#endif // COREPLUGIN_H
+#endif // DESIGNMODECONTEXT_H

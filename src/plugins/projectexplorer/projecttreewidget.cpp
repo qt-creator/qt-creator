@@ -337,7 +337,6 @@ void ProjectTreeWidget::openItem(const QModelIndex &mainIndex)
     if (node->nodeType() == FileNodeType) {
         Core::EditorManager *editorManager = Core::EditorManager::instance();
         editorManager->openEditor(node->path());
-        editorManager->ensureEditorManagerVisible();
     }
 }
 

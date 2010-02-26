@@ -17,17 +17,17 @@ include(components/resources/resources.pri)
 
 HEADERS += qmldesignerconstants.h \
     qmldesignerplugin.h \
-    designmode.h \
     designmodewidget.h \
     application.h \
     designersettings.h \
-    settingspage.h
+    settingspage.h \
+    designmodecontext.h
 SOURCES += qmldesignerplugin.cpp \
-    designmode.cpp \
     designmodewidget.cpp \
     application.cpp \
     designersettings.cpp \
-    settingspage.cpp
+    settingspage.cpp \
+    designmodecontext.cpp
 FORMS += settingspage.ui
 
 OTHER_FILES += QmlDesigner.pluginspec

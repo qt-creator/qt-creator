@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -27,43 +27,46 @@
 **
 **************************************************************************/
 
-#ifndef COREPLUGIN_H
-#define COREPLUGIN_H
+#include "designercontext.h"
+#include "designerconstants.h"
+#include <coreplugin/uniqueidmanager.h>
+#include <coreplugin/coreconstants.h>
 
-#include <extensionsystem/iplugin.h>
+#include <QWidget>
 
-namespace Core {
-class DesignMode;
+namespace Designer {
 namespace Internal {
 
-class EditMode;
-class MainWindow;
-
-class CorePlugin : public ExtensionSystem::IPlugin
+DesignerContext::DesignerContext(QWidget *widget) : Core::IContext(widget),
+    m_widget(widget)
 {
-    Q_OBJECT
+    Core::UniqueIDManager *idMan = Core::UniqueIDManager::instance();
+    m_context << idMan->uniqueIdentifier(Designer::Constants::C_FORMEDITOR)
+              << idMan->uniqueIdentifier(Core::Constants::C_EDITORMANAGER)
+              << idMan->uniqueIdentifier(Core::Constants::C_DESIGN_MODE);
 
-public:
-    CorePlugin();
-    ~CorePlugin();
+}
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    virtual void extensionsInitialized();
-    virtual void shutdown();
-    virtual void remoteCommand(const QStringList & /* options */, const QStringList &args);
+DesignerContext::~DesignerContext()
+{
 
-public slots:
-    void fileOpenRequest(const QString&);
+}
 
-private:
-    void parseArguments(const QStringList & arguments);
+QList<int> DesignerContext::context() const
+{
+    return m_context;
+}
 
-    MainWindow *m_mainWindow;
-    EditMode *m_editMode;
-    DesignMode *m_designMode;
-};
+QWidget *DesignerContext::widget()
+{
+    return m_widget;
+}
 
-} // namespace Internal
-} // namespace Core
+void DesignerContext::setWidget(QWidget *widget)
+{
+    m_widget = widget;
+}
 
-#endif // COREPLUGIN_H
+}
+}
+

@@ -31,6 +31,7 @@
 #include "formeditorfactory.h"
 #include "formeditorw.h"
 #include "formwizard.h"
+#include "formeditorstack.h"
 
 #ifdef CPP_ENABLED
 #  include "formclasswizard.h"
@@ -39,18 +40,32 @@
 #endif
 
 #include "designerconstants.h"
+#include "formwindoweditor.h"
+#include "designerxmleditor.h"
+#include "formwindowfile.h"
+
+#include <QDesignerFormWindowInterface>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/designmode.h>
+#include <texteditor/basetextdocument.h>
 
+#include <QtCore/QPointer>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
+
+#include <QtGui/QTextDocument>
 
 #ifdef CPP_ENABLED
 #    include <QtGui/QAction>
@@ -86,9 +101,6 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
     initializeTemplates();
 
-    const int uid = core->uniqueIDManager()->uniqueIdentifier(QLatin1String(C_FORMEDITOR));
-    const QList<int> context = QList<int>() << uid;
-
     addAutoReleasedObject(new FormEditorFactory);
 
     // Ensure that loading designer translations is done before FormEditorW is instantiated
@@ -113,6 +125,8 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
         const QByteArray output = proc.readAll();
         if (output.contains("KDE: 4.2.0"))
             FormEditorW::ensureInitStage(FormEditorW::FullyInitialized);
+        else
+            FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
     } else {
         FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
     }
@@ -123,6 +137,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
 void FormEditorPlugin::extensionsInitialized()
 {
+    // 4) test and make sure everything works (undo, saving, editors, opening/closing multiple files, dirtiness etc)
 }
 
 ////////////////////////////////////////////////////

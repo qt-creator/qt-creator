@@ -67,6 +67,8 @@ class ActionContainer;
 class ICore;
 class IEditor;
 class Command;
+class IMode;
+class DesignMode;
 }
 
 namespace Designer {
@@ -74,7 +76,9 @@ class FormWindowEditor;
 
 namespace Internal {
 
+class FormEditorStack;
 class SettingsPage;
+class DesignerContext;
 
 class ProxyAction : public QAction
 {
@@ -144,6 +148,9 @@ private slots:
 
     void editorDestroyed();
     void updateShortcut(QObject *command);
+    void syncOnModeChange(Core::IMode *mode);
+    void checkToActivateEditor(Core::IEditor *editor);
+    void closeFormEditorsForXmlEditors(QList<Core::IEditor*> editors);
 
 private:
     FormEditorW();
@@ -199,12 +206,15 @@ private:
     QActionGroup *m_actionGroupPreviewInStyle;
     QAction *m_actionAboutPlugins;
     QAction *m_modeActionSeparator;
-
-    QList<int> m_context;
-
-    EditorList m_formWindows;
-    QStringList m_toolActionIds;
     QSignalMapper *m_shortcutMapper;
+
+    DesignerContext *m_context;
+    EditorList m_formWindows;
+
+    QStringList m_toolActionIds;
+    QPointer<FormEditorStack> m_stack;
+    Core::DesignMode *m_designMode;
+
     QMap<Core::Command *, QAction *> m_commandToDesignerAction;
 };
 

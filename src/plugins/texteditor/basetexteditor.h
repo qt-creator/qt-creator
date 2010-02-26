@@ -299,7 +299,7 @@ public:
     // EditorInterface
     Core::IFile * file();
     bool createNew(const QString &contents);
-    bool open(const QString &fileName = QString());
+    virtual bool open(const QString &fileName = QString());
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
     QString displayName() const;

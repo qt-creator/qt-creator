@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -27,43 +27,58 @@
 **
 **************************************************************************/
 
-#ifndef COREPLUGIN_H
-#define COREPLUGIN_H
+#ifndef FAKETOOLBAR_H
+#define FAKETOOLBAR_H
 
-#include <extensionsystem/iplugin.h>
+#include <QWidget>
+#include <QtCore/QPointer>
 
 namespace Core {
-class DesignMode;
+    class IEditor;
+    class OpenEditorsModel;
+}
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QToolButton;
+class QToolBar;
+QT_END_NAMESPACE
+
+namespace Designer {
 namespace Internal {
 
-class EditMode;
-class MainWindow;
-
-class CorePlugin : public ExtensionSystem::IPlugin
+/**
+  * Fakes an IEditor-like toolbar for design mode widgets such as Qt Designer and Bauhaus.
+  * Creates a combobox for open files and lock and close buttons on the right.
+  */
+class FakeToolBar : public QWidget
 {
     Q_OBJECT
-
+    Q_DISABLE_COPY(FakeToolBar)
 public:
-    CorePlugin();
-    ~CorePlugin();
+    explicit FakeToolBar(Core::IEditor *editor, QWidget *toolbar, QWidget *parent = 0);
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    virtual void extensionsInitialized();
-    virtual void shutdown();
-    virtual void remoteCommand(const QStringList & /* options */, const QStringList &args);
+    void updateActions();
 
-public slots:
-    void fileOpenRequest(const QString&);
+private slots:
+    void updateEditorListSelection(Core::IEditor *newSelection);
+    void close();
+    void listSelectionActivated(int row);
+    void listContextMenu(QPoint);
+    void makeEditorWritable();
+    void updateEditorStatus();
 
 private:
-    void parseArguments(const QStringList & arguments);
-
-    MainWindow *m_mainWindow;
-    EditMode *m_editMode;
-    DesignMode *m_designMode;
+    Core::OpenEditorsModel *m_editorsListModel;
+    QComboBox *m_editorList;
+    QToolButton *m_closeButton;
+    QToolButton *m_lockButton;
+    QAction *m_goBackAction;
+    QAction *m_goForwardAction;
+    QPointer<Core::IEditor> m_editor;
 };
 
-} // namespace Internal
-} // namespace Core
+}
+}
 
-#endif // COREPLUGIN_H
+#endif // FAKETOOLBAR_H

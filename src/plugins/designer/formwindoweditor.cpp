@@ -33,6 +33,7 @@
 #include "formwindoweditor.h"
 #include "formwindowfile.h"
 #include "formwindowhost.h"
+#include "faketoolbar.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
@@ -41,6 +42,8 @@
 #include <projectexplorer/session.h>
 
 #include <utils/qtcassert.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
@@ -99,38 +102,60 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 }
 
 
-FormWindowEditor::FormWindowEditor(const QList<int> &context,
-                                   QDesignerFormWindowInterface *form,
+FormWindowEditor::FormWindowEditor(QDesignerFormWindowInterface *form,
                                    QObject *parent)
   : Core::IEditor(parent),
-    m_context(context),
     m_formWindow(form),
-    m_file(new FormWindowFile(form, this)),
+    m_file(0),
     m_host(new FormWindowHost(form)),
     m_editorWidget(new EditorWidget(m_host)),
     m_toolBar(0),
     m_sessionNode(0),
-    m_sessionWatcher(0)
+    m_sessionWatcher(0),
+    m_fakeToolBar(new FakeToolBar(this, toolBar()))
 {
+    m_containerWidget = new QWidget;
+    QVBoxLayout *layout = new QVBoxLayout(m_containerWidget);
+    m_containerWidget->setLayout(layout);
+
+    layout->addWidget(m_fakeToolBar);
+    layout->addWidget(m_editorWidget);
+    layout->setStretch(0,0);
+    layout->setStretch(1,1);
+    layout->setSpacing(0);
+    layout->setMargin(0);
+    layout->setContentsMargins(0,0,0,0);
+
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << form << parent;
-
-    connect(m_file, SIGNAL(reload(QString)), this, SLOT(slotOpen(QString)));
-    connect(m_file, SIGNAL(setDisplayName(QString)), this, SLOT(slotSetDisplayName(QString)));
-    connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
-    connect(m_file, SIGNAL(changed()), this, SLOT(updateResources()));
-    connect(this, SIGNAL(opened(QString)), m_file, SLOT(setFileName(QString)));
 
     connect(m_host, SIGNAL(changed()), this, SIGNAL(changed()));
 
     connect(form, SIGNAL(toolChanged(int)), m_editorWidget, SLOT(toolChanged(int)));
+
     m_editorWidget->activate();
+}
+
+void FormWindowEditor::setFile(Core::IFile *file)
+{
+    if (m_file) {
+        disconnect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
+        disconnect(m_file, SIGNAL(changed()), this, SLOT(updateResources()));
+    }
+
+    m_file = file;
+
+    if (m_file) {
+        connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
+        connect(m_file, SIGNAL(changed()), this, SLOT(updateResources()));
+    }
 }
 
 FormWindowEditor::~FormWindowEditor()
 {
     // Close: Delete the Designer form window via embedding widget
     delete m_toolBar;
+    delete m_fakeToolBar;
     delete m_host;
     delete m_editorWidget;
     if (Designer::Constants::Internal::debug)
@@ -139,6 +164,11 @@ FormWindowEditor::~FormWindowEditor()
         m_sessionNode->unregisterWatcher(m_sessionWatcher);
         delete m_sessionWatcher;
     }
+}
+
+void FormWindowEditor::setContext(QList<int> context)
+{
+    m_context = context;
 }
 
 bool FormWindowEditor::createNew(const QString &contents)
@@ -302,7 +332,7 @@ QList<int> FormWindowEditor::context() const
 
 QWidget *FormWindowEditor::widget()
 {
-    return m_editorWidget;
+    return m_containerWidget;
 }
 
 
@@ -319,11 +349,6 @@ QWidget *FormWindowEditor::integrationContainer()
 void FormWindowEditor::updateFormWindowSelectionHandles(bool state)
 {
     m_host->updateFormWindowSelectionHandles(state);
-}
-
-void FormWindowEditor::setSuggestedFileName(const QString &fileName)
-{
-    m_file->setSuggestedFileName(fileName);
 }
 
 void FormWindowEditor::activate()

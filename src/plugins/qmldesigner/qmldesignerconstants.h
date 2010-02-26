@@ -39,7 +39,7 @@ const char * const DELETE               = "QmlDesigner.Delete";
 
 // context
 const char * const C_DESIGN_MODE        = "QmlDesigner::DesignMode";
-const char * const C_FORMEDITOR         = "QmlDesigner::FormEditor";
+const char * const C_FORMEDITOR         = "QmlDesigner::QmlFormEditor";
 
 // actions
 const char * const SWITCH_TEXT_DESIGN   = "QmlDesigner.SwitchTextDesign";

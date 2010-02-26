@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -35,16 +35,19 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <QWeakPointer>
+#include <QPair>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QStackedWidget;
 QT_END_NAMESPACE
 
-namespace QmlDesigner {
-namespace Internal {
-
+namespace Core {
+class EditorManager;
 class DesignMode;
-class DesignModeWidget;
+
+namespace Internal {
 
 class DesignModeCoreListener : public Core::ICoreListener
 {
@@ -56,14 +59,25 @@ private:
     DesignMode *m_mode;
 };
 
-class DesignMode : public Core::IMode
+} // namespace Internal
+
+/**
+  * A global mode for Design pane - used by Bauhaus (QML Designer) and
+  * Qt Designer. Other plugins can register themselves by registerDesignWidget()
+  * and giving a list of mimetypes that the editor understands, as well as an instance
+  * to the main editor widget itself.
+  */
+class CORE_EXPORT DesignMode : public Core::IMode
 {
     Q_OBJECT
 
 public:
-    DesignMode();
+    DesignMode(EditorManager *editorManager);
     ~DesignMode();
 
+    void registerDesignWidget(QWidget *widget, const QStringList &mimeTypes,
+                              bool preferDesignMode = false);
+    void unregisterDesignWidget(QWidget *widget);
     // IContext
     QList<int> context() const;
     QWidget *widget();
@@ -74,30 +88,34 @@ public:
     int priority() const;
     QString id() const;
 
+signals:
+    void actionsUpdated(Core::IEditor *editor);
+
 private slots:
-    void textEditorsClosed(QList<Core::IEditor *> editors);
-    void modeChanged(Core::IMode *mode);
     void currentEditorChanged(Core::IEditor *editor);
-    void makeCurrentEditorWritable();
     void updateActions();
 
 private:
-    DesignModeWidget *m_mainWidget;
-    DesignModeCoreListener *m_coreListener;
+    Internal::DesignModeCoreListener *m_coreListener;
     QWeakPointer<Core::IEditor> m_currentEditor;
     bool m_isActive;
 
-    QAction *m_revertToSavedAction;
-    QAction *m_saveAction;
-    QAction *m_saveAsAction;
-    QAction *m_closeCurrentEditorAction;
-    QAction *m_closeAllEditorsAction;
-    QAction *m_closeOtherEditorsAction;
+    struct DesignEditorInfo {
+        int widgetIndex;
+        QStringList mimeTypes;
+        bool preferredMode;
+        QWidget *widget;
+    };
 
-    friend class DesignModeCoreListener;
+    QList<DesignEditorInfo*> m_editors;
+
+    EditorManager *m_editorManager;
+    QStackedWidget *m_stackWidget;
+
+    friend class Internal::DesignModeCoreListener;
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+
+} // namespace Core
 
 #endif // DESIGNMODE_H

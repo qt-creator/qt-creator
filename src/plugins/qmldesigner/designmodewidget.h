@@ -161,7 +161,7 @@ class DesignModeWidget : public QWidget
     Q_OBJECT
     Q_DISABLE_COPY(DesignModeWidget)
 public:
-    explicit DesignModeWidget(DesignMode *designMode, QWidget *parent = 0);
+    explicit DesignModeWidget(QWidget *parent = 0);
     ~DesignModeWidget();
 
 //    void syncWithTextEdit(bool sync);
@@ -175,8 +175,6 @@ public:
     QAction *copyAction() const;
     QAction *pasteAction() const;
     QAction *selectAllAction() const;
-
-    DesignMode *designMode() const;
 
 private slots:
     void undo();
@@ -192,8 +190,6 @@ private slots:
 
 private:
     void setCurrentDocumentWidget(DocumentWidget *newDocumentWidget);
-
-    DesignMode *m_designMode;
 
     QStackedWidget *m_documentWidgetStack;
     QHash<QPlainTextEdit*,DocumentWidget*> m_documentHash;

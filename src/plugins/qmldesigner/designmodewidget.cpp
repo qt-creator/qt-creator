@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "designmodewidget.h"
-#include "designmode.h"
 #include "qmldesignerconstants.h"
 
 #include <model.h>
@@ -471,9 +470,8 @@ ModelNode DocumentWidget::nodeForPosition(int cursorPos) const
 }
 
 // ---------- DesignModeWidget
-DesignModeWidget::DesignModeWidget(DesignMode *designMode, QWidget *parent) :
+DesignModeWidget::DesignModeWidget(QWidget *parent) :
     QWidget(parent),
-    m_designMode(designMode),
     m_documentWidgetStack(new QStackedWidget),
     m_currentDocumentWidget(0),
     m_currentTextEdit(0),
@@ -601,11 +599,6 @@ QAction *DesignModeWidget::pasteAction() const
 QAction *DesignModeWidget::selectAllAction() const
 {
     return m_selectAllAction;
-}
-
-DesignMode *DesignModeWidget::designMode() const
-{
-    return m_designMode;
 }
 
 void DesignModeWidget::undo()

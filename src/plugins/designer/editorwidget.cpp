@@ -97,6 +97,7 @@ EditorWidget::EditorWidget(QWidget *formWindow)
     // Get shared sub windows from Form Editor
     FormEditorW *few = FormEditorW::instance();
     QWidget * const*subs = few->designerSubWindows();
+
     // Create shared sub windows
     for (int i=0; i < DesignerSubWindowCount; i++) {
         m_designerSubWindows[i] = new SharedSubWindow(subs[i]);
@@ -132,6 +133,13 @@ void EditorWidget::resetToDefaultLayout()
 
 void EditorWidget::activate()
 {
+    /*
+
+       - now, settings are only changed when form is hidden.
+       - they should be not restored when a new form is activated - the same settings should be kept.
+       - only on initial load, settings should be loaded.
+
+     */
     for (int i=0; i < DesignerSubWindowCount; i++)
         m_designerSubWindows[i]->activate();
 
@@ -143,13 +151,12 @@ void EditorWidget::activate()
         // don't have their widgets yet there
         resetToDefaultLayout();
         m_initialized = true;
+        if (!m_globalState.isEmpty())
+            m_mainWindow->restoreSettings(m_globalState);
     }
 
-    if (!m_globalState.isEmpty())
-        m_mainWindow->restoreSettings(m_globalState);
-    else {
+    if (m_globalState.isEmpty())
         m_globalState = m_mainWindow->saveSettings();
-    }
 }
 
 void EditorWidget::hideEvent(QHideEvent *)

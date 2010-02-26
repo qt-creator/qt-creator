@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -27,43 +27,35 @@
 **
 **************************************************************************/
 
-#ifndef COREPLUGIN_H
-#define COREPLUGIN_H
+#include "designmodecontext.h"
+#include "qmldesignerconstants.h"
+#include <coreplugin/uniqueidmanager.h>
+#include <QWidget>
 
-#include <extensionsystem/iplugin.h>
-
-namespace Core {
-class DesignMode;
+namespace QmlDesigner {
 namespace Internal {
 
-class EditMode;
-class MainWindow;
-
-class CorePlugin : public ExtensionSystem::IPlugin
+DesignModeContext::DesignModeContext(QWidget *widget) : IContext(widget),
+    m_widget(widget)
 {
-    Q_OBJECT
+    m_context << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::C_FORMEDITOR);
+}
 
-public:
-    CorePlugin();
-    ~CorePlugin();
+DesignModeContext::~DesignModeContext()
+{
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage = 0);
-    virtual void extensionsInitialized();
-    virtual void shutdown();
-    virtual void remoteCommand(const QStringList & /* options */, const QStringList &args);
+}
 
-public slots:
-    void fileOpenRequest(const QString&);
+QList<int> DesignModeContext::context() const
+{
+    return m_context;
+}
 
-private:
-    void parseArguments(const QStringList & arguments);
+QWidget *DesignModeContext::widget()
+{
+    return m_widget;
+}
 
-    MainWindow *m_mainWindow;
-    EditMode *m_editMode;
-    DesignMode *m_designMode;
-};
+}
+}
 
-} // namespace Internal
-} // namespace Core
-
-#endif // COREPLUGIN_H
