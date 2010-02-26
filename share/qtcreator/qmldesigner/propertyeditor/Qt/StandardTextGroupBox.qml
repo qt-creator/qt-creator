@@ -62,9 +62,9 @@ GroupBox {
                 }
             }
         }
-		
-		ColorLabel {
-            text: "    Color"			
+
+        ColorLabel {
+            text: "    Color"
         }
 
         ColorGroupBox {
@@ -73,18 +73,18 @@ GroupBox {
 
             backendColor: backendValues.color
         }
-		
-		ColorLabel {
-			visible: showStyleColor
-            text: "    Style Color"			
+
+        ColorLabel {
+            visible: showStyleColor
+            text: "    Style Color"
         }
 
         ColorGroupBox {
-			visible: showStyleColor
+            visible: showStyleColor
             finished: finishedNotify
 
             backendColor: backendValues.styleColor || null
         }
-		        
+
     }
 }

@@ -7,8 +7,18 @@ QWidget {
     property var backendValue
     property alias enabled: lineEdit.enabled
     property var baseStateFlag
+    property alias text: lineEditWidget.text
 
     minimumHeight: 24;
+
+    onBaseStateFlagChanged: {
+        evaluate();
+    }
+
+    property var isEnabled: comboBox.enabled
+    onIsEnabledChanged: {
+        evaluate();
+    }
 
     Script {
         function evaluate() {
@@ -42,6 +52,7 @@ QWidget {
 
         onTextEdited: {
             backendValue.value = text
+            evaluate();
         }
 
         onFocusChanged: {
