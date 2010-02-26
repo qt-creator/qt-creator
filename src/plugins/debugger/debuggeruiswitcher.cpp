@@ -38,11 +38,11 @@ DebuggerUISwitcher *DebuggerUISwitcher::m_instance = 0;
 DebuggerUISwitcher::DebuggerUISwitcher(Core::BaseMode *mode, QObject* parent) : QObject(parent),
     m_model(new QStandardItemModel(this)),
     m_toolbarStack(new QStackedWidget),
+    m_languageActionGroup(new QActionGroup(this)),
     m_activeLanguage(-1),
     m_isActiveMode(false),
     m_changingUI(false),
     m_toggleLockedAction(0),
-    m_languageActionGroup(new QActionGroup(this)),
     m_viewsMenu(0),
     m_debugMenu(0)
 {
