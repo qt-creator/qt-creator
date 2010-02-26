@@ -15,7 +15,7 @@ QWidget {
         evaluate();
     }
 
-    property var isEnabled: comboBox.enabled
+    property var isEnabled: lineEdit.enabled
     onIsEnabledChanged: {
         evaluate();
     }
