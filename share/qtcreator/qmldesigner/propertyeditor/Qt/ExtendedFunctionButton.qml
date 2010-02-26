@@ -19,7 +19,7 @@ QToolButton {
                     extendedFunctionButton.iconFromFile = "images/placeholder.png"
                 }
             }
-        }    
+        }
     }
 
 
@@ -79,6 +79,6 @@ QToolButton {
             expressionEdit.raise();
             expressionEdit.active = true;
         }
-    }   
+    }
     ]
 }

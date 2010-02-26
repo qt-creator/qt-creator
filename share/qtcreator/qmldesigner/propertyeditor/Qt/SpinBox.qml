@@ -29,26 +29,26 @@ QWidget { //This is a special spinBox that does color coding for states
 
 
     Script {
-	 function evaluate() {
-        if (!enabled) {
-            box.setStyleSheet("color: "+scheme.disabledColor);
-        } else {
-        if (baseStateFlag) {
-            if (backendValue != null && backendValue.isInModel)
-                box.setStyleSheet("color: "+scheme.changedBaseColor);
-            else
-                box.setStyleSheet("color: "+scheme.defaultColor);
-            } else {
-            if (backendValue != null && backendValue.isInSubState)
-                box.setStyleSheet("color: "+scheme.changedStateColor);
-            else
-                box.setStyleSheet("color: "+scheme.defaultColor);
+        function evaluate() {
+            if (!enabled) {
+                box.setStyleSheet("color: "+scheme.disabledColor);
+                } else {
+                if (baseStateFlag) {
+                    if (backendValue != null && backendValue.isInModel)
+                       box.setStyleSheet("color: "+scheme.changedBaseColor);
+                    else
+                       box.setStyleSheet("color: "+scheme.defaultColor);
+                } else {
+                    if (backendValue != null && backendValue.isInSubState)
+                        box.setStyleSheet("color: "+scheme.changedStateColor);
+                    else
+                        box.setStyleSheet("color: "+scheme.defaultColor);
+                }
             }
         }
     }
-    }
-	
-	property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
+
+    property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
 
     onIsInModelChanged: {
         evaluate();
@@ -76,22 +76,22 @@ QWidget { //This is a special spinBox that does color coding for states
 
             onValueFromBackendChanged: {
                 readingFromBackend = true;
-				if (!(valueFromBackend  === undefined))
-                    value = valueFromBackend;
+                if (!(valueFromBackend  === undefined))
+                value = valueFromBackend;
                 readingFromBackend = false;
                 evaluate();
             }
 
             onValueChanged: {
                 if (spinBox.backendValue != null && readingFromBackend == false)
-                    backendValue.value = value;
+                backendValue.value = value;
             }
 
             onFocusChanged: {
                 if (focus)
-                    spinBox.backendValue.lock();
+                spinBox.backendValue.lock();
                 else
-                    spinBox.backendValue.unlock();
+                spinBox.backendValue.unlock();
             }
             onEditingFinished: {
                 focus = false;

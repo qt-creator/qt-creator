@@ -7,9 +7,9 @@ GroupBox {
     caption: "Text Input";
 
     layout: VerticalLayout {
-	
-		ColorLabel {
-            text: "    Selection Color"			
+
+        ColorLabel {
+            text: "    Selection Color"
         }
 
         ColorGroupBox {
@@ -18,9 +18,9 @@ GroupBox {
 
             backendColor: backendValues.selectionColor
         }
-		
-		ColorLabel {
-            text: "    Selected Text Color"			
+
+        ColorLabel {
+            text: "    Selected Text Color"
         }
 
         ColorGroupBox {

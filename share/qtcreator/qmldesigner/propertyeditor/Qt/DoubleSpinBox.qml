@@ -82,12 +82,12 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
             property real valueFromBackend: (doubleSpinBox.backendValue === undefined ||
             doubleSpinBox.backendValue === null || doubleSpinBox.backendValue.value === undefined)
             ? .0 : doubleSpinBox.backendValue.value;
-            
+
             onValueFromBackendChanged: {
                 readingFromBackend = true;
                 value = valueFromBackend
                 readingFromBackend = false;
-            }           
+            }
 
             onValueChanged: {
                 if (doubleSpinBox.backendValue != null && readingFromBackend == false)

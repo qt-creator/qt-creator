@@ -25,7 +25,7 @@ QExtGroupBox {
         text: groupBox.caption;
         focusPolicy: "Qt::NoFocus";
         styleSheetFile: "specialCheckBox.css";
-        y: 0;		
+        y: 0;
         x: 0;
         fixedHeight: 17
         fixedWidth: groupBox.width;
@@ -40,9 +40,9 @@ QExtGroupBox {
                 collapsed = false;
                 //text = "";
                 //width = 12;
-				//width = 120;
+                //width = 120;
                 arrowType =  "Qt::DownArrow";
-				visible = true;
+                visible = true;
                 } else {
                 //groupBox.maximumHeight = 20;
 
