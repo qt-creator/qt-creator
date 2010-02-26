@@ -83,8 +83,6 @@ QExtGroupBox {
 
     ColorScheme { id:scheme; }
 
->>>>>>> QmlDesigner.PropertyEditor:  Color controls now use color scheme when modified:share/qtcreator/qmldesigner/propertyeditor/Qt/ColorGroupBox.qml
-
     QWidget {
         id: colorButtonWidget
         height: 32
