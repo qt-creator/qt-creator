@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "qmlstatenodeinstance.h"
-#include <private/qmlstategroup_p.h>
+#include <private/qdeclarativestategroup_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -36,23 +36,23 @@ namespace Internal {
 /**
   \class QmlStateNodeInstance
 
-  QmlStateNodeInstance manages a QmlState object. One can activate / deactivate a state
+  QmlStateNodeInstance manages a QDeclarativeState object. One can activate / deactivate a state
   by setting/unsetting the special "__activateState" boolean property.
   */
 
-QmlStateNodeInstance::QmlStateNodeInstance(QmlState *object) :
+QmlStateNodeInstance::QmlStateNodeInstance(QDeclarativeState *object) :
         ObjectNodeInstance(object)
 {
 }
 
 QmlStateNodeInstance::Pointer
         QmlStateNodeInstance::create(const NodeMetaInfo &metaInfo,
-                                               QmlContext *context,
+                                               QDeclarativeContext *context,
                                                QObject *objectToBeWrapped)
 {
     Q_ASSERT(!objectToBeWrapped);
     QObject *object = createObject(metaInfo, context);
-    QmlState *stateObject = qobject_cast<QmlState*>(object);
+    QDeclarativeState *stateObject = qobject_cast<QDeclarativeState*>(object);
     Q_ASSERT(stateObject);
 
     Pointer instance(new QmlStateNodeInstance(stateObject));
@@ -86,14 +86,14 @@ void QmlStateNodeInstance::refreshState()
     nodeInstanceView()->setBlockStatePropertyChanges(false);
 }
 
-QmlState *QmlStateNodeInstance::stateObject() const
+QDeclarativeState *QmlStateNodeInstance::stateObject() const
 {
     Q_ASSERT(object());
-    Q_ASSERT(qobject_cast<QmlState*>(object()));
-    return static_cast<QmlState*>(object());
+    Q_ASSERT(qobject_cast<QDeclarativeState*>(object()));
+    return static_cast<QDeclarativeState*>(object());
 }
 
-QmlStateGroup *QmlStateNodeInstance::stateGroup() const
+QDeclarativeStateGroup *QmlStateNodeInstance::stateGroup() const
 {
     return stateObject()->stateGroup();
 }

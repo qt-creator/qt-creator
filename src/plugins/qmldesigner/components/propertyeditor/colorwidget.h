@@ -36,7 +36,7 @@
 #include <QToolButton>
 #include <QMouseEvent>
 #include <modelnode.h>
-#include <qml.h>
+#include <qdeclarative.h>
 #include <propertyeditorvalue.h>
 
 QT_BEGIN_NAMESPACE
@@ -279,6 +279,12 @@ private:
     QColor m_color;
     bool m_mousePressed;
     QPixmap m_cache;
+};
+
+
+class ColorWidget {
+public:
+    static void registerDeclarativeTypes();
 };
 
 

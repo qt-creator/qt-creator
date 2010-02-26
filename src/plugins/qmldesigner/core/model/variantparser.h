@@ -35,7 +35,7 @@
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
-class QmlValueType;
+class QDeclarativeValueType;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -56,7 +56,7 @@ public:
     static bool isValueType(const QString &type);
     static VariantParser create(const QString &type);
 private:
-    QmlValueType *m_valueType;
+    QDeclarativeValueType *m_valueType;
 };
 
 

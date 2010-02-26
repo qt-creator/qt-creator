@@ -43,10 +43,10 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QMessageBox>
 
-#include <QtDeclarative/QmlView>
-#include <QtDeclarative/QmlContext>
-#include <QtDeclarative/QmlEngine>
-#include <QtDeclarative/QmlGraphicsItem>
+#include <QtDeclarative/QDeclarativeView>
+#include <QtDeclarative/QDeclarativeContext>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeItem>
 
 enum {
     debug = false
@@ -77,7 +77,7 @@ private slots:
 private:
     StatesEditorWidget *m_q;
     QWeakPointer<Model> model;
-    QWeakPointer<QmlView> listView;
+    QWeakPointer<QDeclarativeView> listView;
     QWeakPointer<Internal::StatesEditorModel> statesEditorModel;
     QWeakPointer<Internal::StatesEditorView> statesEditorView;
     friend class QmlDesigner::StatesEditorWidget;
@@ -149,7 +149,7 @@ StatesEditorWidget::StatesEditorWidget(QWidget *parent):
         m_d(new Internal::StatesEditorWidgetPrivate(this))
 {
     m_d->statesEditorModel = new Internal::StatesEditorModel(this);
-    m_d->listView = new QmlView(this);
+    m_d->listView = new QDeclarativeView(this);
 
     m_d->listView->setAcceptDrops(false);
 
@@ -158,13 +158,11 @@ StatesEditorWidget::StatesEditorWidget(QWidget *parent):
     layout->setSpacing(0);
     layout->addWidget(m_d->listView.data());
 
-    m_d->listView->setSource(QUrl("qrc:/stateseditor/stateslist.qml"));
-
-    m_d->listView->setResizeMode(QmlView::SizeRootObjectToView);
+    m_d->listView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
     m_d->listView->rootContext()->setContextProperty(QLatin1String("statesEditorModel"), m_d->statesEditorModel.data());
 
-    m_d->listView->execute();
+    m_d->listView->setSource(QUrl("qrc:/stateseditor/stateslist.qml"));
 
     if (!m_d->listView->rootObject())
         throw InvalidQmlSourceException(__LINE__, __FUNCTION__, __FILE__);

@@ -44,9 +44,9 @@
 #include <QPair>
 #include <QtAlgorithms>
 #include <QMetaProperty>
-#include <QmlEngine>
-#include <QmlMetaType>
-#include <private/qmlgraphicsanchors_p.h>
+#include <QDeclarativeEngine>
+#include <private/qdeclarativemetatype_p.h>
+#include <private/qdeclarativeanchors_p.h>
 
 enum {
     debug = false
@@ -109,7 +109,7 @@ void MetaInfoPrivate::initialize()
 {
     // make sure QmlGraphicsItemsModule gets initialized, that is
     // QmlGraphicsItemsModule::defineModule called
-    QmlEngine engine;
+    QDeclarativeEngine engine;
     Q_UNUSED(engine);
 
     parseQmlTypes();
@@ -191,7 +191,7 @@ void MetaInfoPrivate::parseNonQmlClassRecursively(const QMetaObject *qMetaObject
     Q_ASSERT_X(qMetaObject, Q_FUNC_INFO, "invalid QMetaObject");
     const QString className = qMetaObject->className();
     if ( !m_q->hasNodeMetaInfo(className)
-        && !QmlMetaType::qmlTypeNames().contains(typeName(qMetaObject).toAscii()) ) {
+        && !QDeclarativeMetaType::qmlTypeNames().contains(typeName(qMetaObject).toAscii()) ) {
         NodeMetaInfo nodeMetaInfo(*m_q);
         nodeMetaInfo.setTypeName(typeName(qMetaObject));
         parseProperties(nodeMetaInfo, qMetaObject);
@@ -213,7 +213,7 @@ QString MetaInfoPrivate::typeName(const QMetaObject *qMetaObject) const
     if (!qMetaObject)
         return QString();
     QString className = qMetaObject->className();
-    if (QmlType *qmlType = QmlMetaType::qmlType(qMetaObject)) {
+    if (QDeclarativeType *qmlType = QDeclarativeMetaType::qmlType(qMetaObject)) {
         QString qmlClassName(qmlType->qmlTypeName());
         if (!qmlClassName.isEmpty())
             className = qmlType->qmlTypeName(); // Ensure that we always use the qml name,
@@ -271,12 +271,12 @@ void MetaInfoPrivate::parseValueTypes()
 
 void MetaInfoPrivate::parseQmlTypes()
 {
-    foreach (QmlType *qmlType, QmlMetaType::qmlTypes()) {
+    foreach (QDeclarativeType *qmlType, QDeclarativeMetaType::qmlTypes()) {
         const QString qtTypeName(qmlType->typeName());
         const QString qmlTypeName(qmlType->qmlTypeName());
         m_QtTypesToQmlTypes.insert(qtTypeName, qmlTypeName);
     }
-    foreach (QmlType *qmlType, QmlMetaType::qmlTypes()) {
+    foreach (QDeclarativeType *qmlType, QDeclarativeMetaType::qmlTypes()) {
         const QMetaObject *qMetaObject = qmlType->metaObject();
 
         // parseQmlTypes is called iteratively e.g. when plugins are loaded
@@ -305,11 +305,11 @@ void MetaInfoPrivate::parseQmlTypes()
 
 void MetaInfoPrivate::parseNonQmlTypes()
 {
-    foreach (QmlType *qmlType, QmlMetaType::qmlTypes()) {
+    foreach (QDeclarativeType *qmlType, QDeclarativeMetaType::qmlTypes()) {
         parseNonQmlClassRecursively(qmlType->metaObject());
     }
 
-    parseNonQmlClassRecursively(&QmlGraphicsAnchors::staticMetaObject);
+    parseNonQmlClassRecursively(&QDeclarativeAnchors::staticMetaObject);
 }
 
 

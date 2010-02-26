@@ -41,12 +41,13 @@
 #include <variantproperty.h>
 #include <qmlobjectnode.h>
 
-QML_DEFINE_TYPE(Bauhaus,1,0,ColorButton,QmlDesigner::ColorButton);
-QML_DEFINE_TYPE(Bauhaus,1,0,HueControl,QmlDesigner::HueControl);
-QML_DEFINE_TYPE(Bauhaus,1,0,ColorBox,QmlDesigner::ColorBox);
-
-
 namespace QmlDesigner {
+
+    void ColorWidget::registerDeclarativeTypes() {
+        QML_REGISTER_TYPE(Bauhaus,1,0,ColorButton,QmlDesigner::ColorButton);
+        QML_REGISTER_TYPE(Bauhaus,1,0,HueControl,QmlDesigner::HueControl);
+        QML_REGISTER_TYPE(Bauhaus,1,0,ColorBox,QmlDesigner::ColorBox);
+    }
 
     void ColorButton::paintEvent(QPaintEvent *event)
     {

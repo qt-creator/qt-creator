@@ -54,9 +54,9 @@
 #include <QFileIconProvider>
 #include <QImageReader>
 
-#include <QmlView>
-#include <QmlGraphicsItem>
-#include <private/qmlengine_p.h>
+#include <QDeclarativeView>
+#include <QDeclarativeItem>
+#include <private/qdeclarativeengine_p.h>
 
 
 namespace QmlDesigner {
@@ -106,7 +106,7 @@ public:
 
     Ui::ItemLibrary m_ui;
     Internal::ItemLibraryModel *m_itemLibraryModel;
-    QmlView *m_itemsView;
+    QDeclarativeView *m_itemsView;
     QDirModel *m_resourcesDirModel;
     QString m_resourcePath;
     QSize m_itemIconSize, m_resIconSize;
@@ -147,24 +147,23 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     m_d->m_ui.ItemLibraryTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
 
-    m_d->m_itemsView = new QmlView(this);
-    m_d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
+    m_d->m_itemsView = new QDeclarativeView(this);
     m_d->m_itemsView->setAttribute(Qt::WA_OpaquePaintEvent);
     m_d->m_itemsView->setAttribute(Qt::WA_NoSystemBackground);
     m_d->m_itemsView->setAcceptDrops(false);
     m_d->m_itemsView->setFocusPolicy(Qt::ClickFocus);
-    m_d->m_itemsView->setResizeMode(QmlView::SizeRootObjectToView);
+    m_d->m_itemsView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     m_d->m_ui.ItemLibraryGridLayout->addWidget(m_d->m_itemsView, 0, 0);
 
-    m_d->m_itemLibraryModel = new Internal::ItemLibraryModel(QmlEnginePrivate::getScriptEngine(m_d->m_itemsView->engine()), this);
+    m_d->m_itemLibraryModel = new Internal::ItemLibraryModel(QDeclarativeEnginePrivate::getScriptEngine(m_d->m_itemsView->engine()), this);
     m_d->m_itemLibraryModel->setItemIconSize(m_d->m_itemIconSize);
     m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryModel"), m_d->m_itemLibraryModel);
     m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryIconWidth"), m_d->m_itemIconSize.width());
     m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryIconHeight"), m_d->m_itemIconSize.height());
 
-    m_d->m_itemsView->execute();
+    m_d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
 
-    QmlGraphicsItem *rootItem = qobject_cast<QmlGraphicsItem*>(m_d->m_itemsView->rootObject());
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_d->m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
     connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
     connect(this, SIGNAL(expandAllItems()), rootItem, SLOT(expandAll()));
@@ -262,7 +261,7 @@ void ItemLibrary::startDragAndDrop(int itemLibId)
     drag->setPreview(QPixmap::fromImage(image));
     drag->setMimeData(mimeData);
 
-    QmlGraphicsItem *rootItem = qobject_cast<QmlGraphicsItem*>(m_d->m_itemsView->rootObject());
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_d->m_itemsView->rootObject());
     connect(rootItem, SIGNAL(stopDragAndDrop()), drag, SLOT(stopDrag()));
 
     drag->exec();

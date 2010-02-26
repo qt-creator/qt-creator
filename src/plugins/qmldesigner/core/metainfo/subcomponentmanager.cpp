@@ -33,10 +33,10 @@
 #include <QDir>
 #include <QMetaType>
 #include <QUrl>
-#include <QmlEngine>
-#include <QmlMetaType>
+#include <QDeclarativeEngine>
+#include <private/qdeclarativemetatype_p.h>
 #include <QFileSystemWatcher>
-#include <private/qmldom_p.h>
+#include <private/qdeclarativedom_p.h>
 
 enum { debug = false };
 
@@ -68,7 +68,7 @@ class SubComponentManagerPrivate : QObject {
 public:
     SubComponentManagerPrivate(MetaInfo metaInfo, SubComponentManager *q);
 
-    void addImport(int pos, const QmlDomImport &import);
+    void addImport(int pos, const QDeclarativeDomImport &import);
     void removeImport(int pos);
     void parseDirectories();
 
@@ -79,12 +79,12 @@ public slots:
 public:
     QList<QFileInfo> watchedFiles(const QDir &dirInfo);
     void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
-    void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, const QmlDomDocument &document);
+    void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, const QDeclarativeDomDocument &document);
 
     SubComponentManager *m_q;
 
     MetaInfo m_metaInfo;
-    QmlEngine m_engine;
+    QDeclarativeEngine m_engine;
 
     QFileSystemWatcher m_watcher;
 
@@ -92,7 +92,7 @@ public:
 
     QUrl m_filePath;
 
-    QList<QmlDomImport> m_imports;
+    QList<QDeclarativeDomImport> m_imports;
 };
 
 SubComponentManagerPrivate::SubComponentManagerPrivate(MetaInfo metaInfo, SubComponentManager *q) :
@@ -103,19 +103,19 @@ SubComponentManagerPrivate::SubComponentManagerPrivate(MetaInfo metaInfo, SubCom
     connect(&m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(parseFile(QString)));
 }
 
-void SubComponentManagerPrivate::addImport(int pos, const QmlDomImport &import)
+void SubComponentManagerPrivate::addImport(int pos, const QDeclarativeDomImport &import)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << pos << import.uri();
 
-    if (import.type() == QmlDomImport::File) {
+    if (import.type() == QDeclarativeDomImport::File) {
         QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
         if (dirInfo.exists() && dirInfo.isDir()) {
             m_watcher.addPath(dirInfo.filePath());
             m_dirToQualifier.insertMulti(dirInfo, import.qualifier());
         }
     } else {
-        // TODO: QmlDomImport::Library
+        // TODO: QDeclarativeDomImport::Library
     }
 
     m_imports.insert(pos, import);
@@ -123,9 +123,9 @@ void SubComponentManagerPrivate::addImport(int pos, const QmlDomImport &import)
 
 void SubComponentManagerPrivate::removeImport(int pos)
 {
-    const QmlDomImport import = m_imports.takeAt(pos);
+    const QDeclarativeDomImport import = m_imports.takeAt(pos);
 
-    if (import.type() == QmlDomImport::File) {
+    if (import.type() == QDeclarativeDomImport::File) {
         QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
 
         m_dirToQualifier.remove(dirInfo, import.qualifier());
@@ -139,7 +139,7 @@ void SubComponentManagerPrivate::removeImport(int pos)
             unregisterQmlFile(monitoredFile, import.qualifier());
         }
     } else {
-            // TODO: QmlDomImport::Library
+            // TODO: QDeclarativeDomImport::Library
     }
 }
 
@@ -152,8 +152,8 @@ void SubComponentManagerPrivate::parseDirectories()
             parseDirectory(dirInfo.filePath());
     }
 
-    foreach (const QmlDomImport &import, m_imports) {
-        if (import.type() == QmlDomImport::File) {
+    foreach (const QDeclarativeDomImport &import, m_imports) {
+        if (import.type() == QDeclarativeDomImport::File) {
             QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.uri()).toLocalFile());
             if (dirInfo.exists() && dirInfo.isDir()) {
                 parseDirectory(dirInfo.filePath());
@@ -241,7 +241,7 @@ void SubComponentManagerPrivate::parseFile(const QString &filePath)
         return;
     }
 
-    QmlDomDocument document;
+    QDeclarativeDomDocument document;
     if (!document.load(&m_engine, file.readAll(), QUrl::fromLocalFile(filePath))) {
         // TODO: Put the errors somewhere?
         qWarning() << "Could not load qml file " << filePath;
@@ -280,7 +280,7 @@ void SubComponentManagerPrivate::unregisterQmlFile(const QFileInfo &fileInfo, co
     }
 }
 
-void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, const QmlDomDocument &document)
+void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, const QDeclarativeDomDocument &document)
 {
     QString componentName = fileInfo.baseName();
     if (!qualifier.isEmpty())
@@ -294,7 +294,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
         m_metaInfo.removeNodeInfo(nodeInfo);
     }
 
-    const QmlDomObject rootObject = document.rootObject();
+    const QDeclarativeDomObject rootObject = document.rootObject();
 
     const QString baseType = document.rootObject().objectType();
     Q_ASSERT_X(!baseType.isEmpty(), Q_FUNC_INFO, "Type of root object cannot be empty");
@@ -310,7 +310,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     m_metaInfo.addItemLibraryInfo(nodeInfo, componentName);
     m_metaInfo.addNodeInfo(nodeInfo, baseType);
 
-    foreach (const QmlDomDynamicProperty &dynamicProperty, document.rootObject().dynamicProperties()) {
+    foreach (const QDeclarativeDomDynamicProperty &dynamicProperty, document.rootObject().dynamicProperties()) {
         Q_ASSERT(!dynamicProperty.propertyName().isEmpty());
         Q_ASSERT(!dynamicProperty.propertyTypeName().isEmpty());
 
@@ -321,7 +321,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
         propertyMetaInfo.setReadable(true);
         propertyMetaInfo.setWritable(true);
 
-        QmlDomProperty defaultValue = dynamicProperty.defaultValue();
+        QDeclarativeDomProperty defaultValue = dynamicProperty.defaultValue();
         if (defaultValue.value().isLiteral()) {
             QVariant defaultValueVariant(defaultValue.value().toLiteral().literal());
             defaultValueVariant.convert((QVariant::Type) dynamicProperty.propertyType());
@@ -362,7 +362,7 @@ QStringList SubComponentManager::qmlFiles() const
     return m_d->m_watcher.files();
 }
 
-static bool importEqual(const QmlDomImport &import1, const QmlDomImport &import2)
+static bool importEqual(const QDeclarativeDomImport &import1, const QDeclarativeDomImport &import2)
 {
     return import1.type() == import2.type()
            && import1.uri() == import2.uri()
@@ -372,17 +372,17 @@ static bool importEqual(const QmlDomImport &import1, const QmlDomImport &import2
 
 void SubComponentManager::update(const QUrl &filePath, const QByteArray &data)
 {
-    QmlEngine engine;
-    QmlDomDocument document;
+    QDeclarativeEngine engine;
+    QDeclarativeDomDocument document;
 
-    QList<QmlDomImport> imports;
+    QList<QDeclarativeDomImport> imports;
     if (document.load(&engine, data, filePath))
         imports = document.imports();
 
     update(filePath, imports);
 }
 
-void SubComponentManager::update(const QUrl &filePath, const QList<QmlDomImport> &imports)
+void SubComponentManager::update(const QUrl &filePath, const QList<QDeclarativeDomImport> &imports)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << filePath << imports.size();

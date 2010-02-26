@@ -77,7 +77,7 @@ public:
 
     public:
         Error();
-        Error(const QmlError &qmlError);
+        Error(const QDeclarativeError &qmlError);
         Error(Exception *exception);
 
         Type type() const

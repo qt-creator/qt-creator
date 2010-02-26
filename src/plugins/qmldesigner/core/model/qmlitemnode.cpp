@@ -29,7 +29,7 @@
 
 #include "qmlitemnode.h"
 #include <metainfo.h>
-#include "qmlview.h"
+#include <QDeclarativeView>
 #include "qmlchangeset.h"
 #include "variantproperty.h"
 #include "nodelistproperty.h"

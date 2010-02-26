@@ -30,7 +30,7 @@
 #ifndef QPROXYLAYOUTITEM_H
 #define QPROXYLAYOUTITEM_H
 
-#include <qml.h>
+#include <qdeclarative.h>
 #include <QGraphicsLayout>
 
 QT_BEGIN_HEADER
@@ -78,6 +78,9 @@ public:
     void setItem(QGraphicsLayoutItem *);
 
     void setEnabled(bool);
+
+    static void registerDeclarativeTypes();
+
 protected:
     virtual QSizeF sizeHint(Qt::SizeHint, const QSizeF &) const;
 

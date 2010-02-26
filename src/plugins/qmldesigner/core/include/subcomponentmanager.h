@@ -37,7 +37,7 @@
 #include <QObject>
 #include <QString>
 #include <QUrl>
-#include <private/qmldom_p.h>
+#include <private/qdeclarativedom_p.h>
 
 namespace QmlDesigner {
 
@@ -49,7 +49,7 @@ public:
     ~SubComponentManager();
 
     void update(const QUrl &fileUrl, const QByteArray &data);
-    void update(const QUrl &fileUrl, const QList<QmlDomImport> &imports);
+    void update(const QUrl &fileUrl, const QList<QDeclarativeDomImport> &imports);
 
     QStringList qmlFiles() const;
     QStringList directories() const;

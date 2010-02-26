@@ -43,7 +43,7 @@ public:
     typedef QSharedPointer<DummyNodeInstance> Pointer;
     typedef QWeakPointer<DummyNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
 
     void paint(QPainter *painter) const;
 

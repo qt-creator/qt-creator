@@ -28,19 +28,19 @@
 **************************************************************************/
 
 #include "qmltransitionnodeinstance.h"
-#include <private/qmltransition_p.h>
+#include <private/qdeclarativetransition_p.h>
 #include <nodemetainfo.h>
 #include "invalidnodeinstanceexception.h"
 
 namespace QmlDesigner {
 namespace Internal {
 
-QmlTransitionNodeInstance::QmlTransitionNodeInstance(QmlTransition *transition)
+QmlTransitionNodeInstance::QmlTransitionNodeInstance(QDeclarativeTransition *transition)
     : ObjectNodeInstance(transition)
 {
 }
 
-QmlTransitionNodeInstance::Pointer QmlTransitionNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QmlContext *context, QObject *objectToBeWrapped)
+QmlTransitionNodeInstance::Pointer QmlTransitionNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
 {
      QObject *object = 0;
      if (objectToBeWrapped)
@@ -48,7 +48,7 @@ QmlTransitionNodeInstance::Pointer QmlTransitionNodeInstance::create(const NodeM
      else
          object = createObject(nodeMetaInfo, context);
 
-     QmlTransition *transition = qobject_cast<QmlTransition*>(object);
+     QDeclarativeTransition *transition = qobject_cast<QDeclarativeTransition*>(object);
      if (transition == 0)
          throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
@@ -78,10 +78,10 @@ void QmlTransitionNodeInstance::setPropertyVariant(const QString &name, const QV
     ObjectNodeInstance::setPropertyVariant(name, value);
 }
 
-QmlTransition *QmlTransitionNodeInstance::qmlTransition() const
+QDeclarativeTransition *QmlTransitionNodeInstance::qmlTransition() const
 {
-    Q_ASSERT(qobject_cast<QmlTransition*>(object()));
-    return static_cast<QmlTransition*>(object());
+    Q_ASSERT(qobject_cast<QDeclarativeTransition*>(object()));
+    return static_cast<QDeclarativeTransition*>(object());
 }
 }
 }

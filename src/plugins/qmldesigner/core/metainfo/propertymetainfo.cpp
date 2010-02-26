@@ -34,8 +34,8 @@
 #include "invalidmetainfoexception.h"
 #include "metainfo.h"
 #include "modelnode.h"
-#include <private/qmlvaluetype_p.h>
-#include <private/qmlstringconverters_p.h>
+#include <private/qdeclarativevaluetype_p.h>
+#include <private/qdeclarativestringconverters_p.h>
 
 namespace QmlDesigner {
 
@@ -255,12 +255,12 @@ bool PropertyMetaInfo::isValueType() const
         throw InvalidMetaInfoException(__LINE__, Q_FUNC_INFO, __FILE__);
     }
 
-    QmlValueType *valueType(QmlValueTypeFactory::valueType(variantTypeId()));
+    QDeclarativeValueType *valueType(QDeclarativeValueTypeFactory::valueType(variantTypeId()));
     return valueType;
 }
 
 /*!
-  \brief Returns whether the propery is a QmlList.
+  \brief Returns whether the propery is a QDeclarativeList.
   */
 bool PropertyMetaInfo::isListProperty() const
 {
@@ -269,7 +269,7 @@ bool PropertyMetaInfo::isListProperty() const
         throw InvalidMetaInfoException(__LINE__, Q_FUNC_INFO, __FILE__);
     }
 
-    return type().contains("QmlList");
+    return type().contains("QDeclarativeList");
 }
 
 /*!
@@ -435,7 +435,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &originalVariant) const
         return variant;
     }
 
-    return QmlStringConverters::variantFromString(variant.toString());
+    return QDeclarativeStringConverters::variantFromString(variant.toString());
 }
 
 }

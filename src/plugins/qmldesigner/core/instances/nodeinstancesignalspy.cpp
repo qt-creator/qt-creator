@@ -4,7 +4,7 @@
 #include <QMetaProperty>
 #include <QMetaObject>
 #include <QtDebug>
-#include <private/qmlmetaproperty_p.h>
+#include <private/qdeclarativeproperty_p.h>
 
 #include "objectnodeinstance.h"
 #include <QSharedPointer>
@@ -33,8 +33,8 @@ void NodeInstanceSignalSpy::registerObject(QObject *spiedObject, const QString &
              QMetaProperty metaProperty = spiedObject->metaObject()->property(index);
              if (metaProperty.isReadable()
                  && !metaProperty.isWritable()
-                 && QmlMetaType::isQObject(metaProperty.userType())) {
-                  QObject *propertyObject = QmlMetaType::toQObject(metaProperty.read(spiedObject));
+                 && QDeclarativeMetaType::isQObject(metaProperty.userType())) {
+                  QObject *propertyObject = QDeclarativeMetaType::toQObject(metaProperty.read(spiedObject));
                   if (propertyObject)
                       registerObject(propertyObject, prefix + metaProperty.name() + ".");
              } else if (metaProperty.hasNotifySignal()) {

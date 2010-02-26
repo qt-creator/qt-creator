@@ -31,9 +31,9 @@
 #define QmlPropertyView_h
 
 #include <qmlmodelview.h>
-#include <QmlView>
+#include <QDeclarativeView>
 #include <QHash>
-#include <QmlPropertyMap>
+#include <QDeclarativePropertyMap>
 
 #include "qmlanchorbindingproxy.h"
 
@@ -50,16 +50,16 @@ class PropertyEditor: public QmlModelView
 
     class NodeType {
     public:
-        NodeType(const QUrl &qmlFile, PropertyEditor *propertyEditor);
+        NodeType(PropertyEditor *propertyEditor);
         ~NodeType();
 
         void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
         void initialSetup(const QString &typeName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor);
         void setValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value);
 
-        QmlView *m_view;
+        QDeclarativeView *m_view;
         Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
-        QmlPropertyMap m_backendValuesPropertyMap;
+        QDeclarativePropertyMap m_backendValuesPropertyMap;
     };
 
 public:

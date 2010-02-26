@@ -33,7 +33,7 @@
 #include <QtGui/QTextEdit>
 #include <QtGui/QMessageBox>
 
-#include <QmlError>
+#include <QDeclarativeError>
 
 #include <model.h>
 #include "designdocumentcontroller.h"

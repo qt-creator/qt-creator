@@ -31,8 +31,8 @@
 #define PROPERTYEDITORVALUE_H
 
 #include <QObject>
-#include <QmlPropertyMap>
-#include <qml.h>
+#include <QDeclarativePropertyMap>
+#include <qdeclarative.h>
 #include <modelnode.h>
 #include <rewritertransaction.h>
 
@@ -45,7 +45,7 @@ class PropertyEditorNodeWrapper : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(bool exists READ exists NOTIFY existsChanged)
-    Q_PROPERTY(QmlPropertyMap* properties READ properties NOTIFY propertiesChanged)
+    Q_PROPERTY(QDeclarativePropertyMap* properties READ properties NOTIFY propertiesChanged)
     Q_PROPERTY(QString type READ type NOTIFY typeChanged)
 
 public:
@@ -53,7 +53,7 @@ public:
     PropertyEditorNodeWrapper(PropertyEditorValue* parent);
     bool exists();
     QString type();
-    QmlPropertyMap* properties();
+    QDeclarativePropertyMap* properties();
     ModelNode parentModelNode() const;
     QString propertyName() const;
 
@@ -72,7 +72,7 @@ private:
     void setup();
 
     QmlDesigner::ModelNode m_modelNode;
-    QmlPropertyMap m_valuesPropertyMap;
+    QDeclarativePropertyMap m_valuesPropertyMap;
     PropertyEditorValue* m_editorValue;
 };
 
@@ -117,6 +117,8 @@ public:
 
     PropertyEditorNodeWrapper* complexNode();
 
+    static void registerDeclarativeTypes();
+
 public slots:
     void resetValue();
     void lock();
@@ -148,6 +150,6 @@ private: //variables
 
 QML_DECLARE_TYPE(PropertyEditorValue);
 QML_DECLARE_TYPE(PropertyEditorNodeWrapper);
-QML_DECLARE_TYPE(QmlPropertyMap);
+QML_DECLARE_TYPE(QDeclarativePropertyMap);
 
 #endif // PROPERTYEDITORVALUE_H

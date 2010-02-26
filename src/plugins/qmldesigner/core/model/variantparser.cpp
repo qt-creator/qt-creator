@@ -28,7 +28,7 @@
 **************************************************************************/
 
 #include "variantparser.h"
-#include <private/qmlvaluetype_p.h>
+#include <private/qdeclarativevaluetype_p.h>
 
 #include <QPoint>
 #include <QPointF>
@@ -43,7 +43,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-VariantParser::VariantParser(const QVariant &value) : m_valueType(QmlValueTypeFactory::valueType(value.type()))
+VariantParser::VariantParser(const QVariant &value) : m_valueType(QDeclarativeValueTypeFactory::valueType(value.type()))
 {
     if (m_valueType) {
         m_valueType->setValue(value);
@@ -121,21 +121,21 @@ VariantParser VariantParser::create(const QString &type)
 void VariantParser::init(const QString &type)
 {
     if (type == "QFont")
-        m_valueType  = QmlValueTypeFactory::valueType(QVariant::Font);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::Font);
     if (type == "QPoint")
-        m_valueType  = QmlValueTypeFactory::valueType(QVariant::Point);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::Point);
     if (type == "QPointF")
-        m_valueType  = QmlValueTypeFactory::valueType(QVariant::PointF);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::PointF);
     if (type == "QSize")
-        m_valueType  = QmlValueTypeFactory::valueType(QVariant::Size);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::Size);
     if (type == "QSizeF")
-        m_valueType  = QmlValueTypeFactory::valueType(QVariant::SizeF);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::SizeF);
     if (type == "QRect")
-        m_valueType  = QmlValueTypeFactory::valueType(QVariant::Rect);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::Rect);
     if (type == "QRectF")
-        m_valueType  = QmlValueTypeFactory::valueType(QVariant::RectF);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::RectF);
     if (type == "QVector3D")
-        m_valueType  = QmlValueTypeFactory::valueType(QVariant::Vector3D);
+        m_valueType  = QDeclarativeValueTypeFactory::valueType(QVariant::Vector3D);
 }
 
 bool VariantParser::isValid()

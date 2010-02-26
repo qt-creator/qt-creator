@@ -1,6 +1,6 @@
 #include "behaviornodeinstance.h"
 
-#include <private/qmlbehavior_p.h>
+#include <private/qdeclarativebehavior_p.h>
 
 #include "invalidnodeinstanceexception.h"
 
@@ -13,7 +13,7 @@ BehaviorNodeInstance::BehaviorNodeInstance(QObject *object)
 {
 }
 
-BehaviorNodeInstance::Pointer BehaviorNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QmlContext *context, QObject *objectToBeWrapped)
+BehaviorNodeInstance::Pointer BehaviorNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
 {
     QObject *object = 0;
     if (objectToBeWrapped)
@@ -21,7 +21,7 @@ BehaviorNodeInstance::Pointer BehaviorNodeInstance::create(const NodeMetaInfo &n
     else
         object = createObject(nodeMetaInfo, context);
 
-    QmlBehavior* behavior = qobject_cast<QmlBehavior*>(object);
+    QDeclarativeBehavior* behavior = qobject_cast<QDeclarativeBehavior*>(object);
     if (behavior == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
