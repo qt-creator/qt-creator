@@ -223,7 +223,6 @@ void DebuggerUISwitcher::changeDebuggerUI(int langId)
             } else {
                 menuitem.second->setVisible(false);
             }
-            qDebug() << menuitem.second->isVisible() << menuitem.first << menuitem.second->text();
         }
         m_languageMenu->menu()->setTitle(tr("Language") + " (" + idx.data().toString() + ")");
         emit languageChanged(idx.data().toString());
