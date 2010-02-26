@@ -108,8 +108,7 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.formFileName = m_filesPage->formFileName();
     rc.designerForm =  m_filesPage->formInputChecked();
     QSet<QString> targets = selectedTargets();
-    if (targets.contains(QLatin1String(MAEMO_DEVICE_TARGET_ID)) ||
-        targets.contains(QLatin1String(MAEMO_EMULATOR_TARGET_ID))) {
+    if (targets.contains(QLatin1String(MAEMO_DEVICE_TARGET_ID))) {
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
     } else if (targets.contains(QLatin1String(S60_DEVICE_TARGET_ID)) ||

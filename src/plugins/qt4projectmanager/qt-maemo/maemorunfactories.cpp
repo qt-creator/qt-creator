@@ -80,8 +80,7 @@ bool MaemoRunConfigurationFactory::canCreate(Target *parent,
 {
     Qt4Target *target = qobject_cast<Qt4Target *>(parent);
     if (!target
-        || (target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID)
-            && target->id() != QLatin1String(MAEMO_EMULATOR_TARGET_ID))) {
+        || target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID)) {
         return false;
     }
     return id == QLatin1String(MAEMO_RC_ID);
@@ -102,8 +101,7 @@ bool MaemoRunConfigurationFactory::canClone(Target *parent,
 QStringList MaemoRunConfigurationFactory::availableCreationIds(Target *parent) const
 {
     if (Qt4Target *t = qobject_cast<Qt4Target *>(parent)) {
-        if (t->id() == QLatin1String(MAEMO_DEVICE_TARGET_ID)
-            || t->id() == QLatin1String(MAEMO_EMULATOR_TARGET_ID)) {
+        if (t->id() == QLatin1String(MAEMO_DEVICE_TARGET_ID)) {
             return t->qt4Project()->
                 applicationProFilePathes(QLatin1String(MAEMO_RC_ID_PREFIX));
         }
@@ -179,8 +177,7 @@ void MaemoRunConfigurationFactory::projectRemoved(
 
 void MaemoRunConfigurationFactory::targetAdded(ProjectExplorer::Target *target)
 {
-    if (target->id() != QLatin1String(MAEMO_EMULATOR_TARGET_ID)
-        && target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID))
+    if (target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID))
         return;
 
     MaemoManager::instance().addQemuSimulatorStarter(target->project());
@@ -188,8 +185,7 @@ void MaemoRunConfigurationFactory::targetAdded(ProjectExplorer::Target *target)
 
 void MaemoRunConfigurationFactory::targetRemoved(ProjectExplorer::Target *target)
 {
-    if (target->id() != QLatin1String(MAEMO_EMULATOR_TARGET_ID)
-        && target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID))
+    if (target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID))
         return;
 
     MaemoManager::instance().removeQemuSimulatorStarter(target->project());
@@ -201,9 +197,7 @@ void MaemoRunConfigurationFactory::currentProjectChanged(
     if (!project)
         return;
 
-    Target *maemoTarget(project->target(QLatin1String(MAEMO_EMULATOR_TARGET_ID)));
-    if (!maemoTarget)
-        maemoTarget = project->target(QLatin1String(MAEMO_DEVICE_TARGET_ID));
+    Target *maemoTarget = project->target(QLatin1String(MAEMO_DEVICE_TARGET_ID));
     MaemoManager::instance().setQemuSimulatorStarterEnabled(maemoTarget != 0);
 
     bool isRunning = false;

@@ -47,7 +47,6 @@ namespace Internal {
 const char * const DESKTOP_TARGET_ID("Qt4ProjectManager.Target.DesktopTarget");
 const char * const S60_EMULATOR_TARGET_ID("Qt4ProjectManager.Target.S60EmulatorTarget");
 const char * const S60_DEVICE_TARGET_ID("Qt4ProjectManager.Target.S60DeviceTarget");
-const char * const MAEMO_EMULATOR_TARGET_ID("Qt4ProjectManager.Target.MaemoEmulatorTarget");
 const char * const MAEMO_DEVICE_TARGET_ID("Qt4ProjectManager.Target.MaemoDeviceTarget");
 
 class ProFileReader;

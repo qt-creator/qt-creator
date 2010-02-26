@@ -510,8 +510,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             else if (targets.contains(S60_DEVICE_TARGET_ID) ||
                      targets.contains(S60_EMULATOR_TARGET_ID))
                 envs = tr("Symbian", "Qt Version is meant for Symbian");
-            else if (targets.contains(MAEMO_DEVICE_TARGET_ID) ||
-                     targets.contains(MAEMO_EMULATOR_TARGET_ID))
+            else if (targets.contains(MAEMO_DEVICE_TARGET_ID))
                 envs = tr("Maemo", "Qt Version is meant for Maemo");
             else
                 envs = tr("unkown", "No idea what this Qt Version is meant for!");
