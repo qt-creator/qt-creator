@@ -115,13 +115,14 @@ void Qt4Manager::init()
 void Qt4Manager::editorChanged(Core::IEditor *editor)
 {
     // Handle old editor
-    Designer::FormWindowEditor *lastEditor = qobject_cast<Designer::FormWindowEditor *>(m_lastEditor);
-    if (lastEditor) {
-        disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+    Designer::FormWindowEditor *lastFormEditor = qobject_cast<Designer::FormWindowEditor *>(m_lastEditor);
+    if (lastFormEditor) {
+        disconnect(lastFormEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
 
         if (m_dirty) {
+            const QString contents = lastFormEditor->contents();
             foreach(Qt4Project *project, m_projects)
-                project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), lastEditor);
+                project->rootProjectNode()->updateCodeModelSupportFromEditor(lastFormEditor->file()->fileName(), contents);
             m_dirty = false;
         }
     }
@@ -142,8 +143,9 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
         if (lastEditor) {
             disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
             if (m_dirty) {
+                const QString contents = lastEditor->contents();
                 foreach(Qt4Project *project, m_projects)
-                    project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), lastEditor);
+                    project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), contents);
                 m_dirty = false;
             }
         }

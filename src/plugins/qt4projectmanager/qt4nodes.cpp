@@ -1244,16 +1244,16 @@ void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)
     }
 }
 
-void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::FormWindowEditor *fw)
+void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName,
+                                                      const QString &contents)
 {
-    QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it;
-    it = m_uiCodeModelSupport.constFind(uiFileName);
-    if (it != m_uiCodeModelSupport.constEnd()) {
-        it.value()->updateFromEditor(fw);
-    }
+    const QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it =
+            m_uiCodeModelSupport.constFind(uiFileName);
+    if (it != m_uiCodeModelSupport.constEnd())
+        it.value()->updateFromEditor(contents);
     foreach (ProjectExplorer::ProjectNode *pro, subProjectNodes())
         if (Qt4ProFileNode *qt4proFileNode = qobject_cast<Qt4ProFileNode *>(pro))
-            qt4proFileNode->updateCodeModelSupportFromEditor(uiFileName, fw);
+            qt4proFileNode->updateCodeModelSupportFromEditor(uiFileName, contents);
 }
 
 QString Qt4ProFileNode::uiDirectory() const

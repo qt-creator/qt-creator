@@ -33,10 +33,10 @@
 #include "qt4project.h"
 #include "qt4target.h"
 
-#include <designer/formwindoweditor.h>
-
 using namespace Qt4ProjectManager;
 using namespace Internal;
+
+enum { debug = 0 };
 
 Qt4UiCodeModelSupport::Qt4UiCodeModelSupport(CppTools::CppModelManagerInterface *modelmanager,
                                              Qt4Project *project,
@@ -123,33 +123,32 @@ bool Qt4UiCodeModelSupport::runUic(const QString &ui) const
     Qt4BuildConfiguration *qt4bc = m_project->activeTarget()->activeBuildConfiguration();
     QProcess uic;
     uic.setEnvironment(qt4bc->environment().toStringList());
-    uic.start(qt4bc->qtVersion()->uicCommand(), QStringList(), QIODevice::ReadWrite);
-    uic.waitForStarted();
+    const QString uicCommand = qt4bc->qtVersion()->uicCommand();
+    if (debug)
+        qDebug() << "Qt4UiCodeModelSupport::runUic " << uicCommand << " on " << ui.size() << " bytes";
+    uic.start(uicCommand, QStringList(), QIODevice::ReadWrite);
+    if (!uic.waitForStarted())
+        return false;
     uic.write(ui.toUtf8());
     uic.closeWriteChannel();
-    if (uic.waitForFinished()) {
+    if (uic.waitForFinished() && uic.exitStatus() == QProcess::NormalExit && uic.exitCode() == 0) {
         m_contents = uic.readAllStandardOutput();
         m_cacheTime = QDateTime::currentDateTime();
-        return true;
+        if (debug)
+            qDebug() << "ok" << m_contents.size() << "bytes.";
+        return true;        
     } else {
-//        qDebug()<<"running uic failed"<<" using uic: "<<m_project->qtVersion(m_project->activeBuildConfiguration())->uicCommand();
-//        qDebug()<<uic.readAllStandardError();
-//        qDebug()<<uic.readAllStandardOutput();
-//        qDebug()<<uic.errorString();
-//        qDebug()<<uic.error();
+        if (debug)
+            qDebug() << "failed" << uic.readAllStandardError();
         uic.kill();
     }
     return false;
 }
 
-void Qt4UiCodeModelSupport::updateFromEditor(Designer::FormWindowEditor *fw)
+void Qt4UiCodeModelSupport::updateFromEditor(const QString &formEditorContents)
 {
-//    qDebug()<<"Qt4UiCodeModelSupport::updateFromEditor"<<fw;
-    if (runUic(fw->contents())) {
-//        qDebug()<<"runUic: success, updated on the fly";
+    if (runUic(formEditorContents)) {
         updateDocument();
-    } else {
-//        qDebug()<<"runUic: failed, not updated";
     }
 }
 

@@ -49,10 +49,6 @@ namespace Core {
 class ICore;
 }
 
-namespace Designer {
-class FormWindowEditor;
-}
-
 namespace Qt4ProjectManager {
 
 // Import base classes into namespace
@@ -207,7 +203,7 @@ public:
     QStringList variableValue(const Qt4Variable var) const;
 
     void updateCodeModelSupportFromBuild(const QStringList &files);
-    void updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::FormWindowEditor *fw);
+    void updateCodeModelSupportFromEditor(const QString &uiFileName, const QString &contents);
 
     QString buildDir() const;
 
