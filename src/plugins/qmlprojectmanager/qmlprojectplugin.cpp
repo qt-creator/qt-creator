@@ -36,6 +36,7 @@
 #include "qmlprojectrunconfigurationfactory.h"
 #include "qmlprojectruncontrol.h"
 #include "qmltaskmanager.h"
+#include "fileformat/qmlprojectfileformat.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -81,6 +82,9 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     addAutoReleasedObject(new Internal::QmlRunControlFactory);
     addAutoReleasedObject(new QmlProjectApplicationWizard);
     addAutoReleasedObject(new QmlProjectImportWizard);
+
+    QmlProjectFileFormat::registerDeclarativeTypes();
+
     return true;
 }
 

@@ -45,10 +45,10 @@ QmlProjectItem::~QmlProjectItem()
     delete d_ptr;
 }
 
-QmlListProperty<QmlProjectContentItem> QmlProjectItem::content()
+QDeclarativeListProperty<QmlProjectContentItem> QmlProjectItem::content()
 {
     Q_D(QmlProjectItem);
-    return QmlListProperty<QmlProjectContentItem>(this, d->content);
+    return QDeclarativeListProperty<QmlProjectContentItem>(this, d->content);
 }
 
 QString QmlProjectItem::sourceDirectory() const
@@ -136,8 +136,5 @@ bool QmlProjectItem::matchesFile(const QString &filePath) const
 }
 
 } // namespace QmlProjectManager
-
-QML_DEFINE_NOCREATE_TYPE(QmlProjectManager::QmlProjectContentItem)
-QML_DEFINE_TYPE(QmlProject,1,0,Project,QmlProjectManager::QmlProjectItem)
 
 #include "qmlprojectitem.moc"

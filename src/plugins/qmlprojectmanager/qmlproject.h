@@ -37,7 +37,7 @@
 
 #include <projectexplorer/project.h>
 
-#include <QtDeclarative/QmlEngine>
+#include <QtDeclarative/QDeclarativeEngine>
 
 namespace QmlJSEditor {
 class ModelManagerInterface;
@@ -125,7 +125,7 @@ private:
     QStringList m_files;
 
     // qml based, new format
-    QmlEngine m_engine;
+    QDeclarativeEngine m_engine;
     QWeakPointer<QmlProjectItem> m_projectItem;
     ProjectExplorer::FileWatcher *m_fileWatcher;
 

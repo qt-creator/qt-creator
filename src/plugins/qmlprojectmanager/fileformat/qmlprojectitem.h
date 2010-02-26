@@ -1,8 +1,9 @@
-#ifndef PROJECTITEM_H
-#define PROJECTITEM_H
+#ifndef QMLPROJECTITEM_H
+#define QMLPROJECTITEM_H
 
-#include <QtCore/QObject>
-#include <qml.h>
+#include <QObject>
+#include <QStringList>
+#include <qdeclarative.h>
 
 namespace QmlProjectManager {
 
@@ -21,7 +22,7 @@ class QmlProjectItem : public QObject {
     Q_DECLARE_PRIVATE(QmlProjectItem)
     Q_DISABLE_COPY(QmlProjectItem)
 
-    Q_PROPERTY(QmlListProperty<QmlProjectManager::QmlProjectContentItem> content READ content DESIGNABLE false)
+    Q_PROPERTY(QDeclarativeListProperty<QmlProjectManager::QmlProjectContentItem> content READ content DESIGNABLE false)
     Q_PROPERTY(QString sourceDirectory READ sourceDirectory NOTIFY sourceDirectoryChanged)
     Q_PROPERTY(QStringList libraryPaths READ libraryPaths WRITE setLibraryPaths NOTIFY libraryPathsChanged)
 
@@ -31,7 +32,7 @@ public:
     QmlProjectItem(QObject *parent = 0);
     ~QmlProjectItem();
 
-    QmlListProperty<QmlProjectContentItem> content();
+    QDeclarativeListProperty<QmlProjectContentItem> content();
 
     QString sourceDirectory() const;
     void setSourceDirectory(const QString &directoryPath);
@@ -57,5 +58,4 @@ QML_DECLARE_TYPE(QmlProjectManager::QmlProjectItem);
 QML_DECLARE_TYPE(QmlProjectManager::QmlProjectContentItem);
 Q_DECLARE_METATYPE(QList<QmlProjectManager::QmlProjectContentItem *>);
 
-
-#endif // PROJECTITEM_H
+#endif // QMLPROJECTITEM_H

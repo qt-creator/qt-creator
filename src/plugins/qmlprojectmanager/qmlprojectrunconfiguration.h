@@ -65,8 +65,8 @@ public:
 private slots:
     QString mainScript() const;
     void setMainScript(const QString &scriptFile);
-    void onQmlViewerChanged();
-    void onQmlViewerArgsChanged();
+    void onViewerChanged();
+    void onViewerArgsChanged();
     void onDebugServerAddressChanged();
     void onDebugServerPortChanged();
 
