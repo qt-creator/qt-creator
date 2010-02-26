@@ -47,7 +47,7 @@ public:
     ProFileCache() {}
     ~ProFileCache();
 
-    void addFile(ProFile *pro);
+    void addFile(const QString &fileName, ProFile *pro);
     ProFile *getFile(const QString &fileName);
 
     void discardFile(const QString &fileName);

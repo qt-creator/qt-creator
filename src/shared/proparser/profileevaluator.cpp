@@ -95,14 +95,16 @@ static void clearFunctions(ProFileEvaluator::FunctionDefs *defs)
 ProFileCache::~ProFileCache()
 {
     foreach (ProFile *pro, parsed_files)
-        pro->deref();
+        if (pro)
+            pro->deref();
 }
 
 void ProFileCache::discardFile(const QString &fileName)
 {
     QHash<QString, ProFile *>::Iterator it = parsed_files.find(fileName);
     if (it != parsed_files.end()) {
-        it.value()->deref();
+        if (it.value())
+            it.value()->deref();
         parsed_files.erase(it);
     }
 }
@@ -114,17 +116,19 @@ void ProFileCache::discardFiles(const QString &prefix)
             end = parsed_files.end();
     while (it != end)
         if (it.key().startsWith(prefix)) {
-            it.value()->deref();
+            if (it.value())
+                it.value()->deref();
             it = parsed_files.erase(it);
         } else {
             ++it;
         }
 }
 
-void ProFileCache::addFile(ProFile *pro)
+void ProFileCache::addFile(const QString &fileName, ProFile *pro)
 {
-    parsed_files[pro->fileName()] = pro;
-    pro->ref();
+    parsed_files[fileName] = pro;
+    if (pro)
+        pro->ref();
 }
 
 ProFile *ProFileCache::getFile(const QString &fileName)
@@ -3027,10 +3031,10 @@ ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool 
         pro = new ProFile(fileName);
         if (!(contents.isNull() ? read(pro) : read(pro, contents))) {
             delete pro;
-            return 0;
+            pro = 0;
         }
         if (m_option->cache && cache)
-            m_option->cache->addFile(pro);
+            m_option->cache->addFile(fileName, pro);
     }
     return pro;
 }
