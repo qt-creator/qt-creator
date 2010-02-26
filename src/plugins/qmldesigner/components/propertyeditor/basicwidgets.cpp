@@ -138,6 +138,8 @@ class QWidgetDeclarativeUI : public QObject
 
     Q_PROPERTY(bool mouseOver READ mouseOver NOTIFY mouseOverChanged)
 
+    Q_PROPERTY(bool visible READ visible WRITE setVisible NOTIFY visibleChanged)
+
     Q_CLASSINFO("DefaultProperty", "children")
 
 signals:
@@ -148,6 +150,7 @@ signals:
     void focusChanged();
     void mouseOverChanged();
     void opacityChanged();
+    void visibleChanged();
 
 public:
     QWidgetDeclarativeUI(QObject *other) : QObject(other), _layout(0), _graphicsOpacityEffect(0) {
@@ -191,6 +194,11 @@ public:
     {
         emit mouseOverChanged();
     }
+
+     void emitVisibleChanged()
+     {
+         emit visibleChanged();
+     }
 
     QmlListProperty<QObject> children() {
         return QmlListProperty<QObject>(this, 0, children_append, children_count, children_at, children_clear);
@@ -248,6 +256,14 @@ public:
 
     int y() const {
         return q->y();
+    }
+
+    bool visible() const {
+        return q->isVisible();
+    }
+
+    void setVisible(bool visible) {
+        q->setVisible(visible);
     }
 
     int globalY() const {
@@ -509,6 +525,13 @@ bool ResizeEventFilter::eventFilter(QObject *obj, QEvent *event)
             && obj == m_target) {
                 m_dui_target->setMouseOver(event->type() == QEvent::Enter);
                 m_dui_target->emitMouseOverChanged();
+                return QObject::eventFilter(obj, event);
+        }
+    } else if ((event->type() == QEvent::Show) || (event->type() == QEvent::Hide)) {
+        if (obj
+            && obj->isWidgetType()
+            && obj == m_target) {
+                m_dui_target->emitVisibleChanged();
                 return QObject::eventFilter(obj, event);
         }
     }
