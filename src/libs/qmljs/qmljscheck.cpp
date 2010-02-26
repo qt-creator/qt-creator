@@ -39,7 +39,7 @@
 #include <QtGui/QApplication>
 
 #ifndef NO_DECLARATIVE_BACKEND
-#  include <QtDeclarative/private/qmlstringconverters_p.h> // ### remove me
+#  include <QtDeclarative/private/qdeclarativestringconverters_p.h> // ### remove me
 #endif
 
 namespace QmlJS {
@@ -141,7 +141,7 @@ public:
 
 #ifndef NO_DECLARATIVE_BACKEND
             bool ok = false;
-            QmlStringConverters::colorFromString(colorString, &ok);
+            QDeclarativeStringConverters::colorFromString(colorString, &ok);
             if (!ok)
                 _message.message = QCoreApplication::translate("QmlJS::Check", "not a valid color");
 #endif
