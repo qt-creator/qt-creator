@@ -81,8 +81,6 @@ public:
     virtual QString mimeType() const;
     ProjectExplorer::Project* openProject(const QString &fileName);
 
-    Qt4Project * createEmptyProject(const QString &path);
-
     // Context information used in the slot implementations
     ProjectExplorer::Node *contextNode() const;
     void setContextNode(ProjectExplorer::Node *node);

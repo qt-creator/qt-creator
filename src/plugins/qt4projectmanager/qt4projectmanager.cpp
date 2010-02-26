@@ -207,11 +207,6 @@ ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
     return pro;
 }
 
-Qt4Project * Qt4Manager::createEmptyProject(const QString &path)
-{
-    return new Qt4Project(this, path);
-}
-
 ProjectExplorer::ProjectExplorerPlugin *Qt4Manager::projectExplorer() const
 {
     return ProjectExplorer::ProjectExplorerPlugin::instance();
