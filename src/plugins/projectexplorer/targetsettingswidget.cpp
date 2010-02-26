@@ -19,8 +19,8 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
             this, SIGNAL(addButtonClicked()));
     connect(m_targetSelector, SIGNAL(removeButtonClicked()),
             this, SIGNAL(removeButtonClicked()));
-    connect(m_targetSelector, SIGNAL(currentIndexChanged(int,int)),
-            this, SIGNAL(currentIndexChanged(int,int)));
+    connect(m_targetSelector, SIGNAL(currentChanged(int,int)),
+            this, SIGNAL(currentChanged(int,int)));
     updateTargetSelector();
 }
 

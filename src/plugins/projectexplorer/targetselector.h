@@ -42,7 +42,9 @@ public slots:
 signals:
     void addButtonClicked();
     void removeButtonClicked();
-    void currentIndexChanged(int targetIndex, int subIndex);
+    // This signal is emited whenever the target pointed to by the indices
+    // has changed.
+    void currentChanged(int targetIndex, int subIndex);
 
 protected:
     void paintEvent(QPaintEvent *event);

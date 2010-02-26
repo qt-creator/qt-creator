@@ -83,7 +83,7 @@ public:
     void setupUi();
 
 private slots:
-    void currentTargetIndexChanged(int targetIndex, int subIndex);
+    void currentTargetChanged(int targetIndex, int subIndex);
     void addTarget();
     void removeTarget();
     void targetAdded(ProjectExplorer::Target *target);
@@ -91,7 +91,7 @@ private slots:
     void activeTargetChanged(ProjectExplorer::Target *target);
 
 private:
-    int m_currentIndex;
+    Target *m_currentTarget;
     Project *m_project;
     TargetSettingsWidget *m_selector;
     QStackedWidget *m_centralWidget;

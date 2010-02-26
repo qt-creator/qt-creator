@@ -49,6 +49,8 @@ void TargetSelector::insertTarget(int index, const QString &name)
 
     if (m_currentTargetIndex == -1)
         setCurrentIndex(index);
+    else if (m_currentTargetIndex >= index)
+        setCurrentIndex(m_currentTargetIndex + 1);
     update();
 }
 
@@ -66,10 +68,13 @@ void TargetSelector::removeTarget(int index)
     QTC_ASSERT(index >= 0 && index < m_targets.count(), return);
 
     m_targets.removeAt(index);
-    if (m_currentTargetIndex > index)
-        setCurrentIndex(m_currentTargetIndex - 1);
-    if (m_currentTargetIndex == m_targets.count())
-        setCurrentIndex(m_currentTargetIndex - 1);
+
+    if (m_currentTargetIndex >= m_targets.count())
+        setCurrentIndex(m_targets.count() - 1);
+    else if (m_currentTargetIndex >= index)
+        // force a signal since the target pointed to has changed:
+        emit currentChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
+
     update();
 }
 
@@ -86,7 +91,7 @@ void TargetSelector::setCurrentIndex(int index)
     m_currentTargetIndex = index;
 
     update();
-    emit currentIndexChanged(m_currentTargetIndex,
+    emit currentChanged(m_currentTargetIndex,
                              m_currentTargetIndex >= 0 ? m_targets.at(m_currentTargetIndex).currentSubIndex : -1);
 }
 
@@ -110,7 +115,7 @@ void TargetSelector::setCurrentSubIndex(int subindex)
     m_targets[m_currentTargetIndex].currentSubIndex = subindex;
 
     update();
-    emit currentIndexChanged(m_currentTargetIndex,
+    emit currentChanged(m_currentTargetIndex,
                              m_targets.at(m_currentTargetIndex).currentSubIndex);
 }
 
@@ -169,7 +174,7 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
             m_currentTargetIndex = index;
             //TODO don't emit if nothing changed!
             update();
-            emit currentIndexChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
+            emit currentChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
         } else {
             event->ignore();
         }
