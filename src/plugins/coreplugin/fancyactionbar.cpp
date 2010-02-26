@@ -176,7 +176,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.drawText(r, textFlags, ellidedBuildConfiguration);
         QStyleOption opt;
         opt.initFrom(this);
-        opt.rect = rect().adjusted(rect().width() - 18, 0, -10, 0);
+        opt.rect = rect().adjusted(rect().width() - 16, 0, -8, 0);
         Utils::StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
     }
 

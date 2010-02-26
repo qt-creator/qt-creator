@@ -168,7 +168,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     QRect textRect = rect().adjusted(INDENT + 1, 1, -INDENT - 1, 0);
     textRect.setHeight(h+5);
 
-    p.setPen(QColor(30, 30, 30, 80));
+    p.setPen(QColor(0, 0, 0, 120));
     p.drawText(textRect, alignment | Qt::AlignBottom, m_title);
     p.translate(0, -1);
     p.setPen(Utils::StyleHelper::panelTextColor());
@@ -213,10 +213,11 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.setBrush(grad);
     p.drawRect(inner);
     p.setBrush(Qt::NoBrush);
-    p.setPen(QPen(QColor(0, 0, 0, 60), 1));
+    p.setPen(QPen(QColor(0, 0, 0, 30), 1));
     p.drawLine(inner.topLeft(), inner.topRight());
     p.drawLine(inner.topLeft(), inner.bottomLeft());
     p.drawLine(inner.topRight(), inner.bottomRight());
+    p.drawLine(inner.bottomLeft(), inner.bottomRight());
     p.drawPoint(inner.bottomLeft());
     p.drawPoint(inner.bottomRight());
 
@@ -224,7 +225,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     if (value() < maximum() && !m_error) {
         QRect parentRect = parentWidget()->rect(); // ### Move to parent
         QRect cancelRect(parentRect.right() - CANCEL_WIDTH - 2,
-                         parentRect.top() + 5, CANCEL_WIDTH, CANCEL_WIDTH);
+                         parentRect.top() + 4, CANCEL_WIDTH, CANCEL_WIDTH);
 
         bool hover = cancelRect.contains(mapFromGlobal(QCursor::pos()));
         p.setPen(QPen(QColor(0, 0, 0, 20), 4));
