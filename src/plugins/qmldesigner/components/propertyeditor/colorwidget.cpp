@@ -134,7 +134,7 @@ namespace QmlDesigner {
         if (x>120) x=120;
         if (y<0) y=0;
         if (y>120) y=120;
-        newColor.setHsv(m_lastHue, (x*255) / 120, 255 - (y*255) / 120);
+        newColor.setHsv(hue(), (x*255) / 120, 255 - (y*255) / 120);
         setColor(newColor);
     }
 
@@ -147,10 +147,13 @@ namespace QmlDesigner {
         if ((m_color.saturation()>1) && (m_color.value()>1))
             m_saturatedColor.setHsv(m_color.hsvHue(),255,255);
 
-        if ((m_saturatedColor.hsvHue() != m_lastHue) || (m_cache.isNull())) {
-            m_lastHue = m_saturatedColor.hsvHue();
-            if (m_lastHue<0) m_lastHue=0;
-            if (m_lastHue>359) m_lastHue=359;
+        if ((hue() != m_lastHue) || (m_cache.isNull())) {
+            m_lastHue = hue();
+
+            int fixedHue = m_lastHue;
+
+            if (fixedHue<0) fixedHue=0;
+            if (fixedHue>359) fixedHue=359;
 
             m_cache = QPixmap(120, 120);
 
@@ -163,7 +166,7 @@ namespace QmlDesigner {
                 for (int x = 0; x < width; x++)
                 {
                 QColor c;
-                c.setHsv(m_lastHue, (x*255) / 120, 255 - (y*255) / 120);
+                c.setHsv(fixedHue, (x*255) / 120, 255 - (y*255) / 120);
                 chacheP.setPen(c);
                 chacheP.drawPoint(x ,y);
             }
