@@ -43,7 +43,7 @@ namespace Internal {
 
 class DesignerXmlEditor;
 
-class TEXTEDITOR_EXPORT DesignerXmlEditorEditable : public TextEditor::PlainTextEditorEditable
+class DesignerXmlEditorEditable : public TextEditor::PlainTextEditorEditable
 {
     Q_OBJECT
 public:
