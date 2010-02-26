@@ -17,6 +17,7 @@ QT_FORWARD_DECLARE_CLASS(Action);
 QT_FORWARD_DECLARE_CLASS(QDockWidget);
 QT_FORWARD_DECLARE_CLASS(QStackedWidget);
 QT_FORWARD_DECLARE_CLASS(QComboBox);
+QT_FORWARD_DECLARE_CLASS(QActionGroup);
 
 namespace Debugger {
     class DebuggerMainWindow;
@@ -74,6 +75,7 @@ private slots:
     void modeChanged(Core::IMode *mode);
     void changeDebuggerUI(int langId);
     void resetDebuggerLayout();
+    void langChangeTriggered();
 
 private:
     void hideInactiveWidgets();
@@ -90,8 +92,10 @@ private:
     QList< Internal::DebugToolWindow* > m_dockWidgets;
     QStandardItemModel *m_model;
     QStackedWidget *m_toolbarStack;
-    QComboBox *m_langBox;
     DebuggerMainWindow *m_mainWindow;
+
+    QList<int> m_debuggercontext;
+    QActionGroup *m_languageActionGroup;
 
     int m_activeLanguage;
     bool m_isActiveMode;
@@ -101,6 +105,7 @@ private:
 
     const static int StackIndexRole = Qt::UserRole + 11;
 
+    Core::ActionContainer *m_languageMenu;
     Core::ActionContainer *m_viewsMenu;
     Core::ActionContainer *m_debugMenu;
 
