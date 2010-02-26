@@ -29,7 +29,7 @@ GroupBox {
                         rightMargin: 0;
                         QLabel {
                             minimumHeight: 22;
-                            text: "Highlight Follows:"
+                            text: "Highlight:"
                             font.bold: true;
                         }
 
@@ -50,7 +50,7 @@ GroupBox {
 
                         CheckBox {
                             id: highlightFollowsCurrentItemCheckBox;
-                            text: "";
+                            text: "Follows";
                             backendValue: backendValues.highlightFollowsCurrentItem;
                             baseStateFlag: isBaseState;
                             checkable: true;

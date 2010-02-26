@@ -43,9 +43,5 @@ PropertyFrame {
                 }
             }
         }
-
-        HorizontalLine {
-        }
-
     }
 }

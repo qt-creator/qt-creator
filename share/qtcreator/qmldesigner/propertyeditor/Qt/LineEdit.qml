@@ -50,7 +50,7 @@ QWidget {
 
         text: backendValue.value
 
-        onTextEdited: {
+        onEditingFinished: {
             backendValue.value = text
             evaluate();
         }
