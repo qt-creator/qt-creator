@@ -348,8 +348,7 @@ void MaemoSettingsWidget::handleTestThreadFinished()
 
     QString output;
     if (m_deviceTester->hasError()) {
-        output = tr("Device configuration test failed:\n");
-        output.append(m_deviceTester->error());
+        output = tr("Device configuration test failed:\n%1").arg(m_deviceTester->error());
         if (currentConfig().type == MaemoDeviceConfig::Simulator)
             output.append(tr("\nDid you start Qemu?"));
     } else {
@@ -382,8 +381,7 @@ QString MaemoSettingsWidget::parseTestOutput()
     const QRegExp unamePattern(QLatin1String("Linux (\\S+)\\s(\\S+)"));
     int index = unamePattern.indexIn(m_deviceTestOutput);
     if (index == -1) {
-        output = tr("Device configuration test failed: Unexpected output:\n");
-        output.append(m_deviceTestOutput);
+        output = tr("Device configuration test failed: Unexpected output:\n%1").arg(m_deviceTestOutput);
         return output;
     }
 
@@ -438,8 +436,7 @@ void MaemoSettingsWidget::handleDeployThreadFinished()
 
     QString output;
     if (m_keyDeployer->hasError()) {
-        output = tr("Key deployment failed: ");
-        output.append(m_keyDeployer->error());
+        output = tr("Key deployment failed: %1").arg(m_keyDeployer->error());
     } else {
         output = tr("Key was successfully deployed.");
     }

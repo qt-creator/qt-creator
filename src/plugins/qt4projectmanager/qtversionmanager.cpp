@@ -1392,11 +1392,12 @@ QString QtVersion::invalidReason() const
     if (qmakeCommand().isEmpty())
         return QCoreApplication::translate("QtVersion", "No qmake path set");
     if (displayName().isEmpty())
-        return QCoreApplication::translate("QtVersion", "Qt Version has no name");
+        return QCoreApplication::translate("QtVersion", "Qt version has no name");
     if (m_notInstalled)
-        return QCoreApplication::translate("QtVersion", "Qt Version is not installed, please run make install");
+        return QCoreApplication::translate("QtVersion", "Qt version is not properly installed, please run make install");
     if (!m_versionInfo.contains("QT_INSTALL_BINS"))
-        return QCoreApplication::translate("QtVersion", "Could not determine qt install binary, maybe the qmake path is wrong?");
+        return QCoreApplication::translate("QtVersion",
+					   "Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?");
     return QString();
 }
 

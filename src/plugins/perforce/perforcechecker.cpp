@@ -178,6 +178,7 @@ void PerforceChecker::parseOutput(const QString &response)
     }
     const QString repositoryRoot = clientRootFromOutput(response);
     if (repositoryRoot.isEmpty()) {
+        //: Unable to determine root of the p4 client installation
         emitFailed(tr("Unable to determine the client root."));
         return;
     }
