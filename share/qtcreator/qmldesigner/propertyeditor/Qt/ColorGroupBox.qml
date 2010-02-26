@@ -5,9 +5,7 @@ QExtGroupBox {
     id: colorGroupBox
 
     property var finished;
-
     property var backendColor
-
     property var oldMaximumHeight;
 
     onFinishedChanged: {
@@ -17,6 +15,60 @@ QExtGroupBox {
         if (finished)
         collapsed = true;
     }
+
+    property var baseStateFlag: isBaseState
+    onBaseStateFlagChanged: {
+        evaluate();
+    }
+    onBackendColorChanged: {
+        evaluate();
+    }
+    property var isEnabled: colorGroupBox.enabled
+    onIsEnabledChanged: {
+        evaluate();
+    }
+    property bool isInModel: (backendColor === undefined || backendColor === null) ? false: backendColor.isInModel;
+    onIsInModelChanged: {
+        evaluate();
+    }
+    property bool isInSubState: (backendColor === undefined || backendColor === null) ? false: backendColor.isInSubState;
+    onIsInSubStateChanged: {
+        evaluate();
+    }
+
+    Script {
+        function evaluate() {
+            if (!enabled) {
+                valueSpinBox.setStyleSheet("color: "+scheme.disabledColor);
+                hueSpinBox.setStyleSheet("color: "+scheme.disabledColor);
+                saturationSpinBox.setStyleSheet("color: "+scheme.disabledColor);
+            } else {
+                if (baseStateFlag) {
+                    if (backendColor != null && backendColor.isInModel) {
+                        valueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
+                        hueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
+                        saturationSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
+                    } else {
+                        valueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                        hueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                        saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                    }
+                } else {
+                    if (backendColor != null && backendColor.isInSubState) {
+                        valueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
+                        hueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
+                        saturationSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
+                    } else {
+                        valueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                        hueSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                        saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
+                    }
+                }
+            }
+        }
+    }
+
+    ColorScheme { id:scheme; }
 
 
     QWidget {
@@ -71,8 +123,9 @@ QExtGroupBox {
 
                 ColorBox {
                     id: colorControl;
+                    property var backendColor: colorGroupBox.backendColor.value;
                     color: colorGroupBox.backendColor.value;
-                    onColorChanged: {
+                    onColorChanged: if (colorGroupBox.backendColor.value != color) {
                         colorGroupBox.backendColor.value = color;
                     }
                 }
@@ -80,7 +133,7 @@ QExtGroupBox {
                 HueControl {
                     id: hueControl;
                     hue: colorControl.hue;
-                    onHueChanged: colorControl.hue=hue;
+                    onHueChanged: if (colorControl.hue != hue) colorControl.hue=hue;
                 }
 
                 QWidget {
@@ -98,10 +151,11 @@ QExtGroupBox {
                                 }
 
                                 QSpinBox {
-                                    maximum: 255
+                                    id: hueSpinBox
+                                    maximum: 359
                                     value: colorControl.hue;
                                     onValueChanged: if (colorControl.hue != value)
-                                    colorControl.hue=value;
+                                        colorControl.hue=value;
                                 }
 
                             }
@@ -114,6 +168,7 @@ QExtGroupBox {
                                     fixedWidth: 15
                                 }
                                 QSpinBox {
+                                    id: saturationSpinBox
                                     maximum: 255
                                     value: colorControl.saturation;
                                     onValueChanged: if (colorControl.saturation !=value)
@@ -129,6 +184,7 @@ QExtGroupBox {
                                     fixedWidth: 15
                                 }
                                 QSpinBox {
+                                    id: valueSpinBox
                                     maximum: 255
                                     value: colorControl.value;
                                     onValueChanged: if (Math.floor(colorControl.value)!=value)
