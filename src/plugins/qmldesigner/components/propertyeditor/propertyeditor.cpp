@@ -170,6 +170,7 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         ctxt->setContextProperty("stateName", QVariant(stateName));
         ctxt->setContextProperty("propertyCount", QVariant(fxObjectNode.modelNode().properties().count()));
         ctxt->setContextProperty("isBaseState", QVariant(fxObjectNode.isInBaseState()));
+        ctxt->setContextProperty("selectionChanged", QVariant(false));
     } else {
         qWarning() << "PropertyEditor: invalid node for setup";
     }
@@ -456,16 +457,27 @@ void PropertyEditor::resetView()
         QmlContext *ctxt = type->m_view->rootContext();
         ctxt->setContextProperty("finishedNotify", QVariant(false));
         type->m_view->execute();
-        ctxt->setContextProperty("finishedNotify", QVariant(true));
     } else {
         QmlObjectNode fxObjectNode;
         if (m_selectedNode.isValid()) {
             fxObjectNode = QmlObjectNode(m_selectedNode);
         }
+        QmlContext *ctxt = type->m_view->rootContext();
+        ctxt->setContextProperty("selectionChanged", QVariant(false));
+        ctxt->setContextProperty("selectionChanged", QVariant(true));
+        ctxt->setContextProperty("selectionChanged", QVariant(false));
+        ctxt->setContextProperty("finishedNotify", QVariant(false));
         type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
     }
 
     m_stackedWidget->setCurrentWidget(type->m_view);
+
+    QmlContext *ctxt = type->m_view->rootContext();
+    ctxt->setContextProperty("finishedNotify", QVariant(true));
+    ctxt->setContextProperty("selectionChanged", QVariant(false));
+    ctxt->setContextProperty("selectionChanged", QVariant(true));
+    ctxt->setContextProperty("selectionChanged", QVariant(false));
+
     m_currentType = type;
 
     m_locked = false;
