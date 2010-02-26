@@ -233,7 +233,7 @@ void BauhausPlugin::createDesignModeWidget()
 void BauhausPlugin::updateEditor(Core::IEditor *editor)
 {
     Core::ICore *creatorCore = Core::ICore::instance();
-    if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
+    if (editor && editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
         && creatorCore->modeManager()->currentMode() == m_designMode)
     {
         m_mainWidget->showEditor(editor);
