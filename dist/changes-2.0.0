@@ -33,6 +33,7 @@ Editing
 C++ Support
    * Recognize *.cu as C files
    * Fixed false errors in code model on windows when used with MSVC
+   * Added "Auto fold first comment" option
 
 Project support
    * Reworked support for developing for different targets:
