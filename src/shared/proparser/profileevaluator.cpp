@@ -44,6 +44,9 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
+#ifdef PROPARSER_THREAD_SAFE
+# include <QtCore/QThreadPool>
+#endif
 
 #ifdef Q_OS_UNIX
 #include <unistd.h>
@@ -94,49 +97,40 @@ static void clearFunctions(ProFileEvaluator::FunctionDefs *defs)
 
 ProFileCache::~ProFileCache()
 {
-    foreach (ProFile *pro, parsed_files)
-        if (pro)
-            pro->deref();
+    foreach (const Entry &ent, parsed_files)
+        if (ent.pro)
+            ent.pro->deref();
 }
 
 void ProFileCache::discardFile(const QString &fileName)
 {
-    QHash<QString, ProFile *>::Iterator it = parsed_files.find(fileName);
+#ifdef PROPARSER_THREAD_SAFE
+    QMutexLocker lck(&mutex);
+#endif
+    QHash<QString, Entry>::Iterator it = parsed_files.find(fileName);
     if (it != parsed_files.end()) {
-        if (it.value())
-            it.value()->deref();
+        if (it->pro)
+            it->pro->deref();
         parsed_files.erase(it);
     }
 }
 
 void ProFileCache::discardFiles(const QString &prefix)
 {
-    QHash<QString, ProFile *>::Iterator
+#ifdef PROPARSER_THREAD_SAFE
+    QMutexLocker lck(&mutex);
+#endif
+    QHash<QString, Entry>::Iterator
             it = parsed_files.begin(),
             end = parsed_files.end();
     while (it != end)
         if (it.key().startsWith(prefix)) {
-            if (it.value())
-                it.value()->deref();
+            if (it->pro)
+                it->pro->deref();
             it = parsed_files.erase(it);
         } else {
             ++it;
         }
-}
-
-void ProFileCache::addFile(const QString &fileName, ProFile *pro)
-{
-    parsed_files[fileName] = pro;
-    if (pro)
-        pro->ref();
-}
-
-ProFile *ProFileCache::getFile(const QString &fileName)
-{
-    ProFile *pro = parsed_files.value(fileName);
-    if (pro)
-        pro->ref();
-    return pro;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -3027,14 +3021,59 @@ ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool 
                                                   const QString &contents)
 {
     ProFile *pro;
-    if (!m_option->cache || !(pro = m_option->cache->getFile(fileName))) {
+    if (cache && m_option->cache) {
+        ProFileCache::Entry *ent;
+#ifdef PROPARSER_THREAD_SAFE
+        QMutexLocker locker(&m_option->cache->mutex);
+#endif
+        QHash<QString, ProFileCache::Entry>::Iterator it =
+                m_option->cache->parsed_files.find(fileName);
+        if (it != m_option->cache->parsed_files.end()) {
+            ent = &*it;
+#ifdef PROPARSER_THREAD_SAFE
+            if (ent->locker) {
+                ++ent->locker->waiters;
+                QThreadPool::globalInstance()->releaseThread();
+                ent->locker->cond.wait(locker.mutex());
+                QThreadPool::globalInstance()->reserveThread();
+                if (!--ent->locker->waiters) {
+                    delete ent->locker;
+                    ent->locker = 0;
+                }
+            }
+#endif
+            if ((pro = ent->pro))
+                pro->ref();
+        } else {
+            ent = &m_option->cache->parsed_files[fileName];
+#ifdef PROPARSER_THREAD_SAFE
+            ent->locker = new ProFileCache::Entry::Locker;
+            locker.unlock();
+#endif
+            pro = new ProFile(fileName);
+            if (!(contents.isNull() ? read(pro) : read(pro, contents))) {
+                delete pro;
+                pro = 0;
+            } else {
+                pro->ref();
+            }
+            ent->pro = pro;
+#ifdef PROPARSER_THREAD_SAFE
+            locker.relock();
+            if (ent->locker->waiters) {
+                ent->locker->cond.wakeAll();
+            } else {
+                delete ent->locker;
+                ent->locker = 0;
+            }
+#endif
+        }
+    } else {
         pro = new ProFile(fileName);
         if (!(contents.isNull() ? read(pro) : read(pro, contents))) {
             delete pro;
             pro = 0;
         }
-        if (m_option->cache && cache)
-            m_option->cache->addFile(fileName, pro);
     }
     return pro;
 }

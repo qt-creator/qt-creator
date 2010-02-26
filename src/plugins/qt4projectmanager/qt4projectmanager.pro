@@ -95,6 +95,7 @@ FORMS += makestep.ui \
     wizards/testwizardpage.ui
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
+DEFINES += PROPARSER_THREAD_SAFE
 include(../../shared/proparser/proparser.pri)
 include(qt-s60/qt-s60.pri)
 include(qt-maemo/qt-maemo.pri)

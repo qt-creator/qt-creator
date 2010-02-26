@@ -35,6 +35,20 @@
 
 QT_BEGIN_NAMESPACE
 
+#ifdef PROPARSER_THREAD_SAFE
+typedef QAtomicInt ProItemRefCount;
+#else
+class ProItemRefCount {
+public:
+    ProItemRefCount() : m_cnt(0) {}
+    bool ref() { return ++m_cnt != 0; }
+    bool deref() { return --m_cnt != 0; }
+    ProItemRefCount &operator=(int value) { m_cnt = value; return *this; }
+private:
+    int m_cnt;
+};
+#endif
+
 class ProItem
 {
 public:
@@ -95,13 +109,13 @@ public:
     ProItem *items() const { return m_proitems; }
     ProItem **itemsRef() { return &m_proitems; }
 
-    void ref() { ++m_refCount; }
-    void deref() { if (!--m_refCount) delete this; }
+    void ref() { m_refCount.ref(); }
+    void deref() { if (!m_refCount.deref()) delete this; }
 
 private:
     ProItem *m_proitems;
     int m_blockKind;
-    int m_refCount;
+    ProItemRefCount m_refCount;
 };
 
 class ProVariable : public ProItem

@@ -36,26 +36,14 @@
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
 #include <QtCore/QStack>
+#ifdef PROPARSER_THREAD_SAFE
+# include <QtCore/QMutex>
+# include <QtCore/QWaitCondition>
+#endif
 
 QT_BEGIN_NAMESPACE
 
 struct ProFileOption;
-
-class ProFileCache
-{
-public:
-    ProFileCache() {}
-    ~ProFileCache();
-
-    void addFile(const QString &fileName, ProFile *pro);
-    ProFile *getFile(const QString &fileName);
-
-    void discardFile(const QString &fileName);
-    void discardFiles(const QString &prefix);
-
-private:
-    QHash<QString, ProFile *> parsed_files;
-};
 
 class ProFileEvaluator
 {
@@ -118,6 +106,37 @@ private:
     template<typename T> friend class QTypeInfo;
 
     friend struct ProFileOption;
+    friend class ProFileCache;
+};
+
+class ProFileCache
+{
+public:
+    ProFileCache() {}
+    ~ProFileCache();
+
+    void discardFile(const QString &fileName);
+    void discardFiles(const QString &prefix);
+
+private:
+    struct Entry {
+        ProFile *pro;
+#ifdef PROPARSER_THREAD_SAFE
+        struct Locker {
+            Locker() : waiters(0) {}
+            QWaitCondition cond;
+            int waiters;
+        };
+        Locker *locker;
+#endif
+    };
+
+    QHash<QString, Entry> parsed_files;
+#ifdef PROPARSER_THREAD_SAFE
+    QMutex mutex;
+#endif
+
+    friend class ProFileEvaluator::Private;
 };
 
 // This struct is from qmake, but we are not using everything.
