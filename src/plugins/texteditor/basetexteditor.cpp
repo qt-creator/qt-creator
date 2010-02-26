@@ -920,6 +920,9 @@ void BaseTextEditor::moveLineUpDown(bool up)
 {
     QTextCursor cursor = textCursor();
     QTextCursor move = cursor;
+
+    move.setVisualNavigation(false); // this opens collapsed items instead of destroying them
+
     if (d->m_moveLineUndoHack)
         move.joinPreviousEditBlock();
     else
