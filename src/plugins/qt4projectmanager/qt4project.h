@@ -50,15 +50,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QMap>
 #include <QtGui/QDirModel>
-#include "qtextended_integration.h"
-
-namespace Core {
-    class IWizard;
-}
-
-namespace CppTools {
-    class ICppCodeModel;
-}
+#include <QtCore/QFutureInterface>
 
 QT_BEGIN_NAMESPACE
 struct ProFileOption;
