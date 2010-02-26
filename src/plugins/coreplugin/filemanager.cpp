@@ -99,15 +99,17 @@ struct FileStateItem
 
 struct FileState
 {
+    FileState() : watched(false) {}
     QMap<IFile *, FileStateItem> lastUpdatedState;
     FileStateItem expected;
+    bool watched;
 };
-
 
 struct FileManagerPrivate {
     explicit FileManagerPrivate(QObject *q, QMainWindow *mw);
+    typedef QMap<QString, FileState> NameFileStateMap;
 
-    QMap<QString, FileState> m_states;
+    NameFileStateMap m_states;
     QStringList m_changedFiles;
 
     QStringList m_recentFiles;
@@ -183,7 +185,7 @@ FileManager::~FileManager()
 
     Returns true if the file specified by \a files have not been yet part of the file list.
 */
-bool FileManager::addFiles(const QList<IFile *> &files)
+bool FileManager::addFiles(const QList<IFile *> &files, bool addWatcher)
 {
     bool filesAdded = false;
     foreach (IFile *file, files) {
@@ -196,13 +198,14 @@ bool FileManager::addFiles(const QList<IFile *> &files)
         connect(file, SIGNAL(destroyed(QObject *)), this, SLOT(fileDestroyed(QObject *)));
         filesAdded = true;
 
-        addFileInfo(file);
+        addFileInfo(file, addWatcher);
     }
     return filesAdded;
 }
 
-void FileManager::addFileInfo(IFile *file)
+void FileManager::addFileInfo(IFile *file, bool addWatcher)
 {
+    typedef Internal::FileManagerPrivate::NameFileStateMap NameFileStateMap;
     // We do want to insert the IFile into d->m_states even if the filename is empty
     // Such that m_states always contains all IFiles
 
@@ -214,13 +217,18 @@ void FileManager::addFileInfo(IFile *file)
         item.permissions = fi.permissions();
     }
 
-    if (!d->m_states.contains(fixedname)) {
-        d->m_states.insert(fixedname, Internal::FileState());
-        if (!fixedname.isEmpty())
+    // Ensure entry
+    NameFileStateMap::iterator it = d->m_states.find(fixedname);
+    if (it == d->m_states.end()) {
+        Internal::FileState state;
+        state.watched = addWatcher;
+        it = d->m_states.insert(fixedname, state);
+        if (addWatcher && !fixedname.isEmpty()) {
             d->m_fileWatcher->addPath(fixedname);
+        }
     }
 
-    d->m_states[fixedname].lastUpdatedState.insert(file, item);
+    it.value().lastUpdatedState.insert(file, item);
 }
 
 void FileManager::updateFileInfo(IFile *file)
@@ -243,10 +251,10 @@ void FileManager::updateFileInfo(IFile *file)
 /// with renamed files and deleted files
 void FileManager::removeFileInfo(IFile *file)
 {
+    typedef Internal::FileManagerPrivate::NameFileStateMap NameFileStateMap;
     QString fileName;
-    QMap<QString, Internal::FileState>::const_iterator it, end;
-    end = d->m_states.constEnd();
-    for (it = d->m_states.constBegin(); it != end; ++it) {
+    const NameFileStateMap::const_iterator end = d->m_states.constEnd();
+    for (NameFileStateMap::const_iterator it = d->m_states.constBegin(); it != end; ++it) {
         if (it.value().lastUpdatedState.contains(file)) {
             fileName = it.key();
             break;
@@ -261,13 +269,19 @@ void FileManager::removeFileInfo(IFile *file)
 
 void FileManager::removeFileInfo(const QString &fileName, IFile *file)
 {
+    typedef Internal::FileManagerPrivate::NameFileStateMap NameFileStateMap;
     const QString &fixedName = fixFileName(fileName);
-    d->m_states[fixedName].lastUpdatedState.remove(file);
 
-    if (d->m_states.value(fixedName).lastUpdatedState.isEmpty()) {
-        d->m_states.remove(fixedName);
-        if (!fixedName.isEmpty())
+    NameFileStateMap::iterator it = d->m_states.find(fixedName);
+    QTC_ASSERT(it != d->m_states.end(), return);
+
+    it.value().lastUpdatedState.remove(file);
+
+    if (it.value().lastUpdatedState.isEmpty()) {
+        if (!fixedName.isEmpty() && it.value().watched) {
             d->m_fileWatcher->removePath(fixedName);
+        }
+        d->m_states.erase(it);
     }
 }
 
@@ -278,9 +292,9 @@ void FileManager::removeFileInfo(const QString &fileName, IFile *file)
 
     Returns true if the file specified by \a file has not been yet part of the file list.
 */
-bool FileManager::addFile(IFile *file)
+bool FileManager::addFile(IFile *file, bool addWatcher)
 {
-    return addFiles(QList<IFile *>() << file);
+    return addFiles(QList<IFile *>() << file, addWatcher);
 }
 
 void FileManager::fileDestroyed(QObject *obj)
@@ -309,16 +323,16 @@ bool FileManager::removeFile(IFile *file)
     return true;
 }
 
-
-
 void FileManager::checkForNewFileName()
 {
+    typedef Internal::FileManagerPrivate::NameFileStateMap NameFileStateMap;
     IFile *file = qobject_cast<IFile *>(sender());
     QTC_ASSERT(file, return);
     const QString &fileName = fixFileName(file->fileName());
 
     // check if the IFile is in the map
-    if (d->m_states[fileName].lastUpdatedState.contains(file)) {
+    const NameFileStateMap::const_iterator nfit = d->m_states.constFind(fileName);
+    if (nfit != d->m_states.constEnd() && nfit.value().lastUpdatedState.contains(file)) {
         // Should checkForNewFileName also call updateFileInfo if the name didn't change?
         updateFileInfo(file);
         return;
@@ -327,7 +341,8 @@ void FileManager::checkForNewFileName()
     // Probably the name has changed...
     // This also updates the state to the on disk state
     removeFileInfo(file);
-    addFileInfo(file);
+    const bool wasWatched = nfit != d->m_states.constEnd() && nfit.value().watched;
+    addFileInfo(file, wasWatched);
 }
 
 // TODO Rename to nativeFileName

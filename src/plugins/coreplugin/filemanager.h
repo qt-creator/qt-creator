@@ -57,8 +57,8 @@ public:
     virtual ~FileManager();
 
     // file pool to monitor
-    bool addFiles(const QList<IFile *> &files);
-    bool addFile(IFile *file);
+    bool addFiles(const QList<IFile *> &files, bool addWatcher = true);
+    bool addFile(IFile *file, bool addWatcher = true);
     bool removeFile(IFile *file);
     bool isFileManaged(const QString &fileName) const;
     QList<IFile *> modifiedFiles() const;
@@ -128,7 +128,7 @@ private slots:
     void syncWithEditor(Core::IContext *context);
 
 private:
-    void addFileInfo(IFile *file);
+    void addFileInfo(IFile *file, bool addWatcher = true);
     void removeFileInfo(IFile *file);
     void removeFileInfo(const QString &fileName, IFile *file);
 
