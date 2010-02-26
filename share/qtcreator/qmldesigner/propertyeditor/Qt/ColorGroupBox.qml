@@ -44,6 +44,7 @@ QExtGroupBox {
 
             LineEdit {
                 backendValue: colorGroupBox.backendColor
+                baseStateFlag: isBaseState
             }
 
             ColorButton {
