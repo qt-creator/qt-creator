@@ -37,8 +37,8 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <QDebug>
 
-using namespace Designer::Internal;
-
+namespace Designer {
+namespace Internal {
 DesignerXmlEditor::DesignerXmlEditor(QWidget *parent) : TextEditor::PlainTextEditor(parent)
 {
     setReadOnly(true);
@@ -74,11 +74,14 @@ void DesignerXmlEditor::designerOpened()
     Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_DESIGN);
 }
 
+} // namespace Internal
+
 QString DesignerXmlEditorEditable::id() const
 {
     return QLatin1String(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
 }
-DesignerXmlEditorEditable::DesignerXmlEditorEditable(DesignerXmlEditor *editor)
+
+DesignerXmlEditorEditable::DesignerXmlEditorEditable(Internal::DesignerXmlEditor *editor)
     : TextEditor::PlainTextEditorEditable(editor)
 {
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
@@ -96,3 +99,4 @@ Core::IEditor *DesignerXmlEditorEditable::duplicate(QWidget *parent)
     Q_UNUSED(parent);
     return 0;
 }
+} // namespace Designer

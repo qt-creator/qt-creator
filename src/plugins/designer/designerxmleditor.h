@@ -30,6 +30,7 @@
 #ifndef DESIGNERXMLEDITOR_H
 #define DESIGNERXMLEDITOR_H
 
+#include "designer_export.h"
 #include <texteditor/plaintexteditor.h>
 #include <texteditor/basetexteditor.h>
 
@@ -39,15 +40,16 @@ namespace Core {
 }
 
 namespace Designer {
+
 namespace Internal {
-
 class DesignerXmlEditor;
+}
 
-class DesignerXmlEditorEditable : public TextEditor::PlainTextEditorEditable
+class DESIGNER_EXPORT DesignerXmlEditorEditable : public TextEditor::PlainTextEditorEditable
 {
     Q_OBJECT
 public:
-    DesignerXmlEditorEditable(DesignerXmlEditor *editor);
+    explicit DesignerXmlEditorEditable(Internal::DesignerXmlEditor *editor);
     QList<int> context() const;
 
     bool duplicateSupported() const { return false; }
@@ -63,11 +65,13 @@ private:
   * read/write editor too, but due to lack of XML editor, highlighting and other such
   * functionality, editing is disabled.
   */
+namespace Internal {
+
 class DesignerXmlEditor : public TextEditor::PlainTextEditor
 {
     Q_OBJECT
 public:
-    DesignerXmlEditor(QWidget *parent = 0);
+    explicit DesignerXmlEditor(QWidget *parent = 0);
     virtual ~DesignerXmlEditor();
     bool open(const QString &fileName = QString());
 
@@ -79,8 +83,6 @@ protected:
     virtual TextEditor::BaseTextEditorEditable *createEditableInterface() { return new DesignerXmlEditorEditable(this); }
 
 private:
-
-
 };
 
 } // Internal
