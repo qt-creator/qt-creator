@@ -186,10 +186,9 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
     if (!mimeEditorAvailable)
         setEnabled(false);
 
-    if ((!mimeEditorAvailable && core->modeManager()->currentMode() == this)
-        || !modeActivated)
+    if (!mimeEditorAvailable && core->modeManager()->currentMode() == this)
     {
-        // switch back to edit mode
+        // switch back to edit mode - we don't want to be here
         core->modeManager()->activateMode(Constants::MODE_EDIT);
     }
 

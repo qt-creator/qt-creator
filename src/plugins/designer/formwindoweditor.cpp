@@ -144,6 +144,7 @@ void FormWindowEditor::setFile(Core::IFile *file)
     }
 
     m_file = file;
+    m_formWindow->setFileName(file->fileName());
 
     if (m_file) {
         connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
@@ -185,6 +186,9 @@ bool FormWindowEditor::createNew(const QString &contents)
 
     if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow))
         fw->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
+
+    initializeResources();
+
     return true;
 }
 
@@ -216,31 +220,42 @@ bool FormWindowEditor::open(const QString &fileName /*= QString()*/)
             return false;
         m_formWindow->setDirty(false);
 
-        ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-        ProjectExplorer::SessionManager *session = pe->session();
-        m_sessionNode = session->sessionNode();
-        m_sessionWatcher = new ProjectExplorer::NodesWatcher();
-        connect(m_sessionWatcher, SIGNAL(filesAdded()), this, SLOT(updateResources()));
-        connect(m_sessionWatcher, SIGNAL(filesRemoved()), this, SLOT(updateResources()));
-        connect(m_sessionWatcher, SIGNAL(foldersAdded()), this, SLOT(updateResources()));
-        connect(m_sessionWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateResources()));
-        m_sessionNode->registerWatcher(m_sessionWatcher);
-
-        if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow)) {
-            QtResourceSet *rs = fw->resourceSet();
-            m_originalUiQrcPaths = rs->activeQrcPaths();
-        }
-
-        emit opened(fileName);
-        updateResources();
-
-        QDesignerFormWindowManagerInterface *fwm = FormEditorW::instance()->designerEditor()->formWindowManager();
-        fwm->setActiveFormWindow(m_formWindow);
+        initializeResources(fileName);
 
         setDisplayName(fi.fileName());
+
     }
-    emit changed();
+
     return true;
+}
+void FormWindowEditor::initializeResources(const QString &fileName /*= QString()*/)
+{
+    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::SessionManager *session = pe->session();
+
+    m_sessionNode = session->sessionNode();
+    m_sessionWatcher = new ProjectExplorer::NodesWatcher();
+
+    connect(m_sessionWatcher, SIGNAL(filesAdded()), this, SLOT(updateResources()));
+    connect(m_sessionWatcher, SIGNAL(filesRemoved()), this, SLOT(updateResources()));
+    connect(m_sessionWatcher, SIGNAL(foldersAdded()), this, SLOT(updateResources()));
+    connect(m_sessionWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateResources()));
+    m_sessionNode->registerWatcher(m_sessionWatcher);
+
+    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow)) {
+        QtResourceSet *rs = fw->resourceSet();
+        m_originalUiQrcPaths = rs->activeQrcPaths();
+    }
+
+    if (!fileName.isEmpty())
+        emit opened(fileName);
+
+    updateResources();
+
+    QDesignerFormWindowManagerInterface *fwm = FormEditorW::instance()->designerEditor()->formWindowManager();
+    fwm->setActiveFormWindow(m_formWindow);
+
+    emit changed();
 }
 
 void FormWindowEditor::updateResources()
