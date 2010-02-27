@@ -110,7 +110,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *error_m
     // it will unregister itself from the plugin manager when it is deleted.
     Core::BaseMode *baseMode = new Core::BaseMode;
     baseMode->setId(QLatin1String("HelloWorld.HelloWorldMode"));
-    baseMode->setName(tr("Hello world!"));
+    baseMode->setDisplayName(tr("Hello world!"));
     baseMode->setIcon(QIcon());
     baseMode->setPriority(0);
     baseMode->setWidget(new QPushButton(tr("Hello World PushButton!")));
