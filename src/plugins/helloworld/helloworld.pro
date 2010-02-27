@@ -10,3 +10,4 @@ HEADERS += helloworldplugin.h \
 SOURCES += helloworldplugin.cpp \
     helloworldwindow.cpp
 
+OTHER_FILES += helloworld.pluginspec
