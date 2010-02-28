@@ -496,7 +496,7 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_selectAllAction = new Utils::ParameterAction(tr("Select &All"), tr("Select All \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     connect(m_selectAllAction, SIGNAL(triggered()), this, SLOT(selectAll()));
 
-    QLabel *defaultBackground = new QLabel(tr("Open/Create a qml file first."));
+    QLabel *defaultBackground = new QLabel(tr("Loading ..."));
     defaultBackground->setAlignment(Qt::AlignCenter);
 
     m_documentWidgetStack->addWidget(defaultBackground);
