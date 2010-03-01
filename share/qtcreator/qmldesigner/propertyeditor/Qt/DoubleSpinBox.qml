@@ -25,6 +25,10 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
         evaluate();
     }
 
+    onEnabledChanged: {
+        evaluate();
+    }
+
     Script {
         function evaluate() {
             if (!enabled) {

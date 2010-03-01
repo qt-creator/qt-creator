@@ -56,6 +56,7 @@ GroupBox {
                 QWidget {
                     layout : HorizontalLayout {
                         IntEditor {
+                            id:topbox
                             slider: false
                             caption: "Margin"
                             backendValue: backendValues.anchors_topMargin
