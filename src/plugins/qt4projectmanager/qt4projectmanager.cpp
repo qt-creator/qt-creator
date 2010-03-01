@@ -281,7 +281,8 @@ void Qt4Manager::buildSubDirContextMenu()
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
             bc->setSubNodeBuild(profile);
 
-    projectExplorer()->buildManager()->buildProject(bc);
+    if (projectExplorer()->saveModifiedFiles())
+        projectExplorer()->buildManager()->buildProject(bc);
 
     bc->setSubNodeBuild(0);
 }
