@@ -114,7 +114,7 @@ QString DesignMode::displayName() const
 
 QIcon DesignMode::icon() const
 {
-    return QIcon(QLatin1String(":/qmldesigner/images/mode_Design.png"));
+    return QIcon(QLatin1String(":/fancyactionbar/images/mode_Design.png"));
 }
 
 int DesignMode::priority() const

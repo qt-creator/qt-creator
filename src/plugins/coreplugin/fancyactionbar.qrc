@@ -9,5 +9,6 @@
         <file>images/fancytoolbutton_bottom_outline.png</file>
         <file>images/fancytoolbutton_normal_outline.png</file>
         <file>images/fancytoolbutton_top_outline.png</file>
+        <file>images/mode_Design.png</file>
     </qresource>
 </RCC>

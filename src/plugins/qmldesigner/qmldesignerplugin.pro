@@ -31,4 +31,3 @@ SOURCES += qmldesignerplugin.cpp \
 FORMS += settingspage.ui
 
 OTHER_FILES += QmlDesigner.pluginspec
-RESOURCES += qmldesignerplugin.qrc

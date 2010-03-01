@@ -189,66 +189,66 @@ class FakeMetaObject {
     FakeMetaObject(FakeMetaObject&);
     FakeMetaObject &operator=(const FakeMetaObject&);
 
-    QString name;
-    QString package;
-    int major;
-    int minor;
-    const FakeMetaObject *super;
-    QString superName;
-    QList<FakeMetaEnum> enums;
-    QList<FakeMetaProperty> props;
-    QList<FakeMetaMethod> methods;
+    QString _name;
+    QString _package;
+    int _major;
+    int _minor;
+    const FakeMetaObject *_super;
+    QString _superName;
+    QList<FakeMetaEnum> _enums;
+    QList<FakeMetaProperty> _props;
+    QList<FakeMetaMethod> _methods;
 
 public:
-    FakeMetaObject(const QString &name, const QString &package, int major, int minor)
-        : name(name), package(package), major(major), minor(minor), super(0)
+    FakeMetaObject(const QString &name, const QString &package, int majorVersion, int minorVersion)
+        : _name(name), _package(package), _major(majorVersion), _minor(minorVersion), _super(0)
     {}
 
     void setSuperclassName(const QString &superclass)
-    { superName = superclass; }
+    { _superName = superclass; }
     QString superclassName() const
-    { return superName; }
+    { return _superName; }
 
     void setSuperclass(FakeMetaObject *superClass)
-    { super = superClass; }
+    { _super = superClass; }
     const FakeMetaObject *superClass() const
-    { return super; }
+    { return _super; }
     QString className() const
-    { return name; }
+    { return _name; }
     QString packageName() const
-    { return package; }
+    { return _package; }
 
     void addEnum(const FakeMetaEnum &fakeEnum)
-    { enums.append(fakeEnum); }
+    { _enums.append(fakeEnum); }
     int enumeratorCount() const
-    { return enums.size(); }
+    { return _enums.size(); }
     int enumeratorOffset() const
     { return 0; }
     FakeMetaEnum enumerator(int index) const
-    { return enums.at(index); }
+    { return _enums.at(index); }
 
     void addProperty(const FakeMetaProperty &property)
-    { props.append(property); }
+    { _props.append(property); }
     int propertyCount() const
-    { return props.size(); }
+    { return _props.size(); }
     int propertyOffset() const
     { return 0; }
     FakeMetaProperty property(int index) const
-    { return props.at(index); }
+    { return _props.at(index); }
 
     void addMethod(const FakeMetaMethod &method)
-    { methods.append(method); }
+    { _methods.append(method); }
     int methodCount() const
-    { return methods.size(); }
+    { return _methods.size(); }
     int methodOffset() const
     { return 0; }
     FakeMetaMethod method(int index) const
-    { return methods.at(index); }
+    { return _methods.at(index); }
 
     int majorVersion() const
-    { return major; }
+    { return _major; }
     int minorVersion() const
-    { return minor; }
+    { return _minor; }
 };
 
 } // end of Interpreter namespace
