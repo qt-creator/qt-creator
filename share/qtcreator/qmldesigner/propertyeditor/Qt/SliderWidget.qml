@@ -22,10 +22,10 @@ QWidget {
         }
 
         onSliderPressed: {
-            backendValue.lock();
+            transaction.start();
         }
         onSliderReleased: {
-            backendValue.unlock();
+            transaction.end();
         }
     }
 }

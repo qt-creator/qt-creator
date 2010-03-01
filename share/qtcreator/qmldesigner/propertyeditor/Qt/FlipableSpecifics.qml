@@ -1,9 +1,22 @@
 import Qt 4.6
 import Bauhaus 1.0
 
-GroupBox {
-    maximumHeight: 200;
+QWidget {
+    layout: QVBoxLayout {
+        topMargin: 0
+        bottomMargin: 0
+        leftMargin: 0
+        rightMargin: 0
+        spacing: 0
+        GroupBox {
 
-    finished: finishedNotify;
 
-}
+            GroupBox {
+                maximumHeight: 200;
+
+                finished: finishedNotify;
+
+            }
+
+        }
+    }

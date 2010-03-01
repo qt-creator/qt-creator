@@ -89,9 +89,9 @@ QWidget { //This is a special spinBox that does color coding for states
 
             onFocusChanged: {
                 if (focus)
-                spinBox.backendValue.lock();
+                transaction.start();
                 else
-                spinBox.backendValue.unlock();
+                transaction.end();
             }
             onEditingFinished: {
                 focus = false;

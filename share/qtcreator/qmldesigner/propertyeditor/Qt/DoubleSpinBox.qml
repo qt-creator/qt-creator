@@ -100,9 +100,9 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
 
             onFocusChanged: {
                 if (focus)
-                doubleSpinBox.backendValue.lock();
+                transaction.start();
                 else
-                doubleSpinBox.backendValue.unlock();
+                transaction.end();
             }
         }
     }
