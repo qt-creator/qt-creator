@@ -3036,6 +3036,9 @@
      \c {%SDK%\qt\plugins\designer}. To check which plugins were loaded successfully and which
      failed, choose \gui{Help > About Plugins}.
 
+     For more information about how to create Qt Designer plugins, see
+     \l{Creating and Using Components for Qt Designer}.
+
      \section1 Matching Build Keys
 
      The Qt Creator that is included in pre-built SDK packages on Windows is built with the
