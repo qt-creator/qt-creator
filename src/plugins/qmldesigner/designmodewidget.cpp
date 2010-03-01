@@ -533,8 +533,7 @@ void DesignModeWidget::showEditor(Core::IEditor *editor)
 
             documentWidget = new DocumentWidget(textEditor, textEdit, newDocument, this);
             connect(documentWidget->document(), SIGNAL(undoAvailable(bool)),
-                    this, SLOT
-(undoAvailable(bool)));
+                    this, SLOT(undoAvailable(bool)));
             connect(documentWidget->document(), SIGNAL(redoAvailable(bool)),
                     this, SLOT(redoAvailable(bool)));
 //          connect(documentWidget->document(), SIGNAL(deleteAvailable(bool)),

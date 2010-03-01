@@ -287,7 +287,6 @@ void PropertyEditor::setupPane(const QString &typeName)
         ctxt->setContextProperty("finishedNotify", QVariant(true) );
 
     }
-    QApplication::processEvents();
 }
 
 void PropertyEditor::changeValue(const QString &propertyName)
