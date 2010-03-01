@@ -376,6 +376,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget)
 
     m_navigationComboBox = new NavComboBox(this);
     m_navigationComboBox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    m_navigationComboBox->setFocusPolicy(Qt::TabFocus);
     m_navigationComboBox->setMinimumContentsLength(0);
     m_navigationWidget = 0;
 

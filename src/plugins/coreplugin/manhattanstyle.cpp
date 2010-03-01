@@ -475,6 +475,17 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                     QColor lighter(255, 255, 255, 37);
                     painter->fillRect(rect, lighter);
                 }
+                if (option->state & State_HasFocus && (option->state & State_KeyboardFocusChange)) {
+                    QColor highlight = option->palette.highlight().color();
+                    highlight.setAlphaF(0.4);
+                    painter->setPen(QPen(highlight.lighter(), 1));
+                    highlight.setAlphaF(0.3);
+                    painter->setBrush(highlight);
+                    painter->setRenderHint(QPainter::Antialiasing);
+                    QRectF rect = option->rect;
+                    rect.translate(0.5, 0.5);
+                    painter->drawRoundedRect(rect.adjusted(2, 2, -3, -3), 2, 2);
+                }
            }
         }
         break;
@@ -819,24 +830,6 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
                 drawPrimitive(PE_PanelButtonTool, &tool, painter, widget);
             }
 
-            if (toolbutton->state & State_HasFocus) {
-                QStyleOptionFocusRect fr;
-                fr.QStyleOption::operator=(*toolbutton);
-                fr.rect.adjust(3, 3, -3, -3);
-                if (toolbutton->features & QStyleOptionToolButton::MenuButtonPopup)
-                    fr.rect.adjust(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
-                                                      toolbutton, widget), 0);
-                QPen oldPen = painter->pen();
-                QColor focusColor = Utils::StyleHelper::panelTextColor();
-                focusColor.setAlpha(120);
-                QPen outline(focusColor, 1);
-                outline.setStyle(Qt::DotLine);
-                painter->setPen(outline);
-                QRect r = option->rect.adjusted(2, 2, -2, -2);
-                painter->drawRect(r);
-                painter->setPen(oldPen);
-            }
-
             QStyleOptionToolButton label = *toolbutton;
 
             label.palette = panelPalette(option->palette, lightColored(widget));
@@ -938,6 +931,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             } else {
                 drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, painter, widget);
             }
+
             painter->restore();
         }
         break;

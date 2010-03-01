@@ -385,6 +385,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     bar->setFixedHeight(panelHeight);
 
     m_projectsBox = new QComboBox;
+    m_projectsBox->setFocusPolicy(Qt::TabFocus);
     f.setBold(false);
     m_projectsBox->setFont(f);
     m_projectsBox->ensurePolished();
