@@ -120,28 +120,27 @@ HelpNetworkAccessManager::HelpNetworkAccessManager(QHelpEngine *engine,
 {
 }
 
-QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
-    const QNetworkRequest &request, QIODevice *outgoingData)
+QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
+    const QNetworkRequest &request, QIODevice */*outgoingData*/)
 {
-    const QString& scheme = request.url().scheme();
-    if (scheme == QLatin1String("qthelp") || scheme == QLatin1String("about")) {
-        const QUrl& url = request.url();
-        QString mimeType = url.toString();
-        if (mimeType.endsWith(QLatin1String(".svg"))
-            || mimeType.endsWith(QLatin1String(".svgz"))) {
-           mimeType = QLatin1String("image/svg+xml");
-        }
-        else if (mimeType.endsWith(QLatin1String(".css"))) {
-           mimeType = QLatin1String("text/css");
-        }
-        else if (mimeType.endsWith(QLatin1String(".js"))) {
-           mimeType = QLatin1String("text/javascript");
-        } else {
-            mimeType = QLatin1String("text/html");
-        }
-        return new HelpNetworkReply(request, helpEngine->fileData(url), mimeType);
+    const QUrl& url = request.url();
+    QString mimeType = url.toString();
+    if (mimeType.endsWith(QLatin1String(".svg"))
+        || mimeType.endsWith(QLatin1String(".svgz"))) {
+            mimeType = QLatin1String("image/svg+xml");
+    } else if (mimeType.endsWith(QLatin1String(".css"))) {
+        mimeType = QLatin1String("text/css");
+    } else if (mimeType.endsWith(QLatin1String(".js"))) {
+        mimeType = QLatin1String("text/javascript");
+    } else if (mimeType.endsWith(QLatin1String(".txt"))) {
+        mimeType = QLatin1String("text/plain");
+    } else {
+        mimeType = QLatin1String("text/html");
     }
-    return QNetworkAccessManager::createRequest(op, request, outgoingData);
+
+    const QByteArray &data = helpEngine->findFile(url).isValid()
+        ? helpEngine->fileData(url) : QByteArray("The page could not be found");
+    return new HelpNetworkReply(request, data, mimeType);
 }
 
 class HelpPage : public QWebPage
