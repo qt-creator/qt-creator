@@ -121,7 +121,7 @@ HelpNetworkAccessManager::HelpNetworkAccessManager(QHelpEngine *engine,
 }
 
 QNetworkReply *HelpNetworkAccessManager::createRequest(Operation /*op*/,
-    const QNetworkRequest &request, QIODevice */*outgoingData*/)
+    const QNetworkRequest &request, QIODevice * /*outgoingData*/)
 {
     const QUrl& url = request.url();
     QString mimeType = url.toString();
