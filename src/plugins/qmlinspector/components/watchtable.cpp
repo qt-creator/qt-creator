@@ -33,13 +33,13 @@
 #include <QtGui/qaction.h>
 #include <QtGui/qmenu.h>
 
-#include <private/qmldebug_p.h>
-#include <QtDeclarative/qmlmetatype.h>
+#include <private/qdeclarativedebug_p.h>
+#include <QtDeclarative/private/qdeclarativemetatype_p.h>
 
 QT_BEGIN_NAMESPACE
 
 
-WatchTableModel::WatchTableModel(QmlEngineDebug *client, QObject *parent)
+WatchTableModel::WatchTableModel(QDeclarativeEngineDebug *client, QObject *parent)
     : QAbstractTableModel(parent),
       m_client(client)
 {
@@ -51,21 +51,21 @@ WatchTableModel::~WatchTableModel()
         delete m_columns[i].watch;
 }
 
-void WatchTableModel::setEngineDebug(QmlEngineDebug *client)
+void WatchTableModel::setEngineDebug(QDeclarativeEngineDebug *client)
 {
     m_client = client;
 }
 
-void WatchTableModel::addWatch(QmlDebugWatch *watch, const QString &title)
+void WatchTableModel::addWatch(QDeclarativeDebugWatch *watch, const QString &title)
 {
     QString property;
-    if (qobject_cast<QmlDebugPropertyWatch *>(watch))
-        property = qobject_cast<QmlDebugPropertyWatch *>(watch)->name();
+    if (qobject_cast<QDeclarativeDebugPropertyWatch *>(watch))
+        property = qobject_cast<QDeclarativeDebugPropertyWatch *>(watch)->name();
 
     connect(watch, SIGNAL(valueChanged(QByteArray,QVariant)),
             SLOT(watchedValueChanged(QByteArray,QVariant)));
 
-    connect(watch, SIGNAL(stateChanged(QmlDebugWatch::State)), SLOT(watchStateChanged()));
+    connect(watch, SIGNAL(stateChanged(QDeclarativeDebugWatch::State)), SLOT(watchStateChanged()));
 
     int col = columnCount(QModelIndex());
     beginInsertColumns(QModelIndex(), col, col);
@@ -80,7 +80,7 @@ void WatchTableModel::addWatch(QmlDebugWatch *watch, const QString &title)
     endInsertColumns();
 }
 
-void WatchTableModel::removeWatch(QmlDebugWatch *watch)
+void WatchTableModel::removeWatch(QDeclarativeDebugWatch *watch)
 {
     int column = columnForWatch(watch);
     if (column == -1)
@@ -101,7 +101,7 @@ void WatchTableModel::removeWatch(QmlDebugWatch *watch)
     reset();
 }
 
-void WatchTableModel::updateWatch(QmlDebugWatch *watch, const QVariant &value)
+void WatchTableModel::updateWatch(QDeclarativeDebugWatch *watch, const QVariant &value)
 {
     int column = columnForWatch(watch);
     if (column == -1)
@@ -115,14 +115,14 @@ void WatchTableModel::updateWatch(QmlDebugWatch *watch, const QVariant &value)
     }
 }
 
-QmlDebugWatch *WatchTableModel::findWatch(int column) const
+QDeclarativeDebugWatch *WatchTableModel::findWatch(int column) const
 {
     if (column < m_columns.count())
         return m_columns.at(column).watch;
     return 0;
 }
 
-QmlDebugWatch *WatchTableModel::findWatch(int objectDebugId, const QString &property) const
+QDeclarativeDebugWatch *WatchTableModel::findWatch(int objectDebugId, const QString &property) const
 {
     for (int i=0; i<m_columns.count(); ++i) {
         if (m_columns[i].watch->objectDebugId() == objectDebugId
@@ -162,8 +162,8 @@ QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
             const QVariant &value = m_values.at(idx.row()).variant;
             QString str = value.toString();
 
-            if (str.isEmpty() && QmlMetaType::isQObject(value.userType())) {
-                QObject *o = QmlMetaType::toQObject(value);
+            if (str.isEmpty() && QDeclarativeMetaType::isQObject(value.userType())) {
+                QObject *o = QDeclarativeMetaType::toQObject(value);
                 if(o) {
                     QString objectName = o->objectName();
                     if(objectName.isEmpty())
@@ -193,15 +193,15 @@ QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
 
 void WatchTableModel::watchStateChanged()
 {
-    QmlDebugWatch *watch = qobject_cast<QmlDebugWatch*>(sender());
+    QDeclarativeDebugWatch *watch = qobject_cast<QDeclarativeDebugWatch*>(sender());
 
-    if (watch && watch->state() == QmlDebugWatch::Inactive) {
+    if (watch && watch->state() == QDeclarativeDebugWatch::Inactive) {
         removeWatch(watch);
         watch->deleteLater();
     }
 }
 
-int WatchTableModel::columnForWatch(QmlDebugWatch *watch) const
+int WatchTableModel::columnForWatch(QDeclarativeDebugWatch *watch) const
 {
     for (int i=0; i<m_columns.count(); ++i) {
         if (m_columns.at(i).watch == watch)
@@ -224,12 +224,12 @@ void WatchTableModel::addValue(int column, const QVariant &value)
     endInsertRows();
 }
 
-void WatchTableModel::togglePropertyWatch(const QmlDebugObjectReference &object, const QmlDebugPropertyReference &property)
+void WatchTableModel::togglePropertyWatch(const QDeclarativeDebugObjectReference &object, const QDeclarativeDebugPropertyReference &property)
 {
     if (!m_client || !property.hasNotifySignal())
         return;
 
-    QmlDebugWatch *watch = findWatch(object.debugId(), property.name());
+    QDeclarativeDebugWatch *watch = findWatch(object.debugId(), property.name());
     if (watch) {
         // watch will be deleted in watchStateChanged()
         m_client->removeWatch(watch);
@@ -237,7 +237,7 @@ void WatchTableModel::togglePropertyWatch(const QmlDebugObjectReference &object,
     }
 
     watch = m_client->addWatch(property, this);
-    if (watch->state() == QmlDebugWatch::Dead) {
+    if (watch->state() == QDeclarativeDebugWatch::Dead) {
         delete watch;
         watch = 0;
     } else {
@@ -254,19 +254,19 @@ void WatchTableModel::togglePropertyWatch(const QmlDebugObjectReference &object,
 void WatchTableModel::watchedValueChanged(const QByteArray &propertyName, const QVariant &value)
 {
     Q_UNUSED(propertyName);
-    QmlDebugWatch *watch = qobject_cast<QmlDebugWatch*>(sender());
+    QDeclarativeDebugWatch *watch = qobject_cast<QDeclarativeDebugWatch*>(sender());
     if (watch)
         updateWatch(watch, value);
 }
 
-void WatchTableModel::expressionWatchRequested(const QmlDebugObjectReference &obj, const QString &expr)
+void WatchTableModel::expressionWatchRequested(const QDeclarativeDebugObjectReference &obj, const QString &expr)
 {
     if (!m_client)
         return;
 
-    QmlDebugWatch *watch = m_client->addWatch(obj, expr, this);
+    QDeclarativeDebugWatch *watch = m_client->addWatch(obj, expr, this);
 
-    if (watch->state() == QmlDebugWatch::Dead) {
+    if (watch->state() == QDeclarativeDebugWatch::Dead) {
         delete watch;
         watch = 0;
     } else {
@@ -280,7 +280,7 @@ void WatchTableModel::removeWatchAt(int column)
     if (!m_client)
         return;
 
-    QmlDebugWatch *watch = findWatch(column);
+    QDeclarativeDebugWatch *watch = findWatch(column);
     if (watch) {
         m_client->removeWatch(watch);
         delete watch;
@@ -334,18 +334,18 @@ WatchTableView::WatchTableView(WatchTableModel *model, QWidget *parent)
       m_model(model)
 {
     setAlternatingRowColors(true);
-    connect(model, SIGNAL(watchCreated(QmlDebugWatch*)), SLOT(watchCreated(QmlDebugWatch*)));
+    connect(model, SIGNAL(watchCreated(QDeclarativeDebugWatch*)), SLOT(watchCreated(QDeclarativeDebugWatch*)));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(indexActivated(QModelIndex)));
 }
 
 void WatchTableView::indexActivated(const QModelIndex &index)
 {
-    QmlDebugWatch *watch = m_model->findWatch(index.column());
+    QDeclarativeDebugWatch *watch = m_model->findWatch(index.column());
     if (watch)
         emit objectActivated(watch->objectDebugId());
 }
 
-void WatchTableView::watchCreated(QmlDebugWatch *watch)
+void WatchTableView::watchCreated(QDeclarativeDebugWatch *watch)
 {
     int column = m_model->columnForWatch(watch);
     resizeColumnToContents(column);

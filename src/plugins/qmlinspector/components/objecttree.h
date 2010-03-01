@@ -35,25 +35,25 @@ QT_BEGIN_NAMESPACE
 
 class QTreeWidgetItem;
 
-class QmlEngineDebug;
-class QmlDebugObjectReference;
-class QmlDebugObjectQuery;
-class QmlDebugContextReference;
-class QmlDebugConnection;
+class QDeclarativeEngineDebug;
+class QDeclarativeDebugObjectReference;
+class QDeclarativeDebugObjectQuery;
+class QDeclarativeDebugContextReference;
+class QDeclarativeDebugConnection;
 
 
 class ObjectTree : public QTreeWidget
 {
     Q_OBJECT
 public:
-    ObjectTree(QmlEngineDebug *client = 0, QWidget *parent = 0);
+    ObjectTree(QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
 
-    void setEngineDebug(QmlEngineDebug *client);
+    void setEngineDebug(QDeclarativeEngineDebug *client);
 
 signals:
-    void currentObjectChanged(const QmlDebugObjectReference &);
-    void activated(const QmlDebugObjectReference &);
-    void expressionWatchRequested(const QmlDebugObjectReference &, const QString &);
+    void currentObjectChanged(const QDeclarativeDebugObjectReference &);
+    void activated(const QDeclarativeDebugObjectReference &);
+    void expressionWatchRequested(const QDeclarativeDebugObjectReference &, const QString &);
 
 public slots:
     void reload(int objectDebugId);     // set the root object
@@ -70,12 +70,12 @@ private slots:
 private:
     QTreeWidgetItem *findItemByObjectId(int debugId) const;
     QTreeWidgetItem *findItem(QTreeWidgetItem *item, int debugId) const;
-    void dump(const QmlDebugContextReference &, int);
-    void dump(const QmlDebugObjectReference &, int);
-    void buildTree(const QmlDebugObjectReference &, QTreeWidgetItem *parent);
+    void dump(const QDeclarativeDebugContextReference &, int);
+    void dump(const QDeclarativeDebugObjectReference &, int);
+    void buildTree(const QDeclarativeDebugObjectReference &, QTreeWidgetItem *parent);
 
-    QmlEngineDebug *m_client;
-    QmlDebugObjectQuery *m_query;
+    QDeclarativeEngineDebug *m_client;
+    QDeclarativeDebugObjectQuery *m_query;
 };
 
 QT_END_NAMESPACE

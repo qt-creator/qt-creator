@@ -36,8 +36,6 @@
 #include <QComboBox>
 #include <QLabel>
 
-QML_DEFINE_TYPE(Bauhaus,1,0,FontWidget,QmlDesigner::FontWidget);
-
 namespace QmlDesigner {
 
 FontWidget::FontWidget(QWidget *parent)
@@ -167,6 +165,10 @@ void FontWidget::setFontSize(qreal size)
         m_font.setPointSizeF(size);
         emit fontSizeChanged();
     }
+}
+
+void FontWidget::registerDeclarativeTypes() {
+    QML_REGISTER_TYPE(Bauhaus,1,0,FontWidget,QmlDesigner::FontWidget);
 }
 
 } // namespace QmlDesigner

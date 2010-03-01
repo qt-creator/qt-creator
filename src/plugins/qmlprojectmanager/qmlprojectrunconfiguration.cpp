@@ -166,11 +166,11 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
     Utils::PathChooser *qmlViewer = new Utils::PathChooser;
     qmlViewer->setExpectedKind(Utils::PathChooser::Command);
     qmlViewer->setPath(viewerPath());
-    connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onQmlViewerChanged()));
+    connect(qmlViewer, SIGNAL(changed(QString)), this, SLOT(onViewerChanged()));
 
     QLineEdit *qmlViewerArgs = new QLineEdit;
     qmlViewerArgs->setText(m_qmlViewerArgs);
-    connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onQmlViewerArgsChanged()));
+    connect(qmlViewerArgs, SIGNAL(textChanged(QString)), this, SLOT(onViewerArgsChanged()));
 
     QLineEdit *debugServer = new QLineEdit;
     debugServer->setText(m_debugServerAddress);
@@ -214,14 +214,14 @@ void QmlProjectRunConfiguration::setMainScript(const QString &scriptFile)
     m_scriptFile = scriptFile;
 }
 
-void QmlProjectRunConfiguration::onQmlViewerChanged()
+void QmlProjectRunConfiguration::onViewerChanged()
 {
     if (Utils::PathChooser *chooser = qobject_cast<Utils::PathChooser *>(sender())) {
         m_qmlViewerCustomPath = chooser->path();
     }
 }
 
-void QmlProjectRunConfiguration::onQmlViewerArgsChanged()
+void QmlProjectRunConfiguration::onViewerArgsChanged()
 {
     if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender()))
         m_qmlViewerArgs = lineEdit->text();

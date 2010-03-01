@@ -39,7 +39,7 @@
 #include "invalidmetainfoexception.h"
 
 QT_BEGIN_NAMESPACE
-class QmlContext;
+class QDeclarativeContext;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -77,7 +77,7 @@ public:
     bool isValid() const;
     MetaInfo metaInfo() const;
 
-    QObject *createInstance(QmlContext *parentContext) const;
+    QObject *createInstance(QDeclarativeContext *parentContext) const;
 
     PropertyMetaInfo property(const QString &propertyName, bool resolveDotSyntax = false) const;
 

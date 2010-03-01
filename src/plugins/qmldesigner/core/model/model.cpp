@@ -995,7 +995,7 @@ Model *Model::create(QString type, int major, int minor)
 //                                                  componentRootLocation,
 //                                                  m_d->m_rootInternalNode->baseNodeState()->location());
 //
-//    QList<QmlError> errors;
+//    QList<QDeclarativeError> errors;
 //    Model *subModel = create(textModifier, m_d->m_fileUrl, &errors);
 //
 //    Q_ASSERT(subModel);

@@ -39,11 +39,11 @@
 #include <QtCore/QSharedData>
 #include <QtCore/QtDebug>
 #include <QtGui/QIcon>
-#include <QtDeclarative/QmlMetaType>
-#include <QtDeclarative/QmlContext>
-#include <QtDeclarative/QmlEngine>
-#include <QtDeclarative/QmlComponent>
-#include <private/qmlvaluetype_p.h>
+#include <QtDeclarative/private/qdeclarativemetatype_p.h>
+#include <QtDeclarative/QDeclarativeContext>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeComponent>
+#include <private/qdeclarativevaluetype_p.h>
 
 namespace QmlDesigner {
 
@@ -159,7 +159,7 @@ MetaInfo NodeMetaInfo::metaInfo() const
   \throws InvalidArgumentException when the context argument is a null pointer
   \throws InvalidMetaInfoException if the object is not valid
   */
-QObject *NodeMetaInfo::createInstance(QmlContext *context) const
+QObject *NodeMetaInfo::createInstance(QDeclarativeContext *context) const
 {
     if (!context) {
         Q_ASSERT_X(0, Q_FUNC_INFO, "Context cannot be null");
@@ -175,13 +175,13 @@ QObject *NodeMetaInfo::createInstance(QmlContext *context) const
     if (isComponent()) {
         // qml component
         // TODO: This is maybe expensive ...
-        QmlComponent component(context->engine(), QUrl::fromLocalFile(m_data->qmlFile));
+        QDeclarativeComponent component(context->engine(), QUrl::fromLocalFile(m_data->qmlFile));
         object = component.create(context);
     } else {
         // primitive
-        object = QmlMetaType::qmlType(typeName().toAscii(), 4, 6)->create();
+        object = QDeclarativeMetaType::qmlType(typeName().toAscii(), 4, 6)->create();
         if (object && context)
-            QmlEngine::setContextForObject(object, context);
+            QDeclarativeEngine::setContextForObject(object, context);
     }
     return object;
 }
@@ -418,7 +418,7 @@ void NodeMetaInfo::addProperty(const PropertyMetaInfo &property)
 /*!
   \brief Returns the name of the qml type.
 
-  This is not necessarily the class name: E.g. the class defining "Item" is QmlGraphicsItem.
+  This is not necessarily the class name: E.g. the class defining "Item" is QDeclarativeItem.
 
   \throws InvalidMetaInfoException if the object is not valid
   */
@@ -655,7 +655,7 @@ bool NodeMetaInfo::isGraphicsObject() const
 }
 
 /*!
-  \brief Returns whether the type inherits from "Item/QmlGraphicsItem".
+  \brief Returns whether the type inherits from "Item/QDeclarativeItem".
 
   \throws InvalidMetaInfoException if the object is not valid
   */

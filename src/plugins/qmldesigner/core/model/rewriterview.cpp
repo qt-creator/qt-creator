@@ -62,7 +62,7 @@ RewriterView::Error::Error(Exception *exception):
 {
 }
 
-RewriterView::Error::Error(const QmlError &qmlError):
+RewriterView::Error::Error(const QDeclarativeError &qmlError):
         m_type(ParseError),
         m_line(qmlError.line()),
         m_column(qmlError.column()),

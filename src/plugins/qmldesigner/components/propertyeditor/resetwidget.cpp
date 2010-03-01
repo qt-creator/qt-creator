@@ -28,7 +28,7 @@
 **************************************************************************/
 
 
-#include "qml.h"
+#include "qdeclarative.h"
 #include "resetwidget.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -41,7 +41,6 @@
 #include <QApplication>
 
 QML_DECLARE_TYPE(QmlDesigner::ResetWidget);
-QML_DEFINE_TYPE(Bauhaus, 1, 0, ResetWidget, QmlDesigner::ResetWidget);
 
 namespace QmlDesigner {
 
@@ -56,6 +55,11 @@ ResetWidget::ResetWidget(QWidget *parent) : QGroupBox(parent), m_backendObject(0
     m_vlayout->addWidget(b);
 
     setLayout(m_vlayout);
+}
+
+void ResetWidget::registerDeclarativeType()
+{
+    QML_REGISTER_TYPE(Bauhaus, 1, 0, ResetWidget, QmlDesigner::ResetWidget);
 }
 
 void ResetWidget::resetView()

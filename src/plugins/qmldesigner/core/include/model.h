@@ -34,7 +34,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QMimeData>
 #include <QtCore/QPair>
-#include <QtDeclarative/QmlError>
+#include <QtDeclarative/QDeclarativeError>
 
 #include <import.h>
 

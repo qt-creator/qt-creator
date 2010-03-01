@@ -29,15 +29,15 @@
 
 #include "nodeinstanceview.h"
 
-#include <QtDeclarative/QmlEngine>
-#include <QtDeclarative/QmlContext>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeContext>
 
 #include <QtDebug>
 #include <QUrl>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsObject>
-#include <private/qmlengine_p.h>
+#include <private/qdeclarativeengine_p.h>
 
 #include <model.h>
 #include <modelnode.h>
@@ -91,7 +91,7 @@ deleted too.
 NodeInstanceView::NodeInstanceView(QObject *parent)
         : AbstractView(parent),
     m_graphicsView(new QGraphicsView),
-    m_engine(new QmlEngine(this)),
+    m_engine(new QDeclarativeEngine(this)),
     m_blockChangeSignal(false),
     m_blockStatePropertyChanges(false)
 {
@@ -101,9 +101,9 @@ NodeInstanceView::NodeInstanceView(QObject *parent)
 
     Q_ASSERT(!m_engine.isNull());
 
-    QmlEnginePrivate *privateQmlEngine = QmlEnginePrivate::get(m_engine.data());
-    Q_ASSERT(privateQmlEngine);
-    privateQmlEngine->scriptEngine.setProcessEventsInterval(100);
+    QDeclarativeEnginePrivate *privateQDeclarativeEngine = QDeclarativeEnginePrivate::get(m_engine.data());
+    Q_ASSERT(privateQDeclarativeEngine);
+    privateQDeclarativeEngine->scriptEngine.setProcessEventsInterval(100);
 }
 
 
@@ -474,7 +474,7 @@ void NodeInstanceView::insertInstanceNodeRelationship(const ModelNode &node, con
     m_objectInstanceHash.insert(instance.internalObject(), instance);
 }
 
-QmlEngine *NodeInstanceView::engine() const
+QDeclarativeEngine *NodeInstanceView::engine() const
 {
     return m_engine.data();
 }

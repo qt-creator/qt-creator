@@ -30,22 +30,22 @@
 #include "qmlviewnodeinstance.h"
 
 
-#include <QmlMetaType>
-#include <QmlView>
-#include <QmlGraphicsItem>
+#include <private/qdeclarativemetatype_p.h>
+#include <QDeclarativeView>
+#include <QDeclarativeItem>
 
 #include <invalidnodeinstanceexception.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-QmlViewNodeInstance::QmlViewNodeInstance(QmlView *view)
+QDeclarativeViewNodeInstance::QDeclarativeViewNodeInstance(QDeclarativeView *view)
   : GraphicsViewNodeInstance(view)
 {
 }
 
 
-QmlViewNodeInstance::Pointer QmlViewNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QmlContext *context, QObject *objectToBeWrapped)
+QDeclarativeViewNodeInstance::Pointer QDeclarativeViewNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
 {
     QObject *object = 0;
     if (objectToBeWrapped)
@@ -53,11 +53,11 @@ QmlViewNodeInstance::Pointer QmlViewNodeInstance::create(const NodeMetaInfo &nod
     else
         createObject(nodeMetaInfo, context);
 
-    QmlView* view = qobject_cast<QmlView*>(object);
+    QDeclarativeView* view = qobject_cast<QDeclarativeView*>(object);
     if (view == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
 
-    Pointer instance(new QmlViewNodeInstance(view));
+    Pointer instance(new QDeclarativeViewNodeInstance(view));
 
     if (objectToBeWrapped)
         instance->setDeleteHeldInstance(false); // the object isn't owned
@@ -67,22 +67,22 @@ QmlViewNodeInstance::Pointer QmlViewNodeInstance::create(const NodeMetaInfo &nod
     return instance;
 }
 
-QmlView* QmlViewNodeInstance::view() const
+QDeclarativeView* QDeclarativeViewNodeInstance::view() const
 {
-    QmlView* view = qobject_cast<QmlView*>(widget());
+    QDeclarativeView* view = qobject_cast<QDeclarativeView*>(widget());
     Q_ASSERT(view);
     return view;
 }
 
-bool QmlViewNodeInstance::isQmlView() const
+bool QDeclarativeViewNodeInstance::isQDeclarativeView() const
 {
     return true;
 }
 
-void QmlViewNodeInstance::addItem(QmlGraphicsItem *item)
+void QDeclarativeViewNodeInstance::addItem(QDeclarativeItem *item)
 {
-    QmlGraphicsItem *rootItem = qobject_cast<QmlGraphicsItem *>(view()->rootObject());
-    Q_ASSERT_X(rootItem, Q_FUNC_INFO, "root item is QmlGraphicsItem based");
+    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem *>(view()->rootObject());
+    Q_ASSERT_X(rootItem, Q_FUNC_INFO, "root item is QDeclarativeItem based");
     item->setParent(rootItem);
 }
 

@@ -45,7 +45,7 @@
 
 
 #include <QWeakPointer>
-#include <QmlError>
+#include <QDeclarativeError>
 #include <QtCore/QHash>
 #include <QtGui/QWidget>
 #include <QtGui/QToolBar>

@@ -44,7 +44,7 @@ namespace Internal {
 
 template <class T>
 ItemLibrarySortedModel<T>::ItemLibrarySortedModel(QObject *parent) :
-    QmlListModel(parent)
+    QDeclarativeListModel(parent)
 {
 }
 
@@ -230,7 +230,7 @@ ItemLibrarySectionModel::ItemLibrarySectionModel(QScriptEngine *scriptEngine, in
     QScriptValue::setProperty(QLatin1String("sectionLibId"), sectionLibId);
     QScriptValue::setProperty(QLatin1String("sectionName"), sectionName);
     QScriptValue::setProperty(QLatin1String("sectionEntries"),
-        scriptEngine->newVariant(QVariant::fromValue(static_cast<QmlListModel *>(&m_sectionEntries))));
+        scriptEngine->newVariant(QVariant::fromValue(static_cast<QDeclarativeListModel *>(&m_sectionEntries))));
 }
 
 

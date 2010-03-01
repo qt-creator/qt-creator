@@ -35,7 +35,7 @@
 #include "nodelistproperty.h"
 #include "modelnode.h"
 
-#include <private/qmldom_p.h>
+#include <private/qdeclarativedom_p.h>
 
 namespace QmlDesigner {
 
@@ -54,7 +54,7 @@ public:
     TextToModelMerger(RewriterView *reWriterView);
     bool isActive() const;
 
-    void setupImports(QmlDomDocument &doc, DifferenceHandler &differenceHandler);
+    void setupImports(QDeclarativeDomDocument &doc, DifferenceHandler &differenceHandler);
     bool load(const QByteArray &data, DifferenceHandler &differenceHandler);
 
     RewriterView *view() const
@@ -65,20 +65,20 @@ protected:
 
 public:
     void syncNode(ModelNode &modelNode,
-                  const QmlDomObject &qmlObject,
+                  const QDeclarativeDomObject &qmlObject,
                   DifferenceHandler &differenceHandler);
     void syncProperty(AbstractProperty &modelProperty,
-                      const QmlDomProperty &qmlProperty,
-                      const QmlDomDynamicProperty &qmlDynamicProperty,
+                      const QDeclarativeDomProperty &qmlProperty,
+                      const QDeclarativeDomDynamicProperty &qmlDynamicProperty,
                       DifferenceHandler &differenceHandler);
     void syncNodeListProperty(NodeListProperty &modelListProperty,
-                              const QmlDomList &domList,
+                              const QDeclarativeDomList &domList,
                               DifferenceHandler &differenceHandler);
-    ModelNode createModelNode(const QmlDomObject &domObject,
+    ModelNode createModelNode(const QDeclarativeDomObject &domObject,
                               DifferenceHandler &differenceHandler);
     static QVariant convertToVariant(const ModelNode &node,
-                                     const QmlDomProperty &qmlProperty,
-                                     const QmlDomDynamicProperty &qmlDynamicProperty);
+                                     const QDeclarativeDomProperty &qmlProperty,
+                                     const QDeclarativeDomDynamicProperty &qmlDynamicProperty);
 
 private:
     static bool isSignalPropertyName(const QString &signalName);
@@ -100,15 +100,15 @@ public:
 
     virtual void modelMissesImport(const Import &import) = 0;
     virtual void importAbsentInQMl(const Import &import) = 0;
-    virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding) = 0;
-    virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding) = 0;
-    virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList) = 0;
+    virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &QDeclarativeBinding) = 0;
+    virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &QDeclarativeBinding) = 0;
+    virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QDeclarativeDomList &domList) = 0;
     virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName) = 0;
     virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName) = 0;
-    virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject) = 0;
+    virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QDeclarativeDomObject &qmlObject) = 0;
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode) = 0;
-    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject) = 0;
-    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QmlDomObject &domObject) = 0;
+    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QDeclarativeDomObject &qmlObject) = 0;
+    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QDeclarativeDomObject &domObject) = 0;
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty) = 0;
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId) = 0;
 
@@ -127,15 +127,15 @@ public:
 
     virtual void modelMissesImport(const Import &import);
     virtual void importAbsentInQMl(const Import &import);
-    virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding);
-    virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding);
-    virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList);
+    virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &QDeclarativeBinding);
+    virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &QDeclarativeBinding);
+    virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QDeclarativeDomList &domList);
     virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName);
     virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName);
-    virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject);
+    virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QDeclarativeDomObject &qmlObject);
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
-    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject);
-    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QmlDomObject &domObject);
+    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QDeclarativeDomObject &qmlObject);
+    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QDeclarativeDomObject &domObject);
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
 };
@@ -151,15 +151,15 @@ public:
 
     virtual void modelMissesImport(const Import &import);
     virtual void importAbsentInQMl(const Import &import);
-    virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &qmlBinding);
-    virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &qmlBinding);
-    virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QmlDomList &domList);
+    virtual void bindingExpressionsDiffer(BindingProperty &modelProperty, const QString &QDeclarativeBinding);
+    virtual void shouldBeBindingProperty(AbstractProperty &modelProperty, const QString &QDeclarativeBinding);
+    virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty, const QDeclarativeDomList &domList);
     virtual void variantValuesDiffer(VariantProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicType);
     virtual void shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName);
-    virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QmlDomObject &qmlObject);
+    virtual void shouldBeNodeProperty(AbstractProperty &modelProperty, const QDeclarativeDomObject &qmlObject);
     virtual void modelNodeAbsentFromQml(ModelNode &modelNode);
-    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QmlDomObject &qmlObject);
-    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QmlDomObject &domObject);
+    virtual ModelNode listPropertyMissingModelNode(NodeListProperty &modelProperty, const QDeclarativeDomObject &qmlObject);
+    virtual void typeDiffers(bool isRootNode, ModelNode &modelNode, const QDeclarativeDomObject &domObject);
     virtual void propertyAbsentFromQml(AbstractProperty &modelProperty);
     virtual void idsDiffer(ModelNode &modelNode, const QString &qmlId);
 };

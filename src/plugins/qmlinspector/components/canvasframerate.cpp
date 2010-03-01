@@ -28,7 +28,7 @@
 **************************************************************************/
 #include "canvasframerate.h"
 
-#include <private/qmldebugclient_p.h>
+#include <private/qdeclarativedebugclient_p.h>
 
 #include <QtCore/qdebug.h>
 #include <QtCore/qstringlist.h>
@@ -393,11 +393,11 @@ QSize GraphWindow::sizeHint() const
 }
 
 
-class CanvasFrameRatePlugin : public QmlDebugClient
+class CanvasFrameRatePlugin : public QDeclarativeDebugClient
 {
     Q_OBJECT
 public:
-    CanvasFrameRatePlugin(QmlDebugConnection *client);
+    CanvasFrameRatePlugin(QDeclarativeDebugConnection *client);
 
 signals:
     void sample(int, int, int, bool);
@@ -410,8 +410,8 @@ private:
     int ld;
 };
 
-CanvasFrameRatePlugin::CanvasFrameRatePlugin(QmlDebugConnection *client)
-: QmlDebugClient(QLatin1String("CanvasFrameRate"), client), lb(-1)
+CanvasFrameRatePlugin::CanvasFrameRatePlugin(QDeclarativeDebugConnection *client)
+: QDeclarativeDebugClient(QLatin1String("CanvasFrameRate"), client), lb(-1)
 {
 }
 
@@ -476,7 +476,7 @@ CanvasFrameRate::CanvasFrameRate(QWidget *parent)
     setLayout(layout);
 }
 
-void CanvasFrameRate::reset(QmlDebugConnection *conn)
+void CanvasFrameRate::reset(QDeclarativeDebugConnection *conn)
 {
     delete m_plugin;
     m_plugin = 0;
@@ -502,11 +502,11 @@ void CanvasFrameRate::connectionStateChanged(QAbstractSocket::SocketState state)
         delete m_plugin;
         m_plugin = 0;
     } else if (state == QAbstractSocket::ConnectedState) {
-        handleConnected(qobject_cast<QmlDebugConnection*>(sender()));
+        handleConnected(qobject_cast<QDeclarativeDebugConnection*>(sender()));
     }
 }
 
-void CanvasFrameRate::handleConnected(QmlDebugConnection *conn)
+void CanvasFrameRate::handleConnected(QDeclarativeDebugConnection *conn)
 {
     delete m_plugin;
     m_plugin = new CanvasFrameRatePlugin(conn);
@@ -561,7 +561,7 @@ void CanvasFrameRate::newTab()
 void CanvasFrameRate::enabledToggled(bool checked)
 {
     if (m_plugin)
-        static_cast<QmlDebugClient *>(m_plugin)->setEnabled(checked);
+        static_cast<QDeclarativeDebugClient *>(m_plugin)->setEnabled(checked);
 }
 
 QT_END_NAMESPACE

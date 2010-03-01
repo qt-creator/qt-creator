@@ -29,7 +29,7 @@
 
 #include "graphicsscenenodeinstance.h"
 
-#include <QmlMetaType>
+#include <private/qdeclarativemetatype_p.h>
 
 #include "graphicsviewnodeinstance.h"
 
@@ -48,7 +48,7 @@ GraphicsSceneNodeInstance::~GraphicsSceneNodeInstance()
 {
 }
 
-GraphicsSceneNodeInstance::Pointer GraphicsSceneNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QmlContext *context, QObject  *objectToBeWrapped)
+GraphicsSceneNodeInstance::Pointer GraphicsSceneNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject  *objectToBeWrapped)
 {
     QObject *object = 0;
     if (objectToBeWrapped)

@@ -30,7 +30,7 @@
 #include "propertyparser.h"
 #include <QUrl>
 #include <QtCore/QDebug>
-#include <QtDeclarative/private/qmlstringconverters_p.h>
+#include <QtDeclarative/private/qdeclarativestringconverters_p.h>
 #include <modelnode.h>
 #include <metainfo.h>
 
@@ -71,28 +71,28 @@ QVariant read(const QString &typeStr, const QString &str)
     bool conversionOk = true;
     switch (type) {
     case QMetaType::QPoint:
-        value = QmlStringConverters::pointFFromString(str, &conversionOk).toPoint();
+        value = QDeclarativeStringConverters::pointFFromString(str, &conversionOk).toPoint();
         break;
     case QMetaType::QPointF:
-        value = QmlStringConverters::pointFFromString(str, &conversionOk);
+        value = QDeclarativeStringConverters::pointFFromString(str, &conversionOk);
         break;
     case QMetaType::QSize:
-        value = QmlStringConverters::sizeFFromString(str, &conversionOk).toSize();
+        value = QDeclarativeStringConverters::sizeFFromString(str, &conversionOk).toSize();
         break;
     case QMetaType::QSizeF:
-        value = QmlStringConverters::sizeFFromString(str, &conversionOk);
+        value = QDeclarativeStringConverters::sizeFFromString(str, &conversionOk);
         break;
     case QMetaType::QRect:
-        value = QmlStringConverters::rectFFromString(str, &conversionOk).toRect();
+        value = QDeclarativeStringConverters::rectFFromString(str, &conversionOk).toRect();
         break;
     case QMetaType::QRectF:
-        value = QmlStringConverters::rectFFromString(str, &conversionOk);
+        value = QDeclarativeStringConverters::rectFFromString(str, &conversionOk);
         break;
     case QMetaType::QUrl:
         value = QVariant(QUrl(str));
         break;
     case QMetaType::QColor:
-        value = QmlStringConverters::colorFromString(str);
+        value = QDeclarativeStringConverters::colorFromString(str);
         break;
     default: {
         value = QVariant(str);

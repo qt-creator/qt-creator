@@ -40,7 +40,7 @@
 QT_BEGIN_NAMESPACE
 class QPainter;
 class QStyleOptionGraphicsItem;
-class QmlContext;
+class QDeclarativeContext;
 class QGraphicsItem;
 class QGraphicsTransform;
 QT_END_NAMESPACE
@@ -92,7 +92,7 @@ public:
     bool isGraphicsWidget() const;
     bool isProxyWidget() const;
     bool isWidget() const;
-    bool isQmlView() const;
+    bool isQDeclarativeView() const;
     bool isGraphicsObject() const;
     bool isTransition() const;
 
@@ -137,11 +137,13 @@ public:
     void deactivateState();
     void refreshState();
 
+    static void registerDeclarativeTypes();
+
 private: // functions
     NodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 
     static NodeInstance create(NodeInstanceView *nodeInstanceView, const ModelNode &node, QObject *objectToBeWrapped);
-    static NodeInstance create(NodeInstanceView *nodeInstanceView, const NodeMetaInfo &metaInfo, QmlContext *context);
+    static NodeInstance create(NodeInstanceView *nodeInstanceView, const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
 
     void setDeleteHeldInstance(bool deleteInstance);
     void reparent(const NodeInstance &oldParentInstance, const QString &oldParentProperty, const NodeInstance &newParentInstance, const QString &newParentProperty);
@@ -150,7 +152,7 @@ private: // functions
 
     void setId(const QString &id);
 
-    static QSharedPointer<Internal::ObjectNodeInstance> createInstance(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    static QSharedPointer<Internal::ObjectNodeInstance> createInstance(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
     QSharedPointer<Internal::QmlGraphicsItemNodeInstance> qmlGraphicsItemNodeInstance() const;
 
     void paintUpdate();

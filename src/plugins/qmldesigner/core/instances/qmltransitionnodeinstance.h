@@ -33,7 +33,7 @@
 #include "objectnodeinstance.h"
 
 QT_BEGIN_NAMESPACE
-class QmlTransition;
+class QDeclarativeTransition;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -45,17 +45,17 @@ public:
     typedef QSharedPointer<QmlTransitionNodeInstance> Pointer;
     typedef QWeakPointer<QmlTransitionNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
 
     void setPropertyVariant(const QString &name, const QVariant &value);
 
     bool isTransition() const;
 
 protected:
-    QmlTransition *qmlTransition() const;
+    QDeclarativeTransition *qmlTransition() const;
 
 private:
-    QmlTransitionNodeInstance(QmlTransition *transition);
+    QmlTransitionNodeInstance(QDeclarativeTransition *transition);
 };
 }
 }

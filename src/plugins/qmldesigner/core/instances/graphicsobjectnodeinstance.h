@@ -80,7 +80,7 @@ public:
 protected:
     QGraphicsObject *graphicsObject() const;
     void paintRecursively(QGraphicsItem *graphicsItem, QPainter *painter) const;
-    static QPair<QGraphicsObject*, bool> createGraphicsObject(const NodeMetaInfo &metaInfo, QmlContext *context);
+    static QPair<QGraphicsObject*, bool> createGraphicsObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
 private: // variables
     bool m_isVisible;
     bool m_hasContent;

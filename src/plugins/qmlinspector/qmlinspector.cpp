@@ -39,8 +39,8 @@
 #include "components/canvasframerate.h"
 #include "components/expressionquerywidget.h"
 
-#include <private/qmldebug_p.h>
-#include <private/qmldebugclient_p.h>
+#include <private/qdeclarativedebug_p.h>
+#include <private/qdeclarativedebugclient_p.h>
 
 #include <utils/styledbar.h>
 #include <utils/fancymainwindow.h>
@@ -203,7 +203,7 @@ bool QmlInspector::connectToViewer()
     QString host = config->debugServerAddress();
     quint16 port = quint16(config->debugServerPort());
 
-    m_conn = new QmlDebugConnection(this);
+    m_conn = new QDeclarativeDebugConnection(this);
     connect(m_conn, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
             SLOT(connectionStateChanged()));
     connect(m_conn, SIGNAL(error(QAbstractSocket::SocketError)),
@@ -247,7 +247,7 @@ void QmlInspector::connectionStateChanged()
             emit statusMessage(tr("[Inspector] connected.\n"));
 
             if (!m_client) {
-                m_client = new QmlEngineDebug(m_conn, this);
+                m_client = new QDeclarativeEngineDebug(m_conn, this);
                 m_objectTreeWidget->setEngineDebug(m_client);
                 m_propertiesWidget->setEngineDebug(m_client);
                 m_watchTableModel->setEngineDebug(m_client);
@@ -313,20 +313,20 @@ void QmlInspector::initWidgets()
     WatchTableHeaderView *header = new WatchTableHeaderView(m_watchTableModel);
     m_watchTableView->setHorizontalHeader(header);
 
-    connect(m_objectTreeWidget, SIGNAL(activated(QmlDebugObjectReference)),
-            this, SLOT(treeObjectActivated(QmlDebugObjectReference)));
+    connect(m_objectTreeWidget, SIGNAL(activated(QDeclarativeDebugObjectReference)),
+            this, SLOT(treeObjectActivated(QDeclarativeDebugObjectReference)));
 
-    connect(m_objectTreeWidget, SIGNAL(currentObjectChanged(QmlDebugObjectReference)),
-            m_propertiesWidget, SLOT(reload(QmlDebugObjectReference)));
+    connect(m_objectTreeWidget, SIGNAL(currentObjectChanged(QDeclarativeDebugObjectReference)),
+            m_propertiesWidget, SLOT(reload(QDeclarativeDebugObjectReference)));
 
-    connect(m_objectTreeWidget, SIGNAL(expressionWatchRequested(QmlDebugObjectReference,QString)),
-            m_watchTableModel, SLOT(expressionWatchRequested(QmlDebugObjectReference,QString)));
+    connect(m_objectTreeWidget, SIGNAL(expressionWatchRequested(QDeclarativeDebugObjectReference,QString)),
+            m_watchTableModel, SLOT(expressionWatchRequested(QDeclarativeDebugObjectReference,QString)));
 
-    connect(m_propertiesWidget, SIGNAL(activated(QmlDebugObjectReference,QmlDebugPropertyReference)),
-            m_watchTableModel, SLOT(togglePropertyWatch(QmlDebugObjectReference,QmlDebugPropertyReference)));
+    connect(m_propertiesWidget, SIGNAL(activated(QDeclarativeDebugObjectReference,QDeclarativeDebugPropertyReference)),
+            m_watchTableModel, SLOT(togglePropertyWatch(QDeclarativeDebugObjectReference,QDeclarativeDebugPropertyReference)));
 
-    connect(m_watchTableModel, SIGNAL(watchCreated(QmlDebugWatch*)),
-            m_propertiesWidget, SLOT(watchCreated(QmlDebugWatch*)));
+    connect(m_watchTableModel, SIGNAL(watchCreated(QDeclarativeDebugWatch*)),
+            m_propertiesWidget, SLOT(watchCreated(QDeclarativeDebugWatch*)));
 
     connect(m_watchTableModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             m_watchTableView, SLOT(scrollToBottom()));
@@ -334,8 +334,8 @@ void QmlInspector::initWidgets()
     connect(m_watchTableView, SIGNAL(objectActivated(int)),
             m_objectTreeWidget, SLOT(setCurrentObject(int)));
 
-    connect(m_objectTreeWidget, SIGNAL(currentObjectChanged(QmlDebugObjectReference)),
-            m_expressionWidget, SLOT(setCurrentObject(QmlDebugObjectReference)));
+    connect(m_objectTreeWidget, SIGNAL(currentObjectChanged(QDeclarativeDebugObjectReference)),
+            m_expressionWidget, SLOT(setCurrentObject(QDeclarativeDebugObjectReference)));
 
 
     Core::MiniSplitter *leftSplitter = new Core::MiniSplitter(Qt::Vertical);
@@ -411,7 +411,7 @@ void QmlInspector::reloadEngines()
     if (!m_engineQuery->isWaiting())
         enginesChanged();
     else
-        QObject::connect(m_engineQuery, SIGNAL(stateChanged(QmlDebugQuery::State)),
+        QObject::connect(m_engineQuery, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
                          this, SLOT(enginesChanged()));
 }
 
@@ -419,7 +419,7 @@ void QmlInspector::enginesChanged()
 {
     m_engineSpinBox->clearEngines();
 
-    QList<QmlDebugEngineReference> engines = m_engineQuery->engines();
+    QList<QDeclarativeDebugEngineReference> engines = m_engineQuery->engines();
     delete m_engineQuery; m_engineQuery = 0;
 
     if (engines.isEmpty())
@@ -446,11 +446,11 @@ void QmlInspector::queryEngineContext(int id)
         m_contextQuery = 0;
     }
 
-    m_contextQuery = m_client->queryRootContexts(QmlDebugEngineReference(id), this);
+    m_contextQuery = m_client->queryRootContexts(QDeclarativeDebugEngineReference(id), this);
     if (!m_contextQuery->isWaiting())
         contextChanged();
     else
-        QObject::connect(m_contextQuery, SIGNAL(stateChanged(QmlDebugQuery::State)),
+        QObject::connect(m_contextQuery, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
                          this, SLOT(contextChanged()));
 }
 
@@ -458,15 +458,15 @@ void QmlInspector::contextChanged()
 {
     //dump(m_contextQuery->rootContext(), 0);
 
-    foreach (const QmlDebugObjectReference &object, m_contextQuery->rootContext().objects())
+    foreach (const QDeclarativeDebugObjectReference &object, m_contextQuery->rootContext().objects())
         m_objectTreeWidget->reload(object.debugId());
 
     delete m_contextQuery; m_contextQuery = 0;
 }
 
-void QmlInspector::treeObjectActivated(const QmlDebugObjectReference &obj)
+void QmlInspector::treeObjectActivated(const QDeclarativeDebugObjectReference &obj)
 {
-    QmlDebugFileReference source = obj.source();
+    QDeclarativeDebugFileReference source = obj.source();
     QString fileName = source.url().toLocalFile();
 
     if (source.lineNumber() < 0 || !QFile::exists(fileName))

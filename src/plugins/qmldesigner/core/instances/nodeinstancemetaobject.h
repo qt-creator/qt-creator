@@ -1,8 +1,8 @@
 #ifndef NODEINSTANCEMETAOBJECT_H
 #define NODEINSTANCEMETAOBJECT_H
 
-#include <private/qmlopenmetaobject_p.h>
-#include <private/qmlcontext_p.h>
+#include <private/qdeclarativeopenmetaobject_p.h>
+#include <private/qdeclarativecontext_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -11,7 +11,7 @@ class ObjectNodeInstance;
 typedef QSharedPointer<ObjectNodeInstance> ObjectNodeInstancePointer;
 typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
 
-class NodeInstanceMetaObject : public QmlOpenMetaObject
+class NodeInstanceMetaObject : public QDeclarativeOpenMetaObject
 {
 public:
     NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance);
@@ -26,7 +26,7 @@ protected:
 private:
     ObjectNodeInstanceWeakPointer m_nodeInstance;
     QString m_prefix;
-    QWeakPointer<QmlContext> m_context;
+    QWeakPointer<QDeclarativeContext> m_context;
 };
 
 } // namespace Internal

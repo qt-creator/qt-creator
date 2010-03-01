@@ -31,30 +31,30 @@
 #define QMLVIEWNODEINSTANCE_H
 
 #include <QWeakPointer>
-#include <QmlView>
-#include <QmlGraphicsItem>
+#include <QDeclarativeView>
+#include <QDeclarativeItem>
 
 #include "graphicsviewnodeinstance.h"
 
 namespace QmlDesigner {
 namespace Internal {
 
-class QmlViewNodeInstance : public GraphicsViewNodeInstance
+class QDeclarativeViewNodeInstance : public GraphicsViewNodeInstance
 {
 public:
-    typedef QSharedPointer<QmlViewNodeInstance> Pointer;
-    typedef QWeakPointer<QmlViewNodeInstance> WeakPointer;
+    typedef QSharedPointer<QDeclarativeViewNodeInstance> Pointer;
+    typedef QWeakPointer<QDeclarativeViewNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
 
-    bool isQmlView() const;
+    bool isQDeclarativeView() const;
 
-    void addItem(QmlGraphicsItem *item);
+    void addItem(QDeclarativeItem *item);
 
 protected:
-    QmlViewNodeInstance(QmlView *view);
+    QDeclarativeViewNodeInstance(QDeclarativeView *view);
 
-    QmlView* view() const;
+    QDeclarativeView* view() const;
 };
 
 }

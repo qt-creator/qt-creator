@@ -32,7 +32,7 @@
 
 #include <QObject>
 #include <QLayout>
-#include <qml.h>
+#include <qdeclarative.h>
 
 
 QT_BEGIN_HEADER
@@ -47,6 +47,8 @@ public:
     QLayoutObject(QObject *parent = 0);
 
     virtual QLayout *layout() const;
+
+    static void registerDeclarativeType();
 };
 
 QT_END_NAMESPACE

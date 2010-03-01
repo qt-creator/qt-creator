@@ -29,10 +29,10 @@
 
 #include "basicwidgets.h"
 #include <qlayoutobject.h>
-#include <private/graphicswidgets_p.h>
-#include <qmlcontext.h>
-#include <qmlengine.h>
-#include <qmlcomponent.h>
+//#include <private/graphicswidgets_p.h>
+#include <QDeclarativeContext>
+#include <QDeclarativeEngine>
+#include <QDeclarativeComponent>
 #include <QtCore/QDebug>
 #include <QFile>
 #include <QPixmap>
@@ -104,9 +104,9 @@ class QWidgetDeclarativeUI : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QmlListProperty<QObject> children READ children)
+    Q_PROPERTY(QDeclarativeListProperty<QObject> children READ children)
     Q_PROPERTY(QLayoutObject *layout READ layout WRITE setLayout)
-    Q_PROPERTY(QmlListProperty<Action> actions READ actions)
+    Q_PROPERTY(QDeclarativeListProperty<Action> actions READ actions)
     Q_PROPERTY(QFont font READ font CONSTANT)
 
     Q_PROPERTY(QPoint pos READ pos)
@@ -195,13 +195,14 @@ public:
         emit mouseOverChanged();
     }
 
+
      void emitVisibleChanged()
      {
          emit visibleChanged();
      }
 
-    QmlListProperty<QObject> children() {
-        return QmlListProperty<QObject>(this, 0, children_append, children_count, children_at, children_clear);
+     QDeclarativeListProperty<QObject> children() {
+         return QDeclarativeListProperty<QObject>(this, 0, children_append, children_count, children_at, children_clear);
     }
 
     QLayoutObject *layout() const { return _layout; }
@@ -427,8 +428,8 @@ public:
 
     }
 
-    QmlListProperty<Action> actions() {
-        return QmlListProperty<Action>(this, 0, actions_append, actions_count, actions_at, actions_clear);
+    QDeclarativeListProperty<Action> actions() {
+        return QDeclarativeListProperty<Action>(this, 0, actions_append, actions_count, actions_at, actions_clear);
     }
 
 private:
@@ -439,7 +440,7 @@ private:
     QGraphicsOpacityEffect *_graphicsOpacityEffect;
     bool m_mouseOver;
 
-    static void children_append(QmlListProperty<QObject> *property, QObject *o) {
+    static void children_append(QDeclarativeListProperty<QObject> *property, QObject *o) {
         QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
         QWidget *q = p->q;
         if (QWidget *w = qobject_cast<QWidget *>(o))
@@ -448,19 +449,19 @@ private:
             o->setParent(q);
     }
 
-    static int children_count(QmlListProperty<QObject> *property) {
+    static int children_count(QDeclarativeListProperty<QObject> *property) {
         QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
         QWidget *q = p->q;
         return q->children().count();
     }
 
-    static QObject * children_at(QmlListProperty<QObject> *property, int index) {
+    static QObject * children_at(QDeclarativeListProperty<QObject> *property, int index) {
         QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
         QWidget *q = p->q;
         return q->children().at(index);
     }
 
-    static void children_clear(QmlListProperty<QObject> *property) {
+    static void children_clear(QDeclarativeListProperty<QObject> *property) {
         QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
         QWidget *q = p->q;
         QObjectList c = q->children();
@@ -469,25 +470,25 @@ private:
     }
 
     // ### Original had an insert, and removeAt
-    static void actions_append(QmlListProperty<Action> *property, Action *o) {
+    static void actions_append(QDeclarativeListProperty<Action> *property, Action *o) {
         QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
         QWidget *w = p->q;
         o->setParent(w);
         w->addAction(o);
     }
 
-    static int actions_count(QmlListProperty<Action> *property) {
+    static int actions_count(QDeclarativeListProperty<Action> *property) {
         QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
         QWidget *w = p->q;
         return w->actions().count();
     }
-    static Action *actions_at(QmlListProperty<Action> *property, int index) {
+    static Action *actions_at(QDeclarativeListProperty<Action> *property, int index) {
         QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
         QWidget *w = p->q;
         return qobject_cast<Action *>(w->actions().at(index));
     }
 
-    static void actions_clear(QmlListProperty<Action> *property) {
+    static void actions_clear(QDeclarativeListProperty<Action> *property) {
         QWidgetDeclarativeUI *p = static_cast<QWidgetDeclarativeUI *>(property->object);
         QWidget *w = p->q;
 
@@ -674,7 +675,7 @@ public:
      }
 
 private:
-    //if not for the at() function, we could use QmlList instead
+    //if not for the at() function, we could use QDeclarativeList instead
 
     QMenu *menu;
 
@@ -865,7 +866,7 @@ class WidgetLoader : public QWidget
     Q_PROPERTY(QString sourceString READ sourceString WRITE setSourceString NOTIFY sourceChanged)
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QWidget *widget READ widget NOTIFY widgetChanged)
-    Q_PROPERTY(QmlComponent *component READ component NOTIFY sourceChanged)
+    Q_PROPERTY(QDeclarativeComponent *component READ component NOTIFY sourceChanged)
 
 public:
     WidgetLoader(QWidget * parent = 0) : QWidget(parent), m_source(QUrl()), m_widget(0),
@@ -884,7 +885,7 @@ public:
     { setSource(QUrl(url)); }
 
     QWidget *widget() const;
-    QmlComponent *component() const
+    QDeclarativeComponent *component() const
     { return m_component; }
 
 signals:
@@ -894,7 +895,7 @@ signals:
 private:
     QUrl m_source;
     QWidget *m_widget;
-    QmlComponent *m_component;
+    QDeclarativeComponent *m_component;
     QVBoxLayout *m_layout;
     QHash<QString, QWidget*> m_cachedWidgets;
 };
@@ -936,7 +937,7 @@ void WidgetLoader::setSource(const QUrl &source)
         m_widget = m_cachedWidgets.value(source.toString());
         m_widget->show();
     } else {
-        m_component = new QmlComponent(qmlEngine(this), m_source, this);
+        m_component = new QDeclarativeComponent(qmlEngine(this), m_source, this);
 
         if (m_component) {
             emit sourceChanged();
@@ -952,7 +953,7 @@ void WidgetLoader::setSource(const QUrl &source)
                 return;
             }
 
-            QmlContext *ctxt = new QmlContext(qmlContext(this));
+            QDeclarativeContext *ctxt = new QDeclarativeContext(qmlContext(this));
             ctxt->addDefaultObject(this);
 
             QObject *obj = m_component->create(ctxt);
@@ -1170,17 +1171,17 @@ class QTabWidgetDeclarativeUI : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QmlListProperty<QTabObject> tabs READ tabs)
+    Q_PROPERTY(QDeclarativeListProperty<QTabObject> tabs READ tabs)
     Q_CLASSINFO("DefaultProperty", "tabs")
 public:
     QTabWidgetDeclarativeUI(QObject *other) : QObject(other) {}
 
-    QmlListProperty<QTabObject> tabs() {
-        return QmlListProperty<QTabObject>(this, 0, tabs_append, 0, 0, tabs_clear);
+    QDeclarativeListProperty<QTabObject> tabs() {
+        return QDeclarativeListProperty<QTabObject>(this, 0, tabs_append, 0, 0, tabs_clear);
     }
 
 private:
-    static void tabs_append(QmlListProperty<QTabObject> *property, QTabObject *o) {
+    static void tabs_append(QDeclarativeListProperty<QTabObject> *property, QTabObject *o) {
         QTabWidget *tw = static_cast<QTabWidget*>(property->object->parent());
         if (!o->icon().isNull())
             tw->addTab(o->content(), o->icon(), o->label());
@@ -1188,7 +1189,7 @@ private:
             tw->addTab(o->content(), o->label());
     }
 
-    static void tabs_clear(QmlListProperty<QTabObject> *property) {
+    static void tabs_clear(QDeclarativeListProperty<QTabObject> *property) {
         QTabWidget *tw = static_cast<QTabWidget*>(property->object->parent());
         tw->clear();
     }
@@ -1203,68 +1204,71 @@ public:
     {}
 };
 
-QT_END_NAMESPACE
-
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QWidget,QWidget,QWidgetDeclarativeUI);
-
-//display
-QML_DEFINE_TYPE(Bauhaus,1,0,QProgressBar,QProgressBar)
-QML_DEFINE_TYPE(Bauhaus,1,0,QLCDNumber,QLCDNumber)
-
-//input
-QML_DEFINE_TYPE(Bauhaus,1,0,QLineEdit,QLineEdit)
-QML_DEFINE_TYPE(Bauhaus,1,0,QTextEdit,QTextEdit)
-QML_DEFINE_TYPE(Bauhaus,1,0,QPlainTextEdit,QPlainTextEdit)
-QML_DEFINE_TYPE(Bauhaus,1,0,QSpinBox,QSpinBox)
-QML_DEFINE_TYPE(Bauhaus,1,0,QDoubleSpinBox,QDoubleSpinBox)
-QML_DEFINE_TYPE(Bauhaus,1,0,QSlider,QSlider)
-QML_DEFINE_TYPE(Bauhaus,1,0,QDateTimeEdit,QDateTimeEdit)
-QML_DEFINE_TYPE(Bauhaus,1,0,QDateEdit,QDateEdit)
-QML_DEFINE_TYPE(Bauhaus,1,0,QTimeEdit,QTimeEdit)
-QML_DEFINE_TYPE(Bauhaus,1,0,QFontComboBox,QFontComboBox)
-QML_DEFINE_TYPE(Bauhaus,1,0,QDial,QDial)
-QML_DEFINE_TYPE(Bauhaus,1,0,QScrollBar,QScrollBar)
-QML_DEFINE_TYPE(Bauhaus,1,0,QCalendarWidget, QCalendarWidget)
-
-
-QML_DECLARE_TYPE(MyGroupBox)
-QML_DECLARE_TYPE(WidgetLoader)
-QML_DECLARE_TYPE(WidgetFrame)
-//QML_DEFINE_TYPE(Bauhaus,1,0,QComboBox,QComboBox); //need a way to populate
-//QML_DEFINE_EXTENDED_TYPE(QComboBox,QComboBox, QComboBox); //need a way to populate
-
-//buttons
-//QML_DEFINE_TYPE(Bauhaus,1,0,QPushButton,QPushButton);
-QML_DEFINE_TYPE(Bauhaus,1,0,QCheckBox,QCheckBox)
-QML_DEFINE_TYPE(Bauhaus,1,0,QGroupBox,QGroupBox)
-QML_DEFINE_TYPE(Bauhaus,1,0,QAction,Action)
-QML_DEFINE_TYPE(Bauhaus,1,0,QRadioButton,QRadioButton)
-QML_DEFINE_TYPE(Bauhaus,1,0,FileWidget, FileWidget)
-QML_DEFINE_TYPE(Bauhaus,1,0,LayoutWidget, LayoutWidget)
-
-//containers
-QML_DEFINE_TYPE(Bauhaus,1,0,QFrame,QFrame)
-QML_DEFINE_TYPE(Bauhaus,1,0,WidgetFrame,WidgetFrame)
-QML_DEFINE_TYPE(Bauhaus,1,0,WidgetLoader,WidgetLoader)
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QExtGroupBox,MyGroupBox,QGroupBoxDeclarativeUI)
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QTabWidget,QTabWidget,QTabWidgetDeclarativeUI)
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea,QScrollAreaDeclarativeUI)
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QPushButton,QPushButton,QPushButtonDeclarativeUI)
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QLabel,QLabel,QLabelDeclarativeUI)
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QToolButton,QToolButton, QToolButtonDeclarativeUI)
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QComboBox,QComboBox, QComboBoxDeclarativeUI)
-QML_DEFINE_EXTENDED_TYPE(Bauhaus,1,0,QMenu,QMenu, QMenuDeclarativeUI)
-//QML_DEFINE_TYPE(Bauhaus,1,0,BauhausoolBox,BauhausoolBox);
-//QML_DEFINE_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea);
-
-//QML_DEFINE_EXTENDED_TYPE(BauhausColorButton,BauhausColorButton,BauhausColorButtonDeclarativeUI);
-
-//itemviews
-//QML_DEFINE_TYPE(Bauhaus,1,0,QListView,QListView);
-//QML_DEFINE_TYPE(Bauhaus,1,0,BauhausreeView,BauhausreeView);
-//QML_DEFINE_TYPE(Bauhaus,1,0,BauhausableView,BauhausableView);
 
 QML_DECLARE_TYPE(QTabObject);
-QML_DEFINE_TYPE(Qt,4,6,QTabObject,QTabObject); //### with namespacing, this should just be 'Tab'
+QML_DECLARE_TYPE(MyGroupBox);
+QML_DECLARE_TYPE(WidgetLoader);
+QML_DECLARE_TYPE(WidgetFrame);
+
+void BasicWidgets::registerDeclarativeTypes()
+{
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QWidget,QWidget,QWidgetDeclarativeUI);
+
+    //display
+    QML_REGISTER_TYPE(Bauhaus,1,0,QProgressBar,QProgressBar);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QLCDNumber,QLCDNumber);
+
+    //input
+    QML_REGISTER_TYPE(Bauhaus,1,0,QLineEdit,QLineEdit);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QTextEdit,QTextEdit);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QPlainTextEdit,QPlainTextEdit);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QSpinBox,QSpinBox);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QDoubleSpinBox,QDoubleSpinBox);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QSlider,QSlider);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QDateTimeEdit,QDateTimeEdit);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QDateEdit,QDateEdit);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QTimeEdit,QTimeEdit);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QFontComboBox,QFontComboBox);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QDial,QDial);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QScrollBar,QScrollBar);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QCalendarWidget, QCalendarWidget);
+
+
+    //QML_REGISTER_TYPE(Bauhaus,1,0,QComboBox,QComboBox); //need a way to populate
+    //QML_REGISTER_EXTENDED_TYPE(QComboBox,QComboBox, QComboBox); //need a way to populate
+
+    //buttons
+    //QML_REGISTER_TYPE(Bauhaus,1,0,QPushButton,QPushButton);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QCheckBox,QCheckBox);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QGroupBox,QGroupBox);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QAction,Action);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QRadioButton,QRadioButton);
+    QML_REGISTER_TYPE(Bauhaus,1,0,FileWidget, FileWidget);
+    QML_REGISTER_TYPE(Bauhaus,1,0,LayoutWidget, LayoutWidget);
+
+    //containers
+    QML_REGISTER_TYPE(Bauhaus,1,0,QFrame,QFrame);
+    QML_REGISTER_TYPE(Bauhaus,1,0,WidgetFrame,WidgetFrame);
+    QML_REGISTER_TYPE(Bauhaus,1,0,WidgetLoader,WidgetLoader);
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QExtGroupBox,MyGroupBox,QGroupBoxDeclarativeUI);
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QTabWidget,QTabWidget,QTabWidgetDeclarativeUI);
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea,QScrollAreaDeclarativeUI);
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QPushButton,QPushButton,QPushButtonDeclarativeUI);
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QLabel,QLabel,QLabelDeclarativeUI);
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QToolButton,QToolButton, QToolButtonDeclarativeUI);
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QComboBox,QComboBox, QComboBoxDeclarativeUI);
+    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QMenu,QMenu, QMenuDeclarativeUI);
+    //QML_REGISTER_TYPE(Bauhaus,1,0,BauhausoolBox,BauhausoolBox);
+    //QML_REGISTER_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea);
+
+    //QML_REGISTER_EXTENDED_TYPE(BauhausColorButton,BauhausColorButton,BauhausColorButtonDeclarativeUI);
+
+    //itemviews
+    //QML_REGISTER_TYPE(Bauhaus,1,0,QListView,QListView);
+    //QML_REGISTER_TYPE(Bauhaus,1,0,BauhausreeView,BauhausreeView);
+    //QML_REGISTER_TYPE(Bauhaus,1,0,BauhausableView,BauhausableView);
+
+    QML_REGISTER_TYPE(Bauhaus,1,0,QTabObject,QTabObject); //### with namespacing, this should just be 'Tab'
+}
 
 #include "basicwidgets.moc"

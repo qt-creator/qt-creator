@@ -29,7 +29,7 @@
 
 #include "dummynodeinstance.h"
 
-#include <QmlMetaType>
+#include <private/qdeclarativemetatype_p.h>
 #include <nodemetainfo.h>
 
 #include <invalidnodeinstanceexception.h>
@@ -43,7 +43,7 @@ DummyNodeInstance::DummyNodeInstance()
 {
 }
 
-DummyNodeInstance::Pointer DummyNodeInstance::create(const NodeMetaInfo & metaInfo, QmlContext *context)
+DummyNodeInstance::Pointer DummyNodeInstance::create(const NodeMetaInfo & metaInfo, QDeclarativeContext *context)
 {
     Q_UNUSED(context);
     qWarning() << "DummyNodeInstance created" << metaInfo.typeName();

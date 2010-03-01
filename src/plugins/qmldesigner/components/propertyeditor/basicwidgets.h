@@ -30,7 +30,7 @@
 #ifndef BASICWIDGETS_H
 #define BASICWIDGETS_H
 
-#include <qml.h>
+#include <qdeclarative.h>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QLabel>
@@ -94,6 +94,7 @@ QML_DECLARE_TYPE(QTabWidget);
 QML_DECLARE_TYPE(FileWidget);
 QML_DECLARE_TYPE(LayoutWidget);
 
+
 class Action : public QAction {
     Q_OBJECT
 public:
@@ -111,5 +112,9 @@ QML_DECLARE_TYPE(Action);
 //QML_DECLARE_TYPE(QTableView);
 
 //top-level windows?
+class BasicWidgets {
+public:
+    static void registerDeclarativeTypes();
+};
 
 #endif // BASICWIDGETS_H

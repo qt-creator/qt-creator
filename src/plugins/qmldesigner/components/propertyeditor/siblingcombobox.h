@@ -51,6 +51,8 @@ public:
     void setItemNode(const QVariant &itemNode);
     void setSelectedItemNode(const QVariant &itemNode);
 
+    static void registerDeclarativeTypes();
+
 signals:
     void selectedItemNodeChanged();
     void itemNodeChanged();

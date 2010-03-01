@@ -33,7 +33,7 @@
 #include "objectnodeinstance.h"
 
 QT_BEGIN_NAMESPACE
-class QmlComponent;
+class QDeclarativeComponent;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -44,15 +44,15 @@ class ComponentNodeInstance : public ObjectNodeInstance
 public:
     typedef QSharedPointer<ComponentNodeInstance> Pointer;
     typedef QWeakPointer<ComponentNodeInstance> WeakPointer;
-    ComponentNodeInstance(QmlComponent *component);
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    ComponentNodeInstance(QDeclarativeComponent *component);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
 
     void setPropertyVariant(const QString &name, const QVariant &value);
 
     bool hasContent() const;
 
 private: //function
-    QmlComponent *component() const;
+    QDeclarativeComponent *component() const;
 
 };
 

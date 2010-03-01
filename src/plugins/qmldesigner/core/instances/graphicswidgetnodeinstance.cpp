@@ -32,7 +32,7 @@
 
 #include "objectnodeinstance.h"
 
-#include <QmlMetaType>
+#include <private/qdeclarativemetatype_p.h>
 
 #include <invalidnodeinstanceexception.h>
 #include <propertymetainfo.h>
@@ -49,7 +49,7 @@ GraphicsWidgetNodeInstance::~GraphicsWidgetNodeInstance()
 {
 }
 
-GraphicsWidgetNodeInstance::Pointer GraphicsWidgetNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QmlContext *context, QObject *objectToBeWrapped)
+GraphicsWidgetNodeInstance::Pointer GraphicsWidgetNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
 {
     QObject *object = 0;
     if (objectToBeWrapped)

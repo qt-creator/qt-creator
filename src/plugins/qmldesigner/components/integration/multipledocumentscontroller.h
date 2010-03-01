@@ -42,7 +42,7 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QUndoGroup>
 
-class QmlError;
+class QDeclarativeError;
 
 namespace QmlDesigner {
 

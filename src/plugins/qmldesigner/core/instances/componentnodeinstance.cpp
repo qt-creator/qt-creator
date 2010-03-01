@@ -30,31 +30,31 @@
 #include "componentnodeinstance.h"
 
 #include <invalidnodeinstanceexception.h>
-#include <QmlComponent>
-#include <QmlContext>
+#include <QDeclarativeComponent>
+#include <QDeclarativeContext>
 
 namespace QmlDesigner {
 namespace Internal {
 
 
-ComponentNodeInstance::ComponentNodeInstance(QmlComponent *component)
+ComponentNodeInstance::ComponentNodeInstance(QDeclarativeComponent *component)
    : ObjectNodeInstance(component)
 {
 }
 
-QmlComponent *ComponentNodeInstance::component() const
+QDeclarativeComponent *ComponentNodeInstance::component() const
 {
-    Q_ASSERT(qobject_cast<QmlComponent*>(object()));
-    return static_cast<QmlComponent*>(object());
+    Q_ASSERT(qobject_cast<QDeclarativeComponent*>(object()));
+    return static_cast<QDeclarativeComponent*>(object());
 }
 
-ComponentNodeInstance::Pointer ComponentNodeInstance::create(const NodeMetaInfo &/*metaInfo*/, QmlContext *context, QObject  *objectToBeWrapped)
+ComponentNodeInstance::Pointer ComponentNodeInstance::create(const NodeMetaInfo &/*metaInfo*/, QDeclarativeContext *context, QObject  *objectToBeWrapped)
 {
-    QmlComponent *component = 0;
+    QDeclarativeComponent *component = 0;
     if (objectToBeWrapped)
-        component = qobject_cast<QmlComponent *>(objectToBeWrapped);
+        component = qobject_cast<QDeclarativeComponent *>(objectToBeWrapped);
     else
-        component = new QmlComponent(context->engine());
+        component = new QDeclarativeComponent(context->engine());
 
     if (component == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
@@ -91,7 +91,7 @@ void ComponentNodeInstance::setPropertyVariant(const QString &name, const QVaria
     }
     if (component()->isError()) {
         qDebug() << value;
-        foreach(const QmlError &error, component()->errors())
+        foreach(const QDeclarativeError &error, component()->errors())
             qDebug() << error;
     }
 

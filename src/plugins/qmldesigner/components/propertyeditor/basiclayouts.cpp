@@ -31,7 +31,6 @@
 
 
 QT_BEGIN_NAMESPACE
-QML_DEFINE_TYPE(Bauhaus,1,0,QBoxLayout,QBoxLayoutObject);
 
 QBoxLayoutObject::QBoxLayoutObject(QObject *parent)
 : QLayoutObject(parent), _layout(0)
@@ -57,16 +56,22 @@ void QBoxLayoutObject::clearWidget()
 {
 }
 
-QML_DEFINE_TYPE(Bauhaus,1,0,QHBoxLayout,QHBoxLayoutObject);
 QHBoxLayoutObject::QHBoxLayoutObject(QObject *parent)
 : QBoxLayoutObject(new QHBoxLayout, parent)
 {
 }
 
 
-QML_DEFINE_TYPE(Bauhaus,1,0,QVBoxLayout,QVBoxLayoutObject);
 QVBoxLayoutObject::QVBoxLayoutObject(QObject *parent)
 : QBoxLayoutObject(new QVBoxLayout, parent)
 {
 }
+
+void BasicLayouts::registerDeclarativeTypes()
+{
+    QML_REGISTER_TYPE(Bauhaus,1,0,QBoxLayout,QBoxLayoutObject);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QHBoxLayout,QHBoxLayoutObject);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QVBoxLayout,QVBoxLayoutObject);
+}
+
 QT_END_NAMESPACE

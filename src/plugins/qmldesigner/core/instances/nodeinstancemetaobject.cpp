@@ -8,14 +8,14 @@ namespace QmlDesigner {
 namespace Internal {
 
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer &nodeInstance)
-    : QmlOpenMetaObject(nodeInstance->object()),
+    : QDeclarativeOpenMetaObject(nodeInstance->object()),
     m_nodeInstance(nodeInstance),
     m_context(nodeInstance->modelNode().isRootNode() ? nodeInstance->context() : 0)
 {
 }
 
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix)
-    : QmlOpenMetaObject(object),
+    : QDeclarativeOpenMetaObject(object),
     m_nodeInstance(nodeInstance),
     m_prefix(prefix)
 {

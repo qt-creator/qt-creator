@@ -29,7 +29,7 @@
 
 #include "widgetnodeinstance.h"
 
-#include <QmlMetaType>
+#include <private/qdeclarativemetatype_p.h>
 
 #include "proxywidgetnodeinstance.h"
 #include <invalidnodeinstanceexception.h>
@@ -48,7 +48,7 @@ WidgetNodeInstance::~WidgetNodeInstance()
 {
 }
 
-WidgetNodeInstance::Pointer WidgetNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QmlContext *context, QObject  *objectToBeWrapped)
+WidgetNodeInstance::Pointer WidgetNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject  *objectToBeWrapped)
 {
     QObject *object = 0;
     if (objectToBeWrapped)
