@@ -23,7 +23,7 @@ Rectangle {
 
     Connections {
         target: statesEditorModel
-        onChangedToState: { root.currentStateIndex = 1; }
+        onChangedToState: { root.currentStateIndex = n; }
     }
 
     // TextInputs don't loose focus automatically when user clicks away, have to be done explicitly
