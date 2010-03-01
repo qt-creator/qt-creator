@@ -7,26 +7,26 @@ QExtGroupBox {
     property var finished;
     property var backendColor
     property var oldMaximumHeight;
-	
-	property var startupCollapse: selectionChanged;
-	property var firstTime: true;
+
+    property var startupCollapse: selectionChanged;
+    property var firstTime: true;
 
     onFinishedChanged: {
         oldMaximumHeight = maximumHeight;
         //visible = false;
         //visible = true;
         //if (finished)
-            //collapsed = true;
+        //collapsed = true;
     }
-	
-	onStartupCollapseChanged: {
-	    oldMaximumHeight = maximumHeight;
+
+    onStartupCollapseChanged: {
+        oldMaximumHeight = maximumHeight;
         if (!collapsed && firstTime) {
-              collapsed = true;
-			  colorButton.checked = false;
-			  firstTime = false;
-		}
-	}
+            collapsed = true;
+            colorButton.checked = false;
+            firstTime = false;
+        }
+    }
 
 
     property var baseStateFlag: isBaseState
@@ -101,7 +101,7 @@ QExtGroupBox {
             }
 
             ColorButton {
-			    id: colorButton
+                id: colorButton
                 color: colorGroupBox.backendColor.value;
                 checkable: true;
                 checked: false;
@@ -109,7 +109,7 @@ QExtGroupBox {
                 minimumWidth: 18;
 
                 onClicked: {
-                    if (checked) {					    
+                    if (checked) {
                         colorGroupBox.collapsed = false;
                         colorButtonWidget.visible = true;
                         } else {
