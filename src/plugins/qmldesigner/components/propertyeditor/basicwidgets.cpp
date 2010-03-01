@@ -922,6 +922,9 @@ void WidgetLoader::setSource(const QUrl &source)
         m_widget = 0;
     }
 
+    foreach (QWidget *cachedWidget, m_cachedWidgets)
+        cachedWidget->hide();
+
     m_source = source;
     if (m_source.isEmpty()) {
         emit sourceChanged();
