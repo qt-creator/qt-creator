@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "synchronousprocess.h"
+#include <qtcassert.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
@@ -41,6 +42,7 @@
 #include <limits.h>
 
 enum { debug = 0 };
+enum { syncDebug = 0 };
 
 enum { defaultMaxHangTimerCount = 10 };
 
@@ -403,25 +405,39 @@ void SynchronousProcess::processStdErr(bool emitSignals)
 bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
                                              QByteArray *stdOut, QByteArray *stdErr)
 {
+    if (syncDebug)
+        qDebug() << ">readDataFromProcess" << timeOutMS;
     if (p.state() != QProcess::Running) {
         qWarning("readDataFromProcess: Process in non-running state passed in.");
         return false;
     }
+
+    QTC_ASSERT(p.readChannel() == QProcess::StandardOutput, return false)
 
     // Keep the process running until it has no longer has data
     bool finished = false;
     bool hasData = false;
     do {
         finished = p.waitForFinished(timeOutMS);
-        if ( (hasData = p.bytesAvailable()) ) {
+        hasData = false;
+        // First check 'stdout'
+        if (p.bytesAvailable()) { // applies to readChannel() only
+            hasData = true;
             const QByteArray newStdOut = p.readAllStandardOutput();
-            const QByteArray newStdErr = p.readAllStandardError();
             if (stdOut)
                 stdOut->append(newStdOut);
+        }
+        // Check 'stderr' separately. This is a special handling
+        // for 'git pull' and the like which prints its progress on stderr.
+        const QByteArray newStdErr = p.readAllStandardError();
+        if (!newStdErr.isEmpty()) {
+            hasData = true;
             if (stdErr)
                 stdErr->append(newStdErr);
         }
     } while (hasData && !finished);
+    if (syncDebug)
+        qDebug() << "<readDataFromProcess" << finished;
     return finished;
 }
 
