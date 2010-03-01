@@ -38,10 +38,6 @@
 #include <QtGui/QColor>
 #include <QtGui/QApplication>
 
-#ifndef NO_DECLARATIVE_BACKEND
-#  include <QtDeclarative/private/qdeclarativestringconverters_p.h> // ### remove me
-#endif
-
 namespace QmlJS {
 namespace Messages {
 static const char *invalid_property_name =  QT_TRANSLATE_NOOP("QmlJS::Check", "'%1' is not a valid property name");
@@ -122,7 +118,6 @@ public:
         if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
             const QString curveName = stringLiteral->value->asString();
 
-            // ### update when easing changes hit master
             if (!EasingCurveNameValue::curveNames().contains(curveName)) {
                 _message.message = tr(Messages::unknown_easing_curve_name);
             }
@@ -139,12 +134,23 @@ public:
         if (StringLiteral *stringLiteral = cast<StringLiteral *>(_ast)) {
             const QString colorString = stringLiteral->value->asString();
 
-#ifndef NO_DECLARATIVE_BACKEND
-            bool ok = false;
-            QDeclarativeStringConverters::colorFromString(colorString, &ok);
+            bool ok = true;
+            if (colorString.size() == 9 && colorString.at(0) == QLatin1Char('#')) {
+                // #rgba
+                for (int i = 1; i < 9; ++i) {
+                    const QChar c = colorString.at(i);
+                    if (c >= QLatin1Char('0') && c <= QLatin1Char('9')
+                        || c >= QLatin1Char('a') && c <= QLatin1Char('f')
+                        || c >= QLatin1Char('A') && c <= QLatin1Char('F'))
+                        continue;
+                    ok = false;
+                    break;
+                }
+            } else {
+                ok = QColor(colorString).isValid();
+            }
             if (!ok)
                 _message.message = QCoreApplication::translate("QmlJS::Check", "not a valid color");
-#endif
         } else {
             visit((StringValue *)0);
         }

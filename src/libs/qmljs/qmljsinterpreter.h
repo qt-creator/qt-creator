@@ -32,9 +32,9 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljs_global.h>
-#include <qmljs/qmljsmetatypesystem.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 
+#include <QtCore/QFileInfoList>
 #include <QtCore/QList>
 #include <QtCore/QString>
 #include <QtCore/QHash>
@@ -65,6 +65,10 @@ class ColorValue;
 class AnchorLineValue;
 
 typedef QList<const Value *> ValueList;
+
+class FakeMetaObject;
+class FakeMetaMethod;
+class FakeMetaProperty;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Value visitor
@@ -396,40 +400,31 @@ private:
     QString _className;
 };
 
-#ifndef NO_DECLARATIVE_BACKEND
-
 class QmlObjectValue: public ObjectValue
 {
 public:
-    QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName, int majorVersion, int minorVersion, Engine *engine);
+    static const int NoVersion;
+
+public:
+    QmlObjectValue(const FakeMetaObject *metaObject, Engine *engine);
     virtual ~QmlObjectValue();
 
     virtual const Value *lookupMember(const QString &name, Context *context) const;
     virtual void processMembers(MemberProcessor *processor) const;
-    const Value *propertyValue(const QMetaProperty &prop) const;
+    const Value *propertyValue(const FakeMetaProperty &prop) const;
 
-    QString qmlTypeName() const
-    { return _qmlTypeName; }
-
-    int majorVersion() const
-    { return _majorVersion; }
-
-    int minorVersion() const
-    { return _minorVersion; }
+    QString packageName() const;
+    int majorVersion() const;
+    int minorVersion() const;
 
 protected:
-    const Value *findOrCreateSignature(int index, const QMetaMethod &method, QString *methodName) const;
-    bool isDerivedFrom(const QMetaObject *base) const;
+    const Value *findOrCreateSignature(int index, const FakeMetaMethod &method, QString *methodName) const;
+    bool isDerivedFrom(const FakeMetaObject *base) const;
 
 private:
-    const QMetaObject *_metaObject;
-    QString _qmlTypeName;
-    int _majorVersion;
-    int _minorVersion;
+    const FakeMetaObject *_metaObject;
     mutable QHash<int, const Value *> _metaSignature;
 };
-
-#endif // !NO_DECLARATIVE_BACKEND
 
 class QMLJS_EXPORT Activation
 {
@@ -517,6 +512,23 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
+
+class QMLJS_EXPORT MetaTypeSystem
+{
+    static QList<const FakeMetaObject *> _metaObjects;
+
+public:
+    /** \return an empty list when successful, error messages otherwise. */
+    static QStringList load(const QFileInfoList &xmlFiles);
+
+    void reload(Interpreter::Engine *interpreter);
+
+    QList<Interpreter::QmlObjectValue *> staticTypesForImport(const QString &prefix, int majorVersion, int minorVersion) const;
+    Interpreter::QmlObjectValue *staticTypeForImport(const QString &qualifiedName) const;
+
+private:
+    QHash<QString, QList<QmlObjectValue *> > _importedTypes;
+};
 
 class ConvertToNumber: protected ValueVisitor // ECMAScript ToInt()
 {
@@ -633,9 +645,6 @@ public:
     // QML objects
     const ObjectValue *qmlKeysObject();
     const Value *defaultValueForBuiltinType(const QString &typeName) const;
-#ifndef NO_DECLARATIVE_BACKEND
-    QmlObjectValue *newQmlObject(const QString &name, const QString &prefix, int majorVersion, int minorVersion);
-#endif
 
     // global object
     ObjectValue *globalObject() const;
@@ -703,9 +712,7 @@ private:
     ObjectValue *_globalObject;
     ObjectValue *_mathObject;
     ObjectValue *_qtObject;
-#ifndef NO_DECLARATIVE_BACKEND
     ObjectValue *_qmlKeysObject;
-#endif
 
     NullValue _nullValue;
     UndefinedValue _undefinedValue;

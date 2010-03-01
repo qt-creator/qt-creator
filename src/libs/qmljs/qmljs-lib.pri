@@ -26,16 +26,9 @@ SOURCES += \
     $$PWD/qmljsdocument.cpp \
     $$PWD/qmljsscanner.cpp \
     $$PWD/qmljsinterpreter.cpp \
-    $$PWD/qmljsmetatypesystem.cpp \
     $$PWD/qmljslink.cpp \
     $$PWD/qmljscheck.cpp \
     $$PWD/qmljsscopebuilder.cpp
-
-contains(QT_CONFIG, declarative) {
-    QT += declarative
-} else {
-    DEFINES += NO_DECLARATIVE_BACKEND
-}
 
 contains(QT, gui) {
     SOURCES += $$PWD/qmljsindenter.cpp

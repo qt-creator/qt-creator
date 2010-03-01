@@ -254,8 +254,8 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
     // try the metaobject system
     if (import->importUri) {
         const QString package = Bind::toString(import->importUri, '/');
-        int majorVersion = -1; // ### TODO: Check these magic version numbers
-        int minorVersion = -1; // ### TODO: Check these magic version numbers
+        int majorVersion = QmlObjectValue::NoVersion;
+        int minorVersion = QmlObjectValue::NoVersion;
 
         if (import->versionToken.isValid()) {
             const QString versionString = doc->source().mid(import->versionToken.offset, import->versionToken.length);
@@ -269,11 +269,10 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
                 minorVersion = versionString.mid(dotIdx + 1).toInt();
             }
         }
-#ifndef NO_DECLARATIVE_BACKEND
+
         foreach (QmlObjectValue *object, engine()->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
-            namespaceObject->setProperty(object->qmlTypeName(), object);
+            namespaceObject->setProperty(object->className(), object);
         }
-#endif // NO_DECLARATIVE_BACKEND
     }
 }
 

@@ -35,13 +35,17 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
+#include <qmljs/qmljsinterpreter.h>
 #include <texteditor/itexteditor.h>
 
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QtConcurrentRun>
 #include <qtconcurrent/runextensions.h>
 #include <QTextStream>
+
+#include <QDebug>
 
 using namespace QmlJS;
 using namespace QmlJSEditor;
@@ -57,6 +61,22 @@ ModelManager::ModelManager(QObject *parent):
 
     connect(this, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
             this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
+
+    loadQmlTypeDescriptions();
+}
+
+void ModelManager::loadQmlTypeDescriptions()
+{
+    const QString resourcePath = Core::ICore::instance()->resourcePath();
+    const QDir typeFileDir(resourcePath + QLatin1String("/qml-type-descriptions"));
+    const QStringList xmlExtensions = QStringList() << QLatin1String("*.xml");
+    const QFileInfoList xmlFiles = typeFileDir.entryInfoList(xmlExtensions,
+                                                             QDir::Files,
+                                                             QDir::Name);
+
+    const QStringList errors = Interpreter::MetaTypeSystem::load(xmlFiles);
+    foreach (const QString &error, errors)
+        qWarning() << qPrintable(error);
 }
 
 Snapshot ModelManager::snapshot() const

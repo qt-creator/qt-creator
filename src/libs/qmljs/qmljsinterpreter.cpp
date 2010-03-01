@@ -31,17 +31,14 @@
 #include "qmljsevaluate.h"
 #include "qmljslink.h"
 #include "parser/qmljsast_p.h"
+
+#include <QtCore/QFile>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
+#include <QtCore/QXmlStreamReader>
 #include <QtCore/QDebug>
-
-#ifndef NO_DECLARATIVE_BACKEND
-#  include <QtDeclarative/private/qdeclarativemetatype_p.h>
-#  include <QtDeclarative/private/qdeclarativeanchors_p.h> // ### remove me
-#  include <QtDeclarative/private/qdeclarativerectangle_p.h> // ### remove me
-#  include <QtDeclarative/private/qdeclarativevaluetype_p.h> // ### remove me
-#  include <QtDeclarative/private/qdeclarativeanimation_p.h> // ### remove me
-#endif
 
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
@@ -100,16 +97,171 @@ public:
 
 } // end of anonymous namespace
 
-#ifndef NO_DECLARATIVE_BACKEND
+namespace QmlJS {
+namespace Interpreter {
+
+class FakeMetaEnum {
+    QString name;
+    QStringList keys;
+    QList<int> values;
+
+public:
+    FakeMetaEnum(const QString &name)
+        : name(name)
+    {}
+
+    void addKey(const QString &key, int value)
+    { keys.append(key); values.append(value); }
+
+    QString key(int index) const
+    { return keys.at(index); }
+
+    int keyCount() const
+    { return keys.size(); }
+};
+
+class FakeMetaMethod {
+public:
+    enum {
+        Signal,
+        Slot,
+        Method
+    };
+
+    enum {
+        Private,
+        Protected,
+        Public
+    };
+
+public:
+    FakeMetaMethod(const QString &name, const QString &returnType = QString())
+        : name(name), returnType(returnType)
+    {}
+
+    QString methodName() const
+    { return name; }
+
+    QStringList parameterNames() const
+    { return paramNames; }
+
+    QStringList parameterTypes() const
+    { return paramTypes; }
+
+    void addParameter(const QString &name, const QString &type)
+    { paramNames.append(name); paramTypes.append(type); }
+
+    int methodType() const
+    { return methodTy; }
+    void setMethodType(int methodType)
+    { methodTy = methodType; }
+
+    int access() const
+    { return methodAccess; }
+
+private:
+    QString name;
+    QString returnType;
+    QStringList paramNames;
+    QStringList paramTypes;
+    int methodTy;
+    int methodAccess;
+};
+
+class FakeMetaProperty {
+    QString propertyName;
+    QString type;
+    bool isList;
+
+public:
+    FakeMetaProperty(const QString &name, const QString &type, bool isList)
+        : propertyName(name), type(type), isList(isList)
+    {}
+
+    QString name() const
+    { return propertyName; }
+
+    QString typeName() const
+    { return type; }
+};
+
+class FakeMetaObject {
+    FakeMetaObject(FakeMetaObject&);
+    FakeMetaObject &operator=(const FakeMetaObject&);
+
+    QString name;
+    QString package;
+    int major;
+    int minor;
+    const FakeMetaObject *super;
+    QString superName;
+    QList<FakeMetaEnum> enums;
+    QList<FakeMetaProperty> props;
+    QList<FakeMetaMethod> methods;
+
+public:
+    FakeMetaObject(const QString &name, const QString &package, int major, int minor)
+        : name(name), package(package), major(major), minor(minor), super(0)
+    {}
+
+    void setSuperclassName(const QString &superclass)
+    { superName = superclass; }
+    QString superclassName() const
+    { return superName; }
+
+    void setSuperclass(FakeMetaObject *superClass)
+    { super = superClass; }
+    const FakeMetaObject *superClass() const
+    { return super; }
+    QString className() const
+    { return name; }
+    QString packageName() const
+    { return package; }
+
+    void addEnum(const FakeMetaEnum &fakeEnum)
+    { enums.append(fakeEnum); }
+    int enumeratorCount() const
+    { return enums.size(); }
+    int enumeratorOffset() const
+    { return 0; }
+    FakeMetaEnum enumerator(int index) const
+    { return enums.at(index); }
+
+    void addProperty(const FakeMetaProperty &property)
+    { props.append(property); }
+    int propertyCount() const
+    { return props.size(); }
+    int propertyOffset() const
+    { return 0; }
+    FakeMetaProperty property(int index) const
+    { return props.at(index); }
+
+    void addMethod(const FakeMetaMethod &method)
+    { methods.append(method); }
+    int methodCount() const
+    { return methods.size(); }
+    int methodOffset() const
+    { return 0; }
+    FakeMetaMethod method(int index) const
+    { return methods.at(index); }
+
+    int majorVersion() const
+    { return major; }
+    int minorVersion() const
+    { return minor; }
+};
+
+} // end of Interpreter namespace
+} // end of QmlJS namespace
 
 namespace {
 
 class MetaFunction: public FunctionValue
 {
-    QMetaMethod _method;
+    FakeMetaMethod _method;
 
 public:
-    MetaFunction(const QMetaMethod &method, Engine *engine)
+    MetaFunction(const FakeMetaMethod &method, Engine *engine)
         : FunctionValue(engine), _method(method)
     {
     }
@@ -148,35 +300,384 @@ public:
     }
 };
 
+class QmlXmlReader
+{
+public:
+    QmlXmlReader(QIODevice *dev)
+        : _xml(dev)
+    {}
+
+    bool operator()(QMap<QString, FakeMetaObject *> *objects) {
+        Q_ASSERT(objects);
+        _objects = objects;
+
+        if (_xml.readNextStartElement()) {
+            if (_xml.name() == "module")
+                readModule();
+            else
+                _xml.raiseError(QObject::tr("The file is not module file."));
+        }
+
+        return !_xml.error();
+    }
+
+    QString errorMessage() const {
+        return _xml.errorString();
+    }
+
+private:
+    void unexpectedElement(const QStringRef &child, const QString &parent) {
+        _xml.raiseError(QObject::tr("Unexpected element <%1> in <%2>").arg(child.toString(), parent));
+    }
+
+    void ignoreAttr(const QXmlStreamAttribute &attr) {
+        qDebug() << "** ignoring attribute" << attr.name().toString()
+                 << "in tag" << _xml.name();
+    }
+
+    void invalidAttr(const QString &value, const QString &attrName, const QString &tag) {
+        _xml.raiseError(QObject::tr("invalid value '%1' for attribute %2 in <%3>").arg(value, attrName, tag));
+    }
+
+    void noValidAttr(const QString &attrName, const QString &tag) {
+        _xml.raiseError(QObject::tr("<%1> has no valid %2 attribute").arg(tag, attrName));
+    }
+
+    void readModule()
+    {
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == QLatin1String("module"));
+
+        foreach (const QXmlStreamAttribute &attr, _xml.attributes())
+            ignoreAttr(attr);
+
+        while (_xml.readNextStartElement()) {
+            if (_xml.name() == QLatin1String("type"))
+                readType();
+            else
+                unexpectedElement(_xml.name(), QLatin1String("module"));
+        }
+    }
+
+    void readType()
+    {
+        const QLatin1String tag("type");
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
+
+        QString name;
+        int major = -1, minor = -1;
+        QString extends;
+        foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
+            if (attr.name() == QLatin1String("name")) {
+                name = attr.value().toString();
+                if (name.isEmpty()) {
+                    invalidAttr(name, QLatin1String("name"), tag);
+                    return;
+                }
+            } else if (attr.name() == QLatin1String("version")) {
+                QString version = attr.value().toString();
+                int dotIdx = version.indexOf('.');
+                if (dotIdx == -1) {
+                    bool ok = false;
+                    major = version.toInt(&ok);
+                    if (!ok) {
+                        invalidAttr(version, QLatin1String("version"), tag);
+                        return;
+                    }
+                    minor = -1;
+                } else {
+                    bool ok = false;
+                    major = version.left(dotIdx).toInt(&ok);
+                    if (!ok) {
+                        invalidAttr(version, QLatin1String("version"), tag);
+                        return;
+                    }
+                    minor = version.mid(dotIdx + 1).toInt(&ok);
+                    if (!ok) {
+                        invalidAttr(version, QLatin1String("version"), tag);
+                        return;
+                    }
+                }
+            } else if (attr.name() == QLatin1String("extends")) {
+                if (! attr.value().isEmpty())
+                    extends = attr.value().toString();
+            } else {
+                ignoreAttr(attr);
+            }
+        }
+
+        QString className, packageName;
+        split(name, &packageName, &className);
+        FakeMetaObject *metaObject = new FakeMetaObject(className, packageName,
+                                                        major, minor);
+        if (! extends.isEmpty())
+            metaObject->setSuperclassName(extends);
+
+        while (_xml.readNextStartElement()) {
+            if (_xml.name() == QLatin1String("property"))
+                readProperty(metaObject);
+            else if (_xml.name() == QLatin1String("enum"))
+                readEnum(metaObject);
+            else if (_xml.name() == QLatin1String("signal"))
+                readSignal(metaObject);
+            else if (_xml.name() == QLatin1String("method"))
+                readMethod(metaObject);
+            else
+                unexpectedElement(_xml.name(), tag);
+        }
+
+        _objects->insert(name, metaObject);
+    }
+
+    bool split(const QString &name, QString *packageName, QString *className) {
+        int dotIdx = name.indexOf(QLatin1Char('.'));
+        if (dotIdx != -1) {
+            if (packageName)
+                *packageName = name.left(dotIdx);
+            if (className)
+                *className = name.mid(dotIdx + 1);
+            return true;
+        } else {
+            if (packageName)
+                packageName->clear();
+            if (className)
+                *className = name;
+            return false;
+        }
+    }
+
+    void readProperty(FakeMetaObject *metaObject)
+    {
+        const QLatin1String tag("property");
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
+
+        QString name, type;
+        bool isList = false;
+        foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
+            if (attr.name() == QLatin1String("name")) {
+                name = attr.value().toString();
+            } else if (attr.name() == QLatin1String("type")) {
+                type = attr.value().toString();
+            } else if (attr.name() == QLatin1String("isList")) {
+                if (attr.value() == QLatin1String("true")) {
+                    isList = true;
+                } else if (attr.value() == QLatin1String("false")) {
+                    isList = false;
+                } else {
+                    invalidAttr(attr.value().toString(), QLatin1String("idList"), tag);
+                    return;
+                }
+            } else {
+                ignoreAttr(attr);
+            }
+        }
+
+        if (name.isEmpty())
+            noValidAttr(QLatin1String("name"), tag);
+        else if (type.isEmpty())
+            noValidAttr(QLatin1String("type"), tag);
+        else
+            createProperty(metaObject, name, type, isList);
+
+        while (_xml.readNextStartElement()) {
+            unexpectedElement(_xml.name(), tag);
+        }
+    }
+
+    void createProperty(FakeMetaObject *metaObject, const QString &name,
+                        const QString &type, bool isList) {
+        Q_ASSERT(metaObject);
+
+        metaObject->addProperty(FakeMetaProperty(name, type, isList));
+    }
+
+    void readEnum(FakeMetaObject *metaObject)
+    {
+        Q_ASSERT(metaObject);
+
+        QLatin1String tag("enum");
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
+
+        QString name;
+        foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
+            if (attr.name() == QLatin1String("name")) {
+                name = attr.value().toString();
+            } else {
+                ignoreAttr(attr);
+            }
+        }
+
+        if (name.isEmpty()) {
+            noValidAttr(QLatin1String("name"), tag);
+            return;
+        }
+
+        FakeMetaEnum metaEnum(name);
+        metaObject->addEnum(metaEnum);
+
+        while (_xml.readNextStartElement()) {
+            if (_xml.name() == QLatin1String("enumerator"))
+                readEnumerator(&metaEnum);
+            else
+                unexpectedElement(_xml.name(), tag);
+        }
+    }
+
+    void readEnumerator(FakeMetaEnum *metaEnum)
+    {
+        Q_ASSERT(metaEnum);
+
+        QLatin1String tag("enumerator");
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
+
+        QString name;
+        int value = 0;
+        foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
+            if (attr.name() == QLatin1String("name")) {
+                name = attr.value().toString();
+            } else if (attr.name() == QLatin1String("value")) {
+                const QString valueStr = attr.value().toString();
+                bool ok = false;
+                value = valueStr.toInt(&ok);
+                if (!ok) {
+                    invalidAttr(valueStr, QLatin1String("value"), tag);
+                }
+            } else {
+                ignoreAttr(attr);
+            }
+        }
+
+        if (name.isEmpty())
+            noValidAttr(QLatin1String("name"), tag);
+        else
+            metaEnum->addKey(name, value);
+
+        while (_xml.readNextStartElement()) {
+            unexpectedElement(_xml.name(), tag);
+        }
+    }
+
+    void readSignal(FakeMetaObject *metaObject)
+    {
+        Q_ASSERT(metaObject);
+        QLatin1String tag("signal");
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
+
+        QString name;
+        foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
+            if (attr.name() == QLatin1String("name")) {
+                name = attr.value().toString();
+            } else {
+                ignoreAttr(attr);
+            }
+        }
+
+        if (name.isEmpty()) {
+            noValidAttr(QLatin1String("name"), tag);
+            return;
+        }
+
+        FakeMetaMethod method(name);
+        method.setMethodType(FakeMetaMethod::Signal);
+
+        while (_xml.readNextStartElement()) {
+            if (_xml.name() == QLatin1String("param")) {
+                readParam(&method);
+            } else {
+                unexpectedElement(_xml.name(), tag);
+            }
+        }
+    }
+
+    void readParam(FakeMetaMethod *method)
+    {
+        Q_ASSERT(method);
+        QLatin1String tag("param");
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
+
+        QString name, type;
+        foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
+            if (attr.name() == QLatin1String("name")) {
+                name = attr.value().toString();
+            } else if (attr.name() == QLatin1String("type")) {
+                type = attr.value().toString();
+            } else {
+                ignoreAttr(attr);
+            }
+        }
+
+        // note: name attribute is optional
+        if (type.isEmpty())
+            noValidAttr(QLatin1String("type"), tag);
+
+        method->addParameter(name, type);
+
+        while (_xml.readNextStartElement()) {
+            unexpectedElement(_xml.name(), tag);
+        }
+    }
+
+    void readMethod(FakeMetaObject *metaObject)
+    {
+        Q_ASSERT(metaObject);
+        QLatin1String tag("method");
+        Q_ASSERT(_xml.isStartElement() && _xml.name() == tag);
+
+        QString name, type;
+        foreach (const QXmlStreamAttribute &attr, _xml.attributes()) {
+            if (attr.name() == QLatin1String("name")) {
+                name = attr.value().toString();
+            } else if (attr.name() == QLatin1String("type")) {
+                type = attr.value().toString();
+            } else {
+                ignoreAttr(attr);
+            }
+        }
+
+        // note: type attribute is optional, in which case it's a void method.
+        if (name.isEmpty()) {
+            noValidAttr(QLatin1String("name"), tag);
+            return;
+        }
+
+        FakeMetaMethod method(name, type);
+        metaObject->addMethod(method);
+
+        while (_xml.readNextStartElement()) {
+            if (_xml.name() == QLatin1String("param")) {
+                readParam(&method);
+            } else {
+                unexpectedElement(_xml.name(), tag);
+            }
+        }
+    }
+
+private:
+    QXmlStreamReader _xml;
+    QMap<QString, FakeMetaObject *> *_objects;
+};
+
 } // end of anonymous namespace
 
-QmlObjectValue::QmlObjectValue(const QMetaObject *metaObject, const QString &qmlTypeName,
-                               int majorVersion, int minorVersion, Engine *engine)
+const int QmlObjectValue::NoVersion = -1;
+
+QmlObjectValue::QmlObjectValue(const FakeMetaObject *metaObject, Engine *engine)
     : ObjectValue(engine),
-      _metaObject(metaObject),
-      _qmlTypeName(qmlTypeName),
-      _majorVersion(majorVersion),
-      _minorVersion(minorVersion)
+      _metaObject(metaObject)
 {
-    setClassName(qmlTypeName); // ### TODO: we probably need to do more than just this...
+    setClassName(metaObject->className()); // ### TODO: we probably need to do more than just this...
 }
 
-QmlObjectValue::~QmlObjectValue() {}
+QmlObjectValue::~QmlObjectValue()
+{}
 
 const Value *QmlObjectValue::lookupMember(const QString &name, Context *context) const
 {
     return ObjectValue::lookupMember(name, context);
 }
 
-const Value *QmlObjectValue::findOrCreateSignature(int index, const QMetaMethod &method, QString *methodName) const
+const Value *QmlObjectValue::findOrCreateSignature(int index, const FakeMetaMethod &method, QString *methodName) const
 {
-    const QString signature = QString::fromUtf8(method.signature());
-
-    const int indexOfParen = signature.indexOf(QLatin1Char('('));
-    if (indexOfParen == -1)
-        return engine()->undefinedValue(); // skip it, invalid signature.
-
-    *methodName = signature.left(indexOfParen);
+    *methodName = method.methodName();
     const Value *value = _metaSignature.value(index);
     if (! value) {
         value = new MetaFunction(method, engine());
@@ -188,31 +689,31 @@ const Value *QmlObjectValue::findOrCreateSignature(int index, const QMetaMethod 
 void QmlObjectValue::processMembers(MemberProcessor *processor) const
 {
     // process the meta enums
-    for (int index = _metaObject->enumeratorOffset(); index < _metaObject->propertyCount(); ++index) {
-        QMetaEnum e = _metaObject->enumerator(index);
+    for (int index = _metaObject->enumeratorOffset(); index < _metaObject->enumeratorCount(); ++index) {
+        FakeMetaEnum e = _metaObject->enumerator(index);
 
         for (int i = 0; i < e.keyCount(); ++i) {
-            processor->processEnumerator(QString::fromUtf8(e.key(i)), engine()->numberValue());
+            processor->processEnumerator(e.key(i), engine()->numberValue());
         }
     }
 
     // process the meta properties
     for (int index = 0; index < _metaObject->propertyCount(); ++index) {
-        QMetaProperty prop = _metaObject->property(index);
+        FakeMetaProperty prop = _metaObject->property(index);
 
         processor->processProperty(prop.name(), propertyValue(prop));
     }
 
     // process the meta methods
     for (int index = 0; index < _metaObject->methodCount(); ++index) {
-        QMetaMethod method = _metaObject->method(index);
+        FakeMetaMethod method = _metaObject->method(index);
         QString methodName;
         const Value *signature = findOrCreateSignature(index, method, &methodName);
 
-        if (method.methodType() == QMetaMethod::Slot && method.access() == QMetaMethod::Public) {
+        if (method.methodType() == FakeMetaMethod::Slot && method.access() == FakeMetaMethod::Public) {
             processor->processSlot(methodName, signature);
 
-        } else if (method.methodType() == QMetaMethod::Signal && method.access() != QMetaMethod::Private) {
+        } else if (method.methodType() == FakeMetaMethod::Signal && method.access() != FakeMetaMethod::Private) {
             // process the signal
             processor->processSignal(methodName, signature);
 
@@ -229,57 +730,34 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
     ObjectValue::processMembers(processor);
 }
 
-const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
+const Value *QmlObjectValue::propertyValue(const FakeMetaProperty &prop) const
 {
-    if (QDeclarativeMetaType::isQObject(prop.userType())) {
-        QDeclarativeType *qmlPropertyType = QDeclarativeMetaType::qmlType(prop.userType());
+    const QString typeName = prop.typeName();
 
-        if (qmlPropertyType && !qmlPropertyType->qmlTypeName().isEmpty()) {
-            QString typeName = qmlPropertyType->qmlTypeName();
-            int slashIdx = typeName.lastIndexOf(QLatin1Char('/'));
-            QString package;
-            if (slashIdx != -1) {
-                package = typeName.left(slashIdx);
-                typeName = typeName.mid(slashIdx + 1);
-            }
-
-            if (const ObjectValue *objectValue = engine()->newQmlObject(typeName, package, qmlPropertyType->majorVersion(), qmlPropertyType->minorVersion()))
-                return objectValue;
-        } else {
-            QString typeName = QString::fromUtf8(prop.typeName());
-
-            if (typeName.endsWith(QLatin1Char('*')))
-                typeName.truncate(typeName.length() - 1);
-
-            typeName.replace(QLatin1Char('.'), QLatin1Char('/'));
-
-            if (const ObjectValue *objectValue = engine()->newQmlObject(typeName, "", -1, -1))  // ### we should extend this to lookup the property types in the QDeclarativeType object, instead of the QMetaProperty.
-                return objectValue;
-        }
-    }
+    // ### Verify type resolving.
+    QmlObjectValue *objectValue = engine()->metaTypeSystem().staticTypeForImport(typeName);
+    if (objectValue)
+        return objectValue;
 
     const Value *value = engine()->undefinedValue();
-
-    switch (prop.type()) {
-    case QMetaType::QByteArray:
-    case QMetaType::QString:
-    case QMetaType::QUrl:
+    if (typeName == QLatin1String("QByteArray")
+            || typeName == QLatin1String("string")
+            || typeName == QLatin1String("QString")
+            || typeName == QLatin1String("QUrl")) {
         value = engine()->stringValue();
-        break;
-
-    case QMetaType::Bool:
+    } else if (typeName == QLatin1String("bool")) {
         value = engine()->booleanValue();
-        break;
-
-    case QMetaType::Int:
-    case QMetaType::Float:
-    case QMetaType::Double:
+    } else if (typeName == QLatin1String("int")
+            || typeName == QLatin1String("float")
+            || typeName == QLatin1String("double")
+            || typeName == QLatin1String("qreal")
+            || typeName == QLatin1String("long")
+            // ### Review: more types here?
+            ) {
         value = engine()->numberValue();
-        break;
-
-    case QMetaType::QFont: {
-        // ### cache
+    } else if (typeName == QLatin1String("QFont")) {
         ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setClassName(QLatin1String("Font"));
         object->setProperty("family", engine()->stringValue());
         object->setProperty("weight", engine()->undefinedValue()); // ### make me an object
         object->setProperty("copitalization", engine()->undefinedValue()); // ### make me an object
@@ -293,68 +771,68 @@ const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
         object->setProperty("letterSpacing", engine()->numberValue());
         object->setProperty("wordSpacing", engine()->numberValue());
         value = object;
-    } break;
-
-    case QMetaType::QPoint:
-    case QMetaType::QPointF:
-    case QMetaType::QVector2D: {
+    } else if (typeName == QLatin1String("QPoint")
+            || typeName == QLatin1String("QPointF")
+            || typeName == QLatin1String("QVector2D")) {
         // ### cache
         ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setClassName(QLatin1String("Point"));
         object->setProperty("x", engine()->numberValue());
         object->setProperty("y", engine()->numberValue());
         value = object;
-    } break;
-
-    case QMetaType::QRect:
-    case QMetaType::QRectF: {
+    } else if (typeName == QLatin1String("QRect")
+            || typeName == QLatin1String("QRectF")) {
         // ### cache
         ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setClassName("Rect");
         object->setProperty("x", engine()->numberValue());
         object->setProperty("y", engine()->numberValue());
         object->setProperty("width", engine()->numberValue());
         object->setProperty("height", engine()->numberValue());
         value = object;
-    } break;
-
-    case QMetaType::QVector3D: {
+    } else if (typeName == QLatin1String("QVector3D")) {
         // ### cache
         ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setClassName(QLatin1String("Vector3D"));
         object->setProperty("x", engine()->numberValue());
         object->setProperty("y", engine()->numberValue());
         object->setProperty("z", engine()->numberValue());
         value = object;
-    } break;
-
-    case QMetaType::QColor: {
+    } else if (typeName == QLatin1String("QColor")) {
         value = engine()->colorValue();
-    } break;
-
-    default:
-        break;
-    } // end of switch
-
-    const QString typeName = prop.typeName();
-    if (typeName == QLatin1String("QDeclarativeAnchorLine")) {
+    } else if (typeName == QLatin1String("QDeclarativeAnchorLine")) {
         value = engine()->anchorLineValue();
-    }
-    if (value->asStringValue() && prop.name() == QLatin1String("easing")
-            && isDerivedFrom(&QDeclarativePropertyAnimation::staticMetaObject)) {
-        value = engine()->easingCurveNameValue();
+    } else if (typeName == QLatin1String("QEasingCurve")) {
+        // ### cache
+        ObjectValue *object = engine()->newObject(/*prototype =*/ 0);
+        object->setClassName(QLatin1String("EasingCurve"));
+        object->setProperty("type", engine()->easingCurveNameValue());
+        object->setProperty("period", engine()->numberValue());
+        object->setProperty("amplitude", engine()->numberValue());
+        object->setProperty("overshoot", engine()->numberValue());
+        value = object;
     }
 
     return value;
 }
 
-bool QmlObjectValue::isDerivedFrom(const QMetaObject *base) const
+QString QmlObjectValue::packageName() const
+{ return _metaObject->packageName(); }
+
+int QmlObjectValue::majorVersion() const
+{ return _metaObject->majorVersion(); }
+
+int QmlObjectValue::minorVersion() const
+{ return _metaObject->minorVersion(); }
+
+bool QmlObjectValue::isDerivedFrom(const FakeMetaObject *base) const
 {
-    for (const QMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
+    for (const FakeMetaObject *iter = _metaObject; iter; iter = iter->superClass()) {
         if (iter == base)
             return true;
     }
     return false;
 }
-
-#endif
 
 namespace {
 
@@ -945,47 +1423,47 @@ QSet<QString> EasingCurveNameValue::curveNames()
 {
     if (_curveNames.isEmpty()) {
         _curveNames = QSet<QString>()
-                      << "easeLinear"
-                      << "easeInQuad"
-                      << "easeOutQuad"
-                      << "easeInOutQuad"
-                      << "easeOutInQuad"
-                      << "easeInCubic"
-                      << "easeOutCubic"
-                      << "easeInOutCubic"
-                      << "easeOutInCubic"
-                      << "easeInQuart"
-                      << "easeOutQuart"
-                      << "easeInOutQuart"
-                      << "easeOutInQuart"
-                      << "easeInQuint"
-                      << "easeOutQuint"
-                      << "easeInOutQuint"
-                      << "easeOutInQuint"
-                      << "easeInSine"
-                      << "easeOutSine"
-                      << "easeInOutSine"
-                      << "easeOutInSine"
-                      << "easeInExpo"
-                      << "easeOutExpo"
-                      << "easeInOutExpo"
-                      << "easeOutInExpo"
-                      << "easeInCirc"
-                      << "easeOutCirc"
-                      << "easeInOutCirc"
-                      << "easeOutInCirc"
-                      << "easeInElastic"
-                      << "easeOutElastic"
-                      << "easeInOutElastic"
-                      << "easeOutInElastic"
-                      << "easeInBack"
-                      << "easeOutBack"
-                      << "easeInOutBack"
-                      << "easeOutInBack"
-                      << "easeInBounce"
-                      << "easeOutBounce"
-                      << "easeInOutBounce"
-                      << "easeOutInBounce";
+                      << "Linear"
+                      << "InQuad"
+                      << "OutQuad"
+                      << "InOutQuad"
+                      << "OutInQuad"
+                      << "InCubic"
+                      << "OutCubic"
+                      << "InOutCubic"
+                      << "OutInCubic"
+                      << "InQuart"
+                      << "OutQuart"
+                      << "InOutQuart"
+                      << "OutInQuart"
+                      << "InQuint"
+                      << "OutQuint"
+                      << "InOutQuint"
+                      << "OutInQuint"
+                      << "InSine"
+                      << "OutSine"
+                      << "InOutSine"
+                      << "OutInSine"
+                      << "InExpo"
+                      << "OutExpo"
+                      << "InOutExpo"
+                      << "OutInExpo"
+                      << "InCirc"
+                      << "OutCirc"
+                      << "InOutCirc"
+                      << "OutInCirc"
+                      << "InElastic"
+                      << "OutElastic"
+                      << "InOutElastic"
+                      << "OutInElastic"
+                      << "InBack"
+                      << "OutBack"
+                      << "InOutBack"
+                      << "OutInBack"
+                      << "InBounce"
+                      << "OutBounce"
+                      << "InOutBounce"
+                      << "OutInBounce";
     }
 
     return _curveNames;
@@ -1357,6 +1835,121 @@ const Value *Function::invoke(const Activation *activation) const
 ////////////////////////////////////////////////////////////////////////////////
 // typing environment
 ////////////////////////////////////////////////////////////////////////////////
+
+QList<const FakeMetaObject *> MetaTypeSystem::_metaObjects;
+
+QStringList MetaTypeSystem::load(const QFileInfoList &xmlFiles)
+{
+    QMap<QString, FakeMetaObject *> objects;
+
+    QStringList errorMsgs;
+
+    foreach (const QFileInfo &xmlFile, xmlFiles) {
+        QFile file(xmlFile.absoluteFilePath());
+        if (file.open(QIODevice::ReadOnly)) {
+            QmlXmlReader read(&file);
+            if (!read(&objects)) {
+                errorMsgs.append(read.errorMessage());
+            }
+            file.close();
+        } else {
+            errorMsgs.append(QObject::tr("%1: %2").arg(xmlFile.absoluteFilePath(),
+                                                       file.errorString()));
+        }
+    }
+
+    if (errorMsgs.isEmpty()) {
+        qDeleteAll(_metaObjects);
+        _metaObjects.clear();
+
+        foreach (FakeMetaObject *obj, objects.values()) {
+            const QString superName = obj->superclassName();
+            if (! superName.isEmpty()) {
+                obj->setSuperclass(objects.value(superName, 0));
+            }
+            _metaObjects.append(obj);
+        }
+    }
+
+    return errorMsgs;
+}
+
+void MetaTypeSystem::reload(Interpreter::Engine *interpreter)
+{
+    QHash<const FakeMetaObject *, QmlObjectValue *> qmlObjects;
+    _importedTypes.clear();
+
+    foreach (const FakeMetaObject *metaObject, _metaObjects) {
+        QmlObjectValue *objectValue = new QmlObjectValue(metaObject, interpreter);
+        qmlObjects.insert(metaObject, objectValue);
+        _importedTypes[metaObject->packageName()].append(objectValue);
+    }
+
+    foreach (const FakeMetaObject *metaObject, _metaObjects) {
+        QmlObjectValue *objectValue = qmlObjects.value(metaObject);
+        if (!objectValue)
+            continue;
+        objectValue->setPrototype(qmlObjects.value(metaObject->superClass(), 0));
+    }
+}
+
+QList<QmlObjectValue *> MetaTypeSystem::staticTypesForImport(const QString &packageName, int majorVersion, int minorVersion) const
+{
+    QMap<QString, QmlObjectValue *> objectValuesByName;
+
+    foreach (QmlObjectValue *qmlObjectValue, _importedTypes.value(packageName)) {
+        if (qmlObjectValue->majorVersion() < majorVersion ||
+            (qmlObjectValue->majorVersion() == majorVersion && qmlObjectValue->minorVersion() <= minorVersion)) {
+            // we got a candidate.
+            const QString typeName = qmlObjectValue->className();
+            QmlObjectValue *previousCandidate = objectValuesByName.value(typeName, 0);
+            if (previousCandidate) {
+                // check if our new candidate is newer than the one we found previously
+                if (qmlObjectValue->majorVersion() > previousCandidate->majorVersion() ||
+                    (qmlObjectValue->majorVersion() == previousCandidate->majorVersion() && qmlObjectValue->minorVersion() > previousCandidate->minorVersion())) {
+                    // the new candidate has a higher version no. than the one we found previously, so replace it
+                    objectValuesByName.insert(typeName, qmlObjectValue);
+                }
+            } else {
+                objectValuesByName.insert(typeName, qmlObjectValue);
+            }
+        }
+    }
+
+    return objectValuesByName.values();
+}
+
+QmlObjectValue *MetaTypeSystem::staticTypeForImport(const QString &qualifiedName) const
+{
+    QString name = qualifiedName;
+    QString packageName;
+    int dotIdx = name.indexOf(QLatin1Char('.'));
+    if (dotIdx != -1) {
+        packageName = name.left(dotIdx);
+        name = name.mid(dotIdx + 1);
+    }
+
+    QmlObjectValue *previousCandidate = 0;
+    foreach (QmlObjectValue *qmlObjectValue, _importedTypes.value(packageName)) {
+        const QString typeName = qmlObjectValue->className();
+        if (typeName != name)
+            continue;
+
+        if (previousCandidate) {
+            // check if our new candidate is newer than the one we found previously
+            if (qmlObjectValue->majorVersion() > previousCandidate->majorVersion() ||
+                (qmlObjectValue->majorVersion() == previousCandidate->majorVersion() && qmlObjectValue->minorVersion() > previousCandidate->minorVersion())) {
+                // the new candidate has a higher version no. than the one we found previously, so replace it
+                previousCandidate = qmlObjectValue;
+            }
+        } else {
+            previousCandidate = qmlObjectValue;
+        }
+    }
+
+    return previousCandidate;
+}
+
 ConvertToNumber::ConvertToNumber(Engine *engine)
     : _engine(engine), _result(0)
 {
@@ -1628,9 +2221,7 @@ Engine::Engine()
       _globalObject(0),
       _mathObject(0),
       _qtObject(0),
-#ifndef NO_DECLARATIVE_BACKEND
       _qmlKeysObject(0),
-#endif
       _convertToNumber(this),
       _convertToString(this),
       _convertToObject(this)
@@ -2132,11 +2723,7 @@ void Engine::initializePrototypes()
 
 const ObjectValue *Engine::qmlKeysObject()
 {
-#ifndef NO_DECLARATIVE_BACKEND
     return _qmlKeysObject;
-#else
-    return 0;
-#endif
 }
 
 const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const
@@ -2151,40 +2738,6 @@ const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const
 
     return undefinedValue();
 }
-
-#ifndef NO_DECLARATIVE_BACKEND
-QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix, int majorVersion, int minorVersion)
-{
-    if (name == QLatin1String("QDeclarativeAnchors")) {
-        QmlObjectValue *object = new QmlObjectValue(&QDeclarativeAnchors::staticMetaObject, QLatin1String("Anchors"), -1, -1, this);
-        return object;
-    } else if (name == QLatin1String("QDeclarativePen")) {
-        QmlObjectValue *object = new QmlObjectValue(&QDeclarativePen::staticMetaObject, QLatin1String("Pen"), -1, -1, this);
-        return object;
-    } else if (name == QLatin1String("QDeclarativeScaleGrid")) {
-        QmlObjectValue *object = new QmlObjectValue(&QObject::staticMetaObject, QLatin1String("ScaleGrid"), -1, -1, this);
-        object->setProperty("left", numberValue());
-        object->setProperty("top", numberValue());
-        object->setProperty("right", numberValue());
-        object->setProperty("bottom", numberValue());
-        return object;
-    }
-
-    // ### TODO: add support for QML packages
-    const QString componentName = prefix + QLatin1Char('/') + name;
-
-    if (QDeclarativeType *qmlType = QDeclarativeMetaType::qmlType(componentName.toUtf8(), majorVersion, minorVersion)) {
-        const QString typeName = qmlType->qmlTypeName();
-        const QString strippedTypeName = typeName.mid(typeName.lastIndexOf('/') + 1);
-        QmlObjectValue *object = new QmlObjectValue(qmlType->metaObject(), strippedTypeName, majorVersion, minorVersion, this);
-        return object;
-    }
-
-    return 0;
-}
-#endif
-
-
 
 ASTObjectValue::ASTObjectValue(UiQualifiedId *typeName,
                                UiObjectInitializer *initializer,

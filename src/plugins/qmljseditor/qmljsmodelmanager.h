@@ -82,6 +82,8 @@ protected:
                       QStringList files,
                       ModelManager *modelManager);
 
+    void loadQmlTypeDescriptions();
+
 private:
     static bool matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType);
 

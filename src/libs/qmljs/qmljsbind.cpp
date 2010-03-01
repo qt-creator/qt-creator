@@ -30,7 +30,6 @@
 #include "parser/qmljsast_p.h"
 #include "qmljsbind.h"
 #include "qmljsdocument.h"
-#include "qmljsmetatypesystem.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>

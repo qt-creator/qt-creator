@@ -73,13 +73,12 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
         return; // Probably syntax errors, where we're working with a "recovered" AST.
     }
 
-#ifndef NO_DECLARATIVE_BACKEND
     // check if the object has a Qt.ListElement ancestor
     const ObjectValue *prototype = scopeObject->prototype(_context);
     while (prototype) {
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
-            // ### Also check for Qt package. Involves changes in QmlObjectValue.
-            if (qmlMetaObject->qmlTypeName() == QLatin1String("ListElement")) {
+            if (qmlMetaObject->className() == QLatin1String("ListElement")
+                    && qmlMetaObject->packageName() == QLatin1String("Qt")) {
                 scopeChain.qmlScopeObjects.clear();
                 break;
             }
@@ -91,8 +90,8 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
     prototype = scopeObject->prototype(_context);
     while (prototype) {
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
-            // ### Also check for Qt package. Involves changes in QmlObjectValue.
-            if (qmlMetaObject->qmlTypeName() == QLatin1String("PropertyChanges"))
+            if (qmlMetaObject->className() == QLatin1String("PropertyChanges")
+                    && qmlMetaObject->packageName() == QLatin1String("Qt"))
                 break;
         }
         prototype = prototype->prototype(_context);
@@ -126,5 +125,4 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
             }
         }
     }
-#endif
 }

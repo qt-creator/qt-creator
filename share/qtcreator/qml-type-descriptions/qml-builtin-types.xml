@@ -1,0 +1,2813 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <type name="Qt.Binding" version="4.6" extends="Qt.QtObject">
+        <property name="target" type="Qt.QtObject"/>
+        <property name="property" type="string"/>
+        <property name="value" type="QVariant"/>
+        <property name="when" type="bool"/>
+    </type>
+    <type name="Qt.Loader" version="4.6" extends="Qt.Item">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <enum name="ResizeMode">
+            <enumerator name="NoResize" value="0"/>
+            <enumerator name="SizeLoaderToItem" value="1"/>
+            <enumerator name="SizeItemToLoader" value="2"/>
+        </enum>
+        <property name="source" type="QUrl"/>
+        <property name="sourceComponent" type="Qt.Component"/>
+        <property name="resizeMode" type="ResizeMode"/>
+        <property name="item" type="QGraphicsObject"/>
+        <property name="status" type="Status"/>
+        <property name="progress" type="qreal"/>
+        <signal name="itemChanged"/>
+        <signal name="sourceChanged"/>
+        <signal name="statusChanged"/>
+        <signal name="progressChanged"/>
+        <signal name="resizeModeChanged"/>
+    </type>
+    <type name="Qt.RotationAnimation" version="4.6" extends="Qt.PropertyAnimation">
+        <enum name="RotationDirection">
+            <enumerator name="Numerical" value="0"/>
+            <enumerator name="Shortest" value="1"/>
+            <enumerator name="Clockwise" value="2"/>
+            <enumerator name="Counterclockwise" value="3"/>
+        </enum>
+        <property name="from" type="qreal"/>
+        <property name="to" type="qreal"/>
+        <property name="direction" type="RotationDirection"/>
+        <signal name="directionChanged"/>
+    </type>
+    <type name="QDeclarativeVisualDataModelParts" extends="QDeclarativeVisualDataModelParts"/>
+    <type name="Qt.PropertyAnimation" version="4.6" extends="QDeclarativeAbstractAnimation">
+        <property name="duration" type="int"/>
+        <property name="from" type="QVariant"/>
+        <property name="to" type="QVariant"/>
+        <property name="easing" type="QEasingCurve"/>
+        <property name="target" type="Qt.QtObject"/>
+        <property name="property" type="string"/>
+        <property name="properties" type="string"/>
+        <property name="targets" type="Qt.QtObject" isList="true"/>
+        <property name="exclude" type="Qt.QtObject" isList="true"/>
+        <signal name="durationChanged">
+            <param type="int"/>
+        </signal>
+        <signal name="fromChanged">
+            <param type="QVariant"/>
+        </signal>
+        <signal name="toChanged">
+            <param type="QVariant"/>
+        </signal>
+        <signal name="easingChanged">
+            <param type="QEasingCurve"/>
+        </signal>
+        <signal name="propertiesChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="targetChanged">
+            <param type="Qt.QtObject"/>
+            <param type="string"/>
+        </signal>
+    </type>
+    <type name="Qt.Flow" version="4.6" extends="QDeclarativeBasePositioner">
+        <enum name="Flow">
+            <enumerator name="LeftToRight" value="0"/>
+            <enumerator name="TopToBottom" value="1"/>
+        </enum>
+        <property name="flow" type="Flow"/>
+        <signal name="flowChanged"/>
+    </type>
+    <type name="Qt.Path" version="4.6" extends="Qt.QtObject">
+        <property name="pathElements" type="QDeclarativePathElement" isList="true"/>
+        <property name="startX" type="qreal"/>
+        <property name="startY" type="qreal"/>
+        <property name="closed" type="bool"/>
+        <signal name="changed"/>
+    </type>
+    <type name="Qt.PauseAnimation" version="4.6" extends="QDeclarativeAbstractAnimation">
+        <property name="duration" type="int"/>
+        <signal name="durationChanged">
+            <param type="int"/>
+        </signal>
+    </type>
+    <type name="Qt.ParticleMotionLinear" version="4.6" extends="Qt.ParticleMotion"/>
+    <type name="QDeclarativeBasePositioner" extends="Qt.Item">
+        <property name="spacing" type="int"/>
+        <property name="move" type="Qt.Transition"/>
+        <property name="add" type="Qt.Transition"/>
+        <signal name="spacingChanged"/>
+        <signal name="moveChanged"/>
+        <signal name="addChanged"/>
+    </type>
+    <type name="Qt.PathLine" version="4.6" extends="QDeclarativeCurve"/>
+    <type name="QListModelInterface" extends="Qt.QtObject">
+        <signal name="itemsInserted">
+            <param name="index" type="int"/>
+            <param name="count" type="int"/>
+        </signal>
+        <signal name="itemsRemoved">
+            <param name="index" type="int"/>
+            <param name="count" type="int"/>
+        </signal>
+        <signal name="itemsMoved">
+            <param name="from" type="int"/>
+            <param name="to" type="int"/>
+            <param name="count" type="int"/>
+        </signal>
+        <signal name="itemsChanged">
+            <param name="index" type="int"/>
+            <param name="count" type="int"/>
+            <param name="roles" type="QList&lt;int&gt;"/>
+        </signal>
+    </type>
+    <type name="Qt.State" version="4.6" extends="Qt.QtObject">
+        <property name="name" type="string"/>
+        <property name="when" type="QDeclarativeBinding"/>
+        <property name="extend" type="string"/>
+        <property name="changes" type="QDeclarativeStateOperation" isList="true"/>
+        <signal name="completed"/>
+    </type>
+    <type name="QDeclarativeScaleGrid" extends="Qt.QtObject">
+        <property name="left" type="int"/>
+        <property name="top" type="int"/>
+        <property name="right" type="int"/>
+        <property name="bottom" type="int"/>
+        <signal name="borderChanged"/>
+    </type>
+    <type name="Qt.StateChangeScript" version="4.6" extends="QDeclarativeStateOperation">
+        <property name="script" type="QDeclarativeScriptString"/>
+        <property name="name" type="string"/>
+    </type>
+    <type name="Qt.VisibleArea" version="4.6" extends="Qt.QtObject">
+        <property name="xPosition" type="qreal"/>
+        <property name="yPosition" type="qreal"/>
+        <property name="widthRatio" type="qreal"/>
+        <property name="heightRatio" type="qreal"/>
+        <signal name="pageChanged"/>
+    </type>
+    <type name="Qt.WorkerScript" version="4.6" extends="Qt.QtObject">
+        <property name="source" type="QUrl"/>
+        <signal name="sourceChanged"/>
+        <signal name="message">
+            <param name="messageObject" type="QScriptValue"/>
+        </signal>
+        <method name="sendMessage">
+            <param type="QScriptValue"/>
+        </method>
+    </type>
+    <type name="Qt.ListElement" version="4.6" extends="Qt.QtObject"/>
+    <type name="Qt.GradientStop" version="4.6" extends="Qt.QtObject">
+        <property name="position" type="qreal"/>
+        <property name="color" type="QColor"/>
+    </type>
+    <type name="Qt.FontLoader" version="4.6" extends="Qt.QtObject">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="source" type="QUrl"/>
+        <property name="name" type="string"/>
+        <property name="status" type="Status"/>
+        <signal name="nameChanged"/>
+        <signal name="statusChanged"/>
+    </type>
+    <type name="Qt.FocusScope" version="4.6" extends="Qt.Item"/>
+    <type name="Qt.VisualItemModel" version="4.6" extends="QDeclarativeVisualModel">
+        <property name="children" type="Qt.Item" isList="true"/>
+        <signal name="childrenChanged"/>
+    </type>
+    <type name="Qt.KeyNavigation" version="4.6" extends="Qt.QtObject">
+        <property name="left" type="Qt.Item"/>
+        <property name="right" type="Qt.Item"/>
+        <property name="up" type="Qt.Item"/>
+        <property name="down" type="Qt.Item"/>
+        <signal name="changed"/>
+    </type>
+    <type name="Qt.Repeater" version="4.6" extends="Qt.Item">
+        <property name="model" type="QVariant"/>
+        <property name="delegate" type="Qt.Component"/>
+        <property name="count" type="int"/>
+        <signal name="modelChanged"/>
+        <signal name="delegateChanged"/>
+        <signal name="countChanged"/>
+    </type>
+    <type name="Qt.QIntValidator" version="4.6" extends="QValidator">
+        <property name="bottom" type="int"/>
+        <property name="top" type="int"/>
+    </type>
+    <type name="QDeclarativeAnchors" extends="Qt.QtObject">
+        <property name="left" type="QDeclarativeAnchorLine"/>
+        <property name="right" type="QDeclarativeAnchorLine"/>
+        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="top" type="QDeclarativeAnchorLine"/>
+        <property name="bottom" type="QDeclarativeAnchorLine"/>
+        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="baseline" type="QDeclarativeAnchorLine"/>
+        <property name="margins" type="qreal"/>
+        <property name="leftMargin" type="qreal"/>
+        <property name="rightMargin" type="qreal"/>
+        <property name="horizontalCenterOffset" type="qreal"/>
+        <property name="topMargin" type="qreal"/>
+        <property name="bottomMargin" type="qreal"/>
+        <property name="verticalCenterOffset" type="qreal"/>
+        <property name="baselineOffset" type="qreal"/>
+        <property name="fill" type="Qt.Item"/>
+        <property name="centerIn" type="Qt.Item"/>
+        <signal name="leftChanged"/>
+        <signal name="rightChanged"/>
+        <signal name="topChanged"/>
+        <signal name="bottomChanged"/>
+        <signal name="verticalCenterChanged"/>
+        <signal name="horizontalCenterChanged"/>
+        <signal name="baselineChanged"/>
+        <signal name="fillChanged"/>
+        <signal name="centerInChanged"/>
+        <signal name="leftMarginChanged"/>
+        <signal name="rightMarginChanged"/>
+        <signal name="topMarginChanged"/>
+        <signal name="bottomMarginChanged"/>
+        <signal name="marginsChanged"/>
+        <signal name="verticalCenterOffsetChanged"/>
+        <signal name="horizontalCenterOffsetChanged"/>
+        <signal name="baselineOffsetChanged"/>
+    </type>
+    <type name="Qt.Blur" version="4.6" extends="QGraphicsEffect">
+        <enum name="BlurHint">
+            <enumerator name="PerformanceHint" value="0"/>
+            <enumerator name="QualityHint" value="1"/>
+            <enumerator name="AnimationHint" value="2"/>
+        </enum>
+        <enum name="BlurHints">
+            <enumerator name="PerformanceHint" value="0"/>
+            <enumerator name="QualityHint" value="1"/>
+            <enumerator name="AnimationHint" value="2"/>
+        </enum>
+        <property name="blurRadius" type="qreal"/>
+        <property name="blurHints" type="BlurHints"/>
+        <signal name="blurRadiusChanged">
+            <param name="blurRadius" type="qreal"/>
+        </signal>
+        <signal name="blurHintsChanged">
+            <param name="hints" type="BlurHints"/>
+        </signal>
+        <method name="setBlurRadius">
+            <param name="blurRadius" type="qreal"/>
+        </method>
+        <method name="setBlurHints">
+            <param name="hints" type="BlurHints"/>
+        </method>
+    </type>
+    <type name="Qt.StateGroup" version="4.6" extends="Qt.QtObject">
+        <property name="state" type="string"/>
+        <property name="states" type="Qt.State" isList="true"/>
+        <property name="transitions" type="Qt.Transition" isList="true"/>
+        <signal name="stateChanged">
+            <param type="string"/>
+        </signal>
+    </type>
+    <type name="QDeclarativeAnimationGroup" extends="QDeclarativeAbstractAnimation">
+        <property name="animations" type="QDeclarativeAbstractAnimation" isList="true"/>
+    </type>
+    <type name="Qt.ColorAnimation" version="4.6" extends="Qt.PropertyAnimation">
+        <property name="from" type="QColor"/>
+        <property name="to" type="QColor"/>
+    </type>
+    <type name="Qt.ViewSection" version="4.6" extends="Qt.QtObject">
+        <enum name="SectionCriteria">
+            <enumerator name="FullString" value="0"/>
+            <enumerator name="FirstCharacter" value="1"/>
+        </enum>
+        <property name="property" type="string"/>
+        <property name="criteria" type="SectionCriteria"/>
+        <property name="delegate" type="Qt.Component"/>
+        <signal name="changed"/>
+        <signal name="delegateChanged"/>
+    </type>
+    <type name="Qt.FocusPanel" version="4.6" extends="Qt.Item">
+        <property name="active" type="bool"/>
+        <signal name="activeChanged"/>
+    </type>
+    <type name="Qt.ScriptAction" version="4.6" extends="QDeclarativeAbstractAnimation">
+        <property name="script" type="QDeclarativeScriptString"/>
+        <property name="stateChangeScriptName" type="string"/>
+    </type>
+    <type name="Qt">
+        <enum name="GlobalColor">
+            <enumerator name="color0" value="0"/>
+            <enumerator name="color1" value="1"/>
+            <enumerator name="black" value="2"/>
+            <enumerator name="white" value="3"/>
+            <enumerator name="darkGray" value="4"/>
+            <enumerator name="gray" value="5"/>
+            <enumerator name="lightGray" value="6"/>
+            <enumerator name="red" value="7"/>
+            <enumerator name="green" value="8"/>
+            <enumerator name="blue" value="9"/>
+            <enumerator name="cyan" value="10"/>
+            <enumerator name="magenta" value="11"/>
+            <enumerator name="yellow" value="12"/>
+            <enumerator name="darkRed" value="13"/>
+            <enumerator name="darkGreen" value="14"/>
+            <enumerator name="darkBlue" value="15"/>
+            <enumerator name="darkCyan" value="16"/>
+            <enumerator name="darkMagenta" value="17"/>
+            <enumerator name="darkYellow" value="18"/>
+            <enumerator name="transparent" value="19"/>
+        </enum>
+        <enum name="KeyboardModifiers">
+            <enumerator name="NoModifier" value="0"/>
+            <enumerator name="ShiftModifier" value="33554432"/>
+            <enumerator name="ControlModifier" value="67108864"/>
+            <enumerator name="AltModifier" value="134217728"/>
+            <enumerator name="MetaModifier" value="268435456"/>
+            <enumerator name="KeypadModifier" value="536870912"/>
+            <enumerator name="GroupSwitchModifier" value="1073741824"/>
+            <enumerator name="KeyboardModifierMask" value="-33554432"/>
+        </enum>
+        <enum name="MouseButtons">
+            <enumerator name="NoButton" value="0"/>
+            <enumerator name="LeftButton" value="1"/>
+            <enumerator name="RightButton" value="2"/>
+            <enumerator name="MidButton" value="4"/>
+            <enumerator name="XButton1" value="8"/>
+            <enumerator name="XButton2" value="16"/>
+            <enumerator name="MouseButtonMask" value="255"/>
+        </enum>
+        <enum name="Orientation">
+            <enumerator name="Horizontal" value="1"/>
+            <enumerator name="Vertical" value="2"/>
+        </enum>
+        <enum name="Orientations">
+            <enumerator name="Horizontal" value="1"/>
+            <enumerator name="Vertical" value="2"/>
+        </enum>
+        <enum name="FocusPolicy">
+            <enumerator name="NoFocus" value="0"/>
+            <enumerator name="TabFocus" value="1"/>
+            <enumerator name="ClickFocus" value="2"/>
+            <enumerator name="StrongFocus" value="11"/>
+            <enumerator name="WheelFocus" value="15"/>
+        </enum>
+        <enum name="SortOrder">
+            <enumerator name="AscendingOrder" value="0"/>
+            <enumerator name="DescendingOrder" value="1"/>
+        </enum>
+        <enum name="Alignment">
+            <enumerator name="AlignLeft" value="1"/>
+            <enumerator name="AlignLeading" value="1"/>
+            <enumerator name="AlignRight" value="2"/>
+            <enumerator name="AlignTrailing" value="2"/>
+            <enumerator name="AlignHCenter" value="4"/>
+            <enumerator name="AlignJustify" value="8"/>
+            <enumerator name="AlignAbsolute" value="16"/>
+            <enumerator name="AlignHorizontal_Mask" value="31"/>
+            <enumerator name="AlignTop" value="32"/>
+            <enumerator name="AlignBottom" value="64"/>
+            <enumerator name="AlignVCenter" value="128"/>
+            <enumerator name="AlignVertical_Mask" value="224"/>
+            <enumerator name="AlignCenter" value="132"/>
+        </enum>
+        <enum name="TextElideMode">
+            <enumerator name="ElideLeft" value="0"/>
+            <enumerator name="ElideRight" value="1"/>
+            <enumerator name="ElideMiddle" value="2"/>
+            <enumerator name="ElideNone" value="3"/>
+        </enum>
+        <enum name="WindowType">
+            <enumerator name="Widget" value="0"/>
+            <enumerator name="Window" value="1"/>
+            <enumerator name="Dialog" value="3"/>
+            <enumerator name="Sheet" value="5"/>
+            <enumerator name="Drawer" value="7"/>
+            <enumerator name="Popup" value="9"/>
+            <enumerator name="Tool" value="11"/>
+            <enumerator name="ToolTip" value="13"/>
+            <enumerator name="SplashScreen" value="15"/>
+            <enumerator name="Desktop" value="17"/>
+            <enumerator name="SubWindow" value="18"/>
+            <enumerator name="WindowType_Mask" value="255"/>
+            <enumerator name="MSWindowsFixedSizeDialogHint" value="256"/>
+            <enumerator name="MSWindowsOwnDC" value="512"/>
+            <enumerator name="X11BypassWindowManagerHint" value="1024"/>
+            <enumerator name="FramelessWindowHint" value="2048"/>
+            <enumerator name="WindowTitleHint" value="4096"/>
+            <enumerator name="WindowSystemMenuHint" value="8192"/>
+            <enumerator name="WindowMinimizeButtonHint" value="16384"/>
+            <enumerator name="WindowMaximizeButtonHint" value="32768"/>
+            <enumerator name="WindowMinMaxButtonsHint" value="49152"/>
+            <enumerator name="WindowContextHelpButtonHint" value="65536"/>
+            <enumerator name="WindowShadeButtonHint" value="131072"/>
+            <enumerator name="WindowStaysOnTopHint" value="262144"/>
+            <enumerator name="CustomizeWindowHint" value="33554432"/>
+            <enumerator name="WindowStaysOnBottomHint" value="67108864"/>
+            <enumerator name="WindowCloseButtonHint" value="134217728"/>
+            <enumerator name="MacWindowToolBarButtonHint" value="268435456"/>
+            <enumerator name="BypassGraphicsProxyWidget" value="536870912"/>
+            <enumerator name="WindowOkButtonHint" value="524288"/>
+            <enumerator name="WindowCancelButtonHint" value="1048576"/>
+        </enum>
+        <enum name="WindowFlags">
+            <enumerator name="Widget" value="0"/>
+            <enumerator name="Window" value="1"/>
+            <enumerator name="Dialog" value="3"/>
+            <enumerator name="Sheet" value="5"/>
+            <enumerator name="Drawer" value="7"/>
+            <enumerator name="Popup" value="9"/>
+            <enumerator name="Tool" value="11"/>
+            <enumerator name="ToolTip" value="13"/>
+            <enumerator name="SplashScreen" value="15"/>
+            <enumerator name="Desktop" value="17"/>
+            <enumerator name="SubWindow" value="18"/>
+            <enumerator name="WindowType_Mask" value="255"/>
+            <enumerator name="MSWindowsFixedSizeDialogHint" value="256"/>
+            <enumerator name="MSWindowsOwnDC" value="512"/>
+            <enumerator name="X11BypassWindowManagerHint" value="1024"/>
+            <enumerator name="FramelessWindowHint" value="2048"/>
+            <enumerator name="WindowTitleHint" value="4096"/>
+            <enumerator name="WindowSystemMenuHint" value="8192"/>
+            <enumerator name="WindowMinimizeButtonHint" value="16384"/>
+            <enumerator name="WindowMaximizeButtonHint" value="32768"/>
+            <enumerator name="WindowMinMaxButtonsHint" value="49152"/>
+            <enumerator name="WindowContextHelpButtonHint" value="65536"/>
+            <enumerator name="WindowShadeButtonHint" value="131072"/>
+            <enumerator name="WindowStaysOnTopHint" value="262144"/>
+            <enumerator name="CustomizeWindowHint" value="33554432"/>
+            <enumerator name="WindowStaysOnBottomHint" value="67108864"/>
+            <enumerator name="WindowCloseButtonHint" value="134217728"/>
+            <enumerator name="MacWindowToolBarButtonHint" value="268435456"/>
+            <enumerator name="BypassGraphicsProxyWidget" value="536870912"/>
+            <enumerator name="WindowOkButtonHint" value="524288"/>
+            <enumerator name="WindowCancelButtonHint" value="1048576"/>
+        </enum>
+        <enum name="WindowState">
+            <enumerator name="WindowNoState" value="0"/>
+            <enumerator name="WindowMinimized" value="1"/>
+            <enumerator name="WindowMaximized" value="2"/>
+            <enumerator name="WindowFullScreen" value="4"/>
+            <enumerator name="WindowActive" value="8"/>
+        </enum>
+        <enum name="WindowStates">
+            <enumerator name="WindowNoState" value="0"/>
+            <enumerator name="WindowMinimized" value="1"/>
+            <enumerator name="WindowMaximized" value="2"/>
+            <enumerator name="WindowFullScreen" value="4"/>
+            <enumerator name="WindowActive" value="8"/>
+        </enum>
+        <enum name="WidgetAttribute">
+            <enumerator name="WA_Disabled" value="0"/>
+            <enumerator name="WA_UnderMouse" value="1"/>
+            <enumerator name="WA_MouseTracking" value="2"/>
+            <enumerator name="WA_ContentsPropagated" value="3"/>
+            <enumerator name="WA_OpaquePaintEvent" value="4"/>
+            <enumerator name="WA_NoBackground" value="4"/>
+            <enumerator name="WA_StaticContents" value="5"/>
+            <enumerator name="WA_LaidOut" value="7"/>
+            <enumerator name="WA_PaintOnScreen" value="8"/>
+            <enumerator name="WA_NoSystemBackground" value="9"/>
+            <enumerator name="WA_UpdatesDisabled" value="10"/>
+            <enumerator name="WA_Mapped" value="11"/>
+            <enumerator name="WA_MacNoClickThrough" value="12"/>
+            <enumerator name="WA_PaintOutsidePaintEvent" value="13"/>
+            <enumerator name="WA_InputMethodEnabled" value="14"/>
+            <enumerator name="WA_WState_Visible" value="15"/>
+            <enumerator name="WA_WState_Hidden" value="16"/>
+            <enumerator name="WA_ForceDisabled" value="32"/>
+            <enumerator name="WA_KeyCompression" value="33"/>
+            <enumerator name="WA_PendingMoveEvent" value="34"/>
+            <enumerator name="WA_PendingResizeEvent" value="35"/>
+            <enumerator name="WA_SetPalette" value="36"/>
+            <enumerator name="WA_SetFont" value="37"/>
+            <enumerator name="WA_SetCursor" value="38"/>
+            <enumerator name="WA_NoChildEventsFromChildren" value="39"/>
+            <enumerator name="WA_WindowModified" value="41"/>
+            <enumerator name="WA_Resized" value="42"/>
+            <enumerator name="WA_Moved" value="43"/>
+            <enumerator name="WA_PendingUpdate" value="44"/>
+            <enumerator name="WA_InvalidSize" value="45"/>
+            <enumerator name="WA_MacBrushedMetal" value="46"/>
+            <enumerator name="WA_MacMetalStyle" value="46"/>
+            <enumerator name="WA_CustomWhatsThis" value="47"/>
+            <enumerator name="WA_LayoutOnEntireRect" value="48"/>
+            <enumerator name="WA_OutsideWSRange" value="49"/>
+            <enumerator name="WA_GrabbedShortcut" value="50"/>
+            <enumerator name="WA_TransparentForMouseEvents" value="51"/>
+            <enumerator name="WA_PaintUnclipped" value="52"/>
+            <enumerator name="WA_SetWindowIcon" value="53"/>
+            <enumerator name="WA_NoMouseReplay" value="54"/>
+            <enumerator name="WA_DeleteOnClose" value="55"/>
+            <enumerator name="WA_RightToLeft" value="56"/>
+            <enumerator name="WA_SetLayoutDirection" value="57"/>
+            <enumerator name="WA_NoChildEventsForParent" value="58"/>
+            <enumerator name="WA_ForceUpdatesDisabled" value="59"/>
+            <enumerator name="WA_WState_Created" value="60"/>
+            <enumerator name="WA_WState_CompressKeys" value="61"/>
+            <enumerator name="WA_WState_InPaintEvent" value="62"/>
+            <enumerator name="WA_WState_Reparented" value="63"/>
+            <enumerator name="WA_WState_ConfigPending" value="64"/>
+            <enumerator name="WA_WState_Polished" value="66"/>
+            <enumerator name="WA_WState_DND" value="67"/>
+            <enumerator name="WA_WState_OwnSizePolicy" value="68"/>
+            <enumerator name="WA_WState_ExplicitShowHide" value="69"/>
+            <enumerator name="WA_ShowModal" value="70"/>
+            <enumerator name="WA_MouseNoMask" value="71"/>
+            <enumerator name="WA_GroupLeader" value="72"/>
+            <enumerator name="WA_NoMousePropagation" value="73"/>
+            <enumerator name="WA_Hover" value="74"/>
+            <enumerator name="WA_InputMethodTransparent" value="75"/>
+            <enumerator name="WA_QuitOnClose" value="76"/>
+            <enumerator name="WA_KeyboardFocusChange" value="77"/>
+            <enumerator name="WA_AcceptDrops" value="78"/>
+            <enumerator name="WA_DropSiteRegistered" value="79"/>
+            <enumerator name="WA_ForceAcceptDrops" value="79"/>
+            <enumerator name="WA_WindowPropagation" value="80"/>
+            <enumerator name="WA_NoX11EventCompression" value="81"/>
+            <enumerator name="WA_TintedBackground" value="82"/>
+            <enumerator name="WA_X11OpenGLOverlay" value="83"/>
+            <enumerator name="WA_AlwaysShowToolTips" value="84"/>
+            <enumerator name="WA_MacOpaqueSizeGrip" value="85"/>
+            <enumerator name="WA_SetStyle" value="86"/>
+            <enumerator name="WA_SetLocale" value="87"/>
+            <enumerator name="WA_MacShowFocusRect" value="88"/>
+            <enumerator name="WA_MacNormalSize" value="89"/>
+            <enumerator name="WA_MacSmallSize" value="90"/>
+            <enumerator name="WA_MacMiniSize" value="91"/>
+            <enumerator name="WA_LayoutUsesWidgetRect" value="92"/>
+            <enumerator name="WA_StyledBackground" value="93"/>
+            <enumerator name="WA_MSWindowsUseDirect3D" value="94"/>
+            <enumerator name="WA_CanHostQMdiSubWindowTitleBar" value="95"/>
+            <enumerator name="WA_MacAlwaysShowToolWindow" value="96"/>
+            <enumerator name="WA_StyleSheet" value="97"/>
+            <enumerator name="WA_ShowWithoutActivating" value="98"/>
+            <enumerator name="WA_X11BypassTransientForHint" value="99"/>
+            <enumerator name="WA_NativeWindow" value="100"/>
+            <enumerator name="WA_DontCreateNativeAncestors" value="101"/>
+            <enumerator name="WA_MacVariableSize" value="102"/>
+            <enumerator name="WA_DontShowOnScreen" value="103"/>
+            <enumerator name="WA_X11NetWmWindowTypeDesktop" value="104"/>
+            <enumerator name="WA_X11NetWmWindowTypeDock" value="105"/>
+            <enumerator name="WA_X11NetWmWindowTypeToolBar" value="106"/>
+            <enumerator name="WA_X11NetWmWindowTypeMenu" value="107"/>
+            <enumerator name="WA_X11NetWmWindowTypeUtility" value="108"/>
+            <enumerator name="WA_X11NetWmWindowTypeSplash" value="109"/>
+            <enumerator name="WA_X11NetWmWindowTypeDialog" value="110"/>
+            <enumerator name="WA_X11NetWmWindowTypeDropDownMenu" value="111"/>
+            <enumerator name="WA_X11NetWmWindowTypePopupMenu" value="112"/>
+            <enumerator name="WA_X11NetWmWindowTypeToolTip" value="113"/>
+            <enumerator name="WA_X11NetWmWindowTypeNotification" value="114"/>
+            <enumerator name="WA_X11NetWmWindowTypeCombo" value="115"/>
+            <enumerator name="WA_X11NetWmWindowTypeDND" value="116"/>
+            <enumerator name="WA_MacFrameworkScaled" value="117"/>
+            <enumerator name="WA_SetWindowModality" value="118"/>
+            <enumerator name="WA_WState_WindowOpacitySet" value="119"/>
+            <enumerator name="WA_TranslucentBackground" value="120"/>
+            <enumerator name="WA_AcceptTouchEvents" value="121"/>
+            <enumerator name="WA_WState_AcceptedTouchBeginEvent" value="122"/>
+            <enumerator name="WA_TouchPadAcceptSingleTouchEvents" value="123"/>
+            <enumerator name="WA_MergeSoftkeys" value="124"/>
+            <enumerator name="WA_MergeSoftkeysRecursively" value="125"/>
+            <enumerator name="WA_AttributeCount" value="126"/>
+        </enum>
+        <enum name="ApplicationAttribute">
+            <enumerator name="AA_ImmediateWidgetCreation" value="0"/>
+            <enumerator name="AA_MSWindowsUseDirect3DByDefault" value="1"/>
+            <enumerator name="AA_DontShowIconsInMenus" value="2"/>
+            <enumerator name="AA_NativeWindows" value="3"/>
+            <enumerator name="AA_DontCreateNativeWidgetSiblings" value="4"/>
+            <enumerator name="AA_MacPluginApplication" value="5"/>
+            <enumerator name="AA_DontUseNativeMenuBar" value="6"/>
+            <enumerator name="AA_MacDontSwapCtrlAndMeta" value="7"/>
+            <enumerator name="AA_S60DontConstructApplicationPanes" value="8"/>
+            <enumerator name="AA_AttributeCount" value="9"/>
+        </enum>
+        <enum name="ImageConversionFlags">
+            <enumerator name="ColorMode_Mask" value="3"/>
+            <enumerator name="AutoColor" value="0"/>
+            <enumerator name="ColorOnly" value="3"/>
+            <enumerator name="MonoOnly" value="2"/>
+            <enumerator name="AlphaDither_Mask" value="12"/>
+            <enumerator name="ThresholdAlphaDither" value="0"/>
+            <enumerator name="OrderedAlphaDither" value="4"/>
+            <enumerator name="DiffuseAlphaDither" value="8"/>
+            <enumerator name="NoAlpha" value="12"/>
+            <enumerator name="Dither_Mask" value="48"/>
+            <enumerator name="DiffuseDither" value="0"/>
+            <enumerator name="OrderedDither" value="16"/>
+            <enumerator name="ThresholdDither" value="32"/>
+            <enumerator name="DitherMode_Mask" value="192"/>
+            <enumerator name="AutoDither" value="0"/>
+            <enumerator name="PreferDither" value="64"/>
+            <enumerator name="AvoidDither" value="128"/>
+            <enumerator name="NoOpaqueDetection" value="256"/>
+        </enum>
+        <enum name="BGMode">
+            <enumerator name="TransparentMode" value="0"/>
+            <enumerator name="OpaqueMode" value="1"/>
+        </enum>
+        <enum name="Key">
+            <enumerator name="Key_Escape" value="16777216"/>
+            <enumerator name="Key_Tab" value="16777217"/>
+            <enumerator name="Key_Backtab" value="16777218"/>
+            <enumerator name="Key_Backspace" value="16777219"/>
+            <enumerator name="Key_Return" value="16777220"/>
+            <enumerator name="Key_Enter" value="16777221"/>
+            <enumerator name="Key_Insert" value="16777222"/>
+            <enumerator name="Key_Delete" value="16777223"/>
+            <enumerator name="Key_Pause" value="16777224"/>
+            <enumerator name="Key_Print" value="16777225"/>
+            <enumerator name="Key_SysReq" value="16777226"/>
+            <enumerator name="Key_Clear" value="16777227"/>
+            <enumerator name="Key_Home" value="16777232"/>
+            <enumerator name="Key_End" value="16777233"/>
+            <enumerator name="Key_Left" value="16777234"/>
+            <enumerator name="Key_Up" value="16777235"/>
+            <enumerator name="Key_Right" value="16777236"/>
+            <enumerator name="Key_Down" value="16777237"/>
+            <enumerator name="Key_PageUp" value="16777238"/>
+            <enumerator name="Key_PageDown" value="16777239"/>
+            <enumerator name="Key_Shift" value="16777248"/>
+            <enumerator name="Key_Control" value="16777249"/>
+            <enumerator name="Key_Meta" value="16777250"/>
+            <enumerator name="Key_Alt" value="16777251"/>
+            <enumerator name="Key_CapsLock" value="16777252"/>
+            <enumerator name="Key_NumLock" value="16777253"/>
+            <enumerator name="Key_ScrollLock" value="16777254"/>
+            <enumerator name="Key_F1" value="16777264"/>
+            <enumerator name="Key_F2" value="16777265"/>
+            <enumerator name="Key_F3" value="16777266"/>
+            <enumerator name="Key_F4" value="16777267"/>
+            <enumerator name="Key_F5" value="16777268"/>
+            <enumerator name="Key_F6" value="16777269"/>
+            <enumerator name="Key_F7" value="16777270"/>
+            <enumerator name="Key_F8" value="16777271"/>
+            <enumerator name="Key_F9" value="16777272"/>
+            <enumerator name="Key_F10" value="16777273"/>
+            <enumerator name="Key_F11" value="16777274"/>
+            <enumerator name="Key_F12" value="16777275"/>
+            <enumerator name="Key_F13" value="16777276"/>
+            <enumerator name="Key_F14" value="16777277"/>
+            <enumerator name="Key_F15" value="16777278"/>
+            <enumerator name="Key_F16" value="16777279"/>
+            <enumerator name="Key_F17" value="16777280"/>
+            <enumerator name="Key_F18" value="16777281"/>
+            <enumerator name="Key_F19" value="16777282"/>
+            <enumerator name="Key_F20" value="16777283"/>
+            <enumerator name="Key_F21" value="16777284"/>
+            <enumerator name="Key_F22" value="16777285"/>
+            <enumerator name="Key_F23" value="16777286"/>
+            <enumerator name="Key_F24" value="16777287"/>
+            <enumerator name="Key_F25" value="16777288"/>
+            <enumerator name="Key_F26" value="16777289"/>
+            <enumerator name="Key_F27" value="16777290"/>
+            <enumerator name="Key_F28" value="16777291"/>
+            <enumerator name="Key_F29" value="16777292"/>
+            <enumerator name="Key_F30" value="16777293"/>
+            <enumerator name="Key_F31" value="16777294"/>
+            <enumerator name="Key_F32" value="16777295"/>
+            <enumerator name="Key_F33" value="16777296"/>
+            <enumerator name="Key_F34" value="16777297"/>
+            <enumerator name="Key_F35" value="16777298"/>
+            <enumerator name="Key_Super_L" value="16777299"/>
+            <enumerator name="Key_Super_R" value="16777300"/>
+            <enumerator name="Key_Menu" value="16777301"/>
+            <enumerator name="Key_Hyper_L" value="16777302"/>
+            <enumerator name="Key_Hyper_R" value="16777303"/>
+            <enumerator name="Key_Help" value="16777304"/>
+            <enumerator name="Key_Direction_L" value="16777305"/>
+            <enumerator name="Key_Direction_R" value="16777312"/>
+            <enumerator name="Key_Space" value="32"/>
+            <enumerator name="Key_Any" value="32"/>
+            <enumerator name="Key_Exclam" value="33"/>
+            <enumerator name="Key_QuoteDbl" value="34"/>
+            <enumerator name="Key_NumberSign" value="35"/>
+            <enumerator name="Key_Dollar" value="36"/>
+            <enumerator name="Key_Percent" value="37"/>
+            <enumerator name="Key_Ampersand" value="38"/>
+            <enumerator name="Key_Apostrophe" value="39"/>
+            <enumerator name="Key_ParenLeft" value="40"/>
+            <enumerator name="Key_ParenRight" value="41"/>
+            <enumerator name="Key_Asterisk" value="42"/>
+            <enumerator name="Key_Plus" value="43"/>
+            <enumerator name="Key_Comma" value="44"/>
+            <enumerator name="Key_Minus" value="45"/>
+            <enumerator name="Key_Period" value="46"/>
+            <enumerator name="Key_Slash" value="47"/>
+            <enumerator name="Key_0" value="48"/>
+            <enumerator name="Key_1" value="49"/>
+            <enumerator name="Key_2" value="50"/>
+            <enumerator name="Key_3" value="51"/>
+            <enumerator name="Key_4" value="52"/>
+            <enumerator name="Key_5" value="53"/>
+            <enumerator name="Key_6" value="54"/>
+            <enumerator name="Key_7" value="55"/>
+            <enumerator name="Key_8" value="56"/>
+            <enumerator name="Key_9" value="57"/>
+            <enumerator name="Key_Colon" value="58"/>
+            <enumerator name="Key_Semicolon" value="59"/>
+            <enumerator name="Key_Less" value="60"/>
+            <enumerator name="Key_Equal" value="61"/>
+            <enumerator name="Key_Greater" value="62"/>
+            <enumerator name="Key_Question" value="63"/>
+            <enumerator name="Key_At" value="64"/>
+            <enumerator name="Key_A" value="65"/>
+            <enumerator name="Key_B" value="66"/>
+            <enumerator name="Key_C" value="67"/>
+            <enumerator name="Key_D" value="68"/>
+            <enumerator name="Key_E" value="69"/>
+            <enumerator name="Key_F" value="70"/>
+            <enumerator name="Key_G" value="71"/>
+            <enumerator name="Key_H" value="72"/>
+            <enumerator name="Key_I" value="73"/>
+            <enumerator name="Key_J" value="74"/>
+            <enumerator name="Key_K" value="75"/>
+            <enumerator name="Key_L" value="76"/>
+            <enumerator name="Key_M" value="77"/>
+            <enumerator name="Key_N" value="78"/>
+            <enumerator name="Key_O" value="79"/>
+            <enumerator name="Key_P" value="80"/>
+            <enumerator name="Key_Q" value="81"/>
+            <enumerator name="Key_R" value="82"/>
+            <enumerator name="Key_S" value="83"/>
+            <enumerator name="Key_T" value="84"/>
+            <enumerator name="Key_U" value="85"/>
+            <enumerator name="Key_V" value="86"/>
+            <enumerator name="Key_W" value="87"/>
+            <enumerator name="Key_X" value="88"/>
+            <enumerator name="Key_Y" value="89"/>
+            <enumerator name="Key_Z" value="90"/>
+            <enumerator name="Key_BracketLeft" value="91"/>
+            <enumerator name="Key_Backslash" value="92"/>
+            <enumerator name="Key_BracketRight" value="93"/>
+            <enumerator name="Key_AsciiCircum" value="94"/>
+            <enumerator name="Key_Underscore" value="95"/>
+            <enumerator name="Key_QuoteLeft" value="96"/>
+            <enumerator name="Key_BraceLeft" value="123"/>
+            <enumerator name="Key_Bar" value="124"/>
+            <enumerator name="Key_BraceRight" value="125"/>
+            <enumerator name="Key_AsciiTilde" value="126"/>
+            <enumerator name="Key_nobreakspace" value="160"/>
+            <enumerator name="Key_exclamdown" value="161"/>
+            <enumerator name="Key_cent" value="162"/>
+            <enumerator name="Key_sterling" value="163"/>
+            <enumerator name="Key_currency" value="164"/>
+            <enumerator name="Key_yen" value="165"/>
+            <enumerator name="Key_brokenbar" value="166"/>
+            <enumerator name="Key_section" value="167"/>
+            <enumerator name="Key_diaeresis" value="168"/>
+            <enumerator name="Key_copyright" value="169"/>
+            <enumerator name="Key_ordfeminine" value="170"/>
+            <enumerator name="Key_guillemotleft" value="171"/>
+            <enumerator name="Key_notsign" value="172"/>
+            <enumerator name="Key_hyphen" value="173"/>
+            <enumerator name="Key_registered" value="174"/>
+            <enumerator name="Key_macron" value="175"/>
+            <enumerator name="Key_degree" value="176"/>
+            <enumerator name="Key_plusminus" value="177"/>
+            <enumerator name="Key_twosuperior" value="178"/>
+            <enumerator name="Key_threesuperior" value="179"/>
+            <enumerator name="Key_acute" value="180"/>
+            <enumerator name="Key_mu" value="181"/>
+            <enumerator name="Key_paragraph" value="182"/>
+            <enumerator name="Key_periodcentered" value="183"/>
+            <enumerator name="Key_cedilla" value="184"/>
+            <enumerator name="Key_onesuperior" value="185"/>
+            <enumerator name="Key_masculine" value="186"/>
+            <enumerator name="Key_guillemotright" value="187"/>
+            <enumerator name="Key_onequarter" value="188"/>
+            <enumerator name="Key_onehalf" value="189"/>
+            <enumerator name="Key_threequarters" value="190"/>
+            <enumerator name="Key_questiondown" value="191"/>
+            <enumerator name="Key_Agrave" value="192"/>
+            <enumerator name="Key_Aacute" value="193"/>
+            <enumerator name="Key_Acircumflex" value="194"/>
+            <enumerator name="Key_Atilde" value="195"/>
+            <enumerator name="Key_Adiaeresis" value="196"/>
+            <enumerator name="Key_Aring" value="197"/>
+            <enumerator name="Key_AE" value="198"/>
+            <enumerator name="Key_Ccedilla" value="199"/>
+            <enumerator name="Key_Egrave" value="200"/>
+            <enumerator name="Key_Eacute" value="201"/>
+            <enumerator name="Key_Ecircumflex" value="202"/>
+            <enumerator name="Key_Ediaeresis" value="203"/>
+            <enumerator name="Key_Igrave" value="204"/>
+            <enumerator name="Key_Iacute" value="205"/>
+            <enumerator name="Key_Icircumflex" value="206"/>
+            <enumerator name="Key_Idiaeresis" value="207"/>
+            <enumerator name="Key_ETH" value="208"/>
+            <enumerator name="Key_Ntilde" value="209"/>
+            <enumerator name="Key_Ograve" value="210"/>
+            <enumerator name="Key_Oacute" value="211"/>
+            <enumerator name="Key_Ocircumflex" value="212"/>
+            <enumerator name="Key_Otilde" value="213"/>
+            <enumerator name="Key_Odiaeresis" value="214"/>
+            <enumerator name="Key_multiply" value="215"/>
+            <enumerator name="Key_Ooblique" value="216"/>
+            <enumerator name="Key_Ugrave" value="217"/>
+            <enumerator name="Key_Uacute" value="218"/>
+            <enumerator name="Key_Ucircumflex" value="219"/>
+            <enumerator name="Key_Udiaeresis" value="220"/>
+            <enumerator name="Key_Yacute" value="221"/>
+            <enumerator name="Key_THORN" value="222"/>
+            <enumerator name="Key_ssharp" value="223"/>
+            <enumerator name="Key_division" value="247"/>
+            <enumerator name="Key_ydiaeresis" value="255"/>
+            <enumerator name="Key_AltGr" value="16781571"/>
+            <enumerator name="Key_Multi_key" value="16781600"/>
+            <enumerator name="Key_Codeinput" value="16781623"/>
+            <enumerator name="Key_SingleCandidate" value="16781628"/>
+            <enumerator name="Key_MultipleCandidate" value="16781629"/>
+            <enumerator name="Key_PreviousCandidate" value="16781630"/>
+            <enumerator name="Key_Mode_switch" value="16781694"/>
+            <enumerator name="Key_Kanji" value="16781601"/>
+            <enumerator name="Key_Muhenkan" value="16781602"/>
+            <enumerator name="Key_Henkan" value="16781603"/>
+            <enumerator name="Key_Romaji" value="16781604"/>
+            <enumerator name="Key_Hiragana" value="16781605"/>
+            <enumerator name="Key_Katakana" value="16781606"/>
+            <enumerator name="Key_Hiragana_Katakana" value="16781607"/>
+            <enumerator name="Key_Zenkaku" value="16781608"/>
+            <enumerator name="Key_Hankaku" value="16781609"/>
+            <enumerator name="Key_Zenkaku_Hankaku" value="16781610"/>
+            <enumerator name="Key_Touroku" value="16781611"/>
+            <enumerator name="Key_Massyo" value="16781612"/>
+            <enumerator name="Key_Kana_Lock" value="16781613"/>
+            <enumerator name="Key_Kana_Shift" value="16781614"/>
+            <enumerator name="Key_Eisu_Shift" value="16781615"/>
+            <enumerator name="Key_Eisu_toggle" value="16781616"/>
+            <enumerator name="Key_Hangul" value="16781617"/>
+            <enumerator name="Key_Hangul_Start" value="16781618"/>
+            <enumerator name="Key_Hangul_End" value="16781619"/>
+            <enumerator name="Key_Hangul_Hanja" value="16781620"/>
+            <enumerator name="Key_Hangul_Jamo" value="16781621"/>
+            <enumerator name="Key_Hangul_Romaja" value="16781622"/>
+            <enumerator name="Key_Hangul_Jeonja" value="16781624"/>
+            <enumerator name="Key_Hangul_Banja" value="16781625"/>
+            <enumerator name="Key_Hangul_PreHanja" value="16781626"/>
+            <enumerator name="Key_Hangul_PostHanja" value="16781627"/>
+            <enumerator name="Key_Hangul_Special" value="16781631"/>
+            <enumerator name="Key_Dead_Grave" value="16781904"/>
+            <enumerator name="Key_Dead_Acute" value="16781905"/>
+            <enumerator name="Key_Dead_Circumflex" value="16781906"/>
+            <enumerator name="Key_Dead_Tilde" value="16781907"/>
+            <enumerator name="Key_Dead_Macron" value="16781908"/>
+            <enumerator name="Key_Dead_Breve" value="16781909"/>
+            <enumerator name="Key_Dead_Abovedot" value="16781910"/>
+            <enumerator name="Key_Dead_Diaeresis" value="16781911"/>
+            <enumerator name="Key_Dead_Abovering" value="16781912"/>
+            <enumerator name="Key_Dead_Doubleacute" value="16781913"/>
+            <enumerator name="Key_Dead_Caron" value="16781914"/>
+            <enumerator name="Key_Dead_Cedilla" value="16781915"/>
+            <enumerator name="Key_Dead_Ogonek" value="16781916"/>
+            <enumerator name="Key_Dead_Iota" value="16781917"/>
+            <enumerator name="Key_Dead_Voiced_Sound" value="16781918"/>
+            <enumerator name="Key_Dead_Semivoiced_Sound" value="16781919"/>
+            <enumerator name="Key_Dead_Belowdot" value="16781920"/>
+            <enumerator name="Key_Dead_Hook" value="16781921"/>
+            <enumerator name="Key_Dead_Horn" value="16781922"/>
+            <enumerator name="Key_Back" value="16777313"/>
+            <enumerator name="Key_Forward" value="16777314"/>
+            <enumerator name="Key_Stop" value="16777315"/>
+            <enumerator name="Key_Refresh" value="16777316"/>
+            <enumerator name="Key_VolumeDown" value="16777328"/>
+            <enumerator name="Key_VolumeMute" value="16777329"/>
+            <enumerator name="Key_VolumeUp" value="16777330"/>
+            <enumerator name="Key_BassBoost" value="16777331"/>
+            <enumerator name="Key_BassUp" value="16777332"/>
+            <enumerator name="Key_BassDown" value="16777333"/>
+            <enumerator name="Key_TrebleUp" value="16777334"/>
+            <enumerator name="Key_TrebleDown" value="16777335"/>
+            <enumerator name="Key_MediaPlay" value="16777344"/>
+            <enumerator name="Key_MediaStop" value="16777345"/>
+            <enumerator name="Key_MediaPrevious" value="16777346"/>
+            <enumerator name="Key_MediaNext" value="16777347"/>
+            <enumerator name="Key_MediaRecord" value="16777348"/>
+            <enumerator name="Key_HomePage" value="16777360"/>
+            <enumerator name="Key_Favorites" value="16777361"/>
+            <enumerator name="Key_Search" value="16777362"/>
+            <enumerator name="Key_Standby" value="16777363"/>
+            <enumerator name="Key_OpenUrl" value="16777364"/>
+            <enumerator name="Key_LaunchMail" value="16777376"/>
+            <enumerator name="Key_LaunchMedia" value="16777377"/>
+            <enumerator name="Key_Launch0" value="16777378"/>
+            <enumerator name="Key_Launch1" value="16777379"/>
+            <enumerator name="Key_Launch2" value="16777380"/>
+            <enumerator name="Key_Launch3" value="16777381"/>
+            <enumerator name="Key_Launch4" value="16777382"/>
+            <enumerator name="Key_Launch5" value="16777383"/>
+            <enumerator name="Key_Launch6" value="16777384"/>
+            <enumerator name="Key_Launch7" value="16777385"/>
+            <enumerator name="Key_Launch8" value="16777386"/>
+            <enumerator name="Key_Launch9" value="16777387"/>
+            <enumerator name="Key_LaunchA" value="16777388"/>
+            <enumerator name="Key_LaunchB" value="16777389"/>
+            <enumerator name="Key_LaunchC" value="16777390"/>
+            <enumerator name="Key_LaunchD" value="16777391"/>
+            <enumerator name="Key_LaunchE" value="16777392"/>
+            <enumerator name="Key_LaunchF" value="16777393"/>
+            <enumerator name="Key_MonBrightnessUp" value="16777394"/>
+            <enumerator name="Key_MonBrightnessDown" value="16777395"/>
+            <enumerator name="Key_KeyboardLightOnOff" value="16777396"/>
+            <enumerator name="Key_KeyboardBrightnessUp" value="16777397"/>
+            <enumerator name="Key_KeyboardBrightnessDown" value="16777398"/>
+            <enumerator name="Key_PowerOff" value="16777399"/>
+            <enumerator name="Key_WakeUp" value="16777400"/>
+            <enumerator name="Key_Eject" value="16777401"/>
+            <enumerator name="Key_ScreenSaver" value="16777402"/>
+            <enumerator name="Key_WWW" value="16777403"/>
+            <enumerator name="Key_Memo" value="16777404"/>
+            <enumerator name="Key_LightBulb" value="16777405"/>
+            <enumerator name="Key_Shop" value="16777406"/>
+            <enumerator name="Key_History" value="16777407"/>
+            <enumerator name="Key_AddFavorite" value="16777408"/>
+            <enumerator name="Key_HotLinks" value="16777409"/>
+            <enumerator name="Key_BrightnessAdjust" value="16777410"/>
+            <enumerator name="Key_Finance" value="16777411"/>
+            <enumerator name="Key_Community" value="16777412"/>
+            <enumerator name="Key_AudioRewind" value="16777413"/>
+            <enumerator name="Key_BackForward" value="16777414"/>
+            <enumerator name="Key_ApplicationLeft" value="16777415"/>
+            <enumerator name="Key_ApplicationRight" value="16777416"/>
+            <enumerator name="Key_Book" value="16777417"/>
+            <enumerator name="Key_CD" value="16777418"/>
+            <enumerator name="Key_Calculator" value="16777419"/>
+            <enumerator name="Key_ToDoList" value="16777420"/>
+            <enumerator name="Key_ClearGrab" value="16777421"/>
+            <enumerator name="Key_Close" value="16777422"/>
+            <enumerator name="Key_Copy" value="16777423"/>
+            <enumerator name="Key_Cut" value="16777424"/>
+            <enumerator name="Key_Display" value="16777425"/>
+            <enumerator name="Key_DOS" value="16777426"/>
+            <enumerator name="Key_Documents" value="16777427"/>
+            <enumerator name="Key_Excel" value="16777428"/>
+            <enumerator name="Key_Explorer" value="16777429"/>
+            <enumerator name="Key_Game" value="16777430"/>
+            <enumerator name="Key_Go" value="16777431"/>
+            <enumerator name="Key_iTouch" value="16777432"/>
+            <enumerator name="Key_LogOff" value="16777433"/>
+            <enumerator name="Key_Market" value="16777434"/>
+            <enumerator name="Key_Meeting" value="16777435"/>
+            <enumerator name="Key_MenuKB" value="16777436"/>
+            <enumerator name="Key_MenuPB" value="16777437"/>
+            <enumerator name="Key_MySites" value="16777438"/>
+            <enumerator name="Key_News" value="16777439"/>
+            <enumerator name="Key_OfficeHome" value="16777440"/>
+            <enumerator name="Key_Option" value="16777441"/>
+            <enumerator name="Key_Paste" value="16777442"/>
+            <enumerator name="Key_Phone" value="16777443"/>
+            <enumerator name="Key_Calendar" value="16777444"/>
+            <enumerator name="Key_Reply" value="16777445"/>
+            <enumerator name="Key_Reload" value="16777446"/>
+            <enumerator name="Key_RotateWindows" value="16777447"/>
+            <enumerator name="Key_RotationPB" value="16777448"/>
+            <enumerator name="Key_RotationKB" value="16777449"/>
+            <enumerator name="Key_Save" value="16777450"/>
+            <enumerator name="Key_Send" value="16777451"/>
+            <enumerator name="Key_Spell" value="16777452"/>
+            <enumerator name="Key_SplitScreen" value="16777453"/>
+            <enumerator name="Key_Support" value="16777454"/>
+            <enumerator name="Key_TaskPane" value="16777455"/>
+            <enumerator name="Key_Terminal" value="16777456"/>
+            <enumerator name="Key_Tools" value="16777457"/>
+            <enumerator name="Key_Travel" value="16777458"/>
+            <enumerator name="Key_Video" value="16777459"/>
+            <enumerator name="Key_Word" value="16777460"/>
+            <enumerator name="Key_Xfer" value="16777461"/>
+            <enumerator name="Key_ZoomIn" value="16777462"/>
+            <enumerator name="Key_ZoomOut" value="16777463"/>
+            <enumerator name="Key_Away" value="16777464"/>
+            <enumerator name="Key_Messenger" value="16777465"/>
+            <enumerator name="Key_WebCam" value="16777466"/>
+            <enumerator name="Key_MailForward" value="16777467"/>
+            <enumerator name="Key_Pictures" value="16777468"/>
+            <enumerator name="Key_Music" value="16777469"/>
+            <enumerator name="Key_Battery" value="16777470"/>
+            <enumerator name="Key_Bluetooth" value="16777471"/>
+            <enumerator name="Key_WLAN" value="16777472"/>
+            <enumerator name="Key_UWB" value="16777473"/>
+            <enumerator name="Key_AudioForward" value="16777474"/>
+            <enumerator name="Key_AudioRepeat" value="16777475"/>
+            <enumerator name="Key_AudioRandomPlay" value="16777476"/>
+            <enumerator name="Key_Subtitle" value="16777477"/>
+            <enumerator name="Key_AudioCycleTrack" value="16777478"/>
+            <enumerator name="Key_Time" value="16777479"/>
+            <enumerator name="Key_Hibernate" value="16777480"/>
+            <enumerator name="Key_View" value="16777481"/>
+            <enumerator name="Key_TopMenu" value="16777482"/>
+            <enumerator name="Key_PowerDown" value="16777483"/>
+            <enumerator name="Key_Suspend" value="16777484"/>
+            <enumerator name="Key_ContrastAdjust" value="16777485"/>
+            <enumerator name="Key_MediaLast" value="16842751"/>
+            <enumerator name="Key_Select" value="16842752"/>
+            <enumerator name="Key_Yes" value="16842753"/>
+            <enumerator name="Key_No" value="16842754"/>
+            <enumerator name="Key_Cancel" value="16908289"/>
+            <enumerator name="Key_Printer" value="16908290"/>
+            <enumerator name="Key_Execute" value="16908291"/>
+            <enumerator name="Key_Sleep" value="16908292"/>
+            <enumerator name="Key_Play" value="16908293"/>
+            <enumerator name="Key_Zoom" value="16908294"/>
+            <enumerator name="Key_Context1" value="17825792"/>
+            <enumerator name="Key_Context2" value="17825793"/>
+            <enumerator name="Key_Context3" value="17825794"/>
+            <enumerator name="Key_Context4" value="17825795"/>
+            <enumerator name="Key_Call" value="17825796"/>
+            <enumerator name="Key_Hangup" value="17825797"/>
+            <enumerator name="Key_Flip" value="17825798"/>
+            <enumerator name="Key_unknown" value="33554431"/>
+        </enum>
+        <enum name="ArrowType">
+            <enumerator name="NoArrow" value="0"/>
+            <enumerator name="UpArrow" value="1"/>
+            <enumerator name="DownArrow" value="2"/>
+            <enumerator name="LeftArrow" value="3"/>
+            <enumerator name="RightArrow" value="4"/>
+        </enum>
+        <enum name="PenStyle">
+            <enumerator name="NoPen" value="0"/>
+            <enumerator name="SolidLine" value="1"/>
+            <enumerator name="DashLine" value="2"/>
+            <enumerator name="DotLine" value="3"/>
+            <enumerator name="DashDotLine" value="4"/>
+            <enumerator name="DashDotDotLine" value="5"/>
+            <enumerator name="CustomDashLine" value="6"/>
+        </enum>
+        <enum name="PenCapStyle">
+            <enumerator name="FlatCap" value="0"/>
+            <enumerator name="SquareCap" value="16"/>
+            <enumerator name="RoundCap" value="32"/>
+            <enumerator name="MPenCapStyle" value="48"/>
+        </enum>
+        <enum name="PenJoinStyle">
+            <enumerator name="MiterJoin" value="0"/>
+            <enumerator name="BevelJoin" value="64"/>
+            <enumerator name="RoundJoin" value="128"/>
+            <enumerator name="SvgMiterJoin" value="256"/>
+            <enumerator name="MPenJoinStyle" value="448"/>
+        </enum>
+        <enum name="BrushStyle">
+            <enumerator name="NoBrush" value="0"/>
+            <enumerator name="SolidPattern" value="1"/>
+            <enumerator name="Dense1Pattern" value="2"/>
+            <enumerator name="Dense2Pattern" value="3"/>
+            <enumerator name="Dense3Pattern" value="4"/>
+            <enumerator name="Dense4Pattern" value="5"/>
+            <enumerator name="Dense5Pattern" value="6"/>
+            <enumerator name="Dense6Pattern" value="7"/>
+            <enumerator name="Dense7Pattern" value="8"/>
+            <enumerator name="HorPattern" value="9"/>
+            <enumerator name="VerPattern" value="10"/>
+            <enumerator name="CrossPattern" value="11"/>
+            <enumerator name="BDiagPattern" value="12"/>
+            <enumerator name="FDiagPattern" value="13"/>
+            <enumerator name="DiagCrossPattern" value="14"/>
+            <enumerator name="LinearGradientPattern" value="15"/>
+            <enumerator name="RadialGradientPattern" value="16"/>
+            <enumerator name="ConicalGradientPattern" value="17"/>
+            <enumerator name="TexturePattern" value="24"/>
+        </enum>
+        <enum name="SizeMode">
+            <enumerator name="AbsoluteSize" value="0"/>
+            <enumerator name="RelativeSize" value="1"/>
+        </enum>
+        <enum name="CursorShape">
+            <enumerator name="ArrowCursor" value="0"/>
+            <enumerator name="UpArrowCursor" value="1"/>
+            <enumerator name="CrossCursor" value="2"/>
+            <enumerator name="WaitCursor" value="3"/>
+            <enumerator name="IBeamCursor" value="4"/>
+            <enumerator name="SizeVerCursor" value="5"/>
+            <enumerator name="SizeHorCursor" value="6"/>
+            <enumerator name="SizeBDiagCursor" value="7"/>
+            <enumerator name="SizeFDiagCursor" value="8"/>
+            <enumerator name="SizeAllCursor" value="9"/>
+            <enumerator name="BlankCursor" value="10"/>
+            <enumerator name="SplitVCursor" value="11"/>
+            <enumerator name="SplitHCursor" value="12"/>
+            <enumerator name="PointingHandCursor" value="13"/>
+            <enumerator name="ForbiddenCursor" value="14"/>
+            <enumerator name="WhatsThisCursor" value="15"/>
+            <enumerator name="BusyCursor" value="16"/>
+            <enumerator name="OpenHandCursor" value="17"/>
+            <enumerator name="ClosedHandCursor" value="18"/>
+            <enumerator name="DragCopyCursor" value="19"/>
+            <enumerator name="DragMoveCursor" value="20"/>
+            <enumerator name="DragLinkCursor" value="21"/>
+            <enumerator name="LastCursor" value="21"/>
+            <enumerator name="BitmapCursor" value="24"/>
+            <enumerator name="CustomCursor" value="25"/>
+        </enum>
+        <enum name="TextFormat">
+            <enumerator name="PlainText" value="0"/>
+            <enumerator name="RichText" value="1"/>
+            <enumerator name="AutoText" value="2"/>
+            <enumerator name="LogText" value="3"/>
+        </enum>
+        <enum name="AspectRatioMode">
+            <enumerator name="IgnoreAspectRatio" value="0"/>
+            <enumerator name="KeepAspectRatio" value="1"/>
+            <enumerator name="KeepAspectRatioByExpanding" value="2"/>
+        </enum>
+        <enum name="DockWidgetArea">
+            <enumerator name="LeftDockWidgetArea" value="1"/>
+            <enumerator name="RightDockWidgetArea" value="2"/>
+            <enumerator name="TopDockWidgetArea" value="4"/>
+            <enumerator name="BottomDockWidgetArea" value="8"/>
+            <enumerator name="DockWidgetArea_Mask" value="15"/>
+            <enumerator name="AllDockWidgetAreas" value="15"/>
+            <enumerator name="NoDockWidgetArea" value="0"/>
+        </enum>
+        <enum name="DockWidgetAreas">
+            <enumerator name="LeftDockWidgetArea" value="1"/>
+            <enumerator name="RightDockWidgetArea" value="2"/>
+            <enumerator name="TopDockWidgetArea" value="4"/>
+            <enumerator name="BottomDockWidgetArea" value="8"/>
+            <enumerator name="DockWidgetArea_Mask" value="15"/>
+            <enumerator name="AllDockWidgetAreas" value="15"/>
+            <enumerator name="NoDockWidgetArea" value="0"/>
+        </enum>
+        <enum name="ToolBarArea">
+            <enumerator name="LeftToolBarArea" value="1"/>
+            <enumerator name="RightToolBarArea" value="2"/>
+            <enumerator name="TopToolBarArea" value="4"/>
+            <enumerator name="BottomToolBarArea" value="8"/>
+            <enumerator name="ToolBarArea_Mask" value="15"/>
+            <enumerator name="AllToolBarAreas" value="15"/>
+            <enumerator name="NoToolBarArea" value="0"/>
+        </enum>
+        <enum name="ToolBarAreas">
+            <enumerator name="LeftToolBarArea" value="1"/>
+            <enumerator name="RightToolBarArea" value="2"/>
+            <enumerator name="TopToolBarArea" value="4"/>
+            <enumerator name="BottomToolBarArea" value="8"/>
+            <enumerator name="ToolBarArea_Mask" value="15"/>
+            <enumerator name="AllToolBarAreas" value="15"/>
+            <enumerator name="NoToolBarArea" value="0"/>
+        </enum>
+        <enum name="DateFormat">
+            <enumerator name="TextDate" value="0"/>
+            <enumerator name="ISODate" value="1"/>
+            <enumerator name="SystemLocaleDate" value="2"/>
+            <enumerator name="LocalDate" value="2"/>
+            <enumerator name="LocaleDate" value="3"/>
+            <enumerator name="SystemLocaleShortDate" value="4"/>
+            <enumerator name="SystemLocaleLongDate" value="5"/>
+            <enumerator name="DefaultLocaleShortDate" value="6"/>
+            <enumerator name="DefaultLocaleLongDate" value="7"/>
+        </enum>
+        <enum name="TimeSpec">
+            <enumerator name="LocalTime" value="0"/>
+            <enumerator name="UTC" value="1"/>
+            <enumerator name="OffsetFromUTC" value="2"/>
+        </enum>
+        <enum name="DayOfWeek">
+            <enumerator name="Monday" value="1"/>
+            <enumerator name="Tuesday" value="2"/>
+            <enumerator name="Wednesday" value="3"/>
+            <enumerator name="Thursday" value="4"/>
+            <enumerator name="Friday" value="5"/>
+            <enumerator name="Saturday" value="6"/>
+            <enumerator name="Sunday" value="7"/>
+        </enum>
+        <enum name="ScrollBarPolicy">
+            <enumerator name="ScrollBarAsNeeded" value="0"/>
+            <enumerator name="ScrollBarAlwaysOff" value="1"/>
+            <enumerator name="ScrollBarAlwaysOn" value="2"/>
+        </enum>
+        <enum name="CaseSensitivity">
+            <enumerator name="CaseInsensitive" value="0"/>
+            <enumerator name="CaseSensitive" value="1"/>
+        </enum>
+        <enum name="Corner">
+            <enumerator name="TopLeftCorner" value="0"/>
+            <enumerator name="TopRightCorner" value="1"/>
+            <enumerator name="BottomLeftCorner" value="2"/>
+            <enumerator name="BottomRightCorner" value="3"/>
+        </enum>
+        <enum name="ConnectionType">
+            <enumerator name="AutoConnection" value="0"/>
+            <enumerator name="DirectConnection" value="1"/>
+            <enumerator name="QueuedConnection" value="2"/>
+            <enumerator name="AutoCompatConnection" value="3"/>
+            <enumerator name="BlockingQueuedConnection" value="4"/>
+            <enumerator name="UniqueConnection" value="128"/>
+        </enum>
+        <enum name="ShortcutContext">
+            <enumerator name="WidgetShortcut" value="0"/>
+            <enumerator name="WindowShortcut" value="1"/>
+            <enumerator name="ApplicationShortcut" value="2"/>
+            <enumerator name="WidgetWithChildrenShortcut" value="3"/>
+        </enum>
+        <enum name="FillRule">
+            <enumerator name="OddEvenFill" value="0"/>
+            <enumerator name="WindingFill" value="1"/>
+        </enum>
+        <enum name="MaskMode">
+            <enumerator name="MaskInColor" value="0"/>
+            <enumerator name="MaskOutColor" value="1"/>
+        </enum>
+        <enum name="ClipOperation">
+            <enumerator name="NoClip" value="0"/>
+            <enumerator name="ReplaceClip" value="1"/>
+            <enumerator name="IntersectClip" value="2"/>
+            <enumerator name="UniteClip" value="3"/>
+        </enum>
+        <enum name="ItemSelectionMode">
+            <enumerator name="ContainsItemShape" value="0"/>
+            <enumerator name="IntersectsItemShape" value="1"/>
+            <enumerator name="ContainsItemBoundingRect" value="2"/>
+            <enumerator name="IntersectsItemBoundingRect" value="3"/>
+        </enum>
+        <enum name="TransformationMode">
+            <enumerator name="FastTransformation" value="0"/>
+            <enumerator name="SmoothTransformation" value="1"/>
+        </enum>
+        <enum name="Axis">
+            <enumerator name="XAxis" value="0"/>
+            <enumerator name="YAxis" value="1"/>
+            <enumerator name="ZAxis" value="2"/>
+        </enum>
+        <enum name="ContextMenuPolicy">
+            <enumerator name="NoContextMenu" value="0"/>
+            <enumerator name="DefaultContextMenu" value="1"/>
+            <enumerator name="ActionsContextMenu" value="2"/>
+            <enumerator name="CustomContextMenu" value="3"/>
+            <enumerator name="PreventContextMenu" value="4"/>
+        </enum>
+        <enum name="InputMethodHint">
+            <enumerator name="ImhNone" value="0"/>
+            <enumerator name="ImhHiddenText" value="1"/>
+            <enumerator name="ImhNoAutoUppercase" value="2"/>
+            <enumerator name="ImhPreferNumbers" value="4"/>
+            <enumerator name="ImhPreferUppercase" value="8"/>
+            <enumerator name="ImhPreferLowercase" value="16"/>
+            <enumerator name="ImhNoPredictiveText" value="32"/>
+            <enumerator name="ImhDigitsOnly" value="65536"/>
+            <enumerator name="ImhFormattedNumbersOnly" value="131072"/>
+            <enumerator name="ImhUppercaseOnly" value="262144"/>
+            <enumerator name="ImhLowercaseOnly" value="524288"/>
+            <enumerator name="ImhDialableCharactersOnly" value="1048576"/>
+            <enumerator name="ImhEmailCharactersOnly" value="2097152"/>
+            <enumerator name="ImhUrlCharactersOnly" value="4194304"/>
+            <enumerator name="ImhExclusiveInputMask" value="-65536"/>
+        </enum>
+        <enum name="InputMethodHints">
+            <enumerator name="ImhNone" value="0"/>
+            <enumerator name="ImhHiddenText" value="1"/>
+            <enumerator name="ImhNoAutoUppercase" value="2"/>
+            <enumerator name="ImhPreferNumbers" value="4"/>
+            <enumerator name="ImhPreferUppercase" value="8"/>
+            <enumerator name="ImhPreferLowercase" value="16"/>
+            <enumerator name="ImhNoPredictiveText" value="32"/>
+            <enumerator name="ImhDigitsOnly" value="65536"/>
+            <enumerator name="ImhFormattedNumbersOnly" value="131072"/>
+            <enumerator name="ImhUppercaseOnly" value="262144"/>
+            <enumerator name="ImhLowercaseOnly" value="524288"/>
+            <enumerator name="ImhDialableCharactersOnly" value="1048576"/>
+            <enumerator name="ImhEmailCharactersOnly" value="2097152"/>
+            <enumerator name="ImhUrlCharactersOnly" value="4194304"/>
+            <enumerator name="ImhExclusiveInputMask" value="-65536"/>
+        </enum>
+        <enum name="ToolButtonStyle">
+            <enumerator name="ToolButtonIconOnly" value="0"/>
+            <enumerator name="ToolButtonTextOnly" value="1"/>
+            <enumerator name="ToolButtonTextBesideIcon" value="2"/>
+            <enumerator name="ToolButtonTextUnderIcon" value="3"/>
+            <enumerator name="ToolButtonFollowStyle" value="4"/>
+        </enum>
+        <enum name="LayoutDirection">
+            <enumerator name="LeftToRight" value="0"/>
+            <enumerator name="RightToLeft" value="1"/>
+        </enum>
+        <enum name="DropAction">
+            <enumerator name="CopyAction" value="1"/>
+            <enumerator name="MoveAction" value="2"/>
+            <enumerator name="LinkAction" value="4"/>
+            <enumerator name="ActionMask" value="255"/>
+            <enumerator name="TargetMoveAction" value="32770"/>
+            <enumerator name="IgnoreAction" value="0"/>
+        </enum>
+        <enum name="DropActions">
+            <enumerator name="CopyAction" value="1"/>
+            <enumerator name="MoveAction" value="2"/>
+            <enumerator name="LinkAction" value="4"/>
+            <enumerator name="ActionMask" value="255"/>
+            <enumerator name="TargetMoveAction" value="32770"/>
+            <enumerator name="IgnoreAction" value="0"/>
+        </enum>
+        <enum name="CheckState">
+            <enumerator name="Unchecked" value="0"/>
+            <enumerator name="PartiallyChecked" value="1"/>
+            <enumerator name="Checked" value="2"/>
+        </enum>
+        <enum name="ItemFlags">
+            <enumerator name="NoItemFlags" value="0"/>
+            <enumerator name="ItemIsSelectable" value="1"/>
+            <enumerator name="ItemIsEditable" value="2"/>
+            <enumerator name="ItemIsDragEnabled" value="4"/>
+            <enumerator name="ItemIsDropEnabled" value="8"/>
+            <enumerator name="ItemIsUserCheckable" value="16"/>
+            <enumerator name="ItemIsEnabled" value="32"/>
+            <enumerator name="ItemIsTristate" value="64"/>
+        </enum>
+        <enum name="MatchFlags">
+            <enumerator name="MatchExactly" value="0"/>
+            <enumerator name="MatchContains" value="1"/>
+            <enumerator name="MatchStartsWith" value="2"/>
+            <enumerator name="MatchEndsWith" value="3"/>
+            <enumerator name="MatchRegExp" value="4"/>
+            <enumerator name="MatchWildcard" value="5"/>
+            <enumerator name="MatchFixedString" value="8"/>
+            <enumerator name="MatchCaseSensitive" value="16"/>
+            <enumerator name="MatchWrap" value="32"/>
+            <enumerator name="MatchRecursive" value="64"/>
+        </enum>
+        <enum name="WindowModality">
+            <enumerator name="NonModal" value="0"/>
+            <enumerator name="WindowModal" value="1"/>
+            <enumerator name="ApplicationModal" value="2"/>
+        </enum>
+        <enum name="TextInteractionFlag">
+            <enumerator name="NoTextInteraction" value="0"/>
+            <enumerator name="TextSelectableByMouse" value="1"/>
+            <enumerator name="TextSelectableByKeyboard" value="2"/>
+            <enumerator name="LinksAccessibleByMouse" value="4"/>
+            <enumerator name="LinksAccessibleByKeyboard" value="8"/>
+            <enumerator name="TextEditable" value="16"/>
+            <enumerator name="TextEditorInteraction" value="19"/>
+            <enumerator name="TextBrowserInteraction" value="13"/>
+        </enum>
+        <enum name="TextInteractionFlags">
+            <enumerator name="NoTextInteraction" value="0"/>
+            <enumerator name="TextSelectableByMouse" value="1"/>
+            <enumerator name="TextSelectableByKeyboard" value="2"/>
+            <enumerator name="LinksAccessibleByMouse" value="4"/>
+            <enumerator name="LinksAccessibleByKeyboard" value="8"/>
+            <enumerator name="TextEditable" value="16"/>
+            <enumerator name="TextEditorInteraction" value="19"/>
+            <enumerator name="TextBrowserInteraction" value="13"/>
+        </enum>
+        <enum name="SizeHint">
+            <enumerator name="MinimumSize" value="0"/>
+            <enumerator name="PreferredSize" value="1"/>
+            <enumerator name="MaximumSize" value="2"/>
+            <enumerator name="MinimumDescent" value="3"/>
+            <enumerator name="NSizeHints" value="4"/>
+        </enum>
+    </type>
+    <type name="Qt.PathQuad" version="4.6" extends="QDeclarativeCurve">
+        <property name="controlX" type="qreal"/>
+        <property name="controlY" type="qreal"/>
+    </type>
+    <type name="Qt.ParticleMotionGravity" version="4.6" extends="Qt.ParticleMotion">
+        <property name="xattractor" type="qreal"/>
+        <property name="yattractor" type="qreal"/>
+        <property name="acceleration" type="qreal"/>
+        <signal name="xattractorChanged"/>
+        <signal name="yattractorChanged"/>
+        <signal name="accelerationChanged"/>
+    </type>
+    <type name="Qt.Column" version="4.6" extends="QDeclarativeBasePositioner"/>
+    <type name="QDeclarativePathElement" extends="Qt.QtObject">
+        <signal name="changed"/>
+    </type>
+    <type name="Qt.AnchorChanges" version="4.6" extends="QDeclarativeStateOperation">
+        <property name="target" type="Qt.Item"/>
+        <property name="reset" type="string"/>
+        <property name="left" type="QDeclarativeAnchorLine"/>
+        <property name="right" type="QDeclarativeAnchorLine"/>
+        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="top" type="QDeclarativeAnchorLine"/>
+        <property name="bottom" type="QDeclarativeAnchorLine"/>
+        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="baseline" type="QDeclarativeAnchorLine"/>
+    </type>
+    <type name="Qt.Component" version="4.6" extends="Qt.QtObject">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="isNull" type="bool"/>
+        <property name="isReady" type="bool"/>
+        <property name="isError" type="bool"/>
+        <property name="isLoading" type="bool"/>
+        <property name="progress" type="qreal"/>
+        <property name="status" type="Status"/>
+        <property name="url" type="QUrl"/>
+        <signal name="statusChanged">
+            <param type="QDeclarativeComponent.Status"/>
+        </signal>
+        <signal name="progressChanged">
+            <param type="qreal"/>
+        </signal>
+        <method name="errorsString" type="string"/>
+        <method name="createObject" type="QScriptValue"/>
+    </type>
+    <type name="QAction" extends="Qt.QtObject">
+        <enum name="MenuRole">
+            <enumerator name="NoRole" value="0"/>
+            <enumerator name="TextHeuristicRole" value="1"/>
+            <enumerator name="ApplicationSpecificRole" value="2"/>
+            <enumerator name="AboutQtRole" value="3"/>
+            <enumerator name="AboutRole" value="4"/>
+            <enumerator name="PreferencesRole" value="5"/>
+            <enumerator name="QuitRole" value="6"/>
+        </enum>
+        <enum name="SoftKeyRole">
+            <enumerator name="NoSoftKey" value="0"/>
+            <enumerator name="PositiveSoftKey" value="1"/>
+            <enumerator name="NegativeSoftKey" value="2"/>
+            <enumerator name="SelectSoftKey" value="3"/>
+        </enum>
+        <enum name="Priority">
+            <enumerator name="LowPriority" value="0"/>
+            <enumerator name="NormalPriority" value="128"/>
+            <enumerator name="HighPriority" value="256"/>
+        </enum>
+        <property name="checkable" type="bool"/>
+        <property name="checked" type="bool"/>
+        <property name="enabled" type="bool"/>
+        <property name="icon" type="QIcon"/>
+        <property name="text" type="string"/>
+        <property name="iconText" type="string"/>
+        <property name="toolTip" type="string"/>
+        <property name="statusTip" type="string"/>
+        <property name="whatsThis" type="string"/>
+        <property name="font" type="QFont"/>
+        <property name="shortcut" type="QKeySequence"/>
+        <property name="shortcutContext" type="Qt.ShortcutContext"/>
+        <property name="autoRepeat" type="bool"/>
+        <property name="visible" type="bool"/>
+        <property name="menuRole" type="MenuRole"/>
+        <property name="softKeyRole" type="SoftKeyRole"/>
+        <property name="iconVisibleInMenu" type="bool"/>
+        <property name="priority" type="Priority"/>
+        <signal name="changed"/>
+        <signal name="triggered">
+            <param name="checked" type="bool"/>
+        </signal>
+        <signal name="triggered"/>
+        <signal name="hovered"/>
+        <signal name="toggled">
+            <param type="bool"/>
+        </signal>
+        <method name="trigger"/>
+        <method name="hover"/>
+        <method name="setChecked">
+            <param type="bool"/>
+        </method>
+        <method name="toggle"/>
+        <method name="setEnabled">
+            <param type="bool"/>
+        </method>
+        <method name="setDisabled">
+            <param name="b" type="bool"/>
+        </method>
+        <method name="setVisible">
+            <param type="bool"/>
+        </method>
+    </type>
+    <type name="Qt.QtObject" version="4.6">
+        <property name="objectName" type="string"/>
+        <signal name="destroyed">
+            <param type="Qt.QtObject"/>
+        </signal>
+        <signal name="destroyed"/>
+        <method name="deleteLater"/>
+    </type>
+    <type name="Qt.WorkerListModel" version="4.6" extends="QListModelInterface">
+        <property name="count" type="int"/>
+        <signal name="countChanged"/>
+        <method name="clear"/>
+        <method name="remove">
+            <param name="index" type="int"/>
+        </method>
+        <method name="append">
+            <param type="QScriptValue"/>
+        </method>
+        <method name="insert">
+            <param name="index" type="int"/>
+            <param type="QScriptValue"/>
+        </method>
+        <method name="get" type="QScriptValue">
+            <param name="index" type="int"/>
+        </method>
+        <method name="set">
+            <param name="index" type="int"/>
+            <param type="QScriptValue"/>
+        </method>
+    </type>
+    <type name="QGraphicsObject" extends="Qt.QtObject">
+        <property name="parent" type="QGraphicsObject"/>
+        <property name="opacity" type="qreal"/>
+        <property name="enabled" type="bool"/>
+        <property name="visible" type="bool"/>
+        <property name="pos" type="QPointF"/>
+        <property name="x" type="qreal"/>
+        <property name="y" type="qreal"/>
+        <property name="z" type="qreal"/>
+        <property name="rotation" type="qreal"/>
+        <property name="scale" type="qreal"/>
+        <property name="transformOriginPoint" type="QPointF"/>
+        <signal name="parentChanged"/>
+        <signal name="opacityChanged"/>
+        <signal name="visibleChanged"/>
+        <signal name="enabledChanged"/>
+        <signal name="xChanged"/>
+        <signal name="yChanged"/>
+        <signal name="zChanged"/>
+        <signal name="rotationChanged"/>
+        <signal name="scaleChanged"/>
+    </type>
+    <type name="Qt.Gradient" version="4.6" extends="Qt.QtObject">
+        <property name="stops" type="Qt.GradientStop" isList="true"/>
+        <signal name="updated"/>
+    </type>
+    <type name="Qt.VisualDataModel" version="4.6" extends="QDeclarativeVisualModel">
+        <property name="model" type="QVariant"/>
+        <property name="delegate" type="Qt.Component"/>
+        <property name="part" type="string"/>
+        <property name="parts" type="Qt.QtObject"/>
+        <property name="rootIndex" type="QModelIndex"/>
+        <signal name="createdPackage">
+            <param name="index" type="int"/>
+            <param name="package" type="Qt.Package"/>
+        </signal>
+        <signal name="destroyingPackage">
+            <param name="package" type="Qt.Package"/>
+        </signal>
+        <signal name="rootIndexChanged"/>
+    </type>
+    <type name="Qt.Keys" version="4.6" extends="Qt.QtObject">
+        <property name="enabled" type="bool"/>
+        <property name="forwardTo" type="Qt.Item" isList="true"/>
+        <signal name="enabledChanged"/>
+        <signal name="pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="released">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit0Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit1Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit2Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit3Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit4Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit5Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit6Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit7Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit8Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="digit9Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="leftPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="rightPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="upPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="downPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="asteriskPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="numberSignPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="escapePressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="returnPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="enterPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="deletePressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="spacePressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="backPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="cancelPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="selectPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="yesPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="noPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="context1Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="context2Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="context3Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="context4Pressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="callPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="hangupPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="flipPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="menuPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="volumeUpPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+        <signal name="volumeDownPressed">
+            <param name="event" type="QDeclarativeKeyEvent"/>
+        </signal>
+    </type>
+    <type name="QGraphicsTransform" extends="Qt.QtObject"/>
+    <type name="Qt.Transition" version="4.6" extends="Qt.QtObject">
+        <property name="from" type="string"/>
+        <property name="to" type="string"/>
+        <property name="reversible" type="bool"/>
+        <property name="animations" type="QDeclarativeAbstractAnimation" isList="true"/>
+    </type>
+    <type name="Qt.QDoubleValidator" version="4.7" extends="QValidator">
+        <enum name="Notation">
+            <enumerator name="StandardNotation" value="0"/>
+            <enumerator name="ScientificNotation" value="1"/>
+        </enum>
+        <property name="bottom" type="double"/>
+        <property name="top" type="double"/>
+        <property name="decimals" type="int"/>
+        <property name="notation" type="Notation"/>
+    </type>
+    <type name="QDeclarativeWebSettings" extends="Qt.QtObject">
+        <property name="standardFontFamily" type="string"/>
+        <property name="fixedFontFamily" type="string"/>
+        <property name="serifFontFamily" type="string"/>
+        <property name="sansSerifFontFamily" type="string"/>
+        <property name="cursiveFontFamily" type="string"/>
+        <property name="fantasyFontFamily" type="string"/>
+        <property name="minimumFontSize" type="int"/>
+        <property name="minimumLogicalFontSize" type="int"/>
+        <property name="defaultFontSize" type="int"/>
+        <property name="defaultFixedFontSize" type="int"/>
+        <property name="autoLoadImages" type="bool"/>
+        <property name="javascriptEnabled" type="bool"/>
+        <property name="javaEnabled" type="bool"/>
+        <property name="pluginsEnabled" type="bool"/>
+        <property name="privateBrowsingEnabled" type="bool"/>
+        <property name="javascriptCanOpenWindows" type="bool"/>
+        <property name="javascriptCanAccessClipboard" type="bool"/>
+        <property name="developerExtrasEnabled" type="bool"/>
+        <property name="linksIncludedInFocusChain" type="bool"/>
+        <property name="zoomTextOnly" type="bool"/>
+        <property name="printElementBackgrounds" type="bool"/>
+        <property name="offlineStorageDatabaseEnabled" type="bool"/>
+        <property name="offlineWebApplicationCacheEnabled" type="bool"/>
+        <property name="localStorageDatabaseEnabled" type="bool"/>
+        <property name="localContentCanAccessRemoteUrls" type="bool"/>
+    </type>
+    <type name="Qt.GridView" version="4.6" extends="Qt.Flickable">
+        <enum name="Flow">
+            <enumerator name="LeftToRight" value="0"/>
+            <enumerator name="TopToBottom" value="1"/>
+        </enum>
+        <property name="model" type="QVariant"/>
+        <property name="delegate" type="Qt.Component"/>
+        <property name="currentIndex" type="int"/>
+        <property name="currentItem" type="Qt.Item"/>
+        <property name="count" type="int"/>
+        <property name="highlight" type="Qt.Component"/>
+        <property name="highlightItem" type="Qt.Item"/>
+        <property name="highlightFollowsCurrentItem" type="bool"/>
+        <property name="flow" type="Flow"/>
+        <property name="keyNavigationWraps" type="bool"/>
+        <property name="cacheBuffer" type="int"/>
+        <property name="cellWidth" type="int"/>
+        <property name="cellHeight" type="int"/>
+        <signal name="countChanged"/>
+        <signal name="currentIndexChanged"/>
+        <signal name="cellWidthChanged"/>
+        <signal name="cellHeightChanged"/>
+        <signal name="highlightChanged"/>
+        <method name="moveCurrentIndexUp"/>
+        <method name="moveCurrentIndexDown"/>
+        <method name="moveCurrentIndexLeft"/>
+        <method name="moveCurrentIndexRight"/>
+        <method name="positionViewAtIndex">
+            <param name="index" type="int"/>
+        </method>
+    </type>
+    <type name="Qt.DropShadow" version="4.6" extends="QGraphicsEffect">
+        <property name="offset" type="QPointF"/>
+        <property name="xOffset" type="qreal"/>
+        <property name="yOffset" type="qreal"/>
+        <property name="blurRadius" type="qreal"/>
+        <property name="color" type="QColor"/>
+        <signal name="offsetChanged">
+            <param name="offset" type="QPointF"/>
+        </signal>
+        <signal name="blurRadiusChanged">
+            <param name="blurRadius" type="qreal"/>
+        </signal>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <method name="setOffset">
+            <param name="ofs" type="QPointF"/>
+        </method>
+        <method name="setOffset">
+            <param name="dx" type="qreal"/>
+            <param name="dy" type="qreal"/>
+        </method>
+        <method name="setOffset">
+            <param name="d" type="qreal"/>
+        </method>
+        <method name="setXOffset">
+            <param name="dx" type="qreal"/>
+        </method>
+        <method name="setYOffset">
+            <param name="dy" type="qreal"/>
+        </method>
+        <method name="setBlurRadius">
+            <param name="blurRadius" type="qreal"/>
+        </method>
+        <method name="setColor">
+            <param name="color" type="QColor"/>
+        </method>
+    </type>
+    <type name="Qt.SystemPalette" version="4.6" extends="Qt.QtObject">
+        <enum name="ColorGroup">
+            <enumerator name="Active" value="0"/>
+            <enumerator name="Inactive" value="2"/>
+            <enumerator name="Disabled" value="1"/>
+        </enum>
+        <property name="colorGroup" type="QDeclarativeSystemPalette.ColorGroup"/>
+        <property name="window" type="QColor"/>
+        <property name="windowText" type="QColor"/>
+        <property name="base" type="QColor"/>
+        <property name="text" type="QColor"/>
+        <property name="alternateBase" type="QColor"/>
+        <property name="button" type="QColor"/>
+        <property name="buttonText" type="QColor"/>
+        <property name="light" type="QColor"/>
+        <property name="midlight" type="QColor"/>
+        <property name="dark" type="QColor"/>
+        <property name="mid" type="QColor"/>
+        <property name="shadow" type="QColor"/>
+        <property name="highlight" type="QColor"/>
+        <property name="highlightedText" type="QColor"/>
+        <signal name="paletteChanged"/>
+    </type>
+    <type name="Qt.Flickable" version="4.6" extends="Qt.Item">
+        <enum name="FlickDirection">
+            <enumerator name="AutoFlickDirection" value="0"/>
+            <enumerator name="HorizontalFlick" value="1"/>
+            <enumerator name="VerticalFlick" value="2"/>
+            <enumerator name="HorizontalAndVerticalFlick" value="3"/>
+        </enum>
+        <property name="viewportWidth" type="qreal"/>
+        <property name="viewportHeight" type="qreal"/>
+        <property name="viewportX" type="qreal"/>
+        <property name="viewportY" type="qreal"/>
+        <property name="horizontalVelocity" type="qreal"/>
+        <property name="verticalVelocity" type="qreal"/>
+        <property name="reportedVelocitySmoothing" type="qreal"/>
+        <property name="overShoot" type="bool"/>
+        <property name="maximumFlickVelocity" type="qreal"/>
+        <property name="flickDeceleration" type="qreal"/>
+        <property name="moving" type="bool"/>
+        <property name="flicking" type="bool"/>
+        <property name="flickDirection" type="FlickDirection"/>
+        <property name="interactive" type="bool"/>
+        <property name="pressDelay" type="int"/>
+        <property name="atXEnd" type="bool"/>
+        <property name="atYEnd" type="bool"/>
+        <property name="atXBeginning" type="bool"/>
+        <property name="atYBeginning" type="bool"/>
+        <property name="visibleArea" type="Qt.VisibleArea"/>
+        <property name="flickableData" type="Qt.QtObject" isList="true"/>
+        <property name="flickableChildren" type="Qt.Item" isList="true"/>
+        <signal name="viewportWidthChanged"/>
+        <signal name="viewportHeightChanged"/>
+        <signal name="positionXChanged"/>
+        <signal name="positionYChanged"/>
+        <signal name="movingChanged"/>
+        <signal name="flickingChanged"/>
+        <signal name="movementStarted"/>
+        <signal name="movementEnded"/>
+        <signal name="flickStarted"/>
+        <signal name="flickEnded"/>
+        <signal name="reportedVelocitySmoothingChanged">
+            <param type="int"/>
+        </signal>
+        <signal name="horizontalVelocityChanged"/>
+        <signal name="verticalVelocityChanged"/>
+        <signal name="isAtBoundaryChanged"/>
+        <signal name="pageChanged"/>
+        <signal name="flickDirectionChanged"/>
+        <signal name="interactiveChanged"/>
+        <signal name="overShootChanged"/>
+        <signal name="maximumFlickVelocityChanged"/>
+        <signal name="flickDecelerationChanged"/>
+        <signal name="pressDelayChanged"/>
+    </type>
+    <type name="Qt.SequentialAnimation" version="4.6" extends="QDeclarativeAnimationGroup"/>
+    <type name="Qt.Drag" version="4.6" extends="Qt.QtObject">
+        <enum name="Axis">
+            <enumerator name="XAxis" value="1"/>
+            <enumerator name="YAxis" value="2"/>
+            <enumerator name="XandYAxis" value="3"/>
+        </enum>
+        <property name="target" type="Qt.Item"/>
+        <property name="axis" type="Axis"/>
+        <property name="minimumX" type="qreal"/>
+        <property name="maximumX" type="qreal"/>
+        <property name="minimumY" type="qreal"/>
+        <property name="maximumY" type="qreal"/>
+        <signal name="targetChanged"/>
+        <signal name="axisChanged"/>
+        <signal name="minimumXChanged"/>
+        <signal name="maximumXChanged"/>
+        <signal name="minimumYChanged"/>
+        <signal name="maximumYChanged"/>
+    </type>
+    <type name="Qt.ListView" version="4.6" extends="Qt.Flickable">
+        <enum name="HighlightRangeMode">
+            <enumerator name="NoHighlightRange" value="0"/>
+            <enumerator name="ApplyRange" value="1"/>
+            <enumerator name="StrictlyEnforceRange" value="2"/>
+        </enum>
+        <enum name="Orientation">
+            <enumerator name="Horizontal" value="1"/>
+            <enumerator name="Vertical" value="2"/>
+        </enum>
+        <enum name="SnapMode">
+            <enumerator name="NoSnap" value="0"/>
+            <enumerator name="SnapToItem" value="1"/>
+            <enumerator name="SnapOneItem" value="2"/>
+        </enum>
+        <property name="model" type="QVariant"/>
+        <property name="delegate" type="Qt.Component"/>
+        <property name="currentIndex" type="int"/>
+        <property name="currentItem" type="Qt.Item"/>
+        <property name="count" type="int"/>
+        <property name="highlight" type="Qt.Component"/>
+        <property name="highlightItem" type="Qt.Item"/>
+        <property name="highlightFollowsCurrentItem" type="bool"/>
+        <property name="highlightMoveSpeed" type="qreal"/>
+        <property name="highlightResizeSpeed" type="qreal"/>
+        <property name="preferredHighlightBegin" type="qreal"/>
+        <property name="preferredHighlightEnd" type="qreal"/>
+        <property name="highlightRangeMode" type="HighlightRangeMode"/>
+        <property name="spacing" type="qreal"/>
+        <property name="orientation" type="Orientation"/>
+        <property name="keyNavigationWraps" type="bool"/>
+        <property name="cacheBuffer" type="int"/>
+        <property name="section" type="Qt.ViewSection"/>
+        <property name="currentSection" type="string"/>
+        <property name="snapMode" type="SnapMode"/>
+        <property name="header" type="Qt.Component"/>
+        <property name="footer" type="Qt.Component"/>
+        <signal name="countChanged"/>
+        <signal name="spacingChanged"/>
+        <signal name="orientationChanged"/>
+        <signal name="currentIndexChanged"/>
+        <signal name="currentSectionChanged"/>
+        <signal name="highlightMoveSpeedChanged"/>
+        <signal name="highlightResizeSpeedChanged"/>
+        <signal name="highlightChanged"/>
+        <method name="incrementCurrentIndex"/>
+        <method name="decrementCurrentIndex"/>
+        <method name="positionViewAtIndex">
+            <param name="index" type="int"/>
+        </method>
+    </type>
+    <type name="Qt.NumberAnimation" version="4.6" extends="Qt.PropertyAnimation">
+        <property name="from" type="qreal"/>
+        <property name="to" type="qreal"/>
+    </type>
+    <type name="Qt.Image" version="4.6" extends="QDeclarativeImageBase">
+        <enum name="FillMode">
+            <enumerator name="Stretch" value="0"/>
+            <enumerator name="PreserveAspectFit" value="1"/>
+            <enumerator name="PreserveAspectCrop" value="2"/>
+            <enumerator name="Tile" value="3"/>
+            <enumerator name="TileVertically" value="4"/>
+            <enumerator name="TileHorizontally" value="5"/>
+        </enum>
+        <property name="pixmap" type="QPixmap"/>
+        <property name="fillMode" type="FillMode"/>
+        <property name="paintedWidth" type="qreal"/>
+        <property name="paintedHeight" type="qreal"/>
+        <signal name="fillModeChanged"/>
+        <signal name="paintedGeometryChanged"/>
+    </type>
+    <type name="Qt.PropertyAction" version="4.6" extends="QDeclarativeAbstractAnimation">
+        <property name="target" type="Qt.QtObject"/>
+        <property name="property" type="string"/>
+        <property name="properties" type="string"/>
+        <property name="targets" type="Qt.QtObject" isList="true"/>
+        <property name="exclude" type="Qt.QtObject" isList="true"/>
+        <property name="value" type="QVariant"/>
+        <signal name="valueChanged">
+            <param type="QVariant"/>
+        </signal>
+        <signal name="propertiesChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="targetChanged">
+            <param type="Qt.QtObject"/>
+            <param type="string"/>
+        </signal>
+    </type>
+    <type name="Qt.LayoutItem" version="4.6" extends="Qt.Item">
+        <property name="maximumSize" type="QSizeF"/>
+        <property name="minimumSize" type="QSizeF"/>
+        <property name="preferredSize" type="QSizeF"/>
+        <signal name="maximumSizeChanged"/>
+        <signal name="minimumSizeChanged"/>
+        <signal name="preferredSizeChanged"/>
+    </type>
+    <type name="Qt.ParticleMotionWander" version="4.6" extends="Qt.ParticleMotion">
+        <property name="xvariance" type="qreal"/>
+        <property name="yvariance" type="qreal"/>
+        <property name="pace" type="qreal"/>
+        <signal name="xvarianceChanged"/>
+        <signal name="yvarianceChanged"/>
+        <signal name="paceChanged"/>
+    </type>
+    <type name="Qt.Row" version="4.6" extends="QDeclarativeBasePositioner"/>
+    <type name="Qt.PathCubic" version="4.6" extends="QDeclarativeCurve">
+        <property name="control1X" type="qreal"/>
+        <property name="control1Y" type="qreal"/>
+        <property name="control2X" type="qreal"/>
+        <property name="control2Y" type="qreal"/>
+    </type>
+    <type name="Qt.TextInput" version="4.6" extends="QDeclarativePaintedItem">
+        <enum name="EchoMode">
+            <enumerator name="Normal" value="0"/>
+            <enumerator name="NoEcho" value="1"/>
+            <enumerator name="Password" value="2"/>
+            <enumerator name="PasswordEchoOnEdit" value="3"/>
+        </enum>
+        <enum name="HAlignment">
+            <enumerator name="AlignLeft" value="1"/>
+            <enumerator name="AlignRight" value="2"/>
+            <enumerator name="AlignHCenter" value="4"/>
+        </enum>
+        <property name="text" type="string"/>
+        <property name="color" type="QColor"/>
+        <property name="selectionColor" type="QColor"/>
+        <property name="selectedTextColor" type="QColor"/>
+        <property name="font" type="QFont"/>
+        <property name="horizontalAlignment" type="HAlignment"/>
+        <property name="readOnly" type="bool"/>
+        <property name="cursorVisible" type="bool"/>
+        <property name="cursorPosition" type="int"/>
+        <property name="cursorRect" type="QRect"/>
+        <property name="cursorDelegate" type="Qt.Component"/>
+        <property name="selectionStart" type="int"/>
+        <property name="selectionEnd" type="int"/>
+        <property name="selectedText" type="string"/>
+        <property name="maximumLength" type="int"/>
+        <property name="validator" type="QValidator"/>
+        <property name="inputMask" type="string"/>
+        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
+        <property name="acceptableInput" type="bool"/>
+        <property name="echoMode" type="EchoMode"/>
+        <property name="focusOnPress" type="bool"/>
+        <signal name="textChanged"/>
+        <signal name="cursorPositionChanged"/>
+        <signal name="selectionStartChanged"/>
+        <signal name="selectionEndChanged"/>
+        <signal name="selectedTextChanged"/>
+        <signal name="accepted"/>
+        <signal name="acceptableInputChanged"/>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="selectionColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="selectedTextColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="fontChanged">
+            <param name="font" type="QFont"/>
+        </signal>
+        <signal name="horizontalAlignmentChanged">
+            <param name="alignment" type="HAlignment"/>
+        </signal>
+        <signal name="readOnlyChanged">
+            <param name="isReadOnly" type="bool"/>
+        </signal>
+        <signal name="cursorVisibleChanged">
+            <param name="isCursorVisible" type="bool"/>
+        </signal>
+        <signal name="cursorDelegateChanged"/>
+        <signal name="maximumLengthChanged">
+            <param name="maximumLength" type="int"/>
+        </signal>
+        <signal name="validatorChanged"/>
+        <signal name="inputMaskChanged">
+            <param name="inputMask" type="string"/>
+        </signal>
+        <signal name="echoModeChanged">
+            <param name="echoMode" type="EchoMode"/>
+        </signal>
+        <signal name="focusOnPressChanged">
+            <param name="focusOnPress" type="bool"/>
+        </signal>
+        <method name="selectAll"/>
+        <method name="xToPos" type="int">
+            <param name="x" type="int"/>
+        </method>
+    </type>
+    <type name="Qt.Flipable" version="4.6" extends="Qt.Item">
+        <enum name="Side">
+            <enumerator name="Front" value="0"/>
+            <enumerator name="Back" value="1"/>
+        </enum>
+        <property name="front" type="Qt.Item"/>
+        <property name="back" type="Qt.Item"/>
+        <property name="side" type="Side"/>
+        <signal name="sideChanged"/>
+    </type>
+    <type name="Qt.PathAttribute" version="4.6" extends="QDeclarativePathElement">
+        <property name="name" type="string"/>
+        <property name="value" type="qreal"/>
+    </type>
+    <type name="QDeclarativeVisualDataModelParts" extends="Qt.QtObject"/>
+    <type name="Qt.NumberFormatter" version="4.6" extends="Qt.QtObject">
+        <property name="text" type="string"/>
+        <property name="format" type="string"/>
+        <property name="number" type="qreal"/>
+        <signal name="textChanged"/>
+    </type>
+    <type name="Qt.XmlListModel" version="4.6" extends="QListModelInterface">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="status" type="Status"/>
+        <property name="progress" type="qreal"/>
+        <property name="source" type="QUrl"/>
+        <property name="xml" type="string"/>
+        <property name="query" type="string"/>
+        <property name="namespaceDeclarations" type="string"/>
+        <property name="roles" type="Qt.XmlRole" isList="true"/>
+        <property name="count" type="int"/>
+        <signal name="statusChanged">
+            <param type="Status"/>
+        </signal>
+        <signal name="progressChanged">
+            <param name="progress" type="qreal"/>
+        </signal>
+        <signal name="countChanged"/>
+        <method name="reload"/>
+    </type>
+    <type name="Qt.Rectangle" version="4.6" extends="Qt.Item">
+        <property name="color" type="QColor"/>
+        <property name="gradient" type="Qt.Gradient"/>
+        <property name="border" type="Qt.Pen"/>
+        <property name="radius" type="qreal"/>
+        <signal name="colorChanged"/>
+        <signal name="radiusChanged"/>
+    </type>
+    <type name="Qt.WebView" version="4.6" extends="QDeclarativePaintedItem">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="title" type="string"/>
+        <property name="icon" type="QPixmap"/>
+        <property name="zoomFactor" type="qreal"/>
+        <property name="statusText" type="string"/>
+        <property name="html" type="string"/>
+        <property name="pressGrabTime" type="int"/>
+        <property name="preferredWidth" type="int"/>
+        <property name="preferredHeight" type="int"/>
+        <property name="url" type="QUrl"/>
+        <property name="progress" type="qreal"/>
+        <property name="status" type="Status"/>
+        <property name="reload" type="QAction"/>
+        <property name="back" type="QAction"/>
+        <property name="forward" type="QAction"/>
+        <property name="stop" type="QAction"/>
+        <property name="settings" type="QDeclarativeWebSettings"/>
+        <property name="javaScriptWindowObjects" type="Qt.QtObject" isList="true"/>
+        <property name="newWindowComponent" type="Qt.Component"/>
+        <property name="newWindowParent" type="Qt.Item"/>
+        <property name="renderingEnabled" type="bool"/>
+        <signal name="preferredWidthChanged"/>
+        <signal name="preferredHeightChanged"/>
+        <signal name="urlChanged"/>
+        <signal name="progressChanged"/>
+        <signal name="statusChanged">
+            <param type="Status"/>
+        </signal>
+        <signal name="titleChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="iconChanged"/>
+        <signal name="statusTextChanged"/>
+        <signal name="htmlChanged"/>
+        <signal name="pressGrabTimeChanged"/>
+        <signal name="zoomFactorChanged"/>
+        <signal name="newWindowComponentChanged"/>
+        <signal name="newWindowParentChanged"/>
+        <signal name="renderingEnabledChanged"/>
+        <signal name="loadStarted"/>
+        <signal name="loadFinished"/>
+        <signal name="loadFailed"/>
+        <signal name="doubleClick">
+            <param name="clickX" type="int"/>
+            <param name="clickY" type="int"/>
+        </signal>
+        <signal name="zoomTo">
+            <param name="zoom" type="qreal"/>
+            <param name="centerX" type="int"/>
+            <param name="centerY" type="int"/>
+        </signal>
+        <signal name="alert">
+            <param name="message" type="string"/>
+        </signal>
+        <method name="evaluateJavaScript" type="QVariant">
+            <param type="string"/>
+        </method>
+        <method name="heuristicZoom" type="bool">
+            <param name="clickX" type="int"/>
+            <param name="clickY" type="int"/>
+            <param name="maxzoom" type="qreal"/>
+        </method>
+    </type>
+    <type name="QDeclarativeImageBase" extends="Qt.Item">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="status" type="Status"/>
+        <property name="source" type="QUrl"/>
+        <property name="progress" type="qreal"/>
+        <property name="asynchronous" type="bool"/>
+        <signal name="sourceChanged">
+            <param type="QUrl"/>
+        </signal>
+        <signal name="statusChanged">
+            <param type="Status"/>
+        </signal>
+        <signal name="progressChanged">
+            <param name="progress" type="qreal"/>
+        </signal>
+        <signal name="pixmapChanged"/>
+        <signal name="asynchronousChanged"/>
+    </type>
+    <type name="Qt.Connection" version="4.6" extends="Qt.QtObject">
+        <property name="sender" type="Qt.QtObject"/>
+        <property name="script" type="QDeclarativeScriptString"/>
+        <property name="signal" type="string"/>
+    </type>
+    <type name="Qt.Scale" version="4.6" extends="QGraphicsTransform">
+        <property name="origin" type="QVector3D"/>
+        <property name="xScale" type="qreal"/>
+        <property name="yScale" type="qreal"/>
+        <property name="zScale" type="qreal"/>
+        <signal name="originChanged"/>
+        <signal name="scaleChanged"/>
+    </type>
+    <type name="Qt.TextEdit" version="4.6" extends="QDeclarativePaintedItem">
+        <enum name="HAlignment">
+            <enumerator name="AlignLeft" value="1"/>
+            <enumerator name="AlignRight" value="2"/>
+            <enumerator name="AlignHCenter" value="4"/>
+        </enum>
+        <enum name="VAlignment">
+            <enumerator name="AlignTop" value="32"/>
+            <enumerator name="AlignBottom" value="64"/>
+            <enumerator name="AlignVCenter" value="128"/>
+        </enum>
+        <enum name="TextFormat">
+            <enumerator name="PlainText" value="0"/>
+            <enumerator name="RichText" value="1"/>
+            <enumerator name="AutoText" value="2"/>
+        </enum>
+        <property name="text" type="string"/>
+        <property name="color" type="QColor"/>
+        <property name="selectionColor" type="QColor"/>
+        <property name="selectedTextColor" type="QColor"/>
+        <property name="font" type="QFont"/>
+        <property name="horizontalAlignment" type="HAlignment"/>
+        <property name="verticalAlignment" type="VAlignment"/>
+        <property name="wrap" type="bool"/>
+        <property name="textFormat" type="TextFormat"/>
+        <property name="readOnly" type="bool"/>
+        <property name="cursorVisible" type="bool"/>
+        <property name="cursorPosition" type="int"/>
+        <property name="cursorDelegate" type="Qt.Component"/>
+        <property name="selectionStart" type="int"/>
+        <property name="selectionEnd" type="int"/>
+        <property name="selectedText" type="string"/>
+        <property name="focusOnPress" type="bool"/>
+        <property name="persistentSelection" type="bool"/>
+        <property name="textMargin" type="qreal"/>
+        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
+        <signal name="textChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="cursorPositionChanged"/>
+        <signal name="selectionStartChanged"/>
+        <signal name="selectionEndChanged"/>
+        <signal name="selectionChanged"/>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="selectionColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="selectedTextColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="fontChanged">
+            <param name="font" type="QFont"/>
+        </signal>
+        <signal name="horizontalAlignmentChanged">
+            <param name="alignment" type="HAlignment"/>
+        </signal>
+        <signal name="verticalAlignmentChanged">
+            <param name="alignment" type="VAlignment"/>
+        </signal>
+        <signal name="wrapChanged">
+            <param name="isWrapped" type="bool"/>
+        </signal>
+        <signal name="textFormatChanged">
+            <param name="textFormat" type="TextFormat"/>
+        </signal>
+        <signal name="readOnlyChanged">
+            <param name="isReadOnly" type="bool"/>
+        </signal>
+        <signal name="cursorVisibleChanged">
+            <param name="isCursorVisible" type="bool"/>
+        </signal>
+        <signal name="cursorDelegateChanged"/>
+        <signal name="focusOnPressChanged">
+            <param name="focusIsPressed" type="bool"/>
+        </signal>
+        <signal name="persistentSelectionChanged">
+            <param name="isPersistentSelection" type="bool"/>
+        </signal>
+        <signal name="textMarginChanged">
+            <param name="textMargin" type="qreal"/>
+        </signal>
+        <method name="selectAll"/>
+    </type>
+    <type name="Qt.QRegExpValidator" version="4.7" extends="QValidator">
+        <property name="regExp" type="QRegExp"/>
+    </type>
+    <type name="Qt.Opacity" version="4.6" extends="QGraphicsEffect">
+        <property name="opacity" type="qreal"/>
+        <property name="opacityMask" type="QBrush"/>
+        <signal name="opacityChanged">
+            <param name="opacity" type="qreal"/>
+        </signal>
+        <signal name="opacityMaskChanged">
+            <param name="mask" type="QBrush"/>
+        </signal>
+        <method name="setOpacity">
+            <param name="opacity" type="qreal"/>
+        </method>
+        <method name="setOpacityMask">
+            <param name="mask" type="QBrush"/>
+        </method>
+    </type>
+    <type name="QGraphicsEffect" extends="Qt.QtObject">
+        <enum name="ChangeFlags">
+            <enumerator name="SourceAttached" value="1"/>
+            <enumerator name="SourceDetached" value="2"/>
+            <enumerator name="SourceBoundingRectChanged" value="4"/>
+            <enumerator name="SourceInvalidated" value="8"/>
+        </enum>
+        <property name="enabled" type="bool"/>
+        <signal name="enabledChanged">
+            <param name="enabled" type="bool"/>
+        </signal>
+        <method name="setEnabled">
+            <param name="enable" type="bool"/>
+        </method>
+        <method name="update"/>
+    </type>
+    <type name="Qt.MouseArea" version="4.6" extends="Qt.Item">
+        <property name="mouseX" type="qreal"/>
+        <property name="mouseY" type="qreal"/>
+        <property name="containsMouse" type="bool"/>
+        <property name="pressed" type="bool"/>
+        <property name="enabled" type="bool"/>
+        <property name="pressedButtons" type="Qt.MouseButtons"/>
+        <property name="acceptedButtons" type="Qt.MouseButtons"/>
+        <property name="hoverEnabled" type="bool"/>
+        <property name="drag" type="Qt.Drag"/>
+        <signal name="hoveredChanged"/>
+        <signal name="pressedChanged"/>
+        <signal name="enabledChanged"/>
+        <signal name="acceptedButtonsChanged"/>
+        <signal name="positionChanged">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="pressed">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="pressAndHold">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="released">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="clicked">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="doubleClicked">
+            <param name="mouse" type="QDeclarativeMouseEvent"/>
+        </signal>
+        <signal name="entered"/>
+        <signal name="exited"/>
+    </type>
+    <type name="Qt.ParallelAnimation" version="4.6" extends="QDeclarativeAnimationGroup"/>
+    <type name="Qt.Item" version="4.6" extends="QGraphicsObject">
+        <enum name="TransformOrigin">
+            <enumerator name="TopLeft" value="0"/>
+            <enumerator name="Top" value="1"/>
+            <enumerator name="TopRight" value="2"/>
+            <enumerator name="Left" value="3"/>
+            <enumerator name="Center" value="4"/>
+            <enumerator name="Right" value="5"/>
+            <enumerator name="BottomLeft" value="6"/>
+            <enumerator name="Bottom" value="7"/>
+            <enumerator name="BottomRight" value="8"/>
+        </enum>
+        <property name="parent" type="Qt.Item"/>
+        <property name="data" type="Qt.QtObject" isList="true"/>
+        <property name="children" type="Qt.Item" isList="true"/>
+        <property name="resources" type="Qt.QtObject" isList="true"/>
+        <property name="states" type="Qt.State" isList="true"/>
+        <property name="transitions" type="Qt.Transition" isList="true"/>
+        <property name="state" type="string"/>
+        <property name="width" type="qreal"/>
+        <property name="height" type="qreal"/>
+        <property name="childrenRect" type="QRectF"/>
+        <property name="anchors" type="QDeclarativeAnchors"/>
+        <property name="left" type="QDeclarativeAnchorLine"/>
+        <property name="right" type="QDeclarativeAnchorLine"/>
+        <property name="horizontalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="top" type="QDeclarativeAnchorLine"/>
+        <property name="bottom" type="QDeclarativeAnchorLine"/>
+        <property name="verticalCenter" type="QDeclarativeAnchorLine"/>
+        <property name="baseline" type="QDeclarativeAnchorLine"/>
+        <property name="baselineOffset" type="qreal"/>
+        <property name="clip" type="bool"/>
+        <property name="focus" type="bool"/>
+        <property name="wantsFocus" type="bool"/>
+        <property name="transform" type="QGraphicsTransform" isList="true"/>
+        <property name="transformOrigin" type="TransformOrigin"/>
+        <property name="smooth" type="bool"/>
+        <property name="effect" type="QGraphicsEffect"/>
+        <signal name="widthChanged"/>
+        <signal name="heightChanged"/>
+        <signal name="childrenChanged"/>
+        <signal name="childrenRectChanged"/>
+        <signal name="baselineOffsetChanged"/>
+        <signal name="stateChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="focusChanged"/>
+        <signal name="wantsFocusChanged"/>
+        <signal name="parentChanged"/>
+        <signal name="transformOriginChanged">
+            <param type="TransformOrigin"/>
+        </signal>
+        <signal name="smoothChanged"/>
+        <signal name="clipChanged"/>
+    </type>
+    <type name="Qt.Vector3dAnimation" version="4.6" extends="Qt.PropertyAnimation">
+        <property name="from" type="QVector3D"/>
+        <property name="to" type="QVector3D"/>
+    </type>
+    <type name="Qt.PropertyChanges" version="4.6" extends="QDeclarativeStateOperation">
+        <property name="target" type="Qt.QtObject"/>
+        <property name="restoreEntryValues" type="bool"/>
+        <property name="explicit" type="bool"/>
+    </type>
+    <type name="Qt.ParentAction" version="4.6" extends="QDeclarativeAbstractAnimation">
+        <property name="target" type="Qt.Item"/>
+        <property name="parent" type="Qt.Item"/>
+    </type>
+    <type name="Qt.DateTimeFormatter" version="4.6" extends="Qt.QtObject">
+        <property name="dateText" type="string"/>
+        <property name="timeText" type="string"/>
+        <property name="dateTimeText" type="string"/>
+        <property name="date" type="QDate"/>
+        <property name="time" type="QTime"/>
+        <property name="dateTime" type="QDateTime"/>
+        <property name="dateFormat" type="string"/>
+        <property name="timeFormat" type="string"/>
+        <property name="dateTimeFormat" type="string"/>
+        <property name="longStyle" type="bool"/>
+        <signal name="textChanged"/>
+    </type>
+    <type name="Qt.Timer" version="4.6" extends="Qt.QtObject">
+        <property name="interval" type="int"/>
+        <property name="running" type="bool"/>
+        <property name="repeat" type="bool"/>
+        <property name="triggeredOnStart" type="bool"/>
+        <signal name="triggered"/>
+        <signal name="runningChanged"/>
+        <method name="start"/>
+        <method name="stop"/>
+        <method name="restart"/>
+    </type>
+    <type name="Qt.PathView" version="4.6" extends="Qt.Item">
+        <property name="model" type="QVariant"/>
+        <property name="path" type="Qt.Path"/>
+        <property name="currentIndex" type="int"/>
+        <property name="offset" type="qreal"/>
+        <property name="snapPosition" type="qreal"/>
+        <property name="dragMargin" type="qreal"/>
+        <property name="count" type="int"/>
+        <property name="delegate" type="Qt.Component"/>
+        <property name="pathItemCount" type="int"/>
+        <signal name="currentIndexChanged"/>
+        <signal name="offsetChanged"/>
+    </type>
+    <type name="Qt.Particles" version="4.6" extends="Qt.Item">
+        <property name="source" type="QUrl"/>
+        <property name="count" type="int"/>
+        <property name="emissionRate" type="int"/>
+        <property name="emissionVariance" type="qreal"/>
+        <property name="lifeSpan" type="int"/>
+        <property name="lifeSpanDeviation" type="int"/>
+        <property name="fadeInDuration" type="int"/>
+        <property name="fadeOutDuration" type="int"/>
+        <property name="angle" type="qreal"/>
+        <property name="angleDeviation" type="qreal"/>
+        <property name="velocity" type="qreal"/>
+        <property name="velocityDeviation" type="qreal"/>
+        <property name="motion" type="Qt.ParticleMotion"/>
+        <signal name="sourceChanged"/>
+        <signal name="countChanged"/>
+        <signal name="emissionRateChanged"/>
+        <signal name="emissionVarianceChanged"/>
+        <signal name="lifeSpanChanged"/>
+        <signal name="lifeSpanDeviationChanged"/>
+        <signal name="fadeInDurationChanged"/>
+        <signal name="fadeOutDurationChanged"/>
+        <signal name="angleChanged"/>
+        <signal name="angleDeviationChanged"/>
+        <signal name="velocityChanged"/>
+        <signal name="velocityDeviationChanged"/>
+        <signal name="emittingChanged"/>
+        <signal name="motionChanged"/>
+        <method name="burst">
+            <param name="count" type="int"/>
+            <param name="emissionRate" type="int"/>
+        </method>
+        <method name="burst">
+            <param name="count" type="int"/>
+        </method>
+    </type>
+    <type name="Qt.Grid" version="4.6" extends="QDeclarativeBasePositioner">
+        <property name="rows" type="int"/>
+        <property name="columns" type="int"/>
+        <signal name="rowsChanged"/>
+        <signal name="columnsChanged"/>
+    </type>
+    <type name="Qt.BorderImage" version="4.6" extends="QDeclarativeImageBase">
+        <enum name="TileMode">
+            <enumerator name="Stretch" value="0"/>
+            <enumerator name="Repeat" value="1"/>
+            <enumerator name="Round" value="2"/>
+        </enum>
+        <property name="border" type="QDeclarativeScaleGrid"/>
+        <property name="horizontalTileMode" type="TileMode"/>
+        <property name="verticalTileMode" type="TileMode"/>
+        <signal name="horizontalTileModeChanged"/>
+        <signal name="verticalTileModeChanged"/>
+    </type>
+    <type name="Qt.PathPercent" version="4.6" extends="QDeclarativePathElement">
+        <property name="value" type="qreal"/>
+    </type>
+    <type name="QDeclarativeAbstractAnimation" extends="Qt.QtObject">
+        <property name="running" type="bool"/>
+        <property name="paused" type="bool"/>
+        <property name="alwaysRunToEnd" type="bool"/>
+        <property name="repeat" type="bool"/>
+        <signal name="started"/>
+        <signal name="completed"/>
+        <signal name="runningChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="pausedChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="repeatChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="alwaysRunToEndChanged">
+            <param type="bool"/>
+        </signal>
+        <method name="restart"/>
+        <method name="start"/>
+        <method name="pause"/>
+        <method name="resume"/>
+        <method name="stop"/>
+        <method name="complete"/>
+    </type>
+    <type name="Qt.Text" version="4.6" extends="Qt.Item">
+        <enum name="HAlignment">
+            <enumerator name="AlignLeft" value="1"/>
+            <enumerator name="AlignRight" value="2"/>
+            <enumerator name="AlignHCenter" value="4"/>
+        </enum>
+        <enum name="VAlignment">
+            <enumerator name="AlignTop" value="32"/>
+            <enumerator name="AlignBottom" value="64"/>
+            <enumerator name="AlignVCenter" value="128"/>
+        </enum>
+        <enum name="TextStyle">
+            <enumerator name="Normal" value="0"/>
+            <enumerator name="Outline" value="1"/>
+            <enumerator name="Raised" value="2"/>
+            <enumerator name="Sunken" value="3"/>
+        </enum>
+        <enum name="TextFormat">
+            <enumerator name="PlainText" value="0"/>
+            <enumerator name="RichText" value="1"/>
+            <enumerator name="AutoText" value="2"/>
+            <enumerator name="StyledText" value="4"/>
+        </enum>
+        <enum name="TextElideMode">
+            <enumerator name="ElideLeft" value="0"/>
+            <enumerator name="ElideRight" value="1"/>
+            <enumerator name="ElideMiddle" value="2"/>
+            <enumerator name="ElideNone" value="3"/>
+        </enum>
+        <property name="text" type="string"/>
+        <property name="font" type="QFont"/>
+        <property name="color" type="QColor"/>
+        <property name="style" type="TextStyle"/>
+        <property name="styleColor" type="QColor"/>
+        <property name="horizontalAlignment" type="HAlignment"/>
+        <property name="verticalAlignment" type="VAlignment"/>
+        <property name="wrap" type="bool"/>
+        <property name="textFormat" type="TextFormat"/>
+        <property name="elide" type="TextElideMode"/>
+        <signal name="textChanged">
+            <param name="text" type="string"/>
+        </signal>
+        <signal name="linkActivated">
+            <param name="link" type="string"/>
+        </signal>
+        <signal name="fontChanged">
+            <param name="font" type="QFont"/>
+        </signal>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="styleChanged">
+            <param name="style" type="TextStyle"/>
+        </signal>
+        <signal name="styleColorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="horizontalAlignmentChanged">
+            <param name="alignment" type="HAlignment"/>
+        </signal>
+        <signal name="verticalAlignmentChanged">
+            <param name="alignment" type="VAlignment"/>
+        </signal>
+        <signal name="wrapChanged">
+            <param name="wrap" type="bool"/>
+        </signal>
+        <signal name="textFormatChanged">
+            <param name="textFormat" type="TextFormat"/>
+        </signal>
+        <signal name="elideModeChanged">
+            <param name="mode" type="TextElideMode"/>
+        </signal>
+    </type>
+    <type name="Qt.AnimatedImage" version="4.6" extends="Qt.Image">
+        <property name="playing" type="bool"/>
+        <property name="paused" type="bool"/>
+        <property name="currentFrame" type="int"/>
+        <property name="frameCount" type="int"/>
+        <signal name="playingChanged"/>
+        <signal name="pausedChanged"/>
+        <signal name="frameChanged"/>
+    </type>
+    <type name="Qt.ParticleMotion" version="4.6" extends="Qt.QtObject"/>
+    <type name="QDeclarativeCurve" extends="QDeclarativePathElement">
+        <property name="x" type="qreal"/>
+        <property name="y" type="qreal"/>
+    </type>
+    <type name="Qt.GraphicsObjectContainer" version="4.6" extends="Qt.Item">
+        <property name="graphicsObject" type="QGraphicsObject"/>
+        <property name="synchronizedResizing" type="bool"/>
+    </type>
+    <type name="QDeclarativeStateOperation" extends="Qt.QtObject"/>
+    <type name="Qt.ParentChange" version="4.6" extends="QDeclarativeStateOperation">
+        <property name="target" type="Qt.Item"/>
+        <property name="parent" type="Qt.Item"/>
+    </type>
+    <type name="Qt.Package" version="4.6" extends="Qt.QtObject">
+        <property name="data" type="Qt.QtObject" isList="true"/>
+    </type>
+    <type name="Qt.XmlRole" version="4.6" extends="Qt.QtObject">
+        <property name="name" type="string"/>
+        <property name="query" type="string"/>
+        <property name="isKey" type="bool"/>
+    </type>
+    <type name="Qt.EaseFollow" version="4.6" extends="Qt.QtObject">
+        <enum name="ReversingMode">
+            <enumerator name="Eased" value="0"/>
+            <enumerator name="Immediate" value="1"/>
+            <enumerator name="Sync" value="2"/>
+        </enum>
+        <property name="source" type="qreal"/>
+        <property name="velocity" type="qreal"/>
+        <property name="duration" type="qreal"/>
+        <property name="reversingMode" type="ReversingMode"/>
+        <property name="enabled" type="bool"/>
+        <property name="maximumEasingTime" type="qreal"/>
+        <signal name="sourceChanged"/>
+        <signal name="velocityChanged"/>
+        <signal name="durationChanged"/>
+        <signal name="reversingModeChanged"/>
+        <signal name="enabledChanged"/>
+        <signal name="maximumEasingTimeChanged"/>
+    </type>
+    <type name="Qt.ListModel" version="4.6" extends="QListModelInterface">
+        <property name="count" type="int"/>
+        <signal name="countChanged">
+            <param type="int"/>
+        </signal>
+        <method name="clear"/>
+        <method name="remove">
+            <param name="index" type="int"/>
+        </method>
+        <method name="append">
+            <param type="QScriptValue"/>
+        </method>
+        <method name="insert">
+            <param name="index" type="int"/>
+            <param type="QScriptValue"/>
+        </method>
+        <method name="get" type="QScriptValue">
+            <param name="index" type="int"/>
+        </method>
+        <method name="set">
+            <param name="index" type="int"/>
+            <param type="QScriptValue"/>
+        </method>
+        <method name="setProperty">
+            <param name="index" type="int"/>
+            <param name="property" type="string"/>
+            <param name="value" type="QVariant"/>
+        </method>
+        <method name="move">
+            <param name="from" type="int"/>
+            <param name="to" type="int"/>
+            <param name="count" type="int"/>
+        </method>
+    </type>
+    <type name="Qt.Pen" version="4.6" extends="Qt.QtObject">
+        <property name="width" type="int"/>
+        <property name="color" type="QColor"/>
+        <signal name="penChanged"/>
+    </type>
+    <type name="Qt.Rotation" version="4.6" extends="QGraphicsTransform">
+        <property name="origin" type="QVector3D"/>
+        <property name="angle" type="qreal"/>
+        <property name="axis" type="QVector3D"/>
+        <signal name="originChanged"/>
+        <signal name="angleChanged"/>
+        <signal name="axisChanged"/>
+    </type>
+    <type name="QDeclarativePaintedItem" extends="Qt.Item">
+        <property name="contentsSize" type="QSize"/>
+        <property name="fillColor" type="QColor"/>
+        <property name="pixelCacheSize" type="int"/>
+        <property name="smoothCache" type="bool"/>
+        <property name="contentsScale" type="qreal"/>
+        <signal name="fillColorChanged"/>
+        <signal name="contentsSizeChanged"/>
+        <signal name="contentsScaleChanged"/>
+    </type>
+    <type name="Qt.SpringFollow" version="4.6" extends="Qt.QtObject">
+        <property name="source" type="qreal"/>
+        <property name="velocity" type="qreal"/>
+        <property name="spring" type="qreal"/>
+        <property name="damping" type="qreal"/>
+        <property name="epsilon" type="qreal"/>
+        <property name="enabled" type="bool"/>
+        <property name="value" type="qreal"/>
+        <property name="modulus" type="qreal"/>
+        <property name="mass" type="qreal"/>
+        <property name="inSync" type="bool"/>
+        <signal name="valueChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="modulusChanged"/>
+        <signal name="massChanged"/>
+        <signal name="syncChanged"/>
+    </type>
+    <type name="QDeclarativeVisualModel" extends="Qt.QtObject">
+        <property name="count" type="int"/>
+        <signal name="countChanged"/>
+        <signal name="itemsInserted">
+            <param name="index" type="int"/>
+            <param name="count" type="int"/>
+        </signal>
+        <signal name="itemsRemoved">
+            <param name="index" type="int"/>
+            <param name="count" type="int"/>
+        </signal>
+        <signal name="itemsMoved">
+            <param name="from" type="int"/>
+            <param name="to" type="int"/>
+            <param name="count" type="int"/>
+        </signal>
+        <signal name="createdItem">
+            <param name="index" type="int"/>
+            <param name="item" type="Qt.Item"/>
+        </signal>
+        <signal name="destroyingItem">
+            <param name="item" type="Qt.Item"/>
+        </signal>
+    </type>
+    <type name="QValidator" extends="Qt.QtObject"/>
+    <type name="Qt.Colorize" version="4.6" extends="QGraphicsEffect">
+        <property name="color" type="QColor"/>
+        <property name="strength" type="qreal"/>
+        <signal name="colorChanged">
+            <param name="color" type="QColor"/>
+        </signal>
+        <signal name="strengthChanged">
+            <param name="strength" type="qreal"/>
+        </signal>
+        <method name="setColor">
+            <param name="c" type="QColor"/>
+        </method>
+        <method name="setStrength">
+            <param name="strength" type="qreal"/>
+        </method>
+    </type>
+    <type name="Qt.Behavior" version="4.6" extends="Qt.QtObject">
+        <property name="animation" type="QDeclarativeAbstractAnimation"/>
+        <property name="enabled" type="bool"/>
+        <signal name="enabledChanged"/>
+    </type>
+</module>

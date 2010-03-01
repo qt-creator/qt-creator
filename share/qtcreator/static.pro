@@ -29,7 +29,8 @@ DATA_DIRS = \
     schemes \
     styles \
     gdbmacros \
-    qmldesigner
+    qmldesigner \
+    qml-type-descriptions
 
 !isEmpty(copydata) {
 
