@@ -101,23 +101,23 @@ namespace QmlJS {
 namespace Interpreter {
 
 class FakeMetaEnum {
-    QString name;
-    QStringList keys;
-    QList<int> values;
+    QString m_name;
+    QStringList m_keys;
+    QList<int> m_values;
 
 public:
     FakeMetaEnum(const QString &name)
-        : name(name)
+        : m_name(name)
     {}
 
     void addKey(const QString &key, int value)
-    { keys.append(key); values.append(value); }
+    { m_keys.append(key); m_values.append(value); }
 
     QString key(int index) const
-    { return keys.at(index); }
+    { return m_keys.at(index); }
 
     int keyCount() const
-    { return keys.size(); }
+    { return m_keys.size(); }
 };
 
 class FakeMetaMethod {
@@ -136,119 +136,119 @@ public:
 
 public:
     FakeMetaMethod(const QString &name, const QString &returnType = QString())
-        : name(name), returnType(returnType)
+        : m_name(name), m_returnType(returnType)
     {}
 
     QString methodName() const
-    { return name; }
+    { return m_name; }
 
     QStringList parameterNames() const
-    { return paramNames; }
+    { return m_paramNames; }
 
     QStringList parameterTypes() const
-    { return paramTypes; }
+    { return m_paramTypes; }
 
     void addParameter(const QString &name, const QString &type)
-    { paramNames.append(name); paramTypes.append(type); }
+    { m_paramNames.append(name); m_paramTypes.append(type); }
 
     int methodType() const
-    { return methodTy; }
+    { return m_methodTy; }
     void setMethodType(int methodType)
-    { methodTy = methodType; }
+    { m_methodTy = methodType; }
 
     int access() const
-    { return methodAccess; }
+    { return m_methodAccess; }
 
 private:
-    QString name;
-    QString returnType;
-    QStringList paramNames;
-    QStringList paramTypes;
-    int methodTy;
-    int methodAccess;
+    QString m_name;
+    QString m_returnType;
+    QStringList m_paramNames;
+    QStringList m_paramTypes;
+    int m_methodTy;
+    int m_methodAccess;
 };
 
 class FakeMetaProperty {
-    QString propertyName;
-    QString type;
-    bool isList;
+    QString m_propertyName;
+    QString m_type;
+    bool m_isList;
 
 public:
     FakeMetaProperty(const QString &name, const QString &type, bool isList)
-        : propertyName(name), type(type), isList(isList)
+        : m_propertyName(name), m_type(type), m_isList(isList)
     {}
 
     QString name() const
-    { return propertyName; }
+    { return m_propertyName; }
 
     QString typeName() const
-    { return type; }
+    { return m_type; }
 };
 
 class FakeMetaObject {
     FakeMetaObject(FakeMetaObject&);
     FakeMetaObject &operator=(const FakeMetaObject&);
 
-    QString _name;
-    QString _package;
-    int _major;
-    int _minor;
-    const FakeMetaObject *_super;
-    QString _superName;
-    QList<FakeMetaEnum> _enums;
-    QList<FakeMetaProperty> _props;
-    QList<FakeMetaMethod> _methods;
+    QString m_name;
+    QString m_package;
+    int m_major;
+    int m_minor;
+    const FakeMetaObject *m_super;
+    QString m_superName;
+    QList<FakeMetaEnum> m_enums;
+    QList<FakeMetaProperty> m_props;
+    QList<FakeMetaMethod> m_methods;
 
 public:
     FakeMetaObject(const QString &name, const QString &package, int majorVersion, int minorVersion)
-        : _name(name), _package(package), _major(majorVersion), _minor(minorVersion), _super(0)
+        : m_name(name), m_package(package), m_major(majorVersion), m_minor(minorVersion), m_super(0)
     {}
 
     void setSuperclassName(const QString &superclass)
-    { _superName = superclass; }
+    { m_superName = superclass; }
     QString superclassName() const
-    { return _superName; }
+    { return m_superName; }
 
     void setSuperclass(FakeMetaObject *superClass)
-    { _super = superClass; }
+    { m_super = superClass; }
     const FakeMetaObject *superClass() const
-    { return _super; }
+    { return m_super; }
     QString className() const
-    { return _name; }
+    { return m_name; }
     QString packageName() const
-    { return _package; }
+    { return m_package; }
 
     void addEnum(const FakeMetaEnum &fakeEnum)
-    { _enums.append(fakeEnum); }
+    { m_enums.append(fakeEnum); }
     int enumeratorCount() const
-    { return _enums.size(); }
+    { return m_enums.size(); }
     int enumeratorOffset() const
     { return 0; }
     FakeMetaEnum enumerator(int index) const
-    { return _enums.at(index); }
+    { return m_enums.at(index); }
 
     void addProperty(const FakeMetaProperty &property)
-    { _props.append(property); }
+    { m_props.append(property); }
     int propertyCount() const
-    { return _props.size(); }
+    { return m_props.size(); }
     int propertyOffset() const
     { return 0; }
     FakeMetaProperty property(int index) const
-    { return _props.at(index); }
+    { return m_props.at(index); }
 
     void addMethod(const FakeMetaMethod &method)
-    { _methods.append(method); }
+    { m_methods.append(method); }
     int methodCount() const
-    { return _methods.size(); }
+    { return m_methods.size(); }
     int methodOffset() const
     { return 0; }
     FakeMetaMethod method(int index) const
-    { return _methods.at(index); }
+    { return m_methods.at(index); }
 
     int majorVersion() const
-    { return _major; }
+    { return m_major; }
     int minorVersion() const
-    { return _minor; }
+    { return m_minor; }
 };
 
 } // end of Interpreter namespace
