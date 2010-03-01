@@ -1874,7 +1874,7 @@ QStringList MetaTypeSystem::load(const QFileInfoList &xmlFiles)
     return errorMsgs;
 }
 
-void MetaTypeSystem::reload(Interpreter::Engine *interpreter)
+void MetaTypeSystem::reload(Engine *interpreter)
 {
     QHash<const FakeMetaObject *, QmlObjectValue *> qmlObjects;
     _importedTypes.clear();
