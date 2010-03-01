@@ -16,16 +16,14 @@ Rectangle {
             currentStateIndex = statesEditorModel.count-1;
     }
 
-    Connection {
-        sender: statesEditorModel
-        signal: "countChanged()"
-        script: adjustCurrentStateIndex();
+    Connections {
+        target: statesEditorModel
+        onCountChanged: adjustCurrentStateIndex()        
     }
 
-    Connection {
-        sender: statesEditorModel
-        signal: "changedToState(n)"
-        script: root.currentStateIndex = n;
+    Connections {
+        target: statesEditorModel
+        onChangedToState: { root.currentStateIndex = 1; }
     }
 
     // TextInputs don't loose focus automatically when user clicks away, have to be done explicitly
@@ -52,8 +50,8 @@ Rectangle {
         anchors.topMargin:-1;
         anchors.leftMargin:-1;
 
-        viewportHeight: height
-        viewportWidth: statesRow.width+2
+        contentHeight: height
+        contentWidth: statesRow.width+2
 
 
         Row {
@@ -107,9 +105,9 @@ Rectangle {
                 id:scrollBarAdjuster
                 function adjustScrollBar() {
                     if (parent.isCurrentState) {
-                        if (container.x+container.width > listView.viewportX + listView.width)
+                        if (container.x+container.width > listView.contentX + listView.width)
                             horizontalScrollbar.viewPosition = container.x+container.width - listView.width;
-                        if (container.x < listView.viewportX)
+                        if (container.x < listView.contentX)
                             horizontalScrollbar.viewPosition = container.x;
                     }
                 }
@@ -214,10 +212,9 @@ Rectangle {
                 }
             }
 
-            Connection {
-                sender: root
-                signal: "unFocus()"
-                script: stateNameEditor.unFocus()
+            Connections {
+                target: root
+                onUnFocus: stateNameEditor.unFocus();
             }
 
             Item {
@@ -354,7 +351,7 @@ Rectangle {
         anchors.bottomMargin:1
         anchors.rightMargin:1
 
-        visible:(newStateBoxLoader.x+newStateBoxLoader.width/2-11>listView.width+listView.viewportX);
+        visible:(newStateBoxLoader.x+newStateBoxLoader.width/2-11>listView.width+listView.contentX);
 
 
         Loader {
@@ -424,13 +421,13 @@ Rectangle {
 
     Item {
         id: horizontalScrollbar
-        // Current listView implementation sometimes has negative width or viewportWidth
+        // Current listView implementation sometimes has negative width or contentWidth
         property int viewPosition: 0;
         property int viewLength: ( listView.width>=0 ? listView.width : 0 );
-        property int totalLength: ( listView.viewportWidth>=0 ? listView.viewportWidth : 0 );
+        property int totalLength: ( listView.contentWidth>=0 ? listView.contentWidth : 0 );
 
 
-        onViewPositionChanged: listView.viewportX=viewPosition;
+        onViewPositionChanged: listView.contentX=viewPosition;
         onViewLengthChanged: {
             if ((totalLength>viewLength) && (viewPosition > totalLength-viewLength))
                 viewPosition = totalLength-viewLength;
