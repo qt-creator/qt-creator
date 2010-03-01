@@ -1204,6 +1204,7 @@ public:
     {}
 };
 
+QT_END_NAMESPACE
 
 QML_DECLARE_TYPE(QTabObject);
 QML_DECLARE_TYPE(MyGroupBox);

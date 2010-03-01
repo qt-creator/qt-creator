@@ -67,6 +67,8 @@ QVBoxLayoutObject::QVBoxLayoutObject(QObject *parent)
 {
 }
 
+QT_END_NAMESPACE
+
 void BasicLayouts::registerDeclarativeTypes()
 {
     QML_REGISTER_TYPE(Bauhaus,1,0,QBoxLayout,QBoxLayoutObject);
@@ -74,4 +76,3 @@ void BasicLayouts::registerDeclarativeTypes()
     QML_REGISTER_TYPE(Bauhaus,1,0,QVBoxLayout,QVBoxLayoutObject);
 }
 
-QT_END_NAMESPACE
