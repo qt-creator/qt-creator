@@ -1,4 +1,4 @@
-<plugin name="CMakeProjectManager" version="1.3.80" compatVersion="1.3.80">
+<plugin name="CMakeProjectManager" version="1.3.82" compatVersion="1.3.82">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -13,9 +13,9 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>CMake support</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.3.80"/>
-        <dependency name="ProjectExplorer" version="1.3.80"/>
-        <dependency name="CppTools" version="1.3.80"/>
-        <dependency name="CppEditor" version="1.3.80"/>
+        <dependency name="TextEditor" version="1.3.82"/>
+        <dependency name="ProjectExplorer" version="1.3.82"/>
+        <dependency name="CppTools" version="1.3.82"/>
+        <dependency name="CppEditor" version="1.3.82"/>
     </dependencyList>
 </plugin>

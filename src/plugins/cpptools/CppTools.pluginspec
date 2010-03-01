@@ -1,4 +1,4 @@
-<plugin name="CppTools" version="1.3.80" compatVersion="1.3.80">
+<plugin name="CppTools" version="1.3.82" compatVersion="1.3.82">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -13,8 +13,8 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Tools for analyzing C/C++ code.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="TextEditor" version="1.3.80"/>
-        <dependency name="ProjectExplorer" version="1.3.80"/>
-        <dependency name="Locator" version="1.3.80"/>
+        <dependency name="TextEditor" version="1.3.82"/>
+        <dependency name="ProjectExplorer" version="1.3.82"/>
+        <dependency name="Locator" version="1.3.82"/>
     </dependencyList>
 </plugin>

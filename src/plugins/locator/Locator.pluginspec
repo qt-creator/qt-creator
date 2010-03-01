@@ -1,4 +1,4 @@
-<plugin name="Locator" version="1.3.80" compatVersion="1.3.80">
+<plugin name="Locator" version="1.3.82" compatVersion="1.3.82">
     <vendor>Nokia Corporation</vendor>
     <copyright>(C) 2008-2009 Nokia Corporation</copyright>
     <license>
@@ -13,6 +13,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Provides the Locator widget and the hooks for Locator filter implementations.</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name="Core" version="1.3.80"/>
+        <dependency name="Core" version="1.3.82"/>
     </dependencyList>
 </plugin>
