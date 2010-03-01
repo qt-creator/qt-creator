@@ -115,7 +115,7 @@ private:
     bool keepRunning;
     QString binary;
     QStringList standardArguments;
-    int timeout;
+    int m_timeoutMS;
 };
 
 } //namespace Internal

@@ -288,7 +288,7 @@ void SynchronousProcess::slotTimeout()
     if (++m_d->m_hangTimerCount > m_d->m_maxHangTimerCount) {
         if (debug)
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
-        m_d->m_process.kill();
+        SynchronousProcess::stopProcess(m_d->m_process);
         m_d->m_result.result = SynchronousProcessResponse::Hang;
     } else {
         if (debug)
@@ -397,6 +397,43 @@ void SynchronousProcess::processStdErr(bool emitSignals)
             }
         }
     }
+}
+
+// Static utilities: Keep running as long as it gets data.
+bool SynchronousProcess::readDataFromProcess(QProcess &p, int timeOutMS,
+                                             QByteArray *stdOut, QByteArray *stdErr)
+{
+    if (p.state() != QProcess::Running) {
+        qWarning("readDataFromProcess: Process in non-running state passed in.");
+        return false;
+    }
+
+    // Keep the process running until it has no longer has data
+    bool finished = false;
+    bool hasData = false;
+    do {
+        finished = p.waitForFinished(timeOutMS);
+        if ( (hasData = p.bytesAvailable()) ) {
+            const QByteArray newStdOut = p.readAllStandardOutput();
+            const QByteArray newStdErr = p.readAllStandardError();
+            if (stdOut)
+                stdOut->append(newStdOut);
+            if (stdErr)
+                stdErr->append(newStdErr);
+        }
+    } while (hasData && !finished);
+    return finished;
+}
+
+bool SynchronousProcess::stopProcess(QProcess &p)
+{
+    if (p.state() != QProcess::Running)
+        return true;
+    p.terminate();
+    if (p.waitForFinished(300))
+        return true;
+    p.kill();
+    return p.waitForFinished(300);
 }
 
 // Path utilities

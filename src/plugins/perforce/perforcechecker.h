@@ -57,8 +57,6 @@ public slots:
     bool useOverideCursor() const;
     void setUseOverideCursor(bool v);
 
-    static bool ensureProcessStopped(QProcess &p);
-
 signals:
     void succeeded(const QString &repositoryRoot);
     void failed(const QString &errorMessage);

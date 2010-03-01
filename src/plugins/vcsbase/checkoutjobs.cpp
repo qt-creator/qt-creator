@@ -30,6 +30,7 @@
 #include "checkoutjobs.h"
 
 #include <QtCore/QDebug>
+#include <utils/synchronousprocess.h>
 
 enum { debug = 0 };
 namespace VCSBase {
@@ -137,9 +138,7 @@ void ProcessCheckoutJob::cancel()
         qDebug() << "ProcessCheckoutJob::start";
 
     emit output(tr("Stopping..."));
-    d->process.terminate();
-    if (!d->process.waitForFinished(5000))
-        d->process.kill();
+    Utils::SynchronousProcess::stopProcess(d->process);
 }
 
 } // namespace VCSBase

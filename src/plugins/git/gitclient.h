@@ -230,8 +230,8 @@ private:
 
     bool synchronousGit(const QString &workingDirectory,
                         const QStringList &arguments,
-                        QByteArray* outputText = 0,
-                        QByteArray* errorText = 0,
+                        QByteArray* outputText,
+                        QByteArray* errorText,
                         bool logCommandToWindow = true);
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
     unsigned synchronousGitVersion(bool silent, QString *errorMessage = 0);

@@ -49,6 +49,7 @@
 
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
@@ -1042,22 +1043,16 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
         return false;
     }
 
-    if (!process.waitForFinished(m_settings.timeoutSeconds * 1000)) {
-        if (errorText)
-            *errorText = GitCommand::msgTimeout(m_settings.timeoutSeconds).toLocal8Bit();
-        GitCommand::stopProcess(process);
+    if (!Utils::SynchronousProcess::readDataFromProcess(process, m_settings.timeoutSeconds * 1000,
+                                                        outputText, errorText)) {
+        *errorText->append(GitCommand::msgTimeout(m_settings.timeoutSeconds).toLocal8Bit());
+        Utils::SynchronousProcess::stopProcess(process);
         return false;
     }
 
-    if (outputText)
-        *outputText = process.readAllStandardOutput();
-
-    if (errorText)
-        *errorText = process.readAllStandardError();
-
     if (Git::Constants::debug)
-        qDebug() << "synchronousGit ex=" << process.exitCode();
-    return process.exitCode() == 0;
+        qDebug() << "synchronousGit ex=" << process.exitStatus() << process.exitCode();
+    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
 static inline int
@@ -1546,7 +1541,8 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
     arguments << QLatin1String("config") << configVar;
 
     QByteArray outputText;
-    if (synchronousGit(workingDirectory, arguments, &outputText, 0, false))
+    QByteArray errorText;
+    if (synchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
         return commandOutputFromLocal8Bit(outputText);
     return QString();
 }

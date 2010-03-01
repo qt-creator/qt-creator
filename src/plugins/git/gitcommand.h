@@ -71,8 +71,6 @@ public:
     void setTerminationReportMode(TerminationReportMode m);
 
     static QString msgTimeout(int seconds);
-    // Helper to kill a process by SIGNAL first, allowing for cleanup
-    static bool stopProcess(QProcess &p);
 
 private:
     void run();

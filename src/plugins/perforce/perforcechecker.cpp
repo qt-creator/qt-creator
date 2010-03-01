@@ -30,6 +30,7 @@
 #include "perforcechecker.h"
 
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #include <QtCore/QRegExp>
 #include <QtCore/QTimer>
@@ -101,23 +102,12 @@ void PerforceChecker::start(const QString &binary,
     }
 }
 
-bool PerforceChecker::ensureProcessStopped(QProcess &p)
-{
-    if (p.state() != QProcess::Running)
-        return true;
-    p.terminate();
-    if (p.waitForFinished(300))
-        return true;
-    p.kill();
-    return p.waitForFinished(300);
-}
-
 void PerforceChecker::slotTimeOut()
 {
     if (!isRunning())
         return;
     m_timedOut = true;
-    ensureProcessStopped(m_process);
+    Utils::SynchronousProcess::stopProcess(m_process);
     emitFailed(tr("\"%1\" timed out after %2ms.").arg(m_binary).arg(m_timeOutMS));
 }
 
@@ -135,7 +125,7 @@ void PerforceChecker::slotError(QProcess::ProcessError error)
     case QProcess::ReadError:
     case QProcess::WriteError:
     case QProcess::UnknownError:
-        ensureProcessStopped(m_process);
+        Utils::SynchronousProcess::stopProcess(m_process);
         break;
     }
 }

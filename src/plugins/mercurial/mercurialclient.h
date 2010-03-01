@@ -114,7 +114,7 @@ private slots:
 private:
     bool executeHgSynchronously(const QString  &workingDir,
                                 const QStringList &args,
-                                QByteArray *output=0) const;
+                                QByteArray *output) const;
     void enqueueJob(const QSharedPointer<HgTask> &);
     void revert(const QString &workingDir, const QString &argument,
                 const QString &revision, const QVariant &cookie);

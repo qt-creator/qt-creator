@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/synchronousprocess.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -117,17 +118,6 @@ QString GitCommand::msgTimeout(int seconds)
     return tr("Error: Git timed out after %1s.").arg(seconds);
 }
 
-bool GitCommand::stopProcess(QProcess &p)
-{
-    if (p.state() != QProcess::Running)
-        return true;
-    p.terminate();
-    if (p.waitForFinished(300))
-        return true;
-    p.kill();
-    return p.waitForFinished(300);
-}
-
 void GitCommand::run()
 {
     if (Git::Constants::debug)
@@ -138,7 +128,8 @@ void GitCommand::run()
 
     process.setEnvironment(m_environment);
 
-    QByteArray output;
+    QByteArray stdOut;
+    QByteArray stdErr;
     QString error;
 
     const int count = m_jobs.size();
@@ -156,20 +147,20 @@ void GitCommand::run()
 
         process.closeWriteChannel();
         const int timeOutSeconds = m_jobs.at(j).timeout;
-        if (!process.waitForFinished(timeOutSeconds * 1000)) {
-            stopProcess(process);
+        if (!Utils::SynchronousProcess::readDataFromProcess(process, timeOutSeconds * 1000,
+                                                            &stdOut, &stdErr)) {
+            Utils::SynchronousProcess::stopProcess(process);
             ok = false;
             error += msgTimeout(timeOutSeconds);
             break;
         }
 
-        output += process.readAllStandardOutput();
-        error += QString::fromLocal8Bit(process.readAllStandardError());
+        error += QString::fromLocal8Bit(stdErr);
         switch (m_reportTerminationMode) {
         case NoReport:
             break;
         case ReportStdout:
-            output += msgTermination(process.exitCode(), m_binaryPath, m_jobs.at(j).arguments).toUtf8();
+            stdOut += msgTermination(process.exitCode(), m_binaryPath, m_jobs.at(j).arguments).toUtf8();
             break;
         case ReportStderr:
             error += msgTermination(process.exitCode(), m_binaryPath, m_jobs.at(j).arguments);
@@ -178,16 +169,16 @@ void GitCommand::run()
     }
 
     // Special hack: Always produce output for diff
-    if (ok && output.isEmpty() && m_jobs.front().arguments.at(0) == QLatin1String("diff")) {
-        output += "The file does not differ from HEAD";
+    if (ok && stdOut.isEmpty() && m_jobs.front().arguments.at(0) == QLatin1String("diff")) {
+        stdOut += "The file does not differ from HEAD";
     } else {
         // @TODO: Remove, see below
         if (ok && m_jobs.front().arguments.at(0) == QLatin1String("status"))
-            removeColorCodes(&output);
+            removeColorCodes(&stdOut);
     }
 
-    if (ok && !output.isEmpty())
-        emit outputData(output);
+    if (ok && !stdOut.isEmpty())
+        emit outputData(stdOut);
 
     if (!error.isEmpty())
         emit errorText(error);
