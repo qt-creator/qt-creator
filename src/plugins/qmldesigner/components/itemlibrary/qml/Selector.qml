@@ -50,10 +50,9 @@ Item {
     x: (section && item)? (section.x + item.x + sectionXOffset):0;
     y: (section && item)? (section.y + style.selectionSectionOffset + item.y + sectionYOffset):0;
 
-    Connection {
-        sender: itemLibraryModel
-        signal: "visibilityUpdated()"
-        script: unselect()
+    Connections {
+        target: itemLibraryModel
+        onVisibilityUpdated: unselect()
     }
 
     function select(section, item, sectionXOffset, sectionYOffset) {

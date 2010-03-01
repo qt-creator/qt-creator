@@ -51,12 +51,12 @@ Item {
         border.color: style.scrollbarBorderColor;
     }
 
-    function moveHandle(viewportPos, updateFlickable) {
+    function moveHandle(contentPos, updateFlickable) {
 	handle.updateFlickable = updateFlickable
 
 	if (flickable)
 	    handle.y = scrollHeight * Math.min(
-		viewportPos / (flickable.viewportHeight - flickable.height),
+		contentPos / (flickable.contentHeight - flickable.height),
                 1);
 	else
 	    handle.y = 0;
@@ -65,27 +65,24 @@ Item {
     }
 
     function updateHandle() {
-	moveHandle(flickable.viewportY, false);
+	moveHandle(flickable.contentY, false);
     }
 
     onFlickableChanged: moveHandle(0, true)
 
-    Connection {
-        sender: flickable
-        signal: "heightChanged"
-        script: moveHandle(0, true)
+    Connections {
+        target: flickable
+        onHeightChanged: moveHandle(0, true)
     }
 
-    Connection {
-        sender: flickable
-        signal: "viewportHeightChanged"
-        script: updateHandle()
+    Connections {
+        target: flickable
+        onContentHeightChanged: updateHandle()
     }
 
-    Connection {
-        sender: flickable
-        signal: "positionYChanged"
-        script: updateHandle()
+    Connections {
+        target: flickable
+        onContentYChanged: updateHandle()
     }
 
     onHeightChanged: updateHandle()
@@ -105,13 +102,13 @@ Item {
         anchors.leftMargin: 1
         anchors.right: parent.right
 //        anchors.rightMargin: 1
-	height: Math.max(width, bar.height * Math.min(1, flickable.height / flickable.viewportHeight))
+	height: Math.max(width, bar.height * Math.min(1, flickable.height / flickable.contentHeight))
 
 	property bool updateFlickable: true
 	
 	onYChanged: {
 	    if (updateFlickable)
-		flickable.viewportY = Math.max(0, flickable.viewportHeight * y / bar.height)
+		flickable.contentY = Math.max(0, flickable.contentHeight * y / bar.height)
 	}
 
         Rectangle {

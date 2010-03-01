@@ -138,10 +138,9 @@ Column {
             id: gridView
 
 	    // workaround
-            Connection {
-                sender: itemLibraryModel
-                signal: "visibilityUpdated()"
-                script: gridView.positionViewAtIndex(0)
+            Connections {
+                target: itemLibraryModel
+                onVisibilityUpdated: gridView.positionViewAtIndex(0);
             }
 
             anchors.fill: parent

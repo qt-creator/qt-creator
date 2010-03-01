@@ -81,10 +81,9 @@ Rectangle {
             onItemSelected: itemsView.itemSelected(itemLibId)
             onItemDragged: itemsView.itemDragged(itemLibId)
 
-            Connection {
-                sender: itemsView
-                signal: "expandAllEntries()"
-                script: section.expand()
+            Connections {
+                target: itemsView
+                onExpandAllEntries: section.expand();
             }
         }
     }
@@ -101,7 +100,7 @@ Rectangle {
         clip: true
 
         interactive: false
-        viewportHeight: col.height
+        contentHeight: col.height
 
         Column {
             id: col
