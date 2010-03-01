@@ -37,6 +37,7 @@
 #include <utils/synchronousprocess.h>
 
 #include <QtCore/QProcess>
+#include <QtCore/QProcessEnvironment>
 #include <QtCore/QString>
 #include <QtCore/QDebug>
 
@@ -161,6 +162,16 @@ QString MercurialJobRunner::msgTimeout(int timeoutSeconds)
     return tr("Timed out after %1s waiting for mercurial process to finish.").arg(timeoutSeconds);
 }
 
+// Set environment for a hg process to run in locale "C". Note that there appears
+// to be a bug in hg that causes special characters to be garbled when running
+// in a different language, which seems to be independent from the encoding.
+void MercurialJobRunner::setProcessEnvironment(QProcess &p)
+{
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert(QLatin1String("LANG"), QString(QLatin1Char('C')));
+    p.setProcessEnvironment(env);
+}
+
 void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
 {
     HgTask *taskData = job.data();
@@ -193,7 +204,7 @@ void MercurialJobRunner::task(const QSharedPointer<HgTask> &job)
 
     QProcess hgProcess;
     hgProcess.setWorkingDirectory(taskData->repositoryRoot());
-
+    MercurialJobRunner::setProcessEnvironment(hgProcess);
 
     hgProcess.start(binary, args);
 

@@ -39,6 +39,10 @@
 #include <QtCore/QVariant>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
+
 namespace VCSBase {
 class VCSBaseEditor;
 }
@@ -94,6 +98,9 @@ public:
     static QString msgExecute(const QString &binary, const QStringList &args);
     static QString msgStartFailed(const QString &binary, const QString &why);
     static QString msgTimeout(int timeoutSeconds);
+
+    // Set environment for a hg process to run in locale "C"
+    static void setProcessEnvironment(QProcess &p);
 
 protected:
     void run();

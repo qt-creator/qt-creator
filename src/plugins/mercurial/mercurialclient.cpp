@@ -121,6 +121,7 @@ bool MercurialClient::executeHgSynchronously(const QString  &workingDir,
     QProcess hgProcess;
     if (!workingDir.isEmpty())
         hgProcess.setWorkingDirectory(workingDir);
+    MercurialJobRunner::setProcessEnvironment(hgProcess);
 
     const MercurialSettings &settings = MercurialPlugin::instance()->settings();
     const QString binary = settings.binary();

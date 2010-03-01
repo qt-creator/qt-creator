@@ -1147,8 +1147,9 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
         }
         return StatusFailed;
     }
-    // Unchanged?
-    if (outputText.contains("nothing to commit"))
+    // Unchanged (output text depending on whether -u was passed)
+    if (outputText.contains("nothing to commit")
+        || outputText.contains("nothing added to commit but untracked files present"))
         return StatusUnchanged;
     return StatusChanged;
 }
