@@ -1,0 +1,19 @@
+
+This shortcuts the canonicalization of symbol names. This is likely to
+introduce regressions for setting breakpoints by function names (which
+is rarely used by IDE users) but speeds up startup by around 15% for a
+typical Qt application. So disabling it seems to be a good compromise.
+
+diff --git a/gdb/dwarf2read.c b/gdb/dwarf2read.c
+index a05c946..761fa34 100644
+--- a/gdb/dwarf2read.c
++++ b/gdb/dwarf2read.c
+@@ -9097,7 +9097,7 @@ static char *
+ dwarf2_canonicalize_name (char *name, struct dwarf2_cu *cu,
+ 			  struct obstack *obstack)
+ {
+-  if (name && cu->language == language_cplus)
++  if (0 && name && cu->language == language_cplus)
+     {
+       char *canon_name = cp_canonicalize_string (name);
+ 
