@@ -31,7 +31,7 @@
 #define QMLPROPERTYCHANGESNODEINSTANCE_H
 
 #include "objectnodeinstance.h"
-#include <private/qmlstateoperations_p.h>
+#include <private/qdeclarativestateoperations_p.h>
 
 namespace QmlDesigner {
 
@@ -41,7 +41,7 @@ class QmlPropertyChangesNodeInstance;
 
 // Original QmlPropertyChanges class requires a custom parser
 // work around this by writing a replacement class
-class QmlPropertyChangesObject : public QmlStateOperation
+class QmlPropertyChangesObject : public QDeclarativeStateOperation
 {
     Q_OBJECT
     Q_PROPERTY(QObject *target READ object WRITE setObject)
@@ -64,7 +64,7 @@ private:
     friend class QmlPropertyChangesNodeInstance;
 
     QmlPropertyChangesObject();
-    QmlMetaProperty metaProperty(const QString &property);
+    QDeclarativeProperty metaProperty(const QString &property);
 
     QWeakPointer<QObject> m_targetObject;
     bool m_restoreEntryValues;
@@ -81,7 +81,7 @@ public:
     typedef QSharedPointer<QmlPropertyChangesNodeInstance> Pointer;
     typedef QWeakPointer<QmlPropertyChangesNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
 
     virtual void setPropertyVariant(const QString &name, const QVariant &value);
     virtual void setPropertyBinding(const QString &name, const QString &expression);

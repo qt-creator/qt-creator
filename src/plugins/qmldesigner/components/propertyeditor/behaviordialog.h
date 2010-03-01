@@ -37,7 +37,7 @@
 #include <QDialog>
 #include <QWeakPointer>
 #include <QScopedPointer>
-#include <qml.h>
+#include <qdeclarative.h>
 
 #include "ui_behaviordialog.h"
 
@@ -83,6 +83,7 @@ public slots:
     virtual void accept();
     virtual void reject();
 
+    static void registerDeclarativeType();
 
 private:
     ModelNode m_modelNode;

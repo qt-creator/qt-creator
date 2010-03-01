@@ -69,7 +69,7 @@ QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int
 qreal StyleHelper::sidebarFontSize()
 {
 #if defined(Q_WS_MAC)
-    return 9;
+    return 10;
 #else
     return 7.5;
 #endif

@@ -39,10 +39,12 @@
 #include <QSpinBox>
 
 
-QML_DEFINE_TYPE(Bauhaus,1,0,BehaviorWidget,QmlDesigner::BehaviorWidget);
-
 namespace QmlDesigner {
 
+void BehaviorDialog::registerDeclarativeType()
+{
+    QML_REGISTER_TYPE(Bauhaus,1,0,BehaviorWidget,QmlDesigner::BehaviorWidget);
+}
 
 BehaviorWidget::BehaviorWidget() : QPushButton(), m_BehaviorDialog(new BehaviorDialog(0))
 {

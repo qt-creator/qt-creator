@@ -82,7 +82,12 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessRes
  * The stdOutBuffered(), stdErrBuffered() signals are emitted with complete
  * lines based on the '\n' marker if they are enabled using
  * stdOutBufferedSignalsEnabled()/setStdErrBufferedSignalsEnabled().
- * They would typically be used for log windows. */
+ * They would typically be used for log windows.
+ *
+ * There is a timeout handling that takes effect after the last data have been
+ * read from stdout/stdin (as opposed to waitForFinished(), which measures time
+ * since it was invoked). It is thus also suitable for slow processes that continously
+ * output data (like version system operations).  */
 
 class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QObject
 {
@@ -91,7 +96,8 @@ public:
     SynchronousProcess();
     virtual ~SynchronousProcess();
 
-    /* Timeout for hanging processes (no reaction on stderr/stdout)*/
+    /* Timeout for hanging processes (triggers after no more output
+     * occurs on stderr/stdout). */
     void setTimeout(int timeoutMS);
     int timeout() const;
 
@@ -117,6 +123,16 @@ public:
     QString workingDirectory() const;
 
     SynchronousProcessResponse run(const QString &binary, const QStringList &args);
+
+    // Static helper for running a process synchronously in the foreground with timeout
+    // detection similar SynchronousProcess' handling (taking effect after no more output
+    // occurs on stderr/stdout as opposed to waitForFinished()). Returns false if a timeout
+    // occurs. Checking of the process' exit state/code still has to be done.
+    static bool readDataFromProcess(QProcess &p, int timeOutMS,
+                                    QByteArray *stdOut = 0, QByteArray *stdErr = 0);
+    // Stop a process by first calling terminate() (allowing for signal handling) and
+    // then kill().
+    static bool stopProcess(QProcess &p);
 
     // Helpers to find binaries. Do not use it for other path variables
     // and file types.

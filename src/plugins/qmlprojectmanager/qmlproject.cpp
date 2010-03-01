@@ -39,7 +39,7 @@
 #include <qmljseditor/qmljsmodelmanagerinterface.h>
 
 #include <QTextStream>
-#include <QmlComponent>
+#include <QDeclarativeComponent>
 #include <QtDebug>
 
 namespace QmlProjectManager {
@@ -88,7 +88,7 @@ void QmlProject::parseProject(RefreshOptions options)
         if (!m_projectItem) {
             QFile file(m_fileName);
             if (file.open(QFile::ReadOnly)) {
-                QmlComponent *component = new QmlComponent(&m_engine, this);
+                QDeclarativeComponent *component = new QDeclarativeComponent(&m_engine, this);
                 component->setData(file.readAll(), QUrl::fromLocalFile(m_fileName));
                 if (component->isReady()
                     && qobject_cast<QmlProjectItem*>(component->create())) {

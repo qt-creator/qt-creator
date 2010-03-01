@@ -31,8 +31,7 @@
 #include "qmljsmetatypesystem.h"
 
 #ifndef NO_DECLARATIVE_BACKEND
-#include <QtDeclarative/QmlType>
-#include <QtDeclarative/QmlMetaType>
+#include <QtDeclarative/private/qdeclarativemetatype_p.h>
 #endif // NO_DECLARATIVE_BACKEND
 
 using namespace QmlJS;
@@ -43,7 +42,7 @@ void MetaTypeSystem::reload(Interpreter::Engine *interpreter)
     _importedTypes.clear();
 
 #ifndef NO_DECLARATIVE_BACKEND
-    foreach (QmlType *type, QmlMetaType::qmlTypes()) {
+    foreach (QDeclarativeType *type, QDeclarativeMetaType::qmlTypes()) {
         const QString fqType = type->qmlTypeName();
         const int sepIdx = fqType.lastIndexOf(QLatin1Char('/'));
         QString typeName;

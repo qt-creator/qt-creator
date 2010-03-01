@@ -139,7 +139,7 @@ void AbstractMaemoRunControl::deployProcessFinished()
     if (success) {
         emit addToOutputWindow(this, tr("Deployment finished."));
     } else {
-        emit error(this, tr("Deployment failed: ") % sshDeployer->error());
+        emit error(this, tr("Deployment failed: %1").arg(sshDeployer->error()));
         m_progress.reportCanceled();
     }
     m_progress.reportFinished();
@@ -244,8 +244,7 @@ void MaemoRunControl::executionFinished()
     if (stoppedByUser) {
         emit addToOutputWindow(this, tr("Remote process stopped by user."));
     } else if (sshRunner->hasError()) {
-        emit addToOutputWindow(this, tr("Remote process exited with error: ")
-                               % sshRunner->error());
+        emit addToOutputWindow(this, tr("Remote process exited with error: %1").arg(sshRunner->error()));
     } else {
         emit addToOutputWindow(this, tr("Remote process finished successfully."));
     }

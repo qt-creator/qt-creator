@@ -38,11 +38,6 @@
 #include <nodeproperty.h>
 #include <qmlobjectnode.h>
 
-QML_DEFINE_TYPE(Bauhaus,1,0,PropertyEditorValue,PropertyEditorValue)
-QML_DEFINE_TYPE(Bauhaus,1,0,PropertyEditorNodeWrapper,PropertyEditorNodeWrapper)
-QML_DEFINE_TYPE(Bauhaus,1,0,QmlPropertyMap,QmlPropertyMap)
-
-
 //using namespace QmlDesigner;
 
 PropertyEditorValue::PropertyEditorValue(QObject *parent)
@@ -209,6 +204,13 @@ void PropertyEditorValue::unlock()
     //m_rewriterTransaction.commit();
 }
 
+void PropertyEditorValue::registerDeclarativeTypes()
+{
+    QML_REGISTER_TYPE(Bauhaus,1,0,PropertyEditorValue,PropertyEditorValue);
+    QML_REGISTER_TYPE(Bauhaus,1,0,PropertyEditorNodeWrapper,PropertyEditorNodeWrapper);
+    QML_REGISTER_TYPE(Bauhaus,1,0,QDeclarativePropertyMap,QDeclarativePropertyMap);
+}
+
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent) : m_valuesPropertyMap(this)
 {
     m_editorValue = parent;
@@ -246,7 +248,7 @@ QString PropertyEditorNodeWrapper::propertyName() const
     return m_editorValue->name();
 }
 
-QmlPropertyMap* PropertyEditorNodeWrapper::properties()
+QDeclarativePropertyMap* PropertyEditorNodeWrapper::properties()
 {
     return &m_valuesPropertyMap;
 }
@@ -344,3 +346,4 @@ void PropertyEditorNodeWrapper::update()
         emit typeChanged();
     }
 }
+

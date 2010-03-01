@@ -31,7 +31,7 @@
 #define FXPLUGIN_H
 
 #include <iwidgetplugin.h>
-#include <QtDeclarative/qml.h>
+#include <QtDeclarative/qdeclarative.h>
 
 QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE

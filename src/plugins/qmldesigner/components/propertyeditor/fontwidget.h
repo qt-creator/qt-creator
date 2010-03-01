@@ -32,7 +32,7 @@
 
 #include <QWeakPointer>
 #include <QWidget>
-#include <qml.h>
+#include <qdeclarative.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -74,6 +74,8 @@ public:
 
     QFont font() const;
     void setFont(QFont size);
+
+    static void registerDeclarativeTypes();
 
 signals:
     void familyChanged();

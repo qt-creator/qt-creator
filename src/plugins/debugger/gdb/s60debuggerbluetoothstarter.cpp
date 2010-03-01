@@ -47,6 +47,7 @@ trk::BluetoothListener *S60DebuggerBluetoothStarter::createListener()
     trk::BluetoothListener *rc = new trk::BluetoothListener(dm);
     rc->setMode(trk::BluetoothListener::Listen);
     connect(rc, SIGNAL(message(QString)), dm, SLOT(showDebuggerOutput(QString)));
+    connect(rc, SIGNAL(terminated()), dm, SLOT(startFailed()));
     return rc;
 }
 

@@ -48,7 +48,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
-#include <designer/formwindoweditor.h>
+#include <designer/designerxmleditor.h>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -115,13 +115,14 @@ void Qt4Manager::init()
 void Qt4Manager::editorChanged(Core::IEditor *editor)
 {
     // Handle old editor
-    Designer::FormWindowEditor *lastEditor = qobject_cast<Designer::FormWindowEditor *>(m_lastEditor);
-    if (lastEditor) {
-        disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
+    Designer::DesignerXmlEditorEditable *lastFormEditor = qobject_cast<Designer::DesignerXmlEditorEditable *>(m_lastEditor);
+    if (lastFormEditor) {
+        disconnect(lastFormEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
 
         if (m_dirty) {
+            const QString contents = lastFormEditor->contents();
             foreach(Qt4Project *project, m_projects)
-                project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), lastEditor);
+                project->rootProjectNode()->updateCodeModelSupportFromEditor(lastFormEditor->file()->fileName(), contents);
             m_dirty = false;
         }
     }
@@ -129,7 +130,7 @@ void Qt4Manager::editorChanged(Core::IEditor *editor)
     m_lastEditor = editor;
 
     // Handle new editor
-    if (Designer::FormWindowEditor *fw = qobject_cast<Designer::FormWindowEditor *>(editor))
+    if (Designer::DesignerXmlEditorEditable *fw = qobject_cast<Designer::DesignerXmlEditorEditable *>(editor))
         connect(fw, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
 }
 
@@ -138,12 +139,13 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
     if (m_lastEditor == editor) {
         // Oh no our editor is going to be closed
         // get the content first
-        Designer::FormWindowEditor *lastEditor = qobject_cast<Designer::FormWindowEditor *>(m_lastEditor);
+        Designer::DesignerXmlEditorEditable *lastEditor = qobject_cast<Designer::DesignerXmlEditorEditable *>(m_lastEditor);
         if (lastEditor) {
             disconnect(lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
             if (m_dirty) {
+                const QString contents = lastEditor->contents();
                 foreach(Qt4Project *project, m_projects)
-                    project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), lastEditor);
+                    project->rootProjectNode()->updateCodeModelSupportFromEditor(lastEditor->file()->fileName(), contents);
                 m_dirty = false;
             }
         }
@@ -156,7 +158,7 @@ void Qt4Manager::uiEditorContentsChanged()
     // cast sender, get filename
     if (m_dirty)
         return;
-    Designer::FormWindowEditor *fw = qobject_cast<Designer::FormWindowEditor *>(sender());
+    Designer::DesignerXmlEditorEditable *fw = qobject_cast<Designer::DesignerXmlEditorEditable *>(sender());
     if (!fw)
         return;
     m_dirty = true;

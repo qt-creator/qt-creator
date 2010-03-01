@@ -37,7 +37,7 @@
 #include <QString>
 #include <QIcon>
 #include "propertycontainer.h"
-#include <qml.h>
+#include <qdeclarative.h>
 
 namespace QmlDesigner {
 

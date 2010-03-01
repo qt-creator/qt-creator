@@ -28,9 +28,9 @@
 **************************************************************************/
 #include "objectpropertiesview.h"
 
-#include <private/qmldebugservice_p.h>
-#include <private/qmldebug_p.h>
-#include <private/qmldebugclient_p.h>
+#include <private/qdeclarativedebugservice_p.h>
+#include <private/qdeclarativedebug_p.h>
+#include <private/qdeclarativedebugclient_p.h>
 
 #include <QtCore/qdebug.h>
 
@@ -53,7 +53,7 @@ public:
     PropertiesViewItem(QTreeWidget *widget, Type type = OtherType);
     PropertiesViewItem(QTreeWidgetItem *parent, Type type = OtherType);
 
-    QmlDebugPropertyReference property;
+    QDeclarativeDebugPropertyReference property;
     Type type;
 };
 
@@ -67,7 +67,7 @@ PropertiesViewItem::PropertiesViewItem(QTreeWidgetItem *parent, Type type)
 {
 }
 
-ObjectPropertiesView::ObjectPropertiesView(QmlEngineDebug *client, QWidget *parent)
+ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWidget *parent)
     : QWidget(parent),
       m_client(client),
       m_query(0),
@@ -92,17 +92,17 @@ ObjectPropertiesView::ObjectPropertiesView(QmlEngineDebug *client, QWidget *pare
     layout->addWidget(m_tree);
 }
 
-void ObjectPropertiesView::setEngineDebug(QmlEngineDebug *client)
+void ObjectPropertiesView::setEngineDebug(QDeclarativeEngineDebug *client)
 {
     m_client = client;
 }
 
 void ObjectPropertiesView::clear()
 {
-    setObject(QmlDebugObjectReference());
+    setObject(QDeclarativeDebugObjectReference());
 }
 
-void ObjectPropertiesView::reload(const QmlDebugObjectReference &obj)
+void ObjectPropertiesView::reload(const QDeclarativeDebugObjectReference &obj)
 {
     if (!m_client)
         return;
@@ -113,7 +113,7 @@ void ObjectPropertiesView::reload(const QmlDebugObjectReference &obj)
     if (!m_query->isWaiting())
         queryFinished();
     else
-        QObject::connect(m_query, SIGNAL(stateChanged(QmlDebugQuery::State)),
+        QObject::connect(m_query, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
                          this, SLOT(queryFinished()));
 }
 
@@ -122,10 +122,10 @@ void ObjectPropertiesView::queryFinished()
     if (!m_client || !m_query)
         return;
 
-    QmlDebugObjectReference obj = m_query->object();
+    QDeclarativeDebugObjectReference obj = m_query->object();
 
-    QmlDebugWatch *watch = m_client->addWatch(obj, this);
-    if (watch->state() == QmlDebugWatch::Dead) {
+    QDeclarativeDebugWatch *watch = m_client->addWatch(obj, this);
+    if (watch->state() == QDeclarativeDebugWatch::Dead) {
         delete watch;
         watch = 0;
     } else {
@@ -180,14 +180,14 @@ void ObjectPropertiesView::setPropertyValue(PropertiesViewItem *item, const QVar
     }
 }
 
-void ObjectPropertiesView::setObject(const QmlDebugObjectReference &object)
+void ObjectPropertiesView::setObject(const QDeclarativeDebugObjectReference &object)
 {
     m_object = object;
     m_tree->clear();
 
-    QList<QmlDebugPropertyReference> properties = object.properties();
+    QList<QDeclarativeDebugPropertyReference> properties = object.properties();
     for (int i=0; i<properties.count(); ++i) {
-        const QmlDebugPropertyReference &p = properties[i];
+        const QDeclarativeDebugPropertyReference &p = properties[i];
 
         PropertiesViewItem *item = new PropertiesViewItem(m_tree);
         item->property = p;
@@ -208,23 +208,23 @@ void ObjectPropertiesView::setObject(const QmlDebugObjectReference &object)
     }
 }
 
-void ObjectPropertiesView::watchCreated(QmlDebugWatch *watch)
+void ObjectPropertiesView::watchCreated(QDeclarativeDebugWatch *watch)
 {
     if (watch->objectDebugId() == m_object.debugId()
-            && qobject_cast<QmlDebugPropertyWatch*>(watch)) {
-        connect(watch, SIGNAL(stateChanged(QmlDebugWatch::State)), SLOT(watchStateChanged()));
-        setWatched(qobject_cast<QmlDebugPropertyWatch*>(watch)->name(), true);
+            && qobject_cast<QDeclarativeDebugPropertyWatch*>(watch)) {
+        connect(watch, SIGNAL(stateChanged(QDeclarativeDebugWatch::State)), SLOT(watchStateChanged()));
+        setWatched(qobject_cast<QDeclarativeDebugPropertyWatch*>(watch)->name(), true);
     }
 }
 
 void ObjectPropertiesView::watchStateChanged()
 {
-    QmlDebugWatch *watch = qobject_cast<QmlDebugWatch*>(sender());
+    QDeclarativeDebugWatch *watch = qobject_cast<QDeclarativeDebugWatch*>(sender());
 
     if (watch->objectDebugId() == m_object.debugId()
-            && qobject_cast<QmlDebugPropertyWatch*>(watch)
-            && watch->state() == QmlDebugWatch::Inactive) {
-        setWatched(qobject_cast<QmlDebugPropertyWatch*>(watch)->name(), false);
+            && qobject_cast<QDeclarativeDebugPropertyWatch*>(watch)
+            && watch->state() == QDeclarativeDebugWatch::Inactive) {
+        setWatched(qobject_cast<QDeclarativeDebugPropertyWatch*>(watch)->name(), false);
     }
 }
 

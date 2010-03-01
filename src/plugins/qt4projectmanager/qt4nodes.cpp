@@ -241,154 +241,135 @@ void Qt4PriFileNode::scheduleUpdate()
 }
 
 struct InternalNode
+{
+    QMap<QString, InternalNode*> subnodes;
+    QStringList files;
+    ProjectExplorer::FileType type;
+    QString fullPath;
+    QIcon icon;
+
+    InternalNode()
     {
-        QMap<QString, InternalNode*> subnodes;
-        QStringList files;
-        ProjectExplorer::FileType type;
-        QString fullPath;
-        QIcon icon;
+        type = ProjectExplorer::UnknownFileType;
+    }
 
-        InternalNode()
-        {
-            type = ProjectExplorer::UnknownFileType;
-        }
+    ~InternalNode()
+    {
+        qDeleteAll(subnodes);
+    }
 
-        ~InternalNode()
-        {
-            qDeleteAll(subnodes);
-        }
-
-        // Creates a tree structure from a list of absolute file paths.
-        // Empty directories are compressed into a single entry with a longer path.
-        // * project
-        //    * /absolute/path
-        //       * file1
-        //    * relative
-        //       * path1
-        //          * file1
-        //          * file2
-        //       * path2
-        //          * file1
-        // The method first creates a tree that looks like the directory structure, i.e.
-        //    * /
-        //       * absolute
-        //          * path
-        // ...
-        // and afterwards calls compress() which merges directory nodes with single children, i.e. to
-        //    * /absolute/path
-        void create(const QString &projectDir, const QStringList &newFilePaths, ProjectExplorer::FileType type)
-        {
-            static const QChar separator = QChar('/');
-            const QString projectDirWithSeparator = projectDir + separator;
-            int projectDirWithSeparatorLength = projectDirWithSeparator.length();
-            foreach (const QString &file, newFilePaths) {
-                QString fileWithoutPrefix;
-                bool isRelative;
-                if (file.startsWith(projectDirWithSeparator)) {
-                    isRelative = true;
-                    fileWithoutPrefix = file.mid(projectDirWithSeparatorLength);
-                } else {
-                    isRelative = false;
-                    fileWithoutPrefix = file;
-                }
-                QStringList parts = fileWithoutPrefix.split(separator, QString::SkipEmptyParts);
+    // Creates a tree structure from a list of absolute file paths.
+    // Empty directories are compressed into a single entry with a longer path.
+    // * project
+    //    * /absolute/path
+    //       * file1
+    //    * relative
+    //       * path1
+    //          * file1
+    //          * file2
+    //       * path2
+    //          * file1
+    // The method first creates a tree that looks like the directory structure, i.e.
+    //    * /
+    //       * absolute
+    //          * path
+    // ...
+    // and afterwards calls compress() which merges directory nodes with single children, i.e. to
+    //    * /absolute/path
+    void create(const QString &projectDir, const QStringList &newFilePaths, ProjectExplorer::FileType type)
+    {
+        static const QChar separator = QChar('/');
+        const QString projectDirWithSeparator = projectDir + separator;
+        int projectDirWithSeparatorLength = projectDirWithSeparator.length();
+        foreach (const QString &file, newFilePaths) {
+            QString fileWithoutPrefix;
+            bool isRelative;
+            if (file.startsWith(projectDirWithSeparator)) {
+                isRelative = true;
+                fileWithoutPrefix = file.mid(projectDirWithSeparatorLength);
+            } else {
+                isRelative = false;
+                fileWithoutPrefix = file;
+            }
+            QStringList parts = fileWithoutPrefix.split(separator, QString::SkipEmptyParts);
 #ifndef Q_OS_WIN
-                if (!isRelative && parts.count() > 0)
-                    parts[0].prepend(separator);
+            if (!isRelative && parts.count() > 0)
+                parts[0].prepend(separator);
 #endif
-                QStringListIterator it(parts);
-                InternalNode *currentNode = this;
-                QString path = (isRelative ? projectDir : "");
-                while (it.hasNext()) {
-                    const QString &key = it.next();
-                    if (it.hasNext()) { // key is directory
-                        path += key;
-                        if (!currentNode->subnodes.contains(key)) {
-                            InternalNode *val = new InternalNode;
-                            val->type = type;
-                            val->fullPath = path;
-                            currentNode->subnodes.insert(key, val);
-                            currentNode = val;
-                        } else {
-                            currentNode = currentNode->subnodes.value(key);
-                        }
-                        path += separator;
-                    } else { // key is filename
-                        currentNode->files.append(file);
+            QStringListIterator it(parts);
+            InternalNode *currentNode = this;
+            QString path = (isRelative ? projectDir : "");
+            while (it.hasNext()) {
+                const QString &key = it.next();
+                if (it.hasNext()) { // key is directory
+                    path += key;
+                    if (!currentNode->subnodes.contains(key)) {
+                        InternalNode *val = new InternalNode;
+                        val->type = type;
+                        val->fullPath = path;
+                        currentNode->subnodes.insert(key, val);
+                        currentNode = val;
+                    } else {
+                        currentNode = currentNode->subnodes.value(key);
                     }
+                    path += separator;
+                } else { // key is filename
+                    currentNode->files.append(file);
                 }
             }
-            this->compress();
+        }
+        this->compress();
+    }
+
+    // Removes folder nodes with only a single sub folder in it
+    void compress()
+    {
+        static const QChar separator = QDir::separator(); // it is used for the *keys* which will become display name
+        QMap<QString, InternalNode*> newSubnodes;
+        QMapIterator<QString, InternalNode*> i(subnodes);
+        while (i.hasNext()) {
+            i.next();
+            i.value()->compress();
+            if (i.value()->files.isEmpty() && i.value()->subnodes.size() == 1) {
+                QString key = i.value()->subnodes.begin().key();
+                newSubnodes.insert(i.key()+separator+key, i.value()->subnodes.value(key));
+                i.value()->subnodes.clear();
+                delete i.value();
+            } else {
+                newSubnodes.insert(i.key(), i.value());
+            }
+        }
+        subnodes = newSubnodes;
+    }
+
+    // Makes the projectNode's subtree below the given folder match this internal node's subtree
+    void updateSubFolders(Qt4PriFileNode *projectNode, ProjectExplorer::FolderNode *folder)
+    {
+        updateFiles(projectNode, folder, type);
+
+        // update folders
+        QList<FolderNode *> existingFolderNodes;
+        foreach (FolderNode *node, folder->subFolderNodes()) {
+            if (node->nodeType() != ProjectNodeType)
+                existingFolderNodes << node;
         }
 
-        // Removes folder nodes with only a single sub folder in it
-        void compress()
-        {
-            static const QChar separator = QDir::separator(); // it is used for the *keys* which will become display name
-            QMap<QString, InternalNode*> newSubnodes;
-            QMapIterator<QString, InternalNode*> i(subnodes);
-            while (i.hasNext()) {
-                i.next();
-                i.value()->compress();
-                if (i.value()->files.isEmpty() && i.value()->subnodes.size() == 1) {
-                    QString key = i.value()->subnodes.begin().key();
-                    newSubnodes.insert(i.key()+separator+key, i.value()->subnodes.value(key));
-                    i.value()->subnodes.clear();
-                    delete i.value();
-                } else {
-                    newSubnodes.insert(i.key(), i.value());
-                }
-            }
-            subnodes = newSubnodes;
-        }
+        QList<FolderNode *> foldersToRemove;
+        QList<FolderNode *> foldersToAdd;
+        typedef QPair<InternalNode *, FolderNode *> NodePair;
+        QList<NodePair> nodesToUpdate;
 
-        // Makes the projectNode's subtree below the given folder match this internal node's subtree
-        void updateSubFolders(Qt4PriFileNode *projectNode, ProjectExplorer::FolderNode *folder)
-        {
-            updateFiles(projectNode, folder, type);
+        // newFolders is already sorted
+        qSort(existingFolderNodes.begin(), existingFolderNodes.end(), ProjectNode::sortFolderNodesByName);
 
-            // update folders
-            QList<FolderNode *> existingFolderNodes;
-            foreach (FolderNode *node, folder->subFolderNodes()) {
-                if (node->nodeType() != ProjectNodeType)
-                    existingFolderNodes << node;
-            }
-
-            QList<FolderNode *> foldersToRemove;
-            QList<FolderNode *> foldersToAdd;
-            typedef QPair<InternalNode *, FolderNode *> NodePair;
-            QList<NodePair> nodesToUpdate;
-
-            // newFolders is already sorted
-            qSort(existingFolderNodes.begin(), existingFolderNodes.end(), ProjectNode::sortFolderNodesByName);
-
-            QList<FolderNode*>::const_iterator existingNodeIter = existingFolderNodes.constBegin();
-            QMap<QString, InternalNode*>::const_iterator newNodeIter = subnodes.constBegin();;
-            while (existingNodeIter != existingFolderNodes.constEnd()
-                   && newNodeIter != subnodes.constEnd()) {
-                if ((*existingNodeIter)->displayName() < newNodeIter.key()) {
-                    foldersToRemove << *existingNodeIter;
-                    ++existingNodeIter;
-                } else if ((*existingNodeIter)->displayName() > newNodeIter.key()) {
-                    FolderNode *newNode = new FolderNode(newNodeIter.value()->fullPath);
-                    newNode->setDisplayName(newNodeIter.key());
-                    if (!newNodeIter.value()->icon.isNull())
-                        newNode->setIcon(newNodeIter.value()->icon);
-                    foldersToAdd << newNode;
-                    nodesToUpdate << NodePair(newNodeIter.value(), newNode);
-                    ++newNodeIter;
-                } else { // *existingNodeIter->path() == *newPathIter
-                    nodesToUpdate << NodePair(newNodeIter.value(), *existingNodeIter);
-                    ++existingNodeIter;
-                    ++newNodeIter;
-                }
-            }
-
-            while (existingNodeIter != existingFolderNodes.constEnd()) {
+        QList<FolderNode*>::const_iterator existingNodeIter = existingFolderNodes.constBegin();
+        QMap<QString, InternalNode*>::const_iterator newNodeIter = subnodes.constBegin();;
+        while (existingNodeIter != existingFolderNodes.constEnd()
+               && newNodeIter != subnodes.constEnd()) {
+            if ((*existingNodeIter)->displayName() < newNodeIter.key()) {
                 foldersToRemove << *existingNodeIter;
                 ++existingNodeIter;
-            }
-            while (newNodeIter != subnodes.constEnd()) {
+            } else if ((*existingNodeIter)->displayName() > newNodeIter.key()) {
                 FolderNode *newNode = new FolderNode(newNodeIter.value()->fullPath);
                 newNode->setDisplayName(newNodeIter.key());
                 if (!newNodeIter.value()->icon.isNull())
@@ -396,62 +377,81 @@ struct InternalNode
                 foldersToAdd << newNode;
                 nodesToUpdate << NodePair(newNodeIter.value(), newNode);
                 ++newNodeIter;
+            } else { // *existingNodeIter->path() == *newPathIter
+                nodesToUpdate << NodePair(newNodeIter.value(), *existingNodeIter);
+                ++existingNodeIter;
+                ++newNodeIter;
             }
-
-            if (!foldersToRemove.isEmpty())
-                projectNode->removeFolderNodes(foldersToRemove, folder);
-            if (!foldersToAdd.isEmpty())
-                projectNode->addFolderNodes(foldersToAdd, folder);
-
-            foreach (const NodePair &np, nodesToUpdate)
-                np.first->updateSubFolders(projectNode, np.second);
         }
 
-        // Makes the folder's files match this internal node's file list
-        void updateFiles(Qt4PriFileNode *projectNode, FolderNode *folder, FileType type)
-        {
-            QList<FileNode*> existingFileNodes;
-            foreach (FileNode *fileNode, folder->fileNodes()) {
-                if (fileNode->fileType() == type && !fileNode->isGenerated())
-                    existingFileNodes << fileNode;
-            }
+        while (existingNodeIter != existingFolderNodes.constEnd()) {
+            foldersToRemove << *existingNodeIter;
+            ++existingNodeIter;
+        }
+        while (newNodeIter != subnodes.constEnd()) {
+            FolderNode *newNode = new FolderNode(newNodeIter.value()->fullPath);
+            newNode->setDisplayName(newNodeIter.key());
+            if (!newNodeIter.value()->icon.isNull())
+                newNode->setIcon(newNodeIter.value()->icon);
+            foldersToAdd << newNode;
+            nodesToUpdate << NodePair(newNodeIter.value(), newNode);
+            ++newNodeIter;
+        }
 
-            QList<FileNode*> filesToRemove;
-            QList<FileNode*> filesToAdd;
+        if (!foldersToRemove.isEmpty())
+            projectNode->removeFolderNodes(foldersToRemove, folder);
+        if (!foldersToAdd.isEmpty())
+            projectNode->addFolderNodes(foldersToAdd, folder);
 
-            qSort(files);
-            qSort(existingFileNodes.begin(), existingFileNodes.end(), ProjectNode::sortNodesByPath);
+        foreach (const NodePair &np, nodesToUpdate)
+            np.first->updateSubFolders(projectNode, np.second);
+    }
 
-            QList<FileNode*>::const_iterator existingNodeIter = existingFileNodes.constBegin();
-            QList<QString>::const_iterator newPathIter = files.constBegin();
-            while (existingNodeIter != existingFileNodes.constEnd()
-                   && newPathIter != files.constEnd()) {
-                if ((*existingNodeIter)->path() < *newPathIter) {
-                    filesToRemove << *existingNodeIter;
-                    ++existingNodeIter;
-                } else if ((*existingNodeIter)->path() > *newPathIter) {
-                    filesToAdd << new FileNode(*newPathIter, type, false);
-                    ++newPathIter;
-                } else { // *existingNodeIter->path() == *newPathIter
-                    ++existingNodeIter;
-                    ++newPathIter;
-                }
-            }
-            while (existingNodeIter != existingFileNodes.constEnd()) {
+    // Makes the folder's files match this internal node's file list
+    void updateFiles(Qt4PriFileNode *projectNode, FolderNode *folder, FileType type)
+    {
+        QList<FileNode*> existingFileNodes;
+        foreach (FileNode *fileNode, folder->fileNodes()) {
+            if (fileNode->fileType() == type && !fileNode->isGenerated())
+                existingFileNodes << fileNode;
+        }
+
+        QList<FileNode*> filesToRemove;
+        QList<FileNode*> filesToAdd;
+
+        qSort(files);
+        qSort(existingFileNodes.begin(), existingFileNodes.end(), ProjectNode::sortNodesByPath);
+
+        QList<FileNode*>::const_iterator existingNodeIter = existingFileNodes.constBegin();
+        QList<QString>::const_iterator newPathIter = files.constBegin();
+        while (existingNodeIter != existingFileNodes.constEnd()
+               && newPathIter != files.constEnd()) {
+            if ((*existingNodeIter)->path() < *newPathIter) {
                 filesToRemove << *existingNodeIter;
                 ++existingNodeIter;
-            }
-            while (newPathIter != files.constEnd()) {
+            } else if ((*existingNodeIter)->path() > *newPathIter) {
                 filesToAdd << new FileNode(*newPathIter, type, false);
                 ++newPathIter;
+            } else { // *existingNodeIter->path() == *newPathIter
+                ++existingNodeIter;
+                ++newPathIter;
             }
-
-            if (!filesToRemove.isEmpty())
-                projectNode->removeFileNodes(filesToRemove, folder);
-            if (!filesToAdd.isEmpty())
-                projectNode->addFileNodes(filesToAdd, folder);
         }
-    };
+        while (existingNodeIter != existingFileNodes.constEnd()) {
+            filesToRemove << *existingNodeIter;
+            ++existingNodeIter;
+        }
+        while (newPathIter != files.constEnd()) {
+            filesToAdd << new FileNode(*newPathIter, type, false);
+            ++newPathIter;
+        }
+
+        if (!filesToRemove.isEmpty())
+            projectNode->removeFileNodes(filesToRemove, folder);
+        if (!filesToAdd.isEmpty())
+            projectNode->addFileNodes(filesToAdd, folder);
+    }
+};
 
 void Qt4PriFileNode::update(ProFile *includeFile, ProFileReader *reader)
 {
@@ -1244,16 +1244,16 @@ void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)
     }
 }
 
-void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName, Designer::FormWindowEditor *fw)
+void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName,
+                                                      const QString &contents)
 {
-    QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it;
-    it = m_uiCodeModelSupport.constFind(uiFileName);
-    if (it != m_uiCodeModelSupport.constEnd()) {
-        it.value()->updateFromEditor(fw);
-    }
+    const QMap<QString, Qt4UiCodeModelSupport *>::const_iterator it =
+            m_uiCodeModelSupport.constFind(uiFileName);
+    if (it != m_uiCodeModelSupport.constEnd())
+        it.value()->updateFromEditor(contents);
     foreach (ProjectExplorer::ProjectNode *pro, subProjectNodes())
         if (Qt4ProFileNode *qt4proFileNode = qobject_cast<Qt4ProFileNode *>(pro))
-            qt4proFileNode->updateCodeModelSupportFromEditor(uiFileName, fw);
+            qt4proFileNode->updateCodeModelSupportFromEditor(uiFileName, contents);
 }
 
 QString Qt4ProFileNode::uiDirectory() const
@@ -1325,5 +1325,5 @@ Qt4NodesWatcher::Qt4NodesWatcher(QObject *parent)
 {
 }
 
-}
-}
+} // namespace Internal
+} // namespace Qt4ProjectManager

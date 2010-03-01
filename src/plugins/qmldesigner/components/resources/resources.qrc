@@ -70,6 +70,18 @@
 		<file>images/icon-top.png</file>
 		<file>images/icon-bottom.png</file>
 		<file>images/icon-vertical.png</file>
-		<file>images/icon-horizontal.png</file>
+		<file>images/icon-horizontal.png</file>		
+		<file>images/button_alignment_right_pressed.png</file>
+		<file>images/button_alignment_right_normal.png</file>		
+		<file>images/button_alignment_left_pressed.png</file>
+		<file>images/button_alignment_left_normal.png</file>
+		<file>images/button_alignment_top_pressed.png</file>
+		<file>images/button_alignment_top_normal.png</file>
+		<file>images/button_alignment_bottom_pressed.png</file>
+		<file>images/button_alignment_bottom_normal.png</file>
+		<file>images/button_alignment_centerh_pressed.png</file>
+		<file>images/button_alignment_centerh_normal.png</file>
+		<file>images/button_alignment_centerv_pressed.png</file>
+		<file>images/button_alignment_centerv_normal.png</file>
     </qresource>
 </RCC>

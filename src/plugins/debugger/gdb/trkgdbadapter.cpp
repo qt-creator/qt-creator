@@ -381,6 +381,7 @@ QByteArray TrkGdbAdapter::trkStepRangeMessage()
         option = 0x11;  // Step over.
     if (from <= pc && pc <= to) {
         //to = qMax(to - 4, from);
+        //to = qMax(to - 4, from);
         debugMessage("STEP IN " + hexxNumber(from) + " " + hexxNumber(to)
             + " INSTEAD OF " + hexxNumber(pc));
     } else {

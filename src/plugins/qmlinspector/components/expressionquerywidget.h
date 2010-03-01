@@ -29,7 +29,7 @@
 #ifndef EXPRESSIONQUERYWIDGET_H
 #define EXPRESSIONQUERYWIDGET_H
 
-#include <private/qmldebug_p.h>
+#include <private/qdeclarativedebug_p.h>
 
 #include <QtGui/qwidget.h>
 
@@ -50,16 +50,16 @@ public:
         ShellMode
     };
 
-    ExpressionQueryWidget(Mode mode = SeparateEntryMode, QmlEngineDebug *client = 0, QWidget *parent = 0);
+    ExpressionQueryWidget(Mode mode = SeparateEntryMode, QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
 
-    void setEngineDebug(QmlEngineDebug *client);
+    void setEngineDebug(QDeclarativeEngineDebug *client);
     void clear();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
 public slots:
-    void setCurrentObject(const QmlDebugObjectReference &obj);
+    void setCurrentObject(const QDeclarativeDebugObjectReference &obj);
 
 private slots:
     void executeExpression();
@@ -73,8 +73,8 @@ private:
 
     Mode m_mode;
 
-    QmlEngineDebug *m_client;
-    QmlDebugExpressionQuery *m_query;
+    QDeclarativeEngineDebug *m_client;
+    QDeclarativeDebugExpressionQuery *m_query;
     QTextEdit *m_textEdit;
     QLineEdit *m_lineEdit;
     QPushButton *m_button;
@@ -84,8 +84,8 @@ private:
 
     QString m_title;
 
-    QmlDebugObjectReference m_currObject;
-    QmlDebugObjectReference m_objectAtLastFocus;
+    QDeclarativeDebugObjectReference m_currObject;
+    QDeclarativeDebugObjectReference m_objectAtLastFocus;
 };
 
 QT_END_NAMESPACE

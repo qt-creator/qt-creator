@@ -76,6 +76,8 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow)
     m_errorIcon->setPixmap(QPixmap(":/projectexplorer/images/compile_error.png"));
     m_warningIcon->setPixmap(QPixmap(":/projectexplorer/images/compile_warning.png"));
 
+    hide();
+
     connect(m_taskWindow, SIGNAL(tasksChanged()), this, SLOT(updateState()));
     updateState();
 }
@@ -94,4 +96,11 @@ void BuildProgress::updateState()
     m_warningIcon->setEnabled(haveWarnings);
     m_warningLabel->setEnabled(haveWarnings);
     m_warningLabel->setText(QString("%1").arg(warnings));
+
+    // Hide warnings and errors unless you need them
+    setVisible(haveWarnings | haveErrors);
+    m_warningIcon->setVisible(haveWarnings);
+    m_warningLabel->setVisible(haveWarnings);
+    m_errorIcon->setVisible(haveErrors);
+    m_errorLabel->setVisible(haveErrors);
 }

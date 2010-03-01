@@ -60,10 +60,8 @@ QString displayNameForId(const QString &id) {
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Emulator", "Qt4 Symbian Emulator target display name");
     if (id == QLatin1String(S60_DEVICE_TARGET_ID))
         return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Symbian Device", "Qt4 Symbian Device target display name");
-    if (id == QLatin1String(MAEMO_EMULATOR_TARGET_ID))
-        return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Maemo Emulator", "Qt4 Maemo Emulator target display name");
     if (id == QLatin1String(MAEMO_DEVICE_TARGET_ID))
-        return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Maemo Device", "Qt4 Maemo Device target display name");
+        return QApplication::translate("Qt4ProjectManager::Internal::Qt4Target", "Maemo", "Qt4 Maemo target display name");
     return QString();
 }
 
@@ -74,8 +72,6 @@ QIcon iconForId(const QString &id) {
         return QIcon(":/projectexplorer/images/SymbianEmulator.png");
     if (id == QLatin1String(S60_DEVICE_TARGET_ID))
         return QIcon(":/projectexplorer/images/SymbianDevice.png");
-    if (id == QLatin1String(MAEMO_EMULATOR_TARGET_ID))
-        return QIcon(":/projectexplorer/images/MaemoEmulator.png");
     if (id == QLatin1String(MAEMO_DEVICE_TARGET_ID))
         return QIcon(":/projectexplorer/images/MaemoDevice.png");
     return QIcon();
@@ -370,8 +366,7 @@ void Qt4Target::addRunConfigurationForPath(const QString &proFilePath)
         addRunConfiguration(new S60EmulatorRunConfiguration(this, proFilePath));
     else if (id() == QLatin1String(S60_DEVICE_TARGET_ID))
         addRunConfiguration(new S60DeviceRunConfiguration(this, proFilePath));
-    else if (id() == QLatin1String(MAEMO_EMULATOR_TARGET_ID) ||
-             id() == QLatin1String(MAEMO_DEVICE_TARGET_ID))
+    else if (id() == QLatin1String(MAEMO_DEVICE_TARGET_ID))
         addRunConfiguration(new MaemoRunConfiguration(this, proFilePath));
 }
 

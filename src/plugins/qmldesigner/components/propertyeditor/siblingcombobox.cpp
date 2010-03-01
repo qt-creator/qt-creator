@@ -28,9 +28,7 @@
 **************************************************************************/
 
 #include "siblingcombobox.h"
-#include <qml.h>
-
-QML_DEFINE_TYPE(Bauhaus,1,0,SiblingComboBox,QmlDesigner::SiblingComboBox)
+#include <QDeclarativeComponent>
 
 namespace QmlDesigner {
 
@@ -42,6 +40,11 @@ void SiblingComboBox::setItemNode(const QVariant &itemNode)
     m_itemNode = itemNode.value<ModelNode>();
     setup();
     emit itemNodeChanged();
+}
+
+void SiblingComboBox::registerDeclarativeTypes()
+{
+    QML_REGISTER_TYPE(Bauhaus,1,0,SiblingComboBox,SiblingComboBox);
 }
 
 void SiblingComboBox::setSelectedItemNode(const QVariant &itemNode)

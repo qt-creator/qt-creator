@@ -40,9 +40,9 @@ namespace Core {
 
 namespace Designer {
 class FormWindowEditor;
+class DesignerXmlEditorEditable;
 
 namespace Internal {
-class DesignerXmlEditorEditable;
 
 /**
   * A wrapper for Qt Designer form editors, so that they can be used in Design mode.

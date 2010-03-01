@@ -34,6 +34,10 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
+
 namespace Git {
 namespace Internal {
 
@@ -65,6 +69,8 @@ public:
     // Report command termination with exit code
     TerminationReportMode reportTerminationMode() const;
     void setTerminationReportMode(TerminationReportMode m);
+
+    static QString msgTimeout(int seconds);
 
 private:
     void run();

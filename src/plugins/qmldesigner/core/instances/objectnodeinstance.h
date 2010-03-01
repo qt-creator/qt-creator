@@ -43,10 +43,10 @@
 
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
-class QmlContext;
-class QmlMetaProperty;
-class QmlContext;
-class QmlBinding;
+class QDeclarativeContext;
+class QDeclarativeProperty;
+class QDeclarativeContext;
+class QDeclarativeBinding;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -60,7 +60,7 @@ class GraphicsViewNodeInstance;
 class GraphicsSceneNodeInstance;
 class ProxyWidgetNodeInstance;
 class WidgetNodeInstance;
-class QmlViewNodeInstance;
+class QDeclarativeViewNodeInstance;
 
 class ChildrenChangeEventFilter : public QObject
 {
@@ -88,7 +88,7 @@ public:
     void destroy();
     //void setModelNode(const ModelNode &node);
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
 
     ModelNode modelNode() const;
     void setModelNode(const ModelNode &node);
@@ -112,7 +112,7 @@ public:
     virtual bool isGraphicsWidget() const;
     virtual bool isProxyWidget() const;
     virtual bool isWidget() const;
-    virtual bool isQmlView() const;
+    virtual bool isQDeclarativeView() const;
     virtual bool isGraphicsObject() const;
     virtual bool isTransition() const;
 
@@ -164,20 +164,20 @@ public:
 
     virtual bool hasContent() const;
 
-    QmlContext *context() const;
+    QDeclarativeContext *context() const;
 
 protected:
-    static QObject* createObject(const NodeMetaInfo &metaInfo, QmlContext *context);
+    static QObject* createObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context);
 
     void resetProperty(QObject *object, const QString &propertyName);
     NodeInstance instanceForNode(const ModelNode &node, const QString &fullname);
 
     void removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty);
     void addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty);
-    void deleteObjectsInList(const QmlMetaProperty &metaProperty);
+    void deleteObjectsInList(const QDeclarativeProperty &metaProperty);
 
 private:
-    static void refreshBindings(QmlContext *context);
+    static void refreshBindings(QDeclarativeContext *context);
 
     QHash<QString, QVariant> m_resetValueHash;
     QHash<QString, NodeInstance> m_modelAbstractPropertyHash;
@@ -189,7 +189,6 @@ private:
     QWeakPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;
     NodeInstanceSignalSpy m_signalSpy;
-
 };
 
 

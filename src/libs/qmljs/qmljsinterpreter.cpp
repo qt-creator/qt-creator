@@ -36,12 +36,11 @@
 #include <QtCore/QDebug>
 
 #ifndef NO_DECLARATIVE_BACKEND
-#  include <QtDeclarative/QmlType>
-#  include <QtDeclarative/QmlMetaType>
-#  include <QtDeclarative/private/qmlgraphicsanchors_p.h> // ### remove me
-#  include <QtDeclarative/private/qmlgraphicsrectangle_p.h> // ### remove me
-#  include <QtDeclarative/private/qmlvaluetype_p.h> // ### remove me
-#  include <QtDeclarative/private/qmlanimation_p.h> // ### remove me
+#  include <QtDeclarative/private/qdeclarativemetatype_p.h>
+#  include <QtDeclarative/private/qdeclarativeanchors_p.h> // ### remove me
+#  include <QtDeclarative/private/qdeclarativerectangle_p.h> // ### remove me
+#  include <QtDeclarative/private/qdeclarativevaluetype_p.h> // ### remove me
+#  include <QtDeclarative/private/qdeclarativeanimation_p.h> // ### remove me
 #endif
 
 using namespace QmlJS::Interpreter;
@@ -232,8 +231,8 @@ void QmlObjectValue::processMembers(MemberProcessor *processor) const
 
 const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
 {
-    if (QmlMetaType::isQObject(prop.userType())) {
-        QmlType *qmlPropertyType = QmlMetaType::qmlType(prop.userType());
+    if (QDeclarativeMetaType::isQObject(prop.userType())) {
+        QDeclarativeType *qmlPropertyType = QDeclarativeMetaType::qmlType(prop.userType());
 
         if (qmlPropertyType && !qmlPropertyType->qmlTypeName().isEmpty()) {
             QString typeName = qmlPropertyType->qmlTypeName();
@@ -254,7 +253,7 @@ const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
 
             typeName.replace(QLatin1Char('.'), QLatin1Char('/'));
 
-            if (const ObjectValue *objectValue = engine()->newQmlObject(typeName, "", -1, -1))  // ### we should extend this to lookup the property types in the QmlType object, instead of the QMetaProperty.
+            if (const ObjectValue *objectValue = engine()->newQmlObject(typeName, "", -1, -1))  // ### we should extend this to lookup the property types in the QDeclarativeType object, instead of the QMetaProperty.
                 return objectValue;
         }
     }
@@ -335,11 +334,11 @@ const Value *QmlObjectValue::propertyValue(const QMetaProperty &prop) const
     } // end of switch
 
     const QString typeName = prop.typeName();
-    if (typeName == QLatin1String("QmlGraphicsAnchorLine")) {
+    if (typeName == QLatin1String("QDeclarativeAnchorLine")) {
         value = engine()->anchorLineValue();
     }
     if (value->asStringValue() && prop.name() == QLatin1String("easing")
-            && isDerivedFrom(&QmlPropertyAnimation::staticMetaObject)) {
+            && isDerivedFrom(&QDeclarativePropertyAnimation::staticMetaObject)) {
         value = engine()->easingCurveNameValue();
     }
 
@@ -2156,13 +2155,13 @@ const Value *Engine::defaultValueForBuiltinType(const QString &typeName) const
 #ifndef NO_DECLARATIVE_BACKEND
 QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix, int majorVersion, int minorVersion)
 {
-    if (name == QLatin1String("QmlGraphicsAnchors")) {
-        QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsAnchors::staticMetaObject, QLatin1String("Anchors"), -1, -1, this);
+    if (name == QLatin1String("QDeclarativeAnchors")) {
+        QmlObjectValue *object = new QmlObjectValue(&QDeclarativeAnchors::staticMetaObject, QLatin1String("Anchors"), -1, -1, this);
         return object;
-    } else if (name == QLatin1String("QmlGraphicsPen")) {
-        QmlObjectValue *object = new QmlObjectValue(&QmlGraphicsPen::staticMetaObject, QLatin1String("Pen"), -1, -1, this);
+    } else if (name == QLatin1String("QDeclarativePen")) {
+        QmlObjectValue *object = new QmlObjectValue(&QDeclarativePen::staticMetaObject, QLatin1String("Pen"), -1, -1, this);
         return object;
-    } else if (name == QLatin1String("QmlGraphicsScaleGrid")) {
+    } else if (name == QLatin1String("QDeclarativeScaleGrid")) {
         QmlObjectValue *object = new QmlObjectValue(&QObject::staticMetaObject, QLatin1String("ScaleGrid"), -1, -1, this);
         object->setProperty("left", numberValue());
         object->setProperty("top", numberValue());
@@ -2174,7 +2173,7 @@ QmlObjectValue *Engine::newQmlObject(const QString &name, const QString &prefix,
     // ### TODO: add support for QML packages
     const QString componentName = prefix + QLatin1Char('/') + name;
 
-    if (QmlType *qmlType = QmlMetaType::qmlType(componentName.toUtf8(), majorVersion, minorVersion)) {
+    if (QDeclarativeType *qmlType = QDeclarativeMetaType::qmlType(componentName.toUtf8(), majorVersion, minorVersion)) {
         const QString typeName = qmlType->qmlTypeName();
         const QString strippedTypeName = typeName.mid(typeName.lastIndexOf('/') + 1);
         QmlObjectValue *object = new QmlObjectValue(qmlType->metaObject(), strippedTypeName, majorVersion, minorVersion, this);

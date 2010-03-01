@@ -1047,10 +1047,11 @@ void EditorManager::addEditor(IEditor *editor, bool isDuplicate)
 
     m_d->m_editorModel->addEditor(editor, isDuplicate);
     if (!isDuplicate) {
-        m_d->m_core->fileManager()->addFile(editor->file());
-        if (!editor->isTemporary()) {
+        const bool isTemporary = editor->isTemporary();
+        const bool addWatcher = !isTemporary;
+        m_d->m_core->fileManager()->addFile(editor->file(), addWatcher);
+        if (!isTemporary)
             m_d->m_core->fileManager()->addToRecentFiles(editor->file()->fileName());
-        }
     }
     emit editorOpened(editor);
 }

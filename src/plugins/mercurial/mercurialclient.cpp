@@ -37,6 +37,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
@@ -82,14 +83,16 @@ bool MercurialClient::add(const QString &workingDir, const QString &filename)
 {
     QStringList args;
     args << QLatin1String("add") << filename;
-    return executeHgSynchronously(workingDir, args);
+    QByteArray stdOut;
+    return executeHgSynchronously(workingDir, args, &stdOut);
 }
 
 bool MercurialClient::remove(const QString &workingDir, const QString &filename)
 {
     QStringList args;
     args << QLatin1String("remove") << filename;
-    return executeHgSynchronously(workingDir, args);
+    QByteArray stdOut;
+    return executeHgSynchronously(workingDir, args, &stdOut);
 }
 
 bool MercurialClient::manifestSync(const QString &repository, const QString &relativeFilename)
@@ -118,6 +121,7 @@ bool MercurialClient::executeHgSynchronously(const QString  &workingDir,
     QProcess hgProcess;
     if (!workingDir.isEmpty())
         hgProcess.setWorkingDirectory(workingDir);
+    MercurialJobRunner::setProcessEnvironment(hgProcess);
 
     const MercurialSettings &settings = MercurialPlugin::instance()->settings();
     const QString binary = settings.binary();
@@ -135,19 +139,17 @@ bool MercurialClient::executeHgSynchronously(const QString  &workingDir,
 
     hgProcess.closeWriteChannel();
 
-    if (!hgProcess.waitForFinished(settings.timeoutMilliSeconds())) {
-        hgProcess.terminate();
+    QByteArray stdErr;
+    if (!Utils::SynchronousProcess::readDataFromProcess(hgProcess, settings.timeoutMilliSeconds(),
+                                                        output, &stdErr)) {
+        Utils::SynchronousProcess::stopProcess(hgProcess);
         outputWindow->appendError(MercurialJobRunner::msgTimeout(settings.timeoutSeconds()));
         return false;
     }
+    if (!stdErr.isEmpty())
+        outputWindow->append(QString::fromLocal8Bit(stdErr));
 
-    if ((hgProcess.exitStatus() == QProcess::NormalExit) && (hgProcess.exitCode() == 0)) {
-        if (output)
-            *output = hgProcess.readAllStandardOutput();
-        return true;
-    }
-
-    return false;
+    return hgProcess.exitStatus() == QProcess::NormalExit && hgProcess.exitCode() == 0;
 }
 
 QString MercurialClient::branchQuerySync(const QString &repositoryRoot)

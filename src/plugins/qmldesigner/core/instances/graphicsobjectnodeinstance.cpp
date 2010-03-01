@@ -201,7 +201,7 @@ void GraphicsObjectNodeInstance::paint(QPainter *painter) const
     painter->restore();
 }
 
-QPair<QGraphicsObject*, bool> GraphicsObjectNodeInstance::createGraphicsObject(const NodeMetaInfo &metaInfo, QmlContext *context)
+QPair<QGraphicsObject*, bool> GraphicsObjectNodeInstance::createGraphicsObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
 {
     QObject *object = ObjectNodeInstance::createObject(metaInfo, context);
     QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);

@@ -108,6 +108,7 @@ StashDialog::StashDialog(QWidget *parent) :
     m_deleteSelectionButton(new QPushButton(tr("Delete..."))),
     m_showCurrentButton(new QPushButton(tr("Show"))),
     m_restoreCurrentButton(new QPushButton(tr("Restore..."))),
+    //: Restore a git stash to new branch to be created
     m_restoreCurrentInBranchButton(new QPushButton(tr("Restore to branch..."))),
     m_refreshButton(new QPushButton(tr("Refresh")))
 {

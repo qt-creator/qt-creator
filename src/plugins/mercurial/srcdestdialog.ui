@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="QRadioButton" name="defaultButton">
        <property name="text">
-        <string>Default Location:</string>
+        <string>Default Location</string>
        </property>
        <property name="checked">
         <bool>true</bool>

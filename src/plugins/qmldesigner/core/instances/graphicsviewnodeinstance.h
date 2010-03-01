@@ -44,7 +44,7 @@ public:
     typedef QSharedPointer<GraphicsViewNodeInstance> Pointer;
     typedef QWeakPointer<GraphicsViewNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
 
     void setScene(QGraphicsScene *scene);
 

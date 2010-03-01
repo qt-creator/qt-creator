@@ -41,7 +41,7 @@ class QWidget;
 class QIODevice;
 class QProcess;
 class QPlainTextEdit;
-class QmlError;
+class QDeclarativeError;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {

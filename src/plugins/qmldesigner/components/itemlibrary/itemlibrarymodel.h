@@ -34,7 +34,7 @@
 #include <QIcon>
 #include <QVariant>
 #include <QScriptEngine>
-#include <private/qmllistmodel_p.h>
+#include <private/qdeclarativelistmodel_p.h>
 
 QT_FORWARD_DECLARE_CLASS(QMimeData);
 
@@ -46,7 +46,7 @@ class ItemLibraryInfo;
 namespace Internal {
 
 template <class T>
-class ItemLibrarySortedModel: public QmlListModel {
+class ItemLibrarySortedModel: public QDeclarativeListModel {
 public:
     ItemLibrarySortedModel(QObject *parent = 0);
     ~ItemLibrarySortedModel();

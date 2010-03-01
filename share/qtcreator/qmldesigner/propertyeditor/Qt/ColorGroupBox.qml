@@ -8,13 +8,26 @@ QExtGroupBox {
     property var backendColor
     property var oldMaximumHeight;
 
+    property var startupCollapse: selectionChanged;
+    property var firstTime: true;
+
     onFinishedChanged: {
         oldMaximumHeight = maximumHeight;
-        visible = false;
-        visible = true;
-        if (finished)
-        collapsed = true;
+        //visible = false;
+        //visible = true;
+        //if (finished)
+        //collapsed = true;
     }
+
+    onStartupCollapseChanged: {
+        oldMaximumHeight = maximumHeight;
+        if (!collapsed && firstTime) {
+            collapsed = true;
+            colorButton.checked = false;
+            firstTime = false;
+        }
+    }
+
 
     property var baseStateFlag: isBaseState
     onBaseStateFlagChanged: {
@@ -70,7 +83,6 @@ QExtGroupBox {
 
     ColorScheme { id:scheme; }
 
-
     QWidget {
         id: colorButtonWidget
         height: 32
@@ -89,6 +101,7 @@ QExtGroupBox {
             }
 
             ColorButton {
+                id: colorButton
                 color: colorGroupBox.backendColor.value;
                 checkable: true;
                 checked: false;

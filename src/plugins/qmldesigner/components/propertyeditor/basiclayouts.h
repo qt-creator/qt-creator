@@ -43,7 +43,7 @@ class QBoxLayoutObject : public QLayoutObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QmlListProperty<QWidget> children READ children)
+    Q_PROPERTY(QDeclarativeListProperty<QWidget> children READ children)
 
     Q_PROPERTY(int topMargin READ topMargin WRITE setTopMargin)
     Q_PROPERTY(int bottomMargin READ bottomMargin WRITE setBottomMargin)
@@ -57,8 +57,8 @@ public:
     explicit QBoxLayoutObject(QBoxLayout *, QObject *parent=0);
     virtual QLayout *layout() const;
 
-    QmlListProperty<QWidget> children() {
-        return QmlListProperty<QWidget>(this, 0, children_append, 0, 0, children_clear);
+    QDeclarativeListProperty<QWidget> children() {
+        return QDeclarativeListProperty<QWidget>(this, 0, children_append, 0, 0, children_clear);
     }
 
 private:
@@ -66,11 +66,11 @@ private:
     void addWidget(QWidget *);
     void clearWidget();
 
-    static void children_append(QmlListProperty<QWidget> *property, QWidget *widget) {
+    static void children_append(QDeclarativeListProperty<QWidget> *property, QWidget *widget) {
         static_cast<QBoxLayoutObject*>(property->object)->addWidget(widget);
     }
 
-    static void children_clear(QmlListProperty<QWidget> *property) {
+    static void children_clear(QDeclarativeListProperty<QWidget> *property) {
         static_cast<QBoxLayoutObject*>(property->object)->clearWidget();
     }
 
@@ -171,6 +171,12 @@ QT_END_NAMESPACE
 QML_DECLARE_TYPE(QBoxLayoutObject);
 QML_DECLARE_TYPE(QHBoxLayoutObject);
 QML_DECLARE_TYPE(QVBoxLayoutObject);
+
+
+class BasicLayouts {
+public:
+    static void registerDeclarativeTypes();
+};
 
 QT_END_HEADER
 

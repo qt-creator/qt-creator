@@ -29,28 +29,28 @@
 
 #include "qmlpropertychangesnodeinstance.h"
 #include "qmlstatenodeinstance.h"
-#include <QmlEngine>
-#include <QmlContext>
-#include <QmlExpression>
-#include <QmlBinding>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
+#include <QDeclarativeExpression>
+#include <private/qdeclarativebinding_p.h>
 #include <metainfo.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
 QmlPropertyChangesObject::QmlPropertyChangesObject() :
-        QmlStateOperation(),
+        QDeclarativeStateOperation(),
         m_restoreEntryValues(true),
         m_isExplicit(false)
 {
 }
 
-QmlStateOperation::ActionList QmlPropertyChangesObject::actions()
+QDeclarativeStateOperation::ActionList QmlPropertyChangesObject::actions()
 {
     ActionList list;
 
     foreach (const QString &property, m_properties.keys()) {
-        QmlAction a(m_targetObject.data(), property, m_properties.value(property));
+        QDeclarativeAction a(m_targetObject.data(), property, m_properties.value(property));
 
         if (a.property.isValid()) {
             a.restore = restoreEntryValues();
@@ -75,10 +75,10 @@ QmlStateOperation::ActionList QmlPropertyChangesObject::actions()
 //    }
 
     foreach (const QString &property, m_expressions.keys()) {
-        QmlMetaProperty mProperty = metaProperty(property);
+        QDeclarativeProperty mProperty = metaProperty(property);
 
         if (mProperty.isValid()) {
-            QmlAction a;
+            QDeclarativeAction a;
             a.restore = restoreEntryValues();
             a.property = mProperty;
             a.fromValue = a.property.read();
@@ -86,9 +86,9 @@ QmlStateOperation::ActionList QmlPropertyChangesObject::actions()
             a.specifiedProperty = property;
 
             if (m_isExplicit) {
-                a.toValue = QmlExpression(qmlContext(object()), m_expressions.value(property), object()).value();
+                a.toValue = QDeclarativeExpression(qmlContext(object()), m_expressions.value(property), object()).value();
             } else {
-                QmlBinding *newBinding = new QmlBinding(m_expressions.value(property), object(), qmlContext(object()));
+                QDeclarativeBinding *newBinding = new QDeclarativeBinding(m_expressions.value(property), object(), qmlContext(object()));
                 newBinding->setTarget(mProperty);
                 a.toBinding = newBinding;
                 a.deletableToBinding = true;
@@ -101,15 +101,15 @@ QmlStateOperation::ActionList QmlPropertyChangesObject::actions()
     return list;
 }
 
-QmlMetaProperty QmlPropertyChangesObject::metaProperty(const QString &property)
+QDeclarativeProperty QmlPropertyChangesObject::metaProperty(const QString &property)
 {
-    QmlMetaProperty prop = QmlMetaProperty::createProperty(m_targetObject.data(), property);
+    QDeclarativeProperty prop(m_targetObject.data(), property);
     if (!prop.isValid()) {
         qWarning() << "Cannot assign to non-existent property" << property;
-        return QmlMetaProperty();
+        return QDeclarativeProperty();
     } else if (!prop.isWritable()) {
         qWarning() << "Cannot assign to read-only property" << property;
-        return QmlMetaProperty();
+        return QDeclarativeProperty();
     }
     return prop;
 }
@@ -121,13 +121,13 @@ QmlPropertyChangesNodeInstance::QmlPropertyChangesNodeInstance(QmlPropertyChange
 
 QmlPropertyChangesNodeInstance::Pointer
         QmlPropertyChangesNodeInstance::create(const NodeMetaInfo & /*metaInfo*/,
-                                               QmlContext *context,
+                                               QDeclarativeContext *context,
                                                QObject *objectToBeWrapped)
 {
     Q_ASSERT(!objectToBeWrapped);
 
     QmlPropertyChangesObject *object = new QmlPropertyChangesObject;
-    QmlEngine::setContextForObject(object, context);
+    QDeclarativeEngine::setContextForObject(object, context);
     Pointer instance(new QmlPropertyChangesNodeInstance(object));
     return instance;
 }
@@ -202,5 +202,3 @@ void QmlPropertyChangesNodeInstance::updateStateInstance() const
 
 } // namespace Internal
 } // namespace QmlDesigner
-
-QML_DEFINE_NOCREATE_TYPE(QmlDesigner::Internal::QmlPropertyChangesObject)

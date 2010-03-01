@@ -42,7 +42,7 @@
 #include <nodeinstance.h>
 
 QT_BEGIN_NAMESPACE
-class QmlEngine;
+class QDeclarativeEngine;
 class QGraphicsScene;
 class QGraphicsView;
 QT_END_NAMESPACE
@@ -134,7 +134,7 @@ private: // functions
     void insertInstanceNodeRelationship(const ModelNode &node, const NodeInstance &instance);
     void removeInstanceNodeRelationship(const ModelNode &node);
 
-    QmlEngine *engine() const;
+    QDeclarativeEngine *engine() const;
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void removeInstanceAndSubInstances(const ModelNode &node);
 
@@ -144,7 +144,7 @@ private: //variables
 
     QHash<ModelNode, NodeInstance> m_nodeInstanceHash;
     QHash<QObject*, NodeInstance> m_objectInstanceHash; // This is purely internal. Might contain dangling pointers!
-    QWeakPointer<QmlEngine> m_engine;
+    QWeakPointer<QDeclarativeEngine> m_engine;
     QWeakPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
 
     QWeakPointer<QmlModelView> m_qmlModelView;

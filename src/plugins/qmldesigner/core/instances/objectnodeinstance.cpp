@@ -47,25 +47,26 @@
 #include <nodelistproperty.h>
 #include <metainfo.h>
 #include <propertymetainfo.h>
-#include <qmlmetaproperty.h>
 
 #include <QEvent>
 #include <QGraphicsScene>
-#include <QmlContext>
-#include <QmlError>
-#include <QmlBinding>
-#include <QmlMetaType>
-#include <QmlEngine>
+#include <QDeclarativeContext>
+#include <QDeclarativeError>
+#include <QDeclarativeEngine>
+#include <QDeclarativeProperty>
 #include <QSharedPointer>
 
-#include <private/qmlcontext_p.h>
-#include <private/qmllistaccessor_p.h>
-#include <private/qmlvaluetype_p.h>
-#include <private/qmlgraphicsanchors_p.h>
-#include <private/qmlgraphicsrectangle_p.h> // to get QmlGraphicsPen
+#include <private/qdeclarativebinding_p.h>
+#include <private/qdeclarativecontext_p.h>
+#include <private/qdeclarativelistaccessor_p.h>
+#include <private/qdeclarativevaluetype_p.h>
+#include <private/qdeclarativeanchors_p.h>
+#include <private/qdeclarativerectangle_p.h> // to get QDeclarativePen
 #include <private/qmetaobjectbuilder_p.h>
-#include <private/qmlvmemetaobject_p.h>
+#include <private/qdeclarativevmemetaobject_p.h>
+#include <private/qdeclarativemetatype_p.h>
 #include <private/qobject_p.h>
+#include <private/qdeclarativeproperty_p.h>
 
 
 
@@ -114,7 +115,7 @@ static bool isChildrenProperty(const QString &name)
 
 static void specialRemoveParentForQmlGraphicsItemChildren(QObject *object)
 {
-    QmlGraphicsItem *item = qobject_cast<QmlGraphicsItem*>(object);
+    QDeclarativeItem *item = qobject_cast<QDeclarativeItem*>(object);
     if (item && item->scene())
         item->scene()->removeItem(item);
 
@@ -187,8 +188,8 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
     m_metaObject = new NodeInstanceMetaObject(objectNodeInstance);
     const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
     for(int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
-        if (QmlMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
-            QObject *propertyObject = QmlMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
+        if (QDeclarativeMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
+            QObject *propertyObject = QDeclarativeMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
             if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
                 new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name());
             }
@@ -241,7 +242,7 @@ bool ObjectNodeInstance::isWidget() const
     return false;
 }
 
-bool ObjectNodeInstance::isQmlView() const
+bool ObjectNodeInstance::isQDeclarativeView() const
 {
     return false;
 }
@@ -324,14 +325,14 @@ QPair<QString, NodeInstance> ObjectNodeInstance::anchor(const QString &/*name*/)
 }
 
 
-static bool isList(const QmlMetaProperty &metaProperty)
+static bool isList(const QDeclarativeProperty &metaProperty)
 {
-    return metaProperty.propertyCategory() == QmlMetaProperty::List;
+    return metaProperty.propertyTypeCategory() == QDeclarativeProperty::List;
 }
 
-static bool isObject(const QmlMetaProperty &metaProperty)
+static bool isObject(const QDeclarativeProperty &metaProperty)
 {
-    return metaProperty.propertyCategory() == QmlMetaProperty::Object;
+    return metaProperty.propertyTypeCategory() == QDeclarativeProperty::Object;
 }
 
 static QVariant objectToVariant(QObject *object)
@@ -339,14 +340,14 @@ static QVariant objectToVariant(QObject *object)
     return QVariant::fromValue(object);
 }
 
-static void removeObjectFromList(const QmlMetaProperty & /*metaProperty*/, QObject * /*object*/, QmlEngine * /*engine*/)
+static void removeObjectFromList(const QDeclarativeProperty & /*metaProperty*/, QObject * /*object*/, QDeclarativeEngine * /*engine*/)
 {
     // ### Very few QML lists ever responded to removes
 }
 
 void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldParent, const QString &oldParentProperty)
 {
-    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(oldParent, oldParentProperty, context());
+    QDeclarativeProperty metaProperty(oldParent, oldParentProperty, context());
 
     if (isList(metaProperty)) {
         removeObjectFromList(metaProperty, object, nodeInstanceView()->engine());
@@ -359,10 +360,10 @@ void ObjectNodeInstance::removeFromOldProperty(QObject *object, QObject *oldPare
 
 void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, const QString &newParentProperty)
 {
-    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(newParent, newParentProperty, context());
+    QDeclarativeProperty metaProperty(newParent, newParentProperty, context());
 
     if (isList(metaProperty)) {
-        QmlListReference list = qvariant_cast<QmlListReference>(metaProperty.read());
+        QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
         list.append(object);
     } else if (isObject(metaProperty)) {
         metaProperty.write(objectToVariant(object));
@@ -372,9 +373,9 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     Q_ASSERT(objectToVariant(object).isValid());
 }
 
-static void specialSetParentForQmlGraphicsItemChildren(QObject *object, QmlGraphicsItem *parent)
+static void specialSetParentForQmlGraphicsItemChildren(QObject *object, QDeclarativeItem *parent)
 {
-    QmlGraphicsItem *item = qobject_cast<QmlGraphicsItem*>(object);
+    QDeclarativeItem *item = qobject_cast<QDeclarativeItem*>(object);
     if (item)
         item->setParentItem(parent);
     else
@@ -392,7 +393,7 @@ void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const Q
 
     if (newParentInstance.isValid()) {
         if (newParentInstance.isQmlGraphicsItem() && isChildrenProperty(newParentProperty))
-            specialSetParentForQmlGraphicsItemChildren(object(), qobject_cast<QmlGraphicsItem*>(newParentInstance.internalObject()));
+            specialSetParentForQmlGraphicsItemChildren(object(), qobject_cast<QDeclarativeItem*>(newParentInstance.internalObject()));
         else
             addToNewProperty(object(), newParentInstance.internalObject(), newParentProperty);
     }
@@ -402,33 +403,33 @@ void ObjectNodeInstance::reparent(const NodeInstance &oldParentInstance, const Q
 
 void ObjectNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    QmlMetaProperty qmlMetaProperty = QmlMetaProperty::createProperty(object(), name, context());
+    QDeclarativeProperty QDeclarativeProperty(object(), name, context());
 
-    qmlMetaProperty.write(value);
+    QDeclarativeProperty.write(value);
 }
 
 void ObjectNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
 {
-    QmlContext *qmlContext = QmlEngine::contextForObject(object());
+    QDeclarativeContext *QDeclarativeContext = QDeclarativeEngine::contextForObject(object());
 
-    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), name, context());
+    QDeclarativeProperty metaProperty(object(), name, context());
     if (metaProperty.isValid() && metaProperty.isProperty()) {
-        QmlBinding *qmlBinding = new QmlBinding(expression, object(), qmlContext);
-        qmlBinding->setTarget(metaProperty);
-        qmlBinding->setTrackChange(true);
-        QmlAbstractBinding *oldBinding = metaProperty.setBinding(qmlBinding);
+        QDeclarativeBinding *binding = new QDeclarativeBinding(expression, object(), QDeclarativeContext);
+        binding->setTarget(metaProperty);
+        binding->setNotifyOnValueChanged(true);
+        QDeclarativeAbstractBinding *oldBinding = QDeclarativePropertyPrivate::setBinding(metaProperty, binding);
         delete oldBinding;
-        qmlBinding->update();
+        binding->update();
     } else {
         qWarning() << "Cannot set binding for property" << name << ": property is unknown for type"
                    << (modelNode().isValid() ? modelNode().type() : "unknown");
     }
 }
 
-void ObjectNodeInstance::deleteObjectsInList(const QmlMetaProperty &metaProperty)
+void ObjectNodeInstance::deleteObjectsInList(const QDeclarativeProperty &metaProperty)
 {
     QObjectList objectList;
-    QmlListReference list = qvariant_cast<QmlListReference>(metaProperty.read());
+    QDeclarativeListReference list = qvariant_cast<QDeclarativeListReference>(metaProperty.read());
 
     for(int i = 0; i < list.count(); i++) {
         objectList += list.at(i);
@@ -463,10 +464,10 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
 {
     m_modelAbstractPropertyHash.remove(propertyName);
 
-    QmlMetaProperty qmlMetaProperty = QmlMetaProperty::createProperty(object, propertyName, context());
-    QMetaProperty metaProperty = qmlMetaProperty.property();
+    QDeclarativeProperty qmlProperty(object, propertyName, context());
+    QMetaProperty metaProperty = qmlProperty.property();
 
-    QmlAbstractBinding *binding = qmlMetaProperty.binding();
+    QDeclarativeAbstractBinding *binding = QDeclarativePropertyPrivate::binding(qmlProperty);
     if (binding) {
         binding->setEnabled(false, 0);
         delete binding;
@@ -474,12 +475,12 @@ void ObjectNodeInstance::resetProperty(QObject *object, const QString &propertyN
 
     if (metaProperty.isResettable()) {
         metaProperty.reset(object);
-    } else if (qmlMetaProperty.isWritable()) {
-        if (qmlMetaProperty.read() == resetValue(propertyName))
+    } else if (qmlProperty.isWritable()) {
+        if (qmlProperty.read() == resetValue(propertyName))
             return;
-        qmlMetaProperty.write(resetValue(propertyName));
-    } else if (qmlMetaProperty.propertyCategory() == QmlMetaProperty::List) {
-        qvariant_cast<QmlListReference>(qmlMetaProperty.read()).clear();
+        qmlProperty.write(resetValue(propertyName));
+    } else if (qmlProperty.propertyTypeCategory() == QDeclarativeProperty::List) {
+        qvariant_cast<QDeclarativeListReference>(qmlProperty.read()).clear();
     }
 }
 
@@ -491,7 +492,7 @@ QVariant ObjectNodeInstance::property(const QString &name) const
 
     // TODO: handle model nodes
 
-    QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), name, context());
+    QDeclarativeProperty metaProperty(object(), name, context());
     if (metaProperty.property().isEnumType()) {
         QVariant value = object()->property(name.toLatin1());
         return metaProperty.property().enumerator().valueToKey(value.toInt());
@@ -522,7 +523,7 @@ bool ObjectNodeInstance::deleteHeldInstance() const
     return m_deleteHeldInstance;
 }
 
-ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QmlContext *context, QObject *objectToBeWrapped)
+ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeMetaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
 {
     QObject *object = 0;
     if (objectToBeWrapped)
@@ -540,7 +541,7 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(const NodeMetaInfo &nodeM
     return instance;
 }
 
-QObject* ObjectNodeInstance::createObject(const NodeMetaInfo &metaInfo, QmlContext *context)
+QObject* ObjectNodeInstance::createObject(const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
 {
     QObject *object = metaInfo.createInstance(context);
 
@@ -564,9 +565,9 @@ void ObjectNodeInstance::updateAnchors()
 {
 }
 
-QmlContext *ObjectNodeInstance::context() const
+QDeclarativeContext *ObjectNodeInstance::context() const
 {
-    QmlContext *context = QmlEngine::contextForObject(object());
+    QDeclarativeContext *context = QDeclarativeEngine::contextForObject(object());
     if (context)
         return context;
     else if (nodeInstanceView())
@@ -599,11 +600,11 @@ QStringList propertyNameForWritableProperties(QObject *object, const QString &ba
     for (int index = 0; index < metaObject->propertyCount(); ++index) {
         QMetaProperty metaProperty = metaObject->property(index);
         if (metaProperty.isReadable() && !metaProperty.isWritable()) {
-            QObject *childObject = QmlMetaType::toQObject(metaProperty.read(object));
+            QObject *childObject = QDeclarativeMetaType::toQObject(metaProperty.read(object));
             if (childObject)
                 propertyNameList.append(propertyNameForWritableProperties(childObject, baseName +  QString::fromUtf8(metaProperty.name()) + '.'));
-        } else if (QmlValueTypeFactory::valueType(metaProperty.userType())) {
-            QmlValueType *valueType = QmlValueTypeFactory::valueType(metaProperty.userType());
+        } else if (QDeclarativeValueTypeFactory::valueType(metaProperty.userType())) {
+            QDeclarativeValueType *valueType = QDeclarativeValueTypeFactory::valueType(metaProperty.userType());
             valueType->setValue(metaProperty.read(object));
             propertyNameList.append(propertyNameForWritableProperties(valueType, baseName +  QString::fromUtf8(metaProperty.name()) + '.'));
         } else if (metaProperty.isReadable() && metaProperty.isWritable()) {
@@ -619,7 +620,7 @@ void ObjectNodeInstance::populateResetValueHash()
     QStringList propertyNameList = propertyNameForWritableProperties(object());
 
     foreach(const QString &propertyName, propertyNameList) {
-        QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), propertyName, context());
+        QDeclarativeProperty metaProperty(object(), propertyName, context());
         if (metaProperty.isWritable())
             m_resetValueHash.insert(propertyName, metaProperty.read());
     }
@@ -695,10 +696,10 @@ void ObjectNodeInstance::createDynamicProperty(const QString &name, const QStrin
 /**
   Force all bindings in this or a sub context to be re-evaluated.
   */
-void ObjectNodeInstance::refreshBindings(QmlContext *context)
+void ObjectNodeInstance::refreshBindings(QDeclarativeContext *context)
 {
     // TODO: Maybe do this via a timer to prevent update flooding
-    QmlContextPrivate::get(context)->refreshExpressions();
+    QDeclarativeContextPrivate::get(context)->refreshExpressions();
 }
 
 }

@@ -118,7 +118,7 @@ QIcon TargetSettingsPanel::icon() const
 ///
 
 TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
-    m_currentIndex(-1),
+    m_currentTarget(0),
     m_project(project),
     m_selector(0),
     m_centralWidget(0)
@@ -171,34 +171,34 @@ void TargetSettingsPanelWidget::setupUi()
     noTargetLayout->addStretch(10);
     m_centralWidget->addWidget(m_noTargetLabel);
 
+    connect(m_selector, SIGNAL(currentChanged(int,int)),
+            this, SLOT(currentTargetChanged(int,int)));
+
     foreach (Target *t, m_project->targets())
         targetAdded(t);
-    m_selector->markActive(m_targets.indexOf(m_project->activeTarget()));
 
-    connect(m_selector, SIGNAL(currentIndexChanged(int,int)),
-            this, SLOT(currentTargetIndexChanged(int,int)));
     connect(m_selector, SIGNAL(addButtonClicked()),
             this, SLOT(addTarget()));
     connect(m_selector, SIGNAL(removeButtonClicked()),
             this, SLOT(removeTarget()));
 
-    if (m_project->targets().count())
-        currentTargetIndexChanged(m_targets.indexOf(m_project->activeTarget()), 0);
+    if (m_project->activeTarget()) {
+        m_selector->markActive(m_targets.indexOf(m_project->activeTarget()));
+        m_selector->setCurrentIndex(m_targets.indexOf(m_project->activeTarget()));
+    }
 }
 
-void TargetSettingsPanelWidget::currentTargetIndexChanged(int targetIndex, int subIndex)
+void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subIndex)
 {
     if (targetIndex < -1 || targetIndex >= m_targets.count())
         return;
     if (subIndex < -1 || subIndex >= 2)
         return;
-    m_selector->setCurrentIndex(targetIndex);
-    m_selector->setCurrentSubIndex(subIndex);
 
     Target *target(m_targets.at(targetIndex));
 
     // Target was not actually changed:
-    if (m_currentIndex == targetIndex) {
+    if (m_currentTarget == target) {
         if (m_panelWidgets[subIndex])
             m_centralWidget->setCurrentWidget(m_panelWidgets[subIndex]);
         else
@@ -206,7 +206,7 @@ void TargetSettingsPanelWidget::currentTargetIndexChanged(int targetIndex, int s
         return;
     }
 
-    m_currentIndex = targetIndex;
+    m_currentTarget = target;
 
     // Target has changed:
     if (targetIndex == -1) { // no more targets!

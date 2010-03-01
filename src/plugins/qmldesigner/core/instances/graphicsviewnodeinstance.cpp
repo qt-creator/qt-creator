@@ -29,8 +29,8 @@
 
 #include "graphicsviewnodeinstance.h"
 
-#include <QmlMetaType>
-#include <QmlEngine>
+#include <private/qdeclarativemetatype_p.h>
+#include <QDeclarativeEngine>
 #include <invalidnodeinstanceexception.h>
 
 namespace QmlDesigner {
@@ -43,7 +43,7 @@ GraphicsViewNodeInstance::GraphicsViewNodeInstance(QGraphicsView *view)
 
 
 GraphicsViewNodeInstance::Pointer GraphicsViewNodeInstance::create(const NodeMetaInfo &nodeMetaInfo,
-                                                                   QmlContext *context,
+                                                                   QDeclarativeContext *context,
                                                                    QObject *objectToBeWrapped)
 {
     QObject *object = 0;

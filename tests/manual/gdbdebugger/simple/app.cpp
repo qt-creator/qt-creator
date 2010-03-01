@@ -231,6 +231,14 @@ void testAnonymous()
     a.i = 3;
 }
 
+void testFunctionPointer()
+{
+    typedef void (*func_t)();
+    func_t f1 = testAnonymous;
+    func_t f2 = testFunctionPointer;
+    func_t f3 = testFunctionPointer;
+}
+
 void testQByteArray()
 {
     QByteArray ba = "Hello";
@@ -1434,6 +1442,7 @@ int testReference()
 
 int main(int argc, char *argv[])
 {
+    testFunctionPointer();
     testAnonymous();
     testReference();
     //testEndlessRecursion();

@@ -43,7 +43,7 @@ public:
     typedef QSharedPointer<WidgetNodeInstance> Pointer;
     typedef QWeakPointer<WidgetNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject  *objectToBeWrapped);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject  *objectToBeWrapped);
 
     void paint(QPainter *painter) const;
 

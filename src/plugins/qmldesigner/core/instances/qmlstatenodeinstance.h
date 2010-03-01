@@ -31,7 +31,7 @@
 #define QMLSTATENODEINSTANCE_H
 
 #include "objectnodeinstance.h"
-#include <private/qmlstate_p.h>
+#include <private/qdeclarativestate_p.h>
 
 namespace QmlDesigner {
 
@@ -43,19 +43,19 @@ public:
     typedef QSharedPointer<QmlStateNodeInstance> Pointer;
     typedef QWeakPointer<QmlStateNodeInstance> WeakPointer;
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
 
     void activateState();
     void deactivateState();
     void refreshState();
 
 protected:
-    QmlStateNodeInstance(QmlState *object);
+    QmlStateNodeInstance(QDeclarativeState *object);
 
     bool isStateActive() const;
 
-    QmlState *stateObject() const;
-    QmlStateGroup *stateGroup() const;
+    QDeclarativeState *stateObject() const;
+    QDeclarativeStateGroup *stateGroup() const;
 };
 
 } // namespace Internal

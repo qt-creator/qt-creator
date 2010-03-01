@@ -38,10 +38,11 @@
 #include "bindingproperty.h"
 #include "variantproperty.h"
 
-#include <private/qmlgraphicsanchors_p.h>
-#include <private/qmlgraphicsanchors_p_p.h>
-#include <private/qmlgraphicsrectangle_p.h>
-#include <private/qmlexpression_p.h>
+#include <QDeclarativeExpression>
+
+#include <private/qdeclarativeanchors_p.h>
+#include <private/qdeclarativeanchors_p_p.h>
+#include <private/qdeclarativerectangle_p.h>
 
 #include <cmath>
 
@@ -50,7 +51,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-QmlGraphicsItemNodeInstance::QmlGraphicsItemNodeInstance(QmlGraphicsItem *item, bool hasContent)
+QmlGraphicsItemNodeInstance::QmlGraphicsItemNodeInstance(QDeclarativeItem *item, bool hasContent)
    : GraphicsObjectNodeInstance(item, hasContent),
      m_hasHeight(false),
      m_hasWidth(false)
@@ -61,7 +62,7 @@ QmlGraphicsItemNodeInstance::~QmlGraphicsItemNodeInstance()
 {
 }
 
-QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped)
+QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped)
 {
     QPair<QGraphicsObject*, bool> objectPair;
 
@@ -70,7 +71,7 @@ QmlGraphicsItemNodeInstance::Pointer QmlGraphicsItemNodeInstance::create(const N
     else
         objectPair = GraphicsObjectNodeInstance::createGraphicsObject(metaInfo, context);
 
-    QmlGraphicsItem *qmlGraphicsItem = dynamic_cast<QmlGraphicsItem*>(objectPair.first);
+    QDeclarativeItem *qmlGraphicsItem = dynamic_cast<QDeclarativeItem*>(objectPair.first);
 
     if (qmlGraphicsItem == 0)
         throw InvalidNodeInstanceException(__LINE__, __FUNCTION__, __FILE__);
@@ -170,7 +171,7 @@ QRectF QmlGraphicsItemNodeInstance::boundingRect() const
     return qmlGraphicsItem()->boundingRect();
 }
 
-//QVariant anchorLineFor(QmlGraphicsItem *item, const AnchorLine &anchorLine)
+//QVariant anchorLineFor(QDeclarativeItem *item, const AnchorLine &anchorLine)
 //{
 //    switch(anchorLine.type()) {
 //        case AnchorLine::Top : return item->property("top");
@@ -268,9 +269,9 @@ void QmlGraphicsItemNodeInstance::resetVertical()
 
 int QmlGraphicsItemNodeInstance::penWidth() const
 {
-    QmlGraphicsRectangle *qmlGraphcisRectangle = qobject_cast<QmlGraphicsRectangle*>(object());
-    if (qmlGraphcisRectangle)
-        return qmlGraphcisRectangle->border()->width();
+    QDeclarativeRectangle *rectangle = qobject_cast<QDeclarativeRectangle*>(object());
+    if (rectangle)
+        return rectangle->border()->width();
 
     return GraphicsObjectNodeInstance::penWidth();
 }
@@ -330,7 +331,7 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 //            qmlGraphicsItem()->anchors()->setProperty("top", anchorLineFor(qmlGraphicsItemInstance->qmlGraphicsItem(), anchorLine));
 //        }
 //    } else {
-//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QmlGraphicsAnchors::HasTopAnchor)) {
+//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QDeclarativeAnchors::HasTopAnchor)) {
 //            qmlGraphicsItem()->anchors()->resetTop();
 //            setPropertyValue("y", modelNode().property("y").value());
 //            setPropertyValue("height", modelNode().property("height").value());
@@ -347,7 +348,7 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 //            qmlGraphicsItem()->anchors()->setProperty("left", anchorLineFor(qmlGraphicsItemInstance->qmlGraphicsItem(), anchorLine));
 //        }
 //    } else {
-//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QmlGraphicsAnchors::HasLeftAnchor)) {
+//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QDeclarativeAnchors::HasLeftAnchor)) {
 //            qmlGraphicsItem()->anchors()->resetLeft();
 //            setPropertyValue("x", modelNode().property("x").value());
 //            setPropertyValue("width", modelNode().property("width").value());
@@ -364,7 +365,7 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 //            qmlGraphicsItem()->anchors()->setProperty("right", anchorLineFor(qmlGraphicsItemInstance->qmlGraphicsItem(), anchorLine));
 //        }
 //    } else {
-//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QmlGraphicsAnchors::HasRightAnchor)) {
+//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QDeclarativeAnchors::HasRightAnchor)) {
 //            qmlGraphicsItem()->anchors()->resetRight();
 //            setPropertyValue("x", modelNode().property("x").value());
 //            setPropertyValue("width", modelNode().property("width").value());
@@ -381,7 +382,7 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 //            qmlGraphicsItem()->anchors()->setProperty("bottom", anchorLineFor(qmlGraphicsItemInstance->qmlGraphicsItem(), anchorLine));
 //        }
 //    } else {
-//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QmlGraphicsAnchors::HasBottomAnchor)) {
+//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QDeclarativeAnchors::HasBottomAnchor)) {
 //            qmlGraphicsItem()->anchors()->resetBottom();
 //            setPropertyValue("y", modelNode().property("y").value());
 //            setPropertyValue("height", modelNode().property("height").value());
@@ -398,7 +399,7 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 //            qmlGraphicsItem()->anchors()->setProperty("horizontalCenter", anchorLineFor(qmlGraphicsItemInstance->qmlGraphicsItem(), anchorLine));
 //        }
 //    } else {
-//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QmlGraphicsAnchors::HasHCenterAnchor)) {
+//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QDeclarativeAnchors::HasHCenterAnchor)) {
 //            qmlGraphicsItem()->anchors()->resetHorizontalCenter();
 //            setPropertyValue("x", modelNode().property("x").value());
 //            setPropertyValue("width", modelNode().property("width").value());
@@ -415,7 +416,7 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 //            qmlGraphicsItem()->anchors()->setProperty("verticalCenter",anchorLineFor(qmlGraphicsItemInstance->qmlGraphicsItem(), anchorLine));
 //        }
 //    } else {
-//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QmlGraphicsAnchors::HasVCenterAnchor)) {
+//        if (qmlGraphicsItem()->anchors()->usedAnchors().testFlag(QDeclarativeAnchors::HasVCenterAnchor)) {
 //            qmlGraphicsItem()->anchors()->resetVerticalCenter();
 //            setPropertyValue("y", modelNode().property("y").value());
 //            setPropertyValue("height", modelNode().property("height").value());
@@ -431,45 +432,45 @@ void QmlGraphicsItemNodeInstance::resetProperty(const QString &name)
 //    qmlGraphicsItem()->anchors()->setVerticalCenterOffset(anchors.margin(AnchorLine::VerticalCenter));
 //}
 
-QmlGraphicsAnchors::UsedAnchor anchorLineFlagForName(const QString &name)
+QDeclarativeAnchors::UsedAnchor anchorLineFlagForName(const QString &name)
 {
     if (name == "anchors.top")
-        return QmlGraphicsAnchors::HasTopAnchor;
+        return QDeclarativeAnchors::HasTopAnchor;
 
     if (name == "anchors.left")
-        return QmlGraphicsAnchors::HasLeftAnchor;
+        return QDeclarativeAnchors::HasLeftAnchor;
 
     if (name == "anchors.bottom")
-         return QmlGraphicsAnchors::HasBottomAnchor;
+         return QDeclarativeAnchors::HasBottomAnchor;
 
     if (name == "anchors.right")
-        return QmlGraphicsAnchors::HasRightAnchor;
+        return QDeclarativeAnchors::HasRightAnchor;
 
     if (name == "anchors.horizontalCenter")
-        return QmlGraphicsAnchors::HasHCenterAnchor;
+        return QDeclarativeAnchors::HasHCenterAnchor;
 
     if (name == "anchors.verticalCenter")
-         return QmlGraphicsAnchors::HasVCenterAnchor;
+         return QDeclarativeAnchors::HasVCenterAnchor;
 
     if (name == "anchors.baseline")
-         return QmlGraphicsAnchors::HasBaselineAnchor;
+         return QDeclarativeAnchors::HasBaselineAnchor;
 
 
     Q_ASSERT_X(false, Q_FUNC_INFO, "wrong anchor name - this should never happen");
-    return QmlGraphicsAnchors::HasLeftAnchor;
+    return QDeclarativeAnchors::HasLeftAnchor;
 }
 
-QString propertyNameForAnchorLine(const QmlGraphicsAnchorLine::AnchorLine &anchorLine)
+QString propertyNameForAnchorLine(const QDeclarativeAnchorLine::AnchorLine &anchorLine)
 {
     switch(anchorLine) {
-        case QmlGraphicsAnchorLine::Left: return "left";
-        case QmlGraphicsAnchorLine::Right: return "right";
-        case QmlGraphicsAnchorLine::Top: return "top";
-        case QmlGraphicsAnchorLine::Bottom: return "bottom";
-        case QmlGraphicsAnchorLine::HCenter: return "horizontalCenter";
-        case QmlGraphicsAnchorLine::VCenter: return "verticalCenter";
-        case QmlGraphicsAnchorLine::Baseline: return "baseline";
-        case QmlGraphicsAnchorLine::Invalid:
+        case QDeclarativeAnchorLine::Left: return "left";
+        case QDeclarativeAnchorLine::Right: return "right";
+        case QDeclarativeAnchorLine::Top: return "top";
+        case QDeclarativeAnchorLine::Bottom: return "bottom";
+        case QDeclarativeAnchorLine::HCenter: return "horizontalCenter";
+        case QDeclarativeAnchorLine::VCenter: return "verticalCenter";
+        case QDeclarativeAnchorLine::Baseline: return "baseline";
+        case QDeclarativeAnchorLine::Invalid:
         default: return QString();
     }
 }
@@ -502,9 +503,9 @@ QPair<QString, NodeInstance> QmlGraphicsItemNodeInstance::anchor(const QString &
     } else if (name == "anchors.centerIn") {
         targetObject = qmlGraphicsItem()->anchors()->centerIn();
     } else {
-        QmlMetaProperty metaProperty = QmlMetaProperty::createProperty(object(), name, context());
-        QmlGraphicsAnchorLine anchorLine = metaProperty.read().value<QmlGraphicsAnchorLine>();
-        if (anchorLine.anchorLine != QmlGraphicsAnchorLine::Invalid) {
+        QDeclarativeProperty metaProperty(object(), name, context());
+        QDeclarativeAnchorLine anchorLine = metaProperty.read().value<QDeclarativeAnchorLine>();
+        if (anchorLine.anchorLine != QDeclarativeAnchorLine::Invalid) {
             targetObject = anchorLine.item;
             targetName = propertyNameForAnchorLine(anchorLine.anchorLine);
         }
@@ -553,7 +554,7 @@ bool QmlGraphicsItemNodeInstance::hasAnchor(const QString &name) const
     return qmlGraphicsItem()->anchors()->usedAnchors().testFlag(anchorLineFlagForName(name));
 }
 
-bool isAnchoredTo(QmlGraphicsItem *fromItem, QmlGraphicsItem *toItem)
+bool isAnchoredTo(QDeclarativeItem *fromItem, QDeclarativeItem *toItem)
 {
     return fromItem->anchors()->fill() == toItem
             || fromItem->anchors()->centerIn() == toItem
@@ -566,10 +567,10 @@ bool isAnchoredTo(QmlGraphicsItem *fromItem, QmlGraphicsItem *toItem)
             || fromItem->anchors()->baseline().item == toItem;
 }
 
-bool areChildrenAnchoredTo(QmlGraphicsItem *fromItem, QmlGraphicsItem *toItem)
+bool areChildrenAnchoredTo(QDeclarativeItem *fromItem, QDeclarativeItem *toItem)
 {
     foreach(QObject *childObject, fromItem->children()) {
-        QmlGraphicsItem *childItem = qobject_cast<QmlGraphicsItem*>(childObject);
+        QDeclarativeItem *childItem = qobject_cast<QDeclarativeItem*>(childObject);
         if (childItem) {
             if (isAnchoredTo(childItem, toItem))
                 return true;
@@ -589,7 +590,7 @@ bool QmlGraphicsItemNodeInstance::isAnchoredBy() const
 
     if (qmlGraphicsItem()->parent()) {
         foreach(QObject *siblingObject, qmlGraphicsItem()->parent()->children()) { // search in siblings for a anchor to this item
-            QmlGraphicsItem *siblingItem = qobject_cast<QmlGraphicsItem*>(siblingObject);
+            QDeclarativeItem *siblingItem = qobject_cast<QDeclarativeItem*>(siblingObject);
             if (siblingItem) {
                 if (isAnchoredTo(siblingItem, qmlGraphicsItem()))
                     return true;
@@ -605,13 +606,13 @@ bool QmlGraphicsItemNodeInstance::isAnchoredBy() const
 
 
 
-QmlGraphicsItem *QmlGraphicsItemNodeInstance::qmlGraphicsItem() const
+QDeclarativeItem *QmlGraphicsItemNodeInstance::qmlGraphicsItem() const
 {
     if (object() == 0)
         return 0;
 
-    Q_ASSERT(qobject_cast<QmlGraphicsItem*>(object()));
-    return static_cast<QmlGraphicsItem*>(object());
+    Q_ASSERT(qobject_cast<QDeclarativeItem*>(object()));
+    return static_cast<QDeclarativeItem*>(object());
 }
 }
 }

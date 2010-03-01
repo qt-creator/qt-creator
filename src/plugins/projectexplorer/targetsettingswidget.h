@@ -41,7 +41,7 @@ public slots:
 signals:
     void addButtonClicked();
     void removeButtonClicked();
-    void currentIndexChanged(int targetIndex, int subIndex);
+    void currentChanged(int targetIndex, int subIndex);
 
 protected:
     void changeEvent(QEvent *e);

@@ -29,7 +29,7 @@
 
 #include "proxywidgetnodeinstance.h"
 
-#include <QmlMetaType>
+#include <private/qdeclarativemetatype_p.h>
 
 #include <QGraphicsProxyWidget>
 
@@ -45,7 +45,7 @@ ProxyWidgetNodeInstance::ProxyWidgetNodeInstance(QGraphicsProxyWidget *widget)
 
 ProxyWidgetNodeInstance::Pointer ProxyWidgetNodeInstance::create(const QString &typeName)
 {
-    QObject *object = QmlMetaType::qmlType(typeName.toLatin1(), 4, 6)->create();
+    QObject *object = QDeclarativeMetaType::qmlType(typeName.toLatin1(), 4, 6)->create();
     Q_ASSERT(object);
     if (object == 0)
         return Pointer();

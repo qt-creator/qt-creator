@@ -49,6 +49,7 @@
 
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
@@ -236,20 +237,20 @@ void GitClient::diff(const QString &workingDirectory,
        QStringList arguments(commonDiffArgs);
        arguments << diffArgs;
        VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
-       command->addJob(arguments, m_settings.timeout);
+       command->addJob(arguments, m_settings.timeoutSeconds);
     } else {
         // Files diff.
         if (!unstagedFileNames.empty()) {
            QStringList arguments(commonDiffArgs);
            arguments << QLatin1String("--") << unstagedFileNames;
            VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
-           command->addJob(arguments, m_settings.timeout);
+           command->addJob(arguments, m_settings.timeoutSeconds);
         }
         if (!stagedFileNames.empty()) {
            QStringList arguments(commonDiffArgs);
            arguments << QLatin1String("--cached") << diffArgs << QLatin1String("--") << stagedFileNames;
            VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(binary, arguments));
-           command->addJob(arguments, m_settings.timeout);
+           command->addJob(arguments, m_settings.timeoutSeconds);
         }
     }
     command->execute();
@@ -985,7 +986,7 @@ GitCommand *GitClient::executeGit(const QString &workingDirectory,
 {
     VCSBase::VCSBaseOutputWindow::instance()->appendCommand(formatCommand(QLatin1String(Constants::GIT_BINARY), arguments));
     GitCommand *command = createCommand(workingDirectory, editor, outputToWindow, editorLineNumber);
-    command->addJob(arguments, m_settings.timeout);
+    command->addJob(arguments, m_settings.timeoutSeconds);
     command->setTerminationReportMode(tm);
     command->execute();
     return command;
@@ -1042,22 +1043,16 @@ bool GitClient::synchronousGit(const QString &workingDirectory,
         return false;
     }
 
-    if (!process.waitForFinished()) {
-        if (errorText)
-            *errorText = "Error: Git timed out.";
-        process.kill();
+    if (!Utils::SynchronousProcess::readDataFromProcess(process, m_settings.timeoutSeconds * 1000,
+                                                        outputText, errorText)) {
+        *errorText->append(GitCommand::msgTimeout(m_settings.timeoutSeconds).toLocal8Bit());
+        Utils::SynchronousProcess::stopProcess(process);
         return false;
     }
 
-    if (outputText)
-        *outputText = process.readAllStandardOutput();
-
-    if (errorText)
-        *errorText = process.readAllStandardError();
-
     if (Git::Constants::debug)
-        qDebug() << "synchronousGit ex=" << process.exitCode();
-    return process.exitCode() == 0;
+        qDebug() << "synchronousGit ex=" << process.exitStatus() << process.exitCode();
+    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
 static inline int
@@ -1152,8 +1147,9 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
         }
         return StatusFailed;
     }
-    // Unchanged?
-    if (outputText.contains("nothing to commit"))
+    // Unchanged (output text depending on whether -u was passed)
+    if (outputText.contains("nothing to commit")
+        || outputText.contains("nothing added to commit but untracked files present"))
         return StatusUnchanged;
     return StatusChanged;
 }
@@ -1546,7 +1542,8 @@ QString GitClient::readConfig(const QString &workingDirectory, const QStringList
     arguments << QLatin1String("config") << configVar;
 
     QByteArray outputText;
-    if (synchronousGit(workingDirectory, arguments, &outputText, 0, false))
+    QByteArray errorText;
+    if (synchronousGit(workingDirectory, arguments, &outputText, &errorText, false))
         return commandOutputFromLocal8Bit(outputText);
     return QString();
 }

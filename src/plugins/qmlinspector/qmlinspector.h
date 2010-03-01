@@ -43,11 +43,11 @@ class QLineEdit;
 class QSpinBox;
 class QLabel;
 
-class QmlEngineDebug;
-class QmlDebugConnection;
-class QmlDebugEnginesQuery;
-class QmlDebugRootContextQuery;
-class QmlDebugObjectReference;
+class QDeclarativeEngineDebug;
+class QDeclarativeDebugConnection;
+class QDeclarativeDebugEnginesQuery;
+class QDeclarativeDebugRootContextQuery;
+class QDeclarativeDebugObjectReference;
 class ObjectTree;
 class WatchTableModel;
 class WatchTableView;
@@ -83,17 +83,17 @@ private slots:
     void enginesChanged();
     void queryEngineContext(int);
     void contextChanged();
-    void treeObjectActivated(const QmlDebugObjectReference &obj);
+    void treeObjectActivated(const QDeclarativeDebugObjectReference &obj);
 
 private:
 
     void initWidgets();
 
-    QmlDebugConnection *m_conn;
-    QmlEngineDebug *m_client;
+    QDeclarativeDebugConnection *m_conn;
+    QDeclarativeEngineDebug *m_client;
 
-    QmlDebugEnginesQuery *m_engineQuery;
-    QmlDebugRootContextQuery *m_contextQuery;
+    QDeclarativeDebugEnginesQuery *m_engineQuery;
+    QDeclarativeDebugRootContextQuery *m_contextQuery;
 
     ObjectTree *m_objectTreeWidget;
     ObjectPropertiesView *m_propertiesWidget;

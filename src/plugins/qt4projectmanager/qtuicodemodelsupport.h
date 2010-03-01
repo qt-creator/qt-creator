@@ -34,10 +34,6 @@
 
 #include <QtCore/QDateTime>
 
-namespace Designer {
-class FormWindowEditor;
-}
-
 namespace Qt4ProjectManager {
 class Qt4Project;
 namespace Internal {
@@ -54,7 +50,7 @@ public:
     void setSourceName(const QString &name);
     virtual QByteArray contents() const;
     virtual QString fileName() const;
-    void updateFromEditor(Designer::FormWindowEditor *);
+    void updateFromEditor(const QString &formEditorContents);
     void updateFromBuild();
 private:
     void init();

@@ -42,6 +42,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <utils/submiteditorwidget.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/synchronousprocess.h>
 #include <utils/submitfieldwidget.h>
 #include <find/basetextfind.h>
 #include <texteditor/fontsettings.h>
@@ -580,18 +581,20 @@ bool VCSBaseSubmitEditor::runSubmitMessageCheckScript(const QString &checkScript
         *errorMessage = tr("The check script '%1' could not be started: %2").arg(checkScript, checkProcess.errorString());
         return false;
     }
-    if (!checkProcess.waitForFinished()) {
-        *errorMessage = tr("The check script '%1' could not be run: %2").arg(checkScript, checkProcess.errorString());
+    QByteArray stdOutData;
+    QByteArray stdErrData;
+    if (!Utils::SynchronousProcess::readDataFromProcess(checkProcess, 30000, &stdOutData, &stdErrData)) {
+        Utils::SynchronousProcess::stopProcess(checkProcess);
+        *errorMessage = tr("The check script '%1' timed out.").arg(checkScript);
         return false;
     }
     if (checkProcess.exitStatus() != QProcess::NormalExit) {
         *errorMessage = tr("The check script '%1' crashed").arg(checkScript);
         return false;
     }
-    const QString stdOut = QString::fromLocal8Bit(checkProcess.readAllStandardOutput());
-    if (!stdOut.isEmpty())
-        outputWindow->appendSilently(stdOut);
-    const QString stdErr = QString::fromLocal8Bit(checkProcess.readAllStandardError());
+    if (!stdOutData.isEmpty())
+        outputWindow->appendSilently(QString::fromLocal8Bit(stdOutData));
+    const QString stdErr = QString::fromLocal8Bit(stdErrData);
     if (!stdErr.isEmpty())
         outputWindow->appendSilently(stdErr);
     const int exitCode = checkProcess.exitCode();

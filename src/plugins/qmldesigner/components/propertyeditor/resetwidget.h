@@ -64,6 +64,8 @@ public:
         setupView();
     }
 
+    static void registerDeclarativeType();
+
 public slots:
     void buttonPressed(const QString &name);
 

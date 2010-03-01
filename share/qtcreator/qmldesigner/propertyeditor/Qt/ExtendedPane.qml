@@ -16,8 +16,11 @@ QScrollArea {
             bottomMargin: 0;
             leftMargin: 0;
             rightMargin: 0;
-            spacing: 0;
-            Modifiers {
+            spacing: 0;            
+			
+			WidgetLoader {
+                        id: specificsOne;
+                        source: specificsUrl;
             }
 
             QScrollArea {

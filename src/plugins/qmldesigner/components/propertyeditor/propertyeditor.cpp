@@ -39,19 +39,28 @@
 #include <variantproperty.h>
 
 #include "propertyeditorvalue.h"
+#include "basiclayouts.h"
+#include "basicwidgets.h"
+#include "resetwidget.h"
+#include "qlayoutobject.h"
+#include "colorwidget.h"
+#include "behaviordialog.h"
+#include "qproxylayoutitem.h"
+#include "fontwidget.h"
+#include "siblingcombobox.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtCore/QFileSystemWatcher>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
-#include <QtDeclarative/QmlView>
-#include <QtDeclarative/QmlContext>
+#include <QtDeclarative/QDeclarativeView>
+#include <QtDeclarative/QDeclarativeContext>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QShortcut>
 #include <QtGui/QStackedWidget>
-#include <QmlEngine>
-#include <QmlMetaType>
+#include <QDeclarativeEngine>
+#include <private/qdeclarativemetatype_p.h>
 #include <QMessageBox>
 #include <QApplication>
 
@@ -61,13 +70,12 @@ enum {
 
 namespace QmlDesigner {
 
-PropertyEditor::NodeType::NodeType(const QUrl &qmlFile, PropertyEditor *propertyEditor) :
-        m_view(new QmlView)
+PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
+        m_view(new QDeclarativeView)
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
 
-    m_view->setResizeMode(QmlView::SizeRootObjectToView);
-    m_view->setSource(qmlFile);
+    m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
     connect(&m_backendValuesPropertyMap, SIGNAL(valueChanged(const QString&)), propertyEditor, SLOT(changeValue(const QString&)));
 }
@@ -76,11 +84,11 @@ PropertyEditor::NodeType::~NodeType()
 {
 }
 
-void setupPropertyEditorValue(const QString &name, QmlPropertyMap *propertyMap, PropertyEditor *propertyEditor)
+void setupPropertyEditorValue(const QString &name, QDeclarativePropertyMap *propertyMap, PropertyEditor *propertyEditor)
 {
     QString propertyName(name);
     propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(propertyMap->value(propertyName)));
+    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(propertyMap->value(propertyName)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(propertyMap);
         QObject::connect(valueObject, SIGNAL(valueChanged(QString)), propertyMap, SIGNAL(valueChanged(QString)));
@@ -91,11 +99,11 @@ void setupPropertyEditorValue(const QString &name, QmlPropertyMap *propertyMap, 
     valueObject->setValue(QVariant(""));
 }
 
-void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value, QmlPropertyMap *propertyMap, PropertyEditor *propertyEditor)
+void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value, QDeclarativePropertyMap *propertyMap, PropertyEditor *propertyEditor)
 {
     QString propertyName(name);
     propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(propertyMap->value(propertyName)));
+    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(propertyMap->value(propertyName)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(propertyMap);
         QObject::connect(valueObject, SIGNAL(valueChanged(QString)), propertyMap, SIGNAL(valueChanged(QString)));
@@ -125,7 +133,7 @@ void PropertyEditor::NodeType::setValue(const QmlObjectNode & /*fxObjectNode*/, 
 {
     QString propertyName = name;
     propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
-    PropertyEditorValue *propertyValue = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value(propertyName)));
+    PropertyEditorValue *propertyValue = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value(propertyName)));
     if (propertyValue)
         propertyValue->setValue(value);
 }
@@ -135,14 +143,14 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
     if (!fxObjectNode.isValid())
         return;
 
-    QmlContext *ctxt = m_view->rootContext();
+    QDeclarativeContext *ctxt = m_view->rootContext();
 
     if (fxObjectNode.isValid()) {
         foreach (const QString &propertyName, fxObjectNode.modelNode().metaInfo().properties(true).keys())
             createPropertyEditorValue(fxObjectNode, propertyName, fxObjectNode.instanceValue(propertyName), &m_backendValuesPropertyMap, propertyEditor);
 
         // className
-        PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
+        PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
         if (!valueObject)
             valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("className");
@@ -152,7 +160,7 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         m_backendValuesPropertyMap.insert("className", QVariant::fromValue(valueObject));
 
         // id
-        valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value("id")));
+        valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("id")));
         if (!valueObject)
             valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("id");
@@ -170,6 +178,7 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         ctxt->setContextProperty("stateName", QVariant(stateName));
         ctxt->setContextProperty("propertyCount", QVariant(fxObjectNode.modelNode().properties().count()));
         ctxt->setContextProperty("isBaseState", QVariant(fxObjectNode.isInBaseState()));
+        ctxt->setContextProperty("selectionChanged", QVariant(false));
     } else {
         qWarning() << "PropertyEditor: invalid node for setup";
     }
@@ -177,14 +186,14 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
 
 void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor)
 {
-    QmlContext *ctxt = m_view->rootContext();
+    QDeclarativeContext *ctxt = m_view->rootContext();
 
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo().nodeMetaInfo(typeName, 4, 6);
 
     foreach (const QString &propertyName, metaInfo.properties(true).keys())
         setupPropertyEditorValue(propertyName, &m_backendValuesPropertyMap, propertyEditor);
 
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
+    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
     if (!valueObject)
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
     valueObject->setName("className");
@@ -194,7 +203,7 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
     m_backendValuesPropertyMap.insert("className", QVariant::fromValue(valueObject));
 
     // id
-    valueObject = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_backendValuesPropertyMap.value("id")));
+    valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("id")));
     if (!valueObject)
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
     valueObject->setName("id");
@@ -227,6 +236,21 @@ PropertyEditor::PropertyEditor(QWidget *parent) :
     QString styleSheet = QLatin1String(file.readAll());
     m_stackedWidget->setStyleSheet(styleSheet);
     m_stackedWidget->setMinimumWidth(360);
+
+    static bool declarativeTypesRegistered = false;
+    if (!declarativeTypesRegistered) {
+        declarativeTypesRegistered = true;
+        BasicWidgets::registerDeclarativeTypes();
+        BasicLayouts::registerDeclarativeTypes();
+        ResetWidget::registerDeclarativeType();
+        QLayoutObject::registerDeclarativeType();
+        ColorWidget::registerDeclarativeTypes();
+        BehaviorDialog::registerDeclarativeType();
+        QProxyLayoutItem::registerDeclarativeTypes();
+        PropertyEditorValue::registerDeclarativeTypes();
+        FontWidget::registerDeclarativeTypes();
+        SiblingComboBox::registerDeclarativeTypes();
+    }
 }
 
 PropertyEditor::~PropertyEditor()
@@ -245,20 +269,23 @@ void PropertyEditor::setupPane(const QString &typeName)
     NodeType *type = m_typeHash.value(qmlFile.toString());
 
     if (!type) {
-        type = new NodeType(qmlFile, this);
+        type = new NodeType(this);
 
-        QmlContext *ctxt = type->m_view->rootContext();
+        QDeclarativeContext *ctxt = type->m_view->rootContext();
         ctxt->setContextProperty("finishedNotify", QVariant(false) );
         type->initialSetup(typeName, qmlSpecificsFile, this);
-        type->m_view->execute();
+        type->m_view->setSource(qmlFile);
         ctxt->setContextProperty("finishedNotify", QVariant(true) );
 
         m_stackedWidget->addWidget(type->m_view);
         m_typeHash.insert(qmlFile.toString(), type);
     } else {
-        QmlContext *ctxt = type->m_view->rootContext();
+        QDeclarativeContext *ctxt = type->m_view->rootContext();
         ctxt->setContextProperty("finishedNotify", QVariant(false) );
-        type->initialSetup(typeName, qmlSpecificsFile, this); 
+
+        type->initialSetup(typeName, qmlSpecificsFile, this);
+        ctxt->setContextProperty("finishedNotify", QVariant(true) );
+
     }
     QApplication::processEvents();
 }
@@ -278,7 +305,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
         return;
 
     if (propertyName == "id") {
-        PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(propertyName)));
+        PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(propertyName)));
         const QString newId = value->value().toString();
 
         try {
@@ -296,7 +323,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
     //.replace(QLatin1Char('.'), QLatin1Char('_'))
     QString underscoreName(propertyName);
     underscoreName.replace(QLatin1Char('.'), QLatin1Char('_'));
-    PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
+    PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
 
     if (value ==0) {
         qWarning() << "PropertyEditor:" <<propertyName << " - value is null";
@@ -353,7 +380,7 @@ void PropertyEditor::changeExpression(const QString &name)
         return;
 
     QmlObjectNode fxObjectNode(m_selectedNode);
-    PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QmlMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(name)));
+    PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(name)));
     try {
         if (fxObjectNode.currentState().isBaseState()) {
             fxObjectNode.modelNode().bindingProperty(name).setExpression(value->expression());
@@ -441,7 +468,7 @@ void PropertyEditor::resetView()
     NodeType *type = m_typeHash.value(qmlFile.toString());
 
     if (!type) {
-        type = new NodeType(qmlFile, this);
+        type = new NodeType(this);
 
         m_stackedWidget->addWidget(type->m_view);
         m_typeHash.insert(qmlFile.toString(), type);
@@ -453,19 +480,31 @@ void PropertyEditor::resetView()
         }
         type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
 
-        QmlContext *ctxt = type->m_view->rootContext();
+        QDeclarativeContext *ctxt = type->m_view->rootContext();
         ctxt->setContextProperty("finishedNotify", QVariant(false));
-        type->m_view->execute();
+        type->m_view->setSource(qmlFile);
         ctxt->setContextProperty("finishedNotify", QVariant(true));
     } else {
         QmlObjectNode fxObjectNode;
         if (m_selectedNode.isValid()) {
             fxObjectNode = QmlObjectNode(m_selectedNode);
         }
+        QDeclarativeContext *ctxt = type->m_view->rootContext();
+        ctxt->setContextProperty("selectionChanged", QVariant(false));
+        ctxt->setContextProperty("selectionChanged", QVariant(true));
+        ctxt->setContextProperty("selectionChanged", QVariant(false));
+        ctxt->setContextProperty("finishedNotify", QVariant(false));
         type->setup(fxObjectNode, currentState().name(), qmlSpecificsFile, this);
     }
 
     m_stackedWidget->setCurrentWidget(type->m_view);
+
+    QDeclarativeContext *ctxt = type->m_view->rootContext();
+    ctxt->setContextProperty("finishedNotify", QVariant(true));
+    ctxt->setContextProperty("selectionChanged", QVariant(false));
+    ctxt->setContextProperty("selectionChanged", QVariant(true));
+    ctxt->setContextProperty("selectionChanged", QVariant(false));
+
     m_currentType = type;
 
     m_locked = false;

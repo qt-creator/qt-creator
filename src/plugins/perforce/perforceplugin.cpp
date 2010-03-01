@@ -1075,7 +1075,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     }
     if (!stdInput.isEmpty()) {
         if (process.write(stdInput) == -1) {
-            PerforceChecker::ensureProcessStopped(process);
+            Utils::SynchronousProcess::stopProcess(process);
             response.error = true;
             response.message = tr("Unable to write input data to process %1: %2").arg(m_settings.p4Command(), process.errorString());
             return response;
@@ -1083,9 +1083,11 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
         process.closeWriteChannel();
     }
 
+    QByteArray stdOut;
+    QByteArray stdErr;
     const int timeOut = (flags & LongTimeOut) ? m_settings.longTimeOutMS() : m_settings.timeOutMS();
-    if (!process.waitForFinished(timeOut)) {
-        PerforceChecker::ensureProcessStopped(process);
+    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeOut, &stdOut, &stdErr)) {
+        Utils::SynchronousProcess::stopProcess(process);
         response.error = true;
         response.message = msgTimeout(timeOut);
         return response;
@@ -1097,8 +1099,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
     }
     response.exitCode = process.exitCode();
     response.error = response.exitCode ? !(flags & IgnoreExitCode) : false;
-    response.stdErr = QString::fromLocal8Bit(process.readAllStandardError());
-    const QByteArray stdOut = process.readAllStandardOutput();
+    response.stdErr = QString::fromLocal8Bit(stdErr);
     response.stdOut = outputCodec ? outputCodec->toUnicode(stdOut.constData(), stdOut.size()) :
                                     QString::fromLocal8Bit(stdOut);
     const QChar cr = QLatin1Char('\r');

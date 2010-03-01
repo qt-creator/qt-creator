@@ -32,8 +32,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QML_DEFINE_TYPE(Qt,4,6,LayoutItem,QProxyLayoutItem);
-
 QProxyLayoutItem::QProxyLayoutItem(QGraphicsLayoutItem *i)
 : enabled(true), other(i)
 {
@@ -89,8 +87,6 @@ QSizeF QProxyLayoutItem::sizeHint(Qt::SizeHint which, const QSizeF &c) const
         rv = static_cast<Accessor *>(other)->getSizeHint(which, c);
     return rv;
 }
-
-QML_DEFINE_TYPE(Qt,4,6,ProxyLayout,QProxyLayout);
 
 QProxyLayout::QProxyLayout(QObject *parent)
 : QObject(parent), proxy(0)
@@ -160,6 +156,12 @@ QSizeF QProxyLayout::sizeHint(Qt::SizeHint which,
         return static_cast<Accessor *>(proxy)->getSizeHint(which, constraint);
     else
         return QSizeF();
+}
+
+void QProxyLayoutItem::registerDeclarativeTypes()
+{
+    QML_REGISTER_TYPE(Bauhaus,1,0,LayoutItem,QProxyLayoutItem);
+    QML_REGISTER_TYPE(Bauhaus,1,0,ProxyLayout,QProxyLayout);
 }
 
 QT_END_NAMESPACE

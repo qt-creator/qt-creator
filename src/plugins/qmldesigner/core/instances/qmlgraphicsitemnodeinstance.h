@@ -31,7 +31,7 @@
 #define QMLGRAPHICSITEMNODEINSTANCE_H
 
 #include "graphicsobjectnodeinstance.h"
-#include <QmlGraphicsItem>
+#include <QDeclarativeItem>
 #include <QWeakPointer>
 
 
@@ -46,7 +46,7 @@ public:
 
     ~QmlGraphicsItemNodeInstance();
 
-    static Pointer create(const NodeMetaInfo &metaInfo, QmlContext *context, QObject *objectToBeWrapped);
+    static Pointer create(const NodeMetaInfo &metaInfo, QDeclarativeContext *context, QObject *objectToBeWrapped);
 
     bool isQmlGraphicsItem() const;
 
@@ -66,8 +66,8 @@ public:
     QPair<QString, NodeInstance> anchor(const QString &name) const;
     bool isAnchoredBy() const;
 protected:
-    QmlGraphicsItemNodeInstance(QmlGraphicsItem *item, bool hasContent);
-    QmlGraphicsItem *qmlGraphicsItem() const;
+    QmlGraphicsItemNodeInstance(QDeclarativeItem *item, bool hasContent);
+    QDeclarativeItem *qmlGraphicsItem() const;
     void resetHorizontal();
     void resetVertical();
 

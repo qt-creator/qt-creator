@@ -29,7 +29,7 @@
 #ifndef PROPERTIESTABLEMODEL_H
 #define PROPERTIESTABLEMODEL_H
 
-#include <private/qmldebug_p.h>
+#include <private/qdeclarativedebug_p.h>
 
 #include <QtGui/qwidget.h>
 
@@ -37,24 +37,24 @@ QT_BEGIN_NAMESPACE
 
 class QTreeWidget;
 class QTreeWidgetItem;
-class QmlDebugConnection;
+class QDeclarativeDebugConnection;
 class PropertiesViewItem;
 
 class ObjectPropertiesView : public QWidget
 {
     Q_OBJECT
 public:
-    ObjectPropertiesView(QmlEngineDebug *client = 0, QWidget *parent = 0);
+    ObjectPropertiesView(QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
 
-    void setEngineDebug(QmlEngineDebug *client);
+    void setEngineDebug(QDeclarativeEngineDebug *client);
     void clear();
 
 signals:
-    void activated(const QmlDebugObjectReference &, const QmlDebugPropertyReference &);
+    void activated(const QDeclarativeDebugObjectReference &, const QDeclarativeDebugPropertyReference &);
 
 public slots:
-    void reload(const QmlDebugObjectReference &);
-    void watchCreated(QmlDebugWatch *);
+    void reload(const QDeclarativeDebugObjectReference &);
+    void watchCreated(QDeclarativeDebugWatch *);
 
 private slots:
     void queryFinished();
@@ -63,16 +63,16 @@ private slots:
     void itemActivated(QTreeWidgetItem *i);
 
 private:
-    void setObject(const QmlDebugObjectReference &object);
+    void setObject(const QDeclarativeDebugObjectReference &object);
     void setWatched(const QString &property, bool watched);
     void setPropertyValue(PropertiesViewItem *item, const QVariant &value, bool makeGray);
 
-    QmlEngineDebug *m_client;
-    QmlDebugObjectQuery *m_query;
-    QmlDebugWatch *m_watch;
+    QDeclarativeEngineDebug *m_client;
+    QDeclarativeDebugObjectQuery *m_query;
+    QDeclarativeDebugWatch *m_watch;
 
     QTreeWidget *m_tree;
-    QmlDebugObjectReference m_object;
+    QDeclarativeDebugObjectReference m_object;
 };
 
 

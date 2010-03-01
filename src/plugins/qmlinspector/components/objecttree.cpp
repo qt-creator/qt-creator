@@ -32,15 +32,15 @@
 
 #include <QInputDialog>
 
-#include <private/qmldebugservice_p.h>
-#include <private/qmldebug_p.h>
-#include <private/qmldebugclient_p.h>
+#include <private/qdeclarativedebugservice_p.h>
+#include <private/qdeclarativedebug_p.h>
+#include <private/qdeclarativedebugclient_p.h>
 
 #include "objecttree.h"
 
-//Q_DECLARE_METATYPE(QmlDebugObjectReference)
+//Q_DECLARE_METATYPE(QDeclarativeDebugObjectReference)
 
-ObjectTree::ObjectTree(QmlEngineDebug *client, QWidget *parent)
+ObjectTree::ObjectTree(QDeclarativeEngineDebug *client, QWidget *parent)
     : QTreeWidget(parent),
       m_client(client),
       m_query(0)
@@ -55,7 +55,7 @@ ObjectTree::ObjectTree(QmlEngineDebug *client, QWidget *parent)
             SLOT(activated(QTreeWidgetItem *)));
 }
 
-void ObjectTree::setEngineDebug(QmlEngineDebug *client)
+void ObjectTree::setEngineDebug(QDeclarativeEngineDebug *client)
 {
     m_client = client;
 }
@@ -70,11 +70,11 @@ void ObjectTree::reload(int objectDebugId)
         m_query = 0;
     }
 
-    m_query = m_client->queryObjectRecursive(QmlDebugObjectReference(objectDebugId), this);
+    m_query = m_client->queryObjectRecursive(QDeclarativeDebugObjectReference(objectDebugId), this);
     if (!m_query->isWaiting())
         objectFetched();
     else
-        QObject::connect(m_query, SIGNAL(stateChanged(QmlDebugQuery::State)),
+        QObject::connect(m_query, SIGNAL(stateChanged(QDeclarativeDebugQuery::State)),
                          this, SLOT(objectFetched()));
 }
 
@@ -103,7 +103,7 @@ void ObjectTree::currentItemChanged(QTreeWidgetItem *item)
     if (!item)
         return;
 
-    QmlDebugObjectReference obj = item->data(0, Qt::UserRole).value<QmlDebugObjectReference>();
+    QDeclarativeDebugObjectReference obj = item->data(0, Qt::UserRole).value<QDeclarativeDebugObjectReference>();
     if (obj.debugId() >= 0)
         emit currentObjectChanged(obj);
 }
@@ -113,12 +113,12 @@ void ObjectTree::activated(QTreeWidgetItem *item)
     if (!item)
         return;
 
-    QmlDebugObjectReference obj = item->data(0, Qt::UserRole).value<QmlDebugObjectReference>();
+    QDeclarativeDebugObjectReference obj = item->data(0, Qt::UserRole).value<QDeclarativeDebugObjectReference>();
     if (obj.debugId() >= 0)
         emit activated(obj);
 }
 
-void ObjectTree::buildTree(const QmlDebugObjectReference &obj, QTreeWidgetItem *parent)
+void ObjectTree::buildTree(const QDeclarativeDebugObjectReference &obj, QTreeWidgetItem *parent)
 {
     if (!parent)
         clear();
@@ -129,8 +129,8 @@ void ObjectTree::buildTree(const QmlDebugObjectReference &obj, QTreeWidgetItem *
 
     if (parent && obj.contextDebugId() >= 0
             && obj.contextDebugId() != parent->data(0, Qt::UserRole
-                    ).value<QmlDebugObjectReference>().contextDebugId()) {
-        QmlDebugFileReference source = obj.source();
+                    ).value<QDeclarativeDebugObjectReference>().contextDebugId()) {
+        QDeclarativeDebugFileReference source = obj.source();
         if (!source.url().isEmpty()) {
             QString toolTipString = QLatin1String("URL: ") + source.url().toString();
             item->setToolTip(0, toolTipString);
@@ -147,7 +147,7 @@ void ObjectTree::buildTree(const QmlDebugObjectReference &obj, QTreeWidgetItem *
         buildTree(obj.children().at(ii), item);
 }
 
-void ObjectTree::dump(const QmlDebugContextReference &ctxt, int ind)
+void ObjectTree::dump(const QDeclarativeDebugContextReference &ctxt, int ind)
 {
     QByteArray indent(ind * 4, ' ');
     qWarning().nospace() << indent.constData() << ctxt.debugId() << " "
@@ -160,7 +160,7 @@ void ObjectTree::dump(const QmlDebugContextReference &ctxt, int ind)
         dump(ctxt.objects().at(ii), ind);
 }
 
-void ObjectTree::dump(const QmlDebugObjectReference &obj, int ind)
+void ObjectTree::dump(const QDeclarativeDebugObjectReference &obj, int ind)
 {
     QByteArray indent(ind * 4, ' ');
     qWarning().nospace() << indent.constData() << qPrintable(obj.className())
@@ -184,7 +184,7 @@ QTreeWidgetItem *ObjectTree::findItemByObjectId(int debugId) const
 
 QTreeWidgetItem *ObjectTree::findItem(QTreeWidgetItem *item, int debugId) const
 {
-    if (item->data(0, Qt::UserRole).value<QmlDebugObjectReference>().debugId() == debugId)
+    if (item->data(0, Qt::UserRole).value<QDeclarativeDebugObjectReference>().debugId() == debugId)
         return item;
 
     QTreeWidgetItem *child;
@@ -206,8 +206,8 @@ void ObjectTree::mousePressEvent(QMouseEvent *me)
         QAction action(tr("Add watch..."), 0);
         QList<QAction *> actions;
         actions << &action;
-        QmlDebugObjectReference obj =
-                currentItem()->data(0, Qt::UserRole).value<QmlDebugObjectReference>();
+        QDeclarativeDebugObjectReference obj =
+                currentItem()->data(0, Qt::UserRole).value<QDeclarativeDebugObjectReference>();
         if (QMenu::exec(actions, me->globalPos())) {
             bool ok = false;
             QString watch = QInputDialog::getText(this, tr("Watch expression"),

@@ -113,6 +113,8 @@ private slots:
     void updateResources();
 
 private:
+    void initializeResources(const QString &fileName = QString());
+
     QWidget *m_containerWidget;
     QString m_displayName;
     QList<int> m_context;

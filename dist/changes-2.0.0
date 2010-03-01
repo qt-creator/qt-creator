@@ -17,6 +17,7 @@ General
      of Qt creator
    * Added option to set interface language explicitly, overriding the locale
      setting
+   * New "Design" mode for visual editors (.ui & .qml files)
 
 Editing
    * Text based search and replace in multiple files
@@ -54,6 +55,13 @@ QML/JS Support
   * Runtime QML errors become links to the location of the error
   * Extended code navigation and completion
   * Added initial semantic checks
+
+  * New qml based .qmlproject file format (replaces old format)
+
+  * New QmlDesigner
+     * Allows visual manipulation of .qml files
+     * Supports changing top-level states
+     * Integrates tighly with text editor, e.g. shared history, navigation facilities ...
 
 Platform Specific
 

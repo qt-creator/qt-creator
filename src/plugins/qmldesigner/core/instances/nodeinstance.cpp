@@ -52,7 +52,7 @@
 #include <QHash>
 #include <QSet>
 
-#include <QtDeclarative/QmlEngine>
+#include <QtDeclarative/QDeclarativeEngine>
 
 /*!
   \class QmlDesigner::NodeInstance
@@ -123,19 +123,19 @@ void NodeInstance::paint(QPainter *painter) const
 \brief Creates a new NodeInstace for this NodeMetaInfo
 
 \param metaInfo MetaInfo for which a Instance should be created
-\param context QmlContext which should be used
+\param context QDeclarativeContext which should be used
 \returns Internal Pointer of a NodeInstance
 \see NodeMetaInfo
 */
 Internal::ObjectNodeInstance::Pointer NodeInstance::createInstance(const NodeMetaInfo &metaInfo,
-                                                                     QmlContext *context, QObject *objectToBeWrapped)
+                                                                     QDeclarativeContext *context, QObject *objectToBeWrapped)
 {
     Internal::ObjectNodeInstance::Pointer instance;
 
     if (metaInfo.isSubclassOf("Qt/QGraphicsView", 4, 6))
         instance = Internal::GraphicsViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
-    else if (metaInfo.isSubclassOf("Qt/QmlView", 4, 6))
-        instance = Internal::QmlViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
+    else if (metaInfo.isSubclassOf("Qt/QDeclarativeView", 4, 6))
+        instance = Internal::QDeclarativeViewNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/QGraphicsWidget", 4, 6))
         instance = Internal::GraphicsWidgetNodeInstance::create(metaInfo, context, objectToBeWrapped);
     else if (metaInfo.isSubclassOf("Qt/Item", 4, 6))
@@ -175,7 +175,7 @@ NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const Mode
     // for all items. However, this is a hack ... ideally we should
     // rebuild the same context hierarchy as the qml compiler does
 
-    QmlContext *context = nodeInstanceView->engine()->rootContext();
+    QDeclarativeContext *context = nodeInstanceView->engine()->rootContext();
 
     NodeInstance instance(createInstance(node.metaInfo(), context, objectToBeWrapped));
 
@@ -197,7 +197,7 @@ NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const Mode
     return instance;
 }
 
-NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const NodeMetaInfo &metaInfo, QmlContext *context)
+NodeInstance NodeInstance::create(NodeInstanceView *nodeInstanceView, const NodeMetaInfo &metaInfo, QDeclarativeContext *context)
 {
     NodeInstance instance(createInstance(metaInfo, context, 0));
     instance.m_nodeInstance->setNodeInstanceView(nodeInstanceView);
@@ -265,8 +265,8 @@ bool NodeInstance::hasParent() const
 }
 
 /*!
-\brief Returns if the NodeInstance is a QmlGraphicsItem.
-\returns true if this NodeInstance is a QmlGraphicsItem
+\brief Returns if the NodeInstance is a QDeclarativeItem.
+\returns true if this NodeInstance is a QDeclarativeItem
 */
 bool NodeInstance::isQmlGraphicsItem() const
 {
@@ -319,12 +319,12 @@ bool NodeInstance::isWidget() const
 }
 
 /*!
-\brief Returns if the NodeInstance is a QmlView.
-\returns true if this NodeInstance is a QmlView
+\brief Returns if the NodeInstance is a QDeclarativeView.
+\returns true if this NodeInstance is a QDeclarativeView
 */
-bool NodeInstance::isQmlView() const
+bool NodeInstance::isQDeclarativeView() const
 {
-    return m_nodeInstance->isQmlView();
+    return m_nodeInstance->isQDeclarativeView();
 }
 
 bool NodeInstance::isGraphicsObject() const
@@ -610,4 +610,13 @@ void NodeInstance::refreshState()
 {
     m_nodeInstance->refreshState();
 }
+
+/*!
+ Makes types used in node instances known to the Qml engine. To be called once at initialization time.
+*/
+void NodeInstance::registerDeclarativeTypes()
+{
+    QML_REGISTER_NOCREATE_TYPE(QmlDesigner::Internal::QmlPropertyChangesObject);
 }
+
+} // namespace QmlDesigner

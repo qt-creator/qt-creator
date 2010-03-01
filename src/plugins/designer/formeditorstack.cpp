@@ -43,7 +43,6 @@
 namespace Designer {
 namespace Internal {
 
-
 FormEditorStack::FormEditorStack() : activeEditor(0)
 {
 

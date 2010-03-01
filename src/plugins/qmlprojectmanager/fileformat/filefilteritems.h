@@ -4,7 +4,7 @@
 #include <QDir>
 #include <QObject>
 #include <QSet>
-#include <qml.h>
+#include <qdeclarative.h>
 #include <QFileSystemWatcher>
 
 #include "qmlprojectitem.h"

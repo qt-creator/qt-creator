@@ -17,14 +17,9 @@ PropertyFrame {
 
         Switches {
         }
-
-        ExtendedSwitches {
-            id: extendedSwitches;
-        }
+        
         HorizontalWhiteLine {
         }
-
-
 
         ScrollArea {
 
@@ -55,16 +50,9 @@ PropertyFrame {
                     }
 
 
-                    /*Modifiers {
+                    Modifiers {
 
-                    }*/
-
-
-                    WidgetLoader {
-                        id: specificsOne;
-                        source: specificsUrl;
-                    }
-
+                    }                    
 
                     QScrollArea {
                     }
