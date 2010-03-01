@@ -35,6 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <projectexplorer/session.h>
 #include <qt4projectmanager/qt4project.h>
 #include <utils/qtcassert.h>
 
@@ -452,6 +453,10 @@ void MaemoRunConfiguration::updateSimulatorInformation() const
 
 void MaemoRunConfiguration::startStopQemu()
 {
+    ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance();
+    if (explorer->session()->startupProject() != target()->project())
+            return;
+
     const MaemoDeviceConfig &config = deviceConfig();
     if (!config.isValid()|| config.type != MaemoDeviceConfig::Simulator)
         return;
