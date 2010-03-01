@@ -12,7 +12,7 @@
 
     \title Qt Creator Manual
 
-    \section1 Version 1.3.80
+    \section1 Version 1.3.81 (2.0.0 alpha)
 
     Qt Creator provides a cross-platform, complete integrated development
     environment (IDE) for developing Qt projects. It is available for Linux,
@@ -2444,7 +2444,7 @@
     specified in the \c CMake project file.
 
     Known issues for the current version can be found
-    \l{Known Issues of version 1.3.80}{here}.
+    \l{Known Issues of version 1.3.81}{here}.
 
 
     \section1 Adding External Libraries to a CMake Project
@@ -3675,7 +3675,7 @@
     There are some known issues with Qt Creator.
     The development team is aware of them, there is no need to report them as bugs.
 
-    \section1 Known Issues of Version 1.3.80
+    \section1 Known Issues of Version 1.3.81
 
     \list
         \o Debugging Helper does not work while performing On-Device Debugging.
