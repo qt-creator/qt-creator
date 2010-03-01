@@ -9,6 +9,8 @@ GroupBox {
     id: layout;
     enabled: anchorBackend.hasParent;
 
+    property var targetLabelWidth: 90 - 20 - 26
+
     layout: VerticalLayout {
         QLabel {
             text: "Anchors"
@@ -40,7 +42,7 @@ GroupBox {
 
                         Label {
                             text: "Target"
-                            fixedWidth: 90 - 20 - 32
+                            fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
                             itemNode: anchorBackend.itemNode
@@ -87,7 +89,7 @@ GroupBox {
 
                         Label {
                             text: "Target"
-                            fixedWidth: 90 - 20 - 32
+                            fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
                             itemNode: anchorBackend.itemNode
@@ -134,7 +136,7 @@ GroupBox {
 
                         Label {
                             text: "Target"
-                            fixedWidth: 90 - 20 - 32
+                            fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
                             itemNode: anchorBackend.itemNode
@@ -180,7 +182,7 @@ GroupBox {
 
                         Label {
                             text: "Target"
-                            fixedWidth: 90 - 20 - 32
+                            fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
                             itemNode: anchorBackend.itemNode
@@ -226,7 +228,7 @@ GroupBox {
 
                         Label {
                             text: "Target"
-                            fixedWidth: 90 - 20 - 32
+                            fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
                             itemNode: anchorBackend.itemNode
@@ -272,7 +274,7 @@ GroupBox {
 
                         Label {
                             text: "Target"
-                            fixedWidth: 90 - 20 - 32
+                            fixedWidth: targetLabelWidth
                         }
                         SiblingComboBox {
                             itemNode: anchorBackend.itemNode
