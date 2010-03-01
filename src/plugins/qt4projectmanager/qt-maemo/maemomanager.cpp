@@ -144,7 +144,7 @@ MaemoManager::addQemuSimulatorStarter(Project *project)
     m_qemuCommand = actionManager->registerAction(action, "MaemoEmulator",
         QList<int>() << Core::Constants::C_GLOBAL_ID);
     modeManager->addAction(m_qemuCommand, 1);
-    m_qemuCommand->action()->setEnabled(true);
+    m_qemuCommand->action()->setEnabled(false);
     m_qemuCommand->setAttribute(Core::Command::CA_UpdateText);
     m_qemuCommand->setAttribute(Core::Command::CA_UpdateIcon);
 
@@ -154,9 +154,11 @@ MaemoManager::addQemuSimulatorStarter(Project *project)
 void
 MaemoManager::removeQemuSimulatorStarter(Project *project)
 {
-    projects.remove(project);
-    if (projects.isEmpty() && m_qemuCommand)
-        m_qemuCommand->action()->setVisible(false);
+    if (projects.contains(project)) {
+        projects.remove(project);
+        if (projects.isEmpty() && m_qemuCommand)
+            m_qemuCommand->action()->setVisible(false);
+    }
 }
 
 void

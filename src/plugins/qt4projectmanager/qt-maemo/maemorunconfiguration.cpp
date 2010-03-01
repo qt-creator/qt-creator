@@ -97,9 +97,6 @@ void MaemoRunConfiguration::init()
     connect(qt4Target(), SIGNAL(targetInformationChanged()), this,
         SLOT(invalidateCachedTargetInformation()));
 
-    connect(qt4Target(), SIGNAL(targetInformationChanged()), this,
-        SLOT(enabledStateChanged()));
-
     connect(qt4Target()->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
         this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
@@ -232,6 +229,7 @@ bool MaemoRunConfiguration::fileNeedsDeployment(const QString &path,
 void MaemoRunConfiguration::setDeviceConfig(const MaemoDeviceConfig &devConf)
 {
     m_devConfig = devConf;
+    emit deviceConfigurationChanged(target());
 }
 
 MaemoDeviceConfig MaemoRunConfiguration::deviceConfig() const
@@ -454,6 +452,10 @@ void MaemoRunConfiguration::updateSimulatorInformation() const
 
 void MaemoRunConfiguration::startStopQemu()
 {
+    const MaemoDeviceConfig &config = deviceConfig();
+    if (!config.isValid()|| config.type != MaemoDeviceConfig::Simulator)
+        return;
+
     if (qemu->state() != QProcess::NotRunning) {
         if (qemu->state() == QProcess::Running) {
             qemu->terminate();
@@ -494,11 +496,6 @@ void MaemoRunConfiguration::startStopQemu()
 void MaemoRunConfiguration::qemuProcessFinished()
 {
     emit qemuProcessStatus(false);
-}
-
-void MaemoRunConfiguration::enabledStateChanged()
-{
-    MaemoManager::instance().setQemuSimulatorStarterEnabled(isEnabled());
 }
 
 void MaemoRunConfiguration::updateDeviceConfigurations()

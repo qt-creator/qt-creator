@@ -64,7 +64,6 @@ public:
     virtual ~MaemoRunConfiguration();
 
     bool isEnabled(ProjectExplorer::BuildConfiguration *config) const;
-    using RunConfiguration::isEnabled;
     QWidget *configurationWidget();
     Qt4Target *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
@@ -102,6 +101,7 @@ public:
 
 signals:
     void deviceConfigurationsUpdated();
+    void deviceConfigurationChanged(ProjectExplorer::Target *target);
     void targetInformationChanged() const;
     void cachedSimulatorInformationChanged() const;
     void qemuProcessStatus(bool running);
@@ -117,8 +117,6 @@ private slots:
 
     void startStopQemu();
     void qemuProcessFinished();
-
-    void enabledStateChanged();
 
 private:
     void init();

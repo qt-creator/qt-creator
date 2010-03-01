@@ -75,11 +75,14 @@ public:
 private slots:
     void projectAdded(ProjectExplorer::Project *project);
     void projectRemoved(ProjectExplorer::Project *project);
+    void projectChanged(ProjectExplorer::Project *project);
 
     void targetAdded(ProjectExplorer::Target *target);
     void targetRemoved(ProjectExplorer::Target *target);
+    void targetChanged(ProjectExplorer::Target *target);
 
-    void currentProjectChanged(ProjectExplorer::Project *project);
+private:
+    void updateMaemoEmulatorStarter(ProjectExplorer::Target *target) const;
 };
 
 class MaemoRunControlFactory : public IRunControlFactory
