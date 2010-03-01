@@ -58,7 +58,7 @@
             \endlist
        \o \l{Debugging}
        \o \l{Using Version Control Systems}
-       \o \l{Adding Plugins}
+       \o \l{Adding Qt Designer Plugins}
        \o \l{Tips and Tricks}
        \o \l{Keyboard Shortcuts}
        \o \l{Known Issues}
@@ -3002,22 +3002,19 @@
     \page adding-plugins.html
     \nextpage creator-tips.html
 
-    \title Adding Plugins
+    \title Adding Qt Designer Plugins
 
-     You can use Qt APIs to create plugins that extend Qt applications. For
-     example, you can use plugins to add your own widgets to Qt Designer.
+     You can use Qt APIs to create plugins that extend Qt applications.
+     This allows you to add your own widgets to Qt Designer.
      The most flexible way to include a plugin with an application is to compile it
      into a dynamic library that is shipped separately, and detected and loaded at runtime.
 
-     In theory, you could also create plugins to extend Qt Creator functionality,
-     but you do not usually need to do so.
-
      The applications can detect plugins that are stored in the standard plugin
-     subdirectories. To see a list of plugins loaded to Qt Creator, choose
-     \gui{Help > About Plugins}.
-
-     For more information on how to create and locate plugins and to
+     subdirectories. For more information on how to create and locate plugins and to
      change the default plugin path, see \l{How to Create Qt Plugins}.
+
+     For more information about how to create plugins for Qt Designer, see
+     \l{Creating and Using Components for Qt Designer}.
 
     \section1 Locating Qt Designer Plugins
 
@@ -3036,8 +3033,7 @@
      \c {%SDK%\qt\plugins\designer}. To check which plugins were loaded successfully and which
      failed, choose \gui{Help > About Plugins}.
 
-     For more information about how to create Qt Designer plugins, see
-     \l{Creating and Using Components for Qt Designer}.
+
 
      \section1 Matching Build Keys
 
