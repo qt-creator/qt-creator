@@ -44,6 +44,8 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class PropertyEditorTransaction;
+
 class PropertyEditor: public QmlModelView
 {
     Q_OBJECT
@@ -60,6 +62,7 @@ class PropertyEditor: public QmlModelView
         QDeclarativeView *m_view;
         Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
         QDeclarativePropertyMap m_backendValuesPropertyMap;
+        QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
     };
 
 public:

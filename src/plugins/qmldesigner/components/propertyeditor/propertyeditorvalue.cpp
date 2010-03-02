@@ -186,24 +186,6 @@ void PropertyEditorValue::resetValue()
     }
 }
 
-void PropertyEditorValue::lock()
-{
-    if (!modelNode().isValid())
-        return;
-
-    //Q_ASSERT(!m_rewriterTransaction.isValid());
-    //m_rewriterTransaction = modelNode().view()->beginRewriterTransaction();
-}
-
-void PropertyEditorValue::unlock()
-{
-    if (!modelNode().isValid())
-        return;
-
-    //Q_ASSERT(m_rewriterTransaction.isValid());
-    //m_rewriterTransaction.commit();
-}
-
 void PropertyEditorValue::registerDeclarativeTypes()
 {
     QML_REGISTER_TYPE(Bauhaus,1,0,PropertyEditorValue,PropertyEditorValue);

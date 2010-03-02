@@ -48,6 +48,7 @@
 #include "qproxylayoutitem.h"
 #include "fontwidget.h"
 #include "siblingcombobox.h"
+#include "propertyeditortransaction.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
@@ -71,7 +72,7 @@ enum {
 namespace QmlDesigner {
 
 PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
-        m_view(new QDeclarativeView)
+        m_view(new QDeclarativeView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor))
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
 
@@ -172,6 +173,7 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         m_backendAnchorBinding.setup(QmlItemNode(fxObjectNode.modelNode()));
 
         ctxt->setContextProperty("anchorBackend", &m_backendAnchorBinding);
+        ctxt->setContextProperty("transaction", m_propertyEditorTransaction.data());
         ctxt->setContextProperty("backendValues", &m_backendValuesPropertyMap);
 
         ctxt->setContextProperty("specificsUrl", QVariant(qmlSpecificsFile));
@@ -212,6 +214,7 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
     m_backendValuesPropertyMap.insert("id", QVariant::fromValue(valueObject));
 
     ctxt->setContextProperty("anchorBackend", &m_backendAnchorBinding);
+    ctxt->setContextProperty("transaction", m_propertyEditorTransaction.data());
     ctxt->setContextProperty("backendValues", &m_backendValuesPropertyMap);
 
     ctxt->setContextProperty("specificsUrl", QVariant(qmlSpecificsFile));

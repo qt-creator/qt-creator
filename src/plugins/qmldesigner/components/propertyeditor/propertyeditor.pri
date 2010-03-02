@@ -15,7 +15,8 @@ SOURCES += propertyeditor.cpp \
     filewidget.cpp \
     propertyeditorvalue.cpp \
     fontwidget.cpp \
-    siblingcombobox.cpp
+    siblingcombobox.cpp \
+    propertyeditortransaction.cpp
 HEADERS += propertyeditor.h \
     qmlanchorbindingproxy.h \
     allpropertiesbox.h \
@@ -30,7 +31,8 @@ HEADERS += propertyeditor.h \
     filewidget.h \
     propertyeditorvalue.h \
     fontwidget.h \
-    siblingcombobox.h
+    siblingcombobox.h \
+    propertyeditortransaction.h
 QT += declarative
 RESOURCES += propertyeditor.qrc
 FORMS += behaviordialog.ui
