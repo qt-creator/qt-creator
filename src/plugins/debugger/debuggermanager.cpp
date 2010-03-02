@@ -99,8 +99,8 @@
 #ifdef DEBUG_STATE
 // use  Q_FUNC_INFO?
 #   define STATE_DEBUG(s) \
-    { QString msg; QTextStream ts(&msg); ts << s; \
-      showDebuggerOutput(LogDebug, msg); }
+    do { QString msg; QTextStream ts(&msg); ts << s; \
+      showDebuggerOutput(LogDebug, msg); } while (0)
 #else
 #   define STATE_DEBUG(s)
 #endif
