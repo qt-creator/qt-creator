@@ -50,6 +50,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -60,6 +61,7 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
+#include <QtCore/QFuture>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
 #include <QtCore/qplugin.h>
@@ -73,6 +75,7 @@
 #include <QtGui/QToolBar>
 
 #include <QtHelp/QHelpEngine>
+#include <QtHelp/QHelpSearchEngine>
 
 #if defined(QT_NO_WEBKIT)
 #   include <QtGui/QApplication>
@@ -643,6 +646,11 @@ void HelpPlugin::extensionsInitialized()
         filesToRegister += addedDocs.split(QLatin1Char(';'));
     }
 
+    connect(m_helpEngine->searchEngine(), SIGNAL(indexingStarted()), this,
+        SLOT(indexingStarted()));
+    connect(m_helpEngine->searchEngine(), SIGNAL(indexingFinished()), this,
+        SLOT(indexingFinished()));
+
     if (!updateDocumentation()) {
         // if no documentation has been added, we need to force a setup data,
         // otherwise it has already been run in updateDocumentation
@@ -769,6 +777,24 @@ void HelpPlugin::updateViewerComboBoxIndex(int index)
 {
     if (index >= 0)
         m_documentsCombo->setCurrentIndex(index);
+}
+
+void HelpPlugin::indexingStarted()
+{
+    Core::ICore::instance()->progressManager() ->addTask(m_progress.future(),
+        tr("Indexing"), QLatin1String("Help.Indexer"));
+    m_progress.setProgressRange(0, 2);
+    m_progress.setProgressValueAndText(1, tr("Indexing Documentation..."));
+    m_progress.reportStarted();
+
+    m_watcher.setFuture(m_progress.future());
+    connect(&m_watcher, SIGNAL(canceled()), m_helpEngine->searchEngine(),
+        SLOT(cancelIndexing()));
+}
+
+void HelpPlugin::indexingFinished()
+{
+    m_progress.reportFinished();
 }
 
 HelpViewer* HelpPlugin::viewerForContextMode()
