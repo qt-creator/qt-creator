@@ -99,7 +99,7 @@ bool ne7ssh_channel::adjustWindow (Botan::SecureVector<Botan::byte>& packet)
   return true;
 }
 
-bool ne7ssh_channel::handleEof (Botan::SecureVector<Botan::byte>& packet)
+bool ne7ssh_channel::handleEof (Botan::SecureVector<Botan::byte>& /* packet */)
 {
   this->cmdComplete = true;
   windowRecv = 0;
@@ -111,9 +111,9 @@ bool ne7ssh_channel::handleEof (Botan::SecureVector<Botan::byte>& packet)
   return false;
 }
 
-void ne7ssh_channel::handleClose (Botan::SecureVector<Botan::byte>& newPacket)
+void ne7ssh_channel::handleClose (Botan::SecureVector<Botan::byte>& /* newPacket */)
 {
-  ne7ssh_string packet;
+  //ne7ssh_string packet;
 
   if (!closed) sendClose ();
   windowRecv = 0;

@@ -19,7 +19,12 @@ namespace Botan {
 /*
 * Lock an area of memory into RAM
 */
+#if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
+    || defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
 bool lock_mem(void* ptr, u32bit bytes)
+#else
+bool lock_mem(void*, u32bit)
+#endif
    {
 #if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    return (mlock(ptr, bytes) == 0);
@@ -33,7 +38,12 @@ bool lock_mem(void* ptr, u32bit bytes)
 /*
 * Unlock a previously locked region of memory
 */
+#if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
+    || defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
 void unlock_mem(void* ptr, u32bit bytes)
+#else
+void unlock_mem(void*, u32bit)
+#endif
    {
 #if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
    munlock(ptr, bytes);

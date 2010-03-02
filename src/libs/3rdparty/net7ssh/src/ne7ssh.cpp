@@ -876,7 +876,7 @@ bool Ne7SftpSubsystem::readFile (uint32 fileID, uint64 offset)
   return sftp->readFile (fileID, offset);
 }
 
-bool Ne7SftpSubsystem::writeFile (uint32 fileID, const uint8* data, uint32 len, uint64 offset)
+bool Ne7SftpSubsystem::writeFile (uint32 fileID, const uint8* data, uint32 len, uint64 /* offset */)
 {
   if (!inited) return errorNotInited();
   return sftp->writeFile (fileID, data, len);

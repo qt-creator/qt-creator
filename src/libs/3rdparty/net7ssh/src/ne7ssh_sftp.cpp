@@ -751,7 +751,7 @@ uint64 Ne7sshSftp::getFileSize (uint32 fileID)
   return attrs.size;
 }
 
-bool Ne7sshSftp::getFileAttrs (Ne7SftpSubsystem::fileAttrs& attributes, const char* remoteFile,  bool followSymLinks)
+bool Ne7sshSftp::getFileAttrs (Ne7SftpSubsystem::fileAttrs& attributes, const char* remoteFile,  bool /* followSymLinks */)
 {
   if (!remoteFile)
   {
