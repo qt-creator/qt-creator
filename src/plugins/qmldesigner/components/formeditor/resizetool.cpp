@@ -62,7 +62,7 @@ void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
         return;
 
     ResizeHandleItem *resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
-    if (resizeHandle) {
+    if (resizeHandle && resizeHandle->resizeController().isValid()) {
         m_resizeManipulator.setHandle(resizeHandle);
         m_resizeManipulator.begin(event->scenePos());
         m_resizeIndicator.hide();
@@ -92,7 +92,7 @@ void ResizeTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
     if (itemList.isEmpty())
         return;
     ResizeHandleItem* resizeHandle = ResizeHandleItem::fromGraphicsItem(itemList.first());
-    if (resizeHandle) {
+    if (resizeHandle && resizeHandle->resizeController().isValid()) {
         m_resizeManipulator.setHandle(resizeHandle);
     } else {
         view()->changeToSelectionTool();

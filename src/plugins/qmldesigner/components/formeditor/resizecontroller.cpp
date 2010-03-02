@@ -221,7 +221,7 @@ void ResizeController::updatePosition()
 
 FormEditorItem* ResizeController::formEditorItem() const
 {
-    return m_data->formEditorItem;
+    return m_data->formEditorItem.data();
 }
 
 QWeakPointer<ResizeControllerData> ResizeController::weakPointer() const
