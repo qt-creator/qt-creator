@@ -199,19 +199,19 @@ QPushButton {
 
 QPushButton, QComboBox[editable="false"],
 QComboBox[editable="true"] {
-    border-image: url(:/qmldesigner/images/pushbutton.png) 3;
+    border-image: url(:/qmldesigner/images/pushbutton.png) 4;
     border-width: 3;
 }
 
 QPushButton:hover, QComboBox[editable="false"]:hover,
 QComboBox[editable="true"]:hover, QMenuBar::item:hover {
-    border-image: url(:/qmldesigner/images/pushbutton_hover.png) 3;
+    border-image: url(:/qmldesigner/images/pushbutton_hover.png) 4;
     border-width: 3;
 }
 
 QPushButton:pressed, QComboBox[editable="false"]:on,
 QComboBox[editable="true"]:on, QMenuBar::item:on {
-    border-image: url(:/qmldesigner/images/pushbutton_pressed.png) 3;
+    border-image: url(:/qmldesigner/images/pushbutton_pressed.png) 4;
     border-width: 3;
 }
 
