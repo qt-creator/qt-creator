@@ -75,7 +75,7 @@ void QmlProjectRunConfiguration::ctor()
     const QString searchPath = QCoreApplication::applicationDirPath()
                                + Utils::SynchronousProcess::pathSeparator()
                                + QString(qgetenv("PATH"));
-    m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qmlviewer"));
+    m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qml"));
 }
 
 QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
