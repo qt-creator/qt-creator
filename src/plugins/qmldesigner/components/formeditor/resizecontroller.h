@@ -51,7 +51,7 @@ public:
 
 
     QWeakPointer<LayerItem> layerItem;
-    FormEditorItem *formEditorItem;
+    QWeakPointer<FormEditorItem> formEditorItem;
     ResizeHandleItem *topLeftItem;
     ResizeHandleItem *topRightItem;
     ResizeHandleItem *bottomLeftItem;
