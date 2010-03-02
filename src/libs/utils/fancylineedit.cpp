@@ -167,10 +167,6 @@ void FancyLineEdit::updateStyleSheet(Side side)
         sheet += QLatin1String(" color: #BBBBBB;");
     // Fix the stylesheet's clearing the size hint.
 
-#if QT_VERSION < 0x040700
-    sheet += QLatin1String(" height: ");
-    sheet += QString::number(sizeHint().height());
-#endif
     sheet += QLatin1Char('}');
     setStyleSheet(sheet);
 }
