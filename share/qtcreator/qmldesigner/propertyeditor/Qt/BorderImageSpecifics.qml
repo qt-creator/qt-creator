@@ -20,7 +20,6 @@ QWidget {
 
                 FileWidget {
                     enabled: isBaseState || backendValues.id.value != "";
-                    maximumWidth: 250;
                     text: "Source";
                     fileName: backendValues.source.value;
                     onFileNameChanged: {
