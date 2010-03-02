@@ -194,7 +194,7 @@ bool ne7ssh_transport::wait (SOCKET socket, int rw, int timeout)
 
 bool ne7ssh_transport::send (Botan::SecureVector<Botan::byte>& buffer)
 {
-  ssize_t byteCount;
+  long byteCount;
   uint32 sent = 0;
 
   if (buffer.size() > MAX_PACKET_LEN)
