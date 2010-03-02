@@ -426,6 +426,19 @@ void MiniProjectTargetSelector::setVisible(bool visible)
     m_projectAction->setChecked(visible);
 }
 
+// This is a workaround for the problem that Windows
+// will let the mouse events through when you click
+// outside a popup to close it. This causes the popup
+// to open on mouse release if you hit the button, which
+//
+//
+// A similar case can be found in QComboBox
+void MiniProjectTargetSelector::mousePressEvent(QMouseEvent *e)
+{
+    setAttribute(Qt::WA_NoMouseReplay);
+    QWidget::mousePressEvent(e);
+}
+
 void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
 {
     QTC_ASSERT(project, return);
