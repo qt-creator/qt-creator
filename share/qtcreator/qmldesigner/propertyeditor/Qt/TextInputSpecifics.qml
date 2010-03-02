@@ -12,7 +12,6 @@ QWidget {
         spacing: 0
 
         StandardTextGroupBox {
-            showStyleColor: true
             finished: finishedNotify;
 
         }
