@@ -104,8 +104,7 @@ void CMakeProject::fileChanged(const QString &fileName)
 
 void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
 {
-    CMakeTarget *target(qobject_cast<CMakeTarget *>(sender()));
-    if (!bc || !target || target != activeTarget())
+    if (!bc || bc->target() != activeTarget())
         return;
 
     CMakeBuildConfiguration * cmakebc(qobject_cast<CMakeBuildConfiguration *>(bc));
