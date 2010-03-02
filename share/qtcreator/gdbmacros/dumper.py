@@ -1027,6 +1027,7 @@ class Dumper:
             isHandled = False
 
             if str(type.strip_typedefs()).find("(") != -1:
+                # A function pointer.
                 self.putValue(str(item.value))
                 self.put('addr="%s",' % cleanAddress(value.address))
                 self.putType(item.value.type)
@@ -1089,7 +1090,8 @@ class Dumper:
             if not isHandled:
                 #warn("GENERIC PLAIN POINTER: %s" % value.type)
                 self.putType(item.value.type)
-                self.putValue(str(value.address))
+                self.putValue(str(value))
+                self.put('addr="%s",' % cleanAddress(value.address))
                 self.putNumChild(1)
                 if self.isExpanded(item):
                     self.beginChildren()
