@@ -334,7 +334,7 @@ void QmlAnchorBindingProxy::calcLeftMargin()
 void QmlAnchorBindingProxy::calcRightMargin()
 {
     if (m_rightTarget == m_fxItemNode.modelNode().parentProperty().parentModelNode()) {
-        qreal rightMargin = transformedBoundingBox().right() - parentBoundingBox().right();
+        qreal rightMargin = parentBoundingBox().right() - transformedBoundingBox().right();
         m_fxItemNode.anchors().setMargin( AnchorLine::Right, rightMargin);
         m_fxItemNode.anchors().setAnchor(AnchorLine::Right, m_rightTarget, AnchorLine::Right);
     } else {
