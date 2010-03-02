@@ -1478,11 +1478,19 @@ void GdbEngine::handleShowVersion(const GdbResponse &response)
 
 void GdbEngine::handleHasPython(const GdbResponse &response)
 {
-    Q_UNUSED(response);
     if (response.resultClass == GdbResultDone) {
         m_hasPython = true;
     } else {
         m_hasPython = false;
+        if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
+                && checkDebuggingHelpersClassic()) {
+            QByteArray cmd = "set environment ";
+            cmd += Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR;
+            cmd += ' ';
+            cmd += manager()->qtDumperLibraryName().toLocal8Bit();
+            postCommand(cmd);
+            m_debuggingHelperState = DebuggingHelperLoadTried;
+        }
     }
 }
 
@@ -3933,15 +3941,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
 
     postCommand("show version", CB(handleShowVersion));
 
-    postCommand("-interpreter-exec console "
-            "\"python execfile('" + dumperSourcePath + "dumper.py')\"",
-        NonCriticalResponse);
-    postCommand("-interpreter-exec console "
-            "\"python execfile('" + dumperSourcePath + "gdbmacros.py')\"",
-        NonCriticalResponse);
-
-    postCommand("-interpreter-exec console \"help bb\"",
-        CB(handleHasPython));
     //postCommand("-enable-timings");
     postCommand("set print static-members off"); // Seemingly doesn't work.
     //postCommand("set debug infrun 1");
@@ -4021,15 +4020,17 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
               ).arg(scriptFileName));
         }
     }
-    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
-        && checkDebuggingHelpers()) {
-        QByteArray cmd = "set environment ";
-        cmd += Debugger::Constants::Internal::LD_PRELOAD_ENV_VAR;
-        cmd += ' ';
-        cmd += manager()->qtDumperLibraryName().toLocal8Bit();
-        postCommand(cmd);
-        m_debuggingHelperState = DebuggingHelperLoadTried;
-    }
+
+    postCommand("-interpreter-exec console "
+            "\"python execfile('" + dumperSourcePath + "dumper.py')\"",
+        NonCriticalResponse);
+    postCommand("-interpreter-exec console "
+            "\"python execfile('" + dumperSourcePath + "gdbmacros.py')\"",
+        NonCriticalResponse);
+
+    postCommand("-interpreter-exec console \"help bb\"",
+        CB(handleHasPython));
+
     return true;
 }
 
