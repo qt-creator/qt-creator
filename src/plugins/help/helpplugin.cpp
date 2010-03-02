@@ -430,6 +430,8 @@ bool HelpPlugin::updateDocumentation()
                     qWarning() << "Error unregistering namespace '"
                         << nameSpace << "' from file '" << file << "': "
                         << hc.error();
+                } else {
+                    needsSetup = true;
                 }
             }
 
