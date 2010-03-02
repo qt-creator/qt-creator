@@ -680,6 +680,14 @@ void DesignDocumentController::paste()
             targetNode = targetNode.parentProperty().parentModelNode();
 
         QString defaultProperty(targetNode.metaInfo().defaultProperty());
+        double x = pastedNode.variantProperty("x").value().toDouble();
+        double y = pastedNode.variantProperty("x").value().toDouble();
+        double width = targetNode.variantProperty("width").value().toDouble();
+        double height = targetNode.variantProperty("height").value().toDouble();
+        x = x + double(qrand()) / RAND_MAX * width / 4 - width / 8;
+        y = y + double(qrand()) / RAND_MAX * height / 4 - height / 8;
+        pastedNode.variantProperty("x") = int(x);
+        pastedNode.variantProperty("y") = int(y);
         targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
 
         view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
