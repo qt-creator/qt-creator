@@ -31,6 +31,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <QtCore/QFutureInterface>
+#include <QtCore/QFutureWatcher>
 #include <QtCore/QMap>
 #include <QtCore/QStringList>
 
@@ -129,6 +131,9 @@ private slots:
     void removeViewerFromComboBox(int index);
     void updateViewerComboBoxIndex(int index);
 
+    void indexingStarted();
+    void indexingFinished();
+
 private:
     bool updateDocumentation();
 
@@ -169,6 +174,9 @@ private:
 
     HelpManager *helpManager;
     QStringList filesToRegister;
+
+    QFutureWatcher<void> m_watcher;
+    QFutureInterface<void> m_progress;
 };
 
 } // namespace Internal
