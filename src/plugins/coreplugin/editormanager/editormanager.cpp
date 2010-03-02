@@ -270,7 +270,11 @@ EditorManager::EditorManager(ICore *core, QWidget *parent) :
 
     //Close Action
     cmd = am->registerAction(m_d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext);
+#ifdef Q_WS_WIN
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
+#else
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+W")));
+#endif
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDefaultText(m_d->m_closeCurrentEditorAction->text());
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
