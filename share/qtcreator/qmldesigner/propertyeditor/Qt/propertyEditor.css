@@ -276,6 +276,10 @@ QComboBox[editable="true"]::down-arrow:on {
     left: 1px;
 }
 
+QComboBox::disabled {
+	color: gray;
+}
+
  QRadioButton {
     spacing: 5px;
 }
