@@ -6,7 +6,9 @@ GroupBox {
 
     caption: "Text";
 
-    property bool showStyleColor: false;
+    property bool showStyleColor: false
+    property bool showIsWrapping: false
+    property bool showVerticalAlignment: false
 
     layout: VerticalLayout {
         QWidget {
@@ -23,6 +25,7 @@ GroupBox {
             }
         }
         QWidget {
+            visible: showIsWrapping
             layout: HorizontalLayout {
                 Label {
                     text: ""
@@ -43,7 +46,7 @@ GroupBox {
                     text: "Alignment"
                 }
                 AlignmentHorizontalButtons {}
-                AlignmentVerticalButtons {}
+                AlignmentVerticalButtons { visible: showVerticalAlignment }
             }
         }
 
