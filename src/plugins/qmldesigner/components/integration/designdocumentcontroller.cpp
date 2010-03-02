@@ -633,6 +633,9 @@ void DesignDocumentController::paste()
         if (!view.selectedModelNodes().isEmpty())
             targetNode = view.selectedModelNodes().first();
 
+        if (targetNode.isValid() && targetNode.parentProperty().isValid())
+            targetNode = targetNode.parentProperty().parentModelNode();
+
         if (!targetNode.isValid())
             targetNode = view.rootModelNode();
 
@@ -645,7 +648,6 @@ void DesignDocumentController::paste()
                 if (node.isAncestorOf(node2))
                     selectedNodes.removeAll(node2);
             }
-
         }
 
         QList<ModelNode> pastedNodeList;
