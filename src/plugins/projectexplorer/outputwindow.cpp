@@ -461,7 +461,6 @@ void OutputWindow::appendOutputInline(const QString &out)
         setCurrentCharFormat(format);
 
         // (This feature depends on the availability of QPlainTextEdit::anchorAt)
-#if QT_VERSION >= 0x040700
         // Convert to HTML, preserving newlines and whitespace
         s = Qt::convertFromPlainText(s);
 
@@ -474,9 +473,6 @@ void OutputWindow::appendOutputInline(const QString &out)
             index += link.length();
         }
         appendHtml(s);
-#else
-        appendPlainText(s);
-#endif
     }
 
     enableUndoRedo();
@@ -536,7 +532,6 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
         return;
     }
 
-#if QT_VERSION >= 0x040700
     const QString href = anchorAt(e->pos());
     if (!href.isEmpty()) {
         QRegExp qmlErrorLink(QLatin1String("^file://(/[^:]+):(\\d+):(\\d+)"));
@@ -548,14 +543,12 @@ void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
             TextEditor::BaseTextEditor::openEditorAt(fileName, line, column - 1);
         }
     }
-#endif
 }
 
 void OutputWindow::mouseMoveEvent(QMouseEvent *e)
 {
     QPlainTextEdit::mouseMoveEvent(e);
 
-#if QT_VERSION >= 0x040700
     // Cursor was dragged to make a selection, deactivate links
     if (m_mousePressed && textCursor().hasSelection())
         m_linksActive = false;
@@ -564,5 +557,4 @@ void OutputWindow::mouseMoveEvent(QMouseEvent *e)
         viewport()->setCursor(Qt::IBeamCursor);
     else
         viewport()->setCursor(Qt::PointingHandCursor);
-#endif
 }

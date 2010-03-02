@@ -564,14 +564,12 @@ void FormEditorW::setupActions()
     QAction *actionFormSettings = m_fwm->actionShowFormWindowSettingsDialog();
     addToolAction(actionFormSettings, am, globalcontext, QLatin1String("FormEditor.FormSettings"), mformtools);
 
-#if QT_VERSION > 0x040500
     createSeparator(this, am, globalcontext, mformtools, QLatin1String("FormEditor.Menu.Tools.Separator4"));
     m_actionAboutPlugins = new QAction(tr("About Qt Designer plugins...."), this);
     addToolAction(m_actionAboutPlugins,  am,  globalcontext,
                    QLatin1String("FormEditor.AboutPlugins"), mformtools);
     connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm, SLOT(aboutPlugins()));
     m_actionAboutPlugins->setEnabled(false);
-#endif
 
     // FWM
     connect(m_fwm, SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface *)), this, SLOT(activeFormWindowChanged(QDesignerFormWindowInterface *)));
