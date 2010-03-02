@@ -381,8 +381,17 @@ void PropertyEditor::changeExpression(const QString &name)
     if (m_locked)
         return;
 
+    QString underscoreName(name);
+    underscoreName.replace(QLatin1Char('.'), QLatin1Char('_'));
+
     QmlObjectNode fxObjectNode(m_selectedNode);
-    PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(name)));
+    PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
+
+    if (!value) {
+        qWarning() << "PropertyEditor::changeExpression no value for " << underscoreName;
+        return;
+    }
+
     try {
         if (fxObjectNode.currentState().isBaseState()) {
             fxObjectNode.modelNode().bindingProperty(name).setExpression(value->expression());
