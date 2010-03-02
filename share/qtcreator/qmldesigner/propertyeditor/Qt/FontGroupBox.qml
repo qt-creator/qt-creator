@@ -13,11 +13,14 @@ GroupBox {
                 Label {
                     text: "Font"
                 }
-                QFontComboBox {
+                FontComboBox {
                     id: fontSelector
                     currentFont.family:backendValues.font_family.value
                     onCurrentFontChanged: if (backendValues.font_family.value != currentFont.family)
                         backendValues.font_family.value = currentFont.family;
+
+                    backendValue:backendValues.font_family
+                    baseStateFlag: isBaseState
                 }
             }
         }
