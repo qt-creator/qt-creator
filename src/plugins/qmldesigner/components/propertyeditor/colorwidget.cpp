@@ -98,14 +98,14 @@ namespace QmlDesigner {
 
         QPainter p(this);
 
-        int height = 120;
+        int localHeight = 120;
 
         if (m_cache.isNull()) {
-            m_cache = QPixmap(10, height);
+            m_cache = QPixmap(10, localHeight);
 
             QPainter cacheP(&m_cache);
 
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < localHeight; i++)
             {
                 QColor c;
                 c.setHsv( (i*359) / 120.0, 255,255);
@@ -122,6 +122,10 @@ namespace QmlDesigner {
         points.append(QPointF(15, y));
         points.append(QPointF(25, y + 5));
         points.append(QPointF(25, y - 5));
+
+        p.setPen(Qt::black);
+        p.setBrush(Qt::NoBrush);
+        p.drawRect(QRect(0, 0, width() - 1, height() - 1).adjusted(8, 4, -18, -4));
 
         p.setPen(Qt::black);
         p.setBrush(QColor("#707070"));
@@ -185,6 +189,9 @@ namespace QmlDesigner {
 
         p.setPen(Qt::white);
         p.drawEllipse(x - 2, y - 2, 4, 4);
+
+        p.setPen(Qt::black);
+        p.drawRect(QRect(0, 0, width() - 1, height() -1).adjusted(4, 4, -4, -4));
     }
 
 }
