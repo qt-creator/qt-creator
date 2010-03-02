@@ -258,7 +258,7 @@ void GdbEngine::initializeVariables()
     m_breakListUpdating = false;
     m_oldestAcceptableToken = -1;
     m_outputCodec = QTextCodec::codecForLocale();
-    m_pendingRequests = 0;
+    m_pendingWatchRequests = 0;
     m_commandsDoneCallback = 0;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
@@ -717,13 +717,13 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
         return;
     }
 
-    if (cmd.flags & RebuildModel) {
-        ++m_pendingRequests;
+    if (cmd.flags & RebuildWatchModel) {
+        ++m_pendingWatchRequests;
         PENDING_DEBUG("   MODEL:" << cmd.command << "=>" << cmd.callbackName
-                      << "INCREMENTS PENDING TO" << m_pendingRequests);
+                      << "INCREMENTS PENDING TO" << m_pendingWatchRequests);
     } else {
         PENDING_DEBUG("   OTHER (IN):" << cmd.command << "=>" << cmd.callbackName
-                      << "LEAVES PENDING AT" << m_pendingRequests);
+                      << "LEAVES PENDING AT" << m_pendingWatchRequests);
     }
 
     if ((cmd.flags & NeedsStop) || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
@@ -939,17 +939,17 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
             (m_gdbAdapter->*cmd.adapterCallback)(*response);
     }
 
-    if (cmd.flags & RebuildModel) {
-        --m_pendingRequests;
+    if (cmd.flags & RebuildWatchModel) {
+        --m_pendingWatchRequests;
         PENDING_DEBUG("   WATCH" << cmd.command << "=>" << cmd.callbackName
-                      << "DECREMENTS PENDING TO" << m_pendingRequests);
-        if (m_pendingRequests <= 0) {
+                      << "DECREMENTS PENDING TO" << m_pendingWatchRequests);
+        if (m_pendingWatchRequests <= 0) {
             PENDING_DEBUG("\n\n ... AND TRIGGERS MODEL UPDATE\n");
-            rebuildModel();
+            rebuildWatchModel();
         }
     } else {
         PENDING_DEBUG("   OTHER (OUT):" << cmd.command << "=>" << cmd.callbackName
-                      << "LEAVES PENDING AT" << m_pendingRequests);
+                      << "LEAVES PENDING AT" << m_pendingWatchRequests);
     }
 
     // Commands were queued, but we were in RunningRequested state, so the interrupt
@@ -3189,8 +3189,8 @@ void GdbEngine::updateWatchData(const WatchData &data)
     } else {
         // Bump requests to avoid model rebuilding during the nested
         // updateWatchModel runs.
-        ++m_pendingRequests;
-        PENDING_DEBUG("UPDATE WATCH BUMPS PENDING UP TO " << m_pendingRequests);
+        ++m_pendingWatchRequests;
+        PENDING_DEBUG("UPDATE WATCH BUMPS PENDING UP TO " << m_pendingWatchRequests);
 #if 1
         QMetaObject::invokeMethod(this, "updateWatchDataHelper",
             Qt::QueuedConnection, Q_ARG(WatchData, data));
@@ -3212,13 +3212,13 @@ void GdbEngine::updateWatchDataHelper(const WatchData &data)
 
     updateSubItemClassic(data);
     //PENDING_DEBUG("INTERNAL TRIGGERING UPDATE WATCH MODEL");
-    --m_pendingRequests;
-    PENDING_DEBUG("UPDATE WATCH DONE BUMPS PENDING DOWN TO " << m_pendingRequests);
-    if (m_pendingRequests <= 0)
-        rebuildModel();
+    --m_pendingWatchRequests;
+    PENDING_DEBUG("UPDATE WATCH DONE BUMPS PENDING DOWN TO " << m_pendingWatchRequests);
+    if (m_pendingWatchRequests <= 0)
+        rebuildWatchModel();
 }
 
-void GdbEngine::rebuildModel()
+void GdbEngine::rebuildWatchModel()
 {
     static int count = 0;
     ++count;
@@ -3417,7 +3417,7 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
 
 void GdbEngine::updateLocals(const QVariant &cookie)
 {
-    m_pendingRequests = 0;
+    m_pendingWatchRequests = 0;
     if (hasPython())
         updateLocalsPython(QByteArray());
     else

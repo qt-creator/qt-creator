@@ -179,9 +179,9 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         //PENDING_DEBUG("AFTER handleStackFrame()");
         // FIXME: This should only be used when updateLocals() was
         // triggered by expanding an item in the view.
-        if (m_pendingRequests <= 0) {
+        if (m_pendingWatchRequests <= 0) {
             //PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
-            rebuildModel();
+            rebuildWatchModel();
         }
     } else {
         debugMessage(_("DUMPER FAILED: " + response.toString()));

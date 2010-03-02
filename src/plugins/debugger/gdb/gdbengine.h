@@ -174,8 +174,8 @@ private: ////////// Gdb Command Management //////////
         NoFlags = 0,
         NeedsStop = 1,    // The command needs a stopped inferior
         Discardable = 2,  // No need to wait for the reply before continuing inferior
-        RebuildModel = 4, // Trigger model rebuild when no such commands are pending any more
-        WatchUpdate = Discardable | RebuildModel,
+        RebuildWatchModel = 4, // Trigger model rebuild when no such commands are pending any more
+        WatchUpdate = Discardable | RebuildWatchModel,
         NonCriticalResponse = 8,  // We can live without recieving an answer
         RunRequest = 16,  // Callback expects GdbResultRunning instead of GdbResultDone
         ExitRequest = 32, // Callback expects GdbResultExit instead of GdbResultDone
@@ -244,7 +244,7 @@ private: ////////// Gdb Command Management //////////
     // out of date and discarded.
     int m_oldestAcceptableToken;
 
-    int m_pendingRequests; // Watch updating commands in flight
+    int m_pendingWatchRequests; // Watch updating commands in flight
 
     typedef void (GdbEngine::*CommandsDoneCallback)();
     // function called after all previous responses have been received
@@ -442,7 +442,7 @@ private: ////////// View & Data Stuff //////////
 
     void virtual updateWatchData(const WatchData &data);
     Q_SLOT void updateWatchDataHelper(const WatchData &data);
-    void rebuildModel();
+    void rebuildWatchModel();
     bool showToolTip();
 
     void insertData(const WatchData &data);

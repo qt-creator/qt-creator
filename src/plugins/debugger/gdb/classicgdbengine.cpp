@@ -143,7 +143,7 @@ void GdbEngine::runDirectDebuggingHelperClassic(const WatchData &data, bool dump
     var.setValue(data);
     postCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue3Classic), var);
 
-    showStatusMessage(msgRetrievingWatchData(m_pendingRequests + 1), 10000);
+    showStatusMessage(msgRetrievingWatchData(m_pendingWatchRequests + 1), 10000);
 }
 
 void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChildren)
@@ -195,7 +195,7 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
 
     postCommand(cmd.toLatin1(), WatchUpdate | NonCriticalResponse);
 
-    showStatusMessage(msgRetrievingWatchData(m_pendingRequests + 1), 10000);
+    showStatusMessage(msgRetrievingWatchData(m_pendingWatchRequests + 1), 10000);
 
     // retrieve response
     postCommand("p (char*)&qDumpOutBuffer", WatchUpdate,
@@ -394,7 +394,7 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
     if (m_cookieForToken.contains(response.token - 1)) {
         m_cookieForToken.remove(response.token - 1);
         debugMessage(_("DETECTING LOST COMMAND %1").arg(response.token - 1));
-        --m_pendingRequests;
+        --m_pendingWatchRequests;
         data.setError(WatchData::msgNotInScope());
         insertData(data);
         return;
