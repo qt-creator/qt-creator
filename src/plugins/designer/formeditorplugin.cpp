@@ -115,21 +115,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
             qApp->installTranslator(qtr);
     }
 
-    if (qgetenv("KDE_SESSION_VERSION") == QByteArray("4")) {
-        // KDE 4, possibly dangerous...
-        // KDE 4.2.0 had a nasty bug, which resulted in the File/Open Dialog crashing
-        // so check for that an fully load the plugins
-        QProcess proc;
-        proc.start(QLatin1String("kde4-config"), QStringList(QLatin1String("--version")));
-        proc.waitForFinished();
-        const QByteArray output = proc.readAll();
-        if (output.contains("KDE: 4.2.0"))
-            FormEditorW::ensureInitStage(FormEditorW::FullyInitialized);
-        else
-            FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
-    } else {
-        FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
-    }
+    FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
 
     error->clear();
     return true;
