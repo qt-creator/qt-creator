@@ -125,7 +125,7 @@ namespace QmlDesigner {
 
         p.setPen(Qt::black);
         p.setBrush(Qt::NoBrush);
-        p.drawRect(QRect(0, 0, width() - 1, height() - 1).adjusted(8, 4, -18, -4));
+        p.drawRect(QRect(0, 0, width() - 1, height() - 1).adjusted(10, 5, -20, -5));
 
         p.setPen(Qt::black);
         p.setBrush(QColor("#707070"));
