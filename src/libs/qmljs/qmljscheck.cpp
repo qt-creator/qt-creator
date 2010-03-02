@@ -139,9 +139,9 @@ public:
                 // #rgba
                 for (int i = 1; i < 9; ++i) {
                     const QChar c = colorString.at(i);
-                    if (c >= QLatin1Char('0') && c <= QLatin1Char('9')
-                        || c >= QLatin1Char('a') && c <= QLatin1Char('f')
-                        || c >= QLatin1Char('A') && c <= QLatin1Char('F'))
+                    if ((c >= QLatin1Char('0') && c <= QLatin1Char('9'))
+                        || (c >= QLatin1Char('a') && c <= QLatin1Char('f'))
+                        || (c >= QLatin1Char('A') && c <= QLatin1Char('F')))
                         continue;
                     ok = false;
                     break;
