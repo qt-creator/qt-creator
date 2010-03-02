@@ -147,7 +147,7 @@ public:
                     break;
                 }
             } else {
-                ok = QColor(colorString).isValid();
+                ok = QColor::isValidColor(colorString);
             }
             if (!ok)
                 _message.message = QCoreApplication::translate("QmlJS::Check", "not a valid color");
