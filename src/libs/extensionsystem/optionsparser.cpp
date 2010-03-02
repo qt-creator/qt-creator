@@ -34,9 +34,10 @@
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;
 
-static const char *END_OF_OPTIONS = "--";
+static const char END_OF_OPTIONS[] = "--";
 const char *OptionsParser::NO_LOAD_OPTION = "-noload";
 const char *OptionsParser::TEST_OPTION = "-test";
+const char *OptionsParser::PROFILE_OPTION = "-profile";
 
 OptionsParser::OptionsParser(const QStringList &args,
         const QMap<QString, bool> &appOptions,
@@ -68,6 +69,8 @@ bool OptionsParser::parse()
         if (checkForEndOfOptions())
             break;
         if (checkForNoLoadOption())
+            continue;
+        if (checkForProfilingOption())
             continue;
         if (checkForTestOption())
             continue;
@@ -145,6 +148,14 @@ bool OptionsParser::checkForAppOption()
     }
     if (m_foundAppOptions)
         m_foundAppOptions->insert(option, argument);
+    return true;
+}
+
+bool OptionsParser::checkForProfilingOption()
+{
+    if (m_currentArg != QLatin1String(PROFILE_OPTION))
+        return false;
+    m_pmPrivate->initProfiling();
     return true;
 }
 

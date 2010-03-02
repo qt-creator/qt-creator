@@ -36,6 +36,11 @@
 #include <QtCore/QSet>
 #include <QtCore/QStringList>
 #include <QtCore/QObject>
+#include <QtCore/QScopedPointer>
+
+QT_BEGIN_NAMESPACE
+class QTime;
+QT_END_NAMESPACE
 
 namespace ExtensionSystem {
 
@@ -61,6 +66,8 @@ public:
     QList<PluginSpec *> loadQueue();
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
+    void initProfiling();
+    void profilingReport(const char *what, const PluginSpec *spec = 0);
 
     QList<PluginSpec *> pluginSpecs;
     QList<PluginSpec *> testSpecs;
@@ -69,6 +76,8 @@ public:
     QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
 
     QStringList arguments;
+    QScopedPointer<QTime> m_profileTimer;
+    int m_profileElapsedMS;
 
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;

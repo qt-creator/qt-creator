@@ -51,6 +51,7 @@ public:
 
     static const char *NO_LOAD_OPTION;
     static const char *TEST_OPTION;
+    static const char *PROFILE_OPTION;
 private:
     // return value indicates if the option was processed
     // it doesn't indicate success (--> m_hasError)
@@ -59,6 +60,7 @@ private:
     bool checkForTestOption();
     bool checkForAppOption();
     bool checkForPluginOption();
+    bool checkForProfilingOption();
     bool checkForUnknownOption();
 
     enum TokenType { OptionalToken, RequiredToken };

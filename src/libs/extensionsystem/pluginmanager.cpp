@@ -38,6 +38,8 @@
 #include <QtCore/QDir>
 #include <QtCore/QTextStream>
 #include <QtCore/QWriteLocker>
+#include <QtCore/QTime>
+#include <QtCore/QDateTime>
 #include <QtDebug>
 #ifdef WITH_TESTS
 #include <QTest>
@@ -465,6 +467,9 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
     formatOption(str, QLatin1String(OptionsParser::NO_LOAD_OPTION),
                  QLatin1String("plugin"), QLatin1String("Do not load <plugin>"),
                  optionIndentation, descriptionIndentation);
+    formatOption(str, QLatin1String(OptionsParser::PROFILE_OPTION),
+                 QString(), QLatin1String("Profile plugin loading"),
+                 optionIndentation, descriptionIndentation);
 }
 
 /*!
@@ -573,8 +578,10 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
     \fn PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager)
     \internal
 */
-PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager)
-    : extension("xml"), q(pluginManager)
+PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
+    extension(QLatin1String("xml")),
+    m_profileElapsedMS(0),
+    q(pluginManager)
 {
 }
 
@@ -740,14 +747,19 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
 {
     if (spec->hasError())
         return;
-    if (destState == PluginSpec::Running) {
+    switch (destState) {
+    case PluginSpec::Running:
+        profilingReport(">initializeExtensions", spec);
         spec->d->initializeExtensions();
+        profilingReport("<initializeExtensions", spec);
         return;
-    } else if (destState == PluginSpec::Deleted) {
+    case PluginSpec::Deleted:
         spec->d->kill();
         return;
+    default:
+        break;
     }
-    foreach (PluginSpec *depSpec, spec->dependencySpecs()) {
+    foreach (const PluginSpec *depSpec, spec->dependencySpecs()) {
         if (depSpec->state() != destState) {
             spec->d->hasError = true;
             spec->d->errorString =
@@ -756,12 +768,25 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
             return;
         }
     }
-    if (destState == PluginSpec::Loaded)
+    switch (destState) {
+    case PluginSpec::Loaded:
+        profilingReport(">loadLibrary", spec);
         spec->d->loadLibrary();
-    else if (destState == PluginSpec::Initialized)
+        profilingReport("<loadLibrary", spec);
+        break;
+    case PluginSpec::Initialized:
+        profilingReport(">initializePlugin", spec);
         spec->d->initializePlugin();
-    else if (destState == PluginSpec::Stopped)
+        profilingReport("<initializePlugin", spec);
+        break;
+    case PluginSpec::Stopped:
+        profilingReport(">stop", spec);
         spec->d->stop();
+        profilingReport("<stop", spec);
+        break;
+    default:
+        break;
+    }
 }
 
 /*!
@@ -787,7 +812,8 @@ void PluginManagerPrivate::readPluginPaths()
     QStringList searchPaths = pluginPaths;
     while (!searchPaths.isEmpty()) {
         const QDir dir(searchPaths.takeFirst());
-        const QFileInfoList files = dir.entryInfoList(QStringList() << QString("*.%1").arg(extension), QDir::Files);
+        const QString pattern = QLatin1String("*.") + extension;
+        const QFileInfoList files = dir.entryInfoList(QStringList(pattern), QDir::Files);
         foreach (const QFileInfo &file, files)
             specFiles << file.absoluteFilePath();
         const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
@@ -844,3 +870,26 @@ PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const
     return 0;
 }
 
+void PluginManagerPrivate::initProfiling()
+{
+    if (m_profileTimer.isNull()) {
+        m_profileTimer.reset(new QTime);
+        m_profileTimer->start();
+        m_profileElapsedMS = 0;
+        qDebug("Profiling started");
+    }
+}
+
+void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *spec /* = 0 */)
+{
+    if (!m_profileTimer.isNull()) {
+        const int absoluteElapsedMS = m_profileTimer->elapsed();
+        const int elapsedMS = absoluteElapsedMS - m_profileElapsedMS;
+        m_profileElapsedMS = absoluteElapsedMS;
+        if (spec) {
+            qDebug("%-22s %-22s %8dms (%8dms)", what, qPrintable(spec->name()), absoluteElapsedMS, elapsedMS);
+        } else {
+            qDebug("%-22s %8dms (%8dms)", what, absoluteElapsedMS, elapsedMS);
+        }
+    }
+}

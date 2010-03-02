@@ -734,7 +734,7 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
         if (!found) {
             hasError = true;
             if (!errorString.isEmpty())
-                errorString.append("\n");
+                errorString.append(QLatin1Char('\n'));
             errorString.append(QCoreApplication::translate("PluginSpec", "Could not resolve dependency '%1(%2)'")
                 .arg(dependency.name).arg(dependency.version));
             continue;
