@@ -69,6 +69,10 @@ private slots:
     void removeDocumentation();
 
 private:
+    bool eventFilter(QObject *object, QEvent *event);
+    void removeDocumentation(const QList<QListWidgetItem*> items);
+
+private:
     QHelpEngine *m_helpEngine;
     bool m_registeredDocs;
     QStringList m_removeDocs;

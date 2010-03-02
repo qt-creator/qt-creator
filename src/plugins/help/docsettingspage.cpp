@@ -30,9 +30,12 @@
 #include "docsettingspage.h"
 #include "helpconstants.h"
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
 #include <QtCore/QCoreApplication>
+
+#include <QtGui/QFileDialog>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QMessageBox>
+
 #include <QtHelp/QHelpEngine>
 
 using namespace Help::Internal;
@@ -73,6 +76,7 @@ QWidget *DocSettingsPage::createPage(QWidget *parent)
     connect(m_ui.removeButton, SIGNAL(clicked()),
             this, SLOT(removeDocumentation()));
 
+    m_ui.docsListWidget->installEventFilter(this);
     m_ui.docsListWidget->addItems(m_helpEngine->registeredDocumentations());
     m_registeredDocs = false;
     m_removeDocs.clear();
@@ -108,19 +112,7 @@ void DocSettingsPage::addDocumentation()
 
 void DocSettingsPage::removeDocumentation()
 {
-    QListWidgetItem *item = m_ui.docsListWidget->currentItem();
-    if (!item)
-        return;
-
-    m_removeDocs.append(item->text());
-    int row = m_ui.docsListWidget->currentRow();
-    m_ui.docsListWidget->takeItem(row);
-    if (row > 0)
-        --row;
-    if (m_ui.docsListWidget->count())
-        m_ui.docsListWidget->setCurrentRow(row);
-
-    delete item;
+    removeDocumentation(m_ui.docsListWidget->selectedItems());
 }
 
 void DocSettingsPage::apply()
@@ -152,4 +144,38 @@ bool DocSettingsPage::applyChanges()
     m_registeredDocs = false;
 
     return success;
+}
+
+bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
+{
+    if (object != m_ui.docsListWidget)
+        return Core::IOptionsPage::eventFilter(object, event);
+
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+        switch (ke->key()) {
+            case Qt::Key_Delete:
+                removeDocumentation(m_ui.docsListWidget->selectedItems());
+            break;
+            default: break;
+        }
+    }
+
+    return Core::IOptionsPage::eventFilter(object, event);
+}
+
+void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
+{
+    if (items.isEmpty())
+        return;
+
+    int row = 0;
+    foreach (QListWidgetItem* item, items) {
+        m_removeDocs.append(item->text());
+        row = m_ui.docsListWidget->row(item);
+        delete m_ui.docsListWidget->takeItem(row);
+    }
+
+    m_ui.docsListWidget->setCurrentRow(qMax(row - 1, 0),
+        QItemSelectionModel::ClearAndSelect);
 }
