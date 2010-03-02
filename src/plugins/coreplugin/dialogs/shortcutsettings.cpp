@@ -196,6 +196,12 @@ void ShortcutSettings::setKeySequence(const QKeySequence &key)
 
 bool ShortcutSettings::filter(const QString &f, const QTreeWidgetItem *item)
 {
+
+    if (QTreeWidgetItem *parent = item->parent()) {
+        if (parent->text(0).contains(f, Qt::CaseInsensitive))
+            return false;
+    }
+
     if (item->childCount() == 0) {
         if (f.isEmpty())
             return false;
@@ -285,6 +291,8 @@ void ShortcutSettings::initialize()
     m_am = ActionManagerPrivate::instance();
     UniqueIDManager *uidm = UniqueIDManager::instance();
 
+    QMap<QString, QTreeWidgetItem *> sections;
+
     foreach (Command *c, m_am->commands()) {
         if (c->hasAttribute(Command::CA_NonConfigureable))
             continue;
@@ -294,11 +302,25 @@ void ShortcutSettings::initialize()
         QTreeWidgetItem *item = 0;
         ShortcutItem *s = new ShortcutItem;
         m_scitems << s;
-        item = new QTreeWidgetItem(m_page->commandList);
+        item = new QTreeWidgetItem;
         s->m_cmd = c;
         s->m_item = item;
 
-        item->setText(0, uidm->stringForUniqueIdentifier(c->id()));
+        const QString identifier = uidm->stringForUniqueIdentifier(c->id());
+        int pos = identifier.indexOf(QLatin1Char('.'));
+        const QString section = identifier.left(pos);
+        const QString subId = identifier.mid(pos+1);
+        if (!sections.contains(section)) {
+            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(m_page->commandList, QStringList() << section);
+            QFont f = categoryItem->font(0);
+            f.setBold(true);
+            categoryItem->setFont(0, f);
+            sections.insert(section, categoryItem);
+            m_page->commandList->expandItem(categoryItem);
+        }
+        sections[section]->addChild(item);
+
+        item->setText(0, subId);
 
         if (c->action()) {
             QString text = c->hasAttribute(Command::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();

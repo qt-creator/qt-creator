@@ -63,6 +63,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <utils/treewidgetcolumnstretcher.h>
 
 #include <cpptools/cpptoolsconstants.h>
 
@@ -333,6 +334,7 @@ QWidget *FakeVimExCommandsPage::createPage(QWidget *parent)
             << ' ' << m_ui.groupBox->title();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
+    new Utils::TreeWidgetColumnStretcher(m_ui.commandList, 1);
 
     return w;
 }
@@ -344,18 +346,34 @@ void FakeVimExCommandsPage::initialize()
     UniqueIDManager *uidm = UniqueIDManager::instance();
     QTC_ASSERT(uidm, return);
 
+    QMap<QString, QTreeWidgetItem *> sections;
+
     foreach (Command *c, am->commands()) {
         if (c->action() && c->action()->isSeparator())
             continue;
 
         CommandItem *ci = new CommandItem;
-        QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.commandList);
+        QTreeWidgetItem *item = new QTreeWidgetItem;
         ci->m_cmd = c;
         ci->m_item = item;
         m_citems << ci;
 
         const QString name = uidm->stringForUniqueIdentifier(c->id());
-        item->setText(0, name);
+        const int pos = name.indexOf(QLatin1Char('.'));
+        const QString section = name.left(pos);
+        const QString subId = name.mid(pos+1);
+
+        if (!sections.contains(section)) {
+            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(m_ui.commandList, QStringList() << section);
+            QFont f = categoryItem->font(0);
+            f.setBold(true);
+            categoryItem->setFont(0, f);
+            sections.insert(section, categoryItem);
+            m_ui.commandList->expandItem(categoryItem);
+        }
+        sections[section]->addChild(item);
+
+        item->setText(0, subId);
 
         if (c->action()) {
             QString text = c->hasAttribute(Command::CA_UpdateText) && !c->defaultText().isNull() ? c->defaultText() : c->action()->text();
@@ -416,6 +434,11 @@ void FakeVimExCommandsPage::setRegex(const QString &regex)
 
 bool FakeVimExCommandsPage::filter(const QString &f, const QTreeWidgetItem *item)
 {
+    if (QTreeWidgetItem *parent = item->parent()) {
+        if (parent->text(0).contains(f, Qt::CaseInsensitive))
+            return false;
+    }
+
     if (item->childCount() == 0) {
         if (f.isEmpty())
             return false;
