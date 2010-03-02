@@ -44,7 +44,7 @@ GroupBox {
                             text: "Target"
                             fixedWidth: targetLabelWidth
                         }
-                        LayoutComboBox {
+                        SiblingComboBox {
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.topTarget
                             onSelectedItemNodeChanged: { anchorBackend.topTarget = selectedItemNode; }
@@ -92,7 +92,7 @@ GroupBox {
                             text: "Target"
                             fixedWidth: targetLabelWidth
                         }
-                        LayoutComboBox {
+                        SiblingComboBox {
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.bottomTarget
                             onSelectedItemNodeChanged: { anchorBackend.bottomTarget = selectedItemNode; }
@@ -139,7 +139,7 @@ GroupBox {
                             text: "Target"
                             fixedWidth: targetLabelWidth
                         }
-                        LayoutComboBox {
+                        SiblingComboBox {
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.leftTarget
                             onSelectedItemNodeChanged: { anchorBackend.leftTarget = selectedItemNode; }
@@ -185,7 +185,7 @@ GroupBox {
                             text: "Target"
                             fixedWidth: targetLabelWidth
                         }
-                        LayoutComboBox {
+                        SiblingComboBox {
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.rightTarget
                             onSelectedItemNodeChanged: { anchorBackend.rightTarget = selectedItemNode; }
@@ -231,7 +231,7 @@ GroupBox {
                             text: "Target"
                             fixedWidth: targetLabelWidth
                         }
-                        LayoutComboBox {
+                        SiblingComboBox {
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.horizontalTarget
                             onSelectedItemNodeChanged: { anchorBackend.horizontalTarget = selectedItemNode; }
@@ -277,7 +277,7 @@ GroupBox {
                             text: "Target"
                             fixedWidth: targetLabelWidth
                         }
-                        LayoutComboBox {
+                        SiblingComboBox {
                             itemNode: anchorBackend.itemNode
                             selectedItemNode: anchorBackend.verticalTarget
                             onSelectedItemNodeChanged: { anchorBackend.verticalTarget = selectedItemNode; }
