@@ -36,6 +36,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
+#include <QtCore/QFuture>
 
 namespace ProjectExplorer {
     class Project;
@@ -128,7 +129,7 @@ public:
 
 public Q_SLOTS:
     void updateModifiedSourceFiles();
-    virtual void updateSourceFiles(const QStringList &sourceFiles) = 0;
+    virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles) = 0;
     virtual void GC() = 0;
 };
 

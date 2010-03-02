@@ -87,7 +87,7 @@ public:
     CppModelManager(QObject *parent);
     virtual ~CppModelManager();
 
-    virtual void updateSourceFiles(const QStringList &sourceFiles);
+    virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles);
     virtual WorkingCopy workingCopy() const;
 
     virtual QList<ProjectInfo> projectInfos() const;

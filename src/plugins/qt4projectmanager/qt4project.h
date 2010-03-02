@@ -235,6 +235,7 @@ private:
     QList<Internal::Qt4ProFileNode *> m_partialEvaluate;
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
+    QFuture<void> m_codeModelFuture;
 
     friend class Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;

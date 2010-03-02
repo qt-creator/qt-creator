@@ -403,7 +403,7 @@ void Qt4Project::updateCodeModel()
     if (debug)
         qDebug()<<"Qt4Project::updateCodeModel()";
 
-    // TODO cancel still running indexing
+    m_codeModelFuture.cancel();
 
     if (!activeTarget() || !activeTarget()->activeBuildConfiguration())
         return;
@@ -576,7 +576,7 @@ void Qt4Project::updateCodeModel()
         pinfo.precompiledHeaders = allPrecompileHeaders;
 
         modelmanager->updateProjectInfo(pinfo);
-        modelmanager->updateSourceFiles(pinfo.sourceFiles);
+        m_codeModelFuture = modelmanager->updateSourceFiles(pinfo.sourceFiles);
     }
 }
 

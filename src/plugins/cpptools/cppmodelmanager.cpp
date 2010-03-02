@@ -781,8 +781,8 @@ CppModelManager::WorkingCopy CppModelManager::workingCopy() const
     return const_cast<CppModelManager *>(this)->buildWorkingCopyList();
 }
 
-void CppModelManager::updateSourceFiles(const QStringList &sourceFiles)
-{ (void) refreshSourceFiles(sourceFiles); }
+QFuture<void> CppModelManager::updateSourceFiles(const QStringList &sourceFiles)
+{ return refreshSourceFiles(sourceFiles); }
 
 QList<CppModelManager::ProjectInfo> CppModelManager::projectInfos() const
 {
