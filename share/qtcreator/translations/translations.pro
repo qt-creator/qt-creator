@@ -16,8 +16,8 @@ TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/qtcreator_,.ts)
 
 MIME_TR_H = $$IDE_DATA_PATH/translations/mime_tr.h
 
-contains(QT_VERSION, ^4\.[0-5]\..*) {
-    ts.commands = @echo This Qt version is too old for the ts target. Need Qt 4.6+.
+contains(QT_VERSION, ^4\.[0-6]\..*) {
+    ts.commands = @echo This Qt version is too old for the ts target. Need Qt 4.7+.
 } else {
     for(dir, $$list($$files($$IDE_SOURCE_TREE/src/plugins/*))):MIMETYPES_FILES += $$files($$dir/*.mimetypes.xml)
     MIMETYPES_FILES = \"$$join(MIMETYPES_FILES, \", \")\"
