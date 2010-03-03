@@ -136,7 +136,7 @@ public:
 
 public:
     FakeMetaMethod(const QString &name, const QString &returnType = QString())
-        : m_name(name), m_returnType(returnType)
+        : m_name(name), m_returnType(returnType), m_methodTy(Method), m_methodAccess(Public)
     {}
 
     QString methodName() const
