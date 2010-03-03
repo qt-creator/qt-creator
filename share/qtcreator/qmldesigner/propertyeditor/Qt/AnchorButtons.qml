@@ -132,7 +132,7 @@ QWidget {
     }
 
     QPushButton {
-        x: 128 + 42 + 32
+        x: 128 + 42 + 64
         checkable: true
         fixedWidth: 32
         fixedHeight: 32
@@ -152,7 +152,7 @@ QWidget {
     }
 
     QPushButton {
-        x: 128 + 42 + 64
+        x: 128 + 42 + 32
         checkable: true
         fixedWidth: 32
         fixedHeight: 32

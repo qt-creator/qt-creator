@@ -20,7 +20,10 @@ GroupBox {
                 leftMargin: 10
 
 
-                AnchorButtons {}
+                AnchorButtons {
+                    opacity: enabled?1.0:0.5;
+                    fixedWidth:266
+                }
             }
         }
 
