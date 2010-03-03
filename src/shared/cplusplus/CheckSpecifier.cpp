@@ -400,7 +400,9 @@ bool CheckSpecifier::visit(EnumSpecifierAST *ast)
             continue;
         const NameId *enumeratorName = control()->nameId(id);
         Declaration *decl = control()->newDeclaration(enumerator->firstToken(),
-                                                         enumeratorName);
+                                                      enumeratorName);
+
+        FullySpecifiedType initTy = semantic()->check(enumerator->expression, _scope);
         e->addMember(decl);
     }
     return false;
