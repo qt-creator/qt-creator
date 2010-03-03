@@ -177,7 +177,8 @@ public:
 protected:
     virtual void initLauncher(const QString &executable, trk::Launcher *) = 0;
     virtual void handleLauncherFinished() = 0;
-    void processFailed(const QString &program, QProcess::ProcessError errorCode);
+    void processFailed(const QString &program, QProcess::ProcessError errorCode,
+                       const QString &msg);
 
     virtual bool checkConfiguration(QString *errorMessage,
                                     QString *settingsCategory,
