@@ -209,6 +209,36 @@ void dump(const QMetaObject *meta, QXmlStreamWriter *xml)
     xml->writeEndElement();
 }
 
+void writeScriptElement(QXmlStreamWriter *xml)
+{
+    xml->writeStartElement("type");    
+    {
+        QXmlStreamAttributes attributes;
+        attributes.append(QXmlStreamAttribute("name", "Script"));
+        xml->writeAttributes(attributes);
+    }
+
+    xml->writeStartElement("property");
+    {
+        QXmlStreamAttributes attributes;
+        attributes.append(QXmlStreamAttribute("name", "script"));
+        attributes.append(QXmlStreamAttribute("type", "string"));
+        xml->writeAttributes(attributes);
+    }
+    xml->writeEndElement();
+
+    xml->writeStartElement("property");
+    {
+        QXmlStreamAttributes attributes;
+        attributes.append(QXmlStreamAttribute("name", "source"));
+        attributes.append(QXmlStreamAttribute("type", "QUrl"));
+        xml->writeAttributes(attributes);
+    }
+    xml->writeEndElement();
+
+    xml->writeEndElement();
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -252,6 +282,8 @@ int main(int argc, char *argv[])
     foreach (const QMetaObject *meta, metas) {
         dump(meta, &xml);
     }
+    
+    writeScriptElement(&xml);
 
     xml.writeEndElement();
     xml.writeEndDocument();

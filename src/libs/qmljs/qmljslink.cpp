@@ -150,6 +150,11 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
     if (! (doc->qmlProgram() && doc->qmlProgram()->imports))
         return;
 
+    // Add the implicitly available Script type
+    const ObjectValue *scriptValue = engine()->metaTypeSystem().staticTypeForImport("Script");
+    if (scriptValue)
+        typeEnv->setProperty("Script", scriptValue);
+
     QFileInfo fileInfo(doc->fileName());
     const QString absolutePath = fileInfo.absolutePath();
 

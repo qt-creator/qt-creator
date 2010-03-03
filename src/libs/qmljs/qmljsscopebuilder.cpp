@@ -73,12 +73,14 @@ void ScopeBuilder::setQmlScopeObject(Node *node)
         return; // Probably syntax errors, where we're working with a "recovered" AST.
     }
 
-    // check if the object has a Qt.ListElement ancestor
+    // check if the object has a Qt.ListElement or Qt.Connections ancestor
+    // ### allow only signal bindings for Connections
     const ObjectValue *prototype = scopeObject->prototype(_context);
     while (prototype) {
         if (const QmlObjectValue *qmlMetaObject = dynamic_cast<const QmlObjectValue *>(prototype)) {
-            if (qmlMetaObject->className() == QLatin1String("ListElement")
-                    && qmlMetaObject->packageName() == QLatin1String("Qt")) {
+            if ((qmlMetaObject->className() == QLatin1String("ListElement")
+                    || qmlMetaObject->className() == QLatin1String("Connections")
+                    ) && qmlMetaObject->packageName() == QLatin1String("Qt")) {
                 scopeChain.qmlScopeObjects.clear();
                 break;
             }
