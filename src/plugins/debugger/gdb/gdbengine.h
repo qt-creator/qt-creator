@@ -102,7 +102,8 @@ private: ////////// General Interface //////////
 
     virtual void addOptionPages(QList<Core::IOptionsPage*> *opts) const;
 
-    virtual bool checkConfiguration(int toolChain, QString *errorMessage, QString *settingsPage= 0) const;
+    virtual bool checkConfiguration(int toolChain, QString *errorMessage,
+        QString *settingsPage = 0) const;
     virtual void startDebugger(const DebuggerStartParametersPtr &sp);
     virtual unsigned debuggerCapabilities() const;
     virtual void exitDebugger();
@@ -149,7 +150,8 @@ private slots:
     void readDebugeeOutput(const QByteArray &data);
 
     void handleAdapterStarted();
-    void handleAdapterStartFailed(const QString &msg, const QString &settingsIdHint = QString());
+    void handleAdapterStartFailed(const QString &msg,
+        const QString &settingsIdHint = QString());
 
     void handleInferiorPrepared();
 
@@ -169,17 +171,26 @@ private:
 
 private: ////////// Gdb Command Management //////////
 
-    public: // otherwise the Qt flag macros are unhappy
+    public: // Otherwise the Qt flag macros are unhappy.
     enum GdbCommandFlag {
         NoFlags = 0,
-        NeedsStop = 1,    // The command needs a stopped inferior
-        Discardable = 2,  // No need to wait for the reply before continuing inferior
-        RebuildWatchModel = 4, // Trigger model rebuild when no such commands are pending any more
+        // The command needs a stopped inferior.
+        NeedsStop = 1, 
+        // No need to wait for the reply before continuing inferior.
+        Discardable = 2,
+        // Trigger watch model rebuild when no such commands are pending anymore.
+        RebuildWatchModel = 4,
         WatchUpdate = Discardable | RebuildWatchModel,
-        NonCriticalResponse = 8,  // We can live without recieving an answer
-        RunRequest = 16,  // Callback expects GdbResultRunning instead of GdbResultDone
-        ExitRequest = 32, // Callback expects GdbResultExit instead of GdbResultDone
-        LosesChild = 64   // Auto-set inferior shutdown related states
+        // We can live without recieving an answer.
+        NonCriticalResponse = 8,
+        // Callback expects GdbResultRunning instead of GdbResultDone.
+        RunRequest = 16,
+        // Callback expects GdbResultExit instead of GdbResultDone.
+        ExitRequest = 32,
+        // Auto-set inferior shutdown related states.
+        LosesChild = 64,
+        // Trigger breakpoint model rebuild when no such commands are pending anymore.
+        RebuildBreakpointModel = 128,
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
     private:
@@ -204,7 +215,7 @@ private: ////////// Gdb Command Management //////////
         QTime postTime;
     };
 
-    // type and cookie are sender-internal data, opaque for the "event
+    // Type and cookie are sender-internal data, opaque for the "event
     // queue". resultNeeded == true increments m_pendingResults on
     // send and decrements on receipt, effectively preventing
     // watch model updates before everything is finished.
@@ -239,15 +250,16 @@ private: ////////// Gdb Command Management //////////
     QByteArray m_pendingConsoleStreamOutput;
     QByteArray m_pendingLogStreamOutput;
 
-    // contains the first token number for the current round
+    // This contains the first token number for the current round
     // of evaluation. Responses with older tokens are considers
     // out of date and discarded.
     int m_oldestAcceptableToken;
 
     int m_pendingWatchRequests; // Watch updating commands in flight
+    int m_pendingBreakpointRequests; // Watch updating commands in flight
 
     typedef void (GdbEngine::*CommandsDoneCallback)();
-    // function called after all previous responses have been received
+    // This function is called after all previous responses have been received.
     CommandsDoneCallback m_commandsDoneCallback;
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
@@ -402,7 +414,6 @@ private: ////////// View & Data Stuff //////////
     bool m_sourcesListOutdated;
     bool m_sourcesListUpdating;
     bool m_breakListOutdated;
-    bool m_breakListUpdating;
 
     //
     // Stack specific stuff
@@ -459,7 +470,6 @@ private: ////////// View & Data Stuff //////////
     void handleVarCreate(const GdbResponse &response);
     void handleVarAssign(const GdbResponse &response);
     void handleEvaluateExpressionClassic(const GdbResponse &response);
-    //void handleToolTip(const GdbResponse &response);
     void handleQueryDebuggingHelperClassic(const GdbResponse &response);
     void handleDebuggingHelperValue2Classic(const GdbResponse &response);
     void handleDebuggingHelperValue3Classic(const GdbResponse &response);
