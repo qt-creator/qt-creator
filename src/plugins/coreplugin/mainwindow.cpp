@@ -1131,7 +1131,7 @@ void MainWindow::writeSettings()
     m_settings->beginGroup(QLatin1String(settingsGroup));
 
     if (!(m_overrideColor.isValid() && Utils::StyleHelper::baseColor() == m_overrideColor))
-        m_settings->setValue(QLatin1String(colorKey), Utils::StyleHelper::baseColor());
+        m_settings->setValue(QLatin1String(colorKey), Utils::StyleHelper::requestedBaseColor());
 
     if (windowState() & (Qt::WindowMaximized | Qt::WindowFullScreen)) {
         m_settings->setValue(QLatin1String(maxKey), (bool) (windowState() & Qt::WindowMaximized));

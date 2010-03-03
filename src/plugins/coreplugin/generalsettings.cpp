@@ -120,7 +120,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     QSettings* settings = Core::ICore::instance()->settings();
     Q_UNUSED(settings)
     fillLanguageBox();
-    m_page->colorButton->setColor(StyleHelper::baseColor());
+    m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
     m_page->externalEditorEdit->setText(EditorManager::instance()->externalEditor());
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadBehavior());
 #ifdef Q_OS_UNIX

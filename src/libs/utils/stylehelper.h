@@ -53,6 +53,7 @@ public:
     static QPalette sidebarFontPalette(const QPalette &original);
 
     // This is our color table, all colors derive from baseColor
+    static QColor requestedBaseColor() { return m_requestedBaseColor; }
     static QColor baseColor(bool lightColored = false);
     static QColor panelTextColor(bool lightColored = false);
     static QColor highlightColor(bool lightColored = false);
@@ -83,6 +84,7 @@ public:
 
 private:
     static QColor m_baseColor;
+    static QColor m_requestedBaseColor;
 };
 
 } // namespace Utils

@@ -95,6 +95,7 @@ QColor StyleHelper::panelTextColor(bool lightColored)
 }
 
 QColor StyleHelper::m_baseColor(0x666666);
+QColor StyleHelper::m_requestedBaseColor(0x666666);
 
 QColor StyleHelper::baseColor(bool lightColored)
 {
@@ -136,8 +137,18 @@ QColor StyleHelper::borderColor(bool lightColored)
     return result;
 }
 
-void StyleHelper::setBaseColor(const QColor &color)
+// We try to ensure that the actual color used are within
+// reasonalbe bounds while generating the actual baseColor
+// from the users request.
+void StyleHelper::setBaseColor(const QColor &newcolor)
 {
+    m_requestedBaseColor = newcolor;
+
+    QColor color;
+    color.setHsv(newcolor.hue(),
+                 newcolor.saturation() * 0.7,
+                 64 + newcolor.value() / 3);
+
     if (color.isValid() && color != m_baseColor) {
         m_baseColor = color;
         foreach (QWidget *w, QApplication::topLevelWidgets())
