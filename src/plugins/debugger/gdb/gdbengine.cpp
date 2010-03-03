@@ -255,10 +255,10 @@ void GdbEngine::initializeVariables()
 
     invalidateSourcesList();
     m_sourcesListUpdating = false;
-    m_breakListUpdating = false;
     m_oldestAcceptableToken = -1;
     m_outputCodec = QTextCodec::codecForLocale();
     m_pendingWatchRequests = 0;
+    m_pendingBreakpointRequests = 0;
     m_commandsDoneCallback = 0;
     m_commandsToRunOnTemporaryBreak.clear();
     m_cookieForToken.clear();
@@ -719,11 +719,16 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
 
     if (cmd.flags & RebuildWatchModel) {
         ++m_pendingWatchRequests;
-        PENDING_DEBUG("   MODEL:" << cmd.command << "=>" << cmd.callbackName
+        PENDING_DEBUG("   WATCH MODEL:" << cmd.command << "=>" << cmd.callbackName
                       << "INCREMENTS PENDING TO" << m_pendingWatchRequests);
+    } else if (cmd.flags & RebuildBreakpointModel) {
+        ++m_pendingBreakpointRequests;
+        PENDING_DEBUG("   BRWAKPOINT MODEL:" << cmd.command << "=>" << cmd.callbackName
+                      << "INCREMENTS PENDING TO" << m_pendingBreakpointRequests);
     } else {
         PENDING_DEBUG("   OTHER (IN):" << cmd.command << "=>" << cmd.callbackName
-                      << "LEAVES PENDING AT" << m_pendingWatchRequests);
+                      << "LEAVES PENDING WATCH AT" << m_pendingWatchRequests
+                      << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
     if ((cmd.flags & NeedsStop) || !m_commandsToRunOnTemporaryBreak.isEmpty()) {
@@ -942,14 +947,23 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     if (cmd.flags & RebuildWatchModel) {
         --m_pendingWatchRequests;
         PENDING_DEBUG("   WATCH" << cmd.command << "=>" << cmd.callbackName
-                      << "DECREMENTS PENDING TO" << m_pendingWatchRequests);
+                      << "DECREMENTS PENDING WATCH TO" << m_pendingWatchRequests);
         if (m_pendingWatchRequests <= 0) {
-            PENDING_DEBUG("\n\n ... AND TRIGGERS MODEL UPDATE\n");
+            PENDING_DEBUG("\n\n ... AND TRIGGERS WATCH MODEL UPDATE\n");
             rebuildWatchModel();
+        }
+    } else if (cmd.flags & RebuildBreakpointModel) {
+        --m_pendingBreakpointRequests;
+        PENDING_DEBUG("   BREAKPOINT" << cmd.command << "=>" << cmd.callbackName
+                      << "DECREMENTS PENDING TO" << m_pendingWatchRequests);
+        if (m_pendingBreakpointRequests <= 0) {
+            PENDING_DEBUG("\n\n ... AND TRIGGERS BREAKPOINT MODEL UPDATE\n");
+            attemptBreakpointSynchronization();
         }
     } else {
         PENDING_DEBUG("   OTHER (OUT):" << cmd.command << "=>" << cmd.callbackName
-                      << "LEAVES PENDING AT" << m_pendingWatchRequests);
+                      << "LEAVES PENDING WATCH AT" << m_pendingWatchRequests
+                      << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
     // Commands were queued, but we were in RunningRequested state, so the interrupt
@@ -1103,7 +1117,6 @@ void GdbEngine::handleAqcuiredInferior()
 
     // It's nicer to see a bit of the world we live in.
     reloadModulesInternal();
-    attemptBreakpointSynchronization();
 }
 #endif
 
@@ -1312,20 +1325,22 @@ void GdbEngine::handleStop1(const GdbMi &data)
         return;
     }
 
+    // This is for display only.
     if (m_modulesListOutdated)
-        reloadModulesInternal(); // This is for display only
-    if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints))
-        reloadSourceFilesInternal(); // This needs to be done before fullName() may need it
+        reloadModulesInternal();
 
-    if (!hasPython()) {
-        if (m_breakListOutdated)
+    // This needs to be done before fullName() may need it.
+    if (m_sourcesListOutdated && theDebuggerBoolSetting(UsePreciseBreakpoints))
+        reloadSourceFilesInternal();
+
+    if (m_breakListOutdated) {
+        reloadBreakListInternal();
+    } else {
+        // Older gdb versions do not produce "library loaded" messages
+        // so the breakpoint update is not triggered.
+        if (m_gdbVersion < 70000 && !m_isMacGdb
+            && manager()->breakHandler()->size() > 0)
             reloadBreakListInternal();
-        else
-            // Older gdb versions do not produce "library loaded" messages
-            // so the breakpoint update is not triggered.
-            if (m_gdbVersion < 70000 && !m_isMacGdb && !m_breakListUpdating
-                && manager()->breakHandler()->size() > 0)
-                reloadBreakListInternal();
     }
 
     if (reason == "breakpoint-hit") {
@@ -2035,8 +2050,7 @@ void GdbEngine::breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt
 
 QString GdbEngine::breakLocation(const QString &file) const
 {
-    QTC_ASSERT(!m_breakListOutdated, /* */)
-    QTC_ASSERT(!m_breakListUpdating, /* */)
+    //QTC_ASSERT(!m_breakListOutdated, /* */)
     QString where = m_fullToShortName.value(file);
     if (where.isEmpty())
         return QFileInfo(file).fileName();
@@ -2057,28 +2071,30 @@ void GdbEngine::sendInsertBreakpoint(int index)
         where = data->funcName.toLatin1();
     }
 
-    // set up fallback in case of pending breakpoints which aren't handled
-    // by the MI interface
+    // Set up fallback in case of pending breakpoints which aren't handled
+    // by the MI interface.
     QByteArray cmd;
     if (m_isMacGdb)
         cmd = "-break-insert -l -1 -f ";
     else if (m_gdbAdapter->isTrkAdapter())
         cmd = "-break-insert -h -f ";
-    else if (m_gdbVersion >= 60800) // Probably some earlier version would work as well ...
+    else if (m_gdbVersion >= 60800)
+        // Probably some earlier version would work as well.
         cmd = "-break-insert -f ";
     else
         cmd = "-break-insert ";
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + ' ';
     cmd += where;
-    postCommand(cmd, NeedsStop, CB(handleBreakInsert), index);
+    postCommand(cmd, NeedsStop | RebuildBreakpointModel,
+        CB(handleBreakInsert), index);
 }
 
 void GdbEngine::reloadBreakListInternal()
 {
-    m_breakListUpdating = true;
-    // "Discardable" as long as we do in each step
-    postCommand("-break-list", NeedsStop | Discardable, CB(handleBreakList));
+    postCommand("-break-list",
+        NeedsStop | RebuildBreakpointModel,
+        CB(handleBreakList));
 }
 
 void GdbEngine::handleBreakList(const GdbResponse &response)
@@ -2129,9 +2145,7 @@ void GdbEngine::handleBreakList(const GdbMi &table)
             //qDebug() << "CANNOT HANDLE RESPONSE" << bkpts.at(index).toString();
     }
 
-    m_breakListUpdating = false;
     m_breakListOutdated = false;
-    attemptBreakpointSynchronization();
 }
 
 void GdbEngine::handleBreakIgnore(const GdbResponse &response)
@@ -2196,7 +2210,6 @@ void GdbEngine::handleBreakInsert(const GdbResponse &response)
         GdbMi bkpt = response.data.findChild("bkpt");
         breakpointDataFromOutput(data, bkpt);
 //#endif
-        attemptBreakpointSynchronization();
     } else {
         if (m_gdbVersion < 60800 && !m_isMacGdb) {
             // This gdb version doesn't "do" pending breakpoints.
@@ -2267,7 +2280,6 @@ void GdbEngine::handleBreakInfo(const GdbResponse &response)
             QString str = QString::fromLocal8Bit(
                 response.data.findChild("consolestreamoutput").data());
             extractDataFromInfoBreak(str, handler->at(found));
-            attemptBreakpointSynchronization(); // trigger "ready"
         }
     }
 }
@@ -2286,15 +2298,13 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         BreakpointData *data = handler->at(index);
         data->bpNumber = "<unavailable>";
     }
-    attemptBreakpointSynchronization(); // trigger "ready"
 }
 
 void GdbEngine::attemptBreakpointSynchronization()
 {
-    //QTC_ASSERT(!m_breakListUpdating,
-    //    qDebug() << "BREAK LIST CURRENTLY UPDATING"; return);
     QTC_ASSERT(!m_sourcesListUpdating,
         qDebug() << "SOURCES LIST CURRENTLY UPDATING"; return);
+    debugMessage(tr("ATTEMPT BREAKPOINT SYNC"));
 
     switch (state()) {
     case InferiorStarting:
@@ -2332,6 +2342,7 @@ void GdbEngine::attemptBreakpointSynchronization()
         reloadBreakListInternal();
         return;
     }
+
     if (m_breakListOutdated) {
         reloadBreakListInternal();
         return;
@@ -2342,7 +2353,8 @@ void GdbEngine::attemptBreakpointSynchronization()
     foreach (BreakpointData *data, handler->takeDisabledBreakpoints()) {
         QByteArray bpNumber = data->bpNumber;
         if (!bpNumber.trimmed().isEmpty()) {
-            postCommand("-break-disable " + bpNumber, NeedsStop);
+            postCommand("-break-disable " + bpNumber,
+                NeedsStop | RebuildBreakpointModel);
             data->bpEnabled = false;
         }
     }
@@ -2350,7 +2362,8 @@ void GdbEngine::attemptBreakpointSynchronization()
     foreach (BreakpointData *data, handler->takeEnabledBreakpoints()) {
         QByteArray bpNumber = data->bpNumber;
         if (!bpNumber.trimmed().isEmpty()) {
-            postCommand("-break-enable " + bpNumber, NeedsStop);
+            postCommand("-break-enable " + bpNumber,
+                NeedsStop | RebuildBreakpointModel);
             data->bpEnabled = true;
         }
     }
@@ -2360,7 +2373,8 @@ void GdbEngine::attemptBreakpointSynchronization()
         debugMessage(_("DELETING BP " + bpNumber + " IN "
             + data->markerFileName.toLocal8Bit()));
         if (!bpNumber.trimmed().isEmpty())
-            postCommand("-break-delete " + bpNumber, NeedsStop);
+            postCommand("-break-delete " + bpNumber,
+                NeedsStop | RebuildBreakpointModel);
         delete data;
     }
 
@@ -2372,19 +2386,23 @@ void GdbEngine::attemptBreakpointSynchronization()
         } else if (data->bpNumber.toInt()) {
             if (data->bpMultiple && data->bpFileName.isEmpty()) {
                 postCommand("info break " + data->bpNumber,
+                    RebuildBreakpointModel,
                     CB(handleBreakInfo), data->bpNumber.toInt());
                 continue;
             }
             // update conditions if needed
             if (data->condition != data->bpCondition && !data->conditionsMatch())
                 postCommand("condition " + data->bpNumber + ' '  + data->condition,
-                            CB(handleBreakCondition), index);
+                    RebuildBreakpointModel,
+                    CB(handleBreakCondition), index);
             // update ignorecount if needed
             if (data->ignoreCount != data->bpIgnoreCount)
                 postCommand("ignore " + data->bpNumber + ' ' + data->ignoreCount,
-                            CB(handleBreakIgnore), index);
+                    RebuildBreakpointModel,
+                    CB(handleBreakIgnore), index);
             if (!data->enabled && data->bpEnabled) {
-                postCommand("-break-disable " + data->bpNumber, NeedsStop);
+                postCommand("-break-disable " + data->bpNumber,
+                    NeedsStop | RebuildBreakpointModel);
                 data->bpEnabled = false;
             }
         }
@@ -3418,6 +3436,7 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
 void GdbEngine::updateLocals(const QVariant &cookie)
 {
     m_pendingWatchRequests = 0;
+    m_pendingBreakpointRequests = 0;
     if (hasPython())
         updateLocalsPython(QByteArray());
     else
@@ -4121,6 +4140,7 @@ void GdbEngine::handleInferiorPrepared()
 
     // Initial attempt to set breakpoints
     showStatusMessage(tr("Setting breakpoints..."));
+    debugMessage(tr("Setting breakpoints..."));
     attemptBreakpointSynchronization();
 
     if (m_cookieForToken.isEmpty()) {

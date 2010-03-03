@@ -142,6 +142,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         //for (int i = 0; i != list.size(); ++i)
         //    qDebug() << "LOCAL: " << list.at(i).toString();
 
+#if 0
         data = all.findChild("bkpts");
         if (data.isValid()) {
             BreakHandler *handler = manager()->breakHandler();
@@ -175,6 +176,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             }
             handler->updateMarkers();
         }
+#endif
 
         //PENDING_DEBUG("AFTER handleStackFrame()");
         // FIXME: This should only be used when updateLocals() was
