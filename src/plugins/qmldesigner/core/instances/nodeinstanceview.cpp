@@ -191,13 +191,13 @@ void NodeInstanceView::propertiesRemoved(const QList<AbstractProperty>& /*proper
 
 void NodeInstanceView::removeInstanceAndSubInstances(const ModelNode &node)
 {
-    if (hasInstanceForNode(node))
-        removeInstanceNodeRelationship(node);
-
     foreach(const ModelNode &subNode, node.allSubModelNodes()) {
         if (hasInstanceForNode(subNode))
             removeInstanceNodeRelationship(subNode);
     }
+
+    if (hasInstanceForNode(node))
+        removeInstanceNodeRelationship(node);
 }
 
 void NodeInstanceView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
@@ -307,7 +307,8 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty & listProperty,
 {
     foreach(const ModelNode &node, listProperty.toModelNodeList()) {
         NodeInstance instance = instanceForNode(node);
-        instance.reparent(instance.parent(), listProperty.name(), instance.parent(), listProperty.name());
+        if (instance.isValid())
+            instance.reparent(instance.parent(), listProperty.name(), instance.parent(), listProperty.name());
     }
 }
 
