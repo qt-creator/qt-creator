@@ -37,7 +37,7 @@
 #include <QtCore/QDebug>
 
 enum { debug = 0 };
-enum { debugInternalDumpers = 1 };
+enum { debugInternalDumpers = 0 };
 
 // name separator for shadowed variables
 static const char iNameShadowDelimiter = '#';
