@@ -173,6 +173,8 @@ private slots:
     void handleCurrentEditorChange(Core::IEditor *editor);
     void updateWindowTitle();
 
+    void markSessionFileDirty();
+
 private:
     bool loadImpl(const QString &fileName);
     bool createImpl(const QString &fileName);
@@ -197,6 +199,7 @@ private:
     mutable QStringList m_sessions;
 
     mutable QHash<Project *, QStringList> m_projectFileCache;
+    QTimer *m_autoSaveSessionTimer;
 };
 
 } // namespace ProjectExplorer

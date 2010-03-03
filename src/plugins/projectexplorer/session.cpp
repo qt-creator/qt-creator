@@ -54,6 +54,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QFuture>
 #include <QtCore/QSettings>
+#include <QtCore/QTimer>
 
 #include <QtGui/QApplication>
 #include <QtGui/QMainWindow>
@@ -390,12 +391,28 @@ SessionManager::SessionManager(QObject *parent)
 
     connect(m_core->modeManager(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
-    connect(m_core->editorManager(), SIGNAL(editorCreated(Core::IEditor *, QString)),
+
+    Core::EditorManager *em = m_core->editorManager();
+
+    connect(em, SIGNAL(editorCreated(Core::IEditor *, QString)),
             this, SLOT(setEditorCodec(Core::IEditor *, QString)));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project *)),
             this, SLOT(updateWindowTitle()));
-    connect(m_core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(handleCurrentEditorChange(Core::IEditor*)));
+    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(handleCurrentEditorChange(Core::IEditor*)));
+    connect(em, SIGNAL(editorOpened(Core::IEditor*)),
+            this, SLOT(markSessionFileDirty()));
+    connect(em, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+            this, SLOT(markSessionFileDirty()));
+
+
+    m_autoSaveSessionTimer = new QTimer(this);
+    m_autoSaveSessionTimer->setSingleShot(true);
+    m_autoSaveSessionTimer->setInterval(10000);
+    connect(m_autoSaveSessionTimer, SIGNAL(timeout()),
+            m_core, SIGNAL(saveSettingsRequested()));
 }
 
 SessionManager::~SessionManager()
@@ -985,8 +1002,13 @@ void SessionManager::removeProjects(QList<Project *> remove)
 
 void SessionManager::setValue(const QString &name, const QVariant &value)
 {
-    if (m_file)
-        m_file->m_values.insert(name, value);
+    if (!m_file)
+        return;
+
+    if (m_file->m_values.value(name) == value)
+        return;
+    m_file->m_values.insert(name, value);
+    markSessionFileDirty();
 }
 
 QVariant SessionManager::value(const QString &name)
@@ -1113,5 +1135,9 @@ void SessionManager::reportProjectLoadingProgress()
     m_file->sessionLoadingProgress();
 }
 
+void SessionManager::markSessionFileDirty()
+{
+    m_autoSaveSessionTimer->start();
+}
 
 #include "session.moc"
