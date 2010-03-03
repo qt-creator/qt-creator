@@ -28,6 +28,8 @@
 **************************************************************************/
 
 #include "qmlstatenodeinstance.h"
+#include "nodeabstractproperty.h"
+
 #include <private/qdeclarativestategroup_p.h>
 
 namespace QmlDesigner {
@@ -103,6 +105,26 @@ bool QmlStateNodeInstance::isStateActive() const
     Q_ASSERT(stateObject());
     Q_ASSERT(stateGroup());
     return (stateGroup()->state() == property("name"));
+}
+
+void QmlStateNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+{
+    bool hasParent = modelNode().hasParentProperty();
+    bool isStateOfTheRootModelNode = !hasParent || (hasParent && modelNode().parentProperty().parentModelNode().isRootNode());
+    if (name == "when" && isStateOfTheRootModelNode)
+        return;
+
+    ObjectNodeInstance::setPropertyVariant(name, value);
+}
+
+void QmlStateNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+{
+    bool hasParent = modelNode().hasParentProperty();
+    bool isStateOfTheRootModelNode = !hasParent || (hasParent && modelNode().parentProperty().parentModelNode().isRootNode());
+    if (name == "when" && isStateOfTheRootModelNode)
+        return;
+
+    ObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
 } // namespace Internal
