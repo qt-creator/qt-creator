@@ -265,8 +265,17 @@ void ColorSchemeReader::readStyle()
     bool italic = attr.value(QLatin1String("italic")) == QLatin1String(trueString);
 
     Format format;
-    format.setForeground(QColor(foreground));
-    format.setBackground(QColor(background));
+
+    if (QColor::isValidColor(foreground))
+        format.setForeground(QColor(foreground));
+    else
+        format.setForeground(QColor());
+
+    if (QColor::isValidColor(background))
+        format.setBackground(QColor(background));
+    else
+        format.setBackground(QColor());
+
     format.setBold(bold);
     format.setItalic(italic);
 
