@@ -662,6 +662,21 @@ bool Preprocessor::markGeneratedTokens(bool markGeneratedTokens,
     return previous;
 }
 
+bool Preprocessor::maybeAfterComment() const
+{
+    unsigned endOfPreviousToken = 0;
+
+    if (_dot != _tokens.constBegin())
+        endOfPreviousToken = (_dot - 1)->end();
+
+    const char *start = _source.constBegin() + endOfPreviousToken;
+
+    if (*start == '/')
+        return true;
+
+    return false;
+}
+
 void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                               QByteArray *result)
 {
@@ -710,7 +725,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
 
         } else {
 
-            if (_dot->f.whitespace) {
+            if (_dot->f.whitespace || maybeAfterComment()) {
                 unsigned endOfPreviousToken = 0;
 
                 if (_dot != _tokens.constBegin())

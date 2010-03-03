@@ -172,6 +172,7 @@ private:
     void out(const char *s);
 
     QString string(const char *first, int len) const;
+    bool maybeAfterComment() const;
 
 private:
     Client *client;
