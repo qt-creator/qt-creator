@@ -53,7 +53,7 @@ QDeclarativeListProperty<QmlProjectContentItem> QmlProjectItem::content()
 
 QString QmlProjectItem::sourceDirectory() const
 {
-    const Q_D(QmlProjectItem);
+    Q_D(const QmlProjectItem);
     return d->sourceDirectory;
 }
 
@@ -81,7 +81,7 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
 
 QStringList QmlProjectItem::libraryPaths() const
 {
-    const Q_D(QmlProjectItem);
+    Q_D(const QmlProjectItem);
     return d->libraryPaths;
 }
 
@@ -99,7 +99,7 @@ void QmlProjectItem::setLibraryPaths(const QStringList &libraryPaths)
 /* Returns list of absolute paths */
 QStringList QmlProjectItem::files() const
 {
-    const Q_D(QmlProjectItem);
+    Q_D(const QmlProjectItem);
     QStringList files;
 
     for (int i = 0; i < d->content.size(); ++i) {
@@ -123,7 +123,7 @@ QStringList QmlProjectItem::files() const
   */
 bool QmlProjectItem::matchesFile(const QString &filePath) const
 {
-    const Q_D(QmlProjectItem);
+    Q_D(const QmlProjectItem);
     for (int i = 0; i < d->content.size(); ++i) {
         QmlProjectContentItem *contentElement = d->content.at(i);
         FileFilterBaseItem *fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
