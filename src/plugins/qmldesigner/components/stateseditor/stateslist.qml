@@ -46,7 +46,7 @@ Rectangle {
         anchors.left:root.left
         anchors.right:root.right
         anchors.top:root.top
-        height:statesRow.height+1
+        height:statesRow.height+2
         anchors.topMargin:-1;
         anchors.leftMargin:-1;
 
@@ -117,20 +117,69 @@ Rectangle {
             Rectangle {
                 id: highlight
                 anchors.fill: parent
-                border.width:1
-                border.color:"black"
                 color:parent.isCurrentState?systemPalette.highlight:"#4F4F4F";
+                clip:true
                 Rectangle {
-                    width:parent.width-1
-                    x:1
-                    y:-30
-                    height:45
+                    width:parent.width
+                    height:parent.height
+                    y:-parent.height/2
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: "#FFFFFF" }
+                        GradientStop { position: 0.0; color: Qt.lighter(highlight.color) }
                         GradientStop { position: 1.0; color: highlight.color }
                     }
                 }
+                Rectangle {
+                    width:parent.width
+                    height:parent.height
+                    y:parent.height/2
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: highlight.color }
+                        GradientStop { position: 1.0; color: Qt.darker(highlight.color) }
+                    }
+                }
             }
+            Item {
+                id: highlightBorders
+                anchors.fill:parent
+                anchors.topMargin:1
+                Rectangle {
+                    anchors.top:parent.top
+                    anchors.left:parent.left
+                    width:parent.width-1
+                    height:1
+                    color: Qt.lighter(highlight.color)
+                }
+                Rectangle {
+                    anchors.bottom:parent.bottom
+                    anchors.left:parent.left
+                    anchors.leftMargin:1
+                    width:parent.width-1
+                    height:1
+                    color: Qt.darker(highlight.color)
+                }
+                Rectangle {
+                    anchors.top:parent.top
+                    anchors.left:parent.left
+                    width:1
+                    height:parent.height-1
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: Qt.lighter(highlight.color) }
+                        GradientStop { position: 1.0; color: highlight.color }
+                    }
+                }
+                Rectangle {
+                    anchors.top:parent.top
+                    anchors.right:parent.right
+                    anchors.topMargin:1
+                    width:1
+                    height:parent.height-1
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: highlight.color }
+                        GradientStop { position: 1.0; color: Qt.darker(highlight.color) }
+                    }
+                }
+            }
+
 
             Item {
                 id: img
@@ -162,9 +211,8 @@ Rectangle {
             }
 
 
-
             // The erase button
-            Rectangle {
+            Item {
                 id: removeState
 
                 visible: (index != 0 && root.currentStateIndex==index)
@@ -177,25 +225,65 @@ Rectangle {
                 width: 12
                 height: width
 
-                color: root.currentStateIndex==index?"#AEAEAE":"#707070"
-                radius: 6
-
-                // "clicked" overlay
-                Rectangle {
-                    anchors.fill:parent
-                    opacity:parent.state=="Pressed"
-                    color: "#909090"
-                    radius: parent.radius
+                states: State{
+                    name: "Pressed";
+                    PropertyChanges {
+                        target: removeState
+                        buttonColor: buttonColorDown
+                    }
                 }
 
-                states: State{ name: "Pressed"; }
+                property var buttonColorUp: "#E1E1E1"
+                property var buttonColorDown: Qt.darker(buttonColorUp)
+                property var buttonColor: buttonColorUp
 
-                // "minus" sign
-                Rectangle {
-                    width: parent.width - 4;
-                    height:2
-                    color:highlight.color;
-                    anchors.centerIn:parent
+                Item {
+                    width:parent.width
+                    height:parent.height/2 - 1
+                    clip: true
+                    Rectangle {
+                        color: removeState.buttonColor
+                        width: removeState.width
+                        height: removeState.height
+                        radius: width/2
+                    }
+                }
+                Item {
+                    width:parent.width
+                    height:parent.height/2 - 1
+                    y:parent.height/2+1
+                    clip: true
+                    Rectangle {
+                        color: removeState.buttonColor
+                        width: removeState.width
+                        height: removeState.height
+                        radius: width/2
+                        y:-parent.y
+                    }
+                }
+                Item {
+                    width:2
+                    height:parent.height
+                    clip: true
+                    Rectangle {
+                        color: removeState.buttonColor
+                        width: removeState.width
+                        height: removeState.height
+                        radius: width/2
+                    }
+                }
+                Item {
+                    width:2
+                    height:parent.height
+                    x:parent.width-2
+                    clip: true
+                    Rectangle {
+                        color: removeState.buttonColor
+                        width: removeState.width
+                        height: removeState.height
+                        radius: width/2
+                        x: -parent.x
+                    }
                 }
 
                 MouseRegion {
@@ -231,7 +319,7 @@ Rectangle {
                     anchors.topMargin: 2
                     anchors.horizontalCenter: textLimits.horizontalCenter
                     id: txt
-                    color: "#E1E1E1";
+                    color: root.currentStateIndex==index?"white":"#E1E1E1";
                     text: stateName
                     width:parent.width
                     elide:Qt.ElideMiddle
