@@ -209,7 +209,7 @@ NavigatorTreeModel::ItemRow NavigatorTreeModel::createItemRow(const ModelNode &n
     visibilityItem->setEditable(false);
     visibilityItem->setData(hash, Qt::UserRole);
     if (node.isRootNode()) {
-        visibilityItem->setEnabled(false);
+        visibilityItem->setCheckable(false);
     }
 
     #ifdef _LOCK_ITEMS_
