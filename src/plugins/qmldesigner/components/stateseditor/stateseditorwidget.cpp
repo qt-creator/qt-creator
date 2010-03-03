@@ -120,7 +120,11 @@ void StatesEditorWidgetPrivate::currentStateChanged()
 
 void StatesEditorWidgetPrivate::addState()
 {
-    QStringList modelStateNames =  statesEditorView->stateRootNode().states().names();
+    // can happen when root node is e.g. a ListModel
+    if (!statesEditorView->stateRootNode().isValid())
+        return;
+
+    QStringList modelStateNames = statesEditorView->stateRootNode().states().names();
 
     QString newStateName;
     int index = 1;

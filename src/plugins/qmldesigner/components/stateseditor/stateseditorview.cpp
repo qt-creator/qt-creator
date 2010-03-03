@@ -59,7 +59,7 @@ void StatesEditorView::setCurrentStateSilent(int index)
     if (debug)
         qDebug() << __FUNCTION__ << index;
 
-    Q_ASSERT(index >= 0 && index <= m_modelStates.count());
+    Q_ASSERT(index >= 0 && index < m_modelStates.count());
 
     // TODO
     QmlModelState state(m_modelStates.at(index));
@@ -75,8 +75,7 @@ void StatesEditorView::setCurrentState(int index)
     if (debug)
         qDebug() << __FUNCTION__ << index;
 
-    if (!(index >= 0 && index <= m_modelStates.count()))
-        Q_ASSERT(index >= 0 && index <= m_modelStates.count());
+    Q_ASSERT(index >= 0 && index < m_modelStates.count());
 
     if (m_modelStates.indexOf(currentState()) == index)
         return;
@@ -167,16 +166,16 @@ void StatesEditorView::modelAttached(Model *model)
     QmlModelView::modelAttached(model);
     Q_ASSERT(m_editorModel->rowCount(QModelIndex()) == 0);
 
-    // find top level states
-    m_stateRootNode = QmlItemNode(rootModelNode());
-    if (!m_stateRootNode.isValid())
-        return;
-
     clearModelStates();
 
     // Add base state
     m_modelStates.insert(0, baseState());
     m_editorModel->insertState(0, baseState().name());
+
+    // find top level states
+    m_stateRootNode = QmlItemNode(rootModelNode());
+    if (!m_stateRootNode.isValid())
+        return;
 
     // Add custom states
     for (int i = 0; i < m_stateRootNode.states().allStates().size(); ++i) {
