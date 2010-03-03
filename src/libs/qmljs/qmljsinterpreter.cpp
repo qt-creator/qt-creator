@@ -586,6 +586,8 @@ private:
                 unexpectedElement(_xml.name(), tag);
             }
         }
+
+        metaObject->addMethod(method);
     }
 
     void readParam(FakeMetaMethod *method)
@@ -640,7 +642,6 @@ private:
         }
 
         FakeMetaMethod method(name, type);
-        metaObject->addMethod(method);
 
         while (_xml.readNextStartElement()) {
             if (_xml.name() == QLatin1String("param")) {
@@ -649,6 +650,8 @@ private:
                 unexpectedElement(_xml.name(), tag);
             }
         }
+
+        metaObject->addMethod(method);
     }
 
 private:
