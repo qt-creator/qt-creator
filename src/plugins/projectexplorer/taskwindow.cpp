@@ -492,6 +492,7 @@ TaskWindow::TaskWindow()
     m_categoriesButton->setMenu(m_categoriesMenu);
 
     qRegisterMetaType<ProjectExplorer::TaskWindow::Task>("ProjectExplorer::TaskWindow::Task");
+    qRegisterMetaType<QList<ProjectExplorer::TaskWindow::Task> >("QList<ProjectExplorer::TaskWindow::Task>");
 
     updateActions();
 }

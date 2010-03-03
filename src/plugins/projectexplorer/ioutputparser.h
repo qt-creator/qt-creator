@@ -47,7 +47,15 @@ public:
 
     /// Append a subparser to this parser.
     /// IOutputParser will take ownership.
-    void appendOutputParser(IOutputParser *parser);
+    virtual void appendOutputParser(IOutputParser *parser);
+
+    /// Remove the appended outputparser chain frm this parser.
+    /// This method transferes ownership of the parser chain to the caller!
+    IOutputParser *takeOutputParserChain();
+
+    /// Return the head of this parsers output parser children
+    /// IOutputParser keeps ownership!
+    IOutputParser *childParser() const;
 
     /// Called once for each line if standard output to parse.
     virtual void stdOutput(const QString &line);

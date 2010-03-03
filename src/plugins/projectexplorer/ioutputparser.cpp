@@ -34,7 +34,6 @@ namespace ProjectExplorer {
 
 IOutputParser::IOutputParser() : m_parser(0)
 {
-
 }
 
 IOutputParser::~IOutputParser()
@@ -55,6 +54,18 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
             this, SLOT(outputAdded(QString)));
     connect(parser, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
             this, SLOT(taskAdded(ProjectExplorer::TaskWindow::Task)));
+}
+
+IOutputParser *IOutputParser::takeOutputParserChain()
+{
+    IOutputParser *parser = m_parser;
+    m_parser = 0;
+    return parser;
+}
+
+IOutputParser *IOutputParser::childParser() const
+{
+    return m_parser;
 }
 
 void IOutputParser::stdOutput(const QString &line)
