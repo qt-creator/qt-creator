@@ -98,7 +98,7 @@ Item {
 
     Text {
         id: text
-
+        elide: ElideMiddle
         anchors.top: itemIcon.bottom
         anchors.topMargin: style.cellVerticalSpacing
         anchors.horizontalCenter: parent.horizontalCenter
