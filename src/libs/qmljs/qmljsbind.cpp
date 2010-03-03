@@ -170,7 +170,7 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
         // Script blocks all contribute to the same scope
         parentObjectValue = switchObjectValue(_functionEnvironment);
         processScript(qualifiedTypeNameId, initializer);
-        return switchObjectValue(parentObjectValue);
+        switchObjectValue(parentObjectValue);
     }
 
     // normal component instance
