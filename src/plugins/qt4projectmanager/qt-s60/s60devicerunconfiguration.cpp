@@ -585,10 +585,11 @@ S60DeviceRunControlBase::S60DeviceRunControlBase(RunConfiguration *runConfigurat
     // 'sis' is a make target. Set up with correct environment
     // Also add $QTDIR/bin, since it needs to find 'createpackage'.
     ProjectExplorer::ToolChain *toolchain = activeBuildConf->toolChain();
-    m_makeTool = toolchain->makeCommand();
     ProjectExplorer::Environment env = ProjectExplorer::Environment::systemEnvironment();
     toolchain->addToEnvironment(env);
     env.prependOrSetPath(m_qtBinPath);
+    // Windows: Use the make.exe from epoc32\tools
+    m_makeTool = env.searchInPath(toolchain->makeCommand());
     m_makesisProcess->setEnvironment(env.toStringList());
     m_executableFileName = s60runConfig->localExecutableFileName();
     m_packageFilePath = s60runConfig->packageFileName();
@@ -731,7 +732,7 @@ void S60DeviceRunControlBase::readStandardOutput()
 
 void S60DeviceRunControlBase::makesisProcessFailed()
 {
-    processFailed(m_makeTool, m_makesisProcess->error());
+    processFailed(m_makeTool, m_makesisProcess->error(), m_makesisProcess->errorString());
 }
 
 static inline bool renameFile(const QString &sourceName, const QString &targetName,
@@ -949,20 +950,22 @@ void S60DeviceRunControlBase::slotWaitingForTrkClosed()
     }
 }
 
-void S60DeviceRunControlBase::processFailed(const QString &program, QProcess::ProcessError errorCode)
+void S60DeviceRunControlBase::processFailed(const QString &program,
+                                            QProcess::ProcessError errorCode,
+                                            const QString &msg)
 {
     QString errorString;
     switch (errorCode) {
     case QProcess::FailedToStart:
-        errorString = tr("Failed to start %1.");
+        errorString = tr("Failed to start %1: %2").arg(program, msg);
         break;
     case QProcess::Crashed:
-        errorString = tr("%1 has unexpectedly finished.");
+        errorString = tr("%1 has unexpectedly finished: %2").arg(program, msg);
         break;
     default:
-        errorString = tr("An error has occurred while running %1.");
+        errorString = tr("An error has occurred while running %1: %2").arg(program, msg);
     }
-    error(this, errorString.arg(program));
+    error(this, errorString);
     stop();
     emit finished();
 }
