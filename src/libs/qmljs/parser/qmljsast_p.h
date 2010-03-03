@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -2599,11 +2599,17 @@ public:
                     UiObjectInitializer *initializer)
         : qualifiedId(qualifiedId),
           qualifiedTypeNameId(qualifiedTypeNameId),
-          initializer(initializer)
+          initializer(initializer),
+          hasOnToken(false)
     { kind = K; }
 
     virtual SourceLocation firstSourceLocation() const
-    { return qualifiedId->identifierToken; }
+    {
+        if (hasOnToken && qualifiedTypeNameId)
+            return qualifiedTypeNameId->identifierToken;
+
+        return qualifiedId->identifierToken;
+    }
 
     virtual SourceLocation lastSourceLocation() const
     { return initializer->rbraceToken; }
@@ -2615,6 +2621,7 @@ public:
     UiQualifiedId *qualifiedTypeNameId;
     UiObjectInitializer *initializer;
     SourceLocation colonToken;
+    bool hasOnToken;
 };
 
 class QML_PARSER_EXPORT UiScriptBinding: public UiObjectMember
