@@ -20296,7 +20296,7 @@ Haben Sie Qemu gestartet?</translation>
         <location line="+2"/>
         <source>Debug</source>
         <comment>debug buildconfiguration name (only one Qt version!)</comment>
-        <translation>Debuggen</translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <location line="+1"/>
