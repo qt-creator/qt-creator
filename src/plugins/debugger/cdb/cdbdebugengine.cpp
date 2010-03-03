@@ -355,16 +355,26 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
         emit startFailed();
         return;
     }
+    switch (sp->startMode) {
+    case AttachCore:
+    case StartRemote:
+        warning(QLatin1String("Internal error: Mode not supported."));
+        setState(AdapterStartFailed, Q_FUNC_INFO, __LINE__);
+        emit startFailed();
+        break;
+    default:
+        break;
+    }
+    m_d->m_mode = sp->startMode;
     m_d->clearDisplay();
     m_d->m_inferiorStartupComplete = false;
     setState(AdapterStarted, Q_FUNC_INFO, __LINE__);
 
     m_d->setVerboseSymbolLoading(m_d->m_options->verboseSymbolLoading);
-    const DebuggerStartMode mode = sp->startMode;
     // Figure out dumper. @TODO: same in gdb...
     const QString dumperLibName = QDir::toNativeSeparators(manager()->qtDumperLibraryName());
-    bool dumperEnabled = mode != AttachCore
-                         && mode != AttachCrashedExternal
+    bool dumperEnabled = m_d->m_mode != AttachCore
+                         && m_d->m_mode != AttachCrashedExternal
                          && manager()->qtDumperLibraryEnabled();
     if (dumperEnabled) {
         const QFileInfo fi(dumperLibName);
@@ -387,10 +397,10 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
     m_d->clearForRun();
     m_d->updateCodeLevel();
     m_d->m_ignoreInitialBreakPoint = false;
-    switch (mode) {
+    switch (m_d->m_mode) {
     case AttachExternal:
     case AttachCrashedExternal:
-        rc = m_d->startAttachDebugger(sp->attachPID, mode, &errorMessage);
+        rc = startAttachDebugger(sp->attachPID, m_d->m_mode, &errorMessage);
         needWatchTimer = true; // Fetch away module load, etc. even if crashed
         break;
     case StartInternal:
@@ -408,7 +418,11 @@ void CdbDebugEngine::startDebugger(const QSharedPointer<DebuggerStartParameters>
             // continues in slotConsoleStubStarted()...
         } else {
             needWatchTimer = true;
-            rc = startDebuggerWithExecutable(mode, &errorMessage);
+            rc = m_d->startDebuggerWithExecutable(sp->workingDir,
+                                                  sp->executable,
+                                                  sp->processArgs,
+                                                  sp->environment,
+                                                  &errorMessage);
         }
         break;
     case AttachCore:
@@ -439,23 +453,7 @@ bool CdbDebugEngine::startAttachDebugger(qint64 pid, DebuggerStartMode sm, QStri
     // there is no startup trap when attaching to a process that has been
     // running for a while. (see notifyException).
     const bool suppressInitialBreakPoint = sm != AttachCrashedExternal;
-    const bool rc = m_d->startAttachDebugger(pid, suppressInitialBreakPoint, errorMessage);
-    if (rc)
-        m_d->m_mode = sm;
-    return rc;
-}
-
-bool CdbDebugEngine::startDebuggerWithExecutable(DebuggerStartMode sm, QString *errorMessage)
-{
-    const QSharedPointer<DebuggerStartParameters> sp = manager()->startParameters();
-    const bool rc = m_d->startDebuggerWithExecutable(sp->workingDir,
-                                                     sp->executable,
-                                                     sp->processArgs,
-                                                     sp->environment,
-                                                     errorMessage);
-    if (rc)
-        m_d->m_mode = sm;
-    return rc;
+    return m_d->startAttachDebugger(pid, suppressInitialBreakPoint, errorMessage);
 }
 
 void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG64 initialThreadHandle)
