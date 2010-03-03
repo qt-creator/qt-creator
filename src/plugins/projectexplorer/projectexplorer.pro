@@ -149,6 +149,13 @@ FORMS += processstep.ui \
     doubletabwidget.ui \
     addtargetdialog.ui
 
+equals(TEST, 1) {
+    SOURCES += \
+        outputparser_test.cpp
+    HEADERS += \
+        outputparser_test.h
+}
+
 win32 {
     SOURCES += applicationlauncher_win.cpp \
         winguiprocess.cpp

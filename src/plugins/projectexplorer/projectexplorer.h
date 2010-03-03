@@ -220,6 +220,11 @@ private slots:
     void currentModeChanged(Core::IMode *mode, Core::IMode *oldMode);
     void updateActions();
 
+#ifdef WITH_TESTS
+    void testGccOutputParsers_data();
+    void testGccOutputParsers();
+#endif
+
 private:
     void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
