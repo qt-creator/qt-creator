@@ -1792,8 +1792,15 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
     if (LA() == T_LPAREN) {
         ast->lparen_token = consumeToken();
         parseTypeId(ast->type_id);
+
         SimpleNameAST *property_name = new (_pool) SimpleNameAST;
-        match(T_IDENTIFIER, &property_name->identifier_token);
+        // special case: keywords are allowed for property names!
+        if (tok().isKeyword()) {
+            property_name->identifier_token = consumeToken();
+        } else {
+            match(T_IDENTIFIER, &property_name->identifier_token);
+        }
+
         ast->property_name = property_name;
         QtPropertyDeclarationItemListAST **iter = &ast->property_declaration_items;
         while (true) {
