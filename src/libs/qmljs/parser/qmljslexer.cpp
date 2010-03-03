@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -56,11 +56,9 @@
 #include <stdio.h>
 #include <string.h>
 
-QT_BEGIN_NAMESPACE
-extern double qstrtod(const char *s00, char const **se, bool *ok);
-QT_END_NAMESPACE
-
 QT_QML_BEGIN_NAMESPACE
+
+extern double qstrtod(const char *s00, char const **se, bool *ok);
 
 #define shiftWindowsLineBreak() \
     do { \
@@ -168,6 +166,8 @@ int Lexer::findReservedWord(const QChar *c, int size) const
             return QmlJSGrammar::T_IN;
         else if (c[0] == QLatin1Char('a') && c[1] == QLatin1Char('s'))
             return QmlJSGrammar::T_AS;
+        else if (c[0] == QLatin1Char('o') && c[1] == QLatin1Char('n'))
+            return QmlJSGrammar::T_ON;
     }   break;
 
     case 3: {

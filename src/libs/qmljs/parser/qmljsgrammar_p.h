@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -61,10 +61,10 @@ QT_BEGIN_NAMESPACE
 class QmlJSGrammar
 {
 public:
-  enum VariousConstants {
+  enum {
     EOF_SYMBOL = 0,
-    REDUCE_HERE = 99,
-    SHIFT_THERE = 98,
+    REDUCE_HERE = 100,
+    SHIFT_THERE = 99,
     T_AND = 1,
     T_AND_AND = 2,
     T_AND_EQ = 3,
@@ -90,12 +90,12 @@ public:
     T_EQ_EQ = 18,
     T_EQ_EQ_EQ = 19,
     T_FALSE = 83,
-    T_FEED_JS_EXPRESSION = 95,
-    T_FEED_JS_PROGRAM = 97,
-    T_FEED_JS_SOURCE_ELEMENT = 96,
-    T_FEED_JS_STATEMENT = 94,
-    T_FEED_UI_OBJECT_MEMBER = 93,
-    T_FEED_UI_PROGRAM = 92,
+    T_FEED_JS_EXPRESSION = 96,
+    T_FEED_JS_PROGRAM = 98,
+    T_FEED_JS_SOURCE_ELEMENT = 97,
+    T_FEED_JS_STATEMENT = 95,
+    T_FEED_UI_OBJECT_MEMBER = 94,
+    T_FEED_UI_PROGRAM = 93,
     T_FINALLY = 20,
     T_FOR = 21,
     T_FUNCTION = 22,
@@ -127,6 +127,7 @@ public:
     T_NOT_EQ_EQ = 46,
     T_NULL = 81,
     T_NUMERIC_LITERAL = 47,
+    T_ON = 92,
     T_OR = 48,
     T_OR_EQ = 49,
     T_OR_OR = 50,
@@ -163,15 +164,15 @@ public:
     T_XOR = 79,
     T_XOR_EQ = 80,
 
-    ACCEPT_STATE = 635,
-    RULE_COUNT = 343,
-    STATE_COUNT = 636,
-    TERMINAL_COUNT = 100,
+    ACCEPT_STATE = 639,
+    RULE_COUNT = 345,
+    STATE_COUNT = 640,
+    TERMINAL_COUNT = 101,
     NON_TERMINAL_COUNT = 106,
 
-    GOTO_INDEX_OFFSET = 636,
-    GOTO_INFO_OFFSET = 2520,
-    GOTO_CHECK_OFFSET = 2520
+    GOTO_INDEX_OFFSET = 640,
+    GOTO_INFO_OFFSET = 2699,
+    GOTO_CHECK_OFFSET = 2699
   };
 
   static const char  *const    spell [];
