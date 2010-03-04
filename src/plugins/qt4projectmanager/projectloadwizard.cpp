@@ -156,7 +156,7 @@ void ProjectLoadWizard::done(int result)
             m_project->addTarget(t);
         }
         if (m_project->targets().isEmpty())
-            qWarning() << "Failed to populate project with default targets for default Qt" << m_importVersion->displayName();
+            qWarning() << "Failed to populate project with default targets for default Qt" << defaultVersion->displayName();
     }
 }
 
