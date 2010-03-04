@@ -79,9 +79,13 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &no
     Q_ASSERT(modelNode().property("changes").isNodeListProperty());
 
     foreach (const ModelNode &childNode, modelNode().nodeListProperty("changes").toModelNodeList()) {
-        //### exception if not valid QmlModelStateOperation
-        if (QmlModelStateOperation(childNode).target() == node)
-            returnList.append(QmlModelStateOperation(childNode)); //### exception if not valid(childNode);
+        QmlModelStateOperation stateOperation(childNode);
+        if (stateOperation.isValid()) {
+            ModelNode targetNode = stateOperation.target();
+            if (targetNode.isValid()
+                && targetNode == node)
+            returnList.append(stateOperation); //### exception if not valid(childNode);
+        }
     }
     return returnList; //not found
 }
