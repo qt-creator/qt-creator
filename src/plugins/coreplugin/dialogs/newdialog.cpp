@@ -99,7 +99,7 @@ void NewDialog::setWizards(QList<IWizard*> wizards)
         CategoryItemMap::iterator cit = categories.find(categoryName);
         if (cit == categories.end()) {
             QTreeWidgetItem *categoryItem = new QTreeWidgetItem(m_ui->templatesTree);
-            categoryItem->setFlags(Qt::ItemIsEnabled);
+            categoryItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             categoryItem->setText(0, wizard->displayCategory());
             qVariantSetValue<IWizard*>(wizardPtr, 0);
             categoryItem->setData(0, Qt::UserRole, wizardPtr);
