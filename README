@@ -10,12 +10,12 @@ Windows XP SP2, Windows Vista
 (K)Ubuntu Linux 7.04 32bit and 64bit
 Mac OS 10.4 and later
 
-Building the sources requires Qt 4.6.0 or later.
+Building the sources requires Qt 4.7.0 or later.
 
 Compiling Qt Creator
 ====================
 Prerequisites:
-   * Qt 4.6
+   * Qt 4.7
    * On Windows: mingw 4.4 or later, Visual Studio 2008 or later
    * On Mac: XCode 2.5 or later
 
