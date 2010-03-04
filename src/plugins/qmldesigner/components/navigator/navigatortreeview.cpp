@@ -62,7 +62,7 @@ static void drawSelectionBackground(QPainter *painter, const QStyleOption &optio
 class TreeViewStyle : public QProxyStyle
 {
 public:
-    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget * = 0) const
+    void drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget = 0) const
     {
         if (element == QStyle::PE_PanelItemViewRow) {
             if (option->state & QStyle::State_Selected) {
@@ -75,8 +75,27 @@ public:
                 painter->drawLine(option->rect.bottomLeft(),option->rect.bottomRight());
                 painter->restore();
             }
+        } else if (element == PE_IndicatorItemViewItemDrop) {
+            painter->save();
+            QRect rect = option->rect;
+            rect.setLeft(0);
+            rect.setWidth(widget->rect().width());
+            QColor highlight = option->palette.text().color();
+            highlight.setAlphaF(0.7);
+            painter->setPen(QPen(highlight.lighter(), 1));
+            if (option->rect.height() == 0)
+                painter->drawLine(rect.topLeft(), rect.topRight());
+            else {
+                highlight.setAlphaF(0.2);
+                painter->setBrush(highlight);
+                painter->drawRect(rect.adjusted(0, 0, -1, -1));
+            }
+            painter->restore();
+        } else {
+            QProxyStyle::drawPrimitive(element, option, painter, widget);
         }
     }
+
     int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const {
         if (hint == SH_ItemView_ShowDecorationSelected)
             return 0;
