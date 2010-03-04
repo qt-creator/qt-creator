@@ -435,49 +435,53 @@ void ItemLibraryModel::updateVisibility()
 
 QList<ItemLibraryInfo> ItemLibraryModel::itemLibraryRepresentations(const QString &type)
 {
+    QList<ItemLibraryInfo> itemLibraryRepresentationList;
     NodeMetaInfo nodeInfo = m_metaInfo->nodeMetaInfo(type);
-    QList<ItemLibraryInfo> itemLibraryRepresentationList = m_metaInfo->itemLibraryRepresentations(nodeInfo);
 
-    QImage dragImage(64, 64, QImage::Format_RGB32); // TODO: draw item drag icon
-    dragImage.fill(0xffffffff);
-    QPainter p(&dragImage);
-    QPen pen(Qt::gray);
-    pen.setWidth(2);
-    p.setPen(pen);
-    p.drawRect(1, 1, dragImage.width() - 2, dragImage.height() - 2);
-    QPixmap dragPixmap(QPixmap::fromImage(dragImage));
+    if (nodeInfo.isQmlGraphicsItem()) {
+        itemLibraryRepresentationList = m_metaInfo->itemLibraryRepresentations(nodeInfo);
 
-    if (!m_metaInfo->hasNodeMetaInfo(type))
-        qWarning() << "ItemLibrary: type not declared: " << type;
+        QImage dragImage(64, 64, QImage::Format_RGB32); // TODO: draw item drag icon
+        dragImage.fill(0xffffffff);
+        QPainter p(&dragImage);
+        QPen pen(Qt::gray);
+        pen.setWidth(2);
+        p.setPen(pen);
+        p.drawRect(1, 1, dragImage.width() - 2, dragImage.height() - 2);
+        QPixmap dragPixmap(QPixmap::fromImage(dragImage));
 
-    static QIcon defaultIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
+        if (!m_metaInfo->hasNodeMetaInfo(type))
+            qWarning() << "ItemLibrary: type not declared: " << type;
 
-    if (itemLibraryRepresentationList.isEmpty() || !m_metaInfo->hasNodeMetaInfo(type)) {
-        QIcon icon = nodeInfo.icon();
-        if (icon.isNull())
-            icon = defaultIcon;
+        static QIcon defaultIcon(QLatin1String(":/ItemLibrary/images/item-default-icon.png"));
 
-        ItemLibraryInfo itemLibraryInfo;
-        itemLibraryInfo.setName(type);
-        itemLibraryInfo.setTypeName(nodeInfo.typeName());
-        itemLibraryInfo.setCategory(nodeInfo.category());
-        itemLibraryInfo.setIcon(icon);
-        itemLibraryInfo.setDragIcon(dragPixmap);
-        itemLibraryInfo.setMajorVersion(nodeInfo.majorVersion());
-        itemLibraryInfo.setMinorVersion(nodeInfo.minorVersion());
-        itemLibraryRepresentationList.append(itemLibraryInfo);
-    }
-    else {
-        foreach (ItemLibraryInfo itemLibraryRepresentation, itemLibraryRepresentationList) {
-            QIcon icon = itemLibraryRepresentation.icon();
-            if (itemLibraryRepresentation.icon().isNull())
-                itemLibraryRepresentation.setIcon(defaultIcon);
+        if (itemLibraryRepresentationList.isEmpty() || !m_metaInfo->hasNodeMetaInfo(type)) {
+            QIcon icon = nodeInfo.icon();
+            if (icon.isNull())
+                icon = defaultIcon;
 
-            if (itemLibraryRepresentation.dragIcon().isNull())
-                itemLibraryRepresentation.setDragIcon(dragPixmap);
+            ItemLibraryInfo itemLibraryInfo;
+            itemLibraryInfo.setName(type);
+            itemLibraryInfo.setTypeName(nodeInfo.typeName());
+            itemLibraryInfo.setCategory(nodeInfo.category());
+            itemLibraryInfo.setIcon(icon);
+            itemLibraryInfo.setDragIcon(dragPixmap);
+            itemLibraryInfo.setMajorVersion(nodeInfo.majorVersion());
+            itemLibraryInfo.setMinorVersion(nodeInfo.minorVersion());
+            itemLibraryRepresentationList.append(itemLibraryInfo);
+        }
+        else {
+            foreach (ItemLibraryInfo itemLibraryRepresentation, itemLibraryRepresentationList) {
+                QIcon icon = itemLibraryRepresentation.icon();
+                if (itemLibraryRepresentation.icon().isNull())
+                    itemLibraryRepresentation.setIcon(defaultIcon);
 
-            if (itemLibraryRepresentation.category().isEmpty())
-                itemLibraryRepresentation.setCategory(nodeInfo.category());
+                if (itemLibraryRepresentation.dragIcon().isNull())
+                    itemLibraryRepresentation.setDragIcon(dragPixmap);
+
+                if (itemLibraryRepresentation.category().isEmpty())
+                    itemLibraryRepresentation.setCategory(nodeInfo.category());
+            }
         }
     }
 
