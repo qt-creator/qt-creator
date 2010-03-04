@@ -37,13 +37,25 @@ SUBDIRS   = plugin_coreplugin \
 
 contains(QT_CONFIG, declarative) {
 
-    SUBDIRS += plugin_qmlprojectmanager \
-               plugin_qmlinspector
+    SUBDIRS += plugin_qmlprojectmanager
 
-    exists($$[QT_INSTALL_HEADERS]/QtDeclarative/private/qdeclarativecontext_p.h) {
-        SUBDIRS += plugin_qmldesigner
+    # Try to find location of Qt private headers (see README)
+
+    isEmpty(QT_PRIVATE_HEADERS) {
+        QT_PRIVATE_HEADERS = $$[QT_INSTALL_HEADERS]
     } else {
-        warning("QmlDesigner plugin disabled! It depends on private headers from QtDeclarative module, which seems not to be installed.")
+        INCLUDEPATH += QT_PRIVATE_HEADERS
+    }
+
+    exists($$QT_PRIVATE_HEADERS/QtDeclarative/private/qdeclarativecontext_p.h) {
+        SUBDIRS += plugin_qmldesigner \
+                   plugin_qmlinspector
+    } else {
+        warning()
+        warning("QmlDesigner and QmlInspector plugins have been disabled")
+        warning("The plugins depend on on private headers from QtDeclarative module.")
+        warning("To enable them, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
+        warning()
     }
 }
 

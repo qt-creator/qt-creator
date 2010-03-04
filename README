@@ -26,6 +26,31 @@ cd $BUILD_DIRECTORY
 qmake $SOURCE_DIRECTORY/qtcreator.pro
 make (or mingw32-make or nmake or jom, depending on your platform)
 
+QmlDesigner, QmlInspector require private headers
+-------------------------------------------------
+
+The QmlDesigner and QmlInspector plugins depend on "private" Qt headers,
+specifically from the QtDeclarative module. These private headers always end
+with an "_p.h", and Nokia does not make any promises to keep the files or API's
+binary or source compatible between releases. This means that when compiled,
+the two plugins have a dependency to the exact Qt version they were compiled
+with. Running Qt Creator with the plugins against updated Qt libraries (also for
+patch releases) might lead to link time failures, or even crashes.
+
+If you want to disable the plugins, you can pass "QT_PRIVATE_HEADERS=" to qmake:
+
+  qmake "QT_PRIVATE_HEADERS=" $SOURCE_DIRECTORY/qtcreator.pro
+
+Anyhow, the plugins will not be compiled when the private header files needed
+are not found. This might be the case when you are using a Qt version from your
+distribution, or when you installed your self-compiled Qt to a separate
+directory via 'make install'. You can fix this by either re-building your Qt
+with the "-developer-build" configure option, or pass the include directory in
+the source directory to qmake, e.g.
+
+  qmake "QT_PRIVATE_HEADERS=$$QT_SOURCE_TREE/include" $SOURCE_DIRECTORY/qtcreator.pro
+
+
 Third-party components
 ======================
 Qt Creator includes the following third-party components,
