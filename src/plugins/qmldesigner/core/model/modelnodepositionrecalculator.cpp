@@ -55,24 +55,32 @@ void ModelNodePositionRecalculator::moved(const TextModifier::MoveInfo &moveInfo
         if (nodeLocation == ModelNodePositionStorage::INVALID_LOCATION)
             continue;
 
+        int newLocation = nodeLocation;
         if (from <= nodeLocation && moveInfo.objectEnd > nodeLocation) {
             if (to > from)
                 if (length == (to - from))
-                    m_positionStore->setNodeOffset(node, nodeLocation + prefixLength - moveInfo.leadingCharsToRemove);
+                    newLocation = nodeLocation + prefixLength - moveInfo.leadingCharsToRemove;
                 else
-                    m_positionStore->setNodeOffset(node, to - length + nodeLocation - from + prefixLength - moveInfo.leadingCharsToRemove - moveInfo.trailingCharsToRemove);
+                    newLocation = to - length + nodeLocation - from + prefixLength - moveInfo.leadingCharsToRemove - moveInfo.trailingCharsToRemove;
             else
-                m_positionStore->setNodeOffset(node, to          + nodeLocation - from + prefixLength);
+                newLocation = to          + nodeLocation - from + prefixLength;
         } else if (from < nodeLocation && to > nodeLocation) {
-            m_positionStore->setNodeOffset(node, nodeLocation - length - moveInfo.leadingCharsToRemove - moveInfo.trailingCharsToRemove);
+            newLocation = nodeLocation - length - moveInfo.leadingCharsToRemove - moveInfo.trailingCharsToRemove;
         } else if (from > nodeLocation && to <= nodeLocation) {
-            m_positionStore->setNodeOffset(node, nodeLocation + length + prefixLength + suffixLength);
+            newLocation = nodeLocation + length + prefixLength + suffixLength;
         } else if (from < nodeLocation && to <= nodeLocation) {
-            m_positionStore->setNodeOffset(node, nodeLocation + prefixLength + suffixLength - moveInfo.leadingCharsToRemove - moveInfo.trailingCharsToRemove);
+            newLocation = nodeLocation + prefixLength + suffixLength - moveInfo.leadingCharsToRemove - moveInfo.trailingCharsToRemove;
         }
+        m_positionStore->setNodeOffset(node, newLocation);
     }
 
-    m_dirtyAreas.insert(to - prefixLength, length + prefixLength + suffixLength);
+    const int indentLength = length + prefixLength + suffixLength;
+    int indentOffset;
+    if (to - prefixLength <= from - moveInfo.leadingCharsToRemove)
+        indentOffset = to - prefixLength;
+    else
+        indentOffset = to - length - prefixLength - moveInfo.leadingCharsToRemove - moveInfo.trailingCharsToRemove;
+    m_dirtyAreas.insert(indentOffset, indentLength);
 }
 
 void ModelNodePositionRecalculator::replaced(int offset, int oldLength, int newLength)
