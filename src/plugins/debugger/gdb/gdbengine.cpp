@@ -2259,6 +2259,12 @@ void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *
                 full = re.cap(3); // FIXME: wrong, but prevents recursion
             }
         }
+        // The variable full could still contain, say "foo.cpp" when we asked
+        // for "/full/path/to/foo.cpp". In this case, using the requested
+        // instead of the acknowledged name makes sense as it will allow setting
+        // the marker in more cases.
+        if (data->fileName.endsWith(full))
+            full = data->fileName;
         data->markerLineNumber = data->bpLineNumber.toInt();
         data->markerFileName = full;
         data->bpFileName = full;
