@@ -40,8 +40,10 @@
 #endif
 
 #include <coreplugin/icore.h>
+#include <utils/synchronousprocess.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QProcess>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QCoreApplication>
@@ -183,14 +185,55 @@ static bool isUnixProcessId(const QString &procname)
     return true;
 }
 
-// Determine UNIX processes by reading "/proc"
+
+// Determine UNIX processes by running ps
+static QList<ProcData> unixProcessListPS()
+{
+#ifdef Q_OS_MAC
+    static const char formatC[] = "pid state command";
+#else
+    static const char formatC[] = "pid,state,cmd";
+#endif
+    QList<ProcData> rc;
+    QProcess psProcess;
+    QStringList args;
+    args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String(formatC);
+    psProcess.start(QLatin1String("ps"), args);
+    if (!psProcess.waitForStarted())
+        return rc;
+    QByteArray output;
+    if (!Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output))
+        return rc;
+    // Split "457 S+   /Users/foo.app"
+    const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
+    const int lineCount = lines.size();
+    const QChar blank = QLatin1Char(' ');
+    for (int l = 1; l < lineCount; l++) { // Skip header
+        const QString line = lines.at(l).simplified();
+        const int pidSep = line.indexOf(blank);
+        const int cmdSep = pidSep != -1 ? line.indexOf(blank, pidSep + 1) : -1;
+        if (cmdSep > 0) {
+            ProcData procData;
+            procData.ppid = line.left(pidSep);
+            procData.state = line.mid(pidSep + 1, cmdSep - pidSep - 1);
+            procData.name = line.mid(cmdSep + 1);
+            rc.push_back(procData);
+        }
+    }
+    return rc;
+}
+
+// Determine UNIX processes by reading "/proc". Default to ps if
+// it does not exist
 static QList<ProcData> unixProcessList()
 {
+    const QDir procDir(QLatin1String("/proc/"));
+    if (!procDir.exists())
+        return unixProcessListPS();
     QList<ProcData> rc;
-    const QStringList procIds = QDir(QLatin1String("/proc/")).entryList();
+    const QStringList procIds = procDir.entryList();
     if (procIds.isEmpty())
         return rc;
-
     foreach (const QString &procId, procIds) {
         if (!isUnixProcessId(procId))
             continue;
@@ -249,6 +292,10 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     connect(refreshButton, SIGNAL(clicked()), this, SLOT(rebuildProcessList()));
     m_ui->buttonBox->addButton(refreshButton, QDialogButtonBox::ActionRole);
     m_ui->filterWidget->setFocus(Qt::TabFocusReason);
+
+    m_ui->procView->setAlternatingRowColors(true);
+    m_ui->procView->setRootIsDecorated(false);
+    m_ui->procView->setUniformRowHeights(true);
 
     // Do not use activated, will be single click in Oxygen
     connect(m_ui->procView, SIGNAL(doubleClicked(QModelIndex)),
