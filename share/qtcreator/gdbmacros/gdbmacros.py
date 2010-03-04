@@ -642,6 +642,7 @@ def qdump__QObject(d, item):
 
             for connection in xrange(connectionCount):
                 d.beginHash()
+                d.putField("iname", "%s.connections.%d" % (item.iname, connection))
                 d.putName("connection %d" % connection)
                 d.putValue("")
                 d.endHash()
@@ -664,6 +665,7 @@ def qdump__QObject(d, item):
             for signal in xrange(signalCount):
                 d.beginHash()
                 offset = metaData[14 + 5 * signal]
+                d.putField("iname", "%s.signals.%d" % (item.iname, signal))
                 d.putName("signal %d" % signal)
                 d.putType(" ")
                 d.putValue(extractCString(metaStringData, offset))
@@ -686,6 +688,7 @@ def qdump__QObject(d, item):
             for slot in xrange(slotCount):
                 d.beginHash()
                 offset = metaData[14 + 5 * (signalCount + slot)]
+                d.putField("iname", "%s.slots.%d" % (item.iname, slot))
                 d.putName("slot %d" % slot)
                 d.putType(" ")
                 d.putValue(extractCString(metaStringData, offset))
