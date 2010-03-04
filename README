@@ -1,6 +1,6 @@
-QtCreator 1.3.0
+Qt Creator 1.3.82
 ===============
-QtCreator is a crossplatform C++ IDE for development with the Qt framework.
+Qt Creator is a crossplatform C++ IDE for development with the Qt framework.
 
 Supported Platforms
 ===================
@@ -19,8 +19,8 @@ Prerequisites:
    * On Windows: mingw 4.4 or later, Visual Studio 2008 or later
    * On Mac: XCode 2.5 or later
 
-We recommend that you build Qt Creator not in the source directory, but in a separate directory.
-To do that, use the following commands:
+We recommend that you build Qt Creator not in the source directory, but in a
+separate directory. To do that, use the following commands:
 mkdir $BUILD_DIRECTORY
 cd $BUILD_DIRECTORY
 qmake $SOURCE_DIRECTORY/qtcreator.pro
@@ -28,7 +28,7 @@ make (or mingw32-make or nmake or jom, depending on your platform)
 
 Third-party components
 ======================
-QtCreator includes the following third-party components,
+Qt Creator includes the following third-party components,
 we thank the authors who made this possible:
 
 * Open Source front-end for C++ (license MIT), enhanced for use in Qt Creator
