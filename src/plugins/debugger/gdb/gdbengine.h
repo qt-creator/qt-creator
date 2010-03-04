@@ -338,12 +338,13 @@ private: ////////// View & Data Stuff //////////
     void handleBreakList(const GdbResponse &response);
     void handleBreakList(const GdbMi &table);
     void handleBreakIgnore(const GdbResponse &response);
-    void handleBreakInsert(const GdbResponse &response);
     void handleBreakInsert1(const GdbResponse &response);
+    void handleBreakInsert2(const GdbResponse &response);
     void handleBreakCondition(const GdbResponse &response);
     void handleBreakInfo(const GdbResponse &response);
     void extractDataFromInfoBreak(const QString &output, BreakpointData *data);
     void breakpointDataFromOutput(BreakpointData *data, const GdbMi &bkpt);
+    QByteArray breakpointLocation(int index);
     void sendInsertBreakpoint(int index);
     QString breakLocation(const QString &file) const;
     void reloadBreakListInternal();

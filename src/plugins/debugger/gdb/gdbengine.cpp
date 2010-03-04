@@ -2057,20 +2057,20 @@ QString GdbEngine::breakLocation(const QString &file) const
     return where;
 }
 
-void GdbEngine::sendInsertBreakpoint(int index)
+QByteArray GdbEngine::breakpointLocation(int index)
 {
     const BreakpointData *data = manager()->breakHandler()->at(index);
-    QByteArray where;
-    if (data->funcName.isEmpty()) {
-        QString loc = data->useFullPath ? data->fileName : breakLocation(data->fileName);
-        // The argument is simply a C-quoted version of the argument to the
-        // non-MI "break" command, including the "original" quoting it wants.
-        where = "\"\\\"" + GdbMi::escapeCString(loc).toLocal8Bit() + "\\\":"
-            + data->lineNumber + '"';
-    } else {
-        where = data->funcName.toLatin1();
-    }
+    if (!data->funcName.isEmpty())
+        return data->funcName.toLatin1();
+    QString loc = data->useFullPath ? data->fileName : breakLocation(data->fileName);
+    // The argument is simply a C-quoted version of the argument to the
+    // non-MI "break" command, including the "original" quoting it wants.
+    return "\"\\\"" + GdbMi::escapeCString(loc).toLocal8Bit() + "\\\":"
+        + data->lineNumber + '"';
+}
 
+void GdbEngine::sendInsertBreakpoint(int index)
+{
     // Set up fallback in case of pending breakpoints which aren't handled
     // by the MI interface.
     QByteArray cmd;
@@ -2085,9 +2085,44 @@ void GdbEngine::sendInsertBreakpoint(int index)
         cmd = "-break-insert ";
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + ' ';
-    cmd += where;
+    cmd += breakpointLocation(index);
     postCommand(cmd, NeedsStop | RebuildBreakpointModel,
-        CB(handleBreakInsert), index);
+        CB(handleBreakInsert1), index);
+}
+
+void GdbEngine::handleBreakInsert1(const GdbResponse &response)
+{
+    int index = response.cookie.toInt();
+    BreakHandler *handler = manager()->breakHandler();
+    if (response.resultClass == GdbResultDone) {
+        // Interesting only on Mac?
+        BreakpointData *data = handler->at(index);
+        GdbMi bkpt = response.data.findChild("bkpt");
+        breakpointDataFromOutput(data, bkpt);
+    } else {
+        // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
+        // know how to do pending breakpoints using CLI but not MI. So try 
+        // again with MI.
+        QByteArray cmd = "break " + breakpointLocation(index);
+        postCommand(cmd, NeedsStop | RebuildBreakpointModel,
+            CB(handleBreakInsert2), index);
+    }
+}
+
+void GdbEngine::handleBreakInsert2(const GdbResponse &response)
+{
+    int index = response.cookie.toInt();
+    BreakHandler *handler = manager()->breakHandler();
+    if (response.resultClass == GdbResultError) {
+        if (m_gdbVersion < 60800 && !m_isMacGdb) {
+            // This gdb version doesn't "do" pending breakpoints.
+            // Not much we can do about it except implementing the
+            // logic on top of shared library events, and that's not
+            // worth the effort.
+        } else {
+            QTC_ASSERT(false, /**/);
+        }
+    }
 }
 
 void GdbEngine::reloadBreakListInternal()
@@ -2199,26 +2234,6 @@ void GdbEngine::handleBreakCondition(const GdbResponse &response)
     handler->updateMarkers();
 }
 
-void GdbEngine::handleBreakInsert(const GdbResponse &response)
-{
-    int index = response.cookie.toInt();
-    BreakHandler *handler = manager()->breakHandler();
-    if (response.resultClass == GdbResultDone) {
-//#if defined(Q_OS_MAC)
-        // Interesting only on Mac?
-        BreakpointData *data = handler->at(index);
-        GdbMi bkpt = response.data.findChild("bkpt");
-        breakpointDataFromOutput(data, bkpt);
-//#endif
-    } else {
-        if (m_gdbVersion < 60800 && !m_isMacGdb) {
-            // This gdb version doesn't "do" pending breakpoints.
-        } else {
-            QTC_ASSERT(false, /**/);
-        }
-    }
-}
-
 void GdbEngine::extractDataFromInfoBreak(const QString &output, BreakpointData *data)
 {
     data->bpFileName = _("<MULTIPLE>");
@@ -2287,22 +2302,6 @@ void GdbEngine::handleBreakInfo(const GdbResponse &response)
                 response.data.findChild("consolestreamoutput").data());
             extractDataFromInfoBreak(str, handler->at(found));
         }
-    }
-}
-
-void GdbEngine::handleBreakInsert1(const GdbResponse &response)
-{
-    int index = response.cookie.toInt();
-    BreakHandler *handler = manager()->breakHandler();
-    if (response.resultClass == GdbResultDone) {
-        // Pending breakpoints in dylibs on Mac only?
-        BreakpointData *data = handler->at(index);
-        GdbMi bkpt = response.data.findChild("bkpt");
-        breakpointDataFromOutput(data, bkpt);
-    } else {
-        qDebug() << "INSERTING BREAKPOINT WITH BASE NAME FAILED. GIVING UP";
-        BreakpointData *data = handler->at(index);
-        data->bpNumber = "<unavailable>";
     }
 }
 
