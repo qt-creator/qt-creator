@@ -465,11 +465,10 @@ static Document::Ptr addDefinition(const CPlusPlus::Snapshot &docTable,
 
     QFileInfo headerFI(headerFileName);
     const QString headerBaseName = headerFI.completeBaseName();
-    const QString headerAbsolutePath = headerFI.absolutePath();
     foreach (const Document::Ptr &doc, docList) {
         const QFileInfo sourceFI(doc->fileName());
-        // we take only those documents which has the same filename and path (maybe we don't need to compare the path???)
-        if (headerBaseName == sourceFI.baseName() && headerAbsolutePath == sourceFI.absolutePath()) {
+        // we take only those documents which have the same filename
+        if (headerBaseName == sourceFI.baseName()) {
             if (ITextEditable *editable = editableAt(doc->fileName(), 0, 0)) {
                 const QString contents = editable->contents();
                 int column;
