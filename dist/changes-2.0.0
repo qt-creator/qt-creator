@@ -18,6 +18,7 @@ General
    * Added option to set interface language explicitly, overriding the locale
      setting
    * New "Design" mode for visual editors (.ui & .qml files)
+   * Fixed crash when working with empty pro-file
 
 Editing
    * Text based search and replace in multiple files
