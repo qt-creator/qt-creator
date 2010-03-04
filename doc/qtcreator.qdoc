@@ -2609,8 +2609,8 @@
     comprises of the Maemo operating system and Maemo SDK. The Maemo SDK
     provides an open development environment for different applications on
     top of the maemo platform. Maemo 5 is based on the Linux 2.6 operating
-    system. For more information refer, \l http://maemo.org/intro/platform/
-    {Maemo platform}.
+    system. For more information refer,
+    \l{http://maemo.org/intro/platform/}{Maemo platform}.
 
 
 
@@ -2627,7 +2627,7 @@
        \o  In order to setup the device IP address, you need to install
            PC Connectivity or implement using CLI. For information on PC
            Connectivity refer to the link,
-          \l http://pc-connectivity.garage.maemo.org/2nd_edition/node3.html#SECTION00032300000000000000
+          \l{http://pc-connectivity.garage.maemo.org/2nd_edition/node3.html#SECTION00032300000000000000}
            {PC Connectivity}.
     \endlist
 
@@ -3566,8 +3566,8 @@
 
     \table
         \header
-            \o 1,2 Action
-            \o 4,1 Version control system
+            \o {1,2} Action
+            \o {4,1} Version control system
         \header
             \o CVS
             \o Git
