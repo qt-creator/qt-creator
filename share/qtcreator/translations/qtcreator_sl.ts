@@ -17459,11 +17459,6 @@ Preverite, ali je telefon povezan in ali program TRK teče.</translation>
     </message>
     <message>
         <location/>
-        <source>Qt Software</source>
-        <translation type="obsolete">Qt Software</translation>
-    </message>
-    <message>
-        <location/>
         <source>Qt Labs</source>
         <translation type="obsolete">Qt Labs</translation>
     </message>
