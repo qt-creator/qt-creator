@@ -4,7 +4,7 @@
 <context>
     <name>Application</name>
     <message>
-        <location filename="../../../src/app/main.cpp" line="+129"/>
+        <location filename="../../../src/app/main.cpp" line="+132"/>
         <source>Failed to load core: %1</source>
         <translation>Невозможно загрузить ядро: %1</translation>
     </message>
@@ -14,12 +14,12 @@
         <translation>Невозможно отправить параметры командной строки запущенному процессу. Похоже, процесс не отвечает.</translation>
     </message>
     <message>
-        <location line="+135"/>
+        <location line="+125"/>
         <source>Could not find &apos;Core.pluginspec&apos; in %1</source>
         <translation>Не удалось найти &apos;Core.pluginspec&apos; в %1</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+41"/>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - Сообщения загрузчика модулей</translation>
     </message>
@@ -54,21 +54,11 @@
         <source>Attach to Process ID:</source>
         <translation>Поключить к ID процесса:</translation>
     </message>
-    <message>
-        <location/>
-        <source>Filter:</source>
-        <translation>Фильтр:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Clear</source>
-        <translation>Очистить</translation>
-    </message>
 </context>
 <context>
     <name>BINEditor::Internal::BinEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+447"/>
+        <location filename="../../../src/plugins/bineditor/bineditorplugin.cpp" line="+453"/>
         <source>&amp;Undo</source>
         <translation>От&amp;менить</translation>
     </message>
@@ -128,7 +118,7 @@
 <context>
     <name>BookmarkManager</name>
     <message>
-        <location line="+429"/>
+        <location line="+428"/>
         <source>Bookmarks</source>
         <translation>Закладки</translation>
     </message>
@@ -144,7 +134,7 @@
     </message>
     <message>
         <location line="+111"/>
-        <location line="+9"/>
+        <location line="+8"/>
         <source>New Folder</source>
         <translation>Новая папка</translation>
     </message>
@@ -152,7 +142,7 @@
 <context>
     <name>BookmarkWidget</name>
     <message>
-        <location line="-426"/>
+        <location line="-424"/>
         <source>Delete Folder</source>
         <translation>Удалить папку</translation>
     </message>
@@ -200,20 +190,30 @@
 <context>
     <name>Bookmarks::Internal::BookmarkView</name>
     <message>
-        <location filename="../../../src/plugins/bookmarks/bookmarkmanager.cpp" line="+207"/>
-        <location line="+564"/>
+        <location filename="../../../src/plugins/bookmarks/bookmarkmanager.cpp" line="+210"/>
+        <location line="+568"/>
         <source>Bookmarks</source>
         <translation>Закладки</translation>
     </message>
     <message>
-        <location line="-541"/>
-        <source>&amp;Remove Bookmark</source>
-        <translation>&amp;Удалить закладку</translation>
+        <location line="-547"/>
+        <source>Move Up</source>
+        <translation>Поднять</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Remove all Bookmarks</source>
-        <translation>Удалить все закладки</translation>
+        <source>Move Down</source>
+        <translation>Опустить</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&amp;Remove</source>
+        <translation>&amp;Удалить</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Remove All</source>
+        <translation>Удалить всё</translation>
     </message>
 </context>
 <context>
@@ -225,12 +225,12 @@
     </message>
     <message>
         <location line="+4"/>
-        <location line="+79"/>
+        <location line="+62"/>
         <source>Toggle Bookmark</source>
         <translation>Установить/убрать закладку</translation>
     </message>
     <message>
-        <location line="-75"/>
+        <location line="-58"/>
         <source>Ctrl+M</source>
         <translation>Ctrl+M</translation>
     </message>
@@ -238,16 +238,6 @@
         <location line="+2"/>
         <source>Meta+M</source>
         <translation>Meta+M</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Move Up</source>
-        <translation>Поднять</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Move Down</source>
-        <translation>Опустить</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -319,12 +309,12 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+89"/>
-        <source>Create</source>
-        <translation>Создать</translation>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakebuildconfiguration.cpp" line="+237"/>
+        <source>Build</source>
+        <translation>Сборка</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+24"/>
         <source>New configuration</source>
         <translation>Новая конфигурация</translation>
     </message>
@@ -337,12 +327,12 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakebuildenvironmentwidget.cpp" line="+49"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakebuildenvironmentwidget.cpp" line="+50"/>
         <source>Clear system environment</source>
         <translation>Чистая системная среда</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+13"/>
         <source>Build Environment</source>
         <translation>Переменные среды окружения сборки</translation>
     </message>
@@ -350,7 +340,7 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+704"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeproject.cpp" line="+620"/>
         <source>&amp;Change</source>
         <translation>&amp;Изменить</translation>
     </message>
@@ -366,7 +356,7 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakerunconfiguration.cpp" line="+247"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakerunconfiguration.cpp" line="+310"/>
         <source>Arguments:</source>
         <translation>Параметры:</translation>
     </message>
@@ -386,7 +376,7 @@
         <translation>Рабочий каталог:</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>Run Environment</source>
         <translation>Среда выполнения</translation>
     </message>
@@ -406,12 +396,7 @@
         <translation>Среда сборки</translation>
     </message>
     <message>
-        <location line="+91"/>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation>Выполняется программа: &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
-        <location line="-97"/>
+        <location line="-6"/>
         <source>Base environment for this runconfiguration:</source>
         <translation>Базовая среда данной конфигурации выполнения:</translation>
     </message>
@@ -419,7 +404,7 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+148"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+149"/>
         <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
         <translation>Укажите размещение программы cmake, так как она не была найдена автоматически.</translation>
     </message>
@@ -484,12 +469,12 @@
         <translation>Генератор NMake (%1)</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+8"/>
         <source>MinGW Generator</source>
         <translation>Генератор MinGW</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+60"/>
         <source>No valid cmake executable specified.</source>
         <translation>Не указана корректная программа cmake.</translation>
     </message>
@@ -497,21 +482,21 @@
 <context>
     <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeprojectmanager.cpp" line="+246"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeprojectmanager.cpp" line="+248"/>
         <location line="+10"/>
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <source>CMake executable</source>
-        <translation>Программа CMake</translation>
+        <location line="+13"/>
+        <source>Executable:</source>
+        <translation>Программа:</translation>
     </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="-229"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="-236"/>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Qt Creator обнаружил &lt;b&gt;сборку в каталоге с исходниками (%1)&lt;/b&gt;, что препятствует фоновой сборке. Qt Creator не позволит изменить каталог сборки. Если требуется фоновая сборка, необходимо очистить каталог исходников и открыть проект снова.</translation>
     </message>
@@ -519,7 +504,7 @@
 <context>
     <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="+165"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="+214"/>
         <source>Additional arguments:</source>
         <translation>Дополнительные параметры:</translation>
     </message>
@@ -529,15 +514,26 @@
         <translation>Цели:</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+31"/>
+        <source>Make</source>
+        <comment>CMakeProjectManager::MakeStepConfigWidget display name.</comment>
+        <translation>Сборка</translation>
+    </message>
+    <message>
+        <location line="+45"/>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;b&gt;Unknown Toolchain&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Неизвестный инструментарий&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
     <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
-        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+16"/>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakeopenprojectwizard.cpp" line="+17"/>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Укажите каталог, в котором желаете собирать проект. </translation>
     </message>
@@ -568,24 +564,24 @@
 <context>
     <name>CVS::Internal::CVSPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="+83"/>
+        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="+80"/>
         <source>Parsing of the log output failed</source>
         <translation>Не удалось разобрать журнал</translation>
     </message>
     <message>
-        <location line="+169"/>
+        <location line="+174"/>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+38"/>
         <source>Add</source>
         <translation>Добавить</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Add &quot;%1&quot;</source>
-        <translation>Добавить &apos;%1&apos;</translation>
+        <translation>Добавить &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -593,39 +589,19 @@
         <translation>Alt+C,Alt+A</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Delete &quot;%1&quot;</source>
-        <translation>Удалить &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Revert</source>
-        <translation>Откатить</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Revert &quot;%1&quot;</source>
-        <translation>Откатить &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <location line="+9"/>
+        <location line="+32"/>
         <source>Diff Project</source>
         <translation>Сравнить проект</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-65"/>
         <source>Diff Current File</source>
         <translation>Сравнить текущий файл</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Diff &quot;%1&quot;</source>
-        <translation>Сравнить &apos;%1&apos;</translation>
+        <translation>Сравнить &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -633,19 +609,19 @@
         <translation>Alt+C,Alt+D</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+99"/>
         <source>Commit All Files</source>
         <translation>Фиксировать все файлы</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-65"/>
         <source>Commit Current File</source>
         <translation>Фиксировать текущий файл</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Commit &quot;%1&quot;</source>
-        <translation>Фиксировать &apos;%1&apos;</translation>
+        <translation>Фиксировать &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -653,7 +629,7 @@
         <translation>Alt+C,Alt+C</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-33"/>
         <source>Filelog Current File</source>
         <translation>История текущего файла</translation>
     </message>
@@ -663,27 +639,82 @@
         <translation>История &apos;%1&apos;</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Annotate Current File</source>
-        <translation>Аннотация текущего файла</translation>
+        <translation>Аннотация текущего файла (annotate)</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Annotate &quot;%1&quot;</source>
-        <translation>Аннотация &apos;%1&apos;</translation>
+        <translation>Аннотация &quot;%1&quot; (annotate)</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Delete...</source>
+        <translation>Удалить...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Delete &quot;%1&quot;...</source>
+        <translation>Удалить &quot;%1&quot;...</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Revert...</source>
+        <translation>Откатить...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Revert &quot;%1&quot;...</source>
+        <translation>Откатить &quot;%1&quot;...</translation>
     </message>
     <message>
         <location line="+10"/>
+        <source>Diff Project &quot;%1&quot;</source>
+        <translation>Сравнить проект &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Project Status</source>
         <translation>Состояние проекта</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+0"/>
+        <source>Status of Project &quot;%1&quot;</source>
+        <translation>Состояние проекта &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Log Project</source>
+        <translation>История проекта</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Log Project &quot;%1&quot;</source>
+        <translation>История проекта &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Update Project</source>
         <translation>Обновить проект</translation>
     </message>
     <message>
+        <location line="+0"/>
+        <source>Update Project &quot;%1&quot;</source>
+        <translation>Обновить проект &quot;%1&quot;</translation>
+    </message>
+    <message>
         <location line="+9"/>
+        <source>Repository Log</source>
+        <translation>История хранилища</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Revert Repository...</source>
+        <translation>Откатить все изменения...</translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Commit</source>
         <translation>Фиксировать</translation>
     </message>
@@ -703,7 +734,7 @@
         <translation>&amp;Повторить</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+30"/>
         <source>Closing CVS Editor</source>
         <translation>Закрытие редактора CVS</translation>
     </message>
@@ -718,57 +749,62 @@
         <translation>Сообщение о фиксации содержит ошибки. Желаете зафиксировать изменения?</translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+63"/>
         <source>The files do not differ.</source>
         <translation>Файлы не имеют различий.</translation>
     </message>
     <message>
-        <location line="+61"/>
-        <source>The file &apos;%1&apos; could not be deleted.</source>
-        <translation>Не удалось удалить файл &apos;%1&apos;.</translation>
+        <location line="+70"/>
+        <source>Revert repository</source>
+        <translation>Откатить все изменения</translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+1"/>
+        <source>Would you like to revert all changes to the repository?</source>
+        <translation>Желаете откатить все изменения рабочей копии?</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Revert failed: %1</source>
+        <translation>Не удалось откатить: %1</translation>
+    </message>
+    <message>
+        <location line="+22"/>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Файл был изменён. Желаете откатить его изменения?</translation>
     </message>
     <message>
-        <location line="+80"/>
-        <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
-        <translation>Список на фиксацию содержит несколько репозиториев (%1). Пожалуйста, фиксируйте их по одному.</translation>
-    </message>
-    <message>
-        <location line="+18"/>
+        <location line="+51"/>
         <source>Another commit is currently being executed.</source>
         <translation>В данный момент уже идёт другая фиксация.</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+23"/>
         <source>There are no modified files.</source>
         <translation>Нет изменённых файлов.</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Cannot create temporary file: %1</source>
         <translation>Не удалось создать временный файл: %1</translation>
     </message>
     <message>
-        <location line="+108"/>
+        <location line="+146"/>
         <source>Project status</source>
         <translation>Состояние проекта</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+34"/>
         <source>The initial revision %1 cannot be described.</source>
         <translation>Невозможно описать начальную ревизию %1.</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+35"/>
         <source>Could not find commits of id &apos;%1&apos; on %2.</source>
         <translation>Не удалось найти фиксацию с идентификатором &apos;%1&apos; на %2.</translation>
     </message>
     <message>
-        <location line="+176"/>
+        <location line="+95"/>
         <source>Executing: %1 %2
 </source>
         <translation>Выполняется: %1 %2
@@ -782,12 +818,12 @@
 </translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+15"/>
         <source>No cvs executable specified!</source>
         <translation>Не указан исполняемый файл программы cvs!</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+43"/>
         <source>The process terminated with exit code %1.</source>
         <translation>Процесс завершился с кодом %1.</translation>
     </message>
@@ -824,18 +860,13 @@
         <source>Modified</source>
         <translation>Изменён</translation>
     </message>
-    <message>
-        <location line="+2"/>
-        <source>CVS Submit</source>
-        <translation>Фиксация CVS</translation>
-    </message>
 </context>
 <context>
     <name>CVS::Internal::CheckoutWizard</name>
     <message>
-        <location filename="../../../src/plugins/cvs/checkoutwizard.cpp" line="+54"/>
+        <location filename="../../../src/plugins/cvs/checkoutwizard.cpp" line="+56"/>
         <source>Checks out a project from a CVS repository.</source>
-        <translation>Извлечение проекта из репозитория CVS.</translation>
+        <translation>Извлечение проекта из хранилища CVS.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -848,23 +879,18 @@
     <message>
         <location filename="../../../src/plugins/cvs/checkoutwizardpage.cpp" line="+38"/>
         <source>Specify repository and path.</source>
-        <translation>Выбор репозитория и пути.</translation>
+        <translation>Выбор хранилища и пути.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Repository:</source>
-        <translation>Репозиторий:</translation>
+        <translation>Хранилище:</translation>
     </message>
 </context>
 <context>
     <name>CVS::Internal::SettingsPage</name>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.ui"/>
-        <source>Prompt to submit</source>
-        <translation>Спрашивать при фиксации</translation>
-    </message>
-    <message>
-        <location/>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</source>
         <translation>Если включено, по щелчку на номере равизии при просмотре аннотации (полученной по идентификатору фиксации) будут отображаться все зафиксированные файлы. В противном случае, только соответствующий файл.</translation>
     </message>
@@ -884,20 +910,45 @@
         <translation>Опции сравнения:</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/cvs/settingspage.cpp" line="+84"/>
+        <location filename="../../../src/plugins/cvs/settingspage.cpp" line="+98"/>
         <source>CVS</source>
         <translation>CVS</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/cvs/settingspage.ui"/>
-        <source>Describe all files matching commit id:</source>
-        <translation>Описать все файлы, соответствующие фиксации:</translation>
+        <source>Configuration</source>
+        <translation>Настройка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Miscellaneous</source>
+        <translation>Разное</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Prompt on submit</source>
+        <translation>Спрашивать при фиксации</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Describe all files matching commit id</source>
+        <translation>Описывать все файлы, соответствующие фиксации</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Timeout:</source>
+        <translation>Время ожидания:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>s</source>
+        <translation> сек</translation>
     </message>
 </context>
 <context>
     <name>CVS::Internal::SettingsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/cvs/settingspage.cpp" line="-34"/>
+        <location filename="../../../src/plugins/cvs/settingspage.cpp" line="-47"/>
         <source>CVS Command</source>
         <translation>Команда CVS</translation>
     </message>
@@ -905,9 +956,9 @@
 <context>
     <name>CVSPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="-1044"/>
+        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="-977"/>
         <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation>Не удалось найти репозиторий для &apos;%1&apos;</translation>
+        <translation>Не удалось найти хранилище для &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -973,7 +1024,7 @@
 <context>
     <name>CdbStackFrameContext</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdbstackframecontext.cpp" line="+136"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdbstackframecontext.cpp" line="+137"/>
         <source>&lt;Unknown Type&gt;</source>
         <translation> &lt;Неизвестный тип&gt; </translation>
     </message>
@@ -983,7 +1034,7 @@
         <translation>&lt;Неизвестное значение&gt;</translation>
     </message>
     <message>
-        <location line="+219"/>
+        <location line="+217"/>
         <source>&lt;Unknown&gt;</source>
         <translation>&lt;Неизвестный&gt;</translation>
     </message>
@@ -993,7 +1044,7 @@
     <message>
         <location filename="../../../src/plugins/git/changeselectiondialog.ui"/>
         <source>Repository Location:</source>
-        <translation>Репозиторий:</translation>
+        <translation>Хранилище:</translation>
     </message>
     <message>
         <location/>
@@ -1027,17 +1078,12 @@
 <context>
     <name>CodePaster::CodePasterSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/codepastersettings.cpp" line="+59"/>
+        <location filename="../../../src/plugins/cpaster/codepastersettings.cpp" line="+64"/>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Code Pasting</source>
-        <translation>Вставка кода</translation>
-    </message>
-    <message>
-        <location line="+6"/>
+        <location line="+21"/>
         <source>Server:</source>
         <translation>Сервер:</translation>
     </message>
@@ -1101,13 +1147,12 @@
 <context>
     <name>CodePaster::SettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/settingspage.ui"/>
-        <location filename="../../../src/plugins/cpaster/settingspage.cpp" line="+67"/>
+        <location filename="../../../src/plugins/cpaster/settingspage.cpp" line="+71"/>
         <source>General</source>
         <translation>Основное</translation>
     </message>
     <message>
-        <location/>
+        <location filename="../../../src/plugins/cpaster/settingspage.ui"/>
         <source>Username:</source>
         <translation>Имя пользователя:</translation>
     </message>
@@ -1140,11 +1185,6 @@
         <location/>
         <source>Pastebin.com</source>
         <translation>Pastebin.com</translation>
-    </message>
-    <message>
-        <location filename="../../../src/plugins/cpaster/settingspage.cpp" line="+10"/>
-        <source>Code Pasting</source>
-        <translation>Вставка кода</translation>
     </message>
 </context>
 <context>
@@ -1211,21 +1251,6 @@
     <name>CompletionSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/cpptools/completionsettingspage.ui"/>
-        <source>Code Completion</source>
-        <translation>Дополнение кода</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Do a case-sensitive match for completion items.</source>
-        <translation>Выполнять сравнение с учётом регистра для дополняемых элементов.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&amp;Case-sensitive completion</source>
-        <translation>Дополнение с учётом &amp;регистра</translation>
-    </message>
-    <message>
-        <location/>
         <source>Automatically insert (, ) and ; when appropriate.</source>
         <translation>Автоматически вставлять &apos;(, )&apos; и &apos;;&apos;, когда потребуется.</translation>
     </message>
@@ -1244,6 +1269,31 @@
         <source>Autocomplete common &amp;prefix</source>
         <translation>Общий &amp;префикс для автодополнения</translation>
     </message>
+    <message>
+        <location/>
+        <source>Behavior</source>
+        <translation>Поведение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Case-sensitivity:</source>
+        <translation>&amp;Учёт регистра:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Full</source>
+        <translation>Полный</translation>
+    </message>
+    <message>
+        <location/>
+        <source>None</source>
+        <translation>Отсутсвует</translation>
+    </message>
+    <message>
+        <location/>
+        <source>First letter</source>
+        <translation>Первая буква</translation>
+    </message>
 </context>
 <context>
     <name>ContentWindow</name>
@@ -1261,7 +1311,7 @@
 <context>
     <name>Core::BaseFileWizard</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/basefilewizard.cpp" line="+158"/>
+        <location filename="../../../src/plugins/coreplugin/basefilewizard.cpp" line="+159"/>
         <source>Unable to create the directory %1.</source>
         <translation>Невозможно создать каталог %1.</translation>
     </message>
@@ -1276,7 +1326,7 @@
         <translation>Ошибка при записи в %1: %2</translation>
     </message>
     <message>
-        <location line="+296"/>
+        <location line="+312"/>
         <location line="+30"/>
         <location line="+7"/>
         <location line="+6"/>
@@ -1285,7 +1335,7 @@
     </message>
     <message>
         <location line="-22"/>
-        <location line="+111"/>
+        <location line="+106"/>
         <source>Existing files</source>
         <translation>Существующие файлы</translation>
     </message>
@@ -1329,14 +1379,14 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::EditorManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+187"/>
-        <location line="+1487"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/editormanager.cpp" line="+185"/>
+        <location line="+1504"/>
         <source>Revert to Saved</source>
         <translation>Вернуть к сохранённому</translation>
     </message>
     <message>
-        <location line="-1484"/>
-        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+539"/>
+        <location line="-1501"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="+536"/>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
@@ -1347,12 +1397,12 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+1"/>
-        <location line="+1286"/>
+        <location line="+1300"/>
         <source>Close Others</source>
         <translation>Закрыть другие</translation>
     </message>
     <message>
-        <location line="-1285"/>
+        <location line="-1299"/>
         <source>Next Open Document in History</source>
         <translation>Следующий открытый документ в истории</translation>
     </message>
@@ -1363,11 +1413,13 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+1"/>
+        <location filename="../../../src/plugins/designer/faketoolbar.cpp" line="+83"/>
         <source>Go Back</source>
         <translation>Перейти назад</translation>
     </message>
     <message>
         <location line="+1"/>
+        <location filename="../../../src/plugins/designer/faketoolbar.cpp" line="+1"/>
         <source>Go Forward</source>
         <translation>Перейти вперёд</translation>
     </message>
@@ -1377,7 +1429,7 @@ Would you like to overwrite them?</source>
         <translation>Открыть во внешнем редакторе</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="+50"/>
         <source>Revert File to Saved</source>
         <translation>Вернуть файл к сохранённому состоянию</translation>
     </message>
@@ -1454,20 +1506,20 @@ Would you like to overwrite them?</source>
     <message>
         <location line="+6"/>
         <source>Remove Current Split</source>
-        <translation>Удалить текущее разделитель</translation>
+        <translation type="unfinished">Удалить текущее разделение</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Remove All Splits</source>
-        <translation>Удалить все разделители</translation>
+        <translation type="unfinished">Удалить все разделения</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Goto Other Split</source>
-        <translation>Перейти к другому разделителю</translation>
+        <location line="+1127"/>
+        <source>Save %1 &amp;As...</source>
+        <translation>Сохранить %1 &amp;как...</translation>
     </message>
     <message>
-        <location line="-22"/>
+        <location line="-1143"/>
         <source>%1,2</source>
         <translation>%1,2</translation>
     </message>
@@ -1487,7 +1539,12 @@ Would you like to overwrite them?</source>
         <translation>%1,1</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+4"/>
+        <source>Go to Next Split</source>
+        <translation type="unfinished">Перейти к следующему разделению</translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>%1,o</source>
         <translation>%1,o</translation>
     </message>
@@ -1502,12 +1559,12 @@ Would you like to overwrite them?</source>
         <translation>Alt+V,Alt+I</translation>
     </message>
     <message>
-        <location line="+714"/>
+        <location line="+729"/>
         <source>All Files (*)</source>
         <translation>Все Файлы (*)</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+36"/>
         <location line="+24"/>
         <source>Opening File</source>
         <translation>Открытие файла</translation>
@@ -1518,12 +1575,7 @@ Would you like to overwrite them?</source>
         <translation>Не удалось открыть файл %1!</translation>
     </message>
     <message>
-        <location line="+40"/>
-        <source>Open File</source>
-        <translation>Открыть файл</translation>
-    </message>
-    <message>
-        <location line="+142"/>
+        <location line="+171"/>
         <source>File is Read Only</source>
         <translation>Файл только для чтения</translation>
     </message>
@@ -1539,12 +1591,12 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+2"/>
-        <location line="+134"/>
+        <location line="+135"/>
         <source>Make writable</source>
         <translation>Сделать записываемым</translation>
     </message>
     <message>
-        <location line="-130"/>
+        <location line="-131"/>
         <source>Save as ...</source>
         <translation>Сохранить как...</translation>
     </message>
@@ -1565,17 +1617,12 @@ Would you like to overwrite them?</source>
         <translation>Не удалось разрешить запись.</translation>
     </message>
     <message>
-        <location line="+92"/>
+        <location line="+93"/>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
         <translation>&lt;b&gt;Внимание:&lt;/b&gt; Вы изменяете файл, доступный только для чтения.</translation>
     </message>
     <message>
-        <location line="+15"/>
-        <source>Save %1 As...</source>
-        <translation>Сохранить %1 как...</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+17"/>
         <source>&amp;Save %1</source>
         <translation>&amp;Сохранить %1</translation>
     </message>
@@ -1585,7 +1632,7 @@ Would you like to overwrite them?</source>
         <translation>Вернуть %1 к сохранённому</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+3"/>
         <source>Close %1</source>
         <translation>Закрыть %1</translation>
     </message>
@@ -1595,7 +1642,7 @@ Would you like to overwrite them?</source>
         <translation>Закрыть все, кроме %1</translation>
     </message>
     <message>
-        <location line="+197"/>
+        <location line="+200"/>
         <source>You will lose your current changes if you proceed reverting %1.</source>
         <translation>Если продолжить откат %1, будут потеряны все текущие изменения.</translation>
     </message>
@@ -1610,7 +1657,7 @@ Would you like to overwrite them?</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+43"/>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Переменная&lt;/th&gt;&lt;th&gt;Значение&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;имя файла&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;номер текущей строки&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;номер текущего столбца&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;положение редактора по горизонтали&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;положение редактора по вертикали&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;ширина редактора в пикселях&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;высота редактора в пикселях&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;ширина редактора в символах&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;высота редактора в символах&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -1618,7 +1665,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::FileManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/filemanager.cpp" line="+306"/>
+        <location filename="../../../src/plugins/coreplugin/filemanager.cpp" line="+493"/>
         <source>Cannot save file</source>
         <translation>Не удалось сохранить файл</translation>
     </message>
@@ -1628,7 +1675,7 @@ Would you like to overwrite them?</source>
         <translation>Не удалось сохранить изменения в &apos;%1&apos;. Продолжить с потерей изменений?</translation>
     </message>
     <message>
-        <location line="+113"/>
+        <location line="+114"/>
         <source>Overwrite?</source>
         <translation>Перезаписать?</translation>
     </message>
@@ -1638,15 +1685,20 @@ Would you like to overwrite them?</source>
         <translation>Элемент с названием &apos;%1&apos; уже существует в указанном месте. Желаете его перезаписать?</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+37"/>
         <source>Save File As</source>
         <translation>Сохранить файл как</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Open File</source>
+        <translation>Открыть файл</translation>
     </message>
 </context>
 <context>
     <name>Core::Internal::ComboBox</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+371"/>
+        <location filename="../../../src/plugins/coreplugin/sidebar.cpp" line="+375"/>
         <source>Activate %1</source>
         <translation>Включить %1</translation>
     </message>
@@ -1735,7 +1787,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::EditorView</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="-450"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/editorview.cpp" line="-447"/>
         <source>Go Back</source>
         <translation>Перейти назад</translation>
     </message>
@@ -1745,7 +1797,7 @@ Would you like to overwrite them?</source>
         <translation>Перейти вперёд</translation>
     </message>
     <message>
-        <location line="+73"/>
+        <location line="+74"/>
         <location line="+37"/>
         <source>Placeholder</source>
         <translation>Заполнитель</translation>
@@ -1756,7 +1808,7 @@ Would you like to overwrite them?</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location line="+221"/>
+        <location line="+219"/>
         <source>Make writable</source>
         <translation>Сделать записываемым</translation>
     </message>
@@ -1775,16 +1827,6 @@ Would you like to overwrite them?</source>
     <name>Core::Internal::GeneralSettings</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/generalsettings.ui"/>
-        <source>General settings</source>
-        <translation>Основные настройки</translation>
-    </message>
-    <message>
-        <location/>
-        <source>User &amp;interface color:</source>
-        <translation>Цвет &amp;интерфейса пользователя:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Reset to default</source>
         <translation>Сбросить к исходному состоянию</translation>
     </message>
@@ -1809,18 +1851,27 @@ Would you like to overwrite them?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/coreplugin/generalsettings.cpp" line="+56"/>
+        <location filename="../../../src/plugins/coreplugin/generalsettings.cpp" line="+67"/>
         <source>General</source>
         <translation>Основные</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Environment</source>
-        <translatorcomment>Не путать с переменными среды окружения!</translatorcomment>
-        <translation>Среда</translation>
+        <location line="+23"/>
+        <source>&lt;System Language&gt;</source>
+        <translation>&lt;Системный язык&gt;</translation>
     </message>
     <message>
-        <location line="+77"/>
+        <location line="+180"/>
+        <source>Restart required</source>
+        <translation>Требуется перезапуск</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>The language change will take effect after a restart of Qt Creator.</source>
+        <translation>Изменение языка вступит в силу после перезапуска Qt Creator.</translation>
+    </message>
+    <message>
+        <location line="-40"/>
         <source>Variables</source>
         <translation>Переменные</translation>
     </message>
@@ -1844,21 +1895,31 @@ Would you like to overwrite them?</source>
         <source>Reload all modified files</source>
         <translation>Перезагрузить все изменённые файлы</translation>
     </message>
+    <message>
+        <location/>
+        <source>User interface color:</source>
+        <translation>Цвет интерфейса:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>External file browser:</source>
+        <translation>Обозреватель файлов:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>User interface language:</source>
+        <translation>Язык интерфейса:</translation>
+    </message>
 </context>
 <context>
     <name>Core::Internal::MainWindow</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/mainwindow.cpp" line="+157"/>
+        <location filename="../../../src/plugins/coreplugin/mainwindow.cpp" line="+156"/>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
     </message>
     <message>
-        <location line="+143"/>
-        <source>Output</source>
-        <translation>Консоль</translation>
-    </message>
-    <message>
-        <location line="+162"/>
+        <location line="+284"/>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
     </message>
@@ -1894,13 +1955,13 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+7"/>
-        <source>&amp;Open File With...</source>
+        <source>Open File &amp;With...</source>
         <translation>Открыть файл с по&amp;мощью...</translation>
     </message>
     <message>
         <location line="+8"/>
-        <source>Recent Files</source>
-        <translation>Недавние файлы</translation>
+        <source>Recent &amp;Files</source>
+        <translation>Недавние фа&amp;йлы</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -2003,7 +2064,7 @@ Would you like to overwrite them?</source>
         <translation>Показать боковую панель</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+16"/>
         <source>Full Screen</source>
         <translation>Полный экран</translation>
     </message>
@@ -2029,7 +2090,7 @@ Would you like to overwrite them?</source>
         <translation>Новый...</translation>
     </message>
     <message>
-        <location line="+511"/>
+        <location line="+536"/>
         <source>Settings...</source>
         <translation>Настройки...</translation>
     </message>
@@ -2038,14 +2099,14 @@ Would you like to overwrite them?</source>
     <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <location filename="../../../src/plugins/coreplugin/messageoutputwindow.cpp" line="+76"/>
-        <source>General</source>
-        <translation>Основные</translation>
+        <source>General Messages</source>
+        <translation>Основные сообщения</translation>
     </message>
 </context>
 <context>
     <name>Core::Internal::NavComboBox</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/navigationwidget.cpp" line="+527"/>
+        <location filename="../../../src/plugins/coreplugin/navigationwidget.cpp" line="+538"/>
         <source>Activate %1</source>
         <translation>Включить %1</translation>
     </message>
@@ -2066,7 +2127,17 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::NavigationWidget</name>
     <message>
-        <location line="-40"/>
+        <location line="-226"/>
+        <source>Hide Sidebar</source>
+        <translation>Скрыть боковую панель</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Show Sidebar</source>
+        <translation>Показать боковую панель</translation>
+    </message>
+    <message>
+        <location line="+183"/>
         <source>Activate %1 Pane</source>
         <translation>Активировать панель %1</translation>
     </message>
@@ -2121,7 +2192,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::OpenEditorsWindow</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorswindow.cpp" line="+211"/>
+        <location filename="../../../src/plugins/coreplugin/editormanager/openeditorswindow.cpp" line="+202"/>
         <location line="+27"/>
         <source>*</source>
         <translation>*</translation>
@@ -2138,7 +2209,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::OutputPaneManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/outputpane.cpp" line="+173"/>
+        <location filename="../../../src/plugins/coreplugin/outputpane.cpp" line="+204"/>
         <source>Output</source>
         <translation>Вывод</translation>
     </message>
@@ -2158,9 +2229,20 @@ Would you like to overwrite them?</source>
         <translation>Предыдущий</translation>
     </message>
     <message>
-        <location line="+62"/>
+        <location line="+4"/>
+        <location line="+199"/>
+        <source>Maximize Output Pane</source>
+        <translation>Развернуть панель вывода</translation>
+    </message>
+    <message>
+        <location line="-131"/>
         <source>Output &amp;Panes</source>
         <translation>Панели в&amp;ывода</translation>
+    </message>
+    <message>
+        <location line="+130"/>
+        <source>Minimize Output Pane</source>
+        <translation>Свернуть панель вывода</translation>
     </message>
 </context>
 <context>
@@ -2207,7 +2289,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::SaveItemsDialog</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/dialogs/saveitemsdialog.cpp" line="+55"/>
+        <location filename="../../../src/plugins/coreplugin/dialogs/saveitemsdialog.cpp" line="+53"/>
         <source>Do not Save</source>
         <translation>Не сохранять</translation>
     </message>
@@ -2230,7 +2312,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::SettingsDialog</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.cpp" line="+58"/>
+        <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.cpp" line="+244"/>
         <source>Preferences</source>
         <translation>Настройки</translation>
     </message>
@@ -2243,17 +2325,12 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::Internal::ShortcutSettings</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/dialogs/shortcutsettings.cpp" line="+72"/>
+        <location filename="../../../src/plugins/coreplugin/dialogs/shortcutsettings.cpp" line="+74"/>
         <source>Keyboard</source>
         <translation>Клавиатура</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Environment</source>
-        <translation>Среда</translation>
-    </message>
-    <message>
-        <location line="+157"/>
+        <location line="+167"/>
         <source>Import Keyboard Mapping Scheme</source>
         <translation>Импорт схемы разметки клавиатуры</translation>
     </message>
@@ -2304,7 +2381,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Core::ModeManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/modemanager.cpp" line="+145"/>
+        <location filename="../../../src/plugins/coreplugin/modemanager.cpp" line="+151"/>
         <source>Switch to %1 mode</source>
         <translation>Переключить в режим %1</translation>
     </message>
@@ -2319,7 +2396,7 @@ Would you like to overwrite them?</source>
 %3</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+67"/>
         <source>Unknown error</source>
         <translation>Неизвестная ошибка</translation>
     </message>
@@ -2434,9 +2511,14 @@ Would you like to overwrite them?</source>
 <context>
     <name>Utils::DetailsButton</name>
     <message>
-        <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+48"/>
-        <source>Show Details</source>
-        <translation>Подробнее</translation>
+        <location filename="../../../src/libs/utils/detailsbutton.cpp" line="+98"/>
+        <source>Less</source>
+        <translation>Менее</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>More</source>
+        <translation>Более</translation>
     </message>
 </context>
 <context>
@@ -2495,7 +2577,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Utils::NewClassWidget</name>
     <message>
-        <location filename="../../../src/libs/utils/newclasswidget.cpp" line="+417"/>
+        <location filename="../../../src/libs/utils/newclasswidget.cpp" line="+445"/>
         <source>Invalid base class name</source>
         <translation>Некорректное имя базового класса</translation>
     </message>
@@ -2510,54 +2592,14 @@ Would you like to overwrite them?</source>
         <translation>Некорректное имя файла исходников: &apos;%1&apos;</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Invalid form file name: &apos;%1&apos;</source>
         <translation>Некорректное имя файла формы: &apos;%1&apos;</translation>
     </message>
     <message>
         <location filename="../../../src/libs/utils/newclasswidget.ui"/>
-        <source>Class name:</source>
-        <translation>Имя класса:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Base class:</source>
-        <translation>Базовый класс:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Header file:</source>
-        <translation>Заголовочный файл:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Source file:</source>
-        <translation>Файл исходников:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Generate form:</source>
-        <translation>Создать форму:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Form file:</source>
-        <translation>Файл формы:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Path:</source>
-        <translation>Путь:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Inherits QObject</source>
         <translation>Наследуется от QObject</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Type information:</source>
-        <translation>Тип класса:</translation>
     </message>
     <message>
         <location/>
@@ -2568,6 +2610,51 @@ Would you like to overwrite them?</source>
         <location/>
         <source>Inherits QWidget</source>
         <translation>Наследуется от QWidget</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Based on QSharedData</source>
+        <translation>Основан на QSharedData</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Class name:</source>
+        <translation>&amp;Имя класса:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Base class:</source>
+        <translation>&amp;Базовый класс:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Type information:</source>
+        <translation>&amp;Тип класса:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Header file:</source>
+        <translation>&amp;Заголовочный файл:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Source file:</source>
+        <translation>&amp;Файл исходников:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Generate form:</source>
+        <translation>&amp;Создать форму:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Form file:</source>
+        <translation>Ф&amp;айл формы:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Path:</source>
+        <translation>&amp;Путь:</translation>
     </message>
 </context>
 <context>
@@ -2654,7 +2741,7 @@ Would you like to overwrite them?</source>
         <translation>&lt;Введите_Имя&gt;</translation>
     </message>
     <message>
-        <location line="+97"/>
+        <location line="+98"/>
         <source>The project already exists.</source>
         <translation>Проект уже существует.</translation>
     </message>
@@ -2677,6 +2764,11 @@ Would you like to overwrite them?</source>
         <location/>
         <source>Create in:</source>
         <translation>Создать в:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use as default project location</source>
+        <translation>Размещение проекта по умолчанию</translation>
     </message>
 </context>
 <context>
@@ -2744,12 +2836,12 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppEditor::Internal::CPPEditor</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+616"/>
+        <location filename="../../../src/plugins/cppeditor/cppeditor.cpp" line="+675"/>
         <source>Sort alphabetically</source>
         <translation>Сортировать по алфавиту</translation>
     </message>
     <message>
-        <location line="+192"/>
+        <location line="+277"/>
         <source>This change cannot be undone.</source>
         <translation>Данное изменение невозможно отменить.</translation>
     </message>
@@ -2757,6 +2849,11 @@ Would you like to overwrite them?</source>
         <location line="+1"/>
         <source>Yes, I know what I am doing.</source>
         <translation>Да, я знаю что делаю.</translation>
+    </message>
+    <message>
+        <location line="+913"/>
+        <source>Unused variable</source>
+        <translation>Неиспользуемая переменная</translation>
     </message>
 </context>
 <context>
@@ -2805,12 +2902,12 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppEditor::Internal::CppPlugin</name>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+190"/>
+        <location filename="../../../src/plugins/cppeditor/cppplugin.cpp" line="+211"/>
         <source>C++</source>
         <translation>C++</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+13"/>
         <source>Creates a C++ header file.</source>
         <translation>Создание нового заголовочного файл C++.</translation>
     </message>
@@ -2820,7 +2917,22 @@ Would you like to overwrite them?</source>
         <translation>Заголовочный файл C++</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+13"/>
+        <source>Follow Symbol Under Cursor</source>
+        <translation>Перейти к символу под курсором</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Switch Between Method Declaration/Definition</source>
+        <translation>Переключить объявление/определение метода</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Rename Symbol Under Cursor</source>
+        <translation>Переименовать символ под курсором</translation>
+    </message>
+    <message>
+        <location line="-44"/>
         <source>Creates a C++ source file.</source>
         <translation>Создание нового исходного файла C++.</translation>
     </message>
@@ -2830,27 +2942,17 @@ Would you like to overwrite them?</source>
         <translation>Файл исходных текстов C++</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="-8"/>
         <source>C++ Class</source>
         <translation>Класс C++</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Creates a header and a source file for a new class.</source>
         <translation>Создание заголовочного и исходного файлов для нового класса.</translation>
     </message>
     <message>
-        <location line="+12"/>
-        <source>Follow Symbol under Cursor</source>
-        <translation>Перейти к символу под курсором</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Switch between Method Declaration/Definition</source>
-        <translation>Переключить объявление/определение метода</translation>
-    </message>
-    <message>
-        <location line="+9"/>
+        <location line="+41"/>
         <source>Find Usages</source>
         <translation>Найти использование</translation>
     </message>
@@ -2860,12 +2962,7 @@ Would you like to overwrite them?</source>
         <translation>Ctrl+Shift+U</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Rename Symbol under Cursor</source>
-        <translation>Переименовать символ под курсором</translation>
-    </message>
-    <message>
-        <location line="+12"/>
+        <location line="+17"/>
         <source>Update code model</source>
         <translation>Обновить модель кода</translation>
     </message>
@@ -2874,11 +2971,6 @@ Would you like to overwrite them?</source>
     <name>CppFileSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/cpptools/cppfilesettingspage.ui"/>
-        <source>File Naming Conventions</source>
-        <translation>Условия именования файлов</translation>
-    </message>
-    <message>
-        <location/>
         <source>Header suffix:</source>
         <translation>Заголовочный:</translation>
     </message>
@@ -2902,7 +2994,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppPreprocessor</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+541"/>
+        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+486"/>
         <source>%1: No such file or directory</source>
         <translation>%1: Нет такого файла или каталога</translation>
     </message>
@@ -2910,12 +3002,12 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppTools</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+53"/>
-        <source>File Naming Conventions</source>
-        <translation>Условия именования файлов</translation>
+        <location filename="../../../src/plugins/cpptools/cpptoolsconstants.h" line="+54"/>
+        <source>File Naming</source>
+        <translation>Именование файлов</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>C++</source>
         <translation>C++</translation>
     </message>
@@ -2923,14 +3015,9 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/completionsettingspage.cpp" line="+57"/>
+        <location filename="../../../src/plugins/cpptools/completionsettingspage.cpp" line="+60"/>
         <source>Completion</source>
         <translation>Дополнение</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Text Editor</source>
-        <translation>Текстовый редактор</translation>
     </message>
 </context>
 <context>
@@ -2952,7 +3039,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppfilesettingspage.cpp" line="+55"/>
+        <location filename="../../../src/plugins/cpptools/cppfilesettingspage.cpp" line="+56"/>
         <source>/**************************************************************************
 ** Qt Creator license header template
 **   Special keywords: %USER% %DATE% %YEAR%
@@ -2974,7 +3061,7 @@ Would you like to overwrite them?</source>
         <translation>Изменить...</translation>
     </message>
     <message>
-        <location line="+51"/>
+        <location line="+62"/>
         <source>Choose a location for the new license template file</source>
         <translation>Выбор нового файла шаблона лицензии</translation>
     </message>
@@ -2992,7 +3079,8 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppTools::Internal::CppFindReferences</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppfindreferences.cpp" line="+235"/>
+        <location filename="../../../src/plugins/cpptools/cppfindreferences.cpp" line="+260"/>
+        <location line="+156"/>
         <source>Searching...</source>
         <translation>Поиск...</translation>
     </message>
@@ -3008,13 +3096,13 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppTools::Internal::CppModelManager</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+319"/>
+        <location filename="../../../src/plugins/cpptools/cppmodelmanager.cpp" line="+333"/>
         <source>Scanning</source>
         <translatorcomment>Слово &quot;сканирование&quot; слишком длинное</translatorcomment>
         <translation>Анализ</translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="+41"/>
         <source>Indexing</source>
         <translation>Индексация</translation>
     </message>
@@ -3043,7 +3131,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
-        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+451"/>
+        <location filename="../../../src/plugins/cpptools/cppcodecompletion.cpp" line="+453"/>
         <source>%1 of %2</source>
         <translation>%1 из %2</translation>
     </message>
@@ -3051,17 +3139,17 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerconstants.h" line="+55"/>
+        <location filename="../../../src/plugins/debugger/debuggerconstants.h" line="+58"/>
         <source>Common</source>
         <translation>Общее</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Debugger</source>
         <translation>Отладчик</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+659"/>
+        <location filename="../../../src/plugins/debugger/watchutils.cpp" line="+658"/>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Ошибка кодировки&gt;</translation>
     </message>
@@ -3091,23 +3179,18 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::DebuggerManager</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+454"/>
+        <location filename="../../../src/plugins/debugger/debuggermanager.cpp" line="+468"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <location line="+1216"/>
+        <location line="+5"/>
+        <location line="+1306"/>
         <source>Interrupt</source>
         <translation>Прервать</translation>
     </message>
     <message>
-        <location line="-1213"/>
-        <source>Reset Debugger</source>
-        <translation>Сбросить отладчик</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="-1299"/>
         <source>Step Over</source>
         <translation>Перейти через</translation>
     </message>
@@ -3123,16 +3206,23 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+3"/>
+        <location line="+1"/>
         <source>Run to Line</source>
         <translation>Выполнить до строки</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Run to Outermost Function</source>
         <translation>Выполнить до внешней функции</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>Immediately Return From Inner Function</source>
+        <translation type="unfinished">Немедленно выйти из функции</translation>
+    </message>
+    <message>
         <location line="+2"/>
+        <location line="+1"/>
         <source>Jump to Line</source>
         <translation>Перейти на строку</translation>
     </message>
@@ -3143,16 +3233,22 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+2"/>
+        <location line="+1"/>
         <source>Add to Watch Window</source>
         <translation>Добавить в окно наблюдения</translation>
     </message>
     <message>
         <location line="+2"/>
+        <source>Snapshot</source>
+        <translation>Сделать снимок</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Reverse Direction</source>
         <translation>Обратное направление</translation>
     </message>
     <message>
-        <location line="+235"/>
+        <location line="+259"/>
         <source>Stopped.</source>
         <translation>Остановлено.</translation>
     </message>
@@ -3167,7 +3263,7 @@ Would you like to overwrite them?</source>
         <translation>Завершён.</translation>
     </message>
     <message>
-        <location line="+77"/>
+        <location line="+96"/>
         <location line="+21"/>
         <source>Changing breakpoint state requires either a fully running or fully stopped application.</source>
         <translation>Изменение состояние точки останова требует или полностью остановленную программу, или полностью запущенную.</translation>
@@ -3178,7 +3274,7 @@ Would you like to overwrite them?</source>
         <translation>Приложению требуется движок отладчика &apos;%1&apos;, который выключен.</translation>
     </message>
     <message>
-        <location line="+125"/>
+        <location line="+127"/>
         <source>Starting debugger for tool chain &apos;%1&apos;...</source>
         <translation>Запускается отладчик из инструментария &apos;%1&apos;...</translation>
     </message>
@@ -3193,12 +3289,22 @@ Would you like to overwrite them?</source>
         <translation>Не удалось отладить &apos;%1&apos; (инструментарий: &apos;%2&apos;): %3</translation>
     </message>
     <message>
-        <location line="+178"/>
+        <location line="-598"/>
+        <source>Abort Debugging</source>
+        <translation>Прервать отладку</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Aborts debugging and resets the debugger to the initial state.</source>
+        <translation>Прервать отладку и сбросить отладчик в исходное состояние.</translation>
+    </message>
+    <message>
+        <location line="+787"/>
         <source>Save Debugger Log</source>
         <translation>Сохранить журнал отладчика</translation>
     </message>
     <message>
-        <location line="+312"/>
+        <location line="+329"/>
         <source>Turn off helper usage</source>
         <translation>Не использовать помощника</translation>
     </message>
@@ -3213,12 +3319,12 @@ Would you like to overwrite them?</source>
         <translation>Помощник отладчика используется для преобразования значений некоторых типов данных Qt и стандартной библиотеки к наглядному виду. Он должен быть собран отдельно для каждой версии Qt. Это можно сделать в параметрах Qt, выбрав профиль Qt и нажав на &apos;Пересобрать&apos; в строке &apos;Помощник отладчика&apos;.</translation>
     </message>
     <message>
-        <location line="+171"/>
+        <location line="+176"/>
         <source>Stop Debugger</source>
         <translation>Остановить отладчик</translation>
     </message>
     <message>
-        <location line="-189"/>
+        <location line="-194"/>
         <source>%1 (explicitly set in the Debugger Options)</source>
         <translation>%1 (установлено в параметрах отладчика)</translation>
     </message>
@@ -3241,7 +3347,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::AddressDialog</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+469"/>
+        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+501"/>
         <source>Select start address</source>
         <translation>Выбор начального адреса</translation>
     </message>
@@ -3254,7 +3360,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::AttachCoreDialog</name>
     <message>
-        <location line="-337"/>
+        <location line="-369"/>
         <source>Select Executable</source>
         <translation>Выбор программы</translation>
     </message>
@@ -3282,7 +3388,7 @@ Would you like to overwrite them?</source>
         <translation>Состояние</translation>
     </message>
     <message>
-        <location line="+167"/>
+        <location line="+166"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
@@ -3290,27 +3396,31 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::BreakHandler</name>
     <message>
-        <location filename="../../../src/plugins/debugger/breakhandler.cpp" line="+212"/>
+        <location filename="../../../src/plugins/debugger/breakhandler.cpp" line="+207"/>
+        <location line="+32"/>
         <source>Marker File:</source>
         <translation>Отмеченный файл:</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-30"/>
+        <location line="+31"/>
         <source>Marker Line:</source>
         <translation>Отмеченная строка:</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-29"/>
+        <location line="+30"/>
         <source>Breakpoint Number:</source>
         <translation>Номер точки останова:</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-28"/>
+        <location line="+29"/>
         <source>Breakpoint Address:</source>
         <translation>Адрес точки останова:</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-26"/>
         <source>Property</source>
         <translation>Свойство</translation>
     </message>
@@ -3331,31 +3441,36 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+2"/>
+        <location line="+22"/>
         <source>File Name:</source>
         <translation>Имя файла:</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-20"/>
+        <location line="+22"/>
         <source>Function Name:</source>
         <translation>Название функции:</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-20"/>
+        <location line="+22"/>
         <source>Line Number:</source>
         <translation>Номер строки:</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-20"/>
+        <location line="+22"/>
         <source>Condition:</source>
         <translation>Условие:</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-20"/>
+        <location line="+22"/>
         <source>Ignore Count:</source>
         <translation>Количество пропусков:</translation>
     </message>
     <message>
-        <location line="+215"/>
+        <location line="+219"/>
         <source>Number</source>
         <translation>Номер</translation>
     </message>
@@ -3390,7 +3505,7 @@ Would you like to overwrite them?</source>
         <translation>Адрес</translation>
     </message>
     <message>
-        <location line="+62"/>
+        <location line="+65"/>
         <source>Breakpoint will only be hit if this condition is met.</source>
         <translation>Точка останова сработает только при выполнении условия.</translation>
     </message>
@@ -3408,77 +3523,87 @@ Would you like to overwrite them?</source>
         <translation>Точки останова</translation>
     </message>
     <message>
-        <location line="+61"/>
-        <source>Delete breakpoint</source>
+        <location line="+62"/>
+        <source>Delete Breakpoint</source>
         <translation>Удалить точку останова</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Delete all breakpoints</source>
+        <source>Delete All Breakpoints</source>
         <translation>Удалить все точки останова</translation>
     </message>
     <message>
-        <location line="+13"/>
-        <source>Delete breakpoints of &quot;%1&quot;</source>
+        <location line="+15"/>
+        <source>Delete Breakpoints of &quot;%1&quot;</source>
         <translation>Удалить точки останова в файле &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Delete breakpoints of file</source>
+        <source>Delete Breakpoints of File</source>
         <translation>Удалить точки останова в файле</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Adjust column widths to contents</source>
-        <translation>Выровнять ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Always adjust column widths to contents</source>
-        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Edit condition...</source>
-        <translation>Изменить условие...</translation>
+        <location line="+5"/>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Synchronize breakpoints</source>
-        <translation>Синхронизировать точки останова</translation>
+        <source>Always Adjust Column Widths to Contents</source>
+        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Disable breakpoint</source>
+        <source>Edit Condition...</source>
+        <translation>Изменить условие...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Synchronize Breakpoints</source>
+        <translation>Согласовать точки останова</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Disable Breakpoint</source>
         <translation>Отключить точку останова</translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Enable breakpoint</source>
+        <source>Enable Breakpoint</source>
         <translation>Включить точку останова</translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>Use short path</source>
+        <source>Use Short Path</source>
         <translation>Использовать короткий путь</translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Use full path</source>
+        <source>Use Full Path</source>
         <translation>Использовать полный путь</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Set Breakpoint at Function...</source>
         <translation>Установить точку останова на функцию...</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Set Breakpoint at Function &quot;main&quot;</source>
         <translation>Установить точку останова на функцию &quot;main&quot;</translation>
     </message>
     <message>
-        <location line="+101"/>
+        <location line="+2"/>
+        <source>Set Breakpoint at &quot;throw&quot;</source>
+        <translation>Установить точку останова на &quot;throw&quot;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Set Breakpoint at &quot;catch&quot;</source>
+        <translation>Установить точку останова на &quot;catch&quot;</translation>
+    </message>
+    <message>
+        <location line="+109"/>
         <source>Conditions on Breakpoint %1</source>
         <translation>Условия точки останова %1</translation>
     </message>
@@ -3486,23 +3611,13 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::CdbDebugEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdbdebugengine.cpp" line="+133"/>
-        <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
-        <translation>Не удалось загрузить библиотеку отладчика &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <location line="+17"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdbdebugengine.cpp" line="+111"/>
         <source>The function &quot;%1()&quot; failed: %2</source>
         <extracomment>Function call failed</extracomment>
         <translation>Сбой функции &quot;%1()&quot;: %2</translation>
     </message>
     <message>
-        <location line="+112"/>
-        <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
-        <translation>Не удалось определить &apos;%1&apos; в библиотеке отладчика &apos;%2&apos;</translation>
-    </message>
-    <message>
-        <location line="+349"/>
+        <location line="+221"/>
         <source>Version: %1</source>
         <translation>Версия: %1</translation>
     </message>
@@ -3517,7 +3632,7 @@ Would you like to overwrite them?</source>
         <translation>Отладчик</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+36"/>
         <source>The dumper library was not found at %1.</source>
         <translation>Библиотека дампера не найдена в %1.</translation>
     </message>
@@ -3532,27 +3647,12 @@ Would you like to overwrite them?</source>
         <translation>Подключение к файлам ядра не поддерживается!</translation>
     </message>
     <message>
-        <location line="+33"/>
-        <source>Attaching to a process failed for process id %1: %2</source>
-        <translation>Поключение к процессу ID %1 не удалось: %2</translation>
-    </message>
-    <message>
-        <location line="+25"/>
-        <source>Unable to set the image path to %1: %2</source>
-        <translation>Не удалось установить путь образа &quot;%1&quot;: %2</translation>
-    </message>
-    <message>
-        <location line="+31"/>
-        <source>Unable to create a process &apos;%1&apos;: %2</source>
-        <translation>Не удалось создать процесс &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <location line="+43"/>
+        <location line="+87"/>
         <source>The process exited with exit code %1.</source>
         <translation>Процесс завершился с кодом %1.</translation>
     </message>
     <message>
-        <location line="+191"/>
+        <location line="+177"/>
         <source>Continuing with &apos;%1&apos;...</source>
         <translation>Продолжение &apos;%1&apos;...</translation>
     </message>
@@ -3577,12 +3677,12 @@ Would you like to overwrite them?</source>
         <translation>Шаг %1</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+91"/>
         <source>Running requested...</source>
         <translation>Затребовано выполнение...</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+56"/>
         <source>Running up to %1:%2...</source>
         <translation>Выполнение до строки %1:%2...</translation>
     </message>
@@ -3602,7 +3702,7 @@ Would you like to overwrite them?</source>
         <translation>Невозможно присвоить &apos;%2&apos; значение &apos;%1&apos;: %3</translation>
     </message>
     <message>
-        <location line="+239"/>
+        <location line="+184"/>
         <source>Unable to retrieve %1 bytes of memory at 0x%2: %3</source>
         <translation>Не удалось получить %1 байт памяти начиная с 0x%2: %3</translation>
     </message>
@@ -3612,7 +3712,7 @@ Would you like to overwrite them?</source>
         <translation>Не удалось получить символы во время работы отлаживаемой программы.</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+38"/>
         <location line="+6"/>
         <source>Debugger Error</source>
         <translation>Ошибка отладчика</translation>
@@ -3638,7 +3738,7 @@ Would you like to overwrite them?</source>
         <translation>Смена потоков: %1 -&gt; %2</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+84"/>
         <source>Thread %1: Missing debug information for top stack frame (%2).</source>
         <translation>Поток %1: Отсутствует отладочная информация о вершине кадра стека (%2).</translation>
     </message>
@@ -3651,7 +3751,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::CdbDumperHelper</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdbdumperhelper.cpp" line="+209"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdbdumperhelper.cpp" line="+164"/>
         <source>injection</source>
         <translation>внедрение</translation>
     </message>
@@ -3701,7 +3801,7 @@ Would you like to overwrite them?</source>
         <translation>Не удалось инициализировать библиотеку дампера: %1</translation>
     </message>
     <message>
-        <location line="+411"/>
+        <location line="+396"/>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation>Запрос дамперов для &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
@@ -3709,12 +3809,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::CdbOptionsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="-23"/>
-        <source>Cdb</source>
-        <translation>Cdb</translation>
-    </message>
-    <message>
-        <location line="+35"/>
+        <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="+12"/>
         <source>Autodetect</source>
         <translation>Автоопределение</translation>
     </message>
@@ -3757,7 +3852,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::CoreGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/coregdbadapter.cpp" line="+158"/>
+        <location filename="../../../src/plugins/debugger/gdb/coregdbadapter.cpp" line="+159"/>
         <source>Attached to core.</source>
         <translation>Подключено к дампу.</translation>
     </message>
@@ -3767,19 +3862,19 @@ Would you like to overwrite them?</source>
         <translation>Символы найдены.</translation>
     </message>
     <message>
-        <location line="-23"/>
-        <location line="+27"/>
+        <location line="-24"/>
+        <location line="+28"/>
         <location line="+42"/>
         <source>Error Loading Symbols</source>
         <translation>Ошибка загрузки символов</translation>
     </message>
     <message>
-        <location line="-68"/>
+        <location line="-69"/>
         <source>No executable to load symbols from specified.</source>
         <translation>Не указана программа, из которой нужно загрузить символы.</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+25"/>
         <source>Loading symbols from &quot;%1&quot; failed:
 </source>
         <translation>Не удалось загрузить символы из &quot;%1&quot;:
@@ -3806,7 +3901,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebugMode</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+196"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="+207"/>
         <source>Debug</source>
         <translation>Отладка</translation>
     </message>
@@ -3814,7 +3909,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerOutputWindow</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+296"/>
+        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+330"/>
         <source>Debugger</source>
         <translation>Отладчик</translation>
     </message>
@@ -3828,8 +3923,10 @@ Would you like to overwrite them?</source>
     </message>
     <message>
         <location line="+17"/>
-        <source>A debugging session is still in progress. Would you like to terminate it?</source>
-        <translation>Идёт отладка. Завершить её?</translation>
+        <source>A debugging session is still in progress.
+Would you like to terminate it?</source>
+        <translation>Всё ещё идёт отладка.
+Желаете завершить её?</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3840,7 +3937,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerPlugin</name>
     <message>
-        <location line="+272"/>
+        <location line="+306"/>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>У настройки &apos;%1&apos; пропущен параметр.</translation>
     </message>
@@ -3850,17 +3947,17 @@ Would you like to overwrite them?</source>
         <translation>Параметр &apos;%1&apos; настройки &apos;%2&apos; не является числом.</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+55"/>
         <source>Invalid debugger option: %1</source>
         <translation>Некорректный параметр отладчика: %1</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+37"/>
         <source>Error evaluating command line arguments: %1</source>
         <translation>Ошибка определения параметров командной строки: %1</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+59"/>
         <source>Start and Debug External Application...</source>
         <translation>Запустить внешнее приложение для отладки...</translation>
     </message>
@@ -3875,17 +3972,17 @@ Would you like to overwrite them?</source>
         <translation>Подключить к дампу...</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+4"/>
         <source>Start and Attach to Remote Application...</source>
         <translation>Запустить и подключить к удалённому приложению...</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+5"/>
         <source>Detach Debugger</source>
         <translation>Отцепить отладчик</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+43"/>
         <source>Stop Debugger/Interrupt Debugger</source>
         <translation>Остановить/прервать отладчик</translation>
     </message>
@@ -3895,32 +3992,17 @@ Would you like to overwrite them?</source>
         <translation>Сбросить отладчик</translation>
     </message>
     <message>
-        <location line="+75"/>
-        <source>&amp;Views</source>
-        <translation>&amp;Обзоры</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Locked</source>
-        <translation>Зафиксировано</translation>
-    </message>
-    <message>
-        <location line="+15"/>
-        <source>Reset to default layout</source>
-        <translation>Сбросить в исходное состояние</translation>
-    </message>
-    <message>
-        <location line="+79"/>
+        <location line="+196"/>
         <source>Threads:</source>
         <translation>Потоки:</translation>
     </message>
     <message>
-        <location line="+84"/>
+        <location line="+31"/>
         <source>Attaching to PID %1.</source>
         <translation>Подключение к PID %1.</translation>
     </message>
     <message>
-        <location line="+75"/>
+        <location line="+81"/>
         <source>Remove Breakpoint</source>
         <translation>Удалить точки останова</translation>
     </message>
@@ -3940,7 +4022,7 @@ Would you like to overwrite them?</source>
         <translation>Установить точку останова</translation>
     </message>
     <message>
-        <location line="+229"/>
+        <location line="+202"/>
         <source>Warning</source>
         <translation>Предупреждение</translation>
     </message>
@@ -3950,7 +4032,7 @@ Would you like to overwrite them?</source>
         <translation>Нельзя подключиться к PID 0</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="-293"/>
         <source>Attaching to core %1.</source>
         <translation>Подключение к дампу %1.</translation>
     </message>
@@ -3958,7 +4040,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerRunControl</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerrunner.cpp" line="+203"/>
+        <location filename="../../../src/plugins/debugger/debuggerrunner.cpp" line="+201"/>
         <source>Debugger</source>
         <translation>Отладчик</translation>
     </message>
@@ -3966,7 +4048,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerRunControlFactory</name>
     <message>
-        <location line="-123"/>
+        <location line="-125"/>
         <source>Debug</source>
         <translation>Отладка</translation>
     </message>
@@ -3974,54 +4056,19 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::DebuggerSettings</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeractions.cpp" line="+118"/>
-        <source>Debugger properties...</source>
-        <translation>Параметры отладчика...</translation>
+        <location filename="../../../src/plugins/debugger/debuggeractions.cpp" line="+155"/>
+        <source>Verbose Log</source>
+        <translation>Расширенное журналирование</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Adjust column widths to contents</source>
-        <translation>Выровнять ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Always adjust column widths to contents</source>
-        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Use alternating row colors</source>
-        <translation>Использовать чередующиеся цвета строк</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Show a message box when receiving a signal</source>
-        <translation>Показывать сообщение при получении сигнала</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>Log time stamps</source>
-        <translation>Ставить метки времени</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Operate by instruction</source>
-        <translation>Уровень инструкций</translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+11"/>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>Переключает отладчик для работы на уровне инструкций процессора.
 В этом режиме шаги происходят в пределах одной инструкции, а в окне
 исходных текстов так же отображается дизассемблированный код.</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Dereference pointers automatically</source>
-        <translation>Автоматически разыменовывать указатели</translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+10"/>
         <source>This switches the Locals&amp;Watchers view to automatically derefence pointers. This saves a level in the tree view, but also loses data for the now-missing intermediate level.</source>
         <translation>Переключает обзор переменных в режим автоматического
 разыменования указателей. Позволяет сохранить уровень
@@ -4029,57 +4076,180 @@ Would you like to overwrite them?</source>
 промежуточного уровня, который пока что отсутствует.</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Watch expression &quot;%1&quot;</source>
+        <location line="-58"/>
+        <source>Debugger Properties...</source>
+        <translation>Параметры отладчика...</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Always Adjust Column Widths to Contents</source>
+        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Use Alternating Row Colors</source>
+        <translation>Использовать чередующиеся цвета строк</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Show a Message Box When Receiving a Signal</source>
+        <translation>Показывать сообщение при получении сигнала</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Log Time Stamps</source>
+        <translation>Ставить метки времени</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Operate by Instruction</source>
+        <translation>Уровень инструкций</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Dereference Pointers Automatically</source>
+        <translation>Автоматически разыменовывать указатели</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Watch Expression &quot;%1&quot;</source>
         <translation>Наблюдать выражение &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Remove watch expression &quot;%1&quot;</source>
+        <source>Remove Watch Expression &quot;%1&quot;</source>
         <translation>Удалить наблюдаемое выражение &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Watch expression &quot;%1&quot; in separate window</source>
+        <source>Watch Expression &quot;%1&quot; in Separate Window</source>
         <translation>Наблюдать выражение &quot;%1&quot; в отдельном окне</translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>Use debugging helper</source>
-        <translation>Использовать помощник отладчика</translation>
-    </message>
-    <message>
-        <location line="+22"/>
-        <source>Debug debugging helper</source>
-        <translation>Отладить помощник отладчика</translation>
+        <location line="+14"/>
+        <source>Show &quot;std::&quot; Namespace in Types</source>
+        <translation type="unfinished">Показывать пространство имён &quot;std::&quot; в типах</translation>
     </message>
     <message>
         <location line="+8"/>
-        <source>Use code model</source>
+        <source>Show Qt&apos;s Namespace in Types</source>
+        <translation type="unfinished">Показывать пространство имён Qt в типах</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Use Debugging Helpers</source>
+        <translation>Использовать помощников отладчика</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Debug Debugging Helpers</source>
+        <translation type="unfinished">Отлаживать помощников отладчика</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Use Code Model</source>
         <translation>Использовать модель кода</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Recheck debugging helper availability</source>
+        <location line="+1"/>
+        <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
+        <translation>Включение приведёт к запросам модели кода C++ об области видимости переменной.
+Это может немного ускорить работу отладчика, но может и сбоить на оптимизированном коде.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Recheck Debugging Helper Availability</source>
         <translation>Перепроверить наличие помощника отладчика</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Synchronize breakpoints</source>
-        <translation>Синхронизировать точки останова</translation>
+        <source>Synchronize Breakpoints</source>
+        <translation>Согласовывать точки останова</translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Use precise breakpoints</source>
+        <source>Use Precise Breakpoints</source>
         <translation>Использовать точные точки останова</translation>
     </message>
     <message>
-        <location line="+27"/>
-        <source>Automatically quit debugger</source>
+        <location line="+1"/>
+        <source>Selecting this causes breakpoint synchronization being done after each step. This results in up-to-date breakpoint information on whether a breakpoint has been resolved after loading shared libraries, but slows down stepping.</source>
+        <translation type="unfinished">Включение приведёт к согласованию точек останова после каждого шага.
+В результате могут активироваться точки останова после загрузки динамических
+библиотек, но это замедлит пошаговую отладку.</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Break on &quot;throw&quot;</source>
+        <translation>Остановиться на &quot;throw&quot;</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Break on &quot;catch&quot;</source>
+        <translation>Остановиться на &quot;catch&quot;</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Automatically Quit Debugger</source>
         <translation>Автоматически закрывать отладчик</translation>
     </message>
     <message>
+        <location line="+18"/>
+        <source>Use Tooltips in Locals View When Debugging</source>
+        <translation>Подсказки в обзоре локальных переменных при отладке</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Use Tooltips in Breakpoints View When Debugging</source>
+        <translation>Подсказки в обзоре точек останова при отладке</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Show Address Data in Breakpoints View When Debugging</source>
+        <translation>Показывать адрес в обзоре точек останова при отладке</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Show Address Data in Stack View When Debugging</source>
+        <translation>Показывать адрес в обзоре стека при отладке</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>List Source Files</source>
+        <translation>Показать файлы исходников</translation>
+    </message>
+    <message>
         <location line="+7"/>
+        <source>Skip Known Frames</source>
+        <translation>Пропустить известные кадры</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Selecting this results in well-known but usually not interesting frames belonging to reference counting and signal emission being skipped while single-stepping.</source>
+        <translation type="unfinished">Включение приведёт к пропуску известных, но неинтересных кадров (например, подсчёт ссылок и генерация сигнала) при пошаговой отладке.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Enable Reverse Debugging</source>
+        <translation>Включить реверсивную отладку</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Reload Full Stack</source>
+        <translation>Перезагрузить весь стек</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Execute Line</source>
+        <translation>Выполнить строку</translation>
+    </message>
+    <message>
+        <location line="-100"/>
         <source>Use tooltips in main editor when debugging</source>
         <translation>Подсказки в основном редакторе при отладке</translation>
     </message>
@@ -4091,85 +4261,40 @@ Would you like to overwrite them?</source>
 как не учитывается область видимости. Данный параметр отключён по умолчанию.</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Use tooltips in locals view when debugging</source>
-        <translation>Подсказки в обзоре локальных переменных при отладке</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+11"/>
         <source>Checking this will enable tooltips in the locals view during debugging.</source>
         <translation>Включает всплывающие подсказки в обзоре локальных переменных во время отладки.</translation>
     </message>
     <message>
-        <location line="+8"/>
-        <source>Use tooltips in breakpoints view when debugging</source>
-        <translation>Подсказки в обзоре точек останова при отладке</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+9"/>
         <source>Checking this will enable tooltips in the breakpoints view during debugging.</source>
         <translation>Включает подсказки в обзоре точек останова во время отладки.</translation>
     </message>
     <message>
-        <location line="+8"/>
-        <source>Show address data in breakpoints view when debugging</source>
-        <translation>Показывать адрес в обзоре точек останова при отладке</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+9"/>
         <source>Checking this will show a column with address information in the breakpoint view during debugging.</source>
         <translation>Включает отображение столбца с информацией об адресе в обзоре точек останова во время отладки.</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <source>Show address data in stack view when debugging</source>
-        <translation>Показывать адрес в обзоре стека при отладке</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="+10"/>
         <source>Checking this will show a column with address information in the stack view during debugging.</source>
         <translation>Включает столбец с информацией об адресе с обзоре стека во время отладки.</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>List source files</source>
-        <translation>Показать файлы исходников</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Skip known frames</source>
-        <translation>Пропустить известные кадры</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Enable reverse debugging</source>
-        <translation>Включить реверсивную отладку</translation>
-    </message>
-    <message>
-        <location line="+31"/>
-        <source>Reload full stack</source>
-        <translation>Перезагрузить весь стек</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Execute line</source>
-        <translation>Выполнить строку</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::DebuggingHelperOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-912"/>
+        <location filename="../../../src/plugins/debugger/debuggerplugin.cpp" line="-595"/>
         <source>Debugging Helper</source>
         <translation>Помощник отладчика</translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+21"/>
         <source>Choose DebuggingHelper Location</source>
         <translation>Выберите размещение помощника</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+31"/>
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
@@ -4177,7 +4302,7 @@ Would you like to overwrite them?</source>
 <context>
     <name>Debugger::Internal::GdbEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+306"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+289"/>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Процесс Gdb не смог запуститься. Или вызываемая программа &apos;%1&apos; отсутствует, или у вас нет прав на ее вызов.</translation>
     </message>
@@ -4242,44 +4367,39 @@ Would you like to overwrite them?</source>
         <translation>Чтение %1...</translation>
     </message>
     <message>
-        <location line="+251"/>
+        <location line="+253"/>
         <source>Stopping temporarily.</source>
         <translation>Временно остановлено.</translation>
     </message>
     <message>
-        <location line="+68"/>
+        <location line="+70"/>
         <source>The gdb process has not responded to a command within %1 seconds. This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
 You can choose between waiting longer or abort debugging.</source>
         <translation>Процесс gdb не отвечает на команду в течение %1 секунд(ы). Это может означать, что он попал в бесконечный цикл, или исполнение операции занимает больше времени, чем предполагается.
 Вы можете продолжить ожидание или прервать отладку.</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+49"/>
         <source>Process failed to start.</source>
         <translation>Не удалось запустить процесс.</translation>
     </message>
     <message>
-        <location line="+167"/>
+        <location line="+162"/>
         <source>Jumped. Stopped.</source>
         <translation>Переход сделан. Остановлено.</translation>
     </message>
     <message>
-        <location line="-270"/>
+        <location line="-268"/>
         <source>Processing queued commands.</source>
         <translation>Обработка очереди команд.</translation>
     </message>
     <message>
-        <location line="+423"/>
+        <location line="+428"/>
         <source>Loading %1...</source>
         <translation>Загружается %1...</translation>
     </message>
     <message>
-        <location line="+114"/>
-        <source>Stopped at breakpoint.</source>
-        <translation>Остановлено на точке останова.</translation>
-    </message>
-    <message>
-        <location line="+9"/>
+        <location line="+150"/>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;p&gt;Приложение остановлено так как оно получило сигнал от операционной системы.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Сигнал: &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Назначение: &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
@@ -4290,61 +4410,82 @@ You can choose between waiting longer or abort debugging.</source>
     </message>
     <message>
         <location line="+5"/>
-        <location line="+120"/>
+        <location line="+148"/>
         <source>Stopped.</source>
         <translation>Остановлено.</translation>
     </message>
     <message>
-        <location line="-118"/>
+        <location line="-146"/>
         <source>Stopped: &quot;%1&quot;</source>
         <translation>Остановлено: &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+64"/>
+        <location line="+97"/>
         <source>The debugger you are using identifies itself as:</source>
         <translation>Отладчик, используемый вами, определяет себя как:</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>This version is not officially supported by Qt Creator.
-Debugging will most likely not work well.
-Using gdb 6.7 or later is strongly recommended.</source>
-        <translation>Эта версия не официально поддерживается Qt Creator
-Отладка может не работать.
-Настоятельно рекомендуется использование gdb версии не ниже 6.7.</translation>
-    </message>
-    <message>
-        <location line="+267"/>
+        <location line="+278"/>
         <source>Continuing after temporary stop...</source>
         <translation>Продолжение после временного останова...</translation>
     </message>
     <message>
-        <location line="+2325"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+689"/>
         <source>The debugging helper library was not found at %1.</source>
         <translation>Библиотека помощника отладчика не обнаружена в %1.</translation>
     </message>
     <message>
-        <location line="+370"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+2177"/>
         <source>Unable to start gdb &apos;%1&apos;: %2</source>
         <translation>Не удалось запустить gdb &apos;%1&apos;: %2</translation>
     </message>
     <message>
-        <location line="+152"/>
+        <location line="+171"/>
         <source>Adapter start failed</source>
         <translation>Не удалось запустить адаптер</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+61"/>
         <source>Inferior start failed</source>
         <translation>Не удалось запустить подчинённого</translation>
     </message>
     <message>
-        <location line="-3030"/>
+        <location line="-2543"/>
         <source>Inferior shutdown failed</source>
         <translation>Не удалось остановить подчинённого</translation>
     </message>
     <message>
-        <location line="+2907"/>
+        <location line="+1165"/>
+        <location line="+15"/>
+        <source>Snapshot Creation Error</source>
+        <translation>Ошибка создания снимка</translation>
+    </message>
+    <message>
+        <location line="-14"/>
+        <source>Cannot create snapshot file.</source>
+        <translation>Не удалось создать файл снимка.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Cannot create snapshot:
+</source>
+        <translation>Не удалось создать снимок:
+</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Snapshot Reloading</source>
+        <translation>Перезагрузка снимка</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>In order to load snapshots the debugged process needs to be stopped. Continuation will not be possible afterwards.
+Do you want to stop the debugged process and load the selected snapshot?</source>
+        <translation>Для загрузки снимка требуется остановить отлаживаемую программу. Продолжение её работы будет невозможно.
+Желаете остановить отлаживаемую программу и загрузить выбранный снимок?</translation>
+    </message>
+    <message>
+        <location line="+1217"/>
         <source>Cannot find debugger initialization script</source>
         <translation>Не удалось найти скрипт инициализации отладчика</translation>
     </message>
@@ -4354,7 +4495,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>В настройках указан файл скрипта &apos;%1&apos;, который сейчас недоступен. Если файл скрипта не обязателен, просто очистите поле, чтобы не было этого предупреждения.</translation>
     </message>
     <message>
-        <location line="-2189"/>
+        <location line="-1600"/>
         <source>Unable to run &apos;%1&apos;: %2</source>
         <translation>Не удалось запустить &apos;%1&apos;: %2</translation>
     </message>
@@ -4365,7 +4506,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Получение данных о стеке...</translation>
     </message>
     <message numerus="yes">
-        <location line="+866"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+28"/>
         <source>Dumper version %1, %n custom dumpers found.</source>
         <translation>
             <numerusform>Дампер версии %1, обнаружен %n пользовательский дампер.</numerusform>
@@ -4374,7 +4515,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         </translation>
     </message>
     <message>
-        <location line="-2957"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="-2251"/>
         <source>An unknown error in the Gdb process occurred. </source>
         <translation>Неизвестная ошибка возникла у процесса Gdb. </translation>
     </message>
@@ -4384,14 +4525,14 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Потребована остановка...</translation>
     </message>
     <message>
-        <location line="+225"/>
+        <location line="+230"/>
         <location line="+29"/>
         <location line="+3"/>
         <source>Executable failed</source>
         <translation>Программа завершилась с ошибкой</translation>
     </message>
     <message>
-        <location line="+231"/>
+        <location line="+233"/>
         <source>Program exited with exit code %1.</source>
         <translation>Программа завершилась с кодом %1.</translation>
     </message>
@@ -4406,12 +4547,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Программа нормально завершилась.</translation>
     </message>
     <message>
-        <location line="-591"/>
+        <location line="-598"/>
         <source>Running...</source>
         <translation>Выполнение...</translation>
     </message>
     <message>
-        <location line="+281"/>
+        <location line="+285"/>
         <source>Gdb not responding</source>
         <translation>Gdb не отвечает</translation>
     </message>
@@ -4426,13 +4567,18 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Прервать отладку</translation>
     </message>
     <message>
-        <location line="+63"/>
+        <location line="+64"/>
         <location line="+8"/>
         <source>Executable failed: %1</source>
         <translation>Программа завершилась с ошибкой: %1</translation>
     </message>
     <message>
-        <location line="+415"/>
+        <location line="+428"/>
+        <source>Stopped at breakpoint %1 in thread %2.</source>
+        <translation>Остановлено на точке останова %1 потока %2.</translation>
+    </message>
+    <message>
+        <location line="+16"/>
         <source> &lt;Unknown&gt; </source>
         <comment>name</comment>
         <translation> &lt;Неизвестный&gt;</translation>
@@ -4444,19 +4590,32 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation> &lt;Неизвестно&gt;</translation>
     </message>
     <message>
-        <location line="+132"/>
+        <location line="+108"/>
+        <source>This version is not officially supported by Qt Creator.
+Debugging will most likely not work well.
+Using gdb 7.1 or later is strongly recommended.</source>
+        <translation>Qt Creator не поддерживает официально эту версию.
+Отладка может не работать.
+Настоятельно рекомендуется использование gdb версии не ниже 7.1.</translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <location line="+269"/>
+        <location line="+62"/>
         <source>Execution Error</source>
         <translation>Ошибка выполнения</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-330"/>
+        <location line="+269"/>
+        <location line="+62"/>
         <source>Cannot continue debugged process:
 </source>
         <translation>Нельзя продолжить отлаживаемый процесс:
 </translation>
     </message>
     <message>
-        <location line="+217"/>
+        <location line="-100"/>
         <source>Running requested...</source>
         <translation>Потребован запуск...</translation>
     </message>
@@ -4466,7 +4625,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Потребован шаг...</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+41"/>
         <source>Step by instruction requested...</source>
         <translation>Потребован шаг через инструкцию...</translation>
     </message>
@@ -4481,7 +4640,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Потребован шаг через...</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+41"/>
         <source>Step next instruction requested...</source>
         <translation>Потребован шаг через инструкцию...</translation>
     </message>
@@ -4491,24 +4650,29 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Потребовано выполнение до строки %1...</translation>
     </message>
     <message>
-        <location line="+13"/>
+        <location line="+14"/>
         <source>Run to function %1 requested...</source>
         <translation>Потребовано выполнение до функции %1...</translation>
     </message>
     <message>
-        <location line="+585"/>
+        <location line="+37"/>
+        <source>Immediate return from function requested...</source>
+        <translation>Потребован немедленный выход из функции...</translation>
+    </message>
+    <message>
+        <location line="+579"/>
         <source>&lt;unknown&gt;</source>
         <comment>address</comment>
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;неизвестно&gt;</translation>
     </message>
     <message>
-        <location line="+151"/>
+        <location line="+153"/>
         <source>Jumping out of bogus frame...</source>
         <translation>Выход из подложного кадра...</translation>
     </message>
     <message numerus="yes">
-        <location line="+417"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="-589"/>
         <source>Retrieving data for watch view (%n requests pending)...</source>
         <translation>
             <numerusform>Получение наблюдаемых данных (%n запрос ожидается)...</numerusform>
@@ -4517,22 +4681,22 @@ Using gdb 6.7 or later is strongly recommended.</source>
         </translation>
     </message>
     <message>
-        <location line="+324"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+574"/>
         <source>Finished retrieving data.</source>
         <translation>Закончено получение данных.</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+595"/>
         <source>Debugging helpers not found.</source>
         <translation>Помощники отладчика не найдены.</translation>
     </message>
     <message>
-        <location line="+121"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+103"/>
         <source>Custom dumper setup: %1</source>
         <translation>Настройка пользовательского дампера: %1</translation>
     </message>
     <message>
-        <location line="+143"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="-268"/>
         <source>&lt;0 items&gt;</source>
         <translation>&lt;0 элементов&gt;</translation>
     </message>
@@ -4547,12 +4711,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         </translation>
     </message>
     <message>
-        <location line="+217"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+131"/>
         <source>&lt;shadowed&gt;</source>
         <translation>&lt;затенено&gt;</translation>
     </message>
     <message>
-        <location line="+134"/>
+        <location filename="../../../src/plugins/debugger/gdb/classicgdbengine.cpp" line="+351"/>
         <source>&lt;n/a&gt;</source>
         <translation>&lt;н/д&gt;</translation>
     </message>
@@ -4568,14 +4732,15 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>&lt;нет информации&gt;</translation>
     </message>
     <message>
-        <location line="+350"/>
-        <location line="+25"/>
-        <location line="+14"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdbengine.cpp" line="+307"/>
+        <location line="+26"/>
+        <location line="+15"/>
+        <location line="+51"/>
         <source>Disassembler failed: %1</source>
         <translation>Не удалось дизассемблировать: %1</translation>
     </message>
     <message>
-        <location line="+157"/>
+        <location line="+198"/>
         <source>Gdb I/O Error</source>
         <translation>Ошибка вводы/вывода gdb</translation>
     </message>
@@ -4600,17 +4765,17 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>код %1</translation>
     </message>
     <message>
-        <location line="+52"/>
+        <location line="+51"/>
         <source>Setting breakpoints...</source>
         <translation>Установка точек останова...</translation>
     </message>
     <message>
-        <location line="-25"/>
+        <location line="-22"/>
         <source>Starting inferior...</source>
         <translation>Запуск подчинённого...</translation>
     </message>
     <message>
-        <location line="+67"/>
+        <location line="+64"/>
         <source>Adapter crashed</source>
         <translation>Адаптер аварийно завершился</translation>
     </message>
@@ -4618,12 +4783,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::GdbOptionsPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/gdboptionspage.cpp" line="+37"/>
+        <location filename="../../../src/plugins/debugger/gdb/gdboptionspage.cpp" line="+52"/>
         <source>Gdb</source>
         <translation>Gdb</translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+18"/>
         <source>Choose Gdb Location</source>
         <translation>Выбор размещения Gdb</translation>
     </message>
@@ -4636,12 +4801,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::MemoryViewAgent</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeragents.cpp" line="+95"/>
+        <location filename="../../../src/plugins/debugger/debuggeragents.cpp" line="+97"/>
         <source>Memory $</source>
         <translation>Память $</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+16"/>
         <source>No memory viewer available</source>
         <translation>Просмотрщик памяти отсутствует</translation>
     </message>
@@ -4682,62 +4847,62 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Модули</translation>
     </message>
     <message>
-        <location line="+47"/>
-        <source>Update module list</source>
+        <location line="+48"/>
+        <source>Update Module List</source>
         <translation>Обновить список модулей</translation>
     </message>
     <message>
-        <location line="+29"/>
-        <source>Adjust column widths to contents</source>
-        <translation>Выровнять ширину столбцов по содержимому</translation>
-    </message>
-    <message>
         <location line="+2"/>
-        <source>Always adjust column widths to contents</source>
-        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="-29"/>
-        <source>Show source files for module &quot;%1&quot;</source>
+        <source>Show Source Files for Module &quot;%1&quot;</source>
         <translation>Показать исходники для модуля &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Load symbols for all modules</source>
+        <source>Load Symbols for All Modules</source>
         <translation>Загрузить символы для всех модулей</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Load symbols for module</source>
+        <source>Load Symbols for Module</source>
         <translation>Загрузить символы для модуля</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Edit file</source>
+        <location line="+2"/>
+        <source>Edit File</source>
         <translation>Изменить файл</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Show symbols</source>
+        <location line="+2"/>
+        <source>Show Symbols</source>
         <translation>Показать символы</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Load symbols for module &quot;%1&quot;</source>
+        <location line="+3"/>
+        <source>Load Symbols for Module &quot;%1&quot;</source>
         <translation>Загрузить символы для модуля &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Edit file &quot;%1&quot;</source>
+        <location line="+2"/>
+        <source>Edit File &quot;%1&quot;</source>
         <translation>Изменить файл &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Show symbols in file &quot;%1&quot;</source>
+        <source>Show Symbols in File &quot;%1&quot;</source>
         <translation>Показать символы в файле &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+10"/>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Always Adjust Column Widths to Contents</source>
+        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
+    </message>
+    <message>
+        <location line="+64"/>
         <source>Address</source>
         <translation>Адрес</translation>
     </message>
@@ -4783,7 +4948,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Не удалось установить связь с дочерним процессом: %1</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+45"/>
         <source>Starting executable failed:
 </source>
         <translation>Не удалось запустить программу:
@@ -4811,32 +4976,22 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Регистры</translation>
     </message>
     <message>
-        <location line="+48"/>
-        <source>Adjust column widths to contents</source>
-        <translation>Выровнять ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Always adjust column widths to contents</source>
-        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="-32"/>
-        <source>Reload register listing</source>
+        <location line="+21"/>
+        <source>Reload Register Listing</source>
         <translation>Перезагрузить список регистров</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Open memory editor</source>
+        <location line="+11"/>
+        <source>Open Memory Editor</source>
         <translation>Открыть редактор памяти</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Open memory editor at %1</source>
+        <source>Open Memory Editor at %1</source>
         <translation>Открыть редактор памяти с %1</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Hexadecimal</source>
         <translation>Шестнадцатиричный</translation>
     </message>
@@ -4855,11 +5010,21 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <source>Binary</source>
         <translation>Двоичный</translation>
     </message>
+    <message>
+        <location line="+5"/>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Always Adjust Column Widths to Contents</source>
+        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::RemoteGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/remotegdbadapter.cpp" line="+112"/>
+        <location filename="../../../src/plugins/debugger/gdb/remotegdbadapter.cpp" line="+113"/>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Не удалось запустить процесс выгрузки. Отсутствует оболочка?</translation>
     </message>
@@ -4894,12 +5059,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Ошибка</translation>
     </message>
     <message>
-        <location line="+47"/>
-        <source>Adapter too old: does not support asynchronous mode.</source>
-        <translation>Адаптер устарел: не поддерживает асинхронный режим.</translation>
-    </message>
-    <message>
-        <location line="+20"/>
+        <location line="+61"/>
         <source>Starting remote executable failed:
 </source>
         <translation>Не удалось удалённо запустить программу:
@@ -4909,12 +5069,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::ScriptEngine</name>
     <message>
-        <location filename="../../../src/plugins/debugger/script/scriptengine.cpp" line="+244"/>
+        <location filename="../../../src/plugins/debugger/script/scriptengine.cpp" line="+263"/>
         <source>Running requested...</source>
         <translation>Потребован запуск...</translation>
     </message>
     <message>
-        <location line="+228"/>
+        <location line="+242"/>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; не содержит идентификаторов</translation>
     </message>
@@ -4929,8 +5089,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Робкий отказ вычислить выражение &apos;%1&apos; с возможными побочными эффектами</translation>
     </message>
     <message>
-        <location line="+81"/>
-        <location line="+50"/>
+        <location line="+93"/>
+        <source>Stopped at %1:%2.</source>
+        <translation>Остановлено в позиции %1:%2.</translation>
+    </message>
+    <message>
+        <location line="+51"/>
         <source>Stopped.</source>
         <translation>Остановлено.</translation>
     </message>
@@ -4951,23 +5115,23 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::SourceFilesWindow</name>
     <message>
-        <location line="+76"/>
+        <location line="+73"/>
         <source>Source Files</source>
         <translation>Файлы исходных текстов</translation>
     </message>
     <message>
         <location line="+27"/>
-        <source>Reload data</source>
+        <source>Reload Data</source>
         <translation>Перезагрузить данные</translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>Open file</source>
+        <source>Open File</source>
         <translation>Открыть файл</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Open file &quot;%1&quot;&apos;</source>
+        <source>Open File &quot;%1&quot;&apos;</source>
         <translation>Открыть файл &quot;%1&quot;&apos;</translation>
     </message>
 </context>
@@ -5096,7 +5260,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Стек</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+42"/>
         <source>Copy contents to clipboard</source>
         <translation>Скопировать содержимое в буфер обмена</translation>
     </message>
@@ -5107,34 +5271,34 @@ Using gdb 6.7 or later is strongly recommended.</source>
     </message>
     <message>
         <location line="+3"/>
-        <source>Open memory editor at %1</source>
+        <source>Open Memory Editor at %1</source>
         <translation>Открыть редактор памяти с %1</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Open disassembler</source>
+        <location line="+6"/>
+        <source>Open Disassembler</source>
         <translation>Открыть дизассемблер</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Open disassembler at %1</source>
+        <source>Open Disassembler at %1</source>
         <translation>Открыть дизассемблер с %1</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <source>Adjust column widths to contents</source>
-        <translation>Выровнять ширину столбцов по содержимому</translation>
+        <location line="+10"/>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Always adjust column widths to contents</source>
+        <source>Always Adjust Column Widths to Contents</source>
         <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::StartExternalDialog</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+81"/>
+        <location filename="../../../src/plugins/debugger/debuggerdialogs.cpp" line="+80"/>
         <source>Select Executable</source>
         <translation>Выбор программы</translation>
     </message>
@@ -5153,8 +5317,23 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <name>Debugger::Internal::StartRemoteDialog</name>
     <message>
         <location line="+51"/>
+        <source>Select Debugger</source>
+        <translation>Выбор отладчика</translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Select Executable</source>
         <translation>Выбор программы</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select Sysroot</source>
+        <translation>Выбор системного корня</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Select Start Script</source>
+        <translation>Выбор скрипта запуска</translation>
     </message>
 </context>
 <context>
@@ -5165,25 +5344,30 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Поток</translation>
     </message>
     <message>
-        <location line="+21"/>
-        <source>Adjust column widths to contents</source>
-        <translation>Выровнять ширину столбцов по содержимому</translation>
+        <location line="+22"/>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Always adjust column widths to contents</source>
+        <location line="+2"/>
+        <source>Always Adjust Column Widths to Contents</source>
         <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::TrkGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/trkgdbadapter.cpp" line="+1646"/>
+        <location filename="../../../src/plugins/debugger/gdb/trkgdbadapter.cpp" line="+1737"/>
+        <source>Unable to acquire a device on &apos;%1&apos;. It appears to be in use.</source>
+        <translation>Не удалось получить доступ к устройству через &quot;%1&quot;. Возможно, оно уже используется.</translation>
+    </message>
+    <message>
+        <location line="+120"/>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
         <translation>Процесс запущен, PID: 0x%1, ID потока: 0x%2, сегмент кода: 0x%3, сегмент данных: 0x%4.</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+39"/>
         <source>Connecting to TRK server adapter failed:
 </source>
         <translation>Не удалось подключиться к адаптеру TRK сервера:
@@ -5193,7 +5377,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::TrkOptionsPage</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/trkoptionspage.cpp" line="+43"/>
+        <location filename="../../../src/plugins/debugger/gdb/trkoptionspage.cpp" line="+59"/>
         <source>Symbian TRK</source>
         <translation>Symbian TRK</translation>
     </message>
@@ -5245,12 +5429,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <name>Debugger::Internal::WatchData</name>
     <message>
         <location filename="../../../src/plugins/debugger/watchhandler.cpp" line="+72"/>
-        <location line="+250"/>
+        <location line="+257"/>
         <source>&lt;not in scope&gt;</source>
         <translation>&lt;вне области&gt;</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+6"/>
         <source>%1 &lt;shadowed %2&gt;</source>
         <translation>%1 &lt;затеняет %2&gt;</translation>
     </message>
@@ -5258,7 +5442,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::WatchHandler</name>
     <message>
-        <location line="-27"/>
+        <location line="-25"/>
         <source>Expression</source>
         <translation>Выражение</translation>
     </message>
@@ -5298,17 +5482,22 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Поколение</translation>
     </message>
     <message>
-        <location line="+1147"/>
+        <location line="+1247"/>
         <source>&lt;Edit&gt;</source>
         <translation>&lt;Измените&gt;</translation>
     </message>
     <message>
-        <location line="-1116"/>
+        <location line="-1209"/>
         <source>Root</source>
         <translation>Корень</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="-50"/>
+        <source>Name</source>
+        <translation>Имя</translation>
+    </message>
+    <message>
+        <location line="+56"/>
         <source>Locals</source>
         <translation>Локальные переменные</translation>
     </message>
@@ -5326,7 +5515,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Debugger::Internal::WatchModel</name>
     <message>
-        <location line="+435"/>
+        <location line="+492"/>
         <source>decimal</source>
         <translation>десятичный</translation>
     </message>
@@ -5346,7 +5535,32 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>восьмиричный</translation>
     </message>
     <message>
-        <location line="+85"/>
+        <location line="+3"/>
+        <source>Bald pointer</source>
+        <translation>Простой указатель</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Latin1 string</source>
+        <translation>Строка в кодировке Latin1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>UTF8 string</source>
+        <translation>Строка в кодировке UTF8</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>UTF16 string</source>
+        <translation>Строка в кодировке UTF16</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>UCS4 string</source>
+        <translation>Строка в кодировке UCS4</translation>
+    </message>
+    <message>
+        <location line="+87"/>
         <source>Name</source>
         <translation>Имя</translation>
     </message>
@@ -5369,14 +5583,14 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Переменные</translation>
     </message>
     <message>
-        <location line="+95"/>
-        <source>Change format for type &apos;%1&apos;</source>
-        <translation>Сменить формат типа &apos;%1&apos;</translation>
+        <location line="+98"/>
+        <source>Change Format for Type &apos;%1&apos;</source>
+        <translation>Сменить формат типа &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Change format for expression &apos;%1&apos;</source>
-        <translation>Сменить формат выражения &apos;%1&apos;</translation>
+        <source>Change Format for Expression &apos;%1&apos;</source>
+        <translation>Сменить формат выражения &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -5394,51 +5608,51 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Сменить формат выражения</translation>
     </message>
     <message>
-        <location line="+12"/>
-        <source>Open memory editor...</source>
-        <translation>Открыть редактор памяти...</translation>
-    </message>
-    <message>
-        <location line="+21"/>
-        <source>Refresh code model snapshot</source>
-        <translation>Обновить образ модели кода</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Adjust column widths to contents</source>
-        <translation>Выровнять ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Always adjust column widths to contents</source>
-        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
-    </message>
-    <message>
-        <location line="-38"/>
-        <source>Insert new watch item</source>
+        <location line="+6"/>
+        <source>Insert New Watch Item</source>
         <translation>Вставить новый наблюдаемый элемент</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Select widget to watch</source>
+        <source>Select Widget to Watch</source>
         <translation>Выбрать виджет для слежения</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <source>Open memory editor at %1</source>
+        <location line="+6"/>
+        <source>Open Memory Editor...</source>
+        <translation>Открыть редактор памяти...</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Open Memory Editor at %1</source>
         <translation>Открыть редактор памяти с %1</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Refresh Code Model Snapshot</source>
+        <translation>Обновить образ модели кода</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Always Adjust Column Widths to Contents</source>
+        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
     </message>
 </context>
 <context>
     <name>DebuggerPane</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="-140"/>
-        <source>Clear contents</source>
+        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="-150"/>
+        <source>Clear Contents</source>
         <translation>Очистить содержимое</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Save contents</source>
+        <source>Save Contents</source>
         <translation>Сохранить содержимое</translation>
     </message>
 </context>
@@ -5446,26 +5660,6 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <name>DebuggingHelperOptionPage</name>
     <message>
         <location filename="../../../src/plugins/debugger/dumperoptionpage.ui"/>
-        <source>Debugging helper</source>
-        <translation>Помощник отладчика</translation>
-    </message>
-    <message>
-        <location/>
-        <source>This will enable nice display of Qt and Standard Library objects in the Locals&amp;Watchers view</source>
-        <translation>Включить удобное отображение объектов Qt и стандартной библиотеки в обзоре переменных</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Use debugging helper</source>
-        <translation>Использовать помощник отладчика</translation>
-    </message>
-    <message>
-        <location/>
-        <source>This will load a dumper library</source>
-        <translation>Загружать библиотеку дампера данных</translation>
-    </message>
-    <message>
-        <location/>
         <source>Use debugging helper from custom location</source>
         <translation>Использовать особый путь к помощнику</translation>
     </message>
@@ -5490,11 +5684,16 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <source>Use code model</source>
         <translation>Использовать модель кода</translation>
     </message>
+    <message>
+        <location/>
+        <source>Use Debugging helper</source>
+        <translation>Использовать помощник отладчика</translation>
+    </message>
 </context>
 <context>
     <name>DependenciesModel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+121"/>
+        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+131"/>
         <source>Unable to add dependency</source>
         <translation>Не удалось добавить зависимость</translation>
     </message>
@@ -5522,14 +5721,38 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Отсутствует корневой элемент &lt;RCC&gt;.</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/designer/designerconstants.h" line="+38"/>
+        <location filename="../../../src/plugins/designer/designerconstants.h" line="+42"/>
+        <source>Xml Editor</source>
+        <translation>Редактор Xml</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Designer</source>
         <translation>Дизайнер</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Class Generation</source>
         <translation>Создание класса</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Form Editor</source>
+        <translation>Редактор форм</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/designer/codemodelhelpers.cpp" line="+129"/>
+        <source>The generated header of the form &apos;%1&apos; could be found.
+Rebuilding the project might help.</source>
+        <translation>Не удалось найти сгенерированный заголовочный файл для формы &quot;%1&quot;.
+Пересборка проекта может помочь.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>The generated header &apos;%1&apos; could not be found in the code model.
+Rebuilding the project might help.</source>
+        <translation>Не удалось найти сгенерированный заголовочный файл &quot;%1&quot; в модели кода.
+Пересборка проекта может помочь.</translation>
     </message>
 </context>
 <context>
@@ -5609,17 +5832,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Designer::Internal::FormEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+138"/>
-        <source>Qt</source>
-        <translation>Qt</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location filename="../../../src/plugins/designer/formeditorplugin.cpp" line="+155"/>
         <source>Qt Designer Form</source>
         <translation>Форма Qt Designer</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Creates a Qt Designer form file (.ui).</source>
         <translation>Создание файла формы Qt Designer (.ui).</translation>
     </message>
@@ -5629,7 +5847,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Класс формы Qt Designer</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
         <translation>Создание файла формы Qt Designer (.ui) и соответствующего класса.</translation>
     </message>
@@ -5637,41 +5855,41 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Designer::Internal::FormEditorW</name>
     <message>
-        <location filename="../../../src/plugins/designer/formeditorw.cpp" line="+335"/>
-        <location line="+170"/>
+        <location filename="../../../src/plugins/designer/formeditorw.cpp" line="+326"/>
+        <location line="+189"/>
         <source>Widget Box</source>
         <translation>Панель виджетов</translation>
     </message>
     <message>
-        <location line="-165"/>
-        <location line="+169"/>
+        <location line="-184"/>
+        <location line="+188"/>
         <source>Object Inspector</source>
         <translation>Инспектор объектов</translation>
     </message>
     <message>
-        <location line="-164"/>
-        <location line="+168"/>
+        <location line="-183"/>
+        <location line="+187"/>
         <source>Property Editor</source>
         <translation>Редактор свойств</translation>
     </message>
     <message>
-        <location line="-163"/>
+        <location line="-182"/>
         <source>Signals &amp; Slots Editor</source>
         <translation>Редактор сигналов и слотов</translation>
     </message>
     <message>
         <location line="+4"/>
-        <location line="+167"/>
+        <location line="+186"/>
         <source>Action Editor</source>
         <translation>Редактор действий</translation>
     </message>
     <message>
-        <location line="-125"/>
-        <source>For&amp;m editor</source>
+        <location line="-126"/>
+        <source>For&amp;m Editor</source>
         <translation>Редактор &amp;форм</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+36"/>
         <source>Edit widgets</source>
         <translation>Изменение виджетов</translation>
     </message>
@@ -5743,7 +5961,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
     <message>
         <location line="+20"/>
         <source>Views</source>
-        <translation>Виды</translation>
+        <translation>Обзоры</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -5776,12 +5994,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Предпросмотр в</translation>
     </message>
     <message>
-        <location line="+48"/>
+        <location line="+49"/>
         <source>Designer</source>
         <translation>Дизайнер</translation>
     </message>
     <message>
-        <location line="+161"/>
+        <location line="+244"/>
         <source>The image could not be created: %1</source>
         <translation>Картинка не может быть создана: %1</translation>
     </message>
@@ -5828,7 +6046,7 @@ Using gdb 6.7 or later is strongly recommended.</source>
 <context>
     <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
-        <location filename="../../../src/plugins/designer/qtcreatorintegration.cpp" line="+74"/>
+        <location filename="../../../src/plugins/designer/qtcreatorintegration.cpp" line="+75"/>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation>Не удалось найти в %2 определение класса &apos;%1&apos;.</translation>
     </message>
@@ -5838,12 +6056,12 @@ Using gdb 6.7 or later is strongly recommended.</source>
         <translation>Ошибка поиска/добавления слота.</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+38"/>
         <source>Internal error: No project could be found for %1.</source>
         <translation>Внутренняя ошибка: Не удалось найти проект для %1.</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+20"/>
         <source>No documents matching &apos;%1&apos; could be found.
 Rebuilding the project might help.</source>
         <translation>Не удалось найти документы соответствующие &apos;%1&apos;.
@@ -5871,23 +6089,6 @@ Rebuilding the project might help.</source>
         <location/>
         <source>Remove</source>
         <translation>Удалить</translation>
-    </message>
-</context>
-<context>
-    <name>EmbeddedPropertiesPage</name>
-    <message>
-        <location filename="../../../src/plugins/qt4projectmanager/embeddedpropertiespage.ui"/>
-        <source>Skin:</source>
-        <translation>Обложка:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Use Virtual Box
-Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.
-It also automatically sets the correct Qt version.</source>
-        <translation>Использовать VirtualBox
-Замечание: Добавляет возможность создавать и запускать программы под виртуальной машиной.
-Также будет автоматически установлена корректная версия Qt.</translation>
     </message>
 </context>
 <context>
@@ -5960,7 +6161,7 @@ It also automatically sets the correct Qt version.</source>
 <context>
     <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
-        <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+415"/>
+        <location filename="../../../src/libs/extensionsystem/pluginspec.cpp" line="+416"/>
         <source>File does not exist: %1</source>
         <translation>Файл не существует: %1</translation>
     </message>
@@ -6089,7 +6290,7 @@ It also automatically sets the correct Qt version.</source>
 <context>
     <name>ExtensionSystem::PluginManager</name>
     <message>
-        <location filename="../../../src/libs/extensionsystem/pluginmanager.cpp" line="+618"/>
+        <location filename="../../../src/libs/extensionsystem/pluginmanager.cpp" line="+703"/>
         <source>Circular dependency detected:
 </source>
         <translation>Обнаружена циклическая зависимость:
@@ -6129,7 +6330,7 @@ Reason: %3</source>
         <translation>Включить/выключить редактирование в стиле Vim</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+72"/>
         <source>FakeVim properties...</source>
         <translation>Настройки FakeVim...</translation>
     </message>
@@ -6137,17 +6338,17 @@ Reason: %3</source>
 <context>
     <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+946"/>
+        <location filename="../../../src/plugins/fakevim/fakevimhandler.cpp" line="+1127"/>
         <source>Not implemented in FakeVim</source>
         <translation>Не реализовано в FakeVim</translation>
     </message>
     <message>
-        <location line="-696"/>
+        <location line="-846"/>
         <source>E20: Mark &apos;%1&apos; not set</source>
         <translation>E20: Отметка &apos;%1&apos; не установлена</translation>
     </message>
     <message>
-        <location line="+672"/>
+        <location line="+822"/>
         <source>%1%2%</source>
         <translation>%1%2%</translation>
     </message>
@@ -6157,17 +6358,17 @@ Reason: %3</source>
         <translation>%1Все</translation>
     </message>
     <message>
-        <location line="+1029"/>
+        <location line="+1273"/>
         <source>File &apos;%1&apos; exists (add ! to override)</source>
         <translation>Файл &apos;%1&apos; уже существует (добавьте !, чтобы перезаписать)</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+21"/>
         <source>Cannot open file &apos;%1&apos; for writing</source>
         <translation>Не удалось открыть файл &apos;%1&apos; для записи</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>&quot;%1&quot; %2 %3L, %4C written</source>
         <translation>&quot;%1&quot; %2 %3L, %4C записано</translation>
     </message>
@@ -6177,12 +6378,12 @@ Reason: %3</source>
         <translation>Не удалось открыть файл &apos;%1&apos; для чтения</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+14"/>
         <source>&quot;%1&quot; %2L, %3C</source>
         <translation>&quot;%1&quot; %2L, %3C</translation>
     </message>
     <message numerus="yes">
-        <location line="+18"/>
+        <location line="+19"/>
         <source>%n lines filtered</source>
         <translation>
             <numerusform>%n строка отфильтрована</numerusform>
@@ -6191,7 +6392,7 @@ Reason: %3</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+6"/>
+        <location line="+7"/>
         <source>%n lines &gt;ed %1 time</source>
         <translation>
             <numerusform>%n строка сдвинута вправо %1 раз</numerusform>
@@ -6200,12 +6401,12 @@ Reason: %3</source>
         </translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+116"/>
         <source>E512: Unknown option: </source>
         <translation>E512: Неизвестный параметр: </translation>
     </message>
     <message>
-        <location line="+71"/>
+        <location line="+47"/>
         <source>search hit BOTTOM, continuing at TOP</source>
         <translation>поиск дошёл до НИЗА и продолжился СВЕРХУ</translation>
     </message>
@@ -6220,12 +6421,12 @@ Reason: %3</source>
         <translation>Шаблон не найден: </translation>
     </message>
     <message>
-        <location line="+577"/>
+        <location line="+741"/>
         <source>Already at oldest change</source>
         <translation>Уже на первом изменении</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+18"/>
         <source>Already at newest change</source>
         <translation>Уже на последнем изменении</translation>
     </message>
@@ -6233,7 +6434,7 @@ Reason: %3</source>
 <context>
     <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
-        <location filename="../../../src/plugins/fakevim/fakevimplugin.cpp" line="+114"/>
+        <location filename="../../../src/plugins/fakevim/fakevimplugin.cpp" line="+126"/>
         <source>General</source>
         <translation>Основное</translation>
     </message>
@@ -6246,13 +6447,23 @@ Reason: %3</source>
 <context>
     <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
-        <location line="+347"/>
-        <location line="+188"/>
+        <location line="+497"/>
+        <source>Switch to next file</source>
+        <translation>Перейти к следующему файлу</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Switch to previous file</source>
+        <translation>Перейти к предыдущему файлу</translation>
+    </message>
+    <message>
+        <location line="+234"/>
+        <location line="+213"/>
         <source>Quit FakeVim</source>
         <translation>Покинуть FakeVim</translation>
     </message>
     <message>
-        <location line="-117"/>
+        <location line="-141"/>
         <source>Saving succeeded</source>
         <translation>Сохранение выполнено успешно</translation>
     </message>
@@ -6266,12 +6477,12 @@ Reason: %3</source>
         </translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+21"/>
         <source>Not an editor command: %1</source>
         <translation>Не команда редактора: %1</translation>
     </message>
     <message>
-        <location line="+112"/>
+        <location line="+125"/>
         <source>FakeVim Information</source>
         <translation>Информация о FakeVim</translation>
     </message>
@@ -6280,11 +6491,6 @@ Reason: %3</source>
     <name>FakeVimOptionPage</name>
     <message>
         <location filename="../../../src/plugins/fakevim/fakevimoptions.ui"/>
-        <source>Use FakeVim</source>
-        <translation>Использовать FakeVim</translation>
-    </message>
-    <message>
-        <location/>
         <source>Vim style settings</source>
         <translation>Настройки стиля Vim</translation>
     </message>
@@ -6362,6 +6568,11 @@ Reason: %3</source>
         <location/>
         <source>Set plain style</source>
         <translation>Простой стиль</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Smart indentation:</source>
+        <translation>&quot;Умные&quot; отступы:</translation>
     </message>
 </context>
 <context>
@@ -6442,18 +6653,28 @@ Reason: %3</source>
         <source>&amp;Whole words only</source>
         <translation>Только &amp;слова целиком</translation>
     </message>
+    <message>
+        <location/>
+        <source>Search &amp;&amp; Replace</source>
+        <translation>Найти и заменить</translation>
+    </message>
 </context>
 <context>
     <name>Find::Internal::FindPlugin</name>
     <message>
-        <location filename="../../../src/plugins/find/findplugin.cpp" line="+152"/>
+        <location filename="../../../src/plugins/find/findplugin.cpp" line="+163"/>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Поиск/Замена</translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>Find...</source>
-        <translation>Найти...</translation>
+        <location line="+18"/>
+        <source>Advanced Find</source>
+        <translation>Расширенный поиск</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Open Advanced Find...</source>
+        <translation>Открыть расширенный поиск...</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -6464,9 +6685,9 @@ Reason: %3</source>
 <context>
     <name>Find::Internal::FindToolBar</name>
     <message>
-        <location filename="../../../src/plugins/find/findtoolbar.cpp" line="+139"/>
-        <source>Current Document</source>
-        <translation>Текущий документ</translation>
+        <location filename="../../../src/plugins/find/findtoolbar.cpp" line="+140"/>
+        <source>Find/Replace</source>
+        <translation>Поиск/Замена</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -6615,7 +6836,7 @@ Reason: %3</source>
     <message>
         <location/>
         <source>Gdb startup script:</source>
-        <translation>Скрипт настройки gdb:</translation>
+        <translation>Сценарий запуска gdb:</translation>
     </message>
     <message>
         <location/>
@@ -6661,7 +6882,7 @@ name in different directories.</source>
     <message>
         <location/>
         <source>Use full path information to set breakpoints</source>
-        <translation type="unfinished">Полные пути к файлам для точек останова</translation>
+        <translation>Использовать полные пути к файлам для установки точек останова</translation>
     </message>
     <message>
         <location/>
@@ -6810,22 +7031,14 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
-    <message>
-        <location filename="../../../src/plugins/genericprojectmanager/genericproject.cpp" line="+93"/>
-        <source>&lt;new&gt;</source>
-        <translation>&lt;новый&gt;</translation>
-    </message>
-</context>
-<context>
     <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
-        <location line="+38"/>
-        <source>Create</source>
-        <translation>Создать</translation>
+        <location filename="../../../src/plugins/genericprojectmanager/genericbuildconfiguration.cpp" line="+138"/>
+        <source>Build</source>
+        <translation>Сборка</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+23"/>
         <source>New configuration</source>
         <translation>Новая конфигурация</translation>
     </message>
@@ -6838,7 +7051,12 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
-        <location line="+450"/>
+        <location filename="../../../src/plugins/genericprojectmanager/genericproject.cpp" line="+465"/>
+        <source>Configuration Name:</source>
+        <translation>Название конфигурации:</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Build directory:</source>
         <translation>Каталог сборки:</translation>
     </message>
@@ -6856,12 +7074,18 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
-        <location filename="../../../src/plugins/genericprojectmanager/genericmakestep.cpp" line="+190"/>
+        <location filename="../../../src/plugins/genericprojectmanager/genericmakestep.cpp" line="+232"/>
+        <source>Make</source>
+        <comment>GenericMakestep display name.</comment>
+        <translation>Сборка</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Override %1:</source>
         <translation>Заменить %1:</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+29"/>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2</translation>
     </message>
@@ -6869,37 +7093,32 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
-        <location filename="../../../src/plugins/genericprojectmanager/genericprojectwizard.cpp" line="+246"/>
-        <source>Import of Makefile-based Project</source>
-        <translation>Импорт проекта, основанного на Makefile</translation>
+        <location filename="../../../src/plugins/genericprojectmanager/genericprojectwizard.cpp" line="+94"/>
+        <source>Import Existing Project</source>
+        <translation>Импорт существующего проекта</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Creates a generic project, supporting any build system.</source>
         <translation>Создание базового проекта, поддерживающего любую систему сборки.</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Projects</source>
-        <translation>Проекты</translation>
-    </message>
-    <message>
-        <location line="+124"/>
+        <location line="+127"/>
         <source>The project %1 could not be opened.</source>
-        <translation>Проект %1 не открывается.</translation>
+        <translation>Нельзя открыть проект %1.</translation>
     </message>
 </context>
 <context>
     <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
     <message>
-        <location line="-249"/>
-        <source>Import of Makefile-based Project</source>
-        <translation>Импорт проекта, основанного на Makefile</translation>
+        <location line="-169"/>
+        <source>Import Existing Project</source>
+        <translation>Импорт существующего проекта</translation>
     </message>
     <message>
         <location line="+4"/>
-        <source>Generic Project</source>
-        <translation>Базовый проект</translation>
+        <source>Project Name and Location</source>
+        <translation>Название и размещение проекта</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6911,18 +7130,13 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Location:</source>
         <translation>Размещение:</translation>
     </message>
-    <message>
-        <location line="+7"/>
-        <source>Second Page Title</source>
-        <translation>Заголовок второй страницы</translation>
-    </message>
 </context>
 <context>
     <name>Git::CloneWizardPage</name>
     <message>
         <location filename="../../../src/plugins/git/clonewizardpage.cpp" line="+58"/>
         <source>Specify repository URL, checkout directory and path.</source>
-        <translation>Выбор URL репозитория, каталога извлечения и пути.</translation>
+        <translation>Выбор URL хранилища, каталога извлечения и пути.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6933,22 +7147,27 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::BranchDialog</name>
     <message>
-        <location filename="../../../src/plugins/git/branchdialog.cpp" line="+75"/>
+        <location filename="../../../src/plugins/git/branchdialog.cpp" line="+87"/>
         <source>Checkout</source>
         <translation>Извлечь</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Delete</source>
-        <translation>Удалить</translation>
+        <source>Diff</source>
+        <translation>Сравнить</translation>
     </message>
     <message>
-        <location line="+20"/>
-        <source>Unable to find the repository directory for &apos;%1&apos;.</source>
-        <translation>Не удалось найти каталог репозитория для &apos;%1&apos;.</translation>
+        <location line="+3"/>
+        <source>Refresh</source>
+        <translation>Обновить</translation>
     </message>
     <message>
-        <location line="+69"/>
+        <location line="+3"/>
+        <source>Delete...</source>
+        <translation>Удалить...</translation>
+    </message>
+    <message>
+        <location line="+102"/>
         <source>Delete Branch</source>
         <translation>Удалить ветку</translation>
     </message>
@@ -6968,12 +7187,17 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Не удалось создать ветку</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+37"/>
         <source>Failed to stash</source>
         <translation>Не удалось спрятать</translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+6"/>
+        <source>Checkout failed</source>
+        <translation>Не удалось извлечь</translation>
+    </message>
+    <message>
+        <location line="+33"/>
         <source>Would you like to create a local branch &apos;%1&apos; tracking the remote branch &apos;%2&apos;?</source>
         <translation>Желаете создать локальную вертку &apos;%1&apos;, отслеживающую удалённую ветку &apos;%2&apos;?</translation>
     </message>
@@ -6994,16 +7218,6 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
     <message>
         <location/>
-        <source>General information</source>
-        <translation>Основная информация</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Repository:</source>
-        <translation>Репозиторий:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Remote branches</source>
         <translation>Удаленные ветки</translation>
     </message>
@@ -7011,14 +7225,14 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::ChangeSelectionDialog</name>
     <message>
-        <location filename="../../../src/plugins/git/changeselectiondialog.cpp" line="+42"/>
+        <location filename="../../../src/plugins/git/changeselectiondialog.cpp" line="+43"/>
         <source>Select a Git commit</source>
         <translation>Выберите фиксацию Git</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+22"/>
         <source>Select Git repository</source>
-        <translation>Выбрать репозиторий Git</translation>
+        <translation>Выбрать хранилище Git</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -7028,36 +7242,31 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+1"/>
         <source>Selected directory is not a Git repository</source>
-        <translation>Выбранный каталог не является репозиторием Git</translation>
+        <translation>Выбранный каталог не является хранилищем Git</translation>
     </message>
 </context>
 <context>
     <name>Git::Internal::CloneWizard</name>
     <message>
-        <location filename="../../../src/plugins/git/clonewizard.cpp" line="+53"/>
+        <location filename="../../../src/plugins/git/clonewizard.cpp" line="+55"/>
         <source>Clones a project from a git repository.</source>
-        <translation>Клонирование проекта из репозитория GIT.</translation>
+        <translation>Клонирование проекта из хранилища GIT.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Git Repository Clone</source>
-        <translation>Клонировать репозиторий Git</translation>
+        <translation>Клонировать хранилище Git</translation>
     </message>
 </context>
 <context>
     <name>Git::Internal::GitClient</name>
     <message>
-        <location filename="../../../src/plugins/git/gitclient.cpp" line="+76"/>
+        <location filename="../../../src/plugins/git/gitclient.cpp" line="+74"/>
         <source>Note that the git plugin for QtCreator is not able to interact with the server so far. Thus, manual ssh-identification etc. will not work.</source>
         <translation>Следует иметь в виду, что модуль Git до сих пор не умеет работать с сервером. Поэтому, ручная настройка ssh-авторизации и другое не будет работать.</translation>
     </message>
     <message>
-        <location line="+15"/>
-        <source>Unable to determine the repository for %1.</source>
-        <translation>Не удалось определить репозиторий для %1.</translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+43"/>
         <source>Unable to parse the file output.</source>
         <translation>Не удалось разобрать файловый вывод.</translation>
     </message>
@@ -7070,37 +7279,53 @@ on slow machines. In this case, the value should be increased.</source>
 </translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+8"/>
         <source>Waiting for data...</source>
         <translation>Ожидание данных...</translation>
     </message>
     <message>
-        <location line="+101"/>
+        <location line="+92"/>
         <source>Git Diff</source>
         <translation>Git - Сравнение</translation>
     </message>
     <message>
-        <location line="+46"/>
+        <location line="+47"/>
         <source>Git Diff %1</source>
         <translation>Git - сравнение %1</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+17"/>
+        <source>Git Diff Branch %1</source>
+        <translation>Git - сравнение ветки %1</translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Git Log</source>
+        <translation>Git - история</translation>
+    </message>
+    <message>
+        <location line="+23"/>
         <source>Git Log %1</source>
         <translation>Git - история %1</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Git Show %1</source>
         <translation>Git - показ %1</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+36"/>
         <source>Git Blame %1</source>
         <translation>Git - аннотация %1</translation>
     </message>
+    <message>
+        <location line="+29"/>
+        <source>Unable to checkout %1 of %2: %3</source>
+        <extracomment>Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message</extracomment>
+        <translation>Не удалось переключиться на %1 в %2: %3</translation>
+    </message>
     <message numerus="yes">
-        <location line="+58"/>
+        <location line="+60"/>
         <source>Unable to add %n file(s) to %1: %2</source>
         <translation>
             <numerusform>Не удалось добавить %n файл в %1: %2</numerusform>
@@ -7109,7 +7334,21 @@ on slow machines. In this case, the value should be increased.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location line="+33"/>
+        <location line="+22"/>
+        <source>Unable to remove %n file(s) from %1: %2</source>
+        <translation>
+            <numerusform>Не удалось удалить %n файл из %1: %2</numerusform>
+            <numerusform>Не удалось удалить %n файла из %1: %2</numerusform>
+            <numerusform>Не удалось удалить %n файлов из %1: %2</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Unable to reset %1: %2</source>
+        <translation>Не удалось сбросить %1: %2</translation>
+    </message>
+    <message numerus="yes">
+        <location line="+1"/>
         <source>Unable to reset %n file(s) in %1: %2</source>
         <translation>
             <numerusform>Не удалось сбросить %n файл в %1: %2</numerusform>
@@ -7117,22 +7356,91 @@ on slow machines. In this case, the value should be increased.</source>
             <numerusform>Не удалось сбросить %n файлов в %1: %2</numerusform>
         </translation>
     </message>
-    <message numerus="yes">
-        <location line="+18"/>
-        <source>Unable to checkout %n file(s) in %1: %2</source>
-        <translation>
-            <numerusform>Не удалось восстановить %n файл в %1: %2</numerusform>
-            <numerusform>Не удалось восстановить %n файла в %1: %2</numerusform>
-            <numerusform>Не удалось восстановить %n файлов в %1: %2</numerusform>
-        </translation>
+    <message>
+        <location line="+51"/>
+        <source>Unable to checkout %1 of %2 in %3: %4</source>
+        <extracomment>Meaning of the arguments: %1: revision, %2: files, %3: repository, %4: Error message</extracomment>
+        <translation>Не удалось обновить до %1 файл %2 в %3: %4</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+17"/>
+        <source>Unable to find parent revisions of %1 in %2: %3</source>
+        <extracomment>Failed to find parent revisions of a SHA1 for &quot;annotate previous&quot;</extracomment>
+        <translation>Не удалось найти родительскую ревизию для %1 в %2: %3</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Invalid revision</source>
+        <translation>Некорректная ревизия</translation>
+    </message>
+    <message>
+        <location line="+90"/>
+        <source>Unable to retrieve branch of %1: %2</source>
+        <translation>Не удалось получить ветку для %1: %2</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Unable to retrieve top revision of %1: %2</source>
+        <translation>Не удалось получить последную ревизию для %1: %2</translation>
+    </message>
+    <message>
+        <location line="+62"/>
+        <source>Unable to describe revision %1 in %2: %3</source>
+        <translation>Не удалось получить описание ревизии %1 в %2: %3</translation>
+    </message>
+    <message>
+        <location line="+45"/>
+        <source>Stash description</source>
+        <translation>Описание спрятанного</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Description:</source>
+        <translation>Описание:</translation>
+    </message>
+    <message>
+        <location line="+619"/>
+        <source>Unable to restore stash %1: %2</source>
+        <translation>Не удалось восстановить спрятанное %1: %2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Unable to restore stash %1 to branch %2: %3</source>
+        <translation>Не удалось восстановить спрятанное %1 в ветку %2: %3</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>Unable to remove stashes of %1: %2</source>
+        <translation>Не удалось удалить спрятанное в %1: %2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Unable to remove stash %1 of %2: %3</source>
+        <translation>Не удалось удалить спрятанное %1 в %2: %3</translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Unable retrieve stash list of %1: %2</source>
+        <translation>Не удалось получить список спрятанного в %1: %2</translation>
+    </message>
+    <message>
+        <location line="+97"/>
+        <source>Unable to determine git version: %1</source>
+        <translation>Не удалось определить версию Git: %1</translation>
+    </message>
+    <message>
+        <location line="-745"/>
         <source>Unable stash in %1: %2</source>
         <translation>Не удалось спрятать в %1: %2</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+32"/>
+        <source>Unable to resolve stash message &apos;%1&apos; in %2</source>
+        <extracomment>Look-up of a stash via its descriptive message failed.</extracomment>
+        <translation>Не удалось найти спрятанное по сообщению &quot;%1&quot; в %2</translation>
+    </message>
+    <message>
+        <location line="+19"/>
         <source>Unable to run branch command: %1: %2</source>
         <translation>Не удалось выполнить команду branch: %1: %2</translation>
     </message>
@@ -7142,7 +7450,7 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Не удалось запустить показ: %1: %2</translation>
     </message>
     <message>
-        <location line="+149"/>
+        <location line="+151"/>
         <source>Changes</source>
         <translation>Изменения</translation>
     </message>
@@ -7157,12 +7465,12 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Не удалось получить состояние: %1</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+32"/>
         <source>The repository %1 is not initialized yet.</source>
-        <translation>Репозиторий %1 еще не инициализирован.</translation>
+        <translation>Хранилище %1 ещё не инициализировано.</translation>
     </message>
     <message numerus="yes">
-        <location line="+106"/>
+        <location line="+113"/>
         <source>Committed %n file(s).
 </source>
         <translation>
@@ -7211,12 +7519,12 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::GitPlugin</name>
     <message>
-        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+233"/>
+        <location filename="../../../src/plugins/git/gitplugin.cpp" line="+235"/>
         <source>&amp;Git</source>
         <translation>&amp;Git</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+5"/>
         <source>Diff Current File</source>
         <translation>Сравнить текущий файл</translation>
     </message>
@@ -7229,21 +7537,6 @@ on slow machines. In this case, the value should be increased.</source>
         <location line="+3"/>
         <source>Alt+G,Alt+D</source>
         <translation>Alt+G,Alt+D</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>File Status</source>
-        <translation>Статус файла</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Status Related to &quot;%1&quot;</source>
-        <translation>Состояние относительно &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Alt+G,Alt+S</source>
-        <translation>Alt+G,Alt+S</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -7261,14 +7554,14 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Alt+G,Alt+L</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Blame</source>
-        <translation>Аннотация</translation>
+        <translation>Аннотация (Blame)</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Blame for &quot;%1&quot;</source>
-        <translation>Аннотация для &quot;%1&quot;</translation>
+        <translation>Аннотация для &quot;%1&quot; (Blame)</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -7276,7 +7569,7 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Alt+G,Alt+B</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Undo Changes</source>
         <translation>Отменить изменения</translation>
     </message>
@@ -7291,14 +7584,14 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Alt+G,Alt+U</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Stage File for Commit</source>
-        <translation>Подготовить файл к фиксации</translation>
+        <translation>Подготовить файл к фиксации (stage)</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Stage &quot;%1&quot; for Commit</source>
-        <translation>Подготовить &quot;%1&quot; к фиксации</translation>
+        <translation>Подготовить &quot;%1&quot; к фиксации (stage)</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -7306,17 +7599,17 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Alt+G,Alt+A</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>Unstage File from Commit</source>
-        <translation>Убрать файл из подготовленного</translation>
+        <translation>Не фиксировать файл (unstage)</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Unstage &quot;%1&quot; from Commit</source>
-        <translation>Убрать &quot;%1&quot; из подготовленного</translation>
+        <translation>Не фиксировать &quot;%1&quot; (unstage)</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Diff Current Project</source>
         <translation>Сравнить текущий проект</translation>
     </message>
@@ -7326,17 +7619,12 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Сравнить проект &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Project Status</source>
-        <translation>Состояние проекта</translation>
+        <location line="+95"/>
+        <source>Stashes...</source>
+        <translation>Спрятанное (stashes)...</translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>Status Project &quot;%1&quot;</source>
-        <translation>Состояние проекта &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <location line="+6"/>
+        <location line="-87"/>
         <source>Log Project</source>
         <translation>История проекта</translation>
     </message>
@@ -7351,29 +7639,59 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Alt+G,Alt+K</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Undo Project Changes</source>
-        <translation>Отменить изменения проекта</translation>
-    </message>
-    <message>
-        <location line="+8"/>
+        <location line="+45"/>
         <source>Stash</source>
-        <translation>Спрятать</translation>
+        <translation>Спрятать (stash)</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-6"/>
         <source>Saves the current state of your work.</source>
         <translation>Сохраняет текущее состояние вашей работы.</translation>
     </message>
     <message>
+        <location line="-31"/>
+        <source>Diff Repository</source>
+        <translation type="unfinished">Сравнить всё</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Repository Status</source>
+        <translation>Состояние хранилища</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Log Repository</source>
+        <translation>История хранилища</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Undo Repository Changes</source>
+        <translation type="unfinished">Отменить все изменения</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Create Repository...</source>
+        <translation>Создать хранилище...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Stash snapshot...</source>
+        <translation>Спрятать изменения (stash)...</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Saves the current state of your work and resets the repository.</source>
+        <translation>Сохраняет текущее состояние вашей работы и сбрасывает хранилище.</translation>
+    </message>
+    <message>
         <location line="+6"/>
         <source>Pull</source>
-        <translation>Обновить</translation>
+        <translation>Принять (pull)</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Stash Pop</source>
-        <translation>Восстановить спрятанное</translation>
+        <translation>Восстановить спрятанное (stash pop)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -7393,7 +7711,7 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+5"/>
         <source>Push</source>
-        <translation>Отправить</translation>
+        <translation>Отправить (push)</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -7401,24 +7719,19 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Ветки...</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>List Stashes</source>
-        <translation>Обзор спрятанного</translation>
-    </message>
-    <message>
-        <location line="+6"/>
+        <location line="+10"/>
         <source>Show Commit...</source>
         <translation>Показать фиксацию...</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+19"/>
         <source>Commit</source>
         <translation>Фиксировать</translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Diff Selected Files</source>
-        <translation>Сравнить выделенные файлы</translation>
+        <translation>Сравнить выбранные файлы</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -7431,22 +7744,24 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>&amp;Вернуть</translation>
     </message>
     <message>
-        <location line="+127"/>
+        <location line="+89"/>
+        <source>Would you like to revert all pending changes to the repository
+%1?</source>
+        <translation>Желаете откатить все изменения рабочей копии
+%1?</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Revert</source>
         <translation>Откатить</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>Would you like to revert all pending changes to the project?</source>
-        <translation>Откатить все незафиксированные изменения проекта?</translation>
-    </message>
-    <message>
-        <location line="+29"/>
+        <location line="+27"/>
         <source>Another submit is currently being executed.</source>
         <translation>В данный момент уже идёт другая фиксация.</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+27"/>
         <source>Cannot create temporary file: %1</source>
         <translation>Не удалось создать временный файл: %1</translation>
     </message>
@@ -7463,13 +7778,13 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location line="+1"/>
         <source>The commit message check failed. Do you want to commit the change?</source>
-        <translation>Сообщение о фиксации содержит ошибки. Вы все равно желаете фиксировать изменение?</translation>
+        <translation>Сообщение о фиксации содержит ошибки. Желаете продолжить фиксацию?</translation>
     </message>
 </context>
 <context>
     <name>Git::Internal::GitSettings</name>
     <message>
-        <location filename="../../../src/plugins/git/gitsettings.cpp" line="+110"/>
+        <location filename="../../../src/plugins/git/gitsettings.cpp" line="+121"/>
         <source>The binary &apos;%1&apos; could not be located in the path &apos;%2&apos;</source>
         <translation>Программа &apos;%1&apos; отсутствует в &apos;%2&apos;</translation>
     </message>
@@ -7492,12 +7807,12 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <location/>
         <source>Repository:</source>
-        <translation>Репозиторий:</translation>
+        <translation>Хранилище:</translation>
     </message>
     <message>
         <location/>
         <source>repository</source>
-        <translation>репозиторий</translation>
+        <translation>хранилище</translation>
     </message>
     <message>
         <location/>
@@ -7528,7 +7843,7 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::LocalBranchModel</name>
     <message>
-        <location filename="../../../src/plugins/git/branchmodel.cpp" line="+181"/>
+        <location filename="../../../src/plugins/git/branchmodel.cpp" line="+189"/>
         <source>&lt;New branch&gt;</source>
         <translation>&lt;Новая ветка&gt;</translation>
     </message>
@@ -7541,12 +7856,12 @@ on slow machines. In this case, the value should be increased.</source>
 <context>
     <name>Git::Internal::SettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/git/settingspage.cpp" line="+90"/>
+        <location filename="../../../src/plugins/git/settingspage.cpp" line="+107"/>
         <source>Git</source>
         <translation>Git</translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+31"/>
         <source>Git Settings</source>
         <translation>Настройки Git</translation>
     </message>
@@ -7588,24 +7903,39 @@ Perl через переменные среды окружения.</translation
     </message>
     <message>
         <location/>
-        <source>Timeout (seconds):</source>
-        <translation>Показывать не больше (секунд):</translation>
+        <source>Omit date from annotation output</source>
+        <translation>Убрать дату из аннотации</translation>
     </message>
     <message>
         <location/>
-        <source>Prompt to submit</source>
+        <source>Miscellaneous</source>
+        <translation>Разное</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Timeout:</source>
+        <translation>Время ожидания:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>s</source>
+        <translation> сек</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Prompt on submit</source>
         <translation>Спрашивать при фиксации</translation>
     </message>
     <message>
         <location/>
-        <source>Omit date from annotation output</source>
-        <translation>Убрать дату из аннотации</translation>
+        <source>Ignore whitespace changes in annotation</source>
+        <translation>Не учитывать изменения пробелов в описании</translation>
     </message>
 </context>
 <context>
     <name>GitCommand</name>
     <message>
-        <location filename="../../../src/plugins/git/gitcommand.cpp" line="+57"/>
+        <location filename="../../../src/plugins/git/gitcommand.cpp" line="+58"/>
         <source>
 &apos;%1&apos; failed (exit code %2).
 </source>
@@ -7644,14 +7974,14 @@ Perl через переменные среды окружения.</translation
 <context>
     <name>Gitorious::Internal::GitoriousCloneWizard</name>
     <message>
-        <location filename="../../../src/plugins/git/gitorious/gitoriousclonewizard.cpp" line="+81"/>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousclonewizard.cpp" line="+83"/>
         <source>Clones a project from a Gitorious repository.</source>
-        <translation>Клонирование проекта из репозитория Gitorious.</translation>
+        <translation>Клонирование проекта из хранилища Gitorious.</translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Gitorious Repository Clone</source>
-        <translation>Клонировать репозиторий Gitorious</translation>
+        <translation>Клонировать хранилище Gitorious</translation>
     </message>
 </context>
 <context>
@@ -7699,11 +8029,6 @@ Perl через переменные среды окружения.</translation
     </message>
     <message>
         <location/>
-        <source>Filter:</source>
-        <translation>Фильтр:</translation>
-    </message>
-    <message>
-        <location/>
         <source>...</source>
         <translation>...</translation>
     </message>
@@ -7713,7 +8038,7 @@ Perl через переменные среды окружения.</translation
         <translation>Обновлять</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/git/gitorious/gitoriousprojectwidget.cpp" line="+84"/>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousprojectwidget.cpp" line="+81"/>
         <source>Project</source>
         <translation>Проект</translation>
     </message>
@@ -7739,7 +8064,7 @@ Perl через переменные среды окружения.</translation
         <translation>WizardPage</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/git/gitorious/gitoriousrepositorywizardpage.cpp" line="+83"/>
+        <location filename="../../../src/plugins/git/gitorious/gitoriousrepositorywizardpage.cpp" line="+82"/>
         <source>Name</source>
         <translation>Название</translation>
     </message>
@@ -7754,14 +8079,14 @@ Perl через переменные среды окружения.</translation
         <translation>Описание</translation>
     </message>
     <message>
-        <location line="+74"/>
+        <location line="+72"/>
         <source>Choose a repository of the project &apos;%1&apos;.</source>
-        <translation>Выберите репозиторий проекта &apos;%1&apos;.</translation>
+        <translation>Выберите хранилище проекта &quot;%1&quot;.</translation>
     </message>
     <message>
         <location line="+9"/>
         <source>Mainline Repositories</source>
-        <translation>Основные репозитории</translation>
+        <translation>Основные хранилища</translation>
     </message>
     <message>
         <location line="+0"/>
@@ -7771,27 +8096,17 @@ Perl через переменные среды окружения.</translation
     <message>
         <location line="+0"/>
         <source>Baseline Repositories</source>
-        <translation>Базовые репозитории</translation>
+        <translation>Базовые хранилища</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Shared Project Repositories</source>
-        <translation>Репозитории общих проектов</translation>
+        <translation>Хранилища общих проектов</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Personal Repositories</source>
-        <translation>Частные репозитории</translation>
-    </message>
-    <message>
-        <location filename="../../../src/plugins/git/gitorious/gitoriousrepositorywizardpage.ui"/>
-        <source>Filter:</source>
-        <translation>Фильтр:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>...</source>
-        <translation>...</translation>
+        <translation>Частные хранилища</translation>
     </message>
 </context>
 <context>
@@ -7848,7 +8163,7 @@ Perl через переменные среды окружения.</translation
         <translation>Добавить новую страницу</translation>
     </message>
     <message>
-        <location line="+238"/>
+        <location line="+240"/>
         <source>Print Document</source>
         <translation>Печать документа</translation>
     </message>
@@ -7859,7 +8174,7 @@ Perl через переменные среды окружения.</translation
         <translation>неизвестная</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+94"/>
         <source>Add New Page</source>
         <translation>Добавить новую страницу</translation>
     </message>
@@ -7882,18 +8197,13 @@ Perl через переменные среды окружения.</translation
 <context>
     <name>Help::Internal::DocSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/help/docsettingspage.cpp" line="+51"/>
-        <location line="+84"/>
+        <location filename="../../../src/plugins/help/docsettingspage.cpp" line="+53"/>
+        <location line="+89"/>
         <source>Documentation</source>
         <translation>Документация</translation>
     </message>
     <message>
-        <location line="-73"/>
-        <source>Help</source>
-        <translation>Справка</translation>
-    </message>
-    <message>
-        <location line="+23"/>
+        <location line="-55"/>
         <location line="+10"/>
         <source>Add Documentation</source>
         <translation>Добавить документацию</translation>
@@ -7909,7 +8219,7 @@ Perl через переменные среды окружения.</translation
         <translation>Файл %1 не является корректным файлом справки Qt!</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+45"/>
         <source>Cannot unregister documentation file %1!</source>
         <translation>Невозможно дерегистрировать файл документации %1!</translation>
     </message>
@@ -7917,30 +8227,20 @@ Perl через переменные среды окружения.</translation
 <context>
     <name>Help::Internal::FilterSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/help/filtersettingspage.cpp" line="+51"/>
+        <location filename="../../../src/plugins/help/filtersettingspage.cpp" line="+54"/>
         <source>Filters</source>
         <translation>Фильтры</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Help</source>
-        <translation>Справка</translation>
     </message>
 </context>
 <context>
     <name>Help::Internal::GeneralSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/help/generalsettingspage.cpp" line="+74"/>
+        <location filename="../../../src/plugins/help/generalsettingspage.cpp" line="+76"/>
         <source>General settings</source>
         <translation>Основные настройки</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Help</source>
-        <translation>Справка</translation>
-    </message>
-    <message>
-        <location line="+122"/>
+        <location line="+143"/>
         <source>Open Image</source>
         <translation>Открыть изображение</translation>
     </message>
@@ -7980,7 +8280,7 @@ Perl через переменные среды окружения.</translation
 <context>
     <name>Help::Internal::HelpPlugin</name>
     <message>
-        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+209"/>
+        <location filename="../../../src/plugins/help/helpplugin.cpp" line="+163"/>
         <location line="+46"/>
         <source>Contents</source>
         <translation>Содержание</translation>
@@ -8008,7 +8308,7 @@ Perl через переменные среды окружения.</translation
         <translation>Домой</translation>
     </message>
     <message>
-        <location line="+231"/>
+        <location line="+284"/>
         <source>Previous</source>
         <translation>Назад</translation>
     </message>
@@ -8018,7 +8318,7 @@ Perl через переменные среды окружения.</translation
         <translation>Вперёд</translation>
     </message>
     <message>
-        <location line="-214"/>
+        <location line="-267"/>
         <source>Add Bookmark</source>
         <translation>Добавить закладку</translation>
     </message>
@@ -8075,7 +8375,7 @@ Perl через переменные среды окружения.</translation
     <message>
         <location line="+4"/>
         <source>Reset Font Size</source>
-        <translation>Сбросить размер шрифта</translation>
+        <translation>Восстановить размер шрифта</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -8083,23 +8383,23 @@ Perl через переменные среды окружения.</translation
         <translation>Ctrl+0</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+73"/>
         <source>Go to Help Mode</source>
         <translation>Перейти в режим справки</translation>
     </message>
     <message>
-        <location line="+174"/>
-        <location line="+165"/>
+        <location line="+171"/>
+        <location line="+202"/>
         <source>Unfiltered</source>
         <translation>Вся</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+10"/>
         <source>&lt;html&gt;&lt;head&gt;&lt;title&gt;No Documentation&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;No documentation available.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head&gt;&lt;title&gt;Документация отсутствует&lt;/title&gt;&lt;/head&gt;&lt;body&gt;&lt;br/&gt;&lt;center&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;Нет доступной документации.&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+64"/>
         <source>Filtered by:</source>
         <translation>Документация:</translation>
     </message>
@@ -8143,7 +8443,7 @@ Perl через переменные среды окружения.</translation
 <context>
     <name>HelpViewer</name>
     <message>
-        <location filename="../../../src/shared/help/helpviewer.cpp" line="+247"/>
+        <location filename="../../../src/shared/help/helpviewer.cpp" line="+246"/>
         <source>Open Link in New Tab</source>
         <translation>Открыть ссылку в новой вкладке</translation>
     </message>
@@ -8201,7 +8501,7 @@ Perl через переменные среды окружения.</translation
 <context>
     <name>InputPane</name>
     <message>
-        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+76"/>
+        <location filename="../../../src/plugins/debugger/debuggeroutputwindow.cpp" line="+86"/>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Нажмите Ctrl-&lt;Ввод&gt; для выполнения строки.</translation>
     </message>
@@ -8214,7 +8514,7 @@ Perl через переменные среды окружения.</translation
         <translation>Фильтры</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>Locator</source>
         <translation>Поисковик</translation>
     </message>
@@ -8222,123 +8522,100 @@ Perl через переменные среды окружения.</translation
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../../../src/tools/qdebugger/mainwindow.cpp" line="+159"/>
+        <location filename="../../../src/tools/qml/standalone/mainwindow.cpp" line="+193"/>
         <source>Ctrl+Q</source>
         <translation>Ctrl+Q</translation>
     </message>
     <message>
-        <location line="-4"/>
         <source>Open file</source>
-        <translation>Открыть файл</translation>
+        <translation type="obsolete">Открыть файл</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-45"/>
         <source>Ctrl+O</source>
         <translation>Ctrl+O</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Quit</source>
-        <translation>Выход</translation>
+        <translation type="obsolete">Выход</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Run to main()</source>
-        <translation>Запустить до main()</translation>
+        <translation type="obsolete">Запустить до main()</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Ctrl+F5</source>
-        <translation>Ctrl+F5</translation>
+        <translation type="obsolete">Ctrl+F5</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>F5</source>
-        <translation>F5</translation>
+        <translation type="obsolete">F5</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Shift+F5</source>
-        <translation>Shift+F5</translation>
+        <translation type="obsolete">Shift+F5</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>F6</source>
-        <translation>F6</translation>
+        <translation type="obsolete">F6</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>F7</source>
-        <translation>F7</translation>
+        <translation type="obsolete">F7</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Shift+F6</source>
-        <translation>Shift+F6</translation>
+        <translation type="obsolete">Shift+F6</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Shift+F9</source>
-        <translation>Shift+F9</translation>
+        <translation type="obsolete">Shift+F9</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Shift+F7</source>
-        <translation>Shift+F7</translation>
+        <translation type="obsolete">Shift+F7</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Shift+F8</source>
-        <translation>Shift+F8</translation>
+        <translation type="obsolete">Shift+F8</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>F8</source>
-        <translation>F8</translation>
+        <translation type="obsolete">F8</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>ALT+D,ALT+W</source>
-        <translation>ALT+D,ALT+W</translation>
+        <translation type="obsolete">ALT+D,ALT+W</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>Files</source>
-        <translation>Файлы</translation>
+        <translation type="obsolete">Файлы</translation>
     </message>
     <message>
-        <location line="+19"/>
-        <location filename="../../../src/tools/texteditor/mainwindow.cpp" line="+121"/>
         <source>File</source>
-        <translation>Файл</translation>
+        <translation type="obsolete">Файл</translation>
     </message>
     <message>
-        <location line="+7"/>
         <source>Debug</source>
-        <translation>Отладка</translation>
+        <translation type="obsolete">Отладка</translation>
     </message>
     <message>
-        <location line="+105"/>
         <source>Not a runnable project</source>
-        <translation>Незапускаемый проект</translation>
+        <translation type="obsolete">Незапускаемый проект</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>The current startup project can not be run.</source>
-        <translation>Текущий проект не может быть запущен.</translation>
+        <translation type="obsolete">Текущий проект не может быть запущен.</translation>
     </message>
     <message>
-        <location line="+146"/>
         <source>Open File</source>
-        <translation>Открыть файл</translation>
+        <translation type="obsolete">Открыть файл</translation>
     </message>
     <message>
-        <location line="+58"/>
         <source>Cannot find special data dumpers</source>
-        <translation>Не удалось найти дамперы специальных данных</translation>
+        <translation type="obsolete">Не удалось найти дамперы специальных данных</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>The debugged binary does not contain information needed for nice display of Qt data types.
 
 Make sure you use something like
@@ -8346,16 +8623,176 @@ Make sure you use something like
 SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp
 
 in your .pro file.</source>
-        <translation>Отлаживаемая программа не содержит информацию, необходимую для нормального отображения типов данных Qt.
+        <translation type="obsolete">Отлаживаемая программа не содержит информацию, необходимую для нормального отображения типов данных Qt.
 
 Убедитесь, что в вашем .pro-файле исходные тексты подключаются аналогично:
 
 SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
     </message>
     <message>
-        <location filename="../../../src/tools/texteditor/mainwindow.cpp" line="+62"/>
-        <source>Open Executable File</source>
-        <translation>Открыть исполняемый файл</translation>
+        <location line="-57"/>
+        <source>Bauhaus</source>
+        <comment>MainWindowClass</comment>
+        <translation type="unfinished">Баухаус</translation>
+    </message>
+    <message>
+        <location line="+48"/>
+        <source>&amp;File</source>
+        <translation>&amp;Файл</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;New...</source>
+        <translation>&amp;Новый...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+N</source>
+        <translation>Ctrl+N</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&amp;Open...</source>
+        <translation>&amp;Открыть...</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Recent Files</source>
+        <translation>Недавние файлы</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&amp;Save</source>
+        <translation>&amp;Сохранить</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+S</source>
+        <translation>Ctrl+S</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Save &amp;As...</source>
+        <translation>Сохранить &amp;как...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>&amp;Preview</source>
+        <translation>&amp;Предпросмотр</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+R</source>
+        <translation>Ctrl+R</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>&amp;Preview with Debug</source>
+        <translation type="unfinished">Предпросмотр с отла&amp;дкой</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+D</source>
+        <translation>Ctrl+D</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>&amp;Quit</source>
+        <translation>В&amp;ыход</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&amp;Edit</source>
+        <translation>&amp;Правка</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Ctrl+Z</source>
+        <translation>Ctrl+Z</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Ctrl+Y</source>
+        <translation>Ctrl+Y</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ctrl+Shift+Z</source>
+        <translation>Ctrl+Shift+Z</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&amp;Copy</source>
+        <translation>&amp;Копировать</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&amp;Cut</source>
+        <translation>Выре&amp;зать</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&amp;Paste</source>
+        <translation>В&amp;ставить</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&amp;Delete</source>
+        <translation>&amp;Удалить</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Del</source>
+        <translation>Del</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Backspace</source>
+        <translation>Backspace</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;View</source>
+        <translation>&amp;Вид</translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>&amp;Help</source>
+        <translation>&amp;Справка</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&amp;About...</source>
+        <translation>&amp;О программе...</translation>
+    </message>
+    <message>
+        <location line="+51"/>
+        <source>Properties</source>
+        <translation>Свойства</translation>
+    </message>
+    <message>
+        <location line="+94"/>
+        <source>Could not open file &lt;%1&gt;</source>
+        <translation>Не удалось открыть файл &lt;%1&gt;</translation>
+    </message>
+    <message>
+        <location line="+107"/>
+        <source>Qml Errors:</source>
+        <translation>Ошибки Qml:</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>
+%1 %2:%3 - %4</source>
+        <translation>
+%1 %2:%3 - %4</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>
+%1:%2 - %3</source>
+        <translation>
+%1:%2 - %3</translation>
     </message>
 </context>
 <context>
@@ -8374,12 +8811,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
 <context>
     <name>MimeType</name>
     <message>
-        <location filename="../../../build/46/share/qtcreator/translations/mime_tr.h" line="+1"/>
-        <source>unknown</source>
-        <translation>неизвестный</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location filename="../../../build/ru/share/qtcreator/translations/mime_tr.h" line="+14"/>
         <source>CMake Project file</source>
         <translation>Файл проекта CMake</translation>
     </message>
@@ -8439,7 +8871,72 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
         <translation>Файл базового проекта Qt Creator</translation>
     </message>
     <message>
+        <location line="-23"/>
+        <source>BMP image</source>
+        <translation>Изображение BMP</translation>
+    </message>
+    <message>
         <location line="+1"/>
+        <source>GIF image</source>
+        <translation>Изображение  GIF</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>ICO image</source>
+        <translation>Изображение ICO</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>JPEG image</source>
+        <translation>Изображение JPEG</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>MNG video</source>
+        <translation>Видео MNG</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>PBM image</source>
+        <translation>Изображение PBM</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>PGM image</source>
+        <translation>Изображение PGM</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>PNG image</source>
+        <translation>Изображение PNG</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>PPM image</source>
+        <translation>Изображение PPM</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>SVG image</source>
+        <translation>Изображение SVG</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>TIFF image</source>
+        <translation>Изображение TIFF</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>XBM image</source>
+        <translation>Изображение XBM</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>XPM image</source>
+        <translation>Изображение XPM</translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>Generic Project Files</source>
         <translation>Файлы базовых проектов</translation>
     </message>
@@ -8459,7 +8956,7 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
         <translation>Шаблон сообщения о фиксации Perforce</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Qml Project file</source>
         <translation>Файл проекта Qml</translation>
     </message>
@@ -8479,12 +8976,12 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
         <translation>Исходный файл перевода</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-4"/>
         <source>Qt Script file</source>
         <translation>Файл сценария Qt</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+5"/>
         <source>Qt Resource file</source>
         <translation>Файл ресурсов Qt</translation>
     </message>
@@ -8710,38 +9207,58 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
         <source>Nick Names</source>
         <translation>Ники</translation>
     </message>
-    <message>
-        <location/>
-        <source>Filter:</source>
-        <translation>Фильтр:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Clear</source>
-        <translation>Очистить</translation>
-    </message>
 </context>
 <context>
     <name>OpenWith::Editors</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+94"/>
+        <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+98"/>
         <source>Plain Text Editor</source>
         <translation>Текстовый редактор</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location filename="../../../src/plugins/bineditor/bineditorconstants.h" line="+37"/>
         <source>Binary Editor</source>
         <translation>Бинарный редактор</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/cppeditor/cppeditorconstants.h" line="+39"/>
+        <location filename="../../../src/plugins/cppeditor/cppeditorconstants.h" line="+40"/>
         <source>C++ Editor</source>
         <translation>Редактор C++</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerconstants.h" line="+42"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerconstants.h" line="+45"/>
         <source>.pro File Editor</source>
         <translation>Редактор файлов .pro</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/genericprojectmanager/genericprojectconstants.h" line="+47"/>
+        <source>.files Editor</source>
+        <translation>Редактор *.files</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmljseditor/qmljseditorconstants.h" line="+41"/>
+        <source>QMLJS Editor</source>
+        <translation>Редактор QMLJS</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectconstants.h" line="+49"/>
+        <source>.qmlproject Editor</source>
+        <translation>Редактор *.qmlproject</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="+102"/>
+        <source>Qt Designer</source>
+        <translation>Qt Designer</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt Linguist</source>
+        <translation>Qt Linguist</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/resourceeditor/resourceeditorconstants.h" line="+38"/>
+        <source>Resource Editor</source>
+        <translation>Редактор ресурсов</translation>
     </message>
 </context>
 <context>
@@ -8772,18 +9289,12 @@ SOURCES *= .../ide/main/bin/gdbmacros/gdbmacros.cpp.</translation>
     </message>
     <message>
         <location/>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pastebin.com&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; allows to send posts to custom subdomains (eg. qtcreator.pastebin.com). Fill in the desired prefix.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that the plugin will use this for posting as well as fetching.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;pastebin.com&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; позволяет отправлять данные на пользовательские субдомены (например, qtcreator.pastebin.com). Укажите желаемый префикс.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Внимание! Модуль будет использовать его как для отправки, так и для получения.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows to send posts to custom subdomains (eg. qtcreator.pastebin.com). Fill in the desired prefix.&lt;/p&gt;
+&lt;p&gt;Note that the plugin will use this for posting as well as fetching.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+&lt;p&gt;&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; позволяет отправлять данные на пользовательские субдомены (например, qtcreator.pastebin.com). Поэтому укажите желаемый префикс.&lt;/p&gt;
+&lt;p&gt;Внимание! Модуль будет использовать его как для отправки, так и для получения.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -8797,14 +9308,9 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>PasteBinDotComSettings</name>
     <message>
-        <location filename="../../../src/plugins/cpaster/pastebindotcomsettings.cpp" line="+53"/>
+        <location filename="../../../src/plugins/cpaster/pastebindotcomsettings.cpp" line="+55"/>
         <source>Pastebin.com</source>
         <translation>Pastebin.com</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Code Pasting</source>
-        <translation>Вставка кода</translation>
     </message>
 </context>
 <context>
@@ -8831,39 +9337,6 @@ p, li { white-space: pre-wrap; }
         <location line="+40"/>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Комментарий&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal</name>
-    <message>
-        <location filename="../../../src/plugins/perforce/perforcesettings.cpp" line="+100"/>
-        <source>No executable specified</source>
-        <translation>Программа не указана</translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Unable to launch &quot;%1&quot;: %2</source>
-        <translation>Не удалось запустить &quot;%1&quot;: %2</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>&quot;%1&quot; timed out after %2ms.</source>
-        <translation>У &quot;%1&quot; вышло время через %2 мс.</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation>&quot;%1&quot; завершилась аварийно.</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>&quot;%1&quot; terminated with exit code %2: %3</source>
-        <translation>&quot;%1&quot; завершилась с кодом %2: %3</translation>
-    </message>
-    <message>
-        <location line="+8"/>
-        <source>The client does not seem to contain any mapped files.</source>
-        <translation>Похоже, клиент не содержит отображенных файлов.</translation>
     </message>
 </context>
 <context>
@@ -8905,12 +9378,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Perforce::Internal::PerforcePlugin</name>
     <message>
-        <location filename="../../../src/plugins/perforce/perforceplugin.cpp" line="+243"/>
+        <location filename="../../../src/plugins/perforce/perforceplugin.cpp" line="+264"/>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+40"/>
         <source>Edit</source>
         <translation>Изменить</translation>
     </message>
@@ -8930,7 +9403,7 @@ p, li { white-space: pre-wrap; }
         <translation>Изменить файл</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Add</source>
         <translation>Добавить</translation>
     </message>
@@ -8950,22 +9423,12 @@ p, li { white-space: pre-wrap; }
         <translation>Добавить файл</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Delete &quot;%1&quot;</source>
-        <translation>Удалить &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+8"/>
         <source>Delete File</source>
         <translation>Удалить файл</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+5"/>
         <source>Revert</source>
         <translation>Откатить</translation>
     </message>
@@ -8985,7 +9448,7 @@ p, li { white-space: pre-wrap; }
         <translation>Откатить файл</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="-57"/>
         <location line="+3"/>
         <source>Diff Current File</source>
         <translation>Сравнить текущий файл</translation>
@@ -8996,7 +9459,7 @@ p, li { white-space: pre-wrap; }
         <translation>Сравнить &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+64"/>
         <source>Diff Current Project/Session</source>
         <translation>Сравнить текущий проект/сессию</translation>
     </message>
@@ -9011,12 +9474,12 @@ p, li { white-space: pre-wrap; }
         <translation>Alt+P,Alt+D</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+46"/>
         <source>Diff Opened Files</source>
         <translation>Сравнить открытые файлы</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+6"/>
         <source>Opened</source>
         <translation>Открытые</translation>
     </message>
@@ -9026,53 +9489,48 @@ p, li { white-space: pre-wrap; }
         <translation>Alt+P,Alt+O</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="-41"/>
         <source>Submit Project</source>
         <translation>Фиксировать проект</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+3"/>
         <source>Alt+P,Alt+S</source>
         <translation>Alt+P,Alt+S</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+49"/>
         <source>Pending Changes...</source>
         <translation>Ожидающие изменения...</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Update Current Project/Session</source>
-        <translation>Обновить текущий проект/сессию</translation>
-    </message>
-    <message>
-        <location line="+1"/>
+        <location line="-43"/>
         <source>Update Project &quot;%1&quot;</source>
         <translation>Обновить проект &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+57"/>
         <source>Describe...</source>
         <translation>Описать...</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="-139"/>
         <location line="+3"/>
         <source>Annotate Current File</source>
-        <translation>Аннотация текущего файла</translation>
+        <translation>Аннотация текущего файла (annotate)</translation>
     </message>
     <message>
         <location line="-3"/>
         <source>Annotate &quot;%1&quot;</source>
-        <translation>Аннотация &quot;%1&quot;</translation>
+        <translation>Аннотация &quot;%1&quot; (annotate)</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+144"/>
         <source>Annotate...</source>
-        <translation>Аннотация...</translation>
+        <translation>Аннотация (annotate)...</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="-136"/>
         <location line="+4"/>
         <source>Filelog Current File</source>
         <translation>История текущего файла</translation>
@@ -9088,17 +9546,72 @@ p, li { white-space: pre-wrap; }
         <translation>Alt+P,Alt+F</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+138"/>
         <source>Filelog...</source>
         <translation>История...</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="-18"/>
         <source>Update All</source>
         <translation>Обновить всё</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="-94"/>
+        <source>Delete...</source>
+        <translation>Удалить...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Delete &quot;%1&quot;...</source>
+        <translation>Удалить &quot;%1&quot;...</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Log Project &quot;%1&quot;</source>
+        <translation>История проекта &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Log Project</source>
+        <translation>История проекта</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Submit Project &quot;%1&quot;</source>
+        <translation>Фиксировать проект &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Update Current Project</source>
+        <translation>Обновить текущий проект</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Revert Unchanged</source>
+        <translation>Откатить неизменённые файлы</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Revert Unchanged Files of Project &quot;%1&quot;</source>
+        <translation>Откатить неизменённые файлы проекта &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Revert Project</source>
+        <translation>Откатить проект</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Revert Project &quot;%1&quot;</source>
+        <translation>Откатить проект &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Repository Log</source>
+        <translation>История хранилища</translation>
+    </message>
+    <message>
+        <location line="+35"/>
         <source>Submit</source>
         <translation>Фиксировать</translation>
     </message>
@@ -9118,89 +9631,132 @@ p, li { white-space: pre-wrap; }
         <translation>&amp;Вернуть</translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+42"/>
+        <location line="+52"/>
         <source>p4 revert</source>
         <translation>p4 revert</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="-51"/>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Файл был изменён. Желаете откатить его изменения?</translation>
     </message>
     <message>
-        <location line="+98"/>
+        <location line="+50"/>
+        <source>Do you want to revert all changes to the project &quot;%1&quot;?</source>
+        <translation>Желаете откатить все изменения проекта &quot;%1&quot;?</translation>
+    </message>
+    <message>
+        <location line="+75"/>
         <source>Another submit is currently executed.</source>
         <translation>Другая фиксация уже идёт в этот момент.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+10"/>
         <source>Cannot create temporary file.</source>
         <translation>Не удалось создать временный файл.</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+39"/>
         <source>Project has no files</source>
         <translation>Проект не содержит файлов</translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+51"/>
         <source>p4 annotate</source>
         <translation>p4 annotate</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+36"/>
         <source>p4 annotate %1</source>
         <translation>p4 annotate %1</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+16"/>
         <source>p4 filelog</source>
         <translation>p4 filelog</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+36"/>
         <source>p4 filelog %1</source>
         <translation>p4 filelog %1</translation>
     </message>
     <message>
-        <location line="+110"/>
+        <location line="+126"/>
         <source>Executing: %1
 </source>
         <translation>Выполняется: %1
 </translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+52"/>
         <source>The process terminated with exit code %1.</source>
         <translation>Процесс завершился с кодом %1.</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+334"/>
+        <source>p4 submit failed: %1</source>
+        <translation>Не удалось выполнить фиксацию perforce: %1</translation>
+    </message>
+    <message>
+        <location line="+76"/>
+        <source>Error running &quot;where&quot; on %1: %2</source>
+        <extracomment>Failed to run p4 &quot;where&quot; to resolve a Perforce file name to a local file system name.</extracomment>
+        <translation>Ошибка выполнения &quot;where&quot; на %1: %2</translation>
+    </message>
+    <message>
+        <location line="+31"/>
+        <source>The file is not mapped</source>
+        <extracomment>File is not managed by Perforce</extracomment>
+        <translation>Файл не отображён</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Perforce repository: %1</source>
+        <translation>Хранилище perforce: %1</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Perforce: Unable to determine the repository: %1</source>
+        <translation>Perforce: Не удалось распознать хранилище: %1</translation>
+    </message>
+    <message>
+        <location line="-477"/>
         <source>The process terminated abnormally.</source>
         <translation>Процесс завершился аварийно.</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="-10"/>
         <source>Could not start perforce &apos;%1&apos;. Please check your settings in the preferences.</source>
         <translation>Не удалось запустить Perforce &apos;%1&apos;. Пожалуйста, проверьте настройки.</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+5"/>
         <source>Perforce did not respond within timeout limit (%1 ms).</source>
         <translation>Perforce не ответил за отведённое время (%1 ms).</translation>
     </message>
     <message>
-        <location line="+84"/>
+        <location line="+107"/>
+        <source>Unable to write input data to process %1: %2</source>
+        <translation>Не удалось отправить входные данные процессу %1: %2</translation>
+    </message>
+    <message>
+        <location line="+51"/>
+        <source>Perforce is not correctly configured.</source>
+        <translation>Perforce некорректно настроен.</translation>
+    </message>
+    <message>
+        <location line="+98"/>
         <source>p4 diff %1</source>
         <translation>p4 diff %1</translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+15"/>
         <source>p4 describe %1</source>
         <translation>p4 describe %1</translation>
     </message>
     <message>
-        <location line="+41"/>
+        <location line="+36"/>
         <source>Closing p4 Editor</source>
         <translation>Закрытие редактора Perforce</translation>
     </message>
@@ -9215,23 +9771,12 @@ p, li { white-space: pre-wrap; }
         <translation>Ошибка в результате проверки сообщения. Желаете все же отправить этот список изменений</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+23"/>
         <source>Cannot open temporary file.</source>
         <translation>Не удалось открыть временный файл.</translation>
     </message>
     <message>
-        <location line="+19"/>
-        <location line="+8"/>
-        <source>Cannot execute p4 submit.</source>
-        <translation>Не удалось запустить фиксацию Perforce.</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>p4 submit failed (exit code %1).</source>
-        <translation>Фиксация Perforce не удалась (код завершения %1).</translation>
-    </message>
-    <message>
-        <location line="+7"/>
+        <location line="+17"/>
         <source>Pending change</source>
         <translation>Рассматриваемое изменение</translation>
     </message>
@@ -9239,21 +9784,6 @@ p, li { white-space: pre-wrap; }
         <location line="+0"/>
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
         <translation>Не удалось зафиксировать измененения, так как рабочая копия устарела. Создана фиксация для рассмотрения.</translation>
-    </message>
-    <message>
-        <location line="+59"/>
-        <source>Invalid configuration: %1</source>
-        <translation>Некорректная конфигурация: %1</translation>
-    </message>
-    <message>
-        <location line="+63"/>
-        <source>Timeout waiting for &quot;where&quot; (%1).</source>
-        <translation>Время вышло для &quot;where&quot; (%1).</translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
-        <translation>Ошибка выполнения &quot;where&quot; на %1: файл не может быть отображен</translation>
     </message>
 </context>
 <context>
@@ -9286,12 +9816,6 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <source>Use default P4 environment variables</source>
-        <translation>Использовать умолчальные для p4
-переменных среды окружения</translation>
-    </message>
-    <message>
-        <location/>
         <source>Environment variables</source>
         <translation>Переменные среды окружения</translation>
     </message>
@@ -9316,32 +9840,57 @@ p, li { white-space: pre-wrap; }
         <translation>Проверить</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+106"/>
+        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="+136"/>
         <source>Perforce</source>
         <translation>Perforce</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/perforce/settingspage.ui"/>
-        <source>Prompt to submit</source>
+        <source>Configuration</source>
+        <translation>Настройка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Miscellaneous</source>
+        <translation>Разное</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Timeout:</source>
+        <translation>Время ожидания:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>s</source>
+        <translation> сек</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Prompt on submit</source>
         <translation>Спрашивать при фиксации</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Log count:</source>
+        <translation type="unfinished">Число записей:</translation>
     </message>
 </context>
 <context>
     <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="-59"/>
+        <location filename="../../../src/plugins/perforce/settingspage.cpp" line="-87"/>
         <source>Perforce Command</source>
         <translation>Команда Perforce</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+17"/>
         <source>Testing...</source>
         <translation>Проверка...</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Test succeeded.</source>
-        <translation>Проверка успешно завершена.</translation>
+        <location line="+7"/>
+        <source>Test succeeded (%1).</source>
+        <translation>Проверка успешно завершена (%1).</translation>
     </message>
 </context>
 <context>
@@ -9413,6 +9962,12 @@ p, li { white-space: pre-wrap; }
         <source>The option %1 requires an argument.</source>
         <translation>Опция %1 требует параметр.</translation>
     </message>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/pluginmanager/pluginpath.cpp" line="+181"/>
+        <location filename="../../../src/plugins/qmldesigner/core/pluginmanager/widgetpluginpath.cpp" line="+204"/>
+        <source>Failed Plugins</source>
+        <translation>Проблемные модули</translation>
+    </message>
 </context>
 <context>
     <name>PluginSpec</name>
@@ -9462,7 +10017,7 @@ p, li { white-space: pre-wrap; }
         <translation>Не удалось загрузить библиотеку, так как state != Resolved</translation>
     </message>
     <message>
-        <location line="+35"/>
+        <location line="+36"/>
         <source>Plugin is not valid (does not derive from IPlugin)</source>
         <translation>Некорретный модуль (не потомок IPlugin)</translation>
     </message>
@@ -9495,7 +10050,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/abstractprocessstep.cpp" line="+188"/>
+        <location filename="../../../src/plugins/projectexplorer/abstractprocessstep.cpp" line="+201"/>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
         <translation>&lt;font color=&quot;#0000ff&quot;&gt;Запускается: %1 %2&lt;/font&gt;
@@ -9512,7 +10067,7 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Завершено с кодом %1.&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+6"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not start process %1 &lt;/b&gt;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Невозможно запустить процесс %1 &lt;/b&gt;&lt;/font&gt;</translation>
     </message>
@@ -9538,7 +10093,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
-        <location filename="../../../src/plugins/projectexplorer/buildmanager.cpp" line="+61"/>
+        <location filename="../../../src/plugins/projectexplorer/buildmanager.cpp" line="+65"/>
         <source>Finished %n of %1 build steps</source>
         <translation>
             <numerusform>Завершен %n из %1 этапов сборки</numerusform>
@@ -9547,52 +10102,83 @@ p, li { white-space: pre-wrap; }
         </translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+28"/>
+        <source>Compile</source>
+        <comment>Category for compiler isses listened under &apos;Build Issues&apos;</comment>
+        <translation>Компиляция</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Buildsystem</source>
+        <comment>Category for build system isses listened under &apos;Build Issues&apos;</comment>
+        <translation>Сборка</translation>
+    </message>
+    <message>
+        <location line="+73"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Прерванная сборка.&lt;/font&gt;</translation>
     </message>
     <message>
-        <location line="+61"/>
+        <location line="+66"/>
         <source>Build</source>
         <translation>Сборка</translation>
     </message>
     <message>
-        <location line="+55"/>
-        <location line="+39"/>
+        <location line="+58"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Ошибка во время сборки проекта %1&lt;/font&gt;</translation>
     </message>
     <message>
-        <location line="-38"/>
-        <location line="+39"/>
+        <location line="+1"/>
+        <location line="+63"/>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;When executing build step &apos;%1&apos;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Во время выполнения сборки на этапе &apos;%1&apos;&lt;/font&gt;</translation>
     </message>
     <message>
-        <location line="-37"/>
+        <location line="-61"/>
         <source>Error while building project %1</source>
         <translation>Ошибка во время сборки проекта %1</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+28"/>
         <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
         <translation>&lt;b&gt;Выполняется сборка проекта %2...&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1 (%2)&lt;/font&gt;</source>
+        <translation>&lt;font color=&quot;#ff0000&quot;&gt;Ошибка во время сборки проекта %1 (%2)&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="+249"/>
+        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="+265"/>
         <source>Custom Executable</source>
         <translation>Особая программа</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+80"/>
         <source>Could not find the executable, please specify one.</source>
         <translation>Не удалось найти программу, пожалуйста, укажите её.</translation>
     </message>
     <message>
-        <location line="+124"/>
+        <location line="+50"/>
+        <source>Clean Environment</source>
+        <translation>Чистая среда</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>System Environment</source>
+        <translation>Системная среда</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Build Environment</source>
+        <translation>Среда сборки</translation>
+    </message>
+    <message>
+        <location line="+83"/>
         <location line="+32"/>
         <source>Run %1</source>
         <translation>Выполнить %1</translation>
@@ -9601,8 +10187,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
     <message>
-        <location line="+49"/>
-        <location line="+16"/>
+        <location line="+52"/>
+        <location line="+42"/>
         <source>Custom Executable</source>
         <translation>Особая программа</translation>
     </message>
@@ -9610,7 +10196,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/debugginghelper.cpp" line="+135"/>
+        <location filename="../../../src/plugins/projectexplorer/debugginghelper.cpp" line="+149"/>
         <source>The target directory %1 could not be created.</source>
         <translation>Не удалось создать целевой каталог %1.</translation>
     </message>
@@ -9669,7 +10255,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::EnvironmentModel</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/environmenteditmodel.cpp" line="+179"/>
+        <location filename="../../../src/plugins/projectexplorer/environmenteditmodel.cpp" line="+146"/>
         <source>Variable</source>
         <translation>Переменная</translation>
     </message>
@@ -9679,19 +10265,18 @@ Reason: %2</source>
         <translation>Значение</translation>
     </message>
     <message>
-        <location line="+121"/>
-        <location line="+254"/>
+        <location line="+118"/>
+        <location line="+224"/>
         <source>&lt;VARIABLE&gt;</source>
         <translation>&lt;переменная&gt;</translation>
     </message>
     <message>
-        <location line="-243"/>
+        <location line="-219"/>
         <source>&lt;VALUE&gt;</source>
         <translation>&lt;значение&gt;</translation>
     </message>
     <message>
-        <location line="-243"/>
-        <location line="+72"/>
+        <location line="-205"/>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;не задано&gt;</translation>
     </message>
@@ -9699,7 +10284,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
-        <location line="+334"/>
+        <location line="+343"/>
         <source>&amp;Edit</source>
         <translation>&amp;Изменить</translation>
     </message>
@@ -9719,12 +10304,17 @@ Reason: %2</source>
         <translation>&amp;Сбросить</translation>
     </message>
     <message>
-        <location line="+74"/>
-        <source>Summary: No changes to Environment</source>
-        <translation>Итого: переменные среды окружения не изменены</translation>
+        <location line="+77"/>
+        <source>Using &lt;b&gt;%1&lt;/b&gt;</source>
+        <translation>Используется &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
-        <location line="-6"/>
+        <location line="+2"/>
+        <source>Using &lt;b&gt;%1&lt;/b&gt; and</source>
+        <translation>Используется &lt;b&gt;%1&lt;/b&gt; и</translation>
+    </message>
+    <message>
+        <location line="-9"/>
         <source>Unset &lt;b&gt;%1&lt;/b&gt;</source>
         <translation>Сброшено значение &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
@@ -9732,15 +10322,6 @@ Reason: %2</source>
         <location line="+2"/>
         <source>Set &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt;</source>
         <translation>Присвоено &lt;b&gt;%1&lt;/b&gt; значение &lt;b&gt;%2&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+2179"/>
-        <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="+181"/>
-        <source>Active run configuration</source>
-        <translation>Активная конфигурация запуска</translation>
     </message>
 </context>
 <context>
@@ -9765,17 +10346,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+81"/>
-        <source>Build Settings</source>
-        <translation>Настройки сборки</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
-        <location line="+77"/>
+        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="+147"/>
+        <source>No Build Settings available</source>
+        <translation>Настройки сборки не обнаружены</translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Edit Build Configuration:</source>
         <translation>Изменить конфигурацию сборки:</translation>
     </message>
@@ -9785,17 +10363,27 @@ Reason: %2</source>
         <translation>Добавить</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+7"/>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location line="+49"/>
+        <location line="+5"/>
+        <source>Make Active</source>
+        <translation>Сделать текущей</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Sets this build configuration to be used for this target.</source>
+        <translation>Использовать эту конфигурацию для сборки этой цели.</translation>
+    </message>
+    <message>
+        <location line="+103"/>
         <source>&amp;Clone Selected</source>
         <translation>Д&amp;ублировать выделенную</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+28"/>
         <source>Build Steps</source>
         <translation>Этапы сборки</translation>
     </message>
@@ -9805,12 +10393,12 @@ Reason: %2</source>
         <translation>Этапы очистки</translation>
     </message>
     <message>
-        <location line="+48"/>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;#&quot;&gt;Активизировать %1.&lt;/a&gt;</translation>
+        <location line="+59"/>
+        <source>%1 (Active)</source>
+        <translation>%1 (текущая)</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+44"/>
         <source>New Configuration Name:</source>
         <translation>Название новой конфигурации:</translation>
     </message>
@@ -9823,12 +10411,12 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/buildstepspage.cpp" line="+61"/>
+        <location filename="../../../src/plugins/projectexplorer/buildstepspage.cpp" line="+278"/>
         <source>No Build Steps</source>
         <translation>Этапов сборки нет</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+7"/>
         <source>Add build step</source>
         <translation>Добавить этап сборки</translation>
     </message>
@@ -9838,17 +10426,7 @@ Reason: %2</source>
         <translation>Добавить этап очистки</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Remove build step</source>
-        <translation>Удалить этап сборки</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Remove clean step</source>
-        <translation>Удалить этап очистки</translation>
-    </message>
-    <message>
-        <location line="+41"/>
+        <location line="-203"/>
         <source>Build Steps</source>
         <translation>Этапы сборки</translation>
     </message>
@@ -9861,8 +10439,8 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/compileoutputwindow.cpp" line="+47"/>
-        <location filename="../../../src/plugins/projectexplorer/compileoutputwindow.h" line="+51"/>
+        <location filename="../../../src/plugins/projectexplorer/compileoutputwindow.cpp" line="+48"/>
+        <location filename="../../../src/plugins/projectexplorer/compileoutputwindow.h" line="+53"/>
         <source>Compile Output</source>
         <translation>Консоль сборки</translation>
     </message>
@@ -9898,7 +10476,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/currentprojectfilter.h" line="+54"/>
+        <location filename="../../../src/plugins/projectexplorer/currentprojectfilter.h" line="+52"/>
         <source>Files in current project</source>
         <translation>Файлы в текущем проекте</translation>
     </message>
@@ -9919,7 +10497,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="-435"/>
+        <location filename="../../../src/plugins/projectexplorer/customexecutablerunconfiguration.cpp" line="-516"/>
         <source>Name:</source>
         <translation>Имя:</translation>
     </message>
@@ -9944,7 +10522,7 @@ Reason: %2</source>
         <translation>Запускать в &amp;терминале</translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+15"/>
         <source>Run Environment</source>
         <translation>Среда выполнения</translation>
     </message>
@@ -9964,7 +10542,7 @@ Reason: %2</source>
         <translation>Среда сборки</translation>
     </message>
     <message>
-        <location line="+102"/>
+        <location line="+107"/>
         <source>No Executable specified.</source>
         <translation>Программа не указана.</translation>
     </message>
@@ -9974,61 +10552,9 @@ Reason: %2</source>
         <translation>Выполняется программа: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
     <message>
-        <location line="-110"/>
+        <location line="-115"/>
         <source>Base environment for this runconfiguration:</source>
         <translation>Базовая среда для этой конфигурации запуска:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+169"/>
-        <source>Dependencies</source>
-        <translation>Зависимости</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
-    <message>
-        <location line="-26"/>
-        <source>%1 has no dependencies.</source>
-        <translation>%1 ни от чего не зависит.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>%1 depends on %2.</source>
-        <translation>%1 зависит от %2.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>%1 depends on: %2.</source>
-        <translation>%1 зависит от: %2.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/projectmodels.cpp" line="+232"/>
-        <source>%1 of project %2</source>
-        <translation>%1 проекта %2</translation>
-    </message>
-    <message>
-        <location line="+37"/>
-        <source>Could not rename file</source>
-        <translation>Не удалось переименовать файл</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Renaming file %1 to %2 failed.</source>
-        <translation>Не удалось переименовать %1 в %2.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/editorsettingspropertiespage.cpp" line="+63"/>
-        <source>Editor Settings</source>
-        <translation>Настройки редактора</translation>
     </message>
 </context>
 <context>
@@ -10042,12 +10568,12 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::FolderNavigationWidgetFactory</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/foldernavigationwidget.cpp" line="+194"/>
+        <location filename="../../../src/plugins/projectexplorer/foldernavigationwidget.cpp" line="+462"/>
         <source>File System</source>
         <translation>Файловая система</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+22"/>
         <source>Synchronize with Editor</source>
         <translation>Согласовать с редактором</translation>
     </message>
@@ -10055,7 +10581,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/applicationrunconfiguration.cpp" line="+137"/>
+        <location filename="../../../src/plugins/projectexplorer/applicationrunconfiguration.cpp" line="+123"/>
         <source>Starting %1...</source>
         <translation>Запускается %1...</translation>
     </message>
@@ -10068,7 +10594,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
     <message>
-        <location line="-74"/>
+        <location line="-72"/>
         <source>Run</source>
         <translation>Выполнить</translation>
     </message>
@@ -10089,7 +10615,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::OutputPane</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/outputwindow.cpp" line="+75"/>
+        <location filename="../../../src/plugins/projectexplorer/outputwindow.cpp" line="+77"/>
         <source>Re-run this run-configuration</source>
         <translation>Перезапустить эту конфигурацию запуска</translation>
     </message>
@@ -10105,7 +10631,7 @@ Reason: %2</source>
         <translation>Консоль приложения</translation>
     </message>
     <message>
-        <location line="+116"/>
+        <location line="+120"/>
         <source>The application is still running. Close it first.</source>
         <translation>Приложение работает. Сначала закройте его.</translation>
     </message>
@@ -10118,7 +10644,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::OutputWindow</name>
     <message>
-        <location line="+84"/>
+        <location line="+86"/>
         <source>Application Output Window</source>
         <translation>Окно вывода приложения</translation>
     </message>
@@ -10126,12 +10652,8 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::ProcessStep</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/processstep.cpp" line="+86"/>
-        <source>Custom Process Step</source>
-        <translation>Особый этап</translation>
-    </message>
-    <message>
-        <location line="+41"/>
+        <location filename="../../../src/plugins/projectexplorer/processstep.cpp" line="+79"/>
+        <location line="+160"/>
         <source>Custom Process Step</source>
         <comment>item in combobox</comment>
         <translation>Особый</translation>
@@ -10140,7 +10662,7 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
-        <location line="+30"/>
+        <location line="+31"/>
         <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
         <translation>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
     </message>
@@ -10181,9 +10703,9 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.cpp" line="+56"/>
-        <source>Build and Run</source>
-        <translation>Сборка и запуск</translation>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorersettingspage.cpp" line="+127"/>
+        <source>General</source>
+        <translation>Основное</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -10223,69 +10745,82 @@ Reason: %2</source>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
         <translation>&lt;i&gt;jom&lt;/i&gt; - это замена &lt;i&gt;nmake&lt;/i&gt;, распределяющая процесс компиляции на несколько ядер процессора. Более подробную информацию о ней можно получить на &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;домашней странице jom&lt;/a&gt;. Если возникнут проблемы с вашими файлами Makefile, то просто выключите её использование.</translation>
     </message>
+    <message>
+        <location/>
+        <source>Current directory</source>
+        <translation>Текущий каталог</translation>
+    </message>
+    <message>
+        <location/>
+        <source>directoryButtonGroup</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Directory</source>
+        <translation>Каталог</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Projects Directory</source>
+        <translation>Каталог проектов</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/pluginfilefactory.cpp" line="+70"/>
+        <location filename="../../../src/plugins/projectexplorer/pluginfilefactory.cpp" line="+65"/>
+        <source>Project File Factory</source>
+        <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
+        <translation>Фабрика проектных файлов</translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Could not open the following project: &apos;%1&apos;</source>
-        <translation>Не удалось открыть указанный проект: &apos;%1&apos;</translation>
+        <translation>Не удалось открыть указанный проект: &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectfilewizardextension.cpp" line="+168"/>
+        <location filename="../../../src/plugins/projectexplorer/projectfilewizardextension.cpp" line="+252"/>
+        <location line="+28"/>
+        <source>&lt;None&gt;</source>
+        <extracomment>No version control system selected
+----------
+No project selected</extracomment>
+        <translation>&lt;Нет&gt;</translation>
+    </message>
+    <message>
+        <location line="+44"/>
         <source>Failed to add one or more files to project
 &apos;%1&apos; (%2).</source>
         <translation>Не удалось добавить один или более файлов в проект
 &apos;%1&apos; (%2).</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+20"/>
+        <source>A version control system repository could not be created in &apos;%1&apos;.</source>
+        <translation>Не удалось создать хранилище системы контроля версий в &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>Не удалось добавить &apos;%1&apos; в контроль версий.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="+375"/>
-        <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation>Изменение настроек проекта &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>No Project loaded</source>
-        <translation>Проект не загружен</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
-    <message>
-        <location line="+11"/>
-        <source>Select Project</source>
-        <translation>Выбрать проект</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
-        <location line="+104"/>
-        <location line="+110"/>
-        <source>Active Build and Run Configurations</source>
-        <translation>Текущие конфигурации сборки и выполнения</translation>
-    </message>
-    <message>
-        <location line="-72"/>
-        <source>No project loaded.</source>
-        <translation>Проект не загружен.</translation>
+        <location filename="../../../src/plugins/projectexplorer/projectwindow.cpp" line="+229"/>
+        <source>Select a Project:</source>
+        <translation>Выбор проекта:</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projecttreewidget.cpp" line="+144"/>
+        <location filename="../../../src/plugins/projectexplorer/projecttreewidget.cpp" line="+145"/>
         <source>Simplify tree</source>
         <translation>Упростить дерево</translation>
     </message>
@@ -10303,12 +10838,12 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
-        <location line="+191"/>
+        <location line="+203"/>
         <source>Projects</source>
         <translation>Проекты</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+21"/>
         <source>Filter tree</source>
         <translation>Настроить отображение</translation>
     </message>
@@ -10367,14 +10902,14 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectwizardpage.cpp" line="+131"/>
-        <source>Add to &amp;VCS (%1)</source>
-        <translation>Добавить в &amp;VCS (%1)</translation>
-    </message>
-    <message>
-        <location line="+8"/>
+        <location filename="../../../src/plugins/projectexplorer/projectwizardpage.cpp" line="+100"/>
         <source>Files to be added:</source>
         <translation>Будут добавлены файлы:</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Files to be added in</source>
+        <translation type="unfinished">Будут добавлены файлы</translation>
     </message>
 </context>
 <context>
@@ -10401,14 +10936,6 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
-    <message>
-        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.cpp" line="+119"/>
-        <source>Run Settings</source>
-        <translation>Настройки запуска</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.ui"/>
@@ -10425,11 +10952,16 @@ Reason: %2</source>
         <source>Edit run configuration:</source>
         <translation>Изменить конфигурацию запуска:</translation>
     </message>
+    <message>
+        <location/>
+        <source>Make Active</source>
+        <translation>Сделать текущей</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::RunSettingsWidget</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.cpp" line="+65"/>
+        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.cpp" line="+225"/>
         <source>Add</source>
         <translation>Добавить</translation>
     </message>
@@ -10437,11 +10969,6 @@ Reason: %2</source>
         <location line="+1"/>
         <source>Remove</source>
         <translation>Удалить</translation>
-    </message>
-    <message>
-        <location line="+138"/>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;#&quot;&gt;Активизировать %1.&lt;/a&gt;</translation>
     </message>
 </context>
 <context>
@@ -10485,7 +11012,7 @@ Reason: %2</source>
         <translation>Сессия</translation>
     </message>
     <message>
-        <location line="+184"/>
+        <location line="+183"/>
         <source>Untitled</source>
         <comment>default file name to display</comment>
         <translation>Неозаглавленный</translation>
@@ -10494,28 +11021,9 @@ Reason: %2</source>
 <context>
     <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/taskwindow.cpp" line="+688"/>
+        <location filename="../../../src/plugins/projectexplorer/taskwindow.cpp" line="+874"/>
         <source>File not found: %1</source>
         <translation>Файл не найден: %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
-    <message>
-        <location line="-352"/>
-        <location filename="../../../src/plugins/projectexplorer/taskwindow.h" line="+62"/>
-        <source>Build Issues</source>
-        <translation>Сообщения сборки</translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>&amp;Copy</source>
-        <translation>&amp;Копировать</translation>
-    </message>
-    <message>
-        <location line="+16"/>
-        <source>Show Warnings</source>
-        <translation>Показывать предупреждения</translation>
     </message>
 </context>
 <context>
@@ -10540,21 +11048,6 @@ Reason: %2</source>
     </message>
     <message>
         <location/>
-        <source>&amp;Add to Project</source>
-        <translation>&amp;Добавить в проект</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&amp;Project</source>
-        <translation>&amp;Проект</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Add to &amp;version control</source>
-        <translation>Добавить в контроль &amp;версий</translation>
-    </message>
-    <message>
-        <location/>
         <source>The following files will be added:
 
 
@@ -10566,16 +11059,26 @@ Reason: %2</source>
 
 </translation>
     </message>
+    <message>
+        <location/>
+        <source>Add to &amp;project:</source>
+        <translation>Добавить в &amp;проект:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Add to &amp;version control:</source>
+        <translation>Добавить под контроль &amp;версий:</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="-1921"/>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorer.cpp" line="+270"/>
         <source>Projects</source>
         <translation>Проекты</translation>
     </message>
     <message>
-        <location line="+86"/>
+        <location line="+84"/>
         <source>&amp;Build</source>
         <translation>&amp;Сборка</translation>
     </message>
@@ -10590,7 +11093,7 @@ Reason: %2</source>
         <translation>&amp;Начать отладку</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+44"/>
         <source>Open With</source>
         <translation>Открыть с помощью</translation>
     </message>
@@ -10625,24 +11128,9 @@ Reason: %2</source>
         <translation>Открыть файл</translation>
     </message>
     <message>
-        <location line="+6"/>
-        <source>Show in Explorer...</source>
-        <translation>Показать в проводнике...</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Show in Finder...</source>
-        <translation>Показать в Finder...</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Show containing folder...</source>
-        <translation>Открыть каталог файла...</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Recent Projects</source>
-        <translation>Недавние проекты</translation>
+        <location line="+23"/>
+        <source>Recent P&amp;rojects</source>
+        <translation>Недавние п&amp;роекты</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -10794,18 +11282,23 @@ Reason: %2</source>
         <translation>Переименовать</translation>
     </message>
     <message>
-        <location line="+126"/>
+        <location line="+18"/>
+        <source>Ctrl+T</source>
+        <translation>Ctrl+T</translation>
+    </message>
+    <message>
+        <location line="+131"/>
         <source>Load Project</source>
         <translation>Загрузить проект</translation>
     </message>
     <message>
-        <location line="+83"/>
+        <location line="+84"/>
         <source>New Project</source>
         <comment>Title of dialog</comment>
         <translation>Новый проект</translation>
     </message>
     <message>
-        <location line="+904"/>
+        <location line="+933"/>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>Новый файл</translation>
@@ -10854,27 +11347,7 @@ to version control (%2)?</source>
         <translation>Не удалось добавить файлы под контроль версий</translation>
     </message>
     <message>
-        <location line="+22"/>
-        <source>Launching Windows Explorer failed</source>
-        <translation>Не удалось запустить Проводник Windows</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <translation>Не удалось найти explorer.exe по адресу для запуска Проводника Windows.</translation>
-    </message>
-    <message>
-        <location line="+18"/>
-        <source>Launching a file explorer failed</source>
-        <translation>Не удалось запустить проводник файлов</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Could not find xdg-open to launch the native file explorer.</source>
-        <translation>Не удалось найти xdg-open для запуска стандартного обозревателя файлов.</translation>
-    </message>
-    <message>
-        <location line="+26"/>
+        <location line="+47"/>
         <source>Remove file failed</source>
         <translation>Не удалось убрать файл</translation>
     </message>
@@ -10897,7 +11370,7 @@ to version control (%2)?</source>
 <context>
     <name>ProjectExplorer::Internal::BuildConfigDialog</name>
     <message>
-        <location line="+210"/>
+        <location line="+215"/>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation>Сменить конфигурацию сборки и продолжить</translation>
     </message>
@@ -10927,7 +11400,12 @@ to version control (%2)?</source>
         <translation>Это может произойти, если текущая конфигурация сборки использует неверные для текущей конфигурации запуска версию Qt и/или инструментарий (например, для выполнения на эмуляторе Symbian требуется сборка с использованием инструментария WINSCW).</translation>
     </message>
     <message>
-        <location line="+24"/>
+        <location line="+22"/>
+        <source>Active run configuration</source>
+        <translation>Активная конфигурация запуска</translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Choose build configuration:</source>
         <translation>Выберите конфигурацию сборки:</translation>
     </message>
@@ -10940,7 +11418,7 @@ to version control (%2)?</source>
 <context>
     <name>ProjectExplorer::SessionManager</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+300"/>
+        <location filename="../../../src/plugins/projectexplorer/session.cpp" line="+301"/>
         <source>Error while restoring session</source>
         <translation>Ошибка при восстановлении сессии</translation>
     </message>
@@ -10960,7 +11438,7 @@ to version control (%2)?</source>
         <translation>Не удалось сохранить сессию %1</translation>
     </message>
     <message>
-        <location line="+204"/>
+        <location line="+215"/>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
     </message>
@@ -10988,11 +11466,6 @@ to version control (%2)?</source>
     <name>QMakeStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qmakestep.ui"/>
-        <source>QMake Build Configuration:</source>
-        <translation>Тип сборки QMake:</translation>
-    </message>
-    <message>
-        <location/>
         <source>debug</source>
         <translation>debug</translation>
     </message>
@@ -11010,6 +11483,11 @@ to version control (%2)?</source>
         <location/>
         <source>Effective qmake call:</source>
         <translation>Параметры вызова qmake:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>qmake Build Configuration:</source>
+        <translation>Конфигурация сборки qmake:</translation>
     </message>
 </context>
 <context>
@@ -11076,11 +11554,36 @@ to version control (%2)?</source>
         <translatorcomment>не думаю, что стоит переводить</translatorcomment>
         <translation>Info</translation>
     </message>
+    <message>
+        <location filename="../../../src/libs/qmljs/qmljsinterpreter.cpp" line="+318"/>
+        <source>The file is not module file.</source>
+        <translation>Файл не является модулем.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Unexpected element &lt;%1&gt; in &lt;%2&gt;</source>
+        <translation>Неожиданный элемент &lt;%1&gt; в &lt;%2&gt;</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>invalid value &apos;%1&apos; for attribute %2 in &lt;%3&gt;</source>
+        <translation>Неверное значение &quot;%1&quot; атрибута %2 в &lt;%3&gt;</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;%1&gt; has no valid %2 attribute</source>
+        <translation>У &lt;%1&gt; нет корректного атрибута %2</translation>
+    </message>
+    <message>
+        <location line="+1513"/>
+        <source>%1: %2</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>QTestLib::Internal::QTestOutputPane</name>
     <message>
-        <location line="+266"/>
+        <location filename="../../../src/plugins/qtestlib/qtestlibplugin.cpp" line="+266"/>
         <source>Test Results</source>
         <translation>Результаты тестирования</translation>
     </message>
@@ -11106,171 +11609,6 @@ to version control (%2)?</source>
         <location line="+9"/>
         <source>Show Only:</source>
         <translation>Показать только:</translation>
-    </message>
-</context>
-<context>
-    <name>QmlEditor::Internal::QmlEditorPlugin</name>
-    <message>
-        <location filename="../../../src/plugins/qmleditor/qmleditorplugin.cpp" line="+106"/>
-        <source>Qt</source>
-        <translation>Qt</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Creates a Qt QML file.</source>
-        <translation>Создание файла Qt QML.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Qt QML File</source>
-        <translation>Файл Qt QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlEditor::Internal::QmlModelManager</name>
-    <message>
-        <location filename="../../../src/plugins/qmleditor/qmlmodelmanager.cpp" line="+98"/>
-        <source>Indexing</source>
-        <translation>Индексация</translation>
-    </message>
-</context>
-<context>
-    <name>QmlEditor::Internal::ScriptEditor</name>
-    <message>
-        <location filename="../../../src/plugins/qmleditor/qmleditor.cpp" line="+468"/>
-        <source>&lt;Select Symbol&gt;</source>
-        <translation>&lt;Выберите символ&gt;</translation>
-    </message>
-    <message>
-        <location line="+101"/>
-        <source>Rename...</source>
-        <translation>Переименовать...</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>New id:</source>
-        <translation>Новый id:</translation>
-    </message>
-    <message>
-        <location line="+191"/>
-        <source>Rename id &apos;%1&apos;...</source>
-        <translation>Переименовать id &apos;%1&apos;...</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
-    <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlmakestep.cpp" line="+134"/>
-        <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Сборка QML&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
-    <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlnewprojectwizard.cpp" line="+188"/>
-        <source>QML Application</source>
-        <translation>Приложение QML</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Creates a QML application.</source>
-        <translation>Создание приложения QML.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Projects</source>
-        <translation>Проекты</translation>
-    </message>
-    <message>
-        <location line="+69"/>
-        <source>The project %1 could not be opened.</source>
-        <translation>Не удалось открыть проект %1.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
-    <message>
-        <location line="-135"/>
-        <source>New QML Project</source>
-        <translation>Новый проект QML</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>This wizard generates a QML application project.</source>
-        <translation>Этот мастер создаст проект приложения QML.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
-    <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectwizard.cpp" line="+190"/>
-        <source>Import of existing QML directory</source>
-        <translation>Импорт существующего каталога QML</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Creates a QML project from an existing directory of QML files.</source>
-        <translation>Создание проекта QML из существующего каталога с файлами QML.</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Projects</source>
-        <translation>Проекты</translation>
-    </message>
-    <message>
-        <location line="+94"/>
-        <source>The project %1 could not be opened.</source>
-        <translation>Не удалось открыть проект %1.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
-    <message>
-        <location line="-163"/>
-        <source>Import of QML Project</source>
-        <translation>Импорт проекта QML</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>QML Project</source>
-        <translation>Проект QML</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Project name:</source>
-        <translation>Название проекта:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Location:</source>
-        <translation>Размещение:</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
-    <message>
-        <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+339"/>
-        <location line="+107"/>
-        <source>QML Viewer</source>
-        <translation>Просмотр QML</translation>
-    </message>
-    <message>
-        <location line="-31"/>
-        <location line="+40"/>
-        <location line="+46"/>
-        <source>&lt;Current File&gt;</source>
-        <translation>&lt;Текущий файл&gt;</translation>
-    </message>
-    <message>
-        <location line="-54"/>
-        <source>QML Viewer arguments:</source>
-        <translation>Параметры просмотрщика QML:</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Main QML File:</source>
-        <translation>Основной файл QML:</translation>
     </message>
 </context>
 <context>
@@ -11461,20 +11799,20 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::ConsoleAppWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizard.cpp" line="+59"/>
-        <source>Qt4 Console Application</source>
-        <translation>Консольное приложение Qt4</translation>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizard.cpp" line="+57"/>
+        <source>Qt Console Application</source>
+        <translation>Консольное приложение Qt</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a Qt4 console application.</source>
-        <translation>Создание консольного приложения Qt4.</translation>
+        <source>Creates a Qt console application.</source>
+        <translation>Создание консольного приложения Qt.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizarddialog.cpp" line="+52"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizarddialog.cpp" line="+50"/>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation>Этот мастер создаст проект консольного приложения Qt4. Оно будет наследником от QCoreApplication и без GUI.</translation>
     </message>
@@ -11553,20 +11891,20 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::CustomWidgetWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizard.cpp" line="+43"/>
-        <source>Qt4 Designer Custom Widget</source>
-        <translation>Пользовательский виджет Qt4 Designer</translation>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizard.cpp" line="+47"/>
+        <source>Qt Custom Designer Widget</source>
+        <translation>Пользовательский виджет Qt Designer</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a Qt4 Designer Custom Widget or a Custom Widget Collection.</source>
-        <translation>Создание пользовательского виджета Qt4 Designer или набора пользовательских виджетов.</translation>
+        <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
+        <translation>Создание пользовательского виджета Qt Designer или набора пользовательских виджетов.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizarddialog.cpp" line="+56"/>
+        <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizarddialog.cpp" line="+52"/>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
         <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt4 Designer.</translation>
     </message>
@@ -11574,7 +11912,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::DesignerExternalEditor</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="+244"/>
+        <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="+160"/>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer не отвечает (%1).</translation>
     </message>
@@ -11585,19 +11923,11 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::EmbeddedPropertiesPanel</name>
-    <message>
-        <location filename="../../../src/plugins/qt4projectmanager/embeddedpropertiespage.cpp" line="+80"/>
-        <source>Embedded Linux</source>
-        <translation>Встраиваемый Linux</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::EmptyProjectWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizard.cpp" line="+40"/>
-        <source>Empty Qt4 Project</source>
-        <translation>Пустой проект Qt4</translation>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizard.cpp" line="+44"/>
+        <source>Empty Qt Project</source>
+        <translation>Пустой проект Qt</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -11608,7 +11938,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizarddialog.cpp" line="+50"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizarddialog.cpp" line="+45"/>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
         <translation>Этот мастер создаст пустой проект Qt4. Нужно будет позже добавить в него файлы с помощью других мастеров.</translation>
     </message>
@@ -11616,7 +11946,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::ExternalQtEditor</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="-185"/>
+        <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="-202"/>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Не удалось запустить &quot;%1&quot;</translation>
     </message>
@@ -11710,7 +12040,7 @@ to version control (%2)?</source>
         <translation>Выберите пример...</translation>
     </message>
     <message>
-        <location line="+81"/>
+        <location line="+84"/>
         <source>Copy Project to writable Location?</source>
         <translation>Скопировать проект в каталог с правами на запись?</translation>
     </message>
@@ -11765,11 +12095,11 @@ to version control (%2)?</source>
     </message>
     <message>
         <location line="+4"/>
-        <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Вы можете переключать режим Qt Creator, используя &lt;tt&gt;Ctrl+число&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Приветствие&lt;/li&gt;&lt;li&gt;2 - Правка&lt;/li&gt;&lt;li&gt;3 - Отладка&lt;/li&gt;&lt;li&gt;4 - Проекты&lt;/li&gt;&lt;li&gt;5 - Справка&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Вывод&lt;/li&gt;&lt;/ul&gt;</translation>
+        <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation>Вы можете переключать режим Qt Creator, используя &lt;tt&gt;Ctrl+число&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Приветствие&lt;/li&gt;&lt;li&gt;2 - Правка&lt;/li&gt;&lt;li&gt;3 - Отладка&lt;/li&gt;&lt;li&gt;4 - Проекты&lt;/li&gt;&lt;li&gt;5 - Справка&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+3"/>
         <source>You can show and hide the side bar using &lt;tt&gt;%1+0&lt;tt&gt;.</source>
         <translation>Вы можете отображать и скрывать боковую панель, используя &lt;tt&gt;%1+0&lt;tt&gt;.</translation>
     </message>
@@ -11842,17 +12172,17 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::GuiAppWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizard.cpp" line="+76"/>
-        <source>Qt4 Gui Application</source>
-        <translation>GUI приложение Qt4</translation>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizard.cpp" line="+73"/>
+        <source>Qt Gui Application</source>
+        <translation>GUI приложение Qt</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a Qt4 Gui Application with one form.</source>
-        <translation>Создание графического приложения Qt4 с одной формой.</translation>
+        <source>Creates a Qt Gui Application with one form.</source>
+        <translation>Создание графического приложения Qt с одной формой.</translation>
     </message>
     <message>
-        <location line="+125"/>
+        <location line="+128"/>
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
         <translation>Файл шаблона &apos;%1&apos; не может быть открыт для чтения: %2</translation>
     </message>
@@ -11860,7 +12190,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizarddialog.cpp" line="+63"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizarddialog.cpp" line="+58"/>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Этот мастер создаст проект графического приложения Qt4. По умолчанию приложение будет базироваться на QApplication и будет включать пустой виджет.</translation>
     </message>
@@ -11868,20 +12198,20 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::LibraryWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizard.cpp" line="+51"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizard.cpp" line="+55"/>
         <source>C++ Library</source>
         <translation>Библиотека C++</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a C++ Library.</source>
-        <translation>Создание библиотеки C++.</translation>
+        <source>Creates a Qt based C++ Library.</source>
+        <translation>Создание библиотеки C++ на основе Qt.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::LibraryWizardDialog</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizarddialog.cpp" line="+122"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizarddialog.cpp" line="+119"/>
         <source>Shared library</source>
         <translation>Динамическая библиотека</translation>
     </message>
@@ -11909,7 +12239,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::MakeStepFactory</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+320"/>
+        <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+384"/>
         <source>Make</source>
         <translation>Сборка</translation>
     </message>
@@ -11946,133 +12276,17 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ProEditor</name>
-    <message>
-        <location filename="../../../src/shared/proparser/proeditor.ui"/>
-        <source>New</source>
-        <translation>Новый</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Up</source>
-        <translation>Вверх</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Down</source>
-        <translation>Вниз</translation>
-    </message>
-    <message>
-        <location filename="../../../src/shared/proparser/proeditor.cpp" line="+51"/>
-        <source>Cut</source>
-        <translation>Вырезать</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Copy</source>
-        <translation>Копировать</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Paste</source>
-        <translation>Вставить</translation>
-    </message>
-    <message>
-        <location line="+37"/>
-        <source>Ctrl+X</source>
-        <translation>Ctrl+X</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Ctrl+C</source>
-        <translation>Ctrl+C</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Ctrl+V</source>
-        <translation>Ctrl+V</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Add Variable</source>
-        <translation>Добавить переменную</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Add Scope</source>
-        <translation>Добавить область</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Add Block</source>
-        <translation>Добавить блок</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::ProEditorModel</name>
-    <message>
-        <location filename="../../../src/shared/proparser/proeditormodel.cpp" line="+446"/>
-        <source>&lt;Global Scope&gt;</source>
-        <translation>&lt;Глобальная область&gt;</translation>
-    </message>
-    <message>
-        <location line="+74"/>
-        <source>Change Item</source>
-        <translation>Изменить элемент</translation>
-    </message>
-    <message>
-        <location line="+20"/>
-        <source>Change Variable Assignment</source>
-        <translation>Изменить значение переменной</translation>
-    </message>
-    <message>
-        <location line="+11"/>
-        <source>Change Variable Type</source>
-        <translation>Изменить тип переменной</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Change Scope Condition</source>
-        <translation>Изменить условие области</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Change Expression</source>
-        <translation>Изменить выражение</translation>
-    </message>
-    <message>
-        <location line="+51"/>
-        <source>Move Item</source>
-        <translation>Переместить элемент</translation>
-    </message>
-    <message>
-        <location line="+41"/>
-        <source>Remove Item</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <location line="+49"/>
-        <source>Insert Item</source>
-        <translation>Вставить элемент</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+51"/>
-        <location line="+125"/>
+        <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+53"/>
+        <location line="+121"/>
         <source>Import existing build settings</source>
         <translation>Импорт настроек сборки</translation>
     </message>
     <message>
-        <location line="+8"/>
-        <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Additional QMake Arguments:&lt;/b&gt;%3</source>
-        <translation>Qt Creator обнаружил сборку в каталоге исходников.&lt;br&gt;&lt;br&gt;&lt;b&gt;Профиль Qt:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Конфигурация сборки:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Дополнительные параметры QMake:&lt;/b&gt;%3</translation>
+        <location line="+10"/>
+        <source>Qt Creator has found an already existing build in the source directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Qt Version:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Build configuration:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Additional qmake Arguments:&lt;/b&gt;%3</source>
+        <translation>Qt Creator обнаружил файлы сборки в каталоге исходников.&lt;br&gt;&lt;br&gt;&lt;b&gt;Профиль Qt:&lt;/b&gt; %1&lt;br&gt;&lt;b&gt;Конфигурация сборки:&lt;/b&gt; %2&lt;br&gt;&lt;b&gt;Дополнительные параметры qmake:&lt;/b&gt;%3</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -12086,17 +12300,9 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+346"/>
-        <source>QMake</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4buildenvironmentwidget.cpp" line="+51"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4buildenvironmentwidget.cpp" line="+53"/>
         <source>Clear system environment</source>
         <translation>Чистая системная среда</translation>
     </message>
@@ -12109,32 +12315,32 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+352"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+80"/>
         <source>Headers</source>
         <translation>Заговолочные</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Sources</source>
         <translation>Исходники</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Forms</source>
         <translation>Формы</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Resources</source>
         <translation>Ресурсы</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>Other files</source>
         <translation>Другие файлы</translation>
     </message>
     <message>
-        <location line="+155"/>
+        <location line="+510"/>
         <location line="+7"/>
         <source>Failed!</source>
         <translation>Не удалось!</translation>
@@ -12150,30 +12356,25 @@ to version control (%2)?</source>
         <translation>Не удалось разрешить запись.</translation>
     </message>
     <message>
-        <location line="+33"/>
+        <location line="+28"/>
         <source>There are unsaved changes for project file %1.</source>
         <translation>Имеются несохранённые изменения в файле проекта %1.</translation>
     </message>
     <message>
-        <location line="+22"/>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation>Ошибка разбора файла %1. Отмена.</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Error while changing pro file %1.</source>
-        <translation>Ошибка при изменении .pro файла %1.</translation>
+        <location line="+37"/>
+        <source>Error while reading PRO file %1: %2</source>
+        <translation>Ошибка чтения .PRO файла %1: %2</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProFileNode</name>
     <message>
-        <location line="+242"/>
+        <location line="+171"/>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Ошибка разбора файла %1. Отмена.</translation>
     </message>
     <message>
-        <location line="+364"/>
+        <location line="+355"/>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
         <translation>Не удалось найти .pro файл для подкаталога &apos;%1&apos; в &apos;%2&apos;</translation>
     </message>
@@ -12211,28 +12412,33 @@ to version control (%2)?</source>
         <translation>&lt;a href=&quot;import&quot;&gt;Импорт существующей сборки&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.cpp" line="+71"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.cpp" line="+77"/>
         <source>Shadow Build Directory</source>
         <translation>Каталог фоновой сборки</translation>
     </message>
     <message>
-        <location line="+23"/>
-        <location line="+115"/>
-        <source>Default Qt Version (%1)</source>
-        <translation>Профиль Qt по умолчанию (%1)</translation>
-    </message>
-    <message>
-        <location line="-111"/>
-        <source>No Qt Version set</source>
-        <translation>Не выбран профиль Qt</translation>
+        <location line="+51"/>
+        <source>using &lt;font color=&quot;#ff0000&quot;&gt;invalid&lt;/font&gt; Qt Version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;%2</source>
+        <translation>используется &lt;font color=&quot;#ff0000&quot;&gt;некорректный&lt;/font&gt; профиль Qt: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;%2</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>using Qt version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;with tool chain &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;building in &lt;b&gt;%3&lt;/b&gt;</source>
-        <translation>Используемая версия Qt: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;Инструментарий: &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;Каталог сборки: &lt;b&gt;%3&lt;/b&gt;</translation>
+        <source>No Qt Version found.</source>
+        <translation>Профиль Qt не найден.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+4"/>
+        <source>using Qt version: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;with tool chain &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;building in &lt;b&gt;%3&lt;/b&gt;</source>
+        <translation>используется профиль Qt: &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;с инструментарием &lt;b&gt;%2&lt;/b&gt;&lt;br&gt;сборка в &lt;b&gt;%3&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <location line="+194"/>
+        <source>An incompatible build exists in %1, which will be overwritten.</source>
+        <comment>%1 build directory</comment>
+        <translation>В %1 обнаружена несовместимая сборка. Она будет замещена.</translation>
+    </message>
+    <message>
+        <location line="-176"/>
         <source>General</source>
         <translation>Основное</translation>
     </message>
@@ -12246,44 +12452,68 @@ to version control (%2)?</source>
         <source>Manage</source>
         <translation>Управление</translation>
     </message>
+    <message>
+        <location/>
+        <source>The Qt Version about to be imported does not support this target.</source>
+        <translation>Импортируемый профиль Qt не поддерживает эту цель.</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4ProjectManagerPlugin</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+181"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+173"/>
         <location line="+5"/>
         <source>Run qmake</source>
         <translation>Выполнить qmake</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Build</source>
+        <translation>Собрать</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>Run qmake in %1</source>
+        <translation>Выполнить qmake в %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Build in %1</source>
+        <translation>Собрать в %1</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+72"/>
-        <location line="+459"/>
-        <source>Qt4RunConfiguration</source>
-        <translation>Qt4RunConfiguration</translation>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4runconfiguration.cpp" line="+529"/>
+        <source>Clean Environment</source>
+        <translation>Чистая среда</translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+2"/>
+        <source>System Environment</source>
+        <translation>Системная среда</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Build Environment</source>
+        <translation>Среда сборки</translation>
+    </message>
+    <message>
+        <location line="+90"/>
         <source>Could not parse %1. The Qt4 run configuration %2 can not be started.</source>
         <translation>Не удалось разобрать %1. Нельзя запустить конфигурацию сборки Qt4 %2.</translation>
+    </message>
+    <message>
+        <location line="+46"/>
+        <source>Qt4 RunConfiguration</source>
+        <translation>Конфигурация запуска Qt4</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget</name>
     <message>
-        <location line="-334"/>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
-        <translation>Выполнение программы: &lt;b&gt;%1&lt;/b&gt; %2 (в терминале)</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation>Выполнение программы: &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
-        <location line="-73"/>
+        <location line="-430"/>
         <source>Run Environment</source>
         <translation>Среда выполнения</translation>
     </message>
@@ -12303,12 +12533,12 @@ to version control (%2)?</source>
         <translation>Среда сборки</translation>
     </message>
     <message>
-        <location line="-34"/>
+        <location line="-49"/>
         <source>Arguments:</source>
         <translation>Параметры:</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+20"/>
         <source>Run in Terminal</source>
         <translation>Запускать в терминале</translation>
     </message>
@@ -12328,7 +12558,7 @@ to version control (%2)?</source>
         <translation>Программа:</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+10"/>
         <source>Select the working directory</source>
         <translation>Выбор рабочего каталога</translation>
     </message>
@@ -12344,7 +12574,7 @@ to version control (%2)?</source>
         <translation>Рабочий каталог:</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+7"/>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>Использовать отладочные версии библиотек (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
@@ -12352,7 +12582,7 @@ to version control (%2)?</source>
 <context>
     <name>Qt4ProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtoptionspage.cpp" line="+140"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtoptionspage.cpp" line="+144"/>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;укажите имя&gt;</translation>
     </message>
@@ -12362,9 +12592,9 @@ to version control (%2)?</source>
         <translation>&lt;укажите размещение qmake&gt;</translation>
     </message>
     <message>
-        <location line="+10"/>
-        <source>Select QMake Executable</source>
-        <translation>Выберите исполняемый файлы QMake</translation>
+        <location line="+9"/>
+        <source>Select qmake Executable</source>
+        <translation>Выберите исполняемый файлы qmake</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -12397,31 +12627,50 @@ to version control (%2)?</source>
         <translation>Особые</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+134"/>
         <source>Building helpers</source>
         <translation>Сборка помощников</translation>
     </message>
     <message>
-        <location line="+77"/>
+        <location line="+63"/>
         <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Tooltip showing the debugging helper library file.</extracomment>
         <translation>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Файл:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Изменён:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Размер:&lt;/td&gt;&lt;td&gt;%3 байт&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+126"/>
-        <source>The Qt Version identified by %1 is not installed. Run make install</source>
-        <translation>Версия Qt, определённая как %1, не установлена. Выполните make install</translation>
-    </message>
-    <message>
-        <location line="+3"/>
+        <location line="+92"/>
         <source>%1 does not specify a valid Qt installation</source>
         <translation>%1 не является корректно установленной Qt</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Found Qt version %1, using mkspec %2</source>
+        <location line="+44"/>
+        <source>Desktop</source>
+        <comment>Qt Version is meant for the desktop</comment>
+        <translation>Настольный компьютер</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Symbian</source>
+        <comment>Qt Version is meant for Symbian</comment>
+        <translation>Symbian</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Maemo</source>
+        <comment>Qt Version is meant for Maemo</comment>
+        <translation>Maemo</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>unkown</source>
+        <comment>No idea what this Qt Version is meant for!</comment>
+        <translation type="unfinished">неизвестный</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Found Qt version %1, using mkspec %2 (%3)</source>
         <translation>Обнаружена Qt версии %1,
-использующая mkspec %2</translation>
+использующая mkspec %2 (%3)</translation>
     </message>
 </context>
 <context>
@@ -12496,21 +12745,6 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location/>
-        <source>Default Qt Version:</source>
-        <translation>Профиль Qt по умолчанию:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>QMake Location</source>
-        <translation>Размещение QMake</translation>
-    </message>
-    <message>
-        <location/>
-        <source>QMake Location:</source>
-        <translation>Размещение QMake:</translation>
-    </message>
-    <message>
-        <location/>
         <source>S60 SDK:</source>
         <translation>SDK для S60:</translation>
     </message>
@@ -12524,19 +12758,29 @@ p, li { white-space: pre-wrap; }
         <source>CSL/GCCE Directory:</source>
         <translation>Каталог CSL/GCCE:</translation>
     </message>
+    <message>
+        <location/>
+        <source>qmake Location</source>
+        <translation>Размещение qmake</translation>
+    </message>
+    <message>
+        <location/>
+        <source>qmake Location:</source>
+        <translation>Размещение qmake:</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::QtWizard</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/wizards/qtwizard.cpp" line="+94"/>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/qtwizard.cpp" line="+134"/>
         <source>The project %1 could not be opened.</source>
-        <translation>Не удалось открыть проект %1.</translation>
+        <translation>Нельзя открыть проект %1.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+844"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+1088"/>
         <source>Launching debugger...</source>
         <translation>Запускается отладчик...</translation>
     </message>
@@ -12546,7 +12790,7 @@ p, li { white-space: pre-wrap; }
         <translation>Отладка завершена.</translation>
     </message>
     <message>
-        <location line="-14"/>
+        <location line="-16"/>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation>Внимание! Не удалось обнаружить файл символов, соответствующих %1.</translation>
     </message>
@@ -12554,17 +12798,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunConfiguration</name>
     <message>
-        <location line="-750"/>
+        <location line="-929"/>
         <source>QtS60DeviceRunConfiguration</source>
         <translation>QtS60DeviceRunConfiguration</translation>
     </message>
     <message>
-        <location line="+205"/>
-        <source>Could not parse %1. The QtS60 Device run configuration %2 can not be started.</source>
-        <translation>Не удалось разобрать %1. Нельзя запустить конфигурацию запуска %2 устройства QtS60.</translation>
+        <location line="+261"/>
+        <source>Could not parse %1. The Qt Symbian Device run configuration %2 can not be started.</source>
+        <translation>Не удалось разобрать %1. Нельзя запустить конфигурацию запуска устройства Qt Symbian.</translation>
     </message>
     <message>
-        <location line="-207"/>
+        <location line="-263"/>
         <source>%1 on Symbian Device</source>
         <translation>%1 на устройстве с Symbian</translation>
     </message>
@@ -12572,7 +12816,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
     <message>
-        <location line="+294"/>
+        <location line="+335"/>
         <source>%1 on Symbian Device</source>
         <translation>%1 на устройстве с Symbian</translation>
     </message>
@@ -12580,12 +12824,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfigurationwidget.cpp" line="+95"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfigurationwidget.cpp" line="+96"/>
         <source>Name:</source>
         <translation>Имя:</translation>
     </message>
     <message>
         <location line="+3"/>
+        <source>Arguments:</source>
+        <translation>Параметры:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Install File:</source>
         <translation>Установочный файл:</translation>
     </message>
@@ -12615,43 +12864,22 @@ p, li { white-space: pre-wrap; }
         <translation>Файл ключа:</translation>
     </message>
     <message>
-        <location line="+126"/>
-        <source>&lt;No Device&gt;</source>
-        <extracomment>Summary text of S60 device run configuration</extracomment>
-        <translation>&lt;Нет устройства&gt;</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>(custom certificate)</source>
-        <translation>(пользовательский сертификат)</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>(self-signed certificate)</source>
-        <translation>(собственный сертификат)</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Summary: Run on &apos;%1&apos; %2</source>
-        <translation>Итого: Выполнить %2 на &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <location line="+50"/>
+        <location line="+172"/>
         <source>Connecting...</source>
         <translation>Подключение...</translation>
     </message>
     <message>
-        <location line="-198"/>
+        <location line="-190"/>
         <source>Self-signed certificate</source>
         <translation>Собственный сертификат</translation>
     </message>
     <message>
-        <location line="-52"/>
+        <location line="-54"/>
         <source>Device:</source>
         <translation>Устройство:</translation>
     </message>
     <message>
-        <location line="+66"/>
+        <location line="+68"/>
         <source>Custom certificate:</source>
         <translation>Особый сертификат:</translation>
     </message>
@@ -12659,7 +12887,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunControl</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+407"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+542"/>
         <source>Could not start application: %1</source>
         <translation>Не удалось запустить приложение: %1</translation>
     </message>
@@ -12682,24 +12910,24 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60DeviceRunControlBase</name>
     <message>
-        <location line="-135"/>
+        <location line="-180"/>
         <source>Could not connect to phone on port &apos;%1&apos;: %2
 Check if the phone is connected and App TRK is running.</source>
         <translation>Не удалось подключиться к телефону через порт &apos;%1&apos;: %2
 Убедитесь, что телефон подключён, и на нём работает App TRK.</translation>
     </message>
     <message>
-        <location line="-175"/>
+        <location line="-174"/>
         <source>There is no device plugged in.</source>
         <translation>Устройство не подключено.</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>Creating %1.sisx ...</source>
-        <translation>Создание %1.sisx...</translation>
+        <location line="-7"/>
+        <source>Deploying</source>
+        <translation>Развёртывание</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+13"/>
         <source>Executable file: %1</source>
         <translation>Исполняемый файл: %1</translation>
     </message>
@@ -12709,36 +12937,39 @@ Check if the phone is connected and App TRK is running.</source>
         <translation>Отладчик для платформы Symbian</translation>
     </message>
     <message>
-        <location line="+12"/>
-        <location line="+90"/>
-        <source>%1 %2</source>
-        <translation>%1 %2</translation>
+        <location line="-9"/>
+        <source>Creating %1 ...</source>
+        <translation>Создание %1 ...</translation>
     </message>
     <message>
-        <location line="-42"/>
-        <source>Could not read template package file &apos;%1&apos;</source>
-        <translation>Не удалось прочитать шаблон файла пакета &apos;%1&apos;</translation>
+        <location line="-22"/>
+        <source>Unable to remove existing file &apos;%1&apos;: %2</source>
+        <translation>Не удалось удалить существующий файл &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <location line="+9"/>
-        <source>Could not write package file &apos;%1&apos;</source>
-        <translation>Не удалось записать файл пакета: &apos;%1&apos;</translation>
+        <location line="+107"/>
+        <source>Unable to rename file &apos;%1&apos; to &apos;%2&apos;: %3</source>
+        <translation>Не удалось переименовать файл &quot;%1&quot; в &quot;%2&quot;: %3</translation>
     </message>
     <message>
-        <location line="+16"/>
-        <location line="+29"/>
+        <location line="+10"/>
         <source>An error occurred while creating the package.</source>
         <translation>Возникла ошибка при создание пакета.</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+21"/>
+        <source>Failed to create &apos;%1&apos;</source>
+        <translation>Не удалось создать &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+45"/>
         <source>Package: %1
 Deploying application to &apos;%2&apos;...</source>
         <translation>Пакет: %1
 Установка приложения на &apos;%2&apos;...</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+25"/>
         <source>Could not create file %1 on device: %2</source>
         <translation>Не удалось создать файл %1 на устройстве: %2</translation>
     </message>
@@ -12763,22 +12994,17 @@ Deploying application to &apos;%2&apos;...</source>
         <translation>Копирование установочного файла...</translation>
     </message>
     <message>
-        <location line="+5"/>
-        <source>%1% copied.</source>
-        <translation>%1% скопировано.</translation>
-    </message>
-    <message>
-        <location line="+5"/>
+        <location line="+11"/>
         <source>Installing application...</source>
         <translation>Установка приложения...</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+13"/>
         <source>Could not install from package %1 on device: %2</source>
         <translation>Не удалось установить из пакета %1 на устройстве: %2</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+31"/>
         <source>Waiting for App TRK</source>
         <translation>Ожидание App TRK</translation>
     </message>
@@ -12807,6 +13033,11 @@ Deploying application to &apos;%2&apos;...</source>
         <source>An error has occurred while running %1.</source>
         <translation>Возникла ошибка при выполнении %1.</translation>
     </message>
+    <message>
+        <location line="+15"/>
+        <source>The device &apos;%1&apos; has been disconnected</source>
+        <translation>Устройство &quot;%1&quot; было отключено</translation>
+    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60DevicesPreferencePane</name>
@@ -12814,11 +13045,6 @@ Deploying application to &apos;%2&apos;...</source>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicespreferencepane.ui"/>
         <source>Form</source>
         <translation>Форма</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Installed S60 SDKs:</source>
-        <translation>Установленные SDK для S60:</translation>
     </message>
     <message>
         <location/>
@@ -12836,7 +13062,7 @@ Deploying application to &apos;%2&apos;...</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicespreferencepane.cpp" line="+114"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicespreferencepane.cpp" line="+118"/>
         <source>S60 SDKs</source>
         <translation>SDK для S60</translation>
     </message>
@@ -12857,25 +13083,25 @@ Deploying application to &apos;%2&apos;...</source>
 <context>
     <name>Qt4ProjectManager::Internal::S60EmulatorRunConfiguration</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60emulatorrunconfiguration.cpp" line="+59"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60emulatorrunconfiguration.cpp" line="+96"/>
         <source>%1 in Symbian Emulator</source>
         <translation>%1 в эмуляторе Symbian</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>QtSymbianEmulatorRunConfiguration</source>
-        <translation>QtSymbianEmulatorRunConfiguration</translation>
+        <source>Qt Symbian Emulator RunConfiguration</source>
+        <translation>Конфигурация запуска в эмуляторе Qt Symbian</translation>
     </message>
     <message>
-        <location line="+87"/>
+        <location line="+70"/>
         <source>Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.</source>
-        <translation>Не удалось разобрать %1. Нельзя запустить конфигурацию запуска Qt для Symbian %2.</translation>
+        <translation>Не удалось разобрать %1. Нельзя запустить конфигурацию запуска Qt для эмулятора Symbian %2.</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
     <message>
-        <location line="+113"/>
+        <location line="+152"/>
         <source>%1 in Symbian Emulator</source>
         <translation>%1 в эмуляторе Symbian</translation>
     </message>
@@ -12883,7 +13109,7 @@ Deploying application to &apos;%2&apos;...</source>
 <context>
     <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
     <message>
-        <location line="-63"/>
+        <location line="-99"/>
         <source>Name:</source>
         <translation>Имя:</translation>
     </message>
@@ -12892,16 +13118,11 @@ Deploying application to &apos;%2&apos;...</source>
         <source>Executable:</source>
         <translation>Программа:</translation>
     </message>
-    <message>
-        <location line="+21"/>
-        <source>Summary: Run %1 in emulator</source>
-        <translation>Итого: Выполнить %1 на эмуляторе</translation>
-    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
-        <location line="+85"/>
+        <location line="+124"/>
         <source>Starting %1...</source>
         <translation>Запускается %1...</translation>
     </message>
@@ -12919,7 +13140,7 @@ Deploying application to &apos;%2&apos;...</source>
 <context>
     <name>Qt4ProjectManager::Internal::S60Manager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+113"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+112"/>
         <source>Run in Emulator</source>
         <translation>Выполнить на эмуляторе</translation>
     </message>
@@ -12935,120 +13156,23 @@ Deploying application to &apos;%2&apos;...</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ValueEditor</name>
-    <message>
-        <location filename="../../../src/shared/proparser/valueeditor.ui"/>
-        <source>Edit Variable</source>
-        <translation>Правка переменных</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Variable Name:</source>
-        <translation>Название переменной:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Assignment Operator:</source>
-        <translation>Оператор присваивания:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Variable:</source>
-        <translation>Переменная:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Append (+=)</source>
-        <translation>Добавление (+=)</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove (-=)</source>
-        <translation>Удаление (-=)</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Replace (~=)</source>
-        <translation>Замещение (~=)</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Set (=)</source>
-        <translation>Присваивание (=)</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Unique (*=)</source>
-        <translation>Уникальный (*=)</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Select Item</source>
-        <translation>Выбрать</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Edit Item</source>
-        <translation>Изменить</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Select Items</source>
-        <translation>Выбор элементов</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Edit Items</source>
-        <translation>Правка элементов</translation>
-    </message>
-    <message>
-        <location/>
-        <source>New</source>
-        <translation>Новый</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <location filename="../../../src/shared/proparser/valueeditor.cpp" line="+252"/>
-        <source>Edit Values</source>
-        <translation>Изменить значения</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Edit %1</source>
-        <translation>Изменить %1</translation>
-    </message>
-    <message>
-        <location line="+69"/>
-        <source>Edit Scope</source>
-        <translation>Область правки</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>Edit Advanced Expression</source>
-        <translation>Изменить расширенное выражение</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::MakeStep</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="-244"/>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
-        <translation>&lt;font color=&quot;#ff0000&quot;&gt;Не удалось найти в среде сборки команду: %1&lt;/font&gt;</translation>
+        <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="-304"/>
+        <source>Make</source>
+        <comment>Qt4 MakeStep display name.</comment>
+        <translation>Сборка</translation>
     </message>
     <message>
-        <location line="+56"/>
-        <source>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;No Makefile found, assuming project is clean.&lt;/b&gt;&lt;/font&gt;</source>
-        <translation>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;Не найден файл Makefile, предположительно проект очищен.&lt;/b&gt;&lt;/font&gt;</translation>
+        <location line="+55"/>
+        <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
+        <translation>&lt;font color=&quot;#ff0000&quot;&gt;Не удалось найти в среде сборки команду: %1&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::MakeStepConfigWidget</name>
     <message>
-        <location line="+75"/>
+        <location line="+112"/>
         <source>&lt;b&gt;Make Step:&lt;/b&gt; %1 not found in the environment.</source>
         <translation>&lt;b&gt;Этап сборки:&lt;/b&gt;программа %1 не найдена.</translation>
     </message>
@@ -13058,7 +13182,7 @@ Deploying application to &apos;%2&apos;...</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2 в %3</translation>
     </message>
     <message>
-        <location line="-38"/>
+        <location line="-36"/>
         <source>Override %1:</source>
         <translation>Заменить %1:</translation>
     </message>
@@ -13066,118 +13190,61 @@ Deploying application to &apos;%2&apos;...</source>
 <context>
     <name>Qt4ProjectManager::QMakeStep</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="-242"/>
-        <source>
-&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
+        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+80"/>
+        <source>qmake</source>
+        <comment>QMakeStep display name.</comment>
+        <translation>qmake</translation>
+    </message>
+    <message>
+        <location line="+57"/>
+        <source>&lt;font color=&quot;#ff0000&quot;&gt;Qt version &lt;b&gt;%1&lt;/b&gt; is invalid. Set a valid Qt Version in Preferences &lt;/font&gt;
 </source>
-        <translation>
-&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Не выбран корректный профиль Qt. Выберите его в настройках &lt;/b&gt;&lt;/font&gt;
+        <translation>&lt;font color=&quot;#ff0000&quot;&gt;Профиль Qt &lt;b&gt;%1&lt;/b&gt; некорректный. Выберите корректный профиль Qt в Параметрах &lt;/font&gt;
 </translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>
-&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Tools/Options &lt;/b&gt;&lt;/font&gt;
+        <location line="+3"/>
+        <source>&lt;font color=&quot;#ff0000&quot;&gt;Qt version &lt;b&gt;%1&lt;/b&gt; is invalid. Set valid Qt Version in Tools/Options &lt;/b&gt;&lt;/font&gt;
 </source>
-        <translation>
-&lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;Не выбран корректный профиль Qt. Выберите его в Инструменты - Параметры &lt;/b&gt;&lt;/font&gt;
+        <translation>&lt;font color=&quot;#ff0000&quot;&gt;Профиль Qt &lt;b&gt;%1&lt;/b&gt; некорректный. Выберите корректный профиль Qt в Инструментах/Настройках &lt;/font&gt;
 </translation>
     </message>
     <message>
-        <location line="+40"/>
-        <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping QMake step.&lt;/font&gt;</source>
-        <translation>&lt;font color=&quot;#0000ff&quot;&gt;Настройки не изменились, этап QMake пропускается.&lt;/font&gt;</translation>
+        <location line="+50"/>
+        <source>&lt;font color=&quot;#0000ff&quot;&gt;Configuration unchanged, skipping qmake step.&lt;/font&gt;</source>
+        <translation>&lt;font color=&quot;#0000ff&quot;&gt;Настройки не изменились, этап qmake пропускается.&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
     <message>
-        <location line="+88"/>
-        <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
-        <translation>&lt;b&gt;QMake:&lt;/b&gt; Нельзя запустить QMake, так как профиль Qt не выбран.</translation>
+        <location line="+175"/>
+        <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
+        <translation>&lt;b&gt;qmake:&lt;/b&gt; Профиль Qt не выбран. Нельзя запустить qmake.</translation>
     </message>
     <message>
-        <location line="+74"/>
-        <source>No valid Qt version set.</source>
-        <translation>Не выбран корректный профиль Qt.</translation>
-    </message>
-    <message>
-        <location line="-61"/>
-        <source>&lt;b&gt;QMake:&lt;/b&gt; %1 %2</source>
-        <translation>&lt;b&gt;QMake:&lt;/b&gt; %1 %2</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Qt4BuildConfigurationFactory</name>
-    <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4project.cpp" line="+252"/>
-        <source>Using Default Qt Version</source>
-        <translation>Используется профиль Qt по умолчанию</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Using Qt Version &quot;%1&quot;</source>
-        <translation>Используется профиль Qt &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>New configuration</source>
-        <translation>Новая конфигурация</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>New Configuration Name:</source>
-        <translation>Название новой конфигурации:</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>%1 Debug</source>
-        <translation>%1 Отладка</translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>%1 Release</source>
-        <translation>%1 Релиз</translation>
+        <location line="+14"/>
+        <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
+        <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Qt4Manager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+192"/>
-        <source>Loading project %1 ...</source>
-        <translation>Загрузка проекта %1 ...</translation>
-    </message>
-    <message>
-        <location line="+9"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+194"/>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation>Не удалось открыть проект &apos;%1&apos;: файл проекта отсутствует</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <location line="+7"/>
-        <source>Failed opening project</source>
-        <translation>Не удалось открыть проект</translation>
-    </message>
-    <message>
-        <location line="-1"/>
+        <location line="+6"/>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>Не удалось открыть проект &apos;%1&apos;: проект уже открыт</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Opening %1 ...</source>
-        <translation>Открытие %1 ...</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Done opening project</source>
-        <translation>Проект успешно открыт</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::QtVersionManager</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+347"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+372"/>
         <source>&lt;not found&gt;</source>
         <translation>&lt;не найдена&gt;</translation>
     </message>
@@ -13188,7 +13255,7 @@ Deploying application to &apos;%2&apos;...</source>
         <translation>Qt в PATH</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+190"/>
         <source>Name:</source>
         <translation>Название:</translation>
     </message>
@@ -13213,12 +13280,7 @@ Deploying application to &apos;%2&apos;...</source>
         <translation>По умолчанию:</translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Compiler:</source>
-        <translation>Компилятор:</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+6"/>
         <source>Version:</source>
         <translation>Версия:</translation>
     </message>
@@ -13226,14 +13288,6 @@ Deploying application to &apos;%2&apos;...</source>
         <location line="+3"/>
         <source>Debugging helper:</source>
         <translation>Помощник отладчика:</translation>
-    </message>
-</context>
-<context>
-    <name>QApplication</name>
-    <message>
-        <location line="+869"/>
-        <source>The Qt Version has no toolchain.</source>
-        <translation>У профиля Qt нет инструментария.</translation>
     </message>
 </context>
 <context>
@@ -13317,32 +13371,6 @@ Deploying application to &apos;%2&apos;...</source>
         <location line="+4"/>
         <source>Classes for Inter-Process Communication using the D-Bus</source>
         <translation>Классы для межпроцессного взаимодействия с использованием D-Bus</translation>
-    </message>
-</context>
-<context>
-    <name>QtScriptEditor::Internal::QtScriptEditorPlugin</name>
-    <message>
-        <location filename="../../../src/plugins/qtscripteditor/qtscripteditorplugin.cpp" line="+102"/>
-        <source>Creates a Qt Script file.</source>
-        <translation>Создание файла сценария Qt.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Qt Script file</source>
-        <translation>Файл сценария Qt</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Qt</source>
-        <translation>Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QtScriptEditor::Internal::ScriptEditor</name>
-    <message>
-        <location filename="../../../src/plugins/qtscripteditor/qtscripteditor.cpp" line="+229"/>
-        <source>&lt;Select Symbol&gt;</source>
-        <translation>&lt;Выберите символ&gt;</translation>
     </message>
 </context>
 <context>
@@ -13495,7 +13523,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
-        <location filename="../../../src/plugins/locator/opendocumentsfilter.h" line="+53"/>
+        <location filename="../../../src/plugins/locator/opendocumentsfilter.h" line="+54"/>
         <source>Open documents</source>
         <translation>Открытые документы</translation>
     </message>
@@ -13511,7 +13539,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>Locator::Internal::LocatorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/locator/locatorplugin.cpp" line="+247"/>
+        <location filename="../../../src/plugins/locator/locatorplugin.cpp" line="+252"/>
         <source>Indexing</source>
         <translation>Индексация</translation>
     </message>
@@ -13519,7 +13547,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>Locator::Internal::LocatorWidget</name>
     <message>
-        <location filename="../../../src/plugins/locator/locatorwidget.cpp" line="+254"/>
+        <location filename="../../../src/plugins/locator/locatorwidget.cpp" line="+260"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
@@ -13547,7 +13575,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>Locator::Internal::SettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/locator/settingspage.cpp" line="+159"/>
+        <location filename="../../../src/plugins/locator/settingspage.cpp" line="+163"/>
         <source>%1 (Prefix: %2)</source>
         <translation>%1 (префикс: %2)</translation>
     </message>
@@ -13691,7 +13719,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
     <message>
-        <location filename="../../../src/plugins/resourceeditor/resourceeditorplugin.cpp" line="+77"/>
+        <location filename="../../../src/plugins/resourceeditor/resourceeditorplugin.cpp" line="+78"/>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation>Создание файла ресурсов Qt (.qrc).</translation>
     </message>
@@ -13701,12 +13729,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Файл ресурсов Qt</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Qt</source>
-        <translation>Qt</translation>
-    </message>
-    <message>
-        <location line="+12"/>
+        <location line="+15"/>
         <source>&amp;Undo</source>
         <translation>От&amp;менить</translation>
     </message>
@@ -13742,19 +13765,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Automatically save all files before building</source>
         <translation>Автоматически сохранять все
 файлы перед сборкой</translation>
-    </message>
-</context>
-<context>
-    <name>SettingsDialog</name>
-    <message>
-        <location filename="../../../src/plugins/coreplugin/dialogs/settingsdialog.ui"/>
-        <source>Options</source>
-        <translation>Параметры</translation>
-    </message>
-    <message>
-        <location/>
-        <source>0</source>
-        <translation>0</translation>
     </message>
 </context>
 <context>
@@ -14030,13 +14040,28 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Server start script:</source>
         <translation>Скрипт запуска сервера:</translation>
     </message>
+    <message>
+        <location/>
+        <source>Debugger:</source>
+        <translation>Отладчик:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Local executable:</source>
+        <translation>Локальная программа:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Sysroot:</source>
+        <translation type="unfinished">Системный корень:</translation>
+    </message>
 </context>
 <context>
     <name>Subversion::Internal::CheckoutWizard</name>
     <message>
-        <location filename="../../../src/plugins/subversion/checkoutwizard.cpp" line="+54"/>
+        <location filename="../../../src/plugins/subversion/checkoutwizard.cpp" line="+56"/>
         <source>Checks out a project from a Subversion repository.</source>
-        <translation>Извлечение проекта из репозитория Subversion.</translation>
+        <translation>Извлечение проекта из хранилища Subversion.</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -14049,12 +14074,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <location filename="../../../src/plugins/subversion/checkoutwizardpage.cpp" line="+38"/>
         <source>Specify repository, checkout directory and path.</source>
-        <translation>Выбор репозитория, каталога извлечения и пути.</translation>
+        <translation>Выбор хранилища, каталога извлечения и пути.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Repository:</source>
-        <translation>Репозиторий:</translation>
+        <translation>Хранилище:</translation>
     </message>
 </context>
 <context>
@@ -14080,20 +14105,50 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Пароль:</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/subversion/settingspage.cpp" line="+86"/>
+        <location filename="../../../src/plugins/subversion/settingspage.cpp" line="+106"/>
         <source>Subversion</source>
         <translation>Subversion</translation>
     </message>
     <message>
         <location filename="../../../src/plugins/subversion/settingspage.ui"/>
-        <source>Prompt to submit</source>
+        <source>Configuration</source>
+        <translation>Настройка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Miscellaneous</source>
+        <translation>Разное</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Timeout:</source>
+        <translation>Время ожидания:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>s</source>
+        <translation> сек</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Prompt on submit</source>
         <translation>Спрашивать при фиксации</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Ignore whitespace changes in annotation</source>
+        <translation>Пропускать изменения пробелов в описании</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Log count:</source>
+        <translation>Число записей:</translation>
     </message>
 </context>
 <context>
     <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
-        <location filename="../../../src/plugins/subversion/settingspage.cpp" line="-36"/>
+        <location filename="../../../src/plugins/subversion/settingspage.cpp" line="-55"/>
         <source>Subversion Command</source>
         <translation>Команда Subversion</translation>
     </message>
@@ -14101,12 +14156,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>Subversion::Internal::SubversionPlugin</name>
     <message>
-        <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="+281"/>
+        <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="+291"/>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+37"/>
         <source>Add</source>
         <translation>Добавить</translation>
     </message>
@@ -14121,32 +14176,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Alt+S,Alt+A</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Delete &quot;%1&quot;</source>
-        <translation>Удалить &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <location line="+7"/>
-        <source>Revert</source>
-        <translation>Откатить</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Revert &quot;%1&quot;</source>
-        <translation>Откатить &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <location line="+9"/>
+        <location line="+32"/>
         <source>Diff Project</source>
         <translation>Сравнить проект</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-65"/>
         <source>Diff Current File</source>
         <translation>Сравнить текущий файл</translation>
     </message>
@@ -14161,12 +14196,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Alt+S,Alt+D</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+104"/>
         <source>Commit All Files</source>
         <translation>Фиксировать все файлы</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-70"/>
         <source>Commit Current File</source>
         <translation>Фиксировать текущий файл</translation>
     </message>
@@ -14181,7 +14216,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Alt+S,Alt+C</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-33"/>
         <source>Filelog Current File</source>
         <translation>История текущего файла</translation>
     </message>
@@ -14191,32 +14226,87 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>История &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Annotate Current File</source>
-        <translation>Аннотация текущего файла</translation>
+        <translation>Аннотация текущего файла (annotate)</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Annotate &quot;%1&quot;</source>
-        <translation>Аннотация &quot;%1&quot;</translation>
+        <translation>Аннотация &quot;%1&quot; (annotate)</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+85"/>
         <source>Describe...</source>
-        <translation>Описать...</translation>
+        <translation>Описать (describe)...</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="-30"/>
         <source>Project Status</source>
         <translation>Состояние проекта</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="-26"/>
+        <source>Delete...</source>
+        <translation>Удалить...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Delete &quot;%1&quot;...</source>
+        <translation>Удалить &quot;%1&quot;...</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Revert...</source>
+        <translation>Откатить...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Revert &quot;%1&quot;...</source>
+        <translation>Откатить &quot;%1&quot;...</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Diff Project &quot;%1&quot;</source>
+        <translation>Сравнить проект &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Status of Project &quot;%1&quot;</source>
+        <translation>Состояние проекта &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Log Project &quot;%1&quot;</source>
+        <translation>История проекта &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Log Project</source>
+        <translation>История проекта</translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Update Project</source>
         <translation>Обновить проект</translation>
     </message>
     <message>
+        <location line="+0"/>
+        <source>Update Project &quot;%1&quot;</source>
+        <translation>Обновить проект &quot;%1&quot;</translation>
+    </message>
+    <message>
         <location line="+9"/>
+        <source>Repository Log</source>
+        <translation>История хранилища</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Revert Repository...</source>
+        <translation>Откатить все изменения...</translation>
+    </message>
+    <message>
+        <location line="+11"/>
         <source>Commit</source>
         <translation>Фиксировать</translation>
     </message>
@@ -14236,7 +14326,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>&amp;Вернуть</translation>
     </message>
     <message>
-        <location line="+40"/>
+        <location line="+31"/>
         <source>Closing Subversion Editor</source>
         <translation>Закрытие редактора Subversion</translation>
     </message>
@@ -14251,22 +14341,32 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Сообщение о фиксации содержит ошибки. Фиксировать изменение?</translation>
     </message>
     <message>
-        <location line="+124"/>
+        <location line="+127"/>
+        <source>Revert repository</source>
+        <translation>Откатить все изменения</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Would you like to revert all changes to the repository?</source>
+        <translation>Желаете откатить все изменения рабочей копии?</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Revert failed: %1</source>
+        <translation>Не удалось откатить: %1</translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>The file has been changed. Do you want to revert it?</source>
         <translation>Файл был изменён. Желаете откатить его изменения?</translation>
     </message>
     <message>
-        <location line="+81"/>
-        <source>The commit list spans several repositories (%1). Please commit them one by one.</source>
-        <translation>Список на фиксацию содержит несколько репозиториев (%1). Пожалуйста, фиксируйте их по одному.</translation>
-    </message>
-    <message>
-        <location line="+18"/>
+        <location line="+53"/>
         <source>Another commit is currently being executed.</source>
         <translation>В данный момент уже идёт другая фиксация.</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+14"/>
         <source>There are no modified files.</source>
         <translation>Нет изменённых файлов.</translation>
     </message>
@@ -14276,7 +14376,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Не удаётся создать временный файл: %1</translation>
     </message>
     <message>
-        <location line="+189"/>
+        <location line="+223"/>
         <source>Describe</source>
         <translation>Описание</translation>
     </message>
@@ -14286,7 +14386,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Номер ревизии:</translation>
     </message>
     <message>
-        <location line="+47"/>
+        <location line="+37"/>
         <source>No subversion executable specified!</source>
         <translation>Исполняемый файл Subversion не указан!</translation>
     </message>
@@ -14299,7 +14399,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 </translation>
     </message>
     <message>
-        <location line="+29"/>
+        <location line="+31"/>
         <source>The process terminated with exit code %1.</source>
         <translation>Процесс завершился с кодом %1.</translation>
     </message>
@@ -14330,7 +14430,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>SymbolGroup</name>
     <message>
-        <location filename="../../../src/plugins/debugger/cdb/cdbsymbolgroupcontext.cpp" line="+52"/>
+        <location filename="../../../src/plugins/debugger/cdb/symbolgroupcontext.cpp" line="+52"/>
         <source>Out of scope</source>
         <translation>Вне области</translation>
     </message>
@@ -14338,7 +14438,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>TextEditor::BaseFileFind</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+119"/>
+        <location filename="../../../src/plugins/texteditor/basefilefind.cpp" line="+153"/>
         <location line="+21"/>
         <source>%1 found</source>
         <translation>%1 найдено</translation>
@@ -14357,7 +14457,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>TextEditor::BaseTextDocument</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetextdocument.cpp" line="+159"/>
+        <location filename="../../../src/plugins/texteditor/basetextdocument.cpp" line="+157"/>
         <source>untitled</source>
         <translation>безымянный</translation>
     </message>
@@ -14370,7 +14470,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>TextEditor::BaseTextEditor</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+254"/>
+        <location filename="../../../src/plugins/texteditor/basetexteditor.cpp" line="+258"/>
         <source>Print Document</source>
         <translation>Печать документа</translation>
     </message>
@@ -14388,7 +14488,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 <context>
     <name>TextEditor::BaseTextEditorEditable</name>
     <message>
-        <location line="+4346"/>
+        <location line="+5069"/>
         <source>Line: %1, Col: %2</source>
         <translation>Строка: %1, Столбец: %2</translation>
     </message>
@@ -14495,6 +14595,41 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Enable automatic &amp;indentation</source>
         <translation>&amp;Автоотступы</translation>
     </message>
+    <message>
+        <location/>
+        <source>Mouse</source>
+        <translation>Мышь</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Enable &amp;mouse navigation</source>
+        <translation>Включить навигацию &amp;мышью</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Enable scroll &amp;wheel zooming</source>
+        <translation>Включить масштабирование &amp;колёсиком</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Braces will be flush with indented block, except first indent level.</source>
+        <translation>Скобки будут выравниваться в пределах структурного блока, за исключением первого уровня отступов.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Indent brace&amp;s</source>
+        <translation>Выравнивать &amp;скобки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
+        <translation>Определять автоматически на основе соседних строк с отступами (предыдущая строка имеет приоритет перед следующей)</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Based on the surrounding lines</source>
+        <translation>На основе соседних строк</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::DisplaySettingsPage</name>
@@ -14535,11 +14670,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <location/>
-        <source>Animate matching parentheses</source>
-        <translation>Анимацию совпадающих скобок</translation>
-    </message>
-    <message>
-        <location/>
         <source>Text Wrapping</source>
         <translation>Перенос текста</translation>
     </message>
@@ -14555,29 +14685,29 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <location/>
-        <source>Navigation</source>
-        <translation>Навигация</translation>
+        <source>Mark &amp;text changes</source>
+        <translation>Маркеры изменения &amp;текста</translation>
     </message>
     <message>
         <location/>
-        <source>Enable &amp;mouse navigation</source>
-        <translation>Включить навигацию м&amp;ышью</translation>
+        <source>&amp;Animate matching parentheses</source>
+        <translation>&amp;Анимацию совпадающих скобок</translation>
     </message>
     <message>
         <location/>
-        <source>Mark text changes</source>
-        <translation>Помечать изменения текста</translation>
+        <source>Auto-fold first &amp;comment</source>
+        <translation>С&amp;ворачивать первый комментарий</translation>
     </message>
 </context>
 <context>
     <name>TextEditor::FontSettingsPage</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+314"/>
+        <location filename="../../../src/plugins/texteditor/fontsettingspage.cpp" line="+320"/>
         <source>Font &amp; Colors</source>
         <translation>Шрифт и цвета</translation>
     </message>
     <message>
-        <location line="+124"/>
+        <location line="+134"/>
         <source>Copy Color Scheme</source>
         <translation>Копировать цветовую схему</translation>
     </message>
@@ -14705,8 +14835,8 @@ The following encodings are likely to fit:</source>
     <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <location filename="../../../src/plugins/texteditor/findinfiles.cpp" line="+56"/>
-        <source>Files on Disk</source>
-        <translation>Файлы на диске</translation>
+        <source>Files on File System</source>
+        <translation>Файлы в системе</translation>
     </message>
     <message>
         <location line="+37"/>
@@ -14732,7 +14862,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>TextEditor::Internal::FontSettings</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/fontsettings.cpp" line="+140"/>
+        <location filename="../../../src/plugins/texteditor/fontsettings.cpp" line="+147"/>
         <source>Customized</source>
         <translation>Настроенная</translation>
     </message>
@@ -14774,6 +14904,16 @@ The following encodings are likely to fit:</source>
         <source>Copy...</source>
         <translation>Копировать...</translation>
     </message>
+    <message>
+        <location/>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Zoom:</source>
+        <translation>Масштаб:</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor::Internal::LineNumberFilter</name>
@@ -14789,52 +14929,9 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
-    <message>
-        <location filename="../../../src/plugins/texteditor/texteditorplugin.cpp" line="+94"/>
-        <source>Creates a text file (.txt).</source>
-        <translation>Создаст текстовый файл (.txt).</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Text File</source>
-        <translation>Текстовый файл</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>General</source>
-        <translation>Основное</translation>
-    </message>
-    <message>
-        <location line="+26"/>
-        <source>Triggers a completion in this scope</source>
-        <translation>Переключение завершения в этой области</translation>
-    </message>
-    <message>
-        <location line="+5"/>
-        <source>Ctrl+Space</source>
-        <translation>Ctrl+Space</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Meta+Space</source>
-        <translation>Meta+Space</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Triggers a quick fix in this scope</source>
-        <translation>Переключает быстрое дополнение в этой области</translation>
-    </message>
-    <message>
-        <location line="+4"/>
-        <source>Alt+Return</source>
-        <translation>Alt+Return</translation>
-    </message>
-</context>
-<context>
     <name>TextEditor::TextEditorActionHandler</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/texteditoractionhandler.cpp" line="+117"/>
+        <location filename="../../../src/plugins/texteditor/texteditoractionhandler.cpp" line="+121"/>
         <source>&amp;Undo</source>
         <translation>&amp;Отменить</translation>
     </message>
@@ -14976,41 +15073,51 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <location line="+4"/>
-        <source>Goto Block Start</source>
-        <translation>Перейти в начало блока</translation>
+        <source>Reset Font Size</source>
+        <translation>Восстановить размер шрифта</translation>
     </message>
     <message>
         <location line="+2"/>
+        <source>Ctrl+0</source>
+        <translation>Ctrl+0</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Go to Block Start</source>
+        <translation>Перейти в начало блока</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Go to Block End</source>
+        <translation>Перейти в конец блока</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Go to Block Start With Selection</source>
+        <translation>Перейти в начало блока с выделением</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Go to Block End With Selection</source>
+        <translation>Перейти в конец блока с выделением</translation>
+    </message>
+    <message>
+        <location line="-15"/>
         <source>Ctrl+[</source>
         <translation>Ctrl+[</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Goto Block End</source>
-        <translation>Перейти в конец блока</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+6"/>
         <source>Ctrl+]</source>
         <translation>Ctrl+]</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>Goto Block Start With Selection</source>
-        <translation>Перейти в начало блока с выделением</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+6"/>
         <source>Ctrl+{</source>
         <translation>Ctrl+{</translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Goto Block End With Selection</source>
-        <translation>Перейти в конец блока с выделением</translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+5"/>
         <source>Ctrl+}</source>
         <translation>Ctrl+}</translation>
     </message>
@@ -15070,6 +15177,16 @@ The following encodings are likely to fit:</source>
         <translation>Ctrl+Alt+Down</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>Join Lines</source>
+        <translation>Объединить строки</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Ctrl+J</source>
+        <translation>Ctrl+J</translation>
+    </message>
+    <message>
         <location line="+94"/>
         <source>&lt;line number&gt;</source>
         <translation>&lt;номер строки&gt;</translation>
@@ -15078,7 +15195,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>TextEditor::TextEditorSettings</name>
     <message>
-        <location filename="../../../src/plugins/texteditor/texteditorsettings.cpp" line="+64"/>
+        <location filename="../../../src/plugins/texteditor/texteditorsettings.cpp" line="+65"/>
         <source>Text</source>
         <translation>Текст</translation>
     </message>
@@ -15218,19 +15335,12 @@ The following encodings are likely to fit:</source>
         <translation>Сравнение: размещение</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <location line="+8"/>
-        <location line="+8"/>
-        <source>Text Editor</source>
-        <translation>Текстовый редактор</translation>
-    </message>
-    <message>
-        <location line="-10"/>
+        <location line="+13"/>
         <source>Behavior</source>
         <translation>Поведение</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+9"/>
         <source>Display</source>
         <translation>Вид</translation>
     </message>
@@ -15238,17 +15348,12 @@ The following encodings are likely to fit:</source>
 <context>
     <name>ToolChain</name>
     <message>
-        <location filename="../../../src/plugins/projectexplorer/toolchain.cpp" line="+113"/>
+        <location filename="../../../src/plugins/projectexplorer/toolchain.cpp" line="+114"/>
         <source>GCC</source>
         <translation>GCC</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Intel C++ Compiler (Linux)</source>
-        <translation>Intel C++ Compiler (Linux)</translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+6"/>
         <source>Microsoft Visual C++</source>
         <translation>Microsoft Visual C++</translation>
     </message>
@@ -15269,6 +15374,16 @@ The following encodings are likely to fit:</source>
     </message>
     <message>
         <location line="+2"/>
+        <source>GCCE/GnuPoc</source>
+        <translation>GCCE/GnuPoc</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>RVCT (ARMV6)/GnuPoc</source>
+        <translation>RVCT (ARMV6)/GnuPoc</translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>RVCT (ARMV5)</source>
         <translation>RVCT (ARMV5)</translation>
     </message>
@@ -15276,6 +15391,11 @@ The following encodings are likely to fit:</source>
         <location line="+2"/>
         <source>RVCT (ARMV6)</source>
         <translation>RVCT (ARMV6)</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>GCC for Maemo</source>
+        <translation>GCC для Maemo</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -15337,8 +15457,8 @@ The following encodings are likely to fit:</source>
 <context>
     <name>VCSBase</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/vcsbaseconstants.h" line="+38"/>
-        <location line="+3"/>
+        <location filename="../../../src/plugins/vcsbase/vcsbaseconstants.h" line="+39"/>
+        <location line="+4"/>
         <source>Version Control</source>
         <translation>Контроль версий</translation>
     </message>
@@ -15351,7 +15471,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>VCSBase::BaseCheckoutWizard</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/basecheckoutwizard.cpp" line="+103"/>
+        <location filename="../../../src/plugins/vcsbase/basecheckoutwizard.cpp" line="+114"/>
         <source>Cannot Open Project</source>
         <translation>Не удалось открыть проект</translation>
     </message>
@@ -15448,7 +15568,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>VCSBase::ProcessCheckoutJob</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/checkoutjobs.cpp" line="+101"/>
+        <location filename="../../../src/plugins/vcsbase/checkoutjobs.cpp" line="+102"/>
         <source>Unable to start %1: %2</source>
         <translation>Не удалось запустить %1: %2</translation>
     </message>
@@ -15489,7 +15609,17 @@ The following encodings are likely to fit:</source>
 <context>
     <name>VCSBase::VCSBaseEditor</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+327"/>
+        <location filename="../../../src/plugins/vcsbase/vcsbaseeditor.cpp" line="+170"/>
+        <source>Annotate &quot;%1&quot;</source>
+        <translation>Аннотация &apos;%1&apos;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Copy &quot;%1&quot;</source>
+        <translation>Копировать &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+213"/>
         <source>Describe change %1</source>
         <translation>Описать изменение %1</translation>
     </message>
@@ -15497,12 +15627,17 @@ The following encodings are likely to fit:</source>
 <context>
     <name>VCSBase::VCSBaseOutputWindow</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/vcsbaseoutputwindow.cpp" line="+90"/>
+        <location filename="../../../src/plugins/vcsbase/vcsbaseoutputwindow.cpp" line="+157"/>
+        <source>Open &quot;%1&quot;</source>
+        <translation>Открыть &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+6"/>
         <source>Clear</source>
         <translation>Очистить</translation>
     </message>
     <message>
-        <location line="+78"/>
+        <location line="+113"/>
         <source>Version Control</source>
         <translation>Контроль версий</translation>
     </message>
@@ -15510,7 +15645,7 @@ The following encodings are likely to fit:</source>
 <context>
     <name>VCSBase::VCSBaseSubmitEditor</name>
     <message>
-        <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+138"/>
+        <location filename="../../../src/plugins/vcsbase/vcsbasesubmiteditor.cpp" line="+141"/>
         <source>Check message</source>
         <translation>Проверие сообщение</translation>
     </message>
@@ -15520,7 +15655,7 @@ The following encodings are likely to fit:</source>
         <translation>Вставить имя...</translation>
     </message>
     <message>
-        <location line="+313"/>
+        <location line="+325"/>
         <source>Prompt to submit</source>
         <translation>Спрашивать при фиксации</translation>
     </message>
@@ -15530,22 +15665,41 @@ The following encodings are likely to fit:</source>
         <translation>Не удалось проверить сообщение</translation>
     </message>
     <message>
-        <location line="+28"/>
+        <location line="+21"/>
+        <source>Executing %1</source>
+        <translation>Выполнение %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Executing [%1] %2</source>
+        <translation>Выполнение [%1] %2</translation>
+    </message>
+    <message>
+        <location line="+13"/>
         <source>Unable to open &apos;%1&apos;: %2</source>
         <translation>Не удалось открыть %1: %2</translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+15"/>
         <source>The check script &apos;%1&apos; could not be started: %2</source>
         <translation>Скрипт проверки &apos;%1&apos; не запускается: %2</translation>
     </message>
     <message>
-        <location line="+4"/>
-        <source>The check script &apos;%1&apos; could not be run: %2</source>
-        <translation>Скрипт проверки &apos;%1&apos; не работает: %2</translation>
+        <location line="+7"/>
+        <source>The check script &apos;%1&apos; timed out.</source>
+        <translation>Вышло время ожидания проверочного скрипта &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <source>The check script &apos;%1&apos; could not be run: %2</source>
+        <translation type="obsolete">Скрипт проверки &apos;%1&apos; не работает: %2</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>The check script &apos;%1&apos; crashed</source>
+        <translation>Скрипт проверки &quot;%1&quot; завершился авариайно</translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>The check script returned exit code %1.</source>
         <translation>Скрипт проверки вернул код %1.</translation>
     </message>
@@ -15554,11 +15708,6 @@ The following encodings are likely to fit:</source>
     <name>VCSBaseSettingsPage</name>
     <message>
         <location filename="../../../src/plugins/vcsbase/vcsbasesettingspage.ui"/>
-        <source>Common</source>
-        <translation>Общее</translation>
-    </message>
-    <message>
-        <location/>
         <source>Wrap submit message at:</source>
         <translation>Ограничить длину строки до:</translation>
     </message>
@@ -15594,11 +15743,16 @@ name &lt;email&gt; alias &lt;email&gt;</source>
         <source>User fields configuration file:</source>
         <translation>Файл настройки полей:</translation>
     </message>
+    <message>
+        <location/>
+        <source> characters</source>
+        <translation> символа(ов)</translation>
+    </message>
 </context>
 <context>
     <name>VCSManager</name>
     <message>
-        <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+144"/>
+        <location filename="../../../src/plugins/coreplugin/vcsmanager.cpp" line="+149"/>
         <source>Version Control</source>
         <translation>Контроль версий</translation>
     </message>
@@ -15715,7 +15869,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+1"/>
         <source>Qt Git Hosting</source>
-        <translation>Размещение репозиториев Qt</translation>
+        <translation>Размещение хранилищ Qt</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -15804,7 +15958,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Designer::FormWindowEditor</name>
     <message>
-        <location filename="../../../src/plugins/designer/formwindoweditor.cpp" line="+167"/>
+        <location filename="../../../src/plugins/designer/formwindoweditor.cpp" line="+201"/>
         <source>untitled</source>
         <translation>безымянное</translation>
     </message>
@@ -15851,7 +16005,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Debugger::Internal::TermGdbAdapter</name>
     <message>
-        <location filename="../../../src/plugins/debugger/gdb/termgdbadapter.cpp" line="+177"/>
+        <location filename="../../../src/plugins/debugger/gdb/termgdbadapter.cpp" line="+178"/>
         <source>Debugger Error</source>
         <translation>Ошибка отладчика</translation>
     </message>
@@ -15859,7 +16013,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Qt4ProjectManager::Internal::S60Devices::Device</name>
     <message>
-        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devices.cpp" line="+66"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devices.cpp" line="+69"/>
         <source>Id:</source>
         <translation>Id:</translation>
     </message>
@@ -15887,7 +16041,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>trk::BluetoothListener</name>
     <message>
-        <location filename="../../../src/shared/trk/bluetoothlistener.cpp" line="+133"/>
+        <location filename="../../../src/shared/symbianutils/bluetoothlistener.cpp" line="+133"/>
         <source>%1: Stopping listener %2...</source>
         <translation>%1: Остановка приёмника %2...</translation>
     </message>
@@ -15925,7 +16079,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>QmlParser</name>
     <message>
-        <location filename="../../../src/plugins/qmleditor/parser/qmljslexer.cpp" line="+553"/>
+        <location filename="../../../src/libs/qmljs/parser/qmljslexer.cpp" line="+556"/>
         <source>Illegal character</source>
         <translation>Недопустимый символ</translation>
     </message>
@@ -15970,26 +16124,27 @@ p, li { white-space: pre-wrap; }
         <translation>Некорректный флаг регулярного выражения &apos;%0&apos;</translation>
     </message>
     <message>
-        <location filename="../../../src/plugins/qmleditor/parser/qmljsparser.cpp" line="+1752"/>
-        <source>Unexpected token &apos;%1&apos;</source>
-        <translation>Неожиданная лексема &apos;%1&apos;</translation>
+        <location filename="../../../src/libs/qmljs/parser/qmljsparser.cpp" line="+1767"/>
+        <location line="+67"/>
+        <source>Syntax error</source>
+        <translation>Синтаксическая ошибка</translation>
+    </message>
+    <message>
+        <location line="-65"/>
+        <source>Unexpected token `%1&apos;</source>
+        <translation>Неожиданная лексема &quot;%1&quot;</translation>
     </message>
     <message>
         <location line="+28"/>
-        <location line="+23"/>
-        <source>Expected token &apos;%1&apos;</source>
-        <translation>Ожидаемая лексема &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <location line="+13"/>
-        <source>Syntax error</source>
-        <translation>Синтаксическая ошибка</translation>
+        <location line="+24"/>
+        <source>Expected token `%1&apos;</source>
+        <translation>Ожидаемая лексема &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
     <name>trk::promptStartCommunication</name>
     <message>
-        <location filename="../../../src/shared/trk/bluetoothlistener_gui.cpp" line="+68"/>
+        <location filename="../../../src/shared/symbianutils/bluetoothlistener_gui.cpp" line="+68"/>
         <source>Connection on %1 canceled.</source>
         <translation>Подключение на %1 отменено.</translation>
     </message>
@@ -16017,7 +16172,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>trk::BaseCommunicationStarter</name>
     <message numerus="yes">
-        <location filename="../../../src/shared/trk/communicationstarter.cpp" line="+165"/>
+        <location filename="../../../src/shared/symbianutils/communicationstarter.cpp" line="+158"/>
         <source>%1: timed out after %n attempts using an interval of %2ms.</source>
         <translation>
             <numerusform>%1: время истекло после %n попытки через каждые %2 мс.</numerusform>
@@ -16039,7 +16194,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>trk::Session</name>
     <message>
-        <location filename="../../../src/shared/trk/trkutils.cpp" line="+82"/>
+        <location filename="../../../src/shared/symbianutils/trkutils.cpp" line="+82"/>
         <source>CPU: v%1.%2%3%4</source>
         <extracomment>CPU description of an S60 device %1 major verison, %2 minor version %3 real name of major verison, %4 real name of minor version</extracomment>
         <translation>Процессор: v%1.%2%3%4</translation>
@@ -16076,6 +16231,4574 @@ p, li { white-space: pre-wrap; }
         <source>, float size: %1</source>
         <extracomment>will be inserted into s60description</extracomment>
         <translation>, размер float: %1</translation>
+    </message>
+</context>
+<context>
+    <name>FakeVimExCommandsPage</name>
+    <message>
+        <location filename="../../../src/plugins/fakevim/fakevimexcommands.ui"/>
+        <source>Ex Command Mapping</source>
+        <translation type="unfinished">Расширенное связывание команд</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Filter:</source>
+        <translation type="unfinished">Фильтр:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Command</source>
+        <translation>Команда</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Label</source>
+        <translation>Название</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Ex Trigger Expression</source>
+        <translation type="unfinished">Выражение запуска</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Defaults</source>
+        <translation>По умолчанию</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Ex Command</source>
+        <translation type="unfinished">Расширенная команда</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Regular Expression:</source>
+        <translation>Регулярное выражение:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reset</source>
+        <translation>Сброс</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::StashDialog</name>
+    <message>
+        <location filename="../../../src/plugins/git/stashdialog.ui"/>
+        <source>Stashes</source>
+        <translation>Спрятанное</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/git/stashdialog.cpp" line="+88"/>
+        <source>Name</source>
+        <translation>Название</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Branch</source>
+        <translation>Ветка</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Message</source>
+        <translation>Сообщение</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Delete all...</source>
+        <translation>Удалить всё...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Delete...</source>
+        <translation>Удалить...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Show</source>
+        <translation>Показать</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Restore...</source>
+        <translation>Восстановить...</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Restore to branch...</source>
+        <extracomment>Restore a git stash to new branch to be created</extracomment>
+        <translation>Восстановить в ветке...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Refresh</source>
+        <translation>Обновить</translation>
+    </message>
+    <message>
+        <location line="+56"/>
+        <source>&lt;No repository&gt;</source>
+        <translation>&lt;Нет хранилища&gt;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Repository: %1</source>
+        <translation>Хранилище: %1</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <location line="+15"/>
+        <source>Delete stashes</source>
+        <translation>Удалить спрятанное</translation>
+    </message>
+    <message>
+        <location line="-14"/>
+        <source>Do you want to delete all stashes?</source>
+        <translation>Желаете удалить всё спрятанное?</translation>
+    </message>
+    <message numerus="yes">
+        <location line="+15"/>
+        <source>Do you want to delete %n stash(es)?</source>
+        <translation>
+            <numerusform>Желаете удалить %n спрятанное состояние?</numerusform>
+            <numerusform>Желаете удалить %n спрятанных состояния?</numerusform>
+            <numerusform>Желаете удалить %n спрятанных состояний?</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="+53"/>
+        <source>Repository modified</source>
+        <translation>Хранилище изменилось</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 cannot be restored since the repository is modified.
+You can choose between stashing the changes or discarding them.</source>
+        <translation>Нельзя восстановить %1, так как хранилище изменилось.
+Вы можете выбрать между скрытием изменений или отказа от них.</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Stash</source>
+        <translation>Скрыть</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Discard</source>
+        <translation>Отказаться</translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Restore Stash to Branch</source>
+        <translation>Восстановить спрятанное в ветку</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Branch:</source>
+        <translation>Ветка:</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Stash Restore</source>
+        <translation>Восстановление спрятанного</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Would you like to restore %1?</source>
+        <translation>Желаете восстановить %1?</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Error restoring %1</source>
+        <translation>Ошибка восстановления %1</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::MercurialCommitPanel</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/mercurialcommitpanel.ui"/>
+        <source>General Information</source>
+        <translation>Основная информация</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Repository:</source>
+        <translation>Хранилище:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>repository</source>
+        <translation>хранилище</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Branch:</source>
+        <translation>Ветка:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>branch</source>
+        <translation>ветка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Commit Information</source>
+        <translation>Информация о фиксации</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Author:</source>
+        <translation>Автор:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Email:</source>
+        <translation>Email:</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::OptionsPage</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/optionspage.ui"/>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Configuration</source>
+        <translation>Настройка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Command:</source>
+        <translation>Команда:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>User</source>
+        <translation>Пользователь</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Username to use by default on commit.</source>
+        <translation>Имя пользователя используемое по умолчанию при фиксации.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default username:</source>
+        <translation>Имя пользователя:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Email to use by default on commit.</source>
+        <translation>Email используемый по умолчанию при фиксации.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default Email:</source>
+        <translation>Email по умолчанию:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Miscellaneous</source>
+        <translation>Разное</translation>
+    </message>
+    <message>
+        <source>Show log entries:</source>
+        <translation type="obsolete">Число записей:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>The number of recent commit logs to show, choose 0 to see all enteries</source>
+        <translation>Количество отображаемых последних сообщений о фиксации,
+выберите 0, чтобы видеть все</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Timeout:</source>
+        <translation>Время ожидания:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>s</source>
+        <translation> сек</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Prompt on submit</source>
+        <translation>Спрашивать при фиксации</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/mercurial/optionspage.cpp" line="+97"/>
+        <source>Mercurial</source>
+        <translation>Mercurial</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/mercurial/optionspage.ui"/>
+        <source>Log count:</source>
+        <translation type="unfinished">Число записей:</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::RevertDialog</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/revertdialog.ui"/>
+        <source>Revert</source>
+        <translation>Откатить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Specify a revision other than the default?</source>
+        <translation>Указать ревизию отличную от умолчальной?</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Revision:</source>
+        <translation>Ревизия:</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::SrcDestDialog</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/srcdestdialog.ui"/>
+        <source>Dialog</source>
+        <translation>Диалог</translation>
+    </message>
+    <message>
+        <source>Default Location:</source>
+        <translation type="obsolete">Исходное размещение:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Local filesystem:</source>
+        <translation>Файловая система:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>e.g. https://[user[:pass]@]host[:port]/[path]</source>
+        <translation>должен иметь вид: https://[пользователь[:пароль]@]адрес[:порт]/[путь]</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Specify Url:</source>
+        <translation>Особый Url:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Default Location</source>
+        <translation>По умолчанию</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/doubletabwidget.ui"/>
+        <source>DoubleTabWidget</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/targetsettingswidget.ui"/>
+        <source>TargetSettingsWidget</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::ItemLibrary</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/itemlibrary/itemlibrary.ui"/>
+        <source>ItemLibrary</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Filter:  </source>
+        <translation>Фильтр:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Items</source>
+        <translation>Элементы</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Resources</source>
+        <translation>Ресурсы</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/itemlibrary/itemlibrary.cpp" line="+183"/>
+        <source>Library</source>
+        <comment>Title of library view</comment>
+        <translation>Библиотека</translation>
+    </message>
+</context>
+<context>
+    <name>BehaviorDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/behaviordialog.ui"/>
+        <source>Dialog</source>
+        <translation>Диалог</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Type:</source>
+        <translation>Тип:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Id:</source>
+        <translation>Идентификатор:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Property Name:</source>
+        <translation>Имя свойства:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Animation</source>
+        <translation type="unfinished">Плавно</translation>
+    </message>
+    <message>
+        <location/>
+        <source>SpringFollow</source>
+        <translation type="unfinished">Колебательно</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Settings</source>
+        <translation>Настройки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Duration:</source>
+        <translation>Продолжительность:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Curve:</source>
+        <translation>Кривая:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeNone</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInQuad</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutQuad</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInOutQuad</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutInQuad</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInCubic</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutCubic</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInOutCubic</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutInCubic</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutInBounce</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInOutBounce</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutBounce</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInBounce</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutInBack</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInOutBack</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutBack</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInBack</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutInElastic</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInOutElastic</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutElastic</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInElastic</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutInCirc</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInOutCirc</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutCirc</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInCirc</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutInExpo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInOutExpo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutExpo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInExpo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutInSine</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInOutSine</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeOutSine</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>easeInSine</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>Source:</source>
+        <translation>Источник:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Velocity:</source>
+        <translation>Скорость:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Spring:</source>
+        <translation>Упругость:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Damping:</source>
+        <translation>Затухание:</translation>
+    </message>
+</context>
+<context>
+    <name>GradientDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/gradientdialog.ui"/>
+        <source>Edit Gradient</source>
+        <translation>Изменить градиент</translation>
+    </message>
+</context>
+<context>
+    <name>GradientEditor</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/gradienteditor.cpp" line="+412"/>
+        <source>Start X</source>
+        <translation>X начала</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Start Y</source>
+        <translation>Y начала</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Final X</source>
+        <translation>X конца</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Final Y</source>
+        <translation>Y конца</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+24"/>
+        <source>Central X</source>
+        <translation>X центра</translation>
+    </message>
+    <message>
+        <location line="-20"/>
+        <location line="+24"/>
+        <source>Central Y</source>
+        <translation>Y центра</translation>
+    </message>
+    <message>
+        <location line="-20"/>
+        <source>Focal X</source>
+        <translation>X фокуса</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Focal Y</source>
+        <translation>Y фокуса</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Radius</source>
+        <translation>Радиус</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Angle</source>
+        <translation>Угол</translation>
+    </message>
+    <message>
+        <location line="+288"/>
+        <source>Linear</source>
+        <translation>Линейный</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Radial</source>
+        <translation>Радиальный</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Conical</source>
+        <translation>Конический</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Pad</source>
+        <translation>Равномерная</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Repeat</source>
+        <translation>Цикличная</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Reflect</source>
+        <translation>Зеркальная</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/gradienteditor.ui"/>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Gradient Editor</source>
+        <translation>Редактор градиента</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
+        <translation>Эта область отображает предварительный вариант настраиваемого градиента. Также она позволяет менять с помощью перетаскивания характерные для градиента параметры, такие как: начальная и конечная точки, радиус и пр.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>1</source>
+        <translation>1</translation>
+    </message>
+    <message>
+        <location/>
+        <source>2</source>
+        <translation>2</translation>
+    </message>
+    <message>
+        <location/>
+        <source>3</source>
+        <translation>3</translation>
+    </message>
+    <message>
+        <location/>
+        <source>4</source>
+        <translation>4</translation>
+    </message>
+    <message>
+        <location/>
+        <source>5</source>
+        <translation>5</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Gradient Stops Editor</source>
+        <translation>Редактор опорных точек градиента</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
+        <translation>Эта область позволяет редактировать опорные точки градиента. Двойной щелчок на существующей точке создаст её копию. Двойной клик вне существующей точки создаст новую. Точки можно перемещать путем удерживания левой кнопки. По правой кнопке можно получить контекстное меню дополнительных действий.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Zoom</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reset Zoom</source>
+        <translation>100%</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Position</source>
+        <translation>Положение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Hue</source>
+        <translation>Оттенок</translation>
+    </message>
+    <message>
+        <location/>
+        <source>H</source>
+        <translation>H</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Saturation</source>
+        <translation>Насыщенность</translation>
+    </message>
+    <message>
+        <location/>
+        <source>S</source>
+        <translation>S</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Sat</source>
+        <translation>Насыщение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Value</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>V</source>
+        <translation>V</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Val</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Alpha</source>
+        <translation>Альфа</translation>
+    </message>
+    <message>
+        <location/>
+        <source>A</source>
+        <translation>A</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Spread</source>
+        <translation>Заливка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Color</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Current stop&apos;s color</source>
+        <translation>Цвет текущей точки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show HSV specification</source>
+        <translation>Настройки в виде HSV</translation>
+    </message>
+    <message>
+        <location/>
+        <source>HSV</source>
+        <translation>HSV</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show RGB specification</source>
+        <translation>Настройки в виде RGB</translation>
+    </message>
+    <message>
+        <location/>
+        <source>RGB</source>
+        <translation>RGB</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Current stop&apos;s position</source>
+        <translation>Положение текущей точки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Zoom In</source>
+        <translation>Увеличить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Zoom Out</source>
+        <translation>Уменьшить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Toggle details extension</source>
+        <translation>Показать/скрыть детальные настройки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&gt;</source>
+        <translation>&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Linear Type</source>
+        <translation>Линейный тип</translation>
+    </message>
+    <message>
+        <location/>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Radial Type</source>
+        <translation>Радиальный тип</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Conical Type</source>
+        <translation>Конический тип</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pad Spread</source>
+        <translation>Равномерная заливка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Repeat Spread</source>
+        <translation>Цикличная заливка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reflect Spread</source>
+        <translation>Зеркальная заливка</translation>
+    </message>
+</context>
+<context>
+    <name>maemoSettingsWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemosettingswidget.ui"/>
+        <source>Maemo Device Configurations</source>
+        <translation>Настройки устройства Maemo</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Configuration Name:</source>
+        <translation>Название конфигурации:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Device type:</source>
+        <translation>Тип устройства:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Remote Device</source>
+        <translation>Внешнее устройство</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Local Simulator</source>
+        <translation>Эмулятор</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Authentication type:</source>
+        <translation>Тип авторизации:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Password</source>
+        <translation>Пароль</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Key</source>
+        <translation>Ключ</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Host Name:</source>
+        <translation>Имя хоста:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>SSH Port:</source>
+        <translation>Порт SSH:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Connection Timeout:</source>
+        <translation>Время ожидания:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>User Name:</source>
+        <translation>Имя пользователя:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Password:</source>
+        <translation>Пароль:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Private key file:</source>
+        <translation>Файл секретного ключа:</translation>
+    </message>
+    <message>
+        <source>Gdbserver Port:</source>
+        <translation type="obsolete">Порт Gdbserver:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;;&quot;&gt;No current test results available.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Sans Serif&apos;;&quot;&gt;Текущих результатов проверки нет.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Test</source>
+        <translation>Проверить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Deploy Key ...</source>
+        <translation type="unfinished">Установочный
+ключ...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Gdb-server port:</source>
+        <translation>Порт сервера Gdb:</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::TestWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/testwizardpage.ui"/>
+        <source>WizardPage</source>
+        <translation>WizardPage</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Class name:</source>
+        <translation>Имя класса:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Type:</source>
+        <translation>Тип:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Test</source>
+        <translation type="unfinished">Проверка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Benchmark</source>
+        <translation type="unfinished">Тест скорости</translation>
+    </message>
+    <message>
+        <location/>
+        <source>File:</source>
+        <translation>Файл:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Generate initialization and cleanup code</source>
+        <translation>Создать код инициализации и очистки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Test slot:</source>
+        <translation>Тестовый слот:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Requires QApplication</source>
+        <translation>Требуется QApplication</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Use a test data set</source>
+        <translation>Используется набор тестовых данных</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::FilterLineEdit</name>
+    <message>
+        <location filename="../../../src/libs/utils/filterlineedit.cpp" line="+40"/>
+        <source>Type to filter</source>
+        <translation>Введите для отбора</translation>
+    </message>
+</context>
+<context>
+    <name>Utils::UnixTools</name>
+    <message>
+        <location filename="../../../src/libs/utils/unixutils.cpp" line="+60"/>
+        <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
+        <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Переменная&lt;/th&gt;&lt;th&gt;Разворачивается в&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;каталог текущего файла&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;имя файла (с полным путём)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;имя файла (без пути)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakebuildconfiguration.cpp" line="-152"/>
+        <source>System Environment</source>
+        <translation>Системная среда</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Clear Environment</source>
+        <translation>Чистая среда</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmakerunconfiguration.cpp" line="-103"/>
+        <source>Clean Environment</source>
+        <translation>Чистая среда</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>System Environment</source>
+        <translation>Системная среда</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Build Environment</source>
+        <translation>Среда сборки</translation>
+    </message>
+</context>
+<context>
+    <name>Core</name>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/coreconstants.h" line="+129"/>
+        <source>Qt</source>
+        <translation>Qt</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Environment</source>
+        <translation>Среда</translation>
+    </message>
+</context>
+<context>
+    <name>CodePaster</name>
+    <message>
+        <location filename="../../../src/plugins/cpaster/cpasterconstants.h" line="+38"/>
+        <source>Code Pasting</source>
+        <translation>Вставка кода</translation>
+    </message>
+</context>
+<context>
+    <name>VCS</name>
+    <message>
+        <location filename="../../../src/plugins/cvs/cvsconstants.h" line="+41"/>
+        <source>CVS Commit Editor</source>
+        <translation>Редактор фиксаций CVS</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/cvs/cvsplugin.cpp" line="+31"/>
+        <source>CVS Command Log Editor</source>
+        <translation>Редактор журнала команд CVS</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>CVS File Log Editor</source>
+        <translation>Редактор журнала файлов CVS</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>CVS Annotation Editor</source>
+        <translation>Редактор аннотации CVS</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>CVS Diff Editor</source>
+        <translation>Редактор изменений CVS</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/git/gitconstants.h" line="+39"/>
+        <source>Git Command Log Editor</source>
+        <translation>Редактор журнала команд Git</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Git File Log Editor</source>
+        <translation>Редактор журнала файлов Git</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Git Annotation Editor</source>
+        <translation>Редактор аннотации Git</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Git Diff Editor</source>
+        <translation>Редактор изменений Git</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Git Submit Editor</source>
+        <translation>Редактор фиксаций Git</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/mercurial/constants.h" line="+58"/>
+        <source>Mercurial Command Log Editor</source>
+        <translation>Редактор журнала команд Mercurial</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Mercurial File Log Editor</source>
+        <translation>Редактор журнала файлов Mercurial</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Mercurial Annotation Editor</source>
+        <translation>Редактор аннотации Mercurial</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Mercurial Diff Editor</source>
+        <translation>Редактор изменений Mercurial</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Mercurial Commit Log Editor</source>
+        <translation>Редактор журнала фиксации Mercurial</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/perforce/perforceconstants.h" line="+41"/>
+        <source>Perforce.SubmitEditor</source>
+        <translation>Редактор фиксаций Perforce</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Perforce CommandLog Editor</source>
+        <translation>Редактор журнала команд Perforce</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Perforce Log Editor</source>
+        <translation>Редактор журнала Perforce</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Perforce Diff Editor</source>
+        <translation>Редактор изменений Perforce</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Perforce Annotation Editor</source>
+        <translation>Редактор аннотации Perforce</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/subversion/subversionconstants.h" line="+41"/>
+        <source>Subversion Editor</source>
+        <translation>Редактор Subversion</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Subversion Commit Editor</source>
+        <translation>Редактор фиксаций Subversion</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/subversion/subversionplugin.cpp" line="-903"/>
+        <source>Subversion Command Log Editor</source>
+        <translation>Редактор журнала команд Subversion</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Subversion File Log Editor</source>
+        <translation>Редактор журнала файлов Subversion</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Subversion Annotation Editor</source>
+        <translation>Редактор аннотации Subversion</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Subversion Diff Editor</source>
+        <translation>Редактор изменений Subversion</translation>
+    </message>
+</context>
+<context>
+    <name>CVS::Internal::CVSEditor</name>
+    <message>
+        <location filename="../../../src/plugins/cvs/cvseditor.cpp" line="+57"/>
+        <source>Annotate revision &quot;%1&quot;</source>
+        <translation>Аннотация ревизии &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::CdbOptionsPage</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/cdboptionspage.cpp" line="+44"/>
+        <source>Cdb</source>
+        <translation>Cdb</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Cdb</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/coreengine.cpp" line="+53"/>
+        <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
+        <translation>Не удалось загрузить библиотеку отладчика &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <location line="+163"/>
+        <source>Unable to resolve &apos;%1&apos; in the debugger engine library &apos;%2&apos;</source>
+        <translation>Отсутствует символ &quot;%1&quot; в библиотеке отладчика &quot;%2&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>CdbCore::CoreEngine</name>
+    <message>
+        <location line="+188"/>
+        <source>Unable to set the image path to %1: %2</source>
+        <translation>Не удалось установить путь к образу &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Unable to create a process &apos;%1&apos;: %2</source>
+        <translation>Не удалось создать процесс &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Attaching to a process failed for process id %1: %2</source>
+        <translation>Не удалось поключиться к процессу с ID %1: %2</translation>
+    </message>
+</context>
+<context>
+    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
+    <message>
+        <location filename="../../../src/plugins/fakevim/fakevimplugin.cpp" line="-800"/>
+        <source>Ex Command Mapping</source>
+        <translation type="unfinished">Расширенное связывание команд</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>FakeVim</source>
+        <translation>FakeVim</translation>
+    </message>
+</context>
+<context>
+    <name>GitClient</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitclient.cpp" line="-1310"/>
+        <source>Unable to determine the repository for %1.</source>
+        <translation>Не удалось определить хранилище для %1.</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::GitEditor</name>
+    <message>
+        <location filename="../../../src/plugins/git/giteditor.cpp" line="+68"/>
+        <source>Blame %1</source>
+        <translation>Аннотация %1</translation>
+    </message>
+</context>
+<context>
+    <name>Help</name>
+    <message>
+        <location filename="../../../src/plugins/help/helpconstants.h" line="+38"/>
+        <source>Help</source>
+        <translation>Справка</translation>
+    </message>
+</context>
+<context>
+    <name>Help::Internal::OpenedViewersWidget</name>
+    <message>
+        <location filename="../../../src/plugins/help/openedviewerswidget.cpp" line="+87"/>
+        <source>Open Documents</source>
+        <translation>Открытые документы</translation>
+    </message>
+    <message>
+        <location line="+136"/>
+        <source>Close %1</source>
+        <translation>Закрыть %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Close All Except %1</source>
+        <translation>Закрыть все, кроме %1</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::CloneWizard</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/clonewizard.cpp" line="+56"/>
+        <source>Clone a Mercurial repository</source>
+        <translation>Клонировать хранилище Mercurial</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Mercurial Clone</source>
+        <translation>Клон Mercurial</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::CloneWizardPage</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/clonewizardpage.cpp" line="+37"/>
+        <source>Clone URL:</source>
+        <translation>URL для клонирования:</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::CommitEditor</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/commiteditor.cpp" line="+45"/>
+        <source>Commit Editor</source>
+        <translation>Редактор фиксаций</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::MercurialClient</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/mercurialclient.cpp" line="+168"/>
+        <source>Unable to find parent revisions of %1 in %2: %3</source>
+        <translation>Не удалось найти родительскую ревизию для %1 в %2: %3</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Cannot parse output: %1</source>
+        <translation>Не удалось разобрать вывод: %1</translation>
+    </message>
+    <message>
+        <location line="+117"/>
+        <source>Hg Annotate %1</source>
+        <translation>Hg аннотация %1 (annotate)</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Hg diff %1</source>
+        <translation>Hg сравнение %1</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <location line="+181"/>
+        <source>Hg log %1</source>
+        <translation>Hg журнал %1</translation>
+    </message>
+    <message>
+        <location line="-31"/>
+        <source>Hg incoming %1</source>
+        <translation>Hg входящие %1</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Hg outgoing %1</source>
+        <translation>Hg исходящие %1</translation>
+    </message>
+    <message>
+        <location line="+80"/>
+        <source>Working...</source>
+        <translation>Исполнение...</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::MercurialControl</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/mercurialcontrol.cpp" line="+47"/>
+        <source>Mercurial</source>
+        <translation>Mercurial</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::MercurialEditor</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/mercurialeditor.cpp" line="+57"/>
+        <source>Annotate %1</source>
+        <translation>Аннотация %1</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::MercurialJobRunner</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/mercurialjobrunner.cpp" line="+152"/>
+        <source>Executing: %1 %2
+</source>
+        <translation>Выполняется: %1 %2
+</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Unable to start mercurial process &apos;%1&apos;: %2</source>
+        <translation>Не удалось запустить процесс mercurial &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Timed out after %1s waiting for mercurial process to finish.</source>
+        <translation>Вышло время ожидания (%1 сек) завершения процесса mercurial.</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::MercurialPlugin</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/mercurialplugin.cpp" line="+218"/>
+        <source>Mercurial</source>
+        <translation>Mercurial</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Annotate Current File</source>
+        <translation>Аннотация текущего файла (annotate)</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Annotate &quot;%1&quot;</source>
+        <translation>Аннотация &quot;%1&quot; (annotate)</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Diff Current File</source>
+        <translation>Сравнить текущий файл</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Diff &quot;%1&quot;</source>
+        <translation>Сравнить &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Alt+H,Alt+D</source>
+        <translation>Alt+H,Alt+D</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Log Current File</source>
+        <translation>История текущего файла</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Log &quot;%1&quot;</source>
+        <translation>История &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Alt+H,Alt+L</source>
+        <translation>Alt+H,Alt+L</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Status Current File</source>
+        <translation>Состояние текущего файла</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Status &quot;%1&quot;</source>
+        <translation>Состояние &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Alt+H,Alt+S</source>
+        <translation>Alt+H,Alt+S</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Add &quot;%1&quot;</source>
+        <translation>Добавить &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Delete...</source>
+        <translation>Удалить...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Delete &quot;%1&quot;...</source>
+        <translation>Удалить &quot;%1&quot;...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Revert Current File...</source>
+        <translation>Откатить текущий файл...</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Revert &quot;%1&quot;...</source>
+        <translation>Откатить &quot;%1&quot;...</translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>Diff</source>
+        <translation>Сравнить</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Log</source>
+        <translation>Журнал</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Revert...</source>
+        <translation>Откатить...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Status</source>
+        <translation>Состояние</translation>
+    </message>
+    <message>
+        <location line="+44"/>
+        <source>Pull...</source>
+        <translation>Принять (pull)...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Push...</source>
+        <translation>Отправить (push)...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Update...</source>
+        <translation>Обновить (update)...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Import...</source>
+        <translation>Импорт...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Incoming...</source>
+        <translation>Входящее...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Outgoing...</source>
+        <translation>Исходящее...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Commit...</source>
+        <translation>Фиксировать...</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Alt+H,Alt+C</source>
+        <translation>Alt+H,Alt+C</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Create Repository...</source>
+        <translation>Создать хранилище...</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Pull Source</source>
+        <translation>Источник приёма (pull source)</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Push Destination</source>
+        <translation>Назначение отправлений (push)</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Update</source>
+        <translation>Обновление</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Incoming Source</source>
+        <translation>Источник входящих</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Commit</source>
+        <translation>Фиксировать</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Diff Selected Files</source>
+        <translation>Сравнить выбранные файлы</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;Undo</source>
+        <translation>&amp;Отменить</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&amp;Redo</source>
+        <translation>&amp;Повторить</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>There are no changes to commit.</source>
+        <translation>Нет изменений для фиксации.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Unable to generate a temporary file for the commit editor.</source>
+        <translation>Не удалось создать временный файл для редактора фиксаций.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Unable to create an editor for the commit.</source>
+        <translation>Не удалось создать редактор фиксации.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Unable to create a commit editor.</source>
+        <translation>Не удалось создать редактор фиксаций.</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Commit changes for &quot;%1&quot;.</source>
+        <translation>Фиксация изменений &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Close commit editor</source>
+        <translation>Закрыть редактор фиксаций</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Do you want to commit the changes?</source>
+        <translation>Желаете зафиксировать изменения?</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Message check failed. Do you want to proceed?</source>
+        <translation>Не удалось проверить сообщение. Продолжить?</translation>
+    </message>
+</context>
+<context>
+    <name>Mercurial::Internal::OptionsPageWidget</name>
+    <message>
+        <location filename="../../../src/plugins/mercurial/optionspage.cpp" line="-49"/>
+        <source>Mercurial Command</source>
+        <translation>Команда Mercurial</translation>
+    </message>
+</context>
+<context>
+    <name>Perforce::Internal::PerforceChecker</name>
+    <message>
+        <location filename="../../../src/plugins/perforce/perforcechecker.cpp" line="+85"/>
+        <source>No executable specified</source>
+        <translation>Программа не указана</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>&quot;%1&quot; timed out after %2ms.</source>
+        <translation>У &quot;%1&quot; вышло время через %2 мс.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Unable to launch &quot;%1&quot;: %2</source>
+        <translation>Не удалось запустить &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>&quot;%1&quot; crashed.</source>
+        <translation>&quot;%1&quot; завершилась аварийно.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&quot;%1&quot; terminated with exit code %2: %3</source>
+        <translation>&quot;%1&quot; завершилась с кодом %2: %3</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>The client does not seem to contain any mapped files.</source>
+        <translation>Похоже, клиент не содержит отображенных файлов.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Unable to determine the client root.</source>
+        <extracomment>Unable to determine root of the p4 client installation</extracomment>
+        <translation>Не удалось определить корень клиента.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>The repository &quot;%1&quot; does not exist.</source>
+        <translation>Хранилище &quot;%1&quot; отсутствует.</translation>
+    </message>
+</context>
+<context>
+    <name>Perforce::Internal::PerforceEditor</name>
+    <message>
+        <location filename="../../../src/plugins/perforce/perforceeditor.cpp" line="+65"/>
+        <source>Annotate change list &quot;%1&quot;</source>
+        <translation>Аннотация списка изменений &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/baseprojectwizarddialog.cpp" line="+126"/>
+        <source>untitled</source>
+        <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks.</extracomment>
+        <translation>untitled</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::DependenciesModel</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="-29"/>
+        <source>&lt;No other projects in this session&gt;</source>
+        <translation>&lt;В этой сессии нет других проектов&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::MiniTargetWidget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/miniprojecttargetselector.cpp" line="+185"/>
+        <source>Make active and press &apos;b&apos; to select.</source>
+        <translation>Сделать текущей, для выбора нужно нажать &quot;B&quot;.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Make active and press &apos;r&apos; to select.</source>
+        <translation>Сделать текущей, для выбора нужно нажать &quot;R&quot;.</translation>
+    </message>
+    <message>
+        <location line="+60"/>
+        <source>Build:</source>
+        <translation>Сборка:</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Run:</source>
+        <translation>Запуск:</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
+    <message>
+        <location line="+118"/>
+        <source>Project</source>
+        <translation>Проект</translation>
+    </message>
+    <message>
+        <location line="+161"/>
+        <source>No Project</source>
+        <translation>Нет проекта</translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>&lt;html&gt;&lt;b&gt;Project:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Run:&lt;/b&gt; %4%5&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;b&gt;Проект:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Запуск:&lt;/b&gt; %4%5&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;b&gt;Target:&lt;/b&gt; %1&lt;br/&gt;</source>
+        <translation>&lt;b&gt;Цель:&lt;/b&gt; %1&lt;br/&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;b&gt;Build:&lt;/b&gt; %2&lt;br/&gt;</source>
+        <translation>&lt;b&gt;Сборка:&lt;/b&gt; %2&lt;br/&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;br/&gt;%1</source>
+        <translation>&lt;br/&gt;%1</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::ProjectConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectconfiguration.cpp" line="+49"/>
+        <source>Clone of %1</source>
+        <translation>Клон %1</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/projectexplorerconstants.h" line="+196"/>
+        <source>Other Project</source>
+        <translation>Другой проект</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::TaskWindow</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/taskwindow.cpp" line="-421"/>
+        <location filename="../../../src/plugins/projectexplorer/taskwindow.h" line="+97"/>
+        <source>Build Issues</source>
+        <translation>Сообщения сборки</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>&amp;Copy</source>
+        <translation>&amp;Копировать</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Show Warnings</source>
+        <translation>Показывать предупреждения</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Filter by categories</source>
+        <translation>Фильтр по категориям</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::DesignDocumentController</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/integration/designdocumentcontroller.cpp" line="+288"/>
+        <source>-New Form-</source>
+        <translation>-Новая Форма-</translation>
+    </message>
+    <message>
+        <location line="+177"/>
+        <source>Cannot save to file &quot;%1&quot;: permission denied.</source>
+        <translation>Не удалось сохранить в файл &quot;%1&quot;: недостаточно прав.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Parent folder &quot;%1&quot; for file &quot;%2&quot; does not exist.</source>
+        <translation>Родительский каталог &quot;%1&quot; файла &quot;%2&quot; не существует.</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Cannot write file: &quot;%1&quot;.</source>
+        <translation>Не удалось записать файл: &quot;%1&quot;.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::DocumentCloser</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/integration/documentcloser.cpp" line="+64"/>
+        <source>Do you want to save the changes you made in the document &quot;%1&quot;?</source>
+        <translation>Желаете сохранить изменения в документ &quot;%1&quot;?</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Your changes will be lost if you don&apos;t save them.</source>
+        <translation>Изменения будут утеряны, если не сохранить их.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::MultipleDocumentsController</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/integration/multipledocumentscontroller.cpp" line="+53"/>
+        <source>&amp;Undo</source>
+        <translation>&amp;Отменить</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&amp;Redo</source>
+        <translation>&amp;Повторить</translation>
+    </message>
+    <message>
+        <location line="+109"/>
+        <source>* %1</source>
+        <translation>* %1</translation>
+    </message>
+    <message>
+        <location line="+166"/>
+        <source>&amp;Form</source>
+        <translation>&amp;Форма</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>&amp;Text</source>
+        <translation>&amp;Текст</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::NavigatorWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/navigator/navigatorwidget.cpp" line="+59"/>
+        <source>Navigator</source>
+        <comment>Title of navigator view</comment>
+        <translation>Навигатор</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetPluginManager</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/pluginmanager/pluginpath.cpp" line="-114"/>
+        <source>Failed to create instance.</source>
+        <translation>Не удалось создать экземпляр.</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Not a QmlDesigner plugin.</source>
+        <translation>Не модуль QmlDesigner.</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/core/pluginmanager/widgetpluginpath.cpp" line="-133"/>
+        <source>Failed to create instance of file &apos;%1&apos;: %2</source>
+        <translation>Не удалось создать экземпляр файла &quot;%1&quot;: %2</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Failed to create instance of file &apos;%1&apos;.</source>
+        <translation>Не удалось создать экземпляр файла &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>File &apos;%1&apos; is not a QmlDesigner plugin.</source>
+        <translation>Файл &quot;%1&quot; не является модулем QmlDesigner.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::AllPropertiesBox</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/allpropertiesbox.cpp" line="+59"/>
+        <source>Properties</source>
+        <comment>Title of properties view.</comment>
+        <translation>Свойства</translation>
+    </message>
+</context>
+<context>
+    <name>qdesigner_internal::QtGradientStopsController</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientstopscontroller.cpp" line="+173"/>
+        <source>H</source>
+        <translation>H</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>S</source>
+        <translation>S</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>V</source>
+        <translation>V</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <location line="+4"/>
+        <source>Hue</source>
+        <translation>Тон</translation>
+    </message>
+    <message>
+        <location line="-3"/>
+        <source>Sat</source>
+        <translation>Нас</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Val</source>
+        <translation>Знч</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Saturation</source>
+        <translation>Насыщенность</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Value</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>R</source>
+        <translation>R</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>G</source>
+        <translation>G</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>B</source>
+        <translation>B</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Red</source>
+        <translation>Красный</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Green</source>
+        <translation>Зелёный</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Blue</source>
+        <translation>Голубой</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::StatesEditorWidgetPrivate</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/stateseditor/stateseditorwidget.cpp" line="+106"/>
+        <source>base state</source>
+        <translation>исходное состояние</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>State%1</source>
+        <translation>Состояние%1</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::StatesEditorWidget</name>
+    <message>
+        <location line="+52"/>
+        <source>States</source>
+        <comment>Title of Editor widget</comment>
+        <translation>Состояния</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::SubComponentManagerPrivate</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/core/metainfo/subcomponentmanager.cpp" line="+307"/>
+        <source>Qml Component</source>
+        <translation>Компоненты Qml</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::RewriterView</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/core/model/rewriterview.cpp" line="+79"/>
+        <source>Error parsing</source>
+        <translation>Разбор ошибок</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Internal error</source>
+        <translation>Внутренняя ошибка</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&quot;%1&quot;</source>
+        <translation>&quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>line %1</source>
+        <translation>строка %1</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>column %1</source>
+        <translation>столбец %1</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::DesignMode</name>
+    <message>
+        <source>Save %1 As...</source>
+        <translation type="obsolete">Сохранить %1 как...</translation>
+    </message>
+    <message>
+        <source>&amp;Save %1</source>
+        <translation type="obsolete">&amp;Сохранить %1</translation>
+    </message>
+    <message>
+        <source>Revert %1 to Saved</source>
+        <translation type="obsolete">Вернуть %1 к сохранённому</translation>
+    </message>
+    <message>
+        <source>Close %1</source>
+        <translation type="obsolete">Закрыть %1</translation>
+    </message>
+    <message>
+        <source>Close All Except %1</source>
+        <translation type="obsolete">Закрыть все, кроме %1</translation>
+    </message>
+    <message>
+        <source>Close Others</source>
+        <translation type="obsolete">Закрыть другие</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::DocumentToolBar</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/designmodewidget.cpp" line="+169"/>
+        <source>Copy full path to clipboard</source>
+        <translation>Скопировать полный путь в буфер обмена</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Make writable</source>
+        <translation>Сделать записываемым</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>File is writable</source>
+        <translation>Файл записываемый</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::DocumentWarningWidget</name>
+    <message>
+        <location line="+22"/>
+        <source>&lt;a href=&quot;goToError&quot;&gt;Go to error&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;goToError&quot;&gt;Перейти к ошибке&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>%3 (%1:%2)</source>
+        <translation>%3 (%1:%2)</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::DesignModeWidget</name>
+    <message>
+        <location line="+257"/>
+        <source>&amp;Undo</source>
+        <translation>&amp;Отменить</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Redo</source>
+        <translation>&amp;Повторить</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Delete &quot;%1&quot;</source>
+        <translation>Удалить &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Cu&amp;t</source>
+        <translation>Выре&amp;зать</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Cut &quot;%1&quot;</source>
+        <translation>Вырезать &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Copy</source>
+        <translation>&amp;Копировать</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Copy &quot;%1&quot;</source>
+        <translation>Копировать &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&amp;Paste</source>
+        <translation>В&amp;ставить</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Paste &quot;%1&quot;</source>
+        <translation>Удалить &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Select &amp;All</source>
+        <translation>Вы&amp;делить всё</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Select All &quot;%1&quot;</source>
+        <translation>Выделить все &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Loading ...</source>
+        <translation>Загрузка...</translation>
+    </message>
+    <message>
+        <source>Open/Create a qml file first.</source>
+        <translation type="obsolete">Сначала нужно открыть/создать файл qml.</translation>
+    </message>
+</context>
+<context>
+    <name>QLineGraph</name>
+    <message>
+        <location filename="../../../src/plugins/qmlinspector/components/canvasframerate.cpp" line="+252"/>
+        <source>Frame rate</source>
+        <translation>Частота кадров</translation>
+    </message>
+</context>
+<context>
+    <name>GraphWindow</name>
+    <message>
+        <location line="+119"/>
+        <source>Total time elapsed (ms)</source>
+        <translation>Всего времени прошло (мс)</translation>
+    </message>
+</context>
+<context>
+    <name>CanvasFrameRate</name>
+    <message>
+        <location line="+77"/>
+        <source>Resolution:</source>
+        <translation>Разрешение:</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Clear</source>
+        <translation>Очистить</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>New Graph</source>
+        <translation>Новый граф</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Enabled</source>
+        <translation>Включено</translation>
+    </message>
+</context>
+<context>
+    <name>EnginePane</name>
+    <message>
+        <location filename="../../../src/plugins/qmlinspector/components/engine.cpp" line="+130"/>
+        <source>Properties</source>
+        <translation>Свойства</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Watched</source>
+        <translation>Наблюдается</translation>
+    </message>
+</context>
+<context>
+    <name>ExpressionQueryWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qmlinspector/components/expressionquerywidget.cpp" line="+65"/>
+        <source>Expression:</source>
+        <translation>Выражение:</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Expression queries</source>
+        <translation>Выражения запросов</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Expression queries (using context for %1)</source>
+        <comment>Selected object</comment>
+        <translation>Выражения запросов (используя контекст для %1)</translation>
+    </message>
+    <message>
+        <location line="+81"/>
+        <source>&lt;%1 items&gt;</source>
+        <comment>%1 = number of items</comment>
+        <translation>&lt;%1 элемент(ов)&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>ObjectPropertiesView</name>
+    <message>
+        <location filename="../../../src/plugins/qmlinspector/components/objectpropertiesview.cpp" line="+85"/>
+        <source>Name</source>
+        <translation>Имя</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Value</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>&lt;%1 items&gt;</source>
+        <comment>%1 = number of items</comment>
+        <translation>&lt;%1 элемент(ов)&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>ObjectTree</name>
+    <message>
+        <location filename="../../../src/plugins/qmlinspector/components/objecttree.cpp" line="+206"/>
+        <source>Add watch...</source>
+        <translation>Добавить в наблюдение...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Watch expression</source>
+        <translation>Наблюдаемое выражение</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Expression:</source>
+        <translation>Выражение:</translation>
+    </message>
+</context>
+<context>
+    <name>WatchTableHeaderView</name>
+    <message>
+        <location filename="../../../src/plugins/qmlinspector/components/watchtable.cpp" line="+320"/>
+        <source>Stop watching</source>
+        <translation>Прекратить наблюдение</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::Internal::QmlJSTextEditor</name>
+    <message>
+        <location filename="../../../src/plugins/qmljseditor/qmljseditor.cpp" line="+1195"/>
+        <source>&lt;Select Symbol&gt;</source>
+        <translation>&lt;Выберите символ&gt;</translation>
+    </message>
+    <message>
+        <location line="-388"/>
+        <source>Rename...</source>
+        <translation>Переименовать...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>New id:</source>
+        <translation>Новый id:</translation>
+    </message>
+    <message>
+        <location line="+51"/>
+        <source>Unused variable</source>
+        <translation>Неиспользуемая переменная</translation>
+    </message>
+    <message>
+        <location line="+145"/>
+        <source>Rename id &apos;%1&apos;...</source>
+        <translation>Переименовать id &apos;%1&apos;...</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
+    <message>
+        <location filename="../../../src/plugins/qmljseditor/qmljseditorplugin.cpp" line="+105"/>
+        <source>Creates a Qt QML file.</source>
+        <translation>Создание файла Qt QML.</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Qt QML File</source>
+        <translation>Файл Qt QML</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Follow Symbol Under Cursor</source>
+        <translation>Перейти к символу под курсором</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlRunControl</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectruncontrol.cpp" line="+89"/>
+        <source>Starting %1 %2</source>
+        <translation>Запускается %1 %2</translation>
+    </message>
+    <message>
+        <location line="+37"/>
+        <source>%1 exited with code %2</source>
+        <translation>%1 завершился с кодом %2</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlRunControlFactory</name>
+    <message>
+        <location line="+30"/>
+        <source>Run</source>
+        <translation>Выполнить</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectconstants.h" line="+8"/>
+        <source>QML Project</source>
+        <translation>Проект QML</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::Manager</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectmanager.cpp" line="+75"/>
+        <source>Failed opening project &apos;%1&apos;: Project already open</source>
+        <translation>Не удалось открыть проект &quot;%1&quot;: проект уже открыт</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoManager</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemomanager.cpp" line="+143"/>
+        <location line="+39"/>
+        <source>Start Maemo Emulator</source>
+        <translation>Запустить эмулятор Maemo</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Stop Maemo Emulator</source>
+        <translation>Остановить эмулятор Maemo</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoRunConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemorunconfiguration.cpp" line="+89"/>
+        <source>%1 on Maemo device</source>
+        <translation>%1 на устройстве с Maemo</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>MaemoRunConfiguration</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location line="+281"/>
+        <source>Could not parse %1. The Maemo run configuration %2 can not be started.</source>
+        <translation>Не удалось разобрать %1. Нельзя запустить конфигурацию сборки Maemo %2.</translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>&apos;%1&apos; does not contain a valid Maemo simulator image.</source>
+        <translation>&quot;%1&quot; не содержит корректный образ эмулятора Maemo.</translation>
+    </message>
+    <message>
+        <location line="+41"/>
+        <source>Simulator could not be found. Please check the Qt Version you are using and that a simulator image is already installed.</source>
+        <translation>Не удалось найти эмулятор. Проверьте используемый профиль Qt и наличие установленного образа эмулятора.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoRunConfigurationFactory</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemorunfactories.cpp" line="+118"/>
+        <source>%1 on Maemo Device</source>
+        <translation>%1 на устройстве с Maemo</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoRunControlFactory</name>
+    <message>
+        <location line="+168"/>
+        <source>Run on device</source>
+        <translation>Выполнить на устройстве</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoRunConfigurationWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemorunconfigurationwidget.cpp" line="+67"/>
+        <source>Run configuration name:</source>
+        <translation>Название конфигурации запуска:</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>&lt;a href=&quot;#&quot;&gt;Manage device configurations&lt;/a&gt;</source>
+        <translation>&lt;a href=&quot;#&quot;&gt;Управление конфигурациями устройств&lt;/a&gt;</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Device Configuration:</source>
+        <translation>Конфигурация устройства:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Executable:</source>
+        <translation>Программа:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Arguments:</source>
+        <translation>Параметры:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Debugger:</source>
+        <translation>Отладчик:</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Simulator:</source>
+        <translation>Эмулятор:</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::AbstractMaemoRunControl</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemoruncontrol.cpp" line="+107"/>
+        <source>Deploying</source>
+        <translation>Развёртывание</translation>
+    </message>
+    <message>
+        <location line="-7"/>
+        <source>Files to deploy: %1.</source>
+        <translation>Файлы для установки: %1.</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Deployment finished.</source>
+        <translation>Развёртывание завершено.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Deployment failed: %1</source>
+        <translation>Развёртывание не удалось: %1</translation>
+    </message>
+    <message>
+        <source>Deployment failed: </source>
+        <translation type="obsolete">Развёртывание не удалось: </translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoRunControl</name>
+    <message>
+        <location line="+95"/>
+        <source>Starting remote application.</source>
+        <translation>Запуск внешней программы.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Remote process stopped by user.</source>
+        <translation>Внешний процесс остановлен пользователем.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Remote process exited with error: %1</source>
+        <translation>Внешний процесс завершился с ошибкой: %1</translation>
+    </message>
+    <message>
+        <source>Remote process exited with error: </source>
+        <translation type="obsolete">Внешний процесс завершился с ошибкой: </translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Remote process finished successfully.</source>
+        <translation>Внешний процесс успешно завершился.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoDebugRunControl</name>
+    <message>
+        <location line="+98"/>
+        <source>Debugging failed: %1</source>
+        <translation>Отладка не удалась: %1</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Debugging failed, could not parse gdb server pid!</source>
+        <translation>Отладка не удалась, так как не удалось определить PID сервера gdb!</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Stopping debugging operation ...</source>
+        <translation>Остановка отладки...</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Debugging finished.</source>
+        <translation>Отладка завершена.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoSettingsWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemosettingswidget.cpp" line="+332"/>
+        <source>Stop test</source>
+        <translation>Остановить проверку</translation>
+    </message>
+    <message>
+        <source>Device configuration test failed:
+</source>
+        <translation type="obsolete">Ошибка при проверке настройки устройства:
+</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>
+Did you start Qemu?</source>
+        <translation>
+Qemu уже запущен?</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Test</source>
+        <translation>Проверить</translation>
+    </message>
+    <message>
+        <source>Device configuration test failed: Unexpected output:
+</source>
+        <translation type="obsolete">Ошибка при проверке настройки устройства: неожиданный результат:
+</translation>
+    </message>
+    <message>
+        <location line="-20"/>
+        <source>Device configuration test failed:
+%1</source>
+        <translation>Ошибка при проверке настройки устройства:
+%1</translation>
+    </message>
+    <message>
+        <location line="+33"/>
+        <source>Device configuration test failed: Unexpected output:
+%1</source>
+        <translation>Ошибка при проверке настройки устройства: неожиданный результат:
+%1</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Hardware architecture: %1
+</source>
+        <translation>Аппаратная архитектура: %1
+</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Kernel version: %1
+</source>
+        <translation>Версия ядра: %1
+</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Device configuration successful.
+</source>
+        <translation>Настройка устройства успешно выполнена.
+</translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Choose public key file</source>
+        <translation>Выберите файл открытого ключа</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Stop deploying</source>
+        <translation>Прекратить установку</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Key deployment failed: %1</source>
+        <translation>Не удалось установить ключ: %1</translation>
+    </message>
+    <message>
+        <source>Key deployment failed: </source>
+        <translation type="obsolete">Не удалось установить ключ: </translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Key was successfully deployed.</source>
+        <translation>Ключ был успешно установлен.</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Deploy Key ...</source>
+        <translation>Установочный
+ключ...</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoSshConnection</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemosshconnection.cpp" line="+84"/>
+        <source>Could not connect to host</source>
+        <translation>Ну удалось подключиться к узлу</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoInteractiveSshConnection</name>
+    <message>
+        <location line="+25"/>
+        <source>Could not start remote shell: %1</source>
+        <translation>Ну удалось запустить удалённую оболочку: %1</translation>
+    </message>
+    <message>
+        <location line="+15"/>
+        <source>Error running command: %1</source>
+        <translation>Ошибка выполнения команды: %1</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>SSH error: %1</source>
+        <translation>Ошибка SSH: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoSftpConnection</name>
+    <message>
+        <location line="+21"/>
+        <source>Error setting up SFTP subsystem: %1</source>
+        <translation>Ошибка настройки подсистемы SFTP: %1</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Could not open file &apos;%1&apos;</source>
+        <translation>Не удалось открыть файл &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Could not copy local file &apos;%1&apos; to remote file &apos;%2&apos;: %3</source>
+        <translation>Не удалось скопировать локальный файл &quot;%1&quot; в &quot;%2&quot;: %3</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4BuildConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4buildconfiguration.cpp" line="+184"/>
+        <source>System Environment</source>
+        <translation>Системная среда</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Clean Environment</source>
+        <translation>Чистая среда</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4BuildConfigurationFactory</name>
+    <message>
+        <location line="+407"/>
+        <source>Using Qt Version &quot;%1&quot;</source>
+        <translation>Используется профиль Qt &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+54"/>
+        <source>New configuration</source>
+        <translation>Новая конфигурация</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>New Configuration Name:</source>
+        <translation>Название новой конфигурации:</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>%1 Debug</source>
+        <translation>%1 Отладка</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>%1 Release</source>
+        <translation>%1 Релиз</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerconstants.h" line="+34"/>
+        <source>Qt4</source>
+        <translation>Qt4</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Qt Versions</source>
+        <translation>Профили Qt</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Qt Application Project</source>
+        <translation>Проект приложения Qt</translation>
+    </message>
+</context>
+<context>
+    <name>QtVersion</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qtversionmanager.cpp" line="+800"/>
+        <source>No qmake path set</source>
+        <translation>Путь к qmake не указан</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Qt version has no name</source>
+        <translation>Профиль Qt не имеет названия</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Qt version is not properly installed, please run make install</source>
+        <translation>Профиль Qt не установлен, пожалуйста выполните make install</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?</source>
+        <translation>Не удалось определить путь к утилитам Qt. Может путь к qmake неверен?</translation>
+    </message>
+    <message>
+        <source>Qt Version has no name</source>
+        <translation type="obsolete">Профиль Qt не имеет имени</translation>
+    </message>
+    <message>
+        <source>Qt Version is not installed, please run make install</source>
+        <translation type="obsolete">Профиль Qt не установлен, пожалуйста выполните make install</translation>
+    </message>
+    <message>
+        <source>Could not determine qt install binary, maybe the qmake path is wrong?</source>
+        <translation type="obsolete">Не удалось определить программы Qt. Может путь к qmake неверен?</translation>
+    </message>
+    <message>
+        <location line="+107"/>
+        <source>The Qt Version has no toolchain.</source>
+        <translation>У профиля Qt нет инструментария.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::TestWizard</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/testwizard.cpp" line="+51"/>
+        <source>Qt Unit Test</source>
+        <translation>Юнит тест Qt</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Creates a Qt Unit Test.</source>
+        <translation>Создание юнит теста Qt.</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::TestWizardDialog</name>
+    <message>
+        <source>This wizard generates a Qt4 unit test consisting of a single source file with a test object.</source>
+        <translation type="obsolete">Этот мастер создаст тест узла Qt4, содержащий один исходный файл с проверяющим объектом.</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/testwizarddialog.cpp" line="+57"/>
+        <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
+        <translation>Этот мастер создаст юнит тест Qt, содержащий один исходный файл с проверяющим объектом.</translation>
+    </message>
+</context>
+<context>
+    <name>Subversion::Internal::SubversionEditor</name>
+    <message>
+        <location filename="../../../src/plugins/subversion/subversioneditor.cpp" line="+54"/>
+        <source>Annotate revision &quot;%1&quot;</source>
+        <translation>Аннотация ревизии &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor</name>
+    <message>
+        <location filename="../../../src/plugins/texteditor/texteditorconstants.h" line="+110"/>
+        <source>Text Editor</source>
+        <translation>Текстовый редактор</translation>
+    </message>
+</context>
+<context>
+    <name>VCSBase::VCSBasePlugin</name>
+    <message>
+        <location filename="../../../src/plugins/vcsbase/vcsbaseplugin.cpp" line="+477"/>
+        <source>Version Control</source>
+        <translation>Контроль версий</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>The file &apos;%1&apos; could not be deleted.</source>
+        <translation>Не удалось удалить файл &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Choose repository directory</source>
+        <translation>Выберите каталог хранилища</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>The directory &apos;%1&apos; is already managed by a version control system (%2). Would you like to specify another directory?</source>
+        <translation>Каталог &quot;%1&quot; уже находится под системой контроля версий (%2). Желаете выбрать другой каталог?</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Repository already under version control</source>
+        <translation>Хранилище уже под контролем версий</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Repository created</source>
+        <translation>Хранилище создано</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>A version control repository has been created in %1.</source>
+        <translation>Хранилище контроля версиями создано в %1.</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Repository creation failed</source>
+        <translation>Не удалось создать хранилище</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>A version control repository could not be created in %1.</source>
+        <translation>Не удалось создать хранилище контроля версий в %1.</translation>
+    </message>
+</context>
+<context>
+    <name>AboutDialog</name>
+    <message>
+        <location filename="../../../src/tools/qml/standalone/aboutdialog.cpp" line="+85"/>
+        <source>About Bauhaus</source>
+        <comment>AboutDialog</comment>
+        <translation>О Баухаусе</translation>
+    </message>
+</context>
+<context>
+    <name>QtGradientDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientdialog.ui"/>
+        <source>Edit Gradient</source>
+        <translation>Правка градиента</translation>
+    </message>
+</context>
+<context>
+    <name>QtGradientEditor</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradienteditor.cpp" line="+431"/>
+        <source>Start X</source>
+        <translation>X начала</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Start Y</source>
+        <translation>Y начала</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Final X</source>
+        <translation>X конца</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Final Y</source>
+        <translation>Y конца</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <location line="+24"/>
+        <source>Central X</source>
+        <translation>X центра</translation>
+    </message>
+    <message>
+        <location line="-20"/>
+        <location line="+24"/>
+        <source>Central Y</source>
+        <translation>Y центра</translation>
+    </message>
+    <message>
+        <location line="-20"/>
+        <source>Focal X</source>
+        <translation>X фокуса</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Focal Y</source>
+        <translation>Y фокуса</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Radius</source>
+        <translation>Радиус</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Angle</source>
+        <translation>Угол</translation>
+    </message>
+    <message>
+        <location line="+288"/>
+        <source>Linear</source>
+        <translation>Линейный</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Radial</source>
+        <translation>Радиальный</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Conical</source>
+        <translation>Конический</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Pad</source>
+        <translation>Равномерная</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Repeat</source>
+        <translation>Цикличная</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Reflect</source>
+        <translation>Зеркальная</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradienteditor.ui"/>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Gradient Editor</source>
+        <translation>Редактор градиента</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This area shows a preview of the gradient being edited. It also allows you to edit parameters specific to the gradient&apos;s type such as start and final point, radius, etc. by drag &amp; drop.</source>
+        <translation>Эта область отображает предварительный вариант настраиваемого градиента. Также она позволяет менять с помощью перетаскивания характерные для градиента параметры, такие как: начальная и конечная точки, радиус и пр.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>1</source>
+        <translation>1</translation>
+    </message>
+    <message>
+        <location/>
+        <source>2</source>
+        <translation>2</translation>
+    </message>
+    <message>
+        <location/>
+        <source>3</source>
+        <translation>3</translation>
+    </message>
+    <message>
+        <location/>
+        <source>4</source>
+        <translation>4</translation>
+    </message>
+    <message>
+        <location/>
+        <source>5</source>
+        <translation>5</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Gradient Stops Editor</source>
+        <translation>Редактор опорных точек градиента</translation>
+    </message>
+    <message>
+        <location/>
+        <source>This area allows you to edit gradient stops. Double click on the existing stop handle to duplicate it. Double click outside of the existing stop handles to create a new stop. Drag &amp; drop the handle to reposition it. Use right mouse button to popup context menu with extra actions.</source>
+        <translation>Эта область позволяет редактировать опорные точки градиента. Двойной щелчок на существующей точке создаст её копию. Двойной клик вне существующей точки создаст новую. Точки можно перемещать путем удерживания левой кнопки. По правой кнопке можно получить контекстное меню дополнительных действий.</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Zoom</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reset Zoom</source>
+        <translation>100%</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Position</source>
+        <translation>Положение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Hue</source>
+        <translation>Оттенок</translation>
+    </message>
+    <message>
+        <location/>
+        <source>H</source>
+        <translation>H</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Saturation</source>
+        <translation>Насыщенность</translation>
+    </message>
+    <message>
+        <location/>
+        <source>S</source>
+        <translation>S</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Sat</source>
+        <translation>Насыщение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Value</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>V</source>
+        <translation>V</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Val</source>
+        <translation>Значение</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Alpha</source>
+        <translation>Альфа</translation>
+    </message>
+    <message>
+        <location/>
+        <source>A</source>
+        <translation>A</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Spread</source>
+        <translation>Заливка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Color</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Current stop&apos;s color</source>
+        <translation>Цвет текущей точки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show HSV specification</source>
+        <translation>Настройки в виде HSV</translation>
+    </message>
+    <message>
+        <location/>
+        <source>HSV</source>
+        <translation>HSV</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show RGB specification</source>
+        <translation>Настройки в виде RGB</translation>
+    </message>
+    <message>
+        <location/>
+        <source>RGB</source>
+        <translation>RGB</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Current stop&apos;s position</source>
+        <translation>Положение текущей точки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>%</source>
+        <translation>%</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Zoom In</source>
+        <translation>Увеличить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Zoom Out</source>
+        <translation>Уменьшить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Toggle details extension</source>
+        <translation>Показать/скрыть детальные настройки</translation>
+    </message>
+    <message>
+        <location/>
+        <source>&gt;</source>
+        <translation>&gt;</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Linear Type</source>
+        <translation>Линейный тип</translation>
+    </message>
+    <message>
+        <location/>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Radial Type</source>
+        <translation>Радиальный тип</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Conical Type</source>
+        <translation>Конический тип</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Pad Spread</source>
+        <translation>Равномерная заливка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Repeat Spread</source>
+        <translation>Цикличная заливка</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Reflect Spread</source>
+        <translation>Зеркальная заливка</translation>
+    </message>
+</context>
+<context>
+    <name>QtGradientStopsWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientstopswidget.cpp" line="+947"/>
+        <source>New Stop</source>
+        <translation>Новая точка</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Delete</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Flip All</source>
+        <translation>Отобразить зеркально</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select All</source>
+        <translation>Выделить все</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Zoom In</source>
+        <translation>Увеличить</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Zoom Out</source>
+        <translation>Уменьшить</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Reset Zoom</source>
+        <translation>Сбросить масштаб</translation>
+    </message>
+</context>
+<context>
+    <name>QtGradientView</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+107"/>
+        <source>Grad</source>
+        <translation>Градиент</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Remove Gradient</source>
+        <translation>Удалить градиент</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Are you sure you want to remove the selected gradient?</source>
+        <translation>Вы действительно желаете удалить выбранный градиент?</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.ui"/>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+74"/>
+        <source>New...</source>
+        <translation>Новый...</translation>
+    </message>
+    <message>
+        <location/>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+1"/>
+        <source>Edit...</source>
+        <translation>Правка...</translation>
+    </message>
+    <message>
+        <location/>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+1"/>
+        <source>Rename</source>
+        <translation>Переименовать</translation>
+    </message>
+    <message>
+        <location/>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientview.cpp" line="+1"/>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Gradient View</source>
+        <translation>Просмотр градиента</translation>
+    </message>
+</context>
+<context>
+    <name>QtGradientViewDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientviewdialog.ui"/>
+        <location filename="../../../src/plugins/qmldesigner/components/propertyeditor/qtgradienteditor/qtgradientviewdialog.h" line="+62"/>
+        <source>Select Gradient</source>
+        <translation>Выбрать градиент</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::FolderNavigationWidget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/foldernavigationwidget.cpp" line="-193"/>
+        <source>Open</source>
+        <translation>Открыть</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Open parent folder</source>
+        <translation>Открыть родительскую папку</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Open &quot;%1&quot;</source>
+        <translation>Открыть &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Open with</source>
+        <translation>Открыть с помощью</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Choose folder...</source>
+        <translation>Выбрать папку...</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Choose folder</source>
+        <translation>Выбор папки</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Show in Explorer...</source>
+        <translation>Показать в проводнике...</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Show in Finder...</source>
+        <translation>Показать в Finder...</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Show containing folder...</source>
+        <translation>Открыть папку файла...</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Open Command Prompt here...</source>
+        <translation>Открыть командную консоль здесь...</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Open Terminal here...</source>
+        <translation>Открыть терминал здесь...</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Launching a file browser failed</source>
+        <translation>Не удалось запустить обозреватель файлов</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Unable to start the file manager:
+
+%1
+
+</source>
+        <translation>Не удалось запустить файловый менеджер:
+
+%1
+
+</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>&apos;%1&apos; returned the following error:
+
+%2</source>
+        <translation>&quot;%1&quot; вернул следующую ошибку:
+
+%2</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Settings...</source>
+        <translation>Настройки...</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Launching Windows Explorer failed</source>
+        <translation>Не удалось запустить Проводник Windows</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
+        <translation>Не удалось найти explorer.exe в путях запуска Проводника Windows.</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::MakeStep</name>
+    <message>
+        <location filename="../../../src/plugins/cmakeprojectmanager/makestep.cpp" line="-211"/>
+        <source>Make</source>
+        <comment>CMakeProjectManager::MakeStep display name.</comment>
+        <translation>Сборка</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
+    <message>
+        <location line="+286"/>
+        <source>Make</source>
+        <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
+        <translation>Сборка</translation>
+    </message>
+</context>
+<context>
+    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <message>
+        <location filename="../../../src/plugins/genericprojectmanager/genericmakestep.cpp" line="-212"/>
+        <source>Make</source>
+        <translation>Сборка</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectmanagerconstants.h" line="+36"/>
+        <source>QML Viewer</source>
+        <translation>Просмотр QML</translation>
+    </message>
+</context>
+<context>
+    <name>CdbSymbolGroupContext</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/cdb/cdbsymbolgroupcontext.cpp" line="+142"/>
+        <source>&lt;Unknown Type&gt;</source>
+        <translation>&lt;Неизвестный тип&gt;</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>&lt;Unknown Value&gt;</source>
+        <translation>&lt;Неизвестное значение&gt;</translation>
+    </message>
+    <message>
+        <location line="+301"/>
+        <source>&lt;Unknown&gt;</source>
+        <translation>&lt;Неизвестный&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::SnapshotHandler</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/snapshothandler.cpp" line="+66"/>
+        <location line="+11"/>
+        <source>Function:</source>
+        <translation>Функция:</translation>
+    </message>
+    <message>
+        <location line="-10"/>
+        <location line="+12"/>
+        <source>File:</source>
+        <translation>Файл:</translation>
+    </message>
+    <message>
+        <location line="-11"/>
+        <source>Date:</source>
+        <translation>Дата:</translation>
+    </message>
+    <message>
+        <location line="+77"/>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>&lt;More&gt;</source>
+        <translation>&lt;Более&gt;</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Function</source>
+        <translation>Функция</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Date</source>
+        <translation>Дата</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Location</source>
+        <translation>Размещение</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::SnapshotWindow</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/snapshotwindow.cpp" line="+75"/>
+        <source>Snapshots</source>
+        <translation>Снимки</translation>
+    </message>
+    <message>
+        <location line="+66"/>
+        <source>Adjust Column Widths to Contents</source>
+        <translation>Выравнить ширину столбцов по содержимому</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Always Adjust Column Widths to Contents</source>
+        <translation>Всегда выравнивать ширину столбцов по содержимому</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::AddTargetDialog</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/addtargetdialog.ui"/>
+        <source>Target:</source>
+        <translation>Цель:</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Add target</source>
+        <translation>Добавление цели</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::SettingsPage</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/settingspage.ui"/>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>GroupBox</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location/>
+        <source>&amp;Snap to Grid</source>
+        <translation>Притягивать к &amp;сетке</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Show Bounding Rectangles</source>
+        <translation>Показывать границы</translation>
+    </message>
+    <message>
+        <location/>
+        <source>Only Show Items with Contents</source>
+        <translation>Отображать только непустые элементы</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/settingspage.cpp" line="+88"/>
+        <source>Designer</source>
+        <translation>Дизайнер</translation>
+    </message>
+</context>
+<context>
+    <name>CMakeProjectManager::Internal::CMakeTarget</name>
+    <message>
+        <location filename="../../../src/plugins/cmakeprojectmanager/cmaketarget.cpp" line="+46"/>
+        <location filename="../../../src/plugins/projectexplorer/userfileaccessor.cpp" line="+730"/>
+        <source>Desktop</source>
+        <comment>CMake Default target display name</comment>
+        <translation>Настольный компьютер</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/targetsettingspanel.cpp" line="+161"/>
+        <source>No target defined.</source>
+        <translation>Цель не указана.</translation>
+    </message>
+    <message>
+        <location line="+92"/>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Do you really want to remove the
+&quot;%1&quot; target?</source>
+        <translation>Действительно желаете удалить
+цель &quot;%1&quot;?</translation>
+    </message>
+</context>
+<context>
+    <name>GenericProjectManager::GenericTarget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/userfileaccessor.cpp" line="-5"/>
+        <source>Desktop</source>
+        <comment>Generic desktop target display name</comment>
+        <translation>Настольный компьютер</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4Target</name>
+    <message>
+        <location line="+10"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="+58"/>
+        <source>Desktop</source>
+        <comment>Qt4 Desktop target display name</comment>
+        <translation>Рабочий стол</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="+2"/>
+        <source>Symbian Emulator</source>
+        <comment>Qt4 Symbian Emulator target display name</comment>
+        <translation>Эмулятор Symbian</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="+2"/>
+        <source>Symbian Device</source>
+        <comment>Qt4 Symbian Device target display name</comment>
+        <translation>Устройство Symbian</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Maemo Emulator</source>
+        <comment>Qt4 Maemo Emulator target display name</comment>
+        <translation>Эмулятор Maemo</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Maemo Device</source>
+        <comment>Qt4 Maemo Device target display name</comment>
+        <translation>Устройство Maemo</translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="+2"/>
+        <source>Maemo</source>
+        <comment>Qt4 Maemo target display name</comment>
+        <translation>Maemo</translation>
+    </message>
+    <message>
+        <location line="+401"/>
+        <source>&lt;b&gt;Device:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Устройство:&lt;/b&gt; %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&lt;b&gt;Device:&lt;/b&gt; %1, %2</source>
+        <translation>&lt;b&gt;Устройство:&lt;/b&gt; %1, %2</translation>
+    </message>
+    <message>
+        <location line="-7"/>
+        <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
+        <translation>&lt;b&gt;Устройство:&lt;/b&gt; не подключено</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::QmlTarget</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/userfileaccessor.cpp" line="+5"/>
+        <source>QML Viewer</source>
+        <comment>Qml Viewer target display name</comment>
+        <translation>Просмотр QML</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::NavigatorTreeModel</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/navigator/navigatortreemodel.cpp" line="+282"/>
+        <source>Invalid id.
+Only alphanumeric characters and underscore allowed.
+Ids must begin with a lowercase letter.</source>
+        <translation>Неверный идентификатор.
+Допустимы только цифры, буквы и знак подчёркивания.
+Идентификаторы должны начинаться с маленькой буквы.</translation>
+    </message>
+</context>
+<context>
+    <name>Qml</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/settingspage.cpp" line="+10"/>
+        <source>QML</source>
+        <translation>QML</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::Internal::HoverHandler</name>
+    <message>
+        <location filename="../../../src/plugins/qmljseditor/qmljshoverhandler.cpp" line="+78"/>
+        <source>Unfiltered</source>
+        <translation type="unfinished">Вся</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJSEditor::Internal::ModelManager</name>
+    <message>
+        <location filename="../../../src/plugins/qmljseditor/qmljsmodelmanager.cpp" line="+120"/>
+        <source>Indexing</source>
+        <translation>Индексация</translation>
+    </message>
+</context>
+<context>
+    <name>TextEditor::TextEditorPlugin</name>
+    <message>
+        <location filename="../../../src/plugins/texteditor/texteditorplugin.cpp" line="+94"/>
+        <source>Creates a text file (.txt).</source>
+        <translation>Создаст текстовый файл (.txt).</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Text File</source>
+        <translation>Текстовый файл</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>General</source>
+        <translation>Основное</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>Triggers a completion in this scope</source>
+        <translation>Переключение завершения в этой области</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Ctrl+Space</source>
+        <translation>Ctrl+Space</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Meta+Space</source>
+        <translation>Meta+Space</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Triggers a quick fix in this scope</source>
+        <translation>Переключает быстрое дополнение в этой области</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Alt+Return</source>
+        <translation>Alt+Return</translation>
+    </message>
+</context>
+<context>
+    <name>trk::Launcher</name>
+    <message>
+        <location filename="../../../src/shared/symbianutils/launcher.cpp" line="+738"/>
+        <source>Unable to acquire a device for port &apos;%1&apos;. It appears to be in use.</source>
+        <translation>Не удалось получить доступ к устройству через &quot;%1&quot;. Возможно, оно уже используется.</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::DebuggerUISwitcher</name>
+    <message>
+        <location filename="../../../src/plugins/debugger/debuggeruiswitcher.cpp" line="+128"/>
+        <source>Locked</source>
+        <translation>Зафиксировано</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>&amp;Languages</source>
+        <translation>&amp;Языки</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&amp;Views</source>
+        <translation>&amp;Обзоры</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Reset to default layout</source>
+        <translation>Сбросить в исходное состояние</translation>
+    </message>
+    <message>
+        <location line="+74"/>
+        <source>Language</source>
+        <translation>Язык</translation>
+    </message>
+    <message>
+        <source>Language:</source>
+        <translation type="obsolete">Язык:</translation>
+    </message>
+</context>
+<context>
+    <name>Qml::EngineSpinBox</name>
+    <message>
+        <location filename="../../../src/plugins/qmlinspector/qmlinspector.cpp" line="+130"/>
+        <source>Engine %1</source>
+        <comment>engine number</comment>
+        <translation>Движок %1</translation>
+    </message>
+</context>
+<context>
+    <name>Qml::QmlInspector</name>
+    <message>
+        <location line="+62"/>
+        <source>No active project, debugging canceled.</source>
+        <translation>Нет активных проектов, отладка отменена.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Cannot find project run configuration, debugging canceled.</source>
+        <translation>Не удалось найти конфигурацию запуска проекта, отладка отменена.</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>[Inspector] set to connect to debug server %1:%2</source>
+        <translation>[Инспектор] установите для подключения к серверу отладки %1: %2</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>[Inspector] disconnected.
+
+</source>
+        <translation>[Инспектор] отключён.
+
+</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>[Inspector] resolving host...</source>
+        <translation>[Инспектор] определение узла...</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>[Inspector] connecting to debug server...</source>
+        <translation>[Инспектор] подключение к серверу отладки...</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>[Inspector] connected.
+</source>
+        <translation>[Инспектор] подключён.
+</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>[Inspector] closing...</source>
+        <translation>[Инспектор] закрытие...</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>[Inspector] error: (%1) %2</source>
+        <comment>%1=error code, %2=error message</comment>
+        <translation>[Инспектор] ошибка (%1) %2</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Frame rate</source>
+        <translation>Частота кадров</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>QML engine:</source>
+        <translation>Движок QML:</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Object Tree</source>
+        <translation>Дерево объектов</translation>
+    </message>
+    <message>
+        <location line="+47"/>
+        <source>Properties and Watchers</source>
+        <translation>Свойства и наблюдаемые</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfiguration.cpp" line="+72"/>
+        <source>QML Viewer</source>
+        <comment>QMLRunConfiguration display name.</comment>
+        <translation>Просмотр QML</translation>
+    </message>
+    <message>
+        <location line="+72"/>
+        <location line="+52"/>
+        <location line="+57"/>
+        <source>&lt;Current File&gt;</source>
+        <translation>&lt;Текущий файл&gt;</translation>
+    </message>
+    <message>
+        <location line="-68"/>
+        <source>QML Viewer</source>
+        <translation>Просмотр QML</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>QML Viewer arguments:</source>
+        <translation>Параметры просмотрщика QML:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Main QML File:</source>
+        <translation>Основной файл QML:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Debugging Address:</source>
+        <translation type="unfinished">Адрес отладки:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Debugging Port:</source>
+        <translation type="unfinished">Порт отладки:</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectrunconfigurationfactory.cpp" line="+60"/>
+        <source>Run QML Script</source>
+        <translation>Выполнить сценарий QML</translation>
+    </message>
+</context>
+<context>
+    <name>BINEditor::BinEditor</name>
+    <message>
+        <location filename="../../../src/plugins/bineditor/bineditor.cpp" line="+1233"/>
+        <source>Copy Selection as ASCII Characters</source>
+        <translation>Скопировать как ASCII символы</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Copy Selection as Hex Values</source>
+        <translation>Скопировать как шестнадцатиричные значения</translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>Jump to Address in This Window</source>
+        <translation>Перейти к адресу в этом окне</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Jump to Address in New Window</source>
+        <translation>Перейти к адресу в новом окне</translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Jump to Address 0x%1 in This Window</source>
+        <translation>Перейти к адресу 0x%1 в этом окне</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Jump to Address 0x%1 in New Window</source>
+        <translation>Перейти к адресу 0x%1 в новом окне</translation>
+    </message>
+</context>
+<context>
+    <name>Qml::InspectorOutputWidget</name>
+    <message>
+        <location filename="../../../src/plugins/qmlinspector/inspectoroutputwidget.cpp" line="+43"/>
+        <source>Output</source>
+        <translation>Вывод</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Clear</source>
+        <translation>Очистить</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::QmlProject</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlproject.cpp" line="+99"/>
+        <source>Error while loading project file!</source>
+        <translation>Ошибка при загрузке файла проекта!</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+86"/>
+        <source>qmake</source>
+        <translation>qmake</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::Qt4TargetFactory</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="-310"/>
+        <source>%1 Debug</source>
+        <comment>debug buildconfiguration name, %1 is Qt version</comment>
+        <translation>%1 Отладка</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>%1 Release</source>
+        <comment>release buildconfiguration name, %1 is Qt version</comment>
+        <translation>%1 Релиз</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Debug</source>
+        <comment>debug buildconfiguration name (only one Qt version!)</comment>
+        <translation>Отладка</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Release</source>
+        <comment>release buildconfiguration name (only one Qt version!)</comment>
+        <translation>Релиз</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::TargetsPage</name>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/wizards/targetspage.cpp" line="+47"/>
+        <source>Choose Qt versions</source>
+        <translation>Выбор профилей Qt</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Select required Qt versions</source>
+        <translation>Выбор необходимых профилей Qt</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Select the Qt versions to use in your project.</source>
+        <translation>Выберите профиль Qt для использования в проекте.</translation>
+    </message>
+</context>
+<context>
+    <name>BINEditor::Internal::ImageViewerFactory</name>
+    <message>
+        <location filename="../../../src/plugins/bineditor/imageviewer.cpp" line="+100"/>
+        <source>Image Viewer</source>
+        <translation>Просмотр изображений</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectapplicationwizard.cpp" line="+46"/>
+        <source>New QML Project</source>
+        <translation>Новый проект QML</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This wizard generates a QML application project.</source>
+        <translation>Этот мастер создаст проект приложения QML.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
+    <message>
+        <location line="+14"/>
+        <source>QML Application</source>
+        <translation>Приложение QML</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Creates a QML application.</source>
+        <translation>Создание приложения QML.</translation>
+    </message>
+    <message>
+        <location line="+65"/>
+        <source>File generated by QtCreator</source>
+        <comment>qmlproject Template</comment>
+        <extracomment>Comment added to generated .qmlproject file</extracomment>
+        <translation>Файл созданный QtCreator</translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Scan current directory for .qml, .js, and image files</source>
+        <comment>qmlproject Template</comment>
+        <extracomment>Comment added to generated .qmlproject file</extracomment>
+        <translation>Сканирование текущего каталога на предмет файлов .qml, .js и изображений</translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>The project %1 could not be opened.</source>
+        <translation>Нельзя открыть проект %1.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlProjectImportWizardDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qmlprojectmanager/qmlprojectimportwizard.cpp" line="+59"/>
+        <source>Import Existing QML Directory</source>
+        <translation>Импорт существующего каталога QML</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>QML Project</source>
+        <translation>Проект QML</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Project name:</source>
+        <translation>Название проекта:</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Location:</source>
+        <translation>Размещение:</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlProjectImportWizard</name>
+    <message>
+        <location line="+38"/>
+        <source>Import Existing QML Directory</source>
+        <translation>Импорт существующего каталога QML</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Creates a QML project from an existing directory of QML files.</source>
+        <translation>Создание проекта QML из существующего каталога с файлами QML.</translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>File generated by QtCreator</source>
+        <comment>qmlproject Template</comment>
+        <extracomment>Comment added to generated .qmlproject file</extracomment>
+        <translation>Файл созданный QtCreator</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Scan current directory and subdirectories for .qml, .js, and image files</source>
+        <comment>qmlproject Template</comment>
+        <translation>Сканирование текущего каталога и его подкаталогов на предмет файлов .qml, .js и изображений</translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>The project %1 could not be opened.</source>
+        <translation>Нельзя открыть проект %1.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJS::Check</name>
+    <message>
+        <location filename="../../../src/libs/qmljs/qmljscheck.cpp" line="+43"/>
+        <source>&apos;%1&apos; is not a valid property name</source>
+        <translation>&quot;%1&quot; не является корректным именем свойства</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>unknown type</source>
+        <translation>неизвестный тип</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&apos;%1&apos; does not have members</source>
+        <translation>&quot;%1&quot; не содержит членов</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&apos;%1&apos; is not a member of &apos;%2&apos;</source>
+        <translation>&quot;%1&quot; не является членом &quot;%2&quot;</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>easing-curve name is not a string</source>
+        <translation type="unfinished">название упрощающей кривой не является строкой</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>unknown easing-curve name</source>
+        <translation type="unfinished">неизвестное имя упрощающей кривой</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>value might be &apos;undefined&apos;</source>
+        <translation>значение возможно не определено</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>numerical value expected</source>
+        <translation>требуется числовое значение</translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>boolean value expected</source>
+        <translation>требуется булевое значение</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>string value expected</source>
+        <translation>требуется строковое значение</translation>
+    </message>
+    <message>
+        <location line="+41"/>
+        <source>not a valid color</source>
+        <translation>некорректный цвет</translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>expected anchor line</source>
+        <translation>требуется строка привязки</translation>
+    </message>
+    <message>
+        <location line="+92"/>
+        <location line="+6"/>
+        <source>expected id</source>
+        <translation>требуется id</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>ids must be lower case</source>
+        <translation type="unfinished">идентификаторы должны быть в нижнем регистре</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::SystemEditor</name>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/editormanager/systemeditor.cpp" line="+67"/>
+        <source>Could not open url %1.</source>
+        <translation>Не удалось открыть ссылку %1.</translation>
+    </message>
+</context>
+<context>
+    <name>BuildSettingsPanelFactory</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/buildsettingspropertiespage.cpp" line="-349"/>
+        <source>Build Settings</source>
+        <translation>Настройки сборки</translation>
+    </message>
+</context>
+<context>
+    <name>BuildSettingsPanel</name>
+    <message>
+        <location line="+43"/>
+        <source>Build Settings</source>
+        <translation>Настройки сборки</translation>
+    </message>
+</context>
+<context>
+    <name>DependenciesPanel</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/dependenciespanel.cpp" line="+170"/>
+        <source>Dependencies</source>
+        <translation>Зависимости</translation>
+    </message>
+</context>
+<context>
+    <name>DependenciesPanelFactory</name>
+    <message>
+        <location line="+29"/>
+        <source>Dependencies</source>
+        <translation>Зависимости</translation>
+    </message>
+</context>
+<context>
+    <name>EditorSettingsPanelFactory</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/editorsettingspropertiespage.cpp" line="+48"/>
+        <source>Editor Settings</source>
+        <translation>Настройки редактора</translation>
+    </message>
+</context>
+<context>
+    <name>EditorSettingsPanel</name>
+    <message>
+        <location line="+39"/>
+        <source>Editor Settings</source>
+        <translation>Настройки редактора</translation>
+    </message>
+</context>
+<context>
+    <name>RunSettingsPanel</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.cpp" line="-81"/>
+        <source>Run Settings</source>
+        <translation>Настройки запуска</translation>
+    </message>
+</context>
+<context>
+    <name>RunConfigurationsModel</name>
+    <message>
+        <location line="+50"/>
+        <source>%1 (Active)</source>
+        <translation>%1 (текущая)</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::XUIFileDialog</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/integration/xuifiledialog.cpp" line="+45"/>
+        <source>Open file</source>
+        <translation>Открыть файл</translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Save file</source>
+        <translation>Сохранить файл</translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Declarative UI files (*.qml)</source>
+        <translation>Файлы Declarative UI (*.qml)</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>All files (*)</source>
+        <translation>Все файлы (*)</translation>
+    </message>
+</context>
+<context>
+    <name>RunSettingsPanelFactory</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/runsettingspropertiespage.cpp" line="-92"/>
+        <source>Run Settings</source>
+        <translation>Настройки запуска</translation>
+    </message>
+</context>
+<context>
+    <name>TargetSettingsPanelFactory</name>
+    <message>
+        <location filename="../../../src/plugins/projectexplorer/targetsettingspanel.cpp" line="-193"/>
+        <source>Targets</source>
+        <translation>Цели</translation>
+    </message>
+</context>
+<context>
+    <name>TargetSettingsPanel</name>
+    <message>
+        <location line="+42"/>
+        <source>Targets</source>
+        <translation>Цели</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::PluginManager</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/components/pluginmanager/pluginmanager.cpp" line="+161"/>
+        <source>About plugins</source>
+        <translation>О модулях</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::MaemoSshThread</name>
+    <message>
+        <source>Error in cryptography backend: </source>
+        <translation type="obsolete">Ошибка в криптографическом модуле: </translation>
+    </message>
+    <message>
+        <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemosshthread.cpp" line="+69"/>
+        <source>Error in cryptography backend: %1</source>
+        <translation>Ошибка в криптографическом модуле: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Core::DesignMode</name>
+    <message>
+        <location filename="../../../src/plugins/coreplugin/designmode.cpp" line="+112"/>
+        <source>Design</source>
+        <translation>Дизайн</translation>
+    </message>
+</context>
+<context>
+    <name>Designer::Internal::DesignerXmlEditor</name>
+    <message>
+        <location filename="../../../src/plugins/designer/designerxmleditor.cpp" line="+65"/>
+        <source>This file can only be edited in Design Mode.</source>
+        <translation>Этот файл можно редактировать только в режиме дизайна.</translation>
+    </message>
+</context>
+<context>
+    <name>Designer::Internal::FakeToolBar</name>
+    <message>
+        <location filename="../../../src/plugins/designer/faketoolbar.cpp" line="+125"/>
+        <source>Copy full path to clipboard</source>
+        <translation>Скопировать полный путь в буфер обмена</translation>
+    </message>
+    <message>
+        <location line="+19"/>
+        <source>Make writable</source>
+        <translation>Сделать записываемым</translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>File is writable</source>
+        <translation>Файл записываемый</translation>
+    </message>
+</context>
+<context>
+    <name>Git::Internal::GitCommand</name>
+    <message>
+        <location filename="../../../src/plugins/git/gitcommand.cpp" line="+59"/>
+        <source>Error: Git timed out after %1s.</source>
+        <translation>Ошибка: Git превысил время ожидания (%1 сек).</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::Internal::BauhausPlugin</name>
+    <message>
+        <location filename="../../../src/plugins/qmldesigner/qmldesignerplugin.cpp" line="+118"/>
+        <source>Switch Text/Design</source>
+        <translation>Переключить текст/дизайн</translation>
+    </message>
+    <message>
+        <location line="+169"/>
+        <source>Save %1 As...</source>
+        <translation>Сохранить %1 как...</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>&amp;Save %1</source>
+        <translation>&amp;Сохранить %1</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Revert %1 to Saved</source>
+        <translation>Вернуть %1 к сохранённому</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Close %1</source>
+        <translation>Закрыть %1</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Close All Except %1</source>
+        <translation>Закрыть все, кроме %1</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Close Others</source>
+        <translation>Закрыть другие</translation>
     </message>
 </context>
 </TS>
