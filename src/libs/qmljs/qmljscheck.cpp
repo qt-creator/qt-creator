@@ -255,13 +255,18 @@ bool Check::visit(UiScriptBinding *ast)
             return false;
         }
 
-        IdentifierExpression *idExp = cast<IdentifierExpression *>(expStmt->expression);
-        if (! idExp) {
+        QString id;
+        if (IdentifierExpression *idExp = cast<IdentifierExpression *>(expStmt->expression)) {
+            id = idExp->name->asString();
+        } else if (StringLiteral *strExp = cast<StringLiteral *>(expStmt->expression)) {
+            id = strExp->value->asString();
+            warning(loc, QCoreApplication::translate("QmlJS::Check", "using string literals for ids is discouraged"));
+        } else {
             error(loc, QCoreApplication::translate("QmlJS::Check", "expected id"));
             return false;
         }
 
-        if (! idExp->name->asString()[0].isLower()) {
+        if (id.isEmpty() || ! id[0].isLower()) {
             error(loc, QCoreApplication::translate("QmlJS::Check", "ids must be lower case"));
             return false;
         }
