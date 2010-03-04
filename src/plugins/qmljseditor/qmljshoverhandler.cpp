@@ -72,9 +72,9 @@ HoverHandler::HoverHandler(QObject *parent)
 
     m_helpEngine = new QHelpEngineCore(directory.absolutePath()
                                        + QLatin1String("/helpcollection.qhc"), this);
-    //m_helpEngine->setAutoSaveFilter(false);
     if (!m_helpEngine->setupData())
         qWarning() << "Could not initialize help engine:" << m_helpEngine->error();
+    m_helpEngine->setAutoSaveFilter(false);
     m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     m_helpEngineNeedsSetup = m_helpEngine->registeredDocumentations().count() == 0;
 
