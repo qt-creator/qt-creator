@@ -453,8 +453,9 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeS60Visible(false);
             return;
         }
-        QList<ProjectExplorer::ToolChain::ToolChainType> types = m_versions.at(index)->possibleToolChainTypes();
-        QSet<QString> targets = m_versions.at(index)->supportedTargetIds();
+        const QSharedPointerQtVersion qtVersion = m_versions.at(index);
+        QList<ProjectExplorer::ToolChain::ToolChainType> types = qtVersion->possibleToolChainTypes();
+        QSet<QString> targets = qtVersion->supportedTargetIds();
         if (types.isEmpty()) {
             makeMSVCVisible(false);
             makeMingwVisible(false);
@@ -473,7 +474,7 @@ void QtOptionsPageWidget::showEnvironmentPage(QTreeWidgetItem *item)
             makeMSVCVisible(false);
             makeMingwVisible(false);
             makeS60Visible(false);
-            QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions();
+            const QStringList msvcEnvironments = ProjectExplorer::ToolChain::availableMSVCVersions(qtVersion->isQt64Bit());
             if (msvcEnvironments.count() == 0) {
                 m_ui->msvcLabel->setVisible(true);
                 m_ui->msvcNotFoundLabel->setVisible(true);

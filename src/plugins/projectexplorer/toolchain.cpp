@@ -46,10 +46,12 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
+enum { debug = 0 };
+
 #ifdef Q_OS_WIN64
-static const char * MSVC_RegKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7";
+static const char MSVC_RegKey[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VC7";
 #else
-static const char * MSVC_RegKey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
+static const char MSVC_RegKey[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7";
 #endif
 
 bool ToolChain::equals(ToolChain *a, ToolChain *b)
@@ -81,21 +83,31 @@ ToolChain *ToolChain::createMinGWToolChain(const QString &gcc, const QString &mi
     return new MinGWToolChain(gcc, mingwPath);
 }
 
-ToolChain *ToolChain::createMSVCToolChain(const QString &name, bool amd64 = false)
+ToolChain *ToolChain::createMSVCToolChain(const QString &name, bool amd64)
 {
-    return new MSVCToolChain(name, amd64);
+    return MSVCToolChain::create(name, amd64);
 }
 
 ToolChain *ToolChain::createWinCEToolChain(const QString &name, const QString &platform)
 {
-    return new WinCEToolChain(name, platform);
+    return WinCEToolChain::create(name, platform);
 }
 
 QStringList ToolChain::availableMSVCVersions()
 {
-    QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
-    QStringList versions = registry.allKeys();
-    return versions;
+    QStringList rc;
+    foreach(const MSVCToolChain::Installation &i, MSVCToolChain::installations())
+        rc.push_back(i.name);
+    return rc;
+}
+
+QStringList ToolChain::availableMSVCVersions(bool amd64)
+{
+    QStringList rc;
+    foreach(const MSVCToolChain::Installation &i, MSVCToolChain::installations())
+        if (i.is64bit() == amd64)
+            rc.push_back(i.name);
+    return rc;
 }
 
 QList<ToolChain::ToolChainType> ToolChain::supportedToolChains()
@@ -288,9 +300,11 @@ bool MinGWToolChain::equals(ToolChain *other) const
 
 void MinGWToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
+    if (debug)
+        qDebug() << "MinGWToolChain::addToEnvironment" << m_mingwPath;
     if (m_mingwPath.isEmpty())
         return;
-    QString binDir = m_mingwPath + "/bin";
+    const QString binDir = m_mingwPath + "/bin";
     if (QFileInfo(binDir).exists())
         env.prependOrSetPath(binDir);
 }
@@ -305,15 +319,163 @@ IOutputParser *MinGWToolChain::outputParser() const
     return new GccParser;
 }
 
-MSVCToolChain::MSVCToolChain(const QString &name, bool amd64)
-    : m_name(name), m_valuesSet(false), m_amd64(amd64)
+// ---------------- MSVC installation location code
+
+// Format the name of an SDK or VC installation version with platform
+static inline QString installationName(const QString &name,
+                                       MSVCToolChain::Installation::Type t,
+                                       MSVCToolChain::Installation::Platform p)
 {
-    if (m_name.isEmpty()) { // Could be because system qt doesn't set this
-        QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
-        QStringList keys = registry.allKeys();
-        if (keys.count())
-            m_name = keys.first();
+    if (t == MSVCToolChain::Installation::WindowsSDK) {
+        QString sdkName = name;
+        sdkName += QLatin1String(" (");
+        sdkName += MSVCToolChain::Installation::platformName(p);
+        sdkName += QLatin1Char(')');
+        return sdkName;
     }
+    // Comes as "9.0" from the registry
+    QString vcName = QLatin1String("Microsoft Visual C++ Compilers ");
+    vcName += name;
+    vcName+= QLatin1String(" (");
+    vcName += MSVCToolChain::Installation::platformName(p);
+    vcName += QLatin1Char(')');
+    return vcName;
+}
+
+MSVCToolChain::Installation::Installation(Type t, const QString &n, Platform p,
+                                          const QString &v, const QString &a) :
+    type(t), name(installationName(n, t, p)), platform(p), varsBat(v), varsBatArg(a)
+{
+}
+
+MSVCToolChain::Installation::Installation() : platform(s32)
+{
+}
+
+QString MSVCToolChain::Installation::platformName(Platform t)
+{
+    switch (t) {
+    case s32:
+        return QLatin1String("x86");
+    case s64:
+        return QLatin1String("x64");
+    case ia64:
+        return QLatin1String("ia64");
+    case amd64:
+        return QLatin1String("amd64");
+    }
+    return QString();
+}
+
+bool MSVCToolChain::Installation::is64bit() const
+{
+    return platform != s32;
+}
+
+MSVCToolChain::InstallationList MSVCToolChain::installations()
+{
+    static InstallationList installs;
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        // 1) Installed SDKs preferred over standalone Visual studio
+        const char sdk_RegKeyC[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows";
+        const QSettings sdkRegistry(sdk_RegKeyC, QSettings::NativeFormat);
+        const QString defaultSdkPath = sdkRegistry.value(QLatin1String("CurrentInstallFolder")).toString();
+        if (!defaultSdkPath.isEmpty()) {
+            foreach(const QString &sdkKey, sdkRegistry.childGroups()) {
+                const QString name = sdkRegistry.value(sdkKey + QLatin1String("/ProductName")).toString();
+                const QString folder = sdkRegistry.value(sdkKey + QLatin1String("/InstallationFolder")).toString();
+                if (!folder.isEmpty()) {
+                    const QString sdkVcVarsBat = folder + QLatin1String("bin\\SetEnv.cmd");
+                    if (QFileInfo(sdkVcVarsBat).exists()) {
+                        // Add all platforms
+                        InstallationList newInstalls;
+                        newInstalls.push_back(Installation(Installation::WindowsSDK, name, Installation::s32, sdkVcVarsBat, QLatin1String("/x86")));
+#ifdef Q_OS_WIN64
+                        newInstalls.push_back(Installation(Installation::WindowsSDK, name, Installation::s64, sdkVcVarsBat, QLatin1String("/x64")));
+                        newInstalls.push_back(Installation(Installation::WindowsSDK, name, Installation::ia64, sdkVcVarsBat, QLatin1String("/ia64")));
+#endif
+                        // Make sure the default is front.
+                        if (folder == defaultSdkPath && !installs.empty()) {
+                            const InstallationList old = installs;
+                            installs = newInstalls + old;
+                        } else {
+                            installs.append(newInstalls);
+                        }
+                    } // bat exists
+                } // folder
+            } // foreach
+        }
+        // 2) Installed MSVCs
+        const QSettings vsRegistry(MSVC_RegKey, QSettings::NativeFormat);
+        foreach(const QString &vsName, vsRegistry.allKeys()) {
+            if (vsName.contains(QLatin1Char('.'))) { // Scan for version major.minor
+                const QString path = vsRegistry.value(vsName).toString();
+                // Check existence of various install scripts
+                const QString vcvars32bat = path + QLatin1String("bin\\vcvars32.bat");
+                if (QFileInfo(vcvars32bat).isFile())
+                    installs.push_back(Installation(Installation::VS, vsName, Installation::s32, vcvars32bat));
+                // Amd 64 is the preferred 64bit platform
+                const QString vcvarsAmd64bat = path + QLatin1String("bin\\amd64\\vcvarsamd64.bat");
+                if (QFileInfo(vcvarsAmd64bat).isFile())
+                    installs.push_back(Installation(Installation::VS, vsName, Installation::amd64, vcvarsAmd64bat));
+                const QString vcvarsAmd64bat2 = path + QLatin1String("bin\\vcvarsx86_amd64.bat");
+                if (QFileInfo(vcvarsAmd64bat2).isFile())
+                    installs.push_back(Installation(Installation::VS, vsName, Installation::amd64, vcvarsAmd64bat2));
+                const QString vcvars64bat = path + QLatin1String("bin\\vcvars64.bat");
+                if (QFileInfo(vcvars64bat).isFile())
+                    installs.push_back(Installation(Installation::VS, vsName, Installation::s64, vcvars64bat));
+                const QString vcvarsIA64bat = path + QLatin1String("bin\\vcvarsx86_ia64.bat");
+                if (QFileInfo(vcvarsIA64bat).isFile())
+                    installs.push_back(Installation(Installation::VS, vsName, Installation::ia64, vcvarsIA64bat));
+            }
+        }
+    }
+    if (debug)
+        foreach(const Installation &i, installs)
+            qDebug() << i;
+    return installs;
+}
+
+MSVCToolChain::Installation MSVCToolChain::findInstallation(bool is64Bit,
+                                                            const QString &name,
+                                                            bool excludeSDK)
+{
+    if (debug)
+        qDebug() << "find" << (is64Bit ? 64 : 32) << name << excludeSDK;
+    foreach(const Installation &i, installations()) {
+        if (i.type != Installation::WindowsSDK || !excludeSDK) {
+            if ((i.is64bit() == is64Bit) && (name.isEmpty() || name == i.name))
+                return i;
+        }
+    }
+    return Installation();
+}
+
+namespace ProjectExplorer {
+PROJECTEXPLORER_EXPORT QDebug operator<<(QDebug in, const MSVCToolChain::Installation &i)
+{
+    QDebug nsp = in.nospace();
+    nsp << "Type: " << i.type << " Platform: " << i.platform << " Name: " << i.name
+        << "\nSetup: " << i.varsBat;
+    if (!i.varsBatArg.isEmpty())
+        nsp << "\nSetup argument: " << i.varsBatArg;
+    return in;
+}
+}
+
+MSVCToolChain *MSVCToolChain::create(const QString &name, bool amd64)
+{
+    return new MSVCToolChain(MSVCToolChain::findInstallation(amd64, name));
+}
+
+MSVCToolChain::MSVCToolChain(const Installation &in) :
+    m_installation(in),
+    m_valuesSet(false)
+{
+    if (debug)
+        qDebug() << "\nMSVCToolChain::CT\n" << m_installation;
 }
 
 ToolChain::ToolChainType MSVCToolChain::type() const
@@ -324,7 +486,7 @@ ToolChain::ToolChainType MSVCToolChain::type() const
 bool MSVCToolChain::equals(ToolChain *other) const
 {
     MSVCToolChain *o = static_cast<MSVCToolChain *>(other);
-    return (m_name == o->m_name);
+    return (m_installation.name == o->m_installation.name);
 }
 
 QByteArray msvcCompilationFile() {
@@ -419,63 +581,121 @@ QList<HeaderPath> MSVCToolChain::systemHeaderPaths()
     return headerPaths;
 }
 
+MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSetting(const QString &varsBat,
+                                                                          const QStringList &args,
+                                                                          const ProjectExplorer::Environment &env)
+{
+    const StringStringPairList rc = readEnvironmentSettingI(varsBat, args, env);
+    if (debug) {
+        qDebug() << "Running: " << varsBat << args;
+        if (debug > 1) {
+            qDebug() << "Incoming: " << env.toStringList();
+            foreach(const StringStringPair &e, rc)
+                qDebug() << e.first << e.second;
+        } else {
+            qDebug() << "Read: " << rc.size() << " variables.";
+        }
+    }
+    return rc;
+}
+
+// Windows: Expand the delayed evaluation references returned by the
+// SDK setup scripts: "PATH=!Path!;foo". Some values might expand
+// to empty and should not be added
+static inline QString winExpandDelayedEnvReferences(QString in, const ProjectExplorer::Environment &env)
+{
+    const QChar exclamationMark = QLatin1Char('!');
+    for (int pos = 0; pos < in.size(); ) {
+        // Replace "!REF!" by its value in process environment
+        pos = in.indexOf(exclamationMark, pos);
+        if (pos == -1)
+            break;
+        const int nextPos = in.indexOf(exclamationMark, pos + 1);
+        if (nextPos == -1)
+            break;
+        const QString var = in.mid(pos + 1, nextPos - pos - 1);
+        const QString replacement = env.value(var.toUpper());
+        in.replace(pos, nextPos + 1 - pos, replacement);
+        pos += replacement.size();
+    }
+    return in;
+}
+
+MSVCToolChain::StringStringPairList MSVCToolChain::readEnvironmentSettingI(const QString &varsBat,
+                                                                           const QStringList &args,
+                                                                           const ProjectExplorer::Environment &env)
+{
+    // Run the setup script and extract the variables
+    if (!QFileInfo(varsBat).exists())
+        return StringStringPairList();
+    const QString tempOutputFileName = QDir::tempPath() + QLatin1String("\\qtcreator-msvc-environment.txt");
+    QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
+    tf.setAutoRemove(true);
+    if (!tf.open())
+        return StringStringPairList();
+    const QString filename = tf.fileName();
+    QByteArray call = "call \"";
+    call +=  varsBat.toLocal8Bit();
+    call += '"';
+    if (!args.isEmpty()) {
+        call += ' ';
+        call += args.join(QString(QLatin1Char(' '))).toLocal8Bit();
+    }
+    call += "\r\n";
+    tf.write(call);
+    QString redirect = "set > \"" + tempOutputFileName + "\"\r\n";
+    tf.write(redirect.toLocal8Bit());
+    tf.flush();
+    tf.waitForBytesWritten(30000);
+
+    QProcess run;
+    run.setEnvironment(env.toStringList());
+    const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
+    run.start(cmdPath, QStringList()<< QLatin1String("/c")<<filename);
+    if (!run.waitForStarted() || !run.waitForFinished())
+        return StringStringPairList();
+    tf.close();
+
+    QFile varsFile(tempOutputFileName);
+    if (!varsFile.open(QIODevice::ReadOnly|QIODevice::Text))
+        return StringStringPairList();
+
+    QRegExp regexp(QLatin1String("(\\w*)=(.*)"));
+    StringStringPairList rc;
+    while (!varsFile.atEnd()) {
+        const QString line = QString::fromLocal8Bit(varsFile.readLine()).trimmed();
+        if (regexp.exactMatch(line)) {
+            const QString varName = regexp.cap(1);
+            const QString expandedValue = winExpandDelayedEnvReferences(regexp.cap(2), env);
+            if (!expandedValue.isEmpty())
+                rc.append(StringStringPair(varName, expandedValue));
+        }
+    }
+    varsFile.close();
+    varsFile.remove();
+    return rc;
+}
+
 void MSVCToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
+    if (debug)
+        qDebug() << "MSVCToolChain::addToEnvironment" << m_installation.name;
+    if (m_installation.name.isEmpty() || m_installation.varsBat.isEmpty()) {
+        qWarning("Attempt to set up invalid MSVC Toolchain.");
+        return;
+    }
+    // We cache the full environment (incoming + modifications by setup script).
     if (!m_valuesSet || env != m_lastEnvironment) {
         m_lastEnvironment = env;
-        QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
-        if (m_name.isEmpty())
-            return;
-        QString path = registry.value(m_name).toString();
-        QString desc;
-        QString varsbat;
-        if (m_amd64)
-            varsbat = path + "bin\\amd64\\vcvarsamd64.bat";
-        else
-            varsbat = path + "bin\\vcvars32.bat";
-        if (QFileInfo(varsbat).exists()) {
-            QTemporaryFile tf(QDir::tempPath() + "\\XXXXXX.bat");
-            if (!tf.open())
-                return;
-            QString filename = tf.fileName();
-            tf.write("call \"" + varsbat.toLocal8Bit()+"\"\r\n");
-            QString redirect = "set > \"" + QDir::tempPath() + "\\qtcreator-msvc-environment.txt\"\r\n";
-            tf.write(redirect.toLocal8Bit());
-            tf.flush();
-            tf.waitForBytesWritten(30000);
-
-            QProcess run;
-            run.setEnvironment(env.toStringList());
-            QString cmdPath = env.searchInPath("cmd");
-            run.start(cmdPath, QStringList()<<"/c"<<filename);
-            run.waitForFinished();
-            tf.close();
-
-            QFile vars(QDir::tempPath() + "\\qtcreator-msvc-environment.txt");
-            if (vars.exists() && vars.open(QIODevice::ReadOnly)) {
-                while (!vars.atEnd()) {
-                    QByteArray line = vars.readLine();
-                    QString line2 = QString::fromLocal8Bit(line);
-                    line2 = line2.trimmed();
-                    QRegExp regexp("(\\w*)=(.*)");
-                    if (regexp.exactMatch(line2)) {
-                        QString variable = regexp.cap(1);
-                        QString value = regexp.cap(2);
-                        m_values.append(QPair<QString, QString>(variable, value));
-                    }
-                }
-                vars.close();
-                vars.remove();
-            }
-        }
+        const QStringList args = m_installation.varsBatArg.isEmpty() ?
+                                 QStringList() :  QStringList(m_installation.varsBatArg);
+        m_values = readEnvironmentSetting(m_installation.varsBat, args, env);
         m_valuesSet = true;
     }
 
-    QList< QPair<QString, QString> >::const_iterator it, end;
-    end = m_values.constEnd();
-    for (it = m_values.constBegin(); it != end; ++it) {
+    const StringStringPairList::const_iterator end = m_values.constEnd();
+    for (StringStringPairList::const_iterator it = m_values.constBegin(); it != end; ++it)
         env.set((*it).first, (*it).second);
-    }
 }
 
 QString MSVCToolChain::makeCommand() const
@@ -496,10 +716,16 @@ IOutputParser *MSVCToolChain::outputParser() const
     return new MsvcParser;
 }
 
-WinCEToolChain::WinCEToolChain(const QString &name, const QString &platform)
-    : MSVCToolChain(name), m_platform(platform)
+WinCEToolChain *WinCEToolChain::create(const QString &name, const QString &platform)
 {
+    const bool excludeSDK = true;
+    return new WinCEToolChain(findInstallation(false, name, excludeSDK), platform);
+}
 
+WinCEToolChain::WinCEToolChain(const Installation &in, const QString &platform) :
+        MSVCToolChain(in),
+        m_platform(platform)
+{
 }
 
 ToolChain::ToolChainType WinCEToolChain::type() const
@@ -541,7 +767,7 @@ void WinCEToolChain::addToEnvironment(ProjectExplorer::Environment &env)
 {
     MSVCToolChain::addToEnvironment(env);
     QSettings registry(MSVC_RegKey, QSettings::NativeFormat);
-    QString path = registry.value(m_name).toString();
+    QString path = registry.value(m_installation.name).toString();
 
     // Find MSVC path
 

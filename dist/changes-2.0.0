@@ -77,7 +77,7 @@ Windows
    * Fixed possible crash when searching files in file system
    * Show build error count in Taskbar (Windows 7 only)
    * Show build progress in Taskbar (Windows 7 only)
-
+   * Support Windows SDKs
 Symbian Target
    * Deploying shows real progress bar
    * Show the connection state of devices in the selector

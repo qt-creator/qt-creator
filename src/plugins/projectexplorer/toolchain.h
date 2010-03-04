@@ -110,6 +110,7 @@ public:
     static ToolChain *createMSVCToolChain(const QString &name, bool amd64);
     static ToolChain *createWinCEToolChain(const QString &name, const QString &platform);
     static QStringList availableMSVCVersions();
+    static QStringList availableMSVCVersions(bool amd64); // filter 32/64bit apart
     static QList<ToolChain::ToolChainType> supportedToolChains();
 
     static QString toolChainName(ToolChainType tc);
@@ -159,8 +160,36 @@ private:
 // TODO some stuff needs to be moved into this
 class PROJECTEXPLORER_EXPORT MSVCToolChain : public ToolChain
 {
+    Q_DISABLE_COPY(MSVCToolChain)
 public:
-    MSVCToolChain(const QString &name, bool amd64 = false);
+    // A MSVC installation (SDK or VS) with name and setup script with args
+    struct Installation {
+        enum Type { WindowsSDK, VS };
+        enum Platform { s32, s64, ia64, amd64 };
+
+        explicit Installation(Type t, const QString &name, Platform p,
+                              const QString &varsBat,
+                              const QString &varBatArg = QString());
+        Installation();
+        static QString platformName(Platform t);
+        bool is64bit() const;
+
+        Type type;
+        QString name;
+        Platform platform;
+        QString varsBat;    // Script to setup environment
+        QString varsBatArg; // Argument
+    };
+    // Find all installations
+    typedef QList<Installation> InstallationList;
+    static InstallationList installations();
+    // Return matching installation or empty one
+    static Installation findInstallation(bool is64Bit,
+                                         const QString &name = QString(),
+                                         bool excludeSDK = false);
+
+    static MSVCToolChain *create(const QString &name,
+                                 bool amd64 = false);
     virtual QByteArray predefinedMacros();
     virtual QList<HeaderPath> systemHeaderPaths();
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
@@ -169,32 +198,48 @@ public:
     virtual IOutputParser *outputParser() const;
 
 protected:
+    explicit MSVCToolChain(const Installation &in);
+
+    typedef QPair<QString, QString> StringStringPair;
+    typedef QList<StringStringPair> StringStringPairList;
+
     virtual bool equals(ToolChain *other) const;
+    static StringStringPairList readEnvironmentSetting(const QString &varsBat,
+                                                       const QStringList &args,
+                                                       const ProjectExplorer::Environment &env);
+
     QByteArray m_predefinedMacros;
-    QString m_name;
+    const Installation m_installation;
 
 private:
-    mutable QList<QPair<QString, QString> > m_values;
+    static StringStringPairList readEnvironmentSettingI(const QString &varsBat,
+                                                        const QStringList &args,
+                                                        const ProjectExplorer::Environment &env);
+
+    mutable StringStringPairList m_values;
     mutable bool m_valuesSet;
     mutable ProjectExplorer::Environment m_lastEnvironment;
-    bool m_amd64;
 };
+
+PROJECTEXPLORER_EXPORT QDebug operator<<(QDebug in, const MSVCToolChain::Installation &i);
 
 // TODO some stuff needs to be moved into here
 class PROJECTEXPLORER_EXPORT WinCEToolChain : public MSVCToolChain
 {
 public:
-    WinCEToolChain(const QString &name, const QString &platform);
+    static WinCEToolChain *create(const QString &name, const QString &platform);
+
     virtual QByteArray predefinedMacros();
     virtual QList<HeaderPath> systemHeaderPaths();
     virtual void addToEnvironment(ProjectExplorer::Environment &env);
     virtual ToolChainType type() const;
 
 protected:
+    explicit WinCEToolChain(const Installation &in, const QString &platform);
     virtual bool equals(ToolChain *other) const;
 
 private:
-    QString m_platform;
+    const QString m_platform;
 };
 
 }
