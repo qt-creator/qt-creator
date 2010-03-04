@@ -180,6 +180,21 @@ void ShortcutSettings::keyChanged()
     if (current && current->data(0, Qt::UserRole).isValid()) {
         ShortcutItem *scitem = qVariantValue<ShortcutItem *>(current->data(0, Qt::UserRole));
         scitem->m_key = QKeySequence(m_key[0], m_key[1], m_key[2], m_key[3]);
+        if (scitem->m_cmd->defaultKeySequence() != scitem->m_key) {
+            QFont f = current->font(0);
+            f.setItalic(true);
+            current->setFont(0, f);
+            current->setFont(1, f);
+            f.setBold(true);
+            current->setFont(2, f);
+        } else {
+            QFont f = current->font(0);
+            f.setItalic(false);
+            f.setBold(false);
+            current->setFont(0, f);
+            current->setFont(1, f);
+            current->setFont(2, f);
+        }
         current->setText(2, scitem->m_key);
     }
 }
@@ -333,6 +348,16 @@ void ShortcutSettings::initialize()
         }
 
         item->setText(2, s->m_key);
+        if (s->m_cmd->defaultKeySequence() != s->m_key) {
+            QFont f = item->font(0);
+            f.setItalic(true);
+            item->setFont(0, f);
+            item->setFont(1, f);
+            f.setBold(true);
+            item->setFont(2, f);
+
+        }
+
         item->setData(0, Qt::UserRole, qVariantFromValue(s));
     }
 }

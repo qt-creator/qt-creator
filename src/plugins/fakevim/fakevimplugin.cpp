@@ -390,6 +390,16 @@ void FakeVimExCommandsPage::initialize()
 
         item->setText(2, ci->m_regex);
         item->setData(0, Qt::UserRole, qVariantFromValue(ci));
+
+        if (ci->m_regex != s_defaultExCommandMap[name].pattern()) {
+            QFont f = item->font(0);
+            f.setItalic(true);
+            item->setFont(0, f);
+            item->setFont(1, f);
+            f.setBold(true);
+            item->setFont(2, f);
+        }
+
     }
 
     commandChanged(0);
@@ -402,6 +412,7 @@ void FakeVimExCommandsPage::commandChanged(QTreeWidgetItem *current)
         m_ui.seqGrp->setEnabled(false);
         return;
     }
+
     m_ui.seqGrp->setEnabled(true);
     CommandItem *citem = qVariantValue<CommandItem *>(current->data(0, Qt::UserRole));
     m_ui.regexEdit->setText(citem->m_regex);
@@ -417,14 +428,36 @@ void FakeVimExCommandsPage::filterChanged(const QString &f)
 
 void FakeVimExCommandsPage::regexChanged()
 {
-    UniqueIDManager *uidm = UniqueIDManager::instance();
     QTreeWidgetItem *current = m_ui.commandList->currentItem();
-    if (current && current->data(0, Qt::UserRole).isValid()) {
-        CommandItem *citem = qVariantValue<CommandItem *>(current->data(0, Qt::UserRole));
+    if (!current)
+        return;
+
+    UniqueIDManager *uidm = UniqueIDManager::instance();
+    CommandItem *citem = qVariantValue<CommandItem *>(current->data(0, Qt::UserRole));
+    const QString name = uidm->stringForUniqueIdentifier(citem->m_cmd->id());
+
+    if (current->data(0, Qt::UserRole).isValid()) {
         citem->m_regex = m_ui.regexEdit->text();
         current->setText(2, citem->m_regex);
-        s_exCommandMap[uidm->stringForUniqueIdentifier(citem->m_cmd->id())] = QRegExp(citem->m_regex);
+        s_exCommandMap[name] = QRegExp(citem->m_regex);
     }
+
+    if (citem->m_regex != s_defaultExCommandMap[name].pattern()) {
+        QFont f = current->font(0);
+        f.setItalic(true);
+        current->setFont(0, f);
+        current->setFont(1, f);
+        f.setBold(true);
+        current->setFont(2, f);
+    } else {
+        QFont f = current->font(0);
+        f.setItalic(false);
+        f.setBold(false);
+        current->setFont(0, f);
+        current->setFont(1, f);
+        current->setFont(2, f);
+    }
+
 }
 
 void FakeVimExCommandsPage::setRegex(const QString &regex)
