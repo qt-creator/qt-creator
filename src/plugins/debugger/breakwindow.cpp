@@ -258,7 +258,7 @@ void BreakWindow::contextMenuEvent(QContextMenuEvent *ev)
     else if (act == toggleEnabledAction)
         setBreakpointsEnabled(si, !enabled);
     else if (act == pathAction)
-        setBreakpointsFullPath(si, !enabled);
+        setBreakpointsFullPath(si, !fullpath);
     else if (act == breakAtFunctionAction) {
         BreakByFunctionDialog dlg(this);
         if (dlg.exec())
