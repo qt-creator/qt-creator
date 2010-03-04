@@ -213,7 +213,7 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
         connect(m_target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
                 SLOT(addBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
         connect(m_target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-                SLOT(addBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+                SLOT(removeBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
 
         connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
                 SLOT(setActiveBuildConfiguration()));
