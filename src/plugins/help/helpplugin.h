@@ -177,6 +177,8 @@ private:
 
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_progress;
+
+    bool isInitialised;
 };
 
 } // namespace Internal

@@ -86,6 +86,12 @@
 using namespace Help;
 using namespace Help::Internal;
 
+#if defined(Q_OS_MAC)
+#   define DOCPATH "/../Resources/doc/"
+#else
+#   define DOCPATH "../../share/doc/qtcreator/"
+#endif
+
 HelpPlugin::HelpPlugin()
     : m_core(0),
     m_helpEngine(0),
@@ -100,7 +106,8 @@ HelpPlugin::HelpPlugin()
     m_indexItem(0),
     m_searchItem(0),
     m_bookmarkItem(0),
-    m_rightPaneSideBar(0)
+    m_rightPaneSideBar(0),
+    isInitialised(false)
 {
 }
 
@@ -147,6 +154,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         directory.mkpath(directory.absolutePath());
     m_helpEngine = new QHelpEngine(directory.absolutePath() +
         QLatin1String("/helpcollection.qhc"), this);
+    m_helpEngine->setAutoSaveFilter(false);
 
     helpManager = new HelpManager(this);
     addAutoReleasedObject(helpManager);
@@ -411,49 +419,42 @@ void HelpPlugin::setFilesToRegister(const QStringList &files)
 
 void HelpPlugin::pluginUpdateDocumentation()
 {
-    updateDocumentation();
+    if (isInitialised)
+        updateDocumentation();
 }
 
 bool HelpPlugin::updateDocumentation()
 {
     bool needsSetup = false;
-    {
-        QHelpEngineCore hc(m_helpEngine->collectionFile());
-        if (hc.setupData()) {
-            const QStringList &registeredDocs = hc.registeredDocumentations();
-            foreach (const QString &nameSpace, registeredDocs) {
-                const QString &file = hc.documentationFileName(nameSpace);
-                if (QFileInfo(file).exists())
-                    continue;
+    const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
+    foreach (const QString &nameSpace, registeredDocs) {
+        const QString &file = m_helpEngine->documentationFileName(nameSpace);
+        if (QFileInfo(file).exists())
+            continue;
 
-                if (!hc.unregisterDocumentation(nameSpace)) {
-                    qWarning() << "Error unregistering namespace '"
-                        << nameSpace << "' from file '" << file << "': "
-                        << hc.error();
-                } else {
-                    needsSetup = true;
-                }
-            }
-
-            while (!filesToRegister.isEmpty()) {
-                const QString &file = filesToRegister.takeFirst();
-                if (!QFileInfo(file).exists())
-                    continue;
-                const QString &nameSpace = hc.namespaceName(file);
-                if (nameSpace.isEmpty())
-                    continue;
-                if (!hc.registeredDocumentations().contains(nameSpace)) {
-                    if (hc.registerDocumentation(file)) {
-                        needsSetup = true;
-                    } else {
-                        qWarning() << "error registering" << file << hc.error();
-                    }
-                }
-            }
+        if (!m_helpEngine->unregisterDocumentation(nameSpace)) {
+            qWarning() << "Error unregistering namespace '"
+                << nameSpace << "' from file '" << file << "': "
+                << m_helpEngine->error();
         } else {
-            qWarning() << "Could not initialize help engine:" << hc.error();
+            needsSetup = true;
         }
     }
+
+    foreach (const QString &file, filesToRegister) {
+        const QString &nameSpace = m_helpEngine->namespaceName(file);
+        if (nameSpace.isEmpty())
+            continue;
+        if (!m_helpEngine->registeredDocumentations().contains(nameSpace)) {
+            if (m_helpEngine->registerDocumentation(file)) {
+                needsSetup = true;
+            } else {
+                qWarning() << "error registering" << file << m_helpEngine->error();
+            }
+        }
+    }
+    filesToRegister.clear();
+
     if (needsSetup)
         m_helpEngine->setupData();
     return needsSetup;
@@ -611,16 +612,6 @@ void HelpPlugin::extensionsInitialized()
             m_helpEngine->removeCustomFilter(filter);
     }
 
-    if (!assistantInternalDocRegistered) {
-        const QString &internalDoc = QCoreApplication::applicationDirPath()
-#if defined(Q_OS_MAC)
-            + QLatin1String("/../Resources/doc/qtcreator.qch");
-#else
-            + QLatin1String("../../share/doc/qtcreator/qtcreator.qch");
-#endif
-        filesToRegister.append(QDir::cleanPath(internalDoc));
-    }
-
     const QLatin1String weAddedFilterKey("UnfilteredFilterInserted");
     const QLatin1String previousFilterNameKey("UnfilteredFilterName");
     if (m_helpEngine->customValue(weAddedFilterKey).toInt() == 1) {
@@ -639,8 +630,31 @@ void HelpPlugin::extensionsInitialized()
     m_helpEngine->setCustomValue(previousFilterNameKey, filterName);
     m_helpEngine->setCurrentFilter(filterName);
 
+    m_bookmarkManager->setupBookmarkModels();
+
     m_helpEngine->blockSignals(blocked);
 
+    connect(m_helpEngine, SIGNAL(setupFinished()), this,
+        SLOT(updateFilterComboBox()));
+    connect(m_helpEngine->searchEngine(), SIGNAL(indexingStarted()), this,
+        SLOT(indexingStarted()));
+    connect(m_helpEngine->searchEngine(), SIGNAL(indexingFinished()), this,
+        SLOT(indexingFinished()));
+
+    // Explicitly register qml.qch if located in creator directory. This is only
+    // needed for the creator-qml package, were we want to ship the documentation
+    // without a qt development version.
+    const QString &appPath = QCoreApplication::applicationDirPath();
+    filesToRegister.append(QDir::cleanPath(QDir::cleanPath(appPath
+            + QLatin1String(DOCPATH "qml.qch"))));
+
+    // we might need to register creators inbuild help
+    if (!assistantInternalDocRegistered) {
+        filesToRegister.append(QDir::cleanPath(appPath
+            + QLatin1String(DOCPATH "qtcreator.qch")));
+    }
+
+    // this comes from the installer
     const QLatin1String key("AddedDocs");
     const QString &addedDocs = m_helpEngine->customValue(key).toString();
     if (!addedDocs.isEmpty()) {
@@ -648,19 +662,11 @@ void HelpPlugin::extensionsInitialized()
         filesToRegister += addedDocs.split(QLatin1Char(';'));
     }
 
-    connect(m_helpEngine->searchEngine(), SIGNAL(indexingStarted()), this,
-        SLOT(indexingStarted()));
-    connect(m_helpEngine->searchEngine(), SIGNAL(indexingFinished()), this,
-        SLOT(indexingFinished()));
-
     if (!updateDocumentation()) {
         // if no documentation has been added, we need to force a setup data,
         // otherwise it has already been run in updateDocumentation
         m_helpEngine->setupData();
     }
-
-    updateFilterComboBox();
-    m_bookmarkManager->setupBookmarkModels();
 
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
@@ -689,10 +695,10 @@ void HelpPlugin::extensionsInitialized()
     connect(m_centralWidget, SIGNAL(viewerAboutToBeRemoved(int)), this,
         SLOT(removeViewerFromComboBox(int)));
 
-    connect(m_helpEngine, SIGNAL(setupFinished()), this,
-        SLOT(updateFilterComboBox()));
     connect(helpManager, SIGNAL(helpPluginUpdateDocumentation()), this,
         SLOT(pluginUpdateDocumentation()));
+
+    isInitialised = true;
 }
 
 void HelpPlugin::shutdown()
@@ -821,7 +827,7 @@ HelpViewer* HelpPlugin::viewerForContextMode()
             // side by side
             showSideBySide = true;
         }   break;
-    
+
         default: // help mode
             break;
     }
