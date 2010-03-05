@@ -1829,20 +1829,41 @@ def qdump__std__string(d, item):
     check(rep['_M_refcount'] >= 0)
     check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     d.unputField("type")
+    p = gdb.Value(data.cast(charType.pointer()))
+    s = ""
     if str(charType) == "char":
         d.putType("std::string")
     elif str(charType) == "wchar_t":
-        d.putType("std::string")
+        d.putType("std::wstring")
     else:
         d.putType(baseType)
-    p = gdb.Value(data.cast(charType.pointer()))
-    s = ""
-    format = "%%0%dx" % (2 * charType.sizeof)
+
     n = qmin(size, 1000)
-    for i in xrange(size):
-        s += format % int(p.dereference())
-        p += 1
-    d.putValue(s, 6)
+    if charType.sizeof == 1:
+        format = "%02x"
+        for i in xrange(size):
+            s += format % int(p.dereference())
+            p += 1
+        d.putValue(s, 6)
+        d.putNumChild(0)
+    elif charType.sizeof == 2:
+        format = "%02x%02x"
+        for i in xrange(size):
+            val = int(p.dereference())
+            s += format % (val % 256, val / 256)
+            p += 1
+        d.putValue(s, 7)
+    else:
+        # FIXME: This is not always a proper solution.
+        format = "%02x%02x%02x%02x"
+        for i in xrange(size):
+            val = int(p.dereference())
+            hi = val / 65536
+            lo = val % 65536
+            s += format % (lo % 256, lo / 256, hi % 256, hi / 256)
+            p += 1
+        d.putValue(s, 8)
+
     d.putNumChild(0)
 
 

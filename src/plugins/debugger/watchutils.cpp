@@ -646,12 +646,19 @@ QString decodeData(const QByteArray &ba, int encoding)
             //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromLatin1(decodedBa) + doubleQuote;
         }
-        case 7: { //  %04x encoded 16 bit data
+        case 7: { //  %04x encoded 16 bit data, Little Endian
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromUtf16(reinterpret_cast<const ushort *>
                 (decodedBa.data()), decodedBa.size() / 2) + doubleQuote;
+        }
+        case 8: { //  %08x encoded 32 bit data, Little Endian
+            const QChar doubleQuote(QLatin1Char('"'));
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
+            return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
+                (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
         }
     }
     qDebug() << "ENCODING ERROR: " << encoding;
