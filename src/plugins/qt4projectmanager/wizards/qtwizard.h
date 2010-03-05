@@ -35,6 +35,7 @@
 
 #include <coreplugin/basefilewizard.h>
 
+#include <QtCore/QSet>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -102,7 +103,7 @@ protected:
     virtual ~BaseQt4ProjectWizardDialog();
 
     void addModulesPage(int id = -1);
-    void addTargetsPage(int id = -1);
+    void addTargetsPage(QSet<QString> targets = QSet<QString>(), int id = -1);
 
 public:
     QString selectedModules() const;

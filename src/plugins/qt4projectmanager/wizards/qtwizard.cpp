@@ -211,9 +211,14 @@ void BaseQt4ProjectWizardDialog::addModulesPage(int id)
     }
 }
 
-void BaseQt4ProjectWizardDialog::addTargetsPage(int id)
+void BaseQt4ProjectWizardDialog::addTargetsPage(QSet<QString> targets, int id)
 {
     if (!m_targetsPage)
+        return;
+
+    m_targetsPage->setValidTargets(targets);
+
+    if (!m_targetsPage->needToDisplayPage())
         return;
 
     if (id >= 0)
