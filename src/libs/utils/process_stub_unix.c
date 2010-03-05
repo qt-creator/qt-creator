@@ -32,7 +32,12 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/wait.h>
-#include <sys/ptrace.h>
+#ifdef __sun
+# define PT_TRACE_ME 0
+# define PT_DETACH 7
+#else
+# include <sys/ptrace.h>
+#endif
 #include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
