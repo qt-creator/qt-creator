@@ -304,7 +304,7 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     nodeInfo.setQmlFile(fileInfo.filePath());
 
     // Add file components to the library
-    nodeInfo.setCategory(tr("Qml Component"));
+    nodeInfo.setCategory(tr("Qml Components"));
     nodeInfo.setIsVisibleToItemLibrary(true);
 
     m_metaInfo.addItemLibraryInfo(nodeInfo, componentName);
