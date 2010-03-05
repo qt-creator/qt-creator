@@ -645,14 +645,14 @@ class FrameCommand(gdb.Command):
         #
         # Breakpoints
         #
-        breakpoints = ""
-        d.safeoutput = ""
-        listOfBreakpoints(d)
-        d.pushOutput()
-        breakpoints = d.safeoutput
+        #breakpoints = ""
+        #d.safeoutput = ""
+        #listOfBreakpoints(d)
+        #d.pushOutput()
+        #breakpoints = d.safeoutput
 
-        print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
-        #print('data=[' + locals + sep + watchers + ']\n')
+        #print('data=[' + locals + sep + watchers + '],bkpts=[' + breakpoints + ']\n')
+        print('data=[' + locals + sep + watchers + ']\n')
 
 
     def handleWatch(self, d, exp, iname):
