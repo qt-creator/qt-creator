@@ -2303,6 +2303,8 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
     QPointF offset(contentOffset());
 
     bool hasMainSelection = textCursor().hasSelection();
+    bool suppressSyntaxInIfdefedOutBlock = (d->m_ifdefedOutFormat.foreground()
+                                           != palette().foreground());
 
     QRect er = e->rect();
     QRect viewportRect = viewport()->rect();
@@ -2469,17 +2471,15 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
 
             QTextLayout *layout = block.layout();
 
-#if 0
             QTextOption option = layout->textOption();
-            if (TextEditDocumentLayout::ifdefedOut(block)) {
-                option.setFlags(option.flags() /*| QTextOption::SuppressColors*/);
+            if (suppressSyntaxInIfdefedOutBlock && TextEditDocumentLayout::ifdefedOut(block)) {
+                option.setFlags(option.flags() | QTextOption::SuppressColors);
                 painter.setPen(d->m_ifdefedOutFormat.foreground().color());
             } else {
                 option.setFlags(option.flags() & ~QTextOption::SuppressColors);
                 painter.setPen(context.palette.text().color());
             }
             layout->setTextOption(option);
-#endif
 
             int blpos = block.position();
             int bllen = block.length();
