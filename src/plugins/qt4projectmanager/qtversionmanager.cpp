@@ -1255,7 +1255,7 @@ void QtVersion::updateToolChainAndMkspec() const
             m_targetIds.insert(QLatin1String(S60_DEVICE_TARGET_ID));
 #    endif
         }
-    } else if (qt_arch == "arm"
+    } else if (qt_arch.startsWith(QLatin1String("arm"))
                && MaemoManager::instance().isValidMaemoQtVersion(this)) {
         m_toolChains << ToolChainPtr(MaemoManager::instance().maemoToolChain(this));
         m_targetIds.insert(QLatin1String(MAEMO_DEVICE_TARGET_ID));
