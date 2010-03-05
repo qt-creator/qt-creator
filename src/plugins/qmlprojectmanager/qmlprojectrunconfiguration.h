@@ -33,12 +33,19 @@
 #include "qmlprojectmanager_global.h"
 #include <projectexplorer/runconfiguration.h>
 
+namespace Core {
+    class IEditor;
+}
+
 namespace QmlProjectManager {
 
 namespace Internal {
 class QmlProjectTarget;
 class QmlProjectRunConfigurationFactory;
+
 }
+
+const char * const CURRENT_FILE  = QT_TRANSLATE_NOOP("QmlManager", "<Current File>");
 
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -50,6 +57,8 @@ public:
     virtual ~QmlProjectRunConfiguration();
 
     Internal::QmlProjectTarget *qmlTarget() const;
+
+    bool isEnabled(ProjectExplorer::BuildConfiguration *bc) const;
 
     QString viewerPath() const;
     QStringList viewerArguments() const;
@@ -63,8 +72,10 @@ public:
     QVariantMap toMap() const;
 
 private slots:
+    void changeCurrentFile(Core::IEditor*);
     QString mainScript() const;
     void setMainScript(const QString &scriptFile);
+
     void onViewerChanged();
     void onViewerArgsChanged();
     void onDebugServerAddressChanged();
@@ -73,9 +84,15 @@ private slots:
 protected:
     QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent, QmlProjectRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
+    void setEnabled(bool value);
 
 private:
     void ctor();
+
+    // absolute path to current file (if being used)
+    QString m_currentFileFilename;
+    // absolute path to selected main script (if being used)
+    QString m_mainScriptFilename;
 
     QString m_scriptFile;
     QString m_qmlViewerCustomPath;
@@ -83,6 +100,10 @@ private:
     QString m_qmlViewerArgs;
     QString m_debugServerAddress;
     uint m_debugServerPort;
+
+    bool m_usingCurrentFile;
+    bool m_isEnabled;
+
 };
 
 } // namespace QmlProjectManager
