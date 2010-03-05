@@ -1344,6 +1344,7 @@ void ProjectExplorerPlugin::setCurrent(Project *project, QString filePath, Node 
             newContext = project->projectManager()->projectContext();
             newLanguageID = project->projectManager()->projectLanguage();
         }
+
         core->removeAdditionalContext(oldContext);
         core->removeAdditionalContext(oldLanguageID);
         core->addAdditionalContext(newContext);
@@ -1685,6 +1686,9 @@ void ProjectExplorerPlugin::startupProjectChanged()
     if (previousStartupProject) {
         disconnect(previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                    this, SLOT(updateRunActions()));
+        disconnect(previousStartupProject->activeTarget()->activeRunConfiguration(),
+                   SIGNAL(isEnabledChanged(bool)), this, SLOT(updateRunActions()));
+
         foreach (Target *t, previousStartupProject->targets())
             disconnect(t, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
                        this, SLOT(updateActions()));
@@ -1694,6 +1698,8 @@ void ProjectExplorerPlugin::startupProjectChanged()
 
     if (project) {
         connect(project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+                this, SLOT(updateRunActions()));
+        connect(previousStartupProject->activeTarget()->activeRunConfiguration(), SIGNAL(isEnabledChanged(bool)),
                 this, SLOT(updateRunActions()));
         foreach (Target *t, project->targets())
             connect(t, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
@@ -1726,8 +1732,10 @@ void ProjectExplorerPlugin::updateRunActions()
         return;
     }
 
-    bool canRun = findRunControlFactory(project->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
-    const bool canDebug = !d->m_debuggingRunControl && findRunControlFactory(project->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE);
+    bool canRun = findRunControlFactory(project->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE)
+                  && project->activeTarget()->activeRunConfiguration()->isEnabled();
+    const bool canDebug = !d->m_debuggingRunControl && findRunControlFactory(project->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE)
+                          && project->activeTarget()->activeRunConfiguration()->isEnabled();
     const bool building = d->m_buildManager->isBuilding();
     d->m_runAction->setEnabled(canRun && !building);
 

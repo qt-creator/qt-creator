@@ -79,6 +79,9 @@ public:
 
     Target *target() const;
 
+signals:
+    void isEnabledChanged(bool value);
+
 protected:
     RunConfiguration(Target *parent, const QString &id);
     RunConfiguration(Target *parent, RunConfiguration *source);

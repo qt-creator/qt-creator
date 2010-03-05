@@ -32,6 +32,8 @@
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojecttarget.h"
 
+#include <coreplugin/mimedatabase.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
@@ -51,7 +53,9 @@ namespace QmlProjectManager {
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarget *parent) :
     ProjectExplorer::RunConfiguration(parent, QLatin1String(Constants::QML_RC_ID)),
     m_debugServerAddress("127.0.0.1"),
-    m_debugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT)
+    m_debugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
+    m_usingCurrentFile(false),
+    m_isEnabled(false)
 {
     ctor();
 }
@@ -67,8 +71,24 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
     ctor();
 }
 
+bool QmlProjectRunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *bc) const
+{
+    Q_UNUSED(bc);
+
+    if (!QFile::exists(mainScript())
+        || !Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).matchesType(QLatin1String("application/x-qml")))
+    {
+        return false;
+    }
+    return true;
+}
+
 void QmlProjectRunConfiguration::ctor()
 {
+    Core::EditorManager *em = Core::EditorManager::instance();
+    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(changeCurrentFile(Core::IEditor*)));
+
     setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 
     // prepend creator/bin dir to search path (only useful for special creator-qml package)
@@ -193,14 +213,10 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
 
 QString QmlProjectRunConfiguration::mainScript() const
 {
-    if (m_scriptFile.isEmpty() || m_scriptFile == tr("<Current File>")) {
-        Core::EditorManager *editorManager = Core::ICore::instance()->editorManager();
-        if (Core::IEditor *editor = editorManager->currentEditor()) {
-            return editor->file()->fileName();
-        }
-    }
+    if (m_usingCurrentFile)
+        return m_currentFileFilename;
 
-    return qmlTarget()->qmlProject()->projectDir().absoluteFilePath(m_scriptFile);
+    return m_mainScriptFilename;
 }
 
 void QmlProjectRunConfiguration::onDebugServerAddressChanged()
@@ -212,6 +228,15 @@ void QmlProjectRunConfiguration::onDebugServerAddressChanged()
 void QmlProjectRunConfiguration::setMainScript(const QString &scriptFile)
 {
     m_scriptFile = scriptFile;
+
+    if (m_scriptFile.isEmpty() || m_scriptFile == CURRENT_FILE) {
+        m_usingCurrentFile = true;
+        changeCurrentFile(Core::EditorManager::instance()->currentEditor());
+    } else {
+        m_usingCurrentFile = false;
+        m_mainScriptFilename = qmlTarget()->qmlProject()->projectDir().absoluteFilePath(scriptFile);
+        setEnabled(true);
+    }
 }
 
 void QmlProjectRunConfiguration::onViewerChanged()
@@ -250,11 +275,32 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_qmlViewerCustomPath = map.value(QLatin1String(Constants::QML_VIEWER_KEY)).toString();
     m_qmlViewerArgs = map.value(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY)).toString();
-    m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), tr("<Current File>")).toString();
+    m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), CURRENT_FILE).toString();
     m_debugServerPort = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
     m_debugServerAddress = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_ADDRESS_KEY), QLatin1String("127.0.0.1")).toString();
+    setMainScript(m_scriptFile);
 
     return RunConfiguration::fromMap(map);
+}
+
+void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
+{
+    if (m_usingCurrentFile) {
+        bool enable = false;
+        if (editor) {
+            m_currentFileFilename = editor->file()->fileName();
+            if (Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).matchesType(QLatin1String("application/x-qml")))
+                enable = true;
+        }
+
+        setEnabled(enable);
+    }
+}
+
+void QmlProjectRunConfiguration::setEnabled(bool value)
+{
+    m_isEnabled = value;
+    emit isEnabledChanged(m_isEnabled);
 }
 
 } // namespace QmlProjectManager
