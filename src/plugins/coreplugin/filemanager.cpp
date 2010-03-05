@@ -720,7 +720,9 @@ void FileManager::checkForReload()
 
     IFile::ReloadBehavior behavior = EditorManager::instance()->reloadBehavior();
 
+    QStringList allFileNames;
     foreach(const QString &fileName, d->m_changedFiles) {
+        allFileNames << fileName;
         // Get the information from the filesystem
         QFileInfo fi(fileName);
         bool expected = false;
@@ -756,13 +758,12 @@ void FileManager::checkForReload()
                 }
                 updateFileInfo(it.key());
             }
-
         }
-
-        d->m_fileWatcher->removePath(fileName);
-        d->m_fileWatcher->addPath(fileName);
     }
-
+    if (!allFileNames.isEmpty()) {
+        d->m_fileWatcher->removePaths(allFileNames);
+        d->m_fileWatcher->addPaths(allFileNames);
+    }
     d->m_changedFiles.clear();
     d->m_blockActivated = false;
 }
