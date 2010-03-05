@@ -360,9 +360,10 @@ Rectangle {
                     border.color:"#4f4f4f"
                     radius:4
                     function unFocus() {
-                        if (visible)
+                        if (visible) {
+                            visible=false;
                             statesEditorModel.renameState(index,stateNameInput.text);
-                        visible=false;
+                        }
                     }
 
                     // There is no QFontMetrics equivalent in QML
@@ -399,8 +400,10 @@ Rectangle {
                                     x = -cM;
                             }
                             onAccepted: {
-                                statesEditorModel.renameState(index,text);
-                                stateNameEditor.visible=false;
+                                if (stateNameEditor.visible) {
+                                    stateNameEditor.visible=false;
+                                    statesEditorModel.renameState(index,text);
+                                }
                             }
                         }
                     }

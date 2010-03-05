@@ -31,6 +31,7 @@
 #include "stateseditorview.h"
 
 #include <QtCore/QDebug>
+#include <QMessageBox>
 
 enum {
     debug = false
@@ -118,10 +119,14 @@ void StatesEditorModel::renameState(int i, const QString &newName)
     Q_ASSERT(i > 0 && i < m_stateNames.count());
 
     if (m_stateNames[i] != newName) {
-        m_stateNames.replace(i, newName);
-        m_statesView->renameState(i,newName);
+        if (m_stateNames.contains(newName) || newName.isEmpty()) {
+            QMessageBox::warning(0, tr("Invalid state name"), newName.isEmpty()?tr("The empty string as a name is reserved for the base state."):tr("Name already used in another state"));
+        } else {
+            m_stateNames.replace(i, newName);
+            m_statesView->renameState(i,newName);
 
-        emit dataChanged(createIndex(i, 0), createIndex(i, 0));
+            emit dataChanged(createIndex(i, 0), createIndex(i, 0));
+        }
     }
 }
 
