@@ -128,7 +128,7 @@ private slots:
     void syncWithEditor(Core::IContext *context);
 
 private:
-    void addFileInfo(IFile *file, bool addWatcher = true);
+    void addFileInfo(IFile *file);
     void removeFileInfo(IFile *file);
     void removeFileInfo(const QString &fileName, IFile *file);
 
