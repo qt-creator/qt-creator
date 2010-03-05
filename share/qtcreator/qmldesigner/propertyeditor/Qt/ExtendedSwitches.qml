@@ -13,7 +13,7 @@ QFrame {
 
     opacity: 0;
 
-    opacity: Behavior {
+    Behavior on opacity {
         NumberAnimation {
             easing.type: "InSine"
             duration: 200

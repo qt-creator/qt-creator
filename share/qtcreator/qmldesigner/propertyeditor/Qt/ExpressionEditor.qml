@@ -32,13 +32,13 @@ QWidget {
         if (opacity == 0)
             lower();
     }
-    opacity: Behavior {
+    Behavior on opacity {
         NumberAnimation {
             duration: 100
         }
     }
 
-    height: Behavior {
+    Behavior on height {
         NumberAnimation {
             duration: 100
         }
