@@ -906,7 +906,7 @@ QCH_FILE               = ../qch/qt-creator-api.qch
 # Qt Help Project output. For more information please see
 # http://doc.trolltech.com/qthelpproject.html#namespace
 
-QHP_NAMESPACE          = com.qtsoftware.qt-creator.1
+QHP_NAMESPACE          = com.nokia.qtcreator.1382
 
 # The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating
 # Qt Help Project output. For more information please see
