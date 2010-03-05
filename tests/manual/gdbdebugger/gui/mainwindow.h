@@ -31,11 +31,14 @@
 #define MAINWINDOW_H
 
 #include <QtGui/QMainWindow>
+
+QT_BEGIN_NAMESPACE
 class QThread;
 
 namespace Ui{
     class MainWindowClass;
 }
+QT_END_NAMESPACE
 
 namespace Foo {
 class MainWindow : public QMainWindow
