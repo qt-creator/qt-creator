@@ -19,7 +19,7 @@ Image {
           scale: 0
 
           //Animation
-          scale: SequentialAnimation {
+          SequentialAnimation on scale {
             running: true
             NumberAnimation {
                   to: 1
