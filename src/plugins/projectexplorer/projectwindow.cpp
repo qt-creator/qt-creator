@@ -262,10 +262,18 @@ void ProjectWindow::shutdown()
 
 void ProjectWindow::projectAdded(ProjectExplorer::Project *project)
 {
-    QList<Project *> projects = ProjectExplorerPlugin::instance()->session()->projects();
-    int index = projects.indexOf(project);
-    if (index < 0)
+    if (!project || m_tabIndexToProject.contains(project))
         return;
+
+    // find index to insert:
+    int index = -1;
+    for (int i = 0; i <= m_tabIndexToProject.count(); ++i) {
+        if (i == m_tabIndexToProject.count() ||
+            m_tabIndexToProject.at(i)->displayName() > project->displayName()) {
+            index = i;
+            break;
+        }
+    }
 
     QStringList subtabs;
     foreach (IPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<IPanelFactory>()) {
@@ -281,6 +289,8 @@ void ProjectWindow::projectAdded(ProjectExplorer::Project *project)
 void ProjectWindow::aboutToRemoveProject(ProjectExplorer::Project *project)
 {
     int index = m_tabIndexToProject.indexOf(project);
+    if (index < 0)
+        return;
     m_tabIndexToProject.removeAt(index);
     m_tabWidget->removeTab(index);
 }
