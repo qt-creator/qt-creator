@@ -307,8 +307,8 @@ def qdump__QHashNode(d, item):
     key = item.value["key"]
     value = item.value["value"]
 
-    if isSimpleType(valueType):
-        d.safePutItemHelper(Item(value))
+    if isSimpleType(keyType) and isSimpleType(valueType):
+        d.safePutItemHelper(Item(value, "data", item.iname))
     else:
         d.putValue(" ")
 
