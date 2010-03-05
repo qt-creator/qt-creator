@@ -162,6 +162,10 @@ StatesEditorWidget::StatesEditorWidget(QWidget *parent):
 
     m_d->listView->rootContext()->setContextProperty(QLatin1String("statesEditorModel"), m_d->statesEditorModel.data());
 
+    // Work around ASSERT in the internal QGraphicsScene that happens when
+    // the scene is created + items set dirty in one event loop run (BAUHAUS-459)
+    QApplication::processEvents();
+
     m_d->listView->setSource(QUrl("qrc:/stateseditor/stateslist.qml"));
 
     if (!m_d->listView->rootObject())
