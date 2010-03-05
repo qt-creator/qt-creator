@@ -8,6 +8,7 @@ import traceback
 import gdb
 import base64
 import os
+import __builtin__
 
 if os.name != "nt":
     import curses.ascii
@@ -32,7 +33,7 @@ def qmin(n, m):
 def isGoodGdb():
     #return gdb.VERSION.startswith("6.8.50.2009") \
     #   and gdb.VERSION != "6.8.50.20090630-cvs"
-    return 'parse_and_eval' in dir(gdb)
+    return 'parse_and_eval' in __builtin__.dir(gdb)
 
 def cleanAddress(addr):
     if addr is None:
@@ -202,7 +203,7 @@ def listOfLocals(varList):
         return []
 
     # gdb-6.8-symbianelf fails here
-    hasBlock = 'block' in dir(frame)
+    hasBlock = 'block' in __builtin__.dir(frame)
 
     items = []
     if hasBlock and isGoodGdb():
