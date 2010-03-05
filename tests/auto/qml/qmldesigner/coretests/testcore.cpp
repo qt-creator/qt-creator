@@ -823,12 +823,12 @@ void TestCore::testModelNodeListProperty()
     QVERIFY(rootChildren.isNodeListProperty());
     QVERIFY(!rootChildren.isEmpty());
 
-    ModelNode mouseRegionNode = view->createModelNode("Qt/Item", 4, 6);
+    ModelNode mouseAreaNode = view->createModelNode("Qt/Item", 4, 6);
     NodeListProperty rectChildren = rectNode.nodeListProperty("children");
-    rectChildren.reparentHere(mouseRegionNode);
+    rectChildren.reparentHere(mouseAreaNode);
 
     //
-    // Item { children: [ Rectangle { children : [ MouseRegion {} ] } ] }
+    // Item { children: [ Rectangle { children : [ MouseArea {} ] } ] }
     //
     QVERIFY(rectNode.hasProperty("children"));
     QVERIFY(rectChildren.isValid());
@@ -841,7 +841,7 @@ void TestCore::testModelNodeListProperty()
     // Item { }
     //
     QVERIFY(!rectNode.isValid());
-    QVERIFY(!mouseRegionNode.isValid());
+    QVERIFY(!mouseAreaNode.isValid());
     QVERIFY(!rootNode.hasProperty("children"));
     QVERIFY(rootChildren.isValid());
     QVERIFY(!rootChildren.isNodeListProperty());
@@ -5286,12 +5286,12 @@ void TestCore::testRewriterAddObjectDefinition()
     QVERIFY(rootNode.isValid());
     QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
 
-    ModelNode childNode = view->createModelNode("Qt/MouseRegion", 4, 6);
+    ModelNode childNode = view->createModelNode("Qt/MouseArea", 4, 6);
     rootNode.nodeAbstractProperty(QLatin1String("data")).reparentHere(childNode);
 
     QCOMPARE(rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().size(), 1);
     childNode = rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().at(0);
-    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseRegion")));
+    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseArea")));
 }
 
 void TestCore::testRewriterAddStatesArray()
@@ -5416,9 +5416,9 @@ void TestCore::testRewriterRemoveObjectDefinition()
                                   "import Qt 4.6\n"
                                   "\n"
                                   "Rectangle {\n"
-                                  "  MouseRegion {\n"
+                                  "  MouseArea {\n"
                                   "  }\n"
-                                  "  MouseRegion {\n"
+                                  "  MouseArea {\n"
                                   "  } // some comment here\n"
                                   "}");
     QPlainTextEdit textEdit;
@@ -5442,13 +5442,13 @@ void TestCore::testRewriterRemoveObjectDefinition()
 
     QCOMPARE(rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().size(), 2);
     ModelNode childNode = rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().at(1);
-    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseRegion")));
+    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseArea")));
 
     childNode.destroy();
 
     QCOMPARE(rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().size(), 1);
     childNode = rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().at(0);
-    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseRegion")));
+    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseArea")));
 
     childNode.destroy();
 
@@ -5529,7 +5529,7 @@ void TestCore::testRewriterNodeReparenting()
                                   "\n"
                                   "Rectangle {\n"
                                   "  Item {\n"
-                                  "    MouseRegion {\n"
+                                  "    MouseArea {\n"
                                   "    }\n"
                                   "  }\n"
                                   "}");
@@ -5556,13 +5556,13 @@ void TestCore::testRewriterNodeReparenting()
     QVERIFY(itemNode.isValid());
     QCOMPARE(itemNode.type(), QLatin1String("Qt/Item"));
 
-    ModelNode mouseRegion = itemNode.nodeListProperty("data").toModelNodeList().at(0);
-    QVERIFY(mouseRegion.isValid());
-    QCOMPARE(mouseRegion.type(), QLatin1String("Qt/MouseRegion"));
+    ModelNode mouseArea = itemNode.nodeListProperty("data").toModelNodeList().at(0);
+    QVERIFY(mouseArea.isValid());
+    QCOMPARE(mouseArea.type(), QLatin1String("Qt/MouseArea"));
 
-    rootNode.nodeListProperty("data").reparentHere(mouseRegion);
+    rootNode.nodeListProperty("data").reparentHere(mouseArea);
 
-    QVERIFY(mouseRegion.isValid());
+    QVERIFY(mouseArea.isValid());
     QCOMPARE(rootNode.nodeListProperty("data").toModelNodeList().size(), 2);
 
     QString expected =  "\n"
@@ -5572,7 +5572,7 @@ void TestCore::testRewriterNodeReparenting()
                         "  Item {\n"
                         "  }\n"
                         "\n"
-                        "MouseRegion {\n"
+                        "MouseArea {\n"
                         "    }\n"
                         "}";
     QCOMPARE(textEdit.toPlainText(), expected);
@@ -5594,7 +5594,7 @@ void TestCore::testRewriterNodeReparenting()
                 "  Item {\n"
                 "  }\n"
                 "\n"
-                "MouseRegion {\n"
+                "MouseArea {\n"
                 "    }\n"
                 "\n"
                 "    Rectangle {\n"
@@ -5618,7 +5618,7 @@ void TestCore::testRewriterNodeReparenting()
                 "  Item {\n"
                 "  }\n"
                 "\n"
-                "MouseRegion {\n"
+                "MouseArea {\n"
                 "    }\n"
                 "}";
 
@@ -5721,14 +5721,14 @@ void TestCore::testRewriterMovingInOut()
     QVERIFY(rootNode.isValid());
     QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
 
-    ModelNode newNode = view->createModelNode("Qt/MouseRegion", 4, 6);
+    ModelNode newNode = view->createModelNode("Qt/MouseArea", 4, 6);
     rootNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
     const QLatin1String expected1("\n"
                                   "import Qt 4.6\n"
                                   "\n"
                                   "Rectangle {\n"
-                                  "MouseRegion {\n"
+                                  "MouseArea {\n"
                                   "}\n"
                                   "}");
     QCOMPARE(textEdit.toPlainText(), expected1);
@@ -5779,7 +5779,7 @@ void TestCore::testRewriterMovingInOutWithTransaction()
 
     RewriterTransaction transaction = view->beginRewriterTransaction();
 
-    ModelNode newNode = view->createModelNode("Qt/MouseRegion", 4, 6);
+    ModelNode newNode = view->createModelNode("Qt/MouseArea", 4, 6);
     rootNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
 #define move(node, x, y) {\
@@ -5831,7 +5831,7 @@ void TestCore::testRewriterComplexMovingInOut()
     QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
     ModelNode itemNode = rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(0);
 
-    ModelNode newNode = view->createModelNode("Qt/MouseRegion", 4, 6);
+    ModelNode newNode = view->createModelNode("Qt/MouseArea", 4, 6);
     rootNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
     const QLatin1String expected1("\n"
@@ -5841,7 +5841,7 @@ void TestCore::testRewriterComplexMovingInOut()
                                   "  Item {\n"
                                   "  }\n"
                                   "\n"
-                                  "  MouseRegion {\n"
+                                  "  MouseArea {\n"
                                   "  }\n"
                                   "}");
     QCOMPARE(textEdit.toPlainText(), expected1);
@@ -5861,7 +5861,7 @@ void TestCore::testRewriterComplexMovingInOut()
                                   "  Item {\n"
                                   "  }\n"
                                   "\n"
-                                  "  MouseRegion {\n"
+                                  "  MouseArea {\n"
                                   "  x: 3\n"
                                   "  y: 3\n"
                                   "  }\n"
@@ -5875,7 +5875,7 @@ void TestCore::testRewriterComplexMovingInOut()
                                   "\n"
                                   "Rectangle {\n"
                                   "  Item {\n"
-                                  "MouseRegion {\n"
+                                  "MouseArea {\n"
                                   "  x: 3\n"
                                   "  y: 3\n"
                                   "  }\n"

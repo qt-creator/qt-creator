@@ -8,7 +8,7 @@ Item {
 	}
 If you delete the name maybe the 'id:' should be deleted as well.
 
-This is fine for most other QML elements such as Rectangle and MouseRegion
+This is fine for most other QML elements such as Rectangle and MouseArea
 
 ----------------
 

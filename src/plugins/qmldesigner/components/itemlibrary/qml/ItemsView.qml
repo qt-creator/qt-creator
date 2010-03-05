@@ -59,7 +59,7 @@ Rectangle {
     /* workaround: without this, a completed drag and drop operation would
                    result in the drag being continued when QmlView re-gains
                    focus */
-    MouseRegion {
+    MouseArea {
         anchors.fill: parent
         hoverEnabled: true
         onEntered: if (!pressed) itemsView.stopDragAndDrop

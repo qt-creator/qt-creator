@@ -111,8 +111,8 @@ Item {
         color: style.itemNameTextColor
     }
 
-    MouseRegion {
-        id: mouseRegion
+    MouseArea {
+        id: mouseArea
         anchors.fill: parent
 
         property bool reallyPressed: false

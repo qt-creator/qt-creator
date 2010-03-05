@@ -22,7 +22,7 @@ Item {
                     text: modelData.name + "(" + modelData.engineId + ")"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
-                MouseRegion {
+                MouseArea {
                     anchors.fill: parent
                     onClicked: root.engineClicked(modelData.engineId);
                 }
@@ -38,7 +38,7 @@ Item {
         height: 63; 
         smooth: true 
         anchors.right: parent.right
-        MouseRegion {
+        MouseArea {
             anchors.fill: parent
             onClicked: Root.refreshEngines()
         }
