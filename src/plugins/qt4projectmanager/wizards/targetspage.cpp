@@ -100,11 +100,28 @@ TargetsPage::TargetsPage(QWidget *parent)
     emit completeChanged();
 }
 
+void TargetsPage::setValidTargets(const QSet<QString> &targets)
+{
+    if (targets.isEmpty())
+        return;
+
+    for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *currentTargetItem = m_treeWidget->topLevelItem(i);
+        QString currentTarget = currentTargetItem->data(0, Qt::UserRole).toString();
+        if (targets.contains(currentTarget))
+            currentTargetItem->setHidden(false);
+        else
+            currentTargetItem->setHidden(true);
+    }
+}
+
 QSet<QString> TargetsPage::selectedTargets() const
 {
     QSet<QString> result;
     for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
-        QString target = m_treeWidget->topLevelItem(i)->data(0, Qt::UserRole).toString();
+        QTreeWidgetItem * targetItem = m_treeWidget->topLevelItem(i);
+        QString target = targetItem->data(0, Qt::UserRole).toString();
+
         QList<int> versions = selectedVersionIdsForTarget(target);
         if (!versions.isEmpty())
             result.insert(target);
@@ -118,7 +135,7 @@ QList<int> TargetsPage::selectedVersionIdsForTarget(const QString &t) const
     for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
         QTreeWidgetItem * current = m_treeWidget->topLevelItem(i);
         QString target = current->data(0, Qt::UserRole).toString();
-        if (t != target)
+        if (t != target || current->isHidden())
             continue;
 
         for (int j = 0; j < current->childCount(); ++j) {
@@ -139,4 +156,21 @@ void TargetsPage::itemWasClicked()
 bool TargetsPage::isComplete() const
 {
     return !selectedTargets().isEmpty();
+}
+
+bool TargetsPage::needToDisplayPage() const
+{
+    int targetCount = 0;
+    for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
+        QTreeWidgetItem * current = m_treeWidget->topLevelItem(i);
+        if (current->isHidden())
+            continue;
+        ++targetCount;
+        if (targetCount > 1)
+            return true;
+
+        if (current->childCount() > 1)
+            return true;
+    }
+    return false;
 }

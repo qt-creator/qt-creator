@@ -50,15 +50,20 @@ class TargetsPage : public QWizardPage
 public:
     explicit TargetsPage(QWidget* parent = 0);
 
+    void setValidTargets(const QSet<QString> &targets);
+
     QSet<QString> selectedTargets() const;
     QList<int> selectedVersionIdsForTarget(const QString &) const;
 
     bool isComplete() const;
 
+    bool needToDisplayPage() const;
+
 private slots:
     void itemWasClicked();
 
 private:
+    QSet<QString> m_validTargets;
     QTreeWidget * m_treeWidget;
     bool m_isComplete;
 };
