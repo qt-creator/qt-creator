@@ -606,12 +606,12 @@ class FrameCommand(gdb.Command):
             else:
                 # A "normal" local variable or parameter.
                 try:
-                    addr = cleanAddress(item.value.address)
-                    d.beginHash()
-                    d.put('iname="%s",' % item.iname)
-                    d.put('addr="%s",' % addr)
-                    d.safePutItemHelper(item)
-                    d.endHash()
+                   addr = cleanAddress(item.value.address)
+                   d.beginHash()
+                   d.put('iname="%s",' % item.iname)
+                   d.put('addr="%s",' % addr)
+                   d.safePutItemHelper(item)
+                   d.endHash()
                 except AttributeError:
                     # Thrown by cleanAddress with message "'NoneType' object
                     # has no attribute 'cast'" for optimized-out values.

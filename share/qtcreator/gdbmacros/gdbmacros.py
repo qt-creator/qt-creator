@@ -77,36 +77,36 @@ def qdump__QAbstractItem(d, item):
         d.endChildren()
 
 
-def qdump__QAbstractItemModel(d, item):
-    rowCount = call(item.value, "rowCount()")
-    if rowCount < 0:
-        return
-    columnCount = call(item.valuem, "columnCount()")
-    if columnCount < 0:
-        return
-
-    d.putValue("(%s,%s)" % (rowCount, columnCount))
-    d.putNumChild(1)
-    if d.isExpanded(item):
-        d.beginChildren(1)
-        d.beginHash()
-        d.putNumChild(1)
-        d.putName(d.ns + "QObject")
-        d.putValue(call(item.value, "objectName()"), 2)
-        d.putType(d.ns + "QObject")
-        d.putField("displayedtype", call(item, "m.metaObject()->className()"))
-        d.endHash()
-        for row in xrange(rowCount):
-            for column in xrange(columnCount):
-                mi = call(m, "index(%s,%s)" % (row, column))
-                d.beginHash()
-                d.putName("[%s,%s]" % (row, column))
-                d.putValue("m.data(mi, Qt::DisplayRole).toString()", 6)
-                #d.putNumChild((m.hasChildren(mi) ? 1 : 0)
-                d.putNumChild(1) #m.rowCount(mi) * m.columnCount(mi))
-                d.putType(d.ns + "QAbstractItem")
-                d.endHash()
-        d.endChildren()
+#def qdump__QAbstractItemModel(d, item):
+#    # FIXME: This does not get the default argument right and ends up
+#    # returning 'None'.
+#    rowCount = call(item.value, "rowCount()")
+#    columnCount = call(item.value, "columnCount()")
+#    d.putValue("(%s,%s)" % (rowCount, columnCount))
+#    #if columnCount < 0 or rowCount < 0:
+#    #    d.putNumChild(0)
+#    #    return
+#    d.putNumChild(1)
+#    if d.isExpanded(item):
+#        d.beginChildren(1)
+#        d.beginHash()
+#        d.putNumChild(1)
+#        d.putName(d.ns + "QObject")
+#        d.putValue(call(item.value, "objectName()"), 2)
+#        d.putType(d.ns + "QObject")
+#        d.putField("displayedtype", call(item, "m.metaObject()->className()"))
+#        d.endHash()
+#        for row in xrange(rowCount):
+#            for column in xrange(columnCount):
+#                mi = call(m, "index(%s,%s)" % (row, column))
+#                d.beginHash()
+#                d.putName("[%s,%s]" % (row, column))
+#                d.putValue("m.data(mi, Qt::DisplayRole).toString()", 6)
+#                #d.putNumChild((m.hasChildren(mi) ? 1 : 0)
+#                d.putNumChild(1) #m.rowCount(mi) * m.columnCount(mi))
+#                d.putType(d.ns + "QAbstractItem")
+#                d.endHash()
+#        d.endChildren()
 
 
 def qdump__QDateTime(d, item):
