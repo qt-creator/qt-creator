@@ -196,9 +196,7 @@ void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
     QtVersionManager *vm = QtVersionManager::instance();
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
-    if (vm->supportedTargetIds().count() > 1 ||
-        vm->versions().count() > 1)
-        m_targetsPage = new TargetsPage;
+    m_targetsPage = new TargetsPage;
 }
 
 int BaseQt4ProjectWizardDialog::addModulesPage(int id)
@@ -214,9 +212,6 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
 
 int BaseQt4ProjectWizardDialog::addTargetsPage(QSet<QString> targets, int id)
 {
-    if (!m_targetsPage)
-        return -1;
-
     m_targetsPage->setValidTargets(targets);
 
     if (!m_targetsPage->needToDisplayPage())
