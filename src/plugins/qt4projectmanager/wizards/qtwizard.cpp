@@ -183,6 +183,14 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
     init(showModulesPage);
 }
 
+BaseQt4ProjectWizardDialog::~BaseQt4ProjectWizardDialog()
+{
+    if (m_targetsPage && !m_targetsPage->parent())
+        delete m_targetsPage;
+    if (m_modulesPage && !m_modulesPage->parent())
+        delete m_modulesPage;
+}
+
 void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
 {
     QtVersionManager *vm = QtVersionManager::instance();
