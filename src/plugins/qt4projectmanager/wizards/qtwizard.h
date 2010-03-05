@@ -99,6 +99,7 @@ protected:
                                         Utils::ProjectIntroPage *introPage,
                                         int introId = -1,
                                         QWidget *parent = 0);
+    virtual ~BaseQt4ProjectWizardDialog();
 
     void addModulesPage(int id = -1);
     void addTargetsPage(int id = -1);
