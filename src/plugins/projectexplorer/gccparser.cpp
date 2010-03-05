@@ -34,64 +34,40 @@
 using namespace ProjectExplorer;
 
 namespace {
-    // opt. drive letter + filename: (2 brackets)
-    const char * const FILE_PATTERN("^(([a-zA-Z]:)?[^:]*):");
-    // line no. or elf segment + offset: (1 bracket)
-    const char * const POSITION_PATTERN("(\\d+|\\(\\.[a-zA-Z0-9]*.0x[a-fA-F0-9]+\\)):");
+    const char * const FILE_PATTERN("^(([a-zA-Z]:)?[^:]*\\.[^:]+):");
 }
 
 GccParser::GccParser()
 {
-    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s(#?(warning|error):?\\s)(.+)$"));
+    // e.g.
+    //
+    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + "(\\d+):(\\d+:)*(\\s#?(warning|error):?)?\\s(.+)$");
     m_regExp.setMinimal(true);
 
     m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
     m_regExpIncluded.setMinimal(true);
 
-    m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + '(' + QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
+    // e.g.:
+    // c:\Qt\4.6\lib/QtGuid4.dll: file not recognized: File format not recognized
+    m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + "((\\d+|[^:]*):)?\\s(.+)$");
     m_regExpLinker.setMinimal(true);
-
-    // m_regExpGccNames.setPattern("^([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)(gcc|g\\+\\+)(-[0-9\\.]+)?:");
-    m_regExpGccNames.setPattern("^(gcc|g\\+\\+):\\s");
-    m_regExpGccNames.setMinimal(true);
 }
 
 void GccParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
-    if (lne.startsWith(QLatin1String("collect2:")) ||
-        lne.startsWith(QLatin1String("ERROR:")) ||
-        lne == QLatin1String("* cpp failed")) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne /* description */,
-                                      QString() /* filename */,
-                                      -1 /* linenumber */,
-                                      Constants::TASK_CATEGORY_COMPILE));
-        return;
-    } else if (m_regExpGccNames.indexIn(lne) > -1) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne.mid(m_regExpGccNames.matchedLength()), /* description */
-                                      QString(), /* filename */
-                                      -1, /* line */
-                                      Constants::TASK_CATEGORY_COMPILE));
-        return;
-    } else if (m_regExp.indexIn(lne) > -1) {
-        QString filename = m_regExp.cap(1);
-        int lineno = m_regExp.cap(3).toInt();
+    if (m_regExp.indexIn(lne) > -1) {
         TaskWindow::Task task(TaskWindow::Unknown,
                               m_regExp.cap(7) /* description */,
-                              filename, lineno,
+                              m_regExp.cap(1) /* filename */,
+                              m_regExp.cap(3).toInt() /* line number */,
                               Constants::TASK_CATEGORY_COMPILE);
-        if (m_regExp.cap(6) == QLatin1String("warning"))
+        if (m_regExp.cap(5) == QLatin1String("warning"))
             task.type = TaskWindow::Warning;
-        else if (m_regExp.cap(6) == QLatin1String("error") ||
-                 task.description.startsWith(QLatin1String("undefined reference to")))
+        else if (m_regExp.cap(5) == QLatin1String("error"))
             task.type = TaskWindow::Error;
-
-        // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
-        // We want those to show how the warning was triggered
-        if (m_regExp.cap(5).startsWith(QChar('#')))
-            task.description = m_regExp.cap(5) + task.description;
+        else if (task.description.startsWith(QLatin1String("undefined reference to")))
+            task.type = TaskWindow::Error;
 
         emit addTask(task);
         return;
@@ -101,21 +77,26 @@ void GccParser::stdError(const QString &line)
         if (!ok)
             lineno = -1;
         QString description = m_regExpLinker.cap(5);
-        TaskWindow::Task task(TaskWindow::Error,
-                              description,
-                              m_regExpLinker.cap(1) /* filename */,
-                              lineno,
-                              Constants::TASK_CATEGORY_COMPILE);
-        if (description.startsWith(QLatin1String("In function `")))
-            task.type = TaskWindow::Unknown;
-
-        emit addTask(task);
+        emit addTask(TaskWindow::Task(TaskWindow::Error,
+                                      description,
+                                      m_regExpLinker.cap(1) /* filename */,
+                                      lineno,
+                                      Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
         emit addTask(TaskWindow::Task(TaskWindow::Unknown,
                                       lne /* description */,
                                       m_regExpIncluded.cap(1) /* filename */,
                                       m_regExpIncluded.cap(2).toInt() /* linenumber */,
+                                      Constants::TASK_CATEGORY_COMPILE));
+        return;
+    } else if (lne.startsWith(QLatin1String("collect2:")) ||
+               lne.startsWith(QLatin1String("ERROR:")) ||
+               lne == QLatin1String("* cpp failed")) {
+        emit addTask(TaskWindow::Task(TaskWindow::Error,
+                                      lne /* description */,
+                                      QString() /* filename */,
+                                      -1 /* linenumber */,
                                       Constants::TASK_CATEGORY_COMPILE));
         return;
     }
@@ -262,27 +243,6 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                     Constants::TASK_CATEGORY_COMPILE)
                 )
             << QString();
-    QTest::newRow("linker: dll format not recognized")
-            << QString::fromLatin1("c:\\Qt\\4.6\\lib/QtGuid4.dll: file not recognized: File format not recognized")
-            << OutputParserTester::STDERR
-            << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Error,
-                                    QLatin1String("file not recognized: File format not recognized"),
-                                    QLatin1String("c:\\Qt\\4.6\\lib/QtGuid4.dll"), -1,
-                                    Constants::TASK_CATEGORY_COMPILE))
-            << QString();
-    QTest::newRow("Invalid rpath")
-            << QString::fromLatin1("g++: /usr/local/lib: No such file or directory")
-            << OutputParserTester::STDERR
-            << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Error,
-                                    QLatin1String("/usr/local/lib: No such file or directory"),
-                                    QString(), -1,
-                                    Constants::TASK_CATEGORY_COMPILE))
-            << QString();
-
 }
 
 void ProjectExplorerPlugin::testGccOutputParsers()
