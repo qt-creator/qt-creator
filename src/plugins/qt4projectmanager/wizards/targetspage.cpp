@@ -113,6 +113,19 @@ void TargetsPage::setValidTargets(const QSet<QString> &targets)
         else
             currentTargetItem->setHidden(true);
     }
+
+    // Make sure we have something checked!
+    if (selectedTargets().isEmpty()) {
+        for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
+            QTreeWidgetItem *currentTargetItem = m_treeWidget->topLevelItem(i);
+            QString currentTarget = currentTargetItem->data(0, Qt::UserRole).toString();
+            if (targets.contains(currentTarget) && currentTargetItem->childCount() >= 1) {
+                currentTargetItem->child(0)->setCheckState(0, Qt::Checked);
+                break;
+            }
+        }
+    }
+    emit completeChanged();
 }
 
 QSet<QString> TargetsPage::selectedTargets() const
