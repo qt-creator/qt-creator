@@ -1443,7 +1443,7 @@
     \image qtcreator-vcs-pane.png
 
 
-    \section2 Addings Files
+    \section2 Adding Files
 
     When you create a new file or a new project, the wizard displays a page
     asking whether the files should be added to a version control system.
