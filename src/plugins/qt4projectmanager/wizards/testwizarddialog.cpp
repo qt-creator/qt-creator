@@ -32,7 +32,7 @@
 
 #include <QtCore/QFileInfo>
 
-enum PageIds { StartPageId, TestPageId, ModulesPageId };
+enum PageIds { StartPageId = 0 };
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -52,15 +52,17 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
                                    const QList<QWizardPage*> &extensionPages,
                                    QWidget *parent)  :
     BaseQt4ProjectWizardDialog(true, parent),
-    m_testPage(new TestWizardPage)
+    m_testPage(new TestWizardPage),
+    m_testPageId(-1), m_modulesPageId(-1)
 {
     setIntroDescription(tr("This wizard generates a Qt unit test "
                            "consisting of a single source file with a test class."));
     setWindowIcon(icon);
     setWindowTitle(templateName);
     setSelectedModules(QLatin1String("core testlib"), true);
-    setPage(TestPageId, m_testPage);
-    addModulesPage(ModulesPageId);
+    addTargetsPage();
+    m_testPageId = addPage(m_testPage);
+    m_modulesPageId = addModulesPage();
     foreach (QWizardPage *p, extensionPages)
         addPage(p);
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
@@ -68,7 +70,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
 
 void TestWizardDialog::slotCurrentIdChanged(int id)
 {
-    if (id == TestPageId)
+    if (id == m_testPageId)
         m_testPage->setProjectName(projectName());
 }
 

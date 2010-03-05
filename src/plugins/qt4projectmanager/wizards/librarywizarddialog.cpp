@@ -40,7 +40,6 @@
 #include <QtGui/QLabel>
 
 enum { debugLibWizard = 0 };
-enum { IntroPageId, ModulesPageId, FilePageId };
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -105,8 +104,6 @@ public:
 
     QtProjectParameters::Type type() const;
 
-    virtual int nextId() const;
-
 private:
     QComboBox *m_typeCombo;
 };
@@ -125,20 +122,9 @@ LibraryIntroPage::LibraryIntroPage(QWidget *parent) :
     insertControl(0, new QLabel(LibraryWizardDialog::tr("Type")), m_typeCombo);
 }
 
-
 QtProjectParameters::Type LibraryIntroPage::type() const
 {
     return static_cast<QtProjectParameters::Type>(m_typeCombo->itemData(m_typeCombo->currentIndex()).toInt());
-}
-
-int LibraryIntroPage::nextId() const
-{
-    // The modules page is skipped in the case of a plugin since it knows its
-    // dependencies by itself
-    const int rc = type() == QtProjectParameters::Qt4Plugin ? FilePageId : ModulesPageId;
-    if (debugLibWizard)
-        qDebug() << Q_FUNC_INFO <<  "returns" << rc;
-    return rc;
 }
 
 // ------------------- LibraryWizardDialog
@@ -147,9 +133,10 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
                                          const QList<QWizardPage*> &extensionPages,
                                          bool showModulesPage,
                                          QWidget *parent) :
-    BaseQt4ProjectWizardDialog(showModulesPage, new LibraryIntroPage, IntroPageId, parent),
+    BaseQt4ProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent),
     m_filesPage(new FilesPage),
-    m_pluginBaseClassesInitialized(false)
+    m_pluginBaseClassesInitialized(false),
+    m_filesPageId(-1), m_modulesPageId(-1), m_targetPageId(-1)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
@@ -159,13 +146,14 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     // Use the intro page instead, set up initially
     setIntroDescription(tr("This wizard generates a C++ library project."));
 
-    addModulesPage(ModulesPageId);
-    addTargetsPage();
+    m_targetPageId = addTargetsPage();
+    m_modulesPageId = addModulesPage();
 
     m_filesPage->setNamespacesEnabled(true);
     m_filesPage->setFormFileInputVisible(false);
     m_filesPage->setClassTypeComboVisible(false);
-    setPage(FilePageId, m_filesPage);
+
+    m_filesPageId = addPage(m_filesPage);
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 
@@ -186,6 +174,18 @@ void LibraryWizardDialog::setLowerCaseFiles(bool l)
 QtProjectParameters::Type  LibraryWizardDialog::type() const
 {
     return static_cast<const LibraryIntroPage*>(introPage())->type();
+}
+
+int LibraryWizardDialog::nextId() const
+{
+    // When leaving the intro or target page, the modules page is skipped
+    // in the case of a plugin since it knows its dependencies by itself.
+    const int m_beforeModulesPageId = m_targetPageId != -1 ? m_targetPageId : 0;
+    if (currentId() != m_beforeModulesPageId)
+        return BaseQt4ProjectWizardDialog::nextId();
+    if (type() != QtProjectParameters::Qt4Plugin && m_modulesPageId != -1)
+        return m_modulesPageId;
+    return m_filesPageId;
 }
 
 QtProjectParameters LibraryWizardDialog::parameters() const
@@ -216,7 +216,7 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
     if (debugLibWizard)
         qDebug() << Q_FUNC_INFO << id;
     // Switching to files page: Set up base class accordingly (plugin)
-    if (id != FilePageId)
+    if (id != m_filesPageId)
         return;
     switch (type()) {
     case QtProjectParameters::Qt4Plugin:

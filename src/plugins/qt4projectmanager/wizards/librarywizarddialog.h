@@ -58,6 +58,8 @@ public:
     QtProjectParameters parameters() const;
     LibraryParameters libraryParameters() const;
 
+    virtual int nextId() const;
+
 private slots:
     void slotCurrentIdChanged(int);
 
@@ -66,6 +68,9 @@ private:
 
     FilesPage *m_filesPage;
     bool m_pluginBaseClassesInitialized;
+    int m_filesPageId;
+    int m_modulesPageId;
+    int m_targetPageId;
 };
 
 } // namespace Internal

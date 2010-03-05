@@ -102,8 +102,10 @@ protected:
                                         QWidget *parent = 0);
     virtual ~BaseQt4ProjectWizardDialog();
 
-    void addModulesPage(int id = -1);
-    void addTargetsPage(QSet<QString> targets = QSet<QString>(), int id = -1);
+    int addModulesPage(int id = -1);
+    int addTargetsPage(QSet<QString> targets = QSet<QString>(), int id = -1);
+
+    static QSet<QString> desktopTarget();
 
 public:
     QString selectedModules() const;
