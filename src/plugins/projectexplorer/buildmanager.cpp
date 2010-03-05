@@ -336,38 +336,63 @@ void BuildManager::nextStep()
     }
 }
 
-bool BuildManager::buildQueueAppend(BuildStep *bs)
+bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
 {
-    m_buildQueue.append(bs);
-    ++m_maxProgress;
-    incrementActiveBuildSteps(bs->buildConfiguration()->target()->project());
-
-    connect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-            this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
-    connect(bs, SIGNAL(addOutput(QString)),
-            this, SLOT(addToOutputWindow(QString)));
-
-    bool init = bs->init();
+    int count = steps.size();
+    bool init = true;
+    int i = 0;
+    for (; i < count; ++i) {
+        BuildStep *bs = steps.at(i);
+        connect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
+                this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+        connect(bs, SIGNAL(addOutput(QString)),
+                this, SLOT(addToOutputWindow(QString)));
+        init = bs->init();
+        if (!init)
+            break;
+    }
     if (!init) {
-        const QString projectName = m_currentBuildStep->buildConfiguration()->target()->project()->displayName();
-        const QString targetName = m_currentBuildStep->buildConfiguration()->target()->displayName();
+        BuildStep *bs = steps.at(i);
+
+        // cleaning up
+        // print something for the user
+        const QString projectName = bs->buildConfiguration()->target()->project()->displayName();
+        const QString targetName = bs->buildConfiguration()->target()->displayName();
         addToOutputWindow(tr("<font color=\"#ff0000\">Error while building project %1 (%2)</font>").arg(projectName, targetName));
-        addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(m_currentBuildStep->displayName()));
-        cancel();
+        addToOutputWindow(tr("<font color=\"#ff0000\">When executing build step '%1'</font>").arg(bs->displayName()));
+
+        // disconnect the buildsteps again
+        for (int j = 0; j <= i; ++j) {
+            BuildStep *bs = steps.at(j);
+            disconnect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
+                       this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+            disconnect(bs, SIGNAL(addOutput(QString)),
+                       this, SLOT(addToOutputWindow(QString)));
+        }
         return false;
     }
 
+    // Everthing init() well
+    for (i = 0; i < count; ++i) {
+        ++m_maxProgress;
+        m_buildQueue.append(steps.at(i));
+        incrementActiveBuildSteps(steps.at(i)->buildConfiguration()->target()->project());
+    }
     return true;
 }
 
 void BuildManager::buildProjects(const QList<BuildConfiguration *> &configurations)
 {
-    foreach(BuildConfiguration *bc, configurations) {
-        QList<BuildStep *> buildSteps = bc->buildSteps();
-        foreach (BuildStep *bs, buildSteps) {
-            buildQueueAppend(bs);
-        }
+    QList<BuildStep *> steps;
+    foreach(BuildConfiguration *bc, configurations)
+        steps.append(bc->buildSteps());
+
+    bool success = buildQueueAppend(steps);
+    if (!success) {
+        m_outputWindow->popup(false);
+        return;
     }
+
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
         m_outputWindow->popup(false);
     startBuildQueue();
@@ -375,12 +400,16 @@ void BuildManager::buildProjects(const QList<BuildConfiguration *> &configuratio
 
 void BuildManager::cleanProjects(const QList<BuildConfiguration *> &configurations)
 {
-    foreach(BuildConfiguration *bc, configurations) {
-        QList<BuildStep *> cleanSteps = bc->cleanSteps();
-        foreach (BuildStep *bs, cleanSteps) {
-            buildQueueAppend(bs);
-        }
+    QList<BuildStep *> steps;
+    foreach(BuildConfiguration *bc, configurations)
+        steps.append(bc->cleanSteps());
+
+    bool success = buildQueueAppend(steps);
+    if (!success) {
+        m_outputWindow->popup(false);
+        return;
     }
+
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
         m_outputWindow->popup(false);
     startBuildQueue();
@@ -398,7 +427,13 @@ void BuildManager::cleanProject(BuildConfiguration *configuration)
 
 void BuildManager::appendStep(BuildStep *step)
 {
-    buildQueueAppend(step);
+    bool success = buildQueueAppend(QList<BuildStep *>() << step);
+    if (!success) {
+        m_outputWindow->popup(false);
+        return;
+    }
+    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
+        m_outputWindow->popup(false);
     startBuildQueue();
 }
 
