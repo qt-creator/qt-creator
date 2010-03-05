@@ -67,12 +67,13 @@ void AbstractMaemoRunControl::startDeployment(bool forDebugging)
 
     if (devConfig.isValid()) {
         deployables.clear();        
-        if (runConfig->currentlyNeedsDeployment()) {
+        if (runConfig->currentlyNeedsDeployment(devConfig.host)) {
             deployables.append(Deployable(executableFileName(),
                 QFileInfo(executableOnHost()).canonicalPath(),
                 &MaemoRunConfiguration::wasDeployed));
         }
-        if (forDebugging && runConfig->debuggingHelpersNeedDeployment()) {
+        if (forDebugging
+            && runConfig->debuggingHelpersNeedDeployment(devConfig.host)) {
             const QFileInfo &info(runConfig->dumperLib());
             deployables.append(Deployable(info.fileName(), info.canonicalPath(),
                 &MaemoRunConfiguration::debuggingHelpersDeployed));
@@ -119,7 +120,7 @@ void AbstractMaemoRunControl::deploy()
 void AbstractMaemoRunControl::handleFileCopied()
 {
     Deployable deployable = deployables.takeFirst();
-    (runConfig->*deployable.updateTimestamp)();
+    (runConfig->*deployable.updateTimestamp)(devConfig.host);
     m_progress.setProgressValue(m_progress.progressValue() + 1);
 }
 

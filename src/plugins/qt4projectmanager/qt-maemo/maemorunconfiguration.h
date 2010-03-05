@@ -68,12 +68,12 @@ public:
     Qt4Target *qt4Target() const;
     Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
-    bool currentlyNeedsDeployment() const;
-    void wasDeployed();
+    bool currentlyNeedsDeployment(const QString &host) const;
+    void wasDeployed(const QString &host);
 
     bool hasDebuggingHelpers() const;
-    bool debuggingHelpersNeedDeployment() const;
-    void debuggingHelpersDeployed();
+    bool debuggingHelpersNeedDeployment(const QString &host) const;
+    void debuggingHelpersDeployed(const QString &host);
 
     QString maddeRoot() const;
     QString executable() const;
@@ -125,6 +125,12 @@ private:
     const QString cmd(const QString &cmdName) const;
     const MaemoToolChain *toolchain() const;
     bool fileNeedsDeployment(const QString &path, const QDateTime &lastDeployed) const;
+    void addDeployTimesToMap(const QString &key,
+                             const QMap<QString, QDateTime> &deployTimes,
+                             QVariantMap &map) const;
+    void getDeployTimesFromMap(const QString &key,
+                               QMap<QString, QDateTime> &deployTimes,
+                               const QVariantMap &map);
 
     mutable QString m_executable;
     QString m_proFilePath;
@@ -144,8 +150,9 @@ private:
     MaemoDeviceConfig m_devConfig;
     QStringList m_arguments;
 
-    QDateTime m_lastDeployed;
-    QDateTime m_debuggingHelpersLastDeployed;
+    // These map host names to deploy times.
+    QMap<QString, QDateTime> m_lastDeployed;
+    QMap<QString, QDateTime> m_debuggingHelpersLastDeployed;
 
     QProcess *qemu;
 };

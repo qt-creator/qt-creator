@@ -90,7 +90,7 @@ private:
 
     struct Deployable
     {
-        typedef void (MaemoRunConfiguration::*updateFunc)();
+        typedef void (MaemoRunConfiguration::*updateFunc)(const QString&);
         Deployable(const QString &f, const QString &d, updateFunc u)
             : fileName(f), dir(d), updateTimestamp(u) {}
         QString fileName;
