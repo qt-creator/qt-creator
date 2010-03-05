@@ -1663,7 +1663,7 @@ def qdump__QWeakPointer(d, item):
     check(int(weakref) <= 10*1000*1000)
 
     innerType = item.value.type.template_argument(0)
-    if isSimpleType(value.dereference()):
+    if isSimpleType(value.dereference().type):
         d.putItemHelper(Item(value.dereference(), item.iname, None))
     else:
         d.putValue("")
