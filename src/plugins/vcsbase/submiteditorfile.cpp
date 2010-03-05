@@ -42,6 +42,7 @@ SubmitEditorFile::SubmitEditorFile(const QString &mimeType, QObject *parent) :
 void SubmitEditorFile::setFileName(const QString name)
 {
      m_fileName = name;
+     emit changed();
 }
 
 void SubmitEditorFile::setModified(bool modified)
@@ -55,6 +56,7 @@ void SubmitEditorFile::setModified(bool modified)
 bool SubmitEditorFile::save(const QString &fileName)
 {
     emit saveMe(fileName);
+    emit changed();
     return true;
 }
 
