@@ -2764,15 +2764,6 @@ void BaseTextEditor::paintEvent(QPaintEvent *e)
         d->m_animator->draw(&painter, cursorRect(cursor).topLeft());
     }
 
-
-    if (lineX > 0) {
-        const QColor bg = palette().base().color();
-        QColor col = (bg.value() > 128) ? Qt::black : Qt::white;
-        col.setAlpha(32);
-        painter.setPen(QPen(col, 0));
-        painter.drawLine(QPointF(lineX, 0), QPointF(lineX, viewport()->height()));
-    }
-
     if (d->m_overlay && d->m_overlay->isVisible())
         d->m_overlay->paint(&painter, e->rect());
 
