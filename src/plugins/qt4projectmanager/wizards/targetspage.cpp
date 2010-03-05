@@ -96,7 +96,6 @@ TargetsPage::TargetsPage(QWidget *parent)
     connect(m_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
             this, SLOT(itemWasClicked()));
 
-    m_isComplete = isQtVersionChecked;
     emit completeChanged();
 }
 

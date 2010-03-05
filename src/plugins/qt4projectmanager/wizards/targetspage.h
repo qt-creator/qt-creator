@@ -60,7 +60,6 @@ private slots:
 
 private:
     QTreeWidget * m_treeWidget;
-    bool m_isComplete;
 };
 
 } // namespace Internal
