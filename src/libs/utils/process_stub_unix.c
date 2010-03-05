@@ -46,6 +46,11 @@
 #include <stdio.h>
 #include <errno.h>
 
+/* For OpenBSD */
+#ifndef EPROTO
+# define EPROTO EINVAL
+#endif
+
 extern char **environ;
 
 static int qtcFd;
