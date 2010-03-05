@@ -557,7 +557,10 @@ class FrameCommand(gdb.Command):
             try:
                 #warn("ITEM VALUE %s: " % item.value)
                 # Throw on funny stuff, catch below.
-                dummy = str(item.value)
+                # Unfortunately, this fails also with a "Unicode encoding error"
+                # in testArray().
+                #dummy = str(item.value)
+                pass
             except:
                 # Locals with failing memory access.
                 d.beginHash()
