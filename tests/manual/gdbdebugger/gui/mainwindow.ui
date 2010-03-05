@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindowClass</class>
+ <widget class="QMainWindow" name="MainWindowClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>400</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+    <addaction name="actionDialog"/>
+    <addaction name="actionCrash"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionException"/>
+   <addaction name="actionThread"/>
+   <addaction name="actionForeach"/>
+   <addaction name="actionAssert"/>
+   <addaction name="actionScopes"/>
+   <addaction name="actionLongString"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionDialog"/>
+   <addaction name="actionExit"/>
+   <addaction name="actionCrash"/>
+   <addaction name="actionSimpleBP"/>
+   <addaction name="actionExtTypes"/>
+   <addaction name="actionIncr_watch"/>
+   <addaction name="actionUncaughtException"/>
+   <addaction name="actionDumperBP"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+  </widget>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionDialog">
+   <property name="text">
+    <string>Test</string>
+   </property>
+  </action>
+  <action name="actionCrash">
+   <property name="text">
+    <string>Crash</string>
+   </property>
+  </action>
+  <action name="actionSimpleBP">
+   <property name="text">
+    <string>simpleBP</string>
+   </property>
+  </action>
+  <action name="actionIncr_watch">
+   <property name="text">
+    <string>incr watch</string>
+   </property>
+  </action>
+  <action name="actionThread">
+   <property name="text">
+    <string>thread</string>
+   </property>
+  </action>
+  <action name="actionException">
+   <property name="text">
+    <string>exception</string>
+   </property>
+  </action>
+  <action name="actionUncaughtException">
+   <property name="text">
+    <string>uncaughtException</string>
+   </property>
+  </action>
+  <action name="actionDumperBP">
+   <property name="text">
+    <string>dumperBP</string>
+   </property>
+  </action>
+  <action name="actionExtTypes">
+   <property name="text">
+    <string>extTypes</string>
+   </property>
+  </action>
+  <action name="actionForeach">
+   <property name="text">
+    <string>foreach</string>
+   </property>
+  </action>
+  <action name="actionAssert">
+   <property name="text">
+    <string>assert</string>
+   </property>
+  </action>
+  <action name="actionScopes">
+   <property name="text">
+    <string>scopes</string>
+   </property>
+  </action>
+  <action name="actionLongString">
+   <property name="text">
+    <string>LongString</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MainWindowClass</sender>
+   <signal>iconSizeChanged(QSize)</signal>
+   <receiver>MainWindowClass</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>75</x>
+     <y>146</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>266</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
