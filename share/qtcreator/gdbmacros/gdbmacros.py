@@ -414,7 +414,7 @@ def qdump__QLinkedList(d, item):
         d.beginChildren([n, 1000], item.value.type.template_argument(0))
         p = e_ptr["n"]
         for i in d.childRange():
-            d.safePutItem(Item(p["t"], None, None))
+            d.safePutItem(Item(p["t"], item.iname, i))
             p = p["n"]
         d.endChildren()
 
