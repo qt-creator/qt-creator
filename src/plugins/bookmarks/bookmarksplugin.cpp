@@ -146,7 +146,6 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 
     m_bookmarkMarginAction = new QAction(this);
     m_bookmarkMarginAction->setText(tr("Toggle Bookmark"));
-    //m_bookmarkAction->setIcon(QIcon(":/gdbdebugger/images/breakpoint.svg"));
     connect(m_bookmarkMarginAction, SIGNAL(triggered()),
         this, SLOT(bookmarkMarginActionTriggered()));
 

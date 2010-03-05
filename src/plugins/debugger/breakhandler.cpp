@@ -286,9 +286,9 @@ bool BreakpointData::conditionsMatch() const
 
 BreakHandler::BreakHandler(DebuggerManager *manager, QObject *parent) :
     QAbstractTableModel(parent),
-    m_breakpointIcon(QLatin1String(":/debugger/images/breakpoint.svg")),
-    m_disabledBreakpointIcon(QLatin1String(":/debugger/images/breakpoint_disabled.svg")),
-    m_pendingBreakPointIcon(QLatin1String(":/debugger/images/breakpoint_pending.svg")),
+    m_breakpointIcon(QLatin1String(":/debugger/images/breakpoint_16.png")),
+    m_disabledBreakpointIcon(QLatin1String(":/debugger/images/breakpoint_disabled_16.png")),
+    m_pendingBreakPointIcon(QLatin1String(":/debugger/images/breakpoint_pending_16.png")),
     m_manager(manager)
 {
 }

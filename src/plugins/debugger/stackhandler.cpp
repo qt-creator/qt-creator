@@ -113,8 +113,8 @@ QDebug operator<<(QDebug d, const  StackFrame &f)
 
 StackHandler::StackHandler(QObject *parent)
   : QAbstractTableModel(parent),
-    m_positionIcon(QIcon(":/debugger/images/location.svg")),
-    m_emptyIcon(QIcon(":/debugger/images/empty.svg"))
+    m_positionIcon(QIcon(":/debugger/images/location_16.png")),
+    m_emptyIcon(QIcon(":/debugger/images/empty14.png"))
 {
     m_currentIndex = 0;
     m_canExpand = false;
@@ -287,8 +287,8 @@ enum { IdColumn, AddressColumn, FunctionColumn, FileColumn, LineColumn, ColumnCo
 ThreadsHandler::ThreadsHandler(QObject *parent)  :
     QAbstractTableModel(parent),
     m_currentIndex(0),
-    m_positionIcon(QLatin1String(":/debugger/images/location.svg")),
-    m_emptyIcon(QLatin1String(":/debugger/images/empty.svg"))
+    m_positionIcon(QLatin1String(":/debugger/images/location_16.png")),
+    m_emptyIcon(QLatin1String(":/debugger/images/empty14.png"))
 {
 }
 

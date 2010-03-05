@@ -110,8 +110,8 @@ QDebug operator<<(QDebug d, const  SnapshotData &f)
 
 SnapshotHandler::SnapshotHandler(QObject *parent)
   : QAbstractTableModel(parent),
-    m_positionIcon(QIcon(":/debugger/images/location.svg")),
-    m_emptyIcon(QIcon(":/debugger/images/empty.svg"))
+    m_positionIcon(QIcon(":/debugger/images/location_16.png")),
+    m_emptyIcon(QIcon(":/debugger/images/empty14.png"))
 {
     m_currentIndex = 0;
     connect(theDebuggerAction(OperateByInstruction), SIGNAL(triggered()),

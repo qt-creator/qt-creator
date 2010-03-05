@@ -405,7 +405,7 @@ void CppHoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, in
     if (!m_helpId.isEmpty() && !m_helpEngine->linksForIdentifier(m_helpId).isEmpty()) {
         if (showF1) {
             m_toolTip = QString(QLatin1String("<table><tr><td valign=middle><nobr>%1</td>"
-                                              "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>"))
+                                              "<td><img src=\":/cppeditor/images/f1.png\"></td></tr></table>"))
                         .arg(m_toolTip);
         }
         editor->setContextHelpId(m_helpId);

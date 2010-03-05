@@ -312,7 +312,7 @@ DebuggerManager *DebuggerManagerPrivate::instance = 0;
 DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager) :
    m_stopIcon(QLatin1String(":/debugger/images/debugger_stop_small.png")),
    m_interruptIcon(QLatin1String(":/debugger/images/debugger_interrupt_small.png")),
-   m_locationMarkIcon(QLatin1String(":/debugger/images/location.svg")),
+   m_locationMarkIcon(QLatin1String(":/debugger/images/location_16.png")),
    m_startParameters(new DebuggerStartParameters),
    m_inferiorPid(0),
    m_disassemblerViewAgent(manager),

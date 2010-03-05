@@ -198,7 +198,7 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
     if (!m_helpId.isEmpty()) {
         if (showF1) {
             m_toolTip = QString::fromUtf8("<table><tr><td valign=middle><nobr>%1</td>"
-                                            "<td><img src=\":/cppeditor/images/f1.svg\"></td></tr></table>")
+                                            "<td><img src=\":/cppeditor/images/f1.png\"></td></tr></table>")
                     .arg(m_toolTip);
         }
         editor->setContextHelpId(m_helpId);

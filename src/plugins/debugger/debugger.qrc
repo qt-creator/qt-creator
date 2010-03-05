@@ -1,8 +1,5 @@
 <RCC>
     <qresource prefix="/debugger">
-        <file>images/breakpoint.svg</file>
-        <file>images/breakpoint_pending.svg</file>
-        <file>images/breakpoint_disabled.svg</file>
         <file>images/debugger_breakpoints.png</file>
         <file>images/debugger_continue_small.png</file>
         <file>images/debugger_interrupt_small.png</file>
@@ -17,14 +14,22 @@
         <file>images/debugger_stop_small.png</file>
         <file>images/delete.png</file>
         <file>images/done.png</file>
-        <file>images/empty.svg</file>
         <file>images/error.png</file>
-        <file>images/location.svg</file>
         <file>images/newitem.png</file>
         <file>images/running.png</file>
         <file>images/debugger_continue.png</file>
         <file>images/debugger_interrupt.png</file>
         <file>images/debugger_stop.png</file>
         <file>images/SingleInstructionMode.png</file>
+        <file>images/breakpoint_16.png</file>
+        <file>images/breakpoint_24.png</file>
+        <file>images/breakpoint_disabled_16.png</file>
+        <file>images/breakpoint_disabled_24.png</file>
+        <file>images/breakpoint_disabled_32.png</file>
+        <file>images/breakpoint_pending_16.png</file>
+        <file>images/breakpoint_pending_24.png</file>
+        <file>images/empty14.png</file>
+        <file>images/location_16.png</file>
+        <file>images/location_24.png</file>
     </qresource>
 </RCC>
