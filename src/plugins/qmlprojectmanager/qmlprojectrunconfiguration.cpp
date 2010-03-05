@@ -161,7 +161,7 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
     QDir projectDir = qmlTarget()->qmlProject()->projectDir();
     QStringList files;
 
-    files.append(tr("<Current File>"));
+    files.append(CURRENT_FILE);
 
     int currentIndex = -1;
 
@@ -228,8 +228,11 @@ void QmlProjectRunConfiguration::onDebugServerAddressChanged()
 void QmlProjectRunConfiguration::setMainScript(const QString &scriptFile)
 {
     m_scriptFile = scriptFile;
+    // replace with locale-agnostic string
+    if (m_scriptFile == CURRENT_FILE)
+        m_scriptFile = M_CURRENT_FILE;
 
-    if (m_scriptFile.isEmpty() || m_scriptFile == CURRENT_FILE) {
+    if (m_scriptFile.isEmpty() || m_scriptFile == M_CURRENT_FILE) {
         m_usingCurrentFile = true;
         changeCurrentFile(Core::EditorManager::instance()->currentEditor());
     } else {
@@ -275,7 +278,7 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 {
     m_qmlViewerCustomPath = map.value(QLatin1String(Constants::QML_VIEWER_KEY)).toString();
     m_qmlViewerArgs = map.value(QLatin1String(Constants::QML_VIEWER_ARGUMENTS_KEY)).toString();
-    m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), CURRENT_FILE).toString();
+    m_scriptFile = map.value(QLatin1String(Constants::QML_MAINSCRIPT_KEY), M_CURRENT_FILE).toString();
     m_debugServerPort = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_PORT_KEY), Constants::QML_DEFAULT_DEBUG_SERVER_PORT).toUInt();
     m_debugServerAddress = map.value(QLatin1String(Constants::QML_DEBUG_SERVER_ADDRESS_KEY), QLatin1String("127.0.0.1")).toString();
     setMainScript(m_scriptFile);

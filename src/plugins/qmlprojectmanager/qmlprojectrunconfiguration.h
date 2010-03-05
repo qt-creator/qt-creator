@@ -46,6 +46,7 @@ class QmlProjectRunConfigurationFactory;
 }
 
 const char * const CURRENT_FILE  = QT_TRANSLATE_NOOP("QmlManager", "<Current File>");
+const char * const M_CURRENT_FILE  = "CurrentFile";
 
 class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
 {
