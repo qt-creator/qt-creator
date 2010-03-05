@@ -134,7 +134,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         bar.load(QLatin1String(":/core/images/progressbar.png"));
 
     double range = maximum() - minimum();
-    double percent = 0.50;
+    double percent = 0.;
     if (range != 0)
         percent = (value() - minimum()) / range;
     if (percent > 1)
@@ -195,7 +195,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         // avoid too small red bar
         if (inner.width() < 10)
             inner.adjust(0, 0, 10 - inner.width(), 0);
-    } else if (value() == maximum()) {
+    } else if (value() == maximum() && range != 0) {
         c = QColor(90, 170, 60);
     }
 
