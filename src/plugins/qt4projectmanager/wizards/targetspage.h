@@ -65,7 +65,6 @@ private slots:
 private:
     QSet<QString> m_validTargets;
     QTreeWidget * m_treeWidget;
-    bool m_isComplete;
 };
 
 } // namespace Internal
