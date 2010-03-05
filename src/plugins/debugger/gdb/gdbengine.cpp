@@ -1024,11 +1024,14 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
         GdbMi files = response.data.findChild("files");
         foreach (const GdbMi &item, files.children()) {
             GdbMi fullName = item.findChild("fullname");
+            GdbMi fileName = item.findChild("file");
+            QString file = QString::fromLocal8Bit(fileName.data());
             if (fullName.isValid()) {
                 QString full = cleanupFullName(QString::fromLocal8Bit(fullName.data()));
-                QString fileName = QString::fromLocal8Bit(item.findChild("file").data());
-                m_shortToFullName[fileName] = full;
-                m_fullToShortName[full] = fileName;
+                m_shortToFullName[file] = full;
+                m_fullToShortName[full] = file;
+            } else if (fileName.isValid()) {
+                m_shortToFullName[file] = tr("<unknown>");
             }
         }
         if (m_shortToFullName != oldShortToFull)
