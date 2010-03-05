@@ -340,9 +340,11 @@ void TypePrettyPrinter::visit(Function *type)
 
                 _text += argumentText(arg->type(), name);
 
-                if (const StringLiteral *initializer = arg->initializer()) {
-                    _text += QLatin1String(" =");
-                    _text += QString::fromUtf8(initializer->chars(), initializer->size());
+                if (_overview->showDefaultArguments()) {
+                    if (const StringLiteral *initializer = arg->initializer()) {
+                        _text += QLatin1String(" =");
+                        _text += QString::fromUtf8(initializer->chars(), initializer->size());
+                    }
                 }
 
                 if (index + 1 == _overview->markedArgument())

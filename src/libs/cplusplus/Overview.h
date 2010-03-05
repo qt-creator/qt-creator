@@ -56,6 +56,9 @@ public:
     bool showFullyQualifiedNames() const;
     void setShowFullyQualifiedNamed(bool showFullyQualifiedNames);
 
+    bool showDefaultArguments() const;
+    void setShowDefaultArguments(bool showDefaultArguments);
+
     // argument index that you want to mark
     unsigned markedArgument() const;
     void setMarkedArgument(unsigned position);
@@ -84,6 +87,7 @@ private:
     bool _showReturnTypes: 1;
     bool _showFunctionSignatures: 1;
     bool _showFullyQualifiedNames: 1;
+    bool _showDefaultArguments: 1;
 };
 
 } // end of namespace CPlusPlus

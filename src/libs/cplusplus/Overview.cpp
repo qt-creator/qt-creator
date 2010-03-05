@@ -41,7 +41,8 @@ Overview::Overview()
       _showArgumentNames(false),
       _showReturnTypes(false),
       _showFunctionSignatures(true),
-      _showFullyQualifiedNames(false)
+      _showFullyQualifiedNames(false),
+      _showDefaultArguments(true)
 { }
 
 Overview::~Overview()
@@ -115,6 +116,16 @@ bool Overview::showFullyQualifiedNames() const
 void Overview::setShowFullyQualifiedNamed(bool showFullyQualifiedNames)
 {
     _showFullyQualifiedNames = showFullyQualifiedNames;
+}
+
+bool Overview::showDefaultArguments() const
+{
+    return _showDefaultArguments;
+}
+
+void Overview::setShowDefaultArguments(bool showDefaultArguments)
+{
+    _showDefaultArguments = showDefaultArguments;
 }
 
 QString Overview::prettyName(const Name *name) const

@@ -1096,6 +1096,7 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
                 foreach (Function *f, functions) {
                     Overview overview;
                     overview.setShowArgumentNames(true);
+                    overview.setShowDefaultArguments(false);
 
                     // gets: "parameter list) cv-spec",
                     QString completion = overview(f->type()).mid(1);
