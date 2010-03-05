@@ -33,55 +33,41 @@
 
 using namespace ProjectExplorer;
 
-namespace {
-    const char * const FILE_PATTERN("^(([a-zA-Z]:)?[^:]*\\.[^:]+):");
-}
-
 GccParser::GccParser()
 {
-    // e.g.
-    //
-    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + "(\\d+):(\\d+:)*(\\s#?(warning|error):?)?\\s(.+)$");
+    m_regExp.setPattern("^([^\\(\\)]+[^\\d]):(\\d+):(\\d+:)*(\\s(warning|error):)?\\s(.+)$");
     m_regExp.setMinimal(true);
 
     m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
     m_regExpIncluded.setMinimal(true);
 
-    // e.g.:
-    // c:\Qt\4.6\lib/QtGuid4.dll: file not recognized: File format not recognized
-    m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + "((\\d+|[^:]*):)?\\s(.+)$");
+    m_regExpLinker.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
     m_regExpLinker.setMinimal(true);
 }
 
 void GccParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
-    if (m_regExp.indexIn(lne) > -1) {
-        TaskWindow::Task task(TaskWindow::Unknown,
-                              m_regExp.cap(7) /* description */,
-                              m_regExp.cap(1) /* filename */,
-                              m_regExp.cap(3).toInt() /* line number */,
-                              Constants::TASK_CATEGORY_COMPILE);
-        if (m_regExp.cap(5) == QLatin1String("warning"))
-            task.type = TaskWindow::Warning;
-        else if (m_regExp.cap(5) == QLatin1String("error"))
-            task.type = TaskWindow::Error;
-        else if (task.description.startsWith(QLatin1String("undefined reference to")))
-            task.type = TaskWindow::Error;
-
-        emit addTask(task);
-        return;
-    } else if (m_regExpLinker.indexIn(lne) > -1) {
-        bool ok;
-        int lineno = m_regExpLinker.cap(4).toInt(&ok);
-        if (!ok)
-            lineno = -1;
-        QString description = m_regExpLinker.cap(5);
+    if (m_regExpLinker.indexIn(lne) > -1) {
+        QString description = m_regExpLinker.cap(2);
         emit addTask(TaskWindow::Task(TaskWindow::Error,
                                       description,
                                       m_regExpLinker.cap(1) /* filename */,
-                                      lineno,
+                                      -1 /* linenumber */,
                                       Constants::TASK_CATEGORY_COMPILE));
+        return;
+    } else if (m_regExp.indexIn(lne) > -1) {
+        TaskWindow::Task task(TaskWindow::Unknown,
+                              m_regExp.cap(6) /* description */,
+                              m_regExp.cap(1) /* filename */,
+                              m_regExp.cap(2).toInt() /* line number */,
+                              Constants::TASK_CATEGORY_COMPILE);
+        if (m_regExp.cap(5) == "warning")
+            task.type = TaskWindow::Warning;
+        else if (m_regExp.cap(5) == "error")
+            task.type = TaskWindow::Error;
+
+        emit addTask(task);
         return;
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
         emit addTask(TaskWindow::Task(TaskWindow::Unknown,
