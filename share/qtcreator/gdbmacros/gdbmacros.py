@@ -78,33 +78,39 @@ def qdump__QAbstractItem(d, item):
 
 
 #def qdump__QAbstractItemModel(d, item):
-#    # FIXME: This does not get the default argument right and ends up
-#    # returning 'None'.
-#    rowCount = call(item.value, "rowCount()")
-#    columnCount = call(item.value, "columnCount()")
+#    # Create a default-constructed QModelIndex on the stack.
+#    dummy = "(('%sQModelIndex'*)($sp-100))" % d.ns
+#    gdb.execute("set variable %s->m=0" % dummy)
+#    gdb.execute("set variable %s->p=0" % dummy)
+#    gdb.execute("set variable %s->r=-1" % dummy)
+#    gdb.execute("set variable %s->c=-1" % dummy)
+#    value = parseAndEvaluate("%s->m" % dummy)
+#    rowCount = call(item.value, "rowCount(*%s)" % dummy)
+#    columnCount = call(item.value, "columnCount(*%s)" % dummy)
 #    d.putValue("(%s,%s)" % (rowCount, columnCount))
-#    #if columnCount < 0 or rowCount < 0:
-#    #    d.putNumChild(0)
-#    #    return
 #    d.putNumChild(1)
 #    if d.isExpanded(item):
-#        d.beginChildren(1)
+#        d.beginChildren(1 + rowCount * columnCount)
 #        d.beginHash()
 #        d.putNumChild(1)
 #        d.putName(d.ns + "QObject")
-#        d.putValue(call(item.value, "objectName()"), 2)
+#        d.putStringValue(call(item.value, "objectName()"))
 #        d.putType(d.ns + "QObject")
-#        d.putField("displayedtype", call(item, "m.metaObject()->className()"))
+#        d.put('addr="%s",' % cleanAddress(item.value.address))
+#        #d.putField("displayedtype", call(item, "m.metaObject()->className()"))
 #        d.endHash()
+#        gdb.execute("set variable %s->m=('%sQAbstractItemModel'*)%s" \
+#            % (dummy, d.ns, item.value.address))
 #        for row in xrange(rowCount):
 #            for column in xrange(columnCount):
-#                mi = call(m, "index(%s,%s)" % (row, column))
+#                gdb.execute("set variable %s->r=-1" % dummy)
+#                gdb.execute("set variable %s->c=-1" % dummy)
 #                d.beginHash()
 #                d.putName("[%s,%s]" % (row, column))
-#                d.putValue("m.data(mi, Qt::DisplayRole).toString()", 6)
-#                #d.putNumChild((m.hasChildren(mi) ? 1 : 0)
-#                d.putNumChild(1) #m.rowCount(mi) * m.columnCount(mi))
-#                d.putType(d.ns + "QAbstractItem")
+#                value = call(item.value, "data(*%s, 0)" % dummy)
+#                d.putValue(str(value))
+#                d.putNumChild(0)
+#                d.putType(" ")
 #                d.endHash()
 #        d.endChildren()
 

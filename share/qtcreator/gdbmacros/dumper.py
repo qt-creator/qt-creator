@@ -60,8 +60,10 @@ def parseAndEvaluate(exp):
         gdb.execute("print %s" % exp)
     except:
         gdb.execute("set logging off")
+        gdb.execute("set logging redirect off")
         return None
     gdb.execute("set logging off")
+    gdb.execute("set logging redirect off")
     return gdb.history(0)
 
 
