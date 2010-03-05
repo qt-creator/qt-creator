@@ -87,7 +87,7 @@ Item {
 
     onHeightChanged: updateHandle()
     
-    MouseRegion {
+    MouseArea {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -125,7 +125,7 @@ Item {
             }
         }
 
-        MouseRegion {
+        MouseArea {
             anchors.fill: parent
             drag.target: parent
             drag.axis: "YAxis"
@@ -134,7 +134,7 @@ Item {
         }
     }
 
-    MouseRegion {
+    MouseArea {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: handle.bottom

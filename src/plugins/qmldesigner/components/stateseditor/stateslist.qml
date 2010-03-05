@@ -28,7 +28,7 @@ Rectangle {
 
     // TextInputs don't loose focus automatically when user clicks away, have to be done explicitly
     signal unFocus
-    MouseRegion {
+    MouseArea {
         anchors.fill:parent
         hoverEnabled:true
         onExited: root.unFocus();
@@ -152,7 +152,7 @@ Rectangle {
                 }
             }
 
-            MouseRegion {
+            MouseArea {
                 id: itemRegion
                 anchors.fill: container
                 onClicked: {
@@ -198,7 +198,7 @@ Rectangle {
                     anchors.centerIn:parent
                 }
 
-                MouseRegion {
+                MouseArea {
                     anchors.fill:parent
                     onClicked: {
                         root.unFocus();
@@ -237,7 +237,7 @@ Rectangle {
                     elide:Qt.ElideMiddle
                     horizontalAlignment:Qt.AlignHCenter
                 }
-                MouseRegion {
+                MouseArea {
                     id: txtRegion
                     anchors.fill:parent
                     onClicked: {
@@ -401,7 +401,7 @@ Rectangle {
                     anchors.centerIn:parent
                 }
             }
-            MouseRegion {
+            MouseArea {
                 anchors.fill:parent
                 onClicked: {
                     // force close textinput
@@ -469,7 +469,7 @@ Rectangle {
                 }
             }
 
-            MouseRegion {
+            MouseArea {
                 anchors.fill:parent
                 property int dragging:0;
                 property int originalX:0;

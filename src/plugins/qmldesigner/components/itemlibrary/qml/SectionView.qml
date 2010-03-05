@@ -107,7 +107,7 @@ Column {
             text: sectionName
             color: style.sectionTitleTextColor
         }
-        MouseRegion {
+        MouseArea {
             anchors.fill: parent
             onClicked: {
                 if (itemHighlight.visible &&

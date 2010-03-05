@@ -57,8 +57,8 @@ Rectangle {
         verticalAlignment: "AlignVCenter";
     }
 
-    MouseRegion {
-        id: mouseRegion
+    MouseArea {
+        id: mouseArea
         anchors.fill: parent
         onReleased: { parent.clicked.emit(); }
     }
@@ -66,7 +66,7 @@ Rectangle {
     states: [
         State {
             name: "released"
-            when: !mouseRegion.pressed
+            when: !mouseArea.pressed
 
             PropertyChanges {
                 target: buttonGradientRectangle
@@ -75,7 +75,7 @@ Rectangle {
         },
         State {
             name: "pressed"
-            when: mouseRegion.pressed
+            when: mouseArea.pressed
 
             PropertyChanges {
                 target: buttonGradientRectangle

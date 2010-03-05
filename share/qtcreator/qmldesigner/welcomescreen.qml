@@ -110,7 +110,7 @@ Image {
                     text: name
                 }
 
-                MouseRegion {
+                MouseArea {
                     anchors.top: fileDelegateText.top
 		    anchors.left: fileDelegateText.left
                     anchors.right: fileDelegateText.right

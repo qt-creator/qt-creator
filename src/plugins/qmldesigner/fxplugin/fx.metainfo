@@ -41,9 +41,9 @@
       <property name="text" type="QString" value="textInput"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/MouseRegion" showInItemLibrary="true" category="Qt - Interaction" icon=":/fxplugin/images/mouse-region-icon.png">
+  <node name="Qt/MouseArea" showInItemLibrary="true" category="Qt - Interaction" icon=":/fxplugin/images/mouse-area-icon.png">
     <inherits name="Item" />
-    <itemlibraryrepresentation name="Mouse Region" icon=":/fxplugin/images/mouse-region-icon.png">
+    <itemlibraryrepresentation name="Mouse Area" icon=":/fxplugin/images/mouse-area-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryrepresentation>
