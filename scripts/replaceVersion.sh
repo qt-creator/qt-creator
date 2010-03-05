@@ -112,6 +112,16 @@ sed \
 mv -f "${TMPFILE}" "${QDOC}"
 
 
+## Patch README
+TMPFILE=`mktemp versionPatch.XXXXXX`
+README="${SCRIPT_DIR}/README"
+echo "Patching \`${README}'"
+sed \
+        -e 's/'${OLD_DOT_THREE}'/'${NEW_DOT_THREE}'/' \
+    "${README}" > "${TMPFILE}"
+mv -f "${TMPFILE}" "${README}"
+
+
 ## Go back to original $PWD
 echo "Leaving directory \`${SCRIPT_DIR}'"
 popd &>/dev/null || exit 1
