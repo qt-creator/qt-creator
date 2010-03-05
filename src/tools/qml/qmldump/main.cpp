@@ -279,7 +279,11 @@ int main(int argc, char *argv[])
     xml.writeStartDocument("1.0");
     xml.writeStartElement("module");
 
+    QMap<QString, const QMetaObject *> nameToMeta;
     foreach (const QMetaObject *meta, metas) {
+        nameToMeta.insert(convertToQmlType(meta->className()), meta);
+    }
+    foreach (const QMetaObject *meta, nameToMeta) {
         dump(meta, &xml);
     }
     
