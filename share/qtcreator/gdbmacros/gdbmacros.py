@@ -1600,14 +1600,9 @@ def qdump__QVariant(d, item):
         inner = d.ns + "QVector4D"
     elif variantType == 86: # QVariant::Quadernion
         inner = d.ns + "QQuadernion"
-    else:
-        # FIXME: handle User types
-        d.putValue("(unknown type %d)" % variantType)
-        # typeName = QMetaType::typeName(typ)
-        # exp =  "'qVariantValue<%s >'(*('"NS"QVariant'*)%p)"
-        d.putNumChild(0)
 
     if len(inner):
+        # Build-in types.
         if len(innert) == 0:
             innert = inner
         d.putValue("(%s)" % innert)
@@ -1621,6 +1616,21 @@ def qdump__QVariant(d, item):
             val = gdb.Value(data["ptr"]).cast(innerType)
             d.putItemHelper(Item(val, item.iname, "data", "data"))
             d.endHash()
+            d.endChildren()
+    else:
+        # User types.
+        func = "typeToName(('%sQVariant::Type')%d)" % (d.ns, variantType)
+        type = str(call(item.value, func))
+        type = type[type.find('"') + 1 : type.rfind('"')]
+        type = type.replace("Q", d.ns + "Q") # HACK!
+        data = call(item.value, "constData()")
+        tdata = data.cast(gdb.lookup_type(type).pointer()).dereference()
+        d.putValue("(%s)" % tdata.type)
+        d.putType(tdata.type)
+        d.putNumChild(1)
+        if d.isExpanded(item):
+            d.beginChildren()
+            d.putItem(Item(tdata, item.iname, "data", "data"))
             d.endChildren()
 
 
