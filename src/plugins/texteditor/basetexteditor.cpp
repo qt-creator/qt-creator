@@ -69,6 +69,7 @@
 #include <QtGui/QStyle>
 #include <QtGui/QSyntaxHighlighter>
 #include <QtGui/QTextCursor>
+#include <QtGui/QTextDocumentFragment>
 #include <QtGui/QTextBlock>
 #include <QtGui/QTextLayout>
 #include <QtGui/QToolBar>
@@ -5327,12 +5328,56 @@ QMimeData *BaseTextEditor::createMimeDataFromSelection() const
         mimeData->setData(QLatin1String("application/vnd.nokia.qtcreator.vblocktext"), text.toUtf8());
         mimeData->setText(text); // for exchangeability
         return mimeData;
-    } else if (textCursor().hasSelection()){
+    } else if (textCursor().hasSelection()) {
         QTextCursor cursor = textCursor();
         QMimeData *mimeData = new QMimeData;
+
+        // Copy the selected text as plain text
         QString text = cursor.selectedText();
         convertToPlainText(text);
         mimeData->setText(text);
+
+        // Copy the selected text as HTML
+        {
+            // Create a new document from the selected text document fragment
+            QTextDocument *tempDocument = new QTextDocument;
+            QTextCursor tempCursor(tempDocument);
+            tempCursor.insertFragment(cursor.selection());
+
+            // Apply the additional formats set by the syntax highlighter
+            QTextBlock start = document()->findBlock(cursor.selectionStart());
+            QTextBlock end = document()->findBlock(cursor.selectionEnd());
+            end = end.next();
+
+            const int selectionStart = cursor.selectionStart();
+            const int endOfDocument = tempDocument->characterCount() - 1;
+            for (QTextBlock current = start; current.isValid() && current != end; current = current.next()) {
+                const QTextLayout *layout = current.layout();
+                foreach (const QTextLayout::FormatRange &range, layout->additionalFormats()) {
+                    const int start = current.position() + range.start - selectionStart;
+                    const int end = start + range.length;
+                    if (end <= 0 || start >= endOfDocument)
+                        continue;
+                    tempCursor.setPosition(qMax(start, 0));
+                    tempCursor.setPosition(qMin(end, endOfDocument), QTextCursor::KeepAnchor);
+                    tempCursor.setCharFormat(range.format);
+                }
+            }
+
+            // Reset the user states since they are not interesting
+            for (QTextBlock block = tempDocument->begin(); block.isValid(); block = block.next())
+                block.setUserState(-1);
+
+            // Make sure the text appears pre-formatted
+            tempCursor.setPosition(0);
+            tempCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            QTextBlockFormat blockFormat = tempCursor.blockFormat();
+            blockFormat.setNonBreakableLines(true);
+            tempCursor.setBlockFormat(blockFormat);
+
+            mimeData->setHtml(tempCursor.selection().toHtml());
+            delete tempDocument;
+        }
 
         /*
           Try to figure out whether we are copying an entire block, and store the complete block

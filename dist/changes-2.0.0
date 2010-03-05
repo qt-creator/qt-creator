@@ -30,6 +30,8 @@ Editing
    * Open with "System Editor"
    * Fixed missing semicolon after } when creating unnamed enumeration
    * Fixed auto indent for C style coments
+   * Copying text from the editor now supports HTML mime type, preserving
+     the syntax highlighting.
 
 C++ Support
    * Recognize *.cu as C files
