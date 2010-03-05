@@ -97,7 +97,7 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
             return stringValue;
 
         default:
-            return QString(QLatin1String("\"%1\"")).arg(stringValue);
+            return QString(QLatin1String("\"%1\"")).arg(escape(stringValue));
         }
     } else {
         Q_ASSERT("Unknown property type");
@@ -173,6 +173,19 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
         result = QString(indentDepth, QLatin1Char(' ')) + property.name() + QLatin1String(": ") + toQml(property, indentDepth);
 
     result += QLatin1Char('\n');
+
+    return result;
+}
+
+QString QmlTextGenerator::escape(const QString &value)
+{
+    QString result = value;
+
+    result.replace(QLatin1String("\\"), QLatin1String("\\\\"));
+    result.replace(QLatin1String("\""), QLatin1String("\\\""));
+    result.replace(QLatin1String("\t"), QLatin1String("\\\t"));
+    result.replace(QLatin1String("\r"), QLatin1String("\\\r"));
+    result.replace(QLatin1String("\n"), QLatin1String("\\\n"));
 
     return result;
 }
