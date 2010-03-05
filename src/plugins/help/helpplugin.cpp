@@ -101,13 +101,14 @@ HelpPlugin::HelpPlugin()
     m_centralWidget(0),
     m_helpViewerForSideBar(0),
     m_mode(0),
-    m_shownLastPages(false),
     m_contentItem(0),
     m_indexItem(0),
     m_searchItem(0),
     m_bookmarkItem(0),
     m_rightPaneSideBar(0),
-    isInitialised(false)
+    m_progress(0),
+    isInitialised(false),
+    firstModeChange(true)
 {
 }
 
@@ -636,6 +637,11 @@ void HelpPlugin::extensionsInitialized()
 
     connect(m_helpEngine, SIGNAL(setupFinished()), this,
         SLOT(updateFilterComboBox()));
+
+    // explicit disconnect the full text search indexer, we connect and start
+    // it later once we really need it, e.g. the full text search is opened...
+    disconnect(m_helpEngine, SIGNAL(setupFinished()), m_helpEngine->searchEngine(),
+        SLOT(indexDocumentation()));
     connect(m_helpEngine->searchEngine(), SIGNAL(indexingStarted()), this,
         SLOT(indexingStarted()));
     connect(m_helpEngine->searchEngine(), SIGNAL(indexingFinished()), this,
@@ -720,11 +726,16 @@ QString HelpPlugin::indexFilter() const
 
 void HelpPlugin::modeChanged(Core::IMode *mode)
 {
-    if (mode == m_mode && !m_shownLastPages) {
-        m_shownLastPages = true;
+    if (mode == m_mode && firstModeChange) {
+        firstModeChange = false;
+
         qApp->processEvents();
         qApp->setOverrideCursor(Qt::WaitCursor);
+
         m_centralWidget->setLastShownPages();
+        connect(m_helpEngine, SIGNAL(setupFinished()), m_helpEngine->searchEngine(),
+            SLOT(indexDocumentation()));
+        QMetaObject::invokeMethod(m_helpEngine, "setupFinished", Qt::QueuedConnection);
         qApp->restoreOverrideCursor();
     }
 }
@@ -789,20 +800,25 @@ void HelpPlugin::updateViewerComboBoxIndex(int index)
 
 void HelpPlugin::indexingStarted()
 {
-    Core::ICore::instance()->progressManager() ->addTask(m_progress.future(),
+    Q_ASSERT(!m_progress);
+    m_progress = new QFutureInterface<void>();
+    Core::ICore::instance()->progressManager() ->addTask(m_progress->future(),
         tr("Indexing"), QLatin1String("Help.Indexer"));
-    m_progress.setProgressRange(0, 2);
-    m_progress.setProgressValueAndText(1, tr("Indexing Documentation..."));
-    m_progress.reportStarted();
+    m_progress->setProgressRange(0, 2);
+    m_progress->setProgressValueAndText(1, tr("Indexing Documentation..."));
+    m_progress->reportStarted();
 
-    m_watcher.setFuture(m_progress.future());
+    m_watcher.setFuture(m_progress->future());
     connect(&m_watcher, SIGNAL(canceled()), m_helpEngine->searchEngine(),
         SLOT(cancelIndexing()));
 }
 
 void HelpPlugin::indexingFinished()
 {
-    m_progress.reportFinished();
+    m_progress->reportFinished();
+
+    delete m_progress;
+    m_progress = NULL;
 }
 
 HelpViewer* HelpPlugin::viewerForContextMode()

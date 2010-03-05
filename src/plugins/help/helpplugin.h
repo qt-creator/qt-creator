@@ -154,7 +154,6 @@ private:
     CentralWidget *m_centralWidget;
     HelpViewer *m_helpViewerForSideBar;
     HelpMode *m_mode;
-    bool m_shownLastPages;
 
     Core::SideBarItem *m_contentItem;
     Core::SideBarItem *m_indexItem;
@@ -176,9 +175,10 @@ private:
     QStringList filesToRegister;
 
     QFutureWatcher<void> m_watcher;
-    QFutureInterface<void> m_progress;
+    QFutureInterface<void> *m_progress;
 
     bool isInitialised;
+    bool firstModeChange;
 };
 
 } // namespace Internal
