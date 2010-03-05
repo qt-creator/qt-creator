@@ -32,6 +32,7 @@
 #include "qt4project.h"
 #include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
+#include "qt4target.h"
 #include "modulespage.h"
 #include "targetspage.h"
 
@@ -192,33 +193,33 @@ void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
         m_targetsPage = new TargetsPage;
 }
 
-void BaseQt4ProjectWizardDialog::addModulesPage(int id)
+int BaseQt4ProjectWizardDialog::addModulesPage(int id)
 {
-    if (m_modulesPage) {
-        if (id >= 0) {
-            setPage(id, m_modulesPage);
-        } else {
-            addPage(m_modulesPage);
-        }
+    if (!m_modulesPage)
+        return -1;
+    if (id >= 0) {
+        setPage(id, m_modulesPage);
+        return id;
     }
+    return addPage(m_modulesPage);
 }
 
-void BaseQt4ProjectWizardDialog::addTargetsPage(QSet<QString> targets, int id)
+int BaseQt4ProjectWizardDialog::addTargetsPage(QSet<QString> targets, int id)
 {
     if (!m_targetsPage)
-        return;
+        return -1;
 
     m_targetsPage->setValidTargets(targets);
 
     if (!m_targetsPage->needToDisplayPage())
-        return;
+        return -1;
 
-    if (id >= 0)
+    if (id >= 0) {
         setPage(id, m_targetsPage);
-    else
-        addPage(m_targetsPage);
+        return id;
+    }
+    return addPage(m_targetsPage);
 }
-
 
 QString BaseQt4ProjectWizardDialog::selectedModules() const
 {
@@ -264,4 +265,11 @@ QList<int> BaseQt4ProjectWizardDialog::selectedQtVersionIdsForTarget(const QStri
     if (!m_targetsPage)
         return QList<int>();
     return m_targetsPage->selectedVersionIdsForTarget(target);
+}
+
+QSet<QString> BaseQt4ProjectWizardDialog::desktopTarget()
+{
+    QSet<QString> rc;
+    rc.insert(QLatin1String(DESKTOP_TARGET_ID));
+    return rc;
 }

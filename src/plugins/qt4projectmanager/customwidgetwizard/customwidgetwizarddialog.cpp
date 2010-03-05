@@ -35,16 +35,16 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-enum { IntroPageId, WidgetsPageId, PluginPageId };
+enum { IntroPageId = 0};
 
 CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
                                                    const QIcon &icon,
                                                    const QList<QWizardPage*> &extensionPages,
                                                    QWidget *parent) :
-    ProjectExplorer::BaseProjectWizardDialog(parent),
+    BaseQt4ProjectWizardDialog(false, parent),
     m_widgetsPage(new CustomWidgetWidgetsWizardPage),
-    m_pluginPage(new CustomWidgetPluginWizardPage)
-
+    m_pluginPage(new CustomWidgetPluginWizardPage),
+    m_widgetPageId(-1), m_pluginPageId(-1)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
@@ -52,8 +52,9 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates a Qt4 Designer Custom Widget "
                            "or a Qt4 Designer Custom Widget Collection project."));
 
-    setPage(WidgetsPageId, m_widgetsPage);
-    setPage(PluginPageId, m_pluginPage);
+    addTargetsPage(BaseQt4ProjectWizardDialog::desktopTarget());
+    m_widgetPageId = addPage(m_widgetsPage);
+    m_pluginPageId = addPage(m_pluginPage);
 
     foreach (QWizardPage *p, extensionPages)
         addPage(p);
@@ -73,14 +74,8 @@ void CustomWidgetWizardDialog::setFileNamingParameters(const FileNamingParameter
 
 void CustomWidgetWizardDialog::slotCurrentIdChanged(int id)
 {
-    switch (id) {
-    case IntroPageId:
-    case WidgetsPageId:
-        break;
-    case PluginPageId:
+    if (id == m_pluginPageId)
         m_pluginPage->init(m_widgetsPage);
-        break;
-    }
 }
 
 QSharedPointer<PluginOptions> CustomWidgetWizardDialog::pluginOptions() const

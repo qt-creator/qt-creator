@@ -75,6 +75,8 @@ private slots:
 
 private:
     TestWizardPage *m_testPage;
+    int m_testPageId;
+    int m_modulesPageId;
 };
 
 } // namespace Internal

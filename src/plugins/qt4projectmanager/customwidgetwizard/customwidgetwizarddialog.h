@@ -30,7 +30,7 @@
 #ifndef CUSTOMWIDGETWIZARDDIALOG_H
 #define CUSTOMWIDGETWIZARDDIALOG_H
 
-#include <projectexplorer/baseprojectwizarddialog.h>
+#include "../wizards/qtwizard.h"
 
 #include <QtCore/QSharedPointer>
 
@@ -42,7 +42,7 @@ class CustomWidgetPluginWizardPage;
 struct PluginOptions;
 struct FileNamingParameters;
 
-class CustomWidgetWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+class CustomWidgetWizardDialog : public BaseQt4ProjectWizardDialog
 {
     Q_OBJECT
 public:
@@ -63,6 +63,8 @@ private slots:
 private:
     CustomWidgetWidgetsWizardPage *m_widgetsPage;
     CustomWidgetPluginWizardPage *m_pluginPage;
+    int m_widgetPageId;
+    int m_pluginPageId;
 };
 
 } // namespace Internal
