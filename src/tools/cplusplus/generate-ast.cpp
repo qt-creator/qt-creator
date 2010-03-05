@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
@@ -57,7 +57,7 @@ static const char copyrightHeader[] =
 "**\n"
 "** This file is part of Qt Creator\n"
 "**\n"
-"** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).\n"
+"** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).\n"
 "**\n"
 "** Contact: Nokia Corporation (qt-info@nokia.com)\n"
 "**\n"

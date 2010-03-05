@@ -1,6 +1,6 @@
 <plugin name="Help" version="1.3.82" compatVersion="1.3.82">
     <vendor>Nokia Corporation</vendor>
-    <copyright>(C) 2008-2009 Nokia Corporation</copyright>
+    <copyright>(C) 2010 Nokia Corporation</copyright>
     <license>
 Commercial Usage
 
