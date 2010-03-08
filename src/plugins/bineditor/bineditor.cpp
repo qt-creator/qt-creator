@@ -41,6 +41,7 @@
 #include <QtGui/QClipboard>
 #include <QtGui/QFontMetrics>
 #include <QtGui/QMenu>
+#include <QtGui/QMessageBox>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 #include <QtGui/QWheelEvent>
@@ -1124,7 +1125,13 @@ void BinEditor::copy(bool raw)
     const int selStart = selectionStart();
     const int selEnd = selectionEnd();
     if (selStart < selEnd) {
-        const QByteArray &data = dataMid(selStart, selEnd - selStart);
+        const int selectionLength = selEnd - selStart;
+        if (selectionLength >> 22) {
+            QMessageBox::warning(this, tr("Copying Failed"),
+                                 tr("You cannot copy more than 4 MB of binary data."));
+            return;
+        }
+        const QByteArray &data = dataMid(selStart, selectionLength);
         if (raw) {
             QApplication::clipboard()->setText(data);
             return;
