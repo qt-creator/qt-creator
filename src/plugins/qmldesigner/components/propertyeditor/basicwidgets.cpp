@@ -45,6 +45,7 @@
 #include <QApplication>
 #include <QGraphicsOpacityEffect>
 #include <QCleanlooksStyle>
+#include <QTextEdit>
 
 
 QT_BEGIN_NAMESPACE
@@ -1217,6 +1218,26 @@ private:
     }
 };
 
+class ExpressionEdit : public QPlainTextEdit
+{
+    Q_OBJECT
+public:
+    ExpressionEdit(QWidget *parent = 0) : QPlainTextEdit(parent) {}
+signals:
+    void returnPressed();
+
+protected:
+    void keyPressEvent( QKeyEvent * e );
+};
+
+void ExpressionEdit::keyPressEvent(QKeyEvent * e)
+{
+    if ((e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) && (e->modifiers() == Qt::NoModifier))
+        emit returnPressed();
+    else
+        QPlainTextEdit::keyPressEvent(e);
+}
+
 
 class WidgetFrame : public QFrame
 {
@@ -1244,6 +1265,7 @@ void BasicWidgets::registerDeclarativeTypes()
     //input
     QML_REGISTER_TYPE(Bauhaus,1,0,QLineEdit,QLineEdit);
     QML_REGISTER_TYPE(Bauhaus,1,0,QTextEdit,QTextEdit);
+    QML_REGISTER_TYPE(Bauhaus,1,0,ExpressionEdit,ExpressionEdit);
     QML_REGISTER_TYPE(Bauhaus,1,0,QPlainTextEdit,QPlainTextEdit);
     QML_REGISTER_TYPE(Bauhaus,1,0,QSpinBox,QSpinBox);
     QML_REGISTER_TYPE(Bauhaus,1,0,QDoubleSpinBox,QDoubleSpinBox);
