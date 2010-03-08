@@ -42,7 +42,7 @@
 
     \image addressbook-tutorial-screenshot.png
 
-    In the process, we will learn about some basic technologies provided by
+    In the process, you will learn about some basic technologies provided by
     Qt, such as:
 
     \list
@@ -88,21 +88,22 @@
     \contentspage {Address Book Tutorial}{Contents}
     \nextpage {examples/addressbook-sdk/part2}{Chapter 2}
     \example examples/addressbook-sdk/part1
+
     \title Address Book 1 - Designing the User Interface
 
     The first part of this tutorial covers the design of the basic graphical
-    user interface (GUI) we use for the Address Book application.
+    user interface (GUI) you use for the Address Book application.
 
     The first step to creating a GUI program is to design the user interface.
-    In this chapter, our goal is to set up the labels and input fields needed
+    In this chapter, your goal is to set up the labels and input fields needed
     to implement a basic address book application. The figure below is a
     screenshot of our expected output.
 
     \image addressbook-tutorial-part1-screenshot.png
 
-    We begin by launching Qt Creator and use it to generate a new project. To
-    do this, select \gui{New File or Project...} from the \gui File menu. In
-    the \gui{New...} dialog, select \gui{Projects -> Qt4 Gui Application} and
+    Begin by launching Qt Creator and use it to generate a new project. To
+    do this, select \gui{File} > \gui{New File or Project...} >
+    \gui{Qt Application Project} > \gui{Qt Gui Application} and
     click \gui OK. Set your project name to \bold part1 with the QtCore and
     QtGui modules checked. Ensure that you select QWidget as your base class
     and name it \c AddressBook.
@@ -122,12 +123,11 @@
         \o  \c{part1.pro} - the project file.
     \endlist
 
-    Now that we have all the files we need, click \gui Finish so can start
-    designing the user interface.
+    Now that you have all the files you need, click \gui Finish so you can
+    start designing the user interface.
 
-    \note For more information on how to create a \gui Project, see
-    \l {Creating a project}.
-
+    \note For more details on how to create a \gui Project with Qt Creator,
+    refer to \l{Creating a Project}.
 
     \section1 Placing Widgets on The Form
 
@@ -139,21 +139,26 @@
 
     \image addressbook-tutorial-part1-designer-screenshot.png
 
-    We require two \l{QLabel}s to label the input fields as well as a QLineEdit
-    and a QTextEdit for the input fields. So, drag those widgets from the
-    \gui{Widget Box} to your form. In the \gui{Property Editor}, set their
-    \gui{objectName} property to \c nameLabel and \c addressLabel for the
-    \l{QLabel}s, \c nameLine for the QLineEdit and finally, \c addressText for
-    the QTextEdit.
+    You require two \l{QLabel}s to label the input fields as well as a
+    QLineEdit and a QTextEdit for the input fields. To create this follow the
+    steps mentioned below:
+    \list
+       \o  Drag those widgets from the \gui{Widget Box} to your form.
+       \o  In the \gui{Property Editor}, set their \gui{objectName} property to
+           \c nameLabel and \c addressLabel for the \l{QLabel}s, \c nameLine
+           for the QLineEdit and finally, \c addressText for the QTextEdit.
+       \o  Position the widgets properly, according to the screenshot above.
+       \o  Use a QGridLayout to position our labels and input fields in a
+           structured manner. QGridLayout divides the available space into
+           a grid and places widgets in the cells you specify with row and
+           column numbers.
+       \o  Place the caption of the \c addressLabel on the top, change the
+           vertical alignment property to \c AlignTop.
+    \endlist
 
-    Next, we have to position the widgets properly, according to the screenshot
-    earlier. We use a QGridLayout to position our labels and input fields in a
-    structured manner. QGridLayout divides the available space into a grid and
-    places widgets in the cells we specify with row and column numbers. To place
-    the caption of the \c addressLabel on the top, change the vertical alignment
-    property to \c AlignTop. The diagram below shows the layout cells and the
-    position of our widgets. Place your widgets accordingly and save the form by
-    choosing \gui{File -> Save} or using the \key{Ctrl+S} shortcut.
+    The figure below shows the layout cells and the position of our widgets.
+    Place your widgets accordingly and save the form by choosing
+    \gui{File} > \gui{Save} or use the shortcut key \key{Ctrl+S}.
 
     \image addressbook-tutorial-part1-labeled-screenshot.png
 
@@ -162,19 +167,15 @@
     red border, top level layouts have no graphical representation. Layouts are
     necessary for top level widgets, in this case QWidget, to ensure that when
     the window is resized, the widgets on the form will resize accordingly. You
-    can try this out by pressing \key{Ctrl+Alt+R} now. To correct it, simply click
+    can try this out by pressing \key{Ctrl+Alt+R} now. To correct it, click
     anywhere on the form and select \gui{Lay out Horizontally} or
     \gui{Lay out Vertically}. The output will be the same. Now your widgets
     will resize correctly.
 
-    \table
-        \row
-            \o  \bold{Note:} Refer to the \l{Layout Classes} document for more
-                details on Qt's layout management classes. In addition, the
-                \l{Getting to Know Qt Designer} document explains how to use
-                layouts with \QD.
-    \endtable
-
+    \note Refer to the \l{Layout Classes} document for more
+    details on Qt's layout management classes. In addition, the
+    \l{Getting to Know Qt Designer} document explains how to use
+    layouts with \QD.
 
     \section1 The AddressBook Class
 
@@ -191,7 +192,7 @@
 
     \snippet examples/addressbook-sdk/part1/addressbook.h class definition
 
-    Qt Creator's \gui{Project Wizard} provides us with the \c Ui object as a
+    Qt Creator's \gui{Project Wizard} provides you with the \c Ui object as a
     way to access the widgets on our form.
 
     The \l{examples/addressbook-sdk/part1/addressbook.cpp}{\c addressbook.cpp}
@@ -223,23 +224,24 @@
 
     \section1 Running the Application
 
-    To run your application with Qt Creator, simply click on the Play button
-    (image). A bare bones Address Book will be displayed. Click on the X button
-    to close it.
+    To run your application with Qt Creator, simply click,
+    \inlineimage qtcreator-run.png.
+    A bare bones Address Book will be displayed.
+
 
 
     \section1 Qt Programming - Subclassing
 
-    When writing Qt programs, we usually subclass Qt objects to add
+    When writing Qt programs, you usually subclass Qt objects to add
     functionality. This is one of the essential concepts behind creating custom
     widgets or collections of standard widgets. Subclassing to extend or change
     the behavior of a widget has the following advantages:
 
     \list
-        \o  We can write implementations of virtual or pure virtual functions
-            to obtain exactly what we need, falling back on the base class's
+        \o  You can write implementations of virtual or pure virtual functions
+            to obtain exactly what you need, falling back on the base class's
             implementation when necessary.
-        \o  It allows us to encapsulate parts of the user interface within a
+        \o  It allows you to encapsulate parts of the user interface within a
             class, so that the other parts of the application do not need to
             know about the individual widgets in the user interface.
         \o  The subclass can be used to create multiple custom widgets in the
@@ -247,10 +249,12 @@
             reused in other projects.
     \endlist
 
-    Since Qt does not provided a specific address book widget, we subclass a
+    Since Qt does not provided a specific address book widget, you subclass a
     standard Qt widget class and add features to it. The \c AddressBook class
-    we create in this tutorial can be reused in situations where a basic
+    you create in this tutorial can be reused in situations where a basic
     address book is needed.
+
+
 */
 
 
@@ -267,56 +271,58 @@
 
     \image addressbook-tutorial-part2-add-contact.png
 
-    We will provide a push button that the user can click to add a new contact.
-    Also, some form of data structure is needed to store these contacts in an
-    organized way.
+    You will provide a push button that the user can click to add a new
+    contact. Also, some form of data structure is needed to store these
+    contacts in an organized way.
 
 
     \section1 Placing Widgets on The Form
 
-    We shall continue with the form we had from the last chapter; we have the
-    labels and input fields set up, but we need to add push buttons to complete
-    the process of adding a contact. So, we begin by breaking the existing
-    layouts: select \gui{Break Layout} from the context menu. You might have to
-    do a \gui{Select All} with \key{Ctrl+A} first.. Then, we add three push
-    buttons. Double-click on each of them to set their text to "Add", "Submit",
-    and "Cancel". Next, set the \c objectName of the buttons to \c addButton,
-    \c submitButton and \c cancelButton respectively.
-    We now require a vertical spacer to ensure that the push buttons will be laid
-    out neatly; drag one from the \gui{Widget Box}.
+    You can continue with the form from the last chapter; you have the
+    labels and input fields set up, but you need to add push buttons to
+    complete the process of adding a contact. Break the existing layouts by
+    following the steps below:
+    \list
+        \o Select, \gui{Break Layout} from the context menu. You might have to
+           do a \gui{Select All} with \key{Ctrl+A} first..
+        \o Add three push buttons and double-click on each of them to set
+           their text to "Add", "Submit", and "Cancel".
+        \o Set the \c objectName of the buttons to \c addButton,
+           \c submitButton and \c cancelButton respectively.
+        \o A \gui{Vertical Spacer} is required to ensure that the push buttons
+           will be laid out neatly; drag one from the \gui{Widget Box}.
+        \o Lay out these three push buttons and the spacer vertically, by
+           selecting all three of them using \key{Ctrl + click} and selecting
+           \gui{Lay out Vertically} from the context menu. Alternatively you
+           can  use the \key{Ctrl+L} shortcut key.
 
-    ## image for button missing
-
-    Next, lay out these three push buttons and the spacer vertically, by
-    selecting all three of them (using the \key{Ctrl + click}) and choosing
-    \gui{Lay out Vertically} from the context menu. Alternatively you can click
-    on the ... button or use the \key{Ctrl+L} shortcut. We use the spacer as we
-    do not want the buttons to be evenly spaced, but arranged closer to the top
-    of the widget. The figure below shows the difference between using the
-    spacer and not using it.
-
-    \image addressbook-tutorial-part2-stretch-effects.png
-
-    Select all the objects on the form (use \key{Ctrl+A}) and lay them out in a
-    grid. Lastly, set the top level widget's layout by right-clicking anywhere
-    on the widget and selecting \gui{Lay out Horizontally} or
-    \gui{Lay out Vertically}.
+           \note Use the spacer as you do not want the buttons to be evenly
+           spaced, but arranged closer to the top of the widget.
+        \o The figure below shows the difference between using the spacer and
+           not using it.
+           \image addressbook-tutorial-part2-stretch-effects.png
+        \o Select all the objects on the form using, \key{Ctrl+A} and lay them
+           out in a grid.
+        \o Lastly, set the top level widget's layout by right-clicking anywhere
+           on the widget and selecting \gui{Lay out Horizontally} or
+           \gui{Lay out Vertically}.
+    \endlist
 
     The final design of the form is shown in the screenshot below:
 
-    ## image
+    \image addressbook-tutorial-part2-form-design.png
 
 
     \section1 The AddressBook Class
 
-    To ensure that the Address Book reacts to user interaction, we need to
-    write slots for each push button that we added earlier. A slot is a
-    function that responds to a particular signal. We will discuss this
-    concept in further detail below. However, for an overview of Qt's signals
+    To ensure that the Address Book reacts to user interaction, you need to
+    write slots for each push button that you added earlier. A slot is a
+    function that responds to a particular signal. This concept will be
+    discussed further in detail below. However, for an overview of Qt's signals
     and slots concept, you can refer to the \l{Signals and Slots} document.
 
     In the \l{examples/addressbook-sdk/part2/addressbook.h}{\c addressbook.h}
-    file, we add the following code:
+    file, add the following code:
 
     \snippet examples/addressbook-sdk/part2/addressbook.h slot definition
 
@@ -325,53 +331,54 @@
 
     \snippet examples/addressbook-sdk/part2/addressbook.h include
 
-    We need a container to store our address book contacts, so that we can
+    You need a container to store our address book contacts, so that you can
     traverse and display them. A QMap object, \c contacts, is used for this
     purpose as it holds a key-value pair: the contact's name as the \e key, and
     the contact's address as the \e value.
 
     \snippet examples/addressbook-sdk/part2/addressbook.h members
 
-    We also declare two private QString objects, \c oldName and \c oldAddress.
+    You also declare two private QString objects, \c oldName and \c oldAddress.
     These objects are needed to hold the name and address of the contact that
-    was last displayed, before the user clicked \gui Add. So, when the user
-    clicks \gui Cancel, we can revert to displaying the details of the last
+    was last displayed, before you click \gui Add. So, when you
+    click \gui Cancel, you can revert to displaying the details of the last
     contact.
 
-    ## this is a bit confusing, as the ctor was not defined by us nor is a slot
 
-    Let's move on to implementing the slots we defined earlier. Within the
-    constructor of \c AddressBook, we set up our fields by ensuring that
-    \c nameLine and \c addressText are read-only, so that we can only display
-    but not edit existing contact details. Note that in order to prevent
-    crashes, you need make sure that the autogenerated \c setupUi() call
-    is always first in the constructor.
+
+    Let's move on to implementing the slots defined earlier. Within the
+    constructor of \c AddressBook, you set up our fields by ensuring that
+    \c nameLine and \c addressText are read-only, so that you can only display
+    but not edit existing contact details.
+
+    \note In order to prevent crashes, you need make sure that the
+    autogenerated \c setupUi() call is always first in the constructor.
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp setup fields
 
-    We also hide both \c submitButton and \c cancelButton as they will only be
-    displayed when the user clicks \gui Add, and this is handled by the
+    You also hide both \c submitButton and \c cancelButton as they will only be
+    displayed when you click \gui Add, and this is handled by the
     \c addContact() function discussed below.
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp signal slot
 
-    We connect the push buttons' \l{QAbstractButton::}{clicked()} signal to
+    You connect the push buttons' \l{QAbstractButton::}{clicked()} signal to
     their respective slots. The figure below illustrates this.
 
     \image addressbook-tutorial-part2-signals-and-slots.png
 
-    Finally, we set the window title to "Simple Address Book" using the
+    Finally, set the window title to "Simple Address Book" using the
     \l{QWidget::}{setWindowTitle()} function. The tr() method allows us
-    to translate user interface strings. Refer to ###.
+    to translate user interface strings.
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp window title
 
     \section2 The \c addContact() Function
 
-    In this function, we begin by storing the last displayed contact details
-    in \c oldName and \c oldAddress. Then we clear these input fields and turn
-    off the read-only mode. The focus is set on \c nameLine and we display
-    \c submitButton and \c cancelButton; but we disable \c addButton.
+    In this function, begin by storing the last displayed contact details
+    in \c oldName and \c oldAddress. Then clear these input fields and turn
+    off the read-only mode. The focus is set on \c nameLine and display
+    \c submitButton and \c cancelButton; but disable \c addButton.
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp addContact
 
@@ -380,30 +387,30 @@
     This function can be divided into three parts:
 
     \list 1
-        \o  We extract the contact's detail from \c nameLine and \c addressText
-            and store them in QString objects. We also validate to ensure that
-            the user did not click \gui Submit with empty input fields;
-            otherwise, a QMessageBox is displayed to remind the user for a name
+        \o  Extract the contact's detail from \c nameLine and \c addressText
+            and store them in QString objects. Also validate to ensure that
+            you did not click \gui Submit with empty input fields;
+            otherwise, a QMessageBox is displayed to remind you for a name
             and address.
 
             \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part1
 
-        \o  We then proceed to check if the contact already exists. If it does
-            not exist, we add the contact to \c contacts and we display a
-            QMessageBox to inform the user about this, preventing the user from
+        \o  Then proceed to check if the contact already exists. If it does
+            not exist, add the contact to \c contacts and display a
+            QMessageBox to inform you about this, preventing you from
             adding duplicate contacts. Our \c contacts object is based on
-            key-value pairs or name and address, hence, we want to ensure that
+            key-value pairs or name and address, hence, you want to ensure that
             \e key is unique.
 
             \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part2
 
-        \o  Once we have handled both cases mentioned above, we restore the
+        \o  Once you have handled both cases mentioned above, restore the
             push buttons to their normal state with the following code:
 
             \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part3
     \endlist
 
-    The screenshot below shows the QMessageBox object we use to display
+    The screenshot below shows the QMessageBox object used to display
     information messages to the user.
 
     \image addressbook-tutorial-part2-add-successful.png
@@ -415,7 +422,7 @@
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp cancel
 
-    The general idea behind adding a contact is to give the user the
+    The general idea behind adding a contact is to give you the
     flexibility to click \gui Submit or \gui Cancel at any time. The flowchart
     below further explains this concept:
 
@@ -438,115 +445,121 @@
     \example examples/addressbook-sdk/part3
     \title Address Book 3 - Navigating between Entries
 
-    The address book application is now half complete. We need to add some
-    functions to navigate between contacts. But first, we have to decide what
-    sort of a data structure we would like to use to hold these contacts.
+    The address book application is now half complete. You need to add some
+    functions to navigate between contacts. But first, you have to decide what
+    sort of a data structure you would like to use to hold these contacts.
 
-    In Chapter 2, we used a QMap of key-value pairs with the contact's name as
+    In Chapter 2, you used a QMap of key-value pairs with the contact's name as
     the \e key, and the contact's address as the \e value. This works well for
-    our case. However, in order to navigate and display each entry, a little
+    your case. However, in order to navigate and display each entry, a little
     bit of enhancement is needed.
 
-    We enhance the QMap by making it replicate a data structure similar to a
+    Enhance the QMap by making it replicate a data structure similar to a
     circularly-linked list, where all elements are connected, including the
     first element and the last element. The figure below illustrates this data
-    structure;
+    structure.
 
     \image addressbook-tutorial-part3-linkedlist.png
 
 
     \section1 Placing Widgets on The Form
 
-    So far, our application allows us to add new contacts. However, we also
-    need to traverse the existing contacts. To do so, we add two push buttons
-    at the bottom of our application and name them: \gui Next and
-    \gui Previous. The buttons' \c objectName should be \c nextButton and
-    \c previousButton, respectively. Then, we break our top level layout.
-    Simply right-click on \c AddressBook in the \gui{Object Inspector} and
-    then select \gui{Lay out|Break Layout}. Place the \gui Next and
-    \gui Previous buttons in a horizontal layout. Now drag and drop the buttons
-    together with their layout into the existing grid layout. The screenshot
-    below illustrates what you will see as the button layout approaches the
-    grid layout; drop it then.
+    So far, your application allows us to add new contacts. However, you also
+    need to traverse the existing contacts. To do so follow the steps
+    mentioned below:
+    \list
+        \o Add two push buttons at the bottom of your application and name
+           them: \gui Next and \gui Previous.
+        \o The buttons' \c objectName should be \c nextButton and
+           \c previousButton, respectively.
+        \o Break your top level layout by right-clicking on \c AddressBook in
+           the \gui{Object Inspector} and then select \gui{Lay out|Break Layout}.
+        \o Place the \gui Next and \gui Previous buttons in a horizontal
+           layout.
+        \o Drag and drop the buttons together with their layout into the
+           existing grid layout.
+        \o Set a top level layout for the widget again.
+    \endlist
+
+    The screenshot below illustrates what you will see as the button layout
+    approaches the grid layout; drop it then.
 
     \image addressbook-tutorial-part3-drop-in-gridlayout.png
 
-    Finally, set a top level layout for the widget again.
-
-    \note We follow basic conventions for \c next() and \c previous() functions
+    \note Follow basic conventions for \c next() and \c previous() functions
     by placing the \c nextButton on the right and the \c previousButton on the
     left.
 
 
     \section1 The AddressBook Class
 
-    Let's move on to the code. In order to add navigation functions to the
-    address book application, we need to add two more slots to our
-    \c AddressBook class: \c next() and \c previous().
+    In order to add navigation functions to the address book application,
+    you need to add two more slots to our \c AddressBook class: \c next() and
+    \c previous().
 
     \snippet examples/addressbook-sdk/part3/addressbook.h slot definition
 
-    In the \c AddressBook constructor, we setup our fields and disable them by
-    default. This is because navigation is only enabled when there is more than
-    one contact in the address book.
+    In the \c AddressBook constructor, you setup your fields and disable them
+    by default. This is because navigation is only enabled when there is more
+    than one contact in the address book.
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp setup fields
 
-    Next, we connect the buttons to their respective slots:
+    Next, connect the buttons to their respective slots:
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp signal slot
 
-    The screenshot below is our expected graphical user interface. Notice that
-    it is getting closer to our final application.
+    The screenshot below is your expected graphical user interface. Notice that
+    it is getting closer to your final application.
 
     \image addressbook-tutorial-part3-screenshot.png
 
-    Within our \c addContact() function, we have to disable the \gui Next and
-    \gui Previous buttons so that the user does not attempt to navigate while
+    Within your \c addContact() function, you have to disable the \gui Next and
+    \gui Previous buttons so that you do not attempt to navigate while
     adding a contact.
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp disable navigation
 
-    Also, in our \c submitContact() function, we enable the navigation buttons,
-    depending on the size of \c contacts. Asmentioned earlier, navigation is
+    Also, in your \c submitContact() function, enable the navigation buttons,
+    depending on the size of \c contacts. As mentioned earlier, navigation is
     only enabled when there is more than one contact in the address book. The
     following lines of code demonstrates how to do this:
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp enable navigation
 
-    We also include these lines of code in the \c cancel() function.
+    Also include these lines of code in the \c cancel() function.
 
-    Recall that we intend to emulate a circularly-linked list with our QMap
-    object, \c contacts. So in the \c next() function, we obtain an iterator
+    Recall that you intend to emulate a circularly-linked list with your QMap
+    object, \c contacts. So in the \c next() function, obtain an iterator
     for \c contacts and then:
 
     \list
-        \o If the iterator is not at the end of \c contacts, we increment it by
+        \o If the iterator is not at the end of \c contacts, increment it by
            one.
-        \o If the iterator is at the end of \c contacts, we move it to the
-           beginning of \c contacts. This gives us the illusion that our QMap
+        \o If the iterator is at the end of \c contacts, move it to the
+           beginning of \c contacts. This gives an illusion that our QMap
            is working like a circularly-linked list.
     \endlist
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp next
 
-    Once we have iterated to the current object in \c contacts, we display its
+    Once you have iterated to the current object in \c contacts, display its
     contents on \c nameLine and \c addressText.
 
-    Similarly, for the \c previous() function,we obtain an iterator for
+    Similarly, for the \c previous() function, obtain an iterator for
     \c contacts and then:
 
     \list
-        \o  If the iterator is at the end of \c contacts, we clear the display
+        \o  If the iterator is at the end of \c contacts, clear the display
             and return.
-        \o  If the iterator is at the beginning of \c contacts, we move it to
+        \o  If the iterator is at the beginning of \c contacts, move it to
             the end.
-        \o  We then decrement the iterator by one.
+        \o  Then decrement the iterator by one.
     \endlist
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp previous
 
-    Again, we display the contents of the current object in \c contacts.
+    Again, display the contents of the current object in \c contacts.
 
 */
 
@@ -559,31 +572,31 @@
     \example examples/addressbook-sdk/part4
     \title Address Book 4 - Editing and Removing Addresses
 
-    In this chapter, we look at ways to modify the contents of contacts stored
+    This chapter looks at ways to modify the contents of contacts stored
     in the address book application.
 
-    #screenshot
+    \image addressbook-tutorial-part4-screenshot.png
 
-    We now have an address book that not only holds contacts in an organized
+    You now have an address book that not only holds contacts in an organized
     manner, but also allows navigation. It would be convenient to include edit
     and remove functions so that a contact's details can be changed when
     needed. However, this requires a little improvement, in the form of enums.
 
-    In our previous chapters, we had two modes: \c AddingMode and
-    \c NavigationMode - but they were not defined as enums. Instead, we enabled
-    and disabled the corresponding buttons manually, resulting in multiple
-    lines of repeated code.
+    In our previous chapters, you had two modes: \c AddingMode and
+    \c NavigationMode - but they were not defined as enums. Instead, you
+    enabled and disabled the corresponding buttons manually, resulting in
+    multiple lines of repeated code.
 
-    In this chapter, we define the \c Mode enum with three different values:
+    In this chapter, define the \c Mode enum with three different values:
     \list
-        \o \c{NavigationMode},
-        \o \c{AddingMode}, and
-        \o \c{EditingMode}.
+        \o \c{NavigationMode}
+        \o \c{AddingMode}
+        \o \c{EditingMode}
     \endlist
 
     \section1 Placing Widgets on The Form
 
-    To edit and remove contacts, we need two push buttons. Drag them and name
+    To edit and remove contacts, you need two push buttons. Drag them and name
     them accordingly. Their \c objectName properties should be \c editButton
     and \c removeButton, respectively. The quickest way to place these two
     buttons into our existing layout, is to simply drag and drop them. Use the
@@ -594,21 +607,21 @@
 
     \section1 The AddressBook Class
 
-    We update the header file to contain the \c Mode enum:
+    Update the header file to contain the \c Mode enum:
 
     \snippet examples/addressbook-sdk/part4/addressbook.h enum
 
-    We also add two new slots, \c editContact() and \c removeContact(), to our
+    Also add two new slots, \c editContact() and \c removeContact(), to your
     current list of public slots.
 
     \snippet examples/addressbook-sdk/part4/addressbook.h slot definition
 
-    In order to switch between modes, we introduce the \c updateInterface()
+    In order to switch between modes, introduce the \c updateInterface()
     function to control the enabling and disabling of all push buttons.
 
     \snippet examples/addressbook-sdk/part4/addressbook.h updateInterface
 
-    Lastly, we declare \c currentMode to keep track of the enum's current mode.
+    Lastly, declare \c currentMode to keep track of the enum's current mode.
 
     \snippet examples/addressbook-sdk/part4/addressbook.h current mode
 
@@ -623,9 +636,8 @@
 
     \snippet examples/addressbook-sdk/part4/addressbook.cpp signal slot
 
-    Now we look at the \c editContact() and \c removeContact() functions in
+    Now look at the \c editContact() and \c removeContact() functions in
     detail.
-
 
     \section2 The \c editContact() Function
 
@@ -636,58 +648,58 @@
 
     \snippet examples/addressbook-sdk/part4/addressbook.cpp editContact
 
-    Since we will reuse the \c submitButton for both: adding a new contact and
-    editing an existing contact, we need to modify our existing
-    \c submitContact() function. So, we divide it in two with an \c{if-else}
+    Since you will reuse the \c submitButton for both: adding a new contact and
+    editing an existing contact, you need to modify our existing
+    \c submitContact() function. So, divide it in two with an \c{if-else}
     statement.
 
-    First, we check \c currentMode to see if it is in \c AddingMode. If it is,
-    we proceed with our adding process.
+    First, check \c currentMode to see if it is in \c AddingMode. If it is,
+    proceed with your adding process.
 
     \snippet examples/addressbook-sdk/part4/addressbook.cpp submitContact part1
     \dots
     \snippet examples/addressbook-sdk/part4/addressbook.cpp submitContact part2
 
-    Otherwise, we check to see if \c currentMode is in \c EditingMode. If it
-    is, we compare \c oldName with \c name. If the name has changed, we remove
+    Otherwise, check to see if \c currentMode is in \c EditingMode. If it
+    is, compare \c oldName with \c name. If the name has changed, remove
     the old contact from \c contacts and insert the newly updated contact.
 
     \snippet examples/addressbook-sdk/part4/addressbook.cpp submitContact part3
 
-    If only the contact's address changed, i.e., \c oldAddress is not the same
-    as \c address, we update the contact's address. Lastly, we set
+    If only the contact's address has changed, that is the \c oldAddress is
+    not the  same as \c address, update the contact's address. Lastly, set
     \c currentMode to \c NavigationMode. This is an important step as it
     re-enables all the disabled push buttons.
 
-    To remove a contact from the address book, we implement the
+    To remove a contact from the address book, implement the
     \c removeContact() function.
 
     \snippet examples/addressbook-sdk/part4/addressbook.cpp removeContact
 
     This function first checks to see if the contact exists in \c contacts. If
-    it does, we display a QMessageBox, to confirm the removal with the user.
-    Once the user has confirmed, we call \c previous() to ensure that the
-    user interface shows another contact, and we remove the contact using
-    \l{QMap}'s \l{QMap::}{remove()} function. As a courtesy, we display a
+    it does, display a QMessageBox, to confirm the removal with the user.
+    Once the user has confirmed, call \c previous() to ensure that the
+    user interface shows another contact, and remove the contact using
+    \l{QMap}'s \l{QMap::}{remove()} function. As a courtesy, display a
     QMessageBox to inform the user. Both the message boxes used in this
     function are shown below:
 
-    # image
-
+    \image addressbook-tutorial-part4-confirm.png
+    \image addressbook-tutorial-part4-remove.png
 
     \section2 The \c updateInterface() Function
 
-    We mentioned this function earlier as a means to enable and disable the
+    This function is mentioned earlier as a means to enable and disable the
     push buttons, depending on the current mode. The function updates the
     current mode according to the \c mode argument passed to it, assigning it
-    to \c currentMode, before checking its value.\
+    to \c currentMode, before checking its value.
 
     Each of the push buttons is then enabled or disabled, depending on the
     current mode. The code for \c AddingMode and \c EditingMode is shown below:
 
     \snippet examples/addressbook-sdk/part4/addressbook.cpp updateInterface part1
 
-    For \c NavigationMode, however, we include conditions within the parameters
+    For \c NavigationMode, however, include conditions within the parameters
     of the QPushButton::setEnabled() function. This is to ensure that
     \c editButton and \c removeButton are enabled when there is at least one
     contact in the address book; \c nextButton and \c previousButton are only
@@ -696,10 +708,10 @@
     \snippet examples/addressbook-sdk/part4/addressbook.cpp updateInterface part2
 
     By performing the task of setting the mode and updating the user interface
-    in the same function, we avoid the possibility of the user interface
+    in the same function, you avoid the possibility of the user interface
     getting "out of sync" with the internal state of the application.
 
-    To maintain consistency, we need to modify our \c addContact() and
+    To maintain consistency, you need to modify our \c addContact() and
     \c cancel() functions respectively. Below is the code:
 
     \snippet examples/addressbook-sdk/part4/addressbook.cpp addContact
@@ -717,34 +729,36 @@
     \example examples/addressbook-sdk/part5
     \title Address Book 5 - Adding a Find Function
 
-    In this chapter, we look at ways to locate contacts and addresses in the
+    This chapter looks at ways to locate contacts and addresses in the
     address book application.
 
     \image addressbook-tutorial-part5-screenshot.png
 
-    As we keep adding contacts to our address book, it becomes tedious to
+    As you keep adding contacts to your address book, it becomes tedious to
     navigate them with the \gui Next and \gui Previous buttons. In this case,
     a \gui Find function would be more efficient in looking up contacts. The
     screenshot above shows the \gui Find button and its position on the panel
     of buttons.
 
-    When the user clicks on the \gui Find button, it is useful to display a
+    When you click on the \gui Find button, it is useful to display a
     dialog prompting the user for a contact's name. Qt provides QDialog, which
-    we subclass in this chapter, to implement a FindDialog class.
+    you subclass in this chapter, to implement a FindDialog class.
 
 
     \section1 Designing The FindDialog
 
     \image addressbook-tutorial-part5-finddialog-in-designer.png
 
-    We begin by adding a new \c{.ui} file and a corresponding class to our project. Right click on your
-    project and select \gui{Add New...}. In the \gui{New File} dialog, select
-    \gui{Qt Designer Form Class}. In the \gui{Qt Designer Form Class} dialog, select
-    \e{Dialog without buttons}. Name the class \c{FindDialog} and add the files it to your
-    project. Open your new form in the \QD form editor within Qt Creator by
-    double-clicking on the \c{finddialog.ui} file in the \gui{Project Sidebar}.
+    Begin by adding a new \c{.ui} file and a corresponding class to our
+    project. Right click on your project and select
+    \gui{Add New...} > \gui{Qt} > \gui{Qt Designer Form Class}.
+    In the \gui{Qt Designer Form Class} dialog, select
+    \e{Dialog without buttons}. Name the class \c{FindDialog} and add the files
+    it to your project. Open your new form in the \QD form editor within
+    Qt Creator by double-clicking on the \c{finddialog.ui} file in
+    the \gui{Project Sidebar}.
 
-    To replicate the screenshot above, we need a label, a line edit, and a push
+    To replicate the screenshot above, you need a label, a line edit, and a push
     button. Drag these onto your form. Set their text accordingly and name them
     \c label, \c lineEdit, and \c findButton, respectively. Place these widgets
     in a horizontal layout. Then set a top level layout - either horizontal or
@@ -753,11 +767,11 @@
 
     \section1 Implementing The FindDialog Class
 
-    Let's look at \c{FindDialog}'s header file. We define a public function,
+    Let's look at \c{FindDialog}'s header file. Define a public function,
     \c findText(), to be used by classes that instantiate \c FindDialog. This
-    function allows the these classes to obtain the search string entered by
-    the user. A public slot, \c findClicked(), is also defined to handle the
-    search string when the user clicks the \gui Find button.
+    function allows the classes to obtain the search string entered by
+    you. A public slot, \c findClicked(), is also defined to handle the
+    search string when you click the \gui Find button.
 
     \snippet examples/addressbook-sdk/part5/finddialog.h findText
     \dots
@@ -767,50 +781,51 @@
 
     \snippet examples/addressbook-sdk/part5/finddialog.cpp constructor
 
-    In \c findClicked(), we validate to ensure that the user did not click the
-    \gui Find button without entering a contact's name. Then, we set
+    In \c findClicked(), validate to ensure that you did not click the
+    \gui Find button without entering a contact's name. Then, set
     \c findText to the search string, extracted from \c lineEdit. After that,
-    we clear the contents of \c lineEdit and hide the dialog.
+    clear the contents of \c lineEdit and hide the dialog.
 
     \snippet examples/addressbook-sdk/part5/finddialog.cpp findClicked
 
     \c findText() is public, which makes it easy for classes instantiating
-    and using \c FindDialog to access the search string that the user has entered
+    and using \c FindDialog to access the search string that you have entered
     and accepted.
 
     \snippet examples/addressbook-sdk/part5/finddialog.cpp findText
 
-    Finally, we connect our signals to their respective slots. Notice that
+    Finally, connect your signals to their respective slots. Notice that
     \c{findButton}'s \l{QPushButton::}{clicked()} signal is connected to
-    \c findClicked(), which calls \l{QDialog::}{accept()} or \l{QDialog::}{reject()}.
-    The \l{QDialog::}{accept()} slot provided by QDialog hides the dialog
-    and sets the result code to \l{QDialog::}{Accepted}, while \l{QDialog::}{reject()}
-    sets it to \l{QDialog::}{Rejected} accordingly.  We use this function to help
-    \c{AddressBook}'s \c findContact() function know when the \c FindDialog object has been
-    closed. We will explain this logic in further detail when discussing the
-    \c findContact() function.
+    \c findClicked(), which calls \l{QDialog::}{accept()} or
+    \l{QDialog::}{reject()}. The \l{QDialog::}{accept()} slot provided by
+    QDialog hides the dialog and sets the result code to
+    \l{QDialog::}{Accepted}, while \l{QDialog::}{reject()}
+    sets it to \l{QDialog::}{Rejected} accordingly. Use this function to help
+    \c{AddressBook}'s \c findContact() function know when the \c FindDialog
+    object has been closed. This logic will be explained in further detail
+    when discussing the \c findContact() function.
 
     \image addressbook-tutorial-part5-signals-and-slots.png
 
 
     \section1 The AddressBook Class
 
-    To ensure that we can use \c FindDialog from within our \c AddressBook
-    class, we include \c finddialog.h in the \c addressbook.h file.
+    To ensure that you can use \c FindDialog from within your \c AddressBook
+    class, include \c finddialog.h in the \c addressbook.h file.
 
     \snippet examples/addressbook-sdk/part5/addressbook.h include
 
-    So far, all our address book features have a QPushButton and a
-    corresponding slot. Similarly, for the \gui Find feature, we have
+    So far, all your address book features have a QPushButton and a
+    corresponding slot. Similarly, the \gui Find feature, has
     \c{ui->findButton} and \c findContact().
 
     \snippet examples/addressbook-sdk/part5/addressbook.h slot definition
 
-    Once we have instantiated a dialog, we might want to use it more than once;
-    using a private variable allows us to refer to it from more than one place
-    in the class.
+    Once you have instantiated a dialog, you might want to use it more than
+    once; using a private variable allows you to refer to it from more than one
+    place in the class.
 
-    Within the \c AddressBook class's constructor, we connect the
+    Within the \c AddressBook class's constructor, connect the
     \c{findButton}'s \l{QPushButton::}{clicked()} signal to \c findContact().
 
     \snippet examples/addressbook-sdk/part5/addressbook.cpp signal slot
@@ -819,26 +834,26 @@
 
     \snippet examples/addressbook-sdk/part5/addressbook.cpp findContact
 
-    We start out by displaying the \c FindDialog instance, \c dialog. This is
-    when the user enters a contact name to look up. Once the user clicks the
+    Start out by displaying the \c FindDialog instance, \c dialog. This is
+    when you enter a contact name to look up. Once you click the
     dialog's \c findButton, the dialog is hidden and the result code is set to
     either QDialog::Accepted or QDialog::Rejected by the FindDialog's
-    \c findClicked() method. This ensures that we only search for a contact
-    if the user typed something in the FindDialog's line edit.
+    \c findClicked() method. This ensures that you only search for a contact
+    if you have typed something in the FindDialog's line edit.
 
-    We then proceed to extract the search string, which in this case is
+    Then proceed to extract the search string, which in this case is
     \c contactName, using \c{FindDialog}'s \c findText() function. If the
-    contact exists in our address book, we display it immediately. Otherwise,
-    we display the QMessageBox shown below to indicate that their search
+    contact exists in our address book, display it immediately. Otherwise,
+    display the QMessageBox shown below to indicate that their search
     failed.
 
     \image addressbook-tutorial-part5-dialogbox.png
 
-    The concept behind finding a contact only applies for cases where we have
-    more than two contacts in our address book. Hence, we implement this
-    behavior by modifying our \c{Navigation Mode} within our
+    The concept behind finding a contact only applies for cases where you have
+    more than two contacts in our address book. Hence, implement this
+    behavior by modifying our \c{Navigation Mode} within your
     \c updateInterface() function, by only enabling the \gui Find button when
-    we have more than two contacts.
+    you have more than two contacts.
 
     \snippet examples/addressbook-sdk/part5/addressbook.cpp enable
 
@@ -853,20 +868,20 @@
     \example examples/addressbook-sdk/part6
     \title Address Book 6 - Loading and Saving
 
-    This chapter covers the file handling features of Qt that we used to write
+    This chapter covers the file handling features of Qt that is used to write
     loading and saving routines for the address book application.
 
     \image addressbook-tutorial-part6-screenshot.png
 
-    Although browsing and searching for contacts are useful features, our
-    address book is not really ready for use until we can save existing
+    Although browsing and searching for contacts are useful features, your
+    address book is not really ready for use until you can save existing
     contacts and load them again at a later time. Qt provides a number of
-    classes for \l{Input/Output and Networking}{input and output}, but we have
+    classes for \l{Input/Output and Networking}{input and output}, but you have
     chosen to use two which are simple to use in combination: QFile and
     QDataStream.
 
     A QFile object represents a file on disk that can be read from and written
-    to. QFile isa subclass of the more general QIODevice class which represents
+    to. QFile is a subclass of the more general QIODevice class which represents
     many different kinds of devices.
 
     A QDataStream object is used to serialize binary data so that it can be
@@ -877,20 +892,20 @@
 
     \section1 Placing Widgets on The Form
 
-    To load and save files containing contact details, we need two push
+    To load and save files containing contact details, you need two push
     buttons. Drag them and name them accordingly. Their \c objectName
     properties should be \c loadButton and \c saveButton, respectively. Then,
-    similar to \l{Address Book 5 - Adding a Find Function}{Chapter 5}, we place
+    similar to \l{Address Book 5 - Adding a Find Function}{Chapter 5}, place
     these buttons in our layout simply by dragging and dropping them.
 
     The \c text property of our push buttons are \gui{Load...} and
     \gui{Save...} respectively. Ideally, it would be more user-friendly to set
     the push buttons' labels to \gui{Load contacts from file} and
     \gui{Save contacts to file}. However, due to the size of our push buttons,
-    we set the labels to \gui{Load...} and \gui{Save...} instead.
+    set the labels to \gui{Load...} and \gui{Save...} instead.
 
     Fortunately, Qt Creator's \QD plugin provides a simple way to set tooltips
-    with the \c toolTip property. So, we set our buttons' tooltips to
+    with the \c toolTip property. So, set your buttons' tooltips to
     \gui{Load contacts from file} and \gui{Save contacts to file} respectively.
     To test your tooltip, use \key{Ctrl+Alt+R} and hover your mouse cursor on
     the push buttons.
@@ -901,7 +916,7 @@
 
     \section1 The AddressBook Class
 
-    We declare two public slots, \c saveToFile() and \c loadFromFile().
+    Declare two public slots, \c saveToFile() and \c loadFromFile().
 
     \snippet examples/addressbook-sdk/part6/addressbook.h slot definition
 
@@ -911,11 +926,11 @@
 
     \section2 The \c saveToFile() Function
 
-    To save a contact, we first obtain \c fileName using
+    To save a contact, first obtain \c fileName using
     QFileDialog::getSaveFileName(). This is a convenience function provided by
-    QFileDialog, which pops up a modal file dialog and allows the user to enter
+    QFileDialog, which pops up a modal file dialog and allows you to enter
     a file name or select any existing \c{.abk} file. The \c{.abk} file is our
-    Address Book extension that we create when we save contacts.
+    Address Book extension that you create when you save contacts.
 
     \snippet examples/addressbook-sdk/part6/addressbook.cpp saveToFile part1
 
@@ -923,18 +938,18 @@
 
     \image addressbook-tutorial-part6-savedialog.png
 
-    If \c fileName is not empty, we create a QFile object, \c file, with
+    If \c fileName is not empty, create a QFile object, \c file, with
     \c fileName. The QFile object works with QDataStream as QFile is a
     QIODevice.
 
-    Next, we attempt to open the file in \l{QIODevice::}{WriteOnly} mode. If
-    this is unsuccessful, we display a QMessageBox to inform the user.
+    Next, attempt to open the file in \l{QIODevice::}{WriteOnly} mode. If
+    this is unsuccessful, display a QMessageBox to inform the user.
 
     \snippet examples/addressbook-sdk/part6/addressbook.cpp saveToFile part2
 
-    Otherwise, we instantiate a QDataStream object, \c out, to write the open
+    Otherwise, instantiate a QDataStream object, \c out, to write the open
     file. QDataStream requires that the same version of the stream is used for
-    reading and writing. We ensure that this is the case by setting the version
+    reading and writing. Ensure that this is the case by setting the version
     used to the version introduced with Qt 4.5 before serializing the data into
     \c file.
     \snippet examples/addressbook-sdk/part6/addressbook.cpp saveToFile part3
@@ -942,10 +957,10 @@
 
     \section2 The \c loadFromFile() Function
 
-    To load a contact, we also obtain \c fileName using
+    To load a contact, also obtain \c fileName using
     QFileDialog::getOpenFileName(). This function, the counterpart to
     QFileDialog::getSaveFileName(), also pops up the modal file dialog and
-    allows the user to enter a file name or select any existing \c{.abk} file
+    allows you to enter a file name or select any existing \c{.abk} file
     to load it into the address book.
 
     \snippet examples/addressbook-sdk/part6/addressbook.cpp loadFromFile part1
@@ -955,14 +970,14 @@
 
     \image addressbook-tutorial-part6-opendialog.png
 
-    If \c fileName is not empty, again, we use a QFile object, \c file, and
-    attempt to open it in \l{QIODevice::}{ReadOnly} mode. Similar to our
-    implementation of \c saveToFile(), if this attempt is unsuccessful, we
+    If \c fileName is not empty, again, use a QFile object, \c file, and
+    attempt to open it in \l{QIODevice::}{ReadOnly} mode. Similar to your
+    implementation of \c saveToFile(), if this attempt is unsuccessful,
     display a QMessageBox to inform the user.
 
     \snippet examples/addressbook-sdk/part6/addressbook.cpp loadFromFile part2
 
-    Otherwise, we instantiate a QDataStream object, \c in, set its version as
+    Otherwise, instantiate a QDataStream object, \c in, set its version as
     above and read the serialized data into hte \c contacts data structure. The
     \c contacs object is emptied before data is read into it to simplify the
     file reading process. A more advanced method would be to read the contacts
@@ -971,11 +986,11 @@
 
     \snippet examples/addressbook-sdk/part6/addressbook.cpp loadFromFile part3
 
-    To display the contacts that have been read from the file, we must first
-    validate the data obtained to ensure that the file we read from actually
-    contains address book contacts. If it does, we display the first contact;
-    otherwise, we display a QMessageBox to inform the user about the problem.
-    Lastly, we connect the \c clicked() signal of the push buttons
+    To display the contacts that have been read from the file, you must first
+    validate the data obtained to ensure that the file you read from actually
+    contains address book contacts. If it does, display the first contact;
+    otherwise, display a QMessageBox to inform you about the problem.
+    Lastly, connect the \c clicked() signal of the push buttons
     with the \c loadFromFile() and \c saveToFile():
 
     \snippet examples/addressbook-sdk/part6/addressbook.cpp connectSlots
@@ -990,15 +1005,15 @@
     \example examples/addressbook-sdk/part7
     \title Address Book 7 - Additional Features
 
-    Although our address book application is useful in its own right, it would
-    be useful it we could exchange contact data with other applications. The
+    Although your address book application is useful in its own right, it would
+    be useful if you could exchange contact data with other applications. The
     vCard format is a popular file format that can be used for this purpose. In
-    this chapter, we extend our address book client to allow contacts to be
+    this chapter, you extend our address book client to allow contacts to be
     exported to vCard \c{.vcf} files.
 
     \section1 Placing Widgets on The Form
 
-    We add a push button into our layout by dragging and dropping it in, with
+    Add a push button into our layout by dragging and dropping it in, with
     \c exportButton as its \c objectName. The \c toolTip property is set to
     \gui{Export as vCard}.
 
@@ -1006,8 +1021,8 @@
 
     \section1 The AddressBook Class
 
-    We declare a public slot, \c exportAsVCard(), in our header file.
+    Declare a public slot, \c exportAsVCard(), in your header file.
 
-    Within the \c AddressBook constructor, we connect \c{exportButton}'s
+    Within the \c AddressBook constructor, connect \c{exportButton}'s
     \l{QPushButton::}{clicked()} signal to \c exportAsVCard().
 */
