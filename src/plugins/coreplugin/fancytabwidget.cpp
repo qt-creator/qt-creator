@@ -216,9 +216,14 @@ void FancyTabBar::emitCurrentIndex()
 void FancyTabBar::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
-    for (int i = 0; i < m_tabs.count(); ++i) {
-        if (tabRect(i).contains(e->pos())) {
-            setCurrentIndex(i);
+    for (int index = 0; index < m_tabs.count(); ++index) {
+        if (tabRect(index).contains(e->pos())) {
+
+            if (isTabEnabled(index)) {
+                m_currentIndex = index;
+                update();
+                m_triggerTimer.start(0);
+            }
             break;
         }
     }
@@ -313,7 +318,7 @@ void FancyTabBar::setCurrentIndex(int index) {
     if (isTabEnabled(index)) {
         m_currentIndex = index;
         update();
-        m_triggerTimer.start(0);
+        emit currentChanged(m_currentIndex);
     }
 }
 
