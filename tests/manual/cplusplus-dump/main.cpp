@@ -41,6 +41,7 @@
 #include <CoreTypes.h>
 #include <CppDocument.h>
 #include <SymbolVisitor.h>
+#include <Overview.h>
 
 #include <QFile>
 #include <QList>
@@ -161,7 +162,11 @@ class SymbolDump: protected SymbolVisitor
 public:
     SymbolDump(TranslationUnit *unit)
         : translationUnit(unit)
-    {}
+    {
+        o.setShowArgumentNames(true);
+        o.setShowFunctionSignatures(true);
+        o.setShowReturnTypes(true);
+    }
 
     void operator()(Symbol *s) {
         QByteArray basename = translationUnit->fileName();
@@ -224,26 +229,20 @@ protected:
         out << _id[symbol].constData() << " [label=\"" << name(symbol).constData() << "\"];" << std::endl;
     }
 
-    void generateTemplateParams(const char *from, TemplateParameters *params) {
-        if (!params)
+    void generateTemplateParams(TemplateParameters *params) {
+        if (!params || params->scope()->symbolCount() == 0)
             return;
 
-        static int templateCount = 0;
-        QByteArray id("t");
-        id.append(QByteArray::number(++templateCount));
-        out << from << " -> " << id.constData() << ";" << std::endl;
-        out << id.constData() << " [shape=record label=\"";
+        out << "<";
         for (unsigned i = 0; i < params->scope()->symbolCount(); ++i) {
             if (i > 0)
-                out<<"|";
+                out << ",";
             Symbol *s = params->scope()->symbolAt(i);
-            if (s->identifier()) {
-                out<<s->identifier()->chars();
-            } else {
-                out << "<anonymous>";
-            }
+            out << qPrintable(o(s->name()));
+            if (s->type())
+                out << ":" << qPrintable(o(s->type()));
         }
-        out << "\"];" << std::endl;
+        out << ">";
     }
 
     virtual bool visit(Class *symbol) {
@@ -258,6 +257,8 @@ protected:
         } else {
             out << "UNKNOWN";
         }
+        generateTemplateParams(symbol->templateParameters());
+
         out << "\\nid: ";
         if (symbol->identifier()) {
             out << symbol->identifier()->chars();
@@ -266,17 +267,34 @@ protected:
         }
         out << "\"];" << std::endl;
 
-        generateTemplateParams(id, symbol->templateParameters());
-
         return true;
     }
 
     virtual bool visit(UsingNamespaceDirective *symbol) { simpleNode(symbol); return true; }
     virtual bool visit(UsingDeclaration *symbol) { simpleNode(symbol); return true; }
-    virtual bool visit(Declaration *symbol) { simpleNode(symbol); return true; }
+
+    virtual bool visit(Declaration *symbol) {
+        out << _id[symbol].constData() << " [label=\"";
+        out << "Declaration\\n";
+        out << qPrintable(o(symbol->name()));
+        out << ": ";
+        out << qPrintable(o(symbol->type()));
+        out << "\"];" << std::endl;
+
+        return true;
+    }
+
     virtual bool visit(Argument *symbol) { simpleNode(symbol); return true; }
     virtual bool visit(TypenameArgument *symbol) { simpleNode(symbol); return true; }
-    virtual bool visit(BaseClass *symbol) { simpleNode(symbol); return true; }
+
+    virtual bool visit(BaseClass *symbol) {
+        out << _id[symbol].constData() << " [label=\"BaseClass\\n";
+        out << qPrintable(o(symbol->name()));
+        out << "\"];" << std::endl;
+
+        return true;
+    }
+
     virtual bool visit(Enum *symbol) { simpleNode(symbol); return true; }
     virtual bool visit(Function *symbol) { simpleNode(symbol); return true; }
     virtual bool visit(Namespace *symbol) { simpleNode(symbol); return true; }
@@ -297,6 +315,7 @@ private:
     QList<QPair<Symbol *,Symbol*> >_connections;
     QList<Symbol *> _stack;
     std::ofstream out;
+    Overview o;
 };
 
 int main(int argc, char *argv[])
