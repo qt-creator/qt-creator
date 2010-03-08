@@ -230,6 +230,7 @@ QByteArray BinEditor::dataMid(int from, int length) const
     int block = from / m_blockSize;
 
     QByteArray data;
+    data.reserve(length);
     do {
         data += blockData(block++);
     } while (block * m_blockSize < end);
@@ -1138,6 +1139,7 @@ void BinEditor::copy(bool raw)
         }
         QString hexString;
         const char * const hex = "0123456789abcdef";
+        hexString.reserve(3 * data.size());
         for (int i = 0; i < data.size(); ++i) {
             const uchar val = static_cast<uchar>(data[i]);
             hexString.append(hex[val >> 4]).append(hex[val & 0xf]).append(' ');
