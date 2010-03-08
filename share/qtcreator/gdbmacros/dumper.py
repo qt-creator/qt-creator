@@ -877,13 +877,15 @@ class Dumper:
         # subsequent underscores are reserved for the implemention.
         if typeobj.code == gdb.TYPE_CODE_PTR:
             return self.stripNamespaceFromType(typeobj.target()) + "__star"
-        # FIXME: pass ns from plugin
         type = stripClassTag(str(typeobj))
         if len(self.ns) > 0 and type.startswith(self.ns):
             type = type[len(self.ns):]
         pos = type.find("<")
-        if pos != -1:
-            type = type[0:pos]
+        # FIXME: make it recognize  foo<A>::bar<B>::iterator?
+        while pos != -1:
+            pos1 = type.rfind(">", pos)
+            type = type[0:pos] + type[pos1+1:]
+            pos = type.find("<")
         return type
 
     def isMovableType(self, type):
