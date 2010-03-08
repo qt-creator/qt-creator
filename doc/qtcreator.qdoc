@@ -1215,7 +1215,7 @@
 
         \o Click \gui{Next}.
 
-        \image qtcreatorqtcreator-new-project-qt-versions.png "Select Required Qt
+        \image qtcreator-new-project-qt-versions.png "Select Required Qt
         Versions dialog"
 
         \o Click \gui{Next} to use the Qt version set in the path in your project.
