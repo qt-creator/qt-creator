@@ -1089,7 +1089,7 @@ class Dumper:
             #warn("AUTODEREF: %s" % self.autoDerefPointers)
             #warn("IS HANDLED: %s" % isHandled)
             #warn("RES: %s" % (self.autoDerefPointers and not isHandled))
-            if self.autoDerefPointers and not isHandled:
+            if (not isHandled) and (self.autoDerefPointers or name == "this"):
                 ## Generic pointer type.
                 #warn("GENERIC AUTODEREF POINTER: %s" % value.address)
                 innerType = item.value.type.target()
