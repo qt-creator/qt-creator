@@ -262,7 +262,15 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
           && QmlModelState(removedNode).isValid()) {
         removeModelState(removedNode);
     }
+
     QmlModelView::nodeAboutToBeRemoved(removedNode);
+
+    if (QmlModelState(removedNode).isValid()) {
+        startUpdateTimer(modelStateIndex(removedNode) + 1, 0);
+    } else { //a change to the base state update all
+        for (int i = 0; i < m_modelStates.count(); ++i)
+            startUpdateTimer(i, 0);
+    }
 }
 
 
