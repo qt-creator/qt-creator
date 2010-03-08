@@ -428,7 +428,7 @@ void testQList()
     flist.push_back(1000);
     flist.push_back(1001);
     flist.push_back(1002);
-#if 0
+#if 1
     QList<int> li;
     QList<uint> lu;
 

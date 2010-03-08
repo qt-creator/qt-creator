@@ -37,8 +37,7 @@ def qdump__QByteArray(d, item):
 
 def qdump__QChar(d, item):
     ucs = int(item.value["ucs"])
-    c = select(curses.ascii.isprint(ucs), ucs, '?')
-    d.putValue("'%c' (%d)" % (c, ucs))
+    d.putValue("'%c' (%d)" % (printableChar(ucs), ucs))
     d.putNumChild(0)
 
 
