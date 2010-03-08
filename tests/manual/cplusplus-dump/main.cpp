@@ -90,9 +90,9 @@ public:
 
 protected:
     void alignTerminals() {
-        out<<"{ rank=same; ";
+        out<<"{ rank=same;" << std::endl;
         foreach (const QByteArray &terminalShape, _terminalShapes) {
-            out << std::string(terminalShape) << "; ";
+            out << "  " << std::string(terminalShape) << ";" << std::endl;
         }
         out<<"}"<<std::endl;
     }
