@@ -192,7 +192,6 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     m_runComboBox ->setProperty("hideborder", true);
     m_runComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     m_runComboBox->setToolTip(tr("Make active and press 'r' to select."));
-
     int fontSize = font().pointSize();
     setStyleSheet(QString::fromLatin1("QLabel { font-size: %2pt; color: white; } "
                                       "#target { font: bold %1pt;} "
@@ -310,11 +309,14 @@ void MiniTargetWidget::addRunConfiguration(ProjectExplorer::RunConfiguration* rc
     m_runComboBox->addItem(rc->displayName(), QVariant::fromValue(rc));
     if (m_target->activeRunConfiguration() == rc)
         m_runComboBox->setCurrentIndex(m_runComboBox->count()-1);
+
+    m_runComboBox->setEnabled(m_runComboBox->count()>1);
 }
 
 void MiniTargetWidget::removeRunConfiguration(ProjectExplorer::RunConfiguration* rc)
 {
     m_runComboBox->removeItem(m_runComboBox->findData(QVariant::fromValue(rc)));
+    m_runComboBox->setEnabled(m_runComboBox->count()>1);
 }
 
 void MiniTargetWidget::addBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
@@ -324,12 +326,15 @@ void MiniTargetWidget::addBuildConfiguration(ProjectExplorer::BuildConfiguration
     m_buildComboBox->addItem(bc->displayName(), QVariant::fromValue(bc));
     if (m_target->activeBuildConfiguration() == bc)
         m_buildComboBox->setCurrentIndex(m_buildComboBox->count()-1);
+
+    m_buildComboBox->setEnabled(m_buildComboBox->count() > 1);
 }
 
 void MiniTargetWidget::removeBuildConfiguration(ProjectExplorer::BuildConfiguration* bc)
 {
     QTC_ASSERT(m_buildComboBox, return);
     m_buildComboBox->removeItem(m_buildComboBox->findData(QVariant::fromValue(bc)));
+    m_buildComboBox->setEnabled(m_buildComboBox->count() > 1);
 }
 
 void MiniTargetWidget::updateDisplayName()
@@ -465,6 +470,8 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
 
     foreach (Target *t, project->targets())
         addTarget(t, t == project->activeTarget());
+
+    m_projectsBox->setEnabled(m_projectsBox->count() > 1);
 }
 
 void MiniProjectTargetSelector::removeProject(ProjectExplorer::Project* project)
@@ -474,6 +481,7 @@ void MiniProjectTargetSelector::removeProject(ProjectExplorer::Project* project)
         return;
     ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->widget(index));
     m_projectsBox->removeItem(index);
+    m_projectsBox->setEnabled(m_projectsBox->count() > 1);
     delete plw;
 }
 
