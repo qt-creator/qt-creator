@@ -45,10 +45,9 @@ QWidget {
     }
 
 
-    QTextEdit {
+    ExpressionEdit {
         id: textEdit;
         styleSheet: "QTextEdit {border-radius: 0px;}"
-        acceptRichText: false;
         documentTitle: "Expression"
 
         width: expressionEdit.width
@@ -60,10 +59,12 @@ QWidget {
             if (!focus)
                 expressionEdit.active = false;
         }
-
-
-
+		onReturnPressed: {
+		    expressionEdit.backendValue.expression = textEdit.plainText;
+			expressionEdit.active = false;		
+		}
     }
+	
     QPushButton {
         focusPolicy: "Qt::NoFocus";
         y: expressionEdit.height - 22;

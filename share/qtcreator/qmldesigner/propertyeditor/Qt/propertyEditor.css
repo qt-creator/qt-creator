@@ -53,7 +53,7 @@ QLineEdit
                                        stop: 0 #2c2c2c, stop: 1 #333333);
 }
 
-QTextEdit 
+QPlainTextEdit
 {
     border: 2px solid #0F0F0F;
     border-radius: 6px;
