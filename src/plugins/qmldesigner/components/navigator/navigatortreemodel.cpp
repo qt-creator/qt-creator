@@ -277,14 +277,11 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
             if (ModelNode::isValidId(item->text()))
                 node.setId(item->text());
             else {
-                QMessageBox errorDialog;
-                errorDialog.setModal(true);
-                errorDialog.setText(tr("Invalid id.\nOnly alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter."));
-                errorDialog.exec();
-
+                QMessageBox::warning(0,"Invalid Id",tr("Invalid id.\nOnly alphanumeric characters and underscore allowed.\nIds must begin with a lowercase letter."));
                 item->setText(node.id());
             }
         } catch (InvalidIdException &) {
+            QMessageBox::warning(0,"Invalid Id",tr("Item id must be unique."));
             item->setText(node.id());
         }
     } else if (item == itemRow.visibilityItem) {
@@ -454,6 +451,20 @@ bool NavigatorTreeModel::blockItemChangedSignal(bool block)
     bool oldValue = m_blockItemChangedSignal;
     m_blockItemChangedSignal = block;
     return oldValue;
+}
+
+void NavigatorTreeModel::setId(const QModelIndex &index, const QString &id)
+{
+    ModelNode node = nodeForIndex(index);
+    ItemRow itemRow = itemRowForNode(node);
+    itemRow.idItem->setText(id);
+}
+
+void NavigatorTreeModel::setVisible(const QModelIndex &index, bool visible)
+{
+    ModelNode node = nodeForIndex(index);
+    ItemRow itemRow = itemRowForNode(node);
+    itemRow.visibilityItem->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
 }
 
 

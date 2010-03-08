@@ -107,6 +107,9 @@ public:
     void updateItemRow(const ModelNode &node);
     void updateItemRowOrder(const ModelNode &node);
 
+    void setId(const QModelIndex &index, const QString &id);
+    void setVisible(const QModelIndex &index, bool visible);
+
 private slots:
     void handleChangedItem(QStandardItem *item);
 

@@ -36,6 +36,7 @@
 
 #include <nodeproperty.h>
 #include "metainfo.h"
+#include <QLineEdit>
 
 namespace QmlDesigner {
 
@@ -187,6 +188,32 @@ void IdItemDelegate::paint(QPainter *painter,
     painter->drawText(option.rect.bottomLeft()+QPoint(3+pixmap.width(),-8),myString);
 
     painter->restore();
+}
+
+QWidget *IdItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    return new QLineEdit(parent);
+}
+
+void IdItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    ModelNode node = m_TreeModel->nodeForIndex(index);
+    QString value = node.id();
+
+    QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
+    lineEdit->setText(value);
+}
+
+void IdItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+    QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
+    m_TreeModel->setId(index,lineEdit->text());
+}
+
+void IdItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
+    lineEdit->setGeometry(option.rect);
 }
 
 }
