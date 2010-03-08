@@ -90,6 +90,7 @@ public:
     bool isModelSyncBlocked() const;
     void blockModelSync(bool block);
 
+    QString contextHelpId() const;
     QList<RewriterView::Error> qmlErrors() const;
 
 signals:

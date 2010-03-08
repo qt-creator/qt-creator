@@ -29,13 +29,14 @@
 
 #include "designmodecontext.h"
 #include "qmldesignerconstants.h"
+#include "designmodewidget.h"
 #include <coreplugin/uniqueidmanager.h>
 #include <QWidget>
 
 namespace QmlDesigner {
 namespace Internal {
 
-DesignModeContext::DesignModeContext(QWidget *widget) : IContext(widget),
+DesignModeContext::DesignModeContext(DesignModeWidget *widget) : IContext(widget),
     m_widget(widget)
 {
     m_context << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::C_FORMEDITOR);
@@ -54,6 +55,11 @@ QList<int> DesignModeContext::context() const
 QWidget *DesignModeContext::widget()
 {
     return m_widget;
+}
+
+QString DesignModeContext::contextHelpId() const
+{
+    return m_widget->contextHelpId();
 }
 
 }

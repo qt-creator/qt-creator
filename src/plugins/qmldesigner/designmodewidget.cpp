@@ -688,5 +688,12 @@ void DesignModeWidget::setCurrentDocumentWidget(DocumentWidget *newDocumentWidge
     }
 }
 
+QString DesignModeWidget::contextHelpId() const
+{
+    if (m_currentDocumentWidget)
+        return m_currentDocumentWidget->document()->contextHelpId();
+    return QString();
+}
+
 } // namespace Internal
 } // namespace Designer

@@ -165,8 +165,10 @@ public:
     ~DesignModeWidget();
 
 //    void syncWithTextEdit(bool sync);
+
     void showEditor(Core::IEditor *editor);
     void closeEditors(const QList<Core::IEditor*> editors);
+    QString contextHelpId() const;
 
     QAction *undoAction() const;
     QAction *redoAction() const;

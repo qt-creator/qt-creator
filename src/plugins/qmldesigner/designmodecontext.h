@@ -40,20 +40,25 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 namespace Internal {
 
+class DesignModeWidget;
+
 /**
   * Bauhaus Design mode context object
   */
 class DesignModeContext : public Core::IContext
 {
 public:
-    DesignModeContext(QWidget *widget);
+    DesignModeContext(DesignModeWidget *widget);
     ~DesignModeContext();
 
     QList<int> context() const;
     QWidget *widget();
+
+    QString contextHelpId() const;
+
 private:
     QList<int> m_context;
-    QWidget *m_widget;
+    DesignModeWidget *m_widget;
 };
 
 }

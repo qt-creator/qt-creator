@@ -416,7 +416,7 @@ void DesignDocumentController::loadCurrentModel()
     m_d->model->attachView(m_d->navigator.data());
     m_d->itemLibrary->setMetaInfo(m_d->model->metaInfo());
 
-    if (m_d->formEditorView .isNull()) {
+    if (m_d->formEditorView.isNull()) {
         m_d->formEditorView = new FormEditorView(this);
         m_d->stackedWidget->addWidget(m_d->formEditorView->widget());
         ComponentAction *componentAction = new ComponentAction(m_d->formEditorView->widget());
@@ -855,6 +855,21 @@ bool DesignDocumentController::save(QIODevice *device, QString * /*errorMessage*
     } else {
         return false;
     }
+}
+
+QString DesignDocumentController::contextHelpId() const
+{
+    DesignDocumentControllerView view;
+    m_d->model->attachView(&view);
+
+    QList<ModelNode> nodes = view.selectedModelNodes();
+    QString helpId;
+    if (!nodes.isEmpty()) {
+        helpId = nodes.first().type();
+        helpId.replace("Qt/", "QML.");
+    }
+
+    return helpId;
 }
 
 } // namespace QmlDesigner
