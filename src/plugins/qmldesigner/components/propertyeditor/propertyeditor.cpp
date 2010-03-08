@@ -130,13 +130,16 @@ void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString 
     }
 }
 
-void PropertyEditor::NodeType::setValue(const QmlObjectNode & /*fxObjectNode*/, const QString &name, const QVariant &value)
+void PropertyEditor::NodeType::setValue(const QmlObjectNode & fxObjectNode, const QString &name, const QVariant &value)
 {
     QString propertyName = name;
     propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
     PropertyEditorValue *propertyValue = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value(propertyName)));
-    if (propertyValue)
+    if (propertyValue) {
         propertyValue->setValue(value);
+        if (!fxObjectNode.hasBindingProperty(name))
+            propertyValue->setExpression(value.toString());
+    }
 }
 
 void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditor *propertyEditor)
@@ -358,7 +361,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
     }
 
     try {
-        if (!value->value().isValid()) {
+        if (!value->value().isValid()) { //reset
             fxObjectNode.removeVariantProperty(propertyName);
         } else {
             if (castedValue.isValid() && !castedValue.isNull())
@@ -401,6 +404,20 @@ void PropertyEditor::changeExpression(const QString &name)
                     fxObjectNode.setVariantProperty(name, false);
                 return;
             }
+        } else if (fxObjectNode.modelNode().metaInfo().property(name).type() == QLatin1String("int")) {
+            bool ok;
+            int intValue = value->expression().toInt(&ok);
+            if (ok) {
+                fxObjectNode.setVariantProperty(name, intValue);
+                return;
+            }
+        } else if (fxObjectNode.modelNode().metaInfo().property(name).type() == QLatin1String("qreal")) {
+            bool ok;
+            qreal realValue = value->expression().toFloat(&ok);
+            if (ok) {
+                fxObjectNode.setVariantProperty(name, realValue);
+                return;
+            }
         }
 
     if (!value) {
@@ -410,7 +427,8 @@ void PropertyEditor::changeExpression(const QString &name)
 
     try {
         if (fxObjectNode.currentState().isBaseState()) {
-            fxObjectNode.modelNode().bindingProperty(name).setExpression(value->expression());
+            if (fxObjectNode.modelNode().bindingProperty(name).expression() != value->expression())
+                fxObjectNode.modelNode().bindingProperty(name).setExpression(value->expression());
         }
     }
 
@@ -588,9 +606,9 @@ void PropertyEditor::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
         return;
 
     foreach (const AbstractProperty &property, propertyList) {
-        if (property.isVariantProperty() || property.isBindingProperty()) {
-            ModelNode node(property.parentModelNode());
-            setValue(node, property.name(), QmlObjectNode(node).instanceValue(property.name()));
+        ModelNode node(property.parentModelNode());
+        if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
+            setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
         }
     }
 }
