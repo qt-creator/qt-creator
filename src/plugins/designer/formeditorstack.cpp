@@ -37,7 +37,6 @@
 #include "formwindoweditor.h"
 #include "formeditorw.h"
 #include "designerconstants.h"
-#include "qt_private/formwindowbase_p.h"
 
 #include <QtCore/QStringList>
 
@@ -131,12 +130,12 @@ void FormEditorStack::formChanged()
         TextEditor::BaseTextDocument *doc = qobject_cast<TextEditor::BaseTextDocument*>(activeEditor->xmlEditor->file());
         Q_ASSERT(doc);
         if (doc) {
-            // Save quietly (without spacer's warning).
-            if (const qdesigner_internal::FormWindowBase *fwb = qobject_cast<const qdesigner_internal::FormWindowBase *>(activeEditor->formEditor))
-                doc->document()->setPlainText(fwb->fileContents());
+            doc->document()->setPlainText(activeEditor->formEditor->contents());
         }
     }
+
 }
+
 
 } // Internal
 } // Designer
