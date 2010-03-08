@@ -84,7 +84,7 @@ bool MaemoRunConfigurationFactory::canCreate(Target *parent,
         || target->id() != QLatin1String(MAEMO_DEVICE_TARGET_ID)) {
         return false;
     }
-    return id == QLatin1String(MAEMO_RC_ID);
+    return id == MAEMO_RC_ID || id.startsWith(MAEMO_RC_ID_PREFIX);
 }
 
 bool MaemoRunConfigurationFactory::canRestore(Target *parent,
