@@ -9,8 +9,15 @@ import gdb
 import base64
 import os
 
-if os.name != "nt":
+if os.name == "nt":
+    def printableChar(ucs):
+        if ucs >= 32 and ucs <= 126:
+            return ucs
+        return '?'
+else:
     import curses.ascii
+    def printableChar(ucs):
+        return select(curses.ascii.isprint(ucs), ucs, '?')
 
 # only needed for gdb 7.0/7.0.1 that do not implement parse_and_eval
 import os
