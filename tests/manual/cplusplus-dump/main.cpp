@@ -64,6 +64,7 @@ public:
 
     void operator()(AST *ast) {
         std::cout << "digraph AST {" << std::endl;
+        // std::cout << "rankdir = \"LR\";" << std::endl;
         accept(ast);
         std::cout << "}" << std::endl;
     }
@@ -73,9 +74,12 @@ protected:
         QByteArray name = abi::__cxa_demangle(typeid(*ast).name(), 0, 0, 0) + 11;
         name.truncate(name.length() - 3);
         name = QByteArray::number(_id.value(ast)) + ". " + name;
-        const char *x = spell(ast->firstToken());
-        name += ' ';
-        name += x;
+
+        if (ast->lastToken() - ast->firstToken() == 1) {
+            const char *x = spell(ast->firstToken());
+            name += ' ';
+            name += x;
+        }
 
         name.prepend('"');
         name.append('"');        
@@ -95,7 +99,7 @@ protected:
         return true;
     }
 
-    virtual void postVisit(AST *ast) {
+    virtual void postVisit(AST *) {
         _stack.removeLast();        
     }
 
