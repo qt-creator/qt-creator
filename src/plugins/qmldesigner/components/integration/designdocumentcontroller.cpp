@@ -748,12 +748,14 @@ RewriterView *DesignDocumentController::rewriterView() const
 
 void DesignDocumentController::undo()
 {
-    m_d->textEdit->undo();
+    if (m_d->rewriterView && !m_d->rewriterView->modificationGroupActive())
+        m_d->textEdit->undo();
 }
 
 void DesignDocumentController::redo()
 {
-    m_d->textEdit->redo();
+    if (m_d->rewriterView && !m_d->rewriterView->modificationGroupActive())
+        m_d->textEdit->redo();
 }
 
 #ifdef ENABLE_TEXT_VIEW

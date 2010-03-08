@@ -153,6 +153,7 @@ public:
     int nodeLength(const ModelNode &node) const;
     int firstDefinitionInsideOffset(const ModelNode &node) const;
     int firstDefinitionInsideLength(const ModelNode &node) const;
+    bool modificationGroupActive();
 
 signals:
     void errorsChanged(const QList<RewriterView::Error> &errors);
