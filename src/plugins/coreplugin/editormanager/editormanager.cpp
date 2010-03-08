@@ -39,6 +39,7 @@
 #include "mimedatabase.h"
 #include "tabpositionindicator.h"
 #include "vcsmanager.h"
+#include "faketoolbar.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -439,6 +440,12 @@ void EditorManager::init()
 
     m_d->m_openEditorsFactory = new OpenEditorsViewFactory();
     pluginManager()->addObject(m_d->m_openEditorsFactory);
+}
+
+
+FakeToolBar *EditorManager::createFakeToolBar(QWidget *parent)
+{
+    return new FakeToolBar(parent);
 }
 
 QString EditorManager::defaultExternalEditor() const
