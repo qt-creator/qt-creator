@@ -603,6 +603,37 @@ void DesignDocumentController::cutSelected()
     deleteSelected();
 }
 
+static void scatterItem(ModelNode pastedNode, const ModelNode targetNode, int offset = -2000)
+{
+
+    bool scatter = false;
+    foreach (const ModelNode &childNode, targetNode.allDirectSubModelNodes()) {
+        if ((childNode.variantProperty("x").value() == pastedNode.variantProperty("x").value()) &&
+            (childNode.variantProperty("y").value() == pastedNode.variantProperty("y").value()))
+            scatter = true;
+    }
+    if (!scatter)
+        return;
+
+    if (offset == -2000) {
+        double x = pastedNode.variantProperty("x").value().toDouble();
+        double y = pastedNode.variantProperty("y").value().toDouble();
+        double targetWidth = 20;
+        double targetHeight = 20;
+        x = x + double(qrand()) / RAND_MAX * targetWidth - targetWidth / 2;
+        y = y + double(qrand()) / RAND_MAX * targetHeight - targetHeight / 2;
+        pastedNode.variantProperty("x") = int(x);
+        pastedNode.variantProperty("y") = int(y);
+    } else {
+        double x = pastedNode.variantProperty("x").value().toDouble();
+        double y = pastedNode.variantProperty("y").value().toDouble();
+        x = x + offset;
+        y = y + offset;
+        pastedNode.variantProperty("x") = int(x);
+        pastedNode.variantProperty("y") = int(y);
+    }
+}
+
 void DesignDocumentController::paste()
 {
     QScopedPointer<Model> model(Model::create("empty"));
@@ -633,15 +664,13 @@ void DesignDocumentController::paste()
         if (!view.selectedModelNodes().isEmpty())
             targetNode = view.selectedModelNodes().first();
 
-        if (targetNode.isValid() && targetNode.parentProperty().isValid())
+        //In case we copy and paste a selection we paste in the parent item
+        if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.parentProperty().isValid()) {
             targetNode = targetNode.parentProperty().parentModelNode();
+        }
 
         if (!targetNode.isValid())
             targetNode = view.rootModelNode();
-
-
-        if (targetNode.parentProperty().isValid())
-            targetNode = targetNode.parentProperty().parentModelNode();
 
         foreach (const ModelNode &node, selectedNodes) {
             foreach (const ModelNode &node2, selectedNodes) {
@@ -654,10 +683,13 @@ void DesignDocumentController::paste()
 
         RewriterTransaction transaction(m_d->formEditorView.data());
 
+        int offset = double(qrand()) / RAND_MAX * 20 - 10;
+
         foreach (const ModelNode &node, selectedNodes) {
             QString defaultProperty(targetNode.metaInfo().defaultProperty());
             ModelNode pastedNode(view.insertModel(node));
             pastedNodeList.append(pastedNode);
+            scatterItem(pastedNode, targetNode, offset);
             targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
         }
 
@@ -676,18 +708,16 @@ void DesignDocumentController::paste()
         if (!targetNode.isValid())
             targetNode = view.rootModelNode();
 
-        if (targetNode.parentProperty().isValid())
+        if (targetNode.parentProperty().isValid() &&
+            (pastedNode.simplifiedTypeName() == targetNode.simplifiedTypeName()) &&
+            (pastedNode.variantProperty("width").value() == targetNode.variantProperty("width").value()) &&
+            (pastedNode.variantProperty("height").value() == targetNode.variantProperty("height").value()))
+
             targetNode = targetNode.parentProperty().parentModelNode();
 
         QString defaultProperty(targetNode.metaInfo().defaultProperty());
-        double x = pastedNode.variantProperty("x").value().toDouble();
-        double y = pastedNode.variantProperty("x").value().toDouble();
-        double width = targetNode.variantProperty("width").value().toDouble();
-        double height = targetNode.variantProperty("height").value().toDouble();
-        x = x + double(qrand()) / RAND_MAX * width / 4 - width / 8;
-        y = y + double(qrand()) / RAND_MAX * height / 4 - height / 8;
-        pastedNode.variantProperty("x") = int(x);
-        pastedNode.variantProperty("y") = int(y);
+
+        scatterItem(pastedNode, targetNode);
         targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
 
         view.setSelectedModelNodes(QList<ModelNode>() << pastedNode);
