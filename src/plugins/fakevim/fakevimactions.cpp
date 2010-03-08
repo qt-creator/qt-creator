@@ -123,8 +123,8 @@ FakeVimSettings *theFakeVimSettings()
     instance->insertItem(ConfigUseFakeVim, item);
 
     item = new SavedAction(instance);
-    item->setValue(false);
-    item->setDefaultValue(false);
+    item->setValue(true);
+    item->setDefaultValue(true);
     item->setSettingsKey(group, QLatin1String("StartOfLine"));
     item->setCheckable(true);
     instance->insertItem(ConfigStartOfLine, item, QLatin1String("startofline"), QLatin1String("sol"));
