@@ -11,7 +11,6 @@ QScrollArea {
     QFrame {
         id: properyEditorLayout;
         enabled: isBaseState
-        minimumHeight: 460;
         layout: QVBoxLayout {
             topMargin: 0;
             bottomMargin: 0;
