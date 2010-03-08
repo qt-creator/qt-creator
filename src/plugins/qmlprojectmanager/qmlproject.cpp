@@ -31,6 +31,7 @@
 #include "qmlprojectfile.h"
 #include "qmlprojectmanagerconstants.h"
 #include "fileformat/qmlprojectitem.h"
+#include "qmlprojectrunconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -255,6 +256,10 @@ bool QmlProject::fromMap(const QVariantMap &map)
     }
 
     refresh(Everything);
+    // FIXME workaround to guarantee that run/debug actions are enabled if a valid file exists
+    QmlProjectRunConfiguration *runConfig = static_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
+    runConfig->changeCurrentFile(0);
+
     return true;
 }
 

@@ -54,6 +54,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
     ProjectExplorer::RunConfiguration(parent, QLatin1String(Constants::QML_RC_ID)),
     m_debugServerAddress("127.0.0.1"),
     m_debugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
+    m_projectTarget(parent),
     m_usingCurrentFile(false),
     m_isEnabled(false)
 {
@@ -291,6 +292,20 @@ void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
             m_currentFileFilename = editor->file()->fileName();
             if (Core::ICore::instance()->mimeDatabase()->findByFile(mainScript()).matchesType(QLatin1String("application/x-qml")))
                 enable = true;
+        } else {
+            // find a qml file with lowercase filename. This is slow but only done in initialization/other border cases.
+            foreach(const QString& filename, m_projectTarget->qmlProject()->files()) {
+                const QFileInfo fi(filename);
+
+                if (!filename.isEmpty() && fi.baseName()[0].isLower()
+                    && Core::ICore::instance()->mimeDatabase()->findByFile(fi).matchesType(QLatin1String("application/x-qml")))
+                {
+                    m_currentFileFilename = filename;
+                    enable = true;
+                    break;
+                }
+
+            }
         }
 
         setEnabled(enable);
