@@ -72,8 +72,11 @@ public:
 
     QVariantMap toMap() const;
 
-private slots:
+public slots:
     void changeCurrentFile(Core::IEditor*);
+
+private slots:
+
     QString mainScript() const;
     void setMainScript(const QString &scriptFile);
 
@@ -101,6 +104,8 @@ private:
     QString m_qmlViewerArgs;
     QString m_debugServerAddress;
     uint m_debugServerPort;
+
+    Internal::QmlProjectTarget *m_projectTarget;
 
     bool m_usingCurrentFile;
     bool m_isEnabled;
