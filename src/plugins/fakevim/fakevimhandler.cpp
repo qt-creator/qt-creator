@@ -1590,7 +1590,6 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             int endLine = lineForPosition(position());
             m_visualInsertCount = qAbs(endLine - beginLine);
             setPosition(qMin(position(), anchor()));
-            enterInsertMode();
         } else {
             if (m_gflag)
                 moveToStartOfLine();
@@ -1599,6 +1598,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             m_gflag = false;
             m_tc.clearSelection();
         }
+        enterInsertMode();
     } else if (key == control('i')) {
         if (!m_jumpListRedo.isEmpty()) {
             m_jumpListUndo.append(cursorPosition());
