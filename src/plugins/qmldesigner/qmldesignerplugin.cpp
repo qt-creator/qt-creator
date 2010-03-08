@@ -119,8 +119,6 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     Core::Command *command = am->registerAction(switchAction, QmlDesigner::Constants::SWITCH_TEXT_DESIGN, switchContext);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
 
-    connect(switchAction, SIGNAL(triggered()), this, SLOT(switchTextDesign()));
-
     m_designerCore = new QmlDesigner::IntegrationCore;
     m_pluginInstance = this;
 
@@ -134,6 +132,7 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     m_designerCore->pluginManager()->setPluginPaths(QStringList() << pluginPath);
 
     createDesignModeWidget();
+    connect(switchAction, SIGNAL(triggered()), this, SLOT(switchTextDesign()));
 
     addAutoReleasedObject(new SettingsPage);
 
@@ -319,8 +318,10 @@ void BauhausPlugin::switchTextDesign()
 
 
     if (modeManager->currentMode()->id() == Core::Constants::MODE_EDIT) {
-        if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
+        if (editor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
             modeManager->activateMode(Core::Constants::MODE_DESIGN);
+            m_mainWidget->setFocus();
+        }
     } else if (modeManager->currentMode()->id() == Core::Constants::MODE_DESIGN) {
         modeManager->activateMode(Core::Constants::MODE_EDIT);
     }
