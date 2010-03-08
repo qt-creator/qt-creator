@@ -2114,8 +2114,6 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
 
 void GdbEngine::handleBreakInsert2(const GdbResponse &response)
 {
-    int index = response.cookie.toInt();
-    BreakHandler *handler = manager()->breakHandler();
     if (response.resultClass == GdbResultError) {
         if (m_gdbVersion < 60800 && !m_isMacGdb) {
             // This gdb version doesn't "do" pending breakpoints.
