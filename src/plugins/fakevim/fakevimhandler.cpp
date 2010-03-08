@@ -2820,7 +2820,7 @@ void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward, bool
         QChar c = doc->characterAt(m_tc.position() + (forward ? 1 : -1));
         //qDebug() << "EXAMINING: " << c << " AT " << position();
         int thisClass = charClass(c, simple);
-        if (thisClass != lastClass && lastClass != 0)
+        if (thisClass != lastClass && (lastClass != 0 || changeWord))
             --repeat;
         if (repeat == -1)
             break;
