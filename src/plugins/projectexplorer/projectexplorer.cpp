@@ -630,6 +630,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     runIcon.addFile(Constants::ICON_RUN_SMALL);
     d->m_runAction = new QAction(runIcon, tr("Run"), this);
     cmd = am->registerAction(d->m_runAction, Constants::RUN, globalcontext);
+    cmd->setAttribute(Core::Command::CA_UpdateText);
+
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
@@ -1727,22 +1729,31 @@ void ProjectExplorerPlugin::updateRunActions()
     if (!project ||
         !project->activeTarget() ||
         !project->activeTarget()->activeRunConfiguration()) {
+
+        d->m_runAction->setToolTip(tr("Cannot run without a project."));
+        d->m_debugAction->setToolTip(tr("Cannot debug without a project."));
+
         d->m_runAction->setEnabled(false);
         d->m_debugAction->setEnabled(false);
         return;
     }
+    d->m_runAction->setToolTip(QString());
+    d->m_debugAction->setToolTip(QString());
 
     bool canRun = findRunControlFactory(project->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE)
                   && project->activeTarget()->activeRunConfiguration()->isEnabled();
     const bool canDebug = !d->m_debuggingRunControl && findRunControlFactory(project->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::DEBUGMODE)
                           && project->activeTarget()->activeRunConfiguration()->isEnabled();
     const bool building = d->m_buildManager->isBuilding();
+
     d->m_runAction->setEnabled(canRun && !building);
 
     canRun = d->m_currentProject && findRunControlFactory(d->m_currentProject->activeTarget()->activeRunConfiguration(), ProjectExplorer::Constants::RUNMODE);
+
     d->m_runActionContextMenu->setEnabled(canRun && !building);
 
     d->m_debugAction->setEnabled(canDebug && !building);
+
 }
 
 void ProjectExplorerPlugin::cancelBuild()
