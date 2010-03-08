@@ -484,6 +484,11 @@ int RewriterView::firstDefinitionInsideLength(const ModelNode &node) const
     return objectLengthCalculator(offset);
 }
 
+bool RewriterView::modificationGroupActive()
+{
+    return m_modificationGroupActive;
+}
+
 void RewriterView::qmlTextChanged()
 {
     if (inErrorState())
