@@ -39,15 +39,8 @@ contains(QT_CONFIG, declarative) {
 
     SUBDIRS += plugin_qmlprojectmanager
 
-    # Try to find location of Qt private headers (see README)
-
-    isEmpty(QT_PRIVATE_HEADERS) {
-        QT_PRIVATE_HEADERS = $$[QT_INSTALL_HEADERS]
-    } else {
-        INCLUDEPATH += QT_PRIVATE_HEADERS
-    }
-
-    exists($$QT_PRIVATE_HEADERS/QtDeclarative/private/qdeclarativecontext_p.h) {
+    include(private_headers.pri)
+    exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
         SUBDIRS += plugin_qmldesigner \
                    plugin_qmlinspector
     } else {
