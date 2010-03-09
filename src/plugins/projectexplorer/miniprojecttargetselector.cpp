@@ -185,7 +185,7 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
         m_buildComboBox->setProperty("alignarrow", true);
         m_buildComboBox->setProperty("hideborder", true);
         m_buildComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        m_buildComboBox->setToolTip(tr("Make active and press 'b' to select."));
+        m_buildComboBox->setToolTip(tr("Select active build configuration"));
     } else {
         m_buildComboBox = 0;
     }
@@ -194,7 +194,7 @@ MiniTargetWidget::MiniTargetWidget(Target *target, QWidget *parent) :
     m_runComboBox ->setProperty("alignarrow", true);
     m_runComboBox ->setProperty("hideborder", true);
     m_runComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-    m_runComboBox->setToolTip(tr("Make active and press 'r' to select."));
+    m_runComboBox->setToolTip(tr("Select active run configuration"));
     int fontSize = font().pointSize();
     setStyleSheet(QString::fromLatin1("QLabel { font-size: %2pt; color: white; } "
                                       "#target { font: bold %1pt;} "
@@ -392,6 +392,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     bar->setFixedHeight(panelHeight);
 
     m_projectsBox = new QComboBox;
+    m_projectsBox->setToolTip(tr("Select active project"));
     m_projectsBox->setFocusPolicy(Qt::TabFocus);
     f.setBold(false);
     m_projectsBox->setFont(f);
