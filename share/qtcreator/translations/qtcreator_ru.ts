@@ -12111,7 +12111,7 @@ to version control (%2)?</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+352"/>
         <source>Headers</source>
-        <translation>Заговолочные</translation>
+        <translation>Заголовочные</translation>
     </message>
     <message>
         <location line="+1"/>
