@@ -29,168 +29,97 @@
 
 #include "editorwidget.h"
 #include "formeditorw.h"
+#include "formeditorstack.h"
 
-#include <coreplugin/minisplitter.h>
 #include <utils/qtcassert.h>
 
-#include <QtCore/QEvent>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QTabWidget>
-
-static const char *editorWidgetStateKeyC = "editorWidgetState";
+#include <QtGui/QDockWidget>
 
 using namespace Designer::Constants;
 
 namespace Designer {
 namespace Internal {
 
-SharedSubWindow::SharedSubWindow(QWidget *shared, QWidget *parent) :
-   QWidget(parent),
-   m_shared(shared),
-   m_layout(new QVBoxLayout)
-{
-    QTC_ASSERT(m_shared, /**/);
-    m_layout->setContentsMargins(0, 0, 0, 0);
-    setLayout(m_layout);
-}
-
-void SharedSubWindow::activate()
-{
-    // Take the widget off the other parent
-    QTC_ASSERT(m_shared, return);
-    QWidget *currentParent = m_shared->parentWidget();
-    if (currentParent == this)
-        return;
-
-    m_layout->addWidget(m_shared);
-    m_shared->show();
-}
-
-SharedSubWindow::~SharedSubWindow()
-{
-    // Do not destroy the shared sub window if we currently own it
-    if (m_shared->parent() == this) {
-        m_shared->hide();
-        m_shared->setParent(0);
-    }
-}
-
 // ---------- EditorWidget
 
-QHash<QString, QVariant> EditorWidget::m_globalState = QHash<QString, QVariant>();
-
-EditorWidget::EditorWidget(QWidget *formWindow)
-    : m_mainWindow(new Utils::FancyMainWindow),
-    m_initialized(false)
+EditorWidget::EditorWidget(FormEditorW *few, QWidget *parent) :
+    Utils::FancyMainWindow(parent),
+    m_stack(new FormEditorStack)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    setLayout(layout);
-    layout->addWidget(m_mainWindow);
-    m_mainWindow->setCentralWidget(formWindow);
-    m_mainWindow->setDocumentMode(true);
-    m_mainWindow->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
-    m_mainWindow->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    m_mainWindow->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+    setObjectName(QLatin1String("EditorWidget"));
+    setCentralWidget(m_stack);
+    setDocumentMode(true);
+    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 
-    // Get shared sub windows from Form Editor
-    FormEditorW *few = FormEditorW::instance();
     QWidget * const*subs = few->designerSubWindows();
-
-    // Create shared sub windows
-    for (int i=0; i < DesignerSubWindowCount; i++) {
-        m_designerSubWindows[i] = new SharedSubWindow(subs[i]);
-        m_designerSubWindows[i]->setWindowTitle(subs[i]->windowTitle());
-        m_designerDockWidgets[i] = m_mainWindow->addDockForWidget(m_designerSubWindows[i]);
+    for (int i = 0; i < DesignerSubWindowCount; i++) {
+        QWidget *subWindow = subs[i];
+        subWindow->setWindowTitle(subs[i]->windowTitle());
+        m_designerDockWidgets[i] = addDockForWidget(subWindow);
     }
+    resetToDefaultLayout();
 }
 
 void EditorWidget::resetToDefaultLayout()
 {
-    m_mainWindow->setTrackingEnabled(false);
-    QList<QDockWidget *> dockWidgets = m_mainWindow->dockWidgets();
-    foreach (QDockWidget *dockWidget, dockWidgets) {
+    setTrackingEnabled(false);
+    QList<QDockWidget *> dockWidgetList = dockWidgets();
+    foreach (QDockWidget *dockWidget, dockWidgetList) {
         dockWidget->setFloating(false);
-        m_mainWindow->removeDockWidget(dockWidget);
+        removeDockWidget(dockWidget);
     }
 
-    m_mainWindow->addDockWidget(Qt::LeftDockWidgetArea, m_designerDockWidgets[WidgetBoxSubWindow]);
-    m_mainWindow->addDockWidget(Qt::RightDockWidgetArea, m_designerDockWidgets[ObjectInspectorSubWindow]);
-    m_mainWindow->addDockWidget(Qt::RightDockWidgetArea, m_designerDockWidgets[PropertyEditorSubWindow]);
-    m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_designerDockWidgets[ActionEditorSubWindow]);
-    m_mainWindow->addDockWidget(Qt::BottomDockWidgetArea, m_designerDockWidgets[SignalSlotEditorSubWindow]);
+    addDockWidget(Qt::LeftDockWidgetArea, m_designerDockWidgets[WidgetBoxSubWindow]);
+    addDockWidget(Qt::RightDockWidgetArea, m_designerDockWidgets[ObjectInspectorSubWindow]);
+    addDockWidget(Qt::RightDockWidgetArea, m_designerDockWidgets[PropertyEditorSubWindow]);
+    addDockWidget(Qt::BottomDockWidgetArea, m_designerDockWidgets[ActionEditorSubWindow]);
+    addDockWidget(Qt::BottomDockWidgetArea, m_designerDockWidgets[SignalSlotEditorSubWindow]);
 
-    m_mainWindow->tabifyDockWidget(m_designerDockWidgets[ActionEditorSubWindow],
-                                   m_designerDockWidgets[SignalSlotEditorSubWindow]);
+    tabifyDockWidget(m_designerDockWidgets[ActionEditorSubWindow],
+                     m_designerDockWidgets[SignalSlotEditorSubWindow]);
 
-    foreach (QDockWidget *dockWidget, dockWidgets) {
+    foreach (QDockWidget *dockWidget, dockWidgetList)
         dockWidget->show();
-    }
 
-    m_mainWindow->setTrackingEnabled(true);
+    setTrackingEnabled(true);
 }
 
-void EditorWidget::activate()
+QDockWidget* const* EditorWidget::designerDockWidgets() const
 {
-    /*
-
-       - now, settings are only changed when form is hidden.
-       - they should be not restored when a new form is activated - the same settings should be kept.
-       - only on initial load, settings should be loaded.
-
-     */
-    for (int i=0; i < DesignerSubWindowCount; i++)
-        m_designerSubWindows[i]->activate();
-
-    if (!m_initialized) {
-        // set a default layout, so if something goes wrong with
-        // restoring the settings below, there is a fallback
-        // (otherwise we end up with a broken mainwindow layout)
-        // we can't do it in the constructor, because the sub windows
-        // don't have their widgets yet there
-        resetToDefaultLayout();
-        m_initialized = true;
-        if (!m_globalState.isEmpty())
-            m_mainWindow->restoreSettings(m_globalState);
-    }
-
-    if (m_globalState.isEmpty())
-        m_globalState = m_mainWindow->saveSettings();
+    return m_designerDockWidgets;
 }
 
-void EditorWidget::hideEvent(QHideEvent *)
+Designer::FormWindowEditor *EditorWidget::createFormWindowEditor(DesignerXmlEditorEditable *xmlEditor)
 {
-    m_globalState = m_mainWindow->saveSettings();
+    return m_stack->createFormWindowEditor(xmlEditor);
 }
 
-void EditorWidget::saveState(QSettings *settings)
+bool EditorWidget::removeFormWindowEditor(Core::IEditor *xmlEditor)
 {
-    settings->beginGroup(editorWidgetStateKeyC);
-    QHashIterator<QString, QVariant> it(m_globalState);
-    while (it.hasNext()) {
-        it.next();
-        settings->setValue(it.key(), it.value());
-    }
-    settings->endGroup();
+    return m_stack->removeFormWindowEditor(xmlEditor);
 }
 
-void EditorWidget::restoreState(QSettings *settings)
+bool EditorWidget::setVisibleEditor(Core::IEditor *xmlEditor)
 {
-    m_globalState.clear();
-    settings->beginGroup(editorWidgetStateKeyC);
-    foreach (const QString &key, settings->childKeys()) {
-        m_globalState.insert(key, settings->value(key));
-    }
-    settings->endGroup();
+    return m_stack->setVisibleEditor(xmlEditor);
 }
 
-void EditorWidget::toolChanged(int i)
+Designer::FormWindowEditor *EditorWidget::formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const
 {
-    Q_UNUSED(i)
-//    TODO: How to activate the right dock window?
-//    if (m_bottomTab)
-//        m_bottomTab->setCurrentIndex(i == EditModeSignalsSlotEditor ? SignalSlotEditorTab : ActionEditorTab);
+    return m_stack->formWindowEditorForXmlEditor(xmlEditor);
+}
+
+FormWindowEditor *EditorWidget::activeFormWindow() const
+{
+    return m_stack->activeFormWindow();
+}
+
+Designer::FormWindowEditor *EditorWidget::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const
+{
+    return m_stack->formWindowEditorForFormWindow(fw);
 }
 
 } // namespace Internal

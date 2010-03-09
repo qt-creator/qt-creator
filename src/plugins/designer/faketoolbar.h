@@ -56,12 +56,12 @@ class FakeToolBar : public QWidget
     Q_OBJECT
     Q_DISABLE_COPY(FakeToolBar)
 public:
-    explicit FakeToolBar(Core::IEditor *editor, QWidget *toolbar, QWidget *parent = 0);
+    explicit FakeToolBar(QWidget *toolbar, QWidget *parent = 0);
 
     void updateActions();
 
 private slots:
-    void updateEditorListSelection(Core::IEditor *newSelection);
+    void editorChanged(Core::IEditor *newSelection);
     void close();
     void listSelectionActivated(int row);
     void listContextMenu(QPoint);

@@ -80,7 +80,7 @@ private slots:
     void updateEditorInfoBar(Core::IEditor *editor);
 
 protected:
-    virtual TextEditor::BaseTextEditorEditable *createEditableInterface() { return new DesignerXmlEditorEditable(this); }
+    virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
 
 private:
 };

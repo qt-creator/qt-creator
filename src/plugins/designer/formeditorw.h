@@ -30,14 +30,10 @@
 #ifndef FORMEDITORW_H
 #define FORMEDITORW_H
 
-#include <QtDesigner/QDesignerFormEditorInterface>
-
-#include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
-#include <QtCore/QSignalMapper>
-#include <QtGui/QAction>
+#include <QtCore/QMap>
 
 #include "designerconstants.h"
 
@@ -47,6 +43,7 @@ class QDesignerIntegrationInterface;
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 
+class QAction;
 class QActionGroup;
 class QFocusEvent;
 
@@ -76,24 +73,9 @@ class FormWindowEditor;
 
 namespace Internal {
 
-class FormEditorStack;
+class EditorWidget;
 class SettingsPage;
 class DesignerContext;
-
-class ProxyAction : public QAction
-{
-    Q_OBJECT
-public:
-    ProxyAction(const QString &defaultText, QObject *parent = 0);
-    void setAction(QAction *action);
-
-private slots:
-    void update();
-
-private:
-    QString m_defaultText;
-    QPointer<QAction> m_action;
-};
 
 /** FormEditorW is a singleton that stores the Designer CoreInterface and
   * performs centralized operations. The instance() method will return an
@@ -107,7 +89,10 @@ private:
   * This is based on the assumption that the Designer settings work with
   * no plugins loaded. If that does not work, full initialization can be
   * triggered by connection to the ICore::optionsDialogRequested() signal.
-  */
+  *
+  * The form editor shows a read-only XML editor in edit mode and Qt Designer
+  * in Design mode. It connects to void EditorManager::currentEditorChanged()
+  * and switches modes if a designer XML editor is activated. */
 class FormEditorW : public QObject
 {
     Q_OBJECT
@@ -130,11 +115,10 @@ public:
 
     inline QDesignerFormEditorInterface *designerEditor() const { return m_formeditor; }
     inline QWidget * const*designerSubWindows() const { return m_designerSubWindows; }
-    QToolBar *createEditorToolBar() const;
 
     FormWindowEditor *createFormWindowEditor(QWidget* parentWidget);
 
-    FormWindowEditor *activeFormWindow();
+    FormWindowEditor *activeFormWindow() const;
 
 private slots:
     void activateEditMode(int id);
@@ -143,13 +127,8 @@ private slots:
     void currentEditorChanged(Core::IEditor *editor);
     void toolChanged(int);
     void print();
-    void setFormWindowLayoutLocked(bool locked);
-    void resetToDefaultLayout();
 
-    void editorDestroyed();
     void updateShortcut(QObject *command);
-    void syncOnModeChange(Core::IMode *mode);
-    void checkToActivateEditor(Core::IEditor *editor);
     void closeFormEditorsForXmlEditors(QList<Core::IEditor*> editors);
 
 private:
@@ -157,13 +136,15 @@ private:
     void fullInit();
 
     void saveSettings(QSettings *s);
-    void restoreSettings(QSettings *s);
 
     void initDesignerSubWindows();
 
-    typedef QList<FormWindowEditor *> EditorList;
-
     void setupActions();
+    void setupViewActions();
+    inline void addDockViewAction(Core::ActionManager *am, int index,
+                                  const QList<int> &context,
+                                  const QString &title, const QString &id);
+
     Core::ActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
                                                    QActionGroup *actionGroup);
 
@@ -184,7 +165,7 @@ private:
                        const QString &name,
                        Core::ActionContainer *c1,
                        const QString &keySequence = QString());
-
+    QToolBar *createEditorToolBar() const;
 
     static FormEditorW *m_self;
 
@@ -195,7 +176,8 @@ private:
     InitializationStage m_initStage;
 
     QWidget *m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
-    ProxyAction *m_designerSubWindowActions[Designer::Constants::DesignerSubWindowCount];
+    Core::ActionContainer *m_viewMenu;
+
     QAction *m_lockAction;
     QAction *m_resetLayoutAction;
 
@@ -209,10 +191,11 @@ private:
     QSignalMapper *m_shortcutMapper;
 
     DesignerContext *m_context;
-    EditorList m_formWindows;
+    QList<int> m_contexts;
 
     QStringList m_toolActionIds;
-    QPointer<FormEditorStack> m_stack;
+    QWidget *m_modeWidget;
+    EditorWidget *m_editorWidget;
     Core::DesignMode *m_designMode;
 
     QMap<Core::Command *, QAction *> m_commandToDesignerAction;

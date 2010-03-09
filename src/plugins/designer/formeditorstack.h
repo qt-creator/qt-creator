@@ -34,6 +34,11 @@
 #include <QtCore/QList>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+class QDesignerFormWindowInterface;
+class QDesignerFormEditorInterface;
+QT_END_NAMESPACE
+
 namespace Core {
     class IEditor;
 }
@@ -54,34 +59,35 @@ class FormEditorStack : public QStackedWidget
     Q_OBJECT
     Q_DISABLE_COPY(FormEditorStack);
 public:
-    FormEditorStack();
-    ~FormEditorStack();
+    explicit FormEditorStack(QWidget *parent = 0);
+
     Designer::FormWindowEditor *createFormWindowEditor(DesignerXmlEditorEditable *xmlEditor);
     bool removeFormWindowEditor(Core::IEditor *xmlEditor);
     bool setVisibleEditor(Core::IEditor *xmlEditor);
-    Designer::FormWindowEditor *formWindowEditorForXmlEditor(Core::IEditor *xmlEditor);
+    Designer::FormWindowEditor *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
+    Designer::FormWindowEditor *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
+    FormWindowEditor *activeFormWindow() const;
 
 private slots:
     void formChanged();
     void reloadDocument();
+    void updateFormWindowSelectionHandles();
 
 private:
+    inline int indexOf(const QDesignerFormWindowInterface *) const;
+    inline int indexOf(const Core::IEditor *xmlEditor) const;
+
     void setFormEditorData(Designer::FormWindowEditor *formEditor, const QString &contents);
-
-    struct FormXmlData;
-    QList<FormXmlData*> m_formEditors;
-
-    FormXmlData *activeEditor;
-
     struct FormXmlData {
+        FormXmlData();
         DesignerXmlEditorEditable *xmlEditor;
         Designer::FormWindowEditor *formEditor;
-        int widgetIndex;
     };
-
+    QList<FormXmlData> m_formEditors;
+    QDesignerFormEditorInterface *m_designerCore;
 };
 
-}
-}
+} // namespace Internal
+} // namespace Designer
 
 #endif // FORMEDITORSTACK_H

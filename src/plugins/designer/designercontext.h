@@ -42,19 +42,22 @@ namespace Internal {
 
 class DesignerContext : public Core::IContext
 {
+    Q_DISABLE_COPY(DesignerContext)
 public:
-    DesignerContext(QWidget *widget = 0);
-    ~DesignerContext();
-    QList<int> context() const;
-    QWidget *widget();
-    void setWidget(QWidget *widget);
+    explicit DesignerContext(const QList<int> contexts,
+                             QWidget *widget,
+                             QObject *parent = 0);
+
+    virtual QList<int> context() const;
+    virtual QWidget *widget();
+    virtual QString contextHelpId() const;
+
 private:
-    QList<int> m_context;
+    const QList<int> m_context;
     QWidget *m_widget;
 };
 
-}
-}
-
+} // namespace Internal
+} // namespace Designer
 
 #endif // DESIGNERCONTEXT_H

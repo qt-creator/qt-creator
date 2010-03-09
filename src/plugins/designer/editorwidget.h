@@ -34,72 +34,48 @@
 
 #include <utils/fancymainwindow.h>
 
-#include <QtCore/QPointer>
-#include <QtCore/QList>
 #include <QtCore/QHash>
 #include <QtCore/QVariant>
-#include <QtCore/QSettings>
-#include <QtGui/QWidget>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QDockWidget>
-#include <QtGui/QHideEvent>
 
+QT_BEGIN_NAMESPACE
+class QDesignerFormWindowInterface;
+QT_END_NAMESPACE
+
+namespace Core {
+    class IEditor;
+}
 namespace Designer {
+class FormWindowEditor;
+class DesignerXmlEditorEditable;
+
 namespace Internal {
-
-/* A widget that shares its embedded sub window with others. For example,
- * the designer editors need to share the widget box, etc. */
-class SharedSubWindow : public QWidget
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(SharedSubWindow)
-
-public:
-    SharedSubWindow(QWidget *shared, QWidget *parent = 0);
-    virtual ~SharedSubWindow();
-
-public slots:
-    // Takes the shared widget off the current parent and adds it to its
-    // layout
-    void activate();
-
-private:
-    QPointer <QWidget> m_shared;
-    QVBoxLayout *m_layout;
-};
-
+class FormEditorStack;
+class FormEditorW;
 /* Form editor splitter used as editor window. Contains the shared designer
  * windows. */
-class EditorWidget : public QWidget
+class EditorWidget : public Utils::FancyMainWindow
 {
     Q_OBJECT
     Q_DISABLE_COPY(EditorWidget)
 public:
-    explicit EditorWidget(QWidget *formWindow);
+    explicit EditorWidget(FormEditorW *fe, QWidget *parent = 0);
 
+    QDockWidget* const* designerDockWidgets() const;
 
-    void resetToDefaultLayout();
-    QDockWidget* const* dockWidgets() const { return m_designerDockWidgets; }
-    bool isLocked() const { return m_mainWindow->isLocked(); }
-    void setLocked(bool locked) { m_mainWindow->setLocked(locked); }
-
-    static void saveState(QSettings *settings);
-    static void restoreState(QSettings *settings);
+    // Form editor stack API
+    Designer::FormWindowEditor *createFormWindowEditor(DesignerXmlEditorEditable *xmlEditor);
+    bool removeFormWindowEditor(Core::IEditor *xmlEditor);
+    bool setVisibleEditor(Core::IEditor *xmlEditor);
+    Designer::FormWindowEditor *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
+    Designer::FormWindowEditor *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
+    FormWindowEditor *activeFormWindow() const;
 
 public slots:
-    void activate();
-    void toolChanged(int);
-
-protected:
-    void hideEvent(QHideEvent * e);
+    void resetToDefaultLayout();
 
 private:
-    SharedSubWindow* m_designerSubWindows[Designer::Constants::DesignerSubWindowCount];
+    FormEditorStack *m_stack;
     QDockWidget *m_designerDockWidgets[Designer::Constants::DesignerSubWindowCount];
-    Utils::FancyMainWindow *m_mainWindow;
-    bool m_initialized;
-
-    static QHash<QString, QVariant> m_globalState;
 };
 
 } // namespace Internal

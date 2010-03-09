@@ -29,27 +29,26 @@
 
 #include "designercontext.h"
 #include "designerconstants.h"
-#include <coreplugin/uniqueidmanager.h>
-#include <coreplugin/coreconstants.h>
+#include "formeditorw.h"
 
-#include <QWidget>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include "qt_private/qdesigner_integration_p.h"
+
+#include <QtGui/QWidget>
+#include <QtCore/QDebug>
+
+enum { debug = 0 };
 
 namespace Designer {
 namespace Internal {
 
-DesignerContext::DesignerContext(QWidget *widget) : Core::IContext(widget),
+DesignerContext::DesignerContext(const QList<int> contexts,
+                                 QWidget *widget,
+                                 QObject *parent) :
+    Core::IContext(parent),
+    m_context(contexts),
     m_widget(widget)
 {
-    Core::UniqueIDManager *idMan = Core::UniqueIDManager::instance();
-    m_context << idMan->uniqueIdentifier(Designer::Constants::C_FORMEDITOR)
-              << idMan->uniqueIdentifier(Core::Constants::C_EDITORMANAGER)
-              << idMan->uniqueIdentifier(Core::Constants::C_DESIGN_MODE);
-
-}
-
-DesignerContext::~DesignerContext()
-{
-
 }
 
 QList<int> DesignerContext::context() const
@@ -62,11 +61,19 @@ QWidget *DesignerContext::widget()
     return m_widget;
 }
 
-void DesignerContext::setWidget(QWidget *widget)
+QString DesignerContext::contextHelpId() const
 {
-    m_widget = widget;
+    QString helpId;
+    const QDesignerFormEditorInterface *core = FormEditorW::instance()->designerEditor();
+    // Present from Qt 4.5.1 onwards. This will show the class documentation
+    // scrolled to the current property.
+    if (const qdesigner_internal::QDesignerIntegration *integration =
+            qobject_cast<const qdesigner_internal::QDesignerIntegration*>(core->integration()))
+        helpId = integration->contextHelpId();
+    if (debug)
+        qDebug() << "DesignerContext::contextHelpId" << m_widget << helpId;
+    return helpId;
 }
 
-}
-}
-
+} // namespace Internal
+} // namespace Designer

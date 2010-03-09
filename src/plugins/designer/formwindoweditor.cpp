@@ -27,13 +27,11 @@
 **
 **************************************************************************/
 
-#include "designerconstants.h"
-#include "editorwidget.h"
-#include "formeditorw.h"
 #include "formwindoweditor.h"
-#include "formwindowfile.h"
-#include "formwindowhost.h"
-#include "faketoolbar.h"
+#include "designerconstants.h"
+#include "formeditorw.h"
+
+#include <coreplugin/ifile.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
@@ -42,26 +40,15 @@
 #include <projectexplorer/session.h>
 
 #include <utils/qtcassert.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QDesignerPropertyEditorInterface>
-#include <QtDesigner/QDesignerWidgetDataBaseInterface>
 #include "qt_private/formwindowbase_p.h"
 #include "qt_private/qtresourcemodel_p.h"
-#include "qt_private/qdesigner_integration_p.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QDir>
-#include <QtCore/QByteArray>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTemporaryFile>
 #include <QtCore/QDebug>
-#include <QtGui/QToolBar>
-#include <QtGui/QDockWidget>
 
 using namespace Designer;
 using namespace Designer::Internal;
@@ -103,37 +90,16 @@ void QrcFilesVisitor::visitFolderNode(FolderNode *folderNode)
 
 
 FormWindowEditor::FormWindowEditor(QDesignerFormWindowInterface *form,
-                                   QObject *parent)
-  : Core::IEditor(parent),
-    m_formWindow(form),
+                                   QWidget *parent) :
+    SharedTools::WidgetHost(parent, form),
     m_file(0),
-    m_host(new FormWindowHost(form)),
-    m_editorWidget(new EditorWidget(m_host)),
-    m_toolBar(0),
     m_sessionNode(0),
-    m_sessionWatcher(0),
-    m_fakeToolBar(new FakeToolBar(this, toolBar()))
+    m_sessionWatcher(0)
 {
-    m_containerWidget = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(m_containerWidget);
-    m_containerWidget->setLayout(layout);
+    connect(formWindow(), SIGNAL(selectionChanged()), this, SIGNAL(changed()));
+    connect(this, SIGNAL(formWindowSizeChanged(int,int)), this, SLOT(slotFormSizeChanged(int,int)));
+    connect(formWindow(), SIGNAL(changed()), this, SIGNAL(changed()));
 
-    layout->addWidget(m_fakeToolBar);
-    layout->addWidget(m_editorWidget);
-    layout->setStretch(0,0);
-    layout->setStretch(1,1);
-    layout->setSpacing(0);
-    layout->setMargin(0);
-    layout->setContentsMargins(0,0,0,0);
-
-    if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << form << parent;
-
-    connect(m_host, SIGNAL(changed()), this, SIGNAL(changed()));
-
-    connect(form, SIGNAL(toolChanged(int)), m_editorWidget, SLOT(toolChanged(int)));
-
-    m_editorWidget->activate();
 }
 
 void FormWindowEditor::setFile(Core::IFile *file)
@@ -144,7 +110,7 @@ void FormWindowEditor::setFile(Core::IFile *file)
     }
 
     m_file = file;
-    m_formWindow->setFileName(file->fileName());
+    formWindow()->setFileName(file->fileName());
 
     if (m_file) {
         connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
@@ -155,21 +121,10 @@ void FormWindowEditor::setFile(Core::IFile *file)
 FormWindowEditor::~FormWindowEditor()
 {
     // Close: Delete the Designer form window via embedding widget
-    delete m_toolBar;
-    delete m_fakeToolBar;
-    delete m_host;
-    delete m_editorWidget;
-    if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << m_displayName;
     if (m_sessionNode && m_sessionWatcher) {
         m_sessionNode->unregisterWatcher(m_sessionWatcher);
         delete m_sessionWatcher;
     }
-}
-
-void FormWindowEditor::setContext(QList<int> context)
-{
-    m_context = context;
 }
 
 bool FormWindowEditor::createNew(const QString &contents)
@@ -177,14 +132,14 @@ bool FormWindowEditor::createNew(const QString &contents)
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << contents.size() << "chars";
 
-    if (!m_formWindow)
+    if (!formWindow())
         return false;
 
-    m_formWindow->setContents(contents);
-    if (!m_formWindow->mainContainer())
+    formWindow()->setContents(contents);
+    if (!formWindow()->mainContainer())
         return false;
 
-    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow))
+    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(formWindow()))
         fw->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
 
     initializeResources();
@@ -192,43 +147,7 @@ bool FormWindowEditor::createNew(const QString &contents)
     return true;
 }
 
-bool FormWindowEditor::open(const QString &fileName /*= QString()*/)
-{
-    if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << fileName;
-
-    if (fileName.isEmpty()) {
-        setDisplayName(tr("untitled"));
-    } else {
-        const QFileInfo fi(fileName);
-        const QString fileName = fi.absoluteFilePath();
-
-        QFile file(fileName);
-        if (!file.exists())
-            return false;
-
-        if (!fi.isReadable())
-            return false;
-
-        if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
-            return false;
-
-        m_formWindow->setFileName(fileName);
-        m_formWindow->setContents(&file);
-        file.close();
-        if (!m_formWindow->mainContainer())
-            return false;
-        m_formWindow->setDirty(false);
-
-        initializeResources(fileName);
-
-        setDisplayName(fi.fileName());
-
-    }
-
-    return true;
-}
-void FormWindowEditor::initializeResources(const QString &fileName /*= QString()*/)
+void FormWindowEditor::initializeResources(const QString & /* fileName */)
 {
     ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
     ProjectExplorer::SessionManager *session = pe->session();
@@ -242,25 +161,22 @@ void FormWindowEditor::initializeResources(const QString &fileName /*= QString()
     connect(m_sessionWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateResources()));
     m_sessionNode->registerWatcher(m_sessionWatcher);
 
-    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow)) {
+    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(formWindow())) {
         QtResourceSet *rs = fw->resourceSet();
         m_originalUiQrcPaths = rs->activeQrcPaths();
     }
 
-    if (!fileName.isEmpty())
-        emit opened(fileName);
-
     updateResources();
 
     QDesignerFormWindowManagerInterface *fwm = FormEditorW::instance()->designerEditor()->formWindowManager();
-    fwm->setActiveFormWindow(m_formWindow);
+    fwm->setActiveFormWindow(formWindow());
 
     emit changed();
 }
 
 void FormWindowEditor::updateResources()
 {
-    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow)) {
+    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(formWindow())) {
         ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
         // filename could change in the meantime.
         ProjectExplorer::Project *project = pe->session()->projectForFile(m_file->fileName());
@@ -281,143 +197,25 @@ void FormWindowEditor::updateResources()
     }
 }
 
-void FormWindowEditor::slotOpen(const QString &fileName)
-{
-    open(fileName);
-}
-
-void FormWindowEditor::slotSetDisplayName(const QString &title)
-{
-    if (Designer::Constants::Internal::debug)
-        qDebug() <<  Q_FUNC_INFO << title;
-    setDisplayName(title);
-}
-
-bool FormWindowEditor::duplicateSupported() const
-{
-    return false;
-}
-
-Core::IEditor *FormWindowEditor::duplicate(QWidget *)
-{
-    return 0;
-}
-
-Core::IFile *FormWindowEditor::file()
+Core::IFile *FormWindowEditor::file() const
 {
     return m_file;
 }
 
-QString FormWindowEditor::id() const
-{
-    return QLatin1String(FORMEDITOR_ID);
-}
-
-QString FormWindowEditor::displayName() const
-{
-    return m_displayName;
-}
-
-void FormWindowEditor::setDisplayName(const QString &title)
-{
-    m_displayName = title;
-}
-
-QWidget *FormWindowEditor::toolBar()
-{
-    if (!m_toolBar)
-        m_toolBar = FormEditorW::instance()->createEditorToolBar();
-    return m_toolBar;
-}
-
-QByteArray FormWindowEditor::saveState() const
-{
-    return QByteArray();
-}
-
-bool FormWindowEditor::restoreState(const QByteArray &/*state*/)
-{
-    return true;
-}
-
-QList<int> FormWindowEditor::context() const
-{
-    return m_context;
-}
-
-QWidget *FormWindowEditor::widget()
-{
-    return m_containerWidget;
-}
-
-
-QDesignerFormWindowInterface *FormWindowEditor::formWindow() const
-{
-    return m_formWindow;
-}
-
-QWidget *FormWindowEditor::integrationContainer()
-{
-    return m_host->integrationContainer();
-}
-
-void FormWindowEditor::updateFormWindowSelectionHandles(bool state)
-{
-    m_host->updateFormWindowSelectionHandles(state);
-}
-
-void FormWindowEditor::activate()
-{
-    m_editorWidget->activate();
-}
-
-void FormWindowEditor::resetToDefaultLayout()
-{
-    m_editorWidget->resetToDefaultLayout();
-}
-
-QString FormWindowEditor::contextHelpId() const
-{
-    const QDesignerFormEditorInterface *core = FormEditorW::instance()->designerEditor();
-    // Present from Qt 4.5.1 onwards. This will show the class documentation
-    // scrolled to the current property.
-    const qdesigner_internal::QDesignerIntegration *integration =
-            qobject_cast<const qdesigner_internal::QDesignerIntegration*>(core->integration());
-    if (integration)
-        return integration->contextHelpId();
-    return QString();
-}
-
 QString FormWindowEditor::contents() const
 {
-    if (!m_formWindow)
+    if (!formWindow())
         return QString();
-//  Activate once all Qt branches around have integrated 4.5.2
-//  (Kinetic)
-/*
-#if QT_VERSION > 0x040501
-    // Quiet save as of Qt 4.5.2
-    qdesigner_internal::FormWindowBase *fwb = qobject_cast<qdesigner_internal::FormWindowBase *>(m_formWindow);
-    QTC_ASSERT(fwb, return QString::null);
-    return fwb->fileContents();
-#else
-    return m_formWindow->contents();
-#endif
-*/
-    return m_formWindow->contents();
+    return formWindow()->contents();
 }
 
-QDockWidget* const* FormWindowEditor::dockWidgets() const
+void FormWindowEditor::slotFormSizeChanged(int w, int h)
 {
-    return m_editorWidget->dockWidgets();
-}
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << w << h;
 
-bool FormWindowEditor::isLocked() const
-{
-    return m_editorWidget->isLocked();
-}
-
-void FormWindowEditor::setLocked(bool locked)
-{
-    m_editorWidget->setLocked(locked);
+    formWindow()->setDirty(true);
+    static const QString geometry = QLatin1String("geometry");
+    FormEditorW::instance()->designerEditor()->propertyEditor()->setPropertyValue(geometry, QRect(0,0,w,h) );
+    emit changed();
 }

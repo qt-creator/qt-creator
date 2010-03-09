@@ -33,7 +33,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
@@ -59,7 +58,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QToolBar>
 
-using Core::MiniSplitter;
+
 using Core::IEditor;
 using Core::EditorManager;
 
@@ -69,24 +68,28 @@ enum {
     debug = false
 };
 
+static inline bool isDesignerXmlEditor(const Core::IEditor *editor)
+{
+    return editor->id() == QLatin1String(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
+}
+
 namespace Designer {
 namespace Internal {
 
 /*!
   Mimic the look of the text editor toolbar as defined in e.g. EditorView::EditorView
   */
-FakeToolBar::FakeToolBar(Core::IEditor *editor, QWidget *toolbar, QWidget *parent) :
+FakeToolBar::FakeToolBar(QWidget *toolbar, QWidget *parent) :
         QWidget(parent),
         m_editorList(new QComboBox),
         m_closeButton(new QToolButton),
         m_lockButton(new QToolButton),
         m_goBackAction(new QAction(QIcon(QLatin1String(":/help/images/previous.png")), EditorManager::tr("Go Back"), parent)),
-        m_goForwardAction(new QAction(QIcon(QLatin1String(":/help/images/next.png")), EditorManager::tr("Go Forward"), parent)),
-        m_editor(editor)
+        m_goForwardAction(new QAction(QIcon(QLatin1String(":/help/images/next.png")), EditorManager::tr("Go Forward"), parent))
 {
     Core::ICore *core = Core::ICore::instance();
 
-    //setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     m_editorsListModel = core->editorManager()->openedEditorsModel();
 
     // copied from EditorView::EditorView
@@ -95,7 +98,6 @@ FakeToolBar::FakeToolBar(Core::IEditor *editor, QWidget *toolbar, QWidget *paren
     m_editorList->setModel(m_editorsListModel);
     m_editorList->setMaxVisibleItems(40);
     m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
-    m_editorList->setCurrentIndex(m_editorsListModel->indexOf(m_editor).row());
 
     QToolBar *editorListToolBar = new QToolBar;
     editorListToolBar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
@@ -141,7 +143,6 @@ FakeToolBar::FakeToolBar(Core::IEditor *editor, QWidget *toolbar, QWidget *paren
     toplayout->setMargin(0);
     toplayout->setContentsMargins(0,0,0,0);
 
-//    toplayout->addWidget(backFwToolBar);
     toplayout->addWidget(editorListToolBar);
     toplayout->addWidget(toolbar);
     toplayout->addWidget(rightToolBar);
@@ -151,16 +152,26 @@ FakeToolBar::FakeToolBar(Core::IEditor *editor, QWidget *toolbar, QWidget *paren
     connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    connect(m_editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
-    connect(core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(updateEditorListSelection(Core::IEditor*)));
+    connect(core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(editorChanged(Core::IEditor*)));
 
     updateEditorStatus();
+    if (Core::IEditor *editor = core->editorManager()->currentEditor())
+        editorChanged(editor);
 }
 
-void FakeToolBar::updateEditorListSelection(Core::IEditor *newSelection)
+void FakeToolBar::editorChanged(Core::IEditor *newSelection)
 {
+    if (newSelection == m_editor)
+        return;
+    if (m_editor && isDesignerXmlEditor(m_editor))
+        disconnect(m_editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
+
     if (newSelection) {
+        m_editor = newSelection;
         m_editorList->setCurrentIndex(m_editorsListModel->indexOf(newSelection).row());
+        if (isDesignerXmlEditor(m_editor))
+            connect(m_editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
+        updateEditorStatus();
     }
 }
 
@@ -170,11 +181,9 @@ void FakeToolBar::close()
     // close the xml file instead.
     Core::ICore *core = Core::ICore::instance();
 
-    Core::IEditor *editor = core->editorManager()->currentEditor();
-    if (editor && editor->id() == Designer::Constants::K_DESIGNER_XML_EDITOR_ID
-        && editor->file() == m_editor->file())
-    {
-        core->editorManager()->closeEditors(QList<Core::IEditor*>() << editor);
+    if (Core::IEditor *editor = core->editorManager()->currentEditor()) {
+        if (isDesignerXmlEditor(editor) && editor->file() == m_editor->file())
+            core->editorManager()->closeEditors(QList<Core::IEditor*>() << editor);
     }
     core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
 }
@@ -182,10 +191,9 @@ void FakeToolBar::close()
 void FakeToolBar::listSelectionActivated(int row)
 {
     Core::EditorManager *em = Core::ICore::instance()->editorManager();
-    QAbstractItemModel *model = m_editorList->model();
-
+    const QAbstractItemModel *model = m_editorList->model();
     const QModelIndex modelIndex = model->index(row, 0);
-    IEditor *editor = model->data(modelIndex, Qt::UserRole).value<IEditor*>();
+    Core::IEditor *editor = model->data(modelIndex, Qt::UserRole).value<Core::IEditor*>();
     if (editor) {
         if (editor != em->currentEditor())
             em->activateEditor(editor, EditorManager::NoModeSwitch);
@@ -219,7 +227,7 @@ void FakeToolBar::makeEditorWritable()
 
 void FakeToolBar::updateEditorStatus()
 {
-    if (!m_editor->file())
+    if (!m_editor || !m_editor->file())
         return;
 
     if (m_editor->file()->isReadOnly()) {

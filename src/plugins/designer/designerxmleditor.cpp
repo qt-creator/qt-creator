@@ -99,4 +99,12 @@ Core::IEditor *DesignerXmlEditorEditable::duplicate(QWidget *parent)
     Q_UNUSED(parent);
     return 0;
 }
+
+namespace Internal {
+TextEditor::BaseTextEditorEditable *DesignerXmlEditor::createEditableInterface()
+{
+    return new DesignerXmlEditorEditable(this);
+}
+}
 } // namespace Designer
+

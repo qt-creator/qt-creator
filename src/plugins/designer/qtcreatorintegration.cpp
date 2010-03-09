@@ -52,6 +52,7 @@
 #include <projectexplorer/session.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
 
 #include <QtGui/QMessageBox>
 
