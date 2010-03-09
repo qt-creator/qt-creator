@@ -64,8 +64,8 @@ Q_SIGNALS:
     void changed();
 
 public:
-    void findUsages(CPlusPlus::Symbol *symbol);
-    void renameUsages(CPlusPlus::Symbol *symbol);
+    void findUsages(CPlusPlus::Document::Ptr symbolDocument,CPlusPlus::Symbol *symbol);
+    void renameUsages(CPlusPlus::Document::Ptr symbolDocument,CPlusPlus::Symbol *symbol);
 
     void findMacroUses(const CPlusPlus::Macro &macro);
 
@@ -76,7 +76,7 @@ private Q_SLOTS:
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
 
 private:
-    void findAll_helper(CPlusPlus::Symbol *symbol);
+    void findAll_helper(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
 
 private:
     QPointer<CppModelManagerInterface> _modelManager;

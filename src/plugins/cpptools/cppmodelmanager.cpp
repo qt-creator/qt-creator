@@ -733,16 +733,16 @@ QList<int> CppModelManager::references(CPlusPlus::Symbol *symbol,
     return m_findReferences->references(LookupContext::canonicalSymbol(symbol, glo.data()), doc, snapshot);
 }
 
-void CppModelManager::findUsages(CPlusPlus::Symbol *symbol)
+void CppModelManager::findUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol)
 {
     if (symbol->identifier())
-        m_findReferences->findUsages(symbol);
+        m_findReferences->findUsages(symbolDocument, symbol);
 }
 
-void CppModelManager::renameUsages(CPlusPlus::Symbol *symbol)
+void CppModelManager::renameUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol)
 {
     if (symbol->identifier())
-        m_findReferences->renameUsages(symbol);
+        m_findReferences->renameUsages(symbolDocument, symbol);
 }
 
 void CppModelManager::findMacroUsages(const CPlusPlus::Macro &macro)

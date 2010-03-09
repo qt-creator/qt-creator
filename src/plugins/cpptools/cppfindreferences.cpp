@@ -85,13 +85,15 @@ class ProcessFile: public std::unary_function<QString, QList<Usage> >
 {
     const CppTools::CppModelManagerInterface::WorkingCopy workingCopy;
     const Snapshot snapshot;
+    Document::Ptr symbolDocument;
     Symbol *symbol;
 
 public:
     ProcessFile(const CppTools::CppModelManagerInterface::WorkingCopy &workingCopy,
                 const Snapshot snapshot,
+                Document::Ptr symbolDocument,
                 Symbol *symbol)
-        : workingCopy(workingCopy), snapshot(snapshot), symbol(symbol)
+        : workingCopy(workingCopy), snapshot(snapshot), symbolDocument(symbolDocument), symbol(symbol)
     { }
 
     QList<Usage> operator()(const QString &fileName)
@@ -175,6 +177,7 @@ QList<int> CppFindReferences::references(Symbol *symbol,
 static void find_helper(QFutureInterface<Usage> &future,
                         const CppTools::CppModelManagerInterface::WorkingCopy workingCopy,
                         Snapshot snapshot,
+                        Document::Ptr symbolDocument,
                         Symbol *symbol)
 {
     QTime tm;
@@ -204,7 +207,7 @@ static void find_helper(QFutureInterface<Usage> &future,
 
     future.setProgressRange(0, files.size());
 
-    ProcessFile process(workingCopy, snapshot, symbol);
+    ProcessFile process(workingCopy, snapshot, symbolDocument, symbol);
     UpdateUI reduce(&future);
 
     QtConcurrent::blockingMappedReduced<QList<Usage> > (files, process, reduce);
@@ -212,17 +215,17 @@ static void find_helper(QFutureInterface<Usage> &future,
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::findUsages(Symbol *symbol)
+void CppFindReferences::findUsages(Document::Ptr symbolDocument, Symbol *symbol)
 {
     Find::SearchResult *search = _resultWindow->startNewSearch(Find::SearchResultWindow::SearchOnly);
 
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
 
-    findAll_helper(symbol);
+    findAll_helper(symbolDocument, symbol);
 }
 
-void CppFindReferences::renameUsages(Symbol *symbol)
+void CppFindReferences::renameUsages(Document::Ptr symbolDocument, Symbol *symbol)
 {
     if (const Identifier *id = symbol->identifier()) {
         const QString textToReplace = QString::fromUtf8(id->chars(), id->size());
@@ -236,11 +239,11 @@ void CppFindReferences::renameUsages(Symbol *symbol)
         connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
                 SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
 
-        findAll_helper(symbol);
+        findAll_helper(symbolDocument, symbol);
     }
 }
 
-void CppFindReferences::findAll_helper(Symbol *symbol)
+void CppFindReferences::findAll_helper(Document::Ptr symbolDocument, Symbol *symbol)
 {
     if (! (symbol && symbol->identifier()))
         return;
@@ -254,7 +257,7 @@ void CppFindReferences::findAll_helper(Symbol *symbol)
 
     QFuture<Usage> result;
 
-    result = QtConcurrent::run(&find_helper, workingCopy, snapshot, symbol);
+    result = QtConcurrent::run(&find_helper, workingCopy, snapshot, symbolDocument, symbol);
     m_watcher.setFuture(result);
 
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching..."),
