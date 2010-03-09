@@ -55,7 +55,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Internal::QmlProjectTarge
     m_debugServerAddress("127.0.0.1"),
     m_debugServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
     m_projectTarget(parent),
-    m_usingCurrentFile(false),
+    m_usingCurrentFile(true),
     m_isEnabled(false)
 {
     ctor();
