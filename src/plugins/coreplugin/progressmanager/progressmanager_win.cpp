@@ -85,7 +85,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
         return;
 
     WId winId = Core::ICore::instance()->mainWindow()->winId();
-    if (text.isNull()) {
+    if (text.isEmpty()) {
         pITask->SetOverlayIcon(winId, NULL, NULL);
     } else {
         QPixmap pix = QPixmap(":/projectexplorer/images/compile_error.png");
