@@ -29,64 +29,157 @@
 
 #include "designerxmleditor.h"
 #include "designerconstants.h"
+#include "qt_private/formwindowbase_p.h"
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
-#include <QDebug>
+#include <texteditor/basetextdocument.h>
+
+#include <utils/qtcassert.h>
+
+#include <QtDesigner/QDesignerFormWindowInterface>
+
+#include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
+#include <QtCore/QFile>
 
 namespace Designer {
-namespace Internal {
-DesignerXmlEditor::DesignerXmlEditor(QWidget *parent) : TextEditor::PlainTextEditor(parent)
+
+DesignerXmlEditorEditable::DesignerXmlEditorEditable(Internal::DesignerXmlEditor *editor,
+                                                     QDesignerFormWindowInterface *form,
+                                                     QObject *parent) :
+    Core::IEditor(parent),
+    m_textEditable(editor),
+    m_file(form)
 {
-    setReadOnly(true);
-    connect(Core::ICore::instance()->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            SLOT(updateEditorInfoBar(Core::IEditor*)));
+    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
+    m_context << uidm->uniqueIdentifier(QLatin1String(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
+    m_context << uidm->uniqueIdentifier(QLatin1String(Designer::Constants::C_DESIGNER_XML_EDITOR));
+    connect(form, SIGNAL(changed()), this, SIGNAL(changed()));
+    // Revert to saved/load externally modified files
+    connect(&m_file, SIGNAL(reload(QString)), this, SLOT(slotOpen(QString)));
 }
 
-DesignerXmlEditor::~DesignerXmlEditor()
+bool DesignerXmlEditorEditable::createNew(const QString &contents)
 {
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "DesignerXmlEditorEditable::createNew" << contents.size();
 
+    syncXmlEditor(QString());
+
+    QDesignerFormWindowInterface *form = m_file.formWindow();
+    QTC_ASSERT(form, return false);
+
+    if (contents.isEmpty())
+        return false;
+
+    form->setContents(contents);
+    if (form->mainContainer() == 0)
+        return false;
+
+    syncXmlEditor(contents);
+    m_file.setFileName(QString());
+    return true;
 }
 
-bool DesignerXmlEditor::open(const QString &fileName)
+void DesignerXmlEditorEditable::slotOpen(const QString &fileName)
 {
-    bool res = TextEditor::PlainTextEditor::open(fileName);
-    QPlainTextEdit::setReadOnly(true);
-    return res;
+    open(fileName);
 }
 
-void DesignerXmlEditor::updateEditorInfoBar(Core::IEditor *editor)
+bool DesignerXmlEditorEditable::open(const QString &fileName)
 {
-    if (editor == editableInterface()) {
-        Core::EditorManager::instance()->showEditorInfoBar(Constants::INFO_READ_ONLY,
-            tr("This file can only be edited in Design Mode."),
-            "Open Designer", this, SLOT(designerOpened()));
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "DesignerXmlEditorEditable::open" << fileName;
+
+    QDesignerFormWindowInterface *form = m_file.formWindow();
+    QTC_ASSERT(form, return false);
+
+    if (fileName.isEmpty()) {
+        setDisplayName(tr("untitled"));
+        return true;
     }
-    if (!editor)
-        Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_READ_ONLY);
+
+    const QFileInfo fi(fileName);
+    const QString absfileName = fi.absoluteFilePath();
+
+    QFile file(absfileName);
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
+        return false;
+
+    form->setFileName(absfileName);
+
+    const QString contents = QString::fromUtf8(file.readAll());
+    form->setContents(contents);
+    file.close();
+    if (!form->mainContainer())
+        return false;
+    form->setDirty(false);
+    syncXmlEditor(contents);
+
+    setDisplayName(fi.fileName());
+    m_file.setFileName(absfileName);
+
+    emit changed();
+
+    return true;
 }
 
-void DesignerXmlEditor::designerOpened()
+void DesignerXmlEditorEditable::syncXmlEditor()
 {
-    Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_DESIGN);
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "DesignerXmlEditorEditable::syncXmlEditor" << m_file.fileName();
+    syncXmlEditor(contents());
 }
 
-} // namespace Internal
+void DesignerXmlEditorEditable::syncXmlEditor(const QString &contents)
+{
+    m_textEditable.editor()->setPlainText(contents);
+    m_textEditable.editor()->setReadOnly(true);
+}
+
+Core::IFile *DesignerXmlEditorEditable::file()
+{
+    return &m_file;
+}
 
 QString DesignerXmlEditorEditable::id() const
 {
     return QLatin1String(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
 }
 
-DesignerXmlEditorEditable::DesignerXmlEditorEditable(Internal::DesignerXmlEditor *editor)
-    : TextEditor::PlainTextEditorEditable(editor)
+QString DesignerXmlEditorEditable::displayName() const
 {
-    Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
-    m_context << uidm->uniqueIdentifier(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
-    m_context << uidm->uniqueIdentifier(Designer::Constants::C_DESIGNER_XML_EDITOR);
+    return m_textEditable.displayName();
+}
+
+void DesignerXmlEditorEditable::setDisplayName(const QString &title)
+{
+    m_textEditable.setDisplayName(title);
+}
+
+bool DesignerXmlEditorEditable::duplicateSupported() const
+{
+    return false;
+}
+
+Core::IEditor *DesignerXmlEditorEditable::duplicate(QWidget *)
+{
+    return 0;
+}
+
+QByteArray DesignerXmlEditorEditable::saveState() const
+{
+    return m_textEditable.saveState();
+}
+
+bool DesignerXmlEditorEditable::restoreState(const QByteArray &state)
+{
+    return m_textEditable.restoreState(state);
 }
 
 QList<int> DesignerXmlEditorEditable::context() const
@@ -94,17 +187,78 @@ QList<int> DesignerXmlEditorEditable::context() const
     return m_context;
 }
 
-Core::IEditor *DesignerXmlEditorEditable::duplicate(QWidget *parent)
+QWidget *DesignerXmlEditorEditable::widget()
 {
-    Q_UNUSED(parent);
+    return m_textEditable.widget();
+}
+
+bool DesignerXmlEditorEditable::isTemporary() const
+{
+    return false;
+}
+
+QWidget *DesignerXmlEditorEditable::toolBar()
+{
     return 0;
 }
 
+QString DesignerXmlEditorEditable::contents() const
+{
+    const qdesigner_internal::FormWindowBase *fw = qobject_cast<const qdesigner_internal::FormWindowBase *>(m_file.formWindow());
+    QTC_ASSERT(fw, return QString());
+    return fw->fileContents(); // No warnings about spacers here
+}
+
+TextEditor::BaseTextDocument *DesignerXmlEditorEditable::textDocument()
+{
+    return qobject_cast<TextEditor::BaseTextDocument*>(m_textEditable.file());
+}
+
+TextEditor::PlainTextEditorEditable *DesignerXmlEditorEditable::textEditable()
+{
+    return &m_textEditable;
+}
+
 namespace Internal {
+
+DesignerXmlEditor::DesignerXmlEditor(QDesignerFormWindowInterface *form,
+                                     QWidget *parent) :
+    TextEditor::PlainTextEditor(parent),
+    m_editable(new DesignerXmlEditorEditable(this, form))
+{
+    setReadOnly(true);
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+             SLOT(updateEditorInfoBar(Core::IEditor*)));
+}
+
 TextEditor::BaseTextEditorEditable *DesignerXmlEditor::createEditableInterface()
 {
-    return new DesignerXmlEditorEditable(this);
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "DesignerXmlEditor::createEditableInterface()";
+    return m_editable->textEditable();
 }
+
+void DesignerXmlEditor::updateEditorInfoBar(Core::IEditor *editor)
+{
+    if (editor == m_editable) {
+        Core::EditorManager::instance()->showEditorInfoBar(Constants::INFO_READ_ONLY,
+            tr("This file can only be edited in Design Mode."),
+            "Open Designer", this, SLOT(designerModeClicked()));
+    }
+    if (!editor)
+        Core::EditorManager::instance()->hideEditorInfoBar(Constants::INFO_READ_ONLY);
+}
+
+void DesignerXmlEditor::designerModeClicked()
+{
+    Core::ICore::instance()->modeManager()->activateMode(QLatin1String(Core::Constants::MODE_DESIGN));
+}
+
+DesignerXmlEditorEditable *DesignerXmlEditor::designerEditable() const
+{
+    return m_editable;
+}
+
 }
 } // namespace Designer
 

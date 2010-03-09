@@ -92,9 +92,9 @@ QDockWidget* const* EditorWidget::designerDockWidgets() const
     return m_designerDockWidgets;
 }
 
-Designer::FormWindowEditor *EditorWidget::createFormWindowEditor(DesignerXmlEditorEditable *xmlEditor)
+void EditorWidget::add(const EditorData &d)
 {
-    return m_stack->createFormWindowEditor(xmlEditor);
+    m_stack->add(d);
 }
 
 bool EditorWidget::removeFormWindowEditor(Core::IEditor *xmlEditor)

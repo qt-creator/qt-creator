@@ -36,6 +36,7 @@
 
 #include <QtGui/QWidget>
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 
 enum { debug = 0 };
 

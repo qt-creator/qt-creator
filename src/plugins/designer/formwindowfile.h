@@ -32,8 +32,7 @@
 
 #include <coreplugin/ifile.h>
 
-#include "widgethost.h"
-#include "designerconstants.h"
+#include <QtCore/QPointer>
 
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
@@ -65,8 +64,11 @@ public:
 
     // Internal
     void setSuggestedFileName(const QString &fileName);
+
     bool writeFile(const QString &fileName, QString &errorString) const;
     bool writeFile(QFile &file, QString &errorString) const;
+
+    QDesignerFormWindowInterface *formWindow() const;
 
 signals:
     // Internal
@@ -78,10 +80,12 @@ public slots:
 
 private:
     const QString m_mimeType;
+
     QString m_fileName;
     QString m_suggestedName;
-
-    QDesignerFormWindowInterface *m_formWindow;
+    // Might actually go out of scope before the IEditor due
+    // to deleting the WidgetHost which owns it.
+    QPointer<QDesignerFormWindowInterface> m_formWindow;
 };
 
 } // namespace Internal

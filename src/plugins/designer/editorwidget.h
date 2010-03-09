@@ -34,9 +34,6 @@
 
 #include <utils/fancymainwindow.h>
 
-#include <QtCore/QHash>
-#include <QtCore/QVariant>
-
 QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
@@ -49,10 +46,11 @@ class FormWindowEditor;
 class DesignerXmlEditorEditable;
 
 namespace Internal {
+struct EditorData;
 class FormEditorStack;
 class FormEditorW;
-/* Form editor splitter used as editor window. Contains the shared designer
- * windows. */
+
+// Design mode main view.
 class EditorWidget : public Utils::FancyMainWindow
 {
     Q_OBJECT
@@ -63,7 +61,7 @@ public:
     QDockWidget* const* designerDockWidgets() const;
 
     // Form editor stack API
-    Designer::FormWindowEditor *createFormWindowEditor(DesignerXmlEditorEditable *xmlEditor);
+    void add(const EditorData &d);
     bool removeFormWindowEditor(Core::IEditor *xmlEditor);
     bool setVisibleEditor(Core::IEditor *xmlEditor);
     Designer::FormWindowEditor *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;

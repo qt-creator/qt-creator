@@ -96,26 +96,12 @@ FormWindowEditor::FormWindowEditor(QDesignerFormWindowInterface *form,
     m_sessionNode(0),
     m_sessionWatcher(0)
 {
-    connect(formWindow(), SIGNAL(selectionChanged()), this, SIGNAL(changed()));
     connect(this, SIGNAL(formWindowSizeChanged(int,int)), this, SLOT(slotFormSizeChanged(int,int)));
-    connect(formWindow(), SIGNAL(changed()), this, SIGNAL(changed()));
-
 }
 
 void FormWindowEditor::setFile(Core::IFile *file)
 {
-    if (m_file) {
-        disconnect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
-        disconnect(m_file, SIGNAL(changed()), this, SLOT(updateResources()));
-    }
-
-    m_file = file;
-    formWindow()->setFileName(file->fileName());
-
-    if (m_file) {
-        connect(m_file, SIGNAL(changed()), this, SIGNAL(changed()));
-        connect(m_file, SIGNAL(changed()), this, SLOT(updateResources()));
-    }
+     m_file = file;
 }
 
 FormWindowEditor::~FormWindowEditor()
@@ -125,26 +111,6 @@ FormWindowEditor::~FormWindowEditor()
         m_sessionNode->unregisterWatcher(m_sessionWatcher);
         delete m_sessionWatcher;
     }
-}
-
-bool FormWindowEditor::createNew(const QString &contents)
-{
-    if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << contents.size() << "chars";
-
-    if (!formWindow())
-        return false;
-
-    formWindow()->setContents(contents);
-    if (!formWindow()->mainContainer())
-        return false;
-
-    if (qdesigner_internal::FormWindowBase *fw = qobject_cast<qdesigner_internal::FormWindowBase *>(formWindow()))
-        fw->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
-
-    initializeResources();
-
-    return true;
 }
 
 void FormWindowEditor::initializeResources(const QString & /* fileName */)
@@ -167,11 +133,6 @@ void FormWindowEditor::initializeResources(const QString & /* fileName */)
     }
 
     updateResources();
-
-    QDesignerFormWindowManagerInterface *fwm = FormEditorW::instance()->designerEditor()->formWindowManager();
-    fwm->setActiveFormWindow(formWindow());
-
-    emit changed();
 }
 
 void FormWindowEditor::updateResources()
@@ -202,13 +163,6 @@ Core::IFile *FormWindowEditor::file() const
     return m_file;
 }
 
-QString FormWindowEditor::contents() const
-{
-    if (!formWindow())
-        return QString();
-    return formWindow()->contents();
-}
-
 void FormWindowEditor::slotFormSizeChanged(int w, int h)
 {
     if (Designer::Constants::Internal::debug)
@@ -217,5 +171,4 @@ void FormWindowEditor::slotFormSizeChanged(int w, int h)
     formWindow()->setDirty(true);
     static const QString geometry = QLatin1String("geometry");
     FormEditorW::instance()->designerEditor()->propertyEditor()->setPropertyValue(geometry, QRect(0,0,w,h) );
-    emit changed();
 }

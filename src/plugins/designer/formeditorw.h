@@ -31,7 +31,6 @@
 #define FORMEDITORW_H
 
 #include <QtCore/QObject>
-#include <QtCore/QPointer>
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
@@ -45,9 +44,6 @@ class QDesignerFormWindowInterface;
 
 class QAction;
 class QActionGroup;
-class QFocusEvent;
-
-class QWidget;
 class QSignalMapper;
 class QSettings;
 class QToolBar;
@@ -64,7 +60,6 @@ class ActionContainer;
 class ICore;
 class IEditor;
 class Command;
-class IMode;
 class DesignMode;
 }
 
@@ -73,6 +68,7 @@ class FormWindowEditor;
 
 namespace Internal {
 
+struct EditorData;
 class EditorWidget;
 class SettingsPage;
 class DesignerContext;
@@ -113,10 +109,10 @@ public:
     // Deletes an existing instance if there is one.
     static void deleteInstance();
 
+    EditorData createEditor(QWidget *parent);
+
     inline QDesignerFormEditorInterface *designerEditor() const { return m_formeditor; }
     inline QWidget * const*designerSubWindows() const { return m_designerSubWindows; }
-
-    FormWindowEditor *createFormWindowEditor(QWidget* parentWidget);
 
     FormWindowEditor *activeFormWindow() const;
 

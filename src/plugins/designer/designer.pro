@@ -39,7 +39,8 @@ HEADERS += formeditorplugin.h \
     designerxmleditor.h \
     designercontext.h \
     faketoolbar.h \
-    formeditorstack.h
+    formeditorstack.h \
+    editordata.h
 
 SOURCES += formeditorplugin.cpp \
         formeditorfactory.cpp \

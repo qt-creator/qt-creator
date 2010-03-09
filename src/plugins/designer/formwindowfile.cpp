@@ -31,8 +31,8 @@
 #include "designerconstants.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/reloadpromptutils.h>
+#include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
@@ -42,17 +42,15 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
-#include <QtCore/QDir>
 #include <QtCore/QByteArray>
 #include <QtCore/QDebug>
 
-using namespace Designer::Internal;
-using namespace Designer::Constants;
-using namespace SharedTools;
+namespace Designer {
+namespace Internal {
 
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
   : Core::IFile(parent),
-    m_mimeType(QLatin1String(FORM_MIMETYPE)),
+    m_mimeType(QLatin1String(Designer::Constants::FORM_MIMETYPE)),
     m_formWindow(form)
 {
 }
@@ -63,6 +61,8 @@ bool FormWindowFile::save(const QString &name /*= QString()*/)
 
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << name << "->" << actualName;
+
+    QTC_ASSERT(m_formWindow, return false);
 
     if (actualName.isEmpty())
         return false;
@@ -94,9 +94,9 @@ QString FormWindowFile::fileName() const
 
 bool FormWindowFile::isModified() const
 {
-    if (Designer::Constants::Internal::debug)
+    if (Designer::Constants::Internal::debug > 1)
         qDebug() << Q_FUNC_INFO << m_formWindow->isDirty();
-    return m_formWindow->isDirty();
+    return m_formWindow && m_formWindow->isDirty();
 }
 
 bool FormWindowFile::isReadOnly() const
@@ -204,3 +204,11 @@ void FormWindowFile::setFileName(const QString &fname)
 {
     m_fileName = fname;
 }
+
+QDesignerFormWindowInterface *FormWindowFile::formWindow() const
+{
+    return m_formWindow;
+}
+
+} // namespace Internal
+} // namespace Designer

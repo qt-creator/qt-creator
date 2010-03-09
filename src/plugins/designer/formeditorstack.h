@@ -30,6 +30,8 @@
 #ifndef FORMEDITORSTACK_H
 #define FORMEDITORSTACK_H
 
+#include "editordata.h"
+
 #include <QtGui/QStackedWidget>
 #include <QtCore/QList>
 #include <QtCore/QString>
@@ -41,6 +43,7 @@ QT_END_NAMESPACE
 
 namespace Core {
     class IEditor;
+    class IMode;
 }
 
 namespace Designer {
@@ -49,11 +52,11 @@ class DesignerXmlEditorEditable;
 
 namespace Internal {
 
-/**
-  * A wrapper for Qt Designer form editors, so that they can be used in Design mode.
-  * FormEditorW owns an instance of this class, and creates new form editors when
-  * needed.
-  */
+/* FormEditorStack: Maintains a stack of Qt Designer form windows embedded
+ * into a scrollarea and their associated XML editors.
+ * Takes care of updating the XML editor once design mode is left.
+ * Also updates the maincontainer resize handles when the active form
+ * window changes. */
 class FormEditorStack : public QStackedWidget
 {
     Q_OBJECT
@@ -61,29 +64,23 @@ class FormEditorStack : public QStackedWidget
 public:
     explicit FormEditorStack(QWidget *parent = 0);
 
-    Designer::FormWindowEditor *createFormWindowEditor(DesignerXmlEditorEditable *xmlEditor);
+    void add(const EditorData &d);
     bool removeFormWindowEditor(Core::IEditor *xmlEditor);
+
     bool setVisibleEditor(Core::IEditor *xmlEditor);
     Designer::FormWindowEditor *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
     Designer::FormWindowEditor *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
     FormWindowEditor *activeFormWindow() const;
 
 private slots:
-    void formChanged();
-    void reloadDocument();
     void updateFormWindowSelectionHandles();
+    void modeAboutToChange(Core::IMode *);
 
 private:
     inline int indexOf(const QDesignerFormWindowInterface *) const;
     inline int indexOf(const Core::IEditor *xmlEditor) const;
 
-    void setFormEditorData(Designer::FormWindowEditor *formEditor, const QString &contents);
-    struct FormXmlData {
-        FormXmlData();
-        DesignerXmlEditorEditable *xmlEditor;
-        Designer::FormWindowEditor *formEditor;
-    };
-    QList<FormXmlData> m_formEditors;
+    QList<EditorData> m_formEditors;
     QDesignerFormEditorInterface *m_designerCore;
 };
 

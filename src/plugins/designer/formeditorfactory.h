@@ -45,7 +45,6 @@ namespace Internal {
 class FormEditorFactory : public Core::IEditorFactory
 {
     Q_OBJECT
-
 public:
     FormEditorFactory();
 

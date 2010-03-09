@@ -34,12 +34,12 @@
 #include "settingsmanager.h"
 #include "settingspage.h"
 #include "editorwidget.h"
+#include "editordata.h"
 #include "qtcreatorintegration.h"
 #include "designerxmleditor.h"
 #include "designercontext.h"
 #include "editorwidget.h"
 
-#include <texteditor/basetextdocument.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/coreconstants.h>
@@ -47,6 +47,7 @@
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -213,7 +214,7 @@ FormEditorW::~FormEditorW()
     m_self = 0;
 }
 
-// Add an action to toggle the view state of a dock window
+// Add an actioon to toggle the view state of a dock window
 void FormEditorW::addDockViewAction(Core::ActionManager *am,
                                     int index, const QList<int> &context,
                                     const QString &title, const QString &id)
@@ -651,13 +652,27 @@ void FormEditorW::addToolAction(QAction *a,
     c1->addAction(command);
 }
 
-FormWindowEditor *FormEditorW::createFormWindowEditor(QWidget* parentWidget)
+EditorData FormEditorW::createEditor(QWidget *parent)
 {
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "FormEditorW::createEditor";
+    // Create and associate form and text editor.
+    EditorData data;
     m_fwm->closeAllPreviews();
-    QDesignerFormWindowInterface *form = m_fwm->createFormWindow(0);
+    qdesigner_internal::FormWindowBase *form = qobject_cast<qdesigner_internal::FormWindowBase *>(m_fwm->createFormWindow(0));
+    QTC_ASSERT(form, return data);
     connect(form, SIGNAL(toolChanged(int)), this, SLOT(toolChanged(int)));
+    form->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
     qdesigner_internal::FormWindowBase::setupDefaultAction(form);
-    return new FormWindowEditor(form, parentWidget);
+    data.formEditor = new FormWindowEditor(form);
+    DesignerXmlEditor *xmlEditor = new DesignerXmlEditor(form, parent);
+    TextEditor::TextEditorSettings::instance()->initializeEditor(xmlEditor);
+    data.xmlEditor = xmlEditor->designerEditable();
+    data.formEditor->setFile(data.xmlEditor->file());
+    connect(data.formEditor, SIGNAL(formWindowSizeChanged(int,int)),
+            xmlEditor, SIGNAL(changed()));
+    m_editorWidget->add(data);
+    return data;
 }
 
 void FormEditorW::updateShortcut(QObject *command)
@@ -681,11 +696,8 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         QTC_ASSERT(xmlEditor, return);
         ensureInitStage(FullyInitialized);
         FormWindowEditor *fw = m_editorWidget->formWindowEditorForXmlEditor(xmlEditor);
-        if (fw) {
-            m_editorWidget->setVisibleEditor(xmlEditor);
-        } else {
-            fw = m_editorWidget->createFormWindowEditor(xmlEditor);            
-        }
+        QTC_ASSERT(fw, return)
+        m_editorWidget->setVisibleEditor(xmlEditor);
         m_fwm->setActiveFormWindow(fw->formWindow());
         m_actionGroupEditMode->setVisible(true);
         m_modeActionSeparator->setVisible(true);

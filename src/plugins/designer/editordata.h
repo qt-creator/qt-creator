@@ -27,53 +27,23 @@
 **
 **************************************************************************/
 
-#ifndef FORMWINDOWEDITOR_H
-#define FORMWINDOWEDITOR_H
-
-#include "widgethost.h"
-
-#include <QtCore/QStringList>
-#include <QtCore/QPointer>
-
-namespace ProjectExplorer {
-class SessionNode;
-class NodesWatcher;
-}
-
-namespace Core {
-    class IFile;
-}
+#ifndef EDITORDATA_H
+#define EDITORDATA_H
 
 namespace Designer {
+    class FormWindowEditor;
+    class DesignerXmlEditorEditable;
 
-// Master class maintaining a form window editor,
-// containing file and widget host
+namespace Internal {
 
-class FormWindowEditor : public SharedTools::WidgetHost
-{
-    Q_OBJECT
-public:
-    explicit FormWindowEditor(QDesignerFormWindowInterface *form,
-                              QWidget *parent = 0);
-    ~FormWindowEditor();
-
-    void setFile(Core::IFile *file);
-    QString contents() const;
-    Core::IFile *file() const;
-
-private slots:
-    void updateResources();
-    void slotFormSizeChanged(int w, int h);
-
-private:
-    void initializeResources(const QString &fileName = QString());
-
-    QPointer<Core::IFile> m_file;
-    QStringList m_originalUiQrcPaths;
-    ProjectExplorer::SessionNode *m_sessionNode;
-    ProjectExplorer::NodesWatcher *m_sessionWatcher;
+// Associates XML and its form editor
+struct EditorData {
+    EditorData() : xmlEditor(0), formEditor(0) {}
+    DesignerXmlEditorEditable *xmlEditor;
+    Designer::FormWindowEditor *formEditor;
 };
 
+} // namespace Internal
 } // namespace Designer
 
-#endif // FORMWINDOWEDITOR_H
+#endif // EDITORDATA_H

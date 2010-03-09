@@ -33,27 +33,20 @@
 #include "formeditorw.h"
 #include "designerconstants.h"
 
-#include <texteditor/basetextdocument.h>
-
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/imode.h>
 
 #include <utils/qtcassert.h>
 
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowManagerInterface>
 #include <QDesignerFormEditorInterface>
-#include "qt_private/formwindowbase_p.h"
 
 #include <QtCore/QDebug>
 
 namespace Designer {
 namespace Internal {
-
-FormEditorStack::FormXmlData::FormXmlData() :
-    xmlEditor(0), formEditor(0)
-{
-}
 
 FormEditorStack::FormEditorStack(QWidget *parent) :
     QStackedWidget(parent),
@@ -62,28 +55,24 @@ FormEditorStack::FormEditorStack(QWidget *parent) :
     setObjectName(QLatin1String("FormEditorStack"));
 }
 
-Designer::FormWindowEditor *FormEditorStack::createFormWindowEditor(DesignerXmlEditorEditable *xmlEditor)
+void FormEditorStack::add(const EditorData &data)
 {
-    FormEditorW *few = FormEditorW::instance();
     if (m_designerCore == 0) { // Initialize first time here
-        m_designerCore = few->designerEditor();
+        m_designerCore = data.formEditor->formWindow()->core();
         connect(m_designerCore->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
                 this, SLOT(updateFormWindowSelectionHandles()));
+        connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
+                this, SLOT(modeAboutToChange(Core::IMode*)));
     }
-    FormXmlData data;
-    data.formEditor = few->createFormWindowEditor(this);
-    data.formEditor->setFile(xmlEditor->file());
-    data.xmlEditor = xmlEditor;
-    addWidget(data.formEditor);
-    m_formEditors.append(data);
 
-    setFormEditorData(data.formEditor, xmlEditor->contents());
-
-    TextEditor::BaseTextDocument *document = qobject_cast<TextEditor::BaseTextDocument*>(xmlEditor->file());
-    connect(document, SIGNAL(reloaded()), SLOT(reloadDocument()));
     if (Designer::Constants::Internal::debug)
-        qDebug() << "FormEditorStack::createFormWindowEditor" << data.formEditor;
-    return data.formEditor;
+        qDebug() << "FormEditorStack::add"  << data.xmlEditor << data.formEditor;
+
+    m_formEditors.append(data);
+    addWidget(data.formEditor);
+
+    if (Designer::Constants::Internal::debug)
+        qDebug() << "FormEditorStack::add" << data.formEditor;
 }
 
 int FormEditorStack::indexOf(const QDesignerFormWindowInterface *fw) const
@@ -125,7 +114,6 @@ bool FormEditorStack::removeFormWindowEditor(Core::IEditor *xmlEditor)
     const int i = indexOf(xmlEditor);
     if (i == -1) // Fail silently as this is invoked for all editors.
         return false;
-    disconnect(m_formEditors[i].formEditor->formWindow(), SIGNAL(changed()), this, SLOT(formChanged()));
     removeWidget(m_formEditors[i].formEditor->widget());
     delete m_formEditors[i].formEditor;
     m_formEditors.removeAt(i);
@@ -150,7 +138,7 @@ void FormEditorStack::updateFormWindowSelectionHandles()
     if (Designer::Constants::Internal::debug)
         qDebug() << "updateFormWindowSelectionHandles";
     QDesignerFormWindowInterface *activeFormWindow = m_designerCore->formWindowManager()->activeFormWindow();
-    foreach(const FormXmlData  &fdm, m_formEditors) {
+    foreach(const EditorData  &fdm, m_formEditors) {
         const bool active = activeFormWindow == fdm.formEditor->formWindow();
         fdm.formEditor->updateFormWindowSelectionHandles(active);
     }
@@ -162,39 +150,15 @@ Designer::FormWindowEditor *FormEditorStack::formWindowEditorForXmlEditor(const 
     return i != -1 ? m_formEditors.at(i).formEditor : static_cast<Designer::FormWindowEditor *>(0);
 }
 
-void FormEditorStack::reloadDocument()
+void FormEditorStack::modeAboutToChange(Core::IMode *m)
 {
-    if (Designer::Constants::Internal::debug)
-        qDebug() << "FormEditorStack::reloadDocument()";
-    const int index = currentIndex();
-    if (index >= 0)
-        setFormEditorData(m_formEditors[index].formEditor, m_formEditors[index].xmlEditor->contents());
-}
+    if (Designer::Constants::Internal::debug && m)
+        qDebug() << "FormEditorStack::modeAboutToChange"  << m->id();
 
-void FormEditorStack::setFormEditorData(Designer::FormWindowEditor *formEditor, const QString &contents)
-{
-    if (Designer::Constants::Internal::debug)
-        qDebug() << "FormEditorStack::setFormEditorData()";
-    disconnect(formEditor->formWindow(), SIGNAL(changed()), this, SLOT(formChanged()));
-    formEditor->createNew(contents);
-    connect(formEditor->formWindow(), SIGNAL(changed()), SLOT(formChanged()));
-}
-
-void FormEditorStack::formChanged()
-{
-    const int index = currentIndex();
-    if (index < 0)
-        return;
-    if (Core::IEditor *currentEditor = Core::EditorManager::instance()->currentEditor()) {
-        if (m_formEditors[index].xmlEditor == currentEditor) {
-            FormXmlData &xmlData = m_formEditors[index];
-            TextEditor::BaseTextDocument *doc = qobject_cast<TextEditor::BaseTextDocument*>(xmlData.xmlEditor->file());
-            QTC_ASSERT(doc, return);
-            if (doc)   // Save quietly (without spacer's warning).
-                if (const qdesigner_internal::FormWindowBase *fwb = qobject_cast<const qdesigner_internal::FormWindowBase *>(xmlData.formEditor->formWindow()))
-                   doc->document()->setPlainText(fwb->fileContents());
-        }
-    }
+    // Sync the editor when leaving design mode
+    if (m && m->id() == QLatin1String(Core::Constants::MODE_DESIGN))
+        foreach(const EditorData &data, m_formEditors)
+            data.xmlEditor->syncXmlEditor();
 }
 
 } // Internal

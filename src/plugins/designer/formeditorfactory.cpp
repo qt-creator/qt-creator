@@ -30,32 +30,34 @@
 #include "formeditorfactory.h"
 #include "formeditorw.h"
 #include "formwindoweditor.h"
+#include "editordata.h"
 #include "designerconstants.h"
 #include "designerxmleditor.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
-using namespace Designer::Internal;
 using namespace Designer::Constants;
+
+namespace Designer {
+namespace Internal {
 
 FormEditorFactory::FormEditorFactory()
   : Core::IEditorFactory(Core::ICore::instance()),
     m_mimeTypes(QLatin1String(FORM_MIMETYPE))
 {
     Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(":/formeditor/images/qt_ui.png"),
-                                        QLatin1String("ui"));
+    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/formeditor/images/qt_ui.png")),
+                                               QLatin1String("ui"));
 }
 
 QString FormEditorFactory::id() const
 {
-    return QLatin1String(DESIGNER_XML_EDITOR_ID); //FORMEDITOR_ID);
+    return QLatin1String(DESIGNER_XML_EDITOR_ID);
 }
 
 QString FormEditorFactory::displayName() const
@@ -71,12 +73,16 @@ Core::IFile *FormEditorFactory::open(const QString &fileName)
 
 Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
 {
-    DesignerXmlEditor *xmlEditor = new DesignerXmlEditor(parent);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(xmlEditor);
-    return xmlEditor->editableInterface();
+    const EditorData data = FormEditorW::instance()->createEditor(parent);
+    return data.xmlEditor;
 }
 
 QStringList FormEditorFactory::mimeTypes() const
 {
     return m_mimeTypes;
 }
+
+} // namespace Internal
+} // namespace Designer
+
+
