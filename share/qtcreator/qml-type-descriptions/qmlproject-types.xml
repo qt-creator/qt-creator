@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <type name="QmlProject.Project">
+        <property name="sourceDirectory" type="string"/>
+        <property name="libraryPaths" type="string" isList="true"/>
+        <property name="content" type="QmlProjectItem" isList="true"/>
+    </type>
+    <type name="QmlProjectItem">
+    </type>
+    <type name="FileFilterBaseItem" extends="QmlProjectItem">
+        <property name="directory" type="string"/>
+        <property name="recursive" type="bool"/>
+        <property name="paths" type="string" isList="true"/>
+        <property name="files" type="string" isList="true"/>
+    </type>
+    <type name="QmlProject.QmlFiles" extends="FileFilterBaseItem">
+    </type>
+    <type name="QmlProject.JavaScriptFiles" extends="FileFilterBaseItem">
+	<property name="filter" type="string"/>
+    </type>
+    <type name="QmlProject.ImageFiles" extends="FileFilterBaseItem">
+	<property name="filter" type="string"/>
+    </type>
+    <type name="QmlProject.CssFiles" extends="FileFilterBaseItem">
+	<property name="filter" type="string"/>
+    </type>
+</module>
