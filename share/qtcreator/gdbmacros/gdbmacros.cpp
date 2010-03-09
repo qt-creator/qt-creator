@@ -3651,6 +3651,7 @@ void *watchPoint(int x, int y)
 #ifdef Q_CC_MSVC
 // Offsets of a map node value which looks like
 // "(size_t)&(((QMapNode<int,int> *)0)->value)-0"
+#if QT_VERSION >= 0x040500
 template <class Key, class Value>
         inline QDumper & putQMapNodeOffsetExpression(const char *keyType,
                                                      const char *valueType,
@@ -3669,6 +3670,7 @@ template <class Key, class Value>
     d.put("\"]");
     return d;
 }
+#endif
 
 // Helper to write out common expression values for CDB:
 // Offsets of a std::pair for dumping std::map node value which look like
@@ -3734,12 +3736,14 @@ static inline void dumpSizes(QDumper &d)
 #endif // QT_BOOTSTRAPPED
     sizeMap.insert(sizeof(QPointer<QObject>), "QPointer");
     // Common map node types
+#if QT_VERSION >= 0x040500
     sizeMap.insert(sizeof(QMapNode<int,int >), NS"QMapNode<int,int>");
     sizeMap.insert(sizeof(QMapNode<int, QString>), NS"QMapNode<int,"NS"QString>");
     sizeMap.insert(sizeof(QMapNode<int, QVariant>), NS"QMapNode<int,"NS"QVariant>");
     sizeMap.insert(sizeof(QMapNode<QString, int>), NS"QMapNode<"NS"QString,int>");
     sizeMap.insert(sizeof(QMapNode<QString, QString>), NS"QMapNode<"NS"QString,"NS"QString>");
     sizeMap.insert(sizeof(QMapNode<QString, QVariant>), NS"QMapNode<"NS"QString,"NS"QVariant>");
+#endif
     // Dump as lists of types preceded by size
     size_t lastSize = 0;
     d.put("sizes=[");
@@ -3859,12 +3863,14 @@ void *qDumpObjectData440(
         // Write out common expression values for CDB
 #ifdef Q_CC_MSVC
         d.put(",expressions=[");
+#if QT_VERSION >= 0x040500
         putQMapNodeOffsetExpression<int,int>("int", "int", d).put(',');
         putQMapNodeOffsetExpression<int,QString>("int", NS"QString", d).put(',');
         putQMapNodeOffsetExpression<int,QVariant>("int", NS"QVariant", d).put(',');
         putQMapNodeOffsetExpression<QString,int>(NS"QString", "int", d).put(',');
         putQMapNodeOffsetExpression<QString,QString>(NS"QString", NS"QString", d).put(',');
         putQMapNodeOffsetExpression<QString,QVariant>(NS"QString", NS"QVariant", d).put(',');
+#endif
         // Std Pairs
         putStdPairValueOffsetExpression<int,int>("int","int", d).put(',');
         putStdPairValueOffsetExpression<QString,QString>(NS"QString",NS"QString", d).put(',');
