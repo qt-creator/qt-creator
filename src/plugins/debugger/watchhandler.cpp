@@ -836,7 +836,6 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
 
         case ExpandedRole:
             return m_handler->m_expandedINames.contains(data.iname);
-            //FIXME return node < 4 || m_expandedINames.contains(data.iname);
 
         case ActiveDataRole:
             qDebug() << "ASK FOR" << data.iname;
