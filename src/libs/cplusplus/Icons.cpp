@@ -84,7 +84,7 @@ QIcon Icons::iconForSymbol(const Symbol *symbol) const
         } else if (symbol->isPrivate()) {
             return _funcPrivateIcon;
         }
-    } else if (symbol->scope()->isEnumScope()) {
+    } else if (symbol->scope() && symbol->scope()->isEnumScope()) {
         return _enumeratorIcon;
     } else if (symbol->isDeclaration() || symbol->isArgument()) {
         if (symbol->isPublic()) {
