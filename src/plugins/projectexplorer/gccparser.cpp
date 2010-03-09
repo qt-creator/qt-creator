@@ -33,39 +33,82 @@
 
 using namespace ProjectExplorer;
 
+namespace {
+    // opt. drive letter + filename: (2 brackets)
+    const char * const FILE_PATTERN("^(([a-zA-Z]:)?[^:]*):");
+    // line no. or elf segment + offset: (1 bracket)
+    const char * const POSITION_PATTERN("(\\d+|\\(\\.[a-zA-Z0-9]*.0x[a-fA-F0-9]+\\)):");
+}
+
 GccParser::GccParser()
 {
-    m_regExp.setPattern("^([^\\(\\)]+[^\\d]):(\\d+):(\\d+:)*(\\s(warning|error):)?\\s(.+)$");
+    m_regExp.setPattern(QString::fromLatin1(FILE_PATTERN) + QLatin1String("(\\d+):(\\d+:)?\\s(#?(warning|error):?\\s)(.+)$"));
     m_regExp.setMinimal(true);
 
     m_regExpIncluded.setPattern("^.*from\\s([^:]+):(\\d+)(,|:)$");
     m_regExpIncluded.setMinimal(true);
 
-    m_regExpLinker.setPattern("^(\\S*)\\(\\S+\\):\\s(.+)$");
+    m_regExpLinker.setPattern(QString::fromLatin1(FILE_PATTERN) + '(' + QLatin1String(POSITION_PATTERN) + ")?\\s(.+)$");
     m_regExpLinker.setMinimal(true);
+
+    // m_regExpGccNames.setPattern("^([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)(gcc|g\\+\\+)(-[0-9\\.]+)?:");
+    m_regExpGccNames.setPattern("^(gcc|g\\+\\+):\\s");
+    m_regExpGccNames.setMinimal(true);
 }
 
 void GccParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
-    if (m_regExpLinker.indexIn(lne) > -1) {
-        QString description = m_regExpLinker.cap(2);
+    if (lne.startsWith(QLatin1String("collect2:")) ||
+        lne.startsWith(QLatin1String("ERROR:")) ||
+        lne == QLatin1String("* cpp failed")) {
         emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      description,
-                                      m_regExpLinker.cap(1) /* filename */,
+                                      lne /* description */,
+                                      QString() /* filename */,
                                       -1 /* linenumber */,
                                       Constants::TASK_CATEGORY_COMPILE));
         return;
+    } else if (m_regExpGccNames.indexIn(lne) > -1) {
+        emit addTask(TaskWindow::Task(TaskWindow::Error,
+                                      lne.mid(m_regExpGccNames.matchedLength()), /* description */
+                                      QString(), /* filename */
+                                      -1, /* line */
+                                      Constants::TASK_CATEGORY_COMPILE));
+        return;
     } else if (m_regExp.indexIn(lne) > -1) {
+        QString filename = m_regExp.cap(1);
+        int lineno = m_regExp.cap(3).toInt();
         TaskWindow::Task task(TaskWindow::Unknown,
-                              m_regExp.cap(6) /* description */,
-                              m_regExp.cap(1) /* filename */,
-                              m_regExp.cap(2).toInt() /* line number */,
+                              m_regExp.cap(7) /* description */,
+                              filename, lineno,
                               Constants::TASK_CATEGORY_COMPILE);
-        if (m_regExp.cap(5) == "warning")
+        if (m_regExp.cap(6) == QLatin1String("warning"))
             task.type = TaskWindow::Warning;
-        else if (m_regExp.cap(5) == "error")
+        else if (m_regExp.cap(6) == QLatin1String("error") ||
+                 task.description.startsWith(QLatin1String("undefined reference to")))
             task.type = TaskWindow::Error;
+
+        // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
+        // We want those to show how the warning was triggered
+        if (m_regExp.cap(5).startsWith(QChar('#')))
+            task.description = m_regExp.cap(5) + task.description;
+
+        emit addTask(task);
+        return;
+    } else if (m_regExpLinker.indexIn(lne) > -1) {
+        bool ok;
+        int lineno = m_regExpLinker.cap(4).toInt(&ok);
+        if (!ok)
+            lineno = -1;
+        QString description = m_regExpLinker.cap(5);
+        TaskWindow::Task task(TaskWindow::Error,
+                              description,
+                              m_regExpLinker.cap(1) /* filename */,
+                              lineno,
+                              Constants::TASK_CATEGORY_COMPILE);
+        if (description.startsWith(QLatin1String("In function ")) ||
+            description.startsWith(QLatin1String("In member function ")))
+            task.type = TaskWindow::Unknown;
 
         emit addTask(task);
         return;
@@ -74,15 +117,6 @@ void GccParser::stdError(const QString &line)
                                       lne /* description */,
                                       m_regExpIncluded.cap(1) /* filename */,
                                       m_regExpIncluded.cap(2).toInt() /* linenumber */,
-                                      Constants::TASK_CATEGORY_COMPILE));
-        return;
-    } else if (lne.startsWith(QLatin1String("collect2:")) ||
-               lne.startsWith(QLatin1String("ERROR:")) ||
-               lne == QLatin1String("* cpp failed")) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne /* description */,
-                                      QString() /* filename */,
-                                      -1 /* linenumber */,
                                       Constants::TASK_CATEGORY_COMPILE));
         return;
     }
@@ -228,6 +262,47 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                     QString(), -1,
                                     Constants::TASK_CATEGORY_COMPILE)
                 )
+            << QString();
+    QTest::newRow("linker: dll format not recognized")
+            << QString::fromLatin1("c:\\Qt\\4.6\\lib/QtGuid4.dll: file not recognized: File format not recognized")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::TaskWindow::Task>()
+                << TaskWindow::Task(TaskWindow::Error,
+                                    QLatin1String("file not recognized: File format not recognized"),
+                                    QLatin1String("c:\\Qt\\4.6\\lib/QtGuid4.dll"), -1,
+                                    Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("Invalid rpath")
+            << QString::fromLatin1("g++: /usr/local/lib: No such file or directory")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::TaskWindow::Task>()
+                << TaskWindow::Task(TaskWindow::Error,
+                                    QLatin1String("/usr/local/lib: No such file or directory"),
+                                    QString(), -1,
+                                    Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("Invalid rpath")
+            << QString::fromLatin1("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp: In member function 'void Debugger::Internal::GdbEngine::handleBreakInsert2(const Debugger::Internal::GdbResponse&)':\n"
+                                   "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2114: warning: unused variable 'index'\n"
+                                   "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2115: warning: unused variable 'handler'")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::TaskWindow::Task>()
+                << TaskWindow::Task(TaskWindow::Unknown,
+                                    QLatin1String("In member function 'void Debugger::Internal::GdbEngine::handleBreakInsert2(const Debugger::Internal::GdbResponse&)':"),
+                                    QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), -1,
+                                    Constants::TASK_CATEGORY_COMPILE)
+                << TaskWindow::Task(TaskWindow::Warning,
+                                    QLatin1String("unused variable 'index'"),
+                                    QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), 2114,
+                                    Constants::TASK_CATEGORY_COMPILE)
+                << TaskWindow::Task(TaskWindow::Warning,
+                                    QLatin1String("unused variable 'handler'"),
+                                    QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), 2115,
+                                    Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
 
