@@ -309,6 +309,13 @@ const QString MaemoRunConfiguration::sysRoot() const
     return QString();
 }
 
+const QString MaemoRunConfiguration::targetRoot() const
+{
+    if (const MaemoToolChain *tc = toolchain())
+        return tc->targetRoot();
+    return QString();
+}
+
 const QStringList MaemoRunConfiguration::arguments() const
 {
     return m_arguments;

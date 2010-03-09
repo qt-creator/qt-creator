@@ -78,6 +78,7 @@ public:
     QString maddeRoot() const;
     QString executable() const;
     const QString sysRoot() const;
+    const QString targetRoot() const;
     const QStringList arguments() const;
     void setArguments(const QStringList &args);
     void setDeviceConfig(const MaemoDeviceConfig &deviceConfig);

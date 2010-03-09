@@ -44,6 +44,10 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QString>
 
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
+
 namespace Debugger {
     class DebuggerManager;
     class DebuggerStartParameters;
@@ -84,6 +88,9 @@ protected:
 
 private:
     virtual void handleDeploymentFinished(bool success)=0;
+
+    bool buildPackage();
+    bool runCommand(QProcess &proc, const QString &command);
 
     QFutureInterface<void> m_progress;
     QScopedPointer<MaemoSshDeployer> sshDeployer;
