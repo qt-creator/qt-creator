@@ -30,13 +30,9 @@
 #ifndef FAKETOOLBAR_H
 #define FAKETOOLBAR_H
 
+#include "core_global.h"
 #include <QWidget>
 #include <QtCore/QPointer>
-
-namespace Core {
-    class IEditor;
-    class OpenEditorsModel;
-}
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -44,25 +40,31 @@ class QToolButton;
 class QToolBar;
 QT_END_NAMESPACE
 
-namespace Designer {
-namespace Internal {
+namespace Core {
+    class IEditor;
+    class OpenEditorsModel;
+
 
 /**
   * Fakes an IEditor-like toolbar for design mode widgets such as Qt Designer and Bauhaus.
   * Creates a combobox for open files and lock and close buttons on the right.
   */
-class FakeToolBar : public QWidget
+class CORE_EXPORT DesignModeToolBar : public QWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY(FakeToolBar)
 public:
-    explicit FakeToolBar(QWidget *toolbar, QWidget *parent = 0);
+    explicit DesignModeToolBar(QWidget *parent = 0);
+    void setEditor(Core::IEditor *editor);
+    void setCenterToolBar(QWidget *toolBar);
 
     void updateActions();
 
+signals:
+    void closeClicked();
+
 private slots:
-    void editorChanged(Core::IEditor *newSelection);
-    void close();
+    void updateEditorListSelection(Core::IEditor *newSelection);
     void listSelectionActivated(int row);
     void listContextMenu(QPoint);
     void makeEditorWritable();
@@ -71,6 +73,8 @@ private slots:
 private:
     Core::OpenEditorsModel *m_editorsListModel;
     QComboBox *m_editorList;
+    QToolBar *m_centerToolBar;
+    QToolBar *m_rightToolBar;
     QToolButton *m_closeButton;
     QToolButton *m_lockButton;
     QAction *m_goBackAction;
@@ -79,6 +83,6 @@ private:
 };
 
 }
-}
+
 
 #endif // FAKETOOLBAR_H

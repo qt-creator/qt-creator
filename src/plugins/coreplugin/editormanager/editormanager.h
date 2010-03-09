@@ -57,7 +57,7 @@ class IFile;
 class IMode;
 class IVersionControl;
 
-class FakeToolBar;
+class DesignModeToolBar;
 
 enum MakeWritableResult {
     OpenedWithVersionControl,
@@ -107,7 +107,7 @@ public:
     void init();
     static EditorManager *instance() { return m_instance; }
 
-    static FakeToolBar *createFakeToolBar(QWidget *parent = 0);
+    static DesignModeToolBar *createFakeToolBar(QWidget *parent = 0);
 
     enum OpenEditorFlag {
         NoActivate = 1,

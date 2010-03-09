@@ -62,6 +62,7 @@ QT_END_NAMESPACE
 namespace Core {
     class SideBar;
     class OpenEditorsModel;
+    class DesignModeToolBar;
 }
 
 namespace QmlDesigner {
@@ -71,30 +72,6 @@ namespace Internal {
 class DesignMode;
 class DocumentWidget;
 class DesignModeWidget;
-
-class DocumentToolBar : public QWidget
-{
-    Q_OBJECT
-    Q_DISABLE_COPY(DocumentToolBar)
-public:
-    explicit DocumentToolBar(DocumentWidget *documentWidget,
-                             DesignModeWidget *mainWidget, QWidget *parent = 0);
-
-private slots:
-    void close();
-    void listSelectionActivated(int row);
-    void listContextMenu(QPoint);
-    void makeEditorWritable();
-    void updateEditorStatus();
-
-private:
-    DesignModeWidget *m_mainWidget;
-    DocumentWidget *m_documentWidget;
-    Core::OpenEditorsModel *m_editorsListModel;
-    QComboBox *m_editorList;
-    QToolButton *m_closeButton;
-    QToolButton *m_lockButton;
-};
 
 class DocumentWarningWidget : public QFrame
 {
@@ -138,6 +115,7 @@ private slots:
     void enable();
     void disable(const QList<RewriterView::Error> &errors);
     void updateErrorStatus(const QList<RewriterView::Error> &errors);
+    void closeEditor();
 
 private:
     void setup();
@@ -151,6 +129,9 @@ private:
     QSplitter *m_mainSplitter;
     Core::SideBar *m_leftSideBar;
     Core::SideBar *m_rightSideBar;
+
+    QToolBar *m_designToolBar;
+    Core::DesignModeToolBar *m_fakeToolBar;
 
     bool m_isDisabled;
     DocumentWarningWidget *m_warningWidget;

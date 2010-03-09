@@ -81,7 +81,8 @@ SOURCES += mainwindow.cpp \
     eventfilteringmainwindow.cpp \
     imode.cpp \
     editormanager/systemeditor.cpp \
-    designmode.cpp
+    designmode.cpp \
+    faketoolbar.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -161,7 +162,8 @@ HEADERS += mainwindow.h \
     settingsdatabase.h \
     eventfilteringmainwindow.h \
     editormanager/systemeditor.h \
-    designmode.h
+    designmode.h \
+    designmodetoolbar.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/shortcutsettings.ui \

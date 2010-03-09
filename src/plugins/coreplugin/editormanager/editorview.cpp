@@ -427,7 +427,7 @@ QList<IEditor *> EditorView::editors() const
 
 void EditorView::makeEditorWritable()
 {
-    CoreImpl::instance()->editorManager()->makeEditorWritable(currentEditor());
+    ICore::instance()->editorManager()->makeEditorWritable(currentEditor());
 }
 
 void EditorView::listSelectionActivated(int index)

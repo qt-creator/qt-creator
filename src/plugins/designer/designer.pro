@@ -38,7 +38,6 @@ HEADERS += formeditorplugin.h \
         designer_export.h \
     designerxmleditor.h \
     designercontext.h \
-    faketoolbar.h \
     formeditorstack.h \
     editordata.h \
     resourcehandler.h
@@ -58,7 +57,6 @@ SOURCES += formeditorplugin.cpp \
         codemodelhelpers.cpp \
     designerxmleditor.cpp \
     designercontext.cpp \
-    faketoolbar.cpp \
     formeditorstack.cpp \
     resourcehandler.cpp
 

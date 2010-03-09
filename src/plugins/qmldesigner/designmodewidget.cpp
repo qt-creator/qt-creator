@@ -40,6 +40,7 @@
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/designmodetoolbar.h>
 
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
@@ -71,131 +72,6 @@ enum {
 
 namespace QmlDesigner {
 namespace Internal {
-
-/*!
-  Mimic the look of the text editor toolbar as defined in e.g. EditorView::EditorView
-  */
-DocumentToolBar::DocumentToolBar(DocumentWidget *documentWidget, DesignModeWidget *mainWidget, QWidget *parent) :
-        QWidget(parent),
-        m_mainWidget(mainWidget),
-        m_documentWidget(documentWidget),
-        m_editorList(new QComboBox),
-        m_closeButton(new QToolButton),
-        m_lockButton(new QToolButton)
-{
-    Core::ICore *core = Core::ICore::instance();
-
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-
-    m_editorsListModel = core->editorManager()->openedEditorsModel();
-
-    // copied from EditorView::EditorView
-    m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    m_editorList->setMinimumContentsLength(20);
-    m_editorList->setModel(m_editorsListModel);
-    m_editorList->setMaxVisibleItems(40);
-    m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
-    m_editorList->setCurrentIndex(m_editorsListModel->indexOf(documentWidget->textEditor()).row());
-
-    QToolBar *editorListToolBar = new QToolBar;
-    editorListToolBar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
-    editorListToolBar->addWidget(m_editorList);
-
-    QToolBar *designToolBar = new QToolBar;
-    designToolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-
-    m_lockButton->setAutoRaise(true);
-    m_lockButton->setProperty("type", QLatin1String("dockbutton"));
-
-    m_closeButton->setAutoRaise(true);
-    m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
-    m_closeButton->setProperty("type", QLatin1String("dockbutton"));
-
-    QToolBar *rightToolBar = new QToolBar;
-    rightToolBar->setLayoutDirection(Qt::RightToLeft);
-    rightToolBar->addWidget(m_closeButton);
-    rightToolBar->addWidget(m_lockButton);
-
-    QHBoxLayout *toplayout = new QHBoxLayout(this);
-    toplayout->setSpacing(0);
-    toplayout->setMargin(0);
-
-    toplayout->addWidget(editorListToolBar);
-    toplayout->addWidget(designToolBar);
-    toplayout->addWidget(rightToolBar);
-
-    connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
-    connect(m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
-    connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
-    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(close()));
-
-    connect(m_documentWidget->textEditor(), SIGNAL(changed()), this, SLOT(updateEditorStatus()));
-
-    updateEditorStatus();
-}
-
-void DocumentToolBar::close()
-{
-    Core::ICore::instance()->editorManager()->closeEditors(QList<IEditor*>() << m_documentWidget->textEditor());
-}
-
-void DocumentToolBar::listSelectionActivated(int row)
-{
-    EditorManager *em = Core::ICore::instance()->editorManager();
-    QAbstractItemModel *model = m_editorList->model();
-
-    const QModelIndex modelIndex = model->index(row, 0);
-    IEditor *editor = model->data(modelIndex, Qt::UserRole).value<IEditor*>();
-    if (editor) {
-        em->activateEditor(editor, EditorManager::NoModeSwitch);
-    } else {
-        QString fileName = model->data(modelIndex, Qt::UserRole + 1).toString();
-        QByteArray kind = model->data(modelIndex, Qt::UserRole + 2).toByteArray();
-        editor = em->openEditor(fileName, kind, EditorManager::NoModeSwitch);
-    }
-    if (editor) {
-        m_mainWidget->showEditor(editor);
-        m_editorList->setCurrentIndex(m_editorsListModel->indexOf(m_documentWidget->textEditor()).row());
-    }
-}
-
-void DocumentToolBar::listContextMenu(QPoint pos)
-{
-    QModelIndex index = m_editorsListModel->index(m_editorList->currentIndex(), 0);
-    QString fileName = m_editorsListModel->data(index, Qt::UserRole + 1).toString();
-    if (fileName.isEmpty())
-        return;
-    QMenu menu;
-    menu.addAction(tr("Copy full path to clipboard"));
-    if (menu.exec(m_editorList->mapToGlobal(pos))) {
-        QApplication::clipboard()->setText(fileName);
-    }
-}
-
-void DocumentToolBar::makeEditorWritable()
-{
-    Core::ICore::instance()->editorManager()->makeEditorWritable(m_documentWidget->textEditor());
-}
-
-void DocumentToolBar::updateEditorStatus()
-{
-    Core::IEditor *editor = m_documentWidget->textEditor();
-
-    if (editor->file()->isReadOnly()) {
-        m_lockButton->setIcon(m_editorsListModel->lockedIcon());
-        m_lockButton->setEnabled(!editor->file()->fileName().isEmpty());
-        m_lockButton->setToolTip(tr("Make writable"));
-    } else {
-        m_lockButton->setIcon(m_editorsListModel->unlockedIcon());
-        m_lockButton->setEnabled(false);
-        m_lockButton->setToolTip(tr("File is writable"));
-    }
-    m_editorList->setToolTip(
-            editor->file()->fileName().isEmpty()
-            ? editor->displayName()
-                : QDir::toNativeSeparators(editor->file()->fileName())
-                );
-}
 
 DocumentWarningWidget::DocumentWarningWidget(DocumentWidget *documentWidget, QWidget *parent) :
         QFrame(parent),
@@ -245,6 +121,8 @@ DocumentWidget::DocumentWidget(TextEditor::ITextEditor *textEditor, QPlainTextEd
         m_mainSplitter(0),
         m_leftSideBar(0),
         m_rightSideBar(0),
+        m_designToolBar(new QToolBar),
+        m_fakeToolBar(Core::EditorManager::createFakeToolBar(this)),
         m_isDisabled(false),
         m_warningWidget(0)
 {
@@ -323,6 +201,11 @@ void DocumentWidget::setAutoSynchronization(bool sync)
         disconnect(document(), SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)),
                 this, SLOT(updateErrorStatus(QList<RewriterView::Error>)));
     }
+}
+
+void DocumentWidget::closeEditor()
+{
+    Core::ICore::instance()->editorManager()->closeEditors(QList<IEditor*>() << textEditor());
 }
 
 void DocumentWidget::enable()
@@ -417,13 +300,19 @@ void DocumentWidget::setup()
     m_leftSideBar = new Core::SideBar(leftSideBarItems, QList<Core::SideBarItem*>() << navigatorItem << libraryItem);
     m_rightSideBar = new Core::SideBar(rightSideBarItems, QList<Core::SideBarItem*>() << propertiesItem);
 
+    m_designToolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
+
+    connect(m_fakeToolBar, SIGNAL(closeClicked()), this, SLOT(closeEditor()));
+    m_fakeToolBar->setEditor(textEditor());
+    m_fakeToolBar->setCenterToolBar(m_designToolBar);
+
     // right area:
     QWidget *centerWidget = new QWidget;
     {
         QVBoxLayout *rightLayout = new QVBoxLayout(centerWidget);
         rightLayout->setMargin(0);
         rightLayout->setSpacing(0);
-        rightLayout->addWidget(new DocumentToolBar(this, m_mainWidget));
+        rightLayout->addWidget(m_fakeToolBar);
         rightLayout->addWidget(m_document->statesEditorWidget());
         rightLayout->addWidget(m_document->documentWidget());
     }

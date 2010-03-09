@@ -27,12 +27,12 @@
 **
 **************************************************************************/
 
-#include "faketoolbar.h"
+#include "designmodetoolbar.h"
 
-#include <designerconstants.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
@@ -58,38 +58,31 @@
 #include <QtGui/QLabel>
 #include <QtGui/QToolBar>
 
-
-using Core::IEditor;
-using Core::EditorManager;
-
 Q_DECLARE_METATYPE(Core::IEditor*)
 
 enum {
     debug = false
 };
 
-static inline bool isDesignerXmlEditor(const Core::IEditor *editor)
-{
-    return editor->id() == QLatin1String(Designer::Constants::K_DESIGNER_XML_EDITOR_ID);
-}
-
-namespace Designer {
-namespace Internal {
+namespace Core {
 
 /*!
   Mimic the look of the text editor toolbar as defined in e.g. EditorView::EditorView
   */
-FakeToolBar::FakeToolBar(QWidget *toolbar, QWidget *parent) :
+DesignModeToolBar::DesignModeToolBar(QWidget *parent) :
         QWidget(parent),
         m_editorList(new QComboBox),
+        m_centerToolBar(0),
+        m_rightToolBar(new QToolBar),
         m_closeButton(new QToolButton),
         m_lockButton(new QToolButton),
         m_goBackAction(new QAction(QIcon(QLatin1String(":/help/images/previous.png")), EditorManager::tr("Go Back"), parent)),
-        m_goForwardAction(new QAction(QIcon(QLatin1String(":/help/images/next.png")), EditorManager::tr("Go Forward"), parent))
+        m_goForwardAction(new QAction(QIcon(QLatin1String(":/help/images/next.png")), EditorManager::tr("Go Forward"), parent)),
+        m_editor(0)
 {
-    Core::ICore *core = Core::ICore::instance();
+    ICore *core = ICore::instance();
 
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    //setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_editorsListModel = core->editorManager()->openedEditorsModel();
 
     // copied from EditorView::EditorView
@@ -110,22 +103,21 @@ FakeToolBar::FakeToolBar(QWidget *toolbar, QWidget *parent) :
     m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
     m_closeButton->setProperty("type", QLatin1String("dockbutton"));
 
-//    Core::ActionManager *am = core->actionManager();
-//    Core::EditorManager *em = core->editorManager();
+//    ActionManager *am = core->actionManager();
+//    EditorManager *em = core->editorManager();
 
 // TODO back/FW buttons disabled for the time being, as the implementation would require changing editormanager.
-//
 //    QToolBar *backFwToolBar = new QToolBar;
 //    backFwToolBar->addAction(m_goBackAction);
 //    backFwToolBar->addAction(m_goForwardAction);
-//    Core::Command *cmd = am->registerAction(m_goBackAction, Core::Constants::GO_BACK, editor->context());
+//    Command *cmd = am->registerAction(m_goBackAction, Constants::GO_BACK, editor->context());
 //#ifdef Q_WS_MAC
 //    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Left")));
 //#else
 //    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Left")));
 //#endif
 //    connect(m_goBackAction, SIGNAL(triggered()), em, SLOT(goBackInNavigationHistory()));
-//    cmd = am->registerAction(m_goForwardAction, Core::Constants::GO_FORWARD, editor->context());
+//    cmd = am->registerAction(m_goForwardAction, Constants::GO_FORWARD, editor->context());
 //#ifdef Q_WS_MAC
 //    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Right")));
 //#else
@@ -133,67 +125,58 @@ FakeToolBar::FakeToolBar(QWidget *toolbar, QWidget *parent) :
 //#endif
 //    connect(m_goForwardAction, SIGNAL(triggered()), em, SLOT(goForwardInNavigationHistory()));
 
-    QToolBar *rightToolBar = new QToolBar;
-    rightToolBar->setLayoutDirection(Qt::RightToLeft);
-    rightToolBar->addWidget(m_closeButton);
-    rightToolBar->addWidget(m_lockButton);
+    m_rightToolBar->setLayoutDirection(Qt::RightToLeft);
+    m_rightToolBar->addWidget(m_closeButton);
+    m_rightToolBar->addWidget(m_lockButton);
 
     QHBoxLayout *toplayout = new QHBoxLayout(this);
     toplayout->setSpacing(0);
     toplayout->setMargin(0);
     toplayout->setContentsMargins(0,0,0,0);
-
     toplayout->addWidget(editorListToolBar);
-    toplayout->addWidget(toolbar);
-    toplayout->addWidget(rightToolBar);
+    toplayout->addWidget(m_rightToolBar);
 
     connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
     connect(m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
     connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
-    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(m_closeButton, SIGNAL(clicked()), this, SIGNAL(closeClicked()));
 
-    connect(core->editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(editorChanged(Core::IEditor*)));
+    connect(core->editorManager(), SIGNAL(currentEditorChanged(IEditor*)), SLOT(updateEditorListSelection(IEditor*)));
 
     updateEditorStatus();
-    if (Core::IEditor *editor = core->editorManager()->currentEditor())
-        editorChanged(editor);
 }
 
-void FakeToolBar::editorChanged(Core::IEditor *newSelection)
+void DesignModeToolBar::setCenterToolBar(QWidget *toolBar)
 {
-    if (newSelection == m_editor)
-        return;
-    if (m_editor && isDesignerXmlEditor(m_editor))
-        disconnect(m_editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
+    if (toolBar) {
+        layout()->removeWidget(m_rightToolBar);
+        layout()->addWidget(toolBar);
+    }
 
+    layout()->addWidget(m_rightToolBar);
+}
+
+void DesignModeToolBar::setEditor(IEditor *editor)
+{
+    m_editor = editor;
+    m_editorList->setCurrentIndex(m_editorsListModel->indexOf(m_editor).row());
+    connect(m_editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
+}
+
+void DesignModeToolBar::updateEditorListSelection(IEditor *newSelection)
+{
     if (newSelection) {
-        m_editor = newSelection;
         m_editorList->setCurrentIndex(m_editorsListModel->indexOf(newSelection).row());
-        if (isDesignerXmlEditor(m_editor))
-            connect(m_editor, SIGNAL(changed()), this, SLOT(updateEditorStatus()));
-        updateEditorStatus();
     }
 }
 
-void FakeToolBar::close()
+void DesignModeToolBar::listSelectionActivated(int row)
 {
-    // instead of closing & deleting the visual editor, we want to go to edit mode and
-    // close the xml file instead.
-    Core::ICore *core = Core::ICore::instance();
+    EditorManager *em = ICore::instance()->editorManager();
+    QAbstractItemModel *model = m_editorList->model();
 
-    if (Core::IEditor *editor = core->editorManager()->currentEditor()) {
-        if (isDesignerXmlEditor(editor) && editor->file() == m_editor->file())
-            core->editorManager()->closeEditors(QList<Core::IEditor*>() << editor);
-    }
-    core->modeManager()->activateMode(Core::Constants::MODE_EDIT);
-}
-
-void FakeToolBar::listSelectionActivated(int row)
-{
-    Core::EditorManager *em = Core::ICore::instance()->editorManager();
-    const QAbstractItemModel *model = m_editorList->model();
     const QModelIndex modelIndex = model->index(row, 0);
-    Core::IEditor *editor = model->data(modelIndex, Qt::UserRole).value<Core::IEditor*>();
+    IEditor *editor = model->data(modelIndex, Qt::UserRole).value<IEditor*>();
     if (editor) {
         if (editor != em->currentEditor())
             em->activateEditor(editor, EditorManager::NoModeSwitch);
@@ -207,7 +190,7 @@ void FakeToolBar::listSelectionActivated(int row)
     }
 }
 
-void FakeToolBar::listContextMenu(QPoint pos)
+void DesignModeToolBar::listContextMenu(QPoint pos)
 {
     QModelIndex index = m_editorsListModel->index(m_editorList->currentIndex(), 0);
     QString fileName = m_editorsListModel->data(index, Qt::UserRole + 1).toString();
@@ -220,12 +203,13 @@ void FakeToolBar::listContextMenu(QPoint pos)
     }
 }
 
-void FakeToolBar::makeEditorWritable()
+void DesignModeToolBar::makeEditorWritable()
 {
-    Core::ICore::instance()->editorManager()->makeEditorWritable(m_editor);
+    if (m_editor)
+        ICore::instance()->editorManager()->makeEditorWritable(m_editor);
 }
 
-void FakeToolBar::updateEditorStatus()
+void DesignModeToolBar::updateEditorStatus()
 {
     if (!m_editor || !m_editor->file())
         return;
@@ -246,5 +230,4 @@ void FakeToolBar::updateEditorStatus()
                 );
 }
 
-} // Internal
-} // Designer
+} // Core

@@ -39,7 +39,7 @@
 #include "mimedatabase.h"
 #include "tabpositionindicator.h"
 #include "vcsmanager.h"
-#include "faketoolbar.h"
+#include "designmodetoolbar.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -443,9 +443,9 @@ void EditorManager::init()
 }
 
 
-FakeToolBar *EditorManager::createFakeToolBar(QWidget *parent)
+DesignModeToolBar *EditorManager::createFakeToolBar(QWidget *parent)
 {
-    return new FakeToolBar(parent);
+    return new DesignModeToolBar(parent);
 }
 
 QString EditorManager::defaultExternalEditor() const
