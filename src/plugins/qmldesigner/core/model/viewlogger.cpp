@@ -67,17 +67,12 @@ ViewLogger::ViewLogger(QObject *parent)
     : AbstractView(parent)
 {
 #ifdef Q_OS_MAC
-    const QLatin1String logPath("Library/Logs/Bauhaus");
-    QDir logDir(QDir::homePath());
-    logDir.mkpath(logPath);
-    const QString tempPath = QDir::homePath() + QDir::separator() + logPath;
+    const QString tempPath = "/tmp";
 #else
     const QString tempPath = QDir::tempPath();
 #endif
 
     QTemporaryFile *temporaryFile = new QTemporaryFile(tempPath + QString("/bauhaus-logger-%1-XXXXXX.txt").arg(QDateTime::currentDateTime().toString(Qt::ISODate).replace(":", "-")), this);
-    QString tempFileName = tempPath + QString("/bauhaus-logger-%1-XXXXXX.txt").arg(QDateTime::currentDateTime().toString(Qt::ISODate).replace(':', '-'));
-
 
     temporaryFile->setAutoRemove(false);
     if (temporaryFile->open()) {
