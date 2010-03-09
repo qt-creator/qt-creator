@@ -84,8 +84,10 @@ public:
             QColor highlight = option->palette.text().color();
             highlight.setAlphaF(0.7);
             painter->setPen(QPen(highlight.lighter(), 1));
-            if (option->rect.height() == 0)
-                painter->drawLine(rect.topLeft(), rect.topRight());
+            if (option->rect.height() == 0) {
+                if (option->rect.top()>0)
+                    painter->drawLine(rect.topLeft(), rect.topRight());
+            }
             else {
                 highlight.setAlphaF(0.2);
                 painter->setBrush(highlight);
