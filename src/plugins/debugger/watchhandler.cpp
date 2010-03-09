@@ -352,7 +352,6 @@ QString WatchData::shadowedName(const QString &name, int seen)
 WatchModel::WatchModel(WatchHandler *handler, WatchType type)
     : QAbstractItemModel(handler), m_handler(handler), m_type(type)
 {
-    m_inExtraLayoutChanged = false;
     m_root = new WatchItem;
     m_root->hasChildren = 1;
     m_root->state = 0;
@@ -414,15 +413,6 @@ void WatchModel::endCycle()
 {
     removeOutdated();
     emit enableUpdates(true);
-    // Prevent 'fetchMore()' from being triggered.
-    m_inExtraLayoutChanged = true;
-    emit layoutChanged();
-    QTimer::singleShot(0, this, SLOT(resetExtraLayoutChanged()));
-}
-
-void WatchModel::resetExtraLayoutChanged()
-{
-    m_inExtraLayoutChanged = false;
 }
 
 void WatchModel::dump()
@@ -678,14 +668,11 @@ bool WatchModel::canFetchMore(const QModelIndex &index) const
 {
     WatchItem *item = watchItem(index);
     QTC_ASSERT(item, return false);
-    return !m_inExtraLayoutChanged && index.isValid()
-        && !m_fetchTriggered.contains(item->iname);
+    return index.isValid() && !m_fetchTriggered.contains(item->iname);
 }
 
 void WatchModel::fetchMore(const QModelIndex &index)
 {
-    if (m_inExtraLayoutChanged)
-        return;
     QTC_ASSERT(index.isValid(), return);
     WatchItem *item = watchItem(index);
     QTC_ASSERT(item, return);
@@ -1019,8 +1006,8 @@ void WatchModel::insertData(const WatchData &data)
     }
     QModelIndex index = watchIndex(parent);
     if (WatchItem *oldItem = findItem(data.iname, parent)) {
-        // overwrite old entry
-        //MODEL_DEBUG("OVERWRITE : " << data.iname << data.value);
+        bool hadChildren = oldItem->hasChildren;
+        // Overwrite old entry.
         bool changed = !data.value.isEmpty()
             && data.value != oldItem->value
             && data.value != strNotInScope;
@@ -1029,9 +1016,19 @@ void WatchModel::insertData(const WatchData &data)
         oldItem->generation = generationCounter;
         QModelIndex idx = watchIndex(oldItem);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
+
+        // This works around http://bugreports.qt.nokia.com/browse/QTBUG-7115
+        // by creating and destroying a dummy child item.
+        if (!hadChildren && oldItem->hasChildren) {
+            WatchData dummy = data;
+            dummy.iname = data.iname + ".x";
+            dummy.hasChildren = false;
+            dummy.setAllUnneeded();
+            insertData(dummy);
+            destroyItem(findItem(dummy.iname, m_root));
+        }
     } else {
-        // add new entry
-        //MODEL_DEBUG("ADD : " << data.iname << data.value);
+        // Add new entry.
         WatchItem *item = new WatchItem(data);
         item->parent = parent;
         item->generation = generationCounter;
