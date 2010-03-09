@@ -2103,6 +2103,97 @@
     \note The set of watched items is saved in your session.
 
 
+    \section1 Walkthrough for the Debugger Frontend
+
+    In our \l{Writing a simple program}{TextFinder} example, we
+    read a text file into QString and then display it with QTextEdit.
+    Suppose you want to look at this QString, \c{line}, and see what
+    data it actually stores. Follow the steps described below to place a
+    breakpoint and view the QString object's data.
+
+    \table
+        \row
+            \i \inlineimage qtcreator-setting-breakpoint1.png
+            \i \bold{Setting a Breakpoint}
+
+    \list 1
+        \o Click in between the line number and the window border on the line
+        where we invoke \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
+        to set a breakpoint.
+        \o Select \gui{Start Debugging} from the \gui{Debug} menu or press \key{F5}.
+    \endlist
+
+        \row
+            \i \inlineimage qtcreator-setting-breakpoint2.png
+            \i \bold{Viewing and removing breakpoints}
+
+    Breakpoints are visible in the \gui{Breakpoints} view in
+    \gui{Debug} mode. To remove a breakpoint, right-click on
+    it and select \gui{Delete breakpoint} from the context menu.
+
+        \row
+            \i \inlineimage qtcreator-watcher.png
+            \i \bold{Viewing Locals and Watchers}
+
+    To view the contents of \c{line}, go to the \gui{Locals and
+    Watchers} view.
+
+    \endtable
+
+    Suppose we modify our \c{on_findButton_clicked()} function to move back to
+    the start of the document and continue searching once the cursor hits the
+    end of the document. Adding this functionality can be done with the code
+    snippet below:
+
+    \code
+    void TextFinder::on_findButton_clicked()
+    {
+        QString searchString = ui->lineEdit->text();
+
+        QTextDocument *document = ui->textEdit->document();
+        QTextCursor cursor = ui->textEdit->textCursor();
+        cursor = document->find(searchString, cursor,
+            QTextDocument::FindWholeWords);
+        ui->textEdit->setTextCursor(cursor);
+
+        bool found = cursor.isNull();
+
+        if (!found && previouslyFound) {
+            int ret = QMessageBox::question(this, tr("End of Document"),
+            tr("I have reached the end of the document. Would you like "
+            "me to start searching from the beginning of the document?"),
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+            if (ret == QMessageBox::Yes) {
+                cursor = document->find(searchString,
+                    QTextDocument::FindWholeWords);
+                ui->textEdit->setTextCursor(cursor);
+            } else
+                return;
+        }
+        previouslyFound = found;
+    }
+    \endcode
+
+    However, if you compile and run this code, the application does not work
+    correctly due to a logic error. To locate this logic error, step
+    through the code using the following buttons:
+
+    \image qtcreator-debugging-buttons.png
+
+    \section1 Setting the Symbol Server
+
+    To obtain operating system libraries for debugging Windows applications,
+    you have to add the Symbol Server:
+    \list 1
+        \o  Select \gui Tools > \gui Options > \gui Debugger > \gui Cdb
+        \o  Click \inlineimage qtcreator-serverbutton.png
+            located next to the \gui{Insert...} button of the Symbol paths
+            field and select \gui{Symbol Server...}
+        \o  Select a directory where you want to store the cached information
+            and click \gui OK.
+    \endlist
+
     \section1 Debugging Helper Library with C++
 
     While debugging, Qt Creator dynamically loads a helper library into your
@@ -2364,84 +2455,6 @@
         self.endHash()
 
     \endlist
-
-    \section1 Walkthrough for the Debugger Frontend
-
-    In our \l{Writing a simple program}{TextFinder} example, we
-    read a text file into QString and then display it with QTextEdit.
-    Suppose you want to look at this QString, \c{line}, and see what
-    data it actually stores. Follow the steps described below to place a
-    breakpoint and view the QString object's data.
-
-    \table
-        \row
-            \i \inlineimage qtcreator-setting-breakpoint1.png
-            \i \bold{Setting a Breakpoint}
-
-    \list 1
-        \o Click in between the line number and the window border on the line
-        where we invoke \l{http://doc.trolltech.com/qtextedit.html#plainText-prop}{setPlainText()}
-        to set a breakpoint.
-        \o Select \gui{Start Debugging} from the \gui{Debug} menu or press \key{F5}.
-    \endlist
-
-        \row
-            \i \inlineimage qtcreator-setting-breakpoint2.png
-            \i \bold{Viewing and removing breakpoints}
-
-    Breakpoints are visible in the \gui{Breakpoints} view in
-    \gui{Debug} mode. To remove a breakpoint, right-click on
-    it and select \gui{Delete breakpoint} from the context menu.
-
-        \row
-            \i \inlineimage qtcreator-watcher.png
-            \i \bold{Viewing Locals and Watchers}
-
-    To view the contents of \c{line}, go to the \gui{Locals and
-    Watchers} view.
-
-    \endtable
-
-    Suppose we modify our \c{on_findButton_clicked()} function to move back to
-    the start of the document and continue searching once the cursor hits the
-    end of the document. Adding this functionality can be done with the code
-    snippet below:
-
-    \code
-    void TextFinder::on_findButton_clicked()
-    {
-        QString searchString = ui->lineEdit->text();
-
-        QTextDocument *document = ui->textEdit->document();
-        QTextCursor cursor = ui->textEdit->textCursor();
-        cursor = document->find(searchString, cursor,
-            QTextDocument::FindWholeWords);
-        ui->textEdit->setTextCursor(cursor);
-
-        bool found = cursor.isNull();
-
-        if (!found && previouslyFound) {
-            int ret = QMessageBox::question(this, tr("End of Document"),
-            tr("I have reached the end of the document. Would you like "
-            "me to start searching from the beginning of the document?"),
-            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-
-            if (ret == QMessageBox::Yes) {
-                cursor = document->find(searchString,
-                    QTextDocument::FindWholeWords);
-                ui->textEdit->setTextCursor(cursor);
-            } else
-                return;
-        }
-        previouslyFound = found;
-    }
-    \endcode
-
-    However, if you compile and run this code, the application does not work
-    correctly due to a logic error. To locate this logic error, step
-    through the code using the following buttons:
-
-    \image qtcreator-debugging-buttons.png
 
 */
 
