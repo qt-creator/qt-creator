@@ -443,9 +443,9 @@ void EditorManager::init()
 }
 
 
-DesignModeToolBar *EditorManager::createFakeToolBar(QWidget *parent)
+EditorToolBar *EditorManager::createToolBar(QWidget *parent)
 {
-    return new DesignModeToolBar(parent);
+    return new EditorToolBar(parent);
 }
 
 QString EditorManager::defaultExternalEditor() const

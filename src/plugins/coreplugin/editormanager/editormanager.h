@@ -57,7 +57,7 @@ class IFile;
 class IMode;
 class IVersionControl;
 
-class DesignModeToolBar;
+class EditorToolBar;
 
 enum MakeWritableResult {
     OpenedWithVersionControl,
@@ -107,7 +107,7 @@ public:
     void init();
     static EditorManager *instance() { return m_instance; }
 
-    static DesignModeToolBar *createFakeToolBar(QWidget *parent = 0);
+    static EditorToolBar *createToolBar(QWidget *parent = 0);
 
     enum OpenEditorFlag {
         NoActivate = 1,
@@ -265,6 +265,7 @@ private:
 
     friend class Core::Internal::SplitterOrView;
     friend class Core::Internal::EditorView;
+    friend class Core::EditorToolBar;
 };
 
 } // namespace Core

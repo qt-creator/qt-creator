@@ -82,7 +82,7 @@ SOURCES += mainwindow.cpp \
     imode.cpp \
     editormanager/systemeditor.cpp \
     designmode.cpp \
-    faketoolbar.cpp
+    designmodetoolbar.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \

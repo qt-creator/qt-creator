@@ -122,7 +122,7 @@ DocumentWidget::DocumentWidget(TextEditor::ITextEditor *textEditor, QPlainTextEd
         m_leftSideBar(0),
         m_rightSideBar(0),
         m_designToolBar(new QToolBar),
-        m_fakeToolBar(Core::EditorManager::createFakeToolBar(this)),
+        m_fakeToolBar(Core::EditorManager::createToolBar(this)),
         m_isDisabled(false),
         m_warningWidget(0)
 {
@@ -201,11 +201,6 @@ void DocumentWidget::setAutoSynchronization(bool sync)
         disconnect(document(), SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)),
                 this, SLOT(updateErrorStatus(QList<RewriterView::Error>)));
     }
-}
-
-void DocumentWidget::closeEditor()
-{
-    Core::ICore::instance()->editorManager()->closeEditors(QList<IEditor*>() << textEditor());
 }
 
 void DocumentWidget::enable()
@@ -302,9 +297,9 @@ void DocumentWidget::setup()
 
     m_designToolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
 
-    connect(m_fakeToolBar, SIGNAL(closeClicked()), this, SLOT(closeEditor()));
-    m_fakeToolBar->setEditor(textEditor());
-    m_fakeToolBar->setCenterToolBar(m_designToolBar);
+    m_fakeToolBar->addEditor(textEditor(), Core::EditorToolBar::FlagsIgnoreIEditorToolBar);
+    m_fakeToolBar->addCenterToolBar(m_designToolBar);
+    m_fakeToolBar->setNavigationVisible(false);
 
     // right area:
     QWidget *centerWidget = new QWidget;

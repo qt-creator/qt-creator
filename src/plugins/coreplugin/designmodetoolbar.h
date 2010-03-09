@@ -34,6 +34,8 @@
 #include <QWidget>
 #include <QtCore/QPointer>
 
+#include <utils/styledbar.h>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QToolButton;
@@ -49,28 +51,56 @@ namespace Core {
   * Fakes an IEditor-like toolbar for design mode widgets such as Qt Designer and Bauhaus.
   * Creates a combobox for open files and lock and close buttons on the right.
   */
-class CORE_EXPORT DesignModeToolBar : public QWidget
+class CORE_EXPORT EditorToolBar : public Utils::StyledBar
 {
     Q_OBJECT
-    Q_DISABLE_COPY(FakeToolBar)
+    Q_DISABLE_COPY(EditorToolBar)
 public:
-    explicit DesignModeToolBar(QWidget *parent = 0);
-    void setEditor(Core::IEditor *editor);
-    void setCenterToolBar(QWidget *toolBar);
+    explicit EditorToolBar(QWidget *parent = 0);
 
-    void updateActions();
+    enum ToolbarCreationFlags { FlagsNone = 0, FlagsIgnoreIEditorToolBar = 1 };
+
+    /**
+      * Adds an editor to listen to state changes so that the editor can be updated accordingly.
+      */
+    void addEditor(IEditor *editor, ToolbarCreationFlags flags = FlagsNone);
+
+    /**
+      * Sets the editor and adds its custom toolbar to the widget.
+      */
+    void setCurrentEditor(IEditor *editor);
+
+    /**
+      * Adds a toolbar to the widget and sets invisible by default.
+      */
+    void addCenterToolBar(QWidget *toolBar);
+
+    void setNavigationVisible(bool isVisible);
+    void setCanGoBack(bool canGoBack);
+    void setCanGoForward(bool canGoForward);
+    void removeToolbarForEditor(IEditor *editor);
+
+public slots:
+    void updateEditorStatus(IEditor *editor);
 
 signals:
     void closeClicked();
+    void goBackClicked();
+    void goForwardClicked();
 
 private slots:
     void updateEditorListSelection(Core::IEditor *newSelection);
     void listSelectionActivated(int row);
     void listContextMenu(QPoint);
     void makeEditorWritable();
-    void updateEditorStatus();
+
+    void checkEditorStatus();
+    void closeView();
+    void updateActionShortcuts();
 
 private:
+    void updateToolBar(QWidget *toolBar);
+    IEditor *currentEditor() const;
     Core::OpenEditorsModel *m_editorsListModel;
     QComboBox *m_editorList;
     QToolBar *m_centerToolBar;
@@ -79,7 +109,14 @@ private:
     QToolButton *m_lockButton;
     QAction *m_goBackAction;
     QAction *m_goForwardAction;
-    QPointer<Core::IEditor> m_editor;
+    QToolButton *m_backButton;
+    QToolButton *m_forwardButton;
+
+    QWidget *m_activeToolBar;
+    QWidget *m_toolBarPlaceholder;
+    QWidget *m_defaultToolBar;
+
+    bool m_ignoreEditorToolbar;
 };
 
 }

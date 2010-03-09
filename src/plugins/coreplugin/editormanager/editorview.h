@@ -56,6 +56,7 @@ namespace Core {
 
 class IEditor;
 class OpenEditorsModel;
+class EditorToolBar;
 
 namespace Internal {
 
@@ -71,7 +72,7 @@ class EditorView : public QWidget
     Q_OBJECT
 
 public:
-    EditorView(OpenEditorsModel *model = 0, QWidget *parent = 0);
+    EditorView(QWidget *parent = 0);
     virtual ~EditorView();
 
     int editorCount() const;
@@ -95,28 +96,17 @@ public:
                            QObject *object, const char *member);
     void hideEditorStatusBar(const QString &id);
 
-public slots:
-    void closeView();
-
 private slots:
     void updateEditorStatus(Core::IEditor *editor = 0);
-    void checkEditorStatus();
-    void makeEditorWritable();
-    void listSelectionActivated(int index);
-    void listContextMenu(QPoint);
 
 private:
+    void updateNavigatorActions();
     void updateToolBar(IEditor *editor);
     void checkProjectLoaded(IEditor *editor);
 
-    OpenEditorsModel *m_model;
-    QWidget *m_toolBar;
-    QWidget *m_activeToolBar;
+    EditorToolBar *m_toolBar;
+
     QStackedWidget *m_container;
-    QComboBox *m_editorList;
-    QToolButton *m_closeButton;
-    QToolButton *m_lockButton;
-    QWidget *m_defaultToolBar;
     QString m_infoWidgetId;
     QFrame *m_infoWidget;
     QLabel *m_infoWidgetLabel;
@@ -134,9 +124,6 @@ private:
     QList<EditLocation> m_editorHistory;
     int m_currentNavigationHistoryPosition;
     void updateCurrentPositionInNavigationHistory();
-    QAction *m_goBackAction;
-    QAction *m_goForwardAction;
-    void updateActions();
 
 
 public:
@@ -146,7 +133,6 @@ public:
 public slots:
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
-    void updateActionShortcuts();
 
 public:
     void addCurrentPositionToNavigationHistory(IEditor *editor = 0, const QByteArray &saveState = QByteArray());

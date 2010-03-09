@@ -32,13 +32,14 @@
 #include "coreimpl.h"
 #include "minisplitter.h"
 #include "openeditorsmodel.h"
+
+#include <coreplugin/designmodetoolbar.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <coreplugin/findplaceholder.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
@@ -70,82 +71,23 @@ using namespace Core::Internal;
 
 // ================EditorView====================
 
-EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
+EditorView::EditorView(QWidget *parent) :
     QWidget(parent),
-    m_model(model),
-    m_toolBar(new QWidget),
+    m_toolBar(EditorManager::createToolBar(this)),
     m_container(new QStackedWidget(this)),
-    m_editorList(new QComboBox),
-    m_closeButton(new QToolButton),
-    m_lockButton(new QToolButton),
-    m_defaultToolBar(new QWidget(this)),
     m_infoWidget(new QFrame(this)),
     m_editorForInfoWidget(0),
     m_statusHLine(new QFrame(this)),
     m_statusWidget(new QFrame(this)),
     m_currentNavigationHistoryPosition(0)
 {
-
-    m_goBackAction = new QAction(QIcon(QLatin1String(":/core/images/prev.png")), tr("Go Back"), this);
-    connect(m_goBackAction, SIGNAL(triggered()), this, SLOT(goBackInNavigationHistory()));
-    m_goForwardAction = new QAction(QIcon(QLatin1String(":/core/images/next.png")), tr("Go Forward"), this);
-    connect(m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
-
     QVBoxLayout *tl = new QVBoxLayout(this);
     tl->setSpacing(0);
     tl->setMargin(0);
     {
-        if (!m_model) {
-            m_model = CoreImpl::instance()->editorManager()->openedEditorsModel();
-        }
-
-        QToolButton *backButton = new QToolButton;
-        backButton->setDefaultAction(m_goBackAction);
-
-        QToolButton *forwardButton= new QToolButton;
-        forwardButton->setDefaultAction(m_goForwardAction);
-
-        m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        m_editorList->setMinimumContentsLength(20);
-        m_editorList->setModel(m_model);
-        m_editorList->setMaxVisibleItems(40);
-        m_editorList->setContextMenuPolicy(Qt::CustomContextMenu);
-
-        m_defaultToolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        m_activeToolBar = m_defaultToolBar;
-
-        QHBoxLayout *toolBarLayout = new QHBoxLayout;
-        toolBarLayout->setMargin(0);
-        toolBarLayout->setSpacing(0);
-        toolBarLayout->addWidget(m_defaultToolBar);
-        m_toolBar->setLayout(toolBarLayout);
-        m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-
-        m_lockButton->setAutoRaise(true);
-        m_lockButton->setVisible(false);
-
-        m_closeButton->setAutoRaise(true);
-        m_closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
-        m_closeButton->setEnabled(false);
-
-        QHBoxLayout *toplayout = new QHBoxLayout;
-        toplayout->setSpacing(0);
-        toplayout->setMargin(0);
-        toplayout->addWidget(backButton);
-        toplayout->addWidget(forwardButton);
-        toplayout->addWidget(m_editorList);
-        toplayout->addWidget(m_toolBar, 1); // Custom toolbar stretches
-        toplayout->addWidget(m_lockButton);
-        toplayout->addWidget(m_closeButton);
-
-        Utils::StyledBar *top = new Utils::StyledBar;
-        top->setLayout(toplayout);
-        tl->addWidget(top);
-
-        connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
-        connect(m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
-        connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
-        connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
+        connect(m_toolBar, SIGNAL(goBackClicked()), this, SLOT(goBackInNavigationHistory()));
+        connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(goForwardInNavigationHistory()));
+        tl->addWidget(m_toolBar);
     }
     {
         m_infoWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
@@ -208,17 +150,7 @@ EditorView::EditorView(OpenEditorsModel *model, QWidget *parent) :
         tl->addWidget(m_statusWidget);
     }
 
-
-    ActionManager *am = ICore::instance()->actionManager();
-    connect(am->command(Constants::CLOSE), SIGNAL(keySequenceChanged()),
-            this, SLOT(updateActionShortcuts()));
-    connect(am->command(Constants::GO_BACK), SIGNAL(keySequenceChanged()),
-            this, SLOT(updateActionShortcuts()));
-    connect(am->command(Constants::GO_FORWARD), SIGNAL(keySequenceChanged()),
-            this, SLOT(updateActionShortcuts()));
-
-    updateActionShortcuts();
-    updateActions();
+    updateNavigatorActions();
 }
 
 EditorView::~EditorView()
@@ -279,13 +211,7 @@ void EditorView::addEditor(IEditor *editor)
 
     m_container->addWidget(editor->widget());
     m_widgetEditorMap.insert(editor->widget(), editor);
-
-    QWidget *toolBar = editor->toolBar();
-    if (toolBar) {
-        toolBar->setVisible(false); // will be made visible in setCurrentEditor
-        m_toolBar->layout()->addWidget(toolBar);
-    }
-    connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
+    m_toolBar->addEditor(editor);
 
     if (editor == currentEditor())
         setCurrentEditor(editor);
@@ -294,14 +220,6 @@ void EditorView::addEditor(IEditor *editor)
 bool EditorView::hasEditor(IEditor *editor) const
 {
     return m_editors.contains(editor);
-}
-
-void EditorView::closeView()
-{
-    EditorManager *em = CoreImpl::instance()->editorManager();
-    if (IEditor *editor = currentEditor()) {
-            em->closeDuplicate(editor);
-    }
 }
 
 void EditorView::removeEditor(IEditor *editor)
@@ -318,17 +236,8 @@ void EditorView::removeEditor(IEditor *editor)
     m_container->removeWidget(editor->widget());
     m_widgetEditorMap.remove(editor->widget());
     editor->widget()->setParent(0);
-    disconnect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
-    QWidget *toolBar = editor->toolBar();
-    if (toolBar != 0) {
-        if (m_activeToolBar == toolBar) {
-            m_activeToolBar = m_defaultToolBar;
-            m_activeToolBar->setVisible(true);
-        }
-        m_toolBar->layout()->removeWidget(toolBar);
-        toolBar->setVisible(false);
-        toolBar->setParent(0);
-    }
+    m_toolBar->removeToolbarForEditor(editor);
+
     if (wasCurrent)
         setCurrentEditor(m_editors.count() ? m_editors.last() : 0);
 }
@@ -350,7 +259,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
 
     if (!editor || m_container->count() <= 0
         || m_container->indexOf(editor->widget()) == -1) {
-        updateEditorStatus(0);
+        m_toolBar->updateEditorStatus(0);
         // ### TODO the combo box m_editorList should show an empty item
         return;
     }
@@ -361,57 +270,9 @@ void EditorView::setCurrentEditor(IEditor *editor)
     const int idx = m_container->indexOf(editor->widget());
     QTC_ASSERT(idx >= 0, return);
     m_container->setCurrentIndex(idx);
-    m_editorList->setCurrentIndex(m_model->indexOf(editor).row());
-    updateEditorStatus(editor);
-    updateToolBar(editor);
+    m_toolBar->setCurrentEditor(editor);
+
     updateEditorHistory(editor);
-}
-
-void EditorView::checkEditorStatus()
-{
-    IEditor *editor = qobject_cast<IEditor *>(sender());
-    if (editor == currentEditor())
-        updateEditorStatus(editor);
-}
-
-void EditorView::updateEditorStatus(IEditor *editor)
-{
-    m_lockButton->setVisible(editor != 0);
-    m_closeButton->setEnabled(editor != 0);
-
-    if (!editor) {
-        m_editorList->setToolTip(QString());
-        return;
-    }
-
-    if (editor->file()->isReadOnly()) {
-        m_lockButton->setIcon(m_model->lockedIcon());
-        m_lockButton->setEnabled(!editor->file()->fileName().isEmpty());
-        m_lockButton->setToolTip(tr("Make writable"));
-    } else {
-        m_lockButton->setIcon(m_model->unlockedIcon());
-        m_lockButton->setEnabled(false);
-        m_lockButton->setToolTip(tr("File is writable"));
-    }
-    if (currentEditor() == editor)
-        m_editorList->setToolTip(
-                editor->file()->fileName().isEmpty()
-                ? editor->displayName()
-                    : QDir::toNativeSeparators(editor->file()->fileName())
-                    );
-
-}
-
-void EditorView::updateToolBar(IEditor *editor)
-{
-    QWidget *toolBar = editor->toolBar();
-    if (!toolBar)
-        toolBar = m_defaultToolBar;
-    if (m_activeToolBar == toolBar)
-        return;
-    toolBar->setVisible(true);
-    m_activeToolBar->setVisible(false);
-    m_activeToolBar = toolBar;
 }
 
 int EditorView::editorCount() const
@@ -422,36 +283,6 @@ int EditorView::editorCount() const
 QList<IEditor *> EditorView::editors() const
 {
     return m_widgetEditorMap.values();
-}
-
-
-void EditorView::makeEditorWritable()
-{
-    ICore::instance()->editorManager()->makeEditorWritable(currentEditor());
-}
-
-void EditorView::listSelectionActivated(int index)
-{
-    EditorManager *em = CoreImpl::instance()->editorManager();
-    QAbstractItemModel *model = m_editorList->model();
-    if (IEditor *editor = model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>()) {
-        em->activateEditor(this, editor);
-    } else {
-        em->activateEditor(model->index(index, 0), this);
-    }
-}
-
-void EditorView::listContextMenu(QPoint pos)
-{
-    QModelIndex index = m_model->index(m_editorList->currentIndex(), 0);
-    QString fileName = m_model->data(index, Qt::UserRole + 1).toString();
-    if (fileName.isEmpty())
-        return;
-    QMenu menu;
-    menu.addAction(tr("Copy full path to clipboard"));
-    if (menu.exec(m_editorList->mapToGlobal(pos))) {
-        QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));
-    }
 }
 
 void EditorView::updateEditorHistory(IEditor *editor)
@@ -521,21 +352,13 @@ void EditorView::addCurrentPositionToNavigationHistory(IEditor *editor, const QB
             m_navigationHistory.takeLast();
         }
     }
-    updateActions();
+    updateNavigatorActions();
 }
 
-void EditorView::updateActions()
+void EditorView::updateNavigatorActions()
 {
-    m_goBackAction->setEnabled(canGoBack());
-    m_goForwardAction->setEnabled(canGoForward());
-}
-
-void EditorView::updateActionShortcuts()
-{
-    ActionManager *am = ICore::instance()->actionManager();
-    m_closeButton->setToolTip(am->command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close")));
-    m_goBackAction->setToolTip(am->command(Constants::GO_BACK)->action()->toolTip());
-    m_goForwardAction->setToolTip(am->command(Constants::GO_FORWARD)->action()->toolTip());
+    m_toolBar->setCanGoBack(canGoBack());
+    m_toolBar->setCanGoForward(canGoForward());
 }
 
 void EditorView::copyNavigationHistoryFrom(EditorView* other)
@@ -545,7 +368,7 @@ void EditorView::copyNavigationHistoryFrom(EditorView* other)
     m_currentNavigationHistoryPosition = other->m_currentNavigationHistoryPosition;
     m_navigationHistory = other->m_navigationHistory;
     m_editorHistory = other->m_editorHistory;
-    updateActions();
+    updateNavigatorActions();
 }
 
 void EditorView::updateCurrentPositionInNavigationHistory()
@@ -588,7 +411,7 @@ void EditorView::goBackInNavigationHistory()
         editor->restoreState(location.state.toByteArray());
         break;
     }
-    updateActions();
+    updateNavigatorActions();
 }
 
 void EditorView::goForwardInNavigationHistory()
@@ -611,7 +434,7 @@ void EditorView::goForwardInNavigationHistory()
         }
     }
     editor->restoreState(location.state.toByteArray());
-    updateActions();
+    updateNavigatorActions();
 }
 
 
@@ -620,7 +443,7 @@ SplitterOrView::SplitterOrView(OpenEditorsModel *model)
     Q_ASSERT(model);
     m_isRoot = true;
     m_layout = new QStackedLayout(this);
-    m_view = new EditorView(model);
+    m_view = new EditorView();
     m_splitter = 0;
     m_layout->addWidget(m_view);
 }

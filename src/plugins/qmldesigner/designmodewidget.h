@@ -62,7 +62,7 @@ QT_END_NAMESPACE
 namespace Core {
     class SideBar;
     class OpenEditorsModel;
-    class DesignModeToolBar;
+    class EditorToolBar;
 }
 
 namespace QmlDesigner {
@@ -115,7 +115,6 @@ private slots:
     void enable();
     void disable(const QList<RewriterView::Error> &errors);
     void updateErrorStatus(const QList<RewriterView::Error> &errors);
-    void closeEditor();
 
 private:
     void setup();
@@ -131,7 +130,7 @@ private:
     Core::SideBar *m_rightSideBar;
 
     QToolBar *m_designToolBar;
-    Core::DesignModeToolBar *m_fakeToolBar;
+    Core::EditorToolBar *m_fakeToolBar;
 
     bool m_isDisabled;
     DocumentWarningWidget *m_warningWidget;
