@@ -329,7 +329,7 @@ QString CustomExecutableRunConfiguration::executable() const
 {
     QString exec;
     if (!m_executable.isEmpty() && QDir::isRelativePath(m_executable)) {
-        Environment env = activeBuildConfiguration()->environment();
+        Environment env = environment();
         exec = env.searchInPath(m_executable);
         if (exec.isEmpty())
             exec = QDir::cleanPath(workingDirectory() + QLatin1Char('/') + m_executable);
@@ -380,8 +380,11 @@ QString CustomExecutableRunConfiguration::baseWorkingDirectory() const
 QString CustomExecutableRunConfiguration::workingDirectory() const
 {
     QString wd = m_workingDirectory;
-    QString bd = activeBuildConfiguration()->buildDirectory();
-    return wd.replace("$BUILDDIR", QDir::cleanPath(bd));
+    if (activeBuildConfiguration()) {
+        QString bd = activeBuildConfiguration()->buildDirectory();
+        wd.replace("$BUILDDIR", QDir::cleanPath(bd));
+    }
+    return wd;
 }
 
 QStringList CustomExecutableRunConfiguration::commandLineArguments() const
@@ -409,7 +412,8 @@ ProjectExplorer::Environment CustomExecutableRunConfiguration::baseEnvironment()
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::SystemEnvironmentBase) {
         env = ProjectExplorer::Environment::systemEnvironment();
     } else  if (m_baseEnvironmentBase == CustomExecutableRunConfiguration::BuildEnvironmentBase) {
-        env = activeBuildConfiguration()->environment();
+        if (activeBuildConfiguration())
+            env = activeBuildConfiguration()->environment();
     }
     return env;
 }
