@@ -200,11 +200,11 @@ enum EventResult
     EventPassedToCore
 };
 
-struct Indentation
+struct Column
 {
-    Indentation(int p, int l) : physical(p), logical(l) {}
-    int physical; // number of characters
-    int logical;
+    Column(int p, int l) : physical(p), logical(l) {}
+    int physical; // number of characters in the data
+    int logical; // column on screen
 };
 
 struct CursorPosition
@@ -336,7 +336,9 @@ public:
     // all zero-based counting
     int cursorLineOnScreen() const;
     int cursorLineInDocument() const;
-    int cursorColumnInDocument() const;
+    int physicalCursorColumnInDocument() const; // as stored in the data
+    int logicalCursorColumnInDocument() const; // as visible on screen
+    Column cursorColumnInDocument() const; // as visible on screen
     int firstVisibleLineInDocument() const;
     void scrollToLineInDocument(int line);
     void scrollUp(int count);
@@ -530,7 +532,7 @@ public:
 
     // auto-indent
     QString tabExpand(int len) const;
-    Indentation indentation(const QString &line) const;
+    Column indentation(const QString &line) const;
     void insertAutomaticIndentation(bool goingDown);
     bool removeAutomaticIndentation(); // true if something removed
     // number of autoindented characters
@@ -647,7 +649,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
         if (m_mode == InsertMode) {
             int dist = m_tc.position() - m_oldPosition;
             // Try to compensate for code completion
-            if (dist > 0 && dist <= cursorColumnInDocument()) {
+            if (dist > 0 && dist <= physicalCursorColumnInDocument()) {
                 Range range(m_oldPosition, m_tc.position());
                 m_lastInsertion.append(text(range));
             }
@@ -1107,7 +1109,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
     int linesInDoc = linesInDocument();
     int l = cursorLineInDocument();
     QString status;
-    const QString pos = QString::fromLatin1("%1,%2").arg(l + 1).arg(cursorColumnInDocument() + 1);
+    const QString pos = QString::fromLatin1("%1,%2").arg(l + 1).arg(physicalCursorColumnInDocument() + 1);
     // FIXME: physical "-" logical
     if (linesInDoc != 0) {
         status = FakeVimHandler::tr("%1%2%").arg(pos, -10).arg(l * 100 / linesInDoc, 4);
@@ -2029,13 +2031,15 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_justAutoIndented = 0;
         if (!m_lastInsertion.isEmpty() || hasConfig(ConfigBackspace, "start")) {
             const int line = cursorLineInDocument() + 1;
-            const int col = cursorColumnInDocument();
-            const QString data = lineContents(line);
-            const Indentation ind = indentation(data);
-            if (col <= ind.logical && col && startsWithWhitespace(data, col)) {
+            const Column col = cursorColumnInDocument();
+            QString data = lineContents(line);
+            const Column ind = indentation(data);
+            if (col.logical <= ind.logical && col.logical
+                    && startsWithWhitespace(data, col.physical)) {
                 const int ts = config(ConfigTabStop).toInt();
-                const int newcol = col - 1 - (col - 1) % ts;
-                setLineContents(line, tabExpand(newcol).append(data.midRef(col)));
+                const int newcol = col.logical - 1 - (col.logical - 1) % ts;
+                data.remove(0, col.physical);
+                setLineContents(line, tabExpand(newcol).append(data));
                 m_lastInsertion.clear(); // FIXME
             } else {
                 m_tc.deletePreviousChar();
@@ -2058,7 +2062,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
     } else if (key == Key_Tab && hasConfig(ConfigExpandTab)) {
         m_justAutoIndented = 0;
         const int ts = config(ConfigTabStop).toInt();
-        const int col = cursorColumnInDocument();
+        const int col = physicalCursorColumnInDocument();
         QString str = QString(ts - col % ts, ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
@@ -2962,9 +2966,34 @@ int FakeVimHandler::Private::cursorLineInDocument() const
     return m_tc.block().blockNumber();
 }
 
-int FakeVimHandler::Private::cursorColumnInDocument() const
+int FakeVimHandler::Private::physicalCursorColumnInDocument() const
 {
     return m_tc.position() - m_tc.block().position();
+}
+
+int FakeVimHandler::Private::logicalCursorColumnInDocument() const
+{
+    const int ncols = physicalCursorColumnInDocument();
+    const QString line = m_tc.block().text();
+    const int ts = config(ConfigTabStop).toInt();
+    int physical = 0;
+    int logical = 0;
+    while (physical < ncols) {
+        QChar c = line.at(physical);
+        if (c == QLatin1Char(' '))
+            ++logical;
+        else if (c == QLatin1Char('\t'))
+            logical += ts - logical % ts;
+        else
+            break;
+        ++physical;
+    }
+    return logical;
+}
+
+Column FakeVimHandler::Private::cursorColumnInDocument() const
+{
+    return Column(physicalCursorColumnInDocument(), logicalCursorColumnInDocument());
 }
 
 int FakeVimHandler::Private::linesInDocument() const
@@ -2973,8 +3002,9 @@ int FakeVimHandler::Private::linesInDocument() const
         return 0;
     const QTextDocument *doc = m_tc.document();
     const int count = doc->blockCount();
-    // Qt inserts an empty line if the last character is a '\n', but that's not how vi does it
-    return doc->lastBlock().length()<=1 ? count-1 : count;
+    // Qt inserts an empty line if the last character is a '\n',
+    // but that's not how vi does it.
+    return doc->lastBlock().length() <= 1 ? count - 1 : count;
 }
 
 void FakeVimHandler::Private::scrollToLineInDocument(int line)
@@ -3440,7 +3470,7 @@ void FakeVimHandler::Private::recordNewUndo()
     //beginEditBlock();
 }
 
-Indentation FakeVimHandler::Private::indentation(const QString &line) const
+Column FakeVimHandler::Private::indentation(const QString &line) const
 {
     int ts = config(ConfigTabStop).toInt();
     int physical = 0;
@@ -3456,7 +3486,7 @@ Indentation FakeVimHandler::Private::indentation(const QString &line) const
             break;
         ++physical;
     }
-    return Indentation(physical, logical);
+    return Column(physical, logical);
 }
 
 QString FakeVimHandler::Private::tabExpand(int n) const
@@ -3625,13 +3655,13 @@ QWidget *FakeVimHandler::widget()
 // Test only
 int FakeVimHandler::physicalIndentation(const QString &line) const
 {
-    Indentation ind = d->indentation(line);
+    Column ind = d->indentation(line);
     return ind.physical;
 }
 
 int FakeVimHandler::logicalIndentation(const QString &line) const
 {
-    Indentation ind = d->indentation(line);
+    Column ind = d->indentation(line);
     return ind.logical;
 }
 
