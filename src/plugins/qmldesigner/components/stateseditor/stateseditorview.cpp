@@ -496,10 +496,12 @@ void StatesEditorView::clearModelStates()
     if (debug)
         qDebug() << __FUNCTION__;
 
-    // For m_modelStates / m_editorModel, i=0 is base state
-    while (m_modelStates.size()) {
-        m_modelStates.removeFirst();
-        m_editorModel->removeState(0);
+
+    // Remove all states
+    const int modelStateCount = m_modelStates.size();
+    for (int i = 0; i < modelStateCount; ++i) {
+        m_modelStates.removeAt(i);
+        m_editorModel->removeState(i);
     }
 }
 
