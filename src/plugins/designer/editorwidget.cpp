@@ -112,9 +112,9 @@ Designer::FormWindowEditor *EditorWidget::formWindowEditorForXmlEditor(const Cor
     return m_stack->formWindowEditorForXmlEditor(xmlEditor);
 }
 
-FormWindowEditor *EditorWidget::activeFormWindow() const
+EditorData EditorWidget::activeEditor() const
 {
-    return m_stack->activeFormWindow();
+    return m_stack->activeEditor();
 }
 
 Designer::FormWindowEditor *EditorWidget::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const

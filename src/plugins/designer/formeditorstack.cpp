@@ -93,12 +93,15 @@ int FormEditorStack::indexOf(const Core::IEditor *xmlEditor) const
     return -1;
 }
 
-FormWindowEditor *FormEditorStack::activeFormWindow() const
+EditorData FormEditorStack::activeEditor() const
 {
-    if (QDesignerFormWindowInterface *afw = m_designerCore->formWindowManager()->activeFormWindow())
-        if (FormWindowEditor *fwe  = formWindowEditorForFormWindow(afw))
-            return fwe;
-    return 0;
+    // Should actually be in sync with current index.
+    if (QDesignerFormWindowInterface *afw = m_designerCore->formWindowManager()->activeFormWindow()) {
+        const int index = indexOf(afw);
+        if (index >= 0)
+            return m_formEditors.at(index);
+    }
+    return EditorData();
 }
 
 Designer::FormWindowEditor *FormEditorStack::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const

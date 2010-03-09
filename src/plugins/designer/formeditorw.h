@@ -114,7 +114,7 @@ public:
     inline QDesignerFormEditorInterface *designerEditor() const { return m_formeditor; }
     inline QWidget * const*designerSubWindows() const { return m_designerSubWindows; }
 
-    FormWindowEditor *activeFormWindow() const;
+    EditorData activeEditor() const;
 
 private slots:
     void activateEditMode(int id);

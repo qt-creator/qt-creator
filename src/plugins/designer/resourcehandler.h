@@ -27,57 +27,57 @@
 **
 **************************************************************************/
 
-#ifndef DESIGNER_EDITORWIDGET_H
-#define DESIGNER_EDITORWIDGET_H
+#ifndef RESOURCEHANDLER_H
+#define RESOURCEHANDLER_H
 
-#include "designerconstants.h"
-
-#include <utils/fancymainwindow.h>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
 
 QT_BEGIN_NAMESPACE
-class QDesignerFormWindowInterface;
+namespace qdesigner_internal {
+    class FormWindowBase;
+}
 QT_END_NAMESPACE
 
-namespace Core {
-    class IEditor;
+namespace ProjectExplorer {
+class SessionNode;
+class NodesWatcher;
 }
+
 namespace Designer {
-class FormWindowEditor;
-class DesignerXmlEditorEditable;
-
 namespace Internal {
-struct EditorData;
-class FormEditorStack;
-class FormEditorW;
 
-// Design mode main view.
-class EditorWidget : public Utils::FancyMainWindow
+/* ResourceHandler: Constructed on a form window and activated on open/save as
+ * (see README.txt). The form can have 2 states:
+ * 1) standalone: Uses the form editor's list of resource files.
+ * 2) Within a project: Use the list of resources files of the projects.
+ *
+ * When initializing, store the original list of qrc files of the form and
+ * connect to various signals of the project explorer to re-check.
+ * In updateResources, check whether the form is part of a project and use
+ * the project's resource files or the stored ones. */
+
+class ResourceHandler : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(EditorWidget)
 public:
-    explicit EditorWidget(FormEditorW *fe, QWidget *parent = 0);
-
-    QDockWidget* const* designerDockWidgets() const;
-
-    // Form editor stack API
-    void add(const EditorData &d);
-    bool removeFormWindowEditor(Core::IEditor *xmlEditor);
-    bool setVisibleEditor(Core::IEditor *xmlEditor);
-    Designer::FormWindowEditor *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
-    Designer::FormWindowEditor *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
-
-    EditorData activeEditor() const;
+    explicit ResourceHandler(qdesigner_internal::FormWindowBase *fw);
+    virtual ~ResourceHandler();
 
 public slots:
-    void resetToDefaultLayout();
+    void updateResources();
 
 private:
-    FormEditorStack *m_stack;
-    QDockWidget *m_designerDockWidgets[Designer::Constants::DesignerSubWindowCount];
+    void ensureInitialized();
+
+    qdesigner_internal::FormWindowBase * const m_form;
+
+    QStringList m_originalUiQrcPaths;
+    ProjectExplorer::SessionNode *m_sessionNode;
+    ProjectExplorer::NodesWatcher *m_sessionWatcher;
 };
 
 } // namespace Internal
 } // namespace Designer
 
-#endif // DESIGNER_EDITORWIDGET_H
+#endif // RESOURCEHANDLER_H

@@ -39,6 +39,7 @@
 #include "designerxmleditor.h"
 #include "designercontext.h"
 #include "editorwidget.h"
+#include "resourcehandler.h"
 
 #include <coreplugin/modemanager.h>
 #include <coreplugin/designmode.h>
@@ -662,15 +663,17 @@ EditorData FormEditorW::createEditor(QWidget *parent)
     qdesigner_internal::FormWindowBase *form = qobject_cast<qdesigner_internal::FormWindowBase *>(m_fwm->createFormWindow(0));
     QTC_ASSERT(form, return data);
     connect(form, SIGNAL(toolChanged(int)), this, SLOT(toolChanged(int)));
+    ResourceHandler *resourceHandler = new ResourceHandler(form);
     form->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
     qdesigner_internal::FormWindowBase::setupDefaultAction(form);
     data.formEditor = new FormWindowEditor(form);
     DesignerXmlEditor *xmlEditor = new DesignerXmlEditor(form, parent);
     TextEditor::TextEditorSettings::instance()->initializeEditor(xmlEditor);
     data.xmlEditor = xmlEditor->designerEditable();
-    data.formEditor->setFile(data.xmlEditor->file());
     connect(data.formEditor, SIGNAL(formWindowSizeChanged(int,int)),
             xmlEditor, SIGNAL(changed()));
+    connect(data.xmlEditor->file(), SIGNAL(changed()),
+            resourceHandler, SLOT(updateResources()));
     m_editorWidget->add(data);
     return data;
 }
@@ -720,11 +723,11 @@ void FormEditorW::activeFormWindowChanged(QDesignerFormWindowInterface *afw)
     m_actionGroupPreviewInStyle->setEnabled(afw != 0);
 }
 
-FormWindowEditor *FormEditorW::activeFormWindow() const
+EditorData FormEditorW::activeEditor() const
 {
     if (m_editorWidget)
-        return m_editorWidget->activeFormWindow();
-    return 0;
+        return m_editorWidget->activeEditor();
+    return EditorData();
 }
 
 void FormEditorW::activateEditMode(int id)

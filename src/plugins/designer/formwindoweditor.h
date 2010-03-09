@@ -35,11 +35,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QPointer>
 
-namespace ProjectExplorer {
-class SessionNode;
-class NodesWatcher;
-}
-
 namespace Core {
     class IFile;
 }
@@ -55,23 +50,9 @@ class FormWindowEditor : public SharedTools::WidgetHost
 public:
     explicit FormWindowEditor(QDesignerFormWindowInterface *form,
                               QWidget *parent = 0);
-    ~FormWindowEditor();
-
-    void setFile(Core::IFile *file);
-    QString contents() const;
-    Core::IFile *file() const;
 
 private slots:
-    void updateResources();
     void slotFormSizeChanged(int w, int h);
-
-private:
-    void initializeResources(const QString &fileName = QString());
-
-    QPointer<Core::IFile> m_file;
-    QStringList m_originalUiQrcPaths;
-    ProjectExplorer::SessionNode *m_sessionNode;
-    ProjectExplorer::NodesWatcher *m_sessionWatcher;
 };
 
 } // namespace Designer

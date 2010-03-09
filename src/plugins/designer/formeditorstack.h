@@ -70,7 +70,8 @@ public:
     bool setVisibleEditor(Core::IEditor *xmlEditor);
     Designer::FormWindowEditor *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
     Designer::FormWindowEditor *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
-    FormWindowEditor *activeFormWindow() const;
+
+    EditorData activeEditor() const;
 
 private slots:
     void updateFormWindowSelectionHandles();

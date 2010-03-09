@@ -29,7 +29,9 @@
 
 #include "designerxmleditor.h"
 #include "designerconstants.h"
+#include "resourcehandler.h"
 #include "qt_private/formwindowbase_p.h"
+
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -123,6 +125,9 @@ bool DesignerXmlEditorEditable::open(const QString &fileName)
 
     setDisplayName(fi.fileName());
     m_file.setFileName(absfileName);
+
+    if (Internal::ResourceHandler *rh = qFindChild<Designer::Internal::ResourceHandler*>(form))
+        rh->updateResources();
 
     emit changed();
 

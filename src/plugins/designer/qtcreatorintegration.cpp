@@ -28,9 +28,11 @@
 **************************************************************************/
 
 #include "formeditorplugin.h"
+#include "designerxmleditor.h"
 #include "qtcreatorintegration.h"
 #include "formeditorw.h"
 #include "formwindoweditor.h"
+#include "editordata.h"
 #include "codemodelhelpers.h"
 
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -50,6 +52,7 @@
 #include <texteditor/itexteditable.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+#include <utils/qtcassert.h>
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
@@ -95,17 +98,16 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, F
 
 void QtCreatorIntegration::updateSelection()
 {
-    if (FormWindowEditor *afww = m_few->activeFormWindow())
-        afww->updateFormWindowSelectionHandles(true);
+    if (const EditorData ed = m_few->activeEditor())
+        ed.formEditor->updateFormWindowSelectionHandles(true);
     qdesigner_internal::QDesignerIntegration::updateSelection();
 }
 
 QWidget *QtCreatorIntegration::containerWindow(QWidget * /*widget*/) const
 {
-    FormWindowEditor *fw = m_few->activeFormWindow();
-    if (!fw)
-        return 0;
-    return fw->integrationContainer();
+    if (const EditorData ed = m_few->activeEditor())
+        return ed.formEditor->integrationContainer();
+    return 0;
 }
 
 static QList<Document::Ptr> findDocumentsIncluding(const CPlusPlus::Snapshot &docTable,
@@ -570,7 +572,9 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                                           const QStringList &parameterNames,
                                           QString *errorMessage)
 {
-    const QString currentUiFile = m_few->activeFormWindow()->file()->fileName();
+    const EditorData ed = m_few->activeEditor();
+    QTC_ASSERT(ed, return false)
+    const QString currentUiFile = ed.xmlEditor->file()->fileName();
 #if 0
     return Designer::Internal::navigateToSlot(currentUiFile, objectName, signalSignature, parameterNames, errorMessage);
 #endif
@@ -609,7 +613,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         return false;
     }
 
-    QDesignerFormWindowInterface *fwi = m_few->activeFormWindow()->formWindow();
+    QDesignerFormWindowInterface *fwi = ed.formEditor->formWindow();
 
     const QString uiClass = uiClassName(fwi->mainContainer()->objectName());
 

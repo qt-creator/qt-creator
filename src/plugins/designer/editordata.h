@@ -39,6 +39,8 @@ namespace Internal {
 // Associates XML and its form editor
 struct EditorData {
     EditorData() : xmlEditor(0), formEditor(0) {}
+    operator bool() const { return xmlEditor != 0; }
+
     DesignerXmlEditorEditable *xmlEditor;
     Designer::FormWindowEditor *formEditor;
 };
