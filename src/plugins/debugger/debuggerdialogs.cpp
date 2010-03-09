@@ -71,6 +71,8 @@ public:
     void populate(QList<ProcData> processes, const QString &excludePid = QString());
 
 private:
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
+
     QStandardItemModel *m_model;
 };
 
@@ -86,6 +88,16 @@ ProcessListFilterModel::ProcessListFilterModel(QObject *parent)
     setSourceModel(m_model);
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setFilterKeyColumn(1);
+}
+
+bool ProcessListFilterModel::lessThan(const QModelIndex &left,
+    const QModelIndex &right) const
+{
+    const QString l = sourceModel()->data(left).toString();
+    const QString r = sourceModel()->data(right).toString();
+    if (left.column() == 0)
+        return l.toInt() < r.toInt();
+    return l < r;
 }
 
 QString ProcessListFilterModel::processIdAt(const QModelIndex &index) const
@@ -267,6 +279,8 @@ static QList<ProcData> processList()
     return unixProcessList();
 #endif
 }
+
+
 ///////////////////////////////////////////////////////////////////////
 //
 // AttachExternalDialog
@@ -300,11 +314,13 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     // Do not use activated, will be single click in Oxygen
     connect(m_ui->procView, SIGNAL(doubleClicked(QModelIndex)),
         this, SLOT(procSelected(QModelIndex)));
+    connect(m_ui->procView, SIGNAL(clicked(QModelIndex)),
+        this, SLOT(procClicked(QModelIndex)));
     connect(m_ui->pidLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(pidChanged(QString)));
-
     connect(m_ui->filterWidget, SIGNAL(filterChanged(QString)),
             this, SLOT(setFilterString(QString)));
+
 
     setMinimumHeight(500);
     rebuildProcessList();
@@ -341,12 +357,19 @@ void AttachExternalDialog::rebuildProcessList()
 
 void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
 {
-    const QString processId  = m_model->processIdAt(proxyIndex);
+    const QString processId = m_model->processIdAt(proxyIndex);
     if (!processId.isEmpty()) {
         m_ui->pidLineEdit->setText(processId);
         if (okButton()->isEnabled())
             okButton()->animateClick();
     }
+}
+
+void AttachExternalDialog::procClicked(const QModelIndex &proxyIndex)
+{
+    const QString processId = m_model->processIdAt(proxyIndex);
+    if (!processId.isEmpty())
+        m_ui->pidLineEdit->setText(processId);
 }
 
 qint64 AttachExternalDialog::attachPID() const

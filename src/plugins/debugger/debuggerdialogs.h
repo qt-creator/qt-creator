@@ -92,8 +92,9 @@ public:
 
 private slots:
     void rebuildProcessList();
-    void procSelected(const QModelIndex &);
-    void pidChanged(const QString &);
+    void procSelected(const QModelIndex &index);
+    void procClicked(const QModelIndex &index);
+    void pidChanged(const QString &index);
     void setFilterString(const QString &filter);
 
 private:
