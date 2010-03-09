@@ -19320,7 +19320,7 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-maemo/maemorunconfiguration.cpp" line="+88"/>
         <source>%1 on Maemo device</source>
-        <translation>%1 auf Symbian-Gerät</translation>
+        <translation>%1 auf Maemo-Gerät</translation>
     </message>
     <message>
         <location line="+3"/>
