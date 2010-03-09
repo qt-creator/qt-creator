@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET = QmlDesigner
 
 include(../../qtcreatorplugin.pri)
+include(../private_headers.pri)
 include(qmldesigner_dependencies.pri)
 
 include(core/core.pri)

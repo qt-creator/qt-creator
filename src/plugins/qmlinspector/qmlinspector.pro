@@ -4,6 +4,7 @@ TARGET = QmlInspector
 INCLUDEPATH += .
 DEPENDPATH += .
 
+include(../private_headers.pri)
 include(components/qmldebugger.pri)
 
 DEFINES += QMLINSPECTOR_LIBRARY
