@@ -54,7 +54,6 @@ AddTargetDialog::AddTargetDialog(Project *project, QWidget *parent) :
         }
     }
     ui->targetComboBox->setCurrentIndex(0);
-    ui->targetComboBox->setEnabled(ui->targetComboBox->count() > 1);
 
     connect(ui->buttonBox, SIGNAL(accepted()),
             this, SLOT(accept()));
