@@ -65,7 +65,7 @@ public:
     bool setupProject(Qt4Project *project) const;
 
 private slots:
-    void itemWasClicked();
+    void itemWasChanged();
 
 private:
     QSet<QString> m_validTargets;

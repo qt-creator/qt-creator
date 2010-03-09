@@ -66,39 +66,25 @@ TargetsPage::TargetsPage(QWidget *parent)
     qSort(targets.begin(), targets.end());
 
     Qt4TargetFactory factory;
-    bool hasDesktop = targets.contains(QLatin1String(DESKTOP_TARGET_ID));
-    bool isExpanded = false;
-    bool isQtVersionChecked = false;
 
     foreach (const QString &t, targets) {
         QTreeWidgetItem *targetItem = new QTreeWidgetItem(m_treeWidget);
         targetItem->setText(0, factory.displayNameForId(t));
-        targetItem->setFlags(Qt::ItemIsEnabled);
+        targetItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         targetItem->setData(0, Qt::UserRole, t);
-        if (!isExpanded) {
-            if ((hasDesktop && t == QLatin1String(DESKTOP_TARGET_ID)) ||
-                !hasDesktop) {
-                isExpanded = true;
-                targetItem->setExpanded(true);
-            }
-        }
+        targetItem->setExpanded(true);
 
         foreach (QtVersion *v, vm->versionsForTargetId(t)) {
             QTreeWidgetItem *versionItem = new QTreeWidgetItem(targetItem);
             versionItem->setText(0, v->displayName());
-            versionItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+            versionItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
             versionItem->setData(0, Qt::UserRole, v->uniqueId());
-            if (isExpanded && !isQtVersionChecked) {
-                isQtVersionChecked = true;
-                versionItem->setCheckState(0, Qt::Checked);
-            } else {
-                versionItem->setCheckState(0, Qt::Unchecked);
-            }
+            versionItem->setCheckState(0, Qt::Unchecked);
         }
     }
 
-    connect(m_treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-            this, SLOT(itemWasClicked()));
+    connect(m_treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+            this, SLOT(itemWasChanged()));
 
     emit completeChanged();
 }
@@ -164,7 +150,7 @@ QList<int> TargetsPage::selectedQtVersionIdsForTarget(const QString &t) const
     return result;
 }
 
-void TargetsPage::itemWasClicked()
+void TargetsPage::itemWasChanged()
 {
     emit completeChanged();
 }
