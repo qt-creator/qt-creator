@@ -1429,6 +1429,12 @@ void CPPEditor::jumpToDefinition()
     openLink(findLinkAt(textCursor()));
 }
 
+struct DefinitionScore
+{
+    Function *f;
+    int score;
+};
+
 Symbol *CPPEditor::findDefinition(Symbol *symbol)
 {
     if (symbol->isFunction())
@@ -1474,16 +1480,48 @@ Symbol *CPPEditor::findDefinition(Symbol *symbol)
         // get the instance of the document.
         Document::Ptr thisDocument = snapshot.document(it.key());
 
+        QList<DefinitionScore> definitionScores;
         foreach (Function *f, it.value()) {
+            DefinitionScore score;
+            score.score = 0; // current function's score
+            score.f = f;     // current function
+
+            int funTyArgsCount = funTy->argumentCount();
+            int fArgsCount = f->argumentCount();
+
+            // max score if arguments count equals
+            if (funTyArgsCount == fArgsCount)
+                score.score += funTyArgsCount + 1;
+            else
+                score.score += (funTyArgsCount < fArgsCount) ? funTyArgsCount : fArgsCount;
+
+            // +1 to score for every equal parameter
+            unsigned minCount = (funTyArgsCount < fArgsCount) ? funTyArgsCount : fArgsCount;
+            for (unsigned i = 0; i < minCount; ++i)
+                if (Symbol *funTyArg = funTy->argumentAt(i))
+                    if (Symbol *fArg = f->argumentAt(i))
+                        if (funTyArg->type().isEqualTo(fArg->type())) {
+                            score.score++;
+                    }
+            definitionScores.append(score);
+        }
+
+        // looking for max score
+        if (!definitionScores.isEmpty()) {
+            DefinitionScore maxScore = definitionScores.first();
+            foreach (const DefinitionScore& score, definitionScores) {
+                if (maxScore.score < score.score)
+                    maxScore = score;
+            }
+
             // create a lookup context
-            const LookupContext context(f, expressionDocument,
+            const LookupContext context(maxScore.f, expressionDocument,
                                         thisDocument, snapshot);
 
             // search the matching definition for the function declaration `symbol'.
-            foreach (Symbol *s, context.resolve(f->name())) {
+            foreach (Symbol *s, context.resolve(maxScore.f->name()))
                 if (s == symbol)
-                    return f;
-            }
+                    return maxScore.f;
         }
     }
 
