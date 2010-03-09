@@ -192,6 +192,8 @@ void IdItemDelegate::paint(QPainter *painter,
 
 QWidget *IdItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    Q_UNUSED(option);
+    Q_UNUSED(index);
     return new QLineEdit(parent);
 }
 
@@ -206,6 +208,7 @@ void IdItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) co
 
 void IdItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
+    Q_UNUSED(model);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
     m_TreeModel->setId(index,lineEdit->text());
 }
