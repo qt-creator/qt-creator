@@ -149,42 +149,33 @@ void FutureProgress::cancel()
     m_watcher.future().cancel();
 }
 
+void FutureProgress::updateToolTip(const QString &text)
+{
+    setToolTip("<b>" + title() + "</b><br>" + text);
+}
+
 void FutureProgress::setStarted()
 {
     m_progress->reset();
     m_progress->setError(false);
     m_progress->setRange(m_watcher.progressMinimum(), m_watcher.progressMaximum());
     m_progress->setValue(m_watcher.progressValue());
-//    if (m_watcher.progressMinimum() == 0 && m_watcher.progressMaximum() == 0)
-//        m_progress->startAnimation();
 }
 
 void FutureProgress::setFinished()
 {
-//    m_progress->stopAnimation();
-    setToolTip(m_watcher.future().progressText());
+    updateToolTip(m_watcher.future().progressText());
     if (m_watcher.future().isCanceled()) {
         m_progress->setError(true);
-//        m_progress->execGlowOut(true);
     } else {
         m_progress->setError(false);
-//        m_progress->execGlowOut(false);
     }
-//    m_progress->showToolTip();
     emit finished();
 }
 
 void FutureProgress::setProgressRange(int min, int max)
 {
     m_progress->setRange(min, max);
-    if (min != 0 || max != 0) {
-//        m_progress->setUsingAnimation(false);
-    } else {
-//        m_progress->setUsingAnimation(true);
-        if (m_watcher.future().isRunning()) {
-            //m_progress->startAnimation();
-        }
-    }
 }
 
 void FutureProgress::setProgressValue(int val)
@@ -194,7 +185,7 @@ void FutureProgress::setProgressValue(int val)
 
 void FutureProgress::setProgressText(const QString &text)
 {
-    setToolTip(text);
+    updateToolTip(text);
 }
 
 /*!

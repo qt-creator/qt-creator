@@ -161,18 +161,24 @@ void ProgressBar::paintEvent(QPaintEvent *)
     textBounds.moveCenter(rect().center());
 
     int alignment = Qt::AlignHCenter;
-    // If there is not enough room when centered, we left align the text
-    if (value() < maximum() && !m_error && textBounds.right() > rect().right() - CANCEL_WIDTH)
+
+    int textSpace = rect().width() - CANCEL_WIDTH - 8;
+    // If there is not enough room when centered, we left align and
+    // elide the text
+    QString elidedtitle = m_title;
+    if (value() < maximum() && !m_error && textBounds.right() > textSpace) {
         alignment = Qt::AlignLeft;
+        elidedtitle = fm.elidedText(m_title, Qt::ElideRight, textSpace);
+    }
 
     QRect textRect = rect().adjusted(INDENT + 1, 1, -INDENT - 1, 0);
     textRect.setHeight(h+5);
 
     p.setPen(QColor(0, 0, 0, 120));
-    p.drawText(textRect, alignment | Qt::AlignBottom, m_title);
+    p.drawText(textRect, alignment | Qt::AlignBottom, elidedtitle);
     p.translate(0, -1);
     p.setPen(Utils::StyleHelper::panelTextColor());
-    p.drawText(textRect, alignment | Qt::AlignBottom, m_title);
+    p.drawText(textRect, alignment | Qt::AlignBottom, elidedtitle);
     p.translate(0, 1);
 
     m_progressHeight = PROGRESSBAR_HEIGHT;

@@ -73,6 +73,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
 
 private slots:
+    void updateToolTip(const QString &);
     void cancel();
     void setStarted();
     void setFinished();
