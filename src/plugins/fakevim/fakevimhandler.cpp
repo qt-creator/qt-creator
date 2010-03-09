@@ -412,6 +412,7 @@ public:
     bool isVisualCharMode() const { return m_visualMode == VisualCharMode; }
     bool isVisualLineMode() const { return m_visualMode == VisualLineMode; }
     bool isVisualBlockMode() const { return m_visualMode == VisualBlockMode; }
+    void updateEditor();
 
 public:
     QTextEdit *m_textedit;
@@ -698,6 +699,7 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 void FakeVimHandler::Private::installEventFilter()
 {
     EDITOR(installEventFilter(q));
+    updateEditor();
 }
 
 void FakeVimHandler::Private::setupWidget()
@@ -711,6 +713,8 @@ void FakeVimHandler::Private::setupWidget()
     }
     m_wasReadOnly = EDITOR(isReadOnly());
     //EDITOR(setReadOnly(true));
+
+    updateEditor();
 
     QTextCursor tc = EDITOR(textCursor());
     if (tc.hasSelection()) {
@@ -728,6 +732,12 @@ void FakeVimHandler::Private::setupWidget()
 
     //showBlackMessage("vi emulation mode. Type :q to leave. Use , Ctrl-R to trigger run.");
     updateMiniBuffer();
+}
+
+void FakeVimHandler::Private::updateEditor()
+{
+    const int charWidth = QFontMetrics(EDITOR(font())).width(QChar(' '));
+    EDITOR(setTabStopWidth(charWidth * config(ConfigTabStop).toInt()));
 }
 
 void FakeVimHandler::Private::restoreWidget()
@@ -2047,8 +2057,8 @@ EventResult FakeVimHandler::Private::handleInsertMode(int key, int,
         m_lastInsertion.clear();
     } else if (key == Key_Tab && hasConfig(ConfigExpandTab)) {
         m_justAutoIndented = 0;
-        int ts = config(ConfigTabStop).toInt();
-        int col = cursorColumnInDocument();
+        const int ts = config(ConfigTabStop).toInt();
+        const int col = cursorColumnInDocument();
         QString str = QString(ts - col % ts, ' ');
         m_lastInsertion.append(str);
         m_tc.insertText(str);
@@ -2535,6 +2545,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &cmd0)
             passUnknownSetCommand(arg);
         }
         updateMiniBuffer();
+        updateEditor();
     } else if (reHistory.indexIn(cmd) != -1) { // :history
         QString arg = reSet.cap(3);
         if (arg.isEmpty()) {
