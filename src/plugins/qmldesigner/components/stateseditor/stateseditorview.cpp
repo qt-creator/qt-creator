@@ -75,12 +75,15 @@ void StatesEditorView::setCurrentState(int index)
     if (debug)
         qDebug() << __FUNCTION__ << index;
 
+    // happens to be the case for an invalid document / no base state
+    if (m_modelStates.isEmpty())
+        return;
+
     Q_ASSERT(index >= 0 && index < m_modelStates.count());
 
     if (m_modelStates.indexOf(currentState()) == index)
         return;
 
-    // TODO
     QmlModelState state(m_modelStates.at(index));
     Q_ASSERT(state.isValid());
     QmlModelView::setCurrentState(state);
@@ -164,20 +167,20 @@ void StatesEditorView::modelAttached(Model *model)
 
     Q_ASSERT(model);
     QmlModelView::modelAttached(model);
-    Q_ASSERT(m_editorModel->rowCount(QModelIndex()) == 0);
-
     clearModelStates();
 
     // Add base state
+    if (!baseState().isValid())
+        return;
+
     m_modelStates.insert(0, baseState());
     m_editorModel->insertState(0, baseState().name());
 
-    // find top level states
+    // Add custom states
     m_stateRootNode = QmlItemNode(rootModelNode());
     if (!m_stateRootNode.isValid())
         return;
 
-    // Add custom states
     for (int i = 0; i < m_stateRootNode.states().allStates().size(); ++i) {
         QmlModelState state = QmlItemNode(rootModelNode()).states().allStates().at(i);
         insertModelState(i, state);
