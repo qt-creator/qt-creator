@@ -643,6 +643,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
     case CE_ComboBoxLabel:
         if (const QStyleOptionComboBox *cb = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
             if (panelWidget(widget)) {
+                painter->save();
                 QRect editRect = subControlRect(CC_ComboBox, cb, SC_ComboBoxEditField, widget);
                 QPalette customPal = cb->palette;
 
@@ -671,13 +672,18 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                 customPal.setBrush(QPalette::All, QPalette::ButtonText, QColor(0, 0, 0, 70));
 
                 QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, editRect.width());
-                drawItemText(painter, editRect.translated(0, 1),
-                             visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
-                             customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
+                if ((option->state & State_Enabled))
+                    drawItemText(painter, editRect.translated(0, 1),
+                                 visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
+                                 customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
+                else
+                    painter->setOpacity(0.8);
+
                 customPal.setBrush(QPalette::All, QPalette::ButtonText, Utils::StyleHelper::panelTextColor());
                 drawItemText(painter, editRect,
                              visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
                              customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
+                painter->restore();
             } else {
                 QProxyStyle::drawControl(element, option, painter, widget);
             }

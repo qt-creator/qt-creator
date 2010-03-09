@@ -117,9 +117,6 @@ public:
     MiniProjectTargetSelector(QAction *projectAction, QWidget *parent = 0);
     void setVisible(bool visible);
 
-protected:
-    bool eventFilter(QObject *o, QEvent *ev);
-
 signals:
     void startupProjectChanged(ProjectExplorer::Project *project);
 

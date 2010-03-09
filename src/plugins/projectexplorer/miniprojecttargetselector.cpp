@@ -99,7 +99,10 @@ void TargetSelectorDelegate::paint(QPainter *painter,
         selectionGradient.load(QLatin1String(":/projectexplorer/images/targetpanel_gradient.png"));
 
     if (option.state & QStyle::State_Selected) {
-        painter->fillRect(option.rect, option.palette.highlight().color().darker(140));
+        QColor color =(option.state & QStyle::State_HasFocus) ?
+                      option.palette.highlight().color() :
+                      option.palette.dark().color();
+        painter->fillRect(option.rect, color.darker(140));
         Utils::StyleHelper::drawCornerImage(selectionGradient, painter, option.rect.adjusted(0, 0, 0, -1), 5, 5, 5, 5);
         painter->setPen(QColor(255, 255, 255, 60));
         painter->drawLine(option.rect.topLeft(), option.rect.topRight());
@@ -363,7 +366,6 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     setProperty("panelwidget", true);
     setContentsMargins(QMargins(0, 1, 1, 8));
     setWindowFlags(Qt::Popup);
-    setFocusPolicy(Qt::WheelFocus);
 
     targetSelectorAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
     targetSelectorAction->setProperty("titledAction", true);
@@ -397,18 +399,15 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_projectsBox->setFixedHeight(panelHeight);
     m_projectsBox->setProperty("hideborder", true);
     m_projectsBox->setObjectName(QString::fromUtf8("ProjectsBox"));
-    m_projectsBox->setFocusPolicy(Qt::WheelFocus);
     m_projectsBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     m_projectsBox->setMaximumWidth(200);
-    m_projectsBox->installEventFilter(this);
 
     toolLayout->addWidget(lbl);
     toolLayout->addWidget(new Utils::StyledSeparator);
     toolLayout->addWidget(m_projectsBox);
 
     m_widgetStack = new QStackedWidget;
-    m_widgetStack->setFocusPolicy(Qt::WheelFocus);
-    m_widgetStack->installEventFilter(this);
+    m_widgetStack->setFocusPolicy(Qt::NoFocus);
     layout->addWidget(m_widgetStack);
 
     connect(m_projectsBox, SIGNAL(activated(int)),
@@ -448,7 +447,6 @@ void MiniProjectTargetSelector::addProject(ProjectExplorer::Project* project)
 {
     QTC_ASSERT(project, return);
     ProjectListWidget *targetList = new ProjectListWidget(project);
-    targetList->installEventFilter(this);
     targetList->setStyleSheet(QString::fromLatin1("QListWidget { background: %1; border: none; }")
                               .arg(QColor(70, 70, 70).name()));
     int pos = m_widgetStack->addWidget(targetList);
@@ -514,11 +512,6 @@ void MiniProjectTargetSelector::addTarget(ProjectExplorer::Target *target, bool 
 
     MiniTargetWidget *targetWidget = new MiniTargetWidget(target);
     connect(targetWidget, SIGNAL(changed()), this, SLOT(updateAction()));
-    targetWidget->installEventFilter(this);
-    if (targetWidget->buildSettingsComboBox())
-        targetWidget->buildSettingsComboBox()->installEventFilter(this);
-    if (targetWidget->runSettingsComboBox())
-        targetWidget->runSettingsComboBox()->installEventFilter(this);
     targetWidget->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     // width==0 size hint to avoid horizontal scrolling in list widget
     lwi->setSizeHint(QSize(0, targetWidget->sizeHint().height()));
@@ -633,49 +626,4 @@ void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
     QRect bottomRect(0, rect().height() - 8, rect().width(), 8);
     static QImage image(QLatin1String(":/projectexplorer/images/targetpanel_bottom.png"));
     Utils::StyleHelper::drawCornerImage(image, &painter, bottomRect, 1, 1, 1, 1);
-}
-
-bool MiniProjectTargetSelector::eventFilter(QObject *o, QEvent *ev)
-{
-    switch(ev->type()) 
-    {
-    case QEvent::KeyPress: {
-
-        QKeyEvent *kev = static_cast<QKeyEvent*>(ev);
-
-        if (kev->key() == Qt::Key_Tab) {
-            if(o == m_projectsBox) {
-                if (m_widgetStack->currentWidget())
-                    m_widgetStack->currentWidget()->setFocus();
-                return true;
-            } else {
-                m_projectsBox->setFocus();
-                return true;
-            }
-        }
-
-        if (o == m_widgetStack->currentWidget()) {
-            if (kev->key() == Qt::Key_Return) {
-                hide();
-                return true;
-            }
-
-            ProjectListWidget *plw = qobject_cast<ProjectListWidget*>(m_widgetStack->currentWidget());
-            if (kev->key() == Qt::Key_B)
-            {
-                plw->setBuildComboPopup();
-                return true;
-            }
-            if (kev->key() == Qt::Key_R)
-            {
-                plw->setRunComboPopup();
-                return true;
-            }
-        }
-    }
-    default:
-      return false;
-
-    }
-    return false;
 }
