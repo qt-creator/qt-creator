@@ -465,24 +465,14 @@ bool FindUsages::visit(SimpleDeclarationAST *ast)
 
 bool FindUsages::visit(ObjCSelectorAST *ast)
 {
-#if 1
-    const Identifier *id = ast->name->identifier();
-    if (id == _id) {
-        LookupContext context = currentContext(ast);
-        const QList<Symbol *> candidates = context.resolve(ast->name);
-        reportResult(ast->firstToken(), candidates);
-    }
-#else
-    for (ObjCSelectorArgumentListAST *iter = ast->selector_argument_list; iter;
-         iter = iter->next) {
-        const Identifier *id = identifier(iter->value->name_token);
+    if (ast->name) {
+        const Identifier *id = ast->name->identifier();
         if (id == _id) {
-            LookupContext context = currentContext(iter->value);
+            LookupContext context = currentContext(ast);
             const QList<Symbol *> candidates = context.resolve(ast->name);
-            reportResult(iter->value->name_token, candidates);
+            reportResult(ast->firstToken(), candidates);
         }
     }
-#endif
 
     return false;
 }

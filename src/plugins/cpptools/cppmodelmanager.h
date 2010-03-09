@@ -120,8 +120,8 @@ public:
                                   CPlusPlus::Document::Ptr doc,
                                   const CPlusPlus::Snapshot &snapshot);
 
-    virtual void findUsages(CPlusPlus::Symbol *symbol);
-    virtual void renameUsages(CPlusPlus::Symbol *symbol);
+    virtual void findUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
+    virtual void renameUsages(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro);
 

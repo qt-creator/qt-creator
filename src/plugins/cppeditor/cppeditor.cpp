@@ -903,7 +903,7 @@ const Macro *CPPEditor::findCanonicalMacro(const QTextCursor &cursor,
 void CPPEditor::findUsages()
 {
     if (Symbol *canonicalSymbol = markSymbols()) {
-        m_modelManager->findUsages(canonicalSymbol);
+        m_modelManager->findUsages(m_lastSemanticInfo.doc, canonicalSymbol);
     } else if (const Macro *macro = findCanonicalMacro(textCursor(), m_lastSemanticInfo.doc)) {
         m_modelManager->findMacroUsages(*macro);
     }
@@ -954,7 +954,7 @@ void CPPEditor::renameUsagesNow()
                                                                    this, SLOT(hideRenameNotification()));
             }
 
-            m_modelManager->renameUsages(canonicalSymbol);
+            m_modelManager->renameUsages(m_lastSemanticInfo.doc, canonicalSymbol);
         }
     }
 }
