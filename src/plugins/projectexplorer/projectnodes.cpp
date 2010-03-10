@@ -33,6 +33,7 @@
 #include "projectexplorerconstants.h"
 
 #include <coreplugin/mimedatabase.h>
+#include <coreplugin/fileiconprovider.h>
 #include <utils/qtcassert.h>
 
 #include <QtCore/QFileInfo>
@@ -153,7 +154,7 @@ bool FileNode::isGenerated() const
 FolderNode::FolderNode(const QString &folderPath)  :
     Node(FolderNodeType, folderPath),
     m_displayName(QDir::toNativeSeparators(folderPath)),
-    m_icon(QApplication::style()->standardIcon(QStyle::SP_DirIcon))
+    m_icon(Core::FileIconProvider::instance()->icon(QFileIconProvider::Folder))
 {
 }
 
