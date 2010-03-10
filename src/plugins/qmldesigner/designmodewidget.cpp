@@ -40,7 +40,7 @@
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/designmodetoolbar.h>
+#include <coreplugin/editortoolbar.h>
 
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>

@@ -33,7 +33,7 @@
 #include "minisplitter.h"
 #include "openeditorsmodel.h"
 
-#include <coreplugin/designmodetoolbar.h>
+#include <coreplugin/editortoolbar.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/ieditor.h>

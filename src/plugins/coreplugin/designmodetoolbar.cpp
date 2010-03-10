@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "designmodetoolbar.h"
+#include "editortoolbar.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>

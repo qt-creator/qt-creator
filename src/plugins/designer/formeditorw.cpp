@@ -41,7 +41,7 @@
 #include "resourcehandler.h"
 #include <widgethost.h>
 
-#include <coreplugin/designmodetoolbar.h>
+#include <coreplugin/editortoolbar.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/coreconstants.h>

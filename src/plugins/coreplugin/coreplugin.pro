@@ -82,7 +82,7 @@ SOURCES += mainwindow.cpp \
     imode.cpp \
     editormanager/systemeditor.cpp \
     designmode.cpp \
-    designmodetoolbar.cpp
+    editortoolbar.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -163,7 +163,7 @@ HEADERS += mainwindow.h \
     eventfilteringmainwindow.h \
     editormanager/systemeditor.h \
     designmode.h \
-    designmodetoolbar.h
+    editortoolbar.h
 
 FORMS += dialogs/newdialog.ui \
     dialogs/shortcutsettings.ui \

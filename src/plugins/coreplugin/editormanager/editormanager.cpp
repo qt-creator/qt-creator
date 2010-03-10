@@ -39,7 +39,7 @@
 #include "mimedatabase.h"
 #include "tabpositionindicator.h"
 #include "vcsmanager.h"
-#include "designmodetoolbar.h"
+#include "editortoolbar.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
