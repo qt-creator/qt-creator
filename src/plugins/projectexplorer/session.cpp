@@ -1137,7 +1137,8 @@ void SessionManager::reportProjectLoadingProgress()
 
 void SessionManager::markSessionFileDirty()
 {
-    m_autoSaveSessionTimer->start();
+    if (m_file && !m_file->fileName().isEmpty())
+        m_autoSaveSessionTimer->start();
 }
 
 #include "session.moc"
