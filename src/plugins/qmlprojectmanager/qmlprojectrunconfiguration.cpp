@@ -117,7 +117,6 @@ QString QmlProjectRunConfiguration::viewerPath() const
 {
     if (!m_qmlViewerCustomPath.isEmpty())
         return m_qmlViewerCustomPath;
-    qDebug() << m_qmlViewerDefaultPath;
     return m_qmlViewerDefaultPath;
 }
 
