@@ -31,6 +31,7 @@
 #include "qtversionmanager.h"
 
 #include <QtCore/QDir>
+#include <QtCore/QStringBuilder>
 #include <QtCore/QtDebug>
 
 using namespace ProjectExplorer;
