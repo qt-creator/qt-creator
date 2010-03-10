@@ -14,10 +14,18 @@
 
     \section1 Version 1.3.82
 
+    Qt Creator provides integrated tools for both application designers
+    and developers to create applications for desktop and mobile device
+    platforms.
+
+    For application designers, Qt Creator provides an integrated \QMLD
+    tool that you can use to design and develop application UIs for mobile
+    devices.
+
+    For application developers,
     Qt Creator provides a cross-platform, complete integrated development
-    environment (IDE) for developing Qt projects. It is available for Linux,
-    Mac OS X and Windows operating systems. You can use Qt Creator to develop
-    applications for desktop and Symbian platforms. For more information, see
+    environment (IDE) that is available for Linux,
+    Mac OS X and Windows operating systems. For more information, see
     \l{Operating Systems and Supported Platforms}.
 
     \note Please report bugs and suggestions to the
@@ -51,8 +59,9 @@
                 \o \l{Setting Up a Generic Project}
                 \o \l{Managing Sessions}
             \endlist
-       \o \l{Developing Applications}
+       \o \l{Developing Mobile Applications}
             \list
+                \o \l{Implementing Application UI}
                 \o \l{Developing Maemo Applications}
                 \o \l{Developing Symbian Applications}
             \endlist
@@ -76,18 +85,32 @@
 
   \title Introducing Qt Creator
 
+  Qt Creator provides you with tools to design and develop animated applications for
+  mobile devices and to develop complex applications for multiple desktop
+  platforms.
+
+  \section1 Developing for Mobile Devices
+
+  \QMLD allows you to easily develop animations by using a declarative programming
+  language called QML. You use a visual editor to create widgets and define changes
+  in their state. \QMLD generates the necessary code for you.
+  You can edit the code in the code editor to add transitions and interaction. You
+  can write JavaScript to implement the application logic.
+
+  \section1 Developing for Desktop Platforms
+
   As an IDE, Qt Creator differs from a text editor in that it knows how to build and run
   applications. It understands the code as code, not just as plain text. This allows
   it to:
   \list
-      \o Enable you to write well formatted code.
-      \o Anticipate what you are going to write and complete the code.
-      \o Display inline error and warning messages.
-      \o Enable you to semantically navigate to classes, functions, and symbols.
-      \o Provide you with context-sensitive help on classes, functions, and symbols.
+      \o Enable you to write well formatted code
+      \o Anticipate what you are going to write and complete the code
+      \o Display inline error and warning messages
+      \o Enable you to semantically navigate to classes, functions, and symbols
+      \o Provide you with context-sensitive help on classes, functions, and symbols
       \o Rename symbols in an intelligent way, so that other symbols with the same name
-         that belong to other scopes are not renamed.
-      \o Show you the locations in code where a function is declared or called.
+         that belong to other scopes are not renamed
+      \o Show you the locations in code where a function is declared or called
    \endlist
 
       \section1 Why Do You Need Projects?
@@ -98,17 +121,20 @@
 
       Creating a project allows you to:
       \list
-      \o Group files together.
-      \o Add custom build steps.
-      \o Include forms and resource files.
-      \o Specify settings for running applications.
+      \o Group files together
+      \o Add custom build steps
+      \o Include forms and resource files
+      \o Specify settings for running applications
       \endlist
 
       You can either create a project from scratch or import an existing
       project. Qt Creator generates all the necessary files, depending on the type of
       project you create. For example, if you choose to create a graphical user
-      interface (GUI) application, Qt Creator generates an empty .ui file for you
-      that you can modify with the integrated Qt Designer.
+      interface (GUI) application, Qt Creator generates an empty .ui file
+      that you can modify with the integrated \QD.
+
+      If you choose to create a QML application, Qt Creator generates a .qml file
+      that you can modify with the \QMLD visual editor and the code editor.
 */
 
 /*!
@@ -144,43 +170,60 @@
                \o libxrandr-dev
                \o If you are using QtOpenGL, libglui-dev
            \endlist
-        \o Mac OS 10.4 or later with the following:
+        \o Mac OS 10.5 or later with the following:
            \list
                \o Xcode tools for your Mac OS X version available from your Mac
                   OS X installation DVDs or at \l http://developer.apple.com.
            \endlist
     \endlist
 
-    \section1 Building Qt Creator
+         \omit  ## Are the Xcode tools still needed separately? \endomit
+
+    \section1 Build Environment
 
     To build Qt Creator itself from the source, you need:
     \list
-        \o Qt 4.6.0 or later
+        \o Qt 4.7 or later
         \o On Windows, MinGW 4.4 or Microsoft Visual Studio 2008
     \endlist
 
-    \section1 Supported Platforms
-    Only the Windows operating system provides support for building
-    applications on the Symbian platform.
+    \section1 Supported Mobile Device Platforms
+    You can develop applications for the following mobile device
+    platforms:
+
+    \list
+
+    \o Symbian
+
+    \o Maemo and Maemo Application Development and Debugging Environment (MADDE)
+
+    \endlist
+
+    The following table summarizes operating system support for building
+    applications for mobile device platforms.
 
     \table
         \header
-            \o {1,2} Operating system
-            \o {2,1} Platform
+            \o {1,3} Operating system
+            \o {3,1} Platform
         \header
             \o Desktop
             \o Symbian
+            \o Maemo
         \row
             \o Windows
+            \o Yes
             \o Yes
             \o Yes
         \row
             \o Linux
             \o Yes
             \o No
+            \o Yes
         \row
             \o Mac OS X
             \o Yes
+            \o No
             \o No
     \endtable
 */
@@ -195,33 +238,36 @@
     \title Quick Tour
 
     The figure below shows some of the components of Qt Creator in
-    \gui{Edit mode}.
+    \gui{Edit} mode.
 
     \image qtcreator-breakdown.png
 
     \section1 Qt Creator Modes
 
     The mode selector allows you to quickly switch between tasks such as
-    editing project and source files, configuring how projects are built and
+    editing project and source files, designing application UIs,
+    configuring how projects are built and
     executed, and debugging your applications. To change modes, click the
     icons, or use the \l{keyboard-shortcuts}{corresponding keyboard shortcut}.
 
     \list
         \o \gui Welcome mode for opening recent sessions and projects.
         \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
+        \o \gui{\l{Implementing Application UI}{Design}} mode for designing and developing animated applications for
+        mobile devices.
         \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
            debugging.
         \o \gui{\l{Managing Projects}{Projects}} mode for configuring project building and
            execution.
-        \o \gui{\l{Qt Help Integration}{Help}} mode for viewing Qt documentation.
+        \o \gui{\l{Getting Help}{Help}} mode for viewing Qt documentation.
     \endlist
 
     Certain actions in Qt Creator trigger a mode change. For example,
-    \gui {Debug} > \gui {Start debugging} > \gui {Start debugging}
+    \gui {Debug} > \gui {Start Debugging} > \gui {Start Debugging}
     automatically switches to \gui {Debug} mode.
 
 
-    \section1 The Sidebar
+    \section1 Browsing Project Contents
 
     Use the sidebar to browse files, projects and bookmarks.
     \image qtcreator-sidebar.png
@@ -241,15 +287,14 @@
         \o To toggle the sidebar, click \inlineimage qtcreator-togglebutton.png
            or press \key Alt+0 (\key Cmd+0 on Mac OS X).
         \o To split the sidebar, click \inlineimage qtcreator-splitbar.png
-           . When you split the sidebar, the new view shows the same
-           contents as the view you are splitting.
+           . Select new content to view in the split view.
         \o To close a sidebar view, click
            \inlineimage qtcreator-closesidebar.png
            .
     \endlist
 
 
-    \section2 Project Tree
+    \section2 Viewing Project Files
 
     When the sidebar shows projects, they are displayed in a project tree. The
     project tree contains a list of all projects open in the current session.
@@ -257,16 +302,17 @@
 
     You can use the project tree in the following ways:
     \list
-        \o Right-clicking an item in the project tree brings up a
+        \o Double-click a file to open it in an editor.
+        \o Right-click an item in the project tree to bring up a
            context menu containing the actions most commonly needed.
            For example, through the menu of the project root directory you can,
-           among other actions, build, re-build, clean and run the project.
+           build, re-build, clean and run the project.
         \o To list all files in a project, click
            \inlineimage qtcreator-filter.png
-           and select \gui{Simplify tree}.
+           and select \gui{Simplify Tree}.
         \o During a build, the build system automatically generates source
            files. To hide these files, click \inlineimage qtcreator-filter.png
-           and select \gui{Hide generated files}.
+           and select \gui{Hide Generated Files}.
         \o To toggle the synchronization of your project tree with the file
            opened in the editor, click
            \inlineimage qtcreator-synchronizefocus.png
@@ -276,12 +322,12 @@
     \endlist
 
 
-    \section1 The Output Panes
+    \section1 Viewing Output
 
     The task pane in Qt Creator can display one of the following panes:
     \gui{Build Issues}, \gui{Search Results}, \gui{Application Output}, and
     \gui{Compile Output}. Output panes are available in all
-    \l{Qt Creator modes}{modes}.
+    \l{Qt Creator Modes}{modes}.
 
 
     \section2 Build Issues
@@ -321,40 +367,44 @@
     \image qtcreator-compile-pane.png
 
 
-    \section1 Qt Help Integration
+    \section1 Getting Help
 
-    Qt Creator comes fully integrated with all of Qt's documentation and
-    examples using the Qt Help plugin.
+    Qt Creator comes fully integrated with Qt documentation and
+    examples using the Qt Help plugin. You can get help in the following
+    ways:
 
-    To view documentation, switch to \gui Help mode.
+    \list
 
-    To obtain context sensitive help, move the text cursor to a Qt class or
+    \o To view documentation, switch to \gui Help mode.
+
+    \o To get context sensitive help, move the text cursor to a Qt class or
     function and press \key F1. The documentation is displayed in a pane
     next to the code editor, or, if there is not enough vertical space, in the
     fullscreen \gui Help mode.
 
+    \endlist
+
     \image qtcreator-context-sensitive-help.png
 
     To select and configure how the documentation is displayed in the
-    \gui Help mode, select \gui Tools > \gui Options... > \gui Help.
+    \gui Help mode, select \gui Tools > \gui Options > \gui Help.
 
     \section2 Adding External Documentation
 
-    You can display external documentation in Qt Creator's \gui Help mode.
+    You can display external documentation in the Qt Creator \gui Help mode.
     To augument or replace the documentation that ships with Qt Creator and Qt:
     \list 1
         \o Create a .qch file from your documentation.
 
            For information on how to prepare your documentation and create a
            .qch file, see
-           \l http://doc.qt.nokia.com/4.6/qthelp-framework.html
-           {The Qt help framework}.
+           \l {http://doc.qt.nokia.com/4.6/qthelp-framework.html}{The Qt Help Framework}.
         \o Add the .qch file to Qt Creator by selecting \gui Tools >
-           \gui Options... > \gui Help > \gui Documentation > \gui Add.
+           \gui Options > \gui Help > \gui Documentation > \gui Add.
     \endlist
 
 
-    \section1 Keyboard Navigation
+    \section1 Navigating with Keyboard
 
     Qt Creator caters not only to developers who are used to using the mouse,
     but also to developers who are more comfortable with the keyboard. A wide
@@ -362,21 +412,27 @@
     \l{Searching With the Locator}{navigation} shortcuts are available to help
     speed up the process of developing your application.
 
+    \section1 Developing Application UI
 
-    \section1 Qt Designer Integration
+    To help you design the user interface of your application, two visual
+    editors are integrated into Qt Creator:
 
-    To help you design the user interface of your application, a complete
-    version of Qt Designer is integrated right into Qt Creator. Qt Creator
-    automatically opens all .ui files in Qt Designer.
+    \list
+    \o \QD
+    \o \QMLD
+    \endlist
 
-    The Qt Designer integration includes project management and code
-    completion.
+    The integration includes project management and code completion.
+
+    \section1 Using Qt Designer
+
+    Qt Creator automatically opens all .ui files in \QD.
 
     \image qtcreator-formedit.png
 
-    To change the layout of Qt Designer user interface elements:
+    To change the layout of \QD user interface elements:
     \list 1
-        \o Select \gui Tools > \gui{Form editor} > \gui Views >
+        \o Select \gui Tools > \gui{Form Editor} > \gui Views >
            \gui Locked.
 
            When this option is unchecked, you can change the layout.
@@ -384,7 +440,7 @@
            position.
     \endlist
 
-    To change Qt Designer properties, select \gui Tools > \gui Options >
+    To change \QD properties, select \gui Tools > \gui Options >
     \gui Designer.
     \list
         \o Set the class properties and code generation preferences in \gui
@@ -402,8 +458,42 @@
            resolution, select \gui{Embedded Design}.
     \endlist
 
-    For more information on Qt Designer, see
+    For more information on \QD, see
     \l{http://doc.trolltech.com/designer-manual.html}{Qt Designer Manual}.
+
+    \section1 Using QML Designer
+
+    You can edit .qml files in either the visual \QMLD editor or in the
+    code editor.
+
+    In \gui Projects, double-click a .gml file to open it in the code
+    editor. Then select the \gui {Design} mode to edit the file in the
+    visual editor.
+
+    \image qmldesigner-visual-editor.png "Visual editor"
+
+    Use the visual editor panes to manage your project:
+
+    \list
+
+    \o \gui {Navigator} pane displays the items on the screen. You can change
+    the order of items in the list to change their order on the screen.
+
+    \o \gui {Library} pane displays lists of predefined \gui {Items} and
+    imported \gui {Resources} that you can use to design applications. The
+    images and other files that you copy to the project folder appear in the
+    \gui {Resources} pane.
+
+    \o \gui {Properties} pane displays the properties of the selected item.
+     You can also change the properties in the code editor.
+
+    \o \gui {State} pane displays the different states of the item. To add
+    states, click the empty slot. Then modify the new state in the editor.
+    In the code editor, you can see the changes recorded as changes to
+    the base state.
+
+    \endlist
+
 */
 
 
@@ -432,11 +522,11 @@
         \o Set tabs, indentation and the handling of whitespace in
            \gui Behavior.
         \o Set various display properties, such as
-           \l{Highlighting and folding blocks}{highlighting and folding blocks},
-           text wrapping or \l{Moving to symbol definition or declaration}
+           \l{Highlighting and Folding Blocks}{highlighting and folding blocks},
+           text wrapping or \l{Moving to Symbol Definition or Declaration}
            {moving to symbol definition or declaration}
            in \gui Display.
-        \o Enable \l{Code completion}{code completion} in \gui Completion.
+        \o Enable \l{Code Completion}{code completion} in \gui Completion.
     \endlist
 
 
@@ -461,12 +551,12 @@
     \endlist
 
     When you create or edit forms in an .ui file, the toolbar contains
-    Qt Designer specific tools.
+    \QD specific tools.
 
     If you are using a version control system, the toolbar enables you to
     compare the current file with the version in the repository. For more
     information on using Qt Creator with version control systems, see
-    \l{Using version control systems}.
+    \l{Using Version Control Systems}.
 
 
     \section1 Splitting the Editor View
@@ -690,11 +780,14 @@
         \o To search using regular expressions, select
            \inlineimage qtcreator-editor-regularexpressions.png
            .
-           Regular expressions used in Qt Creator are modeled on Perl's regular
+           Regular expressions used in Qt Creator are modeled on Perl regular
            expressions. For more information on using regular expressions, see
-           \l http://doc.qt.nokia.com/4.6/qregexp.html#details
-           {Detailed description of QRegExp class reference}.
+           \l {http://doc.qt.nokia.com/4.6/qregexp.html#details}
+           {Detailed Description} in the QRegExp Class Reference.
     \endlist
+
+    \note If you have selected text before selecting \gui Find/Replace, the
+    search is conducted within the selection.
 
     To replace occurrences of the existing text, enter the new text in the
     \gui{Replace with} text box.
@@ -824,8 +917,11 @@
            all files listed in the \gui{Search Results} pane. You cannot
            undo this action.
     \endlist
-*/
 
+    \note Renaming local symbols does not open the \gui{Search Results} pane.
+    The instances of the symbol are highlighted in code and you can edit the
+    symbol. All instances of the local symbol are changed as you type.
+*/
 
 /*!
     \contentspage index.html
@@ -882,14 +978,15 @@
 
     To create a new project:
     \list 1
-        \o Select \gui File > \gui{New Project} and select the type of your
+        \o Select \gui File > \gui{New File or Project} and select the type of your
            project.
 
-           This example uses \bold{Qt4 Gui Application}.
+           The contents of the following dialogs depend on the project type.
+           This example uses \gui {Qt Gui Application}.
 
            \image qtcreator-new-project.png
         \o Name the project and set its path. To select the path from a
-           directory tree, click \gui Choose....
+           directory tree, click \gui Browse.
 
            Avoid using spaces and special characters in the project name and
            path.
@@ -905,14 +1002,11 @@
            \image qtcreator-class-info.png
         \o Review the project settings.
 
-           To create the project, click \gui Done.
+           To create the project, click \gui Finish.
 
            \image qtcreator-new-project-summary.png
     \endlist
 
-    \note You can create a new project with the \gui{Help} mode active and
-          follow the instructions to create a new project from the
-          documentation available in the help section.
 */
 
 
@@ -1182,7 +1276,7 @@
     \title Writing a Simple Program
 
     \note This tutorial assumes that you have experience in writing basic Qt
-    applications, using Qt Designer to design user interfaces and using the Qt
+    applications, using \QD to design user interfaces and using the Qt
     Resource System.
 
     This tutorial describes how to use Qt Creator
@@ -1200,31 +1294,39 @@
 
     \section1 Creating the Text Finder Project
 
+    \note Create the project with the \gui{Help} mode active so that you can follow
+    these instructions while you work.
+
     \list 1
 
         \o Select \gui{File > New File or Project > Qt Application Project > Qt Gui
         Application > OK}.
 
-           \image qtcreator-new-project.png
-        \o In the \gui{Name} field, type \c {TextFinder}.
-           \image qtcreator-intro-and-location.png
+           \image qtcreator-new-project.png "New File or Project" dialog
+
+        The \gui{Introduction and Project Location} dialog opens.
+
+        \image qtcreator-intro-and-location.png "Introduction and Project Location dialog"
+
+        \o In the \gui{Name} field, type \bold {TextFinder}.
+
 
         \o In the \gui {Create in} field, enter the path for the project files. For example,
-        \c {C:\Qt\examples}.
+        \c {C:\Qt\examples}, and then click \gui{Next}.
 
+        The \gui{Select Required Qt Versions} dialog opens.
 
-        \o Click \gui{Next}.
-
-        \image qtcreator-new-project-qt-versions.png "Select Required Qt
-        Versions dialog"
+        \image qtcreator-new-project-qt-versions.png "Select Required Qt Versions dialog"
 
         \o Click \gui{Next} to use the Qt version set in the path in your project.
 
-        \image qtcreator-class-info.png
+        The \gui{Class Information} dialog opens.
 
-        \o In the \gui{Class Name} field, type \c {TextFinder} as the class name.
+        \image qtcreator-class-info.png "Class Information" dialog
 
-        \o In the \gui{Base Class} list, select \c {QWidget} as the base class type.
+        \o In the \gui{Class Name} field, type \bold {TextFinder} as the class name.
+
+        \o In the \gui{Base Class} list, select \bold {QWidget} as the base class type.
 
            \note The \gui{Header File}, \gui{Source File} and
            \gui{Form File} fields are automatically updated to match the name of the
@@ -1232,28 +1334,31 @@
 
         \o Click \gui{Next}.
 
+        The \gui{Project Management} dialog opens.
+
+        \image qtcreator-new-project-summary.png "Project Mangement" dialog
+
         \o Review the project settings, and click \gui{Finish} to create the project.
 
-           \image qtcreator-new-project-summary.png
+
     \endlist
 
-    \note Create the project with the \gui{Help} mode active so that you can follow
-    these instructions while you work.
+
 
     The TextFinder project now contains the following files:
 
     \list
-        \o \c{textfinder.h}
-        \o \c{textfinder.cpp}
-        \o \c{main.cpp}
-        \o \c{textfinder.ui}
-        \o \c{textfinder.pro}
+        \o textfinder.h
+        \o textfinder.cpp
+        \o main.cpp
+        \o textfinder.ui
+        \o textfinder.pro
     \endlist
 
     \image qtcreator-textfinder-contents.png "TextFinder project contents"
 
-    The \c{.h} and \c{.cpp} files come with the necessary boiler plate code.
-    The \c{.pro} file is complete.
+    The .h and .cpp files come with the necessary boiler plate code.
+    The .pro file is complete.
 
     \section1 Filling in the Missing Pieces
 
@@ -1262,12 +1367,12 @@
 
     \section2 Designing the User Interface
 
-    \image qtcreator-textfinder-ui.png
+    \image qtcreator-textfinder-ui.png "Text Finder UI"
 
     \list 1
 
-    \o In the \gui{Editor} mode, double-click the \c{textfinder.ui} file in the \gui{Projects}
-    view to launch the integrated Qt Designer.
+    \o In the \gui{Editor} mode, double-click the textfinder.ui file in the \gui{Projects}
+    view to launch the integrated \QD.
 
     \o Drag and drop the following widgets to the form:
 
@@ -1278,18 +1383,25 @@
 
     \endlist
 
+    \image qtcreator-textfinder-ui-widgets.png "Adding widgets to Text Finder UI"
+
     \o Double-click the \gui{Label} widget and enter the text \bold{Keyword}.
 
     \o Double-click the \gui{Push Button} widget and enter the text \bold{Find}.
 
-    \o Press \gui{Ctr+A} to select the widgets and click \gui{Lay out Horizontally}
-    (or press \gui{Ctrl+H}) to add them to a \l{http://doc.trolltech.com/qhboxlayout.html}{QHBoxLayout}.
+    \o Press \key {Ctrl+A} to select the widgets and click \gui{Lay out Horizontally}
+    (or press \gui{Ctrl+H}) to apply a horizontal layout
+    (\l{http://doc.trolltech.com/qhboxlayout.html}{QHBoxLayout}).
+
+    \image qtcreator-texfinder-ui-horizontal-layout.png "Applying horizontal layout"
 
     \o Drag and drop a \gui{Text Edit} widget (\l{http://doc.trolltech.com/qtextedit.html}{QTextEdit})
     to the form.
 
-    \o Select the widgets and click \gui{Lay out Vertically} (or press \gui{Ctr+V})
-    to add them to a \l{http://doc.trolltech.com/qvboxlayout.html}{QVBoxLayout}.
+    \o Select the screen area and click \gui{Lay out Vertically} (or press \gui{Ctr+V})
+    to apply a vertical layout (\l{http://doc.trolltech.com/qvboxlayout.html}{QVBoxLayout}).
+
+    \image qtcreator-textfinder-ui.png "Text Finder UI"
 
     \o Press \gui{Ctrl+S} to save your changes.
 
@@ -1303,7 +1415,7 @@
 
     \section2 Completing the Header File
 
-    The \c{textfinder.h} file already has the necessary #includes, a
+    The textfinder.h file already has the necessary #includes, a
     constructor, a destructor, and the \c{Ui} object. You need to add a private
     slot, \c{on_findButton_clicked()}, to carry out the find operation. You
     also need a private function, \c{loadTextFile()}, to read and display the
@@ -1326,11 +1438,11 @@
     \section2 Completing the Source File
 
     Now that the header file is complete, move on to the source file,
-    \c{textfinder.cpp}.
+   textfinder.cpp.
 
     \list 1
 
-    \o In the \gui{Projects} view, double-click the \c{textfinder.cpp} file
+    \o In the \gui{Projects} view, double-click the textfinder.cpp file
     to open it for editing.
 
     \o Add code to load a text file using
@@ -1363,7 +1475,7 @@
     \endlist
 
     The \c{on_findButton_clicked()} slot is called automatically in
-    the uic generated \c{ui_textfinder.h} file by this line of code:
+    the uic generated ui_textfinder.h file by this line of code:
 
     \code
     QMetaObject::connectSlotsByName(TextFinder);
@@ -1371,28 +1483,37 @@
 
     \section2 Creating a Resource File
 
-    You need a resource file (\c{.qrc}) within which you embed the input
-    text file. The input file can be any \c{.txt} file with a paragraph of text.
-    Create a text file called \c{input.txt} and store it in the \c{textfinder}
+    You need a resource file (.qrc) within which you embed the input
+    text file. The input file can be any .txt file with a paragraph of text.
+    Create a text file called input.txt and store it in the textfinder
     folder.
 
     To add a resource file:
     \list 1
         \o Select \gui{File > New File or Project > Qt > Qt Resource File > OK}.
-    \image qtcreator-add-resource-wizard.png
+    \image qtcreator-add-resource-wizard.png "New File or Project dialog"
+
+    The \gui {Choose the Location} dialog opens.
+
+        \image qtcreator-add-resource-wizard2.png "Choose the Location dialog"
 
         \o In the \gui{Name} field, enter \bold{textfinder}.
         \o In the \gui{Path} field, enter \c{C:\Qt\examples\TextFinder},
         and click \gui{Next}.
 
-    \image qtcreator-add-resource-wizard2.png
+        The \gui{Project Management} dialog opens.
+
+        \image qtcreator-add-resource-wizard3.png "Project Management dialog"
+
 
         \o In the \gui{Add to project} field, select \bold{TextFinder.pro}
-        and click \gui{Finish}.
-        \image qtcreator-add-resource.png
+        and click \gui{Finish} to open the file in the code editor.
+
         \o Select \gui{Add > Add Prefix}.
-        \o In the \gui{Prefix} field, replace the default prefix with a slash (\c{/}).
-        \o Select \gui{Add > Add Files}, to locate and add \c{input.txt}.
+        \o In the \gui{Prefix} field, replace the default prefix with a slash (/).
+        \o Select \gui{Add > Add Files}, to locate and add input.txt.
+
+        \image qtcreator-add-resource.png "Editing resource files"
 
     \endlist
 
@@ -1408,7 +1529,6 @@
     \contentspage index.html
     \previouspage creator-debugging.html
     \page creator-version-control.html
-    \nextpage adding-plugins.html
 
     \title Using Version Control Systems
 
@@ -1797,8 +1917,8 @@
     \gui File > \gui Session. If you do not create or select a session,
     Qt Creator always uses the default session.
 
-    To create a new session or remove exisitng sessions, select \gui File >
-    \gui Sessions > \gui{Session Manager...}.
+    To create a new session or remove existing sessions, select \gui File >
+    \gui Sessions > \gui{Session Manager}.
 
     \image qtcreator-session-manager.png
 */
@@ -2105,7 +2225,7 @@
 
     \section1 Walkthrough for the Debugger Frontend
 
-    In our \l{Writing a simple program}{TextFinder} example, we
+    In our \l{Writing a Simple Program}{TextFinder} example, we
     read a text file into QString and then display it with QTextEdit.
     Suppose you want to look at this QString, \c{line}, and see what
     data it actually stores. Follow the steps described below to place a
@@ -2659,15 +2779,89 @@
     \contentspage index.html
     \previouspage creator-project-managing-sessions.html
     \page creator-developing-applications.html
-    \nextpage creator-developing-maemo.html
+    \nextpage creator-visual-editor.html
 
-    \title Developing Applications
+    \title Developing Mobile Applications
+
+    Use \QMLD to design and implement application UI.
+
+    Set up the development environment for your chosen mobile device
+    platform, Maemo or Symbian. Then specify build and run settings
+    for the environment in Qt Creator to build and run applications
+    from Qt Creator.
+
 */
 
 /*!
 
     \contentspage index.html
     \previouspage creator-developing-applications.html
+    \page creator-visual-editor.html
+    \nextpage creator-developing-maemo.html
+
+    \title Implementing Application UI
+
+    You can either create QML projects from scratch or import them to
+    Qt Creator.
+
+    \section1 Creating QML Projects
+
+    Select \gui {File > New File or Project > QML Project > QML Application}.
+
+    \QMLD creates the following files:
+
+    \list
+
+    \o .qmlproject project file defines that all QML, JavaScript, and image
+    files in the project folder belong to the project. Therefore, you do not
+    need to individually list all the files in the project.
+
+    \o .qml file defines an item, such as a widget, screen, or the whole
+    application UI.
+
+    \endlist
+
+    To use JavaScript and image files in the application, copy them to the
+    project folder.
+
+    To import a QML project to Qt Creator, select
+    \gui {File > New File or Project > QML Project > Import Existing QML Directory}.
+
+    \section1 Designing Application UI
+
+    One .qml file can define a widget, screen, or the whole application.
+
+    \section2 Creating Widgets
+
+    You can use the \gui Library items to create your own widgets. Drag and drop
+    them to the editor and modify their properties in the \gui Properties pane.
+    You can use QML to add properties for a widget. The properties are automatically
+    displayed in the \gui Properties pane.
+
+    Save the widgets as .qml files. You can import them to screens and applications.
+
+    \section2 Creating Screens
+
+    You can use the \gui Library items to create screens. Use states and transitions
+    to navigate between screens.
+
+    To add interaction methods, drag and drop a \gui {Focus Scope} or \gui {Mouse Area}
+    to the screen. In the code editor, add functions to execute when users select
+    the scope or area.
+
+
+    \section1 Implementing Application Logic
+
+    You can write JavaScript to implement the application logic. To include the script
+    files in the project, copy them to the project folder.
+
+ */
+
+
+/*!
+
+    \contentspage index.html
+    \previouspage creator-visual-editor.html
     \page creator-developing-maemo.html
     \nextpage creator-developing-symbian.html
 
@@ -2675,7 +2869,7 @@
 
     Maemo is a software platform developed by Nokia for smartphones and
     Internet Tablets. The platform is based on the Linux operating system
-    which itself is dervied from the Unix operating system. The platform
+    which itself is derived from the Unix operating system. The platform
     comprises of the Maemo operating system and Maemo SDK. The Maemo SDK
     provides an open development environment for different applications on
     top of the maemo platform. Maemo 5 is based on the Linux 2.6 operating
@@ -3068,14 +3262,12 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-version-control.html
     \page adding-plugins.html
-    \nextpage creator-tips.html
 
     \title Adding Qt Designer Plugins
 
      You can use Qt APIs to create plugins that extend Qt applications.
-     This allows you to add your own widgets to Qt Designer.
+     This allows you to add your own widgets to \QD.
      The most flexible way to include a plugin with an application is to compile it
      into a dynamic library that is shipped separately, and detected and loaded at runtime.
 
@@ -3083,23 +3275,23 @@
      subdirectories. For more information on how to create and locate plugins and to
      change the default plugin path, see \l{How to Create Qt Plugins}.
 
-     For more information about how to create plugins for Qt Designer, see
+     For more information about how to create plugins for \QD, see
      \l{http://doc.trolltech.com/4.6/designer-using-custom-widgets.html}{Creating and Using Components for Qt Designer}.
 
     \section1 Locating Qt Designer Plugins
 
-     Qt Designer fetches plugins from the standard locations and loads the plugins
-     that match its build key. Qt Designer is delivered both as a standalone application
+     \QD fetches plugins from the standard locations and loads the plugins
+     that match its build key. \QD is delivered both as a standalone application
      and as part of an SDK, where it is integrated into Qt Creator.
      The correct folder to place the plugins depends on
      which one you use.
 
-     The integrated Qt Designer fetches plugins from the \c {%SDK%\bin\designer} folder on Windows
+     The integrated \QD fetches plugins from the \c {%SDK%\bin\designer} folder on Windows
      and Linux and \c {QtCreator.app/Contents/MacOS/designer} folder on Mac. To check which plugins
      were loaded successfully and which failed, choose \gui{Tools > Form Editor >
      About Qt Designer Plugins}.
 
-     The standalone Qt Designer is part of the Qt library used for building projects,
+     The standalone \QD is part of the Qt library used for building projects,
      located under \c {%SDK%\qt}. Therefore, it fetches plugins from the following folder:
      \c {%SDK%\qt\plugins\designer}. To check which plugins were loaded successfully and which
      failed, choose \gui{Help > About Plugins}.
@@ -3110,10 +3302,10 @@
      Microsoft Visual Studio compiler, whereas the version of Qt shipped for building applications
      is configured and built to use the MinGW/g++ compiler. Plugins built by using this version of
      Qt cannot be loaded by Qt Creator because the build-keys do not match. The plugins can only be
-     used in the standalone version of Qt Designer. Choose \gui{Help > About Qt Creator} to check
+     used in the standalone version of \QD. Choose \gui{Help > About Qt Creator} to check
      the Qt version Qt Creator was built with.
 
-     To use Qt Designer plugins that were built for the shipped Qt version, make sure that
+     To use \QD plugins that were built for the shipped Qt version, make sure that
      Qt Creator is built with the same compiler by either recompiling Qt Creator using MinGW or
      recompiling Qt with Microsoft Visual Studio, depending on which configuration you want to
      use for your applications.
@@ -3123,7 +3315,6 @@
 
 /*!
     \contentspage index.html
-    \previouspage adding-plugins.html
     \page creator-tips.html
     \nextpage creator-keyboard-shortcuts.html
 
@@ -3172,7 +3363,7 @@
 
     \section1 Using Keyboard Shortcuts
 
-    Qt Creator provides \l{Keyboard shortcuts}{many useful keyboard shortcuts}.
+    Qt Creator provides \l{Keyboard Shortcuts}{many useful keyboard shortcuts}.
 
     To customize, import or export keyboard shortcuts, select \gui Tools >
     \gui Options... > \gui Environment > \gui Keyboard.
@@ -3200,7 +3391,7 @@
     \inlineimage qtcreator-togglebutton.png
     or press \key Alt+0 (\key Cmd+0 on Mac OS X).
 
-    For more information on using the sidebar, see \l {The Sidebar}.
+    For more information on using the sidebar, see \l {Browsing Project Contents}.
 
 
 
