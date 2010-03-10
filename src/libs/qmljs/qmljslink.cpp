@@ -73,9 +73,13 @@ void Link::scopeChainAt(Document::Ptr doc, const QList<Node *> &astPath)
         scopeChain.jsScopes += bind->rootObjectValue();
     }
 
-    ScopeBuilder scopeBuilder(doc, _context);
-    foreach (Node *node, astPath)
-        scopeBuilder.push(node);
+    if (astPath.isEmpty()) {
+        scopeChain.update();
+    } else {
+        ScopeBuilder scopeBuilder(doc, _context);
+        foreach (Node *node, astPath)
+            scopeBuilder.push(node);
+    }
 }
 
 void Link::makeComponentChain(
