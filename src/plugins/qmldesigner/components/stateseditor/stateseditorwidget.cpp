@@ -165,6 +165,10 @@ StatesEditorWidget::StatesEditorWidget(QWidget *parent):
     m_d->listView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
     m_d->listView->rootContext()->setContextProperty(QLatin1String("statesEditorModel"), m_d->statesEditorModel.data());
+    QColor highlightColor = palette().highlight().color();
+    if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
+        highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
+    m_d->listView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
 
     // Work around ASSERT in the internal QGraphicsScene that happens when
     // the scene is created + items set dirty in one event loop run (BAUHAUS-459)

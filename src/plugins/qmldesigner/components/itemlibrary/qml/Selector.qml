@@ -35,11 +35,10 @@ Item {
     id: selector
 
     ItemsViewStyle { id: style }
-    SystemPalette { id:systemPalette }
 
     Rectangle {
         anchors.fill: parent
-        color: systemPalette.highlight
+        color: highlightColor
         clip:true
         Rectangle {
             width:parent.width-1
@@ -47,8 +46,8 @@ Item {
             y:-parent.height/2
             height:parent.height
             gradient: Gradient {
-                GradientStop { position: 0.0; color: Qt.lighter(systemPalette.highlight) }
-                GradientStop { position: 1.0; color: systemPalette.highlight }
+                GradientStop { position: 0.0; color: Qt.lighter(highlightColor) }
+                GradientStop { position: 1.0; color: highlightColor }
             }
         }
 
@@ -58,8 +57,8 @@ Item {
             y:parent.height/2
             height:parent.height
             gradient: Gradient {
-                GradientStop { position: 0.0; color: systemPalette.highlight }
-                GradientStop { position: 1.0; color: Qt.darker(systemPalette.highlight) }
+                GradientStop { position: 0.0; color: highlightColor }
+                GradientStop { position: 1.0; color: Qt.darker(highlightColor) }
             }
         }
     }
@@ -70,7 +69,7 @@ Item {
         anchors.topMargin:1
         anchors.rightMargin:2
         height:1
-        color:Qt.lighter(systemPalette.highlight)
+        color:Qt.lighter(highlightColor)
     }
     Rectangle {
         anchors.right:parent.right
@@ -79,7 +78,7 @@ Item {
         anchors.bottomMargin:1
         anchors.leftMargin:2
         height:1
-        color:Qt.darker(systemPalette.highlight)
+        color:Qt.darker(highlightColor)
     }
     Rectangle {
         anchors.left:parent.left
@@ -88,10 +87,9 @@ Item {
         anchors.leftMargin:1
         anchors.bottomMargin:2
         width:1
-        //color:Qt.lighter(systemPalette.highlight)
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.lighter(systemPalette.highlight) }
-            GradientStop { position: 1.0; color: systemPalette.highlight }
+            GradientStop { position: 0.0; color: Qt.lighter(highlightColor) }
+            GradientStop { position: 1.0; color: highlightColor }
         }
     }
     Rectangle {
@@ -101,10 +99,9 @@ Item {
         anchors.rightMargin:1
         anchors.topMargin:2
         width:1
-        //color:Qt.darker(systemPalette.highlight)
         gradient: Gradient {
-            GradientStop { position: 0.0; color: systemPalette.highlight }
-            GradientStop { position: 1.0; color: Qt.darker(systemPalette.highlight) }
+            GradientStop { position: 0.0; color: highlightColor }
+            GradientStop { position: 1.0; color: Qt.darker(highlightColor) }
         }
     }
 }

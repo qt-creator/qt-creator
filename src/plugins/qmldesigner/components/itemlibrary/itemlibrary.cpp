@@ -141,6 +141,11 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     rootContext->setContextProperty(QLatin1String("itemLibraryIconWidth"), m_d->m_itemIconSize.width());
     rootContext->setContextProperty(QLatin1String("itemLibraryIconHeight"), m_d->m_itemIconSize.height());
 
+    QColor highlightColor = palette().highlight().color();
+    if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
+        highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
+    m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
+
     QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_d->m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
     connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));

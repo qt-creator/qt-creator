@@ -42,17 +42,21 @@ namespace QmlDesigner {
 
 static void drawSelectionBackground(QPainter *painter, const QStyleOption &option)
 {
+    QWidget colorReference;
+
     painter->save();
     QLinearGradient gradient;
-    QColor highlight = option.palette.highlight().color();
-    gradient.setColorAt(0, highlight.lighter(130));
-    gradient.setColorAt(1, highlight.darker(130));
+    QColor highlightColor = colorReference.palette().highlight().color();
+    if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
+        highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
+    gradient.setColorAt(0, highlightColor.lighter(130));
+    gradient.setColorAt(1, highlightColor.darker(130));
     gradient.setStart(option.rect.topLeft());
     gradient.setFinalStop(option.rect.bottomLeft());
     painter->fillRect(option.rect, gradient);
-    painter->setPen(highlight.lighter());
+    painter->setPen(highlightColor.lighter());
     painter->drawLine(option.rect.topLeft(),option.rect.topRight());
-    painter->setPen(highlight.darker());
+    painter->setPen(highlightColor.darker());
     painter->drawLine(option.rect.bottomLeft(),option.rect.bottomRight());
     painter->restore();
 }
@@ -94,6 +98,8 @@ public:
                 painter->drawRect(rect.adjusted(0, 0, -1, -1));
             }
             painter->restore();
+        } else if (element == PE_FrameFocusRect) {
+            // don't draw
         } else {
             QProxyStyle::drawPrimitive(element, option, painter, widget);
         }
@@ -217,6 +223,7 @@ void IdItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, co
 
 void IdItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+    Q_UNUSED(index);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
     lineEdit->setGeometry(option.rect);
 }

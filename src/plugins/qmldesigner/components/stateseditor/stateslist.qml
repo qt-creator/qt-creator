@@ -37,9 +37,6 @@ Rectangle {
         if (currentStateIndex<0) currentStateIndex=0; else unFocus();
     }
 
-    // Colors
-    SystemPalette { id:systemPalette; }
-
     Flickable {
         id: listView
 
@@ -117,7 +114,7 @@ Rectangle {
             Rectangle {
                 id: highlight
                 anchors.fill: parent
-                color:parent.isCurrentState?systemPalette.highlight:"#4F4F4F";
+                color:parent.isCurrentState?highlightColor:"#4F4F4F";
                 clip:true
                 Rectangle {
                     width:parent.width
