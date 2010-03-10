@@ -36,14 +36,15 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QCoreApplication>
 
-static const char *groupC = "Git";
-static const char *sysEnvKeyC = "SysEnv";
-static const char *pathKeyC = "Path";
-static const char *logCountKeyC = "LogCount";
-static const char *timeoutKeyC = "TimeOut";
-static const char *promptToSubmitKeyC = "PromptForSubmit";
-static const char *omitAnnotationDateKeyC = "OmitAnnotationDate";
-static const char *spaceIgnorantBlameKeyC = "SpaceIgnorantBlame";
+static const char groupC[] = "Git";
+static const char sysEnvKeyC[] = "SysEnv";
+static const char pathKeyC[] = "Path";
+static const char logCountKeyC[] = "LogCount";
+static const char timeoutKeyC[] = "TimeOut";
+static const char promptToSubmitKeyC[] = "PromptForSubmit";
+static const char omitAnnotationDateKeyC[] = "OmitAnnotationDate";
+static const char spaceIgnorantBlameKeyC[] = "SpaceIgnorantBlame";
+static const char diffPatienceKeyC[] = "DiffPatience";
 
 enum {
     defaultLogCount =  100 ,
@@ -63,7 +64,8 @@ GitSettings::GitSettings() :
     timeoutSeconds(defaultTimeOut),
     promptToSubmit(true),
     omitAnnotationDate(false),
-    spaceIgnorantBlame(true)
+    spaceIgnorantBlame(true),
+    diffPatience(true)
 {
 }
 
@@ -77,6 +79,7 @@ void GitSettings::fromSettings(QSettings *settings)
     promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     omitAnnotationDate = settings->value(QLatin1String(omitAnnotationDateKeyC), false).toBool();
     spaceIgnorantBlame = settings->value(QLatin1String(spaceIgnorantBlameKeyC), true).toBool();
+    diffPatience =  settings->value(QLatin1String(diffPatienceKeyC), true).toBool();
     settings->endGroup();
 }
 
@@ -90,6 +93,7 @@ void GitSettings::toSettings(QSettings *settings) const
     settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
     settings->setValue(QLatin1String(omitAnnotationDateKeyC), omitAnnotationDate);
     settings->setValue(QLatin1String(spaceIgnorantBlameKeyC), spaceIgnorantBlame);
+    settings->setValue(QLatin1String(diffPatienceKeyC), diffPatience);
     settings->endGroup();
 }
 
@@ -97,7 +101,8 @@ bool GitSettings::equals(const GitSettings &s) const
 {
     return adoptPath == s.adoptPath && path == s.path && logCount == s.logCount
            && timeoutSeconds == s.timeoutSeconds && promptToSubmit == s.promptToSubmit
-           && omitAnnotationDate == s.omitAnnotationDate && spaceIgnorantBlame == s.spaceIgnorantBlame;
+           && omitAnnotationDate == s.omitAnnotationDate && spaceIgnorantBlame == s.spaceIgnorantBlame
+           && diffPatience == s.diffPatience;
 }
 
 QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const

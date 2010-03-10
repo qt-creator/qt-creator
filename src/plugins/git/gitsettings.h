@@ -58,6 +58,7 @@ struct GitSettings
     bool promptToSubmit;
     bool omitAnnotationDate;
     bool spaceIgnorantBlame;
+    bool diffPatience;
 };
 
 inline bool operator==(const GitSettings &p1, const GitSettings &p2)

@@ -59,6 +59,7 @@ GitSettings SettingsPageWidget::settings() const
     rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
     rc.omitAnnotationDate = m_ui.omitAnnotationDataCheckBox->isChecked();
     rc.spaceIgnorantBlame = m_ui.spaceIgnorantBlameCheckBox->isChecked();
+    rc.diffPatience = m_ui.diffPatienceCheckBox->isChecked();
     return rc;
 }
 
@@ -71,6 +72,7 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
     m_ui.omitAnnotationDataCheckBox->setChecked(s.omitAnnotationDate);
     m_ui.spaceIgnorantBlameCheckBox->setChecked(s.spaceIgnorantBlame);
+    m_ui.diffPatienceCheckBox->setChecked(s.diffPatience);
 }
 
 void SettingsPageWidget::setSystemPath()

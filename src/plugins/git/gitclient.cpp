@@ -233,6 +233,8 @@ void GitClient::diff(const QString &workingDirectory,
     // Directory diff?
     QStringList commonDiffArgs;
     commonDiffArgs << QLatin1String("diff") << QLatin1String(noColorOption);
+    if (m_settings.diffPatience)
+        commonDiffArgs << QLatin1String("--patience");
     if (unstagedFileNames.empty() && stagedFileNames.empty()) {
        QStringList arguments(commonDiffArgs);
        arguments << diffArgs;
