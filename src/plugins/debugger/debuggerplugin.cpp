@@ -1033,20 +1033,13 @@ void DebuggerPlugin::activateDebugMode()
     modeManager->activateMode(QLatin1String(MODE_DEBUG));
 }
 
-QWidget *DebuggerPlugin::currentTextEditor(QString *fileName, int *lineNumber)
+TextEditor::ITextEditor *DebuggerPlugin::currentTextEditor()
 {
     EditorManager *editorManager = EditorManager::instance();
     if (!editorManager)
         return 0;
     Core::IEditor *editor = editorManager->currentEditor();
-    ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
-    if (!textEditor)
-        return 0;
-    if (fileName)
-        *fileName = textEditor->file()->fileName();
-    if (lineNumber)
-        *lineNumber = textEditor->currentLine();
-    return textEditor->widget();
+    return qobject_cast<ITextEditor*>(editor);
 }
 
 void DebuggerPlugin::editorOpened(Core::IEditor *editor)

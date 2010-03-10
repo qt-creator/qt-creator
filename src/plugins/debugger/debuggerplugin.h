@@ -89,7 +89,7 @@ private:
     virtual void remoteCommand(const QStringList &options, const QStringList &arguments);
 
     QVariant configValue(const QString &name) const;
-    QWidget *currentTextEditor(QString *fileName, int *line);
+    TextEditor::ITextEditor *currentTextEditor();
     QVariant sessionValue(const QString &name);
     void setSessionValue(const QString &name, const QVariant &value);
     QVariant configValue(const QString &name);

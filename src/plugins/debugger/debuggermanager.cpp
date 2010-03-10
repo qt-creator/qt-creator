@@ -186,6 +186,7 @@ DEBUGGER_EXPORT QDebug operator<<(QDebug str, const DebuggerStartParameters &p)
 
 using namespace Constants;
 using namespace Debugger::Internal;
+using namespace TextEditor;
 
 static const QString tooltipIName = "tooltip";
 
@@ -863,12 +864,12 @@ BreakpointData *DebuggerManager::findBreakpoint(const QString &fileName, int lin
 
 void DebuggerManager::toggleBreakpoint()
 {
-    QString fileName;
-    int lineNumber = -1;
-    d->m_plugin->currentTextEditor(&fileName, &lineNumber);
-    if (lineNumber == -1)
-        return;
-    toggleBreakpoint(fileName, lineNumber);
+    ITextEditor *textEditor = d->m_plugin->currentTextEditor();
+    QTC_ASSERT(textEditor, return);
+    QString fileName = textEditor->file()->fileName();
+    int lineNumber = textEditor->currentLine();
+    if (lineNumber >= 0)
+        toggleBreakpoint(fileName, lineNumber);
 }
 
 void DebuggerManager::toggleBreakpoint(const QString &fileName, int lineNumber)
@@ -915,7 +916,8 @@ void DebuggerManager::attemptBreakpointSynchronization()
         d->m_engine->attemptBreakpointSynchronization();
 }
 
-void DebuggerManager::setToolTipExpression(const QPoint &mousePos, TextEditor::ITextEditor *editor, int cursorPos)
+void DebuggerManager::setToolTipExpression(const QPoint &mousePos,
+    TextEditor::ITextEditor *editor, int cursorPos)
 {
     if (d->m_engine)
         d->m_engine->setToolTipExpression(mousePos, editor, cursorPos);
@@ -933,34 +935,30 @@ static QString msgEngineNotAvailable(const char *engine)
         "which is disabled.").arg(QLatin1String(engine));
 }
 
-static IDebuggerEngine *debuggerEngineForToolChain(ProjectExplorer::ToolChain::ToolChainType tc)
+static IDebuggerEngine *debuggerEngineForToolChain(int toolChainType)
 {
-    IDebuggerEngine *rc = 0;
-    switch (tc) {
+    switch (toolChainType) {
     //case ProjectExplorer::ToolChain::LinuxICC:
     case ProjectExplorer::ToolChain::MinGW:
     case ProjectExplorer::ToolChain::GCC:
-        rc = gdbEngine;
-        break;
+        return gdbEngine;
     case ProjectExplorer::ToolChain::MSVC:
     case ProjectExplorer::ToolChain::WINCE:
-        rc = winEngine;
-        break;
+        return winEngine;
     case ProjectExplorer::ToolChain::WINSCW: // S60
     case ProjectExplorer::ToolChain::GCCE:
     case ProjectExplorer::ToolChain::RVCT_ARMV5:
     case ProjectExplorer::ToolChain::RVCT_ARMV6:
     case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC:
     case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-        rc = gdbEngine;
-        break;
+        return gdbEngine;
     case ProjectExplorer::ToolChain::OTHER:
     case ProjectExplorer::ToolChain::UNKNOWN:
     case ProjectExplorer::ToolChain::INVALID:
     default:
         break;
     }
-    return rc;
+    return 0;
 }
 
 // Figure out the debugger type of an executable. Analyze executable
@@ -988,8 +986,7 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
     }
 */
 
-    if (IDebuggerEngine *tce = debuggerEngineForToolChain(
-            static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
+    if (IDebuggerEngine *tce = debuggerEngineForToolChain(toolChainType))
         return tce;
 
 #ifndef Q_OS_WIN
@@ -1024,8 +1021,7 @@ static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
                                                 int toolChainType,
                                                 QString *errorMessage)
 {
-    if (IDebuggerEngine *tce = debuggerEngineForToolChain(
-            static_cast<ProjectExplorer::ToolChain::ToolChainType>(toolChainType)))
+    if (IDebuggerEngine *tce = debuggerEngineForToolChain(toolChainType))
         return tce;
 #ifdef Q_OS_WIN
     // Preferably Windows debugger
@@ -1380,9 +1376,10 @@ void DebuggerManager::interruptDebuggingRequest()
 
 void DebuggerManager::runToLineExec()
 {
-    QString fileName;
-    int lineNumber = -1;
-    d->m_plugin->currentTextEditor(&fileName, &lineNumber);
+    ITextEditor *textEditor = d->m_plugin->currentTextEditor();
+    QTC_ASSERT(textEditor, return);
+    QString fileName = textEditor->file()->fileName();
+    int lineNumber = textEditor->currentLine();
     if (d->m_engine && !fileName.isEmpty()) {
         STATE_DEBUG(fileName << lineNumber);
         d->m_engine->runToLineExec(fileName, lineNumber);
@@ -1391,10 +1388,10 @@ void DebuggerManager::runToLineExec()
 
 void DebuggerManager::runToFunctionExec()
 {
-    QString fileName;
-    int lineNumber = -1;
-    QObject *object = d->m_plugin->currentTextEditor(&fileName, &lineNumber);
-    QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(object);
+    ITextEditor *textEditor = d->m_plugin->currentTextEditor();
+    QTC_ASSERT(textEditor, return);
+    QString fileName = textEditor->file()->fileName();
+    QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(textEditor->widget());
     if (!ed)
         return;
     QTextCursor cursor = ed->textCursor();
@@ -1423,9 +1420,10 @@ void DebuggerManager::runToFunctionExec()
 
 void DebuggerManager::jumpToLineExec()
 {
-    QString fileName;
-    int lineNumber = -1;
-    d->m_plugin->currentTextEditor(&fileName, &lineNumber);
+    ITextEditor *textEditor = d->m_plugin->currentTextEditor();
+    QTC_ASSERT(textEditor, return);
+    QString fileName = textEditor->file()->fileName();
+    int lineNumber = textEditor->currentLine();
     if (d->m_engine && !fileName.isEmpty()) {
         STATE_DEBUG(fileName << lineNumber);
         d->m_engine->jumpToLineExec(fileName, lineNumber);
