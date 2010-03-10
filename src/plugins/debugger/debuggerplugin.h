@@ -92,7 +92,6 @@ private:
     TextEditor::ITextEditor *currentTextEditor();
     QVariant sessionValue(const QString &name);
     void setSessionValue(const QString &name, const QVariant &value);
-    QVariant configValue(const QString &name);
     void setConfigValue(const QString &name, const QVariant &value);
 
 private slots:
