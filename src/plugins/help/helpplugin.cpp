@@ -686,13 +686,10 @@ void HelpPlugin::extensionsInitialized()
     webSettings->setFontSize(QWebSettings::DefaultFontSize, font.pointSize());
 #endif
 
-    QUrl url = m_helpEngine->findFile(QString::fromLatin1("qthelp://com."
-        "trolltech.qt.440/qdoc/index.html"));
-    if (!url.isValid()) {
-        url.setUrl(QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2/doc/"
-            "index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR));
-    }
-    m_helpEngine->setCustomValue(QLatin1String("DefaultHomePage"), url.toString());
+    const QString &url = QString::fromLatin1("qthelp://com.nokia.qtcreator."
+        "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
+        .arg(IDE_VERSION_RELEASE);
+    m_helpEngine->setCustomValue(QLatin1String("DefaultHomePage"), url);
 
     connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
         SLOT(rebuildViewerComboBox()));
@@ -914,9 +911,6 @@ void HelpPlugin::activateContents()
 {
     activateHelpMode();
     m_sideBar->activateItem(m_contentItem);
-    openHelpPage(QString::fromLatin1("qthelp://com.nokia.qtcreator.%1%2%3/doc/"
-        "index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
-        .arg(IDE_VERSION_RELEASE));
 }
 
 void HelpPlugin::activateSearch()
