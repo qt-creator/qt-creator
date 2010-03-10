@@ -698,7 +698,7 @@ void HelpPlugin::extensionsInitialized()
     connect(m_centralWidget, SIGNAL(viewerAboutToBeRemoved(int)), this,
         SLOT(removeViewerFromComboBox(int)));
 
-    connect(helpManager, SIGNAL(helpPluginUpdateDocumentation()), this,
+    connect(helpManager, SIGNAL(registerDocumentation()), this,
         SLOT(pluginUpdateDocumentation()));
 
     isInitialised = true;

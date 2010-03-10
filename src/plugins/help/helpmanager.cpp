@@ -50,6 +50,6 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
 {
     if (m_plugin) {
         m_plugin->setFilesToRegister(fileNames);
-        emit helpPluginUpdateDocumentation();
+        emit registerDocumentation();
     }
 }
