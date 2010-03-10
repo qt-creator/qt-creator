@@ -32,12 +32,6 @@
 
 #include <QtGui/QFrame>
 
-QT_BEGIN_NAMESPACE
-class QGraphicsItem;
-class QPixmap;
-class QMimeData;
-QT_END_NAMESPACE
-
 namespace QmlDesigner {
 
 class ItemLibraryPrivate;
@@ -57,10 +51,10 @@ public:
     void setMetaInfo(const MetaInfo &metaInfo);
 
 public Q_SLOTS:
-    void itemLibraryButtonToggled();
-    void resourcesButtonToggled();
+    void setSearchFilter(const QString &searchFilter);
+    void updateSearch();
+    void clearLineEditFocus();
 
-    void setSearchFilter(const QString &nameFilter);
     void setResourcePath(const QString &resourcePath);
 
     void startDragAndDrop(int itemLibId);
@@ -68,7 +62,7 @@ public Q_SLOTS:
 
 signals:
     void itemActivated(const QString& itemName);
-    void expandAllItems();
+    void resetItemsView();
 
 private:
     ItemLibraryPrivate *m_d;

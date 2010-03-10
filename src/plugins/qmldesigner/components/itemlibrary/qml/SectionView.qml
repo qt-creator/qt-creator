@@ -29,28 +29,64 @@
 
 import Qt 4.6
 
+// view displaying one item library section including its grid
+
 Column {
     id: sectionView
 
     // public
-    
+
     property var itemHighlight
 
     property int entriesPerRow
     property int cellWidth
     property int cellHeight
 
+    property var currentItem: gridView.currentItem
+
     function expand() {
-        gridFrame.state = "";
+        gridFrame.state = ""
     }
 
     signal itemSelected(int itemLibId)
     signal itemDragged(int itemLibId)
 
+    function setSelection(itemSectionIndex)
+    {
+	gridView.currentIndex = itemSectionIndex
+    }
+
+    function unsetSelection()
+    {
+	gridView.currentIndex = -1
+    }
+
+    function focusSelection(flickable) {
+	var pos = -1;
+
+	if (!gridView.currentItem)
+	    return;
+
+	var currentItemX = sectionView.x + gridFrame.x + gridView.x + gridView.currentItem.x;
+	var currentItemY = sectionView.y + gridFrame.y + gridView.y + gridView.currentItem.y
+	    - gridView.contentY;  // workaround: GridView reports wrong contentY
+
+	if (currentItemY < flickable.contentY)
+	    pos = Math.max(0, currentItemY)
+
+	else if ((currentItemY + gridView.currentItem.height) >
+		 (flickable.contentY + flickable.height - 1))
+	    pos = Math.min(Math.max(0, flickable.contentHeight - flickable.height),
+			   currentItemY + gridView.currentItem.height - flickable.height + 1)
+
+	if (pos >= 0)
+	    flickable.contentY = pos
+    }
+
     // internal
 
     ItemsViewStyle { id: style }
-    
+
     Component {
         id: itemDelegate
 
@@ -60,25 +96,17 @@ Column {
 	    width: cellWidth
 	    height: cellHeight
 
-            function selectItem() {
-                itemHighlight.select(sectionView, item, gridFrame.x, -gridView.viewportY);
-                sectionView.itemSelected(itemLibId);
-            }
-
-            onItemPressed: selectItem()
-            onItemDragged: {
-                selectItem();
-                sectionView.itemDragged(itemLibId);
-            }
+            onItemPressed: sectionView.itemSelected(itemLibId)
+            onItemDragged: sectionView.itemDragged(itemLibId)
         }
     }
 
+    // clickable header bar
     Rectangle {
         width: parent.width
         height: style.sectionTitleHeight
 
         color: style.sectionTitleBackgroundColor
-        radius: 2
 
         Item {
             id: arrow
@@ -104,19 +132,13 @@ Column {
             anchors.left: arrow.right
             anchors.leftMargin: 5
 
-            text: sectionName
+            text: sectionName  // to be set by model
             color: style.sectionTitleTextColor
+	    elide: Text.ElideMiddle
         }
         MouseArea {
             anchors.fill: parent
-            onClicked: {
-                if (itemHighlight.visible &&
-                    (itemHighlight.section == sectionView)) {
-                    itemHighlight.unselect();
-                    sectionView.itemSelected(-1);
-                }
-                gridFrame.toggleExpanded()
-            }
+            onClicked: gridFrame.toggleExpanded()
         }
     }
 
@@ -137,10 +159,14 @@ Column {
         GridView {
             id: gridView
 
-	    // workaround
             Connections {
-                target: itemLibraryModel
-                onVisibilityUpdated: gridView.positionViewAtIndex(0);
+                target: itemLibraryModel  // to be set in Qml context
+                onSectionVisibilityChanged: {
+		    /* workaround: reset model in order to get the grid view
+                       updated properly under all conditions */
+		    if (changedSectionLibId == sectionLibId)
+			gridView.model = sectionEntries
+		}
             }
 
             anchors.fill: parent
@@ -149,8 +175,9 @@ Column {
 
             cellWidth: sectionView.cellWidth
             cellHeight: sectionView.cellHeight
-            model: sectionEntries
+            model: sectionEntries  // to be set by model
             delegate: itemDelegate
+	    highlight: itemHighlight
             interactive: false
             highlightFollowsCurrentItem: false
         }

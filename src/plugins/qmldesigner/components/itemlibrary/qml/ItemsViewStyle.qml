@@ -29,6 +29,8 @@
 
 import Qt 4.6
 
+// the style used the items view
+
 Item {
     property string backgroundColor: "#707070"
     property string raisedBackgroundColor: "#e0e0e0"
@@ -50,20 +52,18 @@ Item {
     property int sectionTitleHeight: 20
     property int sectionTitleSpacing: 2
 
-    // the selector's offset from the start of the section
-    property int selectionSectionOffset: sectionTitleHeight + sectionTitleSpacing
-
     property int iconWidth: 32
     property int iconHeight: 32
 
-    property int textWidth: 90
+    property int textWidth: 95
     property int textHeight: 15
 
+    property int cellHorizontalMargin: 5
     property int cellVerticalSpacing: 7
     property int cellVerticalMargin: 10
 
     // the following depend on the actual shape of the item delegate
-    property int cellWidth: textWidth
+    property int cellWidth: textWidth + 2 * cellHorizontalMargin
     property int cellHeight: itemLibraryIconHeight + textHeight +
 	                     2 * cellVerticalMargin + cellVerticalSpacing
 }

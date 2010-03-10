@@ -57,12 +57,13 @@ public:
     void removeElement(int libId);
 
     bool elementVisible(int libId) const;
-    void setElementVisible(int libId, bool visible);
+    bool setElementVisible(int libId, bool visible);
 
     const QMap<int, T *> &elements() const;
 
     T *elementModel(int libId);
     int findElement(int libId) const;
+    int visibleElementPosition(int libId) const;
 
 private:
     struct order_struct {
@@ -106,7 +107,10 @@ public:
     void addSectionEntry(ItemLibraryItemModel *sectionEntry);
     void removeSectionEntry(int itemLibId);
 
-    bool updateSectionVisibility(const QString &searchText);
+    int visibleItemIndex(int itemLibId);
+    bool isItemVisible(int itemLibId);
+
+    bool updateSectionVisibility(const QString &searchText, bool *changed);
     void updateItemIconSize(const QSize &itemIconSize);
 
     bool operator<(const ItemLibrarySectionModel &other) const;
@@ -137,10 +141,15 @@ public slots:
     void setSearchText(const QString &searchText);
     void setItemIconSize(const QSize &itemIconSize);
 
+    int getItemSectionIndex(int itemLibId);
+    int getSectionLibId(int itemLibId);
+    bool isItemVisible(int itemLibId);
+
 signals:
     void qmlModelChanged();
     void searchTextChanged();
-    void visibilityUpdated();
+    void visibilityChanged();
+    void sectionVisibilityChanged(int changedSectionLibId);
 
 private:
     void updateVisibility();
@@ -149,6 +158,7 @@ private:
     QWeakPointer<QScriptEngine> m_scriptEngine;
     MetaInfo *m_metaInfo;
     QMap<int, ItemLibraryInfo> m_itemInfos;
+    QMap<int, int> m_sections;
 
     QString m_searchText;
     QSize m_itemIconSize;

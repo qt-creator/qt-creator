@@ -29,18 +29,21 @@
 
 import Qt 4.6
 
+// view displaying an item library grid item
+
 Item {
     id: itemView
 
     // public
-    
+
     signal itemPressed()
     signal itemDragged()
 
     // internal
 
     ItemsViewStyle { id: style }
-    
+
+    // frame
     Rectangle {
         anchors.top: parent.top
         anchors.left: parent.left
@@ -91,28 +94,31 @@ Item {
         anchors.topMargin: style.cellVerticalMargin
         anchors.horizontalCenter: parent.horizontalCenter
 
-        width: itemLibraryIconWidth
-        height: itemLibraryIconHeight
-        pixmap: itemPixmap
+        width: itemLibraryIconWidth  // to be set in Qml context
+        height: itemLibraryIconHeight   // to be set in Qml context
+        pixmap: itemPixmap  // to be set by model
     }
 
     Text {
         id: text
-        elide: Qt.ElideMiddle
+        elide: ElideMiddle
         anchors.top: itemIcon.bottom
         anchors.topMargin: style.cellVerticalSpacing
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
+	anchors.leftMargin: style.cellHorizontalMargin
+	anchors.right: parent.right
+	anchors.rightMargin: style.cellHorizontalMargin
         width: style.textWidth
         height: style.textHeight
 
         verticalAlignment: "AlignVCenter"
         horizontalAlignment: "AlignHCenter"
-        text: itemName
+        text: itemName  // to be set by model
         color: style.itemNameTextColor
     }
 
     MouseArea {
-        id: mouseArea
+        id: mouseRegion
         anchors.fill: parent
 
         property bool reallyPressed: false
@@ -127,10 +133,10 @@ Item {
         }
         onPositionChanged: {
             if (reallyPressed &&
-                (Math.abs(mouse.x - pressedX) > 2 ||
-                 Math.abs(mouse.y - pressedY) > 2)) {
+                (Math.abs(mouse.x - pressedX) +
+                 Math.abs(mouse.y - pressedY)) > 3) {
                 itemDragged()
-                reallyPressed = false;
+                reallyPressed = false
             }
         }
         onReleased: reallyPressed = false

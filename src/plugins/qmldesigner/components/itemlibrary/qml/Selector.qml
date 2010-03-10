@@ -29,66 +29,12 @@
 
 import Qt 4.6
 
+// the coloured selector of the items view
+
 Item {
     id: selector
 
-    // public
-    
-    property var flickable
-
-    // internal
-
     ItemsViewStyle { id: style }
-    
-    visible: false
-
-    property var section: null
-    property var item: null
-    property int sectionXOffset: 0
-    property int sectionYOffset: 0
-
-    x: (section && item)? (section.x + item.x + sectionXOffset):0;
-    y: (section && item)? (section.y + style.selectionSectionOffset + item.y + sectionYOffset):0;
-
-    Connections {
-        target: itemLibraryModel
-        onVisibilityUpdated: unselect()
-    }
-
-    function select(section, item, sectionXOffset, sectionYOffset) {
-
-        selector.item = item
-        selector.section = section
-        selector.sectionXOffset = sectionXOffset
-        selector.sectionYOffset = sectionYOffset
-
-        visible = true
-        focusSelection();
-    }
-
-    function unselect() {
-        section = null
-        item = null
-        sectionXOffset = 0
-        sectionYOffset = 0
-        visible = false
-    }
-
-    function focusSelection() {
-        var pos = -1;
-
-        if (y < flickable.viewportY)
-            pos = Math.max(0, y)
-
-        else if ((y + height) >
-                 (flickable.viewportY + flickable.height - 1))
-            pos = Math.min(Math.max(0, flickable.viewportHeight - flickable.height),
-		y + height - flickable.height + 1)
-
-        if (pos >= 0)
-            flickable.viewportY = pos;
-    }
-    
     SystemPalette { id:systemPalette }
 
     Rectangle {

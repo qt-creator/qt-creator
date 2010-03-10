@@ -29,30 +29,19 @@
 
 #include "itemlibrary.h"
 
+#include <utils/filterlineedit.h>
+#include "itemlibrarywidgets.h"
 #include "itemlibrarymodel.h"
 #include "customdraganddrop.h"
 
-#include "ui_itemlibrary.h"
-#include <metainfo.h>
-#include <itemlibraryinfo.h>
-#include <formeditorscene.h>
-
-#include <QtCore/QDebug>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QMenu>
-#include <QtGui/QAction>
-#include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QGraphicsItem>
-#include <QtGui/QPixmap>
-#include <QSortFilterProxyModel>
-#include <QLabel>
-#include <QMainWindow>
-#include <QMenuBar>
-#include <QFile>
-#include <QDirModel>
+#include <QFileInfo>
 #include <QFileIconProvider>
+#include <QDirModel>
+#include <QStackedWidget>
+#include <QGridLayout>
+#include <QTabBar>
 #include <QImageReader>
+#include <QMimeData>
 
 #include <QDeclarativeView>
 #include <QDeclarativeItem>
@@ -104,23 +93,29 @@ class ItemLibraryPrivate {
 public:
     ItemLibraryPrivate(QObject *object);
 
-    Ui::ItemLibrary m_ui;
     Internal::ItemLibraryModel *m_itemLibraryModel;
-    QDeclarativeView *m_itemsView;
     QDirModel *m_resourcesDirModel;
-    QString m_resourcePath;
+
+    QStackedWidget *m_stackedWidget;
+    Utils::FilterLineEdit *m_lineEdit;
+    QDeclarativeView *m_itemsView;
+    Internal::ItemLibraryTreeView *m_resourcesView;
+
     QSize m_itemIconSize, m_resIconSize;
     MyFileIconProvider m_iconProvider;
 };
 
 ItemLibraryPrivate::ItemLibraryPrivate(QObject *object) :
     m_itemLibraryModel(0),
+    m_resourcesDirModel(0),
+    m_stackedWidget(0),
+    m_lineEdit(0),
     m_itemsView(0),
+    m_resourcesView(0),
     m_itemIconSize(22, 22),
     m_resIconSize(22, 22),
     m_iconProvider(m_resIconSize)
 {
-    m_resourcePath = QDir::currentPath();
     Q_UNUSED(object);
 }
 
@@ -128,78 +123,90 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
     QFrame(parent),
     m_d(new ItemLibraryPrivate(this))
 {
-    m_d->m_ui.setupUi(this);
-    layout()->setContentsMargins(2, 2, 2, 0);
-    layout()->setSpacing(2);
+    setWindowTitle(tr("Library", "Title of library view"));
 
-    m_d->m_resourcesDirModel = new QDirModel(this);
-
-    m_d->m_ui.ItemLibraryTreeView->setModel(m_d->m_resourcesDirModel);
-    m_d->m_ui.ItemLibraryTreeView->setIconSize(m_d->m_resIconSize);
-    m_d->m_ui.ItemLibraryTreeView->setColumnHidden(1, true);
-    m_d->m_ui.ItemLibraryTreeView->setColumnHidden(2, true);
-    m_d->m_ui.ItemLibraryTreeView->setColumnHidden(3, true);
-    m_d->m_ui.ItemLibraryTreeView->setSortingEnabled(true);
-    m_d->m_ui.ItemLibraryTreeView->setHeaderHidden(true);
-    m_d->m_ui.ItemLibraryTreeView->setIndentation(10);
-    m_d->m_ui.ItemLibraryTreeView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    m_d->m_ui.ItemLibraryTreeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_d->m_ui.ItemLibraryTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
-    m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
-
+    /* create Items view and its model */
     m_d->m_itemsView = new QDeclarativeView(this);
+    m_d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
     m_d->m_itemsView->setAttribute(Qt::WA_OpaquePaintEvent);
     m_d->m_itemsView->setAttribute(Qt::WA_NoSystemBackground);
     m_d->m_itemsView->setAcceptDrops(false);
     m_d->m_itemsView->setFocusPolicy(Qt::ClickFocus);
     m_d->m_itemsView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    m_d->m_ui.ItemLibraryGridLayout->addWidget(m_d->m_itemsView, 0, 0);
-
     m_d->m_itemLibraryModel = new Internal::ItemLibraryModel(QDeclarativeEnginePrivate::getScriptEngine(m_d->m_itemsView->engine()), this);
     m_d->m_itemLibraryModel->setItemIconSize(m_d->m_itemIconSize);
-    m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryModel"), m_d->m_itemLibraryModel);
-    m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryIconWidth"), m_d->m_itemIconSize.width());
-    m_d->m_itemsView->rootContext()->setContextProperty(QLatin1String("itemLibraryIconHeight"), m_d->m_itemIconSize.height());
 
-    m_d->m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
+    QDeclarativeContext *rootContext = m_d->m_itemsView->rootContext();
+    rootContext->setContextProperty(QLatin1String("itemLibraryModel"), m_d->m_itemLibraryModel);
+    rootContext->setContextProperty(QLatin1String("itemLibraryIconWidth"), m_d->m_itemIconSize.width());
+    rootContext->setContextProperty(QLatin1String("itemLibraryIconHeight"), m_d->m_itemIconSize.height());
 
     QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_d->m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
     connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
-    connect(this, SIGNAL(expandAllItems()), rootItem, SLOT(expandAll()));
+    connect(this, SIGNAL(resetItemsView()), rootItem, SLOT(resetView()));
 
-    connect(m_d->m_ui.lineEdit, SIGNAL(textChanged(QString)), this, SLOT(setSearchFilter(QString)));
-    m_d->m_ui.lineEdit->setDragEnabled(false);
-
-    connect(m_d->m_ui.buttonItems, SIGNAL(clicked()), this, SLOT(itemLibraryButtonToggled()));
-    connect(m_d->m_ui.buttonResources, SIGNAL(clicked()), this, SLOT(resourcesButtonToggled()));
-
-    m_d->m_ui.buttonItems->setChecked(true);
-    itemLibraryButtonToggled();
-    setSearchFilter("");
-
+    /* create Resources view and its model */
+    m_d->m_resourcesDirModel = new QDirModel(this);
     m_d->m_resourcesDirModel->setIconProvider(&m_d->m_iconProvider);
+    m_d->m_resourcesView = new Internal::ItemLibraryTreeView(this);
+    m_d->m_resourcesView->setModel(m_d->m_resourcesDirModel);
+    m_d->m_resourcesView->setIconSize(m_d->m_resIconSize);
 
-    setWindowTitle(tr("Library", "Title of library view"));
+    /* other widgets */
+    QTabBar *tabBar = new QTabBar(this);
+    tabBar->addTab(tr("Items", "Title of library items view"));
+    tabBar->addTab(tr("Resources", "Title of library resources view"));
+    tabBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
+    m_d->m_lineEdit = new Utils::FilterLineEdit(this);
+    m_d->m_lineEdit->setObjectName(QLatin1String("itemLibrarySearchInput"));
+    m_d->m_lineEdit->setHintText(tr("<Filter>", "Library search input hint text"));
+    m_d->m_lineEdit->setDragEnabled(false);
+    m_d->m_lineEdit->setMinimumWidth(75);
+    m_d->m_lineEdit->setTextMargins(0, 0, 0, 0);
+    QWidget *lineEditFrame = new QWidget(this);
+    lineEditFrame->setObjectName(QLatin1String("itemLibrarySearchInputFrame"));
+    QGridLayout *lineEditLayout = new QGridLayout(lineEditFrame);
+    lineEditLayout->setMargin(2);
+    lineEditLayout->setSpacing(0);
+    lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 0);
+    lineEditLayout->addWidget(m_d->m_lineEdit, 0, 1, 1, 1);
+    lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 0, 2);
+    connect(m_d->m_lineEdit, SIGNAL(filterChanged(QString)), this, SLOT(setSearchFilter(QString)));
+    connect(m_d->m_lineEdit, SIGNAL(buttonClicked()), this, SLOT(clearLineEditFocus()));
+
+    m_d->m_stackedWidget = new QStackedWidget(this);
+    m_d->m_stackedWidget->addWidget(m_d->m_itemsView);
+    m_d->m_stackedWidget->addWidget(m_d->m_resourcesView);
+    connect(tabBar, SIGNAL(currentChanged(int)),
+            m_d->m_stackedWidget, SLOT(setCurrentIndex(int)));
+    connect(tabBar, SIGNAL(currentChanged(int)),
+            this, SLOT(updateSearch()));
+
+    QGridLayout *layout = new QGridLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    layout->addWidget(tabBar, 0, 0, 1, 1);
+    layout->addWidget(lineEditFrame, 1, 0, 1, 1);
+    layout->addWidget(m_d->m_stackedWidget, 2, 0, 1, 1);
+
+    setResourcePath(QDir::currentPath());
+    setSearchFilter(QString());
+
+    /* style sheets */
     {
         QFile file(":/qmldesigner/stylesheet.css");
         file.open(QFile::ReadOnly);
         QString styleSheet = QLatin1String(file.readAll());
         setStyleSheet(styleSheet);
-
-        QFile fileTool(":/qmldesigner/toolbutton.css");
-        fileTool.open(QFile::ReadOnly);
-        styleSheet = QLatin1String(fileTool.readAll());
-        m_d->m_ui.buttonItems->setStyleSheet(styleSheet);
-        m_d->m_ui.buttonResources->setStyleSheet(styleSheet);
     }
 
     {
         QFile file(":/qmldesigner/scrollbar.css");
         file.open(QFile::ReadOnly);
         QString styleSheet = QLatin1String(file.readAll());
-        m_d->m_ui.ItemLibraryTreeView->setStyleSheet(styleSheet);
+        m_d->m_resourcesView->setStyleSheet(styleSheet);
     }
 }
 
@@ -208,12 +215,17 @@ ItemLibrary::~ItemLibrary()
     delete m_d;
 }
 
+void ItemLibrary::setMetaInfo(const MetaInfo &metaInfo)
+{
+    m_d->m_itemLibraryModel->update(metaInfo);
+}
+
 void ItemLibrary::setSearchFilter(const QString &searchFilter)
 {
-    if (m_d->m_ui.buttonItems->isChecked()) {
+    if (m_d->m_stackedWidget->currentIndex() == 0) {
         m_d->m_itemLibraryModel->setSearchText(searchFilter);
+        emit resetItemsView();
         m_d->m_itemsView->update();
-        emit expandAllItems();
     } else {
         QStringList nameFilterList;
         if (searchFilter.contains('.')) {
@@ -226,29 +238,25 @@ void ItemLibrary::setSearchFilter(const QString &searchFilter)
 
         m_d->m_resourcesDirModel->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
         m_d->m_resourcesDirModel->setNameFilters(nameFilterList);
-        if (m_d->m_ui.ItemLibraryTreeView->model() == m_d->m_resourcesDirModel)
-            m_d->m_ui.ItemLibraryTreeView->setRootIndex(m_d->m_resourcesDirModel->index(m_d->m_resourcePath));
-        m_d->m_ui.ItemLibraryTreeView->expandToDepth(1);
+       m_d->m_resourcesView->expandToDepth(1);
+        m_d->m_resourcesView->scrollToTop();
     }
 }
 
-void ItemLibrary::itemLibraryButtonToggled()
+void ItemLibrary::updateSearch()
 {
-    m_d->m_ui.LibraryStackedWidget->setCurrentIndex(0);
-    m_d->m_ui.buttonResources->setChecked(false);
-    setSearchFilter(m_d->m_ui.lineEdit->text());
+    setSearchFilter(m_d->m_lineEdit->typedText());
 }
 
-void ItemLibrary::resourcesButtonToggled()
+void ItemLibrary::clearLineEditFocus()
 {
-    m_d->m_ui.LibraryStackedWidget->setCurrentIndex(1);
-    m_d->m_ui.buttonItems->setChecked(false);
-    setSearchFilter(m_d->m_ui.lineEdit->text());
+    m_d->m_lineEdit->clearFocus();
 }
 
 void ItemLibrary::setResourcePath(const QString &resourcePath)
 {
-    m_d->m_resourcePath = resourcePath;
+    if (m_d->m_resourcesView->model() == m_d->m_resourcesDirModel)
+        m_d->m_resourcesView->setRootIndex(m_d->m_resourcesDirModel->index(resourcePath));
 }
 
 void ItemLibrary::startDragAndDrop(int itemLibId)
@@ -272,10 +280,4 @@ void ItemLibrary::showItemInfo(int /*itemLibId*/)
 //    qDebug() << "showing item info about id" << itemLibId;
 }
 
-void ItemLibrary::setMetaInfo(const MetaInfo &metaInfo)
-{
-    m_d->m_itemLibraryModel->update(metaInfo);
 }
-
-}
-

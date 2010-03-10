@@ -29,17 +29,25 @@
 
 import Qt 4.6
 
+// scrollbar for the items view
+
 Item {
     id: bar
 
     // public
-    
+
     property var flickable
+
+    function reset() {
+	handle.y = 0
+    }
 
     // internal
 
     ItemsViewStyle { id: style }
-    
+
+    onFlickableChanged: reset()
+
     property int scrollHeight: height - handle.height
 
     Rectangle {
@@ -47,32 +55,28 @@ Item {
         anchors.rightMargin: 1
         anchors.bottomMargin: 1
         color: "transparent"
-        border.width: 1;
-        border.color: style.scrollbarBorderColor;
+        border.width: 1
+        border.color: style.scrollbarBorderColor
     }
 
-    function moveHandle(contentPos, updateFlickable) {
-	handle.updateFlickable = updateFlickable
+    function updateHandle() {
+	handle.updateFlickable = false
 
 	if (flickable)
 	    handle.y = scrollHeight * Math.min(
-		contentPos / (flickable.contentHeight - flickable.height),
-                1);
+		flickable.contentY / (flickable.contentHeight - flickable.height),
+                1)
 	else
-	    handle.y = 0;
+	    handle.y = 0
 
 	handle.updateFlickable = true
     }
 
-    function updateHandle() {
-	moveHandle(flickable.contentY, false);
-    }
-
-    onFlickableChanged: moveHandle(0, true)
+    onHeightChanged: updateHandle()
 
     Connections {
         target: flickable
-        onHeightChanged: moveHandle(0, true)
+        onHeightChanged: updateHandle()
     }
 
     Connections {
@@ -85,8 +89,6 @@ Item {
         onContentYChanged: updateHandle()
     }
 
-    onHeightChanged: updateHandle()
-    
     MouseArea {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -105,7 +107,7 @@ Item {
 	height: Math.max(width, bar.height * Math.min(1, flickable.height / flickable.contentHeight))
 
 	property bool updateFlickable: true
-	
+
 	onYChanged: {
 	    if (updateFlickable)
 		flickable.contentY = Math.max(0, flickable.contentHeight * y / bar.height)

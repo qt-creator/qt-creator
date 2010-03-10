@@ -7,7 +7,5 @@ INCLUDEPATH += $$PWD
 
 # Input
 HEADERS += itemlibrary.h customdraganddrop.h itemlibrarymodel.h itemlibrarywidgets.h
-FORMS += itemlibrary.ui
 SOURCES += itemlibrary.cpp customdraganddrop.cpp itemlibrarymodel.cpp itemlibrarywidgets.cpp
 RESOURCES += itemlibrary.qrc
-

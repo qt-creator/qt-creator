@@ -36,12 +36,17 @@
 #include <QDebug>
 #include <QTimeLine>
 #include <QToolButton>
+#include <QStyledItemDelegate>
+
+class QDirModel;
 
 QT_FORWARD_DECLARE_CLASS(QLabel);
 
 namespace QmlDesigner {
 
 namespace Internal {
+
+class ResourceItemDelegate;
 
 // ItemLibraryTreeView with Drag implementation
 class ItemLibraryTreeView : public QTreeView {
@@ -50,20 +55,34 @@ public:
     explicit ItemLibraryTreeView(QWidget *parent = 0);
 
     virtual void startDrag(Qt::DropActions supportedActions);
+    virtual void setModel(QAbstractItemModel *model);
 
 signals:
     void itemActivated(const QString &itemName);
 
 private slots:
     void activateItem( const QModelIndex &index);
+
+private:
+    ResourceItemDelegate *m_delegate;
 };
 
-class ItemLibraryButton : public QToolButton {
+class ResourceItemDelegate : public QStyledItemDelegate
+{
 public:
-    ItemLibraryButton(QWidget *parent = 0);
+    explicit ResourceItemDelegate(QObject *parent=0) :
+        QStyledItemDelegate(parent),m_model(0) {}
 
-protected:
-    void mousePressEvent(QMouseEvent *event);
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const;
+
+    void setModel(QDirModel *model);
+
+private:
+    QDirModel *m_model;
 };
 
 } // namespace Internal

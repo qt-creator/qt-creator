@@ -107,27 +107,20 @@ bool ItemLibrarySortedModel<T>::elementVisible(int libId) const
 
 
 template <class T>
-void ItemLibrarySortedModel<T>::setElementVisible(int libId, bool visible)
+bool ItemLibrarySortedModel<T>::setElementVisible(int libId, bool visible)
 {
-    int pos = findElement(libId),
-          offset = 0;
-
+    int pos = findElement(libId);
     if (m_elementOrder.at(pos).visible == visible)
-        return;
+        return false;
 
-    for (int i = 0; (i + offset) < pos;) {
-        if (m_elementOrder.at(i + offset).visible)
-            ++i;
-        else
-            ++offset;
-    }
-
+    int visiblePos = visibleElementPosition(libId);
     if (visible)
-        insert(pos - offset, *(m_elementModels.value(libId)));
+        insert(visiblePos, *(m_elementModels.value(libId)));
     else
-        remove(pos - offset);
+        remove(visiblePos);
 
     m_elementOrder[pos].visible = visible;
+    return true;
 }
 
 
@@ -160,6 +153,22 @@ int ItemLibrarySortedModel<T>::findElement(int libId) const
     return -1;
 }
 
+template <class T>
+int ItemLibrarySortedModel<T>::visibleElementPosition(int libId) const
+{
+    int i = 0;
+    QListIterator<struct order_struct> it(m_elementOrder);
+
+    while (it.hasNext()) {
+        struct order_struct order = it.next();
+        if (order.libId == libId)
+            return i;
+        if (order.visible)
+            ++i;
+    }
+
+    return -1;
+}
 
 
 
@@ -252,14 +261,32 @@ void ItemLibrarySectionModel::removeSectionEntry(int itemLibId)
 }
 
 
-bool ItemLibrarySectionModel::updateSectionVisibility(const QString &searchText)
+int ItemLibrarySectionModel::visibleItemIndex(int itemLibId)
+{
+    return m_sectionEntries.visibleElementPosition(itemLibId);
+}
+
+
+bool ItemLibrarySectionModel::isItemVisible(int itemLibId)
+{
+    return m_sectionEntries.elementVisible(itemLibId);
+}
+
+
+bool ItemLibrarySectionModel::updateSectionVisibility(const QString &searchText, bool *changed)
 {
     bool haveVisibleItems = false;
+
+    *changed = false;
+
     QMap<int, ItemLibraryItemModel *>::const_iterator itemIt = m_sectionEntries.elements().constBegin();
     while (itemIt != m_sectionEntries.elements().constEnd()) {
 
-        bool itemVisible = itemIt.value()->itemName().toLower().contains(searchText);
-        m_sectionEntries.setElementVisible(itemIt.key(), itemVisible);
+        bool itemVisible = itemIt.value()->itemName().toLower().contains(searchText),
+            itemChanged = false;
+        itemChanged = m_sectionEntries.setElementVisible(itemIt.key(), itemVisible);
+
+        *changed |= itemChanged;
 
         if (itemVisible)
             haveVisibleItems = true;
@@ -334,12 +361,42 @@ void ItemLibraryModel::setItemIconSize(const QSize &itemIconSize)
 }
 
 
+int ItemLibraryModel::getItemSectionIndex(int itemLibId)
+{
+    if (m_sections.contains(itemLibId))
+        return elementModel(m_sections.value(itemLibId))->visibleItemIndex(itemLibId);
+    else
+        return -1;
+}
+
+
+int ItemLibraryModel::getSectionLibId(int itemLibId)
+{
+    return m_sections.value(itemLibId);
+}
+
+
+bool ItemLibraryModel::isItemVisible(int itemLibId)
+{
+    if (!m_sections.contains(itemLibId))
+        return false;
+
+    int sectionLibId = m_sections.value(itemLibId);
+    if (!elementVisible(sectionLibId))
+        return false;
+
+    return elementModel(sectionLibId)->isItemVisible(itemLibId);
+}
+
+
 void ItemLibraryModel::update(const MetaInfo &metaInfo)
 {
     QMap<QString, int> sections;
 
     clearElements();
     m_itemInfos.clear();
+    m_sections.clear();
+    m_nextLibId = 0;
 
     if (!m_metaInfo) {
         m_metaInfo = new MetaInfo(metaInfo);
@@ -371,6 +428,7 @@ void ItemLibraryModel::update(const MetaInfo &metaInfo)
             itemModel->setItemIcon(itemLibraryRepresentation.icon());
             itemModel->setItemIconSize(m_itemIconSize);
             sectionModel->addSectionEntry(itemModel);
+            m_sections.insert(itemId, sectionId);
         }
     }
 
@@ -414,6 +472,8 @@ QIcon ItemLibraryModel::getIcon(int libId)
 
 void ItemLibraryModel::updateVisibility()
 {
+    bool changed = false;
+
     QMap<int, ItemLibrarySectionModel *>::const_iterator sectionIt = elements().constBegin();
     while (sectionIt != elements().constEnd()) {
 
@@ -423,13 +483,21 @@ void ItemLibraryModel::updateVisibility()
         if (sectionModel->sectionName().toLower().contains(m_searchText))
             sectionSearchText = "";
 
-        bool sectionVisibility = sectionModel->updateSectionVisibility(sectionSearchText);
-        setElementVisible(sectionIt.key(), sectionVisibility);
+        bool sectionChanged = false,
+            sectionVisibility = sectionModel->updateSectionVisibility(sectionSearchText,
+                                                                      &sectionChanged);
+        if (sectionChanged) {
+            changed = true;
+            if (sectionVisibility)
+                emit sectionVisibilityChanged(sectionIt.key());
+        }
 
+        changed |= setElementVisible(sectionIt.key(), sectionVisibility);
         ++sectionIt;
     }
 
-    emit visibilityUpdated();
+    if (changed)
+        emit visibilityChanged();
 }
 
 
