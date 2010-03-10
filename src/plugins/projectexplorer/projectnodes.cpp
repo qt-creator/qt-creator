@@ -61,6 +61,7 @@ Node::Node(NodeType nodeType,
           m_folderNode(0),
           m_path(filePath)
 {
+
 }
 
 NodeType Node::nodeType() const

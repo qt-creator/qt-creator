@@ -75,7 +75,6 @@ signals:
     void targetInformationChanged();
 
 private slots:
-    void invalidateCachedTargetInformation();
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
@@ -87,8 +86,6 @@ private:
     void updateTarget();
 
     QString m_proFilePath;
-    QString m_executable;
-    bool m_cachedTargetInformationValid;
 };
 
 class S60EmulatorRunConfigurationWidget : public QWidget

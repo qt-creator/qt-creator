@@ -203,7 +203,6 @@ ProjectExplorer::Project* Qt4Manager::openProject(const QString &fileName)
     }
 
     Qt4Project *pro = new Qt4Project(this, canonicalFilePath);
-    registerProject(pro);
     return pro;
 }
 

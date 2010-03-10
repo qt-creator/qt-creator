@@ -84,7 +84,8 @@ public:
     QtVersion::QmakeBuildConfigs qmakeBuildConfiguration() const;
     void setQMakeBuildConfiguration(QtVersion::QmakeBuildConfigs config);
     // used by qmake step to notify that the qmake args have changed
-    // not really nice
+    // not really nice, the build configuration should save the arguments
+    // since they are needed for reevaluation
     void emitQMakeBuildConfigurationChanged();
     // used by qmake step to notify that the build directory was initialized
     // not really nice
@@ -119,9 +120,9 @@ signals:
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
 
-    /// a covenience signal, emitted if either the qtversion, the toolchainType or the qmake build
-    /// configuration changed
-    void targetInformationChanged();
+    /// emitted if the build configuration changed in a way that
+    /// should trigger a reevaluation of all .pro files
+    void proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *);
 
     void buildDirectoryInitialized();
 

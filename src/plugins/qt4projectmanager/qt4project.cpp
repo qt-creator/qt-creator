@@ -44,6 +44,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/nodesvisitor.h>
@@ -232,21 +233,16 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
     m_isApplication(true),
     m_projectFiles(new Qt4ProjectFiles),
-    m_proFileOption(0)
+    m_proFileOption(0),
+    m_asyncUpdateFutureInterface(0),
+    m_pendingEvaluateFuturesCount(0),
+    m_asyncUpdateState(NoState),
+    m_cancelEvaluate(false)
 {
-    m_updateCodeModelTimer.setSingleShot(true);
-    m_updateCodeModelTimer.setInterval(20);
-    connect(&m_updateCodeModelTimer, SIGNAL(timeout()), this, SLOT(updateCodeModel()));
+    m_asyncUpdateTimer.setSingleShot(true);
+    m_asyncUpdateTimer.setInterval(3000);
+    connect(&m_asyncUpdateTimer, SIGNAL(timeout()), this, SLOT(asyncUpdate()));
 
-    m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
-    m_rootProjectNode->registerWatcher(m_nodesWatcher);
-
-    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(onAddedTarget(ProjectExplorer::Target*)));
-
-    // Setup Qt versions supported (== possible targets).
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
-            this, SLOT(qtVersionsChanged()));
     setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
 }
 
@@ -295,53 +291,36 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     Q_ASSERT(activeTarget());
     Q_ASSERT(activeTarget()->activeBuildConfiguration());
 
+    m_manager->registerProject(this);
+
+    m_rootProjectNode = new Qt4ProFileNode(this, m_fileInfo->fileName(), this);
+    m_rootProjectNode->registerWatcher(m_nodesWatcher);
+
     update();
     updateFileList();
     // This might be incorrect, need a full update
-    scheduleUpdateCodeModel(rootProjectNode());
+    updateCodeModel();
 
-    // Now connect
-    connect(m_nodesWatcher, SIGNAL(foldersAdded()), this, SLOT(updateFileList()));
-    connect(m_nodesWatcher, SIGNAL(foldersRemoved()), this, SLOT(updateFileList()));
-    connect(m_nodesWatcher, SIGNAL(filesAdded()), this, SLOT(updateFileList()));
-    connect(m_nodesWatcher, SIGNAL(filesRemoved()), this, SLOT(updateFileList()));
-    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
-            this, SLOT(scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
+    checkForNewApplicationProjects();
+    checkForDeletedApplicationProjects();
 
-    connect(m_nodesWatcher, SIGNAL(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)),
-            this, SLOT(foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &)));
-    connect(m_nodesWatcher, SIGNAL(foldersAdded()), this, SLOT(checkForNewApplicationProjects()));
+    foreach (Target *t, targets())
+        onAddedTarget(t);
 
-    connect(m_nodesWatcher, SIGNAL(foldersRemoved()), this, SLOT(checkForDeletedApplicationProjects()));
+    setSupportedTargetIds(QtVersionManager::instance()->supportedTargetIds());
 
-    connect(m_nodesWatcher, SIGNAL(projectTypeChanged(Qt4ProjectManager::Internal::Qt4ProFileNode *,
-                                                      const Qt4ProjectManager::Internal::Qt4ProjectType,
-                                                      const Qt4ProjectManager::Internal::Qt4ProjectType)),
-            this, SLOT(projectTypeChanged(Qt4ProjectManager::Internal::Qt4ProFileNode *,
-                                          const Qt4ProjectManager::Internal::Qt4ProjectType,
-                                          const Qt4ProjectManager::Internal::Qt4ProjectType)));
+    // Setup Qt versions supported (== possible targets).
+    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+            this, SLOT(onAddedTarget(ProjectExplorer::Target*)));
+
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>)),
+            this, SLOT(qtVersionsChanged()));
 
     connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)),
             this, SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *)));
 
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
-
-    // Add RunConfigurations to targets:
-    // If we have no application targets then add a empty CustomExecutableRC as
-    // it will ask the user for an executable to run.
-    QStringList pathes = applicationProFilePathes();
-    foreach (Target *t, targets()) {
-        Qt4Target * qt4target = static_cast<Qt4Target*>(t);
-        if (t->runConfigurations().isEmpty()) {
-            if (pathes.isEmpty()) {
-                t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
-            } else {
-                foreach (const QString &path, pathes)
-                    qt4target->addRunConfigurationForPath(path);
-            }
-        }
-    }
 
     return true;
 }
@@ -377,34 +356,54 @@ namespace {
     };
 }
 
-void Qt4Project::scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
-{
-    m_updateCodeModelTimer.start();
-    m_proFilesForCodeModelUpdate.append(pro);
-}
-
-void Qt4Project::changeTargetInformation()
-{
-    Qt4Target *t(qobject_cast<Qt4Target *>(sender()));
-    if (t && t == activeTarget())
-        emit targetInformationChanged();
-}
-
 void Qt4Project::onAddedTarget(ProjectExplorer::Target *t)
 {
     Q_ASSERT(t);
-    connect(t, SIGNAL(targetInformationChanged()),
-            this, SLOT(changeTargetInformation()));
     Qt4Target *qt4target = qobject_cast<Qt4Target *>(t);
     Q_ASSERT(qt4target);
     connect(qt4target, SIGNAL(buildDirectoryInitialized()),
             this, SIGNAL(buildDirectoryInitialized()));
+    connect(qt4target, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target*)),
+            this, SLOT(proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target*)));
+}
+
+void Qt4Project::proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target *target)
+{
+    if (activeTarget() == target)
+        scheduleAsyncUpdate();
+}
+
+/// equalFileList compares two file lists ignoring
+/// <configuration> without generating temporary lists
+
+bool Qt4Project::equalFileList(const QStringList &a, const QStringList &b)
+{
+    if (abs(a.length() - b.length()) > 1)
+        return false;
+    QStringList::const_iterator ait = a.constBegin();
+    QStringList::const_iterator bit = b.constBegin();
+    QStringList::const_iterator aend = a.constEnd();
+    QStringList::const_iterator bend = b.constEnd();
+
+    while (ait != aend && bit != bend) {
+        if (*ait == QLatin1String("<configuration>"))
+            ++ait;
+        else if (*bit == QLatin1String("<configuration>"))
+            ++bit;
+        else if (*ait == *bit)
+            ++ait, ++bit;
+        else
+           return false;
+    }
+    return (ait == aend && bit == bend);
 }
 
 void Qt4Project::updateCodeModel()
 {
     if (debug)
         qDebug()<<"Qt4Project::updateCodeModel()";
+
+    // TODO cancel still running indexing
 
     if (!activeTarget() || !activeTarget()->activeBuildConfiguration())
         return;
@@ -424,64 +423,35 @@ void Qt4Project::updateCodeModel()
     QByteArray predefinedMacros;
 
     ToolChain *tc = activeBC->toolChain();
-    QList<HeaderPath> allHeaderPaths;
     if (tc) {
         predefinedMacros = tc->predefinedMacros();
-        allHeaderPaths = tc->systemHeaderPaths();
         //qDebug()<<"Predefined Macros";
         //qDebug()<<tc->predefinedMacros();
         //qDebug()<<"";
         //qDebug()<<"System Header Paths";
         //foreach(const HeaderPath &hp, tc->systemHeaderPaths())
         //    qDebug()<<hp.path();
-    }
-    foreach (const HeaderPath &headerPath, allHeaderPaths) {
-        if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
-            predefinedFrameworkPaths.append(headerPath.path());
-        else
-            predefinedIncludePaths.append(headerPath.path());
-    }
 
-    const QHash<QString, QString> versionInfo = activeBC->qtVersion()->versionInfo();
-    const QString newQtIncludePath = versionInfo.value(QLatin1String("QT_INSTALL_HEADERS"));
-
-    predefinedIncludePaths.append(newQtIncludePath);
-    QDir dir(newQtIncludePath);
-    foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs)) {
-        const QString path = info.fileName();
-
-        if (path == QLatin1String("Qt"))
-            continue; // skip $QT_INSTALL_HEADERS/Qt. There's no need to include it.
-        else if (path.startsWith(QLatin1String("Qt")) || path == QLatin1String("phonon"))
-            predefinedIncludePaths.append(info.absoluteFilePath());
+        foreach (const HeaderPath &headerPath, tc->systemHeaderPaths()) {
+            if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
+                predefinedFrameworkPaths.append(headerPath.path());
+            else
+                predefinedIncludePaths.append(headerPath.path());
+        }
     }
 
     FindQt4ProFiles findQt4ProFiles;
     QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProjectNode());
-    QByteArray definedMacros = predefinedMacros;
-    QStringList allIncludePaths = predefinedIncludePaths;
+    QByteArray allDefinedMacros = predefinedMacros;
+    QStringList allIncludePaths;
     QStringList allFrameworkPaths = predefinedFrameworkPaths;
     QStringList allPrecompileHeaders;
-
-#ifdef Q_OS_MAC
-    const QString newQtLibsPath = versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
-    allFrameworkPaths.append(newQtLibsPath);
-    // put QtXXX.framework/Headers directories in include path since that qmake's behavior
-    QDir frameworkDir(newQtLibsPath);
-    foreach (QFileInfo info, frameworkDir.entryInfoList(QDir::Dirs)) {
-        if (! info.fileName().startsWith(QLatin1String("Qt")))
-            continue;
-        allIncludePaths.append(info.absoluteFilePath()+"/Headers");
-    }
-#endif
-
 
     // Collect per .pro file information
     m_codeModelInfo.clear();
     foreach (Qt4ProFileNode *pro, proFiles) {
         Internal::CodeModelInfo info;
         info.defines = predefinedMacros;
-        info.includes = predefinedIncludePaths;
         info.frameworkPaths = predefinedFrameworkPaths;
 
         info.precompiledHeader = pro->variableValue(PrecompiledHeaderVar);
@@ -489,22 +459,23 @@ void Qt4Project::updateCodeModel()
         allPrecompileHeaders.append(info.precompiledHeader);
 
         // Add custom defines
+
         foreach (const QString &def, pro->variableValue(DefinesVar)) {
-            definedMacros += "#define ";
+            allDefinedMacros += "#define ";
             info.defines += "#define ";
             const int index = def.indexOf(QLatin1Char('='));
             if (index == -1) {
-                definedMacros += def.toLatin1();
-                definedMacros += " 1\n";
+                allDefinedMacros += def.toLatin1();
+                allDefinedMacros += " 1\n";
                 info.defines += def.toLatin1();
                 info.defines += " 1\n";
             } else {
                 const QString name = def.left(index);
                 const QString value = def.mid(index + 1);
-                definedMacros += name.toLatin1();
-                definedMacros += ' ';
-                definedMacros += value.toLocal8Bit();
-                definedMacros += '\n';
+                allDefinedMacros += name.toLatin1();
+                allDefinedMacros += ' ';
+                allDefinedMacros += value.toLocal8Bit();
+                allDefinedMacros += '\n';
                 info.defines += name.toLatin1();
                 info.defines += ' ';
                 info.defines += value.toLocal8Bit();
@@ -520,10 +491,7 @@ void Qt4Project::updateCodeModel()
                 info.includes.append(includePath);
         }
 
-#if 0
-        // Disable for now, we need better .pro parsing first
-        // Also the information gathered here isn't used
-        // by the codemodel yet
+#if 0 // Experimental PKGCONFIG support
         { // Pkg Config support
             QStringList pkgConfig = pro->variableValue(PkgConfigVar);
             if (!pkgConfig.isEmpty()) {
@@ -541,8 +509,14 @@ void Qt4Project::updateCodeModel()
 
         // Add mkspec directory
         info.includes.append(activeBC->qtVersion()->mkspecPath());
+        info.includes.append(predefinedIncludePaths);
 
-        info.frameworkPaths = allFrameworkPaths;
+//        qDebug()<<"Dumping code model information";
+//        qDebug()<<"for .pro file"<< pro->path();
+//        qDebug()<<info.defines;
+//        qDebug()<<info.includes;
+//        qDebug()<<info.frameworkPaths;
+//        qDebug()<<"\n";
 
 #if 0
         //Disable for now, we need better .pro file parsing first, and code model
@@ -564,15 +538,7 @@ void Qt4Project::updateCodeModel()
     // Add mkspec directory
     allIncludePaths.append(activeBC->qtVersion()->mkspecPath());
 
-    // Dump things out
-    // This is debugging output...
-//    qDebug()<<"CodeModel stuff:";
-//    QMap<QString, CodeModelInfo>::const_iterator it, end;
-//    end = m_codeModelInfo.constEnd();
-//    for(it = m_codeModelInfo.constBegin(); it != end; ++it) {
-//        qDebug()<<"File: "<<it.key()<<"\nIncludes:"<<it.value().includes<<"\nDefines"<<it.value().defines<<"\n";
-//    }
-//    qDebug()<<"----------------------------";
+    allIncludePaths.append(predefinedIncludePaths);
 
     QStringList files;
     files += m_projectFiles->files[HeaderType];
@@ -584,37 +550,34 @@ void Qt4Project::updateCodeModel()
 
     //qDebug()<<"Using precompiled header"<<allPrecompileHeaders;
 
-    if (pinfo.defines == predefinedMacros
+    bool fileList = equalFileList(pinfo.sourceFiles, files);
+
+    if (pinfo.defines == allDefinedMacros
         && pinfo.includePaths == allIncludePaths
         && pinfo.frameworkPaths == allFrameworkPaths
-        && pinfo.sourceFiles == files
+        && fileList
         && pinfo.precompiledHeaders == allPrecompileHeaders) {
         // Nothing to update...
     } else {
-        if (pinfo.defines != predefinedMacros         ||
-            pinfo.includePaths != allIncludePaths     ||
-            pinfo.frameworkPaths != allFrameworkPaths) {
+        pinfo.sourceFiles.clear();
+        if (pinfo.defines != allDefinedMacros
+            || pinfo.includePaths != allIncludePaths
+            || pinfo.frameworkPaths != allFrameworkPaths
+            || pinfo.precompiledHeaders != allPrecompileHeaders)
+        {
             pinfo.sourceFiles.append(QLatin1String("<configuration>"));
         }
 
-
-        pinfo.defines = predefinedMacros;
-        // pinfo.defines += definedMacros;   // ### FIXME: me
+        //pinfo.defines = predefinedMacros;
+        pinfo.defines = allDefinedMacros;
         pinfo.includePaths = allIncludePaths;
         pinfo.frameworkPaths = allFrameworkPaths;
-        pinfo.sourceFiles = files;
+        pinfo.sourceFiles += files;
         pinfo.precompiledHeaders = allPrecompileHeaders;
 
         modelmanager->updateProjectInfo(pinfo);
         modelmanager->updateSourceFiles(pinfo.sourceFiles);
     }
-
-    // TODO use this information
-    // These are the pro files that were actually changed
-    // if the list is empty we are at the initial stage
-    // TODO check that this also works if pro files get added
-    // and removed
-    m_proFilesForCodeModelUpdate.clear();
 }
 
 void Qt4Project::qtVersionsChanged()
@@ -654,8 +617,167 @@ QStringList Qt4Project::frameworkPaths(const QString &fileName) const
 //  */
 void Qt4Project::update()
 {
+    qDebug()<<"Doing sync update";
     m_rootProjectNode->update();
-    //updateCodeModel();
+    qDebug()<<"State is now Base";
+    m_asyncUpdateState = Base;
+}
+
+void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
+{
+    qDebug()<<"schduleAsyncUpdate (node)";
+    Q_ASSERT(m_asyncUpdateState != NoState);
+
+    if (m_cancelEvaluate) {
+        qDebug()<<"  Already canceling, nothing to do";
+        // A cancel is in progress
+        // That implies that a full update is going to happen afterwards
+        // So we don't need to do anything
+        return;
+    }
+
+    if (m_asyncUpdateState == AsyncFullUpdatePending) {
+        // Just postpone
+        qDebug()<<"  full update pending, restarting timer";
+        m_asyncUpdateTimer.start();
+    } else if (m_asyncUpdateState == AsyncPartialUpdatePending
+               || m_asyncUpdateState == Base) {
+        qDebug()<<"  adding node to async update list, setting state to AsyncPartialUpdatePending";
+        // Add the node
+        m_asyncUpdateState = AsyncPartialUpdatePending;
+
+        QList<Internal::Qt4ProFileNode *>::iterator it;
+        bool add = true;
+        qDebug()<<"scheduleAsyncUpdate();"<<m_partialEvaluate.size()<<"nodes";
+        int count = 0;
+        it = m_partialEvaluate.begin();
+        while (it != m_partialEvaluate.end()) {
+            if (*it == node) {
+                add = false;
+                break;
+            } else if (node->isParent(*it)) { // We already have the parent in the list, nothing to do
+                add = false;
+                break;
+            } else if ((*it)->isParent(node)) { // The node is the parent of a child already in the list
+                it = m_partialEvaluate.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        if (add)
+            m_partialEvaluate.append(node);
+        // and start the timer anew
+        m_asyncUpdateTimer.start();
+    } else if (m_asyncUpdateState == AsyncUpdateInProgress) {
+        // A update is in progress
+        // And this slot only gets called if a file changed on disc
+        // So we'll play it safe and schedule a complete evaluate
+        // This might trigger if due to version control a few files
+        // change a partial update gets in progress and then another
+        // batch of changes come in, which triggers a full update
+        // even if that's not really needed
+        qDebug()<<"  Async update in progress, scheduling new one afterwards";
+        scheduleAsyncUpdate();
+    }
+}
+
+void Qt4Project::scheduleAsyncUpdate()
+{
+    qDebug()<<"scheduleAsyncUpdate";
+    Q_ASSERT(m_asyncUpdateState != NoState);
+    if (m_cancelEvaluate) { // we are in progress of canceling
+                            // and will start the evaluation after that
+        qDebug()<<"  canceling is in progress, doing nothing";
+        return;
+    }
+    if (m_asyncUpdateState == AsyncUpdateInProgress) {
+        qDebug()<<"  update in progress, canceling and setting state to full update pending";
+        m_cancelEvaluate = true;
+        m_asyncUpdateState = AsyncFullUpdatePending;
+        return;
+    }
+
+    qDebug()<<"  starting timer for full update, setting state to full update pending";
+    m_partialEvaluate.clear();
+    m_asyncUpdateState = AsyncFullUpdatePending;
+    m_asyncUpdateTimer.start();
+}
+
+
+void Qt4Project::incrementPendingEvaluateFutures()
+{
+    ++m_pendingEvaluateFuturesCount;
+    qDebug()<<"incrementPendingEvaluateFutures to"<<m_pendingEvaluateFuturesCount;
+
+    m_asyncUpdateFutureInterface->setProgressRange(m_asyncUpdateFutureInterface->progressMinimum(),
+                                                  m_asyncUpdateFutureInterface->progressMaximum() + 1);
+}
+
+void Qt4Project::decrementPendingEvaluateFutures()
+{
+    --m_pendingEvaluateFuturesCount;
+
+    qDebug()<<"decrementPendingEvaluateFutures to"<<m_pendingEvaluateFuturesCount;
+
+    m_asyncUpdateFutureInterface->setProgressValue(m_asyncUpdateFutureInterface->progressValue() + 1);
+    if (m_pendingEvaluateFuturesCount == 0) {
+        qDebug()<<"  WOHOO, no pending futures, cleaning up";
+        // We are done!
+        qDebug()<<"  reporting finished";
+        m_asyncUpdateFutureInterface->reportFinished();
+        delete m_asyncUpdateFutureInterface;
+        m_asyncUpdateFutureInterface = 0;
+        m_cancelEvaluate = false;
+
+        // After beeing done, we need to call:
+        updateFileList();
+        updateCodeModel();
+        checkForNewApplicationProjects();
+        checkForDeletedApplicationProjects();
+
+        // TODO clear the profile cache ?
+        if (m_asyncUpdateState == AsyncFullUpdatePending || m_asyncUpdateState == AsyncPartialUpdatePending) {
+            qDebug()<<"  Oh update is pending start the timer";
+            m_asyncUpdateTimer.start();
+        } else  {
+            qDebug()<<"  Setting state to Base";
+            m_asyncUpdateState = Base;
+        }
+    }
+}
+
+bool Qt4Project::wasEvaluateCanceled()
+{
+    return m_cancelEvaluate;
+}
+
+void Qt4Project::asyncUpdate()
+{
+    qDebug()<<"async update, timer expired, doing now";
+    Q_ASSERT(!m_asyncUpdateFutureInterface);
+    m_asyncUpdateFutureInterface = new QFutureInterface<void>();
+
+    Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
+
+    progressManager->addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluate"), Constants::PROFILE_EVALUATE);
+    qDebug()<<"  adding task";
+
+    m_asyncUpdateFutureInterface->setProgressRange(0, 0);
+    m_asyncUpdateFutureInterface->reportStarted();
+
+    if (m_asyncUpdateState == AsyncFullUpdatePending) {
+        qDebug()<<"  full update, starting with root node";
+        m_rootProjectNode->asyncUpdate();
+    } else {
+        qDebug()<<"  partial update,"<<m_partialEvaluate.size()<<"nodes to update";
+        foreach(Qt4ProFileNode *node, m_partialEvaluate)
+            node->asyncUpdate();
+    }
+
+    m_partialEvaluate.clear();
+    qDebug()<<"  Setting state to AsyncUpdateInProgress";
+    m_asyncUpdateState = AsyncUpdateInProgress;
 }
 
 /*!
@@ -664,11 +786,6 @@ void Qt4Project::update()
 bool Qt4Project::isApplication() const
 {
     return m_isApplication;
-}
-
-ProjectExplorer::ProjectExplorerPlugin *Qt4Project::projectExplorer() const
-{
-    return m_manager->projectExplorer();
 }
 
 ProjectExplorer::IProjectManager *Qt4Project::projectManager() const
@@ -773,6 +890,7 @@ ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode)
                 m_proFileOption->properties = version->versionInfo();
         }
 
+        ProFileCacheManager::instance()->incRefCount();
         m_proFileOption->cache = ProFileCacheManager::instance()->cache();
     }
     ++m_proFileOptionRefCnt;
@@ -797,6 +915,7 @@ void Qt4Project::destroyProFileReader(ProFileReader *reader)
 
         delete m_proFileOption;
         m_proFileOption = 0;
+        ProFileCacheManager::instance()->decRefCount();
     }
 }
 
@@ -830,23 +949,12 @@ void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4Pr
     }
 }
 
-void Qt4Project::foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &nodes)
-{
-    QList<Qt4ProFileNode *> list;
-    foreach (FolderNode *node, nodes) {
-        Qt4ProFileNode *qt4ProFileNode = qobject_cast<Qt4ProFileNode *>(node);
-        if (qt4ProFileNode)
-            collectApplicationProFiles(list, qt4ProFileNode);
-    }
-    m_applicationProFileChange = list;
-}
-
 void Qt4Project::checkForNewApplicationProjects()
 {
     // Check all new project nodes
     // against all runConfigurations in all targets.
 
-    foreach (Qt4ProFileNode *qt4proFile, m_applicationProFileChange) {
+    foreach (Qt4ProFileNode *qt4proFile, applicationProFiles()) {
         foreach (Target *target, targets()) {
             Qt4Target *qt4Target = static_cast<Qt4Target *>(target);
             bool found = false;
@@ -879,7 +987,6 @@ void Qt4Project::checkForDeletedApplicationProjects()
             if (Qt4RunConfiguration *qt4rc = qobject_cast<Qt4RunConfiguration *>(rc)) {
                 if (!paths.contains(qt4rc->proFilePath())) {
                     removeList.append(qt4rc);
-                    //                qDebug()<<"Removing runConfiguration for "<<qt4rc->proFilePath();
                 }
             }
         }
@@ -922,31 +1029,12 @@ QStringList Qt4Project::applicationProFilePathes(const QString &prepend) const
     return proFiles;
 }
 
-void Qt4Project::projectTypeChanged(Qt4ProFileNode *node, const Qt4ProjectType oldType, const Qt4ProjectType newType)
-{
-    if (oldType == Internal::ApplicationTemplate
-        || oldType == Internal::ScriptTemplate) {
-        // check whether we need to delete a Run Configuration
-        checkForDeletedApplicationProjects();
-    }
-
-    if (newType == Internal::ApplicationTemplate
-        || newType == Internal::ScriptTemplate) {
-        // add a new Run Configuration
-        m_applicationProFileChange.clear();
-        m_applicationProFileChange.append(node);
-        checkForNewApplicationProjects();
-    }
-}
-
 void Qt4Project::activeTargetWasChanged()
 {
-    emit targetInformationChanged();
-
     if (!activeTarget())
         return;
 
-    update();
+    scheduleAsyncUpdate();
 }
 
 bool Qt4Project::hasSubNode(Qt4PriFileNode *root, const QString &path)

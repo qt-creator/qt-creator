@@ -76,16 +76,14 @@ QString pathToId(const QString &path)
 
 S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Target *parent, const QString &proFilePath) :
     RunConfiguration(parent, QLatin1String(S60_EMULATOR_RC_ID)),
-    m_proFilePath(proFilePath),
-    m_cachedTargetInformationValid(false)
+    m_proFilePath(proFilePath)
 {
     ctor();
 }
 
 S60EmulatorRunConfiguration::S60EmulatorRunConfiguration(Target *parent, S60EmulatorRunConfiguration *source) :
     RunConfiguration(parent, source),
-    m_proFilePath(source->m_proFilePath),
-    m_cachedTargetInformationValid(false)
+    m_proFilePath(source->m_proFilePath)
 {
     ctor();
 }
@@ -97,10 +95,10 @@ void S60EmulatorRunConfiguration::ctor()
     else
         setDisplayName(tr("Qt Symbian Emulator RunConfiguration"));
 
-    connect(qt4Target(), SIGNAL(targetInformationChanged()),
-            this, SLOT(invalidateCachedTargetInformation()));
-
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+
+    connect(qt4Target()->qt4Project(), SIGNAL(targetInformationChanged(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
@@ -112,9 +110,8 @@ S60EmulatorRunConfiguration::~S60EmulatorRunConfiguration()
 void S60EmulatorRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
     if (m_proFilePath == pro->path())
-        invalidateCachedTargetInformation();
+        emit targetInformationChanged();
 }
-
 
 Qt4Target *S60EmulatorRunConfiguration::qt4Target() const
 {
@@ -152,28 +149,6 @@ bool S60EmulatorRunConfiguration::fromMap(const QVariantMap &map)
 
 QString S60EmulatorRunConfiguration::executable() const
 {
-    const_cast<S60EmulatorRunConfiguration *>(this)->updateTarget();
-    return m_executable;
-}
-
-void S60EmulatorRunConfiguration::updateTarget()
-{
-    if (m_cachedTargetInformationValid)
-        return;
-    Qt4TargetInformation info = qt4Target()->targetInformation(qt4Target()->activeBuildConfiguration(),
-                                                                m_proFilePath);
-    if (info.error != Qt4TargetInformation::NoError) {
-        if (info.error == Qt4TargetInformation::ProParserError) {
-            Core::ICore::instance()->messageManager()->printToOutputPane(
-                    tr("Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.")
-                    .arg(m_proFilePath).arg(displayName()));
-        }
-        m_executable.clear();
-        m_cachedTargetInformationValid = true;
-        emit targetInformationChanged();
-        return;
-    }
-
     Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
     QtVersion *qtVersion = qt4bc->qtVersion();
     QString baseDir = S60Manager::instance()->deviceForQtVersion(qtVersion).epocRoot;
@@ -182,18 +157,13 @@ void S60EmulatorRunConfiguration::updateTarget()
         qmakeBuildConfig = "udeb";
     baseDir += "/epoc32/release/winscw/" + qmakeBuildConfig;
 
-    m_executable = QDir::toNativeSeparators(
-            QDir::cleanPath(baseDir + QLatin1Char('/') + info.target));
-    m_executable += QLatin1String(".exe");
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
+    if (!ti.valid)
+        return QString();
+    QString executable = QDir::toNativeSeparators(QDir::cleanPath(baseDir + QLatin1Char('/') + ti.target));
+    executable += QLatin1String(".exe");
 
-    m_cachedTargetInformationValid = true;
-    emit targetInformationChanged();
-}
-
-void S60EmulatorRunConfiguration::invalidateCachedTargetInformation()
-{
-    m_cachedTargetInformationValid = false;
-    emit targetInformationChanged();
+    return executable;
 }
 
 // ======== S60EmulatorRunConfigurationWidget

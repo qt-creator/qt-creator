@@ -77,13 +77,16 @@ public:
     ProFileCache *cache();
     void discardFiles(const QString &prefix);
     void discardFile(const QString &fileName);
+    void incRefCount();
+    void decRefCount();
 
 private:
     ProFileCacheManager(QObject *parent);
     ~ProFileCacheManager();
     Q_SLOT void clear();
-    QTimer m_timer;
     ProFileCache *m_cache;
+    int m_refCount;
+    QTimer m_timer;
 
     static ProFileCacheManager *s_instance;
 

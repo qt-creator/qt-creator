@@ -51,6 +51,7 @@
 #include <QtCore/QMap>
 #include <QtGui/QDirModel>
 #include <QtCore/QFutureInterface>
+#include <QtCore/QTimer>
 
 QT_BEGIN_NAMESPACE
 struct ProFileOption;
@@ -67,6 +68,7 @@ namespace Internal {
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
+    class Qt4Target;
 
     class CodeModelInfo
     {
@@ -152,47 +154,54 @@ public:
     virtual QStringList includePaths(const QString &fileName) const;
     virtual QStringList frameworkPaths(const QString &fileName) const;
 
+    /// \internal
     Internal::ProFileReader *createProFileReader(Internal::Qt4ProFileNode *qt4ProFileNode);
+    /// \internal
     void destroyProFileReader(Internal::ProFileReader *reader);
 
+    /// \internal
+    void scheduleAsyncUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
+    /// \internal
+    void incrementPendingEvaluateFutures();
+    /// \internal
+    void decrementPendingEvaluateFutures();
+    /// \internal
+    bool wasEvaluateCanceled();
+
 signals:
-    /// convenience signal, emitted if either the active buildconfiguration emits
-    /// targetInformationChanged() or if the active build configuration changes
-    /// (which can happen by the active target changing, too).
-    void targetInformationChanged();
+    /// emitted after parse
     void proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode *node);
     void buildDirectoryInitialized();
 
 public slots:
     void proFileParseError(const QString &errorMessage);
     void update();
-    void changeTargetInformation();
-
-private slots:
-    void updateCodeModel();
-    void scheduleUpdateCodeModel(Qt4ProjectManager::Internal::Qt4ProFileNode *);
-    void qtVersionsChanged();
-    void updateFileList();
-    void onAddedTarget(ProjectExplorer::Target *t);
-
-    void foldersAboutToBeAdded(FolderNode *, const QList<FolderNode*> &);
-    void checkForNewApplicationProjects();
-    void checkForDeletedApplicationProjects();
-    void projectTypeChanged(Qt4ProjectManager::Internal::Qt4ProFileNode *node,
-                            const Qt4ProjectManager::Internal::Qt4ProjectType oldType,
-                            const Qt4ProjectManager::Internal::Qt4ProjectType newType);
-    void activeTargetWasChanged();
 
 protected:
     virtual bool fromMap(const QVariantMap &map);
 
+private slots:
+    void proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target *target);
+
+    void asyncUpdate();
+
+    void qtVersionsChanged();
+    void onAddedTarget(ProjectExplorer::Target *t);
+    void activeTargetWasChanged();
+
 private:
+    void scheduleAsyncUpdate();
+
+    void checkForNewApplicationProjects();
+    void checkForDeletedApplicationProjects();
+    void updateCodeModel();
+    void updateFileList();
+
     static void collectApplicationProFiles(QList<Internal::Qt4ProFileNode *> &list, Internal::Qt4ProFileNode *node);
     static void findProFile(const QString& fileName, Internal::Qt4ProFileNode *root, QList<Internal::Qt4ProFileNode *> &list);
     static bool hasSubNode(Internal::Qt4PriFileNode *root, const QString &path);
 
-    QList<Internal::Qt4ProFileNode *> m_applicationProFileChange;
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorer() const;
+    static bool equalFileList(const QStringList &a, const QStringList &b);
 
     void addDefaultBuild();
 
@@ -213,17 +222,22 @@ private:
     // cached lists of all of files
     Internal::Qt4ProjectFiles *m_projectFiles;
 
-    QTimer m_updateCodeModelTimer;
-    QList<Qt4ProjectManager::Internal::Qt4ProFileNode *> m_proFilesForCodeModelUpdate;
+    // cached data during project rescan
+    ProFileOption *m_proFileOption;
+    int m_proFileOptionRefCnt;
+
+    QTimer m_asyncUpdateTimer;
+    QFutureInterface<void> *m_asyncUpdateFutureInterface;
+    int m_pendingEvaluateFuturesCount;
+    enum AsyncUpdateState { NoState, Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress };
+    AsyncUpdateState m_asyncUpdateState;
+    bool m_cancelEvaluate;
+    QList<Internal::Qt4ProFileNode *> m_partialEvaluate;
 
     QMap<QString, Internal::CodeModelInfo> m_codeModelInfo;
 
     friend class Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;
-
-    // cached data during project rescan
-    ProFileOption *m_proFileOption;
-    int m_proFileOptionRefCnt;
 };
 
 } // namespace Qt4ProjectManager

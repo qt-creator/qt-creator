@@ -112,7 +112,6 @@ QString pathToId(const QString &path)
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QString &proFilePath) :
     RunConfiguration(parent,  QLatin1String(S60_DEVICE_RC_ID)),
     m_proFilePath(proFilePath),
-    m_cachedTargetInformationValid(false),
 #ifdef Q_OS_WIN
     m_serialPortName(QLatin1String("COM5")),
 #else
@@ -126,19 +125,12 @@ S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *parent, const QStri
 S60DeviceRunConfiguration::S60DeviceRunConfiguration(Target *target, S60DeviceRunConfiguration *source) :
     RunConfiguration(target, source),
     m_proFilePath(source->m_proFilePath),
-    m_cachedTargetInformationValid(false),
     m_serialPortName(source->m_serialPortName),
     m_signingMode(source->m_signingMode),
     m_customSignaturePath(source->m_customSignaturePath),
     m_customKeyPath(source->m_customKeyPath)
 {
     ctor();
-}
-
-void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
-{
-    if (m_proFilePath == pro->path())
-        invalidateCachedTargetInformation();
 }
 
 void S60DeviceRunConfiguration::ctor()
@@ -148,11 +140,17 @@ void S60DeviceRunConfiguration::ctor()
     else
         setDisplayName(tr("QtS60DeviceRunConfiguration"));
 
-    connect(target(), SIGNAL(targetInformationChanged()),
-            this, SLOT(invalidateCachedTargetInformation()));
-
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+
+    connect(qt4Target()->qt4Project(), SIGNAL(targetInformationChanged(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
+}
+
+void S60DeviceRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
+{
+    if (m_proFilePath == pro->path())
+        emit targetInformationChanged();
 }
 
 
@@ -246,32 +244,60 @@ void S60DeviceRunConfiguration::setSerialPortName(const QString &name)
 
 QString S60DeviceRunConfiguration::targetName() const
 {
-    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
-    return m_targetName;
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
+    if (!ti.valid)
+        return QString();
+    return ti.target;
+}
+
+static inline QString fixBaseNameTarget(const QString &in)
+{
+    if (in == QLatin1String("udeb"))
+        return QLatin1String("debug");
+    if (in == QLatin1String("urel"))
+        return QLatin1String("release");
+    return in;
 }
 
 QString S60DeviceRunConfiguration::basePackageFilePath() const
 {
-    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
-    return m_baseFileName;
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
+    if (!ti.valid)
+        return QString();
+    QString baseFileName = ti.workingDir + QLatin1Char('/') + ti.target;
+    baseFileName += QLatin1Char('_') + fixBaseNameTarget(symbianPlatform()) + QLatin1Char('_') + symbianTarget();
+    return baseFileName;
 }
 
 QString S60DeviceRunConfiguration::symbianPlatform() const
 {
-    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
-    return m_platform;
+    Qt4BuildConfiguration *qt4bc = qt4Target()->qt4Project()->activeTarget()->activeBuildConfiguration();
+    switch (qt4bc->toolChainType()) {
+    case ToolChain::GCCE:
+    case ToolChain::GCCE_GNUPOC:
+        return QLatin1String("gcce");
+    case ToolChain::RVCT_ARMV5:
+        return QLatin1String("armv5");
+    default: // including ToolChain::RVCT_ARMV6_GNUPOC:
+        return QLatin1String("armv6");
+    }
 }
 
 QString S60DeviceRunConfiguration::symbianTarget() const
 {
-    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
-    return m_target;
+    Qt4BuildConfiguration *qt4bc = qt4Target()->qt4Project()->activeTarget()->activeBuildConfiguration();
+    if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
+        return QString("udeb");
+    else
+        return QString("urel");
 }
 
 QString S60DeviceRunConfiguration::packageTemplateFileName() const
 {
-    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
-    return m_packageTemplateFileName;
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
+    if (!ti.valid)
+        return QString();
+    return ti.workingDir + QLatin1Char('/') + ti.target + QLatin1String("_template.pkg");
 }
 
 S60DeviceRunConfiguration::SigningMode S60DeviceRunConfiguration::signingMode() const
@@ -373,8 +399,7 @@ QString S60DeviceRunConfiguration::localExecutableFileName() const
 
 QString S60DeviceRunConfiguration::signedPackage() const
 {
-    const_cast<S60DeviceRunConfiguration *>(this)->updateTarget();
-    return QDir::toNativeSeparators(m_baseFileName + QLatin1String(".sis"));
+    return QDir::toNativeSeparators(basePackageFilePath() + QLatin1String(".sis"));
 }
 
 QStringList S60DeviceRunConfiguration::commandLineArguments() const
@@ -386,74 +411,6 @@ void S60DeviceRunConfiguration::setCommandLineArguments(const QStringList &args)
 {
     m_commandLineArguments = args;
 }
-
-// Fix up target specification for "make sis":
-// "udeb"-> "debug", "urel" -> "release"
-static inline QString fixBaseNameTarget(const QString &in)
-{
-    if (in == QLatin1String("udeb"))
-        return QLatin1String("debug");
-    if (in == QLatin1String("urel"))
-        return QLatin1String("release");
-    return in;
-}
-
-void S60DeviceRunConfiguration::updateTarget()
-{
-    if (m_cachedTargetInformationValid)
-        return;
-    Qt4TargetInformation info = qt4Target()->targetInformation(qt4Target()->activeBuildConfiguration(),
-                                                                m_proFilePath);
-    if (info.error != Qt4TargetInformation::NoError) {
-        if (info.error == Qt4TargetInformation::ProParserError) {
-            Core::ICore::instance()->messageManager()->printToOutputPane(
-                    tr("Could not parse %1. The Qt Symbian Device run configuration %2 can not be started.")
-                    .arg(m_proFilePath).arg(displayName()));
-        }
-        m_targetName.clear();
-        m_baseFileName.clear();
-        m_packageTemplateFileName.clear();
-        m_platform.clear();
-        m_cachedTargetInformationValid = true;
-        emit targetInformationChanged();
-        return;
-    }
-
-    m_targetName = info.target;
-
-    m_baseFileName = info.workingDir + QLatin1Char('/') + m_targetName;
-    m_packageTemplateFileName = m_baseFileName + QLatin1String("_template.pkg");
-
-    Qt4BuildConfiguration *qt4bc = qt4Target()->activeBuildConfiguration();
-    switch (qt4bc->toolChainType()) {
-    case ToolChain::GCCE:
-    case ToolChain::GCCE_GNUPOC:
-        m_platform = QLatin1String("gcce");
-        break;
-    case ToolChain::RVCT_ARMV5:
-    case ToolChain::RVCT_ARMV5_GNUPOC:
-        m_platform = QLatin1String("armv5");
-        break;
-    default:
-        m_platform = QLatin1String("armv6");
-        break;
-    }
-    if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
-        m_target = QLatin1String("udeb");
-    else
-        m_target = QLatin1String("urel");
-    m_baseFileName += QLatin1Char('_') + fixBaseNameTarget(m_target)
-                      + QLatin1Char('-') + m_platform;
-    m_cachedTargetInformationValid = true;
-    emit targetInformationChanged();
-}
-
-void S60DeviceRunConfiguration::invalidateCachedTargetInformation()
-{
-    m_cachedTargetInformationValid = false;
-    emit targetInformationChanged();
-}
-
 
 // ======== S60DeviceRunConfigurationFactory
 

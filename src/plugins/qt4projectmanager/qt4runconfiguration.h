@@ -91,12 +91,7 @@ public:
     QVariantMap toMap() const;
 
 public slots:
-    // This function is called if:
-    // X the pro file changes
-    // X the active buildconfiguration changes
-    // X  the qmake parameters change
-    // X  the build directory changes
-    void invalidateCachedTargetInformation();
+    void targetInformationChanged();
 
 signals:
     void commandLineArgumentsChanged(const QString&);
@@ -140,11 +135,8 @@ private:
     QString m_proFilePath; // Full path to the Application Pro File
 
     // Cached startup sub project information
-    QString m_executable;
-    QString m_workingDir;
     ProjectExplorer::LocalApplicationRunConfiguration::RunMode m_runMode;
     bool m_userSetName;
-    bool m_cachedTargetInformationValid;
     bool m_isUsingDyldImageSuffix;
     bool m_userSetWokingDirectory;
     QString m_userWorkingDirectory;

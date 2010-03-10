@@ -52,7 +52,6 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
         const QString &proFilePath)
     : RunConfiguration(parent, QLatin1String(MAEMO_RC_ID))
     , m_proFilePath(proFilePath)
-    , m_cachedTargetInformationValid(false)
     , m_cachedSimulatorInformationValid(false)
     , qemu(0)
 {
@@ -62,9 +61,7 @@ MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
 MaemoRunConfiguration::MaemoRunConfiguration(Qt4Target *parent,
         MaemoRunConfiguration *source)
     : RunConfiguration(parent, source)
-    , m_executable(source->m_executable)
     , m_proFilePath(source->m_proFilePath)
-    , m_cachedTargetInformationValid(false)
     , m_simulator(source->m_simulator)
     , m_simulatorArgs(source->m_simulatorArgs)
     , m_simulatorPath(source->m_simulatorPath)
@@ -95,8 +92,8 @@ void MaemoRunConfiguration::init()
     connect(&MaemoDeviceConfigurations::instance(), SIGNAL(updated()), this,
         SLOT(updateDeviceConfigurations()));
 
-    connect(qt4Target(), SIGNAL(targetInformationChanged()), this,
-        SLOT(invalidateCachedTargetInformation()));
+    connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
+            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 
     connect(qt4Target()->qt4Project(),
         SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
@@ -148,7 +145,7 @@ QWidget *MaemoRunConfiguration::configurationWidget()
 void MaemoRunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
     if (m_proFilePath == pro->path())
-        invalidateCachedTargetInformation();
+        emit targetInformationChanged();
 }
 
 QVariantMap MaemoRunConfiguration::toMap() const
@@ -329,8 +326,11 @@ const QString MaemoRunConfiguration::dumperLib() const
 
 QString MaemoRunConfiguration::executable() const
 {
-    updateTarget();
-    return m_executable;
+    TargetInformation ti = qt4Target()->qt4Project()->rootProjectNode()->targetInformation(m_proFilePath);
+    if (!ti.valid)
+        return QString();
+
+    return QDir::cleanPath(ti.workingDir + QLatin1Char('/') + ti.target);
 }
 
 QString MaemoRunConfiguration::simulatorSshPort() const
@@ -377,39 +377,6 @@ void MaemoRunConfiguration::setArguments(const QStringList &args)
 bool MaemoRunConfiguration::isQemuRunning() const
 {
     return (qemu && qemu->state() != QProcess::NotRunning);
-}
-
-void MaemoRunConfiguration::invalidateCachedTargetInformation()
-{
-    m_cachedTargetInformationValid = false;
-    emit targetInformationChanged();
-}
-
-void MaemoRunConfiguration::updateTarget() const
-{
-    if (m_cachedTargetInformationValid)
-        return;
-
-    m_executable.clear();
-    m_cachedTargetInformationValid = true;
-
-    Qt4TargetInformation info =
-        qt4Target()->targetInformation(activeQt4BuildConfiguration(),
-            m_proFilePath);
-    if (info.error != Qt4TargetInformation::NoError) {
-        if (info.error == Qt4TargetInformation::ProParserError) {
-            Core::ICore::instance()->messageManager()->printToOutputPane(tr(
-                "Could not parse %1. The Maemo run configuration %2 "
-                "can not be started.").arg(m_proFilePath).arg(displayName()));
-        }
-        emit targetInformationChanged();
-        return;
-    }
-
-    m_executable
-        = QDir::cleanPath(info.workingDir % QLatin1Char('/') % info.target);
-
-    emit targetInformationChanged();
 }
 
 void MaemoRunConfiguration::updateSimulatorInformation() const

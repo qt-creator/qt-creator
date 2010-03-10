@@ -114,14 +114,12 @@ protected:
 private slots:
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
     void updateDeviceConfigurations();
-    void invalidateCachedTargetInformation();
 
     void startStopQemu();
     void qemuProcessFinished();
 
 private:
     void init();
-    void updateTarget() const;
     void updateSimulatorInformation() const;
     const QString cmd(const QString &cmdName) const;
     const MaemoToolChain *toolchain() const;
@@ -133,9 +131,7 @@ private:
                                QMap<QString, QDateTime> &deployTimes,
                                const QVariantMap &map);
 
-    mutable QString m_executable;
     QString m_proFilePath;
-    mutable bool m_cachedTargetInformationValid;
 
     mutable QString m_simulator;
     mutable QString m_simulatorArgs;

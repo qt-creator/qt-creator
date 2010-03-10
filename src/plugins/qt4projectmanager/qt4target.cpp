@@ -202,8 +202,9 @@ Qt4Target::Qt4Target(Qt4Project *parent, const QString &id) :
 {
     connect(project(), SIGNAL(supportedTargetIdsChanged()),
             this, SLOT(updateQtVersion()));
+
     connect(this, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SIGNAL(targetInformationChanged()));
+            this, SLOT(emitProFileEvaluateNeeded()));
     connect(this, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SIGNAL(environmentChanged()));
     connect(this, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
@@ -229,89 +230,6 @@ Qt4BuildConfiguration *Qt4Target::activeBuildConfiguration() const
 Qt4Project *Qt4Target::qt4Project() const
 {
     return static_cast<Qt4Project *>(project());
-}
-
-Qt4TargetInformation Qt4Target::targetInformation(Qt4BuildConfiguration *buildConfiguration,
-                                                  const QString &proFilePath)
-{
-    Qt4TargetInformation info;
-    Qt4ProFileNode *proFileNode = qt4Project()->rootProjectNode()->findProFileFor(proFilePath);
-    if (!proFileNode) {
-        info.error = Qt4TargetInformation::InvalidProjectError;
-        return info;
-    }
-    ProFileReader *reader = qt4Project()->createProFileReader(proFileNode);
-    reader->setCumulative(false);
-
-    // Find out what flags we pass on to qmake
-    QStringList addedUserConfigArguments;
-    QStringList removedUserConfigArguments;
-    buildConfiguration->getConfigCommandLineArguments(&addedUserConfigArguments, &removedUserConfigArguments);
-    reader->setConfigCommandLineArguments(addedUserConfigArguments, removedUserConfigArguments);
-
-    if (!reader->readProFile(proFilePath)) {
-        qt4Project()->destroyProFileReader(reader);
-        info.error = Qt4TargetInformation::ProParserError;
-        return info;
-    }
-
-    // Extract data
-    const QDir baseProjectDirectory = QFileInfo(project()->file()->fileName()).absoluteDir();
-    const QString relSubDir = baseProjectDirectory.relativeFilePath(QFileInfo(proFilePath).path());
-    const QDir baseBuildDirectory = buildConfiguration->buildDirectory();
-    const QString baseDir = baseBuildDirectory.absoluteFilePath(relSubDir);
-    //qDebug()<<relSubDir<<baseDir;
-
-    // Working Directory
-    if (reader->contains("DESTDIR")) {
-        //qDebug() << "reader contains destdir:" << reader->value("DESTDIR");
-        info.workingDir = reader->value("DESTDIR");
-        if (QDir::isRelativePath(info.workingDir)) {
-            info.workingDir = baseDir + QLatin1Char('/') + info.workingDir;
-            //qDebug() << "was relative and expanded to" << info.workingDir;
-        }
-    } else {
-        //qDebug() << "reader didn't contain DESTDIR, setting to " << baseDir;
-        info.workingDir = baseDir;
-    }
-
-    info.target = reader->value("TARGET");
-    if (info.target.isEmpty())
-        info.target = QFileInfo(proFilePath).baseName();
-
-#if defined (Q_OS_MAC)
-    if (reader->values("CONFIG").contains("app_bundle")) {
-        info.workingDir += QLatin1Char('/')
-                   + info.target
-                   + QLatin1String(".app/Contents/MacOS");
-    }
-#endif
-
-    info.workingDir = QDir::cleanPath(info.workingDir);
-
-    QString wd = info.workingDir;
-    if (!reader->contains("DESTDIR")
-        && reader->values("CONFIG").contains("debug_and_release")
-        && reader->values("CONFIG").contains("debug_and_release_target")) {
-        // If we don't have a destdir and debug and release is set
-        // then the executable is in a debug/release folder
-        //qDebug() << "reader has debug_and_release_target";
-        QString qmakeBuildConfig = "release";
-        if (buildConfiguration->qmakeBuildConfiguration() & QtVersion::DebugBuild)
-            qmakeBuildConfig = "debug";
-        wd += QLatin1Char('/') + qmakeBuildConfig;
-    }
-
-    info.executable = QDir::cleanPath(wd + QLatin1Char('/') + info.target);
-    //qDebug() << "##### updateTarget sets:" << info.workingDir << info.executable;
-
-#if defined (Q_OS_WIN)
-    info.executable += QLatin1String(".exe");
-#endif
-
-    qt4Project()->destroyProFileReader(reader);
-    info.error = Qt4TargetInformation::NoError;
-    return info;
 }
 
 Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, QtVersion *qtversion,
@@ -429,8 +347,8 @@ void Qt4Target::onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *b
     Q_ASSERT(qt4bc);
     connect(qt4bc, SIGNAL(buildDirectoryInitialized()),
             this, SIGNAL(buildDirectoryInitialized()));
-    connect(qt4bc, SIGNAL(targetInformationChanged()),
-            this, SLOT(changeTargetInformation()));
+    connect(qt4bc, SIGNAL(proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *)),
+            this, SLOT(onProFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *)));
 }
 
 void Qt4Target::slotUpdateDeviceInformation()
@@ -441,11 +359,15 @@ void Qt4Target::slotUpdateDeviceInformation()
     }
 }
 
-void Qt4Target::changeTargetInformation()
+void Qt4Target::onProFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *bc)
 {
-    Qt4BuildConfiguration * bc = qobject_cast<Qt4BuildConfiguration *>(sender());
     if (bc && bc == activeBuildConfiguration())
-        emit targetInformationChanged();
+        emit proFileEvaluateNeeded(this);
+}
+
+void Qt4Target::emitProFileEvaluateNeeded()
+{
+    emit proFileEvaluateNeeded(this);
 }
 
 void Qt4Target::updateToolTipAndIcon()

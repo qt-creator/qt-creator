@@ -116,12 +116,27 @@ ProFileCacheManager *ProFileCacheManager::s_instance = 0;
 
 ProFileCacheManager::ProFileCacheManager(QObject *parent) :
         QObject(parent),
-        m_cache(0)
+        m_cache(0),
+        m_refCount(0)
 {
     s_instance = this;
-    m_timer.setSingleShot(true);
     m_timer.setInterval(5000);
-    connect(&m_timer, SIGNAL(timeout()), SLOT(clear()));
+    m_timer.setSingleShot(true);
+    connect(&m_timer, SIGNAL(timeout()),
+            this, SLOT(clear()));
+}
+
+void ProFileCacheManager::incRefCount()
+{
+    ++m_refCount;
+    m_timer.stop();
+}
+
+void ProFileCacheManager::decRefCount()
+{
+    --m_refCount;
+    if (!m_refCount)
+        m_timer.start();
 }
 
 ProFileCacheManager::~ProFileCacheManager()
@@ -132,7 +147,6 @@ ProFileCacheManager::~ProFileCacheManager()
 
 ProFileCache *ProFileCacheManager::cache()
 {
-    m_timer.start();
     if (!m_cache)
         m_cache = new ProFileCache;
     return m_cache;
@@ -140,6 +154,7 @@ ProFileCache *ProFileCacheManager::cache()
 
 void ProFileCacheManager::clear()
 {
+    Q_ASSERT(m_refCount == 0);
     // Just deleting the cache will be safe as long as the sequence of
     // obtaining a cache pointer and using it is atomic as far as the main
     // loop is concerned. Use a shared pointer once this is not true anymore.

@@ -36,9 +36,9 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
-#include <QtCore/QTimer>
 #include <QtCore/QDateTime>
 #include <QtCore/QMap>
+#include <QtCore/QFutureWatcher>
 
 // defined in proitems.h
 QT_BEGIN_NAMESPACE
@@ -127,7 +127,8 @@ class Qt4PriFileNode : public ProjectExplorer::ProjectNode
 public:
     Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath);
 
-    void update(ProFile *includeFile, ProFileReader *reader);
+    void update(ProFile *includeFileExact, ProFileReader *readerExact, ProFile *includeFileCumlative, ProFileReader *readerCumalative);
+
 
 // ProjectNode interface
     QList<ProjectAction> supportedActions() const;
@@ -169,6 +170,8 @@ private:
     void save(const QStringList &lines);
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors();
+    QStringList baseVPaths(ProFileReader *reader, const QString &projectDir);
+    QStringList fullVPaths(const QStringList &baseVPaths, ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir);
 
     Qt4Project *m_project;
     Qt4ProFileNode *m_qt4ProFileNode;
@@ -185,6 +188,38 @@ private:
     friend struct InternalNode;
 };
 
+struct TargetInformation
+{
+    bool valid;
+    QString workingDir;
+    QString target;
+    QString executable;
+    bool operator==(const TargetInformation &other) const
+    {
+        return workingDir == other.workingDir
+                && target == other.target
+                && executable == other.executable
+                && valid == valid;
+    }
+    bool operator!=(const TargetInformation &other) const
+    {
+        return !(*this == other);
+    }
+
+    TargetInformation()
+        : valid(false)
+    {}
+
+    TargetInformation(const TargetInformation &other)
+        : valid(other.valid),
+          workingDir(other.workingDir),
+          target(other.target),
+          executable(other.executable)
+    {
+    }
+
+};
+
 // Implements ProjectNode for qt4 pro files
 class Qt4ProFileNode : public Qt4PriFileNode
 {
@@ -195,6 +230,8 @@ public:
                    const QString &filePath,
                    QObject *parent = 0);
     ~Qt4ProFileNode();
+
+    bool isParent(Qt4ProFileNode *node);
 
     bool hasBuildTargets() const;
 
@@ -211,33 +248,50 @@ public:
     static QString uiHeaderFile(const QString &uiDir, const QString &formFile);
 
     Qt4ProFileNode *findProFileFor(const QString &string);
+    TargetInformation targetInformation(const QString &fileName);
+    TargetInformation targetInformation();
+
+    void update();
+    void scheduleUpdate();
 
 public slots:
-    void scheduleUpdate();
-    void update();
+    void asyncUpdate();
+
 private slots:
     void buildStateChanged(ProjectExplorer::Project*);
+    void applyAsyncEvaluate();
 
 private:
+    void setupReader();
+    bool evaluate();
+    void applyEvaluate(bool parseResult, bool async);
+
+    void asyncEvaluate(QFutureInterface<bool> &fi);
+
     typedef QHash<Qt4Variable, QStringList> Qt4VariablesHash;
 
     void createUiCodeModelSupport();
     QStringList updateUiFiles();
-    Qt4ProFileNode *createSubProFileNode(const QString &path);
 
     QStringList uiDirPaths(ProFileReader *reader) const;
     QStringList mocDirPaths(ProFileReader *reader) const;
     QStringList includePaths(ProFileReader *reader) const;
     QStringList subDirsPaths(ProFileReader *reader) const;
+    TargetInformation targetInformation(ProFileReader *reader) const;
 
     void invalidate();
 
     Qt4ProjectType m_projectType;
     Qt4VariablesHash m_varValues;
-    QTimer m_updateTimer;
 
     QMap<QString, QDateTime> m_uitimestamps;
+    TargetInformation m_qt4targetInformation;
     friend class Qt4NodeHierarchy;
+
+    // Async stuff
+    QFutureWatcher<bool> m_parseFutureWatcher;
+    ProFileReader *m_readerExact;
+    ProFileReader *m_readerCumulative;
 };
 
 class Qt4NodesWatcher : public ProjectExplorer::NodesWatcher

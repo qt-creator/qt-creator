@@ -110,7 +110,6 @@ signals:
     void serialPortNameChanged();
 
 private slots:
-    void invalidateCachedTargetInformation();
     void proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro);
 
 protected:
@@ -119,16 +118,9 @@ protected:
 
 private:
     ProjectExplorer::ToolChain::ToolChainType toolChainType(ProjectExplorer::BuildConfiguration *configuration) const;
-    void updateTarget();
     void ctor();
 
     QString m_proFilePath;
-    QString m_targetName;
-    QString m_platform;
-    QString m_target;
-    QString m_baseFileName;
-    QString m_packageTemplateFileName;
-    bool m_cachedTargetInformationValid;
     QString m_serialPortName;
     SigningMode m_signingMode;
     QString m_customSignaturePath;

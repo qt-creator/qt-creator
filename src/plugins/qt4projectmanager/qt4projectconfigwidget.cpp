@@ -161,8 +161,6 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
         qDebug() << "Qt4ProjectConfigWidget::init() for"<<bc->displayName();
 
     if (m_buildConfiguration) {
-        disconnect(m_buildConfiguration, SIGNAL(buildDirectoryChanged()),
-                   this, SLOT(buildDirectoryChanged()));
         disconnect(m_buildConfiguration, SIGNAL(qtVersionChanged()),
                    this, SLOT(qtVersionChanged()));
         disconnect(m_buildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
@@ -185,7 +183,7 @@ void Qt4ProjectConfigWidget::init(ProjectExplorer::BuildConfiguration *bc)
     m_ui->shadowBuildCheckBox->setChecked(shadowBuild);
     m_ui->shadowBuildDirEdit->setEnabled(shadowBuild);
     m_browseButton->setEnabled(shadowBuild);
-    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->buildDirectory());
+    m_ui->shadowBuildDirEdit->setPath(m_buildConfiguration->shadowBuildDirectory());
     updateImportLabel();
     updateToolChainCombo();
     updateDetails();

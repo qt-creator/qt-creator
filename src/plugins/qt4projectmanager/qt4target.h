@@ -53,20 +53,6 @@ class ProFileReader;
 class Qt4ProFileNode;
 class Qt4TargetFactory;
 
-struct Qt4TargetInformation
-{
-    enum ErrorCode {
-        NoError,
-        InvalidProjectError,
-        ProParserError
-    };
-
-    ErrorCode error;
-    QString workingDir;
-    QString target;
-    QString executable;
-};
-
 class Qt4Target : public ProjectExplorer::Target
 {
     Q_OBJECT
@@ -78,9 +64,6 @@ public:
 
     Qt4BuildConfiguration *activeBuildConfiguration() const;
     Qt4ProjectManager::Qt4Project *qt4Project() const;
-
-    Qt4TargetInformation targetInformation(Internal::Qt4BuildConfiguration *buildConfiguration,
-                                           const QString &proFilePath);
 
     Internal::Qt4BuildConfiguration *addQt4BuildConfiguration(QString displayName,
                                                               QtVersion *qtversion,
@@ -94,11 +77,10 @@ public:
     ProjectExplorer::ToolChain::ToolChainType preferredToolChainType(const QList<ProjectExplorer::ToolChain::ToolChainType> &candidates) const;
 
 signals:
-    /// convenience signal, emitted if either the active buildconfiguration emits
-    /// targetInformationChanged() or if the active build configuration changes
-    void targetInformationChanged();
-
     void buildDirectoryInitialized();
+    /// emitted if the build configuration changed in a way that
+    /// should trigger a reevaluation of all .pro files
+    void proFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4Target *);
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -108,7 +90,8 @@ private slots:
     void onAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void onAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void slotUpdateDeviceInformation();
-    void changeTargetInformation();
+    void onProFileEvaluateNeeded(Qt4ProjectManager::Internal::Qt4BuildConfiguration *bc);
+    void emitProFileEvaluateNeeded();
     void updateToolTipAndIcon();
 
 private:

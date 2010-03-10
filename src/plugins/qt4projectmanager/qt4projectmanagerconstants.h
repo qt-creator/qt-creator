@@ -85,6 +85,9 @@ const char * const QT_APP_WIZARD_CATEGORY = "C.QtApplicationProjects";
 const char * const QT_APP_WIZARD_TR_SCOPE = "Qt4ProjectManager";
 const char * const QT_APP_WIZARD_TR_CATEGORY = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Application Project");
 
+// Tasks
+const char * const PROFILE_EVALUATE = "Qt4ProjectManager.ProFileEvaluate";
+
 } // namespace Constants
 } // namespace Qt4ProjectManager
 

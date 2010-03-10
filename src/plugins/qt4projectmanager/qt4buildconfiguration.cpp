@@ -277,10 +277,11 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
 {
     if (m_shadowBuild == shadowBuild && m_buildDirectory == buildDirectory)
         return;
+
     m_shadowBuild = shadowBuild;
     m_buildDirectory = buildDirectory;
     emit buildDirectoryChanged();
-    emit targetInformationChanged();
+    emit proFileEvaluateNeeded(this);
 }
 
 ProjectExplorer::ToolChain *Qt4BuildConfiguration::toolChain() const
@@ -340,8 +341,9 @@ void Qt4BuildConfiguration::setQtVersion(QtVersion *version)
         return;
 
     m_qtVersionId = version->uniqueId();
+
+    emit proFileEvaluateNeeded(this);
     emit qtVersionChanged();
-    emit targetInformationChanged();
     emit environmentChanged();
 }
 
@@ -351,8 +353,9 @@ void Qt4BuildConfiguration::setToolChainType(ProjectExplorer::ToolChain::ToolCha
         m_toolChainType == type)
         return;
     m_toolChainType = type;
+
+    emit proFileEvaluateNeeded(this);
     emit toolChainTypeChanged();
-    emit targetInformationChanged();
     emit environmentChanged();
 }
 
@@ -371,8 +374,9 @@ void Qt4BuildConfiguration::setQMakeBuildConfiguration(QtVersion::QmakeBuildConf
     if (m_qmakeBuildConfiguration == config)
         return;
     m_qmakeBuildConfiguration = config;
+
+    emit proFileEvaluateNeeded(this);
     emit qmakeBuildConfigurationChanged();
-    emit targetInformationChanged();
 }
 
 void Qt4BuildConfiguration::emitQMakeBuildConfigurationChanged()

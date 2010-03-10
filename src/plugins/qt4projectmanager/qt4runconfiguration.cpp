@@ -95,7 +95,6 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, const QString &proFi
     m_proFilePath(proFilePath),
     m_runMode(Gui),
     m_userSetName(false),
-    m_cachedTargetInformationValid(false),
     m_isUsingDyldImageSuffix(false),
     m_userSetWokingDirectory(false),
     m_baseEnvironmentBase(Qt4RunConfiguration::BuildEnvironmentBase)
@@ -109,7 +108,6 @@ Qt4RunConfiguration::Qt4RunConfiguration(Qt4Target *parent, Qt4RunConfiguration 
     m_proFilePath(source->m_proFilePath),
     m_runMode(source->m_runMode),
     m_userSetName(source->m_userSetName),
-    m_cachedTargetInformationValid(false),
     m_isUsingDyldImageSuffix(source->m_isUsingDyldImageSuffix),
     m_userSetWokingDirectory(source->m_userSetWokingDirectory),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
@@ -156,15 +154,12 @@ bool Qt4RunConfiguration::isEnabled(ProjectExplorer::BuildConfiguration *configu
 void Qt4RunConfiguration::proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode *pro)
 {
     if  (m_proFilePath == pro->path())
-        invalidateCachedTargetInformation();
+        emit effectiveTargetInformationChanged();
 }
 
 void Qt4RunConfiguration::ctor()
 {
     setDefaultDisplayName();
-    connect(qt4Target(), SIGNAL(targetInformationChanged()),
-            this, SLOT(invalidateCachedTargetInformation()));
-
     connect(qt4Target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
 
@@ -475,7 +470,6 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
     if (!m_proFilePath.isEmpty()) {
-        m_cachedTargetInformationValid = false;
         if (!m_userSetName)
             setDefaultDisplayName();
     }
@@ -487,8 +481,11 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
 
 QString Qt4RunConfiguration::executable() const
 {
-    const_cast<Qt4RunConfiguration *>(this)->updateTarget();
-    return m_executable;
+    Qt4Project *pro = qt4Target()->qt4Project();
+    TargetInformation ti = pro->rootProjectNode()->targetInformation(m_proFilePath);
+    if (!ti.valid)
+        return QString();
+    return ti.executable;
 }
 
 LocalApplicationRunConfiguration::RunMode Qt4RunConfiguration::runMode() const
@@ -514,8 +511,11 @@ QString Qt4RunConfiguration::workingDirectory() const
         return m_userWorkingDirectory;
 
     // else what the pro file reader tells us
-    const_cast<Qt4RunConfiguration *>(this)->updateTarget();
-    return m_workingDir;
+    Qt4Project *pro = qt4Target()->qt4Project();
+    TargetInformation ti = pro->rootProjectNode()->targetInformation(m_proFilePath);
+    if(!ti.valid)
+        return QString();
+    return ti.workingDir;
 }
 
 QStringList Qt4RunConfiguration::commandLineArguments() const
@@ -609,38 +609,6 @@ void Qt4RunConfiguration::setUserName(const QString &name)
 QString Qt4RunConfiguration::proFilePath() const
 {
     return m_proFilePath;
-}
-
-void Qt4RunConfiguration::updateTarget()
-{
-    if (m_cachedTargetInformationValid)
-        return;
-    Qt4TargetInformation info = qt4Target()->targetInformation(qt4Target()->activeBuildConfiguration(),
-                                                               m_proFilePath);
-    if (info.error != Qt4TargetInformation::NoError) {
-        if (info.error == Qt4TargetInformation::ProParserError) {
-            Core::ICore::instance()->messageManager()->printToOutputPane(
-                    tr("Could not parse %1. The Qt4 run configuration %2 can not be started.")
-                    .arg(m_proFilePath).arg(displayName()));
-        }
-        m_workingDir.clear();
-        m_executable.clear();
-        m_cachedTargetInformationValid = true;
-        emit effectiveTargetInformationChanged();
-        return;
-    }
-    m_workingDir = info.workingDir;
-    m_executable = info.executable;
-
-    m_cachedTargetInformationValid = true;
-
-    emit effectiveTargetInformationChanged();
-}
-
-void Qt4RunConfiguration::invalidateCachedTargetInformation()
-{
-    m_cachedTargetInformationValid = false;
-    emit effectiveTargetInformationChanged();
 }
 
 QString Qt4RunConfiguration::dumperLibrary() const
