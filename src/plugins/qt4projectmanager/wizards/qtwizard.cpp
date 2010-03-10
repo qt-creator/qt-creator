@@ -30,7 +30,6 @@
 #include "qtwizard.h"
 
 #include "qt4project.h"
-#include "qt4projectmanager.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4target.h"
 #include "modulespage.h"
@@ -109,26 +108,7 @@ bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l
     const BaseQt4ProjectWizardDialog *dialog = qobject_cast<const BaseQt4ProjectWizardDialog *>(w);
 
     // Generate user settings:
-    QSet<QString> targets;
-    if (dialog)
-        targets = dialog->selectedTargets();
-    if (!targets.isEmpty()) {
-        Qt4Manager *manager = ExtensionSystem::PluginManager::instance()->getObject<Qt4Manager>();
-        Q_ASSERT(manager);
-        QtVersionManager *vm = QtVersionManager::instance();
-
-        Qt4Project *pro = new Qt4Project(manager, proFileName);
-        foreach (const QString &targetId, targets) {
-            QList<int> versionIds = dialog->selectedQtVersionIdsForTarget(targetId);
-            QList<QtVersion *> versions;
-            foreach (int id, versionIds)
-                versions.append(vm->version(id));
-            Qt4Target * target = pro->targetFactory()->create(pro, targetId, versions);
-            pro->addTarget(target);
-        }
-        pro->saveSettings();
-        delete pro;
-    }
+    dialog->writeUserFile(proFileName);
 
     // Post-Generate: Open the project
     if (!ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName)) {
@@ -256,18 +236,18 @@ void BaseQt4ProjectWizardDialog::setDeselectedModules(const QString &modules)
     }
 }
 
-QSet<QString> BaseQt4ProjectWizardDialog::selectedTargets() const
+void BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
 {
-    if (!m_targetsPage)
-        return QSet<QString>();
-    return m_targetsPage->selectedTargets();
+    if (m_targetsPage)
+        m_targetsPage->writeUserFile(proFileName);
 }
 
-QList<int> BaseQt4ProjectWizardDialog::selectedQtVersionIdsForTarget(const QString &target) const
+QSet<QString> BaseQt4ProjectWizardDialog::selectedTargets() const
 {
-    if (!m_targetsPage)
-        return QList<int>();
-    return m_targetsPage->selectedVersionIdsForTarget(target);
+    QSet<QString> targets;
+    if (m_targetsPage)
+        targets = m_targetsPage->selectedTargets();
+    return targets;
 }
 
 QSet<QString> BaseQt4ProjectWizardDialog::desktopTarget()

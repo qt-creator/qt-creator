@@ -30,13 +30,12 @@
 #include "projectloadwizard.h"
 
 #include "qt4project.h"
-#include "qt4projectmanager.h"
 #include "qmakestep.h"
 #include "qt4target.h"
 #include "makestep.h"
 #include "qt4buildconfiguration.h"
 
-#include <extensionsystem/pluginmanager.h>
+#include "wizards/targetspage.h"
 
 #include <QtGui/QCheckBox>
 #include <QtGui/QHeaderView>
@@ -48,7 +47,8 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::WindowFlags flags)
-    : QWizard(parent, flags), m_project(project), m_importVersion(0), m_temporaryVersion(false)
+    : QWizard(parent, flags), m_project(project), m_importVersion(0), m_temporaryVersion(false),
+      m_targetsPage(0)
 {
     setWindowTitle(tr("Import existing build settings"));
     QtVersionManager * vm = QtVersionManager::instance();
@@ -88,8 +88,16 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
     // The default buildConfiguration depends on QmakeBuildConfig::DebugBuild
     // Also if the qt version is not yet in the Tools Options dialog we offer to add it there
 
+    QList<QtVersion *> validVersions;
+    foreach (QtVersion * v, vm->versions()) {
+        if (v->isValid())
+            validVersions.append(v);
+    }
+
     if (m_importVersion)
         setupImportPage(m_importVersion, m_importBuildConfig, m_additionalArguments);
+    else if (validVersions.count() > 1)
+        setupTargetsPage();
 
     setOptions(options() | QWizard::NoCancelButton | QWizard::NoBackButtonOnLastPage);
 }
@@ -98,7 +106,7 @@ ProjectLoadWizard::ProjectLoadWizard(Qt4Project *project, QWidget *parent, Qt::W
 // We used to simply call ::exec() on the dialog
 void ProjectLoadWizard::execDialog()
 {
-    if (m_importVersion)
+    if (!pageIds().isEmpty())
         exec();
     else
         done(QDialog::Accepted);
@@ -106,7 +114,6 @@ void ProjectLoadWizard::execDialog()
 
 ProjectLoadWizard::~ProjectLoadWizard()
 {
-
 }
 
 void ProjectLoadWizard::done(int result)
@@ -132,32 +139,39 @@ void ProjectLoadWizard::done(int result)
         }
         if (m_project->targets().isEmpty())
             qWarning() << "Failed to populate project with default targets for imported Qt" << m_importVersion->displayName();
-    } else {
-        // Not importing
-        if (m_temporaryVersion)
-            delete m_importVersion;
 
-        // Find a Qt version:
-        QList<QtVersion *> candidates = vm->versions();
-        QtVersion *defaultVersion = candidates.at(0); // always there and always valid!
-        // Check for the first valid desktop-Qt, fall back to any valid Qt if no desktop
-        // flavour is available.
-        foreach (QtVersion *v, candidates) {
-            if (v->isValid())
-                defaultVersion = v;
-            if (v->supportsTargetId(DESKTOP_TARGET_ID) && v->isValid())
-                break;
-        }
-
-        foreach (const QString &id, defaultVersion->supportedTargetIds()) {
-            Qt4Target *t(m_project->targetFactory()->create(m_project, id, QList<QtVersion *>() << defaultVersion));
-            if (!t)
-                continue;
-            m_project->addTarget(t);
-        }
-        if (m_project->targets().isEmpty())
-            qWarning() << "Failed to populate project with default targets for default Qt" << defaultVersion->displayName();
+        return;
     }
+
+    if (m_targetsPage) {
+        m_targetsPage->setupProject(m_project);
+        return;
+    }
+
+    // Not importing anything
+    if (m_temporaryVersion)
+        delete m_importVersion;
+
+    // Find a Qt version:
+    QList<QtVersion *> candidates = vm->versions();
+    QtVersion *defaultVersion = candidates.at(0); // always there and always valid!
+    // Check for the first valid desktop-Qt, fall back to any valid Qt if no desktop
+    // flavour is available.
+    foreach (QtVersion *v, candidates) {
+        if (v->isValid())
+            defaultVersion = v;
+        if (v->supportsTargetId(DESKTOP_TARGET_ID) && v->isValid())
+            break;
+    }
+
+    foreach (const QString &id, defaultVersion->supportedTargetIds()) {
+        Qt4Target *t(m_project->targetFactory()->create(m_project, id, QList<QtVersion *>() << defaultVersion));
+        if (!t)
+            continue;
+        m_project->addTarget(t);
+    }
+    if (m_project->targets().isEmpty())
+        qWarning() << "Failed to populate project with default targets for default Qt" << defaultVersion->displayName();
 }
 
 // This function used to do the commented stuff instead of having only one page
@@ -203,5 +217,14 @@ void ProjectLoadWizard::setupImportPage(QtVersion *version, QtVersion::QmakeBuil
                               .arg(QDir::toNativeSeparators(m_importVersion->qmakeCommand())));
     importLayout->addWidget(import2Label);
     addPage(importPage);
+}
+
+void ProjectLoadWizard::setupTargetsPage()
+{
+    if (m_targetsPage)
+        return;
+
+    m_targetsPage = new TargetsPage(this);
+    addPage(m_targetsPage);
 }
 

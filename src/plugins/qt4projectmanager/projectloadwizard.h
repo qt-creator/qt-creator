@@ -46,6 +46,8 @@ class Qt4Project;
 
 namespace Internal {
 
+class TargetsPage;
+
 class ProjectLoadWizard : public QWizard
 {
     Q_OBJECT
@@ -58,6 +60,7 @@ public:
 
 private:
     void setupImportPage(QtVersion *version, QtVersion::QmakeBuildConfigs buildConfig, QStringList addtionalArguments);
+    void setupTargetsPage();
 
     Qt4Project *m_project;
 
@@ -75,6 +78,7 @@ private:
     QLabel *importLabel;
     QLabel *import2Label;
     QCheckBox *importCheckbox;
+    TargetsPage *m_targetsPage;
 
     void setupUi();
 };

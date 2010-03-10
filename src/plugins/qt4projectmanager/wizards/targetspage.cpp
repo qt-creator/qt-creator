@@ -29,8 +29,12 @@
 
 #include "targetspage.h"
 
+#include "qt4projectmanager/qt4project.h"
+#include "qt4projectmanager/qt4projectmanager.h"
 #include "qt4projectmanager/qt4target.h"
 #include "qt4projectmanager/qtversionmanager.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QSet>
 #include <QtCore/QString>
@@ -134,14 +138,14 @@ QSet<QString> TargetsPage::selectedTargets() const
         QTreeWidgetItem * targetItem = m_treeWidget->topLevelItem(i);
         QString target = targetItem->data(0, Qt::UserRole).toString();
 
-        QList<int> versions = selectedVersionIdsForTarget(target);
+        QList<int> versions = selectedQtVersionIdsForTarget(target);
         if (!versions.isEmpty())
             result.insert(target);
     }
     return result;
 }
 
-QList<int> TargetsPage::selectedVersionIdsForTarget(const QString &t) const
+QList<int> TargetsPage::selectedQtVersionIdsForTarget(const QString &t) const
 {
     QList<int> result;
     for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
@@ -185,4 +189,38 @@ bool TargetsPage::needToDisplayPage() const
             return true;
     }
     return false;
+}
+
+void TargetsPage::writeUserFile(const QString &proFileName) const
+{
+    Qt4Manager *manager = ExtensionSystem::PluginManager::instance()->getObject<Qt4Manager>();
+    Q_ASSERT(manager);
+
+    Qt4Project *pro = new Qt4Project(manager, proFileName);
+    if (setupProject(pro))
+        pro->saveSettings();
+    delete pro;
+}
+
+bool TargetsPage::setupProject(Qt4ProjectManager::Qt4Project *project) const
+{
+    if (!project)
+        return false;
+
+    // Generate user settings:
+    QSet<QString> targets = selectedTargets();
+    if (targets.isEmpty())
+        return false;
+
+    QtVersionManager *vm = QtVersionManager::instance();
+
+    foreach (const QString &targetId, targets) {
+        QList<int> versionIds = selectedQtVersionIdsForTarget(targetId);
+        QList<QtVersion *> versions;
+        foreach (int id, versionIds)
+            versions.append(vm->version(id));
+        Qt4Target * target = project->targetFactory()->create(project, targetId, versions);
+        project->addTarget(target);
+    }
+    return true;
 }

@@ -41,6 +41,8 @@ class QTreeWidget;
 QT_END_NAMESPACE
 
 namespace Qt4ProjectManager {
+class Qt4Project;
+
 namespace Internal {
 
 class TargetsPage : public QWizardPage
@@ -53,11 +55,14 @@ public:
     void setValidTargets(const QSet<QString> &targets);
 
     QSet<QString> selectedTargets() const;
-    QList<int> selectedVersionIdsForTarget(const QString &) const;
+    QList<int> selectedQtVersionIdsForTarget(const QString &) const;
 
     bool isComplete() const;
 
     bool needToDisplayPage() const;
+
+    void writeUserFile(const QString &proFileName) const;
+    bool setupProject(Qt4Project *project) const;
 
 private slots:
     void itemWasClicked();

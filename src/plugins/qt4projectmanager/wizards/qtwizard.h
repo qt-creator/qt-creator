@@ -114,8 +114,8 @@ public:
     QString deselectedModules() const;
     void setDeselectedModules(const QString &);
 
+    void writeUserFile(const QString &proFileName) const;
     QSet<QString> selectedTargets() const;
-    QList<int> selectedQtVersionIdsForTarget(const QString &target) const;
 
 private:
     inline void init(bool showModulesPage);
