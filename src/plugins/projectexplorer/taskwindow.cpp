@@ -131,7 +131,6 @@ private:
     int m_maxSizeOfFileName;
     QIcon m_errorIcon;
     QIcon m_warningIcon;
-    QIcon m_unspecifiedIcon;
 };
 
 class TaskFilterModel : public QSortFilterProxyModel
@@ -211,7 +210,6 @@ TaskModel::TaskModel()
     m_maxSizeOfFileName = 0;
     m_errorIcon = QIcon(":/projectexplorer/images/compile_error.png");
     m_warningIcon = QIcon(":/projectexplorer/images/compile_warning.png");
-    m_unspecifiedIcon = QIcon(":/projectexplorer/images/compile_unspecified.png");
 
 }
 
@@ -356,7 +354,7 @@ QIcon TaskModel::iconFor(TaskWindow::TaskType type)
     else if (type == TaskWindow::Warning)
         return m_warningIcon;
     else
-        return m_unspecifiedIcon;
+        return QIcon();
 }
 
 int TaskModel::sizeOfFile()
