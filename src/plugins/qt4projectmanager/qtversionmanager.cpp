@@ -613,6 +613,28 @@ QString QtVersion::toHtml() const
     return rc;
 }
 
+bool QtVersion::supportsShadowBuilds() const
+{
+    QSet<QString> targets = supportedTargetIds();
+    // Symbian does not support shadow building
+    if (targets.contains(Constants::S60_DEVICE_TARGET_ID) ||
+        targets.contains(Constants::S60_EMULATOR_TARGET_ID)) {
+	// We can not support shadow building with the ABLD system
+        return false;
+    }
+    if (targets.contains(Constants::MAEMO_DEVICE_TARGET_ID)) {
+#if defined(Q_OS_WIN)
+        // qmake -unix fails with shadow building on windows
+        return false;
+#else
+        // ... but works fine anywhere else
+        return true;
+#endif
+    }
+
+    return true;
+}
+
 QString QtVersion::displayName() const
 {
     return m_displayName;
