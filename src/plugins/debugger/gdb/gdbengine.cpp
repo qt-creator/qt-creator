@@ -3922,7 +3922,7 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
     gdbArgs << _("mi");
     gdbArgs += args;
 #ifdef Q_OS_WIN
-    // Set python path. By convention, python is located below gdb executable
+    // Set python path. By convention, python is located below gdb executable.
     const QFileInfo fi(location);
     if (fi.isAbsolute()) {
         const QString winPythonVersion = QLatin1String(winPythonVersionC);
@@ -3933,29 +3933,20 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
             // Check for existing values.
             if (environment.contains(pythonPathVariable)) {
                 const QString oldPythonPath = environment.value(pythonPathVariable);
-                manager()->showDebuggerOutput(LogMisc, QString::fromLatin1("Using existing python path: %1").arg(oldPythonPath));
+                manager()->showDebuggerOutput(LogMisc,
+                    _("Using existing python path: %1").arg(oldPythonPath));
             } else {
-                const QString pythonPath = QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
+                const QString pythonPath =
+                    QDir::toNativeSeparators(dir.absoluteFilePath(winPythonVersion));
                 environment.insert(pythonPathVariable, pythonPath);
-                manager()->showDebuggerOutput(LogMisc, QString::fromLatin1("Python path: %1").arg(pythonPath));
+                manager()->showDebuggerOutput(LogMisc,
+                    _("Python path: %1").arg(pythonPath));
                 m_gdbProc.setProcessEnvironment(environment);
             }
         }
     }
 #endif
-    m_gdbProc.start(location, gdbArgs);
 
-    if (!m_gdbProc.waitForStarted()) {
-        const QString msg = tr("Unable to start gdb '%1': %2").arg(location, m_gdbProc.errorString());
-        handleAdapterStartFailed(msg, settingsIdHint);
-        return false;
-    }
-
-    const QByteArray dumperSourcePath =
-        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
-
-    // Do this only after the process is running, so we get no needless error
-    // notifications
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleGdbError(QProcess::ProcessError)));
     connect(&m_gdbProc, SIGNAL(finished(int, QProcess::ExitStatus)),
@@ -3964,6 +3955,18 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &gdb, const QStr
         SLOT(readGdbStandardOutput()));
     connect(&m_gdbProc, SIGNAL(readyReadStandardError()),
         SLOT(readGdbStandardError()));
+
+    m_gdbProc.start(location, gdbArgs);
+
+    if (!m_gdbProc.waitForStarted()) {
+        const QString msg = tr("Unable to start gdb '%1': %2")
+            .arg(location, m_gdbProc.errorString());
+        handleAdapterStartFailed(msg, settingsIdHint);
+        return false;
+    }
+
+    const QByteArray dumperSourcePath =
+        Core::ICore::instance()->resourcePath().toLocal8Bit() + "/gdbmacros/";
 
     debugMessage(_("GDB STARTED, INITIALIZING IT"));
     m_commandTimer->setInterval(commandTimeoutTime());
@@ -4169,8 +4172,10 @@ void GdbEngine::startInferiorPhase2()
 
 void GdbEngine::handleInferiorStartFailed(const QString &msg)
 {
-    if (state() == AdapterStartFailed)
+    if (state() == AdapterStartFailed) {
+        debugMessage(_("INFERIOR START FAILED, BUT ADAPTER DIED ALREADY"));
         return; // Adapter crashed meanwhile, so this notification is meaningless.
+    }
     debugMessage(_("INFERIOR START FAILED"));
     showMessageBox(QMessageBox::Critical, tr("Inferior start failed"), msg);
     setState(InferiorStartFailed);
