@@ -47,7 +47,7 @@ bool ProjectNameValidatingLineEdit::validateProjectName(const QString &name, QSt
     // reason. Since we are cross-platform, we generally disallow it.
     if (name.contains(QLatin1Char('.'))) {
         if (errorMessage)
-            *errorMessage = tr("The name must not contain the '.'-character.");
+            *errorMessage = tr("Invalid character '.'.");
           return false;
     }
     return true;

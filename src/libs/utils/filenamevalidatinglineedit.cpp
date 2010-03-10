@@ -92,15 +92,20 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
 {
     if (name.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("The name must not be empty");
+            *errorMessage = tr("Name is empty.");
         return false;
     }
     // Characters
     const char *notAllowedChars = allowDirectories ? notAllowedCharsSubDir : notAllowedCharsNoSubDir;
     for (const char *c = notAllowedChars; *c; c++)
         if (name.contains(QLatin1Char(*c))) {
-            if (errorMessage)
-                *errorMessage = tr("The name must not contain any of the characters '%1'.").arg(QLatin1String(notAllowedChars));
+            if (errorMessage) {
+                if (QChar(*c).isSpace()) {
+                    *errorMessage = tr("Name contains white space.");
+                } else {
+                    *errorMessage = tr("Invalid character '%1'.").arg(*c);
+                }
+            }
             return false;
         }
     // Substrings
@@ -109,7 +114,7 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
         const QLatin1String notAllowedSubString(notAllowedSubStrings[s]);
         if (name.contains(notAllowedSubString)) {
             if (errorMessage)
-                *errorMessage = tr("The name must not contain '%1'.").arg(QString(notAllowedSubString));
+                *errorMessage = tr("Invalid characters '%1'.").arg(QString(notAllowedSubString));
             return false;
         }
     }
@@ -119,7 +124,7 @@ bool FileNameValidatingLineEdit::validateFileName(const QString &name,
         matchesWinDevice = windowsDeviceSubDirPattern().exactMatch(name);
     if (matchesWinDevice) {
         if (errorMessage)
-            *errorMessage = tr("The name must not match that of a MS Windows device. (%1).").
+            *errorMessage = tr("Name matches MS Windows device. (%1).").
                             arg(windowsDeviceNoSubDirPattern().pattern().replace(QLatin1Char('|'), QLatin1Char(',')));
         return false;
     }
