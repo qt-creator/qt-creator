@@ -2680,7 +2680,7 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
         if (targetFrame == -1 && isBogus) {
             setTokenBarrier();
             setState(InferiorRunningRequested);
-            postCommand("-exec-finish", RunRequest, CB(handleExecContinue));
+            postCommand("-exec-finish", RunRequest, CB(handleExecuteContinue));
             showStatusMessage(tr("Jumping out of bogus frame..."), 1000);
             return;
         }
