@@ -1406,8 +1406,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
         if (m_gdbAdapter->isTrkAdapter())
             m_gdbAdapter->trkReloadThreads();
         else
-            postCommand("-thread-list-ids", WatchUpdate,
-                CB(handleStackListThreads), currentId);
+            postCommand("-thread-list-ids", CB(handleStackListThreads), currentId);
     }
 
     //
@@ -1967,7 +1966,9 @@ void GdbEngine::setTokenBarrier()
 {
     foreach (const GdbCommand &cookie, m_cookieForToken) {
         QTC_ASSERT(!cookie.callback || (cookie.flags & Discardable),
-            qDebug() << "CMD:" << cookie.command << " CALLBACK:" << cookie.callbackName;
+            qDebug() << "CMD:" << cookie.command
+                << " FLAGS:" << cookie.flags
+                << " CALLBACK:" << cookie.callbackName;
             return
         );
     }
@@ -2600,7 +2601,7 @@ void GdbEngine::handleStackSelectThread(const GdbResponse &)
 void GdbEngine::reloadFullStack()
 {
     PENDING_DEBUG("RELOAD FULL STACK");
-    postCommand("-stack-list-frames", WatchUpdate, CB(handleStackListFrames),
+    postCommand("-stack-list-frames", CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(true, true)));
 }
 
@@ -2619,8 +2620,8 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     // of waiting for the first request to fail.
     // FIXME: Seems to work with 6.8.
     if (m_gdbAdapter->isTrkAdapter() && m_gdbVersion < 6.8)
-        postCommand(cmd, WatchUpdate);
-    postCommand(cmd, WatchUpdate, CB(handleStackListFrames),
+        postCommand(cmd);
+    postCommand(cmd, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
 }
 
@@ -2720,11 +2721,8 @@ void GdbEngine::handleStackListFrames(const GdbResponse &response)
     bool jump = (m_isMacGdb || targetFrame != 0);
 
     manager()->stackHandler()->setCurrentIndex(targetFrame);
-    if (jump || cookie.gotoLocation) {
-        const StackFrame &frame = manager()->stackHandler()->currentFrame();
-        //qDebug() << "GOTO, 2ND ATTEMPT: " << frame.toString() << targetFrame;
-        gotoLocation(frame, true);
-    }
+    if (jump || cookie.gotoLocation)
+        activateFrame(targetFrame);
 }
 
 void GdbEngine::activateFrame(int frameIndex)
@@ -2744,19 +2742,21 @@ void GdbEngine::activateFrame(int frameIndex)
     QTC_ASSERT(frameIndex < stackHandler->stackSize(), return);
 
     if (oldIndex != frameIndex) {
-        setTokenBarrier();
-
         // Assuming the command always succeeds this saves a roundtrip.
         // Otherwise the lines below would need to get triggered
         // after a response to this -stack-select-frame here.
-        postCommand("-stack-select-frame " + QByteArray::number(frameIndex));
-
         stackHandler->setCurrentIndex(frameIndex);
-        updateLocals();
-        reloadRegisters();
+        postCommand("-stack-select-frame " + QByteArray::number(frameIndex),
+            CB(handleStackSelectFrame));
     }
-
     gotoLocation(stackHandler->currentFrame(), true);
+}
+
+void GdbEngine::handleStackSelectFrame(const GdbResponse &response)
+{
+    Q_UNUSED(response);
+    updateLocals();
+    reloadRegisters();
 }
 
 void GdbEngine::handleStackListThreads(const GdbResponse &response)

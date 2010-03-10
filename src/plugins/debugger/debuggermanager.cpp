@@ -1382,6 +1382,7 @@ void DebuggerManager::executeRunToLine()
     int lineNumber = textEditor->currentLine();
     if (d->m_engine && !fileName.isEmpty()) {
         STATE_DEBUG(fileName << lineNumber);
+        resetLocation();
         d->m_engine->executeRunToLine(fileName, lineNumber);
     }
 }
@@ -1414,8 +1415,10 @@ void DebuggerManager::executeRunToFunction()
     }
     STATE_DEBUG(functionName);
 
-    if (d->m_engine && !functionName.isEmpty())
+    if (d->m_engine && !functionName.isEmpty()) {
+        resetLocation();
         d->m_engine->executeRunToFunction(functionName);
+    }
 }
 
 void DebuggerManager::executeJumpToLine()
@@ -1434,7 +1437,6 @@ void DebuggerManager::resetLocation()
 {
     d->m_disassemblerViewAgent.resetLocation();
     d->m_stackHandler->setCurrentIndex(-1);
-    // Connected to the plugin.
     d->m_plugin->resetLocation();
 }
 
@@ -1445,7 +1447,6 @@ void DebuggerManager::gotoLocation(const StackFrame &frame, bool setMarker)
             d->m_plugin->resetLocation();
         d->m_disassemblerViewAgent.setFrame(frame);
     } else {
-        // Connected to the plugin.
         d->m_plugin->gotoLocation(frame.file, frame.line, setMarker);
     }
 }

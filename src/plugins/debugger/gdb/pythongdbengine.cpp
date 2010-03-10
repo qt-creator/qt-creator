@@ -197,14 +197,13 @@ void GdbEngine::updateAllPython()
     //PENDING_DEBUG("UPDATING ALL\n");
     QTC_ASSERT(state() == InferiorUnrunnable || state() == InferiorStopped, /**/);
     reloadModulesInternal();
-    postCommand("-stack-list-frames", WatchUpdate, CB(handleStackListFrames),
+    postCommand("-stack-list-frames", CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     manager()->stackHandler()->setCurrentIndex(0);
-    qDebug() << "IS TRK: " << m_gdbAdapter->isTrkAdapter();
     if (m_gdbAdapter->isTrkAdapter())
         m_gdbAdapter->trkReloadThreads();
     else
-        postCommand("-thread-list-ids", WatchUpdate, CB(handleStackListThreads), 0);
+        postCommand("-thread-list-ids", CB(handleStackListThreads), 0);
     manager()->reloadRegisters();
     updateLocals();
 }
