@@ -56,7 +56,6 @@ public:
     QString targetRoot() const;
     QString sysrootRoot() const;
     QString simulatorRoot() const;
-    QString toolchainRoot() const;
 
 protected:
     bool equals(ToolChain *other) const;
@@ -64,7 +63,7 @@ protected:
 private:
     void setMaddeRoot() const;
     void setSimulatorRoot() const;
-    void setSysrootAndToolchain() const;
+    void setSysroot() const;
 
 private:
     mutable QString m_maddeRoot;
@@ -75,9 +74,6 @@ private:
 
     mutable QString m_simulatorRoot;
     mutable bool m_simulatorInitialized;
-
-    mutable QString m_toolchainRoot;
-    mutable bool m_toolchainInitialized;
 
     const QString m_targetRoot;
 };

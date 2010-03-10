@@ -42,7 +42,6 @@ MaemoToolChain::MaemoToolChain(const QString &targetRoot)
     , m_maddeInitialized(false)
     , m_sysrootInitialized(false)
     , m_simulatorInitialized(false)
-    , m_toolchainInitialized(false)
     , m_targetRoot(targetRoot)
 {
 }
@@ -62,8 +61,6 @@ void MaemoToolChain::addToEnvironment(ProjectExplorer::Environment &env)
         .arg(maddeRoot())));
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
         .arg(targetRoot())));
-    env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/bin")
-        .arg(toolchainRoot())));
 #ifdef Q_OS_WIN
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
         .arg(maddeRoot())));
@@ -78,11 +75,10 @@ QString MaemoToolChain::makeCommand() const
 bool MaemoToolChain::equals(ToolChain *other) const
 {
     MaemoToolChain *toolChain = static_cast<MaemoToolChain*> (other);
-    return (other->type() == type()
+    return other->type() == type()
         && toolChain->sysrootRoot() == sysrootRoot()
         && toolChain->simulatorRoot() == simulatorRoot()
-        && toolChain->targetRoot() == targetRoot()
-        && toolChain->toolchainRoot() == toolchainRoot());
+        && toolChain->targetRoot() == targetRoot();
 }
 
 QString MaemoToolChain::maddeRoot() const
@@ -100,7 +96,7 @@ QString MaemoToolChain::targetRoot() const
 QString MaemoToolChain::sysrootRoot() const
 {
     if (!m_sysrootInitialized)
-        setSysrootAndToolchain();
+        setSysroot();
     return m_sysrootRoot;
 }
 
@@ -109,13 +105,6 @@ QString MaemoToolChain::simulatorRoot() const
     if (!m_simulatorInitialized)
         setSimulatorRoot();
     return m_simulatorRoot;
-}
-
-QString MaemoToolChain::toolchainRoot() const
-{
-    if (!m_toolchainInitialized)
-        setSysrootAndToolchain();
-    return m_toolchainRoot;
 }
 
 void MaemoToolChain::setMaddeRoot() const
@@ -162,7 +151,7 @@ void MaemoToolChain::setSimulatorRoot() const
     m_simulatorInitialized = true;
 }
 
-void MaemoToolChain::setSysrootAndToolchain() const
+void MaemoToolChain::setSysroot() const
 {
     QFile file(QDir::cleanPath(targetRoot()) + QLatin1String("/information"));
     if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -176,13 +165,8 @@ void MaemoToolChain::setSysrootAndToolchain() const
                 m_sysrootRoot = maddeRoot() + QLatin1String("/sysroots/")
                     + list.at(1);
             }
-            if (list.at(0) == QLatin1String("toolchain")) {
-                m_toolchainRoot = maddeRoot() + QLatin1String("/toolchains/")
-                    + list.at(1);
-            }
         }
     }
 
     m_sysrootInitialized = true;
-    m_toolchainInitialized = true;
 }
