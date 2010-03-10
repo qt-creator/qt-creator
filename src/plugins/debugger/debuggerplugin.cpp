@@ -1199,7 +1199,8 @@ void DebuggerPlugin::resetLocation()
 
 void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
 {
-    TextEditor::BaseTextEditor::openEditorAt(file, line);
+    bool newEditor = false;
+    TextEditor::BaseTextEditor::openEditorAt(file, line, 0, QString(), &newEditor);
     if (setMarker) {
         resetLocation();
         m_locationMark = new LocationMark(file, line);

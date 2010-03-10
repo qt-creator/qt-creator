@@ -1135,13 +1135,13 @@ static QString formatFileFilters(const Core::ICore *core, QString *selectedFilte
 }
 
 IEditor *EditorManager::openEditor(const QString &fileName, const QString &editorId,
-                                   OpenEditorFlags flags)
+                                   OpenEditorFlags flags, bool *newEditor)
 {
-    return openEditor(0, fileName, editorId, flags);
+    return openEditor(0, fileName, editorId, flags, newEditor);
 }
 
 IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QString &fileName,
-                        const QString &editorId, OpenEditorFlags flags)
+                        const QString &editorId, OpenEditorFlags flags, bool *newEditor)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << fileName << editorId;
@@ -1149,10 +1149,13 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     if (fileName.isEmpty())
         return 0;
 
+    if (newEditor)
+        *newEditor = false;
+
     const QList<IEditor *> editors = editorsForFileName(fileName);
-    if (!editors.isEmpty()) {
+    if (!editors.isEmpty())
         return activateEditor(view, editors.first(), flags);
-    }
+
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     IEditor *editor = createEditor(editorId, fileName);
     // If we could not open the file in the requested editor, fall
@@ -1168,7 +1171,10 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
     }
     addEditor(editor);
 
-    IEditor *result= activateEditor(view, editor, flags);
+    if (newEditor)
+        *newEditor = true;
+
+    IEditor *result = activateEditor(view, editor, flags);
     if (editor == result)
         restoreEditorState(editor);
     QApplication::restoreOverrideCursor();

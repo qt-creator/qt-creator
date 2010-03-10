@@ -291,7 +291,8 @@ public:
     ~BaseTextEditor();
 
     static ITextEditor *openEditorAt(const QString &fileName, int line, int column = 0,
-                                     const QString &editorId = QString());
+                                     const QString &editorId = QString(),
+                                     bool *newEditor = 0);
 
     const Utils::ChangeSet &changeSet() const;
     void setChangeSet(const Utils::ChangeSet &changeSet);

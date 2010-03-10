@@ -125,11 +125,13 @@ protected:
 ITextEditor *BaseTextEditor::openEditorAt(const QString &fileName,
                                           int line,
                                           int column,
-                                          const QString &editorKind)
+                                          const QString &editorKind,
+                                          bool *newEditor)
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     editorManager->addCurrentPositionToNavigationHistory();
-    Core::IEditor *editor = editorManager->openEditor(fileName, editorKind, Core::EditorManager::IgnoreNavigationHistory);
+    Core::IEditor *editor = editorManager->openEditor(fileName, editorKind,
+            Core::EditorManager::IgnoreNavigationHistory, newEditor);
     TextEditor::ITextEditor *texteditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (texteditor) {
         texteditor->gotoLine(line, column);

@@ -118,7 +118,8 @@ public:
 
     IEditor *openEditor(const QString &fileName,
                         const QString &editorId = QString(),
-                        OpenEditorFlags flags = 0);
+                        OpenEditorFlags flags = 0,
+                        bool *newEditor = 0);
     IEditor *openEditorWithContents(const QString &editorId,
                      QString *titlePattern = 0,
                      const QString &contents = QString());
@@ -249,7 +250,8 @@ private:
     IEditor *activateEditor(Core::Internal::EditorView *view, Core::IEditor *editor, OpenEditorFlags flags = 0);
     IEditor *openEditor(Core::Internal::EditorView *view, const QString &fileName,
                         const QString &editorId = QString(),
-                        OpenEditorFlags flags = 0);
+                        OpenEditorFlags flags = 0,
+                        bool *newEditor = 0);
     Core::Internal::SplitterOrView *currentSplitterOrView() const;
 
     void closeEditor(Core::IEditor *editor);
