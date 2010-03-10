@@ -962,10 +962,10 @@ void qDumpInnerValueHelper(QDumper &d, const char *type, const void *addr,
             break;
         case 'o':
             if (isEqual(type, "bool")) {
-                switch (*(bool*)addr) {
+                switch (*(unsigned char*)addr) {
                 case 0: d.putItem(field, "false"); break;
                 case 1: d.putItem(field, "true"); break;
-                default: d.putItem(field, *(bool*)addr); break;
+                default: d.putItem(field, *(unsigned char*)addr); break;
                 }
             } else if (isEqual(type, "double"))
                 d.putItem(field, *(double*)addr);
