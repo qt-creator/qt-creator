@@ -31,6 +31,9 @@
 
 #include <QtGui/QPaintEvent>
 #include <QtGui/QPainter>
+#include <QtGui/QStyleOption>
+
+#include <utils/stylehelper.h>
 
 using namespace Utils;
 
@@ -43,7 +46,7 @@ DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent)
 QSize DetailsButton::sizeHint() const
 {
     // TODO: Adjust this when icons become available!
-    return QSize(40, 22);
+    return QSize(80, 22);
 }
 
 
@@ -69,36 +72,45 @@ QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
     lg.setCoordinateMode(QGradient::ObjectBoundingMode);
     lg.setFinalStop(0, 1);
 
-    if (checked) {
-        lg.setColorAt(0, palette().color(QPalette::Midlight));
-        lg.setColorAt(1, palette().color(QPalette::Button));
+    QPixmap pixmap(size);
+    pixmap.fill(Qt::transparent);
+    QPainter p(&pixmap);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.translate(0.5, 0.5);
+    p.setPen(Qt::NoPen);
+    QColor color = palette().highlight().color();
+    if(!checked) {
+        lg.setColorAt(0, QColor(0, 0, 0, 10));
+        lg.setColorAt(1, QColor(0, 0, 0, 16));
     } else {
-        lg.setColorAt(0, palette().color(QPalette::Button));
-        lg.setColorAt(1, palette().color(QPalette::Midlight));
+        lg.setColorAt(0, QColor(255, 255, 255, 0));
+        lg.setColorAt(1, QColor(255, 255, 255, 50));
     }
 
-    QPixmap pixmap(size);
-    QPainter p(&pixmap);
     p.setBrush(lg);
-    p.setPen(Qt::NoPen);
-
-    p.drawRect(0, 0, size.width(), size.height());
-
-    p.setPen(QPen(palette().color(QPalette::Mid)));
-    p.drawLine(0, size.height() - 1, 0, 0);
-    p.drawLine(0, 0,                 size.width() - 1, 0);
-    p.drawLine(size.width() - 1, 0,  size.width() - 1, size.height() - 1);
-    if (!checked)
-        p.drawLine(size.width() - 1, size.height() - 1, 0, size.height() - 1);
+    p.setPen(QColor(255,255,255,140));
+    p.drawRoundedRect(1, 1, size.width()-3, size.height()-3, 1, 1);
+    p.setPen(QPen(QColor(0, 0, 0, 40)));
+    p.drawLine(0, 1, 0, size.height() - 2);
+    if(checked)
+        p.drawLine(1, size.height() - 1, size.width() - 1, size.height() - 1);
 
     p.setPen(palette().color(QPalette::Text));
 
-    // TODO: This should actually use some icons instead...
-    if (checked) {
-        p.drawText(0, 0, size.width(), size.height(), Qt::AlignCenter, tr("Less"));
-    } else {
-        p.drawText(0, 0, size.width(), size.height(), Qt::AlignCenter, tr("More"));
-    }
+    QString text = tr("Details");
+    QRect textRect = p.fontMetrics().boundingRect(text);
+    textRect.setWidth(textRect.width() + 15);
+    textRect.moveCenter(rect().center());
 
+    p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
+
+    int arrowsize = 15;
+    QStyleOption arrowOpt;
+    arrowOpt.initFrom(this);
+    QPalette pal = arrowOpt.palette;
+    pal.setBrush(QPalette::All, QPalette::Text, QColor(0, 0, 0));
+    arrowOpt.rect = QRect(size.width() - arrowsize - 6, height()/2-arrowsize/2, arrowsize, arrowsize);
+    arrowOpt.palette = pal;
+    style()->drawPrimitive(checked ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
     return pixmap;
 }

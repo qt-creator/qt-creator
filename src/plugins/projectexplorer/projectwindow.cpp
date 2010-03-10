@@ -114,7 +114,9 @@ public:
     {
         Q_UNUSED(e);
         QPainter p(this);
-        p.fillRect(contentsRect(), QBrush(Utils::StyleHelper::borderColor()));
+        QColor fillColor = Utils::StyleHelper::mergedColors(
+                palette().button().color(), Qt::black, 80);
+        p.fillRect(contentsRect(), fillColor);
     }
 };
 
@@ -130,9 +132,14 @@ void RootWidget::paintEvent(QPaintEvent *e)
     QWidget::paintEvent(e);
 
     QPainter painter(this);
-    painter.setPen(QColor(255, 255, 255, 90));
+    QColor light = Utils::StyleHelper::mergedColors(
+            palette().button().color(), Qt::white, 30);
+    QColor dark = Utils::StyleHelper::mergedColors(
+            palette().button().color(), Qt::black, 85);
+
+    painter.setPen(light);
     painter.drawLine(rect().topRight(), rect().bottomRight());
-    painter.setPen(QColor(0, 0, 0, 30));
+    painter.setPen(dark);
     painter.drawLine(rect().topRight() - QPoint(1,0), rect().bottomRight() - QPoint(1,0));
 }
 
@@ -147,11 +154,15 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
     // We want a 900px wide widget with and the scrollbar at the
     // side of the screen.
     m_root->setFixedWidth(900);
-    m_root->setContentsMargins(0, 0, 20, 0);
+    m_root->setContentsMargins(0, 0, 40, 0);
     
     QPalette pal = m_root->palette();
-    pal.setColor(QPalette::All, QPalette::Window, QColor(255, 255, 255, 40));
+    QColor background = Utils::StyleHelper::mergedColors(
+            palette().window().color(), Qt::white, 85);
+    pal.setColor(QPalette::All, QPalette::Window, background.darker(102));
     setPalette(pal);
+    pal.setColor(QPalette::All, QPalette::Window, background);
+    m_root->setPalette(pal);
     // The layout holding the individual panels:
     m_layout = new QGridLayout(m_root);
     m_layout->setColumnMinimumWidth(0, ICON_SIZE + 4);
@@ -198,6 +209,9 @@ void PanelsWidget::addPropertiesPanel(IPropertiesPanel *panel)
     // name:
     QLabel *nameLabel = new QLabel(m_root);
     nameLabel->setText(panel->displayName());
+    QPalette palette = nameLabel->palette();
+    palette.setBrush(QPalette::All, QPalette::Foreground, QColor(0, 0, 0, 110));
+    nameLabel->setPalette(palette);
     nameLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
     QFont f = nameLabel->font();
     f.setBold(true);
