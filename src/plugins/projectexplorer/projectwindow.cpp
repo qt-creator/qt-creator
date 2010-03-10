@@ -118,17 +118,40 @@ public:
     }
 };
 
+class RootWidget : public QWidget
+{
+public:
+    RootWidget(QWidget *parent) : QWidget(parent) {}
+    void paintEvent(QPaintEvent *);
+};
+
+void RootWidget::paintEvent(QPaintEvent *e)
+{
+    QWidget::paintEvent(e);
+
+    QPainter painter(this);
+    painter.setPen(QColor(255, 255, 255, 90));
+    painter.drawLine(rect().topRight(), rect().bottomRight());
+    painter.setPen(QColor(0, 0, 0, 30));
+    painter.drawLine(rect().topRight() - QPoint(1,0), rect().bottomRight() - QPoint(1,0));
+}
+
 ///
 // PanelsWidget
 ///
 
 PanelsWidget::PanelsWidget(QWidget *parent) :
     QScrollArea(parent),
-    m_root(new QWidget(this))
+    m_root(new RootWidget(this))
 {
     // We want a 900px wide widget with and the scrollbar at the
     // side of the screen.
     m_root->setFixedWidth(900);
+    m_root->setContentsMargins(0, 0, 20, 0);
+    
+    QPalette pal = m_root->palette();
+    pal.setColor(QPalette::All, QPalette::Window, QColor(255, 255, 255, 40));
+    setPalette(pal);
     // The layout holding the individual panels:
     m_layout = new QGridLayout(m_root);
     m_layout->setColumnMinimumWidth(0, ICON_SIZE + 4);
