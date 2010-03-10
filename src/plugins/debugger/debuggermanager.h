@@ -87,7 +87,6 @@ class ScriptEngine;
 class CdbDebugEngine;
 class CdbDebugEnginePrivate;
 struct DebuggerManagerActions;
-class DebuggerPlugin;
 class CdbDebugEventCallback;
 class CdbDumperHelper;
 class CdbDumperInitThread;
@@ -158,7 +157,7 @@ class DEBUGGER_EXPORT DebuggerManager : public QObject
     Q_OBJECT
 
 public:
-    DebuggerManager();
+    explicit DebuggerManager(Internal::DebuggerPlugin *plugin);
     ~DebuggerManager();
 
     friend class Internal::IDebuggerEngine;
@@ -207,7 +206,6 @@ public slots:
     void setSimpleDockWidgetArrangement(const QString &activeLanguage);
 
     void setBusyCursor(bool on);
-    void queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **ed);
 
     void gotoLocation(const Debugger::Internal::StackFrame &frame, bool setLocationMarker);
     void fileOpen(const QString &file);
@@ -330,16 +328,7 @@ signals:
     void debuggingFinished();
     void inferiorPidChanged(qint64 pid);
     void stateChanged(int newstatus);
-    void debugModeRequested();
-    void previousModeRequested();
     void statusMessageRequested(const QString &msg, int timeout); // -1 for 'forever'
-    void gotoLocationRequested(const QString &file, int line, bool setLocationMarker);
-    void resetLocationRequested();
-    void currentTextEditorRequested(QString *fileName, int *lineNumber, QObject **ob);
-    void sessionValueRequested(const QString &name, QVariant *value);
-    void setSessionValueRequested(const QString &name, const QVariant &value);
-    void configValueRequested(const QString &name, QVariant *value);
-    void setConfigValueRequested(const QString &name, const QVariant &value);
     void applicationOutputAvailable(const QString &output);
     void emitShowOutput(int channel, const QString &output);
     void emitShowInput(int channel, const QString &input);

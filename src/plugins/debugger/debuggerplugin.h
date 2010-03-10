@@ -89,20 +89,20 @@ private:
     virtual void remoteCommand(const QStringList &options, const QStringList &arguments);
 
     QVariant configValue(const QString &name) const;
+    QWidget *currentTextEditor(QString *fileName, int *line);
+    QVariant sessionValue(const QString &name);
+    void setSessionValue(const QString &name, const QVariant &value);
+    QVariant configValue(const QString &name);
+    void setConfigValue(const QString &name, const QVariant &value);
 
 private slots:
     void activatePreviousMode();
     void activateDebugMode();
-    void queryCurrentTextEditor(QString *fileName, int *line, QObject **object);
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
     void handleStateChanged(int state);
     void requestMark(TextEditor::ITextEditor *editor, int lineNumber);
     void showToolTip(TextEditor::ITextEditor *editor, const QPoint &pnt, int pos);
-    void querySessionValue(const QString &name, QVariant *value);
-    void setSessionValue(const QString &name, const QVariant &value);
-    void queryConfigValue(const QString &name, QVariant *value);
-    void setConfigValue(const QString &name, const QVariant &value);
     void requestContextMenu(TextEditor::ITextEditor *editor,
         int lineNumber, QMenu *menu);
 

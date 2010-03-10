@@ -86,6 +86,7 @@
 #include <QtCore/QtPlugin>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QTimer>
+#include <QtCore/QVariant>
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QDockWidget>
@@ -674,11 +675,6 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     ExtensionSystem::PluginManager::instance()->addObject(m_uiSwitcher);
     m_uiSwitcher->addLanguage(LANG_CPP);
 
-    m_manager = new DebuggerManager;
-    ExtensionSystem::PluginManager::instance()->addObject(m_manager);
-    const QList<Core::IOptionsPage *> engineOptionPages =
-        m_manager->initializeEngines(m_cmdLineEnabledEngines);
-
     ICore *core = ICore::instance();
     QTC_ASSERT(core, return false);
 
@@ -705,8 +701,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     m_gdbRunningContext = uidm->uniqueIdentifier(Constants::GDBRUNNING);
 
+    DebuggerManager *manager = new DebuggerManager(this);
+    ExtensionSystem::PluginManager::instance()->addObject(manager);
+    const QList<Core::IOptionsPage *> engineOptionPages =
+        manager->initializeEngines(m_cmdLineEnabledEngines);
+
     // register factory of DebuggerRunControl
-    m_debuggerRunControlFactory = new DebuggerRunControlFactory(m_manager);
+    m_debuggerRunControlFactory = new DebuggerRunControlFactory(manager);
     addAutoReleasedObject(m_debuggerRunControlFactory);
 
     QList<int> context;
@@ -741,13 +742,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_detachAction = new QAction(this);
     m_detachAction->setText(tr("Detach Debugger"));
     connect(m_detachAction, SIGNAL(triggered()),
-        m_manager, SLOT(detachDebugger()));
+        manager, SLOT(detachDebugger()));
 
    // Core::ActionContainer *mdebug =
     //    am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
 
     Core::Command *cmd = 0;
-    const DebuggerManagerActions actions = m_manager->debuggerManagerActions();
+    const DebuggerManagerActions actions = manager->debuggerManagerActions();
 
 
     Core::ActionContainer *mstart =
@@ -902,34 +903,33 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     addAutoReleasedObject(new DebuggerListener);
     m_locationMark = 0;
 
-    m_manager->setSimpleDockWidgetArrangement(LANG_CPP);
+    manager->setSimpleDockWidgetArrangement(LANG_CPP);
     readSettings();
-
-    m_uiSwitcher->setToolbar(LANG_CPP, createToolbar());
-    connect(m_uiSwitcher, SIGNAL(dockArranged(QString)), m_manager,
-            SLOT(setSimpleDockWidgetArrangement(QString)));
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(onModeChanged(Core::IMode*)));
     m_debugMode->widget()->setFocusProxy(EditorManager::instance());
     addObject(m_debugMode);
 
+    m_manager = manager;
+
+
     //
     //  Connections
     //
 
     // TextEditor
-    connect(TextEditor::TextEditorPlugin::instance(),
+    connect(TextEditorPlugin::instance(),
         SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-        m_manager, SLOT(fontSettingsChanged(TextEditor::FontSettings)));
+        manager, SLOT(fontSettingsChanged(TextEditor::FontSettings)));
 
     // ProjectExplorer
     connect(sessionManager(), SIGNAL(sessionLoaded()),
-       m_manager, SLOT(sessionLoaded()));
+       manager, SLOT(sessionLoaded()));
     connect(sessionManager(), SIGNAL(aboutToSaveSession()),
-       m_manager, SLOT(aboutToSaveSession()));
+       manager, SLOT(aboutToSaveSession()));
     connect(sessionManager(), SIGNAL(aboutToUnloadSession()),
-       m_manager, SLOT(aboutToUnloadSession()));
+       manager, SLOT(aboutToUnloadSession()));
 
     // EditorManager
     QObject *editorManager = core->editorManager();
@@ -939,60 +939,46 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         this, SLOT(editorOpened(Core::IEditor*)));
 
     // Application interaction
-    connect(m_manager, SIGNAL(currentTextEditorRequested(QString*,int*,QObject**)),
-        this, SLOT(queryCurrentTextEditor(QString*,int*,QObject**)));
-
-    connect(m_manager, SIGNAL(setSessionValueRequested(QString,QVariant)),
-        this, SLOT(setSessionValue(QString,QVariant)));
-    connect(m_manager, SIGNAL(sessionValueRequested(QString,QVariant*)),
-        this, SLOT(querySessionValue(QString,QVariant*)));
-
-    connect(m_manager, SIGNAL(resetLocationRequested()),
-        this, SLOT(resetLocation()));
-    connect(m_manager, SIGNAL(gotoLocationRequested(QString,int,bool)),
-        this, SLOT(gotoLocation(QString,int,bool)));
-    connect(m_manager, SIGNAL(stateChanged(int)),
-        this, SLOT(handleStateChanged(int)));
-    connect(m_manager, SIGNAL(previousModeRequested()),
-        this, SLOT(activatePreviousMode()));
-    connect(m_manager, SIGNAL(debugModeRequested()),
-        this, SLOT(activateDebugMode()));
-
     connect(theDebuggerAction(SettingsDialog), SIGNAL(triggered()),
         this, SLOT(showSettingsDialog()));
 
     handleStateChanged(DebuggerNotReady);
+
+    m_uiSwitcher->setToolbar(LANG_CPP, createToolbar());
+    connect(m_uiSwitcher, SIGNAL(dockArranged(QString)), manager,
+            SLOT(setSimpleDockWidgetArrangement(QString)));
+
     return true;
 }
 
 QWidget *DebuggerPlugin::createToolbar() const
 {
     Core::ActionManager *am = ICore::instance()->actionManager();
-
     QWidget *toolbarContainer = new QWidget;
-    QHBoxLayout *debugToolBarLayout = new QHBoxLayout(toolbarContainer);
 
-    debugToolBarLayout->setMargin(0);
-    debugToolBarLayout->setSpacing(0);
-    debugToolBarLayout->addWidget(toolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::INTERRUPT)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::NEXT)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEP)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
+    QHBoxLayout *hbox = new QHBoxLayout(toolbarContainer);
+    hbox->setMargin(0);
+    hbox->setSpacing(0);
+    hbox->addWidget(toolButton(am->command(ProjectExplorer::Constants::DEBUG)->action()));
+    hbox->addWidget(toolButton(am->command(Constants::INTERRUPT)->action()));
+    hbox->addWidget(toolButton(am->command(Constants::NEXT)->action()));
+    hbox->addWidget(toolButton(am->command(Constants::STEP)->action()));
+    hbox->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
+    hbox->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
 #ifdef USE_REVERSE_DEBUGGING
-    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
-    debugToolBarLayout->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
+    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
 #endif
-    debugToolBarLayout->addWidget(new Utils::StyledSeparator);
-    debugToolBarLayout->addWidget(new QLabel(tr("Threads:")));
+    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(new QLabel(tr("Threads:")));
 
     QComboBox *threadBox = new QComboBox;
     threadBox->setModel(m_manager->threadsModel());
     connect(threadBox, SIGNAL(activated(int)),
         m_manager->threadsWindow(), SIGNAL(threadSelected(int)));
-    debugToolBarLayout->addWidget(threadBox);
-    debugToolBarLayout->addWidget(m_manager->statusLabel(), 10);
+
+    hbox->addWidget(threadBox);
+    hbox->addWidget(m_manager->statusLabel(), 10);
 
     return toolbarContainer;
 }
@@ -1047,21 +1033,20 @@ void DebuggerPlugin::activateDebugMode()
     modeManager->activateMode(QLatin1String(MODE_DEBUG));
 }
 
-void DebuggerPlugin::queryCurrentTextEditor(QString *fileName, int *lineNumber, QObject **object)
+QWidget *DebuggerPlugin::currentTextEditor(QString *fileName, int *lineNumber)
 {
     EditorManager *editorManager = EditorManager::instance();
     if (!editorManager)
-        return;
+        return 0;
     Core::IEditor *editor = editorManager->currentEditor();
     ITextEditor *textEditor = qobject_cast<ITextEditor*>(editor);
     if (!textEditor)
-        return;
+        return 0;
     if (fileName)
         *fileName = textEditor->file()->fileName();
     if (lineNumber)
         *lineNumber = textEditor->currentLine();
-    if (object)
-        *object = textEditor->widget();
+    return textEditor->widget();
 }
 
 void DebuggerPlugin::editorOpened(Core::IEditor *editor)
@@ -1140,13 +1125,12 @@ void DebuggerPlugin::breakpointEnableDisableMarginActionTriggered()
     }
 }
 
-void DebuggerPlugin::requestMark(TextEditor::ITextEditor *editor, int lineNumber)
+void DebuggerPlugin::requestMark(ITextEditor *editor, int lineNumber)
 {
     m_manager->toggleBreakpoint(editor->file()->fileName(), lineNumber);
 }
 
-void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
-    const QPoint &point, int pos)
+void DebuggerPlugin::showToolTip(ITextEditor *editor, const QPoint &point, int pos)
 {
     if (!theDebuggerBoolSetting(UseToolTipsInMainEditor)
             || m_manager->state() == DebuggerNotReady)
@@ -1157,18 +1141,15 @@ void DebuggerPlugin::showToolTip(TextEditor::ITextEditor *editor,
 
 void DebuggerPlugin::setSessionValue(const QString &name, const QVariant &value)
 {
-    //qDebug() << "SET SESSION VALUE" << name << value;
     QTC_ASSERT(sessionManager(), return);
     sessionManager()->setValue(name, value);
 }
 
-void DebuggerPlugin::querySessionValue(const QString &name, QVariant *value)
+QVariant DebuggerPlugin::sessionValue(const QString &name)
 {
-    QTC_ASSERT(sessionManager(), return);
-    *value = sessionManager()->value(name);
-    //qDebug() << "GET SESSION VALUE: " << name << value;
+    QTC_ASSERT(sessionManager(), return QVariant());
+    return sessionManager()->value(name);
 }
-
 
 void DebuggerPlugin::setConfigValue(const QString &name, const QVariant &value)
 {
@@ -1180,12 +1161,6 @@ QVariant DebuggerPlugin::configValue(const QString &name) const
 {
     QTC_ASSERT(m_debugMode, return QVariant());
     return settings()->value(name);
-}
-
-void DebuggerPlugin::queryConfigValue(const QString &name, QVariant *value)
-{
-    QTC_ASSERT(m_debugMode, return);
-    *value = settings()->value(name);
 }
 
 void DebuggerPlugin::resetLocation()
@@ -1200,7 +1175,12 @@ void DebuggerPlugin::resetLocation()
 void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
 {
     bool newEditor = false;
-    TextEditor::BaseTextEditor::openEditorAt(file, line, 0, QString(), &newEditor);
+    ITextEditor *editor =
+        BaseTextEditor::openEditorAt(file, line, 0, QString(), &newEditor);
+    if (!editor)
+        return;
+    if (newEditor)
+        editor->setProperty("OpenedByDebugger", true);
     if (setMarker) {
         resetLocation();
         m_locationMark = new LocationMark(file, line);
@@ -1209,6 +1189,10 @@ void DebuggerPlugin::gotoLocation(const QString &file, int line, bool setMarker)
 
 void DebuggerPlugin::handleStateChanged(int state)
 {
+    // Prevent it from beeing triggered on setup.
+    if (!m_manager)
+        return;
+
     const bool startIsContinue = (state == InferiorStopped);
     ICore *core = ICore::instance();
     if (startIsContinue) {

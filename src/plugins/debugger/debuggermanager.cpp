@@ -29,6 +29,7 @@
 
 #include "debuggermanager.h"
 
+#include "debuggerplugin.h"
 #include "debuggeractions.h"
 #include "debuggeragents.h"
 #include "debuggerrunner.h"
@@ -305,6 +306,7 @@ struct DebuggerManagerPrivate
     DebuggerState m_state;
 
     CPlusPlus::Snapshot m_codeModelSnapshot;
+    DebuggerPlugin *m_plugin;
 };
 
 DebuggerManager *DebuggerManagerPrivate::instance = 0;
@@ -322,10 +324,11 @@ DebuggerManagerPrivate::DebuggerManagerPrivate(DebuggerManager *manager) :
     m_stopIcon.addFile(":/debugger/images/debugger_stop.png");
 }
 
-DebuggerManager::DebuggerManager()
+DebuggerManager::DebuggerManager(DebuggerPlugin *plugin)
   : d(new DebuggerManagerPrivate(this))
 {
     DebuggerManagerPrivate::instance = this;
+    d->m_plugin = plugin;
     init();
 }
 
@@ -564,17 +567,17 @@ void DebuggerManager::init()
         this, SLOT(reloadModules()), Qt::QueuedConnection);
 
     d->m_registerDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_registerWindow,
-                                                                      Qt::TopDockWidgetArea, false);
+        Qt::TopDockWidgetArea, false);
     connect(d->m_registerDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadRegisters()), Qt::QueuedConnection);
 
     d->m_outputDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_outputWindow,
-                                                                    Qt::TopDockWidgetArea, false);
+        Qt::TopDockWidgetArea, false);
 
     d->m_snapshotDock =  uiSwitcher->createDockWidget(LANG_CPP, d->m_snapshotWindow);
     d->m_stackDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_stackWindow);
-    d->m_sourceFilesDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_sourceFilesWindow,
-                                                                         Qt::TopDockWidgetArea, false);
+    d->m_sourceFilesDock = uiSwitcher->createDockWidget(LANG_CPP,
+        d->m_sourceFilesWindow, Qt::TopDockWidgetArea, false);
     connect(d->m_sourceFilesDock->toggleViewAction(), SIGNAL(toggled(bool)),
         this, SLOT(reloadSourceFiles()), Qt::QueuedConnection);
 
@@ -588,7 +591,8 @@ void DebuggerManager::init()
     localsAndWatchers->setStretchFactor(0, 3);
     localsAndWatchers->setStretchFactor(1, 1);
     localsAndWatchers->setStretchFactor(2, 1);
-    d->m_watchDock = DebuggerUISwitcher::instance()->createDockWidget(LANG_CPP, localsAndWatchers);
+    d->m_watchDock = DebuggerUISwitcher::instance()->createDockWidget(LANG_CPP,
+        localsAndWatchers);
     d->m_dockWidgets << d->m_breakDock << d->m_modulesDock << d->m_registerDock
                      << d->m_outputDock << d->m_stackDock << d->m_sourceFilesDock
                      << d->m_threadsDock << d->m_watchDock;
@@ -691,7 +695,8 @@ QWidget *DebuggerManager::threadsWindow() const
 
 void DebuggerManager::createNewDock(QWidget *widget)
 {
-    QDockWidget *dockWidget = DebuggerUISwitcher::instance()->createDockWidget(LANG_CPP, widget);
+    QDockWidget *dockWidget =
+        DebuggerUISwitcher::instance()->createDockWidget(LANG_CPP, widget);
     dockWidget->setWindowTitle(widget->windowTitle());
     dockWidget->setObjectName(widget->windowTitle());
     dockWidget->setFeatures(QDockWidget::DockWidgetClosable);
@@ -860,7 +865,7 @@ void DebuggerManager::toggleBreakpoint()
 {
     QString fileName;
     int lineNumber = -1;
-    queryCurrentTextEditor(&fileName, &lineNumber, 0);
+    d->m_plugin->currentTextEditor(&fileName, &lineNumber);
     if (lineNumber == -1)
         return;
     toggleBreakpoint(fileName, lineNumber);
@@ -1047,9 +1052,10 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     d->m_startParameters = sp;
     d->m_inferiorPid = d->m_startParameters->attachPID > 0
         ? d->m_startParameters->attachPID : 0;
-    const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(static_cast<ProjectExplorer::ToolChain::ToolChainType>(d->m_startParameters->toolChainType));
+    const QString toolChainName = ProjectExplorer::ToolChain::toolChainName(
+    ProjectExplorer::ToolChain::ToolChainType(d->m_startParameters->toolChainType));
 
-    emit debugModeRequested();
+    d->m_plugin->activateDebugMode();
     showDebuggerOutput(LogStatus,
         tr("Starting debugger for tool chain '%1'...").arg(toolChainName));
     showDebuggerOutput(LogDebug, DebuggerSettings::instance()->dump());
@@ -1347,12 +1353,6 @@ void DebuggerManager::setBusyCursor(bool busy)
     d->m_watchersWindow->setCursor(cursor);
 }
 
-void DebuggerManager::queryCurrentTextEditor(QString *fileName, int *lineNumber,
-    QObject **object)
-{
-    emit currentTextEditorRequested(fileName, lineNumber, object);
-}
-
 void DebuggerManager::continueExec()
 {
     if (d->m_engine)
@@ -1382,7 +1382,7 @@ void DebuggerManager::runToLineExec()
 {
     QString fileName;
     int lineNumber = -1;
-    emit currentTextEditorRequested(&fileName, &lineNumber, 0);
+    d->m_plugin->currentTextEditor(&fileName, &lineNumber);
     if (d->m_engine && !fileName.isEmpty()) {
         STATE_DEBUG(fileName << lineNumber);
         d->m_engine->runToLineExec(fileName, lineNumber);
@@ -1393,8 +1393,7 @@ void DebuggerManager::runToFunctionExec()
 {
     QString fileName;
     int lineNumber = -1;
-    QObject *object = 0;
-    emit currentTextEditorRequested(&fileName, &lineNumber, &object);
+    QObject *object = d->m_plugin->currentTextEditor(&fileName, &lineNumber);
     QPlainTextEdit *ed = qobject_cast<QPlainTextEdit*>(object);
     if (!ed)
         return;
@@ -1426,7 +1425,7 @@ void DebuggerManager::jumpToLineExec()
 {
     QString fileName;
     int lineNumber = -1;
-    emit currentTextEditorRequested(&fileName, &lineNumber, 0);
+    d->m_plugin->currentTextEditor(&fileName, &lineNumber);
     if (d->m_engine && !fileName.isEmpty()) {
         STATE_DEBUG(fileName << lineNumber);
         d->m_engine->jumpToLineExec(fileName, lineNumber);
@@ -1438,18 +1437,18 @@ void DebuggerManager::resetLocation()
     d->m_disassemblerViewAgent.resetLocation();
     d->m_stackHandler->setCurrentIndex(-1);
     // Connected to the plugin.
-    emit resetLocationRequested();
+    d->m_plugin->resetLocation();
 }
 
-void DebuggerManager::gotoLocation(const Debugger::Internal::StackFrame &frame, bool setMarker)
+void DebuggerManager::gotoLocation(const StackFrame &frame, bool setMarker)
 {
     if (theDebuggerBoolSetting(OperateByInstruction) || !frame.isUsable()) {
         if (setMarker)
-            emit resetLocationRequested();
+            d->m_plugin->resetLocation();
         d->m_disassemblerViewAgent.setFrame(frame);
     } else {
         // Connected to the plugin.
-        emit gotoLocationRequested(frame.file, frame.line, setMarker);
+        d->m_plugin->gotoLocation(frame.file, frame.line, setMarker);
     }
 }
 
@@ -1633,15 +1632,12 @@ bool DebuggerManager::isReverseDebugging() const
 
 QVariant DebuggerManager::sessionValue(const QString &name)
 {
-    // this is answered by the plugin
-    QVariant value;
-    emit sessionValueRequested(name, &value);
-    return value;
+    return d->m_plugin->sessionValue(name);
 }
 
 void DebuggerManager::setSessionValue(const QString &name, const QVariant &value)
 {
-    emit setSessionValueRequested(name, value);
+    d->m_plugin->setSessionValue(name, value);
 }
 
 QMessageBox *DebuggerManager::showMessageBox(int icon, const QString &title,
@@ -1803,7 +1799,7 @@ void DebuggerManager::setState(DebuggerState state, bool forced)
     theDebuggerAction(ExpandStack)->setEnabled(actionsEnabled);
     theDebuggerAction(ExecuteCommand)->setEnabled(d->m_state != DebuggerNotReady);
 
-    emit stateChanged(d->m_state);
+    d->m_plugin->handleStateChanged(d->m_state);
     const bool notbusy = state == InferiorStopped
         || state == DebuggerNotReady
         || state == InferiorUnrunnable;
