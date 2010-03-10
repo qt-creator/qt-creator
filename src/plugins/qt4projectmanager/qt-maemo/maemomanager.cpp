@@ -118,7 +118,9 @@ MaemoManager::isValidMaemoQtVersion(const Qt4ProjectManager::QtVersion *version)
 ProjectExplorer::ToolChain*
 MaemoManager::maemoToolChain(const QtVersion *version) const
 {
-    return new MaemoToolChain(version);
+    QString targetRoot = QDir::cleanPath(version->qmakeCommand());
+    targetRoot.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
+    return new MaemoToolChain(targetRoot);
 }
 
 void

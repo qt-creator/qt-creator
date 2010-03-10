@@ -45,10 +45,9 @@ namespace Qt4ProjectManager {
 class MaemoToolChain : public ProjectExplorer::GccToolChain
 {
 public:
-    MaemoToolChain(const Qt4ProjectManager::QtVersion *version);
+    MaemoToolChain(const QString &targetRoot);
     virtual ~MaemoToolChain();
 
-    QList<ProjectExplorer::HeaderPath> systemHeaderPaths();
     void addToEnvironment(ProjectExplorer::Environment &env);
     ProjectExplorer::ToolChain::ToolChainType type() const;
     QString makeCommand() const;
@@ -77,10 +76,10 @@ private:
     mutable QString m_simulatorRoot;
     mutable bool m_simulatorInitialized;
 
-    QString m_targetRoot;
-
     mutable QString m_toolchainRoot;
     mutable bool m_toolchainInitialized;
+
+    const QString m_targetRoot;
 };
 
     } // namespace Internal

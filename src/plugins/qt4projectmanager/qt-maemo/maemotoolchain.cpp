@@ -36,19 +36,14 @@
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager::Internal;
 
-namespace {
-    const char *GCC_MAEMO_COMMAND = "arm-none-linux-gnueabi-gcc" EXEC_SUFFIX;
-}
-
-MaemoToolChain::MaemoToolChain(const Qt4ProjectManager::QtVersion *version)
-    : GccToolChain(QLatin1String(GCC_MAEMO_COMMAND))
+MaemoToolChain::MaemoToolChain(const QString &targetRoot)
+    : GccToolChain(targetRoot % QLatin1String("/bin/gcc"))
     , m_maddeInitialized(false)
     , m_sysrootInitialized(false)
     , m_simulatorInitialized(false)
     , m_toolchainInitialized(false)
+    , m_targetRoot(targetRoot)
 {
-    QString qmake = QDir::cleanPath(version->qmakeCommand());
-    m_targetRoot = qmake.remove(QLatin1String("/bin/qmake" EXEC_SUFFIX));
 }
 
 MaemoToolChain::~MaemoToolChain()
@@ -58,11 +53,6 @@ MaemoToolChain::~MaemoToolChain()
 ToolChain::ToolChainType MaemoToolChain::type() const
 {
     return ToolChain::GCC_MAEMO;
-}
-
-QList<HeaderPath> MaemoToolChain::systemHeaderPaths()
-{
-    return GccToolChain::systemHeaderPaths();
 }
 
 void MaemoToolChain::addToEnvironment(ProjectExplorer::Environment &env)
