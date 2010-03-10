@@ -38,9 +38,10 @@
 #include <QToolButton>
 #include <QStyledItemDelegate>
 
+QT_BEGIN_NAMESPACE
 class QDirModel;
-
-QT_FORWARD_DECLARE_CLASS(QLabel);
+class QLabel;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
