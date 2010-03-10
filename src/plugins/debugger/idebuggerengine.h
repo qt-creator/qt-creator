@@ -77,19 +77,19 @@ public:
     virtual void detachDebugger() {}
     virtual void updateWatchData(const WatchData &data) = 0;
 
-    virtual void stepExec() = 0;
-    virtual void stepOutExec() = 0;
-    virtual void nextExec() = 0;
-    virtual void stepIExec() = 0;
-    virtual void nextIExec() = 0;
-    virtual void returnExec() {}
+    virtual void executeStep() = 0;
+    virtual void executeStepOut() = 0;
+    virtual void executeNext() = 0;
+    virtual void executeStepI() = 0;
+    virtual void executeNextI() = 0;
+    virtual void executeReturn() {}
 
     virtual void continueInferior() = 0;
     virtual void interruptInferior() = 0;
 
-    virtual void runToLineExec(const QString &fileName, int lineNumber) = 0;
-    virtual void runToFunctionExec(const QString &functionName) = 0;
-    virtual void jumpToLineExec(const QString &fileName, int lineNumber) = 0;
+    virtual void executeRunToLine(const QString &fileName, int lineNumber) = 0;
+    virtual void executeRunToFunction(const QString &functionName) = 0;
+    virtual void executeJumpToLine(const QString &fileName, int lineNumber) = 0;
     virtual void assignValueInDebugger(const QString &expr, const QString &value) = 0;
     virtual void executeDebuggerCommand(const QString &command) = 0;
 

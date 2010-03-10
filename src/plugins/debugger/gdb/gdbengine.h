@@ -292,11 +292,11 @@ private: ////////// Inferior Management //////////
     // This should be always the last call in a function.
     Q_SLOT virtual void attemptBreakpointSynchronization();
 
-    virtual void stepExec();
-    virtual void stepOutExec();
-    virtual void nextExec();
-    virtual void stepIExec();
-    virtual void nextIExec();
+    virtual void executeStep();
+    virtual void executeStepOut();
+    virtual void executeNext();
+    virtual void executeStepI();
+    virtual void executeNextI();
 
     void continueInferiorInternal();
     void autoContinueInferior();
@@ -304,16 +304,16 @@ private: ////////// Inferior Management //////////
     virtual void interruptInferior();
     void interruptInferiorTemporarily();
 
-    virtual void runToLineExec(const QString &fileName, int lineNumber);
-    virtual void runToFunctionExec(const QString &functionName);
+    virtual void executeRunToLine(const QString &fileName, int lineNumber);
+    virtual void executeRunToFunction(const QString &functionName);
 //    void handleExecRunToFunction(const GdbResponse &response);
-    virtual void jumpToLineExec(const QString &fileName, int lineNumber);
-    virtual void returnExec();
+    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
+    virtual void executeReturn();
 
-    void handleExecContinue(const GdbResponse &response);
-    void handleExecStep(const GdbResponse &response);
-    void handleExecNext(const GdbResponse &response);
-    void handleExecReturn(const GdbResponse &response);
+    void handleExecuteContinue(const GdbResponse &response);
+    void handleExecuteStep(const GdbResponse &response);
+    void handleExecuteNext(const GdbResponse &response);
+    void handleExecuteReturn(const GdbResponse &response);
 
     qint64 inferiorPid() const { return m_manager->inferiorPid(); }
     void handleInferiorPidChanged(qint64 pid) { manager()->notifyInferiorPidChanged(pid); }

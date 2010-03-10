@@ -69,18 +69,18 @@ public:
     virtual void updateWatchData(const WatchData &data);
     virtual unsigned debuggerCapabilities() const;
 
-    virtual void stepExec();
-    virtual void stepOutExec();
-    virtual void nextExec();
-    virtual void stepIExec();
-    virtual void nextIExec();
+    virtual void executeStep();
+    virtual void executeStepOut();
+    virtual void executeNext();
+    virtual void executeStepI();
+    virtual void executeNextI();
 
     virtual void continueInferior();
     virtual void interruptInferior();
 
-    virtual void runToLineExec(const QString &fileName, int lineNumber);
-    virtual void runToFunctionExec(const QString &functionName);
-    virtual void jumpToLineExec(const QString &fileName, int lineNumber);
+    virtual void executeRunToLine(const QString &fileName, int lineNumber);
+    virtual void executeRunToFunction(const QString &functionName);
+    virtual void executeJumpToLine(const QString &fileName, int lineNumber);
     virtual void assignValueInDebugger(const QString &expr, const QString &value);
     virtual void executeDebuggerCommand(const QString &command);
 

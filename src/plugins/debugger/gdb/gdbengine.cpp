@@ -890,7 +890,7 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
                 debugMessage(_("APPLYING WORKAROUND #3"));
                 setState(InferiorStopping);
                 setState(InferiorStopped);
-                nextIExec();
+                executeNextI();
             } else if (msg.startsWith("Couldn't get registers: No such process.")) {
                 // Happens on archer-tromey-python 6.8.50.20090910-cvs
                 // There might to be a race between a process shutting down
@@ -1268,14 +1268,13 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             if (isLeavableFunction(funcName, fileName)) {
                 //debugMessage(_("LEAVING ") + funcName);
                 ++stepCounter;
-                m_manager->stepOutExec();
-                //stepExec();
+                m_manager->executeStepOut();
                 return;
             }
             if (isSkippableFunction(funcName, fileName)) {
                 //debugMessage(_("SKIPPING ") + funcName);
                 ++stepCounter;
-                m_manager->stepExec();
+                m_manager->executeStep();
                 return;
             }
             //if (stepCounter)
@@ -1516,7 +1515,7 @@ void GdbEngine::handleHasPython(const GdbResponse &response)
     }
 }
 
-void GdbEngine::handleExecContinue(const GdbResponse &response)
+void GdbEngine::handleExecuteContinue(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
         // The "running" state is picked up in handleResponse()
@@ -1536,7 +1535,7 @@ void GdbEngine::handleExecContinue(const GdbResponse &response)
             showStatusMessage(tr("Stopped."), 5000);
             //showStatusMessage(tr("No debug information available. "
             //  "Leaving function..."));
-            //stepOutExec();
+            //executeStepOut();
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
                            tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
@@ -1756,7 +1755,7 @@ void GdbEngine::continueInferiorInternal()
     QTC_ASSERT(state() == InferiorStopped || state() == InferiorStarting,
                qDebug() << state());
     setState(InferiorRunningRequested);
-    postCommand("-exec-continue", RunRequest, CB(handleExecContinue));
+    postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
 }
 
 void GdbEngine::autoContinueInferior()
@@ -1773,7 +1772,7 @@ void GdbEngine::continueInferior()
     showStatusMessage(tr("Running requested..."), 5000);
 }
 
-void GdbEngine::stepExec()
+void GdbEngine::executeStep()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
@@ -1783,12 +1782,12 @@ void GdbEngine::stepExec()
     if (m_gdbAdapter->isTrkAdapter() && stackHandler->stackSize() > 0)
         postCommand("sal step," + stackHandler->topAddress().toLatin1());
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-step", RunRequest, CB(handleExecStep));
+        postCommand("-reverse-step", RunRequest, CB(handleExecuteStep));
     else
-        postCommand("-exec-step", RunRequest, CB(handleExecStep));
+        postCommand("-exec-step", RunRequest, CB(handleExecuteStep));
 }
 
-void GdbEngine::handleExecStep(const GdbResponse &response)
+void GdbEngine::handleExecuteStep(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
         // The "running" state is picked up in handleResponse()
@@ -1805,7 +1804,7 @@ void GdbEngine::handleExecStep(const GdbResponse &response)
         if (msg.startsWith("Cannot find bounds of current function")) {
             if (!m_commandsToRunOnTemporaryBreak.isEmpty())
                 flushQueuedCommands();
-            stepIExec(); // Fall back to instruction-wise stepping.
+            executeStepI(); // Fall back to instruction-wise stepping.
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
                 tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
@@ -1814,28 +1813,28 @@ void GdbEngine::handleExecStep(const GdbResponse &response)
     }
 }
 
-void GdbEngine::stepIExec()
+void GdbEngine::executeStepI()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step by instruction requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-stepi", RunRequest, CB(handleExecContinue));
+        postCommand("-reverse-stepi", RunRequest, CB(handleExecuteContinue));
     else
-        postCommand("-exec-step-instruction", RunRequest, CB(handleExecContinue));
+        postCommand("-exec-step-instruction", RunRequest, CB(handleExecuteContinue));
 }
 
-void GdbEngine::stepOutExec()
+void GdbEngine::executeStepOut()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Finish function requested..."), 5000);
-    postCommand("-exec-finish", RunRequest, CB(handleExecContinue));
+    postCommand("-exec-finish", RunRequest, CB(handleExecuteContinue));
 }
 
-void GdbEngine::nextExec()
+void GdbEngine::executeNext()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
@@ -1845,12 +1844,12 @@ void GdbEngine::nextExec()
     if (m_gdbAdapter->isTrkAdapter() && stackHandler->stackSize() > 0)
         postCommand("sal next," + stackHandler->topAddress().toLatin1());
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-next", RunRequest, CB(handleExecNext));
+        postCommand("-reverse-next", RunRequest, CB(handleExecuteNext));
     else
-        postCommand("-exec-next", RunRequest, CB(handleExecNext));
+        postCommand("-exec-next", RunRequest, CB(handleExecuteNext));
 }
 
-void GdbEngine::handleExecNext(const GdbResponse &response)
+void GdbEngine::handleExecuteNext(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
         // The "running" state is picked up in handleResponse()
@@ -1867,7 +1866,7 @@ void GdbEngine::handleExecNext(const GdbResponse &response)
         if (msg.startsWith("Cannot find bounds of current function")) {
             if (!m_commandsToRunOnTemporaryBreak.isEmpty())
                 flushQueuedCommands();
-            nextIExec(); // Fall back to instruction-wise stepping.
+            executeNextI(); // Fall back to instruction-wise stepping.
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
                 tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
@@ -1876,19 +1875,19 @@ void GdbEngine::handleExecNext(const GdbResponse &response)
     }
 }
 
-void GdbEngine::nextIExec()
+void GdbEngine::executeNextI()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step next instruction requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-nexti", RunRequest, CB(handleExecContinue));
+        postCommand("-reverse-nexti", RunRequest, CB(handleExecuteContinue));
     else
-        postCommand("-exec-next-instruction", RunRequest, CB(handleExecContinue));
+        postCommand("-exec-next-instruction", RunRequest, CB(handleExecuteContinue));
 }
 
-void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)
+void GdbEngine::executeRunToLine(const QString &fileName, int lineNumber)
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
@@ -1896,10 +1895,10 @@ void GdbEngine::runToLineExec(const QString &fileName, int lineNumber)
     showStatusMessage(tr("Run to line %1 requested...").arg(lineNumber), 5000);
     QByteArray args = '"' + breakLocation(fileName).toLocal8Bit() + '"' + ':'
         + QByteArray::number(lineNumber);
-    postCommand("-exec-until " + args, RunRequest, CB(handleExecContinue));
+    postCommand("-exec-until " + args, RunRequest, CB(handleExecuteContinue));
 }
 
-void GdbEngine::runToFunctionExec(const QString &functionName)
+void GdbEngine::executeRunToFunction(const QString &functionName)
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
@@ -1910,7 +1909,7 @@ void GdbEngine::runToFunctionExec(const QString &functionName)
     showStatusMessage(tr("Run to function %1 requested...").arg(functionName), 5000);
 }
 
-void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
+void GdbEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     StackFrame frame;
@@ -1939,16 +1938,16 @@ void GdbEngine::jumpToLineExec(const QString &fileName, int lineNumber)
 #endif
 }
 
-void GdbEngine::returnExec()
+void GdbEngine::executeReturn()
 {
     QTC_ASSERT(state() == InferiorStopped, qDebug() << state());
     setTokenBarrier();
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Immediate return from function requested..."), 5000);
-    postCommand("-exec-finish", RunRequest, CB(handleExecReturn));
+    postCommand("-exec-finish", RunRequest, CB(handleExecuteReturn));
 }
 
-void GdbEngine::handleExecReturn(const GdbResponse &response)
+void GdbEngine::handleExecuteReturn(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
         updateAll();

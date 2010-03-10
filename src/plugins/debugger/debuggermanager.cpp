@@ -515,29 +515,29 @@ void DebuggerManager::init()
     d->m_actions.reverseDirectionAction->setChecked(false);
 
     connect(d->m_actions.continueAction, SIGNAL(triggered()),
-        this, SLOT(continueExec()));
+        this, SLOT(executeContinue()));
     connect(d->m_actions.stopAction, SIGNAL(triggered()),
         this, SLOT(interruptDebuggingRequest()));
     connect(d->m_actions.resetAction, SIGNAL(triggered()),
         this, SLOT(exitDebugger()));
     connect(d->m_actions.nextAction, SIGNAL(triggered()),
-        this, SLOT(nextExec()));
+        this, SLOT(executeStepNext()));
     connect(d->m_actions.stepAction, SIGNAL(triggered()),
-        this, SLOT(stepExec()));
+        this, SLOT(executeStep()));
     connect(d->m_actions.stepOutAction, SIGNAL(triggered()),
-        this, SLOT(stepOutExec()));
+        this, SLOT(executeStepOut()));
     connect(d->m_actions.runToLineAction1, SIGNAL(triggered()),
-        this, SLOT(runToLineExec()));
+        this, SLOT(executeRunToLine()));
     connect(d->m_actions.runToLineAction2, SIGNAL(triggered()),
-        this, SLOT(runToLineExec()));
+        this, SLOT(executeRunToLine()));
     connect(d->m_actions.runToFunctionAction, SIGNAL(triggered()),
-        this, SLOT(runToFunctionExec()));
+        this, SLOT(executeRunToFunction()));
     connect(d->m_actions.jumpToLineAction1, SIGNAL(triggered()),
-        this, SLOT(jumpToLineExec()));
+        this, SLOT(executeJumpToLine()));
     connect(d->m_actions.jumpToLineAction2, SIGNAL(triggered()),
-        this, SLOT(jumpToLineExec()));
+        this, SLOT(executeJumpToLine()));
     connect(d->m_actions.returnFromFunctionAction, SIGNAL(triggered()),
-        this, SLOT(returnExec()));
+        this, SLOT(executeReturn()));
     connect(d->m_actions.watchAction1, SIGNAL(triggered()),
         this, SLOT(addToWatchWindow()));
     connect(d->m_actions.watchAction2, SIGNAL(triggered()),
@@ -1178,38 +1178,38 @@ QList<Symbol> DebuggerManager::moduleSymbols(const QString &moduleName)
     return d->m_engine->moduleSymbols(moduleName);
 }
 
-void DebuggerManager::stepExec()
+void DebuggerManager::executeStep()
 {
     QTC_ASSERT(d->m_engine, return);
     resetLocation();
     if (theDebuggerBoolSetting(OperateByInstruction))
-        d->m_engine->stepIExec();
+        d->m_engine->executeStepI();
     else
-        d->m_engine->stepExec();
+        d->m_engine->executeStep();
 }
 
-void DebuggerManager::stepOutExec()
+void DebuggerManager::executeStepOut()
 {
     QTC_ASSERT(d->m_engine, return);
     resetLocation();
-    d->m_engine->stepOutExec();
+    d->m_engine->executeStepOut();
 }
 
-void DebuggerManager::nextExec()
+void DebuggerManager::executeStepNext()
 {
     QTC_ASSERT(d->m_engine, return);
     resetLocation();
     if (theDebuggerBoolSetting(OperateByInstruction))
-        d->m_engine->nextIExec();
+        d->m_engine->executeNextI();
     else
-        d->m_engine->nextExec();
+        d->m_engine->executeNext();
 }
 
-void DebuggerManager::returnExec()
+void DebuggerManager::executeReturn()
 {
     QTC_ASSERT(d->m_engine, return);
     resetLocation();
-    d->m_engine->returnExec();
+    d->m_engine->executeReturn();
 }
 
 void DebuggerManager::watchPoint()
@@ -1349,7 +1349,7 @@ void DebuggerManager::setBusyCursor(bool busy)
     d->m_watchersWindow->setCursor(cursor);
 }
 
-void DebuggerManager::continueExec()
+void DebuggerManager::executeContinue()
 {
     if (d->m_engine)
         d->m_engine->continueInferior();
@@ -1374,7 +1374,7 @@ void DebuggerManager::interruptDebuggingRequest()
     }
 }
 
-void DebuggerManager::runToLineExec()
+void DebuggerManager::executeRunToLine()
 {
     ITextEditor *textEditor = d->m_plugin->currentTextEditor();
     QTC_ASSERT(textEditor, return);
@@ -1382,11 +1382,11 @@ void DebuggerManager::runToLineExec()
     int lineNumber = textEditor->currentLine();
     if (d->m_engine && !fileName.isEmpty()) {
         STATE_DEBUG(fileName << lineNumber);
-        d->m_engine->runToLineExec(fileName, lineNumber);
+        d->m_engine->executeRunToLine(fileName, lineNumber);
     }
 }
 
-void DebuggerManager::runToFunctionExec()
+void DebuggerManager::executeRunToFunction()
 {
     ITextEditor *textEditor = d->m_plugin->currentTextEditor();
     QTC_ASSERT(textEditor, return);
@@ -1415,10 +1415,10 @@ void DebuggerManager::runToFunctionExec()
     STATE_DEBUG(functionName);
 
     if (d->m_engine && !functionName.isEmpty())
-        d->m_engine->runToFunctionExec(functionName);
+        d->m_engine->executeRunToFunction(functionName);
 }
 
-void DebuggerManager::jumpToLineExec()
+void DebuggerManager::executeJumpToLine()
 {
     ITextEditor *textEditor = d->m_plugin->currentTextEditor();
     QTC_ASSERT(textEditor, return);
@@ -1426,7 +1426,7 @@ void DebuggerManager::jumpToLineExec()
     int lineNumber = textEditor->currentLine();
     if (d->m_engine && !fileName.isEmpty()) {
         STATE_DEBUG(fileName << lineNumber);
-        d->m_engine->jumpToLineExec(fileName, lineNumber);
+        d->m_engine->executeJumpToLine(fileName, lineNumber);
     }
 }
 

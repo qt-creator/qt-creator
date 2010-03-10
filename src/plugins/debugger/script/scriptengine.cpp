@@ -346,55 +346,55 @@ void ScriptEngine::interruptInferior()
     XSDEBUG("ScriptEngine::interruptInferior()");
 }
 
-void ScriptEngine::stepExec()
+void ScriptEngine::executeStep()
 {
     //SDEBUG("ScriptEngine::stepExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
-void ScriptEngine::stepIExec()
+void ScriptEngine::executeStepI()
 {
     //SDEBUG("ScriptEngine::stepIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
-void ScriptEngine::stepOutExec()
+void ScriptEngine::executeStepOut()
 {
     //SDEBUG("ScriptEngine::stepOutExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
-void ScriptEngine::nextExec()
+void ScriptEngine::executeNext()
 {
     //SDEBUG("ScriptEngine::nextExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
-void ScriptEngine::nextIExec()
+void ScriptEngine::executeNextI()
 {
     //SDEBUG("ScriptEngine::nextIExec()");
     m_stopped = false;
     m_stopOnNextLine = true;
 }
 
-void ScriptEngine::runToLineExec(const QString &fileName, int lineNumber)
+void ScriptEngine::executeRunToLine(const QString &fileName, int lineNumber)
 {
     Q_UNUSED(fileName)
     Q_UNUSED(lineNumber)
     SDEBUG("FIXME:  ScriptEngine::runToLineExec()");
 }
 
-void ScriptEngine::runToFunctionExec(const QString &functionName)
+void ScriptEngine::executeRunToFunction(const QString &functionName)
 {
     Q_UNUSED(functionName)
     XSDEBUG("FIXME:  ScriptEngine::runToFunctionExec()");
 }
 
-void ScriptEngine::jumpToLineExec(const QString &fileName, int lineNumber)
+void ScriptEngine::executeJumpToLine(const QString &fileName, int lineNumber)
 {
     Q_UNUSED(fileName)
     Q_UNUSED(lineNumber)

@@ -776,27 +776,27 @@ bool CdbDebugEngine::step(unsigned long executionStatus)
     return success;
 }
 
-void CdbDebugEngine::stepExec()
+void CdbDebugEngine::executeStep()
 {
     step(manager()->isReverseDebugging() ? DEBUG_STATUS_REVERSE_STEP_INTO : DEBUG_STATUS_STEP_INTO);
 }
 
-void CdbDebugEngine::nextExec()
+void CdbDebugEngine::executeNext()
 {
     step(manager()->isReverseDebugging() ? DEBUG_STATUS_REVERSE_STEP_OVER : DEBUG_STATUS_STEP_OVER);
 }
 
-void CdbDebugEngine::stepIExec()
+void CdbDebugEngine::executeStepI()
 {
-    stepExec(); // Step into by instruction (figured out by step)
+    executeStep(); // Step into by instruction (figured out by step)
 }
 
-void CdbDebugEngine::nextIExec()
+void CdbDebugEngine::executeNextI()
 {
-    nextExec(); // Step over by instruction (figured out by step)
+    executeNext(); // Step over by instruction (figured out by step)
 }
 
-void CdbDebugEngine::stepOutExec()
+void CdbDebugEngine::executeStepOut()
 {
     if (!manager()->isReverseDebugging())
         step(CdbExtendedExecutionStatusStepOut);
@@ -901,7 +901,7 @@ void CdbDebugEngine::interruptInferior()
     }
 }
 
-void CdbDebugEngine::runToLineExec(const QString &fileName, int lineNumber)
+void CdbDebugEngine::executeRunToLine(const QString &fileName, int lineNumber)
 {
     manager()->showDebuggerOutput(LogMisc, tr("Running up to %1:%2...").arg(fileName).arg(lineNumber));
     QString errorMessage;
@@ -915,7 +915,7 @@ void CdbDebugEngine::runToLineExec(const QString &fileName, int lineNumber)
         warning(errorMessage);
 }
 
-void CdbDebugEngine::runToFunctionExec(const QString &functionName)
+void CdbDebugEngine::executeRunToFunction(const QString &functionName)
 {
     manager()->showDebuggerOutput(LogMisc, tr("Running up to function '%1()'...").arg(functionName));
     QString errorMessage;
@@ -928,7 +928,7 @@ void CdbDebugEngine::runToFunctionExec(const QString &functionName)
         warning(errorMessage);
 }
 
-void CdbDebugEngine::jumpToLineExec(const QString & /* fileName */, int /*lineNumber*/)
+void CdbDebugEngine::executeJumpToLine(const QString & /* fileName */, int /*lineNumber*/)
 {
     warning(tr("Jump to line is not implemented"));
 }

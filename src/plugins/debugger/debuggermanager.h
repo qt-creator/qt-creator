@@ -213,9 +213,9 @@ public slots:
 
     void interruptDebuggingRequest();
 
-    void jumpToLineExec();
-    void runToLineExec();
-    void runToFunctionExec();
+    void executeJumpToLine();
+    void executeRunToLine();
+    void executeRunToFunction();
     void toggleBreakpoint();
     void breakByFunction(const QString &functionName);
     void breakByFunctionMain();
@@ -225,11 +225,11 @@ public slots:
     void activateSnapshot(int index);
     void removeSnapshot(int index);
 
-    void stepExec();
-    void stepOutExec();
-    void nextExec();
-    void continueExec();
-    void returnExec();
+    void executeStep();
+    void executeStepOut();
+    void executeStepNext();
+    void executeContinue();
+    void executeReturn();
     void detachDebugger();
     void makeSnapshot();
 

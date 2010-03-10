@@ -62,11 +62,11 @@ public:
 
 private:
     // IDebuggerEngine implementation
-    void stepExec();
-    void stepOutExec();
-    void nextExec();
-    void stepIExec();
-    void nextIExec();
+    void executeStep();
+    void executeStepOut();
+    void executeNext();
+    void executeStepI();
+    void executeNextI();
 
     void shutdown();
     void setToolTipExpression(const QPoint &mousePos,
@@ -79,9 +79,9 @@ private:
     Q_SLOT void runInferior();
     void interruptInferior();
 
-    void runToLineExec(const QString &fileName, int lineNumber);
-    void runToFunctionExec(const QString &functionName);
-    void jumpToLineExec(const QString &fileName, int lineNumber);
+    void executeRunToLine(const QString &fileName, int lineNumber);
+    void executeRunToFunction(const QString &functionName);
+    void executeJumpToLine(const QString &fileName, int lineNumber);
 
     void activateFrame(int index);
     void selectThread(int index);
