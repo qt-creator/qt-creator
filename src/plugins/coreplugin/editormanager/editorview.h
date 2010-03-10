@@ -96,9 +96,6 @@ public:
                            QObject *object, const char *member);
     void hideEditorStatusBar(const QString &id);
 
-private slots:
-    void updateEditorStatus(Core::IEditor *editor = 0);
-
 private:
     void updateNavigatorActions();
     void updateToolBar(IEditor *editor);
