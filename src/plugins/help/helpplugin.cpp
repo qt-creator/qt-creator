@@ -829,10 +829,12 @@ HelpViewer* HelpPlugin::viewerForContextMode()
             // side by side if possible
             if (IEditor *editor = EditorManager::instance()->currentEditor()) {
                 if (!placeHolder || !placeHolder->isVisible()) {
-                    if (!editor->widget() && editor->widget()->isVisible()
-                        && editor->widget()->width() < 800) {
+                    if (!editor->widget())
                         break;
-                    }
+                    if (!editor->widget()->isVisible())
+                        break;
+                    if (editor->widget()->width() < 800)
+                        break;
                 }
             }
         }   // fall through
@@ -850,8 +852,7 @@ HelpViewer* HelpPlugin::viewerForContextMode()
         RightPaneWidget::instance()->setShown(true);
         viewer = m_helpViewerForSideBar;
     } else {
-        if (!viewer)
-            activateHelpMode();
+        activateHelpMode();
     }
     return viewer;
 }
@@ -1003,12 +1004,6 @@ void HelpPlugin::handleHelpRequest(const QString &address)
     if (m_helpEngine->findFile(address).isValid()) {
         const QUrl url(address);
         if (url.queryItemValue(QLatin1String("view")) == QLatin1String("split")) {
-            using namespace Core::Constants;
-
-            Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
-            if (modeManager->currentMode() == modeManager->mode(MODE_WELCOME))
-                modeManager->activateMode(MODE_EDIT);
-
             if (HelpViewer* viewer = viewerForContextMode())
                 viewer->setSource(url);
         } else {

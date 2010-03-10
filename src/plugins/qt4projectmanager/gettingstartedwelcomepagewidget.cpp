@@ -272,7 +272,7 @@ void GettingStartedWelcomePageWidget::slotOpenContextHelpPage(const QString& url
     Help::HelpManager *helpManager
         = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
     Q_ASSERT(helpManager);
-    helpManager->handleHelpRequest(url);
+    helpManager->handleHelpRequest(url % QLatin1String("?view=split"));
 }
 
 void GettingStartedWelcomePageWidget::slotNextTip()
