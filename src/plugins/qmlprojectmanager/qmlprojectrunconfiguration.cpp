@@ -90,7 +90,7 @@ void QmlProjectRunConfiguration::ctor()
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
 
-    setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
+    setDisplayName(tr("QML Runtime", "QMLRunConfiguration display name."));
 
     // prepend creator/bin dir to search path (only useful for special creator-qml package)
     const QString searchPath = QCoreApplication::applicationDirPath()
@@ -203,8 +203,8 @@ QWidget *QmlProjectRunConfiguration::configurationWidget()
     debugPort->setValue(m_debugServerPort);
     connect(debugPort, SIGNAL(valueChanged(int)), this, SLOT(onDebugServerPortChanged()));
 
-    form->addRow(tr("QML Viewer"), qmlViewer);
-    form->addRow(tr("QML Viewer arguments:"), qmlViewerArgs);
+    form->addRow(tr("QML Runtime"), qmlViewer);
+    form->addRow(tr("QML Runtime arguments:"), qmlViewerArgs);
     form->addRow(tr("Main QML File:"), combo);
     form->addRow(tr("Debugging Address:"), debugServer);
     form->addRow(tr("Debugging Port:"), debugPort);

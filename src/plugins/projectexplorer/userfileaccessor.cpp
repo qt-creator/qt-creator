@@ -754,8 +754,8 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
     else if (project->id() == QLatin1String("QmlProjectManager.QmlProject"))
         targets << TargetDescription(QString::fromLatin1("QmlProjectManager.QmlTarget"),
                                      QCoreApplication::translate("QmlProjectManager::QmlTarget",
-                                                                 "QML Viewer",
-                                                                 "Qml Viewer target display name"));
+                                                                 "QML Runtime",
+                                                                 "Qml Runtime target display name"));
     else
         return QVariantMap(); // We do not know how to handle this.
 

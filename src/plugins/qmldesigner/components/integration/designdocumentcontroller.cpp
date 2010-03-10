@@ -825,11 +825,11 @@ QProcess *DesignDocumentController::createPreviewProcess(const QString &dirPath)
 
     temporaryFile->close();
 
-    previewProcess->start(QString("%1/qmlviewer").arg(QCoreApplication::applicationDirPath()), qmlViewerArgumentList);
+    previewProcess->start(QString("%1/qml").arg(QCoreApplication::applicationDirPath()), qmlViewerArgumentList);
     if (!previewProcess->waitForStarted())
-        previewProcess->start("qmlviewer", qmlViewerArgumentList);
+        previewProcess->start("qml", qmlViewerArgumentList);
     if (!previewProcess->waitForStarted())
-        QMessageBox::warning(documentWidget(), "qmlviewer not found", "qmlviewer should be in the PATH or in the same directory like the bauhaus binary.");
+        QMessageBox::warning(documentWidget(), "qml runtime not found", "qml runtime should be in the PATH or in the same directory like the bauhaus binary.");
 
     return previewProcess;
 }
@@ -869,11 +869,11 @@ QProcess *DesignDocumentController::createPreviewWithDebugProcess(const QString 
         QMessageBox::warning(documentWidget(), "qmldebugger not found", "qmldebugger should in the PATH or in the same directory like the bauhaus binary.");
 
     previewProcess->setWorkingDirectory(dirPath);
-    previewProcess->start(QString("%1/qmlviewer").arg(QCoreApplication::applicationDirPath()), qmlViewerArgumentList);
+    previewProcess->start(QString("%1/qml").arg(QCoreApplication::applicationDirPath()), qmlViewerArgumentList);
     if (!previewProcess->waitForStarted())
-        previewProcess->start("qmlviewer", qmlViewerArgumentList);
+        previewProcess->start("qml", qmlViewerArgumentList);
     if (!previewProcess->waitForStarted())
-        QMessageBox::warning(documentWidget(), "qmlviewer not found", "qmlviewer should in the PATH or in the same directory like the bauhaus binary.");
+        QMessageBox::warning(documentWidget(), "qml runtime not found", "qml runtime should in the PATH or in the same directory like the bauhaus binary.");
 
     return previewProcess;
 }
