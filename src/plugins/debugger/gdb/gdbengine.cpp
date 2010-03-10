@@ -421,39 +421,39 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // symbols-loaded="0"
                 QByteArray id = result.findChild("id").data();
                 if (!id.isEmpty())
-                    showStatusMessage(tr("Library %1 loaded.").arg(_(id)));
+                    showStatusMessage(tr("Library %1 loaded.").arg(_(id)), 1000);
                 invalidateSourcesList();
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2"
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Library %1 unloaded.").arg(_(id)));
+                showStatusMessage(tr("Library %1 unloaded.").arg(_(id)), 1000);
                 invalidateSourcesList();
             } else if (asyncClass == "thread-group-created") {
                 // Archer has "{id="28902"}"
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Thread group %1 created.").arg(_(id)));
+                showStatusMessage(tr("Thread group %1 created.").arg(_(id)), 1000);
                 int pid = id.toInt();
                 if (pid != inferiorPid())
                     handleInferiorPidChanged(pid);
             } else if (asyncClass == "thread-created") {
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Thread %1 created.").arg(_(id)));
+                showStatusMessage(tr("Thread %1 created.").arg(_(id)), 1000);
             } else if (asyncClass == "thread-group-exited") {
                 // Archer has "{id="28902"}"
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Thread group %1 exited.").arg(_(id)));
+                showStatusMessage(tr("Thread group %1 exited.").arg(_(id)), 1000);
             } else if (asyncClass == "thread-exited") {
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();
                 QByteArray groupid = result.findChild("group-id").data();
                 showStatusMessage(tr("Thread %1 in group %2 exited.")
-                    .arg(_(id)).arg(_(groupid)));
+                    .arg(_(id)).arg(_(groupid)), 1000);
             } else if (asyncClass == "thread-selected") {
                 QByteArray id = result.findChild("id").data();
-                showStatusMessage(tr("Thread %1 selected.").arg(_(id)));
+                showStatusMessage(tr("Thread %1 selected.").arg(_(id)), 1000);
                 //"{id="2"}"
             #if defined(Q_OS_MAC)
             } else if (asyncClass == "shlibs-updated") {
@@ -1352,15 +1352,16 @@ void GdbEngine::handleStop1(const GdbMi &data)
         showStatusMessage(tr("Stopped at breakpoint %1 in thread %2.")
             .arg(_(bpNumber), _(threadId)));
     } else {
+        QString reasontr = tr("Stopped: \"%1\"").arg(_(reason));
         if (reason == "signal-received"
             && theDebuggerBoolSetting(UseMessageBoxForSignals)) {
             QByteArray name = data.findChild("signal-name").data();
+            QByteArray meaning = data.findChild("signal-meaning").data();
             // Ignore these as they are showing up regularly when
             // stopping debugging.
             if (name != STOP_SIGNAL
                 && (startParameters().startMode != StartRemote
                     || name != CROSS_STOP_SIGNAL)) {
-                QByteArray meaning = data.findChild("signal-meaning").data();
                 QString msg = tr("<p>The inferior stopped because it received a "
                     "signal from the Operating System.<p>"
                     "<table><tr><td>Signal name : </td><td>%1</td></tr>"
@@ -1369,13 +1370,16 @@ void GdbEngine::handleStop1(const GdbMi &data)
                     .arg(meaning.isEmpty() ? tr(" <Unknown> ", "meaning") : _(meaning));
                 showMessageBox(QMessageBox::Information,
                     tr("Signal received"), msg);
+                if (!name.isEmpty() && !meaning.isEmpty())
+                    reasontr = tr("Stopped: %1 by signal %2.")
+                        .arg(_(meaning)).arg(_(name));
             }
         }
 
         if (reason.isEmpty())
             showStatusMessage(tr("Stopped."));
         else
-            showStatusMessage(tr("Stopped: \"%1\"").arg(_(reason)));
+            showStatusMessage(reasontr);
     }
 
     const GdbMi gdbmiFrame = data.findChild("frame");
@@ -4091,10 +4095,11 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
     if (state() == EngineShuttingDown) {
         m_gdbAdapter->shutdown();
     } else if (state() != AdapterStartFailed) {
-        showMessageBox(QMessageBox::Critical, tr("Unexpected Gdb Exit"),
-                       tr("The gdb process exited unexpectedly (%1).")
-                       .arg((type == QProcess::CrashExit)
-                            ? tr("crashed") : tr("code %1").arg(code)));
+        QString msg = tr("The gdb process exited unexpectedly (%1).")
+          .arg((type == QProcess::CrashExit)
+              ? tr("crashed") : tr("code %1").arg(code));
+        showMessageBox(QMessageBox::Critical, tr("Unexpected Gdb Exit"), msg);
+        showStatusMessage(msg);
         m_gdbAdapter->shutdown();
     }
     initializeVariables();
@@ -4111,8 +4116,7 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg, const QString &sett
             Core::ICore::instance()->showWarningWithOptions(title, msg);
         } else {
             Core::ICore::instance()->showWarningWithOptions(title, msg, QString(),
-                                                            _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY),
-                                                            settingsIdHint);
+                _(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY), settingsIdHint);
         }
     }
     shutdown();
