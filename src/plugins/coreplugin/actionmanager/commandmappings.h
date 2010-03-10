@@ -27,15 +27,22 @@
 **
 **************************************************************************/
 
-#ifndef SHORTCUTSETTINGS_H
-#define SHORTCUTSETTINGS_H
+#ifndef COMMANDMAPPINGS_H
+#define COMMANDMAPPINGS_H
 
-#include <coreplugin/actionmanager/commandmappings.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QObject>
 #include <QtGui/QKeySequence>
 #include <QtGui/QTreeWidgetItem>
 #include <QtGui/QKeyEvent>
+
+class QLineEdit;
+class QTreeWidget;
+
+QT_BEGIN_NAMESPACE
+class Ui_CommandMappings;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -46,56 +53,51 @@ namespace Internal {
 class ActionManagerPrivate;
 class MainWindow;
 
-struct ShortcutItem
-{
-    Command *m_cmd;
-    QKeySequence m_key;
-    QTreeWidgetItem *m_item;
-};
+}
 
-
-class ShortcutSettings : public Core::CommandMappings
+class CORE_EXPORT CommandMappings : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    ShortcutSettings(QObject *parent = 0);
-    ~ShortcutSettings();
+    CommandMappings(QObject *parent = 0);
+    ~CommandMappings();
 
     // IOptionsPage
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
+    virtual QString id() const = 0;
+    virtual QString displayName() const = 0;
+    virtual QString category() const = 0;
+    virtual QString displayCategory() const = 0;
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish();
+protected slots:
+    void commandChanged(QTreeWidgetItem *current);
+    void filterChanged(const QString &f);
+    virtual void importAction() {}
+    virtual void exportAction() {}
+    virtual void defaultAction() = 0;
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e);
+    // IOptionsPage
+    QWidget *createPage(QWidget *parent);
+    virtual void apply() {}
+    virtual void finish();
 
-private slots:
-    void commandChanged(QTreeWidgetItem *current);
-    void targetIdentifierChanged();
-    void resetTargetIdentifier();
-    void removeTargetIdentifier();
-    void importAction();
-    void exportAction();
-    void defaultAction();
+    virtual void initialize() = 0;
+    bool filter(const QString &f, const QTreeWidgetItem *item);
+
+    // access to m_page
+    void setImportExportEnabled(bool enabled);
+    QTreeWidget *commandList() const;
+    QLineEdit *targetEdit() const;
+    void setPageTitle(QString s);
+    void setTargetLabelText(QString s);
+    void setTargetEditTitle(QString s);
+    void setTargetHeader(QString s);
 
 private:
-    void setKeySequence(const QKeySequence &key);
-    void initialize();
-
-    void handleKeyEvent(QKeyEvent *e);
-    int translateModifiers(Qt::KeyboardModifiers state, const QString &text);
-
-    QList<ShortcutItem *> m_scitems;
-    int m_key[4], m_keyNum;
+    Ui_CommandMappings *m_page;
 };
 
-} // namespace Internal
 } // namespace Core
 
-#endif // SHORTCUTSETTINGS_H
+#endif // COMMANDMAPPINGS_H

@@ -47,6 +47,7 @@ SOURCES += mainwindow.cpp \
     dialogs/saveitemsdialog.cpp \
     dialogs/newdialog.cpp \
     dialogs/settingsdialog.cpp \
+    actionmanager/commandmappings.cpp \
     dialogs/shortcutsettings.cpp \
     dialogs/openwithdialog.cpp \
     progressmanager/progressmanager.cpp \
@@ -116,6 +117,7 @@ HEADERS += mainwindow.h \
     dialogs/saveitemsdialog.h \
     dialogs/newdialog.h \
     dialogs/settingsdialog.h \
+    actionmanager/commandmappings.h \
     dialogs/shortcutsettings.h \
     dialogs/openwithdialog.h \
     dialogs/iwizard.h \
@@ -166,7 +168,7 @@ HEADERS += mainwindow.h \
     editortoolbar.h
 
 FORMS += dialogs/newdialog.ui \
-    dialogs/shortcutsettings.ui \
+    actionmanager/commandmappings.ui \
     dialogs/saveitemsdialog.ui \
     dialogs/openwithdialog.ui \
     editormanager/openeditorsview.ui \

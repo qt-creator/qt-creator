@@ -28,7 +28,6 @@
 **************************************************************************/
 
 #include "shortcutsettings.h"
-#include "ui_shortcutsettings.h"
 #include "actionmanager_p.h"
 #include "actionmanager/command.h"
 #include "command_p.h"
@@ -44,6 +43,7 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QHeaderView>
 #include <QtGui/QFileDialog>
+#include <QtGui/QLineEdit>
 #include <QtCore/QCoreApplication>
 #include <QtDebug>
 
@@ -53,7 +53,7 @@ using namespace Core;
 using namespace Core::Internal;
 
 ShortcutSettings::ShortcutSettings(QObject *parent)
-    : IOptionsPage(parent)
+    : CommandMappings(parent)
 {
 }
 
@@ -88,36 +88,11 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
 {
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
 
-    m_page = new Ui_ShortcutSettings();
-    QWidget *w = new QWidget(parent);
-    m_page->setupUi(w);
-
-    m_page->resetButton->setIcon(QIcon(Constants::ICON_RESET));
-    m_page->shortcutEdit->installEventFilter(this);
-
-    connect(m_page->resetButton, SIGNAL(clicked()),
-        this, SLOT(resetKeySequence()));
-    connect(m_page->removeButton, SIGNAL(clicked()),
-        this, SLOT(removeKeySequence()));
-    connect(m_page->exportButton, SIGNAL(clicked()),
-        this, SLOT(exportAction()));
-    connect(m_page->importButton, SIGNAL(clicked()),
-        this, SLOT(importAction()));
-    connect(m_page->defaultButton, SIGNAL(clicked()),
-        this, SLOT(defaultAction()));
-
-    initialize();
-
-    m_page->commandList->sortByColumn(0, Qt::AscendingOrder);
-
-    connect(m_page->filterEdit, SIGNAL(textChanged(QString)), this, SLOT(filterChanged(QString)));
-    connect(m_page->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-        this, SLOT(commandChanged(QTreeWidgetItem *)));
-    connect(m_page->shortcutEdit, SIGNAL(textChanged(QString)), this, SLOT(keyChanged()));
-
-    new Utils::TreeWidgetColumnStretcher(m_page->commandList, 1);
-
-    commandChanged(0);
+    QWidget *w = CommandMappings::createPage(parent);
+    setPageTitle(tr("Keyboard Shortcuts"));
+    setTargetLabelText(tr("Shortcut:"));
+    setTargetEditTitle(tr("Keyboard Shortcuts"));
+    setTargetHeader(tr("Shortcut"));
 
     return w;
 }
@@ -133,7 +108,7 @@ void ShortcutSettings::finish()
     qDeleteAll(m_scitems);
     m_scitems.clear();
 
-    delete m_page;
+    CommandMappings::finish();
 }
 
 bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
@@ -156,27 +131,16 @@ bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
 
 void ShortcutSettings::commandChanged(QTreeWidgetItem *current)
 {
-    if (!current || !current->data(0, Qt::UserRole).isValid()) {
-        m_page->shortcutEdit->setText("");
-        m_page->seqGrp->setEnabled(false);
+    CommandMappings::commandChanged(current);
+    if (!current || !current->data(0, Qt::UserRole).isValid())
         return;
-    }
-    m_page->seqGrp->setEnabled(true);
     ShortcutItem *scitem = qVariantValue<ShortcutItem *>(current->data(0, Qt::UserRole));
     setKeySequence(scitem->m_key);
 }
 
-void ShortcutSettings::filterChanged(const QString &f)
+void ShortcutSettings::targetIdentifierChanged()
 {
-    for (int i=0; i<m_page->commandList->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = m_page->commandList->topLevelItem(i);
-        item->setHidden(filter(f, item));
-    }
-}
-
-void ShortcutSettings::keyChanged()
-{
-    QTreeWidgetItem *current = m_page->commandList->currentItem();
+    QTreeWidgetItem *current = commandList()->currentItem();
     if (current && current->data(0, Qt::UserRole).isValid()) {
         ShortcutItem *scitem = qVariantValue<ShortcutItem *>(current->data(0, Qt::UserRole));
         scitem->m_key = QKeySequence(m_key[0], m_key[1], m_key[2], m_key[3]);
@@ -206,53 +170,22 @@ void ShortcutSettings::setKeySequence(const QKeySequence &key)
     for (int i = 0; i < m_keyNum; ++i) {
         m_key[i] = key[i];
     }
-    m_page->shortcutEdit->setText(key);
+    targetEdit()->setText(key);
 }
 
-bool ShortcutSettings::filter(const QString &f, const QTreeWidgetItem *item)
+void ShortcutSettings::resetTargetIdentifier()
 {
-
-    if (QTreeWidgetItem *parent = item->parent()) {
-        if (parent->text(0).contains(f, Qt::CaseInsensitive))
-            return false;
-    }
-
-    if (item->childCount() == 0) {
-        if (f.isEmpty())
-            return false;
-        for (int i = 0; i < item->columnCount(); ++i) {
-            if (item->text(i).contains(f, Qt::CaseInsensitive))
-                return false;
-        }
-        return true;
-    }
-
-    bool found = false;
-    for (int i = 0; i < item->childCount(); ++i) {
-        QTreeWidgetItem *citem = item->child(i);
-        if (filter(f, citem)) {
-            citem->setHidden(true);
-        } else {
-            citem->setHidden(false);
-            found = true;
-        }
-    }
-    return !found;
-}
-
-void ShortcutSettings::resetKeySequence()
-{
-    QTreeWidgetItem *current = m_page->commandList->currentItem();
+    QTreeWidgetItem *current = commandList()->currentItem();
     if (current && current->data(0, Qt::UserRole).isValid()) {
         ShortcutItem *scitem = qVariantValue<ShortcutItem *>(current->data(0, Qt::UserRole));
         setKeySequence(scitem->m_cmd->defaultKeySequence());
     }
 }
 
-void ShortcutSettings::removeKeySequence()
+void ShortcutSettings::removeTargetIdentifier()
 {
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
-    m_page->shortcutEdit->clear();
+    targetEdit()->clear();
 }
 
 void ShortcutSettings::importAction()
@@ -271,7 +204,7 @@ void ShortcutSettings::importAction()
             if (mapping.contains(sid)) {
                 item->m_key = mapping.value(sid);
                 item->m_item->setText(2, item->m_key);
-                if (item->m_item == m_page->commandList->currentItem())
+                if (item->m_item == commandList()->currentItem())
                     commandChanged(item->m_item);
             }
         }
@@ -283,7 +216,7 @@ void ShortcutSettings::defaultAction()
     foreach (ShortcutItem *item, m_scitems) {
         item->m_key = item->m_cmd->defaultKeySequence();
         item->m_item->setText(2, item->m_key);
-        if (item->m_item == m_page->commandList->currentItem())
+        if (item->m_item == commandList()->currentItem())
             commandChanged(item->m_item);
     }
 }
@@ -303,12 +236,12 @@ void ShortcutSettings::exportAction()
 
 void ShortcutSettings::initialize()
 {
-    m_am = ActionManagerPrivate::instance();
+    Core::Internal::ActionManagerPrivate *am = ActionManagerPrivate::instance();
     UniqueIDManager *uidm = UniqueIDManager::instance();
 
     QMap<QString, QTreeWidgetItem *> sections;
 
-    foreach (Command *c, m_am->commands()) {
+    foreach (Command *c, am->commands()) {
         if (c->hasAttribute(Command::CA_NonConfigureable))
             continue;
         if (c->action() && c->action()->isSeparator())
@@ -326,12 +259,12 @@ void ShortcutSettings::initialize()
         const QString section = identifier.left(pos);
         const QString subId = identifier.mid(pos+1);
         if (!sections.contains(section)) {
-            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(m_page->commandList, QStringList() << section);
+            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(commandList(), QStringList() << section);
             QFont f = categoryItem->font(0);
             f.setBold(true);
             categoryItem->setFont(0, f);
             sections.insert(section, categoryItem);
-            m_page->commandList->expandItem(categoryItem);
+            commandList()->expandItem(categoryItem);
         }
         sections[section]->addChild(item);
 
@@ -391,7 +324,7 @@ void ShortcutSettings::handleKeyEvent(QKeyEvent *e)
     }
     m_keyNum++;
     QKeySequence ks(m_key[0], m_key[1], m_key[2], m_key[3]);
-    m_page->shortcutEdit->setText(ks);
+    targetEdit()->setText(ks);
     e->accept();
 }
 

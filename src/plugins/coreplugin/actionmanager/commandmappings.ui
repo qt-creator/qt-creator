@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ShortcutSettings</class>
- <widget class="QWidget" name="ShortcutSettings">
+ <class>CommandMappings</class>
+ <widget class="QWidget" name="CommandMappings">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,7 +14,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Keyboard Shortcuts</string>
+      <string>Command Mappings</string>
      </property>
      <layout class="QVBoxLayout">
       <item>
@@ -57,7 +57,7 @@
         </column>
         <column>
          <property name="text">
-          <string>Shortcut</string>
+          <string>Target</string>
          </property>
         </column>
        </widget>
@@ -104,22 +104,22 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="seqGrp">
+    <widget class="QGroupBox" name="targetEditGroup">
      <property name="title">
-      <string>Key Sequence</string>
+      <string>Target Identifier</string>
      </property>
      <layout class="QVBoxLayout">
       <item>
        <layout class="QHBoxLayout">
         <item>
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="targetEditLabel">
           <property name="text">
-           <string>Shortcut:</string>
+           <string>Target:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="shortcutEdit"/>
+         <widget class="QLineEdit" name="targetEdit"/>
         </item>
         <item>
          <widget class="QToolButton" name="resetButton">

@@ -31,7 +31,6 @@
 
 #include "fakevimhandler.h"
 #include "ui_fakevimoptions.h"
-#include "ui_fakevimexcommands.h"
 
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -42,6 +41,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/ifile.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/actionmanager/commandmappings.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -273,7 +273,7 @@ static QMap<QString, QRegExp> s_exCommandMap;
 static QMap<QString, QRegExp> s_defaultExCommandMap;
 
 
-class FakeVimExCommandsPage : public Core::IOptionsPage
+class FakeVimExCommandsPage : public Core::CommandMappings
 {
     Q_OBJECT
 
@@ -288,53 +288,28 @@ public:
 
     QWidget *createPage(QWidget *parent);
     void initialize();
-    void apply() {}
-    void finish() {}
-    virtual bool matches(const QString &) const;
-    bool filter(const QString &f, const QTreeWidgetItem *item);
 
 public slots:
-    void filterChanged(const QString &f);
     void commandChanged(QTreeWidgetItem *current);
-    void regexChanged();
-    void resetRegex();
-    void removeRegex();
+    void targetIdentifierChanged();
+    void resetTargetIdentifier();
+    void removeTargetIdentifier();
     void defaultAction();
 
 private:
-    Ui::FakeVimExCommandsPage m_ui;
-    QString m_searchKeywords;
     void setRegex(const QString &regex);
     QList<CommandItem *> m_citems;
 };
 
 QWidget *FakeVimExCommandsPage::createPage(QWidget *parent)
 {
-    QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
+    QWidget *w = CommandMappings::createPage(parent);
+    setPageTitle(tr("Ex Command Mapping"));
+    setTargetHeader(tr("Ex Trigger Expression"));
+    setTargetLabelText(tr("Regular Expression:"));
+    setTargetEditTitle(tr("Ex Command"));
 
-    connect(m_ui.resetButton, SIGNAL(clicked()),
-        this, SLOT(resetRegex()));
-    connect(m_ui.removeButton, SIGNAL(clicked()),
-        this, SLOT(removeRegex()));
-    connect(m_ui.defaultButton, SIGNAL(clicked()),
-        this, SLOT(defaultAction()));
-
-    initialize();
-
-    m_ui.commandList->sortByColumn(0, Qt::AscendingOrder);
-
-    connect(m_ui.filterEdit, SIGNAL(textChanged(QString)), this, SLOT(filterChanged(QString)));
-    connect(m_ui.commandList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
-        this, SLOT(commandChanged(QTreeWidgetItem *)));
-    connect(m_ui.regexEdit, SIGNAL(textChanged(QString)), this, SLOT(regexChanged()));
-
-    if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords)
-            << ' ' << m_ui.groupBox->title();
-        m_searchKeywords.remove(QLatin1Char('&'));
-    }
-    new Utils::TreeWidgetColumnStretcher(m_ui.commandList, 1);
+    setImportExportEnabled(false);
 
     return w;
 }
@@ -364,12 +339,12 @@ void FakeVimExCommandsPage::initialize()
         const QString subId = name.mid(pos+1);
 
         if (!sections.contains(section)) {
-            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(m_ui.commandList, QStringList() << section);
+            QTreeWidgetItem *categoryItem = new QTreeWidgetItem(commandList(), QStringList() << section);
             QFont f = categoryItem->font(0);
             f.setBold(true);
             categoryItem->setFont(0, f);
             sections.insert(section, categoryItem);
-            m_ui.commandList->expandItem(categoryItem);
+            commandList()->expandItem(categoryItem);
         }
         sections[section]->addChild(item);
 
@@ -407,28 +382,18 @@ void FakeVimExCommandsPage::initialize()
 
 void FakeVimExCommandsPage::commandChanged(QTreeWidgetItem *current)
 {
-    if (!current || !current->data(0, Qt::UserRole).isValid()) {
-        m_ui.regexEdit->setText(QString());
-        m_ui.seqGrp->setEnabled(false);
+    CommandMappings::commandChanged(current);
+
+    if (!current || !current->data(0, Qt::UserRole).isValid())
         return;
-    }
 
-    m_ui.seqGrp->setEnabled(true);
     CommandItem *citem = qVariantValue<CommandItem *>(current->data(0, Qt::UserRole));
-    m_ui.regexEdit->setText(citem->m_regex);
+    targetEdit()->setText(citem->m_regex);
 }
 
-void FakeVimExCommandsPage::filterChanged(const QString &f)
+void FakeVimExCommandsPage::targetIdentifierChanged()
 {
-    for (int i=0; i<m_ui.commandList->topLevelItemCount(); ++i) {
-        QTreeWidgetItem *item = m_ui.commandList->topLevelItem(i);
-        item->setHidden(filter(f, item));
-    }
-}
-
-void FakeVimExCommandsPage::regexChanged()
-{
-    QTreeWidgetItem *current = m_ui.commandList->currentItem();
+    QTreeWidgetItem *current = commandList()->currentItem();
     if (!current)
         return;
 
@@ -437,7 +402,7 @@ void FakeVimExCommandsPage::regexChanged()
     const QString name = uidm->stringForUniqueIdentifier(citem->m_cmd->id());
 
     if (current->data(0, Qt::UserRole).isValid()) {
-        citem->m_regex = m_ui.regexEdit->text();
+        citem->m_regex = targetEdit()->text();
         current->setText(2, citem->m_regex);
         s_exCommandMap[name] = QRegExp(citem->m_regex);
     }
@@ -462,43 +427,13 @@ void FakeVimExCommandsPage::regexChanged()
 
 void FakeVimExCommandsPage::setRegex(const QString &regex)
 {
-    m_ui.regexEdit->setText(regex);
+    targetEdit()->setText(regex);
 }
 
-bool FakeVimExCommandsPage::filter(const QString &f, const QTreeWidgetItem *item)
-{
-    if (QTreeWidgetItem *parent = item->parent()) {
-        if (parent->text(0).contains(f, Qt::CaseInsensitive))
-            return false;
-    }
-
-    if (item->childCount() == 0) {
-        if (f.isEmpty())
-            return false;
-        for (int i = 0; i < item->columnCount(); ++i) {
-            if (item->text(i).contains(f, Qt::CaseInsensitive))
-                return false;
-        }
-        return true;
-    }
-
-    bool found = false;
-    for (int i = 0; i < item->childCount(); ++i) {
-        QTreeWidgetItem *citem = item->child(i);
-        if (filter(f, citem)) {
-            citem->setHidden(true);
-        } else {
-            citem->setHidden(false);
-            found = true;
-        }
-    }
-    return !found;
-}
-
-void FakeVimExCommandsPage::resetRegex()
+void FakeVimExCommandsPage::resetTargetIdentifier()
 {
     UniqueIDManager *uidm = UniqueIDManager::instance();
-    QTreeWidgetItem *current = m_ui.commandList->currentItem();
+    QTreeWidgetItem *current = commandList()->currentItem();
     if (current && current->data(0, Qt::UserRole).isValid()) {
         CommandItem *citem = qVariantValue<CommandItem *>(current->data(0, Qt::UserRole));
         const QString &name = uidm->stringForUniqueIdentifier(citem->m_cmd->id());
@@ -509,9 +444,9 @@ void FakeVimExCommandsPage::resetRegex()
     }
 }
 
-void FakeVimExCommandsPage::removeRegex()
+void FakeVimExCommandsPage::removeTargetIdentifier()
 {
-    m_ui.regexEdit->clear();
+    targetEdit()->clear();
 }
 
 void FakeVimExCommandsPage::defaultAction()
@@ -525,14 +460,9 @@ void FakeVimExCommandsPage::defaultAction()
             item->m_regex.clear();
         }
         item->m_item->setText(2, item->m_regex);
-        if (item->m_item == m_ui.commandList->currentItem())
+        if (item->m_item == commandList()->currentItem())
             commandChanged(item->m_item);
     }
-}
-
-bool FakeVimExCommandsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

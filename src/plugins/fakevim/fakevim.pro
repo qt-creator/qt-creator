@@ -19,6 +19,5 @@ SOURCES += fakevimactions.cpp \
 HEADERS += fakevimactions.h \
     fakevimhandler.h \
     fakevimplugin.h
-FORMS += fakevimoptions.ui \
-    fakevimexcommands.ui
+FORMS += fakevimoptions.ui
 OTHER_FILES += FakeVim.pluginspec
