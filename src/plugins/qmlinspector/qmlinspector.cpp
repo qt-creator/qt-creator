@@ -185,6 +185,7 @@ bool QmlInspector::connectToViewer()
     if (m_conn) {
         m_conn->disconnectFromHost();
         delete m_conn;
+        m_conn = 0;
     }
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject();
