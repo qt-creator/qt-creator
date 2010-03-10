@@ -91,16 +91,13 @@ public:
     void setIndexFilter(const QString &filter);
     QString indexFilter() const;
 
-    void openHelpPage(const QString& url);
-    void openContextHelpPage(const QString &url);
-
     QHelpEngine* helpEngine() const;
 
     void setFilesToRegister(const QStringList &files);
 
 public slots:
     void pluginUpdateDocumentation();
-    void handleHelpRequest(const QUrl &url);
+    void handleHelpRequest(const QString &url);
 
 private slots:
     void modeChanged(Core::IMode *mode);

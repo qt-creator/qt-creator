@@ -265,14 +265,14 @@ void GettingStartedWelcomePageWidget::slotOpenHelpPage(const QString& url)
     Help::HelpManager *helpManager
         = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
     Q_ASSERT(helpManager);
-    helpManager->openHelpPage(url);
+    helpManager->handleHelpRequest(url);
 }
 void GettingStartedWelcomePageWidget::slotOpenContextHelpPage(const QString& url)
 {
     Help::HelpManager *helpManager
         = ExtensionSystem::PluginManager::instance()->getObject<Help::HelpManager>();
     Q_ASSERT(helpManager);
-    helpManager->openContextHelpPage(url);
+    helpManager->handleHelpRequest(url);
 }
 
 void GettingStartedWelcomePageWidget::slotNextTip()

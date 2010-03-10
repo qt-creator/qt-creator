@@ -41,14 +41,9 @@ HelpManager::HelpManager(HelpPlugin* plugin)
 {
 }
 
-void HelpManager::openHelpPage(const QString& url)
+void HelpManager::handleHelpRequest(const QString &url)
 {
     m_plugin->handleHelpRequest(url);
-}
-
-void HelpManager::openContextHelpPage(const QString& url)
-{
-    m_plugin->openContextHelpPage(url);
 }
 
 void HelpManager::registerDocumentation(const QStringList &fileNames)

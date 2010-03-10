@@ -47,12 +47,11 @@ class HELP_EXPORT HelpManager : public QObject
 public:
     HelpManager(Internal::HelpPlugin*);
 
-    void openHelpPage(const QString& url);
-    void openContextHelpPage(const QString &url);
+    void handleHelpRequest(const QString &url);
     void registerDocumentation(const QStringList &fileNames);
 
 signals:
-    void helpPluginUpdateDocumentation();
+    void registerDocumentation();
 
 private:
     Internal::HelpPlugin *m_plugin;

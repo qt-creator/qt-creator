@@ -998,43 +998,35 @@ void HelpPlugin::addNewBookmark(const QString &title, const QString &url)
     m_bookmarkManager->showBookmarkDialog(m_centralWidget, title, url);
 }
 
-void HelpPlugin::handleHelpRequest(const QUrl& url)
+void HelpPlugin::handleHelpRequest(const QString &address)
 {
-    if (url.queryItemValue(QLatin1String("view")) == QLatin1String("split"))
-        openContextHelpPage(url.toString());
-    else
-        openHelpPage(url.toString());
-}
+    if (m_helpEngine->findFile(address).isValid()) {
+        const QUrl url(address);
+        if (url.queryItemValue(QLatin1String("view")) == QLatin1String("split")) {
+            using namespace Core::Constants;
 
-void HelpPlugin::openHelpPage(const QString& url)
-{
-    if (m_helpEngine->findFile(url).isValid()) {
-        activateHelpMode();
-        m_centralWidget->setSource(url);
+            Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
+            if (modeManager->currentMode() == modeManager->mode(MODE_WELCOME))
+                modeManager->activateMode(MODE_EDIT);
+
+            if (HelpViewer* viewer = viewerForContextMode())
+                viewer->setSource(url);
+        } else {
+            activateHelpMode();
+            m_centralWidget->setSource(url);
+        }
     } else {
         // local help not installed, resort to external web help
         QString urlPrefix;
-        if (url.startsWith(QLatin1String("qthelp://com.nokia.qtcreator"))) {
+        if (address.startsWith(QLatin1String("qthelp://com.nokia.qtcreator"))) {
             urlPrefix = QString::fromLatin1("http://doc.trolltech.com/qtcreator"
                 "-%1.%2/").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR);
         } else {
             urlPrefix = QLatin1String("http://doc.trolltech.com/latest/");
         }
-        QDesktopServices::openUrl(QUrl(urlPrefix + url.mid(url
+        QDesktopServices::openUrl(QUrl(urlPrefix + address.mid(address
             .lastIndexOf(QLatin1Char('/')) + 1)));
     }
-}
-
-void HelpPlugin::openContextHelpPage(const QString &url)
-{
-    using namespace Core::Constants;
-
-    Core::ModeManager *modeManager = Core::ICore::instance()->modeManager();
-    if (modeManager->currentMode() == modeManager->mode(MODE_WELCOME))
-        modeManager->activateMode(MODE_EDIT);
-
-    if (HelpViewer* viewer = viewerForContextMode())
-        viewer->setSource(QUrl(url));
 }
 
 Q_EXPORT_PLUGIN(HelpPlugin)
