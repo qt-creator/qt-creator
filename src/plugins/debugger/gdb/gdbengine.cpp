@@ -1637,7 +1637,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
     if (response.resultClass == GdbResultExit) {
         debugMessage(_("GDB CLAIMS EXIT; WAITING"));
         m_commandsDoneCallback = 0;
-        // don't set state here, this will be handled in handleGdbFinished()
+        // Don't set state here, this will be handled in handleGdbFinished()
     } else {
         QString msg = m_gdbAdapter->msgGdbStopFailed(
             QString::fromLocal8Bit(response.data.findChild("msg").data()));
@@ -4092,9 +4092,10 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
 void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
 {
     debugMessage(_("GDB PROCESS FINISHED, status %1, code %2").arg(type).arg(code));
-    if (!m_gdbAdapter)
-        return;
-    if (state() == EngineShuttingDown) {
+    if (!m_gdbAdapter) {
+        debugMessage(_("NO ADAPTER PRESENT"));
+    } else if (state() == EngineShuttingDown) {
+        debugMessage(_("GOING TO SHUT DOWN ADAPTER"));
         m_gdbAdapter->shutdown();
     } else if (state() != AdapterStartFailed) {
         QString msg = tr("The gdb process exited unexpectedly (%1).")
@@ -4171,6 +4172,7 @@ void GdbEngine::startInferiorPhase2()
 
 void GdbEngine::handleInferiorStartFailed(const QString &msg)
 {
+    showStatusMessage(tr("Inferior start failed: ") + msg);
     if (state() == AdapterStartFailed) {
         debugMessage(_("INFERIOR START FAILED, BUT ADAPTER DIED ALREADY"));
         return; // Adapter crashed meanwhile, so this notification is meaningless.
