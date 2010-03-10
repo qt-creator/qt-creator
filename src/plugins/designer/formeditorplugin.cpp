@@ -31,7 +31,6 @@
 #include "formeditorfactory.h"
 #include "formeditorw.h"
 #include "formwizard.h"
-#include "formeditorstack.h"
 
 #ifdef CPP_ENABLED
 #  include "formclasswizard.h"
@@ -40,35 +39,19 @@
 #endif
 
 #include "designerconstants.h"
-#include "formwindoweditor.h"
-#include "designerxmleditor.h"
-#include "formwindowfile.h"
-
-#include <QDesignerFormWindowInterface>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/designmode.h>
-#include <texteditor/basetextdocument.h>
 
-#include <QtCore/QPointer>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QtPlugin>
 #include <QtCore/QDebug>
-#include <QtCore/QProcess>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QTranslator>
-
-#include <QtGui/QTextDocument>
+#include <QtCore/QtPlugin>
 
 #ifdef CPP_ENABLED
-#    include <QtGui/QAction>
 #    include <QtGui/QWizard>
 #    include <QtGui/QMainWindow>
 #endif
@@ -114,11 +97,17 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
             qApp->installTranslator(qtr);
     }
-
-    FormEditorW::ensureInitStage(FormEditorW::RegisterPlugins);
-
     error->clear();
+    // Delayed loading: Make sure settings pages are there if options
+    // dialog is requested.
+    connect(Core::ICore::instance(), SIGNAL(optionsDialogRequested()),
+            this, SLOT(ensurePluginInitialized()));
     return true;
+}
+
+void FormEditorPlugin::ensurePluginInitialized()
+{
+    FormEditorW::instance()->ensureInitStage(FormEditorW::RegisterPlugins);
 }
 
 void FormEditorPlugin::extensionsInitialized()
