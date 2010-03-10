@@ -30,29 +30,84 @@
 #ifndef FORMWINDOWEDITOR_H
 #define FORMWINDOWEDITOR_H
 
-#include "widgethost.h"
+#include "designer_export.h"
+#include <coreplugin/editormanager/ieditor.h>
 
-#include <QtCore/QStringList>
-#include <QtCore/QPointer>
+QT_BEGIN_NAMESPACE
+class QDesignerFormWindowInterface;
+QT_END_NAMESPACE
 
 namespace Core {
-    class IFile;
+    class IMode;
+}
+
+namespace TextEditor {
+    class BaseTextDocument;
+    class PlainTextEditorEditable;
 }
 
 namespace Designer {
 
-// Master class maintaining a form window editor,
-// containing file and widget host
+namespace Internal {
+    class DesignerXmlEditor;
+}
+struct FormWindowEditorPrivate;
 
-class FormWindowEditor : public SharedTools::WidgetHost
+// The actual Core::IEditor belonging to Qt Designer. Uses FormWindowFile
+// as the Core::IFile to do the isModified() handling,
+// which needs to be done by Qt Designer.
+// However, to make the read-only XML text editor work,
+// a TextEditor::PlainTextEditorEditable (IEditor) is also required.
+// It is aggregated and some functions are delegated to it.
+
+class DESIGNER_EXPORT FormWindowEditor : public Core::IEditor
 {
+    Q_PROPERTY(QString contents READ contents)
     Q_OBJECT
 public:
-    explicit FormWindowEditor(QDesignerFormWindowInterface *form,
-                              QWidget *parent = 0);
+    explicit FormWindowEditor(Internal::DesignerXmlEditor *editor,
+                              QDesignerFormWindowInterface *form,
+                              QObject *parent = 0);
+    virtual ~FormWindowEditor();
+
+    // IEditor
+    virtual bool createNew(const QString &contents = QString());
+    virtual bool open(const QString &fileName = QString());
+    virtual Core::IFile *file();
+    virtual QString id() const;
+    virtual QString displayName() const;
+    virtual void setDisplayName(const QString &title);
+
+    virtual bool duplicateSupported() const;
+    virtual IEditor *duplicate(QWidget *parent);
+
+    virtual QByteArray saveState() const;
+    virtual bool restoreState(const QByteArray &state);
+
+    virtual bool isTemporary() const;
+
+    virtual QWidget *toolBar();
+
+    // IContext
+    virtual QList<int> context() const;
+    virtual QWidget *widget();
+
+    // For uic code model support
+    QString contents() const;
+
+    TextEditor::BaseTextDocument *textDocument();
+    TextEditor::PlainTextEditorEditable *textEditable();
+
+public slots:
+    void syncXmlEditor();
 
 private slots:
-    void slotFormSizeChanged(int w, int h);
+    void slotOpen(const QString &fileName);
+
+private:
+    void syncXmlEditor(const QString &contents);
+
+    FormWindowEditorPrivate *d;
 };
 
 } // namespace Designer

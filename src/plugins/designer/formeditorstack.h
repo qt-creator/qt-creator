@@ -47,9 +47,6 @@ namespace Core {
 }
 
 namespace Designer {
-class FormWindowEditor;
-class DesignerXmlEditorEditable;
-
 namespace Internal {
 
 /* FormEditorStack: Maintains a stack of Qt Designer form windows embedded
@@ -68,14 +65,15 @@ public:
     bool removeFormWindowEditor(Core::IEditor *xmlEditor);
 
     bool setVisibleEditor(Core::IEditor *xmlEditor);
-    Designer::FormWindowEditor *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
-    Designer::FormWindowEditor *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
+    SharedTools::WidgetHost *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
+    SharedTools::WidgetHost *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
 
     EditorData activeEditor() const;
 
 private slots:
     void updateFormWindowSelectionHandles();
     void modeAboutToChange(Core::IMode *);
+    void formSizeChanged(int w, int h);
 
 private:
     inline int indexOf(const QDesignerFormWindowInterface *) const;

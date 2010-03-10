@@ -74,7 +74,7 @@ Core::IFile *FormEditorFactory::open(const QString &fileName)
 Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)
 {
     const EditorData data = FormEditorW::instance()->createEditor(parent);
-    return data.xmlEditor;
+    return data.formWindowEditor;
 }
 
 QStringList FormEditorFactory::mimeTypes() const

@@ -30,88 +30,24 @@
 #ifndef DESIGNERXMLEDITOR_H
 #define DESIGNERXMLEDITOR_H
 
-#include "designer_export.h"
-#include "formwindowfile.h"
-
 #include <texteditor/plaintexteditor.h>
 
-namespace Core {
-    class IMode;
-}
-
-namespace TextEditor {
-    class BaseTextDocument;
-}
+QT_BEGIN_NAMESPACE
+class QDesignerFormWindowInterface;
+QT_END_NAMESPACE
 
 namespace Designer {
+class FormWindowEditor;
 
 namespace Internal {
-class DesignerXmlEditor;
-}
-
-// The actual Core::IEditor belonging to Qt Designer. It internally embeds
-// a TextEditor::PlainTextEditorEditable which is used to make the
-// Read-only edit mode XML text editor work and delegates some functionality
-// to it. However, the isDirty() handling is delegated to the FormWindowFile,
-// which is the Core::IFile used for it.
-class DESIGNER_EXPORT DesignerXmlEditorEditable : public Core::IEditor
-{
-    Q_OBJECT
-public:
-    explicit DesignerXmlEditorEditable(Internal::DesignerXmlEditor *editor,
-                                       QDesignerFormWindowInterface *form,
-                                       QObject *parent = 0);
-
-    // IEditor
-    virtual bool createNew(const QString &contents = QString());
-    virtual bool open(const QString &fileName = QString());
-    virtual Core::IFile *file();
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual void setDisplayName(const QString &title);
-
-    virtual bool duplicateSupported() const;
-    virtual IEditor *duplicate(QWidget *parent);
-
-    virtual QByteArray saveState() const;
-    virtual bool restoreState(const QByteArray &state);
-
-    virtual bool isTemporary() const;
-
-    virtual QWidget *toolBar();
-
-    // IContext
-    virtual QList<int> context() const;
-    virtual QWidget *widget();
-
-    // For uic code model support
-    QString contents() const;
-
-    TextEditor::BaseTextDocument *textDocument();
-    TextEditor::PlainTextEditorEditable *textEditable();
-
-public slots:
-    void syncXmlEditor();
-
-private slots:
-    void slotOpen(const QString &fileName);
-
-private:
-    void syncXmlEditor(const QString &contents);
-
-    TextEditor::PlainTextEditorEditable m_textEditable;
-    Internal::FormWindowFile m_file;
-    QList<int> m_context;
-};
 
 /* A stub-like, read-only text editor which displays UI files as text. Could be used as a
   * read/write editor too, but due to lack of XML editor, highlighting and other such
   * functionality, editing is disabled.
   * Provides an informational title bar containing a button triggering a
   * switch to design mode.
-  * Internally manages DesignerXmlEditorEditable and uses the plain text
+  * Internally manages a FormWindowEditor and uses the plain text
   * editable embedded in it.  */
-namespace Internal {
 
 class DesignerXmlEditor : public TextEditor::PlainTextEditor
 {
@@ -120,7 +56,7 @@ public:
     explicit DesignerXmlEditor(QDesignerFormWindowInterface *form,
                                QWidget *parent = 0);
 
-    DesignerXmlEditorEditable *designerEditable() const;
+    FormWindowEditor *designerEditor() const;
 
 private slots:
     void designerModeClicked();
@@ -130,7 +66,7 @@ protected:
     virtual TextEditor::BaseTextEditorEditable *createEditableInterface();
 
 private:
-    DesignerXmlEditorEditable *m_editable;
+    FormWindowEditor *m_designerEditor;
 };
 
 } // Internal

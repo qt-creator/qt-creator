@@ -40,6 +40,7 @@
 #include "designercontext.h"
 #include "editorwidget.h"
 #include "resourcehandler.h"
+#include <widgethost.h>
 
 #include <coreplugin/modemanager.h>
 #include <coreplugin/designmode.h>
@@ -666,13 +667,13 @@ EditorData FormEditorW::createEditor(QWidget *parent)
     ResourceHandler *resourceHandler = new ResourceHandler(form);
     form->setDesignerGrid(qdesigner_internal::FormWindowBase::defaultDesignerGrid());
     qdesigner_internal::FormWindowBase::setupDefaultAction(form);
-    data.formEditor = new FormWindowEditor(form);
+    data.widgetHost = new SharedTools::WidgetHost( /* parent */ 0, form);
     DesignerXmlEditor *xmlEditor = new DesignerXmlEditor(form, parent);
     TextEditor::TextEditorSettings::instance()->initializeEditor(xmlEditor);
-    data.xmlEditor = xmlEditor->designerEditable();
-    connect(data.formEditor, SIGNAL(formWindowSizeChanged(int,int)),
+    data.formWindowEditor = xmlEditor->designerEditor();
+    connect(data.widgetHost, SIGNAL(formWindowSizeChanged(int,int)),
             xmlEditor, SIGNAL(changed()));
-    connect(data.xmlEditor->file(), SIGNAL(changed()),
+    connect(data.formWindowEditor->file(), SIGNAL(changed()),
             resourceHandler, SLOT(updateResources()));
     m_editorWidget->add(data);
     return data;
@@ -695,10 +696,10 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
 
     if (editor && editor->id() == QLatin1String(Constants::K_DESIGNER_XML_EDITOR_ID)) {
-        DesignerXmlEditorEditable *xmlEditor = qobject_cast<DesignerXmlEditorEditable *>(editor);
+        FormWindowEditor *xmlEditor = qobject_cast<FormWindowEditor *>(editor);
         QTC_ASSERT(xmlEditor, return);
         ensureInitStage(FullyInitialized);
-        FormWindowEditor *fw = m_editorWidget->formWindowEditorForXmlEditor(xmlEditor);
+        SharedTools::WidgetHost *fw = m_editorWidget->formWindowEditorForXmlEditor(xmlEditor);
         QTC_ASSERT(fw, return)
         m_editorWidget->setVisibleEditor(xmlEditor);
         m_fwm->setActiveFormWindow(fw->formWindow());

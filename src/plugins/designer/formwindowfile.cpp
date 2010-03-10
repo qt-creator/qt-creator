@@ -94,8 +94,6 @@ QString FormWindowFile::fileName() const
 
 bool FormWindowFile::isModified() const
 {
-    if (Designer::Constants::Internal::debug > 1)
-        qDebug() << Q_FUNC_INFO << m_formWindow->isDirty();
     return m_formWindow && m_formWindow->isDirty();
 }
 

@@ -4,6 +4,15 @@ They are dependent on the CPP editor plugin.
 Including cpp.pri in designer.pro enables them and defines
 CPP_ENABLED.
 
+Editor
+------
+
+The editor shows read-only XML text in a PlainTextEditor and Designer
+in Design mode. The switch is done in the currentEditorChanged signal.
+To make the text editor work, IEditor needs to aggregate a PlainTextEditable
+and delegate some functionality to it, while the isModified()-handling
+needs to be done by Designer itself.
+
 Resource handling:
 ------------------
 

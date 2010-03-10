@@ -64,8 +64,6 @@ class DesignMode;
 }
 
 namespace Designer {
-class FormWindowEditor;
-
 namespace Internal {
 
 struct EditorData;

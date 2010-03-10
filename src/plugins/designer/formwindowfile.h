@@ -42,14 +42,12 @@ QT_END_NAMESPACE
 namespace Designer {
 namespace Internal {
 
-class FormWindowSelection;
-
 class FormWindowFile : public Core::IFile
 {
     Q_OBJECT
 
 public:
-    FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
+    explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
 
     // IFile
     bool save(const QString &fileName = QString());

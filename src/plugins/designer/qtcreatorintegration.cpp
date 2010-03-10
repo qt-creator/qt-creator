@@ -28,12 +28,12 @@
 **************************************************************************/
 
 #include "formeditorplugin.h"
-#include "designerxmleditor.h"
+#include "formwindoweditor.h"
 #include "qtcreatorintegration.h"
 #include "formeditorw.h"
-#include "formwindoweditor.h"
 #include "editordata.h"
 #include "codemodelhelpers.h"
+#include <widgethost.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cplusplus/Symbols.h>
@@ -99,14 +99,14 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, F
 void QtCreatorIntegration::updateSelection()
 {
     if (const EditorData ed = m_few->activeEditor())
-        ed.formEditor->updateFormWindowSelectionHandles(true);
+        ed.widgetHost->updateFormWindowSelectionHandles(true);
     qdesigner_internal::QDesignerIntegration::updateSelection();
 }
 
 QWidget *QtCreatorIntegration::containerWindow(QWidget * /*widget*/) const
 {
     if (const EditorData ed = m_few->activeEditor())
-        return ed.formEditor->integrationContainer();
+        return ed.widgetHost->integrationContainer();
     return 0;
 }
 
@@ -574,7 +574,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 {
     const EditorData ed = m_few->activeEditor();
     QTC_ASSERT(ed, return false)
-    const QString currentUiFile = ed.xmlEditor->file()->fileName();
+    const QString currentUiFile = ed.formWindowEditor->file()->fileName();
 #if 0
     return Designer::Internal::navigateToSlot(currentUiFile, objectName, signalSignature, parameterNames, errorMessage);
 #endif
@@ -613,7 +613,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         return false;
     }
 
-    QDesignerFormWindowInterface *fwi = ed.formEditor->formWindow();
+    QDesignerFormWindowInterface *fwi = ed.widgetHost->formWindow();
 
     const QString uiClass = uiClassName(fwi->mainContainer()->objectName());
 

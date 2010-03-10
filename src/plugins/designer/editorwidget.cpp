@@ -107,7 +107,7 @@ bool EditorWidget::setVisibleEditor(Core::IEditor *xmlEditor)
     return m_stack->setVisibleEditor(xmlEditor);
 }
 
-Designer::FormWindowEditor *EditorWidget::formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const
+SharedTools::WidgetHost *EditorWidget::formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const
 {
     return m_stack->formWindowEditorForXmlEditor(xmlEditor);
 }
@@ -117,7 +117,7 @@ EditorData EditorWidget::activeEditor() const
     return m_stack->activeEditor();
 }
 
-Designer::FormWindowEditor *EditorWidget::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const
+SharedTools::WidgetHost *EditorWidget::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const
 {
     return m_stack->formWindowEditorForFormWindow(fw);
 }

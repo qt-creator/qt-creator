@@ -48,7 +48,7 @@ class WidgetHost : public QScrollArea
 {
     Q_OBJECT
 public:
-    WidgetHost(QWidget *parent = 0, QDesignerFormWindowInterface *formWindow = 0);
+    explicit WidgetHost(QWidget *parent = 0, QDesignerFormWindowInterface *formWindow = 0);
     virtual ~WidgetHost();
     // Show handles if active and main container is selected.
     void updateFormWindowSelectionHandles(bool active);

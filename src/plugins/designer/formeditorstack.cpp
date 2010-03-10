@@ -28,10 +28,11 @@
 **************************************************************************/
 
 #include "formeditorstack.h"
-#include "designerxmleditor.h"
 #include "formwindoweditor.h"
 #include "formeditorw.h"
 #include "designerconstants.h"
+
+#include <widgethost.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
@@ -42,8 +43,11 @@
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormWindowManagerInterface>
 #include <QDesignerFormEditorInterface>
+#include <QDesignerPropertyEditorInterface>
 
 #include <QtCore/QDebug>
+#include <QtCore/QVariant>
+#include <QtCore/QRect>
 
 namespace Designer {
 namespace Internal {
@@ -58,7 +62,7 @@ FormEditorStack::FormEditorStack(QWidget *parent) :
 void FormEditorStack::add(const EditorData &data)
 {
     if (m_designerCore == 0) { // Initialize first time here
-        m_designerCore = data.formEditor->formWindow()->core();
+        m_designerCore = data.widgetHost->formWindow()->core();
         connect(m_designerCore->formWindowManager(), SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
                 this, SLOT(updateFormWindowSelectionHandles()));
         connect(Core::ModeManager::instance(), SIGNAL(currentModeAboutToChange(Core::IMode*)),
@@ -66,20 +70,23 @@ void FormEditorStack::add(const EditorData &data)
     }
 
     if (Designer::Constants::Internal::debug)
-        qDebug() << "FormEditorStack::add"  << data.xmlEditor << data.formEditor;
+        qDebug() << "FormEditorStack::add"  << data.formWindowEditor << data.widgetHost;
 
     m_formEditors.append(data);
-    addWidget(data.formEditor);
+    addWidget(data.widgetHost);
+
+    connect(data.widgetHost, SIGNAL(formWindowSizeChanged(int,int)),
+            this, SLOT(formSizeChanged(int,int)));
 
     if (Designer::Constants::Internal::debug)
-        qDebug() << "FormEditorStack::add" << data.formEditor;
+        qDebug() << "FormEditorStack::add" << data.widgetHost;
 }
 
 int FormEditorStack::indexOf(const QDesignerFormWindowInterface *fw) const
 {
     const int count = m_formEditors.size();
      for(int i = 0; i < count; ++i)
-         if (m_formEditors[i].formEditor->formWindow() == fw)
+         if (m_formEditors[i].widgetHost->formWindow() == fw)
              return i;
      return -1;
 }
@@ -88,7 +95,7 @@ int FormEditorStack::indexOf(const Core::IEditor *xmlEditor) const
 {
     const int count = m_formEditors.size();
     for(int i = 0; i < count; ++i)
-        if (m_formEditors[i].xmlEditor == xmlEditor)
+        if (m_formEditors[i].formWindowEditor == xmlEditor)
             return i;
     return -1;
 }
@@ -104,10 +111,10 @@ EditorData FormEditorStack::activeEditor() const
     return EditorData();
 }
 
-Designer::FormWindowEditor *FormEditorStack::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const
+SharedTools::WidgetHost *FormEditorStack::formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const
 {
     const int i = indexOf(fw);
-    return i != -1 ? m_formEditors[i].formEditor : static_cast<Designer::FormWindowEditor *>(0);
+    return i != -1 ? m_formEditors[i].widgetHost : static_cast<SharedTools::WidgetHost *>(0);
 }
 
 bool FormEditorStack::removeFormWindowEditor(Core::IEditor *xmlEditor)
@@ -117,8 +124,8 @@ bool FormEditorStack::removeFormWindowEditor(Core::IEditor *xmlEditor)
     const int i = indexOf(xmlEditor);
     if (i == -1) // Fail silently as this is invoked for all editors.
         return false;
-    removeWidget(m_formEditors[i].formEditor->widget());
-    delete m_formEditors[i].formEditor;
+    removeWidget(m_formEditors[i].widgetHost->widget());
+    delete m_formEditors[i].widgetHost;
     m_formEditors.removeAt(i);
     return true;
 }
@@ -142,15 +149,27 @@ void FormEditorStack::updateFormWindowSelectionHandles()
         qDebug() << "updateFormWindowSelectionHandles";
     QDesignerFormWindowInterface *activeFormWindow = m_designerCore->formWindowManager()->activeFormWindow();
     foreach(const EditorData  &fdm, m_formEditors) {
-        const bool active = activeFormWindow == fdm.formEditor->formWindow();
-        fdm.formEditor->updateFormWindowSelectionHandles(active);
+        const bool active = activeFormWindow == fdm.widgetHost->formWindow();
+        fdm.widgetHost->updateFormWindowSelectionHandles(active);
     }
 }
 
-Designer::FormWindowEditor *FormEditorStack::formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const
+void FormEditorStack::formSizeChanged(int w, int h)
+{
+    // Handle main container resize.
+    if (Designer::Constants::Internal::debug)
+        qDebug() << Q_FUNC_INFO << w << h;
+    if (const SharedTools::WidgetHost *wh = qobject_cast<const SharedTools::WidgetHost *>(sender())) {
+        wh->formWindow()->setDirty(true);
+        static const QString geometry = QLatin1String("geometry");
+        m_designerCore->propertyEditor()->setPropertyValue(geometry, QRect(0,0,w,h) );
+    }
+}
+
+SharedTools::WidgetHost *FormEditorStack::formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const
 {
     const int i = indexOf(xmlEditor);
-    return i != -1 ? m_formEditors.at(i).formEditor : static_cast<Designer::FormWindowEditor *>(0);
+    return i != -1 ? m_formEditors.at(i).widgetHost : static_cast<SharedTools::WidgetHost *>(0);
 }
 
 void FormEditorStack::modeAboutToChange(Core::IMode *m)
@@ -161,7 +180,7 @@ void FormEditorStack::modeAboutToChange(Core::IMode *m)
     // Sync the editor when leaving design mode
     if (m && m->id() == QLatin1String(Core::Constants::MODE_DESIGN))
         foreach(const EditorData &data, m_formEditors)
-            data.xmlEditor->syncXmlEditor();
+            data.formWindowEditor->syncXmlEditor();
 }
 
 } // Internal

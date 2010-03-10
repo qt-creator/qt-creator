@@ -38,12 +38,14 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
+namespace SharedTools {
+    class WidgetHost;
+}
 namespace Core {
     class IEditor;
 }
 namespace Designer {
 class FormWindowEditor;
-class DesignerXmlEditorEditable;
 
 namespace Internal {
 struct EditorData;
@@ -64,8 +66,8 @@ public:
     void add(const EditorData &d);
     bool removeFormWindowEditor(Core::IEditor *xmlEditor);
     bool setVisibleEditor(Core::IEditor *xmlEditor);
-    Designer::FormWindowEditor *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
-    Designer::FormWindowEditor *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
+    SharedTools::WidgetHost *formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const;
+    SharedTools::WidgetHost *formWindowEditorForFormWindow(const QDesignerFormWindowInterface *fw) const;
 
     EditorData activeEditor() const;
 

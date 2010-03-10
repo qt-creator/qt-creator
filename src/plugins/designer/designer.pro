@@ -64,4 +64,4 @@ SOURCES += formeditorplugin.cpp \
 
 RESOURCES += designer.qrc
 
-OTHER_FILES += Designer.pluginspec Designer.mimetypes.xml
+OTHER_FILES += Designer.pluginspec Designer.mimetypes.xml README.txt

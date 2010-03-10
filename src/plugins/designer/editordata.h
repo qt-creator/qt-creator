@@ -30,19 +30,22 @@
 #ifndef EDITORDATA_H
 #define EDITORDATA_H
 
+namespace SharedTools {
+    class WidgetHost;
+}
+
 namespace Designer {
     class FormWindowEditor;
-    class DesignerXmlEditorEditable;
 
 namespace Internal {
 
-// Associates XML and its form editor
+// Associates the XML editor implementing the IEditor and its form widget host
 struct EditorData {
-    EditorData() : xmlEditor(0), formEditor(0) {}
-    operator bool() const { return xmlEditor != 0; }
+    EditorData() : formWindowEditor(0), widgetHost(0) {}
+    operator bool() const { return formWindowEditor != 0; }
 
-    DesignerXmlEditorEditable *xmlEditor;
-    Designer::FormWindowEditor *formEditor;
+    FormWindowEditor *formWindowEditor;
+    SharedTools::WidgetHost *widgetHost;
 };
 
 } // namespace Internal
