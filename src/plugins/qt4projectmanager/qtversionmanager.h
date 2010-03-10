@@ -136,6 +136,9 @@ public:
 
     QmakeBuildConfigs defaultBuildConfig() const;
     QString toHtml() const;
+
+    bool supportsShadowBuilds() const;
+
 private:
     QList<QSharedPointer<ProjectExplorer::ToolChain> > toolChains() const;
     static int getUniqueId();

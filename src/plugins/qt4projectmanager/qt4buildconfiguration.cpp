@@ -136,10 +136,13 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
             m_qtVersionId = versions.at(0)->uniqueId();
     }
 
-    if (!qtVersion()->isValid() || !qtVersion()->supportedTargetIds().contains(target()->id())) {
-        qWarning() << "Buildconfiguration" << displayName() << ": Qt" << qtVersion()->displayName() << "not supported by target" << target()->id();
+    QtVersion *version = qtVersion();
+    if (!version->isValid() || !version->supportedTargetIds().contains(target()->id())) {
+        qWarning() << "Buildconfiguration" << displayName() << ": Qt" << version->displayName() << "not supported by target" << target()->id();
         return false;
     }
+
+    m_shadowBuild = (m_shadowBuild && version->isValid() && version->supportsShadowBuilds());
 
     QList<ToolChain::ToolChainType> possibleTcs(qt4Target()->filterToolChainTypes(qtVersion()->possibleToolChainTypes()));
     if (!possibleTcs.contains(toolChainType()))
@@ -235,11 +238,14 @@ QString Qt4BuildConfiguration::shadowBuildDirectory() const
 
 void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory)
 {
-    if (m_shadowBuild == shadowBuild && m_buildDirectory == buildDirectory)
+    QtVersion *version = qtVersion();
+    QString directoryToSet = QDir::fromNativeSeparators(buildDirectory);
+    bool toSet = (shadowBuild && version->isValid() && version->supportsShadowBuilds());
+    if (m_shadowBuild == toSet && m_buildDirectory == directoryToSet)
         return;
 
-    m_shadowBuild = shadowBuild;
-    m_buildDirectory = buildDirectory;
+    m_shadowBuild = toSet;
+    m_buildDirectory = directoryToSet;
     emit buildDirectoryChanged();
     emit proFileEvaluateNeeded(this);
 }
