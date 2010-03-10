@@ -39,8 +39,8 @@
 #include "mimedatabase.h"
 #include "tabpositionindicator.h"
 #include "vcsmanager.h"
-#include "editortoolbar.h"
 
+#include <coreplugin/editortoolbar.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/uniqueidmanager.h>
