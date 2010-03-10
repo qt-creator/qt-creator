@@ -61,6 +61,7 @@ class ICore;
 class IEditor;
 class Command;
 class DesignMode;
+class EditorToolBar;
 }
 
 namespace Designer {
@@ -191,6 +192,9 @@ private:
     QWidget *m_modeWidget;
     EditorWidget *m_editorWidget;
     Core::DesignMode *m_designMode;
+
+    QWidget *m_editorToolBar;
+    Core::EditorToolBar *m_toolBar;
 
     QMap<Core::Command *, QAction *> m_commandToDesignerAction;
 };

@@ -297,7 +297,8 @@ void DocumentWidget::setup()
 
     m_designToolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
 
-    m_fakeToolBar->addEditor(textEditor(), Core::EditorToolBar::FlagsIgnoreIEditorToolBar);
+    m_fakeToolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsIgnoreIEditorToolBar);
+    m_fakeToolBar->addEditor(textEditor());
     m_fakeToolBar->addCenterToolBar(m_designToolBar);
     m_fakeToolBar->setNavigationVisible(false);
 

@@ -61,14 +61,17 @@ public:
     enum ToolbarCreationFlags { FlagsNone = 0, FlagsIgnoreIEditorToolBar = 1 };
 
     /**
-      * Adds an editor to listen to state changes so that the editor can be updated accordingly.
+      * Adds an editor whose state is listened to, so that the toolbar can be kept up to date
+      * with regards to locked status and tooltips.
       */
-    void addEditor(IEditor *editor, ToolbarCreationFlags flags = FlagsNone);
+    void addEditor(IEditor *editor);
 
     /**
       * Sets the editor and adds its custom toolbar to the widget.
       */
     void setCurrentEditor(IEditor *editor);
+
+    void setToolbarCreationFlags(ToolbarCreationFlags flags);
 
     /**
       * Adds a toolbar to the widget and sets invisible by default.

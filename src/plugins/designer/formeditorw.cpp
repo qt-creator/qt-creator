@@ -30,7 +30,6 @@
 #include "formeditorw.h"
 #include "formwindoweditor.h"
 #include "designerconstants.h"
-#include "faketoolbar.h"
 #include "settingsmanager.h"
 #include "settingspage.h"
 #include "editorwidget.h"
@@ -42,6 +41,7 @@
 #include "resourcehandler.h"
 #include <widgethost.h>
 
+#include <coreplugin/designmodetoolbar.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/coreconstants.h>
@@ -154,7 +154,9 @@ FormEditorW::FormEditorW() :
     m_context(0),
     m_modeWidget(0),
     m_editorWidget(0),
-    m_designMode(0)
+    m_designMode(0),
+    m_editorToolBar(0),
+    m_toolBar(0)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
@@ -310,14 +312,19 @@ void FormEditorW::fullInit()
     m_editorWidget->restoreSettings(settings);
     settings->endGroup();
 
+    m_editorToolBar = createEditorToolBar();
+    m_toolBar = Core::EditorManager::createToolBar();
+    m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsIgnoreIEditorToolBar);
+    m_toolBar->setNavigationVisible(false);
+    m_toolBar->addCenterToolBar(m_editorToolBar);
+
     m_designMode = ExtensionSystem::PluginManager::instance()->getObject<Core::DesignMode>();
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName(QLatin1String("DesignerModeWidget"));
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
-
-    layout->addWidget(new FakeToolBar(createEditorToolBar()));
+    layout->addWidget(m_toolBar);
     layout->addWidget(m_editorWidget);
     m_modeWidget->setLayout(layout);
 
@@ -676,6 +683,9 @@ EditorData FormEditorW::createEditor(QWidget *parent)
     connect(data.formWindowEditor->file(), SIGNAL(changed()),
             resourceHandler, SLOT(updateResources()));
     m_editorWidget->add(data);
+
+    m_toolBar->addEditor(xmlEditor->editableInterface());
+
     return data;
 }
 

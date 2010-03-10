@@ -183,12 +183,10 @@ void EditorToolBar::closeView()
     emit closeClicked();
 }
 
-void EditorToolBar::addEditor(IEditor *editor, ToolbarCreationFlags flags)
+void EditorToolBar::addEditor(IEditor *editor)
 {
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
     QWidget *toolBar = editor->toolBar();
-
-    m_ignoreEditorToolbar = flags & FlagsIgnoreIEditorToolBar;
 
     if (toolBar && !m_ignoreEditorToolbar)
         addCenterToolBar(toolBar);
@@ -215,6 +213,10 @@ void EditorToolBar::updateToolBar(QWidget *toolBar)
     m_activeToolBar = toolBar;
 }
 
+void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
+{
+    m_ignoreEditorToolbar = flags & FlagsIgnoreIEditorToolBar;
+}
 
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
