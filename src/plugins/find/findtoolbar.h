@@ -97,6 +97,7 @@ protected:
     bool focusNextPrevChild(bool next);
 
 private:
+    void installEventFilters();
     void invokeClearResults();
     bool setFocusToCurrentFindSupport();
     void setFindFlag(IFindSupport::FindFlag flag, bool enabled);
@@ -136,6 +137,7 @@ private:
     QTimer m_findIncrementalTimer;
     QTimer m_findStepTimer;
     bool m_useFakeVim;
+    bool m_eventFiltersInstalled;
 };
 
 } // namespace Internal

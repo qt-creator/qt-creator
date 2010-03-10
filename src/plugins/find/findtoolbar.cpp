@@ -71,7 +71,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
       m_regexpIcon(":/find/images/regexp.png"),
       m_wholewordsIcon(":/find/images/wholewords.png"),
       m_findIncrementalTimer(this), m_findStepTimer(this),
-      m_useFakeVim(false)
+      m_useFakeVim(false),
+      m_eventFiltersInstalled(false)
 {
     //setup ui
     m_ui.setupUi(this);
@@ -89,16 +90,11 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_replaceCompleter->setModel(m_plugin->replaceCompletionModel());
     m_ui.findEdit->setCompleter(m_findCompleter);
-    m_findCompleter->popup()->installEventFilter(this);
     m_ui.replaceEdit->setCompleter(m_replaceCompleter);
 
     m_ui.findEdit->setSide(qApp->layoutDirection() == Qt::LeftToRight ? Utils::FancyLineEdit::Right : Utils::FancyLineEdit::Left);
     QMenu *lineEditMenu = new QMenu(m_ui.findEdit);
     m_ui.findEdit->setMenu(lineEditMenu);
-
-    m_ui.findEdit->installEventFilter(this);
-    m_ui.replaceEdit->installEventFilter(this);
-    this->installEventFilter(this);
 
     connect(m_ui.findEdit, SIGNAL(textChanged(const QString&)), this, SLOT(invokeFindIncremental()));
     connect(m_ui.findEdit, SIGNAL(returnPressed()), this, SLOT(invokeFindEnter()));
@@ -227,6 +223,17 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
 FindToolBar::~FindToolBar()
 {
+}
+
+void FindToolBar::installEventFilters()
+{
+    if (!m_eventFiltersInstalled) {
+        m_findCompleter->popup()->installEventFilter(this);
+        m_ui.findEdit->installEventFilter(this);
+        m_ui.replaceEdit->installEventFilter(this);
+        this->installEventFilter(this);
+        m_eventFiltersInstalled = true;
+    }
 }
 
 bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
@@ -578,6 +585,7 @@ void FindToolBar::openFind()
 
 void FindToolBar::openFindToolBar()
 {
+    installEventFilters();
     if (!m_currentDocumentFind->candidateIsEnabled())
         return;
     Core::FindToolBarPlaceHolder *holder = findToolBarPlaceHolder();
