@@ -1190,7 +1190,7 @@ class Dumper:
                         # Anonymous union. We need a dummy name to distinguish
                         # multiple anonymous unions in the struct.
                         anonNumber += 1
-                        self.listAnonymous(item, "#%d" % anonNumber, type)
+                        self.listAnonymous(item, "#%d" % anonNumber, field.type)
                     else:
                         # Named field.
                         self.beginHash()

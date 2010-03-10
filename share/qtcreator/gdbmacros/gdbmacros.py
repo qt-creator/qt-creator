@@ -558,8 +558,8 @@ def qdump__QObject(d, item):
     #warn("OBJECT: %s " % item.value)
     staticMetaObject = item.value["staticMetaObject"]
     #warn("SMO: %s " % staticMetaObject)
-    privateType = gdb.lookup_type(d.ns + "QObjectPrivate")
-    d_ptr = item.value["d_ptr"]["d"].dereference().cast(privateType)
+    privateType = gdb.lookup_type(d.ns + "QObjectPrivate").pointer()
+    d_ptr = item.value["d_ptr"]["d"].cast(privateType).dereference()
     #warn("D_PTR: %s " % d_ptr)
     objectName = d_ptr["objectName"]
     #warn("OBJECTNAME: %s " % objectName)
