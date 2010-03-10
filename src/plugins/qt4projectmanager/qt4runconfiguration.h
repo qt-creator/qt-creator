@@ -90,9 +90,6 @@ public:
     // TODO detectQtShadowBuild() ? how did this work ?
     QVariantMap toMap() const;
 
-public slots:
-    void targetInformationChanged();
-
 signals:
     void commandLineArgumentsChanged(const QString&);
     void workingDirectoryChanged(const QString&);
