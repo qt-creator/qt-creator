@@ -43,6 +43,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtCore/QStringBuilder>
 #include <QtCore/QUrl>
 #include <QtCore/QSettings>
 #include <QtCore/QXmlStreamReader>
