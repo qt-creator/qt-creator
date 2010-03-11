@@ -59,7 +59,7 @@ ResetWidget::ResetWidget(QWidget *parent) : QGroupBox(parent), m_backendObject(0
 
 void ResetWidget::registerDeclarativeType()
 {
-    QML_REGISTER_TYPE(Bauhaus, 1, 0, ResetWidget, QmlDesigner::ResetWidget);
+    qmlRegisterType<QmlDesigner::ResetWidget>("Bauhaus", 1, 0, "ResetWidget");
 }
 
 void ResetWidget::resetView()

@@ -71,8 +71,8 @@ QT_END_NAMESPACE
 
 void BasicLayouts::registerDeclarativeTypes()
 {
-    QML_REGISTER_TYPE(Bauhaus,1,0,QBoxLayout,QBoxLayoutObject);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QHBoxLayout,QHBoxLayoutObject);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QVBoxLayout,QVBoxLayoutObject);
+    qmlRegisterType<QBoxLayoutObject>("Bauhaus",1,0,"QBoxLayout");
+    qmlRegisterType<QHBoxLayoutObject>("Bauhaus",1,0,"QHBoxLayout");
+    qmlRegisterType<QVBoxLayoutObject>("Bauhaus",1,0,"QVBoxLayout");
 }
 

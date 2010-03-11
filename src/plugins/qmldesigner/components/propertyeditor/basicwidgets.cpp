@@ -977,8 +977,7 @@ void WidgetLoader::setSource(const QUrl &source)
             }
 
             QDeclarativeContext *ctxt = new QDeclarativeContext(qmlContext(this));
-            ctxt->addDefaultObject(this);
-
+	    ctxt->addDefaultObject(this);
             QObject *obj = m_component->create(ctxt);
             if (obj) {
                 QWidget *widget = qobject_cast<QWidget *>(obj);
@@ -1256,64 +1255,64 @@ QML_DECLARE_TYPE(WidgetFrame);
 
 void BasicWidgets::registerDeclarativeTypes()
 {
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QWidget,QWidget,QWidgetDeclarativeUI);
+    qmlRegisterExtendedType<QWidget,QWidgetDeclarativeUI>("Bauhaus",1,0,"QWidget");
 
     //display
-    QML_REGISTER_TYPE(Bauhaus,1,0,QProgressBar,QProgressBar);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QLCDNumber,QLCDNumber);
+    qmlRegisterType<QProgressBar>("Bauhaus",1,0,"QProgressBar");
+    qmlRegisterType<QLCDNumber>("Bauhaus",1,0,"QLCDNumber");
 
     //input
-    QML_REGISTER_TYPE(Bauhaus,1,0,QLineEdit,QLineEdit);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QTextEdit,QTextEdit);
-    QML_REGISTER_TYPE(Bauhaus,1,0,ExpressionEdit,ExpressionEdit);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QPlainTextEdit,QPlainTextEdit);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QSpinBox,QSpinBox);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QDoubleSpinBox,QDoubleSpinBox);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QSlider,QSlider);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QDateTimeEdit,QDateTimeEdit);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QDateEdit,QDateEdit);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QTimeEdit,QTimeEdit);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QFontComboBox,QFontComboBox);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QDial,QDial);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QScrollBar,QScrollBar);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QCalendarWidget, QCalendarWidget);
+    qmlRegisterType<QLineEdit>("Bauhaus",1,0,"QLineEdit");
+    qmlRegisterType<QTextEdit>("Bauhaus",1,0,"QTextEdit");
+    qmlRegisterType<ExpressionEdit>("Bauhaus",1,0,"ExpressionEdit");
+    qmlRegisterType<QPlainTextEdit>("Bauhaus",1,0,"QPlainTextEdit");
+    qmlRegisterType<QSpinBox>("Bauhaus",1,0,"QSpinBox");
+    qmlRegisterType<QDoubleSpinBox>("Bauhaus",1,0,"QDoubleSpinBox");
+    qmlRegisterType<QSlider>("Bauhaus",1,0,"QSlider");
+    qmlRegisterType<QDateTimeEdit>("Bauhaus",1,0,"QDateTimeEdit");
+    qmlRegisterType<QDateEdit>("Bauhaus",1,0,"QDateEdit");
+    qmlRegisterType<QTimeEdit>("Bauhaus",1,0,"QTimeEdit");
+    qmlRegisterType<QFontComboBox>("Bauhaus",1,0,"QFontComboBox");
+    qmlRegisterType<QDial>("Bauhaus",1,0,"QDial");
+    qmlRegisterType<QScrollBar>("Bauhaus",1,0,"QScrollBar");
+    qmlRegisterType<QCalendarWidget>("Bauhaus",1,0,"QCalendarWidget");
 
 
-    //QML_REGISTER_TYPE(Bauhaus,1,0,QComboBox,QComboBox); //need a way to populate
+    //qmlRegisterType<>("Bauhaus",1,0,QComboBox,QComboBox); //need a way to populate
     //QML_REGISTER_EXTENDED_TYPE(QComboBox,QComboBox, QComboBox); //need a way to populate
 
     //buttons
-    //QML_REGISTER_TYPE(Bauhaus,1,0,QPushButton,QPushButton);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QCheckBox,QCheckBox);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QGroupBox,QGroupBox);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QAction,Action);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QRadioButton,QRadioButton);
-    QML_REGISTER_TYPE(Bauhaus,1,0,FileWidget, FileWidget);
-    QML_REGISTER_TYPE(Bauhaus,1,0,LayoutWidget, LayoutWidget);
+    //qmlRegisterType<>("Bauhaus",1,0,QPushButton,QPushButton);
+    qmlRegisterType<QCheckBox>("Bauhaus",1,0,"QCheckBox");
+    qmlRegisterType<QGroupBox>("Bauhaus",1,0,"QGroupBox");
+    qmlRegisterType<Action>("Bauhaus",1,0,"QAction");
+    qmlRegisterType<QRadioButton>("Bauhaus",1,0,"QRadioButton");
+    qmlRegisterType<FileWidget>("Bauhaus",1,0,"FileWidget");
+    qmlRegisterType<LayoutWidget>("Bauhaus",1,0,"LayoutWidget");
 
     //containers
-    QML_REGISTER_TYPE(Bauhaus,1,0,QFrame,QFrame);
-    QML_REGISTER_TYPE(Bauhaus,1,0,WidgetFrame,WidgetFrame);
-    QML_REGISTER_TYPE(Bauhaus,1,0,WidgetLoader,WidgetLoader);
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QExtGroupBox,MyGroupBox,QGroupBoxDeclarativeUI);
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QTabWidget,QTabWidget,QTabWidgetDeclarativeUI);
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea,QScrollAreaDeclarativeUI);
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QPushButton,QPushButton,QPushButtonDeclarativeUI);
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QLabel,QLabel,QLabelDeclarativeUI);
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QToolButton,QToolButton, QToolButtonDeclarativeUI);
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QComboBox,QComboBox, QComboBoxDeclarativeUI);
-    QML_REGISTER_EXTENDED_TYPE(Bauhaus,1,0,QMenu,QMenu, QMenuDeclarativeUI);
-    //QML_REGISTER_TYPE(Bauhaus,1,0,BauhausoolBox,BauhausoolBox);
-    //QML_REGISTER_TYPE(Bauhaus,1,0,QScrollArea,QScrollArea);
+    qmlRegisterType<QFrame>("Bauhaus",1,0,"QFrame");
+    qmlRegisterType<WidgetFrame>("Bauhaus",1,0,"WidgetFrame");
+    qmlRegisterType<WidgetLoader>("Bauhaus",1,0,"WidgetLoader");
+    qmlRegisterExtendedType<MyGroupBox,QGroupBoxDeclarativeUI>("Bauhaus",1,0,"QExtGroupBox");
+    qmlRegisterExtendedType<QTabWidget,QTabWidgetDeclarativeUI>("Bauhaus",1,0,"QTabWidget");
+    qmlRegisterExtendedType<QScrollArea,QScrollAreaDeclarativeUI>("Bauhaus",1,0,"QScrollArea");
+    qmlRegisterExtendedType<QPushButton,QPushButtonDeclarativeUI>("Bauhaus",1,0,"QPushButton");
+    qmlRegisterExtendedType<QLabel,QLabelDeclarativeUI>("Bauhaus",1,0,"QLabel");
+    qmlRegisterExtendedType<QToolButton, QToolButtonDeclarativeUI>("Bauhaus",1,0,"QToolButton");
+    qmlRegisterExtendedType<QComboBox, QComboBoxDeclarativeUI>("Bauhaus",1,0,"QComboBox");
+    qmlRegisterExtendedType<QMenu, QMenuDeclarativeUI>("Bauhaus",1,0,"QMenu");
+    //qmlRegisterType<>("Bauhaus",1,0,BauhausoolBox,BauhausoolBox);
+    //qmlRegisterType<>("Bauhaus",1,0,QScrollArea,QScrollArea);
 
     //QML_REGISTER_EXTENDED_TYPE(BauhausColorButton,BauhausColorButton,BauhausColorButtonDeclarativeUI);
 
     //itemviews
-    //QML_REGISTER_TYPE(Bauhaus,1,0,QListView,QListView);
-    //QML_REGISTER_TYPE(Bauhaus,1,0,BauhausreeView,BauhausreeView);
-    //QML_REGISTER_TYPE(Bauhaus,1,0,BauhausableView,BauhausableView);
+    //qmlRegisterType<>("Bauhaus",1,0,QListView,QListView);
+    //qmlRegisterType<>("Bauhaus",1,0,BauhausreeView,BauhausreeView);
+    //qmlRegisterType<>("Bauhaus",1,0,BauhausableView,BauhausableView);
 
-    QML_REGISTER_TYPE(Bauhaus,1,0,QTabObject,QTabObject); //### with namespacing, this should just be 'Tab'
+    qmlRegisterType<QTabObject>("Bauhaus",1,0,"QTabObject"); //### with namespacing, this should just be 'Tab'
 }
 
 #include "basicwidgets.moc"

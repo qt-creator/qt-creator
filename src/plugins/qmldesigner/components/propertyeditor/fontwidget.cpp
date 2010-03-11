@@ -168,7 +168,7 @@ void FontWidget::setFontSize(qreal size)
 }
 
 void FontWidget::registerDeclarativeTypes() {
-    QML_REGISTER_TYPE(Bauhaus,1,0,FontWidget,QmlDesigner::FontWidget);
+    qmlRegisterType<QmlDesigner::FontWidget>("Bauhaus",1,0,"FontWidget");
 }
 
 } // namespace QmlDesigner

@@ -188,9 +188,9 @@ void PropertyEditorValue::resetValue()
 
 void PropertyEditorValue::registerDeclarativeTypes()
 {
-    QML_REGISTER_TYPE(Bauhaus,1,0,PropertyEditorValue,PropertyEditorValue);
-    QML_REGISTER_TYPE(Bauhaus,1,0,PropertyEditorNodeWrapper,PropertyEditorNodeWrapper);
-    QML_REGISTER_TYPE(Bauhaus,1,0,QDeclarativePropertyMap,QDeclarativePropertyMap);
+    qmlRegisterType<PropertyEditorValue>("Bauhaus",1,0,"PropertyEditorValue");
+    qmlRegisterType<PropertyEditorNodeWrapper>("Bauhaus",1,0,"PropertyEditorNodeWrapper");
+    qmlRegisterType<QDeclarativePropertyMap>("Bauhaus",1,0,"QDeclarativePropertyMap");
 }
 
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent) : m_valuesPropertyMap(this)

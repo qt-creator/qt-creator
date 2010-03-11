@@ -616,7 +616,7 @@ void NodeInstance::refreshState()
 */
 void NodeInstance::registerDeclarativeTypes()
 {
-    QML_REGISTER_NOCREATE_TYPE(QmlDesigner::Internal::QmlPropertyChangesObject);
+    qmlRegisterType<QmlDesigner::Internal::QmlPropertyChangesObject>();
 }
 
 } // namespace QmlDesigner

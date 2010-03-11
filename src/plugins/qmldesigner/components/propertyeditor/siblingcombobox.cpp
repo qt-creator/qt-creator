@@ -44,7 +44,7 @@ void SiblingComboBox::setItemNode(const QVariant &itemNode)
 
 void SiblingComboBox::registerDeclarativeTypes()
 {
-    QML_REGISTER_TYPE(Bauhaus,1,0,SiblingComboBox,SiblingComboBox);
+    qmlRegisterType<SiblingComboBox>("Bauhaus",1,0,"SiblingComboBox");
 }
 
 void SiblingComboBox::setSelectedItemNode(const QVariant &itemNode)

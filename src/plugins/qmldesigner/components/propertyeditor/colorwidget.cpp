@@ -44,9 +44,9 @@
 namespace QmlDesigner {
 
     void ColorWidget::registerDeclarativeTypes() {
-        QML_REGISTER_TYPE(Bauhaus,1,0,ColorButton,QmlDesigner::ColorButton);
-        QML_REGISTER_TYPE(Bauhaus,1,0,HueControl,QmlDesigner::HueControl);
-        QML_REGISTER_TYPE(Bauhaus,1,0,ColorBox,QmlDesigner::ColorBox);
+        qmlRegisterType<QmlDesigner::ColorButton>("Bauhaus",1,0,"ColorButton");
+        qmlRegisterType<QmlDesigner::HueControl>("Bauhaus",1,0,"HueControl");
+        qmlRegisterType<QmlDesigner::ColorBox>("Bauhaus",1,0,"ColorBox");
     }
 
     void ColorButton::paintEvent(QPaintEvent *event)

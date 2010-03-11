@@ -43,7 +43,7 @@ namespace QmlDesigner {
 
 void BehaviorDialog::registerDeclarativeType()
 {
-    QML_REGISTER_TYPE(Bauhaus,1,0,BehaviorWidget,QmlDesigner::BehaviorWidget);
+    qmlRegisterType<QmlDesigner::BehaviorWidget>("Bauhaus",1,0,"BehaviorWidget");
 }
 
 BehaviorWidget::BehaviorWidget() : QPushButton(), m_BehaviorDialog(new BehaviorDialog(0))

@@ -160,8 +160,8 @@ QSizeF QProxyLayout::sizeHint(Qt::SizeHint which,
 
 void QProxyLayoutItem::registerDeclarativeTypes()
 {
-    QML_REGISTER_TYPE(Bauhaus,1,0,LayoutItem,QProxyLayoutItem);
-    QML_REGISTER_TYPE(Bauhaus,1,0,ProxyLayout,QProxyLayout);
+    qmlRegisterType<QProxyLayoutItem>("Bauhaus",1,0,"LayoutItem");
+    qmlRegisterType<QProxyLayout>("Bauhaus",1,0,"ProxyLayout");
 }
 
 QT_END_NAMESPACE
