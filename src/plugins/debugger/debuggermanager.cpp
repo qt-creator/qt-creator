@@ -1239,8 +1239,12 @@ void DebuggerManager::sessionLoaded()
 
 void DebuggerManager::aboutToUnloadSession()
 {
-    if (d->m_engine)
-        d->m_engine->shutdown();
+    // Stop debugging the active project when switching sessions.
+    // Note that at startup, session switches may occur, which interfer
+    // with command-line debugging startup.
+    if (d->m_engine && state() != DebuggerNotReady
+        && d->m_startParameters->startMode == StartInternal)
+            d->m_engine->shutdown();
 }
 
 void DebuggerManager::aboutToSaveSession()
