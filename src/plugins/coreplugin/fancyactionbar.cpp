@@ -196,14 +196,14 @@ void FancyActionBar::paintEvent(QPaintEvent *event)
 
 QSize FancyToolButton::sizeHint() const
 {
-    QSizeF buttonSize = iconSize().expandedTo(QSize(64, 36));
+    QSizeF buttonSize = iconSize().expandedTo(QSize(64, 38));
     if (defaultAction()->property("titledAction").toBool()) {
         QFont boldFont(font());
         boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
         boldFont.setBold(true);
         QFontMetrics fm(boldFont);
         qreal lineHeight = fm.height();
-        buttonSize += QSizeF(0, (lineHeight*3.5));
+        buttonSize += QSizeF(0, (lineHeight*2.8));
     }
     return buttonSize.toSize();
 }
