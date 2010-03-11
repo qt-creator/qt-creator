@@ -73,6 +73,7 @@ public:
     ~QmlAnchorBindingProxy();
 
     void setup(const QmlItemNode &itemNode);
+    void invalidate(const QmlItemNode &itemNode);
 
     bool topAnchored();
     bool bottomAnchored();

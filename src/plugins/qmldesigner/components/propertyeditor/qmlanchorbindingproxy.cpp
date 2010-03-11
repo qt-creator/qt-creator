@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "qmlanchorbindingproxy.h"
+#include "abstractview.h"
 #include <qmlanchors.h>
 #include <nodeabstractproperty.h>
 #include <nodeinstance.h>
@@ -94,6 +95,49 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
     }
 }
 
+void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
+{
+    m_fxItemNode = fxItemNode;
+
+    m_verticalTarget = m_horizontalTarget = m_topTarget = m_bottomTarget = m_leftTarget = m_rightTarget = m_fxItemNode.modelNode().parentProperty().parentModelNode();
+
+    if (topAnchored())
+        m_topTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
+
+    if (bottomAnchored())
+        m_bottomTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Bottom).qmlItemNode();
+
+    if (leftAnchored())
+        m_leftTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Left).qmlItemNode();
+
+    if (rightAnchored())
+        m_rightTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::Right).qmlItemNode();
+
+    if (verticalCentered())
+        m_verticalTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::VerticalCenter).qmlItemNode();
+
+    if (horizontalCentered())
+        m_horizontalTarget = m_fxItemNode.anchors().instanceAnchor(AnchorLine::HorizontalCenter).qmlItemNode();
+
+    emit topAnchorChanged();
+    emit bottomAnchorChanged();
+    emit leftAnchorChanged();
+    emit rightAnchorChanged();
+    emit centeredHChanged();
+    emit centeredVChanged();
+    emit anchorsChanged();
+
+    if (m_fxItemNode.hasNodeParent()) {
+        emit itemNodeChanged();
+        emit topTargetChanged();
+        emit bottomTargetChanged();
+        emit leftTargetChanged();
+        emit rightTargetChanged();
+        emit verticalTargetChanged();
+        emit horizontalTargetChanged();
+    }
+}
+
 bool QmlAnchorBindingProxy::hasParent()
 {
     return m_fxItemNode.isValid() && m_fxItemNode.hasNodeParent();
@@ -127,6 +171,8 @@ bool QmlAnchorBindingProxy::hasAnchors()
 
 void QmlAnchorBindingProxy::setTopTarget(const QVariant &target)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+     
     QmlItemNode newTarget(target.value<ModelNode>());
 
     if (newTarget == m_topTarget)
@@ -141,6 +187,8 @@ void QmlAnchorBindingProxy::setTopTarget(const QVariant &target)
 
 void QmlAnchorBindingProxy::setBottomTarget(const QVariant &target)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     QmlItemNode newTarget(target.value<ModelNode>());
 
     if (newTarget == m_bottomTarget)
@@ -154,6 +202,8 @@ void QmlAnchorBindingProxy::setBottomTarget(const QVariant &target)
 
 void QmlAnchorBindingProxy::setLeftTarget(const QVariant &target)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     QmlItemNode newTarget(target.value<ModelNode>());
 
     if (newTarget == m_leftTarget)
@@ -167,6 +217,8 @@ void QmlAnchorBindingProxy::setLeftTarget(const QVariant &target)
 
 void QmlAnchorBindingProxy::setRightTarget(const QVariant &target)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     QmlItemNode newTarget(target.value<ModelNode>());
 
     if (newTarget == m_rightTarget)
@@ -180,6 +232,8 @@ void QmlAnchorBindingProxy::setRightTarget(const QVariant &target)
 
 void QmlAnchorBindingProxy::setVerticalTarget(const QVariant &target)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
      QmlItemNode newTarget(target.value<ModelNode>());
 
     if (newTarget == m_verticalTarget)
@@ -193,6 +247,8 @@ void QmlAnchorBindingProxy::setVerticalTarget(const QVariant &target)
 
 void QmlAnchorBindingProxy::setHorizontalTarget(const QVariant &target)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     QmlItemNode newTarget(target.value<ModelNode>());
 
     if (newTarget == m_horizontalTarget)
@@ -205,6 +261,8 @@ void QmlAnchorBindingProxy::setHorizontalTarget(const QVariant &target)
 }
 
 void QmlAnchorBindingProxy::resetLayout() {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
         m_fxItemNode.anchors().removeAnchors();
         m_fxItemNode.anchors().removeMargins();
 
@@ -217,6 +275,8 @@ void QmlAnchorBindingProxy::resetLayout() {
 
 void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     if (!m_fxItemNode.hasNodeParent())
         return;
 
@@ -236,6 +296,8 @@ void QmlAnchorBindingProxy::setBottomAnchor(bool anchor)
 
 void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     if (!m_fxItemNode.hasNodeParent())
         return;
 
@@ -254,6 +316,8 @@ void QmlAnchorBindingProxy::setLeftAnchor(bool anchor)
 
 void QmlAnchorBindingProxy::setRightAnchor(bool anchor)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     if (!m_fxItemNode.hasNodeParent())
         return;
 
@@ -346,6 +410,8 @@ void QmlAnchorBindingProxy::calcRightMargin()
 
 void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     if (!m_fxItemNode.hasNodeParent())
         return ;
 
@@ -363,27 +429,37 @@ void QmlAnchorBindingProxy::setTopAnchor(bool anchor)
 }
 
 void QmlAnchorBindingProxy::removeTopAnchor() {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Top);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Top);
 }
 
 void QmlAnchorBindingProxy::removeBottomAnchor() {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Bottom);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Bottom);
 }
 
 void QmlAnchorBindingProxy::removeLeftAnchor() {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Left);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Left);
 }
 
 void QmlAnchorBindingProxy::removeRightAnchor() {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     m_fxItemNode.anchors().removeAnchor(AnchorLine::Right);
     m_fxItemNode.anchors().removeMargin(AnchorLine::Right);
 }
 
 void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     if (!m_fxItemNode.hasNodeParent())
         return ;
 
@@ -401,6 +477,8 @@ void QmlAnchorBindingProxy::setVerticalCentered(bool centered)
 
 void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
 {
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     if (!m_fxItemNode.hasNodeParent())
         return ;
 
@@ -428,6 +506,9 @@ bool QmlAnchorBindingProxy::horizontalCentered()
 
 void QmlAnchorBindingProxy::fill()
 {
+
+    RewriterTransaction transaction = m_fxItemNode.modelNode().view()->beginRewriterTransaction();
+
     m_fxItemNode.anchors().fill();
 
     setHorizontalCentered(false);

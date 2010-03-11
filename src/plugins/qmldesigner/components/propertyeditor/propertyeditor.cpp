@@ -609,6 +609,8 @@ void PropertyEditor::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
         ModelNode node(property.parentModelNode());
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
+            if (property.name().contains("anchor", Qt::CaseInsensitive))
+                m_currentType->m_backendAnchorBinding.invalidate(m_selectedNode);
         }
     }
 }
@@ -645,6 +647,8 @@ void PropertyEditor::bindingPropertiesChanged(const QList<BindingProperty>& prop
         ModelNode node(property.parentModelNode());
 
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
+            if (property.name().contains("anchor", Qt::CaseInsensitive))
+                m_currentType->m_backendAnchorBinding.invalidate(m_selectedNode);
             if ( QmlObjectNode(m_selectedNode).modelNode().property(property.name()).isBindingProperty())
                 setValue(m_selectedNode, property.name(), QmlObjectNode(m_selectedNode).instanceValue(property.name()));
             else
