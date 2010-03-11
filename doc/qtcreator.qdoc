@@ -44,7 +44,11 @@
        \o \l{Introducing Qt Creator}
        \o \l{Operating Systems and Supported Platforms}
        \o \l{Quick Tour}
-       \o \l{Writing a Simple Program}
+       \o \l{Getting Started}
+           \list
+               \o \l{Writing a Simple Program}
+               \o \l{Creating an Animated Application}
+           \endlist
        \o \l{Using the Editor}
             \list
                 \o \l{Finding and Replacing}
@@ -233,7 +237,7 @@
     \contentspage index.html
     \previouspage creator-os-supported-platforms.html
     \page creator-quick-tour.html
-    \nextpage creator-writing-program.html
+    \nextpage creator-getting-started.html
 
     \title Quick Tour
 
@@ -476,8 +480,8 @@
 
     \list
 
-    \o \gui {Navigator} pane displays the items on the screen. You can change
-    the order of items in the list to change their order on the screen.
+    \o \gui {Navigator} pane displays the items in the scene. You can
+    show and hide items to focus on specific parts of the application.
 
     \o \gui {Library} pane displays lists of predefined \gui {Items} and
     imported \gui {Resources} that you can use to design applications. The
@@ -499,7 +503,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-writing-program.html
+    \previouspage creator-qml-application.html
     \page creator-editor-using.html
     \nextpage creator-editor-finding.html
 
@@ -1270,8 +1274,204 @@
 /*!
     \contentspage index.html
     \previouspage creator-quick-tour.html
-    \page creator-writing-program.html
+    \page creator-getting-started.html
+    \nextpage creator-writing-program.html
+
+    \title Getting Started
+
+    This section contains examples that illustrate how to use Qt Creator and the
+    integrated design tools, \QD and \QMLD, to create simple applications:
+
+    \list
+        \o \l{Writing a Simple Program}
+        \o \l{Creating an Animated Application}
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-writing-program.html
+    \page creator-qml-application.html
     \nextpage creator-editor-using.html
+
+    \title Creating an Animated Application
+
+    \note This tutorial assumes that you are familiar with the QML declarative
+    language.
+
+    This tutorial describes how to use Qt Creator to create a small animated
+    Qt application, Hello World.
+
+    \image qmldesigner-helloworld.png "Hello World"
+
+    \section1 Creating the Hello World Project
+
+    \note Create the project with the \gui{Help} mode active so that you can follow
+    these instructions while you work.
+
+    \list 1
+
+        \o Select \gui{File > New File or Project > QML Project > QML Application > OK}.
+
+        \image qmldesigner-new-project.png "New File or Project dialog"
+
+        The \gui{Introduction and Project Location} dialog opens.
+
+        \image qmldesigner-new-project-location.png "Introduction and Project Location dialog"
+
+        \o In the \gui{Name} field, type \bold {Hello World}.
+
+        \o In the \gui {Create in} field, enter the path for the project files. For example,
+        \c {C:\Qt\examples}, and then click \gui{Next}.
+
+        The \gui{Project Management} dialog opens.
+
+        \image qmldesigner-new-project-summary.png "Project Management dialog"
+
+        \o Review the project settings, and click \gui{Finish} to create the project.
+
+    \endlist
+
+    The HelloWorld project now contains the following files:
+
+    \list
+        \o HelloWorld.qmlproject
+        \o HelloWorld.qml
+    \endlist
+
+    \image qmldesigner-new-project-contents.png "HelloWorld project contents"
+
+    The .qmlproject file defines that all QML, JavaScript, and image files in
+    the project folder belong to the project. The .qml file contains some example
+    code that specifies the screen size (200x200) and a label that contains
+    the text \bold {Hello World}.
+
+    \section1 Designing the User Interface
+
+    \list
+
+        \o In the \gui{Editor} mode, double-click the HelloWorld.qml file in
+         the \gui{Projects} pane to open it in the code editor.
+
+        \o To set the screen size to that of some Symbian devices in portrait
+        mode, for example, change the \c height to \bold 240 and \c width to \bold 320.
+
+        \o Click \gui{Design} to design the UI in the visual \QMLD editor.
+
+        \o Drag and drop a \gui {Rectangle} from the \gui {Library} pane to the
+        scene.
+
+        \image qmldesigner-helloworld-widget-add.png "Add widget to Hello World"
+
+        \o Edit the \gui {Properties} of the item to turn it into a red ball:
+
+        \list
+
+            \o In the \gui {Advanced} tab, click the color picker to select a red
+            color.
+
+            \o In the \gui {Radius} field, use the slider to set the radius value
+            to \bold 50.
+
+            \image qmldesigner-helloworld-widget-edit.png "Edit the widget"
+
+        \endlist
+
+        \o To create a blue ball, press \key {Ctrl+C} and \key {Ctrl+V} to copy
+        and paste the red one, and then change its color to blue.
+
+        \image qmldesigner-helloworld-base-state.png "Hello World first view"
+
+        The first view of your application is now ready.
+
+        \note You can use graphical design tools to create nice images and
+        copy them to the projects folder to display them in the \gui {Library}
+        pane in \gui {Resources}.
+
+        \o In the \gui State pane, click the plus sign to add another view, or \e state
+        to the application.
+
+        \o Modify the state by dragging and dropping the widgets to switch their
+        places.
+
+        \image qmldesigner-helloworld-state1.png "Hello World second view"
+
+    \endlist
+
+    \section1 Animating the Scene
+
+    Animate the scene so that the widgets appear to switch places
+    on the screen.
+
+    \list 1
+
+        \o Click \gui {Edit} to open HelloWorld.qml in the code editor.
+
+        \o Add the following code to create a transition:
+
+        \code
+            transitions: [
+            Transition {
+                NumberAnimation { properties: "x, y"; duration: 500 }
+            }
+        \endcode
+
+        \note The code editor completes the code for you as you type.
+
+        \o  Click the \inlineimage qtcreator-run.png
+        button to check that the application can be built and run.
+
+    \endlist
+
+    \section1 Adding Interaction
+
+    Add interaction to the scene to allow users to click on the screen to start
+    the animation.
+
+    \list 1
+
+        \o Click \gui{Design} to open HelloWorld.qml in the visual editor.
+
+        \o Drag and drop a \gui {Mouse Area} from the \gui {Library} to the scene.
+
+        \o In the \gui {Properties} pane, \gui {Anchor} tab, click the
+        \inlineimage qmldesigner-anchor-fill-screen.png
+        button to make the mouse region cover the whole screen.
+
+        \o In the code editor, use data binding to add a \c when statement to
+        the states sections, as illustrated by the following code:
+
+        \code
+
+        states: [
+            State {
+                name: "State1"
+                when: mousearea1.pressed
+        \endcode
+
+    \endlist
+
+    \section1 Buiding and Running the Application
+
+    \list 1
+
+        \o Press \key {Ctrl+R} to build and run the application.
+
+        \o Click the screen and keep the mouse button pressed down to run the
+        animation.
+
+    \endlist
+
+*/
+
+
+/*!
+    \contentspage index.html
+    \previouspage creator-getting-started.html
+    \page creator-writing-program.html
+    \nextpage creator-qml-application.html
 
     \title Writing a Simple Program
 
@@ -1302,7 +1502,7 @@
         \o Select \gui{File > New File or Project > Qt Application Project > Qt Gui
         Application > OK}.
 
-           \image qtcreator-new-project.png "New File or Project" dialog
+           \image qtcreator-new-project.png "New File or Project dialog"
 
         The \gui{Introduction and Project Location} dialog opens.
 
@@ -1322,7 +1522,7 @@
 
         The \gui{Class Information} dialog opens.
 
-        \image qtcreator-class-info.png "Class Information" dialog
+        \image qtcreator-class-info.png "Class Information dialog"
 
         \o In the \gui{Class Name} field, type \bold {TextFinder} as the class name.
 
@@ -1336,7 +1536,7 @@
 
         The \gui{Project Management} dialog opens.
 
-        \image qtcreator-new-project-summary.png "Project Mangement" dialog
+        \image qtcreator-new-project-summary.png "Project Management dialog"
 
         \o Review the project settings, and click \gui{Finish} to create the project.
 
@@ -1529,6 +1729,7 @@
     \contentspage index.html
     \previouspage creator-debugging.html
     \page creator-version-control.html
+    \nextpage adding-plugins.html
 
     \title Using Version Control Systems
 
@@ -3289,7 +3490,9 @@
 
 /*!
     \contentspage index.html
+    \previouspage creator-version-control.html
     \page adding-plugins.html
+    \nextpage creator-tips.html
 
     \title Adding Qt Designer Plugins
 
@@ -3342,6 +3545,7 @@
 
 /*!
     \contentspage index.html
+    \previouspage adding-plugins.html
     \page creator-tips.html
     \nextpage creator-keyboard-shortcuts.html
 
