@@ -10,6 +10,7 @@ GroupBox {
     enabled: anchorBackend.hasParent;
 
     property var targetLabelWidth: 90 - 20 - 26
+	property int leftMarginMargin: 0
 
     layout: VerticalLayout {
         Label {
@@ -21,7 +22,7 @@ GroupBox {
 
 
                 AnchorButtons {
-                    opacity: enabled?1.0:0.5;
+                    //opacity: enabled?1.0:0.5;
                     fixedWidth:266
                 }
             }
@@ -32,7 +33,7 @@ GroupBox {
             layout : VerticalLayout {
                 topMargin: 8;
                 bottomMargin: 4;
-                rightMargin: 20;
+                rightMargin: 10;
                 QWidget {
                     layout: HorizontalLayout {
                         leftMargin: 10
@@ -58,6 +59,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
+					    leftMargin: leftMarginMargin
                         IntEditor {
                             id:topbox
                             slider: false
@@ -69,7 +71,7 @@ GroupBox {
                         }
 
                         PlaceHolder {
-                            fixedWidth: 140
+                            fixedWidth: 80
                         }
                     }
                 }
@@ -80,7 +82,7 @@ GroupBox {
             layout : VerticalLayout {
                 topMargin: 8;
                 bottomMargin: 4;
-                rightMargin: 20;
+                rightMargin: 10;
                 QWidget {
                     layout: HorizontalLayout {
                         leftMargin: 10
@@ -106,6 +108,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
+					    leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
                             caption: "Margin"
@@ -116,7 +119,7 @@ GroupBox {
                         }
 
                         PlaceHolder {
-                            fixedWidth: 140
+                            fixedWidth: 80
                         }
                     }
                 }
@@ -127,7 +130,7 @@ GroupBox {
             layout : VerticalLayout {
                 topMargin: 8;
                 bottomMargin: 4;
-                rightMargin: 20;
+                rightMargin: 10;
                 QWidget {
                     layout: HorizontalLayout {
                         leftMargin: 10
@@ -152,6 +155,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
+					    leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
                             caption: "Margin"
@@ -162,7 +166,7 @@ GroupBox {
                         }
 
                         PlaceHolder {
-                            fixedWidth: 140
+                            fixedWidth: 80
                         }
                     }
                 }
@@ -173,7 +177,7 @@ GroupBox {
             layout : VerticalLayout {
                 topMargin: 8;
                 bottomMargin: 4;
-                rightMargin: 20;
+                rightMargin: 10;
                 QWidget {
                     layout: HorizontalLayout {
                         leftMargin: 10
@@ -198,6 +202,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
+					    leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
                             caption: "Margin"
@@ -208,7 +213,7 @@ GroupBox {
                         }
 
                         PlaceHolder {
-                            fixedWidth: 140
+                            fixedWidth: 80
                         }
                     }
                 }
@@ -219,7 +224,7 @@ GroupBox {
             layout : VerticalLayout {
                 topMargin: 8;
                 bottomMargin: 4;
-                rightMargin: 20;
+                rightMargin: 10;
                 QWidget {
                     layout: HorizontalLayout {
                         leftMargin: 10
@@ -244,6 +249,7 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
+					    leftMargin: leftMarginMargin
                         IntEditor {
                             slider: false
                             caption: "Margin"
@@ -254,7 +260,7 @@ GroupBox {
                         }
 
                         PlaceHolder {
-                            fixedWidth: 140
+                            fixedWidth: 80
                         }
                     }
                 }
@@ -265,7 +271,7 @@ GroupBox {
             layout : VerticalLayout {
                 topMargin: 8;
                 bottomMargin: 4;
-                rightMargin: 20;
+                rightMargin: 10;
                 QWidget {
                     layout: HorizontalLayout {
                         leftMargin: 10
@@ -290,7 +296,8 @@ GroupBox {
 
                 QWidget {
                     layout : HorizontalLayout {
-                        IntEditor {
+					    leftMargin: leftMarginMargin
+                        IntEditor {						    
                             slider: false
                             caption: "Margin"
                             backendValue: backendValues.anchors_verticalCenterOffset
@@ -300,7 +307,7 @@ GroupBox {
                         }
 
                         PlaceHolder {
-                            fixedWidth: 140
+                            fixedWidth: 80
                         }
                     }
                 }
