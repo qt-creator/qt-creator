@@ -173,7 +173,6 @@ BaseQt4ProjectWizardDialog::~BaseQt4ProjectWizardDialog()
 
 void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
 {
-    QtVersionManager *vm = QtVersionManager::instance();
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
     m_targetsPage = new TargetsPage;
