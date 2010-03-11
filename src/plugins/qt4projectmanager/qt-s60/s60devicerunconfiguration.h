@@ -85,6 +85,7 @@ public:
     QString basePackageFilePath() const;
     QString symbianPlatform() const;
     QString symbianTarget() const;
+    bool isDebug() const;
     QString packageTemplateFileName() const;
     SigningMode signingMode() const;
     void setSigningMode(SigningMode mode);

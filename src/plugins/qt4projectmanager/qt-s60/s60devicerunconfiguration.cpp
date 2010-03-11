@@ -262,7 +262,9 @@ QString S60DeviceRunConfiguration::basePackageFilePath() const
     if (!ti.valid)
         return QString();
     QString baseFileName = ti.workingDir + QLatin1Char('/') + ti.target;
-    baseFileName += QLatin1Char('_') + fixBaseNameTarget(symbianPlatform()) + QLatin1Char('_') + symbianTarget();
+    baseFileName += QLatin1Char('_')
+                    + (isDebug() ? QLatin1String("debug") : QLatin1String("release"))
+                    + QLatin1Char('-') + symbianPlatform();
     return baseFileName;
 }
 
@@ -280,13 +282,15 @@ QString S60DeviceRunConfiguration::symbianPlatform() const
     }
 }
 
+bool S60DeviceRunConfiguration::isDebug() const
+{
+    const Qt4BuildConfiguration *qt4bc = qt4Target()->qt4Project()->activeTarget()->activeBuildConfiguration();
+    return (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild);
+}
+
 QString S60DeviceRunConfiguration::symbianTarget() const
 {
-    Qt4BuildConfiguration *qt4bc = qt4Target()->qt4Project()->activeTarget()->activeBuildConfiguration();
-    if (qt4bc->qmakeBuildConfiguration() & QtVersion::DebugBuild)
-        return QString("udeb");
-    else
-        return QString("urel");
+    return isDebug() ? QLatin1String("udeb") : QLatin1String("urel");
 }
 
 QString S60DeviceRunConfiguration::packageTemplateFileName() const
@@ -716,25 +720,21 @@ void S60DeviceRunControlBase::makesisProcessFinished()
     m_deployProgress->setProgressValue(PROGRESS_PACKAGECREATED);
     QString errorMessage;
     bool ok = false;
-    switch (m_toolChain) {
-    case ProjectExplorer::ToolChain::GCCE_GNUPOC:
-    case ProjectExplorer::ToolChain::RVCT_ARMV5_GNUPOC: {
-        // 'make sis' creates 'targetname.sis'. Rename to full name
-        // 'targetname_armX_udeb.sis'.
+    do {
+        // ABLD up to 4.6.1: Check on file 'targetname_armX_udeb.sis'.
+        if (QFileInfo(m_signedPackage).isFile()) {
+            ok = true;
+            break;
+        }
+        // ABLD/makefile-based systems: 'make sis' creates
+        // 'targetname.sis'. Rename to full name 'targetname_armX_udeb.sis'.
         const QString oldName = m_workingDirectory + QLatin1Char('/') + m_targetName + QLatin1String(".sis");
         ok = renameFile(oldName, m_signedPackage, &errorMessage);
-    }
-        break;
-    default:
-        // ABLD: Check on file 'targetname_armX_udeb.sis'.
-        ok = QFileInfo(m_signedPackage).isFile();
-        if (!ok)
-            errorMessage = tr("Failed to create '%1'").arg(m_signedPackage);
-        break;
-    }
+    } while (false);
     if (ok) {
         startDeployment();
     } else {
+        errorMessage = tr("Failed to create '%1': %2").arg(m_signedPackage, errorMessage);
         error(this, errorMessage);
         stop();
         emit finished();
