@@ -90,8 +90,10 @@ private slots:
     void showProperties(int index, int subIndex);
     void restoreStatus();
     void saveStatus();
-    void projectAdded(ProjectExplorer::Project*);
-    void aboutToRemoveProject(ProjectExplorer::Project*);
+    void registerProject(ProjectExplorer::Project*);
+    void deregisterProject(ProjectExplorer::Project*);
+
+    void refreshProject();
 
 private:
     void removeCurrentWidget();

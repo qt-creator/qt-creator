@@ -277,9 +277,9 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     connect(session, SIGNAL(aboutToSaveSession()), this, SLOT(saveStatus()));
 
     connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-            this, SLOT(projectAdded(ProjectExplorer::Project*)));
+            this, SLOT(registerProject(ProjectExplorer::Project*)));
     connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
-            this, SLOT(aboutToRemoveProject(ProjectExplorer::Project*)));
+            this, SLOT(deregisterProject(ProjectExplorer::Project*)));
 
     // Update properties to empty project for now:
     showProperties(-1, -1);
@@ -296,7 +296,7 @@ void ProjectWindow::shutdown()
     disconnect(ProjectExplorerPlugin::instance()->session(), 0, this, 0);
 }
 
-void ProjectWindow::projectAdded(ProjectExplorer::Project *project)
+void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 {
     if (!project || m_tabIndexToProject.contains(project))
         return;
@@ -320,13 +320,20 @@ void ProjectWindow::projectAdded(ProjectExplorer::Project *project)
 
     m_tabIndexToProject.insert(index, project);
     m_tabWidget->insertTab(index, project->displayName(), subtabs);
+
+    connect(project, SIGNAL(supportedTargetIdsChanged()),
+            this, SLOT(refreshProject()));
 }
 
-void ProjectWindow::aboutToRemoveProject(ProjectExplorer::Project *project)
+void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
 {
     int index = m_tabIndexToProject.indexOf(project);
     if (index < 0)
         return;
+
+    disconnect(project, SIGNAL(supportedTargetIdsChanged()),
+               this, SLOT(refreshProject()));
+
     m_tabIndexToProject.removeAt(index);
     m_tabWidget->removeTab(index);
 }
@@ -339,6 +346,16 @@ void ProjectWindow::restoreStatus()
 void ProjectWindow::saveStatus()
 {
     // TODO
+}
+
+void ProjectWindow::refreshProject()
+{
+    Project *project = qobject_cast<ProjectExplorer::Project *>(sender());
+    if (!m_tabIndexToProject.contains(project))
+        return;
+
+    deregisterProject(project);
+    registerProject(project);
 }
 
 void ProjectWindow::showProperties(int index, int subIndex)
