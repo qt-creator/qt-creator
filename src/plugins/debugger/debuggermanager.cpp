@@ -1112,6 +1112,16 @@ void DebuggerManager::cleanupViews()
     registerHandler()->removeAll();
     d->m_sourceFilesWindow->removeAll();
     d->m_disassemblerViewAgent.cleanup();
+
+    // FIXME: Move to plugin?
+    using namespace Core;
+    if (EditorManager *editorManager = EditorManager::instance()) {
+        QList<IEditor *> toClose;
+        foreach (IEditor *editor, editorManager->openedEditors())
+            if (editor->property("OpenedByDebugger").toBool())
+                toClose.append(editor);
+        editorManager->closeEditors(toClose);
+    }
 }
 
 void DebuggerManager::exitDebugger()
@@ -1284,7 +1294,7 @@ void DebuggerManager::addToWatchWindow()
 {
     using namespace Core;
     using namespace TextEditor;
-    // requires a selection, but that's the only case we want...
+    // Requires a selection, but that's the only case we want anyway.
     EditorManager *editorManager = EditorManager::instance();
     if (!editorManager)
         return;
