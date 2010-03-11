@@ -49,13 +49,10 @@ const char * const WAS_UPDATED("ProjectExplorer.Project.Updater.DidUpdate");
 const char * const PROJECT_FILE_POSTFIX(".user");
 
 // Version 0 is used in Qt Creator 1.3.x and
-// (in a slighly differnt flavour) post 1.3 master.
+// (in a slighly different flavour) post 1.3 master.
 class Version0Handler : public UserFileVersionHandler
 {
 public:
-    Version0Handler();
-    ~Version0Handler();
-
     int userFileVersion() const
     {
         return 0;
@@ -80,9 +77,6 @@ private:
 class Version1Handler : public UserFileVersionHandler
 {
 public:
-    Version1Handler();
-    ~Version1Handler();
-
     int userFileVersion() const
     {
         return 1;
@@ -115,11 +109,29 @@ private:
     };
 };
 
+// Version 2 is used in master post Qt Creator 2.0 alpha.
+class Version2Handler : public UserFileVersionHandler
+{
+public:
+    int userFileVersion() const
+    {
+        return 2;
+    }
+
+    QString displayUserFileVersion() const
+    {
+        return QLatin1String("2.0-alpha+git");
+    }
+
+    QVariantMap update(Project *project, const QVariantMap &map);
+};
+
 //
 // Helper functions:
 //
 
-QString fileNameFor(const QString &name) {
+static QString fileNameFor(const QString &name)
+{
     QString baseName(name);
     QString environmentExtension(QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")));
     if (!environmentExtension.isEmpty()) {
@@ -147,6 +159,31 @@ UserFileVersionHandler::~UserFileVersionHandler()
 {
 }
 
+/**
+ * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
+ */
+QVariantMap UserFileVersionHandler::renameKeys(const QList<Change> &changes, QVariantMap map)
+{
+    foreach (const Change &change, changes) {
+        QVariantMap::iterator oldSetting = map.find(change.first);
+        if (oldSetting != map.end()) {
+            map.insert(change.second, oldSetting.value());
+            map.erase(oldSetting);
+        }
+    }
+
+    QVariantMap::iterator i = map.begin();
+    while (i != map.end()) {
+        QVariant v = i.value();
+        if (v.type() == QVariant::Map)
+            i.value() = renameKeys(changes, v.toMap());
+
+        ++i;
+    }
+
+    return map;
+}
+
 // -------------------------------------------------------------------------
 // UserFileAccessor
 // -------------------------------------------------------------------------
@@ -157,6 +194,7 @@ UserFileAccessor::UserFileAccessor() :
 {
     addVersionHandler(new Version0Handler);
     addVersionHandler(new Version1Handler);
+    addVersionHandler(new Version2Handler);
 }
 
 UserFileAccessor::~UserFileAccessor()
@@ -249,14 +287,6 @@ void UserFileAccessor::addVersionHandler(UserFileVersionHandler *handler)
 // -------------------------------------------------------------------------
 // Version0Handler
 // -------------------------------------------------------------------------
-
-Version0Handler::Version0Handler()
-{
-}
-
-Version0Handler::~Version0Handler()
-{
-}
 
 QVariantMap Version0Handler::convertBuildConfigurations(Project *project, const QVariantMap &map)
 {
@@ -703,14 +733,6 @@ QVariantMap Version0Handler::update(Project *project, const QVariantMap &map)
 // Version1Handler
 // -------------------------------------------------------------------------
 
-Version1Handler::Version1Handler()
-{
-}
-
-Version1Handler::~Version1Handler()
-{
-}
-
 QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
 {
     QVariantMap result;
@@ -811,4 +833,23 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
     }
 
     return result;
+}
+
+// -------------------------------------------------------------------------
+// Version2Handler
+// -------------------------------------------------------------------------
+
+QVariantMap Version2Handler::update(Project *, const QVariantMap &map)
+{
+    QList<Change> changes;
+    changes.append(qMakePair(QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.UserEnvironmentChanges"),
+                             QLatin1String("ProjectExplorer.BuildConfiguration.UserEnvironmentChanges")));
+    changes.append(qMakePair(QLatin1String("CMakeProjectManager.CMakeBuildConfiguration.ClearSystemEnvironment"),
+                             QLatin1String("ProjectExplorer.BuildConfiguration.ClearSystemEnvironment")));
+    changes.append(qMakePair(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.UserEnvironmentChanges"),
+                             QLatin1String("ProjectExplorer.BuildConfiguration.UserEnvironmentChanges")));
+    changes.append(qMakePair(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.ClearSystemEnvironment"),
+                             QLatin1String("ProjectExplorer.BuildConfiguration.ClearSystemEnvironment")));
+
+    return renameKeys(changes, QVariantMap(map));
 }

@@ -44,23 +44,19 @@ using namespace Internal;
 namespace {
 const char * const CMAKE_BC_ID("CMakeProjectManager.CMakeBuildConfiguration");
 
-const char * const USER_ENVIRONMENT_CHANGES_KEY("CMakeProjectManager.CMakeBuildConfiguration.UserEnvironmentChanges");
 const char * const MSVC_VERSION_KEY("CMakeProjectManager.CMakeBuildConfiguration.MsvcVersion");
 const char * const BUILD_DIRECTORY_KEY("CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory");
 } // namespace
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent) :
     BuildConfiguration(parent, QLatin1String(CMAKE_BC_ID)),
-    m_toolChain(0),
-    m_clearSystemEnvironment(false)
+    m_toolChain(0)
 {
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
     m_toolChain(0),
-    m_clearSystemEnvironment(source->m_clearSystemEnvironment),
-    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_buildDirectory(source->m_buildDirectory),
     m_msvcVersion(source->m_msvcVersion)
 {
@@ -70,8 +66,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeTarget *parent, CMakeBuild
 QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY),
-               ProjectExplorer::EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(MSVC_VERSION_KEY), m_msvcVersion);
     map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
     return map;
@@ -79,7 +73,6 @@ QVariantMap CMakeBuildConfiguration::toMap() const
 
 bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
 {
-    m_userEnvironmentChanges = ProjectExplorer::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_msvcVersion = map.value(QLatin1String(MSVC_VERSION_KEY)).toString();
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
 
@@ -94,55 +87,6 @@ CMakeBuildConfiguration::~CMakeBuildConfiguration()
 CMakeTarget *CMakeBuildConfiguration::cmakeTarget() const
 {
     return static_cast<CMakeTarget *>(target());
-}
-
-ProjectExplorer::Environment CMakeBuildConfiguration::baseEnvironment() const
-{
-    ProjectExplorer::Environment env = useSystemEnvironment() ?
-                                       ProjectExplorer::Environment(QProcess::systemEnvironment()) :
-                                       ProjectExplorer::Environment();
-    return env;
-}
-
-QString CMakeBuildConfiguration::baseEnvironmentText() const
-{
-    if (useSystemEnvironment())
-        return tr("System Environment");
-    else
-        return tr("Clear Environment");
-}
-
-ProjectExplorer::Environment CMakeBuildConfiguration::environment() const
-{
-    ProjectExplorer::Environment env = baseEnvironment();
-    env.modify(userEnvironmentChanges());
-    return env;
-}
-
-void CMakeBuildConfiguration::setUseSystemEnvironment(bool b)
-{
-    if (b == m_clearSystemEnvironment)
-        return;
-    m_clearSystemEnvironment = !b;
-    emit environmentChanged();
-}
-
-bool CMakeBuildConfiguration::useSystemEnvironment() const
-{
-    return !m_clearSystemEnvironment;
-}
-
-QList<ProjectExplorer::EnvironmentItem> CMakeBuildConfiguration::userEnvironmentChanges() const
-{
-    return m_userEnvironmentChanges;
-}
-
-void CMakeBuildConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
-{
-    if (m_userEnvironmentChanges == diff)
-        return;
-    m_userEnvironmentChanges = diff;
-    emit environmentChanged();
 }
 
 QString CMakeBuildConfiguration::buildDirectory() const

@@ -34,7 +34,6 @@ HEADERS += qt4projectmanagerplugin.h \
     qt4runconfiguration.h \
     qtmodulesinfo.h \
     qt4projectconfigwidget.h \
-    qt4buildenvironmentwidget.h \
     projectloadwizard.h \
     qtversionmanager.h \
     qtoptionspage.h \
@@ -75,7 +74,6 @@ SOURCES += qt4projectmanagerplugin.cpp \
     qt4runconfiguration.cpp \
     qtmodulesinfo.cpp \
     qt4projectconfigwidget.cpp \
-    qt4buildenvironmentwidget.cpp \
     projectloadwizard.cpp \
     qtversionmanager.cpp \
     qtoptionspage.cpp \

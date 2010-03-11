@@ -57,13 +57,7 @@ public:
 
     Qt4Target *qt4Target() const;
 
-    ProjectExplorer::Environment environment() const;
-    ProjectExplorer::Environment baseEnvironment() const;
-    QString baseEnvironmentText() const;
-    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
-    bool useSystemEnvironment() const;
-    void setUseSystemEnvironment(bool b);
+    virtual ProjectExplorer::Environment baseEnvironment() const;
 
     virtual QString buildDirectory() const;
     bool shadowBuild() const;
@@ -138,8 +132,6 @@ private:
     void ctor();
     void pickValidQtVersion();
 
-    bool m_clearSystemEnvironment;
-    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
     bool m_shadowBuild;
     QString m_buildDirectory;
     int m_qtVersionId;

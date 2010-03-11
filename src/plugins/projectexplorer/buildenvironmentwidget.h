@@ -27,32 +27,29 @@
 **
 **************************************************************************/
 
-#ifndef QT4BUILDENVIRONMENTWIDGET_H
-#define QT4BUILDENVIRONMENTWIDGET_H
+#ifndef BUILDENVIRONMENTWIDGET_H
+#define BUILDENVIRONMENTWIDGET_H
 
 #include <projectexplorer/buildstep.h>
+
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+
 class EnvironmentWidget;
-}
+class BuildConfiguration;
 
-namespace CMakeProjectManager {
-namespace Internal {
-class CMakeProject;
-class CMakeBuildConfiguration;
-
-class CMakeBuildEnvironmentWidget : public ProjectExplorer::BuildConfigWidget
+class PROJECTEXPLORER_EXPORT BuildEnvironmentWidget : public BuildConfigWidget
 {
     Q_OBJECT
 
 public:
-    CMakeBuildEnvironmentWidget(CMakeProject *project);
+    BuildEnvironmentWidget();
 
     QString displayName() const;
-    void init(ProjectExplorer::BuildConfiguration *bc);
+    void init(BuildConfiguration *bc);
 
 private slots:
     void environmentModelUserChangesChanged();
@@ -60,13 +57,11 @@ private slots:
     void environmentChanged();
 
 private:
-    ProjectExplorer::EnvironmentWidget *m_buildEnvironmentWidget;
+    EnvironmentWidget *m_buildEnvironmentWidget;
     QCheckBox *m_clearSystemEnvironmentCheckBox;
-    CMakeProject *m_pro;
-    CMakeBuildConfiguration *m_buildConfiguration;
+    BuildConfiguration *m_buildConfiguration;
 };
 
-} // namespace Internal
 } // namespace Qt4ProjectManager
 
-#endif // QT4BUILDENVIRONMENTWIDGET_H
+#endif // BUILDENVIRONMENTWIDGET_H

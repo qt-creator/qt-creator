@@ -46,8 +46,6 @@ namespace {
 const char * const QT4_BC_ID_PREFIX("Qt4ProjectManager.Qt4BuildConfiguration.");
 const char * const QT4_BC_ID("Qt4ProjectManager.Qt4BuildConfiguration");
 
-const char * const CLEAR_SYSTEM_ENVIRONMENT_KEY("Qt4ProjectManager.Qt4BuildConfiguration.ClearSystemEnvironment");
-const char * const USER_ENVIRONMENT_CHANGES_KEY("Qt4ProjectManager.Qt4BuildConfiguration.UserEnvironmentChanges");
 const char * const USE_SHADOW_BUILD_KEY("Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild");
 const char * const BUILD_DIRECTORY_KEY("Qt4ProjectManager.Qt4BuildConfiguration.BuildDirectory");
 const char * const TOOLCHAIN_KEY("Qt4ProjectManager.Qt4BuildConfiguration.ToolChain");
@@ -59,7 +57,6 @@ enum { debug = 0 };
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target) :
     BuildConfiguration(target, QLatin1String(QT4_BC_ID)),
-    m_clearSystemEnvironment(false),
     m_shadowBuild(false),
     m_qtVersionId(-1),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
@@ -71,7 +68,6 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target) :
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, const QString &id) :
     BuildConfiguration(target, id),
-    m_clearSystemEnvironment(false),
     m_shadowBuild(false),
     m_qtVersionId(-1),
     m_toolChainType(-1), // toolChainType() makes sure to return the default toolchainType
@@ -83,8 +79,6 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, const QString &i
 
 Qt4BuildConfiguration::Qt4BuildConfiguration(Qt4Target *target, Qt4BuildConfiguration *source) :
     BuildConfiguration(target, source),
-    m_clearSystemEnvironment(source->m_clearSystemEnvironment),
-    m_userEnvironmentChanges(source->m_userEnvironmentChanges),
     m_shadowBuild(source->m_shadowBuild),
     m_buildDirectory(source->m_buildDirectory),
     m_qtVersionId(source->m_qtVersionId),
@@ -103,8 +97,6 @@ Qt4BuildConfiguration::~Qt4BuildConfiguration()
 QVariantMap Qt4BuildConfiguration::toMap() const
 {
     QVariantMap map(BuildConfiguration::toMap());
-    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
     map.insert(QLatin1String(USE_SHADOW_BUILD_KEY), m_shadowBuild);
     map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
     map.insert(QLatin1String(QT_VERSION_ID_KEY), m_qtVersionId);
@@ -119,8 +111,6 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     if (!BuildConfiguration::fromMap(map))
         return false;
 
-    m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
-    m_userEnvironmentChanges = EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
     m_shadowBuild = map.value(QLatin1String(USE_SHADOW_BUILD_KEY), false).toBool();
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
     m_qtVersionId = map.value(QLatin1String(QT_VERSION_ID_KEY)).toInt();
@@ -179,52 +169,14 @@ Qt4Target *Qt4BuildConfiguration::qt4Target() const
     return static_cast<Qt4Target *>(target());
 }
 
-QString Qt4BuildConfiguration::baseEnvironmentText() const
-{
-    return useSystemEnvironment() ? tr("System Environment") : tr("Clean Environment");
-}
-
 ProjectExplorer::Environment Qt4BuildConfiguration::baseEnvironment() const
 {
-    Environment env = useSystemEnvironment() ? Environment::systemEnvironment() : Environment();
+    Environment env = BuildConfiguration::baseEnvironment();
     qtVersion()->addToEnvironment(env);
     ToolChain *tc = toolChain();
     if (tc)
         tc->addToEnvironment(env);
     return env;
-}
-
-ProjectExplorer::Environment Qt4BuildConfiguration::environment() const
-{
-    Environment env = baseEnvironment();
-    env.modify(userEnvironmentChanges());
-    return env;
-}
-
-void Qt4BuildConfiguration::setUseSystemEnvironment(bool b)
-{
-    if (useSystemEnvironment() == b)
-        return;
-    m_clearSystemEnvironment = !b;
-    emit environmentChanged();
-}
-
-bool Qt4BuildConfiguration::useSystemEnvironment() const
-{
-    return !m_clearSystemEnvironment;
-}
-
-QList<ProjectExplorer::EnvironmentItem> Qt4BuildConfiguration::userEnvironmentChanges() const
-{
-    return m_userEnvironmentChanges;
-}
-
-void Qt4BuildConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
-{
-    if (m_userEnvironmentChanges == diff)
-        return;
-    m_userEnvironmentChanges = diff;
-    emit environmentChanged();
 }
 
 /// returns the build directory

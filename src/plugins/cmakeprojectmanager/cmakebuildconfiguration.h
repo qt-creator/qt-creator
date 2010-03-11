@@ -50,14 +50,6 @@ public:
 
     CMakeTarget *cmakeTarget() const;
 
-    ProjectExplorer::Environment environment() const;
-    ProjectExplorer::Environment baseEnvironment() const;
-    QString baseEnvironmentText() const;
-    void setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff);
-    QList<ProjectExplorer::EnvironmentItem> userEnvironmentChanges() const;
-    bool useSystemEnvironment() const;
-    void setUseSystemEnvironment(bool b);
-
     virtual QString buildDirectory() const;
 
     ProjectExplorer::ToolChain::ToolChainType toolChainType() const;
@@ -80,8 +72,6 @@ protected:
 private:
     void updateToolChain() const;
     mutable ProjectExplorer::ToolChain *m_toolChain;
-    bool m_clearSystemEnvironment;
-    QList<ProjectExplorer::EnvironmentItem> m_userEnvironmentChanges;
     QString m_buildDirectory;
     QString m_msvcVersion;
 };

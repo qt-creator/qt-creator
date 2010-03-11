@@ -36,7 +36,6 @@
 #include "qt4runconfiguration.h"
 #include "qt4nodes.h"
 #include "qt4projectconfigwidget.h"
-#include "qt4buildenvironmentwidget.h"
 #include "qt4projectmanagerconstants.h"
 #include "projectloadwizard.h"
 #include "qt4buildconfiguration.h"
@@ -46,6 +45,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/nodesvisitor.h>
 #include <projectexplorer/project.h>
@@ -933,7 +933,7 @@ BuildConfigWidget *Qt4Project::createConfigWidget()
 QList<BuildConfigWidget*> Qt4Project::subConfigWidgets()
 {
     QList<BuildConfigWidget*> subWidgets;
-    subWidgets << new Qt4BuildEnvironmentWidget(this);
+    subWidgets << new BuildEnvironmentWidget;
     return subWidgets;
 }
 

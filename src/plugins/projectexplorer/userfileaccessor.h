@@ -47,6 +47,10 @@ public:
     virtual QString displayUserFileVersion() const = 0;
     // Update from userFileVersion() to userFileVersion() + 1
     virtual QVariantMap update(Project *project, const QVariantMap &map) = 0;
+
+protected:
+    typedef QPair<QLatin1String,QLatin1String> Change;
+    QVariantMap renameKeys(const QList<Change> &changes, QVariantMap map);
 };
 
 class UserFileAccessor

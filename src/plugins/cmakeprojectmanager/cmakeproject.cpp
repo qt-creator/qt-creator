@@ -34,10 +34,10 @@
 #include "cmaketarget.h"
 #include "makestep.h"
 #include "cmakeopenprojectwizard.h"
-#include "cmakebuildenvironmentwidget.h"
 #include "cmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildenvironmentwidget.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
@@ -449,7 +449,7 @@ ProjectExplorer::BuildConfigWidget *CMakeProject::createConfigWidget()
 QList<ProjectExplorer::BuildConfigWidget*> CMakeProject::subConfigWidgets()
 {
     QList<ProjectExplorer::BuildConfigWidget*> list;
-    list <<  new CMakeBuildEnvironmentWidget(this);
+    list << new BuildEnvironmentWidget;
     return list;
 }
 

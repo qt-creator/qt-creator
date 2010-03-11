@@ -63,10 +63,18 @@ public:
     void removeCleanStep(int position);
     void moveCleanStepUp(int position);
 
-    virtual Environment environment() const = 0;
     virtual QString buildDirectory() const = 0;
 
     Target *target() const;
+
+    // TODO: Maybe the BuildConfiguration is not the best place for the environment
+    virtual Environment baseEnvironment() const;
+    QString baseEnvironmentText() const;
+    Environment environment() const;
+    void setUserEnvironmentChanges(const QList<EnvironmentItem> &diff);
+    QList<EnvironmentItem> userEnvironmentChanges() const;
+    bool useSystemEnvironment() const;
+    void setUseSystemEnvironment(bool b);
 
     virtual QVariantMap toMap() const;
 
@@ -85,6 +93,9 @@ private:
     QList<BuildStep *> m_buildSteps;
     QList<BuildStep *> m_cleanSteps;
     Target *m_target;
+
+    bool m_clearSystemEnvironment;
+    QList<EnvironmentItem> m_userEnvironmentChanges;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :

@@ -33,6 +33,7 @@
 #include "genericprojectconstants.h"
 #include "generictarget.h"
 
+#include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <cpptools/cppmodelmanagerinterface.h>
@@ -399,7 +400,9 @@ ProjectExplorer::BuildConfigWidget *GenericProject::createConfigWidget()
 
 QList<ProjectExplorer::BuildConfigWidget*> GenericProject::subConfigWidgets()
 {
-    return QList<ProjectExplorer::BuildConfigWidget*>();
+    QList<ProjectExplorer::BuildConfigWidget*> list;
+    list << new BuildEnvironmentWidget;
+    return list;
 }
 
 GenericProjectNode *GenericProject::rootProjectNode() const

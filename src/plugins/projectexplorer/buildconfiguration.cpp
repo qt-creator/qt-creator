@@ -33,6 +33,8 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <QtCore/QProcess>
+
 using namespace ProjectExplorer;
 
 namespace {
@@ -59,19 +61,24 @@ const char * const BUILD_STEPS_COUNT_KEY("ProjectExplorer.BuildConfiguration.Bui
 const char * const BUILD_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.BuildStep.");
 const char * const CLEAN_STEPS_COUNT_KEY("ProjectExplorer.BuildConfiguration.CleanStepsCount");
 const char * const CLEAN_STEPS_PREFIX("ProjectExplorer.BuildConfiguration.CleanStep.");
+const char * const CLEAR_SYSTEM_ENVIRONMENT_KEY("ProjectExplorer.BuildConfiguration.ClearSystemEnvironment");
+const char * const USER_ENVIRONMENT_CHANGES_KEY("ProjectExplorer.BuildConfiguration.UserEnvironmentChanges");
 
 } // namespace
 
 BuildConfiguration::BuildConfiguration(Target *target, const QString &id) :
     ProjectConfiguration(id),
-    m_target(target)
+    m_target(target),
+    m_clearSystemEnvironment(false)
 {
     Q_ASSERT(m_target);
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
     ProjectConfiguration(source),
-    m_target(target)
+    m_target(target),
+    m_clearSystemEnvironment(source->m_clearSystemEnvironment),
+    m_userEnvironmentChanges(source->m_userEnvironmentChanges)
 {
     Q_ASSERT(m_target);
 }
@@ -91,6 +98,8 @@ QVariantMap BuildConfiguration::toMap() const
     map.insert(QLatin1String(CLEAN_STEPS_COUNT_KEY), m_cleanSteps.count());
     for (int i = 0; i < m_cleanSteps.count(); ++i)
         map.insert(QString::fromLatin1(CLEAN_STEPS_PREFIX) + QString::number(i), m_cleanSteps.at(i)->toMap());
+    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
 
     return map;
 }
@@ -165,6 +174,9 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
         insertCleanStep(m_cleanSteps.count(), bs);
     }
 
+    m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
+    m_userEnvironmentChanges = EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+
     return true;
 }
 
@@ -218,6 +230,54 @@ void BuildConfiguration::moveCleanStepUp(int position)
 Target *BuildConfiguration::target() const
 {
     return m_target;
+}
+
+Environment BuildConfiguration::baseEnvironment() const
+{
+    if (useSystemEnvironment())
+        return Environment(QProcess::systemEnvironment());
+    return Environment();
+}
+
+QString BuildConfiguration::baseEnvironmentText() const
+{
+    if (useSystemEnvironment())
+        return tr("System Environment");
+    else
+        return tr("Clean Environment");
+}
+
+Environment BuildConfiguration::environment() const
+{
+    Environment env = baseEnvironment();
+    env.modify(userEnvironmentChanges());
+    return env;
+}
+
+void BuildConfiguration::setUseSystemEnvironment(bool b)
+{
+    if (useSystemEnvironment() == b)
+        return;
+    m_clearSystemEnvironment = !b;
+    emit environmentChanged();
+}
+
+bool BuildConfiguration::useSystemEnvironment() const
+{
+    return !m_clearSystemEnvironment;
+}
+
+QList<EnvironmentItem> BuildConfiguration::userEnvironmentChanges() const
+{
+    return m_userEnvironmentChanges;
+}
+
+void BuildConfiguration::setUserEnvironmentChanges(const QList<ProjectExplorer::EnvironmentItem> &diff)
+{
+    if (m_userEnvironmentChanges == diff)
+        return;
+    m_userEnvironmentChanges = diff;
+    emit environmentChanged();
 }
 
 ///
