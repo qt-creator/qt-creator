@@ -135,6 +135,7 @@ CdbDebugEnginePrivate::CdbDebugEnginePrivate(DebuggerManager *manager,
     m_mode(AttachCore)
 {
     connect(this, SIGNAL(watchTimerDebugEvent()), this, SLOT(handleDebugEvent()));
+    connect(this, SIGNAL(modulesLoaded()), this, SLOT(slotModulesLoaded()));
 }
 
 bool CdbDebugEnginePrivate::init(QString *errorMessage)
@@ -475,19 +476,14 @@ void CdbDebugEnginePrivate::processCreatedAttached(ULONG64 processHandle, ULONG6
     }
     // Attaching to crashed: This handshake (signalling an event) is required for
     // the exception to be delivered to the debugger
+    // Also, see special handling in slotModulesLoaded().
     if (m_mode == AttachCrashedExternal) {
         const QString crashParameter = manager()->startParameters()->crashParameter;
         if (!crashParameter.isEmpty()) {
             ULONG64 evtNr = crashParameter.toULongLong();
             const HRESULT hr = interfaces().debugControl->SetNotifyEventHandle(evtNr);
-            // Unless QtCreator is spawned by the debugger and inherits the handles,
-            // the event handling does not work reliably
-            // (that is, the crash event is not delivered).
-            if (SUCCEEDED(hr)) {
-                QTimer::singleShot(0, m_engine, SLOT(slotBreakAttachToCrashed()));
-            } else {
+            if (FAILED(hr))
                 m_engine->warning(QString::fromLatin1("Handshake failed on event #%1: %2").arg(evtNr).arg(CdbCore::msgComFailed("SetNotifyEventHandle", hr)));
-            }
         }
     }
     m_engine->setState(InferiorRunning, Q_FUNC_INFO, __LINE__);
@@ -875,6 +871,16 @@ bool CdbDebugEnginePrivate::interruptInterferiorProcess(QString *errorMessage)
     if (rc)
         m_interrupted = true;
     return rc;
+}
+
+void CdbDebugEnginePrivate::slotModulesLoaded()
+{
+    // Attaching to crashed windows processes: Unless QtCreator is
+    // spawned by the debug handler and inherits the handles,
+    // the event handling does not work reliably (that is, the crash
+    // event is not delivered). In that case, force a break
+    if (m_mode == AttachCrashedExternal && m_engine->state() != InferiorStopped)
+        QTimer::singleShot(10, m_engine, SLOT(slotBreakAttachToCrashed()));
 }
 
 void CdbDebugEngine::slotBreakAttachToCrashed()

@@ -140,6 +140,7 @@ STDMETHODIMP DebugEventCallbackBase::LoadModule(
     __in ULONG /* TimeDateStamp */
     )
 {
+    handleModuleLoad();
     return S_OK;
 }
 
@@ -149,6 +150,7 @@ STDMETHODIMP DebugEventCallbackBase::UnloadModule(
     __in ULONG64 /* BaseOffset */
     )
 {
+    handleModuleUnload();
     return S_OK;
 }
 
@@ -204,6 +206,33 @@ IDebugEventCallbacksWide *DebugEventCallbackBase::getEventCallback(CIDebugClient
     return 0;
 }
 
+void DebugEventCallbackBase::handleModuleLoad()
+{
+    m_moduleCount++;
+}
+
+void DebugEventCallbackBase::handleModuleUnload()
+{
+    m_moduleCount--;
+}
+
+unsigned DebugEventCallbackBase::moduleCount() const
+{
+    return m_moduleCount;
+}
+
+void DebugEventCallbackBase::setModuleCount(unsigned m)
+{
+    m_moduleCount = m;
+}
+
+ULONG DebugEventCallbackBase::baseInterestMask() const
+{
+    return DEBUG_EVENT_LOAD_MODULE | DEBUG_EVENT_UNLOAD_MODULE;
+}
+
+// ----------- EventCallbackRedirector
+
 EventCallbackRedirector::EventCallbackRedirector(CoreEngine *engine,
                                                  const DebugEventCallbackBasePtr &cb) :
     m_engine(engine),
@@ -215,5 +244,6 @@ EventCallbackRedirector::~EventCallbackRedirector()
 {
     m_engine->setDebugEventCallback(m_oldCallback);
 }
+
 
 } // namespace CdbCore

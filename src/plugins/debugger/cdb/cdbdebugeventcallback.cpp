@@ -50,10 +50,9 @@ CdbDebugEventCallback::CdbDebugEventCallback(CdbDebugEngine* dbg) :
 STDMETHODIMP CdbDebugEventCallback::GetInterestMask(THIS_ __out PULONG mask)
 {
     *mask = DEBUG_EVENT_CREATE_PROCESS  | DEBUG_EVENT_EXIT_PROCESS
-            | DEBUG_EVENT_LOAD_MODULE   | DEBUG_EVENT_UNLOAD_MODULE
             | DEBUG_EVENT_CREATE_THREAD | DEBUG_EVENT_EXIT_THREAD
             | DEBUG_EVENT_BREAKPOINT
-            | DEBUG_EVENT_EXCEPTION;
+            | DEBUG_EVENT_EXCEPTION | baseInterestMask();
     return S_OK;
 }
 
@@ -168,13 +167,13 @@ STDMETHODIMP CdbDebugEventCallback::LoadModule(
 {
     Q_UNUSED(ImageFileHandle)
     Q_UNUSED(BaseOffset)
-    Q_UNUSED(ModuleName)
     Q_UNUSED(ModuleSize)
     Q_UNUSED(ImageName)
     Q_UNUSED(CheckSum)
     Q_UNUSED(TimeDateStamp)
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ModuleName;
+    handleModuleLoad();
     m_pEngine->m_d->handleModuleLoad(QString::fromUtf16(reinterpret_cast<const ushort *>(ModuleName)));
     return S_OK;
 }
@@ -189,6 +188,7 @@ STDMETHODIMP CdbDebugEventCallback::UnloadModule(
     Q_UNUSED(BaseOffset)
     if (debugCDB > 1)
         qDebug() << Q_FUNC_INFO << ImageBaseName;
+    handleModuleUnload();
     m_pEngine->m_d->updateModules();
     return S_OK;
 }
@@ -216,7 +216,7 @@ CdbExceptionLoggerEventCallback::CdbExceptionLoggerEventCallback(int logChannel,
 
 STDMETHODIMP CdbExceptionLoggerEventCallback::GetInterestMask(THIS_ __out PULONG mask)
 {
-    *mask = DEBUG_EVENT_EXCEPTION;
+    *mask = DEBUG_EVENT_EXCEPTION | baseInterestMask();
     return S_OK;
 }
 

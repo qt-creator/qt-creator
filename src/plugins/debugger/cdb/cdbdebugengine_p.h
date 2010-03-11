@@ -102,8 +102,9 @@ public:
 
     void updateCodeLevel();
 
-public slots:
+private slots:
     void handleDebugEvent();
+    void slotModulesLoaded();
 
 public:
     const QSharedPointer<CdbOptions>  m_options;

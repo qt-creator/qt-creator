@@ -224,7 +224,10 @@ bool DebuggerEngineLibrary::init(const QString &path,
 // ------ Engine
 CoreEngine::CoreEngine(QObject *parent) :
     QObject(parent),
-    m_watchTimer(-1)
+    m_watchTimer(-1),
+    m_moduleCount(0),
+    m_lastTimerModuleCount(0),
+    m_modulesLoadedEmitted(true)
 {
 }
 
@@ -323,9 +326,12 @@ CoreEngine::DebugOutputBasePtr
 CoreEngine::DebugEventCallbackBasePtr
         CoreEngine::setDebugEventCallback(const DebugEventCallbackBasePtr &e)
 {
+    // Keep the module count.
+    const unsigned oldModuleCount = moduleCount();
     const CoreEngine::DebugEventCallbackBasePtr old = m_debugEventCallback;
     m_debugEventCallback = e;
     m_cif.debugClient->SetEventCallbacksWide(m_debugEventCallback.data());
+    setModuleCount(oldModuleCount);
     return old;
 }
 
@@ -366,13 +372,24 @@ void CoreEngine::timerEvent(QTimerEvent* te)
     // (such as step over,etc).
     if (te->timerId() != m_watchTimer)
         return;
-
     switch (waitForEvent(1)) {
         case S_OK:
             killWatchTimer();
             emit watchTimerDebugEvent();
             break;
         case S_FALSE:
+            // Detect startup (all modules loaded) if the module
+            // count no longer changes in a time-out.
+            if (!m_modulesLoadedEmitted) {
+                const int newModuleCount = moduleCount();
+                if (newModuleCount && newModuleCount == m_lastTimerModuleCount) {
+                    m_modulesLoadedEmitted = true;
+                    emit modulesLoaded();
+                } else {
+                    m_lastTimerModuleCount = newModuleCount;
+                }
+            }
+            break;
         case E_PENDING:
         case E_FAIL:
             break;
@@ -382,12 +399,20 @@ void CoreEngine::timerEvent(QTimerEvent* te)
     }
 }
 
+void CoreEngine::resetModuleLoadTimer()
+{
+    m_lastTimerModuleCount = 0;
+    setModuleCount(0);
+    m_modulesLoadedEmitted = false;
+}
+
 bool CoreEngine::startDebuggerWithExecutable(const QString &workingDirectory,
                                              const QString &filename,
                                              const QStringList &args,
                                              const QStringList &envList,
                                              QString *errorMessage)
 {
+    resetModuleLoadTimer();
     DEBUG_CREATE_PROCESS_OPTIONS dbgopts;
     memset(&dbgopts, 0, sizeof(dbgopts));
     dbgopts.CreateFlags = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS;
@@ -437,7 +462,8 @@ bool CoreEngine::startAttachDebugger(qint64 pid,
                                      bool suppressInitialBreakPoint,
                                      QString *errorMessage)
 {
-    // Need to attrach invasively, otherwise, no notification signals
+    resetModuleLoadTimer();
+    // Need to attach invasively, otherwise, no notification signals
     // for for CreateProcess/ExitProcess occur.
     // Initial breakpoint occur:
     // 1) Desired: When attaching to a crashed process
@@ -863,6 +889,20 @@ bool CoreEngine::setInterrupt(QString *errorMessage)
         return false;
     }
     return true;
+}
+
+// Module count is normally kept in the event callback.
+// Should we have none, we do the book-keeping ourselves.
+unsigned CoreEngine::moduleCount() const
+{
+    return m_debugEventCallback.isNull() ? m_moduleCount : m_debugEventCallback->moduleCount();
+}
+
+void CoreEngine::setModuleCount(unsigned m)
+{
+    m_moduleCount = m;
+    if (!m_debugEventCallback.isNull())
+        m_debugEventCallback->setModuleCount(m);
 }
 
 // ------------- DEBUG_VALUE formatting helpers

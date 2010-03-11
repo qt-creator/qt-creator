@@ -40,7 +40,13 @@ class CoreEngine;
 
 // Base class for event callbacks that takes care
 // Active X magic. Provides base implementations with
-// the exception of GetInterestMask
+// the exception of GetInterestMask(). The base class
+// needs to do some book-keeping on the modules loaded to
+// be able to detect the startup/completed attach of a
+// debuggee (see CoreEngine::modulesLoaded()).
+// So, the interest mask must be at least baseInterestMask()
+// and handleModuleLoad/Unload must be called from derived
+// classes when overwriting the handlers.
 class DebugEventCallbackBase : public IDebugEventCallbacksWide
 {
 protected:
@@ -104,6 +110,7 @@ public:
             __in ULONG ExitCode
             );
 
+    // Call handleModuleLoad() when reimplementing this
     STDMETHOD(LoadModule)(
             THIS_
             __in ULONG64 ImageFileHandle,
@@ -115,6 +122,7 @@ public:
             __in ULONG TimeDateStamp
             );
 
+    // Call handleModuleUnload() when reimplementing this
     STDMETHOD(UnloadModule)(
             THIS_
             __in_opt PCWSTR ImageBaseName,
@@ -152,6 +160,17 @@ public:
 
 
     static IDebugEventCallbacksWide *getEventCallback(CIDebugClient *clnt);
+
+    unsigned moduleCount() const;
+    void setModuleCount(unsigned m);
+
+protected:
+    void handleModuleLoad();
+    void handleModuleUnload();
+    ULONG baseInterestMask() const;
+
+private:
+    unsigned m_moduleCount;
 };
 
 // Utility class to temporarily redirect events to another handler

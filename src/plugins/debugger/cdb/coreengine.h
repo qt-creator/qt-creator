@@ -149,19 +149,33 @@ public:
     static bool autoDetectPath(QString *outPath,
                                QStringList *checkedDirectories = 0);
 
+    unsigned moduleCount() const;
+
 signals:
     void watchTimerDebugEvent();
+
+    // Emitted in the first time-out of the event handler in which
+    // the number of modules no longer changes. Can be used as a
+    // "startup" signal due to lack of a reliable "startup" detection
+    // feature of the engine.
+    void modulesLoaded();
 
 protected:
     virtual void timerEvent(QTimerEvent* te);
 
 private:
+    void setModuleCount(unsigned m);
+    void resetModuleLoadTimer();
+
     ComInterfaces m_cif;
     DebugOutputBasePtr m_debugOutput;
     DebugEventCallbackBasePtr m_debugEventCallback;
     QString m_dbengDLL;
     QString m_baseImagePath;
     int m_watchTimer;
+    unsigned m_moduleCount;
+    unsigned m_lastTimerModuleCount;
+    bool m_modulesLoadedEmitted;
 };
 
 // Utility messages
