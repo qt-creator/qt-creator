@@ -89,7 +89,7 @@ using namespace Help::Internal;
 #if defined(Q_OS_MAC)
 #   define DOCPATH "/../Resources/doc/"
 #else
-#   define DOCPATH "../../share/doc/qtcreator/"
+#   define DOCPATH "/../share/doc/qtcreator/"
 #endif
 
 HelpPlugin::HelpPlugin()
