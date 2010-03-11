@@ -136,7 +136,7 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
             //     [receiver messageParam1:expression messageParam2:expression messageParam3
             // ... etc
             int i = index - 1;
-            while (tk[i].isNot(T_EOF_SYMBOL)) {
+            while (i >= 0 && tk[i].isNot(T_EOF_SYMBOL)) {
                 if (tk[i].is(T_LBRACKET))
                     break;
                 if (tk[i].is(T_LBRACE) || tk[i].is(T_RBRACE))
