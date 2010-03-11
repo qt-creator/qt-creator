@@ -40,18 +40,25 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT DetailsButton : public QAbstractButton
 {
     Q_OBJECT
+
+    Q_PROPERTY(float fader READ fader WRITE setFader)
+
 public:
     DetailsButton(QWidget *parent = 0);
 
     QSize sizeHint() const;
+    float fader() { return m_fader; }
+    void setFader(float value) { m_fader = value; update(); }
 
 protected:
     void paintEvent(QPaintEvent *e);
+    bool event(QEvent *e);
 
 private:
     QPixmap cacheRendering(const QSize &size, bool checked);
     QPixmap m_checkedPixmap;
     QPixmap m_uncheckedPixmap;
+    float m_fader;
 };
 }
 #endif // DETAILSBUTTON_H

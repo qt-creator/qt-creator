@@ -32,12 +32,13 @@
 #include <QtGui/QPaintEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QStyleOption>
+#include <QtCore/QPropertyAnimation>
 
 #include <utils/stylehelper.h>
 
 using namespace Utils;
 
-DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent)
+DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader(0)
 {
     setCheckable(true);
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
@@ -49,12 +50,42 @@ QSize DetailsButton::sizeHint() const
     return QSize(80, 22);
 }
 
+bool DetailsButton::event(QEvent *e)
+{
+    switch(e->type()) {
+    case QEvent::Enter:
+        {
+            QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
+            animation->setDuration(200);
+            animation->setEndValue(1.0);
+            animation->start(QAbstractAnimation::DeleteWhenStopped);
+        }
+        break;
+    case QEvent::Leave:
+        {
+            QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
+            animation->setDuration(200);
+            animation->setEndValue(0.0);
+            animation->start(QAbstractAnimation::DeleteWhenStopped);
+        }
+        break;
+    default:
+        return QAbstractButton::event(e);
+    }
+    return false;
+}
 
 void DetailsButton::paintEvent(QPaintEvent *e)
 {
     QWidget::paintEvent(e);
 
     QPainter p(this);
+#ifndef Q_WS_MAC
+    // draw hover animation
+    if(!isDown() && m_fader>0)
+        p.fillRect(rect().adjusted(1, 1, -2, -2), QColor(255, 255, 255, int(m_fader*180)));
+#endif
+
     if (isChecked()) {
         if (m_checkedPixmap.isNull() || m_checkedPixmap.size() != contentsRect().size())
             m_checkedPixmap = cacheRendering(contentsRect().size(), true);
@@ -63,6 +94,11 @@ void DetailsButton::paintEvent(QPaintEvent *e)
         if (m_uncheckedPixmap.isNull() || m_uncheckedPixmap.size() != contentsRect().size())
             m_uncheckedPixmap = cacheRendering(contentsRect().size(), false);
         p.drawPixmap(contentsRect(), m_uncheckedPixmap);
+    }
+    if (isDown()) {
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor(0, 0, 0, 20));
+        p.drawRoundedRect(rect().adjusted(1, 1, -1, -1), 1, 1);
     }
 }
 
