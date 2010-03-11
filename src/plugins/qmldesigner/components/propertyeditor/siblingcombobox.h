@@ -43,7 +43,7 @@ class SiblingComboBox : public QComboBox
     Q_PROPERTY(QVariant selectedItemNode READ selectedItemNode WRITE setSelectedItemNode NOTIFY selectedItemNodeChanged)
 
 public:
-    SiblingComboBox(QWidget *parent = 0) : QComboBox(parent) { setMaximumWidth(140); }
+    SiblingComboBox(QWidget *parent = 0) : QComboBox(parent) { }
 
     QVariant itemNode() const { return QVariant::fromValue(m_itemNode.modelNode()); }
     QVariant selectedItemNode() const { return QVariant::fromValue(m_selectedItemNode.modelNode()); }
