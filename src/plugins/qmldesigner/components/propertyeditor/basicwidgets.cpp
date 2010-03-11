@@ -1001,6 +1001,8 @@ class MyGroupBox : public QGroupBox
 {
      Q_OBJECT
 
+    Q_PROPERTY(bool animated READ isAnimated)
+
 public:
     MyGroupBox(QWidget * parent = 0) : QGroupBox(parent), m_animated(false), m_firstExpand(true)
     {}
@@ -1013,6 +1015,9 @@ void setAnimated(bool animated)
 
 void finishFirstExpand()
 { m_firstExpand = false; }
+
+bool isAnimated()
+{ return m_animated; }
 
 public slots:
     virtual void setVisible ( bool visible );
@@ -1048,15 +1053,17 @@ class QGroupBoxDeclarativeUI : public QObject
     Q_OBJECT
 
     Q_PROPERTY(bool collapsed READ isCollapsed WRITE setCollapsed)
+    Q_PROPERTY(bool smooth READ isSmooth WRITE setSmooth)
 public:
     QGroupBoxDeclarativeUI(QObject *parent = 0) : QObject(parent), m_expanded(true)
     {
         gb =  qobject_cast<MyGroupBox*>(parent);
-        connect(&m_timeLine, SIGNAL(frameChanged(int)), this, SLOT(animate(int)));
+        connect(&m_timeLine, SIGNAL (frameChanged(int)), this, SLOT(animate(int)));
         connect(&m_timeLine, SIGNAL(finished()), this, SLOT(finish()));
 
-        m_timeLine.setDuration(150);
+        m_timeLine.setDuration(100);
         m_timeLine.setFrameRange(0, 5);
+        m_smooth = true;
     }
 
     bool isCollapsed()
@@ -1069,6 +1076,11 @@ public:
         else
             expand();
     }
+
+    bool isSmooth()
+    { return m_smooth; }
+    void setSmooth(bool smooth)
+    { m_smooth = smooth; }
 
 public slots:
     void collapse();
@@ -1085,6 +1097,7 @@ private:
     int m_oldMAxHeight;
     int m_oldMinHeight;
     QPixmap m_contens;
+    bool m_smooth;
 
     void hideChildren();
     void showChildren();
@@ -1094,21 +1107,27 @@ private:
 
 void QGroupBoxDeclarativeUI::reLayout()
 {
+    gb->setUpdatesEnabled(false);
     QLayout *layout = gb->parentWidget()->layout();
+    QPoint oldPos = gb->pos();
     if (layout) {
+        layout->invalidate();
         layout->activate();
-        layout->update();
     }
+    gb->move(oldPos);
+    gb->setUpdatesEnabled(true);
+    gb->update();
 }
 
 void QGroupBoxDeclarativeUI::finish()
 {
-    gb->setAnimated(false);
     if (m_expanded) {
         showChildren();
+        gb->setUpdatesEnabled(false);
         gb->setMinimumHeight(m_oldMinHeight);
         gb->setMaximumHeight(m_oldMAxHeight);
-        gb->resize(gb->sizeHint());
+        gb->setUpdatesEnabled(true);
+        //gb->resize(gb->sizeHint());
         gb->finishFirstExpand();
     }
     else {
@@ -1117,6 +1136,7 @@ void QGroupBoxDeclarativeUI::finish()
         gb->resize(gb->sizeHint().width(), 30);
     }
     reLayout();
+    gb->setAnimated(false);
 }
 
 void QGroupBoxDeclarativeUI::hideChildren()
@@ -1155,6 +1175,7 @@ void QGroupBoxDeclarativeUI::collapse()
     gb->setPixmap(m_contens,1);
     hideChildren();
     m_expanded = false;
+    gb->setAnimated(true);
     m_timeLine.start();
 }
 
@@ -1163,12 +1184,14 @@ void QGroupBoxDeclarativeUI::expand()
     if (m_expanded)
         return;
     m_expanded = true;
+    gb->setAnimated(true);
     m_timeLine.start();
 }
 
 void QGroupBoxDeclarativeUI::animate(int frame)
 {
-    gb->setAnimated(true);
+    if (!m_smooth)
+        return;
     qreal height;
 
     if (m_expanded) {
@@ -1186,7 +1209,6 @@ void QGroupBoxDeclarativeUI::animate(int frame)
     gb->setMaximumHeight(height);
     gb->setMinimumHeight(height);
     reLayout();
-    gb->update();
 }
 
 class QTabWidgetDeclarativeUI : public QObject
