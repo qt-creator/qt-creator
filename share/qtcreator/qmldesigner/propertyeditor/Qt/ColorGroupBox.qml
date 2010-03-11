@@ -11,6 +11,7 @@ QExtGroupBox {
     property var startupCollapse: selectionChanged;
     property var firstTime: true;
 	property var caption: ""
+	smooth: false
 
     onFinishedChanged: {
         oldMaximumHeight = maximumHeight;

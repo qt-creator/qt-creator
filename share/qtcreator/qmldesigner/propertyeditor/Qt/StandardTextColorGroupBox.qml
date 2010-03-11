@@ -6,8 +6,7 @@ GroupBox {
 	
 	property bool showStyleColor: false
 	property bool showSelectionColor: false
-	property bool showSelectedTextColor: false
-
+	property bool showSelectedTextColor: false	
 
     caption: "Color"
 
