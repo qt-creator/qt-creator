@@ -252,10 +252,10 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         return;
     }
 
-    // we should have a type now. this is relied upon further below
+    // We should have a type now. This is relied upon further below.
     QTC_ASSERT(!data.type.isEmpty(), return);
 
-    // a common case that can be easily solved
+    // A common case that can be easily solved.
     if (data.isChildrenNeeded() && isPointerType(data.type)
         && !hasDebuggingHelperForType(data.type)) {
         // We sometimes know what kind of children pointers have
@@ -431,8 +431,6 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
         while (out.endsWith(' ') || out.endsWith('\n'))
             out.chop(1);
         QList<QByteArray> list = out.split(' ');
-        //qDebug() << "RECEIVED" << response.toString() << "FOR" << data0.toString()
-        //    <<  " STREAM:" << out;
         if (list.isEmpty()) {
             //: Value for variable
             data.setError(WatchData::msgNotInScope());
@@ -538,7 +536,7 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
     postCommand("call (void*)dlopen(\"" + GdbMi::escapeCString(dlopenLib)
                 + "\", " + flag + ")",
         CB(handleDebuggingHelperSetup));
-    // some older systems like CentOS 4.6 prefer this:
+    // Some older systems like CentOS 4.6 prefer this:
     postCommand("call (void*)__dlopen(\"" + GdbMi::escapeCString(dlopenLib)
                 + "\", " + flag + ")",
         CB(handleDebuggingHelperSetup));
@@ -550,7 +548,7 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
 void GdbEngine::tryQueryDebuggingHelpersClassic()
 {
     PRECONDITION;
-    // retrieve list of dumpable classes
+    // Retrieve list of dumpable classes.
     postCommand("call (void*)qDumpObjectData440(1,0,0,0,0,0,0,0)");
     postCommand("p (char*)&qDumpOutBuffer",
         CB(handleQueryDebuggingHelperClassic));
@@ -560,7 +558,7 @@ void GdbEngine::recheckDebuggingHelperAvailabilityClassic()
 {
     PRECONDITION;
     if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
-        // retrieve list of dumpable classes
+        // Retrieve list of dumpable classes.
         postCommand("call (void*)qDumpObjectData440(1,0,0,0,0,0,0,0)");
         postCommand("p (char*)&qDumpOutBuffer",
             CB(handleQueryDebuggingHelperClassic));
@@ -681,7 +679,6 @@ bool GdbEngine::checkDebuggingHelpersClassic()
     if (!manager()->qtDumperLibraryEnabled())
         return false;
     const QString lib = qtDumperLibraryName();
-    //qDebug() << "DUMPERLIB:" << lib;
     const QFileInfo fi(lib);
     if (!fi.exists()) {
         const QStringList &locations = manager()->qtDumperLibraryLocations();

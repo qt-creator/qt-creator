@@ -432,12 +432,50 @@ def qtNamespace():
         # Happens for none-Qt applications
         return ""
 
-def encodeCharArray(p, size):
+def findFirstZero(p, max):
+    for i in xrange(max):
+        if p.dereference() == 0:
+            return i
+        p = p + 1
+    return -1
+
+def encodeCharArray(p, maxsize):
+    t = gdb.lookup_type("unsigned char").pointer()
+    p = p.cast(t)
+    i = findFirstZero(p, maxsize)
+    limit = select(i < 0, maxsize, i)
     s = ""
-    p = p.cast(gdb.lookup_type("unsigned char").pointer())
-    for i in xrange(size):
+    for i in xrange(limit):
         s += "%02x" % int(p.dereference())
         p += 1
+    if i == maxsize:
+        s += "2e2e2e"
+    return s
+
+def encodeChar2Array(p, maxsize):
+    t = gdb.lookup_type("unsigned short").pointer()
+    p = p.cast(t)
+    i = findFirstZero(p, maxsize)
+    limit = select(i < 0, maxsize, i)
+    s = ""
+    for i in xrange(limit):
+        s += "%04x" % int(p.dereference())
+        p += 1
+    if i == maxsize:
+        s += "2e002e002e00"
+    return s
+
+def encodeChar4Array(p, maxsize):
+    t = gdb.lookup_type("unsigned int").pointer()
+    p = p.cast(t)
+    i = findFirstZero(p, maxsize)
+    limit = select(i < 0, maxsize, i)
+    s = ""
+    for i in xrange(limit):
+        s += "%08x" % int(p.dereference())
+        p += 1
+    if i == maxsize:
+        s += "2e0000002e0000002e000000"
     return s
 
 def encodeByteArray(value):
@@ -450,10 +488,7 @@ def encodeByteArray(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
-
-    innerType = gdb.lookup_type("char")
-    p = gdb.Value(data.cast(innerType.pointer()))
-    return encodeCharArray(p, size)
+    return encodeCharArray(data, size)
 
 def encodeString(value):
     d_ptr = value['d'].dereference()
@@ -502,22 +537,33 @@ class FrameCommand(gdb.Command):
     def __init__(self):
         super(FrameCommand, self).__init__("bb", gdb.COMMAND_OBSCURE)
 
-    def invoke(self, arg, from_tty):
-        args = arg.split(' ')
-
-        #warn("ARG: %s" % arg)
-        #warn("ARGS: %s" % args)
-        options = args[0].split(",")
-        varList = args[1][1:]
-        if len(varList) == 0:
-            varList = []
-        else:
-            varList = varList.split(",")
-        expandedINames = set(args[2].split(","))
+    def invoke(self, args, from_tty):
+        options = []
+        varList = []
+        typeformats = {}
+        formats = {}
         watchers = ""
-        if len(args) > 3:
-            watchers = base64.b16decode(args[3], True)
-        #warn("WATCHERS: %s" % watchers)
+        for arg in args.split(' '):
+            pos = arg.find(":") + 1
+            if arg.startswith("options:"):
+                options = arg[pos:].split(",")
+            elif arg.startswith("vars:"):
+                vars = arg[pos:].split(",")
+            elif arg.startswith("expanded:"):
+                expandedINames = set(arg[pos:].split(","))
+            elif arg.startswith("typeformats:"):
+                for f in arg[pos:].split(","):
+                    pos = f.find("=")
+                    if pos != -1:
+                        type = base64.b16decode(f[0:pos], True)
+                        typeformats[type] = int(f[pos+1:])
+            elif arg.startswith("formats:"):
+                for f in arg[pos:].split(","):
+                    pos = f.find("=")
+                    if pos != -1:
+                        formats[f[0:pos]] = int(f[pos+1:])
+            elif arg.startswith("watchers:"):
+                watchers = base64.b16decode(arg[pos:], True)
 
         useFancy = "fancy" in options
 
@@ -552,6 +598,8 @@ class FrameCommand(gdb.Command):
 
         d = Dumper()
         d.dumpers = self.dumpers
+        d.typeformats = typeformats
+        d.formats = formats
         d.useFancy = useFancy
         d.passExceptions = "passexceptions" in options
         d.autoDerefPointers = "autoderef" in options
@@ -837,6 +885,9 @@ class Dumper:
         if len(type) > 0 and type != self.childTypes[-1]:
             self.put('type="%s",' % type) # str(type.unqualified()) ?
 
+    def putAddress(self, addr):
+        self.put('addr="%s",' % cleanAddress(addr))
+
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.childNumChilds[-1]))
         if numchild != self.childNumChilds[-1]:
@@ -1038,13 +1089,36 @@ class Dumper:
 
 
         elif type.code == gdb.TYPE_CODE_PTR:
-            #warn("A POINTER: %s" % value.type)
             isHandled = False
 
-            if str(type.strip_typedefs()).find("(") != -1:
+            format = self.formats.get(item.iname)
+            if format is None:
+                format = self.typeformats.get(str(value.type))
+
+            if not format is None:
+                self.putAddress(value.address)
+                self.putType(item.value.type)
+                self.putNumChild(0)
+                isHandled = True
+
+            if format == 0:
+                # Bald pointer.
+                self.putValue(str(cleanAddress(value.address)))
+            elif format == 1 or format == 2:
+                # Latin1 or UTF-8
+                f = select(format == 1, "6", "9")
+                self.putValue(encodeCharArray(value, 100), f)
+            elif format == 3:
+                # UTF-16.
+                self.putValue(encodeChar2Array(value, 100), "11")
+            elif format == 4:
+                # UCS-4:
+                self.putValue(encodeChar4Array(value, 100), "10")
+
+            if (not isHandled) and str(type.strip_typedefs()).find("(") != -1:
                 # A function pointer.
                 self.putValue(str(item.value))
-                self.put('addr="%s",' % cleanAddress(value.address))
+                self.putAddress(value.address)
                 self.putType(item.value.type)
                 self.putNumChild(0)
                 isHandled = True
@@ -1069,21 +1143,8 @@ class Dumper:
                     # Display values up to given length directly
                     #warn("CHAR AUTODEREF: %s" % value.address)
                     self.putType(item.value.type)
-                    firstNul = -1
-                    p = value
-                    found = False
-                    for i in xrange(100):
-                        if p.dereference() == 0:
-                            # Found terminating NUL
-                            found = True
-                            break
-                        p += 1
-                    if found:
-                        self.putValue(encodeCharArray(value, i), "6")
-                        self.putNumChild(0)
-                    else:
-                        self.putValue(encodeCharArray(value, 100) + "2e2e2e", "6")
-                        self.putNumChild(0)
+                    self.putValue(encodeCharArray(value, 100), "6")
+                    self.putNumChild(0)
                     isHandled = True
 
             #warn("AUTODEREF: %s" % self.autoDerefPointers)
@@ -1105,8 +1166,9 @@ class Dumper:
             if not isHandled:
                 #warn("GENERIC PLAIN POINTER: %s" % value.type)
                 self.putType(item.value.type)
-                self.putValue(str(value))
-                self.put('addr="%s",' % cleanAddress(value.address))
+                #self.putValue(str(value))
+                self.putValue("")
+                self.putAddress(value.address)
                 self.putNumChild(1)
                 if self.isExpanded(item):
                     self.beginChildren()
@@ -1208,7 +1270,7 @@ class Dumper:
                 value = item.value[field.name]
                 child = Item(value, item.iname, field.name, field.name)
                 self.beginHash()
-                self.put('addr="%s",' % cleanAddress(value.address))
+                self.putAddress(value.address)
                 self.putItemHelper(child)
                 self.endHash();
             else:

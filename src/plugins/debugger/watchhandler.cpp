@@ -639,27 +639,6 @@ static QString formattedValue(const WatchData &data, int format)
             return reformatInteger(data.value.toULongLong(), format);
         return reformatInteger(data.value.toLongLong(), format);
     }
-    if (0 && !data.addr.isEmpty()) {
-        if (format == BaldPointerFormat)
-            return data.value;
-        bool ok = false;
-        const void *addr =
-            reinterpret_cast<void *>(data.value.toULongLong(&ok, 0));
-        if (!ok || !addr)
-            return data.value;
-        // FIXME: add a round trip through the debugger to prevent crashs?
-        if (format == Latin1StringFormat)
-            return QString::fromLatin1(static_cast<const char *>(addr));
-        if (format == Local8BitStringFormat)
-            return QString::fromLocal8Bit(static_cast<const char *>(addr));
-        if (format == Utf8StringFormat)
-            return QString::fromUtf8(static_cast<const char *>(addr));
-        if (format == Utf16StringFormat)
-            return QString::fromUtf16(static_cast<const ushort *>(addr));
-        if (format == Ucs4StringFormat)
-            return QString::fromUcs4(static_cast<const uint *>(addr));
-         return data.value;
-    }
     return data.value;
 }
 
@@ -802,7 +781,6 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     int format = m_handler->m_individualFormats.value(data.iname, -1);
                     if (format == -1)
                         format = m_handler->m_typeFormats.value(data.type, -1);
-                    //qDebug() << "FORMATTED: " << format << formattedValue(data, format);
                     return truncateValue(formattedValue(data, format));
                 }
                 case 2: {
@@ -845,7 +823,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             if (isIntType(data.type))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
                     << tr("binary") << tr("octal");
-            if (!data.addr.isEmpty())
+            if (data.type.endsWith(QLatin1Char('*')))
                 return QStringList()
                     << tr("Bald pointer")
                     << tr("Latin1 string")
@@ -889,6 +867,7 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         }
     } else if (role == TypeFormatRole) {
         m_handler->setFormat(data.type, value.toInt());
+        m_handler->m_manager->updateWatchData(data);
     } else if (role == IndividualFormatRole) {
         const int format = value.toInt();
         if (format == -1) {
@@ -896,6 +875,7 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
         } else {
             m_handler->m_individualFormats[data.iname] = format;
         }
+        m_handler->m_manager->updateWatchData(data);
     }
     emit dataChanged(index, index);
     return true;
@@ -1155,8 +1135,8 @@ WatchItem *WatchModel::findItem(const QByteArray &iname, WatchItem *root) const
 static void debugRecursion(QDebug &d, const WatchItem *item, int depth)
 {
     d << QString(2 * depth, QLatin1Char(' ')) << item->toString() << '\n';
-    foreach(const WatchItem *i, item->children)
-        debugRecursion(d, i, depth + 1);
+    foreach (const WatchItem *child, item->children)
+        debugRecursion(d, child, depth + 1);
 }
 
 QDebug operator<<(QDebug d, const WatchModel &m)
@@ -1167,6 +1147,16 @@ QDebug operator<<(QDebug d, const WatchModel &m)
     return d;
 }
 
+void WatchModel::formatRequests(QByteArray *out, const WatchItem *item) const
+{
+    int format = m_handler->m_individualFormats.value(item->iname, -1);
+    if (format == -1)
+        format = m_handler->m_typeFormats.value(item->type, -1);
+    if (format != -1)
+        *out += item->iname + ":format=" + QByteArray::number(format) + ',';
+    foreach (const WatchItem *child, item->children)
+        formatRequests(out, child);
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1571,6 +1561,66 @@ void WatchHandler::setFormat(const QString &type, int format)
     m_locals->emitDataChanged(1);
     m_watchers->emitDataChanged(1);
     m_tooltips->emitDataChanged(1);
+}
+
+int WatchHandler::format(const QByteArray &iname) const
+{
+    int result = -1;
+    if (const WatchData *item = findItem(iname)) {
+        int result = m_individualFormats.value(iname, -1);
+        if (result == -1)
+            result = m_typeFormats.value(item->type, -1);
+    }
+    return result;
+}
+
+QByteArray WatchHandler::formatRequests() const
+{
+    QByteArray ba;
+    //m_locals->formatRequests(&ba, m_locals->m_root);
+    //m_watchers->formatRequests(&ba, m_watchers->m_root);
+
+    ba.append("expanded:");
+    if (!m_expandedINames.isEmpty()) {
+        QSetIterator<QByteArray> jt(m_expandedINames);
+        while (jt.hasNext()) {
+            QByteArray iname = jt.next();
+            ba.append(iname);
+            ba.append(',');
+        }
+        ba.chop(1);
+    }
+    ba.append(' ');
+
+    ba.append("typeformats:");
+    if (!m_typeFormats.isEmpty()) {
+        QHashIterator<QString, int> it(m_typeFormats);
+        while (it.hasNext()) {
+            it.next();
+            ba.append(it.key().toLatin1().toHex());
+            ba.append('=');
+            ba.append(QByteArray::number(it.value()));
+            ba.append(',');
+        }
+        ba.chop(1);
+    }
+    ba.append(' ');
+
+    ba.append("formats:");
+    if (!m_individualFormats.isEmpty()) {
+        QHashIterator<QString, int> it(m_individualFormats);
+        while (it.hasNext()) {
+            it.next();
+            ba.append(it.key().toLatin1());
+            ba.append('=');
+            ba.append(QByteArray::number(it.value()));
+            ba.append(',');
+        }
+        ba.chop(1);
+    }
+    ba.append(' ');
+
+    return ba;
 }
 
 } // namespace Internal

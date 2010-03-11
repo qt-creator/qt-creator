@@ -1486,6 +1486,8 @@ int main(int argc, char *argv[])
     testPlugin();
     testQList();
     testQLinkedList();
+	char *s = "aöa";
+	wchar_t *w = L"aöa";
     testNamespace();
     //return 0;
     testQHash();

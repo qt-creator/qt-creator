@@ -640,7 +640,7 @@ QString decodeData(const QByteArray &ba, int encoding)
         case 5: { //  base64 encoded 8 bit data, without quotes (see 1)
             return quoteUnprintableLatin1(QByteArray::fromBase64(ba));
         }
-        case 6: { //  %02x encoded 8 bit data
+        case 6: { //  %02x encoded 8 bit Latin1 data
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
@@ -656,6 +656,39 @@ QString decodeData(const QByteArray &ba, int encoding)
         case 8: { //  %08x encoded 32 bit data, Little Endian
             const QChar doubleQuote(QLatin1Char('"'));
             const QByteArray decodedBa = QByteArray::fromHex(ba);
+            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
+            return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
+                (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
+        }
+        case 9: { //  %02x encoded 8 bit Utf-8 data
+            const QChar doubleQuote(QLatin1Char('"'));
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
+            return doubleQuote + QString::fromUtf8(decodedBa) + doubleQuote;
+        }
+        case 10: { //  %08x encoded 32 bit data, Big Endian
+            const QChar doubleQuote(QLatin1Char('"'));
+            QByteArray decodedBa = QByteArray::fromHex(ba);
+            for (int i = 0; i < decodedBa.size(); i += 4) {
+                char c = decodedBa.at(i);
+                decodedBa[i] = decodedBa.at(i + 3);
+                decodedBa[i + 3] = c;
+                c = decodedBa.at(i + 1);
+                decodedBa[i + 1] = decodedBa.at(i + 2);
+                decodedBa[i + 2] = c;
+            }
+            //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
+            return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
+                (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
+        }
+        case 11: { //  %02x encoded 16 bit data, Big Endian
+            const QChar doubleQuote(QLatin1Char('"'));
+            QByteArray decodedBa = QByteArray::fromHex(ba);
+            for (int i = 0; i < decodedBa.size(); i += 2) {
+                char c = decodedBa.at(i);
+                decodedBa[i] = decodedBa.at(i + 1);
+                decodedBa[i + 1] = c;
+            }
             //qDebug() << quoteUnprintableLatin1(decodedBa) << "\n\n";
             return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
                 (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;

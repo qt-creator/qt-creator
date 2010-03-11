@@ -55,13 +55,7 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
     //m_toolTipExpression.clear();
     WatchHandler *handler = m_manager->watchHandler();
 
-    QByteArray expanded;
-    QSet<QByteArray> expandedINames = handler->expandedINames();
-    QSetIterator<QByteArray> jt(expandedINames);
-    while (jt.hasNext()) {
-        expanded.append(jt.next());
-        expanded.append(',');
-    }
+    QByteArray expanded = handler->formatRequests();
     if (expanded.isEmpty())
         expanded.append("defaults,");
     expanded.chop(1);
@@ -92,8 +86,8 @@ void GdbEngine::updateLocalsPython(const QByteArray &varList)
         options += "defaults,";
     options.chop(1);
 
-    postCommand("bb " + options + " @" + varList + ' '
-            + expanded + ' ' + watchers.toHex(),
+    postCommand("bb options:" + options + " vars:" + varList + ' '
+            + expanded + " watchers:" + watchers.toHex(),
         WatchUpdate, CB(handleStackFramePython));
 }
 

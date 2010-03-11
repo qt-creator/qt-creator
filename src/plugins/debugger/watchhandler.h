@@ -139,8 +139,6 @@ public:
     bool valueEditable;   // value will be editable
     bool error;
 
-private:
-
 public:
     int source;  // Used by some debuggers (CDB) to tell where it originates from (dumper or symbol evaluation)
     int state;
@@ -239,6 +237,7 @@ signals:
 
 private:
     QString niceType(const QString &typeIn) const;
+    void formatRequests(QByteArray *out, const WatchItem *item) const;
 
     WatchHandler *m_handler;
     WatchType m_type;
@@ -284,8 +283,10 @@ public:
     QStringList watchedExpressions() const;
     QHash<QByteArray, int> watcherNames() const
         { return m_watcherNames; }
+    QByteArray formatRequests() const;
 
     static QString watcherEditPlaceHolder();
+    int format(const QByteArray &iname) const;
 
 private:
     friend class WatchModel;

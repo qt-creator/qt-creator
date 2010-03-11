@@ -269,7 +269,8 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     actWatchUnknownMemory->setEnabled(actionsEnabled && canShowMemory);
 
     if (canShowMemory && !address.isEmpty())
-        actWatchKnownMemory = new QAction(tr("Open Memory Editor at %1").arg(address), &menu);
+        actWatchKnownMemory =
+            new QAction(tr("Open Memory Editor at %1").arg(address), &menu);
     menu.addSeparator();
 
     QAction *actWatchOrRemove;
@@ -293,8 +294,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(theDebuggerAction(RecheckDebuggingHelpers));
     menu.addAction(theDebuggerAction(UseDebuggingHelpers));
-    QAction *actClearCodeModelSnapshot = new QAction(tr("Refresh Code Model Snapshot"), &menu);
-    actClearCodeModelSnapshot->setEnabled(actionsEnabled && theDebuggerAction(UseCodeModel)->isChecked());
+    QAction *actClearCodeModelSnapshot
+        = new QAction(tr("Refresh Code Model Snapshot"), &menu);
+    actClearCodeModelSnapshot->setEnabled(actionsEnabled
+        && theDebuggerAction(UseCodeModel)->isChecked());
     menu.addAction(actClearCodeModelSnapshot);
     menu.addSeparator();
     menu.addAction(theDebuggerAction(UseToolTipsInLocalsView));

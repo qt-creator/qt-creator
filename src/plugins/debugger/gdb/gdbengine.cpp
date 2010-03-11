@@ -3321,7 +3321,7 @@ void GdbEngine::setWatchDataDisplayedType(WatchData &data, const GdbMi &item)
 void GdbEngine::handleVarCreate(const GdbResponse &response)
 {
     WatchData data = response.cookie.value<WatchData>();
-    // happens e.g. when we already issued a var-evaluate command
+    // Happens e.g. when we already issued a var-evaluate command.
     if (!data.isValid())
         return;
     //qDebug() << "HANDLE VARIABLE CREATION:" << data.toString();
@@ -3351,11 +3351,9 @@ void GdbEngine::handleVarCreate(const GdbResponse &response)
 
 void GdbEngine::handleDebuggingHelperSetup(const GdbResponse &response)
 {
-    //qDebug() << "CUSTOM SETUP RESULT:" << response.toString();
     if (response.resultClass == GdbResultDone) {
     } else {
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        //qDebug() << "CUSTOM DUMPER SETUP ERROR MESSAGE:" << msg;
         showStatusMessage(tr("Custom dumper setup: %1").arg(msg), 10000);
     }
 }
@@ -3381,7 +3379,6 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     }
     setWatchDataType(data, item.findChild("type"));
     setWatchDataEditValue(data, item.findChild("editvalue"));
-    setWatchDataChildCount(data, item.findChild("numchild"));
     setWatchDataValue(data, item.findChild("value"),
         item.findChild("valueencoded").data().toInt());
     setWatchDataAddress(data, item.findChild("addr"));
@@ -3391,6 +3388,7 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
         item.findChild("valuetooltipencoded").data().toInt());
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));
     setWatchDataValueEditable(data, item.findChild("valueeditable"));
+    setWatchDataChildCount(data, item.findChild("numchild"));
     //qDebug() << "\nAPPEND TO LIST: " << data.toString() << "\n";
     list->append(data);
 
@@ -3451,7 +3449,7 @@ void GdbEngine::updateLocals(const QVariant &cookie)
 }
 
 
-// Parse a local variable from GdbMi
+// Parse a local variable from GdbMi.
 WatchData GdbEngine::localVariable(const GdbMi &item,
                                    const QStringList &uninitializedVariables,
                                    QMap<QByteArray, int> *seen)
@@ -3479,7 +3477,7 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         WatchData data;
         QString nam = _(name);
         data.iname = "local." + name + QByteArray::number(n + 1);
-        //: Variable %1 is the variable name, %2 is a simple count
+        //: Variable %1 is the variable name, %2 is a simple count.
         data.name = WatchData::shadowedName(nam, n);
         if (uninitializedVariables.contains(data.name)) {
             data.setError(WatchData::msgNotInScope());
@@ -3511,8 +3509,8 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         // somewhere in the response.
         data.setChildrenUnneeded();
     } else {
-        // set value only directly if it is simple enough, otherwise
-        // pass through the insertData() machinery
+        // Set value only directly if it is simple enough, otherwise
+        // pass through the insertData() machinery.
         if (isIntOrFloatType(data.type) || isPointerType(data.type))
             setWatchDataValue(data, item.findChild("value"));
         if (isSymbianIntType(data.type)) {
@@ -3523,7 +3521,11 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
 
     if (!m_manager->watchHandler()->isExpandedIName(data.iname))
         data.setChildrenUnneeded();
-    if (isPointerType(data.type) || data.name == __("this"))
+
+    GdbMi t = item.findChild("numchild");
+    if (t.isValid())
+        data.setHasChildren(t.data().toInt() > 0);
+    else if (isPointerType(data.type) || data.name == __("this"))
         data.setHasChildren(true);
     return data;
 }
