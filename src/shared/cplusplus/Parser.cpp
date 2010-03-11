@@ -287,6 +287,7 @@ void Parser::skipUntilDeclaration()
         case T_PRIVATE:
         case T_Q_SIGNALS:
         case T_Q_SLOTS:
+        case T_Q_PROPERTY:
 
         // declarations
         case T_ENUM:
