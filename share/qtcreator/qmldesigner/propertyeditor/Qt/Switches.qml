@@ -18,7 +18,7 @@ QFrame {
             checkable: true;
             checked: true;
             id: standardMode;
-            toolTip: "general item properties";
+            toolTip: "special properties";
             //iconFromFile: "images/rect-icon.png";
             text: backendValues.className.value
             onClicked: {
@@ -35,7 +35,7 @@ QFrame {
             id: layoutMode;
             checkable: true;
             checked: false;
-            toolTip: "layout properties";
+            toolTip: "layout and geometry";
             text: "Geometry";
             onClicked: {
                 extendedMode.checked = false;
@@ -49,7 +49,7 @@ QFrame {
 		
         QPushButton {
             id: extendedMode;
-            toolTip: "extended properties";
+            toolTip: "advanced properties";
             checkable: true;
             checked: false;
             text: "Advanced"
