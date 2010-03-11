@@ -37,10 +37,11 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QComboBox;
 class QCursor;
 class QMenu;
 class QPoint;
-class QComboBox;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -119,17 +120,19 @@ private slots:
     void attachCore();
     void attachCmdLine();
 
+    void enableReverseDebuggingTriggered(const QVariant &value);
+
 private:
     void readSettings();
     void writeSettings() const;
     void attachExternalApplication(qint64 pid, const QString &crashParameter = QString());
     void attachCore(const QString &core, const QString &exeFileName);
-    QWidget *createToolbar() const;
 
     friend class Debugger::DebuggerManager;
     friend class GdbOptionPage;
     friend class DebuggingHelperOptionPage;
-    friend class Debugger::Internal::DebugMode; // FIXME: Just a hack now so that it can access the views
+    // FIXME: Just a hack now so that it can access the views.
+    friend class Debugger::Internal::DebugMode;
 
     DebuggerUISwitcher *m_uiSwitcher;
     DebuggerManager *m_manager;
@@ -148,6 +151,7 @@ private:
     QAction *m_attachCoreAction;
     QAction *m_detachAction;
     QComboBox *m_langBox;
+    QToolButton *m_reverseToolButton;
 };
 
 } // namespace Internal

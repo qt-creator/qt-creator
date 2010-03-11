@@ -32,6 +32,7 @@
 #include "gdbengine.h"
 #include "procinterrupt.h"
 #include "debuggerstringutils.h"
+#include "debuggeractions.h"
 
 #include <utils/qtcassert.h>
 
@@ -163,9 +164,12 @@ void PlainGdbAdapter::handleExecRun(const GdbResponse &response)
         QTC_ASSERT(state() == InferiorRunning, qDebug() << state());
         debugMessage(_("INFERIOR STARTED"));
         showStatusMessage(msgInferiorStarted());
+        // FIXME: That's the wrong place for it.
+        if (theDebuggerBoolSetting(EnableReverseDebugging))
+            m_engine->postCommand("target record");
     } else {
         QTC_ASSERT(state() == InferiorRunningRequested, qDebug() << state());
-        const QString &msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
+        QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
         //QTC_ASSERT(status() == InferiorRunning, /**/);
         //interruptInferior();
         emit inferiorStartFailed(msg);

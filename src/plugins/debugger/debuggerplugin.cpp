@@ -223,7 +223,8 @@ DebugMode::~DebugMode()
 //
 ///////////////////////////////////////////////////////////////////////
 
-class DebuggerListener : public Core::ICoreListener {
+class DebuggerListener : public Core::ICoreListener
+{
     Q_OBJECT
 public:
     explicit DebuggerListener(QObject *parent = 0);
@@ -376,10 +377,6 @@ QWidget *CommonOptionsPage::createPage(QWidget *parent)
     m_group.insert(theDebuggerAction(UsePreciseBreakpoints), 0);
     m_group.insert(theDebuggerAction(BreakOnThrow), 0);
     m_group.insert(theDebuggerAction(BreakOnCatch), 0);
-
-#ifdef USE_REVERSE_DEBUGGING
-    m_ui.checkBoxEnableReverseDebugging->hide();
-#endif
 
     if (m_searchKeywords.isEmpty()) {
         QTextStream(&m_searchKeywords) << ' ' << m_ui.checkBoxListSourceFiles->text()
@@ -706,7 +703,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     const QList<Core::IOptionsPage *> engineOptionPages =
         manager->initializeEngines(m_cmdLineEnabledEngines);
 
-    // register factory of DebuggerRunControl
+    // Register factory of DebuggerRunControl.
     m_debuggerRunControlFactory = new DebuggerRunControlFactory(manager);
     addAutoReleasedObject(m_debuggerRunControlFactory);
 
@@ -716,10 +713,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     context.append(uidm->uniqueIdentifier(Core::Constants::C_NAVIGATION_PANE));
     m_debugMode->setContext(context);
 
-    //Core::ActionContainer *mcppcontext =
-    //    am->actionContainer(CppEditor::Constants::M_CONTEXT);
+    m_reverseToolButton = 0;
 
-    // External apps
+    // Handling of external applications.
     m_startExternalAction = new QAction(this);
     m_startExternalAction->setText(tr("Start and Debug External Application..."));
     connect(m_startExternalAction, SIGNAL(triggered()),
@@ -744,12 +740,8 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     connect(m_detachAction, SIGNAL(triggered()),
         manager, SLOT(detachDebugger()));
 
-   // Core::ActionContainer *mdebug =
-    //    am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
-
     Core::Command *cmd = 0;
     const DebuggerManagerActions actions = manager->debuggerManagerActions();
-
 
     Core::ActionContainer *mstart =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
@@ -831,12 +823,10 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
         Constants::RETURN_FROM_FUNCTION, debuggercontext);
     m_uiSwitcher->addMenuAction(cmd);
 
-#ifdef USE_REVERSE_DEBUGGING
     cmd = am->registerAction(actions.reverseDirectionAction,
         Constants::REVERSE, debuggercontext);
     cmd->setDefaultKeySequence(QKeySequence(Constants::REVERSE_KEY));
     m_uiSwitcher->addMenuAction(cmd);
-#endif
 
     sep = new QAction(this);
     sep->setSeparator(true);
@@ -944,16 +934,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     handleStateChanged(DebuggerNotReady);
 
-    m_uiSwitcher->setToolbar(LANG_CPP, createToolbar());
-    connect(m_uiSwitcher, SIGNAL(dockArranged(QString)), manager,
-            SLOT(setSimpleDockWidgetArrangement(QString)));
-
-    return true;
-}
-
-QWidget *DebuggerPlugin::createToolbar() const
-{
-    Core::ActionManager *am = ICore::instance()->actionManager();
+    // Toolbar
     QWidget *toolbarContainer = new QWidget;
 
     QHBoxLayout *hbox = new QHBoxLayout(toolbarContainer);
@@ -965,10 +946,12 @@ QWidget *DebuggerPlugin::createToolbar() const
     hbox->addWidget(toolButton(am->command(Constants::STEP)->action()));
     hbox->addWidget(toolButton(am->command(Constants::STEPOUT)->action()));
     hbox->addWidget(toolButton(am->command(Constants::OPERATE_BY_INSTRUCTION)->action()));
-#ifdef USE_REVERSE_DEBUGGING
-    hbox->addWidget(new Utils::StyledSeparator);
-    hbox->addWidget(toolButton(am->command(Constants::REVERSE)->action()));
-#endif
+
+    //hbox->addWidget(new Utils::StyledSeparator);
+    m_reverseToolButton = toolButton(am->command(Constants::REVERSE)->action());
+    hbox->addWidget(m_reverseToolButton);
+    //m_reverseToolButton->hide();
+
     hbox->addWidget(new Utils::StyledSeparator);
     hbox->addWidget(new QLabel(tr("Threads:")));
 
@@ -980,7 +963,15 @@ QWidget *DebuggerPlugin::createToolbar() const
     hbox->addWidget(threadBox);
     hbox->addWidget(m_manager->statusLabel(), 10);
 
-    return toolbarContainer;
+
+    m_uiSwitcher->setToolbar(LANG_CPP, toolbarContainer);
+    connect(m_uiSwitcher, SIGNAL(dockArranged(QString)), manager,
+            SLOT(setSimpleDockWidgetArrangement(QString)));
+
+    connect(theDebuggerAction(EnableReverseDebugging), SIGNAL(valueChanged(QVariant)),
+        this, SLOT(enableReverseDebuggingTriggered(QVariant)));
+
+    return true;
 }
 
 void DebuggerPlugin::extensionsInitialized()
@@ -1375,6 +1366,14 @@ void DebuggerPlugin::startRemoteApplication()
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))
         ProjectExplorerPlugin::instance()
             ->startRunControl(runControl, ProjectExplorer::Constants::DEBUGMODE);
+}
+
+void DebuggerPlugin::enableReverseDebuggingTriggered(const QVariant &value)
+{
+    QTC_ASSERT(m_reverseToolButton, return);
+    m_reverseToolButton->setVisible(value.toBool());
+    if (!value.toBool())
+        m_manager->debuggerManagerActions().reverseDirectionAction->setChecked(false);
 }
 
 #include "debuggerplugin.moc"

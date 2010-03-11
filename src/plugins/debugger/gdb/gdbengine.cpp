@@ -217,7 +217,7 @@ QMainWindow *GdbEngine::mainWindow() const
 
 GdbEngine::~GdbEngine()
 {
-    // prevent sending error messages afterwards
+    // Prevent sending error messages afterwards.
     disconnect(&m_gdbProc, 0, this, 0);
     delete m_gdbAdapter;
     m_gdbAdapter = 0;
@@ -229,13 +229,10 @@ void GdbEngine::connectAdapter()
         this, SLOT(handleAdapterStarted()));
     connect(m_gdbAdapter, SIGNAL(adapterStartFailed(QString,QString)),
         this, SLOT(handleAdapterStartFailed(QString,QString)));
-
     connect(m_gdbAdapter, SIGNAL(inferiorPrepared()),
         this, SLOT(handleInferiorPrepared()));
-
     connect(m_gdbAdapter, SIGNAL(inferiorStartFailed(QString)),
         this, SLOT(handleInferiorStartFailed(QString)));
-
     connect(m_gdbAdapter, SIGNAL(adapterCrashed(QString)),
         this, SLOT(handleAdapterCrashed(QString)));
 }
@@ -1257,7 +1254,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     //    return;
     // }
 
-    // jump over well-known frames
+    // Jump over well-known frames.
     static int stepCounter = 0;
     if (theDebuggerBoolSetting(SkipKnownFrames)) {
         if (reason == "end-stepping-range" || reason == "function-finished") {
@@ -1537,7 +1534,7 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
             //executeStepOut();
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
-                           tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+               tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
             shutdown();
         }
     }
@@ -1781,7 +1778,7 @@ void GdbEngine::executeStep()
     if (m_gdbAdapter->isTrkAdapter() && stackHandler->stackSize() > 0)
         postCommand("sal step," + stackHandler->topAddress().toLatin1());
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-step", RunRequest, CB(handleExecuteStep));
+        postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
     else
         postCommand("-exec-step", RunRequest, CB(handleExecuteStep));
 }
@@ -1789,7 +1786,7 @@ void GdbEngine::executeStep()
 void GdbEngine::handleExecuteStep(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
-        // The "running" state is picked up in handleResponse()
+        // The "running" state is picked up in handleResponse().
         QTC_ASSERT(state() == InferiorRunning, /**/);
     } else {
         if (state() == InferiorRunningRequested_Kill) {
@@ -1806,7 +1803,8 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
             executeStepI(); // Fall back to instruction-wise stepping.
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
-                tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+                tr("Cannot continue debugged process:\n")
+                    + QString::fromLocal8Bit(msg));
             shutdown();
         }
     }
@@ -1819,7 +1817,7 @@ void GdbEngine::executeStepI()
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step by instruction requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-stepi", RunRequest, CB(handleExecuteContinue));
+        postCommand("reverse-stepi", RunRequest, CB(handleExecuteContinue));
     else
         postCommand("-exec-step-instruction", RunRequest, CB(handleExecuteContinue));
 }
@@ -1843,7 +1841,7 @@ void GdbEngine::executeNext()
     if (m_gdbAdapter->isTrkAdapter() && stackHandler->stackSize() > 0)
         postCommand("sal next," + stackHandler->topAddress().toLatin1());
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-next", RunRequest, CB(handleExecuteNext));
+        postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
     else
         postCommand("-exec-next", RunRequest, CB(handleExecuteNext));
 }
@@ -1868,7 +1866,7 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
             executeNextI(); // Fall back to instruction-wise stepping.
         } else {
             showMessageBox(QMessageBox::Critical, tr("Execution Error"),
-                tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+               tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
             shutdown();
         }
     }
@@ -1881,7 +1879,7 @@ void GdbEngine::executeNextI()
     setState(InferiorRunningRequested);
     showStatusMessage(tr("Step next instruction requested..."), 5000);
     if (manager()->isReverseDebugging())
-        postCommand("-reverse-nexti", RunRequest, CB(handleExecuteContinue));
+        postCommand("reverse-nexti", RunRequest, CB(handleExecuteContinue));
     else
         postCommand("-exec-next-instruction", RunRequest, CB(handleExecuteContinue));
 }
@@ -3854,26 +3852,29 @@ void GdbEngine::handleFetchDisassemblerByCli(const GdbResponse &response)
         // "Dump of assembler code from 0xb7ff598f to 0xb7ff5a07:"
         GdbMi output = response.data.findChild("consolestreamoutput");
         QStringList res;
-        QString out = QString::fromLatin1(output.data()).trimmed();
-        foreach (const QString &line, out.split(_c('\n'))) {
-            if (line.startsWith(_("Current language:")))
+        foreach (QByteArray line, output.data().split('\n')) {
+            line = line.trimmed();
+            if (line.startsWith("=> "))
+                line = line.mid(3);
+            if (line.startsWith("Current language:"))
                 continue;
-            if (line.startsWith(_("The current source")))
+            if (line.startsWith("The current source"))
                 continue;
-            if (line.startsWith(_("0x"))) {
-                int pos1 = line.indexOf(_c('<'));
-                int pos2 = line.indexOf(_c('+'), pos1);
-                int pos3 = line.indexOf(_c('>'), pos2);
+            if (line.startsWith("0x")) {
+                int pos1 = line.indexOf('<');
+                int pos2 = line.indexOf('+', pos1);
+                int pos3 = line.indexOf('>', pos2);
                 if (pos3 >= 0) {
-                    QString ba = _("  <+") + line.mid(pos2 + 1, pos3 - pos2 - 1);
-                    res.append(line.left(pos1 - 1) + ba.rightJustified(4)
-                        + _(">:            ") + line.mid(pos3 + 2));
+                    QByteArray ba = "  <+" + line.mid(pos2 + 1, pos3 - pos2 - 1);
+                    ba = line.left(pos1 - 1) + ba.rightJustified(4)
+                        + ">:            " + line.mid(pos3 + 2);
+                    res.append(_(ba));
                 } else {
-                    res.append(line);
+                    res.append(_(line));
                 }
                 continue;
             }
-            res.append(someSpace + line);
+            res.append(someSpace + _(line));
         }
         // Drop "End of assembler dump." line.
         res.takeLast();

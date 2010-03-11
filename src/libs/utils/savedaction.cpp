@@ -313,7 +313,7 @@ void SavedAction::connectWidget(QWidget *widget, ApplyMode applyMode)
             this, SLOT(pathChooserEditingFinished()));
         connect(pathChooser, SIGNAL(browsingFinished()),
             this, SLOT(pathChooserEditingFinished()));
-    } else if (QGroupBox *groupBox= qobject_cast<QGroupBox *>(widget)) {
+    } else if (QGroupBox *groupBox = qobject_cast<QGroupBox *>(widget)) {
         if (!groupBox->isCheckable())
             qDebug() << "connectWidget to non-checkable group box" << widget << toString();
         groupBox->setChecked(m_value.toBool());
@@ -343,7 +343,7 @@ void SavedAction::apply(QSettings *s)
         setValue(spinBox->value());
     else if (PathChooser *pathChooser = qobject_cast<PathChooser *>(m_widget))
         setValue(pathChooser->path());
-    else if (const QGroupBox *groupBox= qobject_cast<QGroupBox *>(m_widget))
+    else if (const QGroupBox *groupBox = qobject_cast<QGroupBox *>(m_widget))
         setValue(groupBox->isChecked());
     if (s)
        writeSettings(s);
