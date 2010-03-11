@@ -649,7 +649,6 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
         QList<Internal::Qt4ProFileNode *>::iterator it;
         bool add = true;
         qDebug()<<"scheduleAsyncUpdate();"<<m_partialEvaluate.size()<<"nodes";
-        int count = 0;
         it = m_partialEvaluate.begin();
         while (it != m_partialEvaluate.end()) {
             if (*it == node) {
