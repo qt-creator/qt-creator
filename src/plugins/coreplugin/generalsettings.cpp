@@ -37,7 +37,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
-#include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
 
 #include <QtCore/QCoreApplication>
@@ -219,9 +218,12 @@ void GeneralSettings::resetFileBrowser()
 #endif
 
 
-void GeneralSettings::variableHelpDialogCreator(const QString& helpText)
+void GeneralSettings::variableHelpDialogCreator(const QString &helpText)
 {
     if (m_dialog) {
+        if (m_dialog->text() != helpText)
+            m_dialog->setText(helpText);
+
         m_dialog->show();
         m_dialog->raise();
         m_dialog->activateWindow();

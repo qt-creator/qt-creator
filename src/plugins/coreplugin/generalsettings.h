@@ -32,7 +32,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QtCore/QPointer>
-#include <QtGui/QWidget>
+#include <QtGui/QMessageBox>
 
 namespace Core {
 namespace Internal {
@@ -71,13 +71,13 @@ private slots:
 #endif
 
 private:
-    void variableHelpDialogCreator(const QString& helpText);
+    void variableHelpDialogCreator(const QString &helpText);
     void fillLanguageBox() const;
     QString language() const;
     void setLanguage(const QString&);
     Ui::GeneralSettings *m_page;
     QString m_searchKeywords;
-    QPointer<QWidget> m_dialog;
+    QPointer<QMessageBox> m_dialog;
 };
 
 } // namespace Internal
