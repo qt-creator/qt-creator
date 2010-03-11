@@ -219,6 +219,7 @@ void IdItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, co
     Q_UNUSED(model);
     QLineEdit *lineEdit = static_cast<QLineEdit*>(editor);
     m_TreeModel->setId(index,lineEdit->text());
+    lineEdit->clearFocus();
 }
 
 void IdItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
