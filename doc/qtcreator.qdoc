@@ -2591,13 +2591,39 @@
     Qt Creator 1.3 supports the Microsoft Toolchain if the CMake version
     is at least 2.8.
 
+    You can set the path for the \c CMake executable in \gui{Tools} >
+    \gui{Options...} > \gui{CMake} > \gui{CMake}.
+
+    \image qtcreator-cmakeexecutable.png
+
+    \note Before you open a \c CMake project it is necessary to modify the
+    PATH environment variable to include the bin folders of \c mingw and
+    Qt Creator in the SDK.
+
+    For instance, if you have the Qt Creator SDK installed in your C drive,
+    use the following command to set the environment variables in
+    the command line prompt:
+    \code
+    set PATH=C:\qtsdk\mingw\bin;C:\qtsdk\qt\bin;
+    \endcode
+    Then start Qt Creator by typing:
+    \code
+    C:\qtsdk\bin\qtcreator.exe
+    \endcode
+
     \section1 Opening CMake Projects
 
-    To open a \c CMake project, select \gui Open from the \gui File menu and
-    select the \c{CMakeLists.txt} file from your \c CMake project. A wizard
-    guides you with the rest of the process. If the \c CMake project does
-    not have an in-place build, Qt Creator lets you specify the directory in
-    which the project is built (\l{glossary-shadow-build}{shadow build}).
+    To open a \c CMake project:
+    \list 1
+        \o  Select \gui Open from the \gui File menu.
+        \o  Select the \c{CMakeLists.txt} file from your \c CMake project.
+    \endlist
+
+    A wizard guides you with the rest of the process.
+
+    \note If the \c CMake project does not have an in-place build, Qt Creator
+    lets you specify the directory in which the project is built
+   (\l{glossary-shadow-build}{shadow build}).
 
     \image qtcreator-cmake-import-wizard1.png
 
@@ -2616,20 +2642,20 @@
     \c nmake depending on your platform. The build errors and warnings are
     parsed and displayed in the \gui{Build Issues} output pane.
 
-    By default, Qt Creator builds the \e{all} target. You can specify which
+    By default, Qt Creator builds the \bold{all} target. You can specify which
     targets to build in \gui{Project} mode, under \gui{Build Settings}.
 
     \image qtcreator-cmake-build-settings.png
 
-    Qt Creator supports multiple build configurations. Also, the build
-    directory can be modified after the initial import.
+    Qt Creator supports multiple build configurations. The build
+    directory can also be modified after the initial import.
 
     \section1 Running CMake Projects
     Qt Creator automatically adds \gui{Run Configurations} for all targets
     specified in the \c CMake project file.
 
     Known issues for the current version can be found
-    \l{Known Issues of version 1.3.82}{here}.
+    \l{Known Issues of version 1.3.80}{here}.
 
 
     \section1 Adding External Libraries to a CMake Project
@@ -2638,11 +2664,12 @@
     syntax highlighting as if they were part of the current project or the Qt
     library.
 
-    External libraries are detected using the \c FIND_PACKAGE() macro. Some
-    libraries come with the CMake installation. You can find those in the
-    \b Modules directory of your CMake installation. If you provide your own
-    libraries, you also need to provide your own \c FindFoo.cmake file.
-    For more information, see
+    Qt Creator detects the external libraries using the \c FIND_PACKAGE()
+    macro. Some libraries come with the CMake installation. You can find those
+    in the \bold{Modules} directory of your CMake installation.
+
+    \note If you provide your own libraries, you also need to provide your own
+    \c FindFoo.cmake file. For more information, see
     \l{http://vtk.org/Wiki/CMake_FAQ#Writing_FindXXX.cmake_files}{CMake FAQ}.
 
     Syntax completion and highlighting work once your project successfully
