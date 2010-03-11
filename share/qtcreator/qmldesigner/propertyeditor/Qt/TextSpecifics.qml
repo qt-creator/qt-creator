@@ -11,8 +11,13 @@ QWidget {
         rightMargin: 0
         spacing: 0
 
-        StandardTextGroupBox {
+
+        StandardTextColorGroupBox {
             showStyleColor: true
+            finished: finishedNotify;
+        }
+		
+		    StandardTextGroupBox {
             showIsWrapping: true
             showVerticalAlignment: true
             finished: finishedNotify;

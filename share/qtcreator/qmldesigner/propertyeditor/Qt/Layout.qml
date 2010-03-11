@@ -12,7 +12,7 @@ GroupBox {
     property var targetLabelWidth: 90 - 20 - 26
 
     layout: VerticalLayout {
-        QLabel {
+        Label {
             text: "Anchors"
         }
         QWidget {

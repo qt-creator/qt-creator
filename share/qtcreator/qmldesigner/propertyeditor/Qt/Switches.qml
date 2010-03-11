@@ -20,7 +20,7 @@ QFrame {
             id: standardMode;
             toolTip: "general item properties";
             //iconFromFile: "images/rect-icon.png";
-            text: "Common"
+            text: backendValues.className.value
             onClicked: {
                 extendedMode.checked = false;
                 layoutMode.checked = false;
@@ -30,6 +30,23 @@ QFrame {
                 layoutPane.visible = false;
             }
         }
+		
+		QPushButton {
+            id: layoutMode;
+            checkable: true;
+            checked: false;
+            toolTip: "layout properties";
+            text: "Geometry";
+            onClicked: {
+                extendedMode.checked = false;
+                standardMode.checked = false;
+                checked = true;
+                standardPane.visible = false;
+                extendedPane.visible = false;
+                layoutPane.visible = true;
+            }
+        }
+		
         QPushButton {
             id: extendedMode;
             toolTip: "extended properties";
@@ -45,20 +62,6 @@ QFrame {
                 layoutPane.visible = false;
             }
         }
-        QPushButton {
-            id: layoutMode;
-            checkable: true;
-            checked: false;
-            toolTip: "layout properties";
-            text: "Anchor";
-            onClicked: {
-                extendedMode.checked = false;
-                standardMode.checked = false;
-                checked = true;
-                standardPane.visible = false;
-                extendedPane.visible = false;
-                layoutPane.visible = true;
-            }
-        }
+        
     }
 }

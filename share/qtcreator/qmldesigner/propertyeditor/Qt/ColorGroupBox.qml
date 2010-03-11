@@ -10,6 +10,7 @@ QExtGroupBox {
 
     property var startupCollapse: selectionChanged;
     property var firstTime: true;
+	property var caption: ""
 
     onFinishedChanged: {
         oldMaximumHeight = maximumHeight;
@@ -92,7 +93,7 @@ QExtGroupBox {
             rightMargin: 10;
 
             Label {
-                text: "Hex. Code"
+                text: colorGroupBox.caption
             }
 
             LineEdit {
@@ -109,6 +110,8 @@ QExtGroupBox {
                 minimumWidth: 18;
 
                 onClicked: {
+				    if (colorGroupBox.animated)
+					    return;
                     if (checked) {
                         colorGroupBox.collapsed = false;
                         colorButtonWidget.visible = true;

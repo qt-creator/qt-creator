@@ -13,7 +13,12 @@ QWidget {
 
         StandardTextGroupBox {
             finished: finishedNotify;
+        }
 
+        StandardTextColorGroupBox {
+            finished: finishedNotify;
+			showSelectionColor: true;
+			showSelectedTextColor: true;
         }
 
         FontGroupBox {

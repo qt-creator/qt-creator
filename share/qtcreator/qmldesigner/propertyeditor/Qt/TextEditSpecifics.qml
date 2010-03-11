@@ -15,6 +15,12 @@ QWidget {
             finished: finishedNotify;
         }
 
+        StandardTextColorGroupBox {
+            finished: finishedNotify;
+			showSelectionColor: true;
+			showSelectedTextColor: true;
+        }
+
         GroupBox {
             caption: "Text Edit"
             finished: finishedNotify;

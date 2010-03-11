@@ -44,15 +44,13 @@ PropertyFrame {
                     spacing: 0;
                     Type {
                     }
-
-
-                    Geometry {
+					
+					WidgetLoader {
+                        id: specificsOne;
+                        source: specificsUrl;
                     }
+                   
 
-
-                    Modifiers {
-
-                    }                    
 
                     QScrollArea {
                     }

@@ -6,7 +6,6 @@ GroupBox {
 
     caption: "Text";
 
-    property bool showStyleColor: false
     property bool showIsWrapping: false
     property bool showVerticalAlignment: false
 
@@ -48,30 +47,6 @@ GroupBox {
                 AlignmentHorizontalButtons {}
                 AlignmentVerticalButtons { visible: showVerticalAlignment }
             }
-        }
-
-        ColorLabel {
-            text: "    Color"
-        }
-
-        ColorGroupBox {
-
-            finished: finishedNotify
-
-            backendColor: backendValues.color
-        }
-
-        ColorLabel {
-            visible: showStyleColor
-            text: "    Style Color"
-        }
-
-        ColorGroupBox {
-            visible: showStyleColor
-            finished: finishedNotify
-
-            backendColor: backendValues.styleColor || null
-        }
-
+        }       
     }
 }

@@ -17,11 +17,9 @@ QScrollArea {
             rightMargin: 0;
             spacing: 0;            
 			
-			WidgetLoader {
-                        id: specificsOne;
-                        source: specificsUrl;
-            }
-
+			Visibility {}
+			Transformation {}					
+			
             QScrollArea {
             }
         }

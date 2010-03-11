@@ -4,6 +4,6 @@ import Bauhaus 1.0
 WidgetFrame {
    id: propertyFrame;
 
-    minimumWidth: 340;
+    minimumWidth: 360;
     styleSheetFile: "propertyEditor.css";
 }

@@ -6,29 +6,7 @@ GroupBox {
     id: textInputGroupBox
     caption: "Text Input";
 
-    layout: VerticalLayout {
-
-        ColorLabel {
-            text: "    Selection Color"
-        }
-
-        ColorGroupBox {
-
-            finished: finishedNotify
-
-            backendColor: backendValues.selectionColor
-        }
-
-        ColorLabel {
-            text: "    Selected Text Color"
-        }
-
-        ColorGroupBox {
-
-            finished: finishedNotify
-
-            backendColor: backendValues.selectedTextColor
-        }
+    layout: VerticalLayout {       
 
         QWidget {
             layout: HorizontalLayout {

@@ -6,25 +6,18 @@ GroupBox {
 
     caption: "Colors"
 
-    layout: VerticalLayout {
-
-        ColorLabel {
-            text: "    Color"
-        }
+    layout: VerticalLayout {        
 
         ColorGroupBox {
+		    caption: "Color"
 
             finished: finishedNotify
 
             backendColor: backendValues.color
-        }
-
-        ColorLabel {
-            text: "    Border Color"
-        }
+        }        
 
         ColorGroupBox {
-
+            caption: "Border Color"
             finished: finishedNotify
 
             backendColor: backendValues.border_color
