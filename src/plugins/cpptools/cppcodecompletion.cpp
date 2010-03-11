@@ -1076,7 +1076,11 @@ bool CppCodeCompletion::completeConstructorOrFunction(const QList<LookupItem> &r
             QTextCursor tc(edit->document());
             tc.setPosition(endOfExpression);
             BackwardsScanner bs(tc);
-            QString possibleDecl = bs.mid(bs.startOfLine(bs.startToken())).trimmed().append("();");
+            const int startToken = bs.startToken();
+            const int lineStartToken = bs.startOfLine(startToken);
+            // make sure the required tokens are actually available
+            bs.LA(startToken - lineStartToken);
+            QString possibleDecl = bs.mid(lineStartToken).trimmed().append("();");
 
             Document::Ptr doc = Document::create(QLatin1String("<completion>"));
             doc->setSource(possibleDecl.toLatin1());
