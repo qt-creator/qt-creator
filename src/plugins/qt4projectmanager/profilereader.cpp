@@ -110,8 +110,6 @@ ProFile *ProFileReader::proFileFor(const QString &name)
     return m_includeFiles.value(name);
 }
 
-
-
 ProFileCacheManager *ProFileCacheManager::s_instance = 0;
 
 ProFileCacheManager::ProFileCacheManager(QObject *parent) :

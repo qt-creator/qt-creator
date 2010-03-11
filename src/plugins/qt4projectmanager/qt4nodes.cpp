@@ -839,6 +839,11 @@ Qt4ProFileNode::~Qt4ProFileNode()
         delete it.value();
     }
     m_parseFutureWatcher.waitForFinished();
+    if (m_readerExact) {
+        // Oh we need to clean up
+        applyEvaluate(true, true);
+        m_project->decrementPendingEvaluateFutures();
+    }
 }
 
 bool Qt4ProFileNode::isParent(Qt4ProFileNode *node)
@@ -958,9 +963,10 @@ Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType t
 
 void Qt4ProFileNode::applyEvaluate(bool parseResult, bool async)
 {
+    if (!m_readerExact)
+        return;
     if (!parseResult || m_project->wasEvaluateCanceled()) {
-        if (m_readerExact)
-            m_project->destroyProFileReader(m_readerExact);
+        m_project->destroyProFileReader(m_readerExact);
         if (m_readerCumulative)
             m_project->destroyProFileReader(m_readerCumulative);
         m_readerExact = m_readerCumulative = 0;

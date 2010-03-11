@@ -248,8 +248,11 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
 
 Qt4Project::~Qt4Project()
 {
+    m_asyncUpdateState = ShuttingDown;
     m_manager->unregisterProject(this);
     delete m_projectFiles;
+    m_cancelEvaluate = true;
+    delete m_rootProjectNode;
 }
 
 void Qt4Project::updateFileList()
@@ -729,17 +732,16 @@ void Qt4Project::decrementPendingEvaluateFutures()
         m_asyncUpdateFutureInterface = 0;
         m_cancelEvaluate = false;
 
-        // After beeing done, we need to call:
-        updateFileList();
-        updateCodeModel();
-        checkForNewApplicationProjects();
-        checkForDeletedApplicationProjects();
-
         // TODO clear the profile cache ?
         if (m_asyncUpdateState == AsyncFullUpdatePending || m_asyncUpdateState == AsyncPartialUpdatePending) {
             qDebug()<<"  Oh update is pending start the timer";
             m_asyncUpdateTimer.start();
-        } else  {
+        } else  if (m_asyncUpdateState != ShuttingDown){
+            // After beeing done, we need to call:
+            updateFileList();
+            updateCodeModel();
+            checkForNewApplicationProjects();
+            checkForDeletedApplicationProjects();
             qDebug()<<"  Setting state to Base";
             m_asyncUpdateState = Base;
         }

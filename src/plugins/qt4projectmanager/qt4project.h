@@ -229,7 +229,7 @@ private:
     QTimer m_asyncUpdateTimer;
     QFutureInterface<void> *m_asyncUpdateFutureInterface;
     int m_pendingEvaluateFuturesCount;
-    enum AsyncUpdateState { NoState, Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress };
+    enum AsyncUpdateState { NoState, Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState m_asyncUpdateState;
     bool m_cancelEvaluate;
     QList<Internal::Qt4ProFileNode *> m_partialEvaluate;
