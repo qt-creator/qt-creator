@@ -3072,11 +3072,11 @@ void TestCore::testMetaInfo()
     QVERIFY(!textNodeMetaInfo.isGraphicsWidget());
 
     // test types declared with EXTENDED_OBJECT
-    NodeMetaInfo graphicsWidgetInfo = model->metaInfo().nodeMetaInfo("Qt/QGraphicsWidget", 4, 6);
-    QVERIFY(graphicsWidgetInfo.isValid());
-    QVERIFY(graphicsWidgetInfo.hasProperty("layout")); // from QGraphicsWidgetDeclarativeUI
-    QVERIFY(graphicsWidgetInfo.hasProperty("font")); // from QGraphicsWidget
-    QVERIFY(graphicsWidgetInfo.hasProperty("enabled")); // from QGraphicsItem
+//    NodeMetaInfo graphicsWidgetInfo = model->metaInfo().nodeMetaInfo("Qt/QGraphicsWidget", 4, 6);
+//    QVERIFY(graphicsWidgetInfo.isValid());
+//    QVERIFY(graphicsWidgetInfo.hasProperty("layout")); // from QGraphicsWidgetDeclarativeUI
+//    QVERIFY(graphicsWidgetInfo.hasProperty("font")); // from QGraphicsWidget
+//    QVERIFY(graphicsWidgetInfo.hasProperty("enabled")); // from QGraphicsItem
 }
 
 void TestCore::testMetaInfoDotProperties()
