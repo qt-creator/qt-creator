@@ -141,7 +141,7 @@
                \o libxft-dev
                \o libxi-dev
                \o libxrandr-dev
-               \o If you are using QtOpenGL, libglui-dev
+               \o If you are using QtOpenGL, libgl-dev and libglu-dev
            \endlist
         \o Mac OS 10.4 or later with the following:
            \list
@@ -350,7 +350,7 @@
 
            For information on how to prepare your documentation and create a
            .qch file, see
-           \l http://doc.qt.nokia.com/4.6/qthelp-framework.html
+           \l{http://doc.qt.nokia.com/4.6/qthelp-framework.html}
            {The Qt help framework}.
         \o Add the .qch file to Qt Creator by selecting \gui Tools >
            \gui Options... > \gui Help > \gui Documentation > \gui Add.
@@ -439,7 +439,7 @@
            text wrapping or \l{Moving to symbol definition or declaration}
            {moving to symbol definition or declaration}
            in \gui Display.
-        \o Enable \l{Code completion}{code completion} in \gui Completion.
+        \o Configure \l{Code completion}{code completion} in \gui Completion.
     \endlist
 
 
@@ -551,10 +551,10 @@
     Set code completion preferences in \gui Tools > \gui Options >
     \gui{Text Editor} > \gui Completion.
 
-    Qt Creator can complete common prefixes before showing a list of
-    suggestions. This is especially useful for the classes with several
-    similarly named members. To use this functionality, in the code
-    completion preferences enable \gui{Autocomplete common prefix}.
+    When completion is invoked manually, Qt Creator completes the common prefix
+    of the list of suggestions. This is especially useful for classes with
+    several similarly named members. To disable this functionality, uncheck
+    \gui{Autocomplete common prefix} in the code completion preferences.
 
     The following table lists available types for code completion and icon
     used for each.
@@ -620,7 +620,7 @@
     a symbol by holding the \key Ctrl and clicking the symbol.
 
     To enable this function, in \gui Tools > \gui Options >
-    \gui{Text Editor} > \gui Display select \gui{Enable mouse navigation}.
+    \gui{Text Editor} > \gui Behavior select \gui{Enable mouse navigation}.
 
 
     \section1 Using an External Editor
