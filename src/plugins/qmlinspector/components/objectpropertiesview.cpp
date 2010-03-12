@@ -28,10 +28,6 @@
 **************************************************************************/
 #include "objectpropertiesview.h"
 
-#include <private/qdeclarativedebugservice_p.h>
-#include <private/qdeclarativedebug_p.h>
-#include <private/qdeclarativedebugclient_p.h>
-
 #include <QtCore/qdebug.h>
 
 #include <QtGui/qtreewidget.h>

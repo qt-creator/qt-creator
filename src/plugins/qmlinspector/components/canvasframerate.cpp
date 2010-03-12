@@ -28,8 +28,6 @@
 **************************************************************************/
 #include "canvasframerate.h"
 
-#include <private/qdeclarativedebugclient_p.h>
-
 #include <QtCore/qdebug.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qdatastream.h>

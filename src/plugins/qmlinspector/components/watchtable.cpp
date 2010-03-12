@@ -34,7 +34,7 @@
 #include <QtGui/qmenu.h>
 
 #include <private/qdeclarativedebug_p.h>
-#include <QtDeclarative/private/qdeclarativemetatype_p.h>
+#include <private/qdeclarativemetatype_p.h>
 
 QT_BEGIN_NAMESPACE
 

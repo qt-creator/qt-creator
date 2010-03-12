@@ -32,9 +32,9 @@
 
 #include <QInputDialog>
 
-#include <private/qdeclarativedebugservice_p.h>
+#include <QDebug>
+
 #include <private/qdeclarativedebug_p.h>
-#include <private/qdeclarativedebugclient_p.h>
 
 #include "objecttree.h"
 

@@ -39,9 +39,6 @@
 #include "components/canvasframerate.h"
 #include "components/expressionquerywidget.h"
 
-#include <private/qdeclarativedebug_p.h>
-#include <private/qdeclarativedebugclient_p.h>
-
 #include <utils/styledbar.h>
 #include <utils/fancymainwindow.h>
 
