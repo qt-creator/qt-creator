@@ -208,7 +208,10 @@ void TrkWriteQueue::clear()
     m_trkWriteToken = 0;
     m_trkWriteBusy = false;
     m_trkWriteQueue.clear();
+    const int discarded = m_writtenTrkMessages.size();
     m_writtenTrkMessages.clear();
+    if (verboseTrk)
+        qDebug() << "TrkWriteQueue::clear: discarded " << discarded;
 }
 
 byte TrkWriteQueue::nextTrkWriteToken()
@@ -359,6 +362,8 @@ public:
     void queueTrkMessage(byte code, TrkCallback callback,
                         const QByteArray &data, const QVariant &cookie);
     void queueTrkInitialPing();
+
+    void clearWriteQueue();
 
     // Call this from the device read notification with the results.
     void slotHandleResult(const TrkResult &result);
@@ -563,6 +568,13 @@ void WriterThread::queueTrkMessage(byte code, TrkCallback callback,
     m_queue.queueTrkMessage(code, callback, data, cookie);
     m_dataMutex.unlock();
     tryWrite();
+}
+
+void WriterThread::clearWriteQueue()
+{
+    m_dataMutex.lock();
+    m_queue.clear();
+    m_dataMutex.unlock();
 }
 
 void WriterThread::queueTrkInitialPing()
@@ -1090,6 +1102,12 @@ void TrkDevice::emitError(const QString &s)
     d->errorString = s;
     qWarning("%s\n", qPrintable(s));
     emit error(s);
+}
+
+void TrkDevice::clearWriteQueue()
+{
+    if (isOpen())
+        d->writerThread->clearWriteQueue();
 }
 
 void TrkDevice::sendTrkMessage(byte code, TrkCallback callback,

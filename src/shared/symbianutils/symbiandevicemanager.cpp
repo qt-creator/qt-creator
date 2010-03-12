@@ -165,6 +165,8 @@ void SymbianDevice::releaseDevice(TrkDevicePtr *ptr /* = 0 */)
         qDebug() << "SymbianDevice::releaseDevice" << m_data->portName
                 << " open: " << isOpen();
     if (m_data->deviceAcquired) {
+        if (m_data->device->isOpen())
+            m_data->device->clearWriteQueue();
         // Release if a valid pointer was passed in.
         if (ptr && !ptr->isNull()) {
             ptr->data()->disconnect();

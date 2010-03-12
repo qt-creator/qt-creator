@@ -94,6 +94,9 @@ Launcher::Launcher(Actions startupActions,
 
 Launcher::~Launcher()
 {
+    // Destroyed before protocol was through: Close
+    if (d->m_closeDevice && d->m_device->isOpen())
+        d->m_device->close();
     emit destroyed(d->m_device->port());
     logMessage("Shutting down.\n");
     delete d;
