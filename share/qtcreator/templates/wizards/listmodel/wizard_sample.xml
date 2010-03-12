@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2010 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+** Commercial Usage
+**
+** Licensees holding valid Qt Commercial licenses may use this file in
+** accordance with the Qt Commercial License Agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Nokia.
+**
+** GNU Lesser General Public License Usage
+**
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** If you are unsure which license is appropriate for your use, please
+** contact the sales department at http://qt.nokia.com/contact.
+**
+**************************************************************************/
+
+Custom class wizard example configuration file. -->
+<wizard version="1" kind="class" id="A.ListModel" category="B.CustomClasses">
+    <description>Creates a QAbstractListModel implementation.</description>
+    <description xml:lang="de">Erzeugt eine Implementierung von QAbstractListModel.</description>
+    <displayName>QAbstractListModel implementation</displayName>;
+    <displayName xml:lang="de">Implementierung von QAbstractListModel</displayName>;
+    <displayCategory>Custom Classes</displayCategory>
+    <displayCategory xml:lang="de">Benutzerdefinierte Klassen</displayCategory>
+    <files>
+        <file source="listmodel.cpp" target="%ClassName:l%.%CppSourceSuffix%"/>
+        <file source="listmodel.h" target="%ClassName:l%.%CppHeaderSuffix%"/>
+    </files>
+    <!-- Create parameter wizard page -->
+    <fieldpagetitle>ListModel parameters</fieldpagetitle>
+    <fieldpagetitle xml:lang="de">Parameter des ListModel</fieldpagetitle>
+    <fields>
+        <field name="ClassName">
+            <fieldcontrol class="QLineEdit" validator="^[a-zA-Z0-9_]+$" defaulttext="MyListModel" />
+            <fielddescription>Class name:</fielddescription>
+            <fielddescription xml:lang="de">Klassenname:</fielddescription>
+        </field>
+        <field name="Datatype">
+            <fieldcontrol class="QComboBox" combochoices="QString,int" defaultindex="0" />
+            <fielddescription>Data type:</fielddescription>
+            <fielddescription xml:lang="de">Datentyp:</fielddescription>
+        </field>
+    </fields>
+</wizard>
