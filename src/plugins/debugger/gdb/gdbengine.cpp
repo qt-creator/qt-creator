@@ -3293,8 +3293,6 @@ void GdbEngine::sendWatchParameters(const QByteArray &params0)
 void GdbEngine::handleVarAssign(const GdbResponse &)
 {
     // Everything might have changed, force re-evaluation.
-    // FIXME: Speed this up by re-using variables and only
-    // marking values as 'unknown'
     setTokenBarrier();
     updateLocals();
 }
@@ -3370,13 +3368,6 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     if (children.isValid() || !manager()->watchHandler()->isExpandedIName(data.iname))
         data.setChildrenUnneeded();
 
-    if (manager()->watchHandler()->isDisplayedIName(data.iname)) {
-        GdbMi editvalue = item.findChild("editvalue");
-        if (editvalue.isValid()) {
-            setWatchDataEditValue(data, editvalue);
-            manager()->watchHandler()->showEditValue(data);
-        }
-    }
     setWatchDataType(data, item.findChild("type"));
     setWatchDataEditValue(data, item.findChild("editvalue"));
     setWatchDataValue(data, item.findChild("value"),
@@ -4204,13 +4195,13 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
         showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
 }
 
-void GdbEngine::addOptionPages(QList<Core::IOptionsPage*> *opts) const
+void GdbEngine::addOptionPages(QList<Core::IOptionsPage *> *opts) const
 {
     opts->push_back(new GdbOptionsPage);
     opts->push_back(new TrkOptionsPage(m_trkOptions));
 }
 
-QMessageBox * GdbEngine::showMessageBox(int icon, const QString &title,
+QMessageBox *GdbEngine::showMessageBox(int icon, const QString &title,
     const QString &text, int buttons)
 {
     return m_manager->showMessageBox(icon, title, text, buttons);

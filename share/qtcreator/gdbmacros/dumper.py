@@ -439,10 +439,13 @@ def findFirstZero(p, max):
         p = p + 1
     return -1
 
-def encodeCharArray(p, maxsize):
+def encodeCharArray(p, maxsize, size = -1):
     t = gdb.lookup_type("unsigned char").pointer()
     p = p.cast(t)
-    i = findFirstZero(p, maxsize)
+    if size == -1:
+        i = findFirstZero(p, maxsize)
+    else:
+        i = size
     limit = select(i < 0, maxsize, i)
     s = ""
     for i in xrange(limit):
@@ -823,7 +826,7 @@ class Dumper:
         self.put('},')
 
     def beginItem(self, name):
-        self.put('%s="' %s)
+        self.put('%s="' % name)
 
     def endItem(self):
         self.put('",')
@@ -978,6 +981,12 @@ class Dumper:
         if isSimpleType(item.value.type):
             self.safePutItemHelper(item)
 
+    def itemFormat(self, item):
+        format = self.formats.get(item.iname)
+        if format is None:
+            format = self.typeformats.get(stripClassTag(str(item.value.type)))
+        return format
+
     def safePutItem(self, item):
         self.beginHash()
         self.safePutItemHelper(item)
@@ -1091,9 +1100,7 @@ class Dumper:
         elif type.code == gdb.TYPE_CODE_PTR:
             isHandled = False
 
-            format = self.formats.get(item.iname)
-            if format is None:
-                format = self.typeformats.get(str(value.type))
+            format = self.itemFormat(item)
 
             if not format is None:
                 self.putAddress(value.address)

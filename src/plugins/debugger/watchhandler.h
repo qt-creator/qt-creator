@@ -140,7 +140,7 @@ public:
     bool error;
 
 public:
-    int source;  // Used by some debuggers (CDB) to tell where it originates from (dumper or symbol evaluation)
+    int source;  // Originated from dumper or symbol evaluation? (CDB only)
     int state;
     bool changed;
 };
@@ -149,38 +149,19 @@ enum WatchRoles
 {
     INameRole = Qt::UserRole,
     ExpressionRole,
-    ExpandedRole,    // used to communicate preferred expanded state to the view
-    ActiveDataRole,  // used for tooltip
+    ExpandedRole,    // Used to communicate preferred expanded state to the view.
     TypeFormatListRole,
-    TypeFormatRole,  // used to communicate alternative formats to the view
+    TypeFormatRole,  // Used to communicate alternative formats to the view.
     IndividualFormatRole,
-    AddressRole,     // some memory address related to the object
+    AddressRole,     // Some memory address related to the object.
 };
 
 enum IntegerFormat
 {
-    DecimalFormat = 0, // keep that at 0 as default
+    DecimalFormat = 0, // Keep that at 0 as default.
     HexadecimalFormat,
     BinaryFormat,
     OctalFormat,
-};
-
-
-enum PointerFomat
-{
-    BaldPointerFormat = 0, // keep that at 0 as default
-    Latin1StringFormat,
-    Local8BitStringFormat,
-    Utf8StringFormat,
-    Utf16StringFormat,
-    Ucs4StringFormat,
-};
-
-
-enum DumpableFormat
-{
-    PrettyFormat = 0, // keep that at 0 as default
-    PlainFomat,
 };
 
 class WatchModel : public QAbstractItemModel
@@ -274,8 +255,6 @@ public:
     void loadSessionData();
     void saveSessionData();
 
-    bool isDisplayedIName(const QByteArray &iname) const
-        { return m_displayedINames.contains(iname); }
     bool isExpandedIName(const QByteArray &iname) const
         { return m_expandedINames.contains(iname); }
     QSet<QByteArray> expandedINames() const
@@ -308,10 +287,7 @@ private:
     QByteArray watcherName(const QByteArray &exp);
     QHash<QString, int> m_typeFormats;
     QHash<QString, int> m_individualFormats;
-
-    void setDisplayedIName(const QString &iname, bool on);
-    QSet<QByteArray> m_expandedINames;  // those expanded in the treeview
-    QSet<QByteArray> m_displayedINames; // those with "external" viewers
+    QSet<QByteArray> m_expandedINames;  // Those expanded in the treeview.
 
     WatchModel *m_locals;
     WatchModel *m_watchers;

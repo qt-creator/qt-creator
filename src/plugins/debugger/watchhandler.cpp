@@ -259,7 +259,8 @@ QString WatchData::toString() const
         str << "value=\"" << value << doubleQuoteComma;
 
     if (!editvalue.isEmpty())
-        str << "editvalue=\"" << editvalue << doubleQuoteComma;
+        str << "editvalue=\"<...>\",";
+    //    str << "editvalue=\"" << editvalue << doubleQuoteComma;
 
     if (isTypeNeeded())
         str << "type=<needed>,";
@@ -281,8 +282,9 @@ QString WatchData::toString() const
     return res + QLatin1Char('}');
 }
 
-// Format a tooltip fow with aligned colon
-static void formatToolTipRow(QTextStream &str, const QString &category, const QString &value)
+// Format a tooltip fow with aligned colon.
+static void formatToolTipRow(QTextStream &str,
+    const QString &category, const QString &value)
 {
     str << "<tr><td>" << category << "</td><td> : </td><td>"
         << Qt::escape(value) << "</td></tr>";
@@ -815,10 +817,6 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case ExpandedRole:
             return m_handler->m_expandedINames.contains(data.iname);
 
-        case ActiveDataRole:
-            qDebug() << "ASK FOR" << data.iname;
-            return true;
-
         case TypeFormatListRole:
             if (isIntType(data.type))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
@@ -830,6 +828,10 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     << tr("UTF8 string")
                     << tr("UTF16 string")
                     << tr("UCS4 string");
+            if (data.type.endsWith(QLatin1String("QImage")))
+                return QStringList()
+                    << tr("normal")
+                    << tr("displayed");
             break;
 
         case TypeFormatRole:
@@ -1202,13 +1204,12 @@ void WatchHandler::endCycle()
 void WatchHandler::cleanup()
 {
     m_expandedINames.clear();
-    m_displayedINames.clear();
     m_locals->reinitialize();
     m_tooltips->reinitialize();
     m_locals->m_fetchTriggered.clear();
     m_watchers->m_fetchTriggered.clear();
     m_tooltips->m_fetchTriggered.clear();
-#if 0
+#if 1
     for (EditWindows::ConstIterator it = m_editWindows.begin();
             it != m_editWindows.end(); ++it) {
         if (!it.value().isNull())
@@ -1233,6 +1234,7 @@ void WatchHandler::insertData(const WatchData &data)
             __FILE__, __LINE__, qPrintable(data.toString()));
         return;
     }
+
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
         IDebuggerEngine *engine = m_manager->currentEngine();
@@ -1253,6 +1255,9 @@ void WatchHandler::insertData(const WatchData &data)
         QTC_ASSERT(model, return);
         MODEL_DEBUG("NOTHING NEEDED: " << data.toString());
         model->insertData(data);
+
+        if (!data.editvalue.isEmpty())
+            showEditValue(data);
     }
 }
 
@@ -1331,79 +1336,57 @@ void WatchHandler::watchExpression(const QString &exp)
     saveWatchers();
 }
 
-void WatchHandler::setDisplayedIName(const QString &iname, bool on)
+static void swapEndian(char *d, int nchar)
 {
-    Q_UNUSED(iname)
-    Q_UNUSED(on)
-/*
-    WatchData *d = findData(iname);
-    if (!on || !d) {
-        delete m_editWindows.take(iname);
-        m_displayedINames.remove(iname);
-        return;
+    QTC_ASSERT(nchar % 4 == 0, return);
+    for (int i = 0; i < nchar; i += 4) {
+        char c = d[i];
+        d[i] = d[i + 3];
+        d[i + 3] = c;
+        c = d[i + 1];
+        d[i + 1] = d[i + 2];
+        d[i + 2] = c;
     }
-    if (d->exp.isEmpty()) {
-        //emit statusMessageRequested(tr("Sorry. Cannot visualize objects without known address."), 5000);
-        return;
-    }
-    d->setValueNeeded();
-    m_displayedINames.insert(iname);
-    insertData(*d);
-*/
 }
 
 void WatchHandler::showEditValue(const WatchData &data)
 {
-    // editvalue is always base64 encoded
-    QByteArray ba = QByteArray::fromBase64(data.editvalue);
-    //QByteArray ba = data.editvalue;
+    // Editvalue is always hex encoded.
+    QByteArray ba = QByteArray::fromHex(data.editvalue);
     QWidget *w = m_editWindows.value(data.iname);
-    qDebug() << "SHOW_EDIT_VALUE " << data.toString() << data.type
-            << data.iname << w;
-    if (data.type == QLatin1String("QImage")) {
+    const int format = ba.at(0);
+    if (format == 0x1) {
+        // QImage
         if (!w) {
             w = new QLabel;
             m_editWindows[data.iname] = w;
         }
-        QDataStream ds(&ba, QIODevice::ReadOnly);
-        QVariant v;
-        ds >> v;
-        QString type = QString::fromAscii(v.typeName());
-        QImage im = v.value<QImage>();
-        if (QLabel *l = qobject_cast<QLabel *>(w))
+        if (QLabel *l = qobject_cast<QLabel *>(w)) {
+            char *d = ba.data() + 1;
+            swapEndian(d, ba.size() - 1);
+            const int *header = (int *)(d);
+            const uchar *data = 12 + (uchar *)(d);
+            QImage im(data, header[0], header[1], QImage::Format(header[2]));
             l->setPixmap(QPixmap::fromImage(im));
-    } else if (data.type == QLatin1String("QPixmap")) {
-        if (!w) {
-            w = new QLabel;
-            m_editWindows[data.iname] = w;
+            l->resize(header[0], header[1]);
+            l->show();
         }
-        QDataStream ds(&ba, QIODevice::ReadOnly);
-        QVariant v;
-        ds >> v;
-        QString type = QString::fromAscii(v.typeName());
-        QPixmap im = v.value<QPixmap>();
-        if (QLabel *l = qobject_cast<QLabel *>(w))
-            l->setPixmap(im);
-    } else if (data.type == QLatin1String("QString")) {
+    } else if (format == 0x2) {
+        // QString
         if (!w) {
             w = new QTextEdit;
             m_editWindows[data.iname] = w;
         }
-#if 0
-        QDataStream ds(&ba, QIODevice::ReadOnly);
-        QVariant v;
-        ds >> v;
-        QString type = QString::fromAscii(v.typeName());
-        QString str = v.value<QString>();
-#else
         MODEL_DEBUG("DATA: " << ba);
         QString str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
-#endif
-        if (QTextEdit *t = qobject_cast<QTextEdit *>(w))
+        if (QTextEdit *t = qobject_cast<QTextEdit *>(w)) {
             t->setText(str);
+            t->resize(400, 200);
+            t->show();
+        }
+    } else {
+        QTC_ASSERT(false, qDebug() << "Display format: " << format);
     }
-    if (w)
-        w->show();
 }
 
 void WatchHandler::removeWatchExpression()

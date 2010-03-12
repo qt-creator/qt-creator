@@ -47,12 +47,9 @@
 #include <QtCore/QVariant>
 
 QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
-class QAction;
 class QMainWindow;
 class QMessageBox;
 class QTimer;
-class QWidget;
 QT_END_NAMESPACE
 
 namespace Debugger {

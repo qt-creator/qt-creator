@@ -390,6 +390,8 @@ def qdump__QImage(d, item):
     else:
         checkRef(d_ptr["ref"])
         d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
+    bits = d_ptr["data"]
+    nbytes = d_ptr["nbytes"]
     d.putNumChild(0)
     #d.putNumChild(1)
     if d.isExpanded(item):
@@ -398,13 +400,25 @@ def qdump__QImage(d, item):
         d.putName("data")
         d.putType(" ");
         d.putNumChild(0)
-        bits = d_ptr["data"]
-        nbytes = d_ptr["nbytes"]
         d.putValue("size: %s bytes" % nbytes);
-        d.putField("valuetooltipencoded", "6")
-        d.putField("valuetooltip", encodeCharArray(bits, nbytes))
+        #d.putField("valuetooltipencoded", "6")
+        #d.putField("valuetooltip", encodeCharArray(bits, nbytes))
         d.endHash()
         d.endChildren()
+    format = d.itemFormat(item)
+    if format == 1:
+        d.beginItem("editvalue")
+        d.put("%02x" % 1)  # Magic marker for "QImage" data.
+        d.put("%08x" % int(d_ptr["width"]))
+        d.put("%08x" % int(d_ptr["height"]))
+        d.put("%08x" % int(d_ptr["format"]))
+        # Take 4 at a time, this is critical for performance.
+        # In fact, even 4 at a time is too slow beyond 100x100 or so.
+        p = bits.cast(gdb.lookup_type("unsigned int").pointer())
+        for i in xrange(nbytes / 4):
+            d.put("%08x" % int(p.dereference()))
+            p += 1
+        d.endItem()
 
 
 def qdump__QLinkedList(d, item):

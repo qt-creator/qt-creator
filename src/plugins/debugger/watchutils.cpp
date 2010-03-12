@@ -681,7 +681,7 @@ QString decodeData(const QByteArray &ba, int encoding)
             return doubleQuote + QString::fromUcs4(reinterpret_cast<const uint *>
                 (decodedBa.data()), decodedBa.size() / 4) + doubleQuote;
         }
-        case 11: { //  %02x encoded 16 bit data, Big Endian
+        case 11: { //  %04x encoded 16 bit data, Big Endian
             const QChar doubleQuote(QLatin1Char('"'));
             QByteArray decodedBa = QByteArray::fromHex(ba);
             for (int i = 0; i < decodedBa.size(); i += 2) {
