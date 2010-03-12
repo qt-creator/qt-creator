@@ -157,16 +157,16 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.setPen(Utils::StyleHelper::sidebarHighlight());
     p.drawLine(1, 1, size().width(), 1);
 
-    QRect textBounds = fontMetrics().boundingRect(m_title);
+    QRect textBounds = fm.boundingRect(m_title);
     textBounds.moveCenter(rect().center());
-
+    int buttonWidth = value() < maximum() ? CANCEL_WIDTH : 0;
     int alignment = Qt::AlignHCenter;
 
-    int textSpace = rect().width() - CANCEL_WIDTH - 8;
+    int textSpace = rect().width() - buttonWidth - 8;
     // If there is not enough room when centered, we left align and
     // elide the text
     QString elidedtitle = m_title;
-    if (value() < maximum() && !m_error && textBounds.right() > textSpace) {
+    if (!m_error && textBounds.right() > textSpace) {
         alignment = Qt::AlignLeft;
         elidedtitle = fm.elidedText(m_title, Qt::ElideRight, textSpace);
     }
@@ -230,8 +230,8 @@ void ProgressBar::paintEvent(QPaintEvent *)
     // Draw cancel button
     if (value() < maximum() && !m_error) {
         QRect parentRect = parentWidget()->rect(); // ### Move to parent
-        QRect cancelRect(parentRect.right() - CANCEL_WIDTH - 2,
-                         parentRect.top() + 4, CANCEL_WIDTH, CANCEL_WIDTH);
+        QRect cancelRect(parentRect.right() - buttonWidth - 2,
+                         parentRect.top() + 4, buttonWidth, CANCEL_WIDTH);
 
         bool hover = cancelRect.contains(mapFromGlobal(QCursor::pos()));
         p.setPen(QPen(QColor(0, 0, 0, 20), 4));
