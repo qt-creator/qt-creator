@@ -50,8 +50,9 @@ bool CdbSymbolGroupContext::getDumpChildSymbols(const QString &prefix,
         return false;
     // Skip over expanded children. Internal dumping might expand
     // children, so, re-evaluate size in end condition.
-    const int count = size();
-    for (int s = start; s < count; ++s) {
+    // Note the that the internal dumpers might expand children,
+    // so the size might change.
+    for (int s = start; s < size(); ++s) {
         const DEBUG_SYMBOL_PARAMETERS &p = symbolParameterAt(s);
         if (p.ParentSymbol == parentId && isSymbolDisplayable(p)) {
             WatchData wd;
