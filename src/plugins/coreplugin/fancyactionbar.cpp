@@ -136,12 +136,10 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     QMargins margins;
 
     QPixmap pix = icon().pixmap(Core::Constants::TARGET_ICON_SIZE, Core::Constants::TARGET_ICON_SIZE, isEnabled() ? QIcon::Normal : QIcon::Disabled);
-    QPoint center = rect().center();
     QSizeF halfPixSize = pix.size()/2.0;
-
-    painter.drawPixmap(center-QPointF(halfPixSize.width()-1, halfPixSize.height()-1), pix);
     // draw popup texts
     if (isTitledAction) {
+
         QFont normalFont(painter.font());
         normalFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
         QFont boldFont(normalFont);
@@ -149,9 +147,19 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         QFontMetrics fm(normalFont);
         QFontMetrics boldFm(boldFont);
         int lineHeight = boldFm.height();
-
         int textFlags = Qt::AlignVCenter|Qt::AlignHCenter;
 
+        QRect iconRect = rect();
+        const QString projectName = defaultAction()->property("heading").toString();
+        if (!projectName.isNull())
+            iconRect.adjust(0, lineHeight + 4, 0, 0);
+
+        const QString buildConfiguration = defaultAction()->property("subtitle").toString();
+        if (!buildConfiguration.isNull())
+            iconRect.adjust(0, 0, 0, -lineHeight - 4);
+
+        QPoint center = iconRect.center();
+        painter.drawPixmap(center-QPointF(halfPixSize.width()-1, halfPixSize.height()-1), pix);
         painter.setFont(normalFont);
 
         QPoint textOffset = center - QPoint(pix.rect().width()/2, pix.rect().height()/2);
@@ -163,7 +171,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         else
             penColor = Qt::gray;
         painter.setPen(penColor);
-        const QString projectName = defaultAction()->property("heading").toString();
+
         QString ellidedProjectName = fm.elidedText(projectName, Qt::ElideMiddle, r.width() - 6);
         if (isEnabled()) {
             const QRectF shadowR = r.translated(0, 1);
@@ -174,7 +182,6 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         painter.drawText(r, textFlags, ellidedProjectName);
         textOffset = center + QPoint(pix.rect().width()/2, pix.rect().height()/2);
         r = QRectF(0, textOffset.y()+5, rect().width(), lineHeight);
-        const QString buildConfiguration = defaultAction()->property("subtitle").toString();
         painter.setFont(boldFont);
         QString ellidedBuildConfiguration = boldFm.elidedText(buildConfiguration, Qt::ElideMiddle, r.width());
         if (isEnabled()) {
@@ -183,13 +190,17 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
             painter.drawText(shadowR, textFlags, ellidedBuildConfiguration);
             painter.setPen(penColor);
         }
-        painter.drawText(r, textFlags, ellidedBuildConfiguration);
-        QStyleOption opt;
-        opt.initFrom(this);
-        opt.rect = rect().adjusted(rect().width() - 16, 0, -8, 0);
-        Utils::StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
+        if (!icon().isNull()) {
+            painter.drawText(r, textFlags, ellidedBuildConfiguration);
+            QStyleOption opt;
+            opt.initFrom(this);
+            opt.rect = iconRect.adjusted(iconRect.width() - 16, 0, -8, 0);
+            Utils::StyleHelper::drawArrow(QStyle::PE_IndicatorArrowRight, &painter, &opt);
+        }
+    } else {
+        QPoint center = rect().center();
+        painter.drawPixmap(center-QPointF(halfPixSize.width()-1, halfPixSize.height()-1), pix);
     }
-
 }
 
 void FancyActionBar::paintEvent(QPaintEvent *event)
@@ -213,7 +224,14 @@ QSize FancyToolButton::sizeHint() const
         boldFont.setBold(true);
         QFontMetrics fm(boldFont);
         qreal lineHeight = fm.height();
-        buttonSize += QSizeF(0, (lineHeight*2.8));
+        const QString projectName = defaultAction()->property("heading").toString();
+        buttonSize += QSizeF(0, 4);
+        if (!projectName.isEmpty())
+            buttonSize += QSizeF(0, lineHeight + 6);
+
+        const QString buildConfiguration = defaultAction()->property("subtitle").toString();
+        if (!buildConfiguration.isEmpty())
+            buttonSize += QSizeF(0, lineHeight + 6);
     }
     return buttonSize.toSize();
 }
