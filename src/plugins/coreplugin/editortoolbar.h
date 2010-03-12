@@ -46,6 +46,10 @@ namespace Core {
     class IEditor;
     class OpenEditorsModel;
 
+namespace Internal {
+    class EditorView;
+}
+
 
 /**
   * Fakes an IEditor-like toolbar for design mode widgets such as Qt Designer and Bauhaus.
@@ -120,6 +124,8 @@ private:
     QWidget *m_defaultToolBar;
 
     bool m_ignoreEditorToolbar;
+
+    friend class Internal::EditorView;
 };
 
 }

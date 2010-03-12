@@ -34,6 +34,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/sidebar.h>
+
+#include <coreplugin/editormanager/editorview.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/openeditorsmodel.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -142,9 +144,6 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
 
-    EditorManager *em = EditorManager::instance();
-    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(updateEditorListSelection(Core::IEditor*)));
-
     ActionManager *am = ICore::instance()->actionManager();
     connect(am->command(Constants::CLOSE), SIGNAL(keySequenceChanged()),
             this, SLOT(updateActionShortcuts()));
@@ -216,6 +215,10 @@ void EditorToolBar::updateToolBar(QWidget *toolBar)
 void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 {
     m_ignoreEditorToolbar = flags & FlagsIgnoreIEditorToolBar;
+    if (m_ignoreEditorToolbar) {
+        EditorManager *em = EditorManager::instance();
+        connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(updateEditorListSelection(Core::IEditor*)));
+    }
 }
 
 void EditorToolBar::setCurrentEditor(IEditor *editor)
@@ -232,9 +235,8 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
 
 void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 {
-    if (newSelection) {
+    if (newSelection)
         m_editorList->setCurrentIndex(m_editorsListModel->indexOf(newSelection).row());
-    }
 }
 
 void EditorToolBar::listSelectionActivated(int row)
