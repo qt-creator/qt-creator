@@ -83,6 +83,7 @@ bool FormWindowFile::save(const QString &name /*= QString()*/)
     emit setDisplayName(fi.fileName());
     m_formWindow->setDirty(false);
     emit changed();
+    emit saved();
 
     return true;
 }

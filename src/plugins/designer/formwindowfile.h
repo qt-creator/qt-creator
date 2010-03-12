@@ -50,14 +50,14 @@ public:
     explicit FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent = 0);
 
     // IFile
-    bool save(const QString &fileName = QString());
-    QString fileName() const;
-    bool isModified() const;
-    bool isReadOnly() const;
-    bool isSaveAsAllowed() const;
-    void modified(Core::IFile::ReloadBehavior *behavior);
-    QString defaultPath() const;
-    QString suggestedFileName() const;
+    virtual bool save(const QString &fileName = QString());
+    virtual QString fileName() const;
+    virtual bool isModified() const;
+    virtual bool isReadOnly() const;
+    virtual bool isSaveAsAllowed() const;
+    virtual void modified(Core::IFile::ReloadBehavior *behavior);
+    virtual QString defaultPath() const;
+    virtual QString suggestedFileName() const;
     virtual QString mimeType() const;
 
     // Internal
@@ -70,6 +70,7 @@ public:
 
 signals:
     // Internal
+    void saved();
     void reload(const QString &);
     void setDisplayName(const QString &);
 
