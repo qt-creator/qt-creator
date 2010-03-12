@@ -242,7 +242,7 @@ void OpenEditorsWindow::setEditors(EditorView *mainView, EditorView *view, OpenE
                 first = false;
             }
         }
-}
+    }
 
     // add purely restored editors which are not initialised yet
     foreach (const OpenEditorsModel::Entry &entry, model->entries()) {

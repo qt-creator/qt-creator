@@ -713,7 +713,7 @@ void EditorManager::closeEditor(const QModelIndex &index)
         m_d->m_editorModel->removeEditor(index);
 }
 
-bool EditorManager::closeEditors(const QList<IEditor*> editorsToClose, bool askAboutModifiedEditors)
+bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
 {
     if (editorsToClose.isEmpty())
         return true;
@@ -939,8 +939,10 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
 
 Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, Core::IFile *file, OpenEditorFlags flags)
 {
-    QList<IEditor*> editors = editorsForFile(file);
-    Q_ASSERT(!editors.isEmpty());
+    const QList<IEditor*> editors = editorsForFile(file);
+    if (editors.isEmpty())
+        return 0;
+
     return activateEditor(view, editors.first(), flags);
 }
 

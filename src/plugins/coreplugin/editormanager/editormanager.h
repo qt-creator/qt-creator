@@ -151,7 +151,7 @@ public:
 
     bool saveEditor(IEditor *editor);
 
-    bool closeEditors(const QList<IEditor *> editorsToClose, bool askAboutModifiedEditors = true);
+    bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
 
     MakeWritableResult makeEditorWritable(IEditor *editor);
 
