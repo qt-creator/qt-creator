@@ -151,9 +151,9 @@ void PluginView::updateList()
         m_items.append(collectionItem);
 
         Qt::CheckState groupState = Qt::Unchecked;
-        bool hasErrors = parsePluginSpecs(collectionItem, groupState, collection->plugins());
+        int state = parsePluginSpecs(collectionItem, groupState, collection->plugins());
 
-        collectionItem->setIcon(0, hasErrors ? m_errorIcon : m_okIcon);
+        collectionItem->setIcon(0, iconForState(state));
         collectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
         collectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
         collectionItem->setData(0, Qt::UserRole, qVariantFromValue(collection));
@@ -170,13 +170,12 @@ void PluginView::updateList()
 
     m_items.append(defaultCollectionItem);
     Qt::CheckState groupState = Qt::Unchecked;
-    bool hasErrors = parsePluginSpecs(defaultCollectionItem, groupState, defaultCollection->plugins());
+    int state = parsePluginSpecs(defaultCollectionItem, groupState, defaultCollection->plugins());
 
-    defaultCollectionItem->setIcon(0, hasErrors ? m_errorIcon : m_okIcon);
+    defaultCollectionItem->setIcon(0, iconForState(state));
     defaultCollectionItem->setData(C_LOAD, Qt::CheckStateRole, QVariant(groupState));
     defaultCollectionItem->setToolTip(C_LOAD, tr("Load on Startup"));
     defaultCollectionItem->setData(0, Qt::UserRole, qVariantFromValue(defaultCollection));
-
 
     foreach (PluginSpec *spec, m_specToItem.keys())
         toggleRelatedPlugins(spec, spec->loadOnStartup() && !spec->ignoreOnStartup());
@@ -192,14 +191,15 @@ void PluginView::updateList()
         m_ui->categoryWidget->setCurrentItem(m_ui->categoryWidget->topLevelItem(0));
 }
 
-bool PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins)
+int PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins)
 {
-    bool hasErrors = false;
+    int ret = 0;
     int loadCount = 0;
+
     for (int i = 0; i < plugins.length(); ++i) {
         PluginSpec *spec = plugins[i];
         if (spec->hasError())
-            hasErrors = true;
+            ret |= ParsedWithErrors;
 
         QTreeWidgetItem *pluginItem = new QTreeWidgetItem(QStringList()
             << spec->name()
@@ -209,7 +209,7 @@ bool PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &g
 
         pluginItem->setToolTip(0, QDir::toNativeSeparators(spec->filePath()));
         bool ok = !spec->hasError();
-        QIcon &icon = ok ? m_okIcon : m_errorIcon;
+        QIcon icon = ok ? m_okIcon : m_errorIcon;
         if (ok && (spec->state() != PluginSpec::Running))
             icon = m_notLoadedIcon;
 
@@ -219,10 +219,8 @@ bool PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &g
         Qt::CheckState state = Qt::Unchecked;
         if (spec->loadOnStartup()) {
             state = Qt::Checked;
-            //if (!spec->ignoreOnStartup())
-                ++loadCount;
-        } else
-            hasErrors = true;
+            ++loadCount;
+        }
 
         if (!m_whitelist.contains(spec->name()))
             pluginItem->setData(C_LOAD, Qt::CheckStateRole, state);
@@ -245,14 +243,28 @@ bool PluginView::parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &g
 
     }
 
-    if (loadCount == plugins.length())
+    if (loadCount == plugins.length()) {
         groupState = Qt::Checked;
-    else if (loadCount == 0)
+        ret |= ParsedAll;
+    } else if (loadCount == 0) {
         groupState = Qt::Unchecked;
-    else
+        ret |= ParsedNone;
+    } else {
         groupState = Qt::PartiallyChecked;
+        ret = ret | ParsedPartial;
+    }
+    return ret;
+}
 
-    return hasErrors;
+QIcon PluginView::iconForState(int state)
+{
+    if (state & ParsedWithErrors)
+        return m_errorIcon;
+
+    if (state & ParsedNone || state & ParsedPartial)
+        return m_notLoadedIcon;
+
+    return m_okIcon;
 }
 
 void PluginView::selectPlugin(QTreeWidgetItem *current)
