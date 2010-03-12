@@ -147,11 +147,13 @@ int ExpressionUnderCursor::startOfExpression_helper(BackwardsScanner &tk, int in
                     --i;
             }
 
-            int j = i;
-            while (tk[j].is(T_LBRACKET))
-                ++j;
-            if (tk[j].is(T_IDENTIFIER) && tk[j + 1].is(T_IDENTIFIER))
-                return i;
+            if (i >= 0) {
+                int j = i;
+                while (tk[j].is(T_LBRACKET))
+                    ++j;
+                if (tk[j].is(T_IDENTIFIER) && tk[j + 1].is(T_IDENTIFIER))
+                    return i;
+            }
         }
         return index - 1;
     } else if (tk[index - 1].is(T_RPAREN)) {
