@@ -45,6 +45,7 @@ Project support
    * Expand environment variables in Generic Project file lists
    * Preserve the original paths of the Generic Project file list when
      adding/removing files
+   * Allow changing the build environment for Generic Projects
    * Added context menu options to open file manager or terminal in a files
      directory
 
