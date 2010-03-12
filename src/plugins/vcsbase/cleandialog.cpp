@@ -166,18 +166,20 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
     const QIcon fileIcon = style->standardIcon(QStyle::SP_FileIcon);
     const QString diffSuffix = QLatin1String(".diff");
     const QString patchSuffix = QLatin1String(".patch");
+    const QString proUserSuffix = QLatin1String(".pro.user");
     const QChar slash = QLatin1Char('/');
-    // Do not initially check patches for deletion.
+    // Do not initially check patches or 'pro.user' files for deletion.
     foreach(const QString &fileName, l) {
         const QFileInfo fi(workingDirectory + slash + fileName);
         const bool isDir = fi.isDir();
         QStandardItem *nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));
         nameItem->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
         nameItem->setIcon(isDir ? folderIcon : fileIcon);
-        const bool isPatch = !isDir && (fileName.endsWith(diffSuffix)
-                                        || fileName.endsWith(patchSuffix));
+        const bool saveFile = !isDir && (fileName.endsWith(diffSuffix)
+                                        || fileName.endsWith(patchSuffix)
+                                        || fileName.endsWith(proUserSuffix));
         nameItem->setCheckable(true);
-        nameItem->setCheckState(isPatch ? Qt::Unchecked : Qt::Checked);
+        nameItem->setCheckState(saveFile ? Qt::Unchecked : Qt::Checked);
         nameItem->setData(QVariant(fi.absoluteFilePath()), fileNameRole);
         nameItem->setData(QVariant(isDir), isDirectoryRole);
         // Tooltip with size information
