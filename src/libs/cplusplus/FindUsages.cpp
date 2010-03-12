@@ -33,6 +33,7 @@
 #include <Control.h>
 #include <Literals.h>
 #include <Names.h>
+#include <Scope.h>
 #include <Symbols.h>
 #include <AST.h>
 #include <TranslationUnit.h>
@@ -47,7 +48,8 @@ FindUsages::FindUsages(Document::Ptr doc, const Snapshot &snapshot)
       _snapshot(snapshot),
       _source(_doc->source()),
       _sem(doc->translationUnit()),
-      _inSimpleDeclaration(0)
+      _inSimpleDeclaration(0),
+      _inQProperty(false)
 {
     _snapshot.insert(_doc);
 }
@@ -70,6 +72,7 @@ void FindUsages::operator()(Symbol *symbol)
     _usages.clear();
     _declSymbol = symbol;
     _inSimpleDeclaration = 0;
+    _inQProperty = false;
 
     _id = 0;
     if (_declSymbol && 0 != (_id = _declSymbol->identifier()))
@@ -204,12 +207,19 @@ LookupContext FindUsages::currentContext(AST *ast)
     getTokenStartPosition(ast->firstToken(), &line, &column);
     Symbol *lastVisibleSymbol = _doc->findSymbolAt(line, column);
 
+    if (_inQProperty && lastVisibleSymbol->isClass()) {
+        Scope *memberScope = lastVisibleSymbol->asClass()->members();
+
+        if (unsigned count = memberScope->symbolCount())
+            lastVisibleSymbol = memberScope->symbolAt(count - 1);
+    }
+
     if (lastVisibleSymbol && lastVisibleSymbol == _previousContext.symbol())
         return _previousContext;
 
     LookupContext ctx(lastVisibleSymbol, _exprDoc, _doc, _snapshot);
     _previousContext = ctx;
-    return ctx;
+    return _previousContext;
 }
 
 void FindUsages::ensureNameIsValid(NameAST *ast)
@@ -476,3 +486,12 @@ bool FindUsages::visit(ObjCSelectorAST *ast)
 
     return false;
 }
+
+bool FindUsages::visit(QtPropertyDeclarationAST *)
+{
+    _inQProperty = true;
+    return true;
+}
+
+void FindUsages::endVisit(QtPropertyDeclarationAST *)
+{ _inQProperty = false; }

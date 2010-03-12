@@ -100,6 +100,8 @@ protected:
     virtual bool visit(FunctionDeclaratorAST *ast);
     virtual bool visit(SimpleDeclarationAST *);
     virtual bool visit(ObjCSelectorAST *ast);
+    virtual bool visit(QtPropertyDeclarationAST *);
+    virtual void endVisit(QtPropertyDeclarationAST *);
 
 private:
     const Identifier *_id;
@@ -116,6 +118,7 @@ private:
     QList<Usage> _usages;
     LookupContext _previousContext;
     int _inSimpleDeclaration;
+    bool _inQProperty;
     QSet<unsigned> _processed;
 };
 
