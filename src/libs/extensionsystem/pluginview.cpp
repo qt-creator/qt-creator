@@ -91,6 +91,8 @@ PluginView::PluginView(PluginManager *manager, QWidget *parent)
     m_errorIcon = QIcon(QLatin1String(":/extensionsystem/images/error.png"));
     m_notLoadedIcon = QIcon(QLatin1String(":/extensionsystem/images/notloaded.png"));
 
+    m_ui->categoryWidget->setColumnWidth(C_LOAD, 40);
+
     // cannot disable these
     m_whitelist << QString("Core") << QString("Locator")
                 << QString("Find") << QString("TextEditor");
