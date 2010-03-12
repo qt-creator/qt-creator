@@ -6,6 +6,7 @@ include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(../../libs/utils/utils.pri)
+include(customwizard/customwizard.pri)
 INCLUDEPATH += $$PWD/../../libs/utils
 HEADERS += projectexplorer.h \
     projectexplorer_export.h \

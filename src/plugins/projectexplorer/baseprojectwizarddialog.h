@@ -51,12 +51,13 @@ class PROJECTEXPLORER_EXPORT BaseProjectWizardDialog : public QWizard
     Q_OBJECT
 
 protected:
-    explicit BaseProjectWizardDialog(QWidget *parent = 0);
     explicit BaseProjectWizardDialog(Utils::ProjectIntroPage *introPage,
                                      int introId = -1,
                                      QWidget *parent = 0);
 
 public:
+    explicit BaseProjectWizardDialog(QWidget *parent = 0);
+
     virtual ~BaseProjectWizardDialog();
 
     QString projectName() const;

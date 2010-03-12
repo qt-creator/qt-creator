@@ -52,6 +52,7 @@
 #include "pluginfilefactory.h"
 #include "processstep.h"
 #include "projectexplorerconstants.h"
+#include "customwizard.h"
 #include "projectfilewizardextension.h"
 #include "projecttreewidget.h"
 #include "projectwindow.h"
@@ -902,6 +903,10 @@ void ProjectExplorerPlugin::extensionsInitialized()
         d->m_profileMimeTypes += pf->mimeTypes();
         addAutoReleasedObject(pf);
     }
+    // Add custom wizards, for which other plugins might have registered
+    // class factories
+    foreach(Core::IWizard *cpw, ProjectExplorer::CustomWizard::createWizards())
+        addAutoReleasedObject(cpw);
 }
 
 void ProjectExplorerPlugin::shutdown()

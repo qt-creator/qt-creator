@@ -185,6 +185,7 @@ class BaseFileWizardParameterData : public QSharedData
 {
 public:
     explicit BaseFileWizardParameterData(IWizard::WizardKind kind = IWizard::FileWizard);
+    void clear();
 
     IWizard::WizardKind kind;
     QIcon icon;
@@ -198,6 +199,17 @@ public:
 BaseFileWizardParameterData::BaseFileWizardParameterData(IWizard::WizardKind k) :
     kind(k)
 {
+}
+
+void BaseFileWizardParameterData::clear()
+{
+    kind = IWizard::FileWizard;
+    icon = QIcon();
+    description.clear();
+    displayName.clear();
+    id.clear();
+    category.clear();
+    displayCategory.clear();
 }
 
 BaseFileWizardParameters::BaseFileWizardParameters(IWizard::WizardKind kind) :
@@ -219,6 +231,21 @@ BaseFileWizardParameters &BaseFileWizardParameters::operator=(const BaseFileWiza
 
 BaseFileWizardParameters::~BaseFileWizardParameters()
 {
+}
+
+void BaseFileWizardParameters::clear()
+{
+    m_d->clear();
+}
+
+CORE_EXPORT QDebug operator<<(QDebug d, const BaseFileWizardParameters &p)
+{
+    d.nospace() << "Kind: " << p.kind() << " Id: " << p.id()
+                << " Category: " << p.category()
+                << " DisplayName: " << p.displayName()
+                << " Description: " << p.description()
+                << " DisplayCategory: " << p.displayCategory();
+    return d;
 }
 
 IWizard::WizardKind BaseFileWizardParameters::kind() const

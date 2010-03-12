@@ -38,7 +38,6 @@
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <extensionsystem/pluginmanager.h>
-
 #include <QtCore/QCoreApplication>
 #include <QtCore/QVariant>
 
@@ -104,6 +103,11 @@ QString QtWizard::profileSuffix()
 
 bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
 {
+    return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
+}
+
+bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+{
     const QString proFileName = l.back().path();
     const BaseQt4ProjectWizardDialog *dialog = qobject_cast<const BaseQt4ProjectWizardDialog *>(w);
 
@@ -142,6 +146,35 @@ bool QtWizard::showModulesPageForApplications()
 bool QtWizard::showModulesPageForLibraries()
 {
     return true;
+}
+
+// ------------ CustomQt4ProjectWizard
+CustomQt4ProjectWizard::CustomQt4ProjectWizard(const Core::BaseFileWizardParameters& baseFileParameters,
+                                               QObject *parent) :
+    ProjectExplorer::CustomProjectWizard(baseFileParameters, parent)
+{
+}
+
+QWizard *CustomQt4ProjectWizard::createWizardDialog(QWidget *parent,
+                                                    const QString &defaultPath,
+                                                    const WizardPageList &extensionPages) const
+{
+    BaseQt4ProjectWizardDialog *wizard =  new BaseQt4ProjectWizardDialog(false, parent);
+    initProjectWizardDialog(wizard, defaultPath, extensionPages);
+    if (wizard->pageIds().contains(targetPageId))
+        qWarning("CustomQt4ProjectWizard: Unable to insert target page at %d", int(targetPageId));
+    wizard->addTargetsPage(QSet<QString>(), targetPageId);
+    return wizard;
+}
+
+bool CustomQt4ProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+{
+    return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
+}
+
+void CustomQt4ProjectWizard::registerSelf()
+{
+    ProjectExplorer::CustomWizard::registerFactory<CustomQt4ProjectWizard>(QLatin1String("qt4project"));
 }
 
 // ----------------- BaseQt4ProjectWizardDialog

@@ -42,6 +42,7 @@
 QT_BEGIN_NAMESPACE
 class QWizard;
 class QWizardPage;
+class QDebug;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -105,6 +106,8 @@ public:
     BaseFileWizardParameters &operator=(const BaseFileWizardParameters&);
    ~BaseFileWizardParameters();
 
+    void clear();
+
     IWizard::WizardKind kind() const;
     void setKind(IWizard::WizardKind k);
 
@@ -129,6 +132,8 @@ public:
 private:
     QSharedDataPointer<BaseFileWizardParameterData> m_d;
 };
+
+CORE_EXPORT QDebug operator<<(QDebug d, const BaseFileWizardParameters &);
 
 /* A generic wizard for creating files.
  *
