@@ -70,9 +70,9 @@ void GnuMakeParser::removeDirectory(const QString &dir)
     m_directories.removeAll(dir);
 }
 
-void GnuMakeParser::taskAdded(const ProjectExplorer::TaskWindow::Task &task)
+void GnuMakeParser::taskAdded(const ProjectExplorer::Task &task)
 {
-    ProjectExplorer::TaskWindow::Task editable(task);
+    ProjectExplorer::Task editable(task);
     QString filePath(QDir::cleanPath(task.file.trimmed()));
 
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {

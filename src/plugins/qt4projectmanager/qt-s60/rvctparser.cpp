@@ -55,11 +55,11 @@ void RvctParser::stdError(const QString &line)
 {
     QString lne = line.trimmed();
     if (m_linkerProblem.indexIn(lne) > -1) {
-       emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                     m_linkerProblem.cap(2) /* description */,
-                                     m_linkerProblem.cap(1) /* filename */,
-                                     -1 /* linenumber */,
-                                     TASK_CATEGORY_COMPILE));
+       emit addTask(Task(Task::Error,
+                         m_linkerProblem.cap(2) /* description */,
+                         m_linkerProblem.cap(1) /* filename */,
+                         -1 /* linenumber */,
+                         TASK_CATEGORY_COMPILE));
        return;
    }
 
@@ -67,14 +67,14 @@ void RvctParser::stdError(const QString &line)
        m_lastFile = m_warningOrError.cap(1);
        m_lastLine = m_warningOrError.cap(2).toInt();
 
-       TaskWindow::Task task(TaskWindow::Unknown,
-                             m_warningOrError.cap(5) /* description */,
-                             m_lastFile, m_lastLine,
-                             TASK_CATEGORY_COMPILE);
+       Task task(Task::Unknown,
+                 m_warningOrError.cap(5) /* description */,
+                 m_lastFile, m_lastLine,
+                 TASK_CATEGORY_COMPILE);
        if (m_warningOrError.cap(4) == "Warning")
-           task.type = TaskWindow::Warning;
+           task.type = Task::Warning;
        else if (m_warningOrError.cap(4) == "Error")
-           task.type = TaskWindow::Error;
+           task.type = Task::Error;
 
        m_additionalInfo = true;
 
@@ -89,9 +89,9 @@ void RvctParser::stdError(const QString &line)
    if (m_additionalInfo) {
        // Report any lines after a error/warning message as these contain
        // additional information on the problem.
-       emit addTask(TaskWindow::Task(TaskWindow::Unknown, lne,
-                                     m_lastFile,  m_lastLine,
-                                     TASK_CATEGORY_COMPILE));
+       emit addTask(Task(Task::Unknown, lne,
+                         m_lastFile,  m_lastLine,
+                         TASK_CATEGORY_COMPILE));
        return;
    }
    IOutputParser::stdError(line);

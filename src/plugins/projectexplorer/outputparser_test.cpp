@@ -47,7 +47,7 @@ OutputParserTester::~OutputParserTester()
 // test methods:
 void OutputParserTester::testParsing(const QString &lines,
                                      Channel inputChannel,
-                                     QList<TaskWindow::Task> tasks,
+                                     QList<Task> tasks,
                                      const QString &childStdOutLines,
                                      const QString &childStdErrLines,
                                      const QString &outputLines)
@@ -78,8 +78,8 @@ void OutputParserTester::testParsing(const QString &lines,
     }
 }
 
-void OutputParserTester::testTaskMangling(const TaskWindow::Task input,
-                                          const TaskWindow::Task output)
+void OutputParserTester::testTaskMangling(const Task input,
+                                          const Task output)
 {
     reset();
     childParser()->taskAdded(input);
@@ -145,7 +145,7 @@ void OutputParserTester::outputAdded(const QString &line)
     m_receivedOutput.append(line);
 }
 
-void OutputParserTester::taskAdded(const ProjectExplorer::TaskWindow::Task &task)
+void OutputParserTester::taskAdded(const ProjectExplorer::Task &task)
 {
     m_receivedTasks.append(task);
 }

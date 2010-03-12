@@ -133,8 +133,8 @@ void BuildManager::cancel()
         // (And we want those to be before the cancel message.)
         QTimer::singleShot(0, this, SLOT(emitCancelMessage()));
 
-        disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-                   this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+        disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::Task)),
+                   this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
         disconnect(m_currentBuildStep, SIGNAL(addOutput(QString)),
                    this, SLOT(addToOutputWindow(QString)));
         decrementActiveBuildSteps(m_currentBuildStep->buildConfiguration()->target()->project());
@@ -171,8 +171,8 @@ void BuildManager::clearBuildQueue()
 {
     foreach (BuildStep *bs, m_buildQueue) {
         decrementActiveBuildSteps(bs->buildConfiguration()->target()->project());
-        disconnect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-                   this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+        disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
+                   this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
         disconnect(bs, SIGNAL(addOutput(QString)),
                    this, SLOT(addToOutputWindow(QString)));
     }
@@ -260,7 +260,7 @@ void BuildManager::showBuildResults()
     //toggleTaskWindow();
 }
 
-void BuildManager::addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task)
+void BuildManager::addToTaskWindow(const ProjectExplorer::Task &task)
 {
     m_taskWindow->addTask(task);
 }
@@ -275,8 +275,8 @@ void BuildManager::nextBuildQueue()
     if (m_canceling)
         return;
 
-    disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-               this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+    disconnect(m_currentBuildStep, SIGNAL(addTask(ProjectExplorer::Task)),
+               this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
     disconnect(m_currentBuildStep, SIGNAL(addOutput(QString)),
                this, SLOT(addToOutputWindow(QString)));
 
@@ -343,8 +343,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
     int i = 0;
     for (; i < count; ++i) {
         BuildStep *bs = steps.at(i);
-        connect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-                this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+        connect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
+                this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
         connect(bs, SIGNAL(addOutput(QString)),
                 this, SLOT(addToOutputWindow(QString)));
         init = bs->init();
@@ -364,8 +364,8 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps)
         // disconnect the buildsteps again
         for (int j = 0; j <= i; ++j) {
             BuildStep *bs = steps.at(j);
-            disconnect(bs, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-                       this, SLOT(addToTaskWindow(ProjectExplorer::TaskWindow::Task)));
+            disconnect(bs, SIGNAL(addTask(ProjectExplorer::Task)),
+                       this, SLOT(addToTaskWindow(ProjectExplorer::Task)));
             disconnect(bs, SIGNAL(addOutput(QString)),
                        this, SLOT(addToOutputWindow(QString)));
         }

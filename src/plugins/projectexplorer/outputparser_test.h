@@ -50,12 +50,12 @@ public:
 
     // test methods:
     void testParsing(const QString &lines, Channel inputChannel,
-                     QList<TaskWindow::Task> tasks,
+                     QList<Task> tasks,
                      const QString &childStdOutLines,
                      const QString &childStdErrLines,
                      const QString &outputLines);
-    void testTaskMangling(const TaskWindow::Task input,
-                          const TaskWindow::Task output);
+    void testTaskMangling(const Task input,
+                          const Task output);
     void testOutputMangling(const QString &input,
                             const QString &output);
 
@@ -69,7 +69,7 @@ public:
 
 private slots:
     void outputAdded(const QString &line);
-    void taskAdded(const ProjectExplorer::TaskWindow::Task &task);
+    void taskAdded(const ProjectExplorer::Task &task);
 
 private:
     void reset();
@@ -78,7 +78,7 @@ private:
 
     QString m_receivedStdErrChildLine;
     QString m_receivedStdOutChildLine;
-    QList<TaskWindow::Task> m_receivedTasks;
+    QList<Task> m_receivedTasks;
     QString m_receivedOutput;
 };
 

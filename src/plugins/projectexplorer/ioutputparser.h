@@ -69,7 +69,7 @@ signals:
     /// line!
     void addOutput(const QString &string);
     /// Should be emitted for each task seen in the output.
-    void addTask(const ProjectExplorer::TaskWindow::Task &task);
+    void addTask(const ProjectExplorer::Task &task);
 
 public slots:
     /// Subparsers have their addOutput signal connected to this slot.
@@ -77,7 +77,7 @@ public slots:
     virtual void outputAdded(const QString &string);
     /// Subparsers have their addTask signal connected to this slot.
     /// This method can be overwritten to change the task.
-    virtual void taskAdded(const ProjectExplorer::TaskWindow::Task &task);
+    virtual void taskAdded(const ProjectExplorer::Task &task);
 
 private:
     IOutputParser *m_parser;

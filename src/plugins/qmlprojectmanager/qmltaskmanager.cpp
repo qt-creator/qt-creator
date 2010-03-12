@@ -54,12 +54,12 @@ void QmlTaskManager::documentUpdated(QmlJS::Document::Ptr /*doc*/)
     m_taskWindow->clearTasks(Constants::TASK_CATEGORY_QML);
 
     foreach (const QmlJS::DiagnosticMessage &msg, doc->diagnosticMessages()) {
-        ProjectExplorer::TaskWindow::TaskType type
-                = msg.isError() ? ProjectExplorer::TaskWindow::Error
-                                : ProjectExplorer::TaskWindow::Warning;
+        ProjectExplorer::Task::TaskType type
+                = msg.isError() ? ProjectExplorer::Task::Error
+                                : ProjectExplorer::Task::Warning;
 
-        ProjectExplorer::TaskWindow::Task task(type, msg.message, doc->fileName(), msg.loc.startLine,
-                                                Constants::TASK_CATEGORY_QML);
+        ProjectExplorer::Task task(type, msg.message, doc->fileName(), msg.loc.startLine,
+                                   Constants::TASK_CATEGORY_QML);
         m_taskWindow->addTask(task);
     }
 #endif

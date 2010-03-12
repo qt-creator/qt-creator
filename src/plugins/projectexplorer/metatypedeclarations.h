@@ -40,7 +40,8 @@ class SessionManager;
 class IApplicationOutput;
 class IOutputParser;
 class GlobalConfigManagerInterface;
-struct TaskWindow::Task;
+class Project;
+class Task;
 
 namespace Internal {
 class CommandQObject;
@@ -56,7 +57,7 @@ Q_DECLARE_METATYPE(QList<ProjectExplorer::Internal::CommandQObject*>)
 Q_DECLARE_METATYPE(ProjectExplorer::IOutputParser*)
 
 Q_DECLARE_METATYPE(ProjectExplorer::GlobalConfigManagerInterface*)
-Q_DECLARE_METATYPE(ProjectExplorer::TaskWindow::Task)
-Q_DECLARE_METATYPE(QList<ProjectExplorer::TaskWindow::Task>)
+Q_DECLARE_METATYPE(ProjectExplorer::Task)
+Q_DECLARE_METATYPE(QList<ProjectExplorer::Task>)
 
 #endif // PROJECTEXPLORERMETATYPEDECLARATIONS_H

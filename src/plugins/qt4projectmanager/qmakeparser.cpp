@@ -36,7 +36,7 @@
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
-using ProjectExplorer::TaskWindow;
+using ProjectExplorer::Task;
 
 QMakeParser::QMakeParser()
 {
@@ -47,11 +47,11 @@ void QMakeParser::stdError(const QString &line)
     QString lne(line.trimmed());
     if (lne.startsWith(QLatin1String("Project ERROR:"))) {
         const QString description = lne.mid(15);
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      description,
-                                      QString() /* filename */,
-                                      -1 /* linenumber */,
-                                      ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Error,
+                          description,
+                          QString() /* filename */,
+                          -1 /* linenumber */,
+                          ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
     IOutputParser::stdError(line);

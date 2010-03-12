@@ -84,8 +84,8 @@ void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser
     if (m_outputParserChain) {
         connect(parser, SIGNAL(addOutput(QString)),
                 this, SLOT(outputAdded(QString)));
-        connect(parser, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-                this, SLOT(taskAdded(ProjectExplorer::TaskWindow::Task)));
+        connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
+                this, SLOT(taskAdded(ProjectExplorer::Task)));
     }
 }
 
@@ -258,9 +258,9 @@ void AbstractProcessStep::checkForCancel()
     }
 }
 
-void AbstractProcessStep::taskAdded(const ProjectExplorer::TaskWindow::Task &task)
+void AbstractProcessStep::taskAdded(const ProjectExplorer::Task &task)
 {
-    TaskWindow::Task editable(task);
+    Task editable(task);
     QString filePath = QDir::cleanPath(task.file.trimmed());
     if (!filePath.isEmpty() && !QDir::isAbsolutePath(filePath)) {
         // We have no save way to decide which file in which subfolder

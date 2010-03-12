@@ -110,8 +110,8 @@ public:
     QString categoryDisplayName(const QString &categoryId) const;
     void addCategory(const QString &categoryId, const QString &categoryName);
 
-    QList<TaskWindow::Task> tasks(const QString &categoryId = QString()) const;
-    void addTask(const TaskWindow::Task &task);
+    QList<Task> tasks(const QString &categoryId = QString()) const;
+    void addTask(const Task &task);
     void clearTasks(const QString &categoryId = QString());
 
     int sizeOfFile();
@@ -120,12 +120,12 @@ public:
 
     enum Roles { File = Qt::UserRole, Line, Description, FileNotFound, Type, Category };
 
-    QIcon iconFor(TaskWindow::TaskType type);
+    QIcon iconFor(Task::TaskType type);
 
 private:
     QHash<QString,QString> m_categories; // category id -> display name
-    QList<TaskWindow::Task> m_tasks;   // all tasks (in order of insertion)
-    QMap<QString,QList<TaskWindow::Task> > m_tasksInCategory; // categoryId->tasks
+    QList<Task> m_tasks;   // all tasks (in order of insertion)
+    QMap<QString,QList<Task> > m_tasksInCategory; // categoryId->tasks
 
     QHash<QString,bool> m_fileNotFound;
     int m_maxSizeOfFileName;
@@ -219,7 +219,7 @@ void TaskModel::addCategory(const QString &categoryId, const QString &categoryNa
     m_categories.insert(categoryId, categoryName);
 }
 
-QList<TaskWindow::Task> TaskModel::tasks(const QString &categoryId) const
+QList<Task> TaskModel::tasks(const QString &categoryId) const
 {
     if (categoryId.isEmpty()) {
         return m_tasks;
@@ -228,11 +228,11 @@ QList<TaskWindow::Task> TaskModel::tasks(const QString &categoryId) const
     }
 }
 
-void TaskModel::addTask(const TaskWindow::Task &task)
+void TaskModel::addTask(const Task &task)
 {
     Q_ASSERT(m_categories.keys().contains(task.category));
 
-    QList<TaskWindow::Task> tasksInCategory = m_tasksInCategory.value(task.category);
+    QList<Task> tasksInCategory = m_tasksInCategory.value(task.category);
     tasksInCategory.append(task);
     m_tasksInCategory.insert(task.category, tasksInCategory);
 
@@ -271,14 +271,14 @@ void TaskModel::clearTasks(const QString &categoryId)
         m_maxSizeOfFileName = 0;
     } else {
         // TODO: Optimize this for consecutive rows
-        foreach (const TaskWindow::Task &task, m_tasksInCategory.value(categoryId)) {
+        foreach (const Task &task, m_tasksInCategory.value(categoryId)) {
             int index = m_tasks.indexOf(task);
             Q_ASSERT(index >= 0);
             beginRemoveRows(QModelIndex(), index, index);
 
             m_tasks.removeAt(index);
 
-            QList<TaskWindow::Task> tasksInCategory = m_tasksInCategory.value(categoryId);
+            QList<Task> tasksInCategory = m_tasksInCategory.value(categoryId);
             tasksInCategory.removeOne(task);
             m_tasksInCategory.insert(categoryId, tasksInCategory);
 
@@ -347,11 +347,11 @@ QString TaskModel::categoryDisplayName(const QString &categoryId) const
     return m_categories.value(categoryId);
 }
 
-QIcon TaskModel::iconFor(TaskWindow::TaskType type)
+QIcon TaskModel::iconFor(Task::TaskType type)
 {
-    if (type == TaskWindow::Error)
+    if (type == Task::Error)
         return m_errorIcon;
-    else if (type == TaskWindow::Warning)
+    else if (type == Task::Warning)
         return m_warningIcon;
     else
         return QIcon();
@@ -399,15 +399,15 @@ bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
     bool accept = true;
 
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-    TaskWindow::TaskType type = TaskWindow::TaskType(index.data(TaskModel::Type).toInt());
+    Task::TaskType type = Task::TaskType(index.data(TaskModel::Type).toInt());
     switch (type) {
-    case TaskWindow::Unknown:
+    case Task::Unknown:
         accept = m_includeUnknowns;
         break;
-    case TaskWindow::Warning:
+    case Task::Warning:
         accept = m_includeWarnings;
         break;
-    case TaskWindow::Error:
+    case Task::Error:
         accept = m_includeErrors;
         break;
     }
@@ -423,7 +423,7 @@ bool TaskFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceP
 // TaskWindow
 /////
 
-static QToolButton *createFilterButton(TaskWindow::TaskType type,
+static QToolButton *createFilterButton(Task::TaskType type,
                                        const QString &toolTip, TaskModel *model,
                                        QObject *receiver, const char *slot)
 {
@@ -474,7 +474,7 @@ TaskWindow::TaskWindow()
 
     connect(m_copyAction, SIGNAL(triggered()), SLOT(copy()));
 
-    m_filterWarningsButton = createFilterButton(TaskWindow::Warning,
+    m_filterWarningsButton = createFilterButton(Task::Warning,
                                                 tr("Show Warnings"), m_model,
                                                 this, SLOT(setShowWarnings(bool)));
 
@@ -489,8 +489,8 @@ TaskWindow::TaskWindow()
     m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
     m_categoriesButton->setMenu(m_categoriesMenu);
 
-    qRegisterMetaType<ProjectExplorer::TaskWindow::Task>("ProjectExplorer::TaskWindow::Task");
-    qRegisterMetaType<QList<ProjectExplorer::TaskWindow::Task> >("QList<ProjectExplorer::TaskWindow::Task>");
+    qRegisterMetaType<ProjectExplorer::Task>("ProjectExplorer::Task");
+    qRegisterMetaType<QList<ProjectExplorer::Task> >("QList<ProjectExplorer::Task>");
 
     updateActions();
 }
@@ -570,10 +570,10 @@ void TaskWindow::copy()
     QString description = index.data(TaskModel::Description).toString();
     QString type;
     switch (index.data(TaskModel::Type).toInt()) {
-    case TaskWindow::Error:
+    case Task::Error:
         type = "error: ";
         break;
-    case TaskWindow::Warning:
+    case Task::Warning:
         type = "warning: ";
         break;
     }
@@ -633,7 +633,7 @@ int TaskWindow::errorTaskCount(const QString &categoryId) const
     int errorTaskCount = 0;
 
     foreach (const Task &task, m_model->tasks(categoryId)) {
-        if (task.type == TaskWindow::Error)
+        if (task.type == Task::Error)
             ++ errorTaskCount;
     }
 
@@ -821,7 +821,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
     painter->setPen(textColor);
 
     TaskModel *model = static_cast<TaskFilterModel *>(view->model())->taskModel();
-    TaskWindow::TaskType type = TaskWindow::TaskType(index.data(TaskModel::Type).toInt());
+    Task::TaskType type = Task::TaskType(index.data(TaskModel::Type).toInt());
     QIcon icon = model->iconFor(type);
     painter->drawPixmap(TASK_ICON_MARGIN, opt.rect.top() + TASK_ICON_MARGIN, icon.pixmap(TASK_ICON_SIZE, TASK_ICON_SIZE));
 
@@ -916,7 +916,7 @@ QWidget *TaskWindowContext::widget()
 //
 // functions
 //
-bool ProjectExplorer::operator==(const TaskWindow::Task &t1, const TaskWindow::Task &t2)
+bool ProjectExplorer::operator==(const Task &t1, const Task &t2)
 {
     return t1.type == t2.type
             && t1.line == t2.line
@@ -925,7 +925,7 @@ bool ProjectExplorer::operator==(const TaskWindow::Task &t1, const TaskWindow::T
             && t1.category == t2.category;
 }
 
-uint ProjectExplorer::qHash(const TaskWindow::Task &task)
+uint ProjectExplorer::qHash(const Task &task)
 {
     return qHash(task.file) + task.line;
 }

@@ -62,31 +62,31 @@ void GccParser::stdError(const QString &line)
     if (lne.startsWith(QLatin1String("collect2:")) ||
         lne.startsWith(QLatin1String("ERROR:")) ||
         lne == QLatin1String("* cpp failed")) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne /* description */,
-                                      QString() /* filename */,
-                                      -1 /* linenumber */,
-                                      Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(Task(Task::Error,
+                          lne /* description */,
+                          QString() /* filename */,
+                          -1 /* linenumber */,
+                          Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (m_regExpGccNames.indexIn(lne) > -1) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne.mid(m_regExpGccNames.matchedLength()), /* description */
-                                      QString(), /* filename */
-                                      -1, /* line */
-                                      Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(Task(Task::Error,
+                          lne.mid(m_regExpGccNames.matchedLength()), /* description */
+                          QString(), /* filename */
+                          -1, /* line */
+                          Constants::TASK_CATEGORY_COMPILE));
         return;
     } else if (m_regExp.indexIn(lne) > -1) {
         QString filename = m_regExp.cap(1);
         int lineno = m_regExp.cap(3).toInt();
-        TaskWindow::Task task(TaskWindow::Unknown,
-                              m_regExp.cap(7) /* description */,
-                              filename, lineno,
-                              Constants::TASK_CATEGORY_COMPILE);
+        Task task(Task::Unknown,
+                  m_regExp.cap(7) /* description */,
+                  filename, lineno,
+                  Constants::TASK_CATEGORY_COMPILE);
         if (m_regExp.cap(6) == QLatin1String("warning"))
-            task.type = TaskWindow::Warning;
+            task.type = Task::Warning;
         else if (m_regExp.cap(6) == QLatin1String("error") ||
                  task.description.startsWith(QLatin1String("undefined reference to")))
-            task.type = TaskWindow::Error;
+            task.type = Task::Error;
 
         // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
         // We want those to show how the warning was triggered
@@ -101,23 +101,23 @@ void GccParser::stdError(const QString &line)
         if (!ok)
             lineno = -1;
         QString description = m_regExpLinker.cap(5);
-        TaskWindow::Task task(TaskWindow::Error,
-                              description,
-                              m_regExpLinker.cap(1) /* filename */,
-                              lineno,
-                              Constants::TASK_CATEGORY_COMPILE);
+        Task task(Task::Error,
+                  description,
+                  m_regExpLinker.cap(1) /* filename */,
+                  lineno,
+                  Constants::TASK_CATEGORY_COMPILE);
         if (description.startsWith(QLatin1String("In function ")) ||
             description.startsWith(QLatin1String("In member function ")))
-            task.type = TaskWindow::Unknown;
+            task.type = Task::Unknown;
 
         emit addTask(task);
         return;
     } else if (m_regExpIncluded.indexIn(lne) > -1) {
-        emit addTask(TaskWindow::Task(TaskWindow::Unknown,
-                                      lne /* description */,
-                                      m_regExpIncluded.cap(1) /* filename */,
-                                      m_regExpIncluded.cap(2).toInt() /* linenumber */,
-                                      Constants::TASK_CATEGORY_COMPILE));
+        emit addTask(Task(Task::Unknown,
+                          lne /* description */,
+                          m_regExpIncluded.cap(1) /* filename */,
+                          m_regExpIncluded.cap(2).toInt() /* linenumber */,
+                          Constants::TASK_CATEGORY_COMPILE));
         return;
     }
     IOutputParser::stdError(line);
@@ -138,19 +138,19 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QList<ProjectExplorer::TaskWindow::Task> >("tasks");
+    QTest::addColumn<QList<ProjectExplorer::Task> >("tasks");
     QTest::addColumn<QString>("outputLines");
 
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext") << QString()
-            << QList<ProjectExplorer::TaskWindow::Task>()
+            << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("Sometext")
-            << QList<ProjectExplorer::TaskWindow::Task>()
+            << QList<ProjectExplorer::Task>()
             << QString();
 
     QTest::newRow("GCCE error")
@@ -159,16 +159,16 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                    "/temp/test/untitled8/main.cpp:9: error: (Each undeclared identifier is reported only once for each function it appears in.)")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Unknown,
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
                                     QLatin1String("In function `int main(int, char**)':"),
                                     QLatin1String("/temp/test/untitled8/main.cpp"), -1,
                                     Constants::TASK_CATEGORY_COMPILE)
-                << TaskWindow::Task(TaskWindow::Error,
+                << Task(Task::Error,
                                     QLatin1String("`sfasdf' undeclared (first use this function)"),
                                     QLatin1String("/temp/test/untitled8/main.cpp"), 9,
                                     Constants::TASK_CATEGORY_COMPILE)
-                << TaskWindow::Task(TaskWindow::Error,
+                << Task(Task::Error,
                                     QLatin1String("(Each undeclared identifier is reported only once for each function it appears in.)"),
                                     QLatin1String("/temp/test/untitled8/main.cpp"), 9,
                                     Constants::TASK_CATEGORY_COMPILE)
@@ -178,48 +178,48 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QString::fromLatin1("/src/corelib/global/qglobal.h:1635: warning: inline function `QDebug qDebug()' used but never defined")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Warning,
-                                    QLatin1String("inline function `QDebug qDebug()' used but never defined"),
-                                    QLatin1String("/src/corelib/global/qglobal.h"), 1635,
-                                    Constants::TASK_CATEGORY_COMPILE))
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Warning,
+                        QLatin1String("inline function `QDebug qDebug()' used but never defined"),
+                        QLatin1String("/src/corelib/global/qglobal.h"), 1635,
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("warning")
             << QString::fromLatin1("main.cpp:7:2: warning: Some warning")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>() << TaskWindow::Task(TaskWindow::Warning,
-                                                              QLatin1String("Some warning"),
-                                                              QLatin1String("main.cpp"), 7,
-                                                              Constants::TASK_CATEGORY_COMPILE))
+            << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
+                                                       QLatin1String("Some warning"),
+                                                       QLatin1String("main.cpp"), 7,
+                                                       Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("GCCE #error")
             << QString::fromLatin1("C:\\temp\\test\\untitled8\\main.cpp:7: #error Symbian error")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>() << TaskWindow::Task(TaskWindow::Error,
-                                                              QLatin1String("#error Symbian error"),
-                                                              QLatin1String("C:\\temp\\test\\untitled8\\main.cpp"), 7,
-                                                              Constants::TASK_CATEGORY_COMPILE))
+            << (QList<ProjectExplorer::Task>() << Task(Task::Error,
+                                                       QLatin1String("#error Symbian error"),
+                                                       QLatin1String("C:\\temp\\test\\untitled8\\main.cpp"), 7,
+                                                       Constants::TASK_CATEGORY_COMPILE))
             << QString();
     // Symbian reports #warning(s) twice (using different syntax).
     QTest::newRow("GCCE #warning1")
             << QString::fromLatin1("C:\\temp\\test\\untitled8\\main.cpp:8: warning: #warning Symbian warning")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>() << TaskWindow::Task(TaskWindow::Warning,
-                                                              QLatin1String("#warning Symbian warning"),
-                                                              QLatin1String("C:\\temp\\test\\untitled8\\main.cpp"), 8,
-                                                              Constants::TASK_CATEGORY_COMPILE))
+            << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
+                                                       QLatin1String("#warning Symbian warning"),
+                                                       QLatin1String("C:\\temp\\test\\untitled8\\main.cpp"), 8,
+                                                       Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("GCCE #warning2")
             << QString::fromLatin1("/temp/test/untitled8/main.cpp:8:2: warning: #warning Symbian warning")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>() << TaskWindow::Task(TaskWindow::Warning,
-                                                              QLatin1String("#warning Symbian warning"),
-                                                              QLatin1String("/temp/test/untitled8/main.cpp"), 8,
-                                                              Constants::TASK_CATEGORY_COMPILE))
+            << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
+                                                       QLatin1String("#warning Symbian warning"),
+                                                       QLatin1String("/temp/test/untitled8/main.cpp"), 8,
+                                                       Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("Undefined reference (debug)")
             << QString::fromLatin1("main.o: In function `main':\n"
@@ -227,18 +227,18 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                    "collect2: ld returned 1 exit status")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Unknown,
-                                    QLatin1String("In function `main':"),
-                                    QLatin1String("main.o"), -1,
-                                    Constants::TASK_CATEGORY_COMPILE)
-                << TaskWindow::Task(TaskWindow::Error,
-                                    QLatin1String("undefined reference to `MainWindow::doSomething()'"),
-                                    QLatin1String("C:\\temp\\test\\untitled8/main.cpp"), 8,
-                                    Constants::TASK_CATEGORY_COMPILE)
-                << TaskWindow::Task(TaskWindow::Error,
-                                    QLatin1String("collect2: ld returned 1 exit status"),
-                                    QString(), -1,
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In function `main':"),
+                        QLatin1String("main.o"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("undefined reference to `MainWindow::doSomething()'"),
+                        QLatin1String("C:\\temp\\test\\untitled8/main.cpp"), 8,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("collect2: ld returned 1 exit status"),
+                        QString(), -1,
                                     Constants::TASK_CATEGORY_COMPILE)
                 )
             << QString();
@@ -248,40 +248,40 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                    "collect2: ld returned 1 exit status")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Unknown,
-                                    QLatin1String("In function `main':"),
-                                    QLatin1String("main.o"), -1,
-                                    Constants::TASK_CATEGORY_COMPILE)
-                << TaskWindow::Task(TaskWindow::Error,
-                                    QLatin1String("undefined reference to `MainWindow::doSomething()'"),
-                                    QLatin1String("C:\\temp\\test\\untitled8/main.cpp"), -1,
-                                    Constants::TASK_CATEGORY_COMPILE)
-                << TaskWindow::Task(TaskWindow::Error,
-                                    QLatin1String("collect2: ld returned 1 exit status"),
-                                    QString(), -1,
-                                    Constants::TASK_CATEGORY_COMPILE)
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In function `main':"),
+                        QLatin1String("main.o"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("undefined reference to `MainWindow::doSomething()'"),
+                        QLatin1String("C:\\temp\\test\\untitled8/main.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("collect2: ld returned 1 exit status"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
                 )
             << QString();
     QTest::newRow("linker: dll format not recognized")
             << QString::fromLatin1("c:\\Qt\\4.6\\lib/QtGuid4.dll: file not recognized: File format not recognized")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Error,
-                                    QLatin1String("file not recognized: File format not recognized"),
-                                    QLatin1String("c:\\Qt\\4.6\\lib/QtGuid4.dll"), -1,
-                                    Constants::TASK_CATEGORY_COMPILE))
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("file not recognized: File format not recognized"),
+                        QLatin1String("c:\\Qt\\4.6\\lib/QtGuid4.dll"), -1,
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
     QTest::newRow("Invalid rpath")
             << QString::fromLatin1("g++: /usr/local/lib: No such file or directory")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Error,
-                                    QLatin1String("/usr/local/lib: No such file or directory"),
-                                    QString(), -1,
-                                    Constants::TASK_CATEGORY_COMPILE))
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("/usr/local/lib: No such file or directory"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
 
     QTest::newRow("Invalid rpath")
@@ -290,19 +290,19 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                    "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2115: warning: unused variable 'handler'")
             << OutputParserTester::STDERR
             << QString() << QString()
-            << (QList<ProjectExplorer::TaskWindow::Task>()
-                << TaskWindow::Task(TaskWindow::Unknown,
-                                    QLatin1String("In member function 'void Debugger::Internal::GdbEngine::handleBreakInsert2(const Debugger::Internal::GdbResponse&)':"),
-                                    QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), -1,
-                                    Constants::TASK_CATEGORY_COMPILE)
-                << TaskWindow::Task(TaskWindow::Warning,
-                                    QLatin1String("unused variable 'index'"),
-                                    QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), 2114,
-                                    Constants::TASK_CATEGORY_COMPILE)
-                << TaskWindow::Task(TaskWindow::Warning,
-                                    QLatin1String("unused variable 'handler'"),
-                                    QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), 2115,
-                                    Constants::TASK_CATEGORY_COMPILE))
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In member function 'void Debugger::Internal::GdbEngine::handleBreakInsert2(const Debugger::Internal::GdbResponse&)':"),
+                        QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("unused variable 'index'"),
+                        QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), 2114,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Warning,
+                        QLatin1String("unused variable 'handler'"),
+                        QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), 2115,
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
 
@@ -312,7 +312,7 @@ void ProjectExplorerPlugin::testGccOutputParsers()
     testbench.appendOutputParser(new GccParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
-    QFETCH(QList<TaskWindow::Task>, tasks);
+    QFETCH(QList<Task>, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
     QFETCH(QString, outputLines);

@@ -48,7 +48,7 @@ public:
     virtual void stdOutput(const QString &line);
 
 private:
-    TaskWindow::TaskType toType(int number);
+    Task::TaskType toType(int number);
     QRegExp m_compileRegExp;
     QRegExp m_linkRegExp;
 };

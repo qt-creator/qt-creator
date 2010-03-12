@@ -102,7 +102,7 @@ public:
 
 signals:
     // Add a task.
-    void addTask(const ProjectExplorer::TaskWindow::Task &task);
+    void addTask(const ProjectExplorer::Task &task);
     // The string is added to the generated output, usually in the output
     // window.
     // It should be in html format, that is properly escaped

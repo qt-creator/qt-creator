@@ -47,7 +47,7 @@ public:
     virtual void stdOutput(const QString &line);
 
 public slots:
-    virtual void taskAdded(const ProjectExplorer::TaskWindow::Task &task);
+    virtual void taskAdded(const ProjectExplorer::Task &task);
 
 private:
     void addDirectory(const QString &dir);

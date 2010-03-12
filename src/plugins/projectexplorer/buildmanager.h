@@ -92,7 +92,7 @@ signals:
     void tasksChanged();
 
 private slots:
-    void addToTaskWindow(const ProjectExplorer::TaskWindow::Task &task);
+    void addToTaskWindow(const ProjectExplorer::Task &task);
     void addToOutputWindow(const QString &string);
 
     void nextBuildQueue();

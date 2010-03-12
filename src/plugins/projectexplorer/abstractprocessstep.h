@@ -144,7 +144,7 @@ private slots:
     void slotProcessFinished(int, QProcess::ExitStatus);
     void checkForCancel();
 
-    void taskAdded(const ProjectExplorer::TaskWindow::Task &task);
+    void taskAdded(const ProjectExplorer::Task &task);
     void outputAdded(const QString &string);
 
 private:

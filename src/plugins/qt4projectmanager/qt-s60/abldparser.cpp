@@ -55,19 +55,19 @@ void AbldParser::stdOutput(const QString &line)
     QString lne = line.trimmed();
     // possible ABLD.bat errors:
     if (lne.startsWith(QLatin1String("Is Perl, version "))) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne /* description */,
-                                      QString() /* filename */,
-                                      -1 /* linenumber */,
-                                      TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Error,
+                          lne /* description */,
+                          QString() /* filename */,
+                          -1 /* linenumber */,
+                          TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
     if (lne.startsWith(QLatin1String("FATAL ERROR:"))) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne /* description */,
-                                      QString() /* filename */,
-                                      -1 /* linenumber */,
-                                      TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Error,
+                          lne /* description */,
+                          QString() /* filename */,
+                          -1 /* linenumber */,
+                          TASK_CATEGORY_BUILDSYSTEM));
         m_waitingForStdOutContinuation = false;
         return;
     }
@@ -77,15 +77,15 @@ void AbldParser::stdOutput(const QString &line)
         m_currentFile = m_perlIssue.cap(2);
         m_currentLine = m_perlIssue.cap(3).toInt();
 
-        TaskWindow::Task task(TaskWindow::Unknown,
-                              m_perlIssue.cap(4) /* description */,
-                              m_currentFile, m_currentLine,
-                              TASK_CATEGORY_BUILDSYSTEM);
+        Task task(Task::Unknown,
+                  m_perlIssue.cap(4) /* description */,
+                  m_currentFile, m_currentLine,
+                  TASK_CATEGORY_BUILDSYSTEM);
 
         if (m_perlIssue.cap(1) == QLatin1String("WARNING"))
-            task.type = TaskWindow::Warning;
+            task.type = Task::Warning;
         else if (m_perlIssue.cap(1) == QLatin1String("ERROR"))
-            task.type = TaskWindow::Error;
+            task.type = Task::Error;
 
         emit addTask(task);
         return;
@@ -97,10 +97,10 @@ void AbldParser::stdOutput(const QString &line)
     }
 
     if (m_waitingForStdOutContinuation) {
-        emit addTask(TaskWindow::Task(TaskWindow::Unknown,
-                                      lne /* description */,
-                                      m_currentFile, m_currentLine,
-                                      TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Unknown,
+                          lne /* description */,
+                          m_currentFile, m_currentLine,
+                          TASK_CATEGORY_BUILDSYSTEM));
         m_waitingForStdOutContinuation = true;
         return;
     }
@@ -117,20 +117,20 @@ void AbldParser::stdError(const QString &line)
     if (lne.startsWith(QLatin1String("ABLD ERROR:")) ||
         lne.startsWith(QLatin1String("This project does not support ")) ||
         lne.startsWith(QLatin1String("Platform "))) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne /* description */,
-                                      QString() /* filename */,
-                                      -1 /* linenumber */,
-                                      TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Error,
+                          lne /* description */,
+                          QString() /* filename */,
+                          -1 /* linenumber */,
+                          TASK_CATEGORY_BUILDSYSTEM));
         return;
     }
 
     if (lne.startsWith(QLatin1String("Died at "))) {
-        emit addTask(TaskWindow::Task(TaskWindow::Error,
-                                      lne /* description */,
-                                      QString() /* filename */,
-                                      -1 /* linenumber */,
-                                      TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Error,
+                          lne /* description */,
+                          QString() /* filename */,
+                          -1 /* linenumber */,
+                          TASK_CATEGORY_BUILDSYSTEM));
         m_waitingForStdErrContinuation = false;
         return;
     }
@@ -146,29 +146,29 @@ void AbldParser::stdError(const QString &line)
     }
     if (lne.startsWith(QLatin1String("WARNING: "))) {
         QString description = lne.mid(9);
-        emit addTask(TaskWindow::Task(TaskWindow::Warning, description,
-                                      m_currentFile,
-                                      -1 /* linenumber */,
-                                      TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Warning, description,
+                          m_currentFile,
+                          -1 /* linenumber */,
+                          TASK_CATEGORY_BUILDSYSTEM));
         m_waitingForStdErrContinuation = true;
         return;
     }
     if (lne.startsWith(QLatin1String("ERROR: "))) {
         QString description = lne.mid(7);
-        emit addTask(TaskWindow::Task(TaskWindow::Error, description,
-                                      m_currentFile,
-                                      -1 /* linenumber */,
-                                      TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Error, description,
+                          m_currentFile,
+                          -1 /* linenumber */,
+                          TASK_CATEGORY_BUILDSYSTEM));
         m_waitingForStdErrContinuation = true;
         return;
     }
     if (m_waitingForStdErrContinuation)
     {
-        emit addTask(TaskWindow::Task(TaskWindow::Unknown,
-                                      lne /* description */,
-                                      m_currentFile,
-                                      -1 /* linenumber */,
-                                      TASK_CATEGORY_BUILDSYSTEM));
+        emit addTask(Task(Task::Unknown,
+                          lne /* description */,
+                          m_currentFile,
+                          -1 /* linenumber */,
+                          TASK_CATEGORY_BUILDSYSTEM));
         m_waitingForStdErrContinuation = true;
         return;
     }

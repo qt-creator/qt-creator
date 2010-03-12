@@ -50,6 +50,33 @@ class TaskWindowContext;
 
 } // namespace Internal
 
+struct Task {
+    enum TaskType {
+        Unknown,
+        Error,
+        Warning
+    };
+
+    Task() : type(Unknown), line(-1)
+    { }
+    Task(TaskType type_, const QString &description_,
+         const QString &file_, int line_, const QString &category_) :
+        type(type_), description(description_), file(file_), line(line_), category(category_)
+    { }
+    Task(const Task &source) :
+        type(source.type), description(source.description), file(source.file),
+        line(source.line), category(source.category)
+    { }
+    ~Task()
+    { }
+
+    TaskType type;
+    QString description;
+    QString file;
+    int line;
+    QString category;
+};
+
 class PROJECTEXPLORER_EXPORT TaskWindow : public Core::IOutputPane
 {
     Q_OBJECT
@@ -57,33 +84,6 @@ class PROJECTEXPLORER_EXPORT TaskWindow : public Core::IOutputPane
 public:
     TaskWindow();
     ~TaskWindow();
-
-    enum TaskType {
-        Unknown,
-        Error,
-        Warning
-    };
-
-    struct Task {
-        Task() : type(Unknown), line(-1)
-        { }
-        Task(TaskType type_, const QString &description_,
-             const QString &file_, int line_, const QString &category_) :
-            type(type_), description(description_), file(file_), line(line_), category(category_)
-        { }
-        Task(const Task &source) :
-            type(source.type), description(source.description), file(source.file),
-            line(source.line), category(source.category)
-        { }
-        ~Task()
-        { }
-
-        TaskType type;
-        QString description;
-        QString file;
-        int line;
-        QString category;
-    };
 
     void addCategory(const QString &categoryId, const QString &displayName);
 
@@ -137,8 +137,8 @@ private:
     QMenu *m_categoriesMenu;
 };
 
-bool operator==(const TaskWindow::Task &t1, const TaskWindow::Task &t2);
-uint qHash(const TaskWindow::Task &task);
+bool operator==(const Task &t1, const Task &t2);
+uint qHash(const Task &task);
 
 } //namespace ProjectExplorer
 

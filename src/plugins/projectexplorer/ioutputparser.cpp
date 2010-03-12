@@ -52,8 +52,8 @@ void IOutputParser::appendOutputParser(IOutputParser *parser)
     m_parser = parser;
     connect(parser, SIGNAL(addOutput(QString)),
             this, SLOT(outputAdded(QString)));
-    connect(parser, SIGNAL(addTask(ProjectExplorer::TaskWindow::Task)),
-            this, SLOT(taskAdded(ProjectExplorer::TaskWindow::Task)));
+    connect(parser, SIGNAL(addTask(ProjectExplorer::Task)),
+            this, SLOT(taskAdded(ProjectExplorer::Task)));
 }
 
 IOutputParser *IOutputParser::takeOutputParserChain()
@@ -85,7 +85,7 @@ void IOutputParser::outputAdded(const QString &string)
     emit addOutput(string);
 }
 
-void IOutputParser::taskAdded(const ProjectExplorer::TaskWindow::Task &task)
+void IOutputParser::taskAdded(const ProjectExplorer::Task &task)
 {
     emit addTask(task);
 }
