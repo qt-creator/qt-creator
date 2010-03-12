@@ -140,7 +140,9 @@ void DoubleTabWidget::mousePressEvent(QMouseEvent *event)
         int eventX = event->x();
         // clicked on the top level part of the bar
         QFontMetrics fm(font());
-        int x = 2 * MARGIN + qMax(fm.width(m_title), MIN_LEFT_MARGIN);
+        int x = m_title.isEmpty() ? 0 :
+                2 * MARGIN + qMax(fm.width(m_title), MIN_LEFT_MARGIN);
+
         if (eventX <= x)
             return;
         int i;
@@ -238,8 +240,10 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
     int baseline = (r.height() + fm.ascent()) / 2 - 1;
 
     // top level title
-    painter.setPen(Utils::StyleHelper::panelTextColor());
-    painter.drawText(MARGIN, baseline, m_title);
+    if (!m_title.isEmpty()) {
+        painter.setPen(Utils::StyleHelper::panelTextColor());
+        painter.drawText(MARGIN, baseline, m_title);
+    }
 
     QLinearGradient grad(QPoint(0, 0), QPoint(0, r.height() + OTHER_HEIGHT - 1));
     grad.setColorAt(0, QColor(247, 247, 247));
@@ -255,7 +259,8 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
                      r.width(), r.height());
 
     // top level tabs
-    int x = 2 * MARGIN + qMax(fm.width(m_title), MIN_LEFT_MARGIN);
+    int x = m_title.isEmpty() ? 0 :
+            2 * MARGIN + qMax(fm.width(m_title), MIN_LEFT_MARGIN);
 
     // calculate sizes
     QList<int> nameWidth;
@@ -331,6 +336,11 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
                                    2 * MARGIN + fm.width(tab.name),
                                    r.height() + 1),
                              grad);
+
+            if (actualIndex != 0) {
+                painter.setPen(QColor(255, 255, 255, 170));
+                painter.drawLine(x, 0, x, r.height());
+            }
             x += MARGIN;
             painter.setPen(Qt::black);
             painter.drawText(x, baseline, tab.name);
@@ -338,6 +348,10 @@ void DoubleTabWidget::paintEvent(QPaintEvent *event)
             x += MARGIN;
             painter.setPen(Utils::StyleHelper::borderColor());
             painter.drawLine(x, 0, x, r.height() - 1);
+            painter.setPen(QColor(0, 0, 0, 20));
+            painter.drawLine(x + 1, 0, x + 1, r.height() - 1);
+            painter.setPen(QColor(255, 255, 255, 170));
+            painter.drawLine(x - 1, 0, x - 1, r.height());
         } else {
             if (i == 0)
                 drawFirstLevelSeparator(&painter, QPoint(x, 0), QPoint(x, r.height()-1));

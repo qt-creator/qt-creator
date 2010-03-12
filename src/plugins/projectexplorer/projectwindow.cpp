@@ -263,7 +263,6 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     viewLayout->setSpacing(0);
 
     m_tabWidget = new DoubleTabWidget(this);
-    m_tabWidget->setTitle(tr("Select a Project:"));
     viewLayout->addWidget(m_tabWidget);
 
     // Setup our container for the contents:
