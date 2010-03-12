@@ -110,6 +110,13 @@ protected:
             return spell(strLit->literal_token);
         } else if (BoolLiteralAST *boolLit = ast->asBoolLiteral()) {
             return spell(boolLit->literal_token);
+        } else if (ObjCSelectorArgumentAST *selArg = ast->asObjCSelectorArgument()) {
+            QByteArray t = spell(selArg->name_token);
+            if (selArg->colon_token)
+                t.append(spell(selArg->colon_token));
+            return t;
+        } else if (AttributeAST *attr = ast->asAttribute()) {
+            return spell(attr->identifier_token);
         } else {
             return QByteArray();
         }
