@@ -1,8 +1,9 @@
 #include "qmlprojectitem.h"
 #include "filefilteritems.h"
-#include <QmlComponent>
-#include <QmlContext>
-#include <QmlEngine>
+#include "qmlprojectfileformat.h"
+#include <QDeclarativeComponent>
+#include <QDeclarativeContext>
+#include <QDeclarativeEngine>
 #include <QtTest>
 
 using namespace QmlProjectManager;
@@ -21,7 +22,7 @@ private slots:
 
 TestProject::TestProject()
 {
-
+    QmlProjectFileFormat::registerDeclarativeTypes();
 }
 
 QString testDataDir = QLatin1String(SRCDIR "/data");
@@ -39,8 +40,8 @@ void TestProject::testFileFilter()
             "}\n");
 
     {
-        QmlEngine engine;
-        QmlComponent component(&engine);
+        QDeclarativeEngine engine;
+        QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
             qDebug() << component.errorsString();
@@ -68,8 +69,8 @@ void TestProject::testFileFilter()
             "}\n");
 
     {
-        QmlEngine engine;
-        QmlComponent component(&engine);
+        QDeclarativeEngine engine;
+        QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
             qDebug() << component.errorsString();
@@ -98,8 +99,8 @@ void TestProject::testFileFilter()
             "}\n");
 
     {
-        QmlEngine engine;
-        QmlComponent component(&engine);
+        QDeclarativeEngine engine;
+        QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         QVERIFY(component.isReady());
 
@@ -127,8 +128,8 @@ void TestProject::testFileFilter()
             "}\n");
 
     {
-        QmlEngine engine;
-        QmlComponent component(&engine);
+        QDeclarativeEngine engine;
+        QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
             qDebug() << component.errorsString();
@@ -159,8 +160,8 @@ void TestProject::testFileFilter()
             "}\n");
 
     {
-        QmlEngine engine;
-        QmlComponent component(&engine);
+        QDeclarativeEngine engine;
+        QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
             qDebug() << component.errorsString();
@@ -188,8 +189,8 @@ void TestProject::testFileFilter()
             "}\n");
 
     {
-        QmlEngine engine;
-        QmlComponent component(&engine);
+        QDeclarativeEngine engine;
+        QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
             qDebug() << component.errorsString();
@@ -222,8 +223,8 @@ void TestProject::testMatchesFile()
             "  }"
             "}\n");
 
-    QmlEngine engine;
-    QmlComponent component(&engine);
+    QDeclarativeEngine engine;
+    QDeclarativeComponent component(&engine);
     component.setData(projectFile.toUtf8(), QUrl());
     if (!component.isReady())
         qDebug() << component.errorsString();
@@ -253,8 +254,8 @@ void TestProject::testLibraryPaths()
             "}\n");
 
     {
-        QmlEngine engine;
-        QmlComponent component(&engine);
+        QDeclarativeEngine engine;
+        QDeclarativeComponent component(&engine);
         component.setData(projectFile.toUtf8(), QUrl());
         if (!component.isReady())
             qDebug() << component.errorsString();
