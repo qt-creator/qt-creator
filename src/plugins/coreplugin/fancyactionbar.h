@@ -39,6 +39,7 @@ class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace Core {
+    class IMode;
 namespace Internal {
 
 class FancyToolButton : public QToolButton
@@ -75,8 +76,13 @@ public:
     void addProjectSelector(QAction *action);
     QLayout *actionsLayout() const;
 
+private slots:
+    void modeChanged(Core::IMode *mode);
+
 private:
     QVBoxLayout *m_actionsLayout;
+    FancyToolButton *m_runButton;
+    FancyToolButton *m_debugButton;
 };
 
 } // namespace Internal

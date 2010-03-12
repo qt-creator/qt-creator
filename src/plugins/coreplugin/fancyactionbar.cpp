@@ -1,4 +1,4 @@
-/********************Q******************************************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
@@ -33,6 +33,8 @@
 #include <utils/stylehelper.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
+#include <coreplugin/modemanager.h>
 #include <coreplugin/mainwindow.h>
 
 #include <QtGui/QHBoxLayout>
@@ -47,6 +49,7 @@
 #include <QtGui/QMouseEvent>
 #include <QtCore/QAnimationGroup>
 #include <QtCore/QPropertyAnimation>
+#include <QtCore/QDebug>
 
 using namespace Core;
 using namespace Internal;
@@ -234,6 +237,11 @@ FancyActionBar::FancyActionBar(QWidget *parent)
     spacerLayout->setSpacing(0);
     setLayout(spacerLayout);
     setContentsMargins(0,2,0,0);
+
+    m_runButton = m_debugButton = 0;
+
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(modeChanged(Core::IMode*)));
 }
 
 void FancyActionBar::addProjectSelector(QAction *action)
@@ -247,10 +255,25 @@ void FancyActionBar::addProjectSelector(QAction *action)
 void FancyActionBar::insertAction(int index, QAction *action)
 {
     FancyToolButton *toolButton = new FancyToolButton(this);
+    if (action->objectName() == QLatin1String("ProjectExplorer.Run"))
+        m_runButton = toolButton;
+    if (action->objectName() == QLatin1String("ProjectExplorer.Debug"))
+        m_debugButton = toolButton;
+
     toolButton->setDefaultAction(action);
     connect(action, SIGNAL(changed()), toolButton, SLOT(actionChanged()));
     m_actionsLayout->insertWidget(index, toolButton);
 }
+
+void FancyActionBar::modeChanged(Core::IMode *mode)
+{
+    if (m_runButton && m_debugButton) {
+        bool inDebugMode = (mode->id() == QLatin1String("Debugger.Mode.Debug"));
+        m_runButton->setVisible(!inDebugMode);
+        m_debugButton->setVisible(inDebugMode);
+    }
+}
+
 
 QLayout *FancyActionBar::actionsLayout() const
 {
