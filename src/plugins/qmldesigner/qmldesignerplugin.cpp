@@ -80,6 +80,7 @@ BauhausPlugin::BauhausPlugin() :
     m_closeAllEditorsAction(new QAction(this)),
     m_closeOtherEditorsAction(new QAction(this))
 {
+
     // Exceptions should never ever assert: they are handled in a number of
     // places where it is actually VALID AND EXPECTED BEHAVIOUR to get an
     // exception.

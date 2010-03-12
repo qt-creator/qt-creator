@@ -32,7 +32,9 @@
 
 #include "extensionsystem_global.h"
 
+#include <QtCore/QHash>
 #include <QtGui/QWidget>
+#include <QtGui/QIcon>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
@@ -42,6 +44,7 @@ namespace ExtensionSystem {
 
 class PluginManager;
 class PluginSpec;
+class PluginCollection;
 
 namespace Internal {
     class PluginViewPrivate;
@@ -63,15 +66,30 @@ public:
 signals:
     void currentPluginChanged(ExtensionSystem::PluginSpec *spec);
     void pluginActivated(ExtensionSystem::PluginSpec *spec);
+    void pluginSettingsChanged(ExtensionSystem::PluginSpec *spec);
 
 private slots:
+    void updatePluginSettings(QTreeWidgetItem *item, int column);
     void updateList();
     void selectPlugin(QTreeWidgetItem *current);
     void activatePlugin(QTreeWidgetItem *item);
 
 private:
+    void toggleRelatedPlugins(PluginSpec *spec, bool isPluginEnabled = true);
+    bool parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins);
+
     Internal::Ui::PluginView *m_ui;
     Internal::PluginViewPrivate *p;
+    QList<QTreeWidgetItem*> m_items;
+    QHash<PluginSpec*, QTreeWidgetItem*> m_specToItem;
+
+    QStringList m_whitelist;
+    QIcon m_okIcon;
+    QIcon m_errorIcon;
+    QIcon m_notLoadedIcon;
+    bool m_allowCheckStateUpdate;
+
+    const int C_LOAD;
 };
 
 } // namespae ExtensionSystem

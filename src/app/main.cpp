@@ -202,7 +202,6 @@ int main(int argc, char **argv)
                                  QLatin1String("Nokia"), QLatin1String("QtCreator"));
     locale = settings.value("General/OverrideLanguage", locale).toString();
 
-
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
                         + QLatin1String(SHARE_PATH "/translations");
     if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {

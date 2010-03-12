@@ -67,12 +67,16 @@ public:
     QString license;
     QString description;
     QString url;
+    QString category;
     QList<PluginDependency> dependencies;
+    bool loadOnStartup;
+    bool ignoreOnStartup;
 
     QString location;
     QString filePath;
     QStringList arguments;
 
+    QList<PluginSpec *> providesSpecs;
     QList<PluginSpec *> dependencySpecs;
     PluginSpec::PluginArgumentDescriptions argumentDescriptions;
     IPlugin *plugin;

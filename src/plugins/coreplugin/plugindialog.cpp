@@ -40,9 +40,12 @@
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QLabel>
 #include <QtDebug>
 
 using namespace Core::Internal;
+
+bool PluginDialog::m_isRestartRequired = false;
 
 PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
@@ -59,13 +62,20 @@ PluginDialog::PluginDialog(QWidget *parent)
     m_closeButton->setEnabled(true);
     m_closeButton->setDefault(true);
 
+    m_restartRequired = new QLabel(tr("Restart required."), this);
+    if (!m_isRestartRequired)
+        m_restartRequired->setVisible(false);
+
     QHBoxLayout *hl = new QHBoxLayout;
     hl->addWidget(m_detailsButton);
     hl->addWidget(m_errorDetailsButton);
+    hl->addSpacing(10);
+    hl->addWidget(m_restartRequired);
     hl->addStretch(5);
     hl->addWidget(m_closeButton);
 
     vl->addLayout(hl);
+
 
     resize(650, 400);
     setWindowTitle(tr("Installed Plugins"));
@@ -74,10 +84,25 @@ PluginDialog::PluginDialog(QWidget *parent)
             this, SLOT(updateButtons()));
     connect(m_view, SIGNAL(pluginActivated(ExtensionSystem::PluginSpec*)),
             this, SLOT(openDetails(ExtensionSystem::PluginSpec*)));
+    connect(m_view, SIGNAL(pluginSettingsChanged(ExtensionSystem::PluginSpec*)),
+            this, SLOT(updateRestartRequired()));
     connect(m_detailsButton, SIGNAL(clicked()), this, SLOT(openDetails()));
     connect(m_errorDetailsButton, SIGNAL(clicked()), this, SLOT(openErrorDetails()));
-    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeDialog()));
     updateButtons();
+}
+
+void PluginDialog::closeDialog()
+{
+    ExtensionSystem::PluginManager::instance()->writeSettings();
+    accept();
+}
+
+void PluginDialog::updateRestartRequired()
+{
+    // just display the notice all the time after once changing something
+    m_isRestartRequired = true;
+    m_restartRequired->setVisible(true);
 }
 
 void PluginDialog::updateButtons()
@@ -85,7 +110,9 @@ void PluginDialog::updateButtons()
     ExtensionSystem::PluginSpec *selectedSpec = m_view->currentPlugin();
     if (selectedSpec) {
         m_detailsButton->setEnabled(true);
-        m_errorDetailsButton->setEnabled(selectedSpec->hasError());
+        m_errorDetailsButton->setEnabled(selectedSpec->hasError()
+                                         || selectedSpec->ignoreOnStartup()
+                                         || !selectedSpec->loadOnStartup());
     } else {
         m_detailsButton->setEnabled(false);
         m_errorDetailsButton->setEnabled(false);

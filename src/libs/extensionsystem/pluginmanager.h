@@ -42,7 +42,7 @@ class QTextStream;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {
-
+class PluginCollection;
 namespace Internal {
     class PluginManagerPrivate;
 }
@@ -95,8 +95,13 @@ public:
     QStringList pluginPaths() const;
     void setPluginPaths(const QStringList &paths);
     QList<PluginSpec *> plugins() const;
+    QHash<QString, PluginCollection *> pluginCollections() const;
     void setFileExtension(const QString &extension);
     QString fileExtension() const;
+
+    // Settings
+    void loadSettings();
+    void writeSettings();
 
     // command line arguments
     QStringList arguments() const;

@@ -78,6 +78,10 @@ public:
     QString license() const;
     QString description() const;
     QString url() const;
+    QString category() const;
+    bool loadOnStartup() const;
+    // true if loading was not done due to user unselecting this plugin or its dependencies
+    bool ignoreOnStartup() const;
     QList<PluginDependency> dependencies() const;
 
     typedef QList<PluginArgumentDescription> PluginArgumentDescriptions;
@@ -87,6 +91,9 @@ public:
     QString location() const;
     QString filePath() const;
 
+    void setLoadOnStartup(bool value);
+    void setIgnoreOnStartup(bool value);
+
     QStringList arguments() const;
     void setArguments(const QStringList &arguments);
     void addArgument(const QString &argument);
@@ -95,6 +102,13 @@ public:
 
     // dependency specs, valid after 'Resolved' state is reached
     QList<PluginSpec *> dependencySpecs() const;
+
+    // list of plugins that depend on this - e.g. this plugins provides for them
+    QList<PluginSpec *> providesSpecs() const;
+
+    // add/remove from providesSpecs
+    void addDependentPlugin(PluginSpec *dependent);
+    void removeDependentPlugin(PluginSpec *dependent);
 
     // linked plugin instance, valid after 'Loaded' state is reached
     IPlugin *plugin() const;

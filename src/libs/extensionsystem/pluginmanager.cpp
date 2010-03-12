@@ -33,6 +33,7 @@
 #include "pluginspec_p.h"
 #include "optionsparser.h"
 #include "iplugin.h"
+#include "plugincollection.h"
 
 #include <QtCore/QMetaProperty>
 #include <QtCore/QDir>
@@ -40,10 +41,13 @@
 #include <QtCore/QWriteLocker>
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
+#include <QtCore/QSettings>
 #include <QtDebug>
 #ifdef WITH_TESTS
 #include <QTest>
 #endif
+
+static const char * const C_IGNORED_PLUGINS = "Plugins/Ignored";
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 
@@ -297,6 +301,16 @@ void PluginManager::setFileExtension(const QString &extension)
     d->extension = extension;
 }
 
+void PluginManager::loadSettings()
+{
+    d->loadSettings();
+}
+
+void PluginManager::writeSettings()
+{
+    d->writeSettings();
+}
+
 /*!
     \fn QStringList PluginManager::arguments() const
     The arguments left over after parsing (Neither startup nor plugin
@@ -320,6 +334,11 @@ QStringList PluginManager::arguments() const
 QList<PluginSpec *> PluginManager::plugins() const
 {
     return d->pluginSpecs;
+}
+
+QHash<QString, PluginCollection *> PluginManager::pluginCollections() const
+{
+    return d->pluginCategories;
 }
 
 /*!
@@ -593,9 +612,33 @@ PluginManagerPrivate::~PluginManagerPrivate()
 {
     stopAll();
     qDeleteAll(pluginSpecs);
+    qDeleteAll(pluginCategories);
     if (!allObjects.isEmpty()) {
         qDebug() << "There are" << allObjects.size() << "objects left in the plugin manager pool: " << allObjects;
     }
+}
+
+void PluginManagerPrivate::writeSettings()
+{
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+                                 QLatin1String("Nokia"), QLatin1String("QtCreator"));
+
+    QStringList notLoadedPlugins;
+    foreach(PluginSpec *spec, pluginSpecs) {
+        if (!spec->loadOnStartup())
+            notLoadedPlugins.append(spec->name());
+    }
+
+    settings.setValue(QLatin1String(C_IGNORED_PLUGINS), notLoadedPlugins);
+}
+
+void PluginManagerPrivate::loadSettings()
+{
+    const QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+                                 QLatin1String("Nokia"), QLatin1String("QtCreator"));
+
+
+    notLoadedPlugins = settings.value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
 }
 
 void PluginManagerPrivate::stopAll()
@@ -719,9 +762,11 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
     circularityCheckQueue.append(spec);
     // check if we have the dependencies
     if (spec->state() == PluginSpec::Invalid || spec->state() == PluginSpec::Read) {
-        spec->d->hasError = true;
-        spec->d->errorString += "\n";
-        spec->d->errorString += PluginManager::tr("Cannot load plugin because dependencies are not resolved");
+        if (!spec->d->ignoreOnStartup && spec->d->loadOnStartup) {
+            spec->d->hasError = true;
+            spec->d->errorString += "\n";
+            spec->d->errorString += PluginManager::tr("Cannot load plugin because dependencies are not resolved");
+        }
         return false;
     }
     // add dependencies
@@ -745,8 +790,9 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
 */
 void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destState)
 {
-    if (spec->hasError())
+    if (spec->hasError() || spec->ignoreOnStartup())
         return;
+
     switch (destState) {
     case PluginSpec::Running:
         profilingReport(">initializeExtensions", spec);
@@ -796,6 +842,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
 void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
 {
     pluginPaths = paths;
+    loadSettings();
     readPluginPaths();
 }
 
@@ -805,8 +852,10 @@ void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
 */
 void PluginManagerPrivate::readPluginPaths()
 {
+    qDeleteAll(pluginCategories);
     qDeleteAll(pluginSpecs);
     pluginSpecs.clear();
+    pluginCategories.clear();
 
     QStringList specFiles;
     QStringList searchPaths = pluginPaths;
@@ -820,9 +869,25 @@ void PluginManagerPrivate::readPluginPaths()
         foreach (const QFileInfo &subdir, dirs)
             searchPaths << subdir.absoluteFilePath();
     }
+    defaultCollection = new PluginCollection(QString());
+    pluginCategories.insert("", defaultCollection);
+
     foreach (const QString &specFile, specFiles) {
         PluginSpec *spec = new PluginSpec;
         spec->d->read(specFile);
+
+        PluginCollection *collection = 0;
+        // find correct plugin collection or create a new one
+        if (pluginCategories.contains(spec->category()))
+            collection = pluginCategories.value(spec->category());
+        else {
+            collection = new PluginCollection(spec->category());
+            pluginCategories.insert(spec->category(), collection);
+        }
+        if (notLoadedPlugins.contains(spec->name()))
+            spec->setLoadOnStartup(false);
+
+        collection->addPlugin(spec);
         pluginSpecs.append(spec);
     }
     resolveDependencies();
@@ -860,6 +925,21 @@ PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *r
         }
     }
     return 0;
+}
+
+void PluginManagerPrivate::removePluginSpec(PluginSpec *spec)
+{
+    pluginSpecs.removeAll(spec);
+
+    if (pluginCategories.contains(spec->category()))
+        pluginCategories.value(spec->category())->removePlugin(spec);
+
+    foreach(PluginSpec *dep, spec->dependencySpecs()) {
+        dep->removeDependentPlugin(spec);
+    }
+
+    delete spec;
+    spec = 0;
 }
 
 PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const

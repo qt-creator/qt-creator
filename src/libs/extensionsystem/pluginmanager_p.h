@@ -45,6 +45,7 @@ QT_END_NAMESPACE
 namespace ExtensionSystem {
 
 class PluginManager;
+class PluginCollection;
 
 namespace Internal {
 
@@ -68,12 +69,17 @@ public:
     void resolveDependencies();
     void initProfiling();
     void profilingReport(const char *what, const PluginSpec *spec = 0);
+    void loadSettings();
+    void writeSettings();
+    void removePluginSpec(PluginSpec *spec);
 
+    QHash<QString, PluginCollection *> pluginCategories;
     QList<PluginSpec *> pluginSpecs;
     QList<PluginSpec *> testSpecs;
     QStringList pluginPaths;
     QString extension;
     QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
+    QStringList notLoadedPlugins;
 
     QStringList arguments;
     QScopedPointer<QTime> m_profileTimer;
@@ -87,6 +93,7 @@ public:
     static PluginSpec *createSpec();
     static PluginSpecPrivate *privateSpec(PluginSpec *spec);
 private:
+    PluginCollection *defaultCollection;
     PluginManager *q;
 
     void readPluginPaths();

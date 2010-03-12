@@ -227,6 +227,30 @@ QString PluginSpec::url() const
 }
 
 /*!
+    \fn QString PluginSpec::category() const
+    The category that the plugin belongs to. Categories are groups of plugins which allow for keeping them together in the UI.
+    Returns an empty string if the plugin does not belong to a category.
+*/
+QString PluginSpec::category() const
+{
+    return d->category;
+}
+
+/*!
+    \fn bool PluginSpec::loadOnStartup() const
+    True if the plugin is loaded at startup. True by default - the user can change it from the Plugin settings.
+*/
+bool PluginSpec::loadOnStartup() const
+{
+    return d->loadOnStartup;
+}
+
+bool PluginSpec::ignoreOnStartup() const
+{
+    return d->ignoreOnStartup;
+}
+
+/*!
     \fn QList<PluginDependency> PluginSpec::dependencies() const
     The plugin dependencies. This is valid after the PluginSpec::Read state is reached.
 */
@@ -358,6 +382,33 @@ QList<PluginSpec *> PluginSpec::dependencySpecs() const
     return d->dependencySpecs;
 }
 
+/*!
+    \fn QList<PluginSpec *> PluginSpec::providesSpecs() const
+    Returns the list of plugins that depend on this one.
+
+    \sa PluginSpec::dependencySpecs()
+*/
+QList<PluginSpec *> PluginSpec::providesSpecs() const
+{
+    return d->providesSpecs;
+}
+
+/*!
+    \fn void PluginSpec::addDependentPlugin(PluginSpec *dependent)
+    Adds a dependent the list of plugins that depend on this one.
+
+    \sa PluginSpec::providesSpecs()
+*/
+void PluginSpec::addDependentPlugin(PluginSpec *dependent)
+{
+    d->providesSpecs.append(dependent);
+}
+
+void PluginSpec::removeDependentPlugin(PluginSpec *dependent)
+{
+    d->providesSpecs.removeOne(dependent);
+}
+
 //==========PluginSpecPrivate==================
 
 namespace {
@@ -370,6 +421,7 @@ namespace {
     const char * const LICENSE = "license";
     const char * const DESCRIPTION = "description";
     const char * const URL = "url";
+    const char * const CATEGORY = "category";
     const char * const DEPENDENCYLIST = "dependencyList";
     const char * const DEPENDENCY = "dependency";
     const char * const DEPENDENCY_NAME = "name";
@@ -384,7 +436,10 @@ namespace {
     \internal
 */
 PluginSpecPrivate::PluginSpecPrivate(PluginSpec *spec)
-    : plugin(0),
+    :
+    loadOnStartup(true),
+    ignoreOnStartup(false),
+    plugin(0),
     state(PluginSpec::Invalid),
     hasError(false),
     q(spec)
@@ -405,6 +460,7 @@ bool PluginSpecPrivate::read(const QString &fileName)
         = license
         = description
         = url
+        = category
         = location
         = "";
     state = PluginSpec::Invalid;
@@ -438,6 +494,16 @@ bool PluginSpecPrivate::read(const QString &fileName)
                 .arg(reader.columnNumber()));
     state = PluginSpec::Read;
     return true;
+}
+
+void PluginSpec::setLoadOnStartup(bool value)
+{
+    d->loadOnStartup = value;
+}
+
+void PluginSpec::setIgnoreOnStartup(bool value)
+{
+    d->ignoreOnStartup = value;
 }
 
 /*!
@@ -523,6 +589,8 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
                 description = reader.readElementText().trimmed();
             else if (element == URL)
                 url = reader.readElementText().trimmed();
+            else if (element == CATEGORY)
+                category = reader.readElementText().trimmed();
             else if (element == DEPENDENCYLIST)
                 readDependencies(reader);
             else if (element == ARGUMENTLIST)
@@ -725,9 +793,15 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
     QList<PluginSpec *> resolvedDependencies;
     foreach (const PluginDependency &dependency, dependencies) {
         PluginSpec *found = 0;
+
         foreach (PluginSpec *spec, specs) {
             if (spec->provides(dependency.name, dependency.version)) {
                 found = spec;
+                if (!spec->loadOnStartup() || spec->ignoreOnStartup())
+                    ignoreOnStartup = true;
+
+                spec->addDependentPlugin(q);
+
                 break;
             }
         }
@@ -743,8 +817,12 @@ bool PluginSpecPrivate::resolveDependencies(const QList<PluginSpec *> &specs)
     }
     if (hasError)
         return false;
+
     dependencySpecs = resolvedDependencies;
-    state = PluginSpec::Resolved;
+
+    if (loadOnStartup && !ignoreOnStartup)
+        state = PluginSpec::Resolved;
+
     return true;
 }
 
