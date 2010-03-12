@@ -56,6 +56,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
+#include <vcsbase/cleandialog.h>
 #include <locator/commandlocator.h>
 
 #include <QtCore/QDebug>
@@ -132,6 +133,7 @@ GitPlugin::GitPlugin() :
     m_commitAction(0),
     m_pullAction(0),
     m_pushAction(0),
+    m_cleanAction(0),
     m_submitCurrentAction(0),
     m_diffSelectedFilesAction(0),
     m_undoAction(0),
@@ -331,6 +333,12 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = actionManager->registerAction(m_createRepositoryAction, "Git.CreateRepository", globalcontext);
     connect(m_createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     gitContainer->addAction(command);
+
+    m_cleanAction = new QAction(tr("Clean Repository..."), this);
+    command = actionManager->registerAction(m_cleanAction, "Git.CleanRepository", globalcontext);
+    connect(m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanRepository()));
+    gitContainer->addAction(command);
+    m_commandLocator->appendCommand(command);
 
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Global"), this));
 
@@ -680,6 +688,42 @@ void GitPlugin::push()
     m_gitClient->push(state.topLevel());
 }
 
+void GitPlugin::cleanRepository()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+
+    // Find files to be deleted
+    QString errorMessage;
+    QStringList files;
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    const bool gotFiles = m_gitClient->synchronousCleanList(state.topLevel(), &files, &errorMessage);
+    QApplication::restoreOverrideCursor();
+
+    QWidget *parent = Core::ICore::instance()->mainWindow();
+    if (!gotFiles) {
+        QMessageBox::warning(parent, tr("Unable to retrieve file list"),
+                             errorMessage);
+        return;
+    }
+    if (files.isEmpty()) {
+        QMessageBox::information(parent, tr("Repository clean"),
+                                 tr("The repository is clean."));
+        return;
+    }
+    // Clean the trailing slash of directories
+    const QChar slash = QLatin1Char('/');
+    const QStringList::iterator end = files.end();
+    for (QStringList::iterator it = files.begin(); it != end; ++it)
+        if (it->endsWith(slash))
+            it->truncate(it->size() - 1);
+
+    // Show in dialog
+    VCSBase::CleanDialog dialog(parent);
+    dialog.setFileList(state.topLevel(), files);
+    dialog.exec();
+}
+
 void GitPlugin::stash()
 {
     // Simple stash without prompt, reset repo.
@@ -780,6 +824,7 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_logRepositoryAction->setEnabled(repositoryEnabled);
     m_undoRepositoryAction->setEnabled(repositoryEnabled);
     m_pushAction->setEnabled(repositoryEnabled);
+    m_cleanAction->setEnabled(repositoryEnabled);
 
     // Prompts for repo.
     m_showAction->setEnabled(true);

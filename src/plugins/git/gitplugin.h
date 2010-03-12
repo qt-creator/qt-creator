@@ -105,6 +105,7 @@ private slots:
     void undoRepositoryChanges();
     void stageFile();
     void unstageFile();
+    void cleanRepository();
 
     void showCommit();
     void startCommit();
@@ -146,6 +147,7 @@ private:
     QAction *m_commitAction;
     QAction *m_pullAction;
     QAction *m_pushAction;
+    QAction *m_cleanAction;
 
     QAction *m_submitCurrentAction;
     QAction *m_diffSelectedFilesAction;

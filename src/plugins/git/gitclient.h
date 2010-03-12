@@ -105,6 +105,7 @@ public:
     bool synchronousReset(const QString &workingDirectory,
                           const QStringList &files = QStringList(),
                           QString *errorMessage = 0);
+    bool synchronousCleanList(const QString &workingDirectory, QStringList *files, QString *errorMessage);
     bool synchronousInit(const QString &workingDirectory);
     bool synchronousCheckoutFiles(const QString &workingDirectory,
                                   QStringList files = QStringList(),

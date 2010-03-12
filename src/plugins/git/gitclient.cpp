@@ -949,6 +949,30 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
     return true;
 }
 
+// Retrieve list of files to be cleaned
+bool GitClient::synchronousCleanList(const QString &workingDirectory,
+                                     QStringList *files, QString *errorMessage)
+{
+    if (Git::Constants::debug)
+        qDebug() << Q_FUNC_INFO << workingDirectory;
+    files->clear();
+    QStringList args;
+    args << QLatin1String("clean") << QLatin1String("--dry-run") << QLatin1String("-dxf");
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = synchronousGit(workingDirectory, args, &outputText, &errorText);
+    if (!rc) {
+        *errorMessage = tr("Unable to run clean --dry-run: %1: %2").arg(workingDirectory, commandOutputFromLocal8Bit(errorText));
+        return false;
+    }
+    // Filter files that git would remove
+    const QString prefix = QLatin1String("Would remove ");
+    foreach(const QString &line, commandOutputLinesFromLocal8Bit(outputText))
+        if (line.startsWith(prefix))
+            files->push_back(line.mid(prefix.size()));
+    return true;
+}
+
 // Factory function to create an asynchronous command
 GitCommand *GitClient::createCommand(const QString &workingDirectory,
                              VCSBase::VCSBaseEditor* editor,

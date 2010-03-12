@@ -25,7 +25,8 @@ HEADERS += vcsbase_global.h \
     checkoutprogresswizardpage.h \
     checkoutjobs.h \
     basecheckoutwizardpage.h \
-    vcsbaseoutputwindow.h
+    vcsbaseoutputwindow.h \
+    cleandialog.h
 
 SOURCES += vcsplugin.cpp \
     vcsbaseplugin.cpp \
@@ -47,13 +48,15 @@ SOURCES += vcsplugin.cpp \
     checkoutprogresswizardpage.cpp \
     checkoutjobs.cpp \
     basecheckoutwizardpage.cpp \
-    vcsbaseoutputwindow.cpp
+    vcsbaseoutputwindow.cpp \
+    cleandialog.cpp
 
 RESOURCES += vcsbase.qrc
 
 FORMS += vcsbasesettingspage.ui \
     nicknamedialog.ui \
     checkoutprogresswizardpage.ui \
-    basecheckoutwizardpage.ui
+    basecheckoutwizardpage.ui \
+    cleandialog.ui
 
 OTHER_FILES += VCSBase.pluginspec
