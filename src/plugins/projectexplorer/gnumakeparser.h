@@ -46,6 +46,8 @@ public:
 
     virtual void stdOutput(const QString &line);
 
+    QStringList searchDirectories() const;
+
 public slots:
     virtual void taskAdded(const ProjectExplorer::Task &task);
 
@@ -54,7 +56,13 @@ private:
     void removeDirectory(const QString &dir);
 
     QRegExp m_makeDir;
+    QRegExp m_makeLine;
+
     QStringList m_directories;
+
+#if defined WITH_TESTS
+    friend class ProjectExplorerPlugin;
+#endif
 };
 
 } // namespace ProjectExplorer

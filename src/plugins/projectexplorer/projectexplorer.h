@@ -223,6 +223,11 @@ private slots:
 #ifdef WITH_TESTS
     void testGccOutputParsers_data();
     void testGccOutputParsers();
+
+    void testGnuMakeParserParsing_data();
+    void testGnuMakeParserParsing();
+    void testGnuMakeParserTaskMangling_data();
+    void testGnuMakeParserTaskMangling();
 #endif
 
 private:
