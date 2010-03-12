@@ -46,6 +46,23 @@ class ProgressBar;
 
 namespace Core {
 
+    class FadeWidgetHack : public QWidget
+    {
+        Q_OBJECT
+        Q_PROPERTY(float opacity READ opacity WRITE setOpacity)
+    public:
+        FadeWidgetHack(QWidget *parent):QWidget(parent), m_opacity(0){
+            setAttribute(Qt::WA_TransparentForMouseEvents);
+        }
+        void paintEvent(QPaintEvent *);
+
+        void setOpacity(float o) { m_opacity = o; update(); }
+        float opacity() const { return m_opacity; }
+
+    private:
+        float m_opacity;
+    };
+
 class CORE_EXPORT FutureProgress : public QWidget
 {
     Q_OBJECT
@@ -54,11 +71,19 @@ public:
     FutureProgress(QWidget *parent = 0);
     ~FutureProgress();
 
+    bool eventFilter(QObject *object, QEvent *);
+
     void setFuture(const QFuture<void> &future);
     QFuture<void> future() const;
 
     void setTitle(const QString &title);
     QString title() const;
+
+    void setType(const QString &type) {m_type = type; }
+    QString type() const { return m_type; }
+
+    void setKeepOnFinish(bool keep) { m_keep = keep; }
+    bool keepOnFinish() const { return m_keep; }
 
     bool hasError() const;
 
@@ -68,9 +93,11 @@ public:
 signals:
     void clicked();
     void finished();
+    void removeMe();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent *);
 
 private slots:
     void updateToolTip(const QString &);
@@ -80,12 +107,18 @@ private slots:
     void setProgressRange(int min, int max);
     void setProgressValue(int val);
     void setProgressText(const QString &text);
+    void fadeAway();
 
 private:
     QFutureWatcher<void> m_watcher;
     ProgressBar *m_progress;
     QWidget *m_widget;
     QHBoxLayout *m_widgetLayout;
+    QString m_type;
+    bool m_keep;
+    bool m_waitingForUserInteraction;
+    FadeWidgetHack *m_faderWidget;
+
 };
 
 } // namespace Core

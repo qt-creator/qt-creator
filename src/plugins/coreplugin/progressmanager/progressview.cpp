@@ -51,8 +51,6 @@ ProgressView::~ProgressView()
 {
     qDeleteAll(m_taskList);
     m_taskList.clear();
-    m_type.clear();
-    m_keep.clear();
 }
 
 FutureProgress *ProgressView::addTask(const QFuture<void> &future,
@@ -66,11 +64,12 @@ FutureProgress *ProgressView::addTask(const QFuture<void> &future,
     FutureProgress *progress = new FutureProgress(this);
     progress->setTitle(title);
     progress->setFuture(future);
+
     m_layout->insertWidget(0, progress);
     m_taskList.append(progress);
-    m_type.insert(progress, type);
-    m_keep.insert(progress, (flags & ProgressManager::KeepOnFinish));
-    connect(progress, SIGNAL(finished()), this, SLOT(slotFinished()));
+    progress->setType(type);
+    progress->setKeepOnFinish(flags & ProgressManager::KeepOnFinish);
+    connect(progress, SIGNAL(removeMe()), this, SLOT(slotRemoveTask()));
     return progress;
 }
 
@@ -80,7 +79,7 @@ void ProgressView::removeOldTasks(const QString &type, bool keepOne)
     QList<FutureProgress *>::iterator i = m_taskList.end();
     while (i != m_taskList.begin()) {
         --i;
-        if (m_type.value(*i) == type) {
+        if ((*i)->type() == type) {
             if (firstFound && (*i)->future().isFinished()) {
                 deleteTask(*i);
                 i = m_taskList.erase(i);
@@ -92,8 +91,6 @@ void ProgressView::removeOldTasks(const QString &type, bool keepOne)
 
 void ProgressView::deleteTask(FutureProgress *progress)
 {
-    m_type.remove(progress);
-    m_keep.remove(progress);
     layout()->removeWidget(progress);
     progress->hide();
     progress->deleteLater();
@@ -113,8 +110,14 @@ void ProgressView::removeOneOldTask()
     }
     // no ended process, look for a task type with multiple running tasks and remove the oldest one
     for (QList<FutureProgress *>::iterator i = m_taskList.begin(); i != m_taskList.end(); ++i) {
-        QString type = m_type.value(*i);
-        if (m_type.keys(type).size() > 1) { // don't care for optimizations it's only a handful of entries
+        QString type = (*i)->type();
+
+        int taskCount = 0;
+        foreach (FutureProgress *p, m_taskList)
+            if (p->type() == type)
+                ++taskCount;
+
+        if (taskCount > 1) { // don't care for optimizations it's only a handful of entries
             deleteTask(*i);
             i = m_taskList.erase(i);
             return;
@@ -132,11 +135,11 @@ void ProgressView::removeTask(FutureProgress *task)
     deleteTask(task);
 }
 
-void ProgressView::slotFinished()
+void ProgressView::slotRemoveTask()
 {
     FutureProgress *progress = qobject_cast<FutureProgress *>(sender());
     QTC_ASSERT(progress, return);
-    if (m_keep.contains(progress) && !m_keep.value(progress) && !progress->hasError())
-        removeTask(progress);
-    removeOldTasks(m_type.value(progress), true);
+    QString type = progress->type();
+    removeTask(progress);
+    removeOldTasks(type, true);
 }

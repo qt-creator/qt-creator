@@ -58,7 +58,7 @@ public:
                             ProgressManager::ProgressFlags flags);
 
 private slots:
-    void slotFinished();
+    void slotRemoveTask();
 
 private:
     void removeOldTasks(const QString &type, bool keepOne = false);
@@ -68,8 +68,6 @@ private:
 
     QVBoxLayout *m_layout;
     QList<FutureProgress *> m_taskList;
-    QHash<FutureProgress *, QString> m_type;
-    QHash<FutureProgress *, bool> m_keep;
 };
 
 } // namespace Internal

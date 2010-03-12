@@ -35,9 +35,24 @@
 #include <QtGui/QMenu>
 #include <QtGui/QProgressBar>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QPainter>
+#include <QtCore/QTimer>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QPropertyAnimation>
+#include <utils/stylehelper.h>
 
 
 using namespace Core;
+
+void FadeWidgetHack::paintEvent(QPaintEvent *)
+{
+    if (m_opacity == 0)
+        return;
+
+    QPainter p(this);
+    p.setOpacity(m_opacity);
+    Utils::StyleHelper::verticalGradient(&p, rect(), rect());
+}
 
 /*!
     \mainclass
@@ -96,6 +111,10 @@ FutureProgress::FutureProgress(QWidget *parent)
     connect(&m_watcher, SIGNAL(progressTextChanged(const QString&)),
             this, SLOT(setProgressText(const QString&)));
     connect(m_progress, SIGNAL(clicked()), this, SLOT(cancel()));
+
+    m_keep = false;
+    m_waitingForUserInteraction = false;
+    m_faderWidget = new FadeWidgetHack(this);
 }
 
 /*!
@@ -162,6 +181,17 @@ void FutureProgress::setStarted()
     m_progress->setValue(m_watcher.progressValue());
 }
 
+
+bool FutureProgress::eventFilter(QObject *, QEvent *e)
+{
+    if (m_waitingForUserInteraction
+        && (e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress)) {
+        qApp->removeEventFilter(this);
+        QTimer::singleShot(5000, this, SLOT(fadeAway()));
+    }
+    return false;
+}
+
 void FutureProgress::setFinished()
 {
     updateToolTip(m_watcher.future().progressText());
@@ -171,6 +201,12 @@ void FutureProgress::setFinished()
         m_progress->setError(false);
     }
     emit finished();
+    if (m_keep) {
+        m_waitingForUserInteraction = true;
+        qApp->installEventFilter(this);
+    } else {
+        QTimer::singleShot(5000, this, SLOT(fadeAway()));
+    }
 }
 
 void FutureProgress::setProgressRange(int min, int max)
@@ -217,6 +253,11 @@ void FutureProgress::mousePressEvent(QMouseEvent *event)
     QWidget::mousePressEvent(event);
 }
 
+void FutureProgress::resizeEvent(QResizeEvent *)
+{
+    m_faderWidget->setGeometry(rect());
+}
+
 /*!
     \fn bool FutureProgress::hasError() const
     Returns the error state of this progress indicator.
@@ -224,4 +265,14 @@ void FutureProgress::mousePressEvent(QMouseEvent *event)
 bool FutureProgress::hasError() const
 {
     return m_progress->hasError();
+}
+
+void FutureProgress::fadeAway()
+{
+    m_faderWidget->raise();
+    QPropertyAnimation *animation = new QPropertyAnimation(m_faderWidget, "opacity");
+    animation->setDuration(600);
+    animation->setEndValue(1.0);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+    connect(animation, SIGNAL(finished()), this, SIGNAL(removeMe()));
 }
