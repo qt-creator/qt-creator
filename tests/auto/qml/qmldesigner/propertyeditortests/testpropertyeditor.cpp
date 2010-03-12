@@ -46,7 +46,7 @@
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QStackedWidget>
-#include <QmlView>
+#include <QDeclarativeView>
 #include <QVariant>
 
 using namespace QmlDesigner;
@@ -61,7 +61,7 @@ static void inspectPropertyEditor(ModelNode node, QWidget* propWidget)
 
     QStackedWidget * stackedWidget = qobject_cast<QStackedWidget *> (propWidget);
     QVERIFY(stackedWidget);
-    QmlView *view = qobject_cast<QmlView*>(stackedWidget->currentWidget());
+    QDeclarativeView *view = qobject_cast<QDeclarativeView*>(stackedWidget->currentWidget());
     QVERIFY(view);
 
     QLineEdit * idLineEdit = view->findChild<QLineEdit* >("IdLineEdit");
@@ -146,7 +146,7 @@ static void loadFileAndTest(const QString &fileName)
     QFile file(fileName);
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
-    QList<QmlError> errors;
+    QList<QDeclarativeError> errors;
     //std::auto_ptr<ByteArrayModifier> modifier1(ByteArrayModifier::create(QString(file.readAll())));
     //std::auto_ptr<Model> model1(Model::create(modifier1.get(), QUrl::fromLocalFile(file.fileName()), &errors));
 
@@ -204,14 +204,14 @@ void TestPropertyEditor::createCoreModel()
 
 void TestPropertyEditor::loadEmptyCoreModel()
 {
-   /* QList<QmlError> errors;
+   /* QList<QDeclarativeError> errors;
     QFile file(":/fx/empty.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
     std::auto_ptr<QWidget> widget(new QWidget());
     std::auto_ptr<ByteArrayModifier> modifier1(ByteArrayModifier::create(QString(file.readAll())));
     std::auto_ptr<Model> model1(Model::create(modifier1.get(), QUrl(), &errors));
-    foreach (const QmlError &error, errors)
+    foreach (const QDeclarativeError &error, errors)
         QFAIL(error.toString().toLatin1());
     QVERIFY(model1.get());
     setupPropertyEditor(widget.get(), model1.get());
@@ -220,7 +220,7 @@ void TestPropertyEditor::loadEmptyCoreModel()
 
     std::auto_ptr<ByteArrayModifier> modifier2(ByteArrayModifier::create("import Qt 4.6\n Item{}"));
     std::auto_ptr<Model> model2(Model::create(modifier2.get(), QUrl(), &errors));
-    foreach (const QmlError &error, errors)
+    foreach (const QDeclarativeError &error, errors)
         QFAIL(error.toString().toLatin1());
     QVERIFY(model2.get());
 

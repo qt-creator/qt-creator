@@ -63,14 +63,14 @@ static QString bareTemplate("import Qt 4.6\n"
 static QString contentsTemplate(bareTemplate.arg("Text { id: textChild; x:10; y: 10; text: \"%1\"; %2 }"));
 
 
-void printErrors(const QList<QmlError> &errors, const QString &fileName)
+void printErrors(const QList<QDeclarativeError> &errors, const QString &fileName)
 {
     if (errors.isEmpty())
         return;
 
     qDebug() << "Error loading file \"" << fileName << "\":";
 
-    foreach (const QmlError &error, errors) {
+    foreach (const QDeclarativeError &error, errors) {
         qDebug() << error.line() << ":" << error.column() << ": " << error.description();
     }
 }
@@ -138,7 +138,7 @@ static bool compareTree(const ModelNode &node1, const ModelNode &node2)
 //    QByteArray bytes = data.toLatin1();
 //    QBuffer file(&bytes, 0);
 //    QVERIFY(file.open(QIODevice::ReadOnly));
-//    QList<QmlError> errors;
+//    QList<QDeclarativeError> errors;
 //    QString fileText(file.readAll());
 //    modifier = ByteArrayModifier::create(QString(fileText));
 //    model = Model::create(modifier, QUrl(), &errors);

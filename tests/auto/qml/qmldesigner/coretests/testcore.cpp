@@ -58,7 +58,8 @@
 #include "testrewriterview.h"
 
 #include <QPlainTextEdit>
-#include <private/qmlstate_p.h>
+#include <private/qdeclarativestate_p.h>
+#include <private/qdeclarativemetatype_p.h>
 
 
 using namespace QmlDesigner;
@@ -101,7 +102,7 @@ void TestCore::testModelCreateCoreModel()
 // TODO: this need to e updated for states
 void TestCore::loadEmptyCoreModel()
 {
-    QList<QmlError> errors;
+    QList<QDeclarativeError> errors;
     QFile file(":/fx/empty.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
@@ -228,7 +229,7 @@ void TestCore::testRewriterErrors()
 
 void TestCore::saveEmptyCoreModel()
 {
-    QList<QmlError> errors;
+    QList<QDeclarativeError> errors;
     QFile file(":/fx/empty.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
@@ -263,7 +264,7 @@ void TestCore::saveEmptyCoreModel()
 
 void TestCore::loadAttributesInCoreModel()
 {
-    QList<QmlError> errors;
+    QList<QDeclarativeError> errors;
     QFile file(":/fx/attributes.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
@@ -631,8 +632,8 @@ void TestCore::testBasicStates()
 
     NodeInstance state2Instance = view->instanceForModelNode(state2.modelNode());
     QVERIFY(state2Instance.isValid());
-    QmlState *stateObject = qobject_cast<QmlState*>(const_cast<QObject*>(state2Instance.testHandle()));
-    QmlListProperty<QmlStateOperation> changesList = stateObject->changes();
+    QDeclarativeState *stateObject = qobject_cast<QDeclarativeState*>(const_cast<QObject*>(state2Instance.testHandle()));
+    QDeclarativeListProperty<QDeclarativeStateOperation> changesList = stateObject->changes();
     QCOMPARE(changesList.count(&changesList), 2);
     QCOMPARE(changesList.at(&changesList, 0)->actions().size(), 0);
     QCOMPARE(changesList.at(&changesList, 1)->actions().size(), 1);
@@ -1068,9 +1069,9 @@ void TestCore::testQmlModelView()
     QCOMPARE(node3.instanceValue("width").toInt(), 0);
 
     QCOMPARE(node3.instanceValue("x").toInt(), 20);
-    QVERIFY(!QmlMetaType::toQObject(node3.instanceValue("anchors.fill")));
+    QVERIFY(!QDeclarativeMetaType::toQObject(node3.instanceValue("anchors.fill")));
     node3.setBindingProperty("anchors.fill", "parent");
-    QVERIFY(QmlMetaType::toQObject(node3.instanceValue("anchors.fill")));
+    QVERIFY(QDeclarativeMetaType::toQObject(node3.instanceValue("anchors.fill")));
     QCOMPARE(node3.instanceValue("x").toInt(), 0);
     QCOMPARE(node3.instanceValue("width").toInt(), 20);
 
@@ -3151,7 +3152,7 @@ void TestCore::subItemMetaInfo()
 //    QFile file(QCoreApplication::applicationDirPath() + "/../tests/data/fx/topitem.qml");
 //    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 //
-//    QList<QmlError> errors;
+//    QList<QDeclarativeError> errors;
 //    QScopedPointer<ByteArrayModifier> modifier1(ByteArrayModifier::create(QString(file.readAll())));
 //    QScopedPointer<Model> model(Model::create(modifier1.data(), QUrl::fromLocalFile(file.fileName()), &errors));
 //    QVERIFY(errors.isEmpty());
@@ -3493,17 +3494,17 @@ void TestCore::testInstancesStates()
     //
     NodeInstance state1Instance = instanceView->instanceForNode(state1Node);
     QVERIFY(state1Instance.isValid());
-    QmlState *state1 = const_cast<QmlState*>(qobject_cast<const QmlState*>(state1Instance.testHandle()));
+    QDeclarativeState *state1 = const_cast<QDeclarativeState*>(qobject_cast<const QDeclarativeState*>(state1Instance.testHandle()));
     QVERIFY(state1);
-    QmlListProperty<QmlStateOperation> state1Changes = state1->changes();
+    QDeclarativeListProperty<QDeclarativeStateOperation> state1Changes = state1->changes();
     QCOMPARE(state1Changes.count(&state1Changes), 1);
     QCOMPARE(state1Changes.at(&state1Changes, 0)->actions().size(), 2);
 
     NodeInstance state2Instance = instanceView->instanceForNode(state2Node);
     QVERIFY(state2Instance.isValid());
-    QmlState *state2 = const_cast<QmlState*>(qobject_cast<const QmlState*>(state1Instance.testHandle()));
+    QDeclarativeState *state2 = const_cast<QDeclarativeState*>(qobject_cast<const QDeclarativeState*>(state1Instance.testHandle()));
     QVERIFY(state2);
-    QmlListProperty<QmlStateOperation> state2Changes = state2->changes();
+    QDeclarativeListProperty<QDeclarativeStateOperation> state2Changes = state2->changes();
     QCOMPARE(state2Changes.count(&state2Changes), 1);
     QCOMPARE(state2Changes.at(&state2Changes, 0)->actions().size(), 2);
 
@@ -3673,9 +3674,9 @@ void TestCore::testStates()
 
     textItem.setVariantProperty("text", QVariant("state 1")); //set text in state !
 
-    QmlState *qmlState1 = const_cast<QmlState*>(qobject_cast<const QmlState*>(state1Instance.testHandle()));
+    QDeclarativeState *qmlState1 = const_cast<QDeclarativeState*>(qobject_cast<const QDeclarativeState*>(state1Instance.testHandle()));
     QVERIFY(qmlState1);
-    QmlListProperty<QmlStateOperation> state1Changes = qmlState1->changes();
+    QDeclarativeListProperty<QDeclarativeStateOperation> state1Changes = qmlState1->changes();
     QCOMPARE(state1Changes.count(&state1Changes), 1);
     QCOMPARE(state1Changes.at(&state1Changes, 0)->actions().size(), 1);
 
@@ -4084,8 +4085,8 @@ void TestCore::attributeChangeSynchronizer()
     QSKIP("no rewriter anymore", SkipAll);
 //    ByteArrayModifier* modifier;
 //    Model* model = 0;
-//    const QString originalQml = contentsTemplate.arg("text", "");
-//    load(originalQml, model, modifier);
+//    const QString originalQDeclarative = contentsTemplate.arg("text", "");
+//    load(originalQDeclarative, model, modifier);
 //    QVERIFY(model);
 //    QCOMPARE(view->rootModelNode().childNodes().size(), 1);
 //    ModelNode textChild = view->rootModelNode().childNodes().first();
@@ -4749,7 +4750,7 @@ void TestCore::testDynamicProperties()
 void TestCore::sideIndex()
 {
     QSKIP("not anymore needed", SkipAll);
-//    QList<QmlError> errors;
+//    QList<QDeclarativeError> errors;
 //
 //    char qmlString[] = "import Qt 4.6\n"
 //                       "Rectangle {\n"
@@ -4788,7 +4789,7 @@ void TestCore::sideIndex()
 //
 //    QScopedPointer<ByteArrayModifier> modifier1(ByteArrayModifier::create(QLatin1String(qmlString)));
 //    QScopedPointer<Model> model(Model::create(modifier1.data(), QUrl(), &errors));
-//    foreach(QmlError error, errors) {
+//    foreach(QDeclarativeError error, errors) {
 //        QFAIL((QString("Line %1: %2").arg(error.line()).arg(error.description())).toLatin1());
 //    }
 //
@@ -6024,7 +6025,7 @@ void TestCore::loadObjectPropertyBinding()
 {
     QSKIP("will be changed", SkipAll);
 
-//    QList<QmlError> errors;
+//    QList<QDeclarativeError> errors;
 //    QScopedPointer<ByteArrayModifier> modifier1(ByteArrayModifier::create(QString("import Qt 4.6; Item { ListView { delegate:componentId } Component { id:componentId;Rectangle {} } }")));
 //
 //    QVERIFY(model.data());
@@ -6041,7 +6042,7 @@ void TestCore::loadWelcomeScreen()
 //    QFile file(QCoreApplication::applicationDirPath() + "/../shared/welcomescreen.qml");
 //    QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 //
-//    QList<QmlError> errors;
+//    QList<QDeclarativeError> errors;
 //    QScopedPointer<ByteArrayModifier> modifier1(ByteArrayModifier::create(QString(file.readAll())));
 //    QScopedPointer<Model> model1(Model::create(modifier1.data(), QUrl::fromLocalFile(file.fileName()), &errors));
 //    if (!errors.isEmpty()) {
@@ -6306,7 +6307,7 @@ void TestCore::changeSubModel()
 //    QVERIFY(modelNode.isValid());
 //    QCOMPARE(modelNode.id(), QString("rect2"));
 //
-//    QList<QmlError> errors;
+//    QList<QDeclarativeError> errors;
 //    // Create a model on top of the component node:
 //    TextModifier *subModifier = model1->createTextModifier(modelNode);
 //    QScopedPointer<Model> subModel(Model::create(subModifier, model1->fileUrl(), &errors));
