@@ -33,14 +33,11 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QtCore/QObject>
-#include <QtGui/QKeySequence>
 #include <QtGui/QTreeWidgetItem>
-#include <QtGui/QKeyEvent>
-
-class QLineEdit;
-class QTreeWidget;
 
 QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QTreeWidget;
 class Ui_CommandMappings;
 QT_END_NAMESPACE
 
@@ -89,10 +86,10 @@ protected:
     void setImportExportEnabled(bool enabled);
     QTreeWidget *commandList() const;
     QLineEdit *targetEdit() const;
-    void setPageTitle(QString s);
-    void setTargetLabelText(QString s);
-    void setTargetEditTitle(QString s);
-    void setTargetHeader(QString s);
+    void setPageTitle(const QString &s);
+    void setTargetLabelText(const QString &s);
+    void setTargetEditTitle(const QString &s);
+    void setTargetHeader(const QString &s);
 
 private:
     Ui_CommandMappings *m_page;

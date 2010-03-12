@@ -108,10 +108,12 @@ QWidget *CommandMappings::createPage(QWidget *parent)
 
     m_page->commandList->sortByColumn(0, Qt::AscendingOrder);
 
-    connect(m_page->filterEdit, SIGNAL(textChanged(QString)), this, SLOT(filterChanged(QString)));
+    connect(m_page->filterEdit, SIGNAL(textChanged(QString)),
+        this, SLOT(filterChanged(QString)));
     connect(m_page->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
         this, SLOT(commandChanged(QTreeWidgetItem *)));
-    connect(m_page->targetEdit, SIGNAL(textChanged(QString)), this, SLOT(targetIdentifierChanged()));
+    connect(m_page->targetEdit, SIGNAL(textChanged(QString)),
+        this, SLOT(targetIdentifierChanged()));
 
     new Utils::TreeWidgetColumnStretcher(m_page->commandList, 1);
 
@@ -136,22 +138,22 @@ QLineEdit *CommandMappings::targetEdit() const
     return m_page->targetEdit;
 }
 
-void CommandMappings::setPageTitle(QString s)
+void CommandMappings::setPageTitle(const QString &s)
 {
     m_page->groupBox->setTitle(s);
 }
 
-void CommandMappings::setTargetLabelText(QString s)
+void CommandMappings::setTargetLabelText(const QString &s)
 {
     m_page->targetEditLabel->setText(s);
 }
 
-void CommandMappings::setTargetEditTitle(QString s)
+void CommandMappings::setTargetEditTitle(const QString &s)
 {
     m_page->targetEditGroup->setTitle(s);
 }
 
-void CommandMappings::setTargetHeader(QString s)
+void CommandMappings::setTargetHeader(const QString &s)
 {
     m_page->commandList->setHeaderLabels(QStringList() << tr("Command") << tr("Label") << s);
 }
