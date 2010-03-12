@@ -620,19 +620,23 @@ QStringList Qt4Project::frameworkPaths(const QString &fileName) const
 //  */
 void Qt4Project::update()
 {
-    qDebug()<<"Doing sync update";
+    if (debug)
+        qDebug()<<"Doing sync update";
     m_rootProjectNode->update();
-    qDebug()<<"State is now Base";
+    if (debug)
+        qDebug()<<"State is now Base";
     m_asyncUpdateState = Base;
 }
 
 void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
 {
-    qDebug()<<"schduleAsyncUpdate (node)";
+    if (debug)
+        qDebug()<<"schduleAsyncUpdate (node)";
     Q_ASSERT(m_asyncUpdateState != NoState);
 
     if (m_cancelEvaluate) {
-        qDebug()<<"  Already canceling, nothing to do";
+        if (debug)
+            qDebug()<<"  Already canceling, nothing to do";
         // A cancel is in progress
         // That implies that a full update is going to happen afterwards
         // So we don't need to do anything
@@ -641,17 +645,20 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
 
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
         // Just postpone
-        qDebug()<<"  full update pending, restarting timer";
+        if (debug)
+            qDebug()<<"  full update pending, restarting timer";
         m_asyncUpdateTimer.start();
     } else if (m_asyncUpdateState == AsyncPartialUpdatePending
                || m_asyncUpdateState == Base) {
-        qDebug()<<"  adding node to async update list, setting state to AsyncPartialUpdatePending";
+        if (debug)
+            qDebug()<<"  adding node to async update list, setting state to AsyncPartialUpdatePending";
         // Add the node
         m_asyncUpdateState = AsyncPartialUpdatePending;
 
         QList<Internal::Qt4ProFileNode *>::iterator it;
         bool add = true;
-        qDebug()<<"scheduleAsyncUpdate();"<<m_partialEvaluate.size()<<"nodes";
+        if (debug)
+            qDebug()<<"scheduleAsyncUpdate();"<<m_partialEvaluate.size()<<"nodes";
         it = m_partialEvaluate.begin();
         while (it != m_partialEvaluate.end()) {
             if (*it == node) {
@@ -679,28 +686,33 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
         // change a partial update gets in progress and then another
         // batch of changes come in, which triggers a full update
         // even if that's not really needed
-        qDebug()<<"  Async update in progress, scheduling new one afterwards";
+        if (debug)
+            qDebug()<<"  Async update in progress, scheduling new one afterwards";
         scheduleAsyncUpdate();
     }
 }
 
 void Qt4Project::scheduleAsyncUpdate()
 {
-    qDebug()<<"scheduleAsyncUpdate";
+    if (debug)
+        qDebug()<<"scheduleAsyncUpdate";
     Q_ASSERT(m_asyncUpdateState != NoState);
     if (m_cancelEvaluate) { // we are in progress of canceling
                             // and will start the evaluation after that
-        qDebug()<<"  canceling is in progress, doing nothing";
+        if (debug)
+            qDebug()<<"  canceling is in progress, doing nothing";
         return;
     }
     if (m_asyncUpdateState == AsyncUpdateInProgress) {
-        qDebug()<<"  update in progress, canceling and setting state to full update pending";
+        if (debug)
+            qDebug()<<"  update in progress, canceling and setting state to full update pending";
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
         return;
     }
 
-    qDebug()<<"  starting timer for full update, setting state to full update pending";
+    if (debug)
+        qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
     m_asyncUpdateState = AsyncFullUpdatePending;
     m_asyncUpdateTimer.start();
@@ -710,7 +722,8 @@ void Qt4Project::scheduleAsyncUpdate()
 void Qt4Project::incrementPendingEvaluateFutures()
 {
     ++m_pendingEvaluateFuturesCount;
-    qDebug()<<"incrementPendingEvaluateFutures to"<<m_pendingEvaluateFuturesCount;
+    if (debug)
+        qDebug()<<"incrementPendingEvaluateFutures to"<<m_pendingEvaluateFuturesCount;
 
     m_asyncUpdateFutureInterface->setProgressRange(m_asyncUpdateFutureInterface->progressMinimum(),
                                                   m_asyncUpdateFutureInterface->progressMaximum() + 1);
@@ -720,13 +733,16 @@ void Qt4Project::decrementPendingEvaluateFutures()
 {
     --m_pendingEvaluateFuturesCount;
 
-    qDebug()<<"decrementPendingEvaluateFutures to"<<m_pendingEvaluateFuturesCount;
+    if (debug)
+        qDebug()<<"decrementPendingEvaluateFutures to"<<m_pendingEvaluateFuturesCount;
 
     m_asyncUpdateFutureInterface->setProgressValue(m_asyncUpdateFutureInterface->progressValue() + 1);
     if (m_pendingEvaluateFuturesCount == 0) {
-        qDebug()<<"  WOHOO, no pending futures, cleaning up";
+        if (debug)
+            qDebug()<<"  WOHOO, no pending futures, cleaning up";
         // We are done!
-        qDebug()<<"  reporting finished";
+        if (debug)
+            qDebug()<<"  reporting finished";
         m_asyncUpdateFutureInterface->reportFinished();
         delete m_asyncUpdateFutureInterface;
         m_asyncUpdateFutureInterface = 0;
@@ -734,7 +750,8 @@ void Qt4Project::decrementPendingEvaluateFutures()
 
         // TODO clear the profile cache ?
         if (m_asyncUpdateState == AsyncFullUpdatePending || m_asyncUpdateState == AsyncPartialUpdatePending) {
-            qDebug()<<"  Oh update is pending start the timer";
+            if (debug)
+                qDebug()<<"  Oh update is pending start the timer";
             m_asyncUpdateTimer.start();
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After beeing done, we need to call:
@@ -742,7 +759,8 @@ void Qt4Project::decrementPendingEvaluateFutures()
             updateCodeModel();
             checkForNewApplicationProjects();
             checkForDeletedApplicationProjects();
-            qDebug()<<"  Setting state to Base";
+            if (debug)
+                qDebug()<<"  Setting state to Base";
             m_asyncUpdateState = Base;
         }
     }
@@ -755,29 +773,34 @@ bool Qt4Project::wasEvaluateCanceled()
 
 void Qt4Project::asyncUpdate()
 {
-    qDebug()<<"async update, timer expired, doing now";
+    if (debug)
+        qDebug()<<"async update, timer expired, doing now";
     Q_ASSERT(!m_asyncUpdateFutureInterface);
     m_asyncUpdateFutureInterface = new QFutureInterface<void>();
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
     progressManager->addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluate"), Constants::PROFILE_EVALUATE);
-    qDebug()<<"  adding task";
+    if (debug)
+        qDebug()<<"  adding task";
 
     m_asyncUpdateFutureInterface->setProgressRange(0, 0);
     m_asyncUpdateFutureInterface->reportStarted();
 
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
-        qDebug()<<"  full update, starting with root node";
+        if (debug)
+            qDebug()<<"  full update, starting with root node";
         m_rootProjectNode->asyncUpdate();
     } else {
-        qDebug()<<"  partial update,"<<m_partialEvaluate.size()<<"nodes to update";
+        if (debug)
+            qDebug()<<"  partial update,"<<m_partialEvaluate.size()<<"nodes to update";
         foreach(Qt4ProFileNode *node, m_partialEvaluate)
             node->asyncUpdate();
     }
 
     m_partialEvaluate.clear();
-    qDebug()<<"  Setting state to AsyncUpdateInProgress";
+    if (debug)
+        qDebug()<<"  Setting state to AsyncUpdateInProgress";
     m_asyncUpdateState = AsyncUpdateInProgress;
 }
 
