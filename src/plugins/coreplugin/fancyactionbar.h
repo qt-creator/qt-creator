@@ -60,8 +60,13 @@ public:
     float fader() { return m_fader; }
     void setFader(float value) { m_fader = value; update(); }
 
+    void forceVisible(bool visible);
+
 private slots:
     void actionChanged();
+
+private:
+    bool m_hasForceVisible;
 };
 
 class FancyActionBar : public QWidget

@@ -44,6 +44,8 @@
 
 using namespace Core;
 
+const int notificationTimeout = 8000;
+
 void FadeWidgetHack::paintEvent(QPaintEvent *)
 {
     if (m_opacity == 0)
@@ -187,7 +189,7 @@ bool FutureProgress::eventFilter(QObject *, QEvent *e)
     if (m_waitingForUserInteraction
         && (e->type() == QEvent::MouseMove || e->type() == QEvent::KeyPress)) {
         qApp->removeEventFilter(this);
-        QTimer::singleShot(5000, this, SLOT(fadeAway()));
+        QTimer::singleShot(notificationTimeout, this, SLOT(fadeAway()));
     }
     return false;
 }
@@ -205,7 +207,7 @@ void FutureProgress::setFinished()
         m_waitingForUserInteraction = true;
         qApp->installEventFilter(this);
     } else {
-        QTimer::singleShot(5000, this, SLOT(fadeAway()));
+        QTimer::singleShot(notificationTimeout, this, SLOT(fadeAway()));
     }
 }
 
