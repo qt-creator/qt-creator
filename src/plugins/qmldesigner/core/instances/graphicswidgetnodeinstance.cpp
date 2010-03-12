@@ -32,8 +32,6 @@
 
 #include "objectnodeinstance.h"
 
-#include <private/qdeclarativemetatype_p.h>
-
 #include <invalidnodeinstanceexception.h>
 #include <propertymetainfo.h>
 

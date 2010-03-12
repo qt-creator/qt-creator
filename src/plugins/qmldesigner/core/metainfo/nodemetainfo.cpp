@@ -36,14 +36,14 @@
 #include "metainfo.h"
 #include "propertymetainfo.h"
 
-#include <QtCore/QSharedData>
-#include <QtCore/QtDebug>
-#include <QtGui/QIcon>
-#include <QtDeclarative/private/qdeclarativemetatype_p.h>
-#include <QtDeclarative/QDeclarativeContext>
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeComponent>
-#include <private/qdeclarativevaluetype_p.h>
+#include <QSharedData>
+#include <QtDebug>
+#include <QIcon>
+#include <QDeclarativeContext>
+#include <QDeclarativeEngine>
+#include <QDeclarativeComponent>
+
+#include <private/qdeclarativemetatype_p.h>
 
 namespace QmlDesigner {
 

@@ -29,7 +29,6 @@
 
 #include "dummynodeinstance.h"
 
-#include <private/qdeclarativemetatype_p.h>
 #include <nodemetainfo.h>
 
 #include <invalidnodeinstanceexception.h>

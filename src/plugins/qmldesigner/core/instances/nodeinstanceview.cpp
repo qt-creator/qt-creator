@@ -29,15 +29,14 @@
 
 #include "nodeinstanceview.h"
 
-#include <QtDeclarative/QDeclarativeEngine>
-#include <QtDeclarative/QDeclarativeContext>
+#include <QDeclarativeEngine>
+#include <QDeclarativeContext>
 
 #include <QtDebug>
 #include <QUrl>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsObject>
-#include <private/qdeclarativeengine_p.h>
 
 #include <model.h>
 #include <modelnode.h>

@@ -29,8 +29,6 @@
 
 #include "graphicsscenenodeinstance.h"
 
-#include <private/qdeclarativemetatype_p.h>
-
 #include "graphicsviewnodeinstance.h"
 
 #include <invalidnodeinstanceexception.h>

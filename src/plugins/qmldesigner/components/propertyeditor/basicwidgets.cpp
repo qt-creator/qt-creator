@@ -29,7 +29,6 @@
 
 #include "basicwidgets.h"
 #include <qlayoutobject.h>
-//#include <private/graphicswidgets_p.h>
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 #include <QDeclarativeComponent>

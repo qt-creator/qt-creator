@@ -29,8 +29,6 @@
 
 #include "qmlviewnodeinstance.h"
 
-
-#include <private/qdeclarativemetatype_p.h>
 #include <QDeclarativeView>
 #include <QDeclarativeItem>
 

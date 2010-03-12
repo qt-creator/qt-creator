@@ -28,11 +28,13 @@
 **************************************************************************/
 
 #include "propertyparser.h"
-#include <QUrl>
-#include <QtCore/QDebug>
-#include <QtDeclarative/private/qdeclarativestringconverters_p.h>
 #include <modelnode.h>
 #include <metainfo.h>
+
+#include <QUrl>
+#include <QDebug>
+
+#include <private/qdeclarativestringconverters_p.h>
 
 namespace QmlDesigner {
 namespace Internal {

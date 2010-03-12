@@ -57,18 +57,6 @@
 #include <QSharedPointer>
 
 #include <private/qdeclarativebinding_p.h>
-#include <private/qdeclarativecontext_p.h>
-#include <private/qdeclarativelistaccessor_p.h>
-#include <private/qdeclarativevaluetype_p.h>
-#include <private/qdeclarativeanchors_p.h>
-#include <private/qdeclarativerectangle_p.h> // to get QDeclarativePen
-#include <private/qmetaobjectbuilder_p.h>
-#include <private/qdeclarativevmemetaobject_p.h>
-#include <private/qdeclarativemetatype_p.h>
-#include <private/qobject_p.h>
-#include <private/qdeclarativeproperty_p.h>
-
-
 
 namespace QmlDesigner {
 namespace Internal {

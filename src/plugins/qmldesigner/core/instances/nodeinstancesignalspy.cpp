@@ -4,7 +4,6 @@
 #include <QMetaProperty>
 #include <QMetaObject>
 #include <QtDebug>
-#include <private/qdeclarativeproperty_p.h>
 
 #include "objectnodeinstance.h"
 #include <QSharedPointer>

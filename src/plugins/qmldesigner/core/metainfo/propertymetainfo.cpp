@@ -34,6 +34,7 @@
 #include "invalidmetainfoexception.h"
 #include "metainfo.h"
 #include "modelnode.h"
+
 #include <private/qdeclarativevaluetype_p.h>
 #include <private/qdeclarativestringconverters_p.h>
 

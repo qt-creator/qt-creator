@@ -31,7 +31,9 @@
 #define QMLSTATENODEINSTANCE_H
 
 #include "objectnodeinstance.h"
-#include <private/qdeclarativestate_p.h>
+
+class QDeclarativeState;
+class QDeclarativeStateGroup;
 
 namespace QmlDesigner {
 

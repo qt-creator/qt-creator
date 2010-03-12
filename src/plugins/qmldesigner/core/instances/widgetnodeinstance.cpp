@@ -29,8 +29,6 @@
 
 #include "widgetnodeinstance.h"
 
-#include <private/qdeclarativemetatype_p.h>
-
 #include "proxywidgetnodeinstance.h"
 #include <invalidnodeinstanceexception.h>
 

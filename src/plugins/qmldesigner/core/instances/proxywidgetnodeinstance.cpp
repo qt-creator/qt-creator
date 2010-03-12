@@ -29,8 +29,6 @@
 
 #include "proxywidgetnodeinstance.h"
 
-#include <private/qdeclarativemetatype_p.h>
-
 #include <QGraphicsProxyWidget>
 
 namespace QmlDesigner {

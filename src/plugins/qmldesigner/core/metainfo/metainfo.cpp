@@ -45,6 +45,7 @@
 #include <QtAlgorithms>
 #include <QMetaProperty>
 #include <QDeclarativeEngine>
+
 #include <private/qdeclarativemetatype_p.h>
 #include <private/qdeclarativeanchors_p.h>
 

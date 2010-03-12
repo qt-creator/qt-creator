@@ -29,7 +29,6 @@
 
 #include "graphicsviewnodeinstance.h"
 
-#include <private/qdeclarativemetatype_p.h>
 #include <QDeclarativeEngine>
 #include <invalidnodeinstanceexception.h>
 
