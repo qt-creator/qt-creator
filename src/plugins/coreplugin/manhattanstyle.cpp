@@ -669,20 +669,16 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     editRect.adjust(0, 0, -13, 0);
                 }
 
-                customPal.setBrush(QPalette::All, QPalette::ButtonText, QColor(0, 0, 0, 70));
-
                 QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, editRect.width());
-                if ((option->state & State_Enabled))
-                    drawItemText(painter, editRect.translated(0, 1),
-                                 visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
-                                 customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
-                else
+                if ((option->state & State_Enabled)) {
+                    painter->setPen(QColor(0, 0, 0, 70));
+                    painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, cb->currentText);
+                } else {
                     painter->setOpacity(0.8);
+                }
+                painter->setPen(Utils::StyleHelper::panelTextColor());
+                painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, cb->currentText);
 
-                customPal.setBrush(QPalette::All, QPalette::ButtonText, Utils::StyleHelper::panelTextColor());
-                drawItemText(painter, editRect,
-                             visualAlignment(option->direction, Qt::AlignLeft | Qt::AlignVCenter),
-                             customPal, cb->state & State_Enabled, text, QPalette::ButtonText);
                 painter->restore();
             } else {
                 QProxyStyle::drawControl(element, option, painter, widget);
