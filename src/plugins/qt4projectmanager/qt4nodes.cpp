@@ -848,7 +848,7 @@ Qt4ProFileNode::~Qt4ProFileNode()
 
 bool Qt4ProFileNode::isParent(Qt4ProFileNode *node)
 {
-    while (node = qobject_cast<Qt4ProFileNode *>(node->parentFolderNode())) {
+    while ((node = qobject_cast<Qt4ProFileNode *>(node->parentFolderNode()))) {
         if (node == this)
             return true;
     }
