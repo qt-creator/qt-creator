@@ -137,7 +137,7 @@ using namespace CPlusPlus;
 
 namespace {
 
-bool isMacroDefined(QByteArray name, unsigned offset, Environment *env, Client *client)
+Macro *macroDefinition(QByteArray name, unsigned offset, Environment *env, Client *client)
 {
     Macro *m = env->resolve(name);
     if (client) {
@@ -146,7 +146,7 @@ bool isMacroDefined(QByteArray name, unsigned offset, Environment *env, Client *
         else
             client->failedMacroDefinitionCheck(offset, name);
     }
-    return m != 0;
+    return m;
 }
 
 class RangeLexer
@@ -265,12 +265,12 @@ protected:
         } else if (isTokenDefined()) {
             ++(*_lex);
             if ((*_lex)->is(T_IDENTIFIER)) {
-                _value.set_long(isMacroDefined(tokenSpell(), (*_lex)->offset, env, client));
+                _value.set_long(macroDefinition(tokenSpell(), (*_lex)->offset, env, client) != 0);
                 ++(*_lex);
             } else if ((*_lex)->is(T_LPAREN)) {
                 ++(*_lex);
                 if ((*_lex)->is(T_IDENTIFIER)) {
-                    _value.set_long(isMacroDefined(tokenSpell(), (*_lex)->offset, env, client));
+                    _value.set_long(macroDefinition(tokenSpell(), (*_lex)->offset, env, client) != 0);
                     ++(*_lex);
                     if ((*_lex)->is(T_RPAREN)) {
                         ++(*_lex);
@@ -1277,7 +1277,24 @@ void Preprocessor::processIfdef(bool checkUndefined,
     if (testIfLevel()) {
         if (tk->is(T_IDENTIFIER)) {
             const QByteArray macroName = tokenSpell(*tk);
-            bool value = isMacroDefined(macroName, tk->offset, env, client) || env->isBuiltinMacro(macroName);
+
+            bool value = false;
+            if (Macro *macro = macroDefinition(macroName, tk->offset, env, client)) {
+                value = true;
+
+                // the macro is a feature constraint(e.g. QT_NO_XXX)
+                if (checkUndefined && macroName.startsWith("QT_NO_")) {
+                    if (macro->fileName() == QLatin1String("<configuration>")) {
+                        // and it' defined in a pro file (e.g. DEFINES += QT_NO_QOBJECT)
+
+                        value = false; // take the branch
+                    }
+                }
+
+            } else if (env->isBuiltinMacro(macroName)) {
+                value = true;
+            }
+
 
             if (checkUndefined)
                 value = ! value;
