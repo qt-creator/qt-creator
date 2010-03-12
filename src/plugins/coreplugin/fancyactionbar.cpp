@@ -269,8 +269,10 @@ void FancyActionBar::modeChanged(Core::IMode *mode)
 {
     if (m_runButton && m_debugButton) {
         bool inDebugMode = (mode->id() == QLatin1String("Debugger.Mode.Debug"));
+        layout()->setEnabled(false);
         m_runButton->setVisible(!inDebugMode);
         m_debugButton->setVisible(inDebugMode);
+        layout()->setEnabled(true);
     }
 }
 
