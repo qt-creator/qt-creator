@@ -174,30 +174,20 @@ void BuildSettingsWidget::setupUi()
         m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         hbox->addWidget(m_removeButton);
 
-        m_makeActiveButton = new QPushButton(this);
-        m_makeActiveButton->setText(tr("Make Active"));
-        m_makeActiveButton->setToolTip(tr("Sets this build configuration to be used for this target."));
-        m_makeActiveButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        hbox->addWidget(m_makeActiveButton);
-
         hbox->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
         vbox->addLayout(hbox);
     }
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
 
+    updateAddButtonMenu();
+    updateBuildSettings();
+
     connect(m_buildConfigurationComboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(currentIndexChanged(int)));
 
     connect(m_removeButton, SIGNAL(clicked()),
             this, SLOT(deleteConfiguration()));
-
-    connect(m_makeActiveButton, SIGNAL(clicked()),
-            this, SLOT(makeActive()));
-
-    // TODO update on displayNameChange
-//    connect(m_project, SIGNAL(buildConfigurationDisplayNameChanged(const QString &)),
-//            this, SLOT(buildConfigurationDisplayNameChanged(const QString &)));
 
     connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateActiveConfiguration()));
@@ -216,9 +206,6 @@ void BuildSettingsWidget::setupUi()
     if (m_target->buildConfigurationFactory())
         connect(m_target->buildConfigurationFactory(), SIGNAL(availableCreationIdsChanged()),
                 SLOT(updateAddButtonMenu()));
-
-    updateAddButtonMenu();
-    updateBuildSettings();
 }
 
 void BuildSettingsWidget::addedBuildConfiguration(BuildConfiguration *bc)
@@ -237,11 +224,11 @@ void BuildSettingsWidget::buildConfigurationDisplayNameChanged()
 {
     for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
         BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>();
-        m_buildConfigurationComboBox->setItemText(i, buildConfigurationItemName(bc));
+        m_buildConfigurationComboBox->setItemText(i, bc->displayName());
     }
 }
 
-void BuildSettingsWidget::addSubWidget(const QString &name, QWidget *widget)
+void BuildSettingsWidget::addSubWidget(const QString &name, BuildConfigWidget *widget)
 {
     widget->setContentsMargins(m_leftMargin, 10, 0, 0);
 
@@ -269,7 +256,7 @@ void BuildSettingsWidget::clear()
     m_labels.clear();
 }
 
-QList<QWidget *> BuildSettingsWidget::subWidgets() const
+QList<BuildConfigWidget *> BuildSettingsWidget::subWidgets() const
 {
     return m_subWidgets;
 }
@@ -293,8 +280,6 @@ void BuildSettingsWidget::updateAddButtonMenu()
 
 void BuildSettingsWidget::updateBuildSettings()
 {
-    // TODO save position, entry from combbox
-
     // Delete old tree items
     bool blocked = m_buildConfigurationComboBox->blockSignals(true);
     m_buildConfigurationComboBox->clear();
@@ -316,29 +301,29 @@ void BuildSettingsWidget::updateBuildSettings()
 
     // Add tree items
     foreach (BuildConfiguration *bc, m_target->buildConfigurations()) {
-        m_buildConfigurationComboBox->addItem(buildConfigurationItemName(bc), QVariant::fromValue<BuildConfiguration *>(bc));
+        m_buildConfigurationComboBox->addItem(bc->displayName(), QVariant::fromValue<BuildConfiguration *>(bc));
         if (bc == m_buildConfiguration)
             m_buildConfigurationComboBox->setCurrentIndex(m_buildConfigurationComboBox->count() - 1);
     }
 
-    m_buildConfigurationComboBox->blockSignals(blocked);
+    foreach (BuildConfigWidget *widget, subWidgets())
+        widget->init(m_buildConfiguration);
 
-    currentBuildConfigurationChanged();
+    m_buildConfigurationComboBox->blockSignals(blocked);
 }
 
 void BuildSettingsWidget::currentIndexChanged(int index)
 {
-    m_buildConfiguration = m_buildConfigurationComboBox->itemData(index).value<BuildConfiguration *>();
-    currentBuildConfigurationChanged();
+    BuildConfiguration *buildConfiguration = m_buildConfigurationComboBox->itemData(index).value<BuildConfiguration *>();
+    m_target->setActiveBuildConfiguration(buildConfiguration);
 }
 
-void BuildSettingsWidget::currentBuildConfigurationChanged()
+void BuildSettingsWidget::updateActiveConfiguration()
 {
-    m_makeActiveButton->setEnabled(m_buildConfiguration
-            && m_buildConfiguration != m_target->activeBuildConfiguration());
-
-    if (!m_buildConfiguration)
+    if (!m_buildConfiguration || m_buildConfiguration == m_target->activeBuildConfiguration())
         return;
+
+    m_buildConfiguration = m_target->activeBuildConfiguration();
 
     for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
         if (m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>() == m_buildConfiguration) {
@@ -352,28 +337,6 @@ void BuildSettingsWidget::currentBuildConfigurationChanged()
             buildStepWidget->init(m_buildConfiguration);
         }
     }
-}
-
-void BuildSettingsWidget::updateActiveConfiguration()
-{
-    for (int i = 0; i < m_buildConfigurationComboBox->count(); ++i) {
-        BuildConfiguration *bc = m_buildConfigurationComboBox->itemData(i).value<BuildConfiguration *>();
-        m_buildConfigurationComboBox->setItemText(i, buildConfigurationItemName(bc));
-    }
-    m_makeActiveButton->setEnabled(currentBuildConfiguration()
-            && currentBuildConfiguration() != m_target->activeBuildConfiguration());
-}
-
-QString BuildSettingsWidget::buildConfigurationItemName(const BuildConfiguration *bc) const
-{
-    if (bc == m_target->activeBuildConfiguration())
-        return tr("%1 (Active)").arg(bc->displayName());
-    return bc->displayName();
-}
-
-BuildConfiguration *BuildSettingsWidget::currentBuildConfiguration() const {
-    const int index = m_buildConfigurationComboBox->currentIndex();
-    return m_buildConfigurationComboBox->itemData(index).value<BuildConfiguration *>();
 }
 
 void BuildSettingsWidget::createConfiguration()
@@ -392,17 +355,12 @@ void BuildSettingsWidget::createConfiguration()
 
 void BuildSettingsWidget::cloneConfiguration()
 {
-    cloneConfiguration(currentBuildConfiguration());
+    cloneConfiguration(m_buildConfiguration);
 }
 
 void BuildSettingsWidget::deleteConfiguration()
 {
-    deleteConfiguration(currentBuildConfiguration());
-}
-
-void BuildSettingsWidget::makeActive()
-{
-    m_target->setActiveBuildConfiguration(currentBuildConfiguration());
+    deleteConfiguration(m_buildConfiguration);
 }
 
 void BuildSettingsWidget::cloneConfiguration(BuildConfiguration *sourceConfiguration)

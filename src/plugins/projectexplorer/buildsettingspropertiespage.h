@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class BuildConfiguration;
+class BuildConfigWidget;
 class IBuildStepFactory;
 
 namespace Internal {
@@ -88,20 +89,18 @@ public:
     ~BuildSettingsWidget();
 
     void clear();
-    void addSubWidget(const QString &name, QWidget *widget);
-    QList<QWidget *> subWidgets() const;
+    void addSubWidget(const QString &name, BuildConfigWidget *widget);
+    QList<BuildConfigWidget *> subWidgets() const;
 
     void setupUi();
 
 private slots:
     void updateBuildSettings();
     void currentIndexChanged(int index);
-    void currentBuildConfigurationChanged();
 
     void createConfiguration();
     void cloneConfiguration();
     void deleteConfiguration();
-    void makeActive();
     void updateAddButtonMenu();
 
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
@@ -112,8 +111,6 @@ private slots:
 private:
     void cloneConfiguration(BuildConfiguration *toClone);
     void deleteConfiguration(BuildConfiguration *toDelete);
-    QString buildConfigurationItemName(const BuildConfiguration *bc) const;
-    BuildConfiguration *currentBuildConfiguration() const;
 
     Target *m_target;
     BuildConfiguration *m_buildConfiguration;
@@ -124,7 +121,7 @@ private:
     QComboBox *m_buildConfigurationComboBox;
     QMenu *m_addButtonMenu;
 
-    QList<QWidget *> m_subWidgets;
+    QList<BuildConfigWidget *> m_subWidgets;
     QList<QLabel *> m_labels;
 
     int m_leftMargin;
