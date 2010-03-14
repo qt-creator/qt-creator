@@ -303,6 +303,26 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                         QLatin1String("unused variable 'handler'"),
                         QLatin1String("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"), 2115,
                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();    
+    QTest::newRow("gnumakeparser.cpp errors")
+            << QString::fromLatin1("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp: In member function 'void ProjectExplorer::ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()':\n"
+                                   "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected primary-expression before ':' token\n"
+                                   "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected ';' before ':' token")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Unknown,
+                        QLatin1String("In member function 'void ProjectExplorer::ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()':"),
+                        QLatin1String("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"), -1,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("expected primary-expression before ':' token"),
+                        QLatin1String("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"), 264,
+                        Constants::TASK_CATEGORY_COMPILE)
+                << Task(Task::Error,
+                        QLatin1String("expected ';' before ':' token"),
+                        QLatin1String("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"), 264,
+                        Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
 
