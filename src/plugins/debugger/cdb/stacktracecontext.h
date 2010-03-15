@@ -142,6 +142,7 @@ protected:
     static QString msgFrameContextFailed(int index, const StackFrame &f, const QString &why);
 
 private:    
+    bool setScope(int index, QString *errorMessage);
     CIDebugSymbolGroup *createCOM_SymbolGroup(int index, QString *errorMessage);
     inline static StackFrame frameFromFRAME(const CdbCore::ComInterfaces &cif,
                                             const DEBUG_STACK_FRAME &s);
@@ -153,6 +154,7 @@ private:
     QVector <SymbolGroupContext*> m_frameContexts;
     QVector<StackFrame> m_frames;
     ULONG64 m_instructionOffset;
+    int m_lastIndex;
 };
 
 QDebug operator<<(QDebug d, const StackTraceContext &);

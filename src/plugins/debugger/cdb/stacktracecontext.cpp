@@ -97,7 +97,8 @@ StackTraceContext::SpecialFunction StackTraceContext::specialFunction(const QStr
 
 StackTraceContext::StackTraceContext(const ComInterfaces *cif) :
         m_cif(cif),
-        m_instructionOffset(0)
+        m_instructionOffset(0),
+        m_lastIndex(-1)
 {
 }
 
@@ -212,8 +213,15 @@ SymbolGroupContext *StackTraceContext::symbolGroupContextAt(int index, QString *
                         arg(QLatin1String(Q_FUNC_INFO)).arg(index).arg(m_frameContexts.size());
         return 0;
     }
-    if (m_frameContexts.at(index))
+    if (m_frameContexts.at(index)) {
+        // Symbol group only functions correctly if IDebugSymbols has the right scope.
+        if (m_lastIndex != index) {
+            if (!setScope(index, errorMessage))
+                return 0;
+            m_lastIndex = index;
+        }
         return m_frameContexts.at(index);
+    }
     CIDebugSymbolGroup *comSymbolGroup  = createCOM_SymbolGroup(index, errorMessage);
     if (!comSymbolGroup) {
         *errorMessage = msgFrameContextFailed(index, m_frames.at(index), *errorMessage);
@@ -229,6 +237,19 @@ SymbolGroupContext *StackTraceContext::symbolGroupContextAt(int index, QString *
     return sc;
 }
 
+bool StackTraceContext::setScope(int index, QString *errorMessage)
+{
+    if (debug)
+        qDebug() << "setScope" << index;
+    const HRESULT hr = m_cif->debugSymbols->SetScope(0, m_cdbFrames + index, NULL, 0);
+    if (FAILED(hr)) {
+        *errorMessage = QString::fromLatin1("Cannot set scope %1: %2").
+                        arg(index).arg(CdbCore::msgComFailed("SetScope", hr));
+        return false;
+    }
+    return true;
+}
+
 CIDebugSymbolGroup *StackTraceContext::createCOM_SymbolGroup(int index, QString *errorMessage)
 {
     CIDebugSymbolGroup *sg = 0;
@@ -237,10 +258,8 @@ CIDebugSymbolGroup *StackTraceContext::createCOM_SymbolGroup(int index, QString 
         *errorMessage = CdbCore::msgComFailed("GetScopeSymbolGroup", hr);
         return 0;
     }
-
-    hr = m_cif->debugSymbols->SetScope(0, m_cdbFrames + index, NULL, 0);
-    if (FAILED(hr)) {
-        *errorMessage = CdbCore::msgComFailed("SetScope", hr);
+    // Set debugSymbols's scope.
+    if (!setScope(index, errorMessage)) {
         sg->Release();
         return 0;
     }
@@ -251,6 +270,7 @@ CIDebugSymbolGroup *StackTraceContext::createCOM_SymbolGroup(int index, QString 
         sg->Release();
         return 0;
     }
+    m_lastIndex = index;
     return sg;
 }
 
