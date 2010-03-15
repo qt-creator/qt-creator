@@ -40,6 +40,8 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent) :
     m_ui(new Ui::WizardPage)
 {
     m_ui->setupUi(this);
+    connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(slotProjectChanged(int)));
 }
 
 ProjectWizardPage::~ProjectWizardPage()
@@ -51,6 +53,11 @@ void ProjectWizardPage::setProjects(const QStringList &p)
 {
     m_ui->projectComboBox->clear();
     m_ui->projectComboBox->addItems(p);
+}
+
+void ProjectWizardPage::setProjectToolTips(const QStringList &t)
+{
+    m_projectToolTips = t;
 }
 
 int ProjectWizardPage::currentProjectIndex() const
@@ -111,4 +118,16 @@ void ProjectWizardPage::setFilesDisplay(const QString &commonPath, const QString
         str << "</pre>";
     }
     m_ui->filesLabel->setText(fileMessage);
+}
+
+void ProjectWizardPage::setProjectToolTip(const QString &tt)
+{
+    m_ui->projectComboBox->setToolTip(tt);
+    m_ui->projectLabel->setToolTip(tt);
+}
+
+void ProjectWizardPage::slotProjectChanged(int index)
+{
+    setProjectToolTip(index >= 0 && index < m_projectToolTips.size() ?
+                      m_projectToolTips.at(index) : QString());
 }

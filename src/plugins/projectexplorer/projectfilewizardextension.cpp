@@ -117,6 +117,8 @@ ProjectEntry::ProjectEntry(ProjectNode *n) :
 // Sort helper that sorts by base name and puts '*.pro' before '*.pri'
 int ProjectEntry::compare(const ProjectEntry &rhs) const
 {
+    if (const int drc = nativeDirectory.compare(rhs.nativeDirectory))
+        return drc;
     if (const int brc = baseName.compare(rhs.baseName))
         return brc;
     if (type < rhs.type)
@@ -276,8 +278,11 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const Core::IWiz
 void ProjectFileWizardExtension::initProjectChoices(bool enabled)
 {
     // Set up project list which remains the same over duration of wizard execution
+    // As tooltip, set the directory for disambiguation (should someone have
+    // duplicate base names in differing directories).
     //: No project selected
     QStringList projectChoices(tr("<None>"));
+    QStringList projectToolTips( QString::null ); // Do not use QString() - gcc-bug.
     if (enabled) {
         typedef QMap<ProjectEntry, bool> ProjectEntryMap;
         // Sort by base name and purge duplicated entries (resulting from dependencies)
@@ -290,9 +295,11 @@ void ProjectFileWizardExtension::initProjectChoices(bool enabled)
         for (ProjectEntryMap::const_iterator it = entryMap.constBegin(); it != cend; ++it) {
             m_context->projects.push_back(it.key());
             projectChoices.push_back(it.key().fileName);
+            projectToolTips.push_back(it.key().nativeDirectory);
         }
     }
     m_context->page->setProjects(projectChoices);
+    m_context->page->setProjectToolTips(projectToolTips);
 }
 
 bool ProjectFileWizardExtension::process(const QList<Core::GeneratedFile> &files, QString *errorMessage)

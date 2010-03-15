@@ -47,6 +47,8 @@ public:
     virtual ~ProjectWizardPage();
 
     void setProjects(const QStringList &);
+    void setProjectToolTips(const QStringList &);
+
     int currentProjectIndex() const;
     void setCurrentProjectIndex(int);
 
@@ -61,8 +63,14 @@ public:
 protected:
     virtual void changeEvent(QEvent *e);
 
+private slots:
+    void slotProjectChanged(int);
+
 private:
+    inline void setProjectToolTip(const QString &);
+
     Ui::WizardPage *m_ui;
+    QStringList m_projectToolTips;
 };
 
 } // namespace Internal
