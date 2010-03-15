@@ -41,7 +41,7 @@ class IApplicationOutput;
 class IOutputParser;
 class GlobalConfigManagerInterface;
 class Project;
-class Task;
+struct Task;
 
 namespace Internal {
 class CommandQObject;
