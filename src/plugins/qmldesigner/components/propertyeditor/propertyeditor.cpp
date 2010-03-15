@@ -290,13 +290,14 @@ void PropertyEditor::setupPane(const QString &typeName)
 
         m_stackedWidget->addWidget(type->m_view);
         m_typeHash.insert(qmlFile.toString(), type);
+        m_stackedWidget->setCurrentWidget(type->m_view);
+
     } else {
         QDeclarativeContext *ctxt = type->m_view->rootContext();
         ctxt->setContextProperty("finishedNotify", QVariant(false) );
 
         type->initialSetup(typeName, qmlSpecificsFile, this);
         ctxt->setContextProperty("finishedNotify", QVariant(true) );
-
     }
 }
 
