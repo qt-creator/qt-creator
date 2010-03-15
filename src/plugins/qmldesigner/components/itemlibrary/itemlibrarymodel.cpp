@@ -87,7 +87,6 @@ void ItemLibrarySortedModel<T>::removeElement(int libId)
 {
     T *element = m_elementModels.value(libId);
     int pos = findElement(libId);
-    struct order_struct orderEntry = m_elementOrder.at(pos);
 
     setElementVisible(libId, false);
 

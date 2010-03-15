@@ -39,7 +39,8 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-struct DesignerSettings {
+class DesignerSettings {
+public:
     DesignerSettings();
 
     void fromSettings(QSettings *);

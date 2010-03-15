@@ -10,8 +10,7 @@ INCLUDEPATH += $$PWD $$PWD/../build $$PWD/../build/botan
 
 win32 {
     win32-msvc* {
-        QMAKE_CXXFLAGS += -wd4251 -wd4290
-        DEFINES += _CRT_SECURE_NO_WARNINGS
+        QMAKE_CXXFLAGS += -wd4251 -wd4290 -wd4250
         DEFINES += BOTAN_DLL=__declspec(dllexport)
     } else {
         QMAKE_CFLAGS += -fpermissive -finline-functions -Wno-long-long
