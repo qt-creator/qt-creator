@@ -155,7 +155,7 @@ private:
     int m_id;
     bool m_isAutodetected;
     QString m_autodetectionSource;
-    bool m_hasDebuggingHelper;
+    mutable bool m_hasDebuggingHelper; // controlled by m_versionInfoUpToDate
 
     QString m_mwcDirectory;
     QString m_s60SDKDirectory;

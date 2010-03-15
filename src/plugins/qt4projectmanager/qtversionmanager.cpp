@@ -631,6 +631,14 @@ QString QtVersion::mkspecPath() const
 
 QString QtVersion::qtVersionString() const
 {
+    if (m_qtVersionString.isNull()) {
+        QFileInfo qmake(m_qmakeCommand);
+        if (qmake.exists() && qmake.isExecutable()) {
+            m_qtVersionString = DebuggingHelperLibrary::qtVersionForQMake(qmake.absoluteFilePath());
+        } else {
+            m_qtVersionString = QLatin1String("");
+        }
+    }
     return m_qtVersionString;
 }
 
@@ -657,14 +665,7 @@ void QtVersion::setQMakeCommand(const QString& qmakeCommand)
     m_toolChainUpToDate = false;
     // TODO do i need to optimize this?
     m_versionInfoUpToDate = false;
-    m_hasDebuggingHelper = !debuggingHelperLibrary().isEmpty();
-
-    QFileInfo qmake(qmakeCommand);
-    if (qmake.exists() && qmake.isExecutable()) {
-        m_qtVersionString = DebuggingHelperLibrary::qtVersionForQMake(qmake.absoluteFilePath());
-    } else {
-        m_qtVersionString.clear();
-    }
+    m_qtVersionString = QString();
     updateSourcePath();
 }
 
@@ -985,8 +986,15 @@ void QtVersion::updateVersionInfo() const
             }
         }
 
-        if (m_versionInfo.contains("QT_INSTALL_DATA"))
-            m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(m_versionInfo.value("QT_INSTALL_DATA")+"/mkspecs"));
+        if (m_versionInfo.contains("QT_INSTALL_DATA")) {
+            QString qtInstallData = m_versionInfo.value("QT_INSTALL_DATA");
+            m_versionInfo.insert("QMAKE_MKSPECS", QDir::cleanPath(qtInstallData+"/mkspecs"));
+
+            if (qtInstallData.isEmpty())
+                m_hasDebuggingHelper = false;
+            else
+                m_hasDebuggingHelper = DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
+        }
 
         // Now check for a qt that is configured with a prefix but not installed
         if (m_versionInfo.contains("QT_INSTALL_BINS")) {
@@ -1015,6 +1023,7 @@ void QtVersion::updateVersionInfo() const
                 m_hasDemos = true;
         }
     }
+
     m_versionInfoUpToDate = true;
 }
 
@@ -1417,6 +1426,7 @@ QtVersion::QmakeBuildConfigs QtVersion::defaultBuildConfig() const
 
 bool QtVersion::hasDebuggingHelper() const
 {
+    updateVersionInfo();
     return m_hasDebuggingHelper;
 }
 
