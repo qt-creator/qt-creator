@@ -43,6 +43,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
+#include <projectexplorer/session.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -84,6 +85,9 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent)
     connect(&m_watcher, SIGNAL(progressRangeChanged(int, int)),
             this, SLOT(progressChanged()));
 
+    connect(parent->session(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project *)),
+            this, SLOT(aboutToRemoveProject(ProjectExplorer::Project *)));
+
     m_outputWindow = new CompileOutputWindow(this);
     pm->addObject(m_outputWindow);
 
@@ -112,6 +116,18 @@ BuildManager::~BuildManager()
 
     pm->removeObject(m_outputWindow);
     delete m_outputWindow;
+}
+
+void BuildManager::aboutToRemoveProject(ProjectExplorer::Project *p)
+{
+    QHash<Project *, int>::iterator it = m_activeBuildSteps.find(p);
+    QHash<Project *, int>::iterator end = m_activeBuildSteps.end();
+    if (it != end && *it > 0) {
+        // We are building the project that's about to be removed.
+        // We cancel the whole queue, which isn't the nicest thing to do
+        // but a safe thing.
+        cancel();
+    }
 }
 
 bool BuildManager::isBuilding() const

@@ -85,6 +85,7 @@ public slots:
     void showTaskWindow();
     void toggleTaskWindow();
     void toggleOutputWindow();
+    void aboutToRemoveProject(ProjectExplorer::Project *p);
 
 signals:
     void buildStateChanged(ProjectExplorer::Project *pro);
