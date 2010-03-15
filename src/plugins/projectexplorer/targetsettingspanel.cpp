@@ -123,6 +123,8 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
     m_selector(0),
     m_centralWidget(0)
 {
+    Q_ASSERT(m_project);
+
     m_panelWidgets[0] = 0;
     m_panelWidgets[1] = 0;
 
@@ -134,6 +136,8 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
             this, SLOT(aboutToRemoveTarget(ProjectExplorer::Target*)));
     connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
+    connect(m_project, SIGNAL(supportedTargetIdsChanged()),
+            this, SLOT(updateTargetAddAndRemoveButtons()));
 }
 
 TargetSettingsPanelWidget::~TargetSettingsPanelWidget()
@@ -186,6 +190,8 @@ void TargetSettingsPanelWidget::setupUi()
         m_selector->markActive(m_targets.indexOf(m_project->activeTarget()));
         m_selector->setCurrentIndex(m_targets.indexOf(m_project->activeTarget()));
     }
+
+    updateTargetAddAndRemoveButtons();
 }
 
 void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subIndex)
@@ -273,8 +279,7 @@ void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
         }
     }
 
-    m_selector->setAddButtonEnabled(m_project->supportedTargetIds().count() != m_targets.count());
-    m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
+    updateTargetAddAndRemoveButtons();
 }
 
 void TargetSettingsPanelWidget::aboutToRemoveTarget(ProjectExplorer::Target *target)
@@ -288,8 +293,8 @@ void TargetSettingsPanelWidget::aboutToRemoveTarget(ProjectExplorer::Target *tar
     m_targets.removeAt(index);
 
     m_selector->removeTarget(index);
-    m_selector->setAddButtonEnabled(m_project->supportedTargetIds().count() != m_targets.count());
-    m_selector->setRemoveButtonEnabled(m_targets.count() > 1);
+
+    updateTargetAddAndRemoveButtons();
 }
 
 void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *target)
@@ -299,4 +304,13 @@ void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *tar
 
     int index(m_targets.indexOf(target));
     m_selector->markActive(index);
+}
+
+void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
+{
+    if (!m_selector)
+        return;
+
+    m_selector->setAddButtonEnabled(m_project->possibleTargetIds().count() > 0);
+    m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
 }
