@@ -32,11 +32,11 @@ GroupBox {
                 }
 
                 QLineEdit {
-                    enabled: baseStateFlag
+                    enabled: isBaseState
                     id: idLineEdit;
                     objectName: "idLineEdit";
                     readOnly: isBaseState != true;
-                    text: backendValues.id === undefined ? "" : backendValues.id.value;
+                    text: backendValues.id.value;
                     onEditingFinished: {
                         backendValues.id.value = text;
                     }

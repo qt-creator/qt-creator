@@ -24,16 +24,18 @@ QWidget {
 
     Script {
         function evaluate() {
+		    if (backendValue === undefined)
+		        return;
             if (!enabled) {
                 box.setStyleSheet("color: "+scheme.disabledColor);
             } else {
                 if (baseStateFlag) {
-                    if (backendValue != null && backendValue.isInModel)
+                    if (backendValue.isInModel)
                         box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedBaseColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
                     else
                         box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
                     } else {
-                    if (backendValue != null && backendValue.isInSubState)
+                    if (backendValue.isInSubState)
                         box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.changedStateColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
                     else
                         box.setStyleSheet("QComboBox,QComboBox:on{color: "+scheme.defaultColor+"}QComboBox:off{color:"+scheme.optionsColor+"}");
@@ -51,8 +53,7 @@ QWidget {
             property var backendValue: comboBox.backendValue
             onCurrentTextChanged: { backendValue.value = currentText; evaluate(); }
             ExtendedFunctionButton {
-                backendValue: (comboBox.backendValue === undefined || comboBox.backendValue === null)
-                ? null : comboBox.backendValue;
+                backendValue: comboBox.backendValue;
                 y: 3
                 x: 3
             }

@@ -75,7 +75,7 @@ GroupBox {
         }
 
         IntEditor {
-            backendValue: backendValues.z == undefined ? 0 : backendValues.z
+            backendValue: backendValues.z
             caption: "z"
             baseStateFlag: isBaseState;
             step: 1;

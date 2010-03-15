@@ -31,16 +31,18 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
 
     Script {
         function evaluate() {
+		    if (backendValue === undefined)
+		       return;
             if (!enabled) {
                 box.setStyleSheet("color: "+scheme.disabledColor);
                 } else {
                 if (baseStateFlag) {
-                    if (backendValue != null && backendValue.isInModel)
+                    if (backendValue.isInModel)
                     box.setStyleSheet("color: "+scheme.changedBaseColor);
                     else
                     box.setStyleSheet("color: "+scheme.defaultColor);
                     } else {
-                    if (backendValue != null && backendValue.isInSubState)
+                    if (backendValue.isInSubState)
                     box.setStyleSheet("color: "+scheme.changedStateColor);
                     else
                     box.setStyleSheet("color: "+scheme.defaultColor);
@@ -51,13 +53,13 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
 
     ColorScheme { id:scheme; }
 
-    property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
+    property bool isInModel: backendValue.isInModel;
 
     onIsInModelChanged: {
         evaluate();
     }
 
-    property bool isInSubState: (backendValue === undefined || backendValue === null) ? false: backendValue.isInSubState;
+    property bool isInSubState: backendValue.isInSubState;
 
     onIsInSubStateChanged: {
         evaluate();
@@ -78,14 +80,10 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
             id: box;
             decimals: 1;
             keyboardTracking: false;
-            enabled: (doubleSpinBox.backendValue === undefined ||
-            doubleSpinBox.backendValue === null)
-            ? true : !backendValue.isBound && doubleSpinBox.enabled;
+            enabled: !backendValue.isBound && doubleSpinBox.enabled;
 
             property bool readingFromBackend: false;
-            property real valueFromBackend: (doubleSpinBox.backendValue === undefined ||
-            doubleSpinBox.backendValue === null || doubleSpinBox.backendValue.value === undefined)
-            ? .0 : doubleSpinBox.backendValue.value;
+            property real valueFromBackend: doubleSpinBox.backendValue.value;
 
             onValueFromBackendChanged: {
                 readingFromBackend = true;
@@ -94,7 +92,6 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
             }
 
             onValueChanged: {
-                if (doubleSpinBox.backendValue != null && readingFromBackend == false)
                 doubleSpinBox.backendValue.value = value;
             }
 
@@ -112,9 +109,7 @@ QWidget { //This is a special doubleSpinBox that does color coding for states
     }
 
     ExtendedFunctionButton {
-        backendValue: (doubleSpinBox.backendValue === undefined ||
-        doubleSpinBox.backendValue === null)
-        ? null : doubleSpinBox.backendValue;
+        backendValue: doubleSpinBox.backendValue;
         y: box.y + 4
         x: box.x + 2
         visible: doubleSpinBox.enabled

@@ -30,16 +30,18 @@ QWidget { //This is a special spinBox that does color coding for states
 
     Script {
         function evaluate() {
+		if (backendValue === undefined)
+		    return;
             if (!enabled) {
                 box.setStyleSheet("color: "+scheme.disabledColor);
                 } else {
-                if (baseStateFlag) {
-                    if (backendValue != null && backendValue.isInModel)
+                if (!(baseStateFlag === undefined) && baseStateFlag) {
+                    if (backendValue.isInModel)
                        box.setStyleSheet("color: "+scheme.changedBaseColor);
                     else
                        box.setStyleSheet("color: "+scheme.defaultColor);
                 } else {
-                    if (backendValue != null && backendValue.isInSubState)
+                    if (backendValue.isInSubState)
                         box.setStyleSheet("color: "+scheme.changedStateColor);
                     else
                         box.setStyleSheet("color: "+scheme.defaultColor);
@@ -48,13 +50,13 @@ QWidget { //This is a special spinBox that does color coding for states
         }
     }
 
-    property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
+    property bool isInModel: backendValue.isInModel;
 
     onIsInModelChanged: {
         evaluate();
     }
 
-    property bool isInSubState: (backendValue === undefined || backendValue === null) ? false: backendValue.isInSubState;
+    property bool isInSubState: backendValue.isInSubState;
 
     onIsInSubStateChanged: {
         evaluate();
@@ -68,21 +70,18 @@ QWidget { //This is a special spinBox that does color coding for states
 
             keyboardTracking: false;
             id: box;
-            enabled: backendValue === undefined || backendValue.isBound === undefined || backendValue.isBound === null ? false : !backendValue.isBound
+            enabled: backendValue.isBound
             property bool readingFromBackend: false;
-            property int valueFromBackend: (spinBox.backendValue === undefined || spinBox.backendValue == null  || spinBox.backendValue.value === undefined)
-            ? .0 : spinBox.backendValue.value;
+            property int valueFromBackend: spinBox.backendValue.value;
 
             onValueFromBackendChanged: {
-                readingFromBackend = true;
-                if (!(valueFromBackend  === undefined))
+                readingFromBackend = true;                
                 value = valueFromBackend;
                 readingFromBackend = false;
                 evaluate();
             }
 
-            onValueChanged: {
-                if (spinBox.backendValue != null && readingFromBackend == false)
+            onValueChanged: {                
                 backendValue.value = value;
             }
 
@@ -99,9 +98,7 @@ QWidget { //This is a special spinBox that does color coding for states
     }
 
     ExtendedFunctionButton {
-        backendValue: (spinBox.backendValue === undefined ||
-        spinBox.backendValue === null)
-        ? null : spinBox.backendValue;
+        backendValue: spinBox.backendValue;
         y: box.y + 4
         x: box.x + 2
         visible: spinBox.enabled

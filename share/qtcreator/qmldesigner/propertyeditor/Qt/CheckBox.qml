@@ -19,13 +19,13 @@ QWidget { //This is a special checkBox that does color coding for states
         evaluate();
     }
 
-    property bool isInModel: (backendValue === undefined || backendValue === null) ? false: backendValue.isInModel;
+    property bool isInModel: backendValue.isInModel;
 
     onIsInModelChanged: {
         evaluate();
     }
 
-    property bool isInSubState: (backendValue === undefined || backendValue === null) ? false: backendValue.isInSubState;
+    property bool isInSubState: backendValue.isInSubState;
 
     onIsInSubStateChanged: {
         evaluate();
@@ -37,12 +37,12 @@ QWidget { //This is a special checkBox that does color coding for states
                 localLabel.setStyleSheet("color: "+scheme.disabledColor);
             } else {
                 if (baseStateFlag) {
-                    if (backendValue != null && backendValue.isInModel)
+                    if (backendValue.isInModel)
                         localLabel.setStyleSheet("color: "+scheme.changedBaseColor);
                     else
                         localLabel.setStyleSheet("color: "+scheme.boldTextColor);
                 } else {
-                    if (backendValue != null && backendValue.isInSubState)
+                    if (backendValue.isInSubState)
                         localLabel.setStyleSheet("color: "+scheme.changedStateColor);
                     else
                         localLabel.setStyleSheet("color: "+scheme.boldTextColor);
@@ -60,7 +60,7 @@ QWidget { //This is a special checkBox that does color coding for states
         QCheckBox {
             id: localCheckBox
             checkable: true;
-            checked: (backendValue === undefined || backendValue === null) ? false : backendValue.value;
+            checked: backendValue.value;
             onToggled: {
                 backendValue.value = checked;
             }

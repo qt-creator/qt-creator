@@ -14,18 +14,17 @@ GroupBox {
                 Label {
                     text: "Visibility"
                 }
-
                 CheckBox {
                     id: visibleCheckBox;
                     text: "Is visible";
-                    backendValue: backendValues.visible === undefined ? false : backendValues.visible;
+                    backendValue: backendValues.visible;
                     baseStateFlag: isBaseState;
                     checkable: true;
                 }
                 CheckBox {
                     id: clipCheckBox;
                     text: "Clip Content";
-                    backendValue: backendValues.clip === undefined ? false : backendValues.clip;
+                    backendValue: backendValues.clip;
                     baseStateFlag: isBaseState;
                     checkable: true;
                 }
@@ -41,7 +40,7 @@ GroupBox {
                 DoubleSpinBox {
                     text: ""
                     id: opacitySpinBox;
-                    backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
+                    backendValue: backendValues.opacity
                     property var backendValueValue: backendValues.opacity.value;
                     minimumWidth: 60;
                     minimum: 0;
@@ -57,9 +56,8 @@ GroupBox {
                     minimum: 0
                     maximum: 100
                     singleStep: 5;
-                    backendValue: backendValues.opacity === undefined ? null : backendValues.opacity
+                    backendValue: backendValues.opacity
                     onValueChanged: {
-                        if (backendValues.opacity !== undefined)
                         backendValues.opacity.value = value / 100;
                     }
                 }

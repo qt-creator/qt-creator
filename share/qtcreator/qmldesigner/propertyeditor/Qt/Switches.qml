@@ -20,7 +20,7 @@ QFrame {
             id: standardMode;
             toolTip: "special properties";
             //iconFromFile: "images/rect-icon.png";
-            text: backendValues.className.value
+            text: backendValues === undefined ? "empty" : backendValues.className.value
             onClicked: {
                 extendedMode.checked = false;
                 layoutMode.checked = false;

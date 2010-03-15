@@ -6,9 +6,10 @@ QExtGroupBox {
 
     property var finished;
     property var backendColor
+	property var color: backendColor === undefined ? "#000000" : backendColor.value
     property var oldMaximumHeight;
 
-    property var startupCollapse: selectionChanged;
+    property var startupCollapse: selectionChanged === undefined ? false : selectionChanged;
     property var firstTime: true;
 	property var caption: ""
 	smooth: false
@@ -42,24 +43,26 @@ QExtGroupBox {
     onIsEnabledChanged: {
         evaluate();
     }
-    property bool isInModel: (backendColor === undefined || backendColor === null) ? false: backendColor.isInModel;
+    property bool isInModel: backendColor.isInModel;
     onIsInModelChanged: {
         evaluate();
     }
-    property bool isInSubState: (backendColor === undefined || backendColor === null) ? false: backendColor.isInSubState;
+    property bool isInSubState: backendColor.isInSubState;
     onIsInSubStateChanged: {
         evaluate();
     }
 
     Script {
         function evaluate() {
+		    if (backendColor === undefined)
+			    return;
             if (!enabled) {
                 valueSpinBox.setStyleSheet("color: "+scheme.disabledColor);
                 hueSpinBox.setStyleSheet("color: "+scheme.disabledColor);
                 saturationSpinBox.setStyleSheet("color: "+scheme.disabledColor);
             } else {
                 if (baseStateFlag) {
-                    if (backendColor != null && backendColor.isInModel) {
+                    if (backendColor.isInModel) {
                         valueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
                         hueSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
                         saturationSpinBox.setStyleSheet("color: "+scheme.changedBaseColor);
@@ -69,7 +72,7 @@ QExtGroupBox {
                         saturationSpinBox.setStyleSheet("color: "+scheme.defaultColor);
                     }
                 } else {
-                    if (backendColor != null && backendColor.isInSubState) {
+                    if (backendColor.isInSubState) {
                         valueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
                         hueSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
                         saturationSpinBox.setStyleSheet("color: "+scheme.changedStateColor);
@@ -104,7 +107,7 @@ QExtGroupBox {
 
             ColorButton {
                 id: colorButton
-                color: colorGroupBox.backendColor.value;
+                color: colorGroupBox.color;
                 checkable: true;
                 checked: false;
                 minimumHeight: 18;
@@ -140,9 +143,9 @@ QExtGroupBox {
 
                 ColorBox {
                     id: colorControl;
-                    property var backendColor: colorGroupBox.backendColor.value;
-                    color: colorGroupBox.backendColor.value;
-                    onColorChanged: if (colorGroupBox.backendColor.value != color) {
+                    property var backendColor: colorGroupBox.color;
+                    color: colorGroupBox.color;
+                    onColorChanged: if (colorGroupBox.color != color) {
                         colorGroupBox.backendColor.value = color;
                     }
                 }
