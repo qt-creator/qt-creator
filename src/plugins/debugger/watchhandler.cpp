@@ -41,10 +41,10 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QEvent>
-
-#include <QtCore/QtAlgorithms>
+#include <QtCore/QFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QTimer>
+#include <QtCore/QtAlgorithms>
 
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -1351,41 +1351,56 @@ static void swapEndian(char *d, int nchar)
 
 void WatchHandler::showEditValue(const WatchData &data)
 {
-    // Editvalue is always hex encoded.
-    QByteArray ba = QByteArray::fromHex(data.editvalue);
     QWidget *w = m_editWindows.value(data.iname);
-    const int format = ba.at(0);
-    if (format == 0x1) {
+        
+    if (data.editformat == 0x1 || data.editformat == 0x3) {
         // QImage
         if (!w) {
             w = new QLabel;
             m_editWindows[data.iname] = w;
         }
         if (QLabel *l = qobject_cast<QLabel *>(w)) {
-            char *d = ba.data() + 1;
-            swapEndian(d, ba.size() - 1);
-            const int *header = (int *)(d);
-            const uchar *data = 12 + (uchar *)(d);
-            QImage im(data, header[0], header[1], QImage::Format(header[2]));
+            int width, height, format;
+            QByteArray ba;
+            uchar *bits;
+            if (data.editformat == 0x1) {
+                ba = QByteArray::fromHex(data.editvalue);
+                const int *header = (int *)(ba.data());
+                swapEndian(ba.data(), ba.size());
+                bits = 12 + (uchar *)(ba.data());
+                width = header[0];
+                height = header[1];
+                format = header[2];
+            } else { // data.editformat == 0x3
+                QTextStream ts(data.editvalue);
+                QString fileName;
+                ts >> width >> height >> format >> fileName;
+                QFile f(fileName);
+                f.open(QIODevice::ReadOnly);
+                ba = f.readAll();
+                bits = (uchar*)ba.data();
+            }
+            QImage im(bits, width, height, QImage::Format(format));
             l->setPixmap(QPixmap::fromImage(im));
-            l->resize(header[0], header[1]);
+            l->resize(width, height);
             l->show();
         }
-    } else if (format == 0x2) {
+    } else if (data.editformat == 0x2) {
         // QString
         if (!w) {
             w = new QTextEdit;
             m_editWindows[data.iname] = w;
         }
-        MODEL_DEBUG("DATA: " << ba);
+        QByteArray ba = QByteArray::fromHex(data.editvalue);
         QString str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
+
         if (QTextEdit *t = qobject_cast<QTextEdit *>(w)) {
             t->setText(str);
             t->resize(400, 200);
             t->show();
         }
     } else {
-        QTC_ASSERT(false, qDebug() << "Display format: " << format);
+        QTC_ASSERT(false, qDebug() << "Display format: " << data.editformat);
     }
 }
 

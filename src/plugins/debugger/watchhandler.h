@@ -120,23 +120,24 @@ public:
     static const QString &shadowedNameFormat();
 
 public:
-    QByteArray iname;     // internal name sth like 'local.baz.public.a'
-    QByteArray exp;       // the expression
-    QString name;         // displayed name
-    QString value;        // displayed value
-    QByteArray editvalue; // displayed value
-    QString valuetooltip; // tooltip in value column
-    QString type;         // type for further processing
-    QString displayedType;// displayed type (optional)
-    QByteArray variable;  // name of internal Gdb variable if created
-    QByteArray addr;      // displayed address
-    QByteArray saddr;     // stored address (pointer in container)
-    QString framekey;     // key for type cache
-    QScriptValue scriptValue; // if needed...
+    QByteArray iname;     // Internal name sth like 'local.baz.public.a'
+    QByteArray exp;       // The expression
+    QString name;         // Displayed name
+    QString value;        // Displayed value
+    QByteArray editvalue; // Displayed value
+    int editformat;       // Format of displayed value
+    QString valuetooltip; // Tooltip in value column
+    QString type;         // Type for further processing
+    QString displayedType;// Displayed type (optional)
+    QByteArray variable;  // Name of internal Gdb variable if created
+    QByteArray addr;      // Displayed address
+    QByteArray saddr;     // Stored address (pointer in container)
+    QString framekey;     // Key for type cache
+    QScriptValue scriptValue; // If needed...
     bool hasChildren;
-    int generation;       // when updated?
-    bool valueEnabled;    // value will be greyed out or not
-    bool valueEditable;   // value will be editable
+    int generation;       // When updated?
+    bool valueEnabled;    // Value will be greyed out or not
+    bool valueEditable;   // Value will be editable
     bool error;
 
 public:

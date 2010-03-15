@@ -524,7 +524,6 @@ private: ////////// Convenience Functions //////////
 
     static void setWatchDataValue(WatchData &data, const GdbMi &mi,
         int encoding = 0);
-    static void setWatchDataEditValue(WatchData &data, const GdbMi &mi);
     static void setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
             int encoding = 0);
     static void setWatchDataChildCount(WatchData &data, const GdbMi &mi);

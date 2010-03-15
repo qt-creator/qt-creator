@@ -407,18 +407,33 @@ def qdump__QImage(d, item):
         d.endChildren()
     format = d.itemFormat(item)
     if format == 1:
-        d.beginItem("editvalue")
-        d.put("%02x" % 1)  # Magic marker for "QImage" data.
-        d.put("%08x" % int(d_ptr["width"]))
-        d.put("%08x" % int(d_ptr["height"]))
-        d.put("%08x" % int(d_ptr["format"]))
-        # Take 4 at a time, this is critical for performance.
-        # In fact, even 4 at a time is too slow beyond 100x100 or so.
-        p = bits.cast(gdb.lookup_type("unsigned int").pointer())
-        for i in xrange(nbytes / 4):
-            d.put("%08x" % int(p.dereference()))
-            p += 1
-        d.endItem()
+        if False:
+            # Take four bytes at a time, this is critical for performance.
+            # In fact, even four at a time is too slow beyond 100x100 or so.
+            d.putField("editformat", 1)  # Magic marker for direct "QImage" data.
+            d.beginItem("editvalue")
+            d.put("%08x" % int(d_ptr["width"]))
+            d.put("%08x" % int(d_ptr["height"]))
+            d.put("%08x" % int(d_ptr["format"]))
+            p = bits.cast(gdb.lookup_type("unsigned int").pointer())
+            for i in xrange(nbytes / 4):
+                d.put("%08x" % int(p.dereference()))
+                p += 1
+            d.endItem()
+        else:
+            # Write to an external file. Much faster ;-(
+            file = tempfile.mkstemp(prefix="gdbpy_")
+            filename = file[1]
+            p = bits.cast(gdb.lookup_type("unsigned char").pointer())
+            gdb.execute("dump binary memory %s %s %s" %
+                (filename, cleanAddress(p), cleanAddress(p + nbytes)))
+            d.putField("editformat", 3)  # Magic marker for external "QImage" data.
+            d.beginItem("editvalue")
+            d.put(" %d" % int(d_ptr["width"]))
+            d.put(" %d" % int(d_ptr["height"]))
+            d.put(" %d" % int(d_ptr["format"]))
+            d.put(" %s" % filename)
+            d.endItem()
 
 
 def qdump__QLinkedList(d, item):

@@ -3089,12 +3089,6 @@ void GdbEngine::setWatchDataValue(WatchData &data, const GdbMi &mi,
         data.setValueNeeded();
 }
 
-void GdbEngine::setWatchDataEditValue(WatchData &data, const GdbMi &mi)
-{
-    if (mi.isValid())
-        data.editvalue = mi.data();
-}
-
 void GdbEngine::setWatchDataValueToolTip(WatchData &data, const GdbMi &mi,
     int encoding)
 {
@@ -3369,7 +3363,13 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
         data.setChildrenUnneeded();
 
     setWatchDataType(data, item.findChild("type"));
-    setWatchDataEditValue(data, item.findChild("editvalue"));
+    GdbMi mi = item.findChild("editvalue");
+    if (mi.isValid())
+        data.editvalue = mi.data();
+    mi = item.findChild("editformat");
+    if (mi.isValid())
+        data.editformat = mi.data().toInt();
+
     setWatchDataValue(data, item.findChild("value"),
         item.findChild("valueencoded").data().toInt());
     setWatchDataAddress(data, item.findChild("addr"));
