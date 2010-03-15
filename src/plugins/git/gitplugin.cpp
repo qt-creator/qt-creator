@@ -133,7 +133,8 @@ GitPlugin::GitPlugin() :
     m_commitAction(0),
     m_pullAction(0),
     m_pushAction(0),
-    m_cleanAction(0),
+    m_cleanProjectAction(0),
+    m_cleanRepositoryAction(0),
     m_submitCurrentAction(0),
     m_diffSelectedFilesAction(0),
     m_undoAction(0),
@@ -304,6 +305,13 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
+    m_cleanProjectAction = new Utils::ParameterAction(tr("Clean Project..."), tr("Clean Project \"%1\"..."), Utils::ParameterAction::AlwaysEnabled, this);
+    command = actionManager->registerAction(m_cleanProjectAction, "Git.CleanProject", globalcontext);
+    command->setAttribute(Core::Command::CA_UpdateText);
+    connect(m_cleanProjectAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
+    gitContainer->addAction(command);
+    m_commandLocator->appendCommand(command);
+
     gitContainer->addAction(createSeparator(actionManager, globalcontext, QLatin1String("Git.Sep.Repository"), this));
 
     m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
@@ -334,9 +342,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(m_createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     gitContainer->addAction(command);
 
-    m_cleanAction = new QAction(tr("Clean Repository..."), this);
-    command = actionManager->registerAction(m_cleanAction, "Git.CleanRepository", globalcontext);
-    connect(m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanRepository()));
+    m_cleanRepositoryAction = new QAction(tr("Clean Repository..."), this);
+    command = actionManager->registerAction(m_cleanRepositoryAction, "Git.CleanRepository", globalcontext);
+    connect(m_cleanRepositoryAction, SIGNAL(triggered()), this, SLOT(cleanRepository()));
     gitContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
@@ -688,16 +696,27 @@ void GitPlugin::push()
     m_gitClient->push(state.topLevel());
 }
 
+void GitPlugin::cleanProject()
+{
+    const VCSBase::VCSBasePluginState state = currentState();
+    QTC_ASSERT(state.hasProject(), return)
+    cleanRepository(state.currentProjectPath());
+}
+
 void GitPlugin::cleanRepository()
 {
     const VCSBase::VCSBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
+    cleanRepository(state.topLevel());
+}
 
+void GitPlugin::cleanRepository(const QString &directory)
+{
     // Find files to be deleted
     QString errorMessage;
     QStringList files;
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    const bool gotFiles = m_gitClient->synchronousCleanList(state.topLevel(), &files, &errorMessage);
+    const bool gotFiles = m_gitClient->synchronousCleanList(directory, &files, &errorMessage);
     QApplication::restoreOverrideCursor();
 
     QWidget *parent = Core::ICore::instance()->mainWindow();
@@ -720,7 +739,7 @@ void GitPlugin::cleanRepository()
 
     // Show in dialog
     VCSBase::CleanDialog dialog(parent);
-    dialog.setFileList(state.topLevel(), files);
+    dialog.setFileList(directory, files);
     dialog.exec();
 }
 
@@ -811,6 +830,8 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_diffProjectAction->setParameter(projectName);
     m_logProjectAction->setEnabled(projectEnabled);
     m_logProjectAction->setParameter(projectName);
+    m_cleanProjectAction->setParameter(projectName);
+    m_cleanProjectAction->setEnabled(projectEnabled);
 
     m_diffRepositoryAction->setEnabled(repositoryEnabled);
     m_statusRepositoryAction->setEnabled(repositoryEnabled);
@@ -824,7 +845,7 @@ void GitPlugin::updateActions(VCSBase::VCSBasePlugin::ActionState as)
     m_logRepositoryAction->setEnabled(repositoryEnabled);
     m_undoRepositoryAction->setEnabled(repositoryEnabled);
     m_pushAction->setEnabled(repositoryEnabled);
-    m_cleanAction->setEnabled(repositoryEnabled);
+    m_cleanRepositoryAction->setEnabled(repositoryEnabled);
 
     // Prompts for repo.
     m_showAction->setEnabled(true);

@@ -105,6 +105,7 @@ private slots:
     void undoRepositoryChanges();
     void stageFile();
     void unstageFile();
+    void cleanProject();
     void cleanRepository();
 
     void showCommit();
@@ -125,6 +126,7 @@ private:
     bool isCommitEditorOpen() const;
     Core::IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void cleanCommitMessageFile();
+    void cleanRepository(const QString &directory);
 
     static GitPlugin *m_instance;
     Core::ICore *m_core;
@@ -147,7 +149,8 @@ private:
     QAction *m_commitAction;
     QAction *m_pullAction;
     QAction *m_pushAction;
-    QAction *m_cleanAction;
+    Utils::ParameterAction *m_cleanProjectAction;
+    QAction *m_cleanRepositoryAction;
 
     QAction *m_submitCurrentAction;
     QAction *m_diffSelectedFilesAction;

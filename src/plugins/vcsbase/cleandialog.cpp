@@ -167,6 +167,7 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
     const QString diffSuffix = QLatin1String(".diff");
     const QString patchSuffix = QLatin1String(".patch");
     const QString proUserSuffix = QLatin1String(".pro.user");
+    const QString qmlProUserSuffix = QLatin1String(".qmlproject.user");
     const QChar slash = QLatin1Char('/');
     // Do not initially check patches or 'pro.user' files for deletion.
     foreach(const QString &fileName, l) {
@@ -177,7 +178,8 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
         nameItem->setIcon(isDir ? folderIcon : fileIcon);
         const bool saveFile = !isDir && (fileName.endsWith(diffSuffix)
                                         || fileName.endsWith(patchSuffix)
-                                        || fileName.endsWith(proUserSuffix));
+                                        || fileName.endsWith(proUserSuffix)
+                                        || fileName.endsWith(qmlProUserSuffix));
         nameItem->setCheckable(true);
         nameItem->setCheckState(saveFile ? Qt::Unchecked : Qt::Checked);
         nameItem->setData(QVariant(fi.absoluteFilePath()), fileNameRole);
