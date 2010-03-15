@@ -70,6 +70,8 @@ void GnuMakeParser::stdOutput(const QString &line)
     if (m_makeLine.indexIn(lne) > -1) {
         if (!m_alreadyFatal) {
             QString message = m_makeLine.cap(4);
+            if (message.startsWith("Nothing to be done for "))
+                return;
             Task task(Task::Warning,
                       message,
                       QString() /* filename */,
@@ -247,6 +249,14 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                         QString::fromLatin1("missing separator (did you mean TAB instead of 8 spaces?). Stop."),
                         QString::fromLatin1("Makefile"), 360,
                         Constants::TASK_CATEGORY_BUILDSYSTEM))
+            << QString()
+            << QStringList();
+    QTest::newRow("Nothing to be done")
+            << QStringList()
+            << QString::fromLatin1("make[2]: Nothing to be done for `first´.")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << QList<Task>()
             << QString()
             << QStringList();
 }
