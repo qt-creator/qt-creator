@@ -1161,9 +1161,11 @@ void QtVersion::updateToolChainAndMkspec() const
             if (line.startsWith("QMAKESPEC_ORIGINAL")) {
                 const QList<QByteArray> &temp = line.split('=');
                 if (temp.size() == 2) {
-                    mkspecFullPath = temp.at(1).trimmed();
+                    QString possibleFullPath = temp.at(1).trimmed();
                     // We sometimes get a mix of different slash styles here...
-                    mkspecFullPath = mkspecFullPath.replace('\\', '/');
+                    possibleFullPath = possibleFullPath.replace('\\', '/');
+                    if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
+                        mkspecFullPath = possibleFullPath
                 }
                 break;
             }
