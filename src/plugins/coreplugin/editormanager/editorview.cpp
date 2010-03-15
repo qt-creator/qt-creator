@@ -87,6 +87,8 @@ EditorView::EditorView(QWidget *parent) :
     {
         connect(m_toolBar, SIGNAL(goBackClicked()), this, SLOT(goBackInNavigationHistory()));
         connect(m_toolBar, SIGNAL(goForwardClicked()), this, SLOT(goForwardInNavigationHistory()));
+        connect(m_toolBar, SIGNAL(closeClicked()), this, SLOT(closeView()));
+        connect(m_toolBar, SIGNAL(listSelectionActivated(int)), this, SLOT(listSelectionActivated(int)));
         tl->addWidget(m_toolBar);
     }
     {
@@ -157,6 +159,14 @@ EditorView::~EditorView()
 {
 }
 
+
+void EditorView::closeView()
+{
+    EditorManager *em = CoreImpl::instance()->editorManager();
+    if (IEditor *editor = currentEditor()) {
+            em->closeDuplicate(editor);
+    }
+}
 void EditorView::showEditorInfoBar(const QString &id,
                                    const QString &infoText,
                                    const QString &buttonText,
@@ -247,6 +257,17 @@ IEditor *EditorView::currentEditor() const
     if (m_container->count() > 0)
         return m_widgetEditorMap.value(m_container->currentWidget());
     return 0;
+}
+
+void EditorView::listSelectionActivated(int index)
+{
+    EditorManager *em = CoreImpl::instance()->editorManager();
+    QAbstractItemModel *model = EditorManager::instance()->openedEditorsModel();
+    if (IEditor *editor = model->data(model->index(index, 0), Qt::UserRole).value<IEditor*>()) {
+        em->activateEditor(this, editor);
+    } else {
+        em->activateEditor(model->index(index, 0), this);
+    }
 }
 
 void EditorView::setCurrentEditor(IEditor *editor)

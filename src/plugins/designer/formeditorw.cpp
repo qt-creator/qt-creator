@@ -314,7 +314,7 @@ void FormEditorW::fullInit()
 
     m_editorToolBar = createEditorToolBar();
     m_toolBar = Core::EditorManager::createToolBar();
-    m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsIgnoreIEditorToolBar);
+    m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
     m_toolBar->setNavigationVisible(false);
     m_toolBar->addCenterToolBar(m_editorToolBar);
 

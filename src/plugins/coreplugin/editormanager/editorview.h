@@ -96,6 +96,10 @@ public:
                            QObject *object, const char *member);
     void hideEditorStatusBar(const QString &id);
 
+private slots:
+    void closeView();
+    void listSelectionActivated(int index);
+
 private:
     void updateNavigatorActions();
     void updateToolBar(IEditor *editor);
@@ -121,7 +125,6 @@ private:
     QList<EditLocation> m_editorHistory;
     int m_currentNavigationHistoryPosition;
     void updateCurrentPositionInNavigationHistory();
-
 
 public:
     inline bool canGoForward() const { return m_currentNavigationHistoryPosition < m_navigationHistory.size()-1; }

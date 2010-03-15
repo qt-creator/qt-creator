@@ -62,7 +62,7 @@ class CORE_EXPORT EditorToolBar : public Utils::StyledBar
 public:
     explicit EditorToolBar(QWidget *parent = 0);
 
-    enum ToolbarCreationFlags { FlagsNone = 0, FlagsIgnoreIEditorToolBar = 1 };
+    enum ToolbarCreationFlags { FlagsNone = 0, FlagsStandalone = 1 };
 
     /**
       * Adds an editor whose state is listened to, so that the toolbar can be kept up to date
@@ -94,10 +94,11 @@ signals:
     void closeClicked();
     void goBackClicked();
     void goForwardClicked();
+    void listSelectionActivated(int row);
 
 private slots:
     void updateEditorListSelection(Core::IEditor *newSelection);
-    void listSelectionActivated(int row);
+    void changeActiveEditor(int row);
     void listContextMenu(QPoint);
     void makeEditorWritable();
 
@@ -123,9 +124,7 @@ private:
     QWidget *m_toolBarPlaceholder;
     QWidget *m_defaultToolBar;
 
-    bool m_ignoreEditorToolbar;
-
-    friend class Internal::EditorView;
+    bool m_isStandalone;
 };
 
 }

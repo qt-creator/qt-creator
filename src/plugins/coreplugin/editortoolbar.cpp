@@ -85,7 +85,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
         m_activeToolBar(0),
         m_toolBarPlaceholder(new QWidget),
         m_defaultToolBar(new QWidget(this)),
-        m_ignoreEditorToolbar(false)
+        m_isStandalone(false)
 {
     QHBoxLayout *toolBarLayout = new QHBoxLayout(this);
     toolBarLayout->setMargin(0);
@@ -139,7 +139,10 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     setLayout(toplayout);
 
-    connect(m_editorList, SIGNAL(activated(int)), this, SLOT(listSelectionActivated(int)));
+    // this signal is disconnected for standalone toolbars and replaced with
+    // a private slot connection
+    connect(m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
+
     connect(m_editorList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(listContextMenu(QPoint)));
     connect(m_lockButton, SIGNAL(clicked()), this, SLOT(makeEditorWritable()));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(closeView()), Qt::QueuedConnection);
@@ -175,9 +178,12 @@ void EditorToolBar::closeView()
     if (!currentEditor())
         return;
 
-    EditorManager *em = ICore::instance()->editorManager();
-    if (IEditor *editor = currentEditor()) {
-            em->closeDuplicate(editor);
+    if (m_isStandalone) {
+        EditorManager *em = ICore::instance()->editorManager();
+        if (IEditor *editor = currentEditor()) {
+                //em->closeDuplicate(editor);
+            em->closeEditor(editor);
+        }
     }
     emit closeClicked();
 }
@@ -187,7 +193,7 @@ void EditorToolBar::addEditor(IEditor *editor)
     connect(editor, SIGNAL(changed()), this, SLOT(checkEditorStatus()));
     QWidget *toolBar = editor->toolBar();
 
-    if (toolBar && !m_ignoreEditorToolbar)
+    if (toolBar && !m_isStandalone)
         addCenterToolBar(toolBar);
 
     updateEditorStatus(editor);
@@ -214,10 +220,13 @@ void EditorToolBar::updateToolBar(QWidget *toolBar)
 
 void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 {
-    m_ignoreEditorToolbar = flags & FlagsIgnoreIEditorToolBar;
-    if (m_ignoreEditorToolbar) {
+    m_isStandalone = flags & FlagsStandalone;
+    if (m_isStandalone) {
         EditorManager *em = EditorManager::instance();
         connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(updateEditorListSelection(Core::IEditor*)));
+
+        disconnect(m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
+        connect(m_editorList, SIGNAL(activated(int)), this, SLOT(changeActiveEditor(int)));
     }
 }
 
@@ -227,7 +236,7 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
 
     // If we never added the toolbar from the editor,  we will never change
     // the editor, so there's no need to update the toolbar either.
-    if (!m_ignoreEditorToolbar)
+    if (!m_isStandalone)
         updateToolBar(editor->toolBar());
 
     updateEditorStatus(editor);
@@ -239,12 +248,13 @@ void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
         m_editorList->setCurrentIndex(m_editorsListModel->indexOf(newSelection).row());
 }
 
-void EditorToolBar::listSelectionActivated(int row)
+void EditorToolBar::changeActiveEditor(int row)
 {
     EditorManager *em = ICore::instance()->editorManager();
     QAbstractItemModel *model = m_editorList->model();
     const QModelIndex modelIndex = model->index(row, 0);
     IEditor *editor = model->data(modelIndex, Qt::UserRole).value<IEditor*>();
+
     if (editor) {
         if (editor != em->currentEditor())
             em->activateEditor(editor, EditorManager::NoModeSwitch);
