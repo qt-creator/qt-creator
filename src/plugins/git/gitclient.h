@@ -191,7 +191,8 @@ public:
     StatusResult gitStatus(const QString &workingDirectory,
                            bool untracked = false,
                            QString *output = 0,
-                           QString *errorMessage = 0);
+                           QString *errorMessage = 0,
+                           bool *onBranch = 0);
 
     GitSettings  settings() const;
     void setSettings(const GitSettings &s);

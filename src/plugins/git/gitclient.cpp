@@ -1152,7 +1152,8 @@ static inline QString trimFileSpecification(QString fileSpec)
 GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
                                              bool untracked,
                                              QString *output,
-                                             QString *errorMessage)
+                                             QString *errorMessage,
+                                             bool *onBranch)
 {
     // Run 'status'. Note that git returns exitcode 1 if there are no added files.
     QByteArray outputText;
@@ -1165,8 +1166,11 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory,
     GitCommand::removeColorCodes(&outputText);
     if (output)
         *output = commandOutputFromLocal8Bit(outputText);
+    const bool branchKnown = outputText.contains(kBranchIndicatorC);
+    if (onBranch)
+        *onBranch = branchKnown;
     // Is it something really fatal?
-    if (!statusRc && !outputText.contains(kBranchIndicatorC)) {
+    if (!statusRc && !branchKnown && !outputText.contains("# Not currently on any branch.")) {
         if (errorMessage) {
             const QString error = commandOutputFromLocal8Bit(errorText);
             *errorMessage = tr("Unable to obtain the status: %1").arg(error);
@@ -1214,9 +1218,14 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     }
 
     // Run status. Note that it has exitcode 1 if there are no added files.
+    bool onBranch;
     QString output;
-    switch (gitStatus(repoDirectory, true, &output, errorMessage)) {
+    switch (gitStatus(repoDirectory, true, &output, errorMessage, &onBranch)) {
     case  StatusChanged:
+        if (!onBranch) {
+            *errorMessage = tr("You did not checkout a branch.");
+            return false;
+        }
         break;
     case StatusUnchanged:
         *errorMessage = msgNoChangedFiles();
