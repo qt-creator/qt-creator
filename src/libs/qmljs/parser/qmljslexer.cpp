@@ -56,9 +56,11 @@
 #include <stdio.h>
 #include <string.h>
 
-QT_QML_BEGIN_NAMESPACE
-
+QT_BEGIN_NAMESPACE
 extern double qstrtod(const char *s00, char const **se, bool *ok);
+QT_END_NAMESPACE
+
+QT_QML_BEGIN_NAMESPACE
 
 #define shiftWindowsLineBreak() \
     do { \

@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Nokia Corporation (qt-info@nokia.com)
 **
-** This file is part of the QtDeclarative module of the Qt Toolkit.
+** This file is part of the QtCore module of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** No Commercial Usage
@@ -61,7 +61,7 @@ QT_BEGIN_NAMESPACE
 class QmlJSGrammar
 {
 public:
-  enum {
+  enum VariousConstants {
     EOF_SYMBOL = 0,
     REDUCE_HERE = 100,
     SHIFT_THERE = 99,

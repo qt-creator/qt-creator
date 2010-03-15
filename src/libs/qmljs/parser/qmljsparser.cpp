@@ -516,7 +516,7 @@ case 66: {
 }
 
 case 67: {
-    QString s = QLatin1String(QmlJSGrammar::spell[T_READONLY]);
+    QString s = QLatin1String(QmlJSGrammar::spell[T_ON]);
     sym(1).sval = driver->intern(s.constData(), s.length());
     break;
 }
