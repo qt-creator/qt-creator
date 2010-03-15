@@ -57,12 +57,14 @@ private:
 
     QRegExp m_makeDir;
     QRegExp m_makeLine;
+    QRegExp m_makefileError;
 
     QStringList m_directories;
 
 #if defined WITH_TESTS
     friend class ProjectExplorerPlugin;
 #endif
+    bool m_alreadyFatal;
 };
 
 } // namespace ProjectExplorer

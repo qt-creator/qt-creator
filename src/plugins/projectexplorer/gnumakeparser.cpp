@@ -41,13 +41,16 @@ namespace {
     const char * const MAKE_PATTERN("^(mingw(32|64)-|g)?make(\\[\\d+\\])?:\\s");
 }
 
-GnuMakeParser::GnuMakeParser(const QString &dir)
+GnuMakeParser::GnuMakeParser(const QString &dir) :
+    m_alreadyFatal(false)
 {
     m_makeDir.setPattern(QLatin1String(MAKE_PATTERN) +
                          QLatin1String("(\\w+) directory .(.+).$"));
     m_makeDir.setMinimal(true);
     m_makeLine.setPattern(QLatin1String(MAKE_PATTERN) + QLatin1String("(.*)$"));
     m_makeLine.setMinimal(true);
+    m_makefileError.setPattern(QLatin1String("^(.*):(\\d+):\\s\\*\\*\\*\\s(.*)$"));
+    m_makefileError.setMinimal(true);
     addDirectory(dir);
 }
 
@@ -62,18 +65,34 @@ void GnuMakeParser::stdOutput(const QString &line)
             addDirectory(m_makeDir.cap(5));
         return;
     }
+    // Only ever report the first fatal message:
+    // Everything else will be follow-up issues.
     if (m_makeLine.indexIn(lne) > -1) {
-        QString message = m_makeLine.cap(4);
-        Task task(Task::Warning,
-                  message,
-                  QString() /* filename */,
-                  -1, /* line */
-                  Constants::TASK_CATEGORY_BUILDSYSTEM);
-        if (message.startsWith(QLatin1String("*** "))) {
-            task.description = task.description.mid(4);
-            task.type = Task::Error;
+        if (!m_alreadyFatal) {
+            QString message = m_makeLine.cap(4);
+            Task task(Task::Warning,
+                      message,
+                      QString() /* filename */,
+                      -1, /* line */
+                      Constants::TASK_CATEGORY_BUILDSYSTEM);
+            if (message.startsWith(QLatin1String("*** "))) {
+                task.description = task.description.mid(4);
+                task.type = Task::Error;
+                m_alreadyFatal = true;
+            }
+            addTask(task);
         }
-        addTask(task);
+        return;
+    }
+    if (m_makefileError.indexIn(lne) > -1) {
+        if (!m_alreadyFatal) {
+            m_alreadyFatal = true;
+            addTask(Task(Task::Error,
+                         m_makefileError.cap(3),
+                         m_makefileError.cap(1),
+                         m_makefileError.cap(2).toInt(),
+                         Constants::TASK_CATEGORY_BUILDSYSTEM));
+        }
         return;
     }
 
@@ -201,6 +220,32 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
                 << Task(Task::Warning,
                         QString::fromLatin1("warning: ignoring old commands for target `xxx'"),
                         QString(), -1,
+                        Constants::TASK_CATEGORY_BUILDSYSTEM))
+            << QString()
+            << QStringList();
+    QTest::newRow("multiple fatals")
+            << QStringList()
+            << QString::fromLatin1("make[3]: *** [.obj/debug-shared/gnumakeparser.o] Error 1\n"
+                                   "make[3]: *** Waiting for unfinished jobs....\n"
+                                   "make[2]: *** [sub-projectexplorer-make_default] Error 2")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QString::fromLatin1("[.obj/debug-shared/gnumakeparser.o] Error 1"),
+                        QString(), -1,
+                        Constants::TASK_CATEGORY_BUILDSYSTEM))
+            << QString()
+            << QStringList();
+    QTest::newRow("Makefile error")
+            << QStringList()
+            << QString::fromLatin1("Makefile:360: *** missing separator (did you mean TAB instead of 8 spaces?). Stop.")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QString::fromLatin1("missing separator (did you mean TAB instead of 8 spaces?). Stop."),
+                        QString::fromLatin1("Makefile"), 360,
                         Constants::TASK_CATEGORY_BUILDSYSTEM))
             << QString()
             << QStringList();
