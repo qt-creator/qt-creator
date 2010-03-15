@@ -1539,13 +1539,29 @@ QByteArray BaseTextEditor::saveState() const
 {
     QByteArray state;
     QDataStream stream(&state, QIODevice::WriteOnly);
-    stream << 0; // version number
+    stream << 1; // version number
     stream << verticalScrollBar()->value();
     stream << horizontalScrollBar()->value();
     int line, column;
     convertPosition(textCursor().position(), &line, &column);
     stream << line;
     stream << column;
+
+    // store code folding state
+    QList<int> collapsedBlocks;
+    QTextBlock block = document()->firstBlock();
+    while (block.isValid()) {
+        if (block.userData() && static_cast<TextBlockUserData*>(block.userData())->collapsed()) {
+            int number = block.blockNumber();
+            if (static_cast<TextBlockUserData*>(block.userData())->collapseMode()
+                == TextBlockUserData::CollapseThis)
+                number--;
+            collapsedBlocks += number;
+        }
+        block = block.next();
+    }
+    stream << collapsedBlocks;
+
     return state;
 }
 
@@ -1562,6 +1578,18 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
     stream >> hval;
     stream >> lval;
     stream >> cval;
+
+    if (version >= 1) {
+        QList<int> collapsedBlocks;
+        stream >> collapsedBlocks;
+        QTextDocument *doc = document();
+        foreach(int blockNumber, collapsedBlocks) {
+            QTextBlock block = doc->findBlockByNumber(qMax(0, blockNumber));
+            if (block.isValid())
+                TextBlockUserData::doCollapse(block, false);
+        }
+    }
+
     d->m_lastCursorChangeWasInteresting = false; // avoid adding last position to history
     gotoLine(lval, cval);
     verticalScrollBar()->setValue(vval);
