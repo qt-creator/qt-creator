@@ -1,5 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
+    <type name="QAbstractScrollArea" extends="QFrame">
+        <property name="verticalScrollBarPolicy" type="Qt.ScrollBarPolicy"/>
+        <property name="horizontalScrollBarPolicy" type="Qt.ScrollBarPolicy"/>
+    </type>
+    <type name="QAction" extends="Qt.QtObject">
+        <enum name="MenuRole">
+            <enumerator name="NoRole" value="0"/>
+            <enumerator name="TextHeuristicRole" value="1"/>
+            <enumerator name="ApplicationSpecificRole" value="2"/>
+            <enumerator name="AboutQtRole" value="3"/>
+            <enumerator name="AboutRole" value="4"/>
+            <enumerator name="PreferencesRole" value="5"/>
+            <enumerator name="QuitRole" value="6"/>
+        </enum>
+        <enum name="SoftKeyRole">
+            <enumerator name="NoSoftKey" value="0"/>
+            <enumerator name="PositiveSoftKey" value="1"/>
+            <enumerator name="NegativeSoftKey" value="2"/>
+            <enumerator name="SelectSoftKey" value="3"/>
+        </enum>
+        <enum name="Priority">
+            <enumerator name="LowPriority" value="0"/>
+            <enumerator name="NormalPriority" value="128"/>
+            <enumerator name="HighPriority" value="256"/>
+        </enum>
+        <property name="checkable" type="bool"/>
+        <property name="checked" type="bool"/>
+        <property name="enabled" type="bool"/>
+        <property name="icon" type="QIcon"/>
+        <property name="text" type="string"/>
+        <property name="iconText" type="string"/>
+        <property name="toolTip" type="string"/>
+        <property name="statusTip" type="string"/>
+        <property name="whatsThis" type="string"/>
+        <property name="font" type="QFont"/>
+        <property name="shortcut" type="QKeySequence"/>
+        <property name="shortcutContext" type="Qt.ShortcutContext"/>
+        <property name="autoRepeat" type="bool"/>
+        <property name="visible" type="bool"/>
+        <property name="menuRole" type="MenuRole"/>
+        <property name="softKeyRole" type="SoftKeyRole"/>
+        <property name="iconVisibleInMenu" type="bool"/>
+        <property name="priority" type="Priority"/>
+        <signal name="changed"/>
+        <signal name="triggered">
+            <param name="checked" type="bool"/>
+        </signal>
+        <signal name="triggered"/>
+        <signal name="hovered"/>
+        <signal name="toggled">
+            <param type="bool"/>
+        </signal>
+        <method name="trigger"/>
+        <method name="hover"/>
+        <method name="setChecked">
+            <param type="bool"/>
+        </method>
+        <method name="toggle"/>
+        <method name="setEnabled">
+            <param type="bool"/>
+        </method>
+        <method name="setDisabled">
+            <param name="b" type="bool"/>
+        </method>
+        <method name="setVisible">
+            <param type="bool"/>
+        </method>
+    </type>
     <type name="QDeclarativeAbstractAnimation" extends="Qt.QtObject">
         <property name="running" type="bool"/>
         <property name="paused" type="bool"/>
@@ -97,7 +165,6 @@
         <signal name="progressChanged">
             <param name="progress" type="qreal"/>
         </signal>
-        <signal name="pixmapChanged"/>
         <signal name="asynchronousChanged"/>
     </type>
     <type name="QDeclarativePaintedItem" extends="Qt.Item">
@@ -121,7 +188,8 @@
         <signal name="borderChanged"/>
     </type>
     <type name="QDeclarativeStateOperation" extends="Qt.QtObject"/>
-    <type name="QDeclarativeVisualDataModelParts" extends="Qt.QtObject"/>
+    <type name="QDeclarativeValueType" extends="Qt.QtObject"/>
+    <type name="QDeclarativeVisualDataModelParts" extends="QDeclarativeVisualDataModelParts"/>
     <type name="QDeclarativeVisualModel" extends="Qt.QtObject">
         <property name="count" type="int"/>
         <signal name="countChanged"/>
@@ -146,6 +214,55 @@
         <signal name="destroyingItem">
             <param name="item" type="Qt.Item"/>
         </signal>
+    </type>
+    <type name="QDeclarativeWebSettings" extends="Qt.QtObject">
+        <property name="standardFontFamily" type="string"/>
+        <property name="fixedFontFamily" type="string"/>
+        <property name="serifFontFamily" type="string"/>
+        <property name="sansSerifFontFamily" type="string"/>
+        <property name="cursiveFontFamily" type="string"/>
+        <property name="fantasyFontFamily" type="string"/>
+        <property name="minimumFontSize" type="int"/>
+        <property name="minimumLogicalFontSize" type="int"/>
+        <property name="defaultFontSize" type="int"/>
+        <property name="defaultFixedFontSize" type="int"/>
+        <property name="autoLoadImages" type="bool"/>
+        <property name="javascriptEnabled" type="bool"/>
+        <property name="javaEnabled" type="bool"/>
+        <property name="pluginsEnabled" type="bool"/>
+        <property name="privateBrowsingEnabled" type="bool"/>
+        <property name="javascriptCanOpenWindows" type="bool"/>
+        <property name="javascriptCanAccessClipboard" type="bool"/>
+        <property name="developerExtrasEnabled" type="bool"/>
+        <property name="linksIncludedInFocusChain" type="bool"/>
+        <property name="zoomTextOnly" type="bool"/>
+        <property name="printElementBackgrounds" type="bool"/>
+        <property name="offlineStorageDatabaseEnabled" type="bool"/>
+        <property name="offlineWebApplicationCacheEnabled" type="bool"/>
+        <property name="localStorageDatabaseEnabled" type="bool"/>
+        <property name="localContentCanAccessRemoteUrls" type="bool"/>
+    </type>
+    <type name="QFrame" extends="QWidget">
+        <enum name="Shape">
+            <enumerator name="NoFrame" value="0"/>
+            <enumerator name="Box" value="1"/>
+            <enumerator name="Panel" value="2"/>
+            <enumerator name="WinPanel" value="3"/>
+            <enumerator name="HLine" value="4"/>
+            <enumerator name="VLine" value="5"/>
+            <enumerator name="StyledPanel" value="6"/>
+        </enum>
+        <enum name="Shadow">
+            <enumerator name="Plain" value="16"/>
+            <enumerator name="Raised" value="32"/>
+            <enumerator name="Sunken" value="48"/>
+        </enum>
+        <property name="frameShape" type="Shape"/>
+        <property name="frameShadow" type="Shadow"/>
+        <property name="lineWidth" type="int"/>
+        <property name="midLineWidth" type="int"/>
+        <property name="frameWidth" type="int"/>
+        <property name="frameRect" type="QRect"/>
     </type>
     <type name="QGraphicsEffect" extends="Qt.QtObject">
         <enum name="ChangeFlags">
@@ -185,7 +302,112 @@
         <signal name="rotationChanged"/>
         <signal name="scaleChanged"/>
     </type>
+    <type name="QGraphicsScene" extends="Qt.QtObject">
+        <property name="backgroundBrush" type="QBrush"/>
+        <property name="foregroundBrush" type="QBrush"/>
+        <property name="itemIndexMethod" type="ItemIndexMethod"/>
+        <property name="sceneRect" type="QRectF"/>
+        <property name="bspTreeDepth" type="int"/>
+        <property name="palette" type="QPalette"/>
+        <property name="font" type="QFont"/>
+        <property name="sortCacheEnabled" type="bool"/>
+        <property name="stickyFocus" type="bool"/>
+        <signal name="changed">
+            <param name="region" type="QList&lt;QRectF&gt;"/>
+        </signal>
+        <signal name="sceneRectChanged">
+            <param name="rect" type="QRectF"/>
+        </signal>
+        <signal name="selectionChanged"/>
+        <method name="update">
+            <param name="rect" type="QRectF"/>
+        </method>
+        <method name="update"/>
+        <method name="invalidate">
+            <param name="rect" type="QRectF"/>
+            <param name="layers" type="SceneLayers"/>
+        </method>
+        <method name="invalidate">
+            <param name="rect" type="QRectF"/>
+        </method>
+        <method name="invalidate"/>
+        <method name="advance"/>
+        <method name="clearSelection"/>
+        <method name="clear"/>
+    </type>
     <type name="QGraphicsTransform" extends="Qt.QtObject"/>
+    <type name="QGraphicsView" extends="QAbstractScrollArea">
+        <enum name="ViewportAnchor">
+            <enumerator name="NoAnchor" value="0"/>
+            <enumerator name="AnchorViewCenter" value="1"/>
+            <enumerator name="AnchorUnderMouse" value="2"/>
+        </enum>
+        <enum name="CacheMode">
+            <enumerator name="CacheNone" value="0"/>
+            <enumerator name="CacheBackground" value="1"/>
+        </enum>
+        <enum name="DragMode">
+            <enumerator name="NoDrag" value="0"/>
+            <enumerator name="ScrollHandDrag" value="1"/>
+            <enumerator name="RubberBandDrag" value="2"/>
+        </enum>
+        <enum name="ViewportUpdateMode">
+            <enumerator name="FullViewportUpdate" value="0"/>
+            <enumerator name="MinimalViewportUpdate" value="1"/>
+            <enumerator name="SmartViewportUpdate" value="2"/>
+            <enumerator name="NoViewportUpdate" value="3"/>
+            <enumerator name="BoundingRectViewportUpdate" value="4"/>
+        </enum>
+        <enum name="OptimizationFlags">
+            <enumerator name="DontClipPainter" value="1"/>
+            <enumerator name="DontSavePainterState" value="2"/>
+            <enumerator name="DontAdjustForAntialiasing" value="4"/>
+            <enumerator name="IndirectPainting" value="8"/>
+        </enum>
+        <property name="backgroundBrush" type="QBrush"/>
+        <property name="foregroundBrush" type="QBrush"/>
+        <property name="interactive" type="bool"/>
+        <property name="sceneRect" type="QRectF"/>
+        <property name="alignment" type="Qt.Alignment"/>
+        <property name="renderHints" type="QPainter.RenderHints"/>
+        <property name="dragMode" type="DragMode"/>
+        <property name="cacheMode" type="CacheMode"/>
+        <property name="transformationAnchor" type="ViewportAnchor"/>
+        <property name="resizeAnchor" type="ViewportAnchor"/>
+        <property name="viewportUpdateMode" type="ViewportUpdateMode"/>
+        <property name="rubberBandSelectionMode" type="Qt.ItemSelectionMode"/>
+        <property name="optimizationFlags" type="OptimizationFlags"/>
+        <method name="updateScene">
+            <param name="rects" type="QList&lt;QRectF&gt;"/>
+        </method>
+        <method name="invalidateScene">
+            <param name="rect" type="QRectF"/>
+            <param name="layers" type="QGraphicsScene.SceneLayers"/>
+        </method>
+        <method name="invalidateScene">
+            <param name="rect" type="QRectF"/>
+        </method>
+        <method name="invalidateScene"/>
+        <method name="updateSceneRect">
+            <param name="rect" type="QRectF"/>
+        </method>
+    </type>
+    <type name="QGraphicsWidget" extends="QGraphicsObject">
+        <property name="palette" type="QPalette"/>
+        <property name="font" type="QFont"/>
+        <property name="layoutDirection" type="Qt.LayoutDirection"/>
+        <property name="size" type="QSizeF"/>
+        <property name="minimumSize" type="QSizeF"/>
+        <property name="preferredSize" type="QSizeF"/>
+        <property name="maximumSize" type="QSizeF"/>
+        <property name="sizePolicy" type="QSizePolicy"/>
+        <property name="focusPolicy" type="Qt.FocusPolicy"/>
+        <property name="windowFlags" type="Qt.WindowFlags"/>
+        <property name="windowTitle" type="string"/>
+        <property name="geometry" type="QRectF"/>
+        <property name="autoFillBackground" type="bool"/>
+        <method name="close" type="bool"/>
+    </type>
     <type name="QListModelInterface" extends="Qt.QtObject">
         <signal name="itemsInserted">
             <param name="index" type="int"/>
@@ -207,6 +429,104 @@
         </signal>
     </type>
     <type name="QValidator" extends="Qt.QtObject"/>
+    <type name="QWidget" extends="Qt.QtObject">
+        <property name="modal" type="bool"/>
+        <property name="windowModality" type="Qt.WindowModality"/>
+        <property name="enabled" type="bool"/>
+        <property name="geometry" type="QRect"/>
+        <property name="frameGeometry" type="QRect"/>
+        <property name="normalGeometry" type="QRect"/>
+        <property name="x" type="int"/>
+        <property name="y" type="int"/>
+        <property name="pos" type="QPoint"/>
+        <property name="frameSize" type="QSize"/>
+        <property name="size" type="QSize"/>
+        <property name="width" type="int"/>
+        <property name="height" type="int"/>
+        <property name="rect" type="QRect"/>
+        <property name="childrenRect" type="QRect"/>
+        <property name="childrenRegion" type="QRegion"/>
+        <property name="sizePolicy" type="QSizePolicy"/>
+        <property name="minimumSize" type="QSize"/>
+        <property name="maximumSize" type="QSize"/>
+        <property name="minimumWidth" type="int"/>
+        <property name="minimumHeight" type="int"/>
+        <property name="maximumWidth" type="int"/>
+        <property name="maximumHeight" type="int"/>
+        <property name="sizeIncrement" type="QSize"/>
+        <property name="baseSize" type="QSize"/>
+        <property name="palette" type="QPalette"/>
+        <property name="font" type="QFont"/>
+        <property name="cursor" type="QCursor"/>
+        <property name="mouseTracking" type="bool"/>
+        <property name="isActiveWindow" type="bool"/>
+        <property name="focusPolicy" type="Qt.FocusPolicy"/>
+        <property name="focus" type="bool"/>
+        <property name="contextMenuPolicy" type="Qt.ContextMenuPolicy"/>
+        <property name="updatesEnabled" type="bool"/>
+        <property name="visible" type="bool"/>
+        <property name="minimized" type="bool"/>
+        <property name="maximized" type="bool"/>
+        <property name="fullScreen" type="bool"/>
+        <property name="sizeHint" type="QSize"/>
+        <property name="minimumSizeHint" type="QSize"/>
+        <property name="acceptDrops" type="bool"/>
+        <property name="windowTitle" type="string"/>
+        <property name="windowIcon" type="QIcon"/>
+        <property name="windowIconText" type="string"/>
+        <property name="windowOpacity" type="double"/>
+        <property name="windowModified" type="bool"/>
+        <property name="toolTip" type="string"/>
+        <property name="statusTip" type="string"/>
+        <property name="whatsThis" type="string"/>
+        <property name="accessibleName" type="string"/>
+        <property name="accessibleDescription" type="string"/>
+        <property name="layoutDirection" type="Qt.LayoutDirection"/>
+        <property name="autoFillBackground" type="bool"/>
+        <property name="styleSheet" type="string"/>
+        <property name="locale" type="QLocale"/>
+        <property name="windowFilePath" type="string"/>
+        <property name="inputMethodHints" type="Qt.InputMethodHints"/>
+        <signal name="customContextMenuRequested">
+            <param name="pos" type="QPoint"/>
+        </signal>
+        <method name="setEnabled">
+            <param type="bool"/>
+        </method>
+        <method name="setDisabled">
+            <param type="bool"/>
+        </method>
+        <method name="setWindowModified">
+            <param type="bool"/>
+        </method>
+        <method name="setWindowTitle">
+            <param type="string"/>
+        </method>
+        <method name="setStyleSheet">
+            <param name="styleSheet" type="string"/>
+        </method>
+        <method name="setFocus"/>
+        <method name="update"/>
+        <method name="repaint"/>
+        <method name="setVisible">
+            <param name="visible" type="bool"/>
+        </method>
+        <method name="setHidden">
+            <param name="hidden" type="bool"/>
+        </method>
+        <method name="show"/>
+        <method name="hide"/>
+        <method name="setShown">
+            <param name="shown" type="bool"/>
+        </method>
+        <method name="showMinimized"/>
+        <method name="showMaximized"/>
+        <method name="showFullScreen"/>
+        <method name="showNormal"/>
+        <method name="close" type="bool"/>
+        <method name="raise"/>
+        <method name="lower"/>
+    </type>
     <type name="Qt">
         <enum name="GlobalColor">
             <enumerator name="color0" value="0"/>
@@ -321,44 +641,8 @@
             <enumerator name="BypassGraphicsProxyWidget" value="536870912"/>
             <enumerator name="WindowOkButtonHint" value="524288"/>
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
-            <enumerator name="WMouseNoMask" value="524288"/>
-            <enumerator name="WDestructiveClose" value="1048576"/>
-            <enumerator name="WStaticContents" value="2097152"/>
-            <enumerator name="WGroupLeader" value="4194304"/>
-            <enumerator name="WShowModal" value="8388608"/>
-            <enumerator name="WNoMousePropagation" value="16777216"/>
-            <enumerator name="WType_TopLevel" value="1"/>
-            <enumerator name="WType_Dialog" value="3"/>
-            <enumerator name="WType_Popup" value="9"/>
-            <enumerator name="WType_Desktop" value="17"/>
-            <enumerator name="WType_Mask" value="255"/>
-            <enumerator name="WStyle_Customize" value="0"/>
-            <enumerator name="WStyle_NormalBorder" value="0"/>
-            <enumerator name="WStyle_DialogBorder" value="256"/>
-            <enumerator name="WStyle_NoBorder" value="2048"/>
-            <enumerator name="WStyle_Title" value="4096"/>
-            <enumerator name="WStyle_SysMenu" value="8192"/>
-            <enumerator name="WStyle_Minimize" value="16384"/>
-            <enumerator name="WStyle_Maximize" value="32768"/>
-            <enumerator name="WStyle_MinMax" value="49152"/>
-            <enumerator name="WStyle_Tool" value="11"/>
-            <enumerator name="WStyle_StaysOnTop" value="262144"/>
-            <enumerator name="WStyle_ContextHelp" value="65536"/>
-            <enumerator name="WPaintDesktop" value="0"/>
-            <enumerator name="WPaintClever" value="0"/>
-            <enumerator name="WX11BypassWM" value="1024"/>
-            <enumerator name="WWinOwnDC" value="512"/>
-            <enumerator name="WMacSheet" value="5"/>
-            <enumerator name="WMacDrawer" value="7"/>
-            <enumerator name="WStyle_Splash" value="15"/>
-            <enumerator name="WNoAutoErase" value="0"/>
-            <enumerator name="WRepaintNoErase" value="0"/>
-            <enumerator name="WNorthWestGravity" value="2097152"/>
-            <enumerator name="WType_Modal" value="8388611"/>
-            <enumerator name="WStyle_Dialog" value="3"/>
-            <enumerator name="WStyle_NoBorderEx" value="2048"/>
-            <enumerator name="WResizeNoErase" value="0"/>
-            <enumerator name="WMacNoSheet" value="0"/>
+            <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
+            <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
         </enum>
         <enum name="WindowFlags">
             <enumerator name="Widget" value="0"/>
@@ -392,44 +676,8 @@
             <enumerator name="BypassGraphicsProxyWidget" value="536870912"/>
             <enumerator name="WindowOkButtonHint" value="524288"/>
             <enumerator name="WindowCancelButtonHint" value="1048576"/>
-            <enumerator name="WMouseNoMask" value="524288"/>
-            <enumerator name="WDestructiveClose" value="1048576"/>
-            <enumerator name="WStaticContents" value="2097152"/>
-            <enumerator name="WGroupLeader" value="4194304"/>
-            <enumerator name="WShowModal" value="8388608"/>
-            <enumerator name="WNoMousePropagation" value="16777216"/>
-            <enumerator name="WType_TopLevel" value="1"/>
-            <enumerator name="WType_Dialog" value="3"/>
-            <enumerator name="WType_Popup" value="9"/>
-            <enumerator name="WType_Desktop" value="17"/>
-            <enumerator name="WType_Mask" value="255"/>
-            <enumerator name="WStyle_Customize" value="0"/>
-            <enumerator name="WStyle_NormalBorder" value="0"/>
-            <enumerator name="WStyle_DialogBorder" value="256"/>
-            <enumerator name="WStyle_NoBorder" value="2048"/>
-            <enumerator name="WStyle_Title" value="4096"/>
-            <enumerator name="WStyle_SysMenu" value="8192"/>
-            <enumerator name="WStyle_Minimize" value="16384"/>
-            <enumerator name="WStyle_Maximize" value="32768"/>
-            <enumerator name="WStyle_MinMax" value="49152"/>
-            <enumerator name="WStyle_Tool" value="11"/>
-            <enumerator name="WStyle_StaysOnTop" value="262144"/>
-            <enumerator name="WStyle_ContextHelp" value="65536"/>
-            <enumerator name="WPaintDesktop" value="0"/>
-            <enumerator name="WPaintClever" value="0"/>
-            <enumerator name="WX11BypassWM" value="1024"/>
-            <enumerator name="WWinOwnDC" value="512"/>
-            <enumerator name="WMacSheet" value="5"/>
-            <enumerator name="WMacDrawer" value="7"/>
-            <enumerator name="WStyle_Splash" value="15"/>
-            <enumerator name="WNoAutoErase" value="0"/>
-            <enumerator name="WRepaintNoErase" value="0"/>
-            <enumerator name="WNorthWestGravity" value="2097152"/>
-            <enumerator name="WType_Modal" value="8388611"/>
-            <enumerator name="WStyle_Dialog" value="3"/>
-            <enumerator name="WStyle_NoBorderEx" value="2048"/>
-            <enumerator name="WResizeNoErase" value="0"/>
-            <enumerator name="WMacNoSheet" value="0"/>
+            <enumerator name="WindowSoftkeysVisibleHint" value="1073741824"/>
+            <enumerator name="WindowSoftkeysRespondHint" value="-2147483648"/>
         </enum>
         <enum name="WindowState">
             <enumerator name="WindowNoState" value="0"/>
@@ -987,6 +1235,8 @@
             <enumerator name="Key_PowerDown" value="16777483"/>
             <enumerator name="Key_Suspend" value="16777484"/>
             <enumerator name="Key_ContrastAdjust" value="16777485"/>
+            <enumerator name="Key_LaunchG" value="16777486"/>
+            <enumerator name="Key_LaunchH" value="16777487"/>
             <enumerator name="Key_MediaLast" value="16842751"/>
             <enumerator name="Key_Select" value="16842752"/>
             <enumerator name="Key_Yes" value="16842753"/>
@@ -1163,28 +1413,6 @@
             <enumerator name="ScrollBarAsNeeded" value="0"/>
             <enumerator name="ScrollBarAlwaysOff" value="1"/>
             <enumerator name="ScrollBarAlwaysOn" value="2"/>
-        </enum>
-        <enum name="BackgroundMode">
-            <enumerator name="FixedColor" value="0"/>
-            <enumerator name="FixedPixmap" value="1"/>
-            <enumerator name="NoBackground" value="2"/>
-            <enumerator name="PaletteForeground" value="3"/>
-            <enumerator name="PaletteButton" value="4"/>
-            <enumerator name="PaletteLight" value="5"/>
-            <enumerator name="PaletteMidlight" value="6"/>
-            <enumerator name="PaletteDark" value="7"/>
-            <enumerator name="PaletteMid" value="8"/>
-            <enumerator name="PaletteText" value="9"/>
-            <enumerator name="PaletteBrightText" value="10"/>
-            <enumerator name="PaletteBase" value="11"/>
-            <enumerator name="PaletteBackground" value="12"/>
-            <enumerator name="PaletteShadow" value="13"/>
-            <enumerator name="PaletteHighlight" value="14"/>
-            <enumerator name="PaletteHighlightedText" value="15"/>
-            <enumerator name="PaletteButtonText" value="16"/>
-            <enumerator name="PaletteLink" value="17"/>
-            <enumerator name="PaletteLinkVisited" value="18"/>
-            <enumerator name="X11ParentRelative" value="19"/>
         </enum>
         <enum name="CaseSensitivity">
             <enumerator name="CaseInsensitive" value="0"/>
@@ -1367,6 +1595,9 @@
             <enumerator name="NSizeHints" value="4"/>
         </enum>
     </type>
+    <type name="Qt.AnchorAnimation" version="4.6" extends="QDeclarativeAbstractAnimation">
+        <property name="targets" type="Qt.Item" isList="true"/>
+    </type>
     <type name="Qt.AnchorChanges" version="4.6" extends="QDeclarativeStateOperation">
         <property name="target" type="Qt.Item"/>
         <property name="reset" type="string"/>
@@ -1484,19 +1715,6 @@
         <property name="target" type="Qt.QtObject"/>
         <signal name="targetChanged"/>
     </type>
-    <type name="Qt.DateTimeFormatter" version="4.6" extends="Qt.QtObject">
-        <property name="dateText" type="string"/>
-        <property name="timeText" type="string"/>
-        <property name="dateTimeText" type="string"/>
-        <property name="date" type="QDate"/>
-        <property name="time" type="QTime"/>
-        <property name="dateTime" type="QDateTime"/>
-        <property name="dateFormat" type="string"/>
-        <property name="timeFormat" type="string"/>
-        <property name="dateTimeFormat" type="string"/>
-        <property name="longStyle" type="bool"/>
-        <signal name="textChanged"/>
-    </type>
     <type name="Qt.Drag" version="4.6" extends="Qt.QtObject">
         <enum name="Axis">
             <enumerator name="XAxis" value="1"/>
@@ -1573,6 +1791,59 @@
         <signal name="enabledChanged"/>
         <signal name="maximumEasingTimeChanged"/>
     </type>
+    <type name="Qt.Easing" version="4.6" extends="QDeclarativeValueType">
+        <enum name="Type">
+            <enumerator name="Linear" value="0"/>
+            <enumerator name="InQuad" value="1"/>
+            <enumerator name="OutQuad" value="2"/>
+            <enumerator name="InOutQuad" value="3"/>
+            <enumerator name="OutInQuad" value="4"/>
+            <enumerator name="InCubic" value="5"/>
+            <enumerator name="OutCubic" value="6"/>
+            <enumerator name="InOutCubic" value="7"/>
+            <enumerator name="OutInCubic" value="8"/>
+            <enumerator name="InQuart" value="9"/>
+            <enumerator name="OutQuart" value="10"/>
+            <enumerator name="InOutQuart" value="11"/>
+            <enumerator name="OutInQuart" value="12"/>
+            <enumerator name="InQuint" value="13"/>
+            <enumerator name="OutQuint" value="14"/>
+            <enumerator name="InOutQuint" value="15"/>
+            <enumerator name="OutInQuint" value="16"/>
+            <enumerator name="InSine" value="17"/>
+            <enumerator name="OutSine" value="18"/>
+            <enumerator name="InOutSine" value="19"/>
+            <enumerator name="OutInSine" value="20"/>
+            <enumerator name="InExpo" value="21"/>
+            <enumerator name="OutExpo" value="22"/>
+            <enumerator name="InOutExpo" value="23"/>
+            <enumerator name="OutInExpo" value="24"/>
+            <enumerator name="InCirc" value="25"/>
+            <enumerator name="OutCirc" value="26"/>
+            <enumerator name="InOutCirc" value="27"/>
+            <enumerator name="OutInCirc" value="28"/>
+            <enumerator name="InElastic" value="29"/>
+            <enumerator name="OutElastic" value="30"/>
+            <enumerator name="InOutElastic" value="31"/>
+            <enumerator name="OutInElastic" value="32"/>
+            <enumerator name="InBack" value="33"/>
+            <enumerator name="OutBack" value="34"/>
+            <enumerator name="InOutBack" value="35"/>
+            <enumerator name="OutInBack" value="36"/>
+            <enumerator name="InBounce" value="37"/>
+            <enumerator name="OutBounce" value="38"/>
+            <enumerator name="InOutBounce" value="39"/>
+            <enumerator name="OutInBounce" value="40"/>
+            <enumerator name="InCurve" value="41"/>
+            <enumerator name="OutCurve" value="42"/>
+            <enumerator name="SineCurve" value="43"/>
+            <enumerator name="CosineCurve" value="44"/>
+        </enum>
+        <property name="type" type="QDeclarativeEasingValueType.Type"/>
+        <property name="amplitude" type="qreal"/>
+        <property name="overshoot" type="qreal"/>
+        <property name="period" type="qreal"/>
+    </type>
     <type name="Qt.Flickable" version="4.6" extends="Qt.Item">
         <enum name="FlickDirection">
             <enumerator name="AutoFlickDirection" value="0"/>
@@ -1645,6 +1916,34 @@
         <signal name="activeChanged"/>
     </type>
     <type name="Qt.FocusScope" version="4.6" extends="Qt.Item"/>
+    <type name="Qt.Font" version="4.6" extends="QDeclarativeValueType">
+        <enum name="FontWeight">
+            <enumerator name="Light" value="25"/>
+            <enumerator name="Normal" value="50"/>
+            <enumerator name="DemiBold" value="63"/>
+            <enumerator name="Bold" value="75"/>
+            <enumerator name="Black" value="87"/>
+        </enum>
+        <enum name="Capitalization">
+            <enumerator name="MixedCase" value="0"/>
+            <enumerator name="AllUppercase" value="1"/>
+            <enumerator name="AllLowercase" value="2"/>
+            <enumerator name="SmallCaps" value="3"/>
+            <enumerator name="Capitalize" value="4"/>
+        </enum>
+        <property name="family" type="string"/>
+        <property name="bold" type="bool"/>
+        <property name="weight" type="FontWeight"/>
+        <property name="italic" type="bool"/>
+        <property name="underline" type="bool"/>
+        <property name="overline" type="bool"/>
+        <property name="strikeout" type="bool"/>
+        <property name="pointSize" type="qreal"/>
+        <property name="pixelSize" type="int"/>
+        <property name="capitalization" type="Capitalization"/>
+        <property name="letterSpacing" type="qreal"/>
+        <property name="wordSpacing" type="qreal"/>
+    </type>
     <type name="Qt.FontLoader" version="4.6" extends="Qt.QtObject">
         <enum name="Status">
             <enumerator name="Null" value="0"/>
@@ -1677,9 +1976,26 @@
         <signal name="columnsChanged"/>
     </type>
     <type name="Qt.GridView" version="4.6" extends="Qt.Flickable">
+        <enum name="HighlightRangeMode">
+            <enumerator name="NoHighlightRange" value="0"/>
+            <enumerator name="ApplyRange" value="1"/>
+            <enumerator name="StrictlyEnforceRange" value="2"/>
+        </enum>
         <enum name="Flow">
             <enumerator name="LeftToRight" value="0"/>
             <enumerator name="TopToBottom" value="1"/>
+        </enum>
+        <enum name="SnapMode">
+            <enumerator name="NoSnap" value="0"/>
+            <enumerator name="SnapToRow" value="1"/>
+            <enumerator name="SnapOneRow" value="2"/>
+        </enum>
+        <enum name="PositionMode">
+            <enumerator name="Beginning" value="0"/>
+            <enumerator name="Center" value="1"/>
+            <enumerator name="End" value="2"/>
+            <enumerator name="Visible" value="3"/>
+            <enumerator name="Contain" value="4"/>
         </enum>
         <property name="model" type="QVariant"/>
         <property name="delegate" type="Qt.Component"/>
@@ -1689,28 +2005,37 @@
         <property name="highlight" type="Qt.Component"/>
         <property name="highlightItem" type="Qt.Item"/>
         <property name="highlightFollowsCurrentItem" type="bool"/>
+        <property name="preferredHighlightBegin" type="qreal"/>
+        <property name="preferredHighlightEnd" type="qreal"/>
+        <property name="highlightRangeMode" type="HighlightRangeMode"/>
         <property name="flow" type="Flow"/>
         <property name="keyNavigationWraps" type="bool"/>
         <property name="cacheBuffer" type="int"/>
         <property name="cellWidth" type="int"/>
         <property name="cellHeight" type="int"/>
+        <property name="snapMode" type="SnapMode"/>
         <signal name="countChanged"/>
         <signal name="currentIndexChanged"/>
         <signal name="cellWidthChanged"/>
         <signal name="cellHeightChanged"/>
         <signal name="highlightChanged"/>
         <signal name="highlightItemChanged"/>
+        <signal name="preferredHighlightBeginChanged"/>
+        <signal name="preferredHighlightEndChanged"/>
+        <signal name="highlightRangeModeChanged"/>
         <signal name="modelChanged"/>
         <signal name="delegateChanged"/>
         <signal name="flowChanged"/>
         <signal name="keyNavigationWrapsChanged"/>
         <signal name="cacheBufferChanged"/>
+        <signal name="snapModeChanged"/>
         <method name="moveCurrentIndexUp"/>
         <method name="moveCurrentIndexDown"/>
         <method name="moveCurrentIndexLeft"/>
         <method name="moveCurrentIndexRight"/>
         <method name="positionViewAtIndex">
             <param name="index" type="int"/>
+            <param name="mode" type="int"/>
         </method>
     </type>
     <type name="Qt.Image" version="4.6" extends="QDeclarativeImageBase">
@@ -1726,6 +2051,7 @@
         <property name="fillMode" type="FillMode"/>
         <property name="paintedWidth" type="qreal"/>
         <property name="paintedHeight" type="qreal"/>
+        <signal name="pixmapChanged"/>
         <signal name="fillModeChanged"/>
         <signal name="paintedGeometryChanged"/>
     </type>
@@ -1767,22 +2093,50 @@
         <property name="transformOrigin" type="TransformOrigin"/>
         <property name="smooth" type="bool"/>
         <property name="effect" type="QGraphicsEffect"/>
-        <signal name="widthChanged"/>
-        <signal name="heightChanged"/>
+        <signal name="widthChanged">
+            <param type="qreal"/>
+        </signal>
+        <signal name="heightChanged">
+            <param type="qreal"/>
+        </signal>
         <signal name="childrenChanged"/>
-        <signal name="childrenRectChanged"/>
-        <signal name="baselineOffsetChanged"/>
+        <signal name="childrenRectChanged">
+            <param type="QRectF"/>
+        </signal>
+        <signal name="baselineOffsetChanged">
+            <param type="qreal"/>
+        </signal>
         <signal name="stateChanged">
             <param type="string"/>
         </signal>
-        <signal name="focusChanged"/>
-        <signal name="wantsFocusChanged"/>
-        <signal name="parentChanged"/>
+        <signal name="focusChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="wantsFocusChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="parentChanged">
+            <param type="Qt.Item"/>
+        </signal>
         <signal name="transformOriginChanged">
             <param type="TransformOrigin"/>
         </signal>
-        <signal name="smoothChanged"/>
-        <signal name="clipChanged"/>
+        <signal name="smoothChanged">
+            <param type="bool"/>
+        </signal>
+        <signal name="clipChanged">
+            <param type="bool"/>
+        </signal>
+        <method name="mapFromItem" type="QScriptValue">
+            <param name="item" type="QScriptValue"/>
+            <param name="x" type="qreal"/>
+            <param name="y" type="qreal"/>
+        </method>
+        <method name="mapToItem" type="QScriptValue">
+            <param name="item" type="QScriptValue"/>
+            <param name="x" type="qreal"/>
+            <param name="y" type="qreal"/>
+        </method>
     </type>
     <type name="Qt.KeyNavigation" version="4.6" extends="Qt.QtObject">
         <property name="left" type="Qt.Item"/>
@@ -1976,6 +2330,13 @@
             <enumerator name="SnapToItem" value="1"/>
             <enumerator name="SnapOneItem" value="2"/>
         </enum>
+        <enum name="PositionMode">
+            <enumerator name="Beginning" value="0"/>
+            <enumerator name="Center" value="1"/>
+            <enumerator name="End" value="2"/>
+            <enumerator name="Visible" value="3"/>
+            <enumerator name="Contain" value="4"/>
+        </enum>
         <property name="model" type="QVariant"/>
         <property name="delegate" type="Qt.Component"/>
         <property name="currentIndex" type="int"/>
@@ -2022,6 +2383,7 @@
         <method name="decrementCurrentIndex"/>
         <method name="positionViewAtIndex">
             <param name="index" type="int"/>
+            <param name="mode" type="int"/>
         </method>
     </type>
     <type name="Qt.Loader" version="4.6" extends="Qt.Item">
@@ -2087,12 +2449,6 @@
         <property name="from" type="qreal"/>
         <property name="to" type="qreal"/>
     </type>
-    <type name="Qt.NumberFormatter" version="4.6" extends="Qt.QtObject">
-        <property name="text" type="string"/>
-        <property name="format" type="string"/>
-        <property name="number" type="qreal"/>
-        <signal name="textChanged"/>
-    </type>
     <type name="Qt.Opacity" version="4.6" extends="QGraphicsEffect">
         <property name="opacity" type="qreal"/>
         <property name="opacityMask" type="QBrush"/>
@@ -2119,6 +2475,7 @@
     </type>
     <type name="Qt.ParentAnimation" version="4.6" extends="QDeclarativeAnimationGroup">
         <property name="target" type="Qt.Item"/>
+        <property name="newParent" type="Qt.Item"/>
         <property name="via" type="Qt.Item"/>
     </type>
     <type name="Qt.ParentChange" version="4.6" extends="QDeclarativeStateOperation">
@@ -2130,60 +2487,6 @@
         <property name="height" type="qreal"/>
         <property name="scale" type="qreal"/>
         <property name="rotation" type="qreal"/>
-    </type>
-    <type name="Qt.ParticleMotion" version="4.6" extends="Qt.QtObject"/>
-    <type name="Qt.ParticleMotionGravity" version="4.6" extends="Qt.ParticleMotion">
-        <property name="xattractor" type="qreal"/>
-        <property name="yattractor" type="qreal"/>
-        <property name="acceleration" type="qreal"/>
-        <signal name="xattractorChanged"/>
-        <signal name="yattractorChanged"/>
-        <signal name="accelerationChanged"/>
-    </type>
-    <type name="Qt.ParticleMotionLinear" version="4.6" extends="Qt.ParticleMotion"/>
-    <type name="Qt.ParticleMotionWander" version="4.6" extends="Qt.ParticleMotion">
-        <property name="xvariance" type="qreal"/>
-        <property name="yvariance" type="qreal"/>
-        <property name="pace" type="qreal"/>
-        <signal name="xvarianceChanged"/>
-        <signal name="yvarianceChanged"/>
-        <signal name="paceChanged"/>
-    </type>
-    <type name="Qt.Particles" version="4.6" extends="Qt.Item">
-        <property name="source" type="QUrl"/>
-        <property name="count" type="int"/>
-        <property name="emissionRate" type="int"/>
-        <property name="emissionVariance" type="qreal"/>
-        <property name="lifeSpan" type="int"/>
-        <property name="lifeSpanDeviation" type="int"/>
-        <property name="fadeInDuration" type="int"/>
-        <property name="fadeOutDuration" type="int"/>
-        <property name="angle" type="qreal"/>
-        <property name="angleDeviation" type="qreal"/>
-        <property name="velocity" type="qreal"/>
-        <property name="velocityDeviation" type="qreal"/>
-        <property name="motion" type="Qt.ParticleMotion"/>
-        <signal name="sourceChanged"/>
-        <signal name="countChanged"/>
-        <signal name="emissionRateChanged"/>
-        <signal name="emissionVarianceChanged"/>
-        <signal name="lifeSpanChanged"/>
-        <signal name="lifeSpanDeviationChanged"/>
-        <signal name="fadeInDurationChanged"/>
-        <signal name="fadeOutDurationChanged"/>
-        <signal name="angleChanged"/>
-        <signal name="angleDeviationChanged"/>
-        <signal name="velocityChanged"/>
-        <signal name="velocityDeviationChanged"/>
-        <signal name="emittingChanged"/>
-        <signal name="motionChanged"/>
-        <method name="burst">
-            <param name="count" type="int"/>
-            <param name="emissionRate" type="int"/>
-        </method>
-        <method name="burst">
-            <param name="count" type="int"/>
-        </method>
     </type>
     <type name="Qt.Path" version="4.6" extends="Qt.QtObject">
         <property name="pathElements" type="QDeclarativePathElement" isList="true"/>
@@ -2676,6 +2979,9 @@
         <property name="triggeredOnStart" type="bool"/>
         <signal name="triggered"/>
         <signal name="runningChanged"/>
+        <signal name="intervalChanged"/>
+        <signal name="repeatChanged"/>
+        <signal name="triggeredOnStartChanged"/>
         <method name="start"/>
         <method name="stop"/>
         <method name="restart"/>
@@ -2782,12 +3088,309 @@
             <param name="progress" type="qreal"/>
         </signal>
         <signal name="countChanged"/>
+        <signal name="sourceChanged"/>
+        <signal name="xmlChanged"/>
+        <signal name="queryChanged"/>
+        <signal name="namespaceDeclarationsChanged"/>
         <method name="reload"/>
     </type>
     <type name="Qt.XmlRole" version="4.6" extends="Qt.QtObject">
         <property name="name" type="string"/>
         <property name="query" type="string"/>
         <property name="isKey" type="bool"/>
+        <signal name="nameChanged"/>
+        <signal name="queryChanged"/>
+        <signal name="isKeyChanged"/>
+    </type>
+    <type name="Qt.labs.particles.ParticleMotion" version="1.0" extends="Qt.QtObject"/>
+    <type name="Qt.labs.particles.ParticleMotionGravity" version="1.0" extends="Qt.labs.particles.ParticleMotion">
+        <property name="xattractor" type="qreal"/>
+        <property name="yattractor" type="qreal"/>
+        <property name="acceleration" type="qreal"/>
+        <signal name="xattractorChanged"/>
+        <signal name="yattractorChanged"/>
+        <signal name="accelerationChanged"/>
+    </type>
+    <type name="Qt.labs.particles.ParticleMotionLinear" version="1.0" extends="Qt.labs.particles.ParticleMotion"/>
+    <type name="Qt.labs.particles.ParticleMotionWander" version="1.0" extends="Qt.labs.particles.ParticleMotion">
+        <property name="xvariance" type="qreal"/>
+        <property name="yvariance" type="qreal"/>
+        <property name="pace" type="qreal"/>
+        <signal name="xvarianceChanged"/>
+        <signal name="yvarianceChanged"/>
+        <signal name="paceChanged"/>
+    </type>
+    <type name="Qt.labs.particles.Particles" version="1.0" extends="Qt.Item">
+        <property name="source" type="QUrl"/>
+        <property name="count" type="int"/>
+        <property name="emissionRate" type="int"/>
+        <property name="emissionVariance" type="qreal"/>
+        <property name="lifeSpan" type="int"/>
+        <property name="lifeSpanDeviation" type="int"/>
+        <property name="fadeInDuration" type="int"/>
+        <property name="fadeOutDuration" type="int"/>
+        <property name="angle" type="qreal"/>
+        <property name="angleDeviation" type="qreal"/>
+        <property name="velocity" type="qreal"/>
+        <property name="velocityDeviation" type="qreal"/>
+        <property name="motion" type="Qt.labs.particles.ParticleMotion"/>
+        <signal name="sourceChanged"/>
+        <signal name="countChanged"/>
+        <signal name="emissionRateChanged"/>
+        <signal name="emissionVarianceChanged"/>
+        <signal name="lifeSpanChanged"/>
+        <signal name="lifeSpanDeviationChanged"/>
+        <signal name="fadeInDurationChanged"/>
+        <signal name="fadeOutDurationChanged"/>
+        <signal name="angleChanged"/>
+        <signal name="angleDeviationChanged"/>
+        <signal name="velocityChanged"/>
+        <signal name="velocityDeviationChanged"/>
+        <signal name="emittingChanged"/>
+        <signal name="motionChanged"/>
+        <method name="burst">
+            <param name="count" type="int"/>
+            <param name="emissionRate" type="int"/>
+        </method>
+        <method name="burst">
+            <param name="count" type="int"/>
+        </method>
+    </type>
+    <type name="Qt.multimedia.Audio" version="4.7" extends="Qt.QtObject">
+        <enum name="Status">
+            <enumerator name="UnknownStatus" value="0"/>
+            <enumerator name="NoMedia" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Loaded" value="3"/>
+            <enumerator name="Stalled" value="4"/>
+            <enumerator name="Buffering" value="5"/>
+            <enumerator name="Buffered" value="6"/>
+            <enumerator name="EndOfMedia" value="7"/>
+            <enumerator name="InvalidMedia" value="8"/>
+        </enum>
+        <enum name="Error">
+            <enumerator name="NoError" value="0"/>
+            <enumerator name="ResourceError" value="1"/>
+            <enumerator name="FormatError" value="2"/>
+            <enumerator name="NetworkError" value="3"/>
+            <enumerator name="AccessDenied" value="4"/>
+            <enumerator name="ServiceMissing" value="5"/>
+        </enum>
+        <property name="source" type="QUrl"/>
+        <property name="playing" type="bool"/>
+        <property name="paused" type="bool"/>
+        <property name="status" type="Status"/>
+        <property name="duration" type="int"/>
+        <property name="position" type="int"/>
+        <property name="volume" type="qreal"/>
+        <property name="muted" type="bool"/>
+        <property name="bufferProgress" type="int"/>
+        <property name="seekable" type="bool"/>
+        <property name="playbackRate" type="qreal"/>
+        <property name="error" type="Error"/>
+        <property name="errorString" type="string"/>
+        <signal name="sourceChanged"/>
+        <signal name="playingChanged"/>
+        <signal name="pausedChanged"/>
+        <signal name="started"/>
+        <signal name="resumed"/>
+        <signal name="paused"/>
+        <signal name="stopped"/>
+        <signal name="statusChanged"/>
+        <signal name="loaded"/>
+        <signal name="buffering"/>
+        <signal name="stalled"/>
+        <signal name="buffered"/>
+        <signal name="endOfMedia"/>
+        <signal name="durationChanged"/>
+        <signal name="positionChanged"/>
+        <signal name="volumeChanged"/>
+        <signal name="mutedChanged"/>
+        <signal name="bufferProgressChanged"/>
+        <signal name="seekableChanged"/>
+        <signal name="playbackRateChanged"/>
+        <signal name="errorChanged"/>
+        <signal name="error">
+            <param name="error" type="QDeclarativeAudio.Error"/>
+            <param name="errorString" type="string"/>
+        </signal>
+        <method name="play"/>
+        <method name="pause"/>
+        <method name="stop"/>
+    </type>
+    <type name="Qt.multimedia.SoundEffect" version="4.7" extends="Qt.QtObject">
+        <property name="source" type="QUrl"/>
+        <property name="loopCount" type="int"/>
+        <property name="volume" type="int"/>
+        <property name="muted" type="bool"/>
+        <signal name="sourceChanged"/>
+        <signal name="loopCountChanged"/>
+        <signal name="volumeChanged"/>
+        <signal name="mutedChanged"/>
+        <method name="play"/>
+    </type>
+    <type name="Qt.multimedia.Video" version="4.7" extends="Qt.Item">
+        <enum name="FillMode">
+            <enumerator name="Stretch" value="0"/>
+            <enumerator name="PreserveAspectFit" value="1"/>
+            <enumerator name="PreserveAspectCrop" value="2"/>
+        </enum>
+        <enum name="Status">
+            <enumerator name="UnknownStatus" value="0"/>
+            <enumerator name="NoMedia" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Loaded" value="3"/>
+            <enumerator name="Stalled" value="4"/>
+            <enumerator name="Buffering" value="5"/>
+            <enumerator name="Buffered" value="6"/>
+            <enumerator name="EndOfMedia" value="7"/>
+            <enumerator name="InvalidMedia" value="8"/>
+        </enum>
+        <enum name="Error">
+            <enumerator name="NoError" value="0"/>
+            <enumerator name="ResourceError" value="1"/>
+            <enumerator name="FormatError" value="2"/>
+            <enumerator name="NetworkError" value="3"/>
+            <enumerator name="AccessDenied" value="4"/>
+            <enumerator name="ServiceMissing" value="5"/>
+        </enum>
+        <property name="source" type="QUrl"/>
+        <property name="playing" type="bool"/>
+        <property name="paused" type="bool"/>
+        <property name="status" type="Status"/>
+        <property name="duration" type="int"/>
+        <property name="position" type="int"/>
+        <property name="volume" type="qreal"/>
+        <property name="muted" type="bool"/>
+        <property name="hasAudio" type="bool"/>
+        <property name="hasVideo" type="bool"/>
+        <property name="bufferProgress" type="int"/>
+        <property name="seekable" type="bool"/>
+        <property name="playbackRate" type="qreal"/>
+        <property name="error" type="Error"/>
+        <property name="errorString" type="string"/>
+        <property name="fillMode" type="FillMode"/>
+        <signal name="sourceChanged"/>
+        <signal name="playingChanged"/>
+        <signal name="pausedChanged"/>
+        <signal name="started"/>
+        <signal name="resumed"/>
+        <signal name="paused"/>
+        <signal name="stopped"/>
+        <signal name="statusChanged"/>
+        <signal name="loaded"/>
+        <signal name="buffering"/>
+        <signal name="stalled"/>
+        <signal name="buffered"/>
+        <signal name="endOfMedia"/>
+        <signal name="durationChanged"/>
+        <signal name="positionChanged"/>
+        <signal name="volumeChanged"/>
+        <signal name="mutedChanged"/>
+        <signal name="hasAudioChanged"/>
+        <signal name="hasVideoChanged"/>
+        <signal name="bufferProgressChanged"/>
+        <signal name="seekableChanged"/>
+        <signal name="playbackRateChanged"/>
+        <signal name="errorChanged"/>
+        <signal name="error">
+            <param name="error" type="QDeclarativeVideo.Error"/>
+            <param name="errorString" type="string"/>
+        </signal>
+        <method name="play"/>
+        <method name="pause"/>
+        <method name="stop"/>
+    </type>
+    <type name="Qt.widgets.QGraphicsGridLayout" version="4.6" extends="Qt.QtObject">
+        <property name="children" type="QGraphicsLayoutItem" isList="true"/>
+        <property name="spacing" type="qreal"/>
+        <property name="verticalSpacing" type="qreal"/>
+        <property name="horizontalSpacing" type="qreal"/>
+    </type>
+    <type name="Qt.widgets.QGraphicsLinearLayout" version="4.6" extends="Qt.QtObject">
+        <property name="children" type="QGraphicsLayoutItem" isList="true"/>
+        <property name="orientation" type="Qt.Orientation"/>
+        <property name="spacing" type="qreal"/>
+    </type>
+    <type name="Qt.widgets.QGraphicsLinearLayoutStretchItem" version="4.6" extends="Qt.QtObject"/>
+    <type name="Qt.widgets.QGraphicsScene" version="4.6" extends="QGraphicsScene">
+        <property name="children" type="Qt.QtObject" isList="true"/>
+    </type>
+    <type name="Qt.widgets.QGraphicsView" version="4.6" extends="QGraphicsView">
+        <property name="scene" type="QGraphicsScene"/>
+    </type>
+    <type name="Qt.widgets.QGraphicsWidget" version="4.6" extends="QGraphicsWidget">
+        <property name="children" type="QGraphicsItem" isList="true"/>
+        <property name="layout" type="QGraphicsLayout"/>
+    </type>
+    <type name="org.webkit.WebView" version="1.0" extends="QDeclarativePaintedItem">
+        <enum name="Status">
+            <enumerator name="Null" value="0"/>
+            <enumerator name="Ready" value="1"/>
+            <enumerator name="Loading" value="2"/>
+            <enumerator name="Error" value="3"/>
+        </enum>
+        <property name="title" type="string"/>
+        <property name="icon" type="QPixmap"/>
+        <property name="zoomFactor" type="qreal"/>
+        <property name="statusText" type="string"/>
+        <property name="html" type="string"/>
+        <property name="pressGrabTime" type="int"/>
+        <property name="preferredWidth" type="int"/>
+        <property name="preferredHeight" type="int"/>
+        <property name="url" type="QUrl"/>
+        <property name="progress" type="qreal"/>
+        <property name="status" type="Status"/>
+        <property name="reload" type="QAction"/>
+        <property name="back" type="QAction"/>
+        <property name="forward" type="QAction"/>
+        <property name="stop" type="QAction"/>
+        <property name="settings" type="QDeclarativeWebSettings"/>
+        <property name="javaScriptWindowObjects" type="Qt.QtObject" isList="true"/>
+        <property name="newWindowComponent" type="Qt.Component"/>
+        <property name="newWindowParent" type="Qt.Item"/>
+        <property name="renderingEnabled" type="bool"/>
+        <signal name="preferredWidthChanged"/>
+        <signal name="preferredHeightChanged"/>
+        <signal name="urlChanged"/>
+        <signal name="progressChanged"/>
+        <signal name="statusChanged">
+            <param type="Status"/>
+        </signal>
+        <signal name="titleChanged">
+            <param type="string"/>
+        </signal>
+        <signal name="iconChanged"/>
+        <signal name="statusTextChanged"/>
+        <signal name="htmlChanged"/>
+        <signal name="pressGrabTimeChanged"/>
+        <signal name="zoomFactorChanged"/>
+        <signal name="newWindowComponentChanged"/>
+        <signal name="newWindowParentChanged"/>
+        <signal name="renderingEnabledChanged"/>
+        <signal name="loadStarted"/>
+        <signal name="loadFinished"/>
+        <signal name="loadFailed"/>
+        <signal name="doubleClick">
+            <param name="clickX" type="int"/>
+            <param name="clickY" type="int"/>
+        </signal>
+        <signal name="zoomTo">
+            <param name="zoom" type="qreal"/>
+            <param name="centerX" type="int"/>
+            <param name="centerY" type="int"/>
+        </signal>
+        <signal name="alert">
+            <param name="message" type="string"/>
+        </signal>
+        <method name="evaluateJavaScript" type="QVariant">
+            <param type="string"/>
+        </method>
+        <method name="heuristicZoom" type="bool">
+            <param name="clickX" type="int"/>
+            <param name="clickY" type="int"/>
+            <param name="maxzoom" type="qreal"/>
+        </method>
     </type>
     <type name="Script">
         <property name="script" type="string"/>
