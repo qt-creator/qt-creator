@@ -32,8 +32,10 @@
 
 #include "objectnodeinstance.h"
 
+QT_BEGIN_NAMESPACE
 class QDeclarativeState;
 class QDeclarativeStateGroup;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
