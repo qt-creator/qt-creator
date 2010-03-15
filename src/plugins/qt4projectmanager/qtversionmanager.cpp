@@ -1165,7 +1165,7 @@ void QtVersion::updateToolChainAndMkspec() const
                     // We sometimes get a mix of different slash styles here...
                     possibleFullPath = possibleFullPath.replace('\\', '/');
                     if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
-                        mkspecFullPath = possibleFullPath
+                        mkspecFullPath = possibleFullPath;
                 }
                 break;
             }
