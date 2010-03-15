@@ -37,6 +37,7 @@
 #include <invalididexception.h>
 #include <invalidnodestateexception.h>
 #include <variantproperty.h>
+#include <propertymetainfo.h>
 
 #include "propertyeditorvalue.h"
 #include "basiclayouts.h"
@@ -85,7 +86,7 @@ PropertyEditor::NodeType::~NodeType()
 {
 }
 
-void setupPropertyEditorValue(const QString &name, QDeclarativePropertyMap *propertyMap, PropertyEditor *propertyEditor)
+void setupPropertyEditorValue(const QString &name, QDeclarativePropertyMap *propertyMap, PropertyEditor *propertyEditor, const QString &type)
 {
     QString propertyName(name);
     propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
@@ -97,7 +98,11 @@ void setupPropertyEditorValue(const QString &name, QDeclarativePropertyMap *prop
         propertyMap->insert(propertyName, QVariant::fromValue(valueObject));
     }
     valueObject->setName(propertyName);
-    valueObject->setValue(QVariant(""));
+    if (type == "QColor")
+        valueObject->setValue(QVariant("#000000"));
+    else
+        valueObject->setValue(QVariant(1));
+
 }
 
 void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString &name, const QVariant &value, QDeclarativePropertyMap *propertyMap, PropertyEditor *propertyEditor)
@@ -196,7 +201,7 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo().nodeMetaInfo(typeName, 4, 6);
 
     foreach (const QString &propertyName, metaInfo.properties(true).keys())
-        setupPropertyEditorValue(propertyName, &m_backendValuesPropertyMap, propertyEditor);
+        setupPropertyEditorValue(propertyName, &m_backendValuesPropertyMap, propertyEditor, metaInfo.property(propertyName, true).type());
 
     PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
     if (!valueObject)
