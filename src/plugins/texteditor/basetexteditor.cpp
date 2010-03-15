@@ -609,8 +609,6 @@ bool BaseTextEditor::open(const QString &fileName)
 {
     if (d->m_document->open(fileName)) {
         moveCursor(QTextCursor::Start);
-        if (d->m_displaySettings.m_autoFoldFirstComment)
-            d->collapseLicenseHeader();
         setReadOnly(d->m_document->hasDecodingError());
         return true;
     }
@@ -1531,8 +1529,6 @@ void BaseTextEditor::memorizeCursorPosition()
 void BaseTextEditor::restoreCursorPosition()
 {
     restoreState(d->m_tempState);
-    if (d->m_displaySettings.m_autoFoldFirstComment)
-        d->collapseLicenseHeader();
 }
 
 QByteArray BaseTextEditor::saveState() const
@@ -1567,6 +1563,11 @@ QByteArray BaseTextEditor::saveState() const
 
 bool BaseTextEditor::restoreState(const QByteArray &state)
 {
+    if (state.isEmpty()) {
+        if (d->m_displaySettings.m_autoFoldFirstComment)
+            d->collapseLicenseHeader();
+        return false;
+    }
     int version;
     int vval;
     int hval;
@@ -1588,6 +1589,9 @@ bool BaseTextEditor::restoreState(const QByteArray &state)
             if (block.isValid())
                 TextBlockUserData::doCollapse(block, false);
         }
+    } else {
+        if (d->m_displaySettings.m_autoFoldFirstComment)
+            d->collapseLicenseHeader();
     }
 
     d->m_lastCursorChangeWasInteresting = false; // avoid adding last position to history

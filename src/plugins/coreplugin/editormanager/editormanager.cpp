@@ -1282,8 +1282,7 @@ void EditorManager::restoreEditorState(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
     QString fileName = editor->file()->fileName();
-    if (m_d->m_editorStates.contains(fileName))
-        editor->restoreState(m_d->m_editorStates.value(fileName).toByteArray());
+    editor->restoreState(m_d->m_editorStates.value(fileName).toByteArray());
 }
 
 bool EditorManager::saveEditor(IEditor *editor)
