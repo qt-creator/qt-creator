@@ -215,7 +215,6 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     }
 
     const QFileInfo fi(path);
-    const bool isDir = fi.isDir();
 
     // Check if existing
     switch (m_d->m_acceptingKind) {
@@ -236,7 +235,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
     // Check expected kind
     switch (m_d->m_acceptingKind) {
     case PathChooser::Directory:
-        if (!isDir) {
+        if (!fi.isDir()) {
             if (errorMessage)
                 *errorMessage = tr("The path '%1' is not a directory.").arg(path);
             return false;
@@ -244,7 +243,7 @@ bool PathChooser::validatePath(const QString &path, QString *errorMessage)
         break;
 
     case PathChooser::File:
-        if (isDir) {
+        if (!fi.isFile()) {
             if (errorMessage)
                 *errorMessage = tr("The path '%1' is not a file.").arg(path);
             return false;

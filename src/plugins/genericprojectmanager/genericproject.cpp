@@ -504,7 +504,7 @@ void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
 {
     m_buildConfiguration = static_cast<GenericBuildConfiguration *>(bc);
     m_nameLineEdit->setText(m_buildConfiguration->displayName());
-    m_pathChooser->setPath(m_buildConfiguration->buildDirectory());
+    m_pathChooser->setPath(m_buildConfiguration->rawBuildDirectory());
 }
 
 void GenericBuildSettingsWidget::configNameEdited(const QString &name)

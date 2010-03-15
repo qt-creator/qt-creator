@@ -51,7 +51,10 @@ public:
 
     virtual ProjectExplorer::Environment environment() const;
     virtual QString buildDirectory() const;
+
+    QString rawBuildDirectory() const;
     void setBuildDirectory(const QString &buildDirectory);
+
     QVariantMap toMap() const;
 
 protected:

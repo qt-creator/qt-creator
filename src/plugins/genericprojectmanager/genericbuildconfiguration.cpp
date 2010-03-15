@@ -89,13 +89,19 @@ ProjectExplorer::Environment GenericBuildConfiguration::environment() const
 
 QString GenericBuildConfiguration::buildDirectory() const
 {
-    QString buildDirectory = m_buildDirectory;
-    if (buildDirectory.isEmpty()) {
-        QFileInfo fileInfo(target()->project()->file()->fileName());
+    // Convert to absolute path when necessary
+    const QFileInfo projectFile(target()->project()->file()->fileName());
+    const QDir projectDir(projectFile.path());
+    return projectDir.absoluteFilePath(m_buildDirectory);
+}
 
-        buildDirectory = fileInfo.absolutePath();
-    }
-    return buildDirectory;
+/**
+ * Returns the build directory unmodified, instead of making it absolute like
+ * buildDirectory() does.
+ */
+QString GenericBuildConfiguration::rawBuildDirectory() const
+{
+    return m_buildDirectory;
 }
 
 void GenericBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
