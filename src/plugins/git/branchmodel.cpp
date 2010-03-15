@@ -50,7 +50,14 @@ bool RemoteBranchModel::Branch::parse(const QString &lineIn, bool *isCurrent)
     if (lineIn.size() < 3)
         return false;
 
-    const QStringList tokens =lineIn.mid(2).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    const QString branchInfo = lineIn.mid(2);
+    QStringList tokens;
+    if (*isCurrent && branchInfo.startsWith(QLatin1String("(no branch)"))) {
+        tokens += tr("(no branch)");
+        tokens += branchInfo.mid(11).split(QLatin1Char(' '), QString::SkipEmptyParts);
+    } else {
+        tokens = branchInfo.split(QLatin1Char(' '), QString::SkipEmptyParts);
+    }
     if (tokens.size() < 2)
         return false;
     name = tokens.at(0);
