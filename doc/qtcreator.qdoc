@@ -2232,12 +2232,9 @@
     In \gui Debug mode, several dock widgets are used to interact with the
     program you are debugging. The frequently used dock widgets are visible by
     default; the rarely used ones are hidden. To change the default settings,
-    select \gui Debug and then select \gui View.
-
-    \image qtcreator-debug-view.png
-
-    Here, you can lock or unlock the location of your dock widgets as well as
-    display or hide them. The position of your dock widgets is saved for future
+    select \gui Debug and then select \gui View. This brings up a menu which
+    lets you lock or unlock the location of the dock widgets as well as display
+    or hide them. The position of your dock widgets is saved for future
     sessions.
 
 
@@ -2502,10 +2499,11 @@
 
     \image qtcreator-debugging-buttons.png
 
-    \section1 Setting the Symbol Server
+    \section1 Setting the Symbol Server (Debugging Tools for Windows only)
 
-    To obtain operating system libraries for debugging Windows applications,
-    you have to add the Symbol Server:
+    To obtain debugging information for the operating system libraries for
+    debugging Windows applications, the Symbol Server provided
+    by Microsoft has to be added to the symbol search path of the debugger:
     \list 1
         \o  Select \gui Tools > \gui Options > \gui Debugger > \gui Cdb
         \o  Click \inlineimage qtcreator-serverbutton.png
