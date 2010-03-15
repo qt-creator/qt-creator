@@ -190,7 +190,31 @@ void CppPreprocessor::setWorkingCopy(const CppTools::CppModelManagerInterface::W
 { m_workingCopy = workingCopy; }
 
 void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
-{ m_includePaths = includePaths; }
+{
+    m_includePaths.clear();
+
+    for (int i = 0; i < includePaths.size(); ++i) {
+        const QString path = includePaths.at(i);
+
+#ifdef Q_OS_DARWIN
+        if (i + 1 < includePaths.size() && path.endsWith(QLatin1String(".framework/Headers"))) {
+            const QFileInfo pathInfo(path);
+            const QFileInfo frameworkFileInfo(pathInfo.path());
+            const QString frameworkName = frameworkFileInfo.baseName();
+
+            const QFileInfo nextIncludePath = includePaths.at(i + 1);
+            if (nextIncludePath.fileName() == frameworkName) {
+                // We got a QtXXX.framework/Headers followed by $QTDIR/include/QtXXX.
+                // In this case we prefer to include files from $QTDIR/include/QtXXX.
+                continue;
+            }
+        }
+        m_includePaths.append(path);
+#else
+        m_includePaths.append(path);
+#endif
+    }
+}
 
 void CppPreprocessor::setFrameworkPaths(const QStringList &frameworkPaths)
 { m_frameworkPaths = frameworkPaths; }
