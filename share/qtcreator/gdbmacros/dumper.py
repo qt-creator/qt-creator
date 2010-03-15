@@ -439,6 +439,32 @@ def findFirstZero(p, max):
         p = p + 1
     return -1
 
+
+def extractCharArray(p, maxsize):
+    t = gdb.lookup_type("unsigned char").pointer()
+    p = p.cast(t)
+    i = findFirstZero(p, maxsize)
+    limit = select(i < 0, maxsize, i)
+    s = ""
+    for i in xrange(limit):
+        s += "%c" % int(p.dereference())
+        p += 1
+    if i == maxsize:
+        s += "..."
+    return s
+
+def extractByteArray(value):
+    d_ptr = value['d'].dereference()
+    data = d_ptr['data']
+    size = d_ptr['size']
+    alloc = d_ptr['alloc']
+    check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    checkRef(d_ptr["ref"])
+    if size > 0:
+        checkAccess(data, 4)
+        checkAccess(data + size) == 0
+    return extractCharArray(data, 100)
+
 def encodeCharArray(p, maxsize, size = -1):
     t = gdb.lookup_type("unsigned char").pointer()
     p = p.cast(t)
@@ -803,6 +829,8 @@ SalCommand()
 #
 #######################################################################
 
+StopDisplay, DisplayImage1, DisplayString, DisplayImage, DisplayProcess = range(5)
+
 class Dumper:
     def __init__(self):
         self.output = ""
@@ -906,6 +934,14 @@ class Dumper:
         else:
             str = encodeString(value)
             self.put('valueencoded="%d",value="%s",' % (7, str))
+
+    def putDisplay(self, format, value = None, cmd = None):
+        self.put('editformat="%s",' % format)
+        if cmd is None:
+            if not value is None:
+                self.put('editvalue="%s",' % value)
+        else:
+            self.put('editvalue="%s|%s",' % (cmd, value))
 
     def putByteArrayValue(self, value):
         str = encodeByteArray(value)

@@ -406,7 +406,7 @@ def qdump__QImage(d, item):
         d.endChildren()
     format = d.itemFormat(item)
     if format == 0:
-        d.putField("editformat", 0)  # Magic marker for "delete widget"
+        d.putDisplay(StopDisplay)
     elif format == 1:
         if False:
             # Take four bytes at a time, this is critical for performance.
@@ -428,11 +428,8 @@ def qdump__QImage(d, item):
             p = bits.cast(gdb.lookup_type("unsigned char").pointer())
             gdb.execute("dump binary memory %s %s %s" %
                 (filename, cleanAddress(p), cleanAddress(p + nbytes)))
-            d.putField("editformat", 3)  # Magic marker for external "QImage" data.
-            d.beginItem("editvalue")
-            d.put(" %d %d %d %s" % (d_ptr["width"], d_ptr["height"],
-                d_ptr["format"], filename))
-            d.endItem()
+            d.putDisplay(DisplayImage, " %d %d %d %s"
+                % (d_ptr["width"], d_ptr["height"], d_ptr["format"], filename))
 
 
 def qdump__QLinkedList(d, item):
@@ -1978,4 +1975,27 @@ def qdump__TLitC(d, item):
     check(0 <= size and size <= max)
     d.putNumChild(0)
     d.putValue(encodeSymbianString(base, size), "7")
+
+
+#######################################################################
+#
+# Display Test
+#
+#######################################################################
+
+if False:
+    def qdump__Function(d, item):
+        min = item.value["min"]
+        max = item.value["max"]
+        var = extractByteArray(item.value["var"])
+        f = extractByteArray(item.value["f"])
+        d.putValue("%s, %s=%f..%f" % (f, var, min, max))
+        d.putNumChild(0)
+        d.putField("typeformats", "Normal,Displayed");
+        format = d.itemFormat(item)
+        if format == 0:
+            d.putDisplay(StopDisplay)
+        elif format == 1:
+            input = "plot [%s=%f:%f] %s" % (var, min, max, f)
+            d.putDisplay(DisplayProcess, input, "gnuplot")
 

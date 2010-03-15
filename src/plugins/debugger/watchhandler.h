@@ -282,14 +282,17 @@ private:
     bool m_expandPointers;
     bool m_inChange;
 
-    typedef QMap<QString, QPointer<QWidget> > EditWindows;
-    EditWindows m_editWindows;
+    // QWidgets and QProcesses taking care of special displays.
+    typedef QMap<QString, QPointer<QObject> > EditHandlers;
+    EditHandlers m_editHandlers;
 
     QHash<QByteArray, int> m_watcherNames;
     QByteArray watcherName(const QByteArray &exp);
     QHash<QString, int> m_typeFormats;
     QHash<QString, int> m_individualFormats;
-    QSet<QByteArray> m_expandedINames;  // Those expanded in the treeview.
+
+    // Items expanded in the Locals & Watchers view.
+    QSet<QByteArray> m_expandedINames; 
 
     WatchModel *m_locals;
     WatchModel *m_watchers;

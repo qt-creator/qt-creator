@@ -361,6 +361,28 @@ void testQImage()
     pain.end();
 }
 
+struct Function
+{
+    Function(QByteArray var, QByteArray f, double min, double max)
+      : var(var), f(f), min(min), max(max) {}
+    QByteArray var;
+    QByteArray f;
+    double min;
+    double max;
+};
+
+void testFunction()
+{
+    Function func("x", "sin(x)", 0, 1);
+    func.max = 10;
+    func.f = "cos(x)";
+    func.max = 4;
+    func.max = 5;
+    func.max = 6;
+    func.max = 7;
+    func.max = 8;
+}
+
 void testIO()
 {
     qDebug() << "qDebug() 1";
@@ -1467,6 +1489,7 @@ int main(int argc, char *argv[])
     list2 << 0;
 
     testQStandardItemModel();
+    testFunction();
     testQImage();
     testNoArgumentName(1, 2, 3);
     testIO();
