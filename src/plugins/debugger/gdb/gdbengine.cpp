@@ -3369,14 +3369,15 @@ void GdbEngine::handleChildren(const WatchData &data0, const GdbMi &item,
     mi = item.findChild("editformat");
     if (mi.isValid())
         data.editformat = mi.data().toInt();
+    mi = item.findChild("typeformats");
+    if (mi.isValid())
+        data.typeFormats = QString::fromUtf8(mi.data());
 
     setWatchDataValue(data, item.findChild("value"),
         item.findChild("valueencoded").data().toInt());
     setWatchDataAddress(data, item.findChild("addr"));
     setWatchDataExpression(data, item.findChild("exp"));
     setWatchDataSAddress(data, item.findChild("saddr"));
-    setWatchDataValueToolTip(data, item.findChild("valuetooltip"),
-        item.findChild("valuetooltipencoded").data().toInt());
     setWatchDataValueEnabled(data, item.findChild("valueenabled"));
     setWatchDataValueEditable(data, item.findChild("valueeditable"));
     setWatchDataChildCount(data, item.findChild("numchild"));

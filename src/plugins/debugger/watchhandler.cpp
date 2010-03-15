@@ -108,6 +108,7 @@ public:
 ////////////////////////////////////////////////////////////////////
 
 WatchData::WatchData() :
+    editformat(0),
     hasChildren(false),
     generation(-1),
     valueEnabled(true),
@@ -818,6 +819,8 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_expandedINames.contains(data.iname);
 
         case TypeFormatListRole:
+            if (!data.typeFormats.isEmpty())
+                return data.typeFormats.split(',');
             if (isIntType(data.type))
                 return QStringList() << tr("decimal") << tr("hexadecimal")
                     << tr("binary") << tr("octal");
@@ -828,10 +831,6 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                     << tr("UTF8 string")
                     << tr("UTF16 string")
                     << tr("UCS4 string");
-            if (data.type.endsWith(QLatin1String("QImage")))
-                return QStringList()
-                    << tr("normal")
-                    << tr("displayed");
             break;
 
         case TypeFormatRole:
@@ -1255,9 +1254,7 @@ void WatchHandler::insertData(const WatchData &data)
         QTC_ASSERT(model, return);
         MODEL_DEBUG("NOTHING NEEDED: " << data.toString());
         model->insertData(data);
-
-        if (!data.editvalue.isEmpty())
-            showEditValue(data);
+        showEditValue(data);
     }
 }
 
@@ -1352,8 +1349,10 @@ static void swapEndian(char *d, int nchar)
 void WatchHandler::showEditValue(const WatchData &data)
 {
     QWidget *w = m_editWindows.value(data.iname);
-        
-    if (data.editformat == 0x1 || data.editformat == 0x3) {
+    if (data.editformat == 0x0) {
+        m_editWindows.remove(data.iname);
+        delete w;
+    } else if (data.editformat == 0x1 || data.editformat == 0x3) {
         // QImage
         if (!w) {
             w = new QLabel;

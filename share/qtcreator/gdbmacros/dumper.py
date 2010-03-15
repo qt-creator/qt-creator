@@ -575,14 +575,13 @@ class FrameCommand(gdb.Command):
         module = sys.modules[__name__]
         self.dumpers = {}
 
-        if useFancy == -1:
-            output = "dumpers=["
+        if False:
+            dumpers = ""
+            typeformats = ""
             for key, value in module.__dict__.items():
                 if key.startswith("qdump__"):
-                    if output != "dumpers=[":
-                        output += ","
-                    output += '"' + key[7:] + '"'
-            output += "],"
+                    dumpers += '"' + key[7:] + '",'
+            output = "dumpers=[%s]," % dumpers
             #output += "qtversion=[%d,%d,%d]"
             #output += "qtversion=[4,6,0],"
             output += "namespace=\"%s\"," % qtNamespace()

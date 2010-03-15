@@ -392,6 +392,7 @@ def qdump__QImage(d, item):
         d.putValue("(%dx%d)" % (d_ptr["width"], d_ptr["height"]))
     bits = d_ptr["data"]
     nbytes = d_ptr["nbytes"]
+    d.putField("typeformats", "Normal,Displayed");
     d.putNumChild(0)
     #d.putNumChild(1)
     if d.isExpanded(item):
@@ -401,12 +402,12 @@ def qdump__QImage(d, item):
         d.putType(" ");
         d.putNumChild(0)
         d.putValue("size: %s bytes" % nbytes);
-        #d.putField("valuetooltipencoded", "6")
-        #d.putField("valuetooltip", encodeCharArray(bits, nbytes))
         d.endHash()
         d.endChildren()
     format = d.itemFormat(item)
-    if format == 1:
+    if format == 0:
+        d.putField("editformat", 0)  # Magic marker for "delete widget"
+    elif format == 1:
         if False:
             # Take four bytes at a time, this is critical for performance.
             # In fact, even four at a time is too slow beyond 100x100 or so.
@@ -429,10 +430,8 @@ def qdump__QImage(d, item):
                 (filename, cleanAddress(p), cleanAddress(p + nbytes)))
             d.putField("editformat", 3)  # Magic marker for external "QImage" data.
             d.beginItem("editvalue")
-            d.put(" %d" % int(d_ptr["width"]))
-            d.put(" %d" % int(d_ptr["height"]))
-            d.put(" %d" % int(d_ptr["format"]))
-            d.put(" %s" % filename)
+            d.put(" %d %d %d %s" % (d_ptr["width"], d_ptr["height"],
+                d_ptr["format"], filename))
             d.endItem()
 
 
