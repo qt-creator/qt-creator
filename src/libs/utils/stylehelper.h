@@ -41,6 +41,10 @@ class QPainter;
 class QRect;
 QT_END_NAMESPACE
 
+// Note, this is exported but in a private header as qtopengl depends on it.
+// We should consider adding this as a public helper function.
+extern void qt_blurImage(QPainter *p, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0);
+
 // Helper class holding all custom color values
 
 namespace Utils {
@@ -79,6 +83,9 @@ public:
     // Pixmap cache should only be enabled for X11 due to slow gradients
     static bool usePixmapCache() { return true; }
 
+    static void drawIconWithShadow(const QPixmap &px, const QPoint &pos, QPainter *p,
+                                   int radius = 3, const QColor &color = QColor(0, 0, 0, 70),
+                                   const QPoint &offset = QPoint(0, -1));
     static void drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
                          int left = 0, int top = 0, int right = 0, int bottom = 0);
 

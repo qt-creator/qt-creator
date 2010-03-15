@@ -304,11 +304,15 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
 
     int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
     tabIconRect.adjust(0, 4, 0, -textHeight);
-    int iconSize = qMin(tabIconRect.width(), tabIconRect.height());
-    if (iconSize > 4)
+    QPixmap icon = tabIcon(tabIndex).pixmap(tabIconRect.size(), enabled ? QIcon::Normal : QIcon::Disabled);
+    Utils::StyleHelper::drawIconWithShadow(icon,
+                                           tabIconRect.center() - QPoint(icon.size().width()/2-1, icon.size().height()/2),
+                                           painter);
+
+/*    if (iconSize > 4)
         style()->drawItemPixmap(painter, tabIconRect, Qt::AlignCenter | Qt::AlignVCenter,
                                 tabIcon(tabIndex).pixmap(tabIconRect.size(), enabled ? QIcon::Normal : QIcon::Disabled));
-
+*/
     painter->translate(0, -1);
     painter->drawText(tabTextRect, textFlags, tabText);
     painter->restore();

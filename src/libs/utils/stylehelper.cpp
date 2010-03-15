@@ -363,6 +363,50 @@ void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const Q
     }
 }
 
+// Draws a cached pixmap with shadow
+void StyleHelper::drawIconWithShadow(const QPixmap &px, const QPoint &pos,
+                                     QPainter *p, int radius, const QColor &color, const QPoint &offset)
+{
+    QPixmap cache;
+    QString pixmapName = QString("sdw %0").arg(px.cacheKey());
+    if (!QPixmapCache::find(pixmapName, cache)) {
+        cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
+        cache.fill(Qt::transparent);
+        QPainter cachePainter(&cache);
+
+        QImage tmp(px.size() + QSize(radius * 2, radius * 2 + 1), QImage::Format_ARGB32_Premultiplied);
+        tmp.fill(Qt::transparent);
+
+        QPainter tmpPainter(&tmp);
+        tmpPainter.setCompositionMode(QPainter::CompositionMode_Source);
+        tmpPainter.drawPixmap(QPoint(radius, radius), px);
+        tmpPainter.end();
+
+        // blur the alpha channel
+        QImage blurred(tmp.size(), QImage::Format_ARGB32_Premultiplied);
+        blurred.fill(Qt::transparent);
+        QPainter blurPainter(&blurred);
+        qt_blurImage(&blurPainter, tmp, radius, false, true);
+        blurPainter.end();
+
+        tmp = blurred;
+
+        // blacken the image...
+        tmpPainter.begin(&tmp);
+        tmpPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        tmpPainter.fillRect(tmp.rect(), color);
+        tmpPainter.end();
+        // draw the blurred drop shadow...
+        cachePainter.drawImage(QPoint(0, 0), tmp);
+
+        // Draw the actual pixmap...
+        cachePainter.drawPixmap(QPoint(radius, radius) + offset, px);
+        QPixmapCache::insert(pixmapName, cache);
+    }
+
+    p->drawPixmap(pos - QPoint(radius, radius), cache);
+}
+
 // Draws a CSS-like border image where the defined borders are not stretched
 void StyleHelper::drawCornerImage(const QImage &img, QPainter *painter, QRect rect,
                                   int left, int top, int right, int bottom)

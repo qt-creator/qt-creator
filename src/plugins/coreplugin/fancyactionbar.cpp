@@ -158,8 +158,9 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         if (!buildConfiguration.isNull())
             iconRect.adjust(0, 0, 0, -lineHeight - 4);
 
+
         QPoint center = iconRect.center();
-        painter.drawPixmap(center-QPointF(halfPixSize.width()-1, halfPixSize.height()-1), pix);
+        Utils::StyleHelper::drawIconWithShadow(pix, center-QPoint(halfPixSize.width()-1, halfPixSize.height()-1), &painter);
         painter.setFont(normalFont);
 
         QPoint textOffset = center - QPoint(pix.rect().width()/2, pix.rect().height()/2);
@@ -199,7 +200,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         }
     } else {
         QPoint center = rect().center();
-        painter.drawPixmap(center-QPointF(halfPixSize.width()-1, halfPixSize.height()-1), pix);
+        Utils::StyleHelper::drawIconWithShadow(pix, center-QPoint(halfPixSize.width()-1, halfPixSize.height()-1), &painter);
     }
 }
 
