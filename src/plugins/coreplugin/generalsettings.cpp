@@ -86,14 +86,17 @@ static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrP
 
 void GeneralSettings::fillLanguageBox() const
 {
+    const QString currentLocale = language();
+
     m_page->languageBox->addItem(tr("<System Language>"), QString());
     // need to add this explicitly, since there is no qm file for English
     m_page->languageBox->addItem(QLatin1String("English"), QLatin1String("C"));
+    if (currentLocale == QLatin1String("C"))
+        m_page->languageBox->setCurrentIndex(m_page->languageBox->count() - 1);
 
     const QString creatorTrPath =
             Core::ICore::instance()->resourcePath() + QLatin1String("/translations");
     const QStringList languageFiles = QDir(creatorTrPath).entryList(QStringList(QLatin1String("*.qm")));
-    const QString currentLocale = language();
 
     Q_FOREACH(const QString &languageFile, languageFiles)
     {
@@ -105,7 +108,6 @@ void GeneralSettings::fillLanguageBox() const
             m_page->languageBox->addItem(QLocale::languageToString(QLocale(locale).language()), locale);
             if (locale == currentLocale)
                 m_page->languageBox->setCurrentIndex(m_page->languageBox->count() - 1);
-
         }
     }
 }
