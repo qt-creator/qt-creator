@@ -1865,8 +1865,12 @@ void ProjectExplorerPlugin::goToTaskWindow()
 
 void ProjectExplorerPlugin::updateContextMenuActions()
 {
-    if (ProjectNode *projectNode = qobject_cast<ProjectNode*>(d->m_currentNode)) {
-        const bool addFilesEnabled = projectNode->supportedActions().contains(ProjectNode::AddFile);
+    d->m_addExistingFilesAction->setEnabled(false);
+    d->m_addNewFileAction->setEnabled(false);
+    d->m_removeFileAction->setEnabled(false);
+
+    if (FolderNode *folderNode = qobject_cast<FolderNode*>(d->m_currentNode)) {
+        const bool addFilesEnabled = folderNode->projectNode()->supportedActions().contains(ProjectNode::AddFile);
         d->m_addExistingFilesAction->setEnabled(addFilesEnabled);
         d->m_addNewFileAction->setEnabled(addFilesEnabled);
     } else if (FileNode *fileNode = qobject_cast<FileNode*>(d->m_currentNode)) {
