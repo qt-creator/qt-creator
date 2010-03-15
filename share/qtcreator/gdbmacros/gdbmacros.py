@@ -1884,7 +1884,7 @@ def qdump__std__string(d, item):
         for i in xrange(size):
             s += format % int(p.dereference())
             p += 1
-        d.putValue(s, 6)
+        d.putValue(s, Hex2EncodedLittleEndian)
         d.putNumChild(0)
     elif charType.sizeof == 2:
         format = "%02x%02x"
@@ -1892,7 +1892,7 @@ def qdump__std__string(d, item):
             val = int(p.dereference())
             s += format % (val % 256, val / 256)
             p += 1
-        d.putValue(s, 7)
+        d.putValue(s, Hex4EncodedLittleEndian)
     else:
         # FIXME: This is not always a proper solution.
         format = "%02x%02x%02x%02x"
@@ -1902,7 +1902,7 @@ def qdump__std__string(d, item):
             lo = val % 65536
             s += format % (lo % 256, lo / 256, hi % 256, hi / 256)
             p += 1
-        d.putValue(s, 8)
+        d.putValue(s, Hex8EncodedLittleEndian)
 
     d.putNumChild(0)
 
@@ -1966,7 +1966,7 @@ def qdump__TBuf(d, item):
     max = numericTemplateArgument(item.value.type, 0)
     check(0 <= size and size <= max)
     d.putNumChild(0)
-    d.putValue(encodeSymbianString(base, size), "7")
+    d.putValue(encodeSymbianString(base, size), Hex4EncodedLittleEndian)
 
 def qdump__TLitC(d, item):
     size = item.value["iTypeLength"] & 0xffff
@@ -1974,7 +1974,7 @@ def qdump__TLitC(d, item):
     max = numericTemplateArgument(item.value.type, 0)
     check(0 <= size and size <= max)
     d.putNumChild(0)
-    d.putValue(encodeSymbianString(base, size), "7")
+    d.putValue(encodeSymbianString(base, size), Hex4EncodedLittleEndian)
 
 
 #######################################################################

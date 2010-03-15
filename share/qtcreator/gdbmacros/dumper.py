@@ -27,6 +27,28 @@ import tempfile
 verbosity = 0
 verbosity = 1
 
+# Some "Enums"
+
+# Encodings
+
+Unencoded8Bit, \
+    Base64Encoded8BitWithQuotes, \
+    Base64Encoded16BitWithQuotes, \
+    Base64Encoded32BitWithQuotes, \
+    Base64Encoded16Bit, \
+    Base64Encoded8Bit, \
+    Hex2EncodedLatin1, \
+    Hex4EncodedLittleEndian, \
+    Hex8EncodedLittleEndian, \
+    Hex2EncodedUtf8, \
+    Hex8EncodedBigEndian, \
+    Hex4EncodedBigEndian \
+        = range(12)
+
+# Display modes
+StopDisplay, DisplayImage1, DisplayString, DisplayImage, DisplayProcess = range(5)
+
+
 def select(condition, if_expr, else_expr):
     if condition:
         return if_expr
@@ -829,7 +851,6 @@ SalCommand()
 #
 #######################################################################
 
-StopDisplay, DisplayImage1, DisplayString, DisplayImage, DisplayProcess = range(5)
 
 class Dumper:
     def __init__(self):
@@ -933,7 +954,7 @@ class Dumper:
             self.put('value="<not available>",')
         else:
             str = encodeString(value)
-            self.put('valueencoded="%d",value="%s",' % (7, str))
+            self.put('valueencoded="%d",value="%s",' % (Hex4EncodedLittleEndian, str))
 
     def putDisplay(self, format, value = None, cmd = None):
         self.put('editformat="%s",' % format)
@@ -945,7 +966,7 @@ class Dumper:
 
     def putByteArrayValue(self, value):
         str = encodeByteArray(value)
-        self.put('valueencoded="%d",value="%s",' % (6, str))
+        self.put('valueencoded="%d",value="%s",' % (Hex2EncodedLatin1, str))
 
     def putName(self, name):
         self.put('name="%s",' % name)
@@ -1148,14 +1169,14 @@ class Dumper:
                 self.putValue(str(cleanAddress(value.address)))
             elif format == 1 or format == 2:
                 # Latin1 or UTF-8
-                f = select(format == 1, "6", "9")
+                f = select(format == 1, Hex2EncodedLatin1, Hex2EncodedUtf8)
                 self.putValue(encodeCharArray(value, 100), f)
             elif format == 3:
                 # UTF-16.
-                self.putValue(encodeChar2Array(value, 100), "11")
+                self.putValue(encodeChar2Array(value, 100), Hex4EncodedBigEndian)
             elif format == 4:
                 # UCS-4:
-                self.putValue(encodeChar4Array(value, 100), "10")
+                self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
 
             if (not isHandled) and str(type.strip_typedefs()).find("(") != -1:
                 # A function pointer.
@@ -1185,7 +1206,7 @@ class Dumper:
                     # Display values up to given length directly
                     #warn("CHAR AUTODEREF: %s" % value.address)
                     self.putType(item.value.type)
-                    self.putValue(encodeCharArray(value, 100), "6")
+                    self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
                     self.putNumChild(0)
                     isHandled = True
 
