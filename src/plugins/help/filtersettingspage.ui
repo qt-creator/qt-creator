@@ -10,6 +10,21 @@
     <height>300</height>
    </rect>
   </property>
+  <property name="toolTip">
+   <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif';&quot;&gt;The &lt;/span&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif';&quot;&gt;Filters&lt;/span&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif';&quot;&gt; page lets you create and remove documentation filters.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Arial,Geneva,Helvetica,sans-serif';&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif';&quot;&gt;To add a new filter, click the &lt;/span&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif'; font-weight:600;&quot;&gt;Add&lt;/span&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif';&quot;&gt; button, specify a filter name in the pop-up dialog and click &lt;/span&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif'; font-weight:600;&quot;&gt;OK&lt;/span&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif';&quot;&gt;, then select the filter attributes in the list box on the right hand side. You can delete a filter by selecting it and clicking the &lt;/span&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif'; font-weight:600;&quot;&gt;Remove&lt;/span&gt;&lt;span style=&quot; font-family:'Arial,Geneva,Helvetica,sans-serif';&quot;&gt; button.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;A filter is identified by its name and contains a list of filter attributes. An attribute is just a string that can be freely chosen. Attributes are defined by the documentation itself, this means that every documentation set usually has one or more attributes.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;For example, the Qt 4.7.0 Linguist documentation defines the attributes '&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;qt&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;', '&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;tools&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;' and '&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;4.7.0'&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;, Qt Designer defines &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;'designer&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;', '&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;tools&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;' and '&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;4.7.0&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;'. The filter to display all tools would then define only the attribute '&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;tools'&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; since this attribute is part of both documentation sets. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Adding the attribute '&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;qmake'&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; to the filter would then only show qmake documentation, since the Qt Designer documentation does not contain this attribute. Having an empty list of attributes in a filter will match all documentation; i.e., it is equivalent to requesting unfiltered documentation.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="mainHorizontalLayout">
@@ -20,7 +35,11 @@
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QListWidget" name="filterWidget"/>
+         <widget class="QListWidget" name="filterWidget">
+          <property name="uniformItemSizes">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -42,6 +61,12 @@
           <property name="uniformRowHeights">
            <bool>true</bool>
           </property>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
           <column>
            <property name="text">
             <string>1</string>
@@ -55,7 +80,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="buttonHorizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="filterAddButton">
        <property name="text">

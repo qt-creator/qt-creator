@@ -71,9 +71,6 @@ QWidget *FilterSettingsPage::createPage(QWidget *parent)
     QWidget *widget = new QWidget(parent);
     m_ui.setupUi(widget);
 
-    m_ui.attributeWidget->header()->hide();
-    m_ui.attributeWidget->setRootIsDecorated(false);
-
     updateFilterPage(); // does call setupData on the engine
 
     connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
