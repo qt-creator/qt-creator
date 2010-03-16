@@ -805,15 +805,13 @@ bool CheckDeclaration::visit(ObjCPropertyDeclarationAST *ast)
 
 bool CheckDeclaration::visit(QtEnumDeclarationAST *ast)
 {
-    for (NameListAST *iter = ast->enumerator_list; iter; iter = iter->next)
-        semantic()->check(iter->value, _scope);
+    checkQEnumsQFlagsNames(ast->enumerator_list, "Q_ENUMS");
     return false;
 }
 
 bool CheckDeclaration::visit(QtFlagsDeclarationAST *ast)
 {
-    for (NameListAST *iter = ast->flag_enums_list; iter; iter = iter->next)
-        semantic()->check(iter->value, _scope);
+    checkQEnumsQFlagsNames(ast->flag_enums_list, "Q_FLAGS");
     return false;
 }
 
@@ -829,4 +827,39 @@ bool CheckDeclaration::visit(QtPropertyDeclarationAST *ast)
             semantic()->check(iter->value->expression, _scope);
     }
     return false;
+}
+
+void CheckDeclaration::checkQEnumsQFlagsNames(NameListAST *nameListAst,
+                                              const char *declName)
+{
+    for (NameListAST *iter = nameListAst; iter; iter = iter->next) {
+        if (!iter)
+            continue;
+
+        const Name *name = semantic()->check(iter->value, _scope);
+        if (!name)
+            continue;
+
+        if (name->isNameId())
+            continue;
+
+        const QualifiedNameId *qName = name->asQualifiedNameId();
+        if (!qName)
+            translationUnit()->error(iter->firstToken(), "invalid name in %s",
+                                     declName);
+        else if (qName->isGlobal())
+                translationUnit()->error(iter->firstToken(),
+                                         "invalid name '%s' in %s",
+                                         qName->identifier()->chars(), declName);
+        else {
+            for (unsigned i = 0; i < qName->nameCount(); ++i) {
+                const Name *namePart = qName->nameAt(i);
+                if (!namePart || !namePart->isNameId()) {
+                    translationUnit()->error(iter->firstToken(),
+                                             "invalid name '%s' in %s",
+                                             qName->identifier()->chars(), declName);
+                }
+            }
+        }
+    }
 }

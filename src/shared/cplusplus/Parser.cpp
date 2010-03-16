@@ -1899,44 +1899,13 @@ bool Parser::parseQtEnumDeclaration(DeclarationAST *&node)
     match(T_LPAREN, &ast->lparen_token);
     for (NameListAST **iter = &ast->enumerator_list; LA() && LA() != T_RPAREN; iter = &(*iter)->next) {
         NameAST *name_ast = 0;
-        if (!parseEnumName(name_ast))
+        if (!parseName(name_ast))
             break;
         *iter = new (_pool) NameListAST;
         (*iter)->value = name_ast;
     }
     match(T_RPAREN, &ast->rparen_token);
     node = ast;
-    return true;
-}
-
-bool Parser::parseEnumName(NameAST *&node)
-{
-    DEBUG_THIS_RULE();
-
-    unsigned global_scope_token = 0;
-    if (LA() == T_COLON_COLON)
-        global_scope_token = consumeToken();
-
-    NestedNameSpecifierListAST *nested_name_specifier = 0;
-    parseNestedNameSpecifierOpt(nested_name_specifier,
-                                /*acceptTemplateId=*/ true);
-
-    unsigned identifier_token = 0;
-    match(T_IDENTIFIER, &identifier_token);
-    if (global_scope_token == 0 && nested_name_specifier == 0
-        && identifier_token == 0)
-        return false;
-
-    SimpleNameAST *name_ast = new (_pool) SimpleNameAST;
-    name_ast->identifier_token = identifier_token;
-    if (nested_name_specifier || global_scope_token) {
-        QualifiedNameAST *q_name_ast = new (_pool) QualifiedNameAST;
-        q_name_ast->nested_name_specifier_list = nested_name_specifier;
-        q_name_ast->unqualified_name = name_ast;
-        q_name_ast->global_scope_token = global_scope_token;
-    } else {
-        node = name_ast;
-    }
     return true;
 }
 
@@ -1963,7 +1932,7 @@ bool Parser::parseQtFlags(DeclarationAST *&node)
     match(T_LPAREN, &ast->lparen_token);
     for (NameListAST **iter = &ast->flag_enums_list; LA() && LA() != T_RPAREN; iter = &(*iter)->next) {
         NameAST *name_ast = 0;
-        if (!parseEnumName(name_ast))
+        if (!parseName(name_ast))
             break;
         *iter = new (_pool) NameListAST;
         (*iter)->value = name_ast;

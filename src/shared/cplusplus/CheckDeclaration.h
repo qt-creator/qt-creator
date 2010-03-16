@@ -107,6 +107,9 @@ private:
     bool checkPropertyAttribute(ObjCPropertyAttributeAST *attrAst,
                                 int &flags,
                                 int attr);
+    void checkQEnumsQFlagsNames(NameListAST *nameListAst,
+                                const char *declName);
+
 private:
     DeclarationAST *_declaration;
     Scope *_scope;
