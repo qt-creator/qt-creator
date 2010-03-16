@@ -36,6 +36,10 @@
 
 #include <texteditor/basetexteditor.h>
 
+namespace QmlJS {
+class Snapshot;
+} // namespace QmlJS
+
 namespace QmlDesigner {
 
 class CORESHARED_EXPORT BaseTextEditModifier: public PlainTextEditModifier
@@ -46,6 +50,8 @@ public:
     virtual void indent(int offset, int length);
 
     virtual int indentDepth() const;
+
+    static QmlJS::Snapshot getSnapshot();
 };
 
 } // namespace QmlDesigner
