@@ -373,6 +373,7 @@ struct Function
 
 void testFunction()
 {
+    // In order to use this, switch on the 'qDump__Function' in gdbmacros.py
     Function func("x", "sin(x)", 0, 1);
     func.max = 10;
     func.f = "cos(x)";
