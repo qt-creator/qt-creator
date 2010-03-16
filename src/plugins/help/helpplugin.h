@@ -96,7 +96,7 @@ public:
     void setFilesToRegister(const QStringList &files);
 
 public slots:
-    void pluginUpdateDocumentation();
+    void slotRegisterDocumentation();
     void handleHelpRequest(const QString &url);
 
 private slots:
@@ -134,7 +134,9 @@ private slots:
 
 private:
     void resetFilter();
-    bool updateDocumentation();
+    bool verifiyDocumentation();
+    bool registerDocumentation();
+    bool unregisterDocumentation(const QStringList &nameSpaces);
 
 private:
     QToolBar *createToolBar();

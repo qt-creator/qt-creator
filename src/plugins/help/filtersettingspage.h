@@ -30,12 +30,8 @@
 #ifndef FILTERSETTINGSPAGE_H
 #define FILTERSETTINGSPAGE_H
 
-#include <QtGui/QWidget>
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include "ui_filtersettingspage.h"
-
-QT_FORWARD_DECLARE_CLASS(QHelpEngine)
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Help {
 namespace Internal {
@@ -43,9 +39,10 @@ namespace Internal {
 class FilterSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+    typedef QMap<QString, QStringList> FilterMap;
 
 public:
-    FilterSettingsPage(QHelpEngine *helpEngine);
+    FilterSettingsPage();
 
     QString id() const;
     QString displayName() const;
@@ -54,7 +51,7 @@ public:
 
     QWidget *createPage(QWidget *parent);
     void apply();
-    void finish() { }
+    void finish() {}
     virtual bool matches(const QString &s) const;
 
     bool applyChanges();
@@ -67,13 +64,13 @@ private slots:
     void removeFilter();
 
 private:
-    QHelpEngine *m_helpEngine;
     Ui::FilterSettingsPage m_ui;
-    QMap<QString, QStringList> m_filterMapBackup;
-    QMap<QString, QStringList> m_filterMap;
-    QStringList m_removedFilters;
-    QWidget *m_currentPage;
+
+    FilterMap m_filterMap;
+    FilterMap m_filterMapBackup;
+
     QString m_searchKeywords;
+    QStringList m_removedFilters;
 };
 
 } // namespace Help

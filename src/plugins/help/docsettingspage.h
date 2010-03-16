@@ -31,12 +31,7 @@
 #define DOCSETTINGSPAGE_H
 
 #include "ui_docsettingspage.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QtGui/QWidget>
-
-QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 
 namespace Help {
 namespace Internal {
@@ -44,9 +39,10 @@ namespace Internal {
 class DocSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+    typedef QHash<QString, QString> FilesToNameSpaceHash;
 
 public:
-    DocSettingsPage(QHelpEngine *helpEngine);
+    DocSettingsPage();
 
     QString id() const;
     QString displayName() const;
@@ -55,14 +51,15 @@ public:
 
     QWidget *createPage(QWidget *parent);
     void apply();
-    void finish() { }
+    void finish() {}
     virtual bool matches(const QString &s) const;
 
-    bool applyChanges();
+    QStringList docsToRegister() const;
+    QStringList docsToUnregister() const;
 
 signals:
-    void documentationAdded();
     void dialogAccepted();
+    void documentationChanged();
 
 private slots:
     void addDocumentation();
@@ -71,13 +68,16 @@ private slots:
 private:
     bool eventFilter(QObject *object, QEvent *event);
     void removeDocumentation(const QList<QListWidgetItem*> items);
+    void addItem(const QString &nameSpace, const QString &fileName);
 
 private:
-    QHelpEngine *m_helpEngine;
-    bool m_registeredDocs;
-    QStringList m_removeDocs;
     Ui::DocSettingsPage m_ui;
+
     QString m_searchKeywords;
+    QString m_recentDialogPath;
+
+    FilesToNameSpaceHash m_filesToRegister;
+    FilesToNameSpaceHash m_filesToUnregister;
 };
 
 } // namespace Help

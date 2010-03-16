@@ -29,6 +29,7 @@
 
 #include "docsettingspage.h"
 #include "helpconstants.h"
+#include "helpmanager.h"
 
 #include <QtCore/QCoreApplication>
 
@@ -36,13 +37,11 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMessageBox>
 
-#include <QtHelp/QHelpEngine>
+#include <QtHelp/QHelpEngineCore>
 
 using namespace Help::Internal;
 
-DocSettingsPage::DocSettingsPage(QHelpEngine *helpEngine)
-    : m_helpEngine(helpEngine),
-      m_registeredDocs(false)
+DocSettingsPage::DocSettingsPage()
 {
 }
 
@@ -68,46 +67,55 @@ QString DocSettingsPage::displayCategory() const
 
 QWidget *DocSettingsPage::createPage(QWidget *parent)
 {
-    QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
+    QWidget *widget = new QWidget(parent);
+    m_ui.setupUi(widget);
 
-    connect(m_ui.addButton, SIGNAL(clicked()),
-            this, SLOT(addDocumentation()));
-    connect(m_ui.removeButton, SIGNAL(clicked()),
-            this, SLOT(removeDocumentation()));
+    connect(m_ui.addButton, SIGNAL(clicked()), this, SLOT(addDocumentation()));
+    connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(removeDocumentation()));
 
     m_ui.docsListWidget->installEventFilter(this);
-    m_ui.docsListWidget->addItems(m_helpEngine->registeredDocumentations());
-    m_registeredDocs = false;
-    m_removeDocs.clear();
+
+    QHelpEngineCore *engine = &HelpManager::helpEngineCore();
+    const QStringList &nameSpaces = engine->registeredDocumentations();
+    foreach (const QString &nameSpace, nameSpaces)
+        addItem(nameSpace, engine->documentationFileName(nameSpace));
+
+    m_filesToRegister.clear();
+    m_filesToUnregister.clear();
+
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_ui.groupBox->title();
-    return w;
+    return widget;
 }
 
 void DocSettingsPage::addDocumentation()
 {
-    QStringList files = QFileDialog::getOpenFileNames(m_ui.addButton->parentWidget(),
-                            tr("Add Documentation"),
-                            QString(), tr("Qt Help Files (*.qch)"));
+    const QStringList &files =
+        QFileDialog::getOpenFileNames(m_ui.addButton->parentWidget(),
+        tr("Add Documentation"), m_recentDialogPath, tr("Qt Help Files (*.qch)"));
 
     if (files.isEmpty())
         return;
+    m_recentDialogPath = QFileInfo(files.first()).canonicalPath();
+
+    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    const QStringList &nameSpaces = engine.registeredDocumentations();
 
     foreach (const QString &file, files) {
-        QString nsName = QHelpEngineCore::namespaceName(file);
-        if (nsName.isEmpty()) {
-            QMessageBox::warning(m_ui.addButton->parentWidget(),
-                                 tr("Add Documentation"),
-                                 tr("The file %1 is not a valid Qt Help file!")
-                                 .arg(file));
+        const QString &nameSpace = engine.namespaceName(file);
+        if (nameSpace.isEmpty())
             continue;
+
+        if (m_filesToUnregister.value(nameSpace) != QDir::cleanPath(file)) {
+            if (!m_filesToRegister.contains(nameSpace) && !nameSpaces.contains(nameSpace)) {
+                addItem(nameSpace, file);
+                m_filesToRegister.insert(nameSpace, QDir::cleanPath(file));
+            }
+        } else {
+            addItem(nameSpace, file);
+            m_filesToUnregister.remove(nameSpace);
         }
-        m_helpEngine->registerDocumentation(file);
-        m_ui.docsListWidget->addItem(nsName);
     }
-    m_registeredDocs = true;
-    emit documentationAdded();
 }
 
 void DocSettingsPage::removeDocumentation()
@@ -118,6 +126,10 @@ void DocSettingsPage::removeDocumentation()
 void DocSettingsPage::apply()
 {
     emit dialogAccepted();
+    emit documentationChanged();
+
+    m_filesToRegister.clear();
+    m_filesToUnregister.clear();
 }
 
 bool DocSettingsPage::matches(const QString &s) const
@@ -125,25 +137,14 @@ bool DocSettingsPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-bool DocSettingsPage::applyChanges()
+QStringList DocSettingsPage::docsToRegister() const
 {
-    QStringList::const_iterator it = m_removeDocs.constBegin();
-    while (it != m_removeDocs.constEnd()) {
-        if (!m_helpEngine->unregisterDocumentation((*it))) {
-            QMessageBox::warning(m_ui.addButton->parentWidget(),
-                tr("Documentation"),
-                tr("Cannot unregister documentation file %1!")
-                .arg((*it)));
-        }
-        ++it;
-    }
+    return m_filesToRegister.values();
+}
 
-    bool success = m_registeredDocs || m_removeDocs.count();
-
-    m_removeDocs.clear();
-    m_registeredDocs = false;
-
-    return success;
+QStringList DocSettingsPage::docsToUnregister() const
+{
+    return m_filesToUnregister.keys();
 }
 
 bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
@@ -170,12 +171,29 @@ void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
         return;
 
     int row = 0;
+    QHelpEngineCore *engine = &HelpManager::helpEngineCore();
     foreach (QListWidgetItem* item, items) {
-        m_removeDocs.append(item->text());
+        const QString &nameSpace = item->text();
+        const QString &docPath = engine->documentationFileName(nameSpace);
+
+        if (m_filesToRegister.value(nameSpace) != docPath) {
+            if (!m_filesToUnregister.contains(nameSpace))
+                m_filesToUnregister.insert(nameSpace, docPath);
+        } else {
+            m_filesToRegister.remove(nameSpace);
+        }
+
         row = m_ui.docsListWidget->row(item);
         delete m_ui.docsListWidget->takeItem(row);
     }
 
     m_ui.docsListWidget->setCurrentRow(qMax(row - 1, 0),
         QItemSelectionModel::ClearAndSelect);
+}
+
+void DocSettingsPage::addItem(const QString &nameSpace, const QString &fileName)
+{
+    QListWidgetItem* item = new QListWidgetItem(nameSpace);
+    item->setToolTip(fileName);
+    m_ui.docsListWidget->addItem(item);
 }

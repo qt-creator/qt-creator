@@ -146,28 +146,20 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     //webSettings->setFontSize(QWebSettings::DefaultFontSize, applicationFont.pointSize());
 #endif
 
-    // FIXME shouldn't the help engine create the directory if it doesn't exist?
-    const QFileInfo &fi(m_core->settings()->fileName());
-    const QDir directory(fi.absolutePath() + QLatin1String("/qtcreator"));
-    if (!directory.exists())
-        directory.mkpath(directory.absolutePath());
-    m_helpEngine = new QHelpEngine(directory.absolutePath() +
-        QLatin1String("/helpcollection.qhc"), this);
-    m_helpEngine->setAutoSaveFilter(false);
+    addAutoReleasedObject(helpManager = new HelpManager(this));
+    addAutoReleasedObject(m_docSettingsPage = new DocSettingsPage());
+    addAutoReleasedObject(m_filterSettingsPage = new FilterSettingsPage());
 
-    helpManager = new HelpManager(this);
-    addAutoReleasedObject(helpManager);
-
-    m_filterSettingsPage = new FilterSettingsPage(m_helpEngine);
-    addAutoReleasedObject(m_filterSettingsPage);
-
-    m_docSettingsPage = new DocSettingsPage(m_helpEngine);
-    addAutoReleasedObject(m_docSettingsPage);
-
-    connect(m_docSettingsPage, SIGNAL(documentationAdded()),
+    connect(m_docSettingsPage, SIGNAL(documentationChanged()),
         m_filterSettingsPage, SLOT(updateFilterPage()));
     connect(m_docSettingsPage, SIGNAL(dialogAccepted()), this,
         SLOT(checkForHelpChanges()));
+    connect(helpManager, SIGNAL(registerDocumentation()), this,
+        SLOT(slotRegisterDocumentation()));
+
+    // force a block here to avoid the expensive indexing restart signal, etc...
+    m_helpEngine = new QHelpEngine("", this);
+    m_helpEngine->blockSignals(true);
 
     m_contentWidget = new ContentWindow(m_helpEngine);
     m_contentWidget->setWindowTitle(tr("Contents"));
@@ -414,10 +406,12 @@ void HelpPlugin::setFilesToRegister(const QStringList &files)
     filesToRegister += files;
 }
 
-void HelpPlugin::pluginUpdateDocumentation()
+void HelpPlugin::slotRegisterDocumentation()
 {
-    if (isInitialised)
-        updateDocumentation();
+    if (isInitialised) {
+        if (registerDocumentation())
+            m_helpEngine->setupData();
+    }
 }
 
 void HelpPlugin::resetFilter()
@@ -441,24 +435,24 @@ void HelpPlugin::resetFilter()
     m_helpEngine->setCurrentFilter(filterName);
 }
 
-bool HelpPlugin::updateDocumentation()
+bool HelpPlugin::verifiyDocumentation()
 {
-    bool needsSetup = false;
+    QStringList nameSpacesToUnregister;
     const QStringList &registeredDocs = m_helpEngine->registeredDocumentations();
     foreach (const QString &nameSpace, registeredDocs) {
         const QString &file = m_helpEngine->documentationFileName(nameSpace);
-        if (QFileInfo(file).exists())
-            continue;
-
-        if (!m_helpEngine->unregisterDocumentation(nameSpace)) {
-            qWarning() << "Error unregistering namespace '"
-                << nameSpace << "' from file '" << file << "': "
-                << m_helpEngine->error();
-        } else {
-            needsSetup = true;
-        }
+        if (!QFileInfo(file).exists())
+            nameSpacesToUnregister.append(nameSpace);
     }
 
+    if (!nameSpacesToUnregister.isEmpty())
+        return unregisterDocumentation(nameSpacesToUnregister);
+    return false;
+}
+
+bool HelpPlugin::registerDocumentation()
+{
+    bool needsSetup = false;
     foreach (const QString &file, filesToRegister) {
         const QString &nameSpace = m_helpEngine->namespaceName(file);
         if (nameSpace.isEmpty())
@@ -467,14 +461,27 @@ bool HelpPlugin::updateDocumentation()
             if (m_helpEngine->registerDocumentation(file)) {
                 needsSetup = true;
             } else {
-                qWarning() << "error registering" << file << m_helpEngine->error();
+                qWarning() << "Error registering namespace '" << nameSpace
+                    << "' from file '" << file << "':" << m_helpEngine->error();
             }
         }
     }
     filesToRegister.clear();
+    return needsSetup;
+}
 
-    if (needsSetup)
-        m_helpEngine->setupData();
+bool HelpPlugin::unregisterDocumentation(const QStringList &nameSpaces)
+{
+    bool needsSetup = false;
+    foreach (const QString &nameSpace, nameSpaces) {
+        const QString &file = m_helpEngine->documentationFileName(nameSpace);
+        if (m_helpEngine->unregisterDocumentation(nameSpace)) {
+            needsSetup = true;
+        } else {
+            qWarning() << "Error unregistering namespace '" << nameSpace
+                << "' from file '" << file << "': " << m_helpEngine->error();
+        }
+    }
     return needsSetup;
 }
 
@@ -607,13 +614,8 @@ void HelpPlugin::extensionsInitialized()
 {
     m_sideBar->readSettings(m_core->settings(), QLatin1String("HelpSideBar"));
 
-    // force a block here to avoid the expensive indexing restart signal, etc...
-    bool blocked = m_helpEngine->blockSignals(true);
-    if (!m_helpEngine->setupData()) {
-        m_helpEngine->blockSignals(blocked);
-        qWarning() << "Could not initialize help engine: " << m_helpEngine->error();
-        return;
-    }
+    m_helpEngine->setCollectionFile(HelpManager::collectionFilePath());
+    m_helpEngine->setAutoSaveFilter(false);
 
     const QString &docInternal = QString::fromLatin1("com.nokia.qtcreator.%1%2%3")
         .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
@@ -638,21 +640,6 @@ void HelpPlugin::extensionsInitialized()
             m_helpEngine->removeCustomFilter(filter);
     }
 
-
-    m_helpEngine->blockSignals(blocked);
-
-    connect(m_helpEngine, SIGNAL(setupFinished()), this,
-        SLOT(updateFilterComboBox()));
-
-    // explicit disconnect the full text search indexer, we connect and start
-    // it later once we really need it, e.g. the full text search is opened...
-    disconnect(m_helpEngine, SIGNAL(setupFinished()), m_helpEngine->searchEngine(),
-        SLOT(indexDocumentation()));
-    connect(m_helpEngine->searchEngine(), SIGNAL(indexingStarted()), this,
-        SLOT(indexingStarted()));
-    connect(m_helpEngine->searchEngine(), SIGNAL(indexingFinished()), this,
-        SLOT(indexingFinished()));
-
     // Explicitly register qml.qch if located in creator directory. This is only
     // needed for the creator-qml package, were we want to ship the documentation
     // without a qt development version.
@@ -674,11 +661,9 @@ void HelpPlugin::extensionsInitialized()
         filesToRegister += addedDocs.split(QLatin1Char(';'));
     }
 
-    if (!updateDocumentation()) {
-        // if no documentation has been added, we need to force a setup data,
-        // otherwise it has already been run in updateDocumentation
-        m_helpEngine->setupData();
-    }
+    verifiyDocumentation();
+    registerDocumentation();
+    m_bookmarkManager->setupBookmarkModels();
 
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
@@ -704,10 +689,20 @@ void HelpPlugin::extensionsInitialized()
     connect(m_centralWidget, SIGNAL(viewerAboutToBeRemoved(int)), this,
         SLOT(removeViewerFromComboBox(int)));
 
-    connect(helpManager, SIGNAL(registerDocumentation()), this,
-        SLOT(pluginUpdateDocumentation()));
+    // explicit disconnect the full text search indexer, we connect and start
+    // it later once we really need it, e.g. the full text search is opened...
+    disconnect(m_helpEngine, SIGNAL(setupFinished()), m_helpEngine->searchEngine(),
+        SLOT(indexDocumentation()));
 
-    isInitialised = true;
+    connect(m_helpEngine, SIGNAL(setupFinished()), this,
+        SLOT(updateFilterComboBox()));
+    connect(m_helpEngine->searchEngine(), SIGNAL(indexingStarted()), this,
+        SLOT(indexingStarted()));
+    connect(m_helpEngine->searchEngine(), SIGNAL(indexingFinished()), this,
+        SLOT(indexingFinished()));
+
+    isInitialised = true;   // helper for slotRegisterDocumentation()
+    m_helpEngine->blockSignals(false);  // blocked in initialize()
 }
 
 void HelpPlugin::shutdown()
@@ -736,10 +731,13 @@ void HelpPlugin::modeChanged(Core::IMode *mode)
         qApp->setOverrideCursor(Qt::WaitCursor);
 
         resetFilter();
-        m_centralWidget->setLastShownPages();
+        m_helpEngine->setupData();
         connect(m_helpEngine, SIGNAL(setupFinished()), m_helpEngine->searchEngine(),
             SLOT(indexDocumentation()));
         QMetaObject::invokeMethod(m_helpEngine, "setupFinished", Qt::QueuedConnection);
+
+        m_centralWidget->setLastShownPages();
+
         qApp->restoreOverrideCursor();
     }
 }
@@ -979,8 +977,9 @@ void HelpPlugin::updateFilterComboBox()
 
 void HelpPlugin::checkForHelpChanges()
 {
-    bool changed = m_docSettingsPage->applyChanges();
-    changed |= m_filterSettingsPage->applyChanges();
+    bool changed = unregisterDocumentation(m_docSettingsPage->docsToUnregister());
+    filesToRegister += m_docSettingsPage->docsToRegister();
+    changed |= registerDocumentation();
     if (changed)
         m_helpEngine->setupData();
 }
