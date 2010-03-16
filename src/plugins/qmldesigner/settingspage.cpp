@@ -38,6 +38,8 @@
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
+enum EditModeCombo { EditModeDesign, EditModeEdit };
+
 SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
@@ -51,6 +53,7 @@ DesignerSettings SettingsPageWidget::settings() const
     ds.showBoundingRectangles = m_ui.showBoundingRectanglesCheckbox->isChecked();
     ds.onlyShowItemsWithContents =
             m_ui.onlyShowItemsWithContentsCheckBox->isChecked();
+    ds.openDesignMode = m_ui.editorModeComboBox->currentIndex() == EditModeDesign;
     return ds;
 }
 
@@ -59,6 +62,7 @@ void SettingsPageWidget::setSettings(const DesignerSettings &s)
     m_ui.snapToGridCheckbox->setChecked(s.snapToGrid);
     m_ui.showBoundingRectanglesCheckbox->setChecked(s.showBoundingRectangles);
     m_ui.onlyShowItemsWithContentsCheckBox->setChecked(s.onlyShowItemsWithContents);
+    m_ui.editorModeComboBox->setCurrentIndex(s.openDesignMode ? EditModeDesign : EditModeEdit);
 }
 
 QString SettingsPageWidget::searchKeywords() const

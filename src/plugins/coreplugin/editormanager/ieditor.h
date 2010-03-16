@@ -65,6 +65,8 @@ public:
 
     virtual QWidget *toolBar() = 0;
 
+    virtual QString preferredMode() const { return QString(); }
+
 signals:
     void changed();
 };

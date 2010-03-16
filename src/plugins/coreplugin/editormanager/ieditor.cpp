@@ -48,6 +48,8 @@
      (so /bold{not} every time the document changes, but /bold{only once}).
   \o If duplication is supported, you need to ensure that all duplicates
         return the same file().
+  \o QString preferredMode() const is the mode the editor manager should activate.
+     Some editors use a special mode (such as Design mode).
   \endlist
 
   \sa Core::EditorFactoryInterface Core::IContext

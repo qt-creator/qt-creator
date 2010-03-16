@@ -204,7 +204,6 @@ void BauhausPlugin::createDesignModeWidget()
                                             Core::Constants::PASTE, m_context->context());
     command->setDefaultKeySequence(QKeySequence::Paste);
     editMenu->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
-    Core::ModeManager *modeManager = creatorCore->modeManager();
 
     command = actionManager->registerAction(m_mainWidget->selectAllAction(),
                                             Core::Constants::SELECTALL, m_context->context());
@@ -222,9 +221,6 @@ void BauhausPlugin::createDesignModeWidget()
     connect(m_editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateEditor(Core::IEditor*)));
 
-    connect(modeManager, SIGNAL(currentModeChanged(Core::IMode*)),
-            this, SLOT(modeChanged(Core::IMode*)));
-
     connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(textEditorsClosed(QList<Core::IEditor*>)));
 
@@ -237,19 +233,6 @@ void BauhausPlugin::updateEditor(Core::IEditor *editor)
         && creatorCore->modeManager()->currentMode() == m_designMode)
     {
         m_mainWidget->showEditor(editor);
-    }
-}
-
-void BauhausPlugin::modeChanged(Core::IMode *mode)
-{
-    if (mode == m_designMode) {
-        m_isActive = true;
-        m_mainWidget->showEditor(m_editorManager->currentEditor());
-    } else {
-        if (m_isActive) {
-            m_isActive = false;
-            m_mainWidget->showEditor(0);
-        }
     }
 }
 

@@ -88,6 +88,8 @@ public:
 
     virtual QWidget *toolBar();
 
+    virtual  QString preferredMode() const;
+
     // IContext
     virtual QList<int> context() const;
     virtual QWidget *widget();

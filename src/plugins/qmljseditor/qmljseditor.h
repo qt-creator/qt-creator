@@ -69,11 +69,11 @@ public:
     QString id() const;
     bool isTemporary() const { return false; }
     virtual bool open(const QString & fileName);
+    virtual QString preferredMode() const;
 
 private:
     QList<int> m_context;
 };
-
 
 struct Declaration
 {

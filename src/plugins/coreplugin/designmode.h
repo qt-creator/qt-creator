@@ -78,6 +78,9 @@ public:
     void registerDesignWidget(QWidget *widget, const QStringList &mimeTypes,
                               bool preferDesignMode = false);
     void unregisterDesignWidget(QWidget *widget);
+
+    QStringList registeredMimeTypes() const;
+
     // IContext
     QList<int> context() const;
     QWidget *widget();

@@ -715,8 +715,6 @@ void FormEditorW::currentEditorChanged(Core::IEditor *editor)
         m_fwm->setActiveFormWindow(fw->formWindow());
         m_actionGroupEditMode->setVisible(true);
         m_modeActionSeparator->setVisible(true);
-        // Now switch to design mode.
-        m_core->modeManager()->activateMode(QLatin1String(Core::Constants::MODE_DESIGN));
     } else {
         // Deactivate Designer if a non-form is being edited
         m_actionGroupEditMode->setVisible(false);

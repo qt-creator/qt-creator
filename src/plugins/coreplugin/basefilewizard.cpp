@@ -580,7 +580,6 @@ bool BaseFileWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l
             return false;
         }
     }
-    em->ensureEditorManagerVisible();
     return true;
 }
 

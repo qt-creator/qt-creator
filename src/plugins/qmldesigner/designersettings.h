@@ -50,6 +50,7 @@ struct DesignerSettings {
     bool snapToGrid;
     bool showBoundingRectangles;
     bool onlyShowItemsWithContents;
+    bool openDesignMode;
 };
 
 inline bool operator==(const DesignerSettings &s1, const DesignerSettings &s2)

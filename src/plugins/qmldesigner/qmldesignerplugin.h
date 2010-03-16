@@ -81,7 +81,6 @@ public:
 private slots:
 
     void switchTextDesign();
-    void modeChanged(Core::IMode *mode);
     void textEditorsClosed(QList<Core::IEditor *> editors);
     void updateActions(Core::IEditor* editor);
     void updateEditor(Core::IEditor *editor);

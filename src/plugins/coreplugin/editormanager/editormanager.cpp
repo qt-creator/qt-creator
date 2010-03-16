@@ -928,8 +928,14 @@ Core::IEditor *EditorManager::activateEditor(Core::Internal::EditorView *view, C
 
     if (!(flags & NoActivate)) {
         setCurrentEditor(editor, (flags & IgnoreNavigationHistory));
-        if (!(flags & NoModeSwitch))
-            ensureEditorManagerVisible();
+        if (!(flags & NoModeSwitch)) {
+            const QString preferredMode = editor->preferredMode();
+            if (preferredMode.isEmpty() || preferredMode == Core::Constants::MODE_EDIT) {
+                ensureEditorManagerVisible();
+            } else {
+                ModeManager::instance()->activateMode(preferredMode);
+            }
+        }
         if (isVisible())
             editor->widget()->setFocus();
     }

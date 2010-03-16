@@ -45,6 +45,9 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/modemanager.h>
+#include <coreplugin/designmode.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -53,7 +56,7 @@
 #include <texteditor/textblockiterator.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
-
+#include <qmldesigner/qmldesignerconstants.h>
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
 
@@ -572,6 +575,36 @@ QmlJSEditorEditable::QmlJSEditorEditable(QmlJSTextEditor *editor)
     Core::UniqueIDManager *uidm = Core::UniqueIDManager::instance();
     m_context << uidm->uniqueIdentifier(QmlJSEditor::Constants::C_QMLJSEDITOR_ID);
     m_context << uidm->uniqueIdentifier(TextEditor::Constants::C_TEXTEDITOR);
+}
+
+// Use preferred mode from Bauhaus settings
+static bool openInDesignMode()
+{
+    static bool bauhausDetected = false;
+    static bool bauhausPresent = false;
+    // Check if Bauhaus is loaded, that is, a Design mode widget is
+    // registered for the QML mime type.
+    if (!bauhausDetected) {
+        if (const Core::IMode *dm = Core::ModeManager::instance()->mode(QLatin1String(Core::Constants::MODE_DESIGN)))
+            if (const Core::DesignMode *designMode = qobject_cast<const Core::DesignMode *>(dm))
+                bauhausPresent = designMode->registeredMimeTypes().contains(QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE));
+        bauhausDetected =  true;
+    }
+    if (!bauhausPresent)
+        return false;
+    // Query the bauhaus setting if it wants to be opened in Design mode.
+    const QString settingsKey = QLatin1String(QmlDesigner::Constants::QML_SETTINGS_GROUP)
+                                + QLatin1Char('/') + QLatin1String(QmlDesigner::Constants::QML_DESIGNER_SETTINGS_GROUP)
+                                + QLatin1Char('/') + QLatin1String(QmlDesigner::Constants::QML_OPENDESIGNMODE_SETTINGS_KEY);
+    const QVariant openDesignMode = Core::ICore::instance()->settings()->value(settingsKey);
+    return openDesignMode.isValid() ? openDesignMode.toBool() : bool(QmlDesigner::Constants::QML_OPENDESIGNMODE_DEFAULT);
+}
+
+QString QmlJSEditorEditable::preferredMode() const
+{
+    if (openInDesignMode())
+        return QLatin1String(Core::Constants::MODE_DESIGN);
+    return QString();
 }
 
 QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :

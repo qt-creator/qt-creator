@@ -30,8 +30,6 @@
 #ifndef QMLDESIGNERPLUGIN_CONSTANTS_H
 #define QMLDESIGNERPLUGIN_CONSTANTS_H
 
-#include <coreplugin/coreconstants.h>
-
 namespace QmlDesigner {
 namespace Constants {
 
@@ -46,10 +44,15 @@ const char * const SWITCH_TEXT_DESIGN   = "QmlDesigner.SwitchTextDesign";
 
 // mode
 const char * const DESIGN_MODE_NAME     = "Design";
-const int DESIGN_MODE_PRIORITY          = Core::Constants::P_MODE_EDIT - 1;
 
 // Wizard type
 const char * const FORM_MIMETYPE        = "application/x-qmldesigner";
+
+// This setting is also accessed by the QMlJsEditor.
+const char * const QML_SETTINGS_GROUP = "Qml";
+const char * const QML_DESIGNER_SETTINGS_GROUP = "Designer";
+const char * const QML_OPENDESIGNMODE_SETTINGS_KEY = "OpenDesignMode";
+enum { QML_OPENDESIGNMODE_DEFAULT = 1 };
 
 namespace Internal {
     enum { debug = 0 };

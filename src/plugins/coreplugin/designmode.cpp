@@ -127,6 +127,14 @@ QString DesignMode::id() const
     return QLatin1String(Constants::MODE_DESIGN);
 }
 
+QStringList DesignMode::registeredMimeTypes() const
+{
+    QStringList rc;
+    foreach(const DesignEditorInfo *i, m_editors)
+        rc += i->mimeTypes;
+    return rc;
+}
+
 void DesignMode::registerDesignWidget(QWidget *widget, const QStringList &mimeTypes, bool preferDesignMode)
 {
     int index = m_stackWidget->addWidget(widget);
