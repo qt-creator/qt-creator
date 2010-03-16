@@ -39,11 +39,10 @@ QT_BEGIN_NAMESPACE
 class QPalette;
 class QPainter;
 class QRect;
-QT_END_NAMESPACE
-
 // Note, this is exported but in a private header as qtopengl depends on it.
 // We should consider adding this as a public helper function.
-extern void qt_blurImage(QPainter *p, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0);
+void qt_blurImage(QPainter *p, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0);
+QT_END_NAMESPACE
 
 // Helper class holding all custom color values
 
