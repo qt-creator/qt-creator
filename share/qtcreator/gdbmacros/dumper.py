@@ -676,6 +676,7 @@ class FrameCommand(gdb.Command):
         # Locals
         #
         for item in listOfLocals(varList):
+            d.anonNumber = -1
             #warn("ITEM NAME %s: " % item.name)
             try:
                 #warn("ITEM VALUE %s: " % item.value)
@@ -779,19 +780,19 @@ class FrameCommand(gdb.Command):
 
 
     def handleWatch(self, d, exp, iname):
+        exp = str(exp)
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
-        if exp.startswith("["):
-            warn("EVAL: EXP: %s" % exp)
+        if exp.startswith("[") and exp.endswith("]"):
+            #warn("EVAL: EXP: %s" % exp)
             d.beginHash()
-            d.put('iname="%s",' % iname)
-            d.put('name="%s",' % exp)
-            d.put('exp="%s",' % exp)
+            d.putField("iname", iname)
+            d.putField("name", exp)
+            d.putField("exp", exp)
             try:
                 list = eval(exp)
-                #warn("EVAL: LIST: %s" % list)
-                d.put('value=" "')
-                d.put('type=" "')
-                d.put('numchild="%d"' % len(list))
+                d.putValue("")
+                d.putType(" ")
+                d.putNumChild(len(list))
                 # This is a list of expressions to evaluate
                 d.beginChildren(len(list))
                 itemNumber = 0
@@ -801,28 +802,28 @@ class FrameCommand(gdb.Command):
                 d.endChildren()
             except:
                 warn("EVAL: ERROR CAUGHT")
-                d.put('value="<syntax error>"')
-                d.put('type=" "')
-                d.put('numchild="0"')
+                d.putValue("<syntax error>")
+                d.putType(" ")
+                d.putNumChild(0)
                 d.beginChildren(0)
                 d.endChildren()
             d.endHash()
             return
 
         d.beginHash()
-        d.put('iname="%s",' % iname)
-        d.put('name="%s",' % exp)
-        d.put('exp="%s",' % exp)
+        d.putField("iname", iname)
+        d.putField("name", exp)
+        d.putField("exp", exp)
         handled = False
         if exp == "<Edit>":
-            d.put('value=" ",type=" ",numchild="0",')
+            d.putValue('value=" ",type=" ",numchild="0",')
         else:
-            try:
+                #try:
                 value = parseAndEvaluate(exp)
                 item = Item(value, iname, None, None)
                 d.putItemHelper(item)
-            except RuntimeError:
-                d.put('value="<invalid>",type="<unknown>",numchild="0",')
+                #except RuntimeError:
+                #d.put('value="<invalid>",type="<unknown>",numchild="0",')
         d.endHash()
 
 
@@ -1254,6 +1255,16 @@ class Dumper:
                           Item(item.value.dereference(), item.iname, "*", "*"))
                     self.endChildren()
 
+        elif str(type).startswith("<anon"):
+            # Anonymous union. We need a dummy name to distinguish
+            # multiple anonymous unions in the struct.
+            self.putType(item.value.type)
+            self.putValue("{...}")
+            self.anonNumber += 1
+            self.beginChildren(1)
+            self.listAnonymous(item, "#%d" % self.anonNumber, type)
+            self.endChildren()
+
         else:
             #warn("GENERIC STRUCT: %s" % item.value.type)
             #warn("INAME: %s " % item.iname)
@@ -1292,7 +1303,6 @@ class Dumper:
                 self.beginChildren(1, innerType)
 
                 baseNumber = 0
-                anonNumber = 0
                 for field in fields:
                     #warn("FIELD: %s" % field)
                     #warn("  BITSIZE: %s" % field.bitsize)
@@ -1329,8 +1339,8 @@ class Dumper:
                     elif len(field.name) == 0:
                         # Anonymous union. We need a dummy name to distinguish
                         # multiple anonymous unions in the struct.
-                        anonNumber += 1
-                        self.listAnonymous(item, "#%d" % anonNumber, field.type)
+                        self.anonNumber += 1
+                        self.listAnonymous(item, "#%d" % self.anonNumber, field.type)
                     else:
                         # Named field.
                         self.beginHash()
@@ -1342,8 +1352,8 @@ class Dumper:
                 self.endChildren()
 
     def listAnonymous(self, item, name, type):
-        anonNumber = 0
         for field in type.fields():
+            warn("FIELD NAME: %s" % field.name)
             if len(field.name) > 0:
                 value = item.value[field.name]
                 child = Item(value, item.iname, field.name, field.name)
@@ -1353,8 +1363,8 @@ class Dumper:
                 self.endHash();
             else:
                 # Further nested.
-                anonNumber += 1
-                name = "#%d" % anonNumber
+                self.anonNumber += 1
+                name = "#%d" % self.anonNumber
                 iname = "%s.%s" % (item.iname, name)
                 child = Item(item.value, iname, None, name)
                 self.beginHash()
