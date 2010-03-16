@@ -775,6 +775,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
     const WatchItem &data = *item;
 
     switch (role) {
+        case Qt::EditRole:
         case Qt::DisplayRole: {
             switch (idx.column()) {
                 case 0:

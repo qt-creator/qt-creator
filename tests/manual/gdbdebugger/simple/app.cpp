@@ -221,7 +221,45 @@ struct TestAnonymous
     };
 };
 
-// union { struct { int a; }; struct { int b; }; };
+
+void testPeekAndPoke3()
+{
+    // Anonymous structs
+    {
+        union {
+            struct { int i; int b; };
+            struct { float f; };
+            double d;
+        } a = { 42, 43 };
+        a.i = 1; // Break here. Expand a. Step.
+        a.i = 2; // Change a.i in Locals view to 0. This changes f, d but expectedly not b. Step.
+        a.i = 3; // Continue.
+    }
+
+    // QImage display
+    {
+        QImage im(QSize(200, 200), QImage::Format_RGB32);
+        im.fill(QColor(200, 100, 130).rgba());
+        QPainter pain;
+        pain.begin(&im);
+        pain.drawLine(2, 2, 130, 130); // Break here.
+        // Toggle between "Normal" and "Displayed" in L&W Context Menu, entry "Display of Type QImage". Step.
+        pain.drawLine(4, 2, 130, 140); // Step.
+        pain.drawRect(30, 30, 80, 80);
+        pain.end();
+    }
+
+    // Complex watchers
+    {
+        struct S { int a; double b; } s[10];
+        for (int i = 0; i != 10; ++i) {
+            s[i].a = i;  // Break here. Expand s and s[0]. Step.
+            // Watcher Context: "Add New Watcher".
+            // Type    ['s[%d].a' % i for i in range(5)]
+            // Expand it, continue stepping.
+        }
+    }
+}
 
 void testAnonymous()
 {
@@ -1465,6 +1503,7 @@ int testReference()
 
 int main(int argc, char *argv[])
 {
+    testPeekAndPoke3();
     testFunctionPointer();
     testAnonymous();
     testReference();
