@@ -140,7 +140,7 @@ private:
 
 private:
     QToolBar *createToolBar();
-    void createRightPaneSideBar();
+    void createRightPaneContextViewer();
     void activateHelpMode();
     HelpViewer* viewerForContextMode();
 

@@ -485,7 +485,7 @@ bool HelpPlugin::unregisterDocumentation(const QStringList &nameSpaces)
     return needsSetup;
 }
 
-void HelpPlugin::createRightPaneSideBar()
+void HelpPlugin::createRightPaneContextViewer()
 {
     if (m_helpViewerForSideBar)
         return;
@@ -855,10 +855,12 @@ HelpViewer* HelpPlugin::viewerForContextMode()
     HelpViewer *viewer = m_centralWidget->currentHelpViewer();
     if (placeHolder && showSideBySide) {
         RightPaneWidget::instance()->setShown(true);
+
+        createRightPaneContextViewer();
         viewer = m_helpViewerForSideBar;
     } else {
         activateHelpMode();
-        if (!viewer && m_centralWidget)
+        if (!viewer)
             viewer = m_centralWidget->newEmptyTab();
     }
     return viewer;
@@ -867,9 +869,7 @@ HelpViewer* HelpPlugin::viewerForContextMode()
 void HelpPlugin::activateContext()
 {
     using namespace Core;
-
-    if (!m_helpViewerForSideBar)
-        createRightPaneSideBar();
+    createRightPaneContextViewer();
 
     RightPanePlaceHolder* placeHolder = RightPanePlaceHolder::current();
     if (placeHolder && m_helpViewerForSideBar->hasFocus()) {
