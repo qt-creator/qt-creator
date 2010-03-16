@@ -63,11 +63,6 @@ class BuildConfiguration;
 // run() is run via QtConccurrent in a own thread, if you need an
 // eventloop you need to create it yourself!
 //
-// You can use setValue() to store settings which a specific
-// to your buildstep. (You can set settings to apply only
-// to one buildconfiguration.
-// And later retrieve the same information with value()
-
 */
 
 class BuildStepConfigWidget;
