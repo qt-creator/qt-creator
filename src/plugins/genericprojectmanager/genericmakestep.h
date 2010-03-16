@@ -113,19 +113,27 @@ public:
     explicit GenericMakeStepFactory(QObject *parent = 0);
     virtual ~GenericMakeStepFactory();
 
-    virtual bool canCreate(ProjectExplorer::BuildConfiguration *parent, const QString &id) const;
+    virtual bool canCreate(ProjectExplorer::BuildConfiguration *parent,
+                           ProjectExplorer::StepType type,
+                           const QString &id) const;
     virtual ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent,
+                                               ProjectExplorer::StepType type,
                                                const QString &id);
     virtual bool canClone(ProjectExplorer::BuildConfiguration *parent,
+                          ProjectExplorer::StepType type,
                           ProjectExplorer::BuildStep *source) const;
     virtual ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent,
+                                              ProjectExplorer::StepType type,
                                               ProjectExplorer::BuildStep *source);
     virtual bool canRestore(ProjectExplorer::BuildConfiguration *parent,
+                            ProjectExplorer::StepType type,
                             const QVariantMap &map) const;
     virtual ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent,
+                                                ProjectExplorer::StepType type,
                                                 const QVariantMap &map);
 
-    virtual QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc) const;
+    virtual QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc,
+                                             ProjectExplorer::StepType type) const;
     virtual QString displayNameForId(const QString &id) const;
 };
 

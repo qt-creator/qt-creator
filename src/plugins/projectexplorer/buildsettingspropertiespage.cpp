@@ -292,8 +292,8 @@ void BuildSettingsWidget::updateBuildSettings()
     BuildConfigWidget *generalConfigWidget = m_target->project()->createConfigWidget();
     addSubWidget(generalConfigWidget->displayName(), generalConfigWidget);
 
-    addSubWidget(tr("Build Steps"), new BuildStepsPage(m_target, false));
-    addSubWidget(tr("Clean Steps"), new BuildStepsPage(m_target, true));
+    addSubWidget(tr("Build Steps"), new BuildStepsPage(m_target, Build));
+    addSubWidget(tr("Clean Steps"), new BuildStepsPage(m_target, Clean));
 
     QList<BuildConfigWidget *> subConfigWidgets = m_target->project()->subConfigWidgets();
     foreach (BuildConfigWidget *subConfigWidget, subConfigWidgets)

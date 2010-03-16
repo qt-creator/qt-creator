@@ -185,40 +185,41 @@ ProcessStepFactory::~ProcessStepFactory()
 {
 }
 
-bool ProcessStepFactory::canCreate(BuildConfiguration *parent, const QString &id) const
+bool ProcessStepFactory::canCreate(BuildConfiguration *parent, StepType type, const QString &id) const
 {
     Q_UNUSED(parent);
+    Q_UNUSED(type);
     return id == QLatin1String(PROCESS_STEP_ID);
 }
 
-BuildStep *ProcessStepFactory::create(BuildConfiguration *parent, const QString &id)
+BuildStep *ProcessStepFactory::create(BuildConfiguration *parent, StepType type, const QString &id)
 {
-    if (!canCreate(parent, id))
+    if (!canCreate(parent, type, id))
         return 0;
     return new ProcessStep(parent);
 }
 
-bool ProcessStepFactory::canClone(BuildConfiguration *parent, BuildStep *bs) const
+bool ProcessStepFactory::canClone(BuildConfiguration *parent, StepType type, BuildStep *bs) const
 {
-    return canCreate(parent, bs->id());
+    return canCreate(parent, type, bs->id());
 }
 
-BuildStep *ProcessStepFactory::clone(BuildConfiguration *parent, BuildStep *bs)
+BuildStep *ProcessStepFactory::clone(BuildConfiguration *parent, StepType type, BuildStep *bs)
 {
-    if (!canClone(parent, bs))
+    if (!canClone(parent, type, bs))
         return 0;
     return new ProcessStep(parent, static_cast<ProcessStep *>(bs));
 }
 
-bool ProcessStepFactory::canRestore(BuildConfiguration *parent, const QVariantMap &map) const
+bool ProcessStepFactory::canRestore(BuildConfiguration *parent, StepType type, const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, id);
+    return canCreate(parent, type, id);
 }
 
-BuildStep *ProcessStepFactory::restore(BuildConfiguration *parent, const QVariantMap &map)
+BuildStep *ProcessStepFactory::restore(BuildConfiguration *parent, StepType type, const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
+    if (!canRestore(parent, type, map))
         return 0;
 
     ProcessStep *bs(new ProcessStep(parent));
@@ -228,9 +229,10 @@ BuildStep *ProcessStepFactory::restore(BuildConfiguration *parent, const QVarian
     return 0;
 }
 
-QStringList ProcessStepFactory::availableCreationIds(BuildConfiguration *parent) const
+QStringList ProcessStepFactory::availableCreationIds(BuildConfiguration *parent, StepType type) const
 {
-    Q_UNUSED(parent)
+    Q_UNUSED(parent);
+    Q_UNUSED(type);
     return QStringList() << QLatin1String(PROCESS_STEP_ID);
 }
 QString ProcessStepFactory::displayNameForId(const QString &id) const

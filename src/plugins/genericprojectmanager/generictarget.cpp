@@ -137,7 +137,7 @@ GenericTarget *GenericTargetFactory::create(ProjectExplorer::Project *parent, co
     bc->setDisplayName("all");
 
     GenericMakeStep *makeStep = new GenericMakeStep(bc);
-    bc->insertBuildStep(0, makeStep);
+    bc->insertStep(ProjectExplorer::Build, 0, makeStep);
 
     makeStep->setBuildTarget("all", /* on = */ true);
 

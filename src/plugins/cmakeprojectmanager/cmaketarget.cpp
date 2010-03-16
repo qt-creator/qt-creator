@@ -32,6 +32,7 @@
 #include "cmakeopenprojectwizard.h"
 #include "cmakeproject.h"
 #include "cmakerunconfiguration.h"
+#include "cmakebuildconfiguration.h"
 
 #include <QtGui/QApplication>
 #include <QtGui/QStyle>
@@ -168,10 +169,10 @@ CMakeTarget *CMakeTargetFactory::create(ProjectExplorer::Project *parent, const 
     bc->setDisplayName("all");
 
     // Now create a standard build configuration
-    bc->insertBuildStep(0, new MakeStep(bc));
+    bc->insertStep(ProjectExplorer::Build, 0, new MakeStep(bc));
 
     MakeStep *cleanMakeStep = new MakeStep(bc);
-    bc->insertCleanStep(0, cleanMakeStep);
+    bc->insertStep(ProjectExplorer::Clean, 0, cleanMakeStep);
     cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
     cleanMakeStep->setClean(true);
 

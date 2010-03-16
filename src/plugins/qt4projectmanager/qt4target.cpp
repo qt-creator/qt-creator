@@ -244,15 +244,15 @@ Qt4BuildConfiguration *Qt4Target::addQt4BuildConfiguration(QString displayName, 
     bc->setDisplayName(displayName);
 
     QMakeStep *qmakeStep = new QMakeStep(bc);
-    bc->insertBuildStep(0, qmakeStep);
+    bc->insertStep(ProjectExplorer::Build, 0, qmakeStep);
 
     MakeStep *makeStep = new MakeStep(bc);
-    bc->insertBuildStep(1, makeStep);
+    bc->insertStep(ProjectExplorer::Build, 1, makeStep);
 
     MakeStep* cleanStep = new MakeStep(bc);
     cleanStep->setClean(true);
     cleanStep->setUserArguments(QStringList() << "clean");
-    bc->insertCleanStep(0, cleanStep);
+    bc->insertStep(ProjectExplorer::Clean, 0, cleanStep);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
 

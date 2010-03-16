@@ -31,6 +31,7 @@
 #define BUILDSTEPSPAGE_H
 
 #include "buildstep.h"
+#include "buildconfiguration.h"
 #include <utils/detailswidget.h>
 
 QT_BEGIN_NAMESPACE
@@ -66,7 +67,7 @@ class BuildStepsPage : public BuildConfigWidget
     Q_OBJECT
 
 public:
-    explicit BuildStepsPage(Target *target, bool clean = false);
+    explicit BuildStepsPage(Target *target, StepType type);
     virtual ~BuildStepsPage();
 
     QString displayName() const;
@@ -87,7 +88,7 @@ private:
 
     BuildConfiguration * m_configuration;
     QHash<QAction *, QPair<QString, ProjectExplorer::IBuildStepFactory *> > m_addBuildStepHash;
-    bool m_clean;
+    StepType m_type;
 
     QList<BuildStepsWidgetStruct> m_buildSteps;
 

@@ -307,32 +307,38 @@ GenericMakeStepFactory::~GenericMakeStepFactory()
 {
 }
 
-bool GenericMakeStepFactory::canCreate(ProjectExplorer::BuildConfiguration *parent, const QString &id) const
+bool GenericMakeStepFactory::canCreate(ProjectExplorer::BuildConfiguration *parent,
+                                       ProjectExplorer::StepType type,
+                                       const QString &id) const
 {
+    Q_UNUSED(type)
     if (!qobject_cast<GenericBuildConfiguration *>(parent))
         return false;
     return id == QLatin1String(GENERIC_MS_ID);
 }
 
 ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::BuildConfiguration *parent,
+                                                           ProjectExplorer::StepType type,
                                                            const QString &id)
 {
-    if (!canCreate(parent, id))
+    if (!canCreate(parent, type, id))
         return 0;
     return new GenericMakeStep(parent);
 }
 
 bool GenericMakeStepFactory::canClone(ProjectExplorer::BuildConfiguration *parent,
+                                      ProjectExplorer::StepType type,
                                       ProjectExplorer::BuildStep *source) const
 {
     const QString id(source->id());
-    return canCreate(parent, id);
+    return canCreate(parent, type, id);
 }
 
 ProjectExplorer::BuildStep *GenericMakeStepFactory::clone(ProjectExplorer::BuildConfiguration *parent,
+                                                          ProjectExplorer::StepType type,
                                                           ProjectExplorer::BuildStep *source)
 {
-    if (!canClone(parent, source))
+    if (!canClone(parent, type, source))
         return 0;
     GenericMakeStep *old(qobject_cast<GenericMakeStep *>(source));
     Q_ASSERT(old);
@@ -340,16 +346,18 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::clone(ProjectExplorer::Build
 }
 
 bool GenericMakeStepFactory::canRestore(ProjectExplorer::BuildConfiguration *parent,
+                                        ProjectExplorer::StepType type,
                                         const QVariantMap &map) const
 {
     QString id(ProjectExplorer::idFromMap(map));
-    return canCreate(parent, id);
+    return canCreate(parent, type, id);
 }
 
 ProjectExplorer::BuildStep *GenericMakeStepFactory::restore(ProjectExplorer::BuildConfiguration *parent,
+                                                            ProjectExplorer::StepType type,
                                                             const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
+    if (!canRestore(parent, type, map))
         return 0;
     GenericMakeStep *bs(new GenericMakeStep(parent));
     if (bs->fromMap(map))
@@ -358,8 +366,10 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::restore(ProjectExplorer::Bui
     return 0;
 }
 
-QStringList GenericMakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent) const
+QStringList GenericMakeStepFactory::availableCreationIds(ProjectExplorer::BuildConfiguration *parent,
+                                                         ProjectExplorer::StepType type) const
 {
+    Q_UNUSED(type)
     if (!qobject_cast<GenericBuildConfiguration *>(parent))
         return QStringList();
     return QStringList() << QLatin1String(GENERIC_MS_ID);

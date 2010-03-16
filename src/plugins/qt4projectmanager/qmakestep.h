@@ -55,13 +55,13 @@ class QMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit QMakeStepFactory(QObject *parent = 0);
     virtual ~QMakeStepFactory();
-    bool canCreate(ProjectExplorer::BuildConfiguration *parent, const QString & id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, const QString &id);
-    bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *bs) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::BuildStep *bs);
-    bool canRestore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, const QVariantMap &map);
-    QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc) const;
+    bool canCreate(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type,const QString & id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type,const QString &id);
+    bool canClone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type,ProjectExplorer::BuildStep *bs) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type,ProjectExplorer::BuildStep *bs);
+    bool canRestore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type,const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildConfiguration *parent, ProjectExplorer::StepType type,const QVariantMap &map);
+    QStringList availableCreationIds(ProjectExplorer::BuildConfiguration *bc, ProjectExplorer::StepType type) const;
     QString displayNameForId(const QString &id) const;
 };
 

@@ -38,6 +38,11 @@
 #include <QtGui/QWidget>
 
 namespace ProjectExplorer {
+
+enum StepType { Build = 0,
+                Clean = 1,
+                LastStepType = 2};
+
 class BuildConfiguration;
 
 /*
@@ -122,17 +127,17 @@ public:
     virtual ~IBuildStepFactory();
 
     // used to show the list of possible additons to a target, returns a list of types
-    virtual QStringList availableCreationIds(BuildConfiguration *parent) const = 0;
+    virtual QStringList availableCreationIds(BuildConfiguration *parent, StepType type) const = 0;
     // used to translate the types to names to display to the user
     virtual QString displayNameForId(const QString &id) const = 0;
 
-    virtual bool canCreate(BuildConfiguration *parent, const QString &id) const = 0;
-    virtual BuildStep *create(BuildConfiguration *parent, const QString &id) = 0;
+    virtual bool canCreate(BuildConfiguration *parent, StepType type, const QString &id) const = 0;
+    virtual BuildStep *create(BuildConfiguration *parent, StepType type, const QString &id) = 0;
     // used to recreate the runConfigurations when restoring settings
-    virtual bool canRestore(BuildConfiguration *parent, const QVariantMap &map) const = 0;
-    virtual BuildStep *restore(BuildConfiguration *parent, const QVariantMap &map) = 0;
-    virtual bool canClone(BuildConfiguration *parent, BuildStep *product) const = 0;
-    virtual BuildStep *clone(BuildConfiguration *parent, BuildStep *product) = 0;
+    virtual bool canRestore(BuildConfiguration *parent, StepType type, const QVariantMap &map) const = 0;
+    virtual BuildStep *restore(BuildConfiguration *parent, StepType type, const QVariantMap &map) = 0;
+    virtual bool canClone(BuildConfiguration *parent, StepType type, BuildStep *product) const = 0;
+    virtual BuildStep *clone(BuildConfiguration *parent, StepType type, BuildStep *product) = 0;
 };
 
 class PROJECTEXPLORER_EXPORT BuildConfigWidget

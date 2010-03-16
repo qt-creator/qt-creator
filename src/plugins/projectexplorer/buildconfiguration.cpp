@@ -39,20 +39,20 @@ using namespace ProjectExplorer;
 
 namespace {
 
-IBuildStepFactory *findCloneFactory(BuildConfiguration *parent, BuildStep *source)
+IBuildStepFactory *findCloneFactory(BuildConfiguration *parent, StepType type, BuildStep *source)
 {
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
     foreach(IBuildStepFactory *factory, factories)
-        if (factory->canClone(parent, source))
+        if (factory->canClone(parent, type, source))
             return factory;
     return 0;
 }
 
-IBuildStepFactory *findRestoreFactory(BuildConfiguration *parent, const QVariantMap &map)
+IBuildStepFactory *findRestoreFactory(BuildConfiguration *parent, StepType type, const QVariantMap &map)
 {
     QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
     foreach(IBuildStepFactory *factory, factories)
-        if (factory->canRestore(parent, map))
+        if (factory->canRestore(parent, type, map))
             return factory;
     return 0;
 }
@@ -85,19 +85,20 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
 
 BuildConfiguration::~BuildConfiguration()
 {
-    qDeleteAll(m_buildSteps);
-    qDeleteAll(m_cleanSteps);
+    for (int i = 0; i < LastStepType; ++i) {
+        qDeleteAll(m_steps[i]);
+    }
 }
 
 QVariantMap BuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectConfiguration::toMap());
-    map.insert(QLatin1String(BUILD_STEPS_COUNT_KEY), m_buildSteps.count());
-    for (int i = 0; i < m_buildSteps.count(); ++i)
-        map.insert(QString::fromLatin1(BUILD_STEPS_PREFIX) + QString::number(i), m_buildSteps.at(i)->toMap());
-    map.insert(QLatin1String(CLEAN_STEPS_COUNT_KEY), m_cleanSteps.count());
-    for (int i = 0; i < m_cleanSteps.count(); ++i)
-        map.insert(QString::fromLatin1(CLEAN_STEPS_PREFIX) + QString::number(i), m_cleanSteps.at(i)->toMap());
+    map.insert(QLatin1String(BUILD_STEPS_COUNT_KEY), m_steps[Build].count());
+    for (int i = 0; i < m_steps[Build].count(); ++i)
+        map.insert(QString::fromLatin1(BUILD_STEPS_PREFIX) + QString::number(i), m_steps[Build].at(i)->toMap());
+    map.insert(QLatin1String(CLEAN_STEPS_COUNT_KEY), m_steps[Clean].count());
+    for (int i = 0; i < m_steps[Clean].count(); ++i)
+        map.insert(QString::fromLatin1(CLEAN_STEPS_PREFIX) + QString::number(i), m_steps[Clean].at(i)->toMap());
     map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), m_clearSystemEnvironment);
     map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(m_userEnvironmentChanges));
 
@@ -107,21 +108,15 @@ QVariantMap BuildConfiguration::toMap() const
 void BuildConfiguration::cloneSteps(BuildConfiguration *source)
 {
     Q_ASSERT(source);
-    foreach (BuildStep *originalbs, source->buildSteps()) {
-        IBuildStepFactory *factory(findCloneFactory(this, originalbs));
-        if (!factory)
-            continue;
-        BuildStep *clonebs(factory->clone(this, originalbs));
-        if (clonebs)
-            m_buildSteps.append(clonebs);
-    }
-    foreach (BuildStep *originalcs, source->cleanSteps()) {
-        IBuildStepFactory *factory = findCloneFactory(this, originalcs);
-        if (!factory)
-            continue;
-        BuildStep *clonecs = factory->clone(this, originalcs);
-        if (clonecs)
-            m_cleanSteps.append(clonecs);
+    for (int i = 0; i < LastStepType; ++i) {
+        foreach (BuildStep *originalbs, source->steps(StepType(i))) {
+            IBuildStepFactory *factory(findCloneFactory(this, StepType(i), originalbs));
+            if (!factory)
+                continue;
+            BuildStep *clonebs(factory->clone(this, StepType(i), originalbs));
+            if (clonebs)
+                m_steps[i].append(clonebs);
+        }
     }
 }
 
@@ -139,17 +134,17 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No buildstep data found (continuing).";
             continue;
         }
-        IBuildStepFactory *factory(findRestoreFactory(this, bsData));
+        IBuildStepFactory *factory(findRestoreFactory(this, Build, bsData));
         if (!factory) {
             qWarning() << "No factory for buildstep found (continuing).";
             continue;
         }
-        BuildStep *bs(factory->restore(this, bsData));
+        BuildStep *bs(factory->restore(this, Build, bsData));
         if (!bs) {
             qWarning() << "Restoration of buildstep failed (continuing).";
             continue;
         }
-        insertBuildStep(m_buildSteps.count(), bs);
+        insertStep(Build, m_steps[Build].count(), bs);
     }
 
     maxI = map.value(QLatin1String(CLEAN_STEPS_COUNT_KEY), 0).toInt();
@@ -161,17 +156,17 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             qWarning() << "No cleanstep data found for (continuing).";
             continue;
         }
-        IBuildStepFactory *factory(findRestoreFactory(this, bsData));
+        IBuildStepFactory *factory(findRestoreFactory(this, Clean, bsData));
         if (!factory) {
             qWarning() << "No factory for cleanstep found (continuing).";
             continue;
         }
-        BuildStep *bs(factory->restore(this, bsData));
+        BuildStep *bs(factory->restore(this, Clean, bsData));
         if (!bs) {
             qWarning() << "Restoration of cleanstep failed (continuing).";
             continue;
         }
-        insertCleanStep(m_cleanSteps.count(), bs);
+        insertStep(Clean, m_steps[Clean].count(), bs);
     }
 
     m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
@@ -180,51 +175,32 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-QList<BuildStep *> BuildConfiguration::buildSteps() const
+QList<BuildStep *> BuildConfiguration::steps(StepType type) const
 {
-    return m_buildSteps;
+    Q_ASSERT(type >= 0 && type < LastStepType);
+    return m_steps[type];
 }
 
-void BuildConfiguration::insertBuildStep(int position, BuildStep *step)
+void BuildConfiguration::insertStep(StepType type, int position, BuildStep *step)
 {
-    m_buildSteps.insert(position, step);
+    Q_ASSERT(type >= 0 && type < LastStepType);
+    m_steps[type].insert(position, step);
 }
 
-void BuildConfiguration::removeBuildStep(int position)
+void BuildConfiguration::removeStep(StepType type, int position)
 {
-    delete m_buildSteps.at(position);
-    m_buildSteps.removeAt(position);
+    Q_ASSERT(type >= 0 && type < LastStepType);
+    delete m_steps[type].at(position);
+    m_steps[type].removeAt(position);
 }
 
-void BuildConfiguration::moveBuildStepUp(int position)
+void BuildConfiguration::moveStepUp(StepType type, int position)
 {
-    if (position <= 0 || m_buildSteps.size() <= 1)
+    Q_ASSERT(type >= 0 && type < LastStepType);
+    if (position <= 0 || m_steps[type].size() <= 1)
         return;
-    m_buildSteps.swap(position - 1, position);
+    m_steps[type].swap(position - 1, position);
 
-}
-
-QList<BuildStep *> BuildConfiguration::cleanSteps() const
-{
-    return m_cleanSteps;
-}
-
-void BuildConfiguration::insertCleanStep(int position, BuildStep *step)
-{
-    m_cleanSteps.insert(position, step);
-}
-
-void BuildConfiguration::removeCleanStep(int position)
-{
-    delete m_cleanSteps.at(position);
-    m_cleanSteps.removeAt(position);
-}
-
-void BuildConfiguration::moveCleanStepUp(int position)
-{
-    if (position <= 0 || m_cleanSteps.size() <= 1)
-        return;
-    m_cleanSteps.swap(position - 1, position);
 }
 
 Target *BuildConfiguration::target() const

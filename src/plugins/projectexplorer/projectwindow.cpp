@@ -40,7 +40,6 @@
 #include "target.h"
 #include "projecttreewidget.h"
 #include "runconfiguration.h"
-#include "buildconfiguration.h"
 #include "buildsettingspropertiespage.h"
 #include "runsettingspropertiespage.h"
 #include "targetsettingspanel.h"

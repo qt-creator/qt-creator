@@ -213,10 +213,10 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     bc->setDisplayName(buildConfigurationName);
 
     MakeStep *makeStep = new MakeStep(bc);
-    bc->insertBuildStep(0, makeStep);
+    bc->insertStep(ProjectExplorer::Build, 0, makeStep);
 
     MakeStep *cleanMakeStep = new MakeStep(bc);
-    bc->insertCleanStep(0, cleanMakeStep);
+    bc->insertStep(ProjectExplorer::Clean, 0, cleanMakeStep);
     cleanMakeStep->setAdditionalArguments(QStringList() << "clean");
     cleanMakeStep->setClean(true);
 
