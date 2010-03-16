@@ -153,6 +153,22 @@ bool QtFlagsDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool QtInterfaceNameAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QtInterfaceNameAST *_other = pattern->asQtInterfaceName())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool QtInterfacesDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QtInterfacesDeclarationAST *_other = pattern->asQtInterfacesDeclaration())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool AsmDefinitionAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (AsmDefinitionAST *_other = pattern->asAsmDefinition())

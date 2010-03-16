@@ -81,6 +81,7 @@ public:
     bool parseQtPropertyDeclaration(DeclarationAST *&node);
     bool parseQtEnumDeclaration(DeclarationAST *&node);
     bool parseQtFlags(DeclarationAST *&node);
+    bool parseQtInterfaces(DeclarationAST *&node);
     bool parseAdditiveExpression(ExpressionAST *&node);
     bool parseAndExpression(ExpressionAST *&node);
     bool parseAsmDefinition(DeclarationAST *&node);

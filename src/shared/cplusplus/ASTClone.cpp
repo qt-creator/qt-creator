@@ -204,6 +204,29 @@ QtFlagsDeclarationAST *QtFlagsDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+QtInterfaceNameAST *QtInterfaceNameAST::clone(MemoryPool *pool) const
+{
+    QtInterfaceNameAST *ast = new (pool) QtInterfaceNameAST;
+    if (interface_name)
+        ast->interface_name = interface_name->clone(pool);
+    for (NameListAST *iter = constraint_list, **ast_iter = &ast->constraint_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : 0);
+    return ast;
+}
+
+QtInterfacesDeclarationAST *QtInterfacesDeclarationAST::clone(MemoryPool *pool) const
+{
+    QtInterfacesDeclarationAST *ast = new (pool) QtInterfacesDeclarationAST;
+    ast->interfaces_token = interfaces_token;
+    ast->lparen_token = lparen_token;
+    for (QtInterfaceNameListAST *iter = interface_name_list, **ast_iter = &ast->interface_name_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) QtInterfaceNameListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 AsmDefinitionAST *AsmDefinitionAST::clone(MemoryPool *pool) const
 {
     AsmDefinitionAST *ast = new (pool) AsmDefinitionAST;

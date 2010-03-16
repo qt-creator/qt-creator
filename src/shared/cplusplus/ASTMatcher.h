@@ -43,6 +43,8 @@ public:
     virtual bool match(QtPropertyDeclarationAST *node, QtPropertyDeclarationAST *pattern);
     virtual bool match(QtEnumDeclarationAST *node, QtEnumDeclarationAST *pattern);
     virtual bool match(QtFlagsDeclarationAST *node, QtFlagsDeclarationAST *pattern);
+    virtual bool match(QtInterfaceNameAST *node, QtInterfaceNameAST *pattern);
+    virtual bool match(QtInterfacesDeclarationAST *node, QtInterfacesDeclarationAST *pattern);
     virtual bool match(ArrayAccessAST *node, ArrayAccessAST *pattern);
     virtual bool match(ArrayDeclaratorAST *node, ArrayDeclaratorAST *pattern);
     virtual bool match(ArrayInitializerAST *node, ArrayInitializerAST *pattern);

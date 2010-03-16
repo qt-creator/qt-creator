@@ -293,6 +293,7 @@ void Parser::skipUntilDeclaration()
         case T_Q_PROPERTY:
         case T_Q_ENUMS:
         case T_Q_FLAGS:
+        case T_Q_INTERFACES:
 
         // Qt function specifiers
         case T_Q_SIGNAL:
@@ -1942,6 +1943,78 @@ bool Parser::parseQtFlags(DeclarationAST *&node)
     return true;
 }
 
+// class-specifier ::=
+//   c++-class-specifier
+//   q-tag
+//   q-enums-of-flags
+//   q-class-info
+//   q-interfaces
+//   q-private-slot
+//
+// declaration ::=
+//   c++-declaration
+//   q-declare-interface
+//   q-declare-metatype
+//
+// q-tag ::=
+//   Q_OBJECT
+//   Q_GADGET
+//
+// q-enums-or-flags ::=
+//   (Q_ENUMS | Q_FLAGS) LPAREN name+ RPAREN
+//
+// q-class-info ::=
+//   Q_CLASS_INFO LPAREN string-literal COMMA STRING_LITERAL RPAREN
+//   Q_CLASS_INFO LPAREN string-literal COMMA IDENTIFIER LPAREN STRING_LITERAL RPAREN RPAREN
+
+// q-interfaces ::=
+//   Q_INTERFACES LPAREN (name q-constraints)* RPAREN
+//
+// q-constraints ::=
+//   (COLON name)*
+bool Parser::parseQtInterfaces(DeclarationAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_Q_INTERFACES)
+        return false;
+
+    QtInterfacesDeclarationAST *ast = new (_pool) QtInterfacesDeclarationAST;
+    ast->interfaces_token = consumeToken();
+    match(T_LPAREN, &ast->lparen_token);
+    for (QtInterfaceNameListAST **iter = &ast->interface_name_list; LA() && LA() != T_RPAREN; iter = &(*iter)->next) {
+        NameAST *name_ast = 0;
+        if (!parseName(name_ast))
+            break;
+        *iter = new (_pool) QtInterfaceNameListAST;
+        (*iter)->value = new (_pool) QtInterfaceNameAST;
+        (*iter)->value->interface_name = name_ast;
+        for (NameListAST **iter2 = &(*iter)->value->constraint_list; LA() && LA() == T_COLON; iter2 = &(*iter2)->next) {
+            /*unsigned colon_token =*/ consumeToken();
+            NameAST *name_ast2 = 0;
+            if (!parseName(name_ast2))
+                break;
+            *iter2 = new (_pool) NameListAST;
+            (*iter2)->value = name_ast2;
+        }
+    }
+
+    match(T_RPAREN, &ast->rparen_token);
+    node = ast;
+    return true;
+}
+
+// q-private-slot ::=
+//   Q_PRIVATE_SLOT LPAREN IDENTIFIER (LPAREN RPAREN)? COMMA q-function-declaration RPAREN
+//
+// q-function-declaration ::=
+//   decl-specifier-list declarator   [+ check for the function-declarator]
+//
+// q-declare-interface ::=
+//   Q_DECLARE_INTERFACE LPAREN name COMMA (STRING_LITERAL | IDENTIFIER) RPAREN
+//
+// q-declare-metatype ::=
+//   Q_DECLARE_METATYPE LPAREN name RPAREN SEMICOLON? [warning]
+
 bool Parser::parseMemberSpecification(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
@@ -1970,6 +2043,9 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
 
     case T_Q_FLAGS:
         return parseQtFlags(node);
+
+    case T_Q_INTERFACES:
+        return parseQtInterfaces(node);
 
     default:
         return parseSimpleDeclaration(node, /*acceptStructDeclarator=*/true);

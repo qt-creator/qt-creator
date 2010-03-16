@@ -197,7 +197,7 @@ unsigned QtEnumDeclarationAST::lastToken() const
 
 unsigned QtFlagsDeclarationAST::firstToken() const
 {
-    return flags_specifier_token + 1;
+    return flags_specifier_token;
 }
 
 unsigned QtFlagsDeclarationAST::lastToken() const
@@ -210,6 +210,43 @@ unsigned QtFlagsDeclarationAST::lastToken() const
         return lparen_token + 1;
     else
         return flags_specifier_token + 1;
+}
+
+unsigned QtInterfaceNameAST::firstToken() const
+{
+    if (interface_name)
+        return interface_name->firstToken();
+    else if (constraint_list)
+        return constraint_list->firstToken();
+    else
+        return 0;
+}
+
+unsigned QtInterfaceNameAST::lastToken() const
+{
+    if (constraint_list)
+        return constraint_list->lastToken();
+    else if (interface_name)
+        return interface_name->lastToken();
+    else
+        return 0;
+}
+
+unsigned QtInterfacesDeclarationAST::firstToken() const
+{
+    return interfaces_token;
+}
+
+unsigned QtInterfacesDeclarationAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (interface_name_list)
+        return interface_name_list->lastToken();
+    else if (lparen_token)
+        return lparen_token + 1;
+    else
+        return interfaces_token + 1;
 }
 
 unsigned ArrayAccessAST::firstToken() const

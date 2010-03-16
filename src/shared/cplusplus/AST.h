@@ -256,6 +256,8 @@ public:
     virtual PtrOperatorAST *asPtrOperator() { return 0; }
     virtual QtEnumDeclarationAST *asQtEnumDeclaration() { return 0; }
     virtual QtFlagsDeclarationAST *asQtFlagsDeclaration() { return 0; }
+    virtual QtInterfaceNameAST *asQtInterfaceName() { return 0; }
+    virtual QtInterfacesDeclarationAST *asQtInterfacesDeclaration() { return 0; }
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return 0; }
     virtual QtMethodAST *asQtMethod() { return 0; }
     virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return 0; }
@@ -654,6 +656,46 @@ public:
     virtual unsigned lastToken() const;
 
     virtual QtFlagsDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT QtInterfaceNameAST: public AST
+{
+public:
+    NameAST *interface_name;
+    NameListAST *constraint_list;
+
+public:
+    virtual QtInterfaceNameAST *asQtInterfaceName() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual QtInterfaceNameAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT QtInterfacesDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned interfaces_token;
+    unsigned lparen_token;
+    QtInterfaceNameListAST *interface_name_list;
+    unsigned rparen_token;
+
+public:
+    virtual QtInterfacesDeclarationAST *asQtInterfacesDeclaration() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual QtInterfacesDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

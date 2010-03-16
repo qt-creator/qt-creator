@@ -204,6 +204,8 @@ public:
     virtual bool visit(QtMethodAST *) { return true; }
     virtual bool visit(QtMemberDeclarationAST *) { return true; }
     virtual bool visit(QtPropertyDeclarationItemAST *) { return true; }
+    virtual bool visit(QtInterfacesDeclarationAST *) { return true; }
+    virtual bool visit(QtInterfaceNameAST *) { return true; }
 
     // ObjC++
     virtual bool visit(ObjCClassDeclarationAST *) { return true; }
@@ -334,6 +336,8 @@ public:
     virtual void endVisit(QtMethodAST *) { }
     virtual void endVisit(QtMemberDeclarationAST *) { }
     virtual void endVisit(QtPropertyDeclarationItemAST *) { }
+    virtual void endVisit(QtInterfacesDeclarationAST *) { }
+    virtual void endVisit(QtInterfaceNameAST *) { }
 
     // ObjC++
     virtual void endVisit(ObjCClassDeclarationAST *) { }

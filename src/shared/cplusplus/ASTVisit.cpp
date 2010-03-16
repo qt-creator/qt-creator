@@ -157,6 +157,23 @@ void QtFlagsDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void QtInterfaceNameAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(interface_name, visitor);
+        accept(constraint_list, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void QtInterfacesDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(interface_name_list, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void AsmDefinitionAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

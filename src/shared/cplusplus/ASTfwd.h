@@ -163,6 +163,8 @@ class PostfixExpressionAST;
 class PtrOperatorAST;
 class QtEnumDeclarationAST;
 class QtFlagsDeclarationAST;
+class QtInterfaceNameAST;
+class QtInterfacesDeclarationAST;
 class QtMemberDeclarationAST;
 class QtMethodAST;
 class QtPropertyDeclarationAST;
@@ -213,6 +215,7 @@ typedef List<PtrOperatorAST *> PtrOperatorListAST;
 typedef List<SpecifierAST *> SpecifierListAST;
 typedef List<QtPropertyDeclarationItemAST *> QtPropertyDeclarationItemListAST;
 typedef List<NameAST *> NameListAST;
+typedef List<QtInterfaceNameAST *> QtInterfaceNameListAST;
 
 typedef List<ObjCMessageArgumentAST *> ObjCMessageArgumentListAST;
 typedef List<ObjCSelectorArgumentAST *> ObjCSelectorArgumentListAST;

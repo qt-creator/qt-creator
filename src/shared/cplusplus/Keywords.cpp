@@ -1198,7 +1198,7 @@ static inline int classify11(const char *s, bool q) {
   return T_IDENTIFIER;
 }
 
-static inline int classify12(const char *s, bool) {
+static inline int classify12(const char *s, bool q) {
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'v') {
@@ -1212,6 +1212,31 @@ static inline int classify12(const char *s, bool) {
                       if (s[10] == '_') {
                         if (s[11] == '_') {
                           return T___VOLATILE__;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (q && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'I') {
+        if (s[3] == 'N') {
+          if (s[4] == 'T') {
+            if (s[5] == 'E') {
+              if (s[6] == 'R') {
+                if (s[7] == 'F') {
+                  if (s[8] == 'A') {
+                    if (s[9] == 'C') {
+                      if (s[10] == 'E') {
+                        if (s[11] == 'S') {
+                          return T_Q_INTERFACES;
                         }
                       }
                     }

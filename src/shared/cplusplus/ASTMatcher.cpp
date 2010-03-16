@@ -313,6 +313,43 @@ bool ASTMatcher::match(QtFlagsDeclarationAST *node, QtFlagsDeclarationAST *patte
     return true;
 }
 
+bool ASTMatcher::match(QtInterfaceNameAST *node, QtInterfaceNameAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    if (! pattern->interface_name)
+        pattern->interface_name = node->interface_name;
+    else if (! AST::match(node->interface_name, pattern->interface_name, this))
+        return false;
+
+    if (! pattern->constraint_list)
+        pattern->constraint_list = node->constraint_list;
+    else if (! AST::match(node->constraint_list, pattern->constraint_list, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(QtInterfacesDeclarationAST *node, QtInterfacesDeclarationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->interfaces_token = node->interfaces_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->interface_name_list)
+        pattern->interface_name_list = node->interface_name_list;
+    else if (! AST::match(node->interface_name_list, pattern->interface_name_list, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(AsmDefinitionAST *node, AsmDefinitionAST *pattern)
 {
     (void) node;
