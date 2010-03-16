@@ -284,6 +284,7 @@ void DisassemblerViewAgent::setContents(const QString &contents)
             editorManager->openEditorWithContents(
                 Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
                 &titlePattern));
+        d->editor->setProperty("OpenedByDebugger", true);
         QTC_ASSERT(d->editor, return);
         if ((plainTextEdit = qobject_cast<QPlainTextEdit *>(d->editor->widget())))
             (void) new DisassemblerHighlighter(plainTextEdit);
