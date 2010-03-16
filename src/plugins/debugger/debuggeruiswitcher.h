@@ -5,8 +5,8 @@
 
 #include <coreplugin/basemode.h>
 #include <QtCore/QObject>
-#include <QtGui/QStandardItemModel>
 #include <QtCore/QList>
+#include <QtCore/QMap>
 
 namespace Core {
     class ActionContainer;
@@ -73,7 +73,7 @@ signals:
 
 private slots:
     void modeChanged(Core::IMode *mode);
-    void changeDebuggerUI(int langId);
+    void changeDebuggerUI(const QString &langName);
     void resetDebuggerLayout();
     void langChangeTriggered();
 
@@ -82,7 +82,6 @@ private:
     void createViewsMenuItems();
     void readSettings();
     void writeSettings() const;
-    QModelIndex modelIndexForLanguage(const QString &langName);
     QWidget *createContents(Core::BaseMode *mode);
     QWidget *createMainWindow(Core::BaseMode *mode);
 
@@ -90,7 +89,10 @@ private:
     typedef QPair<int, QAction* > ViewsMenuItems;
     QList< ViewsMenuItems > m_viewsMenuItems;
     QList< Internal::DebugToolWindow* > m_dockWidgets;
-    QStandardItemModel *m_model;
+
+    QMap<QString, QWidget *> m_toolBars;
+    QStringList m_languages;
+
     QStackedWidget *m_toolbarStack;
     DebuggerMainWindow *m_mainWindow;
 
