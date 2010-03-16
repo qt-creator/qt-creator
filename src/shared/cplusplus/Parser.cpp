@@ -270,6 +270,9 @@ void Parser::skipUntilDeclaration()
         switch (LA()) {
         case T_EOF_SYMBOL:
 
+        // end of a block
+        case T_RBRACE:
+
         // names
         case T_IDENTIFIER:
         case T_COLON_COLON:
@@ -288,6 +291,13 @@ void Parser::skipUntilDeclaration()
         case T_Q_SIGNALS:
         case T_Q_SLOTS:
         case T_Q_PROPERTY:
+        case T_Q_ENUMS:
+        case T_Q_FLAGS:
+
+        // Qt function specifiers
+        case T_Q_SIGNAL:
+        case T_Q_SLOT:
+        case T_Q_INVOKABLE:
 
         // declarations
         case T_ENUM:
