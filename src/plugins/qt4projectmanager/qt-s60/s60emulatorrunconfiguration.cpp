@@ -97,9 +97,6 @@ void S60EmulatorRunConfiguration::ctor()
 
     connect(qt4Target()->qt4Project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
-
-    connect(qt4Target()->qt4Project(), SIGNAL(targetInformationChanged(Qt4ProjectManager::Internal::Qt4ProFileNode*)),
-            this, SLOT(proFileUpdate(Qt4ProjectManager::Internal::Qt4ProFileNode*)));
 }
 
 
