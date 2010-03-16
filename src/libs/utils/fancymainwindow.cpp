@@ -33,7 +33,6 @@
 #include <QtGui/QDockWidget>
 #include <QtCore/QSettings>
 
-
 using namespace Utils;
 
 FancyMainWindow::FancyMainWindow(QWidget *parent)
@@ -41,6 +40,7 @@ FancyMainWindow::FancyMainWindow(QWidget *parent)
     m_locked(true),
     m_handleDockVisibilityChanges(true)
 {
+    setProperty("panelwidget", true);
 }
 
 QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget)

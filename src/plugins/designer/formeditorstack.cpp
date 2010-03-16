@@ -80,6 +80,11 @@ void FormEditorStack::add(const EditorData &data)
 
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormEditorStack::add" << data.widgetHost;
+
+    // Since we have 1 pixel splitters we enforce no frame
+    // on the content widget
+    if (QFrame *frame = qobject_cast<QFrame*>(data.widgetHost))
+        frame->setFrameStyle(QFrame::NoFrame);
 }
 
 int FormEditorStack::indexOf(const QDesignerFormWindowInterface *fw) const

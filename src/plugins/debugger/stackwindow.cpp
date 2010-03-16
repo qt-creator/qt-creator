@@ -54,6 +54,7 @@ namespace Internal {
 StackWindow::StackWindow(DebuggerManager *manager, QWidget *parent)
     : QTreeView(parent), m_manager(manager), m_alwaysResizeColumnsToContents(false)
 {
+    setFrameStyle(QFrame::NoFrame);
     m_disassemblerAgent = new DisassemblerViewAgent(manager);
 
     QAction *act = theDebuggerAction(UseAlternatingRowColors);

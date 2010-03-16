@@ -74,6 +74,7 @@ SnapshotWindow::SnapshotWindow(DebuggerManager *manager, QWidget *parent)
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
     setWindowTitle(tr("Snapshots"));
 
+    setFrameStyle(QFrame::NoFrame);
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);
     setIconSize(QSize(10, 10));

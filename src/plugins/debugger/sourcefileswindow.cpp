@@ -169,6 +169,7 @@ SourceFilesWindow::SourceFilesWindow(QWidget *parent)
     proxyModel->setSourceModel(m_model);
     setModel(proxyModel);
 
+    setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Source Files"));
     setSortingEnabled(true);
     setAlternatingRowColors(act->isChecked());

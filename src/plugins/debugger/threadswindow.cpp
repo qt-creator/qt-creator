@@ -43,6 +43,7 @@ ThreadsWindow::ThreadsWindow(QWidget *parent)
 {
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
 
+    setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Thread"));
     setAlternatingRowColors(act->isChecked());
     setRootIsDecorated(false);

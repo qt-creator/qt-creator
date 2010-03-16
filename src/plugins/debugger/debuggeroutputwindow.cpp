@@ -47,6 +47,7 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/minisplitter.h>
 #include <find/basetextfind.h>
 
 using namespace Debugger;
@@ -329,7 +330,8 @@ DebuggerOutputWindow::DebuggerOutputWindow(QWidget *parent)
 {
     setWindowTitle(tr("Debugger"));
 
-    QSplitter *m_splitter = new QSplitter(Qt::Horizontal, this);
+    QSplitter *m_splitter = new  Core::MiniSplitter(Qt::Horizontal);
+    m_splitter->setParent(this);
     // mixed input/output
     m_combinedText = new CombinedPane(this);
     m_combinedText->setReadOnly(true);

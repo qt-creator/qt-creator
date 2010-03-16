@@ -64,6 +64,7 @@
 #endif
 
 #include <coreplugin/icore.h>
+#include <coreplugin/minisplitter.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <projectexplorer/toolchain.h>
@@ -585,7 +586,7 @@ void DebuggerManager::init()
 
     d->m_threadsDock = uiSwitcher->createDockWidget(LANG_CPP, d->m_threadsWindow);
 
-    QSplitter *localsAndWatchers = new QSplitter(Qt::Vertical);
+    QSplitter *localsAndWatchers = new Core::MiniSplitter(Qt::Vertical);
     localsAndWatchers->setWindowTitle(d->m_localsWindow->windowTitle());
     localsAndWatchers->addWidget(d->m_localsWindow);
     localsAndWatchers->addWidget(d->m_watchersWindow);

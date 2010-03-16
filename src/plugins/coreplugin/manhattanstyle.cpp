@@ -55,6 +55,7 @@
 #include <QtGui/QStyleFactory>
 #include <QtGui/QStyleOption>
 #include <QtGui/QToolBar>
+#include <QtGui/QTreeView>
 #include <QtGui/QToolButton>
 #include <QtGui/QAbstractItemView>
 
@@ -88,10 +89,9 @@ bool panelWidget(const QWidget *widget)
     while (p) {
         if (qobject_cast<const QToolBar *>(p) ||
             qobject_cast<const QStatusBar *>(p) ||
-            qobject_cast<const QMenuBar *>(p))
+            qobject_cast<const QMenuBar *>(p) ||
+            p->property("panelwidget").toBool())
             return styleEnabled(widget);
-        if (p->property("panelwidget").toBool())
-            return true;
         p = p->parentWidget();
     }
     return false;
@@ -197,6 +197,8 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
         if (panelWidget(widget))
             retval = 16;
         break;
+    case PM_DockWidgetSeparatorExtent:
+        return 1;
     case PM_MenuPanelWidth:
     case PM_MenuBarHMargin:
     case PM_MenuBarVMargin:
@@ -260,6 +262,7 @@ void ManhattanStyle::polish(QWidget *widget)
         if (qobject_cast<QToolBar*>(widget))
             widget->removeEventFilter(baseStyle());
     }
+
     if (panelWidget(widget)) {
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         if (qobject_cast<QToolButton*>(widget)) {
@@ -594,6 +597,27 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         return QProxyStyle::drawControl(element, option, painter, widget);
 
     switch (element) {
+    case CE_Splitter:
+        painter->fillRect(option->rect, Utils::StyleHelper::borderColor());
+        break;
+
+    case CE_TabBarTabShape:
+        // Most styles draw a single dark outline. This looks rather ugly when combined with our
+        // single pixel dark separator so we adjust the first tab to compensate for this
+
+        if (const QStyleOptionTabV3 *tab = qstyleoption_cast<const QStyleOptionTabV3 *>(option)) {
+            QStyleOptionTabV3 adjustedTab = *tab;
+            if (tab->position == QStyleOptionTab::Beginning) {
+                if (option->direction == Qt::LeftToRight)
+                    adjustedTab.rect = adjustedTab.rect.adjusted(-1, 0, 0, 0);
+                else
+                    adjustedTab.rect = adjustedTab.rect.adjusted(0, 0, 1 ,0);
+            }
+            QProxyStyle::drawControl(element, &adjustedTab, painter, widget);
+            return;
+        }
+        break;
+
     case CE_MenuBarItem:
         painter->save();
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {

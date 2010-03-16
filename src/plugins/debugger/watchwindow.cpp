@@ -125,6 +125,7 @@ WatchWindow::WatchWindow(Type type, DebuggerManager *manager, QWidget *parent)
     m_grabbing = false;
 
     QAction *act = theDebuggerAction(UseAlternatingRowColors);
+    setFrameStyle(QFrame::NoFrame);
     setWindowTitle(tr("Locals and Watchers"));
     setAlternatingRowColors(act->isChecked());
     setIndentation(indentation() * 9/10);

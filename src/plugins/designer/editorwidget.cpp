@@ -35,6 +35,7 @@
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QDockWidget>
+#include <QtGui/QAbstractItemView>
 
 using namespace Designer::Constants;
 
@@ -59,6 +60,13 @@ EditorWidget::EditorWidget(FormEditorW *few, QWidget *parent) :
         QWidget *subWindow = subs[i];
         subWindow->setWindowTitle(subs[i]->windowTitle());
         m_designerDockWidgets[i] = addDockForWidget(subWindow);
+
+        // Since we have 1-pixel splitters, we generally want to remove
+        // frames around item views. So we apply this hack for now.
+        QList<QAbstractItemView*> frames = subWindow->findChildren<QAbstractItemView*>();
+        for (int i = 0 ; i< frames.count(); ++i)
+            frames[i]->setFrameStyle(QFrame::NoFrame);
+
     }
     resetToDefaultLayout();
 }
