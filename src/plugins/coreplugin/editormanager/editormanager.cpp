@@ -1031,13 +1031,17 @@ IEditor *EditorManager::createEditor(const QString &editorId,
 
     EditorFactoryList factories;
     if (editorId.isEmpty()) {
+        const QFileInfo fileInfo(fileName);
         // Find by mime type
-        MimeType mimeType = m_d->m_core->mimeDatabase()->findByFile(QFileInfo(fileName));
+        MimeType mimeType = m_d->m_core->mimeDatabase()->findByFile(fileInfo);
         if (!mimeType) {
             qWarning("%s unable to determine mime type of %s/%s. Falling back to text/plain",
                      Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.toUtf8().constData());
             mimeType = m_d->m_core->mimeDatabase()->findByType(QLatin1String("text/plain"));
         }
+        // open text files > 48 MB in binary editor
+        if (fileInfo.size() >  qint64(3) << 24 && mimeType.type().startsWith(QLatin1String("text")))
+            mimeType = m_d->m_core->mimeDatabase()->findByType(QLatin1String("application/octet-stream"));
         factories = editorFactories(mimeType, true);
     } else {
         // Find by editor id
