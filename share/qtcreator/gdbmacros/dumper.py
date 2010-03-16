@@ -4,7 +4,6 @@
 #return
 
 import sys
-import traceback
 import gdb
 import base64
 import os
