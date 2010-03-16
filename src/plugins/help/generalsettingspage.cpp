@@ -28,41 +28,39 @@
 **************************************************************************/
 
 #include "generalsettingspage.h"
-#include "helpconstants.h"
 
 #include "bookmarkmanager.h"
 #include "centralwidget.h"
+#include "helpconstants.h"
+#include "helpmanager.h"
 #include "helpviewer.h"
 #include "xbelsupport.h"
+
+#include <coreplugin/coreconstants.h>
+
+#include <QtCore/QCoreApplication>
+#include <QtCore/QTextStream>
 
 #if defined(QT_NO_WEBKIT)
 #include <QtGui/QApplication>
 #else
 #include <QtWebKit/QWebSettings>
 #endif
-
-#include <QtCore/QCoreApplication>
-#include <QtCore/QDebug>
 #include <QtGui/QFileDialog>
-#include <QtHelp/QHelpEngine>
 
-#include <coreplugin/coreconstants.h>
+#include <QtHelp/QHelpEngineCore>
 
 using namespace Help::Internal;
 
-GeneralSettingsPage::GeneralSettingsPage(QHelpEngine *helpEngine,
-        CentralWidget *centralWidget, BookmarkManager *bookmarkManager)
-    : m_currentPage(0)
-    , m_helpEngine(helpEngine)
-    , m_centralWidget(centralWidget)
-    , m_bookmarkManager(bookmarkManager)
+GeneralSettingsPage::GeneralSettingsPage(BookmarkManager *bookmarkManager)
+    : m_bookmarkManager(bookmarkManager)
 {
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
-    font.setFamily(webSettings->fontFamily(QWebSettings::StandardFont));
-    font.setPointSize(webSettings->fontSize(QWebSettings::DefaultFontSize));
+    m_font.setFamily(webSettings->fontFamily(QWebSettings::StandardFont));
+    m_font.setPointSize(webSettings->fontSize(QWebSettings::DefaultFontSize));
 #else
-    font = qApp->font();
+    m_font = qApp->font();
 #endif
 }
 
@@ -88,40 +86,37 @@ QString GeneralSettingsPage::displayCategory() const
 
 QWidget *GeneralSettingsPage::createPage(QWidget *parent)
 {
-    m_currentPage = new QWidget(parent);
+    QWidget *widget = new QWidget(parent);
 
-    m_ui.setupUi(m_currentPage);
+    m_ui.setupUi(widget);
     m_ui.sizeComboBox->setEditable(false);
     m_ui.styleComboBox->setEditable(false);
 
-    font = qVariantValue<QFont>(m_helpEngine->customValue(QLatin1String("font"),
-        font));
+    const QHelpEngineCore &engine = HelpManager::helpEngineCore();
+    m_font = qVariantValue<QFont>(engine.customValue(QLatin1String("font"), m_font));
 
     updateFontSize();
     updateFontStyle();
     updateFontFamily();
 
-    QString homePage = m_helpEngine->customValue(QLatin1String("HomePage"),
-        QString()).toString();
-
-    if (homePage.isEmpty()) {
-        homePage = m_helpEngine->customValue(QLatin1String("DefaultHomePage"),
+    m_homePage = engine.customValue(QLatin1String("HomePage"), QString()).toString();
+    if (m_homePage.isEmpty()) {
+        m_homePage = engine.customValue(QLatin1String("DefaultHomePage"),
             QLatin1String("about:blank")).toString();
     }
-    m_ui.homePageLineEdit->setText(homePage);
+    m_ui.homePageLineEdit->setText(m_homePage);
 
-    int index = m_helpEngine->customValue(QLatin1String("StartOption"), 2).toInt();
-    m_ui.helpStartComboBox->setCurrentIndex(index);
+    m_startOption = engine.customValue(QLatin1String("StartOption"), 2).toInt();
+    m_ui.helpStartComboBox->setCurrentIndex(m_startOption);
 
-    index = m_helpEngine->customValue(QLatin1String("ContextHelpOption"), 0).toInt();
-    m_ui.contextHelpComboBox->setCurrentIndex(index);
-
+    m_helpOption = engine.customValue(QLatin1String("ContextHelpOption"), 0).toInt();
+    m_ui.contextHelpComboBox->setCurrentIndex(m_helpOption);
 
     connect(m_ui.currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
     connect(m_ui.blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
     connect(m_ui.defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
 
-    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
+    HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
     if (viewer == 0)
         m_ui.currentPageButton->setEnabled(false);
 
@@ -135,42 +130,50 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
            << ' ' << m_ui.bookmarkGroupBox->title();
         m_searchKeywords.remove(QLatin1Char('&'));
     }
-    return m_currentPage;
+    return widget;
 }
 
 void GeneralSettingsPage::apply()
 {
+    emit dialogAccepted();
+}
+
+bool GeneralSettingsPage::applyChanges()
+{
+    QFont newFont;
     const QString &family = m_ui.familyComboBox->currentFont().family();
-    font.setFamily(family);
+    newFont.setFamily(family);
 
     int fontSize = 14;
     int currentIndex = m_ui.sizeComboBox->currentIndex();
     if (currentIndex != -1)
         fontSize = m_ui.sizeComboBox->itemData(currentIndex).toInt();
-    font.setPointSize(fontSize);
+    newFont.setPointSize(fontSize);
 
     QString fontStyle = QLatin1String("Normal");
     currentIndex = m_ui.styleComboBox->currentIndex();
     if (currentIndex != -1)
         fontStyle = m_ui.styleComboBox->itemText(currentIndex);
-    font.setBold(fontDatabase.bold(family, fontStyle));
+    newFont.setBold(m_fontDatabase.bold(family, fontStyle));
     if (fontStyle.contains(QLatin1String("Italic")))
-        font.setStyle(QFont::StyleItalic);
+        newFont.setStyle(QFont::StyleItalic);
     else if (fontStyle.contains(QLatin1String("Oblique")))
-        font.setStyle(QFont::StyleOblique);
+        newFont.setStyle(QFont::StyleOblique);
     else
-        font.setStyle(QFont::StyleNormal);
+        newFont.setStyle(QFont::StyleNormal);
 
-    const int weight = fontDatabase.weight(family, fontStyle);
+    const int weight = m_fontDatabase.weight(family, fontStyle);
     if (weight >= 0)    // Weight < 0 asserts...
-        font.setWeight(weight);
+        newFont.setWeight(weight);
 
-    m_helpEngine->setCustomValue(QLatin1String("font"), font);
+    QHelpEngineCore *engine = &HelpManager::helpEngineCore();
+    engine->setCustomValue(QLatin1String("font"), newFont);
+    bool needsUpdate = newFont != m_font;
 
 #if !defined(QT_NO_WEBKIT)
     QWebSettings* webSettings = QWebSettings::globalSettings();
-    webSettings->setFontFamily(QWebSettings::StandardFont, font.family());
-    webSettings->setFontSize(QWebSettings::DefaultFontSize, font.pointSize());
+    webSettings->setFontFamily(QWebSettings::StandardFont, m_font.family());
+    webSettings->setFontSize(QWebSettings::DefaultFontSize, m_font.pointSize());
 #else
     emit fontChanged();
 #endif
@@ -178,23 +181,23 @@ void GeneralSettingsPage::apply()
     QString homePage = m_ui.homePageLineEdit->text();
     if (homePage.isEmpty())
         homePage = QLatin1String("about:blank");
-    m_helpEngine->setCustomValue(QLatin1String("HomePage"), homePage);
+    engine->setCustomValue(QLatin1String("HomePage"), homePage);
+    needsUpdate |= homePage != m_homePage;
 
-    int startOption = m_ui.helpStartComboBox->currentIndex();
-    m_helpEngine->setCustomValue(QLatin1String("StartOption"), startOption);
+    const int startOption = m_ui.helpStartComboBox->currentIndex();
+    engine->setCustomValue(QLatin1String("StartOption"), startOption);
+    needsUpdate |= startOption != m_startOption;
 
-    int contextHelpOption = m_ui.contextHelpComboBox->currentIndex();
-    m_helpEngine->setCustomValue(QLatin1String("ContextHelpOption"), contextHelpOption);
-}
+    const int helpOption = m_ui.contextHelpComboBox->currentIndex();
+    engine->setCustomValue(QLatin1String("ContextHelpOption"), helpOption);
+    needsUpdate |= helpOption != m_helpOption;
 
-void GeneralSettingsPage::finish()
-{
-    // Hmm, what to do here?
+    return needsUpdate;
 }
 
 void GeneralSettingsPage::setCurrentPage()
 {
-    HelpViewer *viewer = m_centralWidget->currentHelpViewer();
+    HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
     if (viewer)
         m_ui.homePageLineEdit->setText(viewer->source().toString());
 }
@@ -206,10 +209,9 @@ void GeneralSettingsPage::setBlankPage()
 
 void GeneralSettingsPage::setDefaultPage()
 {
-    const QString &homePage =
-        m_helpEngine->customValue(QLatin1String("DefaultHomePage"),
-        QString()).toString();
-    m_ui.homePageLineEdit->setText(homePage);
+    const QString &defaultHomePage = HelpManager::helpEngineCore()
+        .customValue(QLatin1String("DefaultHomePage"), QString()).toString();
+    m_ui.homePageLineEdit->setText(defaultHomePage);
 }
 
 void GeneralSettingsPage::importBookmarks()
@@ -254,10 +256,10 @@ void GeneralSettingsPage::exportBookmarks()
 
 void GeneralSettingsPage::updateFontSize()
 {
-    const QString &family = font.family();
-    const QString &fontStyle = fontDatabase.styleString(font);
+    const QString &family = m_font.family();
+    const QString &fontStyle = m_fontDatabase.styleString(m_font);
 
-    QList<int> pointSizes =  fontDatabase.pointSizes(family, fontStyle);
+    QList<int> pointSizes = m_fontDatabase.pointSizes(family, fontStyle);
     if (pointSizes.empty())
         pointSizes = QFontDatabase::standardSizes();
 
@@ -270,7 +272,7 @@ void GeneralSettingsPage::updateFontSize()
         QString n;
         foreach (int pointSize, pointSizes)
             m_ui.sizeComboBox->addItem(n.setNum(pointSize), QVariant(pointSize));
-        const int closestIndex = closestPointSizeIndex(font.pointSize());
+        const int closestIndex = closestPointSizeIndex(m_font.pointSize());
         if (closestIndex != -1)
             m_ui.sizeComboBox->setCurrentIndex(closestIndex);
     }
@@ -278,8 +280,8 @@ void GeneralSettingsPage::updateFontSize()
 
 void GeneralSettingsPage::updateFontStyle()
 {
-    const QString &fontStyle = fontDatabase.styleString(font);
-    const QStringList &styles = fontDatabase.styles(font.family());
+    const QString &fontStyle = m_fontDatabase.styleString(m_font);
+    const QStringList &styles = m_fontDatabase.styles(m_font.family());
 
     m_ui.styleComboBox->clear();
     m_ui.styleComboBox->setCurrentIndex(-1);
@@ -306,7 +308,7 @@ void GeneralSettingsPage::updateFontStyle()
 
 void GeneralSettingsPage::updateFontFamily()
 {
-    m_ui.familyComboBox->setCurrentFont(font);
+    m_ui.familyComboBox->setCurrentFont(m_font);
 }
 
 int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const

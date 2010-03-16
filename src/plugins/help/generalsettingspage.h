@@ -30,17 +30,10 @@
 #ifndef GENERALSETTINGSPAGE_H
 #define GENERALSETTINGSPAGE_H
 
-#include <QtGui/QWidget>
-#include <QtGui/QFontDatabase>
-
+#include "ui_generalsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include "ui_generalsettingspage.h"
-
 class BookmarkManager;
-
-QT_FORWARD_DECLARE_CLASS(QFont)
-QT_FORWARD_DECLARE_CLASS(QHelpEngine)
 
 namespace Help {
 namespace Internal {
@@ -52,8 +45,7 @@ class GeneralSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    GeneralSettingsPage(QHelpEngine *helpEngine, CentralWidget *centralWidget,
-        BookmarkManager *bookmarkManager);
+    GeneralSettingsPage(BookmarkManager *bookmarkManager);
 
     QString id() const;
     virtual QString displayName() const;
@@ -62,11 +54,14 @@ public:
 
     QWidget *createPage(QWidget *parent);
     void apply();
-    void finish();
+    void finish() {}
     virtual bool matches(const QString &s) const;
+
+    bool applyChanges();
 
 signals:
     void fontChanged();
+    void dialogAccepted();
 
 private slots:
     void setCurrentPage();
@@ -82,16 +77,17 @@ private:
     int closestPointSizeIndex(int desiredPointSize) const;
 
 private:
-    QWidget *m_currentPage;
-    QHelpEngine *m_helpEngine;
-    CentralWidget *m_centralWidget;
-    BookmarkManager *m_bookmarkManager;
+    QFont m_font;
+    QFontDatabase m_fontDatabase;
 
-    QFont font;
-    QFontDatabase fontDatabase;
+    int m_helpOption;
+    int m_startOption;
+    QString m_homePage;
 
-    Ui::GeneralSettingsPage m_ui;
     QString m_searchKeywords;
+    Ui::GeneralSettingsPage m_ui;
+
+    BookmarkManager *m_bookmarkManager;
 };
 
     }   // Internal

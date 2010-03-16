@@ -400,11 +400,11 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         advancedMenu->addAction(cmd, Core::Constants::G_EDIT_FONT);
     }
 
-    GeneralSettingsPage *generalSettings = new GeneralSettingsPage(m_helpEngine,
-        m_centralWidget, m_bookmarkManager);
-    addAutoReleasedObject(generalSettings);
-    connect(generalSettings, SIGNAL(fontChanged()), this, SLOT(fontChanged()));
-
+    generalSettingsPage = new GeneralSettingsPage(m_bookmarkManager);
+    addAutoReleasedObject(generalSettingsPage);
+    connect(generalSettingsPage, SIGNAL(fontChanged()), this, SLOT(fontChanged()));
+    connect(generalSettingsPage, SIGNAL(dialogAccepted()), this,
+        SLOT(checkForGeneralChanges()));
     return true;
 }
 
@@ -977,6 +977,12 @@ void HelpPlugin::checkForHelpChanges()
     bool changed = m_docSettingsPage->applyChanges();
     changed |= m_filterSettingsPage->applyChanges();
     if (changed)
+        m_helpEngine->setupData();
+}
+
+void HelpPlugin::checkForGeneralChanges()
+{
+    if (generalSettingsPage->applyChanges())
         m_helpEngine->setupData();
 }
 

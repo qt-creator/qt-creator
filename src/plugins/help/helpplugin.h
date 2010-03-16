@@ -73,6 +73,7 @@ class CentralWidget;
 class DocSettingsPage;
 class FilterSettingsPage;
 class HelpMode;
+class GeneralSettingsPage;
 class SearchWidget;
 
 class HelpPlugin : public ExtensionSystem::IPlugin
@@ -106,6 +107,7 @@ private slots:
     void activateContents();
     void activateSearch();
     void checkForHelpChanges();
+    void checkForGeneralChanges();
     void updateFilterComboBox();
     void filterDocumentation(const QString &customFilter);
     void addBookmark();
@@ -159,6 +161,7 @@ private:
 
     DocSettingsPage *m_docSettingsPage;
     FilterSettingsPage *m_filterSettingsPage;
+    GeneralSettingsPage *generalSettingsPage;
 
     QComboBox *m_documentsCombo;
     QComboBox *m_filterComboBox;
