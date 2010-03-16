@@ -1300,9 +1300,10 @@ Context::~Context()
 {
 }
 
-void Context::build(const QList<Node *> &astPath, QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot)
+void Context::build(const QList<Node *> &astPath, QmlJS::Document::Ptr doc,
+                    const QmlJS::Snapshot &snapshot, const QStringList &importPaths)
 {
-    Link link(this, doc, snapshot);
+    Link link(this, snapshot, importPaths);
     link.scopeChainAt(doc, astPath);
 }
 
@@ -1333,12 +1334,12 @@ void Context::setLookupMode(LookupMode lookupMode)
 
 const ObjectValue *Context::typeEnvironment(const QmlJS::Document *doc) const
 {
-    return _typeEnvironments.value(doc, 0);
+    return _typeEnvironments.value(doc->fileName(), 0);
 }
 
 void Context::setTypeEnvironment(const QmlJS::Document *doc, const ObjectValue *typeEnvironment)
 {
-    _typeEnvironments[doc] = typeEnvironment;
+    _typeEnvironments[doc->fileName()] = typeEnvironment;
 }
 
 const Value *Context::lookup(const QString &name)
@@ -1951,6 +1952,11 @@ QmlObjectValue *MetaTypeSystem::staticTypeForImport(const QString &qualifiedName
     }
 
     return previousCandidate;
+}
+
+bool MetaTypeSystem::hasPackage(const QString &package) const
+{
+    return _importedTypes.contains(package);
 }
 
 ConvertToNumber::ConvertToNumber(Engine *engine)

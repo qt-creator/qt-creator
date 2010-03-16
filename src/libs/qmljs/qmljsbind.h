@@ -51,7 +51,6 @@ public:
     virtual ~Bind();
 
     QStringList includedScripts() const;
-    QStringList localImports() const;
 
     Interpreter::ObjectValue *currentObjectValue() const;
     Interpreter::ObjectValue *idEnvironment() const;
@@ -101,7 +100,6 @@ private:
 
     QHash<AST::Node *, Interpreter::ObjectValue *> _qmlObjects;
     QStringList _includedScripts;
-    QStringList _localImports;
 };
 
 } // end of namespace Qml

@@ -39,8 +39,10 @@
 #include <texteditor/itexteditor.h>
 
 #include <QDir>
+#include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
+#include <QLibraryInfo>
 #include <QtConcurrentRun>
 #include <qtconcurrent/runextensions.h>
 #include <QTextStream>
@@ -50,6 +52,8 @@
 using namespace QmlJS;
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
+
+static QStringList environmentImportPaths();
 
 ModelManager::ModelManager(QObject *parent):
         ModelManagerInterface(parent),
@@ -63,6 +67,10 @@ ModelManager::ModelManager(QObject *parent):
             this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
 
     loadQmlTypeDescriptions();
+
+    m_defaultImportPaths << environmentImportPaths();
+    m_defaultImportPaths << QLibraryInfo::location(QLibraryInfo::ImportsPath);
+    refreshSourceDirectories(m_defaultImportPaths);
 }
 
 void ModelManager::loadQmlTypeDescriptions()
@@ -120,6 +128,42 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles)
         m_core->progressManager()->addTask(result, tr("Indexing"),
                         QmlJSEditor::Constants::TASK_INDEX);
     }
+
+    return result;
+}
+
+void ModelManager::updateSourceDirectories(const QStringList &directories)
+{
+    refreshSourceDirectories(directories);
+}
+
+QFuture<void> ModelManager::refreshSourceDirectories(const QStringList &sourceDirectories)
+{
+    if (sourceDirectories.isEmpty()) {
+        return QFuture<void>();
+    }
+
+    const QMap<QString, WorkingCopy> workingCopy = buildWorkingCopyList();
+
+    QFuture<void> result = QtConcurrent::run(&ModelManager::parseDirectories,
+                                              workingCopy, sourceDirectories,
+                                              this);
+
+    if (m_synchronizer.futures().size() > 10) {
+        QList<QFuture<void> > futures = m_synchronizer.futures();
+
+        m_synchronizer.clearFutures();
+
+        foreach (QFuture<void> future, futures) {
+            if (! (future.isFinished() || future.isCanceled()))
+                m_synchronizer.addFuture(future);
+        }
+    }
+
+    m_synchronizer.addFuture(result);
+
+    m_core->progressManager()->addTask(result, tr("Indexing"),
+                                       QmlJSEditor::Constants::TASK_INDEX);
 
     return result;
 }
@@ -212,6 +256,32 @@ void ModelManager::parse(QFutureInterface<void> &future,
     future.setProgressValue(files.size());
 }
 
+void ModelManager::parseDirectories(QFutureInterface<void> &future,
+                                    QMap<QString, WorkingCopy> workingCopy,
+                                    QStringList directories,
+                                    ModelManager *modelManager)
+{
+    Core::MimeDatabase *db = Core::ICore::instance()->mimeDatabase();
+    Core::MimeType jsSourceTy = db->findByType(QLatin1String("application/javascript"));
+    Core::MimeType qmlSourceTy = db->findByType(QLatin1String("application/x-qml"));
+
+    QStringList pattern;
+    foreach (const QRegExp &glob, jsSourceTy.globPatterns())
+        pattern << glob.pattern();
+    foreach (const QRegExp &glob, qmlSourceTy.globPatterns())
+        pattern << glob.pattern();
+
+    QStringList importedFiles;
+    foreach (const QString &path, directories) {
+        QDirIterator fileIterator(path, pattern, QDir::Files,
+                                  QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+        while (fileIterator.hasNext())
+            importedFiles << fileIterator.next();
+    }
+
+    parse(future, workingCopy, importedFiles, modelManager);
+}
+
 // Check whether fileMimeType is the same or extends knownMimeType
 bool ModelManager::matchesMimeType(const Core::MimeType &fileMimeType, const Core::MimeType &knownMimeType)
 {
@@ -230,4 +300,39 @@ bool ModelManager::matchesMimeType(const Core::MimeType &fileMimeType, const Cor
     }
 
     return false;
+}
+
+void ModelManager::setProjectImportPaths(const QStringList &importPaths)
+{
+    m_projectImportPaths = importPaths;
+
+    refreshSourceDirectories(importPaths);
+}
+
+QStringList ModelManager::importPaths() const
+{
+    QStringList paths;
+    paths << m_projectImportPaths;
+    paths << m_defaultImportPaths;
+    return paths;
+}
+
+static QStringList environmentImportPaths()
+{
+    QStringList paths;
+
+    QByteArray envImportPath = qgetenv("QML_IMPORT_PATH");
+
+#if defined(Q_OS_WIN)
+    QLatin1Char pathSep(';');
+#else
+    QLatin1Char pathSep(':');
+#endif
+    foreach (const QString &path, QString::fromLatin1(envImportPath).split(pathSep, QString::SkipEmptyParts)) {
+        QString canonicalPath = QDir(path).canonicalPath();
+        if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
+            paths.append(canonicalPath);
+    }
+
+    return paths;
 }

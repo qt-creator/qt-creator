@@ -172,7 +172,7 @@ void HoverHandler::updateHelpIdAndTooltip(TextEditor::ITextEditor *editor, int p
 
             Interpreter::Engine interp;
             Interpreter::Context context(&interp);
-            context.build(astPath, qmlDocument, snapshot);
+            context.build(astPath, qmlDocument, snapshot, m_modelManager->importPaths());
 
             Evaluate check(&context);
             const Interpreter::Value *value = check(node);

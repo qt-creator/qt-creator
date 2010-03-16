@@ -7,6 +7,7 @@
 
 #include <QtCore/QList>
 #include <QtCore/QHash>
+#include <QtCore/QStringList>
 
 namespace QmlJS {
 
@@ -18,8 +19,8 @@ class NameId;
 class Link
 {
 public:
-    // Link all documents in snapshot reachable from doc.
-    Link(Interpreter::Context *context, Document::Ptr doc, const Snapshot &snapshot);
+    // Link all documents in snapshot
+    Link(Interpreter::Context *context, const Snapshot &snapshot, const QStringList &importPaths);
     ~Link();
 
     // Get the scope chain for the currentObject inside doc.
@@ -33,14 +34,15 @@ private:
             Interpreter::ScopeChain::QmlComponentChain *target,
             QHash<Document *, Interpreter::ScopeChain::QmlComponentChain *> *components);
 
-    static QList<Document::Ptr> reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot);
+    static QList<Document::Ptr> reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot,
+                                                   const QStringList &importPaths);
     static AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
 
     void linkImports();
 
     void populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Ptr doc);
     void importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
-                    AST::UiImport *import, const QString &startPath);
+                    AST::UiImport *import);
     void importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
                        AST::UiImport *import);
     void importObject(Bind *bind, const QString &name, Interpreter::ObjectValue *object, NameId *targetNamespace);
@@ -48,7 +50,8 @@ private:
 private:
     Snapshot _snapshot;
     Interpreter::Context *_context;
-    QList<Document::Ptr> _docs;
+    QMultiHash<QString, Document::Ptr> _documentByPath;
+    const QStringList _importPaths;
 };
 
 } // namespace QmlJS

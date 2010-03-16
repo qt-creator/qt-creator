@@ -176,6 +176,7 @@ public:
     };
 
     void rehighlight(const Source &source);
+    void setModelManager(ModelManagerInterface *modelManager);
 
 Q_SIGNALS:
     void changed(const QmlJSEditor::Internal::SemanticInfo &semanticInfo);
@@ -193,6 +194,7 @@ private:
     bool m_done;
     Source m_source;
     SemanticInfo m_lastSemanticInfo;
+    ModelManagerInterface *m_modelManager;
 };
 
 class QmlJSTextEditor : public TextEditor::BaseTextEditor

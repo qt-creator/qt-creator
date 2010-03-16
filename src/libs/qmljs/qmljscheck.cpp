@@ -170,11 +170,11 @@ public:
 } // end of anonymous namespace
 
 
-Check::Check(Document::Ptr doc, const Snapshot &snapshot)
+Check::Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &importPaths)
     : _doc(doc)
     , _snapshot(snapshot)
     , _context(&_engine)
-    , _link(&_context, doc, snapshot)
+    , _link(&_context, snapshot, importPaths)
     , _scopeBuilder(doc, &_context)
 {
 }

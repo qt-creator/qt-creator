@@ -289,7 +289,8 @@ public:
     Context(Engine *engine);
     ~Context();
 
-    void build(const QList<AST::Node *> &astPath, const Document::Ptr doc, const Snapshot &snapshot);
+    void build(const QList<AST::Node *> &astPath, const Document::Ptr doc,
+               const Snapshot &snapshot, const QStringList &importPaths);
 
     Engine *engine() const;
     const ScopeChain &scopeChain() const;
@@ -313,7 +314,7 @@ private:
     Engine *_engine;
     LookupMode _lookupMode;
     QHash<const ObjectValue *, Properties> _properties;
-    QHash<const Document *, const ObjectValue *> _typeEnvironments;
+    QHash<QString, const ObjectValue *> _typeEnvironments;
     ScopeChain _scopeChain;
     int _qmlScopeObjectIndex;
     bool _qmlScopeObjectSet;
@@ -525,6 +526,8 @@ public:
 
     QList<Interpreter::QmlObjectValue *> staticTypesForImport(const QString &prefix, int majorVersion, int minorVersion) const;
     Interpreter::QmlObjectValue *staticTypeForImport(const QString &qualifiedName) const;
+
+    bool hasPackage(const QString &package) const;
 
 private:
     QHash<QString, QList<QmlObjectValue *> > _importedTypes;

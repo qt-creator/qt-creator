@@ -671,7 +671,7 @@ int CodeCompletion::startCompletion(TextEditor::ITextEditable *editor)
 
     // Set up the current scope chain.
     QList<AST::Node *> astPath = semanticInfo.astPath(editor->position());
-    context.build(astPath , document, snapshot);
+    context.build(astPath , document, snapshot, m_modelManager->importPaths());
 
     // Search for the operator that triggered the completion.
     QChar completionOperator;

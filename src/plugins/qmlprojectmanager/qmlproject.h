@@ -106,6 +106,7 @@ public:
 private slots:
     void refreshProjectFile();
     void refreshFiles();
+    void refreshImportPaths();
 
 protected:
     bool fromMap(const QVariantMap &map);

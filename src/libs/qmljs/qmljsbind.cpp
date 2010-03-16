@@ -59,11 +59,6 @@ QStringList Bind::includedScripts() const
     return _includedScripts;
 }
 
-QStringList Bind::localImports() const
-{
-    return _localImports;
-}
-
 Interpreter::ObjectValue *Bind::currentObjectValue() const
 {
     return _currentObjectValue;
@@ -210,16 +205,8 @@ bool Bind::visit(AST::Program *)
     return true;
 }
 
-bool Bind::visit(UiImport *ast)
+bool Bind::visit(UiImport *)
 {
-    if (ast->fileName) {
-        QString path = _doc->path();
-        path += QLatin1Char('/');
-        path += ast->fileName->asString();
-        path = QDir::cleanPath(path);
-        _localImports.append(path);
-    }
-
     return false;
 }
 

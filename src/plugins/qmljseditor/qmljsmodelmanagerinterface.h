@@ -54,6 +54,10 @@ public:
 
     virtual QmlJS::Snapshot snapshot() const = 0;
     virtual void updateSourceFiles(const QStringList &files) = 0;
+    virtual void updateSourceDirectories(const QStringList &directories) = 0;
+
+    virtual void setProjectImportPaths(const QStringList &importPaths) = 0;
+    virtual QStringList importPaths() const = 0;
 
 signals:
     void documentUpdated(QmlJS::Document::Ptr doc);

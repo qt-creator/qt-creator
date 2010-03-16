@@ -41,7 +41,7 @@ namespace QmlJS {
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
 public:
-    Check(Document::Ptr doc, const Snapshot &snapshot);
+    Check(Document::Ptr doc, const Snapshot &snapshot, const QStringList &importPaths);
     virtual ~Check();
 
     QList<DiagnosticMessage> operator()();

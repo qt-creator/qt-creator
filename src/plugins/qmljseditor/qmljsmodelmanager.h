@@ -55,8 +55,12 @@ public:
 
     virtual QmlJS::Snapshot snapshot() const;
     virtual void updateSourceFiles(const QStringList &files);
+    virtual void updateSourceDirectories(const QStringList &directories);
 
     void emitDocumentUpdated(QmlJS::Document::Ptr doc);
+
+    virtual void setProjectImportPaths(const QStringList &importPaths);
+    virtual QStringList importPaths() const;
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
@@ -75,12 +79,18 @@ protected:
     };
 
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
+    QFuture<void> refreshSourceDirectories(const QStringList &sourceDirectories);
     QMap<QString, WorkingCopy> buildWorkingCopyList();
 
     static void parse(QFutureInterface<void> &future,
                       QMap<QString, WorkingCopy> workingCopy,
                       QStringList files,
                       ModelManager *modelManager);
+
+    static void parseDirectories(QFutureInterface<void> &future,
+                                 QMap<QString, WorkingCopy> workingCopy,
+                                 QStringList directories,
+                                 ModelManager *modelManager);
 
     void loadQmlTypeDescriptions();
 
@@ -90,6 +100,8 @@ private:
     mutable QMutex m_mutex;
     Core::ICore *m_core;
     QmlJS::Snapshot _snapshot;
+    QStringList m_projectImportPaths;
+    QStringList m_defaultImportPaths;
 
     QFutureSynchronizer<void> m_synchronizer;
 };

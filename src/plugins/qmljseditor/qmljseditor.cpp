@@ -643,6 +643,7 @@ QmlJSTextEditor::QmlJSTextEditor(QWidget *parent) :
     m_modelManager = ExtensionSystem::PluginManager::instance()->getObject<ModelManagerInterface>();
 
     if (m_modelManager) {
+        m_semanticHighlighter->setModelManager(m_modelManager);
         connect(m_modelManager, SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
                 this, SLOT(onDocumentUpdated(QmlJS::Document::Ptr)));
     }
@@ -980,7 +981,8 @@ TextEditor::BaseTextEditor::Link QmlJSTextEditor::findLinkAt(const QTextCursor &
 
     Interpreter::Engine interp;
     Interpreter::Context context(&interp);
-    context.build(semanticInfo.astPath(cursorPosition), semanticInfo.document, semanticInfo.snapshot);
+    context.build(semanticInfo.astPath(cursorPosition), semanticInfo.document,
+                  semanticInfo.snapshot, m_modelManager->importPaths());
 
     Evaluate check(&context);
     const Interpreter::Value *value = check.reference(node);
@@ -1266,7 +1268,8 @@ SemanticHighlighter::Source QmlJSTextEditor::currentSource(bool force)
 
 SemanticHighlighter::SemanticHighlighter(QObject *parent)
         : QThread(parent),
-          m_done(false)
+          m_done(false),
+          m_modelManager(0)
 {
 }
 
@@ -1357,8 +1360,16 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     semanticInfo.snapshot = snapshot;
     semanticInfo.document = doc;
 
-    Check checker(doc, snapshot);
+    QStringList importPaths;
+    if (m_modelManager)
+        importPaths = m_modelManager->importPaths();
+    Check checker(doc, snapshot, importPaths);
     semanticInfo.semanticMessages = checker();
 
     return semanticInfo;
+}
+
+void SemanticHighlighter::setModelManager(ModelManagerInterface *modelManager)
+{
+    m_modelManager = modelManager;
 }

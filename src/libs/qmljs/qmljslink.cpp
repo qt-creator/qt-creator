@@ -13,11 +13,14 @@ using namespace QmlJS;
 using namespace QmlJS::Interpreter;
 using namespace QmlJS::AST;
 
-Link::Link(Context *context, Document::Ptr currentDoc, const Snapshot &snapshot)
+Link::Link(Context *context, const Snapshot &snapshot,
+           const QStringList &importPaths)
     : _snapshot(snapshot)
     , _context(context)
+    , _importPaths(importPaths)
 {
-    _docs = reachableDocuments(currentDoc, snapshot);
+    foreach (Document::Ptr doc, snapshot)
+        _documentByPath.insert(doc->path(), doc);
     linkImports();
 }
 
@@ -58,7 +61,7 @@ void Link::scopeChainAt(Document::Ptr doc, const QList<Node *> &astPath)
         // the global scope of a js file does not see the instantiating component
         if (astPath.size() > 0) {
             // add scope chains for all components that source this document
-            foreach (Document::Ptr otherDoc, _docs) {
+            foreach (Document::Ptr otherDoc, _snapshot) {
                 if (otherDoc->bind()->includedScripts().contains(doc->fileName())) {
                     ScopeChain::QmlComponentChain *component = new ScopeChain::QmlComponentChain;
                     componentScopes.insert(otherDoc.data(), component);
@@ -93,7 +96,7 @@ void Link::makeComponentChain(
     Bind *bind = doc->bind();
 
     // add scopes for all components instantiating this one
-    foreach (Document::Ptr otherDoc, _docs) {
+    foreach (Document::Ptr otherDoc, _snapshot) {
         if (otherDoc == doc)
             continue;
         if (otherDoc->bind()->usesQmlPrototype(bind->rootObjectValue(), _context)) {
@@ -129,7 +132,7 @@ void Link::makeComponentChain(
 
 void Link::linkImports()
 {
-    foreach (Document::Ptr doc, _docs) {
+    foreach (Document::Ptr doc, _snapshot) {
         ObjectValue *typeEnv = engine()->newObject(/*prototype =*/0); // ### FIXME
 
         // Populate the _typeEnvironment with imports.
@@ -142,6 +145,9 @@ void Link::linkImports()
 static QString componentName(const QString &fileName)
 {
     QString componentName = fileName;
+    int sepIndex = componentName.lastIndexOf(QDir::separator());
+    if (sepIndex != -1)
+        componentName.remove(0, sepIndex + 1);
     int dotIndex = componentName.indexOf(QLatin1Char('.'));
     if (dotIndex != -1)
         componentName.truncate(dotIndex);
@@ -159,22 +165,13 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
     if (scriptValue)
         typeEnv->setProperty("Script", scriptValue);
 
-    QFileInfo fileInfo(doc->fileName());
-    const QString absolutePath = fileInfo.absolutePath();
-
     // implicit imports:
     // qml files in the same directory are available without explicit imports
-    foreach (Document::Ptr otherDoc, _docs) {
+    foreach (Document::Ptr otherDoc, _documentByPath.values(doc->path())) {
         if (otherDoc == doc)
             continue;
 
-        QFileInfo otherFileInfo(otherDoc->fileName());
-        const QString otherAbsolutePath = otherFileInfo.absolutePath();
-
-        if (otherAbsolutePath != absolutePath)
-            continue;
-
-        typeEnv->setProperty(componentName(otherFileInfo.fileName()),
+        typeEnv->setProperty(componentName(otherDoc->fileName()),
                              otherDoc->bind()->rootObjectValue());
     }
 
@@ -184,7 +181,7 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
             continue;
 
         if (it->import->fileName) {
-            importFile(typeEnv, doc, it->import, absolutePath);
+            importFile(typeEnv, doc, it->import);
         } else if (it->import->importUri) {
             importNonFile(typeEnv, doc, it->import);
         }
@@ -200,46 +197,44 @@ void Link::populateImportedTypes(Interpreter::ObjectValue *typeEnv, Document::Pt
     import "http://www.ovi.com/" as Ovi
 */
 void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
-                      AST::UiImport *import, const QString &startPath)
+                      AST::UiImport *import)
 {
     Q_UNUSED(doc)
 
     if (!import->fileName)
         return;
 
-    QString path = startPath;
+    QString path = doc->path();
     path += QLatin1Char('/');
     path += import->fileName->asString();
     path = QDir::cleanPath(path);
 
-    ObjectValue *importNamespace = 0;
+    ObjectValue *importNamespace = typeEnv;
 
-    foreach (Document::Ptr otherDoc, _docs) {
-        QFileInfo otherFileInfo(otherDoc->fileName());
-        const QString otherAbsolutePath = otherFileInfo.absolutePath();
-
-        bool directoryImport = (path == otherAbsolutePath);
-        bool fileImport = (path == otherDoc->fileName());
-        if (!directoryImport && !fileImport)
-            continue;
-
-        if (directoryImport && import->importId && !importNamespace) {
+    // directory import
+    if (_documentByPath.contains(path)) {
+        if (import->importId) {
             importNamespace = engine()->newObject(/*prototype =*/0);
             typeEnv->setProperty(import->importId->asString(), importNamespace);
         }
 
+        foreach (Document::Ptr importedDoc, _documentByPath.values(path)) {
+            const QString targetName = componentName(importedDoc->fileName());
+            importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
+        }
+    }
+    // file import
+    else if (Document::Ptr importedDoc = _snapshot.document(path)) {
         QString targetName;
-        if (fileImport && import->importId) {
+        if (import->importId) {
             targetName = import->importId->asString();
         } else {
-            targetName = componentName(otherFileInfo.fileName());
+            targetName = componentName(importedDoc->fileName());
         }
 
-        ObjectValue *importInto = typeEnv;
-        if (importNamespace)
-            importInto = importNamespace;
-
-        importInto->setProperty(targetName, otherDoc->bind()->rootObjectValue());
+        importNamespace->setProperty(targetName, importedDoc->bind()->rootObjectValue());
+    } else {
+        // error!
     }
 }
 
@@ -250,6 +245,9 @@ void Link::importFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc,
 */
 void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, AST::UiImport *import)
 {
+    if (! import->importUri)
+        return;
+
     ObjectValue *namespaceObject = 0;
 
     if (import->importId) { // with namespace we insert an object in the type env. to hold the imported types
@@ -260,27 +258,46 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
         namespaceObject = typeEnv;
     }
 
-    // try the metaobject system
-    if (import->importUri) {
-        const QString package = Bind::toString(import->importUri, '/');
-        int majorVersion = QmlObjectValue::NoVersion;
-        int minorVersion = QmlObjectValue::NoVersion;
+    const QString package = Bind::toString(import->importUri, '/');
+    int majorVersion = QmlObjectValue::NoVersion;
+    int minorVersion = QmlObjectValue::NoVersion;
 
-        if (import->versionToken.isValid()) {
-            const QString versionString = doc->source().mid(import->versionToken.offset, import->versionToken.length);
-            const int dotIdx = versionString.indexOf(QLatin1Char('.'));
-            if (dotIdx == -1) {
-                // only major (which is probably invalid, but let's handle it anyway)
-                majorVersion = versionString.toInt();
-                minorVersion = 0; // ### TODO: Check with magic version numbers above
-            } else {
-                majorVersion = versionString.left(dotIdx).toInt();
-                minorVersion = versionString.mid(dotIdx + 1).toInt();
-            }
+    if (import->versionToken.isValid()) {
+        const QString versionString = doc->source().mid(import->versionToken.offset, import->versionToken.length);
+        const int dotIdx = versionString.indexOf(QLatin1Char('.'));
+        if (dotIdx == -1) {
+            // only major (which is probably invalid, but let's handle it anyway)
+            majorVersion = versionString.toInt();
+            minorVersion = 0; // ### TODO: Check with magic version numbers above
+        } else {
+            majorVersion = versionString.left(dotIdx).toInt();
+            minorVersion = versionString.mid(dotIdx + 1).toInt();
         }
+    }
 
+    // if the package is in the meta type system, use it
+    if (engine()->metaTypeSystem().hasPackage(package)) {
         foreach (QmlObjectValue *object, engine()->metaTypeSystem().staticTypesForImport(package, majorVersion, minorVersion)) {
             namespaceObject->setProperty(object->className(), object);
+        }
+    } else {
+        // check the filesystem
+        QStringList localImportPaths = _importPaths;
+        localImportPaths.prepend(doc->path());
+        foreach (const QString &importPath, localImportPaths) {
+            QDir dir(importPath);
+            if (!dir.cd(package))
+                continue;
+            if (!dir.exists("qmldir"))
+                continue;
+
+
+            // ### Should read qmldir file and import accordingly.
+            foreach (Document::Ptr otherDoc, _documentByPath.values(dir.path())) {
+                namespaceObject->setProperty(componentName(otherDoc->fileName()), otherDoc->bind()->rootObjectValue());
+            }
+
+            break;
         }
     }
 }
@@ -293,90 +310,4 @@ UiQualifiedId *Link::qualifiedTypeNameId(Node *node)
         return binding->qualifiedTypeNameId;
     else
         return 0;
-}
-
-QT_BEGIN_NAMESPACE
-static uint qHash(Document::Ptr doc)
-{
-    return qHash(doc.data());
-}
-QT_END_NAMESPACE
-
-QList<Document::Ptr> Link::reachableDocuments(Document::Ptr startDoc, const Snapshot &snapshot)
-{
-    QSet<Document::Ptr> docs;
-
-    if (! startDoc)
-        return docs.values();
-
-    QMultiHash<QString, Document::Ptr> documentByPath;
-    foreach (Document::Ptr doc, snapshot)
-        documentByPath.insert(doc->path(), doc);
-
-    // ### TODO: This doesn't scale well. Maybe just use the whole snapshot?
-    // Find all documents that (indirectly) include startDoc
-    {
-        QList<Document::Ptr> todo;
-        todo += startDoc;
-
-        while (! todo.isEmpty()) {
-            Document::Ptr doc = todo.takeFirst();
-
-            docs += doc;
-
-            Snapshot::const_iterator it, end = snapshot.end();
-            for (it = snapshot.begin(); it != end; ++it) {
-                Document::Ptr otherDoc = *it;
-                if (docs.contains(otherDoc))
-                    continue;
-
-                QStringList localImports = otherDoc->bind()->localImports();
-                if (localImports.contains(doc->fileName())
-                    || localImports.contains(doc->path())
-                    || otherDoc->bind()->includedScripts().contains(doc->fileName())
-                ) {
-                    todo += otherDoc;
-                }
-            }
-        }
-    }
-
-    // Find all documents that are included by these (even if indirectly).
-    {
-        QSet<QString> processed;
-        QStringList todo;
-        foreach (Document::Ptr doc, docs)
-            todo.append(doc->fileName());
-
-        while (! todo.isEmpty()) {
-            QString path = todo.takeFirst();
-
-            if (processed.contains(path))
-                continue;
-            processed.insert(path);
-
-            if (Document::Ptr doc = snapshot.document(path)) {
-                docs += doc;
-
-                if (doc->qmlProgram())
-                    path = doc->path();
-                else
-                    continue;
-            }
-
-            QStringList localImports;
-            foreach (Document::Ptr doc, documentByPath.values(path)) {
-                if (doc->qmlProgram()) {
-                    docs += doc;
-                    localImports += doc->bind()->localImports();
-                    localImports += doc->bind()->includedScripts();
-                }
-            }
-
-            localImports.removeDuplicates();
-            todo += localImports;
-        }
-    }
-
-    return docs.values();
 }
