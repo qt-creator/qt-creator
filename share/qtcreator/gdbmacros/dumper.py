@@ -6,22 +6,44 @@
 import sys
 import gdb
 import base64
-import os
 import __builtin__
 
-if os.name == "nt":
+
+# Fails on Windows.
+try:
+    import curses.ascii
+    def printableChar(ucs):
+        return select(curses.ascii.isprint(ucs), ucs, '?')
+except:
     def printableChar(ucs):
         if ucs >= 32 and ucs <= 126:
             return ucs
         return '?'
-else:
-    import curses.ascii
-    def printableChar(ucs):
-        return select(curses.ascii.isprint(ucs), ucs, '?')
 
-# only needed for gdb 7.0/7.0.1 that do not implement parse_and_eval
-import os
-import tempfile
+# Fails on SimulatorQt.
+try:
+    import os
+    def removeFile(name):
+        try:  # files may still be locked by gdb on Windows
+            os.remove(filename)
+        except:
+            pass
+except:
+    def removeFile(name):
+        pass
+
+# Fails on SimulatorQt.
+try:
+    import tempfile
+    def createTempFile():
+        file = tempfile.mkstemp(prefix="gdbpy_")
+        return file[1]
+except:
+    fileCounter = 0
+    def createTempFile():
+        fileCounter += 1
+        return "gdbpy_tmp%d" % fileCounter
+
 
 verbosity = 0
 verbosity = 1
@@ -97,8 +119,7 @@ def parseAndEvaluate(exp):
 
 
 def catchCliOutput(command):
-    file = tempfile.mkstemp(prefix="gdbpy_")
-    filename = file[1]
+    filename = createTempFile()
     gdb.execute("set logging off")
     gdb.execute("set logging redirect off")
     gdb.execute("set logging file %s" % filename)
@@ -112,10 +133,7 @@ def catchCliOutput(command):
     for line in file:
         lines.append(line)
     file.close()
-    try:  # files may still be locked by gdb on Windows
-        os.remove(filename)
-    except:
-        pass
+    removeFile(filename)
     return lines
 
 
@@ -274,8 +292,7 @@ def listOfLocals(varList):
             block = block.superblock
     else:
         # Assuming gdb 7.0 release or 6.8-symbianelf.
-        file = tempfile.mkstemp(prefix="gdbpy_")
-        filename = file[1]
+        filename = createTempFile()
         #warn("VARLIST: %s " % varList)
         #warn("VARLIST: %s " % len(varList))
         gdb.execute("set logging off")
@@ -313,10 +330,7 @@ def listOfLocals(varList):
                 continue
             varList.append(line[0:pos])
         file.close()
-        try:  # files may still be locked by gdb on Windows
-            os.remove(filename)
-        except:
-            pass
+        removeFile(filename)
         #warn("VARLIST: %s " % varList)
         for name in varList:
             #warn("NAME %s " % name)
@@ -593,12 +607,14 @@ class FrameCommand(gdb.Command):
         typeformats = {}
         formats = {}
         watchers = ""
+        expandedINames = ""
         for arg in args.split(' '):
             pos = arg.find(":") + 1
             if arg.startswith("options:"):
                 options = arg[pos:].split(",")
             elif arg.startswith("vars:"):
-                vars = arg[pos:].split(",")
+                if len(arg[pos:]) > 0:
+                    varList = arg[pos:].split(",")
             elif arg.startswith("expanded:"):
                 expandedINames = set(arg[pos:].split(","))
             elif arg.startswith("typeformats:"):
