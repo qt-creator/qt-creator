@@ -81,7 +81,10 @@ QHelpEngineCore& HelpManager::helpEngineCore()
 {
     if (!m_coreEngine) {
         m_coreEngine = new QHelpEngineCore(collectionFilePath());
+        m_coreEngine->setAutoSaveFilter(false);
+        m_coreEngine->setCurrentFilter(tr("Unfiltered"));
         m_coreEngine->setupData();
+
     }
     return *m_coreEngine;
 }

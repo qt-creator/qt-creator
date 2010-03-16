@@ -95,7 +95,6 @@ using namespace Help::Internal;
 HelpPlugin::HelpPlugin()
     : m_core(0),
     m_helpEngine(0),
-    m_contextHelpEngine(0),
     m_contentWidget(0),
     m_indexWidget(0),
     m_centralWidget(0),
@@ -105,7 +104,6 @@ HelpPlugin::HelpPlugin()
     m_indexItem(0),
     m_searchItem(0),
     m_bookmarkItem(0),
-    m_rightPaneSideBar(0),
     m_progress(0),
     isInitialised(false),
     firstModeChange(true)
@@ -371,8 +369,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     previousAction->setEnabled(m_centralWidget->isBackwardAvailable());
     nextAction->setEnabled(m_centralWidget->isForwardAvailable());
 
-    createRightPaneSideBar();
-
     QDesktopServices::setUrlHandler("qthelp", this, "handleHelpRequest");
 
     if (Core::ActionContainer *advancedMenu =
@@ -463,67 +459,70 @@ bool HelpPlugin::updateDocumentation()
 
 void HelpPlugin::createRightPaneSideBar()
 {
-    QAction *switchToHelpMode = new QAction(tr("Go to Help Mode"), this);
-    m_rightPaneBackwardAction =
-        new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
+    if (m_helpViewerForSideBar)
+        return;
+
+    QAction *switchToHelp = new QAction(tr("Go to Help Mode"), this);
+    connect(switchToHelp, SIGNAL(triggered()), this, SLOT(switchToHelpMode()));
+
+    QAction *next = new QAction(QIcon(QLatin1String(":/help/images/next.png")),
+        tr("Next"), this);
+    connect(next, SIGNAL(triggered()), this, SLOT(rightPaneForward()));
+
+    QAction *previous = new QAction(QIcon(QLatin1String(":/help/images/previous.png")),
         tr("Previous"), this);
-    m_rightPaneForwardAction =
-        new QAction(QIcon(QLatin1String(":/help/images/next.png")), tr("Next"),
-        this);
-
-    QToolBar *rightPaneToolBar = new QToolBar();
-    rightPaneToolBar->addAction(switchToHelpMode);
-    rightPaneToolBar->addAction(m_rightPaneBackwardAction);
-    rightPaneToolBar->addAction(m_rightPaneForwardAction);
-
-    connect(switchToHelpMode, SIGNAL(triggered()), this, SLOT(switchToHelpMode()));
-    connect(m_rightPaneBackwardAction, SIGNAL(triggered()), this,
-        SLOT(rightPaneBackward()));
-    connect(m_rightPaneForwardAction, SIGNAL(triggered()), this,
-        SLOT(rightPaneForward()));
-
-    QToolButton *closeButton = new QToolButton();
-    closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
+    connect(previous, SIGNAL(triggered()), this, SLOT(rightPaneBackward()));
 
     // Dummy layout to align the close button to the right
     QHBoxLayout *hboxLayout = new QHBoxLayout();
     hboxLayout->setSpacing(0);
     hboxLayout->setMargin(0);
+
+    // left side actions
+    QToolBar *rightPaneToolBar = new QToolBar();
+    rightPaneToolBar->addAction(switchToHelp);
+    rightPaneToolBar->addAction(previous);
+    rightPaneToolBar->addAction(next);
+
     hboxLayout->addWidget(rightPaneToolBar);
-    hboxLayout->addStretch(5);
-    hboxLayout->addWidget(closeButton);
-    Utils::StyledBar *w = new Utils::StyledBar;
-    w->setLayout(hboxLayout);
+    hboxLayout->addStretch();
+
+    QToolButton *closeButton = new QToolButton();
+    closeButton->setIcon(QIcon(":/core/images/closebutton.png"));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(slotHideRightPane()));
 
-    m_rightPaneSideBar = new QWidget;
+    // close button to the right
+    hboxLayout->addWidget(closeButton);
+
     QVBoxLayout *rightPaneLayout = new QVBoxLayout;
     rightPaneLayout->setMargin(0);
     rightPaneLayout->setSpacing(0);
-    m_rightPaneSideBar->setLayout(rightPaneLayout);
-    m_rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
-    addAutoReleasedObject(new Core::BaseRightPaneWidget(m_rightPaneSideBar));
 
-    rightPaneLayout->addWidget(w);
-    m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0, m_rightPaneSideBar);
+    QWidget *rightPaneSideBar = new QWidget;
+    rightPaneSideBar->setLayout(rightPaneLayout);
+    addAutoReleasedObject(new Core::BaseRightPaneWidget(rightPaneSideBar));
+
+    Utils::StyledBar *rightPaneStyledBar = new Utils::StyledBar;
+    rightPaneStyledBar->setLayout(hboxLayout);
+    rightPaneLayout->addWidget(rightPaneStyledBar);
+
+    m_helpViewerForSideBar = new HelpViewer(m_helpEngine, 0, rightPaneSideBar);
+    rightPaneLayout->addWidget(m_helpViewerForSideBar);
+    rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(rightPaneSideBar));
+    rightPaneSideBar->setFocusProxy(m_helpViewerForSideBar);
+
     Aggregation::Aggregate *agg = new Aggregation::Aggregate();
     agg->add(m_helpViewerForSideBar);
     agg->add(new HelpViewerFindSupport(m_helpViewerForSideBar));
-    rightPaneLayout->addWidget(m_helpViewerForSideBar);
-    rightPaneLayout->addWidget(new Core::FindToolBarPlaceHolder(m_rightPaneSideBar));
+    m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar, QList<int>()
+        << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR), this));
+
 #if defined(QT_NO_WEBKIT)
     QFont font = m_helpViewerForSideBar->font();
     font = qVariantValue<QFont>(m_helpEngine->customValue(QLatin1String("font"),
         font));
     m_helpViewerForSideBar->setFont(font);
 #endif
-    m_core->addContextObject(new Core::BaseContext(m_helpViewerForSideBar, QList<int>()
-        << m_core->uniqueIDManager()->uniqueIdentifier(Constants::C_HELP_SIDEBAR),
-        this));
-    connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
-        SLOT(updateSideBarSource(QUrl)));
-    connect(m_centralWidget, SIGNAL(currentViewerChanged(int)), this,
-        SLOT(updateSideBarSource()));
 
     QAction *copyActionSideBar = new QAction(this);
     Core::Command *cmd = m_core->actionManager()->registerAction(copyActionSideBar,
@@ -532,6 +531,11 @@ void HelpPlugin::createRightPaneSideBar()
     connect(copyActionSideBar, SIGNAL(triggered()), this, SLOT(copyFromSideBar()));
     copyActionSideBar->setText(cmd->action()->text());
     copyActionSideBar->setIcon(cmd->action()->icon());
+
+    connect(m_centralWidget, SIGNAL(sourceChanged(QUrl)), this,
+        SLOT(updateSideBarSource(QUrl)));
+    connect(m_centralWidget, SIGNAL(currentViewerChanged(int)), this,
+        SLOT(updateSideBarSource()));
 }
 
 void HelpPlugin::copyFromSideBar()
@@ -853,6 +857,8 @@ HelpViewer* HelpPlugin::viewerForContextMode()
         viewer = m_helpViewerForSideBar;
     } else {
         activateHelpMode();
+        if (!viewer && m_centralWidget)
+            viewer = m_centralWidget->newEmptyTab();
     }
     return viewer;
 }
@@ -860,6 +866,9 @@ HelpViewer* HelpPlugin::viewerForContextMode()
 void HelpPlugin::activateContext()
 {
     using namespace Core;
+
+    if (!m_helpViewerForSideBar)
+        createRightPaneSideBar();
 
     RightPanePlaceHolder* placeHolder = RightPanePlaceHolder::current();
     if (placeHolder && m_helpViewerForSideBar->hasFocus()) {
@@ -873,15 +882,8 @@ void HelpPlugin::activateContext()
 
     // Find out what to show
     if (IContext *context = m_core->currentContextObject()) {
-        if (!m_contextHelpEngine) {
-            m_contextHelpEngine =
-                new QHelpEngineCore(m_helpEngine->collectionFile(), this);
-            m_contextHelpEngine->setupData();
-            m_contextHelpEngine->setCurrentFilter(tr("Unfiltered"));
-        }
-
         id = context->contextHelpId();
-        links = m_contextHelpEngine->linksForIdentifier(id);
+        links = HelpManager::helpEngineCore().linksForIdentifier(id);
     }
 
     if (HelpViewer* viewer = viewerForContextMode()) {

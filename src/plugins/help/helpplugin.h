@@ -40,7 +40,6 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
 class QHelpEngine;
-class QHelpEngineCore;
 class QToolBar;
 class QUrl;
 QT_END_NAMESPACE
@@ -144,7 +143,6 @@ private:
 
     Core::ICore *m_core;
     QHelpEngine *m_helpEngine;
-    QHelpEngineCore *m_contextHelpEngine;
     ContentWindow *m_contentWidget;
     IndexWindow *m_indexWidget;
     BookmarkWidget *m_bookmarkWidget;
@@ -166,10 +164,6 @@ private:
     QComboBox *m_documentsCombo;
     QComboBox *m_filterComboBox;
     Core::SideBar *m_sideBar;
-    QWidget *m_rightPaneSideBar;
-
-    QAction *m_rightPaneBackwardAction;
-    QAction *m_rightPaneForwardAction;
 
     HelpManager *helpManager;
     QStringList filesToRegister;
