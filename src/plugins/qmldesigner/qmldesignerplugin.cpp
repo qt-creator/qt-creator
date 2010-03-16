@@ -224,6 +224,8 @@ void BauhausPlugin::createDesignModeWidget()
     connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(textEditorsClosed(QList<Core::IEditor*>)));
 
+    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
+            this, SLOT(modeChanged(Core::IMode*)));
 }
 
 void BauhausPlugin::updateEditor(Core::IEditor *editor)
@@ -233,6 +235,19 @@ void BauhausPlugin::updateEditor(Core::IEditor *editor)
         && creatorCore->modeManager()->currentMode() == m_designMode)
     {
         m_mainWidget->showEditor(editor);
+    }
+}
+
+void BauhausPlugin::modeChanged(Core::IMode *mode)
+{
+    if (mode == m_designMode) {
+        m_isActive = true;
+        m_mainWidget->showEditor(m_editorManager->currentEditor());
+    } else {
+        if (m_isActive) {
+            m_isActive = false;
+            m_mainWidget->showEditor(0);
+        }
     }
 }
 

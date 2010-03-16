@@ -84,6 +84,7 @@ private slots:
     void textEditorsClosed(QList<Core::IEditor *> editors);
     void updateActions(Core::IEditor* editor);
     void updateEditor(Core::IEditor *editor);
+    void modeChanged(Core::IMode *mode);
 
 private:
     void createDesignModeWidget();
