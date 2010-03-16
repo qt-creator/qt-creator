@@ -1104,10 +1104,13 @@ void MainWindow::readSettings()
 {
     m_settings->beginGroup(QLatin1String(settingsGroup));
 
-    if (m_overrideColor.isValid())
+    if (m_overrideColor.isValid()) {
         Utils::StyleHelper::setBaseColor(m_overrideColor);
-    else
+        // Get adapted base color.
+        m_overrideColor = Utils::StyleHelper::baseColor();
+    } else {
         Utils::StyleHelper::setBaseColor(m_settings->value(QLatin1String(colorKey)).value<QColor>());
+    }
 
     const QVariant geom = m_settings->value(QLatin1String(geometryKey));
     if (geom.isValid()) {
