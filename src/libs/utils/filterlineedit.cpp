@@ -33,11 +33,11 @@ namespace Utils {
 
 FilterLineEdit::FilterLineEdit(QWidget *parent) :
    FancyLineEdit(parent),
-   m_lastFilterText(typedText())
+   m_lastFilterText(text())
 {
     setSide(Utils::FancyLineEdit::Right);
     setPixmap(QPixmap(QLatin1String(":/utils/images/reset.png")));
-    setHintText(tr("Type to filter"));
+    setPlaceholderText(tr("Type to filter"));
 
     connect(this, SIGNAL(buttonClicked()), this, SLOT(clear()));
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(slotTextChanged()));
@@ -45,7 +45,7 @@ FilterLineEdit::FilterLineEdit(QWidget *parent) :
 
 void FilterLineEdit::slotTextChanged()
 {
-    const QString newlyTypedText = typedText();
+    const QString newlyTypedText = text();
     if (newlyTypedText != m_lastFilterText) {
         m_lastFilterText = newlyTypedText;
         emit filterChanged(m_lastFilterText);

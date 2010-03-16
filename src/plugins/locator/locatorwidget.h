@@ -76,7 +76,6 @@ private:
 
     void showEvent(QShowEvent *e);
 
-    bool isShowingTypeHereMessage() const;
     void showCompletionList();
     void updateCompletionList(const QString &text);
     QList<ILocatorFilter*> filtersFor(const QString &text, QString &searchText);

@@ -166,7 +166,7 @@ ItemLibrary::ItemLibrary(QWidget *parent) :
 
     m_d->m_lineEdit = new Utils::FilterLineEdit(this);
     m_d->m_lineEdit->setObjectName(QLatin1String("itemLibrarySearchInput"));
-    m_d->m_lineEdit->setHintText(tr("<Filter>", "Library search input hint text"));
+    m_d->m_lineEdit->setPlaceholderText(tr("<Filter>", "Library search input hint text"));
     m_d->m_lineEdit->setDragEnabled(false);
     m_d->m_lineEdit->setMinimumWidth(75);
     m_d->m_lineEdit->setTextMargins(0, 0, 0, 0);
@@ -250,7 +250,7 @@ void ItemLibrary::setSearchFilter(const QString &searchFilter)
 
 void ItemLibrary::updateSearch()
 {
-    setSearchFilter(m_d->m_lineEdit->typedText());
+    setSearchFilter(m_d->m_lineEdit->text());
 }
 
 void ItemLibrary::clearLineEditFocus()

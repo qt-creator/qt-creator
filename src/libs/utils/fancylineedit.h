@@ -54,7 +54,6 @@ class QTCREATOR_UTILS_EXPORT FancyLineEdit : public QLineEdit
     Q_PROPERTY(Side side READ side WRITE setSide DESIGNABLE isSideStored STORED isSideStored)
     Q_PROPERTY(bool useLayoutDirection READ useLayoutDirection WRITE setUseLayoutDirection DESIGNABLE true)
     Q_PROPERTY(bool menuTabFocusTrigger READ hasMenuTabFocusTrigger WRITE setMenuTabFocusTrigger  DESIGNABLE true)
-    Q_PROPERTY(QString hintText READ hintText WRITE setHintText DESIGNABLE true)
 
 public:
     enum Side {Left, Right};
@@ -77,27 +76,14 @@ public:
     bool hasMenuTabFocusTrigger() const;
     void setMenuTabFocusTrigger(bool v);
 
-    // Hint text that is displayed when no focus is set.
-    QString hintText() const;
-
-    bool isShowingHintText() const;
-
-    // Convenience for accessing the text that returns "" in case of isShowingHintText().
-    QString typedText() const;
-
 signals:
     void buttonClicked();
 
 public slots:
     void setPixmap(const QPixmap &pixmap);
-    void setHintText(const QString &ht);
-    void showHintText();
-    void hideHintText();
 
 protected:
     virtual void resizeEvent(QResizeEvent *e);
-    virtual void focusInEvent(QFocusEvent *e);
-    virtual void focusOutEvent(QFocusEvent *e);
 
 private:
     friend class Utils::FancyLineEditPrivate;

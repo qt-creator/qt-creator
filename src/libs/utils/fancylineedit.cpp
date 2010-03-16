@@ -77,8 +77,6 @@ public:
     FancyLineEdit::Side m_side;
     bool m_useLayoutDirection;
     bool m_menuTabFocusTrigger;
-    QString m_hintText;
-    bool m_showingHintText;
 };
 
 
@@ -91,8 +89,7 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
     m_menuLabel(0),
     m_side(FancyLineEdit::Left),
     m_useLayoutDirection(false),
-    m_menuTabFocusTrigger(false),
-    m_showingHintText(false)
+    m_menuTabFocusTrigger(false)
 {
 }
 
@@ -131,7 +128,6 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     m_d->m_menuLabel = new QLabel(this);
     m_d->m_menuLabel->installEventFilter(m_d);
     updateMenuLabel();
-    showHintText();
 }
 
 FancyLineEdit::~FancyLineEdit()
@@ -163,10 +159,6 @@ void FancyLineEdit::updateStyleSheet(Side side)
     sheet += QLatin1String(": ");
     sheet += QString::number(m_d->m_pixmap.width() + margin);
     sheet += QLatin1Char(';');
-    if (m_d->m_showingHintText)
-        sheet += QLatin1String(" color: #BBBBBB;");
-    // Fix the stylesheet's clearing the size hint.
-
     sheet += QLatin1Char('}');
     setStyleSheet(sheet);
 }
@@ -255,64 +247,6 @@ void FancyLineEdit::setMenuTabFocusTrigger(bool v)
 
     m_d->m_menuTabFocusTrigger = v;
     m_d->m_menuLabel->setFocusPolicy(v ? Qt::TabFocus : Qt::NoFocus);
-}
-
-QString FancyLineEdit::hintText() const
-{
-    return m_d->m_hintText;
-}
-
-void FancyLineEdit::setHintText(const QString &ht)
-{
-    // Updating magic to make the property work in Designer.
-    if (ht == m_d->m_hintText)
-        return;
-    hideHintText();
-    m_d->m_hintText = ht;
-    if (!hasFocus() && !ht.isEmpty())
-        showHintText();
-}
-
-void FancyLineEdit::showHintText()
-{
-    if (!m_d->m_showingHintText && text().isEmpty() && !m_d->m_hintText.isEmpty()) {
-        m_d->m_showingHintText = true;
-        setText(m_d->m_hintText);
-        updateStyleSheet(side());
-    }
-}
-
-void FancyLineEdit::hideHintText()
-{
-    if (m_d->m_showingHintText && !m_d->m_hintText.isEmpty()) {
-        m_d->m_showingHintText = false;
-        setText(QString());
-        updateStyleSheet(side());
-    }
-}
-
-void FancyLineEdit::focusInEvent(QFocusEvent *e)
-{
-    hideHintText();
-    QLineEdit::focusInEvent(e);
-}
-
-void FancyLineEdit::focusOutEvent(QFocusEvent *e)
-{
-    // Focus out: Switch to displaying the hint text unless
-    // there is user input
-    showHintText();
-    QLineEdit::focusOutEvent(e);
-}
-
-bool FancyLineEdit::isShowingHintText() const
-{
-    return m_d->m_showingHintText;
-}
-
-QString FancyLineEdit::typedText() const
-{
-    return m_d->m_showingHintText ? QString() : text();
 }
 
 } // namespace Utils

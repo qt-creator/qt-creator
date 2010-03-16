@@ -282,7 +282,7 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
     QPixmap image(Core::Constants::ICON_MAGNIFIER);
     m_fileLineEdit->setPixmap(image);
     m_fileLineEdit->setUseLayoutDirection(true);
-    m_fileLineEdit->setHintText(tr("Type to locate"));
+    m_fileLineEdit->setPlaceholderText(tr("Type to locate"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
     m_fileLineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -305,11 +305,6 @@ LocatorWidget::LocatorWidget(LocatorPlugin *qop) :
         this, SLOT(showPopup()));
     connect(m_completionList, SIGNAL(activated(QModelIndex)),
             this, SLOT(acceptCurrentEntry()));
-}
-
-bool LocatorWidget::isShowingTypeHereMessage() const
-{
-    return m_fileLineEdit->isShowingHintText();
 }
 
 void LocatorWidget::updateFilterList()
@@ -374,7 +369,7 @@ void LocatorWidget::showCompletionList()
 
 void LocatorWidget::showPopup()
 {
-    updateCompletionList(m_fileLineEdit->typedText());
+    updateCompletionList(m_fileLineEdit->text());
     showCompletionList();
 }
 
@@ -441,7 +436,6 @@ void LocatorWidget::acceptCurrentEntry()
 
 void LocatorWidget::show(const QString &text, int selectionStart, int selectionLength)
 {
-    m_fileLineEdit->hideHintText();
     if (!text.isEmpty())
         m_fileLineEdit->setText(text);
     if (!m_fileLineEdit->hasFocus())
