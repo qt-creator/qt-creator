@@ -133,6 +133,7 @@ private slots:
     void indexingFinished();
 
 private:
+    void resetFilter();
     bool updateDocumentation();
 
 private:

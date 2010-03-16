@@ -420,6 +420,27 @@ void HelpPlugin::pluginUpdateDocumentation()
         updateDocumentation();
 }
 
+void HelpPlugin::resetFilter()
+{
+    const QLatin1String weAddedFilterKey("UnfilteredFilterInserted");
+    const QLatin1String previousFilterNameKey("UnfilteredFilterName");
+    if (m_helpEngine->customValue(weAddedFilterKey).toInt() == 1) {
+        // we added a filter at some point, remove previously added filter
+        const QString &previousFilter =
+            m_helpEngine->customValue(previousFilterNameKey).toString();
+        if (!previousFilter.isEmpty())
+            m_helpEngine->removeCustomFilter(previousFilter);
+    }
+
+    // potentially remove a filter with new name
+    const QString filterName = tr("Unfiltered");
+    m_helpEngine->removeCustomFilter(filterName);
+    m_helpEngine->addCustomFilter(filterName, QStringList());
+    m_helpEngine->setCustomValue(weAddedFilterKey, 1);
+    m_helpEngine->setCustomValue(previousFilterNameKey, filterName);
+    m_helpEngine->setCurrentFilter(filterName);
+}
+
 bool HelpPlugin::updateDocumentation()
 {
     bool needsSetup = false;
@@ -617,25 +638,6 @@ void HelpPlugin::extensionsInitialized()
             m_helpEngine->removeCustomFilter(filter);
     }
 
-    const QLatin1String weAddedFilterKey("UnfilteredFilterInserted");
-    const QLatin1String previousFilterNameKey("UnfilteredFilterName");
-    if (m_helpEngine->customValue(weAddedFilterKey).toInt() == 1) {
-        // we added a filter at some point, remove previously added filter
-        const QString &previousFilter =
-            m_helpEngine->customValue(previousFilterNameKey).toString();
-        if (!previousFilter.isEmpty())
-            m_helpEngine->removeCustomFilter(previousFilter);
-    }
-
-    // potentially remove a filter with new name
-    const QString filterName = tr("Unfiltered");
-    m_helpEngine->removeCustomFilter(filterName);
-    m_helpEngine->addCustomFilter(filterName, QStringList());
-    m_helpEngine->setCustomValue(weAddedFilterKey, 1);
-    m_helpEngine->setCustomValue(previousFilterNameKey, filterName);
-    m_helpEngine->setCurrentFilter(filterName);
-
-    m_bookmarkManager->setupBookmarkModels();
 
     m_helpEngine->blockSignals(blocked);
 
@@ -733,6 +735,7 @@ void HelpPlugin::modeChanged(Core::IMode *mode)
         qApp->processEvents();
         qApp->setOverrideCursor(Qt::WaitCursor);
 
+        resetFilter();
         m_centralWidget->setLastShownPages();
         connect(m_helpEngine, SIGNAL(setupFinished()), m_helpEngine->searchEngine(),
             SLOT(indexDocumentation()));
