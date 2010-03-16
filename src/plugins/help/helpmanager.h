@@ -33,6 +33,7 @@
 
 #include <QtCore/QObject>
 
+QT_FORWARD_DECLARE_CLASS(QHelpEngineCore)
 QT_FORWARD_DECLARE_CLASS(QString)
 QT_FORWARD_DECLARE_CLASS(QStringList)
 
@@ -45,16 +46,22 @@ class HELP_EXPORT HelpManager : public QObject
 {
     Q_OBJECT
 public:
-    HelpManager(Internal::HelpPlugin*);
+    HelpManager(Internal::HelpPlugin *plugin);
+    ~HelpManager();
 
     void handleHelpRequest(const QString &url);
     void registerDocumentation(const QStringList &fileNames);
+
+    static QString collectionFilePath();
+    static QHelpEngineCore& helpEngineCore();
 
 signals:
     void registerDocumentation();
 
 private:
     Internal::HelpPlugin *m_plugin;
+
+    static QHelpEngineCore* m_coreEngine;
 };
 
 }   // Help

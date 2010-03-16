@@ -26,19 +26,33 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#include "helpmanager.h"
 
+#include "helpmanager.h"
 #include "helpplugin.h"
 
-#include <QtCore/QUrl>
+#include <coreplugin/icore.h>
+
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QString>
+#include <QtCore/QUrl>
+
+#include <QtHelp/QHelpEngineCore>
 
 using namespace Help;
 using namespace Help::Internal;
 
+QHelpEngineCore* HelpManager::m_coreEngine = 0;
+
 HelpManager::HelpManager(HelpPlugin* plugin)
     : m_plugin(plugin)
 {
+}
+
+HelpManager::~HelpManager()
+{
+    delete m_coreEngine;
+    m_coreEngine = 0;
 }
 
 void HelpManager::handleHelpRequest(const QString &url)
@@ -52,4 +66,22 @@ void HelpManager::registerDocumentation(const QStringList &fileNames)
         m_plugin->setFilesToRegister(fileNames);
         emit registerDocumentation();
     }
+}
+
+QString HelpManager::collectionFilePath()
+{
+    const QFileInfo fi(Core::ICore::instance()->settings()->fileName());
+    const QDir directory(fi.absolutePath() + QLatin1String("/qtcreator"));
+    if (!directory.exists())
+        directory.mkpath(directory.absolutePath());
+    return directory.absolutePath() + QLatin1String("/helpcollection.qhc");
+}
+
+QHelpEngineCore& HelpManager::helpEngineCore()
+{
+    if (!m_coreEngine) {
+        m_coreEngine = new QHelpEngineCore(collectionFilePath());
+        m_coreEngine->setupData();
+    }
+    return *m_coreEngine;
 }
