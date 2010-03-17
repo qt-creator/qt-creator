@@ -123,6 +123,22 @@ void AccessDeclarationAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void QtObjectTagAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
+void QtPrivateSlotAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(type_specifiers, visitor);
+        accept(declarator, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void QtPropertyDeclarationItemAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

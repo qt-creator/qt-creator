@@ -155,6 +155,31 @@ AccessDeclarationAST *AccessDeclarationAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+QtObjectTagAST *QtObjectTagAST::clone(MemoryPool *pool) const
+{
+    QtObjectTagAST *ast = new (pool) QtObjectTagAST;
+    ast->q_object_token = q_object_token;
+    return ast;
+}
+
+QtPrivateSlotAST *QtPrivateSlotAST::clone(MemoryPool *pool) const
+{
+    QtPrivateSlotAST *ast = new (pool) QtPrivateSlotAST;
+    ast->q_private_slot_token = q_private_slot_token;
+    ast->lparen_token = lparen_token;
+    ast->dptr_token = dptr_token;
+    ast->dptr_lparen_token = dptr_lparen_token;
+    ast->dptr_rparen_token = dptr_rparen_token;
+    ast->comma_token = comma_token;
+    for (SpecifierListAST *iter = type_specifiers, **ast_iter = &ast->type_specifiers;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    if (declarator)
+        ast->declarator = declarator->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 QtPropertyDeclarationItemAST *QtPropertyDeclarationItemAST::clone(MemoryPool *pool) const
 {
     QtPropertyDeclarationItemAST *ast = new (pool) QtPropertyDeclarationItemAST;

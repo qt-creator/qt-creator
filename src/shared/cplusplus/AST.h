@@ -101,7 +101,7 @@ public:
 
         return lastValue;
     }
-    
+
     _Tp value;
     List *next;
 };
@@ -260,6 +260,8 @@ public:
     virtual QtInterfacesDeclarationAST *asQtInterfacesDeclaration() { return 0; }
     virtual QtMemberDeclarationAST *asQtMemberDeclaration() { return 0; }
     virtual QtMethodAST *asQtMethod() { return 0; }
+    virtual QtObjectTagAST *asQtObjectTag() { return 0; }
+    virtual QtPrivateSlotAST *asQtPrivateSlot() { return 0; }
     virtual QtPropertyDeclarationAST *asQtPropertyDeclaration() { return 0; }
     virtual QtPropertyDeclarationItemAST *asQtPropertyDeclarationItem() { return 0; }
     virtual QualifiedNameAST *asQualifiedName() { return 0; }
@@ -572,6 +574,50 @@ public:
     virtual unsigned lastToken() const;
 
     virtual AccessDeclarationAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT QtObjectTagAST: public DeclarationAST
+{
+public:
+    unsigned q_object_token;
+
+public:
+    virtual QtObjectTagAST *asQtObjectTag() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual QtObjectTagAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT QtPrivateSlotAST: public DeclarationAST
+{
+public:
+    unsigned q_private_slot_token;
+    unsigned lparen_token;
+    unsigned dptr_token;
+    unsigned dptr_lparen_token;
+    unsigned dptr_rparen_token;
+    unsigned comma_token;
+    SpecifierListAST *type_specifiers;
+    DeclaratorAST *declarator;
+    unsigned rparen_token;
+
+public:
+    virtual QtPrivateSlotAST *asQtPrivateSlot() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual QtPrivateSlotAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

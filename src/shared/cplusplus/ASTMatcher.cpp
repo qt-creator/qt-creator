@@ -231,6 +231,48 @@ bool ASTMatcher::match(AccessDeclarationAST *node, AccessDeclarationAST *pattern
     return true;
 }
 
+bool ASTMatcher::match(QtObjectTagAST *node, QtObjectTagAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->q_object_token = node->q_object_token;
+
+    return true;
+}
+
+bool ASTMatcher::match(QtPrivateSlotAST *node, QtPrivateSlotAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->q_private_slot_token = node->q_private_slot_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    pattern->dptr_token = node->dptr_token;
+
+    pattern->dptr_lparen_token = node->dptr_lparen_token;
+
+    pattern->dptr_rparen_token = node->dptr_rparen_token;
+
+    pattern->comma_token = node->comma_token;
+
+    if (! pattern->type_specifiers)
+        pattern->type_specifiers = node->type_specifiers;
+    else if (! AST::match(node->type_specifiers, pattern->type_specifiers, this))
+        return false;
+
+    if (! pattern->declarator)
+        pattern->declarator = node->declarator;
+    else if (! AST::match(node->declarator, pattern->declarator, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(QtPropertyDeclarationItemAST *node, QtPropertyDeclarationItemAST *pattern)
 {
     (void) node;

@@ -609,6 +609,21 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     case T_AT_IMPLEMENTATION:
         return parseObjCImplementation(node);
 
+    case T_Q_DECLARE_INTERFACE:
+    {
+        consumeToken();
+        unsigned lparen_token = 0;
+        match(T_LPAREN, &lparen_token);
+        NameAST *name = 0;
+        parseName(name);
+        unsigned comma_token = 0;
+        match(T_COMMA, &comma_token);
+        unsigned string_literal = 0;
+        match(T_STRING_LITERAL, &string_literal);
+        unsigned rparen_token = 0;
+        match(T_RPAREN, &rparen_token);
+    }   return true;
+
     case T_AT_END:
         // TODO: should this be done here, or higher-up?
         _translationUnit->error(cursor(), "skip stray token `%s'", tok().spell());
@@ -2019,6 +2034,32 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node)
 {
     DEBUG_THIS_RULE();
     switch (LA()) {
+    case T_Q_OBJECT:
+    case T_Q_GADGET:
+    {
+        QtObjectTagAST *ast = new (_pool) QtObjectTagAST;
+        ast->q_object_token = consumeToken();
+        node = ast;
+        return true;
+    }
+
+    case T_Q_PRIVATE_SLOT:
+    {
+        QtPrivateSlotAST *ast = new (_pool) QtPrivateSlotAST;
+        ast->q_private_slot_token = consumeToken();
+        match(T_LPAREN, &ast->lparen_token);
+        match(T_IDENTIFIER, &ast->dptr_token);
+        if (LA() == T_LPAREN) {
+            ast->dptr_lparen_token = consumeToken();
+            match(T_RPAREN, &ast->dptr_rparen_token);
+        }
+        match(T_COMMA, &ast->comma_token);
+        parseTypeSpecifier(ast->type_specifiers);
+        parseDeclarator(ast->declarator);
+        match(T_RPAREN, &ast->rparen_token);
+        node = ast;
+    }   return true;
+
     case T_SEMICOLON:
         return parseEmptyDeclaration(node);
 

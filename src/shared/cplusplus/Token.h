@@ -243,7 +243,11 @@ enum Kind {
     T_Q_INTERFACES,
     T_Q_ENUMS,
     T_Q_FLAGS,
-    T_LAST_KEYWORD = T_Q_FLAGS,
+    T_Q_PRIVATE_SLOT,
+    T_Q_DECLARE_INTERFACE,
+    T_Q_OBJECT,
+    T_Q_GADGET,
+    T_LAST_KEYWORD = T_Q_GADGET,
 
     // aliases
     T_OR = T_PIPE_PIPE,

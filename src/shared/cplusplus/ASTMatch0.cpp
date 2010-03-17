@@ -121,6 +121,22 @@ bool AccessDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool QtObjectTagAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QtObjectTagAST *_other = pattern->asQtObjectTag())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool QtPrivateSlotAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (QtPrivateSlotAST *_other = pattern->asQtPrivateSlot())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool QtPropertyDeclarationItemAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (QtPropertyDeclarationItemAST *_other = pattern->asQtPropertyDeclarationItem())

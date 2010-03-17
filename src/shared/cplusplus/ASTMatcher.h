@@ -40,6 +40,8 @@ public:
     virtual ~ASTMatcher();
 
     virtual bool match(AccessDeclarationAST *node, AccessDeclarationAST *pattern);
+    virtual bool match(QtObjectTagAST *node, QtObjectTagAST *pattern);
+    virtual bool match(QtPrivateSlotAST *node, QtPrivateSlotAST *pattern);
     virtual bool match(QtPropertyDeclarationAST *node, QtPropertyDeclarationAST *pattern);
     virtual bool match(QtEnumDeclarationAST *node, QtEnumDeclarationAST *pattern);
     virtual bool match(QtFlagsDeclarationAST *node, QtFlagsDeclarationAST *pattern);

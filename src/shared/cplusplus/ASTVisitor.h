@@ -103,6 +103,8 @@ public:
     virtual void postVisit(AST *) {}
 
     virtual bool visit(AccessDeclarationAST *) { return true; }
+    virtual bool visit(QtObjectTagAST *) { return true; }
+    virtual bool visit(QtPrivateSlotAST *) { return true; }
     virtual bool visit(QtPropertyDeclarationAST *) { return true; }
     virtual bool visit(QtEnumDeclarationAST *) { return true; }
     virtual bool visit(QtFlagsDeclarationAST *) { return true; }
@@ -235,6 +237,8 @@ public:
     virtual bool visit(ObjCSynchronizedStatementAST *) { return true; }
 
     virtual void endVisit(AccessDeclarationAST *) { }
+    virtual void endVisit(QtObjectTagAST *) {}
+    virtual void endVisit(QtPrivateSlotAST *) {}
     virtual void endVisit(QtPropertyDeclarationAST *) { }
     virtual void endVisit(QtEnumDeclarationAST *) { }
     virtual void endVisit(QtFlagsDeclarationAST *) { }

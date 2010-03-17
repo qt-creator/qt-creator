@@ -912,7 +912,33 @@ static inline int classify8(const char *s, bool q) {
   }
   else if (q && s[0] == 'Q') {
     if (s[1] == '_') {
-      if (s[2] == 'S') {
+      if (s[2] == 'G') {
+        if (s[3] == 'A') {
+          if (s[4] == 'D') {
+            if (s[5] == 'G') {
+              if (s[6] == 'E') {
+                if (s[7] == 'T') {
+                  return T_Q_GADGET;
+                }
+              }
+            }
+          }
+        }
+      }
+      else if (s[2] == 'O') {
+        if (s[3] == 'B') {
+          if (s[4] == 'J') {
+            if (s[5] == 'E') {
+              if (s[6] == 'C') {
+                if (s[7] == 'T') {
+                  return T_Q_OBJECT;
+                }
+              }
+            }
+          }
+        }
+      }
+      else if (s[2] == 'S') {
         if (s[3] == 'I') {
           if (s[4] == 'G') {
             if (s[5] == 'N') {
@@ -1103,7 +1129,24 @@ static inline int classify10(const char *s, bool q) {
   }
   else if (q && s[0] == 'Q') {
     if (s[1] == '_') {
-      if (s[2] == 'P') {
+      if (s[2] == 'O') {
+        if (s[3] == 'V') {
+          if (s[4] == 'E') {
+            if (s[5] == 'R') {
+              if (s[6] == 'R') {
+                if (s[7] == 'I') {
+                  if (s[8] == 'D') {
+                    if (s[9] == 'E') {
+                      return T_Q_PROPERTY; // Q_OVERRIDE is just an alias for Q_PROPERTY
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      else if (s[2] == 'P') {
         if (s[3] == 'R') {
           if (s[4] == 'O') {
             if (s[5] == 'P') {
@@ -1345,6 +1388,83 @@ static inline int classify16(const char *s, bool) {
   return T_IDENTIFIER;
 }
 
+static inline int classify14(const char *s, bool q) {
+  if (q && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'P') {
+        if (s[3] == 'R') {
+          if (s[4] == 'I') {
+            if (s[5] == 'V') {
+              if (s[6] == 'A') {
+                if (s[7] == 'T') {
+                  if (s[8] == 'E') {
+                    if (s[9] == '_') {
+                      if (s[10] == 'S') {
+                        if (s[11] == 'L') {
+                          if (s[12] == 'O') {
+                            if (s[13] == 'T') {
+                              return T_Q_PRIVATE_SLOT;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return T_IDENTIFIER;
+}
+
+static inline int classify19(const char *s, bool q) {
+  if (q && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'D') {
+        if (s[3] == 'E') {
+          if (s[4] == 'C') {
+            if (s[5] == 'L') {
+              if (s[6] == 'A') {
+                if (s[7] == 'R') {
+                  if (s[8] == 'E') {
+                    if (s[9] == '_') {
+                      if (s[10] == 'I') {
+                        if (s[11] == 'N') {
+                          if (s[12] == 'T') {
+                            if (s[13] == 'E') {
+                              if (s[14] == 'R') {
+                                if (s[15] == 'F') {
+                                  if (s[16] == 'A') {
+                                    if (s[17] == 'C') {
+                                      if (s[18] == 'E') {
+                                        return T_Q_DECLARE_INTERFACE;
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return T_IDENTIFIER;
+}
+
+
 int Lexer::classify(const char *s, int n, bool q) {
   switch (n) {
     case 2: return classify2(s, q);
@@ -1359,7 +1479,9 @@ int Lexer::classify(const char *s, int n, bool q) {
     case 11: return classify11(s, q);
     case 12: return classify12(s, q);
     case 13: return classify13(s, q);
+    case 14: return classify14(s, q);
     case 16: return classify16(s, q);
+    case 19: return classify19(s, q);
     default: return T_IDENTIFIER;
   } // switch
 }

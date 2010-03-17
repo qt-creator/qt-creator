@@ -167,6 +167,8 @@ class QtInterfaceNameAST;
 class QtInterfacesDeclarationAST;
 class QtMemberDeclarationAST;
 class QtMethodAST;
+class QtObjectTagAST;
+class QtPrivateSlotAST;
 class QtPropertyDeclarationAST;
 class QtPropertyDeclarationItemAST;
 class QualifiedNameAST;

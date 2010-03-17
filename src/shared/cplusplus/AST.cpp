@@ -144,6 +144,42 @@ unsigned AccessDeclarationAST::lastToken() const
     return access_specifier_token + 1;
 }
 
+unsigned QtObjectTagAST::firstToken() const
+{
+    return q_object_token;
+}
+
+unsigned QtObjectTagAST::lastToken() const
+{
+    return q_object_token + 1;
+}
+
+unsigned QtPrivateSlotAST::firstToken() const
+{
+    return q_private_slot_token;
+}
+
+unsigned QtPrivateSlotAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    else if (declarator)
+        return declarator->lastToken();
+    else if (type_specifiers)
+        type_specifiers->lastToken();
+    else if (comma_token)
+        return comma_token + 1;
+    else if (dptr_rparen_token)
+        return dptr_rparen_token + 1;
+    else if (dptr_lparen_token)
+        return dptr_lparen_token + 1;
+    else if (dptr_token)
+        return dptr_token + 1;
+    else if (lparen_token)
+        return lparen_token + 1;
+    return q_private_slot_token + 1;
+}
+
 unsigned QtPropertyDeclarationItemAST::firstToken() const
 {
     return item_name_token;
