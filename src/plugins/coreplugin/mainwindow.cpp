@@ -506,6 +506,7 @@ void MainWindow::registerDefaultActions()
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
 
     cmd =  createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Print"), m_globalContext);
+    QIcon icon = QIcon::fromTheme(QLatin1String("edit-cut"), QIcon(Constants::ICON_CUT));
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
     cmd =  createSeparator(am, this, QLatin1String("QtCreator.File.Sep.Close"), m_globalContext);
@@ -539,14 +540,16 @@ void MainWindow::registerDefaultActions()
     connect(m_focusToEditor, SIGNAL(activated()), this, SLOT(setFocusToEditor()));
 
     // New File Action
-    m_newAction = new QAction(QIcon(Constants::ICON_NEWFILE), tr("&New File or Project..."), this);
+    icon = QIcon::fromTheme(QLatin1String("document-new"), QIcon(Constants::ICON_NEWFILE));
+    m_newAction = new QAction(icon, tr("&New File or Project..."), this);
     cmd = am->registerAction(m_newAction, Constants::NEW, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::New);
     mfile->addAction(cmd, Constants::G_FILE_NEW);
     connect(m_newAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
     // Open Action
-    m_openAction = new QAction(QIcon(Constants::ICON_OPENFILE), tr("&Open File or Project..."), this);
+    icon = QIcon::fromTheme(QLatin1String("document-open"), QIcon(Constants::ICON_OPENFILE));
+    m_openAction = new QAction(icon, tr("&Open File or Project..."), this);
     cmd = am->registerAction(m_openAction, Constants::OPEN, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Open);
     mfile->addAction(cmd, Constants::G_FILE_OPEN);
@@ -564,7 +567,8 @@ void MainWindow::registerDefaultActions()
     ac->menu()->setTitle(tr("Recent &Files"));
 
     // Save Action
-    QAction *tmpaction = new QAction(QIcon(Constants::ICON_SAVEFILE), tr("&Save"), this);
+    icon = QIcon::fromTheme(QLatin1String("document-save"), QIcon(Constants::ICON_SAVEFILE));
+    QAction *tmpaction = new QAction(icon, tr("&Save"), this);
     cmd = am->registerAction(tmpaction, Constants::SAVE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Save);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -591,7 +595,8 @@ void MainWindow::registerDefaultActions()
     connect(m_saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
 
     // Print Action
-    tmpaction = new QAction(tr("&Print..."), this);
+    icon = QIcon::fromTheme(QLatin1String("document-print"));
+    tmpaction = new QAction(icon, tr("&Print..."), this);
     cmd = am->registerAction(tmpaction, Constants::PRINT, m_globalContext);
     mfile->addAction(cmd, Constants::G_FILE_PRINT);
 
@@ -603,7 +608,8 @@ void MainWindow::registerDefaultActions()
     connect(m_exitAction, SIGNAL(triggered()), this, SLOT(exit()));
 
     // Undo Action
-    tmpaction = new QAction(QIcon(Constants::ICON_UNDO), tr("&Undo"), this);
+    icon = QIcon::fromTheme(QLatin1String("edit-undo"), QIcon(Constants::ICON_UNDO));
+    tmpaction = new QAction(icon, tr("&Undo"), this);
     cmd = am->registerAction(tmpaction, Constants::UNDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Undo);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -612,7 +618,8 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Redo Action
-    tmpaction = new QAction(QIcon(Constants::ICON_REDO), tr("&Redo"), this);
+    icon = QIcon::fromTheme(QLatin1String("edit-redo"), QIcon(Constants::ICON_REDO));
+    tmpaction = new QAction(icon, tr("&Redo"), this);
     cmd = am->registerAction(tmpaction, Constants::REDO, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Redo);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -621,21 +628,24 @@ void MainWindow::registerDefaultActions()
     tmpaction->setEnabled(false);
 
     // Cut Action
-    tmpaction = new QAction(QIcon(Constants::ICON_CUT), tr("Cu&t"), this);
+    icon = QIcon::fromTheme(QLatin1String("edit-cut"), QIcon(Constants::ICON_CUT));
+    tmpaction = new QAction(icon, tr("Cu&t"), this);
     cmd = am->registerAction(tmpaction, Constants::CUT, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Cut);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
     tmpaction->setEnabled(false);
 
     // Copy Action
-    tmpaction = new QAction(QIcon(Constants::ICON_COPY), tr("&Copy"), this);
+    icon = QIcon::fromTheme(QLatin1String("edit-copy"), QIcon(Constants::ICON_COPY));
+    tmpaction = new QAction(icon, tr("&Copy"), this);
     cmd = am->registerAction(tmpaction, Constants::COPY, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Copy);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
     tmpaction->setEnabled(false);
 
     // Paste Action
-    tmpaction = new QAction(QIcon(Constants::ICON_PASTE), tr("&Paste"), this);
+    icon = QIcon::fromTheme(QLatin1String("edit-paste"), QIcon(Constants::ICON_PASTE));
+    tmpaction = new QAction(icon, tr("&Paste"), this);
     cmd = am->registerAction(tmpaction, Constants::PASTE, m_globalContext);
     cmd->setDefaultKeySequence(QKeySequence::Paste);
     medit->addAction(cmd, Constants::G_EDIT_COPYPASTE);
