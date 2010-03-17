@@ -196,7 +196,7 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
     m_includePaths.clear();
 
     for (int i = 0; i < includePaths.size(); ++i) {
-        const QString path = includePaths.at(i);
+        const QString &path = includePaths.at(i);
 
 #ifdef Q_OS_DARWIN
         if (i + 1 < includePaths.size() && path.endsWith(QLatin1String(".framework/Headers"))) {
