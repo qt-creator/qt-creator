@@ -510,24 +510,26 @@
     \title Using the Editor
 
     Qt Creator's code editor is designed to aid you in creating, editing and
-    navigating code. It is fully equipped with syntax checking, code
-    completion, context sensitive help and in-line error indicators while you
-    are typing.
+    navigating code.  Qt Creator's code editor is fully equipped with syntax
+    checking, code completion, context sensitive help and in-line error
+    indicators while you are typing.
 
 
     \section1 Configuring the Editor
 
     Qt Creator allows you to configure the text editor to suit your specific
     needs. To configure the editor, select  \gui Tools > \gui Options >
-    \gui{Text Editor}:
+    \gui{Text Editor}
+
+    You can perform the following configuration actions:
     \list
         \o Set the font preferences and apply syntax highlighting in
            \gui{Font & Colors}.
         \o Set tabs, indentation and the handling of whitespace in
            \gui Behavior.
-        \o Set various display properties, such as
-           \l{Highlighting and Folding Blocks}{highlighting and folding blocks},
-           text wrapping or \l{Moving to Symbol Definition or Declaration}
+        \o Set various display properties, for example,
+           \l{Highlighting and folding blocks}{highlighting and folding blocks},
+           text wrapping or \l{Moving to symbol definition or declaration}
            {moving to symbol definition or declaration}
            in \gui Display.
         \o Configure \l{Code Completion}{code completion} in \gui Completion.
@@ -536,9 +538,9 @@
 
     \section1 Using the Editor Toolbar
 
-    The editor toolbar is located at the top of the editor view. It is context
-    sensitive and shows items relevant to the file currently open in the
-    editor.
+    The editor toolbar is located at the top of the editor view. The editor
+    toolbar is context sensitive and shows items relevant to the file currently
+    open in the editor.
 
     \image qtcreator-editortoolbar-symbols.png
 
@@ -554,13 +556,13 @@
            \gui Symbols drop-down menu.
     \endlist
 
-    When you create or edit forms in an .ui file, the toolbar contains
-    \QD specific tools.
+    When you create or edit forms in a \c{.ui} file, the toolbar contains
+    Qt Designer specific tools.
 
     If you are using a version control system, the toolbar enables you to
     compare the current file with the version in the repository. For more
     information on using Qt Creator with version control systems, see
-    \l{Using Version Control Systems}.
+    \l{Using version control systems}.
 
 
     \section1 Splitting the Editor View
@@ -570,7 +572,7 @@
 
     \image qtcreator-spliteditorview.png
 
-    You can split the editor view in two ways:
+    You can split the editor view in the following ways:
     \list
         \o To split the editor view into a top and bottom view, select
            \gui Window > \gui Split or press \key{Ctrl+E, 2}.
@@ -615,9 +617,9 @@
 
     \section1 Syntax Checking
 
-    As you write code Qt Creator checks code syntax. When it spots syntax error
-    in your code it underlines it and shows error details when you move the
-    mouse pointer over the error:
+    As you write code Qt Creator checks code syntax. When Qt Creator spots a
+    syntax error in your code it underlines it and shows error details when you
+    move the mouse pointer over the error.
     \list
         \o Syntax errors are underlined in red.
 
@@ -634,8 +636,8 @@
 
     \section1 Code Completion
 
-    As you write code Qt Creator provides a list of context-sensitive
-    suggestions to the statement where your cursor is.
+    As you write code, Qt Creator provides a list of context-sensitive
+    suggestions to the statement currently under your cursor.
 
     \image qtcreator-codecompletion.png
 
@@ -710,7 +712,7 @@
     In Qt Creator you can move directly to the definition or the declaration of
     a symbol by holding the \key Ctrl and clicking the symbol.
 
-    To enable this function, in \gui Tools > \gui Options >
+    To enable this moving function, in \gui Tools > \gui Options >
     \gui{Text Editor} > \gui Behavior select \gui{Enable mouse navigation}.
 
 
@@ -722,16 +724,16 @@
     To use the external editor of your choice:
     \list 1
         \o On Windows add the editor path to the \bold Path system variable.
-           On Linux and Mac OS X add the editor path to the \bold PATH
+           On Linux and Mac OS X add the editor path to the \c{PATH}
            environment variable.
         \o In Qt Creator select \gui Tools > \gui Options... >
            \gui Environment > \gui General.
         \o In \gui{External editor} enter the name of the application followed
            by \key Space and \tt{\bold %f}. For example, to open the file in
-           Smultron, enter \tt{\bold{smultron %f}}
+           Smultron, enter \tt{\bold{smultron %f}}.
 
            To further define how to open the file in the external editor, you
-           can use the following variables separated by space:
+           can use the following variables separated by a space:
            \list
             \o Current line number \tt{\bold %l}
             \o Current column number \tt{\bold %c}
@@ -1025,13 +1027,13 @@
     \section1 Selecting the Qt Version
 
     Qt Creator allows you to have multiple versions of Qt installed on
-    your computer and use different versions for your projects.
+    your computer and use different versions for each of your projects.
 
-    If Qt Creator finds \bold qmake in the PATH environment variable, it uses
-    that version. This \l{glossary-system-qt}{version of Qt} is referred to as
-    \bold{Qt in PATH}. If you intend to use only one version of Qt and it is
-    already in the PATH and correctly set up for command line use, you do not
-    need to manually configure your Qt version.
+    If Qt Creator finds \bold qmake in the \c{PATH} environment variable, it uses
+    that version. The \l{glossary-system-qt}{ qmake version of Qt} is referred
+    to as \bold{Qt in PATH}. If you intend to use only one version of Qt and it
+    is already in the \c{PATH} and correctly set up for command line use, you do
+    not need to manually configure your Qt version.
 
     \note By default, Qt Creator compiles projects with the
     \l{glossary-default-qt}{default Qt version}. For information on how to
@@ -1086,15 +1088,15 @@
            \gui{CSL\\GCCE Directory}.
 
            You do not need to specify this path if the compiler is included in
-           the PATH environment variable.
+           the \c{PATH} environment variable.
         \o To build an application for the emulator (WINSCW toolchain), enter
            the path to your Carbide C++ installation directory in
            \gui{Carbide Directory}.
 
-           You need to have Carbide C++ version 2.0 or later installed.
+           \note You need to have Carbide C++ version 2.0 or later installed.
     \endlist
 
-    \section2 Linux
+    \section2 Compiling Projects With Linux
 
     To compile a project in Qt Creator, Linux uses GNU Compiler Collection
     (GCC). Intel Compiler Collection (ICC) is supported as a drop-in
@@ -1109,7 +1111,7 @@
         \o Enter the path to the qmake binary in \gui{Path to qmake}.
     \endlist
 
-    \section2 Mac OS X
+    \section2 Compiling Projects With Mac OS X
 
     To compile a project in Qt Creator, Mac OS X uses GNU Compiler Collection
     (GCC), which is part of Xcode.
@@ -1132,7 +1134,7 @@
 
     \image qtcreator-projectpane.png
 
-    The project pane consists of three tabs
+    The project pane consists of the following tabs:
     \list
        \o Targets
        \o Editor Settings
@@ -1150,16 +1152,17 @@
 
     Different build configurations allow you to quickly switch between
     different build settings. By default, Qt Creator creates \bold debug
-    and \bold release build configurations. Both of these configurations use
-    the \l{glossary-default-qt}{default Qt version}.
+    and \bold release build configurations. The \bold{debug} and \bold{release}
+    build configurations both use the
+    \l{glossary-default-qt}{default Qt version}.
 
     \image qtcreator-ppbuildsettings.png
 
     \section2 Adding and Removing Build Configurations
 
     To add a new build configuration, click \gui Add and select the type of
-    configuration you would like add. You can add as many build configurations
-    as you need.
+    configuration you would like to add. You can add as many build
+    configurations as you need.
 
     To delete the build configuration currently selected, click \gui Remove.
 
@@ -1190,7 +1193,7 @@
 
     \section2 Clean Steps
 
-    The cleaning process is used to remove intermediate files. This process
+    You can use the cleaning process to remove intermediate files. This process
     might help you to fix obscure issues during the process of building a
     project.
 
@@ -1199,7 +1202,7 @@
         \o To add a clean step using make or a custom process, click
            \gui{Add clean step} and select the type of step you want to add.
 
-           By default, custom steps are disabled. Activate customs steps by
+           By default, custom steps are disabled. Activate custom steps by
            checking the \gui{Enable Custom Process Step} check-box.
         \o To remove a clean step, click \gui{Remove clean step} and select the
            step you want to remove.
@@ -1239,17 +1242,17 @@
     \section1 Dependencies
 
     If you have multiple projects loaded in your session, you can define the
-    dependencies between them. This affects the build order of your
-    projects.
+    dependencies between them. Inter-project dependencies affect the build
+    order of your projects.
 
-    \note These dependencies are unrelated to the dependencies inside a qmake
+    \note Inter-project dependencies are unrelated inside a qmake
     project.
 
-    To define the dependencies:
+    To define the dependencies between projects:
     \list 1
         \o Select the project for which you want to configure dependencies.
-        \o In the \gui Dependencies section check the checkboxes to select
-           other projects as dependencies.
+        \o Check the checkboxes in the Dependencies section to select other
+           projects as dependencies.
     \endlist
 
 
@@ -1262,7 +1265,7 @@
     To add an external library:
     \list
         \o Open your project file (.pro) using the \gui Projects pane.
-        \o Follow the instructions at \l http://doc.trolltech.com/latest/qmake-project-files.html#declaring-other-libraries
+        \o Follow the instructions at \l{http://doc.trolltech.com/latest/qmake-project-files.html#declaring-other-libraries}
            {Declaring other Libraries}.
     \endlist
 
@@ -1733,8 +1736,12 @@
 
     \title Using Version Control Systems
 
+    Version control systems supported by Qt Creator are:
     \table
-        \caption    Version control systems supported by Qt Creator
+        \header
+            \i \bold{Version Control System}
+            \i \bold{Address}
+            \i \bold{Notes}
         \row
             \i  \bold{git}
             \i  \l{http://git-scm.com/}
@@ -1756,48 +1763,52 @@
 
     \section1 Setting Up Version Control Systems
 
-    Qt Creator uses the version control system's command line clients to
-    access your repositories. To set it up, you must ensure that these command
-    line clients can be located via the \c{PATH} environment variable.
-    To specify the path to the command line client's executable, go to the settings
-    pages in \gui{Tools} > \gui{Options...}.
+    Qt Creator uses the version control system's command line clients to access
+    your repositories. To set up the version control system's command line
+    clients to access your repositories, ensure that the command line clients
+    can be located using the \c{PATH} environment variable.
+
+    To specify the path to the command line client's executable, go to the
+    settings pages in \gui{Tools} > \gui{Options...}.
 
 
     \section1 Setting Up Common Options
 
-    The \gui{Version Control > Common} settings page features common settings for
-    version control systems, such as commit message line wrapping and checking
-    options.
+    Select \gui{Tools} > \gui{Options...} > \gui{Version Control} > \gui{Common}
+    to view the common settings for version control systems. The following are
+    the options present in \gui{Common}:
+    \list
+       \o   \gui{Submit message checking script} is a script or program that
+             can be used to perform checks on the submit message before
+             submitting. The submit message is passed in as the script's first
+             parameter. If there is an error, the script should output a
+             message on standard error and return a non-zero exit code.
 
-    \gui{Submit message checking script} is a script or program that can be
-    used to perform checks on the submit message before submitting. The submit
-    message is passed in as the script's first parameter. If there is an error,
-    the script should output a message on standard error and return a non-zero
-    exit code.
+       \o    \gui{User/alias configuration file} takes a file in mailmap format
+             that lists user names and aliases. For example:
 
-    \gui{User/alias configuration file} takes a file in mailmap format that
-    lists user names and aliases. For example:
+             \code
+             Jon Doe <Jon.Doe@company.com>
+             Hans Mustermann <Hans.Mustermann@company.com> hm <info@company.com>
+             \endcode
 
-    \code
-    Jon Doe <Jon.Doe@company.com>
-    Hans Mustermann <Hans.Mustermann@company.com> hm <info@company.com>
-    \endcode
+             \note The second line above specifies the alias \e{hm} and the
+             corresponding email address for \e{Hans Mustermann}. If the
+             user/alias configuration file is present, the submit editor
+             displays a context menu with \gui{Insert name...} that pops up a
+             dialog letting the user select a name.
 
-    Notice that the second line specifies the alias \e{hm} and the
-    corresponding email address for \e{Hans Mustermann}. If the user/alias
-    configuration file is present, the submit editor displays a context
-    menu with \gui{Insert name...} that pops up a dialog letting the user
-    select a name.
+       \o    \gui{User fields configuration file} is a simple text file
+             consisting of lines specifying submit message fields that take
+             user names, for example:
 
-    \gui{User fields configuration file} is a simple text file consisting of
-    lines specifying submit message fields that take user names, for example:
+             \code
+             Reviewed-by:
+             Signed-off-by:
+             \endcode
+    \endlist
 
-    \code
-    Reviewed-by:
-    Signed-off-by:
-    \endcode
-
-    These fields appear below the submit message. They provide completion
+    The fields above appear below the submit message. They provide completion
     for the aliases/public user names specified in the
     \e{User/alias configuration file} as well as a button that opens the
     aforementioned user name dialog.
@@ -1805,9 +1816,9 @@
 
     \section1 Using Version Control Systems
 
-    The version control sub-menus are in \gui Tools > \gui Options...
-    > \gui{Version Control}. The version control system
-    managing the current project is displayed here.
+    The version control sub-menus are in \gui{Tools} > \gui{Options...} >
+    \gui{Version Control}. The \gui{Version Control} page also displays the
+    version control system managing the current project
 
     Each version control system adds a pane to the \gui{Application Output}
     panes within which it logs the commands it executes, prepended by a
@@ -1816,17 +1827,17 @@
     \image qtcreator-vcs-pane.png
 
 
-    \section2 Adding Files
+    \section2 Addings Files
 
     When you create a new file or a new project, the wizard displays a page
     asking whether the files should be added to a version control system.
     This happens when the parent directory or the project is already
     under version control and the system supports the concept of adding files,
-    e.g., \bold{Perforce} and \bold{Subversion}. Alternatively, you can
+    for example, \bold{Perforce} and \bold{Subversion}. Alternatively, you can
     add files later by using the version control tool menus.
 
     With \bold{git}, there is no concept of adding files. Instead, all modified
-    files must be \e{staged} for a commit.
+    files must be staged for a commit.
 
 
     \section2 Viewing Diff Output
@@ -1844,9 +1855,9 @@
     \section2 Annotating Files
 
     Annotation views are obtained by selecting \gui{Annotate} or \gui{Blame}.
-    This displays the lines of the file prepended by the change identifier
-    they originate from. Clicking on the change identifier shows a detailed
-    description of the file.
+    Selecting \gui{Annotate} or \gui{Blame} displays the lines of the file
+    prepended by the change identifier they originate from. Clicking on the
+    change identifier shows a detailed description of the file.
 
     To show the annotation of a previous version in the \gui Annotate or
     \gui Blame view, right-click on the version in the code. This option
@@ -1860,32 +1871,35 @@
     \gui{Annotate Previous}.
 
     To set up a VCS repository for new projects, select \gui File >
-    \gui{New File or Project...}. It enables you to initialize a
-    repository for VCS that supports \gui git/hg
+    \gui{New File or Project...}. Setting up a VCS repository for new projects
+    enables you to initialize a repository for VCS that supports \bold{git/hg}.
 
 
     \section2 Committing Changes
 
-    Once you have finished making changes, you can submit them to the version
-    control system by choosing \gui{Commit} or \gui{Submit}. Qt Creator
-    displays a commit page containing a text editor, where you can enter your
-    commit message, and a checkable list of modified files to be included.
-    When you are done, click on \gui{Commit} to start committing. In addition,
-    there is a \gui{Diff Selected Files} button that brings up a diff view of the
+    Once you have finished making changes, submit them to the version control
+    system by choosing \gui{Commit} or \gui{Submit}. Qt Creator displays a
+    commit page containing a text editor where you can enter your commit
+    message and a checkable list of modified files to be included.
+
+    When you have finished filling out the commit page information, click on
+    \gui{Commit} to start committing.
+
+    The \gui{Diff Selected Files} button brings up a diff view of the
     files selected in the file list. Since the commit page is just another
-    editor, you can go back to it by closing the diff view. Alternatively, you
-    can view it from the editor combo box showing the \gui{Opened files}.
+    editor, you can go back to it by closing the diff view. You can also check
+    a diff view from the editor combo box showing the \gui{Opened files}.
 
     \image qtcreator-vcs-commit.png
 
 
     \section2 Viewing Versioning History and Change Details
 
-    The versioning history of a file is displayed by selecting
-    \gui{Log} (for \bold{git}) or \gui{Filelog} (for \bold{Perforce} and
-    \bold{Subversion}). Typically, the log output contains the
-    date, the commit message, and a change or revision identifier.
-    Click on the identifier to display a description of the change including the diff.
+    Display the versioning history of a file by selecting \gui{Log}
+    (for \bold{git}) or \gui{Filelog}(for \bold{Perforce} and
+    \bold{Subversion}). Typically, the log output contains the date, the commit
+    message, and a change or revision identifier. Click on the identifier to
+    display a description of the change including the diff.
 
     \image qtcreator-vcs-log.png
     \image qtcreator-vcs-describe.png
@@ -2136,8 +2150,8 @@
 
     \section1 About Debugging with Qt Creator
 
-    Qt Creator does not have its own debugger. Instead, it provides a graphical
-    frontend to various debugger engines:
+    Qt Creator does not have its own debugger. Qt Creator provides a graphical
+    frontend to the following:
 
     \table
         \header
@@ -2169,13 +2183,13 @@
     Qt Creator displays the raw information provided by the engine
     in a clear and concise manner. This simplifies the debugging process.
 
-    Qt Creator comes with generic IDE functionality: stack view, views for locals and
-    watchers, registers, etc. In addition, Qt Creator includes features to make
-    debugging Qt-based applications easy. The debugger frontend understands the
-    internal layout of several Qt classes such as QString, the QTL containers,
-    and most importantly QObject (and classes derived from it), as well as
-    most containers of the C++ Standard Library. Therefore, the debugger can
-    present their contents in a useful way.
+    Qt Creator comes with generic IDE functionality: stack view, views for
+    locals and watchers, registers, etc. In addition, Qt Creator includes
+    features to make debugging Qt-based applications easy. The debugger
+    frontend understands the internal layout of several Qt classes, for
+    example, QString, the QTL containers, and most importantly QObject
+    (and classes derived from it), as well as most containers of the C++
+    Standard Library. The debugger can present its contents in a useful way.
 
 
     \section1 Debugger Engine Installation Notes
@@ -2230,20 +2244,21 @@
     \section1 Interaction with the Debugger
 
     In \gui Debug mode, several dock widgets are used to interact with the
-    program you are debugging. The frequently used dock widgets are visible by
-    default; the rarely used ones are hidden. To change the default settings,
-    select \gui Debug and then select \gui View. This brings up a menu which
-    lets you lock or unlock the location of the dock widgets as well as display
-    or hide them. The position of your dock widgets is saved for future
+    program you are debugging. Frequently-used dock widgets are visible by
+    default and rarely-used ones are hidden. To change the default settings,
+    select \gui Debug and then select \gui Views.
+
+    Here, you can lock or unlock the location of your dock widgets as well as
+    display or hide them. The position of your dock widgets is saved for future
     sessions.
 
 
     \section2 Usage of the Debugger
 
-    To start a program under the debugger's control, select the \gui{Debug}
-    menu and \gui{Start Debugging}, or press \key{F5}. Qt Creator
-    checks whether the compiled program is up-to-date, rebuilding it if
-    necessary. The debugger then takes over and starts the program.
+    To start a program under the debugger's control, select \gui{Debug} >
+    \gui{Start Debugging} > \gui{Start Debugging}, or press \key{F5}.
+    Qt Creator checks whether the compiled program is up-to-date, rebuilding
+    it if necessary. The debugger then takes over and starts the program.
 
     \note Starting a program in the debugger can take a considerable amount of
     time, typically in the range of several seconds to minutes if complex
@@ -2268,29 +2283,29 @@
 
     You can use the debugger views to examine the data in more detail.
 
-    To finish debugging, press \key{Shift+F5}. A line of code can be executed
-    as a whole with \key F10; to step into a function or a sub-function, use
-    \key F11. Alternatively, you can continue running the program with \key F5.
+    To finish debugging, press \key{Shift+F5}. You can execute a line of code
+    as a whole with \key{F10}. To step into a function or a sub-function, use
+    \key{F11}. You can also continue running the program with \key{F5}.
+
     It is also possible to continue executing the program until the current
-    function completes or jump to an arbitrary position in the current
-    function.
+    function completes or jump to an arbitrary position in the current function.
 
 
     \section2 Breakpoints
 
-    Breakpoints are shown in the \gui{Breakpoints} view which is enabled
-    by default. This view is also accessible when the debugger and the program
-    being debugged is not running.
-
     A breakpoint represents a position or sets of positions in the code that,
-    when executed, interrupts the program being debugged and passes the
-    control to the user. The user is then free to examine the state of the
-    interrupted program, or continue execution either line-by-line or continuously.
+    when executed, interrupts the program being debugged and passes the control
+    to the user. The user is then free to examine the state of the interrupted
+    program, or continue execution either line-by-line or continuously
+
+    Qt Creator shows breakpoints in the \gui{Breakpoints} view which is enabled
+    by default. The \gui{Breakpoints} view is also accessible when the debugger
+    and the program being debugged is not running.
 
     Typically, breakpoints are associated with a source code file and line, or
     the start of a function -- both are allowed in Qt Creator.
 
-    Also, the interruption of a program by a breakpoint can be restricted with
+    The interruption of a program by a breakpoint can be restricted with
     certain conditions.
 
     You can set a breakpoint:
@@ -2303,10 +2318,7 @@
           context menu of the breakpoints view.
     \endlist
 
-    \note
-
-    You can remove a breakpoint:
-
+    \note You can remove a breakpoint:
     \list
         \o By clicking on the breakpoint marker in the text editor.
         \o By selecting the breakpoint in the breakpoint view and pressing
@@ -2323,8 +2335,8 @@
     \section2 Stack
 
     When the program being debugged is interrupted, Qt Creator displays the
-    nested function calls leading to the current position as a \e call stack
-    trace. This stack trace is built up from \e{call stack frames}, each
+    nested function calls leading to the current position as a call stack
+    trace. This stack trace is built up from call stack frames, each
     representing a particular function. For each function, Qt Creator tries
     to retrieve the file name and line number of the corresponding source
     file. This data is shown in the \gui Stack view.
@@ -2333,8 +2345,8 @@
 
     Since the call stack leading to the current position may originate or go
     through code for which no debug information is available, not all stack
-    frames have corresponding source locations. These frames are
-    grayed out in the \gui Stack view.
+    frames have corresponding source locations. Stack frames without
+    corresponding source locations are grayed out in the \gui{Stack} view.
 
     If you click on a frame with a known source location, the text editor
     jumps to the corresponding location and updates the \gui{Locals and Watchers}
@@ -2352,24 +2364,28 @@
 
     \section2 Modules View and Source Files View
 
-    These views display the debugger's idea of the components of the
-    application. By default, both views are hidden.
+    The \gui{Modules} view and \gui{Source Files} view display the debugger's idea.
+    By default, the \gui{Modules} view and \gui{Source Files} view are hidden.
 
 
     \section2 Disassembler View and Registers View
 
-    By default, both \gui Disassembler and \gui Registers view are hidden.
-    The \gui Disassembler view displays disassembled code for the current
-    function; the \gui Registers view displays the current state of the CPU's
-    registers. Both views are useful for low-level commands such as
-    \gui{Step Single Instruction} and \gui{Step Over Single Instruction}.
+    The \gui{Disassembler} view displays disassembled code for the current
+    function. The \gui{Registers} view displays the current state of the CPU's
+    registers.
+
+    The \gui{Disassembler} view and the \gui{Registers} view are both useful
+    for low-level commands such as \gui{Step Single Instruction} and
+    \gui{Step Over Single Instruction}. By default, both \gui{Disassembler} and
+    \gui{Registers} view are hidden.
 
     \section2 Locals and Watchers
 
     Whenever a program stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
-    \gui{Locals and Watchers} view. This typically includes information about
-    parameters of the function in that frame as well as the local variables.
+    \gui{Locals and Watchers} view. The \gui{Locals and Watchers} view
+    typically includes information about parameters of the function in that
+    frame as well as the local variables.
 
     Compound variables of struct or class type are displayed as
     "expandable" in the view. Click on the "+" to expand the entry and show
@@ -2383,30 +2399,34 @@
 
         \row
             \i  Gdb, and therefore Qt Creator's debugger works for optimized
-                builds on Linux and Mac OS X. However, optimization may lead
-                to re-ordering of instructions or sometimes even complete
-                removal of some local variables. In this case, the
-                \gui{Locals and Watchers} view may show unexpected data.
-
+                builds on Linux and Mac OS X. Optimization can lead to
+                re-ordering of instructions or removal of some local variables,
+                causing the \gui{Locals and Watchers} view to show unexpected
+                data.
         \row
             \i  The debug information provided by gcc does not include enough
                 information about the time when a variable is initialized.
                 Therefore, Qt Creator can not tell whether the contents of a
                 local variable contains "real data", or "initial noise". If a
                 QObject appears uninitialized, its value is reported as
-                "out of scope". However, not all uninitialized objects can be
+                "out of scope". Not all uninitialized objects, however, can be
                 recognized as such.
     \endtable
 
 
     The \gui{Locals and Watchers} view also provides access to the most
     powerful feature of the debugger: comprehensive display of data belonging
-    to Qt's basic objects. To enable this feature, check \gui{Use
-    debugging helper} checkbox from \gui Tools > \gui Options... >
-    \gui Debugger > \gui{Debugging Helper}. The \gui{Locals and Watchers} view
-    is re-organized to provide a high-level view of the objects. For example,
-    in case of QObject, instead of displaying a pointer to some private data
-    structure, you see a list of children, signals and slots.
+    to Qt's basic objects.
+
+    To enable Qt's basic objects data display feature:
+    \list
+       \o  Check \gui{Use debugging helper} checkbox from \gui Tools >
+           \gui {Options...} > \gui Debugger > \gui{Debugging Helper}.
+       \o  The \gui{Locals and Watchers} view is re-organized to provide a
+           high-level view of the objects.
+    \endlist
+    See example, in case of QObject, instead of displaying a pointer to some
+    private data structure, you see a list of children, signals and slots.
 
     Similarly, instead of displaying many pointers and integers, Qt Creator's
     debugger displays the contents of a QHash or QMap in an orderly manner.
@@ -2414,20 +2434,20 @@
     access to the "real" contents of QVariant.
 
     The \gui{Locals and Watchers} view can be used to change the contents of
-    variables of simple data types such as \c int or \c float when the program
-    is interrupted. To do so, click on the \gui Value column, modify the value
-    with the inplace editor, and hit \key Enter (or \key Return).
+    variables of simple data types, for example, \c int or \c float when the
+    program is interrupted. To do so, click on the \gui Value column, modify
+    the value with the inplace editor, and hit \key Enter (or \key Return).
 
     \note The set of watched items is saved in your session.
 
-
     \section1 Walkthrough for the Debugger Frontend
 
-    In our \l{Writing a Simple Program}{TextFinder} example, we
-    read a text file into QString and then display it with QTextEdit.
-    Suppose you want to look at this QString, \c{line}, and see what
-    data it actually stores. Follow the steps described below to place a
-    breakpoint and view the QString object's data.
+    The \l{Writing a simple program}{TextFinder} example reads a text file into
+    QString and then displays it with QTextEdit.
+
+    If you want to look at the example's QString, \c{line}, and see the
+    stored data, you must place a breakpoint and view the QString object's
+    data. Perform the following steps:
 
     \table
         \row
@@ -2458,10 +2478,10 @@
 
     \endtable
 
-    Suppose we modify our \c{on_findButton_clicked()} function to move back to
+    If you modify your \c{on_findButton_clicked()} function to move back to
     the start of the document and continue searching once the cursor hits the
-    end of the document. Adding this functionality can be done with the code
-    snippet below:
+    end of the document. You can add the restart from beginning functionality
+    with the following code snippet:
 
     \code
     void TextFinder::on_findButton_clicked()
@@ -2493,17 +2513,17 @@
     }
     \endcode
 
-    However, if you compile and run this code, the application does not work
-    correctly due to a logic error. To locate this logic error, step
+    If you compile and run the above code, however, the application does not
+    work correctly due to a logic error. To locate this logic error, step
     through the code using the following buttons:
 
     \image qtcreator-debugging-buttons.png
 
-    \section1 Setting the Symbol Server (Debugging Tools for Windows only)
 
-    To obtain debugging information for the operating system libraries for
-    debugging Windows applications, the Symbol Server provided
-    by Microsoft has to be added to the symbol search path of the debugger:
+    \section1 Setting the Symbol Server
+
+    To obtain operating system libraries for debugging Windows applications,
+    you have to add the Symbol Server:
     \list 1
         \o  Select \gui Tools > \gui Options > \gui Debugger > \gui Cdb
         \o  Click \inlineimage qtcreator-serverbutton.png
@@ -2512,6 +2532,7 @@
         \o  Select a directory where you want to store the cached information
             and click \gui OK.
     \endlist
+
 
     \section1 Debugging Helper Library with C++
 
@@ -2528,17 +2549,22 @@
 
     Using a gdb version that has Python scripting available it is possible to
     use Debugging Helpers also for user defined types. All that is needed is
-    to define one Python function per user defined type in .gdbinit.
+    to define one Python function per user defined type in \c{.gdbinit}.
 
     The function's name has to be qdump__NS__Foo where NS::Foo is the class
     or class template to be examined. Nested namespaces are possible.
 
-    Qt Creator's debugger integration will call this function whenever it
-    wants to display an object of this type. The function gets passed two
-    parameters, 'd' of type 'Dumper', and 'item' of type 'Item'. The function
-    itself has to feed the Dumper object with certain information which is
-    used to build up the object and its children's display in the
-    Locals-and-Watchers view.
+    Qt Creator's debugger integration calls this function whenever you want to
+    display an object of this type. The function is passed the following
+    parameters:
+    \list
+       \o  'd' of type 'Dumper'
+       \o  'item' of type 'Item'
+    \endlist
+
+    The function has to feed the Dumper object with certain information
+    which is used to build up the object and its children's display in the
+    \gui{Locals and Watchers} view.
 
 
     Example:
@@ -2568,33 +2594,33 @@
     \section2
 
     The 'Item' Python class is a thin wrapper around values corresponding to one
-    line in the Locals-and-Watchers view. Its members are the following:
+    line in the \gui{Locals and Watchers} view. The 'Item' members are as follows :
 
     \list
 
     \o \gui{__init__(self, value, parentiname, iname, name = None)} - A
        constructor. The object's internal name is created by concatenating
-       \a parentiname and \a iname. If \c None is passed as \a name, a
+       \c parentiname and \c iname. If \c None is passed as \c name, a
        serial number is used.
 
     \o \gui{value} - An object of type gdb.Value representing the value to
         be displayed.
 
-    \o \gui{iname} - The internal name of the object, i.e. a dot-separated
+    \o \gui{iname} - The internal name of the object, constituting a dot-separated
     list of identifiers, corresponding to the position of the object's
     representation in the view.
 
-    \o \gui{name} - An optional name. If given, it will be used in the
+    \o \gui{name} - An optional name. If given, is used in the
     \gui{name} column of the view. If not, a simple number in brackets
-    will be used instead.
+    is used instead.
 
     \endlist
 
 
     \section2
 
-    For each line in the Locals and Watcher view, a string like the following
-    needs to be created and channeled to Creator's debugger plugin.
+    For each line in the \gui{Locals and Watchers} view, a string like the
+    following needs to be created and channeled to Creator's debugger plugin.
     \code
     "{iname='some internal name',
       addr='object address in memory',
@@ -2613,12 +2639,12 @@
       ]}"
     \endcode
 
-    While in theory, this string can be build up entirely manually, it is
-    easier to employ the 'Dumper' Python class for that purpose. It contains
-    a complete framework to take care of the 'iname' and 'addr' fields,
-    to handle children of simple types, references,
-    pointers, enums, known and unknown structs as well as some
-    convenience methods to handle common situations.
+    While in theory, you can build up the entire string above manually, it is
+    easier to employ the 'Dumper' Python class for that purpose. The 'Dumper'
+    Python class contains a complete framework to take care of the 'iname' and
+    'addr' fields, to handle children of simple types, references, pointers,
+    enums, known and unknown structs as well as some convenience methods to
+    handle common situations.
 
     The 'Dumper' members are the following:
 
@@ -2647,8 +2673,8 @@
     \o \gui{endItem(self)} - Ends writing a field by writing \c {'}.
 
     \o \gui{beginChildren(self, numChild_ = 1, childType_ = None, childNumChild_ = None)}
-        - Starts writing a list of \a numChild children, with type
-        \a childType_ and \a childNumChild_ grandchildren each. If \a numChild_
+        - Starts writing a list of \c numChild children, with type
+        \c childType_ and \c childNumChild_ grandchildren each. If \c numChild_
         is a list of two integers, the first one specifies the actual number
         of children and the second the maximum number of children to print.
 
@@ -2671,13 +2697,13 @@
         \a type coincides with the parent's default child type.
 
     \o \gui{putNumChild(self, numchild)} - Appends a field \c {numchild='...'}
-        unless the \a numchild coincides with the parent's default child numchild
+        unless the \c numchild coincides with the parent's default child numchild
         value.
 
     \o \gui{putValue(self, value, encoding = None)} - Append a file \c {value='...'},
-        optionally followed by a field \c {valueencoding='...'}. The \a value
+        optionally followed by a field \c {valueencoding='...'}. The \c value
         needs to be convertible to a string entirely consisting of
-        alphanumerical values. The \a encoding parameter can be used to
+        alphanumerical values. The \c encoding parameter can be used to
         specify the encoding in case the real value had to be encoded in some
         way to meet the alphanumerical-only requirement.
         Currently the following encodings are supported:
@@ -2686,30 +2712,30 @@
             \o 0: unencoded 8 bit data, interpreted as Latin1.
 
             \o 1: base64 encoded 8 bit data, used for QByteArray,
-                double quotes will be added.
+                double quotes are added.
 
             \o 2: base64 encoded 16 bit data, used for QString,
-                double quotes will be added.
+                double quotes are added.
 
             \o 3: base64 encoded 32 bit data,
-                double quotes will be added.
+                double quotes are added.
 
             \o 4: base64 encoded 16 bit data, without quotes (see 2)
 
             \o 5: base64 encoded 8 bit data, without quotes (see 1)
 
             \o 6: %02x encoded 8 bit data (as with \c QByteArray::toHex),
-                double quotes will be added.
+                double quotes are added.
 
             \o 7: %04x encoded 16 bit data (as with \c QByteArray::toHex),
-                double quotes will be added.
+                double quotes are added.
         \endlist
 
     \o \gui{putStringValue(self, value)} - Encodes a QString and calls
-        \c putValue with the correct \a encoding setting.
+        \c putValue with the correct \c encoding setting.
 
     \o \gui{putByteArrayValue(self, value)} - Encodes a QByteArray and calls
-        \c putValue with the corrent \a encoding setting.
+        \c putValue with the corrent \c encoding setting.
 
     \o \gui{isExpanded(self, item)} - Checks whether the item with the
         internal name \c item.iname is expanded in the view.
@@ -2717,7 +2743,7 @@
     \o \gui{isExpandedIName(self, iname)} - Checks whether the item with the
         internal name \c iname is expanded in the view.
 
-    \o \gui{putIntItem(self, name, value)} - Equivalent to
+        \o \gui{putIntItem(self, name, value)} - Equivalent to:
         \code
         self.beginHash()
         self.putName(name)
@@ -2727,7 +2753,7 @@
         self.endHash()
         \endcode
 
-    \o \gui{putBoolItem(self, name, value)} - Equivalent to
+        \o \gui{putBoolItem(self, name, value)} - Equivalent to:
         \code
         self.beginHash()
         self.putName(name)
@@ -2738,11 +2764,11 @@
         \endcode
 
     \o \gui{pushOutput(self)} - Moves the output string to a safe location
-        from with it will be sent to the frontend even if further operations
+        from with it is sent to the frontend even if further operations
         raise an exception.
 
     \o \gui{putCallItem(self, name, item, func)} -
-        Uses gdb to call the function \a func on the value specified by
+        Uses gdb to call the function \c func on the value specified by
         \a {item.value} and output the resulting item. This function is
         not available when debugging core dumps and it is not available
         on the Symbian platform due to restrictions imposed by AppTRK.
@@ -2752,7 +2778,7 @@
         over base classes and class members of compound types and calls
         \c qdump__* functions whenever appropriate.
 
-    \o \gui{putItem(self, item)} - Equivalent to
+        \o \gui{putItem(self, item)} - Equivalent to:
         self.beginHash()
         self.putItemHelper(item)
         self.endHash()
@@ -2796,7 +2822,7 @@
     \image qtcreator-cmakeexecutable.png
 
     \note Before you open a \c CMake project it is necessary to modify the
-    PATH environment variable to include the bin folders of \c mingw and
+    \c{PATH} environment variable to include the bin folders of \c mingw and
     Qt Creator in the SDK.
 
     For instance, if you have the Qt Creator SDK installed in your C drive,
@@ -2814,8 +2840,8 @@
 
     To open a \c CMake project:
     \list 1
-        \o  Select \gui Open from the \gui File menu.
-        \o  Select the \c{CMakeLists.txt} file from your \c CMake project.
+        \o  Select \gui{File} > \gui{Open File or Project...}
+        \o  Select the \c{CMakeLists.txt} file from your \c CMake project
     \endlist
 
     A wizard guides you with the rest of the process.
@@ -2885,16 +2911,16 @@
     \title Setting Up a Generic Project
 
     Qt Creator supports generic projects, so you can import existing projects
-    that do not use qmake or CMake and Qt Creator ignores your build system
+    that do not use qmake or CMake and Qt Creator ignores your build system.
 
-    This allows you to use Qt Creator as a code editor. You can change the
-    way your project is built by modifying the \c make command in the
-    \gui Projects mode under \gui{Build Settings}.
+    Generic project support allows you to use Qt Creator as a code editor. You
+    can change the way your project is built by modifying the \c make command
+    in the \gui{Projects} mode under \gui{Build Settings}.
 
     When you import a project, Qt Creator creates the following files that
     allow you to specify which files belong to your project and which include
     directories or defines you want to pass to your compile:
-    .files, .includes, and .config.
+    \c{.files}, \c{.includes}, and \c{.config}.
 
 
     \section1 Importing a Generic Project
@@ -2920,7 +2946,7 @@
     tree in the sidebar.
 
     After importing a generic project into Qt Creator, open it by selecting the
-    .creator file.
+    \c{.creator} file.
 
 
     \section1 Working with Generic Project Files
@@ -2941,7 +2967,7 @@
     Alternatively, you can add and remove files using the context menu in the
     project tree.
 
-    If you frequently need to update the \c .files file, you can do it
+    If you frequently need to update the \c .files file, you can do so
     efficiently by using a script that updates the file for you. If the file
     is modified externally, you have to restart Qt Creator for the changes to
     take effect.
@@ -2960,9 +2986,9 @@
 
     \section1 Specifying Defines
 
-    The defines are specified in the \c .config file. This is a regular C++
-    file, prepended to all your source files when they are parsed. However,
-    use it only to add lines like the following:
+    The defines are specified in the \c .config file. The \c.{config} file is a
+    regular C++ file, prepended to all your source files when they are parsed.
+    Only use the \c{.config} file to add lines as in the example below:
 
     \code
     #define NAME value
@@ -2973,8 +2999,8 @@
 
     Qt Creator cannot automatically determine which executable to run.
 
-    To define the executable file to run, in the \gui Projects mode under
-    \gui{Run Settings}:
+    In the \gui{Projects} mode under \gui{Run Settings}, define the executable
+    file to run:
     \list 1
         \o Click \gui Add and select \gui{Custom Executable}.
         \o Define the configuration name, the location of the executable, any
@@ -2989,11 +3015,12 @@
     library.
 
     If you import a project using the \gui{Import Existing Project}
-    function, Qt Creator creates a file called <projectname>.includes in your
-    project directory. This file contains all project subdirectories for which
-    Qt Creator found relevant headers. Add your include paths here.
+    function, Qt Creator creates a file called \c{<projectname>.includes} in
+    your project directory. The \c{.includes} file contains all project
+    subdirectories for which Qt Creator found relevant headers. Add your
+    include paths here.
 
-    Note that in \gui Projects mode of a generic project, Qt Creator does not
+    \note In \gui Projects mode of a generic project, Qt Creator does not
     modify any project settings prior to the build.
 
     Syntax completion and highlighting work once your project successfully
@@ -3094,44 +3121,39 @@
     \title Developing Maemo Applications
 
     Maemo is a software platform developed by Nokia for smartphones and
-    Internet Tablets. The platform is based on the Linux operating system
-    which itself is derived from the Unix operating system. The platform
-    comprises of the Maemo operating system and Maemo SDK. The Maemo SDK
-    provides an open development environment for different applications on
-    top of the maemo platform. Maemo 5 is based on the Linux 2.6 operating
-    system. For more information refer,
-    \l{http://maemo.org/intro/platform/}{Maemo platform}.
-
+    Internet Tablets. The Maemo SDK provides an open development environment
+    for different applications on top of the Maemo platform.
+    Maemo 5 is based on the Linux 2.6 operating system. You can find more
+    information about the Maemo platform \l{http://maemo.org/intro/platform/}{here}.
 
 
     \section1 Getting Started with Maemo Based Applications
 
-    To begin development for maemo applications, you require the following:
+    To begin development for Maemo applications, you require the following:
     \list
        \o  An N900 device with updates installed.
-       \o \bold MADDE is the acronym for Maemo Application Development and
-           Debugging Environment. It is a cross-platform maemo development
-           tool. For more information about \bold MADDE pertaining to its
+       \o  MADDE is a cross-platform Maemo development
+           tool. For more information about MADDE pertaining to its
            installation, configuration, and deployment on the device refer to
-          \l{http://wiki.maemo.org/MADDE}{MADDE Preview}
+          \l{http://wiki.maemo.org/MADDE}{Introdution to MADDE}.
        \o  In order to setup the device IP address, you need to install
-           PC Connectivity or implement using CLI. For information on PC
-           Connectivity refer to the link,
+           PC Connectivity or implement it using CLI. More information about PC
+           Connectivity can be found
           \l{http://pc-connectivity.garage.maemo.org/2nd_edition/node3.html#SECTION00032300000000000000}
-           {PC Connectivity}.
+           {here}.
     \endlist
 
     For deploying and running applications on the device, you need the
     following:
     \list
-       \o The Nokia USB drivers that come e.g. with PC Suite
-       \o Qt Creator should be installed on the device. A simple technique to
-          do this to run the maemo device \gui{Application Manager} and
-          download any application using Qt Creator. This installs all
-          dependencies required for Qt Creator at the same time.
+       \o The Nokia USB drivers that come, for example with, PC Suite.
+       \o Qt installed on the device. A simple technique to
+          install Qt is to run the Maemo device \gui{Application Manager} and
+          download any application using Qt Creator. Running the Maemo device
+          \gui{Application Manager} and downloading an application with Qt
+          Creator installs all dependencies required for Qt Creator at the same
+          time.
     \endlist
-
-    \section2 Supported Platform
 
      The Qt Creator/MADDE integration is supported on the following platforms:
     \list
@@ -3141,19 +3163,19 @@
 
     \section1 Setting Up the N900
 
-    \note The following assumes that you use the device's USB network
-     functionality. If you plan to connect your development PC to the N900
-     via a common WLAN network, you can ignore the USB-specific parts in the
-     following sections.
+     If you use the device's USB network functionality and plan to connect your
+     development PC to the N900 via a common WLAN network, you can ignore the
+     USB-specific parts in the following sections.
 
-     \section2 Installing the Mad Developer Package
+     \section2 Installing the MADDE Developer Package
 
-     To install the Mad Developer package on your device, follow the steps
-     listed below:
+     To install the MADDE Developer package on your device:
      \list 1
-         \o Open the application manager and select,
+         \o Open the application manager and select
             \gui{Application catalogues} > \gui New.
-            Enter the data as displayed in the screenshot below
+
+            Enter the data as displayed in the screenshot below.
+
             \note The complete web address is
             \l http://repository.maemo.org/extras-devel
 
@@ -3162,74 +3184,58 @@
          \o Click \gui Save and close the application manager.
          \o Start xterm and create root: sudo gainroot.
          \o Install \gui{apt-get install mad-developer}.
-         \o Start the Mad Developer apllication.
+         \o Start the Mad Developer application.
      \endlist
 
-   \note In case you are using Microsoft Windows as development host, you will
-         need to change the driver loaded for instantiating the connection.
-         For this click, \gui{Manage USB} and select \gui{Load g_ether}.
+   \note If you are using Microsoft Windows as development host, you must
+         change the driver loaded for instantiating the connection.
+         For this click \gui{Manage USB} and select \gui{Load g_ether}.
 
-    Click \gui Edit in the usb0 row and confirm with \gui Configure. No
-    changes need to be made by default. The usb0 row should now display the
-    IP address 192.168.2.15. Now select \gui{Developer Password} to generate
-    a password for a freshly created user called "developer".
-    The password will stay valid for as long this dialog is open.
+    Click \gui Edit in the usb0 row and confirm with \gui Configure.
+
+    By default, you do not need to make changes. The usb0 row displays the IP
+    address 192.168.2.15.
+
+    Select \gui{Developer Password} to generate a password for a freshly
+    created user called "developer". The password stays valid for as long the
+    password generation dialog is open.
+
     Refer to the screenshot below as an example.
 
     \image qtcreator-mad-developer-screenshot.png
 
-    \section2 Installing the gdbserver
-
-    If you plan to debug your application on the N900 via Qt Creator, you will
-    need the gdbserver application, which is part of the gdb packages.
-    This package is not available in the standard repository yet,
-    as it is under development currently. This requires setting up another
-    repository in the application manager. Follow the steps as mentioned in
-    Installing the Mad Developer package and
-    enter the data as displayed in the screenshot below.
-
-    \image qtcreator-app-manager-sdk-screenshot.png
-
-    Click \gui Save and exit the application manager. Now you can
-    install gdb. Again, use the xterm and gain root access.
-    You can install gdb via xterm: \gui{apt-get install gdb}.
 
     \section2 Establishing the USB Connection
 
-    Connect your device to the development PC via the USB cable. A dialog will
-    pop up asking for the mode to use. Choose \gui{PC suite mode}.
+    Connect your device to the development PC via the USB cable. A dialog
+    pops up asking for the mode to use. Choose \gui{PC suite mode}.
 
-    \note There have been reports about connection problems due to unreliable
-    USB ports. Switching to a different port might help in such a case.
+    \note If you experience connection problems due to a USB port issue, switch
+     to a different port.
 
-    \section1 Setting Up the Host PC
 
-    \section2 Establishing the USB Connection
+    \section1 Setting Up Connectivity
 
-    \section3 Linux
+    \section2 Linux
 
     Run the following command in a shell as root user:
                   \c{ifconfig usb0 192.168.2.14 up}
 
-    \section3 Windows
+    \section2 Windows
 
-    For Microsoft Windows, you will have perform the same steps via the Network
-    configuration tools available with the operating system.
-    Please open the network interface properties as shown in following
-    screenshots:
-    \image qtcreator-win-usb-network1.png
-    \image qtcreator-win-usb-network2.png
-    \image qtcreator-win-usb-network3.png
+    Perform the same steps via the Network configuration tools available with
+    the operating system.
 
     Change the IP to be set statically and enter the following values:
     \list
        \o  IP Address: 192.168.2.14
        \o  SubnetMask: 255.255.255.0
+       \o  Default gateway: 192.168.2.15
     \endlist
 
     Accept these settings and close the Network Configuration. Depending on
-    your version of Microsoft Windows you might have to unplug and re-plug the
-    N900 to reload the driver with its according configuration.
+    your version of Microsoft Windows you may have to unplug and re-plug the
+    N900 to reload the driver with its configuration accordingly.
 
     \section2 Setting Up MADDE
 
@@ -3237,77 +3243,80 @@
     \l{http://wiki.maemo.org/MADDE}{here}, execute it and follow the
     instructions. The package will be installed. Then run:
     \c{mad-admin list targets} to see which targets are available.
-    One of them should start with "fremantle". Install that one:
-    \c{mad-admin create fremantle-qt-xxx}.
-    After that, you will have a toolchain and a sysroot environment for
-    cross-compiling available.
+    Install the targets that starts with "fremantle" by using the command:
+    \c{mad-admin create fremantle-qt-xxx}
 
+    When you have installed the target, you have a toolchain and a sysroot
+    environment for cross-compiling
 
     \section1 Setting Up Qt Creator
 
-    \section2 Registering the MADDE Toolchain
+    Set up the Qt Creator for developing Maemo applications by following the
+    steps mentioned below:
 
-    Select \gui Tools > \gui Options > \gui Qt4 > \gui{Qt Versions}.
-    Click \inlineimage qtcreator-windows-add.png,
-    to add a new Qt version. The \gui{qMake Location} is the qmake executable
-    in \c{<MADDE dir>/targets/<fremantle target>/bin}.
+    \list 1
+        \o  \bold{Registering the MADDE Toolchain}
 
-    \image qtcreator-screenshot-toolchain.png
+            Select \gui Tools > \gui Options > \gui Qt4 > \gui{Qt Versions}.
+            Click \inlineimage qtcreator-windows-add.png,
+            to add a new Qt version. The \gui{qmake Location} is the qmake
+            executable in \c{<MADDE dir>/targets/<fremantle target>/bin}.
 
-
-    \section2 Creating a Device Configuration
-
-    In order to deploy applications and run them remotely, Qt Creator needs to
-    know some parameters for device access. These are set in device
-    configurations.
-
-    Select \gui Tools > \gui Options > \gui Qt4 >
-    \gui{Maemo Device Configurations} and add a new configuration.
-
-    \image qtcreator-screenshot-devconf.png
+            \image qtcreator-screenshot-toolchain.png
 
 
-   \note The password is the one mad developer displays on the device.
-   Click \gui Test to check whether the device can be accessed properly. It is
-   recommended that you use the password-based login only to deploy your public
-   SSH key to the device (using the \gui{Deploy Key} button) and then switch to
-   key-based authentication.
+        \o  \bold{Creating a Device Configuration}
 
-   Close the dialog by clicking, the \gui OK button after completion.
+            In order to deploy applications and run them remotely, Qt Creator
+            needs parameters for device access which you can set in device
+            configurations.
 
+            Select \gui Tools > \gui Options > \gui Qt4 >
+            \gui{Maemo Device Configurations} and add a new configuration.
 
-   \section2 Setting Build and Run Configuration
-
-   Open a project for an application you want to develop for your N900.
-   Click \gui Projects to open the projects mode. In the \gui{Build Settings}
-   section, choose the MADDE Qt version which you registered earlier:
-
-   \image qtcreator-screenshot-build-settings.png
-
-   In the \gui{Run Settings} section, click \gui Add to add a new
-   run configuration on the maemo device. Set a name and select the device
-   configuration you created above in the popup menu. The result is
-   shown below:
-
-   \image qtcreator-screenshot-run-settings.png
-
-   \section2 Compiling, Running and Debugging Your Application
-
-   You can now continue your work as you were developing for any other platform
-   supported by Qt Creator: For compiling, Qt Creator will use the MADDE
-   toolchain's cross compiler. When you run your application, it will be
-   automatically copied onto the device and executed there. Your application's
-   windows will be displayed on the N900, command-line output can be seen in Qt
-   Creator's "Application output" window. Debugging works transparently as well.
+            \image qtcreator-screenshot-devconf.png
 
 
-   \section1 Deploying the Application On Your Device
+            \note The password is the one MADDE Developer displays on the
+            device. Click \gui Test to check whether the device can be accessed
+            properly. It is recommended that you use the password-based login
+            only to deploy your public SSH key to the device
+            (using the \gui{Deploy Key} button) and then switch to key-based
+            authentication.
 
-    Once you succesfully build and run you application on Qt Creator, you
-    can deploy it onto your mobile device. The executable is copied onto the
-    device and runs in the same manner on the device as on your PC.
+            Close the dialog by clicking the \gui OK button after completion.
 
 
+        \o  \bold{Setting Build and Run Configuration}
+
+            Open a project for an application you want to develop for your
+            N900. Click \gui Projects to open the projects mode. In the
+            \gui{Build Settings} section, choose the MADDE Qt version which you
+            registered earlier:
+
+            \image qtcreator-screenshot-build-settings.png
+
+            In the \gui{Run Settings} section, click \gui Add to add a new
+            run configuration on the Maemo device. Set a name and select the
+            device configuration you created above in the popup menu.
+
+            The following screenshot shows the result below:
+
+            \image qtcreator-screenshot-run-settings.png
+
+        \o  \bold{Compiling, Running and Debugging Your Application}
+
+            You can now continue your work as if developing for any
+            other platform supported by Qt Creator: for compiling, Qt Creator
+            will use the MADDE toolchain's cross compiler.
+
+            When you run your application, it is automatically copied onto
+            the device and executed there. Your application's windows will be
+            displayed on the N900 and command-line output is visible in Qt
+            Creator's "Application output" window.
+
+            Debugging also works transparently.
+    \endlist
 */
 
 
