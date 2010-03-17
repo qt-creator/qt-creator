@@ -19,4 +19,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
         <dependency name="Locator" version="1.3.82"/>
         <dependency name="TextEditor" version="1.3.82"/>
     </dependencyList>
+    <argumentList>
+        <argument name="-customwizard-verbose">Verbose loading of custom wizards</argument>
+    </argumentList>
 </plugin>

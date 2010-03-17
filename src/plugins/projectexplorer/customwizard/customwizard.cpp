@@ -44,8 +44,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
-enum { debug = 0 };
-
 static const char templatePathC[] = "templates/wizards";
 static const char configFileC[] = "wizard.xml";
 
@@ -53,7 +51,10 @@ namespace ProjectExplorer {
 
 struct CustomWizardPrivate {
     QSharedPointer<Internal::CustomWizardParameters> m_parameters;
+    static int verbose;
 };
+
+int CustomWizardPrivate::verbose = 0;
 
 CustomWizard::CustomWizard(const Core::BaseFileWizardParameters& baseFileParameters,
                            QObject *parent) :
@@ -65,6 +66,16 @@ CustomWizard::CustomWizard(const Core::BaseFileWizardParameters& baseFileParamet
 CustomWizard::~CustomWizard()
 {
     delete d;
+}
+
+void CustomWizard::setVerbose(int v)
+{
+    CustomWizardPrivate::verbose = v;
+}
+
+int CustomWizard::verbose()
+{
+    return CustomWizardPrivate::verbose;
 }
 
 void CustomWizard::setParameters(const CustomWizardParametersPtr &p)
@@ -100,7 +111,7 @@ void CustomWizard::initWizardDialog(QWizard *wizard, const QString &defaultPath,
     foreach(QWizardPage *ep, extensionPages)
         wizard->addPage(ep);
     Core::BaseFileWizard::setupWizard(wizard);
-    if (debug)
+    if (CustomWizardPrivate::verbose)
         qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
 }
 
@@ -177,7 +188,7 @@ static inline bool createFile(Internal::CustomWizardFile cwFile,
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
     replaceFields(fm, &cwFile.target);
     const QString targetPath = QDir::toNativeSeparators(targetDirectory + slash + cwFile.target);
-    if (debug)
+    if (CustomWizardPrivate::verbose)
         qDebug() << "generating " << targetPath << sourcePath << fm;
     QFile file(sourcePath);
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
@@ -211,7 +222,7 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
     QTC_ASSERT(cwp, return Core::GeneratedFiles())
     QString path = cwp->path();
     const FieldReplacementMap fieldMap = defaultReplacementMap(dialog);
-    if (debug)
+    if (CustomWizardPrivate::verbose)
         qDebug() << "CustomWizard::generateFiles" << dialog << path << fieldMap;
     return generateWizardFiles(path, fieldMap, errorMessage);
 }
@@ -220,7 +231,7 @@ Core::GeneratedFiles CustomWizard::generateWizardFiles(const QString &targetPath
                                                        const FieldReplacementMap &fieldReplacementMap,
                                                        QString *errorMessage) const
 {
-    if (debug)
+    if (CustomWizardPrivate::verbose)
         qDebug() << "Replacements" << fieldReplacementMap;
     // Create files
     Core::GeneratedFiles rc;
@@ -299,7 +310,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
                                     QLatin1Char('/') + QLatin1String(templatePathC);
     const QDir templateDir(templateDirName);
     if (!templateDir.exists()) {
-        if (debug)
+        if (CustomWizardPrivate::verbose)
            qWarning("Custom project template path %s does not exist.", qPrintable(templateDir.absolutePath()));
         return rc;
     }
@@ -311,19 +322,24 @@ QList<CustomWizard*> CustomWizard::createWizards()
 
     foreach(const QFileInfo &dirFi, dirs) {
         const QDir dir(dirFi.absoluteFilePath());
+        if (CustomWizardPrivate::verbose)
+            qDebug("CustomWizard: Scanning %s", qPrintable(dirFi.absoluteFilePath()));
         if (dir.exists(configFile)) {
             CustomWizardParametersPtr parameters(new Internal::CustomWizardParameters);
             Core::BaseFileWizardParameters baseFileParameters;
             if (parameters->parse(dir.absoluteFilePath(configFile), &baseFileParameters, &errorMessage)) {
                 parameters->directory = dir.absolutePath();
-                if (debug)
-                    qDebug() << (*parameters);
+                if (CustomWizardPrivate::verbose)
+                    qDebug("%s\n", qPrintable(parameters->toString()));
                 if (CustomWizard *w = createWizard(parameters, baseFileParameters))
                     rc.push_back(w);
             } else {
                 qWarning("Failed to initialize custom project wizard in %s: %s",
                          qPrintable(dir.absolutePath()), qPrintable(errorMessage));
             }
+        } else {
+            if (CustomWizardPrivate::verbose)
+                qDebug("CustomWizard: '%s' not found\n", qPrintable(configFile));
         }
     }
     return rc;
@@ -362,7 +378,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
         w->addPage(ep);
     w->setPath(defaultPath);
     w->setProjectName(BaseProjectWizardDialog::uniqueProjectName(defaultPath));
-    if (debug)
+    if (CustomWizardPrivate::verbose)
         qDebug() << "initProjectWizardDialog" << w << w->pageIds();
 }
 
@@ -374,7 +390,7 @@ Core::GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QStrin
     // Add project name as macro.
     FieldReplacementMap fieldReplacementMap = defaultReplacementMap(dialog);
     fieldReplacementMap.insert(QLatin1String("ProjectName"), dialog->projectName());
-    if (debug)
+    if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::generateFiles" << dialog << targetPath << fieldReplacementMap;
     return generateWizardFiles(targetPath, fieldReplacementMap, errorMessage);
 }
@@ -384,7 +400,7 @@ bool CustomProjectWizard::postGenerateFiles(const QWizard *, const Core::Generat
     // Post-Generate: Open the project
     const QString proFileName = l.back().path();
     const bool opened = ProjectExplorer::ProjectExplorerPlugin::instance()->openProject(proFileName);
-    if (debug)
+    if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::postGenerateFiles: opened " << proFileName << opened;
     if (opened) {
         *errorMessage = tr("The project %1 could not be opened.").arg(proFileName);

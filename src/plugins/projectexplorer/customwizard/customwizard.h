@@ -99,6 +99,9 @@ public:
     // classes, call it in extensionsInitialized().
     static QList<CustomWizard*> createWizards();
 
+    static void setVerbose(int);
+    static int verbose();
+
 protected:
     typedef QSharedPointer<Internal::CustomWizardParameters> CustomWizardParametersPtr;
 

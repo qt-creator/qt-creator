@@ -231,6 +231,7 @@ private slots:
 #endif
 
 private:
+    bool parseArguments(const QStringList &arguments, QString *error);
     void runProjectImpl(Project *pro, QString mode);
     void executeRunConfiguration(RunConfiguration *, const QString &mode);
     bool showBuildConfigDialog();

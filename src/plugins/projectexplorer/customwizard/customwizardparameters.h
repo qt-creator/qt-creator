@@ -69,6 +69,7 @@ public:
                Core::BaseFileWizardParameters *bp, QString *errorMessage);
     bool parse(const QString &configFileFullPath,
                Core::BaseFileWizardParameters *bp, QString *errorMessage);
+    QString toString() const;
 
     QString directory;
     QString klass;
@@ -77,10 +78,6 @@ public:
     QList<CustomWizardField> fields;
     int firstPageId;
 };
-
-QDebug operator<<(QDebug d, const CustomWizardField &);
-QDebug operator<<(QDebug d, const CustomWizardFile &);
-QDebug operator<<(QDebug d, const CustomWizardParameters &);
 
 } // namespace Internal
 } // namespace ProjectExplorer

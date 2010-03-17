@@ -442,30 +442,29 @@ bool CustomWizardParameters::parse(const QString &configFileFullPath,
     return parse(configFile, configFileFullPath, bp, errorMessage);
 }
 
-QDebug operator<<(QDebug d, const CustomWizardField &m)
+QString CustomWizardParameters::toString() const
 {
-    QDebug nsp = d.nospace();
-    nsp << "Name: " << m.name;
-    if (m.mandatory)
-        nsp << '*';
-    nsp << " Desc: " << m.description << " Control: " << m.controlAttributes;
-    return d;
-}
-
-QDebug operator<<(QDebug d, const CustomWizardFile &f)
-{
-    d.nospace() << "source: " << f.source << " target: " << f.target;
-    return d;
-}
-
-QDebug operator<<(QDebug d, const CustomWizardParameters &p)
-{
-    QDebug nsp = d.nospace();
-    nsp << "Dir: " << p.directory << " klass:" << p.klass << " Files: " << p.files;
-    if (!p.fields.isEmpty())
-        nsp << " Fields: " << p.fields;
-    nsp << "First page: " << p.firstPageId;
-    return d;
+    QString rc;
+    QTextStream str(&rc);
+    str << "Directory: " << directory << " Klass: '" << klass << "'\n";
+    foreach(const CustomWizardFile &f, files) {
+        str << "  File source: " << f.source << " Target: " << f.target << '\n';
+    }
+    foreach(const CustomWizardField &f, fields) {
+        str << "  Field name: " << f.name;
+        if (f.mandatory)
+            str << '*';
+        str << " Description: '" << f.description << '\'';
+        if (!f.controlAttributes.isEmpty()) {
+            typedef CustomWizardField::ControlAttributeMap::const_iterator AttrMapConstIt;
+            str << " Control: ";
+            const AttrMapConstIt cend = f.controlAttributes.constEnd();
+            for (AttrMapConstIt it = f.controlAttributes.constBegin(); it != cend; ++it)
+                str << '\'' << it.key() << "' -> '" << it.value() << "' ";
+        }
+        str << '\n';
+    }
+    return rc;
 }
 
 } // namespace Internal

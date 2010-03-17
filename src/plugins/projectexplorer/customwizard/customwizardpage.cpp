@@ -68,7 +68,7 @@ CustomWizardFieldPage::CustomWizardFieldPage(const FieldList &fields,
     m_formLayout(new QFormLayout)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << fields;
+        qDebug() << Q_FUNC_INFO << fields.size();
     foreach(const CustomWizardField &f, fields)
         addField(f);
     setLayout(m_formLayout);

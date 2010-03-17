@@ -226,10 +226,16 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
     return m_instance;
 }
 
+bool ProjectExplorerPlugin::parseArguments(const QStringList &arguments, QString * /* error */)
+{
+    CustomWizard::setVerbose(arguments.count(QLatin1String("-customwizard-verbose")));
+    return true;
+}
+
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(error)
+    if (!parseArguments(arguments, error))
+        return false;
 
     Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = core->actionManager();
