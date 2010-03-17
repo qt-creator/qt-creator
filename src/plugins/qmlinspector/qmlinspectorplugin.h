@@ -64,7 +64,7 @@ public:
 
 public slots:
     void activateDebugger(const QString &langName);
-    void activateDebuggerForProject(ProjectExplorer::Project *project);
+    void activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode);
     void setDockWidgetArrangement(const QString &activeLanguage);
 
 private slots:

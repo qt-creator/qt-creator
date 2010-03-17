@@ -65,6 +65,7 @@
 
 using namespace Qml;
 
+
 static QToolButton *createToolButton(QAction *action)
 {
     QToolButton *button = new QToolButton;
@@ -95,6 +96,7 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
+    Core::ICore *core = Core::ICore::instance();
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             SLOT(prepareDebugger(Core::IMode*)));
 
@@ -119,8 +121,8 @@ void QmlInspectorPlugin::extensionsInitialized()
 
     ProjectExplorer::ProjectExplorerPlugin *pex = ProjectExplorer::ProjectExplorerPlugin::instance();
     if (pex) {
-        connect(pex, SIGNAL(aboutToExecuteProject(ProjectExplorer::Project*)),
-                SLOT(activateDebuggerForProject(ProjectExplorer::Project*)));
+        connect(pex, SIGNAL(aboutToExecuteProject(ProjectExplorer::Project*, QString)),
+                SLOT(activateDebuggerForProject(ProjectExplorer::Project*, QString)));
     }
 
     QWidget *configBar = new QWidget;
@@ -147,11 +149,13 @@ void QmlInspectorPlugin::activateDebugger(const QString &langName)
     }
 }
 
-void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project)
+void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *project, const QString &runMode)
 {
-    QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
-    if (qmlproj)
-        m_connectionTimer->start();
+    if (runMode == ProjectExplorer::Constants::DEBUGMODE) {
+        QmlProjectManager::QmlProject *qmlproj = qobject_cast<QmlProjectManager::QmlProject*>(project);
+        if (qmlproj)
+            m_connectionTimer->start();
+    }
 
 }
 void QmlInspectorPlugin::pollInspector()

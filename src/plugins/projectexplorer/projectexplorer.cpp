@@ -1259,7 +1259,7 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
 void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfiguration, const QString &runMode)
 {
     if (IRunControlFactory *runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
-        emit aboutToExecuteProject(runConfiguration->target()->project());
+        emit aboutToExecuteProject(runConfiguration->target()->project(), runMode);
 
         RunControl *control = runControlFactory->create(runConfiguration, runMode);
         startRunControl(control, runMode);

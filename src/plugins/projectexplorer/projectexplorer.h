@@ -146,7 +146,7 @@ signals:
 
     void currentProjectChanged(ProjectExplorer::Project *project);
     void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
-    void aboutToExecuteProject(ProjectExplorer::Project *project);
+    void aboutToExecuteProject(ProjectExplorer::Project *project, const QString &runMode);
 
     void settingsChanged();
 
