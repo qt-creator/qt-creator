@@ -8,7 +8,7 @@
     </itemlibraryrepresentation>
   </node>
   <node name="Qt/Rectangle" showInItemLibrary="true" category="Qt - Basic" isContainer="true" icon=":/fxplugin/images/rect-icon.png">
-    <itemlibraryrepresentation name="Rectangle" icon=":/fxplugin/images/rect-icon.png">
+    <itemlibraryrepresentation name="Rectangle" icon=":/fxplugin/images/rectangle-icon.png">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
       <property name="color" type="QColor" value="#ffffff"/>
