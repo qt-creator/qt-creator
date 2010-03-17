@@ -41,9 +41,6 @@ class QPlainTextEdit;
 class QLineEdit;
 class QPushButton;
 
-namespace Utils {
-    class FancyLineEdit;
-}
 namespace Core {
     class IContext;
 }
@@ -90,7 +87,7 @@ private:
     QDeclarativeEngineDebug *m_client;
     QDeclarativeDebugExpressionQuery *m_query;
     QPlainTextEdit *m_textEdit;
-    Utils::FancyLineEdit *m_lineEdit;
+    QLineEdit *m_lineEdit;
     QPushButton *m_button;
     QString m_prompt;
     QString m_expr;

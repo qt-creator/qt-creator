@@ -73,8 +73,9 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
     m_highlighter->setParent(m_textEdit->document());
 
     if (m_mode == SeparateEntryMode) {
-        m_lineEdit = new Utils::FancyLineEdit;
-        m_lineEdit->setHintText(tr("<Expression>"));
+        m_lineEdit = new QLineEdit;
+
+        m_lineEdit->setPlaceholderText(tr("<Expression>"));
         connect(m_lineEdit, SIGNAL(returnPressed()), SLOT(executeExpression()));
         QHBoxLayout *hbox = new QHBoxLayout;
         hbox->setMargin(1);
