@@ -871,9 +871,9 @@ QString PropertyEditor::locateQmlFile(const QString &relativePath) const
 
 CollapseButton::CollapseButton(QWidget *parent) : QWidget(parent), m_collapsed(false), m_hovered(false),
                                   m_pixmap_normal(":/qmldesigner/images/collapse-button-normal.png"),
+                                  m_pixmap_hover(":/qmldesigner/images/collapse-button-hover.png"),
                                   m_pixmap_normal_mirrored(":/qmldesigner/images/collapse-button-normal-mirrored.png"),
-                                  m_pixmap_hover_mirrored(":/qmldesigner/images/collapse-button-hover-mirrored.png"),
-                                  m_pixmap_hover(":/qmldesigner/images/collapse-button-hover.png")
+                                  m_pixmap_hover_mirrored(":/qmldesigner/images/collapse-button-hover-mirrored.png")
 {
     setFixedWidth(20);
     setFixedHeight(81);
