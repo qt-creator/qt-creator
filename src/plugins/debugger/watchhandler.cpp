@@ -230,9 +230,9 @@ void WatchData::setType(const QString &str, bool guessChildrenFromType)
     }
 }
 
-void WatchData::setAddress(const QString &str)
+void WatchData::setAddress(const QByteArray &a)
 {
-    addr = str.toLatin1();
+    addr = a;
 }
 
 QString WatchData::toString() const
@@ -783,7 +783,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
                         return QVariant(QLatin1Char('*') + item->parent->name);
                     return data.name;
                 case 1: {
-                    int format = m_handler->m_individualFormats.value(data.iname, -1);
+                    int format = m_handler->m_individualFormats.value(data.addr, -1);
                     if (format == -1)
                         format = m_handler->m_typeFormats.value(data.type, -1);
                     return truncateValue(formattedValue(data, format));
@@ -839,7 +839,7 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
             return m_handler->m_typeFormats.value(data.type, -1);
 
         case IndividualFormatRole:
-            return m_handler->m_individualFormats.value(data.iname, -1);
+            return m_handler->m_individualFormats.value(data.addr, -1);
 
         case AddressRole: {
             if (!data.addr.isEmpty())
@@ -874,9 +874,9 @@ bool WatchModel::setData(const QModelIndex &index, const QVariant &value, int ro
     } else if (role == IndividualFormatRole) {
         const int format = value.toInt();
         if (format == -1) {
-            m_handler->m_individualFormats.remove(data.iname);
+            m_handler->m_individualFormats.remove(data.addr);
         } else {
-            m_handler->m_individualFormats[data.iname] = format;
+            m_handler->m_individualFormats[data.addr] = format;
         }
         m_handler->m_manager->updateWatchData(data);
     }
@@ -1620,10 +1620,10 @@ QByteArray WatchHandler::formatRequests() const
 
     ba.append("formats:");
     if (!m_individualFormats.isEmpty()) {
-        QHashIterator<QString, int> it(m_individualFormats);
+        QHashIterator<QByteArray, int> it(m_individualFormats);
         while (it.hasNext()) {
             it.next();
-            ba.append(it.key().toLatin1());
+            ba.append(it.key());
             ba.append('=');
             ba.append(QByteArray::number(it.value()));
             ba.append(',');

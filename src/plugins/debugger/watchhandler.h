@@ -79,7 +79,7 @@ public:
     void setType(const QString &, bool guessChildrenFromType = true);
     void setValueToolTip(const QString &);
     void setError(const QString &);
-    void setAddress(const QString &address);
+    void setAddress(const QByteArray &);
 
     bool isSomethingNeeded() const { return state & NeededMask; }
     void setAllNeeded() { state = NeededMask; }
@@ -289,7 +289,7 @@ private:
     QHash<QByteArray, int> m_watcherNames;
     QByteArray watcherName(const QByteArray &exp);
     QHash<QString, int> m_typeFormats;
-    QHash<QString, int> m_individualFormats;
+    QHash<QByteArray, int> m_individualFormats;
 
     // Items expanded in the Locals & Watchers view.
     QSet<QByteArray> m_expandedINames; 

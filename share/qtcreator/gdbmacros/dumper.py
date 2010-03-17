@@ -1054,7 +1054,7 @@ class Dumper:
             self.safePutItemHelper(item)
 
     def itemFormat(self, item):
-        format = self.formats.get(item.iname)
+        format = self.formats.get(str(cleanAddress(item.value.address)))
         if format is None:
             format = self.typeformats.get(stripClassTag(str(item.value.type)))
         return format

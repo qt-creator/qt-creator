@@ -202,14 +202,15 @@ void WatchWindow::dropEvent(QDropEvent *ev)
 
 void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
 {
-    QModelIndex idx = indexAt(ev->pos());
-    QModelIndex mi0 = idx.sibling(idx.row(), 0);
-    QModelIndex mi1 = idx.sibling(idx.row(), 1);
-    QModelIndex mi2 = idx.sibling(idx.row(), 2);
-    QString exp = model()->data(mi0, ExpressionRole).toString();
-    QString type = model()->data(mi2).toString();
+    const QModelIndex idx = indexAt(ev->pos());
+    const QModelIndex mi0 = idx.sibling(idx.row(), 0);
+    const QModelIndex mi1 = idx.sibling(idx.row(), 1);
+    const QModelIndex mi2 = idx.sibling(idx.row(), 2);
+    const QString addr = model()->data(mi0, AddressRole).toString();
+    const QString exp = model()->data(mi0, ExpressionRole).toString();
+    const QString type = model()->data(mi2).toString();
 
-    QStringList alternativeFormats =
+    const QStringList alternativeFormats =
         model()->data(mi0, TypeFormatListRole).toStringList();
     const int typeFormat =
         qMax(int(DecimalFormat), model()->data(mi0, TypeFormatRole).toInt());
@@ -224,8 +225,10 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
     QList<QAction *> individualFormatActions;
     QAction *clearIndividualFormatAction = 0;
     if (idx.isValid()) {
-        typeFormatMenu.setTitle(tr("Change Format for Type '%1'").arg(type));
-        individualFormatMenu.setTitle(tr("Change Format for Expression '%1'").arg(exp));
+        typeFormatMenu.setTitle(
+            tr("Change Format for Type '%1'").arg(type));
+        individualFormatMenu.setTitle(
+            tr("Change Format for Object at %1").arg(addr));
         if (alternativeFormats.isEmpty()) {
             typeFormatMenu.setEnabled(false);
             individualFormatMenu.setEnabled(false);
@@ -250,9 +253,9 @@ void WatchWindow::contextMenuEvent(QContextMenuEvent *ev)
             }
         }
     } else {
-        typeFormatMenu.setTitle(tr("Change format for type"));
+        typeFormatMenu.setTitle(tr("Change Format for Type"));
         typeFormatMenu.setEnabled(false);
-        individualFormatMenu.setTitle(tr("Change format for expression"));
+        individualFormatMenu.setTitle(tr("Change Format for Object"));
         individualFormatMenu.setEnabled(false);
     }
 
