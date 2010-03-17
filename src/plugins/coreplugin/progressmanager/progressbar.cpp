@@ -31,6 +31,7 @@
 
 #include <utils/stylehelper.h>
 
+#include <QtCore/QPropertyAnimation>
 #include <QtGui/QPainter>
 #include <QtGui/QFont>
 #include <QtGui/QBrush>
@@ -38,10 +39,10 @@
 #include <QtDebug>
 
 #define PROGRESSBAR_HEIGHT 13
-#define CANCEL_WIDTH 12
+#define CANCELBUTTON_SIZE 15
 
 ProgressBar::ProgressBar(QWidget *parent)
-    : QWidget(parent), m_error(false), m_minimum(1), m_maximum(100), m_value(1)
+    : QWidget(parent), m_error(false), m_minimum(1), m_maximum(100), m_value(1), m_fader(0)
 {
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     setMouseTracking(true);
@@ -50,6 +51,32 @@ ProgressBar::ProgressBar(QWidget *parent)
 ProgressBar::~ProgressBar()
 {
 }
+
+bool ProgressBar::event(QEvent *e)
+{
+    switch(e->type()) {
+    case QEvent::Enter:
+        {
+            QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
+            animation->setDuration(125);
+            animation->setEndValue(1.0);
+            animation->start(QAbstractAnimation::DeleteWhenStopped);
+        }
+        break;
+    case QEvent::Leave:
+        {
+            QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
+            animation->setDuration(225);
+            animation->setEndValue(0.0);
+            animation->start(QAbstractAnimation::DeleteWhenStopped);
+        }
+        break;
+    default:
+        return QWidget::event(e);
+    }
+    return false;
+}
+
 
 void ProgressBar::reset()
 {
@@ -111,8 +138,16 @@ namespace { const int INDENT = 6; }
 
 void ProgressBar::mousePressEvent(QMouseEvent *event)
 {
+    QFont boldFont(font());
+    boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
+    boldFont.setBold(true);
+    QFontMetrics fm(boldFont);
+    int h = fm.height();
+    QRect rect(INDENT - 1, h+8, size().width()-2*INDENT + 1, m_progressHeight-1);
+    QRect cancelRect(rect.adjusted(rect.width() - CANCELBUTTON_SIZE, 1, -1, 0));
+
     if (event->modifiers() == Qt::NoModifier
-        && event->x() >= size().width()-INDENT-m_progressHeight) {
+        && cancelRect.contains(event->pos())) {
         event->accept();
         emit clicked();
         return;
@@ -159,17 +194,12 @@ void ProgressBar::paintEvent(QPaintEvent *)
 
     QRect textBounds = fm.boundingRect(m_title);
     textBounds.moveCenter(rect().center());
-    int buttonWidth = value() < maximum() ? CANCEL_WIDTH : 0;
     int alignment = Qt::AlignHCenter;
 
-    int textSpace = rect().width() - buttonWidth - 8;
+    int textSpace = rect().width() - 8;
     // If there is not enough room when centered, we left align and
     // elide the text
-    QString elidedtitle = m_title;
-    if (!m_error && textBounds.right() > textSpace) {
-        alignment = Qt::AlignLeft;
-        elidedtitle = fm.elidedText(m_title, Qt::ElideRight, textSpace);
-    }
+    QString elidedtitle  = fm.elidedText(m_title, Qt::ElideRight, textSpace);
 
     QRect textRect = rect().adjusted(INDENT + 1, 1, -INDENT - 1, 0);
     textRect.setHeight(h+5);
@@ -192,6 +222,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     QColor c = Utils::StyleHelper::panelTextColor();
     c.setAlpha(180);
     p.setPen(Qt::NoPen);
+
 
     QRect inner = rect.adjusted(3, 2, -2, -2);
     inner.adjust(0, 0, qRound((percent - 1) * inner.width()), 0);
@@ -228,20 +259,32 @@ void ProgressBar::paintEvent(QPaintEvent *)
     p.drawPoint(inner.bottomRight());
 
     // Draw cancel button
+    p.setOpacity(m_fader);
+
     if (value() < maximum() && !m_error) {
-        QRect parentRect = parentWidget()->rect(); // ### Move to parent
-        QRect cancelRect(parentRect.right() - buttonWidth - 2,
-                         parentRect.top() + 4, buttonWidth, CANCEL_WIDTH);
-
+        QRect cancelRect(rect.adjusted(rect.width() - CANCELBUTTON_SIZE, 1, -1, 0));
         bool hover = cancelRect.contains(mapFromGlobal(QCursor::pos()));
-        p.setPen(QPen(QColor(0, 0, 0, 20), 4));
-        p.drawLine(cancelRect.center()+QPoint(-2,-2), cancelRect.center()+QPoint(+4,+4));
-        p.drawLine(cancelRect.center()+QPoint(+4,-2), cancelRect.center()+QPoint(-2,+4));
+        QLinearGradient grad(cancelRect.topLeft(), cancelRect.bottomLeft());
+        int intensity = hover ? 90 : 70;
+        QColor buttonColor(intensity, intensity, intensity, 255);
+        grad.setColorAt(0, buttonColor.lighter(130));
+        grad.setColorAt(1, buttonColor.darker(130));
+        p.setPen(Qt::NoPen);
+        p.setBrush(grad);
+        p.drawRect(cancelRect.adjusted(1, 1, -1, -1));
 
-        p.setPen(QPen(hover ? Utils::StyleHelper::panelTextColor() : QColor(200, 200, 200), 1));
+        p.setPen(QPen(QColor(0, 0, 0, 30)));
+        p.drawLine(cancelRect.topLeft() + QPoint(0,1), cancelRect.bottomLeft() + QPoint(0,-1));
+        p.setPen(QPen(QColor(0, 0, 0, 120)));
+        p.drawLine(cancelRect.topLeft() + QPoint(1,1), cancelRect.bottomLeft() + QPoint(1,-1));
+        p.setPen(QPen(QColor(255, 255, 255, 30)));
+        p.drawLine(cancelRect.topLeft() + QPoint(2,1), cancelRect.bottomLeft() + QPoint(2,-1));
+        p.setPen(QPen(hover ? Utils::StyleHelper::panelTextColor() : QColor(180, 180, 180), 1));
         p.setRenderHint(QPainter::Antialiasing);
         p.translate(0.5, 0.5);
-        p.drawLine(cancelRect.center()+QPoint(-2,-2), cancelRect.center()+QPoint(+4,+4));
-        p.drawLine(cancelRect.center()+QPoint(+4,-2), cancelRect.center()+QPoint(-2,+4));
+        p.drawLine(cancelRect.center()+QPoint(-1,-2), cancelRect.center()+QPoint(+3,+2));
+        p.drawLine(cancelRect.center()+QPoint(+3,-2), cancelRect.center()+QPoint(-1,+2));
+        p.setPen(QPen(QColor(0, 0, 0, 80)));
+        p.drawLine(cancelRect.bottomLeft() + QPoint(2,-1), cancelRect.bottomRight() + QPoint(0,-1));
     }
 }
