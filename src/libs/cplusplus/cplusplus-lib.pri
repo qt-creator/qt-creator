@@ -40,6 +40,7 @@ HEADERS += \
     $$PWD/GenTemplateInstance.h \
     $$PWD/FindUsages.h \
     $$PWD/CheckUndefinedSymbols.h \
+    $$PWD/DependencyTable.h \
     $$PWD/PreprocessorClient.h \
     $$PWD/PreprocessorEnvironment.h \
     $$PWD/Macro.h \
@@ -64,6 +65,7 @@ SOURCES += \
     $$PWD/GenTemplateInstance.cpp \
     $$PWD/FindUsages.cpp \
     $$PWD/CheckUndefinedSymbols.cpp \
+    $$PWD/DependencyTable.cpp \
     $$PWD/PreprocessorClient.cpp \
     $$PWD/PreprocessorEnvironment.cpp \
     $$PWD/FastPreprocessor.cpp \

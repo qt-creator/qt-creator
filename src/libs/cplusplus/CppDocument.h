@@ -365,15 +365,8 @@ public:
 
     QSharedPointer<NamespaceBinding> globalNamespaceBinding(Document::Ptr doc) const;
 
-    QStringList filesDependingOn(const QString &fileName) const;
-    QHash<QString, QStringList> dependencyTable() const;
-
 private:
     void simplified_helper(Document::Ptr doc, Snapshot *snapshot) const;
-    void dependency_helper(QVector<QString> &files,
-                           QHash<QString, int> &fileIndex,
-                           QHash<int, QList<int> > &includes,
-                           QVector<QBitArray> &includeMap) const;
 
 private:
     _Base _documents;

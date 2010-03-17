@@ -36,6 +36,7 @@
 #include <QtCore/QFutureWatcher>
 #include <utils/filesearch.h>
 #include <cplusplus/CppDocument.h>
+#include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>
 
 namespace Find {
@@ -77,11 +78,13 @@ private Q_SLOTS:
 
 private:
     void findAll_helper(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
+    void updateDependencyTable(const CPlusPlus::Snapshot &snapshot);
 
 private:
     QPointer<CppModelManagerInterface> _modelManager;
     Find::SearchResultWindow *_resultWindow;
     QFutureWatcher<CPlusPlus::Usage> m_watcher;
+    CPlusPlus::DependencyTable m_deps;
 };
 
 } // end of namespace Internal
