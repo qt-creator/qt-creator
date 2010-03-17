@@ -3031,7 +3031,7 @@ ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool 
         if (it != m_option->cache->parsed_files.end()) {
             ent = &*it;
 #ifdef PROPARSER_THREAD_SAFE
-            if (ent->locker) {
+            if (ent->locker && !ent->locker->done) {
                 ++ent->locker->waiters;
                 QThreadPool::globalInstance()->releaseThread();
                 ent->locker->cond.wait(locker.mutex());
@@ -3061,6 +3061,7 @@ ProFile *ProFileEvaluator::Private::parsedProFile(const QString &fileName, bool 
 #ifdef PROPARSER_THREAD_SAFE
             locker.relock();
             if (ent->locker->waiters) {
+                ent->locker->done = true;
                 ent->locker->cond.wakeAll();
             } else {
                 delete ent->locker;

@@ -123,9 +123,10 @@ private:
         ProFile *pro;
 #ifdef PROPARSER_THREAD_SAFE
         struct Locker {
-            Locker() : waiters(0) {}
+            Locker() : waiters(0), done(false) {}
             QWaitCondition cond;
             int waiters;
+            bool done;
         };
         Locker *locker;
 #endif
