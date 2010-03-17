@@ -48,7 +48,7 @@
       <property name="height" type="int" value="100"/>
     </itemlibraryrepresentation>
   </node>
-  <node name="Qt/Image" showInItemLibrary="true" category="Qt - Basic" icon=":/fxplugin/images/image-icon.png">
+  <node name="Qt/Image" showInItemLibrary="true" category="Qt - Basic" isContainer="true" icon=":/fxplugin/images/image-icon.png">
     <propertyDefaultValue name="width" type="int" defaultValue="200"/>
     <propertyDefaultValue name="height" type="int" defaultValue="200"/>
     <itemlibraryrepresentation name="Image" icon=":/fxplugin/images/image-icon.png">
