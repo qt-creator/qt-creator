@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "makestep.h"
+#include "ui_makestep.h"
 
 #include "qt4project.h"
 #include "qt4target.h"
@@ -35,6 +36,8 @@
 #include "qt4projectmanagerconstants.h"
 
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/projectexplorer.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -206,12 +209,12 @@ void MakeStep::setUserArguments(const QStringList &arguments)
 }
 
 MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
-    : BuildStepConfigWidget(), m_makeStep(makeStep), m_ignoreChange(false)
+    : BuildStepConfigWidget(), m_ui(new Ui::MakeStep), m_makeStep(makeStep), m_ignoreChange(false)
 {
-    m_ui.setupUi(this);
-    connect(m_ui.makeLineEdit, SIGNAL(textEdited(QString)),
+    m_ui->setupUi(this);
+    connect(m_ui->makeLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeEdited()));
-    connect(m_ui.makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
+    connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEdited()));
 
     connect(makeStep, SIGNAL(userArgumentsChanged()),
@@ -225,10 +228,15 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
             this, SLOT(updateDetails()));
 }
 
+MakeStepConfigWidget::~MakeStepConfigWidget()
+{
+    delete m_ui;
+}
+
 void MakeStepConfigWidget::updateMakeOverrideLabel()
 {
     Qt4BuildConfiguration *qt4bc = m_makeStep->qt4BuildConfiguration();
-    m_ui.makeLabel->setText(tr("Override %1:").arg(qt4bc->makeCommand()));
+    m_ui->makeLabel->setText(tr("Override %1:").arg(qt4bc->makeCommand()));
 }
 
 void MakeStepConfigWidget::updateDetails()
@@ -284,7 +292,7 @@ void MakeStepConfigWidget::userArgumentsChanged()
     if (m_ignoreChange)
         return;
     const QStringList &makeArguments = m_makeStep->userArguments();
-    m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    m_ui->makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
     updateDetails();
 }
 
@@ -293,16 +301,16 @@ void MakeStepConfigWidget::init()
     updateMakeOverrideLabel();
 
     const QString &makeCmd = m_makeStep->m_makeCmd;
-    m_ui.makeLineEdit->setText(makeCmd);
+    m_ui->makeLineEdit->setText(makeCmd);
 
     const QStringList &makeArguments = m_makeStep->userArguments();
-    m_ui.makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
+    m_ui->makeArgumentsLineEdit->setText(ProjectExplorer::Environment::joinArgumentList(makeArguments));
     updateDetails();
 }
 
 void MakeStepConfigWidget::makeEdited()
 {
-    m_makeStep->m_makeCmd = m_ui.makeLineEdit->text();
+    m_makeStep->m_makeCmd = m_ui->makeLineEdit->text();
     updateDetails();
 }
 
@@ -310,7 +318,7 @@ void MakeStepConfigWidget::makeArgumentsLineEdited()
 {
     m_ignoreChange = true;
     m_makeStep->setUserArguments(
-            ProjectExplorer::Environment::parseCombinedArgString(m_ui.makeArgumentsLineEdit->text()));
+            ProjectExplorer::Environment::parseCombinedArgString(m_ui->makeArgumentsLineEdit->text()));
     m_ignoreChange = false;
     updateDetails();
 }

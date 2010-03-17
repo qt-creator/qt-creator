@@ -54,6 +54,7 @@
 
 #include <QtGui/QMessageBox>
 #include <QtGui/QMainWindow>
+#include <QtCore/QCoreApplication>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

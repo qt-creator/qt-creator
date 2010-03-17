@@ -30,6 +30,8 @@
 #include "qt4projectmanagerplugin.h"
 
 #include "qt4projectmanager.h"
+#include "qmakestep.h"
+#include "makestep.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"

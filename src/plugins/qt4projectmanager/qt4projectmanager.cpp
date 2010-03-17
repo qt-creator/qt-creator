@@ -43,6 +43,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/uniqueidmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>

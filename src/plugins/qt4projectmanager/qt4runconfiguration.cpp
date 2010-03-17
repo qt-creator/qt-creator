@@ -45,6 +45,8 @@
 #include <projectexplorer/environmenteditmodel.h>
 #include <projectexplorer/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/pathchooser.h>
+#include <utils/detailswidget.h>
 
 #include <QtGui/QFormLayout>
 #include <QtGui/QInputDialog>

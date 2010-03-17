@@ -30,28 +30,18 @@
 #ifndef QT4PROJECT_H
 #define QT4PROJECT_H
 
-#include "profileevaluator.h"
 #include "qt4nodes.h"
 #include "qt4target.h"
-#include "qmakestep.h"
-#include "makestep.h"
-#include "qtversionmanager.h"
 
-#include <coreplugin/ifile.h>
-#include <projectexplorer/applicationrunconfiguration.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/buildconfiguration.h>
-#include <cpptools/cppmodelmanagerinterface.h>
+#include <coreplugin/ifile.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
 #include <QtCore/QStringList>
-#include <QtCore/QPointer>
 #include <QtCore/QMap>
-#include <QtGui/QDirModel>
 #include <QtCore/QFutureInterface>
 #include <QtCore/QTimer>
+#include <QtCore/QFuture>
 
 QT_BEGIN_NAMESPACE
 struct ProFileOption;
@@ -64,11 +54,13 @@ namespace Internal {
     class DeployHelperRunStep;
     class FileItem;
     class Qt4ProFileNode;
+    class Qt4PriFileNode;
     class Qt4RunConfiguration;
     class GCCPreprocessor;
     struct Qt4ProjectFiles;
     class Qt4ProjectConfigWidget;
-    class Qt4Target;
+
+    class Qt4NodesWatcher;
 
     class CodeModelInfo
     {

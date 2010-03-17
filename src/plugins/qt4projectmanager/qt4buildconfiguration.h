@@ -34,7 +34,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/toolchain.h>
-#include "qt4nodes.h"
 
 namespace Qt4ProjectManager {
 
@@ -42,7 +41,7 @@ class QMakeStep;
 class MakeStep;
 
 namespace Internal {
-
+class Qt4ProFileNode;
 class Qt4BuildConfigurationFactory;
 class Qt4Target;
 

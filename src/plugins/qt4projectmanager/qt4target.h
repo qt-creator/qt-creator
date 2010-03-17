@@ -30,10 +30,7 @@
 #ifndef QT4TARGET_H
 #define QT4TARGET_H
 
-#include "qtversionmanager.h"
-
 #include "qt4buildconfiguration.h"
-
 #include <projectexplorer/target.h>
 
 #include <QtGui/QPixmap>
@@ -43,10 +40,10 @@ namespace Qt4ProjectManager {
 class Qt4Project;
 
 namespace Internal {
-
 class ProFileReader;
 class Qt4ProFileNode;
 class Qt4TargetFactory;
+class Qt4BuildConfigurationFactory;
 
 class Qt4Target : public ProjectExplorer::Target
 {

@@ -76,7 +76,8 @@ HEADERS += projectexplorer.h \
     targetsettingswidget.h \
     doubletabwidget.h \
     addtargetdialog.h \
-    buildenvironmentwidget.h
+    buildenvironmentwidget.h \
+    buildconfigdialog.h
 SOURCES += projectexplorer.cpp \
     projectwindow.cpp \
     buildmanager.cpp \
@@ -139,7 +140,8 @@ SOURCES += projectexplorer.cpp \
     targetsettingswidget.cpp \
     doubletabwidget.cpp \
     addtargetdialog.cpp \
-    buildenvironmentwidget.cpp
+    buildenvironmentwidget.cpp \
+    buildconfigdialog.cpp
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     runsettingspropertiespage.ui \

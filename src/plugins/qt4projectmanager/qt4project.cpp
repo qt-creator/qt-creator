@@ -45,6 +45,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/nodesvisitor.h>

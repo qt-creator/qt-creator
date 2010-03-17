@@ -47,7 +47,9 @@
 #include <projectexplorer/persistentsettings.h>
 
 #include <QtGui/QLabel>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
+#include <QtGui/QFormLayout>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;

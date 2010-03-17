@@ -67,6 +67,7 @@
 #include "projectwelcomepagewidget.h"
 #include "corelistenercheckingforrunningbuild.h"
 #include "buildconfiguration.h"
+#include "buildconfigdialog.h"
 #include "miniprojecttargetselector.h"
 
 #include <coreplugin/basemode.h>
@@ -102,7 +103,6 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
-#include <QtGui/QVBoxLayout>
 
 Q_DECLARE_METATYPE(Core::IEditorFactory*);
 Q_DECLARE_METATYPE(Core::IExternalEditor*);
@@ -2196,79 +2196,6 @@ void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectEx
 Internal::ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings() const
 {
     return d->m_projectExplorerSettings;
-}
-
-BuildConfigDialog::BuildConfigDialog(Project *project, QWidget *parent)
-    : QDialog(parent),
-    m_project(project)
-{
-    QVBoxLayout *vlayout = new QVBoxLayout;
-    setLayout(vlayout);
-    QDialogButtonBox *buttonBox = new QDialogButtonBox;
-    m_changeBuildConfiguration = buttonBox->addButton(tr("Change build configuration && continue"),
-        QDialogButtonBox::ActionRole);
-    m_cancel = buttonBox->addButton(tr("Cancel"),
-        QDialogButtonBox::RejectRole);
-    m_justContinue = buttonBox->addButton(tr("Continue anyway"),
-        QDialogButtonBox::AcceptRole);
-    connect(m_changeBuildConfiguration, SIGNAL(clicked()), this, SLOT(buttonClicked()));
-    connect(m_cancel, SIGNAL(clicked()), this, SLOT(buttonClicked()));
-    connect(m_justContinue, SIGNAL(clicked()), this, SLOT(buttonClicked()));
-    setWindowTitle(tr("Run configuration does not match build configuration"));
-    QLabel *shortText = new QLabel(tr(
-            "The active build configuration builds a target "
-            "that cannot be used by the active run configuration."
-            ));
-    vlayout->addWidget(shortText);
-    QLabel *descriptiveText = new QLabel(tr(
-        "This can happen if the active build configuration "
-        "uses the wrong Qt version and/or tool chain for the active run configuration "
-        "(for example, running in Symbian emulator requires building with the WINSCW tool chain)."
-    ));
-    descriptiveText->setWordWrap(true);
-    vlayout->addWidget(descriptiveText);
-    m_configCombo = new QComboBox;
-
-    RunConfiguration *activeRun = m_project->activeTarget()->activeRunConfiguration();
-    foreach (BuildConfiguration *config, m_project->activeTarget()->buildConfigurations()) {
-        if (activeRun->isEnabled(config)) {
-            m_configCombo->addItem(config->displayName(), QVariant::fromValue(config));
-        }
-    }
-    if (m_configCombo->count() == 0) {
-        m_configCombo->addItem(tr("No valid build configuration found."));
-        m_configCombo->setEnabled(false);
-        m_changeBuildConfiguration->setEnabled(false);
-    }
-
-    QFormLayout *formlayout = new QFormLayout;
-    formlayout->addRow(tr("Active run configuration"),
-                       // ^ avoiding a new translatable string for active run configuration
-                       new QLabel(activeRun->displayName()));
-    formlayout->addRow(tr("Choose build configuration:"), m_configCombo);
-    vlayout->addLayout(formlayout);
-    vlayout->addWidget(buttonBox);
-    m_cancel->setDefault(true);
-}
-
-BuildConfiguration *BuildConfigDialog::selectedBuildConfiguration() const
-{
-    int index = m_configCombo->currentIndex();
-    if (index < 0)
-        return 0;
-    return m_configCombo->itemData(index, Qt::UserRole).value<BuildConfiguration*>();
-}
-
-void BuildConfigDialog::buttonClicked()
-{
-    QPushButton *button = qobject_cast<QPushButton *>(sender());
-    if (button == m_changeBuildConfiguration) {
-        done(ChangeBuild);
-    } else if (button == m_cancel) {
-        done(Cancel);
-    } else if (button == m_justContinue) {
-        done(Continue);
-    }
 }
 
 Q_EXPORT_PLUGIN(ProjectExplorerPlugin)

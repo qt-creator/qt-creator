@@ -32,6 +32,9 @@
 #include "qt4project.h"
 #include "qt4target.h"
 #include "qt4projectmanagerconstants.h"
+#include "qt4nodes.h"
+#include "qmakestep.h"
+#include "makestep.h"
 
 #include <utils/qtcassert.h>
 

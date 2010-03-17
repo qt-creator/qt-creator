@@ -30,11 +30,14 @@
 #ifndef MAKESTEP_H
 #define MAKESTEP_H
 
-#include "ui_makestep.h"
-#include "qtversionmanager.h"
-
 #include <projectexplorer/abstractprocessstep.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/buildstep.h>
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class MakeStep;
+}
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class BuildStep;
@@ -110,7 +113,9 @@ class MakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    MakeStepConfigWidget(MakeStep *makeStep);
+    explicit MakeStepConfigWidget(MakeStep *makeStep);
+    virtual ~MakeStepConfigWidget();
+
     QString displayName() const;
     void init();
     QString summaryText() const;
@@ -123,7 +128,7 @@ private slots:
     void updateDetails();
     void userArgumentsChanged();
 private:
-    Ui::MakeStep m_ui;
+    Ui::MakeStep *m_ui;
     MakeStep *m_makeStep;
     QString m_summaryText;
     bool m_ignoreChange;

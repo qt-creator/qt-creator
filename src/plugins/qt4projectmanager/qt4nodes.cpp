@@ -58,6 +58,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QCoreApplication>
 
 #include <QtGui/QPainter>
 #include <QtGui/QMainWindow>

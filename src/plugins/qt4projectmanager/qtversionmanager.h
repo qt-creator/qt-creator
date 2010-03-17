@@ -30,17 +30,12 @@
 #ifndef QTVERSIONMANAGER_H
 #define QTVERSIONMANAGER_H
 
-#include <projectexplorer/environment.h>
 #include <projectexplorer/toolchain.h>
 #include <QSharedPointer>
 
 #include <QtCore/QHash>
 #include <QtCore/QSet>
 #include <QtCore/QSharedPointer>
-
-namespace ProjectExplorer {
-    class ToolChain;
-}
 
 namespace Qt4ProjectManager {
 

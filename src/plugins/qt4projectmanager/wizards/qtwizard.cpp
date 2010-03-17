@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QVariant>
 

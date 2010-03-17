@@ -36,6 +36,7 @@
 #include <projectexplorer/runconfiguration.h>
 
 #include <QtCore/QDateTime>
+#include <QtCore/QStringList>
 
 QT_FORWARD_DECLARE_CLASS(QProcess)
 QT_FORWARD_DECLARE_CLASS(QWidget)

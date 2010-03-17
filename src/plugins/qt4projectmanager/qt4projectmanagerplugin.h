@@ -30,9 +30,17 @@
 #ifndef QT4PROJECTMANAGERPLUGIN_H
 #define QT4PROJECTMANAGERPLUGIN_H
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
+#include <extensionsystem/iplugin.h>
 
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
+namespace ProjectExplorer {
+    class Project;
+    class Node;
+    class ProjectExplorerPlugin;
+}
 namespace Qt4ProjectManager {
 
 class Qt4Manager;

@@ -45,6 +45,8 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtGui/QFileDialog>
+#include <QtGui/QPushButton>
+#include <utils/detailswidget.h>
 
 namespace {
 bool debug = false;

@@ -30,23 +30,26 @@
 #ifndef QT4RUNCONFIGURATION_H
 #define QT4RUNCONFIGURATION_H
 
-#include <utils/pathchooser.h>
-#include <utils/detailswidget.h>
 #include <projectexplorer/applicationrunconfiguration.h>
-#include <projectexplorer/environment.h>
-#include <projectexplorer/environmenteditmodel.h>
 #include <QtCore/QStringList>
 #include <QtGui/QWidget>
-#include <QtGui/QToolButton>
 
 QT_BEGIN_NAMESPACE
-class QWidget;
 class QCheckBox;
 class QLabel;
 class QLineEdit;
 class QRadioButton;
 class QComboBox;
 QT_END_NAMESPACE
+
+namespace Utils {
+class PathChooser;
+class DetailsWidget;
+}
+
+namespace ProjectExplorer {
+    class EnvironmentWidget;
+}
 
 namespace Qt4ProjectManager {
 

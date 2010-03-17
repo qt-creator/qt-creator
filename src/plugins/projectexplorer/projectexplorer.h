@@ -34,14 +34,10 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <QtCore/QSharedPointer>
-#include <QtGui/QDialog>
-
 QT_BEGIN_NAMESPACE
 class QPoint;
-class QAction;
-class QComboBox;
 class QMenu;
+class QAction;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -65,32 +61,7 @@ class BuildConfiguration;
 namespace Internal {
 class ProjectFileFactory;
 struct ProjectExplorerSettings;
-
-class BuildConfigDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    enum DialogResult {
-        ChangeBuild = 10,
-        Cancel = 11,
-        Continue = 12
-    };
-    BuildConfigDialog(Project *project, QWidget *parent = 0);
-
-    BuildConfiguration *selectedBuildConfiguration() const;
-
-private slots:
-    void buttonClicked();
-
-private:
-    Project *m_project;
-    QPushButton *m_changeBuildConfiguration;
-    QPushButton *m_cancel;
-    QPushButton *m_justContinue;
-    QComboBox *m_configCombo;
-};
-
-} // namespace Internal
+}
 
 struct ProjectExplorerPluginPrivate;
 

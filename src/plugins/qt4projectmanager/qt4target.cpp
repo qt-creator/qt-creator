@@ -32,7 +32,6 @@
 #include "makestep.h"
 #include "profilereader.h"
 #include "qmakestep.h"
-#include "qt4buildconfiguration.h"
 #include "qt4project.h"
 #include "qt4runconfiguration.h"
 #include "qt4projectmanagerconstants.h"

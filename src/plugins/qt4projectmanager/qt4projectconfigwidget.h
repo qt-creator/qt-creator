@@ -31,8 +31,14 @@
 #define QT4PROJECTCONFIGWIDGET_H
 
 #include <projectexplorer/buildstep.h>
-#include <QtGui/QPushButton>
-#include <utils/detailswidget.h>
+
+QT_BEGIN_NAMESPACE
+class QAbstractButton;
+QT_END_NAMESPACE
+
+namespace Utils {
+    class DetailsWidget;
+}
 
 namespace Qt4ProjectManager {
 
@@ -49,7 +55,7 @@ class Qt4ProjectConfigWidget : public ProjectExplorer::BuildConfigWidget
 {
     Q_OBJECT
 public:
-    Qt4ProjectConfigWidget(Qt4Project *project);
+    explicit Qt4ProjectConfigWidget(Qt4Project *project);
     ~Qt4ProjectConfigWidget();
 
     QString displayName() const;
