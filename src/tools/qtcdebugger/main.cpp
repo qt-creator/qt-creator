@@ -471,6 +471,15 @@ static QString debuggerCall(const QString &additionalOption = QString())
     return rc;
 }
 
+static bool isRegistered(HKEY handle, const QString &call, QString *errorMessage, QString *oldDebugger = 0)
+{
+    QString registeredDebugger;
+    registryReadStringKey(handle, debuggerRegistryValueNameC, &registeredDebugger, errorMessage);
+    if (oldDebugger)
+        *oldDebugger = registeredDebugger;
+    return !registeredDebugger.compare(call, Qt::CaseInsensitive);
+}
+
 // registration helper: Register ourselves in a debugger registry key.
 // Make a copy of the old value as "Debugger.Default" and have the
 // "Debug" key point to us.
@@ -486,8 +495,7 @@ static bool registerDebuggerKey(const WCHAR *key,
             break;
         // Save old key, which might be missing
         QString oldDebugger;
-        registryReadStringKey(handle, debuggerRegistryValueNameC, &oldDebugger, errorMessage);
-        if (!oldDebugger.compare(call, Qt::CaseInsensitive)) {
+        if (isRegistered(handle, call, errorMessage, &oldDebugger)) {
             *errorMessage = QLatin1String("The program is already registered as post mortem debugger.");
             break;
         }
@@ -527,8 +535,7 @@ static bool unregisterDebuggerKey(const WCHAR *key,
         if (!openRegistryKey(HKEY_LOCAL_MACHINE, key, true, &handle, errorMessage))
             break;
         QString debugger;
-        registryReadStringKey(handle, debuggerRegistryValueNameC, &debugger, errorMessage);
-        if (!debugger.isEmpty() && debugger.compare(call, Qt::CaseInsensitive)) {
+        if (!isRegistered(handle, call, errorMessage, &debugger) && !debugger.isEmpty()) {
             *errorMessage = QLatin1String("The program is not registered as post mortem debugger.");
             break;
         }
