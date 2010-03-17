@@ -45,6 +45,7 @@ ObjectTree::ObjectTree(QDeclarativeEngineDebug *client, QWidget *parent)
       m_client(client),
       m_query(0)
 {
+    setFrameStyle(QFrame::NoFrame);
     setHeaderHidden(true);
     setMinimumWidth(250);
     setExpandsOnDoubleClick(false);

@@ -41,7 +41,7 @@ InspectorOutputWidget::InspectorOutputWidget(QWidget *parent)
     : QTextEdit(parent)
 {
     setWindowTitle(tr("Output"));
-
+    setFrameStyle(QFrame::NoFrame);
     m_clearContents = new QAction(QString(tr("Clear")), this);
     m_clearContents->setIcon(QIcon(Core::Constants::ICON_CLEAR));
     connect(m_clearContents, SIGNAL(triggered()), SLOT(clear()));

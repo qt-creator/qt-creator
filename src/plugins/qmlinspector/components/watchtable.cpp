@@ -276,6 +276,7 @@ WatchTableView::WatchTableView(WatchTableModel *model, QWidget *parent)
     : QTableView(parent),
       m_model(model)
 {
+    setFrameStyle(QFrame::NoFrame);
     setAlternatingRowColors(true);
 
     connect(model, SIGNAL(watchCreated(QDeclarativeDebugWatch*)), SLOT(watchCreated(QDeclarativeDebugWatch*)));

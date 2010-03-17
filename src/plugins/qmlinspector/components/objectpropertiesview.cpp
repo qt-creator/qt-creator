@@ -75,6 +75,7 @@ ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWid
     setLayout(layout);
 
     m_tree = new QTreeWidget(this);
+    m_tree->setFrameStyle(QFrame::NoFrame);
     m_tree->setAlternatingRowColors(true);
     m_tree->setExpandsOnDoubleClick(false);
     m_tree->setHeaderLabels(QStringList()

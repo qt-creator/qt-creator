@@ -66,6 +66,7 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_textEdit);
+    m_textEdit->setFrameStyle(QFrame::NoFrame);
 
     updateTitle();
 
