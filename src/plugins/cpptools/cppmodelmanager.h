@@ -131,7 +131,6 @@ public:
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
 
-    void documentUpdated(CPlusPlus::Document::Ptr doc);
     void aboutToRemoveFiles(const QStringList &files);
 
 public Q_SLOTS:

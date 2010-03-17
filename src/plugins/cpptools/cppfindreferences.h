@@ -39,6 +39,8 @@
 #include <cplusplus/DependencyTable.h>
 #include <cplusplus/FindUsages.h>
 
+QT_FORWARD_DECLARE_CLASS(QTimer)
+
 namespace Find {
     class SearchResultWindow;
     struct SearchResultItem;
@@ -75,16 +77,18 @@ private Q_SLOTS:
     void searchFinished();
     void openEditor(const Find::SearchResultItem &item);
     void onReplaceButtonClicked(const QString &text, const QList<Find::SearchResultItem> &items);
+    void updateDependencyTable();
 
 private:
     void findAll_helper(CPlusPlus::Document::Ptr symbolDocument, CPlusPlus::Symbol *symbol);
-    void updateDependencyTable(const CPlusPlus::Snapshot &snapshot);
 
 private:
     QPointer<CppModelManagerInterface> _modelManager;
     Find::SearchResultWindow *_resultWindow;
     QFutureWatcher<CPlusPlus::Usage> m_watcher;
     CPlusPlus::DependencyTable m_deps;
+    QFuture<CPlusPlus::DependencyTable> m_depsFuture;
+    QTimer *m_updateDependencyTableTimer;
 };
 
 } // end of namespace Internal

@@ -127,6 +127,9 @@ public:
 
     virtual void findMacroUsages(const CPlusPlus::Macro &macro) = 0;
 
+Q_SIGNALS:
+    void documentUpdated(CPlusPlus::Document::Ptr doc);
+
 public Q_SLOTS:
     void updateModifiedSourceFiles();
     virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles) = 0;

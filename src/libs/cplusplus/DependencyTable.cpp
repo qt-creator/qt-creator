@@ -74,9 +74,7 @@ QHash<QString, QStringList> DependencyTable::dependencyTable() const
 bool DependencyTable::isValidFor(const Snapshot &snapshot) const
 {
     const int documentCount = snapshot.size();
-    if (documentCount != files.size()
-            || documentCount != includesPerFile.size()
-            || documentCount != includeMap.size())
+    if (documentCount != files.size())
         return false;
 
     for (Snapshot::const_iterator it = snapshot.begin(); it != snapshot.end(); ++it) {
@@ -93,6 +91,12 @@ bool DependencyTable::isValidFor(const Snapshot &snapshot) const
 
 void DependencyTable::build(const Snapshot &snapshot)
 {
+    includesPerFile.clear();
+    files.clear();
+    fileIndex.clear();
+    includes.clear();
+    includeMap.clear();
+
     const int documentCount = snapshot.size();
     files.resize(documentCount);
     includeMap.resize(documentCount);

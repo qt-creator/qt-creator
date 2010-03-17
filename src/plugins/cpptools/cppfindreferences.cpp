@@ -54,6 +54,7 @@
 #include <cplusplus/Overview.h>
 
 #include <QtCore/QTime>
+#include <QtCore/QTimer>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QtConcurrentMap>
 #include <QtCore/QDir>
@@ -154,6 +155,14 @@ CppFindReferences::CppFindReferences(CppTools::CppModelManagerInterface *modelMa
     m_watcher.setPendingResultsLimit(1);
     connect(&m_watcher, SIGNAL(resultsReadyAt(int,int)), this, SLOT(displayResults(int,int)));
     connect(&m_watcher, SIGNAL(finished()), this, SLOT(searchFinished()));
+
+    m_updateDependencyTableTimer = new QTimer(this);
+    m_updateDependencyTableTimer->setSingleShot(true);
+    m_updateDependencyTableTimer->setInterval(2000);
+    connect(m_updateDependencyTableTimer, SIGNAL(timeout()),
+            this, SLOT(updateDependencyTable()));
+    connect(modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
+            m_updateDependencyTableTimer, SLOT(start()));
 }
 
 CppFindReferences::~CppFindReferences()
@@ -216,13 +225,20 @@ static void find_helper(QFutureInterface<Usage> &future,
     future.setProgressValue(files.size());
 }
 
-void CppFindReferences::updateDependencyTable(const Snapshot &snapshot)
+static CPlusPlus::DependencyTable dependencyTable(DependencyTable previous, CPlusPlus::Snapshot snapshot)
 {
-    if (!m_deps.isValidFor(snapshot)) {
-        DependencyTable newDeps;
-        newDeps.build(snapshot);
-        m_deps = newDeps;
-    }
+    if (previous.isValidFor(snapshot))
+        return previous;
+
+    DependencyTable table;
+    table.build(snapshot);
+    return table;
+}
+
+void CppFindReferences::updateDependencyTable()
+{
+    m_depsFuture.cancel();
+    m_depsFuture = QtConcurrent::run(&dependencyTable, m_deps, _modelManager->snapshot());
 }
 
 void CppFindReferences::findUsages(Document::Ptr symbolDocument, Symbol *symbol)
@@ -265,7 +281,8 @@ void CppFindReferences::findAll_helper(Document::Ptr symbolDocument, Symbol *sym
 
     Core::ProgressManager *progressManager = Core::ICore::instance()->progressManager();
 
-    updateDependencyTable(snapshot);
+    updateDependencyTable(); // ensure the dependency table is updated
+    m_deps = m_depsFuture;
 
     QFuture<Usage> result;
 
@@ -424,7 +441,8 @@ void CppFindReferences::findMacroUses(const Macro &macro)
                                  source.mid(macro.offset(), macro.length()), 0, macro.length());
     }
 
-    updateDependencyTable(snapshot);
+    updateDependencyTable(); // ensure the dependency table is updated
+    m_deps = m_depsFuture;
 
     QFuture<Usage> result;
     result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, m_deps, macro);
