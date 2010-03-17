@@ -280,6 +280,7 @@ public slots: // FIXME
     void reloadFullStack();
     void operateByInstructionTriggered();
     void startFailed();
+    void languageChanged(const QString &debuggerLanguage);
 
 private:
     Internal::ModulesHandler *modulesHandler() const;

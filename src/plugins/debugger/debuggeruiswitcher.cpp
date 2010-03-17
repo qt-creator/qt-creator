@@ -126,7 +126,6 @@ int DebuggerUISwitcher::activeLanguageId() const
 {
     return d->m_activeLanguage;
 }
-
 void DebuggerUISwitcher::modeChanged(Core::IMode *mode)
 {
     d->m_isActiveMode = (mode->id() == Debugger::Constants::MODE_DEBUG);

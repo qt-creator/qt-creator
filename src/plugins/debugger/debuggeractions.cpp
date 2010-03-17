@@ -163,6 +163,7 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setText(tr("Operate by Instruction"));
     item->setCheckable(true);
     item->setDefaultValue(false);
+    item->setSettingsKey(debugModeGroup, QLatin1String("OperateByInstruction"));
     item->setIcon(QIcon(":/debugger/images/SingleInstructionMode.png"));
     item->setToolTip(tr("This switches the debugger to instruction-wise "
         "operation mode. In this mode, stepping operates on single "
