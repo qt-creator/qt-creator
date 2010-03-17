@@ -236,19 +236,6 @@ void testPeekAndPoke3()
         a.i = 3; // Continue.
     }
 
-    // QImage display
-    {
-        QImage im(QSize(200, 200), QImage::Format_RGB32);
-        im.fill(QColor(200, 100, 130).rgba());
-        QPainter pain;
-        pain.begin(&im);
-        pain.drawLine(2, 2, 130, 130); // Break here.
-        // Toggle between "Normal" and "Displayed" in L&W Context Menu, entry "Display of Type QImage". Step.
-        pain.drawLine(4, 2, 130, 140); // Step.
-        pain.drawRect(30, 30, 80, 80);
-        pain.end();
-    }
-
     // Complex watchers
     {
         struct S { int a; double b; } s[10];
@@ -259,6 +246,23 @@ void testPeekAndPoke3()
             // Expand it, continue stepping.
         }
     }
+
+    // QImage display
+    {
+        QImage im(QSize(200, 200), QImage::Format_RGB32);
+        im.fill(QColor(200, 10, 30).rgba());
+        QPainter pain;
+        pain.begin(&im);
+        pain.setPen(QPen(Qt::black, 5.0, Qt::SolidLine, Qt::RoundCap));
+        pain.drawEllipse(20, 20, 160, 160); // Break here. Step.
+        // Toggle between "Normal" and "Displayed" in L&W Context Menu, entry "Display of Type QImage". Step.
+        pain.drawArc(70, 115, 60, 30, 200 * 16, 140 * 16);
+        pain.setBrush(Qt::black);
+        pain.drawEllipse(65, 70, 15, 15); // Step.
+        pain.drawEllipse(120, 70, 15, 15); // Step.
+        pain.end();
+    }
+
 }
 
 void testAnonymous()

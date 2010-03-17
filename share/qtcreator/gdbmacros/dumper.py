@@ -1353,7 +1353,7 @@ class Dumper:
 
     def listAnonymous(self, item, name, type):
         for field in type.fields():
-            warn("FIELD NAME: %s" % field.name)
+            #warn("FIELD NAME: %s" % field.name)
             if len(field.name) > 0:
                 value = item.value[field.name]
                 child = Item(value, item.iname, field.name, field.name)
