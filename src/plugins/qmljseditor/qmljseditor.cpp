@@ -602,7 +602,8 @@ static bool openInDesignMode()
 
 QString QmlJSEditorEditable::preferredMode() const
 {
-    if (openInDesignMode())
+    if (editor()->mimeType() == QLatin1String(QmlJSEditor::Constants::QML_MIMETYPE)
+        && openInDesignMode())
         return QLatin1String(Core::Constants::MODE_DESIGN);
     return QString();
 }
