@@ -116,8 +116,6 @@ void ShortcutSettings::finish()
 
 bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
 {
-    Q_UNUSED(o)
-
     if ( e->type() == QEvent::KeyPress ) {
         QKeyEvent *k = static_cast<QKeyEvent*>(e);
         handleKeyEvent(k);
@@ -125,9 +123,15 @@ bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)
     }
 
     if ( e->type() == QEvent::Shortcut ||
-         e->type() == QEvent::ShortcutOverride  ||
-         e->type() == QEvent::KeyRelease )
+         e->type() == QEvent::KeyRelease ) {
         return true;
+    }
+
+    if (e->type() == QEvent::ShortcutOverride) {
+        // for shortcut overrides, we need to accept as well
+        e->accept();
+        return true;
+    }
 
     return false;
 }
