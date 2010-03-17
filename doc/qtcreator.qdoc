@@ -15,12 +15,12 @@
     \section1 Version 1.3.82
 
     Qt Creator provides integrated tools for both application designers
-    and developers to create applications for desktop and mobile device
+    and developers to create applications for multiple desktop and mobile device
     platforms.
 
-    For application designers, Qt Creator provides an integrated \QMLD
-    tool that you can use to design and develop application UIs for mobile
-    devices.
+    For application designers, Qt Creator provides two integrated
+    visual editors, \QD and \QMLD, that you can use to design and develop
+    application user interfaces.
 
     For application developers,
     Qt Creator provides a cross-platform, complete integrated development
@@ -63,9 +63,9 @@
                 \o \l{Setting Up a Generic Project}
                 \o \l{Managing Sessions}
             \endlist
+       \o \l{Developing QML Applications}
        \o \l{Developing Mobile Applications}
             \list
-                \o \l{Implementing Application UI}
                 \o \l{Developing Maemo Applications}
                 \o \l{Developing Symbian Applications}
             \endlist
@@ -89,19 +89,41 @@
 
   \title Introducing Qt Creator
 
-  Qt Creator provides you with tools to design and develop animated applications for
-  mobile devices and to develop complex applications for multiple desktop
+  Qt Creator provides you with tools to design and develop user interfaces and
+  complex applications for multiple desktop and mobile
   platforms.
 
-  \section1 Developing for Mobile Devices
+  \section1 Designing User Interfaces
+
+  Qt Creator provides two integrated visual editors, \QD and \QMLD.
+
+  \QD is a tool for designing and building graphical user interfaces (GUIs) from
+  Qt widgets. You can compose and customize your widgets or dialogs and test
+  them using different styles and resolutions.
+
+  Widgets and forms created with \QD are integrated seamlessly with programmed code,
+  using the Qt signals and slots mechanism, that lets you easily assign behavior to
+  graphical elements. All properties set in \QD can be changed dynamically within the code.
+  Furthermore, features like widget promotion and custom plugins allow you to use your
+  own widgets with \QD.
+
+  UIs that use widgets are clearly structured and enforce a platform look and feel,
+  which makes them useful for traditional applications. However, they are static, and
+  do not fully make use of the large high-resolution screens, touch input, and significant
+  graphics power that are becoming common in portable consumer devices, such as mobile
+  phones, media players, set-top boxes, and netbooks.
 
   \QMLD allows you to easily develop animations by using a declarative programming
-  language called QML. You use a visual editor to create widgets and define changes
-  in their state. \QMLD generates the necessary code for you.
-  You can edit the code in the code editor to add transitions and interaction. You
-  can write JavaScript to implement the application logic.
+  language called \l {http://qt.nokia.com/doc/4.7-snapshot/declarativeui.html}{QML}.
+  In QML, a user interface is specified as a tree of objects with properties.
 
-  \section1 Developing for Desktop Platforms
+  You use a visual editor to create items, screens, and applications, as well as define changes
+  in their state. \QMLD generates the necessary code for you.
+  You can edit the code in the code editor to add transitions from one state to another,
+  and interaction to specify user actions that change the states. You
+  can use Qt to implement the application logic.
+
+  \section1 Coding Applications
 
   As an IDE, Qt Creator differs from a text editor in that it knows how to build and run
   applications. It understands the code as code, not just as plain text. This allows
@@ -257,8 +279,8 @@
     \list
         \o \gui Welcome mode for opening recent sessions and projects.
         \o \gui{\l{Using the Editor}{Edit}} mode for editing project and source files.
-        \o \gui{\l{Implementing Application UI}{Design}} mode for designing and developing animated applications for
-        mobile devices.
+        \o \gui{\l{Developing Application UI}{Design}} mode for designing and developing
+           application user interfaces.
         \o \gui{\l{Debugging}{Debug}} mode for inspecting the state of your program while
            debugging.
         \o \gui{\l{Managing Projects}{Projects}} mode for configuring project building and
@@ -465,12 +487,12 @@
     For more information on \QD, see
     \l{http://doc.trolltech.com/designer-manual.html}{Qt Designer Manual}.
 
-    \section1 Using QML Designer
+    \section1 Using Quick Designer
 
     You can edit .qml files in either the visual \QMLD editor or in the
     code editor.
 
-    In \gui Projects, double-click a .gml file to open it in the code
+    In \gui Projects, double-click a .qml file to open it in the code
     editor. Then select the \gui {Design} mode to edit the file in the
     visual editor.
 
@@ -488,10 +510,10 @@
     images and other files that you copy to the project folder appear in the
     \gui {Resources} pane.
 
-    \o \gui {Properties} pane displays the properties of the selected item.
+    \o \gui {Properties} pane displays the properties of the selected component.
      You can also change the properties in the code editor.
 
-    \o \gui {State} pane displays the different states of the item. To add
+    \o \gui {State} pane displays the different states of the component. To add
     states, click the empty slot. Then modify the new state in the editor.
     In the code editor, you can see the changes recorded as changes to
     the base state.
@@ -1301,8 +1323,8 @@
 
     \title Creating an Animated Application
 
-    \note This tutorial assumes that you are familiar with the QML declarative
-    language.
+    \note This tutorial assumes that you are familiar with the \l {http://qt.nokia.com/doc/4.7-snapshot/declarativeui.html}
+    {QML declarative language}.
 
     This tutorial describes how to use Qt Creator to create a small animated
     Qt application, Hello World.
@@ -1366,9 +1388,9 @@
         \o Drag and drop a \gui {Rectangle} from the \gui {Library} pane to the
         scene.
 
-        \image qmldesigner-helloworld-widget-add.png "Add widget to Hello World"
+        \image qmldesigner-helloworld-widget-add.png "Add component to Hello World"
 
-        \o Edit the \gui {Properties} of the item to turn it into a red ball:
+        \o Edit the \gui {Properties} of the component to turn it into a red ball:
 
         \list
 
@@ -1378,7 +1400,7 @@
             \o In the \gui {Radius} field, use the slider to set the radius value
             to \bold 50.
 
-            \image qmldesigner-helloworld-widget-edit.png "Edit the widget"
+            \image qmldesigner-helloworld-widget-edit.png "Edit the component"
 
         \endlist
 
@@ -1466,6 +1488,9 @@
         animation.
 
     \endlist
+
+    \note In the \gui {QML Viewer}, select \gui {Skin} and select a mobile device
+    type to view the application as on a mobile device.
 
 */
 
@@ -1960,7 +1985,7 @@
 
     It is also possible to enter only a part of a search string.
     As you type, the locator shows the occurrences of that string regardless
-    of where in the name of an item it appears.
+    of where in the name of an component it appears.
 
     To narrow down the search results, you can use the following wildcard
     characters:
@@ -2110,7 +2135,7 @@
     \contentspage index.html
     \previouspage creator-project-generic.html
     \page creator-project-managing-sessions.html
-    \nextpage creator-developing-applications.html
+    \nextpage creator-visual-editor.html
 
     \title Managing Sessions
 
@@ -3030,13 +3055,13 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-project-managing-sessions.html
+    \previouspage creator-visual-editor.html
     \page creator-developing-applications.html
-    \nextpage creator-visual-editor.html
+    \nextpage creator-developing-maemo.html
 
     \title Developing Mobile Applications
 
-    Use \QMLD to design and implement application UI.
+    \omit Use \QD or \QMLD to design and implement application UI. \endomit
 
     Set up the development environment for your chosen mobile device
     platform, Maemo or Symbian. Then specify build and run settings
@@ -3048,11 +3073,11 @@
 /*!
 
     \contentspage index.html
-    \previouspage creator-developing-applications.html
+    \previouspage creator-project-managing-sessions.html
     \page creator-visual-editor.html
-    \nextpage creator-developing-maemo.html
+    \nextpage creator-developing-applications.html
 
-    \title Implementing Application UI
+    \title Developing QML Applications
 
     You can either create QML projects from scratch or import them to
     Qt Creator.
@@ -3069,7 +3094,7 @@
     files in the project folder belong to the project. Therefore, you do not
     need to individually list all the files in the project.
 
-    \o .qml file defines an item, such as a widget, screen, or the whole
+    \o .qml file defines an element, such as a component, screen, or the whole
     application UI.
 
     \endlist
@@ -3082,31 +3107,91 @@
 
     \section1 Designing Application UI
 
-    One .qml file can define a widget, screen, or the whole application.
+    One .qml file can define a component, screen, or the whole application.
 
-    \section2 Creating Widgets
+    \section2 Creating Components
 
-    You can use the \gui Library items to create your own widgets. Drag and drop
+    A QML component provides a way of defining a new type that you can re-use in other QML
+    files. A component is like a black box; it interacts with the outside world
+    through properties, signals, and slots, and is generally defined in its own QML file.
+    You can import components to screens and applications.
+
+    You can use the \gui Library items to create components. Drag and drop
     them to the editor and modify their properties in the \gui Properties pane.
-    You can use QML to add properties for a widget. The properties are automatically
+    You can use QML to add properties for a component. The properties are automatically
     displayed in the \gui Properties pane.
 
-    Save the widgets as .qml files. You can import them to screens and applications.
+    For example, to create a button component:
+
+    \list 1
+
+        \o Select \gui {File > New File or Project > Qt > Qt QML File} to create a QML file
+        called button.qml.
+
+        \o Double-click the file to open it in the code editor.
+
+        \o Click \gui {Design} to edit the file in the visual editor.
+
+        \o Drag and drop a \gui Rectangle from the \gui Library pane to the scene.
+
+        \o In the \gui Properties pane, click \gui Advanced, to modify the appearance of the button.
+
+        \o In the \gui Color field, select the button color, and in the \gui Radius field, use
+        the slider to set the radius of the rectangle and produce rounded corners for the button.
+
+        \o Drag and drop a \gui {Text} item on top of the \gui Rectangle.
+
+        \o In the \gui Properties pane, click \gui Advanced, and type \bold Button in the
+        \gui Text field.
+
+        You can select the text color, font, size, and style in the \gui Font field.
+
+        \o In the \gui Alignment field, select the center button to align the text to the
+        center of the button.
+
+        \o Click \gui {Anchor}, and then click the
+        \inlineimage qmldesigner-anchor-fill-screen.png
+        button to anchor the text to the whole button area.
+
+        \o Click \gui Edit to edit the \c width and \c height properties of the button
+        to fit the button size.
+
+        \o Press \key {Ctrl+S} to save the button.
+
+        \image qmldesigner-button.png "Button component"
+
+    \endlist
 
     \section2 Creating Screens
 
     You can use the \gui Library items to create screens. Use states and transitions
     to navigate between screens.
 
-    To add interaction methods, drag and drop a \gui {Focus Scope} or \gui {Mouse Area}
-    to the screen. In the code editor, add functions to execute when users select
-    the scope or area.
+    QML states typically describe user interface configurations, such as the UI elements,
+    their properties and behavior and the available actions.
 
+    To make movement between states smooth, you can specify transitions. The
+    \c from and \c to properties define the states between which the transitions run. To
+    run the transitions in reverse when changing back from the down state to the default state,
+    set \c reversible to \c true. This is equivalent to writing the two transitions separately.
+
+    You can use the \c ParallelAnimation element to start several animations at the same time.
+    Or use the \c SequentialAnimation element to run them one after another.
+
+
+
+    \section2 Adding User Interaction Methods
+
+    To add interaction methods, drag and drop a \gui {Focus Scope} or \gui {Mouse Area}
+    to the screen. In the code editor, add signal handlers to execute when users select
+    the scope or area. Signal handlers allow actions to be taken in reponse to an event.
+    For instance, the \gui {MouseArea} element has signal handlers to handle mouse press,
+    release, and click.
 
     \section1 Implementing Application Logic
 
-    You can write JavaScript to implement the application logic. To include the script
-    files in the project, copy them to the project folder.
+    A user interface is only a part of an application, and not really useful by itself.
+    You can use Qt to implement the application logic.
 
  */
 
@@ -3114,7 +3199,7 @@
 /*!
 
     \contentspage index.html
-    \previouspage creator-visual-editor.html
+    \previouspage creator-developing-applications.html
     \page creator-developing-maemo.html
     \nextpage creator-developing-symbian.html
 
