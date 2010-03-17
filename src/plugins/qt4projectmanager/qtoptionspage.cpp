@@ -320,7 +320,7 @@ void QtOptionsPageWidget::showDebuggingBuildLog()
     if (currentItemIndex < 0)
         return;
     // Show and scroll to bottom
-    QDialog dlg;
+    QDialog dlg(this);
     Ui_ShowBuildLog ui;
     ui.setupUi(&dlg);
     ui.log->setPlainText(currentItem->data(2, Qt::UserRole).toString());
