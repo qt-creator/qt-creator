@@ -781,13 +781,14 @@ class FrameCommand(gdb.Command):
 
     def handleWatch(self, d, exp, iname):
         exp = str(exp)
+        escapedExp = exp.replace('"', '\\"');
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
             d.beginHash()
             d.putField("iname", iname)
-            d.putField("name", exp)
-            d.putField("exp", exp)
+            d.putField("name", escapedExp)
+            d.putField("exp", escapedExp)
             try:
                 list = eval(exp)
                 d.putValue("")
@@ -800,8 +801,8 @@ class FrameCommand(gdb.Command):
                     self.handleWatch(d, item, "%s.%d" % (iname, itemNumber))
                     itemNumber += 1
                 d.endChildren()
-            except:
-                warn("EVAL: ERROR CAUGHT")
+            except RuntimeError, error:
+                warn("EVAL: ERROR CAUGHT %s" % error)
                 d.putValue("<syntax error>")
                 d.putType(" ")
                 d.putNumChild(0)
@@ -812,18 +813,20 @@ class FrameCommand(gdb.Command):
 
         d.beginHash()
         d.putField("iname", iname)
-        d.putField("name", exp)
-        d.putField("exp", exp)
+        d.putField("name", escapedExp)
+        d.putField("exp", escapedExp)
         handled = False
-        if exp == "<Edit>":
-            d.putValue('value=" ",type=" ",numchild="0",')
+        if exp == "<Edit>" or len(exp) == 0:
+            d.put('value=" ",type=" ",numchild="0",')
         else:
-                #try:
+            try:
                 value = parseAndEvaluate(exp)
                 item = Item(value, iname, None, None)
+                if not value is None:
+                    d.putAddress(value.address)
                 d.putItemHelper(item)
-                #except RuntimeError:
-                #d.put('value="<invalid>",type="<unknown>",numchild="0",')
+            except RuntimeError:
+                d.put('value="<invalid>",type="<unknown>",numchild="0",')
         d.endHash()
 
 

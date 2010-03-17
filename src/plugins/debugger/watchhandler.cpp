@@ -1350,7 +1350,8 @@ static void swapEndian(char *d, int nchar)
 
 void WatchHandler::showEditValue(const WatchData &data)
 {
-    QObject *w = m_editHandlers.value(data.iname);
+    const QByteArray key  = data.addr.isEmpty() ? data.iname : data.addr;
+    QObject *w = m_editHandlers.value(key);
     if (data.editformat == 0x0) {
         m_editHandlers.remove(data.iname);
         delete w;
@@ -1364,7 +1365,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             if (!data.addr.isEmpty())
                 addr =  QString::fromLatin1(data.addr);
             l->setWindowTitle(tr("%1 object at %2").arg(data.type, addr));
-            m_editHandlers[data.iname] = l;
+            m_editHandlers[key] = l;
         }
         int width, height, format;
         QByteArray ba;
@@ -1396,7 +1397,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         if (!t) {
             delete w;
             t = new QTextEdit;
-            m_editHandlers[data.iname] = t;
+            m_editHandlers[key] = t;
         }
         QByteArray ba = QByteArray::fromHex(data.editvalue);
         QString str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
@@ -1413,7 +1414,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             p = new QProcess;
             p->start(cmd);
             p->waitForStarted();
-            m_editHandlers[data.iname] = p;
+            m_editHandlers[key] = p;
         }
         p->write(input + "\n");
     } else {
