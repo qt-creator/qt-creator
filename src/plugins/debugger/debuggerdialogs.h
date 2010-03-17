@@ -89,6 +89,7 @@ public:
     ~AttachExternalDialog();
 
     qint64 attachPID() const;
+    QString executable() const;
 
 private slots:
     void rebuildProcessList();
@@ -99,8 +100,9 @@ private slots:
 
 private:
     inline QPushButton *okButton() const;
-    const QString m_selfPid;
+    inline QString attachPIDText() const;
 
+    const QString m_selfPid;
     Ui::AttachExternalDialog *m_ui;
     ProcessListFilterModel *m_model;
 };

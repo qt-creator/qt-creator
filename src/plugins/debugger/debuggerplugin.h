@@ -125,7 +125,9 @@ private slots:
 private:
     void readSettings();
     void writeSettings() const;
-    void attachExternalApplication(qint64 pid, const QString &crashParameter = QString());
+    void attachExternalApplication(qint64 pid,
+                                   const QString &binary,
+                                   const QString &crashParameter);
     void attachCore(const QString &core, const QString &exeFileName);
 
     friend class Debugger::DebuggerManager;

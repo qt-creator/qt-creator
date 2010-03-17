@@ -999,7 +999,7 @@ void DebuggerPlugin::attachCmdLine()
         m_manager->showStatusMessage(tr("Attaching to PID %1.").arg(m_attachRemoteParameters.attachPid));
         const QString crashParameter =
                 m_attachRemoteParameters.winCrashEvent ? QString::number(m_attachRemoteParameters.winCrashEvent) : QString();
-        attachExternalApplication(m_attachRemoteParameters.attachPid, crashParameter);
+        attachExternalApplication(m_attachRemoteParameters.attachPid, QString(), crashParameter);
         return;
     }
     if (!m_attachRemoteParameters.attachCore.isEmpty()) {
@@ -1282,10 +1282,12 @@ void DebuggerPlugin::attachExternalApplication()
 {
     AttachExternalDialog dlg(m_uiSwitcher->mainWindow());
     if (dlg.exec() == QDialog::Accepted)
-        attachExternalApplication(dlg.attachPID());
+        attachExternalApplication(dlg.attachPID(), dlg.executable(), QString());
 }
 
-void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashParameter)
+void DebuggerPlugin::attachExternalApplication(qint64 pid,
+                                               const QString &binary,
+                                               const QString &crashParameter)
 {
     if (pid == 0) {
         QMessageBox::warning(m_uiSwitcher->mainWindow(), tr("Warning"),
@@ -1294,6 +1296,7 @@ void DebuggerPlugin::attachExternalApplication(qint64 pid, const QString &crashP
     }
     const DebuggerStartParametersPtr sp(new DebuggerStartParameters);
     sp->attachPID = pid;
+    sp->executable = binary;
     sp->crashParameter = crashParameter;
     sp->startMode = crashParameter.isEmpty() ? AttachExternal : AttachCrashedExternal;
     if (RunControl *runControl = m_debuggerRunControlFactory->create(sp))

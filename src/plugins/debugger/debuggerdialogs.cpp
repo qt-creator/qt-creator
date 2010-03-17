@@ -68,9 +68,13 @@ class ProcessListFilterModel : public QSortFilterProxyModel
 public:
     explicit ProcessListFilterModel(QObject *parent);
     QString processIdAt(const QModelIndex &index) const;
+    QString executableForPid(const QString& pid) const;
+
     void populate(QList<ProcData> processes, const QString &excludePid = QString());
 
 private:
+    enum { processImageRole = Qt::UserRole };
+
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
     QStandardItemModel *m_model;
@@ -111,6 +115,17 @@ QString ProcessListFilterModel::processIdAt(const QModelIndex &index) const
     return QString();
 }
 
+QString ProcessListFilterModel::executableForPid(const QString &pid) const
+{
+    const int rowCount = m_model->rowCount();
+    for (int r = 0; r < rowCount; r++) {
+        const QStandardItem *item = m_model->item(r, 0);
+        if (item->text() == pid)
+            return item->data(processImageRole).toString();
+    }
+    return QString();
+}
+
 void ProcessListFilterModel::populate(QList<ProcData> processes, const QString &excludePid)
 {
     qStableSort(processes);
@@ -122,10 +137,12 @@ void ProcessListFilterModel::populate(QList<ProcData> processes, const QString &
     foreach(const ProcData &proc, processes) {
         QList<QStandardItem *> row;
         row.append(new QStandardItem(proc.ppid));
+        row.front()->setData(QVariant(proc.image), processImageRole);
         row.append(new QStandardItem(proc.name));
         if (!proc.image.isEmpty())
             row.back()->setToolTip(proc.image);
         row.append(new QStandardItem(proc.state));
+
         if (proc.ppid == excludePid)
             foreach(QStandardItem *i, row)
                 i->setEnabled(false);
@@ -372,9 +389,20 @@ void AttachExternalDialog::procClicked(const QModelIndex &proxyIndex)
         m_ui->pidLineEdit->setText(processId);
 }
 
+QString AttachExternalDialog::attachPIDText() const
+{
+    return m_ui->pidLineEdit->text().trimmed();
+}
+
 qint64 AttachExternalDialog::attachPID() const
 {
-    return m_ui->pidLineEdit->text().toLongLong();
+    return attachPIDText().toLongLong();
+}
+
+QString AttachExternalDialog::executable() const
+{
+    // Search pid in model in case the user typed in the PID.
+    return m_model->executableForPid(attachPIDText());
 }
 
 void AttachExternalDialog::pidChanged(const QString &pid)

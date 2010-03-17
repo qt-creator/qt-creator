@@ -964,10 +964,9 @@ static IDebuggerEngine *debuggerEngineForToolChain(int toolChainType)
 
 // Figure out the debugger type of an executable. Analyze executable
 // unless the toolchain provides a hint.
-static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
-                                                int toolChainType,
-                                                QString *errorMessage,
-                                                QString *settingsIdHint)
+static IDebuggerEngine *debuggerEngineForExecutable(const QString &executable,
+                                                    QString *errorMessage,
+                                                    QString *settingsIdHint)
 {
     if (executable.endsWith(_(".js"))) {
         if (!scriptEngine) {
@@ -976,19 +975,6 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
         }
         return scriptEngine;
     }
-
-/*
-    if (executable.endsWith(_(".sym"))) {
-        if (!gdbEngine) {
-            *errorMessage = msgEngineNotAvailable("Gdb Engine");
-            return 0;
-        }
-        return gdbEngine;
-    }
-*/
-
-    if (IDebuggerEngine *tce = debuggerEngineForToolChain(toolChainType))
-        return tce;
 
 #ifndef Q_OS_WIN
     Q_UNUSED(settingsIdHint)
@@ -1004,8 +990,11 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
         return gdbEngine;
     // If a file has PDB files, it has been compiled by VS.
     QStringList pdbFiles;
-    if (!getPDBFiles(executable, &pdbFiles, errorMessage))
+    if (!getPDBFiles(executable, &pdbFiles, errorMessage)) {
+        qWarning("Cannot determine type of executable %s: %s",
+                 qPrintable(executable), qPrintable(*errorMessage));
         return 0;
+    }
     if (pdbFiles.empty())
         return gdbEngine;
 
@@ -1018,12 +1007,8 @@ static IDebuggerEngine *determineDebuggerEngine(const QString &executable,
 }
 
 // Figure out the debugger type of a PID
-static IDebuggerEngine *determineDebuggerEngine(int  /* pid */,
-                                                int toolChainType,
-                                                QString *errorMessage)
+static IDebuggerEngine *debuggerEngineForAttach(QString *errorMessage)
 {
-    if (IDebuggerEngine *tce = debuggerEngineForToolChain(toolChainType))
-        return tce;
 #ifdef Q_OS_WIN
     // Preferably Windows debugger
     if (winEngine)
@@ -1059,17 +1044,18 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
 
     QString errorMessage;
     QString settingsIdHint;
-    switch (d->m_startParameters->startMode) {
-    case AttachExternal:
-    case AttachCrashedExternal:
-        d->m_engine = determineDebuggerEngine(d->m_startParameters->attachPID,
-            d->m_startParameters->toolChainType, &errorMessage);
-        break;
-    default:
-        d->m_engine = determineDebuggerEngine(d->m_startParameters->executable,
-            d->m_startParameters->toolChainType, &errorMessage, &settingsIdHint);
-        break;
-    }
+
+    // Figure out engine: toolchain, executable or attach
+    const DebuggerStartMode startMode = d->m_startParameters->startMode;
+    d->m_engine = debuggerEngineForToolChain(d->m_startParameters->toolChainType);
+
+    if (d->m_engine == 0 && startMode != StartRemote
+        && !d->m_startParameters->executable.isEmpty())
+        d->m_engine = debuggerEngineForExecutable(d->m_startParameters->executable, &errorMessage, &settingsIdHint);
+
+    if (d->m_engine == 0
+        && (startMode == AttachExternal || startMode == AttachCrashedExternal))
+        d->m_engine = debuggerEngineForAttach(&errorMessage);
 
     if (!d->m_engine) {
         emit debuggingFinished();

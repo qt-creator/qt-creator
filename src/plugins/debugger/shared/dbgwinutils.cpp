@@ -29,16 +29,44 @@
 
 #include "winutils.h"
 #include "debuggerdialogs.h"
+
+#include <QtCore/QDebug>
+
 #include <windows.h>
 #include <tlhelp32.h>
-#ifdef USE_PSAPI
-#  include <psapi.h>
+#include <psapi.h>
+
+#ifdef  __GNUC__
+#    include <QtCore/QLibrary>
 #endif
 
 namespace Debugger {
 namespace Internal {
 
-#ifdef USE_PSAPI
+#ifdef  __GNUC__
+// Resolve QueryFullProcessImageNameW out of kernel32.dll due
+// to incomplete MinGW import libs.
+static inline BOOL minGW_QueryFullProcessImageName(HANDLE h,
+                                                   DWORD flags,
+                                                   LPWSTR buffer,
+                                                   DWORD *size)
+{
+    // Resolve required symbols from the kernel32.dll
+    typedef BOOL (WINAPI *QueryFullProcessImageNameWProtoType)
+                 (HANDLE, DWORD, LPWSTR, PDWORD);
+    static QueryFullProcessImageNameWProtoType queryFullProcessImageNameW = 0;
+    if (!queryFullProcessImageNameW) {
+        QLibrary kernel32Lib(QLatin1String("kernel32.dll"), 0);
+        if (kernel32Lib.isLoaded() || kernel32Lib.load())
+            queryFullProcessImageNameW = (QueryFullProcessImageNameWProtoType)kernel32Lib.resolve("QueryFullProcessImageNameW");
+    }
+    if (!queryFullProcessImageNameW)
+        return FALSE;
+    // Read out process
+    return (*queryFullProcessImageNameW)(h, flags, buffer, size);
+}
+#endif
+
 static inline QString imageName(DWORD processId)
 {
     QString  rc;
@@ -46,12 +74,17 @@ static inline QString imageName(DWORD processId)
     if (handle == INVALID_HANDLE_VALUE)
         return rc;
     WCHAR buffer[MAX_PATH];
-    if (GetProcessImageFileName(handle, buffer, MAX_PATH))
+    DWORD bufSize = MAX_PATH;
+#ifdef  __GNUC__
+    if (minGW_QueryFullProcessImageName(handle, 0, buffer, &bufSize))
+        rc = QString::fromUtf16(reinterpret_cast<const ushort*>(buffer));
+#else
+    if (QueryFullProcessImageNameW(handle, 0, buffer, &bufSize))
         rc = QString::fromUtf16(buffer);
+#endif
     CloseHandle(handle);
     return rc;
 }
-#endif
 
 QList<ProcData> winProcessList()
 {
@@ -67,9 +100,7 @@ QList<ProcData> winProcessList()
         ProcData procData;
         procData.ppid = QString::number(pe.th32ProcessID);
         procData.name = QString::fromUtf16(reinterpret_cast<ushort*>(pe.szExeFile));
-#ifdef USE_PSAPI
         procData.image = imageName(pe.th32ProcessID);
-#endif
         rc.push_back(procData);
     }
     CloseHandle(snapshot);
