@@ -31,6 +31,7 @@
 #include "customwizardparameters.h"
 
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
@@ -119,6 +120,7 @@ QWidget *CustomWizardFieldPage::registerControl(const CustomWizardField &field)
         } else {
             qWarning("Invalid custom wizard field validator regular expression %s.", qPrintable(validationRegExp));
         }
+        m_validatorLineEdits.push_back(lineEdit);
     }
     lineEdit->setText(field.controlAttributes.value(QLatin1String("defaulttext")));
     registerField(fieldName, lineEdit, "text", SIGNAL(textEdited(QString)));
@@ -128,6 +130,22 @@ QWidget *CustomWizardFieldPage::registerControl(const CustomWizardField &field)
 void CustomWizardFieldPage::addField(const CustomWizardField &field)
 {
     addRow(field.description, registerControl(field));
+}
+
+bool CustomWizardFieldPage::validatePage()
+{
+    // Check line edits with validators
+    foreach(QLineEdit *le, m_validatorLineEdits) {
+        int pos = 0;
+        const QValidator *val = le->validator();
+        QTC_ASSERT(val, return false);
+        QString text = le->text();
+        if (val->validate(text, pos) != QValidator::Acceptable) {
+            le->setFocus();
+            return false;
+        }
+    }
+    return true;
 }
 
 // --------------- CustomWizardPage

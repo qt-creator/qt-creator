@@ -36,6 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 class QFormLayout;
+class QLineEdit;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -66,6 +67,8 @@ signals:
 // A simple custom wizard page presenting the fields to be used
 // as page 2 of a BaseProjectWizardDialog if there are any fields.
 // Uses the 'field' functionality of QWizard.
+// Implements validatePage() as the field logic cannot be tied up
+// with additional validation.
 class CustomWizardFieldPage : public QWizardPage {
     Q_OBJECT
 public:
@@ -73,6 +76,8 @@ public:
 
     explicit CustomWizardFieldPage(const FieldList &f,
                                    QWidget *parent = 0);
+    virtual bool validatePage();
+
 protected:
     inline void addRow(const QString &name, QWidget *w);
 
@@ -81,6 +86,7 @@ private:
 
     void addField(const CustomWizardField &f);
     QFormLayout *m_formLayout;
+    QList<QLineEdit*> m_validatorLineEdits;
 };
 
 // A custom wizard page presenting the fields to be used and a path chooser
