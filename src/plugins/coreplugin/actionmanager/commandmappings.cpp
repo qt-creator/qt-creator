@@ -63,27 +63,6 @@ CommandMappings::~CommandMappings()
 
 // IOptionsPage
 
-
-QString CommandMappings::id() const
-{
-    return QLatin1String("D.Keyboard");
-}
-
-QString CommandMappings::displayName() const
-{
-    return tr("Keyboard");
-}
-
-QString CommandMappings::category() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
-}
-
-QString CommandMappings::displayCategory() const
-{
-    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
-}
-
 QWidget *CommandMappings::createPage(QWidget *parent)
 {
     m_page = new Ui_CommandMappings();
