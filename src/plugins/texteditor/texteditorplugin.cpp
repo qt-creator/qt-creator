@@ -127,7 +127,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 #ifndef Q_WS_MAC
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Space")));
 #else
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+Space")));
+    command->setDefaultKeySequence(QKeySequence(tr("Alt+Space")));
 #endif
     connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
 
