@@ -1007,18 +1007,19 @@ static IDebuggerEngine *debuggerEngineForExecutable(const QString &executable,
 #endif
 }
 
-// Figure out the debugger type of a PID
-static IDebuggerEngine *debuggerEngineForAttach(QString *errorMessage)
+// Debugger type for mode
+static IDebuggerEngine *debuggerEngineForMode(DebuggerStartMode startMode, QString *errorMessage)
 {
 #ifdef Q_OS_WIN
-    // Preferably Windows debugger
-    if (winEngine)
+    // Preferably Windows debugger for attaching locally.
+    if (startMode != StartRemote && winEngine)
         return winEngine;
     if (gdbEngine)
         return gdbEngine;
     *errorMessage = msgEngineNotAvailable("Gdb Engine");
     return 0;
 #else
+    Q_UNUSED(startMode)
     if (!gdbEngine) {
         *errorMessage = msgEngineNotAvailable("Gdb Engine");
         return 0;
@@ -1046,7 +1047,7 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
     QString errorMessage;
     QString settingsIdHint;
 
-    // Figure out engine: toolchain, executable or attach
+    // Figure out engine: toolchain, executable, attach or default
     const DebuggerStartMode startMode = d->m_startParameters->startMode;
     d->m_engine = debuggerEngineForToolChain(d->m_startParameters->toolChainType);
 
@@ -1054,10 +1055,8 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
         && !d->m_startParameters->executable.isEmpty())
         d->m_engine = debuggerEngineForExecutable(d->m_startParameters->executable, &errorMessage, &settingsIdHint);
 
-    if (d->m_engine == 0
-        && (startMode == AttachExternal || startMode == AttachCrashedExternal
-            || startMode == AttachCore))
-        d->m_engine = debuggerEngineForAttach(&errorMessage);
+    if (d->m_engine == 0)
+        d->m_engine = debuggerEngineForMode(startMode, &errorMessage);
 
     if (!d->m_engine) {
         emit debuggingFinished();
