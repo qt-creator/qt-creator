@@ -591,9 +591,8 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
 
     if (key == Key_Escape || (mods == Qt::ControlModifier && key == Key_BracketLeft)) {
         // Not sure this feels good. People often hit Esc several times
-        if (isNoVisualMode() && m_mode == CommandMode)
-            return false;
-        return true;
+        //return !isNoVisualMode() || m_mode != CommandMode;
+        return !m_passing;
     }
 
     // We are interested in overriding  most Ctrl key combinations
@@ -772,9 +771,7 @@ void FakeVimHandler::Private::restoreWidget()
 EventResult FakeVimHandler::Private::handleKey(int key, int unmodified,
     const QString &text)
 {
-    //qDebug() << " CURSOR POS: " << m_undoCursorPosition;
     setUndoPosition(m_tc.position());
-    //qDebug() << "KEY: " << key << text << "POS: " << m_tc.position();
     if (m_mode == InsertMode)
         return handleInsertMode(key, unmodified, text);
     if (m_mode == CommandMode)
@@ -1287,11 +1284,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         } else {
             m_mvcount.append(QChar(key));
         }
-    } else if (key == '^') {
+    } else if (key == '^' || key == '_') {
         moveToFirstNonBlankOnLine();
         setTargetColumn();
         m_movetype = MoveExclusive;
-        finishMovement(QString(QLatin1Char('^')));
+        finishMovement(QString(QLatin1Char(key)));
     } else if (0 && key == ',') {
         // FIXME: fakevim uses ',' by itself, so it is incompatible
         m_subsubmode = FtSubSubMode;
@@ -1927,7 +1924,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         removeSelectedText();
     } else if (key == Key_BracketLeft || key == Key_BracketRight) {
 
-    } else if (key == Key_Escape) {
+    } else if (key == Key_Escape || key == 379 /* ^[ */) {
         if (isVisualMode()) {
             leaveVisualMode();
         } else if (m_submode != NoSubMode) {
@@ -2129,7 +2126,7 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
 {
     Q_UNUSED(text)
 
-    if (key == Key_Escape || key == control('c')) {
+    if (key == Key_Escape || key == 379 /* ^[ */ || key == control('c')) {
         m_commandBuffer.clear();
         enterCommandMode();
         updateMiniBuffer();
