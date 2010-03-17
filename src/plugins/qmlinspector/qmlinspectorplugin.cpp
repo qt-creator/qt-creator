@@ -96,7 +96,6 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
     Q_UNUSED(arguments);
     Q_UNUSED(errorString);
 
-    Core::ICore *core = Core::ICore::instance();
     connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             SLOT(prepareDebugger(Core::IMode*)));
 

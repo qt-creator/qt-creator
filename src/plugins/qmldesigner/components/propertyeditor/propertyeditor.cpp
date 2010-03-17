@@ -396,7 +396,7 @@ void PropertyEditor::changeExpression(const QString &name)
     QmlObjectNode fxObjectNode(m_selectedNode);
     PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
 
-    if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().property(name).isValid())
+    if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().property(name).isValid()) {
         if (fxObjectNode.modelNode().metaInfo().property(name).type() == QLatin1String("QColor")) {
             if (QColor(value->expression().remove('"')).isValid()) {
                 fxObjectNode.setVariantProperty(name, QColor(value->expression().remove('"')));
@@ -425,6 +425,7 @@ void PropertyEditor::changeExpression(const QString &name)
                 return;
             }
         }
+    }
 
     if (!value) {
         qWarning() << "PropertyEditor::changeExpression no value for " << underscoreName;
