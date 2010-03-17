@@ -31,34 +31,13 @@
 #define DESIGNMODE_H
 
 #include <coreplugin/imode.h>
-#include <coreplugin/icorelistener.h>
-#include <coreplugin/editormanager/ieditor.h>
-
-#include <QWeakPointer>
-#include <QPair>
-#include <QStringList>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-class QStackedWidget;
-QT_END_NAMESPACE
 
 namespace Core {
 class EditorManager;
-class DesignMode;
+class IEditor;
 
 namespace Internal {
-
-class DesignModeCoreListener : public Core::ICoreListener
-{
-    Q_OBJECT
-public:
-    DesignModeCoreListener(DesignMode* mode);
-    bool coreAboutToClose();
-private:
-    DesignMode *m_mode;
-};
-
+class DesignModeCoreListener;
 } // namespace Internal
 
 /**
@@ -67,13 +46,16 @@ private:
   * and giving a list of mimetypes that the editor understands, as well as an instance
   * to the main editor widget itself.
   */
+
+struct DesignModePrivate;
+
 class CORE_EXPORT DesignMode : public Core::IMode
 {
     Q_OBJECT
 
 public:
-    DesignMode(EditorManager *editorManager);
-    ~DesignMode();
+    explicit DesignMode(EditorManager *editorManager);
+    virtual ~DesignMode();
 
     void registerDesignWidget(QWidget *widget, const QStringList &mimeTypes,
                               bool preferDesignMode = false);
@@ -99,25 +81,9 @@ private slots:
     void updateActions();
 
 private:
-    Internal::DesignModeCoreListener *m_coreListener;
-    QWeakPointer<Core::IEditor> m_currentEditor;
-    bool m_isActive;
-
-    struct DesignEditorInfo {
-        int widgetIndex;
-        QStringList mimeTypes;
-        bool preferredMode;
-        QWidget *widget;
-    };
-
-    QList<DesignEditorInfo*> m_editors;
-
-    EditorManager *m_editorManager;
-    QStackedWidget *m_stackWidget;
-
+    DesignModePrivate *d;
     friend class Internal::DesignModeCoreListener;
 };
-
 
 } // namespace Core
 

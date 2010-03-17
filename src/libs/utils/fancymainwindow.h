@@ -32,9 +32,6 @@
 
 #include "utils_global.h"
 
-#include <QtCore/QList>
-#include <QtCore/QHash>
-
 #include <QtGui/QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -43,18 +40,21 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+struct FancyMainWindowPrivate;
+
 class QTCREATOR_UTILS_EXPORT FancyMainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    FancyMainWindow(QWidget *parent = 0);
+    explicit FancyMainWindow(QWidget *parent = 0);
+    virtual ~FancyMainWindow();
 
     QDockWidget *addDockForWidget(QWidget *widget);
-    QList<QDockWidget *> dockWidgets() const { return m_dockWidgets; }
+    QList<QDockWidget *> dockWidgets() const;
 
     void setTrackingEnabled(bool enabled);
-    bool isLocked() const { return m_locked; }
+    bool isLocked() const;
 
     void saveSettings(QSettings *settings) const;
     void restoreSettings(QSettings *settings);
@@ -77,10 +77,7 @@ private:
     void updateDockWidget(QDockWidget *dockWidget);
     void handleVisibilityChanged(bool visible);
 
-    QList<QDockWidget *> m_dockWidgets;
-    QList<bool> m_dockWidgetActiveState;
-    bool m_locked;
-    bool m_handleDockVisibilityChanges; //todo
+    FancyMainWindowPrivate *d;
 };
 
 } // namespace Utils

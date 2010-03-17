@@ -38,16 +38,18 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/mimedatabase.h>
+#include <coreplugin/icorelistener.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QtCore/QPair>
 #include <QtCore/QFileInfo>
-#include <QtGui/QAction>
+#include <QtCore/QStringList>
+#include <QtCore/QDebug>
 
+#include <QtGui/QAction>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QStackedWidget>
-
-#include <QtCore/QDebug>
 
 namespace Core {
 
@@ -58,6 +60,15 @@ enum {
 };
 
 namespace Internal {
+
+class DesignModeCoreListener : public Core::ICoreListener
+{
+public:
+    DesignModeCoreListener(DesignMode* mode);
+    bool coreAboutToClose();
+private:
+    DesignMode *m_mode;
+};
 
 DesignModeCoreListener::DesignModeCoreListener(DesignMode *mode) :
         m_mode(mode)
@@ -72,27 +83,50 @@ bool DesignModeCoreListener::coreAboutToClose()
 
 } // namespace Internal
 
+struct DesignEditorInfo {
+    int widgetIndex;
+    QStringList mimeTypes;
+    bool preferredMode;
+    QWidget *widget;
+};
+
+struct DesignModePrivate {
+    explicit DesignModePrivate(DesignMode *q, EditorManager *editorManager);
+    Internal::DesignModeCoreListener *m_coreListener;
+    QWeakPointer<Core::IEditor> m_currentEditor;
+    bool m_isActive;
+
+    QList<DesignEditorInfo*> m_editors;
+
+    EditorManager *m_editorManager;
+    QStackedWidget *m_stackWidget;
+};
+
+DesignModePrivate::DesignModePrivate(DesignMode *q, EditorManager *editorManager) :
+    m_coreListener(new Internal::DesignModeCoreListener(q)),
+    m_isActive(false),
+    m_editorManager(editorManager),
+    m_stackWidget(new QStackedWidget)
+{
+}
+
 DesignMode::DesignMode(EditorManager *editorManager) :
-        IMode(),
-        m_coreListener(new Internal::DesignModeCoreListener(this)),
-        m_isActive(false),
-        m_editorManager(editorManager),
-        m_stackWidget(new QStackedWidget)
+        IMode(), d(new DesignModePrivate(this, editorManager))
 {
     setEnabled(false);
-    ExtensionSystem::PluginManager::instance()->addObject(m_coreListener);
+    ExtensionSystem::PluginManager::instance()->addObject(d->m_coreListener);
 
     connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
-    //updateActions();
 }
 
 DesignMode::~DesignMode()
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(m_coreListener);
-    delete m_coreListener;
+    ExtensionSystem::PluginManager::instance()->removeObject(d->m_coreListener);
+    delete d->m_coreListener;
 
-    qDeleteAll(m_editors);
+    qDeleteAll(d->m_editors);
+    delete d;
 }
 
 QList<int> DesignMode::context() const
@@ -104,7 +138,7 @@ QList<int> DesignMode::context() const
 
 QWidget *DesignMode::widget()
 {
-    return m_stackWidget;
+    return d->m_stackWidget;
 }
 
 QString DesignMode::displayName() const
@@ -130,29 +164,29 @@ QString DesignMode::id() const
 QStringList DesignMode::registeredMimeTypes() const
 {
     QStringList rc;
-    foreach(const DesignEditorInfo *i, m_editors)
+    foreach(const DesignEditorInfo *i, d->m_editors)
         rc += i->mimeTypes;
     return rc;
 }
 
 void DesignMode::registerDesignWidget(QWidget *widget, const QStringList &mimeTypes, bool preferDesignMode)
 {
-    int index = m_stackWidget->addWidget(widget);
+    int index = d->m_stackWidget->addWidget(widget);
 
     DesignEditorInfo *info = new DesignEditorInfo;
     info->preferredMode = preferDesignMode;
     info->mimeTypes = mimeTypes;
     info->widgetIndex = index;
     info->widget = widget;
-    m_editors.append(info);
+    d->m_editors.append(info);
 }
 
 void DesignMode::unregisterDesignWidget(QWidget *widget)
 {
-    m_stackWidget->removeWidget(widget);
-    foreach(DesignEditorInfo *info, m_editors) {
+    d->m_stackWidget->removeWidget(widget);
+    foreach(DesignEditorInfo *info, d->m_editors) {
         if (info->widget == widget) {
-            m_editors.removeAll(info);
+            d->m_editors.removeAll(info);
             break;
         }
     }
@@ -174,10 +208,10 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
 
 
 
-        foreach(DesignEditorInfo *editorInfo, m_editors) {
+        foreach(DesignEditorInfo *editorInfo, d->m_editors) {
             foreach(QString mime, editorInfo->mimeTypes) {
                 if (mime == mimeType) {
-                    m_stackWidget->setCurrentIndex(editorInfo->widgetIndex);
+                    d->m_stackWidget->setCurrentIndex(editorInfo->widgetIndex);
                     mimeEditorAvailable = true;
                     setEnabled(true);
                     if (editorInfo->preferredMode && core->modeManager()->currentMode() != this) {
@@ -200,23 +234,23 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
         core->modeManager()->activateMode(Constants::MODE_EDIT);
     }
 
-    if (m_currentEditor.data() == editor)
+    if (d->m_currentEditor.data() == editor)
         return;
 
-    if (m_currentEditor)
-        disconnect(m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
+    if (d->m_currentEditor)
+        disconnect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
 
-    m_currentEditor = QWeakPointer<Core::IEditor>(editor);
+    d->m_currentEditor = QWeakPointer<Core::IEditor>(editor);
 
-    if (m_currentEditor)
-        connect(m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
+    if (d->m_currentEditor)
+        connect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));
 
-    emit actionsUpdated(m_currentEditor.data());
+    emit actionsUpdated(d->m_currentEditor.data());
 }
 
 void DesignMode::updateActions()
 {
-    emit actionsUpdated(m_currentEditor.data());
+    emit actionsUpdated(d->m_currentEditor.data());
 }
 
 } // namespace Core
