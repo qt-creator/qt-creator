@@ -83,5 +83,9 @@
 		<file>images/button_alignment_centerh_normal.png</file>
 		<file>images/button_alignment_centerv_pressed.png</file>
 		<file>images/button_alignment_centerv_normal.png</file>
+		<file>images/collapse-button-hover.png</file>
+		<file>images/collapse-button-normal.png</file>
+		<file>images/collapse-button-hover-mirrored.png</file>
+		<file>images/collapse-button-normal-mirrored.png</file>
     </qresource>
 </RCC>
