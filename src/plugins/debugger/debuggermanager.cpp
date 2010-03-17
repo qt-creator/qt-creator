@@ -1055,7 +1055,8 @@ void DebuggerManager::startNewDebugger(const DebuggerStartParametersPtr &sp)
         d->m_engine = debuggerEngineForExecutable(d->m_startParameters->executable, &errorMessage, &settingsIdHint);
 
     if (d->m_engine == 0
-        && (startMode == AttachExternal || startMode == AttachCrashedExternal))
+        && (startMode == AttachExternal || startMode == AttachCrashedExternal
+            || startMode == AttachCore))
         d->m_engine = debuggerEngineForAttach(&errorMessage);
 
     if (!d->m_engine) {

@@ -35,18 +35,15 @@
 #include <windows.h>
 #include <tlhelp32.h>
 #include <psapi.h>
-
-#ifdef  __GNUC__
-#    include <QtCore/QLibrary>
-#endif
+#include <QtCore/QLibrary>
 
 namespace Debugger {
 namespace Internal {
 
-#ifdef  __GNUC__
 // Resolve QueryFullProcessImageNameW out of kernel32.dll due
-// to incomplete MinGW import libs.
-static inline BOOL minGW_QueryFullProcessImageName(HANDLE h,
+// to incomplete MinGW import libs and it not being present
+// on Windows XP.
+static inline BOOL queryFullProcessImageName(HANDLE h,
                                                    DWORD flags,
                                                    LPWSTR buffer,
                                                    DWORD *size)
@@ -65,7 +62,6 @@ static inline BOOL minGW_QueryFullProcessImageName(HANDLE h,
     // Read out process
     return (*queryFullProcessImageNameW)(h, flags, buffer, size);
 }
-#endif
 
 static inline QString imageName(DWORD processId)
 {
@@ -75,13 +71,8 @@ static inline QString imageName(DWORD processId)
         return rc;
     WCHAR buffer[MAX_PATH];
     DWORD bufSize = MAX_PATH;
-#ifdef  __GNUC__
-    if (minGW_QueryFullProcessImageName(handle, 0, buffer, &bufSize))
+    if (queryFullProcessImageName(handle, 0, buffer, &bufSize))
         rc = QString::fromUtf16(reinterpret_cast<const ushort*>(buffer));
-#else
-    if (QueryFullProcessImageNameW(handle, 0, buffer, &bufSize))
-        rc = QString::fromUtf16(buffer);
-#endif
     CloseHandle(handle);
     return rc;
 }

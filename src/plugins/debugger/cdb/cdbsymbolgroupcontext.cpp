@@ -234,7 +234,7 @@ bool WatchHandleDumperInserter::expandPointerToDumpable(const WatchData &wd, QSt
         const QString type = stripPointerType(wd.type);
         WatchData derefedWd;
         derefedWd.setType(type);
-        derefedWd.setAddress(hexAddrS);
+        derefedWd.setAddress(hexAddrS.toLatin1());
         derefedWd.name = QString(QLatin1Char('*'));
         derefedWd.iname = wd.iname + ".*";
         derefedWd.source = OwnerDumper | CdbSymbolGroupContext::ChildrenKnownBit;
@@ -376,7 +376,7 @@ unsigned CdbSymbolGroupContext::watchDataAt(unsigned long index, WatchData *wd)
             wd->iname.remove(openingBracketPos, 1);
         }
     }
-    wd->setAddress(QString::fromLatin1("0x") + QString::number(address, 16));
+    wd->setAddress(("0x") + QByteArray::number(address, 16));
     wd->setType(type, false);
     wd->setValue(fixValue(value, type));
     if (rc & OutOfScope) {
