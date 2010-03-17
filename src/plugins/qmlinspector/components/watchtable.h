@@ -55,9 +55,9 @@ public:
     void setEngineDebug(QDeclarativeEngineDebug *client);
 
     QDeclarativeDebugWatch *findWatch(int column) const;
-    int columnForWatch(QDeclarativeDebugWatch *watch) const;
+    int rowForWatch(QDeclarativeDebugWatch *watch) const;
 
-    void removeWatchAt(int column);
+    void removeWatchAt(int row);
     void removeAllWatches();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -83,25 +83,16 @@ private:
 
     QDeclarativeDebugWatch *findWatch(int objectDebugId, const QString &property) const;
 
-    void addValue(int column, const QVariant &value);
-
     struct WatchedEntity
     {
         QString title;
-        bool hasFirstValue;
         QString property;
         QPointer<QDeclarativeDebugWatch> watch;
-    };
-
-    struct Value {
-        int column;
-        QVariant variant;
-        bool first;
+        QVariant value;
     };
 
     QDeclarativeEngineDebug *m_client;
-    QList<WatchedEntity> m_columns;
-    QList<Value> m_values;
+    QList<WatchedEntity> m_entities;
 };
 
 
@@ -110,9 +101,6 @@ class WatchTableHeaderView : public QHeaderView
     Q_OBJECT
 public:
     WatchTableHeaderView(WatchTableModel *model, QWidget *parent = 0);
-
-protected:
-    void mousePressEvent(QMouseEvent *me);
 
 private:
     WatchTableModel *m_model;
@@ -127,6 +115,9 @@ public:
 
 signals:
     void objectActivated(int objectDebugId);
+
+protected:
+    void mousePressEvent(QMouseEvent *me);
 
 private slots:
     void indexActivated(const QModelIndex &index);

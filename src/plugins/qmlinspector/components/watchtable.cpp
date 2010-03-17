@@ -38,17 +38,21 @@
 
 QT_BEGIN_NAMESPACE
 
+const int C_NAME = 0;
+const int C_VALUE = 1;
+const int C_COLUMNS = 2;
 
 WatchTableModel::WatchTableModel(QDeclarativeEngineDebug *client, QObject *parent)
     : QAbstractTableModel(parent),
       m_client(client)
 {
+
 }
 
 WatchTableModel::~WatchTableModel()
 {
-    for (int i=0; i<m_columns.count(); ++i)
-        delete m_columns[i].watch;
+    for (int i=0; i < m_entities.count(); ++i)
+        delete m_entities[i].watch;
 }
 
 void WatchTableModel::setEngineDebug(QDeclarativeEngineDebug *client)
@@ -67,67 +71,55 @@ void WatchTableModel::addWatch(QDeclarativeDebugWatch *watch, const QString &tit
 
     connect(watch, SIGNAL(stateChanged(QDeclarativeDebugWatch::State)), SLOT(watchStateChanged()));
 
-    int col = columnCount(QModelIndex());
-    beginInsertColumns(QModelIndex(), col, col);
+    int row = rowCount(QModelIndex());
+    beginInsertRows(QModelIndex(), row, row);
 
     WatchedEntity e;
     e.title = title;
-    e.hasFirstValue = false;
     e.property = property;
     e.watch = watch;
-    m_columns.append(e);
 
-    endInsertColumns();
+    m_entities.append(e);
+
+    endInsertRows();
 }
 
 void WatchTableModel::removeWatch(QDeclarativeDebugWatch *watch)
 {
-    int column = columnForWatch(watch);
+    int column = rowForWatch(watch);
     if (column == -1)
         return;
 
-    WatchedEntity entity = m_columns.takeAt(column);
-
-    for (QList<Value>::Iterator iter = m_values.begin(); iter != m_values.end();) {
-        if (iter->column == column) {
-            iter = m_values.erase(iter);
-        } else {
-            if(iter->column > column)
-                --iter->column;
-            ++iter;
-        }
-    }
+    m_entities.takeAt(column);
 
     reset();
 }
 
 void WatchTableModel::updateWatch(QDeclarativeDebugWatch *watch, const QVariant &value)
 {
-    int column = columnForWatch(watch);
-    if (column == -1)
+    int row = rowForWatch(watch);
+    if (row == -1)
         return;
 
-    addValue(column, value);
+    m_entities[row].value = value;
+    const QModelIndex &idx = index(row, C_VALUE);
+    emit dataChanged(idx, idx);
 
-    if (!m_columns[column].hasFirstValue) {
-        m_columns[column].hasFirstValue = true;
-        m_values[m_values.count() - 1].first = true;
-    }
 }
 
-QDeclarativeDebugWatch *WatchTableModel::findWatch(int column) const
+QDeclarativeDebugWatch *WatchTableModel::findWatch(int row) const
 {
-    if (column < m_columns.count())
-        return m_columns.at(column).watch;
+    if (row < m_entities.count())
+        return m_entities.at(row).watch;
     return 0;
 }
 
 QDeclarativeDebugWatch *WatchTableModel::findWatch(int objectDebugId, const QString &property) const
 {
-    for (int i=0; i<m_columns.count(); ++i) {
-        if (m_columns[i].watch->objectDebugId() == objectDebugId
-                && m_columns[i].property == property) {
-            return m_columns[i].watch;
+    for (int i=0; i < m_entities.count(); ++i) {
+        if (m_entities[i].watch->objectDebugId() == objectDebugId
+                && m_entities[i].property == property) {
+            return m_entities[i].watch;
         }
     }
     return 0;
@@ -135,60 +127,41 @@ QDeclarativeDebugWatch *WatchTableModel::findWatch(int objectDebugId, const QStr
 
 int WatchTableModel::rowCount(const QModelIndex &) const
 {
-    return m_values.count();
+    return m_entities.count();
 }
 
 int WatchTableModel::columnCount(const QModelIndex &) const
 {
-    return m_columns.count();
+    return C_COLUMNS;
 }
 
 QVariant WatchTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal) {
-        if (section < m_columns.count() && role == Qt::DisplayRole)
-            return m_columns.at(section).title;
-    } else {
-        if (role == Qt::DisplayRole)
-            return section + 1;
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        if (section == C_NAME)
+            return tr("Name");
+        else if (section == C_VALUE)
+            return tr("Value");
     }
     return QVariant();
 }
 
 QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
 {
-    if (m_values.at(idx.row()).column == idx.column()) {
+    if (idx.column() == C_NAME) {
+        if (role == Qt::DisplayRole)
+            return QVariant(m_entities.at(idx.row()).title);
+    } else if (idx.column() == C_VALUE) {
+
         if (role == Qt::DisplayRole) {
-            const QVariant &value = m_values.at(idx.row()).variant;
-            QString str = value.toString();
+            return QVariant(m_entities.at(idx.row()).value);
 
-            if (str.isEmpty() && QDeclarativeMetaType::isQObject(value.userType())) {
-                QObject *o = QDeclarativeMetaType::toQObject(value);
-                if(o) {
-                    QString objectName = o->objectName();
-                    if(objectName.isEmpty())
-                        objectName = QLatin1String("<unnamed>");
-                    str = QLatin1String(o->metaObject()->className()) +
-                          QLatin1String(": ") + objectName;
-                }
-            }
-
-            if(str.isEmpty()) {
-                QDebug d(&str);
-                d << value;
-            }
-            return QVariant(str);
         } else if(role == Qt::BackgroundRole) {
-            if(m_values.at(idx.row()).first)
-                return QColor(Qt::green);
-            else
-                return QVariant();
-        } else {
-            return QVariant();
+            //return QColor(Qt::green);
         }
-    } else {
-        return QVariant();
     }
+
+    return QVariant();
 }
 
 void WatchTableModel::watchStateChanged()
@@ -201,27 +174,13 @@ void WatchTableModel::watchStateChanged()
     }
 }
 
-int WatchTableModel::columnForWatch(QDeclarativeDebugWatch *watch) const
+int WatchTableModel::rowForWatch(QDeclarativeDebugWatch *watch) const
 {
-    for (int i=0; i<m_columns.count(); ++i) {
-        if (m_columns.at(i).watch == watch)
+    for (int i=0; i < m_entities.count(); ++i) {
+        if (m_entities.at(i).watch == watch)
             return i;
     }
     return -1;
-}
-
-void WatchTableModel::addValue(int column, const QVariant &value)
-{
-    int row = columnCount(QModelIndex());
-    beginInsertRows(QModelIndex(), row, row);
-
-    Value v;
-    v.column = column;
-    v.variant = value;
-    v.first = false;
-    m_values.append(v);
-
-    endInsertRows();
 }
 
 void WatchTableModel::togglePropertyWatch(const QDeclarativeDebugObjectReference &object, const QDeclarativeDebugPropertyReference &property)
@@ -241,11 +200,10 @@ void WatchTableModel::togglePropertyWatch(const QDeclarativeDebugObjectReference
         delete watch;
         watch = 0;
     } else {
-        QString desc = property.name()
-                + QLatin1String(" on\n")
-                + object.className()
-                + QLatin1String(":\n")
-                + (object.name().isEmpty() ? QLatin1String("<unnamed object>") : object.name());
+        QString desc = (object.name().isEmpty() ? QLatin1String("<unnamed object>") : object.name())
+                       + QLatin1String(".") + property.name()
+                       + object.className();
+
         addWatch(watch, desc);
         emit watchCreated(watch);
     }
@@ -275,12 +233,12 @@ void WatchTableModel::expressionWatchRequested(const QDeclarativeDebugObjectRefe
     }
 }
 
-void WatchTableModel::removeWatchAt(int column)
+void WatchTableModel::removeWatchAt(int row)
 {
     if (!m_client)
         return;
 
-    QDeclarativeDebugWatch *watch = findWatch(column);
+    QDeclarativeDebugWatch *watch = findWatch(row);
     if (watch) {
         m_client->removeWatch(watch);
         delete watch;
@@ -290,14 +248,13 @@ void WatchTableModel::removeWatchAt(int column)
 
 void WatchTableModel::removeAllWatches()
 {
-    for (int i=0; i<m_columns.count(); ++i) {
+    for (int i=0; i<m_entities.count(); ++i) {
         if (m_client)
-            m_client->removeWatch(m_columns[i].watch);
+            m_client->removeWatch(m_entities[i].watch);
         else
-            delete m_columns[i].watch;
+            delete m_entities[i].watch;
     }
-    m_columns.clear();
-    m_values.clear();
+    m_entities.clear();
     reset();
 }
 
@@ -308,24 +265,10 @@ WatchTableHeaderView::WatchTableHeaderView(WatchTableModel *model, QWidget *pare
       m_model(model)
 {
     setClickable(true);
+    setResizeMode(QHeaderView::ResizeToContents);
+    setMinimumSectionSize(100);
+    setStretchLastSection(true);
 }
-
-void WatchTableHeaderView::mousePressEvent(QMouseEvent *me)
-{
-    QHeaderView::mousePressEvent(me);
-
-    if (me->button() == Qt::RightButton && me->type() == QEvent::MouseButtonPress) {
-        int col = logicalIndexAt(me->pos());
-        if (col >= 0) {
-            QAction action(tr("Stop watching"), 0);
-            QList<QAction *> actions;
-            actions << &action;
-            if (QMenu::exec(actions, me->globalPos()))
-                m_model->removeWatchAt(col);
-        }
-    }
-}
-
 
 //----------------------------------------------
 
@@ -334,6 +277,7 @@ WatchTableView::WatchTableView(WatchTableModel *model, QWidget *parent)
       m_model(model)
 {
     setAlternatingRowColors(true);
+
     connect(model, SIGNAL(watchCreated(QDeclarativeDebugWatch*)), SLOT(watchCreated(QDeclarativeDebugWatch*)));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(indexActivated(QModelIndex)));
 }
@@ -347,8 +291,24 @@ void WatchTableView::indexActivated(const QModelIndex &index)
 
 void WatchTableView::watchCreated(QDeclarativeDebugWatch *watch)
 {
-    int column = m_model->columnForWatch(watch);
+    int column = m_model->rowForWatch(watch);
     resizeColumnToContents(column);
+}
+
+void WatchTableView::mousePressEvent(QMouseEvent *me)
+{
+    QTableView::mousePressEvent(me);
+
+    if (me->button() == Qt::RightButton && me->type() == QEvent::MouseButtonPress) {
+        int row = rowAt(me->pos().y());
+        if (row >= 0) {
+            QAction action(tr("Stop watching"), 0);
+            QList<QAction *> actions;
+            actions << &action;
+            if (QMenu::exec(actions, me->globalPos()))
+                m_model->removeWatchAt(row);
+        }
+    }
 }
 
 QT_END_NAMESPACE

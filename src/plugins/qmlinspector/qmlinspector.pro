@@ -13,11 +13,13 @@ HEADERS += qmlinspectorplugin.h \
            qmlinspectorconstants.h \
            qmlinspector.h \
            inspectoroutputwidget.h \
-           qmlinspector_global.h
+           qmlinspector_global.h \
+    inspectorcontext.h
 
 SOURCES += qmlinspectorplugin.cpp \
            qmlinspector.cpp \
-           inspectoroutputwidget.cpp
+           inspectoroutputwidget.cpp \
+    inspectorcontext.cpp
 
 OTHER_FILES += QmlInspector.pluginspec
 RESOURCES += qmlinspector.qrc

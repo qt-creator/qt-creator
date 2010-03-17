@@ -27,27 +27,40 @@
 **
 **************************************************************************/
 #include "expressionquerywidget.h"
+#include "qmlinspectorconstants.h"
 
-#include <QtCore/qdebug.h>
+#include <utils/fancylineedit.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/fontsettings.h>
+#include <qmljseditor/qmljshighlighter.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 
-#include <QtGui/qlabel.h>
-#include <QtGui/qtextedit.h>
-#include <QtGui/qlineedit.h>
-#include <QtGui/qpushbutton.h>
-#include <QtGui/qevent.h>
-#include <QtGui/qgroupbox.h>
-#include <QtGui/qtextobject.h>
-#include <QtGui/qlayout.h>
+#include <QtCore/QEvent>
+#include <QtGui/QTextCharFormat>
+#include <QtGui/QKeySequence>
+#include <QtGui/QLabel>
+#include <QtGui/QTextEdit>
+#include <QtGui/QLineEdit>
+#include <QtGui/QPushButton>
+#include <QtGui/QGroupBox>
+#include <QtGui/QTextObject>
+#include <QtGui/QLayout>
+#include <QtGui/QShortcut>
+
+#include <QtCore/QDebug>
 
 ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug *client, QWidget *parent)
     : QWidget(parent),
       m_mode(mode),
       m_client(client),
       m_query(0),
-      m_textEdit(new QTextEdit),
+      m_textEdit(new QPlainTextEdit),
       m_lineEdit(0)
 {
-    m_prompt = QLatin1String(">> ");
+    m_prompt = QLatin1String(">");
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -56,13 +69,17 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
 
     updateTitle();
 
+    m_highlighter = new QmlJSEditor::Highlighter(m_textEdit->document());
+    m_highlighter->setParent(m_textEdit->document());
+
     if (m_mode == SeparateEntryMode) {
-        m_lineEdit = new QLineEdit;
+        m_lineEdit = new Utils::FancyLineEdit;
+        m_lineEdit->setHintText(tr("<Expression>"));
         connect(m_lineEdit, SIGNAL(returnPressed()), SLOT(executeExpression()));
         QHBoxLayout *hbox = new QHBoxLayout;
-        hbox->setMargin(5);
-        hbox->setSpacing(5);
-        hbox->addWidget(new QLabel(tr("Expression:")));
+        hbox->setMargin(1);
+        hbox->setSpacing(1);
+        //hbox->addWidget(new QLabel(tr("Expression:")));
         hbox->addWidget(m_lineEdit);
         layout->addLayout(hbox);
 
@@ -72,6 +89,53 @@ ExpressionQueryWidget::ExpressionQueryWidget(Mode mode, QDeclarativeEngineDebug 
         m_textEdit->installEventFilter(this);
         appendPrompt();
     }
+    setFontSettings();
+}
+
+void ExpressionQueryWidget::setFontSettings()
+{
+    const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::instance()->fontSettings();
+    static QVector<QString> categories;
+    if (categories.isEmpty()) {
+        categories << QLatin1String(TextEditor::Constants::C_NUMBER)
+                << QLatin1String(TextEditor::Constants::C_STRING)
+                << QLatin1String(TextEditor::Constants::C_TYPE)
+                << QLatin1String(TextEditor::Constants::C_KEYWORD)
+                << QLatin1String(TextEditor::Constants::C_LABEL)
+                << QLatin1String(TextEditor::Constants::C_COMMENT)
+                << QLatin1String(TextEditor::Constants::C_VISUAL_WHITESPACE);
+    }
+
+    const QVector<QTextCharFormat> formats = fs.toTextCharFormats(categories);
+    m_highlighter->setFormats(formats.constBegin(), formats.constEnd());
+    m_highlighter->rehighlight();
+    m_textEdit->setFont(fs.font());
+    if (m_mode == SeparateEntryMode)
+        m_lineEdit->setFont(fs.font());
+}
+
+void ExpressionQueryWidget::createCommands(Core::IContext *context)
+{
+    Core::ICore *core = Core::ICore::instance();
+    Core::ActionManager *am = core->actionManager();
+
+    // Add shortcut for invoking automatic completion
+    QShortcut *completionShortcut = new QShortcut(m_lineEdit);
+    completionShortcut->setWhatsThis(tr("Triggers a completion in this scope"));
+    // Make sure the shortcut still works when the completion widget is active
+    completionShortcut->setContext(Qt::ApplicationShortcut);
+    Core::Command *command = am->registerShortcut(completionShortcut, Qml::Constants::COMPLETE_THIS, context->context());
+#ifndef Q_WS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Space")));
+#else
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+Space")));
+#endif
+    connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
+}
+
+void ExpressionQueryWidget::invokeCompletion()
+{
+    qDebug() << "TODO autocomplete";
 }
 
 void ExpressionQueryWidget::setEngineDebug(QDeclarativeEngineDebug *client)
@@ -108,8 +172,7 @@ void ExpressionQueryWidget::appendPrompt()
     if (m_mode == SeparateEntryMode) {
         m_textEdit->insertPlainText("\n");
     } else {
-        m_textEdit->setTextColor(Qt::gray);
-        m_textEdit->append(m_prompt);
+        m_textEdit->appendPlainText(m_prompt);
     }
 }
 
@@ -137,8 +200,7 @@ void ExpressionQueryWidget::showCurrentContext()
     }
 
     m_textEdit->moveCursor(QTextCursor::End);
-    m_textEdit->setTextColor(Qt::darkGreen);
-    m_textEdit->append(m_currObject.className()
+    m_textEdit->appendPlainText(m_currObject.className()
             + QLatin1String(": ")
             + (m_currObject.name().isEmpty() ? QLatin1String("<unnamed object>") : m_currObject.name()));
     appendPrompt();
@@ -186,15 +248,10 @@ void ExpressionQueryWidget::showResult()
         }
 
         if (m_mode == SeparateEntryMode) {
-            m_textEdit->setTextColor(Qt::black);
-            m_textEdit->setFontWeight(QFont::Bold);
             m_textEdit->insertPlainText(m_expr + " : ");
-            m_textEdit->setFontWeight(QFont::Normal);
             m_textEdit->insertPlainText(result);
         } else {
-            m_textEdit->setTextColor(Qt::darkGreen);
             m_textEdit->insertPlainText(" => ");
-            m_textEdit->setTextColor(Qt::black);
             m_textEdit->insertPlainText(result);
         }
         appendPrompt();
@@ -226,7 +283,6 @@ bool ExpressionQueryWidget::eventFilter(QObject *obj, QEvent *event)
                     return true;
                 } else {
                     m_textEdit->moveCursor(QTextCursor::End);
-                    m_textEdit->setTextColor(Qt::black);
                     m_expr += keyEvent->text();
                 }
                 break;

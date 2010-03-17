@@ -30,6 +30,7 @@
 #include "qmlinspector.h"
 #include "debugger/debuggermainwindow.h"
 #include "inspectoroutputwidget.h"
+#include "inspectorcontext.h"
 
 #include <debugger/debuggeruiswitcher.h>
 
@@ -42,6 +43,7 @@
 #include <utils/styledbar.h>
 #include <utils/fancymainwindow.h>
 
+#include <coreplugin/icontext.h>
 #include <coreplugin/basemode.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/minisplitter.h>
@@ -270,6 +272,11 @@ void QmlInspector::connectionStateChanged()
     }
 }
 
+Core::IContext *QmlInspector::context() const
+{
+    return m_context;
+}
+
 void QmlInspector::connectionError()
 {
     emit statusMessage(tr("[Inspector] error: (%1) %2", "%1=error code, %2=error message")
@@ -282,7 +289,10 @@ void QmlInspector::initWidgets()
     m_propertiesWidget = new ObjectPropertiesView;
     m_watchTableView = new WatchTableView(m_watchTableModel);
     m_frameRateWidget = new CanvasFrameRate;
-    m_expressionWidget = new ExpressionQueryWidget(ExpressionQueryWidget::ShellMode);
+    m_expressionWidget = new ExpressionQueryWidget(ExpressionQueryWidget::SeparateEntryMode);
+    m_context = new Internal::InspectorContext(m_expressionWidget);
+    m_expressionWidget->createCommands(m_context);
+
 
     m_engineSpinBox = new EngineSpinBox;
     m_engineSpinBox->setEnabled(false);
@@ -338,13 +348,13 @@ void QmlInspector::initWidgets()
 
     Core::MiniSplitter *leftSplitter = new Core::MiniSplitter(Qt::Vertical);
     leftSplitter->addWidget(m_propertiesWidget);
-    leftSplitter->addWidget(m_expressionWidget);
+    leftSplitter->addWidget(m_watchTableView);
     leftSplitter->setStretchFactor(0, 2);
     leftSplitter->setStretchFactor(1, 1);
 
     Core::MiniSplitter *propSplitter = new Core::MiniSplitter(Qt::Horizontal);
     propSplitter->addWidget(leftSplitter);
-    propSplitter->addWidget(m_watchTableView);
+    propSplitter->addWidget(m_expressionWidget);
     propSplitter->setStretchFactor(0, 2);
     propSplitter->setStretchFactor(1, 1);
     propSplitter->setWindowTitle(tr("Properties and Watchers"));

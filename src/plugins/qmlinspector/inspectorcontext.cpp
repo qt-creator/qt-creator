@@ -26,31 +26,42 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLINSPECTORCONSTANTS_H
-#define QMLINSPECTORCONSTANTS_H
 
-#include <QString>
+#include "inspectorcontext.h"
+#include "qmlinspectorconstants.h"
+
+#include <coreplugin/uniqueidmanager.h>
+#include <QWidget>
 
 namespace Qml {
-    namespace Constants {
-        const char * const RUN = "QmlInspector.Run";
-        const char * const STOP = "QmlInspector.Stop";
+namespace Internal {
 
-        const char * const C_INSPECTOR = "QmlInspector";
-        const char * const COMPLETE_THIS = "QmlInspector.CompleteThis";
+InspectorContext::InspectorContext(QWidget *widget) : IContext(widget),
+    m_widget(widget)
+{
+    m_context << Core::UniqueIDManager::instance()->uniqueIdentifier(Constants::C_INSPECTOR);
+}
 
-        const char * const LANG_QML = "QML";
-    };
+InspectorContext::~InspectorContext()
+{
 
-    class StartParameters
-    {
-    public:
-        StartParameters() : port(0) {}
-        ~StartParameters() {}
+}
 
-        QString address;
-        quint16 port;
-    };
-};
+QList<int> InspectorContext::context() const
+{
+    return m_context;
+}
 
-#endif
+QWidget *InspectorContext::widget()
+{
+    return m_widget;
+}
+
+QString InspectorContext::contextHelpId() const
+{
+    return QString();
+}
+
+}
+}
+

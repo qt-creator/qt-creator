@@ -57,8 +57,16 @@ class ExpressionQueryWidget;
 
 QT_END_NAMESPACE
 
+namespace Core {
+    class IContext;
+}
+
 namespace Qml {
     class EngineSpinBox;
+
+    namespace Internal {
+        class InspectorContext;
+    }
 
 class QMLINSPECTOR_EXPORT QmlInspector : public QObject
 {
@@ -68,6 +76,7 @@ public:
     QmlInspector(QObject *parent = 0);
 
     bool connectToViewer(); // using host, port from widgets
+    Core::IContext *context() const;
 
 signals:
     void statusMessage(const QString &text);
@@ -109,6 +118,8 @@ private:
     QDockWidget *m_propertyWatcherDock;
     QDockWidget *m_inspectorOutputDock;
     QList<QDockWidget*> m_dockWidgets;
+
+    Internal::InspectorContext *m_context;
 
 };
 

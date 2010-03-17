@@ -30,6 +30,8 @@
 #ifndef QSCRIPTSYNTAXHIGHLIGHTER_H
 #define QSCRIPTSYNTAXHIGHLIGHTER_H
 
+#include "qmljseditor_global.h"
+
 #include <qmljs/qmljsscanner.h>
 
 #include <QtCore/QVector>
@@ -39,9 +41,8 @@
 #include <texteditor/basetexteditor.h>
 
 namespace QmlJSEditor {
-namespace Internal {
 
-class Highlighter : public QSyntaxHighlighter
+class QMLJSEDITOR_EXPORT Highlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
@@ -100,7 +101,6 @@ private:
     QTextCharFormat m_formats[NumFormats];
 };
 
-} // end of namespace Internal
 } // end of namespace QmlJSEditor
 
 #endif // QSCRIPTSYNTAXHIGHLIGHTER_H

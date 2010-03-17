@@ -26,31 +26,42 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
-#ifndef QMLINSPECTORCONSTANTS_H
-#define QMLINSPECTORCONSTANTS_H
 
-#include <QString>
+#ifndef INSPECTORCONTEXT_H
+#define INSPECTORCONTEXT_H
+
+#include <coreplugin/icontext.h>
+#include <QList>
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
 
 namespace Qml {
-    namespace Constants {
-        const char * const RUN = "QmlInspector.Run";
-        const char * const STOP = "QmlInspector.Stop";
+namespace Internal {
 
-        const char * const C_INSPECTOR = "QmlInspector";
-        const char * const COMPLETE_THIS = "QmlInspector.CompleteThis";
+class DesignModeWidget;
 
-        const char * const LANG_QML = "QML";
-    };
+/**
+  * Bauhaus Design mode context object
+  */
+class InspectorContext : public Core::IContext
+{
+public:
+    InspectorContext(QWidget *widget);
+    ~InspectorContext();
 
-    class StartParameters
-    {
-    public:
-        StartParameters() : port(0) {}
-        ~StartParameters() {}
+    QList<int> context() const;
+    QWidget *widget();
 
-        QString address;
-        quint16 port;
-    };
+    QString contextHelpId() const;
+
+private:
+    QList<int> m_context;
+    QWidget *m_widget;
 };
 
-#endif
+}
+}
+
+#endif // DESIGNMODECONTEXT_H

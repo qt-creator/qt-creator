@@ -36,7 +36,6 @@
 #include <utils/qtcassert.h>
 
 using namespace QmlJSEditor;
-using namespace QmlJSEditor::Internal;
 using namespace QmlJS;
 
 Highlighter::Highlighter(QTextDocument *parent)

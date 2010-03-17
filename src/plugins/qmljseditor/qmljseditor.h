@@ -50,10 +50,10 @@ class ICore;
 namespace QmlJSEditor {
 
 class ModelManagerInterface;
+class Highlighter;
 
 namespace Internal {
 
-class Highlighter;
 class QmlJSTextEditor;
 
 class QmlJSEditorEditable : public TextEditor::BaseTextEditorEditable

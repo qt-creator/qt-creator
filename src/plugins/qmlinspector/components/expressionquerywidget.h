@@ -37,9 +37,20 @@
 QT_BEGIN_NAMESPACE
 
 class QGroupBox;
-class QTextEdit;
+class QPlainTextEdit;
 class QLineEdit;
 class QPushButton;
+
+namespace Utils {
+    class FancyLineEdit;
+}
+namespace Core {
+    class IContext;
+}
+
+namespace QmlJSEditor {
+    class Highlighter;
+}
 
 class ExpressionQueryWidget : public QWidget
 {
@@ -52,6 +63,7 @@ public:
 
     ExpressionQueryWidget(Mode mode = SeparateEntryMode, QDeclarativeEngineDebug *client = 0, QWidget *parent = 0);
 
+    void createCommands(Core::IContext *context);
     void setEngineDebug(QDeclarativeEngineDebug *client);
     void clear();
 
@@ -64,8 +76,10 @@ public slots:
 private slots:
     void executeExpression();
     void showResult();
+    void invokeCompletion();
 
 private:
+    void setFontSettings();
     void appendPrompt();
     void checkCurrentContext();
     void showCurrentContext();
@@ -75,14 +89,15 @@ private:
 
     QDeclarativeEngineDebug *m_client;
     QDeclarativeDebugExpressionQuery *m_query;
-    QTextEdit *m_textEdit;
-    QLineEdit *m_lineEdit;
+    QPlainTextEdit *m_textEdit;
+    Utils::FancyLineEdit *m_lineEdit;
     QPushButton *m_button;
     QString m_prompt;
     QString m_expr;
     QString m_lastExpr;
 
     QString m_title;
+    QmlJSEditor::Highlighter *m_highlighter;
 
     QDeclarativeDebugObjectReference m_currObject;
     QDeclarativeDebugObjectReference m_objectAtLastFocus;
