@@ -137,6 +137,8 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
 
     addAutoReleasedObject(new SettingsPage);
 
+    m_settings.fromSettings(core->settings());
+
     error_message->clear();
 
     return true;
