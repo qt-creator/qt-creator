@@ -1356,50 +1356,53 @@ void WatchHandler::showEditValue(const WatchData &data)
         delete w;
     } else if (data.editformat == 1 || data.editformat == 3) {
         // QImage
-        if (!w) {
-            w = new QLabel;
-            m_editHandlers[data.iname] = w;
+        QLabel *l = qobject_cast<QLabel *>(w);
+        if (!l) {
+            delete w;
+            l = new QLabel;
+            QString addr = tr("unknown address");
+            if (!data.addr.isEmpty())
+                addr =  QString::fromLatin1(data.addr);
+            l->setWindowTitle(tr("%1 object at %2").arg(data.type, addr));
+            m_editHandlers[data.iname] = l;
         }
-        if (QLabel *l = qobject_cast<QLabel *>(w)) {
-            int width, height, format;
-            QByteArray ba;
-            uchar *bits;
-            if (data.editformat == 1) {
-                ba = QByteArray::fromHex(data.editvalue);
-                const int *header = (int *)(ba.data());
-                swapEndian(ba.data(), ba.size());
-                bits = 12 + (uchar *)(ba.data());
-                width = header[0];
-                height = header[1];
-                format = header[2];
-            } else { // data.editformat == 3
-                QTextStream ts(data.editvalue);
-                QString fileName;
-                ts >> width >> height >> format >> fileName;
-                QFile f(fileName);
-                f.open(QIODevice::ReadOnly);
-                ba = f.readAll();
-                bits = (uchar*)ba.data();
-            }
-            QImage im(bits, width, height, QImage::Format(format));
-            l->setPixmap(QPixmap::fromImage(im));
-            l->resize(width, height);
-            l->show();
+        int width, height, format;
+        QByteArray ba;
+        uchar *bits;
+        if (data.editformat == 1) {
+            ba = QByteArray::fromHex(data.editvalue);
+            const int *header = (int *)(ba.data());
+            swapEndian(ba.data(), ba.size());
+            bits = 12 + (uchar *)(ba.data());
+            width = header[0];
+            height = header[1];
+            format = header[2];
+        } else { // data.editformat == 3
+            QTextStream ts(data.editvalue);
+            QString fileName;
+            ts >> width >> height >> format >> fileName;
+            QFile f(fileName);
+            f.open(QIODevice::ReadOnly);
+            ba = f.readAll();
+            bits = (uchar*)ba.data();
         }
+        QImage im(bits, width, height, QImage::Format(format));
+        l->setPixmap(QPixmap::fromImage(im));
+        l->resize(width, height);
+        l->show();
     } else if (data.editformat == 2) {
         // QString
-        if (!w) {
-            w = new QTextEdit;
-            m_editHandlers[data.iname] = w;
+        QTextEdit *t = qobject_cast<QTextEdit *>(w);
+        if (!t) {
+            delete w;
+            t = new QTextEdit;
+            m_editHandlers[data.iname] = t;
         }
         QByteArray ba = QByteArray::fromHex(data.editvalue);
         QString str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
-
-        if (QTextEdit *t = qobject_cast<QTextEdit *>(w)) {
-            t->setText(str);
-            t->resize(400, 200);
-            t->show();
-        }
+        t->setText(str);
+        t->resize(400, 200);
+        t->show();
     } else if (data.editformat == 4) {
         // Generic Process.
         int pos = data.editvalue.indexOf('|');
