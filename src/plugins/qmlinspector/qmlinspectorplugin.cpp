@@ -105,7 +105,7 @@ bool QmlInspectorPlugin::initialize(const QStringList &arguments, QString *error
 
     m_inspector = new QmlInspector;
     addObject(m_inspector);
-    core->addContextObject(m_inspector->context());
+    Core::ICore::instance()->addContextObject(m_inspector->context());
 
     connect(m_connectionTimer, SIGNAL(timeout()), SLOT(pollInspector()));
 

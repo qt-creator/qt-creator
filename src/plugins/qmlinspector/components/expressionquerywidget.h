@@ -41,6 +41,8 @@ class QPlainTextEdit;
 class QLineEdit;
 class QPushButton;
 
+QT_END_NAMESPACE
+
 namespace Core {
     class IContext;
 }
@@ -99,8 +101,6 @@ private:
     QDeclarativeDebugObjectReference m_currObject;
     QDeclarativeDebugObjectReference m_objectAtLastFocus;
 };
-
-QT_END_NAMESPACE
 
 #endif
 

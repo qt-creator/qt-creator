@@ -53,9 +53,9 @@ class WatchTableModel;
 class WatchTableView;
 class ObjectPropertiesView;
 class CanvasFrameRate;
-class ExpressionQueryWidget;
-
 QT_END_NAMESPACE
+
+class ExpressionQueryWidget;
 
 namespace Core {
     class IContext;
