@@ -68,12 +68,28 @@ int BaseTextEditModifier::indentDepth() const
     }
 }
 
-QmlJS::Snapshot BaseTextEditModifier::getSnapshot()
+namespace {
+static inline QmlJSEditor::ModelManagerInterface *getModelManager()
 {
     ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    QmlJSEditor::ModelManagerInterface *modelManager = pluginManager->getObject<QmlJSEditor::ModelManagerInterface>();
+    return pluginManager->getObject<QmlJSEditor::ModelManagerInterface>();
+}
+}
+
+QmlJS::Snapshot BaseTextEditModifier::getSnapshot()
+{
+    QmlJSEditor::ModelManagerInterface *modelManager = getModelManager();
     if (modelManager)
         return modelManager->snapshot();
     else
         return QmlJS::Snapshot();
+}
+
+QStringList BaseTextEditModifier::importPaths()
+{
+    QmlJSEditor::ModelManagerInterface *modelManager = getModelManager();
+    if (modelManager)
+        return modelManager->importPaths();
+    else
+        return QStringList();
 }

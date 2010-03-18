@@ -53,13 +53,14 @@ namespace QmlDesigner {
 namespace Internal {
 
 struct ReadingContext {
-    ReadingContext(const Snapshot &snapshot, const Document::Ptr &doc)
+    ReadingContext(const Snapshot &snapshot, const Document::Ptr &doc,
+                   const QStringList importPaths)
         : snapshot(snapshot)
         , doc(doc)
         , engine(new Interpreter::Engine)
         , ctxt(new Interpreter::Context(engine))
     {
-        ctxt->build(QList<Node *>(), doc, snapshot);
+        ctxt->build(QList<Node *>(), doc, snapshot, importPaths);
     }
 
     ~ReadingContext()
@@ -72,6 +73,12 @@ struct ReadingContext {
             typeName = qmlValue->packageName() + QLatin1String("/") + qmlValue->className();
             majorVersion = qmlValue->majorVersion();
             minorVersion = qmlValue->minorVersion();
+        } else if (value) {
+            for (UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
+                if (!iter->next && iter->name)
+                    typeName = iter->name->asString();
+            majorVersion = Interpreter::QmlObjectValue::NoVersion;
+            minorVersion = Interpreter::QmlObjectValue::NoVersion;
         }
     }
 
@@ -243,7 +250,6 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 
 bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differenceHandler)
 {
-    qDebug() << "**** Starting to load the file...";
     setActive(true);
 
     try {
@@ -254,12 +260,13 @@ bool TextToModelMerger::load(const QByteArray &data, DifferenceHandler &differen
 
         if (success) {
             Snapshot snapshot = BaseTextEditModifier::getSnapshot();
+            const QStringList importPaths = BaseTextEditModifier::importPaths();
             const QString fileName = url.toLocalFile();
             Document::Ptr doc = Document::create(fileName);
             doc->setSource(QString::fromUtf8(data.constData()));
             doc->parseQml();
             snapshot.insert(doc);
-            ReadingContext ctxt(snapshot, doc);
+            ReadingContext ctxt(snapshot, doc, importPaths);
 
             setupImports(doc, differenceHandler);
 
@@ -372,10 +379,14 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         } else if (UiScriptBinding *script = cast<UiScriptBinding *>(member)) {
             const QString astPropertyName = flatten(script->qualifiedId);
             QString astValue;
-            if (script->statement)
+            if (script->statement) {
                 astValue = textAt(context->doc,
                                   script->statement->firstSourceLocation(),
                                   script->statement->lastSourceLocation());
+                astValue = astValue.trimmed();
+                if (astValue.endsWith(QLatin1Char(';')))
+                    astValue = astValue.left(astValue.length() - 1);
+            }
 
             if (astPropertyName == QLatin1String("id")) {
                 syncNodeId(modelNode, astValue, differenceHandler);
@@ -594,7 +605,6 @@ ModelNode TextToModelMerger::createModelNode(const QString &typeName,
                                              ReadingContext *context,
                                              DifferenceHandler &differenceHandler)
 {
-    qDebug() << "Creating model node for" << typeName << majorVersion << minorVersion;
     ModelNode newNode = m_rewriterView->createModelNode(typeName,
                                                         majorVersion,
                                                         minorVersion);
@@ -792,7 +802,6 @@ void ModelAmender::variantValuesDiffer(VariantProperty &modelProperty, const QVa
 
 void ModelAmender::shouldBeVariantProperty(AbstractProperty &modelProperty, const QVariant &qmlVariantValue, const QString &dynamicTypeName)
 {
-//    qDebug() << "property" << modelProperty.name() << "in node" << modelProperty.parentModelNode().id();
     ModelNode theNode = modelProperty.parentModelNode();
     VariantProperty newModelProperty = theNode.variantProperty(modelProperty.name());
 

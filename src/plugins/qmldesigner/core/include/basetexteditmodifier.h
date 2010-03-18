@@ -36,6 +36,8 @@
 
 #include <texteditor/basetexteditor.h>
 
+#include <QtCore/QStringList>
+
 namespace QmlJS {
 class Snapshot;
 } // namespace QmlJS
@@ -52,6 +54,7 @@ public:
     virtual int indentDepth() const;
 
     static QmlJS::Snapshot getSnapshot();
+    static QStringList importPaths();
 };
 
 } // namespace QmlDesigner
