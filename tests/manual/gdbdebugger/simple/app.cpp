@@ -265,12 +265,32 @@ void testPeekAndPoke3()
 
 }
 
+namespace { // anon
+
+struct Something
+{
+    Something() { a = b = 1; }
+
+    void foo()
+    {
+        a = 42;
+        b = 43;
+    }
+
+    int a, b;
+};
+
+} // anon
+
 void testAnonymous()
 {
     TestAnonymous a;
     a.i = 1;
     a.i = 2;
     a.i = 3;
+
+    Something s;
+    s.foo();
 }
 
 void testFunctionPointer()

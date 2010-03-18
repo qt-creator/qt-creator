@@ -1197,7 +1197,9 @@ class Dumper:
                 # UCS-4:
                 self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
 
-            if (not isHandled) and str(type.strip_typedefs()).find("(") != -1:
+            strippedType = str(type.strip_typedefs()) \
+                .replace("(anonymous namespace)", "")
+            if (not isHandled) and strippedType.find("(") != -1:
                 # A function pointer.
                 self.putValue(str(item.value))
                 self.putAddress(value.address)
@@ -1274,7 +1276,7 @@ class Dumper:
             #warn("INAMES: %s " % self.expandedINames)
             #warn("EXPANDED: %s " % (item.iname in self.expandedINames))
 
-            # insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
+            # Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953
             #fields = value.type.fields()
             fields = value.type.strip_typedefs().fields()
 
