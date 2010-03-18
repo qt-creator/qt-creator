@@ -1962,7 +1962,7 @@ void EditorManager::removeAllSplits()
     IEditor *editor = m_d->m_currentEditor;
     m_d->m_currentEditor = 0; // trigger update below
     if (editor && m_d->m_editorModel->isDuplicate(editor))
-        editor = m_d->m_editorModel->originalForDuplicate(editor);
+        m_d->m_editorModel->makeOriginal(editor);
     m_d->m_splitter->unsplitAll();
     if (!editor)
         editor = pickUnusedEditor();
