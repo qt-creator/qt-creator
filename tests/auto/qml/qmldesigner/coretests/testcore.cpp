@@ -2539,7 +2539,7 @@ void TestCore::testRewriterNodeSliding()
     QCOMPARE(rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(1).id(), QLatin1String("rectangle2"));
 }
 
-void TestCore::testRewriterExecptionHandling()
+void TestCore::testRewriterExceptionHandling()
 {
     const QLatin1String qmlString("import Qt 4.6\n"
                                   "Text {\n"

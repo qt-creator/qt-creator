@@ -27,27 +27,27 @@
 **
 **************************************************************************/
 
-static void testMessageOutput(QtMsgType type, const char *msg)
- {
-     switch (type) {
-     case QtDebugMsg:
-#ifdef QDEBUG_IN_TESTS
-         std::fprintf(stderr, "Debug: %s\n", msg);
-#endif // QDEBUG_IN_TESTS
-         break;
-     case QtWarningMsg:
-#ifdef WARNINGS_IN_TESTS
-         std::fprintf(stderr, "Warning: %s\n", msg);
-#endif // WARNINGS_IN_TESTS
-         break;
-     case QtCriticalMsg:
-         std::fprintf(stderr, "Critical: %s\n", msg);
-         break;
-     case QtFatalMsg:
-         std::fprintf(stderr, "Fatal: %s\n", msg);
-         break;
-     }
- }
+//static void testMessageOutput(QtMsgType type, const char *msg)
+// {
+//     switch (type) {
+//     case QtDebugMsg:
+//#ifdef QDEBUG_IN_TESTS
+//         std::fprintf(stderr, "Debug: %s\n", msg);
+//#endif // QDEBUG_IN_TESTS
+//         break;
+//     case QtWarningMsg:
+//#ifdef WARNINGS_IN_TESTS
+//         std::fprintf(stderr, "Warning: %s\n", msg);
+//#endif // WARNINGS_IN_TESTS
+//         break;
+//     case QtCriticalMsg:
+//         std::fprintf(stderr, "Critical: %s\n", msg);
+//         break;
+//     case QtFatalMsg:
+//         std::fprintf(stderr, "Fatal: %s\n", msg);
+//         break;
+//     }
+// }
 
 static ModelNode addChildNode(const ModelNode &parentNode, const QString &typeName, int major, int minor, const QString &parentProperty)
 {
