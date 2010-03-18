@@ -938,7 +938,7 @@ void FakeVimPluginPrivate::handleExCommand(const QString &cmd)
             const QString &id = it.key();
             const QRegExp &re = it.value();
 
-            if (re.indexIn(cmd) != -1) {
+            if (!re.pattern().isEmpty() && re.indexIn(cmd) != -1) {
                 triggerAction(id);
                 return;
             }
