@@ -1428,7 +1428,8 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         setAnchor();
         moveToMatchingParanthesis();
         finishMovement();
-    } else if (key == 'a') {
+    } else if ((!isVisualMode() && key == 'a') || (isVisualMode() && key == 'A')) {
+        leaveVisualMode();
         enterInsertMode();
         m_lastInsertion.clear();
         if (!atEndOfLine())
@@ -1455,12 +1456,17 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveLeft();
         setAnchor();
         m_submode = ChangeSubMode;
-    } else if (key == 'c' && (isVisualCharMode() || isVisualLineMode())) {
-        m_rangemode = isVisualCharMode() ? RangeCharMode : RangeLineMode;
-        if (isVisualLineMode()) {
+    } else if ((key == 'c' || key == 'C' || key == 's' || key == 'R')
+          && (isVisualCharMode() || isVisualLineMode())) {
+        if((key == 'c'|| key == 's') && isVisualCharMode()) {
+            leaveVisualMode();
+            m_rangemode = RangeCharMode;
+        } else {
+            leaveVisualMode();
+            m_rangemode = RangeLineMode;
+            // leaveVisualMode() has set this to MoveInclusive for visual character mode
             m_movetype =  MoveLineWise;
         }
-        leaveVisualMode();
         m_submode = ChangeSubMode;
         finishMovement();
     } else if (key == 'C') {
@@ -1590,7 +1596,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         moveDown(qMax(count() - 1, 0));
         handleStartOfLine();
         finishMovement();
-    } else if (key == 'i' || key == Key_Insert) {
+    } else if (!isVisualMode() && (key == 'i' || key == Key_Insert)) {
         setDotCommand(QString(QLatin1Char('i'))); // setDotCommand("%1i", count());
         enterInsertMode();
         updateMiniBuffer();
@@ -1727,7 +1733,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == 'r') {
         m_submode = ReplaceSubMode;
         setDotCommand(QString(QLatin1Char('r')));
-    } else if (key == 'R') {
+    } else if (!isVisualMode() && key == 'R') {
         // FIXME: right now we repeat the insertion count() times,
         // but not the deletion
         m_lastInsertion.clear();
@@ -1738,6 +1744,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
     } else if (key == control('r')) {
         redo();
     } else if (key == 's') {
+        leaveVisualMode();
         if (atEndOfLine())
             moveLeft();
         setAnchor();
@@ -1749,9 +1756,11 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_mvcount.clear();
         enterInsertMode();
     } else if (key == 'S') {
-        const int line = cursorLineInDocument() + 1;
-        setAnchor(firstPositionInLine(line));
-        setPosition(lastPositionInLine(line + count() - 1));
+        if(!isVisualMode()) {
+            const int line = cursorLineInDocument() + 1;
+            setAnchor(firstPositionInLine(line));
+            setPosition(lastPositionInLine(line + count() - 1));
+        }
         setDotCommand("%1S", count());
         enterInsertMode();
         m_beginEditBlock = false;
