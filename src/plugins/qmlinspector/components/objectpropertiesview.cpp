@@ -28,14 +28,12 @@
 **************************************************************************/
 #include "objectpropertiesview.h"
 
-#include <QtCore/qdebug.h>
+#include <QtCore/QDebug>
 
-#include <QtGui/qtreewidget.h>
-#include <QtGui/qlayout.h>
-#include <QtGui/qheaderview.h>
+#include <QtGui/QTreeWidget>
+#include <QtGui/QLayout>
+#include <QtGui/QHeaderView>
 
-
-QT_BEGIN_NAMESPACE
 
 class PropertiesViewItem : public QObject, public QTreeWidgetItem
 {
@@ -78,6 +76,7 @@ ObjectPropertiesView::ObjectPropertiesView(QDeclarativeEngineDebug *client, QWid
     m_tree->setFrameStyle(QFrame::NoFrame);
     m_tree->setAlternatingRowColors(true);
     m_tree->setExpandsOnDoubleClick(false);
+    m_tree->setRootIsDecorated(false);
     m_tree->setHeaderLabels(QStringList()
             << tr("Name") << tr("Value") << tr("Type"));
     QObject::connect(m_tree, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
@@ -254,7 +253,5 @@ void ObjectPropertiesView::itemActivated(QTreeWidgetItem *i)
     if (!item->property.name().isEmpty())
         emit activated(m_object, item->property);
 }
-
-QT_END_NAMESPACE
 
 #include "objectpropertiesview.moc"

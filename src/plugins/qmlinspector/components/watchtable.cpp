@@ -153,7 +153,7 @@ QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
             return QVariant(m_entities.at(idx.row()).title);
     } else if (idx.column() == C_VALUE) {
 
-        if (role == Qt::DisplayRole) {
+        if (role == Qt::DisplayRole || role == Qt::EditRole) {
             return QVariant(m_entities.at(idx.row()).value);
 
         } else if(role == Qt::BackgroundRole) {
@@ -162,6 +162,22 @@ QVariant WatchTableModel::data(const QModelIndex &idx, int role) const
     }
 
     return QVariant();
+}
+
+bool WatchTableModel::setData ( const QModelIndex & index, const QVariant & value, int role)
+{
+    if (role == Qt::EditRole) {
+        return true;
+    }
+    return true;
+}
+
+Qt::ItemFlags WatchTableModel::flags ( const QModelIndex & index ) const
+{
+    if (index.column() == C_VALUE)
+        return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
+
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 void WatchTableModel::watchStateChanged()
@@ -200,9 +216,8 @@ void WatchTableModel::togglePropertyWatch(const QDeclarativeDebugObjectReference
         delete watch;
         watch = 0;
     } else {
-        QString desc = (object.name().isEmpty() ? QLatin1String("<unnamed object>") : object.name())
-                       + QLatin1String(".") + property.name()
-                       + object.className();
+        QString desc = (object.name().isEmpty() ? QLatin1String("<") + object.className() + QLatin1String(">") : object.name())
+                       + QLatin1String(".") + property.name();
 
         addWatch(watch, desc);
         emit watchCreated(watch);
@@ -278,6 +293,13 @@ WatchTableView::WatchTableView(WatchTableModel *model, QWidget *parent)
 {
     setFrameStyle(QFrame::NoFrame);
     setAlternatingRowColors(true);
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionBehavior(QAbstractItemView::SelectItems);
+    setShowGrid(false);
+    setVerticalHeader(0);
+    setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+    setFrameStyle(QFrame::NoFrame);
+
 
     connect(model, SIGNAL(watchCreated(QDeclarativeDebugWatch*)), SLOT(watchCreated(QDeclarativeDebugWatch*)));
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(indexActivated(QModelIndex)));
@@ -292,8 +314,9 @@ void WatchTableView::indexActivated(const QModelIndex &index)
 
 void WatchTableView::watchCreated(QDeclarativeDebugWatch *watch)
 {
-    int column = m_model->rowForWatch(watch);
-    resizeColumnToContents(column);
+    int row = m_model->rowForWatch(watch);
+    resizeRowToContents(row);
+    resizeColumnToContents(C_NAME);
 }
 
 void WatchTableView::mousePressEvent(QMouseEvent *me)

@@ -38,6 +38,9 @@ QT_BEGIN_NAMESPACE
 class QTreeWidget;
 class QTreeWidgetItem;
 class QDeclarativeDebugConnection;
+
+QT_END_NAMESPACE
+
 class PropertiesViewItem;
 
 class ObjectPropertiesView : public QWidget
@@ -76,6 +79,6 @@ private:
 };
 
 
-QT_END_NAMESPACE
+
 
 #endif

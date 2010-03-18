@@ -409,7 +409,9 @@ void QmlInspector::setSimpleDockWidgetArrangement()
     }
 
     mainWindow->tabifyDockWidget(m_frameRateDock, m_propertyWatcherDock);
-    mainWindow->tabifyDockWidget(m_frameRateDock, m_inspectorOutputDock);
+    mainWindow->tabifyDockWidget(m_propertyWatcherDock, m_inspectorOutputDock);
+
+    m_inspectorOutputDock->setVisible(false);
 
     mainWindow->setTrackingEnabled(true);
 }

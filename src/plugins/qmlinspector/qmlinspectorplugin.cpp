@@ -60,6 +60,7 @@
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QToolButton>
+#include <QtGui/QMessageBox>
 
 #include <QtCore/QDebug>
 
@@ -162,9 +163,16 @@ void QmlInspectorPlugin::activateDebuggerForProject(ProjectExplorer::Project *pr
 void QmlInspectorPlugin::pollInspector()
 {
     ++m_connectionAttempts;
-    if (m_inspector->connectToViewer() || m_connectionAttempts == MaxConnectionAttempts) {
+    if (m_inspector->connectToViewer()) {
         m_connectionTimer->stop();
         m_connectionAttempts = 0;
+    } else if (m_connectionAttempts == MaxConnectionAttempts) {
+        m_connectionTimer->stop();
+        m_connectionAttempts = 0;
+
+        QMessageBox::critical(0,
+                              tr("Failed to connect to debugger"),
+                              tr("Could not connect to debugger server. Please check your settings from Projects pane.") );
     }
 }
 
