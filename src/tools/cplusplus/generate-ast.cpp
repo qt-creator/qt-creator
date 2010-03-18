@@ -1060,8 +1060,13 @@ int main(int argc, char *argv[])
     }
 
     QDir cplusplusDir(files.first());
-    Snapshot snapshot;
+    if (!QFileInfo(cplusplusDir, QLatin1String("AST.h")).exists()) {
+        std::cerr << "Cannot find AST.h in " << qPrintable(cplusplusDir.absolutePath())
+                << std::endl;
+        return EXIT_FAILURE;
+    }
 
+    Snapshot snapshot;
     QStringList astDerivedClasses = generateAST_H(snapshot, cplusplusDir);
     astDerivedClasses.sort();
     generateASTFwd_h(snapshot, cplusplusDir, astDerivedClasses);
