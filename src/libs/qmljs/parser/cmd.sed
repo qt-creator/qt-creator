@@ -1,4 +1,3 @@
-s/qdeclarativejs/qmljs/g
-s/QDECLARATIVEJS/QMLJS/g
-s/QDeclarativeJS/QmlJS/g
-s/QDeclarativeParser/QmlParser/g
+s/qdeclarative/qml/g
+s/QDECLARATIVE/QML/g
+s/QDeclarative/Qml/g

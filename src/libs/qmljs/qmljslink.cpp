@@ -1,6 +1,7 @@
 #include "qmljslink.h"
 
 #include "parser/qmljsast_p.h"
+#include "parser/qmldirparser_p.h"
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
 #include "qmljsscopebuilder.h"
@@ -291,10 +292,27 @@ void Link::importNonFile(Interpreter::ObjectValue *typeEnv, Document::Ptr doc, A
             if (!dir.exists("qmldir"))
                 continue;
 
+            QFile qmldirFile(dir.filePath("qmldir"));
+            qmldirFile.open(QFile::ReadOnly);
+            QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
+            QmlDirParser qmldirParser;
+            qmldirParser.setSource(qmldirData);
+            qmldirParser.parse();
 
-            // ### Should read qmldir file and import accordingly.
-            foreach (Document::Ptr otherDoc, _documentByPath.values(dir.path())) {
-                namespaceObject->setProperty(componentName(otherDoc->fileName()), otherDoc->bind()->rootObjectValue());
+            QSet<QString> importedTypes;
+            foreach (const QmlDirParser::Component &component, qmldirParser.components()) {
+                if (importedTypes.contains(component.typeName))
+                    continue;
+
+                if (component.majorVersion > majorVersion
+                    || (component.majorVersion == majorVersion
+                        && component.minorVersion > minorVersion))
+                    continue;
+
+                importedTypes.insert(component.typeName);
+                if (Document::Ptr importedDoc = _snapshot.document(dir.filePath(component.fileName))) {
+                    namespaceObject->setProperty(component.typeName, importedDoc->bind()->rootObjectValue());
+                }
             }
 
             break;
