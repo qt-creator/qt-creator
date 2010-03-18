@@ -1690,7 +1690,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_movetype = MoveExclusive;
         setAnchor();
         bool pastEnd = count() >= rightDist() - 1;
-        moveRight(qMax(0, qMin(count(), rightDist() - (m_submode==NoSubMode))));
+        moveRight(qMax(0, qMin(count(), rightDist() - (m_submode == NoSubMode))));
         setTargetColumn();
         if (pastEnd && isVisualMode()) {
             m_visualTargetColumn = -1;
@@ -1832,13 +1832,13 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         enterVisualMode(VisualBlockMode);
     } else if (key == 'w') { // tested
         // Special case: "cw" and "cW" work the same as "ce" and "cE" if the
-        // cursor is on a non-blank - except if the cursor is on the last character of a word:
-        // only the current word will be changed
+        // cursor is on a non-blank - except if the cursor is on the last
+        // character of a word: only the current word will be changed
         if (m_submode == ChangeSubMode) {
             moveToWordBoundary(false, true, true);
             m_movetype = MoveInclusive;
         } else {
-            moveToNextWord(false, m_submode==DeleteSubMode);
+            moveToNextWord(false, m_submode == DeleteSubMode);
             m_movetype = MoveExclusive;
         }
         finishMovement("%1w", count());
@@ -1847,7 +1847,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
             moveToWordBoundary(true, true, true);
             m_movetype = MoveInclusive;
         } else {
-            moveToNextWord(true, m_submode==DeleteSubMode);
+            moveToNextWord(true, m_submode == DeleteSubMode);
             m_movetype = MoveExclusive;
         }
         finishMovement("%1W", count());
