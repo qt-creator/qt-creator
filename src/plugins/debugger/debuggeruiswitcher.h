@@ -6,6 +6,7 @@
 #include <QtCore/QObject>
 
 QT_FORWARD_DECLARE_CLASS(QDockWidget);
+#include <QtCore/QMultiHash>
 
 namespace Core {
     class ActionContainer;
@@ -16,7 +17,9 @@ namespace Core {
 
 namespace Utils {
 class FancyMainWindow;
+    class SavedAction;
 }
+
 
 namespace Debugger {
 struct DebuggerUISwitcherPrivate;
@@ -42,9 +45,11 @@ public:
     void setToolbar(const QString &langName, QWidget *widget);
 
     // menu actions are registered with this function
-    void addMenuAction(Core::Command *command,
-                            const QString &group = QString());
+    void addMenuAction(Core::Command *command, const QString &langName,
+                       const QString &group = QString());
 
+    // Changes the active language UI to the one specified by langName.
+    // Does nothing if automatic switching is toggled off from settings.
     void setActiveLanguage(const QString &langName);
     int activeLanguageId() const;
 
@@ -84,6 +89,8 @@ private:
     QWidget *createMainWindow(Core::BaseMode *mode);
 
     DebuggerUISwitcherPrivate *d;
+    QMultiHash< int, Core::Command *> m_menuCommands;
+    Utils::SavedAction *m_changeLanguageAction;
 };
 
 }

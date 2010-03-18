@@ -466,10 +466,6 @@ void DebuggerManager::init()
     connect(this, SIGNAL(emitShowOutput(int, QString)),
             d->m_outputWindow, SLOT(showOutput(int, QString)), Qt::QueuedConnection);
 
-    // UI Switcher
-    connect(DebuggerUISwitcher::instance(), SIGNAL(languageChanged(QString)),
-            this, SLOT(languageChanged(QString)));
-
     // Tooltip
     //QTreeView *tooltipView = qobject_cast<QTreeView *>(d->m_tooltipWindow);
     //tooltipView->setModel(d->m_watchHandler->model(TooltipsWatch));
@@ -1927,14 +1923,6 @@ void DebuggerManager::fontSettingsChanged(const TextEditor::FontSettings &settin
     changeFontSize(d->m_stackWindow, size);
     changeFontSize(d->m_sourceFilesWindow, size);
     changeFontSize(d->m_threadsWindow, size);
-}
-
-// only update necessary menu items on language change
-void DebuggerManager::languageChanged(const QString &debuggerLanguage)
-{
-    const bool debuggerIsCPP = (debuggerLanguage == Constants::LANG_CPP);
-    d->m_actions.reverseDirectionAction->setEnabled(debuggerIsCPP);
-    theDebuggerAction(OperateByInstruction)->setEnabled(debuggerIsCPP);
 }
 
 //////////////////////////////////////////////////////////////////////

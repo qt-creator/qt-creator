@@ -119,6 +119,7 @@ private slots:
     void attachCmdLine();
 
     void enableReverseDebuggingTriggered(const QVariant &value);
+    void languageChanged(const QString &debuggerLanguage);
 
 private:
     void readSettings();

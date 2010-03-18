@@ -2,7 +2,12 @@
 #include "debuggermainwindow.h"
 
 #include <debugger/debuggerconstants.h>
+#include <utils/savedaction.h>
 #include <utils/styledbar.h>
+
+#include <debugger/debuggerconstants.h>
+#include <debugger/debuggeractions.h>
+
 #include <coreplugin/modemanager.h>
 #include <coreplugin/basemode.h>
 #include <coreplugin/uniqueidmanager.h>
@@ -115,11 +120,13 @@ DebuggerUISwitcher::~DebuggerUISwitcher()
 void DebuggerUISwitcher::addMenuAction(Core::Command *command, const QString &group)
 {
     d->m_debugMenu->addAction(command, group);
+    m_menuCommands.insert(m_languages.indexOf(langName), command);
 }
 
 void DebuggerUISwitcher::setActiveLanguage(const QString &langName)
 {
-    changeDebuggerUI(langName);
+    if (theDebuggerAction(SwitchLanguageAutomatically)->isChecked())
+        changeDebuggerUI(langName);
 }
 
 int DebuggerUISwitcher::activeLanguageId() const
@@ -263,6 +270,14 @@ void DebuggerUISwitcher::changeDebuggerUI(const QString &langName)
             }
         }
         d->m_languageMenu->menu()->setTitle(tr("Language") + " (" + langName + ")");
+        QHashIterator<int, Core::Command *> iter(m_menuCommands);
+        while (iter.hasNext()) {
+            iter.next();
+            bool active = (iter.key() == langId);
+            iter.value()->action()->setVisible(active);
+        }
+
+
         emit languageChanged(langName);
     }
 

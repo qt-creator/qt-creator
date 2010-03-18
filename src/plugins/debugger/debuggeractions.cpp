@@ -442,6 +442,14 @@ DebuggerSettings *DebuggerSettings::instance()
     item->setDefaultValue(20);
     instance->insertItem(GdbWatchdogTimeout, item);
 
+    // Language switching
+    item = new Utils::SavedAction(instance);
+    item->setSettingsKey(debugModeGroup, QLatin1String("ChangeLanguageAutomatically"));
+    item->setText(tr("Change debugger language automatically"));
+    item->setToolTip(tr("Changes the debugger language according to the currently opened file."));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    instance->insertItem(SwitchLanguageAutomatically, item);
 
     return instance;
 }

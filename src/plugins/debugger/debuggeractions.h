@@ -136,7 +136,10 @@ enum DebuggerActionCode
     SelectedPluginBreakpointsPattern,
     UsePreciseBreakpoints,
     BreakOnThrow,
-    BreakOnCatch
+    BreakOnCatch,
+
+    // UI/Language switching
+    SwitchLanguageAutomatically
 };
 
 // singleton access
