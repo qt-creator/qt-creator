@@ -175,7 +175,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event);
 
-    void mousePressEvent(QMouseEvent *)
+    void mouseReleaseEvent(QMouseEvent *)
     {
         if (m_collapsed) {
             m_collapsed = false;
