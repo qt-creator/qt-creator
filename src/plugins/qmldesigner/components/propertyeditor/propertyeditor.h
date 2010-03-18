@@ -81,7 +81,7 @@ public:
     void nodeAboutToBeRemoved(const ModelNode &removedNode);
 
     void propertiesAdded(const NodeState &state, const QList<NodeProperty>& propertyList);
-    void propertiesAboutToBeRemoved(const NodeState &state, const QList<NodeProperty>& propertyList);
+    void propertiesRemoved(const QList<AbstractProperty>& propertyList);
     void propertyValuesChanged(const NodeState &state, const QList<NodeProperty>& propertyList);
 
     void modelAttached(Model *model);
@@ -90,10 +90,6 @@ public:
 
     ModelState modelState() const;
 
-
-
-
-    void propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList);
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange);
     void bindingPropertiesChanged(const QList<BindingProperty>& propertyList, PropertyChangeFlags propertyChange);
 

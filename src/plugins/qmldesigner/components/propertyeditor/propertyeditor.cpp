@@ -699,9 +699,9 @@ void PropertyEditor::modelAboutToBeDetached(Model *model)
 }
 
 
-void PropertyEditor::propertiesAboutToBeRemoved(const QList<AbstractProperty>& propertyList)
+void PropertyEditor::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
-    QmlModelView::propertiesAboutToBeRemoved(propertyList);
+    QmlModelView::propertiesRemoved(propertyList);
 
     if (!m_selectedNode.isValid())
         return;
