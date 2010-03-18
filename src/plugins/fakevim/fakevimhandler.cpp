@@ -591,8 +591,9 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
 
     if (key == Key_Escape || (mods == Qt::ControlModifier && key == Key_BracketLeft)) {
         // Not sure this feels good. People often hit Esc several times
-        //return !isNoVisualMode() || m_mode != CommandMode;
-        return !m_passing;
+        if (isNoVisualMode() && m_mode == CommandMode)
+            return false;
+        return true;
     }
 
     // We are interested in overriding  most Ctrl key combinations
@@ -1924,7 +1925,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         removeSelectedText();
     } else if (key == Key_BracketLeft || key == Key_BracketRight) {
 
-    } else if (key == Key_Escape || key == 379 /* ^[ */) {
+    } else if (key == Key_Escape) {
         if (isVisualMode()) {
             leaveVisualMode();
         } else if (m_submode != NoSubMode) {
@@ -2126,7 +2127,7 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
 {
     Q_UNUSED(text)
 
-    if (key == Key_Escape || key == 379 /* ^[ */ || key == control('c')) {
+    if (key == Key_Escape || key == control('c')) {
         m_commandBuffer.clear();
         enterCommandMode();
         updateMiniBuffer();
