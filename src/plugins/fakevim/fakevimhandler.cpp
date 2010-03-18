@@ -1487,7 +1487,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_submode = ChangeSubMode;
     } else if ((key == 'c' || key == 'C' || key == 's' || key == 'R')
           && (isVisualCharMode() || isVisualLineMode())) {
-        if((key == 'c'|| key == 's') && isVisualCharMode()) {
+        if ((key == 'c'|| key == 's') && isVisualCharMode()) {
             leaveVisualMode();
             m_rangemode = RangeCharMode;
         } else {
@@ -1788,7 +1788,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
         m_mvcount.clear();
         enterInsertMode();
     } else if (key == 'S') {
-        if(!isVisualMode()) {
+        if (!isVisualMode()) {
             const int line = cursorLineInDocument() + 1;
             setAnchor(firstPositionInLine(line));
             setPosition(lastPositionInLine(line + count() - 1));
