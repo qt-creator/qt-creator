@@ -968,7 +968,8 @@ void QtVersion::updateVersionInfo() const
              "QT_INSTALL_PLUGINS",
              "QT_INSTALL_BINS",
              "QT_INSTALL_DOCS",
-             "QT_INSTALL_PREFIX"
+             "QT_INSTALL_PREFIX",
+             "QMAKEFEATURES"
         };
         QStringList args;
         for (uint i = 0; i < sizeof variables / sizeof variables[0]; ++i)
