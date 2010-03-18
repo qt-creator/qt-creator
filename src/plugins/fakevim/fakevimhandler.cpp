@@ -1932,7 +1932,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(int key, int unmodified,
 
     } else if (key == control(Key_BracketRight)) {
         handleCommand("tag");
-    } else if (key == Key_Escape) {
+    } else if (key == Key_Escape || key == control(Key_BracketLeft)) {
         if (isVisualMode()) {
             leaveVisualMode();
         } else if (m_submode != NoSubMode) {
@@ -2134,7 +2134,7 @@ EventResult FakeVimHandler::Private::handleMiniBufferModes(int key, int unmodifi
 {
     Q_UNUSED(text)
 
-    if (key == Key_Escape || key == control('c')) {
+    if (key == Key_Escape || key == control('c') || key == control(Key_BracketLeft)) {
         m_commandBuffer.clear();
         enterCommandMode();
         updateMiniBuffer();
