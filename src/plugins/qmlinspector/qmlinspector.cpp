@@ -26,19 +26,20 @@
 ** contact the sales department at http://qt.nokia.com/contact.
 **
 **************************************************************************/
+
 #include "qmlinspectorconstants.h"
 #include "qmlinspector.h"
-#include "debugger/debuggermainwindow.h"
 #include "inspectoroutputwidget.h"
 #include "inspectorcontext.h"
 
-#include <debugger/debuggeruiswitcher.h>
-
-#include "components/objectpropertiesview.h"
 #include "components/objecttree.h"
 #include "components/watchtable.h"
 #include "components/canvasframerate.h"
 #include "components/expressionquerywidget.h"
+#include "components/objectpropertiesview.h"
+
+#include <debugger/debuggermainwindow.h>
+#include <debugger/debuggeruiswitcher.h>
 
 #include <utils/styledbar.h>
 #include <utils/fancymainwindow.h>

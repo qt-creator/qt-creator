@@ -51,10 +51,10 @@ class QDeclarativeDebugObjectReference;
 class ObjectTree;
 class WatchTableModel;
 class WatchTableView;
-class ObjectPropertiesView;
 class CanvasFrameRate;
 QT_END_NAMESPACE
 
+class ObjectPropertiesView;
 class ExpressionQueryWidget;
 
 namespace Core {
