@@ -3218,10 +3218,15 @@
     \list
        \o  An N900 device with updates installed.
        \o  MADDE is a cross-platform Maemo development
-           tool. For more information about MADDE pertaining to its
-           installation, configuration, and deployment on the device refer to
+           tool.
+
+           For more information about MADDE pertaining to its
+           installation, configuration, and deployment on the device, see
           \l{http://wiki.maemo.org/MADDE}{Introdution to MADDE}.
-       \o  In order to setup the device IP address, you need to install
+
+       \o  An IP address for the device.
+
+           In order to setup the device IP address, you need to install
            PC Connectivity or implement it using CLI. More information about PC
            Connectivity can be found
           \l{http://pc-connectivity.garage.maemo.org/2nd_edition/node3.html#SECTION00032300000000000000}
@@ -3248,16 +3253,30 @@
 
     \section1 Setting Up the N900
 
-     If you use the device's USB network functionality and plan to connect your
-     development PC to the N900 via a common WLAN network, you can ignore the
-     USB-specific parts in the following sections.
+    You can connect your device to your workstation using either an USB or a
+    WLAN connection.
 
-     \section2 Installing the MADDE Developer Package
+    For the device, you need to use a tool called Mad Developer to create the
+    device-side end point for USB and WLAN connections. It provides no
+    diagnostics functions but is essential for creating connections between the
+    device and your workstation.
 
-     To install the MADDE Developer package on your device:
+    For the workstation, you need to set up a network port that detects the
+    Maemo device as a network device
+
+    \note If you use the device's USB network functionality and plan to
+    connect your development PC to the N900 via a common WLAN network, you can
+    ignore the USB-specific parts in the following sections.
+
+    \section2 Installing the Mad Developer Package
+
+    To install Mad Developer on your device, you need to add an application
+    catalogue (repository) to the list of catalogues your device checks for
+    installable software, and install the actual Mad Developer software
+    package using root privileges. This is done according to the following
+    steps:
      \list 1
-         \o Open the application manager and select
-            \gui{Application catalogues} > \gui New.
+         \o Start the application manager
 
             Enter the data as displayed in the screenshot below.
 
@@ -3266,9 +3285,16 @@
 
             \image qtcreator-app-manager-extras-devel-screenshot.png
 
-         \o Click \gui Save and close the application manager.
-         \o Start xterm and create root: sudo gainroot.
-         \o Install \gui{apt-get install mad-developer}.
+         \o Select \gui{Download} > \gui{Development} > \gui{mad-developer}.
+
+            The screenshots below shows the procees of selecting the
+            \gui{mad-developer}:
+
+            \image qt-creator-app_manager_screenshot1.png
+            \image qt-creator-app_manager_screenshot2.png
+
+
+         \o Install the Mad Developer software package.
          \o Start the Mad Developer application.
      \endlist
 
@@ -3276,19 +3302,21 @@
          change the driver loaded for instantiating the connection.
          For this click \gui{Manage USB} and select \gui{Load g_ether}.
 
-    Click \gui Edit in the usb0 row and confirm with \gui Configure.
+    Follow the steps mentioned below to set up the USB settings:
+    \list 1
+       \o Click \gui Edit in the usb0 row and confirm with \gui Configure.
 
-    By default, you do not need to make changes. The usb0 row displays the IP
-    address 192.168.2.15.
+          \note By default, you do not need to make changes. The usb0 row
+          displays the IP address 192.168.2.15.
 
-    Select \gui{Developer Password} to generate a password for a freshly
-    created user called "developer". The password stays valid for as long the
-    password generation dialog is open.
+       \o Select \gui{Developer Password} to generate a password for a freshly
+          created user called "developer". The password stays valid for as long
+          the password generation dialog is open.
 
-    Refer to the screenshot below as an example.
+          Refer to the screenshot below as an example.
 
-    \image qtcreator-mad-developer-screenshot.png
-
+          \image qtcreator-mad-developer-screenshot.png
+    \endlist
 
     \section2 Establishing the USB Connection
 
@@ -3303,13 +3331,30 @@
 
     \section2 Linux
 
+    The device uses the IP address 192.168.2.15 with the subnet 255.255.255.0
+    for its USB connection by default, so you can create the network interface
+    with a different address inside the same subnet too.
+
+    \note If you have changed the IP address of the device when configuring
+    Mad Developer, you need to reflect those changes in your workstation's USB
+    network settings as well.
+
     Run the following command in a shell as root user:
                   \c{ifconfig usb0 192.168.2.14 up}
 
     \section2 Windows
 
-    Perform the same steps via the Network configuration tools available with
-    the operating system.
+    When you connect the device to your Windows PC, Windows tries to install a
+    driver for the Linux USB Ethernet connection. In the
+    \gui{Found New Hardware Wizard}, select \gui{No, not this time} in the
+    first dialog and \gui{Install the software automatically} in the second
+    dialog.
+
+    Open the Network Connections window. The just installed Linux USB Ethernet
+    connection is now displayed as a new Local Area Connection.
+
+    Perform the same steps through the Network configuration tools available
+    with the operating system.
 
     Change the IP to be set statically and enter the following values:
     \list
