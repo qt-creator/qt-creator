@@ -53,7 +53,6 @@
 #include "CoreTypes.h"
 #include "Symbols.h"
 #include "Names.h"
-#include "Array.h"
 #include "TypeMatcher.h"
 #include <map>
 #include <set>

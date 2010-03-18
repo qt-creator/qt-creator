@@ -53,6 +53,7 @@
 #include "ASTfwd.h"
 #include "Token.h"
 #include "TranslationUnit.h"
+#include "MemoryPool.h"
 #include <map>
 
 namespace CPlusPlus {
@@ -274,7 +275,6 @@ public:
 
     int peekAtQtContextKeyword() const;
 
-private:
     bool switchTemplateArguments(bool templateArguments);
     bool blockErrors(bool block);
 
@@ -303,6 +303,7 @@ private:
     };
 
     TemplateArgumentListEntry *templateArgumentListEntry(unsigned tokenIndex);
+    void clearTemplateArgumentList() { _templateArgumentList.clear(); }
 
 private:
     TranslationUnit *_translationUnit;
@@ -316,6 +317,7 @@ private:
     bool _inObjCImplementationContext: 1;
     int _expressionDepth;
 
+    MemoryPool _tempPool;
     std::map<unsigned, TemplateArgumentListEntry> _templateArgumentList;
 
     class Rewind;

@@ -53,8 +53,7 @@
 #include "Symbol.h"
 #include "Type.h"
 #include "FullySpecifiedType.h"
-#include "Array.h"
-
+#include <vector>
 
 namespace CPlusPlus {
 
@@ -511,7 +510,7 @@ protected:
 private:
     Key _key;
     TemplateParameters *_templateParameters;
-    Array<BaseClass *> _baseClasses;
+    std::vector<BaseClass *> _baseClasses;
 };
 
 class CPLUSPLUS_EXPORT ObjCBaseClass: public Symbol
@@ -593,7 +592,7 @@ public:
     virtual ~ObjCProtocol();
 
     unsigned protocolCount() const
-    { return _protocols.count(); }
+    { return _protocols.size(); }
 
     ObjCBaseProtocol *protocolAt(unsigned index) const
     { return _protocols.at(index); }
@@ -625,7 +624,7 @@ protected:
     virtual bool matchType0(const Type *otherType, TypeMatcher *matcher) const;
 
 private:
-    Array<ObjCBaseProtocol *> _protocols;
+    std::vector<ObjCBaseProtocol *> _protocols;
 };
 
 class CPLUSPLUS_EXPORT ObjCForwardClassDeclaration: public Symbol, public Type
@@ -677,7 +676,7 @@ public:
     { _baseClass = baseClass; }
 
     unsigned protocolCount() const
-    { return _protocols.count(); }
+    { return _protocols.size(); }
 
     ObjCBaseProtocol *protocolAt(unsigned index) const
     { return _protocols.at(index); }
@@ -712,7 +711,7 @@ private:
     bool _isInterface;
     const Name *_categoryName;
     ObjCBaseClass * _baseClass;
-    Array<ObjCBaseProtocol *> _protocols;
+    std::vector<ObjCBaseProtocol *> _protocols;
 };
 
 class CPLUSPLUS_EXPORT ObjCMethod: public ScopedSymbol, public Type

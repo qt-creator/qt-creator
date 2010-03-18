@@ -38,13 +38,12 @@ namespace CPlusPlus {
 class CPLUSPLUS_EXPORT ASTPatternBuilder
 {
     MemoryPool pool;
-    MemoryPool::State state;
 
 public:
-    ASTPatternBuilder(): state(pool.state()) {}
+    ASTPatternBuilder() {}
     ~ASTPatternBuilder() {}
 
-    void reset() { pool.rewind(state); }
+    void reset() { pool.reset(); }
 
     SimpleSpecifierAST *SimpleSpecifier()
     {

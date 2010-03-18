@@ -190,30 +190,6 @@ inline bool isRightAssociative(int tokenKind)
     return true; \
 }
 
-class Parser::Rewind
-{
-    Parser *_parser;
-    MemoryPool::State _state;
-
-public:
-    inline Rewind(Parser *parser)
-        : _parser(parser) {}
-
-    inline void operator()(unsigned tokenIndex)
-    { rewind(tokenIndex); }
-
-    inline void mark()
-    { _state = _parser->_pool->state(); }
-
-    inline void rewind(unsigned tokenIndex)
-    {
-        _parser->rewind(tokenIndex);
-
-        if (_state.isValid())
-            _parser->_pool->rewind(_state);
-    }
-};
-
 Parser::Parser(TranslationUnit *unit)
     : _translationUnit(unit),
       _control(_translationUnit->control()),
@@ -2476,8 +2452,8 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
 
     ExpressionAST *expression = 0;
     MemoryPool *oldPool = _pool;
-    MemoryPool tmp;
-    _pool = &tmp;
+    _pool = &_tempPool;
+    RecursiveMemoryPool rec(&_tempPool);
     if (parseExpression(expression)) {
         ExpressionStatementAST *ast = new (oldPool) ExpressionStatementAST;
         ast->expression = expression->clone(oldPool);

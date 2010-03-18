@@ -74,6 +74,8 @@
 #include <ASTVisitor.h>
 #include <Lexer.h>
 #include <Token.h>
+#include <Parser.h>
+#include <Control.h>
 
 #include <cplusplus/LookupContext.h>
 
@@ -261,18 +263,49 @@ public:
         if (_workingCopy.contains(doc->fileName()))
             mode = Document::FullCheck;
 
-        doc->parse();
-        doc->check(mode);
+        if (doc->isParsed() && mode == Document::FastCheck) {
+            TranslationUnit *unit = doc->translationUnit();
+            MemoryPool *pool = unit->memoryPool();
 
-        if (mode == Document::FullCheck) {
-            // run the binding pass
-            NamespaceBindingPtr ns = bind(doc, _snapshot);
+            Parser parser(unit);
+            Semantic semantic(unit);
 
-            // check for undefined symbols.
-            CheckUndefinedSymbols checkUndefinedSymbols(doc);
-            checkUndefinedSymbols.setGlobalNamespaceBinding(ns);
+            Namespace *globalNamespace = doc->control()->newNamespace(0);
+            doc->setGlobalNamespace(globalNamespace);
 
-            checkUndefinedSymbols(doc->translationUnit()->ast()); // ### FIXME
+            Scope *globals = globalNamespace->members();
+
+            while (parser.LA()) {
+                unsigned start_declaration = parser.cursor();
+                DeclarationAST *declaration = 0;
+
+                if (parser.parseDeclaration(declaration)) {
+                    semantic.check(declaration, globals);
+
+                } else {
+                    doc->translationUnit()->error(start_declaration, "expected a declaration");
+                    parser.rewind(start_declaration + 1);
+                    parser.skipUntilDeclaration();
+                }
+
+                parser.clearTemplateArgumentList();
+                pool->reset();
+            }
+
+        } else {
+            doc->parse();
+            doc->check(mode);
+
+            if (mode == Document::FullCheck) {
+                // run the binding pass
+                NamespaceBindingPtr ns = bind(doc, _snapshot);
+
+                // check for undefined symbols.
+                CheckUndefinedSymbols checkUndefinedSymbols(doc);
+                checkUndefinedSymbols.setGlobalNamespaceBinding(ns);
+
+                checkUndefinedSymbols(doc->translationUnit()->ast()); // ### FIXME
+            }
         }
 
         doc->releaseTranslationUnit();

@@ -962,12 +962,11 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
             << "class CPLUSPLUS_EXPORT ASTPatternBuilder" << endl
             << "{" << endl
             << "    MemoryPool pool;" << endl
-            << "    MemoryPool::State state;" << endl
             << endl
             << "public:" << endl
-            << "    ASTPatternBuilder(): state(pool.state()) {}" << endl
+            << "    ASTPatternBuilder() {}" << endl
             << endl
-            << "    void reset() { pool.rewind(state); };" << endl
+            << "    void reset() { pool.reset(); };" << endl
             << endl;
 
     Control *control = AST_h_document->control();
