@@ -180,6 +180,7 @@ public:
         : QPlainTextEdit(parent)
     {
         setMaximumBlockCount(100000);
+        setFrameStyle(QFrame::NoFrame);
         m_clearContentsAction = new QAction(this);
         m_clearContentsAction->setText(tr("Clear Contents"));
         m_clearContentsAction->setEnabled(true);
