@@ -45,7 +45,6 @@
 #include <QDeclarativeEngine>
 #include <QSet>
 #include <private/qdeclarativedom_p.h>
-#include <typeinfo>
 
 using namespace QmlJS;
 using namespace QmlJS::AST;
