@@ -39,7 +39,7 @@ Item {
     property var flickable
 
     function reset() {
-	handle.y = 0
+        handle.y = 0
     }
 
     // internal
@@ -60,16 +60,16 @@ Item {
     }
 
     function updateHandle() {
-	handle.updateFlickable = false
+        handle.updateFlickable = false
 
-	if (flickable)
-	    handle.y = scrollHeight * Math.min(
-		flickable.contentY / (flickable.contentHeight - flickable.height),
-                1)
-	else
-	    handle.y = 0
+        if (flickable)
+            handle.y = scrollHeight * Math.min(
+                    flickable.contentY / (flickable.contentHeight - flickable.height),
+        1)
+            else
+                handle.y = 0
 
-	handle.updateFlickable = true
+        handle.updateFlickable = true
     }
 
     onHeightChanged: updateHandle()
@@ -103,38 +103,38 @@ Item {
         anchors.left: parent.left
         anchors.leftMargin: 1
         anchors.right: parent.right
-//        anchors.rightMargin: 1
-	height: Math.max(width, bar.height * Math.min(1, flickable.height / flickable.contentHeight))
+        //        anchors.rightMargin: 1
+        height: Math.max(width, bar.height * Math.min(1, flickable.height / flickable.contentHeight))
 
-	property bool updateFlickable: true
+        property bool updateFlickable: true
 
-	onYChanged: {
-	    if (updateFlickable)
-		flickable.contentY = Math.max(0, flickable.contentHeight * y / bar.height)
-	}
-
-        Rectangle {
-            width: parent.height - 1
-            height: parent.width
-            y: 1 - height
-
-            rotation: 90
-            transformOrigin: Item.BottomLeft
-
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: style.scrollbarGradientStartColor }
-                GradientStop { position: 1.0; color: style.scrollbarGradientEndColor }
+        onYChanged: {
+            if (updateFlickable)
+                flickable.contentY = Math.max(0, flickable.contentHeight * y / bar.height)
             }
-        }
 
-        MouseArea {
-            anchors.fill: parent
-            drag.target: parent
-            drag.axis: "YAxis"
-            drag.minimumY: 0
-            drag.maximumY: scrollHeight
-        }
-    }
+                Rectangle {
+                    width: parent.height - 1
+                    height: parent.width
+                    y: 1 - height
+
+                    rotation: 90
+                    transformOrigin: Item.BottomLeft
+
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: style.scrollbarGradientStartColor }
+                        GradientStop { position: 1.0; color: style.scrollbarGradientEndColor }
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    drag.target: parent
+                    drag.axis: "YAxis"
+                    drag.minimumY: 0
+                    drag.maximumY: scrollHeight
+                }
+            }
 
     MouseArea {
         anchors.left: parent.left
